@@ -1,20 +1,14 @@
-Message-ID: <472B817D.3030400@redhat.com>
-Date: Fri, 02 Nov 2007 15:58:53 -0400
+Message-ID: <472B8146.2060301@redhat.com>
+Date: Fri, 02 Nov 2007 15:57:58 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
 CC: SE Linux <selinux@tycho.nsa.gov>
 Subject: Patch to allow semanage to set boolean values and translate booleans
  via policy.xml
-Content-Type: multipart/mixed;
- boundary="------------020104060702060708020001"
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
-
-This is a multi-part message in MIME format.
---------------020104060702060708020001
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
@@ -35,199 +29,14 @@ Also added translations of booleans to command line.
 > allow_nfsd_anon_write          -> off   Allow nfs servers to modify public files used for public file transfer services.
 > nfs_export_all_rw              -> off   Allow nfs to be exported read/write.
 > nfs_export_all_ro              -> on    Allow nfs to be exported read only
-
-
-This time with the patch.  :^)
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFHK4F9rlYvE4MpobMRAr9eAJwNWFoe0+i7P2exSWAZRKb6ZNzUEgCgsymy
-IRTVHeA8aa8boNYY9MTi/lA=
-=UWlf
+iD8DBQFHK4FGrlYvE4MpobMRAuCvAJ0e8yxBp8vXHBAVgOBhF4uINPKHsQCfQ7pU
+q9Oau5klonoR9aUMYQw3A7k=
+=DKZN
 -----END PGP SIGNATURE-----
-
---------------020104060702060708020001
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude --exclude=sepolgen-1.0.10 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/semanage policycoreutils-2.0.31/semanage/semanage
---- nsapolicycoreutils/semanage/semanage	2007-10-05 13:09:53.000000000 -0400
-+++ policycoreutils-2.0.31/semanage/semanage	2007-11-02 15:50:54.000000000 -0400
-@@ -1,5 +1,5 @@
- #! /usr/bin/python -E
--# Copyright (C) 2005 Red Hat 
-+# Copyright (C) 2005, 2006, 2007 Red Hat 
- # see file 'COPYING' for use and warranty information
- #
- # semanage is a tool for managing SELinux configuration files
-@@ -115,7 +115,7 @@
- 		valid_option["translation"] = []
- 		valid_option["translation"] += valid_everyone + [ '-T', '--trans' ] 
- 		valid_option["boolean"] = []
--		valid_option["boolean"] += valid_everyone 
-+		valid_option["boolean"] += valid_everyone + [ '--on', "--off", "-1", "-0" ] 
- 		return valid_option
- 
- 	#
-@@ -135,7 +135,7 @@
- 		seuser = ""
- 		prefix = ""
- 		heading=1
--
-+                value=0
- 		add = 0
- 		modify = 0
- 		delete = 0
-@@ -154,7 +154,7 @@
- 		args = sys.argv[2:]
- 
- 		gopts, cmds = getopt.getopt(args,
--					    'adf:lhmnp:s:CDR:L:r:t:T:P:S:',
-+					    '01adf:lhmnp:s:CDR:L:r:t:T:P:S:',
- 					    ['add',
- 					     'delete',
- 					     'deleteall',
-@@ -164,6 +164,8 @@
- 					     'modify',
- 					     'noheading',
- 					     'localist',
-+                                             'off', 
-+                                             'on', 
- 					     'proto=',
- 					     'seuser=',
- 					     'store=',
-@@ -242,6 +244,11 @@
- 			if o == "-T" or o == "--trans":
- 				setrans = a
- 
-+                        if o == "--on" or o == "-1":
-+                               value = 1
-+                        if o == "-off" or o == "-0":
-+                               value = 0
-+
- 		if object == "login":
- 			OBJECT = seobject.loginRecords(store)
- 
-diff --exclude-from=exclude --exclude=sepolgen-1.0.10 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-2.0.31/semanage/seobject.py
---- nsapolicycoreutils/semanage/seobject.py	2007-10-07 21:46:43.000000000 -0400
-+++ policycoreutils-2.0.31/semanage/seobject.py	2007-11-02 15:51:27.000000000 -0400
-@@ -1,5 +1,5 @@
- #! /usr/bin/python -E
--# Copyright (C) 2005 Red Hat 
-+# Copyright (C) 2005, 2006, 2007 Red Hat 
- # see file 'COPYING' for use and warranty information
- #
- # semanage is a tool for managing SELinux configuration files
-@@ -1095,7 +1092,13 @@
- 
-                 return con
-                
-+        def validate(self, target):
-+               if target == "" or target.find("\n") >= 0:
-+                      raise ValueError(_("Invalid file specification"))
-+                      
- 	def add(self, target, type, ftype = "", serange = "", seuser = "system_u"):
-+                self.validate(target)
-+
- 		if is_mls_enabled == 1:
-                        serange = untranslate(serange)
- 			
-@@ -1154,6 +1157,7 @@
- 	def modify(self, target, setype, ftype, serange, seuser):
- 		if serange == "" and setype == "" and seuser == "":
- 			raise ValueError(_("Requires setype, serange or seuser"))
-+                self.validate(target)
- 
- 		(rc,k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype])
- 		if rc < 0:
-@@ -1303,9 +1307,35 @@
- 			else:
- 				print "%-50s %-18s <<None>>" % (fcon[0], fcon[1])
- 				
-+import sys, os
-+import re
-+import xml.etree.ElementTree
-+
- class booleanRecords(semanageRecords):
-+
- 	def __init__(self, store = ""):
- 		semanageRecords.__init__(self, store)
-+                self.dict={}
-+
-+                tree=xml.etree.ElementTree.parse("/usr/share/selinux/devel/policy.xml")
-+                for l in  tree.findall("layer"):
-+                       for m in  l.findall("module"):
-+                              for b in  m.findall("tunable"):
-+                                     desc = b.find("desc").find("p").text.strip("\n")
-+                                     desc = re.sub("\n", " ", desc)
-+                                     self.dict[b.get('name')] = (m.get("name"), b.get('dftval'), desc)
-+                              for b in  m.findall("bool"):
-+                                     desc = b.find("desc").find("p").text.strip("\n")
-+                                     desc = re.sub("\n", " ", desc)
-+                                     self.dict[b.get('name')] = (m.get("name"), b.get('dftval'), desc)
-+                for i in  tree.findall("bool"):
-+                       desc = i.find("desc").find("p").text.strip("\n")
-+                       desc = re.sub("\n", " ", desc)
-+                       self.dict[i.get('name')] = ("Global", i.get('dftval'), desc)
-+                for i in  tree.findall("tunable"):
-+                       desc = i.find("desc").find("p").text.strip("\n")
-+                       desc = re.sub("\n", " ", desc)
-+                       self.dict[i.get('name')] = ("Global", i.get('dftval'), desc)
- 
- 	def modify(self, name, value = ""):
- 		if value == "":
-@@ -1328,11 +1358,14 @@
- 		if value != "":
- 			nvalue = int(value)
- 			semanage_bool_set_value(b, nvalue)
-+                else:
-+                       raise ValueError(_("You must specify a value"))
- 
- 		rc = semanage_begin_transaction(self.sh)
- 		if rc < 0:
- 			raise ValueError(_("Could not start semanage transaction"))
- 
-+                rc = semanage_bool_set_active(self.sh, k, b)
- 		rc = semanage_bool_modify_local(self.sh, k, b)
- 		if rc < 0:
- 			raise ValueError(_("Could not modify boolean %s") % name)
-@@ -1416,11 +1449,19 @@
- 
- 		return ddict
- 			
-+        def get_desc(self, boolean):
-+               if boolean in self.dict:
-+                      return _(self.dict[boolean][2])
-+               else:
-+                      return boolean
-+
- 	def list(self, heading = 1, locallist = 0):
-+                on_off = (_("off"),_("on")) 
- 		if heading:
--			print "%-50s %7s %7s %7s\n" % (_("SELinux boolean"), _("value"), _("pending"),  _("active") )
-+			print "%-40s %s\n" % (_("SELinux boolean"), _("Description"))
- 		ddict = self.get_all(locallist)
- 		keys = ddict.keys()
- 		for k in keys:
- 			if ddict[k]:
--				print "%-50s %7d %7d %7d " % (k, ddict[k][0],ddict[k][1], ddict[k][2])
-+				print "%-30s -> %-5s %s" %  (k, on_off[ddict[k][2]], self.get_desc(k))
-+
-
---------------020104060702060708020001
-Content-Type: application/octet-stream;
- name="diff.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="diff.sig"
-
-iD8DBQBHK4F9rlYvE4MpobMRAiq8AKDky3lbeyghsx1j0zP3dtu0M7h56ACePyX9Fw9ONPOI
-9jOBq5NpkdHL9EU=
---------------020104060702060708020001--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
