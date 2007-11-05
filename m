@@ -1,37 +1,54 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA5MXgX6008522
-	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 17:33:42 -0500
-Received: from dmzmta102.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA5MXeZr002429
-	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 22:33:41 GMT
-Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
-	by dmzmta102.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id lA5MVmVQ011580
-	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 17:31:48 -0500
-Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
-	by usdmta003.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id lA5MWd1G012329
-	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 17:32:40 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA5MtUMY010094
+	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 17:55:30 -0500
+Received: from atlrel9.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA5MtTZr008339
+	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 22:55:29 GMT
+Received: from smtp1.fc.hp.com (smtp1.fc.hp.com [15.15.136.127])
+	by atlrel9.hp.com (Postfix) with ESMTP id 85CC7343BD
+	for <selinux@tycho.nsa.gov>; Mon,  5 Nov 2007 17:55:17 -0500 (EST)
+Received: from ldl.fc.hp.com (ldl.fc.hp.com [15.11.146.30])
+	by smtp1.fc.hp.com (Postfix) with ESMTP id 41CCE1D372B
+	for <selinux@tycho.nsa.gov>; Mon,  5 Nov 2007 22:55:17 +0000 (UTC)
+Received: from localhost (ldl.fc.hp.com [127.0.0.1])
+	by ldl.fc.hp.com (Postfix) with ESMTP id 248AD134003
+	for <selinux@tycho.nsa.gov>; Mon,  5 Nov 2007 15:55:17 -0700 (MST)
+Received: from ldl.fc.hp.com ([127.0.0.1])
+	by localhost (ldl.fc.hp.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QplDw53n9Go6 for <selinux@tycho.nsa.gov>;
+	Mon,  5 Nov 2007 15:55:14 -0700 (MST)
+Received: from flek.americas.hpqcorp.net (unknown [16.116.100.49])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by ldl.fc.hp.com (Postfix) with ESMTP id A48FC134002
+	for <selinux@tycho.nsa.gov>; Mon,  5 Nov 2007 15:55:14 -0700 (MST)
+From: Paul Moore <paul.moore@hp.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH v5 2/8] SELinux: add secctx_to_secid() LSM hook
+Date: Mon, 5 Nov 2007 17:55:13 -0500
+References: <20071105213829.9361.58157.stgit@flek.americas.hpqcorp.net> <20071105214343.9361.67990.stgit@flek.americas.hpqcorp.net>
+In-Reply-To: <20071105214343.9361.67990.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Subject: permissions to create directories in the /tmp directory
-Date: Mon, 5 Nov 2007 14:33:37 -0800
-Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD02554E7E@blums0008.bluelnk.net>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: <selinux@tycho.nsa.gov>
+  charset="utf-8"
+Message-Id: <200711051755.13696.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is there an interface that gives permissions to create directories in
-the /tmp dir (allow ... tmp_t:dir create)?
+On Monday 05 November 2007 4:43:44 pm Paul Moore wrote:
+> +int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
+> +{
+> +	return security_ops->secctx_to_secid(char *secdata,
+> +					     u32 seclen,
+> +					     u32 *secid);
+> +}
 
-I couldn't find one. I found files_manage_generic_tmp_files in files.if,
-but this doesn't do it. It allows creating files but not directories of
-type tmp_t. I ended up adding an interface to files.if myself, but I
-figure that has to have come up already.
+Ooops.  Luckily I was still able to see well enough through the brown paper 
+bag to fix this ... Sorry about that.
 
-Thanks
-
-
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
