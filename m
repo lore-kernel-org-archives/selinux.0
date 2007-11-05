@@ -1,163 +1,110 @@
-Message-ID: <472F79D5.6020903@tycho.nsa.gov>
-Date: Mon, 05 Nov 2007 15:15:17 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA5LXSOl001748
+	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 16:33:28 -0500
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA5LXRU5017189
+	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 21:33:27 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id lA5LSA18012681
+	for <selinux@tycho.nsa.gov>; Mon, 5 Nov 2007 16:28:10 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id lA5LSAZ3012680
+	for selinux@tycho.nsa.gov; Mon, 5 Nov 2007 16:28:10 -0500
+Date: Mon, 5 Nov 2007 16:28:29 -0500 (EST)
+From: Dean Anderson <dean@av8.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH] libselinux: introduce enforcing mode override option
-References: <471F8F8D.3040606@tycho.nsa.gov> <1193935864.12018.107.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1193935864.12018.107.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+cc: selinux@tycho.nsa.gov, Steve Grubb <sgrubb@redhat.com>,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+Subject: Re: Decoder for log messages???
+In-Reply-To: <1193840770.3983.86.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Pine.LNX.4.44.0711051620330.20094-100000@citation2.av8.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Introduces an enforcing mode override option, so the object manager
-can bring up the AVC in permissive mode on an enforcing system, or
-vice versa.
+On Wed, 31 Oct 2007, Stephen Smalley wrote:
+> 
+> Not a full pathname, no.
+> 
+> We don't have enough information at the point where we do our permission
+> checks to reconstruct a pathname, 
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
+?? These checks are in open or exec. The full pathname should be 
+available.
 
- include/selinux/avc.h |   11 ++++++++++-
- src/avc.c             |   29 ++++++++++++++++++++---------
- src/avc_internal.c    |    7 +++++--
- src/avc_internal.h    |    1 +
- 4 files changed, 36 insertions(+), 12 deletions(-)
+> and such a pathname will always be process-local and not guaranteed to
+> be meaningful, stable, or the actual path by which the file was
+> accessed.  
 
+?? The filesystem is not process local, except perhaps /proc
 
-Index: libselinux/include/selinux/avc.h
-===================================================================
---- libselinux/include/selinux/avc.h	(revision 2671)
-+++ libselinux/include/selinux/avc.h	(working copy)
-@@ -157,6 +157,15 @@
- };
- 
- /*
-+ * Available options
-+ */
-+
-+/* no-op option, useful for unused slots in an array of options */
-+#define AVC_OPT_UNUSED		0
-+/* override kernel enforcing mode (boolean value) */
-+#define AVC_OPT_SETENFORCE	1
-+
-+/*
-  * AVC operations
-  */
- 
-@@ -188,7 +197,7 @@
-  *
-  * This function is identical to avc_init(), except the message prefix
-  * is set to "avc" and any callbacks desired should be specified via
-- * selinux_set_callback().  No options are currently supported.
-+ * selinux_set_callback().  Available options are listed above.
-  */
- int avc_open(struct selinux_opt *opts, unsigned nopts);
- 
-Index: libselinux/src/avc.c
-===================================================================
---- libselinux/src/avc.c	(revision 2671)
-+++ libselinux/src/avc.c	(working copy)
-@@ -157,10 +157,19 @@
- 	return rc;
- }
- 
--int avc_open(struct selinux_opt *opts __attribute__((unused)),
--	     unsigned nopts __attribute__((unused)))
-+int avc_open(struct selinux_opt *opts, unsigned nopts)
- {
--    return avc_init("avc", NULL, NULL, NULL, NULL);
-+	avc_setenforce = 0;
-+
-+	while (nopts--)
-+		switch(opts[nopts].type) {
-+		case AVC_OPT_SETENFORCE:
-+			avc_setenforce = 1;
-+			avc_enforcing = !!opts[nopts].value;
-+			break;
-+		}
-+
-+	return avc_init("avc", NULL, NULL, NULL, NULL);
- }
- 
- int avc_init(const char *prefix,
-@@ -213,13 +222,15 @@
- 		avc_node_freelist = new;
- 	}
- 
--	rc = security_getenforce();
--	if (rc < 0) {
--		avc_log("%s:  could not determine enforcing mode\n",
--			avc_prefix);
--		goto out;
-+	if (!avc_setenforce) {
-+		rc = security_getenforce();
-+		if (rc < 0) {
-+			avc_log("%s:  could not determine enforcing mode\n",
-+				avc_prefix);
-+			goto out;
-+		}
-+		avc_enforcing = rc;
- 	}
--	avc_enforcing = rc;
- 
- 	rc = avc_netlink_open(avc_using_threads);
- 	if (rc < 0) {
-Index: libselinux/src/avc_internal.h
-===================================================================
---- libselinux/src/avc_internal.h	(revision 2671)
-+++ libselinux/src/avc_internal.h	(working copy)
-@@ -74,6 +74,7 @@
- extern char avc_prefix[AVC_PREFIX_SIZE] hidden;
- extern int avc_running hidden;
- extern int avc_enforcing hidden;
-+extern int avc_setenforce hidden;
- 
- /* user-supplied callback interface for avc */
- static inline void *avc_malloc(size_t size)
-Index: libselinux/src/avc_internal.c
-===================================================================
---- libselinux/src/avc_internal.c	(revision 2671)
-+++ libselinux/src/avc_internal.c	(working copy)
-@@ -46,6 +46,7 @@
- char avc_prefix[AVC_PREFIX_SIZE] = "uavc";
- int avc_running = 0;
- int avc_enforcing = 1;
-+int avc_setenforce = 0;
- int avc_netlink_trouble = 0;
- 
- /* netlink socket code */
-@@ -151,6 +152,8 @@
- 		struct selnl_msg_setenforce *msg = NLMSG_DATA(nlh);
- 		avc_log("%s:  received setenforce notice (enforcing=%d)\n",
- 			avc_prefix, msg->val);
-+		if (avc_setenforce)
-+			break;
- 		avc_enforcing = msg->val;
- 		if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
- 			avc_log("%s:  cache reset returned %d (errno %d)\n",
-@@ -183,7 +186,7 @@
- int avc_netlink_check_nb(void)
- {
- 	int rc;
--	char buf[1024];
-+	char buf[1024] __attribute__ ((aligned));
- 
- 	while (1) {
- 		errno = 0;
-@@ -209,7 +212,7 @@
- void avc_netlink_loop(void)
- {
- 	int rc;
--	char buf[1024];
-+	char buf[1024] __attribute__ ((aligned));
- 
- 	while (1) {
- 		errno = 0;
+> The theory was that the audit subsystem would solve that problem for
+> us, and this was true for a period of time until it was "optimized" to
+> only collect that information if at least one syscall audit filter was
+> put into place.  So to get PATH records, you have to put at least a
+> dummy audit filter into place, ala:
+> 	/sbin/auditctl -a exit,always -S chroot 
+> or put the following at the end of /etc/audit/audit.rules to have it
+> take effect always when auditd is started: -a exit,always -S chroot
+
+You can't get out what you don't put in.
+
+		--Dean
+
+> > Can you decode it in 6 months with only a filesystem dump? Because by
+> > then one no longer has the file-to-inode-number association and has also
+> > lost the device mapper mappings.
+> > 
+> > 
+> > Comment: A log file entry may be reviewed long after the entry was made
+> > and after the system that made the entry was destroyed. The destruction
+> > of said system may be the reason for reviewing the logs. Since inode
+> > numbers change across filesystem restoration, the inode number isn't a
+> > permanent identifier. Device numbers and names are also dynamic.  So,
+> > once this filesystem is destroyed, the log information is useless.  
+> > This is a crack into selinux; the attacker merely has to tamper with a
+> > file, and anticipating the log entry, compensates by destroying the
+> > filesystem (after a backup).  The log entry is then useless.  The admin
+> > knows some file was tampered with, but not which file.  The admin
+> > probably has to use the backup because they can't dump months of work
+> > and they don't have time to examine each file in a filesystem.
+> > 
+> > 
+> > Comment: Putting a device basename and inode number in a log message
+> > does not uniquely identify the file.  Nor is this helpful.  However, if
+> > you think that full file names are too long to log (a questionable
+> > assumption, but I won't question it now), then one must still uniquely
+> > identify the file some other way.  That requires the FULL device path
+> > name, and the inode number. (but as above, that isn't permanent 
+> > identifier)
+> > 
+> > 
+> > Comment: This problem is in the same nature of problem that backup
+> > software often has; they also never seem to fully anticipate the
+> > situation of a failure of some sort and what needs to be recovered to
+> > make the backup system work well enough to perform a restore.  This
+> > makes those systems fragile, and tedious during a failure when such
+> > systems are needed most.  Likewise, SELinux was very fragile in this
+> > case, because it was impossible or tediously difficult to find the cause
+> > of the problem from the log entry.  But we have logs to keep track of
+> > history and to identify problems.  Security is generally not improved by
+> > obscurity. Obscure and ambiguous messages are harmful in every way
+> > possible. Forensic evidence is also harmed.  When there is a security
+> > problem, the problem needs to be made plain and permanently,
+> > unambiguously described.
+> 
+> We're not opposed to improving the information, but there are
+> constraints in terms of what information is available at the point of
+> the avc checks and what makes sense from the kernel's perspective.
+> 
+> 
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Av8 Internet   Prepared to pay a premium for better service?
+www.av8.net         faster, more reliable, better service
+617 344 9000   
+
 
 
 --
