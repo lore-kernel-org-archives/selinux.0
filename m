@@ -1,45 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA6DfCs0014322
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 08:41:12 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id lA6DfAsc005769
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 13:41:10 GMT
-Subject: Re: permissions to create directories in the /tmp directory
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD02554E7E@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD02554E7E@blums0008.bluelnk.net>
+Subject: Re: Decoder for log messages???
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Dean Anderson <dean@av8.com>
+Cc: selinux@tycho.nsa.gov, Steve Grubb <sgrubb@redhat.com>,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+In-Reply-To: <Pine.LNX.4.44.0711051620330.20094-100000@citation2.av8.net>
+References: <Pine.LNX.4.44.0711051620330.20094-100000@citation2.av8.net>
 Content-Type: text/plain
-Date: Tue, 06 Nov 2007 08:38:11 -0500
-Message-Id: <1194356291.4047.4.camel@gorn.columbia.tresys.com>
+Date: Tue, 06 Nov 2007 09:07:42 -0500
+Message-Id: <1194358062.28518.19.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-11-05 at 14:33 -0800, Clarkson, Mike R (US SSA) wrote:
-> Is there an interface that gives permissions to create directories in
-> the /tmp dir (allow ... tmp_t:dir create)?
+On Mon, 2007-11-05 at 16:28 -0500, Dean Anderson wrote:
+> On Wed, 31 Oct 2007, Stephen Smalley wrote:
+> > 
+> > Not a full pathname, no.
+> > 
+> > We don't have enough information at the point where we do our permission
+> > checks to reconstruct a pathname, 
 > 
-> I couldn't find one. I found files_manage_generic_tmp_files in files.if,
-> but this doesn't do it. It allows creating files but not directories of
-> type tmp_t. I ended up adding an interface to files.if myself, but I
-> figure that has to have come up already.
+> ?? These checks are in open or exec. The full pathname should be 
+> available.
 
-If its a confined process, this doesn't actually come up normally.
-Since /tmp is shared all over the place, we usually add a type for the
-domain's tmp file.  Then we use file_tmp_filetrans() so when the domain
-creates files in /tmp, it gets the right type.  So this results in
-something like this:
+Not where we do the check, no.  The audit system though can collect the
+component names as the lookup occurs, and emit the name at syscall exit.
 
-manage_dirs_pattern(sendmail_t, sendmail_tmp_t, sendmail_tmp_t)
-manage_files_pattern(sendmail_t, sendmail_tmp_t, sendmail_tmp_t)
-files_tmp_filetrans(sendmail_t, sendmail_tmp_t, { file dir })
+> > and such a pathname will always be process-local and not guaranteed to
+> > be meaningful, stable, or the actual path by which the file was
+> > accessed.  
+> 
+> ?? The filesystem is not process local, except perhaps /proc
+
+The view that a process has of the filesystem can be tailored on a
+per-process basis in Linux; a given pathname is only meaningful relative
+to a particular namespace.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
