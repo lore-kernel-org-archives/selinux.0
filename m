@@ -1,41 +1,178 @@
-Subject: Re: Decoder for log messages???
+Subject: Re: [PATCH] libselinux: introduce enforcing mode override option
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dean Anderson <dean@av8.com>
-Cc: selinux@tycho.nsa.gov, Steve Grubb <sgrubb@redhat.com>,
-        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
-In-Reply-To: <Pine.LNX.4.44.0711051620330.20094-100000@citation2.av8.net>
-References: <Pine.LNX.4.44.0711051620330.20094-100000@citation2.av8.net>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <472F79D5.6020903@tycho.nsa.gov>
+References: <471F8F8D.3040606@tycho.nsa.gov>
+	 <1193935864.12018.107.camel@moss-spartans.epoch.ncsc.mil>
+	 <472F79D5.6020903@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 06 Nov 2007 09:07:42 -0500
-Message-Id: <1194358062.28518.19.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 06 Nov 2007 12:10:13 -0500
+Message-Id: <1194369013.28518.63.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-11-05 at 16:28 -0500, Dean Anderson wrote:
-> On Wed, 31 Oct 2007, Stephen Smalley wrote:
-> > 
-> > Not a full pathname, no.
-> > 
-> > We don't have enough information at the point where we do our permission
-> > checks to reconstruct a pathname, 
+On Mon, 2007-11-05 at 15:15 -0500, Eamon Walsh wrote:
+> Introduces an enforcing mode override option, so the object manager
+> can bring up the AVC in permissive mode on an enforcing system, or
+> vice versa.
+
+I don't see a way for the object manager to change the enforcing status
+after avc_open().
+
+attribute aligned diffs can be a separate patch.
+
 > 
-> ?? These checks are in open or exec. The full pathname should be 
-> available.
-
-Not where we do the check, no.  The audit system though can collect the
-component names as the lookup occurs, and emit the name at syscall exit.
-
-> > and such a pathname will always be process-local and not guaranteed to
-> > be meaningful, stable, or the actual path by which the file was
-> > accessed.  
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> ---
 > 
-> ?? The filesystem is not process local, except perhaps /proc
-
-The view that a process has of the filesystem can be tailored on a
-per-process basis in Linux; a given pathname is only meaningful relative
-to a particular namespace.
-
+>  include/selinux/avc.h |   11 ++++++++++-
+>  src/avc.c             |   29 ++++++++++++++++++++---------
+>  src/avc_internal.c    |    7 +++++--
+>  src/avc_internal.h    |    1 +
+>  4 files changed, 36 insertions(+), 12 deletions(-)
+> 
+> 
+> Index: libselinux/include/selinux/avc.h
+> ===================================================================
+> --- libselinux/include/selinux/avc.h	(revision 2671)
+> +++ libselinux/include/selinux/avc.h	(working copy)
+> @@ -157,6 +157,15 @@
+>  };
+>  
+>  /*
+> + * Available options
+> + */
+> +
+> +/* no-op option, useful for unused slots in an array of options */
+> +#define AVC_OPT_UNUSED		0
+> +/* override kernel enforcing mode (boolean value) */
+> +#define AVC_OPT_SETENFORCE	1
+> +
+> +/*
+>   * AVC operations
+>   */
+>  
+> @@ -188,7 +197,7 @@
+>   *
+>   * This function is identical to avc_init(), except the message prefix
+>   * is set to "avc" and any callbacks desired should be specified via
+> - * selinux_set_callback().  No options are currently supported.
+> + * selinux_set_callback().  Available options are listed above.
+>   */
+>  int avc_open(struct selinux_opt *opts, unsigned nopts);
+>  
+> Index: libselinux/src/avc.c
+> ===================================================================
+> --- libselinux/src/avc.c	(revision 2671)
+> +++ libselinux/src/avc.c	(working copy)
+> @@ -157,10 +157,19 @@
+>  	return rc;
+>  }
+>  
+> -int avc_open(struct selinux_opt *opts __attribute__((unused)),
+> -	     unsigned nopts __attribute__((unused)))
+> +int avc_open(struct selinux_opt *opts, unsigned nopts)
+>  {
+> -    return avc_init("avc", NULL, NULL, NULL, NULL);
+> +	avc_setenforce = 0;
+> +
+> +	while (nopts--)
+> +		switch(opts[nopts].type) {
+> +		case AVC_OPT_SETENFORCE:
+> +			avc_setenforce = 1;
+> +			avc_enforcing = !!opts[nopts].value;
+> +			break;
+> +		}
+> +
+> +	return avc_init("avc", NULL, NULL, NULL, NULL);
+>  }
+>  
+>  int avc_init(const char *prefix,
+> @@ -213,13 +222,15 @@
+>  		avc_node_freelist = new;
+>  	}
+>  
+> -	rc = security_getenforce();
+> -	if (rc < 0) {
+> -		avc_log("%s:  could not determine enforcing mode\n",
+> -			avc_prefix);
+> -		goto out;
+> +	if (!avc_setenforce) {
+> +		rc = security_getenforce();
+> +		if (rc < 0) {
+> +			avc_log("%s:  could not determine enforcing mode\n",
+> +				avc_prefix);
+> +			goto out;
+> +		}
+> +		avc_enforcing = rc;
+>  	}
+> -	avc_enforcing = rc;
+>  
+>  	rc = avc_netlink_open(avc_using_threads);
+>  	if (rc < 0) {
+> Index: libselinux/src/avc_internal.h
+> ===================================================================
+> --- libselinux/src/avc_internal.h	(revision 2671)
+> +++ libselinux/src/avc_internal.h	(working copy)
+> @@ -74,6 +74,7 @@
+>  extern char avc_prefix[AVC_PREFIX_SIZE] hidden;
+>  extern int avc_running hidden;
+>  extern int avc_enforcing hidden;
+> +extern int avc_setenforce hidden;
+>  
+>  /* user-supplied callback interface for avc */
+>  static inline void *avc_malloc(size_t size)
+> Index: libselinux/src/avc_internal.c
+> ===================================================================
+> --- libselinux/src/avc_internal.c	(revision 2671)
+> +++ libselinux/src/avc_internal.c	(working copy)
+> @@ -46,6 +46,7 @@
+>  char avc_prefix[AVC_PREFIX_SIZE] = "uavc";
+>  int avc_running = 0;
+>  int avc_enforcing = 1;
+> +int avc_setenforce = 0;
+>  int avc_netlink_trouble = 0;
+>  
+>  /* netlink socket code */
+> @@ -151,6 +152,8 @@
+>  		struct selnl_msg_setenforce *msg = NLMSG_DATA(nlh);
+>  		avc_log("%s:  received setenforce notice (enforcing=%d)\n",
+>  			avc_prefix, msg->val);
+> +		if (avc_setenforce)
+> +			break;
+>  		avc_enforcing = msg->val;
+>  		if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
+>  			avc_log("%s:  cache reset returned %d (errno %d)\n",
+> @@ -183,7 +186,7 @@
+>  int avc_netlink_check_nb(void)
+>  {
+>  	int rc;
+> -	char buf[1024];
+> +	char buf[1024] __attribute__ ((aligned));
+>  
+>  	while (1) {
+>  		errno = 0;
+> @@ -209,7 +212,7 @@
+>  void avc_netlink_loop(void)
+>  {
+>  	int rc;
+> -	char buf[1024];
+> +	char buf[1024] __attribute__ ((aligned));
+>  
+>  	while (1) {
+>  		errno = 0;
+> 
+> -- 
+> Eamon Walsh <ewalsh@tycho.nsa.gov>
+> National Security Agency
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
