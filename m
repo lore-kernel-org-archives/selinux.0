@@ -1,145 +1,170 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA6IJhxi015045
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 13:19:43 -0500
-Received: from e36.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA6IJghJ003845
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 18:19:42 GMT
-Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
-	by e36.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id lA6IJduV007234
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 13:19:39 -0500
-Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
-	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.5) with ESMTP id lA6IJSiN036916
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 11:19:35 -0700
-Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
-	by d03av03.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id lA6IJSxk023093
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 11:19:28 -0700
-Subject: Re: security context for SPD entries of labeled IPsec
-From: Joy Latten <latten@austin.ibm.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: cpebenito@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <47303B32.1070001@ak.jp.nec.com>
-References: <472FE68D.4030404@ak.jp.nec.com>
-	 <47303B32.1070001@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Tue, 06 Nov 2007 12:14:34 -0600
-Message-Id: <1194372875.2477.605.camel@faith.austin.ibm.com>
-Mime-Version: 1.0
+Message-ID: <4730D9A6.6050306@manicmethod.com>
+Date: Tue, 06 Nov 2007 16:16:22 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: introduce enforcing mode override option
+References: <471F8F8D.3040606@tycho.nsa.gov> <1193935864.12018.107.camel@moss-spartans.epoch.ncsc.mil> <472F79D5.6020903@tycho.nsa.gov>
+In-Reply-To: <472F79D5.6020903@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi KaiGai,
+Eamon Walsh wrote:
+> Introduces an enforcing mode override option, so the object manager
+> can bring up the AVC in permissive mode on an enforcing system, or
+> vice versa.
+>
 
-On Tue, 2007-11-06 at 19:00 +0900, KaiGai Kohei wrote:
-> KaiGai Kohei wrote:
-> > We have to set up several SPD entries with a security context
-> > to apply labeled IPsec, like as:
-> > 
-> >   spdadd 192.168.1.10 192.168.1.20 any
-> >   -ctx 1 1 "system_u:object_r:unconfined_t:s0"
-> >   -P in ipsec esp/transport//require;
-> > 
-> > What is the most appropriate context to be specified?
-> > Or, is the security policy to be modified?
-> >
+This is probably more useful but we actually had something like this 
+with the userspace security server where you could run the USS in 
+permissive or enforcing independent of the kernel security server. 
+Ofcourse this would mean its still a global setting across all access 
+managers using the USS.
 
-I think you should be able to use default spd security 
-context, ipsec_spd_t.
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> ---
+>
+> include/selinux/avc.h |   11 ++++++++++-
+> src/avc.c             |   29 ++++++++++++++++++++---------
+> src/avc_internal.c    |    7 +++++--
+> src/avc_internal.h    |    1 +
+> 4 files changed, 36 insertions(+), 12 deletions(-)
+>
+>
+> Index: libselinux/include/selinux/avc.h
+> ===================================================================
+> --- libselinux/include/selinux/avc.h    (revision 2671)
+> +++ libselinux/include/selinux/avc.h    (working copy)
+> @@ -157,6 +157,15 @@
+> };
+>
+> /*
+> + * Available options
+> + */
+> +
+> +/* no-op option, useful for unused slots in an array of options */
+> +#define AVC_OPT_UNUSED        0
+> +/* override kernel enforcing mode (boolean value) */
+> +#define AVC_OPT_SETENFORCE    1
+> +
+> +/*
+>  * AVC operations
+>  */
+>
+> @@ -188,7 +197,7 @@
+>  *
+>  * This function is identical to avc_init(), except the message prefix
+>  * is set to "avc" and any callbacks desired should be specified via
+> - * selinux_set_callback().  No options are currently supported.
+> + * selinux_set_callback().  Available options are listed above.
+>  */
+> int avc_open(struct selinux_opt *opts, unsigned nopts);
+>
+> Index: libselinux/src/avc.c
+> ===================================================================
+> --- libselinux/src/avc.c    (revision 2671)
+> +++ libselinux/src/avc.c    (working copy)
+> @@ -157,10 +157,19 @@
+>     return rc;
+> }
+>
+> -int avc_open(struct selinux_opt *opts __attribute__((unused)),
+> -         unsigned nopts __attribute__((unused)))
+> +int avc_open(struct selinux_opt *opts, unsigned nopts)
+> {
+> -    return avc_init("avc", NULL, NULL, NULL, NULL);
+> +    avc_setenforce = 0;
+> +
+> +    while (nopts--)
+> +        switch(opts[nopts].type) {
+> +        case AVC_OPT_SETENFORCE:
+> +            avc_setenforce = 1;
+> +            avc_enforcing = !!opts[nopts].value;
+> +            break;
+> +        }
+> +
+> +    return avc_init("avc", NULL, NULL, NULL, NULL);
+> }
+>
+> int avc_init(const char *prefix,
+> @@ -213,13 +222,15 @@
+>         avc_node_freelist = new;
+>     }
+>
+> -    rc = security_getenforce();
+> -    if (rc < 0) {
+> -        avc_log("%s:  could not determine enforcing mode\n",
+> -            avc_prefix);
+> -        goto out;
+> +    if (!avc_setenforce) {
+> +        rc = security_getenforce();
+> +        if (rc < 0) {
+> +            avc_log("%s:  could not determine enforcing mode\n",
+> +                avc_prefix);
+> +            goto out;
+> +        }
+> +        avc_enforcing = rc;
+>     }
+> -    avc_enforcing = rc;
+>
+>     rc = avc_netlink_open(avc_using_threads);
+>     if (rc < 0) {
+> Index: libselinux/src/avc_internal.h
+> ===================================================================
+> --- libselinux/src/avc_internal.h    (revision 2671)
+> +++ libselinux/src/avc_internal.h    (working copy)
+> @@ -74,6 +74,7 @@
+> extern char avc_prefix[AVC_PREFIX_SIZE] hidden;
+> extern int avc_running hidden;
+> extern int avc_enforcing hidden;
+> +extern int avc_setenforce hidden;
+>
+> /* user-supplied callback interface for avc */
+> static inline void *avc_malloc(size_t size)
+> Index: libselinux/src/avc_internal.c
+> ===================================================================
+> --- libselinux/src/avc_internal.c    (revision 2671)
+> +++ libselinux/src/avc_internal.c    (working copy)
+> @@ -46,6 +46,7 @@
+> char avc_prefix[AVC_PREFIX_SIZE] = "uavc";
+> int avc_running = 0;
+> int avc_enforcing = 1;
+> +int avc_setenforce = 0;
+> int avc_netlink_trouble = 0;
+>
+> /* netlink socket code */
+> @@ -151,6 +152,8 @@
+>         struct selnl_msg_setenforce *msg = NLMSG_DATA(nlh);
+>         avc_log("%s:  received setenforce notice (enforcing=%d)\n",
+>             avc_prefix, msg->val);
+> +        if (avc_setenforce)
+> +            break;
+>         avc_enforcing = msg->val;
+>         if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
+>             avc_log("%s:  cache reset returned %d (errno %d)\n",
+> @@ -183,7 +186,7 @@
+> int avc_netlink_check_nb(void)
+> {
+>     int rc;
+> -    char buf[1024];
+> +    char buf[1024] __attribute__ ((aligned));
+>
+>     while (1) {
+>         errno = 0;
+> @@ -209,7 +212,7 @@
+> void avc_netlink_loop(void)
+> {
+>     int rc;
+> -    char buf[1024];
+> +    char buf[1024] __attribute__ ((aligned));
+>
+>     while (1) {
+>         errno = 0;
+>
 
-> > In the current reference policy, several domain have permissions
-> > of association class for 'self' or 'unlabeled_t'.
-> > However, it can cause a matter when 'unconfined_t' processes tries
-> > to connect 'postgresql_t' process running on another host via labeled
-> > IPsec, for instance.
-> > 
-> > We can add additional permissions to avoid the matter, as follows:
-> >   allow postgresql_t unconfined_t : association { ... };
-> > 
-> > But IMO it makes a bit confusable to apply process's domain as
-> > a type of SPD entries, like unconfined_t and so on.
-> > 
-> > I prefer the following description to separate subject and object.
-> >   allow postgresql_t postgresql_spd_t : association { ... };
-> >   allow unconfined_t postgresql_spd_t : association { ... };
-> 
-> In policy/modules/system/ipsec.te, ipsec_spd_t is defined as a default
-> type for IPSEC SPD entries, as follows:
-> 
->   # Default type for IPSEC SPD entries
->   type ipsec_spd_t;
->       :
->   allow racoon_t ipsec_spd_t:association setcontext;
->       :
->   allow setkey_t ipsec_spd_t:association setcontext;
->       :
-> 
-> However, setkey_t and racoon_t are the all which have any permission
-> on ipsec_spd_t.
-> Is it more preferable than applying a domain as a type of SPD entries?
-> 
-This permission allows only racoon and setkey to actually set the
-security context, ipsec_spd_t within SPD or SA entry. This controls 
-who can add or delete SPD and SA entries. Thus no other application is
-currently allowed to do this.
 
-We decided to include a default context for SPD entries. Sysadmins can
-add more, but additional policy is required for each context you set
-in SPD. Below will explain why.
-
-Labeled ipsec authorizes; who can create and delete SPD entries,
-whether or not flow can use SPD entry; and if so
-the SAs that can be generated by an SPD entry, and the SAs that
-can send and receive on a particular flow. 
-
-A better explanation is a quick step through process. 
-
-- Each traffic stream you want secured will have an SPD entry created by
-sysadm (setcontext). 
-
-- An app such as telnet results in a packet being generated. The flow
-(or you could say session's traffic stream) must be authorized to use
-the SPD entry (POLMATCH). Last I recall, flow's security context was
-that of socket. So far example, let's say flow's security context is
-telnet_t. Thus is telnet (telnet_t) authorized to use ipsec
-policy (ipsec_spd_t)  
- 
-- Once flow is authorized to use SPD entry, it looks for an SA. If 
-none, creates one. I believe SA's security context is that of socket
-which generated packet, thus it will be telnet_t.
-Check is made that authorizes whether the SA can send on the
-flow using the SPD entry (SENDTO). 
-
-
-Thus networking apps need to be able to POLMATCH with ipsec policy and
-resulting SAs need to be able to SENDTO on the flow. 
-
-I don't have current selinux policy source and I don't remember the
-names and details of files, etc... but I think everything in 
-"domain" is authorized to POLMATCH to ipsec_spd_t and everything 
-in "domain" is authorized to SENDTO and RECVFROM for ASSOCIATION.
-
-So, if you or a sysadm want to create another security context 
-for SPD entries, other than the default. You will also need selinux
-policy to:
-	- authorize racoon and setkey to set this new security context
-	within an ipsec policy or association (SETCONTEXT).      
-
-	- authorize who can POLMATCH with the new spd entry.
-
-	- authorize who can SENDTO and RECVFROM on the flow. 
-          ( I think there is an interface, ipsec_labeled, for an example
-            of latter two authorizations.)
-
-I am not sure what your requirements are... I don't have policy 
-source so not sure if unconfined_t is in "domain" are perhaps needs
-ipsec_labeled()... but I am thinking you should be able to use default
-SPD security context... 
-
-Sorry, if this email got really long, but once I started with an
-explanation I could not stop. I don't even know if this helps,
-so let me know how I can help.
-
-regards,
-Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
