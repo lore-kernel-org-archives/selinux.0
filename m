@@ -1,50 +1,169 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA6LLqhc001947
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 16:21:52 -0500
-Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA6LLoLv007353
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 21:21:51 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id D9B3C18B6C
-	for <selinux@tycho.nsa.gov>; Wed,  7 Nov 2007 08:21:45 +1100 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pB4Qmiuwhvbp for <selinux@tycho.nsa.gov>;
-	Wed,  7 Nov 2007 08:21:45 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 7361918B66
-	for <selinux@tycho.nsa.gov>; Wed,  7 Nov 2007 08:21:45 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id ED163215F6
-	for <selinux@tycho.nsa.gov>; Wed,  7 Nov 2007 08:21:43 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: removing default config entries
-Date: Wed, 7 Nov 2007 08:21:41 +1100
+Message-ID: <4730E1BD.9010405@tycho.nsa.gov>
+Date: Tue, 06 Nov 2007 16:50:53 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200711070821.43637.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: introduce enforcing mode override option
+References: <471F8F8D.3040606@tycho.nsa.gov>	 <1193935864.12018.107.camel@moss-spartans.epoch.ncsc.mil>	 <472F79D5.6020903@tycho.nsa.gov> <1194369013.28518.63.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1194369013.28518.63.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A comment was made on my previously mentioned Squid post about the apparent 
-impossibility of removing default port entries via semanage, and there is a 
-similar issue with removing default fcontext entries.
+ Smalley wrote:
+> On Mon, 2007-11-05 at 15:15 -0500, Eamon Walsh wrote:
+>   
+>> Introduces an enforcing mode override option, so the object manager
+>> can bring up the AVC in permissive mode on an enforcing system, or
+>> vice versa.
+>>     
+>
+> I don't see a way for the object manager to change the enforcing status
+> after avc_open().
+>   
 
-Are these fixed in a recent release of the libraries or planned to be fixed?  
-I noticed that the same issue was recently fixed in regard to roles with 
-login and user entries.
+I didn't think to include that.  Do we want it?  If so it can be added 
+later.
 
-Sorry I'm busy preparing for a presentation so I didn't have time to try the 
-latest code before posting.
+> attribute aligned diffs can be a separate patch.
+>
+>   
+
+I committed those two lines already.  Rebased patch below.
+
+Introduces an enforcing mode override option, so the object manager
+can bring up the AVC in permissive mode on an enforcing system, or
+vice versa.
+
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
+
+ include/selinux/avc.h |   11 ++++++++++-
+ src/avc.c             |   29 ++++++++++++++++++++---------
+ src/avc_internal.c    |    3 +++
+ src/avc_internal.h    |    1 +
+ 4 files changed, 34 insertions(+), 10 deletions(-)
+
+
+Index: include/selinux/avc.h
+===================================================================
+--- include/selinux/avc.h	(revision 2679)
++++ include/selinux/avc.h	(working copy)
+@@ -157,6 +157,15 @@
+ };
+ 
+ /*
++ * Available options
++ */
++
++/* no-op option, useful for unused slots in an array of options */
++#define AVC_OPT_UNUSED		0
++/* override kernel enforcing mode (boolean value) */
++#define AVC_OPT_SETENFORCE	1
++
++/*
+  * AVC operations
+  */
+ 
+@@ -188,7 +197,7 @@
+  *
+  * This function is identical to avc_init(), except the message prefix
+  * is set to "avc" and any callbacks desired should be specified via
+- * selinux_set_callback().  No options are currently supported.
++ * selinux_set_callback().  Available options are listed above.
+  */
+ int avc_open(struct selinux_opt *opts, unsigned nopts);
+ 
+Index: src/avc.c
+===================================================================
+--- src/avc.c	(revision 2679)
++++ src/avc.c	(working copy)
+@@ -157,10 +157,19 @@
+ 	return rc;
+ }
+ 
+-int avc_open(struct selinux_opt *opts __attribute__((unused)),
+-	     unsigned nopts __attribute__((unused)))
++int avc_open(struct selinux_opt *opts, unsigned nopts)
+ {
+-    return avc_init("avc", NULL, NULL, NULL, NULL);
++	avc_setenforce = 0;
++
++	while (nopts--)
++		switch(opts[nopts].type) {
++		case AVC_OPT_SETENFORCE:
++			avc_setenforce = 1;
++			avc_enforcing = !!opts[nopts].value;
++			break;
++		}
++
++	return avc_init("avc", NULL, NULL, NULL, NULL);
+ }
+ 
+ int avc_init(const char *prefix,
+@@ -213,13 +222,15 @@
+ 		avc_node_freelist = new;
+ 	}
+ 
+-	rc = security_getenforce();
+-	if (rc < 0) {
+-		avc_log("%s:  could not determine enforcing mode\n",
+-			avc_prefix);
+-		goto out;
++	if (!avc_setenforce) {
++		rc = security_getenforce();
++		if (rc < 0) {
++			avc_log("%s:  could not determine enforcing mode\n",
++				avc_prefix);
++			goto out;
++		}
++		avc_enforcing = rc;
+ 	}
+-	avc_enforcing = rc;
+ 
+ 	rc = avc_netlink_open(avc_using_threads);
+ 	if (rc < 0) {
+Index: src/avc_internal.c
+===================================================================
+--- src/avc_internal.c	(revision 2679)
++++ src/avc_internal.c	(working copy)
+@@ -46,6 +46,7 @@
+ char avc_prefix[AVC_PREFIX_SIZE] = "uavc";
+ int avc_running = 0;
+ int avc_enforcing = 1;
++int avc_setenforce = 0;
+ int avc_netlink_trouble = 0;
+ 
+ /* netlink socket code */
+@@ -151,6 +152,8 @@
+ 		struct selnl_msg_setenforce *msg = NLMSG_DATA(nlh);
+ 		avc_log("%s:  received setenforce notice (enforcing=%d)\n",
+ 			avc_prefix, msg->val);
++		if (avc_setenforce)
++			break;
+ 		avc_enforcing = msg->val;
+ 		if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
+ 			avc_log("%s:  cache reset returned %d (errno %d)\n",
+Index: src/avc_internal.h
+===================================================================
+--- src/avc_internal.h	(revision 2679)
++++ src/avc_internal.h	(working copy)
+@@ -74,6 +74,7 @@
+ extern char avc_prefix[AVC_PREFIX_SIZE] hidden;
+ extern int avc_running hidden;
+ extern int avc_enforcing hidden;
++extern int avc_setenforce hidden;
+ 
+ /* user-supplied callback interface for avc */
+ static inline void *avc_malloc(size_t size)
+
+
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
