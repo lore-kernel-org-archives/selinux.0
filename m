@@ -1,73 +1,65 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA8KBLPJ013949
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 15:11:22 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA8KBJvr029913
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 20:11:20 GMT
-Message-ID: <47336D33.4010606@redhat.com>
-Date: Thu, 08 Nov 2007 15:10:27 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA8Ksx6I018548
+	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 15:54:59 -0500
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA8KspMZ029628
+	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 20:54:51 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id lA8KnJu7012368
+	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 15:49:19 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id lA8KnJ5s012367
+	for selinux@tycho.nsa.gov; Thu, 8 Nov 2007 15:49:19 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA7NJhH1007461
+	for <selinux@tycho.nsa.gov>; Wed, 7 Nov 2007 18:19:43 -0500
+Received: from mx.meyering.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA7NJhPN002404
+	for <selinux@tycho.nsa.gov>; Wed, 7 Nov 2007 23:19:43 GMT
+From: Jim Meyering <jim@meyering.net>
+To: SE Linux <selinux@tycho.nsa.gov>
+Cc: bug-coreutils@gnu.org
+Subject: Re: should GNU install call matchpathcon by default?
+In-Reply-To: <87k5ou9trs.fsf@rho.meyering.net> (Jim Meyering's message of
+	"Wed, 07 Nov 2007 12:31:19 +0100")
+References: <87k5ou9trs.fsf@rho.meyering.net>
+Date: Wed, 07 Nov 2007 23:25:35 +0100
+Message-ID: <87fxzh7kww.fsf@rho.meyering.net>
 MIME-Version: 1.0
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>
-CC: selinux@tycho.nsa.gov
-Subject: Re: type class key
-References: <1194529933.3293.7.camel@vogon>
-In-Reply-To: <1194529933.3293.7.camel@vogon>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Jim Meyering <jim@meyering.net> wrote:
+> This morning I noticed a flagrant difference in the speed of
+> "make install" for the just-released gettext-0.17.  It took 12(!)
+> times longer on a rawhide system than on a usually-slower debian
+> unstable system. (3min vs. 15s)
 
-Stefan Schulze Frielinghaus wrote:
-> Every time I log into my system via ssh an audit is generated:
-> 
-> audit(1194529539.754:7803673): avc:  denied  { link } for  pid=9526
-> comm="sshd" scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023
-> tcontext=system_u:system_r:dovecot_t:s0 tclass=key
-> 
-> and after logout the following:
-> 
-> audit(1194529580.969:7803674): avc:  denied  { search } for  pid=9526
-> comm="sshd" scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023
-> tcontext=system_u:system_r:dovecot_t:s0 tclass=key
-> 
-> Quite frankly I even do not know what a type class "key" is. Can someone
-> explain to me what a type class "key" is? And maybe any suggestions why
-> ssh tries to access dovecot's key (which is an imap server).
-> 
-> cheers,
-> Stefan
-> 
-> PS: I'm running CentOS 5 with the latest updates and strict policy.
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-key is the SELinux mapping of the kernel keyring.  No app currently uses
-the kernel keyring, to the best of my knowledge.  And the pam
-configurations up to now are setup incorrectly.
+FYI,
 
-When any confined app runs it gets handed a keyring and does a search
-access on the app that created the key ring.
+Dan Walsh suggested to use
+matchpathcon_init_prefix (NULL, "/first_component_of_abs_dest/");
+to limit the number of regular expressions matchpathcon will have to
+compile.  That works very well, as long as you're not installing into
+/usr, in which case it's still better than nothing.  When installing
+into /tmp, the example above takes 21-22 seconds, rather than 180.
+Much better.  However, installing into /usr/tmp still required about 70
+seconds, so there's room for improvement.
 
-The avc's you are reporting above are very strange.  They look like
-dovecot created a keyring, probably though pam_keyinit.  And now sshd is
-trying to access it.  I think you are running in permissive mode and
-your context is messed up.
+I've implemented that, but haven't finished testing.
 
-When you login are you getting user_t or staff_t?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+For reference, the gettext installation process invokes
+  install -c -m ... src_file dst_file
+1278 times.
 
-iD8DBQFHM20yrlYvE4MpobMRAoY/AJ43FAim2WQEt1yrpHMsWMjKnpJoWQCfSemn
-ihtmBI+3TyCb09sQIX+ssnU=
-=/Ad8
------END PGP SIGNATURE-----
+Another suggestion:
+
+  - avoid using matchpathcon altogether when there's an existing
+      destination file: use its context, instead.
+
+I'm not convinced that this is necessary.
+Other opinions?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
