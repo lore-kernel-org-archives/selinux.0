@@ -1,363 +1,67 @@
-Subject: [patch] selinux:  add more validity checks on policy load
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-Content-Type: text/plain
-Date: Wed, 07 Nov 2007 10:08:00 -0500
-Message-Id: <1194448080.3956.28.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA7GUFCp029765
+	for <selinux@tycho.nsa.gov>; Wed, 7 Nov 2007 11:30:15 -0500
+Received: from tcsfw4.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA7GUCwW023753
+	for <selinux@tycho.nsa.gov>; Wed, 7 Nov 2007 16:30:13 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-2022-jp"
+Subject: RE: security context for SPD entries of labeled IPsec
+Date: Wed, 7 Nov 2007 11:07:32 -0500
+Message-ID: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>
+From: "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+To: "KaiGai Kohei" <kaigai@ak.jp.nec.com>
+Cc: <cpebenito@tresys.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add more validity checks at policy load time to reject malformed
-policies and prevent subsequent out-of-range indexing when in permissive
-mode.  Resolves the NULL pointer dereference reported in
-https://bugzilla.redhat.com/show_bug.cgi?id=357541.
+<snip>
+> > There are 2 aspects:
+> > 
+> > 1. IPsec policy matching discussed above:
+> >    allow domain-that-should-use-labeled-ipsec 
+> ipsec_spd_t:association { polmatch };
+> > 
+> > 2. Use of IPsec associations themselves:
+> > 
+> >    For sending:
+> >    allow 
+> domain-that-should-use-labeled-ipsec-to-label-its-packets 
+> self:association { sendto };
+> > 
+> >    For receiving:
+> >    allow domain-that-should-received-from-peer  peer-domain 
+> self:association { recvfrom };
+> 
+> When we consider the case unconfined_t process tries to 
+> communicate with a postgresql_t
+> process running on another host via labeled IPsec, the 
+> following policy will be needed.
+> 
+> 1.  allow unconfined_t ipsec_spd_t : association { polmatch };
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Also, allow postgresql_t ipsec_spd_t : association { polmatch };
+since the incoming packet labeled postgresql_t should be checked
+against IPsec policy (SPD) rule labeled with ipsec_spd_t.
 
----
+> 2s. allow unconfined_t self : association { sendto };
 
- security/selinux/ss/avtab.c       |   32 ++++++++++++++++--
- security/selinux/ss/avtab.h       |    5 +-
- security/selinux/ss/conditional.c |    3 +
- security/selinux/ss/mls.c         |   66 ++++++++++++++++++++------------------
- security/selinux/ss/mls.h         |    2 +
- security/selinux/ss/policydb.c    |   45 +++++++++++++++++++++++++
- security/selinux/ss/policydb.h    |    3 +
- 7 files changed, 118 insertions(+), 38 deletions(-)
+OK.
 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 7551af1..9e70a16 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -325,7 +325,7 @@ static uint16_t spec_order[] = {
- 	AVTAB_MEMBER
- };
- 
--int avtab_read_item(void *fp, u32 vers, struct avtab *a,
-+int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 	            int (*insertf)(struct avtab *a, struct avtab_key *k,
- 				   struct avtab_datum *d, void *p),
- 		    void *p)
-@@ -333,10 +333,11 @@ int avtab_read_item(void *fp, u32 vers, struct avtab *a,
- 	__le16 buf16[4];
- 	u16 enabled;
- 	__le32 buf32[7];
--	u32 items, items2, val;
-+	u32 items, items2, val, vers = pol->policyvers;
- 	struct avtab_key key;
- 	struct avtab_datum datum;
- 	int i, rc;
-+	unsigned set;
- 
- 	memset(&key, 0, sizeof(struct avtab_key));
- 	memset(&datum, 0, sizeof(struct avtab_datum));
-@@ -420,12 +421,35 @@ int avtab_read_item(void *fp, u32 vers, struct avtab *a,
- 	key.target_class = le16_to_cpu(buf16[items++]);
- 	key.specified = le16_to_cpu(buf16[items++]);
- 
-+	if (!policydb_type_isvalid(pol, key.source_type) ||
-+	    !policydb_type_isvalid(pol, key.target_type) ||
-+	    !policydb_class_isvalid(pol, key.target_class)) {
-+		printk(KERN_WARNING "security: avtab: invalid type or class\n");
-+		return -1;
-+	}
-+
-+	set = 0;
-+	for (i = 0; i < ARRAY_SIZE(spec_order); i++) {
-+		if (key.specified & spec_order[i])
-+			set++;
-+	}
-+	if (!set || set > 1) {
-+		printk(KERN_WARNING
-+			"security:  avtab:  more than one specifier\n");
-+		return -1;
-+	}
-+
- 	rc = next_entry(buf32, fp, sizeof(u32));
- 	if (rc < 0) {
- 		printk("security: avtab: truncated entry\n");
- 		return -1;
- 	}
- 	datum.data = le32_to_cpu(*buf32);
-+	if ((key.specified & AVTAB_TYPE) &&
-+	    !policydb_type_isvalid(pol, datum.data)) {
-+		printk(KERN_WARNING "security: avtab: invalid type\n");
-+		return -1;
-+	}
- 	return insertf(a, &key, &datum, p);
- }
- 
-@@ -435,7 +459,7 @@ static int avtab_insertf(struct avtab *a, struct avtab_key *k,
- 	return avtab_insert(a, k, d);
- }
- 
--int avtab_read(struct avtab *a, void *fp, u32 vers)
-+int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
- {
- 	int rc;
- 	__le32 buf[1];
-@@ -459,7 +483,7 @@ int avtab_read(struct avtab *a, void *fp, u32 vers)
- 		goto bad;
- 
- 	for (i = 0; i < nel; i++) {
--		rc = avtab_read_item(fp,vers, a, avtab_insertf, NULL);
-+		rc = avtab_read_item(a, fp, pol, avtab_insertf, NULL);
- 		if (rc) {
- 			if (rc == -ENOMEM)
- 				printk(KERN_ERR "security: avtab: out of memory\n");
-diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-index d8edf8c..8da6a84 100644
---- a/security/selinux/ss/avtab.h
-+++ b/security/selinux/ss/avtab.h
-@@ -64,12 +64,13 @@ struct avtab_datum *avtab_search(struct avtab *h, struct avtab_key *k);
- void avtab_destroy(struct avtab *h);
- void avtab_hash_eval(struct avtab *h, char *tag);
- 
--int avtab_read_item(void *fp, uint32_t vers, struct avtab *a,
-+struct policydb;
-+int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 		    int (*insert)(struct avtab *a, struct avtab_key *k,
- 				  struct avtab_datum *d, void *p),
- 		    void *p);
- 
--int avtab_read(struct avtab *a, void *fp, u32 vers);
-+int avtab_read(struct avtab *a, void *fp, struct policydb *pol);
- 
- struct avtab_node *avtab_insert_nonunique(struct avtab *h, struct avtab_key *key,
- 					  struct avtab_datum *datum);
-diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index 45b93a8..50ad85d 100644
---- a/security/selinux/ss/conditional.c
-+++ b/security/selinux/ss/conditional.c
-@@ -362,7 +362,8 @@ static int cond_read_av_list(struct policydb *p, void *fp, struct cond_av_list *
- 	data.head = NULL;
- 	data.tail = NULL;
- 	for (i = 0; i < len; i++) {
--		rc = avtab_read_item(fp, p->policyvers, &p->te_cond_avtab, cond_insertf, &data);
-+		rc = avtab_read_item(&p->te_cond_avtab, fp, p, cond_insertf,
-+				     &data);
- 		if (rc)
- 			return rc;
- 
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index 9a11dea..fb5d70a 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -157,49 +157,55 @@ void mls_sid_to_context(struct context *context,
- 	return;
- }
- 
-+int mls_level_isvalid(struct policydb *p, struct mls_level *l)
-+{
-+	struct level_datum *levdatum;
-+	struct ebitmap_node *node;
-+	int i;
-+
-+	if (!l->sens || l->sens > p->p_levels.nprim)
-+		return 0;
-+	levdatum = hashtab_search(p->p_levels.table,
-+				  p->p_sens_val_to_name[l->sens - 1]);
-+	if (!levdatum)
-+		return 0;
-+
-+	ebitmap_for_each_positive_bit(&l->cat, node, i) {
-+		if (i > p->p_cats.nprim)
-+			return 0;
-+		if (!ebitmap_get_bit(&levdatum->level->cat, i)) {
-+			/*
-+			 * Category may not be associated with
-+			 * sensitivity.
-+			 */
-+			return 0;
-+		}
-+	}
-+
-+	return 1;
-+}
-+
-+int mls_range_isvalid(struct policydb *p, struct mls_range *r)
-+{
-+	return (mls_level_isvalid(p, &r->level[0]) &&
-+		mls_level_isvalid(p, &r->level[1]) &&
-+		mls_level_dom(&r->level[1], &r->level[0]));
-+}
-+
- /*
-  * Return 1 if the MLS fields in the security context
-  * structure `c' are valid.  Return 0 otherwise.
-  */
- int mls_context_isvalid(struct policydb *p, struct context *c)
- {
--	struct level_datum *levdatum;
- 	struct user_datum *usrdatum;
--	struct ebitmap_node *node;
--	int i, l;
- 
- 	if (!selinux_mls_enabled)
- 		return 1;
- 
--	/*
--	 * MLS range validity checks: high must dominate low, low level must
--	 * be valid (category set <-> sensitivity check), and high level must
--	 * be valid (category set <-> sensitivity check)
--	 */
--	if (!mls_level_dom(&c->range.level[1], &c->range.level[0]))
--		/* High does not dominate low. */
-+	if (!mls_range_isvalid(p, &c->range))
- 		return 0;
- 
--	for (l = 0; l < 2; l++) {
--		if (!c->range.level[l].sens || c->range.level[l].sens > p->p_levels.nprim)
--			return 0;
--		levdatum = hashtab_search(p->p_levels.table,
--			p->p_sens_val_to_name[c->range.level[l].sens - 1]);
--		if (!levdatum)
--			return 0;
--
--		ebitmap_for_each_positive_bit(&c->range.level[l].cat, node, i) {
--			if (i > p->p_cats.nprim)
--				return 0;
--			if (!ebitmap_get_bit(&levdatum->level->cat, i))
--				/*
--				 * Category may not be associated with
--				 * sensitivity in low level.
--				 */
--				return 0;
--		}
--	}
--
- 	if (c->role == OBJECT_R_VAL)
- 		return 1;
- 
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 096d1b4..ab53663 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -27,6 +27,8 @@
- int mls_compute_context_len(struct context *context);
- void mls_sid_to_context(struct context *context, char **scontext);
- int mls_context_isvalid(struct policydb *p, struct context *c);
-+int mls_range_isvalid(struct policydb *p, struct mls_range *r);
-+int mls_level_isvalid(struct policydb *p, struct mls_level *l);
- 
- int mls_context_to_sid(char oldc,
- 	               char **scontext,
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 539828b..b582aae 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -713,6 +713,27 @@ out:
- 	return rc;
- }
- 
-+int policydb_class_isvalid(struct policydb *p, unsigned int class)
-+{
-+	if (!class || class > p->p_classes.nprim)
-+		return 0;
-+	return 1;
-+}
-+
-+int policydb_role_isvalid(struct policydb *p, unsigned int role)
-+{
-+	if (!role || role > p->p_roles.nprim)
-+		return 0;
-+	return 1;
-+}
-+
-+int policydb_type_isvalid(struct policydb *p, unsigned int type)
-+{
-+	if (!type || type > p->p_types.nprim)
-+		return 0;
-+	return 1;
-+}
-+
- /*
-  * Return 1 if the fields in the security context
-  * structure `c' are valid.  Return 0 otherwise.
-@@ -1260,6 +1281,7 @@ static int mls_read_level(struct mls_level *lp, void *fp)
- 		       "categories\n");
- 		goto bad;
- 	}
-+
- 	return 0;
- 
- bad:
-@@ -1563,7 +1585,7 @@ int policydb_read(struct policydb *p, void *fp)
- 		p->symtab[i].nprim = nprim;
- 	}
- 
--	rc = avtab_read(&p->te_avtab, fp, p->policyvers);
-+	rc = avtab_read(&p->te_avtab, fp, p);
- 	if (rc)
- 		goto bad;
- 
-@@ -1595,6 +1617,12 @@ int policydb_read(struct policydb *p, void *fp)
- 		tr->role = le32_to_cpu(buf[0]);
- 		tr->type = le32_to_cpu(buf[1]);
- 		tr->new_role = le32_to_cpu(buf[2]);
-+		if (!policydb_role_isvalid(p, tr->role) ||
-+		    !policydb_type_isvalid(p, tr->type) ||
-+		    !policydb_role_isvalid(p, tr->new_role)) {
-+			rc = -EINVAL;
-+			goto bad;
-+		}
- 		ltr = tr;
- 	}
- 
-@@ -1619,6 +1647,11 @@ int policydb_read(struct policydb *p, void *fp)
- 			goto bad;
- 		ra->role = le32_to_cpu(buf[0]);
- 		ra->new_role = le32_to_cpu(buf[1]);
-+		if (!policydb_role_isvalid(p, ra->role) ||
-+		    !policydb_role_isvalid(p, ra->new_role)) {
-+			rc = -EINVAL;
-+			goto bad;
-+		}
- 		lra = ra;
- 	}
- 
-@@ -1872,9 +1905,19 @@ int policydb_read(struct policydb *p, void *fp)
- 				rt->target_class = le32_to_cpu(buf[0]);
- 			} else
- 				rt->target_class = SECCLASS_PROCESS;
-+			if (!policydb_type_isvalid(p, rt->source_type) ||
-+			    !policydb_type_isvalid(p, rt->target_type) ||
-+			    !policydb_class_isvalid(p, rt->target_class)) {
-+				rc = -EINVAL;
-+				goto bad;
-+			}
- 			rc = mls_read_range_helper(&rt->target_range, fp);
- 			if (rc)
- 				goto bad;
-+			if (!mls_range_isvalid(p, &rt->target_range)) {
-+				printk(KERN_WARNING "security:  rangetrans:  invalid range\n");
-+				goto bad;
-+			}
- 			lrt = rt;
- 		}
- 	}
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 844d310..ed6fc68 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -251,6 +251,9 @@ struct policydb {
- extern void policydb_destroy(struct policydb *p);
- extern int policydb_load_isids(struct policydb *p, struct sidtab *s);
- extern int policydb_context_isvalid(struct policydb *p, struct context *c);
-+extern int policydb_class_isvalid(struct policydb *p, unsigned int class);
-+extern int policydb_type_isvalid(struct policydb *p, unsigned int type);
-+extern int policydb_role_isvalid(struct policydb *p, unsigned int role);
- extern int policydb_read(struct policydb *p, void *fp);
- 
- #define PERM_SYMTAB_SIZE 32
+> 2r. allow postgresql_t unconfined_t : association { recvfrom };
 
- 
--- 
-Stephen Smalley
-National Security Agency
+This should actually be:
 
+allow unconfined_t postgresql_t : association { recvfrom };
+
+since it would be the unconfined_t socket that would be receiving
+a packet using the postgresql_t association.
+
+> 
+> Is it correct?
+> 
+<snip>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
