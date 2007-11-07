@@ -1,168 +1,57 @@
+Message-ID: <47323856.6050501@manicmethod.com>
+Date: Wed, 07 Nov 2007 17:12:38 -0500
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [PATCH] Initial policy load from load_policy
-Date: Wed, 7 Nov 2007 17:10:27 -0500
-Message-ID: <C357A203.3267F%csellers@tresys.com>
-In-Reply-To: <1194470774.3956.188.camel@moss-spartans.epoch.ncsc.mil>
-From: "Chad Sellers" <csellers@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>, <ubuntu-hardened@lists.ubuntu.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, paul.moore@hp.com
+Subject: Re: [patch 2/2] Peersid capability support
+References: <20071107205047.102519666@manicmethod.com>	 <20071107205333.697495852@manicmethod.com> <1194469634.3956.174.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1194469634.3956.174.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 11/7/07 4:26 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+Stephen Smalley wrote:
+> On Wed, 2007-11-07 at 15:50 -0500, Joshua Brindle wrote:
+>   
+>> plain text document attachment (peersid_cap.patch)
+>> Peersid capability support, keys the peersid capability on the peer object class.
+>>     
+>
+> I'm uneasy about this approach, as it is similar to what we originally
+> tried for secmark - tying the compat_net setting to the presence of the
+> packet class in the policy, except there we were doing it at policy load
+> time.  As it turned out, we had policies that defined the packet class
+> well before we had usable rule sets for them, and even if we had covered
+> that angle, presence/absence of a class definition doesn't reflect
+> policy writer intent (e.g. does he want legacy network controls or
+> secmark irrespective of whether he is using a modern policy), so we went
+> back to manual setting of compat_net.
+>
+>   
 
-> On Wed, 2007-11-07 at 16:17 -0500, Chad Sellers wrote:
->> The below patch adds a -i option to load_policy to perform the initial
->> policy load. The inital policy load is currently done in systems using
->> sysvinit by init itself, which then re-exec's itself. Ubuntu uses
->> upstart instead of sysvinit. In talks with the Ubuntu folks, they'd
->> prefer to load policy from initramfs before upstart starts rather than
->> patching upstart.
->> 
->> Signed-off-by: Chad Sellers <csellers@tresys.com>
->> ---
->> 
->> load_policy.8 |   19 ++++++++++++++++++-
->> load_policy.c |   29 +++++++++++++++++++++++++----
->> 2 files changed, 43 insertions(+), 5 deletions(-)
->> 
->> Index: policycoreutils/load_policy/load_policy.c
->> ===================================================================
->> --- policycoreutils/load_policy/load_policy.c    (revision 2679)
->> +++ policycoreutils/load_policy/load_policy.c    (working copy)
->> @@ -19,13 +19,13 @@
->>  
->>  void usage(char *progname)
->>  {
->> -    fprintf(stderr, _("usage:  %s [-q]\n"), progname);
->> +    fprintf(stderr, _("usage:  %s [-qi]\n"), progname);
->>      exit(1);
->>  }
->>  
->>  int main(int argc, char **argv)
->>  {
->> -    int ret, opt, quiet = 0, nargs;
->> +    int ret, opt, quiet = 0, nargs, init=0, enforce=0;
->>  
->>  #ifdef USE_NLS
->>      setlocale(LC_ALL, "");
->> @@ -33,7 +33,7 @@
->>      textdomain(PACKAGE);
->>  #endif
->>  
->> -    while ((opt = getopt(argc, argv, "bq")) > 0) {
->> +    while ((opt = getopt(argc, argv, "bqi")) > 0) {
->>          switch (opt) {
->>          case 'b':
->>              fprintf(stderr, "%s:  Warning! The -b option is no longer
->> supported, booleans are always preserved across reloads.  Continuing...\n",
->> @@ -43,6 +43,9 @@
->>              quiet = 1;
->>              sepol_debug(0);
->>              break;
->> +        case 'i':
->> +            init = 1;
->> +            break;
->>          default:
->>              usage(argv[0]);
->>          }
->> @@ -62,7 +65,25 @@
->>              argv[0], argv[optind++]);
->>      }
->>  
->> -    ret = selinux_mkload_policy(1);
->> +    if (init) {
->> +        if (is_selinux_enabled() == 1) {
->> +            /* SELinux is already enabled, we should not do an initial
->> load again */
->> +            fprintf(stderr,
->> +                _("%s:  Policy is already loaded and initial load
->> requested\n"),
->> +                argv[0]);
->> +            exit(2);
->> +        }
->> +        ret = selinux_init_load_policy(&enforce);
->> +        if (ret != 0 ) {
->> +             if (enforce > 0) {
->> +                /* SELinux in enforcing mode but load_policy failed */
-> 
-> An error message here would be helpful, assuming that such error
-> messages are displayed at all on the console.
-> 
-I was planning to just display the error in the caller, as the caller will
-be the one to halt the system (not load_policy).
+With the unknown perms support can we basically require that defining a 
+class means using it? Unfortunately that means we have to defer adding 
+newer classes until the support is put in for the older ones.
 
-> How do you plan to handle an error in the caller?  System should be
-> halted in this case.
-> 
-I plan to check the return value in the caller and halt in this case. That's
-why I added a new return value (3). Basically, something like this:
+> What if the base.conf / policy.conf itself had an explicit declaration
+> of the capabilities to be enabled?  We can certainly do sanity checks
+> too (e.g. if they ask for this capability but haven't defined the
+> requisite class, that's a bug in their policy), but that would let
+> someone use the latest policy flask definitions but still select what
+> they want to enable/disable explicitly, and no unwitting enabling of
+> capabilities by side effect.
+>
+>   
 
-set +e
-chroot /root load_policy -i
-RET=$?
-if [ $RET -eq 3 ]; then echo "SELinux policy load failed and enforcing mode
-requested, halting now"; halt;
-elif [ $RET -ne 0 ]; then echo "SELinux policy load failed, continuing";
-fi
+I would also hate to add more base-only options as eventually I think 
+we'd like to get rid of  (at least I would) the base altogether and get 
+everything into modules, assuming we get the necessary infrastructure in 
+place like kernel class discovery.
 
->> +                exit(3);
->> +            }
->> +        }
->> +    }
->> +    else {
->> +        ret = selinux_mkload_policy(1);
->> +    }
->>      if (ret < 0) {
->>          fprintf(stderr, _("%s:  Can't load policy:  %s\n"),
->>              argv[0], strerror(errno));
->> Index: policycoreutils/load_policy/load_policy.8
->> ===================================================================
->> --- policycoreutils/load_policy/load_policy.8    (revision 2679)
->> +++ policycoreutils/load_policy/load_policy.8    (working copy)
->> @@ -4,7 +4,7 @@
->>  
->>  .SH SYNOPSIS
->>  .B load_policy
->> -[-q]
->> +[-qi]
->>  .br
->>  .SH DESCRIPTION
->>  .PP
->> @@ -17,7 +17,24 @@
->>  .TP
->>  .B \-q
->>  suppress warning messages.
->> +.TP
->> +.B \-i
->> +inital policy load. Only use this if this is the first time policy is
->> being loaded since boot (usually called from initramfs).
->>  
->> +.SH "EXIT STATUS"
->> +.TP
->> +.B 0
->> +Success
->> +.TP
->> +.B 1
->> +Invalid option
->> +.TP
->> +.B 2
->> +Policy load failed
->> +.TP
->> +.B 3
->> +Initial policy load failed and enforcing mode requested
->> +
->>  .SH SEE ALSO
->>  .B booleans
->>  (8),
->> 
->> 
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
+I'm not adverse to putting capabilities in the policy though, I just 
+don't know if thats the only place where it is appropriate to put them.
+
 
 
 
