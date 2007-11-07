@@ -1,80 +1,104 @@
-Message-Id: <20071107205333.697495852@manicmethod.com>
+Message-Id: <20071107205303.408158643@manicmethod.com>
 References: <20071107205047.102519666@manicmethod.com>
-Date: Wed, 07 Nov 2007 15:50:49 -0500
+Date: Wed, 07 Nov 2007 15:50:48 -0500
 From: "Joshua Brindle" <method@manicmethod.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, paul.moore@hp.com
-Subject: [patch 2/2] Peersid capability support
+Subject: [patch 1/2] Version 22/Policy capability support
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Peersid capability support, keys the peersid capability on the peer object class.
+Basic infrastructure for policy capability support
 
 ---
- libsepol/src/polcaps.c |   26 ++++++++++++++++++++++++++
- libsepol/src/polcaps.h |    8 ++++++++
- libsepol/src/write.c   |    3 +++
- 3 files changed, 37 insertions(+)
+ libsepol/include/sepol/policydb/policydb.h |    5 ++++-
+ libsepol/src/policydb.c                    |   15 +++++++++++++++
+ libsepol/src/write.c                       |    5 +++++
+ 3 files changed, 24 insertions(+), 1 deletion(-)
 
---- /dev/null
-+++ trunk/libsepol/src/polcaps.c
-@@ -0,0 +1,26 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <errno.h>
+--- trunk.orig/libsepol/include/sepol/policydb/policydb.h
++++ trunk/libsepol/include/sepol/policydb/policydb.h
+@@ -468,6 +468,8 @@ typedef struct policydb {
+ 
+ 	ebitmap_t *attr_type_map;	/* not saved in the binary policy */
+ 
++	ebitmap_t policycaps;
 +
-+#include <sepol/policydb/policydb.h>
-+#include "polcaps.h"
+ 	unsigned policyvers;
+ 
+ 	unsigned handle_unknown;
+@@ -584,10 +586,11 @@ extern int policydb_write(struct policyd
+ #define POLICYDB_VERSION_MLS		19
+ #define POLICYDB_VERSION_AVTAB		20
+ #define POLICYDB_VERSION_RANGETRANS	21
++#define POLICYDB_VERSION_POLCAP		22
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
+ 
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_BASE	   4
+--- trunk.orig/libsepol/src/policydb.c
++++ trunk/libsepol/src/policydb.c
+@@ -99,6 +99,12 @@ static struct policydb_compat_info polic
+ 	 .ocon_num = OCON_NODE6 + 1,
+ 	 },
+ 	{
++	 .type = POLICY_KERN,
++	 .version = POLICYDB_VERSION_POLCAP,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	 },
++	{
+ 	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+ 	 .sym_num = SYM_NUM,
+@@ -447,6 +453,8 @@ int policydb_init(policydb_t * p)
+ 
+ 	memset(p, 0, sizeof(policydb_t));
+ 
++	ebitmap_init(&p->policycaps);
 +
-+int sepol_setup_capabilities(policydb_t *pol)
-+{
+ 	for (i = 0; i < SYM_NUM; i++) {
+ 		p->sym_val_to_name[i] = NULL;
+ 		rc = symtab_init(&p->symtab[i], symtab_sizes[i]);
+@@ -971,6 +979,8 @@ void policydb_destroy(policydb_t * p)
+ 	if (!p)
+ 		return;
+ 
++	ebitmap_destroy(&p->policycaps);
 +
-+	if (!pol)
-+		return POLICYDB_ERROR;
+ 	symtabs_destroy(p->symtab);
+ 
+ 	for (i = 0; i < SYM_NUM; i++) {
+@@ -3097,6 +3107,11 @@ int policydb_read(policydb_t * p, struct
+ 		goto bad;
+ 	}
+ 
++	if (p->policy_type == POLICY_KERN && p->policyvers >= POLICYDB_VERSION_POLCAP) {
++		if (ebitmap_read(&p->policycaps, fp))
++			goto bad;
++	}	
 +
-+	/* Each capability should be keyed in some way, 
-+	 * such as the existance of an object class */
-+
-+	/* POLICYDB_CAPABILITY_NETPEER */
-+	if (hashtab_search(pol->symtab[SYM_CLASSES].table, "peer")) {
-+		if (ebitmap_set_bit(&pol->policycaps, 
-+				POLICY_CAPABILITY_NETPEER, 1))
+ 	if (p->policy_type == POLICY_MOD) {
+ 		/* Get the module name and version */
+ 		if ((rc = next_entry(buf, fp, sizeof(uint32_t))) < 0) {
+--- trunk.orig/libsepol/src/write.c
++++ trunk/libsepol/src/write.c
+@@ -1576,6 +1576,11 @@ int policydb_write(policydb_t * p, struc
+ 	if (items != items2)
+ 		return POLICYDB_ERROR;
+ 
++	if (p->policyvers >= POLICYDB_VERSION_POLCAP) {
++		if (ebitmap_write(&p->policycaps, fp) == -1)
 +			return POLICYDB_ERROR;
 +	}
 +
-+	return POLICYDB_SUCCESS;
-+
-+}
---- /dev/null
-+++ trunk/libsepol/src/polcaps.h
-@@ -0,0 +1,8 @@
-+#ifndef _SEPOL_INTERNAL_POLCAP_H_
-+#define _SEPOL_INTERNAL_POLCAP_H_
-+
-+extern int sepol_setup_capabilities(policydb_t *pol);
-+
-+#define POLICY_CAPABILITY_NETPEER 1
-+
-+#endif
---- trunk.orig/libsepol/src/write.c
-+++ trunk/libsepol/src/write.c
-@@ -44,6 +44,7 @@
- #include "debug.h"
- #include "private.h"
- #include "mls.h"
-+#include "polcaps.h"
- 
- struct policy_data {
- 	struct policy_file *fp;
-@@ -1577,6 +1578,8 @@ int policydb_write(policydb_t * p, struc
- 		return POLICYDB_ERROR;
- 
- 	if (p->policyvers >= POLICYDB_VERSION_POLCAP) {
-+		if (sepol_setup_capabilities(p))
-+			return POLICYDB_ERROR;
- 		if (ebitmap_write(&p->policycaps, fp) == -1)
- 			return POLICYDB_ERROR;
- 	}
+ 	if (p->policy_type == POLICY_MOD) {
+ 		/* Write module name and version */
+ 		len = strlen(p->name);
 
 -- 
 
