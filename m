@@ -1,141 +1,123 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA72kYuW026930
-	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 21:46:34 -0500
-Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA72kV1s012721
-	for <selinux@tycho.nsa.gov>; Wed, 7 Nov 2007 02:46:32 GMT
-Message-ID: <4731275E.6060606@ak.jp.nec.com>
-Date: Wed, 07 Nov 2007 11:47:58 +0900
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA74f79Q000983
+	for <selinux@tycho.nsa.gov>; Tue, 6 Nov 2007 23:41:07 -0500
+Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA74f5GC023006
+	for <selinux@tycho.nsa.gov>; Wed, 7 Nov 2007 04:41:06 GMT
+Message-ID: <47314239.8080402@ak.jp.nec.com>
+Date: Wed, 07 Nov 2007 13:42:33 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+To: Joy Latten <latten@austin.ibm.com>
 CC: cpebenito@tresys.com, selinux@tycho.nsa.gov
 Subject: Re: security context for SPD entries of labeled IPsec
-References: <D709A20F2164C84E8B7014B0301F5EF87C71DD@HAVOC.tcs-sec.com>
-In-Reply-To: <D709A20F2164C84E8B7014B0301F5EF87C71DD@HAVOC.tcs-sec.com>
+References: <472FE68D.4030404@ak.jp.nec.com>	 <47303B32.1070001@ak.jp.nec.com> <1194372875.2477.605.camel@faith.austin.ibm.com>
+In-Reply-To: <1194372875.2477.605.camel@faith.austin.ibm.com>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->> KaiGai Kohei wrote:
->>> We have to set up several SPD entries with a security context
->>> to apply labeled IPsec, like as:
->>>
->>>   spdadd 192.168.1.10 192.168.1.20 any
->>>   -ctx 1 1 "system_u:object_r:unconfined_t:s0"
->>>   -P in ipsec esp/transport//require;
->>>
->>> What is the most appropriate context to be specified?
-> 
-> First of all, you don't have one SPD rule for each domain. You
-> would typically have one SPD rule labeled with ipsec_spd_t,
-> for example and have all the domains that need to use that
-> SPD rule to perform labeled IPsec communication to have
-> association.polmatch access to ipsec_spd_t. So, the policy defines
-> one context ipsec_spd_t that you can use for all your SPD rules,
-> unless you need to distinguish between different SPD rules based
-> on the label, in which case you can have more than one specified
-> for the same host pair and have different domains polmatch'ing
-> to the appropriate rules so the corresponding IPSec policy is
-> enforced.
+Hello, Joy.
 
-Thanks, your explanation makes me clear to understand.
-Because I tried to read an intention of the author from the security
-policy, I got a confusion.
-
-> Joshua Brindle has an article including labeled-ipsec at:
-> http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux/
-
-I saw, it is a good summary.
-
->>> Or, is the security policy to be modified?
->>>
->>> In the current reference policy, several domain have permissions
->>> of association class for 'self' or 'unlabeled_t'.
->>> However, it can cause a matter when 'unconfined_t' processes tries
->>> to connect 'postgresql_t' process running on another host 
->> via labeled
->>> IPsec, for instance.
-> 
-> There are 2 aspects:
-> 
-> 1. IPsec policy matching discussed above:
->    allow domain-that-should-use-labeled-ipsec ipsec_spd_t:association { polmatch };
-> 
-> 2. Use of IPsec associations themselves:
-> 
->    For sending:
->    allow domain-that-should-use-labeled-ipsec-to-label-its-packets self:association { sendto };
-> 
->    For receiving:
->    allow domain-that-should-received-from-peer  peer-domain self:association { recvfrom };
-
-When we consider the case unconfined_t process tries to communicate with a postgresql_t
-process running on another host via labeled IPsec, the following policy will be needed.
-
-1.  allow unconfined_t ipsec_spd_t : association { polmatch };
-2s. allow unconfined_t self : association { sendto };
-2r. allow postgresql_t unconfined_t : association { recvfrom };
-
-Is it correct?
-
-The current security policy defines (2s) rule, but (1) and (2r) are not defined.
-
-Chris, could you give us your opinion?
-I think (1) should be added to "unconfined_domain_noaudit" in system/unconfined.if,
-and an interface to provide (2r) should be added to somewhere.
-
->>> We can add additional permissions to avoid the matter, as follows:
->>>   allow postgresql_t unconfined_t : association { ... };
->>>
->>> But IMO it makes a bit confusable to apply process's domain as
->>> a type of SPD entries, like unconfined_t and so on.
-> 
-> Definitely so, which is the reason there's ipsec_spd_t defined in the policy
-> to be used for all SPD rules that should perform labeled IPsec.
-
-OK, I understood.
-
->>> I prefer the following description to separate subject and object.
->>>   allow postgresql_t postgresql_spd_t : association { ... };
->>>   allow unconfined_t postgresql_spd_t : association { ... };
->> In policy/modules/system/ipsec.te, ipsec_spd_t is defined as a default
->> type for IPSEC SPD entries, as follows:
->>
->>   # Default type for IPSEC SPD entries
->>   type ipsec_spd_t;
->>       :
->>   allow racoon_t ipsec_spd_t:association setcontext;
->>       :
->>   allow setkey_t ipsec_spd_t:association setcontext;
->>       :
->>
 >> However, setkey_t and racoon_t are the all which have any permission
 >> on ipsec_spd_t.
 >> Is it more preferable than applying a domain as a type of SPD entries?
-> 
-> Yes. Hope the above helps.
-> 
->> Thanks,
 >>
->>> Is there any reason why SPD entries have same type with domains?
->>>
->>> Thanks,
->> -- 
->> OSS Platform Development Division, NEC
->> KaiGai Kohei <kaigai@ak.jp.nec.com>
->>
->> --
->> This message was distributed to subscribers of the selinux 
->> mailing list.
->> If you no longer wish to subscribe, send mail to 
->> majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>
+> This permission allows only racoon and setkey to actually set the
+> security context, ipsec_spd_t within SPD or SA entry. This controls 
+> who can add or delete SPD and SA entries. Thus no other application is
+> currently allowed to do this.
+> 
+> We decided to include a default context for SPD entries. Sysadmins can
+> add more, but additional policy is required for each context you set
+> in SPD. Below will explain why.
+> 
+> Labeled ipsec authorizes; who can create and delete SPD entries,
+> whether or not flow can use SPD entry; and if so
+> the SAs that can be generated by an SPD entry, and the SAs that
+> can send and receive on a particular flow. 
+> 
+> A better explanation is a quick step through process. 
+> 
+> - Each traffic stream you want secured will have an SPD entry created by
+> sysadm (setcontext). 
+> 
+> - An app such as telnet results in a packet being generated. The flow
+> (or you could say session's traffic stream) must be authorized to use
+> the SPD entry (POLMATCH). Last I recall, flow's security context was
+> that of socket. So far example, let's say flow's security context is
+> telnet_t. Thus is telnet (telnet_t) authorized to use ipsec
+> policy (ipsec_spd_t)  
+>  
+> - Once flow is authorized to use SPD entry, it looks for an SA. If 
+> none, creates one. I believe SA's security context is that of socket
+> which generated packet, thus it will be telnet_t.
+> Check is made that authorizes whether the SA can send on the
+> flow using the SPD entry (SENDTO). 
 > 
 > 
+> Thus networking apps need to be able to POLMATCH with ipsec policy and
+> resulting SAs need to be able to SENDTO on the flow. 
 
+For example, postgresql_t, httpd_t and any other server domain need
+to have association:{ polmatch } to ipsec_spd_t, and association:{ sendto }
+to themself.
 
+However, how does association:{ recvfrom } permission?
+It seems to me that server domains have to have this permisson to
+the peer's domain (as I replied to Venkat).
+
+> I don't have current selinux policy source and I don't remember the
+> names and details of files, etc... but I think everything in 
+> "domain" is authorized to POLMATCH to ipsec_spd_t and everything 
+> in "domain" is authorized to SENDTO and RECVFROM for ASSOCIATION.
+
+Unfortunatelly, it is not correct in the current security policy.
+
+No domain has association:{ polmatch } permission to ipsec_spd_t.
+
+[kaigai@saba serefpolicy-3.0.8]$ grep ipsec_spd_t -r *
+policy/modules/system/ipsec.te:type ipsec_spd_t;
+policy/modules/system/ipsec.te:allow racoon_t ipsec_spd_t:association setcontext;
+policy/modules/system/ipsec.te:allow setkey_t ipsec_spd_t:association setcontext;
+
+In addition, only a part of domains has association:{ sendto recvfrom }
+permission to themself. Any domain also has association:{ sendto recvfrom }
+permission to unlabeled_t.
+(It is defined at kernel_sendrecv_unlabeled_association(domain) of kernel/domain.te)
+
+If all domains should be able to send/recv via labeled ipsec connection,
+I think we have to add several rules.
+
+> So, if you or a sysadm want to create another security context 
+> for SPD entries, other than the default. You will also need selinux
+> policy to:
+> 	- authorize racoon and setkey to set this new security context
+> 	within an ipsec policy or association (SETCONTEXT).      
+> 
+> 	- authorize who can POLMATCH with the new spd entry.
+> 
+> 	- authorize who can SENDTO and RECVFROM on the flow. 
+>           ( I think there is an interface, ipsec_labeled, for an example
+>             of latter two authorizations.)
+> 
+> I am not sure what your requirements are... I don't have policy 
+> source so not sure if unconfined_t is in "domain" are perhaps needs
+> ipsec_labeled()... but I am thinking you should be able to use default
+> SPD security context...
+
+The "postgresql_spd_t" was a confusable example.
+I didn'd intend to set up a SPD entry with different security context.
+The purpose of the question is to lookup an appropriate way to configure
+labeled ipsec, on the standard security policy.
+
+> Sorry, if this email got really long, but once I started with an
+> explanation I could not stop. I don't even know if this helps,
+> so let me know how I can help.
+
+Your explanation helps our undestanding so well.
+
+Thanks,
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
