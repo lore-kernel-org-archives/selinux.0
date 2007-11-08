@@ -1,73 +1,36 @@
-Subject: Re: [PATCH] restorecon
+Subject: Re: Boot Errors
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Litwiniec Robert <linio@wonder.pl>
-Cc: SELinux list <selinux@tycho.nsa.gov>
-In-Reply-To: <20071108063657.GA21903@asterix.wonder.pl>
-References: <20071108063657.GA21903@asterix.wonder.pl>
+To: "Lisa R." <lisaraykow@cox.net>
+Cc: SELinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <20071107223951.NOBNW.252783.root@fed1wml01.mgt.cox.net>
+References: <20071107223951.NOBNW.252783.root@fed1wml01.mgt.cox.net>
 Content-Type: text/plain
-Date: Thu, 08 Nov 2007 12:43:41 -0500
-Message-Id: <1194543821.3198.3.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 08 Nov 2007 12:59:47 -0500
+Message-Id: <1194544787.3198.16.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-11-08 at 07:36 +0100, Litwiniec Robert wrote:
-> Hello,
-> i wrote patch for restorecon, which warns, if file has hardlinks, and
-> file which has hardlinks is relabeled second time since run restorecon
-> (it's a hack, check is based on change time):
-
-Thanks, however, if you look at setfiles, you'll find that it has more
-extensive logic for checking for conflicts on multiple hard links
-(maintains inode associations).  Also, in the selinux trunk
-(policycoreutils 2.0.18 and later), restorecon is no longer a separate
-program from setfiles - they have been coalesced into a single program
-that selects different default behaviors and command line interfaces
-depending on argv[0].
-
+On Wed, 2007-11-07 at 19:39 -0800, Lisa R. wrote:
+> Hello.
+>  
+> I have new to this, have a new system and I have fixed most of the denial errors on boot.  However, I am stuck on three.
 > 
-> --- restorecon.orig.c   2007-09-27 21:53:22.000000000 +0200
-> +++ restorecon.c        2007-09-27 21:52:31.000000000 +0200
-> @@ -40,6 +40,7 @@
->  #include <stdio.h>
->  #define __USE_XOPEN_EXTENDED 1 /* nftw */
->  #include <ftw.h>
-> +#include <time.h>
->  
->  static int change = 1;
->  static int verbose = 0;
-> @@ -53,6 +54,8 @@
->  #define STAT_BLOCK_SIZE 1
->  static int pipe_fds[2] = { -1, -1 };
->  static unsigned long long count = 0;
-> +static time_t starttime;
-> +
->  
->  #define MAX_EXCLUDES 100
->  static int excludeCtr = 0;
-> @@ -248,6 +251,12 @@
->                                 if (outfile)
->                                         fprintf(outfile, "%s\n", filename);
->                                 if (change) {
-> +                                       if ( (st.st_nlink>1) ) {
-> +                                               fprintf(stderr, "warning: %s has hard links\n", filename);
-> +                                               if ( st.st_ctime>=starttime) {
-> +                                                       fprintf(stderr, "warning: %s changed since run restorecon\n", filename);
-> +                                               }
-> +                                       }
->                                         if (lsetfilecon(filename, scontext) < 0) {
->                                                 fprintf(stderr,
->                                                         "%s set context %s->%s failed:'%s'\n",
-> @@ -358,6 +367,7 @@
->         int opt;
->         char *buf = NULL;
->         size_t buf_len;
-> +        starttime = time (NULL);
->  
->         memset(excludeArray, 0, sizeof(excludeArray));
+> Can anyone help?
 > 
-> Regards,
-> Robert Litwiniec 
+> Nov  6 22:00:27 selinux kernel: audit(1194404427.969:3): avc:  denied  { search } for  pid=2814 comm="dmidecode" name="/\
+>   " dev=sysfs ino=1 scontext=system_u:system_r:dmidecode_t:s0 tcontext=system_u:object_r:sysfs_t:s0 tclass=dir
+> Nov  6 22:00:28 selinux kernel: audit(1194404428.085:4): avc:  denied  { read write } for  pid=2816 comm="hal-storage-cle" name=".hal-mtab-lock" dev=hda1 ino=2359302 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
+>  Nov  6 22:00:28 selinux kernel: audit(1194404428.089:5): avc:  denied  { lock } for  pid=2816 comm="hal-storage-cle" name=".hal-mtab-lock" dev=hda1 ino=2359302 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
+
+The name= field in the first message is a bit puzzling, but allowing
+dmidecode to search /sys is likely harmless.
+
+The other two would seem to be a lack of proper typing
+on /media/.hal-mtab-lock.  What happens if you restorecon
+-v /media/.hal-mtab-lock?
+
 -- 
 Stephen Smalley
 National Security Agency
