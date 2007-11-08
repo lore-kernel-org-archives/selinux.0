@@ -1,77 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA86b6sm029309
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 01:37:06 -0500
-Received: from asterix.wonder.pl (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA86b5ke005783
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 06:37:05 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by asterix.wonder.pl (Postfix) with ESMTP id 27A7D140C888
-	for <selinux@tycho.nsa.gov>; Thu,  8 Nov 2007 07:37:03 +0100 (CET)
-Received: from asterix.wonder.pl ([127.0.0.1])
-	by localhost (asterix [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 21605-05 for <selinux@tycho.nsa.gov>;
-	Thu, 8 Nov 2007 07:36:57 +0100 (CET)
-Date: Thu, 8 Nov 2007 07:36:57 +0100
-To: SELinux list <selinux@tycho.nsa.gov>
-Subject: [PATCH] restorecon
-Message-ID: <20071108063657.GA21903@asterix.wonder.pl>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA8DqIBS030281
+	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 08:52:18 -0500
+Received: from mail.seekline.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA8DqHdJ018566
+	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 13:52:17 GMT
+Received: from [IPv6:2001:6f8:900:6e8::2] (cl-1769.ham-01.de.sixxs.net [IPv6:2001:6f8:900:6e8::2])
+	(authenticated bits=0)
+	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id lA8DqPAN009613
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
+	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 14:52:27 +0100
+Subject: type class key
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Thu, 08 Nov 2007 13:52:13 +0000
+Message-Id: <1194529933.3293.7.camel@vogon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-From: linio@wonder.pl (Litwiniec Robert)
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Every time I log into my system via ssh an audit is generated:
 
-Hello,
-i wrote patch for restorecon, which warns, if file has hardlinks, and
-file which has hardlinks is relabeled second time since run restorecon
-(it's a hack, check is based on change time):
+audit(1194529539.754:7803673): avc:  denied  { link } for  pid=9526
+comm="sshd" scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023
+tcontext=system_u:system_r:dovecot_t:s0 tclass=key
 
---- restorecon.orig.c   2007-09-27 21:53:22.000000000 +0200
-+++ restorecon.c        2007-09-27 21:52:31.000000000 +0200
-@@ -40,6 +40,7 @@
- #include <stdio.h>
- #define __USE_XOPEN_EXTENDED 1 /* nftw */
- #include <ftw.h>
-+#include <time.h>
- 
- static int change = 1;
- static int verbose = 0;
-@@ -53,6 +54,8 @@
- #define STAT_BLOCK_SIZE 1
- static int pipe_fds[2] = { -1, -1 };
- static unsigned long long count = 0;
-+static time_t starttime;
-+
- 
- #define MAX_EXCLUDES 100
- static int excludeCtr = 0;
-@@ -248,6 +251,12 @@
-                                if (outfile)
-                                        fprintf(outfile, "%s\n", filename);
-                                if (change) {
-+                                       if ( (st.st_nlink>1) ) {
-+                                               fprintf(stderr, "warning: %s has hard links\n", filename);
-+                                               if ( st.st_ctime>=starttime) {
-+                                                       fprintf(stderr, "warning: %s changed since run restorecon\n", filename);
-+                                               }
-+                                       }
-                                        if (lsetfilecon(filename, scontext) < 0) {
-                                                fprintf(stderr,
-                                                        "%s set context %s->%s failed:'%s'\n",
-@@ -358,6 +367,7 @@
-        int opt;
-        char *buf = NULL;
-        size_t buf_len;
-+        starttime = time (NULL);
- 
-        memset(excludeArray, 0, sizeof(excludeArray));
+and after logout the following:
 
-Regards,
-Robert Litwiniec 
--- 
-http://debian.wonder.pl - Debian/GNU Linux wiki
-http://zamosc.wonder.pl - Wonders of Zamosc
+audit(1194529580.969:7803674): avc:  denied  { search } for  pid=9526
+comm="sshd" scontext=system_u:system_r:sshd_t:s0-s0:c0.c1023
+tcontext=system_u:system_r:dovecot_t:s0 tclass=key
+
+Quite frankly I even do not know what a type class "key" is. Can someone
+explain to me what a type class "key" is? And maybe any suggestions why
+ssh tries to access dovecot's key (which is an imap server).
+
+cheers,
+Stefan
+
+PS: I'm running CentOS 5 with the latest updates and strict policy.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
