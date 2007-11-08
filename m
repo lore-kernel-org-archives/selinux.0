@@ -1,102 +1,188 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA8KtmGI018617
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 15:55:48 -0500
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA8KtgMZ000132
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 20:55:42 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id lA8KnQV0012373
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 15:49:26 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id lA8KnQSo012372
-	for selinux@tycho.nsa.gov; Thu, 8 Nov 2007 15:49:26 -0500
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lA8IcGPP001837
-	for <selinux@tycho.nsa.gov>; Thu, 8 Nov 2007 13:38:16 -0500
-Message-ID: <47335759.7060600@tycho.nsa.gov>
-Date: Thu, 08 Nov 2007 13:37:13 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Jim Meyering <jim@meyering.net>
-CC: SE Linux <selinux@tycho.nsa.gov>, bug-coreutils@gnu.org
-Subject: Re: should GNU install call matchpathcon by default?
-References: <87k5ou9trs.fsf@rho.meyering.net>
-In-Reply-To: <87k5ou9trs.fsf@rho.meyering.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] libselinux: introduce enforcing mode override option
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <4730E1BD.9010405@tycho.nsa.gov>
+References: <471F8F8D.3040606@tycho.nsa.gov>
+	 <1193935864.12018.107.camel@moss-spartans.epoch.ncsc.mil>
+	 <472F79D5.6020903@tycho.nsa.gov>
+	 <1194369013.28518.63.camel@moss-spartans.epoch.ncsc.mil>
+	 <4730E1BD.9010405@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Thu, 08 Nov 2007 16:26:56 -0500
+Message-Id: <1194557216.3198.28.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jim Meyering wrote:
-> Hi,
+On Tue, 2007-11-06 at 16:50 -0500, Eamon Walsh wrote:
+> Smalley wrote:
+> > On Mon, 2007-11-05 at 15:15 -0500, Eamon Walsh wrote:
+> >   
+> >> Introduces an enforcing mode override option, so the object manager
+> >> can bring up the AVC in permissive mode on an enforcing system, or
+> >> vice versa.
+> >>     
+> >
+> > I don't see a way for the object manager to change the enforcing status
+> > after avc_open().
+> >   
 > 
-> This morning I noticed a flagrant difference in the speed of
-> "make install" for the just-released gettext-0.17.  It took 12(!)
-> times longer on a rawhide system than on a usually-slower debian
-> unstable system. (3min vs. 15s)
-> 
-> I tracked it down to the fact that on that rawhide system, I'm using
-> the latest _upstream_ install binary from (SELinux-enabled) coreutils.
-> The rawhide /usr/bin/install only ever calls matchpathcon (via
-> setdefaultfilecon) when its final chown or chmod fails.  Looks like
-> a fortuitous bug in the rawhide patch.  The version of install from
-> upstream coreutils calls it every time, since that's the only thing that
-> made sense to me when I redid coreutils' SELinux support.  Considering no
-> one can be relying on install's matchpathcon semantics, even in rawhide,
-> I think it should not be the default, upstream -- especially considering
-> the enormous performance hit.
-> 
-> Any objections or suggestions from the SELinux folks?
+> I didn't think to include that.  Do we want it?  If so it can be added 
+> later.
 
-Don't have a suggestion on the usage, but your overhead is coming from 
-the loading of the file contexts database on each invocation of 
-/bin/install.  You could try to make the gettext installer more 
-judicious about batching things into a single /bin/install command line. 
-  Or make install a shell builtin, so that it's not a separate process.
-
-There is a new handle-based set of calls that replaces matchpathcon() 
-and friends.  See include/selinux/label.h.  If you're rewriting this 
-part of the code, I'd recommend switching over.  It won't affect 
-performance too much I'm afraid, but maybe at some point there will be a 
-daemon backend of some sort so it just makes an IPC call instead of 
-loading the database in the library code.
-
+Ultimately, yes - I can envision a userspace object manager exporting
+its own interface for changing enforcing mode much as the kernel does,
+so admins can do "setenforce [kernel|x|postgres|dbus|...] [0|1]" or the
+like.
 
 > 
-> Do you think coreutils' install should use matchpathcon at all?  If so,
-> either it'll have to be associated with a new option, or it'll have
-> to be a lot more efficient.  Yes, we've discussed this before, and
-> you guys convinced me to provide the functionality for ease of use.
-> But for those not familiar with the issues, note that you can get the
-> same effect without the embedded matchpathcon call, simply by invoking
-> install with a context provided by the matchpathcon _program_:
+> > attribute aligned diffs can be a separate patch.
+> >
+> >   
 > 
->   install -Z $(matchpathcon $dest_file) SRC_FILE $dest_file
+> I committed those two lines already.  Rebased patch below.
 > 
-> Can someone can look at making matchpathcon more efficient?  I understand
-> that making it the default would be nice, and if it's feasible to minimize
-> the performance impact of that matchpathcon call, it'd be much better *not*
-> to add a new option.
+> Introduces an enforcing mode override option, so the object manager
+> can bring up the AVC in permissive mode on an enforcing system, or
+> vice versa.
 > 
-> Unless I find a magic bullet, I'll disable install's use of
-> matchpathcon for the upcoming test release.
-> 
-> Jim
-> 
-> In case you're interested in trying a recent snapshot,
-> 
->   http://meyering.net/cu/coreutils-6.9-ss.tar.gz
->   http://meyering.net/cu/coreutils-6.9-ss.tar.gz.sig
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
 
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
+Merge at will.
+
+> ---
+> 
+>  include/selinux/avc.h |   11 ++++++++++-
+>  src/avc.c             |   29 ++++++++++++++++++++---------
+>  src/avc_internal.c    |    3 +++
+>  src/avc_internal.h    |    1 +
+>  4 files changed, 34 insertions(+), 10 deletions(-)
+> 
+> 
+> Index: include/selinux/avc.h
+> ===================================================================
+> --- include/selinux/avc.h	(revision 2679)
+> +++ include/selinux/avc.h	(working copy)
+> @@ -157,6 +157,15 @@
+>  };
+>  
+>  /*
+> + * Available options
+> + */
+> +
+> +/* no-op option, useful for unused slots in an array of options */
+> +#define AVC_OPT_UNUSED		0
+> +/* override kernel enforcing mode (boolean value) */
+> +#define AVC_OPT_SETENFORCE	1
+> +
+> +/*
+>   * AVC operations
+>   */
+>  
+> @@ -188,7 +197,7 @@
+>   *
+>   * This function is identical to avc_init(), except the message prefix
+>   * is set to "avc" and any callbacks desired should be specified via
+> - * selinux_set_callback().  No options are currently supported.
+> + * selinux_set_callback().  Available options are listed above.
+>   */
+>  int avc_open(struct selinux_opt *opts, unsigned nopts);
+>  
+> Index: src/avc.c
+> ===================================================================
+> --- src/avc.c	(revision 2679)
+> +++ src/avc.c	(working copy)
+> @@ -157,10 +157,19 @@
+>  	return rc;
+>  }
+>  
+> -int avc_open(struct selinux_opt *opts __attribute__((unused)),
+> -	     unsigned nopts __attribute__((unused)))
+> +int avc_open(struct selinux_opt *opts, unsigned nopts)
+>  {
+> -    return avc_init("avc", NULL, NULL, NULL, NULL);
+> +	avc_setenforce = 0;
+> +
+> +	while (nopts--)
+> +		switch(opts[nopts].type) {
+> +		case AVC_OPT_SETENFORCE:
+> +			avc_setenforce = 1;
+> +			avc_enforcing = !!opts[nopts].value;
+> +			break;
+> +		}
+> +
+> +	return avc_init("avc", NULL, NULL, NULL, NULL);
+>  }
+>  
+>  int avc_init(const char *prefix,
+> @@ -213,13 +222,15 @@
+>  		avc_node_freelist = new;
+>  	}
+>  
+> -	rc = security_getenforce();
+> -	if (rc < 0) {
+> -		avc_log("%s:  could not determine enforcing mode\n",
+> -			avc_prefix);
+> -		goto out;
+> +	if (!avc_setenforce) {
+> +		rc = security_getenforce();
+> +		if (rc < 0) {
+> +			avc_log("%s:  could not determine enforcing mode\n",
+> +				avc_prefix);
+> +			goto out;
+> +		}
+> +		avc_enforcing = rc;
+>  	}
+> -	avc_enforcing = rc;
+>  
+>  	rc = avc_netlink_open(avc_using_threads);
+>  	if (rc < 0) {
+> Index: src/avc_internal.c
+> ===================================================================
+> --- src/avc_internal.c	(revision 2679)
+> +++ src/avc_internal.c	(working copy)
+> @@ -46,6 +46,7 @@
+>  char avc_prefix[AVC_PREFIX_SIZE] = "uavc";
+>  int avc_running = 0;
+>  int avc_enforcing = 1;
+> +int avc_setenforce = 0;
+>  int avc_netlink_trouble = 0;
+>  
+>  /* netlink socket code */
+> @@ -151,6 +152,8 @@
+>  		struct selnl_msg_setenforce *msg = NLMSG_DATA(nlh);
+>  		avc_log("%s:  received setenforce notice (enforcing=%d)\n",
+>  			avc_prefix, msg->val);
+> +		if (avc_setenforce)
+> +			break;
+>  		avc_enforcing = msg->val;
+>  		if (avc_enforcing && (rc = avc_ss_reset(0)) < 0) {
+>  			avc_log("%s:  cache reset returned %d (errno %d)\n",
+> Index: src/avc_internal.h
+> ===================================================================
+> --- src/avc_internal.h	(revision 2679)
+> +++ src/avc_internal.h	(working copy)
+> @@ -74,6 +74,7 @@
+>  extern char avc_prefix[AVC_PREFIX_SIZE] hidden;
+>  extern int avc_running hidden;
+>  extern int avc_enforcing hidden;
+> +extern int avc_setenforce hidden;
+>  
+>  /* user-supplied callback interface for avc */
+>  static inline void *avc_malloc(size_t size)
+> 
+> 
+> 
+> -- 
+> Eamon Walsh <ewalsh@tycho.nsa.gov>
+> National Security Agency
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
