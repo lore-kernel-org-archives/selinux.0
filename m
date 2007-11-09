@@ -1,15 +1,14 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA9LOukG025067
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 16:24:56 -0500
-Received: from palrel10.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA9LOsax018151
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 21:24:55 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA9LNuiQ024759
+	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 16:23:56 -0500
+Received: from palrel10.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA9LNtuu012261
+	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 21:23:55 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v6 10/13] SELinux: Enable dynamic enable/disable of the
-	network access checks
+Subject: [RFC PATCH v6 01/13] NetLabel: remove unneeded RCU read locks
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Fri, 09 Nov 2007 16:24:46 -0500
-Message-ID: <20071109212446.31738.73133.stgit@flek.americas.hpqcorp.net>
+Date: Fri, 09 Nov 2007 16:23:50 -0500
+Message-ID: <20071109212350.31738.51675.stgit@flek.americas.hpqcorp.net>
 In-Reply-To: <20071109205331.31738.75266.stgit@flek.americas.hpqcorp.net>
 References: <20071109205331.31738.75266.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
@@ -17,357 +16,218 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch introduces a mechanism for checking when labeled IPsec or SECMARK
-are in use by keeping introducing a configuration reference counter for each
-subsystem.  In the case of labeled IPsec, whenever a labeled SA or SPD entry
-is created the labeled IPsec/XFRM reference count is increased and when the
-entry is removed it is decreased.  In the case of SECMARK, when a SECMARK
-target is created the reference count is increased and later decreased when the
-target is removed.  These reference counters allow SELinux to quickly determine
-if either of these subsystems are enabled.
-
-NetLabel already has a similar mechanism which provides the netlbl_enabled()
-function.
-
-This patch also renames the selinux_relabel_packet_permission() function to
-selinux_secmark_relabel_packet_permission() as the original name and
-description were misleading in that they referenced a single packet label which
-is not the case.
+This patch removes some unneeded RCU read locks as we can treat the reads as
+"safe" even without RCU.  It also converts the NetLabel configuration refcount
+from a spinlock protected u32 into atomic_t to be more consistent with the rest
+of the kernel.
 ---
 
- include/linux/selinux.h         |   45 ++++++++++++++++++++++++++++++++-------
- net/netfilter/xt_SECMARK.c      |   13 ++++++++++-
- security/selinux/exports.c      |   20 ++++++++++++++++-
- security/selinux/hooks.c        |   24 ++++++++++++++++++++-
- security/selinux/include/xfrm.h |   17 +++++++++++++++
- security/selinux/xfrm.c         |   18 ++++++++++++++--
- 6 files changed, 123 insertions(+), 14 deletions(-)
+ net/netlabel/netlabel_cipso_v4.c  |    5 ++-
+ net/netlabel/netlabel_kapi.c      |    3 +-
+ net/netlabel/netlabel_mgmt.c      |   63 ++-----------------------------------
+ net/netlabel/netlabel_mgmt.h      |    7 ++--
+ net/netlabel/netlabel_unlabeled.c |   17 ++--------
+ 5 files changed, 15 insertions(+), 80 deletions(-)
 
-diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-index d1b7ca6..691170b 100644
---- a/include/linux/selinux.h
-+++ b/include/linux/selinux.h
-@@ -120,16 +120,35 @@ void selinux_get_task_sid(struct task_struct *tsk, u32 *sid);
- int selinux_string_to_sid(char *str, u32 *sid);
+diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
+index ba0ca8d..becf91a 100644
+--- a/net/netlabel/netlabel_cipso_v4.c
++++ b/net/netlabel/netlabel_cipso_v4.c
+@@ -38,6 +38,7 @@
+ #include <net/genetlink.h>
+ #include <net/netlabel.h>
+ #include <net/cipso_ipv4.h>
++#include <asm/atomic.h>
+ 
+ #include "netlabel_user.h"
+ #include "netlabel_cipso_v4.h"
+@@ -421,7 +422,7 @@ static int netlbl_cipsov4_add(struct sk_buff *skb, struct genl_info *info)
+ 		break;
+ 	}
+ 	if (ret_val == 0)
+-		netlbl_mgmt_protocount_inc();
++		atomic_inc(&netlabel_mgmt_protocount);
+ 
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_CIPSOV4_ADD,
+ 					      &audit_info);
+@@ -698,7 +699,7 @@ static int netlbl_cipsov4_remove(struct sk_buff *skb, struct genl_info *info)
+ 				      &audit_info,
+ 				      netlbl_cipsov4_doi_free);
+ 	if (ret_val == 0)
+-		netlbl_mgmt_protocount_dec();
++		atomic_dec(&netlabel_mgmt_protocount);
+ 
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_CIPSOV4_DEL,
+ 					      &audit_info);
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index 4f50949..d3762ea 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -34,6 +34,7 @@
+ #include <net/netlabel.h>
+ #include <net/cipso_ipv4.h>
+ #include <asm/bug.h>
++#include <asm/atomic.h>
+ 
+ #include "netlabel_domainhash.h"
+ #include "netlabel_unlabeled.h"
+@@ -262,7 +263,7 @@ int netlbl_enabled(void)
+ 	/* At some point we probably want to expose this mechanism to the user
+ 	 * as well so that admins can toggle NetLabel regardless of the
+ 	 * configuration */
+-	return (netlbl_mgmt_protocount_value() > 0 ? 1 : 0);
++	return (atomic_read(&netlabel_mgmt_protocount) > 0);
+ }
  
  /**
-- *     selinux_relabel_packet_permission - check permission to relabel a packet
-- *     @sid: ID value to be applied to network packet (via SECMARK, most likely)
-+ *     selinux_secmark_relabel_packet_permission - secmark permission check
-+ *     @sid: SECMARK ID value to be applied to network packet
-  *
-- *     Returns 0 if the current task is allowed to label packets with the
-- *     supplied security ID.  Note that it is implicit that the packet is always
-- *     being relabeled from the default unlabled value, and that the access
-- *     control decision is made in the AVC.
-+ *     Returns 0 if the current task is allowed to set the SECMARK label of
-+ *     packets with the supplied security ID.  Note that it is implicit that
-+ *     the packet is always being relabeled from the default unlabeled value,
-+ *     and that the access control decision is made in the AVC.
-  */
--int selinux_relabel_packet_permission(u32 sid);
-+int selinux_secmark_relabel_packet_permission(u32 sid);
- 
-+/**
-+ *     selinux_secmark_refcount_inc - increments the secmark use counter
-+ *
-+ *     SELinux keeps track of the current SECMARK targets in use so it knows
-+ *     when to apply SECMARK label access checks to network packets.  This
-+ *     function incements this reference count to indicate that a new SECMARK
-+ *     target has been configured.
-+ */
-+void selinux_secmark_refcount_inc(void);
-+
-+/**
-+ *     selinux_secmark_refcount_dec - decrements the secmark use counter
-+ *
-+ *     SELinux keeps track of the current SECMARK targets in use so it knows
-+ *     when to apply SECMARK label access checks to network packets.  This
-+ *     function decements this reference count to indicate that one of the
-+ *     existing SECMARK targets has been removed/flushed.
-+ */
-+void selinux_secmark_refcount_dec(void);
- #else
- 
- static inline int selinux_audit_rule_init(u32 field, u32 op,
-@@ -184,11 +203,21 @@ static inline int selinux_string_to_sid(const char *str, u32 *sid)
-        return 0;
- }
- 
--static inline int selinux_relabel_packet_permission(u32 sid)
-+static inline int selinux_secmark_relabel_packet_permission(u32 sid)
- {
- 	return 0;
- }
- 
-+static inline void selinux_secmark_refcount_inc(void)
-+{
-+	return;
-+}
-+
-+static inline void selinux_secmark_refcount_dec(void)
-+{
-+	return;
-+}
-+
- #endif	/* CONFIG_SECURITY_SELINUX */
- 
- #endif /* _LINUX_SELINUX_H */
-diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-index 235806e..db4a1fe 100644
---- a/net/netfilter/xt_SECMARK.c
-+++ b/net/netfilter/xt_SECMARK.c
-@@ -72,12 +72,13 @@ static bool checkentry_selinux(struct xt_secmark_target_info *info)
- 		return false;
- 	}
- 
--	err = selinux_relabel_packet_permission(sel->selsid);
-+	err = selinux_secmark_relabel_packet_permission(sel->selsid);
- 	if (err) {
- 		printk(KERN_INFO PFX "unable to obtain relabeling permission\n");
- 		return false;
- 	}
- 
-+	selinux_secmark_refcount_inc();
- 	return true;
- }
- 
-@@ -109,11 +110,20 @@ static bool checkentry(const char *tablename, const void *entry,
- 	return true;
- }
- 
-+void destroy(const struct xt_target *target, void *targinfo)
-+{
-+	switch (mode) {
-+	case SECMARK_MODE_SEL:
-+		selinux_secmark_refcount_dec();
-+	}
-+}
-+
- static struct xt_target xt_secmark_target[] __read_mostly = {
- 	{
- 		.name		= "SECMARK",
- 		.family		= AF_INET,
- 		.checkentry	= checkentry,
-+		.destroy	= destroy,
- 		.target		= target,
- 		.targetsize	= sizeof(struct xt_secmark_target_info),
- 		.table		= "mangle",
-@@ -123,6 +133,7 @@ static struct xt_target xt_secmark_target[] __read_mostly = {
- 		.name		= "SECMARK",
- 		.family		= AF_INET6,
- 		.checkentry	= checkentry,
-+		.destroy	= destroy,
- 		.target		= target,
- 		.targetsize	= sizeof(struct xt_secmark_target_info),
- 		.table		= "mangle",
-diff --git a/security/selinux/exports.c b/security/selinux/exports.c
-index b6f9694..87d2bb3 100644
---- a/security/selinux/exports.c
-+++ b/security/selinux/exports.c
-@@ -17,10 +17,14 @@
- #include <linux/selinux.h>
- #include <linux/fs.h>
- #include <linux/ipc.h>
+diff --git a/net/netlabel/netlabel_mgmt.c b/net/netlabel/netlabel_mgmt.c
+index 5648337..e2258dc 100644
+--- a/net/netlabel/netlabel_mgmt.c
++++ b/net/netlabel/netlabel_mgmt.c
+@@ -37,14 +37,14 @@
+ #include <net/genetlink.h>
+ #include <net/netlabel.h>
+ #include <net/cipso_ipv4.h>
 +#include <asm/atomic.h>
  
- #include "security.h"
- #include "objsec.h"
+ #include "netlabel_domainhash.h"
+ #include "netlabel_user.h"
+ #include "netlabel_mgmt.h"
  
-+/* SECMARK reference count */
-+extern atomic_t selinux_secmark_refcount;
-+
- int selinux_sid_to_string(u32 sid, char **ctx, u32 *ctxlen)
- {
- 	if (selinux_enabled)
-@@ -74,7 +78,7 @@ int selinux_string_to_sid(char *str, u32 *sid)
- }
- EXPORT_SYMBOL_GPL(selinux_string_to_sid);
+-/* NetLabel configured protocol count */
+-static DEFINE_SPINLOCK(netlabel_mgmt_protocount_lock);
+-static u32 netlabel_mgmt_protocount = 0;
++/* NetLabel configured protocol counter */
++atomic_t netlabel_mgmt_protocount = ATOMIC_INIT(0);
  
--int selinux_relabel_packet_permission(u32 sid)
-+int selinux_secmark_relabel_packet_permission(u32 sid)
- {
- 	if (selinux_enabled) {
- 		struct task_security_struct *tsec = current->security;
-@@ -84,4 +88,16 @@ int selinux_relabel_packet_permission(u32 sid)
- 	}
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(selinux_relabel_packet_permission);
-+EXPORT_SYMBOL_GPL(selinux_secmark_relabel_packet_permission);
-+
-+void selinux_secmark_refcount_inc(void)
-+{
-+	atomic_inc(&selinux_secmark_refcount);
-+}
-+EXPORT_SYMBOL_GPL(selinux_secmark_refcount_inc);
-+
-+void selinux_secmark_refcount_dec(void)
-+{
-+	atomic_dec(&selinux_secmark_refcount);
-+}
-+EXPORT_SYMBOL_GPL(selinux_secmark_refcount_dec);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 4d13a80..6f4bea4 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -50,8 +50,10 @@
- #include <net/icmp.h>
- #include <net/ip.h>		/* for local_port_range[] */
- #include <net/tcp.h>		/* struct or_callable used in sock_rcv_skb */
-+#include <net/netlabel.h>
- #include <asm/uaccess.h>
- #include <asm/ioctls.h>
-+#include <asm/atomic.h>
- #include <linux/bitops.h>
- #include <linux/interrupt.h>
- #include <linux/netdevice.h>	/* for network interface checks */
-@@ -87,6 +89,9 @@ extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
- extern int selinux_compat_net;
- extern struct security_operations *security_ops;
- 
-+/* SECMARK reference count */
-+atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
-+
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- int selinux_enforcing = 0;
- 
-@@ -153,6 +158,21 @@ getsecurity_exit:
- 	return len;
- }
- 
-+/**
-+ * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
-+ *
-+ * Description:
-+ * This function checks the SECMARK reference counter to see if any SECMARK
-+ * targets are currently configured, if the reference counter is greater than
-+ * zero SECMARK is considered to be enabled.  Returns true (1) if SECMARK is
-+ * enabled, false (0) if SECMARK is disabled.
-+ *
-+ */
-+static int selinux_secmark_enabled(void)
-+{
-+	return (atomic_read(&selinux_secmark_refcount) > 0);
-+}
-+
- /* Allocate and free functions for each kind of security blob. */
- 
- static int task_alloc_security(struct task_struct *task)
-@@ -3723,7 +3743,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	if (selinux_compat_net)
- 		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family,
- 						  addrp, len);
--	else
-+	else if (!selinux_policycap_netpeer || selinux_secmark_enabled())
- 		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
- 				   PACKET__RECV, &ad);
- 	if (err)
-@@ -3731,6 +3751,8 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 
- 	if (!selinux_policycap_netpeer)
- 		return selinux_sock_recv_peer_compat(sksec, skb, family, ad);
-+	if (!netlbl_enabled() && !selinux_xfrm_enabled())
-+		return 0;
- 	err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
- 	if (err)
- 		return err;
-diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
-index 31929e3..d641f39 100644
---- a/security/selinux/include/xfrm.h
-+++ b/security/selinux/include/xfrm.h
-@@ -7,6 +7,23 @@
- #ifndef _SELINUX_XFRM_H_
- #define _SELINUX_XFRM_H_
- 
-+extern atomic_t selinux_xfrm_refcount;
-+
-+/**
-+ * selinux_xfrm_enabled - Determine if labeled XFRM is enabled
-+ *
-+ * Description:
-+ * This function checks to see if there are any labeled SAs or entries in the
-+ * SPD.  If there are then labeled XFRM is currently enabled, if not it is
-+ * currently disabled.  Returns true (1) if labeled XFRM is enabled, false (0)
-+ * if labeled XFRM is disabled.
-+ *
-+ */
-+static inline int selinux_xfrm_enabled(void)
-+{
-+	return (atomic_read(&selinux_xfrm_refcount) > 0);
-+}
-+
- int selinux_xfrm_policy_alloc(struct xfrm_policy *xp,
- 		struct xfrm_user_sec_ctx *sec_ctx);
- int selinux_xfrm_policy_clone(struct xfrm_policy *old, struct xfrm_policy *new);
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index 36a191e..00c2135 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -46,11 +46,14 @@
- #include <net/checksum.h>
- #include <net/udp.h>
- #include <asm/semaphore.h>
-+#include <asm/atomic.h>
- 
- #include "avc.h"
- #include "objsec.h"
- #include "xfrm.h"
- 
-+/* Labeled XFRM instance counter */
-+atomic_t selinux_xfrm_refcount = ATOMIC_INIT(0);
+ /* Argument struct for netlbl_domhsh_walk() */
+ struct netlbl_domhsh_walk_arg {
+@@ -71,63 +71,6 @@ static const struct nla_policy netlbl_mgmt_genl_policy[NLBL_MGMT_A_MAX + 1] = {
+ };
  
  /*
-  * Returns true if an LSM/SELinux context
-@@ -292,6 +295,9 @@ int selinux_xfrm_policy_alloc(struct xfrm_policy *xp,
- 	BUG_ON(!uctx);
+- * NetLabel Misc Managment Functions
+- */
+-
+-/**
+- * netlbl_mgmt_protocount_inc - Increment the configured labeled protocol count
+- *
+- * Description:
+- * Increment the number of labeled protocol configurations in the current
+- * NetLabel configuration.  Keep track of this for use in determining if
+- * NetLabel label enforcement should be active/enabled or not in the LSM.
+- *
+- */
+-void netlbl_mgmt_protocount_inc(void)
+-{
+-	spin_lock(&netlabel_mgmt_protocount_lock);
+-	netlabel_mgmt_protocount++;
+-	spin_unlock(&netlabel_mgmt_protocount_lock);
+-}
+-
+-/**
+- * netlbl_mgmt_protocount_dec - Decrement the configured labeled protocol count
+- *
+- * Description:
+- * Decrement the number of labeled protocol configurations in the current
+- * NetLabel configuration.  Keep track of this for use in determining if
+- * NetLabel label enforcement should be active/enabled or not in the LSM.
+- *
+- */
+-void netlbl_mgmt_protocount_dec(void)
+-{
+-	spin_lock(&netlabel_mgmt_protocount_lock);
+-	if (netlabel_mgmt_protocount > 0)
+-		netlabel_mgmt_protocount--;
+-	spin_unlock(&netlabel_mgmt_protocount_lock);
+-}
+-
+-/**
+- * netlbl_mgmt_protocount_value - Return the number of configured protocols
+- *
+- * Description:
+- * Return the number of labeled protocols in the current NetLabel
+- * configuration.  This value is useful in  determining if NetLabel label
+- * enforcement should be active/enabled or not in the LSM.
+- *
+- */
+-u32 netlbl_mgmt_protocount_value(void)
+-{
+-	u32 val;
+-
+-	rcu_read_lock();
+-	val = netlabel_mgmt_protocount;
+-	rcu_read_unlock();
+-
+-	return val;
+-}
+-
+-/*
+  * NetLabel Command Handlers
+  */
  
- 	err = selinux_xfrm_sec_ctx_alloc(&xp->security, uctx, 0);
-+	if (err == 0)
-+		atomic_inc(&selinux_xfrm_refcount);
-+
- 	return err;
+diff --git a/net/netlabel/netlabel_mgmt.h b/net/netlabel/netlabel_mgmt.h
+index ccb2b39..a43bff1 100644
+--- a/net/netlabel/netlabel_mgmt.h
++++ b/net/netlabel/netlabel_mgmt.h
+@@ -32,6 +32,7 @@
+ #define _NETLABEL_MGMT_H
+ 
+ #include <net/netlabel.h>
++#include <asm/atomic.h>
+ 
+ /*
+  * The following NetLabel payloads are supported by the management interface.
+@@ -168,9 +169,7 @@ enum {
+ /* NetLabel protocol functions */
+ int netlbl_mgmt_genl_init(void);
+ 
+-/* NetLabel misc management functions */
+-void netlbl_mgmt_protocount_inc(void);
+-void netlbl_mgmt_protocount_dec(void);
+-u32 netlbl_mgmt_protocount_value(void);
++/* NetLabel configured protocol reference counter */
++extern atomic_t netlabel_mgmt_protocount;
+ 
+ #endif
+diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+index 3482924..d999d50 100644
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -155,11 +155,9 @@ static int netlbl_unlabel_list(struct sk_buff *skb, struct genl_info *info)
+ 		goto list_failure;
+ 	}
+ 
+-	rcu_read_lock();
+ 	ret_val = nla_put_u8(ans_skb,
+ 			     NLBL_UNLABEL_A_ACPTFLG,
+ 			     netlabel_unlabel_acceptflg);
+-	rcu_read_unlock();
+ 	if (ret_val != 0)
+ 		goto list_failure;
+ 
+@@ -245,17 +243,10 @@ int netlbl_unlabel_genl_init(void)
+  */
+ int netlbl_unlabel_getattr(struct netlbl_lsm_secattr *secattr)
+ {
+-	int ret_val;
+-
+-	rcu_read_lock();
+-	if (netlabel_unlabel_acceptflg == 1) {
+-		netlbl_secattr_init(secattr);
+-		ret_val = 0;
+-	} else
+-		ret_val = -ENOMSG;
+-	rcu_read_unlock();
+-
+-	return ret_val;
++	if (netlabel_unlabel_acceptflg == 0)
++		return -ENOMSG;
++	netlbl_secattr_init(secattr);
++	return 0;
  }
  
-@@ -339,10 +345,13 @@ int selinux_xfrm_policy_delete(struct xfrm_policy *xp)
- 	struct xfrm_sec_ctx *ctx = xp->security;
- 	int rc = 0;
- 
--	if (ctx)
-+	if (ctx) {
- 		rc = avc_has_perm(tsec->sid, ctx->ctx_sid,
- 				  SECCLASS_ASSOCIATION,
- 				  ASSOCIATION__SETCONTEXT, NULL);
-+		if (rc == 0)
-+			atomic_dec(&selinux_xfrm_refcount);
-+	}
- 
- 	return rc;
- }
-@@ -359,6 +368,8 @@ int selinux_xfrm_state_alloc(struct xfrm_state *x, struct xfrm_user_sec_ctx *uct
- 	BUG_ON(!x);
- 
- 	err = selinux_xfrm_sec_ctx_alloc(&x->security, uctx, secid);
-+	if (err == 0)
-+		atomic_inc(&selinux_xfrm_refcount);
- 	return err;
- }
- 
-@@ -381,10 +392,13 @@ int selinux_xfrm_state_delete(struct xfrm_state *x)
- 	struct xfrm_sec_ctx *ctx = x->security;
- 	int rc = 0;
- 
--	if (ctx)
-+	if (ctx) {
- 		rc = avc_has_perm(tsec->sid, ctx->ctx_sid,
- 				  SECCLASS_ASSOCIATION,
- 				  ASSOCIATION__SETCONTEXT, NULL);
-+		if (rc == 0)
-+			atomic_dec(&selinux_xfrm_refcount);
-+	}
- 
- 	return rc;
- }
+ /**
 
 
 --
