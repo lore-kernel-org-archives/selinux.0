@@ -1,44 +1,52 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA9HfRc9031978
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 12:41:27 -0500
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA9HfRf4006385
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 17:41:27 GMT
-Received: by an-out-0708.google.com with SMTP id c31so90446ana
-        for <selinux@tycho.nsa.gov>; Fri, 09 Nov 2007 09:41:17 -0800 (PST)
-Reply-To: w.chimiak@ieee.org
-To: selinux@tycho.nsa.gov
-Subject: allow statement OK?
-Date: Fri, 9 Nov 2007 12:38:34 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200711091238.34883.w.chimiak@ieee.org>
-From: Bill Chimiak <wch1m1@gmail.com>
+Subject: Re: Patch to allow semanage to set boolean values and translate
+	booleans via policy.xml
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <1194625539.624.57.camel@moss-spartans.epoch.ncsc.mil>
+References: <472B817D.3030400@redhat.com>
+	 <1194625539.624.57.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 09 Nov 2007 13:38:08 -0500
+Message-Id: <1194633488.5253.26.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I got a
+On Fri, 2007-11-09 at 11:25 -0500, Stephen Smalley wrote:
+> On Fri, 2007-11-02 at 15:58 -0400, Daniel J Walsh wrote:
+> > Also added translations of booleans to command line.
+> > 
+> > > /usr/sbin/semanage boolean -l  | grep nfs_export
+> > > nfs_export_all_rw              -> off   Allow nfs to be exported read/write.
+> > > nfs_export_all_ro              -> on    Allow nfs to be exported read only
+> > > sh-3.2# /usr/sbin/semanage boolean -l  | grep nfs
+> > > xen_use_nfs                    -> off   Allow xen to manage nfs files
+[...]
+> > > nfs_export_all_ro              -> on    Allow nfs to be exported read only
+> > 
+> > 
+> > This time with the patch.  :^)
+> 
+> Offhand, the only problem I see it that semanage boolean -l then fails
+> if /usr/share/selinux/devel/policy.xml doesn't exist, rather than just
+> falling back to displaying the untranslated booleans.
+> 
+> Also, is /usr/share/selinux/devel/policy.xml created by upstream
+> refpolicy or is it Fedora-specific?
 
-	avc: denied { search } for comm="pam_console_app" dev=sdb6 egid=650 euid=0 
-exe="/sbin/pam_console_apply" exit=-13 fsgid=650 fsuid=0 gid=650 items=0 
-name="gdm" pid=2693 scontext=system_u:system_r:pam_console_t:s0-s0:c0.c1023 
-sgid=650 subj=system_u:system_r:pam_console_t:s0-s0:c0.c1023 suid=0 
-tclass=dir tcontext=system_u:object_r:xserver_log_t:s0 tty=(none) uid=0 
-
-
-audit2allow recommended:
-
-	allow pam_console_t xserver_log_t:dir search;
-
-Is this a reasonable module for me to add?  To me it seems benign.
+The infrastructure for building a policy.xml from the headers is
+installed by upstream, but the policy.xml from refpolicy is not
+installed.  This allows 3rd parties to add their headers and then a
+policy.xml can be built to include their module.  Installing a
+policy.xml there is a fedora-specific thing.
 
 -- 
-William Chimiak
-Laboratory for Telecommunications Sciences
-8080 Greenmead Road
-College Park, MD
-240-949-2778
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
