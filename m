@@ -1,15 +1,14 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA9LOAMN024843
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 16:24:10 -0500
-Received: from palrel13.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA9LO8ax017830
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 21:24:08 GMT
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA9LOMGK024909
+	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 16:24:22 -0500
+Received: from palrel11.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA9LOLuu012384
+	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 21:24:21 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v6 03/13] NetLabel: consolidate the LSM domain
-	mapping/hashing locks
+Subject: [RFC PATCH v6 05/13] SELinux: add secctx_to_secid() LSM hook
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Fri, 09 Nov 2007 16:24:03 -0500
-Message-ID: <20071109212402.31738.11737.stgit@flek.americas.hpqcorp.net>
+Date: Fri, 09 Nov 2007 16:24:15 -0500
+Message-ID: <20071109212415.31738.16402.stgit@flek.americas.hpqcorp.net>
 In-Reply-To: <20071109205331.31738.75266.stgit@flek.americas.hpqcorp.net>
 References: <20071109205331.31738.75266.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
@@ -17,88 +16,127 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently we use two separate spinlocks to protect both the hash/mapping table
-and the default entry.  This could be considered a bit foolish because it adds
-complexity without offering any real performance advantage.  This patch
-removes the dedicated default spinlock and protects the default entry with the
-hash/mapping table spinlock.
+Add a secctx_to_secid() LSM hook to go along with the existing
+secid_to_secctx() LSM hook.  This patch also includes a SELinux implementation
+for this hook.
 ---
 
- net/netlabel/netlabel_domainhash.c |   30 +++++++++---------------------
- 1 files changed, 9 insertions(+), 21 deletions(-)
+ include/linux/security.h |   13 +++++++++++++
+ security/dummy.c         |    6 ++++++
+ security/security.c      |    6 ++++++
+ security/selinux/hooks.c |    6 ++++++
+ 4 files changed, 31 insertions(+), 0 deletions(-)
 
-diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
-index 1f8f7ac..9a8ea01 100644
---- a/net/netlabel/netlabel_domainhash.c
-+++ b/net/netlabel/netlabel_domainhash.c
-@@ -54,9 +54,6 @@ struct netlbl_domhsh_tbl {
-  * hash table should be okay */
- static DEFINE_SPINLOCK(netlbl_domhsh_lock);
- static struct netlbl_domhsh_tbl *netlbl_domhsh = NULL;
--
--/* Default domain mapping */
--static DEFINE_SPINLOCK(netlbl_domhsh_def_lock);
- static struct netlbl_dom_map *netlbl_domhsh_def = NULL;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index ac05083..db19c92 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1183,6 +1183,10 @@ struct request_sock;
+  *	Convert secid to security context.
+  *	@secid contains the security ID.
+  *	@secdata contains the pointer that stores the converted security context.
++ * @secctx_to_secid:
++ *      Convert security context to secid.
++ *      @secid contains the pointer to the generated security ID.
++ *      @secdata contains the security context.
+  *
+  * @release_secctx:
+  *	Release the security context.
+@@ -1371,6 +1375,7 @@ struct security_operations {
+  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+ 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
++	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
  
- /*
-@@ -239,24 +236,22 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
- 	INIT_RCU_HEAD(&entry->rcu);
+ #ifdef CONFIG_SECURITY_NETWORK
+@@ -1603,6 +1608,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_netlink_recv(struct sk_buff *skb, int cap);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
++int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
+ void security_release_secctx(char *secdata, u32 seclen);
  
- 	rcu_read_lock();
-+	spin_lock(&netlbl_domhsh_lock);
- 	if (entry->domain != NULL) {
- 		bkt = netlbl_domhsh_hash(entry->domain);
--		spin_lock(&netlbl_domhsh_lock);
- 		if (netlbl_domhsh_search(entry->domain) == NULL)
- 			list_add_tail_rcu(&entry->list,
- 				    &rcu_dereference(netlbl_domhsh)->tbl[bkt]);
- 		else
- 			ret_val = -EEXIST;
--		spin_unlock(&netlbl_domhsh_lock);
- 	} else {
- 		INIT_LIST_HEAD(&entry->list);
--		spin_lock(&netlbl_domhsh_def_lock);
- 		if (rcu_dereference(netlbl_domhsh_def) == NULL)
- 			rcu_assign_pointer(netlbl_domhsh_def, entry);
- 		else
- 			ret_val = -EEXIST;
--		spin_unlock(&netlbl_domhsh_def_lock);
- 	}
-+	spin_unlock(&netlbl_domhsh_lock);
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_ADD, audit_info);
- 	if (audit_buf != NULL) {
- 		audit_log_format(audit_buf,
-@@ -337,23 +332,16 @@ int netlbl_domhsh_remove(const char *domain, struct netlbl_audit *audit_info)
- 					   entry->domain);
- 		break;
- 	}
--	if (entry != rcu_dereference(netlbl_domhsh_def)) {
--		spin_lock(&netlbl_domhsh_lock);
--		if (entry->valid) {
--			entry->valid = 0;
-+	spin_lock(&netlbl_domhsh_lock);
-+	if (entry->valid) {
-+		entry->valid = 0;
-+		if (entry != rcu_dereference(netlbl_domhsh_def))
- 			list_del_rcu(&entry->list);
--			ret_val = 0;
--		}
--		spin_unlock(&netlbl_domhsh_lock);
--	} else {
--		spin_lock(&netlbl_domhsh_def_lock);
--		if (entry->valid) {
--			entry->valid = 0;
-+		else
- 			rcu_assign_pointer(netlbl_domhsh_def, NULL);
--			ret_val = 0;
--		}
--		spin_unlock(&netlbl_domhsh_def_lock);
-+		ret_val = 0;
- 	}
-+	spin_unlock(&netlbl_domhsh_lock);
+ #else /* CONFIG_SECURITY */
+@@ -2280,6 +2286,13 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 	return -EOPNOTSUPP;
+ }
  
- 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
- 	if (audit_buf != NULL) {
++static inline int security_secctx_to_secid(char *secdata,
++					   u32 seclen,
++					   u32 *secid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline void security_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+diff --git a/security/dummy.c b/security/dummy.c
+index 6d895ad..767d5a7 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -928,6 +928,11 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return -EOPNOTSUPP;
+ }
+ 
++static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static void dummy_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+@@ -1086,6 +1091,7 @@ void security_fixup_ops (struct security_operations *ops)
+  	set_to_dummy_if_null(ops, getprocattr);
+  	set_to_dummy_if_null(ops, setprocattr);
+  	set_to_dummy_if_null(ops, secid_to_secctx);
++	set_to_dummy_if_null(ops, secctx_to_secid);
+  	set_to_dummy_if_null(ops, release_secctx);
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	set_to_dummy_if_null(ops, unix_stream_connect);
+diff --git a/security/security.c b/security/security.c
+index 0e1f1f1..3bdcada 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -816,6 +816,12 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
++int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return security_ops->secctx_to_secid(secdata, seclen, secid);
++}
++EXPORT_SYMBOL(security_secctx_to_secid);
++
+ void security_release_secctx(char *secdata, u32 seclen)
+ {
+ 	return security_ops->release_secctx(secdata, seclen);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9f3124b..8bb673b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4710,6 +4710,11 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return security_sid_to_context(secid, secdata, seclen);
+ }
+ 
++static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return security_context_to_sid(secdata, seclen, secid);
++}
++
+ static void selinux_release_secctx(char *secdata, u32 seclen)
+ {
+ 	kfree(secdata);
+@@ -4898,6 +4903,7 @@ static struct security_operations selinux_ops = {
+ 	.setprocattr =                  selinux_setprocattr,
+ 
+ 	.secid_to_secctx =		selinux_secid_to_secctx,
++	.secctx_to_secid =		selinux_secctx_to_secid,
+ 	.release_secctx =		selinux_release_secctx,
+ 
+         .unix_stream_connect =		selinux_socket_unix_stream_connect,
 
 
 --
