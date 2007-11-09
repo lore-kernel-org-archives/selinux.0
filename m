@@ -1,53 +1,44 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA9H7gsq028946
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 12:07:42 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA9H7f9Z000554
-	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 17:07:41 GMT
-Message-ID: <473493D3.9030200@redhat.com>
-Date: Fri, 09 Nov 2007 12:07:31 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lA9HfRc9031978
+	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 12:41:27 -0500
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lA9HfRf4006385
+	for <selinux@tycho.nsa.gov>; Fri, 9 Nov 2007 17:41:27 GMT
+Received: by an-out-0708.google.com with SMTP id c31so90446ana
+        for <selinux@tycho.nsa.gov>; Fri, 09 Nov 2007 09:41:17 -0800 (PST)
+Reply-To: w.chimiak@ieee.org
+To: selinux@tycho.nsa.gov
+Subject: allow statement OK?
+Date: Fri, 9 Nov 2007 12:38:34 -0500
 MIME-Version: 1.0
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>
-CC: selinux@tycho.nsa.gov
-Subject: Re: type class key
-References: <1194529933.3293.7.camel@vogon>  <47336D33.4010606@redhat.com> <1194627412.3630.2.camel@vogon>
-In-Reply-To: <1194627412.3630.2.camel@vogon>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200711091238.34883.w.chimiak@ieee.org>
+From: Bill Chimiak <wch1m1@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I got a
 
-Stefan Schulze Frielinghaus wrote:
-> On Thu, 2007-11-08 at 15:10 -0500, Daniel J Walsh wrote:
-> [...]
->> The avc's you are reporting above are very strange.  They look like
->> dovecot created a keyring, probably though pam_keyinit.  And now sshd is
->> trying to access it.  I think you are running in permissive mode and
->> your context is messed up.
->>
->> When you login are you getting user_t or staff_t?
-> 
-> Yeah your right. There is a different. The AVCs are only generated when
-> I log in as a staff_t. I created a test user logged in as user_t and no
-> AVCs where generated.
-> 
-> Hope you have more ideas because I run out of them ;-)
-> 
-Well for now I would just ignore or dontaudit them.  Since I believe
-nothing used keyrings and the way it is setup in pam is all wrong right
-now.
+	avc: denied { search } for comm="pam_console_app" dev=sdb6 egid=650 euid=0 
+exe="/sbin/pam_console_apply" exit=-13 fsgid=650 fsuid=0 gid=650 items=0 
+name="gdm" pid=2693 scontext=system_u:system_r:pam_console_t:s0-s0:c0.c1023 
+sgid=650 subj=system_u:system_r:pam_console_t:s0-s0:c0.c1023 suid=0 
+tclass=dir tcontext=system_u:object_r:xserver_log_t:s0 tty=(none) uid=0 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFHNJPSrlYvE4MpobMRAtwOAJ4lVduXNjmMGp+BD+/sO1b2H66GIgCg46rN
-7b1lN9q9nynOZwCa6+4LUJI=
-=mlVE
------END PGP SIGNATURE-----
+audit2allow recommended:
+
+	allow pam_console_t xserver_log_t:dir search;
+
+Is this a reasonable module for me to add?  To me it seems benign.
+
+-- 
+William Chimiak
+Laboratory for Telecommunications Sciences
+8080 Greenmead Road
+College Park, MD
+240-949-2778
 
 --
 This message was distributed to subscribers of the selinux mailing list.
