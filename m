@@ -1,28 +1,98 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil>
-References: <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil> <1194628263.3630.14.camel@vogon> <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil> <24708.1194612682@redhat.com> <22421.1194637689@redhat.com> <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <20071110192441.8GH97.287922.root@fed1wml01.mgt.cox.net>
+Date: Sat, 10 Nov 2007 19:24:41 -0500
+From: Lisa Raykowski <lisaraykow@cox.net>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dhowells@redhat.com, Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        selinux@tycho.nsa.gov
-Subject: Re: [Fwd: type class key]
-Date: Sat, 10 Nov 2007 12:26:17 +0000
-Message-ID: <24415.1194697577@redhat.com>
+Subject: Re: Boot Errors
+Cc: SELinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
+        Manoj Srivastava <manoj.srivastava@stdc.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1194618098.624.25.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> Ah, wait - this is an automatic allocation of a per-uid keyring upon a
-> setuid() call, right?
+Hello.
+. /etc/selinux/config shows nothing.
 
-Yes.
+These are the actual file contents with a cat:
+selinux:~# cat /etc/selinux/config
+# This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+# enforcing - SELinux security policy is enforced.
+# permissive - SELinux prints warnings instead of enforcing.
+# disabled - No SELinux policy is loaded.
+SELINUX=permissive
+# SELINUXTYPE= can take one of these two values:
+# refpolicy-targeted - Only targeted network daemons are protected.
+# refpolicy-strict   - Full SELinux protection.
+# refpolicy-src      - Custom policy built from source
+#SELINUXTYPE=refpolicy-targeted
+SELINUXTYPE=refpolicy-targeted
 
-> and a single Linux uid might ultimately have a number of SELinux security
-> contexts running on its behalf.
+# SETLOCALDEFS= Check local definition changes
+SETLOCALDEFS=0
 
-Indeed.  It's not something that anyone considered at the time, I suppose.
+The grep shows:
 
-David
+ grep /media /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts
+/media(/[^/]*)  -l      system_u:object_r:mnt_t:s0
+/media(/[^/]*)? -d      system_u:object_r:mnt_t:s0
+/media/[^/]*/.* <<none>>
+
+
+
+
+
+---- Stephen Smalley <sds@tycho.nsa.gov> wrote: 
+
+=============
+On Thu, 2007-11-08 at 22:03 -0500, Lisa R. wrote:
+> Thank you.  The restorecon did not work.  
+> 
+> I am on Debian Etch system with linux-image-2.6.18-5-686.  I probably should have mentioned that.  Targeted policy version 20.
+
+(added Debian selinux folks to the cc line)
+
+What does the following show?
+. /etc/selinux/config
+grep /media /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts
+
+> ---- Stephen Smalley <sds@tycho.nsa.gov> wrote: 
+> > On Wed, 2007-11-07 at 19:39 -0800, Lisa R. wrote:
+> > > Hello.
+> > >  
+> > > I have new to this, have a new system and I have fixed most of the denial errors on boot.  However, I am stuck on three.
+> > > 
+> > > Can anyone help?
+> > > 
+> > > Nov  6 22:00:27 selinux kernel: audit(1194404427.969:3): avc:  denied  { search } for  pid=2814 comm="dmidecode" name="/\
+> > >   " dev=sysfs ino=1 scontext=system_u:system_r:dmidecode_t:s0 tcontext=system_u:object_r:sysfs_t:s0 tclass=dir
+> > > Nov  6 22:00:28 selinux kernel: audit(1194404428.085:4): avc:  denied  { read write } for  pid=2816 comm="hal-storage-cle" name=".hal-mtab-lock" dev=hda1 ino=2359302 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
+> > >  Nov  6 22:00:28 selinux kernel: audit(1194404428.089:5): avc:  denied  { lock } for  pid=2816 comm="hal-storage-cle" name=".hal-mtab-lock" dev=hda1 ino=2359302 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
+> > 
+> > The name= field in the first message is a bit puzzling, but allowing
+> > dmidecode to search /sys is likely harmless.
+> > 
+> > The other two would seem to be a lack of proper typing
+> > on /media/.hal-mtab-lock.  What happens if you restorecon
+> > -v /media/.hal-mtab-lock?
+> > 
+> > -- 
+> > Stephen Smalley
+> > National Security Agency
+> > 
+> > 
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
