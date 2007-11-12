@@ -1,45 +1,63 @@
-Date: Mon, 12 Nov 2007 12:48:47 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: Lisa Raykowski <lisaraykow@cox.net>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-        Russell Coker <russell@coker.com.au>,
-        Manoj Srivastava <manoj.srivastava@stdc.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Debian Etch Documentation
-Message-ID: <20071112114847.GA22677@bobek.pm.i.cz>
-References: <20071110192441.8GH97.287922.root@fed1wml01.mgt.cox.net> <20071111225336.8JDDE.296428.root@fed1wml01.mgt.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20071111225336.8JDDE.296428.root@fed1wml01.mgt.cox.net>
+Subject: Re: Patch to allow semanage to set boolean values and
+	translate	booleans via policy.xml
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+In-Reply-To: <4734B94D.3010803@redhat.com>
+References: <472B817D.3030400@redhat.com>
+	 <1194625539.624.57.camel@moss-spartans.epoch.ncsc.mil>
+	 <1194633488.5253.26.camel@gorn>  <4734B94D.3010803@redhat.com>
+Content-Type: text/plain
+Date: Mon, 12 Nov 2007 10:45:53 -0500
+Message-Id: <1194882353.13737.6.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-
-On Sun, Nov 11, 2007 at 10:53:36PM -0500, Lisa Raykowski wrote:
-> Hello.
+On Fri, 2007-11-09 at 14:47 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> I am looking for better documentation on SELinux on Debian Etch.
+> Christopher J. PeBenito wrote:
+> > On Fri, 2007-11-09 at 11:25 -0500, Stephen Smalley wrote:
+> >> On Fri, 2007-11-02 at 15:58 -0400, Daniel J Walsh wrote:
+> >>> Also added translations of booleans to command line.
+> >>>
+> >>>> /usr/sbin/semanage boolean -l  | grep nfs_export
+> >>>> nfs_export_all_rw              -> off   Allow nfs to be exported read/write.
+> >>>> nfs_export_all_ro              -> on    Allow nfs to be exported read only
+> >>>> sh-3.2# /usr/sbin/semanage boolean -l  | grep nfs
+> >>>> xen_use_nfs                    -> off   Allow xen to manage nfs files
+> > [...]
+> >>>> nfs_export_all_ro              -> on    Allow nfs to be exported read only
+> >>>
+> >>> This time with the patch.  :^)
+> >> Offhand, the only problem I see it that semanage boolean -l then fails
+> >> if /usr/share/selinux/devel/policy.xml doesn't exist, rather than just
+> >> falling back to displaying the untranslated booleans.
+> >>
+> >> Also, is /usr/share/selinux/devel/policy.xml created by upstream
+> >> refpolicy or is it Fedora-specific?
+> > 
+> > The infrastructure for building a policy.xml from the headers is
+> > installed by upstream, but the policy.xml from refpolicy is not
+> > installed.  This allows 3rd parties to add their headers and then a
+> > policy.xml can be built to include their module.  Installing a
+> > policy.xml there is a fedora-specific thing.
+> > 
+> If I want to rebuild it after an interface file gets installed or want
+> to add my own xml to it, what do I need to do?
 
-> When looking (googling) for solutions I often hit RedHat or Fedora and they refer me to directory structures which my set up does not have.
-> 
-> This may be because I have a bad setup (I inherited it) or because it is different on Debian.  At this point I don't know.
-> 
-> Can someone point me to some documentation?
-> 
-> We used the WIKI page for setup and I have referred to this page, http://etbe.coker.com.au/2006/12/08/se-linux-on-debian-in-5-minutes/.  
-> 
-> However, when looking for specific instructions on how to do things I am lost.  
+The 'xml' target from the headers makefile will build one.  It uses the
+xml in header if files, plus global_(booleans|tunables).xml which are
+pre generated from the global_(booleans|tunables) in the source policy.
 
-
-Try
-http://wiki.debian.org/SELinux
-http://lists.alioth.debian.org/mailman/listinfo/selinux-user
-and archive http://lists.alioth.debian.org/pipermail/selinux-user/
-
-There is a little traffic currently.
 -- 
-Zito
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
