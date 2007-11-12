@@ -1,42 +1,45 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lACB7WBJ024171
-	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2007 06:07:33 -0500
-Received: from mx.meyering.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lACB7Vlg004226
-	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2007 11:07:31 GMT
-Received: from rho.meyering.net (localhost.localdomain [127.0.0.1])
-	by rho.meyering.net (Acme Bit-Twister) with ESMTP id 3C2E78B67
-	for <selinux@tycho.nsa.gov>; Mon, 12 Nov 2007 12:06:23 +0100 (CET)
-From: Jim Meyering <jim@meyering.net>
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: is the string "<<none>>" in a header anywhere?
-Date: Mon, 12 Nov 2007 12:06:23 +0100
-Message-ID: <87y7d3yb80.fsf@rho.meyering.net>
+Date: Mon, 12 Nov 2007 12:48:47 +0100
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: Lisa Raykowski <lisaraykow@cox.net>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
+        Russell Coker <russell@coker.com.au>,
+        Manoj Srivastava <manoj.srivastava@stdc.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Debian Etch Documentation
+Message-ID: <20071112114847.GA22677@bobek.pm.i.cz>
+References: <20071110192441.8GH97.287922.root@fed1wml01.mgt.cox.net> <20071111225336.8JDDE.296428.root@fed1wml01.mgt.cox.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20071111225336.8JDDE.296428.root@fed1wml01.mgt.cox.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Coreutils' install.c currently compares a context against the
-magic string, "<<none>>":
+Hi,
 
-  /* If there's an error determining the context, or it has none,
-     return to allow default context */
-  if ((matchpathcon (file, st.st_mode, &scontext) != 0) ||
-      STREQ (scontext, "<<none>>"))
-    {
-      if (scontext != NULL)
-        freecon (scontext);
-      return;
-    }
+On Sun, Nov 11, 2007 at 10:53:36PM -0500, Lisa Raykowski wrote:
+> Hello.
+> 
+> I am looking for better documentation on SELinux on Debian Etch.
 
-BTW, matchpathcon(8) does, too.
-Is there a better way to test for that condition?
-It'd be nice if that string were available via a libselinux header,
-but I don't see it on rawhide:
+> When looking (googling) for solutions I often hit RedHat or Fedora and they refer me to directory structures which my set up does not have.
+> 
+> This may be because I have a bad setup (I inherited it) or because it is different on Debian.  At this point I don't know.
+> 
+> Can someone point me to some documentation?
+> 
+> We used the WIKI page for setup and I have referred to this page, http://etbe.coker.com.au/2006/12/08/se-linux-on-debian-in-5-minutes/.  
+> 
+> However, when looking for specific instructions on how to do things I am lost.  
 
-    $ grep none $(rpm -ql libselinux-devel|grep -F .h)
-    [Exit 1]
+
+Try
+http://wiki.debian.org/SELinux
+http://lists.alioth.debian.org/mailman/listinfo/selinux-user
+and archive http://lists.alioth.debian.org/pipermail/selinux-user/
+
+There is a little traffic currently.
+-- 
+Zito
 
 --
 This message was distributed to subscribers of the selinux mailing list.
