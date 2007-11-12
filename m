@@ -1,63 +1,38 @@
-Subject: Re: Patch to allow semanage to set boolean values and
-	translate	booleans via policy.xml
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>
-In-Reply-To: <4734B94D.3010803@redhat.com>
-References: <472B817D.3030400@redhat.com>
-	 <1194625539.624.57.camel@moss-spartans.epoch.ncsc.mil>
-	 <1194633488.5253.26.camel@gorn>  <4734B94D.3010803@redhat.com>
-Content-Type: text/plain
-Date: Mon, 12 Nov 2007 10:45:53 -0500
-Message-Id: <1194882353.13737.6.camel@gorn>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [RFC PATCH v6 08/13] SELinux: Add new peer permissions to the Flask definitions
+Date: Mon, 12 Nov 2007 11:34:35 -0500
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
+References: <20071109205331.31738.75266.stgit@flek.americas.hpqcorp.net> <20071109212433.31738.71161.stgit@flek.americas.hpqcorp.net> <Xine.LNX.4.64.0711120926410.7114@us.intercode.com.au>
+In-Reply-To: <Xine.LNX.4.64.0711120926410.7114@us.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200711121134.35273.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-11-09 at 14:47 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Christopher J. PeBenito wrote:
-> > On Fri, 2007-11-09 at 11:25 -0500, Stephen Smalley wrote:
-> >> On Fri, 2007-11-02 at 15:58 -0400, Daniel J Walsh wrote:
-> >>> Also added translations of booleans to command line.
-> >>>
-> >>>> /usr/sbin/semanage boolean -l  | grep nfs_export
-> >>>> nfs_export_all_rw              -> off   Allow nfs to be exported read/write.
-> >>>> nfs_export_all_ro              -> on    Allow nfs to be exported read only
-> >>>> sh-3.2# /usr/sbin/semanage boolean -l  | grep nfs
-> >>>> xen_use_nfs                    -> off   Allow xen to manage nfs files
-> > [...]
-> >>>> nfs_export_all_ro              -> on    Allow nfs to be exported read only
-> >>>
-> >>> This time with the patch.  :^)
-> >> Offhand, the only problem I see it that semanage boolean -l then fails
-> >> if /usr/share/selinux/devel/policy.xml doesn't exist, rather than just
-> >> falling back to displaying the untranslated booleans.
-> >>
-> >> Also, is /usr/share/selinux/devel/policy.xml created by upstream
-> >> refpolicy or is it Fedora-specific?
-> > 
-> > The infrastructure for building a policy.xml from the headers is
-> > installed by upstream, but the policy.xml from refpolicy is not
-> > installed.  This allows 3rd parties to add their headers and then a
-> > policy.xml can be built to include their module.  Installing a
-> > policy.xml there is a fedora-specific thing.
-> > 
-> If I want to rebuild it after an interface file gets installed or want
-> to add my own xml to it, what do I need to do?
+On Sunday 11 November 2007 5:31:44 pm James Morris wrote:
+> On Fri, 9 Nov 2007, Paul Moore wrote:
+> > Add additional Flask definitions to support the new "peer" object class.
+>
+> Should this be dependent on dynamic class/permission support?
 
-The 'xml' target from the headers makefile will build one.  It uses the
-xml in header if files, plus global_(booleans|tunables).xml which are
-pre generated from the global_(booleans|tunables) in the source policy.
+I think it's okay to _define_ the Flask definitions regardless of what the 
+policy supports as older policies should simply ignore these definitions.
+
+> Or, will these checks only be invoked if labled networking is configured?
+
+Bingo!  Look at patch 7/13, specifically the 'selinux_policycap_netpeer' 
+variable and then at patch 9/13 where the new access checks are made 
+conditional on this variable.  The whole mess needs more testing and 
+verification, but "in theory" it shouldn't cause any breakage with older 
+policies ... if someone does notice something broken please scream loudly.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
