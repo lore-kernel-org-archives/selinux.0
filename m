@@ -1,31 +1,34 @@
-Date: Mon, 12 Nov 2007 09:31:44 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH v6 08/13] SELinux: Add new peer permissions to the
- Flask definitions
-In-Reply-To: <20071109212433.31738.71161.stgit@flek.americas.hpqcorp.net>
-Message-ID: <Xine.LNX.4.64.0711120926410.7114@us.intercode.com.au>
-References: <20071109205331.31738.75266.stgit@flek.americas.hpqcorp.net>
- <20071109212433.31738.71161.stgit@flek.americas.hpqcorp.net>
+Message-ID: <20071111225336.8JDDE.296428.root@fed1wml01.mgt.cox.net>
+Date: Sun, 11 Nov 2007 22:53:36 -0500
+From: Lisa Raykowski <lisaraykow@cox.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>, Lisa Raykowski <lisaraykow@cox.net>
+Subject: Debian Etch Documentation
+Cc: SELinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
+        Manoj Srivastava <manoj.srivastava@stdc.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <20071110192441.8GH97.287922.root@fed1wml01.mgt.cox.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 9 Nov 2007, Paul Moore wrote:
+Hello.
 
-> Add additional Flask definitions to support the new "peer" object class.
+I am looking for better documentation on SELinux on Debian Etch.
 
-Should this be dependent on dynamic class/permission support?
+When looking (googling) for solutions I often hit RedHat or Fedora and they refer me to directory structures which my set up does not have.
 
-Or, will these checks only be invoked if labled networking is configured?
+This may be because I have a bad setup (I inherited it) or because it is different on Debian.  At this point I don't know.
 
+Can someone point me to some documentation?
 
--- 
-James Morris
-<jmorris@namei.org>
+We used the WIKI page for setup and I have referred to this page, http://etbe.coker.com.au/2006/12/08/se-linux-on-debian-in-5-minutes/.  
+
+However, when looking for specific instructions on how to do things I am lost.  
+
+Thanks,
+Lisa
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
