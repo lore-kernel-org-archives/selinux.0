@@ -1,150 +1,120 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lADKOiAG008186
-	for <selinux@tycho.nsa.gov>; Tue, 13 Nov 2007 15:24:44 -0500
-Received: from chadgutsy (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lADKOco5023233
-	for <selinux@tycho.nsa.gov>; Tue, 13 Nov 2007 20:24:39 GMT
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by chadgutsy (Postfix) with ESMTP id E432A5389C
-	for <selinux@tycho.nsa.gov>; Tue, 13 Nov 2007 14:24:49 -0500 (EST)
-Message-ID: <4739FA01.9030804@tresys.com>
-Date: Tue, 13 Nov 2007 14:24:49 -0500
-From: Chad Sellers <csellers@tresys.com>
+Message-ID: <20071113214725.26TR5.23872.root@fed1wml01.mgt.cox.net>
+Date: Tue, 13 Nov 2007 18:47:25 -0800
+From: Lisa Raykowski <lisaraykow@cox.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Boot Errors
+Cc: SELinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
+        Manoj Srivastava <manoj.srivastava@stdc.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1194975208.22155.71.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: [PATCH v2] Initial policy load from load_policy
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Updated to include error message on loading failure in enforcing mode.
+Ok.  Thank you.  I thought you were expecting output for some reason.  For now I am going to ignore these boot errors since I need to move on.  Thank you for the help.
 
-The below patch adds a -i option to load_policy to perform the initial 
-policy load. The inital policy load is currently done in systems using 
-sysvinit by init itself, which then re-exec's itself. Ubuntu uses 
-upstart instead of sysvinit. In talks with the Ubuntu folks, they'd 
-prefer to load policy from initramfs before upstart starts rather than 
-patching upstart.
+Lisa
 
-Signed-off-by: Chad Sellers <csellers@tresys.com>
----
+---- Stephen Smalley <sds@tycho.nsa.gov> wrote: 
 
- load_policy.8 |   19 ++++++++++++++++++-
- load_policy.c |   32 ++++++++++++++++++++++++++++----
- 2 files changed, 46 insertions(+), 5 deletions(-)
+=============
+On Sat, 2007-11-10 at 19:24 -0500, Lisa Raykowski wrote:
+> Hello.
+> . /etc/selinux/config shows nothing.
 
-Index: policycoreutils/load_policy/load_policy.c
-===================================================================
---- policycoreutils/load_policy/load_policy.c    (revision 2679)
-+++ policycoreutils/load_policy/load_policy.c    (working copy)
-@@ -19,13 +19,13 @@
- 
- void usage(char *progname)
- {
--    fprintf(stderr, _("usage:  %s [-q]\n"), progname);
-+    fprintf(stderr, _("usage:  %s [-qi]\n"), progname);
-     exit(1);
- }
- 
- int main(int argc, char **argv)
- {
--    int ret, opt, quiet = 0, nargs;
-+    int ret, opt, quiet = 0, nargs, init=0, enforce=0;
- 
- #ifdef USE_NLS
-     setlocale(LC_ALL, "");
-@@ -33,7 +33,7 @@
-     textdomain(PACKAGE);
- #endif
- 
--    while ((opt = getopt(argc, argv, "bq")) > 0) {
-+    while ((opt = getopt(argc, argv, "bqi")) > 0) {
-         switch (opt) {
-         case 'b':
-             fprintf(stderr, "%s:  Warning! The -b option is no longer 
-supported, booleans are always preserved across reloads.  Continuing...\n",
-@@ -43,6 +43,9 @@
-             quiet = 1;
-             sepol_debug(0);
-             break;
-+        case 'i':
-+            init = 1;
-+            break;
-         default:
-             usage(argv[0]);
-         }
-@@ -62,7 +65,28 @@
-             argv[0], argv[optind++]);
-     }
- 
--    ret = selinux_mkload_policy(1);
-+    if (init) {
-+        if (is_selinux_enabled() == 1) {
-+            /* SELinux is already enabled, we should not do an initial 
-load again */
-+            fprintf(stderr,
-+                _("%s:  Policy is already loaded and initial load 
-requested\n"),
-+                argv[0]);
-+            exit(2);
-+        }
-+        ret = selinux_init_load_policy(&enforce);
-+        if (ret != 0 ) {
-+             if (enforce > 0) {
-+                /* SELinux in enforcing mode but load_policy failed */
-+                fprintf(stderr,
-+                    _("%s:  Can't load policy and enforcing mode 
-requested:  %s\n"),
-+                    argv[0], strerror(errno));
-+                exit(3);
-+            }
-+        }
-+    }
-+    else {
-+        ret = selinux_mkload_policy(1);
-+    }
-     if (ret < 0) {
-         fprintf(stderr, _("%s:  Can't load policy:  %s\n"),
-             argv[0], strerror(errno));
-Index: policycoreutils/load_policy/load_policy.8
-===================================================================
---- policycoreutils/load_policy/load_policy.8    (revision 2679)
-+++ policycoreutils/load_policy/load_policy.8    (working copy)
-@@ -4,7 +4,7 @@
- 
- .SH SYNOPSIS
- .B load_policy
--[-q]
-+[-qi]
- .br
- .SH DESCRIPTION
- .PP
-@@ -17,7 +17,24 @@
- .TP
- .B \-q
- suppress warning messages.
-+.TP
-+.B \-i
-+inital policy load. Only use this if this is the first time policy is 
-being loaded since boot (usually called from initramfs).
- 
-+.SH "EXIT STATUS"
-+.TP
-+.B 0
-+Success
-+.TP
-+.B 1
-+Invalid option
-+.TP
-+.B 2
-+Policy load failed
-+.TP
-+.B 3
-+Initial policy load failed and enforcing mode requested
-+
- .SH SEE ALSO
- .B booleans
- (8),
+It wasn't supposed to display output - the purpose of sourcing it was to
+pull in the definition of SELINUXTYPE before the subsequent grep command
+that used it.
+
+> 
+> These are the actual file contents with a cat:
+> selinux:~# cat /etc/selinux/config
+> # This file controls the state of SELinux on the system.
+> # SELINUX= can take one of these three values:
+> # enforcing - SELinux security policy is enforced.
+> # permissive - SELinux prints warnings instead of enforcing.
+> # disabled - No SELinux policy is loaded.
+> SELINUX=permissive
+> # SELINUXTYPE= can take one of these two values:
+> # refpolicy-targeted - Only targeted network daemons are protected.
+> # refpolicy-strict   - Full SELinux protection.
+> # refpolicy-src      - Custom policy built from source
+> #SELINUXTYPE=refpolicy-targeted
+> SELINUXTYPE=refpolicy-targeted
+> 
+> # SETLOCALDEFS= Check local definition changes
+> SETLOCALDEFS=0
+> 
+> The grep shows:
+> 
+>  grep /media /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts
+> /media(/[^/]*)  -l      system_u:object_r:mnt_t:s0
+> /media(/[^/]*)? -d      system_u:object_r:mnt_t:s0
+> /media/[^/]*/.* <<none>>
+
+Ok, current upstream policy also has:
+/media/\.hal-.*         --      system_u:object_r:mnt_t:s0
+
+Although I'd have typically put that into a derived type myself.
+
+> 
+> 
+> 
+> 
+> ---- Stephen Smalley <sds@tycho.nsa.gov> wrote: 
+> 
+> =============
+> On Thu, 2007-11-08 at 22:03 -0500, Lisa R. wrote:
+> > Thank you.  The restorecon did not work.  
+> > 
+> > I am on Debian Etch system with linux-image-2.6.18-5-686.  I probably should have mentioned that.  Targeted policy version 20.
+> 
+> (added Debian selinux folks to the cc line)
+> 
+> What does the following show?
+> . /etc/selinux/config
+> grep /media /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts
+> 
+> > ---- Stephen Smalley <sds@tycho.nsa.gov> wrote: 
+> > > On Wed, 2007-11-07 at 19:39 -0800, Lisa R. wrote:
+> > > > Hello.
+> > > >  
+> > > > I have new to this, have a new system and I have fixed most of the denial errors on boot.  However, I am stuck on three.
+> > > > 
+> > > > Can anyone help?
+> > > > 
+> > > > Nov  6 22:00:27 selinux kernel: audit(1194404427.969:3): avc:  denied  { search } for  pid=2814 comm="dmidecode" name="/\
+> > > >   " dev=sysfs ino=1 scontext=system_u:system_r:dmidecode_t:s0 tcontext=system_u:object_r:sysfs_t:s0 tclass=dir
+> > > > Nov  6 22:00:28 selinux kernel: audit(1194404428.085:4): avc:  denied  { read write } for  pid=2816 comm="hal-storage-cle" name=".hal-mtab-lock" dev=hda1 ino=2359302 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
+> > > >  Nov  6 22:00:28 selinux kernel: audit(1194404428.089:5): avc:  denied  { lock } for  pid=2816 comm="hal-storage-cle" name=".hal-mtab-lock" dev=hda1 ino=2359302 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
+> > > 
+> > > The name= field in the first message is a bit puzzling, but allowing
+> > > dmidecode to search /sys is likely harmless.
+> > > 
+> > > The other two would seem to be a lack of proper typing
+> > > on /media/.hal-mtab-lock.  What happens if you restorecon
+> > > -v /media/.hal-mtab-lock?
+> > > 
+> > > -- 
+> > > Stephen Smalley
+> > > National Security Agency
+> > > 
+> > > 
+> > > --
+> > > This message was distributed to subscribers of the selinux mailing list.
+> > > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > > the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
