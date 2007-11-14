@@ -1,18 +1,14 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAEKJlDP024589
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 15:19:47 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAEKJkYJ007379
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 20:19:46 GMT
-Message-ID: <473B5856.4020901@redhat.com>
-Date: Wed, 14 Nov 2007 15:19:34 -0500
+Message-ID: <473B5928.6090800@redhat.com>
+Date: Wed, 14 Nov 2007 15:23:04 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: w.chimiak@ieee.org
-CC: selinux@tycho.nsa.gov
-Subject: Re: allow statement OK?
-References: <200711091238.34883.w.chimiak@ieee.org>
-In-Reply-To: <200711091238.34883.w.chimiak@ieee.org>
+To: David Howells <dhowells@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Stefan Schulze Frielinghaus <stefan@seekline.net>,
+        selinux@tycho.nsa.gov
+Subject: Re: [Fwd: type class key]
+References: <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil> <1194628263.3630.14.camel@vogon> <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil> <24708.1194612682@redhat.com> <22421.1194637689@redhat.com> <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil> <24415.1194697577@redhat.com>
+In-Reply-To: <24415.1194697577@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -20,37 +16,37 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Bill Chimiak wrote:
-> I got a
+David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> 	avc: denied { search } for comm="pam_console_app" dev=sdb6 egid=650 euid=0 
-> exe="/sbin/pam_console_apply" exit=-13 fsgid=650 fsuid=0 gid=650 items=0 
-> name="gdm" pid=2693 scontext=system_u:system_r:pam_console_t:s0-s0:c0.c1023 
-> sgid=650 subj=system_u:system_r:pam_console_t:s0-s0:c0.c1023 suid=0 
-> tclass=dir tcontext=system_u:object_r:xserver_log_t:s0 tty=(none) uid=0 
+>> Ah, wait - this is an automatic allocation of a per-uid keyring upon a
+>> setuid() call, right?
 > 
+> Yes.
 > 
-> audit2allow recommended:
+>> and a single Linux uid might ultimately have a number of SELinux security
+>> contexts running on its behalf.
 > 
-> 	allow pam_console_t xserver_log_t:dir search;
+> Indeed.  It's not something that anyone considered at the time, I suppose.
 > 
-> Is this a reasonable module for me to add?  To me it seems benign.
+> David
 > 
-This is probably caused by a redirection stdout/stderr to the
-xserver.log.  So when a confined app starts, the kernel checks the
-access and closes the open file descriptors.  You could safely dontaudit
-this access.
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
-dontaudit pam_console_t xserver_log_t:dir search_dir_perms;
-
-
+David, we need a method of querying the keyring to see what the selinux
+context that is associated with it.  For debugging purposes.  Currently
+we can not tell whether the policy is correct or not, since we have no
+way to ask the keyring for its label.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFHO1hWrlYvE4MpobMRAjxyAJwPIFbm633wiAhlJ2oe2oRGjuiomgCglo4B
-ZnHgA1mLj3kaIDUlMe8XR6A=
-=KEes
+iD8DBQFHO1korlYvE4MpobMRAoruAKDTG5sR2NohyeorC54htOn9/echHgCfYvKH
+JwjEmAskBq6lezg/UfN74D8=
+=NQJJ
 -----END PGP SIGNATURE-----
 
 --
