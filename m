@@ -1,14 +1,18 @@
-Message-ID: <473B5928.6090800@redhat.com>
-Date: Wed, 14 Nov 2007 15:23:04 -0500
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAEL4E6x029501
+	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 16:04:14 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAEL4DYJ023980
+	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 21:04:13 GMT
+Message-ID: <473B62CA.30102@redhat.com>
+Date: Wed, 14 Nov 2007 16:04:10 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        selinux@tycho.nsa.gov
-Subject: Re: [Fwd: type class key]
-References: <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil> <1194628263.3630.14.camel@vogon> <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil> <24708.1194612682@redhat.com> <22421.1194637689@redhat.com> <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil> <24415.1194697577@redhat.com>
-In-Reply-To: <24415.1194697577@redhat.com>
+To: tolliver@dal.ca
+CC: selinux@tycho.nsa.gov
+Subject: Re: Apache problem with Selinux
+References: <473AE81D.7080500@dal.ca>
+In-Reply-To: <473AE81D.7080500@dal.ca>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -16,37 +20,37 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-David Howells wrote:
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+tolliver@dal.ca wrote:
 > 
->> Ah, wait - this is an automatic allocation of a per-uid keyring upon a
->> setuid() call, right?
+> Hello,
 > 
-> Yes.
+> I have setup Red Hat Enterprise Linux with SELinux enforced.
 > 
->> and a single Linux uid might ultimately have a number of SELinux security
->> contexts running on its behalf.
+> When I try to start apache, I get and error *[FAILED]*.
 > 
-> Indeed.  It's not something that anyone considered at the time, I suppose.
+> Apache will load fine when I run *setenforce 0*. I am new to
+> SELinux. What exactly can I do to get it running under SELinux.
 > 
-> David
 > 
-> --
+> 
+> Thanks ever so much!
+> 
+> -- 
 > This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
 > the words "unsubscribe selinux" without quotes as the message.
+WHat version of RHEL are you using?
+Do you see avc messages in /var/log/messages or /var/log/audit/audit.log
 
-David, we need a method of querying the keyring to see what the selinux
-context that is associated with it.  For debugging purposes.  Currently
-we can not tell whether the policy is correct or not, since we have no
-way to ask the keyring for its label.
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQFHO1korlYvE4MpobMRAoruAKDTG5sR2NohyeorC54htOn9/echHgCfYvKH
-JwjEmAskBq6lezg/UfN74D8=
-=NQJJ
+iD8DBQFHO2LKrlYvE4MpobMRAp26AKC+ldtUvwW/WLUKGw7Rh+63GV9hPgCg3fGy
+RD/rH7ZINj4Hjr9A2DekKJU=
+=wSz9
 -----END PGP SIGNATURE-----
 
 --
