@@ -1,57 +1,82 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAEHqAOi002019
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 12:52:10 -0500
-Received: from vidle.i.cz (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAEHq5Et002952
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 17:52:06 GMT
-Received: from ns.i.cz (brana.i.cz [193.179.36.134])
-	by vidle.i.cz (Postfix) with ESMTP id A3E091CD7F
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 17:54:47 +0100 (CET)
-Received: from bobek.localdomain (bobek.pm.i.cz [192.168.64.71])
-	by ns.i.cz (Postfix) with ESMTP id 7EBB95C06
-	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 17:54:47 +0100 (CET)
-Received: from zito by bobek.localdomain with local (Exim 4.63)
-	(envelope-from <vaclav.ovsik@i.cz>)
-	id 1IsLVn-0005OV-7g
-	for selinux@tycho.nsa.gov; Wed, 14 Nov 2007 17:54:47 +0100
-Date: Wed, 14 Nov 2007 17:54:47 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: selinux@tycho.nsa.gov
-Subject: duplicit fc on Debian for /lib/usb/devices
-Message-ID: <20071114165447.GA20094@bobek.pm.i.cz>
+Message-ID: <473B451D.7060205@redhat.com>
+Date: Wed, 14 Nov 2007 13:57:33 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: Patch to allow semanage to set boolean values and	translate	booleans
+ via policy.xml
+References: <472B817D.3030400@redhat.com>	 <1194625539.624.57.camel@moss-spartans.epoch.ncsc.mil>	 <1194633488.5253.26.camel@gorn>  <4734B94D.3010803@redhat.com> <1194882353.13737.6.camel@gorn>
+In-Reply-To: <1194882353.13737.6.camel@gorn>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-I'm starting to experiment with the refpolicy 20070928 on Debian Etch.
-First thing I noticed (beside many many other messages :-) is
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-/etc/selinux/refpolicy-strict/contexts/files/file_contexts: Multiple same specifications for /lib/udev/devices.
+Christopher J. PeBenito wrote:
+> On Fri, 2007-11-09 at 14:47 -0500, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Christopher J. PeBenito wrote:
+>>> On Fri, 2007-11-09 at 11:25 -0500, Stephen Smalley wrote:
+>>>> On Fri, 2007-11-02 at 15:58 -0400, Daniel J Walsh wrote:
+>>>>> Also added translations of booleans to command line.
+>>>>>
+>>>>>> /usr/sbin/semanage boolean -l  | grep nfs_export
+>>>>>> nfs_export_all_rw              -> off   Allow nfs to be exported read/write.
+>>>>>> nfs_export_all_ro              -> on    Allow nfs to be exported read only
+>>>>>> sh-3.2# /usr/sbin/semanage boolean -l  | grep nfs
+>>>>>> xen_use_nfs                    -> off   Allow xen to manage nfs files
+>>> [...]
+>>>>>> nfs_export_all_ro              -> on    Allow nfs to be exported read only
+>>>>> This time with the patch.  :^)
+>>>> Offhand, the only problem I see it that semanage boolean -l then fails
+>>>> if /usr/share/selinux/devel/policy.xml doesn't exist, rather than just
+>>>> falling back to displaying the untranslated booleans.
+>>>>
+>>>> Also, is /usr/share/selinux/devel/policy.xml created by upstream
+>>>> refpolicy or is it Fedora-specific?
+>>> The infrastructure for building a policy.xml from the headers is
+>>> installed by upstream, but the policy.xml from refpolicy is not
+>>> installed.  This allows 3rd parties to add their headers and then a
+>>> policy.xml can be built to include their module.  Installing a
+>>> policy.xml there is a fedora-specific thing.
+>>>
+>> If I want to rebuild it after an interface file gets installed or want
+>> to add my own xml to it, what do I need to do?
+> 
+> The 'xml' target from the headers makefile will build one.  It uses the
+> xml in header if files, plus global_(booleans|tunables).xml which are
+> pre generated from the global_(booleans|tunables) in the source policy.
+> 
+I am not sure how you intend this to work.
 
+Currently we ship policy.xml and the xml files for each *if file.  We do
+not ship the xml files for each directory admin.xml, apps.xdl, services.xml
 
-diff --git a/policy/modules/kernel/devices.fc b/policy/modules/kernel/devices.fc
-index 12a7d22..1489e16 100644
---- a/policy/modules/kernel/devices.fc
-+++ b/policy/modules/kernel/devices.fc
-@@ -125,11 +125,6 @@ ifdef(`distro_suse', `
- 
- /lib/udev/devices -d	gen_context(system_u:object_r:device_t,s0)
- 
--ifdef(`distro_debian',`
--# used by udev init script as temporary mount point
--/lib/udev/devices	-d		gen_context(system_u:object_r:device_t,s0)
--')
--
- ifdef(`distro_gentoo',`
- # used by init scripts to initally populate udev /dev
- /lib/udev/devices/null	-c	gen_context(system_u:object_r:null_device_t,s0)
+I would have thought the third party would ship there own xml and if
+file say myapp.if and myapp.xml.  Install them in
+/usr/share/selinux/devel/include/services.
 
+Then they would execute make -f /usr/share/selinux/devel/Makefile xml
 
-Regards
--- 
-Zito
+And it would rebuild the policy.xml including their changes.
+
+Is this what you are thinking?
+
+Dan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFHO0UdrlYvE4MpobMRAlYJAJ99NXipSygr5iNhSQdJWVlBKTi6pwCfeoIm
+XdUxyvk9nHynq/UVDpXMKAg=
+=yXWp
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
