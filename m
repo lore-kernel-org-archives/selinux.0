@@ -1,120 +1,35 @@
-Message-ID: <20071113214725.26TR5.23872.root@fed1wml01.mgt.cox.net>
-Date: Tue, 13 Nov 2007 18:47:25 -0800
-From: Lisa Raykowski <lisaraykow@cox.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Boot Errors
-Cc: SELinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
-        Manoj Srivastava <manoj.srivastava@stdc.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1194975208.22155.71.camel@moss-spartans.epoch.ncsc.mil>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAECKl3w028659
+	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 07:20:47 -0500
+Received: from KIL-SM-1.UCIS.Dal.Ca (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAECKjOs014953
+	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 12:20:46 GMT
+Received: from [129.173.2.172] (GTolliver-XP.UCIS.Dal.Ca [129.173.2.172])
+	by KIL-SM-1.UCIS.Dal.Ca (8.12.10/8.12.10) with ESMTP id lAECKjO1007412
+	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 08:20:45 -0400
+Message-ID: <473AE81D.7080500@dal.ca>
+Date: Wed, 14 Nov 2007 08:20:45 -0400
+From: tolliver@dal.ca
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+To: selinux@tycho.nsa.gov
+Subject: Apache problem with Selinux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok.  Thank you.  I thought you were expecting output for some reason.  For now I am going to ignore these boot errors since I need to move on.  Thank you for the help.
 
-Lisa
+Hello,
 
----- Stephen Smalley <sds@tycho.nsa.gov> wrote: 
+I have setup Red Hat Enterprise Linux with SELinux enforced.
 
-=============
-On Sat, 2007-11-10 at 19:24 -0500, Lisa Raykowski wrote:
-> Hello.
-> . /etc/selinux/config shows nothing.
+When I try to start apache, I get and error *[FAILED]*.
 
-It wasn't supposed to display output - the purpose of sourcing it was to
-pull in the definition of SELINUXTYPE before the subsequent grep command
-that used it.
-
-> 
-> These are the actual file contents with a cat:
-> selinux:~# cat /etc/selinux/config
-> # This file controls the state of SELinux on the system.
-> # SELINUX= can take one of these three values:
-> # enforcing - SELinux security policy is enforced.
-> # permissive - SELinux prints warnings instead of enforcing.
-> # disabled - No SELinux policy is loaded.
-> SELINUX=permissive
-> # SELINUXTYPE= can take one of these two values:
-> # refpolicy-targeted - Only targeted network daemons are protected.
-> # refpolicy-strict   - Full SELinux protection.
-> # refpolicy-src      - Custom policy built from source
-> #SELINUXTYPE=refpolicy-targeted
-> SELINUXTYPE=refpolicy-targeted
-> 
-> # SETLOCALDEFS= Check local definition changes
-> SETLOCALDEFS=0
-> 
-> The grep shows:
-> 
->  grep /media /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts
-> /media(/[^/]*)  -l      system_u:object_r:mnt_t:s0
-> /media(/[^/]*)? -d      system_u:object_r:mnt_t:s0
-> /media/[^/]*/.* <<none>>
-
-Ok, current upstream policy also has:
-/media/\.hal-.*         --      system_u:object_r:mnt_t:s0
-
-Although I'd have typically put that into a derived type myself.
-
-> 
-> 
-> 
-> 
-> ---- Stephen Smalley <sds@tycho.nsa.gov> wrote: 
-> 
-> =============
-> On Thu, 2007-11-08 at 22:03 -0500, Lisa R. wrote:
-> > Thank you.  The restorecon did not work.  
-> > 
-> > I am on Debian Etch system with linux-image-2.6.18-5-686.  I probably should have mentioned that.  Targeted policy version 20.
-> 
-> (added Debian selinux folks to the cc line)
-> 
-> What does the following show?
-> . /etc/selinux/config
-> grep /media /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts
-> 
-> > ---- Stephen Smalley <sds@tycho.nsa.gov> wrote: 
-> > > On Wed, 2007-11-07 at 19:39 -0800, Lisa R. wrote:
-> > > > Hello.
-> > > >  
-> > > > I have new to this, have a new system and I have fixed most of the denial errors on boot.  However, I am stuck on three.
-> > > > 
-> > > > Can anyone help?
-> > > > 
-> > > > Nov  6 22:00:27 selinux kernel: audit(1194404427.969:3): avc:  denied  { search } for  pid=2814 comm="dmidecode" name="/\
-> > > >   " dev=sysfs ino=1 scontext=system_u:system_r:dmidecode_t:s0 tcontext=system_u:object_r:sysfs_t:s0 tclass=dir
-> > > > Nov  6 22:00:28 selinux kernel: audit(1194404428.085:4): avc:  denied  { read write } for  pid=2816 comm="hal-storage-cle" name=".hal-mtab-lock" dev=hda1 ino=2359302 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
-> > > >  Nov  6 22:00:28 selinux kernel: audit(1194404428.089:5): avc:  denied  { lock } for  pid=2816 comm="hal-storage-cle" name=".hal-mtab-lock" dev=hda1 ino=2359302 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:object_r:default_t:s0 tclass=file
-> > > 
-> > > The name= field in the first message is a bit puzzling, but allowing
-> > > dmidecode to search /sys is likely harmless.
-> > > 
-> > > The other two would seem to be a lack of proper typing
-> > > on /media/.hal-mtab-lock.  What happens if you restorecon
-> > > -v /media/.hal-mtab-lock?
-> > > 
-> > > -- 
-> > > Stephen Smalley
-> > > National Security Agency
-> > > 
-> > > 
-> > > --
-> > > This message was distributed to subscribers of the selinux mailing list.
-> > > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > > the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+Apache will load fine when I run *setenforce 0*. I am new to
+SELinux. What exactly can I do to get it running under SELinux.
 
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
 
+Thanks ever so much!
 
 --
 This message was distributed to subscribers of the selinux mailing list.
