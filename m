@@ -1,336 +1,252 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1195138926.18480.28.camel@moss-spartans.epoch.ncsc.mil>
-References: <1195138926.18480.28.camel@moss-spartans.epoch.ncsc.mil> <26342.1195138409@redhat.com> <473B5928.6090800@redhat.com> <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil> <1194628263.3630.14.camel@vogon> <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil> <24708.1194612682@redhat.com> <22421.1194637689@redhat.com> <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil> <24415.1194697577@redhat.com> <26367.1195138703@redhat.com> 
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dhowells@redhat.com, Daniel J Walsh <dwalsh@redhat.com>,
-        Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        selinux@tycho.nsa.gov
-Subject: Re: [Fwd: type class key]
-Date: Thu, 15 Nov 2007 16:04:35 +0000
-Message-ID: <23847.1195142675@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAFGU811007652
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 11:30:08 -0500
+Received: from palrel10.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAFGTim4025783
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 16:29:45 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v7 06/13] NetLabel: add IP address family information to
+	the netlbl_skbuff_getattr() function
+To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Date: Thu, 15 Nov 2007 11:29:29 -0500
+Message-ID: <20071115162928.9970.80315.stgit@flek.americas.hpqcorp.net>
+In-Reply-To: <20071115162053.9970.49166.stgit@flek.americas.hpqcorp.net>
+References: <20071115162053.9970.49166.stgit@flek.americas.hpqcorp.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> Yes, sounds very similar to selinux_getprocattr(), just for keys rather
-> than tasks and w/o a name distinguisher for multiple attributes on the
-> task.
-
-Do I need the name distinguisher?
-
-I've attached the patch I've come up with so far.
-
-David
----
-KEYS: Add keyctl function to get a security label
-
-From: David Howells <dhowells@redhat.com>
-
-Add a keyctl() function to get the security label of a key.
-
-The following is added to Documentation/keys.txt:
-
- (*) Get the LSM security context attached to a key.
-
-	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
-		    size_t buflen)
-
-     This function returns a string that represents the LSM security context
-     attached to a key in the buffer provided.
-
-     Unless there's an error, it always returns the amount of data it could
-     produce, even if that's too big for the buffer, but it won't copy more
-     than requested to userspace. If the buffer pointer is NULL then no copy
-     will take place.
-
-     A NUL character is included at the end of the string if the buffer is
-     sufficiently big.  This is included in the returned count.  If no LSM is
-     in force then an empty string will be returned.
-
-     A process must have view permission on the key for this function to be
-     successful.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
+In order to do any sort of IP header inspection of incoming packets we need to
+know which address family, AF_INET/AF_INET6/etc., it belongs to and since the
+sk_buff structure does not store this information we need to pass along the
+address family separate from the packet itself.
 ---
 
- Documentation/keys.txt   |   21 ++++++++++++++++
- include/linux/keyctl.h   |    1 +
- include/linux/security.h |   20 ++++++++++++++-
- security/dummy.c         |    8 ++++++
- security/keys/compat.c   |    3 ++
- security/keys/keyctl.c   |   61 ++++++++++++++++++++++++++++++++++++++++++++++
- security/security.c      |    5 ++++
- security/selinux/hooks.c |   21 ++++++++++++++--
- 8 files changed, 136 insertions(+), 4 deletions(-)
+ include/net/netlabel.h              |    2 ++
+ net/netlabel/netlabel_kapi.c        |    2 ++
+ security/selinux/hooks.c            |   24 ++++++++++++++++++------
+ security/selinux/include/netlabel.h |    8 +++++++-
+ security/selinux/netlabel.c         |   12 +++++++++---
+ 5 files changed, 38 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-index b82d38d..be424b0 100644
---- a/Documentation/keys.txt
-+++ b/Documentation/keys.txt
-@@ -711,6 +711,27 @@ The keyctl syscall functions are:
-      The assumed authoritative key is inherited across fork and exec.
+diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+index 18b73cf..a3bffb4 100644
+--- a/include/net/netlabel.h
++++ b/include/net/netlabel.h
+@@ -363,6 +363,7 @@ int netlbl_sock_setattr(struct sock *sk,
+ int netlbl_sock_getattr(struct sock *sk,
+ 			struct netlbl_lsm_secattr *secattr);
+ int netlbl_skbuff_getattr(const struct sk_buff *skb,
++			  u16 family,
+ 			  struct netlbl_lsm_secattr *secattr);
+ void netlbl_skbuff_err(struct sk_buff *skb, int error);
  
- 
-+ (*) Get the LSM security context attached to a key.
-+
-+	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
-+		    size_t buflen)
-+
-+     This function returns a string that represents the LSM security context
-+     attached to a key in the buffer provided.
-+
-+     Unless there's an error, it always returns the amount of data it could
-+     produce, even if that's too big for the buffer, but it won't copy more
-+     than requested to userspace. If the buffer pointer is NULL then no copy
-+     will take place.
-+
-+     A NUL character is included at the end of the string if the buffer is
-+     sufficiently big.  This is included in the returned count.  If no LSM is
-+     in force then an empty string will be returned.
-+
-+     A process must have view permission on the key for this function to be
-+     successful.
-+
-+
- ===============
- KERNEL SERVICES
- ===============
-diff --git a/include/linux/keyctl.h b/include/linux/keyctl.h
-index 3365945..656ee6b 100644
---- a/include/linux/keyctl.h
-+++ b/include/linux/keyctl.h
-@@ -49,5 +49,6 @@
- #define KEYCTL_SET_REQKEY_KEYRING	14	/* set default request-key keyring */
- #define KEYCTL_SET_TIMEOUT		15	/* set key timeout */
- #define KEYCTL_ASSUME_AUTHORITY		16	/* assume request_key() authorisation */
-+#define KEYCTL_GET_SECURITY		17	/* get key security label */
- 
- #endif /*  _LINUX_KEYCTL_H */
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ac05083..8d9e946 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -959,6 +959,17 @@ struct request_sock;
-  *	@perm describes the combination of permissions required of this key.
-  *	Return 1 if permission granted, 0 if permission denied and -ve it the
-  *      normal permissions model should be effected.
-+ * @key_getsecurity:
-+ *	Get a textual representation of the security context attached to a key
-+ *	for the purposes of honouring KEYCTL_GETSECURITY.  This function
-+ *	allocates the storage for the NUL-terminated string and the caller
-+ *	should free it.
-+ *	@key points to the key to be queried.
-+ *	@_buffer points to a pointer that should be set to point to the
-+ *	 resulting string (if no label or an error occurs).
-+ *	Return the length of the string (including terminating NUL) or -ve if
-+ *      an error.
-+ *	May also return 0 (and a NULL buffer pointer) if there is no label.
-  *
-  * Security hooks affecting all System V IPC operations.
-  *
-@@ -1437,7 +1448,7 @@ struct security_operations {
- 	int (*key_permission)(key_ref_t key_ref,
- 			      struct task_struct *context,
- 			      key_perm_t perm);
--
-+	int (*key_getsecurity)(struct key *key, char **_buffer);
- #endif	/* CONFIG_KEYS */
- 
- };
-@@ -2567,6 +2578,7 @@ int security_key_alloc(struct key *key, struct task_struct *tsk, unsigned long f
- void security_key_free(struct key *key);
- int security_key_permission(key_ref_t key_ref,
- 			    struct task_struct *context, key_perm_t perm);
-+int security_key_getsecurity(struct key *key, char **_buffer);
- 
- #else
- 
-@@ -2588,6 +2600,12 @@ static inline int security_key_permission(key_ref_t key_ref,
- 	return 0;
+@@ -415,6 +416,7 @@ static inline int netlbl_sock_getattr(struct sock *sk,
+ 	return -ENOSYS;
  }
- 
-+static inline int security_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	*_buffer = NULL;
-+	return 0;
-+}
-+
- #endif
- #endif /* CONFIG_KEYS */
- 
-diff --git a/security/dummy.c b/security/dummy.c
-index 6d895ad..7993b30 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -949,6 +949,13 @@ static inline int dummy_key_permission(key_ref_t key_ref,
+ static inline int netlbl_skbuff_getattr(const struct sk_buff *skb,
++					u16 family,
+ 					struct netlbl_lsm_secattr *secattr)
  {
- 	return 0;
- }
-+
-+static int dummy_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	*_buffer = NULL;
-+	return 0;
-+}
-+
- #endif /* CONFIG_KEYS */
- 
- struct security_operations dummy_security_ops;
-@@ -1133,6 +1140,7 @@ void security_fixup_ops (struct security_operations *ops)
- 	set_to_dummy_if_null(ops, key_alloc);
- 	set_to_dummy_if_null(ops, key_free);
- 	set_to_dummy_if_null(ops, key_permission);
-+	set_to_dummy_if_null(ops, key_getsecurity);
- #endif	/* CONFIG_KEYS */
- 
- }
-diff --git a/security/keys/compat.c b/security/keys/compat.c
-index e10ec99..c766c68 100644
---- a/security/keys/compat.c
-+++ b/security/keys/compat.c
-@@ -79,6 +79,9 @@ asmlinkage long compat_sys_keyctl(u32 option,
- 	case KEYCTL_ASSUME_AUTHORITY:
- 		return keyctl_assume_authority(arg2);
- 
-+	case KEYCTL_GET_SECURITY:
-+		return keyctl_get_security(arg2, compat_ptr(arg3), arg4);
-+
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 1698bf9..4f71349 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -20,6 +20,7 @@
- #include <linux/string.h>
- #include <linux/err.h>
- #include <linux/vmalloc.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- #include "internal.h"
- 
-@@ -1080,6 +1081,66 @@ error:
- 
- } /* end keyctl_assume_authority() */
- 
-+/*
-+ * get the security label of a key
-+ * - the key must grant us view permission
-+ * - if there's a buffer, we place up to buflen bytes of data into it
-+ * - unless there's an error, we return the amount of information available,
-+ *   irrespective of how much we may have copied (including the terminal NUL)
-+ * - implements keyctl(KEYCTL_GET_SECURITY)
-+ */
-+long keyctl_get_security(key_serial_t keyid,
-+			 char __user *buffer,
-+			 size_t buflen)
-+{
-+	struct key *key, *instkey;
-+	key_ref_t key_ref;
-+	char *context;
-+	long ret;
-+
-+	key_ref = lookup_user_key(NULL, keyid, 0, 1, KEY_VIEW);
-+	if (IS_ERR(key_ref)) {
-+		if (PTR_ERR(key_ref) != -EACCES)
-+			return PTR_ERR(key_ref);
-+
-+		/* viewing a key under construction is also permitted if we
-+		 * have the authorisation token handy */
-+		instkey = key_get_instantiation_authkey(keyid);
-+		if (IS_ERR(instkey))
-+			return PTR_ERR(key_ref);
-+		key_put(instkey);
-+
-+		key_ref = lookup_user_key(NULL, keyid, 0, 1, 0);
-+		if (IS_ERR(key_ref))
-+			return PTR_ERR(key_ref);
-+	}
-+
-+	key = key_ref_to_ptr(key_ref);
-+	ret = security_key_getsecurity(key, &context);
-+	if (ret == 0) {
-+		/* if no information was returned, give userspace an empty
-+		 * string */
-+		ret = 1;
-+		if (buffer && buflen > 0 &&
-+		    copy_to_user(buffer, "", 1) != 0)
-+			ret = -EFAULT;
-+	} else if (ret > 0) {
-+		/* return as much data as there's room for */
-+		if (buffer && buflen > 0) {
-+			if (buflen > ret)
-+				buflen = ret;
-+
-+			if (copy_to_user(buffer, context, buflen) != 0)
-+				ret = -EFAULT;
-+		}
-+
-+		kfree(context);
-+	}
-+
-+	key_ref_put(key_ref);
-+	return ret;
-+}
-+
- /*****************************************************************************/
- /*
-  * the key control system call
-diff --git a/security/security.c b/security/security.c
-index 0e1f1f1..16213e3 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1079,4 +1079,9 @@ int security_key_permission(key_ref_t key_ref,
- 	return security_ops->key_permission(key_ref, context, perm);
- }
- 
-+int security_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	return security_ops->key_getsecurity(key, _buffer);
-+}
-+
- #endif	/* CONFIG_KEYS */
+ 	return -ENOSYS;
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index d3762ea..4914615 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -332,6 +332,7 @@ int netlbl_sock_getattr(struct sock *sk, struct netlbl_lsm_secattr *secattr)
+ /**
+  * netlbl_skbuff_getattr - Determine the security attributes of a packet
+  * @skb: the packet
++ * @family: protocol family
+  * @secattr: the security attributes
+  *
+  * Description:
+@@ -342,6 +343,7 @@ int netlbl_sock_getattr(struct sock *sk, struct netlbl_lsm_secattr *secattr)
+  *
+  */
+ int netlbl_skbuff_getattr(const struct sk_buff *skb,
++			  u16 family,
+ 			  struct netlbl_lsm_secattr *secattr)
+ {
+ 	if (CIPSO_V4_OPTEXIST(skb) &&
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 9f3124b..bf161f5 100644
+index 8bb673b..2188b9c 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -4768,6 +4768,20 @@ static int selinux_key_permission(key_ref_t key_ref,
- 			    SECCLASS_KEY, perm, NULL);
+@@ -3192,6 +3192,7 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+ /**
+  * selinux_skb_extlbl_sid - Determine the external label of a packet
+  * @skb: the packet
++ * @family: protocol family
+  * @sid: the packet's SID
+  *
+  * Description:
+@@ -3204,13 +3205,16 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+  * selinux_netlbl_skbuff_getsid().
+  *
+  */
+-static void selinux_skb_extlbl_sid(struct sk_buff *skb, u32 *sid)
++static void selinux_skb_extlbl_sid(struct sk_buff *skb,
++				   u16 family,
++				   u32 *sid)
+ {
+ 	u32 xfrm_sid;
+ 	u32 nlbl_sid;
+ 
+ 	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+ 	if (selinux_netlbl_skbuff_getsid(skb,
++					 family,
+ 					 (xfrm_sid == SECSID_NULL ?
+ 					  SECINITSID_NETMSG : xfrm_sid),
+ 					 &nlbl_sid) != 0)
+@@ -3703,7 +3707,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	if (err)
+ 		goto out;
+ 
+-	err = selinux_netlbl_sock_rcv_skb(sksec, skb, &ad);
++	err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, &ad);
+ 	if (err)
+ 		goto out;
+ 
+@@ -3760,11 +3764,19 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
+ {
+ 	u32 peer_secid = SECSID_NULL;
+ 	int err = 0;
++	u16 family;
++
++	if (sock)
++		family = sock->sk->sk_family;
++	else if (skb->sk)
++		family = skb->sk->sk_family;
++	else
++		family = PF_UNSPEC;
+ 
+-	if (sock && sock->sk->sk_family == PF_UNIX)
++	if (sock && family == PF_UNIX)
+ 		selinux_get_inode_sid(SOCK_INODE(sock), &peer_secid);
+ 	else if (skb)
+-		selinux_skb_extlbl_sid(skb, &peer_secid);
++		selinux_skb_extlbl_sid(skb, family, &peer_secid);
+ 
+ 	if (peer_secid == SECSID_NULL)
+ 		err = -EINVAL;
+@@ -3825,7 +3837,7 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ 	u32 newsid;
+ 	u32 peersid;
+ 
+-	selinux_skb_extlbl_sid(skb, &peersid);
++	selinux_skb_extlbl_sid(skb, sk->sk_family, &peersid);
+ 	if (peersid == SECSID_NULL) {
+ 		req->secid = sksec->sid;
+ 		req->peer_secid = SECSID_NULL;
+@@ -3863,7 +3875,7 @@ static void selinux_inet_conn_established(struct sock *sk,
+ {
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+-	selinux_skb_extlbl_sid(skb, &sksec->peer_sid);
++	selinux_skb_extlbl_sid(skb, sk->sk_family, &sksec->peer_sid);
  }
  
-+static int selinux_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	struct key_security_struct *ksec = key->security;
-+	char *context = NULL;
-+	unsigned len;
-+	int rc;
-+
-+	rc = security_sid_to_context(ksec->sid, &context, &len);
-+	if (!rc)
-+		rc = len;
-+	*_buffer = context;
-+	return len;
-+}
-+
- #endif
+ static void selinux_req_classify_flow(const struct request_sock *req,
+diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+index 218e3f7..272769a 100644
+--- a/security/selinux/include/netlabel.h
++++ b/security/selinux/include/netlabel.h
+@@ -46,13 +46,17 @@ void selinux_netlbl_sk_security_init(struct sk_security_struct *ssec,
+ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+ 				      struct sk_security_struct *newssec);
  
- static struct security_operations selinux_ops = {
-@@ -4943,9 +4957,10 @@ static struct security_operations selinux_ops = {
- #endif
+-int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u32 base_sid, u32 *sid);
++int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
++				 u16 family,
++				 u32 base_sid,
++				 u32 *sid);
  
- #ifdef CONFIG_KEYS
--	.key_alloc =                    selinux_key_alloc,
--	.key_free =                     selinux_key_free,
--	.key_permission =               selinux_key_permission,
-+	.key_alloc =			selinux_key_alloc,
-+	.key_free =			selinux_key_free,
-+	.key_permission =		selinux_key_permission,
-+	.key_getsecurity =		selinux_key_getsecurity,
- #endif
- };
+ void selinux_netlbl_sock_graft(struct sock *sk, struct socket *sock);
+ int selinux_netlbl_socket_post_create(struct socket *sock);
+ int selinux_netlbl_inode_permission(struct inode *inode, int mask);
+ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 				struct sk_buff *skb,
++				u16 family,
+ 				struct avc_audit_data *ad);
+ int selinux_netlbl_socket_setsockopt(struct socket *sock,
+ 				     int level,
+@@ -83,6 +87,7 @@ static inline void selinux_netlbl_sk_security_clone(
+ }
  
+ static inline int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
++					       u16 family,
+ 					       u32 base_sid,
+ 					       u32 *sid)
+ {
+@@ -106,6 +111,7 @@ static inline int selinux_netlbl_inode_permission(struct inode *inode,
+ }
+ static inline int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 					      struct sk_buff *skb,
++					      u16 family,
+ 					      struct avc_audit_data *ad)
+ {
+ 	return 0;
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index d243ddc..4073d5a 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -141,6 +141,7 @@ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+ /**
+  * selinux_netlbl_skbuff_getsid - Get the sid of a packet using NetLabel
+  * @skb: the packet
++ * @family: protocol family
+  * @base_sid: the SELinux SID to use as a context for MLS only attributes
+  * @sid: the SID
+  *
+@@ -150,7 +151,10 @@ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+  * assign to the packet.  Returns zero on success, negative values on failure.
+  *
+  */
+-int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u32 base_sid, u32 *sid)
++int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
++				 u16 family,
++				 u32 base_sid,
++				 u32 *sid)
+ {
+ 	int rc;
+ 	struct netlbl_lsm_secattr secattr;
+@@ -161,7 +165,7 @@ int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u32 base_sid, u32 *sid)
+ 	}
+ 
+ 	netlbl_secattr_init(&secattr);
+-	rc = netlbl_skbuff_getattr(skb, &secattr);
++	rc = netlbl_skbuff_getattr(skb, family, &secattr);
+ 	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE) {
+ 		rc = security_netlbl_secattr_to_sid(&secattr, base_sid, sid);
+ 		if (rc == 0 &&
+@@ -289,6 +293,7 @@ int selinux_netlbl_inode_permission(struct inode *inode, int mask)
+  * selinux_netlbl_sock_rcv_skb - Do an inbound access check using NetLabel
+  * @sksec: the sock's sk_security_struct
+  * @skb: the packet
++ * @family: protocol family
+  * @ad: the audit data
+  *
+  * Description:
+@@ -299,6 +304,7 @@ int selinux_netlbl_inode_permission(struct inode *inode, int mask)
+  */
+ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 				struct sk_buff *skb,
++				u16 family,
+ 				struct avc_audit_data *ad)
+ {
+ 	int rc;
+@@ -310,7 +316,7 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 		return 0;
+ 
+ 	netlbl_secattr_init(&secattr);
+-	rc = netlbl_skbuff_getattr(skb, &secattr);
++	rc = netlbl_skbuff_getattr(skb, family, &secattr);
+ 	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE) {
+ 		rc = security_netlbl_secattr_to_sid(&secattr,
+ 						    SECINITSID_NETMSG,
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
