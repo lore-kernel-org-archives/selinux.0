@@ -1,62 +1,84 @@
-Subject: Re: Kernel oops on fc6 with non-mls policy
-From: Eric Paris <eparis@redhat.com>
-To: "Brian M. Williams" <bwilliams@tresys.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158801331BF7@exchange.columbia.tresys.com>
-References: 
-	 <6FE441CD9F0C0C479F2D88F959B0158801331BF7@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Wed, 14 Nov 2007 16:29:38 -0500
-Message-Id: <1195075778.2924.49.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAF2rKo8027634
+	for <selinux@tycho.nsa.gov>; Wed, 14 Nov 2007 21:53:20 -0500
+Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAF2rHWO007795
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 02:53:18 GMT
+Message-ID: <473BB437.3070005@ak.jp.nec.com>
+Date: Thu, 15 Nov 2007 11:51:35 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] IPsec SPD default security context (Re: security	context
+ for SPD entries of labeled IPsec)
+References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>	 <47331BAB.8040107@kaigai.gr.jp>  <473872F8.7000208@ak.jp.nec.com>	 <1195055160.13737.33.camel@gorn.columbia.tresys.com>	 <473B23F9.4080506@ak.jp.nec.com> <1195064402.13737.42.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1195064402.13737.42.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-11-14 at 16:23 -0500, Brian M. Williams wrote:
-> >-----Original Message-----
-> >From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-> On Behalf Of Eric Paris
-> >Sent: Thursday, February 01, 2007 3:20 PM
-> >To: Joshua Brindle
-> >Cc: selinux@tycho.nsa.gov; Stephen Smalley; Karl MacMillan; Paul Moore;
-> James Morris
-> >Subject: Re: Kernel oops on fc6 with non-mls policy
-> >
-> >On Thu, 2007-02-01 at 14:58 -0500, Joshua Brindle wrote:
-> >> There seems to be a kernel oops on non-mls policies with the fc6
-> kernel.
-> >> It appears that netlabel is the culprit but I couldn't immediately
-> track
-> >> down the issue, the mls functions all seem to be returning if mls is
-> >> disabled. The oops and ksymoops output is available at
-> >> http://pastebin.com/872996.
-> >>
-> >> I have seen another that isn't there that happens on
-> unix_stream_connect
-> >> and oopses in security_sid_mls_copy->ebitmap_cpy.
-> >>
-> >> Is this a known issue?
-> >
-> >http://marc2.theaimsgroup.com/?l=selinux&m=116920292206962&w=2
-> >
-> >I believe.
-> >
-> >Will get fixed in FC7 when the kernel gets new enough to pick it up
-> from
-> >upstream.  Will not get fixed in RHEL5 until U1.
+Christopher J. PeBenito wrote:
+> On Thu, 2007-11-15 at 01:36 +0900, KaiGai Kohei wrote:
+>> Christopher J. PeBenito wrote:
+>>> On Tue, 2007-11-13 at 00:36 +0900, KaiGai Kohei wrote:
+>>>> Did you notice that a patch was attached in my previous posting?
+>>>> Because I put a description about this patch on the bottom of the message,
+>>>> it might be easy to overlook it.
+>>>>
+>>>> Could you review it? It is desirable for me to enable to communicate
+>>>> between different domains via labeled ipsec.
+>>> I committed an alternate version,
+>>>
+>>> http://oss.tresys.com/projects/refpolicy/changeset/2499
+>>> http://oss.tresys.com/projects/refpolicy/changeset/2500
+>>>
+>> Thanks to apply them,
+>>
+>> However, it does not contain any permissions which allows
+>> users and daemons domain to communicate via labeled ipsec.
+>>
+>> In my patch, these permissions were allowed at system/init.if
+>> and system/userdomain.if. Do you consider these permissions
+>> should not be allowed implicitly inside these interfaces?
+>>
+>> Currently, it is not enough for SE-PostgreSQL to communicate
+>> peers using a SPD with default security context.
+>> They are requiring a bit more permissions.
 > 
-> I just tried to run a RHEL5 U1 system with a non-mls policy and this
-> appears to still be a problem, are there plans to fix the bug in U2?
+> I reject the blanket permissions that you had in your previous patch.
 
-Yeah, it got oh the wrong list internally and wasn't posted until Oct
-22.  So U1 is busted as well and you won't see a public fix until
-RHEL5U2.  I'm really sorry to everyone who want to turn MLS off.
+OK, I can agree.
 
--Eric "bad at filing paperwork" Paris
+I also suggest two minor improvement toward these updates.
 
+1. Is it considerable to add "allow $1 self : association { sendto };"
+   at ipsec_match_default_spd interface of ipsec.if?
+
+   I think it should be packed with polmatch permission to the default
+   SPD context, because any domain which want to communicate others using
+   SPD with default context always have to have 'sendto' permission to
+   itself.
+
+2. Is it considerable to add "ipsec_match_default_spd($1_t)"
+   in the userdom_basic_networking_template of userdomain.if?
+
+   This interface allows a given userdomain widespread basic networking
+   permissions. But it is not enough yet, if the networking tunnel
+   is configured with labeled ipsec.
+   I think it can be contained in the basic networking permissions
+   to use ipsec SPD with default context.
+
+> I'll consider a patch that adds it to a postresql interface.  Perhaps
+> postgresql_tcp_connect should be un-deprecated.
+
+I think similar interfaces are necessary for any other daemon-domain which
+provides networking-services, even if they don't use getpeercon().
+
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
