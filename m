@@ -1,15 +1,15 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAFGUE2R007682
-	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 11:30:14 -0500
-Received: from palrel11.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAFGTvm4025971
-	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 16:29:58 GMT
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAFGUGdd007693
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 11:30:16 -0500
+Received: from g1t0028.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAFGUCai010734
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 16:30:12 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v7 07/13] SELinux: Add a capabilities bitmap to SELinux
-	policy version 22
+Subject: [RFC PATCH v7 10/13] SELinux: Enable dynamic enable/disable of the
+	network access checks
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Thu, 15 Nov 2007 11:29:37 -0500
-Message-ID: <20071115162937.9970.95186.stgit@flek.americas.hpqcorp.net>
+Date: Thu, 15 Nov 2007 11:30:03 -0500
+Message-ID: <20071115163003.9970.21138.stgit@flek.americas.hpqcorp.net>
 In-Reply-To: <20071115162053.9970.49166.stgit@flek.americas.hpqcorp.net>
 References: <20071115162053.9970.49166.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
@@ -17,425 +17,372 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a new policy capabilities bitmap to SELinux policy version 22.  This bitmap
-will enable the security server to query the policy to determine which features
-it supports.
+This patch introduces a mechanism for checking when labeled IPsec or SECMARK
+are in use by keeping introducing a configuration reference counter for each
+subsystem.  In the case of labeled IPsec, whenever a labeled SA or SPD entry
+is created the labeled IPsec/XFRM reference count is increased and when the
+entry is removed it is decreased.  In the case of SECMARK, when a SECMARK
+target is created the reference count is increased and later decreased when the
+target is removed.  These reference counters allow SELinux to quickly determine
+if either of these subsystems are enabled.
+
+NetLabel already has a similar mechanism which provides the netlbl_enabled()
+function.
+
+This patch also renames the selinux_relabel_packet_permission() function to
+selinux_secmark_relabel_packet_permission() as the original name and
+description were misleading in that they referenced a single packet label which
+is not the case.
 ---
 
- security/selinux/Kconfig            |    2 -
- security/selinux/include/security.h |   15 ++++++
- security/selinux/selinuxfs.c        |   89 +++++++++++++++++++++++++++++++++--
- security/selinux/ss/policydb.c      |   18 +++++++
- security/selinux/ss/policydb.h      |    2 +
- security/selinux/ss/services.c      |   67 ++++++++++++++++++++++++++
- 6 files changed, 185 insertions(+), 8 deletions(-)
+ include/linux/selinux.h         |   45 ++++++++++++++++++++++++++++++++-------
+ net/netfilter/xt_SECMARK.c      |   13 ++++++++++-
+ security/selinux/exports.c      |   20 ++++++++++++++++-
+ security/selinux/hooks.c        |   45 ++++++++++++++++++++++++++++++++-------
+ security/selinux/include/xfrm.h |   17 +++++++++++++++
+ security/selinux/xfrm.c         |   18 ++++++++++++++--
+ 6 files changed, 137 insertions(+), 21 deletions(-)
 
-diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-index b32a459..2b517d6 100644
---- a/security/selinux/Kconfig
-+++ b/security/selinux/Kconfig
-@@ -145,7 +145,7 @@ config SECURITY_SELINUX_POLICYDB_VERSION_MAX
- config SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
- 	int "NSA SELinux maximum supported policy format version value"
- 	depends on SECURITY_SELINUX_POLICYDB_VERSION_MAX
--	range 15 21
-+	range 15 22
- 	default 19
- 	help
- 	  This option sets the value for the maximum policy format version
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 39337af..4d3c0d3 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -25,13 +25,14 @@
- #define POLICYDB_VERSION_MLS		19
- #define POLICYDB_VERSION_AVTAB		20
- #define POLICYDB_VERSION_RANGETRANS	21
-+#define POLICYDB_VERSION_POLCAP		22
+diff --git a/include/linux/selinux.h b/include/linux/selinux.h
+index d1b7ca6..691170b 100644
+--- a/include/linux/selinux.h
++++ b/include/linux/selinux.h
+@@ -120,16 +120,35 @@ void selinux_get_task_sid(struct task_struct *tsk, u32 *sid);
+ int selinux_string_to_sid(char *str, u32 *sid);
  
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
- #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
- #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ /**
+- *     selinux_relabel_packet_permission - check permission to relabel a packet
+- *     @sid: ID value to be applied to network packet (via SECMARK, most likely)
++ *     selinux_secmark_relabel_packet_permission - secmark permission check
++ *     @sid: SECMARK ID value to be applied to network packet
+  *
+- *     Returns 0 if the current task is allowed to label packets with the
+- *     supplied security ID.  Note that it is implicit that the packet is always
+- *     being relabeled from the default unlabled value, and that the access
+- *     control decision is made in the AVC.
++ *     Returns 0 if the current task is allowed to set the SECMARK label of
++ *     packets with the supplied security ID.  Note that it is implicit that
++ *     the packet is always being relabeled from the default unlabeled value,
++ *     and that the access control decision is made in the AVC.
+  */
+-int selinux_relabel_packet_permission(u32 sid);
++int selinux_secmark_relabel_packet_permission(u32 sid);
+ 
++/**
++ *     selinux_secmark_refcount_inc - increments the secmark use counter
++ *
++ *     SELinux keeps track of the current SECMARK targets in use so it knows
++ *     when to apply SECMARK label access checks to network packets.  This
++ *     function incements this reference count to indicate that a new SECMARK
++ *     target has been configured.
++ */
++void selinux_secmark_refcount_inc(void);
++
++/**
++ *     selinux_secmark_refcount_dec - decrements the secmark use counter
++ *
++ *     SELinux keeps track of the current SECMARK targets in use so it knows
++ *     when to apply SECMARK label access checks to network packets.  This
++ *     function decements this reference count to indicate that one of the
++ *     existing SECMARK targets has been removed/flushed.
++ */
++void selinux_secmark_refcount_dec(void);
  #else
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
- #endif
  
- struct netlbl_lsm_secattr;
-@@ -39,8 +40,19 @@ struct netlbl_lsm_secattr;
- extern int selinux_enabled;
- extern int selinux_mls_enabled;
- 
-+/* Policy capabilities */
-+enum {
-+	POLICYDB_CAPABILITY_NETPEER,
-+	__POLICYDB_CAPABILITY_MAX
-+};
-+#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-+
-+extern int selinux_policycap_netpeer;
-+
- int security_load_policy(void * data, size_t len);
- 
-+int security_policycap_supported(unsigned int req_cap);
-+
- #define SEL_VEC_MAX 32
- struct av_decision {
- 	u32 allowed;
-@@ -92,6 +104,7 @@ int security_get_classes(char ***classes, int *nclasses);
- int security_get_permissions(char *class, char ***perms, int *nperms);
- int security_get_reject_unknown(void);
- int security_get_allow_unknown(void);
-+int security_get_policycaps(int *len, int **values);
- 
- #define SECURITY_FS_USE_XATTR		1 /* use xattr */
- #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index f5f3e6d..cf583cc 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -2,6 +2,11 @@
-  *
-  * 	Added conditional policy language extensions
-  *
-+ *  Updated: Hewlett-Packard <paul.moore@hp.com>
-+ *
-+ *      Added support for the policy capability bitmap
-+ *
-+ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-  * Copyright (C) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
-  *	This program is free software; you can redistribute it and/or modify
-@@ -35,6 +40,11 @@
- #include "objsec.h"
- #include "conditional.h"
- 
-+/* Policy capability filenames */
-+static char *policycap_names[] = {
-+	"network_peer_controls"
-+};
-+
- unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
- 
- #ifdef CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT
-@@ -71,6 +81,9 @@ static int *bool_pending_values = NULL;
- static struct dentry *class_dir = NULL;
- static unsigned long last_class_ino;
- 
-+/* global data for policy capabilities */
-+static struct dentry *policycap_dir = NULL;
-+
- extern void selnl_notify_setenforce(int val);
- 
- /* Check whether a task is allowed to use a security operation. */
-@@ -110,10 +123,11 @@ enum sel_inos {
- 
- static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
- 
--#define SEL_INITCON_INO_OFFSET 	0x01000000
--#define SEL_BOOL_INO_OFFSET	0x02000000
--#define SEL_CLASS_INO_OFFSET	0x04000000
--#define SEL_INO_MASK		0x00ffffff
-+#define SEL_INITCON_INO_OFFSET		0x01000000
-+#define SEL_BOOL_INO_OFFSET		0x02000000
-+#define SEL_CLASS_INO_OFFSET		0x04000000
-+#define SEL_POLICYCAP_INO_OFFSET	0x08000000
-+#define SEL_INO_MASK			0x00ffffff
- 
- #define TMPBUFLEN	12
- static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
-@@ -262,6 +276,7 @@ static const struct file_operations sel_policyvers_ops = {
- /* declaration for sel_write_load */
- static int sel_make_bools(void);
- static int sel_make_classes(void);
-+static int sel_make_policycap(void);
- 
- /* declaration for sel_make_class_dirs */
- static int sel_make_dir(struct inode *dir, struct dentry *dentry,
-@@ -322,6 +337,12 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
- 	}
- 
- 	ret = sel_make_classes();
-+	if (ret) {
-+		length = ret;
-+		goto out1;
-+	}
-+
-+	ret = sel_make_policycap();
- 	if (ret)
- 		length = ret;
- 	else
-@@ -1408,6 +1429,24 @@ static const struct file_operations sel_perm_ops = {
- 	.read		= sel_read_perm,
- };
- 
-+static ssize_t sel_read_policycap(struct file *file, char __user *buf,
-+				  size_t count, loff_t *ppos)
-+{
-+	int value;
-+	char tmpbuf[TMPBUFLEN];
-+	ssize_t length;
-+	unsigned long i_ino = file->f_path.dentry->d_inode->i_ino;
-+
-+	value = security_policycap_supported(i_ino & SEL_INO_MASK);
-+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", value);
-+
-+	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
-+}
-+
-+static const struct file_operations sel_policycap_ops = {
-+	.read		= sel_read_policycap,
-+};
-+
- static int sel_make_perm_files(char *objclass, int classvalue,
- 				struct dentry *dir)
- {
-@@ -1554,6 +1593,36 @@ out:
- 	return rc;
+ static inline int selinux_audit_rule_init(u32 field, u32 op,
+@@ -184,11 +203,21 @@ static inline int selinux_string_to_sid(const char *str, u32 *sid)
+        return 0;
  }
  
-+static int sel_make_policycap(void)
+-static inline int selinux_relabel_packet_permission(u32 sid)
++static inline int selinux_secmark_relabel_packet_permission(u32 sid)
+ {
+ 	return 0;
+ }
+ 
++static inline void selinux_secmark_refcount_inc(void)
 +{
-+	unsigned int iter;
-+	struct dentry *dentry = NULL;
-+	struct inode *inode = NULL;
++	return;
++}
 +
-+	sel_remove_entries(policycap_dir);
++static inline void selinux_secmark_refcount_dec(void)
++{
++	return;
++}
 +
-+	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
-+		if (iter < ARRAY_SIZE(policycap_names))
-+			dentry = d_alloc_name(policycap_dir,
-+					      policycap_names[iter]);
-+		else
-+			dentry = d_alloc_name(policycap_dir, "unknown");
+ #endif	/* CONFIG_SECURITY_SELINUX */
+ 
+ #endif /* _LINUX_SELINUX_H */
+diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
+index 235806e..db4a1fe 100644
+--- a/net/netfilter/xt_SECMARK.c
++++ b/net/netfilter/xt_SECMARK.c
+@@ -72,12 +72,13 @@ static bool checkentry_selinux(struct xt_secmark_target_info *info)
+ 		return false;
+ 	}
+ 
+-	err = selinux_relabel_packet_permission(sel->selsid);
++	err = selinux_secmark_relabel_packet_permission(sel->selsid);
+ 	if (err) {
+ 		printk(KERN_INFO PFX "unable to obtain relabeling permission\n");
+ 		return false;
+ 	}
+ 
++	selinux_secmark_refcount_inc();
+ 	return true;
+ }
+ 
+@@ -109,11 +110,20 @@ static bool checkentry(const char *tablename, const void *entry,
+ 	return true;
+ }
+ 
++void destroy(const struct xt_target *target, void *targinfo)
++{
++	switch (mode) {
++	case SECMARK_MODE_SEL:
++		selinux_secmark_refcount_dec();
++	}
++}
 +
-+		if (dentry == NULL)
-+			return -ENOMEM;
+ static struct xt_target xt_secmark_target[] __read_mostly = {
+ 	{
+ 		.name		= "SECMARK",
+ 		.family		= AF_INET,
+ 		.checkentry	= checkentry,
++		.destroy	= destroy,
+ 		.target		= target,
+ 		.targetsize	= sizeof(struct xt_secmark_target_info),
+ 		.table		= "mangle",
+@@ -123,6 +133,7 @@ static struct xt_target xt_secmark_target[] __read_mostly = {
+ 		.name		= "SECMARK",
+ 		.family		= AF_INET6,
+ 		.checkentry	= checkentry,
++		.destroy	= destroy,
+ 		.target		= target,
+ 		.targetsize	= sizeof(struct xt_secmark_target_info),
+ 		.table		= "mangle",
+diff --git a/security/selinux/exports.c b/security/selinux/exports.c
+index b6f9694..87d2bb3 100644
+--- a/security/selinux/exports.c
++++ b/security/selinux/exports.c
+@@ -17,10 +17,14 @@
+ #include <linux/selinux.h>
+ #include <linux/fs.h>
+ #include <linux/ipc.h>
++#include <asm/atomic.h>
+ 
+ #include "security.h"
+ #include "objsec.h"
+ 
++/* SECMARK reference count */
++extern atomic_t selinux_secmark_refcount;
 +
-+		inode = sel_make_inode(policycap_dir->d_sb, S_IFREG | S_IRUGO);
-+		if (inode == NULL)
-+			return -ENOMEM;
+ int selinux_sid_to_string(u32 sid, char **ctx, u32 *ctxlen)
+ {
+ 	if (selinux_enabled)
+@@ -74,7 +78,7 @@ int selinux_string_to_sid(char *str, u32 *sid)
+ }
+ EXPORT_SYMBOL_GPL(selinux_string_to_sid);
+ 
+-int selinux_relabel_packet_permission(u32 sid)
++int selinux_secmark_relabel_packet_permission(u32 sid)
+ {
+ 	if (selinux_enabled) {
+ 		struct task_security_struct *tsec = current->security;
+@@ -84,4 +88,16 @@ int selinux_relabel_packet_permission(u32 sid)
+ 	}
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(selinux_relabel_packet_permission);
++EXPORT_SYMBOL_GPL(selinux_secmark_relabel_packet_permission);
 +
-+		inode->i_fop = &sel_policycap_ops;
-+		inode->i_ino = iter | SEL_POLICYCAP_INO_OFFSET;
-+		d_add(dentry, inode);
++void selinux_secmark_refcount_inc(void)
++{
++	atomic_inc(&selinux_secmark_refcount);
++}
++EXPORT_SYMBOL_GPL(selinux_secmark_refcount_inc);
++
++void selinux_secmark_refcount_dec(void)
++{
++	atomic_dec(&selinux_secmark_refcount);
++}
++EXPORT_SYMBOL_GPL(selinux_secmark_refcount_dec);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 8aeb1c0..22789b5 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -50,8 +50,10 @@
+ #include <net/icmp.h>
+ #include <net/ip.h>		/* for local_port_range[] */
+ #include <net/tcp.h>		/* struct or_callable used in sock_rcv_skb */
++#include <net/netlabel.h>
+ #include <asm/uaccess.h>
+ #include <asm/ioctls.h>
++#include <asm/atomic.h>
+ #include <linux/bitops.h>
+ #include <linux/interrupt.h>
+ #include <linux/netdevice.h>	/* for network interface checks */
+@@ -87,6 +89,9 @@ extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
+ extern int selinux_compat_net;
+ extern struct security_operations *security_ops;
+ 
++/* SECMARK reference count */
++atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
++
+ #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+ int selinux_enforcing = 0;
+ 
+@@ -153,6 +158,21 @@ getsecurity_exit:
+ 	return len;
+ }
+ 
++/**
++ * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
++ *
++ * Description:
++ * This function checks the SECMARK reference counter to see if any SECMARK
++ * targets are currently configured, if the reference counter is greater than
++ * zero SECMARK is considered to be enabled.  Returns true (1) if SECMARK is
++ * enabled, false (0) if SECMARK is disabled.
++ *
++ */
++static int selinux_secmark_enabled(void)
++{
++	return (atomic_read(&selinux_secmark_refcount) > 0);
++}
++
+ /* Allocate and free functions for each kind of security blob. */
+ 
+ static int task_alloc_security(struct task_struct *task)
+@@ -3731,15 +3751,24 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 		return selinux_sock_rcv_skb_compat(sk, skb, &ad, family,
+ 						   addrp, len);
+ 
+-	err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
+-			   PACKET__RECV, &ad);
+-	if (err)
+-		return err;
++	if (selinux_secmark_enabled()) {
++		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
++				   PACKET__RECV, &ad);
++		if (err)
++			return err;
++	}
+ 
+-	err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
+-	if (err)
+-		return err;
+-	return avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER, PEER__RECV, &ad);
++	if (netlbl_enabled() || selinux_xfrm_enabled()) {
++		err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
++		if (err)
++			return err;
++		err = avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER,
++				   PEER__RECV, &ad);
++		if (err)
++			return err;
 +	}
 +
 +	return 0;
+ }
+ 
+ static int selinux_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
+index 31929e3..d641f39 100644
+--- a/security/selinux/include/xfrm.h
++++ b/security/selinux/include/xfrm.h
+@@ -7,6 +7,23 @@
+ #ifndef _SELINUX_XFRM_H_
+ #define _SELINUX_XFRM_H_
+ 
++extern atomic_t selinux_xfrm_refcount;
++
++/**
++ * selinux_xfrm_enabled - Determine if labeled XFRM is enabled
++ *
++ * Description:
++ * This function checks to see if there are any labeled SAs or entries in the
++ * SPD.  If there are then labeled XFRM is currently enabled, if not it is
++ * currently disabled.  Returns true (1) if labeled XFRM is enabled, false (0)
++ * if labeled XFRM is disabled.
++ *
++ */
++static inline int selinux_xfrm_enabled(void)
++{
++	return (atomic_read(&selinux_xfrm_refcount) > 0);
 +}
 +
- static int sel_make_dir(struct inode *dir, struct dentry *dentry,
- 			unsigned long *ino)
- {
-@@ -1682,6 +1751,18 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
+ int selinux_xfrm_policy_alloc(struct xfrm_policy *xp,
+ 		struct xfrm_user_sec_ctx *sec_ctx);
+ int selinux_xfrm_policy_clone(struct xfrm_policy *old, struct xfrm_policy *new);
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index e076039..7e15820 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -46,11 +46,14 @@
+ #include <net/checksum.h>
+ #include <net/udp.h>
+ #include <asm/semaphore.h>
++#include <asm/atomic.h>
  
- 	class_dir = dentry;
+ #include "avc.h"
+ #include "objsec.h"
+ #include "xfrm.h"
  
-+	dentry = d_alloc_name(sb->s_root, "policy_capabilities");
-+	if (!dentry) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	ret = sel_make_dir(root_inode, dentry, &sel_last_ino);
-+	if (ret)
-+		goto err;
-+
-+	policycap_dir = dentry;
-+
- out:
- 	return ret;
- err:
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index b582aae..bd7d6a0 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -13,6 +13,11 @@
-  *
-  * 	Added conditional policy language extensions
-  *
-+ * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ *
-+ *      Added support for the policy capability bitmap
-+ *
-+ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-  *	This program is free software; you can redistribute it and/or modify
-@@ -102,6 +107,11 @@ static struct policydb_compat_info policydb_compat[] = {
- 		.sym_num        = SYM_NUM,
- 		.ocon_num       = OCON_NUM,
- 	},
-+	{
-+		.version	= POLICYDB_VERSION_POLCAP,
-+		.sym_num	= SYM_NUM,
-+		.ocon_num	= OCON_NUM,
-+	}
- };
++/* Labeled XFRM instance counter */
++atomic_t selinux_xfrm_refcount = ATOMIC_INIT(0);
  
- static struct policydb_compat_info *policydb_lookup_compat(int version)
-@@ -183,6 +193,8 @@ static int policydb_init(struct policydb *p)
- 	if (rc)
- 		goto out_free_symtab;
- 
-+	ebitmap_init(&p->policycaps);
-+
- out:
- 	return rc;
- 
-@@ -673,8 +685,8 @@ void policydb_destroy(struct policydb *p)
- 			ebitmap_destroy(&p->type_attr_map[i]);
- 	}
- 	kfree(p->type_attr_map);
--
- 	kfree(p->undefined_perms);
-+	ebitmap_destroy(&p->policycaps);
- 
- 	return;
- }
-@@ -1554,6 +1566,10 @@ int policydb_read(struct policydb *p, void *fp)
- 	p->reject_unknown = !!(le32_to_cpu(buf[1]) & REJECT_UNKNOWN);
- 	p->allow_unknown = !!(le32_to_cpu(buf[1]) & ALLOW_UNKNOWN);
- 
-+	if (p->policyvers >= POLICYDB_VERSION_POLCAP &&
-+	    ebitmap_read(&p->policycaps, fp) != 0)
-+		goto bad;
-+
- 	info = policydb_lookup_compat(p->policyvers);
- 	if (!info) {
- 		printk(KERN_ERR "security:  unable to find policy compat info "
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index ed6fc68..c4ce996 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -241,6 +241,8 @@ struct policydb {
- 	/* type -> attribute reverse mapping */
- 	struct ebitmap *type_attr_map;
- 
-+	struct ebitmap policycaps;
-+
- 	unsigned int policyvers;
- 
- 	unsigned int reject_unknown : 1;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 88fcd57..19a60d6 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -16,12 +16,13 @@
-  * Updated: Hewlett-Packard <paul.moore@hp.com>
-  *
-  *      Added support for NetLabel
-+ *      Added support for the policy capability bitmap
-  *
-  * Updated: Chad Sellers <csellers@tresys.com>
-  *
-  *  Added validation of kernel classes and permissions
-  *
-- * Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
-+ * Copyright (C) 2006 - 2007 Hewlett-Packard Development Company, L.P.
-  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  * Copyright (C) 2003 - 2004, 2006 Tresys Technology, LLC
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-@@ -59,6 +60,8 @@
- extern void selnl_notify_policyload(u32 seqno);
- unsigned int policydb_loaded_version;
- 
-+int selinux_policycap_netpeer;
-+
  /*
-  * This is declared in avc.c
-  */
-@@ -1299,6 +1302,12 @@ bad:
- 	goto out;
+  * Returns true if an LSM/SELinux context
+@@ -293,6 +296,9 @@ int selinux_xfrm_policy_alloc(struct xfrm_policy *xp,
+ 	BUG_ON(!uctx);
+ 
+ 	err = selinux_xfrm_sec_ctx_alloc(&xp->security, uctx, 0);
++	if (err == 0)
++		atomic_inc(&selinux_xfrm_refcount);
++
+ 	return err;
  }
  
-+static void security_load_policycaps(void)
-+{
-+	selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
-+						  POLICYDB_CAPABILITY_NETPEER);
-+}
-+
- extern void selinux_complete_init(void);
- static int security_preserve_bools(struct policydb *p);
+@@ -340,10 +346,13 @@ int selinux_xfrm_policy_delete(struct xfrm_policy *xp)
+ 	struct xfrm_sec_ctx *ctx = xp->security;
+ 	int rc = 0;
  
-@@ -1346,6 +1355,7 @@ int security_load_policy(void *data, size_t len)
- 			avtab_cache_destroy();
- 			return -EINVAL;
- 		}
-+		security_load_policycaps();
- 		policydb_loaded_version = policydb.policyvers;
- 		ss_initialized = 1;
- 		seqno = ++latest_granting;
-@@ -1404,6 +1414,7 @@ int security_load_policy(void *data, size_t len)
- 	POLICY_WRLOCK;
- 	memcpy(&policydb, &newpolicydb, sizeof policydb);
- 	sidtab_set(&sidtab, &newsidtab);
-+	security_load_policycaps();
- 	seqno = ++latest_granting;
- 	policydb_loaded_version = policydb.policyvers;
- 	POLICY_WRUNLOCK;
-@@ -2151,6 +2162,60 @@ int security_get_allow_unknown(void)
- 	return policydb.allow_unknown;
+-	if (ctx)
++	if (ctx) {
+ 		rc = avc_has_perm(tsec->sid, ctx->ctx_sid,
+ 				  SECCLASS_ASSOCIATION,
+ 				  ASSOCIATION__SETCONTEXT, NULL);
++		if (rc == 0)
++			atomic_dec(&selinux_xfrm_refcount);
++	}
+ 
+ 	return rc;
+ }
+@@ -360,6 +369,8 @@ int selinux_xfrm_state_alloc(struct xfrm_state *x, struct xfrm_user_sec_ctx *uct
+ 	BUG_ON(!x);
+ 
+ 	err = selinux_xfrm_sec_ctx_alloc(&x->security, uctx, secid);
++	if (err == 0)
++		atomic_inc(&selinux_xfrm_refcount);
+ 	return err;
  }
  
-+/**
-+ * security_get_policycaps - Query the loaded policy for its capabilities
-+ * @len: the number of capability bits
-+ * @values: the capability bit array
-+ *
-+ * Description:
-+ * Get an array of the policy capabilities in @values where each entry in
-+ * @values is either true (1) or false (0) depending the policy's support of
-+ * that feature.  The policy capabilities are defined by the
-+ * POLICYDB_CAPABILITY_* enums.  The size of the array is stored in @len and it
-+ * is up to the caller to free the array in @values.  Returns zero on success,
-+ * negative values on failure.
-+ *
-+ */
-+int security_get_policycaps(int *len, int **values)
-+{
-+	int rc = -ENOMEM;
-+	unsigned int iter;
-+
-+	POLICY_RDLOCK;
-+
-+	*values = kcalloc(POLICYDB_CAPABILITY_MAX, sizeof(int), GFP_ATOMIC);
-+	if (*values == NULL)
-+		goto out;
-+	for (iter = 0; iter < POLICYDB_CAPABILITY_MAX; iter++)
-+		(*values)[iter] = ebitmap_get_bit(&policydb.policycaps, iter);
-+	*len = POLICYDB_CAPABILITY_MAX;
-+
-+out:
-+	POLICY_RDUNLOCK;
-+	return rc;
-+}
-+
-+/**
-+ * security_policycap_supported - Check for a specific policy capability
-+ * @req_cap: capability
-+ *
-+ * Description:
-+ * This function queries the currently loaded policy to see if it supports the
-+ * capability specified by @req_cap.  Returns true (1) if the capability is
-+ * supported, false (0) if it isn't supported.
-+ *
-+ */
-+int security_policycap_supported(unsigned int req_cap)
-+{
-+	int rc;
-+
-+	POLICY_RDLOCK;
-+	rc = ebitmap_get_bit(&policydb.policycaps, req_cap);
-+	POLICY_RDUNLOCK;
-+
-+	return rc;
-+}
-+
- struct selinux_audit_rule {
- 	u32 au_seqno;
- 	struct context au_ctxt;
+@@ -382,10 +393,13 @@ int selinux_xfrm_state_delete(struct xfrm_state *x)
+ 	struct xfrm_sec_ctx *ctx = x->security;
+ 	int rc = 0;
+ 
+-	if (ctx)
++	if (ctx) {
+ 		rc = avc_has_perm(tsec->sid, ctx->ctx_sid,
+ 				  SECCLASS_ASSOCIATION,
+ 				  ASSOCIATION__SETCONTEXT, NULL);
++		if (rc == 0)
++			atomic_dec(&selinux_xfrm_refcount);
++	}
+ 
+ 	return rc;
+ }
 
 
 --
