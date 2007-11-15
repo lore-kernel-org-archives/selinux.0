@@ -1,42 +1,99 @@
-Subject: Re: [Fwd: type class key]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <363.1195129061@redhat.com>
-References: <473B5928.6090800@redhat.com>
-	 <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil>
-	 <1194628263.3630.14.camel@vogon>
-	 <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil>
-	 <24708.1194612682@redhat.com> <22421.1194637689@redhat.com>
-	 <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil>
-	 <24415.1194697577@redhat.com>   <363.1195129061@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAFERKdM024428
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 09:27:20 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id lAFER9ff024141
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 14:27:11 GMT
+Subject: Re: [PATCH] IPsec SPD default security context (Re: security
+	context for SPD entries of labeled IPsec)
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <473BB437.3070005@ak.jp.nec.com>
+References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>
+	 <47331BAB.8040107@kaigai.gr.jp>  <473872F8.7000208@ak.jp.nec.com>
+	 <1195055160.13737.33.camel@gorn.columbia.tresys.com>
+	 <473B23F9.4080506@ak.jp.nec.com>
+	 <1195064402.13737.42.camel@gorn.columbia.tresys.com>
+	 <473BB437.3070005@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Thu, 15 Nov 2007 08:57:55 -0500
-Message-Id: <1195135075.18480.10.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Nov 2007 09:26:53 -0500
+Message-Id: <1195136813.13737.67.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-11-15 at 12:17 +0000, David Howells wrote:
-> Daniel J Walsh <dwalsh@redhat.com> wrote:
-> 
-> > David, we need a method of querying the keyring to see what the selinux
-> > context that is associated with it.  For debugging purposes.  Currently
-> > we can not tell whether the policy is correct or not, since we have no
-> > way to ask the keyring for its label.
-> 
-> That's probably easy enough.  What form does a context take?
 
-It's a string.  As an example, see the security_inode_getsecurity() LSM
-hook and selinux_inode_getsecurity() implementation of it.  But note
-that the interface has changed in -mm to avoid the need to pass in an
-already appropriately sized buffer.
+On Thu, 2007-11-15 at 11:51 +0900, KaiGai Kohei wrote:
+> Christopher J. PeBenito wrote:
+> > On Thu, 2007-11-15 at 01:36 +0900, KaiGai Kohei wrote:
+> >> Christopher J. PeBenito wrote:
+> >>> On Tue, 2007-11-13 at 00:36 +0900, KaiGai Kohei wrote:
+> >>>> Did you notice that a patch was attached in my previous posting?
+> >>>> Because I put a description about this patch on the bottom of the message,
+> >>>> it might be easy to overlook it.
+> >>>>
+> >>>> Could you review it? It is desirable for me to enable to communicate
+> >>>> between different domains via labeled ipsec.
+> >>> I committed an alternate version,
+> >>>
+> >>> http://oss.tresys.com/projects/refpolicy/changeset/2499
+> >>> http://oss.tresys.com/projects/refpolicy/changeset/2500
+> >>>
+> >> Thanks to apply them,
+> >>
+> >> However, it does not contain any permissions which allows
+> >> users and daemons domain to communicate via labeled ipsec.
+> >>
+> >> In my patch, these permissions were allowed at system/init.if
+> >> and system/userdomain.if. Do you consider these permissions
+> >> should not be allowed implicitly inside these interfaces?
+> >>
+> >> Currently, it is not enough for SE-PostgreSQL to communicate
+> >> peers using a SPD with default security context.
+> >> They are requiring a bit more permissions.
+> > 
+> > I reject the blanket permissions that you had in your previous patch.
+> 
+> OK, I can agree.
+> 
+> I also suggest two minor improvement toward these updates.
+> 
+> 1. Is it considerable to add "allow $1 self : association { sendto };"
+>    at ipsec_match_default_spd interface of ipsec.if?
+> 
+>    I think it should be packed with polmatch permission to the default
+>    SPD context, because any domain which want to communicate others using
+>    SPD with default context always have to have 'sendto' permission to
+>    itself.
+
+Perhaps.  Though I thought that dropping the sendto check was being
+considered, since it really doesn't gain anything.
+
+> 2. Is it considerable to add "ipsec_match_default_spd($1_t)"
+>    in the userdom_basic_networking_template of userdomain.if?
+> 
+>    This interface allows a given userdomain widespread basic networking
+>    permissions. But it is not enough yet, if the networking tunnel
+>    is configured with labeled ipsec.
+>    I think it can be contained in the basic networking permissions
+>    to use ipsec SPD with default context.
+
+Sounds reasonable.
+
+> > I'll consider a patch that adds it to a postresql interface.  Perhaps
+> > postgresql_tcp_connect should be un-deprecated.
+> 
+> I think similar interfaces are necessary for any other daemon-domain which
+> provides networking-services, even if they don't use getpeercon().
+
+The recvfrom is needed if the networking is labeled, regardless of
+whether getpeercon() is used or not.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
