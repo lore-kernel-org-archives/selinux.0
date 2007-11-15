@@ -1,47 +1,40 @@
-Subject: Re: [Fwd: type class key]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <26367.1195138703@redhat.com>
-References: <26342.1195138409@redhat.com> <473B5928.6090800@redhat.com>
-	 <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil>
-	 <1194628263.3630.14.camel@vogon>
-	 <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil>
-	 <24708.1194612682@redhat.com> <22421.1194637689@redhat.com>
-	 <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil>
-	 <24415.1194697577@redhat.com>   <26367.1195138703@redhat.com>
-Content-Type: text/plain
-Date: Thu, 15 Nov 2007 10:02:06 -0500
-Message-Id: <1195138926.18480.28.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAFG5Nwl003115
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 11:05:23 -0500
+Received: from palrel11.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAFG5Mff013421
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 16:05:23 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: [PATCH] IPsec SPD default security context (Re: security context for SPD entries of labeled IPsec)
+Date: Thu, 15 Nov 2007 11:05:11 -0500
+Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov,
+        Darrel Goeddel <DGoeddel@TrustedCS.com>,
+        Venkat Yekkirala <vyekkirala@TrustedCS.com>
+References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com> <473BB437.3070005@ak.jp.nec.com> <1195136813.13737.67.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1195136813.13737.67.camel@gorn.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200711151105.11514.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-11-15 at 14:58 +0000, David Howells wrote:
-> David Howells <dhowells@redhat.com> wrote:
-> 
-> > Does it need to be accessible from kernel space?  Can I pass a userspace
-> > buffer pointer through to the LSM?
-> 
-> In fact, is the best way to do it to have a prototype like:
-> 
-> 	int security_key_getsecurity(struct key *key, char **_buffer);
-> 
-> Where the buffer is allocated by this function and attached to *_buffer and
-> the length returned if successful (though that last is unnecessary if a
-> NUL-terminated string is being returned); and if an error occurs, then that is
-> returned instead.
+On Thursday 15 November 2007 9:26:53 am Christopher J. PeBenito wrote:
+> Perhaps.  Though I thought that dropping the sendto check was being
+> considered, since it really doesn't gain anything.
 
-Yes, sounds very similar to selinux_getprocattr(), just for keys rather
-than tasks and w/o a name distinguisher for multiple attributes on the
-task.
+Yes, Darrel and Venkat (both added to the CC line) proposed removing the IPsec 
+sendto check and it sounds reasonable to me.  I believe this will be part of 
+the upcoming flow control patches, if not we should probably make this change 
+for 2.6.25 so we can trigger it with the new netpeer capability.
+
+Regardless, the refpol will most likely need to continue to support the sendto 
+check for some time to preserve proper behavior with older kernels.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
