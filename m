@@ -1,29 +1,62 @@
-Date: Fri, 16 Nov 2007 07:40:09 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: David Howells <dhowells@redhat.com>
-cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        selinux@tycho.nsa.gov
-Subject: Re: [Fwd: type class key]
-In-Reply-To: <26367.1195138703@redhat.com>
-Message-ID: <Xine.LNX.4.64.0711160739210.5748@us.intercode.com.au>
-References: <26342.1195138409@redhat.com> <473B5928.6090800@redhat.com>
- <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil> <1194628263.3630.14.camel@vogon>
- <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil> <24708.1194612682@redhat.com>
- <22421.1194637689@redhat.com> <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil>
- <24415.1194697577@redhat.com>  <26367.1195138703@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAFNSQ9o031756
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 18:28:26 -0500
+Received: from web32210.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id lAFNSN7U025969
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 23:28:23 GMT
+Date: Thu, 15 Nov 2007 15:28:08 -0800 (PST)
+From: Hal <hal_bg@yahoo.com>
+Subject: Trouble with mounted /home
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <216051.28052.qm@web32210.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-btw, please cc linux-security-module@vger.kernel.org with any patches 
-which touch code outside of the selinux directory.
+hi all
+I have problem with Selinux targeted policy and mounted user home dirs on F8.
+
+What I did was:
+# mkfs -t ext3 /dev/sdb1
+# mount /dev/sdb1 /home
+
+# useradd test1
+# passwd test1
+
+# useradd -Z xguest_u test2 
+# passwd test2
+
+# vi /etc/fstab 
+and added /dev/sdb1 as /home
+
+from the GUI I have set targeted/enforcing and checked relabel on reboot.
+
+# reboot
+
+In the gdm I tried to login as test1 and test2 with no success. A message pops
+up on the screen saying that /home/test1 or /home/test2 does not exist
+respectively.
+
+when I set permissive no problems at all despite of some avc denials about
+tomboy and /tmp...
+
+It seems there are no messaages in /var/log/messages in enforcing mode...
+
+So can anybody tell me how to use selinux with a mounted home?
+
+By the way /home/test1 and /home/test2 have the correct labeling.
+
+Thanks in advance!  
 
 
--- 
-James Morris
-<jmorris@namei.org>
+Rumen
+
+
+      ____________________________________________________________________________________
+Get easy, one-click access to your favorites. 
+Make Yahoo! your homepage.
+http://www.yahoo.com/r/hs 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
