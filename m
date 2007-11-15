@@ -1,31 +1,51 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <26342.1195138409@redhat.com>
-References: <26342.1195138409@redhat.com> <473B5928.6090800@redhat.com> <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil> <1194628263.3630.14.camel@vogon> <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil> <24708.1194612682@redhat.com> <22421.1194637689@redhat.com> <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil> <24415.1194697577@redhat.com> 
-Cc: dhowells@redhat.com, Daniel J Walsh <dwalsh@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
+Subject: Re: [Fwd: type class key]
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
         Stefan Schulze Frielinghaus <stefan@seekline.net>,
         selinux@tycho.nsa.gov
-Subject: Re: [Fwd: type class key]
-Date: Thu, 15 Nov 2007 14:58:23 +0000
-Message-ID: <26367.1195138703@redhat.com>
+In-Reply-To: <26106.1195137716@redhat.com>
+References: <1195135075.18480.10.camel@moss-spartans.epoch.ncsc.mil>
+	 <473B5928.6090800@redhat.com>
+	 <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil>
+	 <1194628263.3630.14.camel@vogon>
+	 <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil>
+	 <24708.1194612682@redhat.com> <22421.1194637689@redhat.com>
+	 <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil>
+	 <24415.1194697577@redhat.com> <363.1195129061@redhat.com>
+	 <26106.1195137716@redhat.com>
+Content-Type: text/plain
+Date: Thu, 15 Nov 2007 09:52:24 -0500
+Message-Id: <1195138344.18480.20.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David Howells <dhowells@redhat.com> wrote:
+On Thu, 2007-11-15 at 14:41 +0000, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > It's a string.  As an example, see the security_inode_getsecurity() LSM
+> > hook and selinux_inode_getsecurity() implementation of it.
+> 
+> Yeah...  That's along the lines of what I was thinking of.
+> 
+> > But note that the interface has changed in -mm to avoid the need to pass in
+> > an already appropriately sized buffer.
+> 
+> I'm not sure what you mean by that.  Do you mean the buffer has to be exactly
+> the right size?
 
-> Does it need to be accessible from kernel space?  Can I pass a userspace
-> buffer pointer through to the LSM?
+Previously, the caller had to supply a buffer large enough for the
+context string, and the hook copied into that buffer.  In -mm, the hook
+allocates an appropriately sized buffer and returns the pointer to it to
+the caller.
 
-In fact, is the best way to do it to have a prototype like:
+http://marc.info/?l=linux-fsdevel&m=119392810506870&w=2
 
-	int security_key_getsecurity(struct key *key, char **_buffer);
+-- 
+Stephen Smalley
+National Security Agency
 
-Where the buffer is allocated by this function and attached to *_buffer and
-the length returned if successful (though that last is unnecessary if a
-NUL-terminated string is being returned); and if an error occurs, then that is
-returned instead.
-
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
