@@ -1,34 +1,39 @@
-Subject: [patch] libselinux:  lazily compile regexes to reduce overhead of
-	matchpathcon / selabel_lookup
+Subject: Re: [patch] libselinux:  lazily compile regexes to reduce overhead
+	of matchpathcon / selabel_lookup
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: Daniel J Walsh <dwalsh@redhat.com>, Jim Meyering <jim@meyering.net>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         Ulrich Drepper <drepper@redhat.com>
+In-Reply-To: <1195148439.18480.46.camel@moss-spartans.epoch.ncsc.mil>
+References: <1195148439.18480.46.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 15 Nov 2007 12:40:39 -0500
-Message-Id: <1195148439.18480.46.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Nov 2007 12:55:01 -0500
+Message-Id: <1195149301.18480.51.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ulrich Drepper noted that we could reduce the overhead of matchpathcon
-by lazily compiling the pathname regexes on demand when there is a stem
-match rather than compiling them all.  Below is a patch that does that
-for the libselinux 2.x series.  As with the context validation, the
-regex compilation defaults to being done lazily for typical users, but
-will still be done up front if the caller requested validation, as
-setfiles does.  Thus, setfiles will still compile and check the entire
-specification up front for errors, while most other programs will
-compile the regexes lazily.  Back porting to the libselinux 1.x series
-wouldn't be difficult, although it would have to be done manually.
+On Thu, 2007-11-15 at 12:40 -0500, Stephen Smalley wrote:
+> Ulrich Drepper noted that we could reduce the overhead of matchpathcon
+> by lazily compiling the pathname regexes on demand when there is a stem
+> match rather than compiling them all.  Below is a patch that does that
+> for the libselinux 2.x series.  As with the context validation, the
+> regex compilation defaults to being done lazily for typical users, but
+> will still be done up front if the caller requested validation, as
+> setfiles does.  Thus, setfiles will still compile and check the entire
+> specification up front for errors, while most other programs will
+> compile the regexes lazily.  Back porting to the libselinux 1.x series
+> wouldn't be difficult, although it would have to be done manually.
+> 
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Revised to drop some unused vars.
 
 ---
 
- src/label_file.c |  125 +++++++++++++++++++++++++++++++++----------------------
- 1 file changed, 75 insertions(+), 50 deletions(-)
+ src/label_file.c |  123 ++++++++++++++++++++++++++++++++-----------------------
+ 1 file changed, 73 insertions(+), 50 deletions(-)
 
 Index: libselinux/src/label_file.c
 ===================================================================
@@ -89,7 +94,7 @@ Index: libselinux/src/label_file.c
  	return num;
  }
  
-@@ -220,16 +219,68 @@
+@@ -220,13 +219,64 @@
  	return;
  }
  
@@ -157,11 +162,7 @@ Index: libselinux/src/label_file.c
  	struct saved_data *data = (struct saved_data *)rec->data;
  	spec_t *spec_arr = data->spec_arr;
  	unsigned int nspec = data->nspec;
-+	stem_t *stem_arr = data->stem_arr;
- 
- 	len = strlen(line_buf);
- 	if (line_buf[len - 1] == '\n')
-@@ -253,8 +304,7 @@
+@@ -253,8 +303,7 @@
  		type = 0;
  	}
  
@@ -171,7 +172,7 @@ Index: libselinux/src/label_file.c
  	if (len && prefix && strncmp(prefix, regex, len)) {
  		/* Stem of regex does not match requested prefix, discard. */
  		free(regex);
-@@ -264,45 +314,16 @@
+@@ -264,45 +313,16 @@
  	}
  
  	if (pass == 1) {
@@ -224,7 +225,7 @@ Index: libselinux/src/label_file.c
  
  		/* Convert the type string to a mode format */
  		spec_arr[nspec].type_str = type;
-@@ -437,6 +458,7 @@
+@@ -437,6 +457,7 @@
  	for (pass = 0; pass < 2; pass++) {
  		lineno = 0;
  		data->nspec = 0;
@@ -232,15 +233,7 @@ Index: libselinux/src/label_file.c
  		while (getline(&line_buf, &line_len, fp) > 0
  		       && data->nspec < maxnspec) {
  			if (process_line(rec, path, prefix, line_buf,
-@@ -549,6 +571,7 @@
- {
- 	struct saved_data *data = (struct saved_data *)rec->data;
- 	spec_t *spec_arr = data->spec_arr;
-+	stem_t *stem_arr = data->stem_arr;
- 	int i, rc, file_stem;
- 	mode_t mode = (mode_t)type;
- 	const char *buf = key;
-@@ -574,6 +597,8 @@
+@@ -574,6 +595,8 @@
  		     || spec_arr[i].stem_id == file_stem)
  		    && (!mode || !spec_arr[i].mode
  			|| mode == spec_arr[i].mode)) {
@@ -249,8 +242,6 @@ Index: libselinux/src/label_file.c
  			if (spec_arr[i].stem_id == -1)
  				rc = regexec(&spec_arr[i].regex, key, 0, 0, 0);
  			else
-
-
 
 -- 
 Stephen Smalley
