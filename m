@@ -1,248 +1,368 @@
-Subject: Re: [patch] libselinux:  lazily compile regexes to reduce overhead
-	of matchpathcon / selabel_lookup
+Subject: Re: [Fwd: type class key]
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Jim Meyering <jim@meyering.net>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Ulrich Drepper <drepper@redhat.com>
-In-Reply-To: <1195148439.18480.46.camel@moss-spartans.epoch.ncsc.mil>
-References: <1195148439.18480.46.camel@moss-spartans.epoch.ncsc.mil>
+To: David Howells <dhowells@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        Stefan Schulze Frielinghaus <stefan@seekline.net>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <26736.1195148091@redhat.com>
+References: <23847.1195142675@redhat.com>
+	 <1195138926.18480.28.camel@moss-spartans.epoch.ncsc.mil>
+	 <26342.1195138409@redhat.com> <473B5928.6090800@redhat.com>
+	 <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil>
+	 <1194628263.3630.14.camel@vogon>
+	 <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil>
+	 <24708.1194612682@redhat.com> <22421.1194637689@redhat.com>
+	 <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil>
+	 <24415.1194697577@redhat.com> <26367.1195138703@redhat.com>
+	 <26736.1195148091@redhat.com>
 Content-Type: text/plain
-Date: Thu, 15 Nov 2007 12:55:01 -0500
-Message-Id: <1195149301.18480.51.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 15 Nov 2007 13:26:32 -0500
+Message-Id: <1195151192.18480.67.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-11-15 at 12:40 -0500, Stephen Smalley wrote:
-> Ulrich Drepper noted that we could reduce the overhead of matchpathcon
-> by lazily compiling the pathname regexes on demand when there is a stem
-> match rather than compiling them all.  Below is a patch that does that
-> for the libselinux 2.x series.  As with the context validation, the
-> regex compilation defaults to being done lazily for typical users, but
-> will still be done up front if the caller requested validation, as
-> setfiles does.  Thus, setfiles will still compile and check the entire
-> specification up front for errors, while most other programs will
-> compile the regexes lazily.  Back porting to the libselinux 1.x series
-> wouldn't be difficult, although it would have to be done manually.
+On Thu, 2007-11-15 at 17:34 +0000, David Howells wrote:
+> David Howells <dhowells@redhat.com> wrote:
 > 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > I've attached the patch I've come up with so far.
+> 
+> Oops.  One error - I forgot to connect up the new function.
+> 
+> 	# LD_PRELOAD=/tmp/libkeyutils-1.2.so /tmp/keyctl add user a a @s
+> 	762693819
+> 	# LD_PRELOAD=/tmp/libkeyutils-1.2.so /tmp/keyctl security 762693819
+> 	root:system_r:unconfined_t:s0-s0:c0.c1023
+> 
+> That what you want?
+> 
+> New patch attached.
+> 
+> David
+> ---
+> KEYS: Add keyctl function to get a security label
+> 
+> From: David Howells <dhowells@redhat.com>
+> 
+> Add a keyctl() function to get the security label of a key.
+> 
+> The following is added to Documentation/keys.txt:
+> 
+>  (*) Get the LSM security context attached to a key.
+> 
+> 	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
+> 		    size_t buflen)
+> 
+>      This function returns a string that represents the LSM security context
+>      attached to a key in the buffer provided.
+> 
+>      Unless there's an error, it always returns the amount of data it could
+>      produce, even if that's too big for the buffer, but it won't copy more
+>      than requested to userspace. If the buffer pointer is NULL then no copy
+>      will take place.
+> 
+>      A NUL character is included at the end of the string if the buffer is
+>      sufficiently big.  This is included in the returned count.  If no LSM is
+>      in force then an empty string will be returned.
+> 
+>      A process must have view permission on the key for this function to be
+>      successful.
+> 
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> ---
+> 
+>  Documentation/keys.txt   |   21 +++++++++++++++
+>  include/linux/keyctl.h   |    1 +
+>  include/linux/security.h |   20 +++++++++++++-
+>  security/dummy.c         |    8 ++++++
+>  security/keys/compat.c   |    3 ++
+>  security/keys/keyctl.c   |   66 ++++++++++++++++++++++++++++++++++++++++++++++
+>  security/security.c      |    5 +++
+>  security/selinux/hooks.c |   21 +++++++++++++--
+>  8 files changed, 141 insertions(+), 4 deletions(-)
+> 
+> diff --git a/Documentation/keys.txt b/Documentation/keys.txt
+> index b82d38d..be424b0 100644
+> --- a/Documentation/keys.txt
+> +++ b/Documentation/keys.txt
+> @@ -711,6 +711,27 @@ The keyctl syscall functions are:
+>       The assumed authoritative key is inherited across fork and exec.
+>  
+> 
+> + (*) Get the LSM security context attached to a key.
+> +
+> +	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
+> +		    size_t buflen)
+> +
+> +     This function returns a string that represents the LSM security context
+> +     attached to a key in the buffer provided.
+> +
+> +     Unless there's an error, it always returns the amount of data it could
+> +     produce, even if that's too big for the buffer, but it won't copy more
+> +     than requested to userspace. If the buffer pointer is NULL then no copy
+> +     will take place.
+> +
+> +     A NUL character is included at the end of the string if the buffer is
+> +     sufficiently big.  This is included in the returned count.  If no LSM is
+> +     in force then an empty string will be returned.
+> +
+> +     A process must have view permission on the key for this function to be
+> +     successful.
+> +
+> +
+>  ===============
+>  KERNEL SERVICES
+>  ===============
+> diff --git a/include/linux/keyctl.h b/include/linux/keyctl.h
+> index 3365945..656ee6b 100644
+> --- a/include/linux/keyctl.h
+> +++ b/include/linux/keyctl.h
+> @@ -49,5 +49,6 @@
+>  #define KEYCTL_SET_REQKEY_KEYRING	14	/* set default request-key keyring */
+>  #define KEYCTL_SET_TIMEOUT		15	/* set key timeout */
+>  #define KEYCTL_ASSUME_AUTHORITY		16	/* assume request_key() authorisation */
+> +#define KEYCTL_GET_SECURITY		17	/* get key security label */
+>  
+>  #endif /*  _LINUX_KEYCTL_H */
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index ac05083..8d9e946 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -959,6 +959,17 @@ struct request_sock;
+>   *	@perm describes the combination of permissions required of this key.
+>   *	Return 1 if permission granted, 0 if permission denied and -ve it the
+>   *      normal permissions model should be effected.
+> + * @key_getsecurity:
+> + *	Get a textual representation of the security context attached to a key
+> + *	for the purposes of honouring KEYCTL_GETSECURITY.  This function
+> + *	allocates the storage for the NUL-terminated string and the caller
+> + *	should free it.
+> + *	@key points to the key to be queried.
+> + *	@_buffer points to a pointer that should be set to point to the
+> + *	 resulting string (if no label or an error occurs).
+> + *	Return the length of the string (including terminating NUL) or -ve if
+> + *      an error.
+> + *	May also return 0 (and a NULL buffer pointer) if there is no label.
+>   *
+>   * Security hooks affecting all System V IPC operations.
+>   *
+> @@ -1437,7 +1448,7 @@ struct security_operations {
+>  	int (*key_permission)(key_ref_t key_ref,
+>  			      struct task_struct *context,
+>  			      key_perm_t perm);
+> -
+> +	int (*key_getsecurity)(struct key *key, char **_buffer);
+>  #endif	/* CONFIG_KEYS */
+>  
+>  };
+> @@ -2567,6 +2578,7 @@ int security_key_alloc(struct key *key, struct task_struct *tsk, unsigned long f
+>  void security_key_free(struct key *key);
+>  int security_key_permission(key_ref_t key_ref,
+>  			    struct task_struct *context, key_perm_t perm);
+> +int security_key_getsecurity(struct key *key, char **_buffer);
+>  
+>  #else
+>  
+> @@ -2588,6 +2600,12 @@ static inline int security_key_permission(key_ref_t key_ref,
+>  	return 0;
+>  }
+>  
+> +static inline int security_key_getsecurity(struct key *key, char **_buffer)
+> +{
+> +	*_buffer = NULL;
+> +	return 0;
+> +}
+> +
+>  #endif
+>  #endif /* CONFIG_KEYS */
+>  
+> diff --git a/security/dummy.c b/security/dummy.c
+> index 6d895ad..7993b30 100644
+> --- a/security/dummy.c
+> +++ b/security/dummy.c
+> @@ -949,6 +949,13 @@ static inline int dummy_key_permission(key_ref_t key_ref,
+>  {
+>  	return 0;
+>  }
+> +
+> +static int dummy_key_getsecurity(struct key *key, char **_buffer)
+> +{
+> +	*_buffer = NULL;
+> +	return 0;
+> +}
+> +
+>  #endif /* CONFIG_KEYS */
+>  
+>  struct security_operations dummy_security_ops;
+> @@ -1133,6 +1140,7 @@ void security_fixup_ops (struct security_operations *ops)
+>  	set_to_dummy_if_null(ops, key_alloc);
+>  	set_to_dummy_if_null(ops, key_free);
+>  	set_to_dummy_if_null(ops, key_permission);
+> +	set_to_dummy_if_null(ops, key_getsecurity);
+>  #endif	/* CONFIG_KEYS */
+>  
+>  }
+> diff --git a/security/keys/compat.c b/security/keys/compat.c
+> index e10ec99..c766c68 100644
+> --- a/security/keys/compat.c
+> +++ b/security/keys/compat.c
+> @@ -79,6 +79,9 @@ asmlinkage long compat_sys_keyctl(u32 option,
+>  	case KEYCTL_ASSUME_AUTHORITY:
+>  		return keyctl_assume_authority(arg2);
+>  
+> +	case KEYCTL_GET_SECURITY:
+> +		return keyctl_get_security(arg2, compat_ptr(arg3), arg4);
+> +
+>  	default:
+>  		return -EOPNOTSUPP;
+>  	}
+> diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+> index 1698bf9..56e963b 100644
+> --- a/security/keys/keyctl.c
+> +++ b/security/keys/keyctl.c
+> @@ -20,6 +20,7 @@
+>  #include <linux/string.h>
+>  #include <linux/err.h>
+>  #include <linux/vmalloc.h>
+> +#include <linux/security.h>
+>  #include <asm/uaccess.h>
+>  #include "internal.h"
+>  
+> @@ -1080,6 +1081,66 @@ error:
+>  
+>  } /* end keyctl_assume_authority() */
+>  
+> +/*
+> + * get the security label of a key
+> + * - the key must grant us view permission
+> + * - if there's a buffer, we place up to buflen bytes of data into it
+> + * - unless there's an error, we return the amount of information available,
+> + *   irrespective of how much we may have copied (including the terminal NUL)
+> + * - implements keyctl(KEYCTL_GET_SECURITY)
+> + */
+> +long keyctl_get_security(key_serial_t keyid,
+> +			 char __user *buffer,
+> +			 size_t buflen)
+> +{
+> +	struct key *key, *instkey;
+> +	key_ref_t key_ref;
+> +	char *context;
+> +	long ret;
+> +
+> +	key_ref = lookup_user_key(NULL, keyid, 0, 1, KEY_VIEW);
+> +	if (IS_ERR(key_ref)) {
+> +		if (PTR_ERR(key_ref) != -EACCES)
+> +			return PTR_ERR(key_ref);
+> +
+> +		/* viewing a key under construction is also permitted if we
+> +		 * have the authorisation token handy */
+> +		instkey = key_get_instantiation_authkey(keyid);
+> +		if (IS_ERR(instkey))
+> +			return PTR_ERR(key_ref);
+> +		key_put(instkey);
+> +
+> +		key_ref = lookup_user_key(NULL, keyid, 0, 1, 0);
+> +		if (IS_ERR(key_ref))
+> +			return PTR_ERR(key_ref);
+> +	}
+> +
+> +	key = key_ref_to_ptr(key_ref);
+> +	ret = security_key_getsecurity(key, &context);
+> +	if (ret == 0) {
+> +		/* if no information was returned, give userspace an empty
+> +		 * string */
+> +		ret = 1;
+> +		if (buffer && buflen > 0 &&
+> +		    copy_to_user(buffer, "", 1) != 0)
+> +			ret = -EFAULT;
+> +	} else if (ret > 0) {
+> +		/* return as much data as there's room for */
+> +		if (buffer && buflen > 0) {
+> +			if (buflen > ret)
+> +				buflen = ret;
+> +
+> +			if (copy_to_user(buffer, context, buflen) != 0)
+> +				ret = -EFAULT;
+> +		}
+> +
+> +		kfree(context);
+> +	}
+> +
+> +	key_ref_put(key_ref);
+> +	return ret;
+> +}
+> +
+>  /*****************************************************************************/
+>  /*
+>   * the key control system call
+> @@ -1160,6 +1221,11 @@ asmlinkage long sys_keyctl(int option, unsigned long arg2, unsigned long arg3,
+>  	case KEYCTL_ASSUME_AUTHORITY:
+>  		return keyctl_assume_authority((key_serial_t) arg2);
+>  
+> +	case KEYCTL_GET_SECURITY:
+> +		return keyctl_get_security((key_serial_t) arg2,
+> +					   (char *) arg3,
+> +					   (size_t) arg4);
+> +
+>  	default:
+>  		return -EOPNOTSUPP;
+>  	}
+> diff --git a/security/security.c b/security/security.c
+> index 0e1f1f1..16213e3 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1079,4 +1079,9 @@ int security_key_permission(key_ref_t key_ref,
+>  	return security_ops->key_permission(key_ref, context, perm);
+>  }
+>  
+> +int security_key_getsecurity(struct key *key, char **_buffer)
+> +{
+> +	return security_ops->key_getsecurity(key, _buffer);
+> +}
+> +
+>  #endif	/* CONFIG_KEYS */
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 9f3124b..bf161f5 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4768,6 +4768,20 @@ static int selinux_key_permission(key_ref_t key_ref,
+>  			    SECCLASS_KEY, perm, NULL);
+>  }
+>  
+> +static int selinux_key_getsecurity(struct key *key, char **_buffer)
+> +{
+> +	struct key_security_struct *ksec = key->security;
+> +	char *context = NULL;
+> +	unsigned len;
+> +	int rc;
+> +
+> +	rc = security_sid_to_context(ksec->sid, &context, &len);
+> +	if (!rc)
+> +		rc = len;
+> +	*_buffer = context;
+> +	return len;
 
-Revised to drop some unused vars.
+return rc?
 
----
-
- src/label_file.c |  123 ++++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 73 insertions(+), 50 deletions(-)
-
-Index: libselinux/src/label_file.c
-===================================================================
---- libselinux/src/label_file.c	(revision 2683)
-+++ libselinux/src/label_file.c	(working copy)
-@@ -30,6 +30,7 @@
- 	char *regex_str;	/* regular expession string for diagnostics */
- 	char *type_str;		/* type string for diagnostic messages */
- 	regex_t regex;		/* compiled regular expression */
-+	char regcomp;           /* regex_str has been compiled to regex */
- 	mode_t mode;		/* mode format value */
- 	int matches;		/* number of matching pathnames */
- 	int hasMetaChars;	/* regular expression has meta-chars */
-@@ -50,6 +51,7 @@
- 	 */
- 	spec_t *spec_arr;
- 	unsigned int nspec;
-+	unsigned int ncomp;
- 
- 	/*
- 	 * The array of regular expression stems.
-@@ -88,21 +90,18 @@
- 
- /* find the stem of a file spec, returns the index into stem_arr for a new
-  * or existing stem, (or -1 if there is no possible stem - IE for a file in
-- * the root directory or a regex that is too complex for us).  Makes buf
-- * point to the text AFTER the stem. */
--static int find_stem_from_spec(struct saved_data *data, const char **buf)
-+ * the root directory or a regex that is too complex for us). */
-+static int find_stem_from_spec(struct saved_data *data, const char *buf)
- {
- 	int i, num = data->num_stems;
--	int stem_len = get_stem_from_spec(*buf);
-+	int stem_len = get_stem_from_spec(buf);
- 
- 	if (!stem_len)
- 		return -1;
- 	for (i = 0; i < num; i++) {
- 		if (stem_len == data->stem_arr[i].len
--		    && !strncmp(*buf, data->stem_arr[i].buf, stem_len)) {
--			*buf += stem_len;
-+		    && !strncmp(buf, data->stem_arr[i].buf, stem_len))
- 			return i;
--		}
- 	}
- 	if (data->alloc_stems == num) {
- 		stem_t *tmp_arr;
-@@ -117,10 +116,10 @@
- 	data->stem_arr[num].buf = malloc(stem_len + 1);
- 	if (!data->stem_arr[num].buf)
- 		return -1;
--	memcpy(data->stem_arr[num].buf, *buf, stem_len);
-+	memcpy(data->stem_arr[num].buf, buf, stem_len);
- 	data->stem_arr[num].buf[stem_len] = '\0';
- 	data->num_stems++;
--	*buf += stem_len;
-+	buf += stem_len;
- 	return num;
- }
- 
-@@ -220,13 +219,64 @@
- 	return;
- }
- 
-+static int compile_regex(struct saved_data *data, spec_t *spec, char **errbuf)
-+{
-+	char *reg_buf, *anchored_regex, *cp;
-+	stem_t *stem_arr = data->stem_arr;
-+	size_t len;
-+	int regerr;
-+
-+	if (spec->regcomp)
-+		return 0; /* already done */
-+
-+	data->ncomp++; /* how many compiled regexes required */
-+
-+	/* Skip the fixed stem. */
-+	reg_buf = spec->regex_str;
-+	if (spec->stem_id >= 0)
-+		reg_buf += stem_arr[spec->stem_id].len;
-+
-+	/* Anchor the regular expression. */
-+	len = strlen(reg_buf);
-+	cp = anchored_regex = malloc(len + 3);
-+	if (!anchored_regex)
-+		return -1;
-+	/* Create ^...$ regexp.  */
-+	*cp++ = '^';
-+	cp = mempcpy(cp, reg_buf, len);
-+	*cp++ = '$';
-+	*cp = '\0';
-+
-+	/* Compile the regular expression. */
-+	regerr = regcomp(&spec->regex, anchored_regex, 
-+			 REG_EXTENDED | REG_NOSUB);
-+	if (regerr != 0) {
-+		size_t errsz = 0;
-+		errsz = regerror(regerr, &spec->regex, NULL, 0);
-+		if (errsz && errbuf)
-+			*errbuf = malloc(errsz);
-+		if (errbuf && *errbuf)
-+			(void)regerror(regerr, &spec->regex,
-+				       *errbuf, errsz);
-+
-+		free(anchored_regex);
-+		return -1;
-+	}
-+	free(anchored_regex);
-+
-+	/* Done. */
-+	spec->regcomp = 1;
-+
-+	return 0;
-+}
-+
-+
- static int process_line(struct selabel_handle *rec,
- 			const char *path, const char *prefix,
- 			char *line_buf, int pass, unsigned lineno)
- {
--	int items, len, regerr;
--	char *buf_p, *regex, *anchored_regex, *type, *context;
--	const char *reg_buf;
-+	int items, len;
-+	char *buf_p, *regex, *type, *context;
- 	struct saved_data *data = (struct saved_data *)rec->data;
- 	spec_t *spec_arr = data->spec_arr;
- 	unsigned int nspec = data->nspec;
-@@ -253,8 +303,7 @@
- 		type = 0;
- 	}
- 
--	reg_buf = regex;
--	len = get_stem_from_spec(reg_buf);
-+	len = get_stem_from_spec(regex);
- 	if (len && prefix && strncmp(prefix, regex, len)) {
- 		/* Stem of regex does not match requested prefix, discard. */
- 		free(regex);
-@@ -264,45 +313,16 @@
- 	}
- 
- 	if (pass == 1) {
--		/* On the second pass, compile and store the specification in spec. */
--		char *cp;
--		spec_arr[nspec].stem_id = find_stem_from_spec(data, &reg_buf);
-+		/* On the second pass, process and store the specification in spec. */
-+		char *errbuf = NULL;
-+		spec_arr[nspec].stem_id = find_stem_from_spec(data, regex);
- 		spec_arr[nspec].regex_str = regex;
--
--		/* Anchor the regular expression. */
--		len = strlen(reg_buf);
--		cp = anchored_regex = malloc(len + 3);
--		if (!anchored_regex)
--			return -1;
--		/* Create ^...$ regexp.  */
--		*cp++ = '^';
--		cp = mempcpy(cp, reg_buf, len);
--		*cp++ = '$';
--		*cp = '\0';
--
--		/* Compile the regular expression. */
--		regerr =
--			regcomp(&spec_arr[nspec].regex,
--				anchored_regex, REG_EXTENDED | REG_NOSUB);
--		if (regerr != 0) {
--			size_t errsz = 0;
--			char *errbuf = NULL;
--			errsz = regerror(regerr, &spec_arr[nspec].regex,
--					 errbuf, errsz);
--			if (errsz)
--				errbuf = malloc(errsz);
--			if (errbuf)
--				(void)regerror(regerr,
--					       &spec_arr[nspec].regex,
--					       errbuf, errsz);
-+		if (rec->validating && compile_regex(data, &spec_arr[nspec], &errbuf)) {
- 			COMPAT_LOG(SELINUX_WARNING,
--				    "%s:  line %d has invalid regex %s:  %s\n",
--				    path, lineno, anchored_regex,
--				    (errbuf ? errbuf : "out of memory"));
--			free(anchored_regex);
--			return 0;
-+				   "%s:  line %d has invalid regex %s:  %s\n",
-+				   path, lineno, regex,
-+				   (errbuf ? errbuf : "out of memory"));
- 		}
--		free(anchored_regex);
- 
- 		/* Convert the type string to a mode format */
- 		spec_arr[nspec].type_str = type;
-@@ -437,6 +457,7 @@
- 	for (pass = 0; pass < 2; pass++) {
- 		lineno = 0;
- 		data->nspec = 0;
-+		data->ncomp = 0;
- 		while (getline(&line_buf, &line_len, fp) > 0
- 		       && data->nspec < maxnspec) {
- 			if (process_line(rec, path, prefix, line_buf,
-@@ -574,6 +595,8 @@
- 		     || spec_arr[i].stem_id == file_stem)
- 		    && (!mode || !spec_arr[i].mode
- 			|| mode == spec_arr[i].mode)) {
-+			if (compile_regex(data, &spec_arr[i], NULL) < 0)
-+				return NULL;
- 			if (spec_arr[i].stem_id == -1)
- 				rc = regexec(&spec_arr[i].regex, key, 0, 0, 0);
- 			else
-
+> +}
+> +
+>  #endif
+>  
+>  static struct security_operations selinux_ops = {
+> @@ -4943,9 +4957,10 @@ static struct security_operations selinux_ops = {
+>  #endif
+>  
+>  #ifdef CONFIG_KEYS
+> -	.key_alloc =                    selinux_key_alloc,
+> -	.key_free =                     selinux_key_free,
+> -	.key_permission =               selinux_key_permission,
+> +	.key_alloc =			selinux_key_alloc,
+> +	.key_free =			selinux_key_free,
+> +	.key_permission =		selinux_key_permission,
+> +	.key_getsecurity =		selinux_key_getsecurity,
+>  #endif
+>  };
+>  
 -- 
 Stephen Smalley
 National Security Agency
