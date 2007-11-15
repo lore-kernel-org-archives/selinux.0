@@ -1,353 +1,122 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <23847.1195142675@redhat.com>
-References: <23847.1195142675@redhat.com> <1195138926.18480.28.camel@moss-spartans.epoch.ncsc.mil> <26342.1195138409@redhat.com> <473B5928.6090800@redhat.com> <1194638426.624.91.camel@moss-spartans.epoch.ncsc.mil> <1194628263.3630.14.camel@vogon> <1194554589.3198.24.camel@moss-spartans.epoch.ncsc.mil> <24708.1194612682@redhat.com> <22421.1194637689@redhat.com> <1194637897.624.89.camel@moss-spartans.epoch.ncsc.mil> <24415.1194697577@redhat.com> <26367.1195138703@redhat.com> 
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        selinux@tycho.nsa.gov
-Subject: Re: [Fwd: type class key]
-Date: Thu, 15 Nov 2007 17:34:51 +0000
-Message-ID: <26736.1195148091@redhat.com>
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAFHd48N020201
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 12:39:04 -0500
+Received: from palrel10.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAFHd2m4000661
+	for <selinux@tycho.nsa.gov>; Thu, 15 Nov 2007 17:39:03 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v7 02/13] NetLabel: cleanup the LSM domain hash functions
+To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Date: Thu, 15 Nov 2007 11:28:55 -0500
+Message-ID: <20071115162854.9970.43191.stgit@flek.americas.hpqcorp.net>
+In-Reply-To: <20071115162053.9970.49166.stgit@flek.americas.hpqcorp.net>
+References: <20071115162053.9970.49166.stgit@flek.americas.hpqcorp.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David Howells <dhowells@redhat.com> wrote:
-
-> I've attached the patch I've come up with so far.
-
-Oops.  One error - I forgot to connect up the new function.
-
-	# LD_PRELOAD=/tmp/libkeyutils-1.2.so /tmp/keyctl add user a a @s
-	762693819
-	# LD_PRELOAD=/tmp/libkeyutils-1.2.so /tmp/keyctl security 762693819
-	root:system_r:unconfined_t:s0-s0:c0.c1023
-
-That what you want?
-
-New patch attached.
-
-David
----
-KEYS: Add keyctl function to get a security label
-
-From: David Howells <dhowells@redhat.com>
-
-Add a keyctl() function to get the security label of a key.
-
-The following is added to Documentation/keys.txt:
-
- (*) Get the LSM security context attached to a key.
-
-	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
-		    size_t buflen)
-
-     This function returns a string that represents the LSM security context
-     attached to a key in the buffer provided.
-
-     Unless there's an error, it always returns the amount of data it could
-     produce, even if that's too big for the buffer, but it won't copy more
-     than requested to userspace. If the buffer pointer is NULL then no copy
-     will take place.
-
-     A NUL character is included at the end of the string if the buffer is
-     sufficiently big.  This is included in the returned count.  If no LSM is
-     in force then an empty string will be returned.
-
-     A process must have view permission on the key for this function to be
-     successful.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
+The NetLabel/LSM domain hash table search function used a argument to specify
+if the default entry should be returned if an exact match couldn't be found in
+the hash table.  This is a bit against the kernel's style so make two separate
+functions to represent the separate behaviors.
 ---
 
- Documentation/keys.txt   |   21 +++++++++++++++
- include/linux/keyctl.h   |    1 +
- include/linux/security.h |   20 +++++++++++++-
- security/dummy.c         |    8 ++++++
- security/keys/compat.c   |    3 ++
- security/keys/keyctl.c   |   66 ++++++++++++++++++++++++++++++++++++++++++++++
- security/security.c      |    5 +++
- security/selinux/hooks.c |   21 +++++++++++++--
- 8 files changed, 141 insertions(+), 4 deletions(-)
+ net/netlabel/netlabel_domainhash.c |   47 ++++++++++++++++++++++++++----------
+ 1 files changed, 34 insertions(+), 13 deletions(-)
 
-diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-index b82d38d..be424b0 100644
---- a/Documentation/keys.txt
-+++ b/Documentation/keys.txt
-@@ -711,6 +711,27 @@ The keyctl syscall functions are:
-      The assumed authoritative key is inherited across fork and exec.
- 
- 
-+ (*) Get the LSM security context attached to a key.
-+
-+	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
-+		    size_t buflen)
-+
-+     This function returns a string that represents the LSM security context
-+     attached to a key in the buffer provided.
-+
-+     Unless there's an error, it always returns the amount of data it could
-+     produce, even if that's too big for the buffer, but it won't copy more
-+     than requested to userspace. If the buffer pointer is NULL then no copy
-+     will take place.
-+
-+     A NUL character is included at the end of the string if the buffer is
-+     sufficiently big.  This is included in the returned count.  If no LSM is
-+     in force then an empty string will be returned.
-+
-+     A process must have view permission on the key for this function to be
-+     successful.
-+
-+
- ===============
- KERNEL SERVICES
- ===============
-diff --git a/include/linux/keyctl.h b/include/linux/keyctl.h
-index 3365945..656ee6b 100644
---- a/include/linux/keyctl.h
-+++ b/include/linux/keyctl.h
-@@ -49,5 +49,6 @@
- #define KEYCTL_SET_REQKEY_KEYRING	14	/* set default request-key keyring */
- #define KEYCTL_SET_TIMEOUT		15	/* set key timeout */
- #define KEYCTL_ASSUME_AUTHORITY		16	/* assume request_key() authorisation */
-+#define KEYCTL_GET_SECURITY		17	/* get key security label */
- 
- #endif /*  _LINUX_KEYCTL_H */
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ac05083..8d9e946 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -959,6 +959,17 @@ struct request_sock;
-  *	@perm describes the combination of permissions required of this key.
-  *	Return 1 if permission granted, 0 if permission denied and -ve it the
-  *      normal permissions model should be effected.
-+ * @key_getsecurity:
-+ *	Get a textual representation of the security context attached to a key
-+ *	for the purposes of honouring KEYCTL_GETSECURITY.  This function
-+ *	allocates the storage for the NUL-terminated string and the caller
-+ *	should free it.
-+ *	@key points to the key to be queried.
-+ *	@_buffer points to a pointer that should be set to point to the
-+ *	 resulting string (if no label or an error occurs).
-+ *	Return the length of the string (including terminating NUL) or -ve if
-+ *      an error.
-+ *	May also return 0 (and a NULL buffer pointer) if there is no label.
+diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
+index b3675bd..1f8f7ac 100644
+--- a/net/netlabel/netlabel_domainhash.c
++++ b/net/netlabel/netlabel_domainhash.c
+@@ -109,17 +109,14 @@ static u32 netlbl_domhsh_hash(const char *key)
+ /**
+  * netlbl_domhsh_search - Search for a domain entry
+  * @domain: the domain
+- * @def: return default if no match is found
   *
-  * Security hooks affecting all System V IPC operations.
+  * Description:
+  * Searches the domain hash table and returns a pointer to the hash table
+- * entry if found, otherwise NULL is returned.  If @def is non-zero and a
+- * match is not found in the domain hash table the default mapping is returned
+- * if it exists.  The caller is responsibile for the rcu hash table locks
+- * (i.e. the caller much call rcu_read_[un]lock()).
++ * entry if found, otherwise NULL is returned.  The caller is responsibile for
++ * the rcu hash table locks (i.e. the caller much call rcu_read_[un]lock()).
   *
-@@ -1437,7 +1448,7 @@ struct security_operations {
- 	int (*key_permission)(key_ref_t key_ref,
- 			      struct task_struct *context,
- 			      key_perm_t perm);
--
-+	int (*key_getsecurity)(struct key *key, char **_buffer);
- #endif	/* CONFIG_KEYS */
- 
- };
-@@ -2567,6 +2578,7 @@ int security_key_alloc(struct key *key, struct task_struct *tsk, unsigned long f
- void security_key_free(struct key *key);
- int security_key_permission(key_ref_t key_ref,
- 			    struct task_struct *context, key_perm_t perm);
-+int security_key_getsecurity(struct key *key, char **_buffer);
- 
- #else
- 
-@@ -2588,6 +2600,12 @@ static inline int security_key_permission(key_ref_t key_ref,
- 	return 0;
- }
- 
-+static inline int security_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	*_buffer = NULL;
-+	return 0;
-+}
-+
- #endif
- #endif /* CONFIG_KEYS */
- 
-diff --git a/security/dummy.c b/security/dummy.c
-index 6d895ad..7993b30 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -949,6 +949,13 @@ static inline int dummy_key_permission(key_ref_t key_ref,
+  */
+-static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain, u32 def)
++static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain)
  {
- 	return 0;
- }
-+
-+static int dummy_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	*_buffer = NULL;
-+	return 0;
+ 	u32 bkt;
+ 	struct netlbl_dom_map *iter;
+@@ -133,10 +130,31 @@ static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain, u32 def)
+ 				return iter;
+ 	}
+ 
+-	if (def != 0) {
+-		iter = rcu_dereference(netlbl_domhsh_def);
+-		if (iter != NULL && iter->valid)
+-			return iter;
++	return NULL;
 +}
 +
- #endif /* CONFIG_KEYS */
- 
- struct security_operations dummy_security_ops;
-@@ -1133,6 +1140,7 @@ void security_fixup_ops (struct security_operations *ops)
- 	set_to_dummy_if_null(ops, key_alloc);
- 	set_to_dummy_if_null(ops, key_free);
- 	set_to_dummy_if_null(ops, key_permission);
-+	set_to_dummy_if_null(ops, key_getsecurity);
- #endif	/* CONFIG_KEYS */
- 
- }
-diff --git a/security/keys/compat.c b/security/keys/compat.c
-index e10ec99..c766c68 100644
---- a/security/keys/compat.c
-+++ b/security/keys/compat.c
-@@ -79,6 +79,9 @@ asmlinkage long compat_sys_keyctl(u32 option,
- 	case KEYCTL_ASSUME_AUTHORITY:
- 		return keyctl_assume_authority(arg2);
- 
-+	case KEYCTL_GET_SECURITY:
-+		return keyctl_get_security(arg2, compat_ptr(arg3), arg4);
-+
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 1698bf9..56e963b 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -20,6 +20,7 @@
- #include <linux/string.h>
- #include <linux/err.h>
- #include <linux/vmalloc.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- #include "internal.h"
- 
-@@ -1080,6 +1081,66 @@ error:
- 
- } /* end keyctl_assume_authority() */
- 
-+/*
-+ * get the security label of a key
-+ * - the key must grant us view permission
-+ * - if there's a buffer, we place up to buflen bytes of data into it
-+ * - unless there's an error, we return the amount of information available,
-+ *   irrespective of how much we may have copied (including the terminal NUL)
-+ * - implements keyctl(KEYCTL_GET_SECURITY)
++/**
++ * netlbl_domhsh_search_def - Search for a domain entry
++ * @domain: the domain
++ * @def: return default if no match is found
++ *
++ * Description:
++ * Searches the domain hash table and returns a pointer to the hash table
++ * entry if an exact match is found, if an exact match is not present in the
++ * hash table then the default entry is returned if valid otherwise NULL is
++ * returned.  The caller is responsibile for the rcu hash table locks
++ * (i.e. the caller much call rcu_read_[un]lock()).
++ *
 + */
-+long keyctl_get_security(key_serial_t keyid,
-+			 char __user *buffer,
-+			 size_t buflen)
++static struct netlbl_dom_map *netlbl_domhsh_search_def(const char *domain)
 +{
-+	struct key *key, *instkey;
-+	key_ref_t key_ref;
-+	char *context;
-+	long ret;
++	struct netlbl_dom_map *entry;
 +
-+	key_ref = lookup_user_key(NULL, keyid, 0, 1, KEY_VIEW);
-+	if (IS_ERR(key_ref)) {
-+		if (PTR_ERR(key_ref) != -EACCES)
-+			return PTR_ERR(key_ref);
-+
-+		/* viewing a key under construction is also permitted if we
-+		 * have the authorisation token handy */
-+		instkey = key_get_instantiation_authkey(keyid);
-+		if (IS_ERR(instkey))
-+			return PTR_ERR(key_ref);
-+		key_put(instkey);
-+
-+		key_ref = lookup_user_key(NULL, keyid, 0, 1, 0);
-+		if (IS_ERR(key_ref))
-+			return PTR_ERR(key_ref);
-+	}
-+
-+	key = key_ref_to_ptr(key_ref);
-+	ret = security_key_getsecurity(key, &context);
-+	if (ret == 0) {
-+		/* if no information was returned, give userspace an empty
-+		 * string */
-+		ret = 1;
-+		if (buffer && buflen > 0 &&
-+		    copy_to_user(buffer, "", 1) != 0)
-+			ret = -EFAULT;
-+	} else if (ret > 0) {
-+		/* return as much data as there's room for */
-+		if (buffer && buflen > 0) {
-+			if (buflen > ret)
-+				buflen = ret;
-+
-+			if (copy_to_user(buffer, context, buflen) != 0)
-+				ret = -EFAULT;
-+		}
-+
-+		kfree(context);
-+	}
-+
-+	key_ref_put(key_ref);
-+	return ret;
-+}
-+
- /*****************************************************************************/
- /*
-  * the key control system call
-@@ -1160,6 +1221,11 @@ asmlinkage long sys_keyctl(int option, unsigned long arg2, unsigned long arg3,
- 	case KEYCTL_ASSUME_AUTHORITY:
- 		return keyctl_assume_authority((key_serial_t) arg2);
- 
-+	case KEYCTL_GET_SECURITY:
-+		return keyctl_get_security((key_serial_t) arg2,
-+					   (char *) arg3,
-+					   (size_t) arg4);
-+
- 	default:
- 		return -EOPNOTSUPP;
++	entry = netlbl_domhsh_search(domain);
++	if (entry == NULL) {
++		entry = rcu_dereference(netlbl_domhsh_def);
++		if (entry != NULL && entry->valid)
++			return entry;
  	}
-diff --git a/security/security.c b/security/security.c
-index 0e1f1f1..16213e3 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1079,4 +1079,9 @@ int security_key_permission(key_ref_t key_ref,
- 	return security_ops->key_permission(key_ref, context, perm);
+ 
+ 	return NULL;
+@@ -224,7 +242,7 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
+ 	if (entry->domain != NULL) {
+ 		bkt = netlbl_domhsh_hash(entry->domain);
+ 		spin_lock(&netlbl_domhsh_lock);
+-		if (netlbl_domhsh_search(entry->domain, 0) == NULL)
++		if (netlbl_domhsh_search(entry->domain) == NULL)
+ 			list_add_tail_rcu(&entry->list,
+ 				    &rcu_dereference(netlbl_domhsh)->tbl[bkt]);
+ 		else
+@@ -307,7 +325,10 @@ int netlbl_domhsh_remove(const char *domain, struct netlbl_audit *audit_info)
+ 	struct audit_buffer *audit_buf;
+ 
+ 	rcu_read_lock();
+-	entry = netlbl_domhsh_search(domain, (domain != NULL ? 0 : 1));
++	if (domain)
++		entry = netlbl_domhsh_search(domain);
++	else
++		entry = netlbl_domhsh_search_def(domain);
+ 	if (entry == NULL)
+ 		goto remove_return;
+ 	switch (entry->type) {
+@@ -377,7 +398,7 @@ int netlbl_domhsh_remove_default(struct netlbl_audit *audit_info)
+  */
+ struct netlbl_dom_map *netlbl_domhsh_getentry(const char *domain)
+ {
+-	return netlbl_domhsh_search(domain, 1);
++	return netlbl_domhsh_search_def(domain);
  }
  
-+int security_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	return security_ops->key_getsecurity(key, _buffer);
-+}
-+
- #endif	/* CONFIG_KEYS */
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 9f3124b..bf161f5 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4768,6 +4768,20 @@ static int selinux_key_permission(key_ref_t key_ref,
- 			    SECCLASS_KEY, perm, NULL);
- }
- 
-+static int selinux_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	struct key_security_struct *ksec = key->security;
-+	char *context = NULL;
-+	unsigned len;
-+	int rc;
-+
-+	rc = security_sid_to_context(ksec->sid, &context, &len);
-+	if (!rc)
-+		rc = len;
-+	*_buffer = context;
-+	return len;
-+}
-+
- #endif
- 
- static struct security_operations selinux_ops = {
-@@ -4943,9 +4957,10 @@ static struct security_operations selinux_ops = {
- #endif
- 
- #ifdef CONFIG_KEYS
--	.key_alloc =                    selinux_key_alloc,
--	.key_free =                     selinux_key_free,
--	.key_permission =               selinux_key_permission,
-+	.key_alloc =			selinux_key_alloc,
-+	.key_free =			selinux_key_free,
-+	.key_permission =		selinux_key_permission,
-+	.key_getsecurity =		selinux_key_getsecurity,
- #endif
- };
- 
+ /**
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
