@@ -1,39 +1,39 @@
-Subject: Re: [PATCH 2/3] mmap: round mmap hint address above mmap_min_addr
+Subject: Re: [PATCH 3/3] security: allow capable check to permit mmap or
+	low vm space
 From: Eric Paris <eparis@redhat.com>
 To: James Morris <jmorris@namei.org>
 Cc: linux-kernel@vger.kernel.org, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
         alan@redhat.com, chrisw@redhat.com, hpa@zytor.com,
         akpm@linux-foundation.org
-In-Reply-To: <Xine.LNX.4.64.0711170841200.22208@us.intercode.com.au>
-References: <1195246486.2924.87.camel@localhost.localdomain>
-	 <Xine.LNX.4.64.0711170841200.22208@us.intercode.com.au>
+In-Reply-To: <Xine.LNX.4.64.0711170845050.22208@us.intercode.com.au>
+References: <1195246545.2924.88.camel@localhost.localdomain>
+	 <Xine.LNX.4.64.0711170845050.22208@us.intercode.com.au>
 Content-Type: text/plain
-Date: Fri, 16 Nov 2007 16:49:53 -0500
-Message-Id: <1195249793.2924.99.camel@localhost.localdomain>
+Date: Fri, 16 Nov 2007 16:53:29 -0500
+Message-Id: <1195250009.2924.103.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2007-11-17 at 08:42 +1100, James Morris wrote:
+On Sat, 2007-11-17 at 08:47 +1100, James Morris wrote:
 > On Fri, 16 Nov 2007, Eric Paris wrote:
 > 
-> > +#ifdef CONFIG_SECURITY
-> > +	/*
-> > +	 * If a hint addr is less than mmap_min_addr change addr to be as
-> > +	 * low as possible but still greater than mmap_min_addr
-> > +	 */
-> > +	if (!(flags & MAP_FIXED) && ((void *)addr != NULL) &&
-> > +	    (addr < mmap_min_addr))
-> > +		addr = PAGE_ALIGN(mmap_min_addr);
-> > +#endif
+> > On a kernel with CONFIG_SECURITY but without an LSM which implements
+> > security_file_mmap it is impossible for an application to mmap addresses
+> > lower than mmap_min_addr.
 > 
-> Please make this a static inline which is optimized away with 
-> !CONFIG_SECURITY.
+> Actually, should we be doing any checking in the dummy module, given that 
+> it is not done with !CONFIG_SECURITY ?
 
-Where do you think these should go?  You think I should instead have a
-static inline function in both mmap.c and nommu.c so the CONFIG check
-isn't scattered in this code but still in this file?  Or did you
-actually want something in security.h so I only have the code once?
+I'm not sure I understand the question.  We already do a number of
+capable type security checks in dummy functions. See dummy_settime() as
+just one example.
+
+If we have !CONFIG_SECURITY we don't have any security protections (how
+could we?  we turned them off) so we don't get into dummy hooks.  If we
+do checks or not in uncompiled code doesn't seem to me to matter.
+
+Maybe I'm just confused...
 
 -Eric
 
