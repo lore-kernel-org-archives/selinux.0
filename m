@@ -1,82 +1,34 @@
-Subject: [PATCH 2/3] mmap: round mmap hint address above mmap_min_addr
-From: Eric Paris <eparis@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: jmorris@namei.org, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
-        alan@redhat.com, chrisw@redhat.com, hpa@zytor.com,
-        akpm@linux-foundation.org
-Content-Type: text/plain
-Date: Fri, 16 Nov 2007 15:54:46 -0500
-Message-Id: <1195246486.2924.87.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <473E03F0.2040606@redhat.com>
+Date: Fri, 16 Nov 2007 15:56:16 -0500
+From: Peter Staubach <staubach@redhat.com>
+MIME-Version: 1.0
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+CC: labeled-nfs@linux-nfs.org, selinux@tycho.nsa.gov
+Subject: Re: [RFC Labeled NFS] Labeling support for NFSv4
+References: <1195243404.20981.3.camel@moss-terrapins.epoch.ncsc.mil>
+In-Reply-To: <1195243404.20981.3.camel@moss-terrapins.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If mmap_min_addr is set and a process attempts to mmap (not fixed) with
-a non-null hint address less than mmap_min_addr the mapping will fail
-the security checks.  Since this is just a hint address this patch will
-round such a hint address above mmap_min_addr.
+David P. Quigley wrote:
+> This is the first set of patches for the labeled-nfs work since early August.
+> Much has changed since then and we have a reasonably functional prototype of
+> the dumb server implementation. This patch series provides the ability to
+> retrieve and set labels on the server, provides callback notification for label
+> changes on the server, and life-cycle management for the fattr structure which
+> is used to transport the labels.
+>
+> The patch series should apply on top of any 2.6.24-rc2 kernel and I know for a
+> fact that it will apply on top of commit 
+> 9418d5dc9ba40b88737580457bf3b7c63c60ec43 in Linus's git tree. To get the tree
+> up and running for testing just apply the patch and have fun.
 
-gcj was found to try to be very frugal with vm usage and give hint
-addresses in the 8k-32k range.  Without this patch all such programs
-failed and with the patch they happily get a higher address.
+How is the work going on with the NFSv4 IETF WG?
 
-This patch is wrappad in CONFIG_SECURITY since mmap_min_addr doesn't
-exist without it and there would be no security check possible no matter
-what.  So we should not both compiling in this rounding if it is just a
-waste of time.
+    Thanx...
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
-
----
-
- mm/mmap.c  |   10 ++++++++++
- mm/nommu.c |   10 ++++++++++
- 2 files changed, 20 insertions(+), 0 deletions(-)
-
-diff --git a/mm/mmap.c b/mm/mmap.c
-index 938313c..0c3ff74 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -912,6 +912,16 @@ unsigned long do_mmap_pgoff(struct file * file, unsigned long addr,
- 	if (!len)
- 		return -EINVAL;
- 
-+#ifdef CONFIG_SECURITY
-+	/*
-+	 * If a hint addr is less than mmap_min_addr change addr to be as
-+	 * low as possible but still greater than mmap_min_addr
-+	 */
-+	if (!(flags & MAP_FIXED) && ((void *)addr != NULL) &&
-+	    (addr < mmap_min_addr))
-+		addr = PAGE_ALIGN(mmap_min_addr);
-+#endif
-+
- 	error = arch_mmap_check(addr, len, flags);
- 	if (error)
- 		return error;
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 35622c5..ea4d20a 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -829,6 +829,16 @@ unsigned long do_mmap_pgoff(struct file *file,
- 	void *result;
- 	int ret;
- 
-+#ifdef CONFIG_SECURITY
-+	/*
-+	 * If a hint addr is less than mmap_min_addr change addr to be as
-+	 * low as possible, but still greater than mmap_min_addr
-+	 */
-+	if (!(flags & MAP_FIXED) && ((void *)addr != NULL) &&
-+	    (addr < mmap_min_addr))
-+		addr = PAGE_ALIGN(mmap_min_addr);
-+#endif
-+
- 	/* decide whether we should attempt the mapping, and if so what sort of
- 	 * mapping */
- 	ret = validate_mmap_request(file, addr, len, prot, flags, pgoff,
-
-
+       ps
 
 --
 This message was distributed to subscribers of the selinux mailing list.
