@@ -1,78 +1,130 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAGGRC4H024525
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 11:27:12 -0500
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAGGRAfY016716
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 16:27:10 GMT
-Subject: Re: [DSE-Dev] [martin@martinorr.name:  /selinux getattr messages]
-From: Erich Schubert <erich@debian.org>
-To: Litwiniec Robert <linio@wonder.pl>
-Cc: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>,
-        selinux@tycho.nsa.gov, Martin Orr <martin@martinorr.name>,
-        selinux-devel@lists.alioth.debian.org
-In-Reply-To: <20071116150103.GA31130@asterix.wonder.pl>
-References: <20071116125923.GA25905@bobek.pm.i.cz>
-	 <1195224049.22415.42.camel@hepcat.vitavonni.de>
-	 <20071116150103.GA31130@asterix.wonder.pl>
-Content-Type: text/plain
-Date: Fri, 16 Nov 2007 17:27:06 +0100
-Message-Id: <1195230426.22415.52.camel@hepcat.vitavonni.de>
-Mime-Version: 1.0
+Message-ID: <473DBE35.7050206@redhat.com>
+Date: Fri, 16 Nov 2007 10:58:45 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Fix fixfiles handling of arguments
+Content-Type: multipart/mixed;
+ boundary="------------010603040308010408050107"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Robert,
-> I testing selinux on my etch/lenny machine, and i prepared patch for
-> refpolicy trunk:
-> http://wonder.pl/pub/debian/deby/debian-selinux-patches/refpolicy/refpolicy-debian-20071116.patch
+This is a multi-part message in MIME format.
+--------------010603040308010408050107
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Just some notes:
-- don't include build.conf in the patch
-- try to split the patch into small changes, and send them individually.
-That makes review easier, and they go into upstream quicker.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't have the time to completely review your patch, so just a few
-notes:
+fixfiles restore /usr/bin/g*
 
-refpolicy/policy/modules/admin/alsa.fc:
-/var/lib/alsa/asound\.state	gen_context(system_u:object_r:alsa_etc_rw_t,s0)
+goes nuts.
 
-Make a new context such as alsa_state_t, using *_etc_* outside of /etc
-is a misnamer, and you unnecessarily give write access to files in /etc
-when you only want to give write access to /var/lib/alsa.
-Also you should relabel the directory /var/lib/alsa, this helps getting
-the file labeled correctly upon creation already.
+This patch fixes this.
 
-refpolicy/policy/modules/apps/mozilla.fc:
-/usr/bin/epiphany
-shouldn't be labeled mozilla_exec_t, because it's just a wrapper shell
-script. The correct binaries to relabel are
-  /usr/bin/epiphany-gecko
-  /usr/bin/epiphany-webkit
-  /usr/bin/epiphany
-(for version where there was just the gecko branch)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-/etc/gdm - you messed something up there. avoid bin_t there.
+iD8DBQFHPb40rlYvE4MpobMRAqrJAKDO8b27pYWdCpBhQfPOes6L6u8/MwCgtYH8
+94OG2eQJUWJhXD5Hkpus9yo=
+=cnGp
+-----END PGP SIGNATURE-----
 
-refpolicy/policy/modules/services/hal.fc:
-also relabel the directory, so the pidfile gets labeled correctly upon
-creation.
+--------------010603040308010408050107
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
-Again, I didn't go through the whole diff. But on overall, I think
-you've been doing a quite good job. You've understood how to fix audit
-errors properly and how to use interfaces and macros. I hope that
-someone of the active SELinux users will have time to look at your diff
-in detail and include some of the changes into the upstream branch.
+diff --exclude-from=exclude --exclude=sepolgen-1.0.10 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/scripts/fixfiles policycoreutils-2.0.31/scripts/fixfiles
+--- nsapolicycoreutils/scripts/fixfiles	2007-08-23 16:52:26.000000000 -0400
++++ policycoreutils-2.0.31/scripts/fixfiles	2007-11-16 10:54:53.000000000 -0500
+@@ -92,7 +92,7 @@
+ 		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -prune  -o \
+ 		      \( -wholename /home -o -wholename /root -o -wholename /tmp -wholename /dev \) -prune -o -print; \
+ 		      done 2> /dev/null | \
+-	 ${RESTORECON} $2 -v -f - 
++	 ${RESTORECON} $2 -f - 
+ 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
+ fi
+ }
+@@ -189,21 +189,27 @@
+     case "$i" in
+ 	f)
+ 		fullFlag=1
++		shift 1
+ 		;;
+         R)
+ 		RPMFILES=$OPTARG
++		shift 2
+ 		;;
+         o)
+ 		OUTFILES=$OPTARG
++		shift 2
+ 		;;
+         l)
+ 		LOGFILE=$OPTARG
++		shift 2
+ 		;;
+         C)
+ 		PREFC=$OPTARG
++		shift 2
+ 		;;
+ 	F)
+ 		FORCEFLAG="-F"
++		shift 1
+ 		;;
+ 	*)
+ 	    usage
+@@ -211,10 +217,8 @@
+ esac
+ done
+ 
+-
+ # Check for the command
+-eval command=\$${OPTIND}
+-let OPTIND=$OPTIND+1
++command=$1
+ if [ -z $command ]; then
+     usage
+ fi
+@@ -223,17 +227,16 @@
+ # check if they specified both DIRS and RPMFILES
+ #
+ 
++shift 1
+ if [ ! -z "$RPMFILES" ]; then
+-    if [ $OPTIND -le $# ]; then
++    if [ $# -gt 0 ]; then
++	echo broken
+ 	    usage
+     fi
+ else
+-    while [ $OPTIND -le $# ]; do
+-	eval DIR=\$${OPTIND}
+-	DIRS="$DIRS $DIR"
+-	let OPTIND=$OPTIND+1
+-    done
++    DIRS=$*
+ fi
++
+ #
+ # Make sure they specified one of the three valid commands
+ #
 
-best regards,
-Erich Schubert
--- 
-     erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
- Why waste time learning, when ignorance is instantaneous? --- Calvin //\
-     Die eigentliche Aufgabe eines Freundes ist, dir beizustehen,     V_/_
-     wenn du im Unrecht bist. Jedermann ist auf deiner Seite, wenn
-                   du im Recht bist. --- Mark Twain
+--------------010603040308010408050107
+Content-Type: application/octet-stream;
+ name="diff.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="diff.sig"
 
+iD8DBQBHPb40rlYvE4MpobMRAgmCAKCdWR3v1vEGvwXvAVzW4DY92CIy2QCfSGNJh3htbST3
+FeG6eEcJfHBNc6M=
+--------------010603040308010408050107--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
