@@ -1,71 +1,39 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAGMiFGs006728
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 17:44:15 -0500
-Received: from web32210.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id lAGMiCsk010216
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 22:44:13 GMT
-Date: Fri, 16 Nov 2007 14:44:03 -0800 (PST)
-From: Hal <hal_bg@yahoo.com>
-Subject: Re: Trouble with mounted /home
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1195243497.16660.4.camel@gorn>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAGNeo0n013585
+	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 18:40:50 -0500
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAGNemsk026773
+	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 23:40:49 GMT
+Date: Sat, 17 Nov 2007 10:40:35 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tcho.nsa.gov
+Subject: Re: [PATCH] SELinux: return EOPNOTSUPP not ENOTSUPP
+In-Reply-To: <1195248956.2924.93.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0711171040250.11097@us.intercode.com.au>
+References: <1195248956.2924.93.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <527346.11275.qm@web32210.mail.mud.yahoo.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 16 Nov 2007, Eric Paris wrote:
 
---- "Christopher J. PeBenito" <cpebenito@tresys.com> wrote:
-
-> On Thu, 2007-11-15 at 15:28 -0800, Hal wrote:
-> > hi all
-> > I have problem with Selinux targeted policy and mounted user home dirs on
-> F8.
-> > 
-> > What I did was:
-> > # mkfs -t ext3 /dev/sdb1
-> > # mount /dev/sdb1 /home
-> > 
-> > # useradd test1
-> > # passwd test1
-> > 
-> > # useradd -Z xguest_u test2 
-> > # passwd test2
-> > 
-> > # vi /etc/fstab 
-> > and added /dev/sdb1 as /home
-> > 
-> > from the GUI I have set targeted/enforcing and checked relabel on reboot.
-> > 
-> > # reboot
-> > 
-> > In the gdm I tried to login as test1 and test2 with no success. A message
-> pops
-> > up on the screen saying that /home/test1 or /home/test2 does not exist
-> > respectively.
-> > 
-> > when I set permissive no problems at all despite of some avc denials about
-> > tomboy and /tmp...
-> > 
-> > It seems there are no messaages in /var/log/messages in enforcing mode...
-> > 
-> > So can anybody tell me how to use selinux with a mounted home?
-> > 
-> > By the way /home/test1 and /home/test2 have the correct labeling.
+> ENOTSUPP is not a valid error code in the kernel (it is defined in some
+> NFS internal error codes and has been improperly used other places).  In
+> the !CONFIG_SECURITY_SELINUX case though it is possible that we could
+> return this from selinux_audit_rule_init().  This patch just returns the
+> userspace valid EOPNOTSUPP.
 > 
-> Does /home have the right label?  Are you sure the DAC permissions
-> (regular unix perms) are correct?
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
 
-With selinux disabled everything works fine. And the labels look ok just as if
-home was a part of the same FS when everything works.
-
+Applied.
 
 
-      ____________________________________________________________________________________
-Never miss a thing.  Make Yahoo your home page. 
-http://www.yahoo.com/r/hs
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
