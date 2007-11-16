@@ -1,60 +1,46 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAGEf4xG013786
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 09:41:04 -0500
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAGEf2co001276
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 14:41:02 GMT
-Subject: Re: [DSE-Dev] [martin@martinorr.name:  /selinux getattr messages]
-From: Erich Schubert <erich@debian.org>
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: selinux@tycho.nsa.gov, Martin Orr <martin@martinorr.name>,
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAGF1FLN015940
+	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 10:01:15 -0500
+Received: from asterix.wonder.pl (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAGF1Dco006956
+	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 15:01:14 GMT
+Date: Fri, 16 Nov 2007 16:01:03 +0100
+To: Erich Schubert <erich@debian.org>
+Cc: =?iso-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>,
+        selinux@tycho.nsa.gov, Martin Orr <martin@martinorr.name>,
         selinux-devel@lists.alioth.debian.org
-In-Reply-To: <20071116125923.GA25905@bobek.pm.i.cz>
-References: <20071116125923.GA25905@bobek.pm.i.cz>
-Content-Type: text/plain; charset=utf-8
-Date: Fri, 16 Nov 2007 15:40:49 +0100
-Message-Id: <1195224049.22415.42.camel@hepcat.vitavonni.de>
+Subject: Re: [DSE-Dev] [martin@martinorr.name:  /selinux getattr messages]
+Message-ID: <20071116150103.GA31130@asterix.wonder.pl>
+References: <20071116125923.GA25905@bobek.pm.i.cz> <1195224049.22415.42.camel@hepcat.vitavonni.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1195224049.22415.42.camel@hepcat.vitavonni.de>
+From: linio@wonder.pl (Litwiniec Robert)
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-> selinux_get_fs_mount(fsadm_t)
-> -> ./policy/modules/system/fstools.te
+On Fri, Nov 16, 2007 at 03:40:49PM +0100, Erich Schubert wrote:
+> Hi,
+
+Hello,
+
 > 
-> selinux_get_fs_mount(mount_t)
-> -> ./policy/modules/system/mount.te
+> You might also want to browse the changes I did to my policy.
+> They're all in SVN at
+> http://svn.debian.org/wsvn/selinux/refpolicy/branches/debian/
 
-> Is such solution ok and acceptable upstream (conditionaly for
-> Debian distro or so)?
+I testing selinux on my etch/lenny machine, and i prepared patch for
+refpolicy trunk:
+http://wonder.pl/pub/debian/deby/debian-selinux-patches/refpolicy/refpolicy-debian-20071116.patch
 
-That is a well-defined access control switch, so I figure it's okay, at
-least if it has been checked that these aren't due to some bug in the
-programs doing these commands.
+I'm new to selinux, so this patch should be reviewed by some experienced SELinux users.
 
-You might also want to browse the changes I did to my policy.
-They're all in SVN at
-http://svn.debian.org/wsvn/selinux/refpolicy/branches/debian/
+regards,
+Robert Litwiniec
 
-If you want, I can give you write access to that repository.
-All you need is an alioth account and join the SELinux project there.
-
->From the changelog you can see that upstream revision 2337 was the last
-one I merged, so you should be able to get a clean diff via SVN by
-comparing that revision from upstream with my 'HEAD' revision.
-I don't know if I did something to fix that audit error. Maybe I
-modified one of the other macros instead to include this getattr.
-
-best regards,
-Erich Schubert
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
-                 Friends are those who reach out for                //\
-                   your hand but touch your heart.                  V_/_
-   Es ist beschämender seinen Freunden zu mißtrauen als von ihnen
-        getäuscht zu werden. --- François de la Rochefoucauld
-
-
+http://debian.wonder.pl - Debian/GNU Linux wiki
+http://zamosc.wonder.pl - Wonders of Zamosc
 
 --
 This message was distributed to subscribers of the selinux mailing list.
