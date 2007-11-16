@@ -1,48 +1,65 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAGLZxxN027252
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 16:36:00 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAGLZwsk015647
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 21:35:59 GMT
-Subject: [PATCH] SELinux: return EOPNOTSUPP not ENOTSUPP
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tcho.nsa.gov, jmorris@namei.org
-Content-Type: text/plain
-Date: Fri, 16 Nov 2007 16:35:56 -0500
-Message-Id: <1195248956.2924.93.camel@localhost.localdomain>
-Mime-Version: 1.0
+Date: Sat, 17 Nov 2007 08:42:26 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: linux-kernel@vger.kernel.org, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
+        alan@redhat.com, chrisw@redhat.com, hpa@zytor.com,
+        akpm@linux-foundation.org
+Subject: Re: [PATCH 2/3] mmap: round mmap hint address above mmap_min_addr
+In-Reply-To: <1195246486.2924.87.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0711170841200.22208@us.intercode.com.au>
+References: <1195246486.2924.87.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ENOTSUPP is not a valid error code in the kernel (it is defined in some
-NFS internal error codes and has been improperly used other places).  In
-the !CONFIG_SECURITY_SELINUX case though it is possible that we could
-return this from selinux_audit_rule_init().  This patch just returns the
-userspace valid EOPNOTSUPP.
+On Fri, 16 Nov 2007, Eric Paris wrote:
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+> +#ifdef CONFIG_SECURITY
+> +	/*
+> +	 * If a hint addr is less than mmap_min_addr change addr to be as
+> +	 * low as possible but still greater than mmap_min_addr
+> +	 */
+> +	if (!(flags & MAP_FIXED) && ((void *)addr != NULL) &&
+> +	    (addr < mmap_min_addr))
+> +		addr = PAGE_ALIGN(mmap_min_addr);
+> +#endif
 
----
-
- include/linux/selinux.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-index d1b7ca6..6080f73 100644
---- a/include/linux/selinux.h
-+++ b/include/linux/selinux.h
-@@ -136,7 +136,7 @@ static inline int selinux_audit_rule_init(u32 field, u32 op,
-                                           char *rulestr,
-                                           struct selinux_audit_rule **rule)
- {
--	return -ENOTSUPP;
-+	return -EOPNOTSUPP;
- }
- 
- static inline void selinux_audit_rule_free(struct selinux_audit_rule *rule)
+Please make this a static inline which is optimized away with 
+!CONFIG_SECURITY.
 
 
+> +
+>  	error = arch_mmap_check(addr, len, flags);
+>  	if (error)
+>  		return error;
+> diff --git a/mm/nommu.c b/mm/nommu.c
+> index 35622c5..ea4d20a 100644
+> --- a/mm/nommu.c
+> +++ b/mm/nommu.c
+> @@ -829,6 +829,16 @@ unsigned long do_mmap_pgoff(struct file *file,
+>  	void *result;
+>  	int ret;
+>  
+> +#ifdef CONFIG_SECURITY
+> +	/*
+> +	 * If a hint addr is less than mmap_min_addr change addr to be as
+> +	 * low as possible, but still greater than mmap_min_addr
+> +	 */
+> +	if (!(flags & MAP_FIXED) && ((void *)addr != NULL) &&
+> +	    (addr < mmap_min_addr))
+> +		addr = PAGE_ALIGN(mmap_min_addr);
+> +#endif
+> +
+>  	/* decide whether we should attempt the mapping, and if so what sort of
+>  	 * mapping */
+>  	ret = validate_mmap_request(file, addr, len, prot, flags, pgoff,
+> 
+> 
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
