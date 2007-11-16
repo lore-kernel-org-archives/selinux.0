@@ -1,218 +1,201 @@
 Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lAGK7gnR018571
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 15:07:42 -0500
-Subject: [PATCH 04/13] VFS: Add label field to the iattr structure
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lAGK8LMb018688
+	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 15:08:21 -0500
+Subject: [PATCH 05/13] Security: Add hook to calculate context based on a
+	negative dentry.
 From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: labeled-nfs@linux-nfs.org
 Cc: selinux@tycho.nsa.gov
 In-Reply-To: <1195243404.20981.3.camel@moss-terrapins.epoch.ncsc.mil>
 References: <1195243404.20981.3.camel@moss-terrapins.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 16 Nov 2007 15:07:40 -0500
-Message-Id: <1195243660.20981.11.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 16 Nov 2007 15:08:20 -0500
+Message-Id: <1195243700.20981.13.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The ia_label and ia_label_len fields are used to hold the information taken
-from the wire to be passed with the other file attributes to be set. This patch
-also modifies inode_setattr to make use of the new iattr fields.
+There is a time where we need to calculate a context without the
+inode having been created yet. To do this we take the negative dentry and
+calculate a sid based on the process and the parent directory contexts.
 
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 ---
- fs/attr.c             |   40 ++++++++++++++++++++++++++++++++++++++++
- fs/xattr.c            |   31 +++++++++++++++++++++++++------
- include/linux/fs.h    |   11 +++++++++++
- include/linux/xattr.h |    1 +
- 4 files changed, 77 insertions(+), 6 deletions(-)
+ include/linux/security.h |   11 +++++++++++
+ security/dummy.c         |    7 +++++++
+ security/security.c      |    9 +++++++++
+ security/selinux/hooks.c |   46 ++++++++++++++++++++++++++++++++++++++++++++--
+ 4 files changed, 71 insertions(+), 2 deletions(-)
 
-diff --git a/fs/attr.c b/fs/attr.c
-index 966b73e..50e34b9 100644
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -5,6 +5,7 @@
-  *  changes by Thomas Schoebel-Theuer
-  */
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 8c0d687..6ccb010 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1240,6 +1240,8 @@ struct security_operations {
+ 	void (*sb_post_pivotroot) (struct nameidata * old_nd,
+ 				   struct nameidata * new_nd);
  
-+#include <linux/fs.h>
- #include <linux/module.h>
- #include <linux/time.h>
- #include <linux/mm.h>
-@@ -14,9 +15,32 @@
- #include <linux/fcntl.h>
- #include <linux/quotaops.h>
- #include <linux/security.h>
-+#include <linux/xattr.h>
++	int (*dentry_init_security) (struct dentry *dentry, int mode,
++				     void **ctx, u32 *ctxlen);
+ 	int (*inode_alloc_security) (struct inode *inode);	
+ 	void (*inode_free_security) (struct inode *inode);
+ 	int (*inode_init_security) (struct inode *inode, struct inode *dir,
+@@ -1497,6 +1499,7 @@ void security_sb_post_mountroot(void);
+ void security_sb_post_addmount(struct vfsmount *mnt, struct nameidata *mountpoint_nd);
+ int security_sb_pivotroot(struct nameidata *old_nd, struct nameidata *new_nd);
+ void security_sb_post_pivotroot(struct nameidata *old_nd, struct nameidata *new_nd);
++int security_dentry_init_security(struct dentry *dentry, int mode, void **ctx, u32 *ctxlen);
+ int security_inode_alloc(struct inode *inode);
+ void security_inode_free(struct inode *inode);
+ int security_inode_init_security(struct inode *inode, struct inode *dir,
+@@ -1793,6 +1796,14 @@ static inline void security_sb_post_pivotroot (struct nameidata *old_nd,
+ 					       struct nameidata *new_nd)
+ { }
  
- /* Taken over from the old code... */
- 
-+int inode_setsecurity(struct inode *inode, struct iattr *attr)
++static inline int security_dentry_init_security(struct dentry *dentry,
++						 int mode,
++						 void **ctx,
++						 u32 *ctxlen)
 +{
-+	const char *key = security_inode_xattr_getname();
-+	const char *suffix = key + XATTR_SECURITY_PREFIX_LEN;
-+	int error;
-+
-+	if (inode->i_security == NULL)
-+		return -EOPNOTSUPP;
-+
-+	if (!attr->ia_valid & ATTR_SECURITY_LABEL)
-+		return -EINVAL;
-+
-+	error = security_inode_setsecurity(inode, suffix, attr->ia_label,
-+					   attr->ia_label_len, 0);
-+	if (error)
-+		printk("%s() %s %d security_inode_setsecurity() %d\n", __func__,
-+			(char *)attr->ia_label, attr->ia_label_len, error);
-+
-+	return (0);
++	return 0;
 +}
-+EXPORT_SYMBOL(inode_setsecurity);
 +
- /* POSIX UID/GID verification for setting inode attributes. */
- int inode_change_ok(struct inode *inode, struct iattr *attr)
+ static inline int security_inode_alloc (struct inode *inode)
  {
-@@ -94,6 +118,10 @@ int inode_setattr(struct inode * inode, struct iattr * attr)
- 			mode &= ~S_ISGID;
- 		inode->i_mode = mode;
- 	}
-+#ifdef CONFIG_SECURITY
-+	if (ia_valid & ATTR_SECURITY_LABEL)
-+		inode_setsecurity(inode, attr);
-+#endif
- 	mark_inode_dirty(inode);
- 
  	return 0;
-@@ -157,6 +185,18 @@ int notify_change(struct dentry * dentry, struct iattr * attr)
- 	if (ia_valid & ATTR_SIZE)
- 		down_write(&dentry->d_inode->i_alloc_sem);
- 
-+#ifdef CONFIG_SECURITY
-+	if (ia_valid & ATTR_SECURITY_LABEL) {
-+		char *key = (char *)security_inode_xattr_getname();
-+		vfs_setxattr_locked(dentry, key,
-+			attr->ia_label, attr->ia_label_len, 0);
-+		/* Avoid calling inode_setsecurity()
-+		 * via inode_setattr() below
-+		 */
-+		attr->ia_valid &= ~ATTR_SECURITY_LABEL;
-+	}
-+#endif
-+
- 	if (inode->i_op && inode->i_op->setattr) {
- 		error = security_inode_setattr(dentry, attr);
- 		if (!error)
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 91c7929..b7ebc85 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -67,9 +67,9 @@ xattr_permission(struct inode *inode, const char *name, int mask)
- 	return permission(inode, mask, NULL);
+diff --git a/security/dummy.c b/security/dummy.c
+index c2524ab..9a91650 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -245,6 +245,12 @@ static void dummy_sb_post_pivotroot (struct nameidata *old_nd, struct nameidata
+ 	return;
  }
  
--int
--vfs_setxattr(struct dentry *dentry, char *name, void *value,
--		size_t size, int flags)
-+static int
-+_vfs_setxattr(struct dentry *dentry, char *name, void *value,
-+		size_t size, int flags, int lock)
++static int dummy_dentry_init_security(struct dentry *dentry, int mode,
++				       void **ctx, u32 *ctxlen)
++{
++	return -EOPNOTSUPP;
++}
++
+ static int dummy_inode_alloc_security (struct inode *inode)
  {
- 	struct inode *inode = dentry->d_inode;
- 	int error;
-@@ -78,7 +78,8 @@ vfs_setxattr(struct dentry *dentry, char *name, void *value,
- 	if (error)
- 		return error;
- 
--	mutex_lock(&inode->i_mutex);
-+	if (lock)
-+		mutex_lock(&inode->i_mutex);
- 	error = security_inode_setxattr(dentry, name, value, size, flags);
- 	if (error)
- 		goto out;
-@@ -95,15 +96,33 @@ vfs_setxattr(struct dentry *dentry, char *name, void *value,
- 		const char *suffix = name + XATTR_SECURITY_PREFIX_LEN;
- 		error = security_inode_setsecurity(inode, suffix, value,
- 						   size, flags);
--		if (!error)
-+		if (!error) {
-+			fsnotify_change(dentry, ATTR_SECURITY_LABEL);
- 			fsnotify_xattr(dentry);
-+		}
- 	}
- out:
--	mutex_unlock(&inode->i_mutex);
-+	if (lock)
-+		mutex_unlock(&inode->i_mutex);
- 	return error;
+ 	return 0;
+@@ -1003,6 +1009,7 @@ void security_fixup_ops (struct security_operations *ops)
+ 	set_to_dummy_if_null(ops, sb_post_addmount);
+ 	set_to_dummy_if_null(ops, sb_pivotroot);
+ 	set_to_dummy_if_null(ops, sb_post_pivotroot);
++	set_to_dummy_if_null(ops, dentry_init_security);
+ 	set_to_dummy_if_null(ops, inode_alloc_security);
+ 	set_to_dummy_if_null(ops, inode_free_security);
+ 	set_to_dummy_if_null(ops, inode_init_security);
+diff --git a/security/security.c b/security/security.c
+index cf853a7..c481405 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -308,6 +308,15 @@ void security_sb_post_pivotroot(struct nameidata *old_nd, struct nameidata *new_
+ 	security_ops->sb_post_pivotroot(old_nd, new_nd);
  }
-+
-+int
-+vfs_setxattr(struct dentry *dentry, char *name, void *value,
-+		size_t size, int flags)
+ 
++int security_dentry_init_security(struct dentry *dentry,
++						 int mode,
++						 void **ctx,
++						 u32 *ctxlen)
 +{
-+	return _vfs_setxattr(dentry, name, value, size, flags, 1);
++	return security_ops->dentry_init_security(dentry, mode, ctx, ctxlen);
 +}
- EXPORT_SYMBOL_GPL(vfs_setxattr);
++EXPORT_SYMBOL(security_dentry_init_security);
++
+ int security_inode_alloc(struct inode *inode)
+ {
+ 	inode->i_security = NULL;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9083390..c9f5abc 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -60,6 +60,7 @@
+ #include <linux/udp.h>
+ #include <linux/dccp.h>
+ #include <linux/quota.h>
++#include <linux/fsnotify.h>
+ #include <linux/un.h>		/* for Unix socket types */
+ #include <net/af_unix.h>	/* for Unix socket types */
+ #include <linux/parser.h>
+@@ -2086,6 +2087,42 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
  
-+int
-+vfs_setxattr_locked(struct dentry *dentry, char *name, void *value,
-+			size_t size, int flags)
+ /* inode security operations */
+ 
++/*
++ * For now, we need a way to compute a SID for
++ * a dentry as the inode is not yet available
++ * (and under NFSv4 has no label backed by an EA anyway.
++ */
++static int selinux_dentry_init_security(struct dentry *dentry, int mode,
++					void **ctx, u32 *ctxlen)
 +{
-+	return _vfs_setxattr(dentry, name, value, size, flags, 0);
++	struct task_security_struct *tsec;
++	struct inode_security_struct *dsec;
++	struct superblock_security_struct *sbsec;
++	struct inode *dir = dentry->d_parent->d_inode;
++	u32 newsid;
++	int rc;
++
++	tsec = current->security;
++	dsec = dir->i_security;
++	sbsec = dir->i_sb->s_security;
++
++	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
++		newsid = tsec->create_sid;
++	} else {
++		rc = security_transition_sid(tsec->sid, dsec->sid,
++					     inode_mode_to_security_class(mode),
++					     &newsid);
++		if (rc) {
++			printk(KERN_WARNING "%s:  "
++			       "security_transition_sid failed, rc=%d\n",
++			       __FUNCTION__, -rc);
++			return rc;
++		}
++	}
++
++	return security_sid_to_context(newsid, (char **)ctx, ctxlen);
 +}
-+EXPORT_SYMBOL_GPL(vfs_setxattr_locked);
 +
- ssize_t
- xattr_getsecurity(struct inode *inode, const char *name, void *value,
- 			size_t size)
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index b3ec4a4..3383ae4 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -333,6 +333,10 @@ typedef void (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
- #define ATTR_KILL_PRIV	16384
- #define ATTR_OPEN	32768	/* Truncating from open(O_TRUNC) */
- 
-+#ifdef CONFIG_SECURITY
-+#define ATTR_SECURITY_LABEL  65536
-+#endif
+ static int selinux_inode_alloc_security(struct inode *inode)
+ {
+ 	return inode_alloc_security(inode);
+@@ -2358,8 +2395,11 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, char *name,
+ 		       "%s, rc=%d\n", __FUNCTION__, (char*)value, -rc);
+ 		return;
+ 	}
+-
++	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
++	isec->initialized = 1;
 +
- /*
-  * This is the Inode Attributes structure, used for notify_change().  It
-  * uses the above definitions as flags, to know which values have changed.
-@@ -358,6 +362,10 @@ struct iattr {
- 	 * check for (ia_valid & ATTR_FILE), and not for (ia_file != NULL).
- 	 */
- 	struct file	*ia_file;
-+#ifdef CONFIG_SECURITY
-+	void		*ia_label;
-+	u32		 ia_label_len;
-+#endif
- };
++	fsnotify_change(dentry, ATTR_SECURITY_LABEL);
+ 	return;
+ }
  
- /*
-@@ -1974,6 +1982,9 @@ extern int buffer_migrate_page(struct address_space *,
- #define buffer_migrate_page NULL
- #endif
+@@ -2434,8 +2474,9 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ 	rc = security_context_to_sid((void*)value, size, &newsid);
+ 	if (rc)
+ 		return rc;
+-
++	isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 	isec->sid = newsid;
++	isec->initialized = 1;
+ 	return 0;
+ }
  
-+#ifdef CONFIG_SECURITY
-+extern int inode_setsecurity(struct inode *inode, struct iattr *attr);
-+#endif
- extern int inode_change_ok(struct inode *, struct iattr *);
- extern int __must_check inode_setattr(struct inode *, struct iattr *);
+@@ -4793,6 +4834,7 @@ static struct security_operations selinux_ops = {
+ 	.sb_mount =			selinux_mount,
+ 	.sb_umount =			selinux_umount,
  
-diff --git a/include/linux/xattr.h b/include/linux/xattr.h
-index df6b95d..1169963 100644
---- a/include/linux/xattr.h
-+++ b/include/linux/xattr.h
-@@ -50,6 +50,7 @@ ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
- ssize_t vfs_getxattr(struct dentry *, char *, void *, size_t);
- ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
- int vfs_setxattr(struct dentry *, char *, void *, size_t, int);
-+int vfs_setxattr_locked(struct dentry *, char *, void *, size_t, int);
- int vfs_removexattr(struct dentry *, char *);
- 
- ssize_t generic_getxattr(struct dentry *dentry, const char *name, void *buffer, size_t size);
++	.dentry_init_security = 	selinux_dentry_init_security,
+ 	.inode_alloc_security =		selinux_inode_alloc_security,
+ 	.inode_free_security =		selinux_inode_free_security,
+ 	.inode_init_security =		selinux_inode_init_security,
 -- 
 1.5.3.4
 
