@@ -1,15 +1,15 @@
 Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lAGKCnkc019419
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 15:12:49 -0500
-Subject: [PATCH 12/13] NFS: Label change notification for NFSv4 Clients
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lAGKD4KP019465
+	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 15:13:04 -0500
+Subject: [PATCH 13/13] NFSD: Label change notification for NFSv4 Server
 From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: labeled-nfs@linux-nfs.org
 Cc: selinux@tycho.nsa.gov
 In-Reply-To: <1195243404.20981.3.camel@moss-terrapins.epoch.ncsc.mil>
 References: <1195243404.20981.3.camel@moss-terrapins.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 16 Nov 2007 15:12:36 -0500
-Message-Id: <1195243956.20981.28.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 16 Nov 2007 15:13:02 -0500
+Message-Id: <1195243982.20981.30.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -17,427 +17,440 @@ List-Id: selinux@tycho.nsa.gov
 NFSv4 Provides methods for detecting changes in attributes and recalling
 delegations when state has changed on the server. This has been extended to
 include this functionality for label changes on the server. This patch provides
-the client implementation for a new callback used to signal relabeling of
+the server implementation for a new callback used to signal relabeling of
 files.
 
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 ---
- fs/nfs/callback.h        |   10 ++++
- fs/nfs/callback_proc.c   |  104 ++++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/callback_xdr.c    |   34 +++++++++++++++
- fs/nfs/internal.h        |    1 +
- fs/nfs/nfs3proc.c        |    5 ++-
- fs/nfs/nfs4proc.c        |   13 ++++-
- fs/nfs/proc.c            |    5 ++-
- fs/nfs/super.c           |   13 ++++++
- include/linux/fcntl.h    |    1 +
- include/linux/fsnotify.h |    5 ++
- include/linux/inotify.h  |    3 +-
- 11 files changed, 188 insertions(+), 6 deletions(-)
+ fs/nfsd/nfs4callback.c     |  125 +++++++++++++++++++++++++++++++++++++++++++-
+ fs/nfsd/nfs4state.c        |   95 ++++++++++++++++++++++++++++++++-
+ include/linux/nfsd/state.h |   17 ++++++
+ 3 files changed, 233 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/callback.h b/fs/nfs/callback.h
-index c2bb14e..dfb85d2 100644
---- a/fs/nfs/callback.h
-+++ b/fs/nfs/callback.h
-@@ -20,6 +20,7 @@ enum nfs4_callback_procnum {
- enum nfs4_callback_opnum {
- 	OP_CB_GETATTR = 3,
- 	OP_CB_RECALL  = 4,
-+	OP_CB_RELABEL = 5,
- 	OP_CB_ILLEGAL = 10044,
- };
- 
-@@ -59,8 +60,17 @@ struct cb_recallargs {
- 	uint32_t truncate;
- };
- 
-+struct cb_relabelargs {
-+	struct sockaddr_in *addr;
-+	unsigned long ino;
-+	struct nfs_fh fh;
-+	const char *label;
-+	int labellen;
-+};
-+
- extern __be32 nfs4_callback_getattr(struct cb_getattrargs *args, struct cb_getattrres *res);
- extern __be32 nfs4_callback_recall(struct cb_recallargs *args, void *dummy);
-+extern __be32 nfs4_callback_relabel(struct cb_relabelargs *args, void *dummy);
- 
- #ifdef CONFIG_NFS_V4
- extern int nfs_callback_up(void);
-diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
-index 72e55d8..6eddc48 100644
---- a/fs/nfs/callback_proc.c
-+++ b/fs/nfs/callback_proc.c
-@@ -7,6 +7,8 @@
-  */
- #include <linux/nfs4.h>
- #include <linux/nfs_fs.h>
-+#include <linux/xattr.h>
+diff --git a/fs/nfsd/nfs4callback.c b/fs/nfsd/nfs4callback.c
+index 9d536a8..6fe48b1 100644
+--- a/fs/nfsd/nfs4callback.c
++++ b/fs/nfsd/nfs4callback.c
+@@ -40,6 +40,8 @@
+ #include <linux/delay.h>
+ #include <linux/sched.h>
+ #include <linux/kthread.h>
 +#include <linux/security.h>
- #include "nfs4_fs.h"
- #include "callback.h"
- #include "delegation.h"
-@@ -86,3 +88,105 @@ out:
- 	dprintk("%s: exit with status = %d\n", __FUNCTION__, ntohl(res));
- 	return res;
++#include <linux/xattr.h>
+ #include <linux/sunrpc/xdr.h>
+ #include <linux/sunrpc/svc.h>
+ #include <linux/sunrpc/clnt.h>
+@@ -49,6 +51,7 @@
+ #include <linux/nfs4.h>
+ 
+ #define NFSDDBG_FACILITY                NFSDDBG_PROC
++#define NFS_MAXLABELLEN			255
+ 
+ #define NFSPROC4_CB_NULL 0
+ #define NFSPROC4_CB_COMPOUND 1
+@@ -61,10 +64,12 @@ static const struct rpc_call_ops nfs4_cb_null_ops;
+ enum {
+         NFSPROC4_CLNT_CB_NULL = 0,
+ 	NFSPROC4_CLNT_CB_RECALL,
++	NFSPROC4_CLNT_CB_RELABEL,
+ };
+ 
+ enum nfs_cb_opnum4 {
+ 	OP_CB_RECALL            = 4,
++	OP_CB_RELABEL		= 5,
+ };
+ 
+ #define NFS4_MAXTAGLEN		20
+@@ -76,6 +81,8 @@ enum nfs_cb_opnum4 {
+ #define op_enc_sz			1
+ #define op_dec_sz			2
+ #define enc_nfs4_fh_sz			(1 + (NFS4_FHSIZE >> 2))
++#define	enc_nfs4_label_sz		(1 + (NFS_MAXLABELLEN >> 2))
++#define	enc_i_ino_sz			1
+ #define enc_stateid_sz			(NFS4_STATEID_SIZE >> 2)
+ #define NFS4_enc_cb_recall_sz		(cb_compound_enc_hdr_sz +       \
+ 					1 + enc_stateid_sz +            \
+@@ -84,6 +91,13 @@ enum nfs_cb_opnum4 {
+ #define NFS4_dec_cb_recall_sz		(cb_compound_dec_hdr_sz  +      \
+ 					op_dec_sz)
+ 
++#define	NFS4_enc_cb_relabel_sz		(cb_compound_enc_hdr_sz +	\
++					 op_enc_sz +			\
++					 enc_i_ino_sz +			\
++					 enc_nfs4_fh_sz +		\
++					 enc_nfs4_label_sz)
++#define	NFS4_dec_cb_relabel_sz		(cb_compound_dec_hdr_sz  +      \
++					 op_dec_sz)
+ /*
+ * Generic encode routines from fs/nfs/nfs4xdr.c
+ */
+@@ -233,6 +247,24 @@ encode_cb_recall(struct xdr_stream *xdr, struct nfs4_cb_recall *cb_rec)
  }
-+
-+#ifdef CONFIG_NFS_V4_SECURITY_LABEL
-+
-+struct nfs_testfh_desc {
-+	struct nfs_fh *fh;
-+	unsigned long ino;
-+};
-+
-+	static int
-+nfs_testfh(struct inode *inode, void *opaque)
+ 
+ static int
++encode_cb_relabel(struct xdr_stream *xdr, struct nfs4_cb_relabel *cbr)
 +{
-+	struct nfs_testfh_desc *desc = (struct nfs_testfh_desc *)opaque;
++	__be32 *p;
 +
-+	if (inode->i_ino != desc->ino)
-+		return (0);
-+	if (nfs_compare_fh(NFS_FH(inode), desc->fh))
-+		return (0);
-+	if (is_bad_inode(inode) || NFS_STALE(inode))
-+		return (0);
-+	return (1);
++	RESERVE_SPACE(12 + 8 + cbr->fhlen + cbr->label_len);
++	WRITE32(OP_CB_RELABEL);
++	/* ino_t */
++	p = xdr_encode_hyper(p, cbr->ino);
++	/* File handle */
++	WRITE32(cbr->fhlen);
++	WRITEMEM(cbr->fhval, cbr->fhlen);
++	/* Label */
++	WRITE32(cbr->label_len);
++	WRITEMEM(cbr->label, cbr->label_len);
++	return 0;
 +}
 +
-+/*
-+ * Lookup an inode by filehandle, i_ino
-+ */
-+struct inode *nfs_client_inode(struct nfs_client *client, struct nfs_fh *fh, unsigned long ino)
++static int
+ nfs4_xdr_enc_cb_null(struct rpc_rqst *req, __be32 *p)
+ {
+ 	struct xdr_stream xdrs, *xdr = &xdrs;
+@@ -256,6 +288,19 @@ nfs4_xdr_enc_cb_recall(struct rpc_rqst *req, __be32 *p, struct nfs4_cb_recall *a
+ 	return (encode_cb_recall(&xdr, args));
+ }
+ 
++static int
++nfs4_xdr_enc_cb_relabel(struct rpc_rqst *req, __be32 *p, struct nfs4_cb_relabel *args)
 +{
-+	struct nfs_testfh_desc desc = {
-+		.fh	= fh,
-+		.ino	= ino
++	struct xdr_stream xdr;
++	struct nfs4_cb_compound_hdr hdr = {
++		.ident = args->ident,
++		.nops   = 1,
 +	};
-+	struct nfs_server *server;
-+	struct super_block *sb;
-+	struct inode *inode;
 +
-+	list_for_each_entry(server, &client->cl_superblocks, client_link) {
-+		sb = nfs4_server_get_sb(server);
-+		if (IS_ERR(sb))
-+			continue;
-+
-+		inode = ilookup5_nowait(sb, ino, nfs_testfh, &desc);
-+		if (inode != NULL)
-+			return (inode);
-+	}
-+	return (NULL);
++	xdr_init_encode(&xdr, &req->rq_snd_buf, p);
++	encode_cb_compound_hdr(&xdr, &hdr);
++	return (encode_cb_relabel(&xdr, args));
 +}
-+
-+__be32 nfs4_callback_relabel(struct cb_relabelargs *args, void *dummy)
-+{
-+	struct nfs_client *clp;
-+	struct inode *inode;
-+	void *context;
-+	const char *key;
-+	int len;
-+	__be32 res;
-+
-+	res = htonl(NFS4ERR_BADHANDLE);
-+	clp = nfs_find_client(args->addr, 4);
-+	if (clp == NULL) {
-+		printk("%s() nfs_find_client() returned NULL\n", __func__);
-+		goto out;
-+	}
-+
-+	inode = nfs_client_inode(clp, &args->fh, args->ino);
-+	if (inode == NULL) {
-+		printk("%s() nfs_client_inode() returned NULL\n", __func__);
-+		goto out_putclient;
-+	}
-+
-+	key = security_inode_xattr_getname() + XATTR_SECURITY_PREFIX_LEN;
-+
-+	len = security_inode_getsecurity(inode, key, &context, true);
-+	if (len < 0) {
-+		/* XXX: really should return the error in 'len' */
-+		goto out_iput;
-+	}
-+	if (len > NFS_MAXLABELLEN) {
-+		security_release_secctx(context, len);
-+		res = -EINVAL;
-+		goto out_iput;
-+	}
-+	if (args->labellen != len ||
-+			strncmp(args->label, context, args->labellen) != 0) {
-+		(void)security_inode_setsecurity(inode, key,
-+				args->label, args->labellen, 0);
-+
-+		printk("%s() ino %ld label %.*s -> %.*s\n", __func__,
-+				inode->i_ino, len, (char *)context, args->labellen, args->label);
-+	}
-+
-+	res = 0;
-+
-+out_iput:
-+	iput(inode);
-+out_putclient:
-+	nfs_put_client(clp);
-+out:
-+	dprintk("%s: exit with status = %d\n", __FUNCTION__, ntohl(res));
-+	return res;
-+}
-+
-+#endif /* CONFIG_NFS_V4_SECURITY_LABEL */
-diff --git a/fs/nfs/callback_xdr.c b/fs/nfs/callback_xdr.c
-index 058ade7..ebf68a8 100644
---- a/fs/nfs/callback_xdr.c
-+++ b/fs/nfs/callback_xdr.c
-@@ -12,6 +12,7 @@
- #include "nfs4_fs.h"
- #include "callback.h"
  
-+#define CB_OP_COMPOUND_MAXSZ	(16)
- #define CB_OP_TAGLEN_MAXSZ	(512)
- #define CB_OP_HDR_RES_MAXSZ	(2 + CB_OP_TAGLEN_MAXSZ)
- #define CB_OP_GETATTR_BITMAP_MAXSZ	(4)
-@@ -19,6 +20,7 @@
- 				CB_OP_GETATTR_BITMAP_MAXSZ + \
- 				2 + 2 + 3 + 3)
- #define CB_OP_RECALL_RES_MAXSZ	(CB_OP_HDR_RES_MAXSZ)
-+#define	CB_OP_RELABEL_RES_MAXSZ	(CB_OP_HDR_RES_MAXSZ)
- 
- #define NFSDBG_FACILITY NFSDBG_CALLBACK
- 
-@@ -204,6 +206,30 @@ out:
+ static int
+ decode_cb_compound_hdr(struct xdr_stream *xdr, struct nfs4_cb_compound_hdr *hdr){
+@@ -314,6 +359,22 @@ out:
  	return status;
  }
  
-+#ifdef CONFIG_NFS_V4_SECURITY_LABEL
-+static __be32 decode_relabel_args(struct svc_rqst *rqstp, struct xdr_stream *xdr, struct cb_relabelargs *args)
++static int
++nfs4_xdr_dec_cb_relabel(struct rpc_rqst *rqstp, __be32 *p)
 +{
-+	__be32 status;
-+	__be32 *p;
++	struct xdr_stream xdr;
++	struct nfs4_cb_compound_hdr hdr;
++	int status;
 +
-+	p = read_buf(xdr, 8);
-+	if (unlikely(p == NULL)) {
-+		status = htonl(NFS4ERR_RESOURCE);
++	xdr_init_decode(&xdr, &rqstp->rq_rcv_buf, p);
++	status = decode_cb_compound_hdr(&xdr, &hdr);
++	if (status)
 +		goto out;
-+	}
-+	p = xdr_decode_hyper(p, (__u64 *)&args->ino);
-+
-+	status = decode_fh(xdr, &args->fh);
-+	if (unlikely(status != 0))
-+		goto out;
-+	args->addr = svc_addr_in(rqstp);
-+	status = decode_string(xdr, &args->labellen, &args->label);
++	status = decode_cb_op_hdr(&xdr, OP_CB_RELABEL);
 +out:
-+	dprintk("%s: exit with status = %d\n", __FUNCTION__, status);
 +	return status;
 +}
++
+ /*
+  * RPC procedure tables
+  */
+@@ -329,8 +390,9 @@ out:
+ }
+ 
+ static struct rpc_procinfo     nfs4_cb_procedures[] = {
+-    PROC(CB_NULL,      NULL,     enc_cb_null,     dec_cb_null),
+-    PROC(CB_RECALL,    COMPOUND,   enc_cb_recall,      dec_cb_recall),
++	PROC(CB_NULL,		NULL,		enc_cb_null,		dec_cb_null),
++	PROC(CB_RECALL,		COMPOUND,	enc_cb_recall,		dec_cb_recall),
++	PROC(CB_RELABEL,	COMPOUND,	enc_cb_relabel,		dec_cb_relabel),
+ };
+ 
+ static struct rpc_version       nfs_cb_version4 = {
+@@ -490,3 +552,62 @@ out_put_cred:
+ 	nfs4_put_delegation(dp);
+ 	return;
+ }
++
++#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
++void
++nfsd4_cb_relabel(struct nfs4_stateid *stp)
++{
++	struct nfs4_client *clp = stp->st_stateowner->so_client;
++	struct rpc_clnt *clnt = clp->cl_callback.cb_client;
++	struct nfs4_cb_relabel args;
++	struct rpc_message msg = {
++		.rpc_proc       = &nfs4_cb_procedures[NFSPROC4_CLNT_CB_RELABEL],
++		.rpc_argp       = &args,
++	};
++	void *context;
++	const char *key;
++	int len;
++	int retries = 1;
++	int status = 0;
++
++	key = security_inode_xattr_getname() + XATTR_SECURITY_PREFIX_LEN;
++	len = security_inode_getsecurity(stp->st_file->fi_inode, key, &context
++						, true);
++	if (len < 0) {
++		goto out;
++	}
++	if (len > NFS_MAXLABELLEN) {
++		security_release_secctx(context, len);
++		goto out;
++	}
++	args.ident = clp->cl_callback.cb_ident;
++	args.ino = stp->st_file->fi_inode->i_ino;
++	args.fhlen = stp->st_fh.fh_handle.fh_size;
++	memcpy(args.fhval, &stp->st_fh.fh_handle.fh_base, args.fhlen);
++	args.label = context;
++	args.label_len = len;
++
++	status = rpc_call_sync(clnt, &msg, RPC_TASK_SOFT);
++	while (retries--) {
++		switch (status) {
++			case -EIO:
++				/* Network partition? */
++			case -EBADHANDLE:
++			case -NFS4ERR_BAD_STATEID:
++				/* Race: client probably got cb_recall
++				 * before open reply granting delegation */
++				break;
++			default:
++				goto out_put_cred;
++		}
++		ssleep(2);
++		status = rpc_call_sync(clnt, &msg, RPC_TASK_SOFT);
++	}
++
++out_put_cred:
++	security_release_secctx(context, len);
++out:
++	/* XXX: need to release references! */
++	return;
++}
++#endif
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 31673cd..dcd7f69 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -79,6 +79,17 @@ static void release_stateid_lockowners(struct nfs4_stateid *open_stp);
+ static char user_recovery_dirname[PATH_MAX] = "/var/lib/nfs/v4recovery";
+ static void nfs4_set_recdir(char *recdir);
+ 
++#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
++static struct inotify_handle *nfsd_ih = NULL;
++static void nfsd_watch_event(struct inotify_watch *, u32, u32, u32,
++		const char *, struct inode *);
++static void nfsd_watch_destroy(struct inotify_watch *);
++static struct inotify_operations nfsd_state_event_handler = {
++	.handle_event	= nfsd_watch_event,
++	.destroy_watch	= nfsd_watch_destroy,
++};
 +#endif
 +
- static __be32 encode_string(struct xdr_stream *xdr, unsigned int len, const char *str)
- {
- 	__be32 *p;
-@@ -369,6 +395,7 @@ static __be32 process_op(struct svc_rqst *rqstp,
- 		switch (op_nr) {
- 			case OP_CB_GETATTR:
- 			case OP_CB_RECALL:
-+			case OP_CB_RELABEL:
- 				op = &callback_ops[op_nr];
- 				break;
- 			default:
-@@ -452,7 +479,14 @@ static struct callback_op callback_ops[] = {
- 		.process_op = (callback_process_op_t)nfs4_callback_recall,
- 		.decode_args = (callback_decode_arg_t)decode_recall_args,
- 		.res_maxsize = CB_OP_RECALL_RES_MAXSZ,
-+	},
-+#ifdef CONFIG_NFS_V4_SECURITY_LABEL
-+	[OP_CB_RELABEL] = {
-+		.process_op = (callback_process_op_t)nfs4_callback_relabel,
-+		.decode_args = (callback_decode_arg_t)decode_relabel_args,
-+		.res_maxsize = CB_OP_RELABEL_RES_MAXSZ,
+ /* Locking:
+  *
+  * client_mutex:
+@@ -135,7 +146,13 @@ free_nfs4_file(struct kref *kref)
+ 	struct nfs4_file *fp = container_of(kref, struct nfs4_file, fi_ref);
+ 	list_del(&fp->fi_hash);
+ 	iput(fp->fi_inode);
++#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
++	(void)inotify_rm_watch(nfsd_ih, &fp->fi_wdata);
++	put_inotify_watch(&fp->fi_wdata);
++	/* Defer free to nfsd_watch_destroy() */
++#else
+ 	kmem_cache_free(file_slab, fp);
++#endif
+ }
+ 
+ static inline void
+@@ -988,6 +1005,11 @@ alloc_init_file(struct inode *ino)
+ 		fp->fi_inode = igrab(ino);
+ 		fp->fi_id = current_fileid++;
+ 		fp->fi_had_conflict = false;
++#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
++		inotify_init_watch(&fp->fi_wdata);
++		get_inotify_watch(&fp->fi_wdata);
++		(void)inotify_add_watch(nfsd_ih, &fp->fi_wdata, ino, IN_LABEL);
++#endif
+ 		return fp;
  	}
+ 	return NULL;
+@@ -1137,7 +1159,9 @@ release_stateowner(struct nfs4_stateowner *sop)
+ }
+ 
+ static inline void
+-init_stateid(struct nfs4_stateid *stp, struct nfs4_file *fp, struct nfsd4_open *open) {
++init_stateid(struct nfs4_stateid *stp, struct nfs4_file *fp, struct svc_fh *fh,
++			struct nfsd4_open *open)
++{
+ 	struct nfs4_stateowner *sop = open->op_stateowner;
+ 	unsigned int hashval = stateid_hashval(sop->so_id, fp->fi_id);
+ 
+@@ -1160,6 +1184,9 @@ init_stateid(struct nfs4_stateid *stp, struct nfs4_file *fp, struct nfsd4_open *
+ 	__set_bit(open->op_share_access, &stp->st_access_bmap);
+ 	__set_bit(open->op_share_deny, &stp->st_deny_bmap);
+ 	stp->st_openstp = NULL;
++
++	fh_init(&stp->st_fh, NFS4_FHSIZE);
++	(void)fh_compose(&stp->st_fh, fh->fh_export, fh->fh_dentry, fh);
+ }
+ 
+ static void
+@@ -1177,6 +1204,7 @@ release_stateid(struct nfs4_stateid *stp, int flags)
+ 	} else if (flags & LOCK_STATE)
+ 		locks_remove_posix(filp, (fl_owner_t) stp->st_stateowner);
+ 	put_nfs4_file(stp->st_file);
++	fh_put(&stp->st_fh);
+ 	kmem_cache_free(stateid_slab, stp);
+ }
+ 
+@@ -1791,7 +1819,7 @@ nfsd4_process_open2(struct svc_rqst *rqstp, struct svc_fh *current_fh, struct nf
+ 		status = nfs4_new_open(rqstp, &stp, dp, current_fh, flags);
+ 		if (status)
+ 			goto out;
+-		init_stateid(stp, fp, open);
++		init_stateid(stp, fp, current_fh, open);
+ 		status = nfsd4_truncate(rqstp, current_fh, open);
+ 		if (status) {
+ 			release_stateid(stp, OPEN_STATE);
+@@ -3241,6 +3269,9 @@ nfs4_state_start(void)
+ {
+ 	if (nfs4_init)
+ 		return;
++#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
++	nfsd_ih = inotify_init(&nfsd_state_event_handler);
++#endif
+ 	nfsd4_load_reboot_recovery_data();
+ 	__nfs4_state_start();
+ 	nfs4_init = 1;
+@@ -3350,3 +3381,63 @@ nfs4_reset_lease(time_t leasetime)
+ 	user_lease_time = leasetime;
+ 	unlock_kernel();
+ }
++
++#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
++
++	static int
++do_relabel(void *__stp)
++{
++	struct nfs4_stateid *stp = __stp;
++
++	daemonize("nfsv4-relabel");
++
++	nfsd4_cb_relabel(stp);
++	return (0);
++}
++
++	static void
++nfsd_watch_event(struct inotify_watch *watch, u32 wd, u32 mask, u32 cookie,
++		const char *name, struct inode *inode)
++{
++	struct nfs4_file *fp;
++	struct nfs4_stateid *stp;
++	struct task_struct *t;
++
++	fp = container_of(watch, struct nfs4_file, fi_wdata);
++
++	if (mask & IN_IGNORED) {
++		put_inotify_watch(&fp->fi_wdata);
++		return;
++	}
++
++	if ((mask & IN_LABEL) == 0)
++		return;
++
++	list_for_each_entry(stp, &fp->fi_stateids, st_perfile) {
++		struct nfs4_client *clp = stp->st_stateowner->so_client;
++
++		/* XXX: need to refcount something! */
++
++		printk("%s() STP client \"%.*s\" fh \"%s\"\n", __func__,
++				clp->cl_name.len, clp->cl_name.data,
++				SVCFH_fmt(&stp->st_fh));
++
++		t = kthread_run(do_relabel, stp, "%s", "nfs4_cb_relabel");
++		if (IS_ERR(t)) {
++			printk(KERN_INFO "NFSD: Callback thread failed for "
++					"for client (clientid %08x/%08x)\n",
++					clp->cl_clientid.cl_boot, clp->cl_clientid.cl_id);
++		}
++
++	}
++}
++
++	static void
++nfsd_watch_destroy(struct inotify_watch *watch)
++{
++	struct nfs4_file *fp;
++
++	fp = container_of(watch, struct nfs4_file, fi_wdata);
++	kmem_cache_free(file_slab, fp);
++}
++#endif	/* CONFIG_NFSD_V4_SECURITY_LABEL */
+diff --git a/include/linux/nfsd/state.h b/include/linux/nfsd/state.h
+index db348f7..043f800 100644
+--- a/include/linux/nfsd/state.h
++++ b/include/linux/nfsd/state.h
+@@ -40,6 +40,7 @@
+ #include <linux/list.h>
+ #include <linux/kref.h>
+ #include <linux/sunrpc/clnt.h>
++#include <linux/inotify.h>
+ 
+ #define NFS4_OPAQUE_LIMIT 1024
+ typedef struct {
+@@ -71,6 +72,15 @@ struct nfs4_cb_recall {
+ 	struct nfs4_delegation	*cbr_dp;
+ };
+ 
++struct nfs4_cb_relabel {
++	u32			ident;
++	unsigned long		ino;
++	u32			fhlen;
++	u32			fhval[NFS4_FHSIZE];
++	char *			label;
++	int			label_len;
++};
++
+ struct nfs4_delegation {
+ 	struct list_head	dl_perfile;
+ 	struct list_head	dl_perclnt;
+@@ -85,6 +95,7 @@ struct nfs4_delegation {
+ 	struct nfs4_cb_recall	dl_recall;
+ };
+ 
++#define dl_ident	dl_recall.cbr_ident
+ #define dl_stateid      dl_recall.cbr_stateid
+ #define dl_fhlen        dl_recall.cbr_fhlen
+ #define dl_fhval        dl_recall.cbr_fhval
+@@ -225,6 +236,10 @@ struct nfs4_file {
+ 	u32                     fi_id;      /* used with stateowner->so_id 
+ 					     * for stateid_hashtbl hash */
+ 	bool			fi_had_conflict;
++
++#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
++	struct inotify_watch	fi_wdata;
 +#endif
  };
  
  /*
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index f3acf48..0e6d403 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -160,6 +160,7 @@ extern struct rpc_stat nfs_rpcstat;
- 
- extern int __init register_nfs_fs(void);
- extern void __exit unregister_nfs_fs(void);
-+extern struct super_block *nfs4_server_get_sb(struct nfs_server *);
- 
- /* namespace.c */
- extern char *nfs_path(const char *base,
-diff --git a/fs/nfs/nfs3proc.c b/fs/nfs/nfs3proc.c
-index 1df7137..6b3fcb9 100644
---- a/fs/nfs/nfs3proc.c
-+++ b/fs/nfs/nfs3proc.c
-@@ -17,6 +17,7 @@
- #include <linux/nfs_page.h>
- #include <linux/lockd/bind.h>
- #include <linux/nfs_mount.h>
-+#include <linux/fsnotify.h>
- 
- #include "iostat.h"
- #include "internal.h"
-@@ -134,8 +135,10 @@ nfs3_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
- 	dprintk("NFS call  setattr\n");
- 	nfs_fattr_init(fattr);
- 	status = rpc_call_sync(NFS_CLIENT(inode), &msg, 0);
--	if (status == 0)
-+	if (status == 0) {
- 		nfs_setattr_update_inode(inode, sattr);
-+		fsnotify_change(dentry, sattr->ia_valid);
-+	}
- 	dprintk("NFS reply setattr: %d\n", status);
- 	return status;
- }
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 2d71e44..f8f3b78 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -49,6 +49,7 @@
- #include <linux/namei.h>
- #include <linux/mount.h>
- #include <linux/xattr.h>
-+#include <linux/fsnotify.h>
- 
- #include "nfs4_fs.h"
- #include "delegation.h"
-@@ -1711,8 +1712,10 @@ nfs4_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
- 		state = ctx->state;
- 
- 	status = nfs4_do_setattr(inode, fattr, sattr, state);
--	if (status == 0)
-+	if (status == 0) {
- 		nfs_setattr_update_inode(inode, sattr);
-+		fsnotify_change(dentry, sattr->ia_valid);
-+	}
- 	if (ctx != NULL)
- 		put_nfs_open_context(ctx);
- 	put_rpccred(cred);
-@@ -1966,8 +1969,10 @@ nfs4_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
- 			nfs_fattr_alloc(&fattr);
- #endif
- 		status = nfs4_do_setattr(state->inode, &fattr, sattr, state);
--		if (status == 0)
-+		if (status == 0) {
- 			nfs_setattr_update_inode(state->inode, sattr);
-+			fsnotify_change(dentry, sattr->ia_valid);
-+		}
- 		nfs_post_op_update_inode(state->inode, &fattr);
- 
- 		nfs_fattr_fini(&fattr);
-@@ -3061,8 +3066,10 @@ nfs4_set_security_label(struct dentry *dentry, const void *buf, size_t buflen)
- 		state = ctx->state;
- 
- 	status = nfs4_do_set_security_label(inode, &sattr, &fattr, state);
--	if (status == 0)
-+	if (status == 0) {
- 		nfs_setattr_update_inode(inode, &sattr);
-+		fsnotify_change(dentry, sattr.ia_valid);
-+	}
- 	if (ctx != NULL)
- 		put_nfs_open_context(ctx);
- 	put_rpccred(cred);
-diff --git a/fs/nfs/proc.c b/fs/nfs/proc.c
-index 76f9951..a558e5e 100644
---- a/fs/nfs/proc.c
-+++ b/fs/nfs/proc.c
-@@ -43,6 +43,7 @@
- #include <linux/nfs_fs.h>
- #include <linux/nfs_page.h>
- #include <linux/lockd/bind.h>
-+#include <linux/fsnotify.h>
- #include "internal.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_PROC
-@@ -131,8 +132,10 @@ nfs_proc_setattr(struct dentry *dentry, struct nfs_fattr *fattr,
- 	dprintk("NFS call  setattr\n");
- 	nfs_fattr_init(fattr);
- 	status = rpc_call_sync(NFS_CLIENT(inode), &msg, 0);
--	if (status == 0)
-+	if (status == 0) {
- 		nfs_setattr_update_inode(inode, sattr);
-+		fsnotify_change(dentry, sattr->ia_valid);
-+	}
- 	dprintk("NFS reply setattr: %d\n", status);
- 	return status;
- }
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 012211f..5faa9ac 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -1929,4 +1929,17 @@ error_splat_super:
- 	return error;
- }
- 
-+struct super_block *
-+nfs4_server_get_sb(struct nfs_server *server)
-+{
-+	struct super_block *s;
-+
-+	list_for_each_entry(s, &nfs4_fs_type.fs_supers, s_instances) {
-+		if (server == NFS_SB(s))
-+			return (s);
-+		/* XXX: refcount? */
-+	}
-+	return NULL;
-+}
-+
- #endif /* CONFIG_NFS_V4 */
-diff --git a/include/linux/fcntl.h b/include/linux/fcntl.h
-index 8603740..1b4a576 100644
---- a/include/linux/fcntl.h
-+++ b/include/linux/fcntl.h
-@@ -30,6 +30,7 @@
- #define DN_DELETE	0x00000008	/* File removed */
- #define DN_RENAME	0x00000010	/* File renamed */
- #define DN_ATTRIB	0x00000020	/* File changed attibutes */
-+#define	DN_LABEL	0x00000040	/* File (re)labeled */
- #define DN_MULTISHOT	0x80000000	/* Don't remove notifier */
- 
- #define AT_FDCWD		-100    /* Special value used to indicate
-diff --git a/include/linux/fsnotify.h b/include/linux/fsnotify.h
-index 2bd31fa..bfef9c2 100644
---- a/include/linux/fsnotify.h
-+++ b/include/linux/fsnotify.h
-@@ -231,6 +231,11 @@ static inline void fsnotify_change(struct dentry *dentry, unsigned int ia_valid)
- 		in_mask |= IN_ATTRIB;
- 		dn_mask |= DN_ATTRIB;
- 	}
-+	if (ia_valid & ATTR_SECURITY_LABEL) {
-+		in_mask |= IN_LABEL;
-+		dn_mask |= DN_LABEL;
-+	}
-+
- 
- 	if (dn_mask)
- 		dnotify_parent(dentry, dn_mask);
-diff --git a/include/linux/inotify.h b/include/linux/inotify.h
-index 742b917..10f3ace 100644
---- a/include/linux/inotify.h
-+++ b/include/linux/inotify.h
-@@ -36,6 +36,7 @@ struct inotify_event {
- #define IN_DELETE		0x00000200	/* Subfile was deleted */
- #define IN_DELETE_SELF		0x00000400	/* Self was deleted */
- #define IN_MOVE_SELF		0x00000800	/* Self was moved */
-+#define IN_LABEL		0x00001000	/* Self was (re)labeled */
- 
- /* the following are legal events.  they are sent as needed to any watch */
- #define IN_UNMOUNT		0x00002000	/* Backing fs was unmounted */
-@@ -61,7 +62,7 @@ struct inotify_event {
- #define IN_ALL_EVENTS	(IN_ACCESS | IN_MODIFY | IN_ATTRIB | IN_CLOSE_WRITE | \
- 			 IN_CLOSE_NOWRITE | IN_OPEN | IN_MOVED_FROM | \
- 			 IN_MOVED_TO | IN_DELETE | IN_CREATE | IN_DELETE_SELF | \
--			 IN_MOVE_SELF)
-+			 IN_MOVE_SELF | IN_LABEL)
- 
- #ifdef __KERNEL__
- 
+@@ -251,6 +266,7 @@ struct nfs4_stateid {
+ 	struct list_head              st_lockowners;
+ 	struct nfs4_stateowner      * st_stateowner;
+ 	struct nfs4_file            * st_file;
++	struct svc_fh                 st_fh;
+ 	stateid_t                     st_stateid;
+ 	struct file                 * st_vfs_file;
+ 	unsigned long                 st_access_bmap;
+@@ -284,6 +300,7 @@ extern void put_nfs4_client(struct nfs4_client *clp);
+ extern void nfs4_free_stateowner(struct kref *kref);
+ extern void nfsd4_probe_callback(struct nfs4_client *clp);
+ extern void nfsd4_cb_recall(struct nfs4_delegation *dp);
++extern void nfsd4_cb_relabel(struct nfs4_stateid *stp);
+ extern void nfs4_put_delegation(struct nfs4_delegation *dp);
+ extern __be32 nfs4_make_rec_clidname(char *clidname, struct xdr_netobj *clname);
+ extern void nfsd4_init_recdir(char *recdir_name);
 -- 
 1.5.3.4
 
