@@ -1,39 +1,51 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAGNeo0n013585
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 18:40:50 -0500
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAGNemsk026773
-	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 23:40:49 GMT
-Date: Sat, 17 Nov 2007 10:40:35 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tcho.nsa.gov
-Subject: Re: [PATCH] SELinux: return EOPNOTSUPP not ENOTSUPP
-In-Reply-To: <1195248956.2924.93.camel@localhost.localdomain>
-Message-ID: <Xine.LNX.4.64.0711171040250.11097@us.intercode.com.au>
-References: <1195248956.2924.93.camel@localhost.localdomain>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAH0YAbI017758
+	for <selinux@tycho.nsa.gov>; Fri, 16 Nov 2007 19:34:10 -0500
+Received: from web36605.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id lAH0Y9hP019073
+	for <selinux@tycho.nsa.gov>; Sat, 17 Nov 2007 00:34:09 GMT
+Date: Fri, 16 Nov 2007 16:34:08 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 03/13] Security: Add hook to get full security xattr name
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>, labeled-nfs@linux-nfs.org
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1195243620.20981.9.camel@moss-terrapins.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <781842.64970.qm@web36605.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 16 Nov 2007, Eric Paris wrote:
 
-> ENOTSUPP is not a valid error code in the kernel (it is defined in some
-> NFS internal error codes and has been improperly used other places).  In
-> the !CONFIG_SECURITY_SELINUX case though it is possible that we could
-> return this from selinux_audit_rule_init().  This patch just returns the
-> userspace valid EOPNOTSUPP.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
+--- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
 
-Applied.
+> When a caller wishes to get pull the extended attribute name for the security
+> module for use they normally concatinate the security namespace segment and
+> the
+> suffix provided by the lsm. This hook provides a mechanism to obtain the full
+> LSM xattr name. The patch also provides implementations for the dummy
+> security
+> module and SELinux.
+
+What is the problem with the concatination scheme currently in
+use? I'm not going to defend it, but why change it?
+
+> Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+> ---
+>  include/linux/security.h |    7 +++++++
+>  security/dummy.c         |    6 ++++++
+>  security/security.c      |    6 ++++++
+>  security/selinux/hooks.c |    6 ++++++
+>  4 files changed, 25 insertions(+), 0 deletions(-)
+
+Please cross post proposed LSM changes to the LSM mailing list.
 
 
--- 
-James Morris
-<jmorris@namei.org>
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
