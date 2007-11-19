@@ -1,13 +1,13 @@
-Date: Mon, 19 Nov 2007 22:33:35 +1100 (EST)
+Date: Mon, 19 Nov 2007 22:44:56 +1100 (EST)
 From: James Morris <jmorris@namei.org>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-cc: Labeled NFS <labeled-nfs@linux-nfs.org>, selinux@tycho.nsa.gov
-Subject: Re: [Labeled-nfs] [PATCH 08/13] NFS: Introduce lifecycle managment
- for label attribute.
-In-Reply-To: <1195243824.20981.19.camel@moss-terrapins.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0711192226180.20955@us.intercode.com.au>
+cc: labeled-nfs@linux-nfs.org, selinux@tycho.nsa.gov
+Subject: Re: [Labeled-nfs] [PATCH 09/13] NFS: Client implementation of SELINUX
+ Labeling
+In-Reply-To: <1195243860.20981.21.camel@moss-terrapins.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0711192234270.20955@us.intercode.com.au>
 References: <1195243404.20981.3.camel@moss-terrapins.epoch.ncsc.mil>
- <1195243824.20981.19.camel@moss-terrapins.epoch.ncsc.mil>
+ <1195243860.20981.21.camel@moss-terrapins.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -15,27 +15,24 @@ List-Id: selinux@tycho.nsa.gov
 
 On Fri, 16 Nov 2007, David P. Quigley wrote:
 
+> +#ifdef CONFIG_NFS_V4_SECURITY_LABEL
+> +	if (attr.ia_label != NULL)
+> +		kfree(attr.ia_label);
+> +#endif
 
-> +#ifdef CONFIG_SECURITY
-> +#define	nfs_fattr_alloc(fattr)						\
-> +{									\
-> +	(fattr)->label = kmalloc(NFS_MAXLABELLEN, GFP_ATOMIC);		\
-> +	(fattr)->label_len = NFS_MAXLABELLEN;				\
-> +	memset((fattr)->label, 0, NFS_MAXLABELLEN);			\
-> +}
+Will it be typical for ia_label to be non-NULL ?  If so, you can leave out 
+the NULL check, as kfree() does that via unlikely().  i.e. only check for 
+NULL if you think it is likely (>90%) that it will be NULL.
 
-These should be normal functions, perhaps in their own file which is 
-conditionally built (and containing other label-specific code).
+Generally, you'll likely need to remove all of the #ifdefs from the core 
+code, and use static inlines or normal functions instead (to be compiled 
+away when not required).
 
-You need to check the return of kmalloc().
+> +	sattr.ia_label = (char *)buf;
 
-I suggest passing a gfp_t parameter to the allocation function to allow 
-the caller to determine the allocation flags (unless you know it will 
-always be GFP_ATOMIC).
+No need to cast void pointers.
 
-Use kzalloc() instead of kmalloc() + memset().
 
-It seems wasteful to always allocate the maximum sized label.
 
 -- 
 James Morris
