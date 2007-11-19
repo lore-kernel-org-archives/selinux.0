@@ -1,63 +1,109 @@
-Subject: Re: selinux problem or not???
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov,
-        "Jensen, Curtis R (US SSA)" <curtis.jensen@baesystems.com>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD025553D7@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD025553D7@blums0008.bluelnk.net>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAJImZ99000953
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2007 13:48:35 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id lAJImYYV024971
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2007 18:48:34 GMT
+Subject: Re: [PATCH] IPsec SPD default security context (Re:
+	security	context for SPD entries of labeled IPsec)
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: selinux@tycho.nsa.gov, paul.moore@hp.com, DGoeddel@TrustedCS.com,
+        vyekkirala@TrustedCS.com
+In-Reply-To: <4740F30D.9000304@ak.jp.nec.com>
+References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>
+	 <47331BAB.8040107@kaigai.gr.jp>  <473872F8.7000208@ak.jp.nec.com>
+	 <1195055160.13737.33.camel@gorn.columbia.tresys.com>
+	 <473B23F9.4080506@ak.jp.nec.com>
+	 <1195064402.13737.42.camel@gorn.columbia.tresys.com>
+	 <473BB437.3070005@ak.jp.nec.com>
+	 <1195136813.13737.67.camel@gorn.columbia.tresys.com>
+	 <4740F30D.9000304@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Mon, 19 Nov 2007 13:11:33 -0500
-Message-Id: <1195495893.7546.111.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 19 Nov 2007 13:48:13 -0500
+Message-Id: <1195498093.16660.44.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-11-16 at 18:17 -0800, Clarkson, Mike R (US SSA) wrote:
-> I'm running into some weird behavior on a RHEL5 system and I'm not sure
-> if it's related to selinux or not. The behavior began after rebooting
-> the system to switch to a different selinux policy. This same policy has
-> been installed on other systems without issue. The /etc/selinux/config
-> file was set to put the policy into permissive mode upon reboot.
+On Mon, 2007-11-19 at 11:21 +0900, KaiGai Kohei wrote:
+> >> I also suggest two minor improvement toward these updates.
+> >>
+> >> 1. Is it considerable to add "allow $1 self : association { sendto };"
+> >>    at ipsec_match_default_spd interface of ipsec.if?
+> >>
+> >>    I think it should be packed with polmatch permission to the default
+> >>    SPD context, because any domain which want to communicate others using
+> >>    SPD with default context always have to have 'sendto' permission to
+> >>    itself.
+> > 
+> > Perhaps.  Though I thought that dropping the sendto check was being
+> > considered, since it really doesn't gain anything.
+> > 
+> >> 2. Is it considerable to add "ipsec_match_default_spd($1_t)"
+> >>    in the userdom_basic_networking_template of userdomain.if?
+> >>
+> >>    This interface allows a given userdomain widespread basic networking
+> >>    permissions. But it is not enough yet, if the networking tunnel
+> >>    is configured with labeled ipsec.
+> >>    I think it can be contained in the basic networking permissions
+> >>    to use ipsec SPD with default context.
+> > 
+> > Sounds reasonable.
 > 
-> After the initial reboot, and each time after several subsequent
-> reboots, we've come across files which can not be read, by both root and
-> ordinary users. These files can not be read even in permissive mode. 
+> The attached patch enables the above two features.
 > 
-> For example, I could not read a csh script file that was owned by user
-> m2, with permissions of 764. I could not read this file as either user
-> m2 or root, with the policy in permissive mode. However, I used chmod to
-> change the permissions of the file to 777, and then could read it. Using
-> chmod to put it back to 764, I could still read the file as expected. I
-> have no idea what was preventing me from initially reading the file.
+> Paul mentioned to drop the checks of association:{sendto} permission and
+> integrate them with the upcaming flow control checks in the future kernel.
+> However, a rule of "allow <domain> self : association {sendto}" will be
+> necessary for the backward compatibility.
 > 
-> The same thing happened to another user after a different reboot with a
-> property file. Similar to what I described above, the user could not
-> read the file in permissive mode even though the DAC permissions
-> appeared as though it should have allowed him to do so. In that case the
-> user was able to move the file to a different directory and then could
-> read it, which makes no sense.
+> >>> I'll consider a patch that adds it to a postresql interface.  Perhaps
+> >>> postgresql_tcp_connect should be un-deprecated.
+> >> I think similar interfaces are necessary for any other daemon-domain which
+> >> provides networking-services, even if they don't use getpeercon().
+> > 
+> > The recvfrom is needed if the networking is labeled, regardless of
+> > whether getpeercon() is used or not.
 > 
-> Each time we reboot this problem afflicts different files. One time I
-> found I could not use the ps command because I could not read /bin/ps.
-> During each reboot I've been careful to make sure that an empty
-> /.autorelabel file existed to make sure the filesystem remained in a
-> consistent state. I have found no selinux labeling issues with the files
-> that have had these problems.
-> 
-> This last time I was forced to reboot because I found that I could not
-> start the auditd daemon, which of course makes it difficult to
-> troubleshoot any selinux AVC denials. I couldn't start this in either
-> enforcing or permissive mode, but had no problems starting it after the
-> reboot.
-> 
-> Any ideas on what may be going on would be greatly appreciated.
+> Do you intend to describe the labeled networking rules for each combination
+> between a server domain and a client domain?
 
-Doesn't sound SELinux related, but rather like a hardware problem or
-kernel bug (e.g. memory corruption).  Try memtest86.
+Yes.  It seems like a lot, but if you think about it, there are already
+the base networking rules in the policy.  This actually gives more of an
+opportunity to abstract the rules, so you get something like
+
+interface postgresql_tcp_connect()
+	corenet_tcp_sendrecv_postgresql_port($1)
+	corenet_tcp_connect_postgresql_port($1)
+	corenet_sendrecv_postgresql_client_packets($1)
+	# labeled ipsec and (future) TE netlabel
+	allow $1 postgresql_t:{ association tcp_socket } recvfrom;
+	# compat labeled ipsec rule
+	allow $1 self:association sendto;
+
+and then even the labeled networking part could be put into a policy
+pattern.
+
+> Is it a considerable idea that adding a new attribute to comunicate via
+> labeled ipsec with default SPD, and attaching it both a server domain and
+> a client domain?
+> 
+> e.g)
+>   attribute labeled_communicatable_domain;  # I want to get more shorl naming.
+>   allow     labeled_communicatable_domain labeled_communicatable_domain : association {resvfrom sendto};
+> 
+>   typeattribute postgresql_t, labeled_communicate_domain;
+>   typeattribute user_t, labeled_communicate_domain;
+
+I'm hesitant to add permissions like this as any domain that networks
+can have labeled networking.  At best it seems like a stopgap measure
+until interfaces like the example above are in place.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
