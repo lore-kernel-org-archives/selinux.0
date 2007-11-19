@@ -1,32 +1,41 @@
-Date: Tue, 20 Nov 2007 08:44:22 +1100 (EST)
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAJMmosK027464
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2007 17:48:50 -0500
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAJMmngT025098
+	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2007 22:48:49 GMT
+Date: Tue, 20 Nov 2007 09:48:27 +1100 (EST)
 From: James Morris <jmorris@namei.org>
-To: "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
-cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        Labeled NFS <labeled-nfs@linux-nfs.org>, selinux@tycho.nsa.gov
-Subject: Re: [Labeled-nfs] [PATCH 08/13] NFS: Introduce lifecycle managment
- for label attribute.
-In-Reply-To: <4741C77D.9080209@sparta.com>
-Message-ID: <Xine.LNX.4.64.0711200835040.29957@us.intercode.com.au>
-References: <1195243404.20981.3.camel@moss-terrapins.epoch.ncsc.mil>
- <1195243824.20981.19.camel@moss-terrapins.epoch.ncsc.mil>
- <Xine.LNX.4.64.0711192226180.20955@us.intercode.com.au> <4741C77D.9080209@sparta.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: casey@schaufler-ca.com, labeled-nfs@linux-nfs.org, selinux@tycho.nsa.gov
+Subject: Re: [Labeled-nfs] [PATCH 13/13] NFSD: Label change notification for
+ NFSv4 Server
+In-Reply-To: <1195509634.5327.16.camel@heimdal.trondhjem.org>
+Message-ID: <Xine.LNX.4.64.0711200923540.5484@us.intercode.com.au>
+References: <236192.48539.qm@web36605.mail.mud.yahoo.com>
+ <1195509634.5327.16.camel@heimdal.trondhjem.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 19 Nov 2007, Matthew N. Dodd wrote:
+On Mon, 19 Nov 2007, Trond Myklebust wrote:
 
-> > 
-> > You need to check the return of kmalloc().
-> 
-> If kmalloc() returns NULL then any label data returned by the GETATTR
-> operation will not be used.  Labeling would be performed by the policy in the
-> 'd_instantiate' function.
+> This proposal, OTOH, will force the server to track all clients that
+> access a labelled file, and to notify them all synchronously if ever a
+> change is made. That can never scale if, say, you want to relabel the
+> entire filesystem as SELinux appears wont to do.
 
-I suspect this would lead to inconsistent behavior & confuse folk.  
-Perhaps try and return an error (which seems typical in much of the 
-surrounding code) as a first option.
+There are further requirements for conveying volatile security state 
+between the peers, such as: the current security context of the client, 
+and the client's current explicit label for new files (if present).
+
+A possible approach for dealing with all of these is to use a 
+per-procedure OP which is prefixed in a similar manner to SEQUENCE, when 
+security labeling is active.  It may be possible to optimize this at the 
+server so that an updated file security label (or ineed the entire 
+security OP) is only sent if required.
+
 
 -- 
 James Morris
