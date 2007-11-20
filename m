@@ -1,45 +1,85 @@
 Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAJMmosK027464
-	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2007 17:48:50 -0500
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAJMmngT025098
-	for <selinux@tycho.nsa.gov>; Mon, 19 Nov 2007 22:48:49 GMT
-Date: Tue, 20 Nov 2007 09:48:27 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: casey@schaufler-ca.com, labeled-nfs@linux-nfs.org, selinux@tycho.nsa.gov
-Subject: Re: [Labeled-nfs] [PATCH 13/13] NFSD: Label change notification for
- NFSv4 Server
-In-Reply-To: <1195509634.5327.16.camel@heimdal.trondhjem.org>
-Message-ID: <Xine.LNX.4.64.0711200923540.5484@us.intercode.com.au>
-References: <236192.48539.qm@web36605.mail.mud.yahoo.com>
- <1195509634.5327.16.camel@heimdal.trondhjem.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAK9GTrQ013056
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2007 04:16:29 -0500
+Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAK9GQxR007234
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2007 09:16:27 GMT
+Message-ID: <4742A571.1060601@ak.jp.nec.com>
+Date: Tue, 20 Nov 2007 18:14:25 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: selinux@tycho.nsa.gov, paul.moore@hp.com, DGoeddel@TrustedCS.com,
+        vyekkirala@TrustedCS.com
+Subject: Re: [PATCH] IPsec SPD default security context
+References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>	 <47331BAB.8040107@kaigai.gr.jp>  <473872F8.7000208@ak.jp.nec.com>	 <1195055160.13737.33.camel@gorn.columbia.tresys.com>	 <473B23F9.4080506@ak.jp.nec.com>	 <1195064402.13737.42.camel@gorn.columbia.tresys.com>	 <473BB437.3070005@ak.jp.nec.com>	 <1195136813.13737.67.camel@gorn.columbia.tresys.com>	 <4740F30D.9000304@ak.jp.nec.com> <1195498093.16660.44.camel@gorn>
+In-Reply-To: <1195498093.16660.44.camel@gorn>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 19 Nov 2007, Trond Myklebust wrote:
+>>>>> I'll consider a patch that adds it to a postresql interface.  Perhaps
+>>>>> postgresql_tcp_connect should be un-deprecated.
+>>>> I think similar interfaces are necessary for any other daemon-domain which
+>>>> provides networking-services, even if they don't use getpeercon().
+>>> The recvfrom is needed if the networking is labeled, regardless of
+>>> whether getpeercon() is used or not.
+>> Do you intend to describe the labeled networking rules for each combination
+>> between a server domain and a client domain?
+> 
+> Yes.  It seems like a lot, but if you think about it, there are already
+> the base networking rules in the policy.  This actually gives more of an
+> opportunity to abstract the rules, so you get something like
+> 
+> interface postgresql_tcp_connect()
+> 	corenet_tcp_sendrecv_postgresql_port($1)
+> 	corenet_tcp_connect_postgresql_port($1)
+> 	corenet_sendrecv_postgresql_client_packets($1)
+> 	# labeled ipsec and (future) TE netlabel
+> 	allow $1 postgresql_t:{ association tcp_socket } recvfrom;
 
-> This proposal, OTOH, will force the server to track all clients that
-> access a labelled file, and to notify them all synchronously if ever a
-> change is made. That can never scale if, say, you want to relabel the
-> entire filesystem as SELinux appears wont to do.
+Is it necessary to add "allow postgresql_t $1 : association recvfrom" ?
+(It's unclear for me, whether tcp_socket should be also, or not.)
 
-There are further requirements for conveying volatile security state 
-between the peers, such as: the current security context of the client, 
-and the client's current explicit label for new files (if present).
+$1 domain can receive replies from postgresql_t, but postgresql_t cannot
+receive messages from $1 domain.
 
-A possible approach for dealing with all of these is to use a 
-per-procedure OP which is prefixed in a similar manner to SEQUENCE, when 
-security labeling is active.  It may be possible to optimize this at the 
-server so that an updated file security label (or ineed the entire 
-security OP) is only sent if required.
+> 	# compat labeled ipsec rule
+> 	allow $1 self:association sendto;
+> 
+> and then even the labeled networking part could be put into a policy
+> pattern.
 
+What does it means policy pattern?
+It's a bit unclear for me whether you intend to make a new template
+interface like the one defined at kernel/corenetwork.if.m4, or make
+a new interface for each daemon domains.
 
+>> Is it a considerable idea that adding a new attribute to comunicate via
+>> labeled ipsec with default SPD, and attaching it both a server domain and
+>> a client domain?
+>>
+>> e.g)
+>>   attribute labeled_communicatable_domain;  # I want to get more shorl naming.
+>>   allow     labeled_communicatable_domain labeled_communicatable_domain : association {resvfrom sendto};
+>>
+>>   typeattribute postgresql_t, labeled_communicate_domain;
+>>   typeattribute user_t, labeled_communicate_domain;
+> 
+> I'm hesitant to add permissions like this as any domain that networks
+> can have labeled networking.  At best it seems like a stopgap measure
+> until interfaces like the example above are in place.
+
+OK, I understood it.
+
+Is it same for the unconfined_domain_type? They can receive messages from
+any domain, but the peer domain without unconfined_domain_type cannot receive
+messages from unconfined_domain_type.
+
+Thanks,
 -- 
-James Morris
-<jmorris@namei.org>
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
