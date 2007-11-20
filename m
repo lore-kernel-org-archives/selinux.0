@@ -1,85 +1,136 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAK9GTrQ013056
-	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2007 04:16:29 -0500
-Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAK9GQxR007234
-	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2007 09:16:27 GMT
-Message-ID: <4742A571.1060601@ak.jp.nec.com>
-Date: Tue, 20 Nov 2007 18:14:25 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAKEvLt6010418
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2007 09:57:21 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAKEvHLb014025
+	for <selinux@tycho.nsa.gov>; Tue, 20 Nov 2007 14:57:18 GMT
+Message-ID: <4742F59C.1050405@redhat.com>
+Date: Tue, 20 Nov 2007 09:56:28 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: selinux@tycho.nsa.gov, paul.moore@hp.com, DGoeddel@TrustedCS.com,
-        vyekkirala@TrustedCS.com
-Subject: Re: [PATCH] IPsec SPD default security context
-References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>	 <47331BAB.8040107@kaigai.gr.jp>  <473872F8.7000208@ak.jp.nec.com>	 <1195055160.13737.33.camel@gorn.columbia.tresys.com>	 <473B23F9.4080506@ak.jp.nec.com>	 <1195064402.13737.42.camel@gorn.columbia.tresys.com>	 <473BB437.3070005@ak.jp.nec.com>	 <1195136813.13737.67.camel@gorn.columbia.tresys.com>	 <4740F30D.9000304@ak.jp.nec.com> <1195498093.16660.44.camel@gorn>
-In-Reply-To: <1195498093.16660.44.camel@gorn>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Laurent Jacquot <jk@lutty.net>
+CC: fedora-selinux-list <fedora-selinux-list@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: files contexts override via policy module
+References: <1195565466.10117.0.camel@jack.lutty.net>	<4742E3AD.9050600@redhat.com> <1195568139.10117.4.camel@jack.lutty.net>
+In-Reply-To: <1195568139.10117.4.camel@jack.lutty.net>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->>>>> I'll consider a patch that adds it to a postresql interface.  Perhaps
->>>>> postgresql_tcp_connect should be un-deprecated.
->>>> I think similar interfaces are necessary for any other daemon-domain which
->>>> provides networking-services, even if they don't use getpeercon().
->>> The recvfrom is needed if the networking is labeled, regardless of
->>> whether getpeercon() is used or not.
->> Do you intend to describe the labeled networking rules for each combination
->> between a server domain and a client domain?
-> 
-> Yes.  It seems like a lot, but if you think about it, there are already
-> the base networking rules in the policy.  This actually gives more of an
-> opportunity to abstract the rules, so you get something like
-> 
-> interface postgresql_tcp_connect()
-> 	corenet_tcp_sendrecv_postgresql_port($1)
-> 	corenet_tcp_connect_postgresql_port($1)
-> 	corenet_sendrecv_postgresql_client_packets($1)
-> 	# labeled ipsec and (future) TE netlabel
-> 	allow $1 postgresql_t:{ association tcp_socket } recvfrom;
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Is it necessary to add "allow postgresql_t $1 : association recvfrom" ?
-(It's unclear for me, whether tcp_socket should be also, or not.)
-
-$1 domain can receive replies from postgresql_t, but postgresql_t cannot
-receive messages from $1 domain.
-
-> 	# compat labeled ipsec rule
-> 	allow $1 self:association sendto;
-> 
-> and then even the labeled networking part could be put into a policy
-> pattern.
-
-What does it means policy pattern?
-It's a bit unclear for me whether you intend to make a new template
-interface like the one defined at kernel/corenetwork.if.m4, or make
-a new interface for each daemon domains.
-
->> Is it a considerable idea that adding a new attribute to comunicate via
->> labeled ipsec with default SPD, and attaching it both a server domain and
->> a client domain?
+Laurent Jacquot wrote:
+> Le mardi 20 novembre 2007 à 08:39 -0500, Daniel J Walsh a écrit :
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
 >>
->> e.g)
->>   attribute labeled_communicatable_domain;  # I want to get more shorl naming.
->>   allow     labeled_communicatable_domain labeled_communicatable_domain : association {resvfrom sendto};
+>> Laurent Jacquot wrote:
+>>> Hello,
+>>> I am sure this is a FAQ or a feature, but I want to know how to work
+>>> around:
+>>>
+>>> I have cxoffice installed in my F8 home dir and I want some lib labeled
+>>> as textrel_shlib_t, but I cannot override the default user_home_t home
+>>> label via a policy module. 
+>>>
+>>> NOTE1 it works if the directory is not under /home
+>>> NOTE2 there is nothing in the logs if it fails
+>>> NOTE3 It has been so since the introduction of modular policy in selinux
+>>>
+>>> What is what I have tried so far in F8.
+>>> [root@jack sel]#cat local.fc
+>>> #cxoffice
+>>> #/home/alex/.cxoffice/dotwine/drive_c(/.*)?/.*\.exe --
+>>> system_u:object_r:textrel_shlib_t:s0
+>>>
+>>> /home/alex/cxoffice/lib/wine/kernel32.dll.so --
+>>> system_u:object_r:textrel_shlib_t:s0
+>>>
+>>> [root@jack sel]#semodule_package -o local.pp -m local.mod -f local.fc
+>>> [root@jack sel]#semodule -i local.pp
+>>> [root@jack sel]#ls -Z /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> -rwxr-xr-x  alex alex
+>>> system_u:object_r:user_home_t:s0 /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> [root@jack sel]#restorecon /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> [root@jack sel]#ls -Z /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> -rwxr-xr-x  alex alex
+>>> system_u:object_r:user_home_t:s0 /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>>
+>>>
+>>> (If i use the system-config-selinux UI, I can see the new entry in the
+>>> tab context among all the regexp)
+>>>
+>>> Using semanage, it works:
+>>> [root@jack sel]#semodule -r local
+>>> [root@jack sel]#semanage fcontext -a -t
+>>> textrel_shlib_t /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> [root@jack sel]#ls -Z /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> -rwxr-xr-x  alex alex
+>>> system_u:object_r:user_home_t:s0 /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> [root@jack sel]#restorecon /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> [root@jack sel]#ls -Z /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>> -rwxr-xr-x  alex alex
+>>> system_u:object_r:textrel_shlib_t:s0 /home/alex/cxoffice/lib/wine/kernel32.dll.so
+>>>
+>>> and the custom rule appears in system-config-selinux UI at the end of
+>>> the policy.
+>>>
+>>> So how do I have my module install my contexts the same way as semanage?
+>>> Should I bugzilla it?
+>>>
+>>> BTW, how do system-config-selinux browse the file context policy? Is it
+>>> possible to see also the rules and type definition?
+>>>
+>>> TIA
+>>>         jk
+>>>
+>>> --
+>>> fedora-selinux-list mailing list
+>>> fedora-selinux-list@redhat.com
+>>> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+>> This looks like a bug in libsemanage or in the file context labeling
+>> algorithm.
 >>
->>   typeattribute postgresql_t, labeled_communicate_domain;
->>   typeattribute user_t, labeled_communicate_domain;
+>> I believe matchpatcon is reading in file_contexts,
+>> file_contexts.homedirs, file_contexts.local and taking the last entry.
+>>
+>>
+>> So using semodule to add a pp file updates the file_contexts file, in
+>> which case the homedirs is overriding.  semanage fcontext updates the
+>> file_contexts.local.
+>>
+>>
+>> If you tried
+>>
+>> HOME_DIR/\.cxoffice/dotwine/drive_c(/.*)?/.*\.exe --
+>> system_u:object_r:textrel_shlib_t:s0
+>>
+>> It should update the file_context.homedirs file.
+>>
+>>
+> I confirm this works. Thanks!
+> Should I bugzilla it or is it the way it should be?
 > 
-> I'm hesitant to add permissions like this as any domain that networks
-> can have labeled networking.  At best it seems like a stopgap measure
-> until interfaces like the example above are in place.
+> jk
+> 
+> 
+> --
+> fedora-selinux-list mailing list
+> fedora-selinux-list@redhat.com
+> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+You can bugzilla it, but it probably should be brought up for discussion
+on the <selinux@tycho.nsa.gov> list.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-OK, I understood it.
+iD8DBQFHQvWcrlYvE4MpobMRAsbWAJ9pO9S8n1Vg/wqo241AfVmovasw4gCeMVlS
+8zDcYbim3RQLRTEHILlfEtw=
+=LxQ0
+-----END PGP SIGNATURE-----
 
-Is it same for the unconfined_domain_type? They can receive messages from
-any domain, but the peer domain without unconfined_domain_type cannot receive
-messages from unconfined_domain_type.
-
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
