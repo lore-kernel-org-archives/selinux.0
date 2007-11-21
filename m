@@ -4,175 +4,99 @@ To: Joshua Brindle <method@manicmethod.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>,
         Karl MacMillan <kmacmillan@mentalrootkit.com>,
         James Athey <jathey@tresys.com>
-In-Reply-To: <47446066.2030102@manicmethod.com>
+In-Reply-To: <1195664448.759.63.camel@moss-spartans.epoch.ncsc.mil>
 References: <47435B32.9030205@manicmethod.com>
 	 <1195651753.759.5.camel@moss-spartans.epoch.ncsc.mil>
 	 <47446066.2030102@manicmethod.com>
+	 <1195664448.759.63.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 21 Nov 2007 12:00:48 -0500
-Message-Id: <1195664448.759.63.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Nov 2007 12:44:42 -0500
+Message-Id: <1195667082.759.77.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-11-21 at 11:44 -0500, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2007-11-20 at 17:09 -0500, Joshua Brindle wrote:
-> >   
-> >> So, I got a report here that python scripts that call 
-> >> semanage_select_store will get a double free error when calling 
-> >> semanage_handle_destroy because the swig wrapper free's the buffer 
-> >> passed to semanage_select_store. I haven't seen this with semanage but 
-> >> the bug does appear legitimate to me, we should have never been assuming 
-> >> control of the buffer passed to semanage_select_store (especially 
-> >> without documenting it).
-> >>
-> >> This is fun because semanage_select_store was originally a void but 
-> >> clearly this needs to strdup() instead of just setting the pointer. This 
-> >> patch can be applied trunk as it changes the API but the bug would still 
-> >> exist in stable (and the person who reported this will unfortunately 
-> >> have to patch it in their release of the stable repo).
-> >>     
-> >
-> > Wait - we aren't changing API/ABI even in trunk at present, and to do
-> > so, we'd either need to change .so version (incompatible change) or use
-> > the per-symbol versioning technique to keep the old interface alive for
-> > existing binaries while defaulting to the new interface for newer code.
-> >
-> > I also have to ask - if the problem lies in the swig wrapper, why not
-> > fix it there?
-> >
-> >   
+On Wed, 2007-11-21 at 12:00 -0500, Stephen Smalley wrote:
+> On Wed, 2007-11-21 at 11:44 -0500, Joshua Brindle wrote:
+> > Stephen Smalley wrote:
+> > > On Tue, 2007-11-20 at 17:09 -0500, Joshua Brindle wrote:
+> > >   
+> > >> So, I got a report here that python scripts that call 
+> > >> semanage_select_store will get a double free error when calling 
+> > >> semanage_handle_destroy because the swig wrapper free's the buffer 
+> > >> passed to semanage_select_store. I haven't seen this with semanage but 
+> > >> the bug does appear legitimate to me, we should have never been assuming 
+> > >> control of the buffer passed to semanage_select_store (especially 
+> > >> without documenting it).
+> > >>
+> > >> This is fun because semanage_select_store was originally a void but 
+> > >> clearly this needs to strdup() instead of just setting the pointer. This 
+> > >> patch can be applied trunk as it changes the API but the bug would still 
+> > >> exist in stable (and the person who reported this will unfortunately 
+> > >> have to patch it in their release of the stable repo).
+> > >>     
+> > >
+> > > Wait - we aren't changing API/ABI even in trunk at present, and to do
+> > > so, we'd either need to change .so version (incompatible change) or use
+> > > the per-symbol versioning technique to keep the old interface alive for
+> > > existing binaries while defaulting to the new interface for newer code.
+> > >
+> > > I also have to ask - if the problem lies in the swig wrapper, why not
+> > > fix it there?
+> > >
+> > >   
+> > 
+> > Because I'm scared of the swig wrapper :)
 > 
-> Because I'm scared of the swig wrapper :)
+> Well, we shouldn't be more afraid of changing the python bindings that
+> we are of changing the library API and ABI.
 
-Well, we shouldn't be more afraid of changing the python bindings that
-we are of changing the library API and ABI.
+Ok, so maybe there is no way to fix this in the wrapper, as the wrapper
+has to create a temporary C string from the python string and then free
+it when done with the call.  Which would mean that we need to strdup all
+strings passed into the library.
 
-> But seriously we always strdup (afaik) strings passed in to libsemanage 
-> so this is an inconsistency and should at least be documented.
-
-The key create functions don't appear to do so, e.g.
-semanage_seuser_key_create.  Don't know how widespread the issue is.
-Why does semanage appear to work ok?
-
-> I suppose we can just start queuing up any api/abi changes for some 
-> future so version, this certainly doesn't warrant bumping the version.
-
-It could be done via per-symbol versioning rather than a .so version
-change.
-
-> OTOH I understand that we need a stable ABI in trunk but honestly I 
-> don't know how this change would cause problems (how many external users 
-> are there, how often is this error condition going to occur (esp 
-> compared to how often the error condition it is fixing can occur), etc).
-
-If we do need to make the change, then I think we want to systematically
-fix all such occurrences at once, and do it cleanly via per-symbol
-versioning or .so version bump.  Which suggests doing it in policyrep
-first.  But if we can make a change to the swig wrapper instead to fix
-the bug, then that would be nice for stable and for a short term fix for
-trunk.
-
+> > But seriously we always strdup (afaik) strings passed in to libsemanage 
+> > so this is an inconsistency and should at least be documented.
 > 
-> >> ---
-> >>
-> >>  libsemanage/include/semanage/handle.h |    3 ++-
-> >>  libsemanage/src/handle.c              |   13 ++++++++++---
-> >>  policycoreutils/semanage/seobject.py  |    4 +++-
-> >>  policycoreutils/semodule/semodule.c   |    3 ++-
-> >>  4 files changed, 17 insertions(+), 6 deletions(-)
-> >>
-> >> ---
-> >>
-> >> Index: libsemanage/include/semanage/handle.h
-> >> ===================================================================
-> >> --- libsemanage/include/semanage/handle.h	(revision 2677)
-> >> +++ libsemanage/include/semanage/handle.h	(working copy)
-> >> @@ -48,8 +48,9 @@
-> >>  /* This function allows you to specify the store to  connect to.
-> >>   * It must be called after semanage_handle_create but before 
-> >>   * semanage_connect. The argument should be the full path to the store.
-> >> + * path is duplicated and should be freed by the caller.
-> >>   */
-> >> -void semanage_select_store(semanage_handle_t * handle, char *path,
-> >> +int semanage_select_store(semanage_handle_t * handle, char *path,
-> >>  			   enum semanage_connect_type storetype);
-> >>  
-> >>  /* Just reload the policy */
-> >> Index: libsemanage/src/handle.c
-> >> ===================================================================
-> >> --- libsemanage/src/handle.c	(revision 2677)
-> >> +++ libsemanage/src/handle.c	(working copy)
-> >> @@ -28,6 +28,7 @@
-> >>  #include <stdlib.h>
-> >>  #include <stdio.h>
-> >>  #include <sys/time.h>
-> >> +#include <string.h>
-> >>  
-> >>  #include "direct_api.h"
-> >>  #include "handle.h"
-> >> @@ -123,7 +124,7 @@
-> >>  	return sh->is_connected;
-> >>  }
-> >>  
-> >> -void semanage_select_store(semanage_handle_t * sh, char *storename,
-> >> +int semanage_select_store(semanage_handle_t * sh, char *storename,
-> >>  			   enum semanage_connect_type storetype)
-> >>  {
-> >>  
-> >> @@ -131,10 +132,16 @@
-> >>  
-> >>  	/* This just sets the storename to what the user requests, no 
-> >>  	   verification of existance will be done until connect */
-> >> -	sh->conf->store_path = storename;
-> >> +	
-> >> +	/* sh->conf->store_path could already exist if it was read from the
-> >> + 	 * config file, free first */
-> >> +	free(sh->conf->store_path);
-> >> +	sh->conf->store_path = strdup(storename);
-> >> +	if (!sh->conf->store_path)
-> >> +		return -1;
-> >>  	sh->conf->store_type = storetype;
-> >>  
-> >> -	return;
-> >> +	return 0;
-> >>  }
-> >>  
-> >>  int semanage_is_managed(semanage_handle_t * sh)
-> >> Index: policycoreutils/semanage/seobject.py
-> >> ===================================================================
-> >> --- policycoreutils/semanage/seobject.py	(revision 2677)
-> >> +++ policycoreutils/semanage/seobject.py	(working copy)
-> >> @@ -219,7 +219,9 @@
-> >>  		       raise ValueError(_("Could not create semanage handle"))
-> >>  		
-> >>                  if store != "":
-> >> -                       semanage_select_store(self.sh, store, SEMANAGE_CON_DIRECT);
-> >> +			rc = semanage_select_store(self.sh, store, SEMANAGE_CON_DIRECT);
-> >> +			if rc:
-> >> +				raise ValueError(_("Could not set store."))
-> >>  
-> >>  		self.semanaged = semanage_is_managed(self.sh)
-> >>  
-> >> Index: policycoreutils/semodule/semodule.c
-> >> ===================================================================
-> >> --- policycoreutils/semodule/semodule.c	(revision 2677)
-> >> +++ policycoreutils/semodule/semodule.c	(working copy)
-> >> @@ -293,7 +293,8 @@
-> >>  		 * this will always set a direct connection now, an additional
-> >>  		 * option will need to be used later to specify a policy server 
-> >>  		 * location */
-> >> -		semanage_select_store(sh, store, SEMANAGE_CON_DIRECT);
-> >> +		if (semanage_select_store(sh, store, SEMANAGE_CON_DIRECT))
-> >> +			goto cleanup;
-> >>  	}
-> >>  
-> >>  	/* if installing base module create store if necessary, for bootstrapping */
-> >>
-> >>
-> >>     
+> The key create functions don't appear to do so, e.g.
+> semanage_seuser_key_create.  Don't know how widespread the issue is.
+> Why does semanage appear to work ok?
+
+Hmm...well semanage -S/--store doesn't appear to work at all right now,
+not sure why.  As far as keys go, they are different in that we don't
+free the names in the key_free functions, so no double free there, but
+it still appears that they would be prematurely freed by the wrapper
+while still in use by the library.  Not sure then why we don't have lots
+of bug reports on semanage.
+ 
+> > I suppose we can just start queuing up any api/abi changes for some 
+> > future so version, this certainly doesn't warrant bumping the version.
 > 
+> It could be done via per-symbol versioning rather than a .so version
+> change.
+> 
+> > OTOH I understand that we need a stable ABI in trunk but honestly I 
+> > don't know how this change would cause problems (how many external users 
+> > are there, how often is this error condition going to occur (esp 
+> > compared to how often the error condition it is fixing can occur), etc).
+> 
+> If we do need to make the change, then I think we want to systematically
+> fix all such occurrences at once, and do it cleanly via per-symbol
+> versioning or .so version bump.  Which suggests doing it in policyrep
+> first.  But if we can make a change to the swig wrapper instead to fix
+> the bug, then that would be nice for stable and for a short term fix for
+> trunk.
+
+Let's do it this way then:
+- change the functions to strdup() internally always.  If the function
+presently returns void and the strdup fails, then abort().  If the
+function presently returns int, then return an error of course.  We can
+apply that change on the current trunk and stable.
+- plan to change those void functions to return int, and queue that up
+in policyrep.  But that can come later.  Then we can turn those aborts
+into returns.
+
 -- 
 Stephen Smalley
 National Security Agency
