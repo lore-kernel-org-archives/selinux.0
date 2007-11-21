@@ -1,137 +1,83 @@
-Subject: Re: [PATCH 1/1] semanage_select_store fun
+Subject: Re: plz Help! SELinux Re-enabled from disabled mode, CentOS 5
+	won't startup
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        James Athey <jathey@tresys.com>
-In-Reply-To: <47435B32.9030205@manicmethod.com>
-References: <47435B32.9030205@manicmethod.com>
+To: joe shoemaker <joemystery123@gmail.com>
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <372de840711210432p748bb35br9dd1b3a8e29ee014@mail.gmail.com>
+References: <372de840711210432p748bb35br9dd1b3a8e29ee014@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 21 Nov 2007 08:29:13 -0500
-Message-Id: <1195651753.759.5.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 21 Nov 2007 08:42:32 -0500
+Message-Id: <1195652552.759.17.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-11-20 at 17:09 -0500, Joshua Brindle wrote:
-> So, I got a report here that python scripts that call 
-> semanage_select_store will get a double free error when calling 
-> semanage_handle_destroy because the swig wrapper free's the buffer 
-> passed to semanage_select_store. I haven't seen this with semanage but 
-> the bug does appear legitimate to me, we should have never been assuming 
-> control of the buffer passed to semanage_select_store (especially 
-> without documenting it).
+On Wed, 2007-11-21 at 07:32 -0500, joe shoemaker wrote:
+> Hello, I need help. When I re-enabled the selinux, it asked me if you
+> want to relabel the system, I said no. Now I can't start or shutdown
+> the computer.
 > 
-> This is fun because semanage_select_store was originally a void but 
-> clearly this needs to strdup() instead of just setting the pointer. This 
-> patch can be applied trunk as it changes the API but the bug would still 
-> exist in stable (and the person who reported this will unfortunately 
-> have to patch it in their release of the stable repo).
+> What are the ways to get my computer back?
+> 
+> I just booted the computer. Didn't do anything. What I am getting is as follows:
+> 
+> *** An error occurred during the file system check.
+> *** Dropping you to a shell; the system will reboot
+> *** when you leave the shell.
+> *** Warning --SELinux is active
+> *** Disabling security enforcement for system recovery.
+> *** Run 'setenforce 1' to reenable.
+> Give root password for maintenance
+> (or type Control-D to continue):
+> 
+> Once I type the root password, I get a shell like this:
+> 
+> (Repair filesystem) 1#
+> 
+> Any suggestion on going about disabling from this terminal or setting
+> the "selinux=0" in what file?
+> 
+> I did echo 0 >/selinux/enforce.
+> 
+> I tried to open the "/etc/selinux/config" and tried setting it to
+> "SELINUX=permissive", but I can't write to it. I get something like
+> this:
+> 
+> W10: Warning: Changing a readonly file
+> E303: Unable to open swap file for "/etc/selinux/config", recovery impossible.
+> 
+> I have tried this also, "/boot/grub/grub.conf" and on the kernel line,
+> added enforcing=0 at the end. But I can't write to the file. Same as
+> before regarding readonly and unable to open swap file.
+> 
+> What about "newrole -r sysadm_r" command? sysadm_r command I have to
+> worry about? I tried "newrole -r sysadm_r" on the shell after logging
+> in as root, but it doesn't recognize the command "newrole".
+> 
+> 
+> Unable to open swap file is coming from vi editor:
+> 
+> Unable to open swap file for "{filename}", recovery impossible
+> 
+> Vim was not able to create a swap file. You can still edit the file, but if
+> Vim unexpected exits the changes will be lost. And Vim may consume a lot of
+> memory when editing a big file. You may want to change the 'directory' option
+> to avoid this error. See |swap-file|.
+> 
+> Even when I edit the file vi, changes made are not saved.  Any suggestions?
 
-Wait - we aren't changing API/ABI even in trunk at present, and to do
-so, we'd either need to change .so version (incompatible change) or use
-the per-symbol versioning technique to keep the old interface alive for
-existing binaries while defaulting to the new interface for newer code.
+Run fsck and then remount the filesystem rw?  Nothing SELinux-specific
+there.
 
-I also have to ask - if the problem lies in the swig wrapper, why not
-fix it there?
+The selinux=0 or enforcing=0 options can also be specified on the kernel
+command line at boot time w/o editing any files.  Just use the usual
+grub commands to edit the command line, e.g. 'e', cursor to the kernel
+line, hit 'e' to edit it, and enter ' selinux=0' or  enforcing=0'.
 
-> ---
-> 
->  libsemanage/include/semanage/handle.h |    3 ++-
->  libsemanage/src/handle.c              |   13 ++++++++++---
->  policycoreutils/semanage/seobject.py  |    4 +++-
->  policycoreutils/semodule/semodule.c   |    3 ++-
->  4 files changed, 17 insertions(+), 6 deletions(-)
-> 
-> ---
-> 
-> Index: libsemanage/include/semanage/handle.h
-> ===================================================================
-> --- libsemanage/include/semanage/handle.h	(revision 2677)
-> +++ libsemanage/include/semanage/handle.h	(working copy)
-> @@ -48,8 +48,9 @@
->  /* This function allows you to specify the store to  connect to.
->   * It must be called after semanage_handle_create but before 
->   * semanage_connect. The argument should be the full path to the store.
-> + * path is duplicated and should be freed by the caller.
->   */
-> -void semanage_select_store(semanage_handle_t * handle, char *path,
-> +int semanage_select_store(semanage_handle_t * handle, char *path,
->  			   enum semanage_connect_type storetype);
->  
->  /* Just reload the policy */
-> Index: libsemanage/src/handle.c
-> ===================================================================
-> --- libsemanage/src/handle.c	(revision 2677)
-> +++ libsemanage/src/handle.c	(working copy)
-> @@ -28,6 +28,7 @@
->  #include <stdlib.h>
->  #include <stdio.h>
->  #include <sys/time.h>
-> +#include <string.h>
->  
->  #include "direct_api.h"
->  #include "handle.h"
-> @@ -123,7 +124,7 @@
->  	return sh->is_connected;
->  }
->  
-> -void semanage_select_store(semanage_handle_t * sh, char *storename,
-> +int semanage_select_store(semanage_handle_t * sh, char *storename,
->  			   enum semanage_connect_type storetype)
->  {
->  
-> @@ -131,10 +132,16 @@
->  
->  	/* This just sets the storename to what the user requests, no 
->  	   verification of existance will be done until connect */
-> -	sh->conf->store_path = storename;
-> +	
-> +	/* sh->conf->store_path could already exist if it was read from the
-> + 	 * config file, free first */
-> +	free(sh->conf->store_path);
-> +	sh->conf->store_path = strdup(storename);
-> +	if (!sh->conf->store_path)
-> +		return -1;
->  	sh->conf->store_type = storetype;
->  
-> -	return;
-> +	return 0;
->  }
->  
->  int semanage_is_managed(semanage_handle_t * sh)
-> Index: policycoreutils/semanage/seobject.py
-> ===================================================================
-> --- policycoreutils/semanage/seobject.py	(revision 2677)
-> +++ policycoreutils/semanage/seobject.py	(working copy)
-> @@ -219,7 +219,9 @@
->  		       raise ValueError(_("Could not create semanage handle"))
->  		
->                  if store != "":
-> -                       semanage_select_store(self.sh, store, SEMANAGE_CON_DIRECT);
-> +			rc = semanage_select_store(self.sh, store, SEMANAGE_CON_DIRECT);
-> +			if rc:
-> +				raise ValueError(_("Could not set store."))
->  
->  		self.semanaged = semanage_is_managed(self.sh)
->  
-> Index: policycoreutils/semodule/semodule.c
-> ===================================================================
-> --- policycoreutils/semodule/semodule.c	(revision 2677)
-> +++ policycoreutils/semodule/semodule.c	(working copy)
-> @@ -293,7 +293,8 @@
->  		 * this will always set a direct connection now, an additional
->  		 * option will need to be used later to specify a policy server 
->  		 * location */
-> -		semanage_select_store(sh, store, SEMANAGE_CON_DIRECT);
-> +		if (semanage_select_store(sh, store, SEMANAGE_CON_DIRECT))
-> +			goto cleanup;
->  	}
->  
->  	/* if installing base module create store if necessary, for bootstrapping */
-> 
-> 
+If you want to get SELinux working, you do need to relabel filesystems
+initially.  To do that, you can boot with enforcing=0 autorelabel.  Or
+boot into single-user mode and run /sbin/fixfiles relabel by hand.
+
 -- 
 Stephen Smalley
 National Security Agency
