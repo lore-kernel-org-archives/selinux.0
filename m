@@ -1,62 +1,57 @@
-Date: Thu, 22 Nov 2007 16:32:01 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: SELinux@tycho.nsa.gov
-Subject: refpolicy HEAD, Debian, restorecon from udev startup script
-Message-ID: <20071122153201.GA6768@bobek.pm.i.cz>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAN6EhJA022423
+	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2007 01:14:43 -0500
+Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAN6EgWI004132
+	for <selinux@tycho.nsa.gov>; Fri, 23 Nov 2007 06:14:43 GMT
+Received: by nz-out-0506.google.com with SMTP id i1so2423362nzh
+        for <selinux@tycho.nsa.gov>; Thu, 22 Nov 2007 22:14:42 -0800 (PST)
+Message-ID: <f71a82820711222214i46474da1ucd1b402fbbc9d38d@mail.gmail.com>
+Date: Fri, 23 Nov 2007 15:14:42 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: semodule -i postgresql.pp fails on F8
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I got src package of selinux-policy-3.0.8
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+#cd serefpolicy-3.0.8/policy/modules/services
+#make -f /usr/share/selinux/devel/Makefile postgresql.pp
+#semodule -i postgresql.pp
 
-Hi,
-I'm trying refpolicy r2530, policycoreutils 2.0.27 on Debian Etch.
+libsepol.scope_copy_callback: postgresql: Duplicate declaration in
+module: type/attribute postgresql_var_run_t
+libsemanage.semanage_link_sandbox: Link packages failed
+semodule:  Failed!
 
-There is restorecon called in /etc/init.d/udev script during startup
-to relabel /dev tmpfs filesystem. /dev/console has context
-system_u:object_r:tmpfs_t at this time, so the following message appears:
 
-audit(1195734177.391:3): avc:  denied  { read write } for  pid=778 comm="restorecon" name="console" dev=tmpfs ino=702 scontext=system_u:system_r:setfiles_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=chr_file
+I doubted that in base.pp having postgresql ( it should not have, though)
+#semodule -r clamav -b /etc/selinux/targeted/modules/active/base.pp
+libsemanage.semanage_direct_remove: Module postgresql was not found.
+semodule:  Failed on postgresql!
 
-With attached patch message disappears.
-Can be this merged into HEAD? (Maybe only for Redhat & Debian)
+So, I think something wrong with SELinux policy itself.
 
-Are next two macros for Redhat needed?
+Please lead me to the right direction...
 
-        fs_relabel_tmpfs_blk_file(setfiles_t)
-	fs_relabel_tmpfs_chr_file(setfiles_t)
+I just want to install postgresql policy.
 
-Doesn't this covered by dev_relabel_all_dev_nodes(setfiles_t) already?
+
 -- 
-Zito
-
---vkogqOf2sHV7VnPd
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="setfiles.patch"
-
-Index: policy/modules/system/selinuxutil.te
-===================================================================
---- policy/modules/system/selinuxutil.te	(revision 2530)
-+++ policy/modules/system/selinuxutil.te	(working copy)
-@@ -563,9 +563,10 @@
- # for config files in a home directory
- userdom_read_all_users_home_content_files(setfiles_t)
- 
-+fs_rw_tmpfs_chr_files(setfiles_t)
-+fs_rw_tmpfs_blk_files(setfiles_t)
-+
- ifdef(`distro_redhat', `
--	fs_rw_tmpfs_chr_files(setfiles_t)
--	fs_rw_tmpfs_blk_files(setfiles_t)
- 	fs_relabel_tmpfs_blk_file(setfiles_t)
- 	fs_relabel_tmpfs_chr_file(setfiles_t)
- ')
-
---vkogqOf2sHV7VnPd--
+Shintaro Fujiwara
+segatex project (SELinux policy tool)
+http://sourceforge.net/projects/segatex/
+Home page
+http://intrajp.no-ip.com/
+Blog
+http://intrajp.no-ip.com/nucleus/
+CMS
+http://intrajp.no-ip.com/xoops/
+Wiki
+http://intrajp.no-ip.com/pukiwiki/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
