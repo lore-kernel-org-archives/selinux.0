@@ -1,48 +1,35 @@
-Subject: Re: refpolicy HEAD, Debian, restorecon from udev startup script
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: SELinux@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <20071122153201.GA6768@bobek.pm.i.cz>
-References: <20071122153201.GA6768@bobek.pm.i.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 26 Nov 2007 15:20:19 -0500
-Message-Id: <1196108419.20918.43.camel@gorn>
-Mime-Version: 1.0
+Date: Tue, 27 Nov 2007 08:42:59 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@parisplace.org>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>, selinux@tycho.nsa.gov
+Subject: Re: [patch 1/1] selinux:  detect dead booleans
+In-Reply-To: <1196093573.26679.4.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0711270842420.4363@us.intercode.com.au>
+References: <1196093573.26679.4.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-11-22 at 16:32 +0100, Václav Ovsík wrote:
-> Hi,
-> I'm trying refpolicy r2530, policycoreutils 2.0.27 on Debian Etch.
-> 
-> There is restorecon called in /etc/init.d/udev script during startup
-> to relabel /dev tmpfs filesystem. /dev/console has context
-> system_u:object_r:tmpfs_t at this time, so the following message appears:
-> 
-> audit(1195734177.391:3): avc:  denied  { read write } for  pid=778 comm="restorecon" name="console" dev=tmpfs ino=702 scontext=system_u:system_r:setfiles_t:s0 tcontext=system_u:object_r:tmpfs_t:s0 tclass=chr_file
-> 
-> With attached patch message disappears.
-> Can be this merged into HEAD? (Maybe only for Redhat & Debian)
+On Mon, 26 Nov 2007, Stephen Smalley wrote:
 
-I added this for distro_debian.
-
-> Are next two macros for Redhat needed?
+> Instead of using f_op to detect dead booleans, check the inode index
+> against the number of booleans and check the dentry name against the
+> boolean name for that index on reads and writes.  This prevents
+> incorrect use of a boolean file opened prior to a policy reload while
+> allowing valid use of it as long as it still corresponds to the same
+> boolean in the policy.
 > 
->         fs_relabel_tmpfs_blk_file(setfiles_t)
-> 	fs_relabel_tmpfs_chr_file(setfiles_t)
-> 
-> Doesn't this covered by dev_relabel_all_dev_nodes(setfiles_t) already?
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-files_relabel_all_files() gives relabelfrom.  So the above two lines
-effectively add relabelto.  However I don't think this is needed, so
-they are probably unneeded.
+Applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
