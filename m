@@ -1,44 +1,50 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAR5505W022545
-	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2007 00:05:00 -0500
-Received: from web36603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id lAR54rih024667
-	for <selinux@tycho.nsa.gov>; Tue, 27 Nov 2007 05:04:53 GMT
-Date: Mon, 26 Nov 2007 21:04:37 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 2/2] hijack: update task_alloc_security
-To: Mark Nelson <markn@au1.ibm.com>, containers@lists.linux-foundation.org
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+Message-ID: <474BB095.8080302@manicmethod.com>
+Date: Tue, 27 Nov 2007 00:52:21 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Mark Nelson <markn@au1.ibm.com>
+CC: containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         menage@google.com, Stephen Smalley <sds@tycho.nsa.gov>,
         James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [PATCH 2/2] hijack: update task_alloc_security
+References: <474B78CB.5070607@au1.ibm.com> <474B7A51.3080300@au1.ibm.com>
 In-Reply-To: <474B7A51.3080300@au1.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <820903.72193.qm@web36603.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Mark Nelson <markn@au1.ibm.com> wrote:
-
+Mark Nelson wrote:
 > Subject: [PATCH 2/2] hijack: update task_alloc_security
-> 
+>
 > Update task_alloc_security() to take the hijacked task as a second
 > argument.
-
-Could y'all bring me up to speed on what this is intended to
-accomplish so that I can understand the Smack implications?
-
-Thank you.
-
+>
 > For the selinux version, refuse permission if hijack_src!=current,
 > since we have no idea what the proper behavior is.  Even if we
 > assume that the resulting child should be in the hijacked task's
 > domain, depending on the policy that may not be enough information
 > since init_t executing /bin/bash could result in a different domain
 > than login_t executing /bin/bash.
-> 
+>
+>   
+This means its basically not possible to hijack tasks with SELinux 
+right? It would be a shame if this weren't useful to people running SELinux.
+
+It seems to me (I may be wrong, I'm sure someone will let me know if I 
+am) that the right way to handle this with SELinux is to check to see if 
+the current task (caller of sys_hijack) has permission to ptrace (or 
+some other permission deemed suitable, perhaps a new one) and if so copy 
+the security blob pointer from the hijacked task to the new one (we 
+don't want tranquility problems).
+
+ From your paragraph above it seems like you were thinking there should 
+be a transition at hijack time but we don't automatically transition 
+anywhere except exec.
+
+Anyway, I just don't think you should completely disable this for 
+SELinux users.
+
 > Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 > Signed-off-by: Mark Nelson <markn@au1.ibm.com>
 > ---
@@ -48,7 +54,7 @@ Thank you.
 >  security/security.c      |    4 ++--
 >  security/selinux/hooks.c |    6 +++++-
 >  5 files changed, 19 insertions(+), 8 deletions(-)
-> 
+>
 > Index: upstream/include/linux/security.h
 > ===================================================================
 > --- upstream.orig/include/linux/security.h
@@ -161,17 +167,13 @@ Thank you.
 >  
 >  	rc = task_alloc_security(tsk);
 > -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-security-module" in
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> 
-> 
+>
+>   
 
 
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
