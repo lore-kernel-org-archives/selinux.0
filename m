@@ -1,50 +1,60 @@
-Date: Wed, 28 Nov 2007 08:54:22 -0600
+Date: Wed, 28 Nov 2007 08:57:33 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: Crispin Cowan <crispin@crispincowan.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@manicmethod.com>,
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Mark Nelson <markn@au1.ibm.com>, containers@lists.linux-foundation.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        menage@google.com, James Morris <jmorris@namei.org>
+        menage@google.com, Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>
 Subject: Re: [PATCH 2/2] hijack: update task_alloc_security
-Message-ID: <20071128145422.GC3820@sergelap.austin.ibm.com>
-References: <474B78CB.5070607@au1.ibm.com> <474B7A51.3080300@au1.ibm.com> <474BB095.8080302@manicmethod.com> <1196174188.3925.32.camel@moss-spartans.epoch.ncsc.mil> <20071127154356.GA32362@sergelap.austin.ibm.com> <474D0188.2040600@crispincowan.com>
+Message-ID: <20071128145733.GD3820@sergelap.austin.ibm.com>
+References: <474B7A51.3080300@au1.ibm.com> <820903.72193.qm@web36603.mail.mud.yahoo.com> <20071127160127.GC32362@sergelap.austin.ibm.com> <474D026B.3090306@crispincowan.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <474D0188.2040600@crispincowan.com>
+In-Reply-To: <474D026B.3090306@crispincowan.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Quoting Crispin Cowan (crispin@crispincowan.com):
 > Serge E. Hallyn wrote:
-> > Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> > Quoting Casey Schaufler (casey@schaufler-ca.com):
 > >   
-> >> I agree with this part - we don't want people to have to choose between
-> >> using containers and using selinux, so if hijack is going to be a
-> >> requirement for effective use of containers, then we need to make them
-> >> work together.
+> >> Could y'all bring me up to speed on what this is intended to
+> >> accomplish so that I can understand the Smack implications?
 > >>     
-> > Absolutely, we just need to decide how to properly make it work with
-> > selinux.  Maybe we check for
-> >
-> > 	allow (current_domain):(hijacked_process_domain) hijack
-> > 	type_transition hijacked_process_domain \
-> > 		vserver_enter_binary_t:process vserver1_hijack_admin_t;
+> > It's basically like ptracing a process, forcing it to fork, then having
+> > the child execute a file and continue as your child.  It takes part of
+> > its state from the current process (stack etc), some from the hijacked
+> > process (namespaces, keys?), and an lsm can decide for itself whose ->security
+> > should be used for the child process.
 > >   
-> Is there to be an LSM hook, so that modules can decide on an arbitrary
-> decision of whether to allow a hijack? So that this "do the right
-> SELinux" thing can be generalized for all LSMs to do the right thing.
+> That just doesn't gob smack me with the obvious abstract intention of
+> this API :)
+> 
+> So it is like I want to run a process inside a name space, but I am not
+> inside that name space, so I highjack one that is in there, force it to
+> fork, and then give me its child. Ugh.
 
-Currently:
+Well that's how it started, but in reality you are the one who forks,
+and you only copy namespace and some related data.
 
-	1. the permission is granted through ptrace
-	2. the lsm knows a hijack is going in security_task_alloc()
-		when task != current
+So what you are objecting to is the process you'd have to go through if
+we don't have hijack.
 
-so the lsm has all the information it needs.  But I have no objection
-to a separate security_task_hijack() hook if you find the ptrace hook
-insufficient.
+> Couldn't we just implement "put me in that namespace over there?" AFAIK
 
+There are two patchsets out there to do that, and there are standing
+objections to them.  Really doing it at clone is the safest thing,
+and with pid namespaces the only sane thing to do.
+
+> namespaces don't actually have names, making it hard to implement "put
+> me in namespace Foo", but I view that as a defect of namespaces that
+> should be fixed, rather than hacked around.
+
+You can name them using the ns cgroup.
+
+thanks,
 -serge
 
 --
