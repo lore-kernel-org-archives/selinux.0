@@ -1,159 +1,97 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: Recurring SELinux events for similar violations...
-Date: Thu, 29 Nov 2007 15:06:15 -0500
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D042DC0D5@de01exm68.ds.mot.com>
-in-reply-to: <1192713224.32671.11.camel@moss-spartans.epoch.ncsc.mil>
-References: <C3357D99.2F091%csellers@tresys.com> <1192356878.3376.3.camel@vogon> <47135FCE.5000403@redhat.com> <1192467177.28762.7.camel@blentz> <1192467538.29203.52.camel@moss-spartans.epoch.ncsc.mil> <4713B257.9020409@redhat.com> <1192473631.29203.56.camel@moss-spartans.epoch.ncsc.mil> <1192475354.2910.14.camel@localhost.localdomain> <1192650454.20908.30.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D040E2506@de01exm68.ds.mot.com> <7e0fb38c0710171518r645c1ce1l3e0653109f2d27b2@mail.gmail.com> <D06FE0A2807BC145B0D38744789D4F5D040E251B@de01exm68.ds.mot.com> <1192713224.32671.11.camel@moss-spartans.epoch.ncsc.mil>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Daniel J Walsh" <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lATK79Ec006659
+	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2007 15:07:09 -0500
+Received: from ppsw-4.csi.cam.ac.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lATK78aw004825
+	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2007 20:07:08 GMT
+Received: from mpo25.trin.private.cam.ac.uk ([172.16.113.134]:54945)
+	by ppsw-4.csi.cam.ac.uk (ppsw.cam.ac.uk [131.111.8.134]:25)
+	with esmtp id 1Ixpf5-0001Qg-FA (Exim 4.63) for selinux@tycho.nsa.gov
+	(return-path <martin@martinorr.name>); Thu, 29 Nov 2007 20:07:03 +0000
+Message-ID: <474F1BD4.2010908@martinorr.name>
+Date: Thu, 29 Nov 2007 20:06:44 +0000
+From: Martin Orr <martin@martinorr.name>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_caligula-4864-1196366823-0001-2"
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>,
+        selinux@tycho.nsa.gov
+Subject: Re: refpolicy HEAD, Debian, patch for udev.te
+References: <20071126144547.GA334@bobek.pm.i.cz> <1196189369.30997.6.camel@gorn>
+In-Reply-To: <1196189369.30997.6.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All,
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-So here is my problem statement:
+--=_caligula-4864-1196366823-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-While running in "Permissive" Mode, and keeping the
-/selinux/avc/cache_threshold at the default 512 value, is there any
-*other* way to make sure that  EVERY  SELinux violation attempt still
-automatically gets logged into the audit.log file ???
+On 27/11/07 18:49, Christopher J. PeBenito wrote:
+> On Mon, 2007-11-26 at 15:45 +0100, V=E1clav Ovs=EDk wrote:
+>> Hi,
+>> Debian Etch, refpolicy HEAD, udev produces during startup (udevsettle)=
 
-Currently, while running in "Permissive" mode, and with the default
-cache_threshold value of 512:
+>> wile creating symlinks into /dev/disk/by-uuid/...
+>> following:
+>>
+>> audit(1195744042.060:3): avc:  denied  { relabelfrom } for  pid=3D836 =
+comm=3D"udevd" name=3D"44517f56-2445-4330-bce7-5168aa534c1c" dev=3Dtmpfs =
+ino=3D1646 scontext=3Dsystem_u:system_r:udev_t:s0-s0:c0.c1023 tcontext=3D=
+system_u:object_r:device_t:s0 tclass=3Dlnk_file
+>> audit(1195744042.060:4): avc:  denied  { relabelto } for  pid=3D836 co=
+mm=3D"udevd" name=3D"44517f56-2445-4330-bce7-5168aa534c1c" dev=3Dtmpfs in=
+o=3D1646 scontext=3Dsystem_u:system_r:udev_t:s0-s0:c0.c1023 tcontext=3Dsy=
+stem_u:object_r:device_t:s0 tclass=3Dlnk_file
+>>
+>> Attached patch solves this.
+>> Can be merged into refpolicy please?
+>=20
+> This is interesting, it isn't seen on other distros.  Perhaps it has to=
 
-- if a violation is attempted, I see a deny event only once in the
-audit.log file ! Successive violation attempts within the same session
-are NOT logged in the audit.log file  :(  I need to get a DENY for every
-violation attempt during runtime !
+> do with the way debian sets up tmpfs /dev before udev starts?
 
-- When I run in "Enforcing" mode, every single violation does get logged
-in the audit.log file. But at this time, lets just say I CANT afford to
-run in Enforcing mode ! I must run in Permissive mode for now !
+I get similar messages: note that the contexts being relabelled from and =
+to
+are the same.
 
-- If I change the cache_threshold to 0, every single violation attempt
-does get logged, but I also get some other useless frequent periodic
-violations. Besides, it seems to have performance impacts of course...
+I had a look, and the symlinks are created by udev running in the initram=
+fs,
+then the tmpfs /dev is mount --moved into the main root.  No labelling is=
 
-Therefore, I am looking for any other good way to generate a deny in the
-audit.log for every violation attempt. But I cant change to Enforcing,
-and I would prefer not to modify the cache_threshold.
+done yet because no policy has been loaded.  Then when the main udev star=
+ts
+up it replays the coldplug events.  When it comes to create the symlink
+again, it notices that it is already there and calls lsetfilecon.
 
-Please help. Thanks,
+Should udev or libselinux be checking whether it will be relabelling file=
+s
+to their existing label?  And indeed, it's not clear to me why udev shoul=
+d
+be calling lsetfilecon on existing symlinks at all.
 
-- Rezaul.
-
-
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: Thursday, October 18, 2007 8:14 AM
-To: Hasan Rezaul-CHR010
-Cc: Eric Paris; Daniel J Walsh; selinux@tycho.nsa.gov
-Subject: RE: Recurring SELinux events for similar violations...
-
-On Wed, 2007-10-17 at 18:22 -0400, Hasan Rezaul-CHR010 wrote:
-> Yes, I am running in "Permissive" mode right now, just for testing
-> purposes.
-> 
-> If this is by design, is there any way I can force SELinux to log
-every
-> denial even in Permissive mode ?
-
-It is by design, as otherwise you could end up with an unending stream
-of duplicate denials since the application will keep on processing
-(since the denials are not enforced), and thus flood the audit system
-and logs with redundant information.
-
-However, the denial will re-appear if the AVC entry is evicted.  You can
-manually flush the AVC by:
-- toggling enforcing mode (e.g. setenforce 1; setenforce 0),
-- setting a boolean (e.g. setsebool <somebool>=<somevalue>),
-- reloading policy (e.g. /usr/sbin/load_policy)
-
-Or you should be able to effectively turn off caching by setting the
-cache threshold down (performance will naturally suffer as a result):
-echo 0 > /selinux/avc/cache_threshold
-cat /selinux/avc/cache_threshold
+--=20
+Martin Orr
 
 
-> Thanks,
-> 
-> - Rezaul.
->   
-> 
-> -----Original Message-----
-> From: Eric Paris [mailto:eparis@parisplace.org] 
-> Sent: Wednesday, October 17, 2007 5:19 PM
-> To: Hasan Rezaul-CHR010
-> Cc: Stephen Smalley; Daniel J Walsh; selinux@tycho.nsa.gov
-> Subject: Re: Recurring SELinux events for similar violations...
-> 
-> Are you running without enforcing just for testing?  When you turn off
-> enforcing it only logs once (by design) but I think it should log the
-> denial every single time in enforcing mode.
-> 
-> -Eric
-> 
-> On 10/17/07, Hasan Rezaul-CHR010 <CHR010@motorola.com> wrote:
-> > Hi All,
-> >
-> > I am using a Fedora 6 STRICT policy as my base, and have written
-some
-> > additional custom policies on top.
-> >
-> > For example, I have allowed certain domains (e.g. staff_t) to modify
-> > file types of  etc_t
-> > And I have disallowed other domains (e.g. user_t) to modify file
-types
-> > of etc_t.
-> >
-> > When user_t makes the first attempt to modify an etc_t file, I do
-get
-> > DENY events  :-)
-> >
-> > But subsequent attempts by user_t to modify etc_t files  *DO NOT*
-> > generate any more events ?!?
-> >
-> > - Is this by design ???
-> >
-> > - Is there something I can do such that  EVERY time user_t  attempts
-> to
-> > modify a file type etc_t , I will get a corresponding DENY ?
-> >
-> > - In other words, I would like every violation attempt to be
-reported
-> in
-> > the audit.log file, even if the same violation occurs multiple times
-> in
-> > the same session.
-> >
-> > Thanks in advance,
-> >
-> > - Rezaul.
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing
-> list.
-> > If you no longer wish to subscribe, send mail to
-> majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> >
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing
-list.
-> If you no longer wish to subscribe, send mail to
-majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+--=_caligula-4864-1196366823-0001-2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Transfer-Encoding: 7bit
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
+iD8DBQFHTxvZZ6a/BjxtAMARAnspAJ4/3oHmTYt2xCUmBaN2iwzsE+CC2wCg8dCc
+43KiHU+mSzWwTd9iNqBCfZM=
+=lIfa
+-----END PGP SIGNATURE-----
+
+--=_caligula-4864-1196366823-0001-2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
