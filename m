@@ -1,375 +1,107 @@
-Subject: Re: PATCH: peersid capability support
+Subject: RE: Recurring SELinux events for similar violations...
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: tmiller@tresys.com
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
-        Paul Moore <paul.moore@hp.com>
-In-Reply-To: <200711291927.lATJRixF021978@rawhidevm-targeted.columbia.tresys.com>
-References: 
-	 <200711291927.lATJRixF021978@rawhidevm-targeted.columbia.tresys.com>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D042DC13A@de01exm68.ds.mot.com>
+References: <C3357D99.2F091%csellers@tresys.com>
+	 <1192356878.3376.3.camel@vogon> <47135FCE.5000403@redhat.com>
+	 <1192467177.28762.7.camel@blentz>
+	 <1192467538.29203.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <4713B257.9020409@redhat.com>
+	 <1192473631.29203.56.camel@moss-spartans.epoch.ncsc.mil>
+	 <1192475354.2910.14.camel@localhost.localdomain>
+	 <1192650454.20908.30.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D040E2506@de01exm68.ds.mot.com>
+	 <7e0fb38c0710171518r645c1ce1l3e0653109f2d27b2@mail.gmail.com>
+	 <D06FE0A2807BC145B0D38744789D4F5D040E251B@de01exm68.ds.mot.com>
+	 <1192713224.32671.11.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D042DC0D5@de01exm68.ds.mot.com>
+	 <1196367400.24040.59.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D042DC13A@de01exm68.ds.mot.com>
 Content-Type: text/plain
-Date: Thu, 29 Nov 2007 16:24:35 -0500
-Message-Id: <1196371475.24040.74.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 29 Nov 2007 16:32:22 -0500
+Message-Id: <1196371942.24040.83.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-11-29 at 14:27 -0500, tmiller@tresys.com wrote:
-> This is a reworking of the peersid capability patch Joshua sent out
-> a few weeks ago.  This version requires added explicit declaration of
-> capabilities in the policy.
+On Thu, 2007-11-29 at 16:26 -0500, Hasan Rezaul-CHR010 wrote:
+> Hi Stephen,
 > 
-> I've used the same strings that Paul's kernel diff used (there is
-> currently just a single capability).
+> Thanks as always for your response  :-)
 > 
-> Note that capability declarations are not limited to base.conf /
-> policy.conf as we would like to eventually get rid of the base vs. module
-> distinction.
+> I have already created a set of allow rules necessary. So we're using
+> SELinux is to capture info about EVERY attempt an unauthorized/rogue
+> user makes to access something they're NOT supposed to! So the reason I
+> want to see the DENY events in audit.log, is *NOT* for creating
+> corresponding allow rules. 
+> 
+> The "frequent periodic violation" I was referring to is as follows:
+> 
+> type=AVC msg=audit(1196369398.427:126): avc:  denied  { read } for
+> pid=1040 com
+> m="klogd" name="kmsg" dev=proc ino=-268435446
+> scontext=system_u:system_r:kernel_
+> t:s0 tcontext=system_u:object_r:proc_kmsg_t:s0 tclass=file
 
-Taking the union of the capabilities at link time seems worrisome to me.
-I'd be more inclined to require equivalence or take the intersection.
+So you never transitioned out of kernel_t (initial kernel task and
+kernel threads) into appropriate domains for userland (starting with a
+transition to init_t upon /sbin/init, init_exec_t).  Normally klogd
+would run in klogd_t, and the above would be allowed by policy.
 
+> With [ /avc/cache_threshold = 0 ], the above event keeps popping up in
+> audit.log every second !  I would like to create an allow rule, to get
+> rid of this event. When I used audit2allow to generate the allow rule, I
+> got:
 > 
-> Signed-off-by: Todd C. Miller <tmiller@tresys.com>
+> allow kernel_t proc_kmsg_t:file read
 > 
-> --
 > 
-> Index: trunk/libsepol/include/sepol/policydb/polcaps.h
-> ===================================================================
-> --- trunk.orig/libsepol/include/sepol/policydb/polcaps.h
-> +++ trunk/libsepol/include/sepol/policydb/polcaps.h
-> @@ -12,3 +12,17 @@ enum {
->  extern int sepol_polcap_getnum(const char *name);
->  
->  #endif /* _SEPOL_POLICYDB_POLCAPS_H_ */
-> +#ifndef _SEPOL_POLICYDB_POLCAPS_H_
-> +#define _SEPOL_POLICYDB_POLCAPS_H_
-> +
-> +/* Policy capabilities */
-> +enum {
-> +	POLICYDB_CAPABILITY_NETPEER,
-> +	__POLICYDB_CAPABILITY_MAX
-> +};
-> +#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-> +
-> +/* Convert a capability name to number. */
-> +extern int sepol_polcap_getnum(const char *name);
-> +
-> +#endif /* _SEPOL_POLICYDB_POLCAPS_H_ */
-> Index: trunk/libsepol/include/sepol/policydb/policydb.h
-> ===================================================================
-> --- trunk.orig/libsepol/include/sepol/policydb/policydb.h
-> +++ trunk/libsepol/include/sepol/policydb/policydb.h
-> @@ -468,6 +468,8 @@ typedef struct policydb {
->  
->  	ebitmap_t *attr_type_map;	/* not saved in the binary policy */
->  
-> +	ebitmap_t policycaps;
-> +
->  	unsigned policyvers;
->  
->  	unsigned handle_unknown;
-> @@ -584,10 +586,11 @@ extern int policydb_write(struct policyd
->  #define POLICYDB_VERSION_MLS		19
->  #define POLICYDB_VERSION_AVTAB		20
->  #define POLICYDB_VERSION_RANGETRANS	21
-> +#define POLICYDB_VERSION_POLCAP		22
->  
->  /* Range of policy versions we understand*/
->  #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
-> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
-> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
->  
->  /* Module versions and specific changes*/
->  #define MOD_POLICYDB_VERSION_BASE	   4
-> @@ -595,9 +598,10 @@ extern int policydb_write(struct policyd
->  #define MOD_POLICYDB_VERSION_MLS	   5
->  #define MOD_POLICYDB_VERSION_RANGETRANS	   6
->  #define MOD_POLICYDB_VERSION_MLS_USERS	   6
-> +#define MOD_POLICYDB_VERSION_POLCAP	   7
->  
->  #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
-> -#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_MLS_USERS
-> +#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_POLCAP
->  
->  #define POLICYDB_CONFIG_MLS    1
->  
-> Index: trunk/libsepol/src/polcaps.c
-> ===================================================================
-> --- trunk.orig/libsepol/src/polcaps.c
-> +++ trunk/libsepol/src/polcaps.c
-> @@ -22,3 +22,27 @@ int sepol_polcap_getnum(const char *name
->  	}
->  	return -1;
->  }
-> +/*
-> + * Policy capability support functions
-> + */
-> +
-> +#include <string.h>
-> +#include <sepol/policydb/polcaps.h>
-> +
-> +static const char *polcap_names[] = {
-> +	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
-> +	NULL
-> +};
-> +
-> +int sepol_polcap_getnum(const char *name)
-> +{
-> +	int capnum;
-> +
-> +	for (capnum = 0; capnum <= POLICYDB_CAPABILITY_MAX; capnum++) {
-> +		if (polcap_names[capnum] == NULL)
-> +			continue;
-> +		if (strcasecmp(polcap_names[capnum], name) == 0)
-> +			return capnum;
-> +	}
-> +	return -1;
-> +}
-> Index: trunk/libsepol/src/policydb.c
-> ===================================================================
-> --- trunk.orig/libsepol/src/policydb.c
-> +++ trunk/libsepol/src/policydb.c
-> @@ -99,6 +99,12 @@ static struct policydb_compat_info polic
->  	 .ocon_num = OCON_NODE6 + 1,
->  	 },
->  	{
-> +	 .type = POLICY_KERN,
-> +	 .version = POLICYDB_VERSION_POLCAP,
-> +	 .sym_num = SYM_NUM,
-> +	 .ocon_num = OCON_NODE6 + 1,
-> +	 },
-> +	{
->  	 .type = POLICY_BASE,
->  	 .version = MOD_POLICYDB_VERSION_BASE,
->  	 .sym_num = SYM_NUM,
-> @@ -117,6 +123,12 @@ static struct policydb_compat_info polic
->  	 .ocon_num = OCON_NODE6 + 1,
->  	 },
->  	{
-> +	 .type = POLICY_BASE,
-> +	 .version = MOD_POLICYDB_VERSION_POLCAP,
-> +	 .sym_num = SYM_NUM,
-> +	 .ocon_num = OCON_NODE6 + 1,
-> +	 },
-> +	{
->  	 .type = POLICY_MOD,
->  	 .version = MOD_POLICYDB_VERSION_BASE,
->  	 .sym_num = SYM_NUM,
-> @@ -132,6 +144,12 @@ static struct policydb_compat_info polic
->  	 .type = POLICY_MOD,
->  	 .version = MOD_POLICYDB_VERSION_MLS_USERS,
->  	 .sym_num = SYM_NUM,
-> +	 .ocon_num = 0
-> +	 },
-> +	{
-> +	 .type = POLICY_MOD,
-> +	 .version = MOD_POLICYDB_VERSION_POLCAP,
-> +	 .sym_num = SYM_NUM,
->  	 .ocon_num = 0},
->  };
->  
-> @@ -447,6 +465,8 @@ int policydb_init(policydb_t * p)
->  
->  	memset(p, 0, sizeof(policydb_t));
->  
-> +	ebitmap_init(&p->policycaps);
-> +
->  	for (i = 0; i < SYM_NUM; i++) {
->  		p->sym_val_to_name[i] = NULL;
->  		rc = symtab_init(&p->symtab[i], symtab_sizes[i]);
-> @@ -971,6 +991,8 @@ void policydb_destroy(policydb_t * p)
->  	if (!p)
->  		return;
->  
-> +	ebitmap_destroy(&p->policycaps);
-> +
->  	symtabs_destroy(p->symtab);
->  
->  	for (i = 0; i < SYM_NUM; i++) {
-> @@ -3194,6 +3216,16 @@ int policydb_read(policydb_t * p, struct
->  		}
->  	}
->  
-> +	if ((p->policyvers >= POLICYDB_VERSION_POLCAP &&
-> +	     p->policy_type == POLICY_KERN) ||
-> +	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-> +	     p->policy_type == POLICY_BASE) ||
-> +	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-> +	     p->policy_type == POLICY_MOD)) {
-> +		if (ebitmap_read(&p->policycaps, fp))
-> +			goto bad;
-> +	}
-> +
->  	if (policy_type == POLICY_KERN) {
->  		p->type_attr_map = malloc(p->p_types.nprim * sizeof(ebitmap_t));
->  		p->attr_type_map = malloc(p->p_types.nprim * sizeof(ebitmap_t));
-> Index: trunk/libsepol/src/expand.c
-> ===================================================================
-> --- trunk.orig/libsepol/src/expand.c
-> +++ trunk/libsepol/src/expand.c
-> @@ -2252,6 +2252,12 @@ int expand_module(sepol_handle_t * handl
->  	out->mls = base->mls;
->  	out->handle_unknown = base->handle_unknown;
->  
-> +	/* Copy policy capabilities */
-> +	if (ebitmap_cpy(&out->policycaps, &base->policycaps)) {
-> +		ERR(handle, "Out of memory!");
-> +		goto cleanup;
-> +	}
-> +
->  	if ((state.typemap =
->  	     (uint32_t *) calloc(state.base->p_types.nprim,
->  				 sizeof(uint32_t))) == NULL) {
-> @@ -2418,6 +2424,7 @@ int expand_module(sepol_handle_t * handl
->  	retval = 0;
->  
->        cleanup:
-> +	ebitmap_destroy(&out->policycaps);
->  	free(state.typemap);
->  	free(state.boolmap);
->  	return retval;
-> Index: trunk/libsepol/src/write.c
-> ===================================================================
-> --- trunk.orig/libsepol/src/write.c
-> +++ trunk/libsepol/src/write.c
-> @@ -1650,6 +1650,16 @@ int policydb_write(policydb_t * p, struc
->  		}
->  	}
->  
-> +	if ((p->policyvers >= POLICYDB_VERSION_POLCAP &&
-> +	     p->policy_type == POLICY_KERN) ||
-> +	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-> +	     p->policy_type == POLICY_BASE) ||
-> +	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-> +	     p->policy_type == POLICY_MOD)) {
-> +		if (ebitmap_write(&p->policycaps, fp) == -1)
-> +			return POLICYDB_ERROR;
-> +	}
-> +
->  	if (p->policy_type == POLICY_KERN
->  	    && p->policyvers >= POLICYDB_VERSION_AVTAB) {
->  		for (i = 0; i < p->p_types.nprim; i++) {
-> Index: trunk/libsepol/src/link.c
-> ===================================================================
-> --- trunk.orig/libsepol/src/link.c
-> +++ trunk/libsepol/src/link.c
-> @@ -2177,8 +2177,14 @@ int link_modules(sepol_handle_t * handle
->  		goto cleanup;
->  	}
->  
-> -	/* copy all types, declared and required */
-> +	/* copy all types, declared, required and polcaps */
->  	for (i = 0; i < len; i++) {
-> +		ret = ebitmap_union(&state.base->policycaps,
-> +				    &modules[i]->policy->policycaps);
-> +		if (ret) {
-> +			retval = ret;
-> +			goto cleanup;
-> +		}
->  		state.cur = modules[i];
->  		state.cur_mod_name = modules[i]->policy->name;
->  		ret =
-> Index: trunk/checkpolicy/policy_scan.l
-> ===================================================================
-> --- trunk.orig/checkpolicy/policy_scan.l
-> +++ trunk/checkpolicy/policy_scan.l
-> @@ -201,6 +201,8 @@ h1 |
->  H1				{ return(H1); }
->  h2 |
->  H2				{ return(H2); }
-> +policycap |
-> +POLICYCAP			{ return(POLICYCAP);}
->  "/"({alnum}|[_.-/])*	        { return(PATH); }
->  {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
->  {digit}+                        { return(NUMBER); }
-> Index: trunk/checkpolicy/policy_parse.y
-> ===================================================================
-> --- trunk.orig/checkpolicy/policy_parse.y
-> +++ trunk/checkpolicy/policy_parse.y
-> @@ -47,6 +47,7 @@
->  #include <sepol/policydb/conditional.h>
->  #include <sepol/policydb/flask.h>
->  #include <sepol/policydb/hierarchy.h>
-> +#include <sepol/policydb/polcaps.h>
->  #include "queue.h"
->  #include "checkpolicy.h"
->  #include "module_compiler.h"
-> @@ -198,6 +199,7 @@ typedef int (* require_func_t)();
->  %token IPV4_ADDR
->  %token IPV6_ADDR
->  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
-> +%token POLICYCAP
->  
->  %left OR
->  %left XOR
-> @@ -323,6 +325,7 @@ te_decl			: attribute_def
->                          | transition_def
->                          | range_trans_def
->                          | te_avtab_def
-> +			| policycap_def
->  			;
->  attribute_def           : ATTRIBUTE identifier ';'
->                          { if (define_attrib()) return -1;}
-> @@ -765,6 +768,9 @@ number			: NUMBER 
->  ipv6_addr		: IPV6_ADDR
->  			{ if (insert_id(yytext,0)) return -1; }
->  			;
-> +policycap_def		: POLICYCAP identifier ';'
-> +			{if (define_polcap()) return -1;}
-> +			;
->  
->  /*********** module grammar below ***********/
->  
-> @@ -962,6 +968,44 @@ static int define_class(void)
->  	return -1;
->  }
->  
-> +static int define_polcap(void)
-> +{
-> +	char *id = 0;
-> +	int capnum;
-> +
-> +	if (pass == 2) {
-> +		id = queue_remove(id_queue);
-> +		free(id);
-> +		return 0;
-> +	}
-> +
-> +	id = (char *)queue_remove(id_queue);
-> +	if (!id) {
-> +		yyerror("no capability name for policycap definition?");
-> +		goto bad;
-> +	}
-> +
-> +	/* Check for valid cap name -> number mapping */
-> +	capnum = sepol_polcap_getnum(id);
-> +	if (capnum < 0) {
-> +		yyerror2("invalid policy capability name %s", id);
-> +		goto bad;
-> +	}
-> +
-> +	/* Store it */
-> +	if (ebitmap_set_bit(&policydbp->policycaps, capnum, TRUE)) {
-> +		yyerror("out of memory");
-> +		goto bad;
-> +	}
-> +
-> +	free(id);
-> +	return 0;
-> +
-> +      bad:
-> +	free(id);
-> +	return -1;
-> +}
-> +
->  static int define_initial_sid(void)
->  {
->  	char *id = 0;
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> However, the base policy I am using as my starting policy is the
+> *STRICT* Fedora Core 6 policy. And with that in place, when I try to
+> insert this allow rule using (semodule -i myPolicy.pp), I get an
+> assertion failure for that allow rule!!! So seems like the base policy
+> wont let me insert this allow rule  :-(
+
+Which is good, because it indicates a more fundamental problem - you've
+got a mislabeled klogd process.
+
+But suppose that wasn't the case and you truly wanted to allow that.
+Here is how you would do it:
+1) Look for a refpolicy interface that grants access to kmsg.  In a
+modern policy, that appears to be kernel_read_messages().  Then write
+your policy module using that interface, ala:
+$ vi myklogd.te
+policy_module(myklogd, 1.0)
+require {
+	type kernel_t;
+}
+kernel_read_messages(kernel_t)
+:wq
+$ make -f /usr/share/selinux/devel/Makefile
+$ su
+# /usr/sbin/semodule -i myklogd.pp
+
+The refpolicy interface contains the 'magic' needed to override this
+assertion, namely adding an attribute to the kernel_t type.  This
+ensures that you made a conscious decision to give access to this
+security-relevant resource and didn't accidentally do it via
+audit2allow.
+
+-or-
+2) Disable assertion checking by libsemanage (not recommended, mostly
+for developers, but if you need it, it exists):
+$ su 
+# vi /etc/selinux/semanage.conf
+:$
+i
+expand-check=0
+:wq
+
+> So that is my dilemma.
+> With cache_threshold = 0,  I get all the denies I want to see. But I
+> also get these extra denies that I cant get rid off  :-(
+
 -- 
 Stephen Smalley
 National Security Agency
