@@ -1,63 +1,123 @@
-Date: Thu, 29 Nov 2007 09:38:15 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Crispin Cowan <crispin@crispincowan.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@manicmethod.com>,
-        Mark Nelson <markn@au1.ibm.com>, containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        menage@google.com, James Morris <jmorris@namei.org>
-Subject: Re: [PATCH 2/2] hijack: update task_alloc_security
-Message-ID: <20071129153815.GA8140@sergelap.austin.ibm.com>
-References: <474B78CB.5070607@au1.ibm.com> <474B7A51.3080300@au1.ibm.com> <474BB095.8080302@manicmethod.com> <1196174188.3925.32.camel@moss-spartans.epoch.ncsc.mil> <20071127154356.GA32362@sergelap.austin.ibm.com> <474D0188.2040600@crispincowan.com> <20071128145422.GC3820@sergelap.austin.ibm.com> <474E3E4E.3060908@crispincowan.com>
+Message-ID: <474EDDDA.9040305@manicmethod.com>
+Date: Thu, 29 Nov 2007 10:42:18 -0500
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <474E3E4E.3060908@crispincowan.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [patch] libsepol: clarify and reduce neverallow error reporting
+References: <1196347937.24040.10.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1196347937.24040.10.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Crispin Cowan (crispin@crispincowan.com):
-> Serge E. Hallyn wrote:
-> > Quoting Crispin Cowan (crispin@crispincowan.com):
-> >   
-> >> Is there to be an LSM hook, so that modules can decide on an arbitrary
-> >> decision of whether to allow a hijack? So that this "do the right
-> >> SELinux" thing can be generalized for all LSMs to do the right thing.
-> >>     
-> > Currently:
-> >
-> > 	1. the permission is granted through ptrace
-> > 	2. the lsm knows a hijack is going in security_task_alloc()
-> > 		when task != current
-> >
-> > so the lsm has all the information it needs.  But I have no objection
-> > to a separate security_task_hijack() hook if you find the ptrace hook
-> > insufficient.
-> >   
-> I find that ptrace, specifically CAP_SYS_PTRACE, is overloaded. AppArmor
-> is having problems because we have to choose between granting
-> cap_sys_ptrace, or not allowing the process to read /proc/pid/self &
-> such like. So there, the problem is that we have to grant too much power
-> to a process to just let it read some /proc stuff about itself.
-> 
-> Here the problem appears to be the other way. cap_sys_ptrace is powerful
-> enough to mess with other user's processes on the system, but if ptrace
-> gives you hijack, then that seems to give you the power to control
-> processes in someone else's namespace.
+Stephen Smalley wrote:
+> Alter the error reporting for neverallow failures to be clearer, i.e.
+> use the word neverallow instead of assertion and don't report a line number
+> if we don't have that information, and bail on the first such error rather
+> than flooding the user with multiple ones, since any such error is fatal.
+>
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+>
+>   
 
-The user namespace patchset I'm working on right now to start having
-signals respect user namespaces introduces CAP_NS_OVERRIDE.  Once that
-is in, then hijack would require CAP_NS_OVERRIDE|CAP_SYS_PTRACE.
+Acked-By: Joshua Brindle <method@manicmethod.com>
 
-Of course, since we're considering only allowing HIJACK_NS which is
-only allowed into a different namespace, hijack would then always
-require CAP_NS_OVERRIDE...
 
-Does that suffice?
+> ---
+>
+>  libsepol/src/assertion.c |   47 ++++++++++++++++++++++++++++-------------------
+>  1 file changed, 28 insertions(+), 19 deletions(-)
+>
+> Index: trunk/libsepol/src/assertion.c
+> ===================================================================
+> --- trunk/libsepol/src/assertion.c	(revision 2690)
+> +++ trunk/libsepol/src/assertion.c	(working copy)
+> @@ -59,11 +59,21 @@
+>  	return 0;
+>  
+>        err:
+> -	ERR(handle, "assertion on line %lu violated by allow %s %s:%s {%s };",
+> -	    line, p->p_type_val_to_name[stype], p->p_type_val_to_name[ttype],
+> -	    p->p_class_val_to_name[curperm->class - 1],
+> -	    sepol_av_to_string(p, curperm->class,
+> -			       node->datum.data & curperm->data));
+> +	if (line) {
+> +		ERR(handle, "neverallow on line %lu violated by allow %s %s:%s {%s };",
+> +		    line, p->p_type_val_to_name[stype], 
+> +		    p->p_type_val_to_name[ttype],
+> +		    p->p_class_val_to_name[curperm->class - 1],
+> +		    sepol_av_to_string(p, curperm->class,
+> +				       node->datum.data & curperm->data));
+> +	} else {
+> +		ERR(handle, "neverallow violated by allow %s %s:%s {%s };",
+> +		    p->p_type_val_to_name[stype], 
+> +		    p->p_type_val_to_name[ttype],
+> +		    p->p_class_val_to_name[curperm->class - 1],
+> +		    sepol_av_to_string(p, curperm->class,
+> +				       node->datum.data & curperm->data));
+> +	}
+>  	return -1;
+>  }
+>  
+> @@ -74,7 +84,7 @@
+>  	avtab_t te_avtab, te_cond_avtab;
+>  	ebitmap_node_t *snode, *tnode;
+>  	unsigned int i, j;
+> -	int errors = 0;
+> +	int rc;
+>  
+>  	if (!avrules) {
+>  		/* Since assertions are stored in avrules, if it is NULL
+> @@ -111,32 +121,31 @@
+>  			if (a->flags & RULE_SELF) {
+>  				if (check_assertion_helper
+>  				    (handle, p, &te_avtab, &te_cond_avtab, i, i,
+> -				     a->perms, a->line))
+> -					errors++;
+> +				     a->perms, a->line)) {
+> +					rc = -1;
+> +					goto out;
+> +				}
+>  			}
+>  			ebitmap_for_each_bit(ttypes, tnode, j) {
+>  				if (!ebitmap_node_get_bit(tnode, j))
+>  					continue;
+>  				if (check_assertion_helper
+>  				    (handle, p, &te_avtab, &te_cond_avtab, i, j,
+> -				     a->perms, a->line))
+> -					errors++;
+> +				     a->perms, a->line)) {
+> +					rc = -1;
+> +					goto out;
+> +				}
+>  			}
+>  		}
+>  	}
+>  
+> -	if (errors) {
+> -		ERR(handle, "%d assertion violations occured", errors);
+> -		avtab_destroy(&te_avtab);
+> -		avtab_destroy(&te_cond_avtab);
+> -		return -1;
+> -	}
+> -
+> +	rc = 0;
+> +out:
+>  	avtab_destroy(&te_avtab);
+>  	avtab_destroy(&te_cond_avtab);
+> -	return 0;
+> +	return rc;
+>  
+>        oom:
+> -	ERR(handle, "Out of memory - unable to check assertions");
+> +	ERR(handle, "Out of memory - unable to check neverallows");
+>  	return -1;
+>  }
+>
+>   
 
-If you still prefer an LSM hook, we can add that.
 
-thanks,
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
