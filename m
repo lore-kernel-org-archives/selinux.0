@@ -1,146 +1,157 @@
-Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lATGH1xx013009
-	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2007 11:17:01 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with SMTP id lATGH1tu009340
-	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2007 16:17:01 GMT
-Message-ID: <474EE5F9.5000300@manicmethod.com>
-Date: Thu, 29 Nov 2007 11:16:57 -0500
-From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Chad Sellers <csellers@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH v2] Initial policy load from load_policy
-References: <4739FA01.9030804@tresys.com>
-In-Reply-To: <4739FA01.9030804@tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: Recurring SELinux events for similar violations...
+Date: Thu, 29 Nov 2007 15:06:15 -0500
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D042DC0D5@de01exm68.ds.mot.com>
+in-reply-to: <1192713224.32671.11.camel@moss-spartans.epoch.ncsc.mil>
+References: <C3357D99.2F091%csellers@tresys.com> <1192356878.3376.3.camel@vogon> <47135FCE.5000403@redhat.com> <1192467177.28762.7.camel@blentz> <1192467538.29203.52.camel@moss-spartans.epoch.ncsc.mil> <4713B257.9020409@redhat.com> <1192473631.29203.56.camel@moss-spartans.epoch.ncsc.mil> <1192475354.2910.14.camel@localhost.localdomain> <1192650454.20908.30.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D040E2506@de01exm68.ds.mot.com> <7e0fb38c0710171518r645c1ce1l3e0653109f2d27b2@mail.gmail.com> <D06FE0A2807BC145B0D38744789D4F5D040E251B@de01exm68.ds.mot.com> <1192713224.32671.11.camel@moss-spartans.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "Daniel J Walsh" <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chad Sellers wrote:
-> Updated to include error message on loading failure in enforcing mode.
->
-> The below patch adds a -i option to load_policy to perform the initial 
-> policy load. The inital policy load is currently done in systems using 
-> sysvinit by init itself, which then re-exec's itself. Ubuntu uses 
-> upstart instead of sysvinit. In talks with the Ubuntu folks, they'd 
-> prefer to load policy from initramfs before upstart starts rather than 
-> patching upstart.
->
-> Signed-off-by: Chad Sellers <csellers@tresys.com>
+Hi All,
 
-Merged as of policycoreutils 2.0.32
+So here is my problem statement:
 
-Your patch was somehow malformed so I merged the following (which should 
-be identical):
+While running in "Permissive" Mode, and keeping the
+/selinux/avc/cache_threshold at the default 512 value, is there any
+*other* way to make sure that  EVERY  SELinux violation attempt still
+automatically gets logged into the audit.log file ???
 
-Index: policycoreutils/load_policy/load_policy.c
-===================================================================
---- policycoreutils/load_policy/load_policy.c   (revision 2677)
-+++ policycoreutils/load_policy/load_policy.c   (working copy)
-@@ -19,13 +19,13 @@
- 
- void usage(char *progname)
- {
--       fprintf(stderr, _("usage:  %s [-q]\n"), progname);
-+       fprintf(stderr, _("usage:  %s [-qi]\n"), progname);
-        exit(1);
- }
- 
- int main(int argc, char **argv)
- {
--       int ret, opt, quiet = 0, nargs;
-+       int ret, opt, quiet = 0, nargs, init=0, enforce=0;
- 
- #ifdef USE_NLS
-        setlocale(LC_ALL, "");
-@@ -33,7 +33,7 @@
-        textdomain(PACKAGE);
- #endif
- 
--       while ((opt = getopt(argc, argv, "bq")) > 0) {
-+       while ((opt = getopt(argc, argv, "bqi")) > 0) {
-                switch (opt) {
-                case 'b':
-                        fprintf(stderr, "%s:  Warning! The -b option is no longer supported, booleans are always preserved across reloads.  Continuing...\n",
-@@ -43,6 +43,9 @@
-                        quiet = 1;
-                        sepol_debug(0);
-                        break;
-+               case 'i':
-+                       init = 1;
-+                       break;
-                default:
-                        usage(argv[0]);
-                }
-@@ -61,8 +64,28 @@
-                        "%s:  Warning!  Boolean file argument (%s) is no longer supported, installed booleans file is always used.  Continuing...\n",
-                        argv[0], argv[optind++]);
-        }
--
--       ret = selinux_mkload_policy(1);
-+       if (init) {
-+               if (is_selinux_enabled() == 1) {
-+                       /* SELinux is already enabled, we should not do an initial load again */
-+                       fprintf(stderr,
-+                                       _("%s:  Policy is already loaded and initial load requested\n"),
-+                                       argv[0]);
-+                       exit(2);
-+               }
-+               ret = selinux_init_load_policy(&enforce);
-+               if (ret != 0 ) {
-+                       if (enforce > 0) {
-+                               /* SELinux in enforcing mode but load_policy failed */
-+                               fprintf(stderr,
-+                                               _("%s:  Can't load policy and enforcing mode requested:  %s\n"),
-+                                               argv[0], strerror(errno));
-+                               exit(3);
-+                       }
-+               }
-+       }
-+       else {
-+               ret = selinux_mkload_policy(1);
-+       }
-        if (ret < 0) {
-                fprintf(stderr, _("%s:  Can't load policy:  %s\n"),
-                        argv[0], strerror(errno));
-Index: policycoreutils/load_policy/load_policy.8
-===================================================================
---- policycoreutils/load_policy/load_policy.8   (revision 2677)
-+++ policycoreutils/load_policy/load_policy.8   (working copy)
-@@ -4,7 +4,7 @@
- 
- .SH SYNOPSIS
- .B load_policy 
--[-q]
-+[-qi]
- .br
- .SH DESCRIPTION
- .PP
-@@ -17,7 +17,23 @@
- .TP
- .B \-q
- suppress warning messages.
-+.TP
-+.B \-i
-+inital policy load. Only use this if this is the first time policy is being loaded since boot (usually called from initramfs).
- 
-+.SH "EXIT STATUS"
-+.TP
-+.B 0
-+Success
-+.TP
-+.B 1
-+Invalid option
-+.TP
-+.B 2
-+Policy load failed
-+.TP
-+.B 3
-+Initial policy load failed and enforcing mode requested
- .SH SEE ALSO
- .B booleans
- (8),
+Currently, while running in "Permissive" mode, and with the default
+cache_threshold value of 512:
+
+- if a violation is attempted, I see a deny event only once in the
+audit.log file ! Successive violation attempts within the same session
+are NOT logged in the audit.log file  :(  I need to get a DENY for every
+violation attempt during runtime !
+
+- When I run in "Enforcing" mode, every single violation does get logged
+in the audit.log file. But at this time, lets just say I CANT afford to
+run in Enforcing mode ! I must run in Permissive mode for now !
+
+- If I change the cache_threshold to 0, every single violation attempt
+does get logged, but I also get some other useless frequent periodic
+violations. Besides, it seems to have performance impacts of course...
+
+Therefore, I am looking for any other good way to generate a deny in the
+audit.log for every violation attempt. But I cant change to Enforcing,
+and I would prefer not to modify the cache_threshold.
+
+Please help. Thanks,
+
+- Rezaul.
+
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Thursday, October 18, 2007 8:14 AM
+To: Hasan Rezaul-CHR010
+Cc: Eric Paris; Daniel J Walsh; selinux@tycho.nsa.gov
+Subject: RE: Recurring SELinux events for similar violations...
+
+On Wed, 2007-10-17 at 18:22 -0400, Hasan Rezaul-CHR010 wrote:
+> Yes, I am running in "Permissive" mode right now, just for testing
+> purposes.
+> 
+> If this is by design, is there any way I can force SELinux to log
+every
+> denial even in Permissive mode ?
+
+It is by design, as otherwise you could end up with an unending stream
+of duplicate denials since the application will keep on processing
+(since the denials are not enforced), and thus flood the audit system
+and logs with redundant information.
+
+However, the denial will re-appear if the AVC entry is evicted.  You can
+manually flush the AVC by:
+- toggling enforcing mode (e.g. setenforce 1; setenforce 0),
+- setting a boolean (e.g. setsebool <somebool>=<somevalue>),
+- reloading policy (e.g. /usr/sbin/load_policy)
+
+Or you should be able to effectively turn off caching by setting the
+cache threshold down (performance will naturally suffer as a result):
+echo 0 > /selinux/avc/cache_threshold
+cat /selinux/avc/cache_threshold
+
+
+> Thanks,
+> 
+> - Rezaul.
+>   
+> 
+> -----Original Message-----
+> From: Eric Paris [mailto:eparis@parisplace.org] 
+> Sent: Wednesday, October 17, 2007 5:19 PM
+> To: Hasan Rezaul-CHR010
+> Cc: Stephen Smalley; Daniel J Walsh; selinux@tycho.nsa.gov
+> Subject: Re: Recurring SELinux events for similar violations...
+> 
+> Are you running without enforcing just for testing?  When you turn off
+> enforcing it only logs once (by design) but I think it should log the
+> denial every single time in enforcing mode.
+> 
+> -Eric
+> 
+> On 10/17/07, Hasan Rezaul-CHR010 <CHR010@motorola.com> wrote:
+> > Hi All,
+> >
+> > I am using a Fedora 6 STRICT policy as my base, and have written
+some
+> > additional custom policies on top.
+> >
+> > For example, I have allowed certain domains (e.g. staff_t) to modify
+> > file types of  etc_t
+> > And I have disallowed other domains (e.g. user_t) to modify file
+types
+> > of etc_t.
+> >
+> > When user_t makes the first attempt to modify an etc_t file, I do
+get
+> > DENY events  :-)
+> >
+> > But subsequent attempts by user_t to modify etc_t files  *DO NOT*
+> > generate any more events ?!?
+> >
+> > - Is this by design ???
+> >
+> > - Is there something I can do such that  EVERY time user_t  attempts
+> to
+> > modify a file type etc_t , I will get a corresponding DENY ?
+> >
+> > - In other words, I would like every violation attempt to be
+reported
+> in
+> > the audit.log file, even if the same violation occurs multiple times
+> in
+> > the same session.
+> >
+> > Thanks in advance,
+> >
+> > - Rezaul.
+> >
+> >
+> > --
+> > This message was distributed to subscribers of the selinux mailing
+> list.
+> > If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+> >
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing
+list.
+> If you no longer wish to subscribe, send mail to
+majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 
