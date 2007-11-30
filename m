@@ -1,53 +1,63 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Joshua Brindle <method@manicmethod.com>
-Subject: Re: PATCH: peersid capability support
-Date: Fri, 30 Nov 2007 09:47:37 -0500
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, tmiller@tresys.com,
-        selinux@tycho.nsa.gov
-References: <200711291927.lATJRixF021978@rawhidevm-targeted.columbia.tresys.com> <200711300929.22874.paul.moore@hp.com> <47502191.7050300@manicmethod.com>
-In-Reply-To: <47502191.7050300@manicmethod.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200711300947.37630.paul.moore@hp.com>
+Subject: Re: [patch] libsemanage:  clear errno ENOMEM from libsepol
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Joshua Brindle <method@manicmethod.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>
+In-Reply-To: <1196372482.24040.86.camel@moss-spartans.epoch.ncsc.mil>
+References: <1196372482.24040.86.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 30 Nov 2007 09:56:15 -0500
+Message-Id: <1196434575.10720.15.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 30 November 2007 9:43:29 am Joshua Brindle wrote:
-> Paul Moore wrote:
-> > On Thursday 29 November 2007 4:24:35 pm Stephen Smalley wrote:
-> >> On Thu, 2007-11-29 at 14:27 -0500, tmiller@tresys.com wrote:
-> >>> This is a reworking of the peersid capability patch Joshua sent out
-> >>> a few weeks ago.  This version requires added explicit declaration of
-> >>> capabilities in the policy.
-> >>>
-> >>> I've used the same strings that Paul's kernel diff used (there is
-> >>> currently just a single capability).
-> >>>
-> >>> Note that capability declarations are not limited to base.conf /
-> >>> policy.conf as we would like to eventually get rid of the base vs.
-> >>> module distinction.
-> >>
-> >> Taking the union of the capabilities at link time seems worrisome to me.
-> >> I'd be more inclined to require equivalence or take the intersection.
-> >
-> > I agree with Stephen, to allow a single module to set a capability bit
-> > without consideration for the rest of the loaded/installed modules could
-> > introduce some very weird behavior ... that is unless you policy folks
-> > have some freaky ability to peer* into the future ;)
-> >
-> > *intentional pun
->
-> Aside from this issue have you tried the patch against your kernel
-> patches? We did not test with your kernel, we inspected the policy
-> manually to ensure the ebitmap was set up correctly.
+On Thu, 2007-11-29 at 16:41 -0500, Stephen Smalley wrote:
+> On errors during libsepol processing (missing requirements, 
+> neverallow failure, etc), we are getting a bogus "Could not allocate memory"
+> message appended to the libsepol error message by libsemanage when
+> it reports strerror(errno), which was added to provide useful messages
+> on e.g. filesystem full or read-only filesystem errors.  It appears that
+> errno is getting set by glibc upon some memory allocations performed by
+> libsepol even when it ultimately succeeds.  So for now, clear such errnos
+> from libsepol - on real out of memory conditions, libsepol already tells
+> us that in its own error message.
+> 
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-No, not yet.  I was distracted by some audit issues (some related, others not 
-so much).  I'm going to try and building a patched toolchain/policy today ...
+I'm going to NAK my own patch ;)
 
+I'll investigate a better approach to handling this, as losing the errno
+doesn't seem good when there is truly an ENOMEM condition.  I'm still
+not 100% clear as to what precisely is setting it to ENOMEM, as we
+aren't getting any actual memory failures.
+
+> 
+> ---
+> 
+>  libsemanage/src/debug.c |    4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> Index: trunk/libsemanage/src/debug.c
+> ===================================================================
+> --- trunk/libsemanage/src/debug.c	(revision 2692)
+> +++ trunk/libsemanage/src/debug.c	(working copy)
+> @@ -103,6 +103,10 @@
+>  	if (!sh->msg_callback)
+>  		return;
+>  
+> +	/* Clear transient memory allocation error, non-fatal. */
+> +	if (errno == ENOMEM)	
+> +		errno = 0; 
+> +
+>  	va_start(ap, fmt);
+>  	vsnprintf(buffer, sizeof(buffer), fmt, ap);
+>  	va_end(ap);
+> 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
