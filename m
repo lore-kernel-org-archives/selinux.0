@@ -1,400 +1,110 @@
-Subject: Re: PATCH: peersid capability support
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: tmiller@tresys.com, selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>
-In-Reply-To: <474F4A43.3050106@manicmethod.com>
-References: 
-	 <200711291927.lATJRixF021978@rawhidevm-targeted.columbia.tresys.com>
-	 <1196371475.24040.74.camel@moss-spartans.epoch.ncsc.mil>
-	 <474F4A43.3050106@manicmethod.com>
-Content-Type: text/plain
-Date: Fri, 30 Nov 2007 08:34:28 -0500
-Message-Id: <1196429668.10720.1.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from jazzhorn.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAUDnbwQ025250
+	for <selinux@tycho.nsa.gov>; Fri, 30 Nov 2007 08:49:37 -0500
+Received: from vidle.i.cz (jazzhorn.ncsc.mil [144.51.5.9])
+	by jazzhorn.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAUDnZdh013057
+	for <selinux@tycho.nsa.gov>; Fri, 30 Nov 2007 13:49:35 GMT
+Date: Fri, 30 Nov 2007 14:49:33 +0100
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: Martin Orr <martin@martinorr.name>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: refpolicy HEAD, Debian, patch for udev.te
+Message-ID: <20071130134933.GA11780@bobek.pm.i.cz>
+References: <20071126144547.GA334@bobek.pm.i.cz> <1196189369.30997.6.camel@gorn> <474F1BD4.2010908@martinorr.name>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <474F1BD4.2010908@martinorr.name>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-11-29 at 18:24 -0500, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2007-11-29 at 14:27 -0500, tmiller@tresys.com wrote:
-> >   
-> >> This is a reworking of the peersid capability patch Joshua sent out
-> >> a few weeks ago.  This version requires added explicit declaration of
-> >> capabilities in the policy.
+On Thu, Nov 29, 2007 at 08:06:44PM +0000, Martin Orr wrote:
+> On 27/11/07 18:49, Christopher J. PeBenito wrote:
+> > On Mon, 2007-11-26 at 15:45 +0100, Václav Ovsík wrote:
+> >> Hi,
+> >> Debian Etch, refpolicy HEAD, udev produces during startup (udevsettle)
+> >> wile creating symlinks into /dev/disk/by-uuid/...
+> >> following:
 > >>
-> >> I've used the same strings that Paul's kernel diff used (there is
-> >> currently just a single capability).
+> >> audit(1195744042.060:3): avc:  denied  { relabelfrom } for  pid=836 comm="udevd" name="44517f56-2445-4330-bce7-5168aa534c1c" dev=tmpfs ino=1646 scontext=system_u:system_r:udev_t:s0-s0:c0.c1023 tcontext=system_u:object_r:device_t:s0 tclass=lnk_file
+> >> audit(1195744042.060:4): avc:  denied  { relabelto } for  pid=836 comm="udevd" name="44517f56-2445-4330-bce7-5168aa534c1c" dev=tmpfs ino=1646 scontext=system_u:system_r:udev_t:s0-s0:c0.c1023 tcontext=system_u:object_r:device_t:s0 tclass=lnk_file
 > >>
-> >> Note that capability declarations are not limited to base.conf /
-> >> policy.conf as we would like to eventually get rid of the base vs. module
-> >> distinction.
-> >>     
-> >
-> > Taking the union of the capabilities at link time seems worrisome to me.
-> > I'd be more inclined to require equivalence or take the intersection.
-> >
-> >   
+> >> Attached patch solves this.
+> >> Can be merged into refpolicy please?
+> > 
+> > This is interesting, it isn't seen on other distros.  Perhaps it has to
+> > do with the way debian sets up tmpfs /dev before udev starts?
 > 
-> I strongly disagree. My vision was to be able to add a capability to the 
-> policy by inserting a policy module that enables the capability (and has 
-> associated policy). Making them an intersection or equivalence would 
-> require one to update every single module just to add a capability (or 
-> at least update the base if it is considered authoritative, which I was 
-> also trying to avoid).
+> I get similar messages: note that the contexts being relabelled from and to
+> are the same.
+> 
+> I had a look, and the symlinks are created by udev running in the initramfs,
+> then the tmpfs /dev is mount --moved into the main root.  No labelling is
+> done yet because no policy has been loaded.  Then when the main udev starts
+> up it replays the coldplug events.  When it comes to create the symlink
+> again, it notices that it is already there and calls lsetfilecon.
 
-Joshua - think about it.  Let's say I write a policy module based on the
-new peer checks, and my base module was written in terms of the old
-network checks.  Now I link them together and get a policy that tells
-the kernel to use the new peer checks.  Voila!  My base policy breaks
-horrendously.
+Hmm, you hit the nail on its head :)
 
+> Should udev or libselinux be checking whether it will be relabelling files
+> to their existing label?  And indeed, it's not clear to me why udev should
+> be calling lsetfilecon on existing symlinks at all.
 > 
-> >> Signed-off-by: Todd C. Miller <tmiller@tresys.com>
-> >>
-> >> --
-> >>
-> >> Index: trunk/libsepol/include/sepol/policydb/polcaps.h
-> >> ===================================================================
-> >> --- trunk.orig/libsepol/include/sepol/policydb/polcaps.h
-> >> +++ trunk/libsepol/include/sepol/policydb/polcaps.h
-> >> @@ -12,3 +12,17 @@ enum {
-> >>  extern int sepol_polcap_getnum(const char *name);
-> >>  
-> >>  #endif /* _SEPOL_POLICYDB_POLCAPS_H_ */
-> >> +#ifndef _SEPOL_POLICYDB_POLCAPS_H_
-> >> +#define _SEPOL_POLICYDB_POLCAPS_H_
-> >> +
-> >> +/* Policy capabilities */
-> >> +enum {
-> >> +	POLICYDB_CAPABILITY_NETPEER,
-> >> +	__POLICYDB_CAPABILITY_MAX
-> >> +};
-> >> +#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-> >> +
-> >> +/* Convert a capability name to number. */
-> >> +extern int sepol_polcap_getnum(const char *name);
-> >> +
-> >> +#endif /* _SEPOL_POLICYDB_POLCAPS_H_ */
-> >> Index: trunk/libsepol/include/sepol/policydb/policydb.h
-> >> ===================================================================
-> >> --- trunk.orig/libsepol/include/sepol/policydb/policydb.h
-> >> +++ trunk/libsepol/include/sepol/policydb/policydb.h
-> >> @@ -468,6 +468,8 @@ typedef struct policydb {
-> >>  
-> >>  	ebitmap_t *attr_type_map;	/* not saved in the binary policy */
-> >>  
-> >> +	ebitmap_t policycaps;
-> >> +
-> >>  	unsigned policyvers;
-> >>  
-> >>  	unsigned handle_unknown;
-> >> @@ -584,10 +586,11 @@ extern int policydb_write(struct policyd
-> >>  #define POLICYDB_VERSION_MLS		19
-> >>  #define POLICYDB_VERSION_AVTAB		20
-> >>  #define POLICYDB_VERSION_RANGETRANS	21
-> >> +#define POLICYDB_VERSION_POLCAP		22
-> >>  
-> >>  /* Range of policy versions we understand*/
-> >>  #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
-> >> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
-> >> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
-> >>  
-> >>  /* Module versions and specific changes*/
-> >>  #define MOD_POLICYDB_VERSION_BASE	   4
-> >> @@ -595,9 +598,10 @@ extern int policydb_write(struct policyd
-> >>  #define MOD_POLICYDB_VERSION_MLS	   5
-> >>  #define MOD_POLICYDB_VERSION_RANGETRANS	   6
-> >>  #define MOD_POLICYDB_VERSION_MLS_USERS	   6
-> >> +#define MOD_POLICYDB_VERSION_POLCAP	   7
-> >>  
-> >>  #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
-> >> -#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_MLS_USERS
-> >> +#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_POLCAP
-> >>  
-> >>  #define POLICYDB_CONFIG_MLS    1
-> >>  
-> >> Index: trunk/libsepol/src/polcaps.c
-> >> ===================================================================
-> >> --- trunk.orig/libsepol/src/polcaps.c
-> >> +++ trunk/libsepol/src/polcaps.c
-> >> @@ -22,3 +22,27 @@ int sepol_polcap_getnum(const char *name
-> >>  	}
-> >>  	return -1;
-> >>  }
-> >> +/*
-> >> + * Policy capability support functions
-> >> + */
-> >> +
-> >> +#include <string.h>
-> >> +#include <sepol/policydb/polcaps.h>
-> >> +
-> >> +static const char *polcap_names[] = {
-> >> +	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
-> >> +	NULL
-> >> +};
-> >> +
-> >> +int sepol_polcap_getnum(const char *name)
-> >> +{
-> >> +	int capnum;
-> >> +
-> >> +	for (capnum = 0; capnum <= POLICYDB_CAPABILITY_MAX; capnum++) {
-> >> +		if (polcap_names[capnum] == NULL)
-> >> +			continue;
-> >> +		if (strcasecmp(polcap_names[capnum], name) == 0)
-> >> +			return capnum;
-> >> +	}
-> >> +	return -1;
-> >> +}
-> >> Index: trunk/libsepol/src/policydb.c
-> >> ===================================================================
-> >> --- trunk.orig/libsepol/src/policydb.c
-> >> +++ trunk/libsepol/src/policydb.c
-> >> @@ -99,6 +99,12 @@ static struct policydb_compat_info polic
-> >>  	 .ocon_num = OCON_NODE6 + 1,
-> >>  	 },
-> >>  	{
-> >> +	 .type = POLICY_KERN,
-> >> +	 .version = POLICYDB_VERSION_POLCAP,
-> >> +	 .sym_num = SYM_NUM,
-> >> +	 .ocon_num = OCON_NODE6 + 1,
-> >> +	 },
-> >> +	{
-> >>  	 .type = POLICY_BASE,
-> >>  	 .version = MOD_POLICYDB_VERSION_BASE,
-> >>  	 .sym_num = SYM_NUM,
-> >> @@ -117,6 +123,12 @@ static struct policydb_compat_info polic
-> >>  	 .ocon_num = OCON_NODE6 + 1,
-> >>  	 },
-> >>  	{
-> >> +	 .type = POLICY_BASE,
-> >> +	 .version = MOD_POLICYDB_VERSION_POLCAP,
-> >> +	 .sym_num = SYM_NUM,
-> >> +	 .ocon_num = OCON_NODE6 + 1,
-> >> +	 },
-> >> +	{
-> >>  	 .type = POLICY_MOD,
-> >>  	 .version = MOD_POLICYDB_VERSION_BASE,
-> >>  	 .sym_num = SYM_NUM,
-> >> @@ -132,6 +144,12 @@ static struct policydb_compat_info polic
-> >>  	 .type = POLICY_MOD,
-> >>  	 .version = MOD_POLICYDB_VERSION_MLS_USERS,
-> >>  	 .sym_num = SYM_NUM,
-> >> +	 .ocon_num = 0
-> >> +	 },
-> >> +	{
-> >> +	 .type = POLICY_MOD,
-> >> +	 .version = MOD_POLICYDB_VERSION_POLCAP,
-> >> +	 .sym_num = SYM_NUM,
-> >>  	 .ocon_num = 0},
-> >>  };
-> >>  
-> >> @@ -447,6 +465,8 @@ int policydb_init(policydb_t * p)
-> >>  
-> >>  	memset(p, 0, sizeof(policydb_t));
-> >>  
-> >> +	ebitmap_init(&p->policycaps);
-> >> +
-> >>  	for (i = 0; i < SYM_NUM; i++) {
-> >>  		p->sym_val_to_name[i] = NULL;
-> >>  		rc = symtab_init(&p->symtab[i], symtab_sizes[i]);
-> >> @@ -971,6 +991,8 @@ void policydb_destroy(policydb_t * p)
-> >>  	if (!p)
-> >>  		return;
-> >>  
-> >> +	ebitmap_destroy(&p->policycaps);
-> >> +
-> >>  	symtabs_destroy(p->symtab);
-> >>  
-> >>  	for (i = 0; i < SYM_NUM; i++) {
-> >> @@ -3194,6 +3216,16 @@ int policydb_read(policydb_t * p, struct
-> >>  		}
-> >>  	}
-> >>  
-> >> +	if ((p->policyvers >= POLICYDB_VERSION_POLCAP &&
-> >> +	     p->policy_type == POLICY_KERN) ||
-> >> +	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-> >> +	     p->policy_type == POLICY_BASE) ||
-> >> +	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-> >> +	     p->policy_type == POLICY_MOD)) {
-> >> +		if (ebitmap_read(&p->policycaps, fp))
-> >> +			goto bad;
-> >> +	}
-> >> +
-> >>  	if (policy_type == POLICY_KERN) {
-> >>  		p->type_attr_map = malloc(p->p_types.nprim * sizeof(ebitmap_t));
-> >>  		p->attr_type_map = malloc(p->p_types.nprim * sizeof(ebitmap_t));
-> >> Index: trunk/libsepol/src/expand.c
-> >> ===================================================================
-> >> --- trunk.orig/libsepol/src/expand.c
-> >> +++ trunk/libsepol/src/expand.c
-> >> @@ -2252,6 +2252,12 @@ int expand_module(sepol_handle_t * handl
-> >>  	out->mls = base->mls;
-> >>  	out->handle_unknown = base->handle_unknown;
-> >>  
-> >> +	/* Copy policy capabilities */
-> >> +	if (ebitmap_cpy(&out->policycaps, &base->policycaps)) {
-> >> +		ERR(handle, "Out of memory!");
-> >> +		goto cleanup;
-> >> +	}
-> >> +
-> >>  	if ((state.typemap =
-> >>  	     (uint32_t *) calloc(state.base->p_types.nprim,
-> >>  				 sizeof(uint32_t))) == NULL) {
-> >> @@ -2418,6 +2424,7 @@ int expand_module(sepol_handle_t * handl
-> >>  	retval = 0;
-> >>  
-> >>        cleanup:
-> >> +	ebitmap_destroy(&out->policycaps);
-> >>  	free(state.typemap);
-> >>  	free(state.boolmap);
-> >>  	return retval;
-> >> Index: trunk/libsepol/src/write.c
-> >> ===================================================================
-> >> --- trunk.orig/libsepol/src/write.c
-> >> +++ trunk/libsepol/src/write.c
-> >> @@ -1650,6 +1650,16 @@ int policydb_write(policydb_t * p, struc
-> >>  		}
-> >>  	}
-> >>  
-> >> +	if ((p->policyvers >= POLICYDB_VERSION_POLCAP &&
-> >> +	     p->policy_type == POLICY_KERN) ||
-> >> +	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-> >> +	     p->policy_type == POLICY_BASE) ||
-> >> +	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-> >> +	     p->policy_type == POLICY_MOD)) {
-> >> +		if (ebitmap_write(&p->policycaps, fp) == -1)
-> >> +			return POLICYDB_ERROR;
-> >> +	}
-> >> +
-> >>  	if (p->policy_type == POLICY_KERN
-> >>  	    && p->policyvers >= POLICYDB_VERSION_AVTAB) {
-> >>  		for (i = 0; i < p->p_types.nprim; i++) {
-> >> Index: trunk/libsepol/src/link.c
-> >> ===================================================================
-> >> --- trunk.orig/libsepol/src/link.c
-> >> +++ trunk/libsepol/src/link.c
-> >> @@ -2177,8 +2177,14 @@ int link_modules(sepol_handle_t * handle
-> >>  		goto cleanup;
-> >>  	}
-> >>  
-> >> -	/* copy all types, declared and required */
-> >> +	/* copy all types, declared, required and polcaps */
-> >>  	for (i = 0; i < len; i++) {
-> >> +		ret = ebitmap_union(&state.base->policycaps,
-> >> +				    &modules[i]->policy->policycaps);
-> >> +		if (ret) {
-> >> +			retval = ret;
-> >> +			goto cleanup;
-> >> +		}
-> >>  		state.cur = modules[i];
-> >>  		state.cur_mod_name = modules[i]->policy->name;
-> >>  		ret =
-> >> Index: trunk/checkpolicy/policy_scan.l
-> >> ===================================================================
-> >> --- trunk.orig/checkpolicy/policy_scan.l
-> >> +++ trunk/checkpolicy/policy_scan.l
-> >> @@ -201,6 +201,8 @@ h1 |
-> >>  H1				{ return(H1); }
-> >>  h2 |
-> >>  H2				{ return(H2); }
-> >> +policycap |
-> >> +POLICYCAP			{ return(POLICYCAP);}
-> >>  "/"({alnum}|[_.-/])*	        { return(PATH); }
-> >>  {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
-> >>  {digit}+                        { return(NUMBER); }
-> >> Index: trunk/checkpolicy/policy_parse.y
-> >> ===================================================================
-> >> --- trunk.orig/checkpolicy/policy_parse.y
-> >> +++ trunk/checkpolicy/policy_parse.y
-> >> @@ -47,6 +47,7 @@
-> >>  #include <sepol/policydb/conditional.h>
-> >>  #include <sepol/policydb/flask.h>
-> >>  #include <sepol/policydb/hierarchy.h>
-> >> +#include <sepol/policydb/polcaps.h>
-> >>  #include "queue.h"
-> >>  #include "checkpolicy.h"
-> >>  #include "module_compiler.h"
-> >> @@ -198,6 +199,7 @@ typedef int (* require_func_t)();
-> >>  %token IPV4_ADDR
-> >>  %token IPV6_ADDR
-> >>  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
-> >> +%token POLICYCAP
-> >>  
-> >>  %left OR
-> >>  %left XOR
-> >> @@ -323,6 +325,7 @@ te_decl			: attribute_def
-> >>                          | transition_def
-> >>                          | range_trans_def
-> >>                          | te_avtab_def
-> >> +			| policycap_def
-> >>  			;
-> >>  attribute_def           : ATTRIBUTE identifier ';'
-> >>                          { if (define_attrib()) return -1;}
-> >> @@ -765,6 +768,9 @@ number			: NUMBER 
-> >>  ipv6_addr		: IPV6_ADDR
-> >>  			{ if (insert_id(yytext,0)) return -1; }
-> >>  			;
-> >> +policycap_def		: POLICYCAP identifier ';'
-> >> +			{if (define_polcap()) return -1;}
-> >> +			;
-> >>  
-> >>  /*********** module grammar below ***********/
-> >>  
-> >> @@ -962,6 +968,44 @@ static int define_class(void)
-> >>  	return -1;
-> >>  }
-> >>  
-> >> +static int define_polcap(void)
-> >> +{
-> >> +	char *id = 0;
-> >> +	int capnum;
-> >> +
-> >> +	if (pass == 2) {
-> >> +		id = queue_remove(id_queue);
-> >> +		free(id);
-> >> +		return 0;
-> >> +	}
-> >> +
-> >> +	id = (char *)queue_remove(id_queue);
-> >> +	if (!id) {
-> >> +		yyerror("no capability name for policycap definition?");
-> >> +		goto bad;
-> >> +	}
-> >> +
-> >> +	/* Check for valid cap name -> number mapping */
-> >> +	capnum = sepol_polcap_getnum(id);
-> >> +	if (capnum < 0) {
-> >> +		yyerror2("invalid policy capability name %s", id);
-> >> +		goto bad;
-> >> +	}
-> >> +
-> >> +	/* Store it */
-> >> +	if (ebitmap_set_bit(&policydbp->policycaps, capnum, TRUE)) {
-> >> +		yyerror("out of memory");
-> >> +		goto bad;
-> >> +	}
-> >> +
-> >> +	free(id);
-> >> +	return 0;
-> >> +
-> >> +      bad:
-> >> +	free(id);
-> >> +	return -1;
-> >> +}
-> >> +
-> >>  static int define_initial_sid(void)
-> >>  {
-> >>  	char *id = 0;
-> >>
-> >> --
-> >> This message was distributed to subscribers of the selinux mailing list.
-> >> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> >> the words "unsubscribe selinux" without quotes as the message.
-> >>     
-> 
+> -- 
+> Martin Orr
+
+I tried to execute udevd with --verbose in startup script and this is
+the result:
+
+    [840] udev_db_get_device: no db file to read /dev/.udev/db/\x2fdevices\x2fxen\x2fvbd-2049: No such file or directory
+    [840] run_program: 'vol_id --export /dev/.tmp-8-1'
+...
+    [840] run_program: '/lib/udev/vol_id' (stdout) 'ID_FS_USAGE=filesystem'
+    [840] run_program: '/lib/udev/vol_id' (stdout) 'ID_FS_TYPE=ext3'
+    [840] run_program: '/lib/udev/vol_id' (stdout) 'ID_FS_VERSION=1.0'
+    [840] run_program: '/lib/udev/vol_id' (stdout) 'ID_FS_UUID=0fb8bc6a-db49-4a7e-a030-268373a933d9'
+    [840] run_program: '/lib/udev/vol_id' (stdout) 'ID_FS_UUID_ENC=0fb8bc6a-db49-4a7e-a030-268373a933d9'
+    [840] run_program: '/lib/udev/vol_id' (stdout) 'ID_FS_LABEL='
+    [840] run_program: '/lib/udev/vol_id' (stdout) 'ID_FS_LABEL_ENC='
+    [840] run_program: '/lib/udev/vol_id' (stdout) 'ID_FS_LABEL_SAFE='
+    [840] run_program: '/lib/udev/vol_id' returned with status 0
+    [840] udev_rules_get_name: add symlink 'disk/by-uuid/0fb8bc6a-db49-4a7e-a030-268373a933d9'
+    [840] udev_rules_get_name: no node name set, will use kernel name ''
+    [840] udev_device_event: device '/block/sda1' already in database, cleanup
+    [840] name_index: removing index: '/dev/.udev/names/sda1/\x2fblock\x2fsda1'
+    [840] name_index: removing index: '/dev/.udev/names/disk\x2fby-uuid\x2f0fb8bc6a-db49-4a7e-a030-268373a933d9/\x2fblock\x2fsda1'
+    [840] udev_node_add: creating device node '/dev/sda1', major=8, minor=1, mode=0660, uid=0, gid=6
+    [840] udev_node_mknod: preserve file '/dev/sda1', because it has correct dev_t
+    [840] name_index: creating index: '/dev/.udev/names/disk\x2fby-uuid\x2f0fb8bc6a-db49-4a7e-a030-268373a933d9/\x2fblock\x2fsda1'
+    [840] name_index: creating index: '/dev/.udev/names/sda1/\x2fblock\x2fsda1'
+    [840] udev_node_update_symlinks: update symlink 'disk/by-uuid/0fb8bc6a-db49-4a7e-a030-268373a933d9' of '/block/sda1'
+    [840] udev_db_get_devices_by_name: found index directory '/dev/.udev/names/disk\x2fby-uuid\x2f0fb8bc6a-db49-4a7e-a030-268373a933d9'
+    [840] update_link: found 1 devices with name 'disk/by-uuid/0fb8bc6a-db49-4a7e-a030-268373a933d9'
+    [840] update_link: found '/block/sda1' for 'disk/by-uuid/0fb8bc6a-db49-4a7e-a030-268373a933d9'
+    [840] update_link: compare (our own) priority of '/block/sda1' 0 >= 0
+    [840] update_link: 'disk/by-uuid/0fb8bc6a-db49-4a7e-a030-268373a933d9' with target 'sda1' has the highest priority 0, create it
+    [840] node_symlink: found existing symlink '/dev/disk/by-uuid/0fb8bc6a-db49-4a7e-a030-268373a933d9'
+    [840] node_symlink: preserve already existing symlink '/dev/disk/by-uuid/0fb8bc6a-db49-4a7e-a030-268373a933d9' to '../../sda1'
+    audit(1196406913.936:3): avc:  denied  { relabelfrom } for  pid=840 comm="udevd" name="0fb8bc6a-db49-4a7e-a030-268373a933d9" dev=tmpfs ino=2009 scontext=system_u:system_r:udev_t:s0-s0:c0.c1023 tcontext=syst
+    em_u:object_r:device_t:s0 tclass=lnk_file
+    ^Maudit(1196406913.936:4): avc:  denied  { relabelto } for  pid=840 comm="udevd" name="0fb8bc6a-db49-4a7e-a030-268373a933d9" dev=tmpfs ino=2009 scontext=system_u:system_r:udev_t:s0-s0:c0.c1023 tcontext=syst
+    em_u:object_r:device_t:s0 tclass=lnk_file
+    ^M[840] pass_env_to_socket: passed -1 bytes to socket '/org/kernel/udev/monitor', 
+    [840] udev_event_run: seq 355 finished with 0
+...
+
+Corresponding code is in udev_node.c, function node_symlink().
+
+...
+    if (strcmp(target, buf) == 0) {
+	    info("preserve already existing symlink '%s' to '%s'", slink, target);
+	    selinux_setfilecon(slink, NULL, S_IFLNK);
+	    goto exit;
+    }
+...
+
+Regards
 -- 
-Stephen Smalley
-National Security Agency
+Zito
 
 
 --
