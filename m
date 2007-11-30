@@ -1,88 +1,62 @@
-Message-ID: <47502CED.2030607@manicmethod.com>
-Date: Fri, 30 Nov 2007 10:31:57 -0500
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: tmiller@tresys.com, selinux@tycho.nsa.gov, Paul Moore <paul.moore@hp.com>
-Subject: Re: PATCH: peersid capability support
-References: <200711291927.lATJRixF021978@rawhidevm-targeted.columbia.tresys.com>	 <1196371475.24040.74.camel@moss-spartans.epoch.ncsc.mil>	 <474F4A43.3050106@manicmethod.com>	 <1196429668.10720.1.camel@moss-spartans.epoch.ncsc.mil>	 <47502066.5090106@manicmethod.com> <1196434083.10720.10.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1196434083.10720.10.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAUFu6QP005148
+	for <selinux@tycho.nsa.gov>; Fri, 30 Nov 2007 10:56:06 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with SMTP id lAUFu5UB016486
+	for <selinux@tycho.nsa.gov>; Fri, 30 Nov 2007 15:56:05 GMT
+Subject: Re: refpolicy HEAD, Debian, patch for udev.te
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: Martin Orr <martin@martinorr.name>, selinux@tycho.nsa.gov
+In-Reply-To: <20071130153024.GA13299@bobek.pm.i.cz>
+References: <20071126144547.GA334@bobek.pm.i.cz>
+	 <1196189369.30997.6.camel@gorn> <474F1BD4.2010908@martinorr.name>
+	 <20071130134933.GA11780@bobek.pm.i.cz> <1196433514.4298.42.camel@gorn>
+	 <20071130153024.GA13299@bobek.pm.i.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 30 Nov 2007 10:55:49 -0500
+Message-Id: <1196438149.4298.43.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2007-11-30 at 09:38 -0500, Joshua Brindle wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> On Thu, 2007-11-29 at 18:24 -0500, Joshua Brindle wrote:
->>>   
->>>       
->>>> Stephen Smalley wrote:
->>>>     
->>>>         
->>>>> On Thu, 2007-11-29 at 14:27 -0500, tmiller@tresys.com wrote:
->>>>>   
->>>>>       
->>>>>           
->>>>>> This is a reworking of the peersid capability patch Joshua sent out
->>>>>> a few weeks ago.  This version requires added explicit declaration of
->>>>>> capabilities in the policy.
->>>>>>
->>>>>> I've used the same strings that Paul's kernel diff used (there is
->>>>>> currently just a single capability).
->>>>>>
->>>>>> Note that capability declarations are not limited to base.conf /
->>>>>> policy.conf as we would like to eventually get rid of the base vs. module
->>>>>> distinction.
->>>>>>     
->>>>>>         
->>>>>>             
->>>>> Taking the union of the capabilities at link time seems worrisome to me.
->>>>> I'd be more inclined to require equivalence or take the intersection.
->>>>>
->>>>>   
->>>>>       
->>>>>           
->>>> I strongly disagree. My vision was to be able to add a capability to the 
->>>> policy by inserting a policy module that enables the capability (and has 
->>>> associated policy). Making them an intersection or equivalence would 
->>>> require one to update every single module just to add a capability (or 
->>>> at least update the base if it is considered authoritative, which I was 
->>>> also trying to avoid).
->>>>     
->>>>         
->>> Joshua - think about it.  Let's say I write a policy module based on the
->>> new peer checks, and my base module was written in terms of the old
->>> network checks.  Now I link them together and get a policy that tells
->>> the kernel to use the new peer checks.  Voila!  My base policy breaks
->>> horrendously.
->>>   
->>>       
->> That is why I said the module being inserted would have the associated 
->> policy.
->>     
->
-> That seems to violate modularity/encapsulation.
->
->   
->>  I don't believe policyrep is going to have a concept of base so 
->> we'd just be delaying the inevitable by restricting it to base now.
->>     
->
-> It isn't a base vs. non-base issue.  You can certainly have every module
-> declare the capabilities it requires/expects.  But taking the union is
-> unsafe.  Module foo doesn't know what the rest of the modules on the
-> system expect or what rules they contain.
->
-> Requiring equivalence is the safest approach.
->   
+On Fri, 2007-11-30 at 16:30 +0100, Václav Ovsík wrote:
+> On Fri, Nov 30, 2007 at 09:38:33AM -0500, Christopher J. PeBenito wrote:
+> > ...
+> > I thought that was the case, I was just surprised that it wasn't
+> > short-circuited.  What is odd is that it makes the check for equality,
+> > but then does the setfilecon anyway:
+> 
+> Udev startup script /etc/init.d/udev does on several places restorecon
+> and /sbin/restorecon -R /dev before starting udevd. Symlinks
+> already have right context so.
+> If there will be for some reason no symlink, udevd should probably
+> create one and relabel it. Right?
 
-Equivalence between every module? I don't see how this would possibly 
-work in practice, how would audit2allow know what caps to include when 
-it creates a new module? How would support for new caps come from a 
-policy upgrade when there are local modules present that don't have them?
+I thought thats what it did.
+
+> > > Corresponding code is in udev_node.c, function node_symlink().
+> > 
+> > >     if (strcmp(target, buf) == 0) {
+> > > 	    info("preserve already existing symlink '%s' to '%s'", slink,
+> > > target);
+> > > 	    selinux_setfilecon(slink, NULL, S_IFLNK);
+> > > 	    goto exit;
+> > >     }
+> > 
+> > I'll add the rule.  Perhaps someone should send up a patch to remove the
+> > setfilecon, and update the info message.
+> 
+> Mean you to compare the context of symlink and no setfilecon if it is
+> ok?
+
+Yes.  Unless there's a good reason to keep it as-is that I don't know
+about.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 
