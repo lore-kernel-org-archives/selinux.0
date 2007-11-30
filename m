@@ -1,55 +1,49 @@
-Received: from jazzdrum.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lAU1nfEk010308
-	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2007 20:49:41 -0500
-Received: from dmzmta103.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by jazzdrum.ncsc.mil (8.12.10/8.12.10) with ESMTP id lAU1nehK025754
-	for <selinux@tycho.nsa.gov>; Fri, 30 Nov 2007 01:49:40 GMT
-Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
-	by dmzmta103.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id lAU1lBbC007744
-	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2007 20:47:11 -0500
-Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
-	by usdmta002.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id lAU1mlxW004494
-	for <selinux@tycho.nsa.gov>; Thu, 29 Nov 2007 20:48:47 -0500
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Mark Nelson <markn@au1.ibm.com>
+Cc: menage@google.com, "Serge E. Hallyn" <serue@us.ibm.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Crispin Cowan <crispin@crispincowan.com>,
+        containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/2] namespaces: introduce sys_hijack (v10)
+References: <474B78CB.5070607@au1.ibm.com> <474BC017.6060801@crispincowan.com>
+	<20071127161132.GD32362@sergelap.austin.ibm.com>
+	<1196186964.3925.129.camel@moss-spartans.epoch.ncsc.mil>
+	<20071127223829.GA21753@sergelap.austin.ibm.com>
+	<1196262054.13820.23.camel@moss-spartans.epoch.ncsc.mil>
+	<20071128152359.GA4756@sergelap.austin.ibm.com>
+	<474F70B3.5020006@au1.ibm.com>
+Date: Thu, 29 Nov 2007 19:37:07 -0700
+In-Reply-To: <474F70B3.5020006@au1.ibm.com> (Mark Nelson's message of "Fri, 30
+	Nov 2007 13:08:51 +1100")
+Message-ID: <m1wss0a27g.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: missing rules in newrole domain (RHEL5.1)
-Date: Thu, 29 Nov 2007 17:49:36 -0800
-Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD02555890@blums0008.bluelnk.net>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I recently switched from a targeted-mls policy to the RHEL5.1 mls
-policy. I found that "newrole -r sysadm" failed in enforcing mode, even
-though my selinux user was "root". 
+Mark Nelson <markn@au1.ibm.com> writes:
 
-I had to add "files_search_default(newrole_t)" and
-"files_getattr_default_dirs(newrole_t)" to the selinuxutil.te file to
-allow newrole to getattr and search the /tmp-inst directory (type
-default_t).
+> Hi Paul and Eric,
+>
+> Do you guys have any objections to dropping the hijack_pid() and
+> hijack_cgroup() parts of sys_hijack, leaving just hijack_ns() (see
+> below for discussion)?
 
-This was happening even with the read_default_t boolean set to true.
+I need to step back and study what is being proposed.
 
-Here are the avc denial messages that I was getting:
+My gut feeling is that you are proposing something that does not
+support forking me a process inside a container so I can have a
+shell without having to run a login program.
 
-type=AVC msg=audit(1196385320.559:722): avc:  denied  { getattr } for
-pid=5092 comm="newrole" path="/tmp-inst" dev=sda1 ino=5341337
-scontext=root:staff_r:newrole_t:s0-s4:c0.c255
-tcontext=system_u:object_r:default_t:s0 tclass=dir
+There is a reason I proposed ptrace as an initial prototype.
 
-type=AVC msg=audit(1196385320.559:723): avc:  denied  { search } for
-pid=5092 comm="newrole" name="tmp-inst" dev=sda1 ino=5341337
-scontext=root:staff_r:newrole_t:s0-s4:c0.c255
-tcontext=system_u:object_r:default_t:s0 tclass=dir
+All of the other uses of enter in a namespace context I feel confident
+we can support by just having proper virtual filesystems available
+to processes outside of the container.  For monitoring and control.
 
-I'm assuming this should have worked out of the box without having to
-add these rules. Is there some configuration step that I missed?
-
-Thanks
-
-
+Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
