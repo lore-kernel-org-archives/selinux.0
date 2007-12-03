@@ -1,46 +1,26 @@
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Subject: RE: libsemanage patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Todd Miller <Tmiller@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158801455C46@exchange.columbia.tresys.com>
-References: <4754599A.8060605@redhat.com>
-	 <6FE441CD9F0C0C479F2D88F959B0158801455C46@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Mon, 03 Dec 2007 14:53:12 -0500
-Message-Id: <1196711592.27820.133.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Mon, 3 Dec 2007 15:03:03 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158801455C55@exchange.columbia.tresys.com>
+In-Reply-To: <1196711592.27820.133.camel@moss-spartans.epoch.ncsc.mil>
+References: <4754599A.8060605@redhat.com> <6FE441CD9F0C0C479F2D88F959B0158801455C46@exchange.columbia.tresys.com> <1196711592.27820.133.camel@moss-spartans.epoch.ncsc.mil>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "Daniel J Walsh" <dwalsh@redhat.com>, "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-12-03 at 14:51 -0500, Todd Miller wrote:
-> Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > genhomedircon includes the "\n" in /etc/shells so no shells in the
-> > /etc/passwd match.
-> 
-> Isn't this going to cause problems if the last line in /etc/shells has
-> no newline?
-> 
-> Instead of:
->     temp[strlen(temp)-1]=0;
-> 
-> I would use:
->     temp[strcspn(temp, "\n")] = '\0';
-> 
-> That will overwrite the first newline with a NUL or, if there is no
-> newline, the terminating NUL will be overwritten with another NUL, which
-> is harmless.  It is a useful idiom...
+Stephen Smalley wrote:
+> Given that getline() returns the length read (not to be confused with
+> the buffer length), why not just:
+> 	while ((len = getline(&temp, &buff_len, shells)) > 0) {
+> 		if (temp[len-1] == '\n') temp[len-1] = 0;
 
-Given that getline() returns the length read (not to be confused with
-the buffer length), why not just:
-	while ((len = getline(&temp, &buff_len, shells)) > 0) {
-		if (temp[len-1] == '\n') temp[len-1] = 0;
+That is probably the simplest fix.
 
--- 
-Stephen Smalley
-National Security Agency
+ - todd
 
 
 --
