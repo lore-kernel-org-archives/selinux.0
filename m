@@ -1,79 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB3FWnIB031975
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 10:32:49 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lB3FWgbQ000513
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 15:32:43 GMT
-Subject: RE: missing rules in newrole domain (RHEL5.1)
+Subject: Re: PATCH: peersid capability support
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov, "Reed, Tim (US SSA)" <tim.reed@baesystems.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0277351D@blums0008.bluelnk.net>
-References: <FB39F4E77226B448BC1388D3BE4E00CD02555890@blums0008.bluelnk.net>
-	 <1196431864.4298.28.camel@gorn.columbia.tresys.com>
-	 <FB39F4E77226B448BC1388D3BE4E00CD0277351D@blums0008.bluelnk.net>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, tmiller@tresys.com,
+        selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <200711300929.22874.paul.moore@hp.com>
+References: 
+	 <200711291927.lATJRixF021978@rawhidevm-targeted.columbia.tresys.com>
+	 <1196371475.24040.74.camel@moss-spartans.epoch.ncsc.mil>
+	 <200711300929.22874.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Mon, 03 Dec 2007 10:32:29 -0500
-Message-Id: <1196695950.25613.4.camel@gorn>
+Date: Mon, 03 Dec 2007 10:53:50 -0500
+Message-Id: <1196697230.5854.3.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-11-30 at 09:21 -0800, Clarkson, Mike R (US SSA) wrote:
-> > -----Original Message-----
-> > From: Christopher J. PeBenito [mailto:cpebenito@tresys.com]
-> > Sent: Friday, November 30, 2007 6:11 AM
-> > To: Clarkson, Mike R (US SSA)
-> > Cc: selinux@tycho.nsa.gov
-> > Subject: Re: missing rules in newrole domain (RHEL5.1)
-> > 
-> > On Thu, 2007-11-29 at 17:49 -0800, Clarkson, Mike R (US SSA) wrote:
-> > > I recently switched from a targeted-mls policy to the RHEL5.1 mls
-> > > policy. I found that "newrole -r sysadm" failed in enforcing mode,
-> even
-> > > though my selinux user was "root".
+On Fri, 2007-11-30 at 09:29 -0500, Paul Moore wrote:
+> On Thursday 29 November 2007 4:24:35 pm Stephen Smalley wrote:
+> > On Thu, 2007-11-29 at 14:27 -0500, tmiller@tresys.com wrote:
+> > > This is a reworking of the peersid capability patch Joshua sent out
+> > > a few weeks ago.  This version requires added explicit declaration of
+> > > capabilities in the policy.
 > > >
-> > > I had to add "files_search_default(newrole_t)" and
-> > > "files_getattr_default_dirs(newrole_t)" to the selinuxutil.te file
-> to
-> > > allow newrole to getattr and search the /tmp-inst directory (type
-> > > default_t).
+> > > I've used the same strings that Paul's kernel diff used (there is
+> > > currently just a single capability).
 > > >
-> > > This was happening even with the read_default_t boolean set to true.
-> > >
-> > > Here are the avc denial messages that I was getting:
-> > >
-> > > type=AVC msg=audit(1196385320.559:722): avc:  denied  { getattr }
-> for
-> > > pid=5092 comm="newrole" path="/tmp-inst" dev=sda1 ino=5341337
-> > > scontext=root:staff_r:newrole_t:s0-s4:c0.c255
-> > > tcontext=system_u:object_r:default_t:s0 tclass=dir
-> > >
-> > > type=AVC msg=audit(1196385320.559:723): avc:  denied  { search } for
-> > > pid=5092 comm="newrole" name="tmp-inst" dev=sda1 ino=5341337
-> > > scontext=root:staff_r:newrole_t:s0-s4:c0.c255
-> > > tcontext=system_u:object_r:default_t:s0 tclass=dir
-> > >
-> > > I'm assuming this should have worked out of the box without having
-> to
-> > > add these rules. Is there some configuration step that I missed?
-> > 
-> > It just means that you newroled while you were in this directory.
-> > Newrole doesn't utilize read_default_t because we don't want
-> privileged
-> > programs like newrole accessing random default_t objects.
+> > > Note that capability declarations are not limited to base.conf /
+> > > policy.conf as we would like to eventually get rid of the base vs. module
+> > > distinction.
+> >
+> > Taking the union of the capabilities at link time seems worrisome to me.
+> > I'd be more inclined to require equivalence or take the intersection.
 > 
-> This happens regardless of the directory in which I am located when I
-> use newrole. Newrole needs these because we have set up
-> polyinstantiation of the /tmp directory. The instance directories which
-> newrole binds to the /tmp directory are located in the /tmp-inst
-> directory. 
+> I agree with Stephen, to allow a single module to set a capability bit without 
+> consideration for the rest of the loaded/installed modules could introduce 
+> some very weird behavior
 
-If thats the case, then it should be labeled tmp_t too.  If this is a
-default location for /tmp instances, then we can get this into the
-policy (I thought instances were hidden dirs under /tmp).
+I'm going to have to agree too.  Though I don't know which of
+equivalence or intersection is the right answer.
 
+>  ... that is unless you policy folks have some freaky 
+> ability to peer* into the future ;)
+
+I can neither confirm nor deny any omniscience. :)
+
+> *intentional pun
+> 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
