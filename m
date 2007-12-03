@@ -1,46 +1,84 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with SMTP id lB2KRKe2022114
-	for <selinux@tycho.nsa.gov>; Sun, 2 Dec 2007 15:27:20 -0500
-Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lB2KRJXJ008157
-	for <selinux@tycho.nsa.gov>; Sun, 2 Dec 2007 20:27:19 GMT
-Received: by wa-out-1112.google.com with SMTP id k22so4247738waf
-        for <selinux@tycho.nsa.gov>; Sun, 02 Dec 2007 12:27:18 -0800 (PST)
-Message-ID: <f71a82820712021227r37d4446an551bdd107f7559da@mail.gmail.com>
-Date: Mon, 3 Dec 2007 05:27:17 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>, fedora-selinux-list@redhat.com
-Subject: [ANN] segatex-4.00 RPM,SRPM released !!
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB3EHajA025081
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 09:17:36 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lB3EHXbQ026583
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 14:17:35 GMT
+Subject: Re: libsepol.expand_terule_helper: duplicate TE rule
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+Cc: Chris PeBenito <pebenito@gentoo.org>, selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <f71a82820712011518u409799c9wa48902f7062f6c02@mail.gmail.com>
+References: <f71a82820712010015yafc65dfm21d3f21fbb264008@mail.gmail.com>
+	 <1196546279.4808.2.camel@defiant.pebenito.net>
+	 <f71a82820712011518u409799c9wa48902f7062f6c02@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 03 Dec 2007 09:17:24 -0500
+Message-Id: <1196691444.25613.0.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I released RPM,SRPM version of segatex-4.00.tgz.
+On Sun, 2007-12-02 at 08:18 +0900, Shintaro Fujiwara wrote:
+> Well, as a matter of fact, I installed apache from source.
+> So, I installed apche into /usr/local/apache2.
+> 
+> I set /etc/selinux/config permissive and found that apache
+> runs in initrc_t.
+> But, of course I want to make it run httpd_t.
+> 
+> So, I tried to edit your refpolicy downloading from repository,
+> newest version.
 
-segatex is a program even if not knowing much about SELinux commands,
-can easily set SELinux commands by GUI. Written in C++. Requires Qt (
-qt-devel package ).
+And the remainder of the policy is which fedora policy version?
 
-
-Thank you very much for your attention.
-
-p.s.
-I want to wrap semanage next.
-Any comments appreciated to me.
+> I commented every
+> 
+> type ...
+> bool ...
+> atribute...
+> 
+> including .if of templates.
+> 
+> and set them require {}.
+> 
+> I succeeded make apache.pp all-right, but when I tried to install by
+> semodule -i apache.pp,
+> expand_terule_helper says it has an error.
+> 
+> I found exim module in services directory but could not found
+> anything like process system_mail_t
+> I could not found those in tmp/apache.mod either.
+> 
+> It's first time I see this error and don't know what it is.
+> 
+> I messed up policy apache or some kind of bug ?
+> 
+> I succeeded install postgresql and mysql by this method all-right.
+> 
+> Thanks for your quick response.
+> 
+> 
+> 2007/12/2, Chris PeBenito <pebenito@gentoo.org>:
+> > On Sat, 2007-12-01 at 17:15 +0900, Shintaro Fujiwara wrote:
+> > > When I try to install apache.pp,
+> > >
+> > > libsepol.expand_terule_helper: duplicate TE rule for httpd_t
+> > > exim_exec_t:process system_mail_t
+> > > libsepol.expand_module: Error during expand
+> > > libsemanage.semanage_expand_sandbox: Expand module failed
+> > > semodule:  Failed!
+> > >
+> > > I can't find any lines concerning exim_exec_t anywhere...
+> > > Please help.
+> >
+> > Which distro policy are you using?
 
 -- 
-Shintaro Fujiwara
-segatex project (SELinux policy tool)
-http://sourceforge.net/projects/segatex/
-Home page
-http://intrajp.no-ip.com/
-Blog
-http://intrajp.no-ip.com/nucleus/
-CMS
-http://intrajp.no-ip.com/xoops/
-Wiki
-http://intrajp.no-ip.com/pukiwiki/
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
