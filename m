@@ -1,63 +1,84 @@
-Date: Mon, 3 Dec 2007 08:50:12 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Crispin Cowan <crispin@crispincowan.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@manicmethod.com>,
-        Mark Nelson <markn@au1.ibm.com>, containers@lists.linux-foundation.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        menage@google.com, James Morris <jmorris@namei.org>
-Subject: Re: [PATCH 2/2] hijack: update task_alloc_security
-Message-ID: <20071203145012.GB9008@sergelap.austin.ibm.com>
-References: <474B78CB.5070607@au1.ibm.com> <474B7A51.3080300@au1.ibm.com> <474BB095.8080302@manicmethod.com> <1196174188.3925.32.camel@moss-spartans.epoch.ncsc.mil> <20071127154356.GA32362@sergelap.austin.ibm.com> <474D0188.2040600@crispincowan.com> <20071128145422.GC3820@sergelap.austin.ibm.com> <474E3E4E.3060908@crispincowan.com> <20071129153815.GA8140@sergelap.austin.ibm.com> <47520568.6030108@crispincowan.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <47520568.6030108@crispincowan.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB3FWnIB031975
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 10:32:49 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lB3FWgbQ000513
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 15:32:43 GMT
+Subject: RE: missing rules in newrole domain (RHEL5.1)
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: selinux@tycho.nsa.gov, "Reed, Tim (US SSA)" <tim.reed@baesystems.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD0277351D@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD02555890@blums0008.bluelnk.net>
+	 <1196431864.4298.28.camel@gorn.columbia.tresys.com>
+	 <FB39F4E77226B448BC1388D3BE4E00CD0277351D@blums0008.bluelnk.net>
+Content-Type: text/plain
+Date: Mon, 03 Dec 2007 10:32:29 -0500
+Message-Id: <1196695950.25613.4.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Crispin Cowan (crispin@crispincowan.com):
-> Serge E. Hallyn wrote:
-> > Quoting Crispin Cowan (crispin@crispincowan.com):
-> >   
-> >> I find that ptrace, specifically CAP_SYS_PTRACE, is overloaded. AppArmor
-> >> is having problems because we have to choose between granting
-> >> cap_sys_ptrace, or not allowing the process to read /proc/pid/self &
-> >> such like. So there, the problem is that we have to grant too much power
-> >> to a process to just let it read some /proc stuff about itself.
-> >>
-> >> Here the problem appears to be the other way. cap_sys_ptrace is powerful
-> >> enough to mess with other user's processes on the system, but if ptrace
-> >> gives you hijack, then that seems to give you the power to control
-> >> processes in someone else's namespace.
-> >>     
-> > The user namespace patchset I'm working on right now to start having
-> > signals respect user namespaces introduces CAP_NS_OVERRIDE.  Once that
-> > is in, then hijack would require CAP_NS_OVERRIDE|CAP_SYS_PTRACE.
-> >
-> > Of course, since we're considering only allowing HIJACK_NS which is
-> > only allowed into a different namespace, hijack would then always
-> > require CAP_NS_OVERRIDE...
-> >
-> > Does that suffice?
-> >   
-> I think that CAP_NS_OVERRIDE|CAP_SYS_PTRACE is a problem because of the
+On Fri, 2007-11-30 at 09:21 -0800, Clarkson, Mike R (US SSA) wrote:
+> > -----Original Message-----
+> > From: Christopher J. PeBenito [mailto:cpebenito@tresys.com]
+> > Sent: Friday, November 30, 2007 6:11 AM
+> > To: Clarkson, Mike R (US SSA)
+> > Cc: selinux@tycho.nsa.gov
+> > Subject: Re: missing rules in newrole domain (RHEL5.1)
+> > 
+> > On Thu, 2007-11-29 at 17:49 -0800, Clarkson, Mike R (US SSA) wrote:
+> > > I recently switched from a targeted-mls policy to the RHEL5.1 mls
+> > > policy. I found that "newrole -r sysadm" failed in enforcing mode,
+> even
+> > > though my selinux user was "root".
+> > >
+> > > I had to add "files_search_default(newrole_t)" and
+> > > "files_getattr_default_dirs(newrole_t)" to the selinuxutil.te file
+> to
+> > > allow newrole to getattr and search the /tmp-inst directory (type
+> > > default_t).
+> > >
+> > > This was happening even with the read_default_t boolean set to true.
+> > >
+> > > Here are the avc denial messages that I was getting:
+> > >
+> > > type=AVC msg=audit(1196385320.559:722): avc:  denied  { getattr }
+> for
+> > > pid=5092 comm="newrole" path="/tmp-inst" dev=sda1 ino=5341337
+> > > scontext=root:staff_r:newrole_t:s0-s4:c0.c255
+> > > tcontext=system_u:object_r:default_t:s0 tclass=dir
+> > >
+> > > type=AVC msg=audit(1196385320.559:723): avc:  denied  { search } for
+> > > pid=5092 comm="newrole" name="tmp-inst" dev=sda1 ino=5341337
+> > > scontext=root:staff_r:newrole_t:s0-s4:c0.c255
+> > > tcontext=system_u:object_r:default_t:s0 tclass=dir
+> > >
+> > > I'm assuming this should have worked out of the box without having
+> to
+> > > add these rules. Is there some configuration step that I missed?
+> > 
+> > It just means that you newroled while you were in this directory.
+> > Newrole doesn't utilize read_default_t because we don't want
+> privileged
+> > programs like newrole accessing random default_t objects.
+> 
+> This happens regardless of the directory in which I am located when I
+> use newrole. Newrole needs these because we have set up
+> polyinstantiation of the /tmp directory. The instance directories which
+> newrole binds to the /tmp directory are located in the /tmp-inst
+> directory. 
 
-Oops, yeah I meant &.
+If thats the case, then it should be labeled tmp_t too.  If this is a
+default location for /tmp instances, then we can get this into the
+policy (I thought instances were hidden dirs under /tmp).
 
-> | making ptrace more powerful than it is now. If you make it
-> CAP_NS_OVERRIDE only, then the problem goes away.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-I was seeing CAP_NS_OVERRIDE as more of a modifier to other
-capabilities.  So (CAP_NS_OVERRIDE&CAP_KILL) means you can
-signal processes in another namespace.
-(CAP_NS_OVERRIDE&CAP_DAC_OVERRIDE) means you can override (currently
-nonexistent) DAC file access checks in another user namespace.
-(CAP_NS_OVERRIDE&CAP_MKNOD) means you can create devices which your
-container isn't allowed to create.
-
-Yup, this is all somewhat looking ahead...
-
--serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
