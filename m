@@ -1,154 +1,117 @@
-Message-ID: <47546BE8.4010201@redhat.com>
-Date: Mon, 03 Dec 2007 15:49:44 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB3LrUEO011124
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 16:53:30 -0500
+Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lB3LrTo0008673
+	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 21:53:29 GMT
+Received: by nz-out-0506.google.com with SMTP id i1so2206813nzh
+        for <selinux@tycho.nsa.gov>; Mon, 03 Dec 2007 13:53:29 -0800 (PST)
+Message-ID: <f71a82820712031353r6531c257u8845617d9072f36d@mail.gmail.com>
+Date: Tue, 4 Dec 2007 06:53:28 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux <selinux@tycho.nsa.gov>
+Subject: Re: libsepol.expand_terule_helper: duplicate TE rule
+In-Reply-To: <1196691444.25613.0.camel@gorn>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Todd Miller <Tmiller@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: libsemanage patch
-References: <4754599A.8060605@redhat.com>	 <6FE441CD9F0C0C479F2D88F959B0158801455C46@exchange.columbia.tresys.com> <1196711592.27820.133.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1196711592.27820.133.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------030206010006080900010208"
+Content-Type: text/plain; charset=ISO-8859-1
+References: <f71a82820712010015yafc65dfm21d3f21fbb264008@mail.gmail.com>
+	 <1196546279.4808.2.camel@defiant.pebenito.net>
+	 <f71a82820712011518u409799c9wa48902f7062f6c02@mail.gmail.com>
+	 <1196691444.25613.0.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030206010006080900010208
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Here's I get.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+# rpm -qa|grep selinux
+libselinux-python-2.0.43-1.fc8
+selinux-policy-mls-3.0.8-58.fc8
+selinux-doc-1.26-1.1
+selinux-policy-3.0.8-58.fc8
+selinux-policy-targeted-3.0.8-58.fc8
+libselinux-devel-2.0.43-1.fc8
+libselinux-2.0.43-1.fc8
+selinux-policy-devel-3.0.8-58.fc8
 
-Stephen Smalley wrote:
-> On Mon, 2007-12-03 at 14:51 -0500, Todd Miller wrote:
->> Daniel J Walsh wrote:
->>> -----BEGIN PGP SIGNED MESSAGE-----
->>> Hash: SHA1
->>>
->>> genhomedircon includes the "\n" in /etc/shells so no shells in the
->>> /etc/passwd match.
->> Isn't this going to cause problems if the last line in /etc/shells has
->> no newline?
->>
->> Instead of:
->>     temp[strlen(temp)-1]=0;
->>
->> I would use:
->>     temp[strcspn(temp, "\n")] = '\0';
->>
->> That will overwrite the first newline with a NUL or, if there is no
->> newline, the terminating NUL will be overwritten with another NUL, which
->> is harmless.  It is a useful idiom...
-> 
-> Given that getline() returns the length read (not to be confused with
-> the buffer length), why not just:
-> 	while ((len = getline(&temp, &buff_len, shells)) > 0) {
-> 		if (temp[len-1] == '\n') temp[len-1] = 0;
-> 
-Second try.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+I really want to get F8 server run (apache)..
 
-iD8DBQFHVGvnrlYvE4MpobMRAhxfAJ4vuvC1uijEUDqFdj8Ju+cTJQIqoQCeMVqP
-086ZRyvnHu9fsF7V8hLeEyI=
-=jyGo
------END PGP SIGNATURE-----
+2007/12/3, Christopher J. PeBenito <cpebenito@tresys.com>:
+> On Sun, 2007-12-02 at 08:18 +0900, Shintaro Fujiwara wrote:
+> > Well, as a matter of fact, I installed apache from source.
+> > So, I installed apche into /usr/local/apache2.
+> >
+> > I set /etc/selinux/config permissive and found that apache
+> > runs in initrc_t.
+> > But, of course I want to make it run httpd_t.
+> >
+> > So, I tried to edit your refpolicy downloading from repository,
+> > newest version.
+>
+> And the remainder of the policy is which fedora policy version?
+>
+> > I commented every
+> >
+> > type ...
+> > bool ...
+> > atribute...
+> >
+> > including .if of templates.
+> >
+> > and set them require {}.
+> >
+> > I succeeded make apache.pp all-right, but when I tried to install by
+> > semodule -i apache.pp,
+> > expand_terule_helper says it has an error.
+> >
+> > I found exim module in services directory but could not found
+> > anything like process system_mail_t
+> > I could not found those in tmp/apache.mod either.
+> >
+> > It's first time I see this error and don't know what it is.
+> >
+> > I messed up policy apache or some kind of bug ?
+> >
+> > I succeeded install postgresql and mysql by this method all-right.
+> >
+> > Thanks for your quick response.
+> >
+> >
+> > 2007/12/2, Chris PeBenito <pebenito@gentoo.org>:
+> > > On Sat, 2007-12-01 at 17:15 +0900, Shintaro Fujiwara wrote:
+> > > > When I try to install apache.pp,
+> > > >
+> > > > libsepol.expand_terule_helper: duplicate TE rule for httpd_t
+> > > > exim_exec_t:process system_mail_t
+> > > > libsepol.expand_module: Error during expand
+> > > > libsemanage.semanage_expand_sandbox: Expand module failed
+> > > > semodule:  Failed!
+> > > >
+> > > > I can't find any lines concerning exim_exec_t anywhere...
+> > > > Please help.
+> > >
+> > > Which distro policy are you using?
+>
+> --
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
+>
+>
 
---------------030206010006080900010208
-Content-Type: text/x-patch;
- name="libsemanage-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage-rhat.patch"
 
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.14/src/genhomedircon.c
---- nsalibsemanage/src/genhomedircon.c	2007-10-05 13:09:53.000000000 -0400
-+++ libsemanage-2.0.14/src/genhomedircon.c	2007-12-03 15:47:19.000000000 -0500
-@@ -130,11 +130,13 @@
- 	char *temp = NULL;
- 	semanage_list_t *list = NULL;
- 	size_t buff_len = 0;
-+	int len;
- 
- 	shells = fopen(PATH_SHELLS_FILE, "r");
- 	if (!shells)
- 		return default_shell_list();
--	while (getline(&temp, &buff_len, shells) >= 0) {
-+	while ((len = getline(&temp, &buff_len, shells)) > 0) {
-+		if (temp[len-1] == '\n') temp[len-1] = 0;
- 		if (strcmp(temp, PATH_NOLOGIN_SHELL)) {
- 			if (semanage_list_push(&list, temp)) {
- 				free(temp);
-@@ -790,7 +792,7 @@
- 	homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
- 	homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
- 	user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
--	if (!homedir_context_tpl || !homeroot_context_tpl || !user_context_tpl) {
-+	if (!homedir_context_tpl || !homeroot_context_tpl) {
- 		retval = STATUS_ERR;
- 		goto done;
- 	}
-@@ -828,16 +830,18 @@
- 
- 		ustr_sc_free(&temp);
- 	}
--	if (write_user_context(s, out, user_context_tpl,
--			       ".*", s->fallback_user,
--			       s->fallback_user_prefix) != STATUS_SUCCESS) {
--		retval = STATUS_ERR;
--		goto done;
--	}
-+	if (user_context_tpl) {
-+		if (write_user_context(s, out, user_context_tpl,
-+				       ".*", s->fallback_user,
-+				       s->fallback_user_prefix) != STATUS_SUCCESS) {
-+			retval = STATUS_ERR;
-+			goto done;
-+		}
- 
--	if (write_gen_home_dir_context(s, out, user_context_tpl,
--				       homedir_context_tpl) != STATUS_SUCCESS) {
--		retval = STATUS_ERR;
-+		if (write_gen_home_dir_context(s, out, user_context_tpl,
-+					       homedir_context_tpl) != STATUS_SUCCESS) {
-+			retval = STATUS_ERR;
-+		}
- 	}
- 
-       done:
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/handle.c libsemanage-2.0.14/src/handle.c
---- nsalibsemanage/src/handle.c	2007-08-20 19:15:37.000000000 -0400
-+++ libsemanage-2.0.14/src/handle.c	2007-11-10 06:21:33.000000000 -0500
-@@ -27,6 +27,7 @@
- #include <assert.h>
- #include <stdlib.h>
- #include <stdio.h>
-+#include <string.h>
- #include <sys/time.h>
- 
- #include "direct_api.h"
-@@ -131,7 +132,7 @@
- 
- 	/* This just sets the storename to what the user requests, no 
- 	   verification of existance will be done until connect */
--	sh->conf->store_path = storename;
-+	sh->conf->store_path = strdup(storename);
- 	sh->conf->store_type = storetype;
- 
- 	return;
-
---------------030206010006080900010208
-Content-Type: application/octet-stream;
- name="libsemanage-rhat.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="libsemanage-rhat.patch.sig"
-
-iD8DBQBHVGvnrlYvE4MpobMRAmQCAJ9dxmVoB8fAttERA8arHInVYjbgWQCg0C+XwyvbtdcE
-aftfp1mD2PuRanw=
---------------030206010006080900010208--
+-- 
+Shintaro Fujiwara
+segatex project (SELinux policy tool)
+http://sourceforge.net/projects/segatex/
+Home page
+http://intrajp.no-ip.com/
+Blog
+http://intrajp.no-ip.com/nucleus/
+CMS
+http://intrajp.no-ip.com/xoops/
+Wiki
+http://intrajp.no-ip.com/pukiwiki/
 
 --
 This message was distributed to subscribers of the selinux mailing list.
