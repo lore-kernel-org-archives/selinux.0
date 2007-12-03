@@ -1,84 +1,63 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB3EHajA025081
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 09:17:36 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lB3EHXbQ026583
-	for <selinux@tycho.nsa.gov>; Mon, 3 Dec 2007 14:17:35 GMT
-Subject: Re: libsepol.expand_terule_helper: duplicate TE rule
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
-Cc: Chris PeBenito <pebenito@gentoo.org>, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <f71a82820712011518u409799c9wa48902f7062f6c02@mail.gmail.com>
-References: <f71a82820712010015yafc65dfm21d3f21fbb264008@mail.gmail.com>
-	 <1196546279.4808.2.camel@defiant.pebenito.net>
-	 <f71a82820712011518u409799c9wa48902f7062f6c02@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 03 Dec 2007 09:17:24 -0500
-Message-Id: <1196691444.25613.0.camel@gorn>
-Mime-Version: 1.0
+Date: Mon, 3 Dec 2007 08:50:12 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Crispin Cowan <crispin@crispincowan.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <method@manicmethod.com>,
+        Mark Nelson <markn@au1.ibm.com>, containers@lists.linux-foundation.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        menage@google.com, James Morris <jmorris@namei.org>
+Subject: Re: [PATCH 2/2] hijack: update task_alloc_security
+Message-ID: <20071203145012.GB9008@sergelap.austin.ibm.com>
+References: <474B78CB.5070607@au1.ibm.com> <474B7A51.3080300@au1.ibm.com> <474BB095.8080302@manicmethod.com> <1196174188.3925.32.camel@moss-spartans.epoch.ncsc.mil> <20071127154356.GA32362@sergelap.austin.ibm.com> <474D0188.2040600@crispincowan.com> <20071128145422.GC3820@sergelap.austin.ibm.com> <474E3E4E.3060908@crispincowan.com> <20071129153815.GA8140@sergelap.austin.ibm.com> <47520568.6030108@crispincowan.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <47520568.6030108@crispincowan.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2007-12-02 at 08:18 +0900, Shintaro Fujiwara wrote:
-> Well, as a matter of fact, I installed apache from source.
-> So, I installed apche into /usr/local/apache2.
-> 
-> I set /etc/selinux/config permissive and found that apache
-> runs in initrc_t.
-> But, of course I want to make it run httpd_t.
-> 
-> So, I tried to edit your refpolicy downloading from repository,
-> newest version.
-
-And the remainder of the policy is which fedora policy version?
-
-> I commented every
-> 
-> type ...
-> bool ...
-> atribute...
-> 
-> including .if of templates.
-> 
-> and set them require {}.
-> 
-> I succeeded make apache.pp all-right, but when I tried to install by
-> semodule -i apache.pp,
-> expand_terule_helper says it has an error.
-> 
-> I found exim module in services directory but could not found
-> anything like process system_mail_t
-> I could not found those in tmp/apache.mod either.
-> 
-> It's first time I see this error and don't know what it is.
-> 
-> I messed up policy apache or some kind of bug ?
-> 
-> I succeeded install postgresql and mysql by this method all-right.
-> 
-> Thanks for your quick response.
-> 
-> 
-> 2007/12/2, Chris PeBenito <pebenito@gentoo.org>:
-> > On Sat, 2007-12-01 at 17:15 +0900, Shintaro Fujiwara wrote:
-> > > When I try to install apache.pp,
-> > >
-> > > libsepol.expand_terule_helper: duplicate TE rule for httpd_t
-> > > exim_exec_t:process system_mail_t
-> > > libsepol.expand_module: Error during expand
-> > > libsemanage.semanage_expand_sandbox: Expand module failed
-> > > semodule:  Failed!
-> > >
-> > > I can't find any lines concerning exim_exec_t anywhere...
-> > > Please help.
+Quoting Crispin Cowan (crispin@crispincowan.com):
+> Serge E. Hallyn wrote:
+> > Quoting Crispin Cowan (crispin@crispincowan.com):
+> >   
+> >> I find that ptrace, specifically CAP_SYS_PTRACE, is overloaded. AppArmor
+> >> is having problems because we have to choose between granting
+> >> cap_sys_ptrace, or not allowing the process to read /proc/pid/self &
+> >> such like. So there, the problem is that we have to grant too much power
+> >> to a process to just let it read some /proc stuff about itself.
+> >>
+> >> Here the problem appears to be the other way. cap_sys_ptrace is powerful
+> >> enough to mess with other user's processes on the system, but if ptrace
+> >> gives you hijack, then that seems to give you the power to control
+> >> processes in someone else's namespace.
+> >>     
+> > The user namespace patchset I'm working on right now to start having
+> > signals respect user namespaces introduces CAP_NS_OVERRIDE.  Once that
+> > is in, then hijack would require CAP_NS_OVERRIDE|CAP_SYS_PTRACE.
 > >
-> > Which distro policy are you using?
+> > Of course, since we're considering only allowing HIJACK_NS which is
+> > only allowed into a different namespace, hijack would then always
+> > require CAP_NS_OVERRIDE...
+> >
+> > Does that suffice?
+> >   
+> I think that CAP_NS_OVERRIDE|CAP_SYS_PTRACE is a problem because of the
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Oops, yeah I meant &.
 
+> | making ptrace more powerful than it is now. If you make it
+> CAP_NS_OVERRIDE only, then the problem goes away.
+
+I was seeing CAP_NS_OVERRIDE as more of a modifier to other
+capabilities.  So (CAP_NS_OVERRIDE&CAP_KILL) means you can
+signal processes in another namespace.
+(CAP_NS_OVERRIDE&CAP_DAC_OVERRIDE) means you can override (currently
+nonexistent) DAC file access checks in another user namespace.
+(CAP_NS_OVERRIDE&CAP_MKNOD) means you can create devices which your
+container isn't allowed to create.
+
+Yup, this is all somewhat looking ahead...
+
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
