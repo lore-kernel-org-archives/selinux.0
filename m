@@ -1,45 +1,50 @@
-From: Paul Moore <paul.moore@hp.com>
+Subject: Re: PATCH: audit format mismatch for inode number
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Todd C. Miller" <tmiller@tresys.com>
-Subject: Re: PATCH: peersid capability support
-Date: Tue, 4 Dec 2007 14:26:09 -0500
-Cc: selinux@tycho.nsa.gov, jbrindle@tresys.com, sds@tycho.nsa.gov
-References: <200712031941.lB3Jf7PK008934@cadmus.columbia.tresys.com>
-In-Reply-To: <200712031941.lB3Jf7PK008934@cadmus.columbia.tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200712041426.09866.paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200712041901.lB4J1jhU019364@cadmus.columbia.tresys.com>
+References: <200712041901.lB4J1jhU019364@cadmus.columbia.tresys.com>
+Content-Type: text/plain
+Date: Tue, 04 Dec 2007 15:09:42 -0500
+Message-Id: <1196798982.7491.125.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 03 December 2007 2:41:07 pm Todd C. Miller wrote:
-> > Stephen Smalley wrote:
-> > Looks like the libsepol patch puts the policycaps ebitmap at a different
-> > location in the policy image than the kernel patch expects.
->
-> I had initially changed the ebitmap reading/writing location from
-> where Josh had it to work around an issue with semodule.  This version
-> preserves the location in the final policy binary without confusing
-> sepol_module_package_info().
+On Tue, 2007-12-04 at 14:01 -0500, Todd C. Miller wrote:
+> i_ino is unsigned.  We recently saw an audit message with a negative
+> inode number in procfs due to this.
 
-Okay, well that at least loaded my simple test policy but it didn't appear to 
-have any effect on /selinux/policy_capabilities/network_peer_controls.  This 
-may be a problem with the kernel patch but before I started digging around I 
-thought I would first check with you on the correct policy syntax.
+http://marc.info/?l=git-commits-head&m=118427505410046&w=2
 
-I'm using a Rawhide targeted policy and I'm loading a simple policy module 
-with the following statements:
-
- policy_module(peer_test,0.0.1)
- policycap network_peer_controls;
- type peer_test_t;
-
-It compiles (using /usr/share/selinux/devel/Makefile) and loads (semodule -i 
-peer_test.pp) but I'm not certain I haven't messed something up.  Thoughts?
-
+>  - todd
+> 
+> Signed-off-by: Todd C. Miller <tmiller@tresys.com>
+> 
+> ---
+> 
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index e4396a8..e233a3d 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -586,7 +586,7 @@ void avc_audit(u32 ssid, u32 tsid,
+>  				}
+>  			}
+>  			if (inode)
+> -				audit_log_format(ab, " dev=%s ino=%ld",
+> +				audit_log_format(ab, " dev=%s ino=%lu",
+>  						 inode->i_sb->s_id,
+>  						 inode->i_ino);
+>  			break;
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
