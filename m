@@ -1,44 +1,83 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Dave Quigley <dpquigl@tycho.nsa.gov>
-Subject: Re: Interface for DOI mapping
-Date: Mon, 3 Dec 2007 16:16:02 -0500
-Cc: Labeled NFS <labeled-nfs@linux-nfs.org>, SE Linux <selinux@tycho.nsa.gov>
-References: <1196713965.31856.19.camel@moss-terrapins.epoch.ncsc.mil>
-In-Reply-To: <1196713965.31856.19.camel@moss-terrapins.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200712031616.03019.paul.moore@hp.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB4Afi7W030084
+	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2007 05:41:44 -0500
+Received: from ppsw-4.csi.cam.ac.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lB4Afh44004205
+	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2007 10:41:43 GMT
+Received: from mpo25.trin.private.cam.ac.uk ([172.16.113.134]:41052)
+	by ppsw-4.csi.cam.ac.uk (ppsw.cam.ac.uk [131.111.8.134]:25)
+	with esmtp id 1IzVDf-0007SU-DP (Exim 4.63) for selinux@tycho.nsa.gov
+	(return-path <martin@martinorr.name>); Tue, 04 Dec 2007 10:41:39 +0000
+Message-ID: <47552ECF.4020105@martinorr.name>
+Date: Tue, 04 Dec 2007 10:41:19 +0000
+From: Martin Orr <martin@martinorr.name>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_caligula-5689-1196764899-0001-2"
+To: Chris PeBenito <pebenito@gentoo.org>
+CC: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>,
+        selinux@tycho.nsa.gov
+Subject: Re: refpolicy HEAD, Debian, patch for udev.te
+References: <20071126144547.GA334@bobek.pm.i.cz>	 <1196189369.30997.6.camel@gorn> <474F1BD4.2010908@martinorr.name>	 <20071130134933.GA11780@bobek.pm.i.cz> <1196433514.4298.42.camel@gorn>	 <20071130153024.GA13299@bobek.pm.i.cz> <1196438149.4298.43.camel@gorn>	 <47504744.9040202@martinorr.name> <1196551302.4808.6.camel@defiant.pebenito.net>
+In-Reply-To: <1196551302.4808.6.camel@defiant.pebenito.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 03 December 2007 3:32:45 pm Dave Quigley wrote:
->     With help from Neil I have the actual daemon code working for DOI
-> translations. Now I have to come up with an interface for allowing an
-> LSM to specify its translations. Either in the form of a separate
-> library or in the daemon code itself I intend to dlopen a shared library
-> and make calls into it. The question is what functionality do we want
-> here and where should it be placed.
->
-> In the long run it would be nice to have a server which maintains the
-> mappings for all of the clients in its domain similar to kerberos.
-> However the client also needs to be able to operate without such a
-> server.
->
-> If you have suggestions for this feel free to make them now while I am
-> still designing this.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-The first question that immediately springs to mind is "which DOI?"  I know 
-you are currently focused on labeled NFS and how to translate file labels 
-between different MAC implementations but I think it is worthwhile to broaden 
-the scope of the DOI translation effort.  I know that both CIPSO and labeled 
-IPsec have DOI attributes and a proper DOI translation mechanism could have 
-benefits here too.  There are probably others (labeled X? labeled databases?) 
-but I'm not knowledgeable enough in those areas to say for certain.
+--=_caligula-5689-1196764899-0001-2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
--- 
-paul moore
-linux security @ hp
+On 01/12/07 23:21, Chris PeBenito wrote:
+> On Fri, 2007-11-30 at 17:24 +0000, Martin Orr wrote:
+>> On 30/11/07 15:55, Christopher J. PeBenito wrote:
+>>> On Fri, 2007-11-30 at 16:30 +0100, V=E1clav Ovs=EDk wrote:
+>>>> On Fri, Nov 30, 2007 at 09:38:33AM -0500, Christopher J. PeBenito wr=
+ote:
+>>>>>> Corresponding code is in udev_node.c, function node_symlink().
+>>>>>>     if (strcmp(target, buf) =3D=3D 0) {
+>>>>>> 	    info("preserve already existing symlink '%s' to '%s'", slink,=
+
+>>>>>> target);
+>>>>>> 	    selinux_setfilecon(slink, NULL, S_IFLNK);
+>>>>>> 	    goto exit;
+>>>>>>     }
+>>>>> I'll add the rule.  Perhaps someone should send up a patch to remov=
+e the
+>>>>> setfilecon, and update the info message.
+> Yes, thats what I was thinkin.  Since the function is node_symlink(),
+> I'm guessing there is a similar function for char and block node, etc?
+> Those should be checked to make sure they don't do unneeded relabeling
+> too.
+
+That's true.  And for char and block nodes, it also does a chmod to reset=
+
+the permissions.  Apparently this is intended, because "you can't expect
+that the properties of a pre-existing node are correct."
+
+Best wishes,
+
+--=20
+Martin Orr
+
+
+--=_caligula-5689-1196764899-0001-2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Transfer-Encoding: 7bit
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFHVS7VZ6a/BjxtAMARAssNAJ45jL/KEmRrCZmI4n47wpq/URtWwACeNxuG
+3drSQ3ACHQuYP7FOat43RVQ=
+=Tc+t
+-----END PGP SIGNATURE-----
+
+--=_caligula-5689-1196764899-0001-2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
