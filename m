@@ -1,35 +1,41 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB4EwYjP020396
-	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2007 09:58:34 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lB4EwYNt006157
-	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2007 14:58:34 GMT
-Subject: Re: Many confined domains are calling getpw calls.
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB4F4X1t020983
+	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2007 10:04:33 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lB4F4WOd010485
+	for <selinux@tycho.nsa.gov>; Tue, 4 Dec 2007 15:04:32 GMT
+Subject: Re: refpolicy HEAD, Debian, ioctl on xconsole by syslogd
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <47545A14.3060602@redhat.com>
-References: <47545A14.3060602@redhat.com>
-Content-Type: text/plain
-Date: Tue, 04 Dec 2007 09:57:54 -0500
-Message-Id: <1196780274.5854.42.camel@gorn>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20071204111755.GB27359@bobek.pm.i.cz>
+References: <20071204111755.GB27359@bobek.pm.i.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 04 Dec 2007 10:04:21 -0500
+Message-Id: <1196780661.5854.44.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-12-03 at 14:33 -0500, Daniel J Walsh wrote:
-> This causes these confined domains to require auth_use_nsswitch.
+On Tue, 2007-12-04 at 12:17 +0100, Václav Ovsík wrote:
+> Hi,
+> when starting syslogd by init script:
 > 
-> I have searched through and cleaned up a lot of policy using this method.
+> audit(1196761642.698:3): avc:  denied { ioctl } for  pid=1353
+> comm="syslogd" name="xconsole" dev=tmpfs ino=3703
+> scontext=system_u:system_r:syslogd_t:s0
+> tcontext=system_u:object_r:xconsole_device_t:s0 tclass=fifo_file 
 > 
-> Extracted from my massive patch for easier application.
+> attached patch, that xserver_rw_console() gives ioctl permission.
+> Can be merged?
 
-Merged.
+I switched it to use rw_fifo_file_perms instead.
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
+
 
 
 --
