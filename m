@@ -1,254 +1,236 @@
-Message-Id: <20071205184958.203712771@tresys.com>
+Message-Id: <20071205184958.921429227@tresys.com>
 References: <20071205184848.180973622@tresys.com>
-Date: Wed, 05 Dec 2007 13:48:49 -0500
+Date: Wed, 05 Dec 2007 13:48:50 -0500
 From: tmiller@tresys.com
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, paul.moore@hp.com, jbrindle@tresys.com
-Subject: [patch 1/2] library policy capability support
+Subject: [patch 2/2] checkpolicy capability support
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch includes the library support for policy capabilities.
-Currently the only capability that exists is peersid.
+This patch includes checkpolicy support for policy capabilities.
+Policy capabilities are declared like so:
+
+policycap network_peer_controls;
+
+Also included is dismod/dispol support for printing the capabilities.
+I chose to use the 'c' command for this in both dismod and dispol to
+keep things consistent (dismod has run out of numbered commands).
 
 Signed-off-by: Todd C. Miller <tmiller@tresys.com>
 
 --
 
-Index: trunk/libsepol/include/sepol/policydb/polcaps.h
+Index: trunk/checkpolicy/test/dismod.c
 ===================================================================
---- /dev/null
-+++ trunk/libsepol/include/sepol/policydb/polcaps.h
-@@ -0,0 +1,17 @@
-+#ifndef _SEPOL_POLICYDB_POLCAPS_H_
-+#define _SEPOL_POLICYDB_POLCAPS_H_
-+
-+/* Policy capabilities */
-+enum {
-+	POLICYDB_CAPABILITY_NETPEER,
-+	__POLICYDB_CAPABILITY_MAX
-+};
-+#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-+
-+/* Convert a capability name to number. */
-+extern int sepol_polcap_getnum(const char *name);
-+
-+/* Convert a capability number to name. */
-+extern const char *sepol_polcap_getname(int capnum);
-+
-+#endif /* _SEPOL_POLICYDB_POLCAPS_H_ */
-Index: trunk/libsepol/src/polcaps.c
-===================================================================
---- /dev/null
-+++ trunk/libsepol/src/polcaps.c
-@@ -0,0 +1,32 @@
-+/*
-+ * Policy capability support functions
-+ */
-+
-+#include <string.h>
+--- trunk.orig/checkpolicy/test/dismod.c
++++ trunk/checkpolicy/test/dismod.c
+@@ -34,6 +34,7 @@
+ #include <sepol/policydb/link.h>
+ #include <sepol/policydb/module.h>
+ #include <sepol/policydb/util.h>
 +#include <sepol/policydb/polcaps.h>
-+
-+static const char *polcap_names[] = {
-+	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
-+	NULL
-+};
-+
-+int sepol_polcap_getnum(const char *name)
+ 
+ #include <byteswap.h>
+ #include <endian.h>
+@@ -765,6 +766,26 @@ static void link_module(policydb_t * bas
+ 	return;
+ }
+ 
++static void display_policycaps(policydb_t * p, FILE * fp)
 +{
++	ebitmap_node_t *node;
++	const char *capname;
++	char buf[64];
++	int i;
++
++	fprintf(fp, "policy capabilities:\n");
++	ebitmap_for_each_bit(&p->policycaps, node, i) {
++		if (ebitmap_get_bit(&p->policycaps, i)) {
++			capname = sepol_polcap_getname(i);
++			if (capname == NULL) {
++				snprintf(buf, sizeof(buf), "unknown (%d)", i);
++				capname = buf;
++			}
++			fprintf(fp, "\t%s\n", capname);
++		}
++	}
++}
++
+ int menu()
+ {
+ 	printf("\nSelect a command:\n");
+@@ -781,6 +802,7 @@ int menu()
+ 	printf("\n");
+ 	printf("a)  Display avrule requirements\n");
+ 	printf("b)  Display avrule declarations\n");
++	printf("c)  Display policy capabilities\n");
+ 	printf("l)  Link in a module\n");
+ 	printf("u)  Display the unknown handling setting\n");
+ 	printf("\n");
+@@ -891,6 +913,9 @@ int main(int argc, char **argv)
+ 			fprintf(out_fp, "avrule block declarations:\n");
+ 			display_avblock(6, 0, &policydb, out_fp);
+ 			break;
++		case 'c':
++			display_policycaps(&policydb, out_fp);
++			break;
+ 		case 'u':
+ 		case 'U':
+ 			display_handle_unknown(&policydb, out_fp);
+Index: trunk/checkpolicy/test/dispol.c
+===================================================================
+--- trunk.orig/checkpolicy/test/dispol.c
++++ trunk/checkpolicy/test/dispol.c
+@@ -23,6 +23,7 @@
+ #include <sepol/policydb/conditional.h>
+ #include <sepol/policydb/expand.h>
+ #include <sepol/policydb/util.h>
++#include <sepol/policydb/polcaps.h>
+ #include <getopt.h>
+ #include <assert.h>
+ #include <unistd.h>
+@@ -298,6 +299,26 @@ int change_bool(char *name, int state, p
+ 	return 0;
+ }
+ 
++static void display_policycaps(policydb_t * p, FILE * fp)
++{
++	ebitmap_node_t *node;
++	const char *capname;
++	char buf[64];
++	int i;
++
++	fprintf(fp, "policy capabilities:\n");
++	ebitmap_for_each_bit(&p->policycaps, node, i) {
++		if (ebitmap_get_bit(&p->policycaps, i)) {
++			capname = sepol_polcap_getname(i);
++			if (capname == NULL) {
++				snprintf(buf, sizeof(buf), "unknown (%d)", i);
++				capname = buf;
++			}
++			fprintf(fp, "\t%s\n", capname);
++		}
++	}
++}
++
+ int menu()
+ {
+ 	printf("\nSelect a command:\n");
+@@ -309,6 +330,7 @@ int menu()
+ 	printf("6)  display conditional expressions\n");
+ 	printf("7)  change a boolean value\n");
+ 	printf("\n");
++	printf("c)  display policy capabilities\n");
+ 	printf("u)  display unknown handling setting\n");
+ 	printf("f)  set output file\n");
+ 	printf("m)  display menu\n");
+@@ -421,6 +443,9 @@ int main(int argc, char **argv)
+ 			change_bool(name, state, &policydb, out_fp);
+ 			free(name);
+ 			break;
++		case 'c':
++			display_policycaps(&policydb, out_fp);
++			break;
+ 		case 'u':
+ 		case 'U':
+ 			display_handle_unknown(&policydb, out_fp);
+Index: trunk/checkpolicy/policy_scan.l
+===================================================================
+--- trunk.orig/checkpolicy/policy_scan.l
++++ trunk/checkpolicy/policy_scan.l
+@@ -201,6 +201,8 @@ h1 |
+ H1				{ return(H1); }
+ h2 |
+ H2				{ return(H2); }
++policycap |
++POLICYCAP			{ return(POLICYCAP);}
+ "/"({alnum}|[_.-/])*	        { return(PATH); }
+ {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
+ {digit}+                        { return(NUMBER); }
+Index: trunk/checkpolicy/policy_parse.y
+===================================================================
+--- trunk.orig/checkpolicy/policy_parse.y
++++ trunk/checkpolicy/policy_parse.y
+@@ -47,6 +47,7 @@
+ #include <sepol/policydb/conditional.h>
+ #include <sepol/policydb/flask.h>
+ #include <sepol/policydb/hierarchy.h>
++#include <sepol/policydb/polcaps.h>
+ #include "queue.h"
+ #include "checkpolicy.h"
+ #include "module_compiler.h"
+@@ -198,6 +199,7 @@ typedef int (* require_func_t)();
+ %token IPV4_ADDR
+ %token IPV6_ADDR
+ %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
++%token POLICYCAP
+ 
+ %left OR
+ %left XOR
+@@ -323,6 +325,7 @@ te_decl			: attribute_def
+                         | transition_def
+                         | range_trans_def
+                         | te_avtab_def
++			| policycap_def
+ 			;
+ attribute_def           : ATTRIBUTE identifier ';'
+                         { if (define_attrib()) return -1;}
+@@ -765,6 +768,9 @@ number			: NUMBER 
+ ipv6_addr		: IPV6_ADDR
+ 			{ if (insert_id(yytext,0)) return -1; }
+ 			;
++policycap_def		: POLICYCAP identifier ';'
++			{if (define_polcap()) return -1;}
++			;
+ 
+ /*********** module grammar below ***********/
+ 
+@@ -962,6 +968,44 @@ static int define_class(void)
+ 	return -1;
+ }
+ 
++static int define_polcap(void)
++{
++	char *id = 0;
 +	int capnum;
 +
-+	for (capnum = 0; capnum <= POLICYDB_CAPABILITY_MAX; capnum++) {
-+		if (polcap_names[capnum] == NULL)
-+			continue;
-+		if (strcasecmp(polcap_names[capnum], name) == 0)
-+			return capnum;
++	if (pass == 2) {
++		id = queue_remove(id_queue);
++		free(id);
++		return 0;
 +	}
++
++	id = (char *)queue_remove(id_queue);
++	if (!id) {
++		yyerror("no capability name for policycap definition?");
++		goto bad;
++	}
++
++	/* Check for valid cap name -> number mapping */
++	capnum = sepol_polcap_getnum(id);
++	if (capnum < 0) {
++		yyerror2("invalid policy capability name %s", id);
++		goto bad;
++	}
++
++	/* Store it */
++	if (ebitmap_set_bit(&policydbp->policycaps, capnum, TRUE)) {
++		yyerror("out of memory");
++		goto bad;
++	}
++
++	free(id);
++	return 0;
++
++      bad:
++	free(id);
 +	return -1;
 +}
 +
-+const char *sepol_polcap_getname(int capnum)
-+{
-+	if (capnum > POLICYDB_CAPABILITY_MAX)
-+		return NULL;
-+
-+	return polcap_names[capnum];
-+}
-Index: trunk/libsepol/include/sepol/policydb/policydb.h
-===================================================================
---- trunk.orig/libsepol/include/sepol/policydb/policydb.h
-+++ trunk/libsepol/include/sepol/policydb/policydb.h
-@@ -468,6 +468,8 @@ typedef struct policydb {
- 
- 	ebitmap_t *attr_type_map;	/* not saved in the binary policy */
- 
-+	ebitmap_t policycaps;
-+
- 	unsigned policyvers;
- 
- 	unsigned handle_unknown;
-@@ -584,10 +586,11 @@ extern int policydb_write(struct policyd
- #define POLICYDB_VERSION_MLS		19
- #define POLICYDB_VERSION_AVTAB		20
- #define POLICYDB_VERSION_RANGETRANS	21
-+#define POLICYDB_VERSION_POLCAP		22
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
- 
- /* Module versions and specific changes*/
- #define MOD_POLICYDB_VERSION_BASE	   4
-@@ -595,9 +598,10 @@ extern int policydb_write(struct policyd
- #define MOD_POLICYDB_VERSION_MLS	   5
- #define MOD_POLICYDB_VERSION_RANGETRANS	   6
- #define MOD_POLICYDB_VERSION_MLS_USERS	   6
-+#define MOD_POLICYDB_VERSION_POLCAP	   7
- 
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_MLS_USERS
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_POLCAP
- 
- #define POLICYDB_CONFIG_MLS    1
- 
-Index: trunk/libsepol/src/policydb.c
-===================================================================
---- trunk.orig/libsepol/src/policydb.c
-+++ trunk/libsepol/src/policydb.c
-@@ -99,6 +99,12 @@ static struct policydb_compat_info polic
- 	 .ocon_num = OCON_NODE6 + 1,
- 	 },
- 	{
-+	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_POLCAP,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 },
-+	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -117,6 +123,12 @@ static struct policydb_compat_info polic
- 	 .ocon_num = OCON_NODE6 + 1,
- 	 },
- 	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_POLCAP,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 },
-+	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -132,6 +144,12 @@ static struct policydb_compat_info polic
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_MLS_USERS,
- 	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0
-+	 },
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_POLCAP,
-+	 .sym_num = SYM_NUM,
- 	 .ocon_num = 0},
- };
- 
-@@ -447,6 +465,8 @@ int policydb_init(policydb_t * p)
- 
- 	memset(p, 0, sizeof(policydb_t));
- 
-+	ebitmap_init(&p->policycaps);
-+
- 	for (i = 0; i < SYM_NUM; i++) {
- 		p->sym_val_to_name[i] = NULL;
- 		rc = symtab_init(&p->symtab[i], symtab_sizes[i]);
-@@ -971,6 +991,8 @@ void policydb_destroy(policydb_t * p)
- 	if (!p)
- 		return;
- 
-+	ebitmap_destroy(&p->policycaps);
-+
- 	symtabs_destroy(p->symtab);
- 
- 	for (i = 0; i < SYM_NUM; i++) {
-@@ -3123,6 +3145,16 @@ int policydb_read(policydb_t * p, struct
- 		p->version[len] = '\0';
- 	}
- 
-+	if ((p->policyvers >= POLICYDB_VERSION_POLCAP &&
-+	     p->policy_type == POLICY_KERN) ||
-+	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-+	     p->policy_type == POLICY_BASE) ||
-+	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-+	     p->policy_type == POLICY_MOD)) {
-+		if (ebitmap_read(&p->policycaps, fp))
-+			goto bad;
-+	}
-+
- 	for (i = 0; i < info->sym_num; i++) {
- 		rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
- 		if (rc < 0)
-Index: trunk/libsepol/src/expand.c
-===================================================================
---- trunk.orig/libsepol/src/expand.c
-+++ trunk/libsepol/src/expand.c
-@@ -2252,6 +2252,12 @@ int expand_module(sepol_handle_t * handl
- 	out->mls = base->mls;
- 	out->handle_unknown = base->handle_unknown;
- 
-+	/* Copy policy capabilities */
-+	if (ebitmap_cpy(&out->policycaps, &base->policycaps)) {
-+		ERR(handle, "Out of memory!");
-+		goto cleanup;
-+	}
-+
- 	if ((state.typemap =
- 	     (uint32_t *) calloc(state.base->p_types.nprim,
- 				 sizeof(uint32_t))) == NULL) {
-Index: trunk/libsepol/src/write.c
-===================================================================
---- trunk.orig/libsepol/src/write.c
-+++ trunk/libsepol/src/write.c
-@@ -1595,6 +1595,17 @@ int policydb_write(policydb_t * p, struc
- 		if (items != len)
- 			return POLICYDB_ERROR;
- 	}
-+
-+	if ((p->policyvers >= POLICYDB_VERSION_POLCAP &&
-+	     p->policy_type == POLICY_KERN) ||
-+	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-+	     p->policy_type == POLICY_BASE) ||
-+	    (p->policyvers >= MOD_POLICYDB_VERSION_POLCAP &&
-+	     p->policy_type == POLICY_MOD)) {
-+		if (ebitmap_write(&p->policycaps, fp) == -1)
-+			return POLICYDB_ERROR;
-+	}
-+
- 	num_syms = info->sym_num;
- 	for (i = 0; i < num_syms; i++) {
- 		buf[0] = cpu_to_le32(p->symtab[i].nprim);
-Index: trunk/libsepol/src/link.c
-===================================================================
---- trunk.orig/libsepol/src/link.c
-+++ trunk/libsepol/src/link.c
-@@ -2177,8 +2177,14 @@ int link_modules(sepol_handle_t * handle
- 		goto cleanup;
- 	}
- 
--	/* copy all types, declared and required */
-+	/* copy all types, declared, required and polcaps */
- 	for (i = 0; i < len; i++) {
-+		ret = ebitmap_union(&state.base->policycaps,
-+				    &modules[i]->policy->policycaps);
-+		if (ret) {
-+			retval = ret;
-+			goto cleanup;
-+		}
- 		state.cur = modules[i];
- 		state.cur_mod_name = modules[i]->policy->name;
- 		ret =
+ static int define_initial_sid(void)
+ {
+ 	char *id = 0;
 
 -- 
 
