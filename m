@@ -1,11 +1,12 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 21/28] NFS: Display local caching state [try #2]
+Subject: [PATCH 13/28] CacheFiles: Add missing copy_page export for ia64 [try
+	#2]
 To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
         sds@tycho.nsa.gov, casey@schaufler-ca.com
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 05 Dec 2007 19:40:05 +0000
-Message-ID: <20071205194005.24617.55345.stgit@warthog.procyon.org.uk>
+Date: Wed, 05 Dec 2007 19:39:24 +0000
+Message-ID: <20071205193924.24617.75532.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20071205193818.24617.79771.stgit@warthog.procyon.org.uk>
 References: <20071205193818.24617.79771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -13,77 +14,30 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Display the local caching state in /proc/fs/nfsfs/volumes.
+This one-line patch fixes the missing export of copy_page introduced
+by the cachefile patches.  This patch is not yet upstream, but is required
+for cachefile on ia64.  It will be pushed upstream when cachefile goes
+upstream.
 
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/client.c  |    7 ++++---
- fs/nfs/fscache.h |   15 +++++++++++++++
- 2 files changed, 19 insertions(+), 3 deletions(-)
+ arch/ia64/kernel/ia64_ksyms.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index be38c3c..91ecea3 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -1335,7 +1335,7 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
+diff --git a/arch/ia64/kernel/ia64_ksyms.c b/arch/ia64/kernel/ia64_ksyms.c
+index bd17190..20c3546 100644
+--- a/arch/ia64/kernel/ia64_ksyms.c
++++ b/arch/ia64/kernel/ia64_ksyms.c
+@@ -43,6 +43,7 @@ EXPORT_SYMBOL(__do_clear_user);
+ EXPORT_SYMBOL(__strlen_user);
+ EXPORT_SYMBOL(__strncpy_from_user);
+ EXPORT_SYMBOL(__strnlen_user);
++EXPORT_SYMBOL(copy_page);
  
- 	/* display header on line 1 */
- 	if (v == &nfs_volume_list) {
--		seq_puts(m, "NV SERVER   PORT DEV     FSID\n");
-+		seq_puts(m, "NV SERVER   PORT DEV     FSID              FSC\n");
- 		return 0;
- 	}
- 	/* display one transport per line on subsequent lines */
-@@ -1349,12 +1349,13 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
- 		 (unsigned long long) server->fsid.major,
- 		 (unsigned long long) server->fsid.minor);
- 
--	seq_printf(m, "v%d %02x%02x%02x%02x %4hx %-7s %-17s\n",
-+	seq_printf(m, "v%d %02x%02x%02x%02x %4hx %-7s %-17s %s\n",
- 		   clp->cl_nfsversion,
- 		   NIPQUAD(clp->cl_addr.sin_addr),
- 		   ntohs(clp->cl_addr.sin_port),
- 		   dev,
--		   fsid);
-+		   fsid,
-+		   nfs_server_fscache_state(server));
- 
- 	return 0;
- }
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index 144fb58..9a735fc 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -53,6 +53,17 @@ extern void __nfs_fscache_invalidate_page(struct page *, struct inode *);
- extern int nfs_fscache_release_page(struct page *, gfp_t);
- 
- /*
-+ * indicate the client caching state as readable text
-+ */
-+static inline const char *nfs_server_fscache_state(struct nfs_server *server)
-+{
-+	if (server->nfs_client->fscache &&
-+	    (server->options & NFS_OPTION_FSCACHE))
-+		return "yes";
-+	return "no ";
-+}
-+
-+/*
-  * release the caching state associated with a page if undergoing complete page
-  * invalidation
-  */
-@@ -109,6 +120,10 @@ static inline void nfs4_fscache_get_client_cookie(struct nfs_client *clp) {}
- static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
- static inline void nfs_fscache_show_stats(struct seq_file *m,
- 					  struct nfs_server *nfss) {}
-+static inline const char *nfs_server_fscache_state(struct nfs_server *server)
-+{
-+	return "no ";
-+}
- 
- static inline void nfs_fscache_init_fh_cookie(struct inode *inode) {}
- static inline void nfs_fscache_enable_fh_cookie(struct inode *inode) {}
+ /* from arch/ia64/lib */
+ extern void __divsi3(void);
 
 
 --
