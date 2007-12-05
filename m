@@ -1,379 +1,73 @@
-Subject: Re: [PATCH 4/7] KEYS: Add keyctl function to get a security label
+Subject: Re: [patch 0/2] policy capability support
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: David Howells <dhowells@redhat.com>, viro@ftp.linux.org.uk,
-        hch@infradead.org, Trond.Myklebust@netapp.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <138670.64371.qm@web36609.mail.mud.yahoo.com>
-References: <138670.64371.qm@web36609.mail.mud.yahoo.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Todd Miller <Tmiller@tresys.com>, Paul Moore <paul.moore@hp.com>,
+        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <47570BAC.3050705@manicmethod.com>
+References: <20071205184848.180973622@tresys.com>
+	 <200712051421.39624.paul.moore@hp.com>
+	 <6FE441CD9F0C0C479F2D88F959B0158801455FBA@exchange.columbia.tresys.com>
+	 <1196883697.16006.103.camel@moss-spartans.epoch.ncsc.mil>
+	 <4757073B.70907@manicmethod.com>
+	 <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>
+	 <47570BAC.3050705@manicmethod.com>
 Content-Type: text/plain
-Date: Wed, 05 Dec 2007 15:38:28 -0500
-Message-Id: <1196887108.16006.121.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 05 Dec 2007 15:50:06 -0500
+Message-Id: <1196887806.16006.131.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-05 at 12:12 -0800, Casey Schaufler wrote:
-> --- David Howells <dhowells@redhat.com> wrote:
-> 
-> > Add a keyctl() function to get the security label of a key.
-> > 
-> > The following is added to Documentation/keys.txt:
-> > 
-> >  (*) Get the LSM security context attached to a key.
-> > 
-> > 	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
-> > 		    size_t buflen)
-> > 
-> >      This function returns a string that represents the LSM security context
-> >      attached to a key in the buffer provided.
-> > 
-> >      Unless there's an error, it always returns the amount of data it could
-> >      produce, even if that's too big for the buffer, but it won't copy more
-> >      than requested to userspace. If the buffer pointer is NULL then no copy
-> >      will take place.
-> > 
-> >      A NUL character is included at the end of the string if the buffer is
-> >      sufficiently big.  This is included in the returned count.  If no LSM is
-> >      in force then an empty string will be returned.
-> > 
-> >      A process must have view permission on the key for this function to be
-> >      successful.
-> > 
-> > Signed-off-by: David Howells <dhowells@redhat.com>
-> > ---
-> > 
-> >  Documentation/keys.txt   |   21 +++++++++++++++
-> >  include/linux/keyctl.h   |    1 +
-> >  include/linux/security.h |   20 +++++++++++++-
-> >  security/dummy.c         |    8 ++++++
-> >  security/keys/compat.c   |    3 ++
-> >  security/keys/keyctl.c   |   66
-> > ++++++++++++++++++++++++++++++++++++++++++++++
-> >  security/security.c      |    5 +++
-> >  security/selinux/hooks.c |   21 +++++++++++++--
-> >  8 files changed, 141 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-> > index b82d38d..be424b0 100644
-> > --- a/Documentation/keys.txt
-> > +++ b/Documentation/keys.txt
-> > @@ -711,6 +711,27 @@ The keyctl syscall functions are:
-> >       The assumed authoritative key is inherited across fork and exec.
-> >  
-> >  
-> > + (*) Get the LSM security context attached to a key.
-> > +
-> > +	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
-> > +		    size_t buflen)
-> > +
-> > +     This function returns a string that represents the LSM security context
-> > +     attached to a key in the buffer provided.
-> > +
-> > +     Unless there's an error, it always returns the amount of data it could
-> > +     produce, even if that's too big for the buffer, but it won't copy more
-> > +     than requested to userspace. If the buffer pointer is NULL then no copy
-> > +     will take place.
-> > +
-> > +     A NUL character is included at the end of the string if the buffer is
-> > +     sufficiently big.  This is included in the returned count.  If no LSM
-> > is
-> > +     in force then an empty string will be returned.
-> > +
-> > +     A process must have view permission on the key for this function to be
-> > +     successful.
-> > +
-> > +
-> >  ===============
-> >  KERNEL SERVICES
-> >  ===============
-> > diff --git a/include/linux/keyctl.h b/include/linux/keyctl.h
-> > index 3365945..656ee6b 100644
-> > --- a/include/linux/keyctl.h
-> > +++ b/include/linux/keyctl.h
-> > @@ -49,5 +49,6 @@
-> >  #define KEYCTL_SET_REQKEY_KEYRING	14	/* set default request-key keyring */
-> >  #define KEYCTL_SET_TIMEOUT		15	/* set key timeout */
-> >  #define KEYCTL_ASSUME_AUTHORITY		16	/* assume request_key() authorisation */
-> > +#define KEYCTL_GET_SECURITY		17	/* get key security label */
-> >  
-> >  #endif /*  _LINUX_KEYCTL_H */
-> > diff --git a/include/linux/security.h b/include/linux/security.h
-> > index ac05083..8d9e946 100644
-> > --- a/include/linux/security.h
-> > +++ b/include/linux/security.h
-> > @@ -959,6 +959,17 @@ struct request_sock;
-> >   *	@perm describes the combination of permissions required of this key.
-> >   *	Return 1 if permission granted, 0 if permission denied and -ve it the
-> >   *      normal permissions model should be effected.
-> > + * @key_getsecurity:
-> 
-> If I contradict what I said last time around, well, I've seen
-> more of what's going on since then. (insert smiley here)
-> 
-> I think that this should be key_getsecctx(). That would get you
-> what you need from SELinux and Smack. Unfortunately, there is no
-> precedent for interfaces that return the secctx, while the are
-> places in networking and audit (audit needs to be converted off
-> of SELinux calls to LSM calls) that call getsecid() interfaces
-> and later use security_secid_to_secctx() to get the "printable"
-> version. So, key_getsecid() is the interface to introduce if you
-> want to be consistant, and pass the result to
-> security_secid_to_secctx() to get the data you're looking for.
-
-inode_getsecurity and getprocattr directly return the strings.
-Admittedly, the whole interface could be cleaned up and made far more
-consistent, but I don't think he necessarily has to go through the
-getsecid + secid_to_secctx sequence if he only wants the secctx.
-
-> > + *	Get a textual representation of the security context attached to a key
-> > + *	for the purposes of honouring KEYCTL_GETSECURITY.  This function
-> > + *	allocates the storage for the NUL-terminated string and the caller
-> > + *	should free it.
-> > + *	@key points to the key to be queried.
-> > + *	@_buffer points to a pointer that should be set to point to the
-> > + *	 resulting string (if no label or an error occurs).
-> > + *	Return the length of the string (including terminating NUL) or -ve if
-> > + *      an error.
-> > + *	May also return 0 (and a NULL buffer pointer) if there is no label.
-> >   *
-> >   * Security hooks affecting all System V IPC operations.
-> >   *
-> > @@ -1437,7 +1448,7 @@ struct security_operations {
-> >  	int (*key_permission)(key_ref_t key_ref,
-> >  			      struct task_struct *context,
-> >  			      key_perm_t perm);
-> > -
-> > +	int (*key_getsecurity)(struct key *key, char **_buffer);
-> >  #endif	/* CONFIG_KEYS */
-> >  
-> >  };
-> > @@ -2567,6 +2578,7 @@ int security_key_alloc(struct key *key, struct
-> > task_struct *tsk, unsigned long f
-> >  void security_key_free(struct key *key);
-> >  int security_key_permission(key_ref_t key_ref,
-> >  			    struct task_struct *context, key_perm_t perm);
-> > +int security_key_getsecurity(struct key *key, char **_buffer);
-> >  
-> >  #else
-> >  
-> > @@ -2588,6 +2600,12 @@ static inline int security_key_permission(key_ref_t
-> > key_ref,
-> >  	return 0;
-> >  }
-> >  
-> > +static inline int security_key_getsecurity(struct key *key, char **_buffer)
-> > +{
-> > +	*_buffer = NULL;
-> > +	return 0;
-> > +}
-> > +
-> >  #endif
-> >  #endif /* CONFIG_KEYS */
-> >  
-> > diff --git a/security/dummy.c b/security/dummy.c
-> > index 6d895ad..7993b30 100644
-> > --- a/security/dummy.c
-> > +++ b/security/dummy.c
-> > @@ -949,6 +949,13 @@ static inline int dummy_key_permission(key_ref_t
-> > key_ref,
-> >  {
-> >  	return 0;
-> >  }
-> > +
-> > +static int dummy_key_getsecurity(struct key *key, char **_buffer)
-> > +{
-> > +	*_buffer = NULL;
-> > +	return 0;
-> > +}
-> > +
-> >  #endif /* CONFIG_KEYS */
-> >  
-> >  struct security_operations dummy_security_ops;
-> > @@ -1133,6 +1140,7 @@ void security_fixup_ops (struct security_operations
-> > *ops)
-> >  	set_to_dummy_if_null(ops, key_alloc);
-> >  	set_to_dummy_if_null(ops, key_free);
-> >  	set_to_dummy_if_null(ops, key_permission);
-> > +	set_to_dummy_if_null(ops, key_getsecurity);
-> >  #endif	/* CONFIG_KEYS */
-> >  
-> >  }
-> > diff --git a/security/keys/compat.c b/security/keys/compat.c
-> > index e10ec99..c766c68 100644
-> > --- a/security/keys/compat.c
-> > +++ b/security/keys/compat.c
-> > @@ -79,6 +79,9 @@ asmlinkage long compat_sys_keyctl(u32 option,
-> >  	case KEYCTL_ASSUME_AUTHORITY:
-> >  		return keyctl_assume_authority(arg2);
-> >  
-> > +	case KEYCTL_GET_SECURITY:
-> > +		return keyctl_get_security(arg2, compat_ptr(arg3), arg4);
-> > +
-> >  	default:
-> >  		return -EOPNOTSUPP;
-> >  	}
-> > diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-> > index 1698bf9..56e963b 100644
-> > --- a/security/keys/keyctl.c
-> > +++ b/security/keys/keyctl.c
-> > @@ -20,6 +20,7 @@
-> >  #include <linux/string.h>
-> >  #include <linux/err.h>
-> >  #include <linux/vmalloc.h>
-> > +#include <linux/security.h>
-> >  #include <asm/uaccess.h>
-> >  #include "internal.h"
-> >  
-> > @@ -1080,6 +1081,66 @@ error:
-> >  
-> >  } /* end keyctl_assume_authority() */
-> >  
-> > +/*
-> > + * get the security label of a key
-> > + * - the key must grant us view permission
-> > + * - if there's a buffer, we place up to buflen bytes of data into it
-> > + * - unless there's an error, we return the amount of information available,
-> > + *   irrespective of how much we may have copied (including the terminal
-> > NUL)
-> > + * - implements keyctl(KEYCTL_GET_SECURITY)
-> > + */
-> > +long keyctl_get_security(key_serial_t keyid,
-> > +			 char __user *buffer,
-> > +			 size_t buflen)
-> > +{
-> > +	struct key *key, *instkey;
-> > +	key_ref_t key_ref;
-> > +	char *context;
-> > +	long ret;
-> > +
-> > +	key_ref = lookup_user_key(NULL, keyid, 0, 1, KEY_VIEW);
-> > +	if (IS_ERR(key_ref)) {
-> > +		if (PTR_ERR(key_ref) != -EACCES)
-> > +			return PTR_ERR(key_ref);
-> > +
-> > +		/* viewing a key under construction is also permitted if we
-> > +		 * have the authorisation token handy */
-> > +		instkey = key_get_instantiation_authkey(keyid);
-> > +		if (IS_ERR(instkey))
-> > +			return PTR_ERR(key_ref);
-> > +		key_put(instkey);
-> > +
-> > +		key_ref = lookup_user_key(NULL, keyid, 0, 1, 0);
-> > +		if (IS_ERR(key_ref))
-> > +			return PTR_ERR(key_ref);
-> > +	}
-> > +
-> > +	key = key_ref_to_ptr(key_ref);
-> > +	ret = security_key_getsecurity(key, &context);
-> > +	if (ret == 0) {
-> > +		/* if no information was returned, give userspace an empty
-> > +		 * string */
-> > +		ret = 1;
-> > +		if (buffer && buflen > 0 &&
-> > +		    copy_to_user(buffer, "", 1) != 0)
-> > +			ret = -EFAULT;
-> > +	} else if (ret > 0) {
-> > +		/* return as much data as there's room for */
-> > +		if (buffer && buflen > 0) {
-> > +			if (buflen > ret)
-> > +				buflen = ret;
-> > +
-> > +			if (copy_to_user(buffer, context, buflen) != 0)
-> > +				ret = -EFAULT;
-> > +		}
-> > +
-> > +		kfree(context);
-> > +	}
-> > +
-> > +	key_ref_put(key_ref);
-> > +	return ret;
-> > +}
-> > +
-> > 
+On Wed, 2007-12-05 at 15:35 -0500, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On Wed, 2007-12-05 at 15:16 -0500, Joshua Brindle wrote:
+> >   
+> >> Stephen Smalley wrote:
+> >>     
+> >>> On Wed, 2007-12-05 at 14:30 -0500, Todd Miller wrote:
+> >>>       
+> >>>> Paul Moore wrote:
+> >>>>         
+> >>>>> The discussion for this appears to have gone quiet (at least I
+> >>>>> haven't seen anything else on this list).  Where do things currently
+> >>>>> stand?
+> >>>>>           
+> >>>> At this point I'd be OK with requiring equivalence and throwing an error
+> >>>> otherwise.  I do think that this will result in usability issues that we
+> >>>> will have to address once people start using the caps.  However, with
+> >>>> only
+> >>>> a single cap defined so far it is not really possible to know how these
+> >>>> will end up being used.
+> >>>>         
+> >>> We could try to come up with a solution at least for allowing clean
+> >>> upgrades from F8 (w/o any caps) to F9 (likely w/ peer cap defined)
+> >>> without requiring manual user intervention for dealing with local
+> >>> modules.
+> >>>
+> >>>       
+> >> This was my exact objection to using an intersection or equivalence. IMO 
+> >> it is incompatible to require all modules to be the same and to also 
+> >> require upgrades to work without manual intervention.
+> >>
+> >> Do you still think unioning is wrong?
+> >>     
 > >
-> /*****************************************************************************/
-> >  /*
-> >   * the key control system call
-> > @@ -1160,6 +1221,11 @@ asmlinkage long sys_keyctl(int option, unsigned long
-> > arg2, unsigned long arg3,
-> >  	case KEYCTL_ASSUME_AUTHORITY:
-> >  		return keyctl_assume_authority((key_serial_t) arg2);
-> >  
-> > +	case KEYCTL_GET_SECURITY:
-> > +		return keyctl_get_security((key_serial_t) arg2,
-> > +					   (char *) arg3,
-> > +					   (size_t) arg4);
-> > +
-> >  	default:
-> >  		return -EOPNOTSUPP;
-> >  	}
-> > diff --git a/security/security.c b/security/security.c
-> > index 0e1f1f1..16213e3 100644
-> > --- a/security/security.c
-> > +++ b/security/security.c
-> > @@ -1079,4 +1079,9 @@ int security_key_permission(key_ref_t key_ref,
-> >  	return security_ops->key_permission(key_ref, context, perm);
-> >  }
-> >  
-> > +int security_key_getsecurity(struct key *key, char **_buffer)
-> > +{
-> > +	return security_ops->key_getsecurity(key, _buffer);
-> > +}
-> > +
-> >  #endif	/* CONFIG_KEYS */
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 9f3124b..bd4cfab 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -4768,6 +4768,20 @@ static int selinux_key_permission(key_ref_t key_ref,
-> >  			    SECCLASS_KEY, perm, NULL);
-> >  }
-> >  
-> > +static int selinux_key_getsecurity(struct key *key, char **_buffer)
-> > +{
-> > +	struct key_security_struct *ksec = key->security;
-> > +	char *context = NULL;
-> > +	unsigned len;
-> > +	int rc;
-> > +
-> > +	rc = security_sid_to_context(ksec->sid, &context, &len);
-> > +	if (!rc)
-> > +		rc = len;
-> > +	*_buffer = context;
-> > +	return rc;
-> > +}
-> > +
-> >  #endif
-> >  
-> >  static struct security_operations selinux_ops = {
-> > @@ -4943,9 +4957,10 @@ static struct security_operations selinux_ops = {
-> >  #endif
-> >  
-> >  #ifdef CONFIG_KEYS
-> > -	.key_alloc =                    selinux_key_alloc,
-> > -	.key_free =                     selinux_key_free,
-> > -	.key_permission =               selinux_key_permission,
-> > +	.key_alloc =			selinux_key_alloc,
-> > +	.key_free =			selinux_key_free,
-> > +	.key_permission =		selinux_key_permission,
-> > +	.key_getsecurity =		selinux_key_getsecurity,
-> >  #endif
-> >  };
-> >  
-> > 
-> > 
-> > 
+> > Yes, I'm still against (automatic, default) unioning of the capabilities
+> > by the linker - that is clearly not a safe default.  semodule could
+> > possibly override that behavior based on an option though, at which
+> > point the %post scriptlet in the policy rpm could use that option if we
+> > wanted to force it w/o user intervention.
+> >
+> >   
 > 
-> 
-> Casey Schaufler
-> casey@schaufler-ca.com
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> And when a user installs a new module via audit2allow they have to know 
+> to select --ignore-stuff-the-modules-say-and-do-something-else-anyway? I 
+> don't like this idea either.
+
+Shrug.  Then we'll just go with equivalence only, and the user will have
+to remove local modules before upgrade.
+
 -- 
 Stephen Smalley
 National Security Agency
