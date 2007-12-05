@@ -1,12 +1,11 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 14/28] CacheFiles: Be consistent about the use of mapping vs
-	file->f_mapping in Ext3 [try #2]
+Subject: [PATCH 17/28] CacheFiles: Export things for CacheFiles [try #2]
 To: viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
         sds@tycho.nsa.gov, casey@schaufler-ca.com
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 05 Dec 2007 19:39:29 +0000
-Message-ID: <20071205193929.24617.40.stgit@warthog.procyon.org.uk>
+Date: Wed, 05 Dec 2007 19:39:45 +0000
+Message-ID: <20071205193945.24617.18263.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20071205193818.24617.79771.stgit@warthog.procyon.org.uk>
 References: <20071205193818.24617.79771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -14,53 +13,26 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change all the usages of file->f_mapping in ext3_*write_end() functions to use
-the mapping argument directly.  This has two consequences:
-
- (*) Consistency.  Without this patch sometimes one is used and sometimes the
-     other is.
-
- (*) A NULL file pointer can be passed.  This feature is then made use of by
-     the generic hook in the next patch, which is used by CacheFiles to write
-     pages to a file without setting up a file struct.
+Export a number of functions for CacheFiles's use.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/ext3/inode.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ fs/super.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index 9b162cd..bc918d3 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -1227,7 +1227,7 @@ static int ext3_generic_write_end(struct file *file,
- 				loff_t pos, unsigned len, unsigned copied,
- 				struct page *page, void *fsdata)
- {
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
+diff --git a/fs/super.c b/fs/super.c
+index ceaf2e3..cd199ae 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -266,6 +266,7 @@ int fsync_super(struct super_block *sb)
+ 	__fsync_super(sb);
+ 	return sync_blockdev(sb->s_bdev);
+ }
++EXPORT_SYMBOL_GPL(fsync_super);
  
- 	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
- 
-@@ -1252,7 +1252,7 @@ static int ext3_ordered_write_end(struct file *file,
- 				struct page *page, void *fsdata)
- {
- 	handle_t *handle = ext3_journal_current_handle();
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
- 	unsigned from, to;
- 	int ret = 0, ret2;
- 
-@@ -1293,7 +1293,7 @@ static int ext3_writeback_write_end(struct file *file,
- 				struct page *page, void *fsdata)
- {
- 	handle_t *handle = ext3_journal_current_handle();
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
- 	int ret = 0, ret2;
- 	loff_t new_i_size;
- 
+ /**
+  *	generic_shutdown_super	-	common helper for ->kill_sb()
 
 
 --
