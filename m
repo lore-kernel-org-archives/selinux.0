@@ -1,61 +1,70 @@
-Subject: Re: [patch 0/2] policy capability support
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Todd Miller <Tmiller@tresys.com>, Paul Moore <paul.moore@hp.com>,
+Message-ID: <47570BAC.3050705@manicmethod.com>
+Date: Wed, 05 Dec 2007 15:35:56 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Todd Miller <Tmiller@tresys.com>, Paul Moore <paul.moore@hp.com>,
         selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <4757073B.70907@manicmethod.com>
-References: <20071205184848.180973622@tresys.com>
-	 <200712051421.39624.paul.moore@hp.com>
-	 <6FE441CD9F0C0C479F2D88F959B0158801455FBA@exchange.columbia.tresys.com>
-	 <1196883697.16006.103.camel@moss-spartans.epoch.ncsc.mil>
-	 <4757073B.70907@manicmethod.com>
-Content-Type: text/plain
-Date: Wed, 05 Dec 2007 15:34:04 -0500
-Message-Id: <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: [patch 0/2] policy capability support
+References: <20071205184848.180973622@tresys.com>	 <200712051421.39624.paul.moore@hp.com>	 <6FE441CD9F0C0C479F2D88F959B0158801455FBA@exchange.columbia.tresys.com>	 <1196883697.16006.103.camel@moss-spartans.epoch.ncsc.mil>	 <4757073B.70907@manicmethod.com> <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-05 at 15:16 -0500, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2007-12-05 at 14:30 -0500, Todd Miller wrote:
-> >> Paul Moore wrote:
-> >>> The discussion for this appears to have gone quiet (at least I
-> >>> haven't seen anything else on this list).  Where do things currently
-> >>> stand?
-> >> At this point I'd be OK with requiring equivalence and throwing an error
-> >> otherwise.  I do think that this will result in usability issues that we
-> >> will have to address once people start using the caps.  However, with
-> >> only
-> >> a single cap defined so far it is not really possible to know how these
-> >> will end up being used.
-> > 
-> > We could try to come up with a solution at least for allowing clean
-> > upgrades from F8 (w/o any caps) to F9 (likely w/ peer cap defined)
-> > without requiring manual user intervention for dealing with local
-> > modules.
-> > 
-> 
-> This was my exact objection to using an intersection or equivalence. IMO 
-> it is incompatible to require all modules to be the same and to also 
-> require upgrades to work without manual intervention.
-> 
-> Do you still think unioning is wrong?
+Stephen Smalley wrote:
+> On Wed, 2007-12-05 at 15:16 -0500, Joshua Brindle wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> On Wed, 2007-12-05 at 14:30 -0500, Todd Miller wrote:
+>>>       
+>>>> Paul Moore wrote:
+>>>>         
+>>>>> The discussion for this appears to have gone quiet (at least I
+>>>>> haven't seen anything else on this list).  Where do things currently
+>>>>> stand?
+>>>>>           
+>>>> At this point I'd be OK with requiring equivalence and throwing an error
+>>>> otherwise.  I do think that this will result in usability issues that we
+>>>> will have to address once people start using the caps.  However, with
+>>>> only
+>>>> a single cap defined so far it is not really possible to know how these
+>>>> will end up being used.
+>>>>         
+>>> We could try to come up with a solution at least for allowing clean
+>>> upgrades from F8 (w/o any caps) to F9 (likely w/ peer cap defined)
+>>> without requiring manual user intervention for dealing with local
+>>> modules.
+>>>
+>>>       
+>> This was my exact objection to using an intersection or equivalence. IMO 
+>> it is incompatible to require all modules to be the same and to also 
+>> require upgrades to work without manual intervention.
+>>
+>> Do you still think unioning is wrong?
+>>     
+>
+> Yes, I'm still against (automatic, default) unioning of the capabilities
+> by the linker - that is clearly not a safe default.  semodule could
+> possibly override that behavior based on an option though, at which
+> point the %post scriptlet in the policy rpm could use that option if we
+> wanted to force it w/o user intervention.
+>
+>   
 
-Yes, I'm still against (automatic, default) unioning of the capabilities
-by the linker - that is clearly not a safe default.  semodule could
-possibly override that behavior based on an option though, at which
-point the %post scriptlet in the policy rpm could use that option if we
-wanted to force it w/o user intervention.
+And when a user installs a new module via audit2allow they have to know 
+to select --ignore-stuff-the-modules-say-and-do-something-else-anyway? I 
+don't like this idea either.
 
-> > There are however plenty of other ways in which a policy upgrade can
-> > break at present.  
-> > 
+>>> There are however plenty of other ways in which a policy upgrade can
+>>> break at present.  
+>>>
+>>>       
+>
+>   
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
