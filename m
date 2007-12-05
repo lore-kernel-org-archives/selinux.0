@@ -1,33 +1,33 @@
-From: Paul Moore <paul.moore@hp.com>
-To: tmiller@tresys.com
-Subject: Re: [patch 0/2] policy capability support
-Date: Wed, 5 Dec 2007 14:21:39 -0500
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jbrindle@tresys.com
-References: <20071205184848.180973622@tresys.com>
-In-Reply-To: <20071205184848.180973622@tresys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200712051421.39624.paul.moore@hp.com>
+	charset="us-ascii"
+Subject: RE: [patch 0/2] policy capability support
+Date: Wed, 5 Dec 2007 14:30:25 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158801455FBA@exchange.columbia.tresys.com>
+In-Reply-To: <200712051421.39624.paul.moore@hp.com>
+References: <20071205184848.180973622@tresys.com> <200712051421.39624.paul.moore@hp.com>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "Paul Moore" <paul.moore@hp.com>
+Cc: <selinux@tycho.nsa.gov>, <sds@tycho.nsa.gov>,
+        "Joshua Brindle" <jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 05 December 2007 1:48:48 pm tmiller@tresys.com wrote:
-> This is a respin of the policy capability support patch that preserves
-> the policycaps in the final policy binary and includes support for
-> displaying policy caps in dispol/dismod.
+Paul Moore wrote:
+> The discussion for this appears to have gone quiet (at least I
+> haven't seen anything else on this list).  Where do things currently
+> stand?
 
-Thanks, I'm trying to take care of some more IPsec auditing stuff right now 
-but I'll give this patch a quick try tomorrow and let you know what happens.
+At this point I'd be OK with requiring equivalence and throwing an error
+otherwise.  I do think that this will result in usability issues that we
+will have to address once people start using the caps.  However, with
+only
+a single cap defined so far it is not really possible to know how these
+will end up being used.
 
-> I still need to address the equivalence vs. union issue.
+ - todd
 
-The discussion for this appears to have gone quiet (at least I haven't seen 
-anything else on this list).  Where do things currently stand?
 
--- 
-paul moore
-linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
