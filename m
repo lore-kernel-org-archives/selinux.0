@@ -1,110 +1,53 @@
-Subject: Re: [PATCH 1/1] semanage_select_store fun
+Subject: Re: libsemanage patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        James Athey <jathey@tresys.com>
-In-Reply-To: <1195667082.759.77.camel@moss-spartans.epoch.ncsc.mil>
-References: <47435B32.9030205@manicmethod.com>
-	 <1195651753.759.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <47446066.2030102@manicmethod.com>
-	 <1195664448.759.63.camel@moss-spartans.epoch.ncsc.mil>
-	 <1195667082.759.77.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Todd Miller <Tmiller@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47546BE8.4010201@redhat.com>
+References: <4754599A.8060605@redhat.com>
+	 <6FE441CD9F0C0C479F2D88F959B0158801455C46@exchange.columbia.tresys.com>
+	 <1196711592.27820.133.camel@moss-spartans.epoch.ncsc.mil>
+	 <47546BE8.4010201@redhat.com>
 Content-Type: text/plain
-Date: Wed, 05 Dec 2007 12:50:36 -0500
-Message-Id: <1196877036.16006.52.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 05 Dec 2007 12:48:07 -0500
+Message-Id: <1196876887.16006.49.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-11-21 at 12:44 -0500, Stephen Smalley wrote:
-> On Wed, 2007-11-21 at 12:00 -0500, Stephen Smalley wrote:
-> > On Wed, 2007-11-21 at 11:44 -0500, Joshua Brindle wrote:
-> > > Stephen Smalley wrote:
-> > > > On Tue, 2007-11-20 at 17:09 -0500, Joshua Brindle wrote:
-> > > >   
-> > > >> So, I got a report here that python scripts that call 
-> > > >> semanage_select_store will get a double free error when calling 
-> > > >> semanage_handle_destroy because the swig wrapper free's the buffer 
-> > > >> passed to semanage_select_store. I haven't seen this with semanage but 
-> > > >> the bug does appear legitimate to me, we should have never been assuming 
-> > > >> control of the buffer passed to semanage_select_store (especially 
-> > > >> without documenting it).
-> > > >>
-> > > >> This is fun because semanage_select_store was originally a void but 
-> > > >> clearly this needs to strdup() instead of just setting the pointer. This 
-> > > >> patch can be applied trunk as it changes the API but the bug would still 
-> > > >> exist in stable (and the person who reported this will unfortunately 
-> > > >> have to patch it in their release of the stable repo).
-> > > >>     
-> > > >
-> > > > Wait - we aren't changing API/ABI even in trunk at present, and to do
-> > > > so, we'd either need to change .so version (incompatible change) or use
-> > > > the per-symbol versioning technique to keep the old interface alive for
-> > > > existing binaries while defaulting to the new interface for newer code.
-> > > >
-> > > > I also have to ask - if the problem lies in the swig wrapper, why not
-> > > > fix it there?
-> > > >
-> > > >   
-> > > 
-> > > Because I'm scared of the swig wrapper :)
-> > 
-> > Well, we shouldn't be more afraid of changing the python bindings that
-> > we are of changing the library API and ABI.
+On Mon, 2007-12-03 at 15:49 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Ok, so maybe there is no way to fix this in the wrapper, as the wrapper
-> has to create a temporary C string from the python string and then free
-> it when done with the call.  Which would mean that we need to strdup all
-> strings passed into the library.
-> 
-> > > But seriously we always strdup (afaik) strings passed in to libsemanage 
-> > > so this is an inconsistency and should at least be documented.
+> Stephen Smalley wrote:
+> > On Mon, 2007-12-03 at 14:51 -0500, Todd Miller wrote:
+> >> Daniel J Walsh wrote:
+> >>> -----BEGIN PGP SIGNED MESSAGE-----
+> >>> Hash: SHA1
+> >>>
+> >>> genhomedircon includes the "\n" in /etc/shells so no shells in the
+> >>> /etc/passwd match.
+> >> Isn't this going to cause problems if the last line in /etc/shells has
+> >> no newline?
+> >>
+> >> Instead of:
+> >>     temp[strlen(temp)-1]=0;
+> >>
+> >> I would use:
+> >>     temp[strcspn(temp, "\n")] = '\0';
+> >>
+> >> That will overwrite the first newline with a NUL or, if there is no
+> >> newline, the terminating NUL will be overwritten with another NUL, which
+> >> is harmless.  It is a useful idiom...
 > > 
-> > The key create functions don't appear to do so, e.g.
-> > semanage_seuser_key_create.  Don't know how widespread the issue is.
-> > Why does semanage appear to work ok?
-> 
-> Hmm...well semanage -S/--store doesn't appear to work at all right now,
-> not sure why.  As far as keys go, they are different in that we don't
-> free the names in the key_free functions, so no double free there, but
-> it still appears that they would be prematurely freed by the wrapper
-> while still in use by the library.  Not sure then why we don't have lots
-> of bug reports on semanage.
->  
-> > > I suppose we can just start queuing up any api/abi changes for some 
-> > > future so version, this certainly doesn't warrant bumping the version.
+> > Given that getline() returns the length read (not to be confused with
+> > the buffer length), why not just:
+> > 	while ((len = getline(&temp, &buff_len, shells)) > 0) {
+> > 		if (temp[len-1] == '\n') temp[len-1] = 0;
 > > 
-> > It could be done via per-symbol versioning rather than a .so version
-> > change.
-> > 
-> > > OTOH I understand that we need a stable ABI in trunk but honestly I 
-> > > don't know how this change would cause problems (how many external users 
-> > > are there, how often is this error condition going to occur (esp 
-> > > compared to how often the error condition it is fixing can occur), etc).
-> > 
-> > If we do need to make the change, then I think we want to systematically
-> > fix all such occurrences at once, and do it cleanly via per-symbol
-> > versioning or .so version bump.  Which suggests doing it in policyrep
-> > first.  But if we can make a change to the swig wrapper instead to fix
-> > the bug, then that would be nice for stable and for a short term fix for
-> > trunk.
-> 
-> Let's do it this way then:
-> - change the functions to strdup() internally always.  If the function
-> presently returns void and the strdup fails, then abort().  If the
-> function presently returns int, then return an error of course.  We can
-> apply that change on the current trunk and stable.
+> Second try.
 
-Just merged a patch from Dan on trunk that does the above (except I used
-assert rather than abort since we already use assert in places there)
-for the select_store function.  But I assume we need this in every place
-that libsemanage takes ownership of a pointer provided by the caller
-rather than dup'ing it?
-
-> - plan to change those void functions to return int, and queue that up
-> in policyrep.  But that can come later.  Then we can turn those aborts
-> into returns.
+Merged with two changes (type on len => ssize_t, assert on store_path
+after strdup so that we don't continue if allocation fails).
 
 -- 
 Stephen Smalley
