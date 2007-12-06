@@ -1,107 +1,178 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB6JgYxH008743
-	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2007 14:42:34 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lB6JgXbe001679
-	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2007 19:42:33 GMT
-Message-ID: <475850A2.1050402@redhat.com>
-Date: Thu, 06 Dec 2007 14:42:26 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Patch to update boolean descriptions to match what I had in policycoreutils.
-Content-Type: multipart/mixed;
- boundary="------------010303010002040306070904"
+Subject: RE: [patch 0/2] policy capability support
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Todd Miller <Tmiller@tresys.com>, Joshua Brindle <method@manicmethod.com>,
+        Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1196966070.12626.77.camel@gorn.columbia.tresys.com>
+References: <20071205184848.180973622@tresys.com>
+	 <200712051421.39624.paul.moore@hp.com>
+	 <6FE441CD9F0C0C479F2D88F959B0158801455FBA@exchange.columbia.tresys.com>
+	 <1196883697.16006.103.camel@moss-spartans.epoch.ncsc.mil>
+	 <4757073B.70907@manicmethod.com>
+	 <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>
+	 <6FE441CD9F0C0C479F2D88F959B0158801455FEE@exchange.columbia.tresys.com>
+	 <1196955882.12626.50.camel@gorn.columbia.tresys.com>
+	 <1196959681.27508.84.camel@moss-spartans.epoch.ncsc.mil>
+	 <1196966070.12626.77.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 06 Dec 2007 15:02:47 -0500
+Message-Id: <1196971367.27508.156.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010303010002040306070904
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Thu, 2007-12-06 at 13:34 -0500, Christopher J. PeBenito wrote:
+> On Thu, 2007-12-06 at 11:48 -0500, Stephen Smalley wrote:
+> > On Thu, 2007-12-06 at 10:44 -0500, Christopher J. PeBenito wrote:
+> > > On Wed, 2007-12-05 at 16:41 -0500, Todd Miller wrote:
+> > > > Stephen Smalley wrote:
+> > > > > Yes, I'm still against (automatic, default) unioning of the
+> > > > > capabilities by the linker - that is clearly not a safe default. 
+> > > > > semodule could possibly override that behavior based on an option
+> > > > > though, at which point the %post scriptlet in the policy rpm could
+> > > > > use that option if we wanted to force it w/o user intervention.
+> > > > 
+> > > > What do we want the behavior of this option to be?  As I see it we
+> > > > have two choices:
+> > > > 
+> > > > 1) perform a union instead of requiring equivalence
+> > > > 
+> > > > 2) add capabilities as needed to binary modules in the store.
+> > > > 
+> > > > The advantage of 2) is that it would only need to happen once which
+> > > > makes it more "upgrade friendly".
+> > > 
+> > > I now think that the answer is intersection (with a little change to the
+> > > userland design).
+> > > 
+> > > 1. capabilities are enabled only if the policy _fully_ supports them
+> > > union: no
+> > > intersection: yes
+> > > equivalence: yes
+> > > 
+> > > 2. modules with mismatched capability sets can be inserted (eg upgrade)
+> > > union: yes; all defined caps are enabled
+> > > intersection: yes; common caps are enabled (warnings on disabled caps)
+> > > equivalence: no
+> > > 
+> > > 3. policy writing implication
+> > > union: only modules that care about the cap will enable it
+> > > intersection: all modules must enable it
+> > > equivalence: all modules must enable it
+> > > 
+> > > Going along with this, I think the way caps are handled should be
+> > > augmented.  There should be conditional blocks, which allows relevant
+> > > policy to be affected
+> > > 
+> > > ifcap(fine_grained_netlink) {
+> > > 	allow foo_t self:netlink_selinux_socket create;
+> > > } else {
+> > > 	allow foo_t self:netlink_socket create;
+> > > }
+> > > 
+> > > I don't imagine this will be a common case, so most of the time we
+> > > wouldn't be using the conditional part of the support.  For the peersid
+> > > example, we'd just add the rules and turn on the capability in
+> > > refpolicy.  If a 3rd party module doesn't have the capability, the
+> > > kernel checks turn off and we have a few extra rules, which doesn't
+> > > hurt.
+> > 
+> > Supposing that we took the above approach, some questions remain:
+> > - Where do the policycap statements originate for each module?  By
+> > explicit declaration within each individual module?  By uniform
+> > inheritance from refpolicy for all modules via policy_module()?  By
+> > selective inheritance from individual refpolicy interfaces as needed,
+> > e.g. picking up policycap network_peer_controls; from the refpolicy
+> > network interfaces?
+> 
+> Most likely via policy_module().
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I don't see what we gain then from per-module capability sets vs.
+defining it once in base and using that - the per-module approach is
+more fragile and doesn't actually reflect the capabilities required by
+the module, just the capabilities known to the policy against which it
+was built.  And if policy_module gets turned into a link-time expanded
+interface, it becomes the same thing as inheriting from base.
 
-Hopefully these descriptions are a little better.
+> > - If we go with the first or the last options, what about modules that
+> > don't actually care about a given capability - e.g. a module that
+> > doesn't have any networking rules wouldn't pick up the
+> > network_peer_controls capability from a refpolicy interface nor would
+> > its author think to declare it, so the module would appear to not
+> > support the capability.  We don't seem to have a way of distinguishing
+> > dont-care from disable.
+> 
+> I would put forth that the idea of dont-care doesn't really exist.  If
+> you know about it but don't care about it, whats the difference between
+> dont-care and enable?  If you don't know about it, then you can't say
+> that you don't care, and making dont-care the default would be bad,
+> since that would tend towards enabling new caps, causing the problems
+> we're trying to avoid :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+I was only asking in the case where the module author specifies the
+capabilities explicitly or picks them via specific refpolicy interfaces
+like the networking interfaces, as it seemed easy to envision that
+leading to incomplete specification due to certain capabilities not
+being relevant.  In the case where we pick up from policy_module or
+inherit from the base, it wouldn't be an issue, as they would fully
+define the state for everything they know.
 
-iD8DBQFHWFCirlYvE4MpobMRAocGAJ9MI4PvHR94HJc9ysU8K9wdvI4riQCdEo0e
-KkEa5szvv/7IJ1eanuobUN4=
-=zM5y
------END PGP SIGNATURE-----
+> > - The intersection behavior assumes that new policy will always preserve
+> > compatibility with policies that lack newer capabilities by keeping
+> > around legacy rules in some form, even if conditional.  Is that a
+> > reasonable restriction for policy maintenance?
+> 
+> I suppose it depends on how people (ab)use the caps.  Josh made the case
+> to me that some people might want to intentionally disable controls
+> because they don't care about them or they want to try to boost
+> performance (e.g. networking pieces).
+> 
+> Beyond that, I suppose it depends on how far back we want to go.  For
+> example, RHEL4 is ancient by SELinux standards, but its going to be
+> around for a long time, so we have some distro_rhel4 blocks in
+> refpolicy.  Eventually RHEL4 will be out of support, and then we can
+> drop them.  I don't have a problem with it, but I also don't know how
+> many and how fast we're going to gain caps.
+> 
+> >   How do we ultimately
+> > drop dead rules altogether?
+> 
+> Move them out of conditionals?  Or are you suggesting having a way to
+> make warnings into errors after a reasonable amount of upgrade time?
 
---------------010303010002040306070904
-Content-Type: application/x-gzip;
- name="diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="diff.gz"
+Yes, having a way of dropping the legacy rules out of the policy and
+requiring that certain capabilities be present (not automatically
+disabled via intersection) in order for the update to succeed.  So that
+refpolicy can periodically dump legacy rules out and proceed with the
+assumption that certain capabilities are guaranteed to be present.
 
-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
-W3/KlV5K8fCPX9vV/Q/162KNlDMAAA==
---------------010303010002040306070904
-Content-Type: application/octet-stream;
- name="diff.gz.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="diff.gz.sig"
+> >   Will all such capabilities be amenable to
+> > such compatibility behavior?
+> 
+> Good question.  I forgot my crystal ball at home :(  Will things beyond
+> permission changes be supported under this?
 
-iD8DBQBHWFCirlYvE4MpobMRAtWQAKDETP8Jxrjqovajz38Nge1szi+VuQCgt/Muh2SUGzjw
-9PyYa0oCfbag2LY=
---------------010303010002040306070904--
+Don't know either, just something to consider.
+
+> > - I'd tend to expect most users to not notice the disabled caps warning
+> > upon upgrade, so that means we'd have a fair number of users continuing
+> > to operate under the legacy controls indefinitely even after upgrading
+> > their policies to ones that would have supported the new capabilities.
+> > Is that reasonable?
+> 
+> Perhaps Dan or some of the other RH people can comment on this, but I
+> was under the impression that unusual console messages tend to be
+> noticed.
+
+It would just be libsepol output upon running semodule from %post on a
+yum upgrade.  Quite easily lost among the rest of the noise of a yum
+upgrade from one release to another.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
