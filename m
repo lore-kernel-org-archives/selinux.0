@@ -1,47 +1,46 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB61eG3h009790
-	for <selinux@tycho.nsa.gov>; Wed, 5 Dec 2007 20:40:16 -0500
-Received: from web36613.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lB61eFOu021498
-	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2007 01:40:15 GMT
-Date: Wed, 5 Dec 2007 17:40:15 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 4/7] KEYS: Add keyctl function to get a security label
-To: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Cc: dhowells@redhat.com, casey@schaufler-ca.com, viro@ftp.linux.org.uk,
-        hch@infradead.org, Trond.Myklebust@netapp.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <25702.1196904505@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <289732.78389.qm@web36613.mail.mud.yahoo.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB6ESpia006503
+	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2007 09:28:52 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lB6ESo4h023075
+	for <selinux@tycho.nsa.gov>; Thu, 6 Dec 2007 14:28:51 GMT
+Subject: Re: refpolicy HEAD, Debian, syslogd & setrlimit
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+In-Reply-To: <20071205141324.GA1211@bobek.pm.i.cz>
+References: <20071205141324.GA1211@bobek.pm.i.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 06 Dec 2007 09:28:35 -0500
+Message-Id: <1196951315.12626.21.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- David Howells <dhowells@redhat.com> wrote:
-
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Wed, 2007-12-05 at 15:13 +0100, Václav Ovsík wrote:
+> audit(1196861341.205:26): avc:  denied  { setrlimit } for  pid=2160 comm="cron" scontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tcontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tclass=process
 > 
-> > inode_getsecurity and getprocattr directly return the strings.
-> > Admittedly, the whole interface could be cleaned up and made far more
-> > consistent, but I don't think he necessarily has to go through the
-> > getsecid + secid_to_secctx sequence if he only wants the secctx.
+> There is a content of /etc/pam.d/cron from my Debian Etch:
+[...]
+>     # Sets up user limits, please define limits for cron tasks
+>     # through /etc/security/limits.conf
+>     session    required   pam_limits.so
 > 
-> It's what Daniel Walsh wanted.
+> /etc/security/limits.conf
+> 
+> has only comment sections.
+> 
+> Can be rlimit allowed or should be solved this in some other way?
 
-Name dropper. And we don't have a convention, really. So go ahead
-with key_getsecurity or key_getsecctx, as you choose. At some point
-we should either change inode_getsecurity to inode_getsecctx or
-secid_to_secctx to secid_to_security. Not the problem of the day.
+I added this in distro_debian for now, so if someone does put limits, it
+will work.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
