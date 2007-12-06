@@ -1,56 +1,52 @@
+Message-ID: <4758684C.9040409@manicmethod.com>
+Date: Thu, 06 Dec 2007 16:23:24 -0500
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Man page fix for matchpatchcon
-Date: Thu, 6 Dec 2007 16:16:02 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158801456164@exchange.columbia.tresys.com>
-In-Reply-To: <47583B35.9060002@redhat.com>
-References: <47583B35.9060002@redhat.com>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "SE Linux" <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Todd Miller <Tmiller@tresys.com>, Paul Moore <paul.moore@hp.com>,
+        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: [patch 0/2] policy capability support
+References: <20071205184848.180973622@tresys.com>	 <200712051421.39624.paul.moore@hp.com>	 <6FE441CD9F0C0C479F2D88F959B0158801455FBA@exchange.columbia.tresys.com>	 <1196883697.16006.103.camel@moss-spartans.epoch.ncsc.mil>	 <4757073B.70907@manicmethod.com>	 <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>	 <47570BAC.3050705@manicmethod.com>	 <1196887806.16006.131.camel@moss-spartans.epoch.ncsc.mil>	 <4757109B.2080209@manicmethod.com>	 <1196954491.27508.15.camel@moss-spartans.epoch.ncsc.mil>	 <475826F2.1000601@manicmethod.com> <1196964486.27508.107.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1196964486.27508.107.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Comments inline, hopefully the mail client won't munge things too much.
+Stephen Smalley wrote:
+> On Thu, 2007-12-06 at 11:44 -0500, Joshua Brindle wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> Overall, I have to wonder if we are really buying anything via
+>>> per-module capability declaration vs. per-policy.  The only reason you
+>>> tried to make it per-module was you were trying to drop distinctions
+>>> between base and non-base, right?  But maybe we shouldn't be so
+>>> concerned with having a notion of a base module even if we reduce the
+>>> differences between what is supported by base vs. non-base
+>>>       
+>> At first that was my reason but after talking it seems like doing it in 
+>> base is bad for the same reason that allowing a single module to turn on 
+>> a cap is. Why should base be able to turn on the cap if all the other 
+>> modules aren't written wrt the cap?
+>>     
+>
+> Upgrade of base usually reflects a full policy update, whereas inserting
+> a random module does not.  And if base doesn't work (e.g. doesn't have
+> the capabilities it requires), then the system likely won't boot or
+> function at all (modulo legacy rules).  I'm more comfortable with
+> letting base dictate the policy capabilities than other modules.
+>
+>   
 
- - todd
-
-diff --exclude-from=exclude -N -u -r
-nsalibselinux/man/man8/matchpathcon.8
-libselinux-2.0.45/man/man8/matchpathcon.8
---- nsalibselinux/man/man8/matchpathcon.8	2007-08-03
-16:02:56.000000000 -0400
-+++ libselinux-2.0.45/man/man8/matchpathcon.8	2007-12-06
-11:22:40.000000000 -0500
-@@ -6,7 +6,12 @@
- .B matchpathcon [-V] [-N] [-n] [-f file_contexts_file ] [-p prefix ]
-filepath...
- .SH "DESCRIPTION"
- .B matchpathcon
--Prints the file path and the default security context associated with
-it.
-+Queries the system and prints the default security context associated
-with the filepath.
-
-This should be a lower case 'q' since it is not the start of the
-sentence.
-
-+
-+Note: Identical paths can have different security contexts, depending
-on the file type. (regular file, directory, link file, char file ...)
-+
-+matchpathcon will check the system default context using the file type
-if the file exists.  If 
-the file does not exist, it will get the context of a regular file.
-
-Should probably use ".B matchpathcon" here.
-
-+
- .SH OPTIONS
- .B \-n
- Do not display path.
+I am not comfortable with base changing anything about other modules. If 
+base can turn on capabilities without regard to the modules being 
+installed then everything built as modules that uses network controls 
+(or whatever future caps affect) suddenly don't work. I also don't want 
+to just punt on this decision for now because we don't know the answer, 
+we'll have to answer it eventually if we successfully get rid of the 
+base vs. module distinction.
 
 
 --
