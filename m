@@ -1,39 +1,27 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [patch 0/2] policy capability support
-Date: Wed, 5 Dec 2007 16:41:03 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158801455FEE@exchange.columbia.tresys.com>
-In-Reply-To: <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>
-References: <20071205184848.180973622@tresys.com> <200712051421.39624.paul.moore@hp.com> <6FE441CD9F0C0C479F2D88F959B0158801455FBA@exchange.columbia.tresys.com> <1196883697.16006.103.camel@moss-spartans.epoch.ncsc.mil> <4757073B.70907@manicmethod.com> <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Joshua Brindle" <method@manicmethod.com>
-Cc: "Paul Moore" <paul.moore@hp.com>, <selinux@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1196887108.16006.121.camel@moss-spartans.epoch.ncsc.mil>
+References: <1196887108.16006.121.camel@moss-spartans.epoch.ncsc.mil> <138670.64371.qm@web36609.mail.mud.yahoo.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Cc: dhowells@redhat.com, casey@schaufler-ca.com, viro@ftp.linux.org.uk,
+        hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 4/7] KEYS: Add keyctl function to get a security label
+Date: Thu, 06 Dec 2007 01:28:25 +0000
+Message-ID: <25702.1196904505@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> Yes, I'm still against (automatic, default) unioning of the
-> capabilities by the linker - that is clearly not a safe default. 
-> semodule could possibly override that behavior based on an option
-> though, at which point the %post scriptlet in the policy rpm could
-> use that option if we wanted to force it w/o user intervention.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-What do we want the behavior of this option to be?  As I see it we
-have two choices:
+> inode_getsecurity and getprocattr directly return the strings.
+> Admittedly, the whole interface could be cleaned up and made far more
+> consistent, but I don't think he necessarily has to go through the
+> getsecid + secid_to_secctx sequence if he only wants the secctx.
 
-1) perform a union instead of requiring equivalence
+It's what Daniel Walsh wanted.
 
-2) add capabilities as needed to binary modules in the store.
-
-The advantage of 2) is that it would only need to happen once which
-makes it more "upgrade friendly".
-
- - todd
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
