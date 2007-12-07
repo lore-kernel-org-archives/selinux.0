@@ -1,237 +1,121 @@
-Message-Id: <20071206213942.268925113@tresys.com>
-References: <20071206213852.083412876@tresys.com>
-Date: Thu, 06 Dec 2007 16:38:54 -0500
-From: tmiller@tresys.com
-To: selinux@tycho.nsa.gov
-Cc: method@manicmethod.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        dwalsh@redhat.com, paul.moore@hp.com, cpebenito@tresys.com,
-        kmacmillan@mentalrootkit.com
-Subject: [patch 2/2] checkpolicy capability support
+Message-ID: <47595CF5.7020903@manicmethod.com>
+Date: Fri, 07 Dec 2007 09:47:17 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Todd Miller <Tmiller@tresys.com>, Paul Moore <paul.moore@hp.com>,
+        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>
+Subject: Re: [patch 0/2] policy capability support
+References: <20071205184848.180973622@tresys.com>	 <200712051421.39624.paul.moore@hp.com>	 <6FE441CD9F0C0C479F2D88F959B0158801455FBA@exchange.columbia.tresys.com>	 <1196883697.16006.103.camel@moss-spartans.epoch.ncsc.mil>	 <4757073B.70907@manicmethod.com>	 <1196886844.16006.117.camel@moss-spartans.epoch.ncsc.mil>	 <47570BAC.3050705@manicmethod.com>	 <1196887806.16006.131.camel@moss-spartans.epoch.ncsc.mil>	 <4757109B.2080209@manicmethod.com>	 <1196954491.27508.15.camel@moss-spartans.epoch.ncsc.mil>	 <475826F2.1000601@manicmethod.com>	 <1196964486.27508.107.camel@moss-spartans.epoch.ncsc.mil>	 <4758684C.9040409@manicmethod.com> <1196977378.27508.235.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1196977378.27508.235.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch includes checkpolicy support for policy capabilities.  In this
-version of the patch policy capabilities are only allowed in the base
-module.  Attempted use in other modules will result in a syntax error.
+Stephen Smalley wrote:
+> On Thu, 2007-12-06 at 16:23 -0500, Joshua Brindle wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> On Thu, 2007-12-06 at 11:44 -0500, Joshua Brindle wrote:
+>>>   
+>>>       
+>>>> Stephen Smalley wrote:
+>>>>     
+>>>>         
+>>>>> Overall, I have to wonder if we are really buying anything via
+>>>>> per-module capability declaration vs. per-policy.  The only reason you
+>>>>> tried to make it per-module was you were trying to drop distinctions
+>>>>> between base and non-base, right?  But maybe we shouldn't be so
+>>>>> concerned with having a notion of a base module even if we reduce the
+>>>>> differences between what is supported by base vs. non-base
+>>>>>       
+>>>>>           
+>>>> At first that was my reason but after talking it seems like doing it in 
+>>>> base is bad for the same reason that allowing a single module to turn on 
+>>>> a cap is. Why should base be able to turn on the cap if all the other 
+>>>> modules aren't written wrt the cap?
+>>>>     
+>>>>         
+>>> Upgrade of base usually reflects a full policy update, whereas inserting
+>>> a random module does not.  And if base doesn't work (e.g. doesn't have
+>>> the capabilities it requires), then the system likely won't boot or
+>>> function at all (modulo legacy rules).  I'm more comfortable with
+>>> letting base dictate the policy capabilities than other modules.
+>>>
+>>>   
+>>>       
+>> I am not comfortable with base changing anything about other modules. If 
+>> base can turn on capabilities without regard to the modules being 
+>> installed then everything built as modules that uses network controls 
+>> (or whatever future caps affect) suddenly don't work. I also don't want 
+>> to just punt on this decision for now because we don't know the answer, 
+>> we'll have to answer it eventually if we successfully get rid of the 
+>> base vs. module distinction.
+>>     
+>
+> If you aren't comfortable with base enabling capabilities without regard
+> to the other modules, then you aren't comfortable with the union
+> proposal anymore.  So where does that leave you?  With Chris on the
+> intersection proposal?  See my comments there.
+>
+>   
 
-Also included is dismod/dispol support for printing the capabilities.
-I chose to use the 'c' command for this in both dismod and dispol to
-keep things consistent (dismod has run out of numbered commands).
+That is correct, as a result of you guys convincing me that union as 
+wrong I also believe putting it in base is wrong. The intersection is 
+the most compelling to me so far, though it seems like no optimum 
+solutions exist. I'm wondering if caps are the right solution to the 
+problem at all..
 
-Signed-off-by: Todd C. Miller <tmiller@tresys.com>
+> When does base get updated?  When we are updating the entire policy,
+> typically all in a single libsemanage transaction.  At what time do we
+> want to gain new capabilities?  When we are updating the entire policy.
+> What capabilities do we want audit2allow-generated modules to inherit?
+> The same as the base system policy.
+>
+>   
 
-Index: trunk/checkpolicy/policy_parse.y
-===================================================================
---- trunk.orig/checkpolicy/policy_parse.y
-+++ trunk/checkpolicy/policy_parse.y
-@@ -47,6 +47,7 @@
- #include <sepol/policydb/conditional.h>
- #include <sepol/policydb/flask.h>
- #include <sepol/policydb/hierarchy.h>
-+#include <sepol/policydb/polcaps.h>
- #include "queue.h"
- #include "checkpolicy.h"
- #include "module_compiler.h"
-@@ -198,6 +199,7 @@ typedef int (* require_func_t)();
- %token IPV4_ADDR
- %token IPV6_ADDR
- %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
-+%token POLICYCAP
- 
- %left OR
- %left XOR
-@@ -308,6 +310,7 @@ te_rbac_decl		: te_decl
- 			| rbac_decl
-                         | cond_stmt_def
- 			| optional_block
-+			| policycap_def
- 			| ';'
-                         ;
- rbac_decl		: role_type_def
-@@ -765,6 +768,9 @@ number			: NUMBER 
- ipv6_addr		: IPV6_ADDR
- 			{ if (insert_id(yytext,0)) return -1; }
- 			;
-+policycap_def		: POLICYCAP identifier ';'
-+			{if (define_polcap()) return -1;}
-+			;
- 
- /*********** module grammar below ***********/
- 
-@@ -962,6 +968,44 @@ static int define_class(void)
- 	return -1;
- }
- 
-+static int define_polcap(void)
-+{
-+	char *id = 0;
-+	int capnum;
-+
-+	if (pass == 2) {
-+		id = queue_remove(id_queue);
-+		free(id);
-+		return 0;
-+	}
-+
-+	id = (char *)queue_remove(id_queue);
-+	if (!id) {
-+		yyerror("no capability name for policycap definition?");
-+		goto bad;
-+	}
-+
-+	/* Check for valid cap name -> number mapping */
-+	capnum = sepol_polcap_getnum(id);
-+	if (capnum < 0) {
-+		yyerror2("invalid policy capability name %s", id);
-+		goto bad;
-+	}
-+
-+	/* Store it */
-+	if (ebitmap_set_bit(&policydbp->policycaps, capnum, TRUE)) {
-+		yyerror("out of memory");
-+		goto bad;
-+	}
-+
-+	free(id);
-+	return 0;
-+
-+      bad:
-+	free(id);
-+	return -1;
-+}
-+
- static int define_initial_sid(void)
- {
- 	char *id = 0;
-Index: trunk/checkpolicy/policy_scan.l
-===================================================================
---- trunk.orig/checkpolicy/policy_scan.l
-+++ trunk/checkpolicy/policy_scan.l
-@@ -201,6 +201,8 @@ h1 |
- H1				{ return(H1); }
- h2 |
- H2				{ return(H2); }
-+policycap |
-+POLICYCAP			{ return(POLICYCAP);}
- "/"({alnum}|[_.-/])*	        { return(PATH); }
- {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
- {digit}+                        { return(NUMBER); }
-Index: trunk/checkpolicy/test/dismod.c
-===================================================================
---- trunk.orig/checkpolicy/test/dismod.c
-+++ trunk/checkpolicy/test/dismod.c
-@@ -34,6 +34,7 @@
- #include <sepol/policydb/link.h>
- #include <sepol/policydb/module.h>
- #include <sepol/policydb/util.h>
-+#include <sepol/policydb/polcaps.h>
- 
- #include <byteswap.h>
- #include <endian.h>
-@@ -765,6 +766,26 @@ static void link_module(policydb_t * bas
- 	return;
- }
- 
-+static void display_policycaps(policydb_t * p, FILE * fp)
-+{
-+	ebitmap_node_t *node;
-+	const char *capname;
-+	char buf[64];
-+	int i;
-+
-+	fprintf(fp, "policy capabilities:\n");
-+	ebitmap_for_each_bit(&p->policycaps, node, i) {
-+		if (ebitmap_get_bit(&p->policycaps, i)) {
-+			capname = sepol_polcap_getname(i);
-+			if (capname == NULL) {
-+				snprintf(buf, sizeof(buf), "unknown (%d)", i);
-+				capname = buf;
-+			}
-+			fprintf(fp, "\t%s\n", capname);
-+		}
-+	}
-+}
-+
- int menu()
- {
- 	printf("\nSelect a command:\n");
-@@ -781,6 +802,7 @@ int menu()
- 	printf("\n");
- 	printf("a)  Display avrule requirements\n");
- 	printf("b)  Display avrule declarations\n");
-+	printf("c)  Display policy capabilities\n");
- 	printf("l)  Link in a module\n");
- 	printf("u)  Display the unknown handling setting\n");
- 	printf("\n");
-@@ -891,6 +913,9 @@ int main(int argc, char **argv)
- 			fprintf(out_fp, "avrule block declarations:\n");
- 			display_avblock(6, 0, &policydb, out_fp);
- 			break;
-+		case 'c':
-+			display_policycaps(&policydb, out_fp);
-+			break;
- 		case 'u':
- 		case 'U':
- 			display_handle_unknown(&policydb, out_fp);
-Index: trunk/checkpolicy/test/dispol.c
-===================================================================
---- trunk.orig/checkpolicy/test/dispol.c
-+++ trunk/checkpolicy/test/dispol.c
-@@ -23,6 +23,7 @@
- #include <sepol/policydb/conditional.h>
- #include <sepol/policydb/expand.h>
- #include <sepol/policydb/util.h>
-+#include <sepol/policydb/polcaps.h>
- #include <getopt.h>
- #include <assert.h>
- #include <unistd.h>
-@@ -298,6 +299,26 @@ int change_bool(char *name, int state, p
- 	return 0;
- }
- 
-+static void display_policycaps(policydb_t * p, FILE * fp)
-+{
-+	ebitmap_node_t *node;
-+	const char *capname;
-+	char buf[64];
-+	int i;
-+
-+	fprintf(fp, "policy capabilities:\n");
-+	ebitmap_for_each_bit(&p->policycaps, node, i) {
-+		if (ebitmap_get_bit(&p->policycaps, i)) {
-+			capname = sepol_polcap_getname(i);
-+			if (capname == NULL) {
-+				snprintf(buf, sizeof(buf), "unknown (%d)", i);
-+				capname = buf;
-+			}
-+			fprintf(fp, "\t%s\n", capname);
-+		}
-+	}
-+}
-+
- int menu()
- {
- 	printf("\nSelect a command:\n");
-@@ -309,6 +330,7 @@ int menu()
- 	printf("6)  display conditional expressions\n");
- 	printf("7)  change a boolean value\n");
- 	printf("\n");
-+	printf("c)  display policy capabilities\n");
- 	printf("u)  display unknown handling setting\n");
- 	printf("f)  set output file\n");
- 	printf("m)  display menu\n");
-@@ -421,6 +443,9 @@ int main(int argc, char **argv)
- 			change_bool(name, state, &policydb, out_fp);
- 			free(name);
- 			break;
-+		case 'c':
-+			display_policycaps(&policydb, out_fp);
-+			break;
- 		case 'u':
- 		case 'U':
- 			display_handle_unknown(&policydb, out_fp);
+Yes base gets updated when the entire policy is updated, that one is 
+fair. as for audit2allow, base system policy != base module.
 
--- 
+> Where would the policycap statements come from if we kept them
+> per-module?  From the policy_module definition provided by...the base
+> policy against which the module was built.
+>
+>   
+policy_module is just a macro from refpolicy, it has nothing to do with 
+base vs. non-base.
+
+> Maybe I'm missing something but it all leads back to the base module
+> providing the definitions, and if we're moving toward link-time
+> expansion of interfaces, then they'll end up coming from the base module
+> at link time anyway then.
+>   
+
+Well, interfaces aren't necessarily in base. corenetwork is in base by 
+necessity now because of limitations on the module language. When that 
+limitation goes away I'd hope corenetwork would not be in base. That 
+would leave base as basically object class definitions, which makes its 
+ability to determine the capabilities questionable since it won't even 
+have rules (the rules which determine with caps are actually in use)
+
+> As for base vs. non-base, I'm all for making non-base modules more
+> functional, but that doesn't mean that semodule -b is going away
+> (compatibility of user interfaces and all that) or that we can't retain
+> a notion of a special base module that defines certain policy-wide
+> properties (a useful thing, even if the rest of the policy is fully
+> modularized).
+>
+>   
+
+Chris says there will always be the concept of a base in refpolicy, that 
+is fine with me. What I want to get rid of us the code treating base 
+specially and this would be yet-another way we treat it specially that 
+would have to be removed later (and we'd have to figure out how to 
+handle it then anyway, we are just punting the decision for now.. boo )
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
