@@ -1,63 +1,230 @@
-Subject: RE: Man page fix for matchpatchcon
+Subject: Re: policycoreutils patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Todd Miller <Tmiller@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158801456164@exchange.columbia.tresys.com>
-References: <47583B35.9060002@redhat.com>
-	 <6FE441CD9F0C0C479F2D88F959B0158801456164@exchange.columbia.tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <475840BE.20200@redhat.com>
+References: <475840BE.20200@redhat.com>
 Content-Type: text/plain
-Date: Fri, 07 Dec 2007 15:13:03 -0500
-Message-Id: <1197058384.2569.123.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 07 Dec 2007 15:19:19 -0500
+Message-Id: <1197058759.2569.125.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-12-06 at 16:16 -0500, Todd Miller wrote:
-> Comments inline, hopefully the mail client won't munge things too much.
+On Thu, 2007-12-06 at 13:34 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->  - todd
+> The first patch to fixfiles, eliminates the verbose updates when doing a
+> diff with an old file context.  This was potentially causing lots of
+> messages in yum updates and caused an error during update.
 > 
-> diff --exclude-from=exclude -N -u -r
-> nsalibselinux/man/man8/matchpathcon.8
-> libselinux-2.0.45/man/man8/matchpathcon.8
-> --- nsalibselinux/man/man8/matchpathcon.8	2007-08-03
-> 16:02:56.000000000 -0400
-> +++ libselinux-2.0.45/man/man8/matchpathcon.8	2007-12-06
-> 11:22:40.000000000 -0500
-> @@ -6,7 +6,12 @@
->  .B matchpathcon [-V] [-N] [-n] [-f file_contexts_file ] [-p prefix ]
-> filepath...
->  .SH "DESCRIPTION"
->  .B matchpathcon
-> -Prints the file path and the default security context associated with
-> it.
-> +Queries the system and prints the default security context associated
-> with the filepath.
+> Also better handling of arguments when passed into fixfiles.
 > 
-> This should be a lower case 'q' since it is not the start of the
-> sentence.
-> 
-> +
-> +Note: Identical paths can have different security contexts, depending
-> on the file type. (regular file, directory, link file, char file ...)
-> +
-> +matchpathcon will check the system default context using the file type
-> if the file exists.  If 
-> the file does not exist, it will get the context of a regular file.
+> The second patch adds better handling of boolean to semanage.  The
+> biggest improvement is the tool now extracts out the boolean description
+> when listing, making searching for a boolean easier.
 
-Also, this last part wasn't right - if the file doesn't exist, then
-matchpathcon passes a 0 mode to matchpathcon(3), which in turn does no
-file mode/type matching at all in that case (so any entry will match).
+/usr/sbin/semanage boolean -l yields no output with this patch?
 
-Applied those fixes and committed.
+SELinux boolean                          Description
+
+
 
 > 
-> Should probably use ".B matchpathcon" here.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.7 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 > 
+> iD8DBQFHWEC9rlYvE4MpobMRAq3gAJ94UxlJ7lwij+WtkYkp0r4PmfB9cwCglprd
+> SgvCBh97RlQtNpS6QYoHr+c=
+> =s0k6
+> -----END PGP SIGNATURE-----
+> plain text document attachment (policycoreutils-rhat.patch.part001)
+> --- nsapolicycoreutils/scripts/fixfiles	2007-08-23 16:52:26.000000000 -0400
+> +++ policycoreutils-2.0.31/scripts/fixfiles	2007-11-16 16:30:21.000000000 -0500
+> @@ -92,7 +92,7 @@
+>  		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -prune  -o \
+>  		      \( -wholename /home -o -wholename /root -o -wholename /tmp -wholename /dev \) -prune -o -print; \
+>  		      done 2> /dev/null | \
+> -	 ${RESTORECON} $2 -v -f - 
+> +	 ${RESTORECON} $2 -f - 
+>  	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
+>  fi
+>  }
+> @@ -189,21 +189,27 @@
+>      case "$i" in
+>  	f)
+>  		fullFlag=1
+> +		shift 1
+>  		;;
+>          R)
+>  		RPMFILES=$OPTARG
+> +		shift 2
+>  		;;
+>          o)
+>  		OUTFILES=$OPTARG
+> +		shift 2
+>  		;;
+>          l)
+>  		LOGFILE=$OPTARG
+> +		shift 2
+>  		;;
+>          C)
+>  		PREFC=$OPTARG
+> +		shift 2
+>  		;;
+>  	F)
+>  		FORCEFLAG="-F"
+> +		shift 1
+>  		;;
+>  	*)
+>  	    usage
+> @@ -211,10 +217,8 @@
+>  esac
+>  done
+>  
+> -
+>  # Check for the command
+> -eval command=\$${OPTIND}
+> -let OPTIND=$OPTIND+1
+> +command=$1
+>  if [ -z $command ]; then
+>      usage
+>  fi
+> @@ -223,17 +227,15 @@
+>  # check if they specified both DIRS and RPMFILES
+>  #
+>  
+> +shift 1
+>  if [ ! -z "$RPMFILES" ]; then
+> -    if [ $OPTIND -le $# ]; then
+> +    if [ $# -gt 0 ]; then
+>  	    usage
+>      fi
+>  else
+> -    while [ $OPTIND -le $# ]; do
+> -	eval DIR=\$${OPTIND}
+> -	DIRS="$DIRS $DIR"
+> -	let OPTIND=$OPTIND+1
+> -    done
+> +    DIRS=$*
+>  fi
 > +
->  .SH OPTIONS
->  .B \-n
->  Do not display path.
+>  #
+>  # Make sure they specified one of the three valid commands
+>  #
+> plain text document attachment (policycoreutils-rhat.patch.part002)
+> --- nsapolicycoreutils/semanage/seobject.py	2007-10-07 21:46:43.000000000 -0400
+> +++ policycoreutils-2.0.31/semanage/seobject.py	2007-11-19 17:35:04.000000000 -0500
+> @@ -1,5 +1,5 @@
+>  #! /usr/bin/python -E
+> -# Copyright (C) 2005 Red Hat 
+> +# Copyright (C) 2005, 2006, 2007 Red Hat 
+>  # see file 'COPYING' for use and warranty information
+>  #
+>  # semanage is a tool for managing SELinux configuration files
+> @@ -88,6 +88,35 @@
+>  			
+>  mylog = logger()		
+>  
+> +import sys, os
+> +import re
+> +import xml.etree.ElementTree
+> +
+> +booleans_dict={}
+> +try:
+> +       tree=xml.etree.ElementTree.parse("/usr/share/selinux/devel/policy.xml")
+> +       for l in  tree.findall("layer"):
+> +              for m in  l.findall("module"):
+> +                     for b in  m.findall("tunable"):
+> +                            desc = b.find("desc").find("p").text.strip("\n")
+> +                            desc = re.sub("\n", " ", desc)
+> +                            booleans_dict[b.get('name')] = (m.get("name"), b.get('dftval'), desc)
+> +                     for b in  m.findall("bool"):
+> +                            desc = b.find("desc").find("p").text.strip("\n")
+> +                            desc = re.sub("\n", " ", desc)
+> +                            booleans_dict[b.get('name')] = (m.get("name"), b.get('dftval'), desc)
+> +              for i in  tree.findall("bool"):
+> +                     desc = i.find("desc").find("p").text.strip("\n")
+> +                     desc = re.sub("\n", " ", desc)
+> +                     booleans_dict[i.get('name')] = (_("global"), i.get('dftval'), desc)
+> +       for i in  tree.findall("tunable"):
+> +              desc = i.find("desc").find("p").text.strip("\n")
+> +              desc = re.sub("\n", " ", desc)
+> +              booleans_dict[i.get('name')] = (_("global"), i.get('dftval'), desc)
+> +except IOError, e:
+> +       #print _("Failed to translate booleans.\n%s") % e
+> +       pass
+> +
+>  def validate_level(raw):
+>  	sensitivity = "s[0-9]*"
+>  	category = "c[0-9]*"
+> @@ -1095,7 +1121,13 @@
+>  
+>                  return con
+>                 
+> +        def validate(self, target):
+> +               if target == "" or target.find("\n") >= 0:
+> +                      raise ValueError(_("Invalid file specification"))
+> +                      
+>  	def add(self, target, type, ftype = "", serange = "", seuser = "system_u"):
+> +                self.validate(target)
+> +
+>  		if is_mls_enabled == 1:
+>                         serange = untranslate(serange)
+>  			
+> @@ -1154,6 +1186,7 @@
+>  	def modify(self, target, setype, ftype, serange, seuser):
+>  		if serange == "" and setype == "" and seuser == "":
+>  			raise ValueError(_("Requires setype, serange or seuser"))
+> +                self.validate(target)
+>  
+>  		(rc,k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype])
+>  		if rc < 0:
+> @@ -1328,11 +1362,14 @@
+>  		if value != "":
+>  			nvalue = int(value)
+>  			semanage_bool_set_value(b, nvalue)
+> +                else:
+> +                       raise ValueError(_("You must specify a value"))
+>  
+>  		rc = semanage_begin_transaction(self.sh)
+>  		if rc < 0:
+>  			raise ValueError(_("Could not start semanage transaction"))
+>  
+> +                rc = semanage_bool_set_active(self.sh, k, b)
+>  		rc = semanage_bool_modify_local(self.sh, k, b)
+>  		if rc < 0:
+>  			raise ValueError(_("Could not modify boolean %s") % name)
+> @@ -1416,11 +1453,25 @@
+>  
+>  		return ddict
+>  			
+> +        def get_desc(self, boolean):
+> +               if boolean in booleans_dict:
+> +                      return _(booleans_dict[boolean][2])
+> +               else:
+> +                      return boolean
+> +
+> +        def get_category(self, boolean):
+> +               if boolean in booleans_dict:
+> +                      return _(booleans_dict[boolean][0])
+> +               else:
+> +                      return _("unknown")
+> +
+>  	def list(self, heading = 1, locallist = 0):
+> +                on_off = (_("off"),_("on")) 
+>  		if heading:
+> -			print "%-50s %7s %7s %7s\n" % (_("SELinux boolean"), _("value"), _("pending"),  _("active") )
+> +			print "%-40s %s\n" % (_("SELinux boolean"), _("Description"))
+>  		ddict = self.get_all(locallist)
+>  		keys = ddict.keys()
+>  		for k in keys:
+>  			if ddict[k]:
+> -				print "%-50s %7d %7d %7d " % (k, ddict[k][0],ddict[k][1], ddict[k][2])
+> +				print "%-30s -> %-5s %s" %  (k, on_off[ddict[k][2]], self.get_desc(k))
+> +
 -- 
 Stephen Smalley
 National Security Agency
