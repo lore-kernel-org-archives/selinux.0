@@ -1,50 +1,67 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lB9FpdDO031108
-	for <selinux@tycho.nsa.gov>; Sun, 9 Dec 2007 10:51:39 -0500
-Received: from rv-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lB9FpbQi006881
-	for <selinux@tycho.nsa.gov>; Sun, 9 Dec 2007 15:51:37 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so1204072rvb
-        for <selinux@tycho.nsa.gov>; Sun, 09 Dec 2007 07:51:34 -0800 (PST)
-Message-ID: <475C0E77.3010303@gmail.com>
-Date: Sun, 09 Dec 2007 09:49:11 -0600
-From: Ted X Toth <txtoth@gmail.com>
-MIME-Version: 1.0
-To: Jeronimo Zucco <jczucco@ucs.br>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: MLS Security Levels
-References: <1197168914.475b59122bad7@webmail.ucs.br>
-In-Reply-To: <1197168914.475b59122bad7@webmail.ucs.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBA61jZt026283
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2007 01:01:45 -0500
+Received: from e3.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBA61jH6002624
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2007 06:01:45 GMT
+Received: from d01relay04.pok.ibm.com (d01relay04.pok.ibm.com [9.56.227.236])
+	by e3.ny.us.ibm.com (8.13.8/8.13.8) with ESMTP id lBA61ap7028415
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2007 01:01:36 -0500
+Received: from d01av03.pok.ibm.com (d01av03.pok.ibm.com [9.56.224.217])
+	by d01relay04.pok.ibm.com (8.13.8/8.13.8/NCO v8.7) with ESMTP id lBA61ato135668
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2007 01:01:36 -0500
+Received: from d01av03.pok.ibm.com (loopback [127.0.0.1])
+	by d01av03.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id lBA61ZlK020520
+	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2007 01:01:36 -0500
+Subject: Re: Se-Linux Updates for LTP
+From: Subrata Modak <subrata@linux.vnet.ibm.com>
+Reply-To: subrata@linux.vnet.ibm.com
+To: SE Linux <selinux@tycho.nsa.gov>
+Cc: James Morris <jmorris@redhat.com>,
+        ltp-list <ltp-list@lists.sourceforge.net>,
+        George Kraft <gk4@us.ibm.com>,
+        Ricardo Salveti de Araujo <rsalveti@linux.vnet.ibm.com>,
+        klausk@br.ibm.com
+In-Reply-To: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
+References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
+Content-Type: text/plain
+Date: Mon, 10 Dec 2007 11:31:31 +0530
+Message-Id: <1197266491.4482.2.camel@subratamodak.linux.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-You can find this by looking in the spec file of the selinux-policy 
-source rpm for MLS_CATS.
+On Fri, 2007-12-07 at 21:55 +0530, Subrata Modak wrote:
+> Hi All,
+> 
+> Today i had the opportunity to meet James Morris from Red Hat at FOSS.in
+> held at Bangalore, India. After his talks on Se-Linux, we were
+> discussing about the Policy Reference support for Se-linux available in
+> LTP under the directory:
+> ltp/testcases/kernel/security/selinux-testsuite/
+> 
+> Though i have released RHEL5 EAL4+ Certification Testsuites from IBM, i
+> have not seen the testcases under:
+> ltp/testcases/kernel/security/selinux-testsuite/
+> updated for more than an year. I am not aware exactly about the reason
+> for the same. I would like to request you send me any updates that you
+> may want to give to LTP for your selinux-testsuite.
 
-Jeronimo Zucco wrote:
->    How many is the atual max number of sensitivity level and max capabilities in
-> a MLS security context ?
->
-> In Fedora 5 was: s0-s15 and c0-c255. Today is the same values? Where can i get
-> this information?
->
+Can somebody give me some direction on this ??
+
+--Subrata
+
+> 
+> Regards--
+> Subrata
+> 
+> 
+> 
+> 
 > --
-> Jeronimo Zucco
-> LPIC-1 Linux Professional Institute Certified
-> Núcleo de Processamento de Dados
-> Universidade de Caxias do Sul
->
-> http://jczucco.blogspot.com
->
-> ---------------------------------------
-> Essa mensagem foi enviada pelo UCS Mail
->
-> --
-> fedora-selinux-list mailing list
-> fedora-selinux-list@redhat.com
-> https://www.redhat.com/mailman/listinfo/fedora-selinux-list
->
->   
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
