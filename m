@@ -1,62 +1,49 @@
-Subject: Re: [PATCH] [STABLE] Makefile change to disable restorecond
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <475EEF4D.4000807@manicmethod.com>
-References: <475EED72.3090607@manicmethod.com>
-	 <475EEF4D.4000807@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBBKNjgv009905
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 15:23:45 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBBKNjEe001511
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 20:23:45 GMT
+Subject: Re: Network flow controls and subj/obj ordering
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200712111202.20074.paul.moore@hp.com>
+References: <200712111202.20074.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Tue, 11 Dec 2007 15:19:56 -0500
-Message-Id: <1197404396.28006.111.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 11 Dec 2007 15:23:22 -0500
+Message-Id: <1197404602.12626.185.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-12-11 at 15:13 -0500, Joshua Brindle wrote:
-> Joshua Brindle wrote:
-> > This patch is necessary to build stable on RHEL4. CLIP uses the 
-> > current stable toolchain and supports RHEL4 as a target so we are 
-> > trying to upstream any magic that is necessary to build on that platform.
-> >
-> Ignore last patch, this one is actually against stable :)
-
-What about just checking for the presence of /usr/include/sys/inotify.h
-and disabling restorecond in its absence, similar to handling of PAMH
-and AUDITH in newrole's Makefile?  Then that could go into trunk too.
-
+On Tue, 2007-12-11 at 12:02 -0500, Paul Moore wrote:
+> After a discussion with Venkat last week we decided that it was probably best 
+> if I took responsibility for the flow control patches and ported/cleaned them 
+> up for inclusion in the labeled networking patches for 2.6.25.  In the course 
+> of doing so I ran across the problem of subject/object "ordering" (probably 
+> not the best term, but it's all I can think of right now).  In both the "flow 
+> in" and "flow out" cases I'm tempted to use the packet's peer label as the 
+> object just for the sake of consistency and the ability to use the new "peer" 
+> object class for all network peer label access checks.  However, I wanted to 
+> make sure that is what everyone had in mind from a conceptual point of view.  
+> See the two simple policy examples below:
 > 
-> Index: policycoreutils/Makefile
-> ===================================================================
-> --- policycoreutils/Makefile    (revision 2677)
-> +++ policycoreutils/Makefile    (working copy)
-> @@ -1,5 +1,9 @@
-> -SUBDIRS=setfiles semanage load_policy newrole run_init restorecon restorecond secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
-> +SUBDIRS=setfiles semanage load_policy newrole run_init restorecon secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
->  
-> +ifndef NO_INOTIFY
-> +       SUBDIRS += restorecond
-> +endif
-> +
->  all install relabel clean indent:
->         @for subdir in $(SUBDIRS); do \
->                 (cd $$subdir && $(MAKE) $@) || exit 1; \
-> Index: Makefile
-> ===================================================================
-> --- Makefile    (revision 2677)
-> +++ Makefile    (working copy)
-> @@ -1,6 +1,8 @@
->  SUBDIRS=libsepol libselinux libsemanage checkpolicy policycoreutils # policy
->  PYSUBDIRS=libselinux libsemanage
->  
-> +export NO_INOTIFY
-> +
->  ifeq ($(DEBUG),1)
->         export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow
->         export LDFLAGS = -g
+>  * Packet "flows" into the system, peer label is the object
 > 
+>    allow netif_t peerlbl_t:peer flow_in;
+> 
+>  * Packet "flows" out of the system, peer label is the object
+> 
+>    allow netif_t peerlbl_t:peer flow_out;
+
+Can you give an example for the forwarding case?  Also, how about in the
+non-labeled networking case?
+
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
