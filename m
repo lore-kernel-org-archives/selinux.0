@@ -1,63 +1,106 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBBKexfT012110
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 15:40:59 -0500
-Received: from web36611.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBBKesEe008216
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 20:40:54 GMT
-Date: Tue, 11 Dec 2007 12:40:54 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
-Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1197401823.28006.74.camel@moss-spartans.epoch.ncsc.mil>
+References: <1197401823.28006.74.camel@moss-spartans.epoch.ncsc.mil> <1197322068.18120.176.camel@moss-spartans.epoch.ncsc.mil> <1197307397.18120.72.camel@moss-spartans.epoch.ncsc.mil> <1197305173.18120.60.camel@moss-spartans.epoch.ncsc.mil> <20071205193818.24617.79771.stgit@warthog.procyon.org.uk> <20071205193859.24617.36392.stgit@warthog.procyon.org.uk> <25037.1197306473@redhat.com> <25572.1197320887@redhat.com> <25965.1197329769@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dhowells@redhat.com, Karl MacMillan <kmacmill@redhat.com>,
         viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <1197402998.28006.95.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <81940.57362.qm@web36611.mail.mud.yahoo.com>
+        casey@schaufler-ca.com, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+Date: Tue, 11 Dec 2007 20:42:05 +0000
+Message-ID: <9789.1197405725@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
+> > That sounds too SELinux specific.  How do I do it so that it works for any
+> > LSM?
 > 
-> > I am much more concerned with the interfaces used to pass the
-> > information into the kernel. I would expect that to be LSM
-> > independent, not a call into libselinux that resolves into a
-> > selinuxfs operation, or it's netlink equivilant. It would be
-> > unfortunate if the userland/kernel interface became an obstacle
-> > to cachefiles being adopted.
+> You can't.  There is no LSM for userspace; LSM specifically disavowed
+> any common userspace API, and that was one of our original
+> objections/concerns about it.
+
+So, basically, userspace programs (outside of security tools) aren't supposed
+to need access to the security infrastructure?
+
+> > Is linking against libselinux is a viable option if it's not available under
+> > all LSM models?  Is it available under all LSM models?  Perhaps Casey can
+> > answer this one.
 > 
-> That wasn't the issue.  The interface to the cachefiles module would
-> just consist of cachefilesd writing a string label to some pseudo file
-> tell cachefiles what label to apply as the acting label for operations
-> performed by cachefiles.  Which isn't SELinux-specific at all.
+> Nope, they would all have their own libraries, if they have a library at
+> all.  But that isn't your problem
 
-Calm down. Just checking.
+It is if I have to maintain a special pieces of code for each possible LSM.
+One piece for SELinux, one piece for AppArmour, one piece for Smack, one piece
+for Casey's security system.  That sounds like a pain.
 
-> David was asking though how cachefilesd (the userspace agent) would
-> obtain such a label to use.  And that may very well be LSM-specific, and
-> as there is no LSM userspace API, it makes sense for him to invoke a
-> libselinux function at present.  If a liblsm is later created and
-> provides a common front-end API (internally dlopen'ing the right shared
-> library based on some configuration, whether libselinux or libsmack or
-> whatever), then cachefilesd can instead call the liblsm interface, but
-> that doesn't exist today.
+> - your kernel interface should be generic, and your LSM hooks should be
+> generic, but your userspace isn't required to be.  Have a look at how many
+> programs in the distribution currently link against libselinux, whether
+> directly or by dlopen'ing it.
 
-I am certainly not in favor of adding such complexity.
-I suggest that cachefilesd get the context it wants using
-whatever scheme works. I think there should be a cachefiles
-specific (LSM independent) scheme for getting it into the
-kernel, and a LSM hooks for setting it, if that's what he
-really wants to do.
+In /usr/bin ldd reports approximately 297 binaries link to libselinux, though
+I can't say how many of those linked against it directly rather than picking
+it up by contamination through a shared library.  Furthermore, I've no idea
+how many more find it by dlopen.
 
+> > > > I use to do that, but someone objected...  Possibly Karl MacMillan.
+> > > 
+> > > Yes, but I think I disagreed then too.
+> > 
+> > So, who's right?
+> 
+> Karl isn't a maintainer of the SELinux kernel code.  And I had thought
+> that even he had reconsidered this idea after further discussion.
 
+Not that I know of.
 
-Casey Schaufler
-casey@schaufler-ca.com
+> > > It doesn't fit with how other users of security_kernel_act_as() will
+> > > likely want to work (they will want to just set the context to a
+> > > specified value, whether one obtained from the client or from some local
+> > > source), nor with how type transitions normally work (exec, with the
+> > > program type as the second type field).  I think it will just cause
+> > > confusion and subtle breakage.
+> > 
+> > It's causing me lots of confusion as it is.  I have been / am being told by
+> > different people to do different things just in dealing with SELinux, and
+> > various people are raising extra requirements or restrictions beyond that.
+> > There doesn't seem to be a consensus.
+> > 
+> > It sounds like the best option is just to have the kernel nick the userspace
+> > daemon's security context and use that as is, and junk all the restrictions on
+> > what the daemon can do so that the kernel isn't too restricted.
+> 
+> Well, you could do that, if that meets your needs, but it doesn't sound
+> very optimal either.
+
+True.  I'd rather have separate security for each.
+
+> Why are you opposed to having userspace determine the context and write it
+> to a cachefiles interface,
+
+Because, from what I gather, that means my userspace program needs to do
+something different, depending on the security model that's currently in force
+on a system.  Furthermore, I would have to have separate code, as far as I
+know, for each security model as there's no commonality in userspace.
+
+I can't just link against libselinux.  It might not be there.  I'm not going
+to tie my program to SELinux either.
+
+Furthermore, I worked out "the right way to do this" with some apparent
+SELinux person, and you seemed reasonably accepting of it.  Now I have to go
+and redo all the work, having had to redo the security stuff a couple of times
+already because someone objected.  *That* is the main obstacle to getting my
+code accepted at the moment, I think.
+
+How about I just stick the context in /etc/cachefilesd.conf as a textual
+configuration item and have the daemon pass that as a string to the cachefiles
+kernel module, which can then ask LSM if it's valid to set this context as an
+override, given the daemon's own security context?  That seems entirely
+reasonable to me.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
