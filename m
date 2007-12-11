@@ -1,96 +1,367 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBBEqDQL000528
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 09:52:13 -0500
-Received: from vidle.i.cz (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBBEqAHI008641
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 14:52:11 GMT
-Date: Tue, 11 Dec 2007 15:52:08 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: selinux@tycho.nsa.gov
-Cc: selinux-devel@lists.alioth.debian.org
-Subject: refpolicy HEAD, patch for Debian logs of syslog rotation
-Message-ID: <20071211145208.GA5106@bobek.pm.i.cz>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBBFLlKb003141
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 10:21:47 -0500
+Received: from dmzmta102.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBBFLjHI017317
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 15:21:45 GMT
+Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
+	by dmzmta102.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id lBBFJBdV019047
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 10:19:11 -0500
+Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
+	by usdmta003.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id lBBFJiW6008445
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 10:19:48 -0500
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="2oS5YaxWCcQjTEyO"
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C83C09.78ACE2AC"
+Subject: newrole in the background
+Date: Tue, 11 Dec 2007 07:21:15 -0800
+Message-ID: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
+From: "Reed, Tim \(US SSA\)" <tim.reed@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+------_=_NextPart_001_01C83C09.78ACE2AC
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
-there is another change for the refpolicy, so the Debian system can run
-/etc/cron.daily/sysklogd successfully. This is rotation for logs parsed
-from syslog.conf config file. Script /usr/sbin/syslogd-listfiles lists
-logs, that needs rotation. Logs are rotated using script
-/usr/bin/savelog then.
+I am currently running RHEL 5 update 1 with the MLS policy. =20
 
-Without attached patch domain logrotate_t is not allowed to read
-syslog_conf_t and following denials are generated:
+=20
 
-audit(1197384508.149:3): avc:  denied  { read } for  pid=1589 comm="syslogd-listfil" name="syslog.conf" dev=sda1 ino=213265 scontext=system_u:system_r:logrotate_t:s0 tcontext=system_u:object_r:syslog_conf_t:s0 tclass=file
-audit(1197384508.149:4): avc:  denied  { ioctl } for  pid=1589 comm="syslogd-listfil" name="syslog.conf" dev=sda1 ino=213265 scontext=system_u:system_r:logrotate_t:s0 tcontext=system_u:object_r:syslog_conf_t:s0 tclass=file
-audit(1197384508.149:5): avc:  denied  { getattr } for  pid=1589 comm="syslogd-listfil" name="syslog.conf" dev=sda1 ino=213265 scontext=system_u:system_r:logrotate_t:s0 tcontext=system_u:object_r:syslog_conf_t:s0 tclass=file
+The issue that I am now having is that in our code we switched over from
+using runcon to newrole.  The newrole command is executed from within
+our application that is running in the background, so no TTY.  Which is
+the problem. =20
 
-Can be changes applied?
-Thanks
--- 
-Zito
+=20
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="refpolicy-debian-syslog.patch"
+Newrole bombs because there is no tty, the call that "fails" is
+ttyname(0). =20
 
-Index: policy/modules/system/logging.if
-===================================================================
---- policy/modules/system/logging.if	(revision 2550)
-+++ policy/modules/system/logging.if	(working copy)
-@@ -663,6 +663,25 @@
- 
- ########################################
- ## <summary>
-+##	Read syslog_conf_t file.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`logging_read_syslog_conf',`
-+	gen_require(`
-+		type syslog_conf_t;
-+	')
-+
-+	allow $1 syslog_conf_t:file read_file_perms;
-+')
-+
-+########################################
-+## <summary>
- ##	All of the rules required to administrate
- ##	the audit environment
- ## </summary>
-Index: policy/modules/admin/logrotate.te
-===================================================================
---- policy/modules/admin/logrotate.te	(revision 2550)
-+++ policy/modules/admin/logrotate.te	(working copy)
-@@ -108,6 +108,11 @@
- # cjp: why is this needed?
- logging_exec_all_logs(logrotate_t)
- 
-+ifdef(`distro_debian', `
-+	# for syslogd-listfiles
-+	logging_read_syslog_conf(logrotate_t)
-+')
-+
- libs_use_ld_so(logrotate_t)
- libs_use_shared_libs(logrotate_t)
- 
+=20
 
---2oS5YaxWCcQjTEyO--
+Any suggestions on a workaround or fix?
+
+=20
+
+I have created a test set of scripts to duplicate the issue
+
+=20
+
+foo.sh
+
+##########################
+
+#!/bin/bash
+
+=20
+
+#show the current tty name
+
+printf "caller tty: "
+
+tty
+
+=20
+
+./bar.sh &
+
+=20
+
+##########################
+
+=20
+
+bar.sh
+
+##########################
+
+#!/bin/bash
+
+=20
+
+#show the current tty name
+
+printf "newrole tty: "
+
+tty
+
+=20
+
+newrole -l SystemHigh -- -c "ls /var"
+
+=20
+
+##########################
+
+=20
+
+Thanks,
+
+Tim
+
+
+------_=_NextPart_001_01C83C09.78ACE2AC
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";}
+p
+	{mso-margin-top-alt:auto;
+	margin-right:0in;
+	mso-margin-bottom-alt:auto;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext=3D"edit">
+  <o:idmap v:ext=3D"edit" data=3D"1" />
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I am currently running RHEL 5 update 1 with the MLS
+policy.&nbsp; <o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>The issue that I am now having is that in our code we
+switched over from using runcon to newrole.&nbsp; The newrole command is
+executed from within our application that is running in the background, =
+so no
+TTY.&nbsp; Which is the problem.&nbsp; <o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Newrole bombs because there is no tty, the call that =
+&#8220;fails&#8221;
+is ttyname(0).&nbsp; <o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Any suggestions on a workaround or =
+fix?<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>I have created a test set of scripts to duplicate the =
+issue<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<div =
+style=3D'mso-element:para-border-div;border:none;border-bottom:solid =
+windowtext 1.0pt;
+padding:0in 0in 26.0pt 0in'>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>foo.sh<o:p></o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>##########################<o=
+:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>#!/bin/bash<o:p></o:p></span=
+></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>#show the current tty =
+name<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>printf &#8220;caller tty: =
+&#8220;<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>tty<o:p></o:p></span></font>=
+</p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>./bar.sh =
+&amp;<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>##########################<o=
+:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>bar.sh<o:p></o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>##########################<o=
+:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>#!/bin/bash<o:p></o:p></span=
+></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>#show the current tty =
+name<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>printf &#8220;newrole tty: =
+&#8220;<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>tty<o:p></o:p></span></font>=
+</p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>newrole &#8211;l SystemHigh =
+-- -c &#8220;ls
+/var&#8221;<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>##########################<o=
+:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p>&nbsp;</o:p></span></fo=
+nt></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>Thanks,<o:p></o:p></span></f=
+ont></p>
+
+<p class=3DMsoNormal style=3D'border:none;padding:0in'><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'>Tim<o:p></o:p></span></font>=
+</p>
+
+</div>
+
+</div>
+
+</body>
+
+</html>
+
+------_=_NextPart_001_01C83C09.78ACE2AC--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
