@@ -1,50 +1,63 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBBKNjgv009905
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 15:23:45 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBBKNjEe001511
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 20:23:45 GMT
-Subject: Re: Network flow controls and subj/obj ordering
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200712111202.20074.paul.moore@hp.com>
-References: <200712111202.20074.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Tue, 11 Dec 2007 15:23:22 -0500
-Message-Id: <1197404602.12626.185.camel@gorn>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBBKexfT012110
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 15:40:59 -0500
+Received: from web36611.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBBKesEe008216
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 20:40:54 GMT
+Date: Tue, 11 Dec 2007 12:40:54 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
+Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <1197402998.28006.95.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <81940.57362.qm@web36611.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-12-11 at 12:02 -0500, Paul Moore wrote:
-> After a discussion with Venkat last week we decided that it was probably best 
-> if I took responsibility for the flow control patches and ported/cleaned them 
-> up for inclusion in the labeled networking patches for 2.6.25.  In the course 
-> of doing so I ran across the problem of subject/object "ordering" (probably 
-> not the best term, but it's all I can think of right now).  In both the "flow 
-> in" and "flow out" cases I'm tempted to use the packet's peer label as the 
-> object just for the sake of consistency and the ability to use the new "peer" 
-> object class for all network peer label access checks.  However, I wanted to 
-> make sure that is what everyone had in mind from a conceptual point of view.  
-> See the two simple policy examples below:
-> 
->  * Packet "flows" into the system, peer label is the object
-> 
->    allow netif_t peerlbl_t:peer flow_in;
-> 
->  * Packet "flows" out of the system, peer label is the object
-> 
->    allow netif_t peerlbl_t:peer flow_out;
 
-Can you give an example for the forwarding case?  Also, how about in the
-non-labeled networking case?
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+> 
+> > I am much more concerned with the interfaces used to pass the
+> > information into the kernel. I would expect that to be LSM
+> > independent, not a call into libselinux that resolves into a
+> > selinuxfs operation, or it's netlink equivilant. It would be
+> > unfortunate if the userland/kernel interface became an obstacle
+> > to cachefiles being adopted.
+> 
+> That wasn't the issue.  The interface to the cachefiles module would
+> just consist of cachefilesd writing a string label to some pseudo file
+> tell cachefiles what label to apply as the acting label for operations
+> performed by cachefiles.  Which isn't SELinux-specific at all.
 
+Calm down. Just checking.
+
+> David was asking though how cachefilesd (the userspace agent) would
+> obtain such a label to use.  And that may very well be LSM-specific, and
+> as there is no LSM userspace API, it makes sense for him to invoke a
+> libselinux function at present.  If a liblsm is later created and
+> provides a common front-end API (internally dlopen'ing the right shared
+> library based on some configuration, whether libselinux or libsmack or
+> whatever), then cachefilesd can instead call the liblsm interface, but
+> that doesn't exist today.
+
+I am certainly not in favor of adding such complexity.
+I suggest that cachefilesd get the context it wants using
+whatever scheme works. I think there should be a cachefiles
+specific (LSM independent) scheme for getting it into the
+kernel, and a LSM hooks for setting it, if that's what he
+really wants to do.
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
