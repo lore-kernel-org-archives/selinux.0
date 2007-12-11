@@ -1,43 +1,112 @@
-Subject: Re: newrole in the background
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM
+	settings for task actions [try #2]
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: "Reed, Tim (US SSA)" <tim.reed@baesystems.com>, selinux@tycho.nsa.gov
-In-Reply-To: <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com>
-References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
-	 <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com>
+To: casey@schaufler-ca.com
+Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <370690.53043.qm@web36615.mail.mud.yahoo.com>
+References: <370690.53043.qm@web36615.mail.mud.yahoo.com>
 Content-Type: text/plain
-Date: Tue, 11 Dec 2007 13:17:37 -0500
-Message-Id: <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 11 Dec 2007 13:34:39 -0500
+Message-Id: <1197398079.28006.13.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-12-11 at 10:06 -0600, Xavier Toth wrote:
-> We ended up creating a variant of newrole which doesn't require tty
-> access. We did this to run some of our applications in the background
-> but still get newroles ability to set the context/level of the child
-> and to create a pam session for polyinstantiation. For this to work we
-> had to configure our apps into our variants equivalent of
-> /etc/selinux/newrole_pam.conf and provide corresponding /etc/pam.d
-> files which typically look like :
-> #%PAM-1.0
-> auth       required     pam_permit.so
-> account    required     pam_permit.so
-> password   required     pam_permit.so
-> session    required     pam_mkpolydir.so debug
-> session    required     pam_namespace.so unmnt_remnt
-> no_unmount_on_close gen_hash ignore_instance_parent_mode debug
+On Mon, 2007-12-10 at 14:26 -0800, Casey Schaufler wrote:
+> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> This variant was based on a Fedora policysoreutils source rpm because
-> the RHEL5 version doesn't contain the code to map applications to
-> /etc/pam.d files using /etc/selinux/newrole_pam.conf.
+> > On Mon, 2007-12-10 at 21:08 +0000, David Howells wrote:
+> > > Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > 
+> > > > Otherwise, only other issue I have with this interface is it won't
+> > > > generalize to dealing with nfsd, where we want to set the acting context
+> > > > to a context we obtain from or determine based upon the client.
+> > > 
+> > > Are you speaking of security_kernel_act_as() and security_create_files_as()
+> > > specifically?  Or the task_struct::act_as override pointer in general?
+> > 
+> > security_kernel_act_as()
+> > 
+> > > I don't really know how nfsd wants to obtain and set its LSM context, so
+> > it's
+> > > a bit difficult for me to make something that works for nfsd as well as
+> > > cachefiles.
+> > 
+> > It would get a context from the client or from a local configuration
+> > that would map security-unaware clients to a default context, and then
+> > want to assume that context for the particular operation.  No transition
+> > involved.
+> 
+> I would expect that the operation would be more sophisticated
+> than that. You certainly aren't going to use what comes from
+> the other side without any processing, and I expect you'll have
+> some sort of operation on anything you pull from a config file
+> before you actually apply it.
 
-As a workaround, you could certainly create a pty in your application
-and use that for newrole - that woudl let you use newrole unmodified.
+Yes, that's true - the contexts would be subjected to a permission
+check.  But that's separable from the act of setting it as the task's
+acting security state (and needs to be separated, as the precise check
+will vary depending on the situation - cachefiles is going to apply a
+different sort of check than nfsd).
 
-As a longer term solution, I'd suggest making a patch for newrole that
-allows it to gracefully function even in the absence of a tty, and get
-that upstreamed, so that you can use newrole as is.
+> > > > Why can't cachefilesd just push a context into the kernel and pass that
+> > > > into the hook as the acting context,
+> > > 
+> > > How does cachefilesd come up with such a context?  Grab it from
+> > > /etc/cachefilesd.conf?
+> > 
+> > >From a config file whose pathname would be provided by libselinux (ala
+> > the way in which dbusd imports contexts), or directly as a context
+> > returned by a libselinux function.  Has to be done that way so that it
+> > can be set differently for different policy types (strict, targeted,
+> > mls).
+> 
+> Unless you've got an LSM other than SELinux, of course. If
+> cachefilesd is going to be responsible for maintaining this
+> magic context there needs to be an LSM interface for it, not
+> just an SELinux interface.
+
+LSM is an in-kernel interface.  Here we are talking about a userspace
+interface for obtaining the right security label to use.  There is no
+equivalent to LSM in userspace as of yet.  Feel free to invent one, but
+don't ask the rest of us to do it or wait for it to materialize.
+
+> > Naturally, cachefiles (the kernel module) would invoke a security hook
+> > to check whether the daemon is allowed to set the specified context.
+> > 
+> > > I use to do that, but someone objected...  Possibly Karl MacMillan.
+> > 
+> > Yes, but I think I disagreed then too.
+> > 
+> > > > and then nfsd can do likewise using the context provided by the client or
+> > > > obtained locally from exports for ordinary clients?  Avoids the
+> > transition
+> > > > SID computation altogether within the kernel and makes this more generic.
+> > > 
+> > > I seem to remember that I was told that it should be done this way,
+> > possibly
+> > > by Karl MacMillan, but I don't remember exactly.
+> > > 
+> > > Now it's configured by cachefilesd.te:
+> > > 
+> > > 	type_transition cachefilesd_t kernel_t : process cachefiles_kernel_t;
+> > 
+> > It doesn't fit with how other users of security_kernel_act_as() will
+> > likely want to work (they will want to just set the context to a
+> > specified value, whether one obtained from the client or from some local
+> > source), nor with how type transitions normally work (exec, with the
+> > program type as the second type field).  I think it will just cause
+> > confusion and subtle breakage.
+> 
+> I think that I agree with Stephen, although I could be mirely confused.
+> That happens to me when interfaces are described in SELinux terms. I
+> still don't care much for multiple contexts, and I don't have a good
+> grasp of how you'll deal with Smack, or any LSM other than SELinux.
+> Just as Stephen mentions, I also don't see the generality that a change
+> of this magnitude really ought to provide.
 
 -- 
 Stephen Smalley
