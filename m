@@ -1,103 +1,87 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBBJQWmN003264
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 14:26:32 -0500
-Received: from web36607.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBBJQUrO012959
-	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 19:26:31 GMT
-Date: Tue, 11 Dec 2007 11:26:29 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
-Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
-        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM
+	settings for task actions [try #2]
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
+        hch@infradead.org, Trond.Myklebust@netapp.com, casey@schaufler-ca.com,
         linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org
-In-Reply-To: <1197398079.28006.13.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <266601.55481.qm@web36607.mail.mud.yahoo.com>
+In-Reply-To: <25965.1197329769@redhat.com>
+References: <1197322068.18120.176.camel@moss-spartans.epoch.ncsc.mil>
+	 <1197307397.18120.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <1197305173.18120.60.camel@moss-spartans.epoch.ncsc.mil>
+	 <20071205193818.24617.79771.stgit@warthog.procyon.org.uk>
+	 <20071205193859.24617.36392.stgit@warthog.procyon.org.uk>
+	 <25037.1197306473@redhat.com> <25572.1197320887@redhat.com>
+	 <25965.1197329769@redhat.com>
+Content-Type: text/plain
+Date: Tue, 11 Dec 2007 14:37:03 -0500
+Message-Id: <1197401823.28006.74.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Mon, 2007-12-10 at 14:26 -0800, Casey Schaufler wrote:
-> > --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > 
-> > > On Mon, 2007-12-10 at 21:08 +0000, David Howells wrote:
-> > > > Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > > 
-> > > > > Otherwise, only other issue I have with this interface is it won't
-> > > > > generalize to dealing with nfsd, where we want to set the acting
-> context
-> > > > > to a context we obtain from or determine based upon the client.
-> > > > 
-> > > > Are you speaking of security_kernel_act_as() and
-> security_create_files_as()
-> > > > specifically?  Or the task_struct::act_as override pointer in general?
-> > > 
-> > > security_kernel_act_as()
-> > > 
-> > > > I don't really know how nfsd wants to obtain and set its LSM context,
-> so
-> > > it's
-> > > > a bit difficult for me to make something that works for nfsd as well as
-> > > > cachefiles.
-> > > 
-> > > It would get a context from the client or from a local configuration
-> > > that would map security-unaware clients to a default context, and then
-> > > want to assume that context for the particular operation.  No transition
-> > > involved.
-> > 
-> > I would expect that the operation would be more sophisticated
-> > than that. You certainly aren't going to use what comes from
-> > the other side without any processing, and I expect you'll have
-> > some sort of operation on anything you pull from a config file
-> > before you actually apply it.
+On Mon, 2007-12-10 at 23:36 +0000, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> Yes, that's true - the contexts would be subjected to a permission
-> check.  But that's separable from the act of setting it as the task's
-> acting security state (and needs to be separated, as the precise check
-> will vary depending on the situation - cachefiles is going to apply a
-> different sort of check than nfsd).
+> > From a config file whose pathname would be provided by libselinux (ala
+> > the way in which dbusd imports contexts), or directly as a context
+> > returned by a libselinux function.
 > 
-> > > > > Why can't cachefilesd just push a context into the kernel and pass
-> that
-> > > > > into the hook as the acting context,
-> > > > 
-> > > > How does cachefilesd come up with such a context?  Grab it from
-> > > > /etc/cachefilesd.conf?
-> > > 
-> > > >From a config file whose pathname would be provided by libselinux (ala
-> > > the way in which dbusd imports contexts), or directly as a context
-> > > returned by a libselinux function.  Has to be done that way so that it
-> > > can be set differently for different policy types (strict, targeted,
-> > > mls).
+> That sounds too SELinux specific.  How do I do it so that it works for any
+> LSM?
+
+You can't.  There is no LSM for userspace; LSM specifically disavowed
+any common userspace API, and that was one of our original
+objections/concerns about it.
+
+> Is linking against libselinux is a viable option if it's not available under
+> all LSM models?  Is it available under all LSM models?  Perhaps Casey can
+> answer this one.
+
+Nope, they would all have their own libraries, if they have a library at
+all.  But that isn't your problem - your kernel interface should be
+generic, and your LSM hooks should be generic, but your userspace isn't
+required to be.  Have a look at how many programs in the distribution
+currently link against libselinux, whether directly or by dlopen'ing it.
+
+> > > I use to do that, but someone objected...  Possibly Karl MacMillan.
 > > 
-> > Unless you've got an LSM other than SELinux, of course. If
-> > cachefilesd is going to be responsible for maintaining this
-> > magic context there needs to be an LSM interface for it, not
-> > just an SELinux interface.
+> > Yes, but I think I disagreed then too.
 > 
-> LSM is an in-kernel interface.  Here we are talking about a userspace
-> interface for obtaining the right security label to use.  There is no
-> equivalent to LSM in userspace as of yet.  Feel free to invent one, but
-> don't ask the rest of us to do it or wait for it to materialize.
+> So, who's right?
 
-I am much more concerned with the interfaces used to pass the
-information into the kernel. I would expect that to be LSM
-independent, not a call into libselinux that resolves into a
-selinuxfs operation, or it's netlink equivilant. It would be
-unfortunate if the userland/kernel interface became an obstacle
-to cachefiles being adopted.
+Karl isn't a maintainer of the SELinux kernel code.  And I had thought
+that even he had reconsidered this idea after further discussion.
 
-> ...
+> > It doesn't fit with how other users of security_kernel_act_as() will
+> > likely want to work (they will want to just set the context to a
+> > specified value, whether one obtained from the client or from some local
+> > source), nor with how type transitions normally work (exec, with the
+> > program type as the second type field).  I think it will just cause
+> > confusion and subtle breakage.
+> 
+> It's causing me lots of confusion as it is.  I have been / am being told by
+> different people to do different things just in dealing with SELinux, and
+> various people are raising extra requirements or restrictions beyond that.
+> There doesn't seem to be a consensus.
+> 
+> It sounds like the best option is just to have the kernel nick the userspace
+> daemon's security context and use that as is, and junk all the restrictions on
+> what the daemon can do so that the kernel isn't too restricted.
 
+Well, you could do that, if that meets your needs, but it doesn't sound
+very optimal either.  Why are you opposed to having userspace determine
+the context and write it to a cachefiles interface, and just have the
+kernel authorize it (invoke a hook to check permissions between the
+daemon's context and the specified label), and make it the acting
+context when appropriate (invoke a different hook to set it as the
+acting context)?
 
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
