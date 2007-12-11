@@ -1,52 +1,52 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBANuw7e005085
-	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2007 18:56:58 -0500
-Received: from web36611.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBANuvqO004228
-	for <selinux@tycho.nsa.gov>; Mon, 10 Dec 2007 23:56:57 GMT
-Date: Mon, 10 Dec 2007 15:56:57 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-To: David Howells <dhowells@redhat.com>, casey@schaufler-ca.com
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
-        hch@infradead.org, Trond.Myklebust@netapp.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <25991.1197330258@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBBE5Mq9028871
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 09:05:22 -0500
+Received: from g5t0009.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBBE5Fam014758
+	for <selinux@tycho.nsa.gov>; Tue, 11 Dec 2007 14:05:16 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] XFRM: assorted IPsec fixups
+Date: Tue, 11 Dec 2007 09:05:05 -0500
+Cc: eparis@redhat.com, netdev@vger.kernel.org, linux-audit@redhat.com,
+        selinux@tycho.nsa.gov
+References: <20071207171116.18151.42328.stgit@flek.americas.hpqcorp.net> <1197059769.3183.16.camel@dhcp231-215.rdu.redhat.com> <20071211.022202.208850272.davem@davemloft.net>
+In-Reply-To: <20071211.022202.208850272.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <112273.38088.qm@web36611.mail.mud.yahoo.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200712110905.06312.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tuesday 11 December 2007 5:22:02 am David Miller wrote:
+> From: Eric Paris <eparis@redhat.com>
+> Date: Fri, 07 Dec 2007 15:36:08 -0500
+>
+> > On Fri, 2007-12-07 at 12:11 -0500, Paul Moore wrote:
+> > > This patch fixes a number of small but potentially troublesome things
+> > > in the XFRM/IPsec code:
+>
+> ...
+>
+> > > Signed-off-by: Paul Moore <paul.moore@hp.com>
+> >
+> > Acked-by: Eric Paris <eparis@redhat.com>
+> >
+> > although it does make me wonder why audit_log_start doesn't just check
+> > audit_enabled itself....   Anyway, this patch looks good.
+>
+> I want to apply this but it doesn't apply cleanly to
+> net-2.6.25 right now, could you respin this Paul?
 
---- David Howells <dhowells@redhat.com> wrote:
+Sure, sorry about that.  I wasn't certain who was going to pick this up so I 
+just backed again Linus' tree.  I'll get a respun version out later today.
 
-> Casey Schaufler <casey@schaufler-ca.com> wrote:
-> 
-> > That happens to me when interfaces are described in SELinux terms. I
-> > still don't care much for multiple contexts, and I don't have a good
-> > grasp of how you'll deal with Smack, or any LSM other than SELinux.
-> 
-> Me neither.  I understand SELinux somewhat, though it's got a lot of wibbly
-> bits, and WinNT's security system, but I have no experience of the other
-> stuff.
-> 
-> > Just as Stephen mentions, I also don't see the generality that a change
-> > of this magnitude really ought to provide.
-> 
-> Perhaps it should be a specific interface, solely for cachefiles's use then.
+Thanks.
 
-That would help focus things, to be sure. I don't know if that
-focus will speed things up or slow them down, but I think that
-attempting to accomodate SELinux/NFS, with the state that effort
-is in, will only lead to tears.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
