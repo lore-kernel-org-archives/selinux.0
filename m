@@ -1,38 +1,34 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: PATCH: libsepol should not write policy.18 with mls enabled
-Date: Wed, 12 Dec 2007 14:03:30 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588014565C5@exchange.columbia.tresys.com>
-References: <200712112220.lBBMKOme018372@cadmus.columbia.tresys.com> <1197472028.1125.42.camel@moss-spartans.epoch.ncsc.mil> 
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Todd Miller" <tmiller@tresys.com>, "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "SE Linux" <selinux@tycho.nsa.gov>,
-        "Joshua Brindle" <method@manicmethod.com>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <336290.70309.qm@web36603.mail.mud.yahoo.com>
+References: <336290.70309.qm@web36603.mail.mud.yahoo.com>
+To: casey@schaufler-ca.com
+Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
+        hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+Date: Wed, 12 Dec 2007 18:34:26 +0000
+Message-ID: <32187.1197484466@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Todd Miller wrote:
-> libsepol.policydb_read: policydb module version 7 does not match my
-> version range 4-6 
-> libsepol.sepol_module_package_read: invalid module in module package
-> (at section 0) 
-> libsemanage.semanage_load_module: Error while reading from module
-> file /etc/selinux/refpolicy/modules/tmp/modules/acct.pp.
-> /usr/sbin/semodule:  Failed! 
+Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-Sorry, that was caused by some leftover cruft.  The actual error is:
+> What sort of authorization are you thinking of? I would expect
+> that to have been done by cachefileselinuxcontext (or
+> cachefilesspiffylsmcontext) up in userspace. If you're going to
+> rely on userspace applications for policy enforcement they need
+> to be good enough to count on after all.
 
-libsepol.cat_copy_callback: awstats: Category c1000 not declared by
-base.
-libsemanage.semanage_link_sandbox: Link packages failed
-/usr/sbin/semodule:  Failed!
-make: *** [load] Error 1
+It can't be done in userspace, otherwise someone using the cachefilesd
+interface can pass an arbitrary context up.  The security context has to be
+passed across the file descriptor attached to /dev/cachefiles along with the
+other configuration parameters as a text string.  This fd selects the
+particular cache context that a particular instance of a running daemon is
+using.
 
-So it seems the version check is not getting triggered early enough.
-
- - todd
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
