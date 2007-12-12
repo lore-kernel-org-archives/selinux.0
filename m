@@ -1,93 +1,115 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBCGpx3i017535
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 11:51:59 -0500
-Received: from web36603.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBCGpvGi027788
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 16:51:57 GMT
-Date: Wed, 12 Dec 2007 08:51:31 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
-Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
-        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <1197473127.1125.50.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <4760136B.9050607@manicmethod.com>
+Date: Wed, 12 Dec 2007 11:59:23 -0500
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <336290.70309.qm@web36603.mail.mud.yahoo.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] [STABLE] Makefile change to disable restorecond
+References: <475EED72.3090607@manicmethod.com>	 <475EEF4D.4000807@manicmethod.com>	 <1197404396.28006.111.camel@moss-spartans.epoch.ncsc.mil>	 <475FF9B9.20005@manicmethod.com>	 <1197473703.1125.55.camel@moss-spartans.epoch.ncsc.mil>	 <476005F9.2030705@manicmethod.com>	 <1197475904.1125.75.camel@moss-spartans.epoch.ncsc.mil>	 <47600F63.7070502@manicmethod.com> <1197478030.1125.86.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1197478030.1125.86.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Wed, 2007-12-12 at 11:42 -0500, Joshua Brindle wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> On Wed, 2007-12-12 at 11:02 -0500, Joshua Brindle wrote:
+>>>   
+>>>       
+>>>> Stephen Smalley wrote:
+>>>>     
+>>>>         
+>>>>> On Wed, 2007-12-12 at 10:09 -0500, Joshua Brindle wrote:
+>>>>>   
+>>>>>       
+>>>>>           
+>>>>>> Stephen Smalley wrote:
+>>>>>>     
+>>>>>>         
+>>>>>>             
+>>>>>>> On Tue, 2007-12-11 at 15:13 -0500, Joshua Brindle wrote:
+>>>>>>>   
+>>>>>>>       
+>>>>>>>           
+>>>>>>>               
+>>>>>>>> Joshua Brindle wrote:
+>>>>>>>>     
+>>>>>>>>         
+>>>>>>>>             
+>>>>>>>>                 
+>>>>>>>>> This patch is necessary to build stable on RHEL4. CLIP uses the 
+>>>>>>>>> current stable toolchain and supports RHEL4 as a target so we are 
+>>>>>>>>> trying to upstream any magic that is necessary to build on that platform.
+>>>>>>>>>
+>>>>>>>>>       
+>>>>>>>>>           
+>>>>>>>>>               
+>>>>>>>>>                   
+>>>>>>>> Ignore last patch, this one is actually against stable :)
+>>>>>>>>     
+>>>>>>>>         
+>>>>>>>>             
+>>>>>>>>                 
+>>>>>>> What about just checking for the presence of /usr/include/sys/inotify.h
+>>>>>>> and disabling restorecond in its absence, similar to handling of PAMH
+>>>>>>> and AUDITH in newrole's Makefile?  Then that could go into trunk too.
+>>>>>>>   
+>>>>>>>       
+>>>>>>>           
+>>>>>>>               
+>>>>>> The next problem is that libselinux won't build on RHEL4 without 
+>>>>>> building the .lo files with --ftls-model=initial-exec. Do you have an 
+>>>>>> opinion on how to switch this on/off for building there?
+>>>>>>     
+>>>>>>         
+>>>>>>             
+>>>>> We already have a TLSFLAGS definition for the .o files, so I suppose we
+>>>>> could have two definitions, one for the .o files and one for the .lo
+>>>>> files, and put them in the Makefile, and then you'd just build with make
+>>>>> SHARED_TLSFLAGS="-ftlsmodel=initial-exec" or whatever for RHEL4.
+>>>>>
+>>>>> Or the other alternative would be to make the use of TLS completely a
+>>>>> build-time option, which would help for distributions where it isn't
+>>>>> supported at all.  That shouldn't be too difficult; Manoj posted a patch
+>>>>> he was using for Debian a long time ago.
+>>>>>   
+>>>>>       
+>>>>>           
+>>>> Ok, I see http://marc.info/?l=selinux&m=115807948020898&w=2
+>>>> This makes TLS unnecessary at all though, right? I have no problem with 
+>>>> this as TLS makes me fairly uneasy anyway. Are you comfortable with 
+>>>> Manoj's patch? I didn't see any discussion of it at all on list after he 
+>>>> sent it..
+>>>>     
+>>>>         
+>>> I wasn't sure about unconditionally removing use of TLS (after all, if
+>>> it is supported, why not use it?), but a patch that made its use a
+>>> build-time option was ok with me if it didn't turn out to be too ugly to
+>>> maintain.
+>>>   
+>>>       
+>> Well, if Manoj fixed the interfaces where it is unnecessary I'd support 
+>> removing it, TLS seems like a horrible way to hack around thread unsafe 
+>> code to me. What do we gain by fixing interfaces to not need it but use 
+>> it anyway?
+>>     
+>
+> Sure - in cases where tls wasn't truly needed at all, it should be
+> removed.  But in cases where it was replaced by mutexes and the like,
+> there is an obvious tradeoff and we don't necessarily want to impose
+> that on systems that support tls (although I have no idea as to the real
+> performance tradeoffs there).
+>   
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Ok, so the matchpathcon potion of the patch is ok and we can make TLS 
+optional for setrans_client?
 
-> On Tue, 2007-12-11 at 15:04 -0800, Casey Schaufler wrote:
-> > --- David Howells <dhowells@redhat.com> wrote:
-> > 
-> > > Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > 
-> > > > All your code has to do is invoke a function provided by libselinux.
-> > > 
-> > > Calling libselinux means it's a special case for a specific LSM.
-> > > 
-> > > I think the best way to do this, then, has to be to dlopen the
-> appropriate
-> > > LSM
-> > > library.  That way I don't need to do any conditional compilation or
-> linking,
-> > > but can build all the bits in to cachefilesd and have the appropriate one
-> > > selected by the /etc/cachefilesd.conf.
-> > > 
-> > > So, what do I invoke in libselinux, how do I configure it, and how do I
-> > > integrate the config into my RPM and install it?
-> > > 
-> > > And then what does it give me that I can hand to the kernel (a context
-> string
-> > > for SELinux, I presume), how do I get the kernel to make a check on it,
-> how
-> > > do
-> > > I configure the check and how do I install that config from my RPM (I
-> presume
-> > > I just need to modify the .fc, .if and .te files that I have already)?
-> > 
-> > That seems like an awful lot of work. I suggest that what you
-> > put in /etc/cachefilesd.conf is a line like:
-> > 
-> >    security_context:"<whatever>"
-> > 
-> > and have your daemon pass "<whatever>" into the kernel using
-> > a cachefile mechanism. The kernel code can call
-> > security_secctx_to_secid("<whatever>") to determine if it's valid.
-> > No need to invoke LSM specific code in your daemon. You may need
-> > to have an application, say cachefileselinuxcontext, that will
-> > read the current policy and spit out an appropriate value of
-> > "<whatever>", but that can be separate and LSM specific without
-> > mucking up your basic infrastructure applications. 
-> 
-> That sounds workable, although I think he will want a more specific hook
-> than security_secctx_to_secid(), or possibly a second hook call, that
-> would not only validate the context but authorize the use of it by the
-> cachefilesd process.
+I'll start working on this, is it ok for both stable and trunk or do you 
+hesitate about putting it in stable?
 
-What sort of authorization are you thinking of? I would expect
-that to have been done by cachefileselinuxcontext (or
-cachefilesspiffylsmcontext) up in userspace. If you're going to
-rely on userspace applications for policy enforcement they need
-to be good enough to count on after all.
-
-> And then the security_task_kernel_act_as() hook
-> just takes the secid as input rather than the task struct of the daemon,
-> and applies it.  At that point, nfsd can use the same mechanism for
-> setting the acting SID based on the client process after doing its own
-> authorization.
-
-good points all, in spite of my personal distaste for secids.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
