@@ -1,36 +1,59 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBCJihe0017763
+	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 14:44:43 -0500
+Received: from web36604.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBCJigWc007913
+	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 19:44:42 GMT
+Date: Wed, 12 Dec 2007 11:44:41 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+To: David Howells <dhowells@redhat.com>, casey@schaufler-ca.com
+Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
+        hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <32187.1197484466@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: PATCH: libsepol should not write policy.18 with mls enabled
-Date: Wed, 12 Dec 2007 14:40:27 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588014565D0@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588014565C5@exchange.columbia.tresys.com>
-References: <200712112220.lBBMKOme018372@cadmus.columbia.tresys.com> <1197472028.1125.42.camel@moss-spartans.epoch.ncsc.mil>  <6FE441CD9F0C0C479F2D88F959B01588014565C5@exchange.columbia.tresys.com>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Todd Miller" <tmiller@tresys.com>, "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "SE Linux" <selinux@tycho.nsa.gov>,
-        "Joshua Brindle" <method@manicmethod.com>
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <830252.82380.qm@web36604.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Todd Miller wrote:
-> libsepol.cat_copy_callback: awstats: Category c1000 not declared by
-> base. libsemanage.semanage_link_sandbox: Link packages failed
-> /usr/sbin/semodule:  Failed!
-> make: *** [load] Error 1
 
-This looks like an issue with overriding the default redhat policy
-and the non-default number of categories they support.
+--- David Howells <dhowells@redhat.com> wrote:
 
-If I install things into a separate tree under /etc/selinux the
-check in sepol_policydb_set_vers() doesn't get triggered at all
-by semodule since p->mls will not be set due to automatic downgrading
-in policydb_write().  So I'm not sure how we could do both automatic
-downgrading for the kernel load but not for semodule (or if we'd even
-want to).
+> Casey Schaufler <casey@schaufler-ca.com> wrote:
+> 
+> > What sort of authorization are you thinking of? I would expect
+> > that to have been done by cachefileselinuxcontext (or
+> > cachefilesspiffylsmcontext) up in userspace. If you're going to
+> > rely on userspace applications for policy enforcement they need
+> > to be good enough to count on after all.
+> 
+> It can't be done in userspace, otherwise someone using the cachefilesd
+> interface can pass an arbitrary context up.
 
- - todd
+Yes, but I would expect that interface to be protected (owned by root,
+mode 0400). If /dev/cachefiles has to be publicly accessable make it
+a privileged ioctl.
 
+> The security context has to be
+> passed across the file descriptor attached to /dev/cachefiles along with the
+> other configuration parameters as a text string.
+
+I got that.
+
+> This fd selects the
+> particular cache context that a particular instance of a running daemon is
+> using.
+
+Yes, but forgive me being slow, I don't see the problem.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
