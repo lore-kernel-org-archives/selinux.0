@@ -1,72 +1,36 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBCJbZis016757
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 14:37:35 -0500
-Received: from web36613.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBCJbWfM004561
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 19:37:32 GMT
-Date: Wed, 12 Dec 2007 11:37:32 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-To: David Howells <dhowells@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dhowells@redhat.com, casey@schaufler-ca.com,
-        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
-        hch@infradead.org, Trond.Myklebust@netapp.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <32168.1197484170@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <573241.88686.qm@web36613.mail.mud.yahoo.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: PATCH: libsepol should not write policy.18 with mls enabled
+Date: Wed, 12 Dec 2007 14:40:27 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588014565D0@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B01588014565C5@exchange.columbia.tresys.com>
+References: <200712112220.lBBMKOme018372@cadmus.columbia.tresys.com> <1197472028.1125.42.camel@moss-spartans.epoch.ncsc.mil>  <6FE441CD9F0C0C479F2D88F959B01588014565C5@exchange.columbia.tresys.com>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "Todd Miller" <tmiller@tresys.com>, "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "SE Linux" <selinux@tycho.nsa.gov>,
+        "Joshua Brindle" <method@manicmethod.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Todd Miller wrote:
+> libsepol.cat_copy_callback: awstats: Category c1000 not declared by
+> base. libsemanage.semanage_link_sandbox: Link packages failed
+> /usr/sbin/semodule:  Failed!
+> make: *** [load] Error 1
 
---- David Howells <dhowells@redhat.com> wrote:
+This looks like an issue with overriding the default redhat policy
+and the non-default number of categories they support.
 
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > That sounds workable, although I think he will want a more specific hook
-> > than security_secctx_to_secid(), or possibly a second hook call, that
-> > would not only validate the context but authorize the use of it by the
-> > cachefilesd process.  And then the security_task_kernel_act_as() hook
-> > just takes the secid as input rather than the task struct of the daemon,
-> > and applies it.  At that point, nfsd can use the same mechanism for
-> > setting the acting SID based on the client process after doing its own
-> > authorization.
-> 
-> I thought using secids was verboten as it made things too specific.
+If I install things into a separate tree under /etc/selinux the
+check in sepol_policydb_set_vers() doesn't get triggered at all
+by semodule since p->mls will not be set due to automatic downgrading
+in policydb_write().  So I'm not sure how we could do both automatic
+downgrading for the kernel load but not for semodule (or if we'd even
+want to).
 
-I have argued that in the past. I'm reasonably convinced that I have
-lost that argument at least for the immediate future as audit, usb,
-and networking are all dependent on them. I can't image an LSM that
-manages to avoid them, at least for the short term. If secid's are
-ever expundged from the kernel cachefiles will require reeducation,
-but that will be a minor effort.
+ - todd
 
-> Have you example code for the security hook you mention?  I'm not sure I
-> understand why security_secctx_to_secid() is not sufficient.
-> 
-> Or is it that I need something that takes a secctx, converts it to a secid
-> and
-> authorises its use all in one go?
-> If it's this, why can't that be rolles
-> into
-> security_task_kernel_act_as()?  That sets up a task_security struct which is
-> then switched in and out without consultation of the LSM.
-
-It would seem to me that security_secctx_to_secid() ought to suffice
-if the application code was written correctly. Be aware that factors
-outside the LSM may be important, too. As Stephen points out elsewhere,
-Smack will require you have particular capabilities (CAP_MAC_OVERRIDE,
-CAP_MAC_ADMIN) while a DAC LSM may require CAP_DAC_OVERRIDE. SELinux
-is likely to be the odd duck in this pond in that it does not use the
-capability mechanism in the way Nature intends it to be, opting to
-treat "privilege" with a completely different model.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
