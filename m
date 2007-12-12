@@ -1,77 +1,44 @@
-Subject: Re: [PATCH] [STABLE] Makefile change to disable restorecond
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <476005F9.2030705@manicmethod.com>
-References: <475EED72.3090607@manicmethod.com>
-	 <475EEF4D.4000807@manicmethod.com>
-	 <1197404396.28006.111.camel@moss-spartans.epoch.ncsc.mil>
-	 <475FF9B9.20005@manicmethod.com>
-	 <1197473703.1125.55.camel@moss-spartans.epoch.ncsc.mil>
-	 <476005F9.2030705@manicmethod.com>
-Content-Type: text/plain
-Date: Wed, 12 Dec 2007 11:11:44 -0500
-Message-Id: <1197475904.1125.75.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBCGBqbI012397
+	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 11:11:52 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBCGBqkC024471
+	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 16:11:52 GMT
+Subject: Re: refpolicy HEAD, patch for Debian logs of syslog rotation
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+In-Reply-To: <20071211145208.GA5106@bobek.pm.i.cz>
+References: <20071211145208.GA5106@bobek.pm.i.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 12 Dec 2007 11:11:13 -0500
+Message-Id: <1197475873.12626.195.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-12 at 11:02 -0500, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2007-12-12 at 10:09 -0500, Joshua Brindle wrote:
-> >   
-> >> Stephen Smalley wrote:
-> >>     
-> >>> On Tue, 2007-12-11 at 15:13 -0500, Joshua Brindle wrote:
-> >>>   
-> >>>       
-> >>>> Joshua Brindle wrote:
-> >>>>     
-> >>>>         
-> >>>>> This patch is necessary to build stable on RHEL4. CLIP uses the 
-> >>>>> current stable toolchain and supports RHEL4 as a target so we are 
-> >>>>> trying to upstream any magic that is necessary to build on that platform.
-> >>>>>
-> >>>>>       
-> >>>>>           
-> >>>> Ignore last patch, this one is actually against stable :)
-> >>>>     
-> >>>>         
-> >>> What about just checking for the presence of /usr/include/sys/inotify.h
-> >>> and disabling restorecond in its absence, similar to handling of PAMH
-> >>> and AUDITH in newrole's Makefile?  Then that could go into trunk too.
-> >>>   
-> >>>       
-> >> The next problem is that libselinux won't build on RHEL4 without 
-> >> building the .lo files with --ftls-model=initial-exec. Do you have an 
-> >> opinion on how to switch this on/off for building there?
-> >>     
-> >
-> > We already have a TLSFLAGS definition for the .o files, so I suppose we
-> > could have two definitions, one for the .o files and one for the .lo
-> > files, and put them in the Makefile, and then you'd just build with make
-> > SHARED_TLSFLAGS="-ftlsmodel=initial-exec" or whatever for RHEL4.
-> >
-> > Or the other alternative would be to make the use of TLS completely a
-> > build-time option, which would help for distributions where it isn't
-> > supported at all.  That shouldn't be too difficult; Manoj posted a patch
-> > he was using for Debian a long time ago.
-> >   
+On Tue, 2007-12-11 at 15:52 +0100, Václav Ovsík wrote:
+> there is another change for the refpolicy, so the Debian system can run
+> /etc/cron.daily/sysklogd successfully. This is rotation for logs parsed
+> from syslog.conf config file. Script /usr/sbin/syslogd-listfiles lists
+> logs, that needs rotation. Logs are rotated using script
+> /usr/bin/savelog then.
 > 
-> Ok, I see http://marc.info/?l=selinux&m=115807948020898&w=2
-> This makes TLS unnecessary at all though, right? I have no problem with 
-> this as TLS makes me fairly uneasy anyway. Are you comfortable with 
-> Manoj's patch? I didn't see any discussion of it at all on list after he 
-> sent it..
+> Without attached patch domain logrotate_t is not allowed to read
+> syslog_conf_t and following denials are generated:
+> 
+> audit(1197384508.149:3): avc:  denied  { read } for  pid=1589 comm="syslogd-listfil" name="syslog.conf" dev=sda1 ino=213265 scontext=system_u:system_r:logrotate_t:s0 tcontext=system_u:object_r:syslog_conf_t:s0 tclass=file
+> audit(1197384508.149:4): avc:  denied  { ioctl } for  pid=1589 comm="syslogd-listfil" name="syslog.conf" dev=sda1 ino=213265 scontext=system_u:system_r:logrotate_t:s0 tcontext=system_u:object_r:syslog_conf_t:s0 tclass=file
+> audit(1197384508.149:5): avc:  denied  { getattr } for  pid=1589 comm="syslogd-listfil" name="syslog.conf" dev=sda1 ino=213265 scontext=system_u:system_r:logrotate_t:s0 tcontext=system_u:object_r:syslog_conf_t:s0 tclass=file
 
-I wasn't sure about unconditionally removing use of TLS (after all, if
-it is supported, why not use it?), but a patch that made its use a
-build-time option was ok with me if it didn't turn out to be too ugly to
-maintain.
+Merged.  I renamed the interface and moved the te file change lower to
+the preexisting distro_debian block.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
