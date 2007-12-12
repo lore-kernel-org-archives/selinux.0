@@ -1,34 +1,46 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <336290.70309.qm@web36603.mail.mud.yahoo.com>
-References: <336290.70309.qm@web36603.mail.mud.yahoo.com>
-To: casey@schaufler-ca.com
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBCJLIvG013918
+	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 14:21:18 -0500
+Received: from web36604.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBCJL4fM027747
+	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 19:21:05 GMT
+Date: Wed, 12 Dec 2007 11:20:40 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+To: David Howells <dhowells@redhat.com>, casey@schaufler-ca.com
 Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
         Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
         hch@infradead.org, Trond.Myklebust@netapp.com,
         linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-Date: Wed, 12 Dec 2007 18:34:26 +0000
-Message-ID: <32187.1197484466@redhat.com>
+In-Reply-To: <32137.1197483929@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <66139.71689.qm@web36604.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-> What sort of authorization are you thinking of? I would expect
-> that to have been done by cachefileselinuxcontext (or
-> cachefilesspiffylsmcontext) up in userspace. If you're going to
-> rely on userspace applications for policy enforcement they need
-> to be good enough to count on after all.
+--- David Howells <dhowells@redhat.com> wrote:
 
-It can't be done in userspace, otherwise someone using the cachefilesd
-interface can pass an arbitrary context up.  The security context has to be
-passed across the file descriptor attached to /dev/cachefiles along with the
-other configuration parameters as a text string.  This fd selects the
-particular cache context that a particular instance of a running daemon is
-using.
+> Casey Schaufler <casey@schaufler-ca.com> wrote:
+> 
+> > You may need to have an application, say cachefileselinuxcontext, that will
+> > read the current policy and spit out an appropriate value of "<whatever>",
+> > but that can be separate and LSM specific without mucking up your basic
+> > infrastructure applications.
+> 
+> What would I do with such a thing?  How would it get run?  Spat out to where?
 
-David
+Put it in /etc/init.d/cachefiles and run it at boot time. Put the
+result into /etc/cachefiles.conf. Have cachefilesd read it and pass
+it downward.
+
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
