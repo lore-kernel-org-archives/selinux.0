@@ -1,62 +1,114 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBCK9oxS021123
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 15:09:50 -0500
-Received: from web36605.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBCK9le8017187
-	for <selinux@tycho.nsa.gov>; Wed, 12 Dec 2007 20:09:48 GMT
-Date: Wed, 12 Dec 2007 12:09:42 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
-Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
-        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <1197488946.1125.151.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <483979.69273.qm@web36605.mail.mud.yahoo.com>
+Subject: Re: PATCH: libsepol should not write policy.18 with mls enabled
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: "Todd C. Miller" <tmiller@tresys.com>, selinux@tycho.nsa.gov
+In-Reply-To: <47602CFC.9030100@tresys.com>
+References: <200712112220.lBBMKOme018372@cadmus.columbia.tresys.com>
+	 <1197472028.1125.42.camel@moss-spartans.epoch.ncsc.mil>
+	 <47602CFC.9030100@tresys.com>
+Content-Type: text/plain
+Date: Wed, 12 Dec 2007 15:11:53 -0500
+Message-Id: <1197490313.1125.161.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Wed, 2007-12-12 at 11:44 -0800, Casey Schaufler wrote:
-> > --- David Howells <dhowells@redhat.com> wrote:
+On Wed, 2007-12-12 at 13:48 -0500, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On Tue, 2007-12-11 at 17:20 -0500, Todd C. Miller wrote:
+> >> Currently, libsepol will write a binary policy with the MLS flag set
+> >> even if the policy version is unable to support MLS.  For instance, you
+> >> can build a policy.18 with mls enabled.  The resulting policy binary is
+> >> invalid and can't be read by the kernel or the various tools.
+> >>
+> >> Fixing this is just a matter of adding the appropriate check to
+> >> policydb_write().
 > > 
-> > > Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > 
-> > > > What sort of authorization are you thinking of? I would expect
-> > > > that to have been done by cachefileselinuxcontext (or
-> > > > cachefilesspiffylsmcontext) up in userspace. If you're going to
-> > > > rely on userspace applications for policy enforcement they need
-> > > > to be good enough to count on after all.
-> > > 
-> > > It can't be done in userspace, otherwise someone using the cachefilesd
-> > > interface can pass an arbitrary context up.
+> > Is that the right place to check it (vs. upon sepol_policydb_set_vers,
+> > although checkpolicy/checkmodule don't presently use that)?
 > > 
-> > Yes, but I would expect that interface to be protected (owned by root,
-> > mode 0400). If /dev/cachefiles has to be publicly accessable make it
-> > a privileged ioctl.
+> > Also, what does this mean for automatic dowgrading of policy versions at
+> > policy load time?  For example, if booting an old kernel with a newer
+> > policy that had MLS enabled.
+> > 
 > 
-> Uid 0 != CAP_MAC_OVERRIDE if you configure file caps and such.
+> His original patch cleared the mls bit on the downgrade path but I 
+> objected that it wasn't appropriate to take what the user gave (an MLS 
+> policy) and remove the MLS part if its being downgraded to a version 
+> that doesn't support MLS. This is clearly an error condition IMO.
 
-Yes, but we're talking about writing the configuration information
-to the kernel, not actually making any access checks with it. I
-think. What I think we're talking about (and please correct me David
-if I've stepped into the wrong theatre) is getting the magic
-secctx that cachefiles will use instead of the secctx that the task
-would have otherwise. I don't think we're talking about recomputing
-it on every access, I think David is looking for the blunderbuss
-secctx that he can use any time he needs one.
+Likely true, but would also then apply to any downgrade where the policy
+contained a feature only supported by the newer version, not just MLS.
 
-And it would be CAP_MAC_ADMIN, since you're changing the MAC
-characteristics of the system, not doing an access check.
+I take it though that this is all about using latest userland on RHEL4
+kernels?
 
-Casey Schaufler
-casey@schaufler-ca.com
+> This is also a centralized place to give the error where everything is 
+> known, and happens on all conditions (checkpolicy, libsemanage, 
+> semodule_expand, init, etc). Granted sepol_policydb_set_vers is used for 
+> libsemanage and semodule_expand but that doesn't cover every use case 
+> and we will have inconsistent behavior.
+
+I was just trying to move the error check closer to the originator, in
+hopes of catching it sooner or reporting it better.  But it sounds like
+we don't have better options there.
+
+> Having an MLS policy on a system that doesn't support MLS is broken, 
+> what about the file_contexts that are associated with the policy and so on.
+
+Yep, just makes me wonder what it means for the current model of only
+generating the latest version of the policy supported by libsepol and
+downgrading on load.  Although the load code does fall back to looking
+for older policy.N files if the downgrade fails, so it isn't fatal at
+least.
+
+> 
+> >> Signed-off-by: Todd C. Miller <tmiller@tresys.com>
+> >>
+> >> Index: libsepol/src/write.c
+> >> ===================================================================
+> >> --- libsepol/src/write.c	(revision 2704)
+> >> +++ libsepol/src/write.c	(working copy)
+> >> @@ -1531,8 +1531,19 @@
+> >>  	pd.p = p;
+> >>  
+> >>  	config = 0;
+> >> -	if (p->mls)
+> >> +	if (p->mls) {
+> >> +		if ((p->policyvers < POLICYDB_VERSION_MLS &&
+> >> +		    p->policy_type == POLICY_KERN) ||
+> >> +		    (p->policyvers < MOD_POLICYDB_VERSION_MLS &&
+> >> +		    p->policy_type == POLICY_BASE) ||
+> >> +		    (p->policyvers < MOD_POLICYDB_VERSION_MLS &&
+> >> +		    p->policy_type == POLICY_MOD)) {
+> > 
+> > I think you can simplify that expression.
+> > 
+> >> +			ERR(fp->handle, "policy version %d cannot support MLS",
+> >> +			    p->policyvers);
+> >> +			return POLICYDB_ERROR;
+> >> +		}
+> >>  		config |= POLICYDB_CONFIG_MLS;
+> >> +	}
+> >>  
+> >>  	config |= (POLICYDB_CONFIG_UNKNOWN_MASK & p->handle_unknown);
+> >>  
+> >>
+> >> --
+> >> This message was distributed to subscribers of the selinux mailing list.
+> >> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> >> the words "unsubscribe selinux" without quotes as the message.
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
