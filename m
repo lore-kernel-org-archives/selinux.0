@@ -2,19 +2,19 @@ Subject: Re: [PATCH] [STABLE] Makefile change to disable restorecond
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Joshua Brindle <method@manicmethod.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <475FF9B9.20005@manicmethod.com>
+In-Reply-To: <475F264F.1000803@manicmethod.com>
 References: <475EED72.3090607@manicmethod.com>
 	 <475EEF4D.4000807@manicmethod.com>
 	 <1197404396.28006.111.camel@moss-spartans.epoch.ncsc.mil>
-	 <475FF9B9.20005@manicmethod.com>
+	 <475F264F.1000803@manicmethod.com>
 Content-Type: text/plain
-Date: Wed, 12 Dec 2007 10:35:03 -0500
-Message-Id: <1197473703.1125.55.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 12 Dec 2007 10:40:52 -0500
+Message-Id: <1197474052.1125.60.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-12 at 10:09 -0500, Joshua Brindle wrote:
+On Tue, 2007-12-11 at 19:07 -0500, Joshua Brindle wrote:
 > Stephen Smalley wrote:
 > > On Tue, 2007-12-11 at 15:13 -0500, Joshua Brindle wrote:
 > >   
@@ -32,20 +32,29 @@ On Wed, 2007-12-12 at 10:09 -0500, Joshua Brindle wrote:
 > > and disabling restorecond in its absence, similar to handling of PAMH
 > > and AUDITH in newrole's Makefile?  Then that could go into trunk too.
 > >   
+> So... like this?
 > 
-> The next problem is that libselinux won't build on RHEL4 without 
-> building the .lo files with --ftls-model=initial-exec. Do you have an 
-> opinion on how to switch this on/off for building there?
+> --- policycoreutils/Makefile    (revision 2696)
+> +++ policycoreutils/Makefile    (working copy)
+> @@ -1,5 +1,11 @@
+> -SUBDIRS=setfiles semanage load_policy newrole run_init restorecond secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
+> +SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
+>  
+> +INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
+> +
+> +ifeq (${INOTIFYH}, /usr/include/sys/inotify.h)
+> +       SUBDIRS += restorecond
+> +endif
+> +
+>  all install relabel clean indent:
+>         @for subdir in $(SUBDIRS); do \
+>                 (cd $$subdir && $(MAKE) $@) || exit 1; \
 
-We already have a TLSFLAGS definition for the .o files, so I suppose we
-could have two definitions, one for the .o files and one for the .lo
-files, and put them in the Makefile, and then you'd just build with make
-SHARED_TLSFLAGS="-ftlsmodel=initial-exec" or whatever for RHEL4.
+Yes.
 
-Or the other alternative would be to make the use of TLS completely a
-build-time option, which would help for distributions where it isn't
-supported at all.  That shouldn't be too difficult; Manoj posted a patch
-he was using for Debian a long time ago.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+Merge at will.
 
 -- 
 Stephen Smalley
