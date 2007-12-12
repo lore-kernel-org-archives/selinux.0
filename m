@@ -1,76 +1,46 @@
-Subject: RE: newrole in the background
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Reed, Tim (US SSA)" <tim.reed@baesystems.com>
-Cc: Xavier Toth <txtoth@gmail.com>, selinux@tycho.nsa.gov
-In-Reply-To: <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net>
-References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
-	 <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com>
-	 <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net>
-Content-Type: text/plain
-Date: Wed, 12 Dec 2007 15:49:58 -0500
-Message-Id: <1197492598.1125.165.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <483979.69273.qm@web36605.mail.mud.yahoo.com>
+References: <483979.69273.qm@web36605.mail.mud.yahoo.com>
+To: casey@schaufler-ca.com
+Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
+        hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+Date: Wed, 12 Dec 2007 22:29:55 +0000
+Message-ID: <579.1197498595@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-12 at 10:47 -0800, Reed, Tim (US SSA) wrote:
-> I have made my modifications to newrole.  Is there any testcases or
-> documentation on what needs to be tested before submitting a patch?
-> With the minimal testing that I have done everything appears to be
-> working correctly.
-> 
-> Attached is the patch file.  Please review and comment.
+Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-No, just basic testing of its usual operations.  Some examples are in
-the man page.
+> Yes, but we're talking about writing the configuration information
+> to the kernel, not actually making any access checks with it. I
+> think. What I think we're talking about (and please correct me David
+> if I've stepped into the wrong theatre) is getting the magic
+> secctx that cachefiles will use instead of the secctx that the task
+> would have otherwise. I don't think we're talking about recomputing
+> it on every access, I think David is looking for the blunderbuss
+> secctx that he can use any time he needs one.
 
-With regard to the patch, why create a pty in newrole rather than just
-make the lack of a tty non-fatal and skip the related processing if
-missing?
+Indeed.
 
-> Thanks!
-> Tim
-> 
-> 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-> Sent: Tuesday, December 11, 2007 1:18 PM
-> To: Xavier Toth
-> Cc: Reed, Tim (US SSA); selinux@tycho.nsa.gov
-> Subject: Re: newrole in the background
-> 
-> On Tue, 2007-12-11 at 10:06 -0600, Xavier Toth wrote:
-> > We ended up creating a variant of newrole which doesn't require tty
-> > access. We did this to run some of our applications in the background
-> > but still get newroles ability to set the context/level of the child
-> > and to create a pam session for polyinstantiation. For this to work we
-> > had to configure our apps into our variants equivalent of
-> > /etc/selinux/newrole_pam.conf and provide corresponding /etc/pam.d
-> > files which typically look like :
-> > #%PAM-1.0
-> > auth       required     pam_permit.so
-> > account    required     pam_permit.so
-> > password   required     pam_permit.so
-> > session    required     pam_mkpolydir.so debug
-> > session    required     pam_namespace.so unmnt_remnt
-> > no_unmount_on_close gen_hash ignore_instance_parent_mode debug
-> > 
-> > This variant was based on a Fedora policysoreutils source rpm because
-> > the RHEL5 version doesn't contain the code to map applications to
-> > /etc/pam.d files using /etc/selinux/newrole_pam.conf.
-> 
-> As a workaround, you could certainly create a pty in your application
-> and use that for newrole - that woudl let you use newrole unmodified.
-> 
-> As a longer term solution, I'd suggest making a patch for newrole that
-> allows it to gracefully function even in the absence of a tty, and get
-> that upstreamed, so that you can use newrole as is.
-> 
--- 
-Stephen Smalley
-National Security Agency
+The way I do it is:
 
+ (1) The daemon opens /dev/cachefiles to being an instance of a cache.
+
+ (2) The daemon negotiates a security context for the module to use.
+
+ (3) The security context is place in a task_security structure.
+
+ (4) This task_security struct is attached temporarily to task->act_as each
+     time any task attempts to access the cache through the module.
+
+ (5) The task_security struct is discarded when the file descriptor that was
+     created in (1) is closed and the cache is withdrawn at the same time.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
