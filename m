@@ -1,67 +1,34 @@
-Subject: Re: newrole in the background
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: "Reed, Tim (US SSA)" <tim.reed@baesystems.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com>
-References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
-	 <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com>
-	 <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net>
-	 <476047A9.90000@gmail.com>
-	 <436A69503F99214D9EBC27415F66C40C0F517AD3@blums0008.bluelnk.net>
-	 <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 13 Dec 2007 10:08:06 -0500
-Message-Id: <1197558486.20226.40.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1197557384.20226.21.camel@moss-spartans.epoch.ncsc.mil>
+References: <1197557384.20226.21.camel@moss-spartans.epoch.ncsc.mil> <1197488021.1125.138.camel@moss-spartans.epoch.ncsc.mil> <1197473127.1125.50.camel@moss-spartans.epoch.ncsc.mil> <81862.27432.qm@web36605.mail.mud.yahoo.com> <32168.1197484170@redhat.com> <668.1197499783@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dhowells@redhat.com, casey@schaufler-ca.com,
+        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
+        hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+Date: Thu, 13 Dec 2007 15:36:59 +0000
+Message-ID: <21666.1197560219@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-12-13 at 08:41 -0600, Xavier Toth wrote:
-> On Dec 13, 2007 8:25 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On Thu, 2007-12-13 at 04:30 -0800, Reed, Tim (US SSA) wrote:
-> > > Good point.  That is why I was looking for test cases or something.
-> > >
-> > > I am going to explore Stephen suggestion more of making the lack of a
-> > > tty non-fatal.  But won't we want newrole to have a tty so that it can
-> > > send/receive input from the user?  That is the reason why I was having
-> > > it creating a pseudo tty.
-> > >
-> > > Suggestions.....
-> >
-> > You said you wanted to be able to use newrole while detached from any
-> > tty, thus no input is possible there.  Right?
-> >
-> > So if you have newrole or the subsequent application use a pam module
-> > that requires a tty, it is going to fail regardless in that situation.
-> > Your situation presumes that you aren't using pam modules that require a
-> > tty.
-> >
-> > Only thing to check is to make sure that the pam modules fail gracefully
-> > in that situation and newrole correctly exits with an error in that
-> > case.
-> >
-> >
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
-> 
-> Right, but doesn't pam_unix exec unix_chkpwd and wait for it to exit?
-> Or will unix_chkpwd fail because there isn't a tty?
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-That's what we need to check - that the pam module or unix_chkpwd
-correctly handle the case where there is no tty.  And that is better
-than having it block indefinitely on a pty that we've created that will
-never provide any input at all...
+> It is just a way of carving up the permission space, typically based on
+> object type, but it can essentially be arbitrary.  The check in this
+> case seems specific to cachefiles since it is controlling an operation
+> on the /dev/cachefiles interface that only applies to cachefiles
+> internal operations, so making a cachefiles class seems reasonable.
 
--- 
-Stephen Smalley
-National Security Agency
+Can you specify what sort of permissions you're thinking of providing for
+tasks to operate on this class?  Can an object of this class 'operate' on
+other objects, or can only process-class objects do that?
 
+How does an object of this class acquire a label?  What is an object of this
+class?  Is it a "cache"?  Or were you thinking of a "module"?
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
