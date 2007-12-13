@@ -1,91 +1,80 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBDJJbdh022715
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 14:19:37 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBDJJYat028696
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 19:19:34 GMT
+Message-ID: <47617D29.6060402@redhat.com>
+Date: Thu, 13 Dec 2007 13:42:49 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: newrole in the background
-Date: Thu, 13 Dec 2007 10:56:47 -0800
-Message-ID: <436A69503F99214D9EBC27415F66C40C0F597812@blums0008.bluelnk.net>
-References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net> <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com> <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net> <476047A9.90000@gmail.com> <436A69503F99214D9EBC27415F66C40C0F517AD3@blums0008.bluelnk.net> <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil> <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com> <1197558486.20226.40.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net> <1197567614.20226.141.camel@moss-spartans.epoch.ncsc.mil>
-From: "Reed, Tim \(US SSA\)" <tim.reed@baesystems.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Xavier Toth" <txtoth@gmail.com>, "SE Linux" <selinux@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: This patch adds the xgues and guest users
+Content-Type: multipart/mixed;
+ boundary="------------050401010508020109070504"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-All right I'll clean it up.
+This is a multi-part message in MIME format.
+--------------050401010508020109070504
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Thanks
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Also cleans up some of the default_context files.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: Thursday, December 13, 2007 12:40 PM
-To: Reed, Tim (US SSA)
-Cc: Xavier Toth; SE Linux
-Subject: RE: newrole in the background
+iD8DBQFHYX0orlYvE4MpobMRAjSDAKCU+H+XmQVQdvIqguGTIFHpRUJL0ACbBWKZ
+KGmDb9jyqCjdSL0CNSgsQlo=
+=RDsY
+-----END PGP SIGNATURE-----
 
-On Thu, 2007-12-13 at 09:06 -0800, Reed, Tim (US SSA) wrote:
-> New patch...I have added checks around the calls that deal with the
-tty.
-> So if ttyn is an empty string (something had a heartache with it being
-> NULL) then it skips the processing.  It does appear to work but more
-> testing is needed.  Please review and comment.
+--------------050401010508020109070504
+Content-Type: application/x-gzip;
+ name="users_patch.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="users_patch.gz"
 
-Patch is reversed, and doesn't seem to be complete (test for a NULL
-ttyname still remains and is fatal in main).
+H4sICL58YUcAA3VzZXJzX3BhdGNoAO1Z63LqNhD+DU+hmfMjpwMGO0B68KRn0gdopm+gKrYM
+msgSI8knTp++siVzMzYymE4vZDLBl91vvfpW365DTJIEeB7OI5rF2EsET3+xJ8B7BV4GPAGY
+RBILnGw4JdHnNOIsIasp2mzMkZdGcpogQiVKMNTXFM4V2PPwZpPHydzNb+h53kUBB4++/7MX
++F7wCPxv4eIp9JcTv/oBnj/3/eFoNLr0wSz+oxfMQDALZ/Nw9nSAv9D4Ly/AC8AoAC8vQ09+
+ShSnUIT2QIVSP4E+Ubi4mrEyGsOxuRP3RcUqw1LBDMY4QRlVVQLSNfMmf2dqmgAGwfJpWSzh
+LADBMvR9/Vtbwg4UNcZxpcof+5qs8byga0cM5RGikPIVYSUzAxNHhObziEaBU66ws7mUa8P3
+oN0uEpydNtzd6a9kJM60jXOFWHPngrD2fW/RQ9gt3U/hvGFnjmcF3bOCbmBXOgt3B36BCs35
+mqzWQyA4V2H5p37Tg9vCg2HxICXEcHRwebfHs14J2we+eKO3gjiT24rS95ZvD9Zx3y8P9/3+
+ltuLU1fqnQthRImom09NXhz96kLj6riTHEcP2d3DtDiZdXM7uuPqlttueiZOf7tNW6wx3eg9
+3nG8qXu676uaa9/62Rih25CzldHmaWersnXK+2Mpv3bwaQRw5qwRoW8dbA7UUQMXLbPPIK8m
+j9xh9DlnbURlcM7MqnDNbG/sORKCBsh+6opeOU+3+LtVVQtAr0XVFuc+T3coGakQi5GIr6qb
+syBOxXMWpc8KOh+sxzI6JrtZlZoNK0Fqtqi06GTB9FwtV3Wv8yjd6uVv6WMO0W7azDp0Mpc2
+5t7DHBrYKbrsR8rjjGIzvVnNniTRFcS04+5R4Gvcb+HjsoWCkoAv4JWDEgAkhGJQ0TnpmBVJ
+bpOVxr0kqy/gWWZpisTn999LcJBwYfMs4J+n1e07e/8j9hS+TZ4at1uetmEaSGggv5ZY42Di
+T4KfhqMCP+ZaePRFQSJV/Bul+M+VFqMNRcqaOxnqdzzCtOV9tW6yWroVaZ8bSMMO+FJtMAiX
+ioON37867ID7kweb6oX6cOfw389hfqsWnV/do/OrmnR+qy6d36BN51f16TuH/xkO+x8f8kvn
+h8XixACRH04QZjFiLKPv5nBjPn+llH/sr4gEioOUZ0yB4l30B3rTBZHimCDjN7WOz1MLtsL6
+RTVjhZ0NCkt3WDqNE0Qldn0AHdq8kmcCg1esPrh4B78hhlZYuIfXEAxHCjID0PkR9DKAN5ph
+fczVGsT4B4mwdI+v/WHhX7rvRT8xnOUfhMX8Qx5NaXk1zw1HKf+TUIpg8d2I4BQfG41B9aa+
+PRImV5tXSQZhK8ATs7vNK7/Oh28U4QxRaCrn6x/D0cCmsr1UZ/RhXNgN1tovfsskjNZIVZkX
+jzwYFN9F6iSRnj1Vujm8hzK1hpTo8w1KC6ZkkVOMFDq0e8eCYWpQkvLb7khReWhTZCNhrMUK
+ZbEOucIKKSXgm153GBNx0lxiJKI1TNnRQ+sgaVlokPG8hNFXShcHuxPBnM2qp97Z1UzKVdjD
+kZ8pJez90PBB/3kome/A69FWsdzaM5OAaKD5ongHW8NG2563B7rr812f7/p81+e7Pv8z9fkv
+CUvfEMErAAA=
+--------------050401010508020109070504
+Content-Type: application/octet-stream;
+ name="users_patch.gz.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="users_patch.gz.sig"
 
-ttyn should really be NULL if not defined - just fix the code.  Cleaner
-and faster to test for NULL than for empty string.  Looks like
-authenticate_via_pam() needs a check.
-
-You can simplify the logic a fair amount, e.g. on entry to relabel_tty()
-and restore_tty_label(), just do a if (!ttyn) return 0;
-
-Coding style doesn't match.
-
-> Now say if someone ran `newrole -l SystemHigh -- -c "su - foo"` in the
-> background of a script, you would not be able to give su input as it
-is
-> in the background and has no tty.  su in this case exits gracefully I
-> guess you could say.  
-> 
-> My point is that if you have an application that needs to run from
-> newrole, in the background AND requires user input, you will not be
-able
-> to give the application input while it is in the background and have
-it
-> work successfully.
-
-You can't do that anyway, by definition.
-
-> Example:
-> foo.sh
-> ---------------
-> #!/bin/bash
-> 
-> ./bar.sh &
-> ---------------
-> bar.sh
-> ---------------
-> #!/bin/bash
-> 
-> su - root -c /bin/date
-> ---------------
-> 
-> su exits because there is no tty for input.  So is chasing down having
-> newrole run in a pseudo tty in the background and accept input worth
-the
-> time?
-
-It doesn't help - there is no input to accept.
-
-We just need to make sure that the pam modules and chkpwd don't block
-forever or seg fault when handed a NULL PAM_TTY.
-
--- 
-Stephen Smalley
-National Security Agency
-
-
+iD8DBQBHYX0orlYvE4MpobMRApvmAKCQlu/ZNUtBpyOqLXsnyANlmqfV1wCgjRGwSy//sDPt
+vmTwoQv6k8xOrac=
+--------------050401010508020109070504--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
