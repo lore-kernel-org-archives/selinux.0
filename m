@@ -1,81 +1,140 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBDEjGl4022283
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 09:45:16 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBDEjB0d013607
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 14:45:11 GMT
-Message-ID: <4761456B.7000101@redhat.com>
-Date: Thu, 13 Dec 2007 09:44:59 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Addition of policykit polcy along with changes to hal
-Content-Type: multipart/mixed;
- boundary="------------060001070007060609000803"
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM
+	settings for task actions [try #2]
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: casey@schaufler-ca.com, Karl MacMillan <kmacmill@redhat.com>,
+        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <668.1197499783@redhat.com>
+References: <1197488021.1125.138.camel@moss-spartans.epoch.ncsc.mil>
+	 <1197473127.1125.50.camel@moss-spartans.epoch.ncsc.mil>
+	 <81862.27432.qm@web36605.mail.mud.yahoo.com> <32168.1197484170@redhat.com>
+	 <668.1197499783@redhat.com>
+Content-Type: text/plain
+Date: Thu, 13 Dec 2007 09:49:44 -0500
+Message-Id: <1197557384.20226.21.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060001070007060609000803
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Wed, 2007-12-12 at 22:49 +0000, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > > Have you example code for the security hook you mention?  I'm not sure I
+> > > understand why security_secctx_to_secid() is not sufficient.
+> > 
+> > security_secctx_to_secid() would just validate and map a context string to a
+> > secid.
+> 
+> Validate as in check it's a valid string?  Okay, I see that.
 
+Yes.
 
---------------060001070007060609000803
-Content-Type: application/x-gzip;
- name="services_polkit.patch.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="services_polkit.patch.gz"
+> > It wouldn't perform any permission check, as the caller might a
+> > kernel-internal user that is just mapping back and forth like current users
+> > of security_secid_to_secctx, or it might be something that ultimately
+> > originated from userspace but the hook has no way of knowing why or what set
+> > of checks would be appropriate.  You'd need a more specific hook for the
+> > authorization, one that would perform a permission check, e.g. an
+> > avc_has_perm() call.  Which likely requires defining a new class and
+> > permissions for your cachefiles kernel interface.
+> 
+> Hmmm...  This is sounding very not-simple.  I don't know how to do this.  I
+> can probably guess the kernel side by looking at how SECCLASS_KEY is done, but
+> it sounds like it involves changes to the userspace policy processing tools
+> too.
 
-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
---------------060001070007060609000803
-Content-Type: application/octet-stream;
- name="services_polkit.patch.gz.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="services_polkit.patch.gz.sig"
+Not the tools, just the policy definitions.  Dan can help with that.
+You add the definitions to the policy, then there is a script to
+regenerate the SELinux kernel headers that #define the SECCLASS_ and
+permission values.
 
-iD8DBQBHYUVrrlYvE4MpobMRAvloAJsFlZePvqeKL9+hqCcUgpzzruS9XwCgqlrNsVIE2fkl
-C2vDH8wki4s5wQc=
---------------060001070007060609000803--
+> It also sounds a bit like overkill, but if it's the right way then I guess it
+> has to be done.
+> 
+> What does the security class represent in this case?  And can it be generalised
+> to apply to non-cachefiles stuff too?
+
+It is just a way of carving up the permission space, typically based on
+object type, but it can essentially be arbitrary.  The check in this
+case seems specific to cachefiles since it is controlling an operation
+on the /dev/cachefiles interface that only applies to cachefiles
+internal operations, so making a cachefiles class seems reasonable.
+
+If this was instead just a generic "set my acting context to <value>"
+operation, then it could be a generic /proc/self/attr/active interface
+with an generic implementation and permission check, but here we aren't
+setting the active context of the cachefilesd daemon but rather of the
+cachefiles kernel module.
+
+The other approach that I suggested a long time ago is to exempt the
+cachefiles kernel module internal operations from SELinux permission
+checks altogether by setting some task flag when performing those
+operations and checking for that flag either on entry to the security_
+static inlines, similar to the inode private flag, or within SELinux
+itself.  Rationale being that the cachefiles kernel module can already
+do what it wants and the SELinux permission checks are really about
+controlling what userspace can do.  Then we don't have to invent a
+context for the kernel module at all or worry about subtle breakage when
+some permission is missing from its policy.
+
+> > > Or is it that I need something that takes a secctx, converts it to a secid
+> > > and authorises its use all in one go?  If it's this, why can't that be
+> > > rolles into security_task_kernel_act_as()?  That sets up a task_security
+> > > struct which is then switched in and out without consultation of the LSM.
+> > 
+> > I was under the impression that security_task_kernel_act_as() was being used
+> > to switch the current task to an acting context, not to initially set up a
+> > struct for later use.
+> 
+> Definitely the latter.  I guess I wasn't very clear in the patch description.
+> It also sounds like I need to adjust the naming of certain functions.
+> 
+> > If you go with the latter approach, then what is the lifecycle on that
+> > struct?
+> 
+>  (1) You create a new task_security struct
+> 
+>  (2) You fill in the fsuid, fsgid, etc.
+> 
+>  (3) You request that the LSM security pointer in it be set to point to the
+>      context you want (at the moment this is done by attempting a transition
+>      from the daemon's context):
+> 
+> 	ret = security_transition_sid(dtsec->sid, SECINITSID_KERNEL,
+> 				      SECCLASS_PROCESS, &ksid);
+> 
+>      and, in the current code, it returns an error if you're not allowed to do
+>      that.  But instead you'd ask it to set a specific context, and it'd set
+>      that if you're permitted to do that, and give you an error if you're not.
+> 
+>  (4) You then use the task_security at will to override the task->act_as
+>      pointer in whatever task(s) you're operating on behalf of at the moment.
+> 
+>  (5) When you cease operating on the behalf of a task, you revert its act_as
+>      pointer and drop a reference to your task_security struct.
+> 
+>  (6) When the last ref to the task_security struct goes away, the LSM data
+>      attached to it is released, as are its groups and keyrings.
+> 
+> > BTW, it gets a little confusing with your use of task_security for the full
+> > task security state vs our existing use of task_security_struct within
+> > SELinux for the task's LSM security blob.
+> 
+> I know.  I thought about it quite a bit, but the problem is there's so much
+> overloading of various words (eg: security, context), and I wanted to avoid
+> struct cred for various other reasons.
+> 
+> > I suppose ours could be renamed to task_selinux.
+> 
+> Better still, perhaps, would be to prefix things with selinux_ to make it
+> namespace clean.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
