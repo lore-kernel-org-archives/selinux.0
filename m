@@ -1,82 +1,62 @@
-Subject: RE: newrole in the background
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Reed, Tim (US SSA)" <tim.reed@baesystems.com>
-Cc: Xavier Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net>
-References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
-	 <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com>
-	 <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net>
-	 <476047A9.90000@gmail.com>
-	 <436A69503F99214D9EBC27415F66C40C0F517AD3@blums0008.bluelnk.net>
-	 <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com>
-	 <1197558486.20226.40.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net>
-Content-Type: text/plain
-Date: Thu, 13 Dec 2007 12:40:14 -0500
-Message-Id: <1197567614.20226.141.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1197566877.20226.130.camel@moss-spartans.epoch.ncsc.mil>
+References: <1197566877.20226.130.camel@moss-spartans.epoch.ncsc.mil> <1197563033.20226.110.camel@moss-spartans.epoch.ncsc.mil> <1197557384.20226.21.camel@moss-spartans.epoch.ncsc.mil> <1197488021.1125.138.camel@moss-spartans.epoch.ncsc.mil> <1197473127.1125.50.camel@moss-spartans.epoch.ncsc.mil> <81862.27432.qm@web36605.mail.mud.yahoo.com> <32168.1197484170@redhat.com> <668.1197499783@redhat.com> <21666.1197560219@redhat.com> <22549.1197565271@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dhowells@redhat.com, casey@schaufler-ca.com,
+        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
+        hch@infradead.org, Trond.Myklebust@netapp.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+Date: Thu, 13 Dec 2007 18:04:04 +0000
+Message-ID: <23942.1197569044@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-12-13 at 09:06 -0800, Reed, Tim (US SSA) wrote:
-> New patch...I have added checks around the calls that deal with the tty.
-> So if ttyn is an empty string (something had a heartache with it being
-> NULL) then it skips the processing.  It does appear to work but more
-> testing is needed.  Please review and comment.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Patch is reversed, and doesn't seem to be complete (test for a NULL
-ttyname still remains and is fatal in main).
+> Do any of the interfaces allow a task to act on a cache other than one
+> it has created?
 
-ttyn should really be NULL if not defined - just fix the code.  Cleaner
-and faster to test for NULL than for empty string.  Looks like
-authenticate_via_pam() needs a check.
+No.
 
-You can simplify the logic a fair amount, e.g. on entry to relabel_tty()
-and restore_tty_label(), just do a if (!ttyn) return 0;
+> How does the task identify the desired cache?
 
-Coding style doesn't match.
+Each file descriptor opened creates one separate cache instance.  Any commands
+sent over that filedescriptor affect only the cache instance it is attached
+to; similarly, any status data you read only refers to that one cache
+instance.
 
-> Now say if someone ran `newrole -l SystemHigh -- -c "su - foo"` in the
-> background of a script, you would not be able to give su input as it is
-> in the background and has no tty.  su in this case exits gracefully I
-> guess you could say.  
-> 
-> My point is that if you have an application that needs to run from
-> newrole, in the background AND requires user input, you will not be able
-> to give the application input while it is in the background and have it
-> work successfully.
+Closing the file descriptor makes the cache go away as far as the kernel is
+concerned.  The cachefiles daemon retains its cache dev file descriptor for
+the lifetime of the daemon.
 
-You can't do that anyway, by definition.
+> What if there is a conflict between multiple tasks asking for the same
+> cache?
 
-> Example:
-> foo.sh
-> ---------------
-> #!/bin/bash
-> 
-> ./bar.sh &
-> ---------------
-> bar.sh
-> ---------------
-> #!/bin/bash
-> 
-> su - root -c /bin/date
-> ---------------
-> 
-> su exits because there is no tty for input.  So is chasing down having
-> newrole run in a pseudo tty in the background and accept input worth the
-> time?
+As far as the cache daemon is concerned, the file descriptor is its handle to
+the cache so the conflict does not arise.
 
-It doesn't help - there is no input to accept.
+> secid is being applied as the acting context for the cachefiles kernel
+> module, so the above makes sense, even though there isn't really any
+> "object" in view here.  Abstractly, the question we are asking above is:
+>
+> Can this task set the context of the cachefiles kernel module to this
+> value?
 
-We just need to make sure that the pam modules and chkpwd don't block
-forever or seg fault when handed a NULL PAM_TTY.
+So the following (taken from cachefilesd.te):
 
--- 
-Stephen Smalley
-National Security Agency
+	allow cachefilesd_t cachefiles_var_t : file { getattr rename unlink };
 
+says, for example, allow:
+
+	avc_has_perm("cachefilesd_t",
+		     "cachefiles_var_t",
+		     SECCLASS_FILE,
+		     FILE__RENAME,
+		     ...);
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
