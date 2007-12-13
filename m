@@ -1,34 +1,53 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1197557384.20226.21.camel@moss-spartans.epoch.ncsc.mil>
-References: <1197557384.20226.21.camel@moss-spartans.epoch.ncsc.mil> <1197488021.1125.138.camel@moss-spartans.epoch.ncsc.mil> <1197473127.1125.50.camel@moss-spartans.epoch.ncsc.mil> <81862.27432.qm@web36605.mail.mud.yahoo.com> <32168.1197484170@redhat.com> <668.1197499783@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dhowells@redhat.com, casey@schaufler-ca.com,
-        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
-        hch@infradead.org, Trond.Myklebust@netapp.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-Date: Thu, 13 Dec 2007 15:36:59 +0000
-Message-ID: <21666.1197560219@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBDFuES7029450
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 10:56:14 -0500
+Received: from g1t0028.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBDFuA0d015849
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 15:56:10 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Network flow controls and subj/obj ordering
+Date: Thu, 13 Dec 2007 10:45:57 -0500
+Cc: selinux@tycho.nsa.gov
+References: <200712111202.20074.paul.moore@hp.com> <200712121518.15454.paul.moore@hp.com> <1197555128.12626.205.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1197555128.12626.205.camel@gorn.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200712131045.57681.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Thursday 13 December 2007 9:12:08 am Christopher J. PeBenito wrote:
+> On Wed, 2007-12-12 at 15:18 -0500, Paul Moore wrote:
+> > Assuming labeled networking is enabled, a forwarded packet would
+> > hit four checks:
+> >
+> >  # inbound checks
+> >  allow netif_t peer_t:peer ingress;
+> >  allow netnode_t peer_t:peer ingress;
+> >  # outbound checks
+> >  allow netif_t peer_t:peer egress;
+> >  allow netnode_t peer_t:peer egress;
+>
+> This helps.  But this seems to be for the old networking, how does it
+> work with the secmark stuff?
 
-> It is just a way of carving up the permission space, typically based on
-> object type, but it can essentially be arbitrary.  The check in this
-> case seems specific to cachefiles since it is controlling an operation
-> on the /dev/cachefiles interface that only applies to cachefiles
-> internal operations, so making a cachefiles class seems reasonable.
+It doesn't work with the SECMARK stuff, or rather it works in parallel 
+with the SECMARK stuff.  We've debated integrating the peer labeling 
+protocols (labeled IPsec, NetLabel) with the SECMARK mechanism many 
+times but in the end we always end up deciding it doesn't make sense.
 
-Can you specify what sort of permissions you're thinking of providing for
-tasks to operate on this class?  Can an object of this class 'operate' on
-other objects, or can only process-class objects do that?
+The reason for the network interface, "netif_t", and node, "netnode_t", 
+labels is that we want to be able to apply access controls to peer 
+labeled network traffic based on the remote host and/or interface.  
+Currently we have no way of doing this.
 
-How does an object of this class acquire a label?  What is an object of this
-class?  Is it a "cache"?  Or were you thinking of a "module"?
+Hopefully this is starting to get a bit more clear now ...
 
-David
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
