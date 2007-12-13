@@ -1,34 +1,71 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1197557461.20226.24.camel@moss-spartans.epoch.ncsc.mil>
-References: <1197557461.20226.24.camel@moss-spartans.epoch.ncsc.mil> <1197488108.1125.141.camel@moss-spartans.epoch.ncsc.mil> <66139.71689.qm@web36604.mail.mud.yahoo.com> <715.1197500109@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dhowells@redhat.com, casey@schaufler-ca.com,
-        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
-        hch@infradead.org, Trond.Myklebust@netapp.com,
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM
+	settings for task actions [try #2]
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: David Howells <dhowells@redhat.com>
+Cc: casey@schaufler-ca.com, Karl MacMillan <kmacmill@redhat.com>,
+        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
         linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-Date: Thu, 13 Dec 2007 16:03:47 +0000
-Message-ID: <21903.1197561827@redhat.com>
+In-Reply-To: <21666.1197560219@redhat.com>
+References: <1197557384.20226.21.camel@moss-spartans.epoch.ncsc.mil>
+	 <1197488021.1125.138.camel@moss-spartans.epoch.ncsc.mil>
+	 <1197473127.1125.50.camel@moss-spartans.epoch.ncsc.mil>
+	 <81862.27432.qm@web36605.mail.mud.yahoo.com> <32168.1197484170@redhat.com>
+	 <668.1197499783@redhat.com>  <21666.1197560219@redhat.com>
+Content-Type: text/plain
+Date: Thu, 13 Dec 2007 11:23:53 -0500
+Message-Id: <1197563033.20226.110.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
+On Thu, 2007-12-13 at 15:36 +0000, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> Yes, we could easily make a simple program that just invokes a
-> libselinux function that in turn grabs the proper context from some
-> context configuration file under /etc/selinux/$SELINUXTYPE/contexts/ and
-> outputs it.  Dan can help with that.
+> > It is just a way of carving up the permission space, typically based on
+> > object type, but it can essentially be arbitrary.  The check in this
+> > case seems specific to cachefiles since it is controlling an operation
+> > on the /dev/cachefiles interface that only applies to cachefiles
+> > internal operations, so making a cachefiles class seems reasonable.
+> 
+> Can you specify what sort of permissions you're thinking of providing for
+> tasks to operate on this class?
 
-That sounds nicely genericisable, perhaps even for any LSM.
+They would correspond with the operations provided by
+the /dev/cachefiles interface, at the granularity you want to support
+distinctions to be made.  Could just be a single 'setcontext' permission
+if that is all you want to control distinctly, or could be a permission
+per operation.
 
-	/usr/bin/lsm-get-context cachefiles
+>   Can an object of this class 'operate' on
+> other objects, or can only process-class objects do that?
 
-It does have to be able to come up with different contexts for different
-caches, but that can be controlled by changing the name supplied to it.
+In this case, I wouldn't expect a cachefiles object to act on anything
+else.  Some objects are also used as subjects, especially in the
+networking arena.
 
-David
+> How does an object of this class acquire a label?  What is an object of this
+> class?  Is it a "cache"?  Or were you thinking of a "module"?
+
+I was thinking the latter since the only goal was to control what
+contexts could be set by a given task, but you could support per-cache
+"objects" with their own labels (in which case the label would likely be
+determined from the creating task).
+
+If the latter, you don't really need a label for the object, and can
+just use the supplied context/secid as the object of the permission
+check, ala:
+	rc = avc_has_perm(tsec->sid, secid, SECCLASS_CACHEFILES,
+CACHEFILES__SETCONTEXT);
+
+If the former, then you'd need more than one check, as you then have to
+check whether the task can act on the cache in question, and then check
+whether it can set the context for that cache to the specified value.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
