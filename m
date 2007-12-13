@@ -1,14 +1,14 @@
 Subject: Re: [LTP] Se-Linux Updates for LTP
 From: Subrata Modak <subrata@linux.vnet.ibm.com>
 Reply-To: subrata@linux.vnet.ibm.com
-To: Joy Latten <latten@austin.ibm.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@redhat.com>, George Kraft <gk4@us.ibm.com>,
-        klausk@br.ibm.com, ltp-list <ltp-list@lists.sourceforge.net>,
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
+        George Kraft <gk4@us.ibm.com>, klausk@br.ibm.com,
+        ltp-list <ltp-list@lists.sourceforge.net>,
         SE Linux <selinux@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
         Robert Williamson <robbiew@us.ibm.com>, Paul Larson <plars@us.ibm.com>,
         Michael Reed <mreed10@us.ibm.com>
-In-Reply-To: <1197488828.2488.132.camel@faith.austin.ibm.com>
+In-Reply-To: <20071212152711.GA19320@sergelap.austin.ibm.com>
 References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
 	 <1197266491.4482.2.camel@subratamodak.linux.ibm.com>
 	 <1197295269.18120.11.camel@moss-spartans.epoch.ncsc.mil>
@@ -16,35 +16,16 @@ References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
 	 <1197382969.9034.29.camel@subratamodak.linux.ibm.com>
 	 <20071211155219.GA22416@sergelap.austin.ibm.com>
 	 <1197458260.4710.95.camel@subratamodak.linux.ibm.com>
-	 <1197488828.2488.132.camel@faith.austin.ibm.com>
+	 <20071212152711.GA19320@sergelap.austin.ibm.com>
 Content-Type: text/plain; charset=utf-8
-Date: Thu, 13 Dec 2007 15:14:00 +0530
-Message-Id: <1197539040.4755.5.camel@subratamodak.linux.ibm.com>
+Date: Thu, 13 Dec 2007 15:12:18 +0530
+Message-Id: <1197538938.4755.2.camel@subratamodak.linux.ibm.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-12 at 13:47 -0600, Joy Latten wrote:
-> My apologies for the delay in responding.
-> I would like to consult with a colleague
-> about status of the selinux testcases in LTP,
-> but he is out for rest of year. 
-> 
-> Is it ok if I get back to you with a conclusion at the
-> beginning of the new year?
-
-Thatś OK. Now Stephen has already given the Patch. Now i know that i
-need to turn to you/Stephen for any updates on se-linux. Please do
-update us for anything and everything.
-
---Subrata
-
-> 
-> regards,
-> Joy
-> 
-> 
-> On Wed, 2007-12-12 at 16:47 +0530, Subrata Modak wrote:
+On Wed, 2007-12-12 at 09:27 -0600, Serge E. Hallyn wrote:
+> Quoting Subrata Modak (subrata@linux.vnet.ibm.com):
 > > On Tue, 2007-12-11 at 09:52 -0600, Serge E. Hallyn wrote:
 > > > Quoting Subrata Modak (subrata@linux.vnet.ibm.com):
 > > > > On Mon, 2007-12-10 at 11:15 -0600, Serge E. Hallyn wrote:
@@ -130,60 +111,17 @@ update us for anything and everything.
 > > So, can somebody now give me some updates for testcases in this
 > > Directory::
 > > http://ltp.cvs.sourceforge.net/ltp/ltp/testcases/kernel/security/selinux-testsuite/,
-> > 
-> > Regards--
-> > Subrata
-> > 
-> > > 
-> > > > Now i myself has never executed these test case, so not aware of them
-> > > > much. But that should not prevent me from requesting updates of the
-> > > > same. I would be extremely happy even if we can reach the final updates
-> > > > through some pointer-to-pointer and that will serve my purpose of having
-> > > > all updates in LTP.
-> > > > 
-> > > > Just to cite an example, i recently found out that there are updates
-> > > > being made to pounder21 test suite(present inside LTP), by somebody for
-> > > > his/her internal project use. Now, the same has never been updated in
-> > > > LTP for quite long time. I immediately mailed to him requesting him for
-> > > > updates. Now my purpose will be served if i get updates from him, let
-> > > > alone it comes to me after long time is not the question.
-> > > > 
-> > > > > 
-> > > > > Anyway I think there is value to having the selinux testsuite.  Though
-> > > > > one problem with having it in LTP is that most LTP runs are done on
-> > > > > machines which are not set up right for selinux.  I personally haven't
-> > > > > had enough potential target machines to be able to run the tests
-> > > > > regularly.  So I don't even know whether anyone has run
-> > > > > ltp/testcases/kernel/security/selinux-testsuite/ in the last year.  Joy
-> > > > > might know though.
-> > > > > 
-> > > > > So given that I personally don't know who to pin down, and given that I
-> > > > > don't have time to maintain the testsuite by myself, if I could get two
-> > > > > or three other people to volunteer to help out, I wouldn't mind being
-> > > > > part of a group responsible for the maintenance.
-> > > > > 
-> > > > > For starters, I finally have a fedora 8 vm set up which once I'm done
-> > > > > with another test i can use to try out the existing testsuite.
-> > > > > Hopefully that'll be later this week (no guarantees).  I'll report on
-> > > > > the results.
-> > > > > 
-> > > > > -serge
-> > > > 
-> > > > Thanks Serge. Will wait for your results.
-> > > 
-> > > thanks,
-> > > -serge
-> > > 
-> > > --
-> > > This message was distributed to subscribers of the selinux mailing list.
-> > > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > > the words "unsubscribe selinux" without quotes as the message.
-> > 
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
+> 
+> No.  I thought I'd made it clear that I was going to try running them
+> under FC8 later this week or early next and report back.  No one has
+> any updates at the moment.  (which is why the prod was needed :)
+> 
+
+Please apply Stephenś Patch and then share your test results.
+
+--Subrata
+
+> -serge
 
 
 --
