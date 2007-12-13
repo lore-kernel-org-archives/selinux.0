@@ -1,67 +1,91 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBDDSs5v011973
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 08:28:54 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBDDSq3i016426
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 13:28:53 GMT
-Subject: ANN: SELinux Policy IDE (SLIDE) version 1.3
-From: Dave Sugar <dsugar@tresys.com>
-To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
-Cc: slide <slide@tresys.com>
-Content-Type: text/plain
-Date: Thu, 13 Dec 2007 08:28:52 -0500
-Message-Id: <1197552532.3555.10.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBDE2fhp015503
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 09:02:41 -0500
+Received: from nz-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBDE2W1s023470
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 14:02:33 GMT
+Received: by nz-out-0506.google.com with SMTP id i1so351599nzh.39
+        for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 06:02:32 -0800 (PST)
+Message-ID: <47613AE6.7050501@gmail.com>
+Date: Thu, 13 Dec 2007 08:00:06 -0600
+From: Ted X Toth <txtoth@gmail.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Paul Moore <paul.moore@hp.com>
+Subject: Re: [PATCH] IPsec SPD default security context (Re: security	context
+ for SPD entries of labeled IPsec)
+References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>	 <47331BAB.8040107@kaigai.gr.jp>  <473872F8.7000208@ak.jp.nec.com>	 <1195055160.13737.33.camel@gorn.columbia.tresys.com>	 <473B23F9.4080506@ak.jp.nec.com>	 <1195064402.13737.42.camel@gorn.columbia.tresys.com>	 <473BB437.3070005@ak.jp.nec.com> <1195136813.13737.67.camel@gorn.columbia.tresys.com> <4740F30D.9000304@ak.jp.nec.com>
+In-Reply-To: <4740F30D.9000304@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Version 1.3 of the SELinux Policy IDE (SLIDE) from Tresys Technology is
-now available for download from the Tresys Open source website at
-http://oss.tresys.com.
-
-SLIDE is an Eclipse plug-in that integrates with the SELinux Reference
-Policy to provide a development environment for building SELinux policy.
-
-SLIDE Features:
-
-* A graphical user interface for policy development, including policy
-syntax highlighting, context suggestions, and integrated compilation.
-* Integration with SELinux Reference Policy, including quick lookup and
-documentation for interfaces and macros.
-* Wizards and easy to use templates to automate common tasks from
-creating a new SELinux policy to adding an interface into an existing
-module.
-* Integrated remote policy installation and audit log monitoring, to
-facilitate policy testing.
-* Integration with SETools to provide many analysis and auditing
-features.
-* Seamless integration with the power of standard Eclipse.
-
-Version 1.3 highlights:
-
-* Graphical interface for editing user and rolemap files.
-* Modified syntax coloring to include attributes, classes, permissions,
-roles, type and users.
-* Integration with SETools 3.3 to include some basic analysis features
-including TE Rule searching and Domain Transition Analysis.
-* Integration with audit2allow to provide quick and easy way to convert
-one or more audit denials into call to interfaces or allow rules.
-* New 'Open Module' dialog to quickly find and open any module based on
-name.
-* Improved documentation on the open source web site.
-* Updates to work with SETools version 3.3.
-* Fixed problems with the Console output.
-* Bugs fixed with undo/redo when toggling commenting on numerous lines
-of policy.
-
-
-If you would like to contribute, currently the best help would be to
-test and provide feedback on the SLIDE plugin and SLIDE Remote.
-
-Dave Sugar
-Tresys Technology, LLC
-
-
+KaiGai Kohei wrote:
+>>> I also suggest two minor improvement toward these updates.
+>>>
+>>> 1. Is it considerable to add "allow $1 self : association { sendto };"
+>>>    at ipsec_match_default_spd interface of ipsec.if?
+>>>
+>>>    I think it should be packed with polmatch permission to the default
+>>>    SPD context, because any domain which want to communicate others using
+>>>    SPD with default context always have to have 'sendto' permission to
+>>>    itself.
+>>>       
+>> Perhaps.  Though I thought that dropping the sendto check was being
+>> considered, since it really doesn't gain anything.
+>>
+>>     
+>>> 2. Is it considerable to add "ipsec_match_default_spd($1_t)"
+>>>    in the userdom_basic_networking_template of userdomain.if?
+>>>
+>>>    This interface allows a given userdomain widespread basic networking
+>>>    permissions. But it is not enough yet, if the networking tunnel
+>>>    is configured with labeled ipsec.
+>>>    I think it can be contained in the basic networking permissions
+>>>    to use ipsec SPD with default context.
+>>>       
+>> Sounds reasonable.
+>>     
+>
+> The attached patch enables the above two features.
+>
+> Paul mentioned to drop the checks of association:{sendto} permission and
+> integrate them with the upcaming flow control checks in the future kernel.
+> However, a rule of "allow <domain> self : association {sendto}" will be
+> necessary for the backward compatibility.
+>
+>   
+>>>> I'll consider a patch that adds it to a postresql interface.  Perhaps
+>>>> postgresql_tcp_connect should be un-deprecated.
+>>>>         
+>>> I think similar interfaces are necessary for any other daemon-domain which
+>>> provides networking-services, even if they don't use getpeercon().
+>>>       
+>> The recvfrom is needed if the networking is labeled, regardless of
+>> whether getpeercon() is used or not.
+>>     
+>
+> Do you intend to describe the labeled networking rules for each combination
+> between a server domain and a client domain?
+>
+> Is it a considerable idea that adding a new attribute to comunicate via
+> labeled ipsec with default SPD, and attaching it both a server domain and
+> a client domain?
+>
+> e.g)
+>   attribute labeled_communicatable_domain;  # I want to get more shorl naming.
+>   allow     labeled_communicatable_domain labeled_communicatable_domain : association {resvfrom sendto};
+>
+>   typeattribute postgresql_t, labeled_communicate_domain;
+>   typeattribute user_t, labeled_communicate_domain;
+>
+> Thanks,
+>   
+It doesn't seem that the issue of allowing domain polmatch, sendto and
+recvfrom to ipsec_spd_t: association has been resolved yet. I'm not sure
+what the right answer is but I do know that ipsec is does not work with
+the current policy.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
