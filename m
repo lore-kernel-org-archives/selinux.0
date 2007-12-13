@@ -1,105 +1,46 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBDEFC9l017734
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 09:15:12 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBDEFA1s000212
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 14:15:10 GMT
-Subject: Re: [PATCH] IPsec SPD default security context (Re:
-	security	context for SPD entries of labeled IPsec)
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Ted X Toth <txtoth@gmail.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>
-In-Reply-To: <47613AE6.7050501@gmail.com>
-References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>
-	 <47331BAB.8040107@kaigai.gr.jp>  <473872F8.7000208@ak.jp.nec.com>
-	 <1195055160.13737.33.camel@gorn.columbia.tresys.com>
-	 <473B23F9.4080506@ak.jp.nec.com>
-	 <1195064402.13737.42.camel@gorn.columbia.tresys.com>
-	 <473BB437.3070005@ak.jp.nec.com>
-	 <1195136813.13737.67.camel@gorn.columbia.tresys.com>
-	 <4740F30D.9000304@ak.jp.nec.com>  <47613AE6.7050501@gmail.com>
+Subject: RE: newrole in the background
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Reed, Tim (US SSA)" <tim.reed@baesystems.com>
+Cc: Ted X Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <436A69503F99214D9EBC27415F66C40C0F517AD3@blums0008.bluelnk.net>
+References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
+	 <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com>
+	 <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net>
+	 <476047A9.90000@gmail.com>
+	 <436A69503F99214D9EBC27415F66C40C0F517AD3@blums0008.bluelnk.net>
 Content-Type: text/plain
-Date: Thu, 13 Dec 2007 09:14:44 -0500
-Message-Id: <1197555284.12626.208.camel@gorn.columbia.tresys.com>
+Date: Thu, 13 Dec 2007 09:25:10 -0500
+Message-Id: <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-12-13 at 08:00 -0600, Ted X Toth wrote:
-> KaiGai Kohei wrote:
-> >>> I also suggest two minor improvement toward these updates.
-> >>>
-> >>> 1. Is it considerable to add "allow $1 self : association { sendto };"
-> >>>    at ipsec_match_default_spd interface of ipsec.if?
-> >>>
-> >>>    I think it should be packed with polmatch permission to the default
-> >>>    SPD context, because any domain which want to communicate others using
-> >>>    SPD with default context always have to have 'sendto' permission to
-> >>>    itself.
-> >>>       
-> >> Perhaps.  Though I thought that dropping the sendto check was being
-> >> considered, since it really doesn't gain anything.
-> >>
-> >>     
-> >>> 2. Is it considerable to add "ipsec_match_default_spd($1_t)"
-> >>>    in the userdom_basic_networking_template of userdomain.if?
-> >>>
-> >>>    This interface allows a given userdomain widespread basic networking
-> >>>    permissions. But it is not enough yet, if the networking tunnel
-> >>>    is configured with labeled ipsec.
-> >>>    I think it can be contained in the basic networking permissions
-> >>>    to use ipsec SPD with default context.
-> >>>       
-> >> Sounds reasonable.
-> >>     
-> >
-> > The attached patch enables the above two features.
-> >
-> > Paul mentioned to drop the checks of association:{sendto} permission and
-> > integrate them with the upcaming flow control checks in the future kernel.
-> > However, a rule of "allow <domain> self : association {sendto}" will be
-> > necessary for the backward compatibility.
-> >
-> >   
-> >>>> I'll consider a patch that adds it to a postresql interface.  Perhaps
-> >>>> postgresql_tcp_connect should be un-deprecated.
-> >>>>         
-> >>> I think similar interfaces are necessary for any other daemon-domain which
-> >>> provides networking-services, even if they don't use getpeercon().
-> >>>       
-> >> The recvfrom is needed if the networking is labeled, regardless of
-> >> whether getpeercon() is used or not.
-> >>     
-> >
-> > Do you intend to describe the labeled networking rules for each combination
-> > between a server domain and a client domain?
-> >
-> > Is it a considerable idea that adding a new attribute to comunicate via
-> > labeled ipsec with default SPD, and attaching it both a server domain and
-> > a client domain?
-> >
-> > e.g)
-> >   attribute labeled_communicatable_domain;  # I want to get more shorl naming.
-> >   allow     labeled_communicatable_domain labeled_communicatable_domain : association {resvfrom sendto};
-> >
-> >   typeattribute postgresql_t, labeled_communicate_domain;
-> >   typeattribute user_t, labeled_communicate_domain;
-> >
-> > Thanks,
-> >   
-> It doesn't seem that the issue of allowing domain polmatch, sendto and
-> recvfrom to ipsec_spd_t: association has been resolved yet. I'm not sure
-> what the right answer is but I do know that ipsec is does not work with
-> the current policy.
+On Thu, 2007-12-13 at 04:30 -0800, Reed, Tim (US SSA) wrote:
+> Good point.  That is why I was looking for test cases or something.  
+> 
+> I am going to explore Stephen suggestion more of making the lack of a
+> tty non-fatal.  But won't we want newrole to have a tty so that it can
+> send/receive input from the user?  That is the reason why I was having
+> it creating a pseudo tty.
+> 
+> Suggestions.....
 
-Right, its not completely resolved at the moment.  The only labeled
-networking rules are the ones that KaiGai sent, so I wouldn't expect it
-to work.
+You said you wanted to be able to use newrole while detached from any
+tty, thus no input is possible there.  Right?
+
+So if you have newrole or the subsequent application use a pam module
+that requires a tty, it is going to fail regardless in that situation.
+Your situation presumes that you aren't using pam modules that require a
+tty.
+
+Only thing to check is to make sure that the pam modules fail gracefully
+in that situation and newrole correctly exits with an error in that
+case.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
