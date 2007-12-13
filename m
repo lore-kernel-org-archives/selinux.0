@@ -1,44 +1,67 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBDD1iWk010053
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 08:01:45 -0500
-Received: from rv-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBDD1a1s024194
-	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 13:01:36 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so595453rvb.54
-        for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 05:01:31 -0800 (PST)
-Message-ID: <8f34198c0712130501q55577db7u2ebadad54069f4e7@mail.gmail.com>
-Date: Thu, 13 Dec 2007 21:01:31 +0800
-From: "Ian jonhson" <jonhson.ian@gmail.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>
-Subject: How to set other process quota by setrlimit
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBDDSs5v011973
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 08:28:54 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBDDSq3i016426
+	for <selinux@tycho.nsa.gov>; Thu, 13 Dec 2007 13:28:53 GMT
+Subject: ANN: SELinux Policy IDE (SLIDE) version 1.3
+From: Dave Sugar <dsugar@tresys.com>
+To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
+Cc: slide <slide@tresys.com>
+Content-Type: text/plain
+Date: Thu, 13 Dec 2007 08:28:52 -0500
+Message-Id: <1197552532.3555.10.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Version 1.3 of the SELinux Policy IDE (SLIDE) from Tresys Technology is
+now available for download from the Tresys Open source website at
+http://oss.tresys.com.
 
-We all know that we can set resource quota of process with pam_limits.so.
-The module can enforce the resource usage (cpu, memory, maximal number of
-open file, etc) by setrlimit.
+SLIDE is an Eclipse plug-in that integrates with the SELinux Reference
+Policy to provide a development environment for building SELinux policy.
 
-It seems that the function, setrlimit(), can only set self resource
-quota of process and
-inherit by its child processes, right?
+SLIDE Features:
 
-Because I adopted the function in one process to set another process'
-resource quota,
-and found nothing enforced happen. The other process can run as
-before, not any limitation.
+* A graphical user interface for policy development, including policy
+syntax highlighting, context suggestions, and integrated compilation.
+* Integration with SELinux Reference Policy, including quick lookup and
+documentation for interfaces and macros.
+* Wizards and easy to use templates to automate common tasks from
+creating a new SELinux policy to adding an interface into an existing
+module.
+* Integrated remote policy installation and audit log monitoring, to
+facilitate policy testing.
+* Integration with SETools to provide many analysis and auditing
+features.
+* Seamless integration with the power of standard Eclipse.
 
-I don't know whether what I have designed is correct, using the setrlimit to
-set other process resource
-usage. If it is wrong, are there other ways to accomplish my target?
+Version 1.3 highlights:
 
-Thank you in advance.
+* Graphical interface for editing user and rolemap files.
+* Modified syntax coloring to include attributes, classes, permissions,
+roles, type and users.
+* Integration with SETools 3.3 to include some basic analysis features
+including TE Rule searching and Domain Transition Analysis.
+* Integration with audit2allow to provide quick and easy way to convert
+one or more audit denials into call to interfaces or allow rules.
+* New 'Open Module' dialog to quickly find and open any module based on
+name.
+* Improved documentation on the open source web site.
+* Updates to work with SETools version 3.3.
+* Fixed problems with the Console output.
+* Bugs fixed with undo/redo when toggling commenting on numerous lines
+of policy.
 
-Regards,
-Ian
+
+If you would like to contribute, currently the best help would be to
+test and provide feedback on the SLIDE plugin and SLIDE Remote.
+
+Dave Sugar
+Tresys Technology, LLC
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
