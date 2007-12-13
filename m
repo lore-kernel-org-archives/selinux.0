@@ -1,14 +1,14 @@
 Subject: Re: [LTP] Se-Linux Updates for LTP
 From: Subrata Modak <subrata@linux.vnet.ibm.com>
 Reply-To: subrata@linux.vnet.ibm.com
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@redhat.com>,
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, James Morris <jmorris@redhat.com>,
         George Kraft <gk4@us.ibm.com>, klausk@br.ibm.com,
         ltp-list <ltp-list@lists.sourceforge.net>,
         SE Linux <selinux@tycho.nsa.gov>, Joy Latten <latten@us.ibm.com>,
         Robert Williamson <robbiew@us.ibm.com>, Paul Larson <plars@us.ibm.com>,
         Michael Reed <mreed10@us.ibm.com>
-In-Reply-To: <20071212152711.GA19320@sergelap.austin.ibm.com>
+In-Reply-To: <1197477042.1125.83.camel@moss-spartans.epoch.ncsc.mil>
 References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
 	 <1197266491.4482.2.camel@subratamodak.linux.ibm.com>
 	 <1197295269.18120.11.camel@moss-spartans.epoch.ncsc.mil>
@@ -16,16 +16,16 @@ References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
 	 <1197382969.9034.29.camel@subratamodak.linux.ibm.com>
 	 <20071211155219.GA22416@sergelap.austin.ibm.com>
 	 <1197458260.4710.95.camel@subratamodak.linux.ibm.com>
-	 <20071212152711.GA19320@sergelap.austin.ibm.com>
+	 <1197477042.1125.83.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=utf-8
-Date: Thu, 13 Dec 2007 15:12:18 +0530
-Message-Id: <1197538938.4755.2.camel@subratamodak.linux.ibm.com>
+Date: Thu, 13 Dec 2007 15:11:18 +0530
+Message-Id: <1197538878.4755.0.camel@subratamodak.linux.ibm.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-12 at 09:27 -0600, Serge E. Hallyn wrote:
-> Quoting Subrata Modak (subrata@linux.vnet.ibm.com):
+On Wed, 2007-12-12 at 11:30 -0500, Stephen Smalley wrote:
+> On Wed, 2007-12-12 at 16:47 +0530, Subrata Modak wrote:
 > > On Tue, 2007-12-11 at 09:52 -0600, Serge E. Hallyn wrote:
 > > > Quoting Subrata Modak (subrata@linux.vnet.ibm.com):
 > > > > On Mon, 2007-12-10 at 11:15 -0600, Serge E. Hallyn wrote:
@@ -112,16 +112,12 @@ On Wed, 2007-12-12 at 09:27 -0600, Serge E. Hallyn wrote:
 > > Directory::
 > > http://ltp.cvs.sourceforge.net/ltp/ltp/testcases/kernel/security/selinux-testsuite/,
 > 
-> No.  I thought I'd made it clear that I was going to try running them
-> under FC8 later this week or early next and report back.  No one has
-> any updates at the moment.  (which is why the prod was needed :)
-> 
+> Patch attached.
 
-Please apply Stephenś Patch and then share your test results.
+Thanks. Thatś going to help a lot.
 
 --Subrata
-
-> -serge
+> 
 
 
 --
