@@ -1,134 +1,60 @@
-Subject: Re: [LTP] Se-Linux Updates for LTP
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: jburke@redhat.com
-Cc: James Morris <jmorris@redhat.com>, Joy Latten <latten@us.ibm.com>,
-        Daniel Walsh <dwalsh@redhat.com>, subrata@linux.vnet.ibm.com,
-        ltp-list <ltp-list@lists.sourceforge.net>,
-        George Kraft <gk4@us.ibm.com>, klausk@br.ibm.com,
-        Robert Williamson <robbiew@us.ibm.com>,
-        Michael Reed <mreed10@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Paul Larson <plars@us.ibm.com>
-In-Reply-To: <4761CF71.1020101@redhat.com>
-References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
-	 <1197266491.4482.2.camel@subratamodak.linux.ibm.com>
-	 <1197295269.18120.11.camel@moss-spartans.epoch.ncsc.mil>
-	 <20071210171503.GA25223@sergelap.austin.ibm.com>
-	 <1197382969.9034.29.camel@subratamodak.linux.ibm.com>
-	 <20071211155219.GA22416@sergelap.austin.ibm.com>
-	 <1197458260.4710.95.camel@subratamodak.linux.ibm.com>
-	 <1197477042.1125.83.camel@moss-spartans.epoch.ncsc.mil>
-	 <4761CF71.1020101@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Date: Fri, 14 Dec 2007 10:11:07 -0500
-Message-Id: <1197645067.31325.29.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBEIvHcG005519
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 13:57:17 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBEIvH0k026523
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 18:57:17 GMT
+Subject: ANN: Reference Policy Release
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Fri, 14 Dec 2007 13:56:48 -0500
+Message-Id: <1197658608.12626.216.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-12-13 at 19:33 -0500, Jeff Burke wrote:
-> Stephen, Joy, Dan and James
-> 	Using Stephens latest patch. Here are the results for the selinux tests
-> ltp-full-20071130, RHEL5.1 + selinux-policy-2.4.6-106.el5_1.3:
+A new release of the SELinux Reference Policy is now available on the
+Tresys OSS site, http://oss.tresys.com.  In this release, the strict and
+targeted policies were merged.  If the unconfined module is present, the
+policy will act similar to the old targeted policy.  The difference is
+that the roles that are available in the old strict policy continue to
+be available, allowing a mix of confined and unconfined users.  If the
+unconfined module is not present, the policy will act like the old
+strict policy.  The merge also eases the transition from a targeted
+policy to a strict policy, as the policy does not need to be replaced.
+The complete change log for this release follows.
 
-Hi Jeff,
+* Fri Dec 14 2007 Chris PeBenito <selinux@tresys.com> - 20071214
+- Patch for debian logrotate to handle syslogd-listfiles, from Vaclav Ovsik.
+- Improve several tunables descriptions from Dan Walsh.
+- Patch to clean up ns switch usage in the policy from Dan Walsh.
+- More complete labeled networking infrastructure from KaiGai Kohei.
+- Add interface for libselinux constructor, for libselinux-linked
+  SELinux-enabled programs.
+- Patch to restructure user role templates to create restricted user roles
+  from Dan Walsh.
+- Russian man page translations from Andrey Markelov.
+- Remove unused types from dbus.
+- Add infrastructure for managing all user web content.
+- Deprecate some old file and dir permission set macros in favor of the
+  newer, more consistently-named macros.
+- Patch to clean up unescaped periods in several file context entries from
+  Jan-Frode Myklebust.
+- Merge shlib_t into lib_t.
+- Merge strict and targeted policies.  The policy will now behave like the
+  strict policy if the unconfined module is not present.  If it is, it will
+  behave like the targeted policy.  Added an unconfined role to have a mix
+  of confined and unconfined users.
+- Added modules:
+        exim (Dan Walsh)
+        postfixpolicyd (Jan-Frode Myklebust)
 
-I'll take a look.  The patch worked for me on Fedora 7.  Don't know for
-certain how that differs from RHEL5.1 in terms of SELinux functionality
-and base policy, but the testsuite is rather sensitive to changes I'm
-afraid.
 
-> I have also attached the selinux.outfile for both the i386 and x86_64
-> testing
-> 
-> i386, x86_64, ppc, s390x All fail in a similar manor.
-> ------------------------------------------------------------------------
-> Test Start Time: Thu Dec 13 17:55:32 2007
-> -----------------------------------------
-> Testcase                       Result     Exit Value
-> --------                       ------     ----------
-> SELinux01                      PASS       0
-> SELinux02                      FAIL       1
-> SELinux03                      PASS       0
-> SELinux04                      PASS       0
-> SELinux05                      PASS       0
-> SELinux06                      PASS       0
-> SELinux07                      PASS       0
-> SELinux08                      PASS       0
-> SELinux09                      PASS       0
-> SELinux10                      FAIL       2
-> SELinux11                      PASS       0
-> SELinux12                      PASS       0
-> SELinux13                      PASS       0
-> SELinux14                      PASS       0
-> SELinux15                      PASS       0
-> SELinux16                      PASS       0
-> SELinux17                      PASS       0
-> SELinux18                      PASS       0
-> SELinux19                      PASS       0
-> SELinux20                      PASS       0
-> SELinux21                      PASS       0
-> SELinux22                      PASS       0
-> SELinux23                      PASS       0
-> SELinux24                      PASS       0
-> SELinux25                      PASS       0
-> SELinux26                      PASS       0
-> SELinux27                      PASS       0
-> SELinux28                      FAIL       1
-> SELinux29                      FAIL       1
-> SELinux30                      PASS       0
-> SELinux31                      PASS       0
-> SELinux32                      PASS       0
-> SELinux33                      PASS       0
-> SELinux34                      PASS       0
-> SELinux35                      PASS       0
-> SELinux36                      PASS       0
-> SELinux37                      PASS       0
-> SELinux38                      PASS       0
-> 
-> -----------------------------------------------
-> Total Tests: 38
-> Total Failures: 4
-> Kernel Version: 2.6.18-53.el5
-> Machine Architecture: x86_64
-> ------------------------------------------------------------------------
-> 
-> ia64 does not compile:
-> ------------------------------------------------------------------------
-> make -C ltp-full-*/testcases/kernel/security/selinux-testsuite/tests
-> make[1]: Entering directory
-> `/mnt/tests/kernel/security/selinux/ltp-selinux/20071130/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests'
-> make[2]: Entering directory
-> `/mnt/tests/kernel/security/selinux/ltp-selinux/20071130/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests/domain_trans'
-> make[2]: Nothing to be done for `all'.
-> make[2]: Leaving directory
-> `/mnt/tests/kernel/security/selinux/ltp-selinux/20071130/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests/domain_trans'
-> make[2]: Entering directory
-> `/mnt/tests/kernel/security/selinux/ltp-selinux/20071130/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests/entrypoint'
-> make[2]: Nothing to be done for `all'.
-> make[2]: Leaving directory
-> `/mnt/tests/kernel/security/selinux/ltp-selinux/20071130/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests/entrypoint'
-> make[2]: Entering directory
-> `/mnt/tests/kernel/security/selinux/ltp-selinux/20071130/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests/execshare'
-> cc     selinux_execshare_child.c  -lselinux -o selinux_execshare_child
-> cc     selinux_execshare_parent.c  -lselinux -o selinux_execshare_parent
-> selinux_execshare_parent.c: In function ‘main’:
-> selinux_execshare_parent.c:80: warning: passing argument 1 of ‘clone’
-> from incompatible pointer type
-> /tmp/ccOYLyhB.o: In function `main':
-> selinux_execshare_parent.c:(.text+0x6f2): undefined reference to `clone'
-> collect2: ld returned 1 exit status
-> make[2]: *** [selinux_execshare_parent] Error 1
-> make[2]: Leaving directory
-> `/mnt/tests/kernel/security/selinux/ltp-selinux/20071130/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests/execshare'
-> make[1]: *** [all] Error 2
-> make[1]: Leaving directory
-> `/mnt/tests/kernel/security/selinux/ltp-selinux/20071130/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests'
-> make: *** [bldselinux] Error 2
-> ------------------------------------------------------------------------
-> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
