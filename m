@@ -1,68 +1,64 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBEJbr1n011129
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 14:37:53 -0500
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBEJbr9j029049
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 19:37:53 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id lBEJaF1k010199
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 14:36:15 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id lBEJaFiQ010198
-	for selinux@tycho.nsa.gov; Fri, 14 Dec 2007 14:36:15 -0500
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBEJVQBc010064
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 14:31:26 -0500
-Received: from dmzmta101.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBEJVP9j026307
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 19:31:25 GMT
-Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
-	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id lBEJTID4003999
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 14:29:18 -0500
-Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
-	by usdmta002.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id lBEJUOin026054
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 14:30:24 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: help with an avc denial
-Date: Fri, 14 Dec 2007 11:31:22 -0800
-Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD02773CB8@blums0008.bluelnk.net>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: <selinux@tycho.nsa.gov>
+Subject: Re: Network flow controls and subj/obj ordering
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1197660981.12626.231.camel@gorn>
+References: <200712111202.20074.paul.moore@hp.com>
+	 <200712121518.15454.paul.moore@hp.com>
+	 <1197555128.12626.205.camel@gorn.columbia.tresys.com>
+	 <200712131045.57681.paul.moore@hp.com>  <1197660312.12626.227.camel@gorn>
+	 <1197660650.31325.169.camel@moss-spartans.epoch.ncsc.mil>
+	 <1197660981.12626.231.camel@gorn>
+Content-Type: text/plain
+Date: Fri, 14 Dec 2007 14:43:24 -0500
+Message-Id: <1197661404.31325.173.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm running RHEL 5.1 with the mls policy.
+On Fri, 2007-12-14 at 14:36 -0500, Christopher J. PeBenito wrote:
+> On Fri, 2007-12-14 at 14:30 -0500, Stephen Smalley wrote:
+> > On Fri, 2007-12-14 at 14:25 -0500, Christopher J. PeBenito wrote:
+> > > On Thu, 2007-12-13 at 10:45 -0500, Paul Moore wrote:
+> > > > On Thursday 13 December 2007 9:12:08 am Christopher J. PeBenito wrote:
+> > > > > On Wed, 2007-12-12 at 15:18 -0500, Paul Moore wrote:
+> > > > > > Assuming labeled networking is enabled, a forwarded packet would
+> > > > > > hit four checks:
+> > > > > >
+> > > > > >  # inbound checks
+> > > > > >  allow netif_t peer_t:peer ingress;
+> > > > > >  allow netnode_t peer_t:peer ingress;
+> > > > > >  # outbound checks
+> > > > > >  allow netif_t peer_t:peer egress;
+> > > > > >  allow netnode_t peer_t:peer egress;
+> > > > >
+> > > > > This helps.  But this seems to be for the old networking, how does it
+> > > > > work with the secmark stuff?
+> > > > 
+> > > > It doesn't work with the SECMARK stuff, or rather it works in parallel 
+> > > > with the SECMARK stuff.  We've debated integrating the peer labeling 
+> > > > protocols (labeled IPsec, NetLabel) with the SECMARK mechanism many 
+> > > > times but in the end we always end up deciding it doesn't make sense.
+> > > 
+> > > So, with compat_net off, you'd still need the above policy, not the
+> > > packet type against the peer type?, e.g., not this:
+> > > 
+> > > allow ssh_client_packet_t peer_t:peer egress;
+> > 
+> > Correct, not that.  secmark remains a separate and orthogonal mechanism,
+> > with permission checks against the packet class (not the peer class),
+> > and the secmark label is only ever used for its checks.
+> 
+> The thing that confuses me is that I thought secmark was supposed to
+> replace netif/node for IP traffic.  So using the node/netif labels just
+> seems wrong to me.
 
-I'm getting an avc denial that I can't get past. Here are the entries
-from the audit log:
+secmark can replace the legacy netif/node checks.  It doesn't provide
+the desired functionality for labeled networking.
 
-type=AVC msg=audit(1197658847.835:9499): avc:  denied  { create } for
-pid=20432 comm="touch" name="tmp.log"
-scontext=sysadm_u:sysadm_r:sysadm_t:s0-s4:c0.c255
-tcontext=sysadm_u:object_r:audit_log_t:s0-s4:c0.c255 tclass=file
-type=SYSCALL msg=audit(1197658847.835:9499): arch=c000003e syscall=2
-success=no exit=-13 a0=7fff74eceb5c a1=941 a2=1b6 a3=328dd4b0ac items=0
-ppid=12410 pid=20432 auid=11000 uid=11000 gid=4500 euid=11000 suid=11000
-fsuid=11000 egid=4500 sgid=4500 fsgid=4500 tty=pts3 comm="touch"
-exe="/bin/touch" subj=sysadm_u:sysadm_r:sysadm_t:s0-s4:c0.c255
-key=(null)
-
-
-Here is what audit2allow returns:
-#============= sysadm_t ==============
-# src="sysadm_t" tgt="audit_log_t" class="file", perms="create"
-# comm="touch" exe="" path=""
-allow sysadm_t audit_log_t:file create;
-
-I have entered that exact allow rule into my policy to no effect.
-
-Audit2why indicates that the reason for the above audit log avc denial
-is a missing allow rule, as opposed to a constraint problem.
-
-Any help would be greatly appreciated.
-Thanks
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
