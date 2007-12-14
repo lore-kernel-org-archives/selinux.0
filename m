@@ -1,16 +1,16 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBELvJdD028615
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 16:57:19 -0500
-Received: from QMTA09.westchester.pa.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBELvIj8020890
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 21:57:18 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBELvOZS028660
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 16:57:24 -0500
+Received: from QMTA07.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBELvHIO020503
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 21:57:22 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v8 08/18] SELinux: Convert the netif code to use ifindex
-	values
+Subject: [RFC PATCH v8 11/18] SELinux: Add a capabilities bitmap to SELinux
+	policy version 22
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
 Cc: vyekkirala@TrustedCS.com, chanson@TrustedCS.com
-Date: Fri, 14 Dec 2007 16:50:36 -0500
-Message-ID: <20071214215036.10069.93442.stgit@flek.lan>
+Date: Fri, 14 Dec 2007 16:50:52 -0500
+Message-ID: <20071214215052.10069.2281.stgit@flek.lan>
 In-Reply-To: <20071214213548.10069.59135.stgit@flek.lan>
 References: <20071214213548.10069.59135.stgit@flek.lan>
 MIME-Version: 1.0
@@ -18,499 +18,425 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The current SELinux netif code requires the caller have a valid net_device
-struct pointer to lookup network interface information.  However, we don't
-always have a valid net_device pointer so convert the netif code to use
-the ifindex values we always have as part of the sk_buff.  This patch also
-removes the default message SID from the network interface record, it is
-not being used and therefore is "dead code".
+Add a new policy capabilities bitmap to SELinux policy version 22.  This bitmap
+will enable the security server to query the policy to determine which features
+it supports.
 ---
 
- security/selinux/hooks.c            |    4 -
- security/selinux/include/netif.h    |    4 -
- security/selinux/include/objsec.h   |    5 -
- security/selinux/include/security.h |    3 
- security/selinux/netif.c            |  254 ++++++++++++++++++++---------------
- security/selinux/ss/services.c      |   10 -
- 6 files changed, 155 insertions(+), 125 deletions(-)
+ security/selinux/Kconfig            |    2 -
+ security/selinux/include/security.h |   15 ++++++
+ security/selinux/selinuxfs.c        |   89 +++++++++++++++++++++++++++++++++--
+ security/selinux/ss/policydb.c      |   18 +++++++
+ security/selinux/ss/policydb.h      |    2 +
+ security/selinux/ss/services.c      |   67 ++++++++++++++++++++++++++
+ 6 files changed, 185 insertions(+), 8 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 2188b9c..2ca8dfb 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3616,7 +3616,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
- 	if (!skb->dev)
- 		goto out;
- 
--	err = sel_netif_sids(skb->dev, &if_sid, NULL);
-+	err = sel_netif_sid(skb->iif, &if_sid);
- 	if (err)
- 		goto out;
- 
-@@ -3942,7 +3942,7 @@ static int selinux_ip_postroute_last_compat(struct sock *sk, struct net_device *
- 
- 	isec = inode->i_security;
- 	
--	err = sel_netif_sids(dev, &if_sid, NULL);
-+	err = sel_netif_sid(dev->ifindex, &if_sid);
- 	if (err)
- 		goto out;
- 
-diff --git a/security/selinux/include/netif.h b/security/selinux/include/netif.h
-index 8bd6f99..ce23edd 100644
---- a/security/selinux/include/netif.h
-+++ b/security/selinux/include/netif.h
-@@ -7,6 +7,8 @@
-  * Author: James Morris <jmorris@redhat.com>
-  *
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-+ *                    Paul Moore, <paul.moore@hp.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2,
-@@ -15,7 +17,7 @@
- #ifndef _SELINUX_NETIF_H_
- #define _SELINUX_NETIF_H_
- 
--int sel_netif_sids(struct net_device *dev, u32 *if_sid, u32 *msg_sid);
-+int sel_netif_sid(int ifindex, u32 *sid);
- 
- #endif	/* _SELINUX_NETIF_H_ */
- 
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 642a9fd..e41a2aa 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -95,9 +95,8 @@ struct bprm_security_struct {
- };
- 
- struct netif_security_struct {
--	struct net_device *dev;		/* back pointer */
--	u32 if_sid;			/* SID for this interface */
--	u32 msg_sid;			/* default SID for messages received on this interface */
-+	int ifindex;			/* device index */
-+	u32 sid;			/* SID for this interface */
- };
- 
- struct sk_security_struct {
+diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+index b32a459..2b517d6 100644
+--- a/security/selinux/Kconfig
++++ b/security/selinux/Kconfig
+@@ -145,7 +145,7 @@ config SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ config SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ 	int "NSA SELinux maximum supported policy format version value"
+ 	depends on SECURITY_SELINUX_POLICYDB_VERSION_MAX
+-	range 15 21
++	range 15 22
+ 	default 19
+ 	help
+ 	  This option sets the value for the maximum policy format version
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 39337af..a33437b 100644
+index a33437b..a22de97 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -77,8 +77,7 @@ int security_get_user_sids(u32 callsid, char *username,
- int security_port_sid(u16 domain, u16 type, u8 protocol, u16 port,
- 	u32 *out_sid);
+@@ -25,13 +25,14 @@
+ #define POLICYDB_VERSION_MLS		19
+ #define POLICYDB_VERSION_AVTAB		20
+ #define POLICYDB_VERSION_RANGETRANS	21
++#define POLICYDB_VERSION_POLCAP		22
  
--int security_netif_sid(char *name, u32 *if_sid,
--	u32 *msg_sid);
-+int security_netif_sid(char *name, u32 *if_sid);
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+ #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ #else
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
+ #endif
  
- int security_node_sid(u16 domain, void *addr, u32 addrlen,
- 	u32 *out_sid);
-diff --git a/security/selinux/netif.c b/security/selinux/netif.c
-index e87ab94..ee49a73 100644
---- a/security/selinux/netif.c
-+++ b/security/selinux/netif.c
-@@ -7,6 +7,8 @@
-  * Author: James Morris <jmorris@redhat.com>
-  *
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-+ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-+ *                    Paul Moore <paul.moore@hp.com>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2,
-@@ -29,14 +31,6 @@
- #define SEL_NETIF_HASH_SIZE	64
- #define SEL_NETIF_HASH_MAX	1024
+ struct netlbl_lsm_secattr;
+@@ -39,8 +40,19 @@ struct netlbl_lsm_secattr;
+ extern int selinux_enabled;
+ extern int selinux_mls_enabled;
  
--#undef DEBUG
--
--#ifdef DEBUG
--#define DEBUGP printk
--#else
--#define DEBUGP(format, args...)
--#endif
--
- struct sel_netif
- {
- 	struct list_head list;
-@@ -49,174 +43,217 @@ static LIST_HEAD(sel_netif_list);
- static DEFINE_SPINLOCK(sel_netif_lock);
- static struct list_head sel_netif_hash[SEL_NETIF_HASH_SIZE];
- 
--static inline u32 sel_netif_hasfn(struct net_device *dev)
-+/**
-+ * sel_netif_hashfn - Hashing function for the interface table
-+ * @ifindex: the network interface
-+ *
-+ * Description:
-+ * This is the hashing function for the network interface table, it returns the
-+ * bucket number for the given interface.
-+ *
-+ */
-+static inline u32 sel_netif_hashfn(int ifindex)
- {
--	return (dev->ifindex & (SEL_NETIF_HASH_SIZE - 1));
-+	return (ifindex & (SEL_NETIF_HASH_SIZE - 1));
- }
- 
--/*
-- * All of the devices should normally fit in the hash, so we optimize
-- * for that case.
-+/**
-+ * sel_netif_find - Search for an interface record
-+ * @ifindex: the network interface
-+ *
-+ * Description:
-+ * Search the network interface table and return the record matching @ifindex.
-+ * If an entry can not be found in the table return NULL.
-+ *
-  */
--static inline struct sel_netif *sel_netif_find(struct net_device *dev)
-+static inline struct sel_netif *sel_netif_find(int ifindex)
- {
--	struct list_head *pos;
--	int idx = sel_netif_hasfn(dev);
-+	int idx = sel_netif_hashfn(ifindex);
-+	struct sel_netif *netif;
- 
--	__list_for_each_rcu(pos, &sel_netif_hash[idx]) {
--		struct sel_netif *netif = list_entry(pos,
--		                                     struct sel_netif, list);
--		if (likely(netif->nsec.dev == dev))
-+	list_for_each_entry_rcu(netif, &sel_netif_hash[idx], list)
-+		/* all of the devices should normally fit in the hash, so we
-+		 * optimize for that case */
-+		if (likely(netif->nsec.ifindex == ifindex))
- 			return netif;
--	}
++/* Policy capabilities */
++enum {
++	POLICYDB_CAPABILITY_NETPEER,
++	__POLICYDB_CAPABILITY_MAX
++};
++#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
 +
- 	return NULL;
++extern int selinux_policycap_netpeer;
++
+ int security_load_policy(void * data, size_t len);
+ 
++int security_policycap_supported(unsigned int req_cap);
++
+ #define SEL_VEC_MAX 32
+ struct av_decision {
+ 	u32 allowed;
+@@ -91,6 +103,7 @@ int security_get_classes(char ***classes, int *nclasses);
+ int security_get_permissions(char *class, char ***perms, int *nperms);
+ int security_get_reject_unknown(void);
+ int security_get_allow_unknown(void);
++int security_get_policycaps(int *len, int **values);
+ 
+ #define SECURITY_FS_USE_XATTR		1 /* use xattr */
+ #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 2fa483f..b87e9eb 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -2,6 +2,11 @@
+  *
+  * 	Added conditional policy language extensions
+  *
++ *  Updated: Hewlett-Packard <paul.moore@hp.com>
++ *
++ *      Added support for the policy capability bitmap
++ *
++ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
+  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
+  * Copyright (C) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
+  *	This program is free software; you can redistribute it and/or modify
+@@ -35,6 +40,11 @@
+ #include "objsec.h"
+ #include "conditional.h"
+ 
++/* Policy capability filenames */
++static char *policycap_names[] = {
++	"network_peer_controls"
++};
++
+ unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT
+@@ -72,6 +82,9 @@ static int *bool_pending_values = NULL;
+ static struct dentry *class_dir = NULL;
+ static unsigned long last_class_ino;
+ 
++/* global data for policy capabilities */
++static struct dentry *policycap_dir = NULL;
++
+ extern void selnl_notify_setenforce(int val);
+ 
+ /* Check whether a task is allowed to use a security operation. */
+@@ -111,10 +124,11 @@ enum sel_inos {
+ 
+ static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
+ 
+-#define SEL_INITCON_INO_OFFSET 	0x01000000
+-#define SEL_BOOL_INO_OFFSET	0x02000000
+-#define SEL_CLASS_INO_OFFSET	0x04000000
+-#define SEL_INO_MASK		0x00ffffff
++#define SEL_INITCON_INO_OFFSET		0x01000000
++#define SEL_BOOL_INO_OFFSET		0x02000000
++#define SEL_CLASS_INO_OFFSET		0x04000000
++#define SEL_POLICYCAP_INO_OFFSET	0x08000000
++#define SEL_INO_MASK			0x00ffffff
+ 
+ #define TMPBUFLEN	12
+ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
+@@ -263,6 +277,7 @@ static const struct file_operations sel_policyvers_ops = {
+ /* declaration for sel_write_load */
+ static int sel_make_bools(void);
+ static int sel_make_classes(void);
++static int sel_make_policycap(void);
+ 
+ /* declaration for sel_make_class_dirs */
+ static int sel_make_dir(struct inode *dir, struct dentry *dentry,
+@@ -323,6 +338,12 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
+ 	}
+ 
+ 	ret = sel_make_classes();
++	if (ret) {
++		length = ret;
++		goto out1;
++	}
++
++	ret = sel_make_policycap();
+ 	if (ret)
+ 		length = ret;
+ 	else
+@@ -1399,6 +1420,24 @@ static const struct file_operations sel_perm_ops = {
+ 	.read		= sel_read_perm,
+ };
+ 
++static ssize_t sel_read_policycap(struct file *file, char __user *buf,
++				  size_t count, loff_t *ppos)
++{
++	int value;
++	char tmpbuf[TMPBUFLEN];
++	ssize_t length;
++	unsigned long i_ino = file->f_path.dentry->d_inode->i_ino;
++
++	value = security_policycap_supported(i_ino & SEL_INO_MASK);
++	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", value);
++
++	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
++}
++
++static const struct file_operations sel_policycap_ops = {
++	.read		= sel_read_policycap,
++};
++
+ static int sel_make_perm_files(char *objclass, int classvalue,
+ 				struct dentry *dir)
+ {
+@@ -1545,6 +1584,36 @@ out:
+ 	return rc;
  }
  
-+/**
-+ * sel_netif_insert - Insert a new interface into the table
-+ * @netif: the new interface record
-+ *
-+ * Description:
-+ * Add a new interface record to the network interface hash table.  Returns
-+ * zero on success, negative values on failure.
-+ *
-+ */
- static int sel_netif_insert(struct sel_netif *netif)
- {
--	int idx, ret = 0;
-+	int idx;
- 	
--	if (sel_netif_total >= SEL_NETIF_HASH_MAX) {
--		ret = -ENOSPC;
--		goto out;
--	}
-+	if (sel_netif_total >= SEL_NETIF_HASH_MAX)
-+		return -ENOSPC;
- 	
--	idx = sel_netif_hasfn(netif->nsec.dev);
-+	idx = sel_netif_hashfn(netif->nsec.ifindex);
- 	list_add_rcu(&netif->list, &sel_netif_hash[idx]);
- 	sel_netif_total++;
--out:
--	return ret;
++static int sel_make_policycap(void)
++{
++	unsigned int iter;
++	struct dentry *dentry = NULL;
++	struct inode *inode = NULL;
++
++	sel_remove_entries(policycap_dir);
++
++	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
++		if (iter < ARRAY_SIZE(policycap_names))
++			dentry = d_alloc_name(policycap_dir,
++					      policycap_names[iter]);
++		else
++			dentry = d_alloc_name(policycap_dir, "unknown");
++
++		if (dentry == NULL)
++			return -ENOMEM;
++
++		inode = sel_make_inode(policycap_dir->d_sb, S_IFREG | S_IRUGO);
++		if (inode == NULL)
++			return -ENOMEM;
++
++		inode->i_fop = &sel_policycap_ops;
++		inode->i_ino = iter | SEL_POLICYCAP_INO_OFFSET;
++		d_add(dentry, inode);
++	}
 +
 +	return 0;
- }
- 
-+/**
-+ * sel_netif_free - Frees an interface entry
-+ * @p: the entry's RCU field
-+ *
-+ * Description:
-+ * This function is designed to be used as a callback to the call_rcu()
-+ * function so that memory allocated to a hash table interface entry can be
-+ * released safely.
-+ *
-+ */
- static void sel_netif_free(struct rcu_head *p)
- {
- 	struct sel_netif *netif = container_of(p, struct sel_netif, rcu_head);
--
--	DEBUGP("%s: %s\n", __FUNCTION__, netif->nsec.dev->name);
- 	kfree(netif);
- }
- 
-+/**
-+ * sel_netif_destroy - Remove an interface record from the table
-+ * @netif: the existing interface record
-+ *
-+ * Description:
-+ * Remove an existing interface record from the network interface table.
-+ *
-+ */
- static void sel_netif_destroy(struct sel_netif *netif)
- {
--	DEBUGP("%s: %s\n", __FUNCTION__, netif->nsec.dev->name);
--
- 	list_del_rcu(&netif->list);
- 	sel_netif_total--;
- 	call_rcu(&netif->rcu_head, sel_netif_free);
- }
- 
--static struct sel_netif *sel_netif_lookup(struct net_device *dev)
-+/**
-+ * sel_netif_sid_slow - Lookup the SID of a network interface using the policy
-+ * @ifindex: the network interface
-+ * @sid: interface SID
-+ *
-+ * Description:
-+ * This function determines the SID of a network interface by quering the
-+ * security policy.  The result is added to the network interface table to
-+ * speedup future queries.  Returns zero on success, negative values on
-+ * failure.
-+ *
-+ */
-+static int sel_netif_sid_slow(int ifindex, u32 *sid)
- {
- 	int ret;
--	struct sel_netif *netif, *new;
--	struct netif_security_struct *nsec;
-+	struct sel_netif *netif;
-+	struct sel_netif *new = NULL;
-+	struct net_device *dev;
- 
--	netif = sel_netif_find(dev);
--	if (likely(netif != NULL))
--		goto out;
--	
--	new = kzalloc(sizeof(*new), GFP_ATOMIC);
--	if (!new) {
--		netif = ERR_PTR(-ENOMEM);
--		goto out;
--	}
--	
--	nsec = &new->nsec;
-+	/* NOTE: we always use init's network namespace since we don't
-+	 * currently support containers */
- 
--	ret = security_netif_sid(dev->name, &nsec->if_sid, &nsec->msg_sid);
--	if (ret < 0) {
--		kfree(new);
--		netif = ERR_PTR(ret);
--		goto out;
--	}
-+	dev = dev_get_by_index(&init_net, ifindex);
-+	if (dev == NULL)
-+		return -ENOENT;
- 
--	nsec->dev = dev;
--	
- 	spin_lock_bh(&sel_netif_lock);
--	
--	netif = sel_netif_find(dev);
--	if (netif) {
--		spin_unlock_bh(&sel_netif_lock);
--		kfree(new);
-+	netif = sel_netif_find(ifindex);
-+	if (netif != NULL) {
-+		*sid = netif->nsec.sid;
-+		ret = 0;
- 		goto out;
- 	}
--	
--	ret = sel_netif_insert(new);
--	spin_unlock_bh(&sel_netif_lock);
--	
--	if (ret) {
--		kfree(new);
--		netif = ERR_PTR(ret);
-+	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-+	if (new == NULL) {
-+		ret = -ENOMEM;
- 		goto out;
- 	}
-+	ret = security_netif_sid(dev->name, &new->nsec.sid);
-+	if (ret != 0)
-+		goto out;
-+	new->nsec.ifindex = ifindex;
-+	ret = sel_netif_insert(new);
-+	if (ret != 0)
-+		goto out;
-+	*sid = new->nsec.sid;
- 
--	netif = new;
--	
--	DEBUGP("new: ifindex=%u name=%s if_sid=%u msg_sid=%u\n", dev->ifindex, dev->name,
--	        nsec->if_sid, nsec->msg_sid);
- out:
--	return netif;
--}
--
--static void sel_netif_assign_sids(u32 if_sid_in, u32 msg_sid_in, u32 *if_sid_out, u32 *msg_sid_out)
--{
--	if (if_sid_out)
--		*if_sid_out = if_sid_in;
--	if (msg_sid_out)
--		*msg_sid_out = msg_sid_in;
--}
--
--static int sel_netif_sids_slow(struct net_device *dev, u32 *if_sid, u32 *msg_sid)
--{
--	int ret = 0;
--	u32 tmp_if_sid, tmp_msg_sid;
--	
--	ret = security_netif_sid(dev->name, &tmp_if_sid, &tmp_msg_sid);
--	if (!ret)
--		sel_netif_assign_sids(tmp_if_sid, tmp_msg_sid, if_sid, msg_sid);
-+	spin_unlock_bh(&sel_netif_lock);
-+	dev_put(dev);
-+	if (ret != 0)
-+		kfree(new);
- 	return ret;
- }
- 
--int sel_netif_sids(struct net_device *dev, u32 *if_sid, u32 *msg_sid)
-+/**
-+ * sel_netif_sid - Lookup the SID of a network interface
-+ * @ifindex: the network interface
-+ * @sid: interface SID
-+ *
-+ * Description:
-+ * This function determines the SID of a network interface using the fastest
-+ * method possible.  First the interface table is queried, but if an entry
-+ * can't be found then the policy is queried and the result is added to the
-+ * table to speedup future queries.  Returns zero on success, negative values
-+ * on failure.
-+ *
-+ */
-+int sel_netif_sid(int ifindex, u32 *sid)
- {
--	int ret = 0;
- 	struct sel_netif *netif;
- 
- 	rcu_read_lock();
--	netif = sel_netif_lookup(dev);
--	if (IS_ERR(netif)) {
-+	netif = sel_netif_find(ifindex);
-+	if (likely(netif != NULL)) {
-+		*sid = netif->nsec.sid;
- 		rcu_read_unlock();
--		ret = sel_netif_sids_slow(dev, if_sid, msg_sid);
--		goto out;
-+		return 0;
- 	}
--	sel_netif_assign_sids(netif->nsec.if_sid, netif->nsec.msg_sid, if_sid, msg_sid);
- 	rcu_read_unlock();
--out:
--	return ret;
++}
 +
-+	return sel_netif_sid_slow(ifindex, sid);
- }
- 
--static void sel_netif_kill(struct net_device *dev)
-+/**
-+ * sel_netif_kill - Remove an entry from the network interface table
-+ * @ifindex: the network interface
-+ *
-+ * Description:
-+ * This function removes the entry matching @ifindex from the network interface
-+ * table if it exists.
-+ *
-+ */
-+static void sel_netif_kill(int ifindex)
+ static int sel_make_dir(struct inode *dir, struct dentry *dentry,
+ 			unsigned long *ino)
  {
- 	struct sel_netif *netif;
+@@ -1673,6 +1742,18 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
  
- 	spin_lock_bh(&sel_netif_lock);
--	netif = sel_netif_find(dev);
-+	netif = sel_netif_find(ifindex);
- 	if (netif)
- 		sel_netif_destroy(netif);
- 	spin_unlock_bh(&sel_netif_lock);
- }
+ 	class_dir = dentry;
  
-+/**
-+ * sel_netif_flush - Flush the entire network interface table
++	dentry = d_alloc_name(sb->s_root, "policy_capabilities");
++	if (!dentry) {
++		ret = -ENOMEM;
++		goto err;
++	}
++
++	ret = sel_make_dir(root_inode, dentry, &sel_last_ino);
++	if (ret)
++		goto err;
++
++	policycap_dir = dentry;
++
+ out:
+ 	return ret;
+ err:
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index b582aae..bd7d6a0 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -13,6 +13,11 @@
+  *
+  * 	Added conditional policy language extensions
+  *
++ * Updated: Hewlett-Packard <paul.moore@hp.com>
 + *
-+ * Description:
-+ * Remove all entries from the network interface table.
++ *      Added support for the policy capability bitmap
 + *
-+ */
- static void sel_netif_flush(void)
- {
- 	int idx;
-+	struct sel_netif *netif;
++ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
+  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
+  *	This program is free software; you can redistribute it and/or modify
+@@ -102,6 +107,11 @@ static struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num        = SYM_NUM,
+ 		.ocon_num       = OCON_NUM,
+ 	},
++	{
++		.version	= POLICYDB_VERSION_POLCAP,
++		.sym_num	= SYM_NUM,
++		.ocon_num	= OCON_NUM,
++	}
+ };
  
- 	spin_lock_bh(&sel_netif_lock);
--	for (idx = 0; idx < SEL_NETIF_HASH_SIZE; idx++) {
--		struct sel_netif *netif;
--		
-+	for (idx = 0; idx < SEL_NETIF_HASH_SIZE; idx++)
- 		list_for_each_entry(netif, &sel_netif_hash[idx], list)
- 			sel_netif_destroy(netif);
--	}
- 	spin_unlock_bh(&sel_netif_lock);
+ static struct policydb_compat_info *policydb_lookup_compat(int version)
+@@ -183,6 +193,8 @@ static int policydb_init(struct policydb *p)
+ 	if (rc)
+ 		goto out_free_symtab;
+ 
++	ebitmap_init(&p->policycaps);
++
+ out:
+ 	return rc;
+ 
+@@ -673,8 +685,8 @@ void policydb_destroy(struct policydb *p)
+ 			ebitmap_destroy(&p->type_attr_map[i]);
+ 	}
+ 	kfree(p->type_attr_map);
+-
+ 	kfree(p->undefined_perms);
++	ebitmap_destroy(&p->policycaps);
+ 
+ 	return;
  }
+@@ -1554,6 +1566,10 @@ int policydb_read(struct policydb *p, void *fp)
+ 	p->reject_unknown = !!(le32_to_cpu(buf[1]) & REJECT_UNKNOWN);
+ 	p->allow_unknown = !!(le32_to_cpu(buf[1]) & ALLOW_UNKNOWN);
  
-@@ -239,7 +276,7 @@ static int sel_netif_netdev_notifier_handler(struct notifier_block *this,
- 		return NOTIFY_DONE;
++	if (p->policyvers >= POLICYDB_VERSION_POLCAP &&
++	    ebitmap_read(&p->policycaps, fp) != 0)
++		goto bad;
++
+ 	info = policydb_lookup_compat(p->policyvers);
+ 	if (!info) {
+ 		printk(KERN_ERR "security:  unable to find policy compat info "
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index ed6fc68..c4ce996 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -241,6 +241,8 @@ struct policydb {
+ 	/* type -> attribute reverse mapping */
+ 	struct ebitmap *type_attr_map;
  
- 	if (event == NETDEV_DOWN)
--		sel_netif_kill(dev);
-+		sel_netif_kill(dev->ifindex);
++	struct ebitmap policycaps;
++
+ 	unsigned int policyvers;
  
- 	return NOTIFY_DONE;
- }
-@@ -250,10 +287,10 @@ static struct notifier_block sel_netif_netdev_notifier = {
- 
- static __init int sel_netif_init(void)
- {
--	int i, err = 0;
-+	int i, err;
- 	
- 	if (!selinux_enabled)
--		goto out;
-+		return 0;
- 
- 	for (i = 0; i < SEL_NETIF_HASH_SIZE; i++)
- 		INIT_LIST_HEAD(&sel_netif_hash[i]);
-@@ -265,7 +302,6 @@ static __init int sel_netif_init(void)
- 	if (err)
- 		panic("avc_add_callback() failed, error %d\n", err);
- 
--out:
- 	return err;
- }
- 
+ 	unsigned int reject_unknown : 1;
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 88fcd57..d4cc878 100644
+index d4cc878..1e78786 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
-@@ -1478,11 +1478,8 @@ out:
-  * security_netif_sid - Obtain the SID for a network interface.
-  * @name: interface name
-  * @if_sid: interface SID
-- * @msg_sid: default SID for received packets
-  */
--int security_netif_sid(char *name,
--		       u32 *if_sid,
--		       u32 *msg_sid)
-+int security_netif_sid(char *name, u32 *if_sid)
- {
- 	int rc = 0;
- 	struct ocontext *c;
-@@ -1510,11 +1507,8 @@ int security_netif_sid(char *name,
- 				goto out;
- 		}
- 		*if_sid = c->sid[0];
--		*msg_sid = c->sid[1];
--	} else {
-+	} else
- 		*if_sid = SECINITSID_NETIF;
--		*msg_sid = SECINITSID_NETMSG;
--	}
+@@ -16,12 +16,13 @@
+  * Updated: Hewlett-Packard <paul.moore@hp.com>
+  *
+  *      Added support for NetLabel
++ *      Added support for the policy capability bitmap
+  *
+  * Updated: Chad Sellers <csellers@tresys.com>
+  *
+  *  Added validation of kernel classes and permissions
+  *
+- * Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
++ * Copyright (C) 2006, 2007 Hewlett-Packard Development Company, L.P.
+  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
+  * Copyright (C) 2003 - 2004, 2006 Tresys Technology, LLC
+  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
+@@ -59,6 +60,8 @@
+ extern void selnl_notify_policyload(u32 seqno);
+ unsigned int policydb_loaded_version;
  
- out:
- 	POLICY_RDUNLOCK;
++int selinux_policycap_netpeer;
++
+ /*
+  * This is declared in avc.c
+  */
+@@ -1299,6 +1302,12 @@ bad:
+ 	goto out;
+ }
+ 
++static void security_load_policycaps(void)
++{
++	selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
++						  POLICYDB_CAPABILITY_NETPEER);
++}
++
+ extern void selinux_complete_init(void);
+ static int security_preserve_bools(struct policydb *p);
+ 
+@@ -1346,6 +1355,7 @@ int security_load_policy(void *data, size_t len)
+ 			avtab_cache_destroy();
+ 			return -EINVAL;
+ 		}
++		security_load_policycaps();
+ 		policydb_loaded_version = policydb.policyvers;
+ 		ss_initialized = 1;
+ 		seqno = ++latest_granting;
+@@ -1404,6 +1414,7 @@ int security_load_policy(void *data, size_t len)
+ 	POLICY_WRLOCK;
+ 	memcpy(&policydb, &newpolicydb, sizeof policydb);
+ 	sidtab_set(&sidtab, &newsidtab);
++	security_load_policycaps();
+ 	seqno = ++latest_granting;
+ 	policydb_loaded_version = policydb.policyvers;
+ 	POLICY_WRUNLOCK;
+@@ -2145,6 +2156,60 @@ int security_get_allow_unknown(void)
+ 	return policydb.allow_unknown;
+ }
+ 
++/**
++ * security_get_policycaps - Query the loaded policy for its capabilities
++ * @len: the number of capability bits
++ * @values: the capability bit array
++ *
++ * Description:
++ * Get an array of the policy capabilities in @values where each entry in
++ * @values is either true (1) or false (0) depending the policy's support of
++ * that feature.  The policy capabilities are defined by the
++ * POLICYDB_CAPABILITY_* enums.  The size of the array is stored in @len and it
++ * is up to the caller to free the array in @values.  Returns zero on success,
++ * negative values on failure.
++ *
++ */
++int security_get_policycaps(int *len, int **values)
++{
++	int rc = -ENOMEM;
++	unsigned int iter;
++
++	POLICY_RDLOCK;
++
++	*values = kcalloc(POLICYDB_CAPABILITY_MAX, sizeof(int), GFP_ATOMIC);
++	if (*values == NULL)
++		goto out;
++	for (iter = 0; iter < POLICYDB_CAPABILITY_MAX; iter++)
++		(*values)[iter] = ebitmap_get_bit(&policydb.policycaps, iter);
++	*len = POLICYDB_CAPABILITY_MAX;
++
++out:
++	POLICY_RDUNLOCK;
++	return rc;
++}
++
++/**
++ * security_policycap_supported - Check for a specific policy capability
++ * @req_cap: capability
++ *
++ * Description:
++ * This function queries the currently loaded policy to see if it supports the
++ * capability specified by @req_cap.  Returns true (1) if the capability is
++ * supported, false (0) if it isn't supported.
++ *
++ */
++int security_policycap_supported(unsigned int req_cap)
++{
++	int rc;
++
++	POLICY_RDLOCK;
++	rc = ebitmap_get_bit(&policydb.policycaps, req_cap);
++	POLICY_RDUNLOCK;
++
++	return rc;
++}
++
+ struct selinux_audit_rule {
+ 	u32 au_seqno;
+ 	struct context au_ctxt;
 
 
 --
