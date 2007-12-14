@@ -1,61 +1,56 @@
-Subject: Re: Network flow controls and subj/obj ordering
+Subject: Re: help with an avc denial
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
-In-Reply-To: <1197660981.12626.231.camel@gorn>
-References: <200712111202.20074.paul.moore@hp.com>
-	 <200712121518.15454.paul.moore@hp.com>
-	 <1197555128.12626.205.camel@gorn.columbia.tresys.com>
-	 <200712131045.57681.paul.moore@hp.com>  <1197660312.12626.227.camel@gorn>
-	 <1197660650.31325.169.camel@moss-spartans.epoch.ncsc.mil>
-	 <1197660981.12626.231.camel@gorn>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD02773CB8@blums0008.bluelnk.net>
+References: <FB39F4E77226B448BC1388D3BE4E00CD02773CB8@blums0008.bluelnk.net>
 Content-Type: text/plain
-Date: Fri, 14 Dec 2007 14:43:24 -0500
-Message-Id: <1197661404.31325.173.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 14 Dec 2007 14:44:47 -0500
+Message-Id: <1197661487.31325.175.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-12-14 at 14:36 -0500, Christopher J. PeBenito wrote:
-> On Fri, 2007-12-14 at 14:30 -0500, Stephen Smalley wrote:
-> > On Fri, 2007-12-14 at 14:25 -0500, Christopher J. PeBenito wrote:
-> > > On Thu, 2007-12-13 at 10:45 -0500, Paul Moore wrote:
-> > > > On Thursday 13 December 2007 9:12:08 am Christopher J. PeBenito wrote:
-> > > > > On Wed, 2007-12-12 at 15:18 -0500, Paul Moore wrote:
-> > > > > > Assuming labeled networking is enabled, a forwarded packet would
-> > > > > > hit four checks:
-> > > > > >
-> > > > > >  # inbound checks
-> > > > > >  allow netif_t peer_t:peer ingress;
-> > > > > >  allow netnode_t peer_t:peer ingress;
-> > > > > >  # outbound checks
-> > > > > >  allow netif_t peer_t:peer egress;
-> > > > > >  allow netnode_t peer_t:peer egress;
-> > > > >
-> > > > > This helps.  But this seems to be for the old networking, how does it
-> > > > > work with the secmark stuff?
-> > > > 
-> > > > It doesn't work with the SECMARK stuff, or rather it works in parallel 
-> > > > with the SECMARK stuff.  We've debated integrating the peer labeling 
-> > > > protocols (labeled IPsec, NetLabel) with the SECMARK mechanism many 
-> > > > times but in the end we always end up deciding it doesn't make sense.
-> > > 
-> > > So, with compat_net off, you'd still need the above policy, not the
-> > > packet type against the peer type?, e.g., not this:
-> > > 
-> > > allow ssh_client_packet_t peer_t:peer egress;
-> > 
-> > Correct, not that.  secmark remains a separate and orthogonal mechanism,
-> > with permission checks against the packet class (not the peer class),
-> > and the secmark label is only ever used for its checks.
+On Fri, 2007-12-14 at 11:31 -0800, Clarkson, Mike R (US SSA) wrote:
+> I'm running RHEL 5.1 with the mls policy.
 > 
-> The thing that confuses me is that I thought secmark was supposed to
-> replace netif/node for IP traffic.  So using the node/netif labels just
-> seems wrong to me.
+> I'm getting an avc denial that I can't get past. Here are the entries
+> from the audit log:
+> 
+> type=AVC msg=audit(1197658847.835:9499): avc:  denied  { create } for
+> pid=20432 comm="touch" name="tmp.log"
+> scontext=sysadm_u:sysadm_r:sysadm_t:s0-s4:c0.c255
+> tcontext=sysadm_u:object_r:audit_log_t:s0-s4:c0.c255 tclass=file
 
-secmark can replace the legacy netif/node checks.  It doesn't provide
-the desired functionality for labeled networking.
+A file should be single level, not ranged.
 
+> type=SYSCALL msg=audit(1197658847.835:9499): arch=c000003e syscall=2
+> success=no exit=-13 a0=7fff74eceb5c a1=941 a2=1b6 a3=328dd4b0ac items=0
+> ppid=12410 pid=20432 auid=11000 uid=11000 gid=4500 euid=11000 suid=11000
+> fsuid=11000 egid=4500 sgid=4500 fsgid=4500 tty=pts3 comm="touch"
+> exe="/bin/touch" subj=sysadm_u:sysadm_r:sysadm_t:s0-s4:c0.c255
+> key=(null)
+> 
+> 
+> Here is what audit2allow returns:
+> #============= sysadm_t ==============
+> # src="sysadm_t" tgt="audit_log_t" class="file", perms="create"
+> # comm="touch" exe="" path=""
+> allow sysadm_t audit_log_t:file create;
+> 
+> I have entered that exact allow rule into my policy to no effect.
+> 
+> Audit2why indicates that the reason for the above audit log avc denial
+> is a missing allow rule, as opposed to a constraint problem.
+> 
+> Any help would be greatly appreciated.
+> Thanks
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
