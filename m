@@ -1,16 +1,16 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBELvOZS028660
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 16:57:24 -0500
-Received: from QMTA07.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBELvHIO020503
-	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 21:57:22 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBELvLBK028627
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 16:57:21 -0500
+Received: from QMTA03.westchester.pa.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBELvJj8020897
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 21:57:19 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v8 11/18] SELinux: Add a capabilities bitmap to SELinux
-	policy version 22
+Subject: [RFC PATCH v8 10/18] SELinux: Add a network node caching mechanism
+	similar to the sel_netif_*() functions
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
 Cc: vyekkirala@TrustedCS.com, chanson@TrustedCS.com
-Date: Fri, 14 Dec 2007 16:50:52 -0500
-Message-ID: <20071214215052.10069.2281.stgit@flek.lan>
+Date: Fri, 14 Dec 2007 16:50:46 -0500
+Message-ID: <20071214215046.10069.12365.stgit@flek.lan>
 In-Reply-To: <20071214213548.10069.59135.stgit@flek.lan>
 References: <20071214213548.10069.59135.stgit@flek.lan>
 MIME-Version: 1.0
@@ -18,425 +18,593 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a new policy capabilities bitmap to SELinux policy version 22.  This bitmap
-will enable the security server to query the policy to determine which features
-it supports.
+This patch adds a SELinux IP address/node SID caching mechanism similar to the
+sel_netif_*() functions.  The node SID queries in the SELinux hooks files are
+also modified to take advantage of this new functionality.  In addition, remove
+the address length information from the sk_buff parsing routines as it is
+redundant since we already have the address family.
 ---
 
- security/selinux/Kconfig            |    2 -
- security/selinux/include/security.h |   15 ++++++
- security/selinux/selinuxfs.c        |   89 +++++++++++++++++++++++++++++++++--
- security/selinux/ss/policydb.c      |   18 +++++++
- security/selinux/ss/policydb.h      |    2 +
- security/selinux/ss/services.c      |   67 ++++++++++++++++++++++++++
- 6 files changed, 185 insertions(+), 8 deletions(-)
+ security/selinux/Makefile          |    9 +
+ security/selinux/hooks.c           |   33 ++-
+ security/selinux/include/netnode.h |   32 +++
+ security/selinux/include/objsec.h  |    9 +
+ security/selinux/netnode.c         |  351 ++++++++++++++++++++++++++++++++++++
+ 5 files changed, 417 insertions(+), 17 deletions(-)
 
-diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-index b32a459..2b517d6 100644
---- a/security/selinux/Kconfig
-+++ b/security/selinux/Kconfig
-@@ -145,7 +145,7 @@ config SECURITY_SELINUX_POLICYDB_VERSION_MAX
- config SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
- 	int "NSA SELinux maximum supported policy format version value"
- 	depends on SECURITY_SELINUX_POLICYDB_VERSION_MAX
--	range 15 21
-+	range 15 22
- 	default 19
- 	help
- 	  This option sets the value for the maximum policy format version
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index a33437b..a22de97 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -25,13 +25,14 @@
- #define POLICYDB_VERSION_MLS		19
- #define POLICYDB_VERSION_AVTAB		20
- #define POLICYDB_VERSION_RANGETRANS	21
-+#define POLICYDB_VERSION_POLCAP		22
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index dc3502e..00afd85 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -4,7 +4,14 @@
  
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
- #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
- #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
- #else
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_RANGETRANS
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
- #endif
+ obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
  
- struct netlbl_lsm_secattr;
-@@ -39,8 +40,19 @@ struct netlbl_lsm_secattr;
- extern int selinux_enabled;
- extern int selinux_mls_enabled;
+-selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o exports.o
++selinux-y := avc.o \
++	     hooks.o \
++	     selinuxfs.o \
++	     netlink.o \
++	     nlmsgtab.o \
++	     netif.o \
++	     netnode.o \
++	     exports.o
  
-+/* Policy capabilities */
-+enum {
-+	POLICYDB_CAPABILITY_NETPEER,
-+	__POLICYDB_CAPABILITY_MAX
-+};
-+#define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-+
-+extern int selinux_policycap_netpeer;
-+
- int security_load_policy(void * data, size_t len);
+ selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
  
-+int security_policycap_supported(unsigned int req_cap);
-+
- #define SEL_VEC_MAX 32
- struct av_decision {
- 	u32 allowed;
-@@ -91,6 +103,7 @@ int security_get_classes(char ***classes, int *nclasses);
- int security_get_permissions(char *class, char ***perms, int *nperms);
- int security_get_reject_unknown(void);
- int security_get_allow_unknown(void);
-+int security_get_policycaps(int *len, int **values);
- 
- #define SECURITY_FS_USE_XATTR		1 /* use xattr */
- #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 2fa483f..b87e9eb 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -2,6 +2,11 @@
-  *
-  * 	Added conditional policy language extensions
-  *
-+ *  Updated: Hewlett-Packard <paul.moore@hp.com>
-+ *
-+ *      Added support for the policy capability bitmap
-+ *
-+ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-  * Copyright (C) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
-  *	This program is free software; you can redistribute it and/or modify
-@@ -35,6 +40,11 @@
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e429a8c..05b58cc 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -76,6 +76,7 @@
+ #include "avc.h"
  #include "objsec.h"
- #include "conditional.h"
+ #include "netif.h"
++#include "netnode.h"
+ #include "xfrm.h"
+ #include "netlabel.h"
  
-+/* Policy capability filenames */
-+static char *policycap_names[] = {
-+	"network_peer_controls"
-+};
-+
- unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+@@ -3158,7 +3159,7 @@ out:
+ #endif /* IPV6 */
  
- #ifdef CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT
-@@ -72,6 +82,9 @@ static int *bool_pending_values = NULL;
- static struct dentry *class_dir = NULL;
- static unsigned long last_class_ino;
- 
-+/* global data for policy capabilities */
-+static struct dentry *policycap_dir = NULL;
-+
- extern void selnl_notify_setenforce(int val);
- 
- /* Check whether a task is allowed to use a security operation. */
-@@ -111,10 +124,11 @@ enum sel_inos {
- 
- static unsigned long sel_last_ino = SEL_INO_NEXT - 1;
- 
--#define SEL_INITCON_INO_OFFSET 	0x01000000
--#define SEL_BOOL_INO_OFFSET	0x02000000
--#define SEL_CLASS_INO_OFFSET	0x04000000
--#define SEL_INO_MASK		0x00ffffff
-+#define SEL_INITCON_INO_OFFSET		0x01000000
-+#define SEL_BOOL_INO_OFFSET		0x02000000
-+#define SEL_CLASS_INO_OFFSET		0x04000000
-+#define SEL_POLICYCAP_INO_OFFSET	0x08000000
-+#define SEL_INO_MASK			0x00ffffff
- 
- #define TMPBUFLEN	12
- static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
-@@ -263,6 +277,7 @@ static const struct file_operations sel_policyvers_ops = {
- /* declaration for sel_write_load */
- static int sel_make_bools(void);
- static int sel_make_classes(void);
-+static int sel_make_policycap(void);
- 
- /* declaration for sel_make_class_dirs */
- static int sel_make_dir(struct inode *dir, struct dentry *dentry,
-@@ -323,6 +338,12 @@ static ssize_t sel_write_load(struct file * file, const char __user * buf,
- 	}
- 
- 	ret = sel_make_classes();
-+	if (ret) {
-+		length = ret;
-+		goto out1;
-+	}
-+
-+	ret = sel_make_policycap();
- 	if (ret)
- 		length = ret;
- 	else
-@@ -1399,6 +1420,24 @@ static const struct file_operations sel_perm_ops = {
- 	.read		= sel_read_perm,
- };
- 
-+static ssize_t sel_read_policycap(struct file *file, char __user *buf,
-+				  size_t count, loff_t *ppos)
-+{
-+	int value;
-+	char tmpbuf[TMPBUFLEN];
-+	ssize_t length;
-+	unsigned long i_ino = file->f_path.dentry->d_inode->i_ino;
-+
-+	value = security_policycap_supported(i_ino & SEL_INO_MASK);
-+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", value);
-+
-+	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
-+}
-+
-+static const struct file_operations sel_policycap_ops = {
-+	.read		= sel_read_policycap,
-+};
-+
- static int sel_make_perm_files(char *objclass, int classvalue,
- 				struct dentry *dir)
+ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+-			     char **addrp, int *len, int src, u8 *proto)
++			     char **addrp, int src, u8 *proto)
  {
-@@ -1545,6 +1584,36 @@ out:
- 	return rc;
+ 	int ret = 0;
+ 
+@@ -3167,7 +3168,6 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+ 		ret = selinux_parse_skb_ipv4(skb, ad, proto);
+ 		if (ret || !addrp)
+ 			break;
+-		*len = 4;
+ 		*addrp = (char *)(src ? &ad->u.net.v4info.saddr :
+ 					&ad->u.net.v4info.daddr);
+ 		break;
+@@ -3177,7 +3177,6 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+ 		ret = selinux_parse_skb_ipv6(skb, ad, proto);
+ 		if (ret || !addrp)
+ 			break;
+-		*len = 16;
+ 		*addrp = (char *)(src ? &ad->u.net.v6info.saddr :
+ 					&ad->u.net.v6info.daddr);
+ 		break;
+@@ -3377,7 +3376,7 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 			break;
+ 		}
+ 		
+-		err = security_node_sid(family, addrp, addrlen, &sid);
++		err = sel_netnode_sid(addrp, family, &sid);
+ 		if (err)
+ 			goto out;
+ 		
+@@ -3589,7 +3588,8 @@ static int selinux_socket_unix_may_send(struct socket *sock,
  }
  
-+static int sel_make_policycap(void)
+ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+-		struct avc_audit_data *ad, u16 family, char *addrp, int len)
++				       struct avc_audit_data *ad,
++				       u16 family, char *addrp)
+ {
+ 	int err = 0;
+ 	u32 netif_perm, node_perm, node_sid, if_sid, recv_perm = 0;
+@@ -3649,7 +3649,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 	if (err)
+ 		goto out;
+ 	
+-	err = security_node_sid(family, addrp, len, &node_sid);
++	err = sel_netnode_sid(addrp, family, &node_sid);
+ 	if (err)
+ 		goto out;
+ 	
+@@ -3678,7 +3678,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ {
+ 	u16 family;
+ 	char *addrp;
+-	int len, err = 0;
++	int err = 0;
+ 	struct avc_audit_data ad;
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+@@ -3694,13 +3694,12 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	ad.u.net.netif = skb->iif;
+ 	ad.u.net.family = family;
+ 
+-	err = selinux_parse_skb(skb, &ad, &addrp, &len, 1, NULL);
++	err = selinux_parse_skb(skb, &ad, &addrp, 1, NULL);
+ 	if (err)
+ 		goto out;
+ 
+ 	if (selinux_compat_net)
+-		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family,
+-						  addrp, len);
++		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family, addrp);
+ 	else
+ 		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
+ 				   PACKET__RECV, &ad);
+@@ -3922,9 +3921,11 @@ out:
+ 
+ #ifdef CONFIG_NETFILTER
+ 
+-static int selinux_ip_postroute_last_compat(struct sock *sk, struct net_device *dev,
++static int selinux_ip_postroute_last_compat(struct sock *sk,
++					    struct net_device *dev,
+ 					    struct avc_audit_data *ad,
+-					    u16 family, char *addrp, int len)
++					    u16 family,
++					    char *addrp)
+ {
+ 	int err = 0;
+ 	u32 netif_perm, node_perm, node_sid, if_sid, send_perm = 0;
+@@ -3975,7 +3976,7 @@ static int selinux_ip_postroute_last_compat(struct sock *sk, struct net_device *
+ 	if (err)
+ 		goto out;
+ 		
+-	err = security_node_sid(family, addrp, len, &node_sid);
++	err = sel_netnode_sid(addrp, family, &node_sid);
+ 	if (err)
+ 		goto out;
+ 	
+@@ -4009,7 +4010,7 @@ static unsigned int selinux_ip_postroute_last(unsigned int hooknum,
+                                               u16 family)
+ {
+ 	char *addrp;
+-	int len, err = 0;
++	int err = 0;
+ 	struct sock *sk;
+ 	struct avc_audit_data ad;
+ 	struct net_device *dev = (struct net_device *)out;
+@@ -4026,13 +4027,13 @@ static unsigned int selinux_ip_postroute_last(unsigned int hooknum,
+ 	ad.u.net.netif = dev->ifindex;
+ 	ad.u.net.family = family;
+ 
+-	err = selinux_parse_skb(skb, &ad, &addrp, &len, 0, &proto);
++	err = selinux_parse_skb(skb, &ad, &addrp, 0, &proto);
+ 	if (err)
+ 		goto out;
+ 
+ 	if (selinux_compat_net)
+ 		err = selinux_ip_postroute_last_compat(sk, dev, &ad,
+-						       family, addrp, len);
++						       family, addrp);
+ 	else
+ 		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
+ 				   PACKET__SEND, &ad);
+diff --git a/security/selinux/include/netnode.h b/security/selinux/include/netnode.h
+new file mode 100644
+index 0000000..1b94450
+--- /dev/null
++++ b/security/selinux/include/netnode.h
+@@ -0,0 +1,32 @@
++/*
++ * Network node table
++ *
++ * SELinux must keep a mapping of network nodes to labels/SIDs.  This
++ * mapping is maintained as part of the normal policy but a fast cache is
++ * needed to reduce the lookup overhead since most of these queries happen on
++ * a per-packet basis.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2007
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of version 2 of the GNU General Public License as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#ifndef _SELINUX_NETNODE_H
++#define _SELINUX_NETNODE_H
++
++int sel_netnode_sid(void *addr, u16 family, u32 *sid);
++
++#endif
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index e41a2aa..6140734 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -99,6 +99,15 @@ struct netif_security_struct {
+ 	u32 sid;			/* SID for this interface */
+ };
+ 
++struct netnode_security_struct {
++	union {
++		__be32 ipv4;		/* IPv4 node address */
++		struct in6_addr ipv6;	/* IPv6 node address */
++	} addr;
++	u32 sid;			/* SID for this node */
++	u16 family;			/* address family */
++};
++
+ struct sk_security_struct {
+ 	struct sock *sk;		/* back pointer to sk object */
+ 	u32 sid;			/* SID of this object */
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+new file mode 100644
+index 0000000..0cd66b8
+--- /dev/null
++++ b/security/selinux/netnode.c
+@@ -0,0 +1,351 @@
++/*
++ * Network node table
++ *
++ * SELinux must keep a mapping of network nodes to labels/SIDs.  This
++ * mapping is maintained as part of the normal policy but a fast cache is
++ * needed to reduce the lookup overhead since most of these queries happen on
++ * a per-packet basis.
++ *
++ * Author: Paul Moore <paul.moore@hp.com>
++ *
++ * This code is heavily based on the "netif" concept originally developed by
++ * James Morris <jmorris@redhat.com>
++ *   (see security/selinux/netif.c for more information)
++ * 
++ */
++
++/*
++ * (c) Copyright Hewlett-Packard Development Company, L.P., 2007
++ *
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of version 2 of the GNU General Public License as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include <linux/types.h>
++#include <linux/rcupdate.h>
++#include <linux/list.h>
++#include <linux/spinlock.h>
++#include <linux/in.h>
++#include <linux/in6.h>
++#include <linux/ip.h>
++#include <linux/ipv6.h>
++#include <net/ip.h>
++#include <net/ipv6.h>
++#include <asm/bug.h>
++
++#include "objsec.h"
++
++#define SEL_NETNODE_HASH_SIZE       256
++#define SEL_NETNODE_HASH_BKT_LIMIT   16
++
++struct sel_netnode {
++	struct netnode_security_struct nsec;
++
++	struct list_head list;
++	struct rcu_head rcu;
++};
++
++/* NOTE: we are using a combined hash table for both IPv4 and IPv6, the reason
++ * for this is that I suspect most users will not make heavy use of both
++ * address families at the same time so one table will usually end up wasted,
++ * if this becomes a problem we can always add a hash table for each address
++ * family later */
++
++static LIST_HEAD(sel_netnode_list);
++static DEFINE_SPINLOCK(sel_netnode_lock);
++static struct list_head sel_netnode_hash[SEL_NETNODE_HASH_SIZE];
++
++/**
++ * sel_netnode_free - Frees a node entry
++ * @p: the entry's RCU field
++ *
++ * Description:
++ * This function is designed to be used as a callback to the call_rcu()
++ * function so that memory allocated to a hash table node entry can be
++ * released safely.
++ *
++ */
++static void sel_netnode_free(struct rcu_head *p)
 +{
-+	unsigned int iter;
-+	struct dentry *dentry = NULL;
-+	struct inode *inode = NULL;
++	struct sel_netnode *node = container_of(p, struct sel_netnode, rcu);
++	kfree(node);
++}
 +
-+	sel_remove_entries(policycap_dir);
++/**
++ * sel_netnode_hashfn_ipv4 - IPv4 hashing function for the node table
++ * @addr: IPv4 address
++ *
++ * Description:
++ * This is the IPv4 hashing function for the node interface table, it returns
++ * the bucket number for the given IP address.
++ *
++ */
++static u32 sel_netnode_hashfn_ipv4(__be32 addr)
++{
++	/* at some point we should determine if the mismatch in byte order
++	 * affects the hash function dramatically */
++	return (addr & (SEL_NETNODE_HASH_SIZE - 1));
++}
 +
-+	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
-+		if (iter < ARRAY_SIZE(policycap_names))
-+			dentry = d_alloc_name(policycap_dir,
-+					      policycap_names[iter]);
-+		else
-+			dentry = d_alloc_name(policycap_dir, "unknown");
++/**
++ * sel_netnode_hashfn_ipv6 - IPv6 hashing function for the node table
++ * @addr: IPv6 address
++ *
++ * Description:
++ * This is the IPv6 hashing function for the node interface table, it returns
++ * the bucket number for the given IP address.
++ *
++ */
++static u32 sel_netnode_hashfn_ipv6(const struct in6_addr *addr)
++{
++	/* just hash the least significant 32 bits to keep things fast (they
++	 * are the most likely to be different anyway), we can revisit this
++	 * later if needed */
++	return (addr->s6_addr32[3] & (SEL_NETNODE_HASH_SIZE - 1));
++}
 +
-+		if (dentry == NULL)
-+			return -ENOMEM;
++/**
++ * sel_netnode_find - Search for a node record
++ * @addr: IP address
++ * @family: address family
++ *
++ * Description:
++ * Search the network node table and return the record matching @addr.  If an
++ * entry can not be found in the table return NULL.
++ *
++ */
++static struct sel_netnode *sel_netnode_find(const void *addr, u16 family)
++{
++	u32 idx;
++	struct sel_netnode *node;
 +
-+		inode = sel_make_inode(policycap_dir->d_sb, S_IFREG | S_IRUGO);
-+		if (inode == NULL)
-+			return -ENOMEM;
-+
-+		inode->i_fop = &sel_policycap_ops;
-+		inode->i_ino = iter | SEL_POLICYCAP_INO_OFFSET;
-+		d_add(dentry, inode);
++	switch (family) {
++	case PF_INET:
++		idx = sel_netnode_hashfn_ipv4(*(__be32 *)addr);
++		break;
++	case PF_INET6:
++		idx = sel_netnode_hashfn_ipv6(addr);
++		break;
++	default:
++		BUG();
 +	}
++
++	list_for_each_entry_rcu(node, &sel_netnode_hash[idx], list)
++		if (node->nsec.family == family)
++			switch (family) {
++			case PF_INET:
++				if (node->nsec.addr.ipv4 == *(__be32 *)addr)
++					return node;
++				break;
++			case PF_INET6:
++				if (ipv6_addr_cmp(&node->nsec.addr.ipv6,
++						  addr) == 0)
++					return node;
++				break;
++			}
++
++	return NULL;
++}
++
++/**
++ * sel_netnode_insert - Insert a new node into the table
++ * @node: the new node record
++ *
++ * Description:
++ * Add a new node record to the network address hash table.  Returns zero on
++ * success, negative values on failure.
++ *
++ */
++static int sel_netnode_insert(struct sel_netnode *node)
++{
++	u32 idx;
++	u32 count = 0;
++	struct sel_netnode *iter;
++
++	switch (node->nsec.family) {
++	case PF_INET:
++		idx = sel_netnode_hashfn_ipv4(node->nsec.addr.ipv4);
++		break;
++	case PF_INET6:
++		idx = sel_netnode_hashfn_ipv6(&node->nsec.addr.ipv6);
++		break;
++	default:
++		BUG();
++	}
++	list_add_rcu(&node->list, &sel_netnode_hash[idx]);
++
++	/* we need to impose a limit on the growth of the hash table so check
++	 * this bucket to make sure it is within the specified bounds */
++	list_for_each_entry(iter, &sel_netnode_hash[idx], list)
++		if (++count > SEL_NETNODE_HASH_BKT_LIMIT) {
++			list_del_rcu(&iter->list);
++			call_rcu(&iter->rcu, sel_netnode_free);
++			break;
++		}
 +
 +	return 0;
 +}
 +
- static int sel_make_dir(struct inode *dir, struct dentry *dentry,
- 			unsigned long *ino)
- {
-@@ -1673,6 +1742,18 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
- 
- 	class_dir = dentry;
- 
-+	dentry = d_alloc_name(sb->s_root, "policy_capabilities");
-+	if (!dentry) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
-+
-+	ret = sel_make_dir(root_inode, dentry, &sel_last_ino);
-+	if (ret)
-+		goto err;
-+
-+	policycap_dir = dentry;
-+
- out:
- 	return ret;
- err:
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index b582aae..bd7d6a0 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -13,6 +13,11 @@
-  *
-  * 	Added conditional policy language extensions
-  *
-+ * Updated: Hewlett-Packard <paul.moore@hp.com>
-+ *
-+ *      Added support for the policy capability bitmap
-+ *
-+ * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
-  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-  *	This program is free software; you can redistribute it and/or modify
-@@ -102,6 +107,11 @@ static struct policydb_compat_info policydb_compat[] = {
- 		.sym_num        = SYM_NUM,
- 		.ocon_num       = OCON_NUM,
- 	},
-+	{
-+		.version	= POLICYDB_VERSION_POLCAP,
-+		.sym_num	= SYM_NUM,
-+		.ocon_num	= OCON_NUM,
-+	}
- };
- 
- static struct policydb_compat_info *policydb_lookup_compat(int version)
-@@ -183,6 +193,8 @@ static int policydb_init(struct policydb *p)
- 	if (rc)
- 		goto out_free_symtab;
- 
-+	ebitmap_init(&p->policycaps);
-+
- out:
- 	return rc;
- 
-@@ -673,8 +685,8 @@ void policydb_destroy(struct policydb *p)
- 			ebitmap_destroy(&p->type_attr_map[i]);
- 	}
- 	kfree(p->type_attr_map);
--
- 	kfree(p->undefined_perms);
-+	ebitmap_destroy(&p->policycaps);
- 
- 	return;
- }
-@@ -1554,6 +1566,10 @@ int policydb_read(struct policydb *p, void *fp)
- 	p->reject_unknown = !!(le32_to_cpu(buf[1]) & REJECT_UNKNOWN);
- 	p->allow_unknown = !!(le32_to_cpu(buf[1]) & ALLOW_UNKNOWN);
- 
-+	if (p->policyvers >= POLICYDB_VERSION_POLCAP &&
-+	    ebitmap_read(&p->policycaps, fp) != 0)
-+		goto bad;
-+
- 	info = policydb_lookup_compat(p->policyvers);
- 	if (!info) {
- 		printk(KERN_ERR "security:  unable to find policy compat info "
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index ed6fc68..c4ce996 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -241,6 +241,8 @@ struct policydb {
- 	/* type -> attribute reverse mapping */
- 	struct ebitmap *type_attr_map;
- 
-+	struct ebitmap policycaps;
-+
- 	unsigned int policyvers;
- 
- 	unsigned int reject_unknown : 1;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index d4cc878..1e78786 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -16,12 +16,13 @@
-  * Updated: Hewlett-Packard <paul.moore@hp.com>
-  *
-  *      Added support for NetLabel
-+ *      Added support for the policy capability bitmap
-  *
-  * Updated: Chad Sellers <csellers@tresys.com>
-  *
-  *  Added validation of kernel classes and permissions
-  *
-- * Copyright (C) 2006 Hewlett-Packard Development Company, L.P.
-+ * Copyright (C) 2006, 2007 Hewlett-Packard Development Company, L.P.
-  * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  * Copyright (C) 2003 - 2004, 2006 Tresys Technology, LLC
-  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-@@ -59,6 +60,8 @@
- extern void selnl_notify_policyload(u32 seqno);
- unsigned int policydb_loaded_version;
- 
-+int selinux_policycap_netpeer;
-+
- /*
-  * This is declared in avc.c
-  */
-@@ -1299,6 +1302,12 @@ bad:
- 	goto out;
- }
- 
-+static void security_load_policycaps(void)
-+{
-+	selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
-+						  POLICYDB_CAPABILITY_NETPEER);
-+}
-+
- extern void selinux_complete_init(void);
- static int security_preserve_bools(struct policydb *p);
- 
-@@ -1346,6 +1355,7 @@ int security_load_policy(void *data, size_t len)
- 			avtab_cache_destroy();
- 			return -EINVAL;
- 		}
-+		security_load_policycaps();
- 		policydb_loaded_version = policydb.policyvers;
- 		ss_initialized = 1;
- 		seqno = ++latest_granting;
-@@ -1404,6 +1414,7 @@ int security_load_policy(void *data, size_t len)
- 	POLICY_WRLOCK;
- 	memcpy(&policydb, &newpolicydb, sizeof policydb);
- 	sidtab_set(&sidtab, &newsidtab);
-+	security_load_policycaps();
- 	seqno = ++latest_granting;
- 	policydb_loaded_version = policydb.policyvers;
- 	POLICY_WRUNLOCK;
-@@ -2145,6 +2156,60 @@ int security_get_allow_unknown(void)
- 	return policydb.allow_unknown;
- }
- 
 +/**
-+ * security_get_policycaps - Query the loaded policy for its capabilities
-+ * @len: the number of capability bits
-+ * @values: the capability bit array
++ * sel_netnode_destroy - Remove a node record from the table
++ * @node: the existing node record
 + *
 + * Description:
-+ * Get an array of the policy capabilities in @values where each entry in
-+ * @values is either true (1) or false (0) depending the policy's support of
-+ * that feature.  The policy capabilities are defined by the
-+ * POLICYDB_CAPABILITY_* enums.  The size of the array is stored in @len and it
-+ * is up to the caller to free the array in @values.  Returns zero on success,
-+ * negative values on failure.
++ * Remove an existing node record from the network address table.
 + *
 + */
-+int security_get_policycaps(int *len, int **values)
++static void sel_netnode_destroy(struct sel_netnode *node)
 +{
-+	int rc = -ENOMEM;
-+	unsigned int iter;
++	list_del_rcu(&node->list);
++	call_rcu(&node->rcu, sel_netnode_free);
++}
 +
-+	POLICY_RDLOCK;
++/**
++ * sel_netnode_sid_slow - Lookup the SID of a network address using the policy
++ * @addr: the IP address
++ * @family: the address family
++ * @sid: node SID
++ *
++ * Description:
++ * This function determines the SID of a network address by quering the
++ * security policy.  The result is added to the network address table to
++ * speedup future queries.  Returns zero on success, negative values on
++ * failure.
++ *
++ */
++static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
++{
++	int ret;
++	struct sel_netnode *node;
++	struct sel_netnode *new = NULL;
 +
-+	*values = kcalloc(POLICYDB_CAPABILITY_MAX, sizeof(int), GFP_ATOMIC);
-+	if (*values == NULL)
++	spin_lock_bh(&sel_netnode_lock);
++	node = sel_netnode_find(addr, family);
++	if (node != NULL) {
++		*sid = node->nsec.sid;
++		ret = 0;
 +		goto out;
-+	for (iter = 0; iter < POLICYDB_CAPABILITY_MAX; iter++)
-+		(*values)[iter] = ebitmap_get_bit(&policydb.policycaps, iter);
-+	*len = POLICYDB_CAPABILITY_MAX;
++	}
++	new = kzalloc(sizeof(*new), GFP_ATOMIC);
++	if (new == NULL) {
++		ret = -ENOMEM;
++		goto out;
++	}
++	switch (family) {
++	case PF_INET:
++		ret = security_node_sid(PF_INET,
++					addr, sizeof(struct in_addr),
++					&new->nsec.sid);
++		new->nsec.addr.ipv4 = *(__be32 *)addr;
++		break;
++	case PF_INET6:
++		ret = security_node_sid(PF_INET6,
++					addr, sizeof(struct in6_addr),
++					&new->nsec.sid);
++		memcpy(&new->nsec.addr.ipv6, addr,
++		       sizeof(new->nsec.addr.ipv6));
++		break;
++	default:
++		BUG();
++	}
++	if (ret != 0)
++		goto out;
++	new->nsec.family = family;
++	ret = sel_netnode_insert(new);
++	if (ret != 0)
++		goto out;
++	*sid = new->nsec.sid;
 +
 +out:
-+	POLICY_RDUNLOCK;
-+	return rc;
++	spin_unlock_bh(&sel_netnode_lock);
++	if (ret != 0)
++		kfree(new);
++	return ret;
 +}
 +
 +/**
-+ * security_policycap_supported - Check for a specific policy capability
-+ * @req_cap: capability
++ * sel_netnode_sid - Lookup the SID of a network address
++ * @addr: the IP address
++ * @family: the address family
++ * @sid: node SID
 + *
 + * Description:
-+ * This function queries the currently loaded policy to see if it supports the
-+ * capability specified by @req_cap.  Returns true (1) if the capability is
-+ * supported, false (0) if it isn't supported.
++ * This function determines the SID of a network address using the fastest
++ * method possible.  First the address table is queried, but if an entry
++ * can't be found then the policy is queried and the result is added to the
++ * table to speedup future queries.  Returns zero on success, negative values
++ * on failure.
 + *
 + */
-+int security_policycap_supported(unsigned int req_cap)
++int sel_netnode_sid(void *addr, u16 family, u32 *sid)
 +{
-+	int rc;
++	struct sel_netnode *node;
 +
-+	POLICY_RDLOCK;
-+	rc = ebitmap_get_bit(&policydb.policycaps, req_cap);
-+	POLICY_RDUNLOCK;
++	rcu_read_lock();
++	node = sel_netnode_find(addr, family);
++	if (node != NULL) {
++		*sid = node->nsec.sid;
++		rcu_read_unlock();
++		return 0;
++	}
++	rcu_read_unlock();
 +
-+	return rc;
++	return sel_netnode_sid_slow(addr, family, sid);
 +}
 +
- struct selinux_audit_rule {
- 	u32 au_seqno;
- 	struct context au_ctxt;
++/**
++ * sel_netnode_flush - Flush the entire network address table
++ *
++ * Description:
++ * Remove all entries from the network address table.
++ *
++ */
++static void sel_netnode_flush(void)
++{
++	u32 idx;
++	struct sel_netnode *node;
++
++	spin_lock_bh(&sel_netnode_lock);
++	for (idx = 0; idx < SEL_NETNODE_HASH_SIZE; idx++)
++		list_for_each_entry(node, &sel_netnode_hash[idx], list)
++			sel_netnode_destroy(node);
++	spin_unlock_bh(&sel_netnode_lock);
++}
++
++static int sel_netnode_avc_callback(u32 event, u32 ssid, u32 tsid,
++				    u16 class, u32 perms, u32 *retained)
++{
++	if (event == AVC_CALLBACK_RESET) {
++		sel_netnode_flush();
++		synchronize_net();
++	}
++	return 0;
++}
++
++static __init int sel_netnode_init(void)
++{
++	int iter;
++	int ret;
++	
++	if (!selinux_enabled)
++		return 0;
++
++	for (iter = 0; iter < SEL_NETNODE_HASH_SIZE; iter++)
++		INIT_LIST_HEAD(&sel_netnode_hash[iter]);
++
++	ret = avc_add_callback(sel_netnode_avc_callback, AVC_CALLBACK_RESET,
++	                       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
++	if (ret != 0)
++		panic("avc_add_callback() failed, error %d\n", ret);
++
++	return ret;
++}
++
++__initcall(sel_netnode_init);
 
 
 --
