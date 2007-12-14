@@ -1,70 +1,105 @@
-Subject: Re: help with an avc denial
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1197661487.31325.175.camel@moss-spartans.epoch.ncsc.mil>
-References: <FB39F4E77226B448BC1388D3BE4E00CD02773CB8@blums0008.bluelnk.net>
-	 <1197661487.31325.175.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 14 Dec 2007 16:12:20 -0500
-Message-Id: <1197666740.31325.224.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBELt2NQ028244
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 16:55:02 -0500
+Received: from QMTA01.westchester.pa.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBELsrj8019568
+	for <selinux@tycho.nsa.gov>; Fri, 14 Dec 2007 21:54:54 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v8 03/18] NetLabel: Consolidate the LSM domain
+	mapping/hashing locks
+To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Cc: vyekkirala@TrustedCS.com, chanson@TrustedCS.com
+Date: Fri, 14 Dec 2007 16:50:10 -0500
+Message-ID: <20071214215010.10069.50980.stgit@flek.lan>
+In-Reply-To: <20071214213548.10069.59135.stgit@flek.lan>
+References: <20071214213548.10069.59135.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-12-14 at 14:44 -0500, Stephen Smalley wrote:
-> On Fri, 2007-12-14 at 11:31 -0800, Clarkson, Mike R (US SSA) wrote:
-> > I'm running RHEL 5.1 with the mls policy.
-> > 
-> > I'm getting an avc denial that I can't get past. Here are the entries
-> > from the audit log:
-> > 
-> > type=AVC msg=audit(1197658847.835:9499): avc:  denied  { create } for
-> > pid=20432 comm="touch" name="tmp.log"
-> > scontext=sysadm_u:sysadm_r:sysadm_t:s0-s4:c0.c255
-> > tcontext=sysadm_u:object_r:audit_log_t:s0-s4:c0.c255 tclass=file
-> 
-> A file should be single level, not ranged.
+Currently we use two separate spinlocks to protect both the hash/mapping table
+and the default entry.  This could be considered a bit foolish because it adds
+complexity without offering any real performance advantage.  This patch
+removes the dedicated default spinlock and protects the default entry with the
+hash/mapping table spinlock.
+---
 
-which is enforced by a mls constraint.  However, the allow rule was also
-likely missing from the original policy since audit logs should only be
-accessible to the security or audit administrator, not the system admin,
-depending on your config.  Which would explain why audit2why would
-report a missing allow rule first.  But if you added the allow rule via
-a loadable module and then tried again, it should have reported that a
-constraint was violated at that point.  
+ net/netlabel/netlabel_domainhash.c |   30 +++++++++---------------------
+ 1 files changed, 9 insertions(+), 21 deletions(-)
 
-> 
-> > type=SYSCALL msg=audit(1197658847.835:9499): arch=c000003e syscall=2
-> > success=no exit=-13 a0=7fff74eceb5c a1=941 a2=1b6 a3=328dd4b0ac items=0
-> > ppid=12410 pid=20432 auid=11000 uid=11000 gid=4500 euid=11000 suid=11000
-> > fsuid=11000 egid=4500 sgid=4500 fsgid=4500 tty=pts3 comm="touch"
-> > exe="/bin/touch" subj=sysadm_u:sysadm_r:sysadm_t:s0-s4:c0.c255
-> > key=(null)
-> > 
-> > 
-> > Here is what audit2allow returns:
-> > #============= sysadm_t ==============
-> > # src="sysadm_t" tgt="audit_log_t" class="file", perms="create"
-> > # comm="touch" exe="" path=""
-> > allow sysadm_t audit_log_t:file create;
-> > 
-> > I have entered that exact allow rule into my policy to no effect.
-> > 
-> > Audit2why indicates that the reason for the above audit log avc denial
-> > is a missing allow rule, as opposed to a constraint problem.
-> > 
-> > Any help would be greatly appreciated.
-> > Thanks
-> > 
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
+index 1f8f7ac..9a8ea01 100644
+--- a/net/netlabel/netlabel_domainhash.c
++++ b/net/netlabel/netlabel_domainhash.c
+@@ -54,9 +54,6 @@ struct netlbl_domhsh_tbl {
+  * hash table should be okay */
+ static DEFINE_SPINLOCK(netlbl_domhsh_lock);
+ static struct netlbl_domhsh_tbl *netlbl_domhsh = NULL;
+-
+-/* Default domain mapping */
+-static DEFINE_SPINLOCK(netlbl_domhsh_def_lock);
+ static struct netlbl_dom_map *netlbl_domhsh_def = NULL;
+ 
+ /*
+@@ -239,24 +236,22 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
+ 	INIT_RCU_HEAD(&entry->rcu);
+ 
+ 	rcu_read_lock();
++	spin_lock(&netlbl_domhsh_lock);
+ 	if (entry->domain != NULL) {
+ 		bkt = netlbl_domhsh_hash(entry->domain);
+-		spin_lock(&netlbl_domhsh_lock);
+ 		if (netlbl_domhsh_search(entry->domain) == NULL)
+ 			list_add_tail_rcu(&entry->list,
+ 				    &rcu_dereference(netlbl_domhsh)->tbl[bkt]);
+ 		else
+ 			ret_val = -EEXIST;
+-		spin_unlock(&netlbl_domhsh_lock);
+ 	} else {
+ 		INIT_LIST_HEAD(&entry->list);
+-		spin_lock(&netlbl_domhsh_def_lock);
+ 		if (rcu_dereference(netlbl_domhsh_def) == NULL)
+ 			rcu_assign_pointer(netlbl_domhsh_def, entry);
+ 		else
+ 			ret_val = -EEXIST;
+-		spin_unlock(&netlbl_domhsh_def_lock);
+ 	}
++	spin_unlock(&netlbl_domhsh_lock);
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_ADD, audit_info);
+ 	if (audit_buf != NULL) {
+ 		audit_log_format(audit_buf,
+@@ -337,23 +332,16 @@ int netlbl_domhsh_remove(const char *domain, struct netlbl_audit *audit_info)
+ 					   entry->domain);
+ 		break;
+ 	}
+-	if (entry != rcu_dereference(netlbl_domhsh_def)) {
+-		spin_lock(&netlbl_domhsh_lock);
+-		if (entry->valid) {
+-			entry->valid = 0;
++	spin_lock(&netlbl_domhsh_lock);
++	if (entry->valid) {
++		entry->valid = 0;
++		if (entry != rcu_dereference(netlbl_domhsh_def))
+ 			list_del_rcu(&entry->list);
+-			ret_val = 0;
+-		}
+-		spin_unlock(&netlbl_domhsh_lock);
+-	} else {
+-		spin_lock(&netlbl_domhsh_def_lock);
+-		if (entry->valid) {
+-			entry->valid = 0;
++		else
+ 			rcu_assign_pointer(netlbl_domhsh_def, NULL);
+-			ret_val = 0;
+-		}
+-		spin_unlock(&netlbl_domhsh_def_lock);
++		ret_val = 0;
+ 	}
++	spin_unlock(&netlbl_domhsh_lock);
+ 
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
+ 	if (audit_buf != NULL) {
 
 
 --
