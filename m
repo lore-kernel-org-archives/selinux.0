@@ -1,52 +1,129 @@
-Subject: Re: load_policy
+Subject: Re: [LTP] Se-Linux Updates for LTP
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30712170827t67aa7760m879573601e56ad9f@mail.gmail.com>
-References: <dd18b0c30712170827t67aa7760m879573601e56ad9f@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 17 Dec 2007 14:16:10 -0500
-Message-Id: <1197918970.17307.94.camel@moss-spartans.epoch.ncsc.mil>
+To: jburke@redhat.com
+Cc: James Morris <jmorris@redhat.com>, Joy Latten <latten@us.ibm.com>,
+        Daniel Walsh <dwalsh@redhat.com>, subrata@linux.vnet.ibm.com,
+        ltp-list <ltp-list@lists.sourceforge.net>,
+        George Kraft <gk4@us.ibm.com>, klausk@br.ibm.com,
+        Robert Williamson <robbiew@us.ibm.com>,
+        Michael Reed <mreed10@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Paul Larson <plars@us.ibm.com>
+In-Reply-To: <1197917423.17307.87.camel@moss-spartans.epoch.ncsc.mil>
+References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
+	 <1197266491.4482.2.camel@subratamodak.linux.ibm.com>
+	 <1197295269.18120.11.camel@moss-spartans.epoch.ncsc.mil>
+	 <20071210171503.GA25223@sergelap.austin.ibm.com>
+	 <1197382969.9034.29.camel@subratamodak.linux.ibm.com>
+	 <20071211155219.GA22416@sergelap.austin.ibm.com>
+	 <1197458260.4710.95.camel@subratamodak.linux.ibm.com>
+	 <1197477042.1125.83.camel@moss-spartans.epoch.ncsc.mil>
+	 <4761CF71.1020101@redhat.com>
+	 <1197916993.17307.81.camel@moss-spartans.epoch.ncsc.mil>
+	 <1197917423.17307.87.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/mixed; boundary="=-5lO96Fu3ZfMzynfwT+5B"
+Date: Mon, 17 Dec 2007 14:42:50 -0500
+Message-Id: <1197920570.17307.99.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-12-17 at 08:27 -0800, Justin Mattock wrote:
-> Hello I am new to selinux and seem to be at a road block. If anybody
-> has any info on  my situation it would be appreciative.
-> The problem I have is the policy isn't loading at boot time.  putting
-> load_policy in /etc/rc.local gives me a please choose a security
-> context; when choosing sysadm_r sysadm_t response is invalid security
-> context. Then looking into init I see this 
-> ldd /sbin/init
->      linux-gate.so.1 => (oxffffe000)                          
->      libc.so.6 => /lib/libc.so.6 (0xb7e73000)
-> <----no /lib/libselinux.so.1 (how to add libselinux to init?)
->      /lib/ld- linux.so.2 (0xb7fca000)                     
+
+--=-5lO96Fu3ZfMzynfwT+5B
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Mon, 2007-12-17 at 13:50 -0500, Stephen Smalley wrote:
+> On Mon, 2007-12-17 at 13:43 -0500, Stephen Smalley wrote:
+> > On Thu, 2007-12-13 at 19:33 -0500, Jeff Burke wrote:
+> > > Stephen, Joy, Dan and James
+> > > 	Using Stephens latest patch. Here are the results for the selinux tests
+> > > ltp-full-20071130, RHEL5.1 + selinux-policy-2.4.6-106.el5_1.3:
+> > 
+> > Reverting the prior patches and applying this one instead, I am able to
+> > run all of the test cases successfully on RHEL5.1 with that policy
+> > version.
+> > 
+> > I never did get a failure on SELinux10 though even with the old patch.
+> > Looking at your log file, it suggests that you were running the tests
+> > without a controlling tty?  That will break that particular test at
+> > least (sendsigio_task).
+> > 
+> > As for the build failure on execshare_parent, I don't know how to fix
+> > that on ia64 - is there a portable way to write a call to clone(2) that
+> > will work there?  I don't have ia64 hardware readily available to me.
 > 
-> could this be why selinux_init_load_policy doesnt work?  
-> any info would be helpful.
+> Ah, from the clone(2) man page, I see that one is supposed to use
+> clone2() instead on IA-64.  But someone else will have to do that and
+> test it - I don't have an ia64 machine at my disposal.
 
-I'm not sure I understand what you are asking.
+>From the example of other code in the ltp, it looks like the following
+patch should work for ia-64.  This patch for the execshare test program
+is in addition to the prior policy patch.
 
-In Fedora and Debian, System V init has been modified to perform the
-initial loading of security policy and to then re-exec itself into the
-proper domain.
 
-In Ubuntu, they don't use System V init, and there has been recent work
-to add a -i option to load_policy to perform the initial policy load so
-that load_policy can be run from initramfs before upstart is executed.
-See prior postings by Chad Sellers.
-
-Running load_policy from a rc script should technically work (as far as
-actually loading a policy into the kernel), but it doesn't help with
-processes that have already started - those will keep running in
-kernel_t rather than being placed into the proper domain.  You need to
-load policy earlier.
 
 -- 
 Stephen Smalley
 National Security Agency
+
+--=-5lO96Fu3ZfMzynfwT+5B
+Content-Disposition: attachment; filename=execshare.diff
+Content-Type: text/x-patch; name=execshare.diff; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Index: testcases/kernel/security/selinux-testsuite/tests/execshare/selinux_execshare_parent.c
+===================================================================
+RCS file: /cvsroot/ltp/ltp/testcases/kernel/security/selinux-testsuite/tests/execshare/selinux_execshare_parent.c,v
+retrieving revision 1.1
+diff -u -r1.1 selinux_execshare_parent.c
+--- testcases/kernel/security/selinux-testsuite/tests/execshare/selinux_execshare_parent.c	20 Apr 2005 16:09:08 -0000	1.1
++++ testcases/kernel/security/selinux-testsuite/tests/execshare/selinux_execshare_parent.c	17 Dec 2007 19:34:16 -0000
+@@ -26,11 +26,10 @@
+ 	return -1;
+ }
+ 
+-static long clone_stack_data[2048];
+-static long *clone_stack = &clone_stack_data[2048];
+-
+ int main(int argc, char **argv)
+ {
++	int pagesize;
++	void *clone_stack, *page;
+ 	int pid, rc, len, status, cloneflags;
+ 	security_context_t context_s;
+ 	context_t context;
+@@ -46,6 +45,14 @@
+ 		exit(-1);
+ 	}
+ 
++	pagesize = getpagesize();
++	page = malloc(pagesize);
++	if (!page) {
++		perror("malloc");
++		exit(-1);
++	}
++	clone_stack = page + pagesize;
++
+ 	rc = getcon(&context_s);
+ 	if (rc < 0) {
+ 		fprintf(stderr, "%s:  unable to get my context\n", argv[0]);
+@@ -76,8 +83,13 @@
+ 		fprintf(stderr, "%s:  unable to set exec context to %s\n", argv[0], context_s);
+ 		exit(-1);
+ 	}
+-
++#if defined(__hppa__)
++	pid = clone(clone_fn, page, cloneflags | SIGCHLD, argv);
++#elif defined(__ia64__)
++	pid = clone2(clone_fn, clone_stack, pagesize, cloneflags | SIGCHLD, argv, NULL, NULL, NULL);
++#else
+ 	pid = clone(clone_fn, clone_stack, cloneflags | SIGCHLD, argv);
++#endif
+ 	if (pid < 0) {
+ 		perror("clone");
+ 		exit(-1);
+
+--=-5lO96Fu3ZfMzynfwT+5B--
 
 
 --
