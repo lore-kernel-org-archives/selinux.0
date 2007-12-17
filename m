@@ -1,113 +1,55 @@
-Subject: RE: newrole in the background
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Reed, Tim (US SSA)" <tim.reed@baesystems.com>
-Cc: Xavier Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <436A69503F99214D9EBC27415F66C40C0F597E63@blums0008.bluelnk.net>
-References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
-	 <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com>
-	 <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net>
-	 <476047A9.90000@gmail.com>
-	 <436A69503F99214D9EBC27415F66C40C0F517AD3@blums0008.bluelnk.net>
-	 <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com>
-	 <1197558486.20226.40.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net>
-	 <1197567614.20226.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <436A69503F99214D9EBC27415F66C40C0F597E63@blums0008.bluelnk.net>
-Content-Type: text/plain
-Date: Mon, 17 Dec 2007 11:10:10 -0500
-Message-Id: <1197907810.17307.38.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBHGRiRg006613
+	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 11:27:44 -0500
+Received: from el-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBHGRhcR021764
+	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 16:27:43 GMT
+Received: by el-out-1112.google.com with SMTP id j27so380628elf.0
+        for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 08:27:43 -0800 (PST)
+Message-ID: <dd18b0c30712170827t67aa7760m879573601e56ad9f@mail.gmail.com>
+Date: Mon, 17 Dec 2007 08:27:42 -0800
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: load_policy
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_12095_23815604.1197908862401"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-12-17 at 08:01 -0800, Reed, Tim (US SSA) wrote:
-> When newrole goes and grabs the ttyname, if it cannot get one should it
-> still log something to the screen or not?
-> 
-> Currently it says "Error! Could not retrieve tty information".  I was
-> thinking of changing Error to Warning.
+------=_Part_12095_23815604.1197908862401
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Yes, that's fine.
-> 
-> What is the recommendation here?
-> Also do you have the coding standards posted somewhere?
+Hello I am new to selinux and seem to be at a road block. If anybody has any
+info on  my situation it would be appreciative.
+The problem I have is the policy isn't loading at boot time.  putting
+load_policy in /etc/rc.local gives me a please choose a security context;
+when choosing sysadm_r sysadm_t response is invalid security context. Then
+looking into init I see this
+ldd /sbin/init
+     linux-gate.so.1 => (oxffffe000)
+     libc.so.6 => /lib/libc.so.6 (0xb7e73000)         <----no
+/lib/libselinux.so.1 (how to add libselinux to init?)
+     /lib/ld-linux.so.2 (0xb7fca000)
 
-We just loosely follow kernel coding style,
-http://lxr.linux.no/linux/Documentation/CodingStyle
-and make indent can be used as a hammer (but not a very good one).
+could this be why selinux_init_load_policy doesnt work?
+any info would be helpful.
+regards;
+             --Justin P. Mattock
 
-> 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-> Sent: Thursday, December 13, 2007 12:40 PM
-> To: Reed, Tim (US SSA)
-> Cc: Xavier Toth; SE Linux
-> Subject: RE: newrole in the background
-> 
-> On Thu, 2007-12-13 at 09:06 -0800, Reed, Tim (US SSA) wrote:
-> > New patch...I have added checks around the calls that deal with the
-> tty.
-> > So if ttyn is an empty string (something had a heartache with it being
-> > NULL) then it skips the processing.  It does appear to work but more
-> > testing is needed.  Please review and comment.
-> 
-> Patch is reversed, and doesn't seem to be complete (test for a NULL
-> ttyname still remains and is fatal in main).
-> 
-> ttyn should really be NULL if not defined - just fix the code.  Cleaner
-> and faster to test for NULL than for empty string.  Looks like
-> authenticate_via_pam() needs a check.
-> 
-> You can simplify the logic a fair amount, e.g. on entry to relabel_tty()
-> and restore_tty_label(), just do a if (!ttyn) return 0;
-> 
-> Coding style doesn't match.
-> 
-> > Now say if someone ran `newrole -l SystemHigh -- -c "su - foo"` in the
-> > background of a script, you would not be able to give su input as it
-> is
-> > in the background and has no tty.  su in this case exits gracefully I
-> > guess you could say.  
-> > 
-> > My point is that if you have an application that needs to run from
-> > newrole, in the background AND requires user input, you will not be
-> able
-> > to give the application input while it is in the background and have
-> it
-> > work successfully.
-> 
-> You can't do that anyway, by definition.
-> 
-> > Example:
-> > foo.sh
-> > ---------------
-> > #!/bin/bash
-> > 
-> > ./bar.sh &
-> > ---------------
-> > bar.sh
-> > ---------------
-> > #!/bin/bash
-> > 
-> > su - root -c /bin/date
-> > ---------------
-> > 
-> > su exits because there is no tty for input.  So is chasing down having
-> > newrole run in a pseudo tty in the background and accept input worth
-> the
-> > time?
-> 
-> It doesn't help - there is no input to accept.
-> 
-> We just need to make sure that the pam modules and chkpwd don't block
-> forever or seg fault when handed a NULL PAM_TTY.
-> 
--- 
-Stephen Smalley
-National Security Agency
+------=_Part_12095_23815604.1197908862401
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+Hello I am new to selinux and seem to be at a road block. If anybody has any info on&nbsp; my situation it would be appreciative.<br>The problem I have is the policy isn&#39;t loading at boot time.&nbsp; putting load_policy in /etc/rc.local gives me a please choose a security context; when choosing sysadm_r sysadm_t response is invalid security context. Then looking into init I see this 
+<br>ldd /sbin/init<br>&nbsp;&nbsp;&nbsp;&nbsp; linux-gate.so.1 =&gt; (oxffffe000)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp; libc.so.6 =&gt; /lib/libc.so.6 (0xb7e73000)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;----no /lib/libselinux.so.1 (how to add libselinux to init?)<br>&nbsp;&nbsp;&nbsp;&nbsp; /lib/ld-
+linux.so.2 (0xb7fca000)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><br>could this be why selinux_init_load_policy doesnt work?&nbsp; <br>any info would be helpful.<br>regards;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br><br><br><br><br><br><br><br><br>
+<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><br>
+
+------=_Part_12095_23815604.1197908862401--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
