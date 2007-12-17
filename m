@@ -1,129 +1,176 @@
-Subject: Re: [LTP] Se-Linux Updates for LTP
+Subject: Re: [RFC PATCH v8 06/18] LSM: Add inet_sys_snd_skb() LSM hook
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: jburke@redhat.com
-Cc: James Morris <jmorris@redhat.com>, Joy Latten <latten@us.ibm.com>,
-        Daniel Walsh <dwalsh@redhat.com>, subrata@linux.vnet.ibm.com,
-        ltp-list <ltp-list@lists.sourceforge.net>,
-        George Kraft <gk4@us.ibm.com>, klausk@br.ibm.com,
-        Robert Williamson <robbiew@us.ibm.com>,
-        Michael Reed <mreed10@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Paul Larson <plars@us.ibm.com>
-In-Reply-To: <1197917423.17307.87.camel@moss-spartans.epoch.ncsc.mil>
-References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
-	 <1197266491.4482.2.camel@subratamodak.linux.ibm.com>
-	 <1197295269.18120.11.camel@moss-spartans.epoch.ncsc.mil>
-	 <20071210171503.GA25223@sergelap.austin.ibm.com>
-	 <1197382969.9034.29.camel@subratamodak.linux.ibm.com>
-	 <20071211155219.GA22416@sergelap.austin.ibm.com>
-	 <1197458260.4710.95.camel@subratamodak.linux.ibm.com>
-	 <1197477042.1125.83.camel@moss-spartans.epoch.ncsc.mil>
-	 <4761CF71.1020101@redhat.com>
-	 <1197916993.17307.81.camel@moss-spartans.epoch.ncsc.mil>
-	 <1197917423.17307.87.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed; boundary="=-5lO96Fu3ZfMzynfwT+5B"
-Date: Mon, 17 Dec 2007 14:42:50 -0500
-Message-Id: <1197920570.17307.99.camel@moss-spartans.epoch.ncsc.mil>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        vyekkirala@TrustedCS.com, chanson@TrustedCS.com
+In-Reply-To: <20071214215025.10069.10036.stgit@flek.lan>
+References: <20071214213548.10069.59135.stgit@flek.lan>
+	 <20071214215025.10069.10036.stgit@flek.lan>
+Content-Type: text/plain
+Date: Mon, 17 Dec 2007 14:45:50 -0500
+Message-Id: <1197920750.17307.100.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 2007-12-14 at 16:50 -0500, Paul Moore wrote:
+> Add an inet_sys_snd_skb() LSM hook to allow the LSM to provide packet level
+> access control for all outbound packets.  Using the existing postroute_last
+> netfilter hook turns out to be problematic as it is can be invoked multiple
+> times for a single packet, e.g. individual IPsec transforms, adding unwanted
+> overhead and complicating the security policy.
 
---=-5lO96Fu3ZfMzynfwT+5B
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+None of the netfilter hooks works for this purpose?
 
-On Mon, 2007-12-17 at 13:50 -0500, Stephen Smalley wrote:
-> On Mon, 2007-12-17 at 13:43 -0500, Stephen Smalley wrote:
-> > On Thu, 2007-12-13 at 19:33 -0500, Jeff Burke wrote:
-> > > Stephen, Joy, Dan and James
-> > > 	Using Stephens latest patch. Here are the results for the selinux tests
-> > > ltp-full-20071130, RHEL5.1 + selinux-policy-2.4.6-106.el5_1.3:
-> > 
-> > Reverting the prior patches and applying this one instead, I am able to
-> > run all of the test cases successfully on RHEL5.1 with that policy
-> > version.
-> > 
-> > I never did get a failure on SELinux10 though even with the old patch.
-> > Looking at your log file, it suggests that you were running the tests
-> > without a controlling tty?  That will break that particular test at
-> > least (sendsigio_task).
-> > 
-> > As for the build failure on execshare_parent, I don't know how to fix
-> > that on ia64 - is there a portable way to write a call to clone(2) that
-> > will work there?  I don't have ia64 hardware readily available to me.
+Obviously this one needs to get seen on netdev.
+
+> ---
 > 
-> Ah, from the clone(2) man page, I see that one is supposed to use
-> clone2() instead on IA-64.  But someone else will have to do that and
-> test it - I don't have an ia64 machine at my disposal.
-
->From the example of other code in the ltp, it looks like the following
-patch should work for ia-64.  This patch for the execshare test program
-is in addition to the prior policy patch.
-
-
-
+>  include/linux/security.h |   11 +++++++++++
+>  net/ipv4/ip_output.c     |    7 +++++++
+>  net/ipv6/ip6_output.c    |    5 +++++
+>  security/dummy.c         |    8 +++++++-
+>  security/security.c      |    6 ++++++
+>  5 files changed, 36 insertions(+), 1 deletions(-)
+> 
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index db19c92..1b8d332 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -876,6 +876,10 @@ struct request_sock;
+>   *     Sets the connection's peersid to the secmark on skb.
+>   * @req_classify_flow:
+>   *	Sets the flow's sid to the openreq sid.
+> + * @inet_sys_snd_skb:
+> + *	Check permissions on outgoing network packets.
+> + *	@skb is the packet to check
+> + *	@family is the packet's address family
+>   *
+>   * Security hooks for XFRM operations.
+>   *
+> @@ -1416,6 +1420,7 @@ struct security_operations {
+>  	void (*inet_csk_clone)(struct sock *newsk, const struct request_sock *req);
+>  	void (*inet_conn_established)(struct sock *sk, struct sk_buff *skb);
+>  	void (*req_classify_flow)(const struct request_sock *req, struct flowi *fl);
+> +	int (*inet_sys_snd_skb)(struct sk_buff *skb, int family);
+>  #endif	/* CONFIG_SECURITY_NETWORK */
+>  
+>  #ifdef CONFIG_SECURITY_NETWORK_XFRM
+> @@ -2328,6 +2333,7 @@ void security_sk_free(struct sock *sk);
+>  void security_sk_clone(const struct sock *sk, struct sock *newsk);
+>  void security_sk_classify_flow(struct sock *sk, struct flowi *fl);
+>  void security_req_classify_flow(const struct request_sock *req, struct flowi *fl);
+> +int security_inet_sys_snd_skb(struct sk_buff *skb, int family);
+>  void security_sock_graft(struct sock*sk, struct socket *parent);
+>  int security_inet_conn_request(struct sock *sk,
+>  			struct sk_buff *skb, struct request_sock *req);
+> @@ -2471,6 +2477,11 @@ static inline void security_req_classify_flow(const struct request_sock *req, st
+>  {
+>  }
+>  
+> +static inline int security_inet_sys_snd_skb(struct sk_buff *skb, int family)
+> +{
+> +	return 0;
+> +}
+> +
+>  static inline void security_sock_graft(struct sock* sk, struct socket *parent)
+>  {
+>  }
+> diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+> index fd99fbd..82a7297 100644
+> --- a/net/ipv4/ip_output.c
+> +++ b/net/ipv4/ip_output.c
+> @@ -204,6 +204,8 @@ static inline int ip_skb_dst_mtu(struct sk_buff *skb)
+>  
+>  static int ip_finish_output(struct sk_buff *skb)
+>  {
+> +	int err;
+> +
+>  #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
+>  	/* Policy lookup after SNAT yielded a new policy */
+>  	if (skb->dst->xfrm != NULL) {
+> @@ -211,6 +213,11 @@ static int ip_finish_output(struct sk_buff *skb)
+>  		return dst_output(skb);
+>  	}
+>  #endif
+> +
+> +	err = security_inet_sys_snd_skb(skb, AF_INET);
+> +	if (err)
+> +		return err;
+> +
+>  	if (skb->len > ip_skb_dst_mtu(skb) && !skb_is_gso(skb))
+>  		return ip_fragment(skb, ip_finish_output2);
+>  	else
+> diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+> index 6338a9c..44ddf32 100644
+> --- a/net/ipv6/ip6_output.c
+> +++ b/net/ipv6/ip6_output.c
+> @@ -72,8 +72,13 @@ static __inline__ void ipv6_select_ident(struct sk_buff *skb, struct frag_hdr *f
+>  
+>  static int ip6_output_finish(struct sk_buff *skb)
+>  {
+> +	int err;
+>  	struct dst_entry *dst = skb->dst;
+>  
+> +	err = security_inet_sys_snd_skb(skb, AF_INET6);
+> +	if (err)
+> +		return err;
+> +
+>  	if (dst->hh)
+>  		return neigh_hh_output(dst->hh, skb);
+>  	else if (dst->neighbour)
+> diff --git a/security/dummy.c b/security/dummy.c
+> index 0b62f95..384979a 100644
+> --- a/security/dummy.c
+> +++ b/security/dummy.c
+> @@ -848,6 +848,11 @@ static inline void dummy_req_classify_flow(const struct request_sock *req,
+>  			struct flowi *fl)
+>  {
+>  }
+> +
+> +static inline int dummy_inet_sys_snd_skb(struct sk_buff *skb, int family)
+> +{
+> +	return 0;
+> +}
+>  #endif	/* CONFIG_SECURITY_NETWORK */
+>  
+>  #ifdef CONFIG_SECURITY_NETWORK_XFRM
+> @@ -1122,7 +1127,8 @@ void security_fixup_ops (struct security_operations *ops)
+>  	set_to_dummy_if_null(ops, inet_csk_clone);
+>  	set_to_dummy_if_null(ops, inet_conn_established);
+>  	set_to_dummy_if_null(ops, req_classify_flow);
+> - #endif	/* CONFIG_SECURITY_NETWORK */
+> +	set_to_dummy_if_null(ops, inet_sys_snd_skb);
+> +#endif	/* CONFIG_SECURITY_NETWORK */
+>  #ifdef  CONFIG_SECURITY_NETWORK_XFRM
+>  	set_to_dummy_if_null(ops, xfrm_policy_alloc_security);
+>  	set_to_dummy_if_null(ops, xfrm_policy_clone_security);
+> diff --git a/security/security.c b/security/security.c
+> index 3bdcada..7f55459 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -961,6 +961,12 @@ void security_req_classify_flow(const struct request_sock *req, struct flowi *fl
+>  }
+>  EXPORT_SYMBOL(security_req_classify_flow);
+>  
+> +int security_inet_sys_snd_skb(struct sk_buff *skb, int family)
+> +{
+> +	return security_ops->inet_sys_snd_skb(skb, family);
+> +}
+> +EXPORT_SYMBOL(security_inet_sys_snd_skb);
+> +
+>  void security_sock_graft(struct sock *sk, struct socket *parent)
+>  {
+>  	security_ops->sock_graft(sk, parent);
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
-
---=-5lO96Fu3ZfMzynfwT+5B
-Content-Disposition: attachment; filename=execshare.diff
-Content-Type: text/x-patch; name=execshare.diff; charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-Index: testcases/kernel/security/selinux-testsuite/tests/execshare/selinux_execshare_parent.c
-===================================================================
-RCS file: /cvsroot/ltp/ltp/testcases/kernel/security/selinux-testsuite/tests/execshare/selinux_execshare_parent.c,v
-retrieving revision 1.1
-diff -u -r1.1 selinux_execshare_parent.c
---- testcases/kernel/security/selinux-testsuite/tests/execshare/selinux_execshare_parent.c	20 Apr 2005 16:09:08 -0000	1.1
-+++ testcases/kernel/security/selinux-testsuite/tests/execshare/selinux_execshare_parent.c	17 Dec 2007 19:34:16 -0000
-@@ -26,11 +26,10 @@
- 	return -1;
- }
- 
--static long clone_stack_data[2048];
--static long *clone_stack = &clone_stack_data[2048];
--
- int main(int argc, char **argv)
- {
-+	int pagesize;
-+	void *clone_stack, *page;
- 	int pid, rc, len, status, cloneflags;
- 	security_context_t context_s;
- 	context_t context;
-@@ -46,6 +45,14 @@
- 		exit(-1);
- 	}
- 
-+	pagesize = getpagesize();
-+	page = malloc(pagesize);
-+	if (!page) {
-+		perror("malloc");
-+		exit(-1);
-+	}
-+	clone_stack = page + pagesize;
-+
- 	rc = getcon(&context_s);
- 	if (rc < 0) {
- 		fprintf(stderr, "%s:  unable to get my context\n", argv[0]);
-@@ -76,8 +83,13 @@
- 		fprintf(stderr, "%s:  unable to set exec context to %s\n", argv[0], context_s);
- 		exit(-1);
- 	}
--
-+#if defined(__hppa__)
-+	pid = clone(clone_fn, page, cloneflags | SIGCHLD, argv);
-+#elif defined(__ia64__)
-+	pid = clone2(clone_fn, clone_stack, pagesize, cloneflags | SIGCHLD, argv, NULL, NULL, NULL);
-+#else
- 	pid = clone(clone_fn, clone_stack, cloneflags | SIGCHLD, argv);
-+#endif
- 	if (pid < 0) {
- 		perror("clone");
- 		exit(-1);
-
---=-5lO96Fu3ZfMzynfwT+5B--
 
 
 --
