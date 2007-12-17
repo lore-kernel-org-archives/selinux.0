@@ -1,66 +1,94 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBHEX2kP025563
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 09:33:02 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id lBHEX1Am004544
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 14:33:01 GMT
-Subject: Re: refpolicy HEAD, Debian, ioctl on xconsole by syslogd
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20071214115153.GA21605@bobek.pm.i.cz>
-References: <20071204111755.GB27359@bobek.pm.i.cz>
-	 <1196780661.5854.44.camel@gorn>  <20071214115153.GA21605@bobek.pm.i.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 17 Dec 2007 09:32:28 -0500
-Message-Id: <1197901948.12626.244.camel@gorn>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: newrole in the background
+Date: Mon, 17 Dec 2007 08:01:25 -0800
+Message-ID: <436A69503F99214D9EBC27415F66C40C0F597E63@blums0008.bluelnk.net>
+References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net> <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com> <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net> <476047A9.90000@gmail.com> <436A69503F99214D9EBC27415F66C40C0F517AD3@blums0008.bluelnk.net> <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil> <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com> <1197558486.20226.40.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net> <1197567614.20226.141.camel@moss-spartans.epoch.ncsc.mil>
+From: "Reed, Tim \(US SSA\)" <tim.reed@baesystems.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "Xavier Toth" <txtoth@gmail.com>, "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-12-14 at 12:51 +0100, Václav Ovsík wrote:
-> On Tue, Dec 04, 2007 at 10:04:21AM -0500, Christopher J. PeBenito wrote:
-> > On Tue, 2007-12-04 at 12:17 +0100, Václav Ovsík wrote:
-> > > when starting syslogd by init script:
-> > > 
-> > > audit(1196761642.698:3): avc:  denied { ioctl } for  pid=1353
-> > > comm="syslogd" name="xconsole" dev=tmpfs ino=3703
-> > > scontext=system_u:system_r:syslogd_t:s0
-> > > tcontext=system_u:object_r:xconsole_device_t:s0 tclass=fifo_file 
-> > > 
-> > > attached patch, that xserver_rw_console() gives ioctl permission.
-> > > Can be merged?
-> > 
-> > I switched it to use rw_fifo_file_perms instead.
-> 
-> I found another problem in dependency of the logging module on the
-> xserver module. When the xserver module is not used (policy without this
-> module), access to xconsole is denied. Problem is, that pipe
-> /dev/xconsole is created by syslogd startup script, but it's type
-> (context) belongs to the xserver module. That is if no X Window System
-> is installed (thus no policy module for it), syslogd startup script
-> creates /dev/xconsole, but can't do labeling and access to
-> /dev/xconsole.
-> 
-> I have no idea what to write into optional-else block. Maybe to use some
-> dummy type, allow syslogd_t to rw to this dummy type. But how to write
-> context for /dev/xconsole with this dummy type optionaly? That is, entry
-> for /dev/xconsole, valid only when there is no entry from other
-> module (xserver). Impossible?
-> 
-> Move xconsole_device_t staff from xserver into logging?
-> 
-> Any idea how to solve this?
+When newrole goes and grabs the ttyname, if it cannot get one should it
+still log something to the screen or not?
 
-This came up before, and I was under the impression that it had been
-fixed.  I guess not.  You can see the previous thread:
+Currently it says "Error! Could not retrieve tty information".  I was
+thinking of changing Error to Warning.
 
-http://marc.info/?l=selinux&m=115816229022334&w=2
+What is the recommendation here?
+Also do you have the coding standards posted somewhere?
+
+
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+Sent: Thursday, December 13, 2007 12:40 PM
+To: Reed, Tim (US SSA)
+Cc: Xavier Toth; SE Linux
+Subject: RE: newrole in the background
+
+On Thu, 2007-12-13 at 09:06 -0800, Reed, Tim (US SSA) wrote:
+> New patch...I have added checks around the calls that deal with the
+tty.
+> So if ttyn is an empty string (something had a heartache with it being
+> NULL) then it skips the processing.  It does appear to work but more
+> testing is needed.  Please review and comment.
+
+Patch is reversed, and doesn't seem to be complete (test for a NULL
+ttyname still remains and is fatal in main).
+
+ttyn should really be NULL if not defined - just fix the code.  Cleaner
+and faster to test for NULL than for empty string.  Looks like
+authenticate_via_pam() needs a check.
+
+You can simplify the logic a fair amount, e.g. on entry to relabel_tty()
+and restore_tty_label(), just do a if (!ttyn) return 0;
+
+Coding style doesn't match.
+
+> Now say if someone ran `newrole -l SystemHigh -- -c "su - foo"` in the
+> background of a script, you would not be able to give su input as it
+is
+> in the background and has no tty.  su in this case exits gracefully I
+> guess you could say.  
+> 
+> My point is that if you have an application that needs to run from
+> newrole, in the background AND requires user input, you will not be
+able
+> to give the application input while it is in the background and have
+it
+> work successfully.
+
+You can't do that anyway, by definition.
+
+> Example:
+> foo.sh
+> ---------------
+> #!/bin/bash
+> 
+> ./bar.sh &
+> ---------------
+> bar.sh
+> ---------------
+> #!/bin/bash
+> 
+> su - root -c /bin/date
+> ---------------
+> 
+> su exits because there is no tty for input.  So is chasing down having
+> newrole run in a pseudo tty in the background and accept input worth
+the
+> time?
+
+It doesn't help - there is no input to accept.
+
+We just need to make sure that the pam modules and chkpwd don't block
+forever or seg fault when handed a NULL PAM_TTY.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 
