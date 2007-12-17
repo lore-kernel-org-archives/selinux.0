@@ -1,621 +1,263 @@
-Subject: Re: [RFC PATCH v8 10/18] SELinux: Add a network node caching
-	mechanism similar to the sel_netif_*() functions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        vyekkirala@TrustedCS.com, chanson@TrustedCS.com,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <20071214215046.10069.12365.stgit@flek.lan>
-References: <20071214213548.10069.59135.stgit@flek.lan>
-	 <20071214215046.10069.12365.stgit@flek.lan>
-Content-Type: text/plain
-Date: Mon, 17 Dec 2007 15:35:28 -0500
-Message-Id: <1197923728.17307.135.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C840ED.05F3760C"
+Subject: RE: newrole in the background
+Date: Mon, 17 Dec 2007 12:40:13 -0800
+Message-ID: <436A69503F99214D9EBC27415F66C40C0F59812B@blums0008.bluelnk.net>
+References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net> <cadfc0e40712110806j5d6676f6j10a8b1dd3c557fa@mail.gmail.com> <1197397057.28006.3.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F5178BE@blums0008.bluelnk.net> <476047A9.90000@gmail.com> <436A69503F99214D9EBC27415F66C40C0F517AD3@blums0008.bluelnk.net> <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil> <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com> <1197558486.20226.40.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net> <1197567614.20226.141.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F597E63@blums0008.bluelnk.net> <1197907810.17307.38.camel@moss-spartans.epoch.ncsc.mil>
+From: "Reed, Tim \(US SSA\)" <tim.reed@baesystems.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "Xavier Toth" <txtoth@gmail.com>, "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2007-12-14 at 16:50 -0500, Paul Moore wrote:
-> This patch adds a SELinux IP address/node SID caching mechanism similar to the
-> sel_netif_*() functions.  The node SID queries in the SELinux hooks files are
-> also modified to take advantage of this new functionality.  In addition, remove
-> the address length information from the sk_buff parsing routines as it is
-> redundant since we already have the address family.
+This is a multi-part message in MIME format.
 
-This is very nice - we also need the same kind of cache for port SIDs.
+------_=_NextPart_001_01C840ED.05F3760C
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-> ---
-> 
->  security/selinux/Makefile          |    9 +
->  security/selinux/hooks.c           |   33 ++-
->  security/selinux/include/netnode.h |   32 +++
->  security/selinux/include/objsec.h  |    9 +
->  security/selinux/netnode.c         |  351 ++++++++++++++++++++++++++++++++++++
->  5 files changed, 417 insertions(+), 17 deletions(-)
-> 
-> diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-> index dc3502e..00afd85 100644
-> --- a/security/selinux/Makefile
-> +++ b/security/selinux/Makefile
-> @@ -4,7 +4,14 @@
->  
->  obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
->  
-> -selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o exports.o
-> +selinux-y := avc.o \
-> +	     hooks.o \
-> +	     selinuxfs.o \
-> +	     netlink.o \
-> +	     nlmsgtab.o \
-> +	     netif.o \
-> +	     netnode.o \
-> +	     exports.o
->  
->  selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
->  
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e429a8c..05b58cc 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -76,6 +76,7 @@
->  #include "avc.h"
->  #include "objsec.h"
->  #include "netif.h"
-> +#include "netnode.h"
->  #include "xfrm.h"
->  #include "netlabel.h"
->  
-> @@ -3158,7 +3159,7 @@ out:
->  #endif /* IPV6 */
->  
->  static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
-> -			     char **addrp, int *len, int src, u8 *proto)
-> +			     char **addrp, int src, u8 *proto)
->  {
->  	int ret = 0;
->  
-> @@ -3167,7 +3168,6 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
->  		ret = selinux_parse_skb_ipv4(skb, ad, proto);
->  		if (ret || !addrp)
->  			break;
-> -		*len = 4;
->  		*addrp = (char *)(src ? &ad->u.net.v4info.saddr :
->  					&ad->u.net.v4info.daddr);
->  		break;
-> @@ -3177,7 +3177,6 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
->  		ret = selinux_parse_skb_ipv6(skb, ad, proto);
->  		if (ret || !addrp)
->  			break;
-> -		*len = 16;
->  		*addrp = (char *)(src ? &ad->u.net.v6info.saddr :
->  					&ad->u.net.v6info.daddr);
->  		break;
-> @@ -3377,7 +3376,7 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
->  			break;
->  		}
->  		
-> -		err = security_node_sid(family, addrp, addrlen, &sid);
-> +		err = sel_netnode_sid(addrp, family, &sid);
->  		if (err)
->  			goto out;
->  		
-> @@ -3589,7 +3588,8 @@ static int selinux_socket_unix_may_send(struct socket *sock,
->  }
->  
->  static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
-> -		struct avc_audit_data *ad, u16 family, char *addrp, int len)
-> +				       struct avc_audit_data *ad,
-> +				       u16 family, char *addrp)
->  {
->  	int err = 0;
->  	u32 netif_perm, node_perm, node_sid, if_sid, recv_perm = 0;
-> @@ -3649,7 +3649,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
->  	if (err)
->  		goto out;
->  	
-> -	err = security_node_sid(family, addrp, len, &node_sid);
-> +	err = sel_netnode_sid(addrp, family, &node_sid);
->  	if (err)
->  		goto out;
->  	
-> @@ -3678,7 +3678,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
->  {
->  	u16 family;
->  	char *addrp;
-> -	int len, err = 0;
-> +	int err = 0;
->  	struct avc_audit_data ad;
->  	struct sk_security_struct *sksec = sk->sk_security;
->  
-> @@ -3694,13 +3694,12 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
->  	ad.u.net.netif = skb->iif;
->  	ad.u.net.family = family;
->  
-> -	err = selinux_parse_skb(skb, &ad, &addrp, &len, 1, NULL);
-> +	err = selinux_parse_skb(skb, &ad, &addrp, 1, NULL);
->  	if (err)
->  		goto out;
->  
->  	if (selinux_compat_net)
-> -		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family,
-> -						  addrp, len);
-> +		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family, addrp);
->  	else
->  		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
->  				   PACKET__RECV, &ad);
-> @@ -3922,9 +3921,11 @@ out:
->  
->  #ifdef CONFIG_NETFILTER
->  
-> -static int selinux_ip_postroute_last_compat(struct sock *sk, struct net_device *dev,
-> +static int selinux_ip_postroute_last_compat(struct sock *sk,
-> +					    struct net_device *dev,
->  					    struct avc_audit_data *ad,
-> -					    u16 family, char *addrp, int len)
-> +					    u16 family,
-> +					    char *addrp)
->  {
->  	int err = 0;
->  	u32 netif_perm, node_perm, node_sid, if_sid, send_perm = 0;
-> @@ -3975,7 +3976,7 @@ static int selinux_ip_postroute_last_compat(struct sock *sk, struct net_device *
->  	if (err)
->  		goto out;
->  		
-> -	err = security_node_sid(family, addrp, len, &node_sid);
-> +	err = sel_netnode_sid(addrp, family, &node_sid);
->  	if (err)
->  		goto out;
->  	
-> @@ -4009,7 +4010,7 @@ static unsigned int selinux_ip_postroute_last(unsigned int hooknum,
->                                                u16 family)
->  {
->  	char *addrp;
-> -	int len, err = 0;
-> +	int err = 0;
->  	struct sock *sk;
->  	struct avc_audit_data ad;
->  	struct net_device *dev = (struct net_device *)out;
-> @@ -4026,13 +4027,13 @@ static unsigned int selinux_ip_postroute_last(unsigned int hooknum,
->  	ad.u.net.netif = dev->ifindex;
->  	ad.u.net.family = family;
->  
-> -	err = selinux_parse_skb(skb, &ad, &addrp, &len, 0, &proto);
-> +	err = selinux_parse_skb(skb, &ad, &addrp, 0, &proto);
->  	if (err)
->  		goto out;
->  
->  	if (selinux_compat_net)
->  		err = selinux_ip_postroute_last_compat(sk, dev, &ad,
-> -						       family, addrp, len);
-> +						       family, addrp);
->  	else
->  		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
->  				   PACKET__SEND, &ad);
-> diff --git a/security/selinux/include/netnode.h b/security/selinux/include/netnode.h
-> new file mode 100644
-> index 0000000..1b94450
-> --- /dev/null
-> +++ b/security/selinux/include/netnode.h
-> @@ -0,0 +1,32 @@
-> +/*
-> + * Network node table
-> + *
-> + * SELinux must keep a mapping of network nodes to labels/SIDs.  This
-> + * mapping is maintained as part of the normal policy but a fast cache is
-> + * needed to reduce the lookup overhead since most of these queries happen on
-> + * a per-packet basis.
-> + *
-> + * Author: Paul Moore <paul.moore@hp.com>
-> + *
-> + */
-> +
-> +/*
-> + * (c) Copyright Hewlett-Packard Development Company, L.P., 2007
-> + *
-> + * This program is free software: you can redistribute it and/or modify
-> + * it under the terms of version 2 of the GNU General Public License as
-> + * published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + */
-> +
-> +#ifndef _SELINUX_NETNODE_H
-> +#define _SELINUX_NETNODE_H
-> +
-> +int sel_netnode_sid(void *addr, u16 family, u32 *sid);
-> +
-> +#endif
-> diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-> index e41a2aa..6140734 100644
-> --- a/security/selinux/include/objsec.h
-> +++ b/security/selinux/include/objsec.h
-> @@ -99,6 +99,15 @@ struct netif_security_struct {
->  	u32 sid;			/* SID for this interface */
->  };
->  
-> +struct netnode_security_struct {
-> +	union {
-> +		__be32 ipv4;		/* IPv4 node address */
-> +		struct in6_addr ipv6;	/* IPv6 node address */
-> +	} addr;
-> +	u32 sid;			/* SID for this node */
-> +	u16 family;			/* address family */
-> +};
-> +
->  struct sk_security_struct {
->  	struct sock *sk;		/* back pointer to sk object */
->  	u32 sid;			/* SID of this object */
-> diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-> new file mode 100644
-> index 0000000..0cd66b8
-> --- /dev/null
-> +++ b/security/selinux/netnode.c
-> @@ -0,0 +1,351 @@
-> +/*
-> + * Network node table
-> + *
-> + * SELinux must keep a mapping of network nodes to labels/SIDs.  This
-> + * mapping is maintained as part of the normal policy but a fast cache is
-> + * needed to reduce the lookup overhead since most of these queries happen on
-> + * a per-packet basis.
-> + *
-> + * Author: Paul Moore <paul.moore@hp.com>
-> + *
-> + * This code is heavily based on the "netif" concept originally developed by
-> + * James Morris <jmorris@redhat.com>
-> + *   (see security/selinux/netif.c for more information)
-> + * 
-> + */
-> +
-> +/*
-> + * (c) Copyright Hewlett-Packard Development Company, L.P., 2007
-> + *
-> + * This program is free software: you can redistribute it and/or modify
-> + * it under the terms of version 2 of the GNU General Public License as
-> + * published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + */
-> +
-> +#include <linux/types.h>
-> +#include <linux/rcupdate.h>
-> +#include <linux/list.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/in.h>
-> +#include <linux/in6.h>
-> +#include <linux/ip.h>
-> +#include <linux/ipv6.h>
-> +#include <net/ip.h>
-> +#include <net/ipv6.h>
-> +#include <asm/bug.h>
-> +
-> +#include "objsec.h"
-> +
-> +#define SEL_NETNODE_HASH_SIZE       256
-> +#define SEL_NETNODE_HASH_BKT_LIMIT   16
-> +
-> +struct sel_netnode {
-> +	struct netnode_security_struct nsec;
-> +
-> +	struct list_head list;
-> +	struct rcu_head rcu;
-> +};
-> +
-> +/* NOTE: we are using a combined hash table for both IPv4 and IPv6, the reason
-> + * for this is that I suspect most users will not make heavy use of both
-> + * address families at the same time so one table will usually end up wasted,
-> + * if this becomes a problem we can always add a hash table for each address
-> + * family later */
-> +
-> +static LIST_HEAD(sel_netnode_list);
-> +static DEFINE_SPINLOCK(sel_netnode_lock);
-> +static struct list_head sel_netnode_hash[SEL_NETNODE_HASH_SIZE];
-> +
-> +/**
-> + * sel_netnode_free - Frees a node entry
-> + * @p: the entry's RCU field
-> + *
-> + * Description:
-> + * This function is designed to be used as a callback to the call_rcu()
-> + * function so that memory allocated to a hash table node entry can be
-> + * released safely.
-> + *
-> + */
-> +static void sel_netnode_free(struct rcu_head *p)
-> +{
-> +	struct sel_netnode *node = container_of(p, struct sel_netnode, rcu);
-> +	kfree(node);
-> +}
-> +
-> +/**
-> + * sel_netnode_hashfn_ipv4 - IPv4 hashing function for the node table
-> + * @addr: IPv4 address
-> + *
-> + * Description:
-> + * This is the IPv4 hashing function for the node interface table, it returns
-> + * the bucket number for the given IP address.
-> + *
-> + */
-> +static u32 sel_netnode_hashfn_ipv4(__be32 addr)
-> +{
-> +	/* at some point we should determine if the mismatch in byte order
-> +	 * affects the hash function dramatically */
-> +	return (addr & (SEL_NETNODE_HASH_SIZE - 1));
-> +}
-> +
-> +/**
-> + * sel_netnode_hashfn_ipv6 - IPv6 hashing function for the node table
-> + * @addr: IPv6 address
-> + *
-> + * Description:
-> + * This is the IPv6 hashing function for the node interface table, it returns
-> + * the bucket number for the given IP address.
-> + *
-> + */
-> +static u32 sel_netnode_hashfn_ipv6(const struct in6_addr *addr)
-> +{
-> +	/* just hash the least significant 32 bits to keep things fast (they
-> +	 * are the most likely to be different anyway), we can revisit this
-> +	 * later if needed */
-> +	return (addr->s6_addr32[3] & (SEL_NETNODE_HASH_SIZE - 1));
-> +}
-> +
-> +/**
-> + * sel_netnode_find - Search for a node record
-> + * @addr: IP address
-> + * @family: address family
-> + *
-> + * Description:
-> + * Search the network node table and return the record matching @addr.  If an
-> + * entry can not be found in the table return NULL.
-> + *
-> + */
-> +static struct sel_netnode *sel_netnode_find(const void *addr, u16 family)
-> +{
-> +	u32 idx;
-> +	struct sel_netnode *node;
-> +
-> +	switch (family) {
-> +	case PF_INET:
-> +		idx = sel_netnode_hashfn_ipv4(*(__be32 *)addr);
-> +		break;
-> +	case PF_INET6:
-> +		idx = sel_netnode_hashfn_ipv6(addr);
-> +		break;
-> +	default:
-> +		BUG();
-> +	}
-> +
-> +	list_for_each_entry_rcu(node, &sel_netnode_hash[idx], list)
-> +		if (node->nsec.family == family)
-> +			switch (family) {
-> +			case PF_INET:
-> +				if (node->nsec.addr.ipv4 == *(__be32 *)addr)
-> +					return node;
-> +				break;
-> +			case PF_INET6:
-> +				if (ipv6_addr_cmp(&node->nsec.addr.ipv6,
-> +						  addr) == 0)
-> +					return node;
-> +				break;
-> +			}
-> +
-> +	return NULL;
-> +}
-> +
-> +/**
-> + * sel_netnode_insert - Insert a new node into the table
-> + * @node: the new node record
-> + *
-> + * Description:
-> + * Add a new node record to the network address hash table.  Returns zero on
-> + * success, negative values on failure.
-> + *
-> + */
-> +static int sel_netnode_insert(struct sel_netnode *node)
-> +{
-> +	u32 idx;
-> +	u32 count = 0;
-> +	struct sel_netnode *iter;
-> +
-> +	switch (node->nsec.family) {
-> +	case PF_INET:
-> +		idx = sel_netnode_hashfn_ipv4(node->nsec.addr.ipv4);
-> +		break;
-> +	case PF_INET6:
-> +		idx = sel_netnode_hashfn_ipv6(&node->nsec.addr.ipv6);
-> +		break;
-> +	default:
-> +		BUG();
-> +	}
-> +	list_add_rcu(&node->list, &sel_netnode_hash[idx]);
-> +
-> +	/* we need to impose a limit on the growth of the hash table so check
-> +	 * this bucket to make sure it is within the specified bounds */
-> +	list_for_each_entry(iter, &sel_netnode_hash[idx], list)
-> +		if (++count > SEL_NETNODE_HASH_BKT_LIMIT) {
-> +			list_del_rcu(&iter->list);
-> +			call_rcu(&iter->rcu, sel_netnode_free);
-> +			break;
-> +		}
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * sel_netnode_destroy - Remove a node record from the table
-> + * @node: the existing node record
-> + *
-> + * Description:
-> + * Remove an existing node record from the network address table.
-> + *
-> + */
-> +static void sel_netnode_destroy(struct sel_netnode *node)
-> +{
-> +	list_del_rcu(&node->list);
-> +	call_rcu(&node->rcu, sel_netnode_free);
-> +}
-> +
-> +/**
-> + * sel_netnode_sid_slow - Lookup the SID of a network address using the policy
-> + * @addr: the IP address
-> + * @family: the address family
-> + * @sid: node SID
-> + *
-> + * Description:
-> + * This function determines the SID of a network address by quering the
-> + * security policy.  The result is added to the network address table to
-> + * speedup future queries.  Returns zero on success, negative values on
-> + * failure.
-> + *
-> + */
-> +static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
-> +{
-> +	int ret;
-> +	struct sel_netnode *node;
-> +	struct sel_netnode *new = NULL;
-> +
-> +	spin_lock_bh(&sel_netnode_lock);
-> +	node = sel_netnode_find(addr, family);
-> +	if (node != NULL) {
-> +		*sid = node->nsec.sid;
-> +		ret = 0;
-> +		goto out;
-> +	}
-> +	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-> +	if (new == NULL) {
-> +		ret = -ENOMEM;
-> +		goto out;
-> +	}
-> +	switch (family) {
-> +	case PF_INET:
-> +		ret = security_node_sid(PF_INET,
-> +					addr, sizeof(struct in_addr),
-> +					&new->nsec.sid);
-> +		new->nsec.addr.ipv4 = *(__be32 *)addr;
-> +		break;
-> +	case PF_INET6:
-> +		ret = security_node_sid(PF_INET6,
-> +					addr, sizeof(struct in6_addr),
-> +					&new->nsec.sid);
-> +		memcpy(&new->nsec.addr.ipv6, addr,
-> +		       sizeof(new->nsec.addr.ipv6));
-> +		break;
-> +	default:
-> +		BUG();
-> +	}
-> +	if (ret != 0)
-> +		goto out;
-> +	new->nsec.family = family;
-> +	ret = sel_netnode_insert(new);
-> +	if (ret != 0)
-> +		goto out;
-> +	*sid = new->nsec.sid;
-> +
-> +out:
-> +	spin_unlock_bh(&sel_netnode_lock);
-> +	if (ret != 0)
-> +		kfree(new);
-> +	return ret;
-> +}
-> +
-> +/**
-> + * sel_netnode_sid - Lookup the SID of a network address
-> + * @addr: the IP address
-> + * @family: the address family
-> + * @sid: node SID
-> + *
-> + * Description:
-> + * This function determines the SID of a network address using the fastest
-> + * method possible.  First the address table is queried, but if an entry
-> + * can't be found then the policy is queried and the result is added to the
-> + * table to speedup future queries.  Returns zero on success, negative values
-> + * on failure.
-> + *
-> + */
-> +int sel_netnode_sid(void *addr, u16 family, u32 *sid)
-> +{
-> +	struct sel_netnode *node;
-> +
-> +	rcu_read_lock();
-> +	node = sel_netnode_find(addr, family);
-> +	if (node != NULL) {
-> +		*sid = node->nsec.sid;
-> +		rcu_read_unlock();
-> +		return 0;
-> +	}
-> +	rcu_read_unlock();
-> +
-> +	return sel_netnode_sid_slow(addr, family, sid);
-> +}
-> +
-> +/**
-> + * sel_netnode_flush - Flush the entire network address table
-> + *
-> + * Description:
-> + * Remove all entries from the network address table.
-> + *
-> + */
-> +static void sel_netnode_flush(void)
-> +{
-> +	u32 idx;
-> +	struct sel_netnode *node;
-> +
-> +	spin_lock_bh(&sel_netnode_lock);
-> +	for (idx = 0; idx < SEL_NETNODE_HASH_SIZE; idx++)
-> +		list_for_each_entry(node, &sel_netnode_hash[idx], list)
-> +			sel_netnode_destroy(node);
-> +	spin_unlock_bh(&sel_netnode_lock);
-> +}
-> +
-> +static int sel_netnode_avc_callback(u32 event, u32 ssid, u32 tsid,
-> +				    u16 class, u32 perms, u32 *retained)
-> +{
-> +	if (event == AVC_CALLBACK_RESET) {
-> +		sel_netnode_flush();
-> +		synchronize_net();
-> +	}
-> +	return 0;
-> +}
-> +
-> +static __init int sel_netnode_init(void)
-> +{
-> +	int iter;
-> +	int ret;
-> +	
-> +	if (!selinux_enabled)
-> +		return 0;
-> +
-> +	for (iter = 0; iter < SEL_NETNODE_HASH_SIZE; iter++)
-> +		INIT_LIST_HEAD(&sel_netnode_hash[iter]);
-> +
-> +	ret = avc_add_callback(sel_netnode_avc_callback, AVC_CALLBACK_RESET,
-> +	                       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
-> +	if (ret != 0)
-> +		panic("avc_add_callback() failed, error %d\n", ret);
-> +
-> +	return ret;
-> +}
-> +
-> +__initcall(sel_netnode_init);
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
+Lets try this again....Patch Try #3
+
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+On Behalf Of Stephen Smalley
+Sent: Monday, December 17, 2007 11:10 AM
+To: Reed, Tim (US SSA)
+Cc: Xavier Toth; SE Linux
+Subject: RE: newrole in the background
+
+On Mon, 2007-12-17 at 08:01 -0800, Reed, Tim (US SSA) wrote:
+> When newrole goes and grabs the ttyname, if it cannot get one should
+it
+> still log something to the screen or not?
+>=20
+> Currently it says "Error! Could not retrieve tty information".  I was
+> thinking of changing Error to Warning.
+
+Yes, that's fine.
+>=20
+> What is the recommendation here?
+> Also do you have the coding standards posted somewhere?
+
+We just loosely follow kernel coding style,
+http://lxr.linux.no/linux/Documentation/CodingStyle
+and make indent can be used as a hammer (but not a very good one).
+
+>=20
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]=20
+> Sent: Thursday, December 13, 2007 12:40 PM
+> To: Reed, Tim (US SSA)
+> Cc: Xavier Toth; SE Linux
+> Subject: RE: newrole in the background
+>=20
+> On Thu, 2007-12-13 at 09:06 -0800, Reed, Tim (US SSA) wrote:
+> > New patch...I have added checks around the calls that deal with the
+> tty.
+> > So if ttyn is an empty string (something had a heartache with it
+being
+> > NULL) then it skips the processing.  It does appear to work but more
+> > testing is needed.  Please review and comment.
+>=20
+> Patch is reversed, and doesn't seem to be complete (test for a NULL
+> ttyname still remains and is fatal in main).
+>=20
+> ttyn should really be NULL if not defined - just fix the code.
+Cleaner
+> and faster to test for NULL than for empty string.  Looks like
+> authenticate_via_pam() needs a check.
+>=20
+> You can simplify the logic a fair amount, e.g. on entry to
+relabel_tty()
+> and restore_tty_label(), just do a if (!ttyn) return 0;
+>=20
+> Coding style doesn't match.
+>=20
+> > Now say if someone ran `newrole -l SystemHigh -- -c "su - foo"` in
+the
+> > background of a script, you would not be able to give su input as it
+> is
+> > in the background and has no tty.  su in this case exits gracefully
+I
+> > guess you could say. =20
+> >=20
+> > My point is that if you have an application that needs to run from
+> > newrole, in the background AND requires user input, you will not be
+> able
+> > to give the application input while it is in the background and have
+> it
+> > work successfully.
+>=20
+> You can't do that anyway, by definition.
+>=20
+> > Example:
+> > foo.sh
+> > ---------------
+> > #!/bin/bash
+> >=20
+> > ./bar.sh &
+> > ---------------
+> > bar.sh
+> > ---------------
+> > #!/bin/bash
+> >=20
+> > su - root -c /bin/date
+> > ---------------
+> >=20
+> > su exits because there is no tty for input.  So is chasing down
+having
+> > newrole run in a pseudo tty in the background and accept input worth
+> the
+> > time?
+>=20
+> It doesn't help - there is no input to accept.
+>=20
+> We just need to make sure that the pam modules and chkpwd don't block
+> forever or seg fault when handed a NULL PAM_TTY.
+>=20
+--=20
 Stephen Smalley
 National Security Agency
 
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
+
+------_=_NextPart_001_01C840ED.05F3760C
+Content-Type: application/octet-stream;
+	name="newrole_no_tty_3.patch"
+Content-Transfer-Encoding: base64
+Content-Description: newrole_no_tty_3.patch
+Content-Disposition: attachment;
+	filename="newrole_no_tty_3.patch"
+
+ZGlmZiAtTmF1ciBwb2xpY3ljb3JldXRpbHMtMS4zNC4xMS1vcmlnL25ld3JvbGUvbmV3cm9sZS5j
+IHBvbGljeWNvcmV1dGlscy0xLjM0LjExL25ld3JvbGUvbmV3cm9sZS5jCi0tLSBwb2xpY3ljb3Jl
+dXRpbHMtMS4zNC4xMS1vcmlnL25ld3JvbGUvbmV3cm9sZS5jCTIwMDctMTItMTIgMTU6NTY6NDQu
+MDAwMDAwMDAwIC0wNTAwCisrKyBwb2xpY3ljb3JldXRpbHMtMS4zNC4xMS9uZXdyb2xlL25ld3Jv
+bGUuYwkyMDA3LTEyLTE3IDEyOjQxOjE3LjAwMDAwMDAwMCAtMDUwMApAQCAtMTgyLDE1ICsxODIs
+MTcgQEAKIAlpbnQgcGFtX3JjOwkJLyogcGFtIHJldHVybiBjb2RlICovCiAJY29uc3QgY2hhciAq
+dHR5X25hbWU7CiAKLQlpZiAoc3RybmNtcCh0dHluLCAiL2Rldi8iLCA1KSA9PSAwKQorCWlmICh0
+dHluKSB7CisJICBpZiAoc3RybmNtcCh0dHluLCAiL2Rldi8iLCA1KSA9PSAwKQogCQl0dHlfbmFt
+ZSA9IHR0eW4gKyA1OwotCWVsc2UKKwkgIGVsc2UKIAkJdHR5X25hbWUgPSB0dHluOwogCi0JcGFt
+X3JjID0gcGFtX3NldF9pdGVtKHBhbV9oYW5kbGUsIFBBTV9UVFksIHR0eV9uYW1lKTsKLQlpZiAo
+cGFtX3JjICE9IFBBTV9TVUNDRVNTKSB7Ci0JCWZwcmludGYoc3RkZXJyLCBfKCJmYWlsZWQgdG8g
+c2V0IFBBTV9UVFlcbiIpKTsKKwkgIHBhbV9yYyA9IHBhbV9zZXRfaXRlbShwYW1faGFuZGxlLCBQ
+QU1fVFRZLCB0dHlfbmFtZSk7CisJICBpZiAocGFtX3JjICE9IFBBTV9TVUNDRVNTKSB7CisJICAg
+ICAgICBmcHJpbnRmKHN0ZGVyciwgXygiZmFpbGVkIHRvIHNldCBQQU1fVFRZXG4iKSk7CiAJCWdv
+dG8gb3V0OworCSAgfQogCX0KIAogCS8qIEFzayBQQU0gdG8gYXV0aGVudGljYXRlIHRoZSB1c2Vy
+IHJ1bm5pbmcgdGhpcyBwcm9ncmFtICovCkBAIC02MzQsNiArNjM2LDkgQEAKIAlzZWN1cml0eV9j
+b250ZXh0X3QgdHR5X2NvbiA9IE5VTEw7CiAJc2VjdXJpdHlfY29udGV4dF90IG5ld190dHlfY29u
+ID0gTlVMTDsKIAorCWlmICghdHR5bikKKwkgIHJldHVybiAwOworCiAJaWYgKGVuZm9yY2luZyA8
+IDApIHsKIAkJZnByaW50ZihzdGRlcnIsIF8oIkNvdWxkIG5vdCBkZXRlcm1pbmUgZW5mb3JjaW5n
+IG1vZGUuXG4iKSk7CiAJCXJldHVybiAtMTsKQEAgLTY0Miw0MCArNjQ3LDQwIEBACiAJLyogUmUt
+b3BlbiBUVFkgZGVzY3JpcHRvciAqLwogCWZkID0gb3Blbih0dHluLCBPX1JEV1J8T19OT05CTE9D
+Syk7CiAJaWYgKGZkIDwgMCkgewotCQlmcHJpbnRmKHN0ZGVyciwgXygiRXJyb3IhICBDb3VsZCBu
+b3Qgb3BlbiAlcy5cbiIpLCB0dHluKTsKLQkJcmV0dXJuIGZkOworCSAgZnByaW50ZihzdGRlcnIs
+IF8oIkVycm9yISAgQ291bGQgbm90IG9wZW4gJXMuXG4iKSwgdHR5bik7CisJICByZXR1cm4gZmQ7
+CiAJfQogCWZjbnRsKGZkLCBGX1NFVEZMLCBmY250bChmZCwgRl9HRVRGTCwgMCkgJiB+T19OT05C
+TE9DSyk7Ci0KKwkKIAlpZiAoZmdldGZpbGVjb24oZmQsICZ0dHlfY29uKSA8IDApIHsKLQkJZnBy
+aW50ZihzdGRlcnIsIF8oIiVzISAgQ291bGQgbm90IGdldCBjdXJyZW50IGNvbnRleHQgIgotCQkJ
+ImZvciAlcywgbm90IHJlbGFiZWxpbmcgdHR5LlxuIiksCi0JCQllbmZvcmNpbmcgPyAiRXJyb3Ii
+IDogIldhcm5pbmciLCB0dHluKTsKLQkJaWYgKGVuZm9yY2luZykKLQkJCWdvdG8gY2xvc2VfZmQ7
+CisJICBmcHJpbnRmKHN0ZGVyciwgXygiJXMhICBDb3VsZCBub3QgZ2V0IGN1cnJlbnQgY29udGV4
+dCAiCisJCQkgICAgImZvciAlcywgbm90IHJlbGFiZWxpbmcgdHR5LlxuIiksCisJCSAgZW5mb3Jj
+aW5nID8gIkVycm9yIiA6ICJXYXJuaW5nIiwgdHR5bik7CisJICBpZiAoZW5mb3JjaW5nKQorCSAg
+ICBnb3RvIGNsb3NlX2ZkOwogCX0KLQorCQogCWlmICh0dHlfY29uICYmCiAJICAgIChzZWN1cml0
+eV9jb21wdXRlX3JlbGFiZWwobmV3X2NvbnRleHQsIHR0eV9jb24sCiAJCQkJICAgICAgU0VDQ0xB
+U1NfQ0hSX0ZJTEUsICZuZXdfdHR5X2NvbikgPCAwKSkgewotCQlmcHJpbnRmKHN0ZGVyciwJXygi
+JXMhICBDb3VsZCBub3QgZ2V0IG5ldyBjb250ZXh0IGZvciAlcywgIgotCQkJIm5vdCByZWxhYmVs
+aW5nIHR0eS5cbiIpLAotCQkJZW5mb3JjaW5nID8gIkVycm9yIiA6ICJXYXJuaW5nIiwgdHR5bik7
+Ci0JCWlmIChlbmZvcmNpbmcpCi0JCQlnb3RvIGNsb3NlX2ZkOworCSAgZnByaW50ZihzdGRlcnIs
+CV8oIiVzISAgQ291bGQgbm90IGdldCBuZXcgY29udGV4dCBmb3IgJXMsICIKKwkJCQkgICJub3Qg
+cmVsYWJlbGluZyB0dHkuXG4iKSwKKwkJICBlbmZvcmNpbmcgPyAiRXJyb3IiIDogIldhcm5pbmci
+LCB0dHluKTsKKwkgIGlmIChlbmZvcmNpbmcpCisJICAgIGdvdG8gY2xvc2VfZmQ7CiAJfQotCisJ
+CiAJaWYgKG5ld190dHlfY29uKQotCQlpZiAoZnNldGZpbGVjb24oZmQsIG5ld190dHlfY29uKSA8
+IDApIHsKLQkJCWZwcmludGYoc3RkZXJyLAotCQkJCV8oIiVzISAgQ291bGQgbm90IHNldCBuZXcg
+Y29udGV4dCBmb3IgJXNcbiIpLAotCQkJCWVuZm9yY2luZyA/ICJFcnJvciIgOiAiV2FybmluZyIs
+IHR0eW4pOwotCQkJZnJlZWNvbihuZXdfdHR5X2Nvbik7Ci0JCQluZXdfdHR5X2NvbiA9IE5VTEw7
+Ci0JCQlpZiAoZW5mb3JjaW5nKQotCQkJCWdvdG8gY2xvc2VfZmQ7Ci0JCX0KLQorCSAgaWYgKGZz
+ZXRmaWxlY29uKGZkLCBuZXdfdHR5X2NvbikgPCAwKSB7CisJICAgIGZwcmludGYoc3RkZXJyLAor
+CQkgICAgXygiJXMhICBDb3VsZCBub3Qgc2V0IG5ldyBjb250ZXh0IGZvciAlc1xuIiksCisJCSAg
+ICBlbmZvcmNpbmcgPyAiRXJyb3IiIDogIldhcm5pbmciLCB0dHluKTsKKwkgICAgZnJlZWNvbihu
+ZXdfdHR5X2Nvbik7CisJICAgIG5ld190dHlfY29uID0gTlVMTDsKKwkgICAgaWYgKGVuZm9yY2lu
+ZykKKwkgICAgICBnb3RvIGNsb3NlX2ZkOworCSAgfQorCQogCSp0dHlfY29udGV4dCA9IHR0eV9j
+b247CiAJKm5ld190dHlfY29udGV4dCA9IG5ld190dHlfY29uOwogCXJldHVybiBmZDsKQEAgLTcw
+Miw2ICs3MDcsOSBAQAogCWludCByYyA9IDA7CiAJc2VjdXJpdHlfY29udGV4dF90IGNoa190dHlf
+Y29udGV4dCA9IE5VTEw7CiAKKwlpZiAoIXR0eW4pCisgICAgCSAgICAgICAgZ290byBza2lwX3Jl
+bGFiZWw7CisKIAlpZiAoIW5ld190dHlfY29udGV4dCkKIAkJZ290byBza2lwX3JlbGFiZWw7CiAK
+QEAgLTc5OSwxNCArODA3LDE2IEBACiAJCQkJCSJzcGVjaWZpZWRcbiIpKTsKIAkJCQlyZXR1cm4g
+LTE7CiAJCQl9Ci0JCQlpZiAoZmdldGZpbGVjb24oMCwmdHR5X2NvbikgPj0gMCkgewotCQkJCWlm
+IChzZWxpbnV4X2NoZWNrX3NlY3VyZXR0eV9jb250ZXh0KHR0eV9jb24pIDwgMCkgewotCQkJCQlm
+cHJpbnRmKHN0ZGVyciwgXygiRXJyb3I6IHlvdSBhcmUgbm90IGFsbG93ZWQgdG8gY2hhbmdlIGxl
+dmVscyBvbiBhIG5vbiBzZWN1cmUgdGVybWluYWxcbiIpKTsKLQkJCQkJZnJlZWNvbih0dHlfY29u
+KTsKLQkJCQkJcmV0dXJuIC0xOwotCQkJCX0KKwkJCWlmICh0dHluKSB7CisJCQkgICAgaWYgKGZn
+ZXRmaWxlY29uKFNURElOX0ZJTEVOTywmdHR5X2NvbikgPj0gMCkgeworCQkJICAgICAgaWYgKHNl
+bGludXhfY2hlY2tfc2VjdXJldHR5X2NvbnRleHQodHR5X2NvbikgPCAwKSB7CisJCQkJZnByaW50
+ZihzdGRlcnIsIF8oIkVycm9yOiB5b3UgYXJlIG5vdCBhbGxvd2VkIHRvIGNoYW5nZSBsZXZlbHMg
+b24gYSBub24gc2VjdXJlIHRlcm1pbmFsIFxuIikpOwogCQkJCWZyZWVjb24odHR5X2Nvbik7Ci0J
+CQl9CisJCQkJcmV0dXJuIC0xOworCQkJICAgICAgfQorCQkJICAgICAgZnJlZWNvbih0dHlfY29u
+KTsKKwkJCSAgICB9CisJCQkgIH0KIAogCQkJbGV2ZWxfcyA9IG9wdGFyZzsKIAkJCWJyZWFrOwpA
+QCAtOTI0LDcgKzkzNCw2IEBACiAKIAlyZXR1cm4gMDsKIH0KLQogLyoqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKgog
+ICoKICAqIEFsbCBjb2RlIHVzZWQgZm9yIGJvdGggUEFNIGFuZCBzaGFkb3cgcGFzc3dkIGdvZXMg
+aW4gdGhpcyBzZWN0aW9uLgpAQCAtMTAwMywxNSArMTAxMiwxNSBAQAogCWlmIChnZXRwcmV2Y29u
+KCZvbGRfY29udGV4dCkpIHsKIAkJZnByaW50ZihzdGRlcnIsIF8oImZhaWxlZCB0byBnZXQgb2xk
+X2NvbnRleHQuXG4iKSk7CiAJCXJldHVybiAtMTsKLQl9Ci0KLQl0dHluID0gdHR5bmFtZSgwKTsK
+LQlpZiAoIXR0eW4gfHwgKnR0eW4gPT0gJ1wwJykgewotCQlmcHJpbnRmKHN0ZGVyciwKLQkJCV8o
+IkVycm9yISAgQ291bGQgbm90IHJldHJpZXZlIHR0eSBpbmZvcm1hdGlvbi5cbiIpKTsKLQkJcmV0
+dXJuIC0xOwotCX0KLQorCSAgICAgIH0KKwkgICAgICAKKwl0dHluID0gdHR5bmFtZShTVERJTl9G
+SUxFTk8pOworCWlmICghdHR5biB8fCAqdHR5biA9PSAnXDAnKSAKKwkgIHsKKwkgICAgZnByaW50
+ZihzdGRlcnIsCisJCSAgICBfKCJXYXJuaW5nISAgQ291bGQgbm90IHJldHJpZXZlIHR0eSBpbmZv
+cm1hdGlvbi5cbiIpKTsKKwkgIH0KKwkKIAlpZiAocGFyc2VfY29tbWFuZF9saW5lX2FyZ3VtZW50
+cyhhcmdjLCBhcmd2LCB0dHluLCBvbGRfY29udGV4dCwKIAkJCQkJICZuZXdfY29udGV4dCwgJnBy
+ZXNlcnZlX2Vudmlyb25tZW50KSkKIAkJcmV0dXJuIC0xOwpAQCAtMTAyNiw4ICsxMDM1LDcgQEAK
+IAkgKi8KIAlpZiAoZXh0cmFjdF9wd19kYXRhKCZwdykpCiAJCWdvdG8gZXJyX2ZyZWU7Ci0KLQlw
+cmludGYoXygiQXV0aGVudGljYXRpbmcgJXMuXG4iKSwgcHcucHdfbmFtZSk7CisJICAgICAgCiAj
+aWZkZWYgVVNFX1BBTQogCXBhbV9zdGF0dXMgPSBwYW1fc3RhcnQoU0VSVklDRV9OQU1FLCBwdy5w
+d19uYW1lLCAmcGFtX2NvbnZlcnNhdGlvbiwKIAkJCSAgICAgICAmcGFtX2hhbmRsZSk7CkBAIC0x
+MTI0LDMzICsxMTMyLDM1IEBACiAJCWZyZWUocHcucHdfc2hlbGwpOwogCQlmcmVlKHNoZWxsX2Fy
+Z3YwKTsKIAkJcmV0dXJuIGV4aXRfY29kZTsKLQl9Ci0KLQkvKiBDSElMRCAqLwotCS8qIENsb3Nl
+IHRoZSB0dHkgYW5kIHJlb3BlbiBkZXNjcmlwdG9ycyAwIHRocm91Z2ggMiAqLwotCWlmIChjbG9z
+ZShmZCkgfHwgY2xvc2UoMCkgfHwgY2xvc2UoMSkgfHwgY2xvc2UoMikpIHsKLQkJZnByaW50Zihz
+dGRlcnIsIF8oIkNvdWxkIG5vdCBjbG9zZSBkZXNjcmlwdG9ycy5cbiIpKTsKLQkJZ290byBlcnJf
+Y2xvc2VfcGFtOwotCX0KLQlmZCA9IG9wZW4odHR5biwgT19SRE9OTFl8T19OT05CTE9DSyk7Ci0J
+aWYgKGZkICE9IDApCi0JCWdvdG8gZXJyX2Nsb3NlX3BhbTsKLQlmY250bChmZCwgRl9TRVRGTCwg
+ZmNudGwoZmQsIEZfR0VURkwsIDApICYgfk9fTk9OQkxPQ0spOwotCWZkID0gb3Blbih0dHluLCBP
+X1JEV1J8T19OT05CTE9DSyk7Ci0JaWYgKGZkICE9IDEpCi0JCWdvdG8gZXJyX2Nsb3NlX3BhbTsK
+LQlmY250bChmZCwgRl9TRVRGTCwgZmNudGwoZmQsIEZfR0VURkwsIDApICYgfk9fTk9OQkxPQ0sp
+OwotCWZkID0gb3Blbih0dHluLCBPX1JEV1J8T19OT05CTE9DSyk7Ci0JaWYgKGZkICE9IDIpCi0J
+CWdvdG8gZXJyX2Nsb3NlX3BhbTsKLQlmY250bChmZCwgRl9TRVRGTCwgZmNudGwoZmQsIEZfR0VU
+RkwsIDApICYgfk9fTk9OQkxPQ0spOwotCi0JLyoKLQkgKiBTdGVwIDU6ICBFeGVjdXRlIGEgbmV3
+IHNoZWxsIHdpdGggdGhlIG5ldyBjb250ZXh0IGluIGBuZXdfY29udGV4dCcuIAotCSAqCi0JICog
+RXN0YWJsaXNoIGNvbnRleHQsIG5hbWVzYXBjZSBhbmQgYW55IG9wdGlvbnMgZm9yIHRoZSBuZXcg
+c2hlbGwKLQkgKi8KLQlpZiAob3B0aW5kIDwgMSkKKwkgICAgICB9CisJICAgICAgCisJICAgICAg
+LyogQ0hJTEQgKi8KKwkgICAgICAvKiBDbG9zZSB0aGUgdHR5IGFuZCByZW9wZW4gZGVzY3JpcHRv
+cnMgMCB0aHJvdWdoIDIgKi8KKwkgICAgICBpZiAodHR5bikgeworCQkgIGlmIChjbG9zZShmZCkg
+fHwgY2xvc2UoMCkgfHwgY2xvc2UoMSkgfHwgY2xvc2UoMikpIHsKKwkJICAgIGZwcmludGYoc3Rk
+ZXJyLCBfKCJDb3VsZCBub3QgY2xvc2UgZGVzY3JpcHRvcnMuXG4iKSk7CisJCSAgICBnb3RvIGVy
+cl9jbG9zZV9wYW07CisJCSAgfQorCQkgIGZkID0gb3Blbih0dHluLCBPX1JET05MWXxPX05PTkJM
+T0NLKTsKKwkJICBpZiAoZmQgIT0gMCkKKwkJICAgIGdvdG8gZXJyX2Nsb3NlX3BhbTsKKwkJICBm
+Y250bChmZCwgRl9TRVRGTCwgZmNudGwoZmQsIEZfR0VURkwsIDApICYgfk9fTk9OQkxPQ0spOwor
+CQkgIGZkID0gb3Blbih0dHluLCBPX1JEV1J8T19OT05CTE9DSyk7CisJCSAgaWYgKGZkICE9IDEp
+CisJCSAgICBnb3RvIGVycl9jbG9zZV9wYW07CisJCSAgZmNudGwoZmQsIEZfU0VURkwsIGZjbnRs
+KGZkLCBGX0dFVEZMLCAwKSAmIH5PX05PTkJMT0NLKTsKKwkJICBmZCA9IG9wZW4odHR5biwgT19S
+RFdSfE9fTk9OQkxPQ0spOworCQkgIGlmIChmZCAhPSAyKQorCQkgICAgZ290byBlcnJfY2xvc2Vf
+cGFtOworCQkgIGZjbnRsKGZkLCBGX1NFVEZMLCBmY250bChmZCwgRl9HRVRGTCwgMCkgJiB+T19O
+T05CTE9DSyk7CisJCSAgCisJCX0KKwkgICAgICAvKgorCSAgICAgICAqIFN0ZXAgNTogIEV4ZWN1
+dGUgYSBuZXcgc2hlbGwgd2l0aCB0aGUgbmV3IGNvbnRleHQgaW4gYG5ld19jb250ZXh0Jy4gCisJ
+ICAgICAgICoKKwkgICAgICAgKiBFc3RhYmxpc2ggY29udGV4dCwgbmFtZXNhcGNlIGFuZCBhbnkg
+b3B0aW9ucyBmb3IgdGhlIG5ldyBzaGVsbAorCSAgICAgICAqLworCSAgICAgIGlmIChvcHRpbmQg
+PCAxKQogCQlvcHRpbmQgPSAxOwogCiAJLyogVGhpcyBpcyB1Z2x5LCBidXQgdXNlIG5ld3JvbGUn
+cyBhcmd2IGZvciB0aGUgZXhlYydkIHNoZWxscyBhcmd2ICovCg==
+
+------_=_NextPart_001_01C840ED.05F3760C--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
