@@ -1,55 +1,53 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBHGRiRg006613
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 11:27:44 -0500
-Received: from el-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBHGRhcR021764
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 16:27:43 GMT
-Received: by el-out-1112.google.com with SMTP id j27so380628elf.0
-        for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 08:27:43 -0800 (PST)
-Message-ID: <dd18b0c30712170827t67aa7760m879573601e56ad9f@mail.gmail.com>
-Date: Mon, 17 Dec 2007 08:27:42 -0800
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: load_policy
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_12095_23815604.1197908862401"
+Subject: Re: [LTP] Se-Linux Updates for LTP
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: gk4@us.ibm.com
+Cc: jburke@redhat.com, James Morris <jmorris@redhat.com>,
+        ltp-list <ltp-list@lists.sourceforge.net>,
+        Robert Williamson <robbiew@us.ibm.com>,
+        Daniel Walsh <dwalsh@redhat.com>, klausk@br.ibm.com,
+        Michael Reed <mreed10@us.ibm.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Joy Latten <latten@us.ibm.com>, Paul Larson <plars@us.ibm.com>
+In-Reply-To: <1197908169.4834.7.camel@boilermaker.dyn.webahead.ibm.com>
+References: <1197044724.4411.17.camel@subratamodak.linux.ibm.com>
+	 <1197266491.4482.2.camel@subratamodak.linux.ibm.com>
+	 <1197295269.18120.11.camel@moss-spartans.epoch.ncsc.mil>
+	 <20071210171503.GA25223@sergelap.austin.ibm.com>
+	 <1197382969.9034.29.camel@subratamodak.linux.ibm.com>
+	 <20071211155219.GA22416@sergelap.austin.ibm.com>
+	 <1197458260.4710.95.camel@subratamodak.linux.ibm.com>
+	 <1197477042.1125.83.camel@moss-spartans.epoch.ncsc.mil>
+	 <4761CF71.1020101@redhat.com>
+	 <1197645067.31325.29.camel@moss-spartans.epoch.ncsc.mil>
+	 <47635ED6.1010908@redhat.com>
+	 <1197908169.4834.7.camel@boilermaker.dyn.webahead.ibm.com>
+Content-Type: text/plain
+Date: Mon, 17 Dec 2007 13:08:35 -0500
+Message-Id: <1197914915.17307.70.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_12095_23815604.1197908862401
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, 2007-12-17 at 10:16 -0600, George Kraft wrote:
+> On Fri, 2007-12-14 at 23:57 -0500, Jeff Burke wrote:
+> > -----------------------------------------------
+> > Total Tests: 38
+> > Total Failures: 8
+> > Kernel Version: 2.6.18-53.el5
+> > Machine Architecture: i686
+> > --------------------------------------------------------
+> 
+> Regarding the 8 selinux failures, are the problems with the OS, or the
+> test cases?
 
-Hello I am new to selinux and seem to be at a road block. If anybody has any
-info on  my situation it would be appreciative.
-The problem I have is the policy isn't loading at boot time.  putting
-load_policy in /etc/rc.local gives me a please choose a security context;
-when choosing sysadm_r sysadm_t response is invalid security context. Then
-looking into init I see this
-ldd /sbin/init
-     linux-gate.so.1 => (oxffffe000)
-     libc.so.6 => /lib/libc.so.6 (0xb7e73000)         <----no
-/lib/libselinux.so.1 (how to add libselinux to init?)
-     /lib/ld-linux.so.2 (0xb7fca000)
+It is test policy dependencies on the base policy being broken by
+changes in the base policy.
 
-could this be why selinux_init_load_policy doesnt work?
-any info would be helpful.
-regards;
-             --Justin P. Mattock
+As my patch yielded less failures, I'm looking at it further.
 
-------=_Part_12095_23815604.1197908862401
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+Stephen Smalley
+National Security Agency
 
-Hello I am new to selinux and seem to be at a road block. If anybody has any info on&nbsp; my situation it would be appreciative.<br>The problem I have is the policy isn&#39;t loading at boot time.&nbsp; putting load_policy in /etc/rc.local gives me a please choose a security context; when choosing sysadm_r sysadm_t response is invalid security context. Then looking into init I see this 
-<br>ldd /sbin/init<br>&nbsp;&nbsp;&nbsp;&nbsp; linux-gate.so.1 =&gt; (oxffffe000)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp; libc.so.6 =&gt; /lib/libc.so.6 (0xb7e73000)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;----no /lib/libselinux.so.1 (how to add libselinux to init?)<br>&nbsp;&nbsp;&nbsp;&nbsp; /lib/ld-
-linux.so.2 (0xb7fca000)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><br>could this be why selinux_init_load_policy doesnt work?&nbsp; <br>any info would be helpful.<br>regards;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br><br><br><br><br><br><br><br><br>
-<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><br>
-
-------=_Part_12095_23815604.1197908862401--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
