@@ -1,167 +1,154 @@
-Subject: Re: [RFC PATCH v8 06/18] LSM: Add inet_sys_snd_skb() LSM hook
+Subject: Re: [RFC PATCH v8 05/18] LSM: Add secctx_to_secid() LSM hook
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Paul Moore <paul.moore@hp.com>
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
         vyekkirala@TrustedCS.com, chanson@TrustedCS.com
-In-Reply-To: <20071214215025.10069.10036.stgit@flek.lan>
+In-Reply-To: <20071214215020.10069.51960.stgit@flek.lan>
 References: <20071214213548.10069.59135.stgit@flek.lan>
-	 <20071214215025.10069.10036.stgit@flek.lan>
+	 <20071214215020.10069.51960.stgit@flek.lan>
 Content-Type: text/plain
-Date: Mon, 17 Dec 2007 14:45:50 -0500
-Message-Id: <1197920750.17307.100.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 17 Dec 2007 14:49:34 -0500
+Message-Id: <1197920974.17307.105.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Fri, 2007-12-14 at 16:50 -0500, Paul Moore wrote:
-> Add an inet_sys_snd_skb() LSM hook to allow the LSM to provide packet level
-> access control for all outbound packets.  Using the existing postroute_last
-> netfilter hook turns out to be problematic as it is can be invoked multiple
-> times for a single packet, e.g. individual IPsec transforms, adding unwanted
-> overhead and complicating the security policy.
+> Add a secctx_to_secid() LSM hook to go along with the existing
+> secid_to_secctx() LSM hook.  This patch also includes the SELinux
+> implementation for this hook.
 
-None of the netfilter hooks works for this purpose?
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Obviously this one needs to get seen on netdev.
+This one can go up anytime, as we have other people wanting such a hook
+too.
+
+Or alternatively we need to rationalize the entire selinux/exports
+interface with these hooks as used by the networking and audit
+subsystems, as that issue will be coming up anyway for other LSMs.
+
+One thing to note is that some of these interfaces treat the context as
+an opaque byte array of a given length, while other ones depend on the
+context to be a NUL-terminated string (e.g. audit).
 
 > ---
 > 
->  include/linux/security.h |   11 +++++++++++
->  net/ipv4/ip_output.c     |    7 +++++++
->  net/ipv6/ip6_output.c    |    5 +++++
->  security/dummy.c         |    8 +++++++-
+>  include/linux/security.h |   13 +++++++++++++
+>  security/dummy.c         |    6 ++++++
 >  security/security.c      |    6 ++++++
->  5 files changed, 36 insertions(+), 1 deletions(-)
+>  security/selinux/hooks.c |    6 ++++++
+>  4 files changed, 31 insertions(+), 0 deletions(-)
 > 
 > diff --git a/include/linux/security.h b/include/linux/security.h
-> index db19c92..1b8d332 100644
+> index ac05083..db19c92 100644
 > --- a/include/linux/security.h
 > +++ b/include/linux/security.h
-> @@ -876,6 +876,10 @@ struct request_sock;
->   *     Sets the connection's peersid to the secmark on skb.
->   * @req_classify_flow:
->   *	Sets the flow's sid to the openreq sid.
-> + * @inet_sys_snd_skb:
-> + *	Check permissions on outgoing network packets.
-> + *	@skb is the packet to check
-> + *	@family is the packet's address family
+> @@ -1183,6 +1183,10 @@ struct request_sock;
+>   *	Convert secid to security context.
+>   *	@secid contains the security ID.
+>   *	@secdata contains the pointer that stores the converted security context.
+> + * @secctx_to_secid:
+> + *      Convert security context to secid.
+> + *      @secid contains the pointer to the generated security ID.
+> + *      @secdata contains the security context.
 >   *
->   * Security hooks for XFRM operations.
->   *
-> @@ -1416,6 +1420,7 @@ struct security_operations {
->  	void (*inet_csk_clone)(struct sock *newsk, const struct request_sock *req);
->  	void (*inet_conn_established)(struct sock *sk, struct sk_buff *skb);
->  	void (*req_classify_flow)(const struct request_sock *req, struct flowi *fl);
-> +	int (*inet_sys_snd_skb)(struct sk_buff *skb, int family);
->  #endif	/* CONFIG_SECURITY_NETWORK */
+>   * @release_secctx:
+>   *	Release the security context.
+> @@ -1371,6 +1375,7 @@ struct security_operations {
+>   	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+>   	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+>  	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
+> +	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
+>  	void (*release_secctx)(char *secdata, u32 seclen);
 >  
->  #ifdef CONFIG_SECURITY_NETWORK_XFRM
-> @@ -2328,6 +2333,7 @@ void security_sk_free(struct sock *sk);
->  void security_sk_clone(const struct sock *sk, struct sock *newsk);
->  void security_sk_classify_flow(struct sock *sk, struct flowi *fl);
->  void security_req_classify_flow(const struct request_sock *req, struct flowi *fl);
-> +int security_inet_sys_snd_skb(struct sk_buff *skb, int family);
->  void security_sock_graft(struct sock*sk, struct socket *parent);
->  int security_inet_conn_request(struct sock *sk,
->  			struct sk_buff *skb, struct request_sock *req);
-> @@ -2471,6 +2477,11 @@ static inline void security_req_classify_flow(const struct request_sock *req, st
->  {
+>  #ifdef CONFIG_SECURITY_NETWORK
+> @@ -1603,6 +1608,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
+>  int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+>  int security_netlink_recv(struct sk_buff *skb, int cap);
+>  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+> +int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
+>  void security_release_secctx(char *secdata, u32 seclen);
+>  
+>  #else /* CONFIG_SECURITY */
+> @@ -2280,6 +2286,13 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+>  	return -EOPNOTSUPP;
 >  }
 >  
-> +static inline int security_inet_sys_snd_skb(struct sk_buff *skb, int family)
+> +static inline int security_secctx_to_secid(char *secdata,
+> +					   u32 seclen,
+> +					   u32 *secid)
 > +{
-> +	return 0;
+> +	return -EOPNOTSUPP;
 > +}
 > +
->  static inline void security_sock_graft(struct sock* sk, struct socket *parent)
+>  static inline void security_release_secctx(char *secdata, u32 seclen)
 >  {
 >  }
-> diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-> index fd99fbd..82a7297 100644
-> --- a/net/ipv4/ip_output.c
-> +++ b/net/ipv4/ip_output.c
-> @@ -204,6 +204,8 @@ static inline int ip_skb_dst_mtu(struct sk_buff *skb)
->  
->  static int ip_finish_output(struct sk_buff *skb)
->  {
-> +	int err;
-> +
->  #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
->  	/* Policy lookup after SNAT yielded a new policy */
->  	if (skb->dst->xfrm != NULL) {
-> @@ -211,6 +213,11 @@ static int ip_finish_output(struct sk_buff *skb)
->  		return dst_output(skb);
->  	}
->  #endif
-> +
-> +	err = security_inet_sys_snd_skb(skb, AF_INET);
-> +	if (err)
-> +		return err;
-> +
->  	if (skb->len > ip_skb_dst_mtu(skb) && !skb_is_gso(skb))
->  		return ip_fragment(skb, ip_finish_output2);
->  	else
-> diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-> index 6338a9c..44ddf32 100644
-> --- a/net/ipv6/ip6_output.c
-> +++ b/net/ipv6/ip6_output.c
-> @@ -72,8 +72,13 @@ static __inline__ void ipv6_select_ident(struct sk_buff *skb, struct frag_hdr *f
->  
->  static int ip6_output_finish(struct sk_buff *skb)
->  {
-> +	int err;
->  	struct dst_entry *dst = skb->dst;
->  
-> +	err = security_inet_sys_snd_skb(skb, AF_INET6);
-> +	if (err)
-> +		return err;
-> +
->  	if (dst->hh)
->  		return neigh_hh_output(dst->hh, skb);
->  	else if (dst->neighbour)
 > diff --git a/security/dummy.c b/security/dummy.c
-> index 0b62f95..384979a 100644
+> index 3ccfbbe..0b62f95 100644
 > --- a/security/dummy.c
 > +++ b/security/dummy.c
-> @@ -848,6 +848,11 @@ static inline void dummy_req_classify_flow(const struct request_sock *req,
->  			struct flowi *fl)
+> @@ -928,6 +928,11 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  	return -EOPNOTSUPP;
+>  }
+>  
+> +static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
+> +{
+> +	return -EOPNOTSUPP;
+> +}
+> +
+>  static void dummy_release_secctx(char *secdata, u32 seclen)
 >  {
 >  }
-> +
-> +static inline int dummy_inet_sys_snd_skb(struct sk_buff *skb, int family)
-> +{
-> +	return 0;
-> +}
->  #endif	/* CONFIG_SECURITY_NETWORK */
->  
->  #ifdef CONFIG_SECURITY_NETWORK_XFRM
-> @@ -1122,7 +1127,8 @@ void security_fixup_ops (struct security_operations *ops)
->  	set_to_dummy_if_null(ops, inet_csk_clone);
->  	set_to_dummy_if_null(ops, inet_conn_established);
->  	set_to_dummy_if_null(ops, req_classify_flow);
-> - #endif	/* CONFIG_SECURITY_NETWORK */
-> +	set_to_dummy_if_null(ops, inet_sys_snd_skb);
-> +#endif	/* CONFIG_SECURITY_NETWORK */
->  #ifdef  CONFIG_SECURITY_NETWORK_XFRM
->  	set_to_dummy_if_null(ops, xfrm_policy_alloc_security);
->  	set_to_dummy_if_null(ops, xfrm_policy_clone_security);
+> @@ -1086,6 +1091,7 @@ void security_fixup_ops (struct security_operations *ops)
+>   	set_to_dummy_if_null(ops, getprocattr);
+>   	set_to_dummy_if_null(ops, setprocattr);
+>   	set_to_dummy_if_null(ops, secid_to_secctx);
+> +	set_to_dummy_if_null(ops, secctx_to_secid);
+>   	set_to_dummy_if_null(ops, release_secctx);
+>  #ifdef CONFIG_SECURITY_NETWORK
+>  	set_to_dummy_if_null(ops, unix_stream_connect);
 > diff --git a/security/security.c b/security/security.c
-> index 3bdcada..7f55459 100644
+> index 0e1f1f1..3bdcada 100644
 > --- a/security/security.c
 > +++ b/security/security.c
-> @@ -961,6 +961,12 @@ void security_req_classify_flow(const struct request_sock *req, struct flowi *fl
+> @@ -816,6 +816,12 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
 >  }
->  EXPORT_SYMBOL(security_req_classify_flow);
+>  EXPORT_SYMBOL(security_secid_to_secctx);
 >  
-> +int security_inet_sys_snd_skb(struct sk_buff *skb, int family)
+> +int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
 > +{
-> +	return security_ops->inet_sys_snd_skb(skb, family);
+> +	return security_ops->secctx_to_secid(secdata, seclen, secid);
 > +}
-> +EXPORT_SYMBOL(security_inet_sys_snd_skb);
+> +EXPORT_SYMBOL(security_secctx_to_secid);
 > +
->  void security_sock_graft(struct sock *sk, struct socket *parent)
+>  void security_release_secctx(char *secdata, u32 seclen)
 >  {
->  	security_ops->sock_graft(sk, parent);
+>  	return security_ops->release_secctx(secdata, seclen);
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 9f3124b..8bb673b 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4710,6 +4710,11 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  	return security_sid_to_context(secid, secdata, seclen);
+>  }
+>  
+> +static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
+> +{
+> +	return security_context_to_sid(secdata, seclen, secid);
+> +}
+> +
+>  static void selinux_release_secctx(char *secdata, u32 seclen)
+>  {
+>  	kfree(secdata);
+> @@ -4898,6 +4903,7 @@ static struct security_operations selinux_ops = {
+>  	.setprocattr =                  selinux_setprocattr,
+>  
+>  	.secid_to_secctx =		selinux_secid_to_secctx,
+> +	.secctx_to_secid =		selinux_secctx_to_secid,
+>  	.release_secctx =		selinux_release_secctx,
+>  
+>          .unix_stream_connect =		selinux_socket_unix_stream_connect,
 > 
 > 
 > --
