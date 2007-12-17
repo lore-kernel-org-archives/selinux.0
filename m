@@ -1,64 +1,41 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBHKgNFh011037
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 15:42:23 -0500
-Received: from web36613.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBHKgMMW021597
-	for <selinux@tycho.nsa.gov>; Mon, 17 Dec 2007 20:42:22 GMT
-Date: Mon, 17 Dec 2007 12:42:06 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [RFC PATCH v8 05/18] LSM: Add secctx_to_secid() LSM hook
-To: Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>
+From: Paul Moore <paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH v8 06/18] LSM: Add inet_sys_snd_skb() LSM hook
+Date: Mon, 17 Dec 2007 15:48:19 -0500
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
         vyekkirala@TrustedCS.com, chanson@TrustedCS.com
-In-Reply-To: <1197920974.17307.105.camel@moss-spartans.epoch.ncsc.mil>
+References: <20071214213548.10069.59135.stgit@flek.lan> <20071214215025.10069.10036.stgit@flek.lan> <1197920750.17307.100.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1197920750.17307.100.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <870819.98947.qm@web36613.mail.mud.yahoo.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200712171548.20090.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
+On Monday 17 December 2007 2:45:50 pm Stephen Smalley wrote:
 > On Fri, 2007-12-14 at 16:50 -0500, Paul Moore wrote:
-> > Add a secctx_to_secid() LSM hook to go along with the existing
-> > secid_to_secctx() LSM hook.  This patch also includes the SELinux
-> > implementation for this hook.
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> 
-> This one can go up anytime, as we have other people wanting such a hook
-> too.
+> > Add an inet_sys_snd_skb() LSM hook to allow the LSM to provide packet
+> > level access control for all outbound packets.  Using the existing
+> > postroute_last netfilter hook turns out to be problematic as it is can be
+> > invoked multiple times for a single packet, e.g. individual IPsec
+> > transforms, adding unwanted overhead and complicating the security
+> > policy.
+>
+> None of the netfilter hooks works for this purpose?
 
-I can't provide any justifications why it shouldn't go in,
-and there will no doubt be places where the continued use of
-secids will require it going forward.
+None that we have found, no.  Although if you can prove me wrong I'd be very 
+happy.  The problem is that the existing netfilter hooks can get hit multiple 
+times in the case of labeled IPsec which was decided to be a no-no.
 
-> Or alternatively we need to rationalize the entire selinux/exports
-> interface with these hooks as used by the networking and audit
-> subsystems, as that issue will be coming up anyway for other LSMs.
+> Obviously this one needs to get seen on netdev.
 
-Yeah. Smack is taking the pragmatic path, assuming that secid and
-secctx will be around at least until pigs nest in trees. You left
-out the USB subsystems's use of secid's, which may be the least
-savory of all.
+Yep.  I just wanted to make sure we were all in agreement on what we 
+wanted/needed before I tried to make our case to the netdev folks.
 
-> One thing to note is that some of these interfaces treat the context as
-> an opaque byte array of a given length, while other ones depend on the
-> context to be a NUL-terminated string (e.g. audit).
-
-Smack and SELiunx always provide a NUL-terminated string. I would
-be in favor of defining a secctx as the textual representation of a
-security blob. If we don't, we'll need to define a third thing that
-is the text representation for audit before it's possible to convert
-audit from SELinux calls to LSM calls. Converting audit to use LSM
-calls will be mostly straitforward if the secctx can be assumed to
-be a string.
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
