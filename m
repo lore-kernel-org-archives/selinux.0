@@ -1,64 +1,45 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH v8 18/18] SELinux: Add network ingress and egress control permission checks
-Date: Tue, 18 Dec 2007 12:03:15 -0500
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        vyekkirala@TrustedCS.com, chanson@TrustedCS.com,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20071214213548.10069.59135.stgit@flek.lan> <200712180859.34571.paul.moore@hp.com> <1197990881.7967.70.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1197990881.7967.70.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200712181203.16482.paul.moore@hp.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBIIjtja031744
+	for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 13:45:55 -0500
+Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBIIjrTS005547
+	for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 18:45:54 GMT
+Received: from [IPv6:2001:6f8:900:6e8::2] (cl-1769.ham-01.de.sixxs.net [IPv6:2001:6f8:900:6e8::2])
+	(authenticated bits=0)
+	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id lBIIjKkF026223
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
+	for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 19:45:47 +0100
+Subject: Propper labeling of files under /var/www
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Tue, 18 Dec 2007 18:45:07 +0000
+Message-Id: <1198003507.3705.15.camel@localhost6.localdomain6>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 18 December 2007 10:14:41 am Stephen Smalley wrote:
-> On Tue, 2007-12-18 at 08:59 -0500, Paul Moore wrote:
-> > Thoughts?  Should I just forget all this and use the peer label as a
-> > subject label?
->
-> I'm not certain what we gain by using the peer as the object and class
-> in these checks, and it seems to make their meaning less clear.  It
-> should be noted that we already use process labels as both subjects
-> (when the actor) and objects (when the target/recipient of an action, as
-> in signal delivery or IPC), and that process labels "flow" to sockets
-> they create and socket labels "flow" to packets they send, and socket
-> labels likewise serve dual roles as subjects (Can this socket send/recv
-> this packet?) and objects (Can this process send/recv on this socket?).
->
-> In the case of locally generated or destined traffic, we always have a
-> local socket that we can use as the subject of the check, which I think
-> is why we end up not using packet/peer as the subject generally - we
-> essentially have two subjects to choose from, and we favor the local
-> one.  But in the forwarded case, the packet/peer is the only
-> subject/actor in view really.
+How do you label files under /var/www? I created a policy with the
+following context
 
-Yep, I think you are right and I'm just slow to realize it.  As pointed out 
-earlier in the discussion, the awkwardness of using the packet's peer label 
-as an object should have clued me into the fact that this was a bad idea.
+/var/www/wiki(/.*)?
+gen_context(system_u:object_r:httpd_wiki_script_ro_t,s0)
 
-So, my last question is what permissions do we want to use for the netif/node 
-object classes?
+Loaded the policy and relabeled /var/www but the context
+of /var/www/wiki is still httpd_sys_content_t. Checked the
+file /etc/selinux/targeted/contexts/files/file_contexts twice and the
+entry for /var/www/wiki exists (it's under the /var/www entry). The
+relabel was done via fixfiles and restorecon and even a reboot
+(touch /.autorelabel).
 
- allow peer_t netif_t:netif { egress ingress };
- allow peer_t netnode_t:node { sendto/send recvfrom/recv };
+I'm out of ideas ;-) Any suggestions?
 
-What I'd like to avoid if possible is the protocol specific permissions we 
-currently have for the netif and node object classes; it requires extra work 
-in the kernel, it doesn't work at all for the forwarding case, and I have my 
-doubts about the usefulness of the distinction.  I think the ingress/egress 
-permissions still make sense when applied to the netif object class but it's 
-a bit of a stretch when applied to the node object class.  I personally like 
-the sendto/recvfrom permissions but if that is too much of a violation from 
-existing precedence I imagine send/recv would work.
+Best regards
+Stefan
 
-Thoughts?
+PS: I'm using Fedora 7 (latest updates) with the targeted policy
+(2.6.4-61.fc7)
 
--- 
-paul moore
-linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
