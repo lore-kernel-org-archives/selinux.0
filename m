@@ -1,53 +1,46 @@
 From: Paul Moore <paul.moore@hp.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH v8 18/18] SELinux: Add network ingress and egress control permission checks
-Date: Tue, 18 Dec 2007 08:59:33 -0500
+Subject: Re: [RFC PATCH v8 10/18] SELinux: Add a network node caching mechanism similar to the sel_netif_*() functions
+Date: Tue, 18 Dec 2007 08:37:00 -0500
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        vyekkirala@TrustedCS.com, chanson@TrustedCS.com
-References: <20071214213548.10069.59135.stgit@flek.lan> <200712161147.55119.paul.moore@hp.com> <1197921937.17307.114.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1197921937.17307.114.camel@moss-spartans.epoch.ncsc.mil>
+        vyekkirala@TrustedCS.com, chanson@TrustedCS.com,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+References: <20071214213548.10069.59135.stgit@flek.lan> <200712171556.21136.paul.moore@hp.com> <1197984395.7967.3.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1197984395.7967.3.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
-Message-Id: <200712180859.34571.paul.moore@hp.com>
+Message-Id: <200712180837.01715.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 17 December 2007 3:05:37 pm Stephen Smalley wrote:
-> On Sun, 2007-12-16 at 11:47 -0500, Paul Moore wrote:
-> > We should probably have different permissions for the interface and node
-> > cases.  Take the example of an admin who is only interested in enforcing
-> > interface controls and not node controls.  They would most likely write
-> > the following policy rule to nullify the node check ...
+On Tuesday 18 December 2007 8:26:35 am Stephen Smalley wrote:
+> On Mon, 2007-12-17 at 15:56 -0500, Paul Moore wrote:
+> > On Monday 17 December 2007 3:35:28 pm Stephen Smalley wrote:
+> > > On Fri, 2007-12-14 at 16:50 -0500, Paul Moore wrote:
+> > > > This patch adds a SELinux IP address/node SID caching mechanism
+> > > > similar to the sel_netif_*() functions.  The node SID queries in the
+> > > > SELinux hooks files are also modified to take advantage of this new
+> > > > functionality.  In addition, remove the address length information
+> > > > from the sk_buff parsing routines as it is redundant since we already
+> > > > have the address family.
+> > >
+> > > This is very nice - we also need the same kind of cache for port SIDs.
 > >
-> >  allow unlabeled_t peer_t:peer egress;
-> >
-> > ... which would end up applying to both the interface and node checks
-> > because they use the same permission.  I'm thinking we should split the
-> > permissions like this:
-> >
-> >  allow netif_t peer_t:peer if_egress;
-> >  allow netnode_t peer_t: peer node_egress;
-> >
-> > ... and do something similar for the ingress side.  Thoughts?
+> > Thanks.  Any problem if we wait until 2.6.26 for a port SID cache?  It
+> > shouldn't be any worse than it is now (the new code is not concerned with
+> > ports) and the current patchset is already large enough that it keeps me
+> > up at night thinking about all the places it could go wrong ...
 >
-> That starts to sound a lot like using netif and node classes instead of
-> the peer class.
-> 	allow peer_t netif_t:netif egress;
-> 	allow peer_t netnode_t:node egress;
+> Yes, that's fine - just a note to file away for the future.  We'll still
+> want the cache eventually though since the name_bind and name_connect
+> checks are based on the port SIDs and will remain even when the compat
+> checks are obsoleted.
 
-Thinking about this some more ... egress/ingress make sense from an interface 
-point of view but they sound out of place from a node point of view.  After 
-all, you are not "egressing" to a node, to are "sending to" a node.  The same 
-thing applies in the opposite direction, you don't "ingress" from a node, 
-you "receive from" a node.  With that in mind I'm thinking of going with the 
-following:
+All righty, since neither you or James are in a hurry for this I'll "file it 
+away" for 2.6.26.
 
- allow netif_t peer_t:peer { ingress egress };
- allow netnode_t peer_t:peer { recv_from send_to };
-
-Thoughts?  Should I just forget all this and use the peer label as a subject 
-label?
+Thanks.
 
 -- 
 paul moore
