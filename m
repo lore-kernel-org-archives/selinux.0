@@ -1,57 +1,57 @@
-Subject: Re: Xorg modprobe denials
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil>
-References: <47673B12.6040205@tycho.nsa.gov>
-	 <1197949627.4790.4.camel@defiant.pebenito.net>
-	 <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 18 Dec 2007 08:57:03 -0500
-Message-Id: <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH v8 18/18] SELinux: Add network ingress and egress control permission checks
+Date: Tue, 18 Dec 2007 08:59:33 -0500
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        vyekkirala@TrustedCS.com, chanson@TrustedCS.com
+References: <20071214213548.10069.59135.stgit@flek.lan> <200712161147.55119.paul.moore@hp.com> <1197921937.17307.114.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1197921937.17307.114.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200712180859.34571.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2007-12-18 at 08:34 -0500, Stephen Smalley wrote:
-> On Mon, 2007-12-17 at 22:47 -0500, Chris PeBenito wrote:
-> > On Mon, 2007-12-17 at 22:14 -0500, Eamon Walsh wrote:
-> > > Attached are some denials that modprobe is encountering while loading 
-> > > Xorg DRI kernel modules while X server is starting up.  tty7 is the 
-> > > terminal where the X server is being launched (Ctrl-Alt-F7).  I'm aware 
-> > > that the Xorg.0.log file is supposed to be labeled xserver_log_t, but my 
-> > > guess is that would be denied as well.  Think this may be log messages 
-> > > except for the renicing stuff.
-> > > 
-> > > This is xselinux branch of refpolicy running in enforcing mode.
-> > 
-> > Based on the other kernel messages, I'm guessing that the insmod
-> > succeeded despite the tty and capability denials?  If so I suppose we
-> > can dontaudit it.
-> 
-> I don't think we want to dontaudit the capability denials.
+On Monday 17 December 2007 3:05:37 pm Stephen Smalley wrote:
+> On Sun, 2007-12-16 at 11:47 -0500, Paul Moore wrote:
+> > We should probably have different permissions for the interface and node
+> > cases.  Take the example of an admin who is only interested in enforcing
+> > interface controls and not node controls.  They would most likely write
+> > the following policy rule to nullify the node check ...
+> >
+> >  allow unlabeled_t peer_t:peer egress;
+> >
+> > ... which would end up applying to both the interface and node checks
+> > because they use the same permission.  I'm thinking we should split the
+> > permissions like this:
+> >
+> >  allow netif_t peer_t:peer if_egress;
+> >  allow netnode_t peer_t: peer node_egress;
+> >
+> > ... and do something similar for the ingress side.  Thoughts?
+>
+> That starts to sound a lot like using netif and node classes instead of
+> the peer class.
+> 	allow peer_t netif_t:netif egress;
+> 	allow peer_t netnode_t:node egress;
 
-And just to note, denials from insmod can be triggered either by
-userspace activity of insmod or by the module initialization code of the
-loaded module.
+Thinking about this some more ... egress/ingress make sense from an interface 
+point of view but they sound out of place from a node point of view.  After 
+all, you are not "egressing" to a node, to are "sending to" a node.  The same 
+thing applies in the opposite direction, you don't "ingress" from a node, 
+you "receive from" a node.  With that in mind I'm thinking of going with the 
+following:
 
-> > > plain text document attachment (audit_x.txt)
-> > > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.892:71): avc:  denied  { read write } for  pid=2220 comm="modprobe" name="tty7" dev=tmpfs ino=240 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file
-> > > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.893:72): avc:  denied  { write } for  pid=2220 comm="modprobe" path="/usr/local/var/log/Xorg.0.log" dev=dm-0 ino=5701638 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:object_r:usr_t:s0 tclass=file
-> > > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.893:73): avc:  denied  { read write } for  pid=2220 comm="modprobe" path="/dev/tty7" dev=tmpfs ino=240 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file
-> > > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.926:74): avc:  denied  { sys_nice } for  pid=2220 comm="modprobe" capability=23 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tclass=capability
-> > > Dec 17 21:25:34 moss-charon kernel: [drm] Initialized drm 1.1.0 20060810
-> > > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.932:75): avc:  denied  { sys_nice } for  pid=2220 comm="modprobe" capability=23 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tclass=capability
-> > > Dec 17 21:25:34 moss-charon kernel: ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 16 (level, low) -> IRQ 16
-> > > Dec 17 21:25:34 moss-charon kernel: [drm] Initialized i915 1.11.0 20071122 on minor 0
-> > > Dec 17 21:25:34 moss-charon kernel: mtrr: type mismatch for c0000000,10000000 old: write-back new: write-combining
-> > > Dec 17 21:25:40 moss-charon kernel: mtrr: type mismatch for c0000000,10000000 old: write-back new: write-combining
-> > > 
-> > 
+ allow netif_t peer_t:peer { ingress egress };
+ allow netnode_t peer_t:peer { recv_from send_to };
+
+Thoughts?  Should I just forget all this and use the peer label as a subject 
+label?
+
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
