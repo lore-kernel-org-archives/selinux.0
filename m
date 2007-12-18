@@ -1,37 +1,48 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBI8Q9w4021835
-	for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 03:26:09 -0500
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBI8Q4xB019526
-	for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 08:26:04 GMT
-Date: Tue, 18 Dec 2007 19:25:54 +1100 (EST)
-From: James Morris <jmorris@namei.org>
+Subject: Re: [RFC PATCH v8 10/18] SELinux: Add a network node caching
+	mechanism similar to the sel_netif_*() functions
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Paul Moore <paul.moore@hp.com>
-cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        vyekkirala@TrustedCS.com, chanson@TrustedCS.com
-Subject: Re: [RFC PATCH v8 05/18] LSM: Add secctx_to_secid() LSM hook
-In-Reply-To: <20071214215020.10069.51960.stgit@flek.lan>
-Message-ID: <Xine.LNX.4.64.0712181925210.19727@us.intercode.com.au>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        vyekkirala@TrustedCS.com, chanson@TrustedCS.com,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <200712171556.21136.paul.moore@hp.com>
 References: <20071214213548.10069.59135.stgit@flek.lan>
- <20071214215020.10069.51960.stgit@flek.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <20071214215046.10069.12365.stgit@flek.lan>
+	 <1197923728.17307.135.camel@moss-spartans.epoch.ncsc.mil>
+	 <200712171556.21136.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Tue, 18 Dec 2007 08:26:35 -0500
+Message-Id: <1197984395.7967.3.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 14 Dec 2007, Paul Moore wrote:
+On Mon, 2007-12-17 at 15:56 -0500, Paul Moore wrote:
+> On Monday 17 December 2007 3:35:28 pm Stephen Smalley wrote:
+> > On Fri, 2007-12-14 at 16:50 -0500, Paul Moore wrote:
+> > > This patch adds a SELinux IP address/node SID caching mechanism similar
+> > > to the sel_netif_*() functions.  The node SID queries in the SELinux
+> > > hooks files are also modified to take advantage of this new
+> > > functionality.  In addition, remove the address length information from
+> > > the sk_buff parsing routines as it is redundant since we already have the
+> > > address family.
+> >
+> > This is very nice - we also need the same kind of cache for port SIDs.
+> 
+> Thanks.  Any problem if we wait until 2.6.26 for a port SID cache?  It 
+> shouldn't be any worse than it is now (the new code is not concerned with 
+> ports) and the current patchset is already large enough that it keeps me up 
+> at night thinking about all the places it could go wrong ...
 
-> Add a secctx_to_secid() LSM hook to go along with the existing
-> secid_to_secctx() LSM hook.  This patch also includes the SELinux
-> implementation for this hook.
-
-Please sign off your patches (especially this one asap, so I can push it 
-upstream).
-
+Yes, that's fine - just a note to file away for the future.  We'll still
+want the cache eventually though since the name_bind and name_connect
+checks are based on the port SIDs and will remain even when the compat
+checks are obsoleted.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
