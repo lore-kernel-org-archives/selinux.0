@@ -1,44 +1,47 @@
-Subject: Re: [RFC PATCH v8 10/18] SELinux: Add a network node caching
-	mechanism similar to the sel_netif_*() functions
+Subject: Re: Xorg modprobe denials
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        vyekkirala@TrustedCS.com, chanson@TrustedCS.com,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <200712171556.21136.paul.moore@hp.com>
-References: <20071214213548.10069.59135.stgit@flek.lan>
-	 <20071214215046.10069.12365.stgit@flek.lan>
-	 <1197923728.17307.135.camel@moss-spartans.epoch.ncsc.mil>
-	 <200712171556.21136.paul.moore@hp.com>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <1197949627.4790.4.camel@defiant.pebenito.net>
+References: <47673B12.6040205@tycho.nsa.gov>
+	 <1197949627.4790.4.camel@defiant.pebenito.net>
 Content-Type: text/plain
-Date: Tue, 18 Dec 2007 08:26:35 -0500
-Message-Id: <1197984395.7967.3.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 18 Dec 2007 08:34:01 -0500
+Message-Id: <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2007-12-17 at 15:56 -0500, Paul Moore wrote:
-> On Monday 17 December 2007 3:35:28 pm Stephen Smalley wrote:
-> > On Fri, 2007-12-14 at 16:50 -0500, Paul Moore wrote:
-> > > This patch adds a SELinux IP address/node SID caching mechanism similar
-> > > to the sel_netif_*() functions.  The node SID queries in the SELinux
-> > > hooks files are also modified to take advantage of this new
-> > > functionality.  In addition, remove the address length information from
-> > > the sk_buff parsing routines as it is redundant since we already have the
-> > > address family.
-> >
-> > This is very nice - we also need the same kind of cache for port SIDs.
+On Mon, 2007-12-17 at 22:47 -0500, Chris PeBenito wrote:
+> On Mon, 2007-12-17 at 22:14 -0500, Eamon Walsh wrote:
+> > Attached are some denials that modprobe is encountering while loading 
+> > Xorg DRI kernel modules while X server is starting up.  tty7 is the 
+> > terminal where the X server is being launched (Ctrl-Alt-F7).  I'm aware 
+> > that the Xorg.0.log file is supposed to be labeled xserver_log_t, but my 
+> > guess is that would be denied as well.  Think this may be log messages 
+> > except for the renicing stuff.
+> > 
+> > This is xselinux branch of refpolicy running in enforcing mode.
 > 
-> Thanks.  Any problem if we wait until 2.6.26 for a port SID cache?  It 
-> shouldn't be any worse than it is now (the new code is not concerned with 
-> ports) and the current patchset is already large enough that it keeps me up 
-> at night thinking about all the places it could go wrong ...
+> Based on the other kernel messages, I'm guessing that the insmod
+> succeeded despite the tty and capability denials?  If so I suppose we
+> can dontaudit it.
 
-Yes, that's fine - just a note to file away for the future.  We'll still
-want the cache eventually though since the name_bind and name_connect
-checks are based on the port SIDs and will remain even when the compat
-checks are obsoleted.
+I don't think we want to dontaudit the capability denials.
 
+> > plain text document attachment (audit_x.txt)
+> > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.892:71): avc:  denied  { read write } for  pid=2220 comm="modprobe" name="tty7" dev=tmpfs ino=240 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file
+> > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.893:72): avc:  denied  { write } for  pid=2220 comm="modprobe" path="/usr/local/var/log/Xorg.0.log" dev=dm-0 ino=5701638 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:object_r:usr_t:s0 tclass=file
+> > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.893:73): avc:  denied  { read write } for  pid=2220 comm="modprobe" path="/dev/tty7" dev=tmpfs ino=240 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file
+> > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.926:74): avc:  denied  { sys_nice } for  pid=2220 comm="modprobe" capability=23 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tclass=capability
+> > Dec 17 21:25:34 moss-charon kernel: [drm] Initialized drm 1.1.0 20060810
+> > Dec 17 21:25:34 moss-charon kernel: audit(1197944734.932:75): avc:  denied  { sys_nice } for  pid=2220 comm="modprobe" capability=23 scontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tcontext=system_u:system_r:insmod_t:s0-s0:c0.c255 tclass=capability
+> > Dec 17 21:25:34 moss-charon kernel: ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 16 (level, low) -> IRQ 16
+> > Dec 17 21:25:34 moss-charon kernel: [drm] Initialized i915 1.11.0 20071122 on minor 0
+> > Dec 17 21:25:34 moss-charon kernel: mtrr: type mismatch for c0000000,10000000 old: write-back new: write-combining
+> > Dec 17 21:25:40 moss-charon kernel: mtrr: type mismatch for c0000000,10000000 old: write-back new: write-combining
+> > 
+> 
 -- 
 Stephen Smalley
 National Security Agency
