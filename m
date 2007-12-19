@@ -1,82 +1,55 @@
-Message-ID: <476988ED.4070003@martinorr.name>
-Date: Wed, 19 Dec 2007 21:11:09 +0000
-From: Martin Orr <martin@martinorr.name>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_caligula-9512-1198098677-0001-2"
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Chris PeBenito <pebenito@gentoo.org>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Xorg modprobe denials
-References: <47673B12.6040205@tycho.nsa.gov>	 <1197949627.4790.4.camel@defiant.pebenito.net>	 <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil> <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <4769A947.1030403@tycho.nsa.gov>
+Date: Wed, 19 Dec 2007 18:29:11 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: RFC: Per-object manager controls in /selinux/config
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+I am proposing adding a separate config line for each userspace object 
+manager, as follows:
 
---=_caligula-9512-1198098677-0001-2
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-On 18/12/07 13:57, Stephen Smalley wrote:
-> On Tue, 2007-12-18 at 08:34 -0500, Stephen Smalley wrote:
->> On Mon, 2007-12-17 at 22:47 -0500, Chris PeBenito wrote:
->>> Based on the other kernel messages, I'm guessing that the insmod
->>> succeeded despite the tty and capability denials?  If so I suppose we=
-
->>> can dontaudit it.
->> I don't think we want to dontaudit the capability denials.
->=20
-> And just to note, denials from insmod can be triggered either by
-> userspace activity of insmod or by the module initialization code of th=
-e
-> loaded module.
-
-I find that on an SMP machine I need both the sys_nice capabability and
-setsched on kernel_t to load modules.
-
-This is because stop_machine() is called by sys_init_module(), so it make=
-s
-sense to me to add these to kernel_load_module().
-
-Index: policy/modules/kernel/kernel.if
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- policy/modules/kernel/kernel.if	(revision 2560)
-+++ policy/modules/kernel/kernel.if	(working copy)
-@@ -330,6 +330,9 @@
-
- 	allow $1 self:capability sys_module;
- 	typeattribute $1 can_load_kernmodule;
+ #	permissive - SELinux prints warnings instead of enforcing.
+ #	disabled - SELinux is fully disabled.
+ SELINUX=enforcing
 +
-+	allow $1 self:capability sys_nice;
-+	kernel_setsched($1)
- ')
++# SELINUX_MANAGER= can take one of these four values
++#	enforcing - SELinux security policy is enforced by this object manager.
++#	permissive - The object manager prints warnings instead of enforcing.
++#	disabled - SELinux is fully disabled by this object manager.
++#	default - The object manager will track the system setting.
++SELINUX_DBUS=default
++SELINUX_XSERVER=permissive
++
+ # SELINUXTYPE= type of policy in use. Possible values are:
+ #	targeted - Only targeted network daemons are protected.
+ #	strict - Full SELinux protection.
 
- ########################################
-
---=20
-Martin Orr
 
 
---=_caligula-9512-1198098677-0001-2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Transfer-Encoding: 7bit
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+However, I am a little unclear on how runtime setenforce calls should be 
+dealt with.  The way it currently works is if the userspace object 
+manager is initialized without an enforcing mode specified in the call 
+to avc_open(), it will track the system setting and conform to netlink 
+"setenforce" messages.  However, if avc_open() is called with an 
+enforcing mode specified, it will stay in that mode and not respond to 
+the netlink messages.  Users might thus be confused if they issue a 
+"setenforce 0" and the X server stays in enforcing mode because it was 
+specified that way in the config file.  But I'm of the opinion that 
+runtime setenforcing is an abnormal event, and anyone who edits the 
+config file away from "default" and then runs setenforce will understand 
+how it works.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQFHaYjxZ6a/BjxtAMARAtsPAJ97SE73yay9/XQtLnY0OAch7tBkEgCgqVs6
-3wmpvs0+Ey2gUQdiu6qOawQ=
-=YHCK
------END PGP SIGNATURE-----
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
---=_caligula-9512-1198098677-0001-2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
