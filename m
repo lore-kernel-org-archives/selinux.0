@@ -1,47 +1,80 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJ08heN012336
-	for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 19:08:43 -0500
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBJ08g7C027056
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 00:08:42 GMT
-Received: by py-out-1112.google.com with SMTP id u77so5709404pyb.15
-        for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 16:08:42 -0800 (PST)
-Message-ID: <dd18b0c30712181608n40756522l10bf8a3e233b6546@mail.gmail.com>
-Date: Tue, 18 Dec 2007 16:08:41 -0800
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: acpid.socket
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJ5doVk007385
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 00:39:50 -0500
+Received: from web36607.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBJ5dmr5026219
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 05:39:48 GMT
+Date: Tue, 18 Dec 2007 21:39:33 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+To: Crispin Cowan <crispin@crispincowan.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
+        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
+        casey@schaufler-ca.com, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        apparmor-dev <apparmor-dev@forge.novell.com>
+In-Reply-To: <47688FEA.9070905@crispincowan.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_19956_22250134.1198022921559"
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <348885.22957.qm@web36607.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_19956_22250134.1198022921559
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hello im wanting to know if there is somebody else who has experienced this
-problem; when in enforcing mode from /etc/selinux/config. A system reboot
-then reports
-a unable to connect to socket acpid.socket permissions denied. I've noticed
-the label gives me system_u:object_r:tmpfs_t then after restorecon
-acpid.socket I receive
-system_u:object_r:apmd_run_run_t .
-Any info would be helpful,
-regards;
-              --Justin P. Mattock
+--- Crispin Cowan <crispin@crispincowan.com> wrote:
 
-------=_Part_19956_22250134.1198022921559
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> Stephen Smalley wrote:
+> >> It is if I have to maintain a special pieces of code for each possible
+> LSM.
+> >> One piece for SELinux, one piece for AppArmour, one piece for Smack, one
+> piece
+> >> for Casey's security system.  That sounds like a pain.
 
-Hello im wanting to know if there is somebody else who has experienced this problem; when in enforcing mode from /etc/selinux/config. A system reboot then reports <br>a unable to connect to socket acpid.socket permissions denied. I&#39;ve noticed the label gives me system_u:object_r:tmpfs_t then after restorecon 
-acpid.socket I receive<br>system_u:object_r:apmd_run_run_t .<br>Any info would be helpful,<br>regards;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
+It's probably less of a pain if you consider that Casey's
+security scheme is Smack.
 
-------=_Part_19956_22250134.1198022921559--
+> > All your code has to do is invoke a function provided by libselinux.  If
+> > at some later time a liblsm is introduced that provides a common
+> > front-end to a libselinux, libsmack, ..., then you can use that.  But it
+> > doesn't exist today.   But it all just becomes a simple function call
+> > regardless.
+> >   
+> libapparmor exists. It only had one API, and now it has 2, but just 2
+> versions on the same concept (change_hat and change_profile).
+> 
+> This is the API for change_hat http://man-wiki.net/index.php/2:change_hat
+> 
+> What does the corresponding API in SELinux look like?
+
+The POSIX mac_set_proc(mac_t label) might work for this interface.
+Sets the current process MAC attribute, if appropriate. The Smack
+implementation would be pretty easy:
+
+typedef char * mac_t;
+
+int mac_set_proc(mac_t label)
+{
+        int fd;
+        int rc;
+
+        rc = strlen(label);
+        if (rc > SMACK_MAX_LABEL_LEN)
+                return -1;
+        fd = open("/proc/self/attr/current", O_RDWR);
+        if (fd < 0)
+                return -1;
+        rc = write(fd, label, rc);
+        close(fd);
+        if (rc < 0)
+                return -1;
+        return 0;
+}
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
