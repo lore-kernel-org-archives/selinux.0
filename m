@@ -1,80 +1,28 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJ5doVk007385
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 00:39:50 -0500
-Received: from web36607.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id lBJ5dmr5026219
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 05:39:48 GMT
-Date: Tue, 18 Dec 2007 21:39:33 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-To: Crispin Cowan <crispin@crispincowan.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Cc: David Howells <dhowells@redhat.com>, Karl MacMillan <kmacmill@redhat.com>,
-        viro@ftp.linux.org.uk, hch@infradead.org, Trond.Myklebust@netapp.com,
-        casey@schaufler-ca.com, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        apparmor-dev <apparmor-dev@forge.novell.com>
-In-Reply-To: <47688FEA.9070905@crispincowan.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <348885.22957.qm@web36607.mail.mud.yahoo.com>
+Subject: Re: Propper labeling of files under /var/www
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1198004134.11568.4.camel@moss-spartans.epoch.ncsc.mil>
+References: <1198003507.3705.15.camel@localhost6.localdomain6>
+	 <1198004134.11568.4.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 19 Dec 2007 10:13:05 +0000
+Message-Id: <1198059185.3342.3.camel@localhost6.localdomain6>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2007-12-18 at 13:55 -0500, Stephen Smalley wrote:
+[...]
+> Try restorecon -FRv /var/www
 
---- Crispin Cowan <crispin@crispincowan.com> wrote:
+Yeah that solved the problem. The -F option is a little bit tricky ;-)
+Never expected something like that.
 
-> Stephen Smalley wrote:
-> >> It is if I have to maintain a special pieces of code for each possible
-> LSM.
-> >> One piece for SELinux, one piece for AppArmour, one piece for Smack, one
-> piece
-> >> for Casey's security system.  That sounds like a pain.
+Thanks
 
-It's probably less of a pain if you consider that Casey's
-security scheme is Smack.
+Stefan
 
-> > All your code has to do is invoke a function provided by libselinux.  If
-> > at some later time a liblsm is introduced that provides a common
-> > front-end to a libselinux, libsmack, ..., then you can use that.  But it
-> > doesn't exist today.   But it all just becomes a simple function call
-> > regardless.
-> >   
-> libapparmor exists. It only had one API, and now it has 2, but just 2
-> versions on the same concept (change_hat and change_profile).
-> 
-> This is the API for change_hat http://man-wiki.net/index.php/2:change_hat
-> 
-> What does the corresponding API in SELinux look like?
-
-The POSIX mac_set_proc(mac_t label) might work for this interface.
-Sets the current process MAC attribute, if appropriate. The Smack
-implementation would be pretty easy:
-
-typedef char * mac_t;
-
-int mac_set_proc(mac_t label)
-{
-        int fd;
-        int rc;
-
-        rc = strlen(label);
-        if (rc > SMACK_MAX_LABEL_LEN)
-                return -1;
-        fd = open("/proc/self/attr/current", O_RDWR);
-        if (fd < 0)
-                return -1;
-        rc = write(fd, label, rc);
-        close(fd);
-        if (rc < 0)
-                return -1;
-        return 0;
-}
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
