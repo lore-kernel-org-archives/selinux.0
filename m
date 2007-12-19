@@ -1,50 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJIHG0B023989
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 13:17:16 -0500
-Received: from mu-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBJIHFPQ004728
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 18:17:16 GMT
-Received: by mu-out-0910.google.com with SMTP id i10so4296132mue.5
-        for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 10:17:15 -0800 (PST)
-Message-ID: <cadfc0e40712191017x3ea7989bxa94a934aa195c980@mail.gmail.com>
-Date: Wed, 19 Dec 2007 12:17:14 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>
-Subject: MLS newrole avcs and polyinstantiation avcs
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJIJ0ma024238
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 13:19:00 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBJIIwXJ027813
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 18:18:58 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id lBJIIsf9015162
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 13:18:54 -0500
+Subject: Re: Fixes for sepolgen to parse Fedora 9 Policy
+From: Karl MacMillan <kmacmill@redhat.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47695B92.6080707@redhat.com>
+References: <4768F1FF.5020206@redhat.com>
+	 <1198078147.12779.2.camel@clapton.mentalrootkit.com>
+	 <47695B92.6080707@redhat.com>
+Content-Type: text/plain
+Date: Wed, 19 Dec 2007 13:18:54 -0500
+Message-Id: <1198088334.19154.13.camel@clapton.mentalrootkit.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm using newrole to run apps at level but am getting mls constraint
-related avcs like:
 
-type=AVC msg=audit(1198086275.274:1836): avc:  denied  { transition }
-for  pid=4815 comm="newrole" path="/bin/bash" dev=dm-0 ino=14843920
-scontext=user_u:user_r:newrole_t:s0
-tcontext=user_u:user_r:user_t:s2:c0.c253,c255,c256 tclass=process
+On Wed, 2007-12-19 at 12:57 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Ok although, I think we should fix the policy to not cause this app to
+> blow up.  When I give my talks about writing policy, it does not
+> translate the handling of the utmp file properly because of this.
+> 
 
-I have :
-ifdef(`enable_mls',`
-      mls_process_set_level(newrole_t)
-')
+But how can we? We're talking about old policies in the wild.
 
- in my policy but it either isn't the right thing or isn't enough. Can
-anyone help with this?
+What I really want to do is to always parse everything and just catch
+exceptions. The problem is that the parser internal state gets screwed
+on some parse errors - haven't been able to track down the problem.
 
-Also I have pam_namespace configured for newrole and am getting mls
-constraint avcs related to relabeling directories, for example:
+> What policies were broken.  I plan on back porting this change to Fedora 8.
 
-type=AVC msg=audit(1198086274.884:1793): avc:  denied  { relabelto }
-for  pid=4815 comm="newrole" name="eb3ba083bd05d11d8c0e697ad725e391"
-dev=dm-0 ino=35323932 scontext=user_u:user_r:newrole_t:s0
-tcontext=user_u:object_r:user_home_t:s2:c0.c253,c255,c256 tclass=dir
+I don't have the exact policy versions. For the Fedora 8 supplied
+version it should be fine to drop the blacklist, but not in the upstream
+version.
 
-I have :
-files_poly_parent(user_home_t)
-files_poly_member(user_home_t)
+Karl
 
-in my policy but ...
 
 --
 This message was distributed to subscribers of the selinux mailing list.
