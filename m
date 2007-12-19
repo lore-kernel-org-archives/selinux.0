@@ -1,64 +1,47 @@
-Date: Wed, 19 Dec 2007 11:09:03 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: avc:  granted null messages
-In-Reply-To: <47685BBB.7060308@tycho.nsa.gov>
-Message-ID: <Xine.LNX.4.64.0712191107170.22567@us.intercode.com.au>
-References: <1198014552.11568.49.camel@moss-spartans.epoch.ncsc.mil>
- <47685BBB.7060308@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJ08heN012336
+	for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 19:08:43 -0500
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBJ08g7C027056
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 00:08:42 GMT
+Received: by py-out-1112.google.com with SMTP id u77so5709404pyb.15
+        for <selinux@tycho.nsa.gov>; Tue, 18 Dec 2007 16:08:42 -0800 (PST)
+Message-ID: <dd18b0c30712181608n40756522l10bf8a3e233b6546@mail.gmail.com>
+Date: Tue, 18 Dec 2007 16:08:41 -0800
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: acpid.socket
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="----=_Part_19956_22250134.1198022921559"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 18 Dec 2007, Eamon Walsh wrote:
+------=_Part_19956_22250134.1198022921559
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Stephen Smalley wrote:
-> > If a (buggy) caller passes a requested permission value of zero to
-> > avc_has_perm, it correctly returns a permission denial (if enforcing),
-> >   
-> 
-> Now I'm questioning why we don't just return success.  Doesn't everyone have
-> permission to do nothing?  It seems odd to think that a process could receive
-> "granted" for a set of permissions A, but "denied" for a subset of A.
+Hello im wanting to know if there is somebody else who has experienced this
+problem; when in enforcing mode from /etc/selinux/config. A system reboot
+then reports
+a unable to connect to socket acpid.socket permissions denied. I've noticed
+the label gives me system_u:object_r:tmpfs_t then after restorecon
+acpid.socket I receive
+system_u:object_r:apmd_run_run_t .
+Any info would be helpful,
+regards;
+              --Justin P. Mattock
 
-Given that the caller is buggy, we don't really know what it's trying to 
-do, so denying access seems prudent.
+------=_Part_19956_22250134.1198022921559
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Can we get the audit log to produce something unparseable by audit2allow, 
-as we don't _want_ policy being generated in response to a buggy caller ?
+Hello im wanting to know if there is somebody else who has experienced this problem; when in enforcing mode from /etc/selinux/config. A system reboot then reports <br>a unable to connect to socket acpid.socket permissions denied. I&#39;ve noticed the label gives me system_u:object_r:tmpfs_t then after restorecon 
+acpid.socket I receive<br>system_u:object_r:apmd_run_run_t .<br>Any info would be helpful,<br>regards;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
 
-> 
-> 
-> > but avc_audit will report it as a granted message with a "null" access
-> > vector (also if enforcing) due to the way in which avc_audit checks for
-> > the denied case.  This was reported for nscd in
-> > https://bugzilla.redhat.com/show_bug.cgi?id=352601,
-> > but applies to both the libselinux AVC and the kernel AVC.
-> >
-> > In permissive mode, avc_has_perm permits the operation, and avc_audit
-> > reports nothing at all.
-> >
-> > So the question is how do we want to handle this case?
-> >
-> > It is a bug in the caller, but making it a BUG_ON() in the kernel and an
-> > assert() in libselinux doesn't seem very graceful, especially if in
-> > permissive mode.
-> >
-> > We could easily adjust avc_audit() to report it as a denied message with
-> > a 'null' access vector, although running audit2allow on that output will
-> > yield a broken policy module.
-> >
-> >   
-> 
-> 
-> 
-
--- 
-James Morris
-<jmorris@namei.org>
+------=_Part_19956_22250134.1198022921559--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
