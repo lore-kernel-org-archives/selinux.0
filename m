@@ -1,90 +1,159 @@
-Subject: Re: avc:  granted null messages
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1198080906.19081.64.camel@moss-spartans.epoch.ncsc.mil>
-References: <1198014552.11568.49.camel@moss-spartans.epoch.ncsc.mil>
-	 <47685BBB.7060308@tycho.nsa.gov>
-	 <Xine.LNX.4.64.0712191107170.22567@us.intercode.com.au>
-	 <1198080906.19081.64.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 19 Dec 2007 11:36:49 -0500
-Message-Id: <1198082209.19081.80.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJHvgm0021383
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 12:57:42 -0500
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBJHvfPQ027257
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 17:57:42 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id lBJHve8Q008151
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 12:57:41 -0500
+Message-ID: <47695B92.6080707@redhat.com>
+Date: Wed, 19 Dec 2007 12:57:38 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Karl MacMillan <kmacmill@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Fixes for sepolgen to parse Fedora 9 Policy
+References: <4768F1FF.5020206@redhat.com> <1198078147.12779.2.camel@clapton.mentalrootkit.com>
+In-Reply-To: <1198078147.12779.2.camel@clapton.mentalrootkit.com>
+Content-Type: multipart/mixed;
+ boundary="------------080706090603010401050301"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-19 at 11:15 -0500, Stephen Smalley wrote:
-> On Wed, 2007-12-19 at 11:09 +1100, James Morris wrote:
-> > On Tue, 18 Dec 2007, Eamon Walsh wrote:
-> > 
-> > > Stephen Smalley wrote:
-> > > > If a (buggy) caller passes a requested permission value of zero to
-> > > > avc_has_perm, it correctly returns a permission denial (if enforcing),
-> > > >   
-> > > 
-> > > Now I'm questioning why we don't just return success.  Doesn't everyone have
-> > > permission to do nothing?  It seems odd to think that a process could receive
-> > > "granted" for a set of permissions A, but "denied" for a subset of A.
-> > 
-> > Given that the caller is buggy, we don't really know what it's trying to 
-> > do, so denying access seems prudent.
-> > 
-> > Can we get the audit log to produce something unparseable by audit2allow, 
-> > as we don't _want_ policy being generated in response to a buggy caller ?
-> 
-> At present, it generates no avc message in permissive (avc_audit entered
-> with requested == 0 and result == 0) and a misleading avc message in
-> enforcing (avc_audit entered with requested == 0 and result < 0),
-> neither of which will generate any policy.
-> 
-> If we change it to consistently generate an:
-> 	avc:  denied null for scontext=...
-> then audit2allow would try to create an allow rule like:
-> 	allow a_t b_t:class null;
-> which would compile but fail when one tries to insert the module, since
-> null is not a defined permission in the base policy.
-> 
-> I don't think we want to generate an unparseable avc message, whatever
-> that might mean, as that too could potentially break audit2allow and in
-> a less understandable way, and we want these failures to be noticeable,
-> just not immediately fatal to the system (ala BUG_ON or assert).
+This is a multi-part message in MIME format.
+--------------080706090603010401050301
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Oh, the other reason to keep it in the existing format is to ensure that
-setroubleshoot picks up on it, since users are now trained to look for
-its alerts rather than inspecting the audit log for SELinux denials.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > > 
-> > > 
-> > > > but avc_audit will report it as a granted message with a "null" access
-> > > > vector (also if enforcing) due to the way in which avc_audit checks for
-> > > > the denied case.  This was reported for nscd in
-> > > > https://bugzilla.redhat.com/show_bug.cgi?id=352601,
-> > > > but applies to both the libselinux AVC and the kernel AVC.
-> > > >
-> > > > In permissive mode, avc_has_perm permits the operation, and avc_audit
-> > > > reports nothing at all.
-> > > >
-> > > > So the question is how do we want to handle this case?
-> > > >
-> > > > It is a bug in the caller, but making it a BUG_ON() in the kernel and an
-> > > > assert() in libselinux doesn't seem very graceful, especially if in
-> > > > permissive mode.
-> > > >
-> > > > We could easily adjust avc_audit() to report it as a denied message with
-> > > > a 'null' access vector, although running audit2allow on that output will
-> > > > yield a broken policy module.
-> > > >
-> > > >   
-> > > 
-> > > 
-> > > 
-> > 
--- 
-Stephen Smalley
-National Security Agency
+Ok although, I think we should fix the policy to not cause this app to
+blow up.  When I give my talks about writing policy, it does not
+translate the handling of the utmp file properly because of this.
 
+What policies were broken.  I plan on back porting this change to Fedora 8.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFHaVuRrlYvE4MpobMRAigBAJ0SUVmge8RhL/YWJmoY1XlyobuQ/gCglIlu
+vrfdXvF99tOLkRCCI5AlM9M=
+=PKFt
+-----END PGP SIGNATURE-----
+
+--------------080706090603010401050301
+Content-Type: text/plain;
+ name="sepolgen.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sepolgen.diff"
+
+diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/refparser.py policycoreutils-2.0.32/sepolgen-1.0.10/src/sepolgen/refparser.py
+--- nsasepolgen/src/sepolgen/refparser.py	2007-09-13 08:21:11.000000000 -0400
++++ policycoreutils-2.0.32/sepolgen-1.0.10/src/sepolgen/refparser.py	2007-12-19 05:21:44.000000000 -0500
+@@ -118,6 +118,7 @@
+     'TEMPLATE',
+     'GEN_CONTEXT',
+     #   m4
++    'IFELSE',
+     'IFDEF',
+     'IFNDEF',
+     'DEFINE'
+@@ -174,6 +175,7 @@
+     'template' : 'TEMPLATE',
+     'gen_context' : 'GEN_CONTEXT',
+     # M4
++    'ifelse' : 'IFELSE',
+     'ifndef' : 'IFNDEF',
+     'ifdef' : 'IFDEF',
+     'define' : 'DEFINE'
+@@ -220,6 +222,12 @@
+     # Ignore all comments
+     t.lexer.lineno += 1
+ 
++def t_refpolicywarn1(t):
++    r'define.*refpolicywarn\(.*\n'
++    # Ignore refpolicywarn statements - they sometimes
++    # contain text that we can't parse.
++    t.skip(1)
++
+ def t_refpolicywarn(t):
+     r'refpolicywarn\(.*\n'
+     # Ignore refpolicywarn statements - they sometimes
+@@ -258,6 +266,7 @@
+ m = None
+ #   error is either None (indicating no error) or a string error message.
+ error = None
++parse_file = ""
+ #   spt is the support macros (e.g., obj/perm sets) - it is an instance of
+ #     refpolicy.SupportMacros and should always be present during parsing
+ #     though it may not contain any macros.
+@@ -382,6 +391,19 @@
+         collect(p[12], x, val=False)
+     p[0] = [x]
+ 
++def p_ifelse(p):
++    '''ifelse : IFELSE OPAREN TICK IDENTIFIER SQUOTE COMMA COMMA TICK IDENTIFIER SQUOTE COMMA TICK interface_stmts SQUOTE CPAREN optional_semi
++              | IFELSE OPAREN TICK IDENTIFIER SQUOTE COMMA TICK IDENTIFIER SQUOTE COMMA TICK interface_stmts SQUOTE COMMA TICK interface_stmts SQUOTE CPAREN optional_semi
++    '''
++#    x = refpolicy.IfDef(p[4])
++#    v = True
++#    collect(p[8], x, val=v)
++#    if len(p) > 12:
++#        collect(p[12], x, val=False)
++#    p[0] = [x]
++    pass
++
++
+ def p_ifdef(p):
+     '''ifdef : IFDEF OPAREN TICK IDENTIFIER SQUOTE COMMA TICK interface_stmts SQUOTE CPAREN optional_semi
+              | IFNDEF OPAREN TICK IDENTIFIER SQUOTE COMMA TICK interface_stmts SQUOTE CPAREN optional_semi
+@@ -446,6 +468,7 @@
+               | optional_policy
+               | tunable_policy
+               | ifdef
++              | ifelse
+               | conditional
+     '''
+     p[0] = p[1]
+@@ -844,7 +867,8 @@
+ 
+ def p_error(tok):
+     global error
+-    error = "Syntax error on line %d %s [type=%s]" % (tok.lineno, tok.value, tok.type)
++    global parse_file
++    error = "%s: Syntax error on line %d %s [type=%s]" % (parse_file, tok.lineno, tok.value, tok.type)
+     print error
+ 
+ def prep_spt(spt):
+@@ -941,12 +965,14 @@
+             output.write(msg)
+ 
+     def parse_file(f, module, spt=None):
++        global parse_file
+         if debug:
+             o("parsing file %s\n" % f)
+         try:
+             fd = open(f)
+             txt = fd.read()
+             fd.close()
++            parse_file = f
+             parse(txt, module, spt, debug)
+         except IOError, e:
+             return
+
+--------------080706090603010401050301
+Content-Type: application/octet-stream;
+ name="sepolgen.diff.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="sepolgen.diff.sig"
+
+iD8DBQBHaVuRrlYvE4MpobMRAtKRAJ9l1jeI6pb9rfcAVepWPQQfY6eFwQCdGMehcRpv4jS9
+2D1fCmqbBYLIwws=
+--------------080706090603010401050301--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
