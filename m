@@ -1,79 +1,82 @@
-Subject: Re: MLS newrole avcs and polyinstantiation avcs
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40712191017x3ea7989bxa94a934aa195c980@mail.gmail.com>
-References: <cadfc0e40712191017x3ea7989bxa94a934aa195c980@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 19 Dec 2007 13:34:40 -0500
-Message-Id: <1198089280.19081.98.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <476988ED.4070003@martinorr.name>
+Date: Wed, 19 Dec 2007 21:11:09 +0000
+From: Martin Orr <martin@martinorr.name>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_caligula-9512-1198098677-0001-2"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Chris PeBenito <pebenito@gentoo.org>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: Xorg modprobe denials
+References: <47673B12.6040205@tycho.nsa.gov>	 <1197949627.4790.4.camel@defiant.pebenito.net>	 <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil> <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-19 at 12:17 -0600, Xavier Toth wrote:
-> I'm using newrole to run apps at level but am getting mls constraint
-> related avcs like:
-> 
-> type=AVC msg=audit(1198086275.274:1836): avc:  denied  { transition }
-> for  pid=4815 comm="newrole" path="/bin/bash" dev=dm-0 ino=14843920
-> scontext=user_u:user_r:newrole_t:s0
-> tcontext=user_u:user_r:user_t:s2:c0.c253,c255,c256 tclass=process
-> 
-> I have :
-> ifdef(`enable_mls',`
->       mls_process_set_level(newrole_t)
-> ')
-> 
->  in my policy but it either isn't the right thing or isn't enough. Can
-> anyone help with this?
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-You don't need the ifdef, and that is already in newrole.te.  It isn't
-the issue though.
+--=_caligula-9512-1198098677-0001-2
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-The constraint (which you can read in policy/mls) says that the high
-level (aka clearance/max) of the old context must always dominate the
-high level of the new context.  No exceptions.  Only the low level (aka
-current level) of the process is allowed to change via newrole based on
-mlsprocsetsl.
+On 18/12/07 13:57, Stephen Smalley wrote:
+> On Tue, 2007-12-18 at 08:34 -0500, Stephen Smalley wrote:
+>> On Mon, 2007-12-17 at 22:47 -0500, Chris PeBenito wrote:
+>>> Based on the other kernel messages, I'm guessing that the insmod
+>>> succeeded despite the tty and capability denials?  If so I suppose we=
 
-The expected usage is that you login with your low level set to the
-desired acting level, and the high level set to your clearance, and then
-newrole can be used to increase your acting level up to your clearance
-but no further.
+>>> can dontaudit it.
+>> I don't think we want to dontaudit the capability denials.
+>=20
+> And just to note, denials from insmod can be triggered either by
+> userspace activity of insmod or by the module initialization code of th=
+e
+> loaded module.
 
-That becomes especially important when you consider that the SELinux
-user as defined by the policy might be authorized for a larger range
-than the Linux user, and seusers might be specifying a more restricted
-range for the individual Linux user.  We need to ensure that the session
-is bound by the high/max/clearance level set at login time based on the
-Linux user's entry in seusers. 
+I find that on an SMP machine I need both the sys_nice capabability and
+setsched on kernel_t to load modules.
 
-> Also I have pam_namespace configured for newrole and am getting mls
-> constraint avcs related to relabeling directories, for example:
-> 
-> type=AVC msg=audit(1198086274.884:1793): avc:  denied  { relabelto }
-> for  pid=4815 comm="newrole" name="eb3ba083bd05d11d8c0e697ad725e391"
-> dev=dm-0 ino=35323932 scontext=user_u:user_r:newrole_t:s0
-> tcontext=user_u:object_r:user_home_t:s2:c0.c253,c255,c256 tclass=dir
+This is because stop_machine() is called by sys_init_module(), so it make=
+s
+sense to me to add these to kernel_load_module().
 
-Same issue here.
+Index: policy/modules/kernel/kernel.if
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- policy/modules/kernel/kernel.if	(revision 2560)
++++ policy/modules/kernel/kernel.if	(working copy)
+@@ -330,6 +330,9 @@
 
-> 
-> I have :
-> files_poly_parent(user_home_t)
-> files_poly_member(user_home_t)
-> 
-> in my policy but ...
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+ 	allow $1 self:capability sys_module;
+ 	typeattribute $1 can_load_kernmodule;
++
++	allow $1 self:capability sys_nice;
++	kernel_setsched($1)
+ ')
 
+ ########################################
+
+--=20
+Martin Orr
+
+
+--=_caligula-9512-1198098677-0001-2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Transfer-Encoding: 7bit
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFHaYjxZ6a/BjxtAMARAtsPAJ97SE73yay9/XQtLnY0OAch7tBkEgCgqVs6
+3wmpvs0+Ey2gUQdiu6qOawQ=
+=YHCK
+-----END PGP SIGNATURE-----
+
+--=_caligula-9512-1198098677-0001-2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
