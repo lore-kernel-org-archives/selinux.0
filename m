@@ -1,50 +1,36 @@
-Subject: Re: Propper labeling of files under /var/www
+Subject: Re: acpid.socket
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stefan Schulze Frielinghaus <stefan@seekline.net>, selinux@tycho.nsa.gov,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <47693353.7070809@redhat.com>
-References: <1198003507.3705.15.camel@localhost6.localdomain6>
-	 <1198004134.11568.4.camel@moss-spartans.epoch.ncsc.mil>
-	 <1198059185.3342.3.camel@localhost6.localdomain6>
-	 <1198073575.19081.1.camel@moss-spartans.epoch.ncsc.mil>
-	 <47693353.7070809@redhat.com>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <dd18b0c30712181608n40756522l10bf8a3e233b6546@mail.gmail.com>
+References: <dd18b0c30712181608n40756522l10bf8a3e233b6546@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 19 Dec 2007 10:29:05 -0500
-Message-Id: <1198078145.19081.38.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 19 Dec 2007 10:59:26 -0500
+Message-Id: <1198079966.19081.48.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-19 at 10:05 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephen Smalley wrote:
-> > On Wed, 2007-12-19 at 10:13 +0000, Stefan Schulze Frielinghaus wrote:
-> >> On Tue, 2007-12-18 at 13:55 -0500, Stephen Smalley wrote:
-> >> [...]
-> >>> Try restorecon -FRv /var/www
-> >> Yeah that solved the problem. The -F option is a little bit tricky ;-)
-> >> Never expected something like that.
-> > 
-> > /etc/selinux/targeted/contexts/customizable_types was created to allow
-> > programs like restorecon to omit files with certain types from being
-> > relabeled by default, so that admin customizations wouldn't be lost.
-> > The httpd-related types are a common case of this, where the admin wants
-> > to manually manage the type under the web root and not have them
-> > clobbered.  As to whether it still makes sense when we have semanage
-> > fcontext, I'm not sure.
-> > 
-> Yes I would like to remove it, it is more trouble then it is worth at
-> this point.   semanage is the way things should be customized.  We
-> should remove it from Fedora 9 and going forward.
-> 
-> Added munin cgi defitions to rawhide, but update does not fix them since
-> they were already labeled httpd_sys_content_t.
+On Tue, 2007-12-18 at 16:08 -0800, Justin Mattock wrote:
+> Hello im wanting to know if there is somebody else who has experienced
+> this problem; when in enforcing mode from /etc/selinux/config. A
+> system reboot then reports 
+> a unable to connect to socket acpid.socket permissions denied. I've
+> noticed the label gives me system_u:object_r:tmpfs_t then after
+> restorecon acpid.socket I receive
+> system_u:object_r:apmd_run_run_t .
+> Any info would be helpful,
 
-So just ship an empty customizable_types file, and restorecon/setfiles
-will relabel everything (aside from what is excluded via <<none>>).
+Is /var/run a tmpfs mount on your system?
+
+That would explain why it defaults to tmpfs_t.  You'd need to mount it
+with a rootcontext= mount option or restorecon it after mounting to give
+it the correct type.
+
+In Fedora, there is a similar issue with the tmpfs mount for /dev, since
+it is initially populated before policy is loaded, so they do a
+restorecon -R /dev from rc.sysinit.  You might have to do that
+for /var/run too.  Has to occur _after_ you've loaded policy, of course.
 
 -- 
 Stephen Smalley
