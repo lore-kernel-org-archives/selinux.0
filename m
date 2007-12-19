@@ -1,159 +1,50 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJHvgm0021383
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 12:57:42 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBJHvfPQ027257
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 17:57:42 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id lBJHve8Q008151
-	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 12:57:41 -0500
-Message-ID: <47695B92.6080707@redhat.com>
-Date: Wed, 19 Dec 2007 12:57:38 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBJIHG0B023989
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 13:17:16 -0500
+Received: from mu-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBJIHFPQ004728
+	for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 18:17:16 GMT
+Received: by mu-out-0910.google.com with SMTP id i10so4296132mue.5
+        for <selinux@tycho.nsa.gov>; Wed, 19 Dec 2007 10:17:15 -0800 (PST)
+Message-ID: <cadfc0e40712191017x3ea7989bxa94a934aa195c980@mail.gmail.com>
+Date: Wed, 19 Dec 2007 12:17:14 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SE Linux" <selinux@tycho.nsa.gov>
+Subject: MLS newrole avcs and polyinstantiation avcs
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmill@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Fixes for sepolgen to parse Fedora 9 Policy
-References: <4768F1FF.5020206@redhat.com> <1198078147.12779.2.camel@clapton.mentalrootkit.com>
-In-Reply-To: <1198078147.12779.2.camel@clapton.mentalrootkit.com>
-Content-Type: multipart/mixed;
- boundary="------------080706090603010401050301"
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080706090603010401050301
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+I'm using newrole to run apps at level but am getting mls constraint
+related avcs like:
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+type=AVC msg=audit(1198086275.274:1836): avc:  denied  { transition }
+for  pid=4815 comm="newrole" path="/bin/bash" dev=dm-0 ino=14843920
+scontext=user_u:user_r:newrole_t:s0
+tcontext=user_u:user_r:user_t:s2:c0.c253,c255,c256 tclass=process
 
-Ok although, I think we should fix the policy to not cause this app to
-blow up.  When I give my talks about writing policy, it does not
-translate the handling of the utmp file properly because of this.
+I have :
+ifdef(`enable_mls',`
+      mls_process_set_level(newrole_t)
+')
 
-What policies were broken.  I plan on back porting this change to Fedora 8.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+ in my policy but it either isn't the right thing or isn't enough. Can
+anyone help with this?
 
-iD8DBQFHaVuRrlYvE4MpobMRAigBAJ0SUVmge8RhL/YWJmoY1XlyobuQ/gCglIlu
-vrfdXvF99tOLkRCCI5AlM9M=
-=PKFt
------END PGP SIGNATURE-----
+Also I have pam_namespace configured for newrole and am getting mls
+constraint avcs related to relabeling directories, for example:
 
---------------080706090603010401050301
-Content-Type: text/plain;
- name="sepolgen.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sepolgen.diff"
+type=AVC msg=audit(1198086274.884:1793): avc:  denied  { relabelto }
+for  pid=4815 comm="newrole" name="eb3ba083bd05d11d8c0e697ad725e391"
+dev=dm-0 ino=35323932 scontext=user_u:user_r:newrole_t:s0
+tcontext=user_u:object_r:user_home_t:s2:c0.c253,c255,c256 tclass=dir
 
-diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/refparser.py policycoreutils-2.0.32/sepolgen-1.0.10/src/sepolgen/refparser.py
---- nsasepolgen/src/sepolgen/refparser.py	2007-09-13 08:21:11.000000000 -0400
-+++ policycoreutils-2.0.32/sepolgen-1.0.10/src/sepolgen/refparser.py	2007-12-19 05:21:44.000000000 -0500
-@@ -118,6 +118,7 @@
-     'TEMPLATE',
-     'GEN_CONTEXT',
-     #   m4
-+    'IFELSE',
-     'IFDEF',
-     'IFNDEF',
-     'DEFINE'
-@@ -174,6 +175,7 @@
-     'template' : 'TEMPLATE',
-     'gen_context' : 'GEN_CONTEXT',
-     # M4
-+    'ifelse' : 'IFELSE',
-     'ifndef' : 'IFNDEF',
-     'ifdef' : 'IFDEF',
-     'define' : 'DEFINE'
-@@ -220,6 +222,12 @@
-     # Ignore all comments
-     t.lexer.lineno += 1
- 
-+def t_refpolicywarn1(t):
-+    r'define.*refpolicywarn\(.*\n'
-+    # Ignore refpolicywarn statements - they sometimes
-+    # contain text that we can't parse.
-+    t.skip(1)
-+
- def t_refpolicywarn(t):
-     r'refpolicywarn\(.*\n'
-     # Ignore refpolicywarn statements - they sometimes
-@@ -258,6 +266,7 @@
- m = None
- #   error is either None (indicating no error) or a string error message.
- error = None
-+parse_file = ""
- #   spt is the support macros (e.g., obj/perm sets) - it is an instance of
- #     refpolicy.SupportMacros and should always be present during parsing
- #     though it may not contain any macros.
-@@ -382,6 +391,19 @@
-         collect(p[12], x, val=False)
-     p[0] = [x]
- 
-+def p_ifelse(p):
-+    '''ifelse : IFELSE OPAREN TICK IDENTIFIER SQUOTE COMMA COMMA TICK IDENTIFIER SQUOTE COMMA TICK interface_stmts SQUOTE CPAREN optional_semi
-+              | IFELSE OPAREN TICK IDENTIFIER SQUOTE COMMA TICK IDENTIFIER SQUOTE COMMA TICK interface_stmts SQUOTE COMMA TICK interface_stmts SQUOTE CPAREN optional_semi
-+    '''
-+#    x = refpolicy.IfDef(p[4])
-+#    v = True
-+#    collect(p[8], x, val=v)
-+#    if len(p) > 12:
-+#        collect(p[12], x, val=False)
-+#    p[0] = [x]
-+    pass
-+
-+
- def p_ifdef(p):
-     '''ifdef : IFDEF OPAREN TICK IDENTIFIER SQUOTE COMMA TICK interface_stmts SQUOTE CPAREN optional_semi
-              | IFNDEF OPAREN TICK IDENTIFIER SQUOTE COMMA TICK interface_stmts SQUOTE CPAREN optional_semi
-@@ -446,6 +468,7 @@
-               | optional_policy
-               | tunable_policy
-               | ifdef
-+              | ifelse
-               | conditional
-     '''
-     p[0] = p[1]
-@@ -844,7 +867,8 @@
- 
- def p_error(tok):
-     global error
--    error = "Syntax error on line %d %s [type=%s]" % (tok.lineno, tok.value, tok.type)
-+    global parse_file
-+    error = "%s: Syntax error on line %d %s [type=%s]" % (parse_file, tok.lineno, tok.value, tok.type)
-     print error
- 
- def prep_spt(spt):
-@@ -941,12 +965,14 @@
-             output.write(msg)
- 
-     def parse_file(f, module, spt=None):
-+        global parse_file
-         if debug:
-             o("parsing file %s\n" % f)
-         try:
-             fd = open(f)
-             txt = fd.read()
-             fd.close()
-+            parse_file = f
-             parse(txt, module, spt, debug)
-         except IOError, e:
-             return
+I have :
+files_poly_parent(user_home_t)
+files_poly_member(user_home_t)
 
---------------080706090603010401050301
-Content-Type: application/octet-stream;
- name="sepolgen.diff.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="sepolgen.diff.sig"
-
-iD8DBQBHaVuRrlYvE4MpobMRAtKRAJ9l1jeI6pb9rfcAVepWPQQfY6eFwQCdGMehcRpv4jS9
-2D1fCmqbBYLIwws=
---------------080706090603010401050301--
+in my policy but ...
 
 --
 This message was distributed to subscribers of the selinux mailing list.
