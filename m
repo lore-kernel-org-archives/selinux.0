@@ -1,78 +1,65 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <47688FD9.6080705@crispincowan.com>
-References: <47688FD9.6080705@crispincowan.com> <1197401823.28006.74.camel@moss-spartans.epoch.ncsc.mil> <1197322068.18120.176.camel@moss-spartans.epoch.ncsc.mil> <1197307397.18120.72.camel@moss-spartans.epoch.ncsc.mil> <1197305173.18120.60.camel@moss-spartans.epoch.ncsc.mil> <20071205193818.24617.79771.stgit@warthog.procyon.org.uk> <20071205193859.24617.36392.stgit@warthog.procyon.org.uk> <25037.1197306473@redhat.com> <25572.1197320887@redhat.com> <25965.1197329769@redhat.com> <9789.1197405725@redhat.com> 
-To: Crispin Cowan <crispin@crispincowan.com>
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmill@redhat.com>, viro@ftp.linux.org.uk,
-        hch@infradead.org, Trond.Myklebust@netapp.com, casey@schaufler-ca.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org,
-        apparmor-dev <apparmor-dev@forge.novell.com>
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-Date: Wed, 19 Dec 2007 23:38:27 +0000
-Message-ID: <2618.1198107507@redhat.com>
+Message-ID: <4769F731.6050002@ak.jp.nec.com>
+Date: Thu, 20 Dec 2007 14:01:37 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: RFC: Per-object manager controls in /selinux/config
+References: <4769A947.1030403@tycho.nsa.gov>
+In-Reply-To: <4769A947.1030403@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Crispin Cowan <crispin@crispincowan.com> wrote:
+Eamon Walsh wrote:
+> I am proposing adding a separate config line for each userspace object 
+> manager, as follows:
+> 
+> #    permissive - SELinux prints warnings instead of enforcing.
+> #    disabled - SELinux is fully disabled.
+> SELINUX=enforcing
+> +
+> +# SELINUX_MANAGER= can take one of these four values
+> +#    enforcing - SELinux security policy is enforced by this object 
+> manager.
+> +#    permissive - The object manager prints warnings instead of enforcing.
+> +#    disabled - SELinux is fully disabled by this object manager.
+> +#    default - The object manager will track the system setting.
+> +SELINUX_DBUS=default
+> +SELINUX_XSERVER=permissive
+> +
+> # SELINUXTYPE= type of policy in use. Possible values are:
+> #    targeted - Only targeted network daemons are protected.
+> #    strict - Full SELinux protection.
 
-> > This is used, for example, by CacheFiles which has to transparently access
-> > the cache on behalf of a process that thinks it is doing, say, NFS
-> > accesses with a potentially inappropriate (with respect to accessing the
-> > cache) set of security data.
-> I'm not sure, but I think that you could do this *much* easier in
-> AppArmor using change_profile to switch the NFS Daemon to the profile of
-> the requesting process. That still leaves some problems:
+Eamon,
 
-NFS Daemon?  NFS quite often runs in the context of whichever process issued,
-say, a read syscall.  It's at this point the cachefiles needs to run, and
-using change_profile is I suspect not an option there.  Remember: you can't
-change the objective profile of the aforementioned process, hence the act_as
-pointer.
+Could you tell me the purpose of this new feature?
 
-That said, I don't know what change_profile does.
+It seems to me this new feature prevents to keep consistency of
+the SELinux state. I think the internal state of userspace object
+managers should be just a copy from the in-kernel reference monitor...
 
-> However, it seems to me that you have the same problem with SELinux:
-> what do you do if the domain/type of the requesting process does not
-> exist on the NFS server? How do you ensure a uniform name space of types?
+Thanks,
 
-I'm not sure what you're getting at.  The security NFS uses to access the
-server is separate from the security that cachefiles uses to access the cache.
+> However, I am a little unclear on how runtime setenforce calls should be 
+> dealt with.  The way it currently works is if the userspace object 
+> manager is initialized without an enforcing mode specified in the call 
+> to avc_open(), it will track the system setting and conform to netlink 
+> "setenforce" messages.  However, if avc_open() is called with an 
+> enforcing mode specified, it will stay in that mode and not respond to 
+> the netlink messages.  Users might thus be confused if they issue a 
+> "setenforce 0" and the X server stays in enforcing mode because it was 
+> specified that way in the config file.  But I'm of the opinion that 
+> runtime setenforcing is an abnormal event, and anyone who edits the 
+> config file away from "default" and then runs setenforce will understand 
+> how it works.
 
-> > How about I just stick the context in /etc/cachefilesd.conf as a textual
-> > configuration item and have the daemon pass that as a string to the
-> > cachefiles kernel module, which can then ask LSM if it's valid to set this
-> > context as an override, given the daemon's own security context?  That
-> > seems entirely reasonable to me.
-> >   
-> That semantically maps well to the AppArmor change_profile() API, so
-> conceptually it should work.
-
-Okay.
-
-> It would be easier if you did that in user space instead of in the kernel,
-
-Do what in userspace?  Parse the context?  Validate the context?  Or change
-the context?
-
-> I don't know if it causes a problem to attempt to kind-of call
-> change_profile() from within the kernel.  Notably, change_profile can fail,
-> so what does your kernel module do when the attempt to change security
-> context fails?
-
-The cache aborts and all subsequent operations on that cache bounce and go to
-the server instead.
-
-The change of context cannot be done in userspace because to get to a
-userspace capable of attempting this operation would itself require a change
-of context.  Besides, it'd also be inefficient, probably horribly so, to do
-all caching ops in userspace.
-
-What I need is an LSM operation to change a task_security struct to have a
-specified context.  I can then use the task_security struct in all future
-cache ops on a cache by pointing task->act_as at it.
-
-David
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
