@@ -1,78 +1,65 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: RFC: Per-object manager controls in /selinux/config
-Date: Thu, 20 Dec 2007 01:03:02 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015880153EB0D@exchange.columbia.tresys.com>
-In-Reply-To: <4769F731.6050002@ak.jp.nec.com>
-References: <4769A947.1030403@tycho.nsa.gov> <4769F731.6050002@ak.jp.nec.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "KaiGai Kohei" <kaigai@ak.jp.nec.com>,
-        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Cc: "SELinux List" <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+Subject: Re: Propper labeling of files under /var/www
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1198073575.19081.1.camel@moss-spartans.epoch.ncsc.mil>
+References: <1198003507.3705.15.camel@localhost6.localdomain6>
+	 <1198004134.11568.4.camel@moss-spartans.epoch.ncsc.mil>
+	 <1198059185.3342.3.camel@localhost6.localdomain6>
+	 <1198073575.19081.1.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aNmJghFN9OBt55UE9noy"
+Date: Thu, 20 Dec 2007 08:43:51 +0000
+Message-Id: <1198140231.3248.7.camel@localhost6.localdomain6>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Eamon Walsh wrote:
->> I am proposing adding a separate config line for each userspace
->> object manager, as follows: 
->> 
->> #    permissive - SELinux prints warnings instead of enforcing.
->> #    disabled - SELinux is fully disabled.
->> SELINUX=enforcing
->> +
->> +# SELINUX_MANAGER= can take one of these four values
->> +#    enforcing - SELinux security policy is enforced by this object
->> manager. +#    permissive - The object manager prints warnings
->> instead of enforcing. +#    disabled - SELinux is fully disabled by
->> this object manager. +#    default - The object manager will track
->> the system setting. +SELINUX_DBUS=default +SELINUX_XSERVER=permissive
->> +
->> # SELINUXTYPE= type of policy in use. Possible values are:
->> #    targeted - Only targeted network daemons are protected.
->> #    strict - Full SELinux protection.
-> 
-> Eamon,
-> 
-> Could you tell me the purpose of this new feature?
-> 
-> It seems to me this new feature prevents to keep consistency
-> of the SELinux state. I think the internal state of userspace
-> object managers should be just a copy from the in-kernel reference
-> monitor... 
-> 
 
-For the most part I agree with this. If one treats userspace object
-managers differently then it follows that individual object managers
-within the kernel (eg., file manager, network, etc) should also be
-individually controllable. I don't think this is a good idea for end
-systems. Providing an API for developers to control enforcing state for
-the purpose of development and debugging is fine I think (which you've
-already done).
+--=-aNmJghFN9OBt55UE9noy
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I also think it is a huge step backwards if we try to make libselinux
-aware of different userspace object managers. Object managers should be
-able to be added to the system with only policy knowledge so that it is
-as transparent as possible.
+On Wed, 2007-12-19 at 09:12 -0500, Stephen Smalley wrote:
+> On Wed, 2007-12-19 at 10:13 +0000, Stefan Schulze Frielinghaus wrote:
+> > On Tue, 2007-12-18 at 13:55 -0500, Stephen Smalley wrote:
+> > [...]
+> > > Try restorecon -FRv /var/www
+> >=20
+> > Yeah that solved the problem. The -F option is a little bit tricky ;-)
+> > Never expected something like that.
+>=20
+> /etc/selinux/targeted/contexts/customizable_types was created to allow
+> programs like restorecon to omit files with certain types from being
+> relabeled by default, so that admin customizations wouldn't be lost.
+> The httpd-related types are a common case of this, where the admin wants
+> to manually manage the type under the web root and not have them
+> clobbered.  As to whether it still makes sense when we have semanage
+> fcontext, I'm not sure.
 
-> Thanks,
-> 
->> However, I am a little unclear on how runtime setenforce calls should
->> be dealt with.  The way it currently works is if the userspace object
->> manager is initialized without an enforcing mode specified in the
->> call to avc_open(), it will track the system setting and conform to
->> netlink "setenforce" messages.  However, if avc_open() is called
->> with an enforcing mode specified, it will stay in that mode and not
->> respond to the netlink messages.  Users might thus be confused if
->> they issue a "setenforce 0" and the X server stays in enforcing mode
->> because it was specified that way in the config file.  But I'm of
->> the opinion that runtime setenforcing is an abnormal event, and
->> anyone who edits the config file away from "default" and then runs
->> setenforce will understand how it works.
+I think at least from an user point of view it is misleading. I just
+wanted to create a policy for some CGI/PHP webserver stuff which I could
+role out to my clients. And if a client runs into some trouble, gets
+some AVC messages etc., he just uses "fixfiles relabel" or even
+"touch /.autorelabel && reboot". I think that's the normal behavior of a
+non SELinux hacker.
 
+So in the end removing it (or just ship an empty customizable_types file
+like you pointed out) would be a good thing.
+
+--=-aNmJghFN9OBt55UE9noy
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHais1qYnt3l7ncSARAm/iAJ9SPwvOqLd1+6Wph/J5RmZofQ3wzwCgppgw
+eQL9OrDPnVnee1rG71kOxa8=
+=CcpX
+-----END PGP SIGNATURE-----
+
+--=-aNmJghFN9OBt55UE9noy--
 
 
 --
