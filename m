@@ -1,26 +1,47 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBKLBB7M029485
-	for <selinux@tycho.nsa.gov>; Thu, 20 Dec 2007 16:11:11 -0500
-Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBKLB7TF009981
-	for <selinux@tycho.nsa.gov>; Thu, 20 Dec 2007 21:11:08 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so12070fgg.40
-        for <selinux@tycho.nsa.gov>; Thu, 20 Dec 2007 13:11:03 -0800 (PST)
-Message-ID: <cadfc0e40712201311x36f4625at123b9e9712b14c56@mail.gmail.com>
-Date: Thu, 20 Dec 2007 15:11:03 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>
-Subject: MLS and dbus-daemon related avcs
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: MLS and dbus-daemon related avcs
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <cadfc0e40712201311x36f4625at123b9e9712b14c56@mail.gmail.com>
+References: <cadfc0e40712201311x36f4625at123b9e9712b14c56@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 20 Dec 2007 16:36:07 -0500
+Message-Id: <1198186567.32563.94.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-dbus-daemon is running at UNCLASSIFIED-SystemHigh. A number of
-processes running at UNCLASSIFIED (my seuers default level) are trying
-to use dbus and getting mls constraint avcs. I'm not that familar with
-dbus but I was thinking of changing its init script to runcon it at
-level UNCLASSIFIED or will that just mess up other things?
+On Thu, 2007-12-20 at 15:11 -0600, Xavier Toth wrote:
+> dbus-daemon is running at UNCLASSIFIED-SystemHigh. A number of
+> processes running at UNCLASSIFIED (my seuers default level) are trying
+> to use dbus and getting mls constraint avcs. I'm not that familar with
+> dbus but I was thinking of changing its init script to runcon it at
+> level UNCLASSIFIED or will that just mess up other things?
+
+What are the exact avc messages in question here?
+
+There are two instances of the bus, one system-wide and one per-session,
+so you need to think about both cases.
+
+At least the system-wide bus will have to handle connections from
+clients at different levels.  If you are supporting multi-level
+sessions, then the per-session bus will also have to do that.
+
+For connecting to the bus, you have to make the bus' socket a mlstrusted
+object if you want to allow any level to connect.
+
+For preventing two levels from communicating through the bus in
+violation of MLS policy, you need to write mls constraints on the dbus
+class.  I don't think that has been done since the LSPP work didn't
+cover the desktop.
+
+Running the bus at unclassified will only help with the unclassified
+clients; any higher level client will then be unable to connect.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
