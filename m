@@ -1,65 +1,35 @@
-Subject: Re: Propper labeling of files under /var/www
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1198073575.19081.1.camel@moss-spartans.epoch.ncsc.mil>
-References: <1198003507.3705.15.camel@localhost6.localdomain6>
-	 <1198004134.11568.4.camel@moss-spartans.epoch.ncsc.mil>
-	 <1198059185.3342.3.camel@localhost6.localdomain6>
-	 <1198073575.19081.1.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aNmJghFN9OBt55UE9noy"
-Date: Thu, 20 Dec 2007 08:43:51 +0000
-Message-Id: <1198140231.3248.7.camel@localhost6.localdomain6>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBKDeVul005568
+	for <selinux@tycho.nsa.gov>; Thu, 20 Dec 2007 08:40:31 -0500
+Received: from mk-filter-1-a-1.mail.uk.tiscali.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBKDeUiE023340
+	for <selinux@tycho.nsa.gov>; Thu, 20 Dec 2007 13:40:31 GMT
+From: "Martin J. Green" <mail@martinjgreen.me.uk>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Thu, 20 Dec 2007 13:40:10 +0000
+Subject: Re: Getting started with SELinux and Slackware
+Message-ID: <54EE10FFA0116B408D3A5172CB52729FBF526E155A@exchange.home.martinjgreen.me.uk>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+> From: Timothy <timothy_at_diyab.net>
+> Date: Thu, 22 Sep 2005 14:02:29 -0400
+>
+> All of the modified slackware sources that I used to build that old release are available on that ftp site (ftp.diyab.net/selinux). I haven't had time to update any of it > in a while but it generally just requires checking the newer patches and rebuilding the tgz from the slackbuild script.
+> I included PAM because I think it has good advantages so all of the packages I built include PAM support. Not sure what would be involved in building without PAM. Most >likely it just requires removing the configure flags to enable PAM from the build scripts.
+> I'll be more than happy to help you out if you want.
+> Timothy
 
---=-aNmJghFN9OBt55UE9noy
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2007-12-19 at 09:12 -0500, Stephen Smalley wrote:
-> On Wed, 2007-12-19 at 10:13 +0000, Stefan Schulze Frielinghaus wrote:
-> > On Tue, 2007-12-18 at 13:55 -0500, Stephen Smalley wrote:
-> > [...]
-> > > Try restorecon -FRv /var/www
-> >=20
-> > Yeah that solved the problem. The -F option is a little bit tricky ;-)
-> > Never expected something like that.
->=20
-> /etc/selinux/targeted/contexts/customizable_types was created to allow
-> programs like restorecon to omit files with certain types from being
-> relabeled by default, so that admin customizations wouldn't be lost.
-> The httpd-related types are a common case of this, where the admin wants
-> to manually manage the type under the web root and not have them
-> clobbered.  As to whether it still makes sense when we have semanage
-> fcontext, I'm not sure.
+I appreciate this is an old post, but I'm in the process of updating your build scripts for the latest selinux, however I'm also looking for the old login patch so I don't have to use PAM.
 
-I think at least from an user point of view it is misleading. I just
-wanted to create a policy for some CGI/PHP webserver stuff which I could
-role out to my clients. And if a client runs into some trouble, gets
-some AVC messages etc., he just uses "fixfiles relabel" or even
-"touch /.autorelabel && reboot". I think that's the normal behavior of a
-non SELinux hacker.
+I would of course be happy to make the build scripts available (I'll also build for i486 and upload to linuxpackages.net when I get time - I'm building for p4 & x86_64 for myself).
 
-So in the end removing it (or just ship an empty customizable_types file
-like you pointed out) would be a good thing.
+Can anyone point me in the right direction to find the necessary patch(es)? I've found some FC4 patches in the fedora CVS tree that don't seem to refer to PAM, but not sure when PAM was introduced to redhat/fedora, so not quite sure what I'm looking for. I want to modify slack as little as possible.
 
---=-aNmJghFN9OBt55UE9noy
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD8DBQBHais1qYnt3l7ncSARAm/iAJ9SPwvOqLd1+6Wph/J5RmZofQ3wzwCgppgw
-eQL9OrDPnVnee1rG71kOxa8=
-=CcpX
------END PGP SIGNATURE-----
-
---=-aNmJghFN9OBt55UE9noy--
+Martin
 
 
 --
