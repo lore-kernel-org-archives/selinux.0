@@ -1,229 +1,157 @@
-Subject: Re: I have been working on a example policy/rpm package
-	to	demontrate how to ship SELinux policy in an RPM
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        James Morris <jmorris@namei.org>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <476BE61E.4080507@redhat.com>
-References: <476BD322.2050904@redhat.com>
-	 <1198251281.2944.23.camel@moss-spartans.epoch.ncsc.mil>
-	 <476BE61E.4080507@redhat.com>
-Content-Type: text/plain
-Date: Fri, 21 Dec 2007 11:28:40 -0500
-Message-Id: <1198254520.2944.50.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBLGVv55031669
+	for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 11:31:57 -0500
+Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBLGVuF8020419
+	for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 16:31:56 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so167777fgg.40
+        for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 08:31:44 -0800 (PST)
+Message-ID: <cadfc0e40712210831p29ed2ab1mf3765448cc7ab1c4@mail.gmail.com>
+Date: Fri, 21 Dec 2007 10:31:44 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: newrole in the background
+Cc: "Reed, Tim (US SSA)" <tim.reed@baesystems.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <1198252853.2944.40.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
+	 <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil>
+	 <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com>
+	 <1197558486.20226.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net>
+	 <1197567614.20226.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A69503F99214D9EBC27415F66C40C0F597E63@blums0008.bluelnk.net>
+	 <1197907810.17307.38.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A69503F99214D9EBC27415F66C40C0F59812B@blums0008.bluelnk.net>
+	 <1198252853.2944.40.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Works for me, thanks.
 
-On Fri, 2007-12-21 at 11:13 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephen Smalley wrote:
-> > On Fri, 2007-12-21 at 09:52 -0500, Daniel J Walsh wrote:
-> >> -----BEGIN PGP SIGNED MESSAGE-----
-> >> Hash: SHA1
-> >>
-> >> Doing this I believe I found a bug in bug in SELinux,  that I am not
-> >> sure how we fix.
-> >>
-> >> Steps to produce bug.
-> >>
-> >> Build and install
-> >>
-> >> http://people.fedoraproject.org/~dwalsh/SELinux/example-1.0-0.fc9.src.rpm
-> >>
-> >> This will install a daemon program
-> >>
-> >> /usr/sbin/example
-> >> /var/spool/example
-> >> /etc/init.d/example
-> >>
-> >> All of these should be labeled correctly
-> >>
-> >> Now start the daemon
-> >> # rpm -Uhv example-1.0-0.fc9.noarch.rpm
-> >> # service example start
-> >>
-> >> This will only create a pid file /var/run/example.pid
-> >>
-> >> Now make sure everything is labeled correctly
-> >>
-> >> # ls -ldZ /usr/sbin/example /etc/init.d/example /var/spool/example/
-> >> /var/run/example.pid
-> >> - -rwxr-xr-x  root root system_u:object_r:example_script_exec_t
-> >> /etc/init.d/example
-> >> - -rwxr-xr-x  root root system_u:object_r:example_exec_t /usr/sbin/example
-> >> - -rw-r--r--  root root system_u:object_r:example_var_run_t
-> >> /var/run/example.pid
-> >> drwxr-xr-x  root root system_u:object_r:example_spool_t /var/spool/example/
-> >>
-> >> Touch a file in /var/spool/example to make sure rpm does not remove with
-> >> the package
-> >>
-> >> # touch /var/spool/example/example.tmp
-> >>
-> >> Now I am going to test the uninstall of the package.
-> >>
-> >>
-> >> rpm -e example
-> >>
-> >> ls -ldZ /usr/sbin/example /etc/init.d/example /var/spool/example/
-> >> /var/run/example.pid
-> >> ls: cannot access /usr/sbin/example: No such file or directory
-> >> ls: cannot access /etc/init.d/example: No such file or directory
-> >> - -rw-r--r--  root root system_u:object_r:unlabeled_t
-> >> /var/run/example.pid
-> >> drwxr-xr-x  root root system_u:object_r:var_spool_t    /var/spool/example/
-> >>
-> >> # restorecon -R -v /var/run/example.pid
-> >> # ls -lZ /var/run/example.pid
-> >> - -rw-r--r--  root root system_u:object_r:unlabeled_t
-> >> /var/run/example.pid
-> >>
-> >> It leaves the pid file as unlabeled_t, this is because
-> >>
-> >> /var/run/.*\.*pid	<<none>>
-> >>
-> >> Which tells restorecon to not change any context on a pid file.  But
-> >> leaving the file as unlabeled_t causes other problems.
-> > 
-> > Interestingly though, there are specific entries for specific pid files
-> > in the .fc files.  In which case I'm not sure why we retain the above -
-> > the original point of marking /var/run pid files with <<none>> was
-> > because those files are runtime files and thus just labeled based on
-> > type transitions when they are created, and we didn't want
-> > setfiles/restorecon to clobber those labels.  But if we have specific
-> > entries for the individual files (because they actually do have
-> > meaningful and predictable names, unlike /tmp files), then we don't
-> > really buy much by having the <<none>> entry.
-> > 
-> I am going to remove that mapping.  All domains that create a pid file
-> should have a file context that matches.
-> 
-> >> Now I reinstall the package
-> >>
-> >> # rpm -Uhv
-> >> /home/devel/dwalsh/sources/RPMS/noarch/example-1.0-0.fc9.noarch.rpm
-> >> Preparing...                ###########################################
-> >> [100%]
-> >>    1:example                ###########################################
-> >> [100%]
-> >> /sbin/restorecon set context
-> >> /var/run/example.pid->system_u:object_r:example_var_run_t:s0
-> >> failed:'Permission denied'
-> >>
-> >> AVC is generated
-> >>
-> >> time->Thu Dec 20 19:28:50 2007
-> >> type=PATH msg=audit(1198196930.130:1540): item=0
-> >> name="/var/run/example.pid" inode=3178877 dev=fd:00 mode=0100644 ouid=0
-> >> ogid=0 rdev=00:00 obj=system_u:object_r:example_var_run_t:s0
-> >> type=CWD msg=audit(1198196930.130:1540):  cwd="/"
-> >> type=SYSCALL msg=audit(1198196930.130:1540): arch=40000003 syscall=227
-> >> success=no exit=-13 a0=bfcbd7e0 a1=1417c1 a2=ba1ed1e0 a3=27 items=1
-> >> ppid=23898 pid=23928 auid=3267 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0
-> >> sgid=0 fsgid=0 tty=pts2 comm="restorecon" exe="/sbin/setfiles"
-> >> subj=unconfined_u:unconfined_r:setfiles_t:s0-s0:c0.c1023 key=(null)
-> >> type=AVC msg=audit(1198196930.130:1540): avc:  denied  { relabelto } for
-> >>  pid=23928 comm="restorecon" name="example.pid" dev=dm-0 ino=3178877
-> >> scontext=unconfined_u:unconfined_r:setfiles_t:s0-s0:c0.c1023
-> >> tcontext=system_u:object_r:example_var_run_t:s0 tclass=file
-> > 
-> > That doesn't seem to match the policy, since setfiles_t does have
-> > relabelto for all file types, and it has relabelfrom for unlabeled_t
-> > AFAICS.  And it has the attribute needed to relabel files with different
-> > SELinux user identities.
-> > 
-> >> If I pipe this to audit2why
-> >> type=AVC msg=audit(1198196930.130:1540): avc:  denied  { relabelto } for
-> >>  pid=23928 comm="restorecon" name="example.pid" dev=dm-0 ino=3178877
-> >> scontext=unconfined_u:unconfined_r:setfiles_t:s0-s0:c0.c1023
-> >> tcontext=system_u:object_r:example_var_run_t:s0 tclass=file
-> >> 	Was caused by:
-> >> 		Unknown - would be allowed by active policy
-> >> 		Possible mismatch between this policy and the one under which the
-> >> audit message was generated.
-> >> 		Possible mismatch between current in-memory boolean settings vs.
-> >> permanent ones.
-> > 
-> > So userland's interpretation of the policy doesn't match the kernel's
-> > interpretation, or they aren't actually seeing the same policy.  Not
-> > good.
-> > 
-> >> If I run restorecon on it now, it is fine.
-> > 
-> > That's interesting - does it run in a different context when run
-> > interactively than from rpm?
-> >> If I do the exact same steps above, but change the context on
-> >> /var/run/example.pid to say bin_t.
-> >>
-> Yes I guess it does, rpm transisitions to setfiles_t while unconfined_t
-> stays as unconfined_t.
-> 
-> Although the kernel definitely understands the example_var_run_t is a
-> valid file context, when run from unconfined_t.
-> 
-> >> The install happens successfully.
-> > 
-> > Hmmm..which seems to tie it to the fact that the file was unlabeled (or
-> > more precisely, had an invalidated SID).  Yet the denial itself wasn't
-> > on the unlabeled SID but on the new label.
-> > 
-> >> It seems that during the rpm update the policy in the kernel is
-> >> different then when it completes.  All the postinstall is doing is
-> >>
-> >> # semodule -s targeted -i example.pp
-> >> followed by a fixfiles on the files in example.spec
-> >>
-> >> Why this would work outside the rpm transaction but not inside is the
-> >> bug.  Why does it work with the label of bin_t, but not when it is
-> >> labeled unlabeled_t?
-> > 
-> > I agree it shouldn't differ, so this suggests a bug in the kernel's
-> > handling of inodes with invalidated SIDs.
-> > 
-> > We should try to track that down regardless, but one thing that might
-> > change the situation would be the old patch I had to retain invalidated
-> > contexts in the SID table and then turn them back into valid SIDs upon
-> > policy reload that make them valid once again.  That avoided the whole
-> > unlabeled_t state for such files.  That patch actually had two logical
-> > changes within it, one to support preservation of such invalidated
-> > contexts and one to let privileged programs (ala rpm) set invalid
-> > contexts in the first place (so that they could set down the context
-> > before loading the policy module).  The latter part was the more
-> > controversial piece and could be removed.
-> > 
-> 
-> Of course the second part has always been requested by Red Hat/RPM
-> maintainers in order to have rpm do a better job of placing the file
-> context on disk in the first place.
-> 
-> semodule -r policy
-> 
-> causing things like processes to go wild with unlabeled_t and file
-> context becoming invalidated, so other confined domains, loose access is
-> a hinderence to using policy in rpm.  Since if I uninstall the apache
-> policy.  All apps that rely on the files will suddenly stop working.
-> 
-> I have seen processes go to 100 CPU utilization when they become
-> unlabeled_t.
-
-I don't think my kernel patch actually helps with that (or on second
-thought, with the problem you are having now). The kernel still treats
-invalid contexts as unlabeled for permission checking purposes while
-they remain invalid.  The only difference is that they can become valid
-once again automatically if the policy module is re-inserted without
-requiring them to be relabeled.
-
-And the situation is worse for processes than for files.
-
--- 
-Stephen Smalley
-National Security Agency
-
+On Dec 21, 2007 10:00 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> On Mon, 2007-12-17 at 12:40 -0800, Reed, Tim (US SSA) wrote:
+> > Lets try this again....Patch Try #3
+>
+> This looks ok to me, although it doesn't apply cleanly on the trunk, and
+> the coding style still needs fixing (but I suppose make indent will fix
+> it up).
+>
+> Does anyone else have any comments on this?  Does it meet Ted's need
+> too?
+>
+> I tried running a program that detached the tty and then invoked the
+> patched newrole with a command, and as expected, if configured to use
+> pam modules that required authentication, it just failed at that point
+> with an authentication failed error, and otherwise, it proceeded without
+> problem.
+>
+>
+> > -----Original Message-----
+> > From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+> > On Behalf Of Stephen Smalley
+> > Sent: Monday, December 17, 2007 11:10 AM
+> > To: Reed, Tim (US SSA)
+> > Cc: Xavier Toth; SE Linux
+> > Subject: RE: newrole in the background
+> >
+> > On Mon, 2007-12-17 at 08:01 -0800, Reed, Tim (US SSA) wrote:
+> > > When newrole goes and grabs the ttyname, if it cannot get one should
+> > it
+> > > still log something to the screen or not?
+> > >
+> > > Currently it says "Error! Could not retrieve tty information".  I was
+> > > thinking of changing Error to Warning.
+> >
+> > Yes, that's fine.
+> > >
+> > > What is the recommendation here?
+> > > Also do you have the coding standards posted somewhere?
+> >
+> > We just loosely follow kernel coding style,
+> > http://lxr.linux.no/linux/Documentation/CodingStyle
+> > and make indent can be used as a hammer (but not a very good one).
+> >
+> > >
+> > > -----Original Message-----
+> > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > > Sent: Thursday, December 13, 2007 12:40 PM
+> > > To: Reed, Tim (US SSA)
+> > > Cc: Xavier Toth; SE Linux
+> > > Subject: RE: newrole in the background
+> > >
+> > > On Thu, 2007-12-13 at 09:06 -0800, Reed, Tim (US SSA) wrote:
+> > > > New patch...I have added checks around the calls that deal with the
+> > > tty.
+> > > > So if ttyn is an empty string (something had a heartache with it
+> > being
+> > > > NULL) then it skips the processing.  It does appear to work but more
+> > > > testing is needed.  Please review and comment.
+> > >
+> > > Patch is reversed, and doesn't seem to be complete (test for a NULL
+> > > ttyname still remains and is fatal in main).
+> > >
+> > > ttyn should really be NULL if not defined - just fix the code.
+> > Cleaner
+> > > and faster to test for NULL than for empty string.  Looks like
+> > > authenticate_via_pam() needs a check.
+> > >
+> > > You can simplify the logic a fair amount, e.g. on entry to
+> > relabel_tty()
+> > > and restore_tty_label(), just do a if (!ttyn) return 0;
+> > >
+> > > Coding style doesn't match.
+> > >
+> > > > Now say if someone ran `newrole -l SystemHigh -- -c "su - foo"` in
+> > the
+> > > > background of a script, you would not be able to give su input as it
+> > > is
+> > > > in the background and has no tty.  su in this case exits gracefully
+> > I
+> > > > guess you could say.
+> > > >
+> > > > My point is that if you have an application that needs to run from
+> > > > newrole, in the background AND requires user input, you will not be
+> > > able
+> > > > to give the application input while it is in the background and have
+> > > it
+> > > > work successfully.
+> > >
+> > > You can't do that anyway, by definition.
+> > >
+> > > > Example:
+> > > > foo.sh
+> > > > ---------------
+> > > > #!/bin/bash
+> > > >
+> > > > ./bar.sh &
+> > > > ---------------
+> > > > bar.sh
+> > > > ---------------
+> > > > #!/bin/bash
+> > > >
+> > > > su - root -c /bin/date
+> > > > ---------------
+> > > >
+> > > > su exits because there is no tty for input.  So is chasing down
+> > having
+> > > > newrole run in a pseudo tty in the background and accept input worth
+> > > the
+> > > > time?
+> > >
+> > > It doesn't help - there is no input to accept.
+> > >
+> > > We just need to make sure that the pam modules and chkpwd don't block
+> > > forever or seg fault when handed a NULL PAM_TTY.
+> > >
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
