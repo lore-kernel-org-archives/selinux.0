@@ -1,16 +1,16 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBLHP4fG003908
-	for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 12:25:04 -0500
-Received: from QMTA08.westchester.pa.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBLHP3tf021740
-	for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 17:25:03 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBLHPCGv003939
+	for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 12:25:12 -0500
+Received: from QMTA03.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBLHP7F8014099
+	for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 17:25:07 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v9 04/18] NetLabel: Add secid token support to the
-	NetLabel secattr struct
+Subject: [RFC PATCH v9 07/18] NetLabel: Add IP address family information to
+	the netlbl_skbuff_getattr() function
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
 Cc: vyekkirala@TrustedCS.com, chanson@TrustedCS.com
-Date: Fri, 21 Dec 2007 12:09:18 -0500
-Message-ID: <20071221170918.12522.32956.stgit@flek.lan>
+Date: Fri, 21 Dec 2007 12:09:33 -0500
+Message-ID: <20071221170933.12522.56304.stgit@flek.lan>
 In-Reply-To: <20071221165109.12522.29726.stgit@flek.lan>
 References: <20071221165109.12522.29726.stgit@flek.lan>
 MIME-Version: 1.0
@@ -18,446 +18,248 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds support to the NetLabel LSM secattr struct for a secid token
-and a type field, paving the way for full LSM/SELinux context support and
-"static" or "fallback" labels.  In addition, this patch adds a fair amount
-of documentation to the core NetLabel structures used as part of the
-NetLabel kernel API.
+In order to do any sort of IP header inspection of incoming packets we need to
+know which address family, AF_INET/AF_INET6/etc., it belongs to and since the
+sk_buff structure does not store this information we need to pass along the
+address family separate from the packet itself.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
 
- include/net/netlabel.h            |   91 ++++++++++++++++++++++++++++++-------
- net/ipv4/cipso_ipv4.c             |   59 +++++++++++++++---------
- net/netlabel/netlabel_unlabeled.c |    1 
- security/selinux/ss/mls.c         |   10 ++--
- security/selinux/ss/services.c    |    5 ++
- 5 files changed, 120 insertions(+), 46 deletions(-)
+ include/net/netlabel.h              |    2 ++
+ net/netlabel/netlabel_kapi.c        |    2 ++
+ security/selinux/hooks.c            |   33 ++++++++++++++++++++++-----------
+ security/selinux/include/netlabel.h |    8 +++++++-
+ security/selinux/netlabel.c         |   12 +++++++++---
+ 5 files changed, 42 insertions(+), 15 deletions(-)
 
 diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-index 2e5b2f6..18b73cf 100644
+index 18b73cf..a3bffb4 100644
 --- a/include/net/netlabel.h
 +++ b/include/net/netlabel.h
-@@ -105,17 +105,49 @@ struct netlbl_dom_map;
- /* Domain mapping operations */
- int netlbl_domhsh_remove(const char *domain, struct netlbl_audit *audit_info);
+@@ -363,6 +363,7 @@ int netlbl_sock_setattr(struct sock *sk,
+ int netlbl_sock_getattr(struct sock *sk,
+ 			struct netlbl_lsm_secattr *secattr);
+ int netlbl_skbuff_getattr(const struct sk_buff *skb,
++			  u16 family,
+ 			  struct netlbl_lsm_secattr *secattr);
+ void netlbl_skbuff_err(struct sk_buff *skb, int error);
  
--/* LSM security attributes */
-+/*
-+ * LSM security attributes
-+ */
-+
-+/**
-+ * struct netlbl_lsm_cache - NetLabel LSM security attribute cache
-+ * @refcount: atomic reference counter
-+ * @free: LSM supplied function to free the cache data
-+ * @data: LSM supplied cache data
-+ *
-+ * Description:
-+ * This structure is provided for LSMs which wish to make use of the NetLabel
-+ * caching mechanism to store LSM specific data/attributes in the NetLabel
-+ * cache.  If the LSM has to perform a lot of translation from the NetLabel
-+ * security attributes into it's own internal representation then the cache
-+ * mechanism can provide a way to eliminate some or all of that translation
-+ * overhead on a cache hit.
-+ *
-+ */
- struct netlbl_lsm_cache {
- 	atomic_t refcount;
- 	void (*free) (const void *data);
- 	void *data;
- };
--/* The catmap bitmap field MUST be a power of two in length and large
-+
-+/**
-+ * struct netlbl_lsm_secattr_catmap - NetLabel LSM secattr category bitmap
-+ * @startbit: the value of the lowest order bit in the bitmap
-+ * @bitmap: the category bitmap
-+ * @next: pointer to the next bitmap "node" or NULL
-+ *
-+ * Description:
-+ * This structure is used to represent category bitmaps.  Due to the large
-+ * number of categories supported by most labeling protocols it is not
-+ * practical to transfer a full bitmap internally so NetLabel adopts a sparse
-+ * bitmap structure modeled after SELinux's ebitmap structure.
-+ * The catmap bitmap field MUST be a power of two in length and large
-  * enough to hold at least 240 bits.  Special care (i.e. check the code!)
-  * should be used when changing these values as the LSM implementation
-  * probably has functions which rely on the sizes of these types to speed
-- * processing. */
-+ * processing.
-+ *
-+ */
- #define NETLBL_CATMAP_MAPTYPE           u64
- #define NETLBL_CATMAP_MAPCNT            4
- #define NETLBL_CATMAP_MAPSIZE           (sizeof(NETLBL_CATMAP_MAPTYPE) * 8)
-@@ -127,22 +159,48 @@ struct netlbl_lsm_secattr_catmap {
- 	NETLBL_CATMAP_MAPTYPE bitmap[NETLBL_CATMAP_MAPCNT];
- 	struct netlbl_lsm_secattr_catmap *next;
- };
-+
-+/**
-+ * struct netlbl_lsm_secattr - NetLabel LSM security attributes
-+ * @flags: indicate which attributes are contained in this structure
-+ * @type: indicate the NLTYPE of the attributes
-+ * @domain: the NetLabel LSM domain
-+ * @cache: NetLabel LSM specific cache
-+ * @attr.mls: MLS sensitivity label
-+ * @attr.mls.cat: MLS category bitmap
-+ * @attr.mls.lvl: MLS sensitivity level
-+ * @attr.secid: LSM specific secid token
-+ *
-+ * Description:
-+ * This structure is used to pass security attributes between NetLabel and the
-+ * LSM modules.  The flags field is used to specify which fields within the
-+ * struct are valid and valid values can be created by bitwise OR'ing the
-+ * NETLBL_SECATTR_* defines.  The domain field is typically set by the LSM to
-+ * specify domain specific configuration settings and is not usually used by
-+ * NetLabel itself when returning security attributes to the LSM.
-+ *
-+ */
- #define NETLBL_SECATTR_NONE             0x00000000
- #define NETLBL_SECATTR_DOMAIN           0x00000001
- #define NETLBL_SECATTR_CACHE            0x00000002
- #define NETLBL_SECATTR_MLS_LVL          0x00000004
- #define NETLBL_SECATTR_MLS_CAT          0x00000008
-+#define NETLBL_SECATTR_SECID            0x00000010
- #define NETLBL_SECATTR_CACHEABLE        (NETLBL_SECATTR_MLS_LVL | \
--					 NETLBL_SECATTR_MLS_CAT)
-+					 NETLBL_SECATTR_MLS_CAT | \
-+					 NETLBL_SECATTR_SECID)
- struct netlbl_lsm_secattr {
- 	u32 flags;
--
-+	u32 type;
- 	char *domain;
--
--	u32 mls_lvl;
--	struct netlbl_lsm_secattr_catmap *mls_cat;
--
- 	struct netlbl_lsm_cache *cache;
-+	union {
-+		struct {
-+			struct netlbl_lsm_secattr_catmap *cat;
-+			u32 lvl;
-+		} mls;
-+		u32 secid;
-+	} attr;
- };
- 
- /*
-@@ -231,10 +289,7 @@ static inline void netlbl_secattr_catmap_free(
-  */
- static inline void netlbl_secattr_init(struct netlbl_lsm_secattr *secattr)
+@@ -415,6 +416,7 @@ static inline int netlbl_sock_getattr(struct sock *sk,
+ 	return -ENOSYS;
+ }
+ static inline int netlbl_skbuff_getattr(const struct sk_buff *skb,
++					u16 family,
+ 					struct netlbl_lsm_secattr *secattr)
  {
--	secattr->flags = 0;
--	secattr->domain = NULL;
--	secattr->mls_cat = NULL;
--	secattr->cache = NULL;
-+	memset(secattr, 0, sizeof(*secattr));
+ 	return -ENOSYS;
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index d3762ea..4914615 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -332,6 +332,7 @@ int netlbl_sock_getattr(struct sock *sk, struct netlbl_lsm_secattr *secattr)
+ /**
+  * netlbl_skbuff_getattr - Determine the security attributes of a packet
+  * @skb: the packet
++ * @family: protocol family
+  * @secattr: the security attributes
+  *
+  * Description:
+@@ -342,6 +343,7 @@ int netlbl_sock_getattr(struct sock *sk, struct netlbl_lsm_secattr *secattr)
+  *
+  */
+ int netlbl_skbuff_getattr(const struct sk_buff *skb,
++			  u16 family,
+ 			  struct netlbl_lsm_secattr *secattr)
+ {
+ 	if (CIPSO_V4_OPTEXIST(skb) &&
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 8bb673b..7b99d52 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3192,6 +3192,7 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+ /**
+  * selinux_skb_extlbl_sid - Determine the external label of a packet
+  * @skb: the packet
++ * @family: protocol family
+  * @sid: the packet's SID
+  *
+  * Description:
+@@ -3204,13 +3205,16 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+  * selinux_netlbl_skbuff_getsid().
+  *
+  */
+-static void selinux_skb_extlbl_sid(struct sk_buff *skb, u32 *sid)
++static void selinux_skb_extlbl_sid(struct sk_buff *skb,
++				   u16 family,
++				   u32 *sid)
+ {
+ 	u32 xfrm_sid;
+ 	u32 nlbl_sid;
+ 
+ 	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+ 	if (selinux_netlbl_skbuff_getsid(skb,
++					 family,
+ 					 (xfrm_sid == SECSID_NULL ?
+ 					  SECINITSID_NETMSG : xfrm_sid),
+ 					 &nlbl_sid) != 0)
+@@ -3703,7 +3707,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	if (err)
+ 		goto out;
+ 
+-	err = selinux_netlbl_sock_rcv_skb(sksec, skb, &ad);
++	err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, &ad);
+ 	if (err)
+ 		goto out;
+ 
+@@ -3759,18 +3763,25 @@ out:
+ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
+ {
+ 	u32 peer_secid = SECSID_NULL;
+-	int err = 0;
++	u16 family;
+ 
+-	if (sock && sock->sk->sk_family == PF_UNIX)
++	if (sock)
++		family = sock->sk->sk_family;
++	else if (skb && skb->sk)
++		family = skb->sk->sk_family;
++	else
++		goto out;
++
++	if (sock && family == PF_UNIX)
+ 		selinux_get_inode_sid(SOCK_INODE(sock), &peer_secid);
+ 	else if (skb)
+-		selinux_skb_extlbl_sid(skb, &peer_secid);
++		selinux_skb_extlbl_sid(skb, family, &peer_secid);
+ 
+-	if (peer_secid == SECSID_NULL)
+-		err = -EINVAL;
++out:
+ 	*secid = peer_secid;
+-
+-	return err;
++	if (peer_secid == SECSID_NULL)
++		return -EINVAL;
++	return 0;
  }
  
- /**
-@@ -248,11 +303,11 @@ static inline void netlbl_secattr_init(struct netlbl_lsm_secattr *secattr)
-  */
- static inline void netlbl_secattr_destroy(struct netlbl_lsm_secattr *secattr)
+ static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
+@@ -3825,7 +3836,7 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ 	u32 newsid;
+ 	u32 peersid;
+ 
+-	selinux_skb_extlbl_sid(skb, &peersid);
++	selinux_skb_extlbl_sid(skb, sk->sk_family, &peersid);
+ 	if (peersid == SECSID_NULL) {
+ 		req->secid = sksec->sid;
+ 		req->peer_secid = SECSID_NULL;
+@@ -3863,7 +3874,7 @@ static void selinux_inet_conn_established(struct sock *sk,
  {
--	if (secattr->cache)
--		netlbl_secattr_cache_free(secattr->cache);
- 	kfree(secattr->domain);
--	if (secattr->mls_cat)
--		netlbl_secattr_catmap_free(secattr->mls_cat);
-+	if (secattr->flags & NETLBL_SECATTR_CACHE)
-+		netlbl_secattr_cache_free(secattr->cache);
-+	if (secattr->flags & NETLBL_SECATTR_MLS_CAT)
-+		netlbl_secattr_catmap_free(secattr->attr.mls.cat);
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+-	selinux_skb_extlbl_sid(skb, &sksec->peer_sid);
++	selinux_skb_extlbl_sid(skb, sk->sk_family, &sksec->peer_sid);
  }
  
- /**
-@@ -300,7 +355,7 @@ int netlbl_secattr_catmap_setrng(struct netlbl_lsm_secattr_catmap *catmap,
- 				 gfp_t flags);
+ static void selinux_req_classify_flow(const struct request_sock *req,
+diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+index 218e3f7..272769a 100644
+--- a/security/selinux/include/netlabel.h
++++ b/security/selinux/include/netlabel.h
+@@ -46,13 +46,17 @@ void selinux_netlbl_sk_security_init(struct sk_security_struct *ssec,
+ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+ 				      struct sk_security_struct *newssec);
  
- /*
-- * LSM protocol operations
-+ * LSM protocol operations (NetLabel LSM/kernel API)
-  */
- int netlbl_enabled(void);
- int netlbl_sock_setattr(struct sock *sk,
-diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index f18e88b..2e4e043 100644
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -348,6 +348,7 @@ static int cipso_v4_cache_check(const unsigned char *key,
- 			atomic_inc(&entry->lsm_data->refcount);
- 			secattr->cache = entry->lsm_data;
- 			secattr->flags |= NETLBL_SECATTR_CACHE;
-+			secattr->type = NETLBL_NLTYPE_CIPSOV4;
- 			if (prev_entry == NULL) {
- 				spin_unlock_bh(&cipso_v4_cache[bkt].lock);
- 				return 0;
-@@ -865,7 +866,7 @@ static int cipso_v4_map_cat_rbm_hton(const struct cipso_v4_doi *doi_def,
- 	}
+-int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u32 base_sid, u32 *sid);
++int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
++				 u16 family,
++				 u32 base_sid,
++				 u32 *sid);
  
- 	for (;;) {
--		host_spot = netlbl_secattr_catmap_walk(secattr->mls_cat,
-+		host_spot = netlbl_secattr_catmap_walk(secattr->attr.mls.cat,
- 						       host_spot + 1);
- 		if (host_spot < 0)
- 			break;
-@@ -948,7 +949,7 @@ static int cipso_v4_map_cat_rbm_ntoh(const struct cipso_v4_doi *doi_def,
- 				return -EPERM;
- 			break;
- 		}
--		ret_val = netlbl_secattr_catmap_setbit(secattr->mls_cat,
-+		ret_val = netlbl_secattr_catmap_setbit(secattr->attr.mls.cat,
- 						       host_spot,
- 						       GFP_ATOMIC);
- 		if (ret_val != 0)
-@@ -1014,7 +1015,8 @@ static int cipso_v4_map_cat_enum_hton(const struct cipso_v4_doi *doi_def,
- 	u32 cat_iter = 0;
+ void selinux_netlbl_sock_graft(struct sock *sk, struct socket *sock);
+ int selinux_netlbl_socket_post_create(struct socket *sock);
+ int selinux_netlbl_inode_permission(struct inode *inode, int mask);
+ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 				struct sk_buff *skb,
++				u16 family,
+ 				struct avc_audit_data *ad);
+ int selinux_netlbl_socket_setsockopt(struct socket *sock,
+ 				     int level,
+@@ -83,6 +87,7 @@ static inline void selinux_netlbl_sk_security_clone(
+ }
  
- 	for (;;) {
--		cat = netlbl_secattr_catmap_walk(secattr->mls_cat, cat + 1);
-+		cat = netlbl_secattr_catmap_walk(secattr->attr.mls.cat,
-+						 cat + 1);
- 		if (cat < 0)
- 			break;
- 		if ((cat_iter + 2) > net_cat_len)
-@@ -1049,7 +1051,7 @@ static int cipso_v4_map_cat_enum_ntoh(const struct cipso_v4_doi *doi_def,
- 	u32 iter;
- 
- 	for (iter = 0; iter < net_cat_len; iter += 2) {
--		ret_val = netlbl_secattr_catmap_setbit(secattr->mls_cat,
-+		ret_val = netlbl_secattr_catmap_setbit(secattr->attr.mls.cat,
- 				ntohs(get_unaligned((__be16 *)&net_cat[iter])),
- 				GFP_ATOMIC);
- 		if (ret_val != 0)
-@@ -1130,7 +1132,8 @@ static int cipso_v4_map_cat_rng_hton(const struct cipso_v4_doi *doi_def,
- 		return -ENOSPC;
- 
- 	for (;;) {
--		iter = netlbl_secattr_catmap_walk(secattr->mls_cat, iter + 1);
-+		iter = netlbl_secattr_catmap_walk(secattr->attr.mls.cat,
-+						  iter + 1);
- 		if (iter < 0)
- 			break;
- 		cat_size += (iter == 0 ? 0 : sizeof(u16));
-@@ -1138,7 +1141,8 @@ static int cipso_v4_map_cat_rng_hton(const struct cipso_v4_doi *doi_def,
- 			return -ENOSPC;
- 		array[array_cnt++] = iter;
- 
--		iter = netlbl_secattr_catmap_walk_rng(secattr->mls_cat, iter);
-+		iter = netlbl_secattr_catmap_walk_rng(secattr->attr.mls.cat,
-+						      iter);
- 		if (iter < 0)
- 			return -EFAULT;
- 		cat_size += sizeof(u16);
-@@ -1191,7 +1195,7 @@ static int cipso_v4_map_cat_rng_ntoh(const struct cipso_v4_doi *doi_def,
- 		else
- 			cat_low = 0;
- 
--		ret_val = netlbl_secattr_catmap_setrng(secattr->mls_cat,
-+		ret_val = netlbl_secattr_catmap_setrng(secattr->attr.mls.cat,
- 						       cat_low,
- 						       cat_high,
- 						       GFP_ATOMIC);
-@@ -1251,7 +1255,9 @@ static int cipso_v4_gentag_rbm(const struct cipso_v4_doi *doi_def,
- 	if ((secattr->flags & NETLBL_SECATTR_MLS_LVL) == 0)
- 		return -EPERM;
- 
--	ret_val = cipso_v4_map_lvl_hton(doi_def, secattr->mls_lvl, &level);
-+	ret_val = cipso_v4_map_lvl_hton(doi_def,
-+					secattr->attr.mls.lvl,
-+					&level);
- 	if (ret_val != 0)
- 		return ret_val;
- 
-@@ -1303,12 +1309,13 @@ static int cipso_v4_parsetag_rbm(const struct cipso_v4_doi *doi_def,
- 	ret_val = cipso_v4_map_lvl_ntoh(doi_def, tag[3], &level);
- 	if (ret_val != 0)
- 		return ret_val;
--	secattr->mls_lvl = level;
-+	secattr->attr.mls.lvl = level;
- 	secattr->flags |= NETLBL_SECATTR_MLS_LVL;
- 
- 	if (tag_len > 4) {
--		secattr->mls_cat = netlbl_secattr_catmap_alloc(GFP_ATOMIC);
--		if (secattr->mls_cat == NULL)
-+		secattr->attr.mls.cat =
-+		                       netlbl_secattr_catmap_alloc(GFP_ATOMIC);
-+		if (secattr->attr.mls.cat == NULL)
- 			return -ENOMEM;
- 
- 		ret_val = cipso_v4_map_cat_rbm_ntoh(doi_def,
-@@ -1316,7 +1323,7 @@ static int cipso_v4_parsetag_rbm(const struct cipso_v4_doi *doi_def,
- 						    tag_len - 4,
- 						    secattr);
- 		if (ret_val != 0) {
--			netlbl_secattr_catmap_free(secattr->mls_cat);
-+			netlbl_secattr_catmap_free(secattr->attr.mls.cat);
- 			return ret_val;
- 		}
- 
-@@ -1350,7 +1357,9 @@ static int cipso_v4_gentag_enum(const struct cipso_v4_doi *doi_def,
- 	if (!(secattr->flags & NETLBL_SECATTR_MLS_LVL))
- 		return -EPERM;
- 
--	ret_val = cipso_v4_map_lvl_hton(doi_def, secattr->mls_lvl, &level);
-+	ret_val = cipso_v4_map_lvl_hton(doi_def,
-+					secattr->attr.mls.lvl,
-+					&level);
- 	if (ret_val != 0)
- 		return ret_val;
- 
-@@ -1396,12 +1405,13 @@ static int cipso_v4_parsetag_enum(const struct cipso_v4_doi *doi_def,
- 	ret_val = cipso_v4_map_lvl_ntoh(doi_def, tag[3], &level);
- 	if (ret_val != 0)
- 		return ret_val;
--	secattr->mls_lvl = level;
-+	secattr->attr.mls.lvl = level;
- 	secattr->flags |= NETLBL_SECATTR_MLS_LVL;
- 
- 	if (tag_len > 4) {
--		secattr->mls_cat = netlbl_secattr_catmap_alloc(GFP_ATOMIC);
--		if (secattr->mls_cat == NULL)
-+		secattr->attr.mls.cat =
-+			               netlbl_secattr_catmap_alloc(GFP_ATOMIC);
-+		if (secattr->attr.mls.cat == NULL)
- 			return -ENOMEM;
- 
- 		ret_val = cipso_v4_map_cat_enum_ntoh(doi_def,
-@@ -1409,7 +1419,7 @@ static int cipso_v4_parsetag_enum(const struct cipso_v4_doi *doi_def,
- 						     tag_len - 4,
- 						     secattr);
- 		if (ret_val != 0) {
--			netlbl_secattr_catmap_free(secattr->mls_cat);
-+			netlbl_secattr_catmap_free(secattr->attr.mls.cat);
- 			return ret_val;
- 		}
- 
-@@ -1443,7 +1453,9 @@ static int cipso_v4_gentag_rng(const struct cipso_v4_doi *doi_def,
- 	if (!(secattr->flags & NETLBL_SECATTR_MLS_LVL))
- 		return -EPERM;
- 
--	ret_val = cipso_v4_map_lvl_hton(doi_def, secattr->mls_lvl, &level);
-+	ret_val = cipso_v4_map_lvl_hton(doi_def,
-+					secattr->attr.mls.lvl,
-+					&level);
- 	if (ret_val != 0)
- 		return ret_val;
- 
-@@ -1488,12 +1500,13 @@ static int cipso_v4_parsetag_rng(const struct cipso_v4_doi *doi_def,
- 	ret_val = cipso_v4_map_lvl_ntoh(doi_def, tag[3], &level);
- 	if (ret_val != 0)
- 		return ret_val;
--	secattr->mls_lvl = level;
-+	secattr->attr.mls.lvl = level;
- 	secattr->flags |= NETLBL_SECATTR_MLS_LVL;
- 
- 	if (tag_len > 4) {
--		secattr->mls_cat = netlbl_secattr_catmap_alloc(GFP_ATOMIC);
--		if (secattr->mls_cat == NULL)
-+		secattr->attr.mls.cat =
-+			               netlbl_secattr_catmap_alloc(GFP_ATOMIC);
-+		if (secattr->attr.mls.cat == NULL)
- 			return -ENOMEM;
- 
- 		ret_val = cipso_v4_map_cat_rng_ntoh(doi_def,
-@@ -1501,7 +1514,7 @@ static int cipso_v4_parsetag_rng(const struct cipso_v4_doi *doi_def,
- 						    tag_len - 4,
- 						    secattr);
- 		if (ret_val != 0) {
--			netlbl_secattr_catmap_free(secattr->mls_cat);
-+			netlbl_secattr_catmap_free(secattr->attr.mls.cat);
- 			return ret_val;
- 		}
- 
-@@ -1850,6 +1863,8 @@ static int cipso_v4_getattr(const unsigned char *cipso,
- 		ret_val = cipso_v4_parsetag_rng(doi_def, &cipso[6], secattr);
- 		break;
- 	}
-+	if (ret_val == 0)
-+		secattr->type = NETLBL_NLTYPE_CIPSOV4;
- 
- getattr_return:
- 	rcu_read_unlock();
-diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index fd53c7a..7f5df0c 100644
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -241,6 +241,7 @@ int netlbl_unlabel_getattr(struct netlbl_lsm_secattr *secattr)
- 	if (netlabel_unlabel_acceptflg == 0)
- 		return -ENOMSG;
- 	netlbl_secattr_init(secattr);
-+	secattr->type = NETLBL_NLTYPE_UNLABELED;
+ static inline int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
++					       u16 family,
+ 					       u32 base_sid,
+ 					       u32 *sid)
+ {
+@@ -106,6 +111,7 @@ static inline int selinux_netlbl_inode_permission(struct inode *inode,
+ }
+ static inline int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 					      struct sk_buff *skb,
++					      u16 family,
+ 					      struct avc_audit_data *ad)
+ {
  	return 0;
- }
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index d243ddc..4073d5a 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -141,6 +141,7 @@ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+ /**
+  * selinux_netlbl_skbuff_getsid - Get the sid of a packet using NetLabel
+  * @skb: the packet
++ * @family: protocol family
+  * @base_sid: the SELinux SID to use as a context for MLS only attributes
+  * @sid: the SID
+  *
+@@ -150,7 +151,10 @@ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+  * assign to the packet.  Returns zero on success, negative values on failure.
+  *
+  */
+-int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u32 base_sid, u32 *sid)
++int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
++				 u16 family,
++				 u32 base_sid,
++				 u32 *sid)
+ {
+ 	int rc;
+ 	struct netlbl_lsm_secattr secattr;
+@@ -161,7 +165,7 @@ int selinux_netlbl_skbuff_getsid(struct sk_buff *skb, u32 base_sid, u32 *sid)
+ 	}
  
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index fb5d70a..5cf2429 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -569,7 +569,7 @@ void mls_export_netlbl_lvl(struct context *context,
- 	if (!selinux_mls_enabled)
- 		return;
- 
--	secattr->mls_lvl = context->range.level[0].sens - 1;
-+	secattr->attr.mls.lvl = context->range.level[0].sens - 1;
- 	secattr->flags |= NETLBL_SECATTR_MLS_LVL;
- }
- 
-@@ -589,7 +589,7 @@ void mls_import_netlbl_lvl(struct context *context,
- 	if (!selinux_mls_enabled)
- 		return;
- 
--	context->range.level[0].sens = secattr->mls_lvl + 1;
-+	context->range.level[0].sens = secattr->attr.mls.lvl + 1;
- 	context->range.level[1].sens = context->range.level[0].sens;
- }
- 
-@@ -612,8 +612,8 @@ int mls_export_netlbl_cat(struct context *context,
+ 	netlbl_secattr_init(&secattr);
+-	rc = netlbl_skbuff_getattr(skb, &secattr);
++	rc = netlbl_skbuff_getattr(skb, family, &secattr);
+ 	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE) {
+ 		rc = security_netlbl_secattr_to_sid(&secattr, base_sid, sid);
+ 		if (rc == 0 &&
+@@ -289,6 +293,7 @@ int selinux_netlbl_inode_permission(struct inode *inode, int mask)
+  * selinux_netlbl_sock_rcv_skb - Do an inbound access check using NetLabel
+  * @sksec: the sock's sk_security_struct
+  * @skb: the packet
++ * @family: protocol family
+  * @ad: the audit data
+  *
+  * Description:
+@@ -299,6 +304,7 @@ int selinux_netlbl_inode_permission(struct inode *inode, int mask)
+  */
+ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 				struct sk_buff *skb,
++				u16 family,
+ 				struct avc_audit_data *ad)
+ {
+ 	int rc;
+@@ -310,7 +316,7 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
  		return 0;
  
- 	rc = ebitmap_netlbl_export(&context->range.level[0].cat,
--				   &secattr->mls_cat);
--	if (rc == 0 && secattr->mls_cat != NULL)
-+				   &secattr->attr.mls.cat);
-+	if (rc == 0 && secattr->attr.mls.cat != NULL)
- 		secattr->flags |= NETLBL_SECATTR_MLS_CAT;
- 
- 	return rc;
-@@ -640,7 +640,7 @@ int mls_import_netlbl_cat(struct context *context,
- 		return 0;
- 
- 	rc = ebitmap_netlbl_import(&context->range.level[0].cat,
--				   secattr->mls_cat);
-+				   secattr->attr.mls.cat);
- 	if (rc != 0)
- 		goto import_netlbl_cat_failure;
- 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index d572dc9..88fcd57 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2547,6 +2547,9 @@ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
- 		default:
- 			goto netlbl_secattr_to_sid_return;
- 		}
-+	} else if (secattr->flags & NETLBL_SECATTR_SECID) {
-+		*sid = secattr->attr.secid;
-+		rc = 0;
- 	} else if (secattr->flags & NETLBL_SECATTR_MLS_LVL) {
- 		ctx = sidtab_search(&sidtab, base_sid);
- 		if (ctx == NULL)
-@@ -2558,7 +2561,7 @@ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
- 		mls_import_netlbl_lvl(&ctx_new, secattr);
- 		if (secattr->flags & NETLBL_SECATTR_MLS_CAT) {
- 			if (ebitmap_netlbl_import(&ctx_new.range.level[0].cat,
--						  secattr->mls_cat) != 0)
-+						  secattr->attr.mls.cat) != 0)
- 				goto netlbl_secattr_to_sid_return;
- 			ctx_new.range.level[1].cat.highbit =
- 				ctx_new.range.level[0].cat.highbit;
+ 	netlbl_secattr_init(&secattr);
+-	rc = netlbl_skbuff_getattr(skb, &secattr);
++	rc = netlbl_skbuff_getattr(skb, family, &secattr);
+ 	if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE) {
+ 		rc = security_netlbl_secattr_to_sid(&secattr,
+ 						    SECINITSID_NETMSG,
 
 
 --
