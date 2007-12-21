@@ -1,248 +1,125 @@
-Subject: Re: [patch 2/2] checkpolicy capability support
+Subject: Re: [RFC PATCH v9 12/18] SELinux: Add a new peer class and
+	permissions to the Flask definitions
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: tmiller@tresys.com
-Cc: selinux@tycho.nsa.gov, method@manicmethod.com, dwalsh@redhat.com,
-        paul.moore@hp.com, cpebenito@tresys.com, kmacmillan@mentalrootkit.com
-In-Reply-To: <20071206213942.268925113@tresys.com>
-References: <20071206213852.083412876@tresys.com>
-	 <20071206213942.268925113@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        vyekkirala@TrustedCS.com, chanson@TrustedCS.com,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+In-Reply-To: <20071221170959.12522.46443.stgit@flek.lan>
+References: <20071221165109.12522.29726.stgit@flek.lan>
+	 <20071221170959.12522.46443.stgit@flek.lan>
 Content-Type: text/plain
-Date: Fri, 21 Dec 2007 12:30:17 -0500
-Message-Id: <1198258217.2944.79.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 21 Dec 2007 12:36:15 -0500
+Message-Id: <1198258575.2944.82.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2007-12-06 at 16:38 -0500, tmiller@tresys.com wrote:
-> plain text document attachment (checkpolicy)
-> This patch includes checkpolicy support for policy capabilities.  In this
-> version of the patch policy capabilities are only allowed in the base
-> module.  Attempted use in other modules will result in a syntax error.
+On Fri, 2007-12-21 at 12:09 -0500, Paul Moore wrote:
+> Add additional Flask definitions to support the new "peer" object class and
+> additional permissions to the netif and node object classes.
 > 
-> Also included is dismod/dispol support for printing the capabilities.
-> I chose to use the 'c' command for this in both dismod and dispol to
-> keep things consistent (dismod has run out of numbered commands).
-> 
-> Signed-off-by: Todd C. Miller <tmiller@tresys.com>
-> 
-> Index: trunk/checkpolicy/policy_parse.y
-> ===================================================================
-> --- trunk.orig/checkpolicy/policy_parse.y
-> +++ trunk/checkpolicy/policy_parse.y
-> @@ -47,6 +47,7 @@
->  #include <sepol/policydb/conditional.h>
->  #include <sepol/policydb/flask.h>
->  #include <sepol/policydb/hierarchy.h>
-> +#include <sepol/policydb/polcaps.h>
->  #include "queue.h"
->  #include "checkpolicy.h"
->  #include "module_compiler.h"
-> @@ -198,6 +199,7 @@ typedef int (* require_func_t)();
->  %token IPV4_ADDR
->  %token IPV6_ADDR
->  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
-> +%token POLICYCAP
->  
->  %left OR
->  %left XOR
-> @@ -308,6 +310,7 @@ te_rbac_decl		: te_decl
->  			| rbac_decl
->                          | cond_stmt_def
->  			| optional_block
-> +			| policycap_def
->  			| ';'
->                          ;
->  rbac_decl		: role_type_def
-> @@ -765,6 +768,9 @@ number			: NUMBER 
->  ipv6_addr		: IPV6_ADDR
->  			{ if (insert_id(yytext,0)) return -1; }
->  			;
-> +policycap_def		: POLICYCAP identifier ';'
-> +			{if (define_polcap()) return -1;}
-> +			;
->  
->  /*********** module grammar below ***********/
->  
-> @@ -962,6 +968,44 @@ static int define_class(void)
->  	return -1;
->  }
->  
-> +static int define_polcap(void)
-> +{
-> +	char *id = 0;
-> +	int capnum;
-> +
-> +	if (pass == 2) {
-> +		id = queue_remove(id_queue);
-> +		free(id);
-> +		return 0;
-> +	}
-> +
-> +	id = (char *)queue_remove(id_queue);
-> +	if (!id) {
-> +		yyerror("no capability name for policycap definition?");
-> +		goto bad;
-> +	}
-> +
-> +	/* Check for valid cap name -> number mapping */
-> +	capnum = sepol_polcap_getnum(id);
-> +	if (capnum < 0) {
-> +		yyerror2("invalid policy capability name %s", id);
-> +		goto bad;
-> +	}
-> +
-> +	/* Store it */
-> +	if (ebitmap_set_bit(&policydbp->policycaps, capnum, TRUE)) {
-> +		yyerror("out of memory");
-> +		goto bad;
-> +	}
-> +
-> +	free(id);
-> +	return 0;
-> +
-> +      bad:
-> +	free(id);
-> +	return -1;
-> +}
-> +
->  static int define_initial_sid(void)
->  {
->  	char *id = 0;
-> Index: trunk/checkpolicy/policy_scan.l
-> ===================================================================
-> --- trunk.orig/checkpolicy/policy_scan.l
-> +++ trunk/checkpolicy/policy_scan.l
-> @@ -201,6 +201,8 @@ h1 |
->  H1				{ return(H1); }
->  h2 |
->  H2				{ return(H2); }
-> +policycap |
-> +POLICYCAP			{ return(POLICYCAP);}
->  "/"({alnum}|[_.-/])*	        { return(PATH); }
->  {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
->  {digit}+                        { return(NUMBER); }
-> Index: trunk/checkpolicy/test/dismod.c
-> ===================================================================
-> --- trunk.orig/checkpolicy/test/dismod.c
-> +++ trunk/checkpolicy/test/dismod.c
-> @@ -34,6 +34,7 @@
->  #include <sepol/policydb/link.h>
->  #include <sepol/policydb/module.h>
->  #include <sepol/policydb/util.h>
-> +#include <sepol/policydb/polcaps.h>
->  
->  #include <byteswap.h>
->  #include <endian.h>
-> @@ -765,6 +766,26 @@ static void link_module(policydb_t * bas
->  	return;
->  }
->  
-> +static void display_policycaps(policydb_t * p, FILE * fp)
-> +{
-> +	ebitmap_node_t *node;
-> +	const char *capname;
-> +	char buf[64];
-> +	int i;
-> +
-> +	fprintf(fp, "policy capabilities:\n");
-> +	ebitmap_for_each_bit(&p->policycaps, node, i) {
-> +		if (ebitmap_get_bit(&p->policycaps, i)) {
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
 
-That should be ebitmap_node_get_bit(node, i) - no point in walking the
-ebitmap twice to find the right node.
+Not an obstacle to merging, but need to get this reserved in policy too.
 
-Otherwise, barring any other objections, these look good to go.
-
-> +			capname = sepol_polcap_getname(i);
-> +			if (capname == NULL) {
-> +				snprintf(buf, sizeof(buf), "unknown (%d)", i);
-> +				capname = buf;
-> +			}
-> +			fprintf(fp, "\t%s\n", capname);
-> +		}
-> +	}
-> +}
-> +
->  int menu()
->  {
->  	printf("\nSelect a command:\n");
-> @@ -781,6 +802,7 @@ int menu()
->  	printf("\n");
->  	printf("a)  Display avrule requirements\n");
->  	printf("b)  Display avrule declarations\n");
-> +	printf("c)  Display policy capabilities\n");
->  	printf("l)  Link in a module\n");
->  	printf("u)  Display the unknown handling setting\n");
->  	printf("\n");
-> @@ -891,6 +913,9 @@ int main(int argc, char **argv)
->  			fprintf(out_fp, "avrule block declarations:\n");
->  			display_avblock(6, 0, &policydb, out_fp);
->  			break;
-> +		case 'c':
-> +			display_policycaps(&policydb, out_fp);
-> +			break;
->  		case 'u':
->  		case 'U':
->  			display_handle_unknown(&policydb, out_fp);
-> Index: trunk/checkpolicy/test/dispol.c
-> ===================================================================
-> --- trunk.orig/checkpolicy/test/dispol.c
-> +++ trunk/checkpolicy/test/dispol.c
-> @@ -23,6 +23,7 @@
->  #include <sepol/policydb/conditional.h>
->  #include <sepol/policydb/expand.h>
->  #include <sepol/policydb/util.h>
-> +#include <sepol/policydb/polcaps.h>
->  #include <getopt.h>
->  #include <assert.h>
->  #include <unistd.h>
-> @@ -298,6 +299,26 @@ int change_bool(char *name, int state, p
->  	return 0;
->  }
->  
-> +static void display_policycaps(policydb_t * p, FILE * fp)
-> +{
-> +	ebitmap_node_t *node;
-> +	const char *capname;
-> +	char buf[64];
-> +	int i;
-> +
-> +	fprintf(fp, "policy capabilities:\n");
-> +	ebitmap_for_each_bit(&p->policycaps, node, i) {
-> +		if (ebitmap_get_bit(&p->policycaps, i)) {
-> +			capname = sepol_polcap_getname(i);
-> +			if (capname == NULL) {
-> +				snprintf(buf, sizeof(buf), "unknown (%d)", i);
-> +				capname = buf;
-> +			}
-> +			fprintf(fp, "\t%s\n", capname);
-> +		}
-> +	}
-> +}
-> +
->  int menu()
->  {
->  	printf("\nSelect a command:\n");
-> @@ -309,6 +330,7 @@ int menu()
->  	printf("6)  display conditional expressions\n");
->  	printf("7)  change a boolean value\n");
->  	printf("\n");
-> +	printf("c)  display policy capabilities\n");
->  	printf("u)  display unknown handling setting\n");
->  	printf("f)  set output file\n");
->  	printf("m)  display menu\n");
-> @@ -421,6 +443,9 @@ int main(int argc, char **argv)
->  			change_bool(name, state, &policydb, out_fp);
->  			free(name);
->  			break;
-> +		case 'c':
-> +			display_policycaps(&policydb, out_fp);
-> +			break;
->  		case 'u':
->  		case 'U':
->  			display_handle_unknown(&policydb, out_fp);
+> ---
 > 
+>  security/selinux/include/av_perm_to_string.h |    5 +++++
+>  security/selinux/include/av_permissions.h    |    5 +++++
+>  security/selinux/include/class_to_string.h   |    7 +++++++
+>  security/selinux/include/flask.h             |    1 +
+>  4 files changed, 18 insertions(+), 0 deletions(-)
+> 
+> diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+> index 049bf69..caa0634 100644
+> --- a/security/selinux/include/av_perm_to_string.h
+> +++ b/security/selinux/include/av_perm_to_string.h
+> @@ -37,6 +37,8 @@
+>     S_(SECCLASS_NODE, NODE__ENFORCE_DEST, "enforce_dest")
+>     S_(SECCLASS_NODE, NODE__DCCP_RECV, "dccp_recv")
+>     S_(SECCLASS_NODE, NODE__DCCP_SEND, "dccp_send")
+> +   S_(SECCLASS_NODE, NODE__RECVFROM, "recvfrom")
+> +   S_(SECCLASS_NODE, NODE__SENDTO, "sendto")
+>     S_(SECCLASS_NETIF, NETIF__TCP_RECV, "tcp_recv")
+>     S_(SECCLASS_NETIF, NETIF__TCP_SEND, "tcp_send")
+>     S_(SECCLASS_NETIF, NETIF__UDP_RECV, "udp_recv")
+> @@ -45,6 +47,8 @@
+>     S_(SECCLASS_NETIF, NETIF__RAWIP_SEND, "rawip_send")
+>     S_(SECCLASS_NETIF, NETIF__DCCP_RECV, "dccp_recv")
+>     S_(SECCLASS_NETIF, NETIF__DCCP_SEND, "dccp_send")
+> +   S_(SECCLASS_NETIF, NETIF__INGRESS, "ingress")
+> +   S_(SECCLASS_NETIF, NETIF__EGRESS, "egress")
+>     S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__CONNECTTO, "connectto")
+>     S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__NEWCONN, "newconn")
+>     S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__ACCEPTFROM, "acceptfrom")
+> @@ -159,3 +163,4 @@
+>     S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NODE_BIND, "node_bind")
+>     S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
+>     S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
+> +   S_(SECCLASS_PEER, PEER__RECV, "recv")
+> diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+> index eda89a2..c2b5bb2 100644
+> --- a/security/selinux/include/av_permissions.h
+> +++ b/security/selinux/include/av_permissions.h
+> @@ -292,6 +292,8 @@
+>  #define NODE__ENFORCE_DEST                        0x00000040UL
+>  #define NODE__DCCP_RECV                           0x00000080UL
+>  #define NODE__DCCP_SEND                           0x00000100UL
+> +#define NODE__RECVFROM                            0x00000200UL
+> +#define NODE__SENDTO                              0x00000400UL
+>  #define NETIF__TCP_RECV                           0x00000001UL
+>  #define NETIF__TCP_SEND                           0x00000002UL
+>  #define NETIF__UDP_RECV                           0x00000004UL
+> @@ -300,6 +302,8 @@
+>  #define NETIF__RAWIP_SEND                         0x00000020UL
+>  #define NETIF__DCCP_RECV                          0x00000040UL
+>  #define NETIF__DCCP_SEND                          0x00000080UL
+> +#define NETIF__INGRESS                            0x00000100UL
+> +#define NETIF__EGRESS                             0x00000200UL
+>  #define NETLINK_SOCKET__IOCTL                     0x00000001UL
+>  #define NETLINK_SOCKET__READ                      0x00000002UL
+>  #define NETLINK_SOCKET__WRITE                     0x00000004UL
+> @@ -824,3 +828,4 @@
+>  #define DCCP_SOCKET__NODE_BIND                    0x00400000UL
+>  #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
+>  #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
+> +#define PEER__RECV                                0x00000001UL
+> diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
+> index e77de0e..b1b0d1d 100644
+> --- a/security/selinux/include/class_to_string.h
+> +++ b/security/selinux/include/class_to_string.h
+> @@ -64,3 +64,10 @@
+>      S_(NULL)
+>      S_("dccp_socket")
+>      S_("memprotect")
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_(NULL)
+> +    S_("peer")
+> diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
+> index a9c2b20..09e9dd2 100644
+> --- a/security/selinux/include/flask.h
+> +++ b/security/selinux/include/flask.h
+> @@ -50,6 +50,7 @@
+>  #define SECCLASS_KEY                                     58
+>  #define SECCLASS_DCCP_SOCKET                             60
+>  #define SECCLASS_MEMPROTECT                              61
+> +#define SECCLASS_PEER                                    68
+>  
+>  /*
+>   * Security identifier indices for initial entities
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
