@@ -1,63 +1,82 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBQL139P019378
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 16:01:03 -0500
-Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBQL12oG011698
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 21:01:02 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so1231356fgg.40
-        for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 13:01:01 -0800 (PST)
-Message-ID: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
-Date: Wed, 26 Dec 2007 15:01:01 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>, "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: X avcs
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBQLZFtv021248
+	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 16:35:15 -0500
+Received: from penguin.goodinassociates.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBQLZBai006003
+	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 21:35:12 GMT
+Received: from [206.80.71.242] ([206.80.71.242])
+	(authenticated bits=0)
+	by penguin.goodinassociates.com (8.13.1/8.13.1) with ESMTP id lBQLZAZR025067
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
+	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 15:35:11 -0600
+Subject: cant SSH/Console Login and no deny/error messages
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-j5mIb/qdMeT32YLzVhSH"
+Date: Wed, 26 Dec 2007 15:35:09 -0600
+Message-Id: <1198704909.4073.858.camel@bluejay.goodinassociates.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-swo_u who is running ranged (systemlow-systemhigh) uses newrole to
-launch an X windows app at systemhigh and then I get avcs like the
-following:
 
-avc:  denied  { receive } for request=X11:ChangeWindowAttributes
-comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
-scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
-avc:  denied  { get_property } for request=X11:GetProperty
-comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
-scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
-avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
-event=X11:MapNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-tcontext=swo_u:object_r:user_manage_xevent_t:s15:c0.c1023
-tclass=x_event
-avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
-event=X11:VisibilityNotify
-scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-tcontext=swo_u:object_r:user_default_xevent_t:s15:c0.c1023
-tclass=x_event
-avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
-event=X11:PropertyNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-tcontext=swo_u:object_r:user_property_xevent_t:s15:c0.c1023
-tclass=x_event
-avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
-event=X11:FocusIn scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-tcontext=swo_u:object_r:user_focus_xevent_t:s15:c0.c1023
-tclass=x_event
-avc:  denied  { getattr } for request=X11:GetGeometry
-comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
-scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
-avc:  denied  { read } for request=X11:GetProperty
-comm=/usr/libexec/notification-daemon property=WM_NAME
-scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-tcontext=swo_u:object_r:user_default_xproperty_t:s15:c0.c1023
-tclass=x_property
+--=-j5mIb/qdMeT32YLzVhSH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm not familiar with /usr/libexec/notification-daemon and what it
-does and I'm thinking that it's probably not the best idea to use
-mls_xwin_read_all_levels for user_t.. Any suggestions?
+I've trying to get SELinux strict up and running on a RHEL4-U4 box and
+not having much luck. I have one account and 3 programs that I need to
+protect from root. I was unable to get targeted to login under the user
+that I created, something about the policy always defaulting to user_u.
+So Fine, I tried to install the strict/ref policy from the tresys and
+cips. Dues to this being an x86_64 system, that didn't go well either.
+Trying plan C  I went with the FC3 strict policy. Obviously some
+improvemtns have been made since then, but this was the first strict
+policy I was able to install without completely hosing my system. sshd
+and login seem to really like having libselinux(64) around.=20
+
+
+So my question here has to possible answers:
+
+1) where the heck can I find some rpms for RHEl4 -x86_64 and the most
+recent ref policy.
+
+--OR--
+
+2) what could possibly be causing no [avc denied] messages to be logged.
+Most of the messages I have used with audit2allow to to try and get
+everything to work. Finally I go to the point of having no more messages
+even when rebooting the machine. If I put things into passive mode
+still no more messages, this is with constant reloading of the policy to
+clear the avc cache.=20
+
+help please.
+
+
+
+=09
+
+
+
+
+"A fractal is by definition a set for which the Hausdorff Besicovitch
+dimension strictly exceeds the topological dimension." -- Mandelbrot,
+"The Fractal Geometry of Nature"
+
+--=-j5mIb/qdMeT32YLzVhSH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHcskN6caZY8jbHDkRAtcCAKCglwiyEVr6DOBm+AUukNsaaGWU5gCdF3ZC
+qHrHCV6xfjayaTpbvBFNHks=
+=dDlg
+-----END PGP SIGNATURE-----
+
+--=-j5mIb/qdMeT32YLzVhSH--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
