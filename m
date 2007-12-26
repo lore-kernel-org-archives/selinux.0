@@ -1,75 +1,63 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBLJsOot021083
-	for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 14:54:24 -0500
-Received: from QMTA04.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBLJsNF8017784
-	for <selinux@tycho.nsa.gov>; Fri, 21 Dec 2007 19:54:23 GMT
-Message-Id: <20071221192242.533048995@flek.lan>
-Date: Fri, 21 Dec 2007 14:22:20 -0500
-From: Paul Moore <paul.moore@hp.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] REFPOL: Add new object classes and permissions for labeled networking
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBQL139P019378
+	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 16:01:03 -0500
+Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBQL12oG011698
+	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 21:01:02 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so1231356fgg.40
+        for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 13:01:01 -0800 (PST)
+Message-ID: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
+Date: Wed, 26 Dec 2007 15:01:01 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SE Linux" <selinux@tycho.nsa.gov>, "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: X avcs
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch reserves a new object class and permissions needed by the labeled
-networking changes scheduled for 2.6.25.
+swo_u who is running ranged (systemlow-systemhigh) uses newrole to
+launch an X windows app at systemhigh and then I get avcs like the
+following:
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- policy/flask/access_vectors   |   10 ++++++++++
- policy/flask/security_classes |    3 +++
- 2 files changed, 13 insertions(+)
+avc:  denied  { receive } for request=X11:ChangeWindowAttributes
+comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+avc:  denied  { get_property } for request=X11:GetProperty
+comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+event=X11:MapNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+tcontext=swo_u:object_r:user_manage_xevent_t:s15:c0.c1023
+tclass=x_event
+avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+event=X11:VisibilityNotify
+scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+tcontext=swo_u:object_r:user_default_xevent_t:s15:c0.c1023
+tclass=x_event
+avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+event=X11:PropertyNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+tcontext=swo_u:object_r:user_property_xevent_t:s15:c0.c1023
+tclass=x_event
+avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+event=X11:FocusIn scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+tcontext=swo_u:object_r:user_focus_xevent_t:s15:c0.c1023
+tclass=x_event
+avc:  denied  { getattr } for request=X11:GetGeometry
+comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+avc:  denied  { read } for request=X11:GetProperty
+comm=/usr/libexec/notification-daemon property=WM_NAME
+scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+tcontext=swo_u:object_r:user_default_xproperty_t:s15:c0.c1023
+tclass=x_property
 
-Index: refpolicy_svn_repo/policy/flask/access_vectors
-===================================================================
---- refpolicy_svn_repo.orig/policy/flask/access_vectors
-+++ refpolicy_svn_repo/policy/flask/access_vectors
-@@ -201,6 +201,8 @@ class node 
- 	enforce_dest
- 	dccp_recv
- 	dccp_send
-+	recvfrom
-+	sendto
- }
- 
- class netif
-@@ -213,6 +215,8 @@ class netif
- 	rawip_send
- 	dccp_recv
- 	dccp_send
-+	ingress
-+	egress
- }
- 
- class netlink_socket
-@@ -726,3 +730,9 @@ inherits database
- 	import
- 	export
- }
-+
-+# network peer labels
-+class peer
-+{
-+	recv
-+}
-Index: refpolicy_svn_repo/policy/flask/security_classes
-===================================================================
---- refpolicy_svn_repo.orig/policy/flask/security_classes
-+++ refpolicy_svn_repo/policy/flask/security_classes
-@@ -106,4 +106,7 @@ class db_column			# userspace
- class db_tuple			# userspace
- class db_blob			# userspace
- 
-+# network peer labels
-+class peer
-+
- # FLASK
-
--- 
-paul moore
-linux security @ hp
-
+I'm not familiar with /usr/libexec/notification-daemon and what it
+does and I'm thinking that it's probably not the best idea to use
+mls_xwin_read_all_levels for user_t.. Any suggestions?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
