@@ -1,64 +1,127 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBQN1ZK5026725
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 18:01:35 -0500
-Received: from DakotaMail.dakotacom.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBQN1XoG018169
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 23:01:34 GMT
-Received: from cerberus.pab (unverified [69.9.26.142]) by DakotaMail.dakotacom.net
-  (Vircom SMTPRS 4.4.568.54) with ESMTP id <B0330762434@DakotaMail.dakotacom.net> for <selinux@tycho.nsa.gov>;
-  Wed, 26 Dec 2007 16:01:39 -0700
-Received: from euphrosyne.pab (euphrosyne.pab [192.168.67.10])
-	by cerberus.pab (8.14.2/8.14.2) with ESMTP id lBQN1UAd014175
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 16:01:30 -0700
-Received: from euphrosyne.pab (localhost.localdomain [127.0.0.1])
-	by euphrosyne.pab (8.14.2/8.14.1) with ESMTP id lBQN1Uco027542
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 16:01:30 -0700
-Received: from localhost (pab@localhost)
-	by euphrosyne.pab (8.14.2/8.14.1/Submit) with ESMTP id lBQN1Ucc027539
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 16:01:30 -0700
-Date: Wed, 26 Dec 2007 16:01:28 -0700 (MST)
-From: "Peter A. Bigot" <pab@dakotacom.net>
-Reply-To: bigotp@acm.org
-To: selinux@tycho.nsa.gov
-Subject: locallogin patch for Fedora 8
-Message-ID: <Pine.LNX.4.64.0712261559160.27141@euphrosyne.pab>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBQNgEGT029388
+	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 18:42:14 -0500
+Received: from penguin.goodinassociates.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBQNgEai009103
+	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 23:42:14 GMT
+Subject: Re: cant SSH/Console Login and no deny/error messages
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <dd18b0c30712261459q178f2755g2427f57e1b791aa@mail.gmail.com>
+References: <1198704909.4073.858.camel@bluejay.goodinassociates.com>
+	 <dd18b0c30712261459q178f2755g2427f57e1b791aa@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t6ZY5IHHvyllT2wXIgOU"
+Date: Wed, 26 Dec 2007 17:42:12 -0600
+Message-Id: <1198712532.4073.871.camel@bluejay.goodinassociates.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch appears necessary to get the reference policy to run on Fedora
-8.  Without it attempts to login on the console get:
 
-type=SYSCALL msg=audit(12/26/2007 15:03:13.840:126) : arch=i386 syscall=write success=no exit=-1(Operation not permitted) a0=4 a1=bff0a630 a2=1 a3=1 items=0 ppid=1 pid=2221 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=tty2 comm=login exe=/bin/login subj=system_u:system_r:local_login_t:s0-s15:c0.c255 key=(null) 
-type=AVC msg=audit(12/26/2007 15:03:13.840:126) : avc:  denied  { audit_control } for  pid=2221 comm=login capability=audit_control scontext=system_u:system_r:local_login_t:s0-s15:c0.c255 tcontext=system_u:system_r:local_login_t:s0-s15:c0.c255 tclass=capability
+--=-t6ZY5IHHvyllT2wXIgOU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The basic fix was previously submitted by Dan Walsh to the SELinux mailing
-list on 14 Apr 2005, noting that pam_loginuid required this capability.  If
-subsequently another way to work around this was preferred, please let me
-know; I'm extremely new to SELinux and am still fumbling.
+Although that did produce a number of additional deny messages, even
+allowing all of them, still does not allow me to login from the console
+or ssh. doesn't matter if I'm root a standard user or a selinux user.
 
-(My configuration uses TYPE=mls, DISTRO=redhat, MONOLITHIC=n, and removes
-the unconfined module, and anaconda and firstboot which depend on it, in an
-attempt to be a "strict" policy.  This may also have some effect on why the
-original didn't work for me.)
 
-Peter
+Does any one know of a simple way to get RHEL4 targeted to recognize se
+users? I can't quite figure out where they are setting the default
+domain transition. Like I said before, I just need to keep root away
+from a few programs and a data file. I've set up a type and a user,
+relabled the fs with the new types etc etc. added my user to users, it
+matches the name in /etc/passwd exactly.
 
-Index: policy/modules/system/locallogin.te
-===================================================================
---- policy/modules/system/locallogin.te	(revision 2565)
-+++ policy/modules/system/locallogin.te	(working copy)
-@@ -34,6 +34,9 @@
-  #
 
-  allow local_login_t self:capability { dac_override chown fowner fsetid kill setgid setuid sys_nice sys_resource sys_tty_config };
-+ifdef(`distro_redhat', `
-+allow local_login_t self:capability { audit_control };
-+')
-  allow local_login_t self:process ~{ ptrace setcurrent setexec setfscreate setrlimit execmem execstack execheap };
-  allow local_login_t self:process { setrlimit setexec };
-  allow local_login_t self:fd use;
+I think I generally understand whats going on, I think I'm just
+suffering from use of an out of date tool chain.=20
+
+
+On Wed, 2007-12-26 at 14:59 -0800, Justin Mattock wrote:
+> Hello I think you need to; make enableaudit in the policy. with
+> selinux-policy-default the location would be /etc/selinux/src with
+> refpolicy-strict I'm not too sure.=20
+> regards;
+>              --Justin P. Mattock
+> On Dec 26, 2007 1:35 PM, Jeremiah Jahn <jeremiah@goodinassociates.com>
+> wrote:
+>         I've trying to get SELinux strict up and running on a RHEL4-U4
+>         box and
+>         not having much luck. I have one account and 3 programs that I
+>         need to
+>         protect from root. I was unable to get targeted to login under
+>         the user=20
+>         that I created, something about the policy always defaulting
+>         to user_u.
+>         So Fine, I tried to install the strict/ref policy from the
+>         tresys and
+>         cips. Dues to this being an x86_64 system, that didn't go well
+>         either.=20
+>         Trying plan C  I went with the FC3 strict policy. Obviously
+>         some
+>         improvemtns have been made since then, but this was the first
+>         strict
+>         policy I was able to install without completely hosing my
+>         system. sshd
+>         and login seem to really like having libselinux(64) around.=20
+>        =20
+>        =20
+>         So my question here has to possible answers:
+>        =20
+>         1) where the heck can I find some rpms for RHEl4 -x86_64 and
+>         the most
+>         recent ref policy.
+>        =20
+>         --OR--
+>        =20
+>         2) what could possibly be causing no [avc denied] messages to
+>         be logged.=20
+>         Most of the messages I have used with audit2allow to to try
+>         and get
+>         everything to work. Finally I go to the point of having no
+>         more messages
+>         even when rebooting the machine. If I put things into passive
+>         mode
+>         still no more messages, this is with constant reloading of the
+>         policy to
+>         clear the avc cache.
+>        =20
+>         help please.
+>        =20
+>        =20
+>        =20
+>        =20
+>        =20
+>        =20
+>        =20
+>        =20
+>         "A fractal is by definition a set for which the Hausdorff
+>         Besicovitch=20
+>         dimension strictly exceeds the topological dimension." --
+>         Mandelbrot,
+>         "The Fractal Geometry of Nature"
+>=20
+A fool-proof method for sculpting an elephant: first, get a huge block
+of marble; then you chip away everything that doesn't look like an
+elephant.
+
+--=-t6ZY5IHHvyllT2wXIgOU
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHcubU6caZY8jbHDkRAqhXAJ0XxOTr0TfRnQMWWFQg6BN2fv2qPQCgkgVN
+soEK3mbWAg0/S4Gpxu77uRY=
+=xZ2U
+-----END PGP SIGNATURE-----
+
+--=-t6ZY5IHHvyllT2wXIgOU--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
