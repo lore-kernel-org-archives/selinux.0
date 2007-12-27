@@ -1,127 +1,62 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBQNgEGT029388
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 18:42:14 -0500
-Received: from penguin.goodinassociates.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBQNgEai009103
-	for <selinux@tycho.nsa.gov>; Wed, 26 Dec 2007 23:42:14 GMT
-Subject: Re: cant SSH/Console Login and no deny/error messages
-From: Jeremiah Jahn <jeremiah@goodinassociates.com>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30712261459q178f2755g2427f57e1b791aa@mail.gmail.com>
-References: <1198704909.4073.858.camel@bluejay.goodinassociates.com>
-	 <dd18b0c30712261459q178f2755g2427f57e1b791aa@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t6ZY5IHHvyllT2wXIgOU"
-Date: Wed, 26 Dec 2007 17:42:12 -0600
-Message-Id: <1198712532.4073.871.camel@bluejay.goodinassociates.com>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBRKf0ox014257
+	for <selinux@tycho.nsa.gov>; Thu, 27 Dec 2007 15:41:02 -0500
+Received: from DakotaMail.dakotacom.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBRKeuRu021894
+	for <selinux@tycho.nsa.gov>; Thu, 27 Dec 2007 20:41:00 GMT
+Received: from cerberus.pab (unverified [69.9.26.142]) by DakotaMail.dakotacom.net
+  (Vircom SMTPRS 4.4.568.54) with ESMTP id <B0330917865@DakotaMail.dakotacom.net> for <selinux@tycho.nsa.gov>;
+  Thu, 27 Dec 2007 13:41:00 -0700
+Received: from euphrosyne.pab (euphrosyne.pab [192.168.67.10])
+	by cerberus.pab (8.14.2/8.14.2) with ESMTP id lBRKeqJm030449
+	for <selinux@tycho.nsa.gov>; Thu, 27 Dec 2007 13:40:52 -0700
+Received: from euphrosyne.pab (localhost.localdomain [127.0.0.1])
+	by euphrosyne.pab (8.14.2/8.14.1) with ESMTP id lBRKeq4w032762
+	for <selinux@tycho.nsa.gov>; Thu, 27 Dec 2007 13:40:52 -0700
+Received: from localhost (pab@localhost)
+	by euphrosyne.pab (8.14.2/8.14.1/Submit) with ESMTP id lBRKenLi032759
+	for <selinux@tycho.nsa.gov>; Thu, 27 Dec 2007 13:40:52 -0700
+Date: Thu, 27 Dec 2007 13:40:48 -0700 (MST)
+From: "Peter A. Bigot" <pab@dakotacom.net>
+Reply-To: bigotp@acm.org
+To: selinux@tycho.nsa.gov
+Subject: MLS sensitivity sensitivity
+Message-ID: <Pine.LNX.4.64.0712271318020.32461@euphrosyne.pab>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Running the HEAD version of the reference policy with strict MLS permissive
+on Fedora 8, I'm trying to eliminate all the AVC denials I get on boot.  The
+simplest of them is:
 
---=-t6ZY5IHHvyllT2wXIgOU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+type=SYSCALL msg=audit(12/27/2007 10:11:23.883:128) : arch=i386 syscall=open success=yes exit=1 a0=a0544f8 a1=8541 a2=1a4 a3=8541 items=0 ppid=2213 pid=2214 auid=pab uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) comm=rsyslogd exe=/sbin/rsyslogd subj=system_u:system_r:syslogd_t:s0-s15:c0.c255 key=(null)
 
-Although that did produce a number of additional deny messages, even
-allowing all of them, still does not allow me to login from the console
-or ssh. doesn't matter if I'm root a standard user or a selinux user.
+type=AVC msg=audit(12/27/2007 10:11:23.883:128) : avc:  denied  { append } for  pid=2214 comm=rsyslogd name=messages dev=sda5 ino=32066 scontext=system_u:system_r:syslogd_t:s0-s15:c0.c255 tcontext=system_u:object_r:var_log_t:s15:c0.c255 tclass=file
 
+syslogd_t has append rights to var_log_t files, per apol:
 
-Does any one know of a simple way to get RHEL4 targeted to recognize se
-users? I can't quite figure out where they are setting the default
-domain transition. Like I said before, I just need to keep root away
-from a few programs and a data file. I've set up a type and a user,
-relabled the fs with the new types etc etc. added my user to users, it
-matches the name in /etc/passwd exactly.
+allow syslogd_t var_log_t : file { ioctl read write create getattr setattr lock append unlink link rename };
+allow syslogd_t var_log_t : dir { ioctl read write create getattr setattr lock add_name remove_name search };
+allow syslogd_t var_log_t : fifo_file { ioctl read write getattr lock append };
 
+and /var/log/messages has the correct type:
 
-I think I generally understand whats going on, I think I'm just
-suffering from use of an out of date tool chain.=20
+# ls -lZ /var/log/secure 
+-rw-------  root root system_u:object_r:var_log_t:s15:c0.c255 /var/log/messages
 
+The same failure occurs when I manually run_init service rsyslog restart.
 
-On Wed, 2007-12-26 at 14:59 -0800, Justin Mattock wrote:
-> Hello I think you need to; make enableaudit in the policy. with
-> selinux-policy-default the location would be /etc/selinux/src with
-> refpolicy-strict I'm not too sure.=20
-> regards;
->              --Justin P. Mattock
-> On Dec 26, 2007 1:35 PM, Jeremiah Jahn <jeremiah@goodinassociates.com>
-> wrote:
->         I've trying to get SELinux strict up and running on a RHEL4-U4
->         box and
->         not having much luck. I have one account and 3 programs that I
->         need to
->         protect from root. I was unable to get targeted to login under
->         the user=20
->         that I created, something about the policy always defaulting
->         to user_u.
->         So Fine, I tried to install the strict/ref policy from the
->         tresys and
->         cips. Dues to this being an x86_64 system, that didn't go well
->         either.=20
->         Trying plan C  I went with the FC3 strict policy. Obviously
->         some
->         improvemtns have been made since then, but this was the first
->         strict
->         policy I was able to install without completely hosing my
->         system. sshd
->         and login seem to really like having libselinux(64) around.=20
->        =20
->        =20
->         So my question here has to possible answers:
->        =20
->         1) where the heck can I find some rpms for RHEl4 -x86_64 and
->         the most
->         recent ref policy.
->        =20
->         --OR--
->        =20
->         2) what could possibly be causing no [avc denied] messages to
->         be logged.=20
->         Most of the messages I have used with audit2allow to to try
->         and get
->         everything to work. Finally I go to the point of having no
->         more messages
->         even when rebooting the machine. If I put things into passive
->         mode
->         still no more messages, this is with constant reloading of the
->         policy to
->         clear the avc cache.
->        =20
->         help please.
->        =20
->        =20
->        =20
->        =20
->        =20
->        =20
->        =20
->        =20
->         "A fractal is by definition a set for which the Hausdorff
->         Besicovitch=20
->         dimension strictly exceeds the topological dimension." --
->         Mandelbrot,
->         "The Fractal Geometry of Nature"
->=20
-A fool-proof method for sculpting an elephant: first, get a huge block
-of marble; then you chip away everything that doesn't look like an
-elephant.
+If I downgrade the sensitivity on /var/log/messages all the way to s0, then
+it works without complaint.  s1 through s15 all fail.  But changing the
+security level can't be the intended solution.
 
---=-t6ZY5IHHvyllT2wXIgOU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+What should I be doing to eliminate this denial?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
+Thanks.
 
-iD8DBQBHcubU6caZY8jbHDkRAqhXAJ0XxOTr0TfRnQMWWFQg6BN2fv2qPQCgkgVN
-soEK3mbWAg0/S4Gpxu77uRY=
-=xZ2U
------END PGP SIGNATURE-----
-
---=-t6ZY5IHHvyllT2wXIgOU--
-
+Peter
 
 --
 This message was distributed to subscribers of the selinux mailing list.
