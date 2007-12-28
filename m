@@ -1,46 +1,70 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBSGgmTw031745
-	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 11:42:48 -0500
-Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBSGgldt013504
-	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 16:42:47 GMT
-Received: by nz-out-0506.google.com with SMTP id i1so743900nzh.39
-        for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 08:42:47 -0800 (PST)
-Cc: selinux@tycho.nsa.gov
-Message-Id: <89CFFC9A-B0BC-4562-87F2-53CD208C9782@spitzner.net>
-From: Lance Spitzner <lance@spitzner.net>
-To: Dave Quigley <dpquigl@tycho.nsa.gov>
-In-Reply-To: <1198856247.3451.104.camel@moss-terrapins.epoch.ncsc.mil>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v915)
-Subject: Re: What happened to source for targeted?
-Date: Fri, 28 Dec 2007 10:42:44 -0600
-References: <705BD06B-DED9-4B3C-968C-4B8A09B97204@spitzner.net> <1198856247.3451.104.camel@moss-terrapins.epoch.ncsc.mil>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBSGsl6A032714
+	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 11:54:47 -0500
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBSGskdt017004
+	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 16:54:47 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so1611090fgg.40
+        for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 08:54:45 -0800 (PST)
+Message-ID: <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
+Date: Fri, 28 Dec 2007 10:54:45 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SE Linux" <selinux@tycho.nsa.gov>, "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: Re: X avcs
+In-Reply-To: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+What about labeling notification-daemon as other gnome apps have been
+labeled (user_xpriv_t)?
 
-On Dec 28, 2007, at 9:37, Dave Quigley wrote:
-
-> I believe in fc8 the strict and target policy sources were merged into
-> one package. I believe the link below is the source rpm that you want.
+On Dec 26, 2007 3:01 PM, Xavier Toth <txtoth@gmail.com> wrote:
+> swo_u who is running ranged (systemlow-systemhigh) uses newrole to
+> launch an X windows app at systemhigh and then I get avcs like the
+> following:
 >
-> http://ftp.usf.edu/pub/fedora/linux/releases/8/Everything/source/SRPMS/selinux-policy-3.0.8-44.fc8.src.rpm
-
-Dave, thanks so much for you kind follow-up, I greatly appreciate it!   
-If you don't mind, one more question.  What is the latest, most  
-current documentation on SELinux?  I found an excellent resources at  
-Fedora which includes a very user friendly FAQ.
-
-   http://docs.fedoraproject.org/selinux-faq-fc5/#faq-entry-whatis-refpolicy
-
-However, this is based on Fedora Core 5 which was last updated in in  
-2006. Is this still the same SELinux that is shipped with Fedora8/ 
-CentOS5?
-
-Once again, thanks!
-
-lanc
+> avc:  denied  { receive } for request=X11:ChangeWindowAttributes
+> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+> avc:  denied  { get_property } for request=X11:GetProperty
+> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+> event=X11:MapNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> tcontext=swo_u:object_r:user_manage_xevent_t:s15:c0.c1023
+> tclass=x_event
+> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+> event=X11:VisibilityNotify
+> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> tcontext=swo_u:object_r:user_default_xevent_t:s15:c0.c1023
+> tclass=x_event
+> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+> event=X11:PropertyNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> tcontext=swo_u:object_r:user_property_xevent_t:s15:c0.c1023
+> tclass=x_event
+> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+> event=X11:FocusIn scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> tcontext=swo_u:object_r:user_focus_xevent_t:s15:c0.c1023
+> tclass=x_event
+> avc:  denied  { getattr } for request=X11:GetGeometry
+> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+> avc:  denied  { read } for request=X11:GetProperty
+> comm=/usr/libexec/notification-daemon property=WM_NAME
+> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> tcontext=swo_u:object_r:user_default_xproperty_t:s15:c0.c1023
+> tclass=x_property
+>
+> I'm not familiar with /usr/libexec/notification-daemon and what it
+> does and I'm thinking that it's probably not the best idea to use
+> mls_xwin_read_all_levels for user_t.. Any suggestions?
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
