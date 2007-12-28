@@ -1,63 +1,148 @@
 Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBSIQk8P006916
-	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 13:26:46 -0500
-Subject: Re: What happened to source for targeted?
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
-To: Lance Spitzner <lance@spitzner.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <3532FDDB-FCA1-4A24-A9D1-D715ACA4960E@spitzner.net>
-References: <705BD06B-DED9-4B3C-968C-4B8A09B97204@spitzner.net>
-	 <1198856247.3451.104.camel@moss-terrapins.epoch.ncsc.mil>
-	 <89CFFC9A-B0BC-4562-87F2-53CD208C9782@spitzner.net>
-	 <1198862268.3451.109.camel@moss-terrapins.epoch.ncsc.mil>
-	 <3532FDDB-FCA1-4A24-A9D1-D715ACA4960E@spitzner.net>
-Content-Type: text/plain
-Date: Fri, 28 Dec 2007 13:14:54 -0500
-Message-Id: <1198865694.3451.113.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBSJYoco012416
+	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 14:34:50 -0500
+Message-ID: <47754FCB.1070307@tycho.nsa.gov>
+Date: Fri, 28 Dec 2007 14:34:35 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Xavier Toth <txtoth@gmail.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: X avcs
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com> <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
+In-Reply-To: <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Xavier Toth wrote:
+> What about labeling notification-daemon as other gnome apps have been
+> labeled (user_xpriv_t)?
+>
+> On Dec 26, 2007 3:01 PM, Xavier Toth <txtoth@gmail.com> wrote:
+>   
+>> swo_u who is running ranged (systemlow-systemhigh) uses newrole to
+>> launch an X windows app at systemhigh and then I get avcs like the
+>> following:
+>>
+>> avc:  denied  { receive } for request=X11:ChangeWindowAttributes
+>> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+>> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+>> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+>> avc:  denied  { get_property } for request=X11:GetProperty
+>> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+>> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+>> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+>> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+>> event=X11:MapNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+>> tcontext=swo_u:object_r:user_manage_xevent_t:s15:c0.c1023
+>> tclass=x_event
+>> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+>> event=X11:VisibilityNotify
+>> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+>> tcontext=swo_u:object_r:user_default_xevent_t:s15:c0.c1023
+>> tclass=x_event
+>> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+>> event=X11:PropertyNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+>> tcontext=swo_u:object_r:user_property_xevent_t:s15:c0.c1023
+>> tclass=x_event
+>> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+>> event=X11:FocusIn scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+>> tcontext=swo_u:object_r:user_focus_xevent_t:s15:c0.c1023
+>> tclass=x_event
+>> avc:  denied  { getattr } for request=X11:GetGeometry
+>> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+>> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+>> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+>> avc:  denied  { read } for request=X11:GetProperty
+>> comm=/usr/libexec/notification-daemon property=WM_NAME
+>> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+>> tcontext=swo_u:object_r:user_default_xproperty_t:s15:c0.c1023
+>> tclass=x_property
+>>     
 
-On Fri, 2007-12-28 at 11:47 -0600, Lance Spitzner wrote:
-> >>   http://docs.fedoraproject.org/selinux-faq-fc5/#faq-entry-whatis-refpolicy
-> >>
-> >> However, this is based on Fedora Core 5 which was last updated in in
-> >> 2006. Is this still the same SELinux that is shipped with Fedora8/
-> >> CentOS5?
-> >
-> > Exactly what kind of information are you looking for? Are you looking
-> > for an explanation of what SELinux is and the model it uses? Are you
-> > looking for guides on writing policy?
-> 
-> More along the lines of modifying policies.  I think what RH has done  
-> with Targeted is great, a good starting place that works for many  
-> situations.  What I'm looking for is current documentation on tweaking  
-> it.  I like the URL I give above, I just want to be sure its current.   
-> My only other concern with the documentation is they often reference  
-> the GUI tools, my preference is to do everything CLI.
+These are all allowed by the TE rules.  So I think this is a MLS issue.
 
-The resources you mentioned are as good as it gets in terms of
-documenting policy development for SELinux. I'm not one of the policy
-guys so I don't claim to be an expert however I have read through
-SELinux by Example and it provides a good understanding of the basics.
-If you can outline what you intend to be modifying perhaps I can point
-you in a good direction.
+I committed read-to-clearance and write-to-clearance interfaces and went 
+ahead and granted read-to-clearance in the per-role template.  The patch 
+I committed is below.  So update from SVN and see if that solves the 
+problem.
 
-> 
-> Once again, thanks!
-> 
-> lance
-> 
-> PS: The other source I've found to be the most helpful in modifying/ 
-> updating SELinux is
-> 
->   http://www.redhat.com/docs/manuals/enterprise/RHEL-5-manual/Deployment_Guide-en-US/sec-sel-policy-customizing.html
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+Index: policy/modules/kernel/mls.if
+===================================================================
+--- policy/modules/kernel/mls.if	(revision 2565)
++++ policy/modules/kernel/mls.if	(working copy)
+@@ -612,6 +612,26 @@
+ ########################################
+ ## <summary>
+ ##	Make specified domain MLS trusted
++##	for reading from X objects up to its clearance.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`mls_xwin_read_to_clearance',`
++	gen_require(`
++		attribute mlsxwinreadtoclr;
++	')
++
++	typeattribute $1 mlsxwinreadtoclr;
++')
++
++########################################
++## <summary>
++##	Make specified domain MLS trusted
+ ##	for reading from X objects at any level.
+ ## </summary>
+ ## <param name="domain">
+@@ -632,6 +652,26 @@
+ ########################################
+ ## <summary>
+ ##	Make specified domain MLS trusted
++##	for write to X objects up to its clearance.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`mls_xwin_write_to_clearance',`
++	gen_require(`
++		attribute mlsxwinwritetoclr;
++	')
++
++	typeattribute $1 mlsxwinwritetoclr;
++')
++
++########################################
++## <summary>
++##	Make specified domain MLS trusted
+ ##	for writing to X objects at any level.
+ ## </summary>
+ ## <param name="domain">
+Index: policy/modules/services/xwindows.if
+===================================================================
+--- policy/modules/services/xwindows.if	(revision 2565)
++++ policy/modules/services/xwindows.if	(working copy)
+@@ -374,6 +374,7 @@
+ 	#
+ 
+ 	xwindows_domain_template($1,$1,$2,$3)
++	mls_xwin_read_to_clearance($2)
+ 
+ 	# FIXME: this domain should be removed
+ 	xwindows_domain_template($1,$1_xpriv,$1_xpriv_t,$3)
+
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
