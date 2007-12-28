@@ -1,31 +1,43 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBS5SqVF017283
-	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 00:28:52 -0500
-Received: from an-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBS5SpFP019144
-	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 05:28:52 GMT
-Received: by an-out-0708.google.com with SMTP id c38so702185ana.75
-        for <selinux@tycho.nsa.gov>; Thu, 27 Dec 2007 21:28:51 -0800 (PST)
-Message-Id: <705BD06B-DED9-4B3C-968C-4B8A09B97204@spitzner.net>
-From: Lance Spitzner <lance@spitzner.net>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v915)
-Subject: What happened to source for targeted?
-Date: Thu, 27 Dec 2007 23:28:49 -0600
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBSFnHRk028431
+	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 10:49:17 -0500
+Subject: Re: What happened to source for targeted?
+From: Dave Quigley <dpquigl@tycho.nsa.gov>
+To: Lance Spitzner <lance@spitzner.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <705BD06B-DED9-4B3C-968C-4B8A09B97204@spitzner.net>
+References: <705BD06B-DED9-4B3C-968C-4B8A09B97204@spitzner.net>
+Content-Type: text/plain
+Date: Fri, 28 Dec 2007 10:37:27 -0500
+Message-Id: <1198856247.3451.104.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Apologies if this is off topic or can be found elsewhere, I'm not  
-having luck with archives or Google.  What happened to the source for  
-the targeted policy?  The latest versions of Red Hat (Fedora8 /  
-CensOS5) have the targeted policy, but no source for it.  I cannot  
-find the RPMs either for the source.  Is there a source for the  
-targeted policy, am I missing something?
+I believe in fc8 the strict and target policy sources were merged into
+one package. I believe the link below is the source rpm that you want.
 
-Words of wisdom appreciated, thanks!
+http://ftp.usf.edu/pub/fedora/linux/releases/8/Everything/source/SRPMS/selinux-policy-3.0.8-44.fc8.src.rpm
 
-lance
+Dave
+
+On Thu, 2007-12-27 at 23:28 -0600, Lance Spitzner wrote:
+> Apologies if this is off topic or can be found elsewhere, I'm not  
+> having luck with archives or Google.  What happened to the source for  
+> the targeted policy?  The latest versions of Red Hat (Fedora8 /  
+> CensOS5) have the targeted policy, but no source for it.  I cannot  
+> find the RPMs either for the source.  Is there a source for the  
+> targeted policy, am I missing something?
+> 
+> Words of wisdom appreciated, thanks!
+> 
+> lance
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
