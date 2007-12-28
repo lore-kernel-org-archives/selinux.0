@@ -1,148 +1,59 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBSJYoco012416
-	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 14:34:50 -0500
-Message-ID: <47754FCB.1070307@tycho.nsa.gov>
-Date: Fri, 28 Dec 2007 14:34:35 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: X avcs
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com> <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
-In-Reply-To: <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBSKlpfB017398
+	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 15:47:51 -0500
+Received: from mail.and.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBSKlnMX010518
+	for <selinux@tycho.nsa.gov>; Fri, 28 Dec 2007 20:47:49 GMT
+Subject: Re: What happened to source for targeted?
+From: James Antill <jantill@redhat.com>
+To: Lance Spitzner <lance@spitzner.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <705BD06B-DED9-4B3C-968C-4B8A09B97204@spitzner.net>
+References: <705BD06B-DED9-4B3C-968C-4B8A09B97204@spitzner.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-S2DRLTOdZaDxQrlBuDWT"
+Date: Fri, 28 Dec 2007 14:41:40 -0500
+Message-Id: <1198870900.27673.15.camel@code.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Xavier Toth wrote:
-> What about labeling notification-daemon as other gnome apps have been
-> labeled (user_xpriv_t)?
->
-> On Dec 26, 2007 3:01 PM, Xavier Toth <txtoth@gmail.com> wrote:
->   
->> swo_u who is running ranged (systemlow-systemhigh) uses newrole to
->> launch an X windows app at systemhigh and then I get avcs like the
->> following:
->>
->> avc:  denied  { receive } for request=X11:ChangeWindowAttributes
->> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
->> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
->> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
->> avc:  denied  { get_property } for request=X11:GetProperty
->> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
->> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
->> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
->> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
->> event=X11:MapNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
->> tcontext=swo_u:object_r:user_manage_xevent_t:s15:c0.c1023
->> tclass=x_event
->> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
->> event=X11:VisibilityNotify
->> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
->> tcontext=swo_u:object_r:user_default_xevent_t:s15:c0.c1023
->> tclass=x_event
->> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
->> event=X11:PropertyNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
->> tcontext=swo_u:object_r:user_property_xevent_t:s15:c0.c1023
->> tclass=x_event
->> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
->> event=X11:FocusIn scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
->> tcontext=swo_u:object_r:user_focus_xevent_t:s15:c0.c1023
->> tclass=x_event
->> avc:  denied  { getattr } for request=X11:GetGeometry
->> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
->> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
->> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
->> avc:  denied  { read } for request=X11:GetProperty
->> comm=/usr/libexec/notification-daemon property=WM_NAME
->> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
->> tcontext=swo_u:object_r:user_default_xproperty_t:s15:c0.c1023
->> tclass=x_property
->>     
 
-These are all allowed by the TE rules.  So I think this is a MLS issue.
-
-I committed read-to-clearance and write-to-clearance interfaces and went 
-ahead and granted read-to-clearance in the per-role template.  The patch 
-I committed is below.  So update from SVN and see if that solves the 
-problem.
-
-Index: policy/modules/kernel/mls.if
-===================================================================
---- policy/modules/kernel/mls.if	(revision 2565)
-+++ policy/modules/kernel/mls.if	(working copy)
-@@ -612,6 +612,26 @@
- ########################################
- ## <summary>
- ##	Make specified domain MLS trusted
-+##	for reading from X objects up to its clearance.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`mls_xwin_read_to_clearance',`
-+	gen_require(`
-+		attribute mlsxwinreadtoclr;
-+	')
-+
-+	typeattribute $1 mlsxwinreadtoclr;
-+')
-+
-+########################################
-+## <summary>
-+##	Make specified domain MLS trusted
- ##	for reading from X objects at any level.
- ## </summary>
- ## <param name="domain">
-@@ -632,6 +652,26 @@
- ########################################
- ## <summary>
- ##	Make specified domain MLS trusted
-+##	for write to X objects up to its clearance.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`mls_xwin_write_to_clearance',`
-+	gen_require(`
-+		attribute mlsxwinwritetoclr;
-+	')
-+
-+	typeattribute $1 mlsxwinwritetoclr;
-+')
-+
-+########################################
-+## <summary>
-+##	Make specified domain MLS trusted
- ##	for writing to X objects at any level.
- ## </summary>
- ## <param name="domain">
-Index: policy/modules/services/xwindows.if
-===================================================================
---- policy/modules/services/xwindows.if	(revision 2565)
-+++ policy/modules/services/xwindows.if	(working copy)
-@@ -374,6 +374,7 @@
- 	#
- 
- 	xwindows_domain_template($1,$1,$2,$3)
-+	mls_xwin_read_to_clearance($2)
- 
- 	# FIXME: this domain should be removed
- 	xwindows_domain_template($1,$1_xpriv,$1_xpriv_t,$3)
+--=-S2DRLTOdZaDxQrlBuDWT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
+On Thu, 2007-12-27 at 23:28 -0600, Lance Spitzner wrote:
+> Apologies if this is off topic or can be found elsewhere, I'm not =20
+> having luck with archives or Google.  What happened to the source for =20
+> the targeted policy?  The latest versions of Red Hat (Fedora8 / =20
+> CensOS5) have the targeted policy, but no source for it.  I cannot =20
+> find the RPMs either for the source.  Is there a source for the =20
+> targeted policy, am I missing something?
 
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+ The way to find this information out is:
+
+% yumdownloader --source selinux-policy-targeted --urls
+
+...or remove the --urls option to just download the .src.rpm. The
+yumdownloader application is part of the yum-utils package.
+
+--=20
+James Antill <jantill@redhat.com>
+
+--=-S2DRLTOdZaDxQrlBuDWT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHdVF011eXTEMrxtQRAkHYAKCdvP3ockg77vTgASIojglE2vUu3QCfdf+B
+hiErNOCcOQsOerjGuuxnk1A=
+=I2tY
+-----END PGP SIGNATURE-----
+
+--=-S2DRLTOdZaDxQrlBuDWT--
 
 
 --
