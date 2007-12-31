@@ -1,42 +1,55 @@
-Subject: Re: Rawhide kernel is reporting
-From: Eric Paris <eparis@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <47791CF7.3030300@redhat.com>
-References: <47791CF7.3030300@redhat.com>
-Content-Type: text/plain
-Date: Mon, 31 Dec 2007 11:49:16 -0500
-Message-Id: <1199119756.3716.7.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id lBVGtrDE014562
+	for <selinux@tycho.nsa.gov>; Mon, 31 Dec 2007 11:55:53 -0500
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id lBVGtqI8023522
+	for <selinux@tycho.nsa.gov>; Mon, 31 Dec 2007 16:55:53 GMT
+Received: by py-out-1112.google.com with SMTP id a78so887017pyh.32
+        for <selinux@tycho.nsa.gov>; Mon, 31 Dec 2007 08:55:52 -0800 (PST)
+Message-ID: <7e0fb38c0712310855k784cb592la583bb84bfaec8f8@mail.gmail.com>
+Date: Mon, 31 Dec 2007 11:55:51 -0500
+From: "Eric Paris" <eparis@parisplace.org>
+To: "Jeremiah Jahn" <jeremiah@goodinassociates.com>
+Subject: Re: Kernel panic when using refpolicy
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1198951732.4073.992.camel@bluejay.goodinassociates.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <1198951732.4073.992.camel@bluejay.goodinassociates.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It means that if you kernel has defined classes and permissions which
-the policy doesn't know about those security checks will be 'allowed'.
-Aka if you update your kernel and not your policy 'hopefully' it won't
-break stuff.
+Fix won't appear until 5.2 see:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=223827
+
+I apologize to everyone who is still hitting this problem, I screwed
+up on some administrative stuff and didn't get it into 5.1.  You
+should be able to find links to 5.2 test kernels to verify it is fixed
+in that BZ.
+
+(as a side note RHEL specific questions like this are probably better
+suited for fedora-selinux-list or RH bugzilla, but I read them all so
+it doesn't really matter)
 
 -Eric
 
-On Mon, 2007-12-31 at 11:46 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> SELinux: policy loaded with handle_unknown=allow
-> 
-> 
-> Have no idea what this means.
-> 
-> Dan
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.8 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-> 
-> iEYEARECAAYFAkd5HPYACgkQrlYvE4MpobOkCACfT4kNc5CYsw4rtEDokk5RdXwO
-> 0/YAn0RbSbhQaEY7ytMcLWKIvQrt7qj5
-> =JH78
-> -----END PGP SIGNATURE-----
-
+On 12/29/07, Jeremiah Jahn <jeremiah@goodinassociates.com> wrote:
+> sorry, to bring this up again, but FYI, it doesn't look like the kernel
+> bug got fixed in RHEL5U1. I took the most recent refpolicy and left the
+> type set to standard; make load; touch /.autorelabel;reboot; all hell
+> broke loose. however, if I set the type=mcs then do the above everything
+> is fine. I had to pull the harddrive, and edit the policy config to get
+> the system back up.
+>
+> -jj-
+>
+>
+>
+>
+> You have the capacity to learn from mistakes. You'll learn a lot today.
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
