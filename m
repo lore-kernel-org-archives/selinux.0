@@ -1,57 +1,97 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m022eKsL010259
-	for <selinux@tycho.nsa.gov>; Tue, 1 Jan 2008 21:40:21 -0500
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m022eKuB020016
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jan 2008 02:40:20 GMT
-Received: by py-out-1112.google.com with SMTP id a78so1336424pyh.32
-        for <selinux@tycho.nsa.gov>; Tue, 01 Jan 2008 18:40:19 -0800 (PST)
-Message-ID: <7e0fb38c0801011840o59359739p3454d2c00d437864@mail.gmail.com>
-Date: Tue, 1 Jan 2008 21:40:19 -0500
-From: "Eric Paris" <eparis@parisplace.org>
-To: "Leo Prasath" <leo.prasath@gmail.com>
-Subject: Re: Is SELinux support as a kernel module possible ??
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <84c69f3a0801011539p2cb1a13frd69baab2e7adc586@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <84c69f3a0801011530g7b34fc19x2ff3d66989d028d1@mail.gmail.com>
-	 <84c69f3a0801011535x94ead41wccb031783f490323@mail.gmail.com>
-	 <84c69f3a0801011539p2cb1a13frd69baab2e7adc586@mail.gmail.com>
+Subject: Re: [LTP] compilation error @ selinux tests
+From: Subrata Modak <subrata@linux.vnet.ibm.com>
+Reply-To: subrata@linux.vnet.ibm.com
+To: naveen penumala <naveenspen@gmail.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+        ltp-list <ltp-list@lists.sourceforge.net>,
+        SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <ab64ec20801020358i2a1474ddmd667fe2344d6f08d@mail.gmail.com>
+References: <ab64ec20801020223j2d3816bcsa5b189cc1fb649ca@mail.gmail.com>
+	 <1199269629.4533.39.camel@subratamodak.linux.ibm.com>
+	 <ab64ec20801020358i2a1474ddmd667fe2344d6f08d@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 02 Jan 2008 17:37:22 +0530
+Message-Id: <1199275642.4533.53.camel@subratamodak.linux.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just answered on the fedora selinux list but I'll put it here as well.
+Well, just few minutes back, i have updated selinux by one patch
+submitted by Sergei. Just check whether that patch solves your problem.
 
-No.  Not possible.
+--Subrata
 
--Eric
+On Wed, 2008-01-02 at 17:28 +0530, naveen penumala wrote:
+> subrata,
+> 
+> i tried with the latest version of LTP, even though i'm getting same
+> problem for selinux tests.
+> lemme knw one thing, is their any package we need to install for
+> chcon. cause "chcon" executable in not creating in /bin directory at
+> testcases. here we are using SuSE linux. 
+> 
+> -Naveen
+> 
+> On Jan 2, 2008 3:57 PM, Subrata Modak <subrata@linux.vnet.ibm.com>
+> wrote:
+>         On Wed, 2008-01-02 at 15:53 +0530, naveen penumala wrote:
+>         > Hi,
+>         >
+>         > When i tried to compile the selinux-testsuite i faced the
+>         following
+>         > problem.
+>         >
+>         >
+>         ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests # 
+>         > make
+>         >
+>         
+>         
+>         I would say that you are using an unstable se-linux in LTP. We
+>         have
+>         ported some stable patches already which is available on
+>         ltp-full-20071231 and not in ltp-full-20071130. Please use the
+>         latest 
+>         one to work.
+>         
+>         --Subrata
+>         
+>         > make[1]: Leaving directory
+>         >
+>         `/home/penuman/New_tests/ltp/ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests/ domain_trans'
+>         > /bin/sh: chcon: command not found 
+>         > make: *** [all] Error 127
+>         >
+>         >
+>         >
+>         ltp-full-20071130/testcases/kernel/security/selinux-testsuite/tests/domain_trans # vi Makefile
+>         >
+>         > ln -f selinux_domain_trans.sh ../../../../../bin/
+>         >
+>         > but i didn't find the "chcon" executable in the bin
+>         > (/ltp-full-20071130/testcases/bin) directory.
+>         >
+>         > how chcon executable will create.
+>         >
+>         > and I'm using SuSE Linux. 
+>         >
+>         >
+>         > Thanks,
+>         > Naveen P
+>         >
+>         >
+>         
+>         >
+>         -------------------------------------------------------------------------
+>         > This SF.net email is sponsored by: Microsoft
+>         > Defy all challenges. Microsoft(R) Visual Studio 2005. 
+>         > http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
+>         > _______________________________________________ Ltp-list
+>         mailing list Ltp-list@lists.sourceforge.net
+>         https://lists.sourceforge.net/lists/listinfo/ltp-list
+>         
+> 
 
-On 1/1/08, Leo Prasath <leo.prasath@gmail.com> wrote:
->
-> >
-> >
-> >
-> > Hi guys,
-> >
-> > I have a need to install SELinux on a sytem running with a kernel without
-> SELinux built into it. However, I cannot reinstall a custom kernel with the
-> SELinux built into it.
-> >
-> > So, I am looking at building a kernel module for SELinux and load it. I
-> tried compiling the kernel with config option CONFIG_SECURITY_SELINUX=m and
-> i got this error:
-> >
-> > .config:984:warning: symbol value 'm' invalid for SECURITY_SELINUX
-> >
-> > Is it possible to load SELinux as a kernel module ? Has anyone tried this
-> ?
-> >
-> > Any help is appreciated
-> >
-> > Thanks,
-> > Leo
->
 
 --
 This message was distributed to subscribers of the selinux mailing list.
