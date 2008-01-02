@@ -1,195 +1,34 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m02FBWqJ028651
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jan 2008 10:11:32 -0500
-Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m02FBVZq014617
-	for <selinux@tycho.nsa.gov>; Wed, 2 Jan 2008 15:11:31 GMT
-Received: by nz-out-0506.google.com with SMTP id i1so944571nzh.39
-        for <selinux@tycho.nsa.gov>; Wed, 02 Jan 2008 07:11:31 -0800 (PST)
-Message-ID: <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>
-Date: Wed, 2 Jan 2008 09:11:30 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: X avcs
-Cc: "SE Linux" <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
-	 <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
-	 <47754FCB.1070307@tycho.nsa.gov>
-	 <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200712211208.24026.nickpiggin@yahoo.com.au>
+References: <200712211208.24026.nickpiggin@yahoo.com.au> <200712181800.23578.nickpiggin@yahoo.com.au> <643.1197930966@redhat.com> <6481.1198175619@redhat.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: dhowells@redhat.com, viro@ftp.linux.org.uk, hch@infradead.org,
+        Trond.Myklebust@netapp.com, sds@tycho.nsa.gov, casey@schaufler-ca.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 10/28] FS-Cache: Recruit a couple of page flags for cache management [try #2]
+Date: Wed, 02 Jan 2008 16:27:03 +0000
+Message-ID: <18996.1199291223@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ok that helped the issue with the notification-daemon. Now I'm looking
-at some avcs generated while running one of our apps and have some
-more questions. I first ran QBrowser at CONFIDENTIAL(s2:c0.c253) then
-later ran it at TS(s4:c0.c253). CUT_BUFFER0 and _MOTIF_DRAG_TARGETS
-got created at CONFIDENTIAL and then the TS instance of the app tried
-to use them, do we need polyinstantiated properties? Or maybe the type
-should change on write.
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-avc:  denied  { write } for request=X11:ChangeProperty
-comm=/opt/jcdx/bin/QBrowser property=CUT_BUFFER0
-scontext=swo_u:user_r:user_t:s4:c0.c253
-tcontext=swo_u:object_r:clipboard_xproperty_t:s2:c0.c253
-tclass=x_property
-avc:  denied  { write } for request=X11:ChangeProperty
-comm=/opt/jcdx/bin/QBrowser property=_MOTIF_DRAG_TARGETS
-scontext=swo_u:user_r:user_t:s4:c0.c253
-tcontext=swo_u:object_r:user_default_xproperty_t:s2:c0.c253
-tclass=x_property
+> Then make a PG_private2 bit and use that.
 
-Why are the root window drawable and root color map s0?
+To what end?  Are you suggesting I should have:
 
-avc:  denied  { send } for request=X11:SendEvent
-comm=/opt/jcdx/bin/QBrowser resid=76 restype=WINDOW
-scontext=swo_u:user_r:user_t:s4:c0.c253
-tcontext=system_u:object_r:x_rootwindow_t:s0 tclass=x_drawable
-avc:  denied  { remove_color } for request=X11:FreeColors
-comm=/opt/jcdx/bin/QBrowser resid=20 restype=COLORMAP
-scontext=swo_u:user_r:user_t:s4:c0.c253
-tcontext=system_u:object_r:x_rootcolormap_t:s0 tclass=x_colormap
+	PG_private2 = PG_private | PG_fscache
 
-On Dec 28, 2007 3:26 PM, Xavier Toth <txtoth@gmail.com> wrote:
-> Thanks I'll check it out.
->
->
-> On Dec 28, 2007 1:34 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> >
-> > Xavier Toth wrote:
-> > > What about labeling notification-daemon as other gnome apps have been
-> > > labeled (user_xpriv_t)?
-> > >
-> > > On Dec 26, 2007 3:01 PM, Xavier Toth <txtoth@gmail.com> wrote:
-> > >
-> > >> swo_u who is running ranged (systemlow-systemhigh) uses newrole to
-> > >> launch an X windows app at systemhigh and then I get avcs like the
-> > >> following:
-> > >>
-> > >> avc:  denied  { receive } for request=X11:ChangeWindowAttributes
-> > >> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
-> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-> > >> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
-> > >> avc:  denied  { get_property } for request=X11:GetProperty
-> > >> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
-> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-> > >> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
-> > >> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
-> > >> event=X11:MapNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-> > >> tcontext=swo_u:object_r:user_manage_xevent_t:s15:c0.c1023
-> > >> tclass=x_event
-> > >> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
-> > >> event=X11:VisibilityNotify
-> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-> > >> tcontext=swo_u:object_r:user_default_xevent_t:s15:c0.c1023
-> > >> tclass=x_event
-> > >> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
-> > >> event=X11:PropertyNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-> > >> tcontext=swo_u:object_r:user_property_xevent_t:s15:c0.c1023
-> > >> tclass=x_event
-> > >> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
-> > >> event=X11:FocusIn scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-> > >> tcontext=swo_u:object_r:user_focus_xevent_t:s15:c0.c1023
-> > >> tclass=x_event
-> > >> avc:  denied  { getattr } for request=X11:GetGeometry
-> > >> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
-> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-> > >> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
-> > >> avc:  denied  { read } for request=X11:GetProperty
-> > >> comm=/usr/libexec/notification-daemon property=WM_NAME
-> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
-> > >> tcontext=swo_u:object_r:user_default_xproperty_t:s15:c0.c1023
-> > >> tclass=x_property
-> > >>
-> >
-> > These are all allowed by the TE rules.  So I think this is a MLS issue.
-> >
-> > I committed read-to-clearance and write-to-clearance interfaces and went
-> > ahead and granted read-to-clearance in the per-role template.  The patch
-> > I committed is below.  So update from SVN and see if that solves the
-> > problem.
-> >
-> > Index: policy/modules/kernel/mls.if
-> > ===================================================================
-> > --- policy/modules/kernel/mls.if        (revision 2565)
-> > +++ policy/modules/kernel/mls.if        (working copy)
-> > @@ -612,6 +612,26 @@
-> >  ########################################
-> >  ## <summary>
-> >  ##     Make specified domain MLS trusted
-> > +##     for reading from X objects up to its clearance.
-> > +## </summary>
-> > +## <param name="domain">
-> > +##     <summary>
-> > +##     Domain allowed access.
-> > +##     </summary>
-> > +## </param>
-> > +## <rolecap/>
-> > +#
-> > +interface(`mls_xwin_read_to_clearance',`
-> > +       gen_require(`
-> > +               attribute mlsxwinreadtoclr;
-> > +       ')
-> > +
-> > +       typeattribute $1 mlsxwinreadtoclr;
-> > +')
-> > +
-> > +########################################
-> > +## <summary>
-> > +##     Make specified domain MLS trusted
-> >  ##     for reading from X objects at any level.
-> >  ## </summary>
-> >  ## <param name="domain">
-> > @@ -632,6 +652,26 @@
-> >  ########################################
-> >  ## <summary>
-> >  ##     Make specified domain MLS trusted
-> > +##     for write to X objects up to its clearance.
-> > +## </summary>
-> > +## <param name="domain">
-> > +##     <summary>
-> > +##     Domain allowed access.
-> > +##     </summary>
-> > +## </param>
-> > +## <rolecap/>
-> > +#
-> > +interface(`mls_xwin_write_to_clearance',`
-> > +       gen_require(`
-> > +               attribute mlsxwinwritetoclr;
-> > +       ')
-> > +
-> > +       typeattribute $1 mlsxwinwritetoclr;
-> > +')
-> > +
-> > +########################################
-> > +## <summary>
-> > +##     Make specified domain MLS trusted
-> >  ##     for writing to X objects at any level.
-> >  ## </summary>
-> >  ## <param name="domain">
-> > Index: policy/modules/services/xwindows.if
-> > ===================================================================
-> > --- policy/modules/services/xwindows.if (revision 2565)
-> > +++ policy/modules/services/xwindows.if (working copy)
-> > @@ -374,6 +374,7 @@
-> >         #
-> >
-> >         xwindows_domain_template($1,$1,$2,$3)
-> > +       mls_xwin_read_to_clearance($2)
-> >
-> >         # FIXME: this domain should be removed
-> >         xwindows_domain_template($1,$1_xpriv,$1_xpriv_t,$3)
-> >
-> >
-> >
-> > --
-> > Eamon Walsh <ewalsh@tycho.nsa.gov>
-> > National Security Agency
-> >
-> >
->
+That's redundant information and doesn't help anything really.
+
+My suggestion (PG_private and PG_fscache separate and independent) is pretty
+efficient to actually render into machine instructions, especially if the two
+bits are placed in the lower part of the word.  On x86, the test for both bits
+can be done with a single TEST instruction, and on most RISC archs, a MOVE and
+a single AND will usually suffice.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
