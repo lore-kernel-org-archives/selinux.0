@@ -1,233 +1,195 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m02FBWqJ028651
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jan 2008 10:11:32 -0500
+Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m02FBVZq014617
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jan 2008 15:11:31 GMT
+Received: by nz-out-0506.google.com with SMTP id i1so944571nzh.39
+        for <selinux@tycho.nsa.gov>; Wed, 02 Jan 2008 07:11:31 -0800 (PST)
+Message-ID: <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>
+Date: Wed, 2 Jan 2008 09:11:30 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: Re: X avcs
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: newrole in the background
-Date: Wed, 2 Jan 2008 06:55:54 -0800
-Message-ID: <436A69503F99214D9EBC27415F66C40C0F6AA6B9@blums0008.bluelnk.net>
-References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net> <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net> <1197567614.20226.141.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F597E63@blums0008.bluelnk.net> <1197907810.17307.38.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F59812B@blums0008.bluelnk.net> <1198252853.2944.40.camel@moss-spartans.epoch.ncsc.mil> <cadfc0e40712210831p29ed2ab1mf3765448cc7ab1c4@mail.gmail.com> <1198257133.2944.71.camel@moss-spartans.epoch.ncsc.mil> <436A69503F99214D9EBC27415F66C40C0F6AA4EA@blums0008.bluelnk.net> <cadfc0e40801020648o4bb523dn6b9c4ea6fdbd2f07@mail.gmail.com>
-From: "Reed, Tim \(US SSA\)" <tim.reed@baesystems.com>
-To: "Xavier Toth" <txtoth@gmail.com>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, "SE Linux" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
+	 <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
+	 <47754FCB.1070307@tycho.nsa.gov>
+	 <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My problem really had to do with our application passing strings as
-arguments i.e. (echo "Hello World").  So we would lose our quoting.
-Plus it just did not seem clean to mess with the argv pointers they way
-that it did.
+Ok that helped the issue with the notification-daemon. Now I'm looking
+at some avcs generated while running one of our apps and have some
+more questions. I first ran QBrowser at CONFIDENTIAL(s2:c0.c253) then
+later ran it at TS(s4:c0.c253). CUT_BUFFER0 and _MOTIF_DRAG_TARGETS
+got created at CONFIDENTIAL and then the TS instance of the app tried
+to use them, do we need polyinstantiated properties? Or maybe the type
+should change on write.
 
------Original Message-----
-From: Xavier Toth [mailto:txtoth@gmail.com] 
-Sent: Wednesday, January 02, 2008 9:48 AM
-To: Reed, Tim (US SSA)
-Cc: Stephen Smalley; SE Linux
-Subject: Re: newrole in the background
+avc:  denied  { write } for request=X11:ChangeProperty
+comm=/opt/jcdx/bin/QBrowser property=CUT_BUFFER0
+scontext=swo_u:user_r:user_t:s4:c0.c253
+tcontext=swo_u:object_r:clipboard_xproperty_t:s2:c0.c253
+tclass=x_property
+avc:  denied  { write } for request=X11:ChangeProperty
+comm=/opt/jcdx/bin/QBrowser property=_MOTIF_DRAG_TARGETS
+scontext=swo_u:user_r:user_t:s4:c0.c253
+tcontext=swo_u:object_r:user_default_xproperty_t:s2:c0.c253
+tclass=x_property
 
-The arg thing is curious because I use newrole extensively and have
-had no issue passing args.
+Why are the root window drawable and root color map s0?
 
-On Dec 31, 2007 9:49 AM, Reed, Tim (US SSA) <tim.reed@baesystems.com>
-wrote:
-> I know you already applied this to the trunk, but here is another
-patch.
+avc:  denied  { send } for request=X11:SendEvent
+comm=/opt/jcdx/bin/QBrowser resid=76 restype=WINDOW
+scontext=swo_u:user_r:user_t:s4:c0.c253
+tcontext=system_u:object_r:x_rootwindow_t:s0 tclass=x_drawable
+avc:  denied  { remove_color } for request=X11:FreeColors
+comm=/opt/jcdx/bin/QBrowser resid=20 restype=COLORMAP
+scontext=swo_u:user_r:user_t:s4:c0.c253
+tcontext=system_u:object_r:x_rootcolormap_t:s0 tclass=x_colormap
+
+On Dec 28, 2007 3:26 PM, Xavier Toth <txtoth@gmail.com> wrote:
+> Thanks I'll check it out.
 >
 >
-> I cleaned up the handling of the -c argument.  Instead of messing with
-> the argv that is passed in, I have it use a temp variable.  Plus if
-the
-> command that the user wants to run has command line args of its own
-(ls
-> -lrt /tmp), I push those into one value in the command line array.  I
-> was having issues with the new shell that gets spawned off dropping
-the
-> command's arguments that I was trying to pass it.  So I would get an
-> "ls" instead of "ls -lrt /tmp".  No quoting it did not work, as our
-> application passes a string as an argument to the command.
->
-> BTW which is the correct version to be working on 1.34.11 or 2.0.27?
->
-> Thanks!
-> Tim
->
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Friday, December 21, 2007 12:12 PM
-> To: Xavier Toth
-> Cc: Reed, Tim (US SSA); SE Linux
->
-> Subject: Re: newrole in the background
->
->
-> On Fri, 2007-12-21 at 10:31 -0600, Xavier Toth wrote:
-> > Works for me, thanks.
->
-> Ok, merged to trunk version of newrole.
->
-> As usual, if you want something like this in an existing distro
-release
-> (e.g. RHEL5), you'll have to bugzilla it there and get it queued for
-an
-> update.
->
+> On Dec 28, 2007 1:34 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
 > >
-> > On Dec 21, 2007 10:00 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > Xavier Toth wrote:
+> > > What about labeling notification-daemon as other gnome apps have been
+> > > labeled (user_xpriv_t)?
 > > >
-> > > On Mon, 2007-12-17 at 12:40 -0800, Reed, Tim (US SSA) wrote:
-> > > > Lets try this again....Patch Try #3
+> > > On Dec 26, 2007 3:01 PM, Xavier Toth <txtoth@gmail.com> wrote:
 > > >
-> > > This looks ok to me, although it doesn't apply cleanly on the
-trunk,
-> and
-> > > the coding style still needs fixing (but I suppose make indent
-will
-> fix
-> > > it up).
-> > >
-> > > Does anyone else have any comments on this?  Does it meet Ted's
-need
-> > > too?
-> > >
-> > > I tried running a program that detached the tty and then invoked
-the
-> > > patched newrole with a command, and as expected, if configured to
-> use
-> > > pam modules that required authentication, it just failed at that
-> point
-> > > with an authentication failed error, and otherwise, it proceeded
-> without
-> > > problem.
-> > >
-> > >
-> > > > -----Original Message-----
-> > > > From: owner-selinux@tycho.nsa.gov
-> [mailto:owner-selinux@tycho.nsa.gov]
-> > > > On Behalf Of Stephen Smalley
-> > > > Sent: Monday, December 17, 2007 11:10 AM
-> > > > To: Reed, Tim (US SSA)
-> > > > Cc: Xavier Toth; SE Linux
-> > > > Subject: RE: newrole in the background
-> > > >
-> > > > On Mon, 2007-12-17 at 08:01 -0800, Reed, Tim (US SSA) wrote:
-> > > > > When newrole goes and grabs the ttyname, if it cannot get one
-> should
-> > > > it
-> > > > > still log something to the screen or not?
-> > > > >
-> > > > > Currently it says "Error! Could not retrieve tty information".
-> I was
-> > > > > thinking of changing Error to Warning.
-> > > >
-> > > > Yes, that's fine.
-> > > > >
-> > > > > What is the recommendation here?
-> > > > > Also do you have the coding standards posted somewhere?
-> > > >
-> > > > We just loosely follow kernel coding style,
-> > > > http://lxr.linux.no/linux/Documentation/CodingStyle
-> > > > and make indent can be used as a hammer (but not a very good
-one).
-> > > >
-> > > > >
-> > > > > -----Original Message-----
-> > > > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> > > > > Sent: Thursday, December 13, 2007 12:40 PM
-> > > > > To: Reed, Tim (US SSA)
-> > > > > Cc: Xavier Toth; SE Linux
-> > > > > Subject: RE: newrole in the background
-> > > > >
-> > > > > On Thu, 2007-12-13 at 09:06 -0800, Reed, Tim (US SSA) wrote:
-> > > > > > New patch...I have added checks around the calls that deal
-> with the
-> > > > > tty.
-> > > > > > So if ttyn is an empty string (something had a heartache
-with
-> it
-> > > > being
-> > > > > > NULL) then it skips the processing.  It does appear to work
-> but more
-> > > > > > testing is needed.  Please review and comment.
-> > > > >
-> > > > > Patch is reversed, and doesn't seem to be complete (test for a
-> NULL
-> > > > > ttyname still remains and is fatal in main).
-> > > > >
-> > > > > ttyn should really be NULL if not defined - just fix the code.
-> > > > Cleaner
-> > > > > and faster to test for NULL than for empty string.  Looks like
-> > > > > authenticate_via_pam() needs a check.
-> > > > >
-> > > > > You can simplify the logic a fair amount, e.g. on entry to
-> > > > relabel_tty()
-> > > > > and restore_tty_label(), just do a if (!ttyn) return 0;
-> > > > >
-> > > > > Coding style doesn't match.
-> > > > >
-> > > > > > Now say if someone ran `newrole -l SystemHigh -- -c "su -
-> foo"` in
-> > > > the
-> > > > > > background of a script, you would not be able to give su
-input
-> as it
-> > > > > is
-> > > > > > in the background and has no tty.  su in this case exits
-> gracefully
-> > > > I
-> > > > > > guess you could say.
-> > > > > >
-> > > > > > My point is that if you have an application that needs to
-run
-> from
-> > > > > > newrole, in the background AND requires user input, you will
-> not be
-> > > > > able
-> > > > > > to give the application input while it is in the background
-> and have
-> > > > > it
-> > > > > > work successfully.
-> > > > >
-> > > > > You can't do that anyway, by definition.
-> > > > >
-> > > > > > Example:
-> > > > > > foo.sh
-> > > > > > ---------------
-> > > > > > #!/bin/bash
-> > > > > >
-> > > > > > ./bar.sh &
-> > > > > > ---------------
-> > > > > > bar.sh
-> > > > > > ---------------
-> > > > > > #!/bin/bash
-> > > > > >
-> > > > > > su - root -c /bin/date
-> > > > > > ---------------
-> > > > > >
-> > > > > > su exits because there is no tty for input.  So is chasing
-> down
-> > > > having
-> > > > > > newrole run in a pseudo tty in the background and accept
-input
-> worth
-> > > > > the
-> > > > > > time?
-> > > > >
-> > > > > It doesn't help - there is no input to accept.
-> > > > >
-> > > > > We just need to make sure that the pam modules and chkpwd
-don't
-> block
-> > > > > forever or seg fault when handed a NULL PAM_TTY.
-> > > > >
-> > > --
-> > > Stephen Smalley
-> > > National Security Agency
-> > >
-> > >
-> --
-> Stephen Smalley
-> National Security Agency
+> > >> swo_u who is running ranged (systemlow-systemhigh) uses newrole to
+> > >> launch an X windows app at systemhigh and then I get avcs like the
+> > >> following:
+> > >>
+> > >> avc:  denied  { receive } for request=X11:ChangeWindowAttributes
+> > >> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> > >> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+> > >> avc:  denied  { get_property } for request=X11:GetProperty
+> > >> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> > >> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+> > >> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+> > >> event=X11:MapNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> > >> tcontext=swo_u:object_r:user_manage_xevent_t:s15:c0.c1023
+> > >> tclass=x_event
+> > >> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+> > >> event=X11:VisibilityNotify
+> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> > >> tcontext=swo_u:object_r:user_default_xevent_t:s15:c0.c1023
+> > >> tclass=x_event
+> > >> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+> > >> event=X11:PropertyNotify scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> > >> tcontext=swo_u:object_r:user_property_xevent_t:s15:c0.c1023
+> > >> tclass=x_event
+> > >> avc:  denied  { receive } for  comm=/usr/libexec/notification-daemon
+> > >> event=X11:FocusIn scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> > >> tcontext=swo_u:object_r:user_focus_xevent_t:s15:c0.c1023
+> > >> tclass=x_event
+> > >> avc:  denied  { getattr } for request=X11:GetGeometry
+> > >> comm=/usr/libexec/notification-daemon resid=3800036 restype=WINDOW
+> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> > >> tcontext=swo_u:object_r:user_t:s15:c0.c1023 tclass=x_drawable
+> > >> avc:  denied  { read } for request=X11:GetProperty
+> > >> comm=/usr/libexec/notification-daemon property=WM_NAME
+> > >> scontext=swo_u:user_r:user_t:s0-s15:c0.c1023
+> > >> tcontext=swo_u:object_r:user_default_xproperty_t:s15:c0.c1023
+> > >> tclass=x_property
+> > >>
+> >
+> > These are all allowed by the TE rules.  So I think this is a MLS issue.
+> >
+> > I committed read-to-clearance and write-to-clearance interfaces and went
+> > ahead and granted read-to-clearance in the per-role template.  The patch
+> > I committed is below.  So update from SVN and see if that solves the
+> > problem.
+> >
+> > Index: policy/modules/kernel/mls.if
+> > ===================================================================
+> > --- policy/modules/kernel/mls.if        (revision 2565)
+> > +++ policy/modules/kernel/mls.if        (working copy)
+> > @@ -612,6 +612,26 @@
+> >  ########################################
+> >  ## <summary>
+> >  ##     Make specified domain MLS trusted
+> > +##     for reading from X objects up to its clearance.
+> > +## </summary>
+> > +## <param name="domain">
+> > +##     <summary>
+> > +##     Domain allowed access.
+> > +##     </summary>
+> > +## </param>
+> > +## <rolecap/>
+> > +#
+> > +interface(`mls_xwin_read_to_clearance',`
+> > +       gen_require(`
+> > +               attribute mlsxwinreadtoclr;
+> > +       ')
+> > +
+> > +       typeattribute $1 mlsxwinreadtoclr;
+> > +')
+> > +
+> > +########################################
+> > +## <summary>
+> > +##     Make specified domain MLS trusted
+> >  ##     for reading from X objects at any level.
+> >  ## </summary>
+> >  ## <param name="domain">
+> > @@ -632,6 +652,26 @@
+> >  ########################################
+> >  ## <summary>
+> >  ##     Make specified domain MLS trusted
+> > +##     for write to X objects up to its clearance.
+> > +## </summary>
+> > +## <param name="domain">
+> > +##     <summary>
+> > +##     Domain allowed access.
+> > +##     </summary>
+> > +## </param>
+> > +## <rolecap/>
+> > +#
+> > +interface(`mls_xwin_write_to_clearance',`
+> > +       gen_require(`
+> > +               attribute mlsxwinwritetoclr;
+> > +       ')
+> > +
+> > +       typeattribute $1 mlsxwinwritetoclr;
+> > +')
+> > +
+> > +########################################
+> > +## <summary>
+> > +##     Make specified domain MLS trusted
+> >  ##     for writing to X objects at any level.
+> >  ## </summary>
+> >  ## <param name="domain">
+> > Index: policy/modules/services/xwindows.if
+> > ===================================================================
+> > --- policy/modules/services/xwindows.if (revision 2565)
+> > +++ policy/modules/services/xwindows.if (working copy)
+> > @@ -374,6 +374,7 @@
+> >         #
+> >
+> >         xwindows_domain_template($1,$1,$2,$3)
+> > +       mls_xwin_read_to_clearance($2)
+> >
+> >         # FIXME: this domain should be removed
+> >         xwindows_domain_template($1,$1_xpriv,$1_xpriv_t,$3)
+> >
+> >
+> >
+> > --
+> > Eamon Walsh <ewalsh@tycho.nsa.gov>
+> > National Security Agency
+> >
+> >
 >
->
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
