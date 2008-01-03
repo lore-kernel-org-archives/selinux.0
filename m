@@ -1,36 +1,54 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03FdbV9002446
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 10:39:37 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03G3PlD004908
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 11:03:25 -0500
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m03FdaAY014868
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 15:39:37 GMT
-Subject: Re: startx
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m03G3L61022310
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 16:03:21 GMT
+Subject: Re: cant SSH/Console Login and no deny/error messages
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Justin Mattock <justinmattock@gmail.com>
+To: Jeremiah Jahn <jeremiah@goodinassociates.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30712201349n311e41c4y99dfa8af337f6d2b@mail.gmail.com>
-References: <dd18b0c30712201349n311e41c4y99dfa8af337f6d2b@mail.gmail.com>
+In-Reply-To: <1198704909.4073.858.camel@bluejay.goodinassociates.com>
+References: <1198704909.4073.858.camel@bluejay.goodinassociates.com>
 Content-Type: text/plain
-Date: Thu, 03 Jan 2008 10:38:35 -0500
-Message-Id: <1199374715.12626.297.camel@gorn.columbia.tresys.com>
+Date: Thu, 03 Jan 2008 11:02:20 -0500
+Message-Id: <1199376140.12626.307.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-12-20 at 13:49 -0800, Justin Mattock wrote:
-> Hello Im a bit confused with starting the xserver with startx; the
-> system starts fine with everything set to permissive, but as soon as
-> changing to enforce mode
-> startx reacts extremly slow; with a blank screen and a curser at the
-> top left of the screen.  Do I need to set xdm_systadm_login to 1 or do
-> I need to just be patient while  the xserver starts then  add the
-> avc's to local.te 
+On Wed, 2007-12-26 at 15:35 -0600, Jeremiah Jahn wrote:
+> I've trying to get SELinux strict up and running on a RHEL4-U4 box and
+> not having much luck. I have one account and 3 programs that I need to
+> protect from root. I was unable to get targeted to login under the user
+> that I created, something about the policy always defaulting to user_u.
+> So Fine, I tried to install the strict/ref policy from the tresys and
+> cips. Dues to this being an x86_64 system, that didn't go well either.
+> Trying plan C  I went with the FC3 strict policy. Obviously some
+> improvemtns have been made since then, but this was the first strict
+> policy I was able to install without completely hosing my system. sshd
+> and login seem to really like having libselinux(64) around. 
+> 
+> 
+> So my question here has to possible answers:
+> 
+> 1) where the heck can I find some rpms for RHEl4 -x86_64 and the most
+> recent ref policy.
 
-Are you using strict?  If so, the X server policy isn't well tested, so
-it likely needs additional rules.  Based on your description, it sounds
-like its being denied something and patience likely won't help.  You'll
-have to handle the denials in permissive.  The above boolean only
-controls if sysadm can log in via xdm.
+I don't know of any 64bit RHEL4 RPMs.  The refpolicy page has an RPM,
+but its for the complete source; I presume you're asking for a compiled
+policy, which we don't have.
+
+> 2) what could possibly be causing no [avc denied] messages to be logged.
+> Most of the messages I have used with audit2allow to to try and get
+> everything to work. Finally I go to the point of having no more messages
+> even when rebooting the machine. If I put things into passive mode
+> still no more messages, this is with constant reloading of the policy to
+> clear the avc cache. 
+
+Perms that are denied by DAC (regular linux perms) don't produce
+messages.  DAC is checked before MAC (SELinux), so if something is
+denied by DAC, it never gets to the MAC check.
 
 -- 
 Chris PeBenito
