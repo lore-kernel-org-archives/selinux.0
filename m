@@ -1,33 +1,99 @@
-Message-Id: <20080103184515.827642668@tresys.com>
+Message-Id: <20080103184516.021126898@tresys.com>
 References: <20080103184331.485176161@tresys.com>
-Date: Thu, 03 Jan 2008 13:43:35 -0500
+Date: Thu, 03 Jan 2008 13:43:36 -0500
 From: tmiller@tresys.com
 To: selinux@tycho.nsa.gov
 Cc: method@madmethod.com, sds@tycho.nsa.gov
-Subject: [patch 4/7] quiet libsemanage scanner warnings
+Subject: [patch 5/7] quiet libsepol uninitialized variable warnings
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Supress the generation of unused functions in the scanner.
-There are still a few warnings about the generated scanner
-code but that has to be fixed in flex.
+Fix some gcc warnings about uninitialized variables.
+For genusers.c, BADLINE() was being used inside an inner
+loop that prevented it from working for those two cases.
 
 ---
- libsemanage/src/conf-scan.l |    1 +
- 1 file changed, 1 insertion(+)
+ libsepol/src/genusers.c  |    7 +++++--
+ libsepol/src/hierarchy.c |   11 ++++-------
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-Index: trunk/libsemanage/src/conf-scan.l
+Index: trunk/libsepol/src/genusers.c
 ===================================================================
---- trunk.orig/libsemanage/src/conf-scan.l
-+++ trunk/libsemanage/src/conf-scan.l
-@@ -32,6 +32,7 @@ int yywrap(void);
- %}
+--- trunk.orig/libsepol/src/genusers.c
++++ trunk/libsepol/src/genusers.c
+@@ -117,17 +117,18 @@ static int load_users(struct policydb *p
+ 		} else
+ 			islist = 0;
  
- %option stack prefix="semanage_"
-+%option nounput noyy_push_state noyy_pop_state noyy_top_state
++		oldc = 0;
+ 		do {
+ 			while (*p && isspace(*p))
+ 				p++;
+ 			if (!(*p))
+-				BADLINE();
++				break;
  
- %x arg
+ 			q = p;
+ 			while (*p && *p != ';' && *p != '}' && !isspace(*p))
+ 				p++;
+ 			if (!(*p))
+-				BADLINE();
++				break;
+ 			if (*p == '}')
+ 				islist = 0;
+ 			oldc = *p;
+@@ -153,6 +154,8 @@ static int load_users(struct policydb *p
+ 					}
+ 			}
+ 		} while (islist);
++		if (oldc == 0)
++			BADLINE();
  
+ 		if (policydb->mls) {
+ 			context_struct_t context;
+Index: trunk/libsepol/src/hierarchy.c
+===================================================================
+--- trunk.orig/libsepol/src/hierarchy.c
++++ trunk/libsepol/src/hierarchy.c
+@@ -130,7 +130,7 @@ static int check_avtab_hierarchy_callbac
+ 	avtab_key_t key;
+ 	avtab_datum_t *avdatump;
+ 	hierarchy_args_t *a;
+-	uint32_t av;
++	uint32_t av = 0;
+ 	type_datum_t *t = NULL, *t2 = NULL;
+ 
+ 	if (!(k->specified & AVTAB_ALLOWED)) {
+@@ -164,8 +164,7 @@ static int check_avtab_hierarchy_callbac
+ 				return 0;
+ 			}
+ 			av = avdatump->data;
+-		} else
+-			av = 0;
++		}
+ 		if (a->opt_cond_list) {
+ 			/* if a conditional list is present search it before continuing */
+ 			avdatump = cond_av_list_search(&key, a->opt_cond_list);
+@@ -202,8 +201,7 @@ static int check_avtab_hierarchy_callbac
+ 				return 0;
+ 			}
+ 			av = avdatump->data;
+-		} else
+-			av = 0;
++		}
+ 		if (a->opt_cond_list) {
+ 			/* if a conditional list is present search it before continuing */
+ 			avdatump = cond_av_list_search(&key, a->opt_cond_list);
+@@ -228,8 +226,7 @@ static int check_avtab_hierarchy_callbac
+ 				return 0;
+ 			}
+ 			av = avdatump->data;
+-		} else
+-			av = 0;
++		}
+ 		if (a->opt_cond_list) {
+ 			/* if a conditional list is present search it before continuing */
+ 			avdatump = cond_av_list_search(&key, a->opt_cond_list);
 
 -- 
 
