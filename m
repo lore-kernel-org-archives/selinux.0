@@ -1,14 +1,15 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03HcNZW012722
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 12:38:23 -0500
-Received: from g1t0026.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m03HcL61023611
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 17:38:22 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03HcZT9012859
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 12:38:35 -0500
+Received: from g1t0029.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m03HcYjV029817
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 17:38:34 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v10 06/20] LSM: Add inet_sys_snd_skb() LSM hook
+Subject: [RFC PATCH v10 08/20] NET: Clone the sk_buff 'iif' field in
+	__skb_clone()
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Thu, 03 Jan 2008 12:38:20 -0500
-Message-ID: <20080103173819.15387.23131.stgit@flek.americas.hpqcorp.net>
+Date: Thu, 03 Jan 2008 12:38:32 -0500
+Message-ID: <20080103173832.15387.53025.stgit@flek.americas.hpqcorp.net>
 In-Reply-To: <20080103173225.15387.60940.stgit@flek.americas.hpqcorp.net>
 References: <20080103173225.15387.60940.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
@@ -16,151 +17,80 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add an inet_sys_snd_skb() LSM hook to allow the LSM to provide packet level
-access control for all outbound packets.  Using the existing postroute_last
-netfilter hook turns out to be problematic as it is can be invoked multiple
-times for a single packet, e.g. individual IPsec transforms, adding unwanted
-overhead and complicating the security policy.
+Both NetLabel and SELinux (other LSMs may grow to use it as well) rely on the
+'iif' field to determine the receiving network interface of inbound packets.
+Unfortunately, at present this field is not preserved across a skb clone
+operation which can lead to garbage values if the cloned skb is sent back
+through the network stack.  This patch corrects this problem by properly
+copying the 'iif' field in __skb_clone() and removing the 'iif' field
+assignment from skb_act_clone() since it is no longer needed.
+
+Also, while we are here, get rid of that silly C() macro.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
 
- include/linux/security.h |   11 +++++++++++
- net/ipv4/ip_output.c     |    7 +++++++
- net/ipv6/ip6_output.c    |    5 +++++
- security/dummy.c         |    8 +++++++-
- security/security.c      |    6 ++++++
- 5 files changed, 36 insertions(+), 1 deletions(-)
+ include/net/sch_generic.h |    1 -
+ net/core/skbuff.c         |   20 +++++++++-----------
+ 2 files changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index db19c92..1b8d332 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -876,6 +876,10 @@ struct request_sock;
-  *     Sets the connection's peersid to the secmark on skb.
-  * @req_classify_flow:
-  *	Sets the flow's sid to the openreq sid.
-+ * @inet_sys_snd_skb:
-+ *	Check permissions on outgoing network packets.
-+ *	@skb is the packet to check
-+ *	@family is the packet's address family
-  *
-  * Security hooks for XFRM operations.
-  *
-@@ -1416,6 +1420,7 @@ struct security_operations {
- 	void (*inet_csk_clone)(struct sock *newsk, const struct request_sock *req);
- 	void (*inet_conn_established)(struct sock *sk, struct sk_buff *skb);
- 	void (*req_classify_flow)(const struct request_sock *req, struct flowi *fl);
-+	int (*inet_sys_snd_skb)(struct sk_buff *skb, int family);
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
-@@ -2328,6 +2333,7 @@ void security_sk_free(struct sock *sk);
- void security_sk_clone(const struct sock *sk, struct sock *newsk);
- void security_sk_classify_flow(struct sock *sk, struct flowi *fl);
- void security_req_classify_flow(const struct request_sock *req, struct flowi *fl);
-+int security_inet_sys_snd_skb(struct sk_buff *skb, int family);
- void security_sock_graft(struct sock*sk, struct socket *parent);
- int security_inet_conn_request(struct sock *sk,
- 			struct sk_buff *skb, struct request_sock *req);
-@@ -2471,6 +2477,11 @@ static inline void security_req_classify_flow(const struct request_sock *req, st
- {
- }
- 
-+static inline int security_inet_sys_snd_skb(struct sk_buff *skb, int family)
-+{
-+	return 0;
-+}
-+
- static inline void security_sock_graft(struct sock* sk, struct socket *parent)
- {
- }
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-index fd99fbd..82a7297 100644
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -204,6 +204,8 @@ static inline int ip_skb_dst_mtu(struct sk_buff *skb)
- 
- static int ip_finish_output(struct sk_buff *skb)
- {
-+	int err;
-+
- #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
- 	/* Policy lookup after SNAT yielded a new policy */
- 	if (skb->dst->xfrm != NULL) {
-@@ -211,6 +213,11 @@ static int ip_finish_output(struct sk_buff *skb)
- 		return dst_output(skb);
+diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
+index c926551..4c3b351 100644
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -325,7 +325,6 @@ static inline struct sk_buff *skb_act_clone(struct sk_buff *skb, gfp_t gfp_mask)
+ 		n->tc_verd = SET_TC_VERD(n->tc_verd, 0);
+ 		n->tc_verd = CLR_TC_OK2MUNGE(n->tc_verd);
+ 		n->tc_verd = CLR_TC_MUNGED(n->tc_verd);
+-		n->iif = skb->iif;
  	}
- #endif
-+
-+	err = security_inet_sys_snd_skb(skb, AF_INET);
-+	if (err)
-+		return err;
-+
- 	if (skb->len > ip_skb_dst_mtu(skb) && !skb_is_gso(skb))
- 		return ip_fragment(skb, ip_finish_output2);
- 	else
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 6338a9c..44ddf32 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -72,8 +72,13 @@ static __inline__ void ipv6_select_ident(struct sk_buff *skb, struct frag_hdr *f
- 
- static int ip6_output_finish(struct sk_buff *skb)
- {
-+	int err;
- 	struct dst_entry *dst = skb->dst;
- 
-+	err = security_inet_sys_snd_skb(skb, AF_INET6);
-+	if (err)
-+		return err;
-+
- 	if (dst->hh)
- 		return neigh_hh_output(dst->hh, skb);
- 	else if (dst->neighbour)
-diff --git a/security/dummy.c b/security/dummy.c
-index 0b62f95..384979a 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -848,6 +848,11 @@ static inline void dummy_req_classify_flow(const struct request_sock *req,
- 			struct flowi *fl)
- {
+ 	return n;
  }
-+
-+static inline int dummy_inet_sys_snd_skb(struct sk_buff *skb, int family)
-+{
-+	return 0;
-+}
- #endif	/* CONFIG_SECURITY_NETWORK */
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 5b4ce9b..c726cd4 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -407,31 +407,29 @@ static void __copy_skb_header(struct sk_buff *new, const struct sk_buff *old)
  
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
-@@ -1122,7 +1127,8 @@ void security_fixup_ops (struct security_operations *ops)
- 	set_to_dummy_if_null(ops, inet_csk_clone);
- 	set_to_dummy_if_null(ops, inet_conn_established);
- 	set_to_dummy_if_null(ops, req_classify_flow);
-- #endif	/* CONFIG_SECURITY_NETWORK */
-+	set_to_dummy_if_null(ops, inet_sys_snd_skb);
-+#endif	/* CONFIG_SECURITY_NETWORK */
- #ifdef  CONFIG_SECURITY_NETWORK_XFRM
- 	set_to_dummy_if_null(ops, xfrm_policy_alloc_security);
- 	set_to_dummy_if_null(ops, xfrm_policy_clone_security);
-diff --git a/security/security.c b/security/security.c
-index 3bdcada..7f55459 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -961,6 +961,12 @@ void security_req_classify_flow(const struct request_sock *req, struct flowi *fl
- }
- EXPORT_SYMBOL(security_req_classify_flow);
- 
-+int security_inet_sys_snd_skb(struct sk_buff *skb, int family)
-+{
-+	return security_ops->inet_sys_snd_skb(skb, family);
-+}
-+EXPORT_SYMBOL(security_inet_sys_snd_skb);
-+
- void security_sock_graft(struct sock *sk, struct socket *parent)
+ static struct sk_buff *__skb_clone(struct sk_buff *n, struct sk_buff *skb)
  {
- 	security_ops->sock_graft(sk, parent);
+-#define C(x) n->x = skb->x
+-
+ 	n->next = n->prev = NULL;
+ 	n->sk = NULL;
+ 	__copy_skb_header(n, skb);
+ 
+-	C(len);
+-	C(data_len);
+-	C(mac_len);
++	n->iif = skb->iif;
++	n->len = skb->len;
++	n->data_len = skb->data_len;
++	n->mac_len = skb->mac_len;
+ 	n->cloned = 1;
+ 	n->hdr_len = skb->nohdr ? skb_headroom(skb) : skb->hdr_len;
+ 	n->nohdr = 0;
+ 	n->destructor = NULL;
+-	C(truesize);
++	n->truesize = skb->truesize;
+ 	atomic_set(&n->users, 1);
+-	C(head);
+-	C(data);
+-	C(tail);
+-	C(end);
++	n->head = skb->head;
++	n->data = skb->data;
++	n->tail = skb->tail;
++	n->end = skb->end;
+ 
+ 	atomic_inc(&(skb_shinfo(skb)->dataref));
+ 	skb->cloned = 1;
+ 
+ 	return n;
+-#undef C
+ }
+ 
+ /**
 
 
 --
