@@ -1,15 +1,15 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03Hd2wf013035
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 12:39:02 -0500
-Received: from g4t0014.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m03Hcv61023824
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 17:38:57 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03HdGEd013111
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 12:39:16 -0500
+Received: from g4t0014.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m03HdFjV029967
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 17:39:15 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v10 11/20] SELinux: Add a network node caching mechanism
-	similar to the sel_netif_*() functions
+Subject: [RFC PATCH v10 14/20] SELinux: Better integration between peer
+	labeling subsystems
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Thu, 03 Jan 2008 12:38:50 -0500
-Message-ID: <20080103173850.15387.97139.stgit@flek.americas.hpqcorp.net>
+Date: Thu, 03 Jan 2008 12:39:09 -0500
+Message-ID: <20080103173909.15387.52262.stgit@flek.americas.hpqcorp.net>
 In-Reply-To: <20080103173225.15387.60940.stgit@flek.americas.hpqcorp.net>
 References: <20080103173225.15387.60940.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
@@ -17,594 +17,572 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds a SELinux IP address/node SID caching mechanism similar to the
-sel_netif_*() functions.  The node SID queries in the SELinux hooks files are
-also modified to take advantage of this new functionality.  In addition, remove
-the address length information from the sk_buff parsing routines as it is
-redundant since we already have the address family.
+Rework the handling of network peer labels so that the different peer labeling
+subsystems work better together.  This includes moving both subsystems to a
+single "peer" object class which involves not only changes to the permission
+checks but an improved method of consolidating multiple packet peer labels.
+As part of this work the inbound packet permission check code has been heavily
+modified to handle both the old and new behavior in as sane a fashion as
+possible.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
 
- security/selinux/Makefile          |    9 +
- security/selinux/hooks.c           |   33 ++-
- security/selinux/include/netnode.h |   32 +++
- security/selinux/include/objsec.h  |    9 +
- security/selinux/netnode.c         |  350 ++++++++++++++++++++++++++++++++++++
- 5 files changed, 416 insertions(+), 17 deletions(-)
+ security/selinux/hooks.c            |  204 +++++++++++++++++++----------------
+ security/selinux/include/netlabel.h |    3 +
+ security/selinux/include/objsec.h   |    2 
+ security/selinux/include/security.h |    4 +
+ security/selinux/netlabel.c         |   10 +-
+ security/selinux/ss/services.c      |   85 +++++++++++++++
+ 6 files changed, 208 insertions(+), 100 deletions(-)
 
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index dc3502e..00afd85 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -4,7 +4,14 @@
- 
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
- 
--selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o exports.o
-+selinux-y := avc.o \
-+	     hooks.o \
-+	     selinuxfs.o \
-+	     netlink.o \
-+	     nlmsgtab.o \
-+	     netif.o \
-+	     netnode.o \
-+	     exports.o
- 
- selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
- 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b451b4c..4250642 100644
+index 4250642..c156f6c 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -76,6 +76,7 @@
- #include "avc.h"
- #include "objsec.h"
- #include "netif.h"
-+#include "netnode.h"
- #include "xfrm.h"
- #include "netlabel.h"
- 
-@@ -3158,7 +3159,7 @@ out:
- #endif /* IPV6 */
- 
- static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
--			     char **addrp, int *len, int src, u8 *proto)
-+			     char **addrp, int src, u8 *proto)
- {
- 	int ret = 0;
- 
-@@ -3167,7 +3168,6 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
- 		ret = selinux_parse_skb_ipv4(skb, ad, proto);
- 		if (ret || !addrp)
- 			break;
--		*len = 4;
- 		*addrp = (char *)(src ? &ad->u.net.v4info.saddr :
- 					&ad->u.net.v4info.daddr);
- 		break;
-@@ -3177,7 +3177,6 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
- 		ret = selinux_parse_skb_ipv6(skb, ad, proto);
- 		if (ret || !addrp)
- 			break;
--		*len = 16;
- 		*addrp = (char *)(src ? &ad->u.net.v6info.saddr :
- 					&ad->u.net.v6info.daddr);
- 		break;
-@@ -3377,7 +3376,7 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
- 			break;
- 		}
- 		
--		err = security_node_sid(family, addrp, addrlen, &sid);
-+		err = sel_netnode_sid(addrp, family, &sid);
- 		if (err)
- 			goto out;
- 		
-@@ -3589,7 +3588,8 @@ static int selinux_socket_unix_may_send(struct socket *sock,
+@@ -50,6 +50,7 @@
+ #include <net/icmp.h>
+ #include <net/ip.h>		/* for local_port_range[] */
+ #include <net/tcp.h>		/* struct or_callable used in sock_rcv_skb */
++#include <net/net_namespace.h>
+ #include <asm/uaccess.h>
+ #include <asm/ioctls.h>
+ #include <linux/bitops.h>
+@@ -3189,36 +3190,39 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
  }
  
- static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
--		struct avc_audit_data *ad, u16 family, char *addrp, int len)
+ /**
+- * selinux_skb_extlbl_sid - Determine the external label of a packet
++ * selinux_skb_peerlbl_sid - Determine the peer label of a packet
+  * @skb: the packet
+  * @family: protocol family
+- * @sid: the packet's SID
++ * @sid: the packet's peer label SID
+  *
+  * Description:
+- * Check the various different forms of external packet labeling and determine
+- * the external SID for the packet.  If only one form of external labeling is
+- * present then it is used, if both labeled IPsec and NetLabel labels are
+- * present then the SELinux type information is taken from the labeled IPsec
+- * SA and the MLS sensitivity label information is taken from the NetLabel
+- * security attributes.  This bit of "magic" is done in the call to
+- * selinux_netlbl_skbuff_getsid().
++ * Check the various different forms of network peer labeling and determine
++ * the peer label/SID for the packet; most of the magic actually occurs in
++ * the security server function security_net_peersid_cmp().  The function
++ * returns zero if the value in @sid is valid (although it may be SECSID_NULL)
++ * or -EACCES if @sid is invalid due to inconsistencies with the different
++ * peer labels.
+  *
+  */
+-static void selinux_skb_extlbl_sid(struct sk_buff *skb,
+-				   u16 family,
+-				   u32 *sid)
++static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
+ {
+ 	u32 xfrm_sid;
+ 	u32 nlbl_sid;
++	u32 nlbl_type;
+ 
+ 	selinux_skb_xfrm_sid(skb, &xfrm_sid);
+-	if (selinux_netlbl_skbuff_getsid(skb,
+-					 family,
+-					 (xfrm_sid == SECSID_NULL ?
+-					  SECINITSID_NETMSG : xfrm_sid),
+-					 &nlbl_sid) != 0)
+-		nlbl_sid = SECSID_NULL;
+-	*sid = (nlbl_sid == SECSID_NULL ? xfrm_sid : nlbl_sid);
++	selinux_netlbl_skbuff_getsid(skb,
++				     family,
++				     SECINITSID_NETMSG,
++				     &nlbl_type,
++				     &nlbl_sid);
++
++	if (security_net_peersid_resolve(nlbl_sid, nlbl_type,
++					 xfrm_sid,
++					 sid) != 0)
++		return -EACCES;
++
++	return 0;
+ }
+ 
+ /* socket security operations */
+@@ -3284,6 +3288,7 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ 	if (sock->sk) {
+ 		sksec = sock->sk->sk_security;
+ 		sksec->sid = isec->sid;
++		sksec->sclass = isec->sclass;
+ 		err = selinux_netlbl_socket_post_create(sock);
+ 	}
+ 
+@@ -3587,104 +3592,114 @@ static int selinux_socket_unix_may_send(struct socket *sock,
+ 	return 0;
+ }
+ 
+-static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+-				       struct avc_audit_data *ad,
+-				       u16 family, char *addrp)
++static int selinux_sock_rcv_skb_iptables_compat(struct sock *sk,
++						struct sk_buff *skb,
++						struct avc_audit_data *ad,
++						u16 family,
++						char *addrp)
+ {
+-	int err = 0;
+-	u32 netif_perm, node_perm, node_sid, if_sid, recv_perm = 0;
+-	struct socket *sock;
+-	u16 sock_class = 0;
+-	u32 sock_sid = 0;
+-
+- 	read_lock_bh(&sk->sk_callback_lock);
+- 	sock = sk->sk_socket;
+- 	if (sock) {
+- 		struct inode *inode;
+- 		inode = SOCK_INODE(sock);
+- 		if (inode) {
+- 			struct inode_security_struct *isec;
+- 			isec = inode->i_security;
+- 			sock_sid = isec->sid;
+- 			sock_class = isec->sclass;
+- 		}
+- 	}
+- 	read_unlock_bh(&sk->sk_callback_lock);
+- 	if (!sock_sid)
+-  		goto out;
+-
+-	if (!skb->dev)
+-		goto out;
++	int err;
++	struct sk_security_struct *sksec = sk->sk_security;
++	u16 sk_class;
++	u32 netif_perm, node_perm, recv_perm;
++	u32 port_sid, node_sid, if_sid, sk_sid;
+ 
+-	err = sel_netif_sid(skb->iif, &if_sid);
+-	if (err)
+-		goto out;
++	sk_sid = sksec->sid;
++	sk_class = sksec->sclass;
+ 
+-	switch (sock_class) {
++	switch (sk_class) {
+ 	case SECCLASS_UDP_SOCKET:
+ 		netif_perm = NETIF__UDP_RECV;
+ 		node_perm = NODE__UDP_RECV;
+ 		recv_perm = UDP_SOCKET__RECV_MSG;
+ 		break;
+-	
+ 	case SECCLASS_TCP_SOCKET:
+ 		netif_perm = NETIF__TCP_RECV;
+ 		node_perm = NODE__TCP_RECV;
+ 		recv_perm = TCP_SOCKET__RECV_MSG;
+ 		break;
+-
+ 	case SECCLASS_DCCP_SOCKET:
+ 		netif_perm = NETIF__DCCP_RECV;
+ 		node_perm = NODE__DCCP_RECV;
+ 		recv_perm = DCCP_SOCKET__RECV_MSG;
+ 		break;
+-
+ 	default:
+ 		netif_perm = NETIF__RAWIP_RECV;
+ 		node_perm = NODE__RAWIP_RECV;
++		recv_perm = 0;
+ 		break;
+ 	}
+ 
+-	err = avc_has_perm(sock_sid, if_sid, SECCLASS_NETIF, netif_perm, ad);
++	err = sel_netif_sid(skb->iif, &if_sid);
+ 	if (err)
+-		goto out;
++		return err;
++	err = avc_has_perm(sk_sid, if_sid, SECCLASS_NETIF, netif_perm, ad);
++	if (err)
++		return err;
+ 	
+ 	err = sel_netnode_sid(addrp, family, &node_sid);
+ 	if (err)
+-		goto out;
+-	
+-	err = avc_has_perm(sock_sid, node_sid, SECCLASS_NODE, node_perm, ad);
++		return err;
++	err = avc_has_perm(sk_sid, node_sid, SECCLASS_NODE, node_perm, ad);
+ 	if (err)
+-		goto out;
++		return err;
+ 
+-	if (recv_perm) {
+-		u32 port_sid;
++	if (!recv_perm)
++		return 0;
++	err = security_port_sid(sk->sk_family, sk->sk_type,
++				sk->sk_protocol, ntohs(ad->u.net.sport),
++				&port_sid);
++	if (err)
++		return err;
++	return avc_has_perm(sk_sid, port_sid, sk_class, recv_perm, ad);
++}
+ 
+-		err = security_port_sid(sk->sk_family, sk->sk_type,
+-		                        sk->sk_protocol, ntohs(ad->u.net.sport),
+-		                        &port_sid);
+-		if (err)
+-			goto out;
++static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
 +				       struct avc_audit_data *ad,
 +				       u16 family, char *addrp)
- {
- 	int err = 0;
- 	u32 netif_perm, node_perm, node_sid, if_sid, recv_perm = 0;
-@@ -3649,7 +3649,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
- 	if (err)
- 		goto out;
- 	
--	err = security_node_sid(family, addrp, len, &node_sid);
-+	err = sel_netnode_sid(addrp, family, &node_sid);
- 	if (err)
- 		goto out;
- 	
-@@ -3678,7 +3678,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- {
- 	u16 family;
- 	char *addrp;
--	int len, err = 0;
-+	int err = 0;
- 	struct avc_audit_data ad;
- 	struct sk_security_struct *sksec = sk->sk_security;
++{
++	int err;
++	struct sk_security_struct *sksec = sk->sk_security;
++	u32 peer_sid;
++	u32 sk_sid = sksec->sid;
++
++	if (selinux_compat_net)
++		err = selinux_sock_rcv_skb_iptables_compat(sk, skb, ad,
++							   family, addrp);
++	else
++		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
++				   PACKET__RECV, ad);
++	if (err)
++		return err;
  
-@@ -3694,13 +3694,12 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+-		err = avc_has_perm(sock_sid, port_sid,
+-				   sock_class, recv_perm, ad);
++	if (selinux_policycap_netpeer) {
++		err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
++		if (err)
++			return err;
++		err = avc_has_perm(sk_sid, peer_sid,
++				   SECCLASS_PEER, PEER__RECV, ad);
++	} else {
++		err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, ad);
++		if (err)
++			return err;
++		err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, ad);
+ 	}
+ 
+-out:
+ 	return err;
+ }
+ 
+ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ {
+-	u16 family;
+-	char *addrp;
+-	int err = 0;
+-	struct avc_audit_data ad;
++	int err;
+ 	struct sk_security_struct *sksec = sk->sk_security;
++	u16 family = sk->sk_family;
++	u32 sk_sid = sksec->sid;
++	u32 peer_sid;
++	struct avc_audit_data ad;
++	char *addrp;
+ 
+-	family = sk->sk_family;
+ 	if (family != PF_INET && family != PF_INET6)
+-		goto out;
++		return 0;
+ 
+ 	/* Handle mapped IPv4 packets arriving via IPv6 sockets */
+ 	if (family == PF_INET6 && skb->protocol == htons(ETH_P_IP))
+@@ -3693,26 +3708,27 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	AVC_AUDIT_DATA_INIT(&ad, NET);
  	ad.u.net.netif = skb->iif;
  	ad.u.net.family = family;
- 
--	err = selinux_parse_skb(skb, &ad, &addrp, &len, 1, NULL);
-+	err = selinux_parse_skb(skb, &ad, &addrp, 1, NULL);
+-
+ 	err = selinux_parse_skb(skb, &ad, &addrp, 1, NULL);
  	if (err)
- 		goto out;
+-		goto out;
++		return err;
  
- 	if (selinux_compat_net)
--		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family,
--						  addrp, len);
-+		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family, addrp);
- 	else
- 		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
- 				   PACKET__RECV, &ad);
-@@ -3921,9 +3920,11 @@ out:
+-	if (selinux_compat_net)
+-		err = selinux_sock_rcv_skb_compat(sk, skb, &ad, family, addrp);
+-	else
+-		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
+-				   PACKET__RECV, &ad);
+-	if (err)
+-		goto out;
++	/* If any sort of compatibility mode is enabled then handoff processing
++	 * to the selinux_sock_rcv_skb_compat() function to deal with the
++	 * special handling.  We do this in an attempt to keep this function
++	 * as fast and as clean as possible. */
++	if (selinux_compat_net || !selinux_policycap_netpeer)
++		return selinux_sock_rcv_skb_compat(sk, skb, &ad,
++						   family, addrp);
  
- #ifdef CONFIG_NETFILTER
+-	err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, &ad);
++	err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
++			   PACKET__RECV, &ad);
+ 	if (err)
+-		goto out;
++		return err;
  
--static int selinux_ip_postroute_last_compat(struct sock *sk, struct net_device *dev,
-+static int selinux_ip_postroute_last_compat(struct sock *sk,
-+					    struct net_device *dev,
- 					    struct avc_audit_data *ad,
--					    u16 family, char *addrp, int len)
-+					    u16 family,
-+					    char *addrp)
+-	err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, &ad);
+-out:	
+-	return err;
++	err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
++	if (err)
++		return err;
++	return avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER, PEER__RECV, &ad);
+ }
+ 
+ static int selinux_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+@@ -3774,7 +3790,7 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
+ 	if (sock && family == PF_UNIX)
+ 		selinux_get_inode_sid(SOCK_INODE(sock), &peer_secid);
+ 	else if (skb)
+-		selinux_skb_extlbl_sid(skb, family, &peer_secid);
++		selinux_skb_peerlbl_sid(skb, family, &peer_secid);
+ 
+ out:
+ 	*secid = peer_secid;
+@@ -3800,6 +3816,7 @@ static void selinux_sk_clone_security(const struct sock *sk, struct sock *newsk)
+ 
+ 	newssec->sid = ssec->sid;
+ 	newssec->peer_sid = ssec->peer_sid;
++	newssec->sclass = ssec->sclass;
+ 
+ 	selinux_netlbl_sk_security_clone(ssec, newssec);
+ }
+@@ -3823,6 +3840,7 @@ static void selinux_sock_graft(struct sock* sk, struct socket *parent)
+ 	if (sk->sk_family == PF_INET || sk->sk_family == PF_INET6 ||
+ 	    sk->sk_family == PF_UNIX)
+ 		isec->sid = sksec->sid;
++	sksec->sclass = isec->sclass;
+ 
+ 	selinux_netlbl_sock_graft(sk, parent);
+ }
+@@ -3835,7 +3853,9 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ 	u32 newsid;
+ 	u32 peersid;
+ 
+-	selinux_skb_extlbl_sid(skb, sk->sk_family, &peersid);
++	err = selinux_skb_peerlbl_sid(skb, sk->sk_family, &peersid);
++	if (err)
++		return err;
+ 	if (peersid == SECSID_NULL) {
+ 		req->secid = sksec->sid;
+ 		req->peer_secid = SECSID_NULL;
+@@ -3873,7 +3893,7 @@ static void selinux_inet_conn_established(struct sock *sk,
  {
- 	int err = 0;
- 	u32 netif_perm, node_perm, node_sid, if_sid, send_perm = 0;
-@@ -3974,7 +3975,7 @@ static int selinux_ip_postroute_last_compat(struct sock *sk, struct net_device *
- 	if (err)
- 		goto out;
- 		
--	err = security_node_sid(family, addrp, len, &node_sid);
-+	err = sel_netnode_sid(addrp, family, &node_sid);
- 	if (err)
- 		goto out;
- 	
-@@ -4008,7 +4009,7 @@ static unsigned int selinux_ip_postroute_last(unsigned int hooknum,
-                                               u16 family)
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+-	selinux_skb_extlbl_sid(skb, sk->sk_family, &sksec->peer_sid);
++	selinux_skb_peerlbl_sid(skb, sk->sk_family, &sksec->peer_sid);
+ }
+ 
+ static void selinux_req_classify_flow(const struct request_sock *req,
+diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+index 272769a..c8c05a6 100644
+--- a/security/selinux/include/netlabel.h
++++ b/security/selinux/include/netlabel.h
+@@ -49,6 +49,7 @@ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+ int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
+ 				 u16 family,
+ 				 u32 base_sid,
++				 u32 *type,
+ 				 u32 *sid);
+ 
+ void selinux_netlbl_sock_graft(struct sock *sk, struct socket *sock);
+@@ -89,8 +90,10 @@ static inline void selinux_netlbl_sk_security_clone(
+ static inline int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
+ 					       u16 family,
+ 					       u32 base_sid,
++					       u32 *type,
+ 					       u32 *sid)
  {
- 	char *addrp;
--	int len, err = 0;
-+	int err = 0;
- 	struct sock *sk;
- 	struct avc_audit_data ad;
- 	struct net_device *dev = (struct net_device *)out;
-@@ -4025,13 +4026,13 @@ static unsigned int selinux_ip_postroute_last(unsigned int hooknum,
- 	ad.u.net.netif = dev->ifindex;
- 	ad.u.net.family = family;
- 
--	err = selinux_parse_skb(skb, &ad, &addrp, &len, 0, &proto);
-+	err = selinux_parse_skb(skb, &ad, &addrp, 0, &proto);
- 	if (err)
- 		goto out;
- 
- 	if (selinux_compat_net)
- 		err = selinux_ip_postroute_last_compat(sk, dev, &ad,
--						       family, addrp, len);
-+						       family, addrp);
- 	else
- 		err = avc_has_perm(sksec->sid, skb->secmark, SECCLASS_PACKET,
- 				   PACKET__SEND, &ad);
-diff --git a/security/selinux/include/netnode.h b/security/selinux/include/netnode.h
-new file mode 100644
-index 0000000..1b94450
---- /dev/null
-+++ b/security/selinux/include/netnode.h
-@@ -0,0 +1,32 @@
-+/*
-+ * Network node table
-+ *
-+ * SELinux must keep a mapping of network nodes to labels/SIDs.  This
-+ * mapping is maintained as part of the normal policy but a fast cache is
-+ * needed to reduce the lookup overhead since most of these queries happen on
-+ * a per-packet basis.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ */
-+
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2007
-+ *
-+ * This program is free software: you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#ifndef _SELINUX_NETNODE_H
-+#define _SELINUX_NETNODE_H
-+
-+int sel_netnode_sid(void *addr, u16 family, u32 *sid);
-+
-+#endif
++	*type = NETLBL_NLTYPE_NONE;
+ 	*sid = SECSID_NULL;
+ 	return 0;
+ }
 diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index e41a2aa..6140734 100644
+index 6140734..1114629 100644
 --- a/security/selinux/include/objsec.h
 +++ b/security/selinux/include/objsec.h
-@@ -99,6 +99,15 @@ struct netif_security_struct {
- 	u32 sid;			/* SID for this interface */
- };
- 
-+struct netnode_security_struct {
-+	union {
-+		__be32 ipv4;		/* IPv4 node address */
-+		struct in6_addr ipv6;	/* IPv6 node address */
-+	} addr;
-+	u32 sid;			/* SID for this node */
-+	u16 family;			/* address family */
-+};
-+
- struct sk_security_struct {
+@@ -112,8 +112,8 @@ struct sk_security_struct {
  	struct sock *sk;		/* back pointer to sk object */
  	u32 sid;			/* SID of this object */
-diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-new file mode 100644
-index 0000000..49c5277
---- /dev/null
-+++ b/security/selinux/netnode.c
-@@ -0,0 +1,350 @@
-+/*
-+ * Network node table
-+ *
-+ * SELinux must keep a mapping of network nodes to labels/SIDs.  This
-+ * mapping is maintained as part of the normal policy but a fast cache is
-+ * needed to reduce the lookup overhead since most of these queries happen on
-+ * a per-packet basis.
-+ *
-+ * Author: Paul Moore <paul.moore@hp.com>
-+ *
-+ * This code is heavily based on the "netif" concept originally developed by
-+ * James Morris <jmorris@redhat.com>
-+ *   (see security/selinux/netif.c for more information)
-+ *
-+ */
+ 	u32 peer_sid;			/* SID of peer */
+-#ifdef CONFIG_NETLABEL
+ 	u16 sclass;			/* sock security class */
++#ifdef CONFIG_NETLABEL
+ 	enum {				/* NetLabel state */
+ 		NLBL_UNSET = 0,
+ 		NLBL_REQUIRE,
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index a22de97..9347e2d 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -99,6 +99,10 @@ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+ 
+ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+ 
++int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
++				 u32 xfrm_sid,
++				 u32 *peer_sid);
 +
-+/*
-+ * (c) Copyright Hewlett-Packard Development Company, L.P., 2007
-+ *
-+ * This program is free software: you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/rcupdate.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include <linux/in.h>
-+#include <linux/in6.h>
-+#include <linux/ip.h>
-+#include <linux/ipv6.h>
-+#include <net/ip.h>
-+#include <net/ipv6.h>
-+#include <asm/bug.h>
-+
-+#include "objsec.h"
-+
-+#define SEL_NETNODE_HASH_SIZE       256
-+#define SEL_NETNODE_HASH_BKT_LIMIT   16
-+
-+struct sel_netnode {
-+	struct netnode_security_struct nsec;
-+
-+	struct list_head list;
-+	struct rcu_head rcu;
-+};
-+
-+/* NOTE: we are using a combined hash table for both IPv4 and IPv6, the reason
-+ * for this is that I suspect most users will not make heavy use of both
-+ * address families at the same time so one table will usually end up wasted,
-+ * if this becomes a problem we can always add a hash table for each address
-+ * family later */
-+
-+static LIST_HEAD(sel_netnode_list);
-+static DEFINE_SPINLOCK(sel_netnode_lock);
-+static struct list_head sel_netnode_hash[SEL_NETNODE_HASH_SIZE];
-+
+ int security_get_classes(char ***classes, int *nclasses);
+ int security_get_permissions(char *class, char ***perms, int *nperms);
+ int security_get_reject_unknown(void);
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 4073d5a..af78cb9 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -134,7 +134,6 @@ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+ 	 * lock as other threads could have access to ssec */
+ 	rcu_read_lock();
+ 	selinux_netlbl_sk_security_reset(newssec, ssec->sk->sk_family);
+-	newssec->sclass = ssec->sclass;
+ 	rcu_read_unlock();
+ }
+ 
+@@ -143,6 +142,7 @@ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+  * @skb: the packet
+  * @family: protocol family
+  * @base_sid: the SELinux SID to use as a context for MLS only attributes
++ * @type: NetLabel labeling protocol type
+  * @sid: the SID
+  *
+  * Description:
+@@ -154,6 +154,7 @@ void selinux_netlbl_sk_security_clone(struct sk_security_struct *ssec,
+ int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
+ 				 u16 family,
+ 				 u32 base_sid,
++				 u32 *type,
+ 				 u32 *sid)
+ {
+ 	int rc;
+@@ -174,6 +175,7 @@ int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
+ 			netlbl_cache_add(skb, &secattr);
+ 	} else
+ 		*sid = SECSID_NULL;
++	*type = secattr.type;
+ 	netlbl_secattr_destroy(&secattr);
+ 
+ 	return rc;
+@@ -191,13 +193,10 @@ int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
+  */
+ void selinux_netlbl_sock_graft(struct sock *sk, struct socket *sock)
+ {
+-	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 	struct netlbl_lsm_secattr secattr;
+ 	u32 nlbl_peer_sid;
+ 
+-	sksec->sclass = isec->sclass;
+-
+ 	rcu_read_lock();
+ 
+ 	if (sksec->nlbl_state != NLBL_REQUIRE) {
+@@ -235,11 +234,8 @@ int selinux_netlbl_socket_post_create(struct socket *sock)
+ {
+ 	int rc = 0;
+ 	struct sock *sk = sock->sk;
+-	struct inode_security_struct *isec = SOCK_INODE(sock)->i_security;
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+-	sksec->sclass = isec->sclass;
+-
+ 	rcu_read_lock();
+ 	if (sksec->nlbl_state == NLBL_REQUIRE)
+ 		rc = selinux_netlbl_sock_setsid(sk, sksec->sid);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 1e78786..3f2af1c 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2051,6 +2051,91 @@ out:
+ 	return rc;
+ }
+ 
 +/**
-+ * sel_netnode_free - Frees a node entry
-+ * @p: the entry's RCU field
++ * security_net_peersid_resolve - Compare and resolve two network peer SIDs
++ * @nlbl_sid: NetLabel SID
++ * @nlbl_type: NetLabel labeling protocol type
++ * @xfrm_sid: XFRM SID
 + *
 + * Description:
-+ * This function is designed to be used as a callback to the call_rcu()
-+ * function so that memory allocated to a hash table node entry can be
-+ * released safely.
++ * Compare the @nlbl_sid and @xfrm_sid values and if the two SIDs can be
++ * resolved into a single SID it is returned via @peer_sid and the function
++ * returns zero.  Otherwise @peer_sid is set to SECSID_NULL and the function
++ * returns a negative value.  A table summarizing the behavior is below:
++ *
++ *                                 | function return |      @sid
++ *   ------------------------------+-----------------+-----------------
++ *   no peer labels                |        0        |    SECSID_NULL
++ *   single peer label             |        0        |    <peer_label>
++ *   multiple, consistent labels   |        0        |    <peer_label>
++ *   multiple, inconsistent labels |    -<errno>     |    SECSID_NULL
 + *
 + */
-+static void sel_netnode_free(struct rcu_head *p)
++int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
++				 u32 xfrm_sid,
++				 u32 *peer_sid)
 +{
-+	struct sel_netnode *node = container_of(p, struct sel_netnode, rcu);
-+	kfree(node);
-+}
++	int rc;
++	struct context *nlbl_ctx;
++	struct context *xfrm_ctx;
 +
-+/**
-+ * sel_netnode_hashfn_ipv4 - IPv4 hashing function for the node table
-+ * @addr: IPv4 address
-+ *
-+ * Description:
-+ * This is the IPv4 hashing function for the node interface table, it returns
-+ * the bucket number for the given IP address.
-+ *
-+ */
-+static u32 sel_netnode_hashfn_ipv4(__be32 addr)
-+{
-+	/* at some point we should determine if the mismatch in byte order
-+	 * affects the hash function dramatically */
-+	return (addr & (SEL_NETNODE_HASH_SIZE - 1));
-+}
-+
-+/**
-+ * sel_netnode_hashfn_ipv6 - IPv6 hashing function for the node table
-+ * @addr: IPv6 address
-+ *
-+ * Description:
-+ * This is the IPv6 hashing function for the node interface table, it returns
-+ * the bucket number for the given IP address.
-+ *
-+ */
-+static u32 sel_netnode_hashfn_ipv6(const struct in6_addr *addr)
-+{
-+	/* just hash the least significant 32 bits to keep things fast (they
-+	 * are the most likely to be different anyway), we can revisit this
-+	 * later if needed */
-+	return (addr->s6_addr32[3] & (SEL_NETNODE_HASH_SIZE - 1));
-+}
-+
-+/**
-+ * sel_netnode_find - Search for a node record
-+ * @addr: IP address
-+ * @family: address family
-+ *
-+ * Description:
-+ * Search the network node table and return the record matching @addr.  If an
-+ * entry can not be found in the table return NULL.
-+ *
-+ */
-+static struct sel_netnode *sel_netnode_find(const void *addr, u16 family)
-+{
-+	u32 idx;
-+	struct sel_netnode *node;
-+
-+	switch (family) {
-+	case PF_INET:
-+		idx = sel_netnode_hashfn_ipv4(*(__be32 *)addr);
-+		break;
-+	case PF_INET6:
-+		idx = sel_netnode_hashfn_ipv6(addr);
-+		break;
-+	default:
-+		BUG();
-+	}
-+
-+	list_for_each_entry_rcu(node, &sel_netnode_hash[idx], list)
-+		if (node->nsec.family == family)
-+			switch (family) {
-+			case PF_INET:
-+				if (node->nsec.addr.ipv4 == *(__be32 *)addr)
-+					return node;
-+				break;
-+			case PF_INET6:
-+				if (ipv6_addr_equal(&node->nsec.addr.ipv6,
-+						    addr))
-+					return node;
-+				break;
-+			}
-+
-+	return NULL;
-+}
-+
-+/**
-+ * sel_netnode_insert - Insert a new node into the table
-+ * @node: the new node record
-+ *
-+ * Description:
-+ * Add a new node record to the network address hash table.  Returns zero on
-+ * success, negative values on failure.
-+ *
-+ */
-+static int sel_netnode_insert(struct sel_netnode *node)
-+{
-+	u32 idx;
-+	u32 count = 0;
-+	struct sel_netnode *iter;
-+
-+	switch (node->nsec.family) {
-+	case PF_INET:
-+		idx = sel_netnode_hashfn_ipv4(node->nsec.addr.ipv4);
-+		break;
-+	case PF_INET6:
-+		idx = sel_netnode_hashfn_ipv6(&node->nsec.addr.ipv6);
-+		break;
-+	default:
-+		BUG();
-+	}
-+	list_add_rcu(&node->list, &sel_netnode_hash[idx]);
-+
-+	/* we need to impose a limit on the growth of the hash table so check
-+	 * this bucket to make sure it is within the specified bounds */
-+	list_for_each_entry(iter, &sel_netnode_hash[idx], list)
-+		if (++count > SEL_NETNODE_HASH_BKT_LIMIT) {
-+			list_del_rcu(&iter->list);
-+			call_rcu(&iter->rcu, sel_netnode_free);
-+			break;
-+		}
-+
-+	return 0;
-+}
-+
-+/**
-+ * sel_netnode_destroy - Remove a node record from the table
-+ * @node: the existing node record
-+ *
-+ * Description:
-+ * Remove an existing node record from the network address table.
-+ *
-+ */
-+static void sel_netnode_destroy(struct sel_netnode *node)
-+{
-+	list_del_rcu(&node->list);
-+	call_rcu(&node->rcu, sel_netnode_free);
-+}
-+
-+/**
-+ * sel_netnode_sid_slow - Lookup the SID of a network address using the policy
-+ * @addr: the IP address
-+ * @family: the address family
-+ * @sid: node SID
-+ *
-+ * Description:
-+ * This function determines the SID of a network address by quering the
-+ * security policy.  The result is added to the network address table to
-+ * speedup future queries.  Returns zero on success, negative values on
-+ * failure.
-+ *
-+ */
-+static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
-+{
-+	int ret;
-+	struct sel_netnode *node;
-+	struct sel_netnode *new = NULL;
-+
-+	spin_lock_bh(&sel_netnode_lock);
-+	node = sel_netnode_find(addr, family);
-+	if (node != NULL) {
-+		*sid = node->nsec.sid;
-+		ret = 0;
-+		goto out;
-+	}
-+	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-+	if (new == NULL) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	switch (family) {
-+	case PF_INET:
-+		ret = security_node_sid(PF_INET,
-+					addr, sizeof(struct in_addr),
-+					&new->nsec.sid);
-+		new->nsec.addr.ipv4 = *(__be32 *)addr;
-+		break;
-+	case PF_INET6:
-+		ret = security_node_sid(PF_INET6,
-+					addr, sizeof(struct in6_addr),
-+					&new->nsec.sid);
-+		ipv6_addr_copy(&new->nsec.addr.ipv6, addr);
-+		break;
-+	default:
-+		BUG();
-+	}
-+	if (ret != 0)
-+		goto out;
-+	new->nsec.family = family;
-+	ret = sel_netnode_insert(new);
-+	if (ret != 0)
-+		goto out;
-+	*sid = new->nsec.sid;
-+
-+out:
-+	spin_unlock_bh(&sel_netnode_lock);
-+	if (ret != 0)
-+		kfree(new);
-+	return ret;
-+}
-+
-+/**
-+ * sel_netnode_sid - Lookup the SID of a network address
-+ * @addr: the IP address
-+ * @family: the address family
-+ * @sid: node SID
-+ *
-+ * Description:
-+ * This function determines the SID of a network address using the fastest
-+ * method possible.  First the address table is queried, but if an entry
-+ * can't be found then the policy is queried and the result is added to the
-+ * table to speedup future queries.  Returns zero on success, negative values
-+ * on failure.
-+ *
-+ */
-+int sel_netnode_sid(void *addr, u16 family, u32 *sid)
-+{
-+	struct sel_netnode *node;
-+
-+	rcu_read_lock();
-+	node = sel_netnode_find(addr, family);
-+	if (node != NULL) {
-+		*sid = node->nsec.sid;
-+		rcu_read_unlock();
++	/* handle the common (which also happens to be the set of easy) cases
++	 * right away, these two if statements catch everything involving a
++	 * single or absent peer SID/label */
++	if (xfrm_sid == SECSID_NULL) {
++		*peer_sid = nlbl_sid;
 +		return 0;
 +	}
-+	rcu_read_unlock();
-+
-+	return sel_netnode_sid_slow(addr, family, sid);
-+}
-+
-+/**
-+ * sel_netnode_flush - Flush the entire network address table
-+ *
-+ * Description:
-+ * Remove all entries from the network address table.
-+ *
-+ */
-+static void sel_netnode_flush(void)
-+{
-+	u32 idx;
-+	struct sel_netnode *node;
-+
-+	spin_lock_bh(&sel_netnode_lock);
-+	for (idx = 0; idx < SEL_NETNODE_HASH_SIZE; idx++)
-+		list_for_each_entry(node, &sel_netnode_hash[idx], list)
-+			sel_netnode_destroy(node);
-+	spin_unlock_bh(&sel_netnode_lock);
-+}
-+
-+static int sel_netnode_avc_callback(u32 event, u32 ssid, u32 tsid,
-+				    u16 class, u32 perms, u32 *retained)
-+{
-+	if (event == AVC_CALLBACK_RESET) {
-+		sel_netnode_flush();
-+		synchronize_net();
-+	}
-+	return 0;
-+}
-+
-+static __init int sel_netnode_init(void)
-+{
-+	int iter;
-+	int ret;
-+
-+	if (!selinux_enabled)
++	/* NOTE: an nlbl_type == NETLBL_NLTYPE_UNLABELED is a "fallback" label
++	 * and is treated as if nlbl_sid == SECSID_NULL when a XFRM SID/label
++	 * is present */
++	if (nlbl_sid == SECSID_NULL || nlbl_type == NETLBL_NLTYPE_UNLABELED) {
++		*peer_sid = xfrm_sid;
 +		return 0;
++	}
 +
-+	for (iter = 0; iter < SEL_NETNODE_HASH_SIZE; iter++)
-+		INIT_LIST_HEAD(&sel_netnode_hash[iter]);
++	/* we don't need to check ss_initialized here since the only way both
++	 * nlbl_sid and xfrm_sid are not equal to SECSID_NULL would be if the
++	 * security server was initialized and ss_initialized was true */
++	if (!selinux_mls_enabled) {
++		*peer_sid = SECSID_NULL;
++		return 0;
++	}
 +
-+	ret = avc_add_callback(sel_netnode_avc_callback, AVC_CALLBACK_RESET,
-+	                       SECSID_NULL, SECSID_NULL, SECCLASS_NULL, 0);
-+	if (ret != 0)
-+		panic("avc_add_callback() failed, error %d\n", ret);
++	POLICY_RDLOCK;
 +
-+	return ret;
++	nlbl_ctx = sidtab_search(&sidtab, nlbl_sid);
++	if (!nlbl_ctx) {
++		printk(KERN_ERR
++		       "security_sid_mls_cmp:  unrecognized SID %d\n",
++		       nlbl_sid);
++		rc = -EINVAL;
++		goto out_slowpath;
++	}
++	xfrm_ctx = sidtab_search(&sidtab, xfrm_sid);
++	if (!xfrm_ctx) {
++		printk(KERN_ERR
++		       "security_sid_mls_cmp:  unrecognized SID %d\n",
++		       xfrm_sid);
++		rc = -EINVAL;
++		goto out_slowpath;
++	}
++	rc = (mls_context_cmp(nlbl_ctx, xfrm_ctx) ? 0 : -EACCES);
++
++out_slowpath:
++	POLICY_RDUNLOCK;
++	if (rc == 0)
++		/* at present NetLabel SIDs/labels really only carry MLS
++		 * information so if the MLS portion of the NetLabel SID
++		 * matches the MLS portion of the labeled XFRM SID/label
++		 * then pass along the XFRM SID as it is the most
++		 * expressive */
++		*peer_sid = xfrm_sid;
++	else
++		*peer_sid = SECSID_NULL;
++	return rc;
 +}
 +
-+__initcall(sel_netnode_init);
+ static int get_classes_callback(void *k, void *d, void *args)
+ {
+ 	struct class_datum *datum = d;
 
 
 --
