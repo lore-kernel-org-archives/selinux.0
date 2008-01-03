@@ -1,56 +1,36 @@
-Subject: Re: Xorg modprobe denials
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03FdbV9002446
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 10:39:37 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m03FdaAY014868
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 15:39:37 GMT
+Subject: Re: startx
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Martin Orr <martin@martinorr.name>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Chris PeBenito <pebenito@gentoo.org>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <476988ED.4070003@martinorr.name>
-References: <47673B12.6040205@tycho.nsa.gov>
-	 <1197949627.4790.4.camel@defiant.pebenito.net>
-	 <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil>
-	 <476988ED.4070003@martinorr.name>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <dd18b0c30712201349n311e41c4y99dfa8af337f6d2b@mail.gmail.com>
+References: <dd18b0c30712201349n311e41c4y99dfa8af337f6d2b@mail.gmail.com>
 Content-Type: text/plain
-Date: Thu, 03 Jan 2008 10:30:56 -0500
-Message-Id: <1199374256.12626.292.camel@gorn.columbia.tresys.com>
+Date: Thu, 03 Jan 2008 10:38:35 -0500
+Message-Id: <1199374715.12626.297.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2007-12-19 at 21:11 +0000, Martin Orr wrote:
-> On 18/12/07 13:57, Stephen Smalley wrote:
-> > On Tue, 2007-12-18 at 08:34 -0500, Stephen Smalley wrote:
-> >> On Mon, 2007-12-17 at 22:47 -0500, Chris PeBenito wrote:
-> >>> Based on the other kernel messages, I'm guessing that the insmod
-> >>> succeeded despite the tty and capability denials?  If so I suppose we
-> >>> can dontaudit it.
-> >> I don't think we want to dontaudit the capability denials.
-> > 
-> > And just to note, denials from insmod can be triggered either by
-> > userspace activity of insmod or by the module initialization code of the
-> > loaded module.
-> 
-> I find that on an SMP machine I need both the sys_nice capabability and
-> setsched on kernel_t to load modules.
-> 
-> This is because stop_machine() is called by sys_init_module(), so it makes
-> sense to me to add these to kernel_load_module().
-> 
-> Index: policy/modules/kernel/kernel.if
-> ===================================================================
-> --- policy/modules/kernel/kernel.if	(revision 2560)
-> +++ policy/modules/kernel/kernel.if	(working copy)
-> @@ -330,6 +330,9 @@
-> 
->  	allow $1 self:capability sys_module;
->  	typeattribute $1 can_load_kernmodule;
-> +
-> +	allow $1 self:capability sys_nice;
-> +	kernel_setsched($1)
->  ')
+On Thu, 2007-12-20 at 13:49 -0800, Justin Mattock wrote:
+> Hello Im a bit confused with starting the xserver with startx; the
+> system starts fine with everything set to permissive, but as soon as
+> changing to enforce mode
+> startx reacts extremly slow; with a blank screen and a curser at the
+> top left of the screen.  Do I need to set xdm_systadm_login to 1 or do
+> I need to just be patient while  the xserver starts then  add the
+> avc's to local.te 
 
-Are these rules are inherent to anything that loads a module or specific
-to insmod?  This patch only makes sense if its the former.
+Are you using strict?  If so, the X server policy isn't well tested, so
+it likely needs additional rules.  Based on your description, it sounds
+like its being denied something and patience likely won't help.  You'll
+have to handle the denials in permissive.  The above boolean only
+controls if sysadm can log in via xdm.
 
 -- 
 Chris PeBenito
