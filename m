@@ -1,122 +1,79 @@
-Message-Id: <20080103184515.454003194@tresys.com>
+Message-Id: <20080103184515.268146258@tresys.com>
 References: <20080103184331.485176161@tresys.com>
-Date: Thu, 03 Jan 2008 13:43:33 -0500
+Date: Thu, 03 Jan 2008 13:43:32 -0500
 From: tmiller@tresys.com
 To: selinux@tycho.nsa.gov
 Cc: method@madmethod.com, sds@tycho.nsa.gov
-Subject: [patch 2/7] quiet libsepol qualifier warnings
+Subject: [patch 1/7] quiet checkpolicy warnings
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix discarded const warnings in mls.c by sprinkling const in mls_level_eq,
-mls_level_dom and the ebitmap functions.
+Fix shadowed variable in dispol/dismod
+Use bison instead of yacc to avoid an unused label warning.
 
 ---
- libsepol/include/sepol/policydb/ebitmap.h   |   12 ++++++------
- libsepol/include/sepol/policydb/mls_types.h |    4 ++--
- libsepol/src/ebitmap.c                      |   12 ++++++------
- 3 files changed, 14 insertions(+), 14 deletions(-)
+ checkpolicy/Makefile      |    2 ++
+ checkpolicy/test/dismod.c |    8 ++++----
+ checkpolicy/test/dispol.c |    8 ++++----
+ 3 files changed, 10 insertions(+), 8 deletions(-)
 
-Index: trunk/libsepol/include/sepol/policydb/ebitmap.h
+Index: trunk/checkpolicy/Makefile
 ===================================================================
---- trunk.orig/libsepol/include/sepol/policydb/ebitmap.h
-+++ trunk/libsepol/include/sepol/policydb/ebitmap.h
-@@ -73,12 +73,12 @@ static inline int ebitmap_node_get_bit(e
- #define ebitmap_for_each_bit(e, n, bit) \
- 	for (bit = ebitmap_start(e, &n); bit < ebitmap_length(e); bit = ebitmap_next(&n, bit)) \
+--- trunk.orig/checkpolicy/Makefile
++++ trunk/checkpolicy/Makefile
+@@ -8,6 +8,8 @@ LIBDIR ?= $(PREFIX)/lib
+ INCLUDEDIR ?= $(PREFIX)/include
+ TARGETS = checkpolicy checkmodule
  
--extern int ebitmap_cmp(ebitmap_t * e1, ebitmap_t * e2);
--extern int ebitmap_or(ebitmap_t * dst, ebitmap_t * e1, ebitmap_t * e2);
--extern int ebitmap_union(ebitmap_t * dst, ebitmap_t * e1);
--extern int ebitmap_cpy(ebitmap_t * dst, ebitmap_t * src);
--extern int ebitmap_contains(ebitmap_t * e1, ebitmap_t * e2);
--extern int ebitmap_get_bit(ebitmap_t * e, unsigned int bit);
-+extern int ebitmap_cmp(const ebitmap_t * e1, const ebitmap_t * e2);
-+extern int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitmap_t * e2);
-+extern int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1);
-+extern int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src);
-+extern int ebitmap_contains(const ebitmap_t * e1, const ebitmap_t * e2);
-+extern int ebitmap_get_bit(const ebitmap_t * e, unsigned int bit);
- extern int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, int value);
- extern void ebitmap_destroy(ebitmap_t * e);
- extern int ebitmap_read(ebitmap_t * e, void *fp);
-Index: trunk/libsepol/include/sepol/policydb/mls_types.h
++YACC = bison -y
++
+ CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
+ 
+ override CFLAGS += -I. -I${INCLUDEDIR}
+Index: trunk/checkpolicy/test/dismod.c
 ===================================================================
---- trunk.orig/libsepol/include/sepol/policydb/mls_types.h
-+++ trunk/libsepol/include/sepol/policydb/mls_types.h
-@@ -70,12 +70,12 @@ static inline void mls_level_destroy(str
- 	mls_level_init(level);
- }
- 
--static inline int mls_level_eq(struct mls_level *l1, struct mls_level *l2)
-+static inline int mls_level_eq(const struct mls_level *l1, const struct mls_level *l2)
- {
- 	return ((l1->sens == l2->sens) && ebitmap_cmp(&l1->cat, &l2->cat));
- }
- 
--static inline int mls_level_dom(struct mls_level *l1, struct mls_level *l2)
-+static inline int mls_level_dom(const struct mls_level *l1, const struct mls_level *l2)
- {
- 	return ((l1->sens >= l2->sens) && ebitmap_contains(&l1->cat, &l2->cat));
- }
-Index: trunk/libsepol/src/ebitmap.c
-===================================================================
---- trunk.orig/libsepol/src/ebitmap.c
-+++ trunk/libsepol/src/ebitmap.c
-@@ -15,7 +15,7 @@
- #include "debug.h"
- #include "private.h"
- 
--int ebitmap_or(ebitmap_t * dst, ebitmap_t * e1, ebitmap_t * e2)
-+int ebitmap_or(ebitmap_t * dst, const ebitmap_t * e1, const ebitmap_t * e2)
- {
- 	ebitmap_node_t *n1, *n2, *new, *prev;
- 
-@@ -58,7 +58,7 @@ int ebitmap_or(ebitmap_t * dst, ebitmap_
+--- trunk.orig/checkpolicy/test/dismod.c
++++ trunk/checkpolicy/test/dismod.c
+@@ -666,13 +666,13 @@ int display_avblock(int field, uint32_t 
  	return 0;
  }
  
--int ebitmap_union(ebitmap_t * dst, ebitmap_t * e1)
-+int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1)
+-int display_handle_unknown(policydb_t * policydb, FILE * out_fp)
++int display_handle_unknown(policydb_t * p, FILE * out_fp)
  {
- 	ebitmap_t tmp;
- 
-@@ -71,7 +71,7 @@ int ebitmap_union(ebitmap_t * dst, ebitm
+-	if (policydb->handle_unknown == ALLOW_UNKNOWN)
++	if (p->handle_unknown == ALLOW_UNKNOWN)
+ 		fprintf(out_fp, "Allow unknown classes and perms\n");
+-	else if (policydb->handle_unknown == DENY_UNKNOWN)
++	else if (p->handle_unknown == DENY_UNKNOWN)
+ 		fprintf(out_fp, "Deny unknown classes and perms\n");
+-	else if (policydb->handle_unknown == REJECT_UNKNOWN)
++	else if (p->handle_unknown == REJECT_UNKNOWN)
+ 		fprintf(out_fp, "Reject unknown classes and perms\n");
  	return 0;
  }
- 
--int ebitmap_cmp(ebitmap_t * e1, ebitmap_t * e2)
-+int ebitmap_cmp(const ebitmap_t * e1, const ebitmap_t * e2)
- {
- 	ebitmap_node_t *n1, *n2;
- 
-@@ -92,7 +92,7 @@ int ebitmap_cmp(ebitmap_t * e1, ebitmap_
+Index: trunk/checkpolicy/test/dispol.c
+===================================================================
+--- trunk.orig/checkpolicy/test/dispol.c
++++ trunk/checkpolicy/test/dispol.c
+@@ -274,13 +274,13 @@ int display_cond_expressions(policydb_t 
  	return 1;
  }
  
--int ebitmap_cpy(ebitmap_t * dst, ebitmap_t * src)
-+int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src)
+-int display_handle_unknown(policydb_t * policydb, FILE * out_fp)
++int display_handle_unknown(policydb_t * p, FILE * out_fp)
  {
- 	ebitmap_node_t *n, *new, *prev;
- 
-@@ -121,7 +121,7 @@ int ebitmap_cpy(ebitmap_t * dst, ebitmap
+-	if (policydb->handle_unknown == ALLOW_UNKNOWN)
++	if (p->handle_unknown == ALLOW_UNKNOWN)
+ 		fprintf(out_fp, "Allow unknown classes and permisions\n");
+-	else if (policydb->handle_unknown == DENY_UNKNOWN)
++	else if (p->handle_unknown == DENY_UNKNOWN)
+ 		fprintf(out_fp, "Deny unknown classes and permisions\n");
+-	else if (policydb->handle_unknown == REJECT_UNKNOWN)
++	else if (p->handle_unknown == REJECT_UNKNOWN)
+ 		fprintf(out_fp, "Reject unknown classes and permisions\n");
  	return 0;
  }
- 
--int ebitmap_contains(ebitmap_t * e1, ebitmap_t * e2)
-+int ebitmap_contains(const ebitmap_t * e1, const ebitmap_t * e2)
- {
- 	ebitmap_node_t *n1, *n2;
- 
-@@ -148,7 +148,7 @@ int ebitmap_contains(ebitmap_t * e1, ebi
- 	return 1;
- }
- 
--int ebitmap_get_bit(ebitmap_t * e, unsigned int bit)
-+int ebitmap_get_bit(const ebitmap_t * e, unsigned int bit)
- {
- 	ebitmap_node_t *n;
- 
 
 -- 
 
