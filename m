@@ -1,103 +1,68 @@
-Date: Wed, 02 Jan 2008 12:11:29 -0800
-From: Glenn Faden <Glenn.Faden@sun.com>
-Subject: Re: X avcs
-In-reply-to: <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Message-id: <477BEFF1.2090507@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
- <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
- <47754FCB.1070307@tycho.nsa.gov>
- <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
- <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>
+Date: Thu, 3 Jan 2008 08:54:08 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: naveen penumala <naveenspen@gmail.com>
+Cc: subrata@linux.vnet.ibm.com, "Serge E. Hallyn" <serue@us.ibm.com>,
+        ltp-list <ltp-list@lists.sourceforge.net>,
+        SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [LTP] compilation error @ selinux tests
+Message-ID: <20080103145408.GA22593@sergelap.austin.ibm.com>
+References: <ab64ec20801020223j2d3816bcsa5b189cc1fb649ca@mail.gmail.com> <1199269629.4533.39.camel@subratamodak.linux.ibm.com> <ab64ec20801020358i2a1474ddmd667fe2344d6f08d@mail.gmail.com> <1199275642.4533.53.camel@subratamodak.linux.ibm.com> <ab64ec20801030405ie9b6525tff03d88bd8d74b20@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <ab64ec20801030405ie9b6525tff03d88bd8d74b20@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is my first posting to this alias, so let me start by introducing 
-myself. I'm a Distinguished Engineer in the Solaris security 
-organization, and I'm the original architect for Sun's multilevel X11 
-server. I have worked on this problem since 1990, and have designed 
-three multilevel desktops (Open Look, CDE, and GNOME)
+Quoting naveen penumala (naveenspen@gmail.com):
+> please check...
+> 
+> when im building the selinx-tests using "make" command i'm getting following
+> error
+> 
+> these are the files presented in selinux-testsuite.
+> /home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite
+> # ls
+> ChangeLog  Makefile  /policy  README  /refpolicy  /tests
+> 
+> this is the error i'm getting when building the tests.
+> 
+> /home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite
+> # make
+> make[1]: Entering directory
+> `/home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite/tests'
+> make[2]: Entering directory
+> `/home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite/tests/domain_trans'
+> 
+> make[2]: Nothing to be done for `all'.
+> make[2]: Leaving directory
+> `/home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite/tests/domain_trans'
+> /bin/sh: chcon: command not found
 
-One of the biggest challenges in adding fine-grained policy to the X11 
-server is to make the policy transparent to existing X11 clients. 
-Probably the most critical design decision we made was with respect to 
-root window resources. By default, all root window properties are 
-polyinstantiated by both label and uid. For SELinux, the equivalent 
-policy would be polyinstantiation by security context (not just MLS 
-label). An exception list of single-instance root-window properties is 
-enumerated in a policy file.
-We have found that the list of exceptions is much smaller than the list 
-that should be polyinstantiated.
+I assume this is the problem.  You need chcon.
 
-With respect to the root window drawable, it is protected at the lowest 
-label, so it is never modified. Applications like Nautilus are 
-polyinstantiated, too, and render their own background windows.
+> make[1]: *** [all] Error 127
+> make[1]: Leaving directory
+> `/home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite/tests'
+> 
+> make: *** [all] Error 2
+> 
+> i had seen the patch file presented by Sergei, but i didnt find
+> misc/check_sbin_deprecated.pl
+> in selinux tests directory.
 
-Our implementation is all open-sourced using the Xorg license. A summary 
-of the X11 security policy implemented by Solaris Trusted Extensions is 
-described in Chapter 6 of the Developer's Guide,  
-http://docs.sun.com/app/docs/doc/819-0869/6n391u3ru?a=view
+It's under misc/.  It gets called from ltp/testscripts/test_selinux.sh
+to tweak the policy.  But I don't think it's related to your problem.
+You just need to install chcon, and I'm not the best way to do that
+under SuSE.
 
-The configuration file for the polyinstantiation policy is described in 
-the TrustedExtensionsPolicy man page, 
-http://docs.sun.com/app/docs/doc/819-7307/trustedextensionspolicy-4?a=view
+> i'm sorry if my view is wrong.
+> 
+> * I'm using SuSE linux.*
+> 
+> - Naveen P
 
-The source code which implements this policy can be viewed in the 
-OpenSolaris browser using this link:
-http://src.opensolaris.org/source/xref/fox/fox-gate/XW_NV/open-src/xserver/xorg/sun-src/tsol/
-
-The hooks to the XACE extension layer (also used by SELinux) are in the 
-file tsolCompat.c, which can be viewed here:
-http://src.opensolaris.org/source/xref/fox/fox-gate/XW_NV/open-src/xserver/xorg/sun-src/Xext/tsolCompat.c
-
-Although Trusted Extensions and SELinux have significant differences 
-with respect to their security models, both systems attempt to implement 
-MAC policy in a manner that is transparent to applications. This should 
-apply to the desktop, as well. In general, the user experience running 
-GNOME on Solaris (with or without Trusted Extensions) or on Linux (with 
-or without SELinux) should be almost identical. So the underlying 
-policies enforced by the X11 server should follow the same general 
-principles.
-
---Glenn
-
-
-Xavier Toth wrote:
-> Ok that helped the issue with the notification-daemon. Now I'm looking
-> at some avcs generated while running one of our apps and have some
-> more questions. I first ran QBrowser at CONFIDENTIAL(s2:c0.c253) then
-> later ran it at TS(s4:c0.c253). CUT_BUFFER0 and _MOTIF_DRAG_TARGETS
-> got created at CONFIDENTIAL and then the TS instance of the app tried
-> to use them, do we need polyinstantiated properties? Or maybe the type
-> should change on write.
->
-> avc:  denied  { write } for request=X11:ChangeProperty
-> comm=/opt/jcdx/bin/QBrowser property=CUT_BUFFER0
-> scontext=swo_u:user_r:user_t:s4:c0.c253
-> tcontext=swo_u:object_r:clipboard_xproperty_t:s2:c0.c253
-> tclass=x_property
-> avc:  denied  { write } for request=X11:ChangeProperty
-> comm=/opt/jcdx/bin/QBrowser property=_MOTIF_DRAG_TARGETS
-> scontext=swo_u:user_r:user_t:s4:c0.c253
-> tcontext=swo_u:object_r:user_default_xproperty_t:s2:c0.c253
-> tclass=x_property
->
-> Why are the root window drawable and root color map s0?
->
-> avc:  denied  { send } for request=X11:SendEvent
-> comm=/opt/jcdx/bin/QBrowser resid=76 restype=WINDOW
-> scontext=swo_u:user_r:user_t:s4:c0.c253
-> tcontext=system_u:object_r:x_rootwindow_t:s0 tclass=x_drawable
-> avc:  denied  { remove_color } for request=X11:FreeColors
-> comm=/opt/jcdx/bin/QBrowser resid=20 restype=COLORMAP
-> scontext=swo_u:user_r:user_t:s4:c0.c253
-> tcontext=system_u:object_r:x_rootcolormap_t:s0 tclass=x_colormap
->
->   
-
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
