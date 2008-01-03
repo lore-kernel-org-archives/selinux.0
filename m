@@ -1,59 +1,103 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03JfrBn025194
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 14:41:53 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03KTOsZ029237
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 15:29:24 -0500
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m03JfqjV022225
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 19:41:52 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: run_init patch for Fedora 8
-Date: Thu, 3 Jan 2008 14:39:27 -0500
-Message-ID: <1199389167.12626.322.camel@gorn.columbia.tresys.com>
-In-Reply-To: <Pine.LNX.4.64.0712271432030.13060@euphrosyne.pab>
-References: <Pine.LNX.4.64.0712271432030.13060@euphrosyne.pab>
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m03KTNNN010526
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 20:29:24 GMT
+Subject: Re: mls policy dbus patch
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: <bigotp@acm.org>
-Cc: <selinux@tycho.nsa.gov>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <cadfc0e40712281328m7f13fe70i7b9fdbfca9f19606@mail.gmail.com>
+References: <cadfc0e40712281328m7f13fe70i7b9fdbfca9f19606@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 03 Jan 2008 15:28:22 -0500
+Message-Id: <1199392102.12626.323.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2007-12-27 at 14:39 -0700, Peter A. Bigot wrote:
-> This patch, or something like it, seems to be necessary to allow run_init to
-> execute in the sysadm_r role on a Fedora 8 system.  Without it I see:
+On Fri, 2007-12-28 at 15:28 -0600, Xavier Toth wrote:
+> --- serefpolicy-3.0.8/policy/mls        2007-11-27 14:43:26.000000000 -0600
+> +++ serefpolicy-3.0.8.new/policy/mls    2007-12-21 14:38:52.000000000 -0600
+> @@ -584,7 +584,11 @@
+>  #
 > 
-> type=SYSCALL msg=audit(12/27/2007 13:33:40.332:93) : arch=i386 syscall=execve success=yes exit=0 a0=2e3a18 a1=bfd2c31c a2=2e5408 a3=400 items=0 ppid=2123 pid=2126 auid=pab uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=pts0 comm=unix_update exe=/sbin/unix_update subj=staff_u:sysadm_r:run_init_t:s0-s15:c0.c255 key=(null) 
-> type=AVC msg=audit(12/27/2007 13:33:40.332:93) : avc:  denied  { execute_no_trans } for  pid=2126 comm=run_init path=/sbin/unix_update dev=sda2 ino=589945 scontext=staff_u:sysadm_r:run_init_t:s0-s15:c0.c255 tcontext=system_u:object_r:updpwd_exec_t:s0 tclass=file 
-> type=AVC msg=audit(12/27/2007 13:33:40.332:93) : avc:  denied  { read } for  pid=2126 comm=run_init name=unix_update dev=sda2 ino=589945 scontext=staff_u:sysadm_r:run_init_t:s0-s15:c0.c255 tcontext=system_u:object_r:updpwd_exec_t:s0 tclass=file 
-> type=AVC msg=audit(12/27/2007 13:33:40.332:93) : avc:  denied  { execute } for  pid=2126 comm=run_init name=unix_update dev=sda2 ino=589945 scontext=staff_u:sysadm_r:run_init_t:s0-s15:c0.c255 tcontext=system_u:object_r:updpwd_exec_t:s0 tclass=file
-
-I added only the domtrans as your messages don't indicate the additional
-access from run is required.
-
-> Index: policy/modules/system/selinuxutil.te
-> ===================================================================
-> --- policy/modules/system/selinuxutil.te	(revision 2565)
-> +++ policy/modules/system/selinuxutil.te	(working copy)
-> @@ -388,6 +388,13 @@
->   seutil_libselinux_linked(run_init_t)
->   seutil_read_default_contexts(run_init_t)
+>  # these access vectors have no MLS restrictions
+> -# dbus { acquire_svc send_msg }
+> +# dbus { acquire_svc }
+> +mlsconstrain dbus { send_msg }
+> +        (( l1 eq l2 ) or
+> +         ( t1 == mlsdbussend ) or
+> +         ( t2 == mlsdbusrecv ));
 > 
-> +ifdef(`distro_redhat',`
-> +	gen_require(`
-> +		attribute admin_terminal;
-> +	')
-> +	auth_run_upd_passwd(run_init_t, sysadm_r, admin_terminal);
+> 
+> 
+> --- serefpolicy-3.0.8/policy/modules/kernel/mls.te      2007-11-27
+> 14:43:26.000000000 -0600
+> +++ serefpolicy-3.0.8.new/policy/modules/kernel/mls.te  2007-12-21
+> 14:35:30.000000000 -0600
+> @@ -61,3 +61,6 @@
+>  attribute mlsfdshare;
+> 
+>  attribute mlstranslate;
+> +
+> +attribute mlsdbusrecv;
+> +attribute mlsdbussend;
+> --- serefpolicy-3.0.8/policy/modules/kernel/mls.if      2007-11-27
+> 14:43:26.000000000 -0600
+> +++ serefpolicy-3.0.8.new/policy/modules/kernel/mls.if  2007-12-21
+> 14:37:31.000000000 -0600
+> @@ -859,3 +859,42 @@
+> 
+>         typeattribute $1 mlsdbdowngrade;
+>  ')
+> +########################################
+> +## <summary>
+> +##      Make specified domain MLS trusted
+> +##      for send to dbus.
+> +## </summary>
+> +## <param name="domain">
+> +##      <summary>
+> +##      Domain allowed access.
+> +##      </summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`mls_dbus_send',`
+> +       gen_require(`
+> +               attribute mlsdbussend;
+> +       ')
+> +
+> +       typeattribute $1 mlsdbussend;
 > +')
 > +
->   ifndef(`direct_sysadm_daemon',`
->   	ifdef(`distro_gentoo',`
->   		# Gentoo integrated run_init:
+> +########################################
+> +## <summary>
+> +##      Make specified domain MLS trusted
+> +##      for receiving from dbus.
+> +## </summary>
+> +## <param name="domain">
+> +##      <summary>
+> +##      Domain allowed access.
+> +##      </summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`mls_dbus_recv',`
+> +       gen_require(`
+> +               attribute mlsdbusrecv;
+> +       ')
+> +
+> +       typeattribute $1 mlsdbusrecv;
+> +')
+
+Merged, with a few adjustments to the interface names.
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 
 --
