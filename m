@@ -1,68 +1,74 @@
-Date: Thu, 3 Jan 2008 08:54:08 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: naveen penumala <naveenspen@gmail.com>
-Cc: subrata@linux.vnet.ibm.com, "Serge E. Hallyn" <serue@us.ibm.com>,
-        ltp-list <ltp-list@lists.sourceforge.net>,
-        SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [LTP] compilation error @ selinux tests
-Message-ID: <20080103145408.GA22593@sergelap.austin.ibm.com>
-References: <ab64ec20801020223j2d3816bcsa5b189cc1fb649ca@mail.gmail.com> <1199269629.4533.39.camel@subratamodak.linux.ibm.com> <ab64ec20801020358i2a1474ddmd667fe2344d6f08d@mail.gmail.com> <1199275642.4533.53.camel@subratamodak.linux.ibm.com> <ab64ec20801030405ie9b6525tff03d88bd8d74b20@mail.gmail.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03FFnRK032355
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 10:15:49 -0500
+Received: from vidle.i.cz (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m03FFlAY006581
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 15:15:48 GMT
+Date: Thu, 3 Jan 2008 16:15:46 +0100
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: tmiller@tresys.com
+Cc: selinux@tycho.nsa.gov
+Subject: Re: PATCH: peersid capability support
+Message-ID: <20080103151546.GA2837@bobek.pm.i.cz>
+References: <200711291927.lATJRixF021978@rawhidevm-targeted.columbia.tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <ab64ec20801030405ie9b6525tff03d88bd8d74b20@mail.gmail.com>
+Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
+In-Reply-To: <200711291927.lATJRixF021978@rawhidevm-targeted.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting naveen penumala (naveenspen@gmail.com):
-> please check...
-> 
-> when im building the selinx-tests using "make" command i'm getting following
-> error
-> 
-> these are the files presented in selinux-testsuite.
-> /home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite
-> # ls
-> ChangeLog  Makefile  /policy  README  /refpolicy  /tests
-> 
-> this is the error i'm getting when building the tests.
-> 
-> /home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite
-> # make
-> make[1]: Entering directory
-> `/home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite/tests'
-> make[2]: Entering directory
-> `/home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite/tests/domain_trans'
-> 
-> make[2]: Nothing to be done for `all'.
-> make[2]: Leaving directory
-> `/home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite/tests/domain_trans'
-> /bin/sh: chcon: command not found
 
-I assume this is the problem.  You need chcon.
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> make[1]: *** [all] Error 127
-> make[1]: Leaving directory
-> `/home/penuman/LTP/ltp-full-20071231/testcases/kernel/security/selinux-testsuite/tests'
-> 
-> make: *** [all] Error 2
-> 
-> i had seen the patch file presented by Sergei, but i didnt find
-> misc/check_sbin_deprecated.pl
-> in selinux tests directory.
+Hi,
 
-It's under misc/.  It gets called from ltp/testscripts/test_selinux.sh
-to tweak the policy.  But I don't think it's related to your problem.
-You just need to install chcon, and I'm not the best way to do that
-under SuSE.
-
-> i'm sorry if my view is wrong.
+On Thu, Nov 29, 2007 at 02:27:44PM -0500, tmiller@tresys.com wrote:
+> This is a reworking of the peersid capability patch Joshua sent out
+> a few weeks ago.  This version requires added explicit declaration of
+> capabilities in the policy.
 > 
-> * I'm using SuSE linux.*
-> 
-> - Naveen P
+> I've used the same strings that Paul's kernel diff used (there is
+> currently just a single capability).
+>...
 
-thanks,
--serge
+a prototype line for define_polcap() is missing.
+
+zito@bobek:/tmp/checkpolicy-2.0.7$ make
+cc -g -Wall -O2 -pipe -fno-strict-aliasing -I. -I/usr/include -o checkpolicy.o -c checkpolicy.c
+yacc -d policy_parse.y
+cc -g -Wall -O2 -pipe -fno-strict-aliasing -I. -I/usr/include -o y.tab.o -c y.tab.c
+policy_parse.y: In function 'yyparse':
+policy_parse.y:772: warning: implicit declaration of function 'define_polcap'
+policy_parse.y: At top level:
+policy_parse.y:972: error: static declaration of 'define_polcap' follows non-static declaration
+policy_parse.y:772: error: previous implicit declaration of 'define_polcap' was here
+make: *** [y.tab.o] Error 1
+
+Attached is a patch with the prototypee...
+Regards
+-- 
+Zito
+
+--dDRMvlgZJXvWKvBx
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="checkpolicy.proto.patch"
+
+Index: policy_parse.y
+===================================================================
+--- policy_parse.y	(revision 2717)
++++ policy_parse.y	(working copy)
+@@ -125,6 +125,7 @@
+ static int define_netif_context(void);
+ static int define_ipv4_node_context(void);
+ static int define_ipv6_node_context(void);
++static int define_polcap(void);
+ 
+ typedef int (* require_func_t)();
+ 
+
+--dDRMvlgZJXvWKvBx--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
