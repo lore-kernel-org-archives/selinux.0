@@ -1,272 +1,60 @@
-Message-Id: <20080103184516.399115672@tresys.com>
-References: <20080103184331.485176161@tresys.com>
-Date: Thu, 03 Jan 2008 13:43:38 -0500
-From: tmiller@tresys.com
-To: selinux@tycho.nsa.gov
-Cc: method@madmethod.com, sds@tycho.nsa.gov
-Subject: [patch 7/7] Use -Werror
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03JfrBn025194
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 14:41:53 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m03JfqjV022225
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 19:41:52 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: run_init patch for Fedora 8
+Date: Thu, 3 Jan 2008 14:39:27 -0500
+Message-ID: <1199389167.12626.322.camel@gorn.columbia.tresys.com>
+In-Reply-To: <Pine.LNX.4.64.0712271432030.13060@euphrosyne.pab>
+References: <Pine.LNX.4.64.0712271432030.13060@euphrosyne.pab>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: <bigotp@acm.org>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add -Werror to Makefiles
+On Thu, 2007-12-27 at 14:39 -0700, Peter A. Bigot wrote:
+> This patch, or something like it, seems to be necessary to allow run_init to
+> execute in the sysadm_r role on a Fedora 8 system.  Without it I see:
+> 
+> type=SYSCALL msg=audit(12/27/2007 13:33:40.332:93) : arch=i386 syscall=execve success=yes exit=0 a0=2e3a18 a1=bfd2c31c a2=2e5408 a3=400 items=0 ppid=2123 pid=2126 auid=pab uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=pts0 comm=unix_update exe=/sbin/unix_update subj=staff_u:sysadm_r:run_init_t:s0-s15:c0.c255 key=(null) 
+> type=AVC msg=audit(12/27/2007 13:33:40.332:93) : avc:  denied  { execute_no_trans } for  pid=2126 comm=run_init path=/sbin/unix_update dev=sda2 ino=589945 scontext=staff_u:sysadm_r:run_init_t:s0-s15:c0.c255 tcontext=system_u:object_r:updpwd_exec_t:s0 tclass=file 
+> type=AVC msg=audit(12/27/2007 13:33:40.332:93) : avc:  denied  { read } for  pid=2126 comm=run_init name=unix_update dev=sda2 ino=589945 scontext=staff_u:sysadm_r:run_init_t:s0-s15:c0.c255 tcontext=system_u:object_r:updpwd_exec_t:s0 tclass=file 
+> type=AVC msg=audit(12/27/2007 13:33:40.332:93) : avc:  denied  { execute } for  pid=2126 comm=run_init name=unix_update dev=sda2 ino=589945 scontext=staff_u:sysadm_r:run_init_t:s0-s15:c0.c255 tcontext=system_u:object_r:updpwd_exec_t:s0 tclass=file
 
----
- checkpolicy/Makefile                      |    2 +-
- libselinux/src/Makefile                   |    2 +-
- libsemanage/src/Makefile                  |    2 +-
- libsepol/src/Makefile                     |    2 +-
- policycoreutils/audit2why/Makefile        |    2 +-
- policycoreutils/load_policy/Makefile      |    2 +-
- policycoreutils/newrole/Makefile          |    2 +-
- policycoreutils/restorecond/Makefile      |    2 +-
- policycoreutils/run_init/Makefile         |    2 +-
- policycoreutils/secon/Makefile            |    2 +-
- policycoreutils/semodule/Makefile         |    2 +-
- policycoreutils/semodule_deps/Makefile    |    2 +-
- policycoreutils/semodule_expand/Makefile  |    2 +-
- policycoreutils/semodule_link/Makefile    |    2 +-
- policycoreutils/semodule_package/Makefile |    2 +-
- policycoreutils/sestatus/Makefile         |    2 +-
- policycoreutils/setfiles/Makefile         |    2 +-
- policycoreutils/setsebool/Makefile        |    2 +-
- 18 files changed, 18 insertions(+), 18 deletions(-)
+I added only the domtrans as your messages don't indicate the additional
+access from run is required.
 
-Index: trunk/checkpolicy/Makefile
-===================================================================
---- trunk.orig/checkpolicy/Makefile
-+++ trunk/checkpolicy/Makefile
-@@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
- 
- YACC = bison -y
- 
--CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
-+CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
- 
- override CFLAGS += -I. -I${INCLUDEDIR}
- 
-Index: trunk/libselinux/src/Makefile
-===================================================================
---- trunk.orig/libselinux/src/Makefile
-+++ trunk/libselinux/src/Makefile
-@@ -32,7 +32,7 @@ SRCS= $(filter-out $(UNUSED_SRCS), $(fil
- 
- OBJS= $(patsubst %.c,%.o,$(SRCS))
- LOBJS= $(patsubst %.c,%.lo,$(SRCS))
--CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-+CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Werror
- override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
- RANLIB=ranlib
- 
-Index: trunk/libsemanage/src/Makefile
-===================================================================
---- trunk.orig/libsemanage/src/Makefile
-+++ trunk/libsemanage/src/Makefile
-@@ -31,7 +31,7 @@ SWIGFILES=$(SWIGSO) semanage.py 
- LIBSO=$(TARGET).$(LIBVERSION)
- OBJS= $(patsubst %.c,%.o,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.o conf-parse.o
- LOBJS= $(patsubst %.c,%.lo,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.lo conf-parse.lo
--CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
-+CFLAGS ?= -Wall -W Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
- 
- override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE 
- 
-Index: trunk/libsepol/src/Makefile
-===================================================================
---- trunk.orig/libsepol/src/Makefile
-+++ trunk/libsepol/src/Makefile
-@@ -10,7 +10,7 @@ TARGET=libsepol.so
- LIBSO=$(TARGET).$(LIBVERSION)
- OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
- LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
--CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-+CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Werror
- override CFLAGS += -I. -I../include -D_GNU_SOURCE
- 
- all: $(LIBA) $(LIBSO)
-Index: trunk/policycoreutils/audit2why/Makefile
-===================================================================
---- trunk.orig/policycoreutils/audit2why/Makefile
-+++ trunk/policycoreutils/audit2why/Makefile
-@@ -7,7 +7,7 @@ LOCALEDIR ?= /usr/share/locale
- INCLUDEDIR ?= ${PREFIX}/include
- 
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += -I$(INCLUDEDIR)
- LDLIBS = ${LIBDIR}/libsepol.a -lselinux -L$(LIBDIR)
- 
-Index: trunk/policycoreutils/load_policy/Makefile
-===================================================================
---- trunk.orig/policycoreutils/load_policy/Makefile
-+++ trunk/policycoreutils/load_policy/Makefile
-@@ -4,7 +4,7 @@ SBINDIR ?= $(PREFIX)/sbin
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= /usr/share/locale
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
- LDLIBS += -lsepol -lselinux -L$(PREFIX)/lib
- 
-Index: trunk/policycoreutils/newrole/Makefile
-===================================================================
---- trunk.orig/policycoreutils/newrole/Makefile
-+++ trunk/policycoreutils/newrole/Makefile
-@@ -20,7 +20,7 @@ NAMESPACE_PRIV ?= n
- LSPP_PRIV ?= n
- VERSION = $(shell cat ../VERSION)
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- EXTRA_OBJS =
- override CFLAGS += -DVERSION=\"$(VERSION)\" $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
- LDLIBS += -lselinux -L$(PREFIX)/lib
-Index: trunk/policycoreutils/restorecond/Makefile
-===================================================================
---- trunk.orig/policycoreutils/restorecond/Makefile
-+++ trunk/policycoreutils/restorecond/Makefile
-@@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
- INITDIR = $(DESTDIR)/etc/rc.d/init.d
- SELINUXDIR = $(DESTDIR)/etc/selinux
- 
--CFLAGS ?= -g -Werror -Wall -W
-+CFLAGS ?= -g -Werror -Wall -W -Werror
- override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
- LDLIBS += -lselinux -L$(PREFIX)/lib
- 
-Index: trunk/policycoreutils/run_init/Makefile
-===================================================================
---- trunk.orig/policycoreutils/run_init/Makefile
-+++ trunk/policycoreutils/run_init/Makefile
-@@ -8,7 +8,7 @@ LOCALEDIR ?= /usr/share/locale
- PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
- AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
- LDLIBS += -lselinux -L$(PREFIX)/lib
- ifeq (${PAMH}, /usr/include/security/pam_appl.h)
-Index: trunk/policycoreutils/secon/Makefile
-===================================================================
---- trunk.orig/policycoreutils/secon/Makefile
-+++ trunk/policycoreutils/secon/Makefile
-@@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
- MANDIR ?= $(PREFIX)/share/man
- LIBDIR ?= ${PREFIX}/lib
- 
--WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
-+WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal -Werror
- VERSION = $(shell cat ../VERSION)
- CFLAGS ?= $(WARNS) -O1
- override CFLAGS += -DVERSION=\"$(VERSION)\" -I$(INCLUDEDIR) 
-Index: trunk/policycoreutils/semodule/Makefile
-===================================================================
---- trunk.orig/policycoreutils/semodule/Makefile
-+++ trunk/policycoreutils/semodule/Makefile
-@@ -5,7 +5,7 @@ SBINDIR ?= $(PREFIX)/sbin
- MANDIR = $(PREFIX)/share/man
- LIBDIR ?= ${PREFIX}/lib
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += -I$(INCLUDEDIR)
- LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
- SEMODULE_OBJS = semodule.o
-Index: trunk/policycoreutils/semodule_deps/Makefile
-===================================================================
---- trunk.orig/policycoreutils/semodule_deps/Makefile
-+++ trunk/policycoreutils/semodule_deps/Makefile
-@@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
- LIBDIR ?= ${PREFIX}/lib
- MANDIR ?= $(PREFIX)/share/man
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += -I$(INCLUDEDIR)
- LDLIBS = $(LIBDIR)/libsepol.a
- 
-Index: trunk/policycoreutils/semodule_expand/Makefile
-===================================================================
---- trunk.orig/policycoreutils/semodule_expand/Makefile
-+++ trunk/policycoreutils/semodule_expand/Makefile
-@@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
- LIBDIR ?= ${PREFIX}/lib
- MANDIR ?= $(PREFIX)/share/man
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += -I$(INCLUDEDIR)
- LDLIBS = -lsepol -lselinux -L$(LIBDIR)
- 
-Index: trunk/policycoreutils/semodule_link/Makefile
-===================================================================
---- trunk.orig/policycoreutils/semodule_link/Makefile
-+++ trunk/policycoreutils/semodule_link/Makefile
-@@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
- MANDIR ?= $(PREFIX)/share/man
- LIBDIR ?= ${PREFIX}/lib
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += -I$(INCLUDEDIR)
- LDLIBS = -lsepol -lselinux -L$(LIBDIR)
- 
-Index: trunk/policycoreutils/semodule_package/Makefile
-===================================================================
---- trunk.orig/policycoreutils/semodule_package/Makefile
-+++ trunk/policycoreutils/semodule_package/Makefile
-@@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
- LIBDIR ?= ${PREFIX}/lib
- MANDIR ?= $(PREFIX)/share/man
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += -I$(INCLUDEDIR)
- LDLIBS = -lsepol -lselinux -L$(LIBDIR)
- 
-Index: trunk/policycoreutils/sestatus/Makefile
-===================================================================
---- trunk.orig/policycoreutils/sestatus/Makefile
-+++ trunk/policycoreutils/sestatus/Makefile
-@@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
- ETCDIR ?= $(DESTDIR)/etc
- LIBDIR ?= ${PREFIX}/lib
- 
--CFLAGS = -Werror -Wall -W
-+CFLAGS = -Werror -Wall -W -Werror
- override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
- LDLIBS = -lselinux -L$(LIBDIR)
- 
-Index: trunk/policycoreutils/setfiles/Makefile
-===================================================================
---- trunk.orig/policycoreutils/setfiles/Makefile
-+++ trunk/policycoreutils/setfiles/Makefile
-@@ -6,7 +6,7 @@ LIBDIR ?= $(PREFIX)/lib
- 
- AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
- 
--CFLAGS = -Werror -Wall -W 
-+CFLAGS = -Werror -Wall -W  -Werror
- override CFLAGS += -D_FILE_OFFSET_BITS=64 -I$(PREFIX)/include
- LDLIBS = -lselinux -lsepol -L$(LIBDIR)
- 
-Index: trunk/policycoreutils/setsebool/Makefile
-===================================================================
---- trunk.orig/policycoreutils/setsebool/Makefile
-+++ trunk/policycoreutils/setsebool/Makefile
-@@ -5,7 +5,7 @@ SBINDIR ?= $(PREFIX)/sbin
- MANDIR = $(PREFIX)/share/man
- LIBDIR ?= ${PREFIX}/lib
- 
--CFLAGS ?= -Werror -Wall -W
-+CFLAGS ?= -Werror -Wall -W -Werror
- override CFLAGS += -I$(INCLUDEDIR)
- LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
- SETSEBOOL_OBJS = setsebool.o
+> Index: policy/modules/system/selinuxutil.te
+> ===================================================================
+> --- policy/modules/system/selinuxutil.te	(revision 2565)
+> +++ policy/modules/system/selinuxutil.te	(working copy)
+> @@ -388,6 +388,13 @@
+>   seutil_libselinux_linked(run_init_t)
+>   seutil_read_default_contexts(run_init_t)
+> 
+> +ifdef(`distro_redhat',`
+> +	gen_require(`
+> +		attribute admin_terminal;
+> +	')
+> +	auth_run_upd_passwd(run_init_t, sysadm_r, admin_terminal);
+> +')
+> +
+>   ifndef(`direct_sysadm_daemon',`
+>   	ifdef(`distro_gentoo',`
+>   		# Gentoo integrated run_init:
 
 -- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
