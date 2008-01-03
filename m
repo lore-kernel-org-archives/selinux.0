@@ -1,124 +1,36 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03Hc1sr012606
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 12:38:01 -0500
-Received: from g1t0026.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m03Hc061023469
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 17:38:00 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m03Hbo9O012547
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 12:37:50 -0500
+Received: from g4t0015.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m03Hbl61023378
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 17:37:48 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v10 02/20] NetLabel: Cleanup the LSM domain hash functions
+Subject: [RFC PATCH v10 00/20] Labeled networking changes for 2.6.25
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Thu, 03 Jan 2008 12:37:55 -0500
-Message-ID: <20080103173755.15387.98101.stgit@flek.americas.hpqcorp.net>
-In-Reply-To: <20080103173225.15387.60940.stgit@flek.americas.hpqcorp.net>
-References: <20080103173225.15387.60940.stgit@flek.americas.hpqcorp.net>
+Date: Thu, 03 Jan 2008 12:37:42 -0500
+Message-ID: <20080103173225.15387.60940.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The NetLabel/LSM domain hash table search function used an argument to specify
-if the default entry should be returned if an exact match couldn't be found in
-the hash table.  This is a bit against the kernel's style so make two separate
-functions to represent the separate behaviors.
+One more update on the 2.6.25 labeled networking patchset.  As usual, these
+changes can also be found in git form here:
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
+ * git://git.infradead.org/users/pcmoore/lblnet-2.6_testing 
 
- net/netlabel/netlabel_domainhash.c |   47 ++++++++++++++++++++++++++----------
- 1 files changed, 34 insertions(+), 13 deletions(-)
+This revision fixes a problem with the sk_buff's 'iif' field not being copied
+during a clone operation.  Thanks to Valdis for reporting the problem over the
+holidays.  In order to help spot similar problems in the future I added some
+warning messages to the SELinux network code to eliminate these silent drops.
 
-diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
-index b3675bd..1f8f7ac 100644
---- a/net/netlabel/netlabel_domainhash.c
-+++ b/net/netlabel/netlabel_domainhash.c
-@@ -109,17 +109,14 @@ static u32 netlbl_domhsh_hash(const char *key)
- /**
-  * netlbl_domhsh_search - Search for a domain entry
-  * @domain: the domain
-- * @def: return default if no match is found
-  *
-  * Description:
-  * Searches the domain hash table and returns a pointer to the hash table
-- * entry if found, otherwise NULL is returned.  If @def is non-zero and a
-- * match is not found in the domain hash table the default mapping is returned
-- * if it exists.  The caller is responsibile for the rcu hash table locks
-- * (i.e. the caller much call rcu_read_[un]lock()).
-+ * entry if found, otherwise NULL is returned.  The caller is responsibile for
-+ * the rcu hash table locks (i.e. the caller much call rcu_read_[un]lock()).
-  *
-  */
--static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain, u32 def)
-+static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain)
- {
- 	u32 bkt;
- 	struct netlbl_dom_map *iter;
-@@ -133,10 +130,31 @@ static struct netlbl_dom_map *netlbl_domhsh_search(const char *domain, u32 def)
- 				return iter;
- 	}
- 
--	if (def != 0) {
--		iter = rcu_dereference(netlbl_domhsh_def);
--		if (iter != NULL && iter->valid)
--			return iter;
-+	return NULL;
-+}
-+
-+/**
-+ * netlbl_domhsh_search_def - Search for a domain entry
-+ * @domain: the domain
-+ * @def: return default if no match is found
-+ *
-+ * Description:
-+ * Searches the domain hash table and returns a pointer to the hash table
-+ * entry if an exact match is found, if an exact match is not present in the
-+ * hash table then the default entry is returned if valid otherwise NULL is
-+ * returned.  The caller is responsibile for the rcu hash table locks
-+ * (i.e. the caller much call rcu_read_[un]lock()).
-+ *
-+ */
-+static struct netlbl_dom_map *netlbl_domhsh_search_def(const char *domain)
-+{
-+	struct netlbl_dom_map *entry;
-+
-+	entry = netlbl_domhsh_search(domain);
-+	if (entry == NULL) {
-+		entry = rcu_dereference(netlbl_domhsh_def);
-+		if (entry != NULL && entry->valid)
-+			return entry;
- 	}
- 
- 	return NULL;
-@@ -224,7 +242,7 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
- 	if (entry->domain != NULL) {
- 		bkt = netlbl_domhsh_hash(entry->domain);
- 		spin_lock(&netlbl_domhsh_lock);
--		if (netlbl_domhsh_search(entry->domain, 0) == NULL)
-+		if (netlbl_domhsh_search(entry->domain) == NULL)
- 			list_add_tail_rcu(&entry->list,
- 				    &rcu_dereference(netlbl_domhsh)->tbl[bkt]);
- 		else
-@@ -307,7 +325,10 @@ int netlbl_domhsh_remove(const char *domain, struct netlbl_audit *audit_info)
- 	struct audit_buffer *audit_buf;
- 
- 	rcu_read_lock();
--	entry = netlbl_domhsh_search(domain, (domain != NULL ? 0 : 1));
-+	if (domain)
-+		entry = netlbl_domhsh_search(domain);
-+	else
-+		entry = netlbl_domhsh_search_def(domain);
- 	if (entry == NULL)
- 		goto remove_return;
- 	switch (entry->type) {
-@@ -377,7 +398,7 @@ int netlbl_domhsh_remove_default(struct netlbl_audit *audit_info)
-  */
- struct netlbl_dom_map *netlbl_domhsh_getentry(const char *domain)
- {
--	return netlbl_domhsh_search(domain, 1);
-+	return netlbl_domhsh_search_def(domain);
- }
- 
- /**
+If you are run into any problems or have any comments please let me know.
 
+Thanks.
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
