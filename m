@@ -1,51 +1,72 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m040eGkM021341
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jan 2008 19:40:16 -0500
-Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m040eFPW002190
-	for <selinux@tycho.nsa.gov>; Fri, 4 Jan 2008 00:40:15 GMT
-Received: by nz-out-0506.google.com with SMTP id i1so1377387nzh.39
-        for <selinux@tycho.nsa.gov>; Thu, 03 Jan 2008 16:40:15 -0800 (PST)
-Message-ID: <dd18b0c30801031640uef51a15yef23cb5a33133e04@mail.gmail.com>
-Date: Thu, 3 Jan 2008 16:40:14 -0800
-From: "Justin Mattock" <justinmattock@gmail.com>
+From: Paul Moore <paul.moore@hp.com>
 To: selinux@tycho.nsa.gov
-Subject: dhcpc_exec_t
+Subject: Fwd: Re: [PATCH 1/2] LSM: Add inet_sys_snd_skb() LSM hook
+Date: Fri, 4 Jan 2008 09:44:01 -0500
+Cc: jmorris@namei.org, sds@tycho.nsa.gov, vyekkirala@TrustedCS.com
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_2599_14063584.1199407214962"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Message-Id: <200801040944.01260.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_2599_14063584.1199407214962
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I forgot to CC you guys on my response to David Miller, the email is 
+below.  In short, this means the flow control work, as currently 
+implemented, are not acceptable upstream.  Further, it's clear to me 
+that if we want to get acceptance from the networking community we need 
+to stick to the netfilter hooks (which we are for everything but the 
+outbound/egress check).
 
-Hello I seem to be a bit confused at what role I need to be in for
-selinux-policy-default mls to run dhclient, or any executables; the context
-is labeled
-/sbin/dhclient3 system_u:object_r:dhcpc_exec_t:s0 . audit gives me an
-unknown avc error, when I chcon system_u:object_r:dhcpc_t:s0 /sbin/dhclient3
+I just started thinking about this so I don't have any great ideas yet, 
+but if anyone out there does feel free to share.  Patches are always 
+nice too :)
 
-audit will see the context. Where in compiling the policy gives me the
-option for having sysadm_r run executables or do I need to newrole -r into
-system_r to run dhclient? when also issueing newrole in mls I seem to keep
-reciving this error as well =Couldn't get default type.
-any info would be helpful.
-regards;
-                --Justin P. Mattock
+----------  Forwarded Message  ----------
 
-------=_Part_2599_14063584.1199407214962
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Subject: Re: [PATCH 1/2] LSM: Add inet_sys_snd_skb() LSM hook
+Date: Friday 04 January 2008
+From: Paul Moore <paul.moore@hp.com>
+To: David Miller <davem@davemloft.net>
 
-Hello I seem to be a bit confused at what role I need to be in for selinux-policy-default mls to run dhclient, or any executables; the context is labeled <br>/sbin/dhclient3 system_u:object_r:dhcpc_exec_t:s0 . audit gives me an unknown avc error, when I chcon system_u:object_r:dhcpc_t:s0 /sbin/dhclient3 
-<br>audit will see the context. Where in compiling the policy gives me the option for having sysadm_r run executables or do I need to newrole -r into <br>system_r to run dhclient? when also issueing newrole in mls I seem to keep reciving this error as well =Couldn&#39;t get default type. 
-<br>any info would be helpful.<br>regards;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
+On Thursday 03 January 2008 11:45:49 pm David Miller wrote:
+> From: Paul Moore <paul.moore@hp.com>
+> Date: Thu, 03 Jan 2008 12:25:39 -0500
+>
+> > Add an inet_sys_snd_skb() LSM hook to allow the LSM to provide
+> > packet level access control for all outbound packets.  Using the
+> > existing postroute_last netfilter hook turns out to be problematic
+> > as it is can be invoked multiple times for a single packet, e.g.
+> > individual IPsec transforms, adding unwanted overhead and
+> > complicating the security policy.
+> >
+> > Signed-off-by: Paul Moore <paul.moore@hp.com>
+>
+> I disagree with this change.
+>
+> The packet is different each time you see it in the postrouting hook,
+> and also the new hook is thus redundant.
 
-------=_Part_2599_14063584.1199407214962--
+Well, thanks for taking a look.
+
+> If it's a performance issue and you can classify the security early,
+> mark the SKB as "seen" and then on subsequent hooks you can just
+> return immediately if that flag is set.
+
+Unfortunately, it's not quite that easy at present.  The only field we 
+have in the skb where we could possibly set a flag is the secmark field 
+which is already taken.  Granted, there is the possibility of 
+segmenting the secmark field to some degree but that brings about a new 
+set of problems involving the number of unique labels, backwards 
+compatibility, etc.
+
+Regardless, back to the drawing board.  I'll have to think a bit harder 
+about a way to make the netfilter hooks work ...
+
+-------------------------------------------------------
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
