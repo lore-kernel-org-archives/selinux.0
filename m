@@ -1,52 +1,35 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m050Z1FQ006064
+	for <selinux@tycho.nsa.gov>; Fri, 4 Jan 2008 19:35:02 -0500
+Received: from g5t0007.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m050YtXx025523
+	for <selinux@tycho.nsa.gov>; Sat, 5 Jan 2008 00:35:00 GMT
+Received: from g5t0007.atlanta.hp.com (localhost.localdomain [127.0.0.1])
+	by receive-from-antispam-filter (Postfix) with SMTP id 231F514329
+	for <selinux@tycho.nsa.gov>; Sat,  5 Jan 2008 00:34:55 +0000 (UTC)
+Received: from smtp1.fc.hp.com (smtp.cnd.hp.com [15.15.136.127])
+	by g5t0007.atlanta.hp.com (Postfix) with ESMTP id 1851B14314
+	for <selinux@tycho.nsa.gov>; Sat,  5 Jan 2008 00:34:55 +0000 (UTC)
 From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH] New take on the ingress/egress patch 
 To: selinux@tycho.nsa.gov
-Subject: Re: Fwd: Re: [PATCH 1/2] LSM: Add inet_sys_snd_skb() LSM hook
-Date: Fri, 4 Jan 2008 12:52:05 -0500
-Cc: jmorris@namei.org, sds@tycho.nsa.gov, vyekkirala@TrustedCS.com
-References: <200801040944.01260.paul.moore@hp.com>
-In-Reply-To: <200801040944.01260.paul.moore@hp.com>
+Date: Fri, 04 Jan 2008 19:34:50 -0500
+Message-ID: <20080105002920.28482.29256.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200801041252.05403.paul.moore@hp.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 04 January 2008 9:44:01 am Paul Moore wrote:
-> I forgot to CC you guys on my response to David Miller, the email is
-> below.  In short, this means the flow control work, as currently
-> implemented, are not acceptable upstream.  Further, it's clear to me
-> that if we want to get acceptance from the networking community we
-> need to stick to the netfilter hooks (which we are for everything but
-> the outbound/egress check).
->
-> I just started thinking about this so I don't have any great ideas
-> yet, but if anyone out there does feel free to share.  Patches are
-> always nice too :)
+Changing the ingress/egress controls as described earlier turned out to be
+easier than I thought so I'm throwing this patch out so people can get a
+better idea of what I was talking about earlier.
 
-I think I might have a solution to the problem and it isn't _too_ ugly.
-
-Basically, the only time we are really have to worry about multiple hits 
-on the postroute hook is when IPsec is in use, all other times this 
-shouldn't really be an issue.  Our problem has always been that in the 
-case of IPsec we only want to perform an access check on the packet the 
-_last_ time it hits the postroute hook, which has so far proven to be 
-difficult.
-
-I believe that if we simplify the problem to just IPsec causing multiple 
-hits on the postroute hook we have a simple solution.  The fix is to 
-only apply the new egress access checks when skb->dst->xfrm == NULL.  
-All IPsec packets eventually have to make their way out of the system 
-and on their final pass through the stack the skb->dst->xfrm entry is 
-NULL because they have already had all their IPsec packet transforms 
-applied and are now considered "normal" IP packets.  It is at this 
-point that we want to apply the egress checks, and from a practical 
-point of view this is not far removed from where we had placed the new 
-LSM egress hook in the first place.
-
-I'm going to start hacking something together and hopefully will have an 
-updated patchset early next week.  In the meantime, if anyone can think 
-of a reason why this approach is doomed for failure please speak up ...
+Please note that I'm only sending out this single patch as the rest of the
+patchset hasn't changed much (other than the removal of the new LSM hooks).
+After I've had a chance to test these changes a bit more I'll repost the
+full patchset.  In the meantime, I've updated the lblnet-2.6_testing git
+tree with the latest bits and I can assure you that it at least boots and
+passes basic network traffic ...
 
 -- 
 paul moore
