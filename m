@@ -1,163 +1,286 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m07Hv21u030777
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 12:57:02 -0500
-Received: from g5t0007.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m07Huwfn028431
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 17:56:59 GMT
-Received: from g5t0007.atlanta.hp.com (localhost.localdomain [127.0.0.1])
-	by receive-from-antispam-filter (Postfix) with SMTP id B5E27146CB
-	for <selinux@tycho.nsa.gov>; Mon,  7 Jan 2008 17:56:58 +0000 (UTC)
-Received: from smtp1.fc.hp.com (smtp.cnd.hp.com [15.15.136.127])
-	by g5t0007.atlanta.hp.com (Postfix) with ESMTP id 9A16A14693
-	for <selinux@tycho.nsa.gov>; Mon,  7 Jan 2008 17:56:58 +0000 (UTC)
-From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v11 19/19] SELinux: Add warning messages on network denial
-	due to error
-To: selinux@tycho.nsa.gov
-Date: Mon, 07 Jan 2008 12:56:42 -0500
-Message-ID: <20080107175642.13733.45719.stgit@flek.americas.hpqcorp.net>
-In-Reply-To: <20080107174952.13733.68074.stgit@flek.americas.hpqcorp.net>
-References: <20080107174952.13733.68074.stgit@flek.americas.hpqcorp.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: [patch 7/7] Use -Werror
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: tmiller@tresys.com
+Cc: selinux@tycho.nsa.gov, method@madmethod.com
+In-Reply-To: <20080103184516.399115672@tresys.com>
+References: <20080103184331.485176161@tresys.com>
+	 <20080103184516.399115672@tresys.com>
+Content-Type: text/plain
+Date: Mon, 07 Jan 2008 13:06:26 -0500
+Message-Id: <1199729186.2944.169.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently network traffic can be sliently dropped due to non-avc errors which
-can lead to much confusion when trying to debug the problem.  This patch adds
-warning messages so that when these events occur there is a user visible
-notification.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
+On Thu, 2008-01-03 at 13:43 -0500, tmiller@tresys.com wrote:
+> plain text document attachment (Werror.patch)
+> Add -Werror to Makefiles
 
- security/selinux/hooks.c   |   29 ++++++++++++++++++++++++-----
- security/selinux/netif.c   |   13 +++++++++++--
- security/selinux/netnode.c |    6 +++++-
- 3 files changed, 40 insertions(+), 8 deletions(-)
+A bit overzealous though - some of them already had -Werror in CFLAGS.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1d7eed7..ece46ce 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3206,6 +3206,11 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
- 		break;
- 	}
- 
-+	if (unlikely(ret))
-+		printk(KERN_WARNING
-+		       "SELinux: failure in selinux_parse_skb(),"
-+		       " unable to parse packet\n");
-+
- 	return ret;
- }
- 
-@@ -3226,6 +3231,7 @@ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
-  */
- static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
- {
-+	int err;
- 	u32 xfrm_sid;
- 	u32 nlbl_sid;
- 	u32 nlbl_type;
-@@ -3233,10 +3239,13 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
- 	selinux_skb_xfrm_sid(skb, &xfrm_sid);
- 	selinux_netlbl_skbuff_getsid(skb, family, &nlbl_type, &nlbl_sid);
- 
--	if (security_net_peersid_resolve(nlbl_sid, nlbl_type,
--					 xfrm_sid,
--					 sid) != 0)
-+	err = security_net_peersid_resolve(nlbl_sid, nlbl_type, xfrm_sid, sid);
-+	if (unlikely(err)) {
-+		printk(KERN_WARNING
-+		       "SELinux: failure in selinux_skb_peerlbl_sid(),"
-+		       " unable to determine packet's peer label\n");
- 		return -EACCES;
-+	}
- 
- 	return 0;
- }
-@@ -3688,8 +3697,13 @@ static int selinux_sock_rcv_skb_iptables_compat(struct sock *sk,
- 	err = security_port_sid(sk->sk_family, sk->sk_type,
- 				sk->sk_protocol, ntohs(ad->u.net.sport),
- 				&port_sid);
--	if (err)
-+	if (unlikely(err)) {
-+		printk(KERN_WARNING
-+		       "SELinux: failure in"
-+		       " selinux_sock_rcv_skb_iptables_compat(),"
-+		       " network port label not found\n");
- 		return err;
-+	}
- 	return avc_has_perm(sk_sid, port_sid, sk_class, recv_perm, ad);
- }
- 
-@@ -4094,8 +4108,13 @@ static int selinux_ip_postroute_iptables_compat(struct sock *sk,
- 	err = security_port_sid(sk->sk_family, sk->sk_type,
- 				sk->sk_protocol, ntohs(ad->u.net.dport),
- 				&port_sid);
--	if (err)
-+	if (unlikely(err)) {
-+		printk(KERN_WARNING
-+		       "SELinux: failure in"
-+		       " selinux_ip_postroute_iptables_compat(),"
-+		       " network port label not found\n");
- 		return err;
-+	}
- 	return avc_has_perm(sk_sid, port_sid, sk_class, send_perm, ad);
- }
- 
-diff --git a/security/selinux/netif.c b/security/selinux/netif.c
-index ee49a73..013d311 100644
---- a/security/selinux/netif.c
-+++ b/security/selinux/netif.c
-@@ -157,8 +157,12 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
- 	 * currently support containers */
- 
- 	dev = dev_get_by_index(&init_net, ifindex);
--	if (dev == NULL)
-+	if (unlikely(dev == NULL)) {
-+		printk(KERN_WARNING
-+		       "SELinux: failure in sel_netif_sid_slow(),"
-+		       " invalid network interface (%d)\n", ifindex);
- 		return -ENOENT;
-+	}
- 
- 	spin_lock_bh(&sel_netif_lock);
- 	netif = sel_netif_find(ifindex);
-@@ -184,8 +188,13 @@ static int sel_netif_sid_slow(int ifindex, u32 *sid)
- out:
- 	spin_unlock_bh(&sel_netif_lock);
- 	dev_put(dev);
--	if (ret != 0)
-+	if (unlikely(ret)) {
-+		printk(KERN_WARNING
-+		       "SELinux: failure in sel_netif_sid_slow(),"
-+		       " unable to determine network interface label (%d)\n",
-+		       ifindex);
- 		kfree(new);
-+	}
- 	return ret;
- }
- 
-diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-index 49c5277..f3c526f 100644
---- a/security/selinux/netnode.c
-+++ b/security/selinux/netnode.c
-@@ -264,8 +264,12 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
- 
- out:
- 	spin_unlock_bh(&sel_netnode_lock);
--	if (ret != 0)
-+	if (unlikely(ret)) {
-+		printk(KERN_WARNING
-+		       "SELinux: failure in sel_netnode_sid_slow(),"
-+		       " unable to determine network node label\n");
- 		kfree(new);
-+	}
- 	return ret;
- }
- 
+Otherwise, looks fine.
+
+> 
+> ---
+>  checkpolicy/Makefile                      |    2 +-
+>  libselinux/src/Makefile                   |    2 +-
+>  libsemanage/src/Makefile                  |    2 +-
+>  libsepol/src/Makefile                     |    2 +-
+>  policycoreutils/audit2why/Makefile        |    2 +-
+>  policycoreutils/load_policy/Makefile      |    2 +-
+>  policycoreutils/newrole/Makefile          |    2 +-
+>  policycoreutils/restorecond/Makefile      |    2 +-
+>  policycoreutils/run_init/Makefile         |    2 +-
+>  policycoreutils/secon/Makefile            |    2 +-
+>  policycoreutils/semodule/Makefile         |    2 +-
+>  policycoreutils/semodule_deps/Makefile    |    2 +-
+>  policycoreutils/semodule_expand/Makefile  |    2 +-
+>  policycoreutils/semodule_link/Makefile    |    2 +-
+>  policycoreutils/semodule_package/Makefile |    2 +-
+>  policycoreutils/sestatus/Makefile         |    2 +-
+>  policycoreutils/setfiles/Makefile         |    2 +-
+>  policycoreutils/setsebool/Makefile        |    2 +-
+>  18 files changed, 18 insertions(+), 18 deletions(-)
+> 
+> Index: trunk/checkpolicy/Makefile
+> ===================================================================
+> --- trunk.orig/checkpolicy/Makefile
+> +++ trunk/checkpolicy/Makefile
+> @@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
+>  
+>  YACC = bison -y
+>  
+> -CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
+> +CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
+>  
+>  override CFLAGS += -I. -I${INCLUDEDIR}
+>  
+> Index: trunk/libselinux/src/Makefile
+> ===================================================================
+> --- trunk.orig/libselinux/src/Makefile
+> +++ trunk/libselinux/src/Makefile
+> @@ -32,7 +32,7 @@ SRCS= $(filter-out $(UNUSED_SRCS), $(fil
+>  
+>  OBJS= $(patsubst %.c,%.o,$(SRCS))
+>  LOBJS= $(patsubst %.c,%.lo,$(SRCS))
+> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+> +CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Werror
+>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
+>  RANLIB=ranlib
+>  
+> Index: trunk/libsemanage/src/Makefile
+> ===================================================================
+> --- trunk.orig/libsemanage/src/Makefile
+> +++ trunk/libsemanage/src/Makefile
+> @@ -31,7 +31,7 @@ SWIGFILES=$(SWIGSO) semanage.py 
+>  LIBSO=$(TARGET).$(LIBVERSION)
+>  OBJS= $(patsubst %.c,%.o,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.o conf-parse.o
+>  LOBJS= $(patsubst %.c,%.lo,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.lo conf-parse.lo
+> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
+> +CFLAGS ?= -Wall -W Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
+>  
+>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE 
+>  
+> Index: trunk/libsepol/src/Makefile
+> ===================================================================
+> --- trunk.orig/libsepol/src/Makefile
+> +++ trunk/libsepol/src/Makefile
+> @@ -10,7 +10,7 @@ TARGET=libsepol.so
+>  LIBSO=$(TARGET).$(LIBVERSION)
+>  OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
+>  LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
+> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+> +CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Werror
+>  override CFLAGS += -I. -I../include -D_GNU_SOURCE
+>  
+>  all: $(LIBA) $(LIBSO)
+> Index: trunk/policycoreutils/audit2why/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/audit2why/Makefile
+> +++ trunk/policycoreutils/audit2why/Makefile
+> @@ -7,7 +7,7 @@ LOCALEDIR ?= /usr/share/locale
+>  INCLUDEDIR ?= ${PREFIX}/include
+>  
+> 
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(INCLUDEDIR)
+>  LDLIBS = ${LIBDIR}/libsepol.a -lselinux -L$(LIBDIR)
+>  
+> Index: trunk/policycoreutils/load_policy/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/load_policy/Makefile
+> +++ trunk/policycoreutils/load_policy/Makefile
+> @@ -4,7 +4,7 @@ SBINDIR ?= $(PREFIX)/sbin
+>  MANDIR ?= $(PREFIX)/share/man
+>  LOCALEDIR ?= /usr/share/locale
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+>  LDLIBS += -lsepol -lselinux -L$(PREFIX)/lib
+>  
+> Index: trunk/policycoreutils/newrole/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/newrole/Makefile
+> +++ trunk/policycoreutils/newrole/Makefile
+> @@ -20,7 +20,7 @@ NAMESPACE_PRIV ?= n
+>  LSPP_PRIV ?= n
+>  VERSION = $(shell cat ../VERSION)
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  EXTRA_OBJS =
+>  override CFLAGS += -DVERSION=\"$(VERSION)\" $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+>  LDLIBS += -lselinux -L$(PREFIX)/lib
+> Index: trunk/policycoreutils/restorecond/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/restorecond/Makefile
+> +++ trunk/policycoreutils/restorecond/Makefile
+> @@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
+>  INITDIR = $(DESTDIR)/etc/rc.d/init.d
+>  SELINUXDIR = $(DESTDIR)/etc/selinux
+>  
+> -CFLAGS ?= -g -Werror -Wall -W
+> +CFLAGS ?= -g -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
+>  LDLIBS += -lselinux -L$(PREFIX)/lib
+>  
+> Index: trunk/policycoreutils/run_init/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/run_init/Makefile
+> +++ trunk/policycoreutils/run_init/Makefile
+> @@ -8,7 +8,7 @@ LOCALEDIR ?= /usr/share/locale
+>  PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
+>  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+>  LDLIBS += -lselinux -L$(PREFIX)/lib
+>  ifeq (${PAMH}, /usr/include/security/pam_appl.h)
+> Index: trunk/policycoreutils/secon/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/secon/Makefile
+> +++ trunk/policycoreutils/secon/Makefile
+> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
+>  MANDIR ?= $(PREFIX)/share/man
+>  LIBDIR ?= ${PREFIX}/lib
+>  
+> -WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
+> +WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal -Werror
+>  VERSION = $(shell cat ../VERSION)
+>  CFLAGS ?= $(WARNS) -O1
+>  override CFLAGS += -DVERSION=\"$(VERSION)\" -I$(INCLUDEDIR) 
+> Index: trunk/policycoreutils/semodule/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/semodule/Makefile
+> +++ trunk/policycoreutils/semodule/Makefile
+> @@ -5,7 +5,7 @@ SBINDIR ?= $(PREFIX)/sbin
+>  MANDIR = $(PREFIX)/share/man
+>  LIBDIR ?= ${PREFIX}/lib
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(INCLUDEDIR)
+>  LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
+>  SEMODULE_OBJS = semodule.o
+> Index: trunk/policycoreutils/semodule_deps/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/semodule_deps/Makefile
+> +++ trunk/policycoreutils/semodule_deps/Makefile
+> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
+>  LIBDIR ?= ${PREFIX}/lib
+>  MANDIR ?= $(PREFIX)/share/man
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(INCLUDEDIR)
+>  LDLIBS = $(LIBDIR)/libsepol.a
+>  
+> Index: trunk/policycoreutils/semodule_expand/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/semodule_expand/Makefile
+> +++ trunk/policycoreutils/semodule_expand/Makefile
+> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
+>  LIBDIR ?= ${PREFIX}/lib
+>  MANDIR ?= $(PREFIX)/share/man
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(INCLUDEDIR)
+>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
+>  
+> Index: trunk/policycoreutils/semodule_link/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/semodule_link/Makefile
+> +++ trunk/policycoreutils/semodule_link/Makefile
+> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
+>  MANDIR ?= $(PREFIX)/share/man
+>  LIBDIR ?= ${PREFIX}/lib
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(INCLUDEDIR)
+>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
+>  
+> Index: trunk/policycoreutils/semodule_package/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/semodule_package/Makefile
+> +++ trunk/policycoreutils/semodule_package/Makefile
+> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
+>  LIBDIR ?= ${PREFIX}/lib
+>  MANDIR ?= $(PREFIX)/share/man
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(INCLUDEDIR)
+>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
+>  
+> Index: trunk/policycoreutils/sestatus/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/sestatus/Makefile
+> +++ trunk/policycoreutils/sestatus/Makefile
+> @@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
+>  ETCDIR ?= $(DESTDIR)/etc
+>  LIBDIR ?= ${PREFIX}/lib
+>  
+> -CFLAGS = -Werror -Wall -W
+> +CFLAGS = -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
+>  LDLIBS = -lselinux -L$(LIBDIR)
+>  
+> Index: trunk/policycoreutils/setfiles/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/setfiles/Makefile
+> +++ trunk/policycoreutils/setfiles/Makefile
+> @@ -6,7 +6,7 @@ LIBDIR ?= $(PREFIX)/lib
+>  
+>  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
+>  
+> -CFLAGS = -Werror -Wall -W 
+> +CFLAGS = -Werror -Wall -W  -Werror
+>  override CFLAGS += -D_FILE_OFFSET_BITS=64 -I$(PREFIX)/include
+>  LDLIBS = -lselinux -lsepol -L$(LIBDIR)
+>  
+> Index: trunk/policycoreutils/setsebool/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/setsebool/Makefile
+> +++ trunk/policycoreutils/setsebool/Makefile
+> @@ -5,7 +5,7 @@ SBINDIR ?= $(PREFIX)/sbin
+>  MANDIR = $(PREFIX)/share/man
+>  LIBDIR ?= ${PREFIX}/lib
+>  
+> -CFLAGS ?= -Werror -Wall -W
+> +CFLAGS ?= -Werror -Wall -W -Werror
+>  override CFLAGS += -I$(INCLUDEDIR)
+>  LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
+>  SETSEBOOL_OBJS = setsebool.o
+> 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
