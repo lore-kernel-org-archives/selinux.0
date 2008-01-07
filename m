@@ -1,287 +1,237 @@
-Message-ID: <47826FBC.9010000@tresys.com>
-Date: Mon, 07 Jan 2008 13:30:20 -0500
-From: Joshua Brindle <jbrindle@tresys.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: tmiller@tresys.com, selinux@tycho.nsa.gov, method@madmethod.com
-Subject: Re: [patch 7/7] Use -Werror
-References: <20080103184331.485176161@tresys.com>	 <20080103184516.399115672@tresys.com> <1199729186.2944.169.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1199729186.2944.169.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: RE: newrole in the background
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Reed, Tim (US SSA)" <tim.reed@baesystems.com>
+Cc: Xavier Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <436A69503F99214D9EBC27415F66C40C0F6AA4EA@blums0008.bluelnk.net>
+References: <436A69503F99214D9EBC27415F66C40C0F517115@blums0008.bluelnk.net>
+	 <1197555910.20226.8.camel@moss-spartans.epoch.ncsc.mil>
+	 <cadfc0e40712130641r301dd959x895f33ff1e72f581@mail.gmail.com>
+	 <1197558486.20226.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A69503F99214D9EBC27415F66C40C0F597703@blums0008.bluelnk.net>
+	 <1197567614.20226.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A69503F99214D9EBC27415F66C40C0F597E63@blums0008.bluelnk.net>
+	 <1197907810.17307.38.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A69503F99214D9EBC27415F66C40C0F59812B@blums0008.bluelnk.net>
+	 <1198252853.2944.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <cadfc0e40712210831p29ed2ab1mf3765448cc7ab1c4@mail.gmail.com>
+	 <1198257133.2944.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <436A69503F99214D9EBC27415F66C40C0F6AA4EA@blums0008.bluelnk.net>
+Content-Type: text/plain
+Date: Mon, 07 Jan 2008 13:43:49 -0500
+Message-Id: <1199731429.2944.199.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2008-01-03 at 13:43 -0500, tmiller@tresys.com wrote:
->> plain text document attachment (Werror.patch)
->> Add -Werror to Makefiles
-> 
-> A bit overzealous though - some of them already had -Werror in CFLAGS.
-> 
-> Otherwise, looks fine.
 
-Is there a good reason we have CFLAGS per Makefile instead of once at 
-the top level? I use DEBUG=1 most of the time and everything builds fine 
-with a common set.
-
+On Mon, 2007-12-31 at 07:49 -0800, Reed, Tim (US SSA) wrote:
+> I know you already applied this to the trunk, but here is another patch.
 > 
->> ---
->>  checkpolicy/Makefile                      |    2 +-
->>  libselinux/src/Makefile                   |    2 +-
->>  libsemanage/src/Makefile                  |    2 +-
->>  libsepol/src/Makefile                     |    2 +-
->>  policycoreutils/audit2why/Makefile        |    2 +-
->>  policycoreutils/load_policy/Makefile      |    2 +-
->>  policycoreutils/newrole/Makefile          |    2 +-
->>  policycoreutils/restorecond/Makefile      |    2 +-
->>  policycoreutils/run_init/Makefile         |    2 +-
->>  policycoreutils/secon/Makefile            |    2 +-
->>  policycoreutils/semodule/Makefile         |    2 +-
->>  policycoreutils/semodule_deps/Makefile    |    2 +-
->>  policycoreutils/semodule_expand/Makefile  |    2 +-
->>  policycoreutils/semodule_link/Makefile    |    2 +-
->>  policycoreutils/semodule_package/Makefile |    2 +-
->>  policycoreutils/sestatus/Makefile         |    2 +-
->>  policycoreutils/setfiles/Makefile         |    2 +-
->>  policycoreutils/setsebool/Makefile        |    2 +-
->>  18 files changed, 18 insertions(+), 18 deletions(-)
->>
->> Index: trunk/checkpolicy/Makefile
->> ===================================================================
->> --- trunk.orig/checkpolicy/Makefile
->> +++ trunk/checkpolicy/Makefile
->> @@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
->>  
->>  YACC = bison -y
->>  
->> -CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
->> +CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
->>  
->>  override CFLAGS += -I. -I${INCLUDEDIR}
->>  
->> Index: trunk/libselinux/src/Makefile
->> ===================================================================
->> --- trunk.orig/libselinux/src/Makefile
->> +++ trunk/libselinux/src/Makefile
->> @@ -32,7 +32,7 @@ SRCS= $(filter-out $(UNUSED_SRCS), $(fil
->>  
->>  OBJS= $(patsubst %.c,%.o,$(SRCS))
->>  LOBJS= $(patsubst %.c,%.lo,$(SRCS))
->> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
->> +CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Werror
->>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
->>  RANLIB=ranlib
->>  
->> Index: trunk/libsemanage/src/Makefile
->> ===================================================================
->> --- trunk.orig/libsemanage/src/Makefile
->> +++ trunk/libsemanage/src/Makefile
->> @@ -31,7 +31,7 @@ SWIGFILES=$(SWIGSO) semanage.py 
->>  LIBSO=$(TARGET).$(LIBVERSION)
->>  OBJS= $(patsubst %.c,%.o,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.o conf-parse.o
->>  LOBJS= $(patsubst %.c,%.lo,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.lo conf-parse.lo
->> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
->> +CFLAGS ?= -Wall -W Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
->>  
->>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE 
->>  
->> Index: trunk/libsepol/src/Makefile
->> ===================================================================
->> --- trunk.orig/libsepol/src/Makefile
->> +++ trunk/libsepol/src/Makefile
->> @@ -10,7 +10,7 @@ TARGET=libsepol.so
->>  LIBSO=$(TARGET).$(LIBVERSION)
->>  OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
->>  LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
->> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
->> +CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Werror
->>  override CFLAGS += -I. -I../include -D_GNU_SOURCE
->>  
->>  all: $(LIBA) $(LIBSO)
->> Index: trunk/policycoreutils/audit2why/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/audit2why/Makefile
->> +++ trunk/policycoreutils/audit2why/Makefile
->> @@ -7,7 +7,7 @@ LOCALEDIR ?= /usr/share/locale
->>  INCLUDEDIR ?= ${PREFIX}/include
->>  
->>
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(INCLUDEDIR)
->>  LDLIBS = ${LIBDIR}/libsepol.a -lselinux -L$(LIBDIR)
->>  
->> Index: trunk/policycoreutils/load_policy/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/load_policy/Makefile
->> +++ trunk/policycoreutils/load_policy/Makefile
->> @@ -4,7 +4,7 @@ SBINDIR ?= $(PREFIX)/sbin
->>  MANDIR ?= $(PREFIX)/share/man
->>  LOCALEDIR ?= /usr/share/locale
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
->>  LDLIBS += -lsepol -lselinux -L$(PREFIX)/lib
->>  
->> Index: trunk/policycoreutils/newrole/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/newrole/Makefile
->> +++ trunk/policycoreutils/newrole/Makefile
->> @@ -20,7 +20,7 @@ NAMESPACE_PRIV ?= n
->>  LSPP_PRIV ?= n
->>  VERSION = $(shell cat ../VERSION)
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  EXTRA_OBJS =
->>  override CFLAGS += -DVERSION=\"$(VERSION)\" $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
->>  LDLIBS += -lselinux -L$(PREFIX)/lib
->> Index: trunk/policycoreutils/restorecond/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/restorecond/Makefile
->> +++ trunk/policycoreutils/restorecond/Makefile
->> @@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
->>  INITDIR = $(DESTDIR)/etc/rc.d/init.d
->>  SELINUXDIR = $(DESTDIR)/etc/selinux
->>  
->> -CFLAGS ?= -g -Werror -Wall -W
->> +CFLAGS ?= -g -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
->>  LDLIBS += -lselinux -L$(PREFIX)/lib
->>  
->> Index: trunk/policycoreutils/run_init/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/run_init/Makefile
->> +++ trunk/policycoreutils/run_init/Makefile
->> @@ -8,7 +8,7 @@ LOCALEDIR ?= /usr/share/locale
->>  PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
->>  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
->>  LDLIBS += -lselinux -L$(PREFIX)/lib
->>  ifeq (${PAMH}, /usr/include/security/pam_appl.h)
->> Index: trunk/policycoreutils/secon/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/secon/Makefile
->> +++ trunk/policycoreutils/secon/Makefile
->> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
->>  MANDIR ?= $(PREFIX)/share/man
->>  LIBDIR ?= ${PREFIX}/lib
->>  
->> -WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
->> +WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal -Werror
->>  VERSION = $(shell cat ../VERSION)
->>  CFLAGS ?= $(WARNS) -O1
->>  override CFLAGS += -DVERSION=\"$(VERSION)\" -I$(INCLUDEDIR) 
->> Index: trunk/policycoreutils/semodule/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/semodule/Makefile
->> +++ trunk/policycoreutils/semodule/Makefile
->> @@ -5,7 +5,7 @@ SBINDIR ?= $(PREFIX)/sbin
->>  MANDIR = $(PREFIX)/share/man
->>  LIBDIR ?= ${PREFIX}/lib
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(INCLUDEDIR)
->>  LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
->>  SEMODULE_OBJS = semodule.o
->> Index: trunk/policycoreutils/semodule_deps/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/semodule_deps/Makefile
->> +++ trunk/policycoreutils/semodule_deps/Makefile
->> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
->>  LIBDIR ?= ${PREFIX}/lib
->>  MANDIR ?= $(PREFIX)/share/man
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(INCLUDEDIR)
->>  LDLIBS = $(LIBDIR)/libsepol.a
->>  
->> Index: trunk/policycoreutils/semodule_expand/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/semodule_expand/Makefile
->> +++ trunk/policycoreutils/semodule_expand/Makefile
->> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
->>  LIBDIR ?= ${PREFIX}/lib
->>  MANDIR ?= $(PREFIX)/share/man
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(INCLUDEDIR)
->>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
->>  
->> Index: trunk/policycoreutils/semodule_link/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/semodule_link/Makefile
->> +++ trunk/policycoreutils/semodule_link/Makefile
->> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
->>  MANDIR ?= $(PREFIX)/share/man
->>  LIBDIR ?= ${PREFIX}/lib
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(INCLUDEDIR)
->>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
->>  
->> Index: trunk/policycoreutils/semodule_package/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/semodule_package/Makefile
->> +++ trunk/policycoreutils/semodule_package/Makefile
->> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
->>  LIBDIR ?= ${PREFIX}/lib
->>  MANDIR ?= $(PREFIX)/share/man
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(INCLUDEDIR)
->>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
->>  
->> Index: trunk/policycoreutils/sestatus/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/sestatus/Makefile
->> +++ trunk/policycoreutils/sestatus/Makefile
->> @@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
->>  ETCDIR ?= $(DESTDIR)/etc
->>  LIBDIR ?= ${PREFIX}/lib
->>  
->> -CFLAGS = -Werror -Wall -W
->> +CFLAGS = -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
->>  LDLIBS = -lselinux -L$(LIBDIR)
->>  
->> Index: trunk/policycoreutils/setfiles/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/setfiles/Makefile
->> +++ trunk/policycoreutils/setfiles/Makefile
->> @@ -6,7 +6,7 @@ LIBDIR ?= $(PREFIX)/lib
->>  
->>  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
->>  
->> -CFLAGS = -Werror -Wall -W 
->> +CFLAGS = -Werror -Wall -W  -Werror
->>  override CFLAGS += -D_FILE_OFFSET_BITS=64 -I$(PREFIX)/include
->>  LDLIBS = -lselinux -lsepol -L$(LIBDIR)
->>  
->> Index: trunk/policycoreutils/setsebool/Makefile
->> ===================================================================
->> --- trunk.orig/policycoreutils/setsebool/Makefile
->> +++ trunk/policycoreutils/setsebool/Makefile
->> @@ -5,7 +5,7 @@ SBINDIR ?= $(PREFIX)/sbin
->>  MANDIR = $(PREFIX)/share/man
->>  LIBDIR ?= ${PREFIX}/lib
->>  
->> -CFLAGS ?= -Werror -Wall -W
->> +CFLAGS ?= -Werror -Wall -W -Werror
->>  override CFLAGS += -I$(INCLUDEDIR)
->>  LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
->>  SETSEBOOL_OBJS = setsebool.o
->>
+> 
+> I cleaned up the handling of the -c argument.  Instead of messing with
+> the argv that is passed in, I have it use a temp variable.  Plus if the
+> command that the user wants to run has command line args of its own (ls
+> -lrt /tmp), I push those into one value in the command line array.  I
+> was having issues with the new shell that gets spawned off dropping the
+> command's arguments that I was trying to pass it.  So I would get an
+> "ls" instead of "ls -lrt /tmp".  No quoting it did not work, as our
+> application passes a string as an argument to the command.
+> 
+> BTW which is the correct version to be working on 1.34.11 or 2.0.27?
 
+You should work off the svn trunk when possible, although you may have
+to back port it for RHEL.  And use separate patches for separate logical
+changes, e.g. one patch for the no-tty support (already merged) and a
+new patch for altering -c handling relative to the prior one.
+
+Your patch drops the use of the "-" prefix on the shell argv0 (login
+shell) even when newrole is not used with "-c". That was added a while
+ago by Dan Walsh.
+
+Current newrole -c usage is a bit awkward, although it is consistent
+with su -c usage, so I'm not opposed to improving it, but we have to be
+careful not to break existing usage.
+
+asprintf has to be checked for failure.
+
+Looks like your patch will ignore a -c followed by no args w/o an error
+message?
+
+Building up the unified argument can be done with less duplication -
+compute the total length, allocate it once, and use stpcpy to copy in
+the components.  See libselinux/src/context.c:context_str for an
+example.
+
+Patch had noise (diff for newrole.c~ backup file), and even the first
+diff didn't apply against either stable or trunk for me.
+
+> Thanks!
+> Tim
+> 
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> Sent: Friday, December 21, 2007 12:12 PM
+> To: Xavier Toth
+> Cc: Reed, Tim (US SSA); SE Linux
+> Subject: Re: newrole in the background
+> 
+> 
+> On Fri, 2007-12-21 at 10:31 -0600, Xavier Toth wrote:
+> > Works for me, thanks.
+> 
+> Ok, merged to trunk version of newrole.
+> 
+> As usual, if you want something like this in an existing distro release
+> (e.g. RHEL5), you'll have to bugzilla it there and get it queued for an
+> update.
+> 
+> > 
+> > On Dec 21, 2007 10:00 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > >
+> > > On Mon, 2007-12-17 at 12:40 -0800, Reed, Tim (US SSA) wrote:
+> > > > Lets try this again....Patch Try #3
+> > >
+> > > This looks ok to me, although it doesn't apply cleanly on the trunk,
+> and
+> > > the coding style still needs fixing (but I suppose make indent will
+> fix
+> > > it up).
+> > >
+> > > Does anyone else have any comments on this?  Does it meet Ted's need
+> > > too?
+> > >
+> > > I tried running a program that detached the tty and then invoked the
+> > > patched newrole with a command, and as expected, if configured to
+> use
+> > > pam modules that required authentication, it just failed at that
+> point
+> > > with an authentication failed error, and otherwise, it proceeded
+> without
+> > > problem.
+> > >
+> > >
+> > > > -----Original Message-----
+> > > > From: owner-selinux@tycho.nsa.gov
+> [mailto:owner-selinux@tycho.nsa.gov]
+> > > > On Behalf Of Stephen Smalley
+> > > > Sent: Monday, December 17, 2007 11:10 AM
+> > > > To: Reed, Tim (US SSA)
+> > > > Cc: Xavier Toth; SE Linux
+> > > > Subject: RE: newrole in the background
+> > > >
+> > > > On Mon, 2007-12-17 at 08:01 -0800, Reed, Tim (US SSA) wrote:
+> > > > > When newrole goes and grabs the ttyname, if it cannot get one
+> should
+> > > > it
+> > > > > still log something to the screen or not?
+> > > > >
+> > > > > Currently it says "Error! Could not retrieve tty information".
+> I was
+> > > > > thinking of changing Error to Warning.
+> > > >
+> > > > Yes, that's fine.
+> > > > >
+> > > > > What is the recommendation here?
+> > > > > Also do you have the coding standards posted somewhere?
+> > > >
+> > > > We just loosely follow kernel coding style,
+> > > > http://lxr.linux.no/linux/Documentation/CodingStyle
+> > > > and make indent can be used as a hammer (but not a very good one).
+> > > >
+> > > > >
+> > > > > -----Original Message-----
+> > > > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > > > > Sent: Thursday, December 13, 2007 12:40 PM
+> > > > > To: Reed, Tim (US SSA)
+> > > > > Cc: Xavier Toth; SE Linux
+> > > > > Subject: RE: newrole in the background
+> > > > >
+> > > > > On Thu, 2007-12-13 at 09:06 -0800, Reed, Tim (US SSA) wrote:
+> > > > > > New patch...I have added checks around the calls that deal
+> with the
+> > > > > tty.
+> > > > > > So if ttyn is an empty string (something had a heartache with
+> it
+> > > > being
+> > > > > > NULL) then it skips the processing.  It does appear to work
+> but more
+> > > > > > testing is needed.  Please review and comment.
+> > > > >
+> > > > > Patch is reversed, and doesn't seem to be complete (test for a
+> NULL
+> > > > > ttyname still remains and is fatal in main).
+> > > > >
+> > > > > ttyn should really be NULL if not defined - just fix the code.
+> > > > Cleaner
+> > > > > and faster to test for NULL than for empty string.  Looks like
+> > > > > authenticate_via_pam() needs a check.
+> > > > >
+> > > > > You can simplify the logic a fair amount, e.g. on entry to
+> > > > relabel_tty()
+> > > > > and restore_tty_label(), just do a if (!ttyn) return 0;
+> > > > >
+> > > > > Coding style doesn't match.
+> > > > >
+> > > > > > Now say if someone ran `newrole -l SystemHigh -- -c "su -
+> foo"` in
+> > > > the
+> > > > > > background of a script, you would not be able to give su input
+> as it
+> > > > > is
+> > > > > > in the background and has no tty.  su in this case exits
+> gracefully
+> > > > I
+> > > > > > guess you could say.
+> > > > > >
+> > > > > > My point is that if you have an application that needs to run
+> from
+> > > > > > newrole, in the background AND requires user input, you will
+> not be
+> > > > > able
+> > > > > > to give the application input while it is in the background
+> and have
+> > > > > it
+> > > > > > work successfully.
+> > > > >
+> > > > > You can't do that anyway, by definition.
+> > > > >
+> > > > > > Example:
+> > > > > > foo.sh
+> > > > > > ---------------
+> > > > > > #!/bin/bash
+> > > > > >
+> > > > > > ./bar.sh &
+> > > > > > ---------------
+> > > > > > bar.sh
+> > > > > > ---------------
+> > > > > > #!/bin/bash
+> > > > > >
+> > > > > > su - root -c /bin/date
+> > > > > > ---------------
+> > > > > >
+> > > > > > su exits because there is no tty for input.  So is chasing
+> down
+> > > > having
+> > > > > > newrole run in a pseudo tty in the background and accept input
+> worth
+> > > > > the
+> > > > > > time?
+> > > > >
+> > > > > It doesn't help - there is no input to accept.
+> > > > >
+> > > > > We just need to make sure that the pam modules and chkpwd don't
+> block
+> > > > > forever or seg fault when handed a NULL PAM_TTY.
+> > > > >
+> > > --
+> > > Stephen Smalley
+> > > National Security Agency
+> > >
+> > >
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
