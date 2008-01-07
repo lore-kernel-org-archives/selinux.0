@@ -1,21 +1,20 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m07HtU6Y030096
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 12:55:30 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m07HtTkP030088
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 12:55:29 -0500
 Received: from g4t0015.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m07HtTfn027949
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 17:55:29 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m07HtSfn027943
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 17:55:28 GMT
 Received: from g4t0015.houston.hp.com (localhost.localdomain [127.0.0.1])
-	by receive-from-antispam-filter (Postfix) with SMTP id EC8E0819D
-	for <selinux@tycho.nsa.gov>; Mon,  7 Jan 2008 17:55:28 +0000 (UTC)
-Received: from smtp1.fc.hp.com (smtp.cnd.hp.com [15.15.136.127])
-	by g4t0015.houston.hp.com (Postfix) with ESMTP id E0A4D816E
-	for <selinux@tycho.nsa.gov>; Mon,  7 Jan 2008 17:55:28 +0000 (UTC)
+	by receive-from-antispam-filter (Postfix) with SMTP id E22F28163
+	for <selinux@tycho.nsa.gov>; Mon,  7 Jan 2008 17:55:27 +0000 (UTC)
+Received: from smtp1.fc.hp.com (smtp1.fc.hp.com [15.15.136.127])
+	by g4t0015.houston.hp.com (Postfix) with ESMTP id C65AA80C4
+	for <selinux@tycho.nsa.gov>; Mon,  7 Jan 2008 17:55:27 +0000 (UTC)
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v11 07/19] NET: Clone the sk_buff 'iif' field in
-	__skb_clone()
+Subject: [RFC PATCH v11 05/19] LSM: Add secctx_to_secid() LSM hook
 To: selinux@tycho.nsa.gov
-Date: Mon, 07 Jan 2008 12:55:27 -0500
-Message-ID: <20080107175527.13733.12852.stgit@flek.americas.hpqcorp.net>
+Date: Mon, 07 Jan 2008 12:55:14 -0500
+Message-ID: <20080107175514.13733.51404.stgit@flek.americas.hpqcorp.net>
 In-Reply-To: <20080107174952.13733.68074.stgit@flek.americas.hpqcorp.net>
 References: <20080107174952.13733.68074.stgit@flek.americas.hpqcorp.net>
 MIME-Version: 1.0
@@ -23,63 +22,130 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Both NetLabel and SELinux (other LSMs may grow to use it as well) rely on the
-'iif' field to determine the receiving network interface of inbound packets.
-Unfortunately, at present this field is not preserved across a skb clone
-operation which can lead to garbage values if the cloned skb is sent back
-through the network stack.  This patch corrects this problem by properly
-copying the 'iif' field in __skb_clone() and removing the 'iif' field
-assignment from skb_act_clone() since it is no longer needed.
-
-Also, while we are here, put the assignments in the same order as the offsets
-to reduce cacheline bounces.
+Add a secctx_to_secid() LSM hook to go along with the existing
+secid_to_secctx() LSM hook.  This patch also includes the SELinux
+implementation for this hook.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
 
- include/net/sch_generic.h |    1 -
- net/core/skbuff.c         |   11 ++++++-----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ include/linux/security.h |   13 +++++++++++++
+ security/dummy.c         |    6 ++++++
+ security/security.c      |    6 ++++++
+ security/selinux/hooks.c |    6 ++++++
+ 4 files changed, 31 insertions(+), 0 deletions(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index c926551..4c3b351 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -325,7 +325,6 @@ static inline struct sk_buff *skb_act_clone(struct sk_buff *skb, gfp_t gfp_mask)
- 		n->tc_verd = SET_TC_VERD(n->tc_verd, 0);
- 		n->tc_verd = CLR_TC_OK2MUNGE(n->tc_verd);
- 		n->tc_verd = CLR_TC_MUNGED(n->tc_verd);
--		n->iif = skb->iif;
- 	}
- 	return n;
- }
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 5b4ce9b..b628377 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -416,16 +416,17 @@ static struct sk_buff *__skb_clone(struct sk_buff *n, struct sk_buff *skb)
- 	C(len);
- 	C(data_len);
- 	C(mac_len);
--	n->cloned = 1;
- 	n->hdr_len = skb->nohdr ? skb_headroom(skb) : skb->hdr_len;
-+	n->cloned = 1;
- 	n->nohdr = 0;
- 	n->destructor = NULL;
--	C(truesize);
--	atomic_set(&n->users, 1);
--	C(head);
--	C(data);
-+	C(iif);
- 	C(tail);
- 	C(end);
-+	C(head);
-+	C(data);
-+	C(truesize);
-+	atomic_set(&n->users, 1);
+diff --git a/include/linux/security.h b/include/linux/security.h
+index ac05083..db19c92 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1183,6 +1183,10 @@ struct request_sock;
+  *	Convert secid to security context.
+  *	@secid contains the security ID.
+  *	@secdata contains the pointer that stores the converted security context.
++ * @secctx_to_secid:
++ *      Convert security context to secid.
++ *      @secid contains the pointer to the generated security ID.
++ *      @secdata contains the security context.
+  *
+  * @release_secctx:
+  *	Release the security context.
+@@ -1371,6 +1375,7 @@ struct security_operations {
+  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+ 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
++	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
  
- 	atomic_inc(&(skb_shinfo(skb)->dataref));
- 	skb->cloned = 1;
+ #ifdef CONFIG_SECURITY_NETWORK
+@@ -1603,6 +1608,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_netlink_recv(struct sk_buff *skb, int cap);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
++int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
+ void security_release_secctx(char *secdata, u32 seclen);
+ 
+ #else /* CONFIG_SECURITY */
+@@ -2280,6 +2286,13 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 	return -EOPNOTSUPP;
+ }
+ 
++static inline int security_secctx_to_secid(char *secdata,
++					   u32 seclen,
++					   u32 *secid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline void security_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+diff --git a/security/dummy.c b/security/dummy.c
+index 3ccfbbe..0b62f95 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -928,6 +928,11 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return -EOPNOTSUPP;
+ }
+ 
++static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static void dummy_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+@@ -1086,6 +1091,7 @@ void security_fixup_ops (struct security_operations *ops)
+  	set_to_dummy_if_null(ops, getprocattr);
+  	set_to_dummy_if_null(ops, setprocattr);
+  	set_to_dummy_if_null(ops, secid_to_secctx);
++	set_to_dummy_if_null(ops, secctx_to_secid);
+  	set_to_dummy_if_null(ops, release_secctx);
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	set_to_dummy_if_null(ops, unix_stream_connect);
+diff --git a/security/security.c b/security/security.c
+index 0e1f1f1..3bdcada 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -816,6 +816,12 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
++int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return security_ops->secctx_to_secid(secdata, seclen, secid);
++}
++EXPORT_SYMBOL(security_secctx_to_secid);
++
+ void security_release_secctx(char *secdata, u32 seclen)
+ {
+ 	return security_ops->release_secctx(secdata, seclen);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9f3124b..8bb673b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4710,6 +4710,11 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return security_sid_to_context(secid, secdata, seclen);
+ }
+ 
++static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return security_context_to_sid(secdata, seclen, secid);
++}
++
+ static void selinux_release_secctx(char *secdata, u32 seclen)
+ {
+ 	kfree(secdata);
+@@ -4898,6 +4903,7 @@ static struct security_operations selinux_ops = {
+ 	.setprocattr =                  selinux_setprocattr,
+ 
+ 	.secid_to_secctx =		selinux_secid_to_secctx,
++	.secctx_to_secid =		selinux_secctx_to_secid,
+ 	.release_secctx =		selinux_release_secctx,
+ 
+         .unix_stream_connect =		selinux_socket_unix_stream_connect,
 
 
 --
