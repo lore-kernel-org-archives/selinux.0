@@ -1,39 +1,43 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m07G8cpK018563
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 11:08:38 -0500
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m07G8alk029512
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 16:08:37 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so3658925fgg.40
-        for <selinux@tycho.nsa.gov>; Mon, 07 Jan 2008 08:08:36 -0800 (PST)
-Message-ID: <cadfc0e40801070808w30f405c0t6cec02573413e7b4@mail.gmail.com>
-Date: Mon, 7 Jan 2008 10:08:36 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>
-Subject: TypeError: in method 'getpidcon', argument 1 of type 'pid_t'
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: role dominance
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47824819.9040006@manicmethod.com>
+References: <47824819.9040006@manicmethod.com>
+Content-Type: text/plain
+Date: Mon, 07 Jan 2008 12:53:47 -0500
+Message-Id: <1199728427.2944.167.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-import selinux
-import os
 
-pid = os.getpid()
-print "Type of pid ", type(pid)
-(ret,con) = selinux.getpidcon(pid)
-type = con.split(":", 4)
-print type
+On Mon, 2008-01-07 at 10:41 -0500, Joshua Brindle wrote:
+> While working on policyrep we've found that role dominance is pretty 
+> difficult to implement correctly, and apparently there is some ambiguity 
+> about how it works. The main problem we are running into now is that 
+> converting the role bitmaps of an old module (compatibility) back to a 
+> role dominance statement is very difficult.
 
-Running this script results in:
+And likely unnecessary.  It isn't required that a conversion yield the
+same source representation, but only that it yield the same end result
+when you ultimately generate a kernel binary policy.  Or are you saying
+that you can't even do the latter?
 
-Type of pid  <type 'int'>
-Traceback (most recent call last):
-  File "test.py", line 8, in <module>
-    (ret,con) = selinux.getpidcon(pid)
-TypeError: in method 'getpidcon', argument 1 of type 'pid_t'
+> Also it seems like noone has really used role dominance. During 
+> conversations about it here Chris PeBenito suggests that he wants 
+> something like it for refpolicy but a role attribute kind of system may 
+> be much simpler and easier to implement/understand.
+> 
+> Thoughts?
 
-How do I make a pid_t in python? Or is the swig broke?
+Any language feature that isn't actually being used should probably be
+deprecated.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
