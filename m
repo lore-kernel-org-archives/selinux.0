@@ -1,26 +1,39 @@
-Message-ID: <47824819.9040006@manicmethod.com>
-Date: Mon, 07 Jan 2008 10:41:13 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m07G8cpK018563
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 11:08:38 -0500
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m07G8alk029512
+	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 16:08:37 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so3658925fgg.40
+        for <selinux@tycho.nsa.gov>; Mon, 07 Jan 2008 08:08:36 -0800 (PST)
+Message-ID: <cadfc0e40801070808w30f405c0t6cec02573413e7b4@mail.gmail.com>
+Date: Mon, 7 Jan 2008 10:08:36 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SE Linux" <selinux@tycho.nsa.gov>
+Subject: TypeError: in method 'getpidcon', argument 1 of type 'pid_t'
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: role dominance 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-While working on policyrep we've found that role dominance is pretty 
-difficult to implement correctly, and apparently there is some ambiguity 
-about how it works. The main problem we are running into now is that 
-converting the role bitmaps of an old module (compatibility) back to a 
-role dominance statement is very difficult.
+import selinux
+import os
 
-Also it seems like noone has really used role dominance. During 
-conversations about it here Chris PeBenito suggests that he wants 
-something like it for refpolicy but a role attribute kind of system may 
-be much simpler and easier to implement/understand.
+pid = os.getpid()
+print "Type of pid ", type(pid)
+(ret,con) = selinux.getpidcon(pid)
+type = con.split(":", 4)
+print type
 
-Thoughts?
+Running this script results in:
 
+Type of pid  <type 'int'>
+Traceback (most recent call last):
+  File "test.py", line 8, in <module>
+    (ret,con) = selinux.getpidcon(pid)
+TypeError: in method 'getpidcon', argument 1 of type 'pid_t'
+
+How do I make a pid_t in python? Or is the swig broke?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
