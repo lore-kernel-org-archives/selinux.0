@@ -1,297 +1,39 @@
-Subject: Re: [patch 7/7] Use -Werror
+Subject: Re: TypeError: in method 'getpidcon', argument 1 of type 'pid_t'
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: tmiller@tresys.com, selinux@tycho.nsa.gov, method@madmethod.com
-In-Reply-To: <47826FBC.9010000@tresys.com>
-References: <20080103184331.485176161@tresys.com>
-	 <20080103184516.399115672@tresys.com>
-	 <1199729186.2944.169.camel@moss-spartans.epoch.ncsc.mil>
-	 <47826FBC.9010000@tresys.com>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <cadfc0e40801070808w30f405c0t6cec02573413e7b4@mail.gmail.com>
+References: <cadfc0e40801070808w30f405c0t6cec02573413e7b4@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 07 Jan 2008 13:50:19 -0500
-Message-Id: <1199731819.2944.204.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 07 Jan 2008 15:08:57 -0500
+Message-Id: <1199736537.2944.249.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 2008-01-07 at 13:30 -0500, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2008-01-03 at 13:43 -0500, tmiller@tresys.com wrote:
-> >> plain text document attachment (Werror.patch)
-> >> Add -Werror to Makefiles
-> > 
-> > A bit overzealous though - some of them already had -Werror in CFLAGS.
-> > 
-> > Otherwise, looks fine.
+On Mon, 2008-01-07 at 10:08 -0600, Xavier Toth wrote:
+> import selinux
+> import os
 > 
-> Is there a good reason we have CFLAGS per Makefile instead of once at 
-> the top level? I use DEBUG=1 most of the time and everything builds fine 
-> with a common set.
-
-Mostly because the components are released as individual tar balls and
-packages, w/o the top level Makefile altogether.
-
-Also need to make sure that -Werror gets included by make DEBUG=1 then.
-
-> > 
-> >> ---
-> >>  checkpolicy/Makefile                      |    2 +-
-> >>  libselinux/src/Makefile                   |    2 +-
-> >>  libsemanage/src/Makefile                  |    2 +-
-> >>  libsepol/src/Makefile                     |    2 +-
-> >>  policycoreutils/audit2why/Makefile        |    2 +-
-> >>  policycoreutils/load_policy/Makefile      |    2 +-
-> >>  policycoreutils/newrole/Makefile          |    2 +-
-> >>  policycoreutils/restorecond/Makefile      |    2 +-
-> >>  policycoreutils/run_init/Makefile         |    2 +-
-> >>  policycoreutils/secon/Makefile            |    2 +-
-> >>  policycoreutils/semodule/Makefile         |    2 +-
-> >>  policycoreutils/semodule_deps/Makefile    |    2 +-
-> >>  policycoreutils/semodule_expand/Makefile  |    2 +-
-> >>  policycoreutils/semodule_link/Makefile    |    2 +-
-> >>  policycoreutils/semodule_package/Makefile |    2 +-
-> >>  policycoreutils/sestatus/Makefile         |    2 +-
-> >>  policycoreutils/setfiles/Makefile         |    2 +-
-> >>  policycoreutils/setsebool/Makefile        |    2 +-
-> >>  18 files changed, 18 insertions(+), 18 deletions(-)
-> >>
-> >> Index: trunk/checkpolicy/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/checkpolicy/Makefile
-> >> +++ trunk/checkpolicy/Makefile
-> >> @@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
-> >>  
-> >>  YACC = bison -y
-> >>  
-> >> -CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
-> >> +CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
-> >>  
-> >>  override CFLAGS += -I. -I${INCLUDEDIR}
-> >>  
-> >> Index: trunk/libselinux/src/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/libselinux/src/Makefile
-> >> +++ trunk/libselinux/src/Makefile
-> >> @@ -32,7 +32,7 @@ SRCS= $(filter-out $(UNUSED_SRCS), $(fil
-> >>  
-> >>  OBJS= $(patsubst %.c,%.o,$(SRCS))
-> >>  LOBJS= $(patsubst %.c,%.lo,$(SRCS))
-> >> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-> >> +CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Werror
-> >>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
-> >>  RANLIB=ranlib
-> >>  
-> >> Index: trunk/libsemanage/src/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/libsemanage/src/Makefile
-> >> +++ trunk/libsemanage/src/Makefile
-> >> @@ -31,7 +31,7 @@ SWIGFILES=$(SWIGSO) semanage.py 
-> >>  LIBSO=$(TARGET).$(LIBVERSION)
-> >>  OBJS= $(patsubst %.c,%.o,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.o conf-parse.o
-> >>  LOBJS= $(patsubst %.c,%.lo,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.lo conf-parse.lo
-> >> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
-> >> +CFLAGS ?= -Wall -W Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
-> >>  
-> >>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE 
-> >>  
-> >> Index: trunk/libsepol/src/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/libsepol/src/Makefile
-> >> +++ trunk/libsepol/src/Makefile
-> >> @@ -10,7 +10,7 @@ TARGET=libsepol.so
-> >>  LIBSO=$(TARGET).$(LIBVERSION)
-> >>  OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
-> >>  LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
-> >> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-> >> +CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Werror
-> >>  override CFLAGS += -I. -I../include -D_GNU_SOURCE
-> >>  
-> >>  all: $(LIBA) $(LIBSO)
-> >> Index: trunk/policycoreutils/audit2why/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/audit2why/Makefile
-> >> +++ trunk/policycoreutils/audit2why/Makefile
-> >> @@ -7,7 +7,7 @@ LOCALEDIR ?= /usr/share/locale
-> >>  INCLUDEDIR ?= ${PREFIX}/include
-> >>  
-> >>
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(INCLUDEDIR)
-> >>  LDLIBS = ${LIBDIR}/libsepol.a -lselinux -L$(LIBDIR)
-> >>  
-> >> Index: trunk/policycoreutils/load_policy/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/load_policy/Makefile
-> >> +++ trunk/policycoreutils/load_policy/Makefile
-> >> @@ -4,7 +4,7 @@ SBINDIR ?= $(PREFIX)/sbin
-> >>  MANDIR ?= $(PREFIX)/share/man
-> >>  LOCALEDIR ?= /usr/share/locale
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
-> >>  LDLIBS += -lsepol -lselinux -L$(PREFIX)/lib
-> >>  
-> >> Index: trunk/policycoreutils/newrole/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/newrole/Makefile
-> >> +++ trunk/policycoreutils/newrole/Makefile
-> >> @@ -20,7 +20,7 @@ NAMESPACE_PRIV ?= n
-> >>  LSPP_PRIV ?= n
-> >>  VERSION = $(shell cat ../VERSION)
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  EXTRA_OBJS =
-> >>  override CFLAGS += -DVERSION=\"$(VERSION)\" $(LDFLAGS) -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
-> >>  LDLIBS += -lselinux -L$(PREFIX)/lib
-> >> Index: trunk/policycoreutils/restorecond/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/restorecond/Makefile
-> >> +++ trunk/policycoreutils/restorecond/Makefile
-> >> @@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
-> >>  INITDIR = $(DESTDIR)/etc/rc.d/init.d
-> >>  SELINUXDIR = $(DESTDIR)/etc/selinux
-> >>  
-> >> -CFLAGS ?= -g -Werror -Wall -W
-> >> +CFLAGS ?= -g -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
-> >>  LDLIBS += -lselinux -L$(PREFIX)/lib
-> >>  
-> >> Index: trunk/policycoreutils/run_init/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/run_init/Makefile
-> >> +++ trunk/policycoreutils/run_init/Makefile
-> >> @@ -8,7 +8,7 @@ LOCALEDIR ?= /usr/share/locale
-> >>  PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
-> >>  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(PREFIX)/include -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
-> >>  LDLIBS += -lselinux -L$(PREFIX)/lib
-> >>  ifeq (${PAMH}, /usr/include/security/pam_appl.h)
-> >> Index: trunk/policycoreutils/secon/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/secon/Makefile
-> >> +++ trunk/policycoreutils/secon/Makefile
-> >> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
-> >>  MANDIR ?= $(PREFIX)/share/man
-> >>  LIBDIR ?= ${PREFIX}/lib
-> >>  
-> >> -WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
-> >> +WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal -Werror
-> >>  VERSION = $(shell cat ../VERSION)
-> >>  CFLAGS ?= $(WARNS) -O1
-> >>  override CFLAGS += -DVERSION=\"$(VERSION)\" -I$(INCLUDEDIR) 
-> >> Index: trunk/policycoreutils/semodule/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/semodule/Makefile
-> >> +++ trunk/policycoreutils/semodule/Makefile
-> >> @@ -5,7 +5,7 @@ SBINDIR ?= $(PREFIX)/sbin
-> >>  MANDIR = $(PREFIX)/share/man
-> >>  LIBDIR ?= ${PREFIX}/lib
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(INCLUDEDIR)
-> >>  LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
-> >>  SEMODULE_OBJS = semodule.o
-> >> Index: trunk/policycoreutils/semodule_deps/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/semodule_deps/Makefile
-> >> +++ trunk/policycoreutils/semodule_deps/Makefile
-> >> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
-> >>  LIBDIR ?= ${PREFIX}/lib
-> >>  MANDIR ?= $(PREFIX)/share/man
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(INCLUDEDIR)
-> >>  LDLIBS = $(LIBDIR)/libsepol.a
-> >>  
-> >> Index: trunk/policycoreutils/semodule_expand/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/semodule_expand/Makefile
-> >> +++ trunk/policycoreutils/semodule_expand/Makefile
-> >> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
-> >>  LIBDIR ?= ${PREFIX}/lib
-> >>  MANDIR ?= $(PREFIX)/share/man
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(INCLUDEDIR)
-> >>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
-> >>  
-> >> Index: trunk/policycoreutils/semodule_link/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/semodule_link/Makefile
-> >> +++ trunk/policycoreutils/semodule_link/Makefile
-> >> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
-> >>  MANDIR ?= $(PREFIX)/share/man
-> >>  LIBDIR ?= ${PREFIX}/lib
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(INCLUDEDIR)
-> >>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
-> >>  
-> >> Index: trunk/policycoreutils/semodule_package/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/semodule_package/Makefile
-> >> +++ trunk/policycoreutils/semodule_package/Makefile
-> >> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
-> >>  LIBDIR ?= ${PREFIX}/lib
-> >>  MANDIR ?= $(PREFIX)/share/man
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(INCLUDEDIR)
-> >>  LDLIBS = -lsepol -lselinux -L$(LIBDIR)
-> >>  
-> >> Index: trunk/policycoreutils/sestatus/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/sestatus/Makefile
-> >> +++ trunk/policycoreutils/sestatus/Makefile
-> >> @@ -5,7 +5,7 @@ MANDIR = $(PREFIX)/share/man
-> >>  ETCDIR ?= $(DESTDIR)/etc
-> >>  LIBDIR ?= ${PREFIX}/lib
-> >>  
-> >> -CFLAGS = -Werror -Wall -W
-> >> +CFLAGS = -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(PREFIX)/include -D_FILE_OFFSET_BITS=64
-> >>  LDLIBS = -lselinux -L$(LIBDIR)
-> >>  
-> >> Index: trunk/policycoreutils/setfiles/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/setfiles/Makefile
-> >> +++ trunk/policycoreutils/setfiles/Makefile
-> >> @@ -6,7 +6,7 @@ LIBDIR ?= $(PREFIX)/lib
-> >>  
-> >>  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
-> >>  
-> >> -CFLAGS = -Werror -Wall -W 
-> >> +CFLAGS = -Werror -Wall -W  -Werror
-> >>  override CFLAGS += -D_FILE_OFFSET_BITS=64 -I$(PREFIX)/include
-> >>  LDLIBS = -lselinux -lsepol -L$(LIBDIR)
-> >>  
-> >> Index: trunk/policycoreutils/setsebool/Makefile
-> >> ===================================================================
-> >> --- trunk.orig/policycoreutils/setsebool/Makefile
-> >> +++ trunk/policycoreutils/setsebool/Makefile
-> >> @@ -5,7 +5,7 @@ SBINDIR ?= $(PREFIX)/sbin
-> >>  MANDIR = $(PREFIX)/share/man
-> >>  LIBDIR ?= ${PREFIX}/lib
-> >>  
-> >> -CFLAGS ?= -Werror -Wall -W
-> >> +CFLAGS ?= -Werror -Wall -W -Werror
-> >>  override CFLAGS += -I$(INCLUDEDIR)
-> >>  LDLIBS = -lsepol -lselinux -lsemanage -L$(LIBDIR)
-> >>  SETSEBOOL_OBJS = setsebool.o
-> >>
+> pid = os.getpid()
+> print "Type of pid ", type(pid)
+> (ret,con) = selinux.getpidcon(pid)
+> type = con.split(":", 4)
+> print type
 > 
+> Running this script results in:
+> 
+> Type of pid  <type 'int'>
+> Traceback (most recent call last):
+>   File "test.py", line 8, in <module>
+>     (ret,con) = selinux.getpidcon(pid)
+> TypeError: in method 'getpidcon', argument 1 of type 'pid_t'
+> 
+> How do I make a pid_t in python? Or is the swig broke?
+
+Possibly we need a typemap for it in the python binding?
+
 -- 
 Stephen Smalley
 National Security Agency
