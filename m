@@ -1,137 +1,69 @@
-Date: Mon, 7 Jan 2008 15:47:33 -0500
-From: "Todd C. Miller" <tmiller@tresys.com>
-Message-Id: <200801072047.m07KlXAs026116@cadmus.columbia.tresys.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Re: [patch 7/7] Use -Werror
-Cc: method@manicmethod.com, sds@tycho.nsa.gov
+Date: Tue, 8 Jan 2008 01:24:39 +0300
+From: Andrey Markelov <andrey@markelov.net>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Man pages translation (Russian) policycoreutils and reference
+ policy
+Message-Id: <20080108012439.7ce2ec99.andrey@markelov.net>
+In-Reply-To: <1199737002.2944.257.camel@moss-spartans.epoch.ncsc.mil>
+References: <20071229145711.b16ceab7.andrey@markelov.net>
+	<1199737002.2944.257.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Tue__8_Jan_2008_01_24_39_+0300__0euYq6G5z9_uZji"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
+--Signature=_Tue__8_Jan_2008_01_24_39_+0300__0euYq6G5z9_uZji
+Content-Type: text/plain; charset=Windows-1251
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> A bit overzealous though - some of them already had -Werror in CFLAGS.
-> Also need to make sure that -Werror gets included by make DEBUG=1.
+It could be placed into in man/COUNTRY_CODE_ISO3166/man1...man8 like in rpm=
+ packages.
+For example in mc (http://www.ibiblio.org/mc/) and rpm (http://www.rpm.org/)
+source tarballs Russian (and some other) man pages is present.
 
-Updated patch without the duplicated -Werror and adds it for
-the DEBUG=1 cases.
+On Mon, 07 Jan 2008 15:16:42 -0500
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>=20
+> On Sat, 2007-12-29 at 14:57 +0300, Andrey Markelov wrote:
+> > Hello!
+> >=20
+> > I have translated all man pages from policycoreutils and from reference=
+ policy to Russian language.
+> > Now all of thous is in Rawhide/Fedora 8 (selinux-policy and policycoreu=
+tils RPMs).
+> > Is it possible to include Russian translations in main stream of NSA=92=
+s package policycoreutils
+> > and reference policy package of Tresys?
+> > I hope it will be useful for security specialists who work with other d=
+istributions than Fedora.
+> > Here is archives of man pages in attachment. My next goal for translati=
+on is libselinux.
+>=20
+> We only provide source tarballs - not sure how we would package up
+> multiple translations for the man pages.=20
+>=20
+> --=20
+> Stephen Smalley
+> National Security Agency
+>=20
 
- - todd
+--Signature=_Tue__8_Jan_2008_01_24_39_+0300__0euYq6G5z9_uZji
+Content-Type: application/pgp-signature
 
----
- Makefile                          |    2 +-
- checkpolicy/Makefile              |    2 +-
- libselinux/src/Makefile           |    2 +-
- libsemanage/src/Makefile          |    2 +-
- libsepol/src/Makefile             |    2 +-
- libsepol/utils/Makefile           |    2 +-
- policycoreutils/secon/Makefile    |    2 +-
- policycoreutils/setfiles/Makefile |    2 +-
- 8 files changed, 8 insertions(+), 8 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
 
-Index: trunk/Makefile
-===================================================================
---- trunk.orig/Makefile
-+++ trunk/Makefile
-@@ -2,7 +2,7 @@ SUBDIRS=libsepol libselinux libsemanage 
- PYSUBDIRS=libselinux libsemanage
- 
- ifeq ($(DEBUG),1)
--	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow
-+	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
- 	export LDFLAGS = -g
- endif
- 
-Index: trunk/checkpolicy/Makefile
-===================================================================
---- trunk.orig/checkpolicy/Makefile
-+++ trunk/checkpolicy/Makefile
-@@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
- 
- YACC = bison -y
- 
--CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
-+CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
- 
- override CFLAGS += -I. -I${INCLUDEDIR}
- 
-Index: trunk/libselinux/src/Makefile
-===================================================================
---- trunk.orig/libselinux/src/Makefile
-+++ trunk/libselinux/src/Makefile
-@@ -32,7 +32,7 @@ SRCS= $(filter-out $(UNUSED_SRCS), $(fil
- 
- OBJS= $(patsubst %.c,%.o,$(SRCS))
- LOBJS= $(patsubst %.c,%.lo,$(SRCS))
--CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-+CFLAGS ?= -Werror -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
- override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
- RANLIB=ranlib
- 
-Index: trunk/libsemanage/src/Makefile
-===================================================================
---- trunk.orig/libsemanage/src/Makefile
-+++ trunk/libsemanage/src/Makefile
-@@ -10,7 +10,7 @@ PYLIBDIR ?= $(LIBDIR)/${PYLIBVER}
- DEFAULT_SEMANAGE_CONF_LOCATION=$(DESTDIR)/etc/selinux/semanage.conf
- 
- ifeq ($(DEBUG),1)
--	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow
-+	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
- 	export LDFLAGS = -g
- endif
- 
-Index: trunk/libsepol/src/Makefile
-===================================================================
---- trunk.orig/libsepol/src/Makefile
-+++ trunk/libsepol/src/Makefile
-@@ -10,7 +10,7 @@ TARGET=libsepol.so
- LIBSO=$(TARGET).$(LIBVERSION)
- OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
- LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
--CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-+CFLAGS ?= -Werror -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
- override CFLAGS += -I. -I../include -D_GNU_SOURCE
- 
- all: $(LIBA) $(LIBSO)
-Index: trunk/libsepol/utils/Makefile
-===================================================================
---- trunk.orig/libsepol/utils/Makefile
-+++ trunk/libsepol/utils/Makefile
-@@ -2,7 +2,7 @@
- PREFIX ?= $(DESTDIR)/usr
- BINDIR ?= $(PREFIX)/bin
- 
--CFLAGS ?= -Wall
-+CFLAGS ?= -Wall -Werror
- override CFLAGS += -I../include
- LDLIBS += -L../src -lsepol 
- 
-Index: trunk/policycoreutils/secon/Makefile
-===================================================================
---- trunk.orig/policycoreutils/secon/Makefile
-+++ trunk/policycoreutils/secon/Makefile
-@@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
- MANDIR ?= $(PREFIX)/share/man
- LIBDIR ?= ${PREFIX}/lib
- 
--WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
-+WARNS=-Werror -W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
- VERSION = $(shell cat ../VERSION)
- CFLAGS ?= $(WARNS) -O1
- override CFLAGS += -DVERSION=\"$(VERSION)\" -I$(INCLUDEDIR) 
-Index: trunk/policycoreutils/setfiles/Makefile
-===================================================================
---- trunk.orig/policycoreutils/setfiles/Makefile
-+++ trunk/policycoreutils/setfiles/Makefile
-@@ -6,7 +6,7 @@ LIBDIR ?= $(PREFIX)/lib
- 
- AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
- 
--CFLAGS = -Werror -Wall -W 
-+CFLAGS = -Werror -Wall -W
- override CFLAGS += -D_FILE_OFFSET_BITS=64 -I$(PREFIX)/include
- LDLIBS = -lselinux -lsepol -L$(LIBDIR)
- 
+iD8DBQFHgqao8hmtVPyc4x4RAovwAJ9+2MEgvdGERMWqcK4gOGCRKUK4YwCfYBE/
+EWoTWaKsWeJi3HyH6EIaM7M=
+=XdiW
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__8_Jan_2008_01_24_39_+0300__0euYq6G5z9_uZji--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
