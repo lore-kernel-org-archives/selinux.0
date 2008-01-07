@@ -1,43 +1,26 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m07CoNKp031614
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 07:50:23 -0500
-Received: from g5t0009.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m07CoMWT010691
-	for <selinux@tycho.nsa.gov>; Mon, 7 Jan 2008 12:50:22 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [RFC PATCH] SELinux: Add network ingress and egress control permission checks
-Date: Mon, 7 Jan 2008 07:50:10 -0500
-Cc: selinux@tycho.nsa.gov
-References: <20080105002920.28482.29256.stgit@flek.americas.hpqcorp.net> <20080105003456.28482.59925.stgit@flek.americas.hpqcorp.net> <Xine.LNX.4.64.0801070922120.21625@us.intercode.com.au>
-In-Reply-To: <Xine.LNX.4.64.0801070922120.21625@us.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200801070750.10686.paul.moore@hp.com>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200801072233.51294.nickpiggin@yahoo.com.au>
+References: <200801072233.51294.nickpiggin@yahoo.com.au> <200712211208.24026.nickpiggin@yahoo.com.au> <6481.1198175619@redhat.com> <18996.1199291223@redhat.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: dhowells@redhat.com, viro@ftp.linux.org.uk, hch@infradead.org,
+        Trond.Myklebust@netapp.com, sds@tycho.nsa.gov, casey@schaufler-ca.com,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 10/28] FS-Cache: Recruit a couple of page flags for cache management [try #2]
+Date: Mon, 07 Jan 2008 13:09:03 +0000
+Message-ID: <7972.1199711343@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 06 January 2008 5:22:25 pm James Morris wrote:
-> On Fri, 4 Jan 2008, Paul Moore wrote:
-> > This patch implements packet ingress/egress controls for SELinux which
-> > allow SELinux security policy to control the flow of all IPv4 and IPv6
-> > packets into and out of the system.  Currently SELinux does not have
-> > proper control over forwarded packets and this patch corrects this
-> > problem.
-> >
-> > Special thanks to Venkat Yekkirala <vyekkirala@trustedcs.com> whose
-> > earlier work on this topic eventually led to this patch.
-> >
-> > Signed-off-by: Paul Moore <paul.moore@hp.com>
->
-> Please send this to netdev for review.
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-I'll take care of that this morning.
+> No. I mean call the bit PG_private2. That way non-pagecache and
+> filesystems that don't use fscache can use it.
 
--- 
-paul moore
-linux security @ hp
+The bit is called PG_owner_priv_2, and then 'subclassed' to PG_fscache, much
+like PG_owner_priv_1 is 'subclassed' to PG_checked as was recommended.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
