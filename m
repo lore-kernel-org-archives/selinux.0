@@ -1,150 +1,64 @@
-Subject: Re: Re: [patch 7/7] Use -Werror
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Todd C. Miller" <tmiller@tresys.com>
-Cc: selinux@tycho.nsa.gov, method@manicmethod.com
-In-Reply-To: <200801072047.m07KlXAs026116@cadmus.columbia.tresys.com>
-References: <200801072047.m07KlXAs026116@cadmus.columbia.tresys.com>
-Content-Type: text/plain
-Date: Tue, 08 Jan 2008 07:59:21 -0500
-Message-Id: <1199797161.9393.0.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m08H3MEO015156
+	for <selinux@tycho.nsa.gov>; Tue, 8 Jan 2008 12:03:23 -0500
+Received: from g5t0009.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m08H3MN3025413
+	for <selinux@tycho.nsa.gov>; Tue, 8 Jan 2008 17:03:22 GMT
+Received: from g5t0009.atlanta.hp.com (localhost.localdomain [127.0.0.1])
+	by receive-from-antispam-filter (Postfix) with SMTP id DB8AB302D5
+	for <selinux@tycho.nsa.gov>; Tue,  8 Jan 2008 17:03:21 +0000 (UTC)
+Received: from smtp1.fc.hp.com (smtp.cnd.hp.com [15.15.136.127])
+	by g5t0009.atlanta.hp.com (Postfix) with ESMTP id D0BDB3026C
+	for <selinux@tycho.nsa.gov>; Tue,  8 Jan 2008 17:03:21 +0000 (UTC)
+Received: from ldl.fc.hp.com (ldl.fc.hp.com [15.11.146.30])
+	by smtp1.fc.hp.com (Postfix) with ESMTP id 90C191E0F50
+	for <selinux@tycho.nsa.gov>; Tue,  8 Jan 2008 17:03:21 +0000 (UTC)
+Received: from localhost (ldl.fc.hp.com [127.0.0.1])
+	by ldl.fc.hp.com (Postfix) with ESMTP id 78317134002
+	for <selinux@tycho.nsa.gov>; Tue,  8 Jan 2008 10:03:21 -0700 (MST)
+Received: from ldl.fc.hp.com ([127.0.0.1])
+	by localhost (ldl.fc.hp.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id g5Qpwk7Y1dM0 for <selinux@tycho.nsa.gov>;
+	Tue,  8 Jan 2008 10:03:17 -0700 (MST)
+Received: from flek.americas.hpqcorp.net (flek.americas.hpqcorp.net [16.116.102.14])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by ldl.fc.hp.com (Postfix) with ESMTP id 59524134003
+	for <selinux@tycho.nsa.gov>; Tue,  8 Jan 2008 10:03:17 -0700 (MST)
+From: Paul Moore <paul.moore@hp.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH] SELinux: Add network ingress and egress control permission checks
+Date: Tue, 8 Jan 2008 12:03:16 -0500
+References: <20080105002920.28482.29256.stgit@flek.americas.hpqcorp.net> <20080105003456.28482.59925.stgit@flek.americas.hpqcorp.net> <Xine.LNX.4.64.0801070922120.21625@us.intercode.com.au>
+In-Reply-To: <Xine.LNX.4.64.0801070922120.21625@us.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200801081203.16131.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sunday 06 January 2008 5:22:25 pm James Morris wrote:
+> On Fri, 4 Jan 2008, Paul Moore wrote:
+> > This patch implements packet ingress/egress controls for SELinux
+> > which allow SELinux security policy to control the flow of all IPv4
+> > and IPv6 packets into and out of the system.  Currently SELinux
+> > does not have proper control over forwarded packets and this patch
+> > corrects this problem.
+> >
+> > Special thanks to Venkat Yekkirala <vyekkirala@trustedcs.com> whose
+> > earlier work on this topic eventually led to this patch.
+> >
+> > Signed-off-by: Paul Moore <paul.moore@hp.com>
+>
+> Please send this to netdev for review.
 
-On Mon, 2008-01-07 at 15:47 -0500, Todd C. Miller wrote:
-> Stephen Smalley wrote:
-> 
-> > A bit overzealous though - some of them already had -Werror in CFLAGS.
-> > Also need to make sure that -Werror gets included by make DEBUG=1.
-> 
-> Updated patch without the duplicated -Werror and adds it for
-> the DEBUG=1 cases.
+For those of you who don't follow netdev, this approach got a thumbs up 
+so it looks like we are still on track for 2.6.25.
 
-Looks fine, apply the series at will.
-
-> 
->  - todd
-> 
-> ---
->  Makefile                          |    2 +-
->  checkpolicy/Makefile              |    2 +-
->  libselinux/src/Makefile           |    2 +-
->  libsemanage/src/Makefile          |    2 +-
->  libsepol/src/Makefile             |    2 +-
->  libsepol/utils/Makefile           |    2 +-
->  policycoreutils/secon/Makefile    |    2 +-
->  policycoreutils/setfiles/Makefile |    2 +-
->  8 files changed, 8 insertions(+), 8 deletions(-)
-> 
-> Index: trunk/Makefile
-> ===================================================================
-> --- trunk.orig/Makefile
-> +++ trunk/Makefile
-> @@ -2,7 +2,7 @@ SUBDIRS=libsepol libselinux libsemanage 
->  PYSUBDIRS=libselinux libsemanage
->  
->  ifeq ($(DEBUG),1)
-> -	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow
-> +	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
->  	export LDFLAGS = -g
->  endif
->  
-> Index: trunk/checkpolicy/Makefile
-> ===================================================================
-> --- trunk.orig/checkpolicy/Makefile
-> +++ trunk/checkpolicy/Makefile
-> @@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
->  
->  YACC = bison -y
->  
-> -CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
-> +CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
->  
->  override CFLAGS += -I. -I${INCLUDEDIR}
->  
-> Index: trunk/libselinux/src/Makefile
-> ===================================================================
-> --- trunk.orig/libselinux/src/Makefile
-> +++ trunk/libselinux/src/Makefile
-> @@ -32,7 +32,7 @@ SRCS= $(filter-out $(UNUSED_SRCS), $(fil
->  
->  OBJS= $(patsubst %.c,%.o,$(SRCS))
->  LOBJS= $(patsubst %.c,%.lo,$(SRCS))
-> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-> +CFLAGS ?= -Werror -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
->  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
->  RANLIB=ranlib
->  
-> Index: trunk/libsemanage/src/Makefile
-> ===================================================================
-> --- trunk.orig/libsemanage/src/Makefile
-> +++ trunk/libsemanage/src/Makefile
-> @@ -10,7 +10,7 @@ PYLIBDIR ?= $(LIBDIR)/${PYLIBVER}
->  DEFAULT_SEMANAGE_CONF_LOCATION=$(DESTDIR)/etc/selinux/semanage.conf
->  
->  ifeq ($(DEBUG),1)
-> -	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow
-> +	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
->  	export LDFLAGS = -g
->  endif
->  
-> Index: trunk/libsepol/src/Makefile
-> ===================================================================
-> --- trunk.orig/libsepol/src/Makefile
-> +++ trunk/libsepol/src/Makefile
-> @@ -10,7 +10,7 @@ TARGET=libsepol.so
->  LIBSO=$(TARGET).$(LIBVERSION)
->  OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
->  LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
-> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-> +CFLAGS ?= -Werror -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
->  override CFLAGS += -I. -I../include -D_GNU_SOURCE
->  
->  all: $(LIBA) $(LIBSO)
-> Index: trunk/libsepol/utils/Makefile
-> ===================================================================
-> --- trunk.orig/libsepol/utils/Makefile
-> +++ trunk/libsepol/utils/Makefile
-> @@ -2,7 +2,7 @@
->  PREFIX ?= $(DESTDIR)/usr
->  BINDIR ?= $(PREFIX)/bin
->  
-> -CFLAGS ?= -Wall
-> +CFLAGS ?= -Wall -Werror
->  override CFLAGS += -I../include
->  LDLIBS += -L../src -lsepol 
->  
-> Index: trunk/policycoreutils/secon/Makefile
-> ===================================================================
-> --- trunk.orig/policycoreutils/secon/Makefile
-> +++ trunk/policycoreutils/secon/Makefile
-> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
->  MANDIR ?= $(PREFIX)/share/man
->  LIBDIR ?= ${PREFIX}/lib
->  
-> -WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
-> +WARNS=-Werror -W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
->  VERSION = $(shell cat ../VERSION)
->  CFLAGS ?= $(WARNS) -O1
->  override CFLAGS += -DVERSION=\"$(VERSION)\" -I$(INCLUDEDIR) 
-> Index: trunk/policycoreutils/setfiles/Makefile
-> ===================================================================
-> --- trunk.orig/policycoreutils/setfiles/Makefile
-> +++ trunk/policycoreutils/setfiles/Makefile
-> @@ -6,7 +6,7 @@ LIBDIR ?= $(PREFIX)/lib
->  
->  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
->  
-> -CFLAGS = -Werror -Wall -W 
-> +CFLAGS = -Werror -Wall -W
->  override CFLAGS += -D_FILE_OFFSET_BITS=64 -I$(PREFIX)/include
->  LDLIBS = -lselinux -lsepol -L$(LIBDIR)
->  
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
