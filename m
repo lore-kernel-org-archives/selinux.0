@@ -1,72 +1,78 @@
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM
-	settings for task actions [try #2]
+Subject: RE: Sudo Changes for SELinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Howells <dhowells@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, casey@schaufler-ca.com,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <17868.1199897484@redhat.com>
-References: <1197307397.18120.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1197305173.18120.60.camel@moss-spartans.epoch.ncsc.mil>
-	 <20071205193818.24617.79771.stgit@warthog.procyon.org.uk>
-	 <20071205193859.24617.36392.stgit@warthog.procyon.org.uk>
-	 <25037.1197306473@redhat.com>  <17868.1199897484@redhat.com>
+To: Todd Miller <Tmiller@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>
+References: <4784EFE8.9050106@redhat.com>
+	 <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Wed, 09 Jan 2008 13:11:18 -0500
-Message-Id: <1199902278.9393.283.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 09 Jan 2008 13:23:26 -0500
+Message-Id: <1199903006.9393.296.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-01-09 at 16:51 +0000, David Howells wrote:
-> Okay.  I can:
+On Wed, 2008-01-09 at 12:51 -0500, Todd Miller wrote:
+> Daniel J Walsh wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > I have a working demonstration of  My version of RBAC in Rawhide/FC8.
+> > In my view of the world, users have two roles.  User Role and Admin
+> > Role. 
+> > 
+> > So I might login as a staff_t user and be able to transition to
+> > webadm_r:webadm_r.
+> > 
+> > In Rawhide right now staff_t can only run sudo to become root.
+> > Staff_t is not allowed to execute su.  staff_t users should not know
+> > the root password. I have hacked up a script /usr/bin/webadm which
+> > executes newrole -r webadm_r -t webadm_t and newrole's pam has
+> > pam_rootok. 
+> > 
+> > Now I edit the /etc/sudoers and allow
+> > 
+> > dwalsh ALL=(ALL) /usr/bin/webadm
+> > 
+> > This allows me to use sudo to become webadm_t as root.  (Policy
+> > obviously has to be correct.  But this is very cumbersome for the
+> > administrator and does not scale.
+> > 
+> > I think we need to add SELinux support to sudo, so the administrator
+> > could easily add something to /etc/sodoers like
+> > 
+> > dwalsh ALL=(ALL) ROLE=webadm_r TYPE=webadm_t /bin/sh
+> > 
+> > then sudo would execute the code that newrole does to very the
+> > transition and
+> > 
+> > setexeccon(dwalsh:webadm_t:webadm_t)
+> > exec(/bin/sh)
+> > 
+> > I was told that you are the upstream maintainer of sudo, so I wanted
+> > your input/help on making sudo selinux aware.
 > 
->  (1) Have cachefilesd (the daemon) pass a security context string to the
->      cachefiles kernel module, which can then convert it to a secID.  It'll
->      require a security_secctx_to_secid() function, but I'm fairly certain I
->      have a patch to add such kicking around somewhere.
+> I suppose it depends on what you really want to be able to do.  Do you
+> 
+> a) wish to be able to run arbitrary commands via sudo but be able to
+>    specify a role and type ala newrole via -r and -t flags?
+> 
+> or
+> 
+> b) want to be able to force a command run by sudo to use a role and type
+>    that is specified in the sudoers file?
+> 
+> Doing a) is probably easier than b) though the two are not mutually
+> exclusive.
 
-Already planned for 2.6.25, see:
-http://marc.info/?l=selinux&m=119973017423487&w=2
+Didn't we used to have a) in Fedora (before Fedora 5, IIRC)?  And didn't
+it suffer from a number of problems?  Have to go back to the
+fedora-selinux archives and/or bugzillas to recapture the history there.
 
-That is in the labeled networking tree.
-
->  (2) Make security_task_kernel_act_as() take a task_security struct and a
->      secID and just assign the latter to the former.  I'm not sure it makes
->      sense to do any checks here, other than checking that under SELinux the
->      secID is of SECCLASS_PROCESS class.
-> 
-> However, I need to write a check that the cachefilesd daemon is permitted to
-> nominate the secID it did.  Can someone tell me how to do this?  The obvious
-> way to do this is to add another PROCESS__xxx security permit specifically for
-> cachefiles, but that seems like a waste of a bit when there are only two spare
-> bits.
-> 
-> 	avc_has_perm(daemon_tsec->sid, nominated_sid,
-> 		     SECCLASS_PROCESS, PROCESS__CACHEFILES_USE, NULL);
-> 
-> Now, I recall the addition of another security class being mentioned, which
-> presumably would give something like:
-> 
-> 	avc_has_perm(daemon_tsec->sid, nominated_sid,
-> 		     SECCLASS_CACHE, CACHE__USE_AS_OVERRIDE, NULL);
-> 
-> And I assume this doesn't care if one, the other or both of the two SIDs
-> mentioned are of SECCLASS_PROCESS rather than of SECCLASS_CACHE.
-
-Right, the latter is reasonable.
-Requires adding the class and permission definition to
-policy/flask/security_classes and policy/flask/access_vectors and then
-regenerating the kernel headers from those files, ala:
-  svn co http://oss.tresys.com/repos/refpolicy/trunk refpolicy
-  cd refpolicy/policy/flask
-  vi security_classes access_vectors
-  <add new class to end>
-  make
-  make LINUX_D=/path/to/linux-2.6 tokern
- 
-Dan knows how to do that.
+Also, while integration with sudo might be useful, it seems more
+pressing to integrate with policykit given its increasing adoption by
+distributions, right?
 
 -- 
 Stephen Smalley
