@@ -1,45 +1,47 @@
-Subject: Re: pam.d
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: selinux@tycho.nsa.gov, Russell Coker <russell@coker.com.au>,
-        Manoj Srivastava <manoj.srivastava@stdc.com>
-In-Reply-To: <dd18b0c30801081342s6a9f12f0n324763d5a25e578c@mail.gmail.com>
-References: <dd18b0c30801081342s6a9f12f0n324763d5a25e578c@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 09 Jan 2008 08:17:57 -0500
-Message-Id: <1199884677.9393.218.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Q: SECMARK controls on forwarded packets
+Date: Wed, 9 Jan 2008 08:30:15 -0500
+Cc: selinux@tycho.nsa.gov, cpebenito@tresys.com, vyekkirala@TrustedCS.com,
+        jmorris@namei.org
+References: <200801082330.58907.paul.moore@hp.com> <1199883104.9393.206.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1199883104.9393.206.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200801090830.15611.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wednesday 09 January 2008 7:51:44 am Stephen Smalley wrote:
+> On Tue, 2008-01-08 at 23:30 -0500, Paul Moore wrote:
+> > So, in summary, here are the SECMARK permission checks applied to locally
+> > generated or consumed traffic [this is the status quo]:
+> >
+> >  # inbound traffic
+> >  allow socket_t secmark_t:packet recv;
+> >  # outbound traffic
+> >  allow socket_t secmark_t:packet send;
+> >
+> > ... and these are the proposed SECMARK permission checks applied to
+> > forwarded traffic as it enters and exists the forwarding-host/router:
+> >
+> >  # inbound traffic to be forwarded
+> >  allow peer_t secmark_t:packet forward;
+> >  # outbound forwarded traffic
+> >  allow peer_t secmark_t:packet send;
+>
+> The problem with the last one is that it also allows the same thing to
+> happen for locally generated traffic, which might not be what the policy
+> writer wants to allow.
 
-On Tue, 2008-01-08 at 13:42 -0800, Justin Mattock wrote:
-> Hello; does anybody know how I can fix this problem,
-> under /etc/pam.d/login I have: seesion required pam_selinux.so
-> multiple. During bootup
-> pam.d sets the default context at system_r:sysadm_t then asks if I
-> want to change with four optional roles. 
-> How can I change the default context to sysadm_r:sysadm_t ? I've tried
-> to put session required pam_seinux.so open verbose debug
-> in /etc/pam.d/login and still have the default
-> context set to system_r:sysadm_t. Under sestatus -vv Init context is =
-> system_u:system_r:init_t 
-> regards;
-
-What's in /etc/selinux/$SELINUXTYPE/contexts/default_contexts
-and /etc/selinux/$SELINUXTYPE/contexts/users/<username>?
-
-In what context is the login process itself running (to see, enter a
-username at the login prompt, then in another already logged-in shell,
-run ps -eZ | grep login)?
- 
-Usually though you want to login initially as staff_r:staff_t, then
-newrole to sysadm_r when performing admin actions.
+Fair enough.  I'll try to think of something catchy to replace the send 
+permission in the forwarding outbound case ... if anybody has any great ideas 
+I'd love to hear them.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
