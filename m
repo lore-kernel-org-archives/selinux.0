@@ -1,60 +1,76 @@
-Date: Wed, 09 Jan 2008 09:46:50 -0800
-From: Glenn Faden <Glenn.Faden@sun.com>
-Subject: Re: X avcs
-In-reply-to: <4784D86C.1070503@gmail.com>
-To: Ted X Toth <txtoth@gmail.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>
-Message-id: <4785088A.2070601@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
- <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
- <47754FCB.1070307@tycho.nsa.gov>
- <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
- <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>
- <477BEFF1.2090507@sun.com> <4784D86C.1070503@gmail.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m09Hpttq000740
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2008 12:51:55 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m09HptQY003734
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2008 17:51:55 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Sudo Changes for SELinux
+Date: Wed, 9 Jan 2008 12:51:54 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>
+In-Reply-To: <4784EFE8.9050106@redhat.com>
+References: <4784EFE8.9050106@redhat.com>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>, "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ted X Toth wrote:
-> Currently the root window drawable is labeled s0 which is system low 
-> but it seems like it should be system high (s15:c0.c1023).
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> I have a working demonstration of  My version of RBAC in Rawhide/FC8.
+> In my view of the world, users have two roles.  User Role and Admin
+> Role. 
+> 
+> So I might login as a staff_t user and be able to transition to
+> webadm_r:webadm_r.
+> 
+> In Rawhide right now staff_t can only run sudo to become root.
+> Staff_t is not allowed to execute su.  staff_t users should not know
+> the root password. I have hacked up a script /usr/bin/webadm which
+> executes newrole -r webadm_r -t webadm_t and newrole's pam has
+> pam_rootok. 
+> 
+> Now I edit the /etc/sudoers and allow
+> 
+> dwalsh ALL=(ALL) /usr/bin/webadm
+> 
+> This allows me to use sudo to become webadm_t as root.  (Policy
+> obviously has to be correct.  But this is very cumbersome for the
+> administrator and does not scale.
+> 
+> I think we need to add SELinux support to sudo, so the administrator
+> could easily add something to /etc/sodoers like
+> 
+> dwalsh ALL=(ALL) ROLE=webadm_r TYPE=webadm_t /bin/sh
+> 
+> then sudo would execute the code that newrole does to very the
+> transition and
+> 
+> setexeccon(dwalsh:webadm_t:webadm_t)
+> exec(/bin/sh)
+> 
+> I was told that you are the upstream maintainer of sudo, so I wanted
+> your input/help on making sudo selinux aware.
 
-We treat it as system low to make screen snapshots and animations work 
-properly. It also provides better integrity. Why should it be system high?
+I suppose it depends on what you really want to be able to do.  Do you
 
-I think you want to make a distinction between the root drawable (as a 
-viewable image) and as a conduit for event notification. In our 
-implementation the drawable is system low, but the label for sending 
-events to the root window is essentially system high. Anyone can send an 
-event to the root window, but these events are only delivered to TCB 
-clients. The ability to express interest in such events is restricted.
+a) wish to be able to run arbitrary commands via sudo but be able to
+   specify a role and type ala newrole via -r and -t flags?
 
-We also have a fairly complex policy on labeling the root colormap in 
-which each color cell is independently labeled. This is an artifact of 
-the graphics hardware we supported (8bit color maps).
+or
 
->
-> As for polyinstantiating properties I've been looking at dix property, 
-> xace and xselinux and thinking about how it could be done. Looking at 
-> property.c it seems like FindProperty would be the logical place to 
-> search for properties based on name, context and probably a list of 
-> singleton root window properties (as Glenn mentions). Currently 
-> FindProperty doesn't use XaceHook and it is unclear whether 
-> XACE_PROPERTY_ACCESS would be the right hook. Also other functions, 
-> ProcGetProperty, don't use FindProperty to find properties.
-> Regarding the idea of setting the context when a property is written 
-> this would only be feasible when the mode was PropModeReplace. Even if 
-> this were deemed a reasonable approach there'd probably still be a 
-> list of singleton root window properties that writers could not change 
-> the context of.
-> We really need a solution to the issue of polyinstantiated properties 
-> or there is no way X apps will run in MLS enforcing mode.
->
-We implemented this before XACE was developed. I think a new hook is 
-required.
+b) want to be able to force a command run by sudo to use a role and type
+   that is specified in the sudoers file?
 
---Glenn
+Doing a) is probably easier than b) though the two are not mutually
+exclusive.
+
+ - todd
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
