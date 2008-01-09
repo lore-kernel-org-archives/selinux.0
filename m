@@ -1,41 +1,84 @@
-Message-ID: <4784D902.6000802@manicmethod.com>
-Date: Wed, 09 Jan 2008 09:24:02 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m09FCHe6016073
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2008 10:12:17 -0500
+Received: from florence.astrium.eads.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m09FCFxW022270
+	for <selinux@tycho.nsa.gov>; Wed, 9 Jan 2008 15:12:16 GMT
 MIME-Version: 1.0
-To: Todd Miller <Tmiller@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [patch 7/7] Use -Werror
-References: <200801072047.m07KlXAs026116@cadmus.columbia.tresys.com> <1199884164.9393.210.camel@moss-spartans.epoch.ncsc.mil> <6FE441CD9F0C0C479F2D88F959B015880153F432@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015880153F432@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: UNCLASSIFIED - Developing Policies for SELinux on Embedded Systems
+Date: Wed, 9 Jan 2008 15:11:26 -0000
+Message-ID: <7F6B06837A5DBD49AC6E1650EFF5490601C64BEB@auk52177.ukr.astrium.corp>
+From: "HAWKER, Dan 2 \(external\)" <Dan.HAWKER@uk4.astrium.eads.net>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Todd Miller wrote:
-> Stephen Smalley wrote:
->   
->> On Mon, 2008-01-07 at 15:47 -0500, Todd C. Miller wrote:
->>     
->>> Stephen Smalley wrote:
->>>
->>>       
->>>> A bit overzealous though - some of them already had -Werror in
->>>> CFLAGS. Also need to make sure that -Werror gets included by make
->>>> DEBUG=1. 
->>>>         
->>> Updated patch without the duplicated -Werror and adds it for
->>> the DEBUG=1 cases.
->>>       
->> This breaks make pywrap in libselinux, or install-pywrap from top.
->>     
->
-> I always forget that pywrap is not built by the default target.
-> I'll commit a fix to filter out -Werror for pywrap.
->   
 
-Also with DEBUG=1 there is another warning in newrole.c about a shadowed 
-var.
 
+Hi All,
+
+Not 100% sure if this is the right list to enquire about this, if not
+can someone point me towards somewhere that might be :)
+
+Have been tasked with generating a series of SELinux policies for some
+embedded Linux devices we are developing. Naturally, time is not in
+abundance :(
+
+The target system is a special stripped-down FC4 variant (i386, about
+80MB footprint), we have developed in-house for our embedded platform
+and runs a custom 2.6.12ish kernel with some modifications for the
+target hardware.
+
+I planned to start with the base reference policy, strip out the bits we
+don't need (it only runs our own apps plus the minimum to boot) and then
+add policies for our apps. All presuming the relatively old kernel we
+are using can handle the ref policy and subsequent libselinux, etc
+updates of course.
+
+Obviously with time being of the essence, I'd like a quick and easy way
+of developing the appropriate policies. I have looked at the tools that
+are available at present (SLIDE, SETools, etc) however tbh am a bit
+confused about what would be the best way forward and whether it'll all
+work as expected before I spend days/weeks of development time down a
+dead end.
+
+Naturally the embedded nature of the hardware means I am unable to
+develop directly on the target and as such SLIDE seems a good tool and
+with the SLIDERemote, would seem a good fit, (install SLIDE on my RHEL5
+DevBox and connect to my remote target, which has network access but
+limited onboard resources). However am just unsure as to whether it will
+work as expected or indeed if there is another better route or toolset I
+should take.
+
+Any ideas/insights gratefully received :)
+
+Thanks for any help
+
+Dan
+
+--
+
+Dan Hawker
+Linux System Administrator
+Astrium
+http://www.astrium.eads.net
+
+-- 
+
+This email (including any attachments) may contain confidential and/or
+privileged information or information otherwise protected from disclosure.
+If you are not the intended recipient, please notify the sender
+immediately, do not copy this message or any attachments and do not use it
+for any purpose or disclose its content to any person, but delete this
+message and any attachments from your system. Astrium disclaims any and all
+liability if this email transmission was virus corrupted, altered or
+falsified.
+---------------------------------------------------------------------
+Astrium Limited, Registered in England and Wales No. 2449259
+REGISTERED OFFICE:-
+Gunnels Wood Road, Stevenage, Hertfordshire, SG1 2AS, England
 
 
 --
