@@ -1,28 +1,33 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [patch 0/7] quiet gcc warnings
-Date: Wed, 9 Jan 2008 13:47:08 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015880153F4BE@exchange.columbia.tresys.com>
-In-Reply-To: <20080103184331.485176161@tresys.com>
-References: <20080103184331.485176161@tresys.com>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: <selinux@tycho.nsa.gov>
-Cc: <method@manicmethod.com>, <sds@tycho.nsa.gov>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1199902278.9393.283.camel@moss-spartans.epoch.ncsc.mil>
+References: <1199902278.9393.283.camel@moss-spartans.epoch.ncsc.mil> <1197307397.18120.72.camel@moss-spartans.epoch.ncsc.mil> <1197305173.18120.60.camel@moss-spartans.epoch.ncsc.mil> <20071205193818.24617.79771.stgit@warthog.procyon.org.uk> <20071205193859.24617.36392.stgit@warthog.procyon.org.uk> <25037.1197306473@redhat.com> <17868.1199897484@redhat.com> 
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dhowells@redhat.com, Daniel J Walsh <dwalsh@redhat.com>,
+        casey@schaufler-ca.com, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+Date: Wed, 09 Jan 2008 18:56:20 +0000
+Message-ID: <1316.1199904980@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-tmiller@tresys.com wrote:
-> These patches fix a number of gcc warnings in the selinux userland
-> build process.  They allow everything but libsemanage to build with
-> -Werror.  The only thing in the way of libsemanage using -Werror is
-> the flex-generated scanner.  We could just drop a few of the -W flags
-> for libsemanage (like -Wundef) to make it pass.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Merged into the stable and policyrep branches.
+> Right, the latter is reasonable.
+> Requires adding the class and permission definition to
+> policy/flask/security_classes and policy/flask/access_vectors and then
+> regenerating the kernel headers from those files, ala:
+>   svn co http://oss.tresys.com/repos/refpolicy/trunk refpolicy
+>   cd refpolicy/policy/flask
+>   vi security_classes access_vectors
+>   <add new class to end>
+>   make
+>   make LINUX_D=/path/to/linux-2.6 tokern
 
- - todd
+Does this require rebuilding and updating all the SELinux rpms to know about
+the new class?
 
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
