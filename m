@@ -1,38 +1,35 @@
-Date: Thu, 10 Jan 2008 01:04:43 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, cpebenito@tresys.com,
-        vyekkirala@TrustedCS.com
-Subject: Re: Q: SECMARK controls on forwarded packets
-In-Reply-To: <200801082330.58907.paul.moore@hp.com>
-Message-ID: <Xine.LNX.4.64.0801100100590.9291@us.intercode.com.au>
-References: <200801082330.58907.paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Re: [patch 7/7] Use -Werror
+Date: Wed, 9 Jan 2008 09:19:23 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015880153F432@exchange.columbia.tresys.com>
+In-Reply-To: <1199884164.9393.210.camel@moss-spartans.epoch.ncsc.mil>
+References: <200801072047.m07KlXAs026116@cadmus.columbia.tresys.com> <1199884164.9393.210.camel@moss-spartans.epoch.ncsc.mil>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, <method@manicmethod.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 8 Jan 2008, Paul Moore wrote:
-
-> (quick refresher, the packet's peer label is taken/derived from the original 
-> sending socket and "attached" to the packet via NetLabel or labeled IPsec).  
-> Since the packet's peer label conveys the same label as the sending socket, 
-> using the packet's peer label in place of the sending socket seems to be a 
-> natural fit.
+Stephen Smalley wrote:
+> On Mon, 2008-01-07 at 15:47 -0500, Todd C. Miller wrote:
+>> Stephen Smalley wrote:
+>> 
+>>> A bit overzealous though - some of them already had -Werror in
+>>> CFLAGS. Also need to make sure that -Werror gets included by make
+>>> DEBUG=1. 
+>> 
+>> Updated patch without the duplicated -Werror and adds it for
+>> the DEBUG=1 cases.
 > 
-> Agree?  Disagree?  Other ideas?
+> This breaks make pywrap in libselinux, or install-pywrap from top.
 
-Agree.
+I always forget that pywrap is not built by the default target.
+I'll commit a fix to filter out -Werror for pywrap.
 
-I think the forward_in/out thing works.
+ - todd
 
-It'd be interesting to see what some fully worked network policy would 
-look like for a couple of cases (e.g. secmark only, or secmark + ipsec).
-
-
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
