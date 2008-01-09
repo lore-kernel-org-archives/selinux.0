@@ -1,57 +1,38 @@
-Subject: Re: Q: SECMARK controls on forwarded packets
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Thu, 10 Jan 2008 01:04:43 +1100 (EST)
+From: James Morris <jmorris@namei.org>
 To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, cpebenito@tresys.com, vyekkirala@TrustedCS.com,
-        jmorris@namei.org
-In-Reply-To: <200801090830.15611.paul.moore@hp.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, cpebenito@tresys.com,
+        vyekkirala@TrustedCS.com
+Subject: Re: Q: SECMARK controls on forwarded packets
+In-Reply-To: <200801082330.58907.paul.moore@hp.com>
+Message-ID: <Xine.LNX.4.64.0801100100590.9291@us.intercode.com.au>
 References: <200801082330.58907.paul.moore@hp.com>
-	 <1199883104.9393.206.camel@moss-spartans.epoch.ncsc.mil>
-	 <200801090830.15611.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Wed, 09 Jan 2008 08:39:41 -0500
-Message-Id: <1199885981.9393.240.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 8 Jan 2008, Paul Moore wrote:
 
-On Wed, 2008-01-09 at 08:30 -0500, Paul Moore wrote:
-> On Wednesday 09 January 2008 7:51:44 am Stephen Smalley wrote:
-> > On Tue, 2008-01-08 at 23:30 -0500, Paul Moore wrote:
-> > > So, in summary, here are the SECMARK permission checks applied to locally
-> > > generated or consumed traffic [this is the status quo]:
-> > >
-> > >  # inbound traffic
-> > >  allow socket_t secmark_t:packet recv;
-> > >  # outbound traffic
-> > >  allow socket_t secmark_t:packet send;
-> > >
-> > > ... and these are the proposed SECMARK permission checks applied to
-> > > forwarded traffic as it enters and exists the forwarding-host/router:
-> > >
-> > >  # inbound traffic to be forwarded
-> > >  allow peer_t secmark_t:packet forward;
-> > >  # outbound forwarded traffic
-> > >  allow peer_t secmark_t:packet send;
-> >
-> > The problem with the last one is that it also allows the same thing to
-> > happen for locally generated traffic, which might not be what the policy
-> > writer wants to allow.
+> (quick refresher, the packet's peer label is taken/derived from the original 
+> sending socket and "attached" to the packet via NetLabel or labeled IPsec).  
+> Since the packet's peer label conveys the same label as the sending socket, 
+> using the packet's peer label in place of the sending socket seems to be a 
+> natural fit.
 > 
-> Fair enough.  I'll try to think of something catchy to replace the send 
-> permission in the forwarding outbound case ... if anybody has any great ideas 
-> I'd love to hear them.
+> Agree?  Disagree?  Other ideas?
 
-Well, you could just go with the obvious:
-# inbound traffic to be forwarded
-allow peer_t secmark_t:packet forward_in;
-# outbound forwarded traffic
-allow peer_t secmark_t:packet forward_out;
+Agree.
+
+I think the forward_in/out thing works.
+
+It'd be interesting to see what some fully worked network policy would 
+look like for a couple of cases (e.g. secmark only, or secmark + ipsec).
+
 
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
