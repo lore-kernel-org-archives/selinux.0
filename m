@@ -1,77 +1,146 @@
-Subject: Re: Q: SECMARK controls on forwarded packets
+Subject: Re: Re: [patch 7/7] Use -Werror
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov, cpebenito@tresys.com, vyekkirala@TrustedCS.com,
-        jmorris@namei.org
-In-Reply-To: <200801082330.58907.paul.moore@hp.com>
-References: <200801082330.58907.paul.moore@hp.com>
+To: "Todd C. Miller" <tmiller@tresys.com>
+Cc: selinux@tycho.nsa.gov, method@manicmethod.com
+In-Reply-To: <200801072047.m07KlXAs026116@cadmus.columbia.tresys.com>
+References: <200801072047.m07KlXAs026116@cadmus.columbia.tresys.com>
 Content-Type: text/plain
-Date: Wed, 09 Jan 2008 07:51:44 -0500
-Message-Id: <1199883104.9393.206.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 09 Jan 2008 08:09:24 -0500
+Message-Id: <1199884164.9393.210.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-01-08 at 23:30 -0500, Paul Moore wrote:
-> Traditionally we have always checked a packet's secmark label against the 
-> receiving socket and granted access based on allow rules similar to the one 
-> below:
+On Mon, 2008-01-07 at 15:47 -0500, Todd C. Miller wrote:
+> Stephen Smalley wrote:
 > 
->  allow socket_t secmark_t:packet recv;
+> > A bit overzealous though - some of them already had -Werror in CFLAGS.
+> > Also need to make sure that -Werror gets included by make DEBUG=1.
 > 
-> ... we performed a similar check when sending packets:
-> 
->  allow socket_t secmark_t:packet send;
-> 
-> However, when we are dealing with forwarded traffic we do not have a sending 
-> or receiving socket to compare the packet's secmark label against to perform 
-> access control.  Despite the lack of a socket, I believe we can still provide 
-> useful access control with secmark labels by using the packet's peer label 
-> (quick refresher, the packet's peer label is taken/derived from the original 
-> sending socket and "attached" to the packet via NetLabel or labeled IPsec).  
-> Since the packet's peer label conveys the same label as the sending socket, 
-> using the packet's peer label in place of the sending socket seems to be a 
-> natural fit.
-> 
-> Agree?  Disagree?  Other ideas?
+> Updated patch without the duplicated -Werror and adds it for
+> the DEBUG=1 cases.
 
-Agree.
+This breaks make pywrap in libselinux, or install-pywrap from top.
 
-> Working under the assumption that you all agree, do you think we should stick 
-> with the existing "packet { send recv }" permissions for forwarded traffic?  
-> The "send" permission still makes sense to me for outgoing forwarded traffic 
-> but the "recv" permission is all wrong since the forwarding host isn't 
-> consuming the packet like it is with the existing "recv" permission.  With 
-> that in mind, I'd suggest adding a new permission, "forward", which is used 
-> when checking inbound forwarded traffic.
 > 
-> Agree?  Disagree?  Other ideas?
-
-Disagree with re-using send, as you then cannot distinguish in policy
-between what you allow to be sent from local processes vs. what you
-allow to be forwarded.
-
-> So, in summary, here are the SECMARK permission checks applied to locally 
-> generated or consumed traffic [this is the status quo]:
+>  - todd
 > 
->  # inbound traffic
->  allow socket_t secmark_t:packet recv;
->  # outbound traffic
->  allow socket_t secmark_t:packet send;
+> ---
+>  Makefile                          |    2 +-
+>  checkpolicy/Makefile              |    2 +-
+>  libselinux/src/Makefile           |    2 +-
+>  libsemanage/src/Makefile          |    2 +-
+>  libsepol/src/Makefile             |    2 +-
+>  libsepol/utils/Makefile           |    2 +-
+>  policycoreutils/secon/Makefile    |    2 +-
+>  policycoreutils/setfiles/Makefile |    2 +-
+>  8 files changed, 8 insertions(+), 8 deletions(-)
 > 
-> ... and these are the proposed SECMARK permission checks applied to forwarded 
-> traffic as it enters and exists the forwarding-host/router:
-> 
->  # inbound traffic to be forwarded
->  allow peer_t secmark_t:packet forward;
->  # outbound forwarded traffic
->  allow peer_t secmark_t:packet send;
-
-The problem with the last one is that it also allows the same thing to
-happen for locally generated traffic, which might not be what the policy
-writer wants to allow.
-
+> Index: trunk/Makefile
+> ===================================================================
+> --- trunk.orig/Makefile
+> +++ trunk/Makefile
+> @@ -2,7 +2,7 @@ SUBDIRS=libsepol libselinux libsemanage 
+>  PYSUBDIRS=libselinux libsemanage
+>  
+>  ifeq ($(DEBUG),1)
+> -	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow
+> +	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
+>  	export LDFLAGS = -g
+>  endif
+>  
+> Index: trunk/checkpolicy/Makefile
+> ===================================================================
+> --- trunk.orig/checkpolicy/Makefile
+> +++ trunk/checkpolicy/Makefile
+> @@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
+>  
+>  YACC = bison -y
+>  
+> -CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
+> +CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
+>  
+>  override CFLAGS += -I. -I${INCLUDEDIR}
+>  
+> Index: trunk/libselinux/src/Makefile
+> ===================================================================
+> --- trunk.orig/libselinux/src/Makefile
+> +++ trunk/libselinux/src/Makefile
+> @@ -32,7 +32,7 @@ SRCS= $(filter-out $(UNUSED_SRCS), $(fil
+>  
+>  OBJS= $(patsubst %.c,%.o,$(SRCS))
+>  LOBJS= $(patsubst %.c,%.lo,$(SRCS))
+> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+> +CFLAGS ?= -Werror -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+>  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
+>  RANLIB=ranlib
+>  
+> Index: trunk/libsemanage/src/Makefile
+> ===================================================================
+> --- trunk.orig/libsemanage/src/Makefile
+> +++ trunk/libsemanage/src/Makefile
+> @@ -10,7 +10,7 @@ PYLIBDIR ?= $(LIBDIR)/${PYLIBVER}
+>  DEFAULT_SEMANAGE_CONF_LOCATION=$(DESTDIR)/etc/selinux/semanage.conf
+>  
+>  ifeq ($(DEBUG),1)
+> -	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow
+> +	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
+>  	export LDFLAGS = -g
+>  endif
+>  
+> Index: trunk/libsepol/src/Makefile
+> ===================================================================
+> --- trunk.orig/libsepol/src/Makefile
+> +++ trunk/libsepol/src/Makefile
+> @@ -10,7 +10,7 @@ TARGET=libsepol.so
+>  LIBSO=$(TARGET).$(LIBVERSION)
+>  OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
+>  LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
+> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+> +CFLAGS ?= -Werror -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
+>  override CFLAGS += -I. -I../include -D_GNU_SOURCE
+>  
+>  all: $(LIBA) $(LIBSO)
+> Index: trunk/libsepol/utils/Makefile
+> ===================================================================
+> --- trunk.orig/libsepol/utils/Makefile
+> +++ trunk/libsepol/utils/Makefile
+> @@ -2,7 +2,7 @@
+>  PREFIX ?= $(DESTDIR)/usr
+>  BINDIR ?= $(PREFIX)/bin
+>  
+> -CFLAGS ?= -Wall
+> +CFLAGS ?= -Wall -Werror
+>  override CFLAGS += -I../include
+>  LDLIBS += -L../src -lsepol 
+>  
+> Index: trunk/policycoreutils/secon/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/secon/Makefile
+> +++ trunk/policycoreutils/secon/Makefile
+> @@ -5,7 +5,7 @@ BINDIR ?= $(PREFIX)/bin
+>  MANDIR ?= $(PREFIX)/share/man
+>  LIBDIR ?= ${PREFIX}/lib
+>  
+> -WARNS=-W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
+> +WARNS=-Werror -W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-length -Wformat-nonliteral -Wformat-security -Wfloat-equal
+>  VERSION = $(shell cat ../VERSION)
+>  CFLAGS ?= $(WARNS) -O1
+>  override CFLAGS += -DVERSION=\"$(VERSION)\" -I$(INCLUDEDIR) 
+> Index: trunk/policycoreutils/setfiles/Makefile
+> ===================================================================
+> --- trunk.orig/policycoreutils/setfiles/Makefile
+> +++ trunk/policycoreutils/setfiles/Makefile
+> @@ -6,7 +6,7 @@ LIBDIR ?= $(PREFIX)/lib
+>  
+>  AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
+>  
+> -CFLAGS = -Werror -Wall -W 
+> +CFLAGS = -Werror -Wall -W
+>  override CFLAGS += -D_FILE_OFFSET_BITS=64 -I$(PREFIX)/include
+>  LDLIBS = -lselinux -lsepol -L$(LIBDIR)
+>  
 -- 
 Stephen Smalley
 National Security Agency
