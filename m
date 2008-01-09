@@ -1,78 +1,56 @@
-Subject: Re: UNCLASSIFIED - Developing Policies for SELinux on Embedded
-	Systems
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "HAWKER, Dan 2 (external)" <Dan.HAWKER@uk4.astrium.eads.net>
-Cc: selinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>,
-        Dave Sugar <dsugar@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <7F6B06837A5DBD49AC6E1650EFF5490601C64BEB@auk52177.ukr.astrium.corp>
-References: 
-	 <7F6B06837A5DBD49AC6E1650EFF5490601C64BEB@auk52177.ukr.astrium.corp>
-Content-Type: text/plain
-Date: Wed, 09 Jan 2008 11:10:24 -0500
-Message-Id: <1199895024.9393.269.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4784FA66.8010806@redhat.com>
+Date: Wed, 09 Jan 2008 11:46:30 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: In the midst of doing a conversion of audit2why to python
+References: <4783CE58.40008@redhat.com> <1199822878.9393.170.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1199822878.9393.170.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, 2008-01-09 at 15:11 +0000, HAWKER, Dan 2 (external) wrote:
+Stephen Smalley wrote:
+> On Tue, 2008-01-08 at 14:26 -0500, Daniel J Walsh wrote:
+> I want to make this code available to audit2why/audit2allow,
+> setroubleshoot and potentially system-config-selinux.
 > 
-> Hi All,
+> I have two questions,
 > 
-> Not 100% sure if this is the right list to enquire about this, if not
-> can someone point me towards somewhere that might be :)
 > 
-> Have been tasked with generating a series of SELinux policies for some
-> embedded Linux devices we are developing. Naturally, time is not in
-> abundance :(
+> Is there a way for audit2why to figure out whether an AVC would be
+> dontaudited by the current policy?
 > 
-> The target system is a special stripped-down FC4 variant (i386, about
-> 80MB footprint), we have developed in-house for our embedded platform
-> and runs a custom 2.6.12ish kernel with some modifications for the
-> target hardware.
+>> The avd returned by sepol_compute_av_reason() includes all of the access
+>> vectors.  avd.auditdeny is the set of permissions that would be audited
+>> if denied, i.e. the complement of the dontaudit rules. Something like if
+>> (~avd.auditdeny & av) then printf("would be dontaudit'd");
 > 
-> I planned to start with the base reference policy, strip out the bits we
-> don't need (it only runs our own apps plus the minimum to boot) and then
-> add policies for our apps. All presuming the relatively old kernel we
-> are using can handle the ref policy and subsequent libselinux, etc
-> updates of course.
+> If we add audit2why python bindings should I put it in libselinux?
+> sepolgen?
+> 
+> 
+> Attached .h file describes functions and constants.
+> 
+>> I'm not sure what you are doing - auditwhy presently is a program that
+>> links in the static libsepol, since the libsepol interfaces being used
+>> by it are not provided by the shared libsepol (as they aren't properly
+>> encapsulated).
+> 
+What is the field 	sepol_access_vector_t decided;
+used for?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-You can configure what policy version is generated to match what your
-kernel supports (as reported by /selinux/policyvers) by setting
-OUTPUT_POLICY= in build.conf for a monolithic policy build or by setting
-policy-version= in /etc/selinux/semanage.conf for a modular policy.
-Looks like 2.6.12 supported policy.19, so it shouldn't be a problem to
-build such a policy from a modern refpolicy.
-
-I'm not sure that you need updated libselinux and friends on the
-target/embedded system as long as you just build a monolithic policy on
-the build host.
-
-Not sure what SLIDEremote requires on the target/test box - Chad or Dave
-can probably speak to that.
-
-> Obviously with time being of the essence, I'd like a quick and easy way
-> of developing the appropriate policies. I have looked at the tools that
-> are available at present (SLIDE, SETools, etc) however tbh am a bit
-> confused about what would be the best way forward and whether it'll all
-> work as expected before I spend days/weeks of development time down a
-> dead end.
-> 
-> Naturally the embedded nature of the hardware means I am unable to
-> develop directly on the target and as such SLIDE seems a good tool and
-> with the SLIDERemote, would seem a good fit, (install SLIDE on my RHEL5
-> DevBox and connect to my remote target, which has network access but
-> limited onboard resources). However am just unsure as to whether it will
-> work as expected or indeed if there is another better route or toolset I
-> should take.
-> 
-> Any ideas/insights gratefully received :)
-
--- 
-Stephen Smalley
-National Security Agency
-
+iEYEARECAAYFAkeE+mUACgkQrlYvE4MpobPkWQCgp3+WVMNygNHiU64LRDFCT5NX
+fzcAoJMxAFFyVivV9d8v7YjMrAPRDkdM
+=/yN7
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
