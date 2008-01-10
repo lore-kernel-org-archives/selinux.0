@@ -1,90 +1,88 @@
 Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0AKRvNP018614
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jan 2008 15:27:57 -0500
-Message-ID: <47867FCA.50408@tycho.nsa.gov>
-Date: Thu, 10 Jan 2008 15:27:54 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0ALEEt3024938
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jan 2008 16:14:14 -0500
+Message-ID: <47868AA4.5060102@tycho.nsa.gov>
+Date: Thu, 10 Jan 2008 16:14:12 -0500
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Glenn Faden <Glenn.Faden@sun.com>
-CC: Xavier Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
+CC: Ted X Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: X avcs
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com> <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com> <47754FCB.1070307@tycho.nsa.gov> <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com> <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com> <477BEFF1.2090507@sun.com>
-In-Reply-To: <477BEFF1.2090507@sun.com>
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com> <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com> <47754FCB.1070307@tycho.nsa.gov> <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com> <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com> <477BEFF1.2090507@sun.com> <4784D86C.1070503@gmail.com> <4785088A.2070601@sun.com>
+In-Reply-To: <4785088A.2070601@sun.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Glenn Faden wrote:
-> This is my first posting to this alias, so let me start by introducing 
-> myself. I'm a Distinguished Engineer in the Solaris security 
-> organization, and I'm the original architect for Sun's multilevel X11 
-> server. I have worked on this problem since 1990, and have designed 
-> three multilevel desktops (Open Look, CDE, and GNOME)
+> Ted X Toth wrote:
+>   
+>> Currently the root window drawable is labeled s0 which is system low 
+>> but it seems like it should be system high (s15:c0.c1023).
+>>     
 >
-> One of the biggest challenges in adding fine-grained policy to the X11 
-> server is to make the policy transparent to existing X11 clients. 
-> Probably the most critical design decision we made was with respect to 
-> root window resources. By default, all root window properties are 
-> polyinstantiated by both label and uid. For SELinux, the equivalent 
-> policy would be polyinstantiation by security context (not just MLS 
-> label). An exception list of single-instance root-window properties is 
-> enumerated in a policy file.
-> We have found that the list of exceptions is much smaller than the list 
-> that should be polyinstantiated.
+> We treat it as system low to make screen snapshots and animations work 
+> properly. It also provides better integrity. Why should it be system high?
+>
+> I think you want to make a distinction between the root drawable (as a 
+> viewable image) and as a conduit for event notification. In our 
+> implementation the drawable is system low, but the label for sending 
+> events to the root window is essentially system high. Anyone can send an 
+> event to the root window, but these events are only delivered to TCB 
+> clients. The ability to express interest in such events is restricted.
 >   
 
-Hello.  I am not opposed to the idea of polyinstantiated properties.  
-Although our approach has always been to attempt to fix applications to 
-work within the secure environment first, it looks like this is a case 
-where polyinstantiated is needed.
+I have to think about this some more, but currently there is no 
+separation between event destination and drawable in the SELinux model - 
+they are the same object.  The abiliy to read/write the drawable and 
+send/receive events are separate TE permissions.
 
-My first thought on the implementation is that a value-return parameter 
-could be added to the PROPERTY_ACCESS hook so that security modules can 
-return the actual PropertyPtr object they wish to be used.  The 
-FindProperty function would then have to be upgraded to a general lookup 
-function similar to dixLookupResource(), dixLookupDrawable(), etc. and 
-the property code would have to be refactored to use it everywhere when 
-looking up a property.  The semantics of the various property requests, 
-in particular RotateProperties, might make this a little more difficult.
+The contexts on the root window and root colormap are derived through 
+type transitions from the context of the X server process.  I think the 
+root window probably should be system-high, because without some kind of 
+censoring logic, if you can read the contents of a window in X you can 
+read all of its children as well.  Screenshot applications and the 
+window-manager animations should both be at system-high as well so there 
+wouldn't be a problem here, no?
 
-SELinux has a security_compute_member() interface that is intended to 
-return the security context of the appropriate object for use, and this 
-can be used to determine which object to return.
-
-> With respect to the root window drawable, it is protected at the lowest 
-> label, so it is never modified. Applications like Nautilus are 
-> polyinstantiated, too, and render their own background windows.
->
-> Our implementation is all open-sourced using the Xorg license. A summary 
-> of the X11 security policy implemented by Solaris Trusted Extensions is 
-> described in Chapter 6 of the Developer's Guide,  
-> http://docs.sun.com/app/docs/doc/819-0869/6n391u3ru?a=view
->
-> The configuration file for the polyinstantiation policy is described in 
-> the TrustedExtensionsPolicy man page, 
-> http://docs.sun.com/app/docs/doc/819-7307/trustedextensionspolicy-4?a=view
->
-> The source code which implements this policy can be viewed in the 
-> OpenSolaris browser using this link:
-> http://src.opensolaris.org/source/xref/fox/fox-gate/XW_NV/open-src/xserver/xorg/sun-src/tsol/
->
-> The hooks to the XACE extension layer (also used by SELinux) are in the 
-> file tsolCompat.c, which can be viewed here:
-> http://src.opensolaris.org/source/xref/fox/fox-gate/XW_NV/open-src/xserver/xorg/sun-src/Xext/tsolCompat.c
->
-> Although Trusted Extensions and SELinux have significant differences 
-> with respect to their security models, both systems attempt to implement 
-> MAC policy in a manner that is transparent to applications. This should 
-> apply to the desktop, as well. In general, the user experience running 
-> GNOME on Solaris (with or without Trusted Extensions) or on Linux (with 
-> or without SELinux) should be almost identical. So the underlying 
-> policies enforced by the X11 server should follow the same general 
-> principles.
+> We also have a fairly complex policy on labeling the root colormap in 
+> which each color cell is independently labeled. This is an artifact of 
+> the graphics hardware we supported (8bit color maps).
 >   
 
-Our long-term goal is to make applications aware of and responsive to 
-the security environment, particularly applications that could 
-themselves be multi-level such as e-mail, web, office.
+"Requested 84 colors, got 0."  Who can forget those days.  Anyway, the 
+original set of X security classes did have a "color" class that was 
+intended for individual color cells, however I dropped it in my revision 
+because I decided it would be too much work to fully secure the colormap 
+implementation given the fact that hardly anything uses indexed-color 
+mode anymore, and even things that do can just install their own colormaps.
+
+
+>   
+>> As for polyinstantiating properties I've been looking at dix property, 
+>> xace and xselinux and thinking about how it could be done. Looking at 
+>> property.c it seems like FindProperty would be the logical place to 
+>> search for properties based on name, context and probably a list of 
+>> singleton root window properties (as Glenn mentions). Currently 
+>> FindProperty doesn't use XaceHook and it is unclear whether 
+>> XACE_PROPERTY_ACCESS would be the right hook. Also other functions, 
+>> ProcGetProperty, don't use FindProperty to find properties.
+>> Regarding the idea of setting the context when a property is written 
+>> this would only be feasible when the mode was PropModeReplace. Even if 
+>> this were deemed a reasonable approach there'd probably still be a 
+>> list of singleton root window properties that writers could not change 
+>> the context of.
+>> We really need a solution to the issue of polyinstantiated properties 
+>> or there is no way X apps will run in MLS enforcing mode.
+>>
+>>     
+> We implemented this before XACE was developed. I think a new hook is 
+> required.
+>
+> --Glenn
+>
+>   
+
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
