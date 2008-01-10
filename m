@@ -1,45 +1,28 @@
-Subject: Re: [RFC] Obtaining PATH entry without audit userland
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: Alexander Viro <aviro@redhat.com>, linux-audit@redhat.com,
-        Yuichi Nakamura <ynakam@hitachisoft.jp>, SELinux@tycho.nsa.gov
-In-Reply-To: <200801101040.19032.sgrubb@redhat.com>
-References: <20080110172605.89A2.YNAKAM@hitachisoft.jp>
-	 <200801101019.50692.sgrubb@redhat.com>
-	 <20080110153237.GH16537@devserv.devel.redhat.com>
-	 <200801101040.19032.sgrubb@redhat.com>
-Content-Type: text/plain
-Date: Thu, 10 Jan 2008 11:42:03 -0500
-Message-Id: <1199983323.29816.7.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: "Chad Hanson" <chanson@TrustedCS.com>
+Subject: Re: Q: SECMARK controls on forwarded packets
+Date: Thu, 10 Jan 2008 11:47:05 -0500
+Cc: "James Morris" <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        sds@tycho.nsa.gov, cpebenito@tresys.com,
+        "Venkat Yekkirala" <vyekkirala@TrustedCS.com>
+References: <200801082330.58907.paul.moore@hp.com> <200801091548.10359.paul.moore@hp.com> <D709A20F2164C84E8B7014B0301F5EF8A0DD2A@HAVOC.tcs-sec.com>
+In-Reply-To: <D709A20F2164C84E8B7014B0301F5EF8A0DD2A@HAVOC.tcs-sec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200801101147.06142.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thursday 10 January 2008 10:32:10 am Chad Hanson wrote:
+> These controls look good to us...
 
-On Thu, 2008-01-10 at 10:40 -0500, Steve Grubb wrote:
-> On Thursday 10 January 2008 10:32:37 Alexander Viro wrote:
-> > On Thu, Jan 10, 2008 at 10:19:50AM -0500, Steve Grubb wrote:
-> > > I was under the impression that Al Viro has already sent a patch allowing
-> > > for PATH in all AVC messages. Al?
-> >
-> > In the mainline for quite a while...
-> 
-> That's what I thought.
-> 
-> Yuichi, what kernel are you testing against that is having the problem? Is 
-> there a simple test case that shows the problem so we can check the kernel to 
-> make sure its working properly?
-
-SELinux can still only audit a pathname (vs. just the component name)
-when it has the (vfsmount, dentry) pair available in the LSM hook, which
-often isn't the case still.  So we still depend on audit pathname
-collection to give us more information than just the component name on
-many permission checks.
+Great.  I'm assuming the lack of complaints means others are happy with 
+this as well.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
