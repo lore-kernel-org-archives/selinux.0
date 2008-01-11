@@ -1,168 +1,108 @@
-Message-ID: <47877F43.5030401@redhat.com>
-Date: Fri, 11 Jan 2008 09:37:55 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0BEmhld002869
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jan 2008 09:48:43 -0500
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0BEmgbE029438
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jan 2008 14:48:42 GMT
+Received: by py-out-1112.google.com with SMTP id a78so1296866pyh.32
+        for <selinux@tycho.nsa.gov>; Fri, 11 Jan 2008 06:48:30 -0800 (PST)
+Message-ID: <47878130.5010000@gmail.com>
+Date: Fri, 11 Jan 2008 08:46:08 -0600
+From: Ted X Toth <txtoth@gmail.com>
 MIME-Version: 1.0
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Todd Miller <Tmiller@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Sudo Changes for SELinux
-References: <4784EFE8.9050106@redhat.com>	 <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>	 <1199903006.9393.296.camel@moss-spartans.epoch.ncsc.mil>	 <478670A8.5080902@redhat.com> <1199995291.3707.15.camel@vogon>
-In-Reply-To: <1199995291.3707.15.camel@vogon>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: Glenn Faden <Glenn.Faden@sun.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: X avcs
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com> <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com> <47754FCB.1070307@tycho.nsa.gov> <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com> <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com> <477BEFF1.2090507@sun.com> <47867FCA.50408@tycho.nsa.gov>
+In-Reply-To: <47867FCA.50408@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Eamon Walsh wrote:
+> Glenn Faden wrote:
+>> This is my first posting to this alias, so let me start by 
+>> introducing myself. I'm a Distinguished Engineer in the Solaris 
+>> security organization, and I'm the original architect for Sun's 
+>> multilevel X11 server. I have worked on this problem since 1990, and 
+>> have designed three multilevel desktops (Open Look, CDE, and GNOME)
+>>
+>> One of the biggest challenges in adding fine-grained policy to the 
+>> X11 server is to make the policy transparent to existing X11 clients. 
+>> Probably the most critical design decision we made was with respect 
+>> to root window resources. By default, all root window properties are 
+>> polyinstantiated by both label and uid. For SELinux, the equivalent 
+>> policy would be polyinstantiation by security context (not just MLS 
+>> label). An exception list of single-instance root-window properties 
+>> is enumerated in a policy file.
+>> We have found that the list of exceptions is much smaller than the 
+>> list that should be polyinstantiated.
+>>   
+>
+> Hello.  I am not opposed to the idea of polyinstantiated properties.  
+> Although our approach has always been to attempt to fix applications 
+> to work within the secure environment first, it looks like this is a 
+> case where polyinstantiated is needed.
+>
+> My first thought on the implementation is that a value-return 
+> parameter could be added to the PROPERTY_ACCESS hook so that security 
+> modules can return the actual PropertyPtr object they wish to be 
+> used.  The FindProperty function would then have to be upgraded to a 
+> general lookup function similar to dixLookupResource(), 
+> dixLookupDrawable(), etc. and the property code would have to be 
+> refactored to use it everywhere when looking up a property.  The 
+> semantics of the various property requests, in particular 
+> RotateProperties, might make this a little more difficult.
+>
+> SELinux has a security_compute_member() interface that is intended to 
+> return the security context of the appropriate object for use, and 
+> this can be used to determine which object to return.
+>
+I'll look at implementing a dixPropertyLookup function. Do any other 
+XACE hooks have value-return parameters, would it just be va_arg(ap, 
+PropertyPtr*)?
+What about the idea of an exception list of single-instance root-window 
+properties?
 
-Stefan Schulze Frielinghaus wrote:
-> On Thu, 2008-01-10 at 14:23 -0500, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
+>> With respect to the root window drawable, it is protected at the 
+>> lowest label, so it is never modified. Applications like Nautilus are 
+>> polyinstantiated, too, and render their own background windows.
 >>
->> Stephen Smalley wrote:
->>> On Wed, 2008-01-09 at 12:51 -0500, Todd Miller wrote:
->>>> Daniel J Walsh wrote:
->>>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>>> Hash: SHA1
->>>>>
->>>>> I have a working demonstration of  My version of RBAC in Rawhide/FC8.
->>>>> In my view of the world, users have two roles.  User Role and Admin
->>>>> Role. 
->>>>>
->>>>> So I might login as a staff_t user and be able to transition to
->>>>> webadm_r:webadm_r.
->>>>>
->>>>> In Rawhide right now staff_t can only run sudo to become root.
->>>>> Staff_t is not allowed to execute su.  staff_t users should not know
->>>>> the root password. I have hacked up a script /usr/bin/webadm which
->>>>> executes newrole -r webadm_r -t webadm_t and newrole's pam has
->>>>> pam_rootok. 
->>>>>
->>>>> Now I edit the /etc/sudoers and allow
->>>>>
->>>>> dwalsh ALL=(ALL) /usr/bin/webadm
->>>>>
->>>>> This allows me to use sudo to become webadm_t as root.  (Policy
->>>>> obviously has to be correct.  But this is very cumbersome for the
->>>>> administrator and does not scale.
->>>>>
->>>>> I think we need to add SELinux support to sudo, so the administrator
->>>>> could easily add something to /etc/sodoers like
->>>>>
->>>>> dwalsh ALL=(ALL) ROLE=webadm_r TYPE=webadm_t /bin/sh
->>>>>
->>>>> then sudo would execute the code that newrole does to very the
->>>>> transition and
->>>>>
->>>>> setexeccon(dwalsh:webadm_t:webadm_t)
->>>>> exec(/bin/sh)
->>>>>
->>>>> I was told that you are the upstream maintainer of sudo, so I wanted
->>>>> your input/help on making sudo selinux aware.
->>>> I suppose it depends on what you really want to be able to do.  Do you
->>>>
->>>> a) wish to be able to run arbitrary commands via sudo but be able to
->>>>    specify a role and type ala newrole via -r and -t flags?
->>>>
->>>> or
->>>>
->>>> b) want to be able to force a command run by sudo to use a role and type
->>>>    that is specified in the sudoers file?
->>>>
->> I don't want the user to even know about webadm_r:webadm_t or care.  He
->> will just know that when he is UID 0 he can only use certain directories.
+>> Our implementation is all open-sourced using the Xorg license. A 
+>> summary of the X11 security policy implemented by Solaris Trusted 
+>> Extensions is described in Chapter 6 of the Developer's Guide,  
+>> http://docs.sun.com/app/docs/doc/819-0869/6n391u3ru?a=view
 >>
->> Allowing someone to specfify
+>> The configuration file for the polyinstantiation policy is described 
+>> in the TrustedExtensionsPolicy man page, 
+>> http://docs.sun.com/app/docs/doc/819-7307/trustedextensionspolicy-4?a=view 
 >>
->> sudo -r webadm_r -t webadmin_t /bin/sh
 >>
->> Is not important.
+>> The source code which implements this policy can be viewed in the 
+>> OpenSolaris browser using this link:
+>> http://src.opensolaris.org/source/xref/fox/fox-gate/XW_NV/open-src/xserver/xorg/sun-src/tsol/ 
 >>
->> Having them say
 >>
->> sudo /bin/sh
+>> The hooks to the XACE extension layer (also used by SELinux) are in 
+>> the file tsolCompat.c, which can be viewed here:
+>> http://src.opensolaris.org/source/xref/fox/fox-gate/XW_NV/open-src/xserver/xorg/sun-src/Xext/tsolCompat.c 
 >>
->> and ending up with staff_u:webadm_r:webadm_t is important.
-> 
-> The idea with specifying the role and type at the sudo level is quiet
-> good and important I think. Just imagine a scenario where you have one
-> admin who takes care about the web-server and email-server. So you would
-> have a webadmin_t and mailadmin_t type. If the admin wants to execute
-> something like "sudo vim" (e.g. to change the config files) he would
-> only have on role/type e.g. the webadmin_t but could _not_ change to
-> mailadmin_t. You could easily fix this while creating a secondary Linux
-> user to get around this but I think this wouldn't be nice and could
-> possibly end up with dozens/hundreds/... of Linux user accounts (which
-> are hard to manage, keep clean and isn't user friendly ...).
-> 
-Well this is actually what I would like to avoid.  I would prefer one
-domain that allows the administrator to admin both the httpd and mailman
+>>
+>> Although Trusted Extensions and SELinux have significant differences 
+>> with respect to their security models, both systems attempt to 
+>> implement MAC policy in a manner that is transparent to applications. 
+>> This should apply to the desktop, as well. In general, the user 
+>> experience running GNOME on Solaris (with or without Trusted 
+>> Extensions) or on Linux (with or without SELinux) should be almost 
+>> identical. So the underlying policies enforced by the X11 server 
+>> should follow the same general principles.
+>>   
+>
+> Our long-term goal is to make applications aware of and responsive to 
+> the security environment, particularly applications that could 
+> themselves be multi-level such as e-mail, web, office.
+>
 
-I am adding to Fedora policy admin interfaces so you can easily creat an
-administrator policy that looks something like.
-
-userdom_base_user_template(myadm)
-apache_admin(myadm_t)
-mailman_admin(myadm_t)
-mysql_admin(myadm_t)
-gen_require(`
-        type staff_t;
-')
-allow staff_t webadm_t:process transition;
-
-You load this policy module and create a staff user with the myadm_r,
-and now use sudo to get a shell that can manage mysql, mailman, and
-apache.  The user then does not need to think about, I am administrating
-the apache so I need to execute some bizare commands to become root, and
-then later that shell is no good for managing mailman or mysql.
-
-
->>>> Doing a) is probably easier than b) though the two are not mutually
->>>> exclusive.
->>> Didn't we used to have a) in Fedora (before Fedora 5, IIRC)?  And didn't
->>> it suffer from a number of problems?  Have to go back to the
->>> fedora-selinux archives and/or bugzillas to recapture the history there.
->>>
->>> Also, while integration with sudo might be useful, it seems more
->>> pressing to integrate with policykit given its increasing adoption by
->>> distributions, right?
->>>
->> No sudo and policykit serve two different problems.  I am looking for
->> sudo as a tool for use by actual administrators.  You need to get
->> something configured as the root user.  Currently you use su to do this.
->> And give out the root password.  With SELinux we can confine the user to
->> the particular files/processes that they can effect while running as the
->> root user.  The beauty of using SELinux in this manner is I can allow
->> the administrator to configure the system with tools like
->> vi/emacs/grep/cat/sed ...  While controlling which files he can modify
->> and which processes he can transition to (initscripts).
->>
->> policykit needs policy to confine apps that are doing things on behalf
->> of the user.  So the user wants to change the clock.  Some how the user
->> authenticates himself the PolicyKit and the PolicyKit/Dbus executes
->> commands as root on behalf of the user.  The big caviat here is that we
->> need to make sure the tools ONLY do the things for the user that they
->> are defined to do.  So if the user is allowed to change the Time on his
->> machine, the script that runs on his behalf had better only be able to
->> change the time.
->>
->> Whether or not SELinux gets involved in the authorization is up for debate.
-> 
-> I would really appreciate something like this. It makes it very easy to
-> allow only certain people to access/admin the stuff they need to. It is
-> always good to know that an webserver-admin can only damage the
-> webserver and not the whole system ;-)
-> 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkeHf0IACgkQrlYvE4MpobP+ngCeIRm8RXbGvfFcidWMB8g0kZDG
-dKIAn1/aiMefqyzoeUhQQOvGrBtwXS4T
-=oljc
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
