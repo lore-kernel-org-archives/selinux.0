@@ -1,194 +1,476 @@
-Subject: Re: Sudo Changes for SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        Todd Miller <Tmiller@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1200065528.29816.66.camel@moss-spartans.epoch.ncsc.mil>
-References: <4784EFE8.9050106@redhat.com>
-	 <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>
-	 <1199903006.9393.296.camel@moss-spartans.epoch.ncsc.mil>
-	 <478670A8.5080902@redhat.com> <1199995291.3707.15.camel@vogon>
-	 <47877F43.5030401@redhat.com>
-	 <1200065528.29816.66.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 11 Jan 2008 10:38:43 -0500
-Message-Id: <1200065923.29816.69.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47879290.7080004@redhat.com>
+Date: Fri, 11 Jan 2008 11:00:16 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Swig patch for libselinux to stop warning messages and update to
+ latest swig
+Content-Type: multipart/mixed;
+ boundary="------------060505000901050008070000"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------060505000901050008070000
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Fri, 2008-01-11 at 10:32 -0500, Stephen Smalley wrote:
-> On Fri, 2008-01-11 at 09:37 -0500, Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > Stefan Schulze Frielinghaus wrote:
-> > > On Thu, 2008-01-10 at 14:23 -0500, Daniel J Walsh wrote:
-> > >> -----BEGIN PGP SIGNED MESSAGE-----
-> > >> Hash: SHA1
-> > >>
-> > >> Stephen Smalley wrote:
-> > >>> On Wed, 2008-01-09 at 12:51 -0500, Todd Miller wrote:
-> > >>>> Daniel J Walsh wrote:
-> > >>>>> -----BEGIN PGP SIGNED MESSAGE-----
-> > >>>>> Hash: SHA1
-> > >>>>>
-> > >>>>> I have a working demonstration of  My version of RBAC in Rawhide/FC8.
-> > >>>>> In my view of the world, users have two roles.  User Role and Admin
-> > >>>>> Role. 
-> > >>>>>
-> > >>>>> So I might login as a staff_t user and be able to transition to
-> > >>>>> webadm_r:webadm_r.
-> > >>>>>
-> > >>>>> In Rawhide right now staff_t can only run sudo to become root.
-> > >>>>> Staff_t is not allowed to execute su.  staff_t users should not know
-> > >>>>> the root password. I have hacked up a script /usr/bin/webadm which
-> > >>>>> executes newrole -r webadm_r -t webadm_t and newrole's pam has
-> > >>>>> pam_rootok. 
-> > >>>>>
-> > >>>>> Now I edit the /etc/sudoers and allow
-> > >>>>>
-> > >>>>> dwalsh ALL=(ALL) /usr/bin/webadm
-> > >>>>>
-> > >>>>> This allows me to use sudo to become webadm_t as root.  (Policy
-> > >>>>> obviously has to be correct.  But this is very cumbersome for the
-> > >>>>> administrator and does not scale.
-> > >>>>>
-> > >>>>> I think we need to add SELinux support to sudo, so the administrator
-> > >>>>> could easily add something to /etc/sodoers like
-> > >>>>>
-> > >>>>> dwalsh ALL=(ALL) ROLE=webadm_r TYPE=webadm_t /bin/sh
-> > >>>>>
-> > >>>>> then sudo would execute the code that newrole does to very the
-> > >>>>> transition and
-> > >>>>>
-> > >>>>> setexeccon(dwalsh:webadm_t:webadm_t)
-> > >>>>> exec(/bin/sh)
-> > >>>>>
-> > >>>>> I was told that you are the upstream maintainer of sudo, so I wanted
-> > >>>>> your input/help on making sudo selinux aware.
-> > >>>> I suppose it depends on what you really want to be able to do.  Do you
-> > >>>>
-> > >>>> a) wish to be able to run arbitrary commands via sudo but be able to
-> > >>>>    specify a role and type ala newrole via -r and -t flags?
-> > >>>>
-> > >>>> or
-> > >>>>
-> > >>>> b) want to be able to force a command run by sudo to use a role and type
-> > >>>>    that is specified in the sudoers file?
-> > >>>>
-> > >> I don't want the user to even know about webadm_r:webadm_t or care.  He
-> > >> will just know that when he is UID 0 he can only use certain directories.
-> > >>
-> > >> Allowing someone to specfify
-> > >>
-> > >> sudo -r webadm_r -t webadmin_t /bin/sh
-> > >>
-> > >> Is not important.
-> > >>
-> > >> Having them say
-> > >>
-> > >> sudo /bin/sh
-> > >>
-> > >> and ending up with staff_u:webadm_r:webadm_t is important.
-> > > 
-> > > The idea with specifying the role and type at the sudo level is quiet
-> > > good and important I think. Just imagine a scenario where you have one
-> > > admin who takes care about the web-server and email-server. So you would
-> > > have a webadmin_t and mailadmin_t type. If the admin wants to execute
-> > > something like "sudo vim" (e.g. to change the config files) he would
-> > > only have on role/type e.g. the webadmin_t but could _not_ change to
-> > > mailadmin_t. You could easily fix this while creating a secondary Linux
-> > > user to get around this but I think this wouldn't be nice and could
-> > > possibly end up with dozens/hundreds/... of Linux user accounts (which
-> > > are hard to manage, keep clean and isn't user friendly ...).
-> > > 
-> > Well this is actually what I would like to avoid.  I would prefer one
-> > domain that allows the administrator to admin both the httpd and mailman
-> > 
-> > I am adding to Fedora policy admin interfaces so you can easily creat an
-> > administrator policy that looks something like.
-> > 
-> > userdom_base_user_template(myadm)
-> > apache_admin(myadm_t)
-> > mailman_admin(myadm_t)
-> > mysql_admin(myadm_t)
-> > gen_require(`
-> >         type staff_t;
-> > ')
-> > allow staff_t webadm_t:process transition;
-> 
-> You don't want staff_t to directly transition to webadm_t.  It should
-> have to go through an intermediary, like newrole_t or sudo_t.
 
-Also, how are you handling the tty/pty and fd relationships (usually
-addressed by newrole by relabeling the tty/pty and re-opening the fds
-into its own type)?  That was a major problem with the old sudo selinux
-patch.
+--------------060505000901050008070000
+Content-Type: text/plain;
+ name="libselinux-swig.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libselinux-swig.patch"
 
-> > 
-> > You load this policy module and create a staff user with the myadm_r,
-> > and now use sudo to get a shell that can manage mysql, mailman, and
-> > apache.  The user then does not need to think about, I am administrating
-> > the apache so I need to execute some bizare commands to become root, and
-> > then later that shell is no good for managing mailman or mysql.
-> > 
-> > 
-> > >>>> Doing a) is probably easier than b) though the two are not mutually
-> > >>>> exclusive.
-> > >>> Didn't we used to have a) in Fedora (before Fedora 5, IIRC)?  And didn't
-> > >>> it suffer from a number of problems?  Have to go back to the
-> > >>> fedora-selinux archives and/or bugzillas to recapture the history there.
-> > >>>
-> > >>> Also, while integration with sudo might be useful, it seems more
-> > >>> pressing to integrate with policykit given its increasing adoption by
-> > >>> distributions, right?
-> > >>>
-> > >> No sudo and policykit serve two different problems.  I am looking for
-> > >> sudo as a tool for use by actual administrators.  You need to get
-> > >> something configured as the root user.  Currently you use su to do this.
-> > >> And give out the root password.  With SELinux we can confine the user to
-> > >> the particular files/processes that they can effect while running as the
-> > >> root user.  The beauty of using SELinux in this manner is I can allow
-> > >> the administrator to configure the system with tools like
-> > >> vi/emacs/grep/cat/sed ...  While controlling which files he can modify
-> > >> and which processes he can transition to (initscripts).
-> > >>
-> > >> policykit needs policy to confine apps that are doing things on behalf
-> > >> of the user.  So the user wants to change the clock.  Some how the user
-> > >> authenticates himself the PolicyKit and the PolicyKit/Dbus executes
-> > >> commands as root on behalf of the user.  The big caviat here is that we
-> > >> need to make sure the tools ONLY do the things for the user that they
-> > >> are defined to do.  So if the user is allowed to change the Time on his
-> > >> machine, the script that runs on his behalf had better only be able to
-> > >> change the time.
-> > >>
-> > >> Whether or not SELinux gets involved in the authorization is up for debate.
-> > > 
-> > > I would really appreciate something like this. It makes it very easy to
-> > > allow only certain people to access/admin the stuff they need to. It is
-> > > always good to know that an webserver-admin can only damage the
-> > > webserver and not the whole system ;-)
-> > > 
-> > 
-> > -----BEGIN PGP SIGNATURE-----
-> > Version: GnuPG v1.4.8 (GNU/Linux)
-> > Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-> > 
-> > iEYEARECAAYFAkeHf0IACgkQrlYvE4MpobP+ngCeIRm8RXbGvfFcidWMB8g0kZDG
-> > dKIAn1/aiMefqyzoeUhQQOvGrBtwXS4T
-> > =oljc
-> > -----END PGP SIGNATURE-----
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+--- nsalibselinux/src/selinuxswig.i	2007-10-01 09:54:35.000000000 -0400
++++ libselinux-2.0.46/src/selinuxswig.i	2008-01-11 10:51:06.000000000 -0500
+@@ -5,11 +5,16 @@
+ %module selinux
+ %{
+ 	#include "selinux/selinux.h"
++	#include "../include/selinux/selinux.h"
++	#include "../include/selinux/get_default_type.h"
++	#include "../include/selinux/get_context_list.h"
+ %}
+ %apply int *OUTPUT { int *enforce };
+ %apply int *OUTPUT { size_t * };
+ 
+ %typedef unsigned mode_t;
++%typedef unsigned pid_t;
++%typedef char * security_contextx_t;
+ 
+ %typemap(in, numinputs=0) (char ***names, int *len) (char **temp1, int temp2) {
+ 	$1 = &temp1;
+--- nsalibselinux/src/selinuxswig_wrap.c	2007-10-05 13:09:54.000000000 -0400
++++ libselinux-2.0.46/src/selinuxswig_wrap.c	2008-01-11 10:51:06.000000000 -0500
+@@ -1,6 +1,6 @@
+ /* ----------------------------------------------------------------------------
+  * This file was automatically generated by SWIG (http://www.swig.org).
+- * Version 1.3.31
++ * Version 1.3.33
+  * 
+  * This file is not intended to be easily readable and contains a number of 
+  * coding conventions designed to improve portability and efficiency. Do not make
+@@ -17,14 +17,14 @@
+ 
+ /* template workaround for compilers that cannot correctly implement the C++ standard */
+ #ifndef SWIGTEMPLATEDISAMBIGUATOR
+-# if defined(__SUNPRO_CC)
+-#   if (__SUNPRO_CC <= 0x560)
+-#     define SWIGTEMPLATEDISAMBIGUATOR template
+-#   else
+-#     define SWIGTEMPLATEDISAMBIGUATOR 
+-#   endif
++# if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x560)
++#  define SWIGTEMPLATEDISAMBIGUATOR template
++# elif defined(__HP_aCC)
++/* Needed even with `aCC -AA' when `aCC -V' reports HP ANSI C++ B3910B A.03.55 */
++/* If we find a maximum version that requires this, the test would be __HP_aCC <= 35500 for A.03.55 */
++#  define SWIGTEMPLATEDISAMBIGUATOR template
+ # else
+-#   define SWIGTEMPLATEDISAMBIGUATOR 
++#  define SWIGTEMPLATEDISAMBIGUATOR
+ # endif
+ #endif
+ 
+@@ -107,6 +107,12 @@
+ # define _CRT_SECURE_NO_DEPRECATE
+ #endif
+ 
++/* Deal with Microsoft's attempt at deprecating methods in the standard C++ library */
++#if !defined(SWIG_NO_SCL_SECURE_NO_DEPRECATE) && defined(_MSC_VER) && !defined(_SCL_SECURE_NO_DEPRECATE)
++# define _SCL_SECURE_NO_DEPRECATE
++#endif
++
++
+ 
+ /* Python.h has to appear first */
+ #include <Python.h>
+@@ -343,7 +349,7 @@
+     while ((*f2 == ' ') && (f2 != l2)) ++f2;
+     if (*f1 != *f2) return (*f1 > *f2) ? 1 : -1;
+   }
+-  return (l1 - f1) - (l2 - f2);
++  return (int)((l1 - f1) - (l2 - f2));
+ }
+ 
+ /*
+@@ -1090,14 +1096,14 @@
+ /* Unpack the argument tuple */
+ 
+ SWIGINTERN int
+-SWIG_Python_UnpackTuple(PyObject *args, const char *name, int min, int max, PyObject **objs)
++SWIG_Python_UnpackTuple(PyObject *args, const char *name, Py_ssize_t min, Py_ssize_t max, PyObject **objs)
+ {
+   if (!args) {
+     if (!min && !max) {
+       return 1;
+     } else {
+       PyErr_Format(PyExc_TypeError, "%s expected %s%d arguments, got none", 
+-		   name, (min == max ? "" : "at least "), min);
++		   name, (min == max ? "" : "at least "), (int)min);
+       return 0;
+     }
+   }  
+@@ -1105,14 +1111,14 @@
+     PyErr_SetString(PyExc_SystemError, "UnpackTuple() argument list is not a tuple");
+     return 0;
+   } else {
+-    register int l = PyTuple_GET_SIZE(args);
++    register Py_ssize_t l = PyTuple_GET_SIZE(args);
+     if (l < min) {
+       PyErr_Format(PyExc_TypeError, "%s expected %s%d arguments, got %d", 
+-		   name, (min == max ? "" : "at least "), min, l);
++		   name, (min == max ? "" : "at least "), (int)min, (int)l);
+       return 0;
+     } else if (l > max) {
+       PyErr_Format(PyExc_TypeError, "%s expected %s%d arguments, got %d", 
+-		   name, (min == max ? "" : "at most "), max, l);
++		   name, (min == max ? "" : "at most "), (int)max, (int)l);
+       return 0;
+     } else {
+       register int i;
+@@ -1591,9 +1597,11 @@
+     (unaryfunc)0,                 /*nb_float*/
+     (unaryfunc)PySwigObject_oct,  /*nb_oct*/
+     (unaryfunc)PySwigObject_hex,  /*nb_hex*/
+-#if PY_VERSION_HEX >= 0x02020000
+-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 /* nb_inplace_add -> nb_inplace_true_divide */ 
+-#elif PY_VERSION_HEX >= 0x02000000
++#if PY_VERSION_HEX >= 0x02050000 /* 2.5.0 */
++    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 /* nb_inplace_add -> nb_index */
++#elif PY_VERSION_HEX >= 0x02020000 /* 2.2.0 */
++    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 /* nb_inplace_add -> nb_inplace_true_divide */
++#elif PY_VERSION_HEX >= 0x02000000 /* 2.0.0 */
+     0,0,0,0,0,0,0,0,0,0,0 /* nb_inplace_add -> nb_inplace_or */
+ #endif
+   };
+@@ -2458,14 +2466,13 @@
+ #define SWIGTYPE_p_int swig_types[7]
+ #define SWIGTYPE_p_p_char swig_types[8]
+ #define SWIGTYPE_p_p_p_char swig_types[9]
+-#define SWIGTYPE_p_pid_t swig_types[10]
+-#define SWIGTYPE_p_security_class_mapping swig_types[11]
+-#define SWIGTYPE_p_selinux_callback swig_types[12]
+-#define SWIGTYPE_p_selinux_opt swig_types[13]
+-#define SWIGTYPE_p_unsigned_int swig_types[14]
+-#define SWIGTYPE_p_unsigned_short swig_types[15]
+-static swig_type_info *swig_types[17];
+-static swig_module_info swig_module = {swig_types, 16, 0, 0, 0, 0};
++#define SWIGTYPE_p_security_class_mapping swig_types[10]
++#define SWIGTYPE_p_selinux_callback swig_types[11]
++#define SWIGTYPE_p_selinux_opt swig_types[12]
++#define SWIGTYPE_p_unsigned_int swig_types[13]
++#define SWIGTYPE_p_unsigned_short swig_types[14]
++static swig_type_info *swig_types[16];
++static swig_module_info swig_module = {swig_types, 15, 0, 0, 0, 0};
+ #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
+ #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
+ 
+@@ -2484,7 +2491,7 @@
+ 
+ #define SWIG_name    "_selinux"
+ 
+-#define SWIGVERSION 0x010331 
++#define SWIGVERSION 0x010333 
+ #define SWIG_VERSION SWIGVERSION
+ 
+ 
+@@ -2496,6 +2503,9 @@
+ 
+ 
+ 	#include "selinux/selinux.h"
++	#include "../include/selinux/selinux.h"
++	#include "../include/selinux/get_default_type.h"
++	#include "../include/selinux/get_context_list.h"
+ 
+ 
+   #define SWIG_From_long   PyInt_FromLong 
+@@ -2577,14 +2587,12 @@
+ 
+ 
+ #include <limits.h>
+-#ifndef LLONG_MIN
+-# define LLONG_MIN	LONG_LONG_MIN
+-#endif
+-#ifndef LLONG_MAX
+-# define LLONG_MAX	LONG_LONG_MAX
+-#endif
+-#ifndef ULLONG_MAX
+-# define ULLONG_MAX	ULONG_LONG_MAX
++#if !defined(SWIG_NO_LLONG_MAX)
++# if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
++#   define LLONG_MAX __LONG_LONG_MAX__
++#   define LLONG_MIN (-LLONG_MAX - 1LL)
++#   define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
++# endif
+ #endif
+ 
+ 
+@@ -2669,13 +2677,18 @@
+ 
+ 
+ SWIGINTERN int
+-SWIG_AsVal_long (PyObject *obj, long* val)
++SWIG_AsVal_unsigned_SS_long (PyObject *obj, unsigned long *val) 
+ {
+   if (PyInt_Check(obj)) {
+-    if (val) *val = PyInt_AsLong(obj);
+-    return SWIG_OK;
++    long v = PyInt_AsLong(obj);
++    if (v >= 0) {
++      if (val) *val = v;
++      return SWIG_OK;
++    } else {
++      return SWIG_OverflowError;
++    }
+   } else if (PyLong_Check(obj)) {
+-    long v = PyLong_AsLong(obj);
++    unsigned long v = PyLong_AsUnsignedLong(obj);
+     if (!PyErr_Occurred()) {
+       if (val) *val = v;
+       return SWIG_OK;
+@@ -2686,7 +2699,7 @@
+ #ifdef SWIG_PYTHON_CAST_MODE
+   {
+     int dispatch = 0;
+-    long v = PyInt_AsLong(obj);
++    unsigned long v = PyLong_AsUnsignedLong(obj);
+     if (!PyErr_Occurred()) {
+       if (val) *val = v;
+       return SWIG_AddCast(SWIG_OK);
+@@ -2696,8 +2709,8 @@
+     if (!dispatch) {
+       double d;
+       int res = SWIG_AddCast(SWIG_AsVal_double (obj,&d));
+-      if (SWIG_IsOK(res) && SWIG_CanCastAsInteger(&d, LONG_MIN, LONG_MAX)) {
+-	if (val) *val = (long)(d);
++      if (SWIG_IsOK(res) && SWIG_CanCastAsInteger(&d, 0, ULONG_MAX)) {
++	if (val) *val = (unsigned long)(d);
+ 	return res;
+       }
+     }
+@@ -2708,15 +2721,15 @@
+ 
+ 
+ SWIGINTERN int
+-SWIG_AsVal_int (PyObject * obj, int *val)
++SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
+ {
+-  long v;
+-  int res = SWIG_AsVal_long (obj, &v);
++  unsigned long v;
++  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
+   if (SWIG_IsOK(res)) {
+-    if ((v < INT_MIN || v > INT_MAX)) {
++    if ((v > UINT_MAX)) {
+       return SWIG_OverflowError;
+     } else {
+-      if (val) *val = (int)(v);
++      if (val) *val = (unsigned int)(v);
+     }
+   }  
+   return res;
+@@ -2724,18 +2737,13 @@
+ 
+ 
+ SWIGINTERN int
+-SWIG_AsVal_unsigned_SS_long (PyObject *obj, unsigned long *val) 
++SWIG_AsVal_long (PyObject *obj, long* val)
+ {
+   if (PyInt_Check(obj)) {
+-    long v = PyInt_AsLong(obj);
+-    if (v >= 0) {
+-      if (val) *val = v;
+-      return SWIG_OK;
+-    } else {
+-      return SWIG_OverflowError;
+-    }
++    if (val) *val = PyInt_AsLong(obj);
++    return SWIG_OK;
+   } else if (PyLong_Check(obj)) {
+-    unsigned long v = PyLong_AsUnsignedLong(obj);
++    long v = PyLong_AsLong(obj);
+     if (!PyErr_Occurred()) {
+       if (val) *val = v;
+       return SWIG_OK;
+@@ -2746,7 +2754,7 @@
+ #ifdef SWIG_PYTHON_CAST_MODE
+   {
+     int dispatch = 0;
+-    unsigned long v = PyLong_AsUnsignedLong(obj);
++    long v = PyInt_AsLong(obj);
+     if (!PyErr_Occurred()) {
+       if (val) *val = v;
+       return SWIG_AddCast(SWIG_OK);
+@@ -2756,8 +2764,8 @@
+     if (!dispatch) {
+       double d;
+       int res = SWIG_AddCast(SWIG_AsVal_double (obj,&d));
+-      if (SWIG_IsOK(res) && SWIG_CanCastAsInteger(&d, 0, ULONG_MAX)) {
+-	if (val) *val = (unsigned long)(d);
++      if (SWIG_IsOK(res) && SWIG_CanCastAsInteger(&d, LONG_MIN, LONG_MAX)) {
++	if (val) *val = (long)(d);
+ 	return res;
+       }
+     }
+@@ -2768,15 +2776,15 @@
+ 
+ 
+ SWIGINTERN int
+-SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
++SWIG_AsVal_int (PyObject * obj, int *val)
+ {
+-  unsigned long v;
+-  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
++  long v;
++  int res = SWIG_AsVal_long (obj, &v);
+   if (SWIG_IsOK(res)) {
+-    if ((v > UINT_MAX)) {
++    if ((v < INT_MIN || v > INT_MAX)) {
+       return SWIG_OverflowError;
+     } else {
+-      if (val) *val = (unsigned int)(v);
++      if (val) *val = (int)(v);
+     }
+   }  
+   return res;
+@@ -2986,24 +2994,18 @@
+   pid_t arg1 ;
+   security_context_t *arg2 = (security_context_t *) 0 ;
+   int result;
+-  void *argp1 ;
+-  int res1 = 0 ;
++  unsigned int val1 ;
++  int ecode1 = 0 ;
+   security_context_t temp2 = 0 ;
+   PyObject * obj0 = 0 ;
+   
+   arg2 = &temp2;
+   if (!PyArg_ParseTuple(args,(char *)"O:getpidcon",&obj0)) SWIG_fail;
+-  {
+-    res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pid_t,  0 );
+-    if (!SWIG_IsOK(res1)) {
+-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "getpidcon" "', argument " "1"" of type '" "pid_t""'"); 
+-    }  
+-    if (!argp1) {
+-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "getpidcon" "', argument " "1"" of type '" "pid_t""'");
+-    } else {
+-      arg1 = *((pid_t *)(argp1));
+-    }
+-  }
++  ecode1 = SWIG_AsVal_unsigned_SS_int(obj0, &val1);
++  if (!SWIG_IsOK(ecode1)) {
++    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "getpidcon" "', argument " "1"" of type '" "pid_t""'");
++  } 
++  arg1 = (pid_t)(val1);
+   result = (int)getpidcon(arg1,arg2);
+   resultobj = SWIG_From_int((int)(result));
+   if (*arg2) {
+@@ -3025,24 +3027,18 @@
+   pid_t arg1 ;
+   security_context_t *arg2 = (security_context_t *) 0 ;
+   int result;
+-  void *argp1 ;
+-  int res1 = 0 ;
++  unsigned int val1 ;
++  int ecode1 = 0 ;
+   security_context_t temp2 = 0 ;
+   PyObject * obj0 = 0 ;
+   
+   arg2 = &temp2;
+   if (!PyArg_ParseTuple(args,(char *)"O:getpidcon_raw",&obj0)) SWIG_fail;
+-  {
+-    res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_pid_t,  0 );
+-    if (!SWIG_IsOK(res1)) {
+-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "getpidcon_raw" "', argument " "1"" of type '" "pid_t""'"); 
+-    }  
+-    if (!argp1) {
+-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "getpidcon_raw" "', argument " "1"" of type '" "pid_t""'");
+-    } else {
+-      arg1 = *((pid_t *)(argp1));
+-    }
+-  }
++  ecode1 = SWIG_AsVal_unsigned_SS_int(obj0, &val1);
++  if (!SWIG_IsOK(ecode1)) {
++    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "getpidcon_raw" "', argument " "1"" of type '" "pid_t""'");
++  } 
++  arg1 = (pid_t)(val1);
+   result = (int)getpidcon_raw(arg1,arg2);
+   resultobj = SWIG_From_int((int)(result));
+   if (*arg2) {
+@@ -8149,7 +8145,7 @@
+ /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
+ 
+ static swig_type_info _swigt__p_SELboolean = {"_p_SELboolean", "SELboolean *", 0, 0, (void*)0, 0};
+-static swig_type_info _swigt__p_av_decision = {"_p_av_decision", "struct av_decision *", 0, 0, (void*)0, 0};
++static swig_type_info _swigt__p_av_decision = {"_p_av_decision", "struct av_decision *|av_decision *", 0, 0, (void*)0, 0};
+ static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
+ static swig_type_info _swigt__p_f_int_p_q_const__char_v_______int = {"_p_f_int_p_q_const__char_v_______int", "int (*)(int,char const *,...)", 0, 0, (void*)0, 0};
+ static swig_type_info _swigt__p_f_p_p_char__int = {"_p_f_p_p_char__int", "int (*)(char **)|int (*)(security_context_t *)", 0, 0, (void*)0, 0};
+@@ -8158,12 +8154,11 @@
+ static swig_type_info _swigt__p_int = {"_p_int", "int *", 0, 0, (void*)0, 0};
+ static swig_type_info _swigt__p_p_char = {"_p_p_char", "char **|security_context_t *", 0, 0, (void*)0, 0};
+ static swig_type_info _swigt__p_p_p_char = {"_p_p_p_char", "char ***|security_context_t **", 0, 0, (void*)0, 0};
+-static swig_type_info _swigt__p_pid_t = {"_p_pid_t", "pid_t *", 0, 0, (void*)0, 0};
+-static swig_type_info _swigt__p_security_class_mapping = {"_p_security_class_mapping", "struct security_class_mapping *", 0, 0, (void*)0, 0};
+-static swig_type_info _swigt__p_selinux_callback = {"_p_selinux_callback", "union selinux_callback *", 0, 0, (void*)0, 0};
+-static swig_type_info _swigt__p_selinux_opt = {"_p_selinux_opt", "selinux_opt *", 0, 0, (void*)0, 0};
+-static swig_type_info _swigt__p_unsigned_int = {"_p_unsigned_int", "unsigned int *|access_vector_t *", 0, 0, (void*)0, 0};
+-static swig_type_info _swigt__p_unsigned_short = {"_p_unsigned_short", "unsigned short *|security_class_t *", 0, 0, (void*)0, 0};
++static swig_type_info _swigt__p_security_class_mapping = {"_p_security_class_mapping", "struct security_class_mapping *|security_class_mapping *", 0, 0, (void*)0, 0};
++static swig_type_info _swigt__p_selinux_callback = {"_p_selinux_callback", "union selinux_callback *|selinux_callback *", 0, 0, (void*)0, 0};
++static swig_type_info _swigt__p_selinux_opt = {"_p_selinux_opt", "struct selinux_opt *|selinux_opt *", 0, 0, (void*)0, 0};
++static swig_type_info _swigt__p_unsigned_int = {"_p_unsigned_int", "unsigned int *|access_vector_t *|mode_t *|pid_t *", 0, 0, (void*)0, 0};
++static swig_type_info _swigt__p_unsigned_short = {"_p_unsigned_short", "security_class_t *|unsigned short *", 0, 0, (void*)0, 0};
+ 
+ static swig_type_info *swig_type_initial[] = {
+   &_swigt__p_SELboolean,
+@@ -8176,7 +8171,6 @@
+   &_swigt__p_int,
+   &_swigt__p_p_char,
+   &_swigt__p_p_p_char,
+-  &_swigt__p_pid_t,
+   &_swigt__p_security_class_mapping,
+   &_swigt__p_selinux_callback,
+   &_swigt__p_selinux_opt,
+@@ -8194,7 +8188,6 @@
+ static swig_cast_info _swigc__p_int[] = {  {&_swigt__p_int, 0, 0, 0},{0, 0, 0, 0}};
+ static swig_cast_info _swigc__p_p_char[] = {  {&_swigt__p_p_char, 0, 0, 0},{0, 0, 0, 0}};
+ static swig_cast_info _swigc__p_p_p_char[] = {  {&_swigt__p_p_p_char, 0, 0, 0},{0, 0, 0, 0}};
+-static swig_cast_info _swigc__p_pid_t[] = {  {&_swigt__p_pid_t, 0, 0, 0},{0, 0, 0, 0}};
+ static swig_cast_info _swigc__p_security_class_mapping[] = {  {&_swigt__p_security_class_mapping, 0, 0, 0},{0, 0, 0, 0}};
+ static swig_cast_info _swigc__p_selinux_callback[] = {  {&_swigt__p_selinux_callback, 0, 0, 0},{0, 0, 0, 0}};
+ static swig_cast_info _swigc__p_selinux_opt[] = {  {&_swigt__p_selinux_opt, 0, 0, 0},{0, 0, 0, 0}};
+@@ -8212,7 +8205,6 @@
+   _swigc__p_int,
+   _swigc__p_p_char,
+   _swigc__p_p_p_char,
+-  _swigc__p_pid_t,
+   _swigc__p_security_class_mapping,
+   _swigc__p_selinux_callback,
+   _swigc__p_selinux_opt,
+--- nsalibselinux/src/selinux.py	2007-10-05 13:09:54.000000000 -0400
++++ libselinux-2.0.46/src/selinux.py	2008-01-11 10:51:06.000000000 -0500
+@@ -1,5 +1,5 @@
+ # This file was automatically generated by SWIG (http://www.swig.org).
+-# Version 1.3.31
++# Version 1.3.33
+ #
+ # Don't modify this file, modify the SWIG interface instead.
+ # This file is compatible with both classic and new-style classes.
 
+--------------060505000901050008070000
+Content-Type: application/octet-stream;
+ name="libselinux-swig.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="libselinux-swig.patch.sig"
+
+iEYEABECAAYFAkeHko8ACgkQrlYvE4MpobN99wCgzdWKGF9RPo9LWs9uEbLAMSnV8PEAnA15
+P6dIrrJRZPmzAtTHLyzBbXNj
+--------------060505000901050008070000--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
