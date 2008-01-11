@@ -1,65 +1,167 @@
-Message-ID: <4787DC7A.9010408@redhat.com>
-Date: Fri, 11 Jan 2008 16:15:38 -0500
+Message-ID: <4787DD8E.1040502@redhat.com>
+Date: Fri, 11 Jan 2008 16:20:14 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: policycoreutils patch 
+Subject: Fixes for policycoreutils scripts
 Content-Type: multipart/mixed;
- boundary="------------060201060402090204090207"
+ boundary="------------020908000103020601090107"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------060201060402090204090207
+--------------020908000103020601090107
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Make sepolgen-ifgen return errors.
+Remove python hack to handle lanquage translations on errors.  Python
+works properly now.
+
+Fix fixfiles to handle multiple inputs on the command line correctly
+
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkeH3HkACgkQrlYvE4MpobNe3ACeN095D7eEMgV1K6YlWMtXX1ck
-6JoAniapk+chTq3cOQ3kqWZbvYhwEAAf
-=Eslh
+iEYEARECAAYFAkeH3Y0ACgkQrlYvE4MpobO5HwCg6xLhCuOPYY0NBIVa8XCa/rYN
++t8An3eqHjDNSsGhN9hAEoULsyiWkAqo
+=Oasn
 -----END PGP SIGNATURE-----
 
---------------060201060402090204090207
+--------------020908000103020601090107
 Content-Type: text/plain;
- name="policycoreutils-sepolgen.patch"
+ name="policycoreutils-scripts.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="policycoreutils-sepolgen.patch"
+ filename="policycoreutils-scripts.patch"
 
-diff --exclude-from=exclude --exclude=sepolgen-1.0.10 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/audit2allow/sepolgen-ifgen policycoreutils-2.0.35/audit2allow/sepolgen-ifgen
---- nsapolicycoreutils/audit2allow/sepolgen-ifgen	2007-07-16 14:20:41.000000000 -0400
-+++ policycoreutils-2.0.35/audit2allow/sepolgen-ifgen	2008-01-11 11:17:46.000000000 -0500
-@@ -80,7 +80,10 @@
-     if_set.to_file(f)
-     f.close()
+--- nsapolicycoreutils/scripts/chcat	2007-08-23 16:52:26.000000000 -0400
++++ policycoreutils-2.0.35/scripts/chcat	2008-01-11 11:17:46.000000000 -0500
+@@ -25,10 +25,6 @@
+ import commands, sys, os, pwd, string, getopt, selinux
+ import seobject
+ import gettext
+-import codecs
+-import locale
+-sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.__stderr__, 'replace')
+-sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.__stdout__, 'replace')
  
--    return 0
-+    if refparser.success:
-+        return 0
-+    else:
-+        return 1
-     
- if __name__ == "__main__":
-     sys.exit(main())
+ try:
+     gettext.install('policycoreutils')
+--- nsapolicycoreutils/scripts/fixfiles	2007-12-10 21:42:28.000000000 -0500
++++ policycoreutils-2.0.35/scripts/fixfiles	2008-01-11 11:17:46.000000000 -0500
+@@ -126,17 +126,15 @@
+     done
+     exit $?
+ fi
+-if [ ! -z "$DIRS" ]; then
++if [ ! -z "$FILEPATH" ]; then
+     if [ -x /usr/bin/find ]; then
+-	for d in ${DIRS} ; do find $d \
++	/usr/bin/find "$FILEPATH" \
+ 	    ! \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -prune  -o -print | \
+ 	    ${RESTORECON} ${OUTFILES} ${FORCEFLAG} $* -f - 2>&1 >> $LOGFILE
+-	done
+     else
+-	${RESTORECON} ${OUTFILES} ${FORCEFLAG} -R $* $DIRS 2>&1 >> $LOGFILE
++	${RESTORECON} ${OUTFILES} ${FORCEFLAG} -R $* $FILEPATH 2>&1 >> $LOGFILE
+     fi
+-
+-    exit $?
++    return
+ fi
+ LogReadOnly
+ ${SETFILES} -q ${OUTFILES} ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
+@@ -173,6 +171,20 @@
+     fi
+ }
+ 
++process() {
++#
++# Make sure they specified one of the three valid commands
++#
++case "$1" in
++    restore) restore -p ;;
++    check) restore -n -v;;
++    verify) restore -n -o -;;
++    relabel) relabel;;
++    *)
++    usage
++    exit 1
++esac
++}
+ usage() {
+       	echo $"Usage: $0 [-l logfile ] [-o outputfile ] { check | restore|[-F] relabel } [[dir] ... ] "
+ 	echo or
+@@ -229,22 +241,19 @@
+ 
+ shift 1
+ if [ ! -z "$RPMFILES" ]; then
++    process $command
+     if [ $# -gt 0 ]; then
+ 	    usage
+     fi
+ else
+-    DIRS=$*
++    if [ -z "$1" ]; then
++	process $command
++    else
++	while [ -n "$1" ]; do 
++	    FILEPATH=$1
++	    process $command 
++	    shift
++    	done
++    fi
+ fi
+-
+-#
+-# Make sure they specified one of the three valid commands
+-#
+-case "$command" in
+-    restore) restore -p ;;
+-    check) restore -n -v ;;
+-    verify) restore -n -o -;;
+-    relabel) relabel;;
+-    *)
+-    usage
+-    exit 1
+-esac
++exit $?
+--- nsapolicycoreutils/semanage/semanage	2007-10-05 13:09:53.000000000 -0400
++++ policycoreutils-2.0.35/semanage/semanage	2008-01-11 11:17:46.000000000 -0500
+@@ -1,5 +1,5 @@
+ #! /usr/bin/python -E
+-# Copyright (C) 2005 Red Hat 
++# Copyright (C) 2005, 2006, 2007 Red Hat 
+ # see file 'COPYING' for use and warranty information
+ #
+ # semanage is a tool for managing SELinux configuration files
+@@ -28,10 +28,6 @@
+ import gettext
+ gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+ gettext.textdomain(PROGNAME)
+-import codecs
+-import locale
+-sys.stderr = codecs.getwriter(locale.getpreferredencoding())(sys.__stderr__, 'replace')
+-sys.stdout = codecs.getwriter(locale.getpreferredencoding())(sys.__stdout__, 'replace')
+ 
+ try:
+        gettext.install(PROGNAME,
 
---------------060201060402090204090207
+--------------020908000103020601090107
 Content-Type: application/octet-stream;
- name="policycoreutils-sepolgen.patch.sig"
+ name="policycoreutils-scripts.patch.sig"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;
- filename="policycoreutils-sepolgen.patch.sig"
+ filename="policycoreutils-scripts.patch.sig"
 
-iEYEABECAAYFAkeH3HoACgkQrlYvE4MpobNJSgCgjV9IeXQqjxTc04VpwROdjFW6qW0An35F
-wMWnbwfnnr5A94xQhJT4ZxDY
---------------060201060402090204090207--
+iEYEABECAAYFAkeH3Y0ACgkQrlYvE4MpobPnlgCfXEOjiVphPeYM3fesqNZ4E5UNVLgAn1+6
+pglLf9dUvXvSgnNUxEO7aC0a
+--------------020908000103020601090107--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
