@@ -1,46 +1,52 @@
-Subject: Re: [RFC] Obtaining PATH entry without audit userland
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>, Alexander Viro <aviro@redhat.com>,
-        linux-audit@redhat.com, SELinux@tycho.nsa.gov
-In-Reply-To: <200801101932.04581.sgrubb@redhat.com>
-References: <20080110153237.GH16537@devserv.devel.redhat.com>
-	 <200801101040.19032.sgrubb@redhat.com>
-	 <20080111092505.FCD4.YNAKAM@hitachisoft.jp>
-	 <200801101932.04581.sgrubb@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0BE0C05028730
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jan 2008 09:00:12 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m0BE0BIP024781
+	for <selinux@tycho.nsa.gov>; Fri, 11 Jan 2008 14:00:11 GMT
+Subject: Re: [refpolicy patch] add setfcap to list of capabilities
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20080110163449.GA2738@sergelap.austin.ibm.com>
+References: <20080110163449.GA2738@sergelap.austin.ibm.com>
 Content-Type: text/plain
-Date: Fri, 11 Jan 2008 08:40:09 -0500
-Message-Id: <1200058809.29816.36.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 11 Jan 2008 08:58:41 -0500
+Message-Id: <1200059921.21523.8.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Thu, 2008-01-10 at 19:32 -0500, Steve Grubb wrote:
-> On Thursday 10 January 2008 19:27:18 Yuichi Nakamura wrote:
-> > One example of AVC message in 2.6.24.rc1 is below.
-> > #Type is broken for testing, do not warry about that :)
-> > audit(946684824.060:5): avc:  denied  { read } for  pid=796 comm="httpd"
-> > name="index.html" dev=sda1 ino=61906 scontext=system_u:system_r:httpd_t
-> > tcontext=system_u:object_r:etc_shadow_t tclass=file audit(946684824.060:5):
-> > arch=2a syscall=5 per=800000 success=yes exit=5 a0=48d490 a1=0 a2=1b6
-> > a3=1b6 items=1 ppid=795 pid=796 auid=4294967295 uid=99 gid=99 euid=99
-> > suid=99 fsuid=99 egid=99 sgid=99 fsgid=99 tty=(none) comm="httpd"
-> > exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t key=(null)
-> >
-> > File name appears as name="index.html".
+On Thu, 2008-01-10 at 10:34 -0600, Serge E. Hallyn wrote:
+> The setfcap capability is needed to be allowed to assign file
+> capabilities.  Define the capability in access_vectors.
 > 
-> How can we recreate the problem so that we can see what is going on?
+> Of course I'll need to go through the modules and actually
+> assign the capability to those where it makes sense, i.e.
+> presumably admin/rpm.te...
+> 
+> Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+> ---
+>  policy/flask/access_vectors |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/policy/flask/access_vectors b/policy/flask/access_vectors
+> index c986778..45d9773 100644
+> --- a/policy/flask/access_vectors
+> +++ b/policy/flask/access_vectors
+> @@ -381,6 +381,7 @@ class capability
+>  	lease
+>  	audit_write
+>  	audit_control
+> +	setfcap
+>  }
 
-Just trigger a denial on open(2) without any audit rules configured.
-Then, audit system doesn't collect pathname info due to the
-"optimization" to not collect information without syscall filters, and
-SELinux doesn't get the vfsmount (reliably) in selinux_inode_permission,
-so it cannot generate a path either.
+Merged.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
