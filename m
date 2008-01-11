@@ -1,77 +1,59 @@
-Date: Thu, 10 Jan 2008 15:55:35 -0800
-From: Glenn Faden <Glenn.Faden@sun.com>
-Subject: Re: X avcs
-In-reply-to: <47868AA4.5060102@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Ted X Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
-Message-id: <4786B077.8060807@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
- <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
- <47754FCB.1070307@tycho.nsa.gov>
- <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
- <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>
- <477BEFF1.2090507@sun.com> <4784D86C.1070503@gmail.com>
- <4785088A.2070601@sun.com> <47868AA4.5060102@tycho.nsa.gov>
+Date: Fri, 11 Jan 2008 09:27:18 +0900
+From: Yuichi Nakamura <ynakam@hitachisoft.jp>
+To: Steve Grubb <sgrubb@redhat.com>
+Subject: Re: [RFC] Obtaining PATH entry without audit userland
+Cc: ynakam@hitachisoft.jp, Alexander Viro <aviro@redhat.com>,
+        linux-audit@redhat.com, SELinux@tycho.nsa.gov
+In-Reply-To: <200801101040.19032.sgrubb@redhat.com>
+References: <20080110153237.GH16537@devserv.devel.redhat.com> <200801101040.19032.sgrubb@redhat.com>
+Message-Id: <20080111092505.FCD4.YNAKAM@hitachisoft.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> Glenn Faden wrote:
->>
->> We treat it as system low to make screen snapshots and animations 
->> work properly. It also provides better integrity. Why should it be 
->> system high?
->>
->> I think you want to make a distinction between the root drawable (as 
->> a viewable image) and as a conduit for event notification. In our 
->> implementation the drawable is system low, but the label for sending 
->> events to the root window is essentially system high. Anyone can send 
->> an event to the root window, but these events are only delivered to 
->> TCB clients. The ability to express interest in such events is 
->> restricted.
->>   
->
-> I have to think about this some more, but currently there is no 
-> separation between event destination and drawable in the SELinux model 
-> - they are the same object.  The ability to read/write the drawable 
-> and send/receive events are separate TE permissions.
->
-> The contexts on the root window and root colormap are derived through 
-> type transitions from the context of the X server process.  I think 
-> the root window probably should be system-high, because without some 
-> kind of censoring logic, if you can read the contents of a window in X 
-> you can read all of its children as well.  Screenshot applications and 
-> the window-manager animations should both be at system-high as well so 
-> there wouldn't be a problem here, no?
-The contents of the root window is typically irrelevant. In most modern 
-desktops the root window is completely obscured by a desktop window and 
-various panel windows. It should not be required to run a screenshot 
-applications at system high unless you are trying to dump system high 
-pixels. If you allow higher-level windows to overlap lower-level windows 
-(as we do), then you must have some kind of censoring logic. In our case 
-we blacken any row in which there are any exposed pixels which are not 
-dominated by the label of the snapshot application. However, our 
-convention of running separately labeled clients in separate workspaces 
-permits fullscreen snapshots to be taken at the label of the workspace.
->
->> We also have a fairly complex policy on labeling the root colormap in 
->> which each color cell is independently labeled. This is an artifact 
->> of the graphics hardware we supported (8bit color maps).
->>   
->
-> "Requested 84 colors, got 0."  Who can forget those days.  Anyway, the 
-> original set of X security classes did have a "color" class that was 
-> intended for individual color cells, however I dropped it in my 
-> revision because I decided it would be too much work to fully secure 
-> the colormap implementation given the fact that hardly anything uses 
-> indexed-color mode anymore, and even things that do can just install 
-> their own colormaps.
->
-You're probably right, but you can use our code if you wish.
+On Thu, 10 Jan 2008 10:40:18 -0500
+Steve Grubb  wrote:
+> On Thursday 10 January 2008 10:32:37 Alexander Viro wrote:
+> > On Thu, Jan 10, 2008 at 10:19:50AM -0500, Steve Grubb wrote:
+> > > I was under the impression that Al Viro has already sent a patch allowing
+> > > for PATH in all AVC messages. Al?
+> >
+> > In the mainline for quite a while...
+> 
+> That's what I thought.
+> 
+> Yuichi, what kernel are you testing against that is having the problem? Is 
+> there a simple test case that shows the problem so we can check the kernel to 
+> make sure its working properly?
+I am using 2.6.22.1 and 2.6.24.rc1, and enabling syscall audit.
 
---Glenn
+One example of AVC message in 2.6.24.rc1 is below.
+#Type is broken for testing, do not warry about that :)
+audit(946684824.060:5): avc:  denied  { read } for  pid=796 comm="httpd" name="index.html" dev=sda1 ino=61906 
+scontext=system_u:system_r:httpd_t tcontext=system_u:object_r:etc_shadow_t tclass=file
+audit(946684824.060:5): arch=2a syscall=5 per=800000 success=yes exit=5 a0=48d490 a1=0 a2=1b6 a3=1b6 items=1 
+ppid=795 pid=796 auid=4294967295 uid=99 gid=99 euid=99 suid=99 fsuid=99 egid=99 sgid=99 fsgid=99 tty=(none) comm="httpd" 
+exe="/usr/sbin/httpd" subj=system_u:system_r:httpd_t key=(null)
+
+File name appears as name="index.html".
+
+By applying my patch or registering some audit rule, 
+following will appear.
+
+audit(946684824.060:5):  cwd="/"
+audit(946684824.060:5): item=0 name="/var/www/htdocs/index.html" inode=61906 dev=08:01 mode=0100644 
+ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:etc_shadow_t
+
+Here, fullpath "/var/www/htdocs/index.html" is reported.
+
+Regards,
+-- 
+Yuichi Nakamura
+Hitachi Software Engineering Co., Ltd.
+Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
+SELinux Policy Editor: http://seedit.sourceforge.net/
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
