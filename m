@@ -1,104 +1,115 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <929556.69990.qm@web36606.mail.mud.yahoo.com>
-References: <929556.69990.qm@web36606.mail.mud.yahoo.com>
-To: casey@schaufler-ca.com
-Cc: dhowells@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
-Date: Mon, 14 Jan 2008 15:19:12 +0000
-Message-ID: <22553.1200323952@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0EKEBlC027845
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jan 2008 15:14:11 -0500
+Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0EKE4XD012189
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jan 2008 20:14:05 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so2145772fgg.40
+        for <selinux@tycho.nsa.gov>; Mon, 14 Jan 2008 12:14:02 -0800 (PST)
+Message-ID: <cadfc0e40801141214ldceac3ftef8a28a71c3fd9f4@mail.gmail.com>
+Date: Mon, 14 Jan 2008 14:14:01 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: Re: X avcs
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <47867FCA.50408@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
+	 <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com>
+	 <47754FCB.1070307@tycho.nsa.gov>
+	 <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
+	 <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>
+	 <477BEFF1.2090507@sun.com> <47867FCA.50408@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Jan 10, 2008 2:27 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> Glenn Faden wrote:
+> > This is my first posting to this alias, so let me start by introducing
+> > myself. I'm a Distinguished Engineer in the Solaris security
+> > organization, and I'm the original architect for Sun's multilevel X11
+> > server. I have worked on this problem since 1990, and have designed
+> > three multilevel desktops (Open Look, CDE, and GNOME)
+> >
+> > One of the biggest challenges in adding fine-grained policy to the X11
+> > server is to make the policy transparent to existing X11 clients.
+> > Probably the most critical design decision we made was with respect to
+> > root window resources. By default, all root window properties are
+> > polyinstantiated by both label and uid. For SELinux, the equivalent
+> > policy would be polyinstantiation by security context (not just MLS
+> > label). An exception list of single-instance root-window properties is
+> > enumerated in a policy file.
+> > We have found that the list of exceptions is much smaller than the list
+> > that should be polyinstantiated.
+> >
+>
+> Hello.  I am not opposed to the idea of polyinstantiated properties.
+> Although our approach has always been to attempt to fix applications to
+> work within the secure environment first, it looks like this is a case
+> where polyinstantiated is needed.
+>
+> My first thought on the implementation is that a value-return parameter
+> could be added to the PROPERTY_ACCESS hook so that security modules can
+> return the actual PropertyPtr object they wish to be used.  The
+> FindProperty function would then have to be upgraded to a general lookup
+> function similar to dixLookupResource(), dixLookupDrawable(), etc. and
+> the property code would have to be refactored to use it everywhere when
+> looking up a property.  The semantics of the various property requests,
+> in particular RotateProperties, might make this a little more difficult.
+>
 
-> Yes, and I would recommend doing so to avoid permission races.
-> You're going to have to deal with the case where step (2) fails
-> even if you have step (1), so the "test and set" mindset seems
-> prudent to me.
+Yep, rotate, list, anything that traverses the property list, is a
+problem. It seems like it would be better to have a property list per
+context. How about a dixLookupProperties function on window that would
+return a linked list (PropertyPtr) of properties that it gets from an
+xace hook call?
 
-Looking at SELinux, that doesn't get rid of the permission race because there's
-no locking.  This may be different for other models.
-
-I was thinking of having steps (2) and (4) not do any checking, but rather
-assume that the caller has done the checks before calling the set routines,
-possibly by calling the hooks mentioned in (1) and (3).
-
-My main problem is that I don't know how NFSd wants to do things.  I suppose
-there *ought* to be rules that say what NFSd is allowed to do.
-
-> > and condense (3) and (4) into a single op.  That, however, might make
-> > the ops unusable by nfsd,
-> > which may well want to bypass the checks or do them elsewhere.
-> 
-> Again, I don't think you're doing yourself any favors with a separate
-> test operation.
-
-It doesn't matter to cachefiles, but it might matter to other users:-/
-
-> On (4) are you suggesting a third attribute value? There's the secid
-> of the task originally, the secid you're going to use to do the access
-> checks, and the secid you're going to set the file to on creation.
-
-That's correct.  Let me summarise:
-
- (1) The daemon has an active process security ID (say A).  When the daemon
-     nominates an override process security ID (say B) to be used by the
-     kernel, the cachefiles module asks the LSM to check that A is allowed to
-     nominate B for this purpose.
-
- (2) The cachefiles module is given a path under which its cache exists.  The
-     directory at the base of this path has its own security ID (say C).
-     cachefiles wants to create new files in the cache with the same security
-     ID as that directory (ie. C).
-
-     However, when cachefiles is creating files in the cache, the security of
-     whatever process is doing the access will be overridden with B, so
-     cachefiles asks the LSM to check that B is allowed create files as C.
-
-     Note that this is an instantaneous check in the cache startup stage.  This
-     allows caching to be aborted early if the security policy does not permit
-     B to create Cs.  Technically this check is superfluous as it's re-checked
-     each time a vfs_mkdir() or vfs_create() are called.
-
-> > Any thoughts?
-> 
-> Let me see if I understand your current scheme.
-> 
-> You want a (object) secid that is used to access the task.
-
-That depends on what you mean.  cachefilesd (the daemon) will be run with a
-security label because there's a security model in place.
-
-I don't actually need to access the daemon, but the daemon does need to do
-things for which it requires permission grants.
-
-> You want a (subject) secid that the task uses to accesses objects.
-
-Correct.  This is used as an override by any task that accesses the cache
-indirectly through the cachefiles module.
-
-The cachefilesd daemon has its own secid with which it accesses the cache
-directly.  The sets of permissions that must be granted by the module's
-override subjective secid and by the daemon's subjective secid aren't
-identical.
-
-> You want a (newobject) secid that an object gets on creation.
-
-File and directory objects, yes.  The cache is stored on disk as a collection
-of files and directories, each of which needs labelling.
-
-> And you want them all to be distinct and settable.
-
-Well, they don't technically have to be different.  The daemon and the module
-can be given the same secid, for instance.  However, that secid then grants the
-daemon permission to anything the module can, and vice versa.
-
-The third secid is a file label rather than a process label, and so may or may
-not have to be different anyway, depending on the model.
-
-David
+> SELinux has a security_compute_member() interface that is intended to
+> return the security context of the appropriate object for use, and this
+> can be used to determine which object to return.
+>
+> > With respect to the root window drawable, it is protected at the lowest
+> > label, so it is never modified. Applications like Nautilus are
+> > polyinstantiated, too, and render their own background windows.
+> >
+> > Our implementation is all open-sourced using the Xorg license. A summary
+> > of the X11 security policy implemented by Solaris Trusted Extensions is
+> > described in Chapter 6 of the Developer's Guide,
+> > http://docs.sun.com/app/docs/doc/819-0869/6n391u3ru?a=view
+> >
+> > The configuration file for the polyinstantiation policy is described in
+> > the TrustedExtensionsPolicy man page,
+> > http://docs.sun.com/app/docs/doc/819-7307/trustedextensionspolicy-4?a=view
+> >
+> > The source code which implements this policy can be viewed in the
+> > OpenSolaris browser using this link:
+> > http://src.opensolaris.org/source/xref/fox/fox-gate/XW_NV/open-src/xserver/xorg/sun-src/tsol/
+> >
+> > The hooks to the XACE extension layer (also used by SELinux) are in the
+> > file tsolCompat.c, which can be viewed here:
+> > http://src.opensolaris.org/source/xref/fox/fox-gate/XW_NV/open-src/xserver/xorg/sun-src/Xext/tsolCompat.c
+> >
+> > Although Trusted Extensions and SELinux have significant differences
+> > with respect to their security models, both systems attempt to implement
+> > MAC policy in a manner that is transparent to applications. This should
+> > apply to the desktop, as well. In general, the user experience running
+> > GNOME on Solaris (with or without Trusted Extensions) or on Linux (with
+> > or without SELinux) should be almost identical. So the underlying
+> > policies enforced by the X11 server should follow the same general
+> > principles.
+> >
+>
+> Our long-term goal is to make applications aware of and responsive to
+> the security environment, particularly applications that could
+> themselves be multi-level such as e-mail, web, office.
+>
+> --
+>
+> Eamon Walsh <ewalsh@tycho.nsa.gov>
+> National Security Agency
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
