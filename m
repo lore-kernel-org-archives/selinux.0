@@ -1,62 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0FKvvgs012715
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2008 15:57:57 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m0FKvtJK004345
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2008 20:57:55 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: [PATCH] refpolicy: su needs ability to run unix_update
-Date: Tue, 15 Jan 2008 15:57:54 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588016EEB0F@exchange.columbia.tresys.com>
-From: "Brandon Whalen" <bwhalen@tresys.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: <selinux@tycho.nsa.gov>
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1200424508.9669.63.camel@moss-spartans.epoch.ncsc.mil>
+References: <1200424508.9669.63.camel@moss-spartans.epoch.ncsc.mil> <286481.40953.qm@web36613.mail.mud.yahoo.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: dhowells@redhat.com, casey@schaufler-ca.com,
+        Daniel J Walsh <dwalsh@redhat.com>, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+Date: Tue, 15 Jan 2008 21:55:10 +0000
+Message-ID: <6778.1200434110@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On RHEL 5.1 systems su uses unix_update to help authenticate users.
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
---- /home/bwhalen/workspace/refpolicy-trunk/policy/modules/admin/su.if
-(revision 2579)
-+++ /home/bwhalen/workspace/refpolicy-trunk/policy/modules/admin/su.if
-(working copy)
-@@ -78,6 +78,10 @@
- 	auth_dontaudit_read_shadow($1_su_t)
- 	auth_use_nsswitch($1_su_t)
- 	auth_rw_faillog($1_su_t)
-+	#RHEL 5 uses unix_update for su
-+	ifdef(`distro_redhat',`
-+		auth_domtrans_upd_passwd($1_su_t)
-+	')
+> The cache files are created by the cachefiles kernel module, not by the
+> userspace daemon, and the userspace daemon doesn't need to directly
+> read/write them at all
+
+That is correct.
+
+> (but I think it does need to be able to unlink them?).
+
+Indeed.
+
+> The userspace daemon merely identifies the directory where the cache should
+> live as part of configuring the cache when enabling it.
+
+That is the way it currently works, yes.
  
- 	domain_use_interactive_fds($1_su_t)
- 
-@@ -207,6 +211,10 @@
- 	auth_dontaudit_read_shadow($1_su_t)
- 	auth_use_nsswitch($1_su_t)
- 	auth_rw_faillog($1_su_t)
-+	#RHEL 5 uses unix_update for su
-+	ifdef(`distro_redhat',`
-+		auth_domtrans_upd_passwd($1_su_t)
-+	')
- 
- 	corecmd_search_bin($1_su_t)
+> Hence, it is fine to use a fixed label for the cache files (systemhigh
+> in a MLS world), and to let the directory's label serve as the basis for
+> it.
 
+That is what I currently do.  SELinux rules are provided to grant the
+appropriate file accesses to the override label used by the kernel module, so
+that it can't go and stamp on files with the wrong label.
 
+> Only the cachefiles kernel module directly reads and writes the files.
 
-
-
-Brandon
-
-
-Brandon Whalen        Tresys Technology
-v: 443-539-0747       Suite 2100
-f: 410-953-0494       8840 Stanford Blvd
-bwhalen@tresys.com    Columbia, MD 21045
-
-
+Correct.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
