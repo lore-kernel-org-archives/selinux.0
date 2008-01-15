@@ -1,144 +1,117 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 08/26] Add a secctx_to_secid() LSM hook to go along with the
-	existing
+Subject: [PATCH 00/26] Permit filesystem local caching
 To: sds@tycho.nsa.gov, casey@schaufler-ca.com, Trond.Myklebust@netapp.com,
         npiggin@suse.de
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Tue, 15 Jan 2008 23:47:35 +0000
-Message-ID: <20080115234735.22183.36356.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
-References: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
+Date: Tue, 15 Jan 2008 23:46:52 +0000
+Message-ID: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-secid_to_secctx() LSM hook.  This patch also includes the SELinux
-implementation for this hook.
-
-Signed-off-by: Paul Moore <paul.moore@hp.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
----
-
- include/linux/security.h |   13 +++++++++++++
- security/dummy.c         |    6 ++++++
- security/security.c      |    6 ++++++
- security/selinux/hooks.c |    6 ++++++
- 4 files changed, 31 insertions(+), 0 deletions(-)
 
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index b7ba073..e8f2f2d 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1200,6 +1200,10 @@ struct request_sock;
-  *	Convert secid to security context.
-  *	@secid contains the security ID.
-  *	@secdata contains the pointer that stores the converted security context.
-+ * @secctx_to_secid:
-+ *      Convert security context to secid.
-+ *      @secid contains the pointer to the generated security ID.
-+ *      @secdata contains the security context.
-  *
-  * @release_secctx:
-  *	Release the security context.
-@@ -1389,6 +1393,7 @@ struct security_operations {
-  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
-  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
- 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
-+	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
- 	void (*release_secctx)(char *secdata, u32 seclen);
- 
- #ifdef CONFIG_SECURITY_NETWORK
-@@ -1623,6 +1628,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
- int security_netlink_recv(struct sk_buff *skb, int cap);
- int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
-+int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
- void security_release_secctx(char *secdata, u32 seclen);
- 
- #else /* CONFIG_SECURITY */
-@@ -2305,6 +2311,13 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
- 	return -EOPNOTSUPP;
- }
- 
-+static inline int security_secctx_to_secid(char *secdata,
-+					   u32 seclen,
-+					   u32 *secid)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static inline void security_release_secctx(char *secdata, u32 seclen)
- {
- }
-diff --git a/security/dummy.c b/security/dummy.c
-index 6f97089..72f1666 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -943,6 +943,11 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return -EOPNOTSUPP;
- }
- 
-+static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static void dummy_release_secctx(char *secdata, u32 seclen)
- {
- }
-@@ -1109,6 +1114,7 @@ void security_fixup_ops (struct security_operations *ops)
-  	set_to_dummy_if_null(ops, getprocattr);
-  	set_to_dummy_if_null(ops, setprocattr);
-  	set_to_dummy_if_null(ops, secid_to_secctx);
-+	set_to_dummy_if_null(ops, secctx_to_secid);
-  	set_to_dummy_if_null(ops, release_secctx);
- #ifdef CONFIG_SECURITY_NETWORK
- 	set_to_dummy_if_null(ops, unix_stream_connect);
-diff --git a/security/security.c b/security/security.c
-index 92d66d6..1ef4908 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -821,6 +821,12 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- }
- EXPORT_SYMBOL(security_secid_to_secctx);
- 
-+int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+{
-+	return security_ops->secctx_to_secid(secdata, seclen, secid);
-+}
-+EXPORT_SYMBOL(security_secctx_to_secid);
-+
- void security_release_secctx(char *secdata, u32 seclen)
- {
- 	return security_ops->release_secctx(secdata, seclen);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 20a6b55..1d3eab7 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4734,6 +4734,11 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return security_sid_to_context(secid, secdata, seclen);
- }
- 
-+static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+{
-+	return security_context_to_sid(secdata, seclen, secid);
-+}
-+
- static void selinux_release_secctx(char *secdata, u32 seclen)
- {
- 	kfree(secdata);
-@@ -4937,6 +4942,7 @@ static struct security_operations selinux_ops = {
- 	.setprocattr =                  selinux_setprocattr,
- 
- 	.secid_to_secctx =		selinux_secid_to_secctx,
-+	.secctx_to_secid =		selinux_secctx_to_secid,
- 	.release_secctx =		selinux_release_secctx,
- 
-         .unix_stream_connect =		selinux_socket_unix_stream_connect,
+These patches add local caching for network filesystems such as NFS.
 
+The patches can roughly be broken down into a number of sets:
+
+  (*) 01-keys-inc-payload.diff
+  (*) 02-keys-search-keyring.diff
+  (*) 03-keys-callout-blob.diff
+
+      Three patches to the keyring code made to help the CIFS people.
+      Included because of patches 05-08.
+
+  (*) 04-keys-get-label.diff
+
+      A patch to allow the security label of a key to be retrieved.
+      Included because of patches 05-08.
+
+  (*) 05-security-current-fsugid.diff
+  (*) 06-security-separate-task-bits.diff
+  (*) 07-security-subjective.diff
+  (*) 08-security-secctx2secid.diff
+  (*) 09-security-additional-classes.diff
+  (*) 10-security-kernel_service-class.diff
+  (*) 11-security-kernel-service.diff
+
+      Patches to permit the subjective security of a task to be overridden.
+      All the security details in task_struct are decanted into a new struct
+      that task_struct then has two pointers two: one that defines the
+      objective security of that task (how other tasks may affect it) and one
+      that defines the subjective security (how it may affect other objects).
+
+      Note that I have dropped the idea of struct cred for the moment.  With
+      the amount of stuff that was excluded from it, it wasn't actually any
+      use to me.  However, it can be added later.
+
+      Required for cachefiles.
+
+  (*) 12-release-page.diff
+  (*) 13-fscache-page-flags.diff
+  (*) 14-add_wait_queue_tail.diff
+  (*) 15-fscache.diff
+
+      Patches to provide a local caching facility for network filesystems.
+
+  (*) 16-cachefiles-ia64.diff
+  (*) 17-cachefiles-ext3-f_mapping.diff
+  (*) 18-cachefiles-write.diff
+  (*) 19-cachefiles-monitor.diff
+  (*) 20-cachefiles-export.diff
+  (*) 21-cachefiles.diff
+
+      Patches to provide a local cache in a directory of an already mounted
+      filesystem.
+
+  (*) 22-nfs-memleak.diff
+  (*) 23-fscache-nfs.diff
+  (*) 24-fscache-nfs-mount.diff
+  (*) 25-fscache-nfs-display.diff
+  (*) 26-fscache-nfs-persb.diff
+
+      Patches to provide NFS with local caching.  The fifth of these patches
+      makes caching configurable per superblock.
+
+This release is mainly for the security guys (esp Stephen and Casey) to have a
+look at to see if they are happy with the security stuff.
+
+The SELinux base code will also need updating to have the security class, lest
+the following error appear in dmesg:
+
+	context_struct_compute_av:  unrecognized class 69
+
+
+I know Nick Piggin has a couple of issues still, but I'll look again at those
+next.
+
+Andrew, Linus, can you please hold off on taking these patches for the moment.
+
+
+--
+A tarball of the patches is available at:
+
+	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-26.tar.bz2
+
+
+To use this version of CacheFiles, the cachefilesd-0.9 is also required.  It
+is available as an SRPM:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9-1.fc7.src.rpm
+
+Or as individual bits:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9.tar.bz2
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
+
+The .fc, .if and .te files are for manipulating SELinux.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
