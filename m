@@ -1,117 +1,188 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 00/26] Permit filesystem local caching
+Subject: [PATCH 18/26] CacheFiles: Add a hook to write a single page of data
+	to an inode
 To: sds@tycho.nsa.gov, casey@schaufler-ca.com, Trond.Myklebust@netapp.com,
         npiggin@suse.de
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Tue, 15 Jan 2008 23:46:52 +0000
-Message-ID: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
+Date: Tue, 15 Jan 2008 23:48:28 +0000
+Message-ID: <20080115234828.22183.9122.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
+References: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Add an address space operation to write one single page of data to an inode at
+a page-aligned location (thus permitting the implementation to be highly
+optimised).  The data source is a single page.
+
+This is used by CacheFiles to store the contents of netfs pages into their
+backing file pages.
+
+Supply a generic implementation for this that uses the write_begin() and
+write_end() address_space operations to bind a copy directly into the page
+cache.
+
+Hook the Ext2 and Ext3 operations to the generic implementation.
+
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
+
+ fs/ext2/inode.c    |    2 ++
+ fs/ext3/inode.c    |    3 +++
+ include/linux/fs.h |    7 ++++++
+ mm/filemap.c       |   61 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 73 insertions(+), 0 deletions(-)
 
 
-These patches add local caching for network filesystems such as NFS.
+diff --git a/fs/ext2/inode.c b/fs/ext2/inode.c
+index b1ab32a..cfa56e6 100644
+--- a/fs/ext2/inode.c
++++ b/fs/ext2/inode.c
+@@ -796,6 +796,7 @@ const struct address_space_operations ext2_aops = {
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
+ 	.migratepage		= buffer_migrate_page,
++	.write_one_page		= generic_file_buffered_write_one_page,
+ };
+ 
+ const struct address_space_operations ext2_aops_xip = {
+@@ -814,6 +815,7 @@ const struct address_space_operations ext2_nobh_aops = {
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
+ 	.migratepage		= buffer_migrate_page,
++	.write_one_page		= generic_file_buffered_write_one_page,
+ };
+ 
+ /*
+diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
+index bc918d3..435c684 100644
+--- a/fs/ext3/inode.c
++++ b/fs/ext3/inode.c
+@@ -1780,6 +1780,7 @@ static const struct address_space_operations ext3_ordered_aops = {
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
+ 	.migratepage	= buffer_migrate_page,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ static const struct address_space_operations ext3_writeback_aops = {
+@@ -1794,6 +1795,7 @@ static const struct address_space_operations ext3_writeback_aops = {
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
+ 	.migratepage	= buffer_migrate_page,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ static const struct address_space_operations ext3_journalled_aops = {
+@@ -1807,6 +1809,7 @@ static const struct address_space_operations ext3_journalled_aops = {
+ 	.bmap		= ext3_bmap,
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ void ext3_set_aops(struct inode *inode)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 850d3fc..a3c3369 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -479,6 +479,11 @@ struct address_space_operations {
+ 	int (*migratepage) (struct address_space *,
+ 			struct page *, struct page *);
+ 	int (*launder_page) (struct page *);
++	/* write the contents of the source page over the page at the specified
++	 * index in the target address space (the source page does not need to
++	 * be related to the target address space) */
++	int (*write_one_page)(struct address_space *, pgoff_t, struct page *);
++
+ };
+ 
+ /*
+@@ -1801,6 +1806,8 @@ extern ssize_t generic_file_direct_write(struct kiocb *, const struct iovec *,
+ 		unsigned long *, loff_t, loff_t *, size_t, size_t);
+ extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
+ 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
++extern int generic_file_buffered_write_one_page(struct address_space *,
++						pgoff_t, struct page *);
+ extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
+ extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
+ extern void do_generic_mapping_read(struct address_space *mapping,
+diff --git a/mm/filemap.c b/mm/filemap.c
+index a86569f..ed74864 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2333,6 +2333,67 @@ generic_file_buffered_write(struct kiocb *iocb, const struct iovec *iov,
+ }
+ EXPORT_SYMBOL(generic_file_buffered_write);
+ 
++/**
++ * generic_file_buffered_write_one_page - Write a single page of data to an
++ *	inode
++ * @mapping - The address space of the target inode
++ * @index - The target page in the target inode to fill
++ * @source - The data to write into the target page
++ *
++ * Write the data from the source page to the page in the nominated address
++ * space at the @index specified.  Note that the file will not be extended if
++ * the page crosses the EOF marker, in which case only the first part of the
++ * page will be written.
++ *
++ * The @source page does not need to have any association with the file or the
++ * target page offset.
++ */
++int generic_file_buffered_write_one_page(struct address_space *mapping,
++					 pgoff_t index,
++					 struct page *source)
++{
++	const struct address_space_operations *a_ops = mapping->a_ops;
++	struct page *page;
++	unsigned len;
++	loff_t isize, pos;
++	void *fsdata;
++	int ret;
++
++	pos = index;
++	pos <<= PAGE_CACHE_SHIFT;
++
++	len = PAGE_CACHE_SIZE;
++	isize = i_size_read(mapping->host);
++	if ((isize >> PAGE_CACHE_SHIFT) == index)
++		len = isize & (PAGE_CACHE_SIZE - 1);
++
++	ret = pagecache_write_begin(NULL, mapping, pos, len,
++				    AOP_FLAG_UNINTERRUPTIBLE, &page, &fsdata);
++	if (ret < 0)
++		goto sync;
++
++	copy_highpage(page, source);
++
++	ret = pagecache_write_end(NULL, mapping, pos, len, len, page, fsdata);
++	if (ret < 0)
++		goto sync;
++
++	balance_dirty_pages_ratelimited(mapping);
++	cond_resched();
++
++sync:
++	/* the caller must handle O_SYNC themselves, but we handle S_SYNC and
++	 * MS_SYNCHRONOUS here */
++	if (unlikely(IS_SYNC(mapping->host)) && !a_ops->writepage)
++		ret = generic_osync_inode(mapping->host, mapping,
++					     OSYNC_METADATA | OSYNC_DATA);
++
++	/* the caller must handle O_DIRECT for themselves */
++
++	return ret;
++}
++EXPORT_SYMBOL(generic_file_buffered_write_one_page);
++
+ static ssize_t
+ __generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos)
 
-The patches can roughly be broken down into a number of sets:
-
-  (*) 01-keys-inc-payload.diff
-  (*) 02-keys-search-keyring.diff
-  (*) 03-keys-callout-blob.diff
-
-      Three patches to the keyring code made to help the CIFS people.
-      Included because of patches 05-08.
-
-  (*) 04-keys-get-label.diff
-
-      A patch to allow the security label of a key to be retrieved.
-      Included because of patches 05-08.
-
-  (*) 05-security-current-fsugid.diff
-  (*) 06-security-separate-task-bits.diff
-  (*) 07-security-subjective.diff
-  (*) 08-security-secctx2secid.diff
-  (*) 09-security-additional-classes.diff
-  (*) 10-security-kernel_service-class.diff
-  (*) 11-security-kernel-service.diff
-
-      Patches to permit the subjective security of a task to be overridden.
-      All the security details in task_struct are decanted into a new struct
-      that task_struct then has two pointers two: one that defines the
-      objective security of that task (how other tasks may affect it) and one
-      that defines the subjective security (how it may affect other objects).
-
-      Note that I have dropped the idea of struct cred for the moment.  With
-      the amount of stuff that was excluded from it, it wasn't actually any
-      use to me.  However, it can be added later.
-
-      Required for cachefiles.
-
-  (*) 12-release-page.diff
-  (*) 13-fscache-page-flags.diff
-  (*) 14-add_wait_queue_tail.diff
-  (*) 15-fscache.diff
-
-      Patches to provide a local caching facility for network filesystems.
-
-  (*) 16-cachefiles-ia64.diff
-  (*) 17-cachefiles-ext3-f_mapping.diff
-  (*) 18-cachefiles-write.diff
-  (*) 19-cachefiles-monitor.diff
-  (*) 20-cachefiles-export.diff
-  (*) 21-cachefiles.diff
-
-      Patches to provide a local cache in a directory of an already mounted
-      filesystem.
-
-  (*) 22-nfs-memleak.diff
-  (*) 23-fscache-nfs.diff
-  (*) 24-fscache-nfs-mount.diff
-  (*) 25-fscache-nfs-display.diff
-  (*) 26-fscache-nfs-persb.diff
-
-      Patches to provide NFS with local caching.  The fifth of these patches
-      makes caching configurable per superblock.
-
-This release is mainly for the security guys (esp Stephen and Casey) to have a
-look at to see if they are happy with the security stuff.
-
-The SELinux base code will also need updating to have the security class, lest
-the following error appear in dmesg:
-
-	context_struct_compute_av:  unrecognized class 69
-
-
-I know Nick Piggin has a couple of issues still, but I'll look again at those
-next.
-
-Andrew, Linus, can you please hold off on taking these patches for the moment.
-
-
---
-A tarball of the patches is available at:
-
-	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-26.tar.bz2
-
-
-To use this version of CacheFiles, the cachefilesd-0.9 is also required.  It
-is available as an SRPM:
-
-	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9-1.fc7.src.rpm
-
-Or as individual bits:
-
-	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9.tar.bz2
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
-
-The .fc, .if and .te files are for manipulating SELinux.
-
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
