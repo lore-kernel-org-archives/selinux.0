@@ -1,64 +1,61 @@
-Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM
-	settings for task actions [try #2]
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: David Howells <dhowells@redhat.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <286481.40953.qm@web36613.mail.mud.yahoo.com>
-References: <286481.40953.qm@web36613.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Tue, 15 Jan 2008 14:15:08 -0500
-Message-Id: <1200424508.9669.63.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0FKvvgs012715
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2008 15:57:57 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m0FKvtJK004345
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jan 2008 20:57:55 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: [PATCH] refpolicy: su needs ability to run unix_update
+Date: Tue, 15 Jan 2008 15:57:54 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B01588016EEB0F@exchange.columbia.tresys.com>
+From: "Brandon Whalen" <bwhalen@tresys.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On RHEL 5.1 systems su uses unix_update to help authenticate users.
 
-On Tue, 2008-01-15 at 10:10 -0800, Casey Schaufler wrote:
-> --- David Howells <dhowells@redhat.com> wrote:
-> 
-> > Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > 
-> > > >  (3) Check that the kernel may create files as a particular secid (this
-> > > >      could be specified indirectly by specifying an inode, which would
-> > > >      hide the secid inside the LSM).
-> > > 
-> > > I don't think this check is on the kernel per se but rather the ability
-> > > of the daemon to nominate a secid for use on files created later by the
-> > > kernel module.
-> > 
-> > Hmmm...  At the moment the cachefiles module works out for itself what the
-> > file label should be by looking at the root directory it was given and
-> > assuming the label on that is what it's going to be using.  Are you
-> > suggesting
-> > this should be specified directly instead by the daemon?
-> 
-> Oh my. While there will be cases where the label of the file
-> will match the label of the containing directory, and in fact
-> for most label based LSMs that will usually be the case, you
-> certainly can't count on it. The only place that you can find
-> the correct label for a file with any confidence in from the
-> xattr (assuming the LSM uses xattrs) on the file itself. I can
-> imaging an LSM for which it would make sense to derive the
-> label from the root directory, but I know Smack isn't one of
-> them, and I don't think that SELinux is either, although I
-> would defer a definitive answer on that to Stephen.
-
-The cache files are created by the cachefiles kernel module, not by the
-userspace daemon, and the userspace daemon doesn't need to directly
-read/write them at all (but I think it does need to be able to unlink
-them?).  The userspace daemon merely identifies the directory where the
-cache should live as part of configuring the cache when enabling it.
-
-Hence, it is fine to use a fixed label for the cache files (systemhigh
-in a MLS world), and to let the directory's label serve as the basis for
-it.  Only the cachefiles kernel module directly reads and writes the
-files.
+--- /home/bwhalen/workspace/refpolicy-trunk/policy/modules/admin/su.if
+(revision 2579)
++++ /home/bwhalen/workspace/refpolicy-trunk/policy/modules/admin/su.if
+(working copy)
+@@ -78,6 +78,10 @@
+ 	auth_dontaudit_read_shadow($1_su_t)
+ 	auth_use_nsswitch($1_su_t)
+ 	auth_rw_faillog($1_su_t)
++	#RHEL 5 uses unix_update for su
++	ifdef(`distro_redhat',`
++		auth_domtrans_upd_passwd($1_su_t)
++	')
  
--- 
-Stephen Smalley
-National Security Agency
+ 	domain_use_interactive_fds($1_su_t)
+ 
+@@ -207,6 +211,10 @@
+ 	auth_dontaudit_read_shadow($1_su_t)
+ 	auth_use_nsswitch($1_su_t)
+ 	auth_rw_faillog($1_su_t)
++	#RHEL 5 uses unix_update for su
++	ifdef(`distro_redhat',`
++		auth_domtrans_upd_passwd($1_su_t)
++	')
+ 
+ 	corecmd_search_bin($1_su_t)
+
+
+
+
+
+Brandon
+
+
+Brandon Whalen        Tresys Technology
+v: 443-539-0747       Suite 2100
+f: 410-953-0494       8840 Stanford Blvd
+bwhalen@tresys.com    Columbia, MD 21045
+
 
 
 --
