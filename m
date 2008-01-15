@@ -1,11 +1,11 @@
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 09/26] Security: Pre-add additional non-caching classes
+Subject: [PATCH 12/26] FS-Cache: Release page->private after failed readahead
 To: sds@tycho.nsa.gov, casey@schaufler-ca.com, Trond.Myklebust@netapp.com,
         npiggin@suse.de
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Tue, 15 Jan 2008 23:47:41 +0000
-Message-ID: <20080115234740.22183.78995.stgit@warthog.procyon.org.uk>
+Date: Tue, 15 Jan 2008 23:47:56 +0000
+Message-ID: <20080115234756.22183.4321.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
 References: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -13,101 +13,82 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Pre-add additional non-caching classes that are in the SELinux upstream
-repository, but not in the upstream kernel so they don't get in the fscache
-class patch.
+The attached patch causes read_cache_pages() to release page-private data on a
+page for which add_to_page_cache() fails or the filler function fails. This
+permits pages with caching references associated with them to be cleaned up.
+
+The invalidatepage() address space op is called (indirectly) to do the honours.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- security/selinux/include/av_perm_to_string.h |    5 +++++
- security/selinux/include/av_permissions.h    |    5 +++++
- security/selinux/include/class_to_string.h   |    7 +++++++
- security/selinux/include/flask.h             |    1 +
- 4 files changed, 18 insertions(+), 0 deletions(-)
+ mm/readahead.c |   39 +++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 37 insertions(+), 2 deletions(-)
 
 
-diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-index 049bf69..caa0634 100644
---- a/security/selinux/include/av_perm_to_string.h
-+++ b/security/selinux/include/av_perm_to_string.h
-@@ -37,6 +37,8 @@
-    S_(SECCLASS_NODE, NODE__ENFORCE_DEST, "enforce_dest")
-    S_(SECCLASS_NODE, NODE__DCCP_RECV, "dccp_recv")
-    S_(SECCLASS_NODE, NODE__DCCP_SEND, "dccp_send")
-+   S_(SECCLASS_NODE, NODE__RECVFROM, "recvfrom")
-+   S_(SECCLASS_NODE, NODE__SENDTO, "sendto")
-    S_(SECCLASS_NETIF, NETIF__TCP_RECV, "tcp_recv")
-    S_(SECCLASS_NETIF, NETIF__TCP_SEND, "tcp_send")
-    S_(SECCLASS_NETIF, NETIF__UDP_RECV, "udp_recv")
-@@ -45,6 +47,8 @@
-    S_(SECCLASS_NETIF, NETIF__RAWIP_SEND, "rawip_send")
-    S_(SECCLASS_NETIF, NETIF__DCCP_RECV, "dccp_recv")
-    S_(SECCLASS_NETIF, NETIF__DCCP_SEND, "dccp_send")
-+   S_(SECCLASS_NETIF, NETIF__INGRESS, "ingress")
-+   S_(SECCLASS_NETIF, NETIF__EGRESS, "egress")
-    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__CONNECTTO, "connectto")
-    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__NEWCONN, "newconn")
-    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__ACCEPTFROM, "acceptfrom")
-@@ -159,3 +163,4 @@
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NODE_BIND, "node_bind")
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
-    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
-+   S_(SECCLASS_PEER, PEER__RECV, "recv")
-diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-index eda89a2..c2b5bb2 100644
---- a/security/selinux/include/av_permissions.h
-+++ b/security/selinux/include/av_permissions.h
-@@ -292,6 +292,8 @@
- #define NODE__ENFORCE_DEST                        0x00000040UL
- #define NODE__DCCP_RECV                           0x00000080UL
- #define NODE__DCCP_SEND                           0x00000100UL
-+#define NODE__RECVFROM                            0x00000200UL
-+#define NODE__SENDTO                              0x00000400UL
- #define NETIF__TCP_RECV                           0x00000001UL
- #define NETIF__TCP_SEND                           0x00000002UL
- #define NETIF__UDP_RECV                           0x00000004UL
-@@ -300,6 +302,8 @@
- #define NETIF__RAWIP_SEND                         0x00000020UL
- #define NETIF__DCCP_RECV                          0x00000040UL
- #define NETIF__DCCP_SEND                          0x00000080UL
-+#define NETIF__INGRESS                            0x00000100UL
-+#define NETIF__EGRESS                             0x00000200UL
- #define NETLINK_SOCKET__IOCTL                     0x00000001UL
- #define NETLINK_SOCKET__READ                      0x00000002UL
- #define NETLINK_SOCKET__WRITE                     0x00000004UL
-@@ -824,3 +828,4 @@
- #define DCCP_SOCKET__NODE_BIND                    0x00400000UL
- #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
- #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
-+#define PEER__RECV                                0x00000001UL
-diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
-index e77de0e..b1b0d1d 100644
---- a/security/selinux/include/class_to_string.h
-+++ b/security/selinux/include/class_to_string.h
-@@ -64,3 +64,10 @@
-     S_(NULL)
-     S_("dccp_socket")
-     S_("memprotect")
-+    S_(NULL)
-+    S_(NULL)
-+    S_(NULL)
-+    S_(NULL)
-+    S_(NULL)
-+    S_(NULL)
-+    S_("peer")
-diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
-index a9c2b20..09e9dd2 100644
---- a/security/selinux/include/flask.h
-+++ b/security/selinux/include/flask.h
-@@ -50,6 +50,7 @@
- #define SECCLASS_KEY                                     58
- #define SECCLASS_DCCP_SOCKET                             60
- #define SECCLASS_MEMPROTECT                              61
-+#define SECCLASS_PEER                                    68
+diff --git a/mm/readahead.c b/mm/readahead.c
+index c9c50ca..75aa6b6 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -44,6 +44,41 @@ EXPORT_SYMBOL_GPL(file_ra_state_init);
  
- /*
-  * Security identifier indices for initial entities
+ #define list_to_page(head) (list_entry((head)->prev, struct page, lru))
+ 
++/*
++ * see if a page needs releasing upon read_cache_pages() failure
++ * - the caller of read_cache_pages() may have set PG_private before calling,
++ *   such as the NFS fs marking pages that are cached locally on disk, thus we
++ *   need to give the fs a chance to clean up in the event of an error
++ */
++static void read_cache_pages_invalidate_page(struct address_space *mapping,
++					     struct page *page)
++{
++	if (PagePrivate(page)) {
++		if (TestSetPageLocked(page))
++			BUG();
++		page->mapping = mapping;
++		do_invalidatepage(page, 0);
++		page->mapping = NULL;
++		unlock_page(page);
++	}
++	page_cache_release(page);
++}
++
++/*
++ * release a list of pages, invalidating them first if need be
++ */
++static void read_cache_pages_invalidate_pages(struct address_space *mapping,
++					      struct list_head *pages)
++{
++	struct page *victim;
++
++	while (!list_empty(pages)) {
++		victim = list_to_page(pages);
++		list_del(&victim->lru);
++		read_cache_pages_invalidate_page(mapping, victim);
++	}
++}
++
+ /**
+  * read_cache_pages - populate an address space with some pages & start reads against them
+  * @mapping: the address_space
+@@ -65,14 +100,14 @@ int read_cache_pages(struct address_space *mapping, struct list_head *pages,
+ 		list_del(&page->lru);
+ 		if (add_to_page_cache_lru(page, mapping,
+ 					page->index, GFP_KERNEL)) {
+-			page_cache_release(page);
++			read_cache_pages_invalidate_page(mapping, page);
+ 			continue;
+ 		}
+ 		page_cache_release(page);
+ 
+ 		ret = filler(data, page);
+ 		if (unlikely(ret)) {
+-			put_pages_list(pages);
++			read_cache_pages_invalidate_pages(mapping, pages);
+ 			break;
+ 		}
+ 		task_io_account_read(PAGE_CACHE_SIZE);
 
 
 --
