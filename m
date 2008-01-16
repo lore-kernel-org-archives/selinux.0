@@ -1,42 +1,45 @@
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [PATCH 08/26] Add a secctx_to_secid() LSM hook to go along with the existing
-Date: Wed, 16 Jan 2008 08:41:46 -0500
-Cc: David Howells <dhowells@redhat.com>, sds@tycho.nsa.gov,
-        casey@schaufler-ca.com, Trond.Myklebust@netapp.com, npiggin@suse.de,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-References: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk> <20080115234735.22183.36356.stgit@warthog.procyon.org.uk> <Xine.LNX.4.64.0801161204470.24959@us.intercode.com.au>
-In-Reply-To: <Xine.LNX.4.64.0801161204470.24959@us.intercode.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0GE4Dbh011887
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 09:04:13 -0500
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0GE4Dx1016505
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 14:04:13 GMT
+Received: by py-out-1112.google.com with SMTP id a78so323397pyh.32
+        for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 06:04:13 -0800 (PST)
+Reply-To: w.chimiak@ieee.org
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: MCS/MLS
+Date: Wed, 16 Jan 2008 08:52:25 -0500
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
-Message-Id: <200801160841.46633.paul.moore@hp.com>
+Message-Id: <200801160852.25646.w.chimiak@ieee.org>
+From: Bill Chimiak <wch1m1@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 15 January 2008 8:05:27 pm James Morris wrote:
-> On Tue, 15 Jan 2008, David Howells wrote:
-> > secid_to_secctx() LSM hook.  This patch also includes the SELinux
-> > implementation for this hook.
-> >
-> > Signed-off-by: Paul Moore <paul.moore@hp.com>
-> > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
->
-> This is useful in its own right, and I would like to push it upstream for
-> 2.6.24 unless there are any objections.
+Just a quick message about MCS/MLS for those troubleshooting:
 
-Isn't it a bit late in 2.6.24 to add new functionality, especially when there 
-isn't an in-tree user for it in 2.6.24?
+I was fooling about with MCS/MLS with FC6, the move to FC8 created 
+kernel messages on the screen when doing any network activity as a user.
+I traced it back to some MCS statements I had made.  Networking worked fine
+for the root., thank goodness.
 
-You are right, there are several users of this function currently under 
-development but I'm pretty sure all of them are targeting 2.6.25 or greater.  
-With that in mind, I think the prudent thing to is to wait and push this 
-upstream for 2.6.25.
+enforce=0 did not help matters, nor did setenforce=0.  
+User networking was down.  Needless to say selinux=0 worked also, but
+creates its own problems.
+
+I brute-forced the distro by doing a yum erase selinux (policies, etc)
+and reinstalled them and then all worked well.
+
+Thanks for setroubleshoot rpm - very useful!
 
 -- 
-paul moore
-linux security @ hp
+William Chimiak
+Laboratory for Telecommunications Sciences
+8080 Greenmead Road
+College Park, MD
+240-949-2778
 
 --
 This message was distributed to subscribers of the selinux mailing list.
