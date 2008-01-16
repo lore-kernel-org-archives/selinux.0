@@ -1,43 +1,43 @@
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [PATCH 08/26] Add a secctx_to_secid() LSM hook to go along with the existing
-Date: Wed, 16 Jan 2008 17:19:40 -0500
-Cc: David Howells <dhowells@redhat.com>, sds@tycho.nsa.gov,
-        casey@schaufler-ca.com, Trond.Myklebust@netapp.com, npiggin@suse.de,
-        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-References: <20080115234652.22183.24850.stgit@warthog.procyon.org.uk> <200801160841.46633.paul.moore@hp.com> <Xine.LNX.4.64.0801170913100.23919@us.intercode.com.au>
-In-Reply-To: <Xine.LNX.4.64.0801170913100.23919@us.intercode.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0GMmGJZ019659
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 17:48:16 -0500
+Received: from hs-out-2122.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0GMmFSA015005
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 22:48:15 GMT
+Received: by hs-out-2122.google.com with SMTP id 23so596190hsn.2
+        for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 14:48:15 -0800 (PST)
+Message-ID: <dd18b0c30801161448kd990a86h35b1c664439f4488@mail.gmail.com>
+Date: Wed, 16 Jan 2008 14:48:14 -0800
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: newrole -l error
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200801161719.41264.paul.moore@hp.com>
+Content-Type: multipart/alternative;
+	boundary="----=_Part_24109_12733595.1200523694514"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 16 January 2008 5:13:53 pm James Morris wrote:
-> On Wed, 16 Jan 2008, Paul Moore wrote:
-> > On Tuesday 15 January 2008 8:05:27 pm James Morris wrote:
-> > > On Tue, 15 Jan 2008, David Howells wrote:
-> > > > secid_to_secctx() LSM hook.  This patch also includes the SELinux
-> > > > implementation for this hook.
-> > > >
-> > > > Signed-off-by: Paul Moore <paul.moore@hp.com>
-> > > > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > >
-> > > This is useful in its own right, and I would like to push it upstream
-> > > for 2.6.24 unless there are any objections.
-> >
-> > Isn't it a bit late in 2.6.24 to add new functionality, especially when
-> > there isn't an in-tree user for it in 2.6.24?
->
-> Actually, I meant to go into 2.6.24 after the merge window opens.
+------=_Part_24109_12733595.1200523694514
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I'm assuming you meant 2.6.25 in the sentence above?
+Hello does anybody have a fix for newrole -l s? Error: you are not allowed
+to change levels on a non secure terminal;
+I'm using refpolicy-20071214 from tresys, my build.config has  mls
+monolithic enabled.
+regards;
+              --Justin P. Mattock
 
--- 
-paul moore
-linux security @ hp
+------=_Part_24109_12733595.1200523694514
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hello does anybody have a fix for newrole -l s? Error: you are not allowed to change levels on a non secure terminal;<br>I&#39;m using refpolicy-20071214 from tresys, my build.config has&nbsp; mls monolithic enabled. <br>regards;
+<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; --Justin P. Mattock <br>
+
+------=_Part_24109_12733595.1200523694514--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
