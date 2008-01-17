@@ -1,43 +1,34 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0GMmGJZ019659
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 17:48:16 -0500
-Received: from hs-out-2122.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0GMmFSA015005
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 22:48:15 GMT
-Received: by hs-out-2122.google.com with SMTP id 23so596190hsn.2
-        for <selinux@tycho.nsa.gov>; Wed, 16 Jan 2008 14:48:15 -0800 (PST)
-Message-ID: <dd18b0c30801161448kd990a86h35b1c664439f4488@mail.gmail.com>
-Date: Wed, 16 Jan 2008 14:48:14 -0800
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: newrole -l error
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0HFZNLp014665
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 10:35:23 -0500
+Received: from g1t0029.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0HFZMg6009329
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 15:35:22 GMT
+Message-ID: <478F72FC.4020803@hp.com>
+Date: Thu, 17 Jan 2008 10:23:40 -0500
+From: Matt Anderson <mra@hp.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_24109_12733595.1200523694514"
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: newrole -l error
+References: <dd18b0c30801161448kd990a86h35b1c664439f4488@mail.gmail.com>
+In-Reply-To: <dd18b0c30801161448kd990a86h35b1c664439f4488@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_24109_12733595.1200523694514
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Justin Mattock wrote:
+> Hello does anybody have a fix for newrole -l s? Error: you are not allowed
+> to change levels on a non secure terminal;
+> I'm using refpolicy-20071214 from tresys, my build.config has  mls
+> monolithic enabled.
 
-Hello does anybody have a fix for newrole -l s? Error: you are not allowed
-to change levels on a non secure terminal;
-I'm using refpolicy-20071214 from tresys, my build.config has  mls
-monolithic enabled.
-regards;
-              --Justin P. Mattock
+I wonder if the problem is with your libselinux version.  The patch 
+which included support for that file was included in version 1.33.4 so 
+you'll need that or later in order to use the 
+/etc/selinux/mls/contexts/securetty_types file.
 
-------=_Part_24109_12733595.1200523694514
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hello does anybody have a fix for newrole -l s? Error: you are not allowed to change levels on a non secure terminal;<br>I&#39;m using refpolicy-20071214 from tresys, my build.config has&nbsp; mls monolithic enabled. <br>regards;
-<br>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; --Justin P. Mattock <br>
-
-------=_Part_24109_12733595.1200523694514--
+-matt
 
 --
 This message was distributed to subscribers of the selinux mailing list.
