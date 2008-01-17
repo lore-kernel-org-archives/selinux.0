@@ -1,25 +1,23 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0HHUKTU026918
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 12:30:20 -0500
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0HHUETY013520
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 17:30:19 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so675150fgg.40
-        for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 09:30:13 -0800 (PST)
-Message-ID: <7e0fb38c0801170930l4a63e2c5v917a1dbcf926cf6a@mail.gmail.com>
-Date: Thu, 17 Jan 2008 12:30:13 -0500
-From: "Eric Paris" <eparis@parisplace.org>
-To: "Paul Moore" <paul.moore@hp.com>
-Subject: Re: [PATCH] REFPOL: Add "rogue" Fedora packet class permissions
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20080117172246.341834342@hp.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0HJDNIC006616
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 14:13:24 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m0HJDHsv027064
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 19:13:17 GMT
+Message-ID: <478FA8C3.40600@manicmethod.com>
+Date: Thu, 17 Jan 2008 14:13:07 -0500
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Paul Moore <paul.moore@hp.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] REFPOL: Add "rogue" Fedora packet class permissions
 References: <20080117172246.341834342@hp.com>
+In-Reply-To: <20080117172246.341834342@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 1/17/08, Paul Moore <paul.moore@hp.com> wrote:
+Paul Moore wrote:
 > At some point in the Fedora 6 timeframe the "flow_in" and "flow_out"
 > permissions were added to the "packet" class, most likely as part of the
 > ill-fated secid-reconciliation effort.  Despite the fact that these permissions
@@ -30,13 +28,42 @@ On 1/17/08, Paul Moore <paul.moore@hp.com> wrote:
 > This patch needs to be applied before any other patches that affect the
 > "packet" class, otherwise the resulting policy may not load.
 >
+>   
+
+Hrm, they are last in the class definitions so until new perms are added 
+to that class it is fairly irrelevant. The policy upgrade to remove them 
+would only require a reboot to get rid of them so adding them to 
+upstream refpolicy doesn't seem necessary at all.
+
+This also points out how much of a bad idea it is to add object 
+class/perm definitions into distro policies before they are in 
+refpolicy, I hope that this will be avoided in the future.
+
+I'm not sure what Chris feels about this but I'm opposed to adding 
+definitions to the policy like this.
+
 > Signed-off-by: Paul Moore <paul.moore@hp.com>
-Acked-by: Eric Paris <eparis@redhat.com>
+> ---
+>  policy/flask/access_vectors |    2 ++
+>  1 file changed, 2 insertions(+)
+>
+> Index: refpolicy_svn_repo/policy/flask/access_vectors
+> ===================================================================
+> --- refpolicy_svn_repo.orig/policy/flask/access_vectors
+> +++ refpolicy_svn_repo/policy/flask/access_vectors
+> @@ -644,6 +644,8 @@ class packet
+>  	send
+>  	recv
+>  	relabelto
+> +	flow_in		# not currently in use
+> +	flow_out	# not currently in use
+>  }
+>  
+>  class key
+>
+>   
 
-And sorry about us getting a bit overzelous but as long as these are
-in gen_requires statements we can't drop them  :(
 
--Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
