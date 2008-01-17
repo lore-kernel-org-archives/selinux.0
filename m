@@ -1,57 +1,28 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0HM7aCv028795
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 17:07:36 -0500
-Message-ID: <478FD1A7.8060401@tycho.nsa.gov>
-Date: Thu, 17 Jan 2008 17:07:35 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Glenn Faden <Glenn.Faden@sun.com>
-CC: Ted X Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: X avcs
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com> <cadfc0e40712280854i586aae43ya9e602fd56a984ab@mail.gmail.com> <47754FCB.1070307@tycho.nsa.gov> <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com> <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com> <477BEFF1.2090507@sun.com> <47867FCA.50408@tycho.nsa.gov> <47878130.5010000@gmail.com> <4787D5B7.9090606@sun.com>
-In-Reply-To: <4787D5B7.9090606@sun.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20080117204804.GC6416@fieldses.org>
+References: <20080117204804.GC6416@fieldses.org> <20080115234724.22183.9603.stgit@warthog.procyon.org.uk> <20080115234652.22183.24850.stgit@warthog.procyon.org.uk> <20849.1200590240@redhat.com>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: dhowells@redhat.com, sds@tycho.nsa.gov, casey@schaufler-ca.com,
+        Trond.Myklebust@netapp.com, neilb@suse.de,
+        linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: [PATCH 06b/26] Security: Make NFSD work with detached security
+Date: Thu, 17 Jan 2008 22:48:47 +0000
+Message-ID: <28942.1200610127@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Glenn Faden wrote:
-> Ted X Toth wrote:
->   
->> I'll look at implementing a dixPropertyLookup function. Do any other 
->> XACE hooks have value-return parameters, would it just be va_arg(ap, 
->> PropertyPtr*)?
->> What about the idea of an exception list of single-instance 
->> root-window properties?
->>
->>     
-> We have already implemented the equivalent of a dixPropertyLookup 
-> function called PolyProperty. The following URL is an OpenSolaris source 
-> browser query to find the implementation and uses of that function in Xorg.
->
-> http://src.opensolaris.org/source/search?q=&defs=&refs=PolyProperty&path=&hist=&project=%2Ffox
->
-> --Glenn
->   
+J. Bruce Fields <bfields@fieldses.org> wrote:
 
-OK, I worked on this today.  The property polyinstantiation itself is 
-easy enough, but I've run into a problem with the PropertyNotify events 
-that occur when a polyinstantiated property is changed or deleted - 
-everyone can see them!  Some major changes to the event delivery model 
-are probably going to be necessary to make this work.
+> Just curious--why?  Are get_kernel_security(), etc., particularly
+> expensive?
 
-I can't immediately see how it's done in Trusted Extensions.  In 
-TsolDeleteProperty there is just a regular DeliverEvents call to send 
-the event.
+It involves a kmalloc().  That means an extra possibility for an error.  Plus
+it may allow you to cache the result of checking whether, say, SELinux
+security labels are allowed to be set when passed over NFS (if such is
+possible).
 
-I think there will have to be a way to pass some private data down with 
-all events, and then have another hook call further down that gives a 
-yes/no answer for each client.
-
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
