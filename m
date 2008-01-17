@@ -1,67 +1,106 @@
-Subject: Re: [PATCH] REFPOL: Add "rogue" Fedora packet class permissions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
-In-Reply-To: <478FA8C3.40600@manicmethod.com>
-References: <20080117172246.341834342@hp.com>
-	 <478FA8C3.40600@manicmethod.com>
-Content-Type: text/plain
-Date: Thu, 17 Jan 2008 14:33:41 -0500
-Message-Id: <1200598421.7025.73.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0HKtmjV017568
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 15:55:48 -0500
+Received: from g5t0009.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0HKtkGS003742
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jan 2008 20:55:46 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v12 03/18] NetLabel: Consolidate the LSM domain
+	mapping/hashing locks
+To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Date: Thu, 17 Jan 2008 15:55:41 -0500
+Message-ID: <20080117205541.21013.92798.stgit@flek.americas.hpqcorp.net>
+In-Reply-To: <20080117204653.21013.77930.stgit@flek.americas.hpqcorp.net>
+References: <20080117204653.21013.77930.stgit@flek.americas.hpqcorp.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Currently we use two separate spinlocks to protect both the hash/mapping table
+and the default entry.  This could be considered a bit foolish because it adds
+complexity without offering any real performance advantage.  This patch
+removes the dedicated default spinlock and protects the default entry with the
+hash/mapping table spinlock.
 
-On Thu, 2008-01-17 at 14:13 -0500, Joshua Brindle wrote:
-> Paul Moore wrote:
-> > At some point in the Fedora 6 timeframe the "flow_in" and "flow_out"
-> > permissions were added to the "packet" class, most likely as part of the
-> > ill-fated secid-reconciliation effort.  Despite the fact that these permissions
-> > are not currently used they should be included in the Reference Policy as they
-> > are now a permanent fixture in Fedora and it is crucial that the FLASK
-> > defines be kept in sync.
-> >
-> > This patch needs to be applied before any other patches that affect the
-> > "packet" class, otherwise the resulting policy may not load.
-> >
-> >   
-> 
-> Hrm, they are last in the class definitions so until new perms are added 
-> to that class it is fairly irrelevant. The policy upgrade to remove them 
-> would only require a reboot to get rid of them so adding them to 
-> upstream refpolicy doesn't seem necessary at all.
-> 
-> This also points out how much of a bad idea it is to add object 
-> class/perm definitions into distro policies before they are in 
-> refpolicy, I hope that this will be avoided in the future.
-> 
-> I'm not sure what Chris feels about this but I'm opposed to adding 
-> definitions to the policy like this.
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
 
-The situation is this:
-- policy shipped in Fedora 6 and later had these flow_in/flow_out
-permissions defined in their base modules and in their gen_requires.
-- Paul Moore is adding new permissions to that class in his labeled
-networking tree that is included in -mm and queued for 2.6.25,
-- when you try to load those policies into the resulting kernel, the
-class validation logic rejects the policies,
-- any policy modules built by any third parties also have these perms
-defined in their requires and will fail if we remove them from base,
-- we can't make any changes to the kernel that break existing userspace
-and policy (which is why handle_unknown is largely useless to us until
-all legacy distros that predate it are sufficiently dead and gone).
+ net/netlabel/netlabel_domainhash.c |   30 +++++++++---------------------
+ 1 files changed, 9 insertions(+), 21 deletions(-)
 
-This all came up because akpm reported the failure on his FC6 test box
-with latest -mm.
-
-I suggested just using flow_in/flow_out instead of
-forward_in/forward_out for Paul's new controls so that we don't have any
-unused permissions, but Paul and Eric want the more precise names.
-
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/net/netlabel/netlabel_domainhash.c b/net/netlabel/netlabel_domainhash.c
+index 1f8f7ac..9a8ea01 100644
+--- a/net/netlabel/netlabel_domainhash.c
++++ b/net/netlabel/netlabel_domainhash.c
+@@ -54,9 +54,6 @@ struct netlbl_domhsh_tbl {
+  * hash table should be okay */
+ static DEFINE_SPINLOCK(netlbl_domhsh_lock);
+ static struct netlbl_domhsh_tbl *netlbl_domhsh = NULL;
+-
+-/* Default domain mapping */
+-static DEFINE_SPINLOCK(netlbl_domhsh_def_lock);
+ static struct netlbl_dom_map *netlbl_domhsh_def = NULL;
+ 
+ /*
+@@ -239,24 +236,22 @@ int netlbl_domhsh_add(struct netlbl_dom_map *entry,
+ 	INIT_RCU_HEAD(&entry->rcu);
+ 
+ 	rcu_read_lock();
++	spin_lock(&netlbl_domhsh_lock);
+ 	if (entry->domain != NULL) {
+ 		bkt = netlbl_domhsh_hash(entry->domain);
+-		spin_lock(&netlbl_domhsh_lock);
+ 		if (netlbl_domhsh_search(entry->domain) == NULL)
+ 			list_add_tail_rcu(&entry->list,
+ 				    &rcu_dereference(netlbl_domhsh)->tbl[bkt]);
+ 		else
+ 			ret_val = -EEXIST;
+-		spin_unlock(&netlbl_domhsh_lock);
+ 	} else {
+ 		INIT_LIST_HEAD(&entry->list);
+-		spin_lock(&netlbl_domhsh_def_lock);
+ 		if (rcu_dereference(netlbl_domhsh_def) == NULL)
+ 			rcu_assign_pointer(netlbl_domhsh_def, entry);
+ 		else
+ 			ret_val = -EEXIST;
+-		spin_unlock(&netlbl_domhsh_def_lock);
+ 	}
++	spin_unlock(&netlbl_domhsh_lock);
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_ADD, audit_info);
+ 	if (audit_buf != NULL) {
+ 		audit_log_format(audit_buf,
+@@ -337,23 +332,16 @@ int netlbl_domhsh_remove(const char *domain, struct netlbl_audit *audit_info)
+ 					   entry->domain);
+ 		break;
+ 	}
+-	if (entry != rcu_dereference(netlbl_domhsh_def)) {
+-		spin_lock(&netlbl_domhsh_lock);
+-		if (entry->valid) {
+-			entry->valid = 0;
++	spin_lock(&netlbl_domhsh_lock);
++	if (entry->valid) {
++		entry->valid = 0;
++		if (entry != rcu_dereference(netlbl_domhsh_def))
+ 			list_del_rcu(&entry->list);
+-			ret_val = 0;
+-		}
+-		spin_unlock(&netlbl_domhsh_lock);
+-	} else {
+-		spin_lock(&netlbl_domhsh_def_lock);
+-		if (entry->valid) {
+-			entry->valid = 0;
++		else
+ 			rcu_assign_pointer(netlbl_domhsh_def, NULL);
+-			ret_val = 0;
+-		}
+-		spin_unlock(&netlbl_domhsh_def_lock);
++		ret_val = 0;
+ 	}
++	spin_unlock(&netlbl_domhsh_lock);
+ 
+ 	audit_buf = netlbl_audit_start_common(AUDIT_MAC_MAP_DEL, audit_info);
+ 	if (audit_buf != NULL) {
 
 
 --
