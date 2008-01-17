@@ -1,397 +1,356 @@
 From: David Howells <dhowells@redhat.com>
 In-Reply-To: <20080115234724.22183.9603.stgit@warthog.procyon.org.uk>
 References: <20080115234724.22183.9603.stgit@warthog.procyon.org.uk> <20080115234652.22183.24850.stgit@warthog.procyon.org.uk>
-To: sds@tycho.nsa.gov, casey@schaufler-ca.com
+To: sds@tycho.nsa.gov, casey@schaufler-ca.com, Trond.Myklebust@netapp.com,
+        bfields@fieldses.org, neilb@suse.de
 Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, dhowells@redhat.com
-Subject: [PATCH 06a/26] Extra task_struct -> task_security separation
-Date: Thu, 17 Jan 2008 17:14:35 +0000
-Message-ID: <20821.1200590075@redhat.com>
+        linux-security-module@vger.kernel.org, nfs@lists.sourceforge.net,
+        dhowells@redhat.com
+Subject: [PATCH 06b/26] Security: Make NFSD work with detached security
+Date: Thu, 17 Jan 2008 17:17:20 +0000
+Message-ID: <20849.1200590240@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-Extra bits for separation of task_struct -> task_security to make allyesconfig
-compile for i386 and x86_64.  This will be rolled into patch 06 of 12.
+Make NFSD work with detached security, using the patches that excise the
+security information from task_struct to struct task_security as a base.
 
-From: David Howells <dhowells@redhat.com>
+Each time NFSD wants a new security descriptor (to do NFS4 recovery or just to
+do NFS operations), a task_security record is derived from NFSD's *objective*
+security, modified and then applied as the *subjective* security.  This means
+(a) the changes are not visible to anyone looking at NFSD through /proc, (b)
+there is no leakage between two consecutive ops with different security
+configurations.
 
+Consideration should probably be given to caching the task_security record on
+the basis that there'll probably be several ops that will want to use any
+particular security configuration.
 
+Furthermore, nfs4recover.c perhaps ought to set an appropriate LSM context on
+the record pointed to by rec_security so that the disk is accessed
+appropriately (see set_security_override[_from_ctx]()).
+
+NOTE!  This patch must be and will be rolled in to patch 06 of 26 to make the
+latter compile fully, however it may be useful to the nfsd maintainers to see
+it as a separate patch.
+
+Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- drivers/connector/cn_proc.c |    8 ++++----
- drivers/media/video/cpia.c  |    2 +-
- drivers/net/tun.c           |    4 ++--
- drivers/net/wan/sbni.c      |    8 ++++----
- drivers/usb/core/devio.c    |    8 ++++----
- fs/dquot.c                  |    3 ++-
- kernel/sched.c              |    2 +-
- kernel/tsacct.c             |    4 ++--
- mm/mempolicy.c              |    7 +++++--
- mm/migrate.c                |    7 +++++--
- net/ax25/af_ax25.c          |    2 +-
- net/ax25/ax25_route.c       |    2 +-
- net/ipv6/ip6_flowlabel.c    |    2 +-
- net/netrom/af_netrom.c      |    4 ++--
- net/rose/af_rose.c          |    4 ++--
- security/commoncap.c        |    7 ++++---
- security/selinux/xfrm.c     |    6 +++---
- 17 files changed, 44 insertions(+), 36 deletions(-)
+ fs/nfsd/auth.c        |   31 +++++++++++++++++-------
+ fs/nfsd/nfs4recover.c |   64 +++++++++++++++++++++++++++++++------------------
+ include/linux/sched.h |    1 +
+ kernel/sys.c          |   27 ++++++++++++++++++---
+ 4 files changed, 86 insertions(+), 37 deletions(-)
 
 
-diff --git a/drivers/connector/cn_proc.c b/drivers/connector/cn_proc.c
-index 5c9f67f..a4a453e 100644
---- a/drivers/connector/cn_proc.c
-+++ b/drivers/connector/cn_proc.c
-@@ -116,11 +116,11 @@ void proc_id_connector(struct task_struct *task, int which_id)
- 	ev->event_data.id.process_pid = task->pid;
- 	ev->event_data.id.process_tgid = task->tgid;
- 	if (which_id == PROC_EVENT_UID) {
--	 	ev->event_data.id.r.ruid = task->uid;
--	 	ev->event_data.id.e.euid = task->euid;
-+	 	ev->event_data.id.r.ruid = task->act_as->uid;
-+	 	ev->event_data.id.e.euid = task->act_as->euid;
- 	} else if (which_id == PROC_EVENT_GID) {
--	   	ev->event_data.id.r.rgid = task->gid;
--	   	ev->event_data.id.e.egid = task->egid;
-+	   	ev->event_data.id.r.rgid = task->act_as->gid;
-+	   	ev->event_data.id.e.egid = task->act_as->egid;
- 	} else
- 	     	return;
- 	get_seq(&msg->seq, &ev->cpu);
-diff --git a/drivers/media/video/cpia.c b/drivers/media/video/cpia.c
-index 7c630f5..5b178ab 100644
---- a/drivers/media/video/cpia.c
-+++ b/drivers/media/video/cpia.c
-@@ -3202,7 +3202,7 @@ static int cpia_open(struct inode *inode, struct file *file)
+diff --git a/fs/nfsd/auth.c b/fs/nfsd/auth.c
+index 2192805..462d989 100644
+--- a/fs/nfsd/auth.c
++++ b/fs/nfsd/auth.c
+@@ -6,6 +6,7 @@
  
- 	/* Set ownership of /proc/cpia/videoX to current user */
- 	if(cam->proc_entry)
--		cam->proc_entry->uid = current->uid;
-+		cam->proc_entry->uid = current->act_as->uid;
+ #include <linux/types.h>
+ #include <linux/sched.h>
++#include <linux/cred.h>
+ #include <linux/sunrpc/svc.h>
+ #include <linux/sunrpc/svcauth.h>
+ #include <linux/nfsd/nfsd.h>
+@@ -28,11 +29,17 @@ int nfsexp_flags(struct svc_rqst *rqstp, struct svc_export *exp)
  
- 	/* set mark for loading first frame uncompressed */
- 	cam->first_frame = 1;
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index f8b8c71..66c63cf 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -474,9 +474,9 @@ static int tun_set_iff(struct file *file, struct ifreq *ifr)
- 
- 		/* Check permissions */
- 		if (((tun->owner != -1 &&
--		      current->euid != tun->owner) ||
-+		      current->act_as->euid != tun->owner) ||
- 		     (tun->group != -1 &&
--		      current->egid != tun->group)) &&
-+		      current->act_as->egid != tun->group)) &&
- 		     !capable(CAP_NET_ADMIN))
- 			return -EPERM;
- 	}
-diff --git a/drivers/net/wan/sbni.c b/drivers/net/wan/sbni.c
-index 2e8b5c2..4bd60e8 100644
---- a/drivers/net/wan/sbni.c
-+++ b/drivers/net/wan/sbni.c
-@@ -1317,7 +1317,7 @@ sbni_ioctl( struct net_device  *dev,  struct ifreq  *ifr,  int  cmd )
- 		break;
- 
- 	case  SIOCDEVRESINSTATS :
--		if( current->euid != 0 )	/* root only */
-+		if (current->act_as->euid != 0)	/* root only */
- 			return  -EPERM;
- 		memset( &nl->in_stats, 0, sizeof(struct sbni_in_stats) );
- 		break;
-@@ -1334,7 +1334,7 @@ sbni_ioctl( struct net_device  *dev,  struct ifreq  *ifr,  int  cmd )
- 		break;
- 
- 	case  SIOCDEVSHWSTATE :
--		if( current->euid != 0 )	/* root only */
-+		if (current->act_as->euid != 0)	/* root only */
- 			return  -EPERM;
- 
- 		spin_lock( &nl->lock );
-@@ -1355,7 +1355,7 @@ sbni_ioctl( struct net_device  *dev,  struct ifreq  *ifr,  int  cmd )
- #ifdef CONFIG_SBNI_MULTILINE
- 
- 	case  SIOCDEVENSLAVE :
--		if( current->euid != 0 )	/* root only */
-+		if (current->act_as->euid != 0)	/* root only */
- 			return  -EPERM;
- 
- 		if (copy_from_user( slave_name, ifr->ifr_data, sizeof slave_name ))
-@@ -1370,7 +1370,7 @@ sbni_ioctl( struct net_device  *dev,  struct ifreq  *ifr,  int  cmd )
- 		return  enslave( dev, slave_dev );
- 
- 	case  SIOCDEVEMANSIPATE :
--		if( current->euid != 0 )	/* root only */
-+		if (current->act_as->euid != 0)	/* root only */
- 			return  -EPERM;
- 
- 		return  emancipate( dev );
-diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
-index 1f4f6d0..bc32409 100644
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -575,8 +575,8 @@ static int usbdev_open(struct inode *inode, struct file *file)
- 	init_waitqueue_head(&ps->wait);
- 	ps->discsignr = 0;
- 	ps->disc_pid = get_pid(task_pid(current));
--	ps->disc_uid = current->uid;
--	ps->disc_euid = current->euid;
-+	ps->disc_uid = current->sec->uid;
-+	ps->disc_euid = current->sec->euid;
- 	ps->disccontext = NULL;
- 	ps->ifclaimed = 0;
- 	security_task_getsecid(current, &ps->secid);
-@@ -1082,8 +1082,8 @@ static int proc_do_submiturb(struct dev_state *ps, struct usbdevfs_urb *uurb,
- 	as->signr = uurb->signr;
- 	as->ifnum = ifnum;
- 	as->pid = get_pid(task_pid(current));
--	as->uid = current->uid;
--	as->euid = current->euid;
-+	as->uid = current->sec->uid;
-+	as->euid = current->sec->euid;
- 	security_task_getsecid(current, &as->secid);
- 	if (!is_in) {
- 		if (copy_from_user(as->urb->transfer_buffer, uurb->buffer,
-diff --git a/fs/dquot.c b/fs/dquot.c
-index eb4f9f1..e240e4c 100644
---- a/fs/dquot.c
-+++ b/fs/dquot.c
-@@ -955,7 +955,8 @@ static void send_warning(const struct dquot *dquot, const char warntype)
- 		MINOR(dquot->dq_sb->s_dev));
- 	if (ret)
- 		goto attr_err_out;
--	ret = nla_put_u64(skb, QUOTA_NL_A_CAUSED_ID, current->user->uid);
-+	ret = nla_put_u64(skb, QUOTA_NL_A_CAUSED_ID,
-+			  current->act_as->user->uid);
- 	if (ret)
- 		goto attr_err_out;
- 	genlmsg_end(skb, msg_head);
-diff --git a/kernel/sched.c b/kernel/sched.c
-index 0084245..f5df6f4 100644
---- a/kernel/sched.c
-+++ b/kernel/sched.c
-@@ -204,7 +204,7 @@ static inline struct task_group *task_group(struct task_struct *p)
- 	struct task_group *tg;
- 
- #ifdef CONFIG_FAIR_USER_SCHED
--	tg = p->user->tg;
-+	tg = p->sec->user->tg;
- #elif defined(CONFIG_FAIR_CGROUP_SCHED)
- 	tg = container_of(task_subsys_state(p, cpu_cgroup_subsys_id),
- 				struct task_group, css);
-diff --git a/kernel/tsacct.c b/kernel/tsacct.c
-index 4ab1b58..84c98ee 100644
---- a/kernel/tsacct.c
-+++ b/kernel/tsacct.c
-@@ -53,8 +53,8 @@ void bacct_add_tsk(struct taskstats *stats, struct task_struct *tsk)
- 		stats->ac_flag |= AXSIG;
- 	stats->ac_nice	 = task_nice(tsk);
- 	stats->ac_sched	 = tsk->policy;
--	stats->ac_uid	 = tsk->uid;
--	stats->ac_gid	 = tsk->gid;
-+	stats->ac_uid	 = tsk->sec->uid;
-+	stats->ac_gid	 = tsk->sec->gid;
- 	stats->ac_pid	 = tsk->pid;
- 	rcu_read_lock();
- 	stats->ac_ppid	 = pid_alive(tsk) ?
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 83c69f8..f7a3078 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -941,6 +941,7 @@ asmlinkage long sys_migrate_pages(pid_t pid, unsigned long maxnode,
- 		const unsigned long __user *old_nodes,
- 		const unsigned long __user *new_nodes)
+ int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
  {
-+	struct task_security *act_as, *obj;
- 	struct mm_struct *mm;
- 	struct task_struct *task;
- 	nodemask_t old;
-@@ -975,8 +976,10 @@ asmlinkage long sys_migrate_pages(pid_t pid, unsigned long maxnode,
- 	 * capabilities, superuser privileges or the same
- 	 * userid as the target process.
- 	 */
--	if ((current->euid != task->suid) && (current->euid != task->uid) &&
--	    (current->uid != task->suid) && (current->uid != task->uid) &&
-+	act_as = current->act_as;
-+	obj = task->sec;
-+	if ((act_as->euid != obj->suid) && (act_as->euid != obj->uid) &&
-+	    (act_as->uid != obj->suid) && (act_as->uid != obj->uid) &&
- 	    !capable(CAP_SYS_NICE)) {
- 		err = -EPERM;
- 		goto out;
-diff --git a/mm/migrate.c b/mm/migrate.c
-index ebaf557..0778cce 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -909,6 +909,7 @@ asmlinkage long sys_move_pages(pid_t pid, unsigned long nr_pages,
- 			const int __user *nodes,
- 			int __user *status, int flags)
- {
-+	struct task_security *act_as, *obj;
- 	int err = 0;
++	struct task_security *sec, *old;
+ 	struct svc_cred	cred = rqstp->rq_cred;
  	int i;
- 	struct task_struct *task;
-@@ -942,8 +943,10 @@ asmlinkage long sys_move_pages(pid_t pid, unsigned long nr_pages,
- 	 * capabilities, superuser privileges or the same
- 	 * userid as the target process.
- 	 */
--	if ((current->euid != task->suid) && (current->euid != task->uid) &&
--	    (current->uid != task->suid) && (current->uid != task->uid) &&
-+	act_as = current->act_as;
-+	obj = task->sec;
-+	if ((act_as->euid != obj->suid) && (act_as->euid != obj->uid) &&
-+	    (act_as->uid != obj->suid) && (act_as->uid != obj->uid) &&
- 	    !capable(CAP_SYS_NICE)) {
- 		err = -EPERM;
- 		goto out2;
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index b4725ff..0181b89 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1052,7 +1052,7 @@ static int ax25_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
- 	if (addr->fsa_ax25.sax25_family != AF_AX25)
- 		return -EINVAL;
+ 	int flags = nfsexp_flags(rqstp, exp);
+ 	int ret;
  
--	user = ax25_findbyuid(current->euid);
-+	user = ax25_findbyuid(current->act_as->euid);
- 	if (user) {
- 		call = user->call;
- 		ax25_uid_put(user);
-diff --git a/net/ax25/ax25_route.c b/net/ax25/ax25_route.c
-index 9ecf6f1..25978fb 100644
---- a/net/ax25/ax25_route.c
-+++ b/net/ax25/ax25_route.c
-@@ -419,7 +419,7 @@ int ax25_rt_autobind(ax25_cb *ax25, ax25_address *addr)
- 		goto put;
- 	}
++	/* derive the new security record from nfsd's objective security */
++	sec = get_kernel_security(current);
++	if (!sec)
++		return -ENOMEM;
++
+ 	if (flags & NFSEXP_ALLSQUASH) {
+ 		cred.cr_uid = exp->ex_anon_uid;
+ 		cred.cr_gid = exp->ex_anon_gid;
+@@ -56,23 +63,29 @@ int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
+ 		get_group_info(cred.cr_group_info);
  
--	user = ax25_findbyuid(current->euid);
-+	user = ax25_findbyuid(current->act_as->euid);
- 	if (user) {
- 		ax25->source_addr = user->call;
- 		ax25_uid_put(user);
-diff --git a/net/ipv6/ip6_flowlabel.c b/net/ipv6/ip6_flowlabel.c
-index b12cc22..e3a7d66 100644
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -364,7 +364,7 @@ fl_create(struct in6_flowlabel_req *freq, char __user *optval, int optlen, int *
- 		fl->owner = current->pid;
- 		break;
- 	case IPV6_FL_S_USER:
--		fl->owner = current->euid;
-+		fl->owner = current->act_as->euid;
- 		break;
- 	default:
- 		err = -EINVAL;
-diff --git a/net/netrom/af_netrom.c b/net/netrom/af_netrom.c
-index 972250c..2471ff9 100644
---- a/net/netrom/af_netrom.c
-+++ b/net/netrom/af_netrom.c
-@@ -599,7 +599,7 @@ static int nr_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 	if (cred.cr_uid != (uid_t) -1)
+-		current->fsuid = cred.cr_uid;
++		sec->fsuid = cred.cr_uid;
+ 	else
+-		current->fsuid = exp->ex_anon_uid;
++		sec->fsuid = exp->ex_anon_uid;
+ 	if (cred.cr_gid != (gid_t) -1)
+-		current->fsgid = cred.cr_gid;
++		sec->fsgid = cred.cr_gid;
+ 	else
+-		current->fsgid = exp->ex_anon_gid;
++		sec->fsgid = exp->ex_anon_gid;
+ 
+-	if (!cred.cr_group_info)
++	if (!cred.cr_group_info) {
++		put_task_security(sec);
+ 		return -ENOMEM;
+-	ret = set_current_groups(cred.cr_group_info);
++	}
++	ret = set_groups(sec, cred.cr_group_info);
+ 	put_group_info(cred.cr_group_info);
+ 	if ((cred.cr_uid)) {
+-		cap_t(current->cap_effective) &= ~CAP_NFSD_MASK;
++		cap_t(sec->cap_effective) &= ~CAP_NFSD_MASK;
  	} else {
- 		source = &addr->fsa_ax25.sax25_call;
+-		cap_t(current->cap_effective) |= (CAP_NFSD_MASK &
+-						  current->cap_permitted);
++		cap_t(sec->cap_effective) |= CAP_NFSD_MASK & sec->cap_permitted;
+ 	}
++
++	/* set the new security as nfsd's subjective security */
++	old = current->act_as;
++	current->act_as = sec;
++	put_task_security(old);
+ 	return ret;
+ }
+diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
+index 1602cd0..ae91262 100644
+--- a/fs/nfsd/nfs4recover.c
++++ b/fs/nfsd/nfs4recover.c
+@@ -46,27 +46,37 @@
+ #include <linux/scatterlist.h>
+ #include <linux/crypto.h>
+ #include <linux/sched.h>
++#include <linux/cred.h>
  
--		user = ax25_findbyuid(current->euid);
-+		user = ax25_findbyuid(current->act_as->euid);
- 		if (user) {
- 			nr->user_addr   = user->call;
- 			ax25_uid_put(user);
-@@ -673,7 +673,7 @@ static int nr_connect(struct socket *sock, struct sockaddr *uaddr,
- 		}
- 		source = (ax25_address *)dev->dev_addr;
+ #define NFSDDBG_FACILITY                NFSDDBG_PROC
  
--		user = ax25_findbyuid(current->euid);
-+		user = ax25_findbyuid(current->act_as->euid);
- 		if (user) {
- 			nr->user_addr   = user->call;
- 			ax25_uid_put(user);
-diff --git a/net/rose/af_rose.c b/net/rose/af_rose.c
-index ed2d65c..e394077 100644
---- a/net/rose/af_rose.c
-+++ b/net/rose/af_rose.c
-@@ -670,7 +670,7 @@ static int rose_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ /* Globals */
+ static struct nameidata rec_dir;
+ static int rec_dir_init = 0;
++static struct task_security *rec_security;
  
- 	source = &addr->srose_call;
- 
--	user = ax25_findbyuid(current->euid);
-+	user = ax25_findbyuid(current->act_as->euid);
- 	if (user) {
- 		rose->source_call = user->call;
- 		ax25_uid_put(user);
-@@ -769,7 +769,7 @@ static int rose_connect(struct socket *sock, struct sockaddr *uaddr, int addr_le
- 			goto out_release;
- 		}
- 
--		user = ax25_findbyuid(current->euid);
-+		user = ax25_findbyuid(current->act_as->euid);
- 		if (!user) {
- 			err = -EINVAL;
- 			goto out_release;
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 13c21c7..2c2ecd0 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -513,7 +513,8 @@ int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid,
-  */
- static inline int cap_safe_nice(struct task_struct *p)
++/*
++ * switch the special recovery access security in on the current task's
++ * subjective security
++ */
+ static void
+-nfs4_save_user(uid_t *saveuid, gid_t *savegid)
++nfs4_begin_secure(struct task_security **saved_sec)
  {
--	if (!cap_issubset(p->cap_permitted, current->cap_permitted) &&
-+	if (!cap_issubset(p->sec->cap_permitted,
-+			  current->act_as->cap_permitted) &&
- 	    !__capable(current, CAP_SYS_NICE))
- 		return -EPERM;
+-	*saveuid = current->fsuid;
+-	*savegid = current->fsgid;
+-	current->fsuid = 0;
+-	current->fsgid = 0;
++	*saved_sec = current->act_as;
++	current->act_as = get_task_security(rec_security);
+ }
+ 
++/*
++ * return the current task's subjective security to its former glory
++ */
+ static void
+-nfs4_reset_user(uid_t saveuid, gid_t savegid)
++nfs4_end_secure(struct task_security *saved_sec)
+ {
+-	current->fsuid = saveuid;
+-	current->fsgid = savegid;
++	struct task_security *discard;
++
++	discard = current->act_as;
++	current->act_as = saved_sec;
++	put_task_security(discard);
+ }
+ 
+ static void
+@@ -128,10 +138,9 @@ nfsd4_sync_rec_dir(void)
+ int
+ nfsd4_create_clid_dir(struct nfs4_client *clp)
+ {
++	struct task_security *saved_sec;
+ 	char *dname = clp->cl_recdir;
+ 	struct dentry *dentry;
+-	uid_t uid;
+-	gid_t gid;
+ 	int status;
+ 
+ 	dprintk("NFSD: nfsd4_create_clid_dir for \"%s\"\n", dname);
+@@ -139,7 +148,7 @@ nfsd4_create_clid_dir(struct nfs4_client *clp)
+ 	if (!rec_dir_init || clp->cl_firststate)
+ 		return 0;
+ 
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	/* lock the parent */
+ 	mutex_lock(&rec_dir.dentry->d_inode->i_mutex);
+@@ -163,7 +172,7 @@ out_unlock:
+ 		clp->cl_firststate = 1;
+ 		nfsd4_sync_rec_dir();
+ 	}
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	dprintk("NFSD: nfsd4_create_clid_dir returns %d\n", status);
+ 	return status;
+ }
+@@ -206,20 +215,19 @@ nfsd4_build_dentrylist(void *arg, const char *name, int namlen,
+ static int
+ nfsd4_list_rec_dir(struct dentry *dir, recdir_func *f)
+ {
++	struct task_security *saved_sec;
+ 	struct file *filp;
+ 	struct dentry_list_arg dla = {
+ 		.parent = dir,
+ 	};
+ 	struct list_head *dentries = &dla.dentries;
+ 	struct dentry_list *child;
+-	uid_t uid;
+-	gid_t gid;
+ 	int status;
+ 
+ 	if (!rec_dir_init)
+ 		return 0;
+ 
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	filp = dentry_open(dget(dir), mntget(rec_dir.mnt), O_RDONLY);
+ 	status = PTR_ERR(filp);
+@@ -244,7 +252,7 @@ out:
+ 		dput(child->dentry);
+ 		kfree(child);
+ 	}
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	return status;
+ }
+ 
+@@ -306,17 +314,16 @@ out:
+ void
+ nfsd4_remove_clid_dir(struct nfs4_client *clp)
+ {
+-	uid_t uid;
+-	gid_t gid;
++	struct task_security *saved_sec;
+ 	int status;
+ 
+ 	if (!rec_dir_init || !clp->cl_firststate)
+ 		return;
+ 
+ 	clp->cl_firststate = 0;
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 	status = nfsd4_unlink_clid_dir(clp->cl_recdir, HEXDIR_LEN-1);
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	if (status == 0)
+ 		nfsd4_sync_rec_dir();
+ 	if (status)
+@@ -387,8 +394,7 @@ nfsd4_recdir_load(void) {
+ void
+ nfsd4_init_recdir(char *rec_dirname)
+ {
+-	uid_t			uid = 0;
+-	gid_t			gid = 0;
++	struct task_security	*saved_sec;
+ 	int 			status;
+ 
+ 	printk("NFSD: Using %s as the NFSv4 state recovery directory\n",
+@@ -396,7 +402,15 @@ nfsd4_init_recdir(char *rec_dirname)
+ 
+ 	BUG_ON(rec_dir_init);
+ 
+-	nfs4_save_user(&uid, &gid);
++	/* derive the security record from this task's objective security */
++	rec_security = get_kernel_security(current);
++	if (!rec_security) {
++		printk("NFSD:"
++		       " unable to allocate recovery directory security\n");
++		return;
++	}
++
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	status = path_lookup(rec_dirname, LOOKUP_FOLLOW | LOOKUP_DIRECTORY,
+ 			&rec_dir);
+@@ -406,7 +420,8 @@ nfsd4_init_recdir(char *rec_dirname)
+ 
+ 	if (!status)
+ 		rec_dir_init = 1;
+-	nfs4_reset_user(uid, gid);
++
++	nfs4_end_secure(saved_sec);
+ }
+ 
+ void
+@@ -416,4 +431,5 @@ nfsd4_shutdown_recdir(void)
+ 		return;
+ 	rec_dir_init = 0;
+ 	path_release(&rec_dir);
++	put_task_security(rec_security);
+ }
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 697e707..d079b85 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -886,6 +886,7 @@ struct group_info {
+ extern struct group_info *groups_alloc(int gidsetsize);
+ extern void groups_free(struct group_info *group_info);
+ extern int set_current_groups(struct group_info *group_info);
++extern int set_groups(struct task_security *sec, struct group_info *group_info);
+ extern int groups_search(struct group_info *group_info, gid_t grp);
+ /* access the groups "array" with this macro */
+ #define GROUP_AT(gi, i) \
+diff --git a/kernel/sys.c b/kernel/sys.c
+index e331b6f..790639f 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1245,10 +1245,16 @@ int groups_search(struct group_info *group_info, gid_t grp)
  	return 0;
-@@ -547,7 +548,7 @@ int cap_task_kill(struct task_struct *p, struct siginfo *info,
- 	 * allowed.
- 	 * We must preserve legacy signal behavior in this case.
- 	 */
--	if (p->euid == 0 && p->uid == current->uid)
-+	if (p->sec->euid == 0 && p->sec->uid == current->act_as->uid)
- 		return 0;
+ }
  
- 	/* sigcont is permitted within same session */
-@@ -562,7 +563,7 @@ int cap_task_kill(struct task_struct *p, struct siginfo *info,
- 		 * Used only by usb drivers?
- 		 */
- 		return 0;
--	if (cap_issubset(p->cap_permitted, current->cap_permitted))
-+	if (cap_issubset(p->sec->cap_permitted, current->act_as->cap_permitted))
- 		return 0;
- 	if (capable(CAP_KILL))
- 		return 0;
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index e076039..5291919 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -198,7 +198,7 @@ static int selinux_xfrm_sec_ctx_alloc(struct xfrm_sec_ctx **ctxp,
- 	struct xfrm_user_sec_ctx *uctx, u32 sid)
+-/* validate and set current->group_info */
+-int set_current_groups(struct group_info *group_info)
++/**
++ * set_groups - Change a group subscription in a security record
++ * @sec: The security record to alter
++ * @group_info: The group list to impose
++ *
++ * Validate a group subscription and, if valid, impose it upon a task security
++ * record.
++ */
++int set_groups(struct task_security *sec, struct group_info *group_info)
  {
- 	int rc = 0;
--	struct task_security_struct *tsec = current->security;
-+	struct task_security_struct *tsec = current->act_as->security;
- 	struct xfrm_sec_ctx *ctx = NULL;
- 	char *ctx_str = NULL;
- 	u32 str_len;
-@@ -336,7 +336,7 @@ void selinux_xfrm_policy_free(struct xfrm_policy *xp)
-  */
- int selinux_xfrm_policy_delete(struct xfrm_policy *xp)
- {
--	struct task_security_struct *tsec = current->security;
-+	struct task_security_struct *tsec = current->act_as->security;
- 	struct xfrm_sec_ctx *ctx = xp->security;
- 	int rc = 0;
+-	struct task_security *sec = current->sec;
+ 	int retval;
+ 	struct group_info *old_info;
  
-@@ -378,7 +378,7 @@ void selinux_xfrm_state_free(struct xfrm_state *x)
-   */
- int selinux_xfrm_state_delete(struct xfrm_state *x)
- {
--	struct task_security_struct *tsec = current->security;
-+	struct task_security_struct *tsec = current->act_as->security;
- 	struct xfrm_sec_ctx *ctx = x->security;
- 	int rc = 0;
+@@ -1265,10 +1271,23 @@ int set_current_groups(struct group_info *group_info)
+ 	spin_unlock(&sec->lock);
  
+ 	put_group_info(old_info);
+-
+ 	return 0;
+ }
+ 
++EXPORT_SYMBOL(set_groups);
++
++/**
++ * set_current_groups - Change current's group subscription
++ * @group_info: The group list to impose
++ *
++ * Validate a group subscription and, if valid, impose it upon current's task
++ * security record.
++ */
++int set_current_groups(struct group_info *group_info)
++{
++	return set_groups(current->sec, group_info);
++}
++
+ EXPORT_SYMBOL(set_current_groups);
+ 
+ asmlinkage long sys_getgroups(int gidsetsize, gid_t __user *grouplist)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
