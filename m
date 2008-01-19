@@ -1,56 +1,68 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0ILCEWY012635
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2008 16:12:14 -0500
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0ILCCdE007113
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2008 21:12:13 GMT
-Received: by wx-out-0506.google.com with SMTP id t8so845187wxc.30
-        for <selinux@tycho.nsa.gov>; Fri, 18 Jan 2008 13:12:12 -0800 (PST)
-Message-ID: <dd18b0c30801181312j352b60efuebb87ace244adbcb@mail.gmail.com>
-Date: Fri, 18 Jan 2008 13:12:11 -0800
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: SystemHigh
+From: Paul Moore <paul.moore@hp.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: [PATCH] REFPOL: Add "rogue" Fedora packet class permissions
+Date: Fri, 18 Jan 2008 22:44:25 -0500
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
+References: <20080117172246.341834342@hp.com> <200801180911.05879.paul.moore@hp.com> <1200667130.4595.45.camel@gorn>
+In-Reply-To: <1200667130.4595.45.camel@gorn>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_6589_20203024.1200690731943"
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200801182244.26071.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_6589_20203024.1200690731943
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Friday 18 January 2008 9:38:50 am Christopher J. PeBenito wrote:
+> On Fri, 2008-01-18 at 09:11 -0500, Paul Moore wrote:
+> > On Friday 18 January 2008 8:32:07 am Christopher J. PeBenito wrote:
+> > > I strongly agree with Stephen's suggestion.
+> >
+> > So, does the "strongly agree" position mean you won't accept the patch
+> > adding both "flow" and "forward" permissions to the packet class?
+>
+> No, if I meant that, I would have said that.
 
-Hello; With playing around with refpolicy everything seems good. Now with
-the help of you guys converting to mls policy and changing levels seems to
-be pretty nice.
-But after googling and reading some posts about starting the xserver issuing
-startx seems to be not an option with mls. So is there a work around with
-this.
-from what I'm seeing  if I startx from
-sysadm_r:sysadm_t:s0-s15:c0.c255(SystemLow-SystemHigh) most of the
-avc's are taken care of, except for
-system_u:object_r:memory_device_t:s15:c0.c255 (SystemHigh) /dev/mem.  Then
-if I reboot and use newrole -r sysadm_r -l s15:c0.c255 && startx
-I receive a list of avc's that seem to not disappear even after adding them,
-Is there a boolean to configure?
-If there is no solution to this or if mls wasn't designed for startingX then
-i'll leave it as is.
-Regards;
-               --Justin P. Mattock
+Okay, just wanted to clarify.
 
-------=_Part_6589_20203024.1200690731943
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I suppose I'm a little hyper sensitive to problems right now because the merge 
+window for 2.6.25 is very close and I don't want there to be any known issues 
+with the labeled networking code when the window opens.
 
-Hello; With playing around with refpolicy everything seems good. Now with the help of you guys converting to mls policy and changing levels seems to be pretty nice.<br>But after googling and reading some posts about starting the xserver issuing startx seems to be not an option with mls. So is there a work around with this.
-<br>from what I&#39;m seeing&nbsp; if I startx from sysadm_r:sysadm_t:s0-s15:c0.c255 (SystemLow-SystemHigh) most of the avc&#39;s are taken care of, except for system_u:object_r:memory_device_t:s15:c0.c255 (SystemHigh) /dev/mem.&nbsp; Then if I reboot and use newrole -r sysadm_r -l s15:
-c0.c255 &amp;&amp; startx<br>I receive a list of avc&#39;s that seem to not disappear even after adding them, Is there a boolean to configure? <br>If there is no solution to this or if mls wasn&#39;t designed for startingX then i&#39;ll leave it as is.
-<br>Regards;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+> >   I'll reiterate my
+> > belief that using "flow" instead of "forward" for the new permission
+> > checks is a mistake which will cause more confusion in the long run than
+> > the addition of two unused permissions.  However, you hold the key to the
+> > policy and if changing the permissions to use "flow" is the only way for
+> > us to enable the new network access controls then I have little choice.
+>
+> I'm not completely unreasonable :) Also that would be an abuse of power.
 
-------=_Part_6589_20203024.1200690731943--
+Yes, you're right - you are a very reasonable guy, despite all the crap Josh 
+says about you when you're not around :)  Re-reading the text above I went a 
+little crazy there, sorry about that.
+
+> > > Do we have a strategy for eventually reclaiming these permissions if we
+> > > don't reuse them right now?
+> >
+> > I'm not aware of one, but it is always possible that future work might
+> > find a use for the packet "flow" permissions.  It's also highly doubtful
+> > from where I sit now that we'll come even remotely close to hitting the
+> > 32 permission limit in the packet class.
+>
+> I just don't like these rogue permissions filtering up to upstream.  One
+> thing that I'm also looking ahead to is that explicit require blocks
+> will be ignored by policyrep (requirements will be implicit).  So the
+> hack that I had to add that requires all of the kernel object classes
+> will also be going away, and only classes/perms actually being used will
+> be required.
+
+This sounds like a good idea, and I definitely owe you one, so if there is 
+anything I can do to help (I see that Eric offered to) let me know.
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
