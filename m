@@ -1,68 +1,89 @@
-From: Paul Moore <paul.moore@hp.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: [PATCH] REFPOL: Add "rogue" Fedora packet class permissions
-Date: Fri, 18 Jan 2008 22:44:25 -0500
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@manicmethod.com>, selinux@tycho.nsa.gov
-References: <20080117172246.341834342@hp.com> <200801180911.05879.paul.moore@hp.com> <1200667130.4595.45.camel@gorn>
-In-Reply-To: <1200667130.4595.45.camel@gorn>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200801182244.26071.paul.moore@hp.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0K52Alq004510
+	for <selinux@tycho.nsa.gov>; Sun, 20 Jan 2008 00:02:10 -0500
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0K529ER010320
+	for <selinux@tycho.nsa.gov>; Sun, 20 Jan 2008 05:02:09 GMT
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com,
+        Paul Moore <paul.moore@hp.com>
+Subject: Re: 2.6.24-rc8-mm1 and SELinux MLS - not playing nice....
+In-Reply-To: Your message of "Fri, 18 Jan 2008 20:17:00 +1100."
+             <Xine.LNX.4.64.0801182015180.21631@us.intercode.com.au>
+From: Valdis.Kletnieks@vt.edu
+References: <15439.1200642661@turing-police.cc.vt.edu>
+            <Xine.LNX.4.64.0801182015180.21631@us.intercode.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1200805301_2788P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Sun, 20 Jan 2008 00:01:41 -0500
+Message-ID: <3757.1200805301@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 18 January 2008 9:38:50 am Christopher J. PeBenito wrote:
-> On Fri, 2008-01-18 at 09:11 -0500, Paul Moore wrote:
-> > On Friday 18 January 2008 8:32:07 am Christopher J. PeBenito wrote:
-> > > I strongly agree with Stephen's suggestion.
-> >
-> > So, does the "strongly agree" position mean you won't accept the patch
-> > adding both "flow" and "forward" permissions to the packet class?
->
-> No, if I meant that, I would have said that.
+--==_Exmh_1200805301_2788P
+Content-Type: text/plain; charset=us-ascii
 
-Okay, just wanted to clarify.
+On Fri, 18 Jan 2008 20:17:00 +1100, James Morris said:
 
-I suppose I'm a little hyper sensitive to problems right now because the merge 
-window for 2.6.25 is very close and I don't want there to be any known issues 
-with the labeled networking code when the window opens.
+> This looks the same as what akpm hit.  Paul Moore has updated his labeled 
+> networking patches (see Subject: [RFC PATCH v12 00/18] Labeled networking 
+> changes for 2.6.25), and you could try dropping those into the broken out 
+> -mm in place of the existing git patch, or just wait for a new -mm.
 
-> >   I'll reiterate my
-> > belief that using "flow" instead of "forward" for the new permission
-> > checks is a mistake which will cause more confusion in the long run than
-> > the addition of two unused permissions.  However, you hold the key to the
-> > policy and if changing the permissions to use "flow" is the only way for
-> > us to enable the new network access controls then I have little choice.
->
-> I'm not completely unreasonable :) Also that would be an abuse of power.
+Confirming - I took V12 0-18, cat'ed it into one file, plopped that on top
+of the broken-out/git-lblnet.patch and quilted up a test -rc8-mm1 and that
+booted without complaints - dmesg says:
 
-Yes, you're right - you are a very reasonable guy, despite all the crap Josh 
-says about you when you're not around :)  Re-reading the text above I went a 
-little crazy there, sorry about that.
+SELinux:8192 avtab hash slots allocated. Num of rules:164754
+SELinux:8192 avtab hash slots allocated. Num of rules:164754
+security:  5 users, 8 roles, 2043 types, 102 bools, 16 sens, 1024 cats
+security:  67 classes, 164754 rules
+security:  class peer not defined in policy
+security:  permission recvfrom in class node not defined in policy
+security:  permission sendto in class node not defined in policy
+security:  permission ingress in class netif not defined in policy
+security:  permission egress in class netif not defined in policy
+security:  permission forward_in in class packet not defined in policy
+security:  permission forward_out in class packet not defined in policy
+SELinux:  Completing initialization.
+SELinux:  Setting up existing superblocks.
+SELinux: initialized (dev dm-0, type ext3), uses xattr
+SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+SELinux: initialized (dev usbfs, type usbfs), uses genfs_contexts
+SELinux: initialized (dev debugfs, type debugfs), uses genfs_contexts
+SELinux: initialized (dev configfs, type configfs), uses genfs_contexts
+SELinux: initialized (dev selinuxfs, type selinuxfs), uses genfs_contexts
+SELinux: initialized (dev mqueue, type mqueue), uses transition SIDs
+SELinux: initialized (dev devpts, type devpts), uses transition SIDs
+SELinux: initialized (dev inotifyfs, type inotifyfs), uses genfs_contexts
+SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs
+SELinux: initialized (dev futexfs, type futexfs), uses genfs_contexts
+SELinux: initialized (dev anon_inodefs, type anon_inodefs), uses genfs_contexts
+SELinux: initialized (dev pipefs, type pipefs), uses task SIDs
+SELinux: initialized (dev sockfs, type sockfs), uses task SIDs
+SELinux: initialized (dev proc, type proc), uses genfs_contexts
+SELinux: initialized (dev bdev, type bdev), uses genfs_contexts
+SELinux: initialized (dev rootfs, type rootfs), uses genfs_contexts
+SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
+SELinux: policy loaded with handle_unknown=deny
+type=1403 audit(1200804071.837:2): policy loaded auid=4294967295 ses=4294967295
 
-> > > Do we have a strategy for eventually reclaiming these permissions if we
-> > > don't reuse them right now?
-> >
-> > I'm not aware of one, but it is always possible that future work might
-> > find a use for the packet "flow" permissions.  It's also highly doubtful
-> > from where I sit now that we'll come even remotely close to hitting the
-> > 32 permission limit in the packet class.
->
-> I just don't like these rogue permissions filtering up to upstream.  One
-> thing that I'm also looking ahead to is that explicit require blocks
-> will be ignored by policyrep (requirements will be implicit).  So the
-> hack that I had to add that requires all of the kernel object classes
-> will also be going away, and only classes/perms actually being used will
-> be required.
 
-This sounds like a good idea, and I definitely owe you one, so if there is 
-anything I can do to help (I see that Eric offered to) let me know.
 
--- 
-paul moore
-linux security @ hp
+--==_Exmh_1200805301_2788P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFHktW1cC3lWbTT17ARAggUAJ0eGGJ+gs1U+xAaLDMLtI7HnqzS6wCglcsi
+FUiYdg41pIx1Od1p9mn6b1k=
+=3l5V
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1200805301_2788P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
