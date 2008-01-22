@@ -1,42 +1,41 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0LNNk8U032182
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jan 2008 18:23:46 -0500
-Received: from nz-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0LNNkID025776
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jan 2008 23:23:46 GMT
-Received: by nz-out-0506.google.com with SMTP id i1so1261282nzh.39
-        for <selinux@tycho.nsa.gov>; Mon, 21 Jan 2008 15:23:45 -0800 (PST)
-Message-ID: <dd18b0c30801211523n4207322fj685a924e7ab1d0e6@mail.gmail.com>
-Date: Mon, 21 Jan 2008 15:23:45 -0800
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: mcs
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0M2vmk1015168
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jan 2008 21:57:48 -0500
+Received: from g1t0027.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0M2vlW8005613
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 02:57:47 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: 2.6.24-rc8-mm1 and SELinux MLS - not playing nice....
+Date: Mon, 21 Jan 2008 21:47:37 -0500
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        fedora-selinux-list@redhat.com
+References: <15439.1200642661@turing-police.cc.vt.edu> <Xine.LNX.4.64.0801182015180.21631@us.intercode.com.au> <3757.1200805301@turing-police.cc.vt.edu>
+In-Reply-To: <3757.1200805301@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_16879_15202785.1200957825299"
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200801212147.37969.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_16879_15202785.1200957825299
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sunday 20 January 2008 12:01:41 am Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 18 Jan 2008 20:17:00 +1100, James Morris said:
+> > This looks the same as what akpm hit.  Paul Moore has updated his labeled
+> > networking patches (see Subject: [RFC PATCH v12 00/18] Labeled networking
+> > changes for 2.6.25), and you could try dropping those into the broken out
+> > -mm in place of the existing git patch, or just wait for a new -mm.
+>
+> Confirming - I took V12 0-18, cat'ed it into one file, plopped that on top
+> of the broken-out/git-lblnet.patch and quilted up a test -rc8-mm1 and that
+> booted without complaints
 
-Hello; I did misinterpret  what you said about mcs, with that in mind if mcs
-is similar to standard policy , then I'm going to give it a test within a
-few days and see how it feels and runs.
-Thanks;
-              --Justin P. Mattock
+Thanks for verifying this fix (and for all of the other testing help you've 
+provided recently).
 
-------=_Part_16879_15202785.1200957825299
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hello; I did misinterpret&nbsp; what you said about mcs, with that in mind if mcs is similar to standard policy , then I&#39;m going to give it a test within a few days and see how it feels and runs.<br>Thanks;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock
-<br>
-
-------=_Part_16879_15202785.1200957825299--
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
