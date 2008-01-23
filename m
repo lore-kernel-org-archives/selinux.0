@@ -1,65 +1,50 @@
-Subject: Re: [patch 1/1] libsemanage: genhomedircon remove error on missing
-	HOME_DIR or HOME_ROOT
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Caleb Case <ccase@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1201096436.17665.15.camel@olympus.columbia.tresys.com>
-References: <1201096436.17665.15.camel@olympus.columbia.tresys.com>
-Content-Type: text/plain
-Date: Wed, 23 Jan 2008 09:45:31 -0500
-Message-Id: <1201099531.7025.274.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHMF3a022396
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:22:15 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHMEbP026597
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:22:14 GMT
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 17/27] CacheFiles: Add missing copy_page export for ia64 [try
+	#2]
+To: Trond.Myklebust@netapp.com
+Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, dhowells@redhat.com
+Date: Wed, 23 Jan 2008 17:22:09 +0000
+Message-ID: <20080123172209.11107.62360.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
+References: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This one-line patch fixes the missing export of copy_page introduced
+by the cachefile patches.  This patch is not yet upstream, but is required
+for cachefile on ia64.  It will be pushed upstream when cachefile goes
+upstream.
 
-On Wed, 2008-01-23 at 08:53 -0500, Caleb Case wrote:
-> Removing failure condition in write_context_file when HOME_DIR or
-> HOME_ROOT are not found in the contexts. This condition is not needed
-> (the case where the lists are empty is handled correctly) and stops
-> otherwise valid operations:
-> 
-> On a fresh policy store, without any modules loaded:
-> 
-> # semodule -s refpolicy -b /usr/share/selinux/refpolicy/base.pp
-> libsemanage.semanage_install_sandbox: semanage_genhomedircon returned
-> error code -1. No such file or directory.
-> semodule:  Failed!
-> 
-> ---
->  src/genhomedircon.c |    4 ----
->  1 file changed, 4 deletions(-)
-> 
-> Index: libsemanage/src/genhomedircon.c
-> ===================================================================
-> --- libsemanage.orig/src/genhomedircon.c
-> +++ libsemanage/src/genhomedircon.c
-> @@ -792,10 +792,6 @@ static int write_context_file(genhomedir
->         homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
->         homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
->         user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
-> -       if (!homedir_context_tpl || !homeroot_context_tpl) {
-> -               retval = STATUS_ERR;
-> -               goto done;
-> -       }
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
 
-Do we even need to proceed here in this case, or can we immediately bail
-with STATUS_SUCCESS from this function (or at least skip some of the
-later processing)?  Otherwise, looks like it will end up calling
-write_home_dir_context() and generating at least the comment lines even
-if the list is empty?
+ arch/ia64/kernel/ia64_ksyms.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-> 
->         if (setup_fallback_user(s) != 0) {
->                 retval = STATUS_ERR;
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+
+diff --git a/arch/ia64/kernel/ia64_ksyms.c b/arch/ia64/kernel/ia64_ksyms.c
+index c3b4412..e64fd61 100644
+--- a/arch/ia64/kernel/ia64_ksyms.c
++++ b/arch/ia64/kernel/ia64_ksyms.c
+@@ -43,6 +43,7 @@ EXPORT_SYMBOL(__do_clear_user);
+ EXPORT_SYMBOL(__strlen_user);
+ EXPORT_SYMBOL(__strncpy_from_user);
+ EXPORT_SYMBOL(__strnlen_user);
++EXPORT_SYMBOL(copy_page);
+ 
+ /* from arch/ia64/lib */
+ extern void __divsi3(void);
 
 
 --
