@@ -1,17 +1,17 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0iOF9014890
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:44:24 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0iNps028738
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:44:23 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0jwAY015553
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:45:58 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0jvBR008263
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:45:57 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 05/27] Security: Change current->fs[ug]id to current_fs[ug]id()
+Subject: [PATCH 24/27] NFS: Use local caching
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:44:12 +0000
-Message-ID: <20080123004411.15602.4828.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:45:53 +0000
+Message-ID: <20080123004552.15602.86095.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,1423 +19,1387 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change current->fs[ug]id to current_fs[ug]id() so that fsgid and fsuid can be
-separated from the task_struct.
+The attached patch makes it possible for the NFS filesystem to make use of the
+network filesystem local caching service (FS-Cache).
+
+To be able to use this, an updated mount program is required.  This can be
+obtained from:
+
+	http://people.redhat.com/steved/fscache/util-linux/
+
+To mount an NFS filesystem to use caching, add an "fsc" option to the mount:
+
+	mount warthog:/ /a -o fsc
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- arch/ia64/kernel/perfmon.c                |    4 ++--
- arch/powerpc/platforms/cell/spufs/inode.c |    4 ++--
- drivers/isdn/capi/capifs.c                |    4 ++--
- drivers/usb/core/inode.c                  |    4 ++--
- fs/9p/fid.c                               |    2 +-
- fs/9p/vfs_inode.c                         |    4 ++--
- fs/9p/vfs_super.c                         |    4 ++--
- fs/affs/inode.c                           |    4 ++--
- fs/anon_inodes.c                          |    4 ++--
- fs/attr.c                                 |    4 ++--
- fs/bfs/dir.c                              |    4 ++--
- fs/cifs/cifsproto.h                       |    2 +-
- fs/cifs/dir.c                             |   12 ++++++------
- fs/cifs/inode.c                           |    8 ++++----
- fs/cifs/misc.c                            |    4 ++--
- fs/coda/cache.c                           |    6 +++---
- fs/coda/upcall.c                          |    4 ++--
- fs/devpts/inode.c                         |    4 ++--
- fs/dquot.c                                |    2 +-
- fs/exec.c                                 |    4 ++--
- fs/ext2/balloc.c                          |    2 +-
- fs/ext2/ialloc.c                          |    4 ++--
- fs/ext2/ioctl.c                           |    2 +-
- fs/ext3/balloc.c                          |    2 +-
- fs/ext3/ialloc.c                          |    4 ++--
- fs/ext4/balloc.c                          |    2 +-
- fs/ext4/ialloc.c                          |    4 ++--
- fs/fuse/dev.c                             |    4 ++--
- fs/gfs2/inode.c                           |   10 +++++-----
- fs/hfs/inode.c                            |    4 ++--
- fs/hfsplus/inode.c                        |    4 ++--
- fs/hpfs/namei.c                           |   24 ++++++++++++------------
- fs/hugetlbfs/inode.c                      |   16 ++++++++--------
- fs/jffs2/fs.c                             |    4 ++--
- fs/jfs/jfs_inode.c                        |    4 ++--
- fs/locks.c                                |    2 +-
- fs/minix/bitmap.c                         |    4 ++--
- fs/namei.c                                |    8 ++++----
- fs/nfsd/vfs.c                             |    4 ++--
- fs/ocfs2/dlm/dlmfs.c                      |    8 ++++----
- fs/ocfs2/namei.c                          |    4 ++--
- fs/pipe.c                                 |    4 ++--
- fs/posix_acl.c                            |    4 ++--
- fs/ramfs/inode.c                          |    4 ++--
- fs/reiserfs/namei.c                       |    4 ++--
- fs/sysv/ialloc.c                          |    4 ++--
- fs/udf/ialloc.c                           |    4 ++--
- fs/udf/namei.c                            |    2 +-
- fs/ufs/ialloc.c                           |    4 ++--
- fs/xfs/linux-2.6/xfs_linux.h              |    4 ++--
- fs/xfs/xfs_acl.c                          |    6 +++---
- fs/xfs/xfs_attr.c                         |    2 +-
- fs/xfs/xfs_inode.c                        |    6 +++---
- fs/xfs/xfs_vnodeops.c                     |    8 ++++----
- include/linux/fs.h                        |    2 +-
- include/linux/sched.h                     |    3 +++
- ipc/mqueue.c                              |    4 ++--
- kernel/cgroup.c                           |    4 ++--
- mm/shmem.c                                |    8 ++++----
- net/9p/client.c                           |    2 +-
- net/socket.c                              |    4 ++--
- net/sunrpc/auth.c                         |    8 ++++----
- security/commoncap.c                      |    8 ++++----
- security/keys/key.c                       |    2 +-
- security/keys/keyctl.c                    |    2 +-
- security/keys/request_key.c               |   10 +++++-----
- security/keys/request_key_auth.c          |    2 +-
- 67 files changed, 163 insertions(+), 160 deletions(-)
+ fs/nfs/Makefile           |    1 
+ fs/nfs/client.c           |    5 +
+ fs/nfs/file.c             |   37 ++++
+ fs/nfs/fscache-def.c      |  289 +++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.c          |  391 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h          |  148 +++++++++++++++++
+ fs/nfs/inode.c            |   47 +++++
+ fs/nfs/read.c             |   28 +++
+ fs/nfs/super.c            |    3 
+ fs/nfs/sysctl.c           |    1 
+ include/linux/nfs_fs.h    |    9 +
+ include/linux/nfs_fs_sb.h |   18 ++
+ 12 files changed, 968 insertions(+), 9 deletions(-)
+ create mode 100644 fs/nfs/fscache-def.c
+ create mode 100644 fs/nfs/fscache.c
+ create mode 100644 fs/nfs/fscache.h
 
 
-diff --git a/arch/ia64/kernel/perfmon.c b/arch/ia64/kernel/perfmon.c
-index 73e7c2e..ef383d9 100644
---- a/arch/ia64/kernel/perfmon.c
-+++ b/arch/ia64/kernel/perfmon.c
-@@ -2206,8 +2206,8 @@ pfm_alloc_fd(struct file **cfile)
- 	DPRINT(("new inode ino=%ld @%p\n", inode->i_ino, inode));
+diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
+index df0f41e..073d04c 100644
+--- a/fs/nfs/Makefile
++++ b/fs/nfs/Makefile
+@@ -16,3 +16,4 @@ nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
+ 			   nfs4namespace.o
+ nfs-$(CONFIG_NFS_DIRECTIO) += direct.o
+ nfs-$(CONFIG_SYSCTL) += sysctl.o
++nfs-$(CONFIG_NFS_FSCACHE) += fscache.o fscache-def.o
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index a6f6254..bcdc5d0 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -43,6 +43,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ #include "internal.h"
++#include "fscache.h"
  
- 	inode->i_mode = S_IFCHR|S_IRUGO;
--	inode->i_uid  = current->fsuid;
--	inode->i_gid  = current->fsgid;
-+	inode->i_uid  = current_fsuid();
-+	inode->i_gid  = current_fsgid();
+ #define NFSDBG_FACILITY		NFSDBG_CLIENT
  
- 	sprintf(name, "[%lu]", inode->i_ino);
- 	this.name = name;
-diff --git a/arch/powerpc/platforms/cell/spufs/inode.c b/arch/powerpc/platforms/cell/spufs/inode.c
-index c0e968a..4efe7bf 100644
---- a/arch/powerpc/platforms/cell/spufs/inode.c
-+++ b/arch/powerpc/platforms/cell/spufs/inode.c
-@@ -85,8 +85,8 @@ spufs_new_inode(struct super_block *sb, int mode)
- 		goto out;
+@@ -139,6 +140,8 @@ static struct nfs_client *nfs_alloc_client(const char *hostname,
+ 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
+ #endif
  
- 	inode->i_mode = mode;
--	inode->i_uid = current->fsuid;
--	inode->i_gid = current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = current_fsgid();
- 	inode->i_blocks = 0;
- 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- out:
-diff --git a/drivers/isdn/capi/capifs.c b/drivers/isdn/capi/capifs.c
-index 2dd1b57..26b9aea 100644
---- a/drivers/isdn/capi/capifs.c
-+++ b/drivers/isdn/capi/capifs.c
-@@ -148,8 +148,8 @@ void capifs_new_ncci(unsigned int number, dev_t device)
- 	if (!inode)
++	nfs_fscache_get_client_cookie(clp);
++
+ 	return clp;
+ 
+ error_3:
+@@ -170,6 +173,8 @@ static void nfs_free_client(struct nfs_client *clp)
+ 
+ 	nfs4_shutdown_client(clp);
+ 
++	nfs_fscache_release_client_cookie(clp);
++
+ 	/* -EIO all pending I/O */
+ 	if (!IS_ERR(clp->cl_rpcclient))
+ 		rpc_shutdown_client(clp->cl_rpcclient);
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index b3bb89f..d492cd7 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -35,6 +35,7 @@
+ #include "delegation.h"
+ #include "internal.h"
+ #include "iostat.h"
++#include "fscache.h"
+ 
+ #define NFSDBG_FACILITY		NFSDBG_FILE
+ 
+@@ -352,22 +353,48 @@ static int nfs_write_end(struct file *file, struct address_space *mapping,
+ 	return status < 0 ? status : copied;
+ }
+ 
++/*
++ * Partially or wholly invalidate a page
++ * - Release the private state associated with a page if undergoing complete
++ *   page invalidation
++ * - Called if either PG_private or PG_fscache set on the page
++ * - Caller holds page lock
++ */
+ static void nfs_invalidate_page(struct page *page, unsigned long offset)
+ {
+ 	if (offset != 0)
  		return;
- 	inode->i_ino = number+2;
--	inode->i_uid = config.setuid ? config.uid : current->fsuid;
--	inode->i_gid = config.setgid ? config.gid : current->fsgid;
-+	inode->i_uid = config.setuid ? config.uid : current_fsuid();
-+	inode->i_gid = config.setgid ? config.gid : current_fsgid();
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
- 	init_special_inode(inode, S_IFCHR|config.mode, device);
- 	//inode->i_op = &capifs_file_inode_operations;
-diff --git a/drivers/usb/core/inode.c b/drivers/usb/core/inode.c
-index cd4f111..9173eae 100644
---- a/drivers/usb/core/inode.c
-+++ b/drivers/usb/core/inode.c
-@@ -246,8 +246,8 @@ static struct inode *usbfs_get_inode (struct super_block *sb, int mode, dev_t de
- 
- 	if (inode) {
- 		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
-+		inode->i_uid = current_fsuid();
-+		inode->i_gid = current_fsgid();
- 		inode->i_blocks = 0;
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 		switch (mode & S_IFMT) {
-diff --git a/fs/9p/fid.c b/fs/9p/fid.c
-index b364da7..cd7799c 100644
---- a/fs/9p/fid.c
-+++ b/fs/9p/fid.c
-@@ -121,7 +121,7 @@ struct p9_fid *v9fs_fid_lookup(struct dentry *dentry)
- 	switch (access) {
- 	case V9FS_ACCESS_SINGLE:
- 	case V9FS_ACCESS_USER:
--		uid = current->fsuid;
-+		uid = current_fsuid();
- 		any = 0;
- 		break;
- 
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
-index 23581bc..b6d7fc9 100644
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -202,8 +202,8 @@ struct inode *v9fs_get_inode(struct super_block *sb, int mode)
- 	inode = new_inode(sb);
- 	if (inode) {
- 		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
-+		inode->i_uid = current_fsuid();
-+		inode->i_gid = current_fsgid();
- 		inode->i_blocks = 0;
- 		inode->i_rdev = 0;
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-diff --git a/fs/9p/vfs_super.c b/fs/9p/vfs_super.c
-index 678c02f..465520d 100644
---- a/fs/9p/vfs_super.c
-+++ b/fs/9p/vfs_super.c
-@@ -112,8 +112,8 @@ static int v9fs_get_sb(struct file_system_type *fs_type, int flags,
- 	struct v9fs_session_info *v9ses = NULL;
- 	struct p9_stat *st = NULL;
- 	int mode = S_IRWXUGO | S_ISVTX;
--	uid_t uid = current->fsuid;
--	gid_t gid = current->fsgid;
-+	uid_t uid = current_fsuid();
-+	gid_t gid = current_fsgid();
- 	struct p9_fid *fid;
- 	int retval = 0;
- 
-diff --git a/fs/affs/inode.c b/fs/affs/inode.c
-index 4609a6c..fb84ebc 100644
---- a/fs/affs/inode.c
-+++ b/fs/affs/inode.c
-@@ -305,8 +305,8 @@ affs_new_inode(struct inode *dir)
- 	mark_buffer_dirty_inode(bh, inode);
- 	affs_brelse(bh);
- 
--	inode->i_uid     = current->fsuid;
--	inode->i_gid     = current->fsgid;
-+	inode->i_uid     = current_fsuid();
-+	inode->i_gid     = current_fsgid();
- 	inode->i_ino     = block;
- 	inode->i_nlink   = 1;
- 	inode->i_mtime   = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
-diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-index 2332188..a2f6a13 100644
---- a/fs/anon_inodes.c
-+++ b/fs/anon_inodes.c
-@@ -162,8 +162,8 @@ static struct inode *anon_inode_mkinode(void)
- 	 */
- 	inode->i_state = I_DIRTY;
- 	inode->i_mode = S_IRUSR | S_IWUSR;
--	inode->i_uid = current->fsuid;
--	inode->i_gid = current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = current_fsgid();
- 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 	return inode;
+ 	/* Cancel any unstarted writes on this page */
+ 	nfs_wb_page_cancel(page->mapping->host, page);
++
++	nfs_fscache_invalidate_page(page, page->mapping->host);
  }
-diff --git a/fs/attr.c b/fs/attr.c
-index 966b73e..117cca7 100644
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -29,13 +29,13 @@ int inode_change_ok(struct inode *inode, struct iattr *attr)
  
- 	/* Make sure a caller can chown. */
- 	if ((ia_valid & ATTR_UID) &&
--	    (current->fsuid != inode->i_uid ||
-+	    (current_fsuid() != inode->i_uid ||
- 	     attr->ia_uid != inode->i_uid) && !capable(CAP_CHOWN))
- 		goto error;
- 
- 	/* Make sure caller can chgrp. */
- 	if ((ia_valid & ATTR_GID) &&
--	    (current->fsuid != inode->i_uid ||
-+	    (current_fsuid() != inode->i_uid ||
- 	    (!in_group_p(attr->ia_gid) && attr->ia_gid != inode->i_gid)) &&
- 	    !capable(CAP_CHOWN))
- 		goto error;
-diff --git a/fs/bfs/dir.c b/fs/bfs/dir.c
-index 1fd056d..499c531 100644
---- a/fs/bfs/dir.c
-+++ b/fs/bfs/dir.c
-@@ -104,8 +104,8 @@ static int bfs_create(struct inode *dir, struct dentry *dentry, int mode,
- 	}
- 	set_bit(ino, info->si_imap);
- 	info->si_freei--;
--	inode->i_uid = current->fsuid;
--	inode->i_gid = (dir->i_mode & S_ISGID) ? dir->i_gid : current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = (dir->i_mode & S_ISGID) ? dir->i_gid : current_fsgid();
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
- 	inode->i_blocks = 0;
- 	inode->i_op = &bfs_file_inops;
-diff --git a/fs/cifs/cifsproto.h b/fs/cifs/cifsproto.h
-index 8350eec..1c659db 100644
---- a/fs/cifs/cifsproto.h
-+++ b/fs/cifs/cifsproto.h
-@@ -39,7 +39,7 @@ extern int smb_send(struct socket *, struct smb_hdr *,
- 			unsigned int /* length */ , struct sockaddr *);
- extern unsigned int _GetXid(void);
- extern void _FreeXid(unsigned int);
--#define GetXid() (int)_GetXid(); cFYI(1,("CIFS VFS: in %s as Xid: %d with uid: %d",__FUNCTION__, xid,current->fsuid));
-+#define GetXid() (int)_GetXid(); cFYI(1,("CIFS VFS: in %s as Xid: %d with uid: %d",__FUNCTION__, xid,current_fsuid()));
- #define FreeXid(curr_xid) {_FreeXid(curr_xid); cFYI(1,("CIFS VFS: leaving %s (xid = %d) rc = %d",__FUNCTION__,curr_xid,(int)rc));}
- extern char *build_path_from_dentry(struct dentry *);
- extern char *build_wildcard_path_from_dentry(struct dentry *direntry);
-diff --git a/fs/cifs/dir.c b/fs/cifs/dir.c
-index 37dc97a..728726a 100644
---- a/fs/cifs/dir.c
-+++ b/fs/cifs/dir.c
-@@ -211,8 +211,8 @@ cifs_create(struct inode *inode, struct dentry *direntry, int mode,
- 			mode &= ~current->fs->umask;
- 			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
- 				CIFSSMBUnixSetPerms(xid, pTcon, full_path, mode,
--					(__u64)current->fsuid,
--					(__u64)current->fsgid,
-+					(__u64)current_fsuid(),
-+					(__u64)current_fsgid(),
- 					0 /* dev */,
- 					cifs_sb->local_nls,
- 					cifs_sb->mnt_cifs_flags &
-@@ -246,8 +246,8 @@ cifs_create(struct inode *inode, struct dentry *direntry, int mode,
- 				if ((oplock & CIFS_CREATE_ACTION) &&
- 				    (cifs_sb->mnt_cifs_flags &
- 				     CIFS_MOUNT_SET_UID)) {
--					newinode->i_uid = current->fsuid;
--					newinode->i_gid = current->fsgid;
-+					newinode->i_uid = current_fsuid();
-+					newinode->i_gid = current_fsgid();
- 				}
- 			}
- 		}
-@@ -340,8 +340,8 @@ int cifs_mknod(struct inode *inode, struct dentry *direntry, int mode,
- 		mode &= ~current->fs->umask;
- 		if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
- 			rc = CIFSSMBUnixSetPerms(xid, pTcon, full_path,
--				mode, (__u64)current->fsuid,
--				(__u64)current->fsgid,
-+				mode, (__u64)current_fsuid(),
-+				(__u64)current_fsgid(),
- 				device_number, cifs_sb->local_nls,
- 				cifs_sb->mnt_cifs_flags &
- 					CIFS_MOUNT_MAP_SPECIAL_CHR);
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index e915eb1..8040b1b 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -1031,8 +1031,8 @@ mkdir_get_info:
- 			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
- 				CIFSSMBUnixSetPerms(xid, pTcon, full_path,
- 						    mode,
--						    (__u64)current->fsuid,
--						    (__u64)current->fsgid,
-+						    (__u64)current_fsuid(),
-+						    (__u64)current_fsgid(),
- 						    0 /* dev_t */,
- 						    cifs_sb->local_nls,
- 						    cifs_sb->mnt_cifs_flags &
-@@ -1055,9 +1055,9 @@ mkdir_get_info:
- 				if (cifs_sb->mnt_cifs_flags &
- 				     CIFS_MOUNT_SET_UID) {
- 					direntry->d_inode->i_uid =
--						current->fsuid;
-+						current_fsuid();
- 					direntry->d_inode->i_gid =
--						current->fsgid;
-+						current_fsgid();
- 				}
- 			}
- 		}
-diff --git a/fs/cifs/misc.c b/fs/cifs/misc.c
-index 15546c2..b862231 100644
---- a/fs/cifs/misc.c
-+++ b/fs/cifs/misc.c
-@@ -351,13 +351,13 @@ header_assemble(struct smb_hdr *buffer, char smb_command /* command */ ,
- 		/*  BB Add support for establishing new tCon and SMB Session  */
- 		/*      with userid/password pairs found on the smb session   */
- 		/*	for other target tcp/ip addresses 		BB    */
--				if (current->fsuid != treeCon->ses->linux_uid) {
-+				if (current_fsuid() != treeCon->ses->linux_uid) {
- 					cFYI(1, ("Multiuser mode and UID "
- 						 "did not match tcon uid"));
- 					read_lock(&GlobalSMBSeslock);
- 					list_for_each(temp_item, &GlobalSMBSessionList) {
- 						ses = list_entry(temp_item, struct cifsSesInfo, cifsSessionList);
--						if (ses->linux_uid == current->fsuid) {
-+						if (ses->linux_uid == current_fsuid()) {
- 							if (ses->server == treeCon->ses->server) {
- 								cFYI(1, ("found matching uid substitute right smb_uid"));
- 								buffer->Uid = ses->Suid;
-diff --git a/fs/coda/cache.c b/fs/coda/cache.c
-index 8a23703..a5bf577 100644
---- a/fs/coda/cache.c
-+++ b/fs/coda/cache.c
-@@ -32,8 +32,8 @@ void coda_cache_enter(struct inode *inode, int mask)
- 	struct coda_inode_info *cii = ITOC(inode);
- 
- 	cii->c_cached_epoch = atomic_read(&permission_epoch);
--	if (cii->c_uid != current->fsuid) {
--                cii->c_uid = current->fsuid;
-+	if (cii->c_uid != current_fsuid()) {
-+		cii->c_uid = current_fsuid();
-                 cii->c_cached_perm = mask;
-         } else
-                 cii->c_cached_perm |= mask;
-@@ -60,7 +60,7 @@ int coda_cache_check(struct inode *inode, int mask)
-         int hit;
- 	
-         hit = (mask & cii->c_cached_perm) == mask &&
--		cii->c_uid == current->fsuid &&
-+		cii->c_uid == current_fsuid() &&
- 		cii->c_cached_epoch == atomic_read(&permission_epoch);
- 
-         return hit;
-diff --git a/fs/coda/upcall.c b/fs/coda/upcall.c
-index 359e531..806e6aa 100644
---- a/fs/coda/upcall.c
-+++ b/fs/coda/upcall.c
-@@ -54,9 +54,9 @@ static void *alloc_upcall(int opcode, int size)
- 	inp->ih.pgid = task_pgrp_nr(current);
- #ifdef CONFIG_CODA_FS_OLD_API
- 	memset(&inp->ih.cred, 0, sizeof(struct coda_cred));
--	inp->ih.cred.cr_fsuid = current->fsuid;
-+	inp->ih.cred.cr_fsuid = current_fsuid();
- #else
--	inp->ih.uid = current->fsuid;
-+	inp->ih.uid = current_fsuid();
- #endif
- 	return (void*)inp;
- }
-diff --git a/fs/devpts/inode.c b/fs/devpts/inode.c
-index 06ef9a2..1c9ffd9 100644
---- a/fs/devpts/inode.c
-+++ b/fs/devpts/inode.c
-@@ -172,8 +172,8 @@ int devpts_pty_new(struct tty_struct *tty)
- 		return -ENOMEM;
- 
- 	inode->i_ino = number+2;
--	inode->i_uid = config.setuid ? config.uid : current->fsuid;
--	inode->i_gid = config.setgid ? config.gid : current->fsgid;
-+	inode->i_uid = config.setuid ? config.uid : current_fsuid();
-+	inode->i_gid = config.setgid ? config.gid : current_fsgid();
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
- 	init_special_inode(inode, S_IFCHR|config.mode, device);
- 	inode->i_private = tty;
-diff --git a/fs/dquot.c b/fs/dquot.c
-index cee7c6f..eb4f9f1 100644
---- a/fs/dquot.c
-+++ b/fs/dquot.c
-@@ -849,7 +849,7 @@ static inline int need_print_warning(struct dquot *dquot)
- 
- 	switch (dquot->dq_type) {
- 		case USRQUOTA:
--			return current->fsuid == dquot->dq_id;
-+			return current_fsuid() == dquot->dq_id;
- 		case GRPQUOTA:
- 			return in_group_p(dquot->dq_id);
- 	}
-diff --git a/fs/exec.c b/fs/exec.c
-index 282240a..a09ce1b 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1678,7 +1678,7 @@ int do_coredump(long signr, int exit_code, struct pt_regs * regs)
- 	struct inode * inode;
- 	struct file * file;
- 	int retval = 0;
--	int fsuid = current->fsuid;
-+	int fsuid = current_fsuid();
- 	int flag = 0;
- 	int ispipe = 0;
- 	unsigned long core_limit = current->signal->rlim[RLIMIT_CORE].rlim_cur;
-@@ -1784,7 +1784,7 @@ int do_coredump(long signr, int exit_code, struct pt_regs * regs)
- 	 * Dont allow local users get cute and trick others to coredump
- 	 * into their pre-created files:
- 	 */
--	if (inode->i_uid != current->fsuid)
-+	if (inode->i_uid != current_fsuid())
- 		goto close_fail;
- 	if (!file->f_op)
- 		goto close_fail;
-diff --git a/fs/ext2/balloc.c b/fs/ext2/balloc.c
-index 377ad17..bbddd14 100644
---- a/fs/ext2/balloc.c
-+++ b/fs/ext2/balloc.c
-@@ -1128,7 +1128,7 @@ static int ext2_has_free_blocks(struct ext2_sb_info *sbi)
- 	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
- 	root_blocks = le32_to_cpu(sbi->s_es->s_r_blocks_count);
- 	if (free_blocks < root_blocks + 1 && !capable(CAP_SYS_RESOURCE) &&
--		sbi->s_resuid != current->fsuid &&
-+		sbi->s_resuid != current_fsuid() &&
- 		(sbi->s_resgid == 0 || !in_group_p (sbi->s_resgid))) {
- 		return 0;
- 	}
-diff --git a/fs/ext2/ialloc.c b/fs/ext2/ialloc.c
-index 5deb8b7..1d020a9 100644
---- a/fs/ext2/ialloc.c
-+++ b/fs/ext2/ialloc.c
-@@ -554,7 +554,7 @@ got:
- 
- 	sb->s_dirt = 1;
- 	mark_buffer_dirty(bh2);
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	if (test_opt (sb, GRPID))
- 		inode->i_gid = dir->i_gid;
- 	else if (dir->i_mode & S_ISGID) {
-@@ -562,7 +562,7 @@ got:
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else
--		inode->i_gid = current->fsgid;
-+		inode->i_gid = current_fsgid();
- 	inode->i_mode = mode;
- 
- 	inode->i_ino = ino;
-diff --git a/fs/ext2/ioctl.c b/fs/ext2/ioctl.c
-index 320b2cb..f5fdb95 100644
---- a/fs/ext2/ioctl.c
-+++ b/fs/ext2/ioctl.c
-@@ -105,7 +105,7 @@ int ext2_ioctl (struct inode * inode, struct file * filp, unsigned int cmd,
- 		if (IS_RDONLY(inode))
- 			return -EROFS;
- 
--		if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-+		if ((current_fsuid() != inode->i_uid) && !capable(CAP_FOWNER))
- 			return -EACCES;
- 
- 		if (get_user(rsv_window_size, (int __user *)arg))
-diff --git a/fs/ext3/balloc.c b/fs/ext3/balloc.c
-index a8ba7e8..55e39a3 100644
---- a/fs/ext3/balloc.c
-+++ b/fs/ext3/balloc.c
-@@ -1360,7 +1360,7 @@ static int ext3_has_free_blocks(struct ext3_sb_info *sbi)
- 	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
- 	root_blocks = le32_to_cpu(sbi->s_es->s_r_blocks_count);
- 	if (free_blocks < root_blocks + 1 && !capable(CAP_SYS_RESOURCE) &&
--		sbi->s_resuid != current->fsuid &&
-+		sbi->s_resuid != current_fsuid() &&
- 		(sbi->s_resgid == 0 || !in_group_p (sbi->s_resgid))) {
- 		return 0;
- 	}
-diff --git a/fs/ext3/ialloc.c b/fs/ext3/ialloc.c
-index 1bc8cd8..fe20718 100644
---- a/fs/ext3/ialloc.c
-+++ b/fs/ext3/ialloc.c
-@@ -543,7 +543,7 @@ got:
- 		percpu_counter_inc(&sbi->s_dirs_counter);
- 	sb->s_dirt = 1;
- 
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	if (test_opt (sb, GRPID))
- 		inode->i_gid = dir->i_gid;
- 	else if (dir->i_mode & S_ISGID) {
-@@ -551,7 +551,7 @@ got:
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else
--		inode->i_gid = current->fsgid;
-+		inode->i_gid = current_fsgid();
- 	inode->i_mode = mode;
- 
- 	inode->i_ino = ino;
-diff --git a/fs/ext4/balloc.c b/fs/ext4/balloc.c
-index 71ee95e..a67d6bc 100644
---- a/fs/ext4/balloc.c
-+++ b/fs/ext4/balloc.c
-@@ -1480,7 +1480,7 @@ static int ext4_has_free_blocks(struct ext4_sb_info *sbi)
- 	free_blocks = percpu_counter_read_positive(&sbi->s_freeblocks_counter);
- 	root_blocks = ext4_r_blocks_count(sbi->s_es);
- 	if (free_blocks < root_blocks + 1 && !capable(CAP_SYS_RESOURCE) &&
--		sbi->s_resuid != current->fsuid &&
-+		sbi->s_resuid != current_fsuid() &&
- 		(sbi->s_resgid == 0 || !in_group_p (sbi->s_resgid))) {
- 		return 0;
- 	}
-diff --git a/fs/ext4/ialloc.c b/fs/ext4/ialloc.c
-index c61f37f..37e95d2 100644
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -674,7 +674,7 @@ got:
- 		percpu_counter_inc(&sbi->s_dirs_counter);
- 	sb->s_dirt = 1;
- 
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	if (test_opt (sb, GRPID))
- 		inode->i_gid = dir->i_gid;
- 	else if (dir->i_mode & S_ISGID) {
-@@ -682,7 +682,7 @@ got:
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else
--		inode->i_gid = current->fsgid;
-+		inode->i_gid = current_fsgid();
- 	inode->i_mode = mode;
- 
- 	inode->i_ino = ino + group * EXT4_INODES_PER_GROUP(sb);
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index db534bc..471a256 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -79,8 +79,8 @@ static void __fuse_put_request(struct fuse_req *req)
- 
- static void fuse_req_init_context(struct fuse_req *req)
++/*
++ * Release the private state associated with a page
++ * - Called if either PG_private or PG_fscache set on the page
++ * - Caller holds page lock
++ * - Return true (may release) or false (may not)
++ */
+ static int nfs_release_page(struct page *page, gfp_t gfp)
  {
--	req->in.h.uid = current->fsuid;
--	req->in.h.gid = current->fsgid;
-+	req->in.h.uid = current_fsuid();
-+	req->in.h.gid = current_fsgid();
- 	req->in.h.pid = current->pid;
+ 	/* If PagePrivate() is set, then the page is not freeable */
+-	return 0;
++	if (PagePrivate(page))
++		return 0;
++	return nfs_fscache_release_page(page, gfp);
  }
  
-diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
-index 5f6dc32..7719132 100644
---- a/fs/gfs2/inode.c
-+++ b/fs/gfs2/inode.c
-@@ -688,18 +688,18 @@ static void munge_mode_uid_gid(struct gfs2_inode *dip, unsigned int *mode,
- 	    (dip->i_inode.i_mode & S_ISUID) && dip->i_inode.i_uid) {
- 		if (S_ISDIR(*mode))
- 			*mode |= S_ISUID;
--		else if (dip->i_inode.i_uid != current->fsuid)
-+		else if (dip->i_inode.i_uid != current_fsuid())
- 			*mode &= ~07111;
- 		*uid = dip->i_inode.i_uid;
- 	} else
--		*uid = current->fsuid;
-+		*uid = current_fsuid();
- 
- 	if (dip->i_inode.i_mode & S_ISGID) {
- 		if (S_ISDIR(*mode))
- 			*mode |= S_ISGID;
- 		*gid = dip->i_inode.i_gid;
- 	} else
--		*gid = current->fsgid;
-+		*gid = current_fsgid();
- }
- 
- static int alloc_dinode(struct gfs2_inode *dip, u64 *no_addr, u64 *generation)
-@@ -1108,8 +1108,8 @@ int gfs2_unlink_ok(struct gfs2_inode *dip, const struct qstr *name,
- 		return -EPERM;
- 
- 	if ((dip->i_inode.i_mode & S_ISVTX) &&
--	    dip->i_inode.i_uid != current->fsuid &&
--	    ip->i_inode.i_uid != current->fsuid && !capable(CAP_FOWNER))
-+	    dip->i_inode.i_uid != current_fsuid() &&
-+	    ip->i_inode.i_uid != current_fsuid() && !capable(CAP_FOWNER))
- 		return -EPERM;
- 
- 	if (IS_APPEND(&dip->i_inode))
-diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
-index 97f8446..29caee5 100644
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -155,8 +155,8 @@ struct inode *hfs_new_inode(struct inode *dir, struct qstr *name, int mode)
- 	hfs_cat_build_key(sb, (btree_key *)&HFS_I(inode)->cat_key, dir->i_ino, name);
- 	inode->i_ino = HFS_SB(sb)->next_id++;
- 	inode->i_mode = mode;
--	inode->i_uid = current->fsuid;
--	inode->i_gid = current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = current_fsgid();
- 	inode->i_nlink = 1;
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
- 	HFS_I(inode)->flags = 0;
-diff --git a/fs/hfsplus/inode.c b/fs/hfsplus/inode.c
-index 37744cf..af54c28 100644
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -312,8 +312,8 @@ struct inode *hfsplus_new_inode(struct super_block *sb, int mode)
- 
- 	inode->i_ino = HFSPLUS_SB(sb).next_cnid++;
- 	inode->i_mode = mode;
--	inode->i_uid = current->fsuid;
--	inode->i_gid = current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = current_fsgid();
- 	inode->i_nlink = 1;
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
- 	INIT_LIST_HEAD(&HFSPLUS_I(inode).open_dir_list);
-diff --git a/fs/hpfs/namei.c b/fs/hpfs/namei.c
-index d256559..2af4578 100644
---- a/fs/hpfs/namei.c
-+++ b/fs/hpfs/namei.c
-@@ -92,11 +92,11 @@ static int hpfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
- 	inc_nlink(dir);
- 	insert_inode_hash(result);
- 
--	if (result->i_uid != current->fsuid ||
--	    result->i_gid != current->fsgid ||
-+	if (result->i_uid != current_fsuid() ||
-+	    result->i_gid != current_fsgid() ||
- 	    result->i_mode != (mode | S_IFDIR)) {
--		result->i_uid = current->fsuid;
--		result->i_gid = current->fsgid;
-+		result->i_uid = current_fsuid();
-+		result->i_gid = current_fsgid();
- 		result->i_mode = mode | S_IFDIR;
- 		hpfs_write_inode_nolock(result);
- 	}
-@@ -184,11 +184,11 @@ static int hpfs_create(struct inode *dir, struct dentry *dentry, int mode, struc
- 
- 	insert_inode_hash(result);
- 
--	if (result->i_uid != current->fsuid ||
--	    result->i_gid != current->fsgid ||
-+	if (result->i_uid != current_fsuid() ||
-+	    result->i_gid != current_fsgid() ||
- 	    result->i_mode != (mode | S_IFREG)) {
--		result->i_uid = current->fsuid;
--		result->i_gid = current->fsgid;
-+		result->i_uid = current_fsuid();
-+		result->i_gid = current_fsgid();
- 		result->i_mode = mode | S_IFREG;
- 		hpfs_write_inode_nolock(result);
- 	}
-@@ -247,8 +247,8 @@ static int hpfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t
- 	result->i_mtime.tv_nsec = 0;
- 	result->i_atime.tv_nsec = 0;
- 	hpfs_i(result)->i_ea_size = 0;
--	result->i_uid = current->fsuid;
--	result->i_gid = current->fsgid;
-+	result->i_uid = current_fsuid();
-+	result->i_gid = current_fsgid();
- 	result->i_nlink = 1;
- 	result->i_size = 0;
- 	result->i_blocks = 1;
-@@ -325,8 +325,8 @@ static int hpfs_symlink(struct inode *dir, struct dentry *dentry, const char *sy
- 	result->i_atime.tv_nsec = 0;
- 	hpfs_i(result)->i_ea_size = 0;
- 	result->i_mode = S_IFLNK | 0777;
--	result->i_uid = current->fsuid;
--	result->i_gid = current->fsgid;
-+	result->i_uid = current_fsuid();
-+	result->i_gid = current_fsgid();
- 	result->i_blocks = 1;
- 	result->i_nlink = 1;
- 	result->i_size = strlen(symlink);
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index 09ee07f..39ad919 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -543,9 +543,9 @@ static int hugetlbfs_mknod(struct inode *dir,
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else {
--		gid = current->fsgid;
-+		gid = current_fsgid();
- 	}
--	inode = hugetlbfs_get_inode(dir->i_sb, current->fsuid, gid, mode, dev);
-+	inode = hugetlbfs_get_inode(dir->i_sb, current_fsuid(), gid, mode, dev);
- 	if (inode) {
- 		dir->i_ctime = dir->i_mtime = CURRENT_TIME;
- 		d_instantiate(dentry, inode);
-@@ -578,9 +578,9 @@ static int hugetlbfs_symlink(struct inode *dir,
- 	if (dir->i_mode & S_ISGID)
- 		gid = dir->i_gid;
- 	else
--		gid = current->fsgid;
-+		gid = current_fsgid();
- 
--	inode = hugetlbfs_get_inode(dir->i_sb, current->fsuid,
-+	inode = hugetlbfs_get_inode(dir->i_sb, current_fsuid(),
- 					gid, S_IFLNK|S_IRWXUGO, 0);
- 	if (inode) {
- 		int l = strlen(symname)+1;
-@@ -819,8 +819,8 @@ hugetlbfs_fill_super(struct super_block *sb, void *data, int silent)
- 
- 	config.nr_blocks = -1; /* No limit on size by default */
- 	config.nr_inodes = -1; /* No limit on number of inodes by default */
--	config.uid = current->fsuid;
--	config.gid = current->fsgid;
-+	config.uid = current_fsuid();
-+	config.gid = current_fsgid();
- 	config.mode = 0755;
- 	ret = hugetlbfs_parse_options(data, &config);
- 	if (ret)
-@@ -933,8 +933,8 @@ struct file *hugetlb_file_setup(const char *name, size_t size)
- 		goto out_shm_unlock;
- 
- 	error = -ENOSPC;
--	inode = hugetlbfs_get_inode(root->d_sb, current->fsuid,
--				current->fsgid, S_IFREG | S_IRWXUGO, 0);
-+	inode = hugetlbfs_get_inode(root->d_sb, current_fsuid(),
-+				current_fsgid(), S_IFREG | S_IRWXUGO, 0);
- 	if (!inode)
- 		goto out_dentry;
- 
-diff --git a/fs/jffs2/fs.c b/fs/jffs2/fs.c
-index d2e06f7..61849f3 100644
---- a/fs/jffs2/fs.c
-+++ b/fs/jffs2/fs.c
-@@ -425,14 +425,14 @@ struct inode *jffs2_new_inode (struct inode *dir_i, int mode, struct jffs2_raw_i
- 
- 	memset(ri, 0, sizeof(*ri));
- 	/* Set OS-specific defaults for new inodes */
--	ri->uid = cpu_to_je16(current->fsuid);
-+	ri->uid = cpu_to_je16(current_fsuid());
- 
- 	if (dir_i->i_mode & S_ISGID) {
- 		ri->gid = cpu_to_je16(dir_i->i_gid);
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else {
--		ri->gid = cpu_to_je16(current->fsgid);
-+		ri->gid = cpu_to_je16(current_fsgid());
- 	}
- 
- 	/* POSIX ACLs have to be processed now, at least partly.
-diff --git a/fs/jfs/jfs_inode.c b/fs/jfs/jfs_inode.c
-index ed6574b..70022fd 100644
---- a/fs/jfs/jfs_inode.c
-+++ b/fs/jfs/jfs_inode.c
-@@ -93,13 +93,13 @@ struct inode *ialloc(struct inode *parent, umode_t mode)
- 		return ERR_PTR(rc);
- 	}
- 
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	if (parent->i_mode & S_ISGID) {
- 		inode->i_gid = parent->i_gid;
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else
--		inode->i_gid = current->fsgid;
-+		inode->i_gid = current_fsgid();
- 
- 	/*
- 	 * New inodes need to save sane values on disk when
-diff --git a/fs/locks.c b/fs/locks.c
-index 8b8388e..359030b 100644
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -1358,7 +1358,7 @@ int generic_setlease(struct file *filp, long arg, struct file_lock **flp)
- 	struct inode *inode = dentry->d_inode;
- 	int error, rdlease_count = 0, wrlease_count = 0;
- 
--	if ((current->fsuid != inode->i_uid) && !capable(CAP_LEASE))
-+	if ((current_fsuid() != inode->i_uid) && !capable(CAP_LEASE))
- 		return -EACCES;
- 	if (!S_ISREG(inode->i_mode))
- 		return -EINVAL;
-diff --git a/fs/minix/bitmap.c b/fs/minix/bitmap.c
-index 703cc35..3aebe32 100644
---- a/fs/minix/bitmap.c
-+++ b/fs/minix/bitmap.c
-@@ -262,8 +262,8 @@ struct inode * minix_new_inode(const struct inode * dir, int * error)
- 		iput(inode);
- 		return NULL;
- 	}
--	inode->i_uid = current->fsuid;
--	inode->i_gid = (dir->i_mode & S_ISGID) ? dir->i_gid : current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = (dir->i_mode & S_ISGID) ? dir->i_gid : current_fsgid();
- 	inode->i_ino = j;
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
- 	inode->i_blocks = 0;
-diff --git a/fs/namei.c b/fs/namei.c
-index 73e2e66..b07ae67 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -184,7 +184,7 @@ int generic_permission(struct inode *inode, int mask,
++/*
++ * Attempt to clear the private state associated with a page when an error
++ * occurs that requires the cached contents of an inode to be written back or
++ * destroyed
++ * - Called if either PG_private or PG_fscache set on the page
++ * - Caller holds page lock
++ * - Return 0 if successful, -error otherwise
++ */
+ static int nfs_launder_page(struct page *page)
  {
- 	umode_t			mode = inode->i_mode;
- 
--	if (current->fsuid == inode->i_uid)
-+	if (current_fsuid() == inode->i_uid)
- 		mode >>= 6;
- 	else {
- 		if (IS_POSIXACL(inode) && (mode & S_IRWXG) && check_acl) {
-@@ -452,7 +452,7 @@ static int exec_permission_lite(struct inode *inode,
- 	if (inode->i_op && inode->i_op->permission)
- 		return -EAGAIN;
- 
--	if (current->fsuid == inode->i_uid)
-+	if (current_fsuid() == inode->i_uid)
- 		mode >>= 6;
- 	else if (in_group_p(inode->i_gid))
- 		mode >>= 3;
-@@ -1435,9 +1435,9 @@ static inline int check_sticky(struct inode *dir, struct inode *inode)
- {
- 	if (!(dir->i_mode & S_ISVTX))
- 		return 0;
--	if (inode->i_uid == current->fsuid)
-+	if (inode->i_uid == current_fsuid())
- 		return 0;
--	if (dir->i_uid == current->fsuid)
-+	if (dir->i_uid == current_fsuid())
- 		return 0;
- 	return !capable(CAP_FOWNER);
++	wait_on_page_fscache_write(page);
+ 	return nfs_wb_page(page->mapping->host, page);
  }
-diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-index d019918..f11c48d 100644
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -1857,7 +1857,7 @@ nfsd_permission(struct svc_rqst *rqstp, struct svc_export *exp,
- 		IS_APPEND(inode)?	" append" : "",
- 		IS_RDONLY(inode)?	" ro" : "");
- 	dprintk("      owner %d/%d user %d/%d\n",
--		inode->i_uid, inode->i_gid, current->fsuid, current->fsgid);
-+		inode->i_uid, inode->i_gid, current_fsuid(), current->fsgid);
- #endif
  
- 	/* Normally we reject any write/sattr etc access on a read-only file
-@@ -1899,7 +1899,7 @@ nfsd_permission(struct svc_rqst *rqstp, struct svc_export *exp,
- 	 * with NFSv3.
- 	 */
- 	if ((acc & MAY_OWNER_OVERRIDE) &&
--	    inode->i_uid == current->fsuid)
-+	    inode->i_uid == current_fsuid())
- 		return 0;
- 
- 	err = permission(inode, acc & (MAY_READ|MAY_WRITE|MAY_EXEC), NULL);
-diff --git a/fs/ocfs2/dlm/dlmfs.c b/fs/ocfs2/dlm/dlmfs.c
-index 6639baa..ea65979 100644
---- a/fs/ocfs2/dlm/dlmfs.c
-+++ b/fs/ocfs2/dlm/dlmfs.c
-@@ -328,8 +328,8 @@ static struct inode *dlmfs_get_root_inode(struct super_block *sb)
- 		ip = DLMFS_I(inode);
- 
- 		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
-+		inode->i_uid = current_fsuid();
-+		inode->i_gid = current_fsgid();
- 		inode->i_blocks = 0;
- 		inode->i_mapping->backing_dev_info = &dlmfs_backing_dev_info;
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-@@ -354,8 +354,8 @@ static struct inode *dlmfs_get_inode(struct inode *parent,
- 		return NULL;
- 
- 	inode->i_mode = mode;
--	inode->i_uid = current->fsuid;
--	inode->i_gid = current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = current_fsgid();
- 	inode->i_blocks = 0;
- 	inode->i_mapping->backing_dev_info = &dlmfs_backing_dev_info;
- 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-diff --git a/fs/ocfs2/namei.c b/fs/ocfs2/namei.c
-index 989ac27..86e2717 100644
---- a/fs/ocfs2/namei.c
-+++ b/fs/ocfs2/namei.c
-@@ -426,13 +426,13 @@ static int ocfs2_mknod_locked(struct ocfs2_super *osb,
- 	fe->i_blkno = cpu_to_le64(fe_blkno);
- 	fe->i_suballoc_bit = cpu_to_le16(suballoc_bit);
- 	fe->i_suballoc_slot = cpu_to_le16(osb->slot_num);
--	fe->i_uid = cpu_to_le32(current->fsuid);
-+	fe->i_uid = cpu_to_le32(current_fsuid());
- 	if (dir->i_mode & S_ISGID) {
- 		fe->i_gid = cpu_to_le32(dir->i_gid);
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else
--		fe->i_gid = cpu_to_le32(current->fsgid);
-+		fe->i_gid = cpu_to_le32(current_fsgid());
- 	fe->i_mode = cpu_to_le16(mode);
- 	if (S_ISCHR(mode) || S_ISBLK(mode))
- 		fe->id1.dev1.i_rdev = cpu_to_le64(huge_encode_dev(dev));
-diff --git a/fs/pipe.c b/fs/pipe.c
-index e66ec48..598cf6c 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -938,8 +938,8 @@ static struct inode * get_pipe_inode(void)
- 	 */
- 	inode->i_state = I_DIRTY;
- 	inode->i_mode = S_IFIFO | S_IRUSR | S_IWUSR;
--	inode->i_uid = current->fsuid;
--	inode->i_gid = current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = current_fsgid();
- 	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 
- 	return inode;
-diff --git a/fs/posix_acl.c b/fs/posix_acl.c
-index aec931e..39df95a 100644
---- a/fs/posix_acl.c
-+++ b/fs/posix_acl.c
-@@ -217,11 +217,11 @@ posix_acl_permission(struct inode *inode, const struct posix_acl *acl, int want)
-                 switch(pa->e_tag) {
-                         case ACL_USER_OBJ:
- 				/* (May have been checked already) */
--                                if (inode->i_uid == current->fsuid)
-+				if (inode->i_uid == current_fsuid())
-                                         goto check_perm;
-                                 break;
-                         case ACL_USER:
--                                if (pa->e_id == current->fsuid)
-+				if (pa->e_id == current_fsuid())
-                                         goto mask;
- 				break;
-                         case ACL_GROUP_OBJ:
-diff --git a/fs/ramfs/inode.c b/fs/ramfs/inode.c
-index 8428d5b..98421f7 100644
---- a/fs/ramfs/inode.c
-+++ b/fs/ramfs/inode.c
-@@ -55,8 +55,8 @@ struct inode *ramfs_get_inode(struct super_block *sb, int mode, dev_t dev)
- 
- 	if (inode) {
- 		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
-+		inode->i_uid = current_fsuid();
-+		inode->i_gid = current_fsgid();
- 		inode->i_blocks = 0;
- 		inode->i_mapping->a_ops = &ramfs_aops;
- 		inode->i_mapping->backing_dev_info = &ramfs_backing_dev_info;
-diff --git a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
-index b378eea..84458f3 100644
---- a/fs/reiserfs/namei.c
-+++ b/fs/reiserfs/namei.c
-@@ -582,7 +582,7 @@ static int new_inode_init(struct inode *inode, struct inode *dir, int mode)
- 	/* the quota init calls have to know who to charge the quota to, so
- 	 ** we have to set uid and gid here
- 	 */
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	inode->i_mode = mode;
- 	/* Make inode invalid - just in case we are going to drop it before
- 	 * the initialization happens */
-@@ -593,7 +593,7 @@ static int new_inode_init(struct inode *inode, struct inode *dir, int mode)
- 		if (S_ISDIR(mode))
- 			inode->i_mode |= S_ISGID;
- 	} else {
--		inode->i_gid = current->fsgid;
-+		inode->i_gid = current_fsgid();
- 	}
- 	DQUOT_INIT(inode);
- 	return 0;
-diff --git a/fs/sysv/ialloc.c b/fs/sysv/ialloc.c
-index 115ab0d..241e976 100644
---- a/fs/sysv/ialloc.c
-+++ b/fs/sysv/ialloc.c
-@@ -165,9 +165,9 @@ struct inode * sysv_new_inode(const struct inode * dir, mode_t mode)
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else
--		inode->i_gid = current->fsgid;
-+		inode->i_gid = current_fsgid();
- 
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	inode->i_ino = fs16_to_cpu(sbi, ino);
- 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
- 	inode->i_blocks = 0;
-diff --git a/fs/udf/ialloc.c b/fs/udf/ialloc.c
-index 636d8f6..1f3c01a 100644
---- a/fs/udf/ialloc.c
-+++ b/fs/udf/ialloc.c
-@@ -105,13 +105,13 @@ struct inode *udf_new_inode(struct inode *dir, int mode, int *err)
- 		mark_buffer_dirty(UDF_SB_LVIDBH(sb));
- 	}
- 	inode->i_mode = mode;
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	if (dir->i_mode & S_ISGID) {
- 		inode->i_gid = dir->i_gid;
- 		if (S_ISDIR(mode))
- 			mode |= S_ISGID;
- 	} else {
--		inode->i_gid = current->fsgid;
-+		inode->i_gid = current_fsgid();
- 	}
- 
- 	UDF_I_LOCATION(inode).logicalBlockNum = block;
-diff --git a/fs/udf/namei.c b/fs/udf/namei.c
-index bec96a6..e2d466c 100644
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -636,7 +636,7 @@ static int udf_mknod(struct inode *dir, struct dentry *dentry, int mode,
- 	if (!inode)
- 		goto out;
- 
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	init_special_inode(inode, mode, rdev);
- 	if (!(fi = udf_add_entry(dir, dentry, &fibh, &cfi, &err))) {
- 		inode->i_nlink--;
-diff --git a/fs/ufs/ialloc.c b/fs/ufs/ialloc.c
-index 7e260bc..88f8889 100644
---- a/fs/ufs/ialloc.c
-+++ b/fs/ufs/ialloc.c
-@@ -304,13 +304,13 @@ cg_found:
- 
- 	inode->i_ino = cg * uspi->s_ipg + bit;
- 	inode->i_mode = mode;
--	inode->i_uid = current->fsuid;
-+	inode->i_uid = current_fsuid();
- 	if (dir->i_mode & S_ISGID) {
- 		inode->i_gid = dir->i_gid;
- 		if (S_ISDIR(mode))
- 			inode->i_mode |= S_ISGID;
- 	} else
--		inode->i_gid = current->fsgid;
-+		inode->i_gid = current_fsgid();
- 
- 	inode->i_blocks = 0;
- 	inode->i_generation = 0;
-diff --git a/fs/xfs/linux-2.6/xfs_linux.h b/fs/xfs/linux-2.6/xfs_linux.h
-index dc3752d..0b943dd 100644
---- a/fs/xfs/linux-2.6/xfs_linux.h
-+++ b/fs/xfs/linux-2.6/xfs_linux.h
-@@ -126,8 +126,8 @@
- 
- #define current_cpu()		(raw_smp_processor_id())
- #define current_pid()		(current->pid)
--#define current_fsuid(cred)	(current->fsuid)
--#define current_fsgid(cred)	(current->fsgid)
-+#define this_fsuid(cred)	(current_fsuid())
-+#define this_fsgid(cred)	(current_fsgid())
- #define current_test_flags(f)	(current->flags & (f))
- #define current_set_flags_nested(sp, f)		\
- 		(*(sp) = current->flags, current->flags |= (f))
-diff --git a/fs/xfs/xfs_acl.c b/fs/xfs/xfs_acl.c
-index 5bfb66f..878ca6e 100644
---- a/fs/xfs/xfs_acl.c
-+++ b/fs/xfs/xfs_acl.c
-@@ -386,7 +386,7 @@ xfs_acl_allow_set(
- 	error = xfs_getattr(ip, &va, 0);
- 	if (error)
- 		return error;
--	if (va.va_uid != current->fsuid && !capable(CAP_FOWNER))
-+	if (va.va_uid != current_fsuid() && !capable(CAP_FOWNER))
- 		return EPERM;
- 	return error;
- }
-@@ -460,13 +460,13 @@ xfs_acl_access(
- 		switch (fap->acl_entry[i].ae_tag) {
- 		case ACL_USER_OBJ:
- 			seen_userobj = 1;
--			if (fuid != current->fsuid)
-+			if (fuid != current_fsuid())
- 				continue;
- 			matched.ae_tag = ACL_USER_OBJ;
- 			matched.ae_perm = allows;
- 			break;
- 		case ACL_USER:
--			if (fap->acl_entry[i].ae_id != current->fsuid)
-+			if (fap->acl_entry[i].ae_id != current_fsuid())
- 				continue;
- 			matched.ae_tag = ACL_USER;
- 			matched.ae_perm = allows;
-diff --git a/fs/xfs/xfs_attr.c b/fs/xfs/xfs_attr.c
-index 93fa64d..33c1173 100644
---- a/fs/xfs/xfs_attr.c
-+++ b/fs/xfs/xfs_attr.c
-@@ -2627,7 +2627,7 @@ attr_user_capable(
- 	    !capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 	if (S_ISDIR(inode->i_mode) && (inode->i_mode & S_ISVTX) &&
--	    (current_fsuid(cred) != inode->i_uid) && !capable(CAP_FOWNER))
-+	    (this_fsuid(cred) != inode->i_uid) && !capable(CAP_FOWNER))
- 		return -EPERM;
- 	return 0;
- }
-diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
-index 3449480..9c635d2 100644
---- a/fs/xfs/xfs_inode.c
-+++ b/fs/xfs/xfs_inode.c
-@@ -1132,8 +1132,8 @@ xfs_ialloc(
- 	ip->i_d.di_onlink = 0;
- 	ip->i_d.di_nlink = nlink;
- 	ASSERT(ip->i_d.di_nlink == nlink);
--	ip->i_d.di_uid = current_fsuid(cr);
--	ip->i_d.di_gid = current_fsgid(cr);
-+	ip->i_d.di_uid = this_fsuid(cr);
-+	ip->i_d.di_gid = this_fsgid(cr);
- 	ip->i_d.di_projid = prid;
- 	memset(&(ip->i_d.di_pad[0]), 0, sizeof(ip->i_d.di_pad));
- 
-@@ -3642,7 +3642,7 @@ xfs_iaccess(
- 	if ((error = _ACL_XFS_IACCESS(ip, mode, cr)) != -1)
- 		return error ? XFS_ERROR(error) : 0;
- 
--	if (current_fsuid(cr) != ip->i_d.di_uid) {
-+	if (this_fsuid(cr) != ip->i_d.di_uid) {
- 		mode >>= 3;
- 		if (!in_group_p((gid_t)ip->i_d.di_gid))
- 			mode >>= 3;
-diff --git a/fs/xfs/xfs_vnodeops.c b/fs/xfs/xfs_vnodeops.c
-index efd5aff..86bc8ec 100644
---- a/fs/xfs/xfs_vnodeops.c
-+++ b/fs/xfs/xfs_vnodeops.c
-@@ -341,7 +341,7 @@ xfs_setattr(
- 	xfs_ilock(ip, lock_flags);
- 
- 	/* boolean: are we the file owner? */
--	file_owner = (current_fsuid(credp) == ip->i_d.di_uid);
-+	file_owner = (this_fsuid(credp) == ip->i_d.di_uid);
- 
- 	/*
- 	 * Change various properties of a file.
-@@ -1878,7 +1878,7 @@ xfs_create(
- 	 * Make sure that we have allocated dquot(s) on disk.
- 	 */
- 	error = XFS_QM_DQVOPALLOC(mp, dp,
--			current_fsuid(credp), current_fsgid(credp), prid,
-+			this_fsuid(credp), this_fsgid(credp), prid,
- 			XFS_QMOPT_QUOTALL|XFS_QMOPT_INHERIT, &udqp, &gdqp);
- 	if (error)
- 		goto std_return;
-@@ -2757,7 +2757,7 @@ xfs_mkdir(
- 	 * Make sure that we have allocated dquot(s) on disk.
- 	 */
- 	error = XFS_QM_DQVOPALLOC(mp, dp,
--			current_fsuid(credp), current_fsgid(credp), prid,
-+			this_fsuid(credp), this_fsgid(credp), prid,
- 			XFS_QMOPT_QUOTALL | XFS_QMOPT_INHERIT, &udqp, &gdqp);
- 	if (error)
- 		goto std_return;
-@@ -3249,7 +3249,7 @@ xfs_symlink(
- 	 * Make sure that we have allocated dquot(s) on disk.
- 	 */
- 	error = XFS_QM_DQVOPALLOC(mp, dp,
--			current_fsuid(credp), current_fsgid(credp), prid,
-+			this_fsuid(credp), this_fsgid(credp), prid,
- 			XFS_QMOPT_QUOTALL | XFS_QMOPT_INHERIT, &udqp, &gdqp);
- 	if (error)
- 		goto std_return;
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index b3ec4a4..850d3fc 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1057,7 +1057,7 @@ enum {
- #define has_fs_excl() atomic_read(&current->fs_excl)
- 
- #define is_owner_or_cap(inode)	\
--	((current->fsuid == (inode)->i_uid) || capable(CAP_FOWNER))
-+	((current_fsuid() == (inode)->i_uid) || capable(CAP_FOWNER))
- 
- /* not quite ready to be deprecated, but... */
- extern void lock_super(struct super_block *);
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index cc14656..c500e4c 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1180,6 +1180,9 @@ struct task_struct {
- 	struct prop_local_single dirties;
+@@ -387,6 +414,11 @@ const struct address_space_operations nfs_file_aops = {
+ 	.launder_page = nfs_launder_page,
  };
  
-+#define current_fsuid() (current->fsuid)
-+#define current_fsgid() (current->fsgid)
++/*
++ * Notification that a PTE pointing to an NFS page is about to be made
++ * writable, implying that someone is about to modify the page through a
++ * shared-writable mapping
++ */
+ static int nfs_vm_page_mkwrite(struct vm_area_struct *vma, struct page *page)
+ {
+ 	struct file *filp = vma->vm_file;
+@@ -396,6 +428,9 @@ static int nfs_vm_page_mkwrite(struct vm_area_struct *vma, struct page *page)
+ 	struct address_space *mapping;
+ 	loff_t offset;
+ 
++	/* make sure the cache has finished storing the page */
++	wait_on_page_fscache_write(page);
 +
- /*
-  * Priority of a process goes from 0..MAX_PRIO-1, valid RT
-  * priority is 0..MAX_RT_PRIO-1, and SCHED_NORMAL/SCHED_BATCH
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index 6ca7b97..590045a 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -109,8 +109,8 @@ static struct inode *mqueue_get_inode(struct super_block *sb, int mode,
- 	inode = new_inode(sb);
- 	if (inode) {
- 		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
-+		inode->i_uid = current_fsuid();
-+		inode->i_gid = current_fsgid();
- 		inode->i_blocks = 0;
- 		inode->i_mtime = inode->i_ctime = inode->i_atime =
- 				CURRENT_TIME;
-diff --git a/kernel/cgroup.c b/kernel/cgroup.c
-index 1a3c239..1b85df5 100644
---- a/kernel/cgroup.c
-+++ b/kernel/cgroup.c
-@@ -577,8 +577,8 @@ static struct inode *cgroup_new_inode(mode_t mode, struct super_block *sb)
+ 	lock_page(page);
+ 	mapping = page->mapping;
+ 	if (mapping != vma->vm_file->f_path.dentry->d_inode->i_mapping) {
+diff --git a/fs/nfs/fscache-def.c b/fs/nfs/fscache-def.c
+new file mode 100644
+index 0000000..bc20b7d
+--- /dev/null
++++ b/fs/nfs/fscache-def.c
+@@ -0,0 +1,289 @@
++/* NFS FS-Cache index structure definition
++ *
++ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/nfs_fs.h>
++#include <linux/nfs_fs_sb.h>
++#include <linux/in6.h>
++
++#include "internal.h"
++#include "fscache.h"
++
++#define NFSDBG_FACILITY		NFSDBG_FSCACHE
++
++/*
++ * Definition of the auxiliary data attached to NFS inode storage objects.
++ * This is used for coherency management.
++ */
++struct nfs_fh_auxdata {
++	struct timespec	i_mtime;
++	struct timespec	i_ctime;
++	loff_t		i_size;
++};
++
++/*
++ * Definition of the key for an NFS server index object.  The server's IP
++ * address is stored as an IPv6 address, with IPv4 addresses being wrapped
++ * appropriately.
++ */
++struct nfs_server_key {
++	uint16_t nfsversion;
++	uint16_t port;
++	union {
++		struct {
++			uint8_t		ipv6wrapper[12];
++			struct in_addr	addr;
++		} ipv4_addr;
++		struct in6_addr ipv6_addr;
++	};
++};
++
++static const struct fscache_netfs_operations nfs_cache_ops = {
++};
++
++struct fscache_netfs nfs_cache_netfs = {
++	.name		= "nfs",
++	.version	= 0,
++	.ops		= &nfs_cache_ops,
++};
++
++static const uint8_t nfs_cache_ipv6_wrapper_for_ipv4[12] = {
++	[0 ... 9]	= 0x00,
++	[10 ... 11]	= 0xff
++};
++
++/*
++ * Generate a key to describe a server in the main NFS index
++ */
++static uint16_t nfs_server_get_key(const void *cookie_netfs_data,
++				   void *buffer, uint16_t bufmax)
++{
++	const struct nfs_client *clp = cookie_netfs_data;
++	struct nfs_server_key *key = buffer;
++	uint16_t len = 0;
++
++	key->nfsversion = clp->cl_nfsversion;
++
++	switch (clp->cl_addr.sin_family) {
++	case AF_INET:
++		key->port = clp->cl_addr.sin_port;
++
++		memcpy(&key->ipv4_addr.ipv6wrapper,
++		       &nfs_cache_ipv6_wrapper_for_ipv4,
++		       sizeof(key->ipv4_addr.ipv6wrapper));
++		memcpy(&key->ipv4_addr.addr,
++		       &clp->cl_addr.sin_addr,
++		       sizeof(key->ipv4_addr.addr));
++		len = sizeof(struct nfs_server_key);
++		break;
++
++	case AF_INET6:
++		key->port = clp->cl_addr.sin_port;
++
++		memcpy(&key->ipv6_addr,
++		       &clp->cl_addr.sin_addr,
++		       sizeof(key->ipv6_addr));
++		len = sizeof(struct nfs_server_key);
++		break;
++
++	default:
++		len = 0;
++		printk(KERN_WARNING "NFS: Unknown network family '%d'\n",
++			clp->cl_addr.sin_family);
++		break;
++	}
++
++	return len;
++}
++
++/*
++ * The root index for the filesystem is defined by nfsd IP address and ports
++ */
++const struct fscache_cookie_def nfs_cache_server_index_def = {
++	.name		= "NFS.servers",
++	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key	= nfs_server_get_key,
++};
++
++/*
++ * Generate a key to describe an NFS inode in an NFS server's index
++ */
++static uint16_t nfs_fh_get_key(const void *cookie_netfs_data,
++			       void *buffer, uint16_t bufmax)
++{
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++	uint16_t nsize;
++
++	/* use the inode's NFS filehandle as the key */
++	nsize = nfsi->fh.size;
++	memcpy(buffer, nfsi->fh.data, nsize);
++	return nsize;
++}
++
++/*
++ * Get an extra reference on a read context
++ * - This function can be absent if the completion function doesn't require a
++ *   context
++ */
++static void nfs_fh_get_context(void *cookie_netfs_data, void *context)
++{
++	get_nfs_open_context(context);
++}
++
++/*
++ * Release an extra reference on a read context
++ * - This function can be absent if the completion function doesn't require a
++ *   context
++ */
++static void nfs_fh_put_context(void *cookie_netfs_data, void *context)
++{
++	if (context)
++		put_nfs_open_context(context);
++}
++
++/*
++ * Indication the cookie is no longer uncached
++ * - This function is called when the backing store currently caching a cookie
++ *   is removed
++ * - The netfs should use this to clean up any markers indicating cached pages
++ * - This is mandatory for any object that may have data
++ */
++static void nfs_fh_now_uncached(void *cookie_netfs_data)
++{
++	struct nfs_inode *nfsi = cookie_netfs_data;
++	struct pagevec pvec;
++	pgoff_t first;
++	int loop, nr_pages;
++
++	pagevec_init(&pvec, 0);
++	first = 0;
++
++	dprintk("NFS: nfs_fh_now_uncached: nfs_inode 0x%p\n", nfsi);
++
++	for (;;) {
++		/* grab a bunch of pages to clean */
++		nr_pages = pagevec_lookup(&pvec,
++					  nfsi->vfs_inode.i_mapping,
++					  first,
++					  PAGEVEC_SIZE - pagevec_count(&pvec));
++		if (!nr_pages)
++			break;
++
++		for (loop = 0; loop < nr_pages; loop++)
++			ClearPageFsCache(pvec.pages[loop]);
++
++		first = pvec.pages[nr_pages - 1]->index + 1;
++
++		pvec.nr = nr_pages;
++		pagevec_release(&pvec);
++		cond_resched();
++	}
++}
++
++/*
++ * Tet certain file attributes from the netfs data
++ * - This function can be absent for an index
++ * - Not permitted to return an error
++ * - The netfs data from the cookie being used as the source is
++ *   presented
++ */
++static void nfs_fh_get_attr(const void *cookie_netfs_data, uint64_t *size)
++{
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++
++	*size = nfsi->vfs_inode.i_size;
++}
++
++/*
++ * Get the auxiliary data from netfs data
++ * - This function can be absent if the index carries no state data
++ * - Should store the auxiliary data in the buffer
++ * - Should return the amount of amount stored
++ * - Not permitted to return an error
++ * - The netfs data from the cookie being used as the source is presented
++ */
++static uint16_t nfs_fh_get_aux(const void *cookie_netfs_data,
++			       void *buffer, uint16_t bufmax)
++{
++	struct nfs_fh_auxdata auxdata;
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++
++	auxdata.i_size = nfsi->vfs_inode.i_size;
++	auxdata.i_mtime = nfsi->vfs_inode.i_mtime;
++	auxdata.i_ctime = nfsi->vfs_inode.i_ctime;
++
++	if (bufmax > sizeof(auxdata))
++		bufmax = sizeof(auxdata);
++
++	memcpy(buffer, &auxdata, bufmax);
++	return bufmax;
++}
++
++/*
++ * Consult the netfs about the state of an object
++ * - This function can be absent if the index carries no state data
++ * - The netfs data from the cookie being used as the target is
++ *   presented, as is the auxiliary data
++ */
++static enum fscache_checkaux nfs_fh_check_aux(void *cookie_netfs_data,
++					      const void *data,
++					      uint16_t datalen)
++{
++	struct nfs_fh_auxdata auxdata;
++	struct nfs_inode *nfsi = cookie_netfs_data;
++
++	if (datalen > sizeof(auxdata))
++		return FSCACHE_CHECKAUX_OBSOLETE;
++
++	auxdata.i_size = nfsi->vfs_inode.i_size;
++	auxdata.i_mtime = nfsi->vfs_inode.i_mtime;
++	auxdata.i_ctime = nfsi->vfs_inode.i_ctime;
++
++	if (memcmp(data, &auxdata, datalen) != 0)
++		return FSCACHE_CHECKAUX_OBSOLETE;
++
++	return FSCACHE_CHECKAUX_OKAY;
++}
++
++/*
++ * The primary index for each server is simply made up of a series of NFS file
++ * handles
++ */
++const struct fscache_cookie_def nfs_cache_fh_index_def = {
++	.name		= "NFS.fh",
++	.type		= FSCACHE_COOKIE_TYPE_DATAFILE,
++	.get_key	= nfs_fh_get_key,
++	.get_attr	= nfs_fh_get_attr,
++	.get_aux	= nfs_fh_get_aux,
++	.check_aux	= nfs_fh_check_aux,
++	.get_context	= nfs_fh_get_context,
++	.put_context	= nfs_fh_put_context,
++	.now_uncached	= nfs_fh_now_uncached,
++};
++
++/*
++ * Register NFS for caching
++ */
++int nfs_fscache_register(void)
++{
++	return fscache_register_netfs(&nfs_cache_netfs);
++}
++
++/*
++ * Unregister NFS for caching
++ */
++void nfs_fscache_unregister(void)
++{
++	fscache_unregister_netfs(&nfs_cache_netfs);
++}
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+new file mode 100644
+index 0000000..465f961
+--- /dev/null
++++ b/fs/nfs/fscache.c
+@@ -0,0 +1,391 @@
++/* NFS filesystem cache interface
++ *
++ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/nfs_fs.h>
++#include <linux/nfs_fs_sb.h>
++#include <linux/in6.h>
++#include <linux/seq_file.h>
++
++#include "internal.h"
++#include "fscache.h"
++
++#define NFSDBG_FACILITY		NFSDBG_FSCACHE
++
++/*
++ * Get the per-client index cookie for an NFS client if the appropriate mount
++ * flag was set
++ * - We always try and get an index cookie for the client, but get filehandle
++ *   cookies on a per-superblock basis, depending on the mount flags
++ */
++void nfs_fscache_get_client_cookie(struct nfs_client *clp)
++{
++	/* create a cache index for looking up filehandles */
++	clp->fscache = fscache_acquire_cookie(nfs_cache_netfs.primary_index,
++					      &nfs_cache_server_index_def,
++					      clp);
++	dfprintk(FSCACHE, "NFS: get client cookie (0x%p/0x%p)\n",
++		 clp, clp->fscache);
++}
++
++/*
++ * Dispose of a per-client cookie
++ */
++void nfs_fscache_release_client_cookie(struct nfs_client *clp)
++{
++	dfprintk(FSCACHE, "NFS: releasing client cookie (0x%p/0x%p)\n",
++		 clp, clp->fscache);
++
++	fscache_relinquish_cookie(clp->fscache, 0);
++	clp->fscache = NULL;
++}
++
++/*
++ * Display statistics through /proc/pid/mountstats
++ */
++void nfs_fscache_show_stats(struct seq_file *m, struct nfs_server *nfss)
++{
++	seq_printf(m, "\tfscache rd: ok=%u,fail=%u,lasterr=%d\n",
++		   atomic_read(&nfss->fscache_cnt_read_ok),
++		   atomic_read(&nfss->fscache_cnt_read_fail),
++		   nfss->fscache_last_read_error);
++	seq_printf(m, "\tfscache wr: ok=%u,fail=%u,lasterr=%d\n",
++		   atomic_read(&nfss->fscache_cnt_write_ok),
++		   atomic_read(&nfss->fscache_cnt_write_fail),
++		   nfss->fscache_last_write_error);
++	seq_printf(m, "\tfscache uncache: ok=%u\n",
++		   atomic_read(&nfss->fscache_cnt_uncache));
++}
++
++/*
++ * Initialise the per-filehandle cookie for an NFS inode
++ */
++void nfs_fscache_init_fh_cookie(struct inode *inode)
++{
++	NFS_I(inode)->fscache = NULL;
++	if (S_ISREG(inode->i_mode))
++		set_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
++}
++
++/*
++ * Get the per-filehandle cookie for an NFS inode
++ */
++void nfs_fscache_enable_fh_cookie(struct inode *inode)
++{
++	struct super_block *sb = inode->i_sb;
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	if (nfsi->fscache || !NFS_FSCACHE(inode))
++		return;
++
++	if ((NFS_SB(sb)->options & NFS_OPTION_FSCACHE)) {
++		nfsi->fscache = fscache_acquire_cookie(
++			NFS_SB(sb)->nfs_client->fscache,
++			&nfs_cache_fh_index_def,
++			nfsi);
++
++		dfprintk(FSCACHE, "NFS: get FH cookie (0x%p/0x%p/0x%p)\n",
++			 sb, nfsi, nfsi->fscache);
++	}
++}
++
++/*
++ * Release a per-filehandle cookie
++ */
++void nfs_fscache_release_fh_cookie(struct inode *inode)
++{
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	dfprintk(FSCACHE, "NFS: clear cookie (0x%p/0x%p)\n",
++		 nfsi, nfsi->fscache);
++
++	fscache_relinquish_cookie(nfsi->fscache, 0);
++	nfsi->fscache = NULL;
++}
++
++/*
++ * Retire a per-filehandle cookie, destroying the data attached to it
++ */
++void nfs_fscache_zap_fh_cookie(struct inode *inode)
++{
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	dfprintk(FSCACHE, "NFS: zapping cookie (0x%p/0x%p)\n",
++		 nfsi, nfsi->fscache);
++
++	fscache_relinquish_cookie(nfsi->fscache, 1);
++	nfsi->fscache = NULL;
++}
++
++/*
++ * Turn off the cache with regard to a filehandle cookie if opened for writing,
++ * invalidating all the pages in the page cache relating to the associated
++ * inode to clear the per-page caching
++ */
++void nfs_fscache_disable_fh_cookie(struct inode *inode)
++{
++	clear_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
++
++	if (NFS_I(inode)->fscache) {
++		dfprintk(FSCACHE,
++			 "NFS: nfsi 0x%p turning cache off\n", NFS_I(inode));
++
++		/* Need to invalidate any mapped pages that were read in before
++		 * turning off the cache.
++		 */
++		if (inode->i_mapping && inode->i_mapping->nrpages)
++			invalidate_inode_pages2(inode->i_mapping);
++
++		nfs_fscache_zap_fh_cookie(inode);
++	}
++}
++
++/*
++ * Decide if we should enable or disable the FS cache for this inode
++ * - For now, only regular files that are open read-only will be able to use
++ *   the cache
++ */
++void nfs_fscache_set_fh_cookie(struct inode *inode, struct file *filp)
++{
++	if (NFS_FSCACHE(inode)) {
++		if ((filp->f_flags & O_ACCMODE) != O_RDONLY)
++			nfs_fscache_disable_fh_cookie(inode);
++		else
++			nfs_fscache_enable_fh_cookie(inode);
++	}
++}
++
++/*
++ * Replace a per-filehandle cookie due to revalidation detecting a file having
++ * changed on the server
++ */
++void nfs_fscache_renew_fh_cookie(struct inode *inode)
++{
++	struct nfs_inode *nfsi = NFS_I(inode);
++	struct nfs_server *nfss = NFS_SERVER(inode);
++	struct fscache_cookie *old = nfsi->fscache;
++
++	if (nfsi->fscache) {
++		/* retire the current fscache cache and get a new one */
++		fscache_relinquish_cookie(nfsi->fscache, 1);
++
++		nfsi->fscache = fscache_acquire_cookie(
++			nfss->nfs_client->fscache,
++			&nfs_cache_fh_index_def,
++			nfsi);
++
++		dfprintk(FSCACHE,
++			 "NFS: revalidation new cookie (0x%p/0x%p/0x%p/0x%p)\n",
++			 nfss, nfsi, old, nfsi->fscache);
++	}
++}
++
++/*
++ * change the filesize associated with a per-filehandle cookie
++ */
++void nfs_fscache_attr_changed(struct inode *inode)
++{
++	fscache_attr_changed(NFS_I(inode)->fscache);
++}
++
++/*
++ * Handle completion of a page being read from the cache
++ * - Called in process (keventd) context
++ */
++static void nfs_readpage_from_fscache_complete(struct page *page,
++					       void *context,
++					       int error)
++{
++	dfprintk(FSCACHE,
++		 "NFS: readpage_from_fscache_complete (0x%p/0x%p/%d)\n",
++		 page, context, error);
++
++	/* if the read completes with an error, we just unlock the page and let
++	 * the VM reissue the readpage */
++	if (!error) {
++		SetPageUptodate(page);
++		unlock_page(page);
++	} else {
++		error = nfs_readpage_async(context, page->mapping->host, page);
++		if (error)
++			unlock_page(page);
++	}
++}
++
++/*
++ * Store a newly fetched page in fscache
++ * - PG_fscache must be set on the page
++ */
++void __nfs_readpage_to_fscache(struct inode *inode, struct page *page, int sync)
++{
++	struct nfs_server *nfss = NFS_SERVER(inode);
++	int ret;
++
++	dfprintk(FSCACHE,
++		 "NFS: readpage_to_fscache(fsc:%p/p:%p(i:%lx f:%lx)/%d)\n",
++		 NFS_I(inode)->fscache, page, page->index, page->flags, sync);
++
++	ret = fscache_write_page(NFS_I(inode)->fscache, page, GFP_KERNEL);
++	dfprintk(FSCACHE,
++		 "NFS:     readpage_to_fscache: p:%p(i:%lu f:%lx) ret %d\n",
++		 page, page->index, page->flags, ret);
++
++	if (ret != 0) {
++		fscache_uncache_page(NFS_I(inode)->fscache, page);
++		atomic_inc(&nfss->fscache_cnt_uncache);
++		atomic_inc(&nfss->fscache_cnt_write_fail);
++		nfss->fscache_last_write_error = ret;
++	} else {
++		atomic_inc(&nfss->fscache_cnt_write_ok);
++	}
++}
++
++/*
++ * Retrieve a page from fscache
++ */
++int __nfs_readpage_from_fscache(struct nfs_open_context *ctx,
++				struct inode *inode, struct page *page)
++{
++	struct nfs_server *nfss = NFS_SERVER(inode);
++	int ret;
++
++	dfprintk(FSCACHE,
++		 "NFS: readpage_from_fscache(fsc:%p/p:%p(i:%lx f:%lx)/0x%p)\n",
++		 NFS_I(inode)->fscache, page, page->index, page->flags, inode);
++
++	ret = fscache_read_or_alloc_page(NFS_I(inode)->fscache,
++					 page,
++					 nfs_readpage_from_fscache_complete,
++					 ctx,
++					 GFP_KERNEL);
++
++	switch (ret) {
++	case 0: /* read BIO submitted (page in fscache) */
++		dfprintk(FSCACHE,
++			 "NFS:    readpage_from_fscache: BIO submitted\n");
++		atomic_inc(&nfss->fscache_cnt_read_ok);
++		return ret;
++
++	case -ENOBUFS: /* inode not in cache */
++	case -ENODATA: /* page not in cache */
++		atomic_inc(&nfss->fscache_cnt_read_fail);
++		dfprintk(FSCACHE,
++			 "NFS:    readpage_from_fscache %d\n", ret);
++		return 1;
++
++	default:
++		dfprintk(FSCACHE, "NFS:    readpage_from_fscache %d\n", ret);
++		atomic_inc(&nfss->fscache_cnt_read_fail);
++		nfss->fscache_last_read_error = ret;
++	}
++	return ret;
++}
++
++/*
++ * Retrieve a set of pages from fscache
++ */
++int __nfs_readpages_from_fscache(struct nfs_open_context *ctx,
++				 struct inode *inode,
++				 struct address_space *mapping,
++				 struct list_head *pages,
++				 unsigned *nr_pages)
++{
++	struct nfs_server *nfss = NFS_SERVER(inode);
++	int ret, npages = *nr_pages;
++
++	dfprintk(FSCACHE, "NFS: nfs_getpages_from_fscache (0x%p/%u/0x%p)\n",
++		 NFS_I(inode)->fscache, npages, inode);
++
++	ret = fscache_read_or_alloc_pages(NFS_I(inode)->fscache,
++					  mapping, pages, nr_pages,
++					  nfs_readpage_from_fscache_complete,
++					  ctx,
++					  mapping_gfp_mask(mapping));
++
++	switch (ret) {
++	case 0: /* read submitted to the cache for all pages */
++		BUG_ON(!list_empty(pages));
++		BUG_ON(*nr_pages != 0);
++		dfprintk(FSCACHE,
++			 "NFS: nfs_getpages_from_fscache: submitted\n");
++
++		atomic_add(npages, &nfss->fscache_cnt_read_ok);
++		return ret;
++
++	case -ENOBUFS: /* some pages aren't cached and can't be */
++	case -ENODATA: /* some pages aren't cached */
++		dfprintk(FSCACHE,
++			 "NFS: nfs_getpages_from_fscache: no page: %d\n", ret);
++		atomic_add(*nr_pages, &nfss->fscache_cnt_read_fail);
++		return 1;
++
++	default:
++		dfprintk(FSCACHE,
++			 "NFS: nfs_getpages_from_fscache: ret  %d\n", ret);
++		nfss->fscache_last_read_error = ret;
++	}
++
++	return ret;
++}
++
++/*
++ * Release the caching state associated with a page, if the page isn't busy
++ * interacting with the cache
++ * - Returns true (can release page) or false (page busy)
++ */
++int nfs_fscache_release_page(struct page *page, gfp_t gfp)
++{
++	struct nfs_server *nfss = NFS_SERVER(page->mapping->host);
++
++	if (PageFsCacheWrite(page)) {
++		if (!(gfp & __GFP_WAIT))
++			return 0;
++		wait_on_page_fscache_write(page);
++	}
++
++	if (PageFsCache(page)) {
++		struct nfs_inode *nfsi = NFS_I(page->mapping->host);
++
++		BUG_ON(!nfsi->fscache);
++
++		dfprintk(FSCACHE, "NFS: fscache releasepage (0x%p/0x%p/0x%p)\n",
++			 nfsi->fscache, page, nfsi);
++
++		fscache_uncache_page(nfsi->fscache, page);
++		atomic_inc(&nfss->fscache_cnt_uncache);
++	}
++
++	return 1;
++}
++
++/*
++ * Release the caching state associated with a page if undergoing complete page
++ * invalidation
++ */
++void __nfs_fscache_invalidate_page(struct page *page, struct inode *inode)
++{
++	struct nfs_server *nfss = NFS_SERVER(inode);
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	BUG_ON(!nfsi->fscache);
++
++	dfprintk(FSCACHE, "NFS: fscache invalidatepage (0x%p/0x%p/0x%p)\n",
++		 nfsi->fscache, page, nfsi);
++
++	wait_on_page_fscache_write(page);
++
++	BUG_ON(!PageLocked(page));
++	fscache_uncache_page(nfsi->fscache, page);
++	atomic_inc(&nfss->fscache_cnt_uncache);
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+new file mode 100644
+index 0000000..144fb58
+--- /dev/null
++++ b/fs/nfs/fscache.h
+@@ -0,0 +1,148 @@
++/* NFS filesystem cache interface definitions
++ *
++ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version
++ * 2 of the License, or (at your option) any later version.
++ */
++
++#ifndef _NFS_FSCACHE_H
++#define _NFS_FSCACHE_H
++
++#include <linux/nfs_fs.h>
++#include <linux/nfs_mount.h>
++#include <linux/nfs4_mount.h>
++
++#ifdef CONFIG_NFS_FSCACHE
++#include <linux/fscache.h>
++
++/*
++ * fscache-def.c
++ */
++extern struct fscache_netfs nfs_cache_netfs;
++extern const struct fscache_cookie_def nfs_cache_server_index_def;
++extern const struct fscache_cookie_def nfs_cache_fh_index_def;
++
++extern int nfs_fscache_register(void);
++extern void nfs_fscache_unregister(void);
++
++/*
++ * fscache.c
++ */
++extern void nfs_fscache_get_client_cookie(struct nfs_client *);
++extern void nfs_fscache_release_client_cookie(struct nfs_client *);
++extern void nfs_fscache_show_stats(struct seq_file *, struct nfs_server *);
++extern void nfs_fscache_init_fh_cookie(struct inode *);
++extern void nfs_fscache_enable_fh_cookie(struct inode *);
++extern void nfs_fscache_release_fh_cookie(struct inode *);
++extern void nfs_fscache_zap_fh_cookie(struct inode *);
++extern void nfs_fscache_disable_fh_cookie(struct inode *);
++extern void nfs_fscache_set_fh_cookie(struct inode *, struct file *);
++extern void nfs_fscache_renew_fh_cookie(struct inode *);
++extern void nfs_fscache_attr_changed(struct inode *);
++extern void __nfs_readpage_to_fscache(struct inode *, struct page *, int);
++extern int __nfs_readpage_from_fscache(struct nfs_open_context *,
++				       struct inode *, struct page *);
++extern int __nfs_readpages_from_fscache(struct nfs_open_context *,
++					struct inode *, struct address_space *,
++					struct list_head *, unsigned *);
++extern void __nfs_fscache_invalidate_page(struct page *, struct inode *);
++extern int nfs_fscache_release_page(struct page *, gfp_t);
++
++/*
++ * release the caching state associated with a page if undergoing complete page
++ * invalidation
++ */
++static inline void nfs_fscache_invalidate_page(struct page *page,
++					       struct inode *inode)
++{
++	if (PageFsCache(page))
++		__nfs_fscache_invalidate_page(page, inode);
++}
++
++/*
++ * store a newly fetched page in fscache
++ */
++static inline void nfs_readpage_to_fscache(struct inode *inode,
++					   struct page *page,
++					   int sync)
++{
++	if (PageFsCache(page))
++		__nfs_readpage_to_fscache(inode, page, sync);
++}
++
++/*
++ * retrieve a page from fscache
++ */
++static inline int nfs_readpage_from_fscache(struct nfs_open_context *ctx,
++					    struct inode *inode,
++					    struct page *page)
++{
++	if (NFS_I(inode)->fscache)
++		return __nfs_readpage_from_fscache(ctx, inode, page);
++	return -ENOBUFS;
++}
++
++/*
++ * retrieve a set of pages from fscache
++ */
++static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
++					     struct inode *inode,
++					     struct address_space *mapping,
++					     struct list_head *pages,
++					     unsigned *nr_pages)
++{
++	if (NFS_I(inode)->fscache)
++		return __nfs_readpages_from_fscache(ctx, inode, mapping, pages,
++						    nr_pages);
++	return -ENOBUFS;
++}
++
++#else /* CONFIG_NFS_FSCACHE */
++static inline int nfs_fscache_register(void) { return 0; }
++static inline void nfs_fscache_unregister(void) {}
++static inline void nfs_fscache_get_client_cookie(struct nfs_client *clp) {}
++static inline void nfs4_fscache_get_client_cookie(struct nfs_client *clp) {}
++static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
++static inline void nfs_fscache_show_stats(struct seq_file *m,
++					  struct nfs_server *nfss) {}
++
++static inline void nfs_fscache_init_fh_cookie(struct inode *inode) {}
++static inline void nfs_fscache_enable_fh_cookie(struct inode *inode) {}
++static inline void nfs_fscache_attr_changed(struct inode *inode) {}
++static inline void nfs_fscache_release_fh_cookie(struct inode *inode) {}
++static inline void nfs_fscache_zap_fh_cookie(struct inode *inode) {}
++static inline void nfs_fscache_renew_fh_cookie(struct inode *inode) {}
++static inline void nfs_fscache_disable_fh_cookie(struct inode *inode) {}
++static inline void nfs_fscache_set_fh_cookie(struct inode *inode,
++					     struct file *filp) {}
++static inline void nfs_fscache_install_vm_ops(struct inode *inode,
++					      struct vm_area_struct *vma) {}
++static inline int nfs_fscache_release_page(struct page *page, gfp_t gfp)
++{
++	return 1; /* True: may release page */
++}
++static inline void nfs_fscache_invalidate_page(struct page *page,
++					       struct inode *inode) {}
++static inline void nfs_readpage_to_fscache(struct inode *inode,
++					   struct page *page, int sync) {}
++static inline int nfs_readpage_from_fscache(struct nfs_open_context *ctx,
++					    struct inode *inode,
++					    struct page *page)
++{
++	return -ENOBUFS;
++}
++static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
++					     struct inode *inode,
++					     struct address_space *mapping,
++					     struct list_head *pages,
++					     unsigned *nr_pages)
++{
++	return -ENOBUFS;
++}
++
++#endif /* CONFIG_NFS_FSCACHE */
++#endif /* _NFS_FSCACHE_H */
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index db5d96d..49726b1 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -46,6 +46,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ #include "internal.h"
++#include "fscache.h"
  
- 	if (inode) {
- 		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
-+		inode->i_uid = current_fsuid();
-+		inode->i_gid = current_fsgid();
- 		inode->i_blocks = 0;
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 		inode->i_mapping->backing_dev_info = &cgroup_backing_dev_info;
-diff --git a/mm/shmem.c b/mm/shmem.c
-index 51b3d6c..292b329 100644
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -1412,8 +1412,8 @@ shmem_get_inode(struct super_block *sb, int mode, dev_t dev)
- 	inode = new_inode(sb);
- 	if (inode) {
- 		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
-+		inode->i_uid = current_fsuid();
-+		inode->i_gid = current_fsgid();
- 		inode->i_blocks = 0;
- 		inode->i_mapping->a_ops = &shmem_aops;
- 		inode->i_mapping->backing_dev_info = &shmem_backing_dev_info;
-@@ -2241,8 +2241,8 @@ static int shmem_fill_super(struct super_block *sb,
- 	struct inode *inode;
- 	struct dentry *root;
- 	int mode   = S_IRWXUGO | S_ISVTX;
--	uid_t uid = current->fsuid;
--	gid_t gid = current->fsgid;
-+	uid_t uid = current_fsuid();
-+	gid_t gid = current_fsgid();
- 	int err = -ENOMEM;
- 	struct shmem_sb_info *sbinfo;
- 	unsigned long blocks = 0;
-diff --git a/net/9p/client.c b/net/9p/client.c
-index af91993..9cb8b3b 100644
---- a/net/9p/client.c
-+++ b/net/9p/client.c
-@@ -938,7 +938,7 @@ static struct p9_fid *p9_fid_create(struct p9_client *clnt)
- 	fid->rdir_fpos = 0;
- 	fid->rdir_pos = 0;
- 	fid->rdir_fcall = NULL;
--	fid->uid = current->fsuid;
-+	fid->uid = current_fsuid();
- 	fid->clnt = clnt;
- 	fid->aux = NULL;
+ #define NFSDBG_FACILITY		NFSDBG_VFS
  
-diff --git a/net/socket.c b/net/socket.c
-index 74784df..e5f8151 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -484,8 +484,8 @@ static struct socket *sock_alloc(void)
- 	sock = SOCKET_I(inode);
+@@ -111,6 +112,7 @@ void nfs_clear_inode(struct inode *inode)
+ 	BUG_ON(!list_empty(&NFS_I(inode)->open_files));
+ 	nfs_zap_acl_cache(inode);
+ 	nfs_access_zap_cache(inode);
++	nfs_fscache_release_fh_cookie(inode);
+ }
  
- 	inode->i_mode = S_IFSOCK | S_IRWXUGO;
--	inode->i_uid = current->fsuid;
--	inode->i_gid = current->fsgid;
-+	inode->i_uid = current_fsuid();
-+	inode->i_gid = current_fsgid();
+ /**
+@@ -330,6 +332,8 @@ nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
+ 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
+ 		nfsi->access_cache = RB_ROOT;
  
- 	get_cpu_var(sockets_in_use)++;
- 	put_cpu_var(sockets_in_use);
-diff --git a/net/sunrpc/auth.c b/net/sunrpc/auth.c
-index 1ea2755..390a1ec 100644
---- a/net/sunrpc/auth.c
-+++ b/net/sunrpc/auth.c
-@@ -337,8 +337,8 @@ struct rpc_cred *
- rpcauth_lookupcred(struct rpc_auth *auth, int flags)
++		nfs_fscache_init_fh_cookie(inode);
++
+ 		unlock_new_inode(inode);
+ 	} else
+ 		nfs_refresh_inode(inode, fattr);
+@@ -613,6 +617,7 @@ int nfs_open(struct inode *inode, struct file *filp)
+ 	ctx->mode = filp->f_mode;
+ 	nfs_file_set_open_context(filp, ctx);
+ 	put_nfs_open_context(ctx);
++	nfs_fscache_set_fh_cookie(inode, filp);
+ 	return 0;
+ }
+ 
+@@ -673,7 +678,13 @@ __nfs_revalidate_inode(struct nfs_server *server, struct inode *inode)
+ 			 (long long)NFS_FILEID(inode), status);
+ 		goto out;
+ 	}
+-	spin_unlock(&inode->i_lock);
++	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
++		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
++		spin_unlock(&inode->i_lock);
++		nfs_fscache_attr_changed(inode);
++	} else {
++		spin_unlock(&inode->i_lock);
++	}
+ 
+ 	if (nfsi->cache_validity & NFS_INO_INVALID_ACL)
+ 		nfs_zap_acl_cache(inode);
+@@ -729,6 +740,7 @@ static int nfs_invalidate_mapping_nolock(struct inode *inode, struct address_spa
+ 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
+ 	spin_unlock(&inode->i_lock);
+ 	nfs_inc_stats(inode, NFSIOS_DATAINVALIDATE);
++	nfs_fscache_renew_fh_cookie(inode);
+ 	dfprintk(PAGECACHE, "NFS: (%s/%Ld) data cache invalidated\n",
+ 			inode->i_sb->s_id, (long long)NFS_FILEID(inode));
+ 	return 0;
+@@ -904,7 +916,13 @@ int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 	else
+ 		status = nfs_check_inode_attributes(inode, fattr);
+ 
+-	spin_unlock(&inode->i_lock);
++	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
++		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
++		spin_unlock(&inode->i_lock);
++		nfs_fscache_attr_changed(inode);
++	} else {
++		spin_unlock(&inode->i_lock);
++	}
+ 	return status;
+ }
+ 
+@@ -925,12 +943,19 @@ int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
+ int nfs_post_op_update_inode(struct inode *inode, struct nfs_fattr *fattr)
  {
- 	struct auth_cred acred = {
--		.uid = current->fsuid,
--		.gid = current->fsgid,
-+		.uid = current_fsuid(),
-+		.gid = current_fsgid(),
- 		.group_info = current->group_info,
- 	};
- 	struct rpc_cred *ret;
-@@ -373,8 +373,8 @@ rpcauth_bindcred(struct rpc_task *task)
- {
- 	struct rpc_auth *auth = task->tk_client->cl_auth;
- 	struct auth_cred acred = {
--		.uid = current->fsuid,
--		.gid = current->fsgid,
-+		.uid = current_fsuid(),
-+		.gid = current_fsgid(),
- 		.group_info = current->group_info,
- 	};
- 	struct rpc_cred *ret;
-diff --git a/security/commoncap.c b/security/commoncap.c
-index ea61bc7..d5189a9 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -343,8 +343,8 @@ void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe)
+ 	struct nfs_inode *nfsi = NFS_I(inode);
++	bool update_fscache = false;
+ 
+ 	spin_lock(&inode->i_lock);
+ 	nfsi->cache_validity |= NFS_INO_INVALID_ATTR|NFS_INO_REVAL_PAGECACHE;
+ 	if (S_ISDIR(inode->i_mode))
+ 		nfsi->cache_validity |= NFS_INO_INVALID_DATA;
++	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
++		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
++		update_fscache = true;
++	}
+ 	spin_unlock(&inode->i_lock);
++	if (update_fscache)
++		nfs_fscache_attr_changed(inode);
+ 	return nfs_refresh_inode(inode, fattr);
+ }
+ 
+@@ -1018,7 +1043,8 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 		if (!timespec_equal(&inode->i_mtime, &fattr->mtime)) {
+ 			dprintk("NFS: mtime change on server for file %s/%ld\n",
+ 					inode->i_sb->s_id, inode->i_ino);
+-			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
++			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
++				NFS_INO_INVALID_FSCACHE_ATTR;
+ 			nfsi->cache_change_attribute = now;
  		}
+ 		/* If ctime has changed we should definitely clear access+acl caches */
+@@ -1027,7 +1053,9 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 	} else if (nfsi->change_attr != fattr->change_attr) {
+ 		dprintk("NFS: change_attr change on server for file %s/%ld\n",
+ 				inode->i_sb->s_id, inode->i_ino);
+-		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA|NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL;
++		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
++			NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL |
++			NFS_INO_INVALID_FSCACHE_ATTR;
+ 		nfsi->cache_change_attribute = now;
  	}
  
--	current->suid = current->euid = current->fsuid = bprm->e_uid;
--	current->sgid = current->egid = current->fsgid = bprm->e_gid;
-+	current->suid = current->euid = current_fsuid() = bprm->e_uid;
-+	current->sgid = current->egid = current_fsgid() = bprm->e_gid;
- 
- 	/* For init, we want to retain the capabilities set
- 	 * in the init_task struct. Thus we skip the usual
-@@ -473,11 +473,11 @@ int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid,
- 			 */
- 
- 			if (!issecure (SECURE_NO_SETUID_FIXUP)) {
--				if (old_fsuid == 0 && current->fsuid != 0) {
-+				if (old_fsuid == 0 && current_fsuid() != 0) {
- 					cap_t (current->cap_effective) &=
- 					    ~CAP_FS_MASK;
- 				}
--				if (old_fsuid != 0 && current->fsuid == 0) {
-+				if (old_fsuid != 0 && current_fsuid() == 0) {
- 					cap_t (current->cap_effective) |=
- 					    (cap_t (current->cap_permitted) &
- 					     CAP_FS_MASK);
-diff --git a/security/keys/key.c b/security/keys/key.c
-index fdd5ca6..48fabb1 100644
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -817,7 +817,7 @@ key_ref_t key_create_or_update(key_ref_t keyring_ref,
- 		perm |= KEY_USR_WRITE;
- 
- 	/* allocate a new key */
--	key = key_alloc(ktype, description, current->fsuid, current->fsgid,
-+	key = key_alloc(ktype, description, current_fsuid(), current->fsgid,
- 			current, perm, flags);
- 	if (IS_ERR(key)) {
- 		key_ref = ERR_PTR(PTR_ERR(key));
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 56e963b..b3a63dd 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -810,7 +810,7 @@ long keyctl_setperm_key(key_serial_t id, key_perm_t perm)
- 	down_write(&key->sem);
- 
- 	/* if we're not the sysadmin, we can only change a key that we own */
--	if (capable(CAP_SYS_ADMIN) || key->uid == current->fsuid) {
-+	if (capable(CAP_SYS_ADMIN) || key->uid == current_fsuid()) {
- 		key->perm = perm;
- 		ret = 0;
+@@ -1039,13 +1067,13 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 		 * the file grown beyond our last write? */
+ 		if (nfsi->npages == 0 || new_isize > cur_isize) {
+ 			inode->i_size = new_isize;
+-			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
++			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
++				NFS_INO_INVALID_FSCACHE_ATTR;
+ 		}
+ 		dprintk("NFS: isize change on server for file %s/%ld\n",
+ 				inode->i_sb->s_id, inode->i_ino);
  	}
-diff --git a/security/keys/request_key.c b/security/keys/request_key.c
-index aee4897..6d25911 100644
---- a/security/keys/request_key.c
-+++ b/security/keys/request_key.c
-@@ -76,7 +76,7 @@ static int call_sbin_request_key(struct key_construction *cons,
- 	/* allocate a new session keyring */
- 	sprintf(desc, "_req.%u", key->serial);
  
--	keyring = keyring_alloc(desc, current->fsuid, current->fsgid, current,
-+	keyring = keyring_alloc(desc, current_fsuid(), current->fsgid, current,
- 				KEY_ALLOC_QUOTA_OVERRUN, NULL);
- 	if (IS_ERR(keyring)) {
- 		ret = PTR_ERR(keyring);
-@@ -89,8 +89,8 @@ static int call_sbin_request_key(struct key_construction *cons,
- 		goto error_link;
+-
+ 	memcpy(&inode->i_mtime, &fattr->mtime, sizeof(inode->i_mtime));
+ 	memcpy(&inode->i_ctime, &fattr->ctime, sizeof(inode->i_ctime));
+ 	memcpy(&inode->i_atime, &fattr->atime, sizeof(inode->i_atime));
+@@ -1214,6 +1242,10 @@ static int __init init_nfs_fs(void)
+ {
+ 	int err;
  
- 	/* record the UID and GID */
--	sprintf(uid_str, "%d", current->fsuid);
--	sprintf(gid_str, "%d", current->fsgid);
-+	sprintf(uid_str, "%d", current_fsuid());
-+	sprintf(gid_str, "%d", current_fsgid());
++	err = nfs_fscache_register();
++	if (err < 0)
++		goto out6;
++
+ 	err = nfs_fs_proc_init();
+ 	if (err)
+ 		goto out5;
+@@ -1260,6 +1292,8 @@ out3:
+ out4:
+ 	nfs_fs_proc_exit();
+ out5:
++	nfs_fscache_unregister();
++out6:
+ 	return err;
+ }
  
- 	/* we say which key is under construction */
- 	sprintf(key_str, "%d", key->serial);
-@@ -278,7 +278,7 @@ static int construct_alloc_key(struct key_type *type,
- 	mutex_lock(&user->cons_lock);
+@@ -1270,6 +1304,7 @@ static void __exit exit_nfs_fs(void)
+ 	nfs_destroy_readpagecache();
+ 	nfs_destroy_inodecache();
+ 	nfs_destroy_nfspagecache();
++	nfs_fscache_unregister();
+ #ifdef CONFIG_PROC_FS
+ 	rpc_proc_unregister("nfs");
+ #endif
+diff --git a/fs/nfs/read.c b/fs/nfs/read.c
+index 4587a86..56e919e 100644
+--- a/fs/nfs/read.c
++++ b/fs/nfs/read.c
+@@ -18,12 +18,14 @@
+ #include <linux/sunrpc/clnt.h>
+ #include <linux/nfs_fs.h>
+ #include <linux/nfs_page.h>
++#include <linux/nfs_mount.h>
+ #include <linux/smp_lock.h>
  
- 	key = key_alloc(type, description,
--			current->fsuid, current->fsgid, current, KEY_POS_ALL,
-+			current_fsuid(), current->fsgid, current, KEY_POS_ALL,
- 			flags);
- 	if (IS_ERR(key))
- 		goto alloc_failed;
-@@ -341,7 +341,7 @@ static struct key *construct_key_and_link(struct key_type *type,
- 	struct key *key;
- 	int ret;
+ #include <asm/system.h>
  
--	user = key_user_lookup(current->fsuid);
-+	user = key_user_lookup(current_fsuid());
- 	if (!user)
- 		return ERR_PTR(-ENOMEM);
+ #include "internal.h"
+ #include "iostat.h"
++#include "fscache.h"
  
-diff --git a/security/keys/request_key_auth.c b/security/keys/request_key_auth.c
-index 6827ae3..cce6b4d 100644
---- a/security/keys/request_key_auth.c
-+++ b/security/keys/request_key_auth.c
-@@ -194,7 +194,7 @@ struct key *request_key_auth_new(struct key *target, const void *callout_info,
- 	sprintf(desc, "%x", target->serial);
+ #define NFSDBG_FACILITY		NFSDBG_PAGECACHE
  
- 	authkey = key_alloc(&key_type_request_key_auth, desc,
--			    current->fsuid, current->fsgid, current,
-+			    current_fsuid(), current->fsgid, current,
- 			    KEY_POS_VIEW | KEY_POS_READ | KEY_POS_SEARCH |
- 			    KEY_USR_VIEW, KEY_ALLOC_NOT_IN_QUOTA);
- 	if (IS_ERR(authkey)) {
+@@ -114,8 +116,8 @@ static void nfs_readpage_truncate_uninitialised_page(struct nfs_read_data *data)
+ 	}
+ }
+ 
+-static int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
+-		struct page *page)
++int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
++		       struct page *page)
+ {
+ 	LIST_HEAD(one_request);
+ 	struct nfs_page	*new;
+@@ -142,6 +144,11 @@ static int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
+ 
+ static void nfs_readpage_release(struct nfs_page *req)
+ {
++	struct inode *d_inode = req->wb_context->path.dentry->d_inode;
++
++	if (PageUptodate(req->wb_page))
++		nfs_readpage_to_fscache(d_inode, req->wb_page, 0);
++
+ 	unlock_page(req->wb_page);
+ 
+ 	dprintk("NFS: read done (%s/%Ld %d@%Ld)\n",
+@@ -496,8 +503,15 @@ int nfs_readpage(struct file *file, struct page *page)
+ 	} else
+ 		ctx = get_nfs_open_context(nfs_file_open_context(file));
+ 
++	if (!IS_SYNC(inode)) {
++		error = nfs_readpage_from_fscache(ctx, inode, page);
++		if (error == 0)
++			goto out;
++	}
++
+ 	error = nfs_readpage_async(ctx, inode, page);
+ 
++out:
+ 	put_nfs_open_context(ctx);
+ 	return error;
+ out_unlock:
+@@ -573,6 +587,15 @@ int nfs_readpages(struct file *filp, struct address_space *mapping,
+ 			return -EBADF;
+ 	} else
+ 		desc.ctx = get_nfs_open_context(nfs_file_open_context(filp));
++
++	/* attempt to read as many of the pages as possible from the cache
++	 * - this returns -ENOBUFS immediately if the cookie is negative
++	 */
++	ret = nfs_readpages_from_fscache(desc.ctx, inode, mapping,
++					 pages, &nr_pages);
++	if (ret == 0)
++		goto read_complete; /* all pages were read */
++
+ 	if (rsize < PAGE_CACHE_SIZE)
+ 		nfs_pageio_init(&pgio, inode, nfs_pagein_multi, rsize, 0);
+ 	else
+@@ -583,6 +606,7 @@ int nfs_readpages(struct file *filp, struct address_space *mapping,
+ 	nfs_pageio_complete(&pgio);
+ 	npages = (pgio.pg_bytes_written + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+ 	nfs_add_stats(inode, NFSIOS_READPAGES, npages);
++read_complete:
+ 	put_nfs_open_context(desc.ctx);
+ out:
+ 	return ret;
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index 7f5e747..6dd628f 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -57,6 +57,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ #include "internal.h"
++#include "fscache.h"
+ 
+ #define NFSDBG_FACILITY		NFSDBG_VFS
+ 
+@@ -549,6 +550,8 @@ static int nfs_show_stats(struct seq_file *m, struct vfsmount *mnt)
+ 
+ 	rpc_print_iostats(m, nfss->client);
+ 
++	nfs_fscache_show_stats(m, nfss);
++
+ 	return 0;
+ }
+ 
+diff --git a/fs/nfs/sysctl.c b/fs/nfs/sysctl.c
+index b62481d..b3b3280 100644
+--- a/fs/nfs/sysctl.c
++++ b/fs/nfs/sysctl.c
+@@ -14,6 +14,7 @@
+ #include <linux/nfs_fs.h>
+ 
+ #include "callback.h"
++#include "internal.h"
+ 
+ static const int nfs_set_port_min = 0;
+ static const int nfs_set_port_max = 65535;
+diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
+index 2d15d4a..8a5685f 100644
+--- a/include/linux/nfs_fs.h
++++ b/include/linux/nfs_fs.h
+@@ -174,6 +174,9 @@ struct nfs_inode {
+ 	int			 delegation_state;
+ 	struct rw_semaphore	rwsem;
+ #endif /* CONFIG_NFS_V4*/
++#ifdef CONFIG_NFS_FSCACHE
++	struct fscache_cookie	*fscache;
++#endif
+ 	struct inode		vfs_inode;
+ };
+ 
+@@ -187,6 +190,7 @@ struct nfs_inode {
+ #define NFS_INO_INVALID_ACL	0x0010		/* cached acls are invalid */
+ #define NFS_INO_REVAL_PAGECACHE	0x0020		/* must revalidate pagecache */
+ #define NFS_INO_REVAL_FORCED	0x0040		/* force revalidation ignoring a delegation */
++#define NFS_INO_INVALID_FSCACHE_ATTR	0x0080	/* local cache attributes are invalid */
+ 
+ /*
+  * Bit offsets in flags field
+@@ -195,6 +199,7 @@ struct nfs_inode {
+ #define NFS_INO_ADVISE_RDPLUS	(1)		/* advise readdirplus */
+ #define NFS_INO_STALE		(2)		/* possible stale inode */
+ #define NFS_INO_ACL_LRU_SET	(3)		/* Inode is on the LRU list */
++#define NFS_INO_FSCACHE		(4)		/* inode can be cached by FS-Cache */
+ 
+ static inline struct nfs_inode *NFS_I(struct inode *inode)
+ {
+@@ -216,6 +221,7 @@ static inline struct nfs_inode *NFS_I(struct inode *inode)
+ 
+ #define NFS_FLAGS(inode)		(NFS_I(inode)->flags)
+ #define NFS_STALE(inode)		(test_bit(NFS_INO_STALE, &NFS_FLAGS(inode)))
++#define NFS_FSCACHE(inode)	(test_bit(NFS_INO_FSCACHE, &NFS_FLAGS(inode)))
+ 
+ #define NFS_FILEID(inode)		(NFS_I(inode)->fileid)
+ 
+@@ -455,6 +461,8 @@ extern int  nfs_readpages(struct file *, struct address_space *,
+ 		struct list_head *, unsigned);
+ extern int  nfs_readpage_result(struct rpc_task *, struct nfs_read_data *);
+ extern void nfs_readdata_release(void *data);
++extern int  nfs_readpage_async(struct nfs_open_context *, struct inode *,
++			       struct page *);
+ 
+ /*
+  * Allocate nfs_read_data structures
+@@ -545,6 +553,7 @@ extern void * nfs_root_data(void);
+ #define NFSDBG_CALLBACK		0x0100
+ #define NFSDBG_CLIENT		0x0200
+ #define NFSDBG_MOUNT		0x0400
++#define NFSDBG_FSCACHE		0x0800
+ #define NFSDBG_ALL		0xFFFF
+ 
+ #ifdef __KERNEL__
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index 0cac49b..3c8e15d 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -3,6 +3,7 @@
+ 
+ #include <linux/list.h>
+ #include <linux/backing-dev.h>
++#include <linux/fscache.h>
+ 
+ struct nfs_iostats;
+ 
+@@ -65,6 +66,10 @@ struct nfs_client {
+ 	char			cl_ipaddr[16];
+ 	unsigned char		cl_id_uniquifier;
+ #endif
++
++#ifdef CONFIG_NFS_FSCACHE
++	struct fscache_cookie	*fscache;	/* client index cache cookie */
++#endif
+ };
+ 
+ /*
+@@ -95,12 +100,25 @@ struct nfs_server {
+ 	unsigned int		acdirmin;
+ 	unsigned int		acdirmax;
+ 	unsigned int		namelen;
++	unsigned int		options;	/* extra options enabled by mount */
++#define NFS_OPTION_FSCACHE	0x00000001	/* - local caching enabled */
+ 
+ 	struct nfs_fsid		fsid;
+ 	__u64			maxfilesize;	/* maximum file size */
+ 	unsigned long		mount_time;	/* when this fs was mounted */
+ 	dev_t			s_dev;		/* superblock dev numbers */
+ 
++#ifdef CONFIG_NFS_FSCACHE
++	/* statistical counters for local caching */
++	atomic_t		fscache_cnt_read_ok;
++	atomic_t		fscache_cnt_read_fail;
++	atomic_t		fscache_cnt_write_ok;
++	atomic_t		fscache_cnt_write_fail;
++	atomic_t		fscache_cnt_uncache;
++	int			fscache_last_read_error;
++	int			fscache_last_write_error;
++#endif
++
+ #ifdef CONFIG_NFS_V4
+ 	u32			attr_bitmask[2];/* V4 bitmask representing the set
+ 						   of attributes supported on this
 
 
 --
