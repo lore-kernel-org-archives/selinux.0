@@ -1,46 +1,115 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHMYt3022560
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:22:34 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHL08M021658
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:21:00 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHMXbP026824
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:22:33 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHKwbP025670
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:20:58 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 21/27] CacheFiles: Export things for CacheFiles [try #2]
+Subject: [PATCH 00/27] Permit filesystem local caching [try #2]
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 17:22:31 +0000
-Message-ID: <20080123172230.11107.61391.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
-References: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 17:20:39 +0000
+Message-ID: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Export a number of functions for CacheFiles's use.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
----
-
- fs/super.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/super.c b/fs/super.c
-index ceaf2e3..cd199ae 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -266,6 +266,7 @@ int fsync_super(struct super_block *sb)
- 	__fsync_super(sb);
- 	return sync_blockdev(sb->s_bdev);
- }
-+EXPORT_SYMBOL_GPL(fsync_super);
- 
- /**
-  *	generic_shutdown_super	-	common helper for ->kill_sb()
+These patches add local caching for network filesystems such as NFS.
 
+The patches can roughly be broken down into a number of sets:
+
+  (*) 01-keys-inc-payload.diff
+  (*) 02-keys-search-keyring.diff
+  (*) 03-keys-callout-blob.diff
+
+      Three patches to the keyring code made to help the CIFS people.
+      Included because of patches 05-08.
+
+  (*) 04-keys-get-label.diff
+
+      A patch to allow the security label of a key to be retrieved.
+      Included because of patches 05-08.
+
+  (*) 05-security-current-fsugid.diff
+  (*) 06-security-separate-task-bits.diff
+  (*) 07-security-subjective.diff
+  (*) 08-security-secctx2secid.diff
+  (*) 09-security-additional-classes.diff
+  (*) 10-security-kernel_service-class.diff
+  (*) 11-security-kernel-service.diff
+  (*) 12-security-nfsd.diff
+
+      Patches to permit the subjective security of a task to be overridden.
+      All the security details in task_struct are decanted into a new struct
+      that task_struct then has two pointers two: one that defines the
+      objective security of that task (how other tasks may affect it) and one
+      that defines the subjective security (how it may affect other objects).
+
+      Note that I have dropped the idea of struct cred for the moment.  With
+      the amount of stuff that was excluded from it, it wasn't actually any
+      use to me.  However, it can be added later.
+
+      Required for cachefiles.
+
+  (*) 13-release-page.diff
+  (*) 14-fscache-page-flags.diff
+  (*) 15-add_wait_queue_tail.diff
+  (*) 16-fscache.diff
+
+      Patches to provide a local caching facility for network filesystems.
+
+  (*) 17-cachefiles-ia64.diff
+  (*) 18-cachefiles-ext3-f_mapping.diff
+  (*) 19-cachefiles-write.diff
+  (*) 20-cachefiles-monitor.diff
+  (*) 21-cachefiles-export.diff
+  (*) 22-cachefiles.diff
+
+      Patches to provide a local cache in a directory of an already mounted
+      filesystem.
+
+  (*) 23-nfs-memleak.diff
+  (*) 24-fscache-nfs.diff
+  (*) 25-fscache-nfs-mount.diff
+  (*) 26-fscache-nfs-display.diff
+  (*) 27-fscache-nfs-persb.diff
+
+      Patches to provide NFS with local caching.  The fifth of these patches
+      makes caching configurable per superblock.
+
+
+I've fixed some current->fs[ug]id conversions as pointed out by Jan Harkes.
+
+I also fixed patch 14 (fscache-page-flags.diff) to make
+wait_on_page_owner_priv_2() use PG_owner_priv_2 rather than PG_private_2.
+
+--
+A tarball of the patches is available at:
+
+	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-28.tar.bz2
+
+
+To use this version of CacheFiles, the cachefilesd-0.9 is also required.  It
+is available as an SRPM:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9-1.fc7.src.rpm
+
+Or as individual bits:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9.tar.bz2
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
+
+The .fc, .if and .te files are for manipulating SELinux.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
