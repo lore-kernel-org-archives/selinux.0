@@ -1,18 +1,17 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHMV9d022540
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:22:31 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHMUeY021857
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:22:30 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHKvvl021645
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:20:57 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHKsbP025627
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:20:54 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 20/27] CacheFiles: Permit the page lock state to be monitored
-	[try #2]
+Subject: [PATCH 02/27] KEYS: Check starting keyring as part of search [try #2]
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 17:22:25 +0000
-Message-ID: <20080123172225.11107.53968.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 17:20:50 +0000
+Message-ID: <20080123172049.11107.90567.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
 References: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,65 +19,117 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a function to install a monitor on the page lock waitqueue for a particular
-page, thus allowing the page being unlocked to be detected.
+Check the starting keyring as part of the search to (a) see if that is what
+we're searching for, and (b) to check it is still valid for searching.
 
-This is used by CacheFiles to detect read completion on a page in the backing
-filesystem so that it can then copy the data to the waiting netfs page.
+The scenario:  User in process A does things that cause things to be
+created in its process session keyring.  The user then does an su to
+another user and starts a new process, B.  The two processes now
+share the same process session keyring.
 
+Process B does an NFS access which results in an upcall to gssd.
+When gssd attempts to instantiate the context key (to be linked
+into the process session keyring), it is denied access even though it
+has an authorization key.
+
+The order of calls is:
+
+   keyctl_instantiate_key()
+      lookup_user_key()				    (the default: case)
+         search_process_keyrings(current)
+	    search_process_keyrings(rka->context)   (recursive call)
+	       keyring_search_aux()
+
+keyring_search_aux() verifies the keys and keyrings underneath the
+top-level keyring it is given, but that top-level keyring is neither
+fully validated nor checked to see if it is the thing being searched for.
+
+This patch changes keyring_search_aux() to:
+1) do more validation on the top keyring it is given and
+2) check whether that top-level keyring is the thing being searched for
+
+
+Signed-off-by: Kevin Coffman <kwc@citi.umich.edu>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/pagemap.h |    5 +++++
- mm/filemap.c            |   18 ++++++++++++++++++
- 2 files changed, 23 insertions(+), 0 deletions(-)
+ security/keys/keyring.c |   35 +++++++++++++++++++++++++++++++----
+ 1 files changed, 31 insertions(+), 4 deletions(-)
 
 
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index d534689..963b2a4 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -228,6 +228,11 @@ static inline void wait_on_page_owner_priv_2(struct page *page)
- extern void end_page_owner_priv_2(struct page *page);
+diff --git a/security/keys/keyring.c b/security/keys/keyring.c
+index 88292e3..76b89b2 100644
+--- a/security/keys/keyring.c
++++ b/security/keys/keyring.c
+@@ -292,7 +292,7 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
  
- /*
-+ * Add an arbitrary waiter to a page's wait queue
-+ */
-+extern void add_page_wait_queue(struct page *page, wait_queue_t *waiter);
+ 	struct keyring_list *keylist;
+ 	struct timespec now;
+-	unsigned long possessed;
++	unsigned long possessed, kflags;
+ 	struct key *keyring, *key;
+ 	key_ref_t key_ref;
+ 	long err;
+@@ -318,6 +318,32 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
+ 	now = current_kernel_time();
+ 	err = -EAGAIN;
+ 	sp = 0;
++	
++	/* firstly we should check to see if this top-level keyring is what we
++	 * are looking for */
++	key_ref = ERR_PTR(-EAGAIN);
++	kflags = keyring->flags;
++	if (keyring->type == type && match(keyring, description)) {
++		key = keyring;
 +
-+/*
-  * Fault a userspace page into pagetables.  Return non-zero on a fault.
-  *
-  * This assumes that two userspace pages are always sufficient.  That's
-diff --git a/mm/filemap.c b/mm/filemap.c
-index adfba8a..8f7fe10 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -533,6 +533,24 @@ void fastcall wait_on_page_bit(struct page *page, int bit_nr)
- EXPORT_SYMBOL(wait_on_page_bit);
++		/* check it isn't negative and hasn't expired or been
++		 * revoked */
++		if (kflags & (1 << KEY_FLAG_REVOKED))
++			goto error_2;
++		if (key->expiry && now.tv_sec >= key->expiry)
++			goto error_2;
++		key_ref = ERR_PTR(-ENOKEY);
++		if (kflags & (1 << KEY_FLAG_NEGATIVE))
++			goto error_2;
++		goto found;
++	}
++
++	/* otherwise, the top keyring must not be revoked, expired, or
++	 * negatively instantiated if we are to search it */
++	key_ref = ERR_PTR(-EAGAIN);
++	if (kflags & ((1 << KEY_FLAG_REVOKED) | (1 << KEY_FLAG_NEGATIVE)) ||
++	    (keyring->expiry && now.tv_sec >= keyring->expiry))
++		goto error_2;
  
- /**
-+ * add_page_wait_queue - Add an arbitrary waiter to a page's wait queue
-+ * @page - Page defining the wait queue of interest
-+ * @waiter - Waiter to add to the queue
-+ *
-+ * Add an arbitrary @waiter to the wait queue for the nominated @page.
-+ */
-+void add_page_wait_queue(struct page *page, wait_queue_t *waiter)
-+{
-+	wait_queue_head_t *q = page_waitqueue(page);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue(q, waiter);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+EXPORT_SYMBOL_GPL(add_page_wait_queue);
-+
-+/**
-  * unlock_page - unlock a locked page
-  * @page: the page
-  *
+ 	/* start processing a new keyring */
+ descend:
+@@ -331,13 +357,14 @@ descend:
+ 	/* iterate through the keys in this keyring first */
+ 	for (kix = 0; kix < keylist->nkeys; kix++) {
+ 		key = keylist->keys[kix];
++		kflags = key->flags;
+ 
+ 		/* ignore keys not of this type */
+ 		if (key->type != type)
+ 			continue;
+ 
+ 		/* skip revoked keys and expired keys */
+-		if (test_bit(KEY_FLAG_REVOKED, &key->flags))
++		if (kflags & (1 << KEY_FLAG_REVOKED))
+ 			continue;
+ 
+ 		if (key->expiry && now.tv_sec >= key->expiry)
+@@ -352,8 +379,8 @@ descend:
+ 					context, KEY_SEARCH) < 0)
+ 			continue;
+ 
+-		/* we set a different error code if we find a negative key */
+-		if (test_bit(KEY_FLAG_NEGATIVE, &key->flags)) {
++		/* we set a different error code if we pass a negative key */
++		if (kflags & (1 << KEY_FLAG_NEGATIVE)) {
+ 			err = -ENOKEY;
+ 			continue;
+ 		}
 
 
 --
