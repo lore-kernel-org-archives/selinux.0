@@ -1,17 +1,18 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHKvvl021645
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:20:57 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHKsbP025627
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:20:54 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHLqdP022210
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:21:52 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHLpeY021541
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:21:51 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 02/27] KEYS: Check starting keyring as part of search [try #2]
+Subject: [PATCH 13/27] FS-Cache: Release page->private after failed readahead
+	[try #2]
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 17:20:50 +0000
-Message-ID: <20080123172049.11107.90567.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 17:21:48 +0000
+Message-ID: <20080123172148.11107.2607.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
 References: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,117 +20,82 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Check the starting keyring as part of the search to (a) see if that is what
-we're searching for, and (b) to check it is still valid for searching.
+The attached patch causes read_cache_pages() to release page-private data on a
+page for which add_to_page_cache() fails or the filler function fails. This
+permits pages with caching references associated with them to be cleaned up.
 
-The scenario:  User in process A does things that cause things to be
-created in its process session keyring.  The user then does an su to
-another user and starts a new process, B.  The two processes now
-share the same process session keyring.
+The invalidatepage() address space op is called (indirectly) to do the honours.
 
-Process B does an NFS access which results in an upcall to gssd.
-When gssd attempts to instantiate the context key (to be linked
-into the process session keyring), it is denied access even though it
-has an authorization key.
-
-The order of calls is:
-
-   keyctl_instantiate_key()
-      lookup_user_key()				    (the default: case)
-         search_process_keyrings(current)
-	    search_process_keyrings(rka->context)   (recursive call)
-	       keyring_search_aux()
-
-keyring_search_aux() verifies the keys and keyrings underneath the
-top-level keyring it is given, but that top-level keyring is neither
-fully validated nor checked to see if it is the thing being searched for.
-
-This patch changes keyring_search_aux() to:
-1) do more validation on the top keyring it is given and
-2) check whether that top-level keyring is the thing being searched for
-
-
-Signed-off-by: Kevin Coffman <kwc@citi.umich.edu>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- security/keys/keyring.c |   35 +++++++++++++++++++++++++++++++----
- 1 files changed, 31 insertions(+), 4 deletions(-)
+ mm/readahead.c |   39 +++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 37 insertions(+), 2 deletions(-)
 
 
-diff --git a/security/keys/keyring.c b/security/keys/keyring.c
-index 88292e3..76b89b2 100644
---- a/security/keys/keyring.c
-+++ b/security/keys/keyring.c
-@@ -292,7 +292,7 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
+diff --git a/mm/readahead.c b/mm/readahead.c
+index c9c50ca..75aa6b6 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -44,6 +44,41 @@ EXPORT_SYMBOL_GPL(file_ra_state_init);
  
- 	struct keyring_list *keylist;
- 	struct timespec now;
--	unsigned long possessed;
-+	unsigned long possessed, kflags;
- 	struct key *keyring, *key;
- 	key_ref_t key_ref;
- 	long err;
-@@ -318,6 +318,32 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
- 	now = current_kernel_time();
- 	err = -EAGAIN;
- 	sp = 0;
-+	
-+	/* firstly we should check to see if this top-level keyring is what we
-+	 * are looking for */
-+	key_ref = ERR_PTR(-EAGAIN);
-+	kflags = keyring->flags;
-+	if (keyring->type == type && match(keyring, description)) {
-+		key = keyring;
-+
-+		/* check it isn't negative and hasn't expired or been
-+		 * revoked */
-+		if (kflags & (1 << KEY_FLAG_REVOKED))
-+			goto error_2;
-+		if (key->expiry && now.tv_sec >= key->expiry)
-+			goto error_2;
-+		key_ref = ERR_PTR(-ENOKEY);
-+		if (kflags & (1 << KEY_FLAG_NEGATIVE))
-+			goto error_2;
-+		goto found;
+ #define list_to_page(head) (list_entry((head)->prev, struct page, lru))
+ 
++/*
++ * see if a page needs releasing upon read_cache_pages() failure
++ * - the caller of read_cache_pages() may have set PG_private before calling,
++ *   such as the NFS fs marking pages that are cached locally on disk, thus we
++ *   need to give the fs a chance to clean up in the event of an error
++ */
++static void read_cache_pages_invalidate_page(struct address_space *mapping,
++					     struct page *page)
++{
++	if (PagePrivate(page)) {
++		if (TestSetPageLocked(page))
++			BUG();
++		page->mapping = mapping;
++		do_invalidatepage(page, 0);
++		page->mapping = NULL;
++		unlock_page(page);
 +	}
++	page_cache_release(page);
++}
 +
-+	/* otherwise, the top keyring must not be revoked, expired, or
-+	 * negatively instantiated if we are to search it */
-+	key_ref = ERR_PTR(-EAGAIN);
-+	if (kflags & ((1 << KEY_FLAG_REVOKED) | (1 << KEY_FLAG_NEGATIVE)) ||
-+	    (keyring->expiry && now.tv_sec >= keyring->expiry))
-+		goto error_2;
- 
- 	/* start processing a new keyring */
- descend:
-@@ -331,13 +357,14 @@ descend:
- 	/* iterate through the keys in this keyring first */
- 	for (kix = 0; kix < keylist->nkeys; kix++) {
- 		key = keylist->keys[kix];
-+		kflags = key->flags;
- 
- 		/* ignore keys not of this type */
- 		if (key->type != type)
- 			continue;
- 
- 		/* skip revoked keys and expired keys */
--		if (test_bit(KEY_FLAG_REVOKED, &key->flags))
-+		if (kflags & (1 << KEY_FLAG_REVOKED))
- 			continue;
- 
- 		if (key->expiry && now.tv_sec >= key->expiry)
-@@ -352,8 +379,8 @@ descend:
- 					context, KEY_SEARCH) < 0)
- 			continue;
- 
--		/* we set a different error code if we find a negative key */
--		if (test_bit(KEY_FLAG_NEGATIVE, &key->flags)) {
-+		/* we set a different error code if we pass a negative key */
-+		if (kflags & (1 << KEY_FLAG_NEGATIVE)) {
- 			err = -ENOKEY;
++/*
++ * release a list of pages, invalidating them first if need be
++ */
++static void read_cache_pages_invalidate_pages(struct address_space *mapping,
++					      struct list_head *pages)
++{
++	struct page *victim;
++
++	while (!list_empty(pages)) {
++		victim = list_to_page(pages);
++		list_del(&victim->lru);
++		read_cache_pages_invalidate_page(mapping, victim);
++	}
++}
++
+ /**
+  * read_cache_pages - populate an address space with some pages & start reads against them
+  * @mapping: the address_space
+@@ -65,14 +100,14 @@ int read_cache_pages(struct address_space *mapping, struct list_head *pages,
+ 		list_del(&page->lru);
+ 		if (add_to_page_cache_lru(page, mapping,
+ 					page->index, GFP_KERNEL)) {
+-			page_cache_release(page);
++			read_cache_pages_invalidate_page(mapping, page);
  			continue;
  		}
+ 		page_cache_release(page);
+ 
+ 		ret = filler(data, page);
+ 		if (unlikely(ret)) {
+-			put_pages_list(pages);
++			read_cache_pages_invalidate_pages(mapping, pages);
+ 			break;
+ 		}
+ 		task_io_account_read(PAGE_CACHE_SIZE);
 
 
 --
