@@ -1,17 +1,18 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0jKJT015232
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:45:20 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0jJBR008059
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:45:19 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0jOxn015258
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:45:24 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0jNps028944
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:45:23 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 17/27] CacheFiles: Add missing copy_page export for ia64
+Subject: [PATCH 18/27] CacheFiles: Be consistent about the use of mapping vs
+	file->f_mapping in Ext3
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:45:16 +0000
-Message-ID: <20080123004515.15602.3675.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:45:21 +0000
+Message-ID: <20080123004521.15602.39021.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,31 +20,54 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This one-line patch fixes the missing export of copy_page introduced
-by the cachefile patches.  This patch is not yet upstream, but is required
-for cachefile on ia64.  It will be pushed upstream when cachefile goes
-upstream.
+Change all the usages of file->f_mapping in ext3_*write_end() functions to use
+the mapping argument directly.  This has two consequences:
 
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+ (*) Consistency.  Without this patch sometimes one is used and sometimes the
+     other is.
+
+ (*) A NULL file pointer can be passed.  This feature is then made use of by
+     the generic hook in the next patch, which is used by CacheFiles to write
+     pages to a file without setting up a file struct.
+
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- arch/ia64/kernel/ia64_ksyms.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ fs/ext3/inode.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 
-diff --git a/arch/ia64/kernel/ia64_ksyms.c b/arch/ia64/kernel/ia64_ksyms.c
-index c3b4412..e64fd61 100644
---- a/arch/ia64/kernel/ia64_ksyms.c
-+++ b/arch/ia64/kernel/ia64_ksyms.c
-@@ -43,6 +43,7 @@ EXPORT_SYMBOL(__do_clear_user);
- EXPORT_SYMBOL(__strlen_user);
- EXPORT_SYMBOL(__strncpy_from_user);
- EXPORT_SYMBOL(__strnlen_user);
-+EXPORT_SYMBOL(copy_page);
+diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
+index 9b162cd..bc918d3 100644
+--- a/fs/ext3/inode.c
++++ b/fs/ext3/inode.c
+@@ -1227,7 +1227,7 @@ static int ext3_generic_write_end(struct file *file,
+ 				loff_t pos, unsigned len, unsigned copied,
+ 				struct page *page, void *fsdata)
+ {
+-	struct inode *inode = file->f_mapping->host;
++	struct inode *inode = mapping->host;
  
- /* from arch/ia64/lib */
- extern void __divsi3(void);
+ 	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
+ 
+@@ -1252,7 +1252,7 @@ static int ext3_ordered_write_end(struct file *file,
+ 				struct page *page, void *fsdata)
+ {
+ 	handle_t *handle = ext3_journal_current_handle();
+-	struct inode *inode = file->f_mapping->host;
++	struct inode *inode = mapping->host;
+ 	unsigned from, to;
+ 	int ret = 0, ret2;
+ 
+@@ -1293,7 +1293,7 @@ static int ext3_writeback_write_end(struct file *file,
+ 				struct page *page, void *fsdata)
+ {
+ 	handle_t *handle = ext3_journal_current_handle();
+-	struct inode *inode = file->f_mapping->host;
++	struct inode *inode = mapping->host;
+ 	int ret = 0, ret2;
+ 	loff_t new_i_size;
+ 
 
 
 --
