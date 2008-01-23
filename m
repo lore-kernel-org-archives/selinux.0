@@ -1,62 +1,55 @@
-Message-ID: <47979DCB.20203@redhat.com>
-Date: Wed, 23 Jan 2008 15:04:27 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1200409128.9669.46.camel@moss-spartans.epoch.ncsc.mil>
+References: <1200409128.9669.46.camel@moss-spartans.epoch.ncsc.mil> <3466.1200319279@redhat.com> <1199902278.9393.283.camel@moss-spartans.epoch.ncsc.mil> <1197307397.18120.72.camel@moss-spartans.epoch.ncsc.mil> <1197305173.18120.60.camel@moss-spartans.epoch.ncsc.mil> <20071205193818.24617.79771.stgit@warthog.procyon.org.uk> <20071205193859.24617.36392.stgit@warthog.procyon.org.uk> <25037.1197306473@redhat.com> <17868.1199897484@redhat.com> <3524.1200319577@redhat.com> 
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Patch to install selinux python with correct permissions.
-References: <47834E2C.4070303@redhat.com> <1201096319.7025.264.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1201096319.7025.264.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: dhowells@redhat.com, Daniel J Walsh <dwalsh@redhat.com>,
+        casey@schaufler-ca.com, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM settings for task actions [try #2]
+Date: Wed, 23 Jan 2008 20:52:12 +0000
+Message-ID: <22469.1201121532@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-Stephen Smalley wrote:
-> On Tue, 2008-01-08 at 05:19 -0500, Daniel J Walsh wrote:
->> plain text document attachment (diff)
->> diff --exclude-from=exclude -N -u -r nsalibselinux/src/Makefile libselinux-2.0.46/src/Makefile
->> --- nsalibselinux/src/Makefile	2007-09-26 19:37:45.000000000 -0400
->> +++ libselinux-2.0.46/src/Makefile	2008-01-05 08:19:27.000000000 -0500
->> @@ -77,14 +77,14 @@
->>  
->>  install: all 
->>  	test -d $(LIBDIR) || install -m 755 -d $(LIBDIR)
->> -	install -m 644 $(LIBA) $(LIBDIR)
-> 
-> Why remove the static library from the install target?  We still want it
-> installable via some target.
-> 
-Yes we should not do this.
->>  	test -d $(SHLIBDIR) || install -m 755 -d $(SHLIBDIR)
->>  	install -m 755 $(LIBSO) $(SHLIBDIR)
->>  	cd $(LIBDIR) && ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
->>  
->>  install-pywrap: pywrap
->>  	test -d $(PYTHONLIBDIR)/site-packages || install -m 755 -d $(PYTHONLIBDIR)/site-packages
->> -	install -m 755 $(SWIGFILES) $(PYTHONLIBDIR)/site-packages
->> +	install -m 755 $(SWIGSO) $(PYTHONLIBDIR)/site-packages
->> +	install -m 644  selinux.py $(PYTHONLIBDIR)/site-packages
-> 
-> So is there much point in keeping SWIGFILES around then?  Also used in
-> clean: at present, but that's the only remaining use.   And presumably
-> the same change should happen to libsemanage?
->
-I don't think so.  I would remove them and spell it out.
+> Make sure that you or Dan submits a policy patch to register these
+> classes and permissions in the policy when the kernel patch is queued
+> for merge.
 
->>  relabel:
->>  	/sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+Do I just send the attached patch to <selinux@tycho.nsa.gov>?  Or do I need to
+make a diff from a point in the tree nearer the root?  Is there anything else
+I need to alter whilst I'm at it?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkeXncsACgkQrlYvE4MpobOx1wCgrqcLDl4mtY7Yf6biBsbmuLEy
-830An2LE/elmxj8/VBZhLV0UxJmmp2Q2
-=Z3kZ
------END PGP SIGNATURE-----
+David
+---
+Index: policy/flask/security_classes
+===================================================================
+--- policy/flask/security_classes	(revision 2573)
++++ policy/flask/security_classes	(working copy)
+@@ -109,4 +109,7 @@
+ # network peer labels
+ class peer
+ 
++# kernel services that need to override task security
++class kernel_service
++
+ # FLASK
+Index: policy/flask/access_vectors
+===================================================================
+--- policy/flask/access_vectors	(revision 2573)
++++ policy/flask/access_vectors	(working copy)
+@@ -736,3 +736,10 @@
+ {
+ 	recv
+ }
++
++# kernel services that need to override task security
++class kernel_service
++{
++	use_as_override
++	create_files_as
++}
 
 --
 This message was distributed to subscribers of the selinux mailing list.
