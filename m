@@ -1,136 +1,131 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0k1Cp015559
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:46:01 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0k0ps029020
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:46:00 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0hsnP014703
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:43:54 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0hrBR007756
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:43:54 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 25/27] NFS: Configuration and mount option changes to enable
-	local caching on NFS
+Subject: [PATCH 00/27] Permit filesystem local caching
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:45:58 +0000
-Message-ID: <20080123004558.15602.27066.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
-References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:43:45 +0000
+Message-ID: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Changes to the kernel configuration defintions and to the NFS mount options to
-allow the local caching support added by the previous patch to be enabled.
-
-Signed-off-by: David Howells <dhowells@redhat.com>
----
-
- fs/Kconfig        |    8 ++++++++
- fs/nfs/client.c   |    2 ++
- fs/nfs/internal.h |    1 +
- fs/nfs/super.c    |   14 ++++++++++++++
- 4 files changed, 25 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/Kconfig b/fs/Kconfig
-index e0eedf9..8352dc7 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -1650,6 +1650,14 @@ config NFS_V4
- 
- 	  If unsure, say N.
- 
-+config NFS_FSCACHE
-+	bool "Provide NFS client caching support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
-+	depends on NFS_FS=m && FSCACHE || NFS_FS=y && FSCACHE=y
-+	help
-+	  Say Y here if you want NFS data to be cached locally on disc through
-+	  the general filesystem cache manager
-+
- config NFS_DIRECTIO
- 	bool "Allow direct I/O on NFS files"
- 	depends on NFS_FS
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index bcdc5d0..92f9b84 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -572,6 +572,7 @@ static int nfs_init_server(struct nfs_server *server,
- 
- 	/* Initialise the client representation from the mount data */
- 	server->flags = data->flags & NFS_MOUNT_FLAGMASK;
-+	server->options = data->options;
- 
- 	if (data->rsize)
- 		server->rsize = nfs_block_size(data->rsize, NULL);
-@@ -931,6 +932,7 @@ static int nfs4_init_server(struct nfs_server *server,
- 	/* Initialise the client representation from the mount data */
- 	server->flags = data->flags & NFS_MOUNT_FLAGMASK;
- 	server->caps |= NFS_CAP_ATOMIC_OPEN;
-+	server->options = data->options;
- 
- 	if (data->rsize)
- 		server->rsize = nfs_block_size(data->rsize, NULL);
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index f3acf48..ef09e00 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -35,6 +35,7 @@ struct nfs_parsed_mount_data {
- 	int			acregmin, acregmax,
- 				acdirmin, acdirmax;
- 	int			namlen;
-+	unsigned int		options;
- 	unsigned int		bsize;
- 	unsigned int		auth_flavor_len;
- 	rpc_authflavor_t	auth_flavors[1];
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 6dd628f..0542550 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -74,6 +74,7 @@ enum {
- 	Opt_acl, Opt_noacl,
- 	Opt_rdirplus, Opt_nordirplus,
- 	Opt_sharecache, Opt_nosharecache,
-+	Opt_fscache, Opt_nofscache,
- 
- 	/* Mount options that take integer arguments */
- 	Opt_port,
-@@ -123,6 +124,8 @@ static match_table_t nfs_mount_option_tokens = {
- 	{ Opt_nordirplus, "nordirplus" },
- 	{ Opt_sharecache, "sharecache" },
- 	{ Opt_nosharecache, "nosharecache" },
-+	{ Opt_fscache, "fsc" },
-+	{ Opt_nofscache, "nofsc" },
- 
- 	{ Opt_port, "port=%u" },
- 	{ Opt_rsize, "rsize=%u" },
-@@ -459,6 +462,8 @@ static void nfs_show_mount_options(struct seq_file *m, struct nfs_server *nfss,
- 	seq_printf(m, ",timeo=%lu", 10U * clp->retrans_timeo / HZ);
- 	seq_printf(m, ",retrans=%u", clp->retrans_count);
- 	seq_printf(m, ",sec=%s", nfs_pseudoflavour_to_name(nfss->client->cl_auth->au_flavor));
-+	if (nfss->options & NFS_OPTION_FSCACHE)
-+		seq_printf(m, ",fsc");
- }
- 
- /*
-@@ -697,6 +702,15 @@ static int nfs_parse_mount_options(char *raw,
- 			break;
- 		case Opt_nosharecache:
- 			mnt->flags |= NFS_MOUNT_UNSHARED;
-+			mnt->options &= ~NFS_OPTION_FSCACHE;
-+			break;
-+		case Opt_fscache:
-+			/* sharing is mandatory with fscache */
-+			mnt->options |= NFS_OPTION_FSCACHE;
-+			mnt->flags &= ~NFS_MOUNT_UNSHARED;
-+			break;
-+		case Opt_nofscache:
-+			mnt->options &= ~NFS_OPTION_FSCACHE;
- 			break;
- 
- 		case Opt_port:
+These patches add local caching for network filesystems such as NFS.
 
+The patches can roughly be broken down into a number of sets:
+
+  (*) 01-keys-inc-payload.diff
+  (*) 02-keys-search-keyring.diff
+  (*) 03-keys-callout-blob.diff
+
+      Three patches to the keyring code made to help the CIFS people.
+      Included because of patches 05-08.
+
+  (*) 04-keys-get-label.diff
+
+      A patch to allow the security label of a key to be retrieved.
+      Included because of patches 05-08.
+
+  (*) 05-security-current-fsugid.diff
+  (*) 06-security-separate-task-bits.diff
+  (*) 07-security-subjective.diff
+  (*) 08-security-secctx2secid.diff
+  (*) 09-security-additional-classes.diff
+  (*) 10-security-kernel_service-class.diff
+  (*) 11-security-kernel-service.diff
+  (*) 12-security-nfsd.diff
+
+      Patches to permit the subjective security of a task to be overridden.
+      All the security details in task_struct are decanted into a new struct
+      that task_struct then has two pointers two: one that defines the
+      objective security of that task (how other tasks may affect it) and one
+      that defines the subjective security (how it may affect other objects).
+
+      Note that I have dropped the idea of struct cred for the moment.  With
+      the amount of stuff that was excluded from it, it wasn't actually any
+      use to me.  However, it can be added later.
+
+      Required for cachefiles.
+
+  (*) 13-release-page.diff
+  (*) 14-fscache-page-flags.diff
+  (*) 15-add_wait_queue_tail.diff
+  (*) 16-fscache.diff
+
+      Patches to provide a local caching facility for network filesystems.
+
+  (*) 17-cachefiles-ia64.diff
+  (*) 18-cachefiles-ext3-f_mapping.diff
+  (*) 19-cachefiles-write.diff
+  (*) 20-cachefiles-monitor.diff
+  (*) 21-cachefiles-export.diff
+  (*) 22-cachefiles.diff
+
+      Patches to provide a local cache in a directory of an already mounted
+      filesystem.
+
+  (*) 23-nfs-memleak.diff
+  (*) 24-fscache-nfs.diff
+  (*) 25-fscache-nfs-mount.diff
+  (*) 26-fscache-nfs-display.diff
+  (*) 27-fscache-nfs-persb.diff
+
+      Patches to provide NFS with local caching.  The fifth of these patches
+      makes caching configurable per superblock.
+
+
+I've updated the patches to compile on as many arches I can get compilers for
+and can get to compile.  However, for patch 06, the sparc and alpha arches need
+some asm work as they access security information from asm code, using
+asm-offsets to calculate the offset.
+
+
+The SELinux base code will also need updating to have the security class, lest
+the following error appear in dmesg:
+
+	context_struct_compute_av:  unrecognized class 69
+
+
+I've provided a patch to make NFSd use task_security and current->act_as to
+change its security settings.
+
+
+I've also renamed the accessors for the PG_fscache and PG_fscache_write bits in
+page-flags.h, pagemap.h and filemap.c (they subclass PG_private_2 and
+PG_owner_priv_2 so these are the accessors in the main headers).  I've then
+wrapped them in fscache.h.
+
+--
+A tarball of the patches is available at:
+
+	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-27.tar.bz2
+
+
+To use this version of CacheFiles, the cachefilesd-0.9 is also required.  It
+is available as an SRPM:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9-1.fc7.src.rpm
+
+Or as individual bits:
+
+	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9.tar.bz2
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
+	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
+
+The .fc, .if and .te files are for manipulating SELinux.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
