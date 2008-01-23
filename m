@@ -1,60 +1,80 @@
-Message-ID: <4797B92E.7050901@redhat.com>
-Date: Wed, 23 Jan 2008 17:01:18 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Date: Thu, 24 Jan 2008 09:03:28 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: David Howells <dhowells@redhat.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        casey@schaufler-ca.com, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 08/28] SECURITY: Allow kernel services to override LSM
+ settings for task actions [try #2]
+In-Reply-To: <22469.1201121532@redhat.com>
+Message-ID: <Xine.LNX.4.64.0801240902460.21138@us.intercode.com.au>
+References: <1200409128.9669.46.camel@moss-spartans.epoch.ncsc.mil>
+ <3466.1200319279@redhat.com> <1199902278.9393.283.camel@moss-spartans.epoch.ncsc.mil>
+ <1197307397.18120.72.camel@moss-spartans.epoch.ncsc.mil>
+ <1197305173.18120.60.camel@moss-spartans.epoch.ncsc.mil>
+ <20071205193818.24617.79771.stgit@warthog.procyon.org.uk>
+ <20071205193859.24617.36392.stgit@warthog.procyon.org.uk> <25037.1197306473@redhat.com>
+ <17868.1199897484@redhat.com> <3524.1200319577@redhat.com>
+ <22469.1201121532@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: I am more worried about open then read and write, SELinux needs open
- access checks.
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 23 Jan 2008, David Howells wrote:
 
-One of the things I have talked about in the past was separating the
-access for open from read/write.
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > Make sure that you or Dan submits a policy patch to register these
+> > classes and permissions in the policy when the kernel patch is queued
+> > for merge.
+> 
+> Do I just send the attached patch to <selinux@tycho.nsa.gov>?  
 
+That should be enough (and that list is on the cc).
 
-An example of where this is a problem is the following AVC from a
-bugzilla I got today.
-type=AVC msg=audit(1201052518.765:1352): avc: denied { write } for
-pid=5767 comm="dbus-daemon" path="/home/zack/startx.log" dev=sda3
-ino=2227350
-scontext=unconfined_u:unconfined_r:unconfined_dbusd_t:s0-s0:c0.c1023
-tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file
+>Or do I need to
+> make a diff from a point in the tree nearer the root?  Is there anything else
+> I need to alter whilst I'm at it?
+> 
+> David
+> ---
+> Index: policy/flask/security_classes
+> ===================================================================
+> --- policy/flask/security_classes	(revision 2573)
+> +++ policy/flask/security_classes	(working copy)
+> @@ -109,4 +109,7 @@
+>  # network peer labels
+>  class peer
+>  
+> +# kernel services that need to override task security
+> +class kernel_service
+> +
+>  # FLASK
+> Index: policy/flask/access_vectors
+> ===================================================================
+> --- policy/flask/access_vectors	(revision 2573)
+> +++ policy/flask/access_vectors	(working copy)
+> @@ -736,3 +736,10 @@
+>  {
+>  	recv
+>  }
+> +
+> +# kernel services that need to override task security
+> +class kernel_service
+> +{
+> +	use_as_override
+> +	create_files_as
+> +}
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-
-This indicates that zack started x windows with startx.  With its
-standard output directed to /home/zack/startx.log.  The avc indicates
-that dbus has suddenly started trying to write files in the users home
-directory.
-
-My choice is to allow it or dontaudit it.
-
-Neither is correct.  I really want to know if a confined application
-suddenly opens a file in the users homedir for writing, but if the
-processes is handed an open file descriptor, I want to allow it.
-
-This is a fundamental flaw in the usability of SELinux.  Handling of
-stdin/stdout/stderr are always generating AVC messages that we either
-cover up or allow, and this can prevent us from discovering a real
-cracker situation.
-
-I would like to propose that we add one or more avc's to deal with
-opening a file.  open or open_read open_write.  Leave the existing
-access for those that are worried about leaking file descriptors and
-information flow, but allow us to concentrate on real vulnerability s
-versus noicy avc messages.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkeXuS4ACgkQrlYvE4MpobOx7gCg6g4GRpNEv7OxeHJSdVG6oqI1
-tq4AmwWwa/sZVbvpFb480LJRcfn7BjLN
-=jPAC
------END PGP SIGNATURE-----
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
