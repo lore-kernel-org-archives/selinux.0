@@ -1,18 +1,17 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0iVWE014943
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:44:31 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0iUps028781
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:44:30 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0ibkF014981
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:44:37 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0iaBR007907
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:44:37 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 08/27] Add a secctx_to_secid() LSM hook to go along with the
-	existing
+Subject: [PATCH 09/27] Security: Pre-add additional non-caching classes
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:44:28 +0000
-Message-ID: <20080123004428.15602.74651.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:44:33 +0000
+Message-ID: <20080123004433.15602.56611.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,130 +19,101 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-secid_to_secctx() LSM hook.  This patch also includes the SELinux
-implementation for this hook.
+Pre-add additional non-caching classes that are in the SELinux upstream
+repository, but not in the upstream kernel so they don't get in the fscache
+class patch.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/security.h |   13 +++++++++++++
- security/dummy.c         |    6 ++++++
- security/security.c      |    6 ++++++
- security/selinux/hooks.c |    6 ++++++
- 4 files changed, 31 insertions(+), 0 deletions(-)
+ security/selinux/include/av_perm_to_string.h |    5 +++++
+ security/selinux/include/av_permissions.h    |    5 +++++
+ security/selinux/include/class_to_string.h   |    7 +++++++
+ security/selinux/include/flask.h             |    1 +
+ 4 files changed, 18 insertions(+), 0 deletions(-)
 
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index b7ba073..e8f2f2d 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1200,6 +1200,10 @@ struct request_sock;
-  *	Convert secid to security context.
-  *	@secid contains the security ID.
-  *	@secdata contains the pointer that stores the converted security context.
-+ * @secctx_to_secid:
-+ *      Convert security context to secid.
-+ *      @secid contains the pointer to the generated security ID.
-+ *      @secdata contains the security context.
-  *
-  * @release_secctx:
-  *	Release the security context.
-@@ -1389,6 +1393,7 @@ struct security_operations {
-  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
-  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
- 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
-+	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
- 	void (*release_secctx)(char *secdata, u32 seclen);
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index 049bf69..caa0634 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -37,6 +37,8 @@
+    S_(SECCLASS_NODE, NODE__ENFORCE_DEST, "enforce_dest")
+    S_(SECCLASS_NODE, NODE__DCCP_RECV, "dccp_recv")
+    S_(SECCLASS_NODE, NODE__DCCP_SEND, "dccp_send")
++   S_(SECCLASS_NODE, NODE__RECVFROM, "recvfrom")
++   S_(SECCLASS_NODE, NODE__SENDTO, "sendto")
+    S_(SECCLASS_NETIF, NETIF__TCP_RECV, "tcp_recv")
+    S_(SECCLASS_NETIF, NETIF__TCP_SEND, "tcp_send")
+    S_(SECCLASS_NETIF, NETIF__UDP_RECV, "udp_recv")
+@@ -45,6 +47,8 @@
+    S_(SECCLASS_NETIF, NETIF__RAWIP_SEND, "rawip_send")
+    S_(SECCLASS_NETIF, NETIF__DCCP_RECV, "dccp_recv")
+    S_(SECCLASS_NETIF, NETIF__DCCP_SEND, "dccp_send")
++   S_(SECCLASS_NETIF, NETIF__INGRESS, "ingress")
++   S_(SECCLASS_NETIF, NETIF__EGRESS, "egress")
+    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__CONNECTTO, "connectto")
+    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__NEWCONN, "newconn")
+    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__ACCEPTFROM, "acceptfrom")
+@@ -159,3 +163,4 @@
+    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NODE_BIND, "node_bind")
+    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
+    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
++   S_(SECCLASS_PEER, PEER__RECV, "recv")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index eda89a2..c2b5bb2 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -292,6 +292,8 @@
+ #define NODE__ENFORCE_DEST                        0x00000040UL
+ #define NODE__DCCP_RECV                           0x00000080UL
+ #define NODE__DCCP_SEND                           0x00000100UL
++#define NODE__RECVFROM                            0x00000200UL
++#define NODE__SENDTO                              0x00000400UL
+ #define NETIF__TCP_RECV                           0x00000001UL
+ #define NETIF__TCP_SEND                           0x00000002UL
+ #define NETIF__UDP_RECV                           0x00000004UL
+@@ -300,6 +302,8 @@
+ #define NETIF__RAWIP_SEND                         0x00000020UL
+ #define NETIF__DCCP_RECV                          0x00000040UL
+ #define NETIF__DCCP_SEND                          0x00000080UL
++#define NETIF__INGRESS                            0x00000100UL
++#define NETIF__EGRESS                             0x00000200UL
+ #define NETLINK_SOCKET__IOCTL                     0x00000001UL
+ #define NETLINK_SOCKET__READ                      0x00000002UL
+ #define NETLINK_SOCKET__WRITE                     0x00000004UL
+@@ -824,3 +828,4 @@
+ #define DCCP_SOCKET__NODE_BIND                    0x00400000UL
+ #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
+ #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
++#define PEER__RECV                                0x00000001UL
+diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
+index e77de0e..b1b0d1d 100644
+--- a/security/selinux/include/class_to_string.h
++++ b/security/selinux/include/class_to_string.h
+@@ -64,3 +64,10 @@
+     S_(NULL)
+     S_("dccp_socket")
+     S_("memprotect")
++    S_(NULL)
++    S_(NULL)
++    S_(NULL)
++    S_(NULL)
++    S_(NULL)
++    S_(NULL)
++    S_("peer")
+diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
+index a9c2b20..09e9dd2 100644
+--- a/security/selinux/include/flask.h
++++ b/security/selinux/include/flask.h
+@@ -50,6 +50,7 @@
+ #define SECCLASS_KEY                                     58
+ #define SECCLASS_DCCP_SOCKET                             60
+ #define SECCLASS_MEMPROTECT                              61
++#define SECCLASS_PEER                                    68
  
- #ifdef CONFIG_SECURITY_NETWORK
-@@ -1623,6 +1628,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
- int security_netlink_recv(struct sk_buff *skb, int cap);
- int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
-+int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
- void security_release_secctx(char *secdata, u32 seclen);
- 
- #else /* CONFIG_SECURITY */
-@@ -2305,6 +2311,13 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
- 	return -EOPNOTSUPP;
- }
- 
-+static inline int security_secctx_to_secid(char *secdata,
-+					   u32 seclen,
-+					   u32 *secid)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static inline void security_release_secctx(char *secdata, u32 seclen)
- {
- }
-diff --git a/security/dummy.c b/security/dummy.c
-index 6f97089..72f1666 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -943,6 +943,11 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return -EOPNOTSUPP;
- }
- 
-+static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static void dummy_release_secctx(char *secdata, u32 seclen)
- {
- }
-@@ -1109,6 +1114,7 @@ void security_fixup_ops (struct security_operations *ops)
-  	set_to_dummy_if_null(ops, getprocattr);
-  	set_to_dummy_if_null(ops, setprocattr);
-  	set_to_dummy_if_null(ops, secid_to_secctx);
-+	set_to_dummy_if_null(ops, secctx_to_secid);
-  	set_to_dummy_if_null(ops, release_secctx);
- #ifdef CONFIG_SECURITY_NETWORK
- 	set_to_dummy_if_null(ops, unix_stream_connect);
-diff --git a/security/security.c b/security/security.c
-index 92d66d6..1ef4908 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -821,6 +821,12 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- }
- EXPORT_SYMBOL(security_secid_to_secctx);
- 
-+int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+{
-+	return security_ops->secctx_to_secid(secdata, seclen, secid);
-+}
-+EXPORT_SYMBOL(security_secctx_to_secid);
-+
- void security_release_secctx(char *secdata, u32 seclen)
- {
- 	return security_ops->release_secctx(secdata, seclen);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 20a6b55..1d3eab7 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4734,6 +4734,11 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return security_sid_to_context(secid, secdata, seclen);
- }
- 
-+static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+{
-+	return security_context_to_sid(secdata, seclen, secid);
-+}
-+
- static void selinux_release_secctx(char *secdata, u32 seclen)
- {
- 	kfree(secdata);
-@@ -4937,6 +4942,7 @@ static struct security_operations selinux_ops = {
- 	.setprocattr =                  selinux_setprocattr,
- 
- 	.secid_to_secctx =		selinux_secid_to_secctx,
-+	.secctx_to_secid =		selinux_secctx_to_secid,
- 	.release_secctx =		selinux_release_secctx,
- 
-         .unix_stream_connect =		selinux_socket_unix_stream_connect,
+ /*
+  * Security identifier indices for initial entities
 
 
 --
