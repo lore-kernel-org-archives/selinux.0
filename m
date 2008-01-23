@@ -1,18 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0jOxn015258
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:45:24 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0hxei014717
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:43:59 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0jNps028944
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:45:23 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0hwps028671
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:43:58 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 18/27] CacheFiles: Be consistent about the use of mapping vs
-	file->f_mapping in Ext3
+Subject: [PATCH 01/27] KEYS: Increase the payload size when instantiating a key
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:45:21 +0000
-Message-ID: <20080123004521.15602.39021.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:43:51 +0000
+Message-ID: <20080123004350.15602.19785.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,53 +19,115 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change all the usages of file->f_mapping in ext3_*write_end() functions to use
-the mapping argument directly.  This has two consequences:
-
- (*) Consistency.  Without this patch sometimes one is used and sometimes the
-     other is.
-
- (*) A NULL file pointer can be passed.  This feature is then made use of by
-     the generic hook in the next patch, which is used by CacheFiles to write
-     pages to a file without setting up a file struct.
+Increase the size of a payload that can be used to instantiate a key in
+add_key() and keyctl_instantiate_key().  This permits huge CIFS SPNEGO blobs to
+be passed around.  The limit is raised to 1MB.  If kmalloc() can't allocate a
+buffer of sufficient size, vmalloc() will be tried instead.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/ext3/inode.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ security/keys/keyctl.c |   38 ++++++++++++++++++++++++++++++--------
+ 1 files changed, 30 insertions(+), 8 deletions(-)
 
 
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index 9b162cd..bc918d3 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -1227,7 +1227,7 @@ static int ext3_generic_write_end(struct file *file,
- 				loff_t pos, unsigned len, unsigned copied,
- 				struct page *page, void *fsdata)
- {
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index d9ca15c..8ec8432 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -19,6 +19,7 @@
+ #include <linux/capability.h>
+ #include <linux/string.h>
+ #include <linux/err.h>
++#include <linux/vmalloc.h>
+ #include <asm/uaccess.h>
+ #include "internal.h"
  
- 	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
+@@ -62,9 +63,10 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 	char type[32], *description;
+ 	void *payload;
+ 	long ret;
++	bool vm;
  
-@@ -1252,7 +1252,7 @@ static int ext3_ordered_write_end(struct file *file,
- 				struct page *page, void *fsdata)
- {
- 	handle_t *handle = ext3_journal_current_handle();
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
- 	unsigned from, to;
- 	int ret = 0, ret2;
+ 	ret = -EINVAL;
+-	if (plen > 32767)
++	if (plen > 1024 * 1024 - 1)
+ 		goto error;
  
-@@ -1293,7 +1293,7 @@ static int ext3_writeback_write_end(struct file *file,
- 				struct page *page, void *fsdata)
- {
- 	handle_t *handle = ext3_journal_current_handle();
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
- 	int ret = 0, ret2;
- 	loff_t new_i_size;
+ 	/* draw all the data into kernel space */
+@@ -81,11 +83,18 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 	/* pull the payload in if one was supplied */
+ 	payload = NULL;
+ 
++	vm = false;
+ 	if (_payload) {
+ 		ret = -ENOMEM;
+ 		payload = kmalloc(plen, GFP_KERNEL);
+-		if (!payload)
+-			goto error2;
++		if (!payload) {
++			if (plen <= PAGE_SIZE)
++				goto error2;
++			vm = true;
++			payload = vmalloc(plen);
++			if (!payload)
++				goto error2;
++		}
+ 
+ 		ret = -EFAULT;
+ 		if (copy_from_user(payload, _payload, plen) != 0)
+@@ -113,7 +122,10 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 
+ 	key_ref_put(keyring_ref);
+  error3:
+-	kfree(payload);
++	if (!vm)
++		kfree(payload);
++	else
++		vfree(payload);
+  error2:
+ 	kfree(description);
+  error:
+@@ -821,9 +833,10 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	key_ref_t keyring_ref;
+ 	void *payload;
+ 	long ret;
++	bool vm = false;
+ 
+ 	ret = -EINVAL;
+-	if (plen > 32767)
++	if (plen > 1024 * 1024 - 1)
+ 		goto error;
+ 
+ 	/* the appropriate instantiation authorisation key must have been
+@@ -843,8 +856,14 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	if (_payload) {
+ 		ret = -ENOMEM;
+ 		payload = kmalloc(plen, GFP_KERNEL);
+-		if (!payload)
+-			goto error;
++		if (!payload) {
++			if (plen <= PAGE_SIZE)
++				goto error;
++			vm = true;
++			payload = vmalloc(plen);
++			if (!payload)
++				goto error;
++		}
+ 
+ 		ret = -EFAULT;
+ 		if (copy_from_user(payload, _payload, plen) != 0)
+@@ -877,7 +896,10 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	}
+ 
+ error2:
+-	kfree(payload);
++	if (!vm)
++		kfree(payload);
++	else
++		vfree(payload);
+ error:
+ 	return ret;
  
 
 
