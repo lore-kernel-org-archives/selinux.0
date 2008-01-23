@@ -1,136 +1,33 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHMueO022763
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:22:56 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHMteY022047
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:22:55 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHL59e021703
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:21:05 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHL4bP025721
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:21:04 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 25/27] NFS: Configuration and mount option changes to enable
-	local caching on NFS [try #2]
+In-Reply-To: <20080123004459.15602.45031.stgit@warthog.procyon.org.uk>
+References: <20080123004459.15602.45031.stgit@warthog.procyon.org.uk> <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 17:22:52 +0000
-Message-ID: <20080123172251.11107.71065.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
-References: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: [PATCH 14/27] FS-Cache: Recruit a couple of page flags for cache management
+Date: Wed, 23 Jan 2008 17:20:09 +0000
+Message-ID: <11099.1201108809@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Changes to the kernel configuration defintions and to the NFS mount options to
-allow the local caching support added by the previous patch to be enabled.
+David Howells <dhowells@redhat.com> wrote:
 
-Signed-off-by: David Howells <dhowells@redhat.com>
----
+>  (2) PG_fscache_write (PG_owner_priv_2)
+> 
+>      The marked page is being written to the local cache.  The page may not be
+>      modified whilst this is in progress.
 
- fs/Kconfig        |    8 ++++++++
- fs/nfs/client.c   |    2 ++
- fs/nfs/internal.h |    1 +
- fs/nfs/super.c    |   14 ++++++++++++++
- 4 files changed, 25 insertions(+), 0 deletions(-)
+Oops.  wait_on_page_owner_priv_2() should use PG_owner_priv_2 rather than
+PG_private_2.  I'll release a new patchset shortly.
 
-
-diff --git a/fs/Kconfig b/fs/Kconfig
-index e95b11c..39b1981 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -1650,6 +1650,14 @@ config NFS_V4
- 
- 	  If unsure, say N.
- 
-+config NFS_FSCACHE
-+	bool "Provide NFS client caching support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
-+	depends on NFS_FS=m && FSCACHE || NFS_FS=y && FSCACHE=y
-+	help
-+	  Say Y here if you want NFS data to be cached locally on disc through
-+	  the general filesystem cache manager
-+
- config NFS_DIRECTIO
- 	bool "Allow direct I/O on NFS files"
- 	depends on NFS_FS
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index bcdc5d0..92f9b84 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -572,6 +572,7 @@ static int nfs_init_server(struct nfs_server *server,
- 
- 	/* Initialise the client representation from the mount data */
- 	server->flags = data->flags & NFS_MOUNT_FLAGMASK;
-+	server->options = data->options;
- 
- 	if (data->rsize)
- 		server->rsize = nfs_block_size(data->rsize, NULL);
-@@ -931,6 +932,7 @@ static int nfs4_init_server(struct nfs_server *server,
- 	/* Initialise the client representation from the mount data */
- 	server->flags = data->flags & NFS_MOUNT_FLAGMASK;
- 	server->caps |= NFS_CAP_ATOMIC_OPEN;
-+	server->options = data->options;
- 
- 	if (data->rsize)
- 		server->rsize = nfs_block_size(data->rsize, NULL);
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index f3acf48..ef09e00 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -35,6 +35,7 @@ struct nfs_parsed_mount_data {
- 	int			acregmin, acregmax,
- 				acdirmin, acdirmax;
- 	int			namlen;
-+	unsigned int		options;
- 	unsigned int		bsize;
- 	unsigned int		auth_flavor_len;
- 	rpc_authflavor_t	auth_flavors[1];
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 6dd628f..0542550 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -74,6 +74,7 @@ enum {
- 	Opt_acl, Opt_noacl,
- 	Opt_rdirplus, Opt_nordirplus,
- 	Opt_sharecache, Opt_nosharecache,
-+	Opt_fscache, Opt_nofscache,
- 
- 	/* Mount options that take integer arguments */
- 	Opt_port,
-@@ -123,6 +124,8 @@ static match_table_t nfs_mount_option_tokens = {
- 	{ Opt_nordirplus, "nordirplus" },
- 	{ Opt_sharecache, "sharecache" },
- 	{ Opt_nosharecache, "nosharecache" },
-+	{ Opt_fscache, "fsc" },
-+	{ Opt_nofscache, "nofsc" },
- 
- 	{ Opt_port, "port=%u" },
- 	{ Opt_rsize, "rsize=%u" },
-@@ -459,6 +462,8 @@ static void nfs_show_mount_options(struct seq_file *m, struct nfs_server *nfss,
- 	seq_printf(m, ",timeo=%lu", 10U * clp->retrans_timeo / HZ);
- 	seq_printf(m, ",retrans=%u", clp->retrans_count);
- 	seq_printf(m, ",sec=%s", nfs_pseudoflavour_to_name(nfss->client->cl_auth->au_flavor));
-+	if (nfss->options & NFS_OPTION_FSCACHE)
-+		seq_printf(m, ",fsc");
- }
- 
- /*
-@@ -697,6 +702,15 @@ static int nfs_parse_mount_options(char *raw,
- 			break;
- 		case Opt_nosharecache:
- 			mnt->flags |= NFS_MOUNT_UNSHARED;
-+			mnt->options &= ~NFS_OPTION_FSCACHE;
-+			break;
-+		case Opt_fscache:
-+			/* sharing is mandatory with fscache */
-+			mnt->options |= NFS_OPTION_FSCACHE;
-+			mnt->flags &= ~NFS_MOUNT_UNSHARED;
-+			break;
-+		case Opt_nofscache:
-+			mnt->options &= ~NFS_OPTION_FSCACHE;
- 			break;
- 
- 		case Opt_port:
-
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
