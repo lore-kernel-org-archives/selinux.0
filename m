@@ -1,17 +1,17 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0ibkF014981
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:44:37 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0jKJT015232
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:45:20 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0iaBR007907
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:44:37 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0jJBR008059
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:45:19 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 09/27] Security: Pre-add additional non-caching classes
+Subject: [PATCH 17/27] CacheFiles: Add missing copy_page export for ia64
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:44:33 +0000
-Message-ID: <20080123004433.15602.56611.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:45:16 +0000
+Message-ID: <20080123004515.15602.3675.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,101 +19,31 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Pre-add additional non-caching classes that are in the SELinux upstream
-repository, but not in the upstream kernel so they don't get in the fscache
-class patch.
+This one-line patch fixes the missing export of copy_page introduced
+by the cachefile patches.  This patch is not yet upstream, but is required
+for cachefile on ia64.  It will be pushed upstream when cachefile goes
+upstream.
 
+Signed-off-by: Prarit Bhargava <prarit@redhat.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- security/selinux/include/av_perm_to_string.h |    5 +++++
- security/selinux/include/av_permissions.h    |    5 +++++
- security/selinux/include/class_to_string.h   |    7 +++++++
- security/selinux/include/flask.h             |    1 +
- 4 files changed, 18 insertions(+), 0 deletions(-)
+ arch/ia64/kernel/ia64_ksyms.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
 
-diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-index 049bf69..caa0634 100644
---- a/security/selinux/include/av_perm_to_string.h
-+++ b/security/selinux/include/av_perm_to_string.h
-@@ -37,6 +37,8 @@
-    S_(SECCLASS_NODE, NODE__ENFORCE_DEST, "enforce_dest")
-    S_(SECCLASS_NODE, NODE__DCCP_RECV, "dccp_recv")
-    S_(SECCLASS_NODE, NODE__DCCP_SEND, "dccp_send")
-+   S_(SECCLASS_NODE, NODE__RECVFROM, "recvfrom")
-+   S_(SECCLASS_NODE, NODE__SENDTO, "sendto")
-    S_(SECCLASS_NETIF, NETIF__TCP_RECV, "tcp_recv")
-    S_(SECCLASS_NETIF, NETIF__TCP_SEND, "tcp_send")
-    S_(SECCLASS_NETIF, NETIF__UDP_RECV, "udp_recv")
-@@ -45,6 +47,8 @@
-    S_(SECCLASS_NETIF, NETIF__RAWIP_SEND, "rawip_send")
-    S_(SECCLASS_NETIF, NETIF__DCCP_RECV, "dccp_recv")
-    S_(SECCLASS_NETIF, NETIF__DCCP_SEND, "dccp_send")
-+   S_(SECCLASS_NETIF, NETIF__INGRESS, "ingress")
-+   S_(SECCLASS_NETIF, NETIF__EGRESS, "egress")
-    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__CONNECTTO, "connectto")
-    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__NEWCONN, "newconn")
-    S_(SECCLASS_UNIX_STREAM_SOCKET, UNIX_STREAM_SOCKET__ACCEPTFROM, "acceptfrom")
-@@ -159,3 +163,4 @@
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NODE_BIND, "node_bind")
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
-    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
-+   S_(SECCLASS_PEER, PEER__RECV, "recv")
-diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-index eda89a2..c2b5bb2 100644
---- a/security/selinux/include/av_permissions.h
-+++ b/security/selinux/include/av_permissions.h
-@@ -292,6 +292,8 @@
- #define NODE__ENFORCE_DEST                        0x00000040UL
- #define NODE__DCCP_RECV                           0x00000080UL
- #define NODE__DCCP_SEND                           0x00000100UL
-+#define NODE__RECVFROM                            0x00000200UL
-+#define NODE__SENDTO                              0x00000400UL
- #define NETIF__TCP_RECV                           0x00000001UL
- #define NETIF__TCP_SEND                           0x00000002UL
- #define NETIF__UDP_RECV                           0x00000004UL
-@@ -300,6 +302,8 @@
- #define NETIF__RAWIP_SEND                         0x00000020UL
- #define NETIF__DCCP_RECV                          0x00000040UL
- #define NETIF__DCCP_SEND                          0x00000080UL
-+#define NETIF__INGRESS                            0x00000100UL
-+#define NETIF__EGRESS                             0x00000200UL
- #define NETLINK_SOCKET__IOCTL                     0x00000001UL
- #define NETLINK_SOCKET__READ                      0x00000002UL
- #define NETLINK_SOCKET__WRITE                     0x00000004UL
-@@ -824,3 +828,4 @@
- #define DCCP_SOCKET__NODE_BIND                    0x00400000UL
- #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
- #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
-+#define PEER__RECV                                0x00000001UL
-diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
-index e77de0e..b1b0d1d 100644
---- a/security/selinux/include/class_to_string.h
-+++ b/security/selinux/include/class_to_string.h
-@@ -64,3 +64,10 @@
-     S_(NULL)
-     S_("dccp_socket")
-     S_("memprotect")
-+    S_(NULL)
-+    S_(NULL)
-+    S_(NULL)
-+    S_(NULL)
-+    S_(NULL)
-+    S_(NULL)
-+    S_("peer")
-diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
-index a9c2b20..09e9dd2 100644
---- a/security/selinux/include/flask.h
-+++ b/security/selinux/include/flask.h
-@@ -50,6 +50,7 @@
- #define SECCLASS_KEY                                     58
- #define SECCLASS_DCCP_SOCKET                             60
- #define SECCLASS_MEMPROTECT                              61
-+#define SECCLASS_PEER                                    68
+diff --git a/arch/ia64/kernel/ia64_ksyms.c b/arch/ia64/kernel/ia64_ksyms.c
+index c3b4412..e64fd61 100644
+--- a/arch/ia64/kernel/ia64_ksyms.c
++++ b/arch/ia64/kernel/ia64_ksyms.c
+@@ -43,6 +43,7 @@ EXPORT_SYMBOL(__do_clear_user);
+ EXPORT_SYMBOL(__strlen_user);
+ EXPORT_SYMBOL(__strncpy_from_user);
+ EXPORT_SYMBOL(__strnlen_user);
++EXPORT_SYMBOL(copy_page);
  
- /*
-  * Security identifier indices for initial entities
+ /* from arch/ia64/lib */
+ extern void __divsi3(void);
 
 
 --
