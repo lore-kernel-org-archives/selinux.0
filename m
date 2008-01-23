@@ -1,17 +1,17 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0ig5l015007
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:44:42 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0iaCE014974
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:44:36 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0ifBR007922
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:44:41 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0iZBR007904
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:44:35 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 10/27] Security: Add a kernel_service object class to SELinux
+Subject: [PATCH 04/27] KEYS: Add keyctl function to get a security label
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:44:39 +0000
-Message-ID: <20080123004438.15602.45852.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:44:06 +0000
+Message-ID: <20080123004406.15602.12668.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,72 +19,324 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a 'kernel_service' object class to SELinux and give this object class two
-access vectors: 'use_as_override' and 'create_files_as'.
+Add a keyctl() function to get the security label of a key.
 
-The first vector is used to grant a process the right to nominate an alternate
-process security ID for the kernel to use as an override for the SELinux
-subjective security when accessing stuff on behalf of another process.
+The following is added to Documentation/keys.txt:
 
-For example, CacheFiles when accessing the cache on behalf on a process
-accessing an NFS file needs to use a subjective security ID appropriate to the
-cache rather then the one the calling process is using.  The cachefilesd
-daemon will nominate the security ID to be used.
+ (*) Get the LSM security context attached to a key.
 
-The second vector is used to grant a process the right to nominate a file
-creation label for a kernel service to use.
+	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
+		    size_t buflen)
+
+     This function returns a string that represents the LSM security context
+     attached to a key in the buffer provided.
+
+     Unless there's an error, it always returns the amount of data it could
+     produce, even if that's too big for the buffer, but it won't copy more
+     than requested to userspace. If the buffer pointer is NULL then no copy
+     will take place.
+
+     A NUL character is included at the end of the string if the buffer is
+     sufficiently big.  This is included in the returned count.  If no LSM is
+     in force then an empty string will be returned.
+
+     A process must have view permission on the key for this function to be
+     successful.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 ---
 
- security/selinux/include/av_perm_to_string.h |    2 ++
- security/selinux/include/av_permissions.h    |    2 ++
- security/selinux/include/class_to_string.h   |    1 +
- security/selinux/include/flask.h             |    1 +
- 4 files changed, 6 insertions(+), 0 deletions(-)
+ Documentation/keys.txt   |   21 +++++++++++++++
+ include/linux/keyctl.h   |    1 +
+ include/linux/security.h |   20 +++++++++++++-
+ security/dummy.c         |    8 ++++++
+ security/keys/compat.c   |    3 ++
+ security/keys/keyctl.c   |   66 ++++++++++++++++++++++++++++++++++++++++++++++
+ security/security.c      |    5 +++
+ security/selinux/hooks.c |   21 +++++++++++++--
+ 8 files changed, 141 insertions(+), 4 deletions(-)
 
 
-diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-index caa0634..6ba8200 100644
---- a/security/selinux/include/av_perm_to_string.h
-+++ b/security/selinux/include/av_perm_to_string.h
-@@ -164,3 +164,5 @@
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
-    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
-    S_(SECCLASS_PEER, PEER__RECV, "recv")
-+   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__USE_AS_OVERRIDE, "use_as_override")
-+   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__CREATE_FILES_AS, "create_files_as")
-diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-index c2b5bb2..9500ba3 100644
---- a/security/selinux/include/av_permissions.h
-+++ b/security/selinux/include/av_permissions.h
-@@ -829,3 +829,5 @@
- #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
- #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
- #define PEER__RECV                                0x00000001UL
-+#define KERNEL_SERVICE__USE_AS_OVERRIDE           0x00000001UL
-+#define KERNEL_SERVICE__CREATE_FILES_AS           0x00000002UL
-diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
-index b1b0d1d..efe9efa 100644
---- a/security/selinux/include/class_to_string.h
-+++ b/security/selinux/include/class_to_string.h
-@@ -71,3 +71,4 @@
-     S_(NULL)
-     S_(NULL)
-     S_("peer")
-+    S_("kernel_service")
-diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
-index 09e9dd2..2bc251a 100644
---- a/security/selinux/include/flask.h
-+++ b/security/selinux/include/flask.h
-@@ -51,6 +51,7 @@
- #define SECCLASS_DCCP_SOCKET                             60
- #define SECCLASS_MEMPROTECT                              61
- #define SECCLASS_PEER                                    68
-+#define SECCLASS_KERNEL_SERVICE                          69
+diff --git a/Documentation/keys.txt b/Documentation/keys.txt
+index b82d38d..be424b0 100644
+--- a/Documentation/keys.txt
++++ b/Documentation/keys.txt
+@@ -711,6 +711,27 @@ The keyctl syscall functions are:
+      The assumed authoritative key is inherited across fork and exec.
  
+ 
++ (*) Get the LSM security context attached to a key.
++
++	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
++		    size_t buflen)
++
++     This function returns a string that represents the LSM security context
++     attached to a key in the buffer provided.
++
++     Unless there's an error, it always returns the amount of data it could
++     produce, even if that's too big for the buffer, but it won't copy more
++     than requested to userspace. If the buffer pointer is NULL then no copy
++     will take place.
++
++     A NUL character is included at the end of the string if the buffer is
++     sufficiently big.  This is included in the returned count.  If no LSM is
++     in force then an empty string will be returned.
++
++     A process must have view permission on the key for this function to be
++     successful.
++
++
+ ===============
+ KERNEL SERVICES
+ ===============
+diff --git a/include/linux/keyctl.h b/include/linux/keyctl.h
+index 3365945..656ee6b 100644
+--- a/include/linux/keyctl.h
++++ b/include/linux/keyctl.h
+@@ -49,5 +49,6 @@
+ #define KEYCTL_SET_REQKEY_KEYRING	14	/* set default request-key keyring */
+ #define KEYCTL_SET_TIMEOUT		15	/* set key timeout */
+ #define KEYCTL_ASSUME_AUTHORITY		16	/* assume request_key() authorisation */
++#define KEYCTL_GET_SECURITY		17	/* get key security label */
+ 
+ #endif /*  _LINUX_KEYCTL_H */
+diff --git a/include/linux/security.h b/include/linux/security.h
+index ac05083..8d9e946 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -959,6 +959,17 @@ struct request_sock;
+  *	@perm describes the combination of permissions required of this key.
+  *	Return 1 if permission granted, 0 if permission denied and -ve it the
+  *      normal permissions model should be effected.
++ * @key_getsecurity:
++ *	Get a textual representation of the security context attached to a key
++ *	for the purposes of honouring KEYCTL_GETSECURITY.  This function
++ *	allocates the storage for the NUL-terminated string and the caller
++ *	should free it.
++ *	@key points to the key to be queried.
++ *	@_buffer points to a pointer that should be set to point to the
++ *	 resulting string (if no label or an error occurs).
++ *	Return the length of the string (including terminating NUL) or -ve if
++ *      an error.
++ *	May also return 0 (and a NULL buffer pointer) if there is no label.
+  *
+  * Security hooks affecting all System V IPC operations.
+  *
+@@ -1437,7 +1448,7 @@ struct security_operations {
+ 	int (*key_permission)(key_ref_t key_ref,
+ 			      struct task_struct *context,
+ 			      key_perm_t perm);
+-
++	int (*key_getsecurity)(struct key *key, char **_buffer);
+ #endif	/* CONFIG_KEYS */
+ 
+ };
+@@ -2567,6 +2578,7 @@ int security_key_alloc(struct key *key, struct task_struct *tsk, unsigned long f
+ void security_key_free(struct key *key);
+ int security_key_permission(key_ref_t key_ref,
+ 			    struct task_struct *context, key_perm_t perm);
++int security_key_getsecurity(struct key *key, char **_buffer);
+ 
+ #else
+ 
+@@ -2588,6 +2600,12 @@ static inline int security_key_permission(key_ref_t key_ref,
+ 	return 0;
+ }
+ 
++static inline int security_key_getsecurity(struct key *key, char **_buffer)
++{
++	*_buffer = NULL;
++	return 0;
++}
++
+ #endif
+ #endif /* CONFIG_KEYS */
+ 
+diff --git a/security/dummy.c b/security/dummy.c
+index 3ccfbbe..0e7f35c 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -949,6 +949,13 @@ static inline int dummy_key_permission(key_ref_t key_ref,
+ {
+ 	return 0;
+ }
++
++static int dummy_key_getsecurity(struct key *key, char **_buffer)
++{
++	*_buffer = NULL;
++	return 0;
++}
++
+ #endif /* CONFIG_KEYS */
+ 
+ struct security_operations dummy_security_ops;
+@@ -1133,6 +1140,7 @@ void security_fixup_ops (struct security_operations *ops)
+ 	set_to_dummy_if_null(ops, key_alloc);
+ 	set_to_dummy_if_null(ops, key_free);
+ 	set_to_dummy_if_null(ops, key_permission);
++	set_to_dummy_if_null(ops, key_getsecurity);
+ #endif	/* CONFIG_KEYS */
+ 
+ }
+diff --git a/security/keys/compat.c b/security/keys/compat.c
+index e10ec99..c766c68 100644
+--- a/security/keys/compat.c
++++ b/security/keys/compat.c
+@@ -79,6 +79,9 @@ asmlinkage long compat_sys_keyctl(u32 option,
+ 	case KEYCTL_ASSUME_AUTHORITY:
+ 		return keyctl_assume_authority(arg2);
+ 
++	case KEYCTL_GET_SECURITY:
++		return keyctl_get_security(arg2, compat_ptr(arg3), arg4);
++
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index 1698bf9..56e963b 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -20,6 +20,7 @@
+ #include <linux/string.h>
+ #include <linux/err.h>
+ #include <linux/vmalloc.h>
++#include <linux/security.h>
+ #include <asm/uaccess.h>
+ #include "internal.h"
+ 
+@@ -1080,6 +1081,66 @@ error:
+ 
+ } /* end keyctl_assume_authority() */
+ 
++/*
++ * get the security label of a key
++ * - the key must grant us view permission
++ * - if there's a buffer, we place up to buflen bytes of data into it
++ * - unless there's an error, we return the amount of information available,
++ *   irrespective of how much we may have copied (including the terminal NUL)
++ * - implements keyctl(KEYCTL_GET_SECURITY)
++ */
++long keyctl_get_security(key_serial_t keyid,
++			 char __user *buffer,
++			 size_t buflen)
++{
++	struct key *key, *instkey;
++	key_ref_t key_ref;
++	char *context;
++	long ret;
++
++	key_ref = lookup_user_key(NULL, keyid, 0, 1, KEY_VIEW);
++	if (IS_ERR(key_ref)) {
++		if (PTR_ERR(key_ref) != -EACCES)
++			return PTR_ERR(key_ref);
++
++		/* viewing a key under construction is also permitted if we
++		 * have the authorisation token handy */
++		instkey = key_get_instantiation_authkey(keyid);
++		if (IS_ERR(instkey))
++			return PTR_ERR(key_ref);
++		key_put(instkey);
++
++		key_ref = lookup_user_key(NULL, keyid, 0, 1, 0);
++		if (IS_ERR(key_ref))
++			return PTR_ERR(key_ref);
++	}
++
++	key = key_ref_to_ptr(key_ref);
++	ret = security_key_getsecurity(key, &context);
++	if (ret == 0) {
++		/* if no information was returned, give userspace an empty
++		 * string */
++		ret = 1;
++		if (buffer && buflen > 0 &&
++		    copy_to_user(buffer, "", 1) != 0)
++			ret = -EFAULT;
++	} else if (ret > 0) {
++		/* return as much data as there's room for */
++		if (buffer && buflen > 0) {
++			if (buflen > ret)
++				buflen = ret;
++
++			if (copy_to_user(buffer, context, buflen) != 0)
++				ret = -EFAULT;
++		}
++
++		kfree(context);
++	}
++
++	key_ref_put(key_ref);
++	return ret;
++}
++
+ /*****************************************************************************/
  /*
-  * Security identifier indices for initial entities
+  * the key control system call
+@@ -1160,6 +1221,11 @@ asmlinkage long sys_keyctl(int option, unsigned long arg2, unsigned long arg3,
+ 	case KEYCTL_ASSUME_AUTHORITY:
+ 		return keyctl_assume_authority((key_serial_t) arg2);
+ 
++	case KEYCTL_GET_SECURITY:
++		return keyctl_get_security((key_serial_t) arg2,
++					   (char *) arg3,
++					   (size_t) arg4);
++
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+diff --git a/security/security.c b/security/security.c
+index 0e1f1f1..16213e3 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1079,4 +1079,9 @@ int security_key_permission(key_ref_t key_ref,
+ 	return security_ops->key_permission(key_ref, context, perm);
+ }
+ 
++int security_key_getsecurity(struct key *key, char **_buffer)
++{
++	return security_ops->key_getsecurity(key, _buffer);
++}
++
+ #endif	/* CONFIG_KEYS */
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9f3124b..bd4cfab 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4768,6 +4768,20 @@ static int selinux_key_permission(key_ref_t key_ref,
+ 			    SECCLASS_KEY, perm, NULL);
+ }
+ 
++static int selinux_key_getsecurity(struct key *key, char **_buffer)
++{
++	struct key_security_struct *ksec = key->security;
++	char *context = NULL;
++	unsigned len;
++	int rc;
++
++	rc = security_sid_to_context(ksec->sid, &context, &len);
++	if (!rc)
++		rc = len;
++	*_buffer = context;
++	return rc;
++}
++
+ #endif
+ 
+ static struct security_operations selinux_ops = {
+@@ -4943,9 +4957,10 @@ static struct security_operations selinux_ops = {
+ #endif
+ 
+ #ifdef CONFIG_KEYS
+-	.key_alloc =                    selinux_key_alloc,
+-	.key_free =                     selinux_key_free,
+-	.key_permission =               selinux_key_permission,
++	.key_alloc =			selinux_key_alloc,
++	.key_free =			selinux_key_free,
++	.key_permission =		selinux_key_permission,
++	.key_getsecurity =		selinux_key_getsecurity,
+ #endif
+ };
+ 
 
 
 --
