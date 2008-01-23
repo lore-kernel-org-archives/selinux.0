@@ -1,51 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NDs7ou026672
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 08:54:07 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m0NDs5lo020362
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 13:54:05 GMT
-Subject: [patch 1/1] libsemanage: genhomedircon remove error on missing
-	HOME_DIR or HOME_ROOT
-From: Caleb Case <ccase@tresys.com>
-To: selinux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to install selinux python with correct permissions.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47834E2C.4070303@redhat.com>
+References: <47834E2C.4070303@redhat.com>
 Content-Type: text/plain
-Date: Wed, 23 Jan 2008 08:53:56 -0500
-Message-Id: <1201096436.17665.15.camel@olympus.columbia.tresys.com>
+Date: Wed, 23 Jan 2008 08:51:59 -0500
+Message-Id: <1201096319.7025.264.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Removing failure condition in write_context_file when HOME_DIR or
-HOME_ROOT are not found in the contexts. This condition is not needed
-(the case where the lists are empty is handled correctly) and stops
-otherwise valid operations:
 
-On a fresh policy store, without any modules loaded:
+On Tue, 2008-01-08 at 05:19 -0500, Daniel J Walsh wrote:
+> plain text document attachment (diff)
+> diff --exclude-from=exclude -N -u -r nsalibselinux/src/Makefile libselinux-2.0.46/src/Makefile
+> --- nsalibselinux/src/Makefile	2007-09-26 19:37:45.000000000 -0400
+> +++ libselinux-2.0.46/src/Makefile	2008-01-05 08:19:27.000000000 -0500
+> @@ -77,14 +77,14 @@
+>  
+>  install: all 
+>  	test -d $(LIBDIR) || install -m 755 -d $(LIBDIR)
+> -	install -m 644 $(LIBA) $(LIBDIR)
 
-# semodule -s refpolicy -b /usr/share/selinux/refpolicy/base.pp
-libsemanage.semanage_install_sandbox: semanage_genhomedircon returned
-error code -1. No such file or directory.
-semodule:  Failed!
+Why remove the static library from the install target?  We still want it
+installable via some target.
 
----
- src/genhomedircon.c |    4 ----
- 1 file changed, 4 deletions(-)
+>  	test -d $(SHLIBDIR) || install -m 755 -d $(SHLIBDIR)
+>  	install -m 755 $(LIBSO) $(SHLIBDIR)
+>  	cd $(LIBDIR) && ln -sf ../../`basename $(SHLIBDIR)`/$(LIBSO) $(TARGET)
+>  
+>  install-pywrap: pywrap
+>  	test -d $(PYTHONLIBDIR)/site-packages || install -m 755 -d $(PYTHONLIBDIR)/site-packages
+> -	install -m 755 $(SWIGFILES) $(PYTHONLIBDIR)/site-packages
+> +	install -m 755 $(SWIGSO) $(PYTHONLIBDIR)/site-packages
+> +	install -m 644  selinux.py $(PYTHONLIBDIR)/site-packages
 
-Index: libsemanage/src/genhomedircon.c
-===================================================================
---- libsemanage.orig/src/genhomedircon.c
-+++ libsemanage/src/genhomedircon.c
-@@ -792,10 +792,6 @@ static int write_context_file(genhomedir
-        homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
-        homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
-        user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
--       if (!homedir_context_tpl || !homeroot_context_tpl) {
--               retval = STATUS_ERR;
--               goto done;
--       }
+So is there much point in keeping SWIGFILES around then?  Also used in
+clean: at present, but that's the only remaining use.   And presumably
+the same change should happen to libsemanage?
 
-        if (setup_fallback_user(s) != 0) {
-                retval = STATUS_ERR;
+>  relabel:
+>  	/sbin/restorecon $(SHLIBDIR)/$(LIBSO)
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
