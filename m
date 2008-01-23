@@ -1,18 +1,18 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0j4dm015135
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:45:04 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0j3BR008000
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:45:03 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0kDkm015639
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:46:13 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0kBps029035
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:46:11 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 14/27] FS-Cache: Recruit a couple of page flags for cache
-	management
+Subject: [PATCH 27/27] NFS: Separate caching by superblock,
+	explicitly if necessary
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:45:00 +0000
-Message-ID: <20080123004459.15602.45031.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:46:09 +0000
+Message-ID: <20080123004608.15602.18132.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,352 +20,445 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Recruit a couple of page flags to aid in cache management.  The following extra
-flags are defined:
+Separate caching by superblock, explicitly if necessary.  This means mounts of
+the same remote data with different parameters do not share cache objects for
+common files.  The administrator may also provide a uniquifier to further
+enhance the uniqueness.
 
- (1) PG_fscache (PG_private_2)
+Where it is otherwise impossible to distinguish superblocks because all the
+parameters are identical, but the 'nosharecache' option is supplied, a
+uniquifying string must be supplied, else only the first mount will be
+permitted to use the cache.
 
-     The marked page is backed by a local cache and is pinning resources in the
-     cache driver.
+If there's a key collision, then the second mount will disable caching and give
+a warning into the kernel log.
 
- (2) PG_fscache_write (PG_owner_priv_2)
+There are three variant NFS mount options that can be added to a mount command
+to control caching for a mount.  Only the last one specified takes effect:
 
-     The marked page is being written to the local cache.  The page may not be
-     modified whilst this is in progress.
+ (*) Adding "fsc" will request caching.
 
-If PG_fscache is set, then things that checked for PG_private will now also
-check for that.  This includes things like truncation and page invalidation.
-The function page_has_private() had been added to make the checks for both
-PG_private and PG_private_2 at the same time.
+ (*) Adding "fsc=<string>" will request caching and also specify a uniquifier.
+
+ (*) Adding "nofsc" will disable caching.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/splice.c                |    2 +-
- include/linux/page-flags.h |   39 +++++++++++++++++++++++++++++++++++++--
- include/linux/pagemap.h    |   11 +++++++++++
- mm/filemap.c               |   16 ++++++++++++++++
- mm/migrate.c               |    2 +-
- mm/page_alloc.c            |    3 +++
- mm/readahead.c             |    9 +++++----
- mm/swap.c                  |    4 ++--
- mm/swap_state.c            |    4 ++--
- mm/truncate.c              |   10 +++++-----
- mm/vmscan.c                |    2 +-
- 11 files changed, 84 insertions(+), 18 deletions(-)
+ fs/nfs/fscache-def.c      |   33 ++++++++++++
+ fs/nfs/fscache.c          |  122 ++++++++++++++++++++++++++++++++++++++++++++-
+ fs/nfs/fscache.h          |   46 ++++++++++++++++-
+ fs/nfs/internal.h         |    3 +
+ fs/nfs/super.c            |   24 +++++++--
+ include/linux/nfs_fs_sb.h |    3 +
+ 6 files changed, 220 insertions(+), 11 deletions(-)
 
 
-diff --git a/fs/splice.c b/fs/splice.c
-index 6bdcb61..61edad7 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -58,7 +58,7 @@ static int page_cache_pipe_buf_steal(struct pipe_inode_info *pipe,
- 		 */
- 		wait_on_page_writeback(page);
- 
--		if (PagePrivate(page))
-+		if (page_has_private(page))
- 			try_to_release_page(page, GFP_KERNEL);
- 
- 		/*
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index 209d3a4..f375e3b 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -77,25 +77,32 @@
- #define PG_active		 6
- #define PG_slab			 7	/* slab debug (Suparna wants this) */
- 
--#define PG_owner_priv_1		 8	/* Owner use. If pagecache, fs may use*/
-+#define PG_owner_priv_1		 8	/* Owner use. fs may use in pagecache */
- #define PG_arch_1		 9
- #define PG_reserved		10
- #define PG_private		11	/* If pagecache, has fs-private data */
- 
- #define PG_writeback		12	/* Page is under writeback */
-+#define PG_private_2		13	/* If pagecache, has fs aux data */
- #define PG_compound		14	/* Part of a compound page */
- #define PG_swapcache		15	/* Swap page: swp_entry_t in private */
- 
- #define PG_mappedtodisk		16	/* Has blocks allocated on-disk */
- #define PG_reclaim		17	/* To be reclaimed asap */
-+#define PG_owner_priv_2		18	/* Owner use. fs may use in pagecache */
- #define PG_buddy		19	/* Page is free, on buddy lists */
- 
- /* PG_readahead is only used for file reads; PG_reclaim is only for writes */
- #define PG_readahead		PG_reclaim /* Reminder to do async read-ahead */
- 
--/* PG_owner_priv_1 users should have descriptive aliases */
-+/* PG_owner_priv_1/2 users should have descriptive aliases */
- #define PG_checked		PG_owner_priv_1 /* Used by some filesystems */
- #define PG_pinned		PG_owner_priv_1	/* Xen pinned pagetable */
-+#define PG_fscache_write	PG_owner_priv_2	/* Writing to local cache */
-+
-+/* PG_private_2 causes releasepage() and co to be invoked */
-+#define PG_fscache		PG_private_2	/* Backed by local cache */
-+
- 
- #if (BITS_PER_LONG > 32)
- /*
-@@ -199,6 +206,23 @@ static inline void SetPageUptodate(struct page *page)
- #define TestClearPageWriteback(page) test_and_clear_bit(PG_writeback,	\
- 							&(page)->flags)
- 
-+#define PagePrivate2(page)	test_bit(PG_private_2, &(page)->flags)
-+#define SetPagePrivate2(page)	set_bit(PG_private_2, &(page)->flags)
-+#define ClearPagePrivate2(page)	clear_bit(PG_private_2, &(page)->flags)
-+#define TestSetPagePrivate2(page) test_and_set_bit(PG_private_2, &(page)->flags)
-+#define TestClearPagePrivate2(page) test_and_clear_bit(PG_private_2, \
-+						      &(page)->flags)
-+
-+#define PageOwnerPriv2(page)		test_bit(PG_owner_priv_2, \
-+						 &(page)->flags)
-+#define SetPageOwnerPriv2(page)		set_bit(PG_owner_priv_2, &(page)->flags)
-+#define ClearPageOwnerPriv2(page)	clear_bit(PG_owner_priv_2, \
-+						  &(page)->flags)
-+#define TestSetPageOwnerPriv2(page)	test_and_set_bit(PG_owner_priv_2, \
-+							 &(page)->flags)
-+#define TestClearPageOwnerPriv2(page)	test_and_clear_bit(PG_owner_priv_2, \
-+							   &(page)->flags)
-+
- #define PageBuddy(page)		test_bit(PG_buddy, &(page)->flags)
- #define __SetPageBuddy(page)	__set_bit(PG_buddy, &(page)->flags)
- #define __ClearPageBuddy(page)	__clear_bit(PG_buddy, &(page)->flags)
-@@ -272,4 +296,15 @@ static inline void set_page_writeback(struct page *page)
- 	test_set_page_writeback(page);
- }
- 
-+/**
-+ * page_has_private - Determine if page has private stuff
-+ * @page: The page to be checked
-+ *
-+ * Determine if a page has private stuff, indicating that release routines
-+ * should be invoked upon it.
-+ */
-+#define page_has_private(page)			\
-+	((page)->flags & ((1 << PG_private) |	\
-+			  (1 << PG_private_2)))
-+
- #endif	/* PAGE_FLAGS_H */
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index db8a410..f9e0f81 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -212,6 +212,17 @@ static inline void wait_on_page_writeback(struct page *page)
- extern void end_page_writeback(struct page *page);
+diff --git a/fs/nfs/fscache-def.c b/fs/nfs/fscache-def.c
+index bc20b7d..1d10b4e 100644
+--- a/fs/nfs/fscache-def.c
++++ b/fs/nfs/fscache-def.c
+@@ -117,6 +117,39 @@ const struct fscache_cookie_def nfs_cache_server_index_def = {
+ };
  
  /*
-+ * Wait for a PG_private_2 to become clear
++ * Generate a key to describe a superblock key in the main NFS index
 + */
-+static inline void wait_on_page_owner_priv_2(struct page *page)
++static uint16_t nfs_super_get_key(const void *cookie_netfs_data,
++				  void *buffer, uint16_t bufmax)
 +{
-+	if (PagePrivate2(page))
-+		wait_on_page_bit(page, PG_private_2);
-+}
++	const struct nfs_fscache_key *key;
++	const struct nfs_server *nfss = cookie_netfs_data;
++	uint16_t len;
 +
-+extern void end_page_owner_priv_2(struct page *page);
++	key = nfss->fscache_key;
++	len = sizeof(key->key) + key->key.uniq_len;
++	if (len > bufmax) {
++		len = 0;
++	} else {
++		memcpy(buffer, &key->key, sizeof(key->key));
++		memcpy(buffer + sizeof(key->key),
++		       key->key.uniquifier, key->key.uniq_len);
++	}
++
++	return len;
++}
 +
 +/*
-  * Fault a userspace page into pagetables.  Return non-zero on a fault.
-  *
-  * This assumes that two userspace pages are always sufficient.  That's
-diff --git a/mm/filemap.c b/mm/filemap.c
-index f4d0cde..f22801a 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -572,6 +572,19 @@ void end_page_writeback(struct page *page)
- EXPORT_SYMBOL(end_page_writeback);
- 
- /**
-+ * end_page_own - End writing page to cache
-+ * @page: the page
++ * The superblock index for the filesystem is defined by all the NFS parameters
++ * that might cause a separate superblock
 + */
-+void end_page_owner_priv_2(struct page *page)
-+{
-+	if (!TestClearPageOwnerPriv2(page))
-+		BUG();
-+	smp_mb__after_clear_bit();
-+	wake_up_page(page, PG_owner_priv_2);
-+}
-+EXPORT_SYMBOL(end_page_owner_priv_2);
++const struct fscache_cookie_def nfs_cache_super_index_def = {
++	.name		= "NFS.supers",
++	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key	= nfs_super_get_key,
++};
 +
-+/**
-  * __lock_page - get a lock on the page, assuming we need to sleep to get it
-  * @page: the page to lock
-  *
-@@ -2540,6 +2553,9 @@ out:
-  * (presumably at page->private).  If the release was successful, return `1'.
-  * Otherwise return zero.
-  *
-+ * This may also be called if PG_fscache is set on a page, indicating that the
-+ * page is known to the local caching routines.
-+ *
-  * The @gfp_mask argument specifies whether I/O may be performed to release
-  * this page (__GFP_IO), and whether the call may block (__GFP_WAIT).
-  *
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 3fa4b4a..0778cce 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -545,7 +545,7 @@ static int fallback_migrate_page(struct address_space *mapping,
- 	 * Buffers may be managed in a filesystem specific way.
- 	 * We must have no buffers or drop them.
- 	 */
--	if (PagePrivate(page) &&
-+	if (page_has_private(page) &&
- 	    !try_to_release_page(page, GFP_KERNEL))
- 		return -EAGAIN;
- 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index b2838c2..55b47da 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -230,6 +230,7 @@ static void bad_page(struct page *page)
- 	dump_stack();
- 	page->flags &= ~(1 << PG_lru	|
- 			1 << PG_private |
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_dirty	|
-@@ -456,6 +457,7 @@ static inline int free_pages_check(struct page *page)
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private |
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_slab	|
-@@ -605,6 +607,7 @@ static int prep_new_page(struct page *page, int order, gfp_t gfp_flags)
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private	|
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_dirty	|
-diff --git a/mm/readahead.c b/mm/readahead.c
-index 75aa6b6..272ffc7 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -46,14 +46,15 @@ EXPORT_SYMBOL_GPL(file_ra_state_init);
- 
- /*
-  * see if a page needs releasing upon read_cache_pages() failure
-- * - the caller of read_cache_pages() may have set PG_private before calling,
-- *   such as the NFS fs marking pages that are cached locally on disk, thus we
-- *   need to give the fs a chance to clean up in the event of an error
-+ * - the caller of read_cache_pages() may have set PG_private or PG_fscache
-+ *   before calling, such as the NFS fs marking pages that are cached locally
-+ *   on disk, thus we need to give the fs a chance to clean up in the event of
-+ *   an error
++/*
+  * Generate a key to describe an NFS inode in an NFS server's index
   */
- static void read_cache_pages_invalidate_page(struct address_space *mapping,
- 					     struct page *page)
- {
--	if (PagePrivate(page)) {
-+	if (page_has_private(page)) {
- 		if (TestSetPageLocked(page))
- 			BUG();
- 		page->mapping = mapping;
-diff --git a/mm/swap.c b/mm/swap.c
-index 9ac8832..22d6e03 100644
---- a/mm/swap.c
-+++ b/mm/swap.c
-@@ -455,8 +455,8 @@ void pagevec_strip(struct pagevec *pvec)
- 	for (i = 0; i < pagevec_count(pvec); i++) {
- 		struct page *page = pvec->pages[i];
+ static uint16_t nfs_fh_get_key(const void *cookie_netfs_data,
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index 465f961..af9c65c 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -23,6 +23,9 @@
  
--		if (PagePrivate(page) && !TestSetPageLocked(page)) {
--			if (PagePrivate(page))
-+		if (page_has_private(page) && !TestSetPageLocked(page)) {
-+			if (page_has_private(page))
- 				try_to_release_page(page, 0);
- 			unlock_page(page);
- 		}
-diff --git a/mm/swap_state.c b/mm/swap_state.c
-index b526356..33f1e5c 100644
---- a/mm/swap_state.c
-+++ b/mm/swap_state.c
-@@ -76,7 +76,7 @@ static int __add_to_swap_cache(struct page *page, swp_entry_t entry,
+ #define NFSDBG_FACILITY		NFSDBG_FSCACHE
  
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(PageSwapCache(page));
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 	error = radix_tree_preload(gfp_mask);
- 	if (!error) {
- 		write_lock_irq(&swapper_space.tree_lock);
-@@ -129,7 +129,7 @@ void __delete_from_swap_cache(struct page *page)
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(!PageSwapCache(page));
- 	BUG_ON(PageWriteback(page));
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 
- 	radix_tree_delete(&swapper_space.page_tree, page_private(page));
- 	set_page_private(page, 0);
-diff --git a/mm/truncate.c b/mm/truncate.c
-index cadc156..5b7d1c5 100644
---- a/mm/truncate.c
-+++ b/mm/truncate.c
-@@ -49,7 +49,7 @@ void do_invalidatepage(struct page *page, unsigned long offset)
- static inline void truncate_partial_page(struct page *page, unsigned partial)
- {
- 	zero_user_page(page, partial, PAGE_CACHE_SIZE - partial, KM_USER0);
--	if (PagePrivate(page))
-+	if (page_has_private(page))
- 		do_invalidatepage(page, partial);
++static struct rb_root nfs_fscache_keys = RB_ROOT;
++static DEFINE_SPINLOCK(nfs_fscache_keys_lock);
++
+ /*
+  * Get the per-client index cookie for an NFS client if the appropriate mount
+  * flag was set
+@@ -52,6 +55,118 @@ void nfs_fscache_release_client_cookie(struct nfs_client *clp)
  }
  
-@@ -100,7 +100,7 @@ truncate_complete_page(struct address_space *mapping, struct page *page)
+ /*
++ * get a cookie for a superblock
++ */
++void nfs_fscache_get_super_cookie(struct super_block *sb,
++				  struct nfs_parsed_mount_data *data)
++{
++	struct nfs_fscache_key *key, *xkey;
++	struct nfs_server *nfss = NFS_SB(sb);
++	struct rb_node **p, *parent;
++	const char *uniq = data->fscache_uniq ?: "";
++	int diff, ulen;
++
++	ulen = strlen(uniq);
++	key = kzalloc(sizeof(*key) + ulen, GFP_KERNEL);
++	if (!key)
++		return;
++
++	key->nfs_client = nfss->nfs_client;
++	key->key.super.s_flags = sb->s_flags & NFS_MS_MASK;
++	key->key.nfs_server.flags = nfss->flags;
++	key->key.nfs_server.rsize = nfss->rsize;
++	key->key.nfs_server.wsize = nfss->wsize;
++	key->key.nfs_server.acregmin = nfss->acregmin;
++	key->key.nfs_server.acregmax = nfss->acregmax;
++	key->key.nfs_server.acdirmin = nfss->acdirmin;
++	key->key.nfs_server.acdirmax = nfss->acdirmax;
++	key->key.nfs_server.fsid = nfss->fsid;
++	key->key.rpc_auth.au_flavor = nfss->client->cl_auth->au_flavor;
++
++	key->key.uniq_len = ulen;
++	memcpy(key->key.uniquifier, uniq, ulen);
++
++	spin_lock(&nfs_fscache_keys_lock);
++	p = &nfs_fscache_keys.rb_node;
++	parent = NULL;
++	while (*p) {
++		parent = *p;
++		xkey = rb_entry(parent, struct nfs_fscache_key, node);
++
++		if (key->nfs_client < xkey->nfs_client)
++			goto go_left;
++		if (key->nfs_client > xkey->nfs_client)
++			goto go_right;
++
++		diff = memcmp(&key->key, &xkey->key, sizeof(key->key));
++		if (diff < 0)
++			goto go_left;
++		if (diff > 0)
++			goto go_right;
++
++		if (key->key.uniq_len == 0)
++			goto non_unique;
++		diff = memcmp(key->key.uniquifier,
++			      xkey->key.uniquifier,
++			      key->key.uniq_len);
++		if (diff < 0)
++			goto go_left;
++		if (diff > 0)
++			goto go_right;
++		goto non_unique;
++
++	go_left:
++		p = &(*p)->rb_left;
++		continue;
++	go_right:
++		p = &(*p)->rb_right;
++	}
++
++	rb_link_node(&key->node, parent, p);
++	rb_insert_color(&key->node, &nfs_fscache_keys);
++	spin_unlock(&nfs_fscache_keys_lock);
++	nfss->fscache_key = key;
++
++	/* create a cache index for looking up filehandles */
++	nfss->fscache = fscache_acquire_cookie(nfss->nfs_client->fscache,
++					       &nfs_cache_super_index_def,
++					       nfss);
++	dfprintk(FSCACHE, "NFS: get superblock cookie (0x%p/0x%p)\n",
++		 nfss, nfss->fscache);
++	return;
++
++non_unique:
++	spin_unlock(&nfs_fscache_keys_lock);
++	kfree(key);
++	nfss->fscache_key = NULL;
++	nfss->fscache = NULL;
++	printk(KERN_WARNING "NFS:"
++	       " Cache request denied due to non-unique superblock keys\n");
++}
++
++/*
++ * release a per-superblock cookie
++ */
++void nfs_fscache_release_super_cookie(struct super_block *sb)
++{
++	struct nfs_server *nfss = NFS_SB(sb);
++
++	dfprintk(FSCACHE, "NFS: releasing superblock cookie (0x%p/0x%p)\n",
++		 nfss, nfss->fscache);
++
++	fscache_relinquish_cookie(nfss->fscache, 0);
++	nfss->fscache = NULL;
++
++	if (nfss->fscache_key) {
++		spin_lock(&nfs_fscache_keys_lock);
++		rb_erase(&nfss->fscache_key->node, &nfs_fscache_keys);
++		spin_unlock(&nfs_fscache_keys_lock);
++		kfree(nfss->fscache_key);
++		nfss->fscache_key = NULL;
++	}
++}
++
++/*
+  * Display statistics through /proc/pid/mountstats
+  */
+ void nfs_fscache_show_stats(struct seq_file *m, struct nfs_server *nfss)
+@@ -90,10 +205,9 @@ void nfs_fscache_enable_fh_cookie(struct inode *inode)
+ 		return;
  
- 	cancel_dirty_page(page, PAGE_CACHE_SIZE);
+ 	if ((NFS_SB(sb)->options & NFS_OPTION_FSCACHE)) {
+-		nfsi->fscache = fscache_acquire_cookie(
+-			NFS_SB(sb)->nfs_client->fscache,
+-			&nfs_cache_fh_index_def,
+-			nfsi);
++		nfsi->fscache = fscache_acquire_cookie(NFS_SB(sb)->fscache,
++						       &nfs_cache_fh_index_def,
++						       nfsi);
  
--	if (PagePrivate(page))
-+	if (page_has_private(page))
- 		do_invalidatepage(page, 0);
+ 		dfprintk(FSCACHE, "NFS: get FH cookie (0x%p/0x%p/0x%p)\n",
+ 			 sb, nfsi, nfsi->fscache);
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index 9a735fc..484920a 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -20,10 +20,47 @@
+ #include <linux/fscache.h>
  
- 	remove_from_page_cache(page);
-@@ -125,7 +125,7 @@ invalidate_complete_page(struct address_space *mapping, struct page *page)
- 	if (page->mapping != mapping)
- 		return 0;
+ /*
++ * set of NFS FS-Cache objects that form a superblock key
++ */
++struct nfs_fscache_key {
++	struct rb_node		node;
++	struct nfs_client	*nfs_client;	/* the server */
++
++	/* the elements of the unique key - as used by nfs_compare_super() and
++	 * nfs_compare_mount_options() to distinguish superblocks */
++	struct {
++		struct {
++			unsigned long	s_flags;	/* various flags (& NFS_MS_MASK) */
++		} super;
++
++		struct {
++			struct nfs_fsid fsid;
++			int		flags;
++			unsigned int	rsize;		/* read size */
++			unsigned int	wsize;		/* write size */
++			unsigned int	acregmin;	/* attr cache timeouts */
++			unsigned int	acregmax;
++			unsigned int	acdirmin;
++			unsigned int	acdirmax;
++		} nfs_server;
++
++		struct {
++			rpc_authflavor_t au_flavor;
++		} rpc_auth;
++
++		/* uniquifier - can be used if nfs_server.flags includes
++		 * NFS_MOUNT_UNSHARED  */
++		u8 uniq_len;
++		char uniquifier[0];
++	} key;
++};
++
++/*
+  * fscache-def.c
+  */
+ extern struct fscache_netfs nfs_cache_netfs;
+ extern const struct fscache_cookie_def nfs_cache_server_index_def;
++extern const struct fscache_cookie_def nfs_cache_super_index_def;
+ extern const struct fscache_cookie_def nfs_cache_fh_index_def;
  
--	if (PagePrivate(page) && !try_to_release_page(page, 0))
-+	if (page_has_private(page) && !try_to_release_page(page, 0))
- 		return 0;
+ extern int nfs_fscache_register(void);
+@@ -34,6 +71,9 @@ extern void nfs_fscache_unregister(void);
+  */
+ extern void nfs_fscache_get_client_cookie(struct nfs_client *);
+ extern void nfs_fscache_release_client_cookie(struct nfs_client *);
++extern void nfs_fscache_get_super_cookie(struct super_block *,
++					 struct nfs_parsed_mount_data *);
++extern void nfs_fscache_release_super_cookie(struct super_block *);
+ extern void nfs_fscache_show_stats(struct seq_file *, struct nfs_server *);
+ extern void nfs_fscache_init_fh_cookie(struct inode *);
+ extern void nfs_fscache_enable_fh_cookie(struct inode *);
+@@ -57,8 +97,7 @@ extern int nfs_fscache_release_page(struct page *, gfp_t);
+  */
+ static inline const char *nfs_server_fscache_state(struct nfs_server *server)
+ {
+-	if (server->nfs_client->fscache &&
+-	    (server->options & NFS_OPTION_FSCACHE))
++	if (server->fscache && (server->options & NFS_OPTION_FSCACHE))
+ 		return "yes";
+ 	return "no ";
+ }
+@@ -118,6 +157,9 @@ static inline void nfs_fscache_unregister(void) {}
+ static inline void nfs_fscache_get_client_cookie(struct nfs_client *clp) {}
+ static inline void nfs4_fscache_get_client_cookie(struct nfs_client *clp) {}
+ static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
++static inline void nfs_fscache_get_super_cookie(struct super_block *sb,
++						struct nfs_parsed_mount_data *data) {}
++static inline void nfs_fscache_release_super_cookie(struct super_block *sb) {}
+ static inline void nfs_fscache_show_stats(struct seq_file *m,
+ 					  struct nfs_server *nfss) {}
+ static inline const char *nfs_server_fscache_state(struct nfs_server *server)
+diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
+index ef09e00..68c5516 100644
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -4,6 +4,8 @@
  
- 	ret = remove_mapping(mapping, page);
-@@ -347,14 +347,14 @@ invalidate_complete_page2(struct address_space *mapping, struct page *page)
- 	if (page->mapping != mapping)
- 		return 0;
+ #include <linux/mount.h>
  
--	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
-+	if (page_has_private(page) && !try_to_release_page(page, GFP_KERNEL))
- 		return 0;
++#define NFS_MS_MASK (MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|MS_SYNCHRONOUS)
++
+ struct nfs_string;
  
- 	write_lock_irq(&mapping->tree_lock);
- 	if (PageDirty(page))
- 		goto failed;
+ /* Maximum number of readahead requests
+@@ -40,6 +42,7 @@ struct nfs_parsed_mount_data {
+ 	unsigned int		auth_flavor_len;
+ 	rpc_authflavor_t	auth_flavors[1];
+ 	char			*client_address;
++	char			*fscache_uniq;
  
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 	__remove_from_page_cache(page);
- 	write_unlock_irq(&mapping->tree_lock);
- 	ClearPageUptodate(page);
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index e5a9597..ff2fa2d 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -578,7 +578,7 @@ static unsigned long shrink_page_list(struct list_head *page_list,
- 		 * process address space (page_count == 1) it can be freed.
- 		 * Otherwise, leave the page on the LRU so it is swappable.
- 		 */
--		if (PagePrivate(page)) {
-+		if (page_has_private(page)) {
- 			if (!try_to_release_page(page, sc->gfp_mask))
- 				goto activate_locked;
- 			if (!mapping && page_count(page) == 1)
+ 	struct {
+ 		struct sockaddr_in	address;
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index 0542550..3e77681 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -91,6 +91,7 @@ enum {
+ 	/* Mount options that take string arguments */
+ 	Opt_sec, Opt_proto, Opt_mountproto,
+ 	Opt_addr, Opt_mountaddr, Opt_clientaddr,
++	Opt_fscache_uniq,
+ 
+ 	/* Mount options that are ignored */
+ 	Opt_userspace, Opt_deprecated,
+@@ -125,6 +126,7 @@ static match_table_t nfs_mount_option_tokens = {
+ 	{ Opt_sharecache, "sharecache" },
+ 	{ Opt_nosharecache, "nosharecache" },
+ 	{ Opt_fscache, "fsc" },
++	{ Opt_fscache_uniq, "fsc=%s" },
+ 	{ Opt_nofscache, "nofsc" },
+ 
+ 	{ Opt_port, "port=%u" },
+@@ -702,15 +704,24 @@ static int nfs_parse_mount_options(char *raw,
+ 			break;
+ 		case Opt_nosharecache:
+ 			mnt->flags |= NFS_MOUNT_UNSHARED;
+-			mnt->options &= ~NFS_OPTION_FSCACHE;
+ 			break;
+ 		case Opt_fscache:
+-			/* sharing is mandatory with fscache */
+ 			mnt->options |= NFS_OPTION_FSCACHE;
+-			mnt->flags &= ~NFS_MOUNT_UNSHARED;
++			kfree(mnt->fscache_uniq);
++			mnt->fscache_uniq = NULL;
+ 			break;
+ 		case Opt_nofscache:
+ 			mnt->options &= ~NFS_OPTION_FSCACHE;
++			kfree(mnt->fscache_uniq);
++			mnt->fscache_uniq = NULL;
++			break;
++		case Opt_fscache_uniq:
++			string = match_strdup(args);
++			if (!string)
++				goto out_nomem;
++			kfree(mnt->fscache_uniq);
++			mnt->fscache_uniq = string;
++			mnt->options |= NFS_OPTION_FSCACHE;
+ 			break;
+ 
+ 		case Opt_port:
+@@ -1288,8 +1299,6 @@ static void nfs_clone_super(struct super_block *sb,
+  	nfs_initialise_sb(sb);
+ }
+ 
+-#define NFS_MS_MASK (MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|MS_SYNCHRONOUS)
+-
+ static int nfs_compare_mount_options(const struct super_block *s, const struct nfs_server *b, int flags)
+ {
+ 	const struct nfs_server *a = s->s_fs_info;
+@@ -1403,6 +1412,7 @@ static int nfs_get_sb(struct file_system_type *fs_type,
+ 	if (!s->s_root) {
+ 		/* initial superblock/root creation */
+ 		nfs_fill_super(s, &data);
++		nfs_fscache_get_super_cookie(s, &data);
+ 	}
+ 
+ 	mntroot = nfs_get_root(s, &mntfh);
+@@ -1418,6 +1428,7 @@ static int nfs_get_sb(struct file_system_type *fs_type,
+ 
+ out:
+ 	kfree(data.nfs_server.hostname);
++	kfree(data.fscache_uniq);
+ 	return error;
+ 
+ out_err_nosb:
+@@ -1438,6 +1449,7 @@ static void nfs_kill_super(struct super_block *s)
+ 	struct nfs_server *server = NFS_SB(s);
+ 
+ 	kill_anon_super(s);
++	nfs_fscache_release_super_cookie(s);
+ 	nfs_free_server(server);
+ }
+ 
+@@ -1752,6 +1764,7 @@ static int nfs4_get_sb(struct file_system_type *fs_type,
+ 	if (!s->s_root) {
+ 		/* initial superblock/root creation */
+ 		nfs4_fill_super(s);
++		nfs_fscache_get_super_cookie(s, &data);
+ 	}
+ 
+ 	mntroot = nfs4_get_root(s, &mntfh);
+@@ -1769,6 +1782,7 @@ out:
+ 	kfree(data.client_address);
+ 	kfree(data.nfs_server.export_path);
+ 	kfree(data.nfs_server.hostname);
++	kfree(data.fscache_uniq);
+ 	return error;
+ 
+ out_free:
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index 3c8e15d..3309614 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -109,6 +109,9 @@ struct nfs_server {
+ 	dev_t			s_dev;		/* superblock dev numbers */
+ 
+ #ifdef CONFIG_NFS_FSCACHE
++	struct nfs_fscache_key	*fscache_key;	/* unique key for superblock */
++	struct fscache_cookie	*fscache;	/* superblock cookie */
++
+ 	/* statistical counters for local caching */
+ 	atomic_t		fscache_cnt_read_ok;
+ 	atomic_t		fscache_cnt_read_fail;
 
 
 --
