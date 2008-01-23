@@ -1,65 +1,61 @@
-Subject: Re: Patch to add python audit2why bindings.
+Subject: [patch] selinux-testsuite:  extend unconfined_runs_test
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <479789E3.3060007@redhat.com>
-References: <4787936A.8030803@redhat.com>
-	 <1201098728.7025.270.camel@moss-spartans.epoch.ncsc.mil>
-	 <479789E3.3060007@redhat.com>
+To: Subrata Modak <subrata@linux.vnet.ibm.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, ltp-list@lists.sourceforge.net,
+        selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>
 Content-Type: text/plain
-Date: Wed, 23 Jan 2008 13:47:40 -0500
-Message-Id: <1201114060.7025.292.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 23 Jan 2008 14:20:50 -0500
+Message-Id: <1201116050.7025.303.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Extend the unconfined_runs_test interface in the selinux testsuite
+policy to allow the test programs to properly report back to the caller.
+This is required to enable many of the tests to pass on Fedora 8 and
+later.  Remaining FAIL cases are fdreceive and inherit (due to Fedora 8
+policy granting fd:use permission globally for all domains) and
+task_create (due to refpolicy automatically granting it to all domain
+types).
 
-On Wed, 2008-01-23 at 13:39 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephen Smalley wrote:
-> > On Fri, 2008-01-11 at 11:03 -0500, Daniel J Walsh wrote:
-> > Updated policycoreutils will be coming to take advantage of these bindings.
-> > 
-> > setroubleshoot will also.
-> > 
-> > import selinux
-> > 
-> > will work the way it always did, but now you can execute
-> > 
-> > import selinux.audit2allow as audit2allow
-> > 
-> > audit2allow.init()
-> > 
-> > for i in avc:
-> > 	print audit2allow.analyze(i.scon, i,tcon, i,class, i.access)
-> > 
-> > audit2allow.finish()
-> > 
-> > And get the reason for the AVC.
-> > 
-> >> The Makefile changes are broken:
-> >> make DESTDIR=~/obj install install-pywrap > outinstall: accessing
-> >> `/home/sds/obj/usr/lib/python2.5/site-packages/selinux/__init__.py': Not
-> >> a directory
-> >> make[1]: *** [install-pywrap] Error 1
-> >> make: *** [install-pywrap] Error 2
-> > 
-> Works for me?
-> 
-> THis directory should have been created by the Makefile?
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-I see the problem - you have:
-+       test -d $(PYTHONLIBDIR)/site-packages || install -m 755 -d $(PYTHONLIBDIR)/site-packages/selinux
+---
 
-instead of:
-+       test -d $(PYTHONLIBDIR)/site-packages/selinux || install -m 755 -d $(PYTHONLIBDIR)/site-packages/selinux
+Index: testcases/kernel/security/selinux-testsuite/misc/sbin_deprecated.patch
+===================================================================
+RCS file: /cvsroot/ltp/ltp/testcases/kernel/security/selinux-testsuite/misc/sbin_deprecated.patch,v
+retrieving revision 1.1
+diff -u -r1.1 sbin_deprecated.patch
+--- testcases/kernel/security/selinux-testsuite/misc/sbin_deprecated.patch	2 Jan 2008 11:58:15 -0000	1.1
++++ testcases/kernel/security/selinux-testsuite/misc/sbin_deprecated.patch	23 Jan 2008 19:11:05 -0000
+@@ -556,7 +556,7 @@
+ diff -Nrup refpolicy/test_policy.if refpolicy.new/test_policy.if
+ --- refpolicy/test_policy.if	2007-12-31 06:57:36.000000000 -0500
+ +++ refpolicy.new/test_policy.if	2007-12-31 06:05:59.000000000 -0500
+-@@ -25,3 +25,11 @@
++@@ -25,3 +25,17 @@
+  ##      Domain allowed to transition.
+  ## </param>
+  #
+@@ -564,9 +564,15 @@
+ +interface(`unconfined_runs_test',`
+ +	gen_require(`
+ +		type unconfined_t;
+++		type unconfined_devpts_t;
+ +	')
+ +
+++	# Transition from the caller to the test domain.
+ +	allow unconfined_t $1:process transition;
+++	# Report back from the test domain to the caller.
+++	allow $1 unconfined_t:fd use;
+++	allow $1 unconfined_devpts_t:chr_file { read write ioctl getattr };
+++	allow $1 unconfined_t:fifo_file { read write ioctl getattr };
+ +')
+ diff -Nrup refpolicy/test_ptrace.te refpolicy.new/test_ptrace.te
+ --- refpolicy/test_ptrace.te	2007-12-31 06:57:36.000000000 -0500
 
-So if site-packages already existed but not site-packages/selinux, the
-install would break.
-
-I'll fix it up for merge.
 
 -- 
 Stephen Smalley
