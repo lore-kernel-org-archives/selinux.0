@@ -1,18 +1,18 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHM49j022317
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:22:04 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHM3eY021653
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:22:03 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0NHLRdE021950
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 12:21:27 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0NHLPbP025893
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 17:21:25 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 15/27] FS-Cache: Provide an add_wait_queue_tail() function
-	[try #2]
+Subject: [PATCH 08/27] Add a secctx_to_secid() LSM hook to go along with the
+	existing [try #2]
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 17:21:59 +0000
-Message-ID: <20080123172158.11107.54199.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 17:21:22 +0000
+Message-ID: <20080123172121.11107.96242.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
 References: <20080123172038.11107.86025.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,92 +20,130 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Provide an add_wait_queue_tail() function to add a waiter to the back of a
-wait queue instead of the front.
+secid_to_secctx() LSM hook.  This patch also includes the SELinux
+implementation for this hook.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
 
- include/linux/pagemap.h |    7 +++++--
- include/linux/wait.h    |    2 ++
- kernel/wait.c           |   18 ++++++++++++++++++
- mm/filemap.c            |    2 +-
- 4 files changed, 26 insertions(+), 3 deletions(-)
+ include/linux/security.h |   13 +++++++++++++
+ security/dummy.c         |    6 ++++++
+ security/security.c      |    6 ++++++
+ security/selinux/hooks.c |    6 ++++++
+ 4 files changed, 31 insertions(+), 0 deletions(-)
 
 
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index 1ab7f9a..00b108c 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -211,8 +211,11 @@ static inline void wait_on_page_writeback(struct page *page)
- 
- extern void end_page_writeback(struct page *page);
- 
--/*
-- * Wait for a PG_owner_priv_2 to become clear
-+/**
-+ * wait_on_page_owner_priv_2 - Wait for PG_owner_priv_2 to become clear
-+ * @page: The page to monitor
-+ *
-+ * Wait for a PG_owner_priv_2 to become clear on the specified page.
-  */
- static inline void wait_on_page_owner_priv_2(struct page *page)
- {
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index 0e68628..f1038d0 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -118,6 +118,8 @@ static inline int waitqueue_active(wait_queue_head_t *q)
- #define is_sync_wait(wait)	(!(wait) || ((wait)->private))
- 
- extern void FASTCALL(add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
-+extern void FASTCALL(add_wait_queue_tail(wait_queue_head_t *q,
-+					 wait_queue_t *wait));
- extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
- extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
- 
-diff --git a/kernel/wait.c b/kernel/wait.c
-index 444ddbf..7acc9cc 100644
---- a/kernel/wait.c
-+++ b/kernel/wait.c
-@@ -29,6 +29,24 @@ void fastcall add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
- }
- EXPORT_SYMBOL(add_wait_queue);
- 
-+/**
-+ * add_wait_queue_tail - Add a waiter to the back of a waitqueue
-+ * @q: the wait queue to append the waiter to
-+ * @wait: the waiter to be queued
-+ *
-+ * Add a waiter to the back of a waitqueue so that it gets woken up last.
-+ */
-+void fastcall add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait)
-+{
-+	unsigned long flags;
-+
-+	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue_tail(q, wait);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+EXPORT_SYMBOL(add_wait_queue_tail);
-+
- void fastcall add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
- {
- 	unsigned long flags;
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 5551410..90ccb10 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -572,7 +572,7 @@ void end_page_writeback(struct page *page)
- EXPORT_SYMBOL(end_page_writeback);
- 
- /**
-- * end_page_own - Clear PG_owner_priv_2 and wake up any waiters
-+ * end_page_owner_priv_2 - Clear PG_owner_priv_2 and wake up any waiters
-  * @page: the page
+diff --git a/include/linux/security.h b/include/linux/security.h
+index b7ba073..e8f2f2d 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1200,6 +1200,10 @@ struct request_sock;
+  *	Convert secid to security context.
+  *	@secid contains the security ID.
+  *	@secdata contains the pointer that stores the converted security context.
++ * @secctx_to_secid:
++ *      Convert security context to secid.
++ *      @secid contains the pointer to the generated security ID.
++ *      @secdata contains the security context.
   *
-  * Clear PG_owner_priv_2 and wake up any processes waiting for that event.
+  * @release_secctx:
+  *	Release the security context.
+@@ -1389,6 +1393,7 @@ struct security_operations {
+  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+ 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
++	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+@@ -1623,6 +1628,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_netlink_recv(struct sk_buff *skb, int cap);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
++int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
+ void security_release_secctx(char *secdata, u32 seclen);
+ 
+ #else /* CONFIG_SECURITY */
+@@ -2305,6 +2311,13 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 	return -EOPNOTSUPP;
+ }
+ 
++static inline int security_secctx_to_secid(char *secdata,
++					   u32 seclen,
++					   u32 *secid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline void security_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+diff --git a/security/dummy.c b/security/dummy.c
+index 6f97089..72f1666 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -943,6 +943,11 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return -EOPNOTSUPP;
+ }
+ 
++static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return -EOPNOTSUPP;
++}
++
+ static void dummy_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+@@ -1109,6 +1114,7 @@ void security_fixup_ops (struct security_operations *ops)
+  	set_to_dummy_if_null(ops, getprocattr);
+  	set_to_dummy_if_null(ops, setprocattr);
+  	set_to_dummy_if_null(ops, secid_to_secctx);
++	set_to_dummy_if_null(ops, secctx_to_secid);
+  	set_to_dummy_if_null(ops, release_secctx);
+ #ifdef CONFIG_SECURITY_NETWORK
+ 	set_to_dummy_if_null(ops, unix_stream_connect);
+diff --git a/security/security.c b/security/security.c
+index 92d66d6..1ef4908 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -821,6 +821,12 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
++int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return security_ops->secctx_to_secid(secdata, seclen, secid);
++}
++EXPORT_SYMBOL(security_secctx_to_secid);
++
+ void security_release_secctx(char *secdata, u32 seclen)
+ {
+ 	return security_ops->release_secctx(secdata, seclen);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 20a6b55..1d3eab7 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4734,6 +4734,11 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return security_sid_to_context(secid, secdata, seclen);
+ }
+ 
++static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++{
++	return security_context_to_sid(secdata, seclen, secid);
++}
++
+ static void selinux_release_secctx(char *secdata, u32 seclen)
+ {
+ 	kfree(secdata);
+@@ -4937,6 +4942,7 @@ static struct security_operations selinux_ops = {
+ 	.setprocattr =                  selinux_setprocattr,
+ 
+ 	.secid_to_secctx =		selinux_secid_to_secctx,
++	.secctx_to_secid =		selinux_secctx_to_secid,
+ 	.release_secctx =		selinux_release_secctx,
+ 
+         .unix_stream_connect =		selinux_socket_unix_stream_connect,
 
 
 --
