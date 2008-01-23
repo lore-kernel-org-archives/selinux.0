@@ -1,17 +1,18 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0jwAY015553
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:45:58 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0jvBR008263
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:45:57 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0N0imI1015048
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jan 2008 19:44:48 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0N0ilps028824
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jan 2008 00:44:47 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 24/27] NFS: Use local caching
+Subject: [PATCH 11/27] Security: Allow kernel services to override LSM
+	settings for task actions
 To: Trond.Myklebust@netapp.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 23 Jan 2008 00:45:53 +0000
-Message-ID: <20080123004552.15602.86095.stgit@warthog.procyon.org.uk>
+Date: Wed, 23 Jan 2008 00:44:44 +0000
+Message-ID: <20080123004444.15602.84649.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 References: <20080123004344.15602.35710.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,169 +20,47 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The attached patch makes it possible for the NFS filesystem to make use of the
-network filesystem local caching service (FS-Cache).
+Allow kernel services to override LSM settings appropriate to the actions
+performed by a task by duplicating a security record, modifying it and then
+using task_struct::act_as to point to it when performing operations on behalf
+of a task.
 
-To be able to use this, an updated mount program is required.  This can be
-obtained from:
+This is used, for example, by CacheFiles which has to transparently access the
+cache on behalf of a process that thinks it is doing, say, NFS accesses with a
+potentially inappropriate (with respect to accessing the cache) set of
+security data.
 
-	http://people.redhat.com/steved/fscache/util-linux/
+This patch provides two LSM hooks for modifying a task security record:
 
-To mount an NFS filesystem to use caching, add an "fsc" option to the mount:
+ (*) security_kernel_act_as() which allows modification of the security datum
+     with which a task acts on other objects (most notably files).
 
-	mount warthog:/ /a -o fsc
+ (*) security_create_files_as() which allows modification of the security
+     datum that is used to initialise the security data on a file that a task
+     creates.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/Makefile           |    1 
- fs/nfs/client.c           |    5 +
- fs/nfs/file.c             |   37 ++++
- fs/nfs/fscache-def.c      |  289 +++++++++++++++++++++++++++++++++
- fs/nfs/fscache.c          |  391 +++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/fscache.h          |  148 +++++++++++++++++
- fs/nfs/inode.c            |   47 +++++
- fs/nfs/read.c             |   28 +++
- fs/nfs/super.c            |    3 
- fs/nfs/sysctl.c           |    1 
- include/linux/nfs_fs.h    |    9 +
- include/linux/nfs_fs_sb.h |   18 ++
- 12 files changed, 968 insertions(+), 9 deletions(-)
- create mode 100644 fs/nfs/fscache-def.c
- create mode 100644 fs/nfs/fscache.c
- create mode 100644 fs/nfs/fscache.h
+ include/linux/cred.h                |   23 +++++++
+ include/linux/security.h            |   43 +++++++++++++-
+ kernel/cred.c                       |  111 +++++++++++++++++++++++++++++++++++
+ security/dummy.c                    |   17 +++++
+ security/security.c                 |   15 ++++-
+ security/selinux/hooks.c            |   51 ++++++++++++++++
+ security/selinux/include/security.h |    2 -
+ security/selinux/ss/services.c      |    5 +-
+ 8 files changed, 258 insertions(+), 9 deletions(-)
+ create mode 100644 include/linux/cred.h
 
 
-diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
-index df0f41e..073d04c 100644
---- a/fs/nfs/Makefile
-+++ b/fs/nfs/Makefile
-@@ -16,3 +16,4 @@ nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
- 			   nfs4namespace.o
- nfs-$(CONFIG_NFS_DIRECTIO) += direct.o
- nfs-$(CONFIG_SYSCTL) += sysctl.o
-+nfs-$(CONFIG_NFS_FSCACHE) += fscache.o fscache-def.o
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index a6f6254..bcdc5d0 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -43,6 +43,7 @@
- #include "delegation.h"
- #include "iostat.h"
- #include "internal.h"
-+#include "fscache.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_CLIENT
- 
-@@ -139,6 +140,8 @@ static struct nfs_client *nfs_alloc_client(const char *hostname,
- 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
- #endif
- 
-+	nfs_fscache_get_client_cookie(clp);
-+
- 	return clp;
- 
- error_3:
-@@ -170,6 +173,8 @@ static void nfs_free_client(struct nfs_client *clp)
- 
- 	nfs4_shutdown_client(clp);
- 
-+	nfs_fscache_release_client_cookie(clp);
-+
- 	/* -EIO all pending I/O */
- 	if (!IS_ERR(clp->cl_rpcclient))
- 		rpc_shutdown_client(clp->cl_rpcclient);
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index b3bb89f..d492cd7 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -35,6 +35,7 @@
- #include "delegation.h"
- #include "internal.h"
- #include "iostat.h"
-+#include "fscache.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_FILE
- 
-@@ -352,22 +353,48 @@ static int nfs_write_end(struct file *file, struct address_space *mapping,
- 	return status < 0 ? status : copied;
- }
- 
-+/*
-+ * Partially or wholly invalidate a page
-+ * - Release the private state associated with a page if undergoing complete
-+ *   page invalidation
-+ * - Called if either PG_private or PG_fscache set on the page
-+ * - Caller holds page lock
-+ */
- static void nfs_invalidate_page(struct page *page, unsigned long offset)
- {
- 	if (offset != 0)
- 		return;
- 	/* Cancel any unstarted writes on this page */
- 	nfs_wb_page_cancel(page->mapping->host, page);
-+
-+	nfs_fscache_invalidate_page(page, page->mapping->host);
- }
- 
-+/*
-+ * Release the private state associated with a page
-+ * - Called if either PG_private or PG_fscache set on the page
-+ * - Caller holds page lock
-+ * - Return true (may release) or false (may not)
-+ */
- static int nfs_release_page(struct page *page, gfp_t gfp)
- {
- 	/* If PagePrivate() is set, then the page is not freeable */
--	return 0;
-+	if (PagePrivate(page))
-+		return 0;
-+	return nfs_fscache_release_page(page, gfp);
- }
- 
-+/*
-+ * Attempt to clear the private state associated with a page when an error
-+ * occurs that requires the cached contents of an inode to be written back or
-+ * destroyed
-+ * - Called if either PG_private or PG_fscache set on the page
-+ * - Caller holds page lock
-+ * - Return 0 if successful, -error otherwise
-+ */
- static int nfs_launder_page(struct page *page)
- {
-+	wait_on_page_fscache_write(page);
- 	return nfs_wb_page(page->mapping->host, page);
- }
- 
-@@ -387,6 +414,11 @@ const struct address_space_operations nfs_file_aops = {
- 	.launder_page = nfs_launder_page,
- };
- 
-+/*
-+ * Notification that a PTE pointing to an NFS page is about to be made
-+ * writable, implying that someone is about to modify the page through a
-+ * shared-writable mapping
-+ */
- static int nfs_vm_page_mkwrite(struct vm_area_struct *vma, struct page *page)
- {
- 	struct file *filp = vma->vm_file;
-@@ -396,6 +428,9 @@ static int nfs_vm_page_mkwrite(struct vm_area_struct *vma, struct page *page)
- 	struct address_space *mapping;
- 	loff_t offset;
- 
-+	/* make sure the cache has finished storing the page */
-+	wait_on_page_fscache_write(page);
-+
- 	lock_page(page);
- 	mapping = page->mapping;
- 	if (mapping != vma->vm_file->f_path.dentry->d_inode->i_mapping) {
-diff --git a/fs/nfs/fscache-def.c b/fs/nfs/fscache-def.c
+diff --git a/include/linux/cred.h b/include/linux/cred.h
 new file mode 100644
-index 0000000..bc20b7d
+index 0000000..497af5b
 --- /dev/null
-+++ b/fs/nfs/fscache-def.c
-@@ -0,0 +1,289 @@
-+/* NFS FS-Cache index structure definition
++++ b/include/linux/cred.h
+@@ -0,0 +1,23 @@
++/* Credential management
 + *
 + * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
 + * Written by David Howells (dhowells@redhat.com)
@@ -192,1214 +71,427 @@ index 0000000..bc20b7d
 + * 2 of the Licence, or (at your option) any later version.
 + */
 +
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/nfs_fs.h>
-+#include <linux/nfs_fs_sb.h>
-+#include <linux/in6.h>
++#ifndef _LINUX_CRED_H
++#define _LINUX_CRED_H
 +
-+#include "internal.h"
-+#include "fscache.h"
++struct task_security;
++struct inode;
 +
-+#define NFSDBG_FACILITY		NFSDBG_FSCACHE
++extern struct task_security *get_kernel_security(struct task_struct *);
++extern int set_security_override(struct task_security *, u32);
++extern int set_security_override_from_ctx(struct task_security *, const char *);
++extern int change_create_files_as(struct task_security *, struct inode *);
 +
-+/*
-+ * Definition of the auxiliary data attached to NFS inode storage objects.
-+ * This is used for coherency management.
-+ */
-+struct nfs_fh_auxdata {
-+	struct timespec	i_mtime;
-+	struct timespec	i_ctime;
-+	loff_t		i_size;
-+};
-+
-+/*
-+ * Definition of the key for an NFS server index object.  The server's IP
-+ * address is stored as an IPv6 address, with IPv4 addresses being wrapped
-+ * appropriately.
-+ */
-+struct nfs_server_key {
-+	uint16_t nfsversion;
-+	uint16_t port;
-+	union {
-+		struct {
-+			uint8_t		ipv6wrapper[12];
-+			struct in_addr	addr;
-+		} ipv4_addr;
-+		struct in6_addr ipv6_addr;
-+	};
-+};
-+
-+static const struct fscache_netfs_operations nfs_cache_ops = {
-+};
-+
-+struct fscache_netfs nfs_cache_netfs = {
-+	.name		= "nfs",
-+	.version	= 0,
-+	.ops		= &nfs_cache_ops,
-+};
-+
-+static const uint8_t nfs_cache_ipv6_wrapper_for_ipv4[12] = {
-+	[0 ... 9]	= 0x00,
-+	[10 ... 11]	= 0xff
-+};
-+
-+/*
-+ * Generate a key to describe a server in the main NFS index
-+ */
-+static uint16_t nfs_server_get_key(const void *cookie_netfs_data,
-+				   void *buffer, uint16_t bufmax)
++#endif /* _LINUX_CRED_H */
+diff --git a/include/linux/security.h b/include/linux/security.h
+index e8f2f2d..e6be746 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -557,6 +557,19 @@ struct request_sock;
+  *	Duplicate and attach the security structure currently attached to the
+  *	p->security field.
+  *	Return 0 if operation was successful.
++ * @task_kernel_act_as:
++ *	Set the credentials for a kernel service to act as (subjective context).
++ *	@p points to the task that nominated @secid.
++ *	@sec points to the task security record to be modified.
++ *	@secid specifies the security ID to be set
++ *	Return 0 if successful.
++ * @task_create_files_as:
++ *	Set the file creation context in a task security record to be the same
++ *	as the objective context of the specified inode.
++ *	@p points to the task that nominated @inode.
++ *	@sec points to the task security record to be modified.
++ *	@inode points to the inode to use as a reference.
++ *	Return 0 if successful.
+  * @task_setuid:
+  *	Check permission before setting one or more of the user identity
+  *	attributes of the current process.  The @flags parameter indicates
+@@ -1325,6 +1338,11 @@ struct security_operations {
+ 	int (*task_alloc_security) (struct task_struct *p);
+ 	void (*task_free_security) (struct task_security *p);
+ 	int (*task_dup_security) (struct task_security *p);
++	int (*task_kernel_act_as)(struct task_struct *p,
++				  struct task_security *sec, u32 secid);
++	int (*task_create_files_as)(struct task_struct *p,
++				    struct task_security *sec,
++				    struct inode *inode);
+ 	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
+ 	int (*task_post_setuid) (uid_t old_ruid /* or fsuid */ ,
+ 				 uid_t old_euid, uid_t old_suid, int flags);
+@@ -1393,7 +1411,7 @@ struct security_operations {
+  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+ 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
+-	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
++	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+@@ -1576,6 +1594,11 @@ int security_task_create(unsigned long clone_flags);
+ int security_task_alloc(struct task_struct *p);
+ void security_task_free(struct task_security *p);
+ int security_task_dup(struct task_security *p);
++int security_task_kernel_act_as(struct task_struct *p,
++				struct task_security *sec, u32 secid);
++int security_task_create_files_as(struct task_struct *p,
++				  struct task_security *sec,
++				  struct inode *inode);
+ int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags);
+ int security_task_post_setuid(uid_t old_ruid, uid_t old_euid,
+ 			       uid_t old_suid, int flags);
+@@ -1628,7 +1651,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_netlink_recv(struct sk_buff *skb, int cap);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+-int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
++int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
+ void security_release_secctx(char *secdata, u32 seclen);
+ 
+ #else /* CONFIG_SECURITY */
+@@ -2060,6 +2083,20 @@ static inline int security_task_dup(struct task_security *p)
+ 	return 0;
+ }
+ 
++static inline int security_task_kernel_act_as(struct task_struct *p,
++					      struct task_security *sec,
++					      u32 secid)
 +{
-+	const struct nfs_client *clp = cookie_netfs_data;
-+	struct nfs_server_key *key = buffer;
-+	uint16_t len = 0;
-+
-+	key->nfsversion = clp->cl_nfsversion;
-+
-+	switch (clp->cl_addr.sin_family) {
-+	case AF_INET:
-+		key->port = clp->cl_addr.sin_port;
-+
-+		memcpy(&key->ipv4_addr.ipv6wrapper,
-+		       &nfs_cache_ipv6_wrapper_for_ipv4,
-+		       sizeof(key->ipv4_addr.ipv6wrapper));
-+		memcpy(&key->ipv4_addr.addr,
-+		       &clp->cl_addr.sin_addr,
-+		       sizeof(key->ipv4_addr.addr));
-+		len = sizeof(struct nfs_server_key);
-+		break;
-+
-+	case AF_INET6:
-+		key->port = clp->cl_addr.sin_port;
-+
-+		memcpy(&key->ipv6_addr,
-+		       &clp->cl_addr.sin_addr,
-+		       sizeof(key->ipv6_addr));
-+		len = sizeof(struct nfs_server_key);
-+		break;
-+
-+	default:
-+		len = 0;
-+		printk(KERN_WARNING "NFS: Unknown network family '%d'\n",
-+			clp->cl_addr.sin_family);
-+		break;
-+	}
-+
-+	return len;
++	return 0;
 +}
 +
-+/*
-+ * The root index for the filesystem is defined by nfsd IP address and ports
-+ */
-+const struct fscache_cookie_def nfs_cache_server_index_def = {
-+	.name		= "NFS.servers",
-+	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
-+	.get_key	= nfs_server_get_key,
-+};
-+
-+/*
-+ * Generate a key to describe an NFS inode in an NFS server's index
-+ */
-+static uint16_t nfs_fh_get_key(const void *cookie_netfs_data,
-+			       void *buffer, uint16_t bufmax)
++static inline int security_task_create_files_as(struct task_struct *p,
++						struct task_security *sec,
++						struct inode *inode)
 +{
-+	const struct nfs_inode *nfsi = cookie_netfs_data;
-+	uint16_t nsize;
-+
-+	/* use the inode's NFS filehandle as the key */
-+	nsize = nfsi->fh.size;
-+	memcpy(buffer, nfsi->fh.data, nsize);
-+	return nsize;
++	return 0;
 +}
 +
-+/*
-+ * Get an extra reference on a read context
-+ * - This function can be absent if the completion function doesn't require a
-+ *   context
-+ */
-+static void nfs_fh_get_context(void *cookie_netfs_data, void *context)
-+{
-+	get_nfs_open_context(context);
-+}
+ static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
+ 					int flags)
+ {
+@@ -2311,7 +2348,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline int security_secctx_to_secid(char *secdata,
++static inline int security_secctx_to_secid(const char *secdata,
+ 					   u32 seclen,
+ 					   u32 *secid)
+ {
+diff --git a/kernel/cred.c b/kernel/cred.c
+index ddf98c6..d740d47 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -11,6 +11,7 @@
+ #include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/key.h>
++#include <linux/keyctl.h>
+ #include <linux/init_task.h>
+ #include <linux/security.h>
+ 
+@@ -137,3 +138,113 @@ void put_task_security(struct task_security *sec)
+ 	}
+ }
+ EXPORT_SYMBOL(put_task_security);
 +
-+/*
-+ * Release an extra reference on a read context
-+ * - This function can be absent if the completion function doesn't require a
-+ *   context
-+ */
-+static void nfs_fh_put_context(void *cookie_netfs_data, void *context)
-+{
-+	if (context)
-+		put_nfs_open_context(context);
-+}
-+
-+/*
-+ * Indication the cookie is no longer uncached
-+ * - This function is called when the backing store currently caching a cookie
-+ *   is removed
-+ * - The netfs should use this to clean up any markers indicating cached pages
-+ * - This is mandatory for any object that may have data
-+ */
-+static void nfs_fh_now_uncached(void *cookie_netfs_data)
-+{
-+	struct nfs_inode *nfsi = cookie_netfs_data;
-+	struct pagevec pvec;
-+	pgoff_t first;
-+	int loop, nr_pages;
-+
-+	pagevec_init(&pvec, 0);
-+	first = 0;
-+
-+	dprintk("NFS: nfs_fh_now_uncached: nfs_inode 0x%p\n", nfsi);
-+
-+	for (;;) {
-+		/* grab a bunch of pages to clean */
-+		nr_pages = pagevec_lookup(&pvec,
-+					  nfsi->vfs_inode.i_mapping,
-+					  first,
-+					  PAGEVEC_SIZE - pagevec_count(&pvec));
-+		if (!nr_pages)
-+			break;
-+
-+		for (loop = 0; loop < nr_pages; loop++)
-+			ClearPageFsCache(pvec.pages[loop]);
-+
-+		first = pvec.pages[nr_pages - 1]->index + 1;
-+
-+		pvec.nr = nr_pages;
-+		pagevec_release(&pvec);
-+		cond_resched();
-+	}
-+}
-+
-+/*
-+ * Tet certain file attributes from the netfs data
-+ * - This function can be absent for an index
-+ * - Not permitted to return an error
-+ * - The netfs data from the cookie being used as the source is
-+ *   presented
-+ */
-+static void nfs_fh_get_attr(const void *cookie_netfs_data, uint64_t *size)
-+{
-+	const struct nfs_inode *nfsi = cookie_netfs_data;
-+
-+	*size = nfsi->vfs_inode.i_size;
-+}
-+
-+/*
-+ * Get the auxiliary data from netfs data
-+ * - This function can be absent if the index carries no state data
-+ * - Should store the auxiliary data in the buffer
-+ * - Should return the amount of amount stored
-+ * - Not permitted to return an error
-+ * - The netfs data from the cookie being used as the source is presented
-+ */
-+static uint16_t nfs_fh_get_aux(const void *cookie_netfs_data,
-+			       void *buffer, uint16_t bufmax)
-+{
-+	struct nfs_fh_auxdata auxdata;
-+	const struct nfs_inode *nfsi = cookie_netfs_data;
-+
-+	auxdata.i_size = nfsi->vfs_inode.i_size;
-+	auxdata.i_mtime = nfsi->vfs_inode.i_mtime;
-+	auxdata.i_ctime = nfsi->vfs_inode.i_ctime;
-+
-+	if (bufmax > sizeof(auxdata))
-+		bufmax = sizeof(auxdata);
-+
-+	memcpy(buffer, &auxdata, bufmax);
-+	return bufmax;
-+}
-+
-+/*
-+ * Consult the netfs about the state of an object
-+ * - This function can be absent if the index carries no state data
-+ * - The netfs data from the cookie being used as the target is
-+ *   presented, as is the auxiliary data
-+ */
-+static enum fscache_checkaux nfs_fh_check_aux(void *cookie_netfs_data,
-+					      const void *data,
-+					      uint16_t datalen)
-+{
-+	struct nfs_fh_auxdata auxdata;
-+	struct nfs_inode *nfsi = cookie_netfs_data;
-+
-+	if (datalen > sizeof(auxdata))
-+		return FSCACHE_CHECKAUX_OBSOLETE;
-+
-+	auxdata.i_size = nfsi->vfs_inode.i_size;
-+	auxdata.i_mtime = nfsi->vfs_inode.i_mtime;
-+	auxdata.i_ctime = nfsi->vfs_inode.i_ctime;
-+
-+	if (memcmp(data, &auxdata, datalen) != 0)
-+		return FSCACHE_CHECKAUX_OBSOLETE;
-+
-+	return FSCACHE_CHECKAUX_OKAY;
-+}
-+
-+/*
-+ * The primary index for each server is simply made up of a series of NFS file
-+ * handles
-+ */
-+const struct fscache_cookie_def nfs_cache_fh_index_def = {
-+	.name		= "NFS.fh",
-+	.type		= FSCACHE_COOKIE_TYPE_DATAFILE,
-+	.get_key	= nfs_fh_get_key,
-+	.get_attr	= nfs_fh_get_attr,
-+	.get_aux	= nfs_fh_get_aux,
-+	.check_aux	= nfs_fh_check_aux,
-+	.get_context	= nfs_fh_get_context,
-+	.put_context	= nfs_fh_put_context,
-+	.now_uncached	= nfs_fh_now_uncached,
-+};
-+
-+/*
-+ * Register NFS for caching
-+ */
-+int nfs_fscache_register(void)
-+{
-+	return fscache_register_netfs(&nfs_cache_netfs);
-+}
-+
-+/*
-+ * Unregister NFS for caching
-+ */
-+void nfs_fscache_unregister(void)
-+{
-+	fscache_unregister_netfs(&nfs_cache_netfs);
-+}
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-new file mode 100644
-index 0000000..465f961
---- /dev/null
-+++ b/fs/nfs/fscache.c
-@@ -0,0 +1,391 @@
-+/* NFS filesystem cache interface
++/**
++ * get_kernel_security - Get a task security record for a kernel service
++ * @daemon: A userspace daemon to be used as a reference
 + *
-+ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
++ * Get a task security record for a kernel service.  This can then be used to
++ * override a task's own security so that work can be done on behalf of that
++ * task that requires a different security context.
 + *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
++ * @daemon is used to provide a base for the security record, but can be NULL.
++ * If @daemon is supplied, then the security data will be derived from that;
++ * otherwise they'll be set to 0 and no groups, full capabilities and no keys.
++ *
++ * The caller may change these controls afterwards if desired.
 + */
-+
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/nfs_fs.h>
-+#include <linux/nfs_fs_sb.h>
-+#include <linux/in6.h>
-+#include <linux/seq_file.h>
-+
-+#include "internal.h"
-+#include "fscache.h"
-+
-+#define NFSDBG_FACILITY		NFSDBG_FSCACHE
-+
-+/*
-+ * Get the per-client index cookie for an NFS client if the appropriate mount
-+ * flag was set
-+ * - We always try and get an index cookie for the client, but get filehandle
-+ *   cookies on a per-superblock basis, depending on the mount flags
-+ */
-+void nfs_fscache_get_client_cookie(struct nfs_client *clp)
++struct task_security *get_kernel_security(struct task_struct *daemon)
 +{
-+	/* create a cache index for looking up filehandles */
-+	clp->fscache = fscache_acquire_cookie(nfs_cache_netfs.primary_index,
-+					      &nfs_cache_server_index_def,
-+					      clp);
-+	dfprintk(FSCACHE, "NFS: get client cookie (0x%p/0x%p)\n",
-+		 clp, clp->fscache);
-+}
++	const struct task_security *dsec;
++	struct task_security *sec;
 +
-+/*
-+ * Dispose of a per-client cookie
-+ */
-+void nfs_fscache_release_client_cookie(struct nfs_client *clp)
-+{
-+	dfprintk(FSCACHE, "NFS: releasing client cookie (0x%p/0x%p)\n",
-+		 clp, clp->fscache);
++	sec = kzalloc(sizeof *sec, GFP_KERNEL);
++	if (!sec)
++		return ERR_PTR(-ENOMEM);
 +
-+	fscache_relinquish_cookie(clp->fscache, 0);
-+	clp->fscache = NULL;
-+}
-+
-+/*
-+ * Display statistics through /proc/pid/mountstats
-+ */
-+void nfs_fscache_show_stats(struct seq_file *m, struct nfs_server *nfss)
-+{
-+	seq_printf(m, "\tfscache rd: ok=%u,fail=%u,lasterr=%d\n",
-+		   atomic_read(&nfss->fscache_cnt_read_ok),
-+		   atomic_read(&nfss->fscache_cnt_read_fail),
-+		   nfss->fscache_last_read_error);
-+	seq_printf(m, "\tfscache wr: ok=%u,fail=%u,lasterr=%d\n",
-+		   atomic_read(&nfss->fscache_cnt_write_ok),
-+		   atomic_read(&nfss->fscache_cnt_write_fail),
-+		   nfss->fscache_last_write_error);
-+	seq_printf(m, "\tfscache uncache: ok=%u\n",
-+		   atomic_read(&nfss->fscache_cnt_uncache));
-+}
-+
-+/*
-+ * Initialise the per-filehandle cookie for an NFS inode
-+ */
-+void nfs_fscache_init_fh_cookie(struct inode *inode)
-+{
-+	NFS_I(inode)->fscache = NULL;
-+	if (S_ISREG(inode->i_mode))
-+		set_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
-+}
-+
-+/*
-+ * Get the per-filehandle cookie for an NFS inode
-+ */
-+void nfs_fscache_enable_fh_cookie(struct inode *inode)
-+{
-+	struct super_block *sb = inode->i_sb;
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	if (nfsi->fscache || !NFS_FSCACHE(inode))
-+		return;
-+
-+	if ((NFS_SB(sb)->options & NFS_OPTION_FSCACHE)) {
-+		nfsi->fscache = fscache_acquire_cookie(
-+			NFS_SB(sb)->nfs_client->fscache,
-+			&nfs_cache_fh_index_def,
-+			nfsi);
-+
-+		dfprintk(FSCACHE, "NFS: get FH cookie (0x%p/0x%p/0x%p)\n",
-+			 sb, nfsi, nfsi->fscache);
-+	}
-+}
-+
-+/*
-+ * Release a per-filehandle cookie
-+ */
-+void nfs_fscache_release_fh_cookie(struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	dfprintk(FSCACHE, "NFS: clear cookie (0x%p/0x%p)\n",
-+		 nfsi, nfsi->fscache);
-+
-+	fscache_relinquish_cookie(nfsi->fscache, 0);
-+	nfsi->fscache = NULL;
-+}
-+
-+/*
-+ * Retire a per-filehandle cookie, destroying the data attached to it
-+ */
-+void nfs_fscache_zap_fh_cookie(struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	dfprintk(FSCACHE, "NFS: zapping cookie (0x%p/0x%p)\n",
-+		 nfsi, nfsi->fscache);
-+
-+	fscache_relinquish_cookie(nfsi->fscache, 1);
-+	nfsi->fscache = NULL;
-+}
-+
-+/*
-+ * Turn off the cache with regard to a filehandle cookie if opened for writing,
-+ * invalidating all the pages in the page cache relating to the associated
-+ * inode to clear the per-page caching
-+ */
-+void nfs_fscache_disable_fh_cookie(struct inode *inode)
-+{
-+	clear_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
-+
-+	if (NFS_I(inode)->fscache) {
-+		dfprintk(FSCACHE,
-+			 "NFS: nfsi 0x%p turning cache off\n", NFS_I(inode));
-+
-+		/* Need to invalidate any mapped pages that were read in before
-+		 * turning off the cache.
-+		 */
-+		if (inode->i_mapping && inode->i_mapping->nrpages)
-+			invalidate_inode_pages2(inode->i_mapping);
-+
-+		nfs_fscache_zap_fh_cookie(inode);
-+	}
-+}
-+
-+/*
-+ * Decide if we should enable or disable the FS cache for this inode
-+ * - For now, only regular files that are open read-only will be able to use
-+ *   the cache
-+ */
-+void nfs_fscache_set_fh_cookie(struct inode *inode, struct file *filp)
-+{
-+	if (NFS_FSCACHE(inode)) {
-+		if ((filp->f_flags & O_ACCMODE) != O_RDONLY)
-+			nfs_fscache_disable_fh_cookie(inode);
-+		else
-+			nfs_fscache_enable_fh_cookie(inode);
-+	}
-+}
-+
-+/*
-+ * Replace a per-filehandle cookie due to revalidation detecting a file having
-+ * changed on the server
-+ */
-+void nfs_fscache_renew_fh_cookie(struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+	struct nfs_server *nfss = NFS_SERVER(inode);
-+	struct fscache_cookie *old = nfsi->fscache;
-+
-+	if (nfsi->fscache) {
-+		/* retire the current fscache cache and get a new one */
-+		fscache_relinquish_cookie(nfsi->fscache, 1);
-+
-+		nfsi->fscache = fscache_acquire_cookie(
-+			nfss->nfs_client->fscache,
-+			&nfs_cache_fh_index_def,
-+			nfsi);
-+
-+		dfprintk(FSCACHE,
-+			 "NFS: revalidation new cookie (0x%p/0x%p/0x%p/0x%p)\n",
-+			 nfss, nfsi, old, nfsi->fscache);
-+	}
-+}
-+
-+/*
-+ * change the filesize associated with a per-filehandle cookie
-+ */
-+void nfs_fscache_attr_changed(struct inode *inode)
-+{
-+	fscache_attr_changed(NFS_I(inode)->fscache);
-+}
-+
-+/*
-+ * Handle completion of a page being read from the cache
-+ * - Called in process (keventd) context
-+ */
-+static void nfs_readpage_from_fscache_complete(struct page *page,
-+					       void *context,
-+					       int error)
-+{
-+	dfprintk(FSCACHE,
-+		 "NFS: readpage_from_fscache_complete (0x%p/0x%p/%d)\n",
-+		 page, context, error);
-+
-+	/* if the read completes with an error, we just unlock the page and let
-+	 * the VM reissue the readpage */
-+	if (!error) {
-+		SetPageUptodate(page);
-+		unlock_page(page);
++	if (daemon) {
++		rcu_read_lock();
++		dsec = rcu_dereference(daemon->sec);
++		*sec = *dsec;
++		get_group_info(sec->group_info);
++		get_uid(sec->user);
++		rcu_read_unlock();
++#ifdef CONFIG_KEYS
++		sec->request_key_auth = NULL;
++		sec->thread_keyring = NULL;
++		sec->tgsec = NULL;
++#endif
 +	} else {
-+		error = nfs_readpage_async(context, page->mapping->host, page);
-+		if (error)
-+			unlock_page(page);
++		sec->keep_capabilities = 0;
++		sec->cap_inheritable = CAP_INIT_INH_SET;
++		sec->cap_permitted = CAP_FULL_SET;
++		sec->cap_effective = CAP_INIT_EFF_SET;
++		sec->user = &root_user;
++		get_uid(sec->user);
++		sec->group_info = &init_groups;
++		get_group_info(sec->group_info);
 +	}
-+}
 +
-+/*
-+ * Store a newly fetched page in fscache
-+ * - PG_fscache must be set on the page
++	atomic_set(&sec->usage, 1);
++	spin_lock_init(&sec->lock);
++#ifdef CONFIG_KEYS
++	sec->jit_keyring = KEY_REQKEY_DEFL_THREAD_KEYRING;
++#endif
++
++	return sec;
++}
++EXPORT_SYMBOL(get_kernel_security);
++
++/**
++ * set_security_override - Set the security ID in a security record
++ * @sec: The security record to alter
++ * @secid: The LSM security ID to set
++ *
++ * Set the LSM security ID in a security record so that the subjective security
++ * is overridden when the act_as pointer of a task is overridden.
 + */
-+void __nfs_readpage_to_fscache(struct inode *inode, struct page *page, int sync)
++int set_security_override(struct task_security *sec, u32 secid)
 +{
-+	struct nfs_server *nfss = NFS_SERVER(inode);
++	return security_task_kernel_act_as(current, sec, secid);
++}
++EXPORT_SYMBOL(set_security_override);
++
++/**
++ * set_security_override_from_ctx - Set the security ID in a security record
++ * @sec: The security record to alter
++ * @secctx: The LSM security context to generate the security ID from.
++ *
++ * Set the LSM security ID in a security record so that the subjective security
++ * is overridden when the act_as pointer of a task is overridden.  The security
++ * ID is specified in string form as a security context to be interpreted by
++ * the LSM.
++ */
++int set_security_override_from_ctx(struct task_security *sec, const char *secctx)
++{
++	u32 secid;
 +	int ret;
 +
-+	dfprintk(FSCACHE,
-+		 "NFS: readpage_to_fscache(fsc:%p/p:%p(i:%lx f:%lx)/%d)\n",
-+		 NFS_I(inode)->fscache, page, page->index, page->flags, sync);
-+
-+	ret = fscache_write_page(NFS_I(inode)->fscache, page, GFP_KERNEL);
-+	dfprintk(FSCACHE,
-+		 "NFS:     readpage_to_fscache: p:%p(i:%lu f:%lx) ret %d\n",
-+		 page, page->index, page->flags, ret);
-+
-+	if (ret != 0) {
-+		fscache_uncache_page(NFS_I(inode)->fscache, page);
-+		atomic_inc(&nfss->fscache_cnt_uncache);
-+		atomic_inc(&nfss->fscache_cnt_write_fail);
-+		nfss->fscache_last_write_error = ret;
-+	} else {
-+		atomic_inc(&nfss->fscache_cnt_write_ok);
-+	}
-+}
-+
-+/*
-+ * Retrieve a page from fscache
-+ */
-+int __nfs_readpage_from_fscache(struct nfs_open_context *ctx,
-+				struct inode *inode, struct page *page)
-+{
-+	struct nfs_server *nfss = NFS_SERVER(inode);
-+	int ret;
-+
-+	dfprintk(FSCACHE,
-+		 "NFS: readpage_from_fscache(fsc:%p/p:%p(i:%lx f:%lx)/0x%p)\n",
-+		 NFS_I(inode)->fscache, page, page->index, page->flags, inode);
-+
-+	ret = fscache_read_or_alloc_page(NFS_I(inode)->fscache,
-+					 page,
-+					 nfs_readpage_from_fscache_complete,
-+					 ctx,
-+					 GFP_KERNEL);
-+
-+	switch (ret) {
-+	case 0: /* read BIO submitted (page in fscache) */
-+		dfprintk(FSCACHE,
-+			 "NFS:    readpage_from_fscache: BIO submitted\n");
-+		atomic_inc(&nfss->fscache_cnt_read_ok);
++	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
++	if (ret < 0)
 +		return ret;
 +
-+	case -ENOBUFS: /* inode not in cache */
-+	case -ENODATA: /* page not in cache */
-+		atomic_inc(&nfss->fscache_cnt_read_fail);
-+		dfprintk(FSCACHE,
-+			 "NFS:    readpage_from_fscache %d\n", ret);
-+		return 1;
++	return set_security_override(sec, secid);
++}
++EXPORT_SYMBOL(set_security_override_from_ctx);
 +
-+	default:
-+		dfprintk(FSCACHE, "NFS:    readpage_from_fscache %d\n", ret);
-+		atomic_inc(&nfss->fscache_cnt_read_fail);
-+		nfss->fscache_last_read_error = ret;
++/**
++ * change_create_files_as - Change the file create context in a security record
++ * @sec: The security record to alter
++ * @inode: The inode to take the context from
++ *
++ * Change the file creation context in a security record to be the same as the
++ * object context of the specified inode, so that the new inodes have the same
++ * MAC context as that inode.
++ */
++int change_create_files_as(struct task_security *sec, struct inode *inode)
++{
++	sec->fsuid = inode->i_uid;
++	sec->fsgid = inode->i_gid;
++	return security_task_create_files_as(current, sec, inode);
++}
++EXPORT_SYMBOL(change_create_files_as);
+diff --git a/security/dummy.c b/security/dummy.c
+index 72f1666..139b9de 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -495,6 +495,19 @@ static int dummy_task_dup_security(struct task_security *p)
+ 	return 0;
+ }
+ 
++static int dummy_task_kernel_act_as(struct task_struct *p,
++				    struct task_security *sec, u32 secid)
++{
++	return 0;
++}
++
++static int dummy_task_create_files_as(struct task_struct *p,
++				      struct task_security *sec,
++				      struct inode *inode)
++{
++	return 0;
++}
++
+ static int dummy_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	return 0;
+@@ -943,7 +956,7 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int dummy_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -1068,6 +1081,8 @@ void security_fixup_ops (struct security_operations *ops)
+ 	set_to_dummy_if_null(ops, task_alloc_security);
+ 	set_to_dummy_if_null(ops, task_free_security);
+ 	set_to_dummy_if_null(ops, task_dup_security);
++	set_to_dummy_if_null(ops, task_kernel_act_as);
++	set_to_dummy_if_null(ops, task_create_files_as);
+ 	set_to_dummy_if_null(ops, task_setuid);
+ 	set_to_dummy_if_null(ops, task_post_setuid);
+ 	set_to_dummy_if_null(ops, task_setgid);
+diff --git a/security/security.c b/security/security.c
+index 1ef4908..a950909 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -583,6 +583,19 @@ int security_task_dup(struct task_security *sec)
+ 	return security_ops->task_dup_security(sec);
+ }
+ 
++int security_task_kernel_act_as(struct task_struct *p,
++				struct task_security *sec, u32 secid)
++{
++	return security_ops->task_kernel_act_as(p, sec, secid);
++}
++
++int security_task_create_files_as(struct task_struct *p,
++				  struct task_security *sec,
++				  struct inode *inode)
++{
++	return security_ops->task_create_files_as(p, sec, inode);
++}
++
+ int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	return security_ops->task_setuid(id0, id1, id2, flags);
+@@ -821,7 +834,7 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
+-int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return security_ops->secctx_to_secid(secdata, seclen, secid);
+ }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 1d3eab7..781ed64 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2846,6 +2846,53 @@ static int selinux_task_dup_security(struct task_security *sec)
+ 	return 0;
+ }
+ 
++/*
++ * set the security data for a kernel service
++ * - all the creation contexts are set to unlabelled
++ */
++static int selinux_task_kernel_act_as(struct task_struct *p,
++				      struct task_security *sec, u32 secid)
++{
++	struct task_security_struct *tsec = sec->security;
++	struct task_security_struct *ptsec = p->act_as->security;
++	int ret;
++
++ 	ret = avc_has_perm(ptsec->sid, secid,
++			   SECCLASS_KERNEL_SERVICE,
++			   KERNEL_SERVICE__USE_AS_OVERRIDE,
++			   NULL);
++	if (ret == 0) {
++		tsec->sid = secid;
++		tsec->create_sid = 0;
++		tsec->keycreate_sid = 0;
++		tsec->sockcreate_sid = 0;
 +	}
 +	return ret;
 +}
 +
 +/*
-+ * Retrieve a set of pages from fscache
++ * set the file creation context in a security record to the same as the
++ * objective context of the specified inode
 + */
-+int __nfs_readpages_from_fscache(struct nfs_open_context *ctx,
-+				 struct inode *inode,
-+				 struct address_space *mapping,
-+				 struct list_head *pages,
-+				 unsigned *nr_pages)
++static int selinux_task_create_files_as(struct task_struct *p,
++					struct task_security *sec,
++					struct inode *inode)
 +{
-+	struct nfs_server *nfss = NFS_SERVER(inode);
-+	int ret, npages = *nr_pages;
++	struct inode_security_struct *isec = inode->i_security;
++	struct task_security_struct *tsec = sec->security;
++	struct task_security_struct *ptsec = p->act_as->security;
++	int ret;
 +
-+	dfprintk(FSCACHE, "NFS: nfs_getpages_from_fscache (0x%p/%u/0x%p)\n",
-+		 NFS_I(inode)->fscache, npages, inode);
++ 	ret = avc_has_perm(ptsec->sid, isec->sid,
++			   SECCLASS_KERNEL_SERVICE,
++			   KERNEL_SERVICE__CREATE_FILES_AS,
++			   NULL);
 +
-+	ret = fscache_read_or_alloc_pages(NFS_I(inode)->fscache,
-+					  mapping, pages, nr_pages,
-+					  nfs_readpage_from_fscache_complete,
-+					  ctx,
-+					  mapping_gfp_mask(mapping));
-+
-+	switch (ret) {
-+	case 0: /* read submitted to the cache for all pages */
-+		BUG_ON(!list_empty(pages));
-+		BUG_ON(*nr_pages != 0);
-+		dfprintk(FSCACHE,
-+			 "NFS: nfs_getpages_from_fscache: submitted\n");
-+
-+		atomic_add(npages, &nfss->fscache_cnt_read_ok);
-+		return ret;
-+
-+	case -ENOBUFS: /* some pages aren't cached and can't be */
-+	case -ENODATA: /* some pages aren't cached */
-+		dfprintk(FSCACHE,
-+			 "NFS: nfs_getpages_from_fscache: no page: %d\n", ret);
-+		atomic_add(*nr_pages, &nfss->fscache_cnt_read_fail);
-+		return 1;
-+
-+	default:
-+		dfprintk(FSCACHE,
-+			 "NFS: nfs_getpages_from_fscache: ret  %d\n", ret);
-+		nfss->fscache_last_read_error = ret;
-+	}
-+
-+	return ret;
-+}
-+
-+/*
-+ * Release the caching state associated with a page, if the page isn't busy
-+ * interacting with the cache
-+ * - Returns true (can release page) or false (page busy)
-+ */
-+int nfs_fscache_release_page(struct page *page, gfp_t gfp)
-+{
-+	struct nfs_server *nfss = NFS_SERVER(page->mapping->host);
-+
-+	if (PageFsCacheWrite(page)) {
-+		if (!(gfp & __GFP_WAIT))
-+			return 0;
-+		wait_on_page_fscache_write(page);
-+	}
-+
-+	if (PageFsCache(page)) {
-+		struct nfs_inode *nfsi = NFS_I(page->mapping->host);
-+
-+		BUG_ON(!nfsi->fscache);
-+
-+		dfprintk(FSCACHE, "NFS: fscache releasepage (0x%p/0x%p/0x%p)\n",
-+			 nfsi->fscache, page, nfsi);
-+
-+		fscache_uncache_page(nfsi->fscache, page);
-+		atomic_inc(&nfss->fscache_cnt_uncache);
-+	}
-+
-+	return 1;
-+}
-+
-+/*
-+ * Release the caching state associated with a page if undergoing complete page
-+ * invalidation
-+ */
-+void __nfs_fscache_invalidate_page(struct page *page, struct inode *inode)
-+{
-+	struct nfs_server *nfss = NFS_SERVER(inode);
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	BUG_ON(!nfsi->fscache);
-+
-+	dfprintk(FSCACHE, "NFS: fscache invalidatepage (0x%p/0x%p/0x%p)\n",
-+		 nfsi->fscache, page, nfsi);
-+
-+	wait_on_page_fscache_write(page);
-+
-+	BUG_ON(!PageLocked(page));
-+	fscache_uncache_page(nfsi->fscache, page);
-+	atomic_inc(&nfss->fscache_cnt_uncache);
-+}
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-new file mode 100644
-index 0000000..144fb58
---- /dev/null
-+++ b/fs/nfs/fscache.h
-@@ -0,0 +1,148 @@
-+/* NFS filesystem cache interface definitions
-+ *
-+ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#ifndef _NFS_FSCACHE_H
-+#define _NFS_FSCACHE_H
-+
-+#include <linux/nfs_fs.h>
-+#include <linux/nfs_mount.h>
-+#include <linux/nfs4_mount.h>
-+
-+#ifdef CONFIG_NFS_FSCACHE
-+#include <linux/fscache.h>
-+
-+/*
-+ * fscache-def.c
-+ */
-+extern struct fscache_netfs nfs_cache_netfs;
-+extern const struct fscache_cookie_def nfs_cache_server_index_def;
-+extern const struct fscache_cookie_def nfs_cache_fh_index_def;
-+
-+extern int nfs_fscache_register(void);
-+extern void nfs_fscache_unregister(void);
-+
-+/*
-+ * fscache.c
-+ */
-+extern void nfs_fscache_get_client_cookie(struct nfs_client *);
-+extern void nfs_fscache_release_client_cookie(struct nfs_client *);
-+extern void nfs_fscache_show_stats(struct seq_file *, struct nfs_server *);
-+extern void nfs_fscache_init_fh_cookie(struct inode *);
-+extern void nfs_fscache_enable_fh_cookie(struct inode *);
-+extern void nfs_fscache_release_fh_cookie(struct inode *);
-+extern void nfs_fscache_zap_fh_cookie(struct inode *);
-+extern void nfs_fscache_disable_fh_cookie(struct inode *);
-+extern void nfs_fscache_set_fh_cookie(struct inode *, struct file *);
-+extern void nfs_fscache_renew_fh_cookie(struct inode *);
-+extern void nfs_fscache_attr_changed(struct inode *);
-+extern void __nfs_readpage_to_fscache(struct inode *, struct page *, int);
-+extern int __nfs_readpage_from_fscache(struct nfs_open_context *,
-+				       struct inode *, struct page *);
-+extern int __nfs_readpages_from_fscache(struct nfs_open_context *,
-+					struct inode *, struct address_space *,
-+					struct list_head *, unsigned *);
-+extern void __nfs_fscache_invalidate_page(struct page *, struct inode *);
-+extern int nfs_fscache_release_page(struct page *, gfp_t);
-+
-+/*
-+ * release the caching state associated with a page if undergoing complete page
-+ * invalidation
-+ */
-+static inline void nfs_fscache_invalidate_page(struct page *page,
-+					       struct inode *inode)
-+{
-+	if (PageFsCache(page))
-+		__nfs_fscache_invalidate_page(page, inode);
-+}
-+
-+/*
-+ * store a newly fetched page in fscache
-+ */
-+static inline void nfs_readpage_to_fscache(struct inode *inode,
-+					   struct page *page,
-+					   int sync)
-+{
-+	if (PageFsCache(page))
-+		__nfs_readpage_to_fscache(inode, page, sync);
-+}
-+
-+/*
-+ * retrieve a page from fscache
-+ */
-+static inline int nfs_readpage_from_fscache(struct nfs_open_context *ctx,
-+					    struct inode *inode,
-+					    struct page *page)
-+{
-+	if (NFS_I(inode)->fscache)
-+		return __nfs_readpage_from_fscache(ctx, inode, page);
-+	return -ENOBUFS;
-+}
-+
-+/*
-+ * retrieve a set of pages from fscache
-+ */
-+static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
-+					     struct inode *inode,
-+					     struct address_space *mapping,
-+					     struct list_head *pages,
-+					     unsigned *nr_pages)
-+{
-+	if (NFS_I(inode)->fscache)
-+		return __nfs_readpages_from_fscache(ctx, inode, mapping, pages,
-+						    nr_pages);
-+	return -ENOBUFS;
-+}
-+
-+#else /* CONFIG_NFS_FSCACHE */
-+static inline int nfs_fscache_register(void) { return 0; }
-+static inline void nfs_fscache_unregister(void) {}
-+static inline void nfs_fscache_get_client_cookie(struct nfs_client *clp) {}
-+static inline void nfs4_fscache_get_client_cookie(struct nfs_client *clp) {}
-+static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
-+static inline void nfs_fscache_show_stats(struct seq_file *m,
-+					  struct nfs_server *nfss) {}
-+
-+static inline void nfs_fscache_init_fh_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_enable_fh_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_attr_changed(struct inode *inode) {}
-+static inline void nfs_fscache_release_fh_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_zap_fh_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_renew_fh_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_disable_fh_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_set_fh_cookie(struct inode *inode,
-+					     struct file *filp) {}
-+static inline void nfs_fscache_install_vm_ops(struct inode *inode,
-+					      struct vm_area_struct *vma) {}
-+static inline int nfs_fscache_release_page(struct page *page, gfp_t gfp)
-+{
-+	return 1; /* True: may release page */
-+}
-+static inline void nfs_fscache_invalidate_page(struct page *page,
-+					       struct inode *inode) {}
-+static inline void nfs_readpage_to_fscache(struct inode *inode,
-+					   struct page *page, int sync) {}
-+static inline int nfs_readpage_from_fscache(struct nfs_open_context *ctx,
-+					    struct inode *inode,
-+					    struct page *page)
-+{
-+	return -ENOBUFS;
-+}
-+static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
-+					     struct inode *inode,
-+					     struct address_space *mapping,
-+					     struct list_head *pages,
-+					     unsigned *nr_pages)
-+{
-+	return -ENOBUFS;
-+}
-+
-+#endif /* CONFIG_NFS_FSCACHE */
-+#endif /* _NFS_FSCACHE_H */
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index db5d96d..49726b1 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -46,6 +46,7 @@
- #include "delegation.h"
- #include "iostat.h"
- #include "internal.h"
-+#include "fscache.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_VFS
- 
-@@ -111,6 +112,7 @@ void nfs_clear_inode(struct inode *inode)
- 	BUG_ON(!list_empty(&NFS_I(inode)->open_files));
- 	nfs_zap_acl_cache(inode);
- 	nfs_access_zap_cache(inode);
-+	nfs_fscache_release_fh_cookie(inode);
- }
- 
- /**
-@@ -330,6 +332,8 @@ nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
- 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
- 		nfsi->access_cache = RB_ROOT;
- 
-+		nfs_fscache_init_fh_cookie(inode);
-+
- 		unlock_new_inode(inode);
- 	} else
- 		nfs_refresh_inode(inode, fattr);
-@@ -613,6 +617,7 @@ int nfs_open(struct inode *inode, struct file *filp)
- 	ctx->mode = filp->f_mode;
- 	nfs_file_set_open_context(filp, ctx);
- 	put_nfs_open_context(ctx);
-+	nfs_fscache_set_fh_cookie(inode, filp);
- 	return 0;
- }
- 
-@@ -673,7 +678,13 @@ __nfs_revalidate_inode(struct nfs_server *server, struct inode *inode)
- 			 (long long)NFS_FILEID(inode), status);
- 		goto out;
- 	}
--	spin_unlock(&inode->i_lock);
-+	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
-+		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
-+		spin_unlock(&inode->i_lock);
-+		nfs_fscache_attr_changed(inode);
-+	} else {
-+		spin_unlock(&inode->i_lock);
-+	}
- 
- 	if (nfsi->cache_validity & NFS_INO_INVALID_ACL)
- 		nfs_zap_acl_cache(inode);
-@@ -729,6 +740,7 @@ static int nfs_invalidate_mapping_nolock(struct inode *inode, struct address_spa
- 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
- 	spin_unlock(&inode->i_lock);
- 	nfs_inc_stats(inode, NFSIOS_DATAINVALIDATE);
-+	nfs_fscache_renew_fh_cookie(inode);
- 	dfprintk(PAGECACHE, "NFS: (%s/%Ld) data cache invalidated\n",
- 			inode->i_sb->s_id, (long long)NFS_FILEID(inode));
- 	return 0;
-@@ -904,7 +916,13 @@ int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
- 	else
- 		status = nfs_check_inode_attributes(inode, fattr);
- 
--	spin_unlock(&inode->i_lock);
-+	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
-+		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
-+		spin_unlock(&inode->i_lock);
-+		nfs_fscache_attr_changed(inode);
-+	} else {
-+		spin_unlock(&inode->i_lock);
-+	}
- 	return status;
- }
- 
-@@ -925,12 +943,19 @@ int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
- int nfs_post_op_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- {
- 	struct nfs_inode *nfsi = NFS_I(inode);
-+	bool update_fscache = false;
- 
- 	spin_lock(&inode->i_lock);
- 	nfsi->cache_validity |= NFS_INO_INVALID_ATTR|NFS_INO_REVAL_PAGECACHE;
- 	if (S_ISDIR(inode->i_mode))
- 		nfsi->cache_validity |= NFS_INO_INVALID_DATA;
-+	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
-+		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
-+		update_fscache = true;
-+	}
- 	spin_unlock(&inode->i_lock);
-+	if (update_fscache)
-+		nfs_fscache_attr_changed(inode);
- 	return nfs_refresh_inode(inode, fattr);
- }
- 
-@@ -1018,7 +1043,8 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- 		if (!timespec_equal(&inode->i_mtime, &fattr->mtime)) {
- 			dprintk("NFS: mtime change on server for file %s/%ld\n",
- 					inode->i_sb->s_id, inode->i_ino);
--			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
-+			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
-+				NFS_INO_INVALID_FSCACHE_ATTR;
- 			nfsi->cache_change_attribute = now;
- 		}
- 		/* If ctime has changed we should definitely clear access+acl caches */
-@@ -1027,7 +1053,9 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- 	} else if (nfsi->change_attr != fattr->change_attr) {
- 		dprintk("NFS: change_attr change on server for file %s/%ld\n",
- 				inode->i_sb->s_id, inode->i_ino);
--		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA|NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL;
-+		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
-+			NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL |
-+			NFS_INO_INVALID_FSCACHE_ATTR;
- 		nfsi->cache_change_attribute = now;
- 	}
- 
-@@ -1039,13 +1067,13 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- 		 * the file grown beyond our last write? */
- 		if (nfsi->npages == 0 || new_isize > cur_isize) {
- 			inode->i_size = new_isize;
--			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
-+			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
-+				NFS_INO_INVALID_FSCACHE_ATTR;
- 		}
- 		dprintk("NFS: isize change on server for file %s/%ld\n",
- 				inode->i_sb->s_id, inode->i_ino);
- 	}
- 
--
- 	memcpy(&inode->i_mtime, &fattr->mtime, sizeof(inode->i_mtime));
- 	memcpy(&inode->i_ctime, &fattr->ctime, sizeof(inode->i_ctime));
- 	memcpy(&inode->i_atime, &fattr->atime, sizeof(inode->i_atime));
-@@ -1214,6 +1242,10 @@ static int __init init_nfs_fs(void)
- {
- 	int err;
- 
-+	err = nfs_fscache_register();
-+	if (err < 0)
-+		goto out6;
-+
- 	err = nfs_fs_proc_init();
- 	if (err)
- 		goto out5;
-@@ -1260,6 +1292,8 @@ out3:
- out4:
- 	nfs_fs_proc_exit();
- out5:
-+	nfs_fscache_unregister();
-+out6:
- 	return err;
- }
- 
-@@ -1270,6 +1304,7 @@ static void __exit exit_nfs_fs(void)
- 	nfs_destroy_readpagecache();
- 	nfs_destroy_inodecache();
- 	nfs_destroy_nfspagecache();
-+	nfs_fscache_unregister();
- #ifdef CONFIG_PROC_FS
- 	rpc_proc_unregister("nfs");
- #endif
-diff --git a/fs/nfs/read.c b/fs/nfs/read.c
-index 4587a86..56e919e 100644
---- a/fs/nfs/read.c
-+++ b/fs/nfs/read.c
-@@ -18,12 +18,14 @@
- #include <linux/sunrpc/clnt.h>
- #include <linux/nfs_fs.h>
- #include <linux/nfs_page.h>
-+#include <linux/nfs_mount.h>
- #include <linux/smp_lock.h>
- 
- #include <asm/system.h>
- 
- #include "internal.h"
- #include "iostat.h"
-+#include "fscache.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_PAGECACHE
- 
-@@ -114,8 +116,8 @@ static void nfs_readpage_truncate_uninitialised_page(struct nfs_read_data *data)
- 	}
- }
- 
--static int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
--		struct page *page)
-+int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
-+		       struct page *page)
- {
- 	LIST_HEAD(one_request);
- 	struct nfs_page	*new;
-@@ -142,6 +144,11 @@ static int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
- 
- static void nfs_readpage_release(struct nfs_page *req)
- {
-+	struct inode *d_inode = req->wb_context->path.dentry->d_inode;
-+
-+	if (PageUptodate(req->wb_page))
-+		nfs_readpage_to_fscache(d_inode, req->wb_page, 0);
-+
- 	unlock_page(req->wb_page);
- 
- 	dprintk("NFS: read done (%s/%Ld %d@%Ld)\n",
-@@ -496,8 +503,15 @@ int nfs_readpage(struct file *file, struct page *page)
- 	} else
- 		ctx = get_nfs_open_context(nfs_file_open_context(file));
- 
-+	if (!IS_SYNC(inode)) {
-+		error = nfs_readpage_from_fscache(ctx, inode, page);
-+		if (error == 0)
-+			goto out;
-+	}
-+
- 	error = nfs_readpage_async(ctx, inode, page);
- 
-+out:
- 	put_nfs_open_context(ctx);
- 	return error;
- out_unlock:
-@@ -573,6 +587,15 @@ int nfs_readpages(struct file *filp, struct address_space *mapping,
- 			return -EBADF;
- 	} else
- 		desc.ctx = get_nfs_open_context(nfs_file_open_context(filp));
-+
-+	/* attempt to read as many of the pages as possible from the cache
-+	 * - this returns -ENOBUFS immediately if the cookie is negative
-+	 */
-+	ret = nfs_readpages_from_fscache(desc.ctx, inode, mapping,
-+					 pages, &nr_pages);
 +	if (ret == 0)
-+		goto read_complete; /* all pages were read */
++		tsec->create_sid = isec->sid;
++	return 0;
++}
 +
- 	if (rsize < PAGE_CACHE_SIZE)
- 		nfs_pageio_init(&pgio, inode, nfs_pagein_multi, rsize, 0);
- 	else
-@@ -583,6 +606,7 @@ int nfs_readpages(struct file *filp, struct address_space *mapping,
- 	nfs_pageio_complete(&pgio);
- 	npages = (pgio.pg_bytes_written + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
- 	nfs_add_stats(inode, NFSIOS_READPAGES, npages);
-+read_complete:
- 	put_nfs_open_context(desc.ctx);
- out:
- 	return ret;
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 7f5e747..6dd628f 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -57,6 +57,7 @@
- #include "delegation.h"
- #include "iostat.h"
- #include "internal.h"
-+#include "fscache.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_VFS
- 
-@@ -549,6 +550,8 @@ static int nfs_show_stats(struct seq_file *m, struct vfsmount *mnt)
- 
- 	rpc_print_iostats(m, nfss->client);
- 
-+	nfs_fscache_show_stats(m, nfss);
-+
- 	return 0;
+ static int selinux_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	/* Since setuid only affects the current process, and
+@@ -4734,7 +4781,7 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return security_sid_to_context(secid, secdata, seclen);
  }
  
-diff --git a/fs/nfs/sysctl.c b/fs/nfs/sysctl.c
-index b62481d..b3b3280 100644
---- a/fs/nfs/sysctl.c
-+++ b/fs/nfs/sysctl.c
-@@ -14,6 +14,7 @@
- #include <linux/nfs_fs.h>
- 
- #include "callback.h"
-+#include "internal.h"
- 
- static const int nfs_set_port_min = 0;
- static const int nfs_set_port_max = 65535;
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index 2d15d4a..8a5685f 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -174,6 +174,9 @@ struct nfs_inode {
- 	int			 delegation_state;
- 	struct rw_semaphore	rwsem;
- #endif /* CONFIG_NFS_V4*/
-+#ifdef CONFIG_NFS_FSCACHE
-+	struct fscache_cookie	*fscache;
-+#endif
- 	struct inode		vfs_inode;
- };
- 
-@@ -187,6 +190,7 @@ struct nfs_inode {
- #define NFS_INO_INVALID_ACL	0x0010		/* cached acls are invalid */
- #define NFS_INO_REVAL_PAGECACHE	0x0020		/* must revalidate pagecache */
- #define NFS_INO_REVAL_FORCED	0x0040		/* force revalidation ignoring a delegation */
-+#define NFS_INO_INVALID_FSCACHE_ATTR	0x0080	/* local cache attributes are invalid */
- 
- /*
-  * Bit offsets in flags field
-@@ -195,6 +199,7 @@ struct nfs_inode {
- #define NFS_INO_ADVISE_RDPLUS	(1)		/* advise readdirplus */
- #define NFS_INO_STALE		(2)		/* possible stale inode */
- #define NFS_INO_ACL_LRU_SET	(3)		/* Inode is on the LRU list */
-+#define NFS_INO_FSCACHE		(4)		/* inode can be cached by FS-Cache */
- 
- static inline struct nfs_inode *NFS_I(struct inode *inode)
+-static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
  {
-@@ -216,6 +221,7 @@ static inline struct nfs_inode *NFS_I(struct inode *inode)
+ 	return security_context_to_sid(secdata, seclen, secid);
+ }
+@@ -4889,6 +4936,8 @@ static struct security_operations selinux_ops = {
+ 	.task_alloc_security =		selinux_task_alloc_security,
+ 	.task_free_security =		selinux_task_free_security,
+ 	.task_dup_security =		selinux_task_dup_security,
++	.task_kernel_act_as =		selinux_task_kernel_act_as,
++	.task_create_files_as =		selinux_task_create_files_as,
+ 	.task_setuid =			selinux_task_setuid,
+ 	.task_post_setuid =		selinux_task_post_setuid,
+ 	.task_setgid =			selinux_task_setgid,
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 39337af..727b29e 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -66,7 +66,7 @@ int security_change_sid(u32 ssid, u32 tsid,
+ int security_sid_to_context(u32 sid, char **scontext,
+ 	u32 *scontext_len);
  
- #define NFS_FLAGS(inode)		(NFS_I(inode)->flags)
- #define NFS_STALE(inode)		(test_bit(NFS_INO_STALE, &NFS_FLAGS(inode)))
-+#define NFS_FSCACHE(inode)	(test_bit(NFS_INO_FSCACHE, &NFS_FLAGS(inode)))
+-int security_context_to_sid(char *scontext, u32 scontext_len,
++int security_context_to_sid(const char *scontext, u32 scontext_len,
+ 	u32 *out_sid);
  
- #define NFS_FILEID(inode)		(NFS_I(inode)->fileid)
+ int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *out_sid, u32 def_sid);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f83b19d..a17db9e 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -677,7 +677,8 @@ out:
  
-@@ -455,6 +461,8 @@ extern int  nfs_readpages(struct file *, struct address_space *,
- 		struct list_head *, unsigned);
- extern int  nfs_readpage_result(struct rpc_task *, struct nfs_read_data *);
- extern void nfs_readdata_release(void *data);
-+extern int  nfs_readpage_async(struct nfs_open_context *, struct inode *,
-+			       struct page *);
+ }
  
- /*
-  * Allocate nfs_read_data structures
-@@ -545,6 +553,7 @@ extern void * nfs_root_data(void);
- #define NFSDBG_CALLBACK		0x0100
- #define NFSDBG_CLIENT		0x0200
- #define NFSDBG_MOUNT		0x0400
-+#define NFSDBG_FSCACHE		0x0800
- #define NFSDBG_ALL		0xFFFF
- 
- #ifdef __KERNEL__
-diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index 0cac49b..3c8e15d 100644
---- a/include/linux/nfs_fs_sb.h
-+++ b/include/linux/nfs_fs_sb.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/list.h>
- #include <linux/backing-dev.h>
-+#include <linux/fscache.h>
- 
- struct nfs_iostats;
- 
-@@ -65,6 +66,10 @@ struct nfs_client {
- 	char			cl_ipaddr[16];
- 	unsigned char		cl_id_uniquifier;
- #endif
-+
-+#ifdef CONFIG_NFS_FSCACHE
-+	struct fscache_cookie	*fscache;	/* client index cache cookie */
-+#endif
- };
- 
- /*
-@@ -95,12 +100,25 @@ struct nfs_server {
- 	unsigned int		acdirmin;
- 	unsigned int		acdirmax;
- 	unsigned int		namelen;
-+	unsigned int		options;	/* extra options enabled by mount */
-+#define NFS_OPTION_FSCACHE	0x00000001	/* - local caching enabled */
- 
- 	struct nfs_fsid		fsid;
- 	__u64			maxfilesize;	/* maximum file size */
- 	unsigned long		mount_time;	/* when this fs was mounted */
- 	dev_t			s_dev;		/* superblock dev numbers */
- 
-+#ifdef CONFIG_NFS_FSCACHE
-+	/* statistical counters for local caching */
-+	atomic_t		fscache_cnt_read_ok;
-+	atomic_t		fscache_cnt_read_fail;
-+	atomic_t		fscache_cnt_write_ok;
-+	atomic_t		fscache_cnt_write_fail;
-+	atomic_t		fscache_cnt_uncache;
-+	int			fscache_last_read_error;
-+	int			fscache_last_write_error;
-+#endif
-+
- #ifdef CONFIG_NFS_V4
- 	u32			attr_bitmask[2];/* V4 bitmask representing the set
- 						   of attributes supported on this
+-static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
++static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
++					u32 *sid, u32 def_sid)
+ {
+ 	char *scontext2;
+ 	struct context context;
+@@ -803,7 +804,7 @@ out:
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+-int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
++int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+ 	                                    sid, SECSID_NULL);
 
 
 --
