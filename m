@@ -1,61 +1,79 @@
-Subject: [patch] selinux-testsuite:  extend unconfined_runs_test
+Subject: [patch] selinux-testsuite:  update README
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Subrata Modak <subrata@linux.vnet.ibm.com>
 Cc: "Serge E. Hallyn" <serue@us.ibm.com>, ltp-list@lists.sourceforge.net,
         selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
         James Morris <jmorris@namei.org>
+In-Reply-To: <1201116050.7025.303.camel@moss-spartans.epoch.ncsc.mil>
+References: <1201116050.7025.303.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 23 Jan 2008 14:20:50 -0500
-Message-Id: <1201116050.7025.303.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 23 Jan 2008 14:33:54 -0500
+Message-Id: <1201116834.7025.311.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Extend the unconfined_runs_test interface in the selinux testsuite
-policy to allow the test programs to properly report back to the caller.
-This is required to enable many of the tests to pass on Fedora 8 and
-later.  Remaining FAIL cases are fdreceive and inherit (due to Fedora 8
-policy granting fd:use permission globally for all domains) and
-task_create (due to refpolicy automatically granting it to all domain
-types).
+Update the selinux testsuite README file.
 
 Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
----
-
-Index: testcases/kernel/security/selinux-testsuite/misc/sbin_deprecated.patch
+Index: testcases/kernel/security/selinux-testsuite/README
 ===================================================================
-RCS file: /cvsroot/ltp/ltp/testcases/kernel/security/selinux-testsuite/misc/sbin_deprecated.patch,v
-retrieving revision 1.1
-diff -u -r1.1 sbin_deprecated.patch
---- testcases/kernel/security/selinux-testsuite/misc/sbin_deprecated.patch	2 Jan 2008 11:58:15 -0000	1.1
-+++ testcases/kernel/security/selinux-testsuite/misc/sbin_deprecated.patch	23 Jan 2008 19:11:05 -0000
-@@ -556,7 +556,7 @@
- diff -Nrup refpolicy/test_policy.if refpolicy.new/test_policy.if
- --- refpolicy/test_policy.if	2007-12-31 06:57:36.000000000 -0500
- +++ refpolicy.new/test_policy.if	2007-12-31 06:05:59.000000000 -0500
--@@ -25,3 +25,11 @@
-+@@ -25,3 +25,17 @@
-  ##      Domain allowed to transition.
-  ## </param>
-  #
-@@ -564,9 +564,15 @@
- +interface(`unconfined_runs_test',`
- +	gen_require(`
- +		type unconfined_t;
-++		type unconfined_devpts_t;
- +	')
- +
-++	# Transition from the caller to the test domain.
- +	allow unconfined_t $1:process transition;
-++	# Report back from the test domain to the caller.
-++	allow $1 unconfined_t:fd use;
-++	allow $1 unconfined_devpts_t:chr_file { read write ioctl getattr };
-++	allow $1 unconfined_t:fifo_file { read write ioctl getattr };
- +')
- diff -Nrup refpolicy/test_ptrace.te refpolicy.new/test_ptrace.te
- --- refpolicy/test_ptrace.te	2007-12-31 06:57:36.000000000 -0500
-
+RCS file: /cvsroot/ltp/ltp/testcases/kernel/security/selinux-testsuite/README,v
+retrieving revision 1.4
+diff -u -r1.4 README
+--- testcases/kernel/security/selinux-testsuite/README	20 Dec 2007 09:32:55 -0000	1.4
++++ testcases/kernel/security/selinux-testsuite/README	23 Jan 2008 19:31:22 -0000
+@@ -6,6 +6,13 @@
+ such as getenforce are found. The test_selinux.sh script adds /usr/sbin
+ to the PATH. 
+ 
++You must also have the line:
++	expand-check = 0
++in your /etc/selinux/semanage.conf file as the test policy will violate some 
++of the neverallow rules in the base policy.  This line may already be present
++depending on your distribution; if not, add it before running the test suite
++and remove it when done.
++
+ There are two ways to run the SELinux testcases:
+ 	1. testsuite - all testcases
+ 	2. individual testcases
+@@ -32,13 +39,13 @@
+ to the testscripts directory and from the command line execute,
+ 	./test_selinux.sh
+ 
+-This script builds the test policy in the selinux-testsuite/policy 
++This script builds the test policy in the selinux-testsuite/refpolicy 
+ directory and runs the testsuite. After the testcases have completed, 
+ the test policy will be removed and the original policy will be 
+ restored. Thus, if the test_selinux.sh script is not allowed 
+ to complete, you may manually have to restore your system's 
+ original policy. This can be done by changing to the the 
+-selinux-testsuite/policy directory and from the commandline, 
++selinux-testsuite/refpolicy directory and from the commandline, 
+ issue a "make cleanup" to remove the test policy and restore the 
+ original policy.
+ 
+@@ -62,8 +69,8 @@
+ Run Individual Testcases
+ --------------------------
+ First build the test policy manually. Do this by first changing 
+-to the selinux-testsuite policy directory (cd to 
+-$LTPROOT/testcases/kernel/security/selinux-testsuite/policy)
++to the selinux-testsuite refpolicy directory (cd to 
++$LTPROOT/testcases/kernel/security/selinux-testsuite/refpolicy)
+ and build the policy by doing a, 
+ 	make load
+ 
+@@ -88,7 +95,7 @@
+ testcase directory of the testcase being debugged.	
+ 
+ To remove the test policy and restore original policy,
+-cd to selinux-testsuite/policy directory and execute,
++cd to selinux-testsuite/refpolicy directory and execute,
+ 	make cleanup
+ 
+ Remember to remove test policy and restore original policy after
 
 -- 
 Stephen Smalley
