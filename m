@@ -1,34 +1,48 @@
-Subject: Re: Patch to use new audit2why interface in via audit2allow
+Subject: Re: policycoreutils patch
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4787DB82.70609@redhat.com>
-References: <4787DB82.70609@redhat.com>
+In-Reply-To: <4787DC7A.9010408@redhat.com>
+References: <4787DC7A.9010408@redhat.com>
 Content-Type: text/plain
-Date: Wed, 23 Jan 2008 16:01:27 -0500
-Message-Id: <1201122087.7025.329.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 23 Jan 2008 16:01:50 -0500
+Message-Id: <1201122110.7025.331.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 2008-01-11 at 16:11 -0500, Daniel J Walsh wrote:
+On Fri, 2008-01-11 at 16:15 -0500, Daniel J Walsh wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
 > 
-> Added a --why qualifier to audit2allow, which gives the same output as
-> audit2why.
+> Make sepolgen-ifgen return errors.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.8 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 > 
-> Removed audit2why.c and replaced it with a script
-> 
-> #!/bin/sh
-> /usr/bin/audit2allow -w $*
-> 
-> This way audit2why can take advantage of the parsing available in
-> audit2allow.
+> iEYEARECAAYFAkeH3HkACgkQrlYvE4MpobNe3ACeN095D7eEMgV1K6YlWMtXX1ck
+> 6JoAniapk+chTq3cOQ3kqWZbvYhwEAAf
+> =Eslh
+> -----END PGP SIGNATURE-----
+> plain text document attachment (policycoreutils-sepolgen.patch)
+> diff --exclude-from=exclude --exclude=sepolgen-1.0.10 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/audit2allow/sepolgen-ifgen policycoreutils-2.0.35/audit2allow/sepolgen-ifgen
+> --- nsapolicycoreutils/audit2allow/sepolgen-ifgen	2007-07-16 14:20:41.000000000 -0400
+> +++ policycoreutils-2.0.35/audit2allow/sepolgen-ifgen	2008-01-11 11:17:46.000000000 -0500
+> @@ -80,7 +80,10 @@
+>      if_set.to_file(f)
+>      f.close()
+>  
+> -    return 0
+> +    if refparser.success:
+> +        return 0
+> +    else:
+> +        return 1
+>      
+>  if __name__ == "__main__":
+>      sys.exit(main())
 
-Merged with some cleanups, including minor changes to the output to be
-more readable and fix a typo there.
+Merged.
 
 -- 
 Stephen Smalley
