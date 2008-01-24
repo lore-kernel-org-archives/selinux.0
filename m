@@ -1,64 +1,61 @@
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
+Subject: Re: [patch 1/1] libsemanage: genhomedircon remove error on missing
+	HOME_DIR or HOME_ROOT
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
-        James Morris <jmorris@namei.org>
-In-Reply-To: <4798F57C.8090300@tycho.nsa.gov>
-References: <4798F57C.8090300@tycho.nsa.gov>
+To: Caleb Case <ccase@tresys.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1201096436.17665.15.camel@olympus.columbia.tresys.com>
+References: <1201096436.17665.15.camel@olympus.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 24 Jan 2008 15:36:18 -0500
-Message-Id: <1201206978.21288.139.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 24 Jan 2008 15:44:30 -0500
+Message-Id: <1201207470.21288.146.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-01-24 at 15:30 -0500, Eamon Walsh wrote:
-> This patch removes the requirement that the new and related object types 
-> differ in order to polyinstantiate by MLS level.  This allows MLS 
-> polyinstantiation to occur in the absence of explicit type_member rules 
-> or when the type has not changed.
+On Wed, 2008-01-23 at 08:53 -0500, Caleb Case wrote:
+> Removing failure condition in write_context_file when HOME_DIR or
+> HOME_ROOT are not found in the contexts. This condition is not needed
+> (the case where the lists are empty is handled correctly) and stops
+> otherwise valid operations:
 > 
-> Potential users of this support include pam_namespace.so (directory 
-> polyinstantiation) and the SELinux X support (property polyinstantiation).
+> On a fresh policy store, without any modules loaded:
 > 
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> # semodule -s refpolicy -b /usr/share/selinux/refpolicy/base.pp
+> libsemanage.semanage_install_sandbox: semanage_genhomedircon returned
+> error code -1. No such file or directory.
+> semodule:  Failed!
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Thanks, merged.
 
+(if you later decide that we can completely skip later processing
+safely, then feel free to send a follow up patch relative to this one)
+
+> 
 > ---
+>  src/genhomedircon.c |    4 ----
+>  1 file changed, 4 deletions(-)
 > 
->  mls.c |   11 ++---------
->  1 file changed, 2 insertions(+), 9 deletions(-)
-
-(nit:  use diffstat -p1 in the future)
-
+> Index: libsemanage/src/genhomedircon.c
+> ===================================================================
+> --- libsemanage.orig/src/genhomedircon.c
+> +++ libsemanage/src/genhomedircon.c
+> @@ -792,10 +792,6 @@ static int write_context_file(genhomedir
+>         homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
+>         homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
+>         user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
+> -       if (!homedir_context_tpl || !homeroot_context_tpl) {
+> -               retval = STATUS_ERR;
+> -               goto done;
+> -       }
 > 
-> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-> index fb5d70a..3bbcb53 100644
-> --- a/security/selinux/ss/mls.c
-> +++ b/security/selinux/ss/mls.c
-> @@ -537,15 +537,8 @@ int mls_compute_sid(struct context *scontext,
->  			/* Use the process effective MLS attributes. */
->  			return mls_context_cpy_low(newcontext, scontext);
->  	case AVTAB_MEMBER:
-> -		/* Only polyinstantiate the MLS attributes if
-> -		   the type is being polyinstantiated */
-> -		if (newcontext->type != tcontext->type) {
-> -			/* Use the process effective MLS attributes. */
-> -			return mls_context_cpy_low(newcontext, scontext);
-> -		} else {
-> -			/* Use the related object MLS attributes. */
-> -			return mls_context_cpy(newcontext, tcontext);
-> -		}
-> +		/* Use the process effective MLS attributes. */
-> +		return mls_context_cpy_low(newcontext, scontext);
->  	default:
->  		return -EINVAL;
->  	}
+>         if (setup_fallback_user(s) != 0) {
+>                 retval = STATUS_ERR;
 > 
-> 
-> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
