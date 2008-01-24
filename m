@@ -1,26 +1,59 @@
-Subject: Re: [patch] fixfiles -C: relabel all file contexts that have
-	changed
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Marshall Miller <mmiller@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1201203580.4502.56.camel@hostmachine.tresys.com>
-References: <1201203580.4502.56.camel@hostmachine.tresys.com>
-Content-Type: text/plain
-Date: Thu, 24 Jan 2008 15:44:44 -0500
-Message-Id: <1201207484.21288.148.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4798F91B.3030509@manicmethod.com>
+Date: Thu, 24 Jan 2008 15:46:19 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: SELinux List <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
+        James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
+References: <4798F57C.8090300@tycho.nsa.gov>
+In-Reply-To: <4798F57C.8090300@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Eamon Walsh wrote:
+> This patch removes the requirement that the new and related object 
+> types differ in order to polyinstantiate by MLS level.  This allows 
+> MLS polyinstantiation to occur in the absence of explicit type_member 
+> rules or when the type has not changed.
+>
+> Potential users of this support include pam_namespace.so (directory 
+> polyinstantiation) and the SELinux X support (property 
+> polyinstantiation).
+>
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> ---
+>
+> mls.c |   11 ++---------
+> 1 file changed, 2 insertions(+), 9 deletions(-)
+>
+>
+> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+> index fb5d70a..3bbcb53 100644
+> --- a/security/selinux/ss/mls.c
+> +++ b/security/selinux/ss/mls.c
+> @@ -537,15 +537,8 @@ int mls_compute_sid(struct context *scontext,
+>             /* Use the process effective MLS attributes. */
+>             return mls_context_cpy_low(newcontext, scontext);
+>     case AVTAB_MEMBER:
+> -        /* Only polyinstantiate the MLS attributes if
+> -           the type is being polyinstantiated */
+> -        if (newcontext->type != tcontext->type) {
+> -            /* Use the process effective MLS attributes. */
+> -            return mls_context_cpy_low(newcontext, scontext);
+> -        } else {
+> -            /* Use the related object MLS attributes. */
+> -            return mls_context_cpy(newcontext, tcontext);
+> -        }
+> +        /* Use the process effective MLS attributes. */
+> +        return mls_context_cpy_low(newcontext, scontext);
+>     default:
+>         return -EINVAL;
+>     }
 
-On Thu, 2008-01-24 at 14:39 -0500, Marshall Miller wrote:
-> This fixes the situation where one path is a substring of another path, but not a prefix.  For example, if /lib and /var/lib have both changed in the file_contexts file, then /var/lib would not be selected for relabel even though it should.
-
-Thanks, applied.
-
--- 
-Stephen Smalley
-National Security Agency
+Should there be a patch to update mls.c in libsepol as well? I hope we 
+are keeping the kss and uss in sync.
 
 
 --
