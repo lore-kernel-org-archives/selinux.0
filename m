@@ -1,54 +1,87 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0OLPItc027183
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 16:25:18 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m0OLPIgt004879
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 21:25:18 GMT
-Subject: [patch] fixfiles -C: behave as advertised
-From: Marshall Miller <mmiller@tresys.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-YOwt9BRdyO5g0ezXwkSf"
-Date: Thu, 24 Jan 2008 16:25:17 -0500
-Message-Id: <1201209917.4502.72.camel@hostmachine.tresys.com>
-Mime-Version: 1.0
+Date: Thu, 24 Jan 2008 16:30:17 -0500
+Subject: Re: Deprecating setlocaldefs, preservebools support in libselinux
+From: Chad Sellers <csellers@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joshua Brindle <method@manicmethod.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
+Message-ID: <C3BE6D99.53D53%csellers@tresys.com>
+In-Reply-To: <1201209916.21288.180.camel@moss-spartans.epoch.ncsc.mil>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On 1/24/08 4:25 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
 
---=-YOwt9BRdyO5g0ezXwkSf
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> 
+> On Thu, 2008-01-24 at 16:12 -0500, Chad Sellers wrote:
+>> On 1/24/08 4:07 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+>> 
+>>> 
+>>> On Thu, 2008-01-24 at 16:02 -0500, Joshua Brindle wrote:
+>>>> Stephen Smalley wrote:
+>>>>> I'd still like to deprecate setlocaldefs support and preservebools
+>>>>> support in libselinux in the trunk (i.e. libselinux 2.x).  I posted
+>>>>> patches for completely removing such support a long while ago, but those
+>>>>> particular patches would require an ABI change (as they include API
+>>>>> removal) and thus I held off on them, but we could also take the more
+>>>>> intermediate approach of just turning off the functionality by default
+>>>>> in libselinux without disturbing the ABI.
+>>>>> 
+>>>>> As a refresher, setlocaldefs support refers to the support for pulling
+>>>>> in local boolean and user definitions at policy load time w/o managed
+>>>>> policy, i.e. the approach used in RHEL4 and Fedora 3 and 4 (but not in
+>>>>> Fedora 5 and later or RHEL5).  By default, libselinux still checks for
+>>>>> such definitions and patches them into the in-memory policy at load time
+>>>>> unless /etc/selinux/config has SETLOCALDEFS=0.  I'd like to make
+>>>>> SETLOCALDEFS=0 the default in the trunk and require SETLOCALDEFS=1
+>>>>> in /etc/selinux/config to enable the old behavior.
+>>>>> 
+>>>>> preservebools support refers to the support for preserving active
+>>>>> boolean values across a policy reload by having libselinux patch the
+>>>>> active values into the in-memory policy at policy load time.  As of
+>>>>> Linux 2.6.22 and later, this is now handled automatically by the kernel
+>>>>> as part of the policy reload and isn't needed in userspace.  I'd like to
+>>>>> also disable this by default in libselinux and perhaps allow it to be
+>>>>> enabled via some /etc/selinux/config setting.
+>>>>> 
+>>>>> Thoughts?
+>>>>>   
+>>>> 
+>>>> I'm fine saying its deprecated but CLIP currently uses an updated
+>>>> toolchain for both RHEL5 and RHEL4 (adds policy management capabilities
+>>>> to RHEL4) so removing the boolean preservation functionality would be
+>>>> detrimental. setlocaldefs isn't used very often afaik but we sometimes
+>>>> build systems where the use of 'managed policy' is objected to, in which
+>>>> case the only way to add users is via users.local. With this in mind
+>>>> we'll just have to be careful when upgrading the CLIP toolchain not to
+>>>> use a version that eventually removes this support.
+>>> 
+>>> When you say "uses an updated toolchain", do you mean that it replaces
+>>> the system libraries or just that it uses a private copy of the updated
+>>> userland for managing and generating the kernel policy file?  If the
+>>> former, then yes, this means that you'd have to at least set values
+>>> in /etc/selinux/config to enable the legacy behavior, but if the latter,
+>>> then it shouldn't affect you at all - init and load_policy would still
+>>> use the system libselinux library for loading the policy, and thus still
+>>> have the legacy behavior.
+>> 
+>> It replaces the system libraries. That's the only way to get certain
+>> functionality (such as local users on RHEL4).
+> 
+> Ok, well, do you object to changing the defaults as long as we provide a
+> setting in /etc/selinux/config to provide the legacy compatibility, e.g.
+> SETLOCALDEFS=1
+> PRESERVEBOOLS=1
 
-This patch makes fixfiles -C <file> (restore|check|verify|relabel) behave as advertised.
+That seems fine to me. Users of CLIP are using custom policy (and lots of
+other things) so including those in /etc/selinux/config should be fine.
+
+Chad
 
 
-
-Marshall Miller
-
-
---=-YOwt9BRdyO5g0ezXwkSf
-Content-Disposition: attachment; filename=fixfiles_dash_C2.patch
-Content-Type: text/x-patch; name=fixfiles_dash_C2.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IHBvbGljeWNvcmV1dGlscy9zY3JpcHRzL2ZpeGZpbGVzDQo9PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0g
-cG9saWN5Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMJKHJldmlzaW9uIDI3NTcpDQorKysgcG9s
-aWN5Y29yZXV0aWxzL3NjcmlwdHMvZml4ZmlsZXMJKHdvcmtpbmcgY29weSkNCkBAIC05Miw3ICs5
-Miw3IEBADQogCQkgICAgICAhIFwoIC1mc3R5cGUgZXh0MiAtbyAtZnN0eXBlIGV4dDMgLW8gLWZz
-dHlwZSBleHQ0IC1vIC1mc3R5cGUgZXh0NGRldiAgLW8gLWZzdHlwZSBnZnMyIC1vIC1mc3R5cGUg
-amZzIC1vIC1mc3R5cGUgeGZzIFwpIC1wcnVuZSAgLW8gXA0KIAkJICAgICAgXCggLXdob2xlbmFt
-ZSAvaG9tZSAtbyAtd2hvbGVuYW1lIC9yb290IC1vIC13aG9sZW5hbWUgL3RtcCAtd2hvbGVuYW1l
-IC9kZXYgXCkgLXBydW5lIC1vIC1wcmludDAiOyBcDQogCQkgICAgICBkb25lIDI+IC9kZXYvbnVs
-bCB8IFwNCi0JICR7UkVTVE9SRUNPTn0gJDIgLTAgLWYgLSANCisJICR7UkVTVE9SRUNPTn0gJCog
-LTAgLWYgLSANCiAJcm0gLWYgJHtURU1QRklMRX0gJHtQUkVGQ1RFTVBGSUxFfQ0KIGZpDQogfQ0K
-QEAgLTExNyw3ICsxMTcsNyBAQA0KICMNCiByZXN0b3JlICgpIHsNCiBpZiBbICEgLXogIiRQUkVG
-QyIgXTsgdGhlbg0KLSAgICBkaWZmX2ZpbGVjb250ZXh0ICQxDQorICAgIGRpZmZfZmlsZWNvbnRl
-eHQgJCoNCiAgICAgZXhpdCAkPw0KIGZpDQogaWYgWyAhIC16ICIkUlBNRklMRVMiIF07IHRoZW4N
-Cg==
-
-
---=-YOwt9BRdyO5g0ezXwkSf--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
