@@ -1,61 +1,39 @@
-Subject: Re: [patch 1/1] libsemanage: genhomedircon remove error on missing
-	HOME_DIR or HOME_ROOT
+Subject: Re: I am more worried about open then read and write, SELinux
+	needs open access checks.
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Caleb Case <ccase@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1201096436.17665.15.camel@olympus.columbia.tresys.com>
-References: <1201096436.17665.15.camel@olympus.columbia.tresys.com>
+To: Steve G <linux_4ever@yahoo.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <964182.26945.qm@web51502.mail.re2.yahoo.com>
+References: <964182.26945.qm@web51502.mail.re2.yahoo.com>
 Content-Type: text/plain
-Date: Thu, 24 Jan 2008 15:44:30 -0500
-Message-Id: <1201207470.21288.146.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 24 Jan 2008 15:43:38 -0500
+Message-Id: <1201207418.21288.144.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-01-23 at 08:53 -0500, Caleb Case wrote:
-> Removing failure condition in write_context_file when HOME_DIR or
-> HOME_ROOT are not found in the contexts. This condition is not needed
-> (the case where the lists are empty is handled correctly) and stops
-> otherwise valid operations:
+On Thu, 2008-01-24 at 10:48 -0800, Steve G wrote:
+> > I would like to propose that we add one or more avc's to deal with
+> > opening a file.  open or open_read open_write.  
 > 
-> On a fresh policy store, without any modules loaded:
 > 
-> # semodule -s refpolicy -b /usr/share/selinux/refpolicy/base.pp
-> libsemanage.semanage_install_sandbox: semanage_genhomedircon returned
-> error code -1. No such file or directory.
-> semodule:  Failed!
+> There are situations where apps should only do an open_append to make sure they don't erase anything. syslog, auditd, apache are a few apps that come to mind.
 
-Thanks, merged.
+Just to clarify:
+- SELinux already distinguishes append vs. write (checks append
+permission if opened with O_APPEND and checks write if you later try to
+clear via fcntl).
+- I only expect us to add a single "open" permission to control whether
+a process can directly open a given file at all, not distinct
+"open_read", "open_write", "open_append" permissions.  The usual
+read/write/append permissions will still get checked, both at open time
+and upon inheritance/transfer (and rechecked on read/write if the
+process or file label has changed or the policy has changed), but those
+are separate checks.  The purpose of the new "open" check being proposed
+is to allow the policy writer to distinguish direct open of a file from
+inheriting it from another process.
 
-(if you later decide that we can completely skip later processing
-safely, then feel free to send a follow up patch relative to this one)
-
-> 
-> ---
->  src/genhomedircon.c |    4 ----
->  1 file changed, 4 deletions(-)
-> 
-> Index: libsemanage/src/genhomedircon.c
-> ===================================================================
-> --- libsemanage.orig/src/genhomedircon.c
-> +++ libsemanage/src/genhomedircon.c
-> @@ -792,10 +792,6 @@ static int write_context_file(genhomedir
->         homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
->         homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
->         user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
-> -       if (!homedir_context_tpl || !homeroot_context_tpl) {
-> -               retval = STATUS_ERR;
-> -               goto done;
-> -       }
-> 
->         if (setup_fallback_user(s) != 0) {
->                 retval = STATUS_ERR;
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
