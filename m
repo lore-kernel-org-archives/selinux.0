@@ -1,35 +1,47 @@
-Date: Fri, 25 Jan 2008 09:43:14 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-cc: SELinux List <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
-In-Reply-To: <4798F57C.8090300@tycho.nsa.gov>
-Message-ID: <Xine.LNX.4.64.0801250942580.14081@us.intercode.com.au>
-References: <4798F57C.8090300@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0ONFwdv006914
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 18:15:58 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0ONFvgt007902
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 23:15:58 GMT
+Message-ID: <47991C20.40303@redhat.com>
+Date: Thu, 24 Jan 2008 18:15:44 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Justin Mattock <justinmattock@gmail.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: /var
+References: <dd18b0c30801241300h268ede8ate8ede4a6999e8223@mail.gmail.com>
+In-Reply-To: <dd18b0c30801241300h268ede8ate8ede4a6999e8223@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 24 Jan 2008, Eamon Walsh wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> This patch removes the requirement that the new and related object types
-> differ in order to polyinstantiate by MLS level.  This allows MLS
-> polyinstantiation to occur in the absence of explicit type_member rules or
-> when the type has not changed.
+Justin Mattock wrote:
+> Hello im testing out mcs refpolicy, and seem to have
+> inode_doinit_with_dentry context_to_sid(system_u:object_r:var_run_t:s0-s15:
+> c0.c255) returned 22 for dev=sda1
+> ino=1425411 show up in dmesg, I have restorcon -R /var and this message
+> still shows up. ("I dont know where the s0-s15 came from; maybee my user
+> file?")
+> any info would be appreciated.
+> Thanks;
+>                --Justin P. Mattock
 > 
-> Potential users of this support include pam_namespace.so (directory
-> polyinstantiation) and the SELinux X support (property polyinstantiation).
-> 
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MCS only support one sensitivity s0
 
-Applied to 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+so:c0.c255 should work
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
--- 
-James Morris
-<jmorris@namei.org>
+iEYEARECAAYFAkeZHCAACgkQrlYvE4MpobPBSACffyrDjeUnEXSw3B04JYZHo5W0
+qUIAoK/15O/f9b+WQIbsUMqyVmkcJFWi
+=6rhU
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
