@@ -1,149 +1,79 @@
-Subject: Re: [patch 1/1] libsemanage: genhomedircon remove error on missing
-	HOME_DIR or HOME_ROOT v2
+Subject: Re: Deprecating setlocaldefs, preservebools support in libselinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Caleb Case <ccase@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1201208744.17236.10.camel@olympus.columbia.tresys.com>
-References: <1201208744.17236.10.camel@olympus.columbia.tresys.com>
+To: Chad Sellers <csellers@tresys.com>
+Cc: Joshua Brindle <method@manicmethod.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <C3BE697B.53D44%csellers@tresys.com>
+References: <C3BE697B.53D44%csellers@tresys.com>
 Content-Type: text/plain
-Date: Thu, 24 Jan 2008 16:22:57 -0500
-Message-Id: <1201209777.21288.177.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 24 Jan 2008 16:25:16 -0500
+Message-Id: <1201209916.21288.180.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-01-24 at 16:05 -0500, Caleb Case wrote:
-> Replacing failure condition in write_context_file when HOME_DIR or
-> HOME_ROOT are not found in the contexts. This condition is not needed
-> (the case where the lists are empty is handled correctly) and stops
-> otherwise valid operations:
+On Thu, 2008-01-24 at 16:12 -0500, Chad Sellers wrote:
+> On 1/24/08 4:07 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
 > 
-> On a fresh policy store, without any modules loaded:
+> > 
+> > On Thu, 2008-01-24 at 16:02 -0500, Joshua Brindle wrote:
+> >> Stephen Smalley wrote:
+> >>> I'd still like to deprecate setlocaldefs support and preservebools
+> >>> support in libselinux in the trunk (i.e. libselinux 2.x).  I posted
+> >>> patches for completely removing such support a long while ago, but those
+> >>> particular patches would require an ABI change (as they include API
+> >>> removal) and thus I held off on them, but we could also take the more
+> >>> intermediate approach of just turning off the functionality by default
+> >>> in libselinux without disturbing the ABI.
+> >>> 
+> >>> As a refresher, setlocaldefs support refers to the support for pulling
+> >>> in local boolean and user definitions at policy load time w/o managed
+> >>> policy, i.e. the approach used in RHEL4 and Fedora 3 and 4 (but not in
+> >>> Fedora 5 and later or RHEL5).  By default, libselinux still checks for
+> >>> such definitions and patches them into the in-memory policy at load time
+> >>> unless /etc/selinux/config has SETLOCALDEFS=0.  I'd like to make
+> >>> SETLOCALDEFS=0 the default in the trunk and require SETLOCALDEFS=1
+> >>> in /etc/selinux/config to enable the old behavior.
+> >>> 
+> >>> preservebools support refers to the support for preserving active
+> >>> boolean values across a policy reload by having libselinux patch the
+> >>> active values into the in-memory policy at policy load time.  As of
+> >>> Linux 2.6.22 and later, this is now handled automatically by the kernel
+> >>> as part of the policy reload and isn't needed in userspace.  I'd like to
+> >>> also disable this by default in libselinux and perhaps allow it to be
+> >>> enabled via some /etc/selinux/config setting.
+> >>> 
+> >>> Thoughts?
+> >>>   
+> >> 
+> >> I'm fine saying its deprecated but CLIP currently uses an updated
+> >> toolchain for both RHEL5 and RHEL4 (adds policy management capabilities
+> >> to RHEL4) so removing the boolean preservation functionality would be
+> >> detrimental. setlocaldefs isn't used very often afaik but we sometimes
+> >> build systems where the use of 'managed policy' is objected to, in which
+> >> case the only way to add users is via users.local. With this in mind
+> >> we'll just have to be careful when upgrading the CLIP toolchain not to
+> >> use a version that eventually removes this support.
+> > 
+> > When you say "uses an updated toolchain", do you mean that it replaces
+> > the system libraries or just that it uses a private copy of the updated
+> > userland for managing and generating the kernel policy file?  If the
+> > former, then yes, this means that you'd have to at least set values
+> > in /etc/selinux/config to enable the legacy behavior, but if the latter,
+> > then it shouldn't affect you at all - init and load_policy would still
+> > use the system libselinux library for loading the policy, and thus still
+> > have the legacy behavior.
 > 
-> # semodule -s refpolicy -b /usr/share/selinux/refpolicy/base.pp
-> libsemanage.semanage_install_sandbox: semanage_genhomedircon returned
-> error code -1. No such file or directory.
-> semodule:  Failed!
-> 
-> Failure is replaced with an early success return which happens when
-> HOME_DIR, HOME_ROOT, or USER are not found.
-> 
-> The list of homedirs is computed only if needed (HOME_DIR or HOME_ROOT
-> exist).
+> It replaces the system libraries. That's the only way to get certain
+> functionality (such as local users on RHEL4).
 
-Ah, I'll queue this one up and revert the prior one after making such it
-works.
+Ok, well, do you object to changing the defaults as long as we provide a
+setting in /etc/selinux/config to provide the legacy compatibility, e.g.
+	SETLOCALDEFS=1
+	PRESERVEBOOLS=1
 
-> 
-> ---
->  src/genhomedircon.c |   72 +++++++++++++++++++++++++++-------------------------
->  1 file changed, 38 insertions(+), 34 deletions(-)
-> 
-> Index: libsemanage/src/genhomedircon.c
-> ===================================================================
-> --- libsemanage.orig/src/genhomedircon.c
-> +++ libsemanage/src/genhomedircon.c
-> @@ -779,21 +779,15 @@ static int write_context_file(genhomedir
->  	semanage_list_t *homeroot_context_tpl = NULL;
->  	int retval = STATUS_SUCCESS;
->  
-> -	homedirs = get_home_dirs(s);
-> -	if (!homedirs) {
-> -		WARN(s->h_semanage,
-> -		     "no home directories were available, exiting without writing");
-> -		return STATUS_ERR;	/* No homedirs so no output */
-> -	}
-> -
-> -	if (write_file_context_header(s, out) != STATUS_SUCCESS)
-> -		return STATUS_ERR;
-> -
->  	homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
->  	homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
->  	user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
-> -	if (!homedir_context_tpl || !homeroot_context_tpl) {
-> -		retval = STATUS_ERR;
-> +
-> +	if (!homedir_context_tpl && !homeroot_context_tpl && !user_context_tpl)
-> +		goto done;
-> +
-> +	if (write_file_context_header(s, out) != STATUS_SUCCESS) {
-> +		return STATUS_ERR;
->  		goto done;
->  	}
->  
-> @@ -801,34 +795,44 @@ static int write_context_file(genhomedir
->  		retval = STATUS_ERR;
->  		goto done;
->  	}
-> -	for (h = homedirs; h; h = h->next) {
-> -		Ustr *temp = ustr_dup_cstr(h->data);
->  
-> -		if (!temp || !ustr_add_cstr(&temp, "/[^/]*")) {
-> -			ustr_sc_free(&temp);
-> -			retval = STATUS_ERR;
-> +	if (homedir_context_tpl || homeroot_context_tpl) {
-> +		homedirs = get_home_dirs(s);
-> +		if (!homedirs) {
-> +			WARN(s->h_semanage,
-> +			     "no home directories were available, exiting without writing");
->  			goto done;
->  		}
->  
-> -		if (write_home_dir_context(s, out,
-> -					   homedir_context_tpl,
-> -					   s->fallback_user, s->fallback_user,
-> -					   ustr_cstr(temp),
-> -					   s->fallback_user_prefix) !=
-> -		    STATUS_SUCCESS) {
-> -			ustr_sc_free(&temp);
-> -			retval = STATUS_ERR;
-> -			goto done;
-> -		}
-> -		if (write_home_root_context(s, out,
-> -					    homeroot_context_tpl,
-> -					    h->data) != STATUS_SUCCESS) {
-> +		for (h = homedirs; h; h = h->next) {
-> +			Ustr *temp = ustr_dup_cstr(h->data);
-> +
-> +			if (!temp || !ustr_add_cstr(&temp, "/[^/]*")) {
-> +				ustr_sc_free(&temp);
-> +				retval = STATUS_ERR;
-> +				goto done;
-> +			}
-> +
-> +			if (write_home_dir_context(s, out,
-> +						   homedir_context_tpl,
-> +						   s->fallback_user, s->fallback_user,
-> +						   ustr_cstr(temp),
-> +						   s->fallback_user_prefix) !=
-> +			    STATUS_SUCCESS) {
-> +				ustr_sc_free(&temp);
-> +				retval = STATUS_ERR;
-> +				goto done;
-> +			}
-> +			if (write_home_root_context(s, out,
-> +						    homeroot_context_tpl,
-> +						    h->data) != STATUS_SUCCESS) {
-> +				ustr_sc_free(&temp);
-> +				retval = STATUS_ERR;
-> +				goto done;
-> +			}
-> +
->  			ustr_sc_free(&temp);
-> -			retval = STATUS_ERR;
-> -			goto done;
->  		}
-> -
-> -		ustr_sc_free(&temp);
->  	}
->  	if (user_context_tpl) {
->  		if (write_user_context(s, out, user_context_tpl,
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
