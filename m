@@ -1,74 +1,50 @@
-Date: Thu, 24 Jan 2008 16:12:43 -0500
-Subject: Re: Deprecating setlocaldefs, preservebools support in libselinux
-From: Chad Sellers <csellers@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        Joshua Brindle <method@manicmethod.com>
-CC: Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
-Message-ID: <C3BE697B.53D44%csellers@tresys.com>
-In-Reply-To: <1201208845.21288.165.camel@moss-spartans.epoch.ncsc.mil>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Message-ID: <4798FF64.8060008@redhat.com>
+Date: Thu, 24 Jan 2008 16:13:08 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Steve G <linux_4ever@yahoo.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: I am more worried about open then read and write, SELinux	needs
+ open access checks.
+References: <964182.26945.qm@web51502.mail.re2.yahoo.com> <1201207418.21288.144.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1201207418.21288.144.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 1/24/08 4:07 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Stephen Smalley wrote:
+> On Thu, 2008-01-24 at 10:48 -0800, Steve G wrote:
+>>> I would like to propose that we add one or more avc's to deal with
+>>> opening a file.  open or open_read open_write.  
+>>
+>> There are situations where apps should only do an open_append to make sure they don't erase anything. syslog, auditd, apache are a few apps that come to mind.
 > 
-> On Thu, 2008-01-24 at 16:02 -0500, Joshua Brindle wrote:
->> Stephen Smalley wrote:
->>> I'd still like to deprecate setlocaldefs support and preservebools
->>> support in libselinux in the trunk (i.e. libselinux 2.x).  I posted
->>> patches for completely removing such support a long while ago, but those
->>> particular patches would require an ABI change (as they include API
->>> removal) and thus I held off on them, but we could also take the more
->>> intermediate approach of just turning off the functionality by default
->>> in libselinux without disturbing the ABI.
->>> 
->>> As a refresher, setlocaldefs support refers to the support for pulling
->>> in local boolean and user definitions at policy load time w/o managed
->>> policy, i.e. the approach used in RHEL4 and Fedora 3 and 4 (but not in
->>> Fedora 5 and later or RHEL5).  By default, libselinux still checks for
->>> such definitions and patches them into the in-memory policy at load time
->>> unless /etc/selinux/config has SETLOCALDEFS=0.  I'd like to make
->>> SETLOCALDEFS=0 the default in the trunk and require SETLOCALDEFS=1
->>> in /etc/selinux/config to enable the old behavior.
->>> 
->>> preservebools support refers to the support for preserving active
->>> boolean values across a policy reload by having libselinux patch the
->>> active values into the in-memory policy at policy load time.  As of
->>> Linux 2.6.22 and later, this is now handled automatically by the kernel
->>> as part of the policy reload and isn't needed in userspace.  I'd like to
->>> also disable this by default in libselinux and perhaps allow it to be
->>> enabled via some /etc/selinux/config setting.
->>> 
->>> Thoughts?
->>>   
->> 
->> I'm fine saying its deprecated but CLIP currently uses an updated
->> toolchain for both RHEL5 and RHEL4 (adds policy management capabilities
->> to RHEL4) so removing the boolean preservation functionality would be
->> detrimental. setlocaldefs isn't used very often afaik but we sometimes
->> build systems where the use of 'managed policy' is objected to, in which
->> case the only way to add users is via users.local. With this in mind
->> we'll just have to be careful when upgrading the CLIP toolchain not to
->> use a version that eventually removes this support.
+> Just to clarify:
+> - SELinux already distinguishes append vs. write (checks append
+> permission if opened with O_APPEND and checks write if you later try to
+> clear via fcntl).
+> - I only expect us to add a single "open" permission to control whether
+> a process can directly open a given file at all, not distinct
+> "open_read", "open_write", "open_append" permissions.  The usual
+> read/write/append permissions will still get checked, both at open time
+> and upon inheritance/transfer (and rechecked on read/write if the
+> process or file label has changed or the policy has changed), but those
+> are separate checks.  The purpose of the new "open" check being proposed
+> is to allow the policy writer to distinguish direct open of a file from
+> inheriting it from another process.
 > 
-> When you say "uses an updated toolchain", do you mean that it replaces
-> the system libraries or just that it uses a private copy of the updated
-> userland for managing and generating the kernel policy file?  If the
-> former, then yes, this means that you'd have to at least set values
-> in /etc/selinux/config to enable the legacy behavior, but if the latter,
-> then it shouldn't affect you at all - init and load_policy would still
-> use the system libselinux library for loading the policy, and thus still
-> have the legacy behavior.
+Correct, that is what I want.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-It replaces the system libraries. That's the only way to get certain
-functionality (such as local users on RHEL4).
-
-Chad
-
+iEYEARECAAYFAkeY/2QACgkQrlYvE4MpobMjwACaAv192sC311cBCcjBb/GJtzXz
+AK8AoKmX4LLWBlhz15N7FwCWdBn/4+7w
+=jts1
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
