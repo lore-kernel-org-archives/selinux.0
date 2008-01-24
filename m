@@ -1,60 +1,46 @@
-Message-ID: <4798F91B.3030509@manicmethod.com>
-Date: Thu, 24 Jan 2008 15:46:19 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0OL0589023851
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 16:00:05 -0500
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0OL05gt024954
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 21:00:05 GMT
+Received: by wr-out-0506.google.com with SMTP id c49so249049wra.21
+        for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 13:00:04 -0800 (PST)
+Message-ID: <dd18b0c30801241300h268ede8ate8ede4a6999e8223@mail.gmail.com>
+Date: Thu, 24 Jan 2008 13:00:03 -0800
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: /var
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: SELinux List <selinux@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
-        James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
-References: <4798F57C.8090300@tycho.nsa.gov>
-In-Reply-To: <4798F57C.8090300@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/alternative;
+	boundary="----=_Part_28915_21950125.1201208403855"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> This patch removes the requirement that the new and related object 
-> types differ in order to polyinstantiate by MLS level.  This allows 
-> MLS polyinstantiation to occur in the absence of explicit type_member 
-> rules or when the type has not changed.
->
-> Potential users of this support include pam_namespace.so (directory 
-> polyinstantiation) and the SELinux X support (property 
-> polyinstantiation).
->
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> ---
->
-> mls.c |   11 ++---------
-> 1 file changed, 2 insertions(+), 9 deletions(-)
->
->
-> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-> index fb5d70a..3bbcb53 100644
-> --- a/security/selinux/ss/mls.c
-> +++ b/security/selinux/ss/mls.c
-> @@ -537,15 +537,8 @@ int mls_compute_sid(struct context *scontext,
->             /* Use the process effective MLS attributes. */
->             return mls_context_cpy_low(newcontext, scontext);
->     case AVTAB_MEMBER:
-> -        /* Only polyinstantiate the MLS attributes if
-> -           the type is being polyinstantiated */
-> -        if (newcontext->type != tcontext->type) {
-> -            /* Use the process effective MLS attributes. */
-> -            return mls_context_cpy_low(newcontext, scontext);
-> -        } else {
-> -            /* Use the related object MLS attributes. */
-> -            return mls_context_cpy(newcontext, tcontext);
-> -        }
-> +        /* Use the process effective MLS attributes. */
-> +        return mls_context_cpy_low(newcontext, scontext);
->     default:
->         return -EINVAL;
->     }
+------=_Part_28915_21950125.1201208403855
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Should there be a patch to update mls.c in libsepol as well? I hope we 
-are keeping the kss and uss in sync.
+Hello im testing out mcs refpolicy, and seem to have
+inode_doinit_with_dentry context_to_sid(system_u:object_r:var_run_t:s0-s15:
+c0.c255) returned 22 for dev=sda1
+ino=1425411 show up in dmesg, I have restorcon -R /var and this message
+still shows up. ("I dont know where the s0-s15 came from; maybee my user
+file?")
+any info would be appreciated.
+Thanks;
+               --Justin P. Mattock
 
+------=_Part_28915_21950125.1201208403855
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hello im testing out mcs refpolicy, and seem to have inode_doinit_with_dentry context_to_sid(system_u:object_r:var_run_t:s0-s15:c0.c255) returned 22 for dev=sda1<br>ino=1425411 show up in dmesg, I have restorcon -R /var and this message still shows up. (&quot;I dont know where the s0-s15 came from; maybee my user file?&quot;)
+<br>any info would be appreciated.<br>Thanks; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
+
+------=_Part_28915_21950125.1201208403855--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
