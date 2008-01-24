@@ -1,81 +1,152 @@
-Message-ID: <4798FFCF.5010905@manicmethod.com>
-Date: Thu, 24 Jan 2008 16:14:55 -0500
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
-References: <4798F57C.8090300@tycho.nsa.gov>	 <4798F91B.3030509@manicmethod.com> <1201208518.21288.162.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1201208518.21288.162.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [patch 1/1] libsemanage: genhomedircon remove error on missing
+	HOME_DIR or HOME_ROOT v2
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Caleb Case <ccase@tresys.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1201208744.17236.10.camel@olympus.columbia.tresys.com>
+References: <1201208744.17236.10.camel@olympus.columbia.tresys.com>
+Content-Type: text/plain
+Date: Thu, 24 Jan 2008 16:22:57 -0500
+Message-Id: <1201209777.21288.177.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2008-01-24 at 15:46 -0500, Joshua Brindle wrote:
->   
->> Eamon Walsh wrote:
->>     
->>> This patch removes the requirement that the new and related object 
->>> types differ in order to polyinstantiate by MLS level.  This allows 
->>> MLS polyinstantiation to occur in the absence of explicit type_member 
->>> rules or when the type has not changed.
->>>
->>> Potential users of this support include pam_namespace.so (directory 
->>> polyinstantiation) and the SELinux X support (property 
->>> polyinstantiation).
->>>
->>> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
->>> ---
->>>
->>> mls.c |   11 ++---------
->>> 1 file changed, 2 insertions(+), 9 deletions(-)
->>>
->>>
->>> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
->>> index fb5d70a..3bbcb53 100644
->>> --- a/security/selinux/ss/mls.c
->>> +++ b/security/selinux/ss/mls.c
->>> @@ -537,15 +537,8 @@ int mls_compute_sid(struct context *scontext,
->>>             /* Use the process effective MLS attributes. */
->>>             return mls_context_cpy_low(newcontext, scontext);
->>>     case AVTAB_MEMBER:
->>> -        /* Only polyinstantiate the MLS attributes if
->>> -           the type is being polyinstantiated */
->>> -        if (newcontext->type != tcontext->type) {
->>> -            /* Use the process effective MLS attributes. */
->>> -            return mls_context_cpy_low(newcontext, scontext);
->>> -        } else {
->>> -            /* Use the related object MLS attributes. */
->>> -            return mls_context_cpy(newcontext, tcontext);
->>> -        }
->>> +        /* Use the process effective MLS attributes. */
->>> +        return mls_context_cpy_low(newcontext, scontext);
->>>     default:
->>>         return -EINVAL;
->>>     }
->>>       
->> Should there be a patch to update mls.c in libsepol as well? I hope we 
->> are keeping the kss and uss in sync.
->>     
->
-> Yes, we should likely mirror the change there.
->
-> We aren't however keeping them in sync in general; there are certainly
-> any number of recent changes that have only gone into the kernel ss
-> (e.g. policy validation code, boolean preservation, handle unknown
-> support, new ebitmap implementation, object class and permission
-> discovery, etc).  And keeping them in sync is hard; most changes have to
-> be manually ported since the kernel ss is specialized for Linux and the
-> original contributor has to agree on porting the code to libsepol since
-> it has a different license (GPL vs. LGPL).
->   
 
-I'm not worried about mechanistic changes, only functionality so that we 
-know the kss and the uss would give the same answer given the same 
-policy and query. That is an interesting point about the license though, 
-I hadn't thought of that.
+On Thu, 2008-01-24 at 16:05 -0500, Caleb Case wrote:
+> Replacing failure condition in write_context_file when HOME_DIR or
+> HOME_ROOT are not found in the contexts. This condition is not needed
+> (the case where the lists are empty is handled correctly) and stops
+> otherwise valid operations:
+> 
+> On a fresh policy store, without any modules loaded:
+> 
+> # semodule -s refpolicy -b /usr/share/selinux/refpolicy/base.pp
+> libsemanage.semanage_install_sandbox: semanage_genhomedircon returned
+> error code -1. No such file or directory.
+> semodule:  Failed!
+> 
+> Failure is replaced with an early success return which happens when
+> HOME_DIR, HOME_ROOT, or USER are not found.
+> 
+> The list of homedirs is computed only if needed (HOME_DIR or HOME_ROOT
+> exist).
+
+Ah, I'll queue this one up and revert the prior one after making such it
+works.
+
+> 
+> ---
+>  src/genhomedircon.c |   72 +++++++++++++++++++++++++++-------------------------
+>  1 file changed, 38 insertions(+), 34 deletions(-)
+> 
+> Index: libsemanage/src/genhomedircon.c
+> ===================================================================
+> --- libsemanage.orig/src/genhomedircon.c
+> +++ libsemanage/src/genhomedircon.c
+> @@ -779,21 +779,15 @@ static int write_context_file(genhomedir
+>  	semanage_list_t *homeroot_context_tpl = NULL;
+>  	int retval = STATUS_SUCCESS;
+>  
+> -	homedirs = get_home_dirs(s);
+> -	if (!homedirs) {
+> -		WARN(s->h_semanage,
+> -		     "no home directories were available, exiting without writing");
+> -		return STATUS_ERR;	/* No homedirs so no output */
+> -	}
+> -
+> -	if (write_file_context_header(s, out) != STATUS_SUCCESS)
+> -		return STATUS_ERR;
+> -
+>  	homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
+>  	homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
+>  	user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
+> -	if (!homedir_context_tpl || !homeroot_context_tpl) {
+> -		retval = STATUS_ERR;
+> +
+> +	if (!homedir_context_tpl && !homeroot_context_tpl && !user_context_tpl)
+> +		goto done;
+> +
+> +	if (write_file_context_header(s, out) != STATUS_SUCCESS) {
+> +		return STATUS_ERR;
+>  		goto done;
+>  	}
+>  
+> @@ -801,34 +795,44 @@ static int write_context_file(genhomedir
+>  		retval = STATUS_ERR;
+>  		goto done;
+>  	}
+> -	for (h = homedirs; h; h = h->next) {
+> -		Ustr *temp = ustr_dup_cstr(h->data);
+>  
+> -		if (!temp || !ustr_add_cstr(&temp, "/[^/]*")) {
+> -			ustr_sc_free(&temp);
+> -			retval = STATUS_ERR;
+> +	if (homedir_context_tpl || homeroot_context_tpl) {
+> +		homedirs = get_home_dirs(s);
+> +		if (!homedirs) {
+> +			WARN(s->h_semanage,
+> +			     "no home directories were available, exiting without writing");
+>  			goto done;
+>  		}
+>  
+> -		if (write_home_dir_context(s, out,
+> -					   homedir_context_tpl,
+> -					   s->fallback_user, s->fallback_user,
+> -					   ustr_cstr(temp),
+> -					   s->fallback_user_prefix) !=
+> -		    STATUS_SUCCESS) {
+> -			ustr_sc_free(&temp);
+> -			retval = STATUS_ERR;
+> -			goto done;
+> -		}
+> -		if (write_home_root_context(s, out,
+> -					    homeroot_context_tpl,
+> -					    h->data) != STATUS_SUCCESS) {
+> +		for (h = homedirs; h; h = h->next) {
+> +			Ustr *temp = ustr_dup_cstr(h->data);
+> +
+> +			if (!temp || !ustr_add_cstr(&temp, "/[^/]*")) {
+> +				ustr_sc_free(&temp);
+> +				retval = STATUS_ERR;
+> +				goto done;
+> +			}
+> +
+> +			if (write_home_dir_context(s, out,
+> +						   homedir_context_tpl,
+> +						   s->fallback_user, s->fallback_user,
+> +						   ustr_cstr(temp),
+> +						   s->fallback_user_prefix) !=
+> +			    STATUS_SUCCESS) {
+> +				ustr_sc_free(&temp);
+> +				retval = STATUS_ERR;
+> +				goto done;
+> +			}
+> +			if (write_home_root_context(s, out,
+> +						    homeroot_context_tpl,
+> +						    h->data) != STATUS_SUCCESS) {
+> +				ustr_sc_free(&temp);
+> +				retval = STATUS_ERR;
+> +				goto done;
+> +			}
+> +
+>  			ustr_sc_free(&temp);
+> -			retval = STATUS_ERR;
+> -			goto done;
+>  		}
+> -
+> -		ustr_sc_free(&temp);
+>  	}
+>  	if (user_context_tpl) {
+>  		if (write_user_context(s, out, user_context_tpl,
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
