@@ -1,77 +1,58 @@
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>
-In-Reply-To: <4798F91B.3030509@manicmethod.com>
-References: <4798F57C.8090300@tycho.nsa.gov>
-	 <4798F91B.3030509@manicmethod.com>
-Content-Type: text/plain
-Date: Thu, 24 Jan 2008 16:01:58 -0500
-Message-Id: <1201208518.21288.162.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4798FD01.9060807@manicmethod.com>
+Date: Thu, 24 Jan 2008 16:02:57 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: Deprecating setlocaldefs, preservebools support in libselinux
+References: <1201203958.21288.120.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1201203958.21288.120.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> I'd still like to deprecate setlocaldefs support and preservebools
+> support in libselinux in the trunk (i.e. libselinux 2.x).  I posted
+> patches for completely removing such support a long while ago, but those
+> particular patches would require an ABI change (as they include API
+> removal) and thus I held off on them, but we could also take the more
+> intermediate approach of just turning off the functionality by default
+> in libselinux without disturbing the ABI.
+>
+> As a refresher, setlocaldefs support refers to the support for pulling
+> in local boolean and user definitions at policy load time w/o managed
+> policy, i.e. the approach used in RHEL4 and Fedora 3 and 4 (but not in
+> Fedora 5 and later or RHEL5).  By default, libselinux still checks for
+> such definitions and patches them into the in-memory policy at load time
+> unless /etc/selinux/config has SETLOCALDEFS=0.  I'd like to make
+> SETLOCALDEFS=0 the default in the trunk and require SETLOCALDEFS=1
+> in /etc/selinux/config to enable the old behavior.
+>
+> preservebools support refers to the support for preserving active
+> boolean values across a policy reload by having libselinux patch the
+> active values into the in-memory policy at policy load time.  As of
+> Linux 2.6.22 and later, this is now handled automatically by the kernel
+> as part of the policy reload and isn't needed in userspace.  I'd like to
+> also disable this by default in libselinux and perhaps allow it to be
+> enabled via some /etc/selinux/config setting.
+>
+> Thoughts?
+>   
 
-On Thu, 2008-01-24 at 15:46 -0500, Joshua Brindle wrote:
-> Eamon Walsh wrote:
-> > This patch removes the requirement that the new and related object 
-> > types differ in order to polyinstantiate by MLS level.  This allows 
-> > MLS polyinstantiation to occur in the absence of explicit type_member 
-> > rules or when the type has not changed.
-> >
-> > Potential users of this support include pam_namespace.so (directory 
-> > polyinstantiation) and the SELinux X support (property 
-> > polyinstantiation).
-> >
-> > Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> > ---
-> >
-> > mls.c |   11 ++---------
-> > 1 file changed, 2 insertions(+), 9 deletions(-)
-> >
-> >
-> > diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-> > index fb5d70a..3bbcb53 100644
-> > --- a/security/selinux/ss/mls.c
-> > +++ b/security/selinux/ss/mls.c
-> > @@ -537,15 +537,8 @@ int mls_compute_sid(struct context *scontext,
-> >             /* Use the process effective MLS attributes. */
-> >             return mls_context_cpy_low(newcontext, scontext);
-> >     case AVTAB_MEMBER:
-> > -        /* Only polyinstantiate the MLS attributes if
-> > -           the type is being polyinstantiated */
-> > -        if (newcontext->type != tcontext->type) {
-> > -            /* Use the process effective MLS attributes. */
-> > -            return mls_context_cpy_low(newcontext, scontext);
-> > -        } else {
-> > -            /* Use the related object MLS attributes. */
-> > -            return mls_context_cpy(newcontext, tcontext);
-> > -        }
-> > +        /* Use the process effective MLS attributes. */
-> > +        return mls_context_cpy_low(newcontext, scontext);
-> >     default:
-> >         return -EINVAL;
-> >     }
-> 
-> Should there be a patch to update mls.c in libsepol as well? I hope we 
-> are keeping the kss and uss in sync.
+I'm fine saying its deprecated but CLIP currently uses an updated 
+toolchain for both RHEL5 and RHEL4 (adds policy management capabilities 
+to RHEL4) so removing the boolean preservation functionality would be 
+detrimental. setlocaldefs isn't used very often afaik but we sometimes 
+build systems where the use of 'managed policy' is objected to, in which 
+case the only way to add users is via users.local. With this in mind 
+we'll just have to be careful when upgrading the CLIP toolchain not to 
+use a version that eventually removes this support.
 
-Yes, we should likely mirror the change there.
 
-We aren't however keeping them in sync in general; there are certainly
-any number of recent changes that have only gone into the kernel ss
-(e.g. policy validation code, boolean preservation, handle unknown
-support, new ebitmap implementation, object class and permission
-discovery, etc).  And keeping them in sync is hard; most changes have to
-be manually ported since the kernel ss is specialized for Linux and the
-original contributor has to agree on porting the code to libsepol since
-it has a different license (GPL vs. LGPL).
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
