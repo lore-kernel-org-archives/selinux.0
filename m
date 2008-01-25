@@ -1,154 +1,71 @@
-Subject: Re: [patch 1/1] libsemanage: genhomedircon remove error on missing
-	HOME_DIR or HOME_ROOT v2
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Caleb Case <ccase@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1201208744.17236.10.camel@olympus.columbia.tresys.com>
-References: <1201208744.17236.10.camel@olympus.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 25 Jan 2008 13:59:58 -0500
-Message-Id: <1201287598.21288.273.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: UNCLASSIFIED - Clarification of Symlink labelling...
+Date: Fri, 25 Jan 2008 19:00:03 -0000
+Message-ID: <7F6B06837A5DBD49AC6E1650EFF5490601C64C0F@auk52177.ukr.astrium.corp>
+From: "HAWKER, Dan 2 \(external\)" <Dan.HAWKER@uk4.astrium.eads.net>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-01-24 at 16:05 -0500, Caleb Case wrote:
-> Replacing failure condition in write_context_file when HOME_DIR or
-> HOME_ROOT are not found in the contexts. This condition is not needed
-> (the case where the lists are empty is handled correctly) and stops
-> otherwise valid operations:
-> 
-> On a fresh policy store, without any modules loaded:
-> 
-> # semodule -s refpolicy -b /usr/share/selinux/refpolicy/base.pp
-> libsemanage.semanage_install_sandbox: semanage_genhomedircon returned
-> error code -1. No such file or directory.
-> semodule:  Failed!
-> 
-> Failure is replaced with an early success return which happens when
-> HOME_DIR, HOME_ROOT, or USER are not found.
-> 
-> The list of homedirs is computed only if needed (HOME_DIR or HOME_ROOT
-> exist).
 
-Patch was white space damaged, had to apply with -l and then fix
-indentation.
-
-> ---
->  src/genhomedircon.c |   72 +++++++++++++++++++++++++++-------------------------
->  1 file changed, 38 insertions(+), 34 deletions(-)
+> By default, newly created files inherit their type from the 
+> parent directory.  Type transition rules in the policy can be 
+> used to alter this behavior based on the creating domain, the 
+> parent directory type, and the class of file.
 > 
-> Index: libsemanage/src/genhomedircon.c
-> ===================================================================
-> --- libsemanage.orig/src/genhomedircon.c
-> +++ libsemanage/src/genhomedircon.c
-> @@ -779,21 +779,15 @@ static int write_context_file(genhomedir
->  	semanage_list_t *homeroot_context_tpl = NULL;
->  	int retval = STATUS_SUCCESS;
->  
-> -	homedirs = get_home_dirs(s);
-> -	if (!homedirs) {
-> -		WARN(s->h_semanage,
-> -		     "no home directories were available, exiting without writing");
-> -		return STATUS_ERR;	/* No homedirs so no output */
-> -	}
-> -
-> -	if (write_file_context_header(s, out) != STATUS_SUCCESS)
-> -		return STATUS_ERR;
-> -
->  	homedir_context_tpl = make_template(s, &HOME_DIR_PRED);
->  	homeroot_context_tpl = make_template(s, &HOME_ROOT_PRED);
->  	user_context_tpl = make_template(s, &USER_CONTEXT_PRED);
-> -	if (!homedir_context_tpl || !homeroot_context_tpl) {
-> -		retval = STATUS_ERR;
-> +
-> +	if (!homedir_context_tpl && !homeroot_context_tpl && !user_context_tpl)
-> +		goto done;
-> +
-> +	if (write_file_context_header(s, out) != STATUS_SUCCESS) {
-> +		return STATUS_ERR;
->  		goto done;
-
-Also fixed this to be retval = STATUS_ERR;
-
->  	}
->  
-> @@ -801,34 +795,44 @@ static int write_context_file(genhomedir
->  		retval = STATUS_ERR;
->  		goto done;
->  	}
-> -	for (h = homedirs; h; h = h->next) {
-> -		Ustr *temp = ustr_dup_cstr(h->data);
->  
-> -		if (!temp || !ustr_add_cstr(&temp, "/[^/]*")) {
-> -			ustr_sc_free(&temp);
-> -			retval = STATUS_ERR;
-> +	if (homedir_context_tpl || homeroot_context_tpl) {
-> +		homedirs = get_home_dirs(s);
-> +		if (!homedirs) {
-> +			WARN(s->h_semanage,
-> +			     "no home directories were available, exiting without writing");
->  			goto done;
->  		}
->  
-> -		if (write_home_dir_context(s, out,
-> -					   homedir_context_tpl,
-> -					   s->fallback_user, s->fallback_user,
-> -					   ustr_cstr(temp),
-> -					   s->fallback_user_prefix) !=
-> -		    STATUS_SUCCESS) {
-> -			ustr_sc_free(&temp);
-> -			retval = STATUS_ERR;
-> -			goto done;
-> -		}
-> -		if (write_home_root_context(s, out,
-> -					    homeroot_context_tpl,
-> -					    h->data) != STATUS_SUCCESS) {
-> +		for (h = homedirs; h; h = h->next) {
-> +			Ustr *temp = ustr_dup_cstr(h->data);
-> +
-> +			if (!temp || !ustr_add_cstr(&temp, "/[^/]*")) {
-> +				ustr_sc_free(&temp);
-> +				retval = STATUS_ERR;
-> +				goto done;
-> +			}
-> +
-> +			if (write_home_dir_context(s, out,
-> +						   homedir_context_tpl,
-> +						   s->fallback_user, s->fallback_user,
-> +						   ustr_cstr(temp),
-> +						   s->fallback_user_prefix) !=
-> +			    STATUS_SUCCESS) {
-> +				ustr_sc_free(&temp);
-> +				retval = STATUS_ERR;
-> +				goto done;
-> +			}
-> +			if (write_home_root_context(s, out,
-> +						    homeroot_context_tpl,
-> +						    h->data) != STATUS_SUCCESS) {
-> +				ustr_sc_free(&temp);
-> +				retval = STATUS_ERR;
-> +				goto done;
-> +			}
-> +
->  			ustr_sc_free(&temp);
-> -			retval = STATUS_ERR;
-> -			goto done;
->  		}
-> -
-> -		ustr_sc_free(&temp);
->  	}
->  	if (user_context_tpl) {
->  		if (write_user_context(s, out, user_context_tpl,
+> The file contexts configuration (.fc files) is used by 
+> programs like rpm to define the initial label to apply when 
+> installing a file and by programs like restorecon to restore 
+> files to the original install-time label.  But it doesn't 
+> affect labeling of files created at runtime by ordinary 
+> programs (e.g. running ln -s is just going to leave the 
+> symlink in the parent directory's type or whatever type is 
+> defined by the applicable type transition rule).
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> What you could do is run restorecon on the symlinks in the 
+> %post scriptlet of your spec file if you truly want them to 
+> be labeled differently.
+> 
+> But allowing read access to lib_t:lnk_file is generally 
+> harmless if you want to just permit it to your domain.
+> 
+
+Hi Stephen,
+
+Thanks for that, that makes a lot more sense. I'll have a look at the
+rpm spec file and see what happens at the moment (still a work in
+progress), but if allowing lib_t:lnk_file is relatively harmless that'll
+probably the direction I'll go, at least initially.
+
+Thanks again and have a good weekend.
+
+Dan
+
+--
+
+Dan Hawker
+Linux System Administrator
+Astrium
+http://www.astrium.eads.net
+
 -- 
-Stephen Smalley
-National Security Agency
+
+This email (including any attachments) may contain confidential and/or
+privileged information or information otherwise protected from disclosure.
+If you are not the intended recipient, please notify the sender
+immediately, do not copy this message or any attachments and do not use it
+for any purpose or disclose its content to any person, but delete this
+message and any attachments from your system. Astrium disclaims any and all
+liability if this email transmission was virus corrupted, altered or
+falsified.
+---------------------------------------------------------------------
+Astrium Limited, Registered in England and Wales No. 2449259
+REGISTERED OFFICE:-
+Gunnels Wood Road, Stevenage, Hertfordshire, SG1 2AS, England
 
 
 --
