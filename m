@@ -1,45 +1,90 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0P06mk4011160
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 19:06:48 -0500
-Received: from hs-out-2122.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0P06lOH025882
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2008 00:06:47 GMT
-Received: by hs-out-2122.google.com with SMTP id 23so838866hsn.2
-        for <selinux@tycho.nsa.gov>; Thu, 24 Jan 2008 16:06:47 -0800 (PST)
-Message-ID: <dd18b0c30801241606r759b2de8hf3345ac0f375eb05@mail.gmail.com>
-Date: Thu, 24 Jan 2008 16:06:46 -0800
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: mcs policy
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0P5PhWR008070
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2008 00:25:43 -0500
+Received: from tyo201.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0P5Pf4W021801
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2008 05:25:42 GMT
+Message-ID: <47997296.2010603@ak.jp.nec.com>
+Date: Fri, 25 Jan 2008 14:24:38 +0900
+From: Kohei KaiGai <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_29647_12465478.1201219606399"
+To: dwalsh@redhat.com
+CC: cpebenito@tresys.com, selinux@tycho.nsa.gov
+Subject: racoon got dead due to permission lacking
+Content-Type: multipart/mixed;
+ boundary="------------030503020902060106040502"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_29647_12465478.1201219606399
-Content-Type: text/plain; charset=ISO-8859-1
+This is a multi-part message in MIME format.
+--------------030503020902060106040502
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hello I was wondering if this is possible with the mcs policy: when using
-firefox I would issue newrole -r user_r -l s0-s0:c10.c20 then start firefox
-with these numbers, then if I wanted to start streamtuner issue newrole -r
-user_r -l s0-s0:c190.c200 to listen to music. Now I've noticed when I'm in
-the firefox role and categories streamtuner still starts, is there a way to
-keep this from happening?
-regards;
-               --Justin P. Mattock
+When I tested labeled ipsec, racoon got dead with the following messages:
+(I added some line break for reader's confortable)
 
-------=_Part_29647_12465478.1201219606399
-Content-Type: text/html; charset=ISO-8859-1
+| type=AVC msg=audit(1201052881.758:783): avc:  denied  { read }
+|   for  pid=26854 comm="racoon" name="net" dev=proc ino=4026531867
+|   scontext=root:system_r:racoon_t:s0
+|   tcontext=system_u:object_r:proc_t:s0 tclass=dir
+| type=AVC msg=audit(1201052881.758:784): avc:  denied  { read }
+|   for  pid=26854 comm="racoon" name="unix" dev=proc ino=4026532018
+|   scontext=root:system_r:racoon_t:s0
+|   tcontext=system_u:object_r:proc_t:s0 tclass=file
+| type=AVC msg=audit(1201052881.758:785): avc:  denied  { node_bind }
+|   for  pid=26854 comm="racoon" saddr=127.0.0.1 src=500
+|   scontext=root:system_r:racoon_t:s0
+|   tcontext=system_u:object_r:lo_node_t:s0 tclass=udp_socket
+| type=AVC msg=audit(1201052881.759:786): avc:  denied  { node_bind }
+|   for  pid=26854 comm="racoon" saddr=10.19.71.81 src=500
+|   scontext=root:system_r:racoon_t:s0
+|   tcontext=system_u:object_r:node_t:s0 tclass=udp_socket
+| type=AVC msg=audit(1201052881.759:787): avc:  denied  { node_bind }
+|   for  pid=26854 comm="racoon" saddr=0000:0000:0000:0000:0000:0000:0000:0001 src=500
+|   scontext=root:system_r:racoon_t:s0
+|   tcontext=system_u:object_r:compat_ipv4_node_t:s0 tclass=udp_socket
+| type=AVC msg=audit(1201052881.759:788): avc:  denied  { node_bind }
+|   for  pid=26854 comm="racoon" saddr=fe80:0000:0000:0000:0211:09ff:fe34:68e0 src=500
+|   scontext=root:system_r:racoon_t:s0
+|   tcontext=system_u:object_r:link_local_node_t:s0 tclass=udp_socket
+
+selinux-policy-3.2.5-15.fc9 and ipsec-tools-0.7-8.fc9 are installed.
+It seems to me that racoon tries to read /proc/net/unix, and bind adresses
+on udp socket.
+
+The attached patch grant those permissions, and it killed this matter.
+Please apply it.
+
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+--------------030503020902060106040502
+Content-Type: text/x-patch;
+ name="serefpolicy-ipsec-racoon-fixed.patch"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Disposition: inline;
+ filename="serefpolicy-ipsec-racoon-fixed.patch"
 
-Hello I was wondering if this is possible with the mcs policy: when using firefox I would issue newrole -r user_r -l s0-s0:c10.c20 then start firefox with these numbers, then if I wanted to start streamtuner issue newrole -r user_r -l s0-s0:
-c190.c200 to listen to music. Now I&#39;ve noticed when I&#39;m in the firefox role and categories streamtuner still starts, is there a way to keep this from happening? <br>regards;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
+--- serefpolicy-3.2.5/policy/modules/system/ipsec.te	2007-12-19 19:37:28.000000000 +0900
++++ serefpolicy-3.2.5.fixed/policy/modules/system/ipsec.te	2008-01-25 11:57:06.000000000 +0900
+@@ -301,8 +301,12 @@
+ 
+ corenet_all_recvfrom_unlabeled(racoon_t)
+ corenet_tcp_bind_all_nodes(racoon_t)
++corenet_udp_bind_all_nodes(racoon_t)
+ corenet_udp_bind_isakmp_port(racoon_t)
+ 
++# /proc/net/...
++read_files_pattern(racoon_t,proc_t,proc_t)
++
+ dev_read_urand(racoon_t)
+ 
+ # allow racoon to set contexts on ipsec policy and SAs
 
-------=_Part_29647_12465478.1201219606399--
+--------------030503020902060106040502--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
