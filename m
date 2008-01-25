@@ -1,90 +1,89 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0P5PhWR008070
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2008 00:25:43 -0500
-Received: from tyo201.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0P5Pf4W021801
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2008 05:25:42 GMT
-Message-ID: <47997296.2010603@ak.jp.nec.com>
-Date: Fri, 25 Jan 2008 14:24:38 +0900
-From: Kohei KaiGai <kaigai@ak.jp.nec.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0PEbY3o010200
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2008 09:37:34 -0500
+Received: from florence.astrium.eads.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0PEbWro022170
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jan 2008 14:37:33 GMT
 MIME-Version: 1.0
-To: dwalsh@redhat.com
-CC: cpebenito@tresys.com, selinux@tycho.nsa.gov
-Subject: racoon got dead due to permission lacking
-Content-Type: multipart/mixed;
- boundary="------------030503020902060106040502"
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: UNCLASSIFIED - Clarification of Symlink labelling...
+Date: Fri, 25 Jan 2008 14:37:29 -0000
+Message-ID: <7F6B06837A5DBD49AC6E1650EFF5490601C64C0E@auk52177.ukr.astrium.corp>
+From: "HAWKER, Dan 2 \(external\)" <Dan.HAWKER@uk4.astrium.eads.net>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030503020902060106040502
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
 
-When I tested labeled ipsec, racoon got dead with the following messages:
-(I added some line break for reader's confortable)
 
-| type=AVC msg=audit(1201052881.758:783): avc:  denied  { read }
-|   for  pid=26854 comm="racoon" name="net" dev=proc ino=4026531867
-|   scontext=root:system_r:racoon_t:s0
-|   tcontext=system_u:object_r:proc_t:s0 tclass=dir
-| type=AVC msg=audit(1201052881.758:784): avc:  denied  { read }
-|   for  pid=26854 comm="racoon" name="unix" dev=proc ino=4026532018
-|   scontext=root:system_r:racoon_t:s0
-|   tcontext=system_u:object_r:proc_t:s0 tclass=file
-| type=AVC msg=audit(1201052881.758:785): avc:  denied  { node_bind }
-|   for  pid=26854 comm="racoon" saddr=127.0.0.1 src=500
-|   scontext=root:system_r:racoon_t:s0
-|   tcontext=system_u:object_r:lo_node_t:s0 tclass=udp_socket
-| type=AVC msg=audit(1201052881.759:786): avc:  denied  { node_bind }
-|   for  pid=26854 comm="racoon" saddr=10.19.71.81 src=500
-|   scontext=root:system_r:racoon_t:s0
-|   tcontext=system_u:object_r:node_t:s0 tclass=udp_socket
-| type=AVC msg=audit(1201052881.759:787): avc:  denied  { node_bind }
-|   for  pid=26854 comm="racoon" saddr=0000:0000:0000:0000:0000:0000:0000:0001 src=500
-|   scontext=root:system_r:racoon_t:s0
-|   tcontext=system_u:object_r:compat_ipv4_node_t:s0 tclass=udp_socket
-| type=AVC msg=audit(1201052881.759:788): avc:  denied  { node_bind }
-|   for  pid=26854 comm="racoon" saddr=fe80:0000:0000:0000:0211:09ff:fe34:68e0 src=500
-|   scontext=root:system_r:racoon_t:s0
-|   tcontext=system_u:object_r:link_local_node_t:s0 tclass=udp_socket
+Hi All,
 
-selinux-policy-3.2.5-15.fc9 and ipsec-tools-0.7-8.fc9 are installed.
-It seems to me that racoon tries to read /proc/net/unix, and bind adresses
-on udp socket.
+Am presently in the process of creating some SELinux policies for some
+in house apps that run on our embedded devices. Thanks to some pointers
+and general advice from Stephen & Dave (Smalley and Sugar), have made a
+fair bit of headway so far and have something that is almost complete.
+Hurrah!!! :)
 
-The attached patch grant those permissions, and it killed this matter.
-Please apply it.
+However am experiencing some strangeness regarding symlinks and am after
+either a *RTFM this* or a gentle pointer, because I am slightly
+confused...
 
-Thanks,
+Most of the apps I am creating policy for, are located in /opt. For
+example /opt/<various_appnames>, with the usual
+/opt/<various_appnames>/{bin, lib, blah} dirs enclosed. They are
+enclosed within the appname_t domain and labelled as follows
+appname_libs_t, appname_exec_t, etc. However we also have /opt/lib which
+includes symlinks to certain libraries located in
+/opt/<various_appnames>/lib that are shared across applications (ORB-TAO
+stuff for example).
+
+Because of the default policy from system/libraries, these are
+automagically labelled lib_t, which is for the most part fine, however
+this causes apps that reference these symlinks to fail, as the app
+hasn't access to lib_t.
+
+I have tried relabelling the symlinks directly using chcon and by
+editing my apps fc files to include these, however it never *takes*,
+they are always labelled lib_t, which is from the enclosing dir.
+
+I can override this by changing the file context for the enclosing dir
+(/opt/lib in this case), however all the symlinks then take on the fc of
+the enclosing dir I stipulate, which although better than before is not
+ideal.
+
+Is there any way to set symlinks directly or are the contexts always
+inherited from the enclosing dir???
+
+Or am I just missing something very simple and hence doing something
+very stupid???
+
+TIA
+
+Dan
+
+--
+
+Dan Hawker
+Linux System Administrator
+Astrium
+http://www.astrium.eads.net
+
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
 
---------------030503020902060106040502
-Content-Type: text/x-patch;
- name="serefpolicy-ipsec-racoon-fixed.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="serefpolicy-ipsec-racoon-fixed.patch"
+This email (including any attachments) may contain confidential and/or
+privileged information or information otherwise protected from disclosure.
+If you are not the intended recipient, please notify the sender
+immediately, do not copy this message or any attachments and do not use it
+for any purpose or disclose its content to any person, but delete this
+message and any attachments from your system. Astrium disclaims any and all
+liability if this email transmission was virus corrupted, altered or
+falsified.
+---------------------------------------------------------------------
+Astrium Limited, Registered in England and Wales No. 2449259
+REGISTERED OFFICE:-
+Gunnels Wood Road, Stevenage, Hertfordshire, SG1 2AS, England
 
---- serefpolicy-3.2.5/policy/modules/system/ipsec.te	2007-12-19 19:37:28.000000000 +0900
-+++ serefpolicy-3.2.5.fixed/policy/modules/system/ipsec.te	2008-01-25 11:57:06.000000000 +0900
-@@ -301,8 +301,12 @@
- 
- corenet_all_recvfrom_unlabeled(racoon_t)
- corenet_tcp_bind_all_nodes(racoon_t)
-+corenet_udp_bind_all_nodes(racoon_t)
- corenet_udp_bind_isakmp_port(racoon_t)
- 
-+# /proc/net/...
-+read_files_pattern(racoon_t,proc_t,proc_t)
-+
- dev_read_urand(racoon_t)
- 
- # allow racoon to set contexts on ipsec policy and SAs
-
---------------030503020902060106040502--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
