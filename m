@@ -1,22 +1,58 @@
-Subject: Re: [patch] fixfiles -C: behave as advertised
+Subject: Re: racoon got dead due to permission lacking
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Marshall Miller <mmiller@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1201209917.4502.72.camel@hostmachine.tresys.com>
-References: <1201209917.4502.72.camel@hostmachine.tresys.com>
+To: Kohei KaiGai <kaigai@ak.jp.nec.com>
+Cc: dwalsh@redhat.com, cpebenito@tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <47997296.2010603@ak.jp.nec.com>
+References: <47997296.2010603@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Fri, 25 Jan 2008 14:01:07 -0500
-Message-Id: <1201287667.21288.275.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 25 Jan 2008 14:17:10 -0500
+Message-Id: <1201288630.21288.277.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-01-24 at 16:25 -0500, Marshall Miller wrote:
-> This patch makes fixfiles -C <file> (restore|check|verify|relabel) behave as advertised.
+On Fri, 2008-01-25 at 14:24 +0900, Kohei KaiGai wrote:
+> When I tested labeled ipsec, racoon got dead with the following messages:
+> (I added some line break for reader's confortable)
+> 
+> | type=AVC msg=audit(1201052881.758:783): avc:  denied  { read }
+> |   for  pid=26854 comm="racoon" name="net" dev=proc ino=4026531867
+> |   scontext=root:system_r:racoon_t:s0
+> |   tcontext=system_u:object_r:proc_t:s0 tclass=dir
 
-Thanks, applied.
+That one is a kernel bug (in 2.6.24).  Should have a fix soon - patch is
+being reviewed.
 
+> | type=AVC msg=audit(1201052881.758:784): avc:  denied  { read }
+> |   for  pid=26854 comm="racoon" name="unix" dev=proc ino=4026532018
+> |   scontext=root:system_r:racoon_t:s0
+> |   tcontext=system_u:object_r:proc_t:s0 tclass=file
+> | type=AVC msg=audit(1201052881.758:785): avc:  denied  { node_bind }
+> |   for  pid=26854 comm="racoon" saddr=127.0.0.1 src=500
+> |   scontext=root:system_r:racoon_t:s0
+> |   tcontext=system_u:object_r:lo_node_t:s0 tclass=udp_socket
+> | type=AVC msg=audit(1201052881.759:786): avc:  denied  { node_bind }
+> |   for  pid=26854 comm="racoon" saddr=10.19.71.81 src=500
+> |   scontext=root:system_r:racoon_t:s0
+> |   tcontext=system_u:object_r:node_t:s0 tclass=udp_socket
+> | type=AVC msg=audit(1201052881.759:787): avc:  denied  { node_bind }
+> |   for  pid=26854 comm="racoon" saddr=0000:0000:0000:0000:0000:0000:0000:0001 src=500
+> |   scontext=root:system_r:racoon_t:s0
+> |   tcontext=system_u:object_r:compat_ipv4_node_t:s0 tclass=udp_socket
+> | type=AVC msg=audit(1201052881.759:788): avc:  denied  { node_bind }
+> |   for  pid=26854 comm="racoon" saddr=fe80:0000:0000:0000:0211:09ff:fe34:68e0 src=500
+> |   scontext=root:system_r:racoon_t:s0
+> |   tcontext=system_u:object_r:link_local_node_t:s0 tclass=udp_socket
+> 
+> selinux-policy-3.2.5-15.fc9 and ipsec-tools-0.7-8.fc9 are installed.
+> It seems to me that racoon tries to read /proc/net/unix, and bind adresses
+> on udp socket.
+> 
+> The attached patch grant those permissions, and it killed this matter.
+> Please apply it.
+> 
+> Thanks,
 -- 
 Stephen Smalley
 National Security Agency
