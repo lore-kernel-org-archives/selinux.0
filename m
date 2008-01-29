@@ -1,77 +1,58 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0TFmbnJ016187
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 10:48:37 -0500
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0TFmatk009387
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 15:48:37 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so1976020fgg.40
-        for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 07:48:36 -0800 (PST)
-Message-ID: <cadfc0e40801290748v3e02a305i8ef36f39ceef16af@mail.gmail.com>
-Date: Tue, 29 Jan 2008 09:48:35 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: X avcs
-Cc: "Glenn Faden" <Glenn.Faden@sun.com>, "SE Linux" <selinux@tycho.nsa.gov>
-In-Reply-To: <4797D7CB.6010501@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0THEAwL027670
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 12:14:10 -0500
+Received: from g1t0029.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0THE8UK009616
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 17:14:09 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] SELinux: Fix double free in selinux_netlbl_sock_setsid()
+Date: Tue, 29 Jan 2008 12:13:53 -0500
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov, bunk@kernel.org, jmorris@namei.org
+References: <20080129022026.7930.18782.stgit@flek.lan> <20080128.195124.188485009.davem@davemloft.net>
+In-Reply-To: <20080128.195124.188485009.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
-	 <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>
-	 <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>
-	 <477BEFF1.2090507@sun.com> <47867FCA.50408@tycho.nsa.gov>
-	 <47878130.5010000@gmail.com> <4787D5B7.9090606@sun.com>
-	 <478FD1A7.8060401@tycho.nsa.gov> <4793FDC7.9050700@sun.com>
-	 <4797D7CB.6010501@tycho.nsa.gov>
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200801291213.54310.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Has this made it into the git tree yet?
+On Monday 28 January 2008 10:51:24 pm David Miller wrote:
+> From: Paul Moore <paul.moore@hp.com>
+> Date: Mon, 28 Jan 2008 21:20:26 -0500
+>
+> > As pointed out by Adrian Bunk, commit
+> > 45c950e0f839fded922ebc0bfd59b1081cc71b70 caused a double-free when
+> > security_netlbl_sid_to_secattr() fails.  This patch fixes this by
+> > removing the netlbl_secattr_destroy() call from that function since we
+> > are already releasing the secattr memory in
+> > selinux_netlbl_sock_setsid().
+> >
+> > Signed-off-by: Paul Moore <paul.moore@hp.com>
+>
+> Applied, and I'll queue this up for -stable too.
 
-On Jan 23, 2008 6:11 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+Thanks.  Sorry for not catching this in the first place.
+
+> Please, when mentioning specific commits please also provide
+> the changelog headline along with the SHA1 hash.
 >
-> Glenn Faden wrote:
-> > Eamon Walsh wrote:
-> >
-> >>
-> >> OK, I worked on this today.  The property polyinstantiation itself is
-> >> easy enough, but I've run into a problem with the PropertyNotify
-> >> events that occur when a polyinstantiated property is changed or
-> >> deleted - everyone can see them!  Some major changes to the event
-> >> delivery model are probably going to be necessary to make this work.
-> >>
-> >> I can't immediately see how it's done in Trusted Extensions.  In
-> >> TsolDeleteProperty there is just a regular DeliverEvents call to send
-> >> the event.
-> >>
-> >> I think there will have to be a way to pass some private data down
-> >> with all events, and then have another hook call further down that
-> >> gives a yes/no answer for each client.
-> >>
-> > You're probably right that unnecessary PropertyNotify events may be
-> > distributed to any client who has expressed interest in this event on
-> > the root window. I don't think this is a big problem, however. If the
-> > client cares to read the property whose atom is associated with the
-> > event it will get the value which matches its security context.
-> >
-> > If your concern is that this presents a covert channel, that is an issue
-> > that we generally ignore. For example we don't prevent higher-level
-> > windows from generating exposure events which may be delivered to lower
-> > level windows. We only prevent normal clients from mapping windows into
-> > a Trusted Path workspace.
-> >
-> > --Glenn
-> >
->
-> I'll press forward with this then, putting the event delivery on the
-> to-do list.
->
->
->
-> --
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
->
+> The reason is that when this fix is moved over to another
+> tree where the SHA1 of the causing change is different people
+> studying your fix won't be able to find it without more stable
+> contextual information.
+
+Noted, I'll make sure to include the patch description in the future.  I 
+wasn't aware that the hash took into account anything other than the 
+individual commit it represented.  However, now that I think about it, since 
+order is so critical it only makes sense to have the hash take into account 
+at least the previous commit.
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
