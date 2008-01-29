@@ -1,83 +1,46 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0SKhoXX022956
-	for <selinux@tycho.nsa.gov>; Mon, 28 Jan 2008 15:43:50 -0500
-Received: from web36608.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m0SKhmbA009131
-	for <selinux@tycho.nsa.gov>; Mon, 28 Jan 2008 20:43:49 GMT
-Date: Mon, 28 Jan 2008 12:43:07 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: OLS 2008 SELinux Proposals for review and comments
-To: Dave Quigley <dpquigl@tycho.nsa.gov>, fedora-selinux-list@redhat.com,
-        selinux@tycho.nsa.gov, SELinux Team <selinux-team@tycho.nsa.gov>
-In-Reply-To: <1201540014.24702.331.camel@moss-terrapins.epoch.ncsc.mil>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0T2LD2E030675
+	for <selinux@tycho.nsa.gov>; Mon, 28 Jan 2008 21:21:13 -0500
+Received: from QMTA01.emeryville.ca.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0T2L8HG014425
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 02:21:09 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [PATCH] SELinux: Fix double free in selinux_netlbl_sock_setsid()
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov, stable@kernel.org,
+        bunk@kernel.org, jmorris@namei.org
+Date: Mon, 28 Jan 2008 21:20:26 -0500
+Message-ID: <20080129022026.7930.18782.stgit@flek.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <95379.74891.qm@web36608.mail.mud.yahoo.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+As pointed out by Adrian Bunk, commit 45c950e0f839fded922ebc0bfd59b1081cc71b70
+caused a double-free when security_netlbl_sid_to_secattr() fails.  This patch
+fixes this by removing the netlbl_secattr_destroy() call from that function
+since we are already releasing the secattr memory in
+selinux_netlbl_sock_setsid().
 
---- Dave Quigley <dpquigl@tycho.nsa.gov> wrote:
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
 
-> Hello Everyone,
->     I have put together a series of proposals for OLS this year which
-> include a talk on Labeled-NFS, an SELinux BOF, and an SELinux tutorial.
-> You will find them attached to this email. If you have any
-> questions/comments/and or complaints please feel free to make them.
-> 
-> Dave Quigley
-> > BOF: NSA Security-Enhanced Linux (SELinux)
-> The NSA Security-Enhanced Linux (SELinux) BOF is intended to provide a
-> forum for people who are already working on SELinux or are interested in
-> learning about the project. The BOF will begin with a short presentation
-> that briefly describes the background and status of SELinux, reviews
-> recent developments, and discusses current directions for the project.  Then
-> the BOF will be opened for discussion, including questions and feedback from
-> developers and users.
-> 
-> Likely topics will include: policy development environment and
-> policy generation tools, SELinux administration, Distro integration, network
-> storage support and usability issues.
-> > SELinux is the most widly deployed system for Mandatory Access Controls
-(MAC)
-> in Linux. Since its debut much has changed as distributions continue to add
-> functionality based on user feedback. Despite its growing availability some
-> people dismiss SELinux because it is "too hard." This tutorial addresses
-> these concerns by providing a basic understanding of SELinux and how to
-> accomplish common SELinux tasks.
-> 
-> Topics:
-> How SELinux Works
-> Enabling SELinux
-> Checking for Unconfined Demons
-> Debugging SELinux Policy Errors
-> Using Booleans
-> SELinux Daemons and What They Do
-> Policy Development
-> Considering SELinux in your Development Process
-> 
-> Time: 4 hours
-> > As the use of SELinux expands in Enterprise environments customers are
-> requesting the ability to use SELinux with their NFS based network storage.
-> The labeled-nfs project seeks to extend the NFSv4 protocol to provide a
-> generic mechanism for conveying process and file MAC security attribute
-> information for use by security mechanisms employed on the client and 
-> server.
-> 
-> In this paper we explore the design and implementation for the labeled-nfs
-> effort. We discuss why certain design decisions were made and what impact
-> they have on the implementation of NFS in the Linux kernel and NFS userland
-> infrastructure.  Finally we discuss how parts of the labeled-nfs
-> infrastructure can be used in other remote file systems.  
+ security/selinux/ss/services.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-Looks like a fun set of presentations. Is the any interest in an
-LSM user's summit, or a tutorial comparing LSMs?
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 4bf715d..3a16aba 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2629,7 +2629,6 @@ int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
+ 
+ netlbl_sid_to_secattr_failure:
+ 	POLICY_RDUNLOCK;
+-	netlbl_secattr_destroy(secattr);
+ 	return rc;
+ }
+ #endif /* CONFIG_NETLABEL */
 
-
-
-Casey Schaufler
-casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
