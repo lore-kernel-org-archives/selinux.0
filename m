@@ -1,43 +1,38 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0TIeGLV005404
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 13:40:17 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m0TIeGUK006385
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 18:40:16 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0TKqtqE020006
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 15:52:55 -0500
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0TKqrSx013800
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jan 2008 20:52:54 GMT
+Date: Wed, 30 Jan 2008 07:51:55 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        fedora-selinux-list@redhat.com
+Subject: Re: [RFC] security: add iptables "security" table for MAC rules
+In-Reply-To: <200801291237.37349.paul.moore@hp.com>
+Message-ID: <Xine.LNX.4.64.0801300750410.11074@us.intercode.com.au>
+References: <Xine.LNX.4.64.0801292230080.29814@us.intercode.com.au>
+ <200801291237.37349.paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: genhomedircon is broken in libsemanage
-Date: Tue, 29 Jan 2008 13:40:15 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B01588016EF6CA@exchange.columbia.tresys.com>
-In-Reply-To: <479F4051.7030101@redhat.com>
-References: <479F4051.7030101@redhat.com>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>, "SE Linux" <selinux@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Adding
-> 
-> mythtv:x:1004:1004::/var/lib/mythtv:/bin/bash
-> 
-> To /etc/passwd causes the labeling to get all screwed up.  This would
-> report an error when we used the python version of genhomedircon and
-> not foul up the labeling by checking if there was a label for /var/lib
-> already in the file_context file. (Boy do I love python.  :^))
-> 
-> https://bugzilla.redhat.com/show_bug.cgi?id=430195
-> 
-> Dan
+On Tue, 29 Jan 2008, Paul Moore wrote:
 
-That shouldn't be hard to add to genhomedircon.c.  I'll take a look.
+> I'm not sure if returning false and failing here is the best thing to do in 
+> terms of backwards compatibility.  I think we need some grace period where we 
+> print a warning message and still allow the operation; after some period of 
+> time we can then remove the ability completely and force users to use the 
+> new "security" table.
 
- - todd
+Currently, the patch allows the use of the mangle table, so it is 
+backwards compatible.
 
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
