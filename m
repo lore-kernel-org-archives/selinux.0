@@ -1,54 +1,54 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0VJqMHb009521
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 14:52:22 -0500
-Received: from el-out-1112.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0VJqLDu018706
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 19:52:21 GMT
-Received: by el-out-1112.google.com with SMTP id j27so308195elf.0
-        for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 11:52:11 -0800 (PST)
-Message-ID: <dd18b0c30801311146l626f8c29o1460ef3e5e7682d3@mail.gmail.com>
-Date: Thu, 31 Jan 2008 19:46:06 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: shadow
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_17439_3205400.1201808766972"
+Subject: Re: shadow
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <dd18b0c30801311146l626f8c29o1460ef3e5e7682d3@mail.gmail.com>
+References: <dd18b0c30801311146l626f8c29o1460ef3e5e7682d3@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 31 Jan 2008 15:02:15 -0500
+Message-Id: <1201809735.4568.112.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_17439_3205400.1201808766972
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hello; with /etc/shadow what might I be doing wrong; I keep receiving:
-libsepol.check_assertion_helper: assertion on line 137107 violated by allow
-newrole_t shadow_t:file { read };
-libsepol.check_assertion_helper: assertion on line 137107 violated by allow
-crond_t shadow_t:file { read};
-libsepol.check_assertion_helper: assertion on line 137107 violated by allow
-sysadm_sudo_t shadow_t:file { read };
+On Thu, 2008-01-31 at 19:46 +0000, Justin Mattock wrote:
+> Hello; with /etc/shadow what might I be doing wrong; I keep receiving:
+> libsepol.check_assertion_helper: assertion on line 137107 violated by
+> allow newrole_t shadow_t:file { read };
+> libsepol.check_assertion_helper: assertion on line 137107 violated by
+> allow  crond_t shadow_t:file { read};
+> libsepol.check_assertion_helper: assertion on line 137107 violated by
+> allow sysadm_sudo_t shadow_t:file { read };
+> 
+> am I not supposed to use newrole in a root terminal! or is this
+> something else. In my desperation I commented
+> out /etc/selinux/refpolicy/policy/modules/system/authlogin.te
+> line 48 : [ #neverallow ~can_read_shadow_passwords shadow_t:file
+> read; ] to allow my self to newrole login. I dont like messing with
+> any of the neverallow rules; what am I missing? 
 
-am I not supposed to use newrole in a root terminal! or is this something
-else. In my desperation I commented out
-/etc/selinux/refpolicy/policy/modules/system/authlogin.te
-line 48 : [ #neverallow ~can_read_shadow_passwords shadow_t:file read; ] to
-allow my self to newrole login. I dont like messing with any of the
-neverallow rules; what am I missing?
+pam_unix is supposed to fall back to invoking unix_chkpwd to check
+passwords if the process cannot directly read the shadow file.  Thus,
+policy doesn't give those domains permission to directly read shadow and
+only the chkpwd domains (with some exceptions) require such access.
 
-                --Justin P. Mattock
+The avc denials should be suppressed by dontaudit rules, unless you've
+rebuilt with those stripped from the policy.
 
-------=_Part_17439_3205400.1201808766972
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+The neverallow is to ensure that you don't accidentally give direct
+access to shadow via audit2allow.
 
-Hello; with /etc/shadow what might I be doing wrong; I keep receiving:<br>libsepol.check_assertion_helper: assertion on line 137107 violated by allow newrole_t shadow_t:file { read };<br>libsepol.check_assertion_helper: assertion on line 137107 violated by allow&nbsp; crond_t shadow_t:file { read};<br>
-libsepol.check_assertion_helper: assertion on line 137107 violated by allow sysadm_sudo_t shadow_t:file { read };<br><br>am I not supposed to use newrole in a root terminal! or is this something else. In my desperation I commented out /etc/selinux/refpolicy/policy/modules/system/authlogin.te<br>
-line 48 : [ #neverallow ~can_read_shadow_passwords shadow_t:file read; ] to allow my self to newrole login. I dont like messing with any of the neverallow rules; what am I missing? <br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
+If you use the proper refpolicy interface to grant access to shadow,
+then the domain will be added to the can_read_shadow_passwords attribute
+and the neverallow won't fail.  But you shouldn't be granting direct
+access here unless your pam_unix lacks the necessary support for falling
+back to chkpwd.
 
-------=_Part_17439_3205400.1201808766972--
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
