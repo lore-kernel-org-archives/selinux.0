@@ -1,85 +1,76 @@
-Subject: Re: problems updating /etc/shadow using strict example policy on
-	Fedora Core 3
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kim Lawson-Jenkins <lawson@itd.nrl.navy.mil>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <002501c86426$538c0800$c301000a@PC05>
-References: <002501c86426$538c0800$c301000a@PC05>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 31 Jan 2008 12:36:48 -0500
-Message-Id: <1201801008.4568.72.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0VIF9Le027590
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 13:15:09 -0500
+Received: from florence.astrium.eads.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0VIF8Du016773
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 18:15:09 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: UNCLASSIFIED - Realtime Scheduling...
+Date: Thu, 31 Jan 2008 18:14:59 -0000
+Message-ID: <7F6B06837A5DBD49AC6E1650EFF5490601C64C1A@auk52177.ukr.astrium.corp>
+From: "HAWKER, Dan 2 \(external\)" <Dan.HAWKER@uk4.astrium.eads.net>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-01-31 at 11:28 -0500, Kim Lawson-Jenkins wrote:
-> Hi:
-> 
->  
-> 
-> I’m updating a legacy system where due to the SELinux policy a user
-> was not permitted to replace an expired password.  I gradually added
-> allow statements to eliminate the AVC messages.
-> 
->  
-> 
-> The final SELinux change which corrupts the shadow file is
-> 
->  
-> 
-> allow system_chkpwd_t shadow_t:file { create setattr rename write
-> unlink };
-> 
->  
-> 
-> or more specifically including the write permission in the allow
-> statement corrupts the shadow file.  If the write permission is not
-> included, an AVC is generated indicating we need to add the write
-> permission.  But when the write permission is included the shadow file
-> is corrupted – the shadow file is updated without a hash of the new
-> password and the user is allowed to log in without a password.  So I'm
-> wondering is there a SELinux patch I need for chkpwd?  Or do I need to
-> add/modify an allow statement for a process other than chkpwd to have
-> the shadow file updated correctly?
-> 
->  
-> 
-> Here is the AVC message – 
-> 
->  
-> 
-> Jan 10 19:00:24 nrl-xml-nkm kernel: audit(1200009624.533:0): avc:
-> denied  { write } for  pid=16563 exe=/sbin/unix_chkpwd
-> path=/etc/nshadow dev=dm-0 ino=5275736
-> scontext=system_u:system_r:system_chkpwd_t
-> tcontext=system_u:object_r:shadow_t tclass=file
-> 
->  
-> 
-> This is a SELinux problem because when the system is in permissive
-> instead of enforcing mode, the user can replace the expired password
-> and the shadow file is updated correctly.
-> 
->  
-> 
-> I know most people ignored this email as soon as they saw the words
-> “Fedora Core 3” in the subject heading.  Any feedback would be greatly
-> appreciated.  Thanks in advance.
 
-Have you tried performing the operation with all dontaudit rules removed
-from the policy, i.e. 'make clean enableaudit load' in the policy source
-directory?  That will generate a lot of avc messages, not all relevant,
-but should show you all denials.  Then use 'make clean load' to restore
-them afterward.
+Hi All,
 
-As far as I know, the policy only allows chkpwd to read the shadow file,
-as that is its usual function - checking passwords, not updating them.
-I didn't think the updating happened from that process.
+Am not 100% sure if this is completely an SELinux question, but am
+hoping the pool of knowledge will be able to help me out :)
+
+I have an daemon that a developer has created, that I am creating an
+SELinux policy for. Works well and is easy enough, however it needs to
+run as non-root. Again this is not a problem, however it does two things
+that makes this a problem.
+1) it changes the system time...
+2) it generates threads that have edited SCHED_FIFO so as to gain
+realtime scheduling...
+
+Presently (non-SELinux) both are implemented using standard internal
+calls to appropriate libraries (rather than external system calls or
+apps) and hence require root access.
+
+Was wondering if there was an elegant solution (can think of inelegant
+ones) to this problem, by where I can use SELinux to grant the
+appropriate privileges to the un-modified (or slightly modified)
+daemon???
+
+Obviously we could re-architect the daemon and get it to call another
+root enabled but heavily constrained (with SELinux) app to change the
+time, however by my understanding (but I am a sysadmin not a programmer
+type), that method isn't viable for the realtime scheduling problem.
+
+So, is there a way with roles (or another way) that I can give the
+daemon the required privilege to set realtime scheduling with SELinux???
+
+TIA
+
+Dan
+--
+
+Dan Hawker
+Linux System Administrator
+Astrium
+http://www.astrium.eads.net
 
 -- 
-Stephen Smalley
-National Security Agency
+
+This email (including any attachments) may contain confidential and/or
+privileged information or information otherwise protected from disclosure.
+If you are not the intended recipient, please notify the sender
+immediately, do not copy this message or any attachments and do not use it
+for any purpose or disclose its content to any person, but delete this
+message and any attachments from your system. Astrium disclaims any and all
+liability if this email transmission was virus corrupted, altered or
+falsified.
+---------------------------------------------------------------------
+Astrium Limited, Registered in England and Wales No. 2449259
+REGISTERED OFFICE:-
+Gunnels Wood Road, Stevenage, Hertfordshire, SG1 2AS, England
 
 
 --
