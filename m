@@ -1,89 +1,95 @@
-Subject: Re: Accurately setting Security Context of a  user when ssh-ing in
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D0451FF16@de01exm68.ds.mot.com>
-References: <4784EFE8.9050106@redhat.com>
-	 <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>
-	 <1199903006.9393.296.camel@moss-spartans.epoch.ncsc.mil>
-	 <478670A8.5080902@redhat.com> <1199995291.3707.15.camel@vogon>
-	 <47877F43.5030401@redhat.com>
-	 <1200065528.29816.66.camel@moss-spartans.epoch.ncsc.mil>
-	 <1200065923.29816.69.camel@moss-spartans.epoch.ncsc.mil>
-	 <4787BF20.1050105@redhat.com> <47A08F44.20308@redhat.com>
-	 <D06FE0A2807BC145B0D38744789D4F5D0451FF16@de01exm68.ds.mot.com>
-Content-Type: text/plain
-Date: Wed, 30 Jan 2008 19:30:50 -0500
-Message-Id: <1201739450.24702.488.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0V2QUsL013115
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jan 2008 21:26:30 -0500
+Message-ID: <47A131D5.2030906@tycho.nsa.gov>
+Date: Wed, 30 Jan 2008 21:26:29 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Xavier Toth <txtoth@gmail.com>
+CC: Glenn Faden <Glenn.Faden@sun.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: X avcs
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>	 <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>	 <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>	 <477BEFF1.2090507@sun.com> <47867FCA.50408@tycho.nsa.gov>	 <47878130.5010000@gmail.com> <4787D5B7.9090606@sun.com>	 <478FD1A7.8060401@tycho.nsa.gov> <4793FDC7.9050700@sun.com>	 <4797D7CB.6010501@tycho.nsa.gov> <cadfc0e40801290748v3e02a305i8ef36f39ceef16af@mail.gmail.com>
+In-Reply-To: <cadfc0e40801290748v3e02a305i8ef36f39ceef16af@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Xavier Toth wrote:
+> Has this made it into the git tree yet?
+>   
 
-On Wed, 2008-01-30 at 19:35 -0500, Hasan Rezaul-CHR010 wrote:
-> Hi All,
-> 
-> What file or info in the policy determines what security context a user
-> will get after ssh-ing in...?
-> 
-> In other words, If I have a Linux_user = Admin, which is mapped to
-> SELinux_user = staff_u , SELinux_role = staff_r, how do I guarantee that
-> when I ssh in as "Admin", I will ALWAYS get the security_context =
-> staff_u:staff_r:staff_t 
-> 
-> 
-> The reason I ask is as follows:
-> 
-> I have developed a certain collection of *strict* policies on a Fedora
-> machine that achieve what I want. 
-> When I ssh into this Fedora machine as "Admin", I do get the context =
-> staff_u:staff_r:staff_t
-> 
-> So I tar up everything in the  /etc/selinux/  directory, and create a
-> selinux_policies.tar  lets say.
-> 
-> Now, I untar selinux_policies.tar onto *another* machine (Machine B)!
-> 
-> Then when I ssh into Machine B, with Linux account "Admin", I get
-> security_context = sysadm_u:sysadm_r:sysadm_t  ?!?
-> 
-> Weird thing is, If I reset Machine B, and *then*  ssh in as "Admin", I
-> then get the correct security_context = staff_u:staff_r:staff_t.
-> 
-> So after untarring the collection of policies (the entire
-> /etc/selinux/***  directory):
->    1. when I ssh in as Admin, I always get the wrong security_context
->    2. But if I reset the machine, and after machine comes up, if I then
-> ssh in as Admin, I get the correct security_context.
->    3. subsequent resets, and ssh-ing in still gives me the correct
-> security_context...
-> 
-> A. So why am I getting the wrong security_context after untarring
-> /etc/selinux/***  onto a target machine B.
-> B. And why is resetting the machine fixing this problem ?
-> 
-> Hopefully the question was not too confusing  ;-)
-> 
-> Thanks in advance for any help.
->     
-> 
-> 
+I am running the compliance tests on it.  I will post the patch on the 
+Xorg list for review this week.
+
+I also need to make some changes to libselinux so the x_contexts file 
+can contain the list of properties to polyinstantiate.  That will also 
+be posted this week.
+
+And finally, you're going to need to build a newer kernel, or backport 
+the following short patch to an older kernel:
+http://marc.info/?l=selinux&m=120120674815507&w=2
+
+
+> On Jan 23, 2008 6:11 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+>   
+>> Glenn Faden wrote:
+>>     
+>>> Eamon Walsh wrote:
+>>>
+>>>       
+>>>> OK, I worked on this today.  The property polyinstantiation itself is
+>>>> easy enough, but I've run into a problem with the PropertyNotify
+>>>> events that occur when a polyinstantiated property is changed or
+>>>> deleted - everyone can see them!  Some major changes to the event
+>>>> delivery model are probably going to be necessary to make this work.
+>>>>
+>>>> I can't immediately see how it's done in Trusted Extensions.  In
+>>>> TsolDeleteProperty there is just a regular DeliverEvents call to send
+>>>> the event.
+>>>>
+>>>> I think there will have to be a way to pass some private data down
+>>>> with all events, and then have another hook call further down that
+>>>> gives a yes/no answer for each client.
+>>>>
+>>>>         
+>>> You're probably right that unnecessary PropertyNotify events may be
+>>> distributed to any client who has expressed interest in this event on
+>>> the root window. I don't think this is a big problem, however. If the
+>>> client cares to read the property whose atom is associated with the
+>>> event it will get the value which matches its security context.
+>>>
+>>> If your concern is that this presents a covert channel, that is an issue
+>>> that we generally ignore. For example we don't prevent higher-level
+>>> windows from generating exposure events which may be delivered to lower
+>>> level windows. We only prevent normal clients from mapping windows into
+>>> a Trusted Path workspace.
+>>>
+>>> --Glenn
+>>>
+>>>       
+>> I'll press forward with this then, putting the event delivery on the
+>> to-do list.
+>>
+>>
+>>
+>> --
+>> Eamon Walsh <ewalsh@tycho.nsa.gov>
+>> National Security Agency
+>>
+>>
+>>     
+>
 > --
 > This message was distributed to subscribers of the selinux mailing list.
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
+>
+>   
 
-The reason that you are not getting the correct user and role
-information until you reboot is that the system is still using the old
-policy at that point. Even though you have untarred the new policies in
-place it still has the old one loaded into the kernel. You can try
-executing load_policy after you have untarred it to reload the policy.
-One thing to check on is that all the files under /etc/selinux are
-labeled properly. I am not sure if tar is going to retain the file
-labeling or not so if it doesn't you will probably have to either
-restorecon the directory or relabel the filesystem on reboot.
 
-Dave
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
