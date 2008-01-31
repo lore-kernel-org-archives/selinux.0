@@ -1,233 +1,272 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m0VGUrgU014370
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 11:30:53 -0500
+Received: from fw5540.nrl.navy.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m0VGUqYA025037
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 16:30:52 GMT
+Received: from chacs.nrl.navy.mil (sun1.fw5540.net [10.0.0.11])
+	by fw5540.nrl.navy.mil (8.13.6/8.13.6) with ESMTP id m0VGUqax001913
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 11:30:52 -0500 (EST)
+Received: from chacs.nrl.navy.mil (sun1 [10.0.0.11])
+	by chacs.nrl.navy.mil (8.13.6/8.13.6) with SMTP id m0VGUq9w007911
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 11:30:52 -0500 (EST)
+Received: (from PC05 [10.0.1.195])
+ by chacs.nrl.navy.mil (SMSSMTP 4.1.16.48) with SMTP id M2008013111305104814
+ for <selinux@tycho.nsa.gov>; Thu, 31 Jan 2008 11:30:51 -0500
+From: "Kim Lawson-Jenkins" <lawson@itd.nrl.navy.mil>
+To: <selinux@tycho.nsa.gov>
+Subject: problems updating /etc/shadow using strict example policy on Fedora Core 3
+Date: Thu, 31 Jan 2008 11:28:35 -0500
+Message-ID: <002501c86426$538c0800$c301000a@PC05>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: genhomedircon is broken in libsemanage
-Date: Thu, 31 Jan 2008 10:25:59 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015880181EC33@exchange.columbia.tresys.com>
-In-Reply-To: <200801311513.m0VFDLxr000600@cadmus.columbia.tresys.com>
-References: <200801311513.m0VFDLxr000600@cadmus.columbia.tresys.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "Todd Miller" <tmiller@tresys.com>, <selinux@tycho.nsa.gov>
-Cc: <dwalsh@redhat.com>, <sds@tycho.nsa.gov>,
-        "Todd Miller" <tmiller@tresys.com>
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0026_01C863FC.6AB60000"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Todd C. Miller wrote:
-> Daniel J Walsh wrote:
-> 
->> I think you need to scream in the semanage that this is bad behavior,
->> and you can't fix the labels.  The /var/lib situation is bad, but I
->> more commonly see admins putting real users in /usr/local or under
->> /var. We need to have a message that explains this is bad and
->> SELinux can not handle it.
-> 
-> Here's a version of the patch with a warning in it (wrapped
-> for legibility).  Reproducing the scenario in bz 430195 we get:
-> 
-> # semodule -Bn
-> libsemanage.get_home_dirs: mythtv homedir /var/lib/mythtv or
-> its parent directory conflicts with a file context already specified
-> in the policy. This usually indicates an incorrectly defined system
->  account. If it is a system account please make sure its uid is less
-> than 500 or its login shell is /sbin/nologin.
-> 
->  - todd
-> 
+This is a multi-part message in MIME format.
 
-Acked-By: Joshua Brindle <method@manicmethod.com>
+------=_NextPart_000_0026_01C863FC.6AB60000
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-> Index: trunk/libsemanage/src/genhomedircon.c
-> ===================================================================
-> --- trunk/libsemanage/src/genhomedircon.c	(revision 2771)
-> +++ trunk/libsemanage/src/genhomedircon.c	(working copy) @@ -24,6
->  +24,8 @@ #include <semanage/seusers_policy.h>
->  #include <semanage/users_policy.h>
->  #include <semanage/user_record.h>
-> +#include <semanage/fcontext_record.h>
-> +#include <semanage/fcontexts_policy.h>
->  #include <sepol/context.h>
->  #include <sepol/context_record.h>
->  #include "semanage_store.h"
-> @@ -45,6 +47,7 @@
->  #include <pwd.h>
->  #include <errno.h>
->  #include <unistd.h>
-> +#include <regex.h>
-> 
->  /* paths used in get_home_dirs() */
->  #define PATH_ETC_USERADD "/etc/default/useradd"
-> @@ -101,6 +104,11 @@
->  	const char *replace_with;
->  } replacement_pair_t;
-> 
-> +typedef struct {
-> +	const char *dir;
-> +	int matched;
-> +} fc_match_handle_t;
-> +
->  static semanage_list_t *default_shell_list(void)  {
->  	semanage_list_t *list = NULL;
-> @@ -150,10 +158,70 @@
->  	return list;
->  }
-> 
-> +/* Helper function called via semanage_fcontext_iterate() */ static
-> int +fcontext_matches(const semanage_fcontext_t *fcontext, void
-> *varg) { +	const char *oexpr =
-semanage_fcontext_get_expr(fcontext);
-> +	fc_match_handle_t *handp = varg;
-> +	struct Ustr *expr;
-> +	regex_t re;
-> +	size_t n;
-> +	int type, retval = -1;
-> +
-> +	/* Only match ALL or DIR */
-> +	type = semanage_fcontext_get_type(fcontext);
-> +	if (type != SEMANAGE_FCONTEXT_ALL && type !=
-> SEMANAGE_FCONTEXT_ALL)
-> +		return 0;
-> +
-> +	/* Convert oexpr into a Ustr and anchor it at the beginning */
-> +	expr = ustr_dup_cstr("^"); +	if (expr == USTR_NULL)
-> +		goto done;
-> +	ustr_ins_cstr(&expr, 1, oexpr);
-> +	if (expr == USTR_NULL)
-> +		goto done;
-> +	n = ustr_len(expr);
-> +
-> +	/* Strip off trailing ".+" or ".*" */
-> +	if (ustr_cmp_suffix_cstr_eq(expr, ".+") ||
-> +	    ustr_cmp_suffix_cstr_eq(expr, ".*")) {
-> +		if (!ustr_del_subustr(&expr, n - 1, 2))
-> +			goto done;
-> +		n -= 2;
-> +	}
-> +
-> +	/* Strip off trailing "(/.*)?" */
-> +	if (ustr_cmp_suffix_cstr_eq(expr, "(/.*)?")) {
-> +		if (!ustr_del_subustr(&expr, n - 5, 6))
-> +			goto done;
-> +		n -= 6;
-> +	}
-> +
-> +	/* Append pattern to eat up trailing slashes */
-> +	if (!ustr_ins_cstr(&expr, n, "/*$"))
-> +		goto done;
-> +
-> +	/* Check dir against expr */
-> +	if (regcomp(&re, ustr_cstr(expr), REG_EXTENDED) != 0) +
-goto done;
-> +	if (regexec(&re, handp->dir, 0, NULL, 0) == 0)
-> +		handp->matched = 1;
-> +	regfree(&re);
-> +
-> +	retval = 0;
-> +
-> +done:
-> +	if (expr)
-> +		ustr_free(expr);
-> +
-> +	return retval;
-> +}
-> +
->  static semanage_list_t
-> *get_home_dirs(genhomedircon_settings_t * s)  {
->  	semanage_list_t *homedir_list = NULL;
->  	semanage_list_t *shells = NULL;
-> +	fc_match_handle_t hand;
->  	char *rbuf = NULL;
->  	char *path = NULL;
->  	long rbuflen;
-> @@ -169,21 +237,18 @@
-> 
->  	path = semanage_findval(PATH_ETC_USERADD, "HOME", "=");
-if (path
-> && *path) { 
-> -		if (semanage_list_push(&homedir_list, path)) {
-> -			free(path);
-> +		if (semanage_list_push(&homedir_list, path))
->  			goto fail;
-> -		}
->  	}
->  	free(path);
-> 
->  	path = semanage_findval(PATH_ETC_LIBUSER,
-> "LU_HOMEDIRECTORY", "=");
->  	if (path && *path) {
-> -		if (semanage_list_push(&homedir_list, path)) {
-> -			free(path);
-> +		if (semanage_list_push(&homedir_list, path))
->  			goto fail;
-> -		}
->  	}
->  	free(path);
-> +	path = NULL;
-> 
->  	if (!homedir_list) {
->  		if (semanage_list_push(&homedir_list,
-> PATH_DEFAULT_HOME)) { @@ -211,6 +276,7 @@
->  		}
->  	}
->  	free(path);
-> +	path = NULL;
-> 
->  	path = semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "="); 
-> if (path && *path) { @@ -221,6 +287,7 @@
->  		}
->  	}
->  	free(path);
-> +	path = NULL;
-> 
->  	if (!minuid_set) {
->  		minuid = 500;
-> @@ -248,13 +315,28 @@
->  		}
-> 
->  		semanage_rtrim(path, '/');
-> +
->  		if (!semanage_list_find(homedir_list, path)) {
-> -			if (semanage_list_push(&homedir_list, path)) {
-> -				free(path);
-> +			/*
-> +			 * Now check for an existing file
-> context that matches
-> +			 * so we don't label a non-homedir as a homedir.
-+			 */
-> +			hand.dir = path;
-> +			hand.matched = 0;
-> +			if (semanage_fcontext_iterate(s->h_semanage,
-> +			    fcontext_matches, &hand) == STATUS_ERR)
->  				goto fail;
-> +
-> +			/* NOTE: old genhomedircon printed a
-> warning on match */
-> +			if (hand.matched) {
-> +				WARN(s->h_semanage, "%s homedir
-> %s or its parent directory conflicts with a file context
-> already specified in the policy.  This usually indicates an
-> incorrectly defined system account.  If it is a system
-> account please make sure its uid is less than %u or its login
-> shell is /sbin/nologin.", pwbuf->pw_name, pwbuf->pw_dir, minuid);
-> +			} else { +				if
-> (semanage_list_push(&homedir_list, path))
-> +					goto fail;
->  			}
->  		}
->  		free(path);
-> +		path = NULL;
->  	}
-> 
->  	if (retval && retval != ENOENT) {
-> @@ -272,6 +354,7 @@
->        fail:
->  	endpwent();
->  	free(rbuf);
-> +	free(path);
->  	semanage_list_destroy(&homedir_list);
->  	semanage_list_destroy(&shells);
->  	return NULL;
+Hi:
 
+ 
+
+I'm updating a legacy system where due to the SELinux policy a user was not
+permitted to replace an expired password.  I gradually added allow
+statements to eliminate the AVC messages.
+
+ 
+
+The final SELinux change which corrupts the shadow file is
+
+ 
+
+allow system_chkpwd_t shadow_t:file { create setattr rename write unlink };
+
+ 
+
+or more specifically including the write permission in the allow statement
+corrupts the shadow file.  If the write permission is not included, an AVC
+is generated indicating we need to add the write permission.  But when the
+write permission is included the shadow file is corrupted - the shadow file
+is updated without a hash of the new password and the user is allowed to log
+in without a password.  So I'm wondering is there a SELinux patch I need for
+chkpwd?  Or do I need to add/modify an allow statement for a process other
+than chkpwd to have the shadow file updated correctly?
+
+ 
+
+Here is the AVC message - 
+
+ 
+
+Jan 10 19:00:24 nrl-xml-nkm kernel: audit(1200009624.533:0): avc:  denied  {
+write } for  pid=16563 exe=/sbin/unix_chkpwd path=/etc/nshadow dev=dm-0
+ino=5275736 scontext=system_u:system_r:system_chkpwd_t
+tcontext=system_u:object_r:shadow_t tclass=file
+
+ 
+
+This is a SELinux problem because when the system is in permissive instead
+of enforcing mode, the user can replace the expired password and the shadow
+file is updated correctly.
+
+ 
+
+I know most people ignored this email as soon as they saw the words "Fedora
+Core 3" in the subject heading.  Any feedback would be greatly appreciated.
+Thanks in advance.
+
+ 
+
+Kim
+
+ 
+
+
+------=_NextPart_000_0026_01C863FC.6AB60000
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:x=3D"urn:schemas-microsoft-com:office:excel" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext=3D"edit">
+  <o:idmap v:ext=3D"edit" data=3D"1" />
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>Hi:<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>I&#8217;m updating a legacy system where due to the SELinux =
+policy a
+user was not permitted to replace an expired password.&nbsp; I gradually =
+added
+allow statements to eliminate the AVC =
+messages.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span style=3D'font-size:12.0pt'>The final =
+SELinux change
+which corrupts the shadow file is<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span =
+style=3D'font-size:12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span style=3D'font-size:12.0pt'>allow =
+system_chkpwd_t
+shadow_t:file { create setattr rename write unlink =
+};<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span =
+style=3D'font-size:12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span style=3D'font-size:12.0pt'>or more =
+specifically
+including the write permission in the allow statement corrupts the =
+shadow file.&nbsp;
+If the write permission is not included, an AVC is generated indicating =
+we need
+to add the write permission.&nbsp; But when the write permission is =
+included
+the shadow file is corrupted &#8211; the shadow file is updated without =
+a hash
+of the new password and the user is allowed to log in without a =
+password.&nbsp;
+So I'm wondering is there a SELinux patch I need for chkpwd?&nbsp; Or do =
+I need
+to add/modify an allow statement for a process other than chkpwd to have =
+the
+shadow file updated correctly?<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span =
+style=3D'font-size:12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span style=3D'font-size:12.0pt'>Here is the =
+AVC message &#8211;
+<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span =
+style=3D'font-size:12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span style=3D'font-size:12.0pt'>Jan 10 =
+19:00:24
+nrl-xml-nkm kernel: audit(1200009624.533:0): avc:&nbsp; denied&nbsp; { =
+write }
+for&nbsp; pid=3D16563 exe=3D/sbin/unix_chkpwd path=3D/etc/nshadow =
+dev=3Ddm-0
+ino=3D5275736 scontext=3Dsystem_u:system_r:system_chkpwd_t
+tcontext=3Dsystem_u:object_r:shadow_t =
+tclass=3Dfile<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span =
+style=3D'font-size:12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span style=3D'font-size:12.0pt'>This is a =
+SELinux problem
+because when the system is in permissive instead of enforcing mode, the =
+user
+can replace the expired password and the shadow file is updated =
+correctly.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span =
+style=3D'font-size:12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span style=3D'font-size:12.0pt'>I know most =
+people
+ignored this email as soon as they saw the words &#8220;Fedora Core =
+3&#8221; in
+the subject heading. &nbsp;Any feedback would be greatly =
+appreciated.&nbsp;
+Thanks in advance.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span =
+style=3D'font-size:12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal style=3D'text-autospace:none'><font size=3D3
+face=3D"Times New Roman"><span =
+style=3D'font-size:12.0pt'>Kim<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_0026_01C863FC.6AB60000--
 
 
 --
