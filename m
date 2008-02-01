@@ -1,70 +1,56 @@
-Subject: RE: UNCLASSIFIED - Realtime Scheduling...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "HAWKER, Dan 2 (external)" <Dan.HAWKER@uk4.astrium.eads.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <7F6B06837A5DBD49AC6E1650EFF5490601C64C1B@auk52177.ukr.astrium.corp>
-References: 
-	 <7F6B06837A5DBD49AC6E1650EFF5490601C64C1B@auk52177.ukr.astrium.corp>
-Content-Type: text/plain
-Date: Fri, 01 Feb 2008 10:31:29 -0500
-Message-Id: <1201879889.26036.5.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47A33D20.8080907@manicmethod.com>
+Date: Fri, 01 Feb 2008 10:39:12 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, "Todd C. Miller" <tmiller@tresys.com>
+Subject: Re: [patch] libsemanage:  free base immediately after expand
+References: <1201875066.4568.149.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1201875066.4568.149.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> Drop the base module immediately after expanding, so that the memory can
+> be reused for the remainder of the transaction.
+>
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+>
+>   
 
-On Thu, 2008-01-31 at 19:03 +0000, HAWKER, Dan 2 (external) wrote:
-> 
-> > 
-> > At present, SELinux acts as an orthogonal mechanism to Linux 
-> > discretionary controls, and thus you must be authorized by 
-> > both Linux DAC and by SELinux MAC checks to perform any 
-> > operation.  So to invoke a call that requires privilege (in 
-> > Linux, "capability"), your program has to at least start with 
-> > uid 0 in addition to running in a SELinux domain that is 
-> > allowed the capability by policy.  The program can shed uid 0 
-> > upon startup while retaining certain capabilities; you can 
-> > see an example of that in newrole.  If your kernel supports 
-> > file capabilities, you could try using that instead of setuid 0.
-> > 
-> > We have previously proposed a patch to selinux that would 
-> > allow it to authoritatively grant a capability to a non-uid-0 
-> > process based on policy (see mailing list archives), and we 
-> > may proceed with that patch to support that kind of need, but 
-> > it isn't in any distro kernels today.
-> 
-> Hi Stephen,
-> 
-> Thanks for that, its as I thought. I'll pass on the info to the
-> developer.
-> 
-> Regarding the patch, I see that was back in June 07, (not that far back
-> admitedly, but SELinux moves apace), however I presume it *does what it
-> says on the tin* and applies simply enough???
-> 
-> I'll take a look and see how we get on.
+Acked-By: Joshua Brindle <method@manicmethod.com>
 
-I deferred submitting it for mainline because there was a fair amount of
-concern from others about the implications of the change, as you can see
-from the responses.
+> ---
+>
+>  libsemanage/src/direct_api.c |    4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> Index: trunk/libsemanage/src/direct_api.c
+> ===================================================================
+> --- trunk/libsemanage/src/direct_api.c	(revision 2774)
+> +++ trunk/libsemanage/src/direct_api.c	(working copy)
+> @@ -642,6 +642,9 @@
+>  		retval = semanage_expand_sandbox(sh, base, &out);
+>  		if (retval < 0)
+>  			goto cleanup;
+> +	
+> +		sepol_module_package_free(base);
+> +		base = NULL;
+>  
+>  		dbase_policydb_attach((dbase_policydb_t *) pusers_base->dbase,
+>  				      out);
+> @@ -718,7 +721,6 @@
+>  	dbase_policydb_detach((dbase_policydb_t *) pbools->dbase);
+>  
+>  	free(mod_filenames);
+> -	sepol_module_package_free(base);
+>  	sepol_policydb_free(out);
+>  	semanage_release_trans_lock(sh);
+>  
+>
+>   
 
-Nonetheless, I think it would be a useful feature for certain user
-communities, so we should likely re-base and submit it.
-
-It won't apply cleanly against the latest kernel because the class value
-I used for it has since been taken for another class.
-
-Unless you are already using a patched kernel for some reason, I think
-you'd be better off just using the mechanisms present in your existing
-kernel, e.g. make the program setuid, have it shed unnecessary
-capabilities and uid 0 at startup, and use policy to protect and confine
-it.  See newrole for an example.  Otherwise you have to carry the patch
-yourself, deal with any side effects, invalidate any support agreements
-you might have with the vendor, etc.
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
