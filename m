@@ -1,197 +1,172 @@
-Message-ID: <47A328D2.9080300@manicmethod.com>
-Date: Fri, 01 Feb 2008 09:12:34 -0500
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Todd Miller <tmiller@tresys.com>
-Subject: [PATCH] optionally consume input at expand time to save memory
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: genhomedircon is broken in libsemanage
+From: James Antill <james.antill@redhat.com>
+To: "Todd C. Miller" <tmiller@tresys.com>
+Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, jbrindle@tresys.com,
+        sds@tycho.nsa.gov
+In-Reply-To: <200801311513.m0VFDLxr000600@cadmus.columbia.tresys.com>
+References: <200801311513.m0VFDLxr000600@cadmus.columbia.tresys.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rnyUVHhP1ALDZjl+y+IT"
+Date: Fri, 01 Feb 2008 09:23:14 -0500
+Message-Id: <1201875794.3727.104.camel@code.and.org>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch should reduce the amount of peak memory required to expand 
-the policy by consuming part of the input policy during expansion. It 
-reduced the rss of semodule_expand with a full refpolicy from 86 to 66 meg.
 
-On a side note, if anyone knows of a good tool for profiling heap usage 
-I'd like to hear, I've tried valgrind massif, google-perftools, and 
-smaps and none of them seem to work that well...
+--=-rnyUVHhP1ALDZjl+y+IT
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Joshua Brindle <method@manicmethod.com>
 
-Index: libsemanage/src/semanage_store.c
-===================================================================
---- libsemanage/src/semanage_store.c    (revision 2774)
-+++ libsemanage/src/semanage_store.c    (working copy)
-@@ -1636,6 +1636,8 @@
-        if (sepol_policydb_create(&out))
-                goto err;
- 
-+       sepol_set_expand_consume_base(sh->sepolh, 1);
-+
-        if (sepol_expand_module(sh->sepolh,
-                                sepol_module_package_get_policy(base), out, 0,
-                                expand_check)
-Index: libsepol/include/sepol/handle.h
-===================================================================
---- libsepol/include/sepol/handle.h     (revision 2774)
-+++ libsepol/include/sepol/handle.h     (working copy)
-@@ -11,6 +11,10 @@
-  * not disable dontaudits, 1 disables them */
- void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit);
- 
-+/* Set whether module_expand() should consume the base policy passed in.
-+ * This should reduce the amount of memory required to expand the policy. */
-+void sepol_set_expand_consume_base(sepol_handle_t * sh, int consume_base);
-+
- /* Destroy a sepol handle. */
- void sepol_handle_destroy(sepol_handle_t *);
- 
-Index: libsepol/src/handle.h
-===================================================================
---- libsepol/src/handle.h       (revision 2774)
-+++ libsepol/src/handle.h       (working copy)
-@@ -16,6 +16,7 @@
-        void *msg_callback_arg;
- 
-        int disable_dontaudit;
-+       int expand_consume_base;
- 
- };
- 
-Index: libsepol/src/libsepol.map
-===================================================================
---- libsepol/src/libsepol.map   (revision 2774)
-+++ libsepol/src/libsepol.map   (working copy)
-@@ -13,5 +13,6 @@
-        sepol_policy_kern_*;
-        sepol_policy_file_*;
-        sepol_set_disable_dontaudit;
-+       sepol_set_expand_consume_base;
-   local: *;
- };
-Index: libsepol/src/expand.c
-===================================================================
---- libsepol/src/expand.c       (revision 2774)
-+++ libsepol/src/expand.c       (working copy)
-@@ -2134,17 +2134,17 @@
-  */
- static int copy_and_expand_avrule_block(expand_state_t * state)
- {
--       avrule_block_t *curblock;
-+       avrule_block_t *curblock = state->base->global;
-+       avrule_block_t *prevblock;
-        int retval = -1;
- 
--       for (curblock = state->base->global; curblock != NULL;
--            curblock = curblock->next) {
-+       while (curblock) {
-                avrule_decl_t *decl = curblock->enabled;
-                avrule_t *cur_avrule;
- 
-                if (decl == NULL) {
-                        /* nothing was enabled within this block */
--                       continue;
-+                       goto cont;
-                }
- 
-                /* copy role allows and role trans */
-@@ -2186,6 +2186,18 @@
-                /* copy conditional rules */
-                if (cond_node_copy(state, decl->cond_list))
-                        goto cleanup;
-+
-+      cont:
-+               prevblock = curblock;
-+               curblock = curblock->next;
-+
-+               if (state->handle && state->handle->expand_consume_base) {
-+                       /* set base top avrule block in case there
-+                        * is an error condition and the policy needs 
-+                        * to be destroyed */
-+                       state->base->global = curblock;
-+                       avrule_block_destroy(prevblock);
-+               }
-        }
- 
-        retval = 0;
-Index: libsepol/src/handle.c
-===================================================================
---- libsepol/src/handle.c       (revision 2774)
-+++ libsepol/src/handle.c       (working copy)
-@@ -16,6 +16,7 @@
- 
-        /* by default do not disable dontaudits */
-        sh->disable_dontaudit = 0;
-+       sh->expand_consume_base = 0;
- 
-        return sh;
- }
-@@ -26,6 +27,12 @@
-        sh->disable_dontaudit = disable_dontaudit;
- }
- 
-+void sepol_set_expand_consume_base(sepol_handle_t *sh, int consume_base)
-+{
-+       assert(sh != NULL);
-+       sh->expand_consume_base = consume_base;
-+}
-+
- void sepol_handle_destroy(sepol_handle_t * sh)
- {
-        free(sh);
-Index: policycoreutils/semodule_expand/semodule_expand.c
-===================================================================
---- policycoreutils/semodule_expand/semodule_expand.c   (revision 2774)
-+++ policycoreutils/semodule_expand/semodule_expand.c   (working copy)
-@@ -44,6 +44,7 @@
-        sepol_policydb_t *out, *p;
-        FILE *fp, *outfile;
-        int check_assertions = 1;
-+       sepol_handle_t *handle;
- 
-        while ((ch = getopt(argc, argv, "c:Vva")) != EOF) {
-                switch (ch) {
-@@ -105,6 +106,10 @@
-        basename = argv[optind++];
-        outname = argv[optind];
- 
-+       handle = sepol_handle_create();
-+       if (!handle)
-+               exit(1);
-+
-        if (sepol_policy_file_create(&pf)) {
-                fprintf(stderr, "%s:  Out of memory\n", argv[0]);
-                exit(1);
-@@ -132,7 +137,7 @@
- 
-        /* linking the base takes care of enabling optional avrules */
-        p = sepol_module_package_get_policy(base);
--       if (sepol_link_modules(NULL, p, NULL, 0, 0)) {
-+       if (sepol_link_modules(handle, p, NULL, 0, 0)) {
-                fprintf(stderr, "%s:  Error while enabling avrules\n", argv[0]);
-                exit(1);
-        }
-@@ -144,7 +149,9 @@
-                exit(1);
-        }
- 
--       if (sepol_expand_module(NULL, p, out, verbose, check_assertions)) {
-+       sepol_set_expand_consume_base(handle, 1);
-+
-+       if (sepol_expand_module(handle, p, out, verbose, check_assertions)) {
-                fprintf(stderr, "%s:  Error while expanding policy\n", argv[0]);
-                exit(1);
-        }
-@@ -174,6 +181,7 @@
-                exit(1);
-        }
-        fclose(outfile);
-+       sepol_handle_destroy(handle);
-        sepol_policydb_free(out);
-        sepol_policy_file_free(pf);
- 
+ Mostly FYI, although there is one minor error dealing with a malloc()
+error case.
 
+On Thu, 2008-01-31 at 10:13 -0500, Todd C. Miller wrote:
+
+> Index: trunk/libsemanage/src/genhomedircon.c
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- trunk/libsemanage/src/genhomedircon.c	(revision 2771)
+> +++ trunk/libsemanage/src/genhomedircon.c	(working copy)
+> @@ -24,6 +24,8 @@
+>  #include <semanage/seusers_policy.h>
+>  #include <semanage/users_policy.h>
+>  #include <semanage/user_record.h>
+> +#include <semanage/fcontext_record.h>
+> +#include <semanage/fcontexts_policy.h>
+>  #include <sepol/context.h>
+>  #include <sepol/context_record.h>
+>  #include "semanage_store.h"
+> @@ -45,6 +47,7 @@
+>  #include <pwd.h>
+>  #include <errno.h>
+>  #include <unistd.h>
+> +#include <regex.h>
+> =20
+>  /* paths used in get_home_dirs() */
+>  #define PATH_ETC_USERADD "/etc/default/useradd"
+> @@ -101,6 +104,11 @@
+>  	const char *replace_with;
+>  } replacement_pair_t;
+> =20
+> +typedef struct {
+> +	const char *dir;
+> +	int matched;
+> +} fc_match_handle_t;
+> +
+>  static semanage_list_t *default_shell_list(void)
+>  {
+>  	semanage_list_t *list =3D NULL;
+> @@ -150,10 +158,70 @@
+>  	return list;
+>  }
+> =20
+> +/* Helper function called via semanage_fcontext_iterate() */
+> +static int fcontext_matches(const semanage_fcontext_t *fcontext, void *v=
+arg)
+> +{
+> +	const char *oexpr =3D semanage_fcontext_get_expr(fcontext);
+> +	fc_match_handle_t *handp =3D varg;
+> +	struct Ustr *expr;
+> +	regex_t re;
+> +	size_t n;
+> +	int type, retval =3D -1;
+> +
+> +	/* Only match ALL or DIR */
+> +	type =3D semanage_fcontext_get_type(fcontext);
+> +	if (type !=3D SEMANAGE_FCONTEXT_ALL && type !=3D SEMANAGE_FCONTEXT_ALL)
+> +		return 0;
+> +
+> +	/* Convert oexpr into a Ustr and anchor it at the beginning */
+> +	expr =3D ustr_dup_cstr("^");
+> +	if (expr =3D=3D USTR_NULL)
+> +		goto done;
+> +	ustr_ins_cstr(&expr, 1, oexpr);
+
+ This works fine, but you can use:
+
+          ustr_add_cstr(&expr, oexpr)
+
+...which appends data, so you don't need to keep track of the offset.
+
+> +	if (expr =3D=3D USTR_NULL)
+
+ This will never be true, you either want to test the return value or
+use the "has had a memory error" flag:
+
+          if (ustr_enomem(expr))
+
+> +		goto done;
+> +	n =3D ustr_len(expr);
+> +
+> +	/* Strip off trailing ".+" or ".*" */
+> +	if (ustr_cmp_suffix_cstr_eq(expr, ".+") ||
+> +	    ustr_cmp_suffix_cstr_eq(expr, ".*")) {
+> +		if (!ustr_del_subustr(&expr, n - 1, 2))
+
+ This works fine, but you can use:
+
+                  if (!ustr_del(&expr, 2))
+
+...which always removes the last X bytes.
+
+> +			goto done;
+> +		n -=3D 2;
+> +	}
+> +
+> +	/* Strip off trailing "(/.*)?" */
+> +	if (ustr_cmp_suffix_cstr_eq(expr, "(/.*)?")) {
+> +		if (!ustr_del_subustr(&expr, n - 5, 6))
+> +			goto done;
+> +		n -=3D 6;
+> +	}
+> +
+> +	/* Append pattern to eat up trailing slashes */
+> +	if (!ustr_ins_cstr(&expr, n, "/*$"))
+> +		goto done;
+> +
+> +	/* Check dir against expr */
+> +	if (regcomp(&re, ustr_cstr(expr), REG_EXTENDED) !=3D 0)
+> +		goto done;
+> +	if (regexec(&re, handp->dir, 0, NULL, 0) =3D=3D 0)
+> +		handp->matched =3D 1;
+> +	regfree(&re);
+> +
+> +	retval =3D 0;
+> +
+> +done:
+> +	if (expr)
+> +		ustr_free(expr);
+
+ This works fine, but:
+
+ ustr_free(NULL);
+
+...is guaranteed to be a noop, much like libc free(NULL).
+
+> +
+> +	return retval;
+> +}
+
+
+--=20
+James Antill <james.antill@redhat.com>
+Red Hat
+
+--=-rnyUVHhP1ALDZjl+y+IT
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHoytS11eXTEMrxtQRArp+AJ466yhCgokiq95qDUgZ4oK8zvURhwCgrO2T
+AmmBRaYW8Xzlh6R82oa6oFc=
+=Qgss
+-----END PGP SIGNATURE-----
+
+--=-rnyUVHhP1ALDZjl+y+IT--
 
 
 --
