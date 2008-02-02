@@ -1,77 +1,92 @@
-Message-ID: <47A38A68.8070001@redhat.com>
-Date: Fri, 01 Feb 2008 16:08:56 -0500
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m124ZrXn007333
+	for <selinux@tycho.nsa.gov>; Fri, 1 Feb 2008 23:35:53 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m124ZqEp007681
+	for <selinux@tycho.nsa.gov>; Sat, 2 Feb 2008 04:35:53 GMT
+Message-ID: <47A3F327.8000202@redhat.com>
+Date: Fri, 01 Feb 2008 23:35:51 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Paul Moore <paul.moore@hp.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: I have spit out my current diffs in policy on fedoraproject.org
-References: <47A33458.505@redhat.com>	 <1201878327.4568.158.camel@moss-spartans.epoch.ncsc.mil>	 <200802011107.29538.paul.moore@hp.com> <1201894768.21440.10.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1201894768.21440.10.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: setools is still broken in rawhide.
+Content-Type: multipart/mixed;
+ boundary="------------070800080406010600000806"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+This is a multi-part message in MIME format.
+--------------070800080406010600000806
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Christopher J. PeBenito wrote:
-> On Fri, 2008-02-01 at 11:07 -0500, Paul Moore wrote:
->> On Friday 01 February 2008 10:05:27 am Stephen Smalley wrote:
->>> On Fri, 2008-02-01 at 10:01 -0500, Daniel J Walsh wrote:
->>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>> Hash: SHA1
->>>>
->>>> http://people.fedoraproject.org/~dwalsh/Policy/
->>>>
->>>> Patch is now up to 28000 lines.
->>>>
->>>> {snip}
->>>>
->>>> Going forward this is going to get more difficult.  I think we need
->>>> more people with the ability to update the reference policy.  Even
->>>> if they just cherry pick through the differences in my patches and
->>>> upstream.  I don't believe one person can keep up with the volume
->>>> of changes.
->>> Maybe create a fedora branch of refpolicy?
->> Does this actually solve the problem, or just move the patch problem 
->> from outside refpolicy SVN into a branch within refpolicy?  The changes 
->> still need to get merged into the trunk and I'm not sure a branch helps 
->> that any (maybe it does, I guess it all depends on how Chris works).
-> 
-> That doesn't help me; on many things I need more information on the
-> change, so a patch format works.  Some of the problems are that the
-> patches are divided by module, not by changeset.  Its better than one
-> big mega patch, but still suboptimal, especially if a changeset crosses
-> modules.  I still suggest using quilt.
-> 
-> I'd suggest using trac's bug system on the refpolicy site so we can have
-> tracking of patches without flooding the mail list, however I'm sure Dan
-> isn't interesting in entering in 147 bugs (unless there is a nice
-> command line tool that can do this that I don't know of).
-> 
+This patch fixes two functions in libqpol/util.c
 
-The problem is something like  quilt works if you sit down and do one
-massive change to policy, like removing the role separation on homedirs.
- But I get 10 Bugzilla's a day that I make changes to in the same pool.
- Then back port these fixes into F7, F8 and RHEL5.  I am also adding
-additional policy components all the time.  A lot of times while I am
-fixing an AVC Bugzilla, I will notice that the policy really needs a
-higher level function like auth_use_nsswitch(), I make the change while
-I am in there.
+is_binpol_valid should return true if the policy version is greater than
+or equal to the policy installed in the kernel.
 
-So it would be tough to change the way  I am working.  What we really
-could use is some volunteers review and  package up changes in a way
-that Chris would like to see them.
+search_binary_policy_file
 
+Should return 0 on success, meaning it found a policy.
+
+And return 1 if the return code is < 0;
+
+
+
+Making these changes allows seinfo and sesearch to find policy.22 on a
+machine running policy.21
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkejimgACgkQrlYvE4MpobOFQQCg3u0coLduGjwDnjAv2A/AT9l3
-wNoAnjqZzuCDItJGpz3EADqMRdO38RE9
-=OWij
+iEYEARECAAYFAkej8yYACgkQrlYvE4MpobOeJQCfSLBDBI51Y/cpBqlauoN1GuOd
+3EAAoMBfpuMexQ6XIXgJMYILwzYwMsXv
+=Ggke
 -----END PGP SIGNATURE-----
+
+--------------070800080406010600000806
+Content-Type: text/plain;
+ name="setools-3.3.2-validpol.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="setools-3.3.2-validpol.patch"
+
+diff -up setools-3.3.2/libqpol/src/util.c.validpol setools-3.3.2/libqpol/src/util.c
+--- setools-3.3.2/libqpol/src/util.c.validpol	2008-02-01 23:28:54.000000000 -0500
++++ setools-3.3.2/libqpol/src/util.c	2008-02-01 23:28:58.000000000 -0500
+@@ -74,7 +74,7 @@ static int is_binpol_valid(const char *p
+ 	}
+ 	ret_version = qpol_binpol_version(policy_fp);
+ 	fclose(policy_fp);
+-	return (ret_version == version);
++	return (ret_version >= version);
+ }
+ 
+ static int search_for_policyfile_with_ver(const char *binary_path, const int version, char **path)
+@@ -198,7 +198,7 @@ static int search_binary_policy_file(cha
+ 	}
+ 	free(*path);
+ 	if ((rt = search_for_policyfile_with_ver(bin_path, current_version, path)) != 0) {
+-		return rt;
++		return rt < 0;
+ 	}
+ #endif
+ 
+
+--------------070800080406010600000806
+Content-Type: application/octet-stream;
+ name="setools-3.3.2-validpol.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="setools-3.3.2-validpol.patch.sig"
+
+iEYEABECAAYFAkej8yYACgkQrlYvE4MpobNv3wCfaJIHMUwAwm6DUyiQxcIOjPNctdMAnj44
+QAQOUjfYTMUoLvpaUcA41Xig
+--------------070800080406010600000806--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
