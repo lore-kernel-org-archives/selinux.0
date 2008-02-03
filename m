@@ -1,43 +1,43 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1398PAJ009446
-	for <selinux@tycho.nsa.gov>; Sun, 3 Feb 2008 04:08:25 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m139AUH1009625
+	for <selinux@tycho.nsa.gov>; Sun, 3 Feb 2008 04:10:30 -0500
 Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1398OmH022737
-	for <selinux@tycho.nsa.gov>; Sun, 3 Feb 2008 09:08:24 GMT
-Subject: [refpolicy] samba
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m139ASmH023291
+	for <selinux@tycho.nsa.gov>; Sun, 3 Feb 2008 09:10:29 GMT
+Subject: [refpolicy] pam_mount
 From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: SE Linux <selinux@tycho.nsa.gov>, cpebenito@tresys.com
-Content-Type: multipart/mixed; boundary="=-ns7CQ7/EC3DKP/Qqgx+R"
-Date: Sun, 03 Feb 2008 10:07:27 +0100
-Message-Id: <1202029647.2674.1.camel@vogon>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="=-Vv17jckT0nIKyw2PW2am"
+Date: Sun, 03 Feb 2008 10:10:06 +0100
+Message-Id: <1202029806.2674.4.camel@vogon>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-ns7CQ7/EC3DKP/Qqgx+R
+--=-Vv17jckT0nIKyw2PW2am
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Debian machines smbd needs append rights for samba logfiles.
+pam_mount needs proper labeling. Tested on Fedora 8
 
---=-ns7CQ7/EC3DKP/Qqgx+R
-Content-Disposition: attachment; filename=samba.te.patch
-Content-Type: text/x-patch; name=samba.te.patch; charset=UTF-8
+--=-Vv17jckT0nIKyw2PW2am
+Content-Disposition: attachment; filename=authlogin.fc.patch
+Content-Type: text/x-patch; name=authlogin.fc.patch; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
---- /usr/src/refpolicy-20071214/policy/modules/services/samba.te	2007-12-14 15:23:18.000000000 +0100
-+++ policy/modules/services/samba.te	2008-02-03 10:02:54.000000000 +0100
-@@ -223,6 +223,7 @@
+--- /usr/src/refpolicy-20071214/policy/modules/system/authlogin.fc	2007-12-12 16:55:21.000000000 +0100
++++ policy/modules/system/authlogin.fc	2008-02-01 21:40:10.000000000 +0100
+@@ -40,5 +40,5 @@
+ /var/log/wtmp.*		--	gen_context(system_u:object_r:wtmp_t,s0)
  
- create_dirs_pattern(smbd_t,samba_log_t,samba_log_t)
- create_files_pattern(smbd_t,samba_log_t,samba_log_t)
-+append_files_pattern(smbd_t,samba_log_t,samba_log_t)
- allow smbd_t samba_log_t:dir setattr;
- dontaudit smbd_t samba_log_t:dir remove_name;
- 
+ /var/run/console(/.*)?	 	gen_context(system_u:object_r:pam_var_console_t,s0)
+-
++/var/run/pam_mount(/.*)?	gen_context(system_u:object_r:pam_var_run_t,s0)
+ /var/run/sudo(/.*)?		gen_context(system_u:object_r:pam_var_run_t,s0)
 
---=-ns7CQ7/EC3DKP/Qqgx+R--
+--=-Vv17jckT0nIKyw2PW2am--
 
 
 --
