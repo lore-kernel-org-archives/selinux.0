@@ -1,36 +1,52 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14Fqqw4008613
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 10:52:52 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14Fqqh9004841
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 15:52:52 GMT
+Message-ID: <47A734C4.9080702@redhat.com>
+Date: Mon, 04 Feb 2008 10:52:36 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [PATCH] libsemanage: free policydb before fork
-Date: Mon, 4 Feb 2008 10:44:25 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015880181EEE8@exchange.columbia.tresys.com>
-In-Reply-To: <47A6367F.5040609@manicmethod.com>
-References: <47A5311F.2020703@manicmethod.com> <47A6367F.5040609@manicmethod.com>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Joshua Brindle" <method@manicmethod.com>,
-        "SE Linux" <selinux@tycho.nsa.gov>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>
+To: "Seth D. Guikema" <sguikema@jhu.edu>
+CC: selinux@tycho.nsa.gov
+Subject: Re: reindexing time for SELinux?
+References: <47A71F79.1020300@jhu.edu>
+In-Reply-To: <47A71F79.1020300@jhu.edu>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Interestingly this works sometimes and not others. I suppose it
-> depends on whether the libc allocator feels like giving up the memory
-> when we free the policydb or not. I am not sure what the best way to
-> address this is, any ideas?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-You might try calling malloc_stats() before you free the policydb and
-see how the stats differ in the two cases.  We may also be able to tune
-malloc via mallopt().  I would guess that mmap()'d data is more likely
-to be returned to the system so we might try reducing M_MMAP_THRESHOLD
-from 128K to a smaller amount (maybe try 64K).  The flip side of this
-is M_TRIM_THRESHOLD (which also defaults to 128K).  A lower value of
-M_TRIM_THRESHOLD will result in malloc() returning sbrk()'d memory
-back to the system more often.  So, there are knobs we can twiddle--
-I just don't know how likely they are to help.
+Seth D. Guikema wrote:
+> I am trying to set up SELinux on my Fedora Core 7 workstation. I am
+> using the pre-installed GUI SELinux configuration tool in FC7. I
+> selected a targeted set-up. I was warned that the workstation would need
+> to reindex the files at the next reboot and that this would take a
+> while. I clicked ok. I rebooted the workstation Saturday morning at
+> about 10am. It is still unresponsive (and not available for remote
+> connections) and working hard this morning, almost 48 hours later. How
+> long should reindexing take? The workstation is new. It has 2 1TB disks
+> (RAID mirrored), but there isn't much on them yet - perhaps 30MB plus
+> the OS and other programs installed by the manufacturer (ASL). Does
+> reindexing really take this long? This is my first attempt at SELinux,
+> and any help is appreciated. Thank you.
+> 
+> Sincerely,
+> Seth Guikema
+> 
+It should not take more then 10 minutes.  I think the process is hung.
+I would force a reboot.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
- - todd
-
+iEYEARECAAYFAkenNMQACgkQrlYvE4MpobP5gQCgnTkOk0fgAZ9oNBo2fwXneMcb
+7+EAnRtxxhzYQAngiK0O0LNzU1cBRH7L
+=XVH5
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
