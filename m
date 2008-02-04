@@ -1,51 +1,64 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14JH5LO003380
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 14:17:05 -0500
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14JH3g3021844
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 19:17:04 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Seth D. Guikema" <sguikema@jhu.edu>
-Subject: Re: reindexing time for SELinux?
-Date: Tue, 5 Feb 2008 06:16:48 +1100
-Cc: selinux@tycho.nsa.gov
-References: <47A71F79.1020300@jhu.edu>
-In-Reply-To: <47A71F79.1020300@jhu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200802050616.50247.russell@coker.com.au>
+Subject: Re: su problems again
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1202152318.3070.121.camel@moss-spartans.epoch.ncsc.mil>
+References: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
+	 <1202152318.3070.121.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6i2+u7aEvYcUTnncMoZe"
+Date: Mon, 04 Feb 2008 13:40:13 -0600
+Message-Id: <1202154013.2801.119.camel@bluejay.goodinassociates.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 05 February 2008 01:21, "Seth D. Guikema" <sguikema@jhu.edu> wrote:
-> I am trying to set up SELinux on my Fedora Core 7 workstation. I am
-> using the pre-installed GUI SELinux configuration tool in FC7. I
-> selected a targeted set-up.
 
-Is it a fresh install or did you just enable SE Linux after previously having 
-it disabled?
+--=-6i2+u7aEvYcUTnncMoZe
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I was warned that the workstation would need 
-> to reindex the files at the next reboot and that this would take a
-> while. I clicked ok. I rebooted the workstation Saturday morning at
-> about 10am. It is still unresponsive (and not available for remote
-> connections) and working hard this morning, almost 48 hours later. How
-> long should reindexing take?
+Apparently I'm not. I'm using 1.33 on a pretty clean RHEL5 box. Any idea
+of how difficult it will be to jump to the devel version? Or is there
+another way to disable the dontaudits?
 
-Not 48 hours.  It's a function of the speed of CPU and disk and the number of 
-files on disk.  I haven't seen it take more than about an hour on a slow 
-machine, but as there is no upper limit on the number of files there is also 
-no upper limit on the theoretical amount of time taken.
 
-Did you boot the machine in permissive or enforcing mode?
+On Mon, 2008-02-04 at 14:11 -0500, Stephen Smalley wrote:
+> On Mon, 2008-02-04 at 13:02 -0600, Jeremiah Jahn wrote:
+> > Is there some way to turn of the dontaudit  w/ the refpolicy and a
+> > module policy build. make enableaudit seems to only change the base
+> > policy, and not any of the policies that actually do anything.=20
+> >=20
+> > This is with the refpolicy selinux-refpolicy-sources-20071214-1 running
+> > on RHEL5.=20
+> >=20
+> > For some reason, when the policy is enforced, I can't su  from a staff_=
+r
+> > user, yet when I try with enforcing=3D0 I don't get any audit messages,
+> > and I'm not really comfortable modifying every user oriented admin
+> > modules to remove the dontaudit rules. doing so in su.te helped find a
+> > few things, but I'm not sure what's blocking it now.=20
+>=20
+> If using a recent semodule, you can do semodule -DB to strip the entire
+> policy of dontaudit rules and load the result, then semodule -B to
+> revert to the original policy.
+>=20
+In 1880 the French captured Detroit but gave it back ... they couldn't
+get parts.
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+--=-6i2+u7aEvYcUTnncMoZe
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHp2od6caZY8jbHDkRAtLoAKCjcogw84UPn5Vdsjv8VXyGO4p6fQCfW6DE
+8WmJq3l9zrdxN52F2cN58r8=
+=oeWw
+-----END PGP SIGNATURE-----
+
+--=-6i2+u7aEvYcUTnncMoZe--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
