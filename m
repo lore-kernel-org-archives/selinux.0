@@ -12,26 +12,23 @@ References: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
 	 <1202156860.3070.132.camel@moss-spartans.epoch.ncsc.mil>
 	 <1202157694.2801.128.camel@bluejay.goodinassociates.com>
 	 <1202158361.3070.141.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Mls/tOxMIHz9H/86z9Ug"
-Date: Mon, 04 Feb 2008 15:36:55 -0600
-Message-Id: <1202161015.2801.133.camel@bluejay.goodinassociates.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IS/YxkSMeDk+zCA9vAbX"
+Date: Mon, 04 Feb 2008 16:46:06 -0600
+Message-Id: <1202165166.2801.139.camel@bluejay.goodinassociates.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-Mls/tOxMIHz9H/86z9Ug
+--=-IS/YxkSMeDk+zCA9vAbX
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-Doesn't look like it actually. For some reason, my module screws up
-anything that comes after it, when compiled to base. it starting with
-"mon*" seemed a little too coincidental. so I removed it and got other
-errors though.  I'm just going to remove stuff by hand. As much as I'd
-like to just compile a monolithic policy, I've spent too much time on
-the issue.=20
+Modified the make file rules to run sed -i "s/dontaudit/#dontaudit/" on
+the .mod files in tmp before running checkpolicy on them. Worked like a
+charm.
 
-thanx for your help.
+thanx for all your help.
 
 
 On Mon, 2008-02-04 at 15:52 -0500, Stephen Smalley wrote:
@@ -50,22 +47,23 @@ On Mon, 2008-02-04 at 15:52 -0500, Stephen Smalley wrote:
 > line might be useful, although I'm sure Chris can reproduce easily
 > enough just by trying a build that puts everything into base.
 >=20
-The rain it raineth on the just And also on the unjust fella, But
-chiefly on the just, because The unjust steals the just's umbrella.
+Vila: "I think I have just made the biggest mistake of my life." Orac:
+"It is unlikely. I would predict there are far greater mistakes waiting
+to be made by someone with your obvious talent for it."
 
---=-Mls/tOxMIHz9H/86z9Ug
+--=-IS/YxkSMeDk+zCA9vAbX
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (GNU/Linux)
 
-iD8DBQBHp4V36caZY8jbHDkRAhtfAJ9U0c0mvz2dABCxKBCe785vylpCZACgxunQ
-fz1t/2MgvU92X0I5JzzNo3c=
-=j+/7
+iD8DBQBHp5Wu6caZY8jbHDkRAjFjAJ0Tc/JWxKR6mvcj7yurEnVF/e6/CgCfQiNd
+Fp4OAIl4kKNmJkBZmMlMqu0=
+=a+YY
 -----END PGP SIGNATURE-----
 
---=-Mls/tOxMIHz9H/86z9Ug--
+--=-IS/YxkSMeDk+zCA9vAbX--
 
 
 --
