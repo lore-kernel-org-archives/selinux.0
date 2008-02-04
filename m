@@ -1,69 +1,39 @@
-From: "Jeremy A. Mowery" <jmowery@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: setools is still broken in rawhide.
-Date: Mon, 4 Feb 2008 13:19:15 -0500
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>, setools@tresys.com
-References: <47A3F327.8000202@redhat.com> <200802041034.55986.jmowery@tresys.com> <1202140804.3070.87.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1202140804.3070.87.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200802041319.16285.jmowery@tresys.com>
+Date: Mon, 4 Feb 2008 13:43:15 -0500
+From: "Todd C. Miller" <tmiller@tresys.com>
+Message-Id: <200802041843.m14IhF2x017588@cadmus.columbia.tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: checkpolicy patch: avoid warning in rawhide
+Cc: jbrindle@tresys.com, sds@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 04 February 2008 11:00:04 Stephen Smalley wrote:
-> 
-> On Mon, 2008-02-04 at 10:34 -0500, Jeremy A. Mowery wrote:
-> > On Friday 01 February 2008 23:35:51 Daniel J Walsh wrote:
-> > > This patch fixes two functions in libqpol/util.c
-> > > 
-> > > is_binpol_valid should return true if the policy version is greater than
-> > > or equal to the policy installed in the kernel.
-> > > 
-> > 
-> > This function is used to assert that the version of the policy matches
-> > the version for which we were looking. The name may be a bit misleading;
-> > previous versions had more complex validation logic we no longer need
-> > as this logic already exists in libsepol.
-> > 
-> > > search_binary_policy_file
-> > > 
-> > > Should return 0 on success, meaning it found a policy.
-> > > 
-> > > And return 1 if the return code is < 0;
-> > 
-> > This change would prevent tools from handling errors in policy searching 
-> > correctly; the difference in a negative and positive return code is
-> > used to distinguish the case where a default policy could not be found
-> > and the case where searching for the policy could not be completed.
-> > > 
-> > > 
-> > > 
-> > > Making these changes allows seinfo and sesearch to find policy.22 on a
-> > > machine running policy.21
-> > > 
-> > 
-> > This is intentionally not done. If the system cannot load a version 22 policy,
-> > SETools will only search for a policy of version 21 or less.  SETools 
-> > intentionally does not use the policy downgrade code when loading policies;
-> > this would break the assertion that the policy is analyzed "as is" and not
-> > altered by the libraries.
-> 
-> Doesn't that mean that users won't be able to use setools on systems
-> where the kernel supports an older policy version than the userland,
-> since libsemanage only generates the latest policy version supported by
-> the toolchain?  There will be no policy.21 file around to analyze.
-> 
+Todd C. Miller wrote:
+> A build of trunk on rawhide (with an updated bison) dies in
+> checkpolicy due to the input() function being defined but not used. 
+> Fix is simple, define YY_NO_INPUT to prevent input() from being
+> compiled. 
 
-This means the user will have to specify the policy to load rather than
-rely on the auto-detect feature in this case. If libsepol can load the policy,
-the tools can read it; the tools will not, however, downgrade it.
+Of course I meant flex, not bison.  Here's a better fix.
 
-Jeremy A. Mowery
-Tresys Technology
-410-290-1411 x148
+Signed-off-by: Todd C. Miller <tmiller@tresys.com>
+
+ - todd
+
+ policy_scan.l |    1 +
+ 1 file changed, 1 insertion(+)
+
+Index: trunk/checkpolicy/policy_scan.l
+===================================================================
+--- trunk/checkpolicy/policy_scan.l	(revision 2783)
++++ trunk/checkpolicy/policy_scan.l	(working copy)
+@@ -44,6 +44,7 @@
+ %}
+ 
+ %option nounput
++%option noinput
+ 
+ %array
+ letter  [A-Za-z]
 
 --
 This message was distributed to subscribers of the selinux mailing list.
