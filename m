@@ -1,82 +1,144 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14GFfGo011124
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 11:15:41 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14GFeg3016392
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 16:15:41 GMT
-Message-ID: <47A736DB.4030909@redhat.com>
-Date: Mon, 04 Feb 2008 11:01:31 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Jeremy A. Mowery" <jmowery@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>, setools@tresys.com
-Subject: Re: setools is still broken in rawhide.
-References: <47A3F327.8000202@redhat.com> <200802041034.55986.jmowery@tresys.com>
-In-Reply-To: <200802041034.55986.jmowery@tresys.com>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH] libsemanage: free policydb before fork
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Todd Miller <tmiller@tresys.com>
+In-Reply-To: <47A5311F.2020703@manicmethod.com>
+References: <47A5311F.2020703@manicmethod.com>
+Content-Type: text/plain
+Date: Mon, 04 Feb 2008 11:37:30 -0500
+Message-Id: <1202143050.3070.98.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Jeremy A. Mowery wrote:
-> On Friday 01 February 2008 23:35:51 Daniel J Walsh wrote:
->> This patch fixes two functions in libqpol/util.c
->>
->> is_binpol_valid should return true if the policy version is greater than
->> or equal to the policy installed in the kernel.
->>
-> 
-> This function is used to assert that the version of the policy matches
-> the version for which we were looking. The name may be a bit misleading;
-> previous versions had more complex validation logic we no longer need
-> as this logic already exists in libsepol.
-> 
->> search_binary_policy_file
->>
->> Should return 0 on success, meaning it found a policy.
->>
->> And return 1 if the return code is < 0;
-> 
-> This change would prevent tools from handling errors in policy searching 
-> correctly; the difference in a negative and positive return code is
-> used to distinguish the case where a default policy could not be found
-> and the case where searching for the policy could not be completed.
->>
->>
->> Making these changes allows seinfo and sesearch to find policy.22 on a
->> machine running policy.21
->>
-> 
-> This is intentionally not done. If the system cannot load a version 22 policy,
-> SETools will only search for a policy of version 21 or less.  SETools 
-> intentionally does not use the policy downgrade code when loading policies;
-> this would break the assertion that the policy is analyzed "as is" and not
-> altered by the libraries.
-> 
-> 
-> Jeremy A. Mowery
-> Tresys Technology
-> 410-290-1411 x148
+On Sat, 2008-02-02 at 22:12 -0500, Joshua Brindle wrote:
+> While testing the recent memory-related patches on a low memory machine 
+> (512m total) I found that semodule still failed. It turns out that 
+> fork() requires enough free ram for the amount of private dirty memory 
+> in the parent process to succeed (even if it is never written to in the 
+> child process). This patch moves the genhomedircon call to outside of 
+> semanage_sandbox_install so that the policydb can be freed before any 
+> forks happen. With this patch and the prior ones semodule runs fine on a 
+> 512m machine.
+>  
+> Signed-off-By: Joshua Brindle <method@manicmethod.com>
 
-So when we have a legitimate case like, we have now the user is out of
-Luck.  There should be an option that says I want exact match, or the
-default to search for a close enough match.  Tools are starting to use
-seinfo/sesearch and we give this to users as a way to examine policy.
+Merged, as I think it is a worthwhile improvement even separate from the
+fork issue.
 
-Why sacrifice usability for the goal of having an exact match.  My fix
-might not be correct but sesearch/seinfo have got to work, in the
-situation where the kernel has downgraded the policy.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Patch was whitespace damaged, so applied with -l and then re-indented.
 
-iEYEARECAAYFAkenNtsACgkQrlYvE4MpobMqnACfc9PBYX0rhEd3NZDsp/SrC30x
-hBEAoObjwYXvk2Blmhyu1R1Jf/RlmV9m
-=TWVy
------END PGP SIGNATURE-----
+> 
+> ------
+> 
+> Index: libsemanage/src/direct_api.c
+> ===================================================================
+> --- libsemanage/src/direct_api.c        (revision 2774)
+> +++ libsemanage/src/direct_api.c        (working copy)
+> @@ -41,6 +41,7 @@
+>  #include "boolean_internal.h"
+>  #include "fcontext_internal.h"
+>  #include "node_internal.h"
+> +#include "genhomedircon.h"
+>  
+>  #include "debug.h"
+>  #include "handle.h"
+> @@ -701,8 +702,27 @@
+>         if (retval < 0)
+>                 goto cleanup;
+>  
+> +       /* run genhomedircon if its enabled, this should be the last operation
+> +        * which requires the out policydb */
+> +       if (!sh->conf->disable_genhomedircon) {
+> +               if ((retval =
+> +                               semanage_genhomedircon(sh, out, 1)) != 0) {
+> +                       ERR(sh, "semanage_genhomedircon returned error code %d.",
+> +                                       retval);
+> +                       goto cleanup;
+> +               }
+> +       } else {
+> +               WARN(sh, "WARNING: genhomedircon is disabled. \
+> +                               See /etc/selinux/semanage.conf if you need to enable it.");
+> +        }
+> +
+> +       /* free out, if we don't free it before calling semanage_install_sandbox 
+> +        * then fork() may fail on low memory machines */
+> +       sepol_policydb_free(out);
+> +       out = NULL;
+> +
+>         if (sh->do_rebuild || modified) {
+> -               retval = semanage_install_sandbox(sh, out);
+> +               retval = semanage_install_sandbox(sh);
+>         }
+>  
+>        cleanup:
+> Index: libsemanage/src/semanage_store.c
+> ===================================================================
+> --- libsemanage/src/semanage_store.c    (revision 2775)
+> +++ libsemanage/src/semanage_store.c    (working copy)
+> @@ -34,7 +34,6 @@
+>  #include "semanage_store.h"
+>  #include "database_policydb.h"
+>  #include "handle.h"
+> -#include "genhomedircon.h"
+>  
+>  #include <selinux/selinux.h>
+>  #include <sepol/policydb.h>
+> @@ -1279,8 +1278,7 @@
+>   * should be placed within a mutex lock to ensure that it runs
+>   * atomically. Returns commit number on success, -1 on error.
+>   */
+> -int semanage_install_sandbox(semanage_handle_t * sh,
+> -                            sepol_policydb_t * policydb)
+> +int semanage_install_sandbox(semanage_handle_t * sh)
+>  {
+>         int retval = -1, commit_num = -1;
+>  
+> @@ -1293,17 +1291,6 @@
+>                 ERR(sh, "No setfiles program specified in configuration file.");
+>                 goto cleanup;
+>         }
+> -       if (!sh->conf->disable_genhomedircon) {
+> -               if ((retval =
+> -                    semanage_genhomedircon(sh, policydb, TRUE)) != 0) {
+> -                       ERR(sh, "semanage_genhomedircon returned error code %d.",
+> -                           retval);
+> -                       goto cleanup;
+> -               }
+> -       } else {
+> -               WARN(sh, "WARNING: genhomedircon is disabled. \
+> -See /etc/selinux/semanage.conf if you need to enable it.");
+> -       }
+>  
+>         if ((commit_num = semanage_commit_sandbox(sh)) < 0) {
+>                 retval = commit_num;
+> Index: libsemanage/src/semanage_store.h
+> ===================================================================
+> --- libsemanage/src/semanage_store.h    (revision 2774)
+> +++ libsemanage/src/semanage_store.h    (working copy)
+> @@ -100,8 +100,7 @@
+>  int semanage_write_policydb(semanage_handle_t * sh,
+>                             sepol_policydb_t * policydb);
+>  
+> -int semanage_install_sandbox(semanage_handle_t * sh,
+> -                            sepol_policydb_t * policydb);
+> +int semanage_install_sandbox(semanage_handle_t * sh);
+>  
+>  int semanage_verify_modules(semanage_handle_t * sh,
+>                             char **module_filenames, int num_modules);
+> 
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
