@@ -1,64 +1,63 @@
-Subject: Re: su problems again
-From: Jeremiah Jahn <jeremiah@goodinassociates.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1202152318.3070.121.camel@moss-spartans.epoch.ncsc.mil>
-References: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
-	 <1202152318.3070.121.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6i2+u7aEvYcUTnncMoZe"
-Date: Mon, 04 Feb 2008 13:40:13 -0600
-Message-Id: <1202154013.2801.119.camel@bluejay.goodinassociates.com>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14K91i1011499
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 15:09:01 -0500
+Received: from rv-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14K8tg3014760
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 20:09:00 GMT
+Received: by rv-out-0910.google.com with SMTP id k15so1496069rvb.54
+        for <selinux@tycho.nsa.gov>; Mon, 04 Feb 2008 12:08:37 -0800 (PST)
+Message-ID: <207608340802041208y44962ac0u98a3b0753f74b7ec@mail.gmail.com>
+Date: Mon, 4 Feb 2008 20:08:36 +0000
+From: "Eoin Ryan" <ryaneoin@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: How to contribute: policy?
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_6518_15779534.1202155716891"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+------=_Part_6518_15779534.1202155716891
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---=-6i2+u7aEvYcUTnncMoZe
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hey All
 
-Apparently I'm not. I'm using 1.33 on a pretty clean RHEL5 box. Any idea
-of how difficult it will be to jump to the devel version? Or is there
-another way to disable the dontaudits?
+I'm on a mission to run a personal server using the strict policy, mainly as
+a learning exercise.  I've just come across what seems to be an error in the
+policy, so I thought a good way to contribute might be to submit bug reports
+as I work to configure the system for mail/web/etc.  Is this the correct
+place/way to submit such problems?
 
+The following was generated after the root user (logged in as sysadm_r)
+executed the newaliases command on RHEL5, 2.6.18-53.1.6.el5 kernel and
+strict policy version 21.
 
-On Mon, 2008-02-04 at 14:11 -0500, Stephen Smalley wrote:
-> On Mon, 2008-02-04 at 13:02 -0600, Jeremiah Jahn wrote:
-> > Is there some way to turn of the dontaudit  w/ the refpolicy and a
-> > module policy build. make enableaudit seems to only change the base
-> > policy, and not any of the policies that actually do anything.=20
-> >=20
-> > This is with the refpolicy selinux-refpolicy-sources-20071214-1 running
-> > on RHEL5.=20
-> >=20
-> > For some reason, when the policy is enforced, I can't su  from a staff_=
-r
-> > user, yet when I try with enforcing=3D0 I don't get any audit messages,
-> > and I'm not really comfortable modifying every user oriented admin
-> > modules to remove the dontaudit rules. doing so in su.te helped find a
-> > few things, but I'm not sure what's blocking it now.=20
->=20
-> If using a recent semodule, you can do semodule -DB to strip the entire
-> policy of dontaudit rules and load the result, then semodule -B to
-> revert to the original policy.
->=20
-In 1880 the French captured Detroit but gave it back ... they couldn't
-get parts.
+type=SELINUX_ERR msg=audit(1202153863.549:5631): security_compute_sid:
+invalid context root:system_r:sysadm_mail_t:s0-s0:c0.c1023 for
+scontext=root:sysadm_r:sysadm_mail_t:s0-s0:c0.c1023tcontext=system_u:object_r:postfix_master_exec_t:s0
+tclass=process
+type=SYSCALL msg=audit(1202153863.549:5631): arch=40000003 syscall=11
+success=no exit=-13 a0=9577200 a1=9577220 a2=9577328 a3=9577200 items=0
+ppid=23001 pid=23917 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
+fsgid=0 tty=pts2 comm="newaliases" exe="/usr/sbin/sendmail.postfix"
+subj=root:sysadm_r:sysadm_mail_t:s0-s0:c0.c1023 key=(null)
 
---=-6i2+u7aEvYcUTnncMoZe
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Regards
+Eoin
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
+------=_Part_6518_15779534.1202155716891
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-iD8DBQBHp2od6caZY8jbHDkRAtLoAKCjcogw84UPn5Vdsjv8VXyGO4p6fQCfW6DE
-8WmJq3l9zrdxN52F2cN58r8=
-=oeWw
------END PGP SIGNATURE-----
+Hey All<br><br>I&#39;m on a mission to run a personal server using the strict policy, mainly as a learning exercise.&nbsp; I&#39;ve just come across what seems to be an error in the policy, so I thought a good way to contribute might be to submit bug reports as I work to configure the system for mail/web/etc.&nbsp; Is this the correct place/way to submit such problems?<br>
+<br>The following was generated after the root user (logged in as sysadm_r) executed the newaliases command on RHEL5, 2.6.18-53.1.6.el5 kernel and strict policy version 21.<br><br>type=SELINUX_ERR msg=audit(1202153863.549:5631): security_compute_sid:&nbsp; invalid context root:system_r:sysadm_mail_t:s0-s0:c0.c1023 for scontext=root:sysadm_r:sysadm_mail_t:s0-s0:c0.c1023 tcontext=system_u:object_r:postfix_master_exec_t:s0 tclass=process<br>
+type=SYSCALL msg=audit(1202153863.549:5631): arch=40000003 syscall=11 success=no exit=-13 a0=9577200 a1=9577220 a2=9577328 a3=9577200 items=0 ppid=23001 pid=23917 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts2 comm=&quot;newaliases&quot; exe=&quot;/usr/sbin/sendmail.postfix&quot; subj=root:sysadm_r:sysadm_mail_t:s0-s0:c0.c1023 key=(null)<br>
+<br>Regards<br>Eoin<br>
 
---=-6i2+u7aEvYcUTnncMoZe--
-
+------=_Part_6518_15779534.1202155716891--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
