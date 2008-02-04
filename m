@@ -1,149 +1,71 @@
-Message-ID: <47A6367F.5040609@manicmethod.com>
-Date: Sun, 03 Feb 2008 16:47:43 -0500
-From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Todd Miller <tmiller@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] libsemanage: free policydb before fork
-References: <47A5311F.2020703@manicmethod.com>
-In-Reply-To: <47A5311F.2020703@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: UNCLASSIFIED - Realtime Scheduling...
+Date: Mon, 4 Feb 2008 12:39:38 -0000
+Message-ID: <7F6B06837A5DBD49AC6E1650EFF5490601C64C1F@auk52177.ukr.astrium.corp>
+From: "HAWKER, Dan 2 \(external\)" <Dan.HAWKER@uk4.astrium.eads.net>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> While testing the recent memory-related patches on a low memory machine 
-> (512m total) I found that semodule still failed. It turns out that 
-> fork() requires enough free ram for the amount of private dirty memory 
-> in the parent process to succeed (even if it is never written to in the 
-> child process). This patch moves the genhomedircon call to outside of 
-> semanage_sandbox_install so that the policydb can be freed before any 
-> forks happen. With this patch and the prior ones semodule runs fine on a 
-> 512m machine.
-> 
-> Signed-off-By: Joshua Brindle <method@manicmethod.com>
-> 
-
-Interestingly this works sometimes and not others. I suppose it depends
-on whether the libc allocator feels like giving up the memory when we
-free the policydb or not. I am not sure what the best way to address
-this is, any ideas?
-
-> ------
-> 
-> Index: libsemanage/src/direct_api.c
-> ===================================================================
-> --- libsemanage/src/direct_api.c        (revision 2774)
-> +++ libsemanage/src/direct_api.c        (working copy)
-> @@ -41,6 +41,7 @@
-> #include "boolean_internal.h"
-> #include "fcontext_internal.h"
-> #include "node_internal.h"
-> +#include "genhomedircon.h"
-> 
-> #include "debug.h"
-> #include "handle.h"
-> @@ -701,8 +702,27 @@
->        if (retval < 0)
->                goto cleanup;
-> 
-> +       /* run genhomedircon if its enabled, this should be the last 
-> operation
-> +        * which requires the out policydb */
-> +       if (!sh->conf->disable_genhomedircon) {
-> +               if ((retval =
-> +                               semanage_genhomedircon(sh, out, 1)) != 0) {
-> +                       ERR(sh, "semanage_genhomedircon returned error 
-> code %d.",
-> +                                       retval);
-> +                       goto cleanup;
-> +               }
-> +       } else {
-> +               WARN(sh, "WARNING: genhomedircon is disabled. \
-> +                               See /etc/selinux/semanage.conf if you 
-> need to enable it.");
-> +        }
-> +
-> +       /* free out, if we don't free it before calling 
-> semanage_install_sandbox +        * then fork() may fail on low memory 
-> machines */
-> +       sepol_policydb_free(out);
-> +       out = NULL;
-> +
->        if (sh->do_rebuild || modified) {
-> -               retval = semanage_install_sandbox(sh, out);
-> +               retval = semanage_install_sandbox(sh);
->        }
-> 
->       cleanup:
-> Index: libsemanage/src/semanage_store.c
-> ===================================================================
-> --- libsemanage/src/semanage_store.c    (revision 2775)
-> +++ libsemanage/src/semanage_store.c    (working copy)
-> @@ -34,7 +34,6 @@
-> #include "semanage_store.h"
-> #include "database_policydb.h"
-> #include "handle.h"
-> -#include "genhomedircon.h"
-> 
-> #include <selinux/selinux.h>
-> #include <sepol/policydb.h>
-> @@ -1279,8 +1278,7 @@
->  * should be placed within a mutex lock to ensure that it runs
->  * atomically. Returns commit number on success, -1 on error.
->  */
-> -int semanage_install_sandbox(semanage_handle_t * sh,
-> -                            sepol_policydb_t * policydb)
-> +int semanage_install_sandbox(semanage_handle_t * sh)
-> {
->        int retval = -1, commit_num = -1;
-> 
-> @@ -1293,17 +1291,6 @@
->                ERR(sh, "No setfiles program specified in configuration 
-> file.");
->                goto cleanup;
->        }
-> -       if (!sh->conf->disable_genhomedircon) {
-> -               if ((retval =
-> -                    semanage_genhomedircon(sh, policydb, TRUE)) != 0) {
-> -                       ERR(sh, "semanage_genhomedircon returned error 
-> code %d.",
-> -                           retval);
-> -                       goto cleanup;
-> -               }
-> -       } else {
-> -               WARN(sh, "WARNING: genhomedircon is disabled. \
-> -See /etc/selinux/semanage.conf if you need to enable it.");
-> -       }
-> 
->        if ((commit_num = semanage_commit_sandbox(sh)) < 0) {
->                retval = commit_num;
-> Index: libsemanage/src/semanage_store.h
-> ===================================================================
-> --- libsemanage/src/semanage_store.h    (revision 2774)
-> +++ libsemanage/src/semanage_store.h    (working copy)
-> @@ -100,8 +100,7 @@
-> int semanage_write_policydb(semanage_handle_t * sh,
->                            sepol_policydb_t * policydb);
-> 
-> -int semanage_install_sandbox(semanage_handle_t * sh,
-> -                            sepol_policydb_t * policydb);
-> +int semanage_install_sandbox(semanage_handle_t * sh);
-> 
-> int semanage_verify_modules(semanage_handle_t * sh,
->                            char **module_filenames, int num_modules);
-> 
-> 
-> 
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
-> with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
 
 
+> 
+> I deferred submitting it for mainline because there was a 
+> fair amount of concern from others about the implications of 
+> the change, as you can see from the responses.
+> 
+> Nonetheless, I think it would be a useful feature for certain 
+> user communities, so we should likely re-base and submit it.
+> 
+> It won't apply cleanly against the latest kernel because the 
+> class value I used for it has since been taken for another class.
+> 
+> Unless you are already using a patched kernel for some 
+> reason, I think you'd be better off just using the mechanisms 
+> present in your existing kernel, e.g. make the program 
+> setuid, have it shed unnecessary capabilities and uid 0 at 
+> startup, and use policy to protect and confine it.  See 
+> newrole for an example.  Otherwise you have to carry the 
+> patch yourself, deal with any side effects, invalidate any 
+> support agreements you might have with the vendor, etc.
+> 
+
+I did notice that there was some concern from other parties regarding
+its submission. The minefield that is Linux Kernel politics :)
+
+We're already using a patched, not-that-recent kernel anyway (embedded
+hardware), so I'll pass along the info to our resident kernel hacker to
+have a look and see what he can come up with and if its worth the
+effort. The developer has already started moving his app around slightly
+to get around this, so it may not be needed anyway.
+
+Thanks again
+
+Dan
+--
+
+Dan Hawker
+Linux System Administrator
+Astrium
+http://www.astrium.eads.net
+
+-- 
+
+This email (including any attachments) may contain confidential and/or
+privileged information or information otherwise protected from disclosure.
+If you are not the intended recipient, please notify the sender
+immediately, do not copy this message or any attachments and do not use it
+for any purpose or disclose its content to any person, but delete this
+message and any attachments from your system. Astrium disclaims any and all
+liability if this email transmission was virus corrupted, altered or
+falsified.
+---------------------------------------------------------------------
+Astrium Limited, Registered in England and Wales No. 2449259
+REGISTERED OFFICE:-
+Gunnels Wood Road, Stevenage, Hertfordshire, SG1 2AS, England
 
 
 --
