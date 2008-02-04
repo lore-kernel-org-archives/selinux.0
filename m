@@ -1,39 +1,48 @@
-Subject: Re: su problems again
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jeremiah Jahn <jeremiah@goodinassociates.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
-References: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
-Content-Type: text/plain
-Date: Mon, 04 Feb 2008 14:11:58 -0500
-Message-Id: <1202152318.3070.121.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Mon, 4 Feb 2008 14:11:07 -0500
+From: "Todd C. Miller" <tmiller@tresys.com>
+Message-Id: <200802041911.m14JB6eR017794@cadmus.columbia.tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: Re: checkpolicy patch: avoid warning in rawhide
+Cc: jbrindle@tresys.com, sds@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+It turns out the same issue also exists in policy_scan.l
 
-On Mon, 2008-02-04 at 13:02 -0600, Jeremiah Jahn wrote:
-> Is there some way to turn of the dontaudit  w/ the refpolicy and a
-> module policy build. make enableaudit seems to only change the base
-> policy, and not any of the policies that actually do anything. 
-> 
-> This is with the refpolicy selinux-refpolicy-sources-20071214-1 running
-> on RHEL5. 
-> 
-> For some reason, when the policy is enforced, I can't su  from a staff_r
-> user, yet when I try with enforcing=0 I don't get any audit messages,
-> and I'm not really comfortable modifying every user oriented admin
-> modules to remove the dontaudit rules. doing so in su.te helped find a
-> few things, but I'm not sure what's blocking it now. 
+Signed-off-by: Todd C. Miller <tmiller@tresys.com>
 
-If using a recent semodule, you can do semodule -DB to strip the entire
-policy of dontaudit rules and load the result, then semodule -B to
-revert to the original policy.
+ - todd
 
--- 
-Stephen Smalley
-National Security Agency
+ checkpolicy/policy_scan.l   |    2 +-
+ libsemanage/src/conf-scan.l |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+Index: trunk/libsemanage/src/conf-scan.l
+===================================================================
+--- trunk/libsemanage/src/conf-scan.l	(revision 2783)
++++ trunk/libsemanage/src/conf-scan.l	(working copy)
+@@ -32,7 +32,7 @@
+ %}
+ 
+ %option stack prefix="semanage_"
+-%option nounput noyy_push_state noyy_pop_state noyy_top_state
++%option noinput nounput noyy_push_state noyy_pop_state noyy_top_state
+ 
+ %x arg
+ 
+Index: trunk/checkpolicy/policy_scan.l
+===================================================================
+--- trunk/checkpolicy/policy_scan.l	(revision 2783)
++++ trunk/checkpolicy/policy_scan.l	(working copy)
+@@ -43,7 +43,7 @@
+ unsigned int policydb_errors = 0;
+ %}
+ 
+-%option nounput
++%option noinput nounput
+ 
+ %array
+ letter  [A-Za-z]
 
 --
 This message was distributed to subscribers of the selinux mailing list.
