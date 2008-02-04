@@ -1,39 +1,44 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14E3J3s027719
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 09:03:19 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14E3Ih9012174
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 14:03:18 GMT
-Message-ID: <47A71B22.90506@redhat.com>
-Date: Mon, 04 Feb 2008 09:03:14 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14EM5rI030470
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 09:22:05 -0500
+Received: from ipex1.johnshopkins.edu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14EM5h9020567
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 14:22:05 GMT
+Message-ID: <47A71F79.1020300@jhu.edu>
+Date: Mon, 04 Feb 2008 09:21:45 -0500
+From: "Seth D. Guikema" <sguikema@jhu.edu>
 MIME-Version: 1.0
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [refpolicy] samba
-References: <1202029647.2674.1.camel@vogon>
-In-Reply-To: <1202029647.2674.1.camel@vogon>
-Content-Type: text/plain; charset=ISO-8859-1
+To: selinux@tycho.nsa.gov
+Subject: reindexing time for SELinux?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I am trying to set up SELinux on my Fedora Core 7 workstation. I am 
+using the pre-installed GUI SELinux configuration tool in FC7. I 
+selected a targeted set-up. I was warned that the workstation would need 
+to reindex the files at the next reboot and that this would take a 
+while. I clicked ok. I rebooted the workstation Saturday morning at 
+about 10am. It is still unresponsive (and not available for remote 
+connections) and working hard this morning, almost 48 hours later. How 
+long should reindexing take? The workstation is new. It has 2 1TB disks 
+(RAID mirrored), but there isn't much on them yet - perhaps 30MB plus 
+the OS and other programs installed by the manufacturer (ASL). Does 
+reindexing really take this long? This is my first attempt at SELinux, 
+and any help is appreciated. Thank you.
 
-Stefan Schulze Frielinghaus wrote:
-> On Debian machines smbd needs append rights for samba logfiles.
-> 
-In Fedora smbd_t needs manage_files_pattern on smbd_log_t.  Our samba
-developers informed me that this is ok, since these are not security
-relevent log files.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Sincerely,
+Seth Guikema
 
-iEYEARECAAYFAkenGyIACgkQrlYvE4MpobMFSgCcCAOhKW0zrOmRyf/6zifGOBj0
-IGcAoJ4dsNctCyp4k7LdaLbu468xbiK4
-=iw9h
------END PGP SIGNATURE-----
+-- 
+Assistant Professor
+Department of Geography and Environmental Engineering
+Johns Hopkins University
+Baltimore, MD 21218
+(410)516-6042
+sguikema@jhu.edu
+https://jshare.johnshopkins.edu/sguikem1/public_html/
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
