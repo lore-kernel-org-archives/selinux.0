@@ -1,71 +1,63 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: UNCLASSIFIED - Realtime Scheduling...
-Date: Mon, 4 Feb 2008 12:39:38 -0000
-Message-ID: <7F6B06837A5DBD49AC6E1650EFF5490601C64C1F@auk52177.ukr.astrium.corp>
-From: "HAWKER, Dan 2 \(external\)" <Dan.HAWKER@uk4.astrium.eads.net>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] libsemanage: free policydb before fork
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Todd Miller <tmiller@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <47A6367F.5040609@manicmethod.com>
+References: <47A5311F.2020703@manicmethod.com>
+	 <47A6367F.5040609@manicmethod.com>
+Content-Type: text/plain
+Date: Mon, 04 Feb 2008 08:47:29 -0500
+Message-Id: <1202132849.3070.28.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-
+On Sun, 2008-02-03 at 16:47 -0500, Joshua Brindle wrote:
+> Joshua Brindle wrote:
+> > While testing the recent memory-related patches on a low memory machine 
+> > (512m total) I found that semodule still failed. It turns out that 
+> > fork() requires enough free ram for the amount of private dirty memory 
+> > in the parent process to succeed (even if it is never written to in the 
+> > child process). This patch moves the genhomedircon call to outside of 
+> > semanage_sandbox_install so that the policydb can be freed before any 
+> > forks happen. With this patch and the prior ones semodule runs fine on a 
+> > 512m machine.
+> > 
+> > Signed-off-By: Joshua Brindle <method@manicmethod.com>
+> > 
 > 
-> I deferred submitting it for mainline because there was a 
-> fair amount of concern from others about the implications of 
-> the change, as you can see from the responses.
-> 
-> Nonetheless, I think it would be a useful feature for certain 
-> user communities, so we should likely re-base and submit it.
-> 
-> It won't apply cleanly against the latest kernel because the 
-> class value I used for it has since been taken for another class.
-> 
-> Unless you are already using a patched kernel for some 
-> reason, I think you'd be better off just using the mechanisms 
-> present in your existing kernel, e.g. make the program 
-> setuid, have it shed unnecessary capabilities and uid 0 at 
-> startup, and use policy to protect and confine it.  See 
-> newrole for an example.  Otherwise you have to carry the 
-> patch yourself, deal with any side effects, invalidate any 
-> support agreements you might have with the vendor, etc.
-> 
+> Interestingly this works sometimes and not others. I suppose it depends
+> on whether the libc allocator feels like giving up the memory when we
+> free the policydb or not. I am not sure what the best way to address
+> this is, any ideas?
 
-I did notice that there was some concern from other parties regarding
-its submission. The minefield that is Linux Kernel politics :)
+First, slightly unrelated, am I correct that only your patch for
+consuming base has been merged and not my two patches thus far?  I'd
+like to get those two merged before we do anything further.  Should I
+commit them?  Looks like there is a minor conflict that I'll have to
+resolve against your patch.
 
-We're already using a patched, not-that-recent kernel anyway (embedded
-hardware), so I'll pass along the info to our resident kernel hacker to
-have a look and see what he can come up with and if its worth the
-effort. The developer has already started moving his app around slightly
-to get around this, so it may not be needed anyway.
+Second, have we considered dropping the separate execution of the
+load_policy program and just directly invoking the libselinux function
+for loading policy from libsemanage?  Might require a policy change to
+allow semodule to load policy directly.
 
-Thanks again
+Then there is the separate execution of setfiles -c to validate the file
+contexts configuration against the policy.  But that too could possibly
+be replaced by direct calls to the relevant library functions.
 
-Dan
---
-
-Dan Hawker
-Linux System Administrator
-Astrium
-http://www.astrium.eads.net
+We've encapsulated almost all of the load policy and setfiles logic in
+libselinux these days, so it doesn't seem hard to eliminate the use of
+separate helpers there.  And since semodule is writing out the kernel
+policy file that will be loaded, we aren't actually protecting against
+anything by keeping load_policy in a separate domain (this is all under
+direct method, of course).
 
 -- 
-
-This email (including any attachments) may contain confidential and/or
-privileged information or information otherwise protected from disclosure.
-If you are not the intended recipient, please notify the sender
-immediately, do not copy this message or any attachments and do not use it
-for any purpose or disclose its content to any person, but delete this
-message and any attachments from your system. Astrium disclaims any and all
-liability if this email transmission was virus corrupted, altered or
-falsified.
----------------------------------------------------------------------
-Astrium Limited, Registered in England and Wales No. 2449259
-REGISTERED OFFICE:-
-Gunnels Wood Road, Stevenage, Hertfordshire, SG1 2AS, England
+Stephen Smalley
+National Security Agency
 
 
 --
