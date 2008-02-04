@@ -1,12 +1,18 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14ImKd8032018
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 13:48:20 -0500
+Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14ImIg3007975
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 18:48:19 GMT
 Subject: Re: Service control via /etc/init.d/ using strict policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
 To: Eoin Ryan <ryaneoin@gmail.com>
 Cc: selinux@tycho.nsa.gov
 In-Reply-To: <207608340802041008o6c9c39a7l491f013a4becd233@mail.gmail.com>
 References: <207608340802041008o6c9c39a7l491f013a4becd233@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 04 Feb 2008 13:45:30 -0500
-Message-Id: <1202150730.3070.119.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 04 Feb 2008 19:43:28 +0100
+Message-Id: <1202150608.2667.9.camel@vogon>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -33,15 +39,13 @@ On Mon, 2008-02-04 at 18:08 +0000, Eoin Ryan wrote:
 > Am I missing something here, or does a transition to initrc_exec_t
 > need to be defined for some SELinux user via a policy module?  Sorry
 > if my terminology is a little off.
+> 
+> Kind Regards
+> Eoin
 
-Depends on your policy build settings.  If DIRECT_INITRC was set to n in
-build.conf, then you have to use run_init to run init scripts from an
-admin shell, so you can do:
-	run_init /etc/init.d/httpd restart
-
--- 
-Stephen Smalley
-National Security Agency
+You could use e.g. "run_init /etc/init.d/sshd restart". Via "run_init"
+the type transition occurs. As long as I know that's the proper way of
+using init-scripts from sysadm_r at the moment.
 
 
 --
