@@ -1,48 +1,51 @@
-Date: Mon, 4 Feb 2008 14:11:07 -0500
-From: "Todd C. Miller" <tmiller@tresys.com>
-Message-Id: <200802041911.m14JB6eR017794@cadmus.columbia.tresys.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: checkpolicy patch: avoid warning in rawhide
-Cc: jbrindle@tresys.com, sds@tycho.nsa.gov
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14JH5LO003380
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 14:17:05 -0500
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14JH3g3021844
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 19:17:04 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Seth D. Guikema" <sguikema@jhu.edu>
+Subject: Re: reindexing time for SELinux?
+Date: Tue, 5 Feb 2008 06:16:48 +1100
+Cc: selinux@tycho.nsa.gov
+References: <47A71F79.1020300@jhu.edu>
+In-Reply-To: <47A71F79.1020300@jhu.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200802050616.50247.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It turns out the same issue also exists in policy_scan.l
+On Tuesday 05 February 2008 01:21, "Seth D. Guikema" <sguikema@jhu.edu> wrote:
+> I am trying to set up SELinux on my Fedora Core 7 workstation. I am
+> using the pre-installed GUI SELinux configuration tool in FC7. I
+> selected a targeted set-up.
 
-Signed-off-by: Todd C. Miller <tmiller@tresys.com>
+Is it a fresh install or did you just enable SE Linux after previously having 
+it disabled?
 
- - todd
+> I was warned that the workstation would need 
+> to reindex the files at the next reboot and that this would take a
+> while. I clicked ok. I rebooted the workstation Saturday morning at
+> about 10am. It is still unresponsive (and not available for remote
+> connections) and working hard this morning, almost 48 hours later. How
+> long should reindexing take?
 
- checkpolicy/policy_scan.l   |    2 +-
- libsemanage/src/conf-scan.l |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Not 48 hours.  It's a function of the speed of CPU and disk and the number of 
+files on disk.  I haven't seen it take more than about an hour on a slow 
+machine, but as there is no upper limit on the number of files there is also 
+no upper limit on the theoretical amount of time taken.
 
-Index: trunk/libsemanage/src/conf-scan.l
-===================================================================
---- trunk/libsemanage/src/conf-scan.l	(revision 2783)
-+++ trunk/libsemanage/src/conf-scan.l	(working copy)
-@@ -32,7 +32,7 @@
- %}
- 
- %option stack prefix="semanage_"
--%option nounput noyy_push_state noyy_pop_state noyy_top_state
-+%option noinput nounput noyy_push_state noyy_pop_state noyy_top_state
- 
- %x arg
- 
-Index: trunk/checkpolicy/policy_scan.l
-===================================================================
---- trunk/checkpolicy/policy_scan.l	(revision 2783)
-+++ trunk/checkpolicy/policy_scan.l	(working copy)
-@@ -43,7 +43,7 @@
- unsigned int policydb_errors = 0;
- %}
- 
--%option nounput
-+%option noinput nounput
- 
- %array
- letter  [A-Za-z]
+Did you boot the machine in permissive or enforcing mode?
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
