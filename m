@@ -1,54 +1,87 @@
-Subject: Re: su problems again
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jeremiah Jahn <jeremiah@goodinassociates.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1202154013.2801.119.camel@bluejay.goodinassociates.com>
-References: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
-	 <1202152318.3070.121.camel@moss-spartans.epoch.ncsc.mil>
-	 <1202154013.2801.119.camel@bluejay.goodinassociates.com>
-Content-Type: text/plain
-Date: Mon, 04 Feb 2008 15:10:58 -0500
-Message-Id: <1202155858.3070.127.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14KD7xg012244
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 15:13:07 -0500
+Received: from g5t0006.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14KD6TM017148
+	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 20:13:06 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [PATCH] SELinux: Remove security_get_policycaps()
+To: selinux@tycho.nsa.gov
+Cc: bunk@kernel.org
+Date: Mon, 04 Feb 2008 15:07:47 -0500
+Message-ID: <20080204200747.22110.42876.stgit@flek.americas.hpqcorp.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+The security_get_policycaps() functions has a couple of bugs in it and it
+isn't currently used by any in-tree code, so get rid of it and all of it's
+bugginess.
 
-On Mon, 2008-02-04 at 13:40 -0600, Jeremiah Jahn wrote:
-> Apparently I'm not. I'm using 1.33 on a pretty clean RHEL5 box. Any idea
-> of how difficult it will be to jump to the devel version? Or is there
-> another way to disable the dontaudits?
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
 
-Since you said you are building policy from source, you can always just
-sed -i "s/module/base" policy/modules.conf and then make enableaudit to
-build everything into base with all dontaudits removed.
+ security/selinux/include/security.h |    1 -
+ security/selinux/ss/services.c      |   33 ---------------------------------
+ 2 files changed, 0 insertions(+), 34 deletions(-)
+
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 23137c1..837ce42 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -107,7 +107,6 @@ int security_get_classes(char ***classes, int *nclasses);
+ int security_get_permissions(char *class, char ***perms, int *nperms);
+ int security_get_reject_unknown(void);
+ int security_get_allow_unknown(void);
+-int security_get_policycaps(int *len, int **values);
  
-> 
-> 
-> On Mon, 2008-02-04 at 14:11 -0500, Stephen Smalley wrote:
-> > On Mon, 2008-02-04 at 13:02 -0600, Jeremiah Jahn wrote:
-> > > Is there some way to turn of the dontaudit  w/ the refpolicy and a
-> > > module policy build. make enableaudit seems to only change the base
-> > > policy, and not any of the policies that actually do anything. 
-> > > 
-> > > This is with the refpolicy selinux-refpolicy-sources-20071214-1 running
-> > > on RHEL5. 
-> > > 
-> > > For some reason, when the policy is enforced, I can't su  from a staff_r
-> > > user, yet when I try with enforcing=0 I don't get any audit messages,
-> > > and I'm not really comfortable modifying every user oriented admin
-> > > modules to remove the dontaudit rules. doing so in su.te helped find a
-> > > few things, but I'm not sure what's blocking it now. 
-> > 
-> > If using a recent semodule, you can do semodule -DB to strip the entire
-> > policy of dontaudit rules and load the result, then semodule -B to
-> > revert to the original policy.
-> > 
-> In 1880 the French captured Detroit but gave it back ... they couldn't
-> get parts.
--- 
-Stephen Smalley
-National Security Agency
+ #define SECURITY_FS_USE_XATTR		1 /* use xattr */
+ #define SECURITY_FS_USE_TRANS		2 /* use transition SIDs, e.g. devpts/tmpfs */
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index fced6bc..f374186 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2246,39 +2246,6 @@ int security_get_allow_unknown(void)
+ }
+ 
+ /**
+- * security_get_policycaps - Query the loaded policy for its capabilities
+- * @len: the number of capability bits
+- * @values: the capability bit array
+- *
+- * Description:
+- * Get an array of the policy capabilities in @values where each entry in
+- * @values is either true (1) or false (0) depending the policy's support of
+- * that feature.  The policy capabilities are defined by the
+- * POLICYDB_CAPABILITY_* enums.  The size of the array is stored in @len and it
+- * is up to the caller to free the array in @values.  Returns zero on success,
+- * negative values on failure.
+- *
+- */
+-int security_get_policycaps(int *len, int **values)
+-{
+-	int rc = -ENOMEM;
+-	unsigned int iter;
+-
+-	POLICY_RDLOCK;
+-
+-	*values = kcalloc(POLICYDB_CAPABILITY_MAX, sizeof(int), GFP_ATOMIC);
+-	if (*values == NULL)
+-		goto out;
+-	for (iter = 0; iter < POLICYDB_CAPABILITY_MAX; iter++)
+-		(*values)[iter] = ebitmap_get_bit(&policydb.policycaps, iter);
+-	*len = POLICYDB_CAPABILITY_MAX;
+-
+-out:
+-	POLICY_RDUNLOCK;
+-	return rc;
+-}
+-
+-/**
+  * security_policycap_supported - Check for a specific policy capability
+  * @req_cap: capability
+  *
 
 
 --
