@@ -1,60 +1,56 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14J2bpP001299
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 14:02:37 -0500
-Received: from penguin.goodinassociates.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14J2ag3014552
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 19:02:36 GMT
-Received: from [206.80.71.242] ([206.80.71.242])
-	(authenticated bits=0)
-	by penguin.goodinassociates.com (8.13.1/8.13.1) with ESMTP id m14J2FC5028680
-	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 13:02:15 -0600
-Subject: su problems again
-From: Jeremiah Jahn <jeremiah@goodinassociates.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3AJ6pJ9VnS8S96Qt65F9"
-Date: Mon, 04 Feb 2008 13:02:13 -0600
-Message-Id: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
-Mime-Version: 1.0
+Message-ID: <47A76189.9050606@jhu.edu>
+Date: Mon, 04 Feb 2008 14:03:37 -0500
+From: "Seth D. Guikema" <sguikema@jhu.edu>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: reindexing time for SELinux?
+References: <47A71F79.1020300@jhu.edu> <1202137767.3070.58.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1202137767.3070.58.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I just rebooted, and the box seems to be working fine. It seems to have 
+hung in the shutdown sequence. The files were relabeled successfully 
+when I rebooted the box. Thank you all.
+Seth
 
---=-3AJ6pJ9VnS8S96Qt65F9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Stephen Smalley wrote:
+> On Mon, 2008-02-04 at 09:21 -0500, Seth D. Guikema wrote:
+>   
+>> I am trying to set up SELinux on my Fedora Core 7 workstation. I am 
+>> using the pre-installed GUI SELinux configuration tool in FC7. I 
+>> selected a targeted set-up. I was warned that the workstation would need 
+>> to reindex the files at the next reboot and that this would take a 
+>> while. I clicked ok. I rebooted the workstation Saturday morning at 
+>> about 10am. It is still unresponsive (and not available for remote 
+>> connections) and working hard this morning, almost 48 hours later. How 
+>> long should reindexing take? The workstation is new. It has 2 1TB disks 
+>> (RAID mirrored), but there isn't much on them yet - perhaps 30MB plus 
+>> the OS and other programs installed by the manufacturer (ASL). Does 
+>> reindexing really take this long? This is my first attempt at SELinux, 
+>> and any help is appreciated. Thank you.
+>>     
+>
+> I assume you mean relabeling rather than reindexing.  It shouldn't take
+> that long.  Are you getting output on the console?
+>
+> Try rebooting into single-user mode in permissive mode and relabeling
+> from there, e.g. boot with 'enforcing=0 single' and run 'fixfiles
+> relabel' (and remove /.autorelabel if it still exists), then reboot
+> normally.
+>
+>   
 
-Is there some way to turn of the dontaudit  w/ the refpolicy and a
-module policy build. make enableaudit seems to only change the base
-policy, and not any of the policies that actually do anything.=20
-
-This is with the refpolicy selinux-refpolicy-sources-20071214-1 running
-on RHEL5.=20
-
-For some reason, when the policy is enforced, I can't su  from a staff_r
-user, yet when I try with enforcing=3D0 I don't get any audit messages,
-and I'm not really comfortable modifying every user oriented admin
-modules to remove the dontaudit rules. doing so in su.te helped find a
-few things, but I'm not sure what's blocking it now.=20
-
-
-
-Sodd's Second Law: Sooner or later, the worst possible set of
-circumstances is bound to occur.
-
---=-3AJ6pJ9VnS8S96Qt65F9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD8DBQBHp2E16caZY8jbHDkRAtJWAKCEaXwoR3P20eVI/E44Q3vCEwMrpACgr5mb
-kdlFNJBxknZCvIDDyRSqCiI=
-=T6TN
------END PGP SIGNATURE-----
-
---=-3AJ6pJ9VnS8S96Qt65F9--
+-- 
+Assistant Professor
+Department of Geography and Environmental Engineering
+Johns Hopkins University
+Baltimore, MD 21218
+(410)516-6042
+sguikema@jhu.edu
+https://jshare.johnshopkins.edu/sguikem1/public_html/
 
 
 --
