@@ -1,62 +1,69 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14I8aXU026480
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 13:08:36 -0500
-Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m14I8Amg011962
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 18:08:31 GMT
-Received: by rv-out-0910.google.com with SMTP id k15so1473918rvb.54
-        for <selinux@tycho.nsa.gov>; Mon, 04 Feb 2008 10:08:10 -0800 (PST)
-Message-ID: <207608340802041008o6c9c39a7l491f013a4becd233@mail.gmail.com>
-Date: Mon, 4 Feb 2008 18:08:10 +0000
-From: "Eoin Ryan" <ryaneoin@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Service control via /etc/init.d/ using strict policy
+From: "Jeremy A. Mowery" <jmowery@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: setools is still broken in rawhide.
+Date: Mon, 4 Feb 2008 13:19:15 -0500
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>, setools@tresys.com
+References: <47A3F327.8000202@redhat.com> <200802041034.55986.jmowery@tresys.com> <1202140804.3070.87.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1202140804.3070.87.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_5866_24706743.1202148490081"
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200802041319.16285.jmowery@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_5866_24706743.1202148490081
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Monday 04 February 2008 11:00:04 Stephen Smalley wrote:
+> 
+> On Mon, 2008-02-04 at 10:34 -0500, Jeremy A. Mowery wrote:
+> > On Friday 01 February 2008 23:35:51 Daniel J Walsh wrote:
+> > > This patch fixes two functions in libqpol/util.c
+> > > 
+> > > is_binpol_valid should return true if the policy version is greater than
+> > > or equal to the policy installed in the kernel.
+> > > 
+> > 
+> > This function is used to assert that the version of the policy matches
+> > the version for which we were looking. The name may be a bit misleading;
+> > previous versions had more complex validation logic we no longer need
+> > as this logic already exists in libsepol.
+> > 
+> > > search_binary_policy_file
+> > > 
+> > > Should return 0 on success, meaning it found a policy.
+> > > 
+> > > And return 1 if the return code is < 0;
+> > 
+> > This change would prevent tools from handling errors in policy searching 
+> > correctly; the difference in a negative and positive return code is
+> > used to distinguish the case where a default policy could not be found
+> > and the case where searching for the policy could not be completed.
+> > > 
+> > > 
+> > > 
+> > > Making these changes allows seinfo and sesearch to find policy.22 on a
+> > > machine running policy.21
+> > > 
+> > 
+> > This is intentionally not done. If the system cannot load a version 22 policy,
+> > SETools will only search for a policy of version 21 or less.  SETools 
+> > intentionally does not use the policy downgrade code when loading policies;
+> > this would break the assertion that the policy is analyzed "as is" and not
+> > altered by the libraries.
+> 
+> Doesn't that mean that users won't be able to use setools on systems
+> where the kernel supports an older policy version than the userland,
+> since libsemanage only generates the latest policy version supported by
+> the toolchain?  There will be no policy.21 file around to analyze.
+> 
 
-Hi All,
+This means the user will have to specify the policy to load rather than
+rely on the auto-detect feature in this case. If libsepol can load the policy,
+the tools can read it; the tools will not, however, downgrade it.
 
-Apologies in advance if this is slightly off topic.  Over the last few years
-I've gained some experience with SELinux using the targeted policy, but now
-after discovering the new support in RHEL5 I've decided to learn about the
-strict/mls policies and hopefully contribute in some way one day.
-
-I have a test RHEL5 system running the strict policy, but I'm confused about
-how services/daemons can be controlled by the superuser.  The sysadm_t does
-not have permission to execute initrc_exec_t, but does have permission to
-execute /usr/sbin/httpd directly as it's httpd_exec_t.  The type_transition
-rules allow mainly the system startup types (init_t etc) to transition to
-initrc_exec_t, but there is no transition from sysadm_t defined.  This seems
-to say that services can only be started and stopped during bootup and
-shutdown.
-
-Am I missing something here, or does a transition to initrc_exec_t need to
-be defined for some SELinux user via a policy module?  Sorry if my
-terminology is a little off.
-
-Kind Regards
-Eoin
-
-------=_Part_5866_24706743.1202148490081
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hi All,<br><br>Apologies in advance if this is slightly off topic.&nbsp; Over the last few years I&#39;ve gained some experience with SELinux using the targeted policy, but now after discovering the new support in RHEL5 I&#39;ve decided to learn about the strict/mls policies and hopefully contribute in some way one day.<br>
-
-<br>I have a test RHEL5 system running the strict policy, but I&#39;m confused about how services/daemons can be controlled by the superuser.&nbsp; The sysadm_t does not have permission to execute initrc_exec_t, but does have permission to execute /usr/sbin/httpd directly as it&#39;s httpd_exec_t.&nbsp; The type_transition rules allow mainly the system startup types (init_t etc) to transition to initrc_exec_t, but there is no transition from sysadm_t defined.&nbsp; This seems to say that services can only be started and stopped during bootup and shutdown.<br>
-<br>Am I missing something here, or does a transition to initrc_exec_t need to be defined for some SELinux user via a policy module?&nbsp; Sorry if my terminology is a little off.<br><br>Kind Regards<br>
-Eoin<br><br><br><br><br>
-
-------=_Part_5866_24706743.1202148490081--
+Jeremy A. Mowery
+Tresys Technology
+410-290-1411 x148
 
 --
 This message was distributed to subscribers of the selinux mailing list.
