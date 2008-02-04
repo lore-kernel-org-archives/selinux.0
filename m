@@ -1,62 +1,36 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m14FYu2L006236
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 10:34:56 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m14FYuh9025604
-	for <selinux@tycho.nsa.gov>; Mon, 4 Feb 2008 15:34:56 GMT
-From: "Jeremy A. Mowery" <jmowery@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: setools is still broken in rawhide.
-References: <47A3F327.8000202@redhat.com>
-In-Reply-To: <47A3F327.8000202@redhat.com>
 MIME-Version: 1.0
-Date: Mon, 4 Feb 2008 10:34:55 -0500
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, setools@tresys.com
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200802041034.55986.jmowery@tresys.com>
+	charset="us-ascii"
+Subject: RE: [PATCH] libsemanage: free policydb before fork
+Date: Mon, 4 Feb 2008 10:44:25 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015880181EEE8@exchange.columbia.tresys.com>
+In-Reply-To: <47A6367F.5040609@manicmethod.com>
+References: <47A5311F.2020703@manicmethod.com> <47A6367F.5040609@manicmethod.com>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "Joshua Brindle" <method@manicmethod.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 01 February 2008 23:35:51 Daniel J Walsh wrote:
-> This patch fixes two functions in libqpol/util.c
-> 
-> is_binpol_valid should return true if the policy version is greater than
-> or equal to the policy installed in the kernel.
-> 
+Joshua Brindle wrote:
+> Interestingly this works sometimes and not others. I suppose it
+> depends on whether the libc allocator feels like giving up the memory
+> when we free the policydb or not. I am not sure what the best way to
+> address this is, any ideas?
 
-This function is used to assert that the version of the policy matches
-the version for which we were looking. The name may be a bit misleading;
-previous versions had more complex validation logic we no longer need
-as this logic already exists in libsepol.
+You might try calling malloc_stats() before you free the policydb and
+see how the stats differ in the two cases.  We may also be able to tune
+malloc via mallopt().  I would guess that mmap()'d data is more likely
+to be returned to the system so we might try reducing M_MMAP_THRESHOLD
+from 128K to a smaller amount (maybe try 64K).  The flip side of this
+is M_TRIM_THRESHOLD (which also defaults to 128K).  A lower value of
+M_TRIM_THRESHOLD will result in malloc() returning sbrk()'d memory
+back to the system more often.  So, there are knobs we can twiddle--
+I just don't know how likely they are to help.
 
-> search_binary_policy_file
-> 
-> Should return 0 on success, meaning it found a policy.
-> 
-> And return 1 if the return code is < 0;
+ - todd
 
-This change would prevent tools from handling errors in policy searching 
-correctly; the difference in a negative and positive return code is
-used to distinguish the case where a default policy could not be found
-and the case where searching for the policy could not be completed.
-> 
-> 
-> 
-> Making these changes allows seinfo and sesearch to find policy.22 on a
-> machine running policy.21
-> 
-
-This is intentionally not done. If the system cannot load a version 22 policy,
-SETools will only search for a policy of version 21 or less.  SETools 
-intentionally does not use the policy downgrade code when loading policies;
-this would break the assertion that the policy is analyzed "as is" and not
-altered by the libraries.
-
-
-Jeremy A. Mowery
-Tresys Technology
-410-290-1411 x148
 
 --
 This message was distributed to subscribers of the selinux mailing list.
