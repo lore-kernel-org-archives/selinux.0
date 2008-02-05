@@ -1,61 +1,44 @@
-Subject: RE: How to contribute: policy?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Scott Lowrey <slowrey@TrustedCS.com>
-Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <D709A20F2164C84E8B7014B0301F5EF8BC096A@HAVOC.tcs-sec.com>
-References: <D709A20F2164C84E8B7014B0301F5EF8BC096A@HAVOC.tcs-sec.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m15IaUXh014625
+	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 13:36:30 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m15IaUts011388
+	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 18:36:30 GMT
+Subject: segfault in checkpolicy stable
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 05 Feb 2008 12:58:38 -0500
-Message-Id: <1202234318.27371.77.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Feb 2008 13:34:21 -0500
+Message-Id: <1202236461.7533.55.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+With all of the newest stable userland:
 
-On Tue, 2008-02-05 at 12:41 -0500, Scott Lowrey wrote:
-> > Behalf Of Christopher J. PeBenito
-> > Sent: Tuesday, February 05, 2008 8:10 AM
-> > 
-> > On Mon, 2008-02-04 at 20:08 +0000, Eoin Ryan wrote:
-> > > I'm on a mission to run a personal server using the strict policy,
-> > > mainly as a learning exercise.  I've just come across what seems to
-> be
-> > > an error in the policy, so I thought a good way to contribute might
-> be
-> > > to submit bug reports as I work to configure the system for
-> > > mail/web/etc.  Is this the correct place/way to submit such
-> problems?
-> > 
-> > You can post it here, but since its RHEL you probably should post it
-> to
-> > Red Hat bugzilla so it can go through the right processes to be
-> included
-> > in the next RHEL update.
-> > 
-> 
-> Hello.  I have a similar question, then.  I resolved a small policy
-> problem related to the IPsec 'setkey' command on the RHEL5 LSPP
-> platform.  The ipsec setkey command was not allowed to write to stdout.
-> This problem occurs when newrole is used to get sysadm_r before running
-> setkey.  
-> 
-> Not sure if it's worth posting but it should be included in downstream
-> releases.  Should I post a bug at Red Hat along with the fix?  Is there
-> any need to post the patch here?
+libsepol-1.16.10
+libselinux-1.34.14 
+libsemanage-1.10.9
+checkpolicy-1.34.4
 
-I'd tend to encourage people to both post it here so it can get
-upstreamed for future upstream releases and bugzilla it so that it can
-potentially be included in future updates to existing distributions.
-You can't really assume that submitting it to RH will ever get it to the
-upstream refpolicy nor that getting it into the upstream refpolicy will
-ever get it into an existing distribution release like RHEL 5.  It has
-to be submitted separately.  And ideally you could check first to see if
-it is already in the refpolicy trunk, as naturally RHEL5 won't include
-many fixes that have already been upstreamed there.
+I'm getting a segfault in checkpolicy.
+
+Compiling refpolicy policy.21
+/usr/bin/checkpolicy policy.conf -o policy.21
+/usr/bin/checkpolicy:  loading policy configuration from policy.conf
+make: *** [policy.21] Segmentation fault
+
+
+Steps to reproduce:
+
+1. check out refpolicy trunk
+2. # make conf
+3. # make policy
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
