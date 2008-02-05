@@ -1,97 +1,68 @@
-Message-ID: <47A86410.7050403@redhat.com>
-Date: Tue, 05 Feb 2008 08:26:40 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: "Jeremy A. Mowery" <jmowery@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        setools@tresys.com
-Subject: Re: setools is still broken in rawhide.
-References: <47A3F327.8000202@redhat.com>	 <200802041034.55986.jmowery@tresys.com>	 <1202140804.3070.87.camel@moss-spartans.epoch.ncsc.mil>	 <200802041319.16285.jmowery@tresys.com>  <47A75FBC.8000102@redhat.com> <1202216739.7533.42.camel@gorn>
-In-Reply-To: <1202216739.7533.42.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: su problems again
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1202158361.3070.141.camel@moss-spartans.epoch.ncsc.mil>
+References: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
+	 <1202152318.3070.121.camel@moss-spartans.epoch.ncsc.mil>
+	 <1202154013.2801.119.camel@bluejay.goodinassociates.com>
+	 <1202155858.3070.127.camel@moss-spartans.epoch.ncsc.mil>
+	 <1202156505.2801.122.camel@bluejay.goodinassociates.com>
+	 <1202156860.3070.132.camel@moss-spartans.epoch.ncsc.mil>
+	 <1202157694.2801.128.camel@bluejay.goodinassociates.com>
+	 <1202158361.3070.141.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sj5VTvrAM2flt6i2Xc3Z"
+Date: Tue, 05 Feb 2008 08:25:19 -0600
+Message-Id: <1202221519.2801.201.camel@bluejay.goodinassociates.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Christopher J. PeBenito wrote:
-> On Mon, 2008-02-04 at 13:55 -0500, Daniel J Walsh wrote:
->> Jeremy A. Mowery wrote:
->>> On Monday 04 February 2008 11:00:04 Stephen Smalley wrote:
->>>> On Mon, 2008-02-04 at 10:34 -0500, Jeremy A. Mowery wrote:
->>>>> On Friday 01 February 2008 23:35:51 Daniel J Walsh wrote:
->>>>>> This patch fixes two functions in libqpol/util.c
->>>>>>
->>>>>> is_binpol_valid should return true if the policy version is greater than
->>>>>> or equal to the policy installed in the kernel.
->>>>>>
->>>>> This function is used to assert that the version of the policy matches
->>>>> the version for which we were looking. The name may be a bit misleading;
->>>>> previous versions had more complex validation logic we no longer need
->>>>> as this logic already exists in libsepol.
->>>>>
->>>>>> search_binary_policy_file
->>>>>>
->>>>>> Should return 0 on success, meaning it found a policy.
->>>>>>
->>>>>> And return 1 if the return code is < 0;
->>>>> This change would prevent tools from handling errors in policy searching 
->>>>> correctly; the difference in a negative and positive return code is
->>>>> used to distinguish the case where a default policy could not be found
->>>>> and the case where searching for the policy could not be completed.
->>>>>>
->>>>>> Making these changes allows seinfo and sesearch to find policy.22 on a
->>>>>> machine running policy.21
->>>>>>
->>>>> This is intentionally not done. If the system cannot load a version 22 policy,
->>>>> SETools will only search for a policy of version 21 or less.  SETools 
->>>>> intentionally does not use the policy downgrade code when loading policies;
->>>>> this would break the assertion that the policy is analyzed "as is" and not
->>>>> altered by the libraries.
->>>> Doesn't that mean that users won't be able to use setools on systems
->>>> where the kernel supports an older policy version than the userland,
->>>> since libsemanage only generates the latest policy version supported by
->>>> the toolchain?  There will be no policy.21 file around to analyze.
->>> This means the user will have to specify the policy to load rather than
->>> rely on the auto-detect feature in this case. If libsepol can load the policy,
->>> the tools can read it; the tools will not, however, downgrade it.
->>>
->> Then this is unacceptable from a usability point of view.  If you expect
->> your tools to be used then you can not rely on the user having to figure
->> out why they are broken.  And they are broken.  seinfo and sesearch are
->> tools used to analyze the "default policy"
-> 
-> A valid criticism.  It would be better to have the current behavior for
-> tools oriented towards analysts and the above behavior for the command
-> line tools, but the fact is that SETools design doesn't currently allow
-> it both ways since the policy loading is the same function across all
-> the tools.
-> 
->> man seinfo
-> [...]
-> 
-> Looks like this needs to be updated.
-> 
-Then lets change the parameter, change the output to say something
-warning the user that he is looking a slightly different policy then
-what is loaded in the kernel.  (Which he really has no guarantee for).
-And then the user can ignore it and get a pretty good approximation of
-the info he needs.  Right now we are failing for the minority of people,
-who are paid to know the difference and read the warning message.  I am
-asking to change the defaults.  And allow the user to specify --exact if
-he cares.
+--=-sj5VTvrAM2flt6i2Xc3Z
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Would it be worthwhile to submit a patch against the Rules.modular that
+disables the dontaudits? Seems like a simple and useful patch without
+requiring a whole new tool chain.
+
+-jj-=20
+
+On Mon, 2008-02-04 at 15:52 -0500, Stephen Smalley wrote:
+> On Mon, 2008-02-04 at 14:41 -0600, Jeremiah Jahn wrote:
+> > Any idea what this is about?
+> >=20
+> > policy/modules/system/mount.te:18:ERROR 'syntax error' at token
+> > 'typeattribute' on line 844559:
+> >=20
+> > This is the third one I've gotten. I got the same error for mono and
+> > monop. This is why I didn't just change the build.conf file. I seem to
+> > be able to move on to the next on if I set this back to module instead
+> > of base, but this seems to not seem right to me.=20
+>=20
+> Yes, sounds like a bug in the policy.  Surrounding context from that
+> line might be useful, although I'm sure Chris can reproduce easily
+> enough just by trying a build that puts everything into base.
+>=20
+Paradise is exactly like where you are right now ... only much, much
+better. -- Laurie Anderson
+
+--=-sj5VTvrAM2flt6i2Xc3Z
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Version: GnuPG v1.4.7 (GNU/Linux)
 
-iEYEARECAAYFAkeoZA8ACgkQrlYvE4MpobNDJwCcCTUGxEYVMtJmfcbRwgbKsSQl
-dbMAoMGLOUa5/UKVKQdazyZ695fFdq1V
-=zjIu
+iD8DBQBHqHHP6caZY8jbHDkRAmO3AJ45yyP0vejF0058a8Sj3/m4DU3alQCfaDIu
+71xBrEknqYJfse49uOPLKYQ=
+=O/ip
 -----END PGP SIGNATURE-----
+
+--=-sj5VTvrAM2flt6i2Xc3Z--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
