@@ -1,89 +1,53 @@
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>
-In-Reply-To: <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>
-References: <4798F57C.8090300@tycho.nsa.gov>
-	 <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 05 Feb 2008 15:48:24 -0500
-Message-Id: <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47A8D586.7080202@tycho.nsa.gov>
+Date: Tue, 05 Feb 2008 16:30:46 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: add "poly_property" type to X contexts backend
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This patch adds a poly_property type to the X contexts backend, so that 
+the X Flask module can be informed which properties to polyinstantiate.
 
-On Tue, 2008-02-05 at 11:52 -0600, Xavier Toth wrote:
-> Is this in rawhide, if not when will it be?
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
 
-Not up to us, obviously.  The patch is in Linus' git tree, but looks
-like latest fedora devel kernel is frozen on 2.6.24 + specific
-individual patches, not feeding from Linus' git presently.  James could
-possibly ask the Fedora kernel maintainer about adding it - it is small,
-self-contained, and has no side effects on existing code (nothing prior
-to XSELinux uses the compute member support; pam_namespace usage was
-disabled since it didn't work right for multi-level dirs).
+ include/selinux/label.h |    1 +
+ src/label_x.c           |    2 ++
+ 2 files changed, 3 insertions(+)
 
-> 
-> On Thu, Jan 24, 2008 at 2:30 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> > This patch removes the requirement that the new and related object types
-> >  differ in order to polyinstantiate by MLS level.  This allows MLS
-> >  polyinstantiation to occur in the absence of explicit type_member rules
-> >  or when the type has not changed.
-> >
-> >  Potential users of this support include pam_namespace.so (directory
-> >  polyinstantiation) and the SELinux X support (property polyinstantiation).
-> >
-> >  Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> >  ---
-> >
-> >   mls.c |   11 ++---------
-> >   1 file changed, 2 insertions(+), 9 deletions(-)
-> >
-> >
-> >  diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-> >  index fb5d70a..3bbcb53 100644
-> >  --- a/security/selinux/ss/mls.c
-> >  +++ b/security/selinux/ss/mls.c
-> >  @@ -537,15 +537,8 @@ int mls_compute_sid(struct context *scontext,
-> >                         /* Use the process effective MLS attributes. */
-> >                         return mls_context_cpy_low(newcontext, scontext);
-> >         case AVTAB_MEMBER:
-> >  -               /* Only polyinstantiate the MLS attributes if
-> >  -                  the type is being polyinstantiated */
-> >  -               if (newcontext->type != tcontext->type) {
-> >  -                       /* Use the process effective MLS attributes. */
-> >  -                       return mls_context_cpy_low(newcontext, scontext);
-> >  -               } else {
-> >  -                       /* Use the related object MLS attributes. */
-> >  -                       return mls_context_cpy(newcontext, tcontext);
-> >  -               }
-> >  +               /* Use the process effective MLS attributes. */
-> >  +               return mls_context_cpy_low(newcontext, scontext);
-> >         default:
-> >                 return -EINVAL;
-> >         }
-> >
-> >
-> >
-> >  --
-> >  Eamon Walsh <ewalsh@tycho.nsa.gov>
-> >  National Security Agency
-> >
-> >
-> >  --
-> >  This message was distributed to subscribers of the selinux mailing list.
-> >  If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> >  the words "unsubscribe selinux" without quotes as the message.
-> >
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+
+Index: libselinux/include/selinux/label.h
+===================================================================
+--- libselinux/include/selinux/label.h	(revision 2789)
++++ libselinux/include/selinux/label.h	(working copy)
+@@ -113,6 +113,7 @@
+ #define SELABEL_X_CLIENT	3
+ #define SELABEL_X_EVENT		4
+ #define SELABEL_X_SELN		5
++#define SELABEL_X_POLYPROP	6
+ 
+ 
+ #ifdef __cplusplus
+Index: libselinux/src/label_x.c
+===================================================================
+--- libselinux/src/label_x.c	(revision 2789)
++++ libselinux/src/label_x.c	(working copy)
+@@ -69,6 +69,8 @@
+ 			data->spec_arr[data->nspec].type = SELABEL_X_EVENT;
+ 		else if (!strcmp(type, "selection"))
+ 			data->spec_arr[data->nspec].type = SELABEL_X_SELN;
++		else if (!strcmp(type, "poly_property"))
++			data->spec_arr[data->nspec].type = SELABEL_X_POLYPROP;
+ 		else {
+ 			selinux_log(SELINUX_WARNING,
+ 				    "%s:  line %d has invalid object type %s\n",
+
 -- 
-Stephen Smalley
+Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
 
 
