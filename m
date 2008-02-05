@@ -1,47 +1,87 @@
-Subject: Re: matchpathcon flags
+Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1202241756.7533.78.camel@gorn>
-References: <1202241756.7533.78.camel@gorn>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>
+In-Reply-To: <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>
+References: <4798F57C.8090300@tycho.nsa.gov>
+	 <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 05 Feb 2008 15:36:16 -0500
-Message-Id: <1202243776.27371.95.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Feb 2008 15:48:24 -0500
+Message-Id: <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-02-05 at 15:02 -0500, Christopher J. PeBenito wrote:
-> I was trying to disable matchpathcon's validation of file contexts
-> because I wanted to be able use it in a python script to match against a
-> file_contexts that didn't have valid contexts on the running system
-> (file_contexts were standard, system was mcs).  However, explicitly
-> clearing MATCHPATHCON_VALIDATE still resulted in errors both on stable
-> and trunk.  Is this the way the flag is intended to work?
+On Tue, 2008-02-05 at 11:52 -0600, Xavier Toth wrote:
+> Is this in rawhide, if not when will it be?
 
-The flag just controls whether all entries are validated upon
-matchpathcon_init (or first call to matchpathcon) or lazily validated on
-use by matchpathcon just prior to returning them.  But they always get
-validated/canonicalized eventually.
+Not up to us, obviously.  The patch is in Linus' git tree, but looks
+like latest fedora devel kernel is frozen on 2.6.24 + specific
+individual patches, not feeding from Linus' git presently.  James could
+possibly ask the Fedora kernel maintainer about adding it - it is small,
+self-contained, and has no side effects on existing code (nothing prior
+to XSELinux uses the compute member support; pam_namespace usage was
+disabled since it didn't work right for multi-level dirs).
 
-It sounds like you want to do something similar to setfiles for -c
-(validate against another policy), where it overrides the callback with
-its own function via set_matchpathcon_canoncon() [stable] or
-selinux_set_callback(SELINUX_CB_VALIDATE...).
-
-> I've attached a modified utils/matchpathcon.c that I used for testing
-> the lib (I wanted to make sure it was the lib and not the python
-> wrapper).  I was trying to test fcglob matches vs the original
-> matchpathcon "fcregex".  So I was doing
 > 
-> ./matchpathcon -f file_contexts.orig/file_contexts -V /bin/bash
+> On Thu, Jan 24, 2008 at 2:30 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> > This patch removes the requirement that the new and related object types
+> >  differ in order to polyinstantiate by MLS level.  This allows MLS
+> >  polyinstantiation to occur in the absence of explicit type_member rules
+> >  or when the type has not changed.
+> >
+> >  Potential users of this support include pam_namespace.so (directory
+> >  polyinstantiation) and the SELinux X support (property polyinstantiation).
+> >
+> >  Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> >  ---
+> >
+> >   mls.c |   11 ++---------
+> >   1 file changed, 2 insertions(+), 9 deletions(-)
+> >
+> >
+> >  diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+> >  index fb5d70a..3bbcb53 100644
+> >  --- a/security/selinux/ss/mls.c
+> >  +++ b/security/selinux/ss/mls.c
+> >  @@ -537,15 +537,8 @@ int mls_compute_sid(struct context *scontext,
+> >                         /* Use the process effective MLS attributes. */
+> >                         return mls_context_cpy_low(newcontext, scontext);
+> >         case AVTAB_MEMBER:
+> >  -               /* Only polyinstantiate the MLS attributes if
+> >  -                  the type is being polyinstantiated */
+> >  -               if (newcontext->type != tcontext->type) {
+> >  -                       /* Use the process effective MLS attributes. */
+> >  -                       return mls_context_cpy_low(newcontext, scontext);
+> >  -               } else {
+> >  -                       /* Use the related object MLS attributes. */
+> >  -                       return mls_context_cpy(newcontext, tcontext);
+> >  -               }
+> >  +               /* Use the process effective MLS attributes. */
+> >  +               return mls_context_cpy_low(newcontext, scontext);
+> >         default:
+> >                 return -EINVAL;
+> >         }
+> >
+> >
+> >
+> >  --
+> >  Eamon Walsh <ewalsh@tycho.nsa.gov>
+> >  National Security Agency
+> >
+> >
+> >  --
+> >  This message was distributed to subscribers of the selinux mailing list.
+> >  If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> >  the words "unsubscribe selinux" without quotes as the message.
+> >
 > 
-> with and without -V (the file_contexts is in the fcglob refpolicy
-> branch).  On stable it always reports invalid context (and invalid
-> argument) and on trunk it always reports invalid argument.
-
-
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
