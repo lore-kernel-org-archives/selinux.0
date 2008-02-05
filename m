@@ -1,47 +1,45 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m15J62dW019846
-	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 14:06:02 -0500
-Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m15J60ts026669
-	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 19:06:01 GMT
-Received: from [IPv6:2001:6f8:1294:1:211:24ff:fee1:776c] ([IPv6:2001:6f8:1294:1:211:24ff:fee1:776c])
-	(authenticated bits=0)
-	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id m15J697f007852
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 20:06:09 +0100
-Subject: SELinux and Linux user mapping
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Tue, 05 Feb 2008 20:05:56 +0100
-Message-Id: <1202238356.2672.26.camel@vogon>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: How to contribute: policy?
+Date: Tue, 5 Feb 2008 14:21:45 -0500
+Message-ID: <D709A20F2164C84E8B7014B0301F5EF8BC09C3@HAVOC.tcs-sec.com>
+From: "Scott Lowrey" <slowrey@TrustedCS.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "Christopher J. PeBenito" <cpebenito@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Since my last upgrade to refpolicy-20071214 whenever I try to login with
-my username I'm in the default role (user).
 
-$ semanage login -l
-[...]
-stefan	staff_u
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Tuesday, February 05, 2008 12:59 PM
+> 
+> I'd tend to encourage people to both post it here so it can get
+> upstreamed for future upstream releases and bugzilla it so that it can
+> potentially be included in future updates to existing distributions.
+> You can't really assume that submitting it to RH will ever get it to
+the
+> upstream refpolicy nor that getting it into the upstream refpolicy
+will
+> ever get it into an existing distribution release like RHEL 5.  It has
+> to be submitted separately.  And ideally you could check first to see
+if
+> it is already in the refpolicy trunk, as naturally RHEL5 won't include
+> many fixes that have already been upstreamed there.
 
-But:
+[Sorry, I meant "upstream" when referring to changes in yet-to-be
+released software.]
 
-$ id
-uid=1000(stefan) gid=1000(stefan) groups=1000(stefan)
-context=user_u:user_r:user_t
+Thanks, I'll check the latest refpolicy before submitting any patches.  
 
-I tried to login locally and remote via ssh. No AVCs are generated or
-whatever. Did I miss something? That's really strange. Did something
-change in the past?
+Sorry for all the rookie questions, but I assume that the svn repo at
+http://oss.tresys.com/repos/refpolicy is still the official source for
+reference policy?  And would I check the latest Fedora source for RHEL?
 
-Also other users are always logged in as user_u and not e.g. staff_u
-(enforcing or permissive mode does not change anything).
-I'm using Debian (testing).
-
-cheers
-Stefan
+--
+Scott Lowrey
+Trusted Computer Solutions
+Herndon, VA
 
 
 --
