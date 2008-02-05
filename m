@@ -1,49 +1,47 @@
-Subject: Re: segfault in checkpolicy stable
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1202238014.27371.83.camel@moss-spartans.epoch.ncsc.mil>
-References: <1202236461.7533.55.camel@gorn>
-	 <1202238014.27371.83.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m15J62dW019846
+	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 14:06:02 -0500
+Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m15J60ts026669
+	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 19:06:01 GMT
+Received: from [IPv6:2001:6f8:1294:1:211:24ff:fee1:776c] ([IPv6:2001:6f8:1294:1:211:24ff:fee1:776c])
+	(authenticated bits=0)
+	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id m15J697f007852
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 20:06:09 +0100
+Subject: SELinux and Linux user mapping
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Tue, 05 Feb 2008 14:02:26 -0500
-Message-Id: <1202238146.27371.85.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Feb 2008 20:05:56 +0100
+Message-Id: <1202238356.2672.26.camel@vogon>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Since my last upgrade to refpolicy-20071214 whenever I try to login with
+my username I'm in the default role (user).
 
-On Tue, 2008-02-05 at 14:00 -0500, Stephen Smalley wrote:
-> On Tue, 2008-02-05 at 13:34 -0500, Christopher J. PeBenito wrote:
-> > With all of the newest stable userland:
-> > 
-> > libsepol-1.16.10
-> > libselinux-1.34.14 
-> > libsemanage-1.10.9
-> > checkpolicy-1.34.4
-> > 
-> > I'm getting a segfault in checkpolicy.
-> > 
-> > Compiling refpolicy policy.21
-> > /usr/bin/checkpolicy policy.conf -o policy.21
-> > /usr/bin/checkpolicy:  loading policy configuration from policy.conf
-> > make: *** [policy.21] Segmentation fault
-> > 
-> > 
-> > Steps to reproduce:
-> > 
-> > 1. check out refpolicy trunk
-> > 2. # make conf
-> > 3. # make policy
-> 
-> Thanks, should be fixed in libsepol 1.16.11.
+$ semanage login -l
+[...]
+stefan	staff_u
 
-Note that you'll need to rebuild checkpolicy against it since it uses
-the static lib.
+But:
 
--- 
-Stephen Smalley
-National Security Agency
+$ id
+uid=1000(stefan) gid=1000(stefan) groups=1000(stefan)
+context=user_u:user_r:user_t
+
+I tried to login locally and remote via ssh. No AVCs are generated or
+whatever. Did I miss something? That's really strange. Did something
+change in the past?
+
+Also other users are always logged in as user_u and not e.g. staff_u
+(enforcing or permissive mode does not change anything).
+I'm using Debian (testing).
+
+cheers
+Stefan
 
 
 --
