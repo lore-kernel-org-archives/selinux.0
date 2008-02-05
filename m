@@ -1,77 +1,99 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m15MCito019920
-	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 17:12:44 -0500
-Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m15MCgZ4021444
-	for <selinux@tycho.nsa.gov>; Tue, 5 Feb 2008 22:12:42 GMT
-Received: by wa-out-1112.google.com with SMTP id k22so3177934waf.0
-        for <selinux@tycho.nsa.gov>; Tue, 05 Feb 2008 14:12:41 -0800 (PST)
-Message-ID: <cadfc0e40802051412p393dd42ei3632bee0b9842b73@mail.gmail.com>
-Date: Tue, 5 Feb 2008 16:12:41 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux: add "poly_property" type to X contexts backend
-Cc: "SELinux List" <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>
-In-Reply-To: <47A8D586.7080202@tycho.nsa.gov>
+Date: Wed, 6 Feb 2008 09:35:44 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Xavier Toth <txtoth@gmail.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
+In-Reply-To: <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0802060934570.10987@us.intercode.com.au>
+References: <4798F57C.8090300@tycho.nsa.gov>
+ <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>
+ <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <47A8D586.7080202@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm curious as to why you chose the route of specifying which
-properties are polyinstantiated instead of which are not bearing in
-mind what Glenn said in a previous post?
+On Tue, 5 Feb 2008, Stephen Smalley wrote:
 
-On Feb 5, 2008 3:30 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> This patch adds a poly_property type to the X contexts backend, so that
-> the X Flask module can be informed which properties to polyinstantiate.
->
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> ---
->
->  include/selinux/label.h |    1 +
->  src/label_x.c           |    2 ++
->  2 files changed, 3 insertions(+)
->
->
-> Index: libselinux/include/selinux/label.h
-> ===================================================================
-> --- libselinux/include/selinux/label.h  (revision 2789)
-> +++ libselinux/include/selinux/label.h  (working copy)
-> @@ -113,6 +113,7 @@
->  #define SELABEL_X_CLIENT       3
->  #define SELABEL_X_EVENT                4
->  #define SELABEL_X_SELN         5
-> +#define SELABEL_X_POLYPROP     6
->
->
->  #ifdef __cplusplus
-> Index: libselinux/src/label_x.c
-> ===================================================================
-> --- libselinux/src/label_x.c    (revision 2789)
-> +++ libselinux/src/label_x.c    (working copy)
-> @@ -69,6 +69,8 @@
->                         data->spec_arr[data->nspec].type = SELABEL_X_EVENT;
->                 else if (!strcmp(type, "selection"))
->                         data->spec_arr[data->nspec].type = SELABEL_X_SELN;
-> +               else if (!strcmp(type, "poly_property"))
-> +                       data->spec_arr[data->nspec].type = SELABEL_X_POLYPROP;
->                 else {
->                         selinux_log(SELINUX_WARNING,
->                                     "%s:  line %d has invalid object type %s\n",
->
-> --
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+> 
+> On Tue, 2008-02-05 at 11:52 -0600, Xavier Toth wrote:
+> > Is this in rawhide, if not when will it be?
+> 
+> Not up to us, obviously.  The patch is in Linus' git tree, but looks
+> like latest fedora devel kernel is frozen on 2.6.24 + specific
+> individual patches, not feeding from Linus' git presently.  James could
+> possibly ask the Fedora kernel maintainer about adding it - it is small,
+> self-contained, and has no side effects on existing code (nothing prior
+> to XSELinux uses the compute member support; pam_namespace usage was
+> disabled since it didn't work right for multi-level dirs).
+
+The rawhide kernel usually tracks Linus pretty closely -- perhaps wait a 
+couple of days until people recover from LCA.
+
+> 
+> > 
+> > On Thu, Jan 24, 2008 at 2:30 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> > > This patch removes the requirement that the new and related object types
+> > >  differ in order to polyinstantiate by MLS level.  This allows MLS
+> > >  polyinstantiation to occur in the absence of explicit type_member rules
+> > >  or when the type has not changed.
+> > >
+> > >  Potential users of this support include pam_namespace.so (directory
+> > >  polyinstantiation) and the SELinux X support (property polyinstantiation).
+> > >
+> > >  Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+> > >  ---
+> > >
+> > >   mls.c |   11 ++---------
+> > >   1 file changed, 2 insertions(+), 9 deletions(-)
+> > >
+> > >
+> > >  diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+> > >  index fb5d70a..3bbcb53 100644
+> > >  --- a/security/selinux/ss/mls.c
+> > >  +++ b/security/selinux/ss/mls.c
+> > >  @@ -537,15 +537,8 @@ int mls_compute_sid(struct context *scontext,
+> > >                         /* Use the process effective MLS attributes. */
+> > >                         return mls_context_cpy_low(newcontext, scontext);
+> > >         case AVTAB_MEMBER:
+> > >  -               /* Only polyinstantiate the MLS attributes if
+> > >  -                  the type is being polyinstantiated */
+> > >  -               if (newcontext->type != tcontext->type) {
+> > >  -                       /* Use the process effective MLS attributes. */
+> > >  -                       return mls_context_cpy_low(newcontext, scontext);
+> > >  -               } else {
+> > >  -                       /* Use the related object MLS attributes. */
+> > >  -                       return mls_context_cpy(newcontext, tcontext);
+> > >  -               }
+> > >  +               /* Use the process effective MLS attributes. */
+> > >  +               return mls_context_cpy_low(newcontext, scontext);
+> > >         default:
+> > >                 return -EINVAL;
+> > >         }
+> > >
+> > >
+> > >
+> > >  --
+> > >  Eamon Walsh <ewalsh@tycho.nsa.gov>
+> > >  National Security Agency
+> > >
+> > >
+> > >  --
+> > >  This message was distributed to subscribers of the selinux mailing list.
+> > >  If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > >  the words "unsubscribe selinux" without quotes as the message.
+> > >
+> > 
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+> 
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
