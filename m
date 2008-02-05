@@ -1,55 +1,69 @@
-Subject: Re: su problems again
+Subject: [patch] libselinux:  don't preservebools for Linux >= 2.6.22
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jeremiah Jahn <jeremiah@goodinassociates.com>
-Cc: selinux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1202221519.2801.201.camel@bluejay.goodinassociates.com>
-References: <1202151733.2801.116.camel@bluejay.goodinassociates.com>
-	 <1202152318.3070.121.camel@moss-spartans.epoch.ncsc.mil>
-	 <1202154013.2801.119.camel@bluejay.goodinassociates.com>
-	 <1202155858.3070.127.camel@moss-spartans.epoch.ncsc.mil>
-	 <1202156505.2801.122.camel@bluejay.goodinassociates.com>
-	 <1202156860.3070.132.camel@moss-spartans.epoch.ncsc.mil>
-	 <1202157694.2801.128.camel@bluejay.goodinassociates.com>
-	 <1202158361.3070.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <1202221519.2801.201.camel@bluejay.goodinassociates.com>
+To: selinux@tycho.nsa.gov
+Cc: Joshua Brindle <method@manicmethod.com>,
+        "Todd C. Miller" <tmiller@tresys.com>,
+        Chad Sellers <csellers@tresys.com>
 Content-Type: text/plain
-Date: Tue, 05 Feb 2008 09:27:42 -0500
-Message-Id: <1202221662.27371.40.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Feb 2008 10:42:25 -0500
+Message-Id: <1202226145.27371.48.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Since Linux >= 2.6.22 includes the logic to automatically preserve
+active boolean values across a policy reload, the libselinux load policy
+logic can check the kernel version and skip the userspace preservebools
+processing in that case.  This is cleaner than introducing a config
+option to /etc/selinux/config, as it will auto-detect the support and
+fall back to the compatibility behavior for older kernels.  Thus,
+this change does not change behavior for RHEL 5 or Debian etch.
 
-On Tue, 2008-02-05 at 08:25 -0600, Jeremiah Jahn wrote:
-> Would it be worthwhile to submit a patch against the Rules.modular that
-> disables the dontaudits? Seems like a simple and useful patch without
-> requiring a whole new tool chain.
+Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
 
-Seems useful to me.  Although it would be very nice if semodule -DB
-support could get back ported into a RHEL 5 update...
+---
 
-> -jj- 
-> 
-> On Mon, 2008-02-04 at 15:52 -0500, Stephen Smalley wrote:
-> > On Mon, 2008-02-04 at 14:41 -0600, Jeremiah Jahn wrote:
-> > > Any idea what this is about?
-> > > 
-> > > policy/modules/system/mount.te:18:ERROR 'syntax error' at token
-> > > 'typeattribute' on line 844559:
-> > > 
-> > > This is the third one I've gotten. I got the same error for mono and
-> > > monop. This is why I didn't just change the build.conf file. I seem to
-> > > be able to move on to the next on if I set this back to module instead
-> > > of base, but this seems to not seem right to me. 
-> > 
-> > Yes, sounds like a bug in the policy.  Surrounding context from that
-> > line might be useful, although I'm sure Chris can reproduce easily
-> > enough just by trying a build that puts everything into base.
-> > 
-> Paradise is exactly like where you are right now ... only much, much
-> better. -- Laurie Anderson
+ libselinux/src/load_policy.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+Index: trunk/libselinux/src/load_policy.c
+===================================================================
+--- trunk/libselinux/src/load_policy.c	(revision 2786)
++++ trunk/libselinux/src/load_policy.c	(working copy)
+@@ -3,6 +3,7 @@
+ #include <sys/stat.h>
+ #include <sys/mman.h>
+ #include <sys/mount.h>
++#include <sys/utsname.h>
+ #include <fcntl.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+@@ -48,6 +49,7 @@
+ 	int vers = kernvers, minvers = DEFAULT_POLICY_VERSION;
+ 	char path[PATH_MAX], **names;
+ 	struct stat sb;
++	struct utsname uts;
+ 	size_t size;
+ 	void *map, *data;
+ 	int fd, rc = -1, *values, len, i, prot;
+@@ -129,6 +131,15 @@
+ 		minvers = vers_min();
+ 	}
+ 
++
++	/* 
++	 * As of Linux 2.6.22, the kernel preserves boolean
++	 * values across a reload, so we do not need to 
++	 * preserve them in userspace.
++	 */
++	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.22") >= 0)
++		preservebools = 0;
++
+       search:
+ 	snprintf(path, sizeof(path), "%s.%d",
+ 		 selinux_binary_policy_path(), vers);
+
+
 -- 
 Stephen Smalley
 National Security Agency
