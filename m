@@ -1,50 +1,23 @@
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Xavier Toth <txtoth@gmail.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <Xine.LNX.4.64.0802060934570.10987@us.intercode.com.au>
-References: <4798F57C.8090300@tycho.nsa.gov>
-	 <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>
-	 <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>
-	 <Xine.LNX.4.64.0802060934570.10987@us.intercode.com.au>
-Content-Type: text/plain
-Date: Wed, 06 Feb 2008 09:49:49 -0500
-Message-Id: <1202309389.27371.140.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: Resend: Sudo Changes for SELinux
+Date: Wed, 6 Feb 2008 09:59:41 -0500
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015880181F138@exchange.columbia.tresys.com>
+In-Reply-To: <47A08F44.20308@redhat.com>
+References: <4784EFE8.9050106@redhat.com>	 <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>	 <1199903006.9393.296.camel@moss-spartans.epoch.ncsc.mil>	 <478670A8.5080902@redhat.com> <1199995291.3707.15.camel@vogon>	 <47877F43.5030401@redhat.com>	 <1200065528.29816.66.camel@moss-spartans.epoch.ncsc.mil> <1200065923.29816.69.camel@moss-spartans.epoch.ncsc.mil> <4787BF20.1050105@redhat.com> <47A08F44.20308@redhat.com>
+From: "Todd Miller" <Tmiller@tresys.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Stefan Schulze Frielinghaus" <stefan@seekline.net>,
+        "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Is there any reason sesh needs to fork()?  If all you need is an
+exec-time transition isn't it sufficient to just call exec()?
 
-On Wed, 2008-02-06 at 09:35 +1100, James Morris wrote:
-> On Tue, 5 Feb 2008, Stephen Smalley wrote:
-> 
-> > 
-> > On Tue, 2008-02-05 at 11:52 -0600, Xavier Toth wrote:
-> > > Is this in rawhide, if not when will it be?
-> > 
-> > Not up to us, obviously.  The patch is in Linus' git tree, but looks
-> > like latest fedora devel kernel is frozen on 2.6.24 + specific
-> > individual patches, not feeding from Linus' git presently.  James could
-> > possibly ask the Fedora kernel maintainer about adding it - it is small,
-> > self-contained, and has no side effects on existing code (nothing prior
-> > to XSELinux uses the compute member support; pam_namespace usage was
-> > disabled since it didn't work right for multi-level dirs).
-> 
-> The rawhide kernel usually tracks Linus pretty closely -- perhaps wait a 
-> couple of days until people recover from LCA.
-
-Looks like they froze it on 2.6.24 (kernel.spec has released_kernel 1,
-gitrev 0 in Fedora devel CVS), and are only cherry picking individual
-patches, like the /proc/net fix for SELinux.  Unless that was only for
-the Fedora 9 Alpha release and they'll re-open the flood gates soon?
-
-If they don't start pulling from git again soon, we should likely take
-the specific patch to fedora kernel list.
-
--- 
-Stephen Smalley
-National Security Agency
+ - todd
 
 
 --
