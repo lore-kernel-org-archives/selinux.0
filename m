@@ -1,67 +1,70 @@
-Message-ID: <47AA0A2C.6090009@tycho.nsa.gov>
-Date: Wed, 06 Feb 2008 14:27:40 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Glenn Faden <Glenn.Faden@sun.com>
-CC: Xavier Toth <txtoth@gmail.com>, SELinux List <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux: add "poly_property" type to X contexts backend
-References: <47A8D586.7080202@tycho.nsa.gov> <cadfc0e40802051412p393dd42ei3632bee0b9842b73@mail.gmail.com> <47A9047D.1000501@tycho.nsa.gov> <47A9DA5D.2030109@sun.com>
-In-Reply-To: <47A9DA5D.2030109@sun.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m16KG2Bw019509
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 15:16:02 -0500
+Received: from penguin.goodinassociates.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m16KG15s008367
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 20:16:02 GMT
+Received: from [206.80.71.242] ([206.80.71.242])
+	(authenticated bits=0)
+	by penguin.goodinassociates.com (8.13.1/8.13.1) with ESMTP id m16KG3xo017263
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 14:16:03 -0600
+Subject: Why am I not transitioning correctly?
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8oUuUQ2JIAWu7Gsfwsgn"
+Date: Wed, 06 Feb 2008 14:16:00 -0600
+Message-Id: <1202328961.2801.354.camel@bluejay.goodinassociates.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Glenn Faden wrote:
-> Eamon Walsh wrote:
->   
->> Xavier Toth wrote:
->>     
->>> I'm curious as to why you chose the route of specifying which
->>> properties are polyinstantiated instead of which are not bearing in
->>> mind what Glenn said in a previous post?
->>>   
->>>       
->> The server will check the "property" lines first and if it doesn't 
->> find a match it will check the "poly_property" lines.  So, as long as 
->> the wildcard entry in the x_contexts file is changed from property to 
->> poly_property, the default will be to polyinstantiate.
->>
->> However I wasn't planning on treating the root window any differently 
->> from other windows, so this behavior would apply to all windows.
->>     
-> I've never seen a requirement for polyinstantiation of properties on 
-> per-client windows. I've seen requirements for relabeling properties, 
-> however. For example, the trusted selection manager needs to create 
-> properties that are readable by the client who requests a 
-> ConvertSelection. We do this by calling a new X protocol extension.
 
-SELinux protocol extension allows clients to create windows and 
-properties with different security contexts.
+--=-8oUuUQ2JIAWu7Gsfwsgn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->  How 
-> do you plan to have trusted clients act on behalf of other clients with 
-> different security contexts?
+I get this error in the audit log:
+type=3DSELINUX_ERR msg=3Daudit(1202327606.098:732): security_compute_sid:  =
+invalid context system_u:system_r:monetra_t:s0 for scontext=3Dsystem_u:syst=
+em_r:initrc_t:s0 tcontext=3Dsystem_u:object_r:monetra_server_exec_t:s0 tcla=
+ss=3Dprocess
+type=3DSYSCALL msg=3Daudit(1202327606.098:732): arch=3D40000003 syscall=3D1=
+1 success=3Dno exit=3D-13 a0=3D9d9f650 a1=3D9d9f5d8 a2=3D9d8c728 a3=3D9d9ff=
+20 items=3D0 ppid=3D2575 pid=3D2593 auid=3D4294967295 uid=3D0 gid=3D0 euid=
+=3D0 suid=3D0 fsuid=3D0 egid=3D0 sgid=3D0 fsgid=3D0 tty=3D(none) comm=3D"S9=
+9monetra" ex
+e=3D"/bin/bash" subj=3Dsystem_u:system_r:initrc_t:s0 key=3D(null)
 
-I haven't done the polyinstantiation for selections yet, but my current 
-plan is to implement a trusted clipboard manager that will display the 
-various clipboard contents and allow users to upgrade or downgrade, 
-which means that the clipboard manager will take ownership of the 
-selection at the target level and just pipe the data through.  This 
-scheme shouldn't require tweaking properties on the fly.  However this 
-would not be point-to-point but would make the selection available to 
-all applications at the target level.
+I was under the assumption that the following would work:
+allow initrc_t monetra_server_exec_t:file { read execute getattr};
+allow monetra_t monetra_server_exec_t:file { entrypoint };
+type_transition initrc_t monetra_server_exec_t:process monetra_t;
 
-> Similarly, how can a trusted client 
-> read/write a polyinstantiated property with a different security context?
->   
-
-By launching a helper process at the appropriate level.
+I can't do init_daemon_domain(monetra_t,monetra_server_exec_t) because I
+can't let sysadm_t read anything involving monetra_t. And I'd thought
+I'd read in "selinux by example" that
+domain_auto_trans(initrc_t,monetra_server_exec_t,monetra_t) is generally
+a bad idea.
+=09
 
 
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+
+Yes, but every time I try to see things your way, I get a headache.
+
+--=-8oUuUQ2JIAWu7Gsfwsgn
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHqhWA6caZY8jbHDkRAj9nAJ47XwkepY+t2iBggdEM9HrTCuZWoQCfd3s+
+xK26p1ykgZlPih4MaXNRajU=
+=RPGb
+-----END PGP SIGNATURE-----
+
+--=-8oUuUQ2JIAWu7Gsfwsgn--
 
 
 --
