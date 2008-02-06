@@ -1,118 +1,180 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m16FeNn6016872
-	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 10:40:23 -0500
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m16FeLOC022603
-	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 15:40:21 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id m16FcvTU019546
-	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 10:38:57 -0500
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id m16FcvBr019545
-	for selinux@tycho.nsa.gov; Wed, 6 Feb 2008 10:38:57 -0500
-Subject: [patch] libselinux:  disable setlocaldefs if no local boolean or
-	user files exist
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m16Fo2BR018377
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 10:50:02 -0500
+Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m16Fo1o8024659
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 15:50:02 GMT
+Received: from ns.i.cz (brana.i.cz [193.179.36.134])
+	by vidle.i.cz (Postfix) with ESMTP id AFE011CCD0
+	for <selinux@tycho.nsa.gov>; Wed,  6 Feb 2008 16:49:57 +0100 (CET)
+Received: from bobek.localdomain (bobek.pm.i.cz [192.168.64.71])
+	by ns.i.cz (Postfix) with ESMTP id 80A305C05
+	for <selinux@tycho.nsa.gov>; Wed,  6 Feb 2008 16:49:57 +0100 (CET)
+Received: from zito by bobek.localdomain with local (Exim 4.63)
+	(envelope-from <vaclav.ovsik@i.cz>)
+	id 1JMmX7-0008DK-6e
+	for selinux@tycho.nsa.gov; Wed, 06 Feb 2008 16:49:57 +0100
+Date: Wed, 6 Feb 2008 16:49:57 +0100
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
 To: selinux@tycho.nsa.gov
-Cc: Joshua Brindle <method@manicmethod.com>,
-        "Todd C. Miller" <tmiller@tresys.com>,
-        Chad Sellers <csellers@tresys.com>
-Content-Type: text/plain
-Date: Wed, 06 Feb 2008 10:26:32 -0500
-Message-Id: <1202311592.27371.150.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: fixfiles: broken option processing?
+Message-ID: <20080206154957.GA28647@bobek.pm.i.cz>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="azLHFNyN32YCQGCU"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-If there are no local boolean or user files present, then the libselinux
-load policy logic can disable setlocaldefs early and thus avoid creating
-a writable mapping of the policy as well as avoiding the overhead of
-calling the sepol functions for manipulating local boolean and user
-files altogether.  This is cleaner than changing the default for the
-config option, as it will fall back to compatibility behavior for older
-distributions.  Thus, this change should not change behavior for RHEL 4.
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
----
+Hi,
+I'm fighting with current fixfiles script. This script is called on
+Debian from init scripts (/etc/init.d/selinux-basics) when
+autorelabeling is requested in the following shape:
 
- libselinux/src/load_policy.c |   25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+    /sbin/fixfiles -f -F relabel > /dev/null || true
 
-Index: trunk/libselinux/src/load_policy.c
-===================================================================
---- trunk/libselinux/src/load_policy.c	(revision 2790)
-+++ trunk/libselinux/src/load_policy.c	(working copy)
-@@ -47,6 +47,7 @@
- {	
- 	int kernvers = security_policyvers();
- 	int vers = kernvers, minvers = DEFAULT_POLICY_VERSION;
-+	int setlocaldefs = load_setlocaldefs;
- 	char path[PATH_MAX], **names;
- 	struct stat sb;
- 	struct utsname uts;
-@@ -131,13 +132,29 @@
- 		minvers = vers_min();
- 	}
- 
-+	/*
-+	 * Check whether we need to support local boolean and user definitions.
-+	 */
-+	if (setlocaldefs) {
-+		if (access(selinux_booleans_path(), F_OK) == 0)
-+			goto checkbool;
-+		snprintf(path, sizeof path, "%s.local", selinux_booleans_path());
-+		if (access(path, F_OK) == 0)
-+			goto checkbool;
-+		snprintf(path, sizeof path, "%s/local.users", selinux_users_path());
-+		if (access(path, F_OK) == 0)
-+			goto checkbool;
-+		/* No local definition files, so disable setlocaldefs. */
-+		setlocaldefs = 0;
-+	}
- 
-+checkbool:
- 	/* 
- 	 * As of Linux 2.6.22, the kernel preserves boolean
- 	 * values across a reload, so we do not need to 
- 	 * preserve them in userspace.
- 	 */
--	if (uname(&uts) == 0 && strverscmp(uts.release, "2.6.22") >= 0)
-+	if (preservebools && uname(&uts) == 0 && strverscmp(uts.release, "2.6.22") >= 0)
- 		preservebools = 0;
- 
-       search:
-@@ -158,7 +175,7 @@
- 		goto close;
- 
- 	prot = PROT_READ;
--	if (load_setlocaldefs || preservebools)
-+	if (setlocaldefs || preservebools)
- 		prot |= PROT_WRITE;
- 
- 	size = sb.st_size;
-@@ -195,7 +212,7 @@
- 	}
- 
- 	if (usesepol) {
--		if (load_setlocaldefs) {
-+		if (setlocaldefs) {
- 			void *olddata = data;
- 			size_t oldsize = size;
- 			rc = genusers(olddata, oldsize, selinux_users_path(),
-@@ -228,7 +245,7 @@
- 					free(names[i]);
- 				free(names);
- 			}
--		} else if (load_setlocaldefs) {
-+		} else if (setlocaldefs) {
- 			(void)genbools(data, size,
- 				       (char *)selinux_booleans_path());
- 		}
+With current version r2760, this never succeed at least on Debian. It
+seems to me, that getopts is used with shifting arguments improperly.
+Help for getopts says, that successive calls to getopts sets OPTIND on
+next option. When arguments are shifted without reasigning OPTIND to 1,
+bad argument is processed.
 
+Please consider my patch. I distiled this code from some autoconf
+output. This supports long options and leaves only non option arguments.
+No bashism. Code needs review. I'm not certain how effective code should
+be for very long argument list.
+
+If this patch is not usable, original code can be fixed by removing
+shift commands from processing or reasigning 1 to OPTIND, but man page
+should be fixed, so that options must precede command.
+
+Cheers.
 -- 
-Stephen Smalley
-National Security Agency
+Zito
+
+--azLHFNyN32YCQGCU
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="fixfiles.optproc.patch"
+
+Index: fixfiles
+===================================================================
+--- fixfiles	(revision 2790)
++++ fixfiles	(working copy)
+@@ -20,6 +20,8 @@
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
++progname=$(basename $0)
++
+ #
+ # Set global Variables
+ #
+@@ -186,60 +188,61 @@
+ esac
+ }
+ usage() {
+-      	echo $"Usage: $0 [-l logfile ] [-o outputfile ] { check | restore|[-F] relabel } [[dir] ... ] "
++      	echo $"Usage: $progname [-l logfile ] [-o outputfile ] { check | restore|[-F] relabel } [[dir] ... ] "
+ 	echo or
+-      	echo $"Usage: $0 -R rpmpackage[,rpmpackage...] -C PREVIOUS_FILECONTEXT [-l logfile ] [-o outputfile ] { check | restore }"
++      	echo $"Usage: $progname -R rpmpackage[,rpmpackage...] -C PREVIOUS_FILECONTEXT [-l logfile ] [-o outputfile ] { check | restore }"
+ }
+ 
+-if [ $# = 0 ]; then
+-	usage
+-	exit 1
+-fi
+ 
+ # See how we were called.
+-while getopts "C:Ffo:R:l:" i; do
+-    case "$i" in
+-	f)
+-		fullFlag=1
+-		shift 1
+-		;;
+-        R)
+-		RPMFILES=$OPTARG
+-		shift 2
+-		;;
+-        o)
+-		OUTFILES=$OPTARG
+-		shift 2
+-		;;
+-        l)
+-		LOGFILE=$OPTARG
+-		shift 2
+-		;;
+-        C)
+-		PREFC=$OPTARG
+-		shift 2
+-		;;
+-	F)
+-		FORCEFLAG="-F"
+-		shift 1
+-		;;
+-	*)
+-	    usage
+-	    exit 1
+-esac
++opt_prev=
++i=0
++for arg
++do
++    let i=i+1
++    if test -n "$opt_prev"
++    then
++        eval "$opt_prev=\$arg"
++        opt_prev=
++        continue
++    fi
++    case $arg in
++	-f|--full) fullFlag=1 ;;
++	-R|--rpm-files) opt_prev=RPMFILES ;;
++	-o|--out-file) opt_prev=OUTFILES ;;
++	-l|--log-file) opt_prev=LOGFILE ;;
++	-C|--prev-fc) opt_prev=PREFC ;;
++	-F|--force) FORCEFLAG="-F" ;;
++        -h|--help) usage; exit 0 ;;
++        -*)
++            echo "$progname: error: unrecognized option: $arg
++Try \`$progname --help' for more information." >&2
++            exit 1
++            ;;
++        *) noa="$noa \${$i}" ;;
++    esac
+ done
+ 
++eval set -- $noa
++
++if test $# -lt 1
++then
++    usage
++    exit 1
++fi
++
+ # Check for the command
+-command=$1
+-if [ -z $command ]; then
++command="$1"
++if [ -z "$command" ]; then
+     usage
++    exit 1
+ fi
++shift 1
+ 
+ #
+ # check if they specified both DIRS and RPMFILES
+ #
+ 
+-shift 1
+ if [ ! -z "$RPMFILES" ]; then
+     process $command
+     if [ $# -gt 0 ]; then
+
+--azLHFNyN32YCQGCU--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
