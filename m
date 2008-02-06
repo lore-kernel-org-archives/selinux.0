@@ -1,180 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m16Fo2BR018377
-	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 10:50:02 -0500
-Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m16Fo1o8024659
-	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 15:50:02 GMT
-Received: from ns.i.cz (brana.i.cz [193.179.36.134])
-	by vidle.i.cz (Postfix) with ESMTP id AFE011CCD0
-	for <selinux@tycho.nsa.gov>; Wed,  6 Feb 2008 16:49:57 +0100 (CET)
-Received: from bobek.localdomain (bobek.pm.i.cz [192.168.64.71])
-	by ns.i.cz (Postfix) with ESMTP id 80A305C05
-	for <selinux@tycho.nsa.gov>; Wed,  6 Feb 2008 16:49:57 +0100 (CET)
-Received: from zito by bobek.localdomain with local (Exim 4.63)
-	(envelope-from <vaclav.ovsik@i.cz>)
-	id 1JMmX7-0008DK-6e
-	for selinux@tycho.nsa.gov; Wed, 06 Feb 2008 16:49:57 +0100
-Date: Wed, 6 Feb 2008 16:49:57 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: selinux@tycho.nsa.gov
-Subject: fixfiles: broken option processing?
-Message-ID: <20080206154957.GA28647@bobek.pm.i.cz>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="azLHFNyN32YCQGCU"
+Date: Wed, 06 Feb 2008 08:03:41 -0800
+From: Glenn Faden <Glenn.Faden@sun.com>
+Subject: Re: [PATCH] libselinux: add "poly_property" type to X contexts backend
+In-reply-to: <47A9047D.1000501@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Xavier Toth <txtoth@gmail.com>, SELinux List <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Message-id: <47A9DA5D.2030109@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+References: <47A8D586.7080202@tycho.nsa.gov>
+ <cadfc0e40802051412p393dd42ei3632bee0b9842b73@mail.gmail.com>
+ <47A9047D.1000501@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Eamon Walsh wrote:
+> Xavier Toth wrote:
+>> I'm curious as to why you chose the route of specifying which
+>> properties are polyinstantiated instead of which are not bearing in
+>> mind what Glenn said in a previous post?
+>>   
+>
+> The server will check the "property" lines first and if it doesn't 
+> find a match it will check the "poly_property" lines.  So, as long as 
+> the wildcard entry in the x_contexts file is changed from property to 
+> poly_property, the default will be to polyinstantiate.
+>
+> However I wasn't planning on treating the root window any differently 
+> from other windows, so this behavior would apply to all windows.
+I've never seen a requirement for polyinstantiation of properties on 
+per-client windows. I've seen requirements for relabeling properties, 
+however. For example, the trusted selection manager needs to create 
+properties that are readable by the client who requests a 
+ConvertSelection. We do this by calling a new X protocol extension. How 
+do you plan to have trusted clients act on behalf of other clients with 
+different security contexts? Similarly, how can a trusted client 
+read/write a polyinstantiated property with a different security context?
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Glenn
 
-Hi,
-I'm fighting with current fixfiles script. This script is called on
-Debian from init scripts (/etc/init.d/selinux-basics) when
-autorelabeling is requested in the following shape:
-
-    /sbin/fixfiles -f -F relabel > /dev/null || true
-
-With current version r2760, this never succeed at least on Debian. It
-seems to me, that getopts is used with shifting arguments improperly.
-Help for getopts says, that successive calls to getopts sets OPTIND on
-next option. When arguments are shifted without reasigning OPTIND to 1,
-bad argument is processed.
-
-Please consider my patch. I distiled this code from some autoconf
-output. This supports long options and leaves only non option arguments.
-No bashism. Code needs review. I'm not certain how effective code should
-be for very long argument list.
-
-If this patch is not usable, original code can be fixed by removing
-shift commands from processing or reasigning 1 to OPTIND, but man page
-should be fixed, so that options must precede command.
-
-Cheers.
--- 
-Zito
-
---azLHFNyN32YCQGCU
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="fixfiles.optproc.patch"
-
-Index: fixfiles
-===================================================================
---- fixfiles	(revision 2790)
-+++ fixfiles	(working copy)
-@@ -20,6 +20,8 @@
- # along with this program; if not, write to the Free Software
- # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- 
-+progname=$(basename $0)
-+
- #
- # Set global Variables
- #
-@@ -186,60 +188,61 @@
- esac
- }
- usage() {
--      	echo $"Usage: $0 [-l logfile ] [-o outputfile ] { check | restore|[-F] relabel } [[dir] ... ] "
-+      	echo $"Usage: $progname [-l logfile ] [-o outputfile ] { check | restore|[-F] relabel } [[dir] ... ] "
- 	echo or
--      	echo $"Usage: $0 -R rpmpackage[,rpmpackage...] -C PREVIOUS_FILECONTEXT [-l logfile ] [-o outputfile ] { check | restore }"
-+      	echo $"Usage: $progname -R rpmpackage[,rpmpackage...] -C PREVIOUS_FILECONTEXT [-l logfile ] [-o outputfile ] { check | restore }"
- }
- 
--if [ $# = 0 ]; then
--	usage
--	exit 1
--fi
- 
- # See how we were called.
--while getopts "C:Ffo:R:l:" i; do
--    case "$i" in
--	f)
--		fullFlag=1
--		shift 1
--		;;
--        R)
--		RPMFILES=$OPTARG
--		shift 2
--		;;
--        o)
--		OUTFILES=$OPTARG
--		shift 2
--		;;
--        l)
--		LOGFILE=$OPTARG
--		shift 2
--		;;
--        C)
--		PREFC=$OPTARG
--		shift 2
--		;;
--	F)
--		FORCEFLAG="-F"
--		shift 1
--		;;
--	*)
--	    usage
--	    exit 1
--esac
-+opt_prev=
-+i=0
-+for arg
-+do
-+    let i=i+1
-+    if test -n "$opt_prev"
-+    then
-+        eval "$opt_prev=\$arg"
-+        opt_prev=
-+        continue
-+    fi
-+    case $arg in
-+	-f|--full) fullFlag=1 ;;
-+	-R|--rpm-files) opt_prev=RPMFILES ;;
-+	-o|--out-file) opt_prev=OUTFILES ;;
-+	-l|--log-file) opt_prev=LOGFILE ;;
-+	-C|--prev-fc) opt_prev=PREFC ;;
-+	-F|--force) FORCEFLAG="-F" ;;
-+        -h|--help) usage; exit 0 ;;
-+        -*)
-+            echo "$progname: error: unrecognized option: $arg
-+Try \`$progname --help' for more information." >&2
-+            exit 1
-+            ;;
-+        *) noa="$noa \${$i}" ;;
-+    esac
- done
- 
-+eval set -- $noa
-+
-+if test $# -lt 1
-+then
-+    usage
-+    exit 1
-+fi
-+
- # Check for the command
--command=$1
--if [ -z $command ]; then
-+command="$1"
-+if [ -z "$command" ]; then
-     usage
-+    exit 1
- fi
-+shift 1
- 
- #
- # check if they specified both DIRS and RPMFILES
- #
- 
--shift 1
- if [ ! -z "$RPMFILES" ]; then
-     process $command
-     if [ $# -gt 0 ]; then
-
---azLHFNyN32YCQGCU--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
