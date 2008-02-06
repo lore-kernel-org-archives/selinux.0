@@ -1,76 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m16BpTqm011311
-	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 06:51:29 -0500
-Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m16BpSQr011378
-	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 11:51:28 GMT
-Date: Wed, 6 Feb 2008 12:51:02 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-Subject: Re: SELinux and Linux user mapping
-Message-ID: <20080206115102.GA19285@bobek.pm.i.cz>
-References: <1202238356.2672.26.camel@vogon> <1202240861.7533.64.camel@gorn>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1202240861.7533.64.camel@gorn>
+Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>
+Cc: Xavier Toth <txtoth@gmail.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <Xine.LNX.4.64.0802060934570.10987@us.intercode.com.au>
+References: <4798F57C.8090300@tycho.nsa.gov>
+	 <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>
+	 <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>
+	 <Xine.LNX.4.64.0802060934570.10987@us.intercode.com.au>
+Content-Type: text/plain
+Date: Wed, 06 Feb 2008 09:49:49 -0500
+Message-Id: <1202309389.27371.140.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
 
-On Tue, Feb 05, 2008 at 02:47:40PM -0500, Christopher J. PeBenito wrote:
-> On Tue, 2008-02-05 at 20:05 +0100, Stefan Schulze Frielinghaus wrote:
-> > Since my last upgrade to refpolicy-20071214 whenever I try to login with
-> > my username I'm in the default role (user).
-> > 
-> > $ semanage login -l
-> > [...]
-> > stefan	staff_u
-> > 
-> > But:
-> > 
-> > $ id
-> > uid=1000(stefan) gid=1000(stefan) groups=1000(stefan)
-> > context=user_u:user_r:user_t
-> > 
-> > I tried to login locally and remote via ssh. No AVCs are generated or
-> > whatever. Did I miss something? That's really strange. Did something
-> > change in the past?
-> > 
-> > Also other users are always logged in as user_u and not e.g. staff_u
-> > (enforcing or permissive mode does not change anything).
-> > I'm using Debian (testing).
+On Wed, 2008-02-06 at 09:35 +1100, James Morris wrote:
+> On Tue, 5 Feb 2008, Stephen Smalley wrote:
 > 
-> I believe debian is using the openssh that has a broken configure script
-> (4.7) which improperly detects getseuserbyname() (it doesnt do -lselinux
-> on the compile test thus it always fails).  Debian might possibly be
-> using an old pam patch that doesn't use getseuserbyname().  But these
-> behavior changes wouldn't be tied to a policy change, unless you
-> previously had selinux users which corresponded to your linux user and
-> they were removed with the new policy.
+> > 
+> > On Tue, 2008-02-05 at 11:52 -0600, Xavier Toth wrote:
+> > > Is this in rawhide, if not when will it be?
+> > 
+> > Not up to us, obviously.  The patch is in Linus' git tree, but looks
+> > like latest fedora devel kernel is frozen on 2.6.24 + specific
+> > individual patches, not feeding from Linus' git presently.  James could
+> > possibly ask the Fedora kernel maintainer about adding it - it is small,
+> > self-contained, and has no side effects on existing code (nothing prior
+> > to XSELinux uses the compute member support; pam_namespace usage was
+> > disabled since it didn't work right for multi-level dirs).
+> 
+> The rawhide kernel usually tracks Linus pretty closely -- perhaps wait a 
+> couple of days until people recover from LCA.
 
-Yes, that is right. I'm experimenting with Debian stable. Openssh in
-stable 4.3p2 is ok, 4.7 from unstable fails. With pam 0.99.9 mapping
-works through local login and ssh ok. I have repository with some
-SELinux staff available already, but must write some instructions about
-it (probably some page on wiki.debian.org?). There are packages taken
-from Sid sometimes updated with newer versions (SELinux staff is taken
-from upstream subversion). Some packages are simply backports from Sid.
+Looks like they froze it on 2.6.24 (kernel.spec has released_kernel 1,
+gitrev 0 in Fedora devel CVS), and are only cherry picking individual
+patches, like the /proc/net fix for SELinux.  Unless that was only for
+the Fedora 9 Alpha release and they'll re-open the flood gates soon?
 
-If you want, you can try:
+If they don't start pulling from git again soon, we should likely take
+the specific patch to fedora kernel list.
 
-deb http://linux.i.cz/debian selinux-etch main
-
-Everything is highly experimental :).
-There is no refpolicy deb. The refpolicy needs changes, so I simply
-takes refpolicy from subversion
-
-http://oss.tresys.com/repos/refpolicy/trunk
-
-Cheers
 -- 
-Zito
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
