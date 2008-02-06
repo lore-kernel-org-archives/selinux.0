@@ -1,103 +1,76 @@
-Message-ID: <47A923CD.7080607@tycho.nsa.gov>
-Date: Tue, 05 Feb 2008 22:04:45 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m16BpTqm011311
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 06:51:29 -0500
+Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m16BpSQr011378
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 11:51:28 GMT
+Date: Wed, 6 Feb 2008 12:51:02 +0100
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: Stefan Schulze Frielinghaus <stefan@seekline.net>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+Subject: Re: SELinux and Linux user mapping
+Message-ID: <20080206115102.GA19285@bobek.pm.i.cz>
+References: <1202238356.2672.26.camel@vogon> <1202240861.7533.64.camel@gorn>
 MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux: add "poly_property" type to X contexts backend
-References: <47A8D586.7080202@tycho.nsa.gov> <cadfc0e40802051412p393dd42ei3632bee0b9842b73@mail.gmail.com> <47A9047D.1000501@tycho.nsa.gov>
-In-Reply-To: <47A9047D.1000501@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1202240861.7533.64.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> Xavier Toth wrote:
->   
->> I'm curious as to why you chose the route of specifying which
->> properties are polyinstantiated instead of which are not bearing in
->> mind what Glenn said in a previous post?
->>   
->>     
->
-> The server will check the "property" lines first and if it doesn't find 
-> a match it will check the "poly_property" lines.  So, as long as the 
-> wildcard entry in the x_contexts file is changed from property to 
-> poly_property, the default will be to polyinstantiate.
->
-> However I wasn't planning on treating the root window any differently 
-> from other windows, so this behavior would apply to all windows.
->   
+Hi,
 
-Upon further consideration I think I might just add a lookup function to 
-the label API that returns the polyinstantiation bit as a separate 
-argument.  This could work with files too.
+On Tue, Feb 05, 2008 at 02:47:40PM -0500, Christopher J. PeBenito wrote:
+> On Tue, 2008-02-05 at 20:05 +0100, Stefan Schulze Frielinghaus wrote:
+> > Since my last upgrade to refpolicy-20071214 whenever I try to login with
+> > my username I'm in the default role (user).
+> > 
+> > $ semanage login -l
+> > [...]
+> > stefan	staff_u
+> > 
+> > But:
+> > 
+> > $ id
+> > uid=1000(stefan) gid=1000(stefan) groups=1000(stefan)
+> > context=user_u:user_r:user_t
+> > 
+> > I tried to login locally and remote via ssh. No AVCs are generated or
+> > whatever. Did I miss something? That's really strange. Did something
+> > change in the past?
+> > 
+> > Also other users are always logged in as user_u and not e.g. staff_u
+> > (enforcing or permissive mode does not change anything).
+> > I'm using Debian (testing).
+> 
+> I believe debian is using the openssh that has a broken configure script
+> (4.7) which improperly detects getseuserbyname() (it doesnt do -lselinux
+> on the compile test thus it always fails).  Debian might possibly be
+> using an old pam patch that doesn't use getseuserbyname().  But these
+> behavior changes wouldn't be tied to a policy change, unless you
+> previously had selinux users which corresponded to your linux user and
+> they were removed with the new policy.
 
->
->   
->> On Feb 5, 2008 3:30 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
->>   
->>     
->>> This patch adds a poly_property type to the X contexts backend, so that
->>> the X Flask module can be informed which properties to polyinstantiate.
->>>
->>> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
->>> ---
->>>
->>>  include/selinux/label.h |    1 +
->>>  src/label_x.c           |    2 ++
->>>  2 files changed, 3 insertions(+)
->>>
->>>
->>> Index: libselinux/include/selinux/label.h
->>> ===================================================================
->>> --- libselinux/include/selinux/label.h  (revision 2789)
->>> +++ libselinux/include/selinux/label.h  (working copy)
->>> @@ -113,6 +113,7 @@
->>>  #define SELABEL_X_CLIENT       3
->>>  #define SELABEL_X_EVENT                4
->>>  #define SELABEL_X_SELN         5
->>> +#define SELABEL_X_POLYPROP     6
->>>
->>>
->>>  #ifdef __cplusplus
->>> Index: libselinux/src/label_x.c
->>> ===================================================================
->>> --- libselinux/src/label_x.c    (revision 2789)
->>> +++ libselinux/src/label_x.c    (working copy)
->>> @@ -69,6 +69,8 @@
->>>                         data->spec_arr[data->nspec].type = SELABEL_X_EVENT;
->>>                 else if (!strcmp(type, "selection"))
->>>                         data->spec_arr[data->nspec].type = SELABEL_X_SELN;
->>> +               else if (!strcmp(type, "poly_property"))
->>> +                       data->spec_arr[data->nspec].type = SELABEL_X_POLYPROP;
->>>                 else {
->>>                         selinux_log(SELINUX_WARNING,
->>>                                     "%s:  line %d has invalid object type %s\n",
->>>
->>> --
->>> Eamon Walsh <ewalsh@tycho.nsa.gov>
->>> National Security Agency
->>>
->>>
->>> --
->>> This message was distributed to subscribers of the selinux mailing list.
->>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->>> the words "unsubscribe selinux" without quotes as the message.
->>>
->>>     
->>>       
->>   
->>     
->
->
->   
+Yes, that is right. I'm experimenting with Debian stable. Openssh in
+stable 4.3p2 is ok, 4.7 from unstable fails. With pam 0.99.9 mapping
+works through local login and ssh ok. I have repository with some
+SELinux staff available already, but must write some instructions about
+it (probably some page on wiki.debian.org?). There are packages taken
+from Sid sometimes updated with newer versions (SELinux staff is taken
+from upstream subversion). Some packages are simply backports from Sid.
 
+If you want, you can try:
 
+deb http://linux.i.cz/debian selinux-etch main
+
+Everything is highly experimental :).
+There is no refpolicy deb. The refpolicy needs changes, so I simply
+takes refpolicy from subversion
+
+http://oss.tresys.com/repos/refpolicy/trunk
+
+Cheers
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+Zito
 
 --
 This message was distributed to subscribers of the selinux mailing list.
