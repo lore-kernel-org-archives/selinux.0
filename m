@@ -1,119 +1,66 @@
-Subject: Re: [RFC][PATCH] selinux:  support 64-bit capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
-        "Serge E. Hallyn" <serue@us.ibm.com>
-In-Reply-To: <1202314924.27371.163.camel@moss-spartans.epoch.ncsc.mil>
-References: <1202314924.27371.163.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 06 Feb 2008 13:28:50 -0500
-Message-Id: <1202322530.27371.171.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47AA0A2C.6090009@tycho.nsa.gov>
+Date: Wed, 06 Feb 2008 14:27:40 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Glenn Faden <Glenn.Faden@sun.com>
+CC: Xavier Toth <txtoth@gmail.com>, SELinux List <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: add "poly_property" type to X contexts backend
+References: <47A8D586.7080202@tycho.nsa.gov> <cadfc0e40802051412p393dd42ei3632bee0b9842b73@mail.gmail.com> <47A9047D.1000501@tycho.nsa.gov> <47A9DA5D.2030109@sun.com>
+In-Reply-To: <47A9DA5D.2030109@sun.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Glenn Faden wrote:
+> Eamon Walsh wrote:
+>   
+>> Xavier Toth wrote:
+>>     
+>>> I'm curious as to why you chose the route of specifying which
+>>> properties are polyinstantiated instead of which are not bearing in
+>>> mind what Glenn said in a previous post?
+>>>   
+>>>       
+>> The server will check the "property" lines first and if it doesn't 
+>> find a match it will check the "poly_property" lines.  So, as long as 
+>> the wildcard entry in the x_contexts file is changed from property to 
+>> poly_property, the default will be to polyinstantiate.
+>>
+>> However I wasn't planning on treating the root window any differently 
+>> from other windows, so this behavior would apply to all windows.
+>>     
+> I've never seen a requirement for polyinstantiation of properties on 
+> per-client windows. I've seen requirements for relabeling properties, 
+> however. For example, the trusted selection manager needs to create 
+> properties that are readable by the client who requests a 
+> ConvertSelection. We do this by calling a new X protocol extension.
 
-On Wed, 2008-02-06 at 11:22 -0500, Stephen Smalley wrote:
-> 64-bit capability support has gone into mainline.
-> Update SELinux to correctly handle 64-bit capabilities.
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e5ed075..fa4b021 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1278,6 +1278,8 @@ static int task_has_capability(struct task_struct *tsk,
->  {
->  	struct task_security_struct *tsec;
->  	struct avc_audit_data ad;
-> +	u16 sclass;
-> +	u32 av = CAP_TO_MASK(cap);	
->  
->  	tsec = tsk->security;
->  
-> @@ -1285,8 +1287,17 @@ static int task_has_capability(struct task_struct *tsk,
->  	ad.tsk = tsk;
->  	ad.u.cap = cap;
->  
-> -	return avc_has_perm(tsec->sid, tsec->sid,
-> -			    SECCLASS_CAPABILITY, CAP_TO_MASK(cap), &ad);
-> +	switch (CAP_TO_INDEX(cap)) {
-> +	case 0:
-> +		sclass = SECCLASS_CAPABILITY;
-> +		break;
-> +	case 1:
-> +		sclass = SECCLASS_CAPABILITY2;
-> +		break;
-> +	default:
-> +		return -EPERM;
+SELinux protocol extension allows clients to create windows and 
+properties with different security contexts.
 
-Should likely make this something like:
-	printk(KERN_WARNING "SELinux:  unknown capability %d\n", cap);
-	if (selinux_enforcing)
-		return -EPERM;
-	else
-		return 0;
+>  How 
+> do you plan to have trusted clients act on behalf of other clients with 
+> different security contexts?
 
-Then, if/when people introduce capabilities without updating SELinux,
-we'll get a warning but permissive mode will allow the operation to
-proceed.
+I haven't done the polyinstantiation for selections yet, but my current 
+plan is to implement a trusted clipboard manager that will display the 
+various clipboard contents and allow users to upgrade or downgrade, 
+which means that the clipboard manager will take ownership of the 
+selection at the target level and just pipe the data through.  This 
+scheme shouldn't require tweaking properties on the fly.  However this 
+would not be point-to-point but would make the selection available to 
+all applications at the target level.
 
-> +	}
-> +	return avc_has_perm(tsec->sid, tsec->sid, sclass, av, &ad);
->  }
->  
->  /* Check whether a task is allowed to use a system operation. */
-> diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-> index 399f868..d569669 100644
-> --- a/security/selinux/include/av_perm_to_string.h
-> +++ b/security/selinux/include/av_perm_to_string.h
-> @@ -132,6 +132,9 @@
->     S_(SECCLASS_CAPABILITY, CAPABILITY__LEASE, "lease")
->     S_(SECCLASS_CAPABILITY, CAPABILITY__AUDIT_WRITE, "audit_write")
->     S_(SECCLASS_CAPABILITY, CAPABILITY__AUDIT_CONTROL, "audit_control")
-> +   S_(SECCLASS_CAPABILITY, CAPABILITY__SETFCAP, "setfcap")
-> +   S_(SECCLASS_CAPABILITY2, CAPABILITY2__MAC_OVERRIDE, "mac_override")
-> +   S_(SECCLASS_CAPABILITY2, CAPABILITY2__MAC_ADMIN, "mac_admin")
->     S_(SECCLASS_NETLINK_ROUTE_SOCKET, NETLINK_ROUTE_SOCKET__NLMSG_READ, "nlmsg_read")
->     S_(SECCLASS_NETLINK_ROUTE_SOCKET, NETLINK_ROUTE_SOCKET__NLMSG_WRITE, "nlmsg_write")
->     S_(SECCLASS_NETLINK_FIREWALL_SOCKET, NETLINK_FIREWALL_SOCKET__NLMSG_READ, "nlmsg_read")
-> diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-> index 84c9abc..75b4131 100644
-> --- a/security/selinux/include/av_permissions.h
-> +++ b/security/selinux/include/av_permissions.h
-> @@ -533,6 +533,9 @@
->  #define CAPABILITY__LEASE                         0x10000000UL
->  #define CAPABILITY__AUDIT_WRITE                   0x20000000UL
->  #define CAPABILITY__AUDIT_CONTROL                 0x40000000UL
-> +#define CAPABILITY__SETFCAP                       0x80000000UL
-> +#define CAPABILITY2__MAC_OVERRIDE                 0x00000001UL
-> +#define CAPABILITY2__MAC_ADMIN                    0x00000002UL
->  #define NETLINK_ROUTE_SOCKET__IOCTL               0x00000001UL
->  #define NETLINK_ROUTE_SOCKET__READ                0x00000002UL
->  #define NETLINK_ROUTE_SOCKET__WRITE               0x00000004UL
-> diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
-> index b1b0d1d..bd813c3 100644
-> --- a/security/selinux/include/class_to_string.h
-> +++ b/security/selinux/include/class_to_string.h
-> @@ -71,3 +71,4 @@
->      S_(NULL)
->      S_(NULL)
->      S_("peer")
-> +    S_("capability2")
-> diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
-> index 09e9dd2..febf886 100644
-> --- a/security/selinux/include/flask.h
-> +++ b/security/selinux/include/flask.h
-> @@ -51,6 +51,7 @@
->  #define SECCLASS_DCCP_SOCKET                             60
->  #define SECCLASS_MEMPROTECT                              61
->  #define SECCLASS_PEER                                    68
-> +#define SECCLASS_CAPABILITY2                             69
->  
->  /*
->   * Security identifier indices for initial entities
-> 
+> Similarly, how can a trusted client 
+> read/write a polyinstantiated property with a different security context?
+>   
+
+By launching a helper process at the appropriate level.
+
+
 -- 
-Stephen Smalley
+Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
 
 
