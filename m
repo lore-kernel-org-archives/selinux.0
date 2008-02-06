@@ -1,60 +1,42 @@
-Subject: Re: Why am I not transitioning correctly?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jeremiah Jahn <jeremiah@goodinassociates.com>
-Cc: selinux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1202331187.2801.379.camel@bluejay.goodinassociates.com>
-References: <1202328961.2801.354.camel@bluejay.goodinassociates.com>
-	 <1202329308.27371.181.camel@moss-spartans.epoch.ncsc.mil>
-	 <1202331187.2801.379.camel@bluejay.goodinassociates.com>
-Content-Type: text/plain
-Date: Wed, 06 Feb 2008 16:01:14 -0500
-Message-Id: <1202331674.27371.185.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m16L8Hoa030380
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 16:08:17 -0500
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m16L8F5s028192
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 21:08:16 GMT
+Received: by wr-out-0506.google.com with SMTP id c55so2679206wra.0
+        for <selinux@tycho.nsa.gov>; Wed, 06 Feb 2008 13:08:15 -0800 (PST)
+Message-ID: <dd18b0c30802061308v19e3c968ifc65d77919125d36@mail.gmail.com>
+Date: Wed, 6 Feb 2008 21:08:13 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: invalid context
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_17848_16052087.1202332093671"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+------=_Part_17848_16052087.1202332093671
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Wed, 2008-02-06 at 14:53 -0600, Jeremiah Jahn wrote:
-> 
-> On Wed, 2008-02-06 at 15:21 -0500, Stephen Smalley wrote:
-> > On Wed, 2008-02-06 at 14:16 -0600, Jeremiah Jahn wrote:
-> > > I get this error in the audit log:
-> > > type=SELINUX_ERR msg=audit(1202327606.098:732): security_compute_sid:  invalid context system_u:system_r:monetra_t:s0 for scontext=system_u:system_r:initrc_t:s0 tcontext=system_u:object_r:monetra_server_exec_t:s0 tclass=process
-> > > type=SYSCALL msg=audit(1202327606.098:732): arch=40000003 syscall=11 success=no exit=-13 a0=9d9f650 a1=9d9f5d8 a2=9d8c728 a3=9d9ff20 items=0 ppid=2575 pid=2593 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) comm="S99monetra" ex
-> > > e="/bin/bash" subj=system_u:system_r:initrc_t:s0 key=(null)
-> > 
-> > Missing role system_r types monetra_t; statement.
-> > 
-> > > I was under the assumption that the following would work:
-> > > allow initrc_t monetra_server_exec_t:file { read execute getattr};
-> > > allow monetra_t monetra_server_exec_t:file { entrypoint };
-> > > type_transition initrc_t monetra_server_exec_t:process monetra_t;
-> > 
-> > Also need:
-> > allow initrc_t monetra_t:process transition;
-> this results in the following error:
-> libsepol.check_assertion_helper: assertion on line 0 violated by allow initrc_t monetra_t:process { transition };
+Hello I notice invalid context with running dhclient; for some reason in
+sysadm_r:sysadm_t keept giving me this error, then changing roles to
+staff_r:staff_t
+cleared it up.
+hope this helps;
+                           --Justin P. Mattock
 
-That means you didn't declare monetra_t as a domain, i.e.
-domain_type(monetra_t)
+------=_Part_17848_16052087.1202332093671
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The best way to start is to look an existing .te file and follow its
-example.  refpolicy has pretty extensive documentation of all of its
-interfaces, although it can be hard to find the one you want.  SLIDE
-seems promising; possibly you should try using it and its domain
-builder.
+Hello I notice invalid context with running dhclient; for some reason in sysadm_r:sysadm_t keept giving me this error, then changing roles to staff_r:staff_t<br>cleared it up.<br>hope this helps;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
 
-SELinux by Example does walk you through writing a simple domain from
-scratch, I think.
-
-Nothing wrong with domain_auto_trans() AFAIK, and I see it used
-throughout refpolicy.
-
--- 
-Stephen Smalley
-National Security Agency
-
+------=_Part_17848_16052087.1202332093671--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
