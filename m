@@ -1,27 +1,19 @@
-Date: Wed, 6 Feb 2008 11:15:00 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>,
-        "Serge E. Hallyn" <serue@us.ibm.com>
 Subject: Re: [RFC][PATCH] selinux:  support 64-bit capabilities
-Message-ID: <20080206171500.GB17288@sergelap.austin.ibm.com>
-References: <1202314924.27371.163.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        "Serge E. Hallyn" <serue@us.ibm.com>
 In-Reply-To: <1202314924.27371.163.camel@moss-spartans.epoch.ncsc.mil>
+References: <1202314924.27371.163.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 06 Feb 2008 13:28:50 -0500
+Message-Id: <1202322530.27371.171.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks, Stephen.
 
-I'd thought setfcap was already there, hence my only sending the patch
-for refpolicy...
-
-thanks,
--serge
-
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
+On Wed, 2008-02-06 at 11:22 -0500, Stephen Smalley wrote:
 > 64-bit capability support has gone into mainline.
 > Update SELinux to correctly handle 64-bit capabilities.
 > 
@@ -35,13 +27,13 @@ Quoting Stephen Smalley (sds@tycho.nsa.gov):
 >  	struct avc_audit_data ad;
 > +	u16 sclass;
 > +	u32 av = CAP_TO_MASK(cap);	
-> 
+>  
 >  	tsec = tsk->security;
-> 
+>  
 > @@ -1285,8 +1287,17 @@ static int task_has_capability(struct task_struct *tsk,
 >  	ad.tsk = tsk;
 >  	ad.u.cap = cap;
-> 
+>  
 > -	return avc_has_perm(tsec->sid, tsec->sid,
 > -			    SECCLASS_CAPABILITY, CAP_TO_MASK(cap), &ad);
 > +	switch (CAP_TO_INDEX(cap)) {
@@ -53,10 +45,22 @@ Quoting Stephen Smalley (sds@tycho.nsa.gov):
 > +		break;
 > +	default:
 > +		return -EPERM;
+
+Should likely make this something like:
+	printk(KERN_WARNING "SELinux:  unknown capability %d\n", cap);
+	if (selinux_enforcing)
+		return -EPERM;
+	else
+		return 0;
+
+Then, if/when people introduce capabilities without updating SELinux,
+we'll get a warning but permissive mode will allow the operation to
+proceed.
+
 > +	}
 > +	return avc_has_perm(tsec->sid, tsec->sid, sclass, av, &ad);
 >  }
-> 
+>  
 >  /* Check whether a task is allowed to use a system operation. */
 > diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
 > index 399f868..d569669 100644
@@ -104,13 +108,14 @@ Quoting Stephen Smalley (sds@tycho.nsa.gov):
 >  #define SECCLASS_MEMPROTECT                              61
 >  #define SECCLASS_PEER                                    68
 > +#define SECCLASS_CAPABILITY2                             69
-> 
+>  
 >  /*
 >   * Security identifier indices for initial entities
 > 
-> -- 
-> Stephen Smalley
-> National Security Agency
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
