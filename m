@@ -1,114 +1,138 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m17NEoTE019329
-	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 18:14:50 -0500
-Received: from penguin.goodinassociates.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m17NEnu0024321
-	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 23:14:49 GMT
-Received: from [206.80.71.242] ([206.80.71.242])
-	(authenticated bits=0)
-	by penguin.goodinassociates.com (8.13.1/8.13.1) with ESMTP id m17NEo1A025220
-	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
-	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 17:14:50 -0600
-Subject: new user types
-From: Jeremiah Jahn <jeremiah@goodinassociates.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dOor4sUT3tUHsA56YrPY"
-Date: Thu, 07 Feb 2008 17:14:48 -0600
-Message-Id: <1202426088.2801.500.camel@bluejay.goodinassociates.com>
-Mime-Version: 1.0
+Date: Fri, 8 Feb 2008 10:51:08 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
+        "Serge E. Hallyn" <serue@us.ibm.com>
+Subject: Re: [patch] selinux: support 64-bit capabilities
+In-Reply-To: <1202401264.27371.258.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0802081050570.6022@us.intercode.com.au>
+References: <1202401264.27371.258.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 7 Feb 2008, Stephen Smalley wrote:
 
---=-dOor4sUT3tUHsA56YrPY
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Fix SELinux to handle 64-bit capabilities correctly, and to catch
+> future extensions of capabilities beyond 64 bits to ensure that SELinux
+> is properly updated.
+> 
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-I can't seem to login as the right user, and I'm not sure what I missed.
-
-I added the following roles and users to my monetra.te file:
-
-
-#admin roles
-role monetra_admin_r types monetra_t;
-role monetra_admin_r types monetra_lib_t;
-
-#client roles
-role monetra_client_r types monetra_t;
-role monetra_client_r types monetra_lib_t;
-role monetra_client_r types monetra_client_t;
-
-#monetra users
-user monetra_u roles { monetra_client_r monetra_admin_r } level s0 range s0=
- - s0;
+Applied.
 
 
+> 
+> ---
+> 
+>  security/selinux/hooks.c                     |   21 +++++++++++++++++++--
+>  security/selinux/include/av_perm_to_string.h |    3 +++
+>  security/selinux/include/av_permissions.h    |    3 +++
+>  security/selinux/include/class_to_string.h   |    1 +
+>  security/selinux/include/flask.h             |    1 +
+>  5 files changed, 27 insertions(+), 2 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e5ed075..ed5b69f 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1272,12 +1272,18 @@ static int task_has_perm(struct task_struct *tsk1,
+>  			    SECCLASS_PROCESS, perms, NULL);
+>  }
+>  
+> +#if CAP_LAST_CAP > 63
+> +#error Fix SELinux to handle capabilities > 63.
+> +#endif
+> +
+>  /* Check whether a task is allowed to use a capability. */
+>  static int task_has_capability(struct task_struct *tsk,
+>  			       int cap)
+>  {
+>  	struct task_security_struct *tsec;
+>  	struct avc_audit_data ad;
+> +	u16 sclass;
+> +	u32 av = CAP_TO_MASK(cap);
+>  
+>  	tsec = tsk->security;
+>  
+> @@ -1285,8 +1291,19 @@ static int task_has_capability(struct task_struct *tsk,
+>  	ad.tsk = tsk;
+>  	ad.u.cap = cap;
+>  
+> -	return avc_has_perm(tsec->sid, tsec->sid,
+> -			    SECCLASS_CAPABILITY, CAP_TO_MASK(cap), &ad);
+> +	switch (CAP_TO_INDEX(cap)) {
+> +	case 0:
+> +		sclass = SECCLASS_CAPABILITY;
+> +		break;
+> +	case 1:
+> +		sclass = SECCLASS_CAPABILITY2;
+> +		break;
+> +	default:
+> +		printk(KERN_ERR
+> +		       "SELinux:  out of range capability %d\n", cap);
+> +		BUG();
+> +	}
+> +	return avc_has_perm(tsec->sid, tsec->sid, sclass, av, &ad);
+>  }
+>  
+>  /* Check whether a task is allowed to use a system operation. */
+> diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+> index 399f868..d569669 100644
+> --- a/security/selinux/include/av_perm_to_string.h
+> +++ b/security/selinux/include/av_perm_to_string.h
+> @@ -132,6 +132,9 @@
+>     S_(SECCLASS_CAPABILITY, CAPABILITY__LEASE, "lease")
+>     S_(SECCLASS_CAPABILITY, CAPABILITY__AUDIT_WRITE, "audit_write")
+>     S_(SECCLASS_CAPABILITY, CAPABILITY__AUDIT_CONTROL, "audit_control")
+> +   S_(SECCLASS_CAPABILITY, CAPABILITY__SETFCAP, "setfcap")
+> +   S_(SECCLASS_CAPABILITY2, CAPABILITY2__MAC_OVERRIDE, "mac_override")
+> +   S_(SECCLASS_CAPABILITY2, CAPABILITY2__MAC_ADMIN, "mac_admin")
+>     S_(SECCLASS_NETLINK_ROUTE_SOCKET, NETLINK_ROUTE_SOCKET__NLMSG_READ, "nlmsg_read")
+>     S_(SECCLASS_NETLINK_ROUTE_SOCKET, NETLINK_ROUTE_SOCKET__NLMSG_WRITE, "nlmsg_write")
+>     S_(SECCLASS_NETLINK_FIREWALL_SOCKET, NETLINK_FIREWALL_SOCKET__NLMSG_READ, "nlmsg_read")
+> diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+> index 84c9abc..75b4131 100644
+> --- a/security/selinux/include/av_permissions.h
+> +++ b/security/selinux/include/av_permissions.h
+> @@ -533,6 +533,9 @@
+>  #define CAPABILITY__LEASE                         0x10000000UL
+>  #define CAPABILITY__AUDIT_WRITE                   0x20000000UL
+>  #define CAPABILITY__AUDIT_CONTROL                 0x40000000UL
+> +#define CAPABILITY__SETFCAP                       0x80000000UL
+> +#define CAPABILITY2__MAC_OVERRIDE                 0x00000001UL
+> +#define CAPABILITY2__MAC_ADMIN                    0x00000002UL
+>  #define NETLINK_ROUTE_SOCKET__IOCTL               0x00000001UL
+>  #define NETLINK_ROUTE_SOCKET__READ                0x00000002UL
+>  #define NETLINK_ROUTE_SOCKET__WRITE               0x00000004UL
+> diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
+> index b1b0d1d..bd813c3 100644
+> --- a/security/selinux/include/class_to_string.h
+> +++ b/security/selinux/include/class_to_string.h
+> @@ -71,3 +71,4 @@
+>      S_(NULL)
+>      S_(NULL)
+>      S_("peer")
+> +    S_("capability2")
+> diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
+> index 09e9dd2..febf886 100644
+> --- a/security/selinux/include/flask.h
+> +++ b/security/selinux/include/flask.h
+> @@ -51,6 +51,7 @@
+>  #define SECCLASS_DCCP_SOCKET                             60
+>  #define SECCLASS_MEMPROTECT                              61
+>  #define SECCLASS_PEER                                    68
+> +#define SECCLASS_CAPABILITY2                             69
+>  
+>  /*
+>   * Security identifier indices for initial entities
+> 
+> 
 
-
-I ran the add login command:
-semanage login -a -s monetra_u bob
-
-
-
-I get the following output:
-[root@xxx ~]# semanage login -l
-
-Login Name                SELinux User              MLS/MCS Range          =
- =20
-
-__default__               user_u                    s0                     =
- =20
-root                      root                      s0-s0:c0.c255          =
- =20
-system_u                  system_u                  s0-s0:c0.c255          =
- =20
-bob                      monetra_u                 s0                      =
-=20
-
-[root@xxx ~]# semanage user -l
-
-                Labeling   MLS/       MLS/                         =20
-SELinux User    Prefix     MCS Level  MCS Range                      SELinu=
-x Roles
-
-
-monetra_u       user       s0         s0                             monetr=
-a_admin_r monetra_client_r
-root            sysadm     s0         s0-s0:c0.c255                  sysadm=
-_r staff_r
-staff_u         staff      s0         s0-s0:c0.c255                  sysadm=
-_r staff_r
-sysadm_u        sysadm     s0         s0-s0:c0.c255                  sysadm=
-_r
-system_u        user       s0         s0-s0:c0.c255                  system=
-_r
-unconfined_u    unconfined s0         s0-s0:c0.c255                  unconf=
-ined_r
-user_u          user       s0         s0                             user_r
-
-yet when I login I get:
-[bob@xxx ~]$ id -Z
-system_u:system_r:unconfined_t:s0-s0:c0.c255
-
-
-thanx for any help you can give.
-
-
-
---=-dOor4sUT3tUHsA56YrPY
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD4DBQBHq5Do6caZY8jbHDkRAuyAAJjO4UQIGW0NBci+d+IntJDyW5b8AJ4llJpO
-XCdAXqhe1skWwmQRW9u00w==
-=/z33
------END PGP SIGNATURE-----
-
---=-dOor4sUT3tUHsA56YrPY--
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
