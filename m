@@ -1,31 +1,42 @@
-Date: Thu, 7 Feb 2008 17:22:19 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
-        "Serge E. Hallyn" <serue@us.ibm.com>
-Subject: Re: [RFC][PATCH] selinux:  support 64-bit capabilities
-In-Reply-To: <1202322530.27371.171.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0802071719430.13773@us.intercode.com.au>
-References: <1202314924.27371.163.camel@moss-spartans.epoch.ncsc.mil>
- <1202322530.27371.171.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m17Aw6O6015212
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 05:58:06 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m17Aw5bu003168
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 10:58:05 GMT
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <479901A8.3000706@oracle.com>
+References: <479901A8.3000706@oracle.com> <20080123172038.11107.86025.stgit@warthog.procyon.org.uk> <20080123172246.11107.62216.stgit@warthog.procyon.org.uk>
+To: chuck.lever@oracle.com
+Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 24/27] NFS: Use local caching [try #2]
+Date: Thu, 07 Feb 2008 10:57:49 +0000
+Message-ID: <28135.1202381869@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 6 Feb 2008, Stephen Smalley wrote:
+Chuck Lever <chuck.lever@oracle.com> wrote:
 
-> Should likely make this something like:
-> 	printk(KERN_WARNING "SELinux:  unknown capability %d\n", cap);
-> 	if (selinux_enforcing)
-> 		return -EPERM;
+> > @@ -95,12 +100,25 @@ struct nfs_server {
+> >  	unsigned int		acdirmin;
+> >  	unsigned int		acdirmax;
+> >  	unsigned int		namelen;
+> > +	unsigned int		options;	/* extra options enabled by mount */
+> > +#define NFS_OPTION_FSCACHE	0x00000001	/* - local caching enabled */
+> 
+> Why did you choose to create a new field for this rather than setting up a new
+> NFS_MNT flag?  The new in-kernel NFS mount option parser uses the NFS_MNT
+> flags too.
 
-Also, make this printk_ratelimit() to prevent DoS.
+There aren't any NFS_MNT flags, so I presume you mean NFS_MOUNT flags.  As I
+understood Trond, it's not permitted to add new such flags except in really
+special circumstances as these are part of the mount syscall interface.  I
+took this to mean that I should record the option elsewhere than in
+server->flags.
 
-
--- 
-James Morris
-<jmorris@namei.org>
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
