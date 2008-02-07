@@ -1,85 +1,71 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m174qOCP017502
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 23:52:24 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m174qNn6001153
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 04:52:23 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m174qNcc026647
+	for <selinux@tycho.nsa.gov>; Wed, 6 Feb 2008 23:52:23 -0500
+Message-ID: <47AA8E86.8010501@redhat.com>
+Date: Wed, 06 Feb 2008 23:52:22 -0500
+From: Shawn Wells <swells@redhat.com>
+Reply-To: swells@redhat.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: Accurately setting Security Context of a  user when ssh-ing in
-Date: Wed, 6 Feb 2008 23:13:55 -0500
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D045B6D09@de01exm68.ds.mot.com>
-in-reply-to: <1202216499.27371.2.camel@moss-spartans.epoch.ncsc.mil>
-References: <4784EFE8.9050106@redhat.com> <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com> <1199903006.9393.296.camel@moss-spartans.epoch.ncsc.mil> <478670A8.5080902@redhat.com> <1199995291.3707.15.camel@vogon> <47877F43.5030401@redhat.com> <1200065528.29816.66.camel@moss-spartans.epoch.ncsc.mil> <1200065923.29816.69.camel@moss-spartans.epoch.ncsc.mil> <4787BF20.1050105@redhat.com> <47A08F44.20308@redhat.com> <D06FE0A2807BC145B0D38744789D4F5D0451FF16@de01exm68.ds.mot.com> <1201739450.24702.488.camel@moss-terrapins.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D04568692@de01exm68.ds.mot.com> <1202216499.27371.2.camel@moss-spartans.epoch.ncsc.mil>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Dave Quigley" <dpquigl@tycho.nsa.gov>, "SE Linux" <selinux@tycho.nsa.gov>
+To: selinux <selinux@tycho.nsa.gov>
+CC: gov-eng@redhat.com, Matthew Jamison <jamisonm@redhat.com>
+Subject: Multithreaded applications, SELinux, and RAM Protection
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Understood  :-)
+Hi All,
 
-Ques: At the end of the day when we reboot, and the machine comes back
-up, its basically running a whole bunch of scripts and commands. So isnt
-there some command(s) that I can manually run without doing an actual
-reboot, to achieve what the reboot would otherwise do ?
+    I have a customer who is encountering the following issue, and I've 
+been unable to solve it myself.
 
-Lets just say I cant afford to do a reboot, due to downtime/availability
-restrictions. I have a certain collection of policies on a machine. I
-need to be able to replace policy with a new set of policies with
-minimal downtime. Hence, I cant afford a reboot. Is there any way
-whatsoever I can run commands/scripts manually to avoid the reboot ?
+    The scenario:
 
-By the way, what file should I play with to control what context a user
-gets when login at the console VS the context a user should get after
-ssh-ing in ?
+WebUserX (with TS//SCI//Alpha) sends a query to MACHINE1 which then 
+parses the query and executes it on a database. 
+For example:
+|-- WebUserX Sends Query to Query Engine
+|--------> Query Engine creates new thread, parses, sends to database
+|--------|--------> Database executes & returns data
+|--------|--------|--------> Data is stored in RAM, say the first 512MB 
+of allocatable space
+|--------|--------|--------|--------> Data passed back to WebUserX
+|--------|--------|--------|--------|--------> Query Engine thread dies, 
+marks first 512MB of RAM available.  Doesn't delete the data in RAM, but 
+it is now tagged as available.
 
-Thanks as always.
+WebUserY (with TS//SCI//Bravo) sends a different query to MACHINE1 which 
+then parses the query and executes it on a database.  Same process is 
+followed, however the query engine thread becomes highjacked (bad SQL, 
+bad coding, whatever). 
 
------Original Message-----
-From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
-Sent: Tuesday, February 05, 2008 7:02 AM
-To: Hasan Rezaul-CHR010
-Cc: Dave Quigley; SE Linux
-Subject: RE: Accurately setting Security Context of a user when ssh-ing
-in
+The customer is considering writing a hook to zero-out the RAM after the 
+thread dies, but this will be a lengthy process.
+
+With all that said, my question is:  how can we make sure that the 
+thread handling WebUserYs' connection (which is running as 
+TS//SCI//Bravo) can not see the data in the first 512MB of RAM (which 
+contains TS//SCI//Alpha)?
+
+Possible ideas, that I just don't know enough about yet:
+1)  Program maps anonymous memory with mmap with PROT_EXEC. Note that 
+because anonymous memory is zero'd out by the system it makes not much 
+sense to not have it writable as well. (stolen from 
+http://people.redhat.com/~drepper/selinux-mem.html)
 
 
-On Mon, 2008-02-04 at 19:44 -0500, Hasan Rezaul-CHR010 wrote:
-> Hi Dave,
-> 
-> I forgot to mention that, after doing the un-tarring of the policy
-> collection, I did run the restorecon command:
-> 
-> restorecon -rF /
-> restorecon -rF /etc/
-> 
-> And I did try running    /usr/sbin/load_policy
-> 
-> ... If I ssh in as Admin, I still get the wrong user context of
-> staff_u:sysadm_r:sysadm_t:s0    :-(
-> 
-> But if I reboot the machine, and then ssh in as Admin, I get the
-correct
-> user context of  staff_u:staff_r:staff_t  !!
-> 
-> Is there any other hidden thing that the reboot does that helps in
-> setting the user contexts correctly ?
-> 
-> Thanks again for all the help...
-
-The logic for computing the login context for users is based on the
-context of the caller (e.g. the context in which the login process runs)
-as well as the authorized contexts for the user.  For example, policy
-might allow a user to login at the console (local_login_t) as sysadm_r
-while preventing him from logging in directly into sysadm_r when logging
-in via ssh (sshd_t).
-
-Thus, if you merely untar the directory, reload policy, and relabel,
-your existing processes may still be running in the wrong contexts, and
-this can affect the context computed for login.  A reboot ensures that
-everything transitions properly as defined by policy.
-
+I googled "selinux, multithreaded applications," but didn't find to 
+much.  Thanks for any help!
+   
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Shawn D. Wells
+Solutions Architect, Federal Team
 
 
 --
