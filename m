@@ -1,143 +1,54 @@
-Message-ID: <47AB8957.30601@tycho.nsa.gov>
-Date: Thu, 07 Feb 2008 17:42:31 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m17N2t4g018053
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 18:02:55 -0500
+Received: from dmzmta101.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m17N2ru0020357
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 23:02:53 GMT
+Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
+	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m17N2TTb009738
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 18:02:29 -0500
+Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
+	by usdmta003.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m17N2G2Z012544
+	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 18:02:16 -0500
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libselinux: avc_compute_member convenience function
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: ps access
+Date: Thu, 7 Feb 2008 15:02:45 -0800
+Message-ID: <FB39F4E77226B448BC1388D3BE4E00CD0296160B@blums0008.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-avc_compute_member function, same as security_compute_member but takes 
-userspace AVC SID's.  Includes man page.
+Does something equivalent to the below interface exist for the strict
+policy? I'm using RHEL5.1 and didn't see anything. If not, it would be a
+nice addition. I added this to userdomain.if
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
+################################################
+## <summary>
+## Allow the ps command visibility to processes in
+## the specified domain when used by an 
+## unprivileged user
+## </summary>
+## <desc>
+## <param name="domain_allowed_access">
+## Domain for which the ps command will have access
+## </param
+## 
+interface(`allow_unpriv_ps_access',`
+  gen_require(`
+    type $1;
+    attribute unpriv_userdomain;
+  ')
 
- include/selinux/avc.h         |   18 ++++++++++++++++++
- man/man3/avc_compute_create.3 |   16 +++++++++++++---
- man/man3/avc_compute_member.3 |    1 +
- src/avc.c                     |   25 +++++++++++++++++++++++++
- 4 files changed, 57 insertions(+), 3 deletions(-)
+  ## need this to allow ps to see the process files in the /proc dir
+  allow unpriv_userdomain $1:dir search_dir_perms;
+  allow unpriv_userdomain $1:file read_file_perms;
+  allow unpriv_userdomain $1:lnk_file read_lnk_file_perms;
+  allow unpriv_userdomain $1:process getattr;
+')
 
-
-Index: libselinux/include/selinux/avc.h
-===================================================================
---- libselinux/include/selinux/avc.h	(revision 2793)
-+++ libselinux/include/selinux/avc.h	(working copy)
-@@ -322,6 +322,24 @@
- 		       security_id_t tsid,
- 		       security_class_t tclass, security_id_t * newsid);
- 
-+/**
-+ * avc_compute_member - Compute SID for polyinstantation.
-+ * @ssid: source security identifier
-+ * @tsid: target security identifier
-+ * @tclass: target security class
-+ * @newsid: pointer to SID reference
-+ *
-+ * Call the security server to obtain a context for labeling an
-+ * object instance.  Look up the context in the SID table, making
-+ * a new entry if not found.  Increment the reference counter
-+ * for the SID.  Store a pointer to the SID structure into the
-+ * memory referenced by @newsid, returning %0 on success or -%1 on
-+ * error with @errno set.  
-+ */
-+int avc_compute_member(security_id_t ssid,
-+		       security_id_t tsid,
-+		       security_class_t tclass, security_id_t * newsid);
-+
- /* 
-  * security event callback facility
-  */
-Index: libselinux/src/avc.c
-===================================================================
---- libselinux/src/avc.c	(revision 2793)
-+++ libselinux/src/avc.c	(working copy)
-@@ -906,6 +906,31 @@
- 	return rc;
- }
- 
-+int avc_compute_member(security_id_t ssid,  security_id_t tsid,
-+		       security_class_t tclass, security_id_t *newsid)
-+{
-+	int rc;
-+	*newsid = NULL;
-+	avc_get_lock(avc_lock);
-+	if (ssid->refcnt > 0 && tsid->refcnt > 0) {
-+		security_context_t ctx = NULL;
-+		rc = security_compute_member_raw(ssid->ctx, tsid->ctx, tclass,
-+						 &ctx);
-+		if (rc)
-+			goto out;
-+		rc = sidtab_context_to_sid(&avc_sidtab, ctx, newsid);
-+		if (!rc)
-+			(*newsid)->refcnt++;
-+		freecon(ctx);
-+	} else {
-+		errno = EINVAL;	/* bad reference count */
-+		rc = -1;
-+	}
-+out:
-+	avc_release_lock(avc_lock);
-+	return rc;
-+}
-+
- int avc_add_callback(int (*callback) (uint32_t event, security_id_t ssid,
- 				      security_id_t tsid,
- 				      security_class_t tclass,
-Index: libselinux/man/man3/avc_compute_create.3
-===================================================================
---- libselinux/man/man3/avc_compute_create.3	(revision 2793)
-+++ libselinux/man/man3/avc_compute_create.3	(working copy)
-@@ -3,7 +3,7 @@
- .\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2007
- .TH "avc_compute_create" "3" "30 Mar 2007" "" "SELinux API documentation"
- .SH "NAME"
--avc_compute_create \- obtain SELinux label for new object.
-+avc_compute_create, avc_compute_member \- obtain SELinux label for new object.
- .SH "SYNOPSIS"
- .B #include <selinux/selinux.h>
- 
-@@ -12,15 +12,25 @@
- .BI "int avc_compute_create(security_id_t " ssid ", security_id_t " tsid ,
- .in +\w'int avc_compute_create('u
- .BI "security_class_t " tclass ", security_id_t *" newsid ");"
-+.sp
- .in
-+.BI "int avc_compute_member(security_id_t " ssid ", security_id_t " tsid ,
-+.in +\w'int avc_compute_member('u
-+.BI "security_class_t " tclass ", security_id_t *" newsid ");"
-+.in
- .SH "DESCRIPTION"
- .B avc_compute_create
- is used to compute a SID to use for labeling a new object in a particular class based on a SID pair.  This call is identical to
- .BR security_compute_create ,
- but does not require converting from userspace SID's to contexts and back again.
- 
--.B avc_compute_create
--returns a SID for the computed context in the memory referenced by
-+.B avc_compute_member
-+is used to compute a SID to use for labeling a polyinstantiated object instance of a particular class based on a SID pair.  This call is identical to
-+.BR security_compute_member ,
-+but does not require converting from userspace SID's to contexts and back again.
-+
-+These functions
-+return a SID for the computed context in the memory referenced by
- .IR sid ,
- incrementing its reference count by 1.
- 
-Index: libselinux/man/man3/avc_compute_member.3
-===================================================================
---- libselinux/man/man3/avc_compute_member.3	(revision 0)
-+++ libselinux/man/man3/avc_compute_member.3	(revision 0)
-@@ -0,0 +1 @@
-+.so man3/avc_compute_create.3
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
 
 
 --
