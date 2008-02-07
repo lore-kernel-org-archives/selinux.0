@@ -1,28 +1,124 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Resend: Sudo Changes for SELinux
-Date: Thu, 7 Feb 2008 12:51:51 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015880181F2BF@exchange.columbia.tresys.com>
-In-Reply-To: <47AB3DE4.6040308@redhat.com>
-References: <4784EFE8.9050106@redhat.com>	 <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>	 <1199903006.9393.296.camel@moss-spartans.epoch.ncsc.mil>	 <478670A8.5080902@redhat.com> <1199995291.3707.15.camel@vogon>	 <47877F43.5030401@redhat.com>	 <1200065528.29816.66.camel@moss-spartans.epoch.ncsc.mil> <1200065923.29816.69.camel@moss-spartans.epoch.ncsc.mil> <4787BF20.1050105@redhat.com> <47A08F44.20308@redhat.com> <6FE441CD9F0C0C479F2D88F959B015880181F138@exchange.columbia.tresys.com> <47A9D23A.80405@redhat.com> <6FE441CD9F0C0C479F2D88F959B015880181F2A3@exchange.columbia.tresys.com> <47AB3DE4.6040308@redhat.com>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Stefan Schulze Frielinghaus" <stefan@seekline.net>,
-        "SE Linux" <selinux@tycho.nsa.gov>
+Subject: [patch] libselinux: provide more error reporting on load policy
+	failures
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Joshua Brindle <method@manicmethod.com>,
+        "Todd C. Miller" <tmiller@tresys.com>,
+        David Quigley <dpquigl@tycho.nsa.gov>,
+        Chad Sellers <csellers@tresys.com>
+Content-Type: text/plain
+Date: Thu, 07 Feb 2008 14:31:06 -0500
+Message-Id: <1202412666.27371.294.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> You are the boss.  Move it to /usr/libexec.  And I will fix policy to
-> label it correctly.  I would not put SELinux awareness into the
-> install, that is either "install", rpm. dpkg problem.
+Provide more error reporting on load policy failures.  John Reiser has
+previously encountered failures where it would have helped to see the
+policy file, and David Quigley recently noted that no output is provided
+by init in the case where policy cannot be loaded and the system is in
+permissive mode.
 
-OK, I changed the path and updated the tarball.  Glad I don't have to
-worry about the label.
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
- - todd
+---
+
+ libselinux/src/load_policy.c |   31 ++++++++++++++++++++++++++-----
+ 1 file changed, 26 insertions(+), 5 deletions(-)
+
+Index: trunk/libselinux/src/load_policy.c
+===================================================================
+--- trunk/libselinux/src/load_policy.c	(revision 2792)
++++ trunk/libselinux/src/load_policy.c	(working copy)
+@@ -46,7 +46,7 @@
+ int selinux_mkload_policy(int preservebools)
+ {	
+ 	int kernvers = security_policyvers();
+-	int vers = kernvers, minvers = DEFAULT_POLICY_VERSION;
++	int maxvers = kernvers, minvers = DEFAULT_POLICY_VERSION, vers;
+ 	int setlocaldefs = load_setlocaldefs;
+ 	char path[PATH_MAX], **names;
+ 	struct stat sb;
+@@ -128,7 +128,7 @@
+ #endif
+ 
+ 	if (usesepol) {
+-		vers = vers_max();
++		maxvers = vers_max();
+ 		minvers = vers_min();
+ 	}
+ 
+@@ -157,6 +157,7 @@
+ 	if (preservebools && uname(&uts) == 0 && strverscmp(uts.release, "2.6.22") >= 0)
+ 		preservebools = 0;
+ 
++	vers = maxvers;
+       search:
+ 	snprintf(path, sizeof(path), "%s.%d",
+ 		 selinux_binary_policy_path(), vers);
+@@ -168,11 +169,19 @@
+ 			 selinux_binary_policy_path(), vers);
+ 		fd = open(path, O_RDONLY);
+ 	}
+-	if (fd < 0)
++	if (fd < 0) {
++		fprintf(stderr,
++			"SELinux:  Could not open policy file <= %s.%d:  %s\n",
++			selinux_binary_policy_path(), maxvers, strerror(errno));
+ 		goto dlclose;
++	}
+ 
+-	if (fstat(fd, &sb) < 0)
++	if (fstat(fd, &sb) < 0) {
++		fprintf(stderr,
++			"SELinux:  Could not stat policy file %s:  %s\n",
++			path, strerror(errno));
+ 		goto close;
++	}
+ 
+ 	prot = PROT_READ;
+ 	if (setlocaldefs || preservebools)
+@@ -180,8 +189,12 @@
+ 
+ 	size = sb.st_size;
+ 	data = map = mmap(NULL, size, prot, MAP_PRIVATE, fd, 0);
+-	if (map == MAP_FAILED)
++	if (map == MAP_FAILED) {
++		fprintf(stderr,
++			"SELinux:  Could not map policy file %s:  %s\n",
++			path, strerror(errno));
+ 		goto close;
++	}
+ 
+ 	if (vers > kernvers && usesepol) {
+ 		/* Need to downgrade to kernel-supported version. */
+@@ -200,6 +213,9 @@
+ 		if (policydb_set_vers(policydb, kernvers) ||
+ 		    policydb_to_image(NULL, policydb, &data, &size)) {
+ 			/* Downgrade failed, keep searching. */
++			fprintf(stderr,
++				"SELinux:  Could not downgrade policy file %s, searching for an older version.\n",
++				path);
+ 			policy_file_free(pf);
+ 			policydb_free(policydb);
+ 			munmap(map, sb.st_size);
+@@ -254,6 +270,11 @@
+ 
+ 
+ 	rc = security_load_policy(data, size);
++	
++	if (rc)
++		fprintf(stderr,
++			"SELinux:  Could not load policy file %s:  %s\n",
++			path, strerror(errno));
+ 
+       unmap:
+ 	if (data != map)
+
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
