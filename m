@@ -1,66 +1,52 @@
-Subject: Re: [gov-eng] Multithreaded applications, SELinux, and RAM
-	Protection
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: swells@redhat.com
-Cc: Ben Woodard <woodard@redhat.com>, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <47AA9956.6030002@redhat.com>
-References: <47AA8E86.8010501@redhat.com> <47AA91D7.1010504@redhat.com>
-	 <47AA9956.6030002@redhat.com>
-Content-Type: text/plain
-Date: Thu, 07 Feb 2008 09:28:41 -0500
-Message-Id: <1202394521.27371.233.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: java threads
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1202391931.27371.190.camel@moss-spartans.epoch.ncsc.mil>
+References: <1202338588.2801.400.camel@bluejay.goodinassociates.com>
+	 <1202391931.27371.190.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2SMKZNvUd8ghdGl9JoHy"
+Date: Thu, 07 Feb 2008 09:02:09 -0600
+Message-Id: <1202396529.2801.457.camel@bluejay.goodinassociates.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-02-07 at 00:38 -0500, Shawn Wells wrote:
-> Ben Woodard wrote:
-> > Shawn Wells wrote:
-> >> Hi All,
-> >>
-> >>    I have a customer who is encountering the following issue, and 
-> >> I've been unable to solve it myself.
-> >>
-> >>    The scenario:
-> >>
-> >> WebUserX (with TS//SCI//Alpha) sends a query to MACHINE1 which then 
-> >> parses the query and executes it on a database. For example:
-> >> |-- WebUserX Sends Query to Query Engine
-> >> |--------> Query Engine creates new thread, parses, sends to database
-> >> |--------|--------> Database executes & returns data
-> >> |--------|--------|--------> Data is stored in RAM, say the first 
-> >> 512MB of allocatable space
-> >> |--------|--------|--------|--------> Data passed back to WebUserX
-> >> |--------|--------|--------|--------|--------> Query Engine thread 
-> >> dies, marks first 512MB of RAM available.  Doesn't delete the data in 
-> >> RAM, but it is now tagged as available.
-> >>
-> > 1st suggestion, don't use threads for the query. The first line of 
-> > defense that I would setup is to make sure that each and every query 
-> > operates in its own compartmentalized address space. Threads share 
-> > address space. Processes do not.
-> 
-> Would it be possible, I'm guessing through setcon(), to have threads 
-> change their context and label the data in RAM?  Thus revoking 
-> different/lesser threads from accessing that data later? I'm guessing 
-> not, as I believe setcon would change the label for the process, not the 
-> thread -- is this correct? (the man page leads me to this, but I thought 
-> I'd ask)
+--=-2SMKZNvUd8ghdGl9JoHy
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-setcon() presently fails with EPERM if a multi-threaded application
-tries to invoke it.
+On Thu, 2008-02-07 at 08:45 -0500, Stephen Smalley wrote:
+> On Wed, 2008-02-06 at 16:56 -0600, Jeremiah Jahn wrote:
+> > what allows java to create a new thread? execmem? execstack? =09
+>=20
+> execmem/execstack are memory controls, not thread controls.
 
-You can't prevent a thread within a process (thread group) from
-accessing any of the memory - they share the same memory space.  Thus,
-you can't safely run one thread in one security context and another
-thread in another security context.
+That's what I was thinking, but without allowing execmem, java can't
+seem to start up a new thread. I know for the longest time, java on
+Linux didn't use the standard thread API, so I thought that might be the
+cause. I'm just curious to see if anyone knows why this seems to be
+required for java to do it's thing with regards to threads.=20
 
-As your colleague suggested, use separate processes instead.
 
--- 
-Stephen Smalley
-National Security Agency
+>=20
+"If I am elected, the concrete barriers around the WHITE HOUSE will be
+replaced by tasteful foam replicas of ANN MARGARET!"
+
+--=-2SMKZNvUd8ghdGl9JoHy
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHqx1x6caZY8jbHDkRArI4AKCzoU7AQW5dNx2jl5uBEhLxsgfHCwCdEhEw
+DV/UfTpKW+AlK9j0dsn4hjw=
+=4Yjm
+-----END PGP SIGNATURE-----
+
+--=-2SMKZNvUd8ghdGl9JoHy--
 
 
 --
