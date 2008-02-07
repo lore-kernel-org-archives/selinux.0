@@ -1,82 +1,80 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m17HRgG5007329
-	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 12:27:42 -0500
-Received: from mail.seekline.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m17HRdMl025040
-	for <selinux@tycho.nsa.gov>; Thu, 7 Feb 2008 17:27:40 GMT
-Subject: Re: SELinux and Linux user mapping
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-In-Reply-To: <20080206115102.GA19285@bobek.pm.i.cz>
-References: <1202238356.2672.26.camel@vogon> <1202240861.7533.64.camel@gorn>
-	 <20080206115102.GA19285@bobek.pm.i.cz>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 07 Feb 2008 18:26:25 +0100
-Message-Id: <1202405185.2683.4.camel@vogon>
+Subject: Re: [patch] selinux: support 64-bit capabilities
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <20080207171626.GB10603@sergelap.ibm.com>
+References: <1202401264.27371.258.camel@moss-spartans.epoch.ncsc.mil>
+	 <20080207171626.GB10603@sergelap.ibm.com>
+Content-Type: text/plain
+Date: Thu, 07 Feb 2008 12:30:22 -0500
+Message-Id: <1202405422.27371.283.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-02-06 at 12:51 +0100, Václav Ovsík wrote:
-> Hi,
-> 
-> On Tue, Feb 05, 2008 at 02:47:40PM -0500, Christopher J. PeBenito wrote:
-> > On Tue, 2008-02-05 at 20:05 +0100, Stefan Schulze Frielinghaus wrote:
-> > > Since my last upgrade to refpolicy-20071214 whenever I try to login with
-> > > my username I'm in the default role (user).
-> > > 
-> > > $ semanage login -l
-> > > [...]
-> > > stefan	staff_u
-> > > 
-> > > But:
-> > > 
-> > > $ id
-> > > uid=1000(stefan) gid=1000(stefan) groups=1000(stefan)
-> > > context=user_u:user_r:user_t
-> > > 
-> > > I tried to login locally and remote via ssh. No AVCs are generated or
-> > > whatever. Did I miss something? That's really strange. Did something
-> > > change in the past?
-> > > 
-> > > Also other users are always logged in as user_u and not e.g. staff_u
-> > > (enforcing or permissive mode does not change anything).
-> > > I'm using Debian (testing).
+On Thu, 2008-02-07 at 11:16 -0600, Serge E. Hallyn wrote:
+> Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> > Fix SELinux to handle 64-bit capabilities correctly, and to catch
+> > future extensions of capabilities beyond 64 bits to ensure that SELinux
+> > is properly updated.
 > > 
-> > I believe debian is using the openssh that has a broken configure script
-> > (4.7) which improperly detects getseuserbyname() (it doesnt do -lselinux
-> > on the compile test thus it always fails).  Debian might possibly be
-> > using an old pam patch that doesn't use getseuserbyname().  But these
-> > behavior changes wouldn't be tied to a policy change, unless you
-> > previously had selinux users which corresponded to your linux user and
-> > they were removed with the new policy.
+> > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> > 
+> > ---
+> > 
+> >  security/selinux/hooks.c                     |   21 +++++++++++++++++++--
+> >  security/selinux/include/av_perm_to_string.h |    3 +++
+> >  security/selinux/include/av_permissions.h    |    3 +++
+> >  security/selinux/include/class_to_string.h   |    1 +
+> >  security/selinux/include/flask.h             |    1 +
+> >  5 files changed, 27 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index e5ed075..ed5b69f 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -1272,12 +1272,18 @@ static int task_has_perm(struct task_struct *tsk1,
+> >  			    SECCLASS_PROCESS, perms, NULL);
+> >  }
+> > 
+> > +#if CAP_LAST_CAP > 63
+> > +#error Fix SELinux to handle capabilities > 63.
+> > +#endif
 > 
-> Yes, that is right. I'm experimenting with Debian stable. Openssh in
-> stable 4.3p2 is ok, 4.7 from unstable fails. With pam 0.99.9 mapping
-> works through local login and ssh ok. I have repository with some
-> SELinux staff available already, but must write some instructions about
-> it (probably some page on wiki.debian.org?). There are packages taken
-> from Sid sometimes updated with newer versions (SELinux staff is taken
-> from upstream subversion). Some packages are simply backports from Sid.
+> I suppose it would be going too far to do something like:
 > 
-> If you want, you can try:
+> #define SELINUX_LAST_CAP CAPABILITY2__MAC_ADMIN
 > 
-> deb http://linux.i.cz/debian selinux-etch main
+> #if (CAP_TO_INDEX(CAP_LAST_CAP) > 2) || (CAP_TO_MASK(CAP_LAST_CAP) > SELINUX_LAST_CAP)
+> #warning Please teach selinux about capabilities between SELINUX_LAST_CAP+SECCLASS_CAPABILITY2 and CAP_LAST_CAP.
+> #endif
 > 
-> Everything is highly experimental :).
-> There is no refpolicy deb. The refpolicy needs changes, so I simply
-> takes refpolicy from subversion
-> 
-> http://oss.tresys.com/repos/refpolicy/trunk
+> ?
 
-Yeah the problem seems to be with pam and openssh. At the weekend I will
-try another debian-stable machine including your repository.
+I don't think it is necessary, although adding a comment to capability.h
+where it defines CAP_LAST_CAP to notify
+linux-security-module@vger.kernel.org of additions would be reasonable
+as a separate and independent patch from this one.
 
-Thanks for clarification!
+If someone does add a capability < 63 w/o updating SELinux, then what
+will happen with the current code is that either:
+a) SELinux will allow it due to the handle_unknown support in Fedora 8
+and later, or
+b) SELinux will deny it (or at least log a denial, if permissive) and
+avc_audit will report the hex value of the mask along with the
+capability value in the logs.
 
--Stefan
+Neither of which will trip the BUG() case.  I only wanted the build
+failure to catch the BUG() case up front for mainline, and then the
+BUG() case can only fire upon a real kernel bug and/or an out-of-tree
+kernel module that is introducing its own private capability
+definitions.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
