@@ -1,142 +1,125 @@
-Subject: Re: [patch] libselinux: provide more error reporting on load
-	policy failures
+Subject: Re: fixfiles: broken option processing?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: selinux@tycho.nsa.gov, "Todd C. Miller" <tmiller@tresys.com>,
-        David Quigley <dpquigl@tycho.nsa.gov>,
-        Chad Sellers <csellers@tresys.com>
-In-Reply-To: <47AB6733.9060002@manicmethod.com>
-References: <1202412666.27371.294.camel@moss-spartans.epoch.ncsc.mil>
-	 <47AB6733.9060002@manicmethod.com>
-Content-Type: text/plain
-Date: Thu, 07 Feb 2008 16:09:30 -0500
-Message-Id: <1202418570.27371.296.camel@moss-spartans.epoch.ncsc.mil>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        Marshall Miller <mmiller@tresys.com>,
+        "Todd C. Miller" <tmiller@tresys.com>
+In-Reply-To: <20080206154957.GA28647@bobek.pm.i.cz>
+References: <20080206154957.GA28647@bobek.pm.i.cz>
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 07 Feb 2008 16:28:03 -0500
+Message-Id: <1202419683.27371.306.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-02-07 at 15:16 -0500, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > Provide more error reporting on load policy failures.  John Reiser has
-> > previously encountered failures where it would have helped to see the
-> > policy file, and David Quigley recently noted that no output is provided
-> > by init in the case where policy cannot be loaded and the system is in
-> > permissive mode.
-> >
-> > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> >
-> >   
+On Wed, 2008-02-06 at 16:49 +0100, Václav Ovsík wrote:
+> Hi,
+> I'm fighting with current fixfiles script. This script is called on
+> Debian from init scripts (/etc/init.d/selinux-basics) when
+> autorelabeling is requested in the following shape:
 > 
-> Looks good to me. Do you think there is any value to add extra 
-> information as well as error/warnings? One example would be which file 
-> was ultimately loaded and what version it was downgraded to (if it was).
+>     /sbin/fixfiles -f -F relabel > /dev/null || true
+> 
+> With current version r2760, this never succeed at least on Debian. It
+> seems to me, that getopts is used with shifting arguments improperly.
+> Help for getopts says, that successive calls to getopts sets OPTIND on
+> next option. When arguments are shifted without reasigning OPTIND to 1,
+> bad argument is processed.
+> 
+> Please consider my patch. I distiled this code from some autoconf
+> output. This supports long options and leaves only non option arguments.
+> No bashism. Code needs review. I'm not certain how effective code should
+> be for very long argument list.
+> 
+> If this patch is not usable, original code can be fixed by removing
+> shift commands from processing or reasigning 1 to OPTIND, but man page
+> should be fixed, so that options must precede command.
 
-Possibly, although then we get into whether it should be stderr, syslog,
-or audit.  Also, we have to be careful - it seems that the mere presence
-of any new output (e.g. the information handle_unknown message from the
-kernel at policy load) is enough to raise alarms with some users.
+Hmm..the shifting of arguments was introduced in r2699 from Dan Walsh
+(cc'd), diff is below.  Also relevant are r2736, r2750 and r2760.
 
-> 
-> Acked-by: Joshua Brindle <method@manicmethod.com>
-> 
-> > ---
-> >
-> >  libselinux/src/load_policy.c |   31 ++++++++++++++++++++++++++-----
-> >  1 file changed, 26 insertions(+), 5 deletions(-)
-> >
-> > Index: trunk/libselinux/src/load_policy.c
-> > ===================================================================
-> > --- trunk/libselinux/src/load_policy.c	(revision 2792)
-> > +++ trunk/libselinux/src/load_policy.c	(working copy)
-> > @@ -46,7 +46,7 @@
-> >  int selinux_mkload_policy(int preservebools)
-> >  {	
-> >  	int kernvers = security_policyvers();
-> > -	int vers = kernvers, minvers = DEFAULT_POLICY_VERSION;
-> > +	int maxvers = kernvers, minvers = DEFAULT_POLICY_VERSION, vers;
-> >  	int setlocaldefs = load_setlocaldefs;
-> >  	char path[PATH_MAX], **names;
-> >  	struct stat sb;
-> > @@ -128,7 +128,7 @@
-> >  #endif
-> >  
-> >  	if (usesepol) {
-> > -		vers = vers_max();
-> > +		maxvers = vers_max();
-> >  		minvers = vers_min();
-> >  	}
-> >  
-> > @@ -157,6 +157,7 @@
-> >  	if (preservebools && uname(&uts) == 0 && strverscmp(uts.release, "2.6.22") >= 0)
-> >  		preservebools = 0;
-> >  
-> > +	vers = maxvers;
-> >        search:
-> >  	snprintf(path, sizeof(path), "%s.%d",
-> >  		 selinux_binary_policy_path(), vers);
-> > @@ -168,11 +169,19 @@
-> >  			 selinux_binary_policy_path(), vers);
-> >  		fd = open(path, O_RDONLY);
-> >  	}
-> > -	if (fd < 0)
-> > +	if (fd < 0) {
-> > +		fprintf(stderr,
-> > +			"SELinux:  Could not open policy file <= %s.%d:  %s\n",
-> > +			selinux_binary_policy_path(), maxvers, strerror(errno));
-> >  		goto dlclose;
-> > +	}
-> >  
-> > -	if (fstat(fd, &sb) < 0)
-> > +	if (fstat(fd, &sb) < 0) {
-> > +		fprintf(stderr,
-> > +			"SELinux:  Could not stat policy file %s:  %s\n",
-> > +			path, strerror(errno));
-> >  		goto close;
-> > +	}
-> >  
-> >  	prot = PROT_READ;
-> >  	if (setlocaldefs || preservebools)
-> > @@ -180,8 +189,12 @@
-> >  
-> >  	size = sb.st_size;
-> >  	data = map = mmap(NULL, size, prot, MAP_PRIVATE, fd, 0);
-> > -	if (map == MAP_FAILED)
-> > +	if (map == MAP_FAILED) {
-> > +		fprintf(stderr,
-> > +			"SELinux:  Could not map policy file %s:  %s\n",
-> > +			path, strerror(errno));
-> >  		goto close;
-> > +	}
-> >  
-> >  	if (vers > kernvers && usesepol) {
-> >  		/* Need to downgrade to kernel-supported version. */
-> > @@ -200,6 +213,9 @@
-> >  		if (policydb_set_vers(policydb, kernvers) ||
-> >  		    policydb_to_image(NULL, policydb, &data, &size)) {
-> >  			/* Downgrade failed, keep searching. */
-> > +			fprintf(stderr,
-> > +				"SELinux:  Could not downgrade policy file %s, searching for an older version.\n",
-> > +				path);
-> >  			policy_file_free(pf);
-> >  			policydb_free(policydb);
-> >  			munmap(map, sb.st_size);
-> > @@ -254,6 +270,11 @@
-> >  
-> >  
-> >  	rc = security_load_policy(data, size);
-> > +	
-> > +	if (rc)
-> > +		fprintf(stderr,
-> > +			"SELinux:  Could not load policy file %s:  %s\n",
-> > +			path, strerror(errno));
-> >  
-> >        unmap:
-> >  	if (data != map)
-> >
-> >
-> >   
-> 
+I'd agree that we don't want to break existing usage, but I'm not sure
+what the least intrusive and cleanest fix is.
+
+$ svn diff -c2699 fixfiles
+Index: fixfiles
+===================================================================
+--- fixfiles	(revision 2698)
++++ fixfiles	(revision 2699)
+@@ -92,7 +92,7 @@
+ 		      ! \( -fstype ext2 -o -fstype ext3 -o -fstype jfs -o -fstype xfs \) -prune  -o \
+ 		      \( -wholename /home -o -wholename /root -o -wholename /tmp -wholename /dev \) -prune -o -print; \
+ 		      done 2> /dev/null | \
+-	 ${RESTORECON} $2 -v -f - 
++	 ${RESTORECON} $2 -f - 
+ 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
+ fi
+ }
+@@ -189,21 +189,27 @@
+     case "$i" in
+ 	f)
+ 		fullFlag=1
++		shift 1
+ 		;;
+         R)
+ 		RPMFILES=$OPTARG
++		shift 2
+ 		;;
+         o)
+ 		OUTFILES=$OPTARG
++		shift 2
+ 		;;
+         l)
+ 		LOGFILE=$OPTARG
++		shift 2
+ 		;;
+         C)
+ 		PREFC=$OPTARG
++		shift 2
+ 		;;
+ 	F)
+ 		FORCEFLAG="-F"
++		shift 1
+ 		;;
+ 	*)
+ 	    usage
+@@ -211,10 +217,8 @@
+ esac
+ done
+ 
+-
+ # Check for the command
+-eval command=\$${OPTIND}
+-let OPTIND=$OPTIND+1
++command=$1
+ if [ -z $command ]; then
+     usage
+ fi
+@@ -223,17 +227,15 @@
+ # check if they specified both DIRS and RPMFILES
+ #
+ 
++shift 1
+ if [ ! -z "$RPMFILES" ]; then
+-    if [ $OPTIND -le $# ]; then
++    if [ $# -gt 0 ]; then
+ 	    usage
+     fi
+ else
+-    while [ $OPTIND -le $# ]; do
+-	eval DIR=\$${OPTIND}
+-	DIRS="$DIRS $DIR"
+-	let OPTIND=$OPTIND+1
+-    done
++    DIRS=$*
+ fi
++
+ #
+ # Make sure they specified one of the three valid commands
+ #
+
 -- 
 Stephen Smalley
 National Security Agency
