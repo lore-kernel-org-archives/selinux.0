@@ -7,8 +7,8 @@ References: <1202338588.2801.400.camel@bluejay.goodinassociates.com>
 	 <1202391931.27371.190.camel@moss-spartans.epoch.ncsc.mil>
 	 <1202396529.2801.457.camel@bluejay.goodinassociates.com>
 Content-Type: text/plain
-Date: Thu, 07 Feb 2008 10:11:42 -0500
-Message-Id: <1202397102.27371.241.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 07 Feb 2008 10:12:49 -0500
+Message-Id: <1202397169.27371.243.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -27,8 +27,8 @@ On Thu, 2008-02-07 at 09:02 -0600, Jeremiah Jahn wrote:
 > cause. I'm just curious to see if anyone knows why this seems to be
 > required for java to do it's thing with regards to threads. 
 
-Might be allocating the thread stack with PROT_EXEC, triggering the
-execmem denial.
+BTW, java does require execmem in order to do runtime code generation
+regardless of the threads issue.
 
 -- 
 Stephen Smalley
