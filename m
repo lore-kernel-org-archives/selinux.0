@@ -1,80 +1,71 @@
-Subject: Re: [patch] selinux: support 64-bit capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <20080207171626.GB10603@sergelap.ibm.com>
-References: <1202401264.27371.258.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080207171626.GB10603@sergelap.ibm.com>
+Subject: Re: [patch] refpolicy: add capability2 class
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1202401746.27371.265.camel@moss-spartans.epoch.ncsc.mil>
+References: <1202401746.27371.265.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 07 Feb 2008 12:30:22 -0500
-Message-Id: <1202405422.27371.283.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 07 Feb 2008 12:42:54 -0500
+Message-Id: <1202406174.7533.114.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Thu, 2008-02-07 at 11:16 -0600, Serge E. Hallyn wrote:
-> Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> > Fix SELinux to handle 64-bit capabilities correctly, and to catch
-> > future extensions of capabilities beyond 64 bits to ensure that SELinux
-> > is properly updated.
-> > 
-> > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > 
-> > ---
-> > 
-> >  security/selinux/hooks.c                     |   21 +++++++++++++++++++--
-> >  security/selinux/include/av_perm_to_string.h |    3 +++
-> >  security/selinux/include/av_permissions.h    |    3 +++
-> >  security/selinux/include/class_to_string.h   |    1 +
-> >  security/selinux/include/flask.h             |    1 +
-> >  5 files changed, 27 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index e5ed075..ed5b69f 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -1272,12 +1272,18 @@ static int task_has_perm(struct task_struct *tsk1,
-> >  			    SECCLASS_PROCESS, perms, NULL);
-> >  }
-> > 
-> > +#if CAP_LAST_CAP > 63
-> > +#error Fix SELinux to handle capabilities > 63.
-> > +#endif
+On Thu, 2008-02-07 at 11:29 -0500, Stephen Smalley wrote:
+> Add the capability2 class to policy for capabilities 32-63.
 > 
-> I suppose it would be going too far to do something like:
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+Merged.
+
+> ---
 > 
-> #define SELINUX_LAST_CAP CAPABILITY2__MAC_ADMIN
+>  refpolicy/policy/flask/access_vectors   |    6 ++++++
+>  refpolicy/policy/flask/security_classes |    3 +++
+>  2 files changed, 9 insertions(+)
 > 
-> #if (CAP_TO_INDEX(CAP_LAST_CAP) > 2) || (CAP_TO_MASK(CAP_LAST_CAP) > SELINUX_LAST_CAP)
-> #warning Please teach selinux about capabilities between SELINUX_LAST_CAP+SECCLASS_CAPABILITY2 and CAP_LAST_CAP.
-> #endif
 > 
-> ?
-
-I don't think it is necessary, although adding a comment to capability.h
-where it defines CAP_LAST_CAP to notify
-linux-security-module@vger.kernel.org of additions would be reasonable
-as a separate and independent patch from this one.
-
-If someone does add a capability < 63 w/o updating SELinux, then what
-will happen with the current code is that either:
-a) SELinux will allow it due to the handle_unknown support in Fedora 8
-and later, or
-b) SELinux will deny it (or at least log a denial, if permissive) and
-avc_audit will report the hex value of the mask along with the
-capability value in the logs.
-
-Neither of which will trip the BUG() case.  I only wanted the build
-failure to catch the BUG() case up front for mainline, and then the
-BUG() case can only fire upon a real kernel bug and/or an out-of-tree
-kernel module that is introducing its own private capability
-definitions.
-
+> Index: refpolicy/policy/flask/security_classes
+> ===================================================================
+> --- refpolicy/policy/flask/security_classes	(revision 2594)
+> +++ refpolicy/policy/flask/security_classes	(working copy)
+> @@ -109,4 +109,7 @@
+>  # network peer labels
+>  class peer
+>  
+> +# Capabilities >= 32
+> +class capability2
+> +
+>  # FLASK
+> Index: refpolicy/policy/flask/access_vectors
+> ===================================================================
+> --- refpolicy/policy/flask/access_vectors	(revision 2594)
+> +++ refpolicy/policy/flask/access_vectors	(working copy)
+> @@ -347,6 +347,7 @@
+>  class capability
+>  {
+>  	# The capabilities are defined in include/linux/capability.h
+> +	# Capabilities >= 32 are defined in the capability2 class.
+>  	# Care should be taken to ensure that these are consistent with
+>  	# those definitions. (Order matters)
+>  
+> @@ -384,6 +385,11 @@
+>  	setfcap
+>  }
+>  
+> +class capability2 
+> +{
+> +	mac_override	# unused by SELinux
+> +	mac_admin	# unused by SELinux
+> +}
+>  
+>  #
+>  # Define the access vector interpretation for controlling
+> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
