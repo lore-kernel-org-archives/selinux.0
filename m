@@ -1,44 +1,95 @@
-Date: Fri, 8 Feb 2008 10:01:14 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        Marshall Miller <mmiller@tresys.com>,
-        "Todd C. Miller" <tmiller@tresys.com>
-Subject: Re: fixfiles: broken option processing?
-Message-ID: <20080208090114.GA16821@bobek.pm.i.cz>
-References: <20080206154957.GA28647@bobek.pm.i.cz> <1202419683.27371.306.camel@moss-spartans.epoch.ncsc.mil> <20080208082922.GA26640@bobek.pm.i.cz>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m189W7UQ016425
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 04:32:07 -0500
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m189W7Fm014839
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 09:32:07 GMT
+Received: by py-out-1112.google.com with SMTP id a78so4384119pyh.32
+        for <selinux@tycho.nsa.gov>; Fri, 08 Feb 2008 01:32:06 -0800 (PST)
+Message-ID: <150846cc0802080132u1db27b24yf94ed52bbc56c33d@mail.gmail.com>
+Date: Fri, 8 Feb 2008 04:32:06 -0500
+From: "Caleb Case" <ccase@tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: SELinux Support for Ubuntu Hardy
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-In-Reply-To: <20080208082922.GA26640@bobek.pm.i.cz>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Feb 08, 2008 at 09:29:22AM +0100, Václav Ovsík wrote:
-> The interpreter is changed to /bin/bash.  There are bashisms (getopts,
-> PIPESTATUS...), so this can't be interpreted by /bin/sh.
+SELinux Support for Ubuntu Hardy
 
-No, getopts is ok (as dash(1) says). The problem is PIPESTATUS at least.
+*** WARNING: EXPERIMENTAL! TESTING/DEVELOPMENT ONLY! ***
 
-# etch:/home/zito# dash -x fixfiles
-+ fullFlag=0
-+ FORCEFLAG=
-...
-+ SELINUXTYPE=refpolicy
-+ SETLOCALDEFS=0
-+ FC=/etc/selinux/refpolicy/contexts/files/file_contexts
-fixfiles: 109: Syntax error: Bad substitution
+Hey everybody!
 
-This code:
+We've been really busy getting SELinux support ready for Hardy and it is now
+possible to boot into an SELinux enabled Hardy using the packages that are
+available in the Ubuntu-Hardened PPA on launchpad.
 
-rpmlist() {
-rpm -q --qf '[%{FILESTATES} %{FILENAMES}\n]' "$1" | grep '^0 ' | cut -f2- -d ' '
-[ ${PIPESTATUS[0]} != 0 ] && echo "$1 not found" >/dev/stderr
-}
+Hardy is currently in alpha with releases available here:
 
-We should use /bin/bash.
-Regards
--- 
-Zito
+https://wiki.ubuntu.com/HardyHeron
+
+At the time of this email the server distro boots in enforcing (which isn't to
+say that everything works perfectly), but the desktop distro does not.
+We're hoping to have this working in the near future.
+
+Any feedback you have would be greatly appreciated :o}
+
+More information is available on the Hardy SELinux wiki:
+
+https://wiki.ubuntu.com/HardySELinux
+
+Installing SELinux in Hardy:
+
+ 1. Update /etc/apt/sources.list by appending the following:
+
+    deb http://ppa.launchpad.net/ubuntu-hardened/ubuntu hardy main
+    deb-src http://ppa.launchpad.net/ubuntu-hardened/ubuntu hardy main
+
+ 2. Update repo:
+    > apt-get update
+
+ 3. Install updated packages:
+    > apt-get upgrade
+
+    * These packages have SELinux support patches:
+      * libpam0g [1]
+      * openssh-server [2]
+      * grub [3]
+      * login [4]
+
+ 4. Install selinux:
+    > apt-get install selinux
+
+    * These packages will be removed:
+      * apparmor
+      * apparmor-utils
+
+ 5. Reboot
+
+SELinux Support for Hardy Package Sources:
+
+https://code.launchpad.net/~calebcase/+junk/selinux-support
+
+[1] PAM was using a deprecated method of handling login contexts
+<https://bugs.launchpad.net/ubuntu/+source/pam/+bug/187822>. The updated package
+fixes this problem by backporting changes in upstream.
+
+[2] OpenSSH Server autoconf scripts were failing to detect the libselinux
+functions getseuserbyname and get_default_context_with_level
+<https://bugs.launchpad.net/ubuntu/+source/openssh/+bug/188136>. The updated
+package fixes the configure bug by correctly setting LIBS before calling
+AC_CHECK_FUNCS.
+
+[3] Grub's update-grub lacks a trigger (and update-grub cannot be called
+directly due to nested debconf issues)
+<https://bugs.launchpad.net/ubuntu/+source/grub/+bug/189173>. In order to
+seamlessly switch between AppArmor and SELinux we need to reconfigure the
+menu.lst's defoptions.
+
+[4] Login's PAM configuration had pam_selinux off by default. The updated
+package turns on.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
