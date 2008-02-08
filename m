@@ -1,59 +1,57 @@
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Xavier Toth <txtoth@gmail.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <1202309389.27371.140.camel@moss-spartans.epoch.ncsc.mil>
-References: <4798F57C.8090300@tycho.nsa.gov>
-	 <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>
-	 <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>
-	 <Xine.LNX.4.64.0802060934570.10987@us.intercode.com.au>
-	 <1202309389.27371.140.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 08 Feb 2008 15:25:58 -0500
-Message-Id: <1202502358.27371.413.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18LSqDm010497
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:28:52 -0500
+Received: from g1t0026.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18LSn5u019223
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 21:28:50 GMT
+Received: from g1t0026.austin.hp.com (localhost.localdomain [127.0.0.1])
+	by receive-from-antispam-filter (Postfix) with SMTP id 3C988C3C3
+	for <selinux@tycho.nsa.gov>; Fri,  8 Feb 2008 21:28:26 +0000 (UTC)
+Received: from smtp2.fc.hp.com (smtp2.fc.hp.com [15.11.136.114])
+	by g1t0026.austin.hp.com (Postfix) with ESMTP id 2D521C1AB
+	for <selinux@tycho.nsa.gov>; Fri,  8 Feb 2008 21:28:26 +0000 (UTC)
+Message-Id: <20080208212822.224178508@hp.com>
+References: <20080208212534.491651808@hp.com>
+Date: Fri, 08 Feb 2008 16:25:35 -0500
+From: paul.moore@hp.com
+To: selinux@tycho.nsa.gov
+Cc: Paul Moore <paul.moore@hp.com>
+Subject: [PATCH 1/4] REFPOL: Add "rogue" Fedora packet class permissions
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+At some point in the Fedora 6 timeframe the "flow_in" and "flow_out"
+permissions were added to the "packet" class, most likely as part of the
+ill-fated secid-reconciliation effort.  Despite the fact that these permissions
+are not currently used they should be included in the Reference Policy as they
+are now a permanent fixture in Fedora and it is crucial that the FLASK
+defines be kept in sync.
 
-On Wed, 2008-02-06 at 09:49 -0500, Stephen Smalley wrote:
-> On Wed, 2008-02-06 at 09:35 +1100, James Morris wrote:
-> > On Tue, 5 Feb 2008, Stephen Smalley wrote:
-> > 
-> > > 
-> > > On Tue, 2008-02-05 at 11:52 -0600, Xavier Toth wrote:
-> > > > Is this in rawhide, if not when will it be?
-> > > 
-> > > Not up to us, obviously.  The patch is in Linus' git tree, but looks
-> > > like latest fedora devel kernel is frozen on 2.6.24 + specific
-> > > individual patches, not feeding from Linus' git presently.  James could
-> > > possibly ask the Fedora kernel maintainer about adding it - it is small,
-> > > self-contained, and has no side effects on existing code (nothing prior
-> > > to XSELinux uses the compute member support; pam_namespace usage was
-> > > disabled since it didn't work right for multi-level dirs).
-> > 
-> > The rawhide kernel usually tracks Linus pretty closely -- perhaps wait a 
-> > couple of days until people recover from LCA.
-> 
-> Looks like they froze it on 2.6.24 (kernel.spec has released_kernel 1,
-> gitrev 0 in Fedora devel CVS), and are only cherry picking individual
-> patches, like the /proc/net fix for SELinux.  Unless that was only for
-> the Fedora 9 Alpha release and they'll re-open the flood gates soon?
-> 
-> If they don't start pulling from git again soon, we should likely take
-> the specific patch to fedora kernel list.
+This patch needs to be applied before any other patches that affect the
+"packet" class, otherwise the resulting policy may not load.
 
-Latest rawhide kernel pulled in 2.6.24.1-rc1, so they seem to be
-stabilizing on 2.6.24.x rather than pulling from git again for Fedora 9.
-Which means we'll have to get the patch added explicitly if we want it
-in Fedora 9.  Likely requires posting of the patch to fedora kernel
-list.
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
+ policy/flask/access_vectors |    2 ++
+ 1 file changed, 2 insertions(+)
+
+Index: refpolicy_svn_repo/policy/flask/access_vectors
+===================================================================
+--- refpolicy_svn_repo.orig/policy/flask/access_vectors
++++ refpolicy_svn_repo/policy/flask/access_vectors
+@@ -650,6 +650,8 @@ class packet
+ 	send
+ 	recv
+ 	relabelto
++	flow_in		# not currently in use
++	flow_out	# not currently in use
+ }
+ 
+ class key
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
