@@ -1,14 +1,18 @@
-Message-ID: <47AC57F3.4010509@redhat.com>
-Date: Fri, 08 Feb 2008 08:24:03 -0500
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18DYc8m007202
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 08:34:38 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18DYaA1022323
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 13:34:36 GMT
+Message-ID: <47AC5A69.2070202@redhat.com>
+Date: Fri, 08 Feb 2008 08:34:33 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Marshall Miller <mmiller@tresys.com>,
-        "Todd C. Miller" <tmiller@tresys.com>
-Subject: Re: fixfiles: broken option processing?
-References: <20080206154957.GA28647@bobek.pm.i.cz> <1202419683.27371.306.camel@moss-spartans.epoch.ncsc.mil> <20080208082922.GA26640@bobek.pm.i.cz>
-In-Reply-To: <20080208082922.GA26640@bobek.pm.i.cz>
+To: Jeremiah Jahn <jeremiah@goodinassociates.com>
+CC: selinux <selinux@tycho.nsa.gov>
+Subject: Re: new user types
+References: <1202426088.2801.500.camel@bluejay.goodinassociates.com>
+In-Reply-To: <1202426088.2801.500.camel@bluejay.goodinassociates.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -16,29 +20,84 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Václav Ovsík wrote:
-> On Thu, Feb 07, 2008 at 04:28:03PM -0500, Stephen Smalley wrote:
->> Hmm..the shifting of arguments was introduced in r2699 from Dan Walsh
->> (cc'd), diff is below.  Also relevant are r2736, r2750 and r2760.
->>
->> I'd agree that we don't want to break existing usage, but I'm not sure
->> what the least intrusive and cleanest fix is.
+Jeremiah Jahn wrote:
+> I can't seem to login as the right user, and I'm not sure what I missed.
 > 
-> Ok. What about this patch :)
+> I added the following roles and users to my monetra.te file:
 > 
-> The interpreter is changed to /bin/bash.  There are bashisms (getopts,
-> PIPESTATUS...), so this can't be interpreted by /bin/sh.
 > 
-> Regards
+> #admin roles
+> role monetra_admin_r types monetra_t;
+> role monetra_admin_r types monetra_lib_t;
 > 
-This looks good to me.
+> #client roles
+> role monetra_client_r types monetra_t;
+> role monetra_client_r types monetra_lib_t;
+> role monetra_client_r types monetra_client_t;
+> 
+> #monetra users
+> user monetra_u roles { monetra_client_r monetra_admin_r } level s0 range s0 - s0;
+> 
+> 
+> 
+> 
+> I ran the add login command:
+> semanage login -a -s monetra_u bob
+> 
+> 
+> 
+> I get the following output:
+> [root@xxx ~]# semanage login -l
+> 
+> Login Name                SELinux User              MLS/MCS Range            
+> 
+> __default__               user_u                    s0                       
+> root                      root                      s0-s0:c0.c255            
+> system_u                  system_u                  s0-s0:c0.c255            
+> bob                      monetra_u                 s0                       
+> 
+> [root@xxx ~]# semanage user -l
+> 
+>                 Labeling   MLS/       MLS/                          
+> SELinux User    Prefix     MCS Level  MCS Range                      SELinux Roles
+> 
+> 
+> monetra_u       user       s0         s0                             monetra_admin_r monetra_client_r
+> root            sysadm     s0         s0-s0:c0.c255                  sysadm_r staff_r
+> staff_u         staff      s0         s0-s0:c0.c255                  sysadm_r staff_r
+> sysadm_u        sysadm     s0         s0-s0:c0.c255                  sysadm_r
+> system_u        user       s0         s0-s0:c0.c255                  system_r
+> unconfined_u    unconfined s0         s0-s0:c0.c255                  unconfined_r
+> user_u          user       s0         s0                             user_r
+> 
+> yet when I login I get:
+> [bob@xxx ~]$ id -Z
+> system_u:system_r:unconfined_t:s0-s0:c0.c255
+> 
+> 
+> thanx for any help you can give.
+> 
+> 
+You need to create a contexts file for monetra_u.
+
+/etc/selinux/targeted/contexts/users/monetra_u
+Then set it up for the appropriate commands
+xguest_u looks like
+
+system_r:local_login_t	xguest_r:xguest_t:s0
+system_r:remote_login_t	xguest_r:xguest_t:s0
+system_r:sshd_t		xguest_r:xguest_t:s0
+system_r:crond_t	xguest_r:xguest_crond_t:s0
+system_r:xdm_t		xguest_r:xguest_t:s0
+
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkesV/IACgkQrlYvE4MpobMndQCfRC9x2SUT/wwZmIAX2JlubED/
-3LAAniOtNSEEldpmXGX/2vubL27yvezh
-=1tZw
+iEYEARECAAYFAkesWmkACgkQrlYvE4MpobMjxgCfYEe9Sq1qlHRR4D3SkMViIeqG
+KdcAoJ2mrdBBcxNoWVsy9ITDXInaYdUs
+=dhVO
 -----END PGP SIGNATURE-----
 
 --
