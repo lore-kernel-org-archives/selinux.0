@@ -1,18 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GuRKT008833
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:56:27 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GumpW009269
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:56:48 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GuLRJ024993
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:56:21 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GukRJ025198
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:56:46 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 33/37] NFS: nfs_readpage_async() needs to be accessible as a
-	fallback for local caching
+Subject: [PATCH 36/37] NFS: Display local caching state
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 08 Feb 2008 16:54:54 +0000
-Message-ID: <20080208165453.15902.40730.stgit@warthog.procyon.org.uk>
+Date: Fri, 08 Feb 2008 16:55:10 +0000
+Message-ID: <20080208165509.15902.62438.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 References: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,46 +19,77 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-nfs_readpage_async() needs to be non-static so that it can be used as a
-fallback for the local on-disk caching should an EIO crop up when reading the
-cache.
+Display the local caching state in /proc/fs/nfsfs/volumes.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/read.c          |    4 ++--
- include/linux/nfs_fs.h |    2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/nfs/client.c  |    7 ++++---
+ fs/nfs/fscache.h |   15 +++++++++++++++
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
 
-diff --git a/fs/nfs/read.c b/fs/nfs/read.c
-index 3d7d963..725a5a2 100644
---- a/fs/nfs/read.c
-+++ b/fs/nfs/read.c
-@@ -114,8 +114,8 @@ static void nfs_readpage_truncate_uninitialised_page(struct nfs_read_data *data)
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 51e9346..d67d52f 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -1451,7 +1451,7 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
+ 
+ 	/* display header on line 1 */
+ 	if (v == &nfs_volume_list) {
+-		seq_puts(m, "NV SERVER   PORT DEV     FSID\n");
++		seq_puts(m, "NV SERVER   PORT DEV     FSID              FSC\n");
+ 		return 0;
  	}
+ 	/* display one transport per line on subsequent lines */
+@@ -1465,12 +1465,13 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
+ 		 (unsigned long long) server->fsid.major,
+ 		 (unsigned long long) server->fsid.minor);
+ 
+-	seq_printf(m, "v%u %s %s %-7s %-17s\n",
++	seq_printf(m, "v%u %s %s %-7s %-17s %s\n",
+ 		   clp->rpc_ops->version,
+ 		   rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_HEX_ADDR),
+ 		   rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_HEX_PORT),
+ 		   dev,
+-		   fsid);
++		   fsid,
++		   nfs_server_fscache_state(server));
+ 
+ 	return 0;
+ }
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index 6264cd8..5f7806f 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -146,6 +146,16 @@ static inline void nfs_readpage_to_fscache(struct inode *inode,
+ 		__nfs_readpage_to_fscache(inode, page, sync);
  }
  
--static int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
--		struct page *page)
-+int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
-+		       struct page *page)
- {
- 	LIST_HEAD(one_request);
- 	struct nfs_page	*new;
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index d9adb53..d1d545e 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -505,6 +505,8 @@ extern int  nfs_readpages(struct file *, struct address_space *,
- 		struct list_head *, unsigned);
- extern int  nfs_readpage_result(struct rpc_task *, struct nfs_read_data *);
- extern void nfs_readdata_release(void *data);
-+extern int  nfs_readpage_async(struct nfs_open_context *, struct inode *,
-+			       struct page *);
++/*
++ * indicate the client caching state as readable text
++ */
++static inline const char *nfs_server_fscache_state(struct nfs_server *server)
++{
++	if (server->fscache && (server->options & NFS_OPTION_FSCACHE))
++		return "yes";
++	return "no ";
++}
++
  
- /*
-  * Allocate nfs_read_data structures
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+@@ -195,5 +205,10 @@ static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
+ static inline void nfs_readpage_to_fscache(struct inode *inode,
+ 					   struct page *page, int sync) {}
+ 
++static inline const char *nfs_server_fscache_state(struct nfs_server *server)
++{
++	return "no ";
++}
++
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
 
 
 --
