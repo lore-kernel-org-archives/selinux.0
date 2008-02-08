@@ -1,17 +1,17 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GrgwP007681
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:53:42 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GrfJ4016495
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:53:42 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18Grpwp007722
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:53:51 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GrnRJ023997
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:53:49 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 13/37] FS-Cache: Provide an add_wait_queue_tail() function
+Subject: [PATCH 18/37] CacheFiles: Permit the page lock state to be monitored
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 08 Feb 2008 16:53:07 +0000
-Message-ID: <20080208165307.15902.97007.stgit@warthog.procyon.org.uk>
+Date: Fri, 08 Feb 2008 16:53:34 +0000
+Message-ID: <20080208165333.15902.9386.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 References: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,92 +19,65 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Provide an add_wait_queue_tail() function to add a waiter to the back of a
-wait queue instead of the front.
+Add a function to install a monitor on the page lock waitqueue for a particular
+page, thus allowing the page being unlocked to be detected.
+
+This is used by CacheFiles to detect read completion on a page in the backing
+filesystem so that it can then copy the data to the waiting netfs page.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/pagemap.h |    7 +++++--
- include/linux/wait.h    |    2 ++
- kernel/wait.c           |   18 ++++++++++++++++++
- mm/filemap.c            |    2 +-
- 4 files changed, 26 insertions(+), 3 deletions(-)
+ include/linux/pagemap.h |    5 +++++
+ mm/filemap.c            |   18 ++++++++++++++++++
+ 2 files changed, 23 insertions(+), 0 deletions(-)
 
 
 diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index 51c39f8..cecbace 100644
+index d22e975..eb08fb8 100644
 --- a/include/linux/pagemap.h
 +++ b/include/linux/pagemap.h
-@@ -225,8 +225,11 @@ static inline void wait_on_page_writeback(struct page *page)
+@@ -242,6 +242,11 @@ static inline void wait_on_page_owner_priv_2(struct page *page)
+ extern void end_page_owner_priv_2(struct page *page);
  
- extern void end_page_writeback(struct page *page);
- 
--/*
-- * Wait for a PG_owner_priv_2 to become clear
-+/**
-+ * wait_on_page_owner_priv_2 - Wait for PG_owner_priv_2 to become clear
-+ * @page: The page to monitor
-+ *
-+ * Wait for a PG_owner_priv_2 to become clear on the specified page.
-  */
- static inline void wait_on_page_owner_priv_2(struct page *page)
- {
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index 33a2aa9..5032ebb 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -118,6 +118,8 @@ static inline int waitqueue_active(wait_queue_head_t *q)
- #define is_sync_wait(wait)	(!(wait) || ((wait)->private))
- 
- extern void FASTCALL(add_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
-+extern void FASTCALL(add_wait_queue_tail(wait_queue_head_t *q,
-+					 wait_queue_t *wait));
- extern void FASTCALL(add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t * wait));
- extern void FASTCALL(remove_wait_queue(wait_queue_head_t *q, wait_queue_t * wait));
- 
-diff --git a/kernel/wait.c b/kernel/wait.c
-index f987688..a82b012 100644
---- a/kernel/wait.c
-+++ b/kernel/wait.c
-@@ -29,6 +29,24 @@ void fastcall add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
- }
- EXPORT_SYMBOL(add_wait_queue);
- 
-+/**
-+ * add_wait_queue_tail - Add a waiter to the back of a waitqueue
-+ * @q: the wait queue to append the waiter to
-+ * @wait: the waiter to be queued
-+ *
-+ * Add a waiter to the back of a waitqueue so that it gets woken up last.
+ /*
++ * Add an arbitrary waiter to a page's wait queue
 + */
-+void fastcall add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait)
-+{
-+	unsigned long flags;
++extern void add_page_wait_queue(struct page *page, wait_queue_t *waiter);
 +
-+	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue_tail(q, wait);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+EXPORT_SYMBOL(add_wait_queue_tail);
-+
- void fastcall add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
- {
- 	unsigned long flags;
++/*
+  * Fault a userspace page into pagetables.  Return non-zero on a fault.
+  *
+  * This assumes that two userspace pages are always sufficient.  That's
 diff --git a/mm/filemap.c b/mm/filemap.c
-index 138e791..8d64000 100644
+index 6c6cd76..5c0241c 100644
 --- a/mm/filemap.c
 +++ b/mm/filemap.c
-@@ -587,7 +587,7 @@ void end_page_writeback(struct page *page)
- EXPORT_SYMBOL(end_page_writeback);
+@@ -548,6 +548,24 @@ void wait_on_page_bit(struct page *page, int bit_nr)
+ EXPORT_SYMBOL(wait_on_page_bit);
  
  /**
-- * end_page_own - Clear PG_owner_priv_2 and wake up any waiters
-+ * end_page_owner_priv_2 - Clear PG_owner_priv_2 and wake up any waiters
++ * add_page_wait_queue - Add an arbitrary waiter to a page's wait queue
++ * @page - Page defining the wait queue of interest
++ * @waiter - Waiter to add to the queue
++ *
++ * Add an arbitrary @waiter to the wait queue for the nominated @page.
++ */
++void add_page_wait_queue(struct page *page, wait_queue_t *waiter)
++{
++	wait_queue_head_t *q = page_waitqueue(page);
++	unsigned long flags;
++
++	spin_lock_irqsave(&q->lock, flags);
++	__add_wait_queue(q, waiter);
++	spin_unlock_irqrestore(&q->lock, flags);
++}
++EXPORT_SYMBOL_GPL(add_page_wait_queue);
++
++/**
+  * unlock_page - unlock a locked page
   * @page: the page
   *
-  * Clear PG_owner_priv_2 and wake up any processes waiting for that event.
 
 
 --
