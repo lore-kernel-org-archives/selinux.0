@@ -1,18 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GrNkn007477
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:53:23 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GrCSV007399
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:53:12 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GrHRJ023614
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:53:17 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18Gr4RJ023416
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:53:05 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 09/37] Security: Allow kernel services to override LSM
-	settings for task actions
+Subject: [PATCH 08/37] Security: Add a kernel_service object class to SELinux
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 08 Feb 2008 16:52:46 +0000
-Message-ID: <20080208165245.15902.13085.stgit@warthog.procyon.org.uk>
+Date: Fri, 08 Feb 2008 16:52:40 +0000
+Message-ID: <20080208165240.15902.64781.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 References: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,503 +19,72 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Allow kernel services to override LSM settings appropriate to the actions
-performed by a task by duplicating a security record, modifying it and then
-using task_struct::act_as to point to it when performing operations on behalf
-of a task.
+Add a 'kernel_service' object class to SELinux and give this object class two
+access vectors: 'use_as_override' and 'create_files_as'.
 
-This is used, for example, by CacheFiles which has to transparently access the
-cache on behalf of a process that thinks it is doing, say, NFS accesses with a
-potentially inappropriate (with respect to accessing the cache) set of
-security data.
+The first vector is used to grant a process the right to nominate an alternate
+process security ID for the kernel to use as an override for the SELinux
+subjective security when accessing stuff on behalf of another process.
 
-This patch provides two LSM hooks for modifying a task security record:
+For example, CacheFiles when accessing the cache on behalf on a process
+accessing an NFS file needs to use a subjective security ID appropriate to the
+cache rather then the one the calling process is using.  The cachefilesd
+daemon will nominate the security ID to be used.
 
- (*) security_kernel_act_as() which allows modification of the security datum
-     with which a task acts on other objects (most notably files).
-
- (*) security_create_files_as() which allows modification of the security
-     datum that is used to initialise the security data on a file that a task
-     creates.
+The second vector is used to grant a process the right to nominate a file
+creation label for a kernel service to use.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/capability.h          |   12 ++--
- include/linux/cred.h                |   23 +++++++
- include/linux/security.h            |   43 +++++++++++++
- kernel/cred.c                       |  112 +++++++++++++++++++++++++++++++++++
- security/dummy.c                    |   17 +++++
- security/security.c                 |   15 ++++-
- security/selinux/hooks.c            |   51 ++++++++++++++++
- security/selinux/include/security.h |    2 -
- security/selinux/ss/services.c      |    5 +-
- 9 files changed, 265 insertions(+), 15 deletions(-)
- create mode 100644 include/linux/cred.h
+ security/selinux/include/av_perm_to_string.h |    2 ++
+ security/selinux/include/av_permissions.h    |    2 ++
+ security/selinux/include/class_to_string.h   |    1 +
+ security/selinux/include/flask.h             |    1 +
+ 4 files changed, 6 insertions(+), 0 deletions(-)
 
 
-diff --git a/include/linux/capability.h b/include/linux/capability.h
-index 7d50ff6..424de01 100644
---- a/include/linux/capability.h
-+++ b/include/linux/capability.h
-@@ -364,12 +364,12 @@ typedef struct kernel_cap_struct {
- # error Fix up hand-coded capability macro initializers
- #else /* HAND-CODED capability initializers */
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index 399f868..c68ec9c 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -168,3 +168,5 @@
+    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
+    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
+    S_(SECCLASS_PEER, PEER__RECV, "recv")
++   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__USE_AS_OVERRIDE, "use_as_override")
++   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__CREATE_FILES_AS, "create_files_as")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index 84c9abc..41cee9e 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -833,3 +833,5 @@
+ #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
+ #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
+ #define PEER__RECV                                0x00000001UL
++#define KERNEL_SERVICE__USE_AS_OVERRIDE           0x00000001UL
++#define KERNEL_SERVICE__CREATE_FILES_AS           0x00000002UL
+diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
+index b1b0d1d..efe9efa 100644
+--- a/security/selinux/include/class_to_string.h
++++ b/security/selinux/include/class_to_string.h
+@@ -71,3 +71,4 @@
+     S_(NULL)
+     S_(NULL)
+     S_("peer")
++    S_("kernel_service")
+diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
+index 09e9dd2..2bc251a 100644
+--- a/security/selinux/include/flask.h
++++ b/security/selinux/include/flask.h
+@@ -51,6 +51,7 @@
+ #define SECCLASS_DCCP_SOCKET                             60
+ #define SECCLASS_MEMPROTECT                              61
+ #define SECCLASS_PEER                                    68
++#define SECCLASS_KERNEL_SERVICE                          69
  
--# define CAP_EMPTY_SET    {{ 0, 0 }}
--# define CAP_FULL_SET     {{ ~0, ~0 }}
--# define CAP_INIT_EFF_SET {{ ~CAP_TO_MASK(CAP_SETPCAP), ~0 }}
--# define CAP_FS_SET       {{ CAP_FS_MASK_B0, CAP_FS_MASK_B1 } }
--# define CAP_NFSD_SET     {{ CAP_FS_MASK_B0|CAP_TO_MASK(CAP_SYS_RESOURCE), \
--			     CAP_FS_MASK_B1 } }
-+# define CAP_EMPTY_SET    ((kernel_cap_t){{ 0, 0 }})
-+# define CAP_FULL_SET     ((kernel_cap_t){{ ~0, ~0 }})
-+# define CAP_INIT_EFF_SET ((kernel_cap_t){{ ~CAP_TO_MASK(CAP_SETPCAP), ~0 }})
-+# define CAP_FS_SET       ((kernel_cap_t){{ CAP_FS_MASK_B0, CAP_FS_MASK_B1 } })
-+# define CAP_NFSD_SET     ((kernel_cap_t){{ CAP_FS_MASK_B0|CAP_TO_MASK(CAP_SYS_RESOURCE), \
-+					CAP_FS_MASK_B1 } })
- 
- #endif /* _LINUX_CAPABILITY_U32S != 2 */
- 
-diff --git a/include/linux/cred.h b/include/linux/cred.h
-new file mode 100644
-index 0000000..497af5b
---- /dev/null
-+++ b/include/linux/cred.h
-@@ -0,0 +1,23 @@
-+/* Credential management
-+ *
-+ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public Licence
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the Licence, or (at your option) any later version.
-+ */
-+
-+#ifndef _LINUX_CRED_H
-+#define _LINUX_CRED_H
-+
-+struct task_security;
-+struct inode;
-+
-+extern struct task_security *get_kernel_security(struct task_struct *);
-+extern int set_security_override(struct task_security *, u32);
-+extern int set_security_override_from_ctx(struct task_security *, const char *);
-+extern int change_create_files_as(struct task_security *, struct inode *);
-+
-+#endif /* _LINUX_CRED_H */
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 9bf93c7..1c17b91 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -568,6 +568,19 @@ struct request_sock;
-  *	Duplicate and attach the security structure currently attached to the
-  *	p->security field.
-  *	Return 0 if operation was successful.
-+ * @task_kernel_act_as:
-+ *	Set the credentials for a kernel service to act as (subjective context).
-+ *	@p points to the task that nominated @secid.
-+ *	@sec points to the task security record to be modified.
-+ *	@secid specifies the security ID to be set
-+ *	Return 0 if successful.
-+ * @task_create_files_as:
-+ *	Set the file creation context in a task security record to be the same
-+ *	as the objective context of the specified inode.
-+ *	@p points to the task that nominated @inode.
-+ *	@sec points to the task security record to be modified.
-+ *	@inode points to the inode to use as a reference.
-+ *	Return 0 if successful.
-  * @task_setuid:
-  *	Check permission before setting one or more of the user identity
-  *	attributes of the current process.  The @flags parameter indicates
-@@ -1342,6 +1355,11 @@ struct security_operations {
- 	int (*task_alloc_security) (struct task_struct *p);
- 	void (*task_free_security) (struct task_security *p);
- 	int (*task_dup_security) (struct task_security *p);
-+	int (*task_kernel_act_as)(struct task_struct *p,
-+				  struct task_security *sec, u32 secid);
-+	int (*task_create_files_as)(struct task_struct *p,
-+				    struct task_security *sec,
-+				    struct inode *inode);
- 	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
- 	int (*task_post_setuid) (uid_t old_ruid /* or fsuid */ ,
- 				 uid_t old_euid, uid_t old_suid, int flags);
-@@ -1410,7 +1428,7 @@ struct security_operations {
-  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
-  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
- 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
--	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
-+	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
- 	void (*release_secctx)(char *secdata, u32 seclen);
- 
- #ifdef CONFIG_SECURITY_NETWORK
-@@ -1599,6 +1617,11 @@ int security_task_create(unsigned long clone_flags);
- int security_task_alloc(struct task_struct *p);
- void security_task_free(struct task_security *p);
- int security_task_dup(struct task_security *p);
-+int security_task_kernel_act_as(struct task_struct *p,
-+				struct task_security *sec, u32 secid);
-+int security_task_create_files_as(struct task_struct *p,
-+				  struct task_security *sec,
-+				  struct inode *inode);
- int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags);
- int security_task_post_setuid(uid_t old_ruid, uid_t old_euid,
- 			       uid_t old_suid, int flags);
-@@ -1651,7 +1674,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
- int security_netlink_recv(struct sk_buff *skb, int cap);
- int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
--int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
-+int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
- void security_release_secctx(char *secdata, u32 seclen);
- 
- #else /* CONFIG_SECURITY */
-@@ -2080,6 +2103,20 @@ static inline int security_task_dup(struct task_security *p)
- 	return 0;
- }
- 
-+static inline int security_task_kernel_act_as(struct task_struct *p,
-+					      struct task_security *sec,
-+					      u32 secid)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_create_files_as(struct task_struct *p,
-+						struct task_security *sec,
-+						struct inode *inode)
-+{
-+	return 0;
-+}
-+
- static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
- 					int flags)
- {
-@@ -2331,7 +2368,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
- 	return -EOPNOTSUPP;
- }
- 
--static inline int security_secctx_to_secid(char *secdata,
-+static inline int security_secctx_to_secid(const char *secdata,
- 					   u32 seclen,
- 					   u32 *secid)
- {
-diff --git a/kernel/cred.c b/kernel/cred.c
-index 298f26e..aaa630a 100644
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -11,6 +11,7 @@
- #include <linux/module.h>
- #include <linux/sched.h>
- #include <linux/key.h>
-+#include <linux/keyctl.h>
- #include <linux/init_task.h>
- #include <linux/security.h>
- 
-@@ -138,3 +139,114 @@ void put_task_security(struct task_security *sec)
- 	}
- }
- EXPORT_SYMBOL(put_task_security);
-+
-+/**
-+ * get_kernel_security - Get a task security record for a kernel service
-+ * @daemon: A userspace daemon to be used as a reference
-+ *
-+ * Get a task security record for a kernel service.  This can then be used to
-+ * override a task's own security so that work can be done on behalf of that
-+ * task that requires a different security context.
-+ *
-+ * @daemon is used to provide a base for the security record, but can be NULL.
-+ * If @daemon is supplied, then the security data will be derived from that;
-+ * otherwise they'll be set to 0 and no groups, full capabilities and no keys.
-+ *
-+ * The caller may change these controls afterwards if desired.
-+ */
-+struct task_security *get_kernel_security(struct task_struct *daemon)
-+{
-+	const struct task_security *dsec;
-+	struct task_security *sec;
-+
-+	sec = kzalloc(sizeof *sec, GFP_KERNEL);
-+	if (!sec)
-+		return ERR_PTR(-ENOMEM);
-+
-+	if (daemon) {
-+		rcu_read_lock();
-+		dsec = rcu_dereference(daemon->sec);
-+		*sec = *dsec;
-+		get_group_info(sec->group_info);
-+		get_uid(sec->user);
-+		rcu_read_unlock();
-+#ifdef CONFIG_KEYS
-+		sec->request_key_auth = NULL;
-+		sec->thread_keyring = NULL;
-+		sec->tgsec = NULL;
-+#endif
-+	} else {
-+		sec->keep_capabilities = 0;
-+		sec->cap_inheritable = CAP_INIT_INH_SET;
-+		sec->cap_permitted = CAP_FULL_SET;
-+		sec->cap_effective = CAP_INIT_EFF_SET;
-+		sec->cap_bset = CAP_INIT_BSET;
-+		sec->user = &root_user;
-+		get_uid(sec->user);
-+		sec->group_info = &init_groups;
-+		get_group_info(sec->group_info);
-+	}
-+
-+	atomic_set(&sec->usage, 1);
-+	spin_lock_init(&sec->lock);
-+#ifdef CONFIG_KEYS
-+	sec->jit_keyring = KEY_REQKEY_DEFL_THREAD_KEYRING;
-+#endif
-+
-+	return sec;
-+}
-+EXPORT_SYMBOL(get_kernel_security);
-+
-+/**
-+ * set_security_override - Set the security ID in a security record
-+ * @sec: The security record to alter
-+ * @secid: The LSM security ID to set
-+ *
-+ * Set the LSM security ID in a security record so that the subjective security
-+ * is overridden when the act_as pointer of a task is overridden.
-+ */
-+int set_security_override(struct task_security *sec, u32 secid)
-+{
-+	return security_task_kernel_act_as(current, sec, secid);
-+}
-+EXPORT_SYMBOL(set_security_override);
-+
-+/**
-+ * set_security_override_from_ctx - Set the security ID in a security record
-+ * @sec: The security record to alter
-+ * @secctx: The LSM security context to generate the security ID from.
-+ *
-+ * Set the LSM security ID in a security record so that the subjective security
-+ * is overridden when the act_as pointer of a task is overridden.  The security
-+ * ID is specified in string form as a security context to be interpreted by
-+ * the LSM.
-+ */
-+int set_security_override_from_ctx(struct task_security *sec, const char *secctx)
-+{
-+	u32 secid;
-+	int ret;
-+
-+	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
-+	if (ret < 0)
-+		return ret;
-+
-+	return set_security_override(sec, secid);
-+}
-+EXPORT_SYMBOL(set_security_override_from_ctx);
-+
-+/**
-+ * change_create_files_as - Change the file create context in a security record
-+ * @sec: The security record to alter
-+ * @inode: The inode to take the context from
-+ *
-+ * Change the file creation context in a security record to be the same as the
-+ * object context of the specified inode, so that the new inodes have the same
-+ * MAC context as that inode.
-+ */
-+int change_create_files_as(struct task_security *sec, struct inode *inode)
-+{
-+	sec->fsuid = inode->i_uid;
-+	sec->fsgid = inode->i_gid;
-+	return security_task_create_files_as(current, sec, inode);
-+}
-+EXPORT_SYMBOL(change_create_files_as);
-diff --git a/security/dummy.c b/security/dummy.c
-index cc516ab..965504a 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -518,6 +518,19 @@ static int dummy_task_dup_security(struct task_security *p)
- 	return 0;
- }
- 
-+static int dummy_task_kernel_act_as(struct task_struct *p,
-+				    struct task_security *sec, u32 secid)
-+{
-+	return 0;
-+}
-+
-+static int dummy_task_create_files_as(struct task_struct *p,
-+				      struct task_security *sec,
-+				      struct inode *inode)
-+{
-+	return 0;
-+}
-+
- static int dummy_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
- {
- 	return 0;
-@@ -966,7 +979,7 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return -EOPNOTSUPP;
- }
- 
--static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+static int dummy_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
- {
- 	return -EOPNOTSUPP;
- }
-@@ -1093,6 +1106,8 @@ void security_fixup_ops (struct security_operations *ops)
- 	set_to_dummy_if_null(ops, task_alloc_security);
- 	set_to_dummy_if_null(ops, task_free_security);
- 	set_to_dummy_if_null(ops, task_dup_security);
-+	set_to_dummy_if_null(ops, task_kernel_act_as);
-+	set_to_dummy_if_null(ops, task_create_files_as);
- 	set_to_dummy_if_null(ops, task_setuid);
- 	set_to_dummy_if_null(ops, task_post_setuid);
- 	set_to_dummy_if_null(ops, task_setgid);
-diff --git a/security/security.c b/security/security.c
-index 3aceeac..e7345e1 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -600,6 +600,19 @@ int security_task_dup(struct task_security *sec)
- 	return security_ops->task_dup_security(sec);
- }
- 
-+int security_task_kernel_act_as(struct task_struct *p,
-+				struct task_security *sec, u32 secid)
-+{
-+	return security_ops->task_kernel_act_as(p, sec, secid);
-+}
-+
-+int security_task_create_files_as(struct task_struct *p,
-+				  struct task_security *sec,
-+				  struct inode *inode)
-+{
-+	return security_ops->task_create_files_as(p, sec, inode);
-+}
-+
- int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
- {
- 	return security_ops->task_setuid(id0, id1, id2, flags);
-@@ -838,7 +851,7 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- }
- EXPORT_SYMBOL(security_secid_to_secctx);
- 
--int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
- {
- 	return security_ops->secctx_to_secid(secdata, seclen, secid);
- }
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index ea9e0a8..815e03d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3092,6 +3092,53 @@ static int selinux_task_dup_security(struct task_security *sec)
- 	return 0;
- }
- 
-+/*
-+ * set the security data for a kernel service
-+ * - all the creation contexts are set to unlabelled
-+ */
-+static int selinux_task_kernel_act_as(struct task_struct *p,
-+				      struct task_security *sec, u32 secid)
-+{
-+	struct task_security_struct *tsec = sec->security;
-+	struct task_security_struct *ptsec = p->act_as->security;
-+	int ret;
-+
-+ 	ret = avc_has_perm(ptsec->sid, secid,
-+			   SECCLASS_KERNEL_SERVICE,
-+			   KERNEL_SERVICE__USE_AS_OVERRIDE,
-+			   NULL);
-+	if (ret == 0) {
-+		tsec->sid = secid;
-+		tsec->create_sid = 0;
-+		tsec->keycreate_sid = 0;
-+		tsec->sockcreate_sid = 0;
-+	}
-+	return ret;
-+}
-+
-+/*
-+ * set the file creation context in a security record to the same as the
-+ * objective context of the specified inode
-+ */
-+static int selinux_task_create_files_as(struct task_struct *p,
-+					struct task_security *sec,
-+					struct inode *inode)
-+{
-+	struct inode_security_struct *isec = inode->i_security;
-+	struct task_security_struct *tsec = sec->security;
-+	struct task_security_struct *ptsec = p->act_as->security;
-+	int ret;
-+
-+ 	ret = avc_has_perm(ptsec->sid, isec->sid,
-+			   SECCLASS_KERNEL_SERVICE,
-+			   KERNEL_SERVICE__CREATE_FILES_AS,
-+			   NULL);
-+
-+	if (ret == 0)
-+		tsec->create_sid = isec->sid;
-+	return 0;
-+}
-+
- static int selinux_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
- {
- 	/* Since setuid only affects the current process, and
-@@ -5164,7 +5211,7 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return security_sid_to_context(secid, secdata, seclen);
- }
- 
--static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
- {
- 	return security_context_to_sid(secdata, seclen, secid);
- }
-@@ -5322,6 +5369,8 @@ static struct security_operations selinux_ops = {
- 	.task_alloc_security =		selinux_task_alloc_security,
- 	.task_free_security =		selinux_task_free_security,
- 	.task_dup_security =		selinux_task_dup_security,
-+	.task_kernel_act_as =		selinux_task_kernel_act_as,
-+	.task_create_files_as =		selinux_task_create_files_as,
- 	.task_setuid =			selinux_task_setuid,
- 	.task_post_setuid =		selinux_task_post_setuid,
- 	.task_setgid =			selinux_task_setgid,
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 837ce42..7c1e8ba 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -78,7 +78,7 @@ int security_change_sid(u32 ssid, u32 tsid,
- int security_sid_to_context(u32 sid, char **scontext,
- 	u32 *scontext_len);
- 
--int security_context_to_sid(char *scontext, u32 scontext_len,
-+int security_context_to_sid(const char *scontext, u32 scontext_len,
- 	u32 *out_sid);
- 
- int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *out_sid, u32 def_sid);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f374186..519b2c1 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -680,7 +680,8 @@ out:
- 
- }
- 
--static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
-+static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
-+					u32 *sid, u32 def_sid)
- {
- 	char *scontext2;
- 	struct context context;
-@@ -806,7 +807,7 @@ out:
-  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
-  * memory is available, or 0 on success.
-  */
--int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
-+int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
- {
- 	return security_context_to_sid_core(scontext, scontext_len,
- 	                                    sid, SECSID_NULL);
+ /*
+  * Security identifier indices for initial entities
 
 
 --
