@@ -1,35 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18FXsH8028459
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 10:33:55 -0500
-Received: from vidle.i.cz (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18FXrnd016238
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 15:33:54 GMT
-Date: Fri, 8 Feb 2008 16:33:51 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-Subject: Re: SELinux and Linux user mapping
-Message-ID: <20080208153351.GA19504@bobek.pm.i.cz>
-References: <1202238356.2672.26.camel@vogon> <1202240861.7533.64.camel@gorn> <20080206115102.GA19285@bobek.pm.i.cz> <1202405185.2683.4.camel@vogon>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1202405185.2683.4.camel@vogon>
+Subject: Re: fixfiles: broken option processing?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        Marshall Miller <mmiller@tresys.com>,
+        "Todd C. Miller" <tmiller@tresys.com>
+In-Reply-To: <20080208082922.GA26640@bobek.pm.i.cz>
+References: <20080206154957.GA28647@bobek.pm.i.cz>
+	 <1202419683.27371.306.camel@moss-spartans.epoch.ncsc.mil>
+	 <20080208082922.GA26640@bobek.pm.i.cz>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 08 Feb 2008 11:19:21 -0500
+Message-Id: <1202487561.27371.390.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Feb 07, 2008 at 06:26:25PM +0100, Stefan Schulze Frielinghaus wrote:
->...
-> Yeah the problem seems to be with pam and openssh. At the weekend I will
-> try another debian-stable machine including your repository.
 
-I cleaned up Debian changelogs a bit, rebuild packages for Etch and Sid.
+On Fri, 2008-02-08 at 09:29 +0100, Václav Ovsík wrote:
+> On Thu, Feb 07, 2008 at 04:28:03PM -0500, Stephen Smalley wrote:
+> > Hmm..the shifting of arguments was introduced in r2699 from Dan Walsh
+> > (cc'd), diff is below.  Also relevant are r2736, r2750 and r2760.
+> > 
+> > I'd agree that we don't want to break existing usage, but I'm not sure
+> > what the least intrusive and cleanest fix is.
+> 
+> Ok. What about this patch :)
+> 
+> The interpreter is changed to /bin/bash.  There are bashisms (getopts,
+> PIPESTATUS...), so this can't be interpreted by /bin/sh.
 
-deb http://linux.i.cz/debian selinux-etch main
-deb http://linux.i.cz/debian selinux-sid main
+Thanks, merged.
 
-Not too much tested yet :). No better ssh package for Sid yet.
 -- 
-Zito
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
