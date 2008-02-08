@@ -1,17 +1,18 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GtLXh008529
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:55:21 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18Gt3bJ008403
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:55:03 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GtJJ4017127
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:55:19 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18Gt2J4017019
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:55:02 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 34/37] NFS: Read pages from FS-Cache into an NFS inode
+Subject: [PATCH 32/37] NFS: Add read context retention for FS-Cache to call
+	back with
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 08 Feb 2008 16:54:59 +0000
-Message-ID: <20080208165459.15902.70448.stgit@warthog.procyon.org.uk>
+Date: Fri, 08 Feb 2008 16:54:48 +0000
+Message-ID: <20080208165448.15902.66028.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 References: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,263 +20,60 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Read pages from an FS-Cache data storage object representing an inode into an
-NFS inode.
+Add read context retention so that FS-Cache can call back into NFS when a read
+operation on the cache fails EIO rather than reading data.  This permits NFS to
+then fetch the data from the server instead using the appropriate security
+context.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/fscache.c |  112 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/fscache.h |   47 +++++++++++++++++++++++
- fs/nfs/read.c    |   18 +++++++++
- 3 files changed, 176 insertions(+), 1 deletions(-)
+ fs/nfs/fscache-index.c |   26 ++++++++++++++++++++++++++
+ 1 files changed, 26 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index d475ff5..438cc9b 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -344,5 +344,115 @@ void __nfs_fscache_invalidate_page(struct page *page, struct inode *inode)
- 
- 	BUG_ON(!PageLocked(page));
- 	fscache_uncache_page(nfsi->fscache, page);
--	nfs_add_stats(page->mapping->host, NFSIOS_FSCACHE_UNCACHE, 1);
-+	nfs_add_stats(inode, NFSIOS_FSCACHE_UNCACHE, 1);
-+}
-+
-+/*
-+ * Handle completion of a page being read from the cache.
-+ * - Called in process (keventd) context.
-+ */
-+static void nfs_readpage_from_fscache_complete(struct page *page,
-+					       void *context,
-+					       int error)
-+{
-+	dfprintk(FSCACHE,
-+		 "NFS: readpage_from_fscache_complete (0x%p/0x%p/%d)\n",
-+		 page, context, error);
-+
-+	/* if the read completes with an error, we just unlock the page and let
-+	 * the VM reissue the readpage */
-+	if (!error) {
-+		SetPageUptodate(page);
-+		unlock_page(page);
-+	} else {
-+		error = nfs_readpage_async(context, page->mapping->host, page);
-+		if (error)
-+			unlock_page(page);
-+	}
-+}
-+
-+/*
-+ * Retrieve a page from fscache
-+ */
-+int __nfs_readpage_from_fscache(struct nfs_open_context *ctx,
-+				struct inode *inode, struct page *page)
-+{
-+	int ret;
-+
-+	dfprintk(FSCACHE,
-+		 "NFS: readpage_from_fscache(fsc:%p/p:%p(i:%lx f:%lx)/0x%p)\n",
-+		 NFS_I(inode)->fscache, page, page->index, page->flags, inode);
-+
-+	ret = fscache_read_or_alloc_page(NFS_I(inode)->fscache,
-+					 page,
-+					 nfs_readpage_from_fscache_complete,
-+					 ctx,
-+					 GFP_KERNEL);
-+
-+	switch (ret) {
-+	case 0: /* read BIO submitted (page in fscache) */
-+		dfprintk(FSCACHE,
-+			 "NFS:    readpage_from_fscache: BIO submitted\n");
-+		nfs_add_stats(inode, NFSIOS_FSCACHE_READ_OK, 1);
-+		return ret;
-+
-+	case -ENOBUFS: /* inode not in cache */
-+	case -ENODATA: /* page not in cache */
-+		nfs_add_stats(inode, NFSIOS_FSCACHE_READ_FAIL, 1);
-+		dfprintk(FSCACHE,
-+			 "NFS:    readpage_from_fscache %d\n", ret);
-+		return 1;
-+
-+	default:
-+		dfprintk(FSCACHE, "NFS:    readpage_from_fscache %d\n", ret);
-+		nfs_add_stats(inode, NFSIOS_FSCACHE_READ_FAIL, 1);
-+	}
-+	return ret;
-+}
-+
-+/*
-+ * Retrieve a set of pages from fscache
-+ */
-+int __nfs_readpages_from_fscache(struct nfs_open_context *ctx,
-+				 struct inode *inode,
-+				 struct address_space *mapping,
-+				 struct list_head *pages,
-+				 unsigned *nr_pages)
-+{
-+	int ret, npages = *nr_pages;
-+
-+	dfprintk(FSCACHE, "NFS: nfs_getpages_from_fscache (0x%p/%u/0x%p)\n",
-+		 NFS_I(inode)->fscache, npages, inode);
-+
-+	ret = fscache_read_or_alloc_pages(NFS_I(inode)->fscache,
-+					  mapping, pages, nr_pages,
-+					  nfs_readpage_from_fscache_complete,
-+					  ctx,
-+					  mapping_gfp_mask(mapping));
-+	if (*nr_pages < npages)
-+		nfs_add_stats(inode, NFSIOS_FSCACHE_READ_OK, npages);
-+	if (*nr_pages > 0)
-+		nfs_add_stats(inode, NFSIOS_FSCACHE_READ_FAIL, *nr_pages);
-+
-+	switch (ret) {
-+	case 0: /* read submitted to the cache for all pages */
-+		BUG_ON(!list_empty(pages));
-+		BUG_ON(*nr_pages != 0);
-+		dfprintk(FSCACHE,
-+			 "NFS: nfs_getpages_from_fscache: submitted\n");
-+
-+		return ret;
-+
-+	case -ENOBUFS: /* some pages aren't cached and can't be */
-+	case -ENODATA: /* some pages aren't cached */
-+		dfprintk(FSCACHE,
-+			 "NFS: nfs_getpages_from_fscache: no page: %d\n", ret);
-+		return 1;
-+
-+	default:
-+		dfprintk(FSCACHE,
-+			 "NFS: nfs_getpages_from_fscache: ret  %d\n", ret);
-+	}
-+
-+	return ret;
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+index eec8e7e..af9f06b 100644
+--- a/fs/nfs/fscache-index.c
++++ b/fs/nfs/fscache-index.c
+@@ -285,6 +285,30 @@ static void nfs_cache_inode_now_uncached(void *cookie_netfs_data)
  }
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index 1cb7d96..4c1e1a8 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -89,6 +89,12 @@ extern void nfs_fscache_attr_changed(struct inode *);
- extern void __nfs_fscache_invalidate_page(struct page *, struct inode *);
- extern int nfs_fscache_release_page(struct page *, gfp_t);
  
-+extern int __nfs_readpage_from_fscache(struct nfs_open_context *,
-+				       struct inode *, struct page *);
-+extern int __nfs_readpages_from_fscache(struct nfs_open_context *,
-+					struct inode *, struct address_space *,
-+					struct list_head *, unsigned *);
-+
  /*
-  * release the caching state associated with a page if undergoing complete page
-  * invalidation
-@@ -100,6 +106,32 @@ static inline void nfs_fscache_invalidate_page(struct page *page,
- 		__nfs_fscache_invalidate_page(page, inode);
- }
- 
-+/*
-+ * Retrieve a page from an inode data storage object.
++ * Get an extra reference on a read context.
++ * - This function can be absent if the completion function doesn't require a
++ *   context.
++ * - The read context is passed back to NFS in the event that a data read on the
++ *   cache fails with EIO - in which case the server must be contacted to
++ *   retrieve the data, which requires the read context for security.
 + */
-+static inline int nfs_readpage_from_fscache(struct nfs_open_context *ctx,
-+					    struct inode *inode,
-+					    struct page *page)
++static void nfs_fh_get_context(void *cookie_netfs_data, void *context)
 +{
-+	if (NFS_I(inode)->fscache)
-+		return __nfs_readpage_from_fscache(ctx, inode, page);
-+	return -ENOBUFS;
++	get_nfs_open_context(context);
 +}
 +
 +/*
-+ * Retrieve a set of pages from an inode data storage object.
++ * Release an extra reference on a read context.
++ * - This function can be absent if the completion function doesn't require a
++ *   context.
 + */
-+static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
-+					     struct inode *inode,
-+					     struct address_space *mapping,
-+					     struct list_head *pages,
-+					     unsigned *nr_pages)
++static void nfs_fh_put_context(void *cookie_netfs_data, void *context)
 +{
-+	if (NFS_I(inode)->fscache)
-+		return __nfs_readpages_from_fscache(ctx, inode, mapping, pages,
-+						    nr_pages);
-+	return -ENOBUFS;
-+}
- 
- #else /* CONFIG_NFS_FSCACHE */
- static inline int nfs_fscache_register(void) { return 0; }
-@@ -132,5 +164,20 @@ static inline int nfs_fscache_release_page(struct page *page, gfp_t gfp)
- static inline void nfs_fscache_invalidate_page(struct page *page,
- 					       struct inode *inode) {}
- 
-+static inline int nfs_readpage_from_fscache(struct nfs_open_context *ctx,
-+					    struct inode *inode,
-+					    struct page *page)
-+{
-+	return -ENOBUFS;
-+}
-+static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
-+					     struct inode *inode,
-+					     struct address_space *mapping,
-+					     struct list_head *pages,
-+					     unsigned *nr_pages)
-+{
-+	return -ENOBUFS;
++	if (context)
++		put_nfs_open_context(context);
 +}
 +
- #endif /* CONFIG_NFS_FSCACHE */
- #endif /* _NFS_FSCACHE_H */
-diff --git a/fs/nfs/read.c b/fs/nfs/read.c
-index 725a5a2..db27b26 100644
---- a/fs/nfs/read.c
-+++ b/fs/nfs/read.c
-@@ -24,6 +24,7 @@
- 
- #include "internal.h"
- #include "iostat.h"
-+#include "fscache.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_PAGECACHE
- 
-@@ -493,9 +494,16 @@ int nfs_readpage(struct file *file, struct page *page)
- 			goto out_unlock;
- 	} else
- 		ctx = get_nfs_open_context(nfs_file_open_context(file));
-+ 
-+	if (!IS_SYNC(inode)) {
-+		error = nfs_readpage_from_fscache(ctx, inode, page);
-+		if (error == 0)
-+			goto out;
-+	}
- 
- 	error = nfs_readpage_async(ctx, inode, page);
- 
-+out:
- 	put_nfs_open_context(ctx);
- 	return error;
- out_unlock:
-@@ -571,6 +579,15 @@ int nfs_readpages(struct file *filp, struct address_space *mapping,
- 			return -EBADF;
- 	} else
- 		desc.ctx = get_nfs_open_context(nfs_file_open_context(filp));
-+
-+	/* attempt to read as many of the pages as possible from the cache
-+	 * - this returns -ENOBUFS immediately if the cookie is negative
-+	 */
-+	ret = nfs_readpages_from_fscache(desc.ctx, inode, mapping,
-+					 pages, &nr_pages);
-+	if (ret == 0)
-+		goto read_complete; /* all pages were read */
-+
- 	if (rsize < PAGE_CACHE_SIZE)
- 		nfs_pageio_init(&pgio, inode, nfs_pagein_multi, rsize, 0);
- 	else
-@@ -581,6 +598,7 @@ int nfs_readpages(struct file *filp, struct address_space *mapping,
- 	nfs_pageio_complete(&pgio);
- 	npages = (pgio.pg_bytes_written + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
- 	nfs_add_stats(inode, NFSIOS_READPAGES, npages);
-+read_complete:
- 	put_nfs_open_context(desc.ctx);
- out:
- 	return ret;
++/*
+  * Define the inode object for FS-Cache.  This is used to describe an inode
+  * object to fscache_acquire_cookie().  It is keyed by the NFS file handle for
+  * an inode.
+@@ -301,4 +325,6 @@ const struct fscache_cookie_def nfs_cache_inode_object_def = {
+ 	.get_aux	= nfs_cache_inode_get_aux,
+ 	.check_aux	= nfs_cache_inode_check_aux,
+ 	.now_uncached	= nfs_cache_inode_now_uncached,
++	.get_context	= nfs_fh_get_context,
++	.put_context	= nfs_fh_put_context,
+ };
 
 
 --
