@@ -1,17 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GrCSV007399
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:53:12 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GroCg007713
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:53:50 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18Gr4RJ023416
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:53:05 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GrkRJ023983
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:53:47 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 08/37] Security: Add a kernel_service object class to SELinux
+Subject: [PATCH 16/37] CacheFiles: Be consistent about the use of mapping vs
+	file->f_mapping in Ext3
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 08 Feb 2008 16:52:40 +0000
-Message-ID: <20080208165240.15902.64781.stgit@warthog.procyon.org.uk>
+Date: Fri, 08 Feb 2008 16:53:23 +0000
+Message-ID: <20080208165323.15902.97373.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 References: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,72 +20,54 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a 'kernel_service' object class to SELinux and give this object class two
-access vectors: 'use_as_override' and 'create_files_as'.
+Change all the usages of file->f_mapping in ext3_*write_end() functions to use
+the mapping argument directly.  This has two consequences:
 
-The first vector is used to grant a process the right to nominate an alternate
-process security ID for the kernel to use as an override for the SELinux
-subjective security when accessing stuff on behalf of another process.
+ (*) Consistency.  Without this patch sometimes one is used and sometimes the
+     other is.
 
-For example, CacheFiles when accessing the cache on behalf on a process
-accessing an NFS file needs to use a subjective security ID appropriate to the
-cache rather then the one the calling process is using.  The cachefilesd
-daemon will nominate the security ID to be used.
-
-The second vector is used to grant a process the right to nominate a file
-creation label for a kernel service to use.
+ (*) A NULL file pointer can be passed.  This feature is then made use of by
+     the generic hook in the next patch, which is used by CacheFiles to write
+     pages to a file without setting up a file struct.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- security/selinux/include/av_perm_to_string.h |    2 ++
- security/selinux/include/av_permissions.h    |    2 ++
- security/selinux/include/class_to_string.h   |    1 +
- security/selinux/include/flask.h             |    1 +
- 4 files changed, 6 insertions(+), 0 deletions(-)
+ fs/ext3/inode.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 
-diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-index 399f868..c68ec9c 100644
---- a/security/selinux/include/av_perm_to_string.h
-+++ b/security/selinux/include/av_perm_to_string.h
-@@ -168,3 +168,5 @@
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
-    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
-    S_(SECCLASS_PEER, PEER__RECV, "recv")
-+   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__USE_AS_OVERRIDE, "use_as_override")
-+   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__CREATE_FILES_AS, "create_files_as")
-diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-index 84c9abc..41cee9e 100644
---- a/security/selinux/include/av_permissions.h
-+++ b/security/selinux/include/av_permissions.h
-@@ -833,3 +833,5 @@
- #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
- #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
- #define PEER__RECV                                0x00000001UL
-+#define KERNEL_SERVICE__USE_AS_OVERRIDE           0x00000001UL
-+#define KERNEL_SERVICE__CREATE_FILES_AS           0x00000002UL
-diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
-index b1b0d1d..efe9efa 100644
---- a/security/selinux/include/class_to_string.h
-+++ b/security/selinux/include/class_to_string.h
-@@ -71,3 +71,4 @@
-     S_(NULL)
-     S_(NULL)
-     S_("peer")
-+    S_("kernel_service")
-diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
-index 09e9dd2..2bc251a 100644
---- a/security/selinux/include/flask.h
-+++ b/security/selinux/include/flask.h
-@@ -51,6 +51,7 @@
- #define SECCLASS_DCCP_SOCKET                             60
- #define SECCLASS_MEMPROTECT                              61
- #define SECCLASS_PEER                                    68
-+#define SECCLASS_KERNEL_SERVICE                          69
+diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
+index eb95670..c976123 100644
+--- a/fs/ext3/inode.c
++++ b/fs/ext3/inode.c
+@@ -1215,7 +1215,7 @@ static int ext3_generic_write_end(struct file *file,
+ 				loff_t pos, unsigned len, unsigned copied,
+ 				struct page *page, void *fsdata)
+ {
+-	struct inode *inode = file->f_mapping->host;
++	struct inode *inode = mapping->host;
  
- /*
-  * Security identifier indices for initial entities
+ 	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
+ 
+@@ -1240,7 +1240,7 @@ static int ext3_ordered_write_end(struct file *file,
+ 				struct page *page, void *fsdata)
+ {
+ 	handle_t *handle = ext3_journal_current_handle();
+-	struct inode *inode = file->f_mapping->host;
++	struct inode *inode = mapping->host;
+ 	unsigned from, to;
+ 	int ret = 0, ret2;
+ 
+@@ -1281,7 +1281,7 @@ static int ext3_writeback_write_end(struct file *file,
+ 				struct page *page, void *fsdata)
+ {
+ 	handle_t *handle = ext3_journal_current_handle();
+-	struct inode *inode = file->f_mapping->host;
++	struct inode *inode = mapping->host;
+ 	int ret = 0, ret2;
+ 	loff_t new_i_size;
+ 
 
 
 --
