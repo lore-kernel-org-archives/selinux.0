@@ -1,18 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GrT3Q007568
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:53:29 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18GrNkn007477
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 11:53:23 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GrMRJ023667
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:53:22 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m18GrHRJ023614
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 16:53:17 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 12/37] FS-Cache: Recruit a couple of page flags for cache
-	management
+Subject: [PATCH 09/37] Security: Allow kernel services to override LSM
+	settings for task actions
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 08 Feb 2008 16:53:02 +0000
-Message-ID: <20080208165301.15902.52401.stgit@warthog.procyon.org.uk>
+Date: Fri, 08 Feb 2008 16:52:46 +0000
+Message-ID: <20080208165245.15902.13085.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 References: <20080208165156.15902.62457.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,354 +20,503 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Recruit a couple of page flags to aid in cache management.  The following extra
-flags are defined:
+Allow kernel services to override LSM settings appropriate to the actions
+performed by a task by duplicating a security record, modifying it and then
+using task_struct::act_as to point to it when performing operations on behalf
+of a task.
 
- (1) PG_fscache (PG_private_2)
+This is used, for example, by CacheFiles which has to transparently access the
+cache on behalf of a process that thinks it is doing, say, NFS accesses with a
+potentially inappropriate (with respect to accessing the cache) set of
+security data.
 
-     The marked page is backed by a local cache and is pinning resources in the
-     cache driver.
+This patch provides two LSM hooks for modifying a task security record:
 
- (2) PG_fscache_write (PG_owner_priv_2)
+ (*) security_kernel_act_as() which allows modification of the security datum
+     with which a task acts on other objects (most notably files).
 
-     The marked page is being written to the local cache.  The page may not be
-     modified whilst this is in progress.
-
-If PG_fscache is set, then things that checked for PG_private will now also
-check for that.  This includes things like truncation and page invalidation.
-The function page_has_private() had been added to make the checks for both
-PG_private and PG_private_2 at the same time.
+ (*) security_create_files_as() which allows modification of the security
+     datum that is used to initialise the security data on a file that a task
+     creates.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/splice.c                |    2 +-
- include/linux/page-flags.h |   39 +++++++++++++++++++++++++++++++++++++--
- include/linux/pagemap.h    |   11 +++++++++++
- mm/filemap.c               |   18 ++++++++++++++++++
- mm/migrate.c               |    2 +-
- mm/page_alloc.c            |    3 +++
- mm/readahead.c             |    9 +++++----
- mm/swap.c                  |    4 ++--
- mm/swap_state.c            |    4 ++--
- mm/truncate.c              |   10 +++++-----
- mm/vmscan.c                |    2 +-
- 11 files changed, 86 insertions(+), 18 deletions(-)
+ include/linux/capability.h          |   12 ++--
+ include/linux/cred.h                |   23 +++++++
+ include/linux/security.h            |   43 +++++++++++++
+ kernel/cred.c                       |  112 +++++++++++++++++++++++++++++++++++
+ security/dummy.c                    |   17 +++++
+ security/security.c                 |   15 ++++-
+ security/selinux/hooks.c            |   51 ++++++++++++++++
+ security/selinux/include/security.h |    2 -
+ security/selinux/ss/services.c      |    5 +-
+ 9 files changed, 265 insertions(+), 15 deletions(-)
+ create mode 100644 include/linux/cred.h
 
 
-diff --git a/fs/splice.c b/fs/splice.c
-index 4ee49e8..01b8c43 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -58,7 +58,7 @@ static int page_cache_pipe_buf_steal(struct pipe_inode_info *pipe,
- 		 */
- 		wait_on_page_writeback(page);
+diff --git a/include/linux/capability.h b/include/linux/capability.h
+index 7d50ff6..424de01 100644
+--- a/include/linux/capability.h
++++ b/include/linux/capability.h
+@@ -364,12 +364,12 @@ typedef struct kernel_cap_struct {
+ # error Fix up hand-coded capability macro initializers
+ #else /* HAND-CODED capability initializers */
  
--		if (PagePrivate(page))
-+		if (page_has_private(page))
- 			try_to_release_page(page, GFP_KERNEL);
+-# define CAP_EMPTY_SET    {{ 0, 0 }}
+-# define CAP_FULL_SET     {{ ~0, ~0 }}
+-# define CAP_INIT_EFF_SET {{ ~CAP_TO_MASK(CAP_SETPCAP), ~0 }}
+-# define CAP_FS_SET       {{ CAP_FS_MASK_B0, CAP_FS_MASK_B1 } }
+-# define CAP_NFSD_SET     {{ CAP_FS_MASK_B0|CAP_TO_MASK(CAP_SYS_RESOURCE), \
+-			     CAP_FS_MASK_B1 } }
++# define CAP_EMPTY_SET    ((kernel_cap_t){{ 0, 0 }})
++# define CAP_FULL_SET     ((kernel_cap_t){{ ~0, ~0 }})
++# define CAP_INIT_EFF_SET ((kernel_cap_t){{ ~CAP_TO_MASK(CAP_SETPCAP), ~0 }})
++# define CAP_FS_SET       ((kernel_cap_t){{ CAP_FS_MASK_B0, CAP_FS_MASK_B1 } })
++# define CAP_NFSD_SET     ((kernel_cap_t){{ CAP_FS_MASK_B0|CAP_TO_MASK(CAP_SYS_RESOURCE), \
++					CAP_FS_MASK_B1 } })
  
- 		/*
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index bbad43f..cc16c23 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -77,25 +77,32 @@
- #define PG_active		 6
- #define PG_slab			 7	/* slab debug (Suparna wants this) */
+ #endif /* _LINUX_CAPABILITY_U32S != 2 */
  
--#define PG_owner_priv_1		 8	/* Owner use. If pagecache, fs may use*/
-+#define PG_owner_priv_1		 8	/* Owner use. fs may use in pagecache */
- #define PG_arch_1		 9
- #define PG_reserved		10
- #define PG_private		11	/* If pagecache, has fs-private data */
- 
- #define PG_writeback		12	/* Page is under writeback */
-+#define PG_private_2		13	/* If pagecache, has fs aux data */
- #define PG_compound		14	/* Part of a compound page */
- #define PG_swapcache		15	/* Swap page: swp_entry_t in private */
- 
- #define PG_mappedtodisk		16	/* Has blocks allocated on-disk */
- #define PG_reclaim		17	/* To be reclaimed asap */
-+#define PG_owner_priv_2		18	/* Owner use. fs may use in pagecache */
- #define PG_buddy		19	/* Page is free, on buddy lists */
- 
- /* PG_readahead is only used for file reads; PG_reclaim is only for writes */
- #define PG_readahead		PG_reclaim /* Reminder to do async read-ahead */
- 
--/* PG_owner_priv_1 users should have descriptive aliases */
-+/* PG_owner_priv_1/2 users should have descriptive aliases */
- #define PG_checked		PG_owner_priv_1 /* Used by some filesystems */
- #define PG_pinned		PG_owner_priv_1	/* Xen pinned pagetable */
-+#define PG_fscache_write	PG_owner_priv_2	/* Writing to local cache */
+diff --git a/include/linux/cred.h b/include/linux/cred.h
+new file mode 100644
+index 0000000..497af5b
+--- /dev/null
++++ b/include/linux/cred.h
+@@ -0,0 +1,23 @@
++/* Credential management
++ *
++ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
 +
-+/* PG_private_2 causes releasepage() and co to be invoked */
-+#define PG_fscache		PG_private_2	/* Backed by local cache */
++#ifndef _LINUX_CRED_H
++#define _LINUX_CRED_H
 +
++struct task_security;
++struct inode;
++
++extern struct task_security *get_kernel_security(struct task_struct *);
++extern int set_security_override(struct task_security *, u32);
++extern int set_security_override_from_ctx(struct task_security *, const char *);
++extern int change_create_files_as(struct task_security *, struct inode *);
++
++#endif /* _LINUX_CRED_H */
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 9bf93c7..1c17b91 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -568,6 +568,19 @@ struct request_sock;
+  *	Duplicate and attach the security structure currently attached to the
+  *	p->security field.
+  *	Return 0 if operation was successful.
++ * @task_kernel_act_as:
++ *	Set the credentials for a kernel service to act as (subjective context).
++ *	@p points to the task that nominated @secid.
++ *	@sec points to the task security record to be modified.
++ *	@secid specifies the security ID to be set
++ *	Return 0 if successful.
++ * @task_create_files_as:
++ *	Set the file creation context in a task security record to be the same
++ *	as the objective context of the specified inode.
++ *	@p points to the task that nominated @inode.
++ *	@sec points to the task security record to be modified.
++ *	@inode points to the inode to use as a reference.
++ *	Return 0 if successful.
+  * @task_setuid:
+  *	Check permission before setting one or more of the user identity
+  *	attributes of the current process.  The @flags parameter indicates
+@@ -1342,6 +1355,11 @@ struct security_operations {
+ 	int (*task_alloc_security) (struct task_struct *p);
+ 	void (*task_free_security) (struct task_security *p);
+ 	int (*task_dup_security) (struct task_security *p);
++	int (*task_kernel_act_as)(struct task_struct *p,
++				  struct task_security *sec, u32 secid);
++	int (*task_create_files_as)(struct task_struct *p,
++				    struct task_security *sec,
++				    struct inode *inode);
+ 	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
+ 	int (*task_post_setuid) (uid_t old_ruid /* or fsuid */ ,
+ 				 uid_t old_euid, uid_t old_suid, int flags);
+@@ -1410,7 +1428,7 @@ struct security_operations {
+  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+ 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
+-	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
++	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
  
- #if (BITS_PER_LONG > 32)
- /*
-@@ -235,6 +242,23 @@ static inline void SetPageUptodate(struct page *page)
- #define TestClearPageWriteback(page) test_and_clear_bit(PG_writeback,	\
- 							&(page)->flags)
+ #ifdef CONFIG_SECURITY_NETWORK
+@@ -1599,6 +1617,11 @@ int security_task_create(unsigned long clone_flags);
+ int security_task_alloc(struct task_struct *p);
+ void security_task_free(struct task_security *p);
+ int security_task_dup(struct task_security *p);
++int security_task_kernel_act_as(struct task_struct *p,
++				struct task_security *sec, u32 secid);
++int security_task_create_files_as(struct task_struct *p,
++				  struct task_security *sec,
++				  struct inode *inode);
+ int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags);
+ int security_task_post_setuid(uid_t old_ruid, uid_t old_euid,
+ 			       uid_t old_suid, int flags);
+@@ -1651,7 +1674,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_netlink_recv(struct sk_buff *skb, int cap);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+-int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
++int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
+ void security_release_secctx(char *secdata, u32 seclen);
  
-+#define PagePrivate2(page)	test_bit(PG_private_2, &(page)->flags)
-+#define SetPagePrivate2(page)	set_bit(PG_private_2, &(page)->flags)
-+#define ClearPagePrivate2(page)	clear_bit(PG_private_2, &(page)->flags)
-+#define TestSetPagePrivate2(page) test_and_set_bit(PG_private_2, &(page)->flags)
-+#define TestClearPagePrivate2(page) test_and_clear_bit(PG_private_2, \
-+						      &(page)->flags)
-+
-+#define PageOwnerPriv2(page)		test_bit(PG_owner_priv_2, \
-+						 &(page)->flags)
-+#define SetPageOwnerPriv2(page)		set_bit(PG_owner_priv_2, &(page)->flags)
-+#define ClearPageOwnerPriv2(page)	clear_bit(PG_owner_priv_2, \
-+						  &(page)->flags)
-+#define TestSetPageOwnerPriv2(page)	test_and_set_bit(PG_owner_priv_2, \
-+							 &(page)->flags)
-+#define TestClearPageOwnerPriv2(page)	test_and_clear_bit(PG_owner_priv_2, \
-+							   &(page)->flags)
-+
- #define PageBuddy(page)		test_bit(PG_buddy, &(page)->flags)
- #define __SetPageBuddy(page)	__set_bit(PG_buddy, &(page)->flags)
- #define __ClearPageBuddy(page)	__clear_bit(PG_buddy, &(page)->flags)
-@@ -308,4 +332,15 @@ static inline void set_page_writeback(struct page *page)
- 	test_set_page_writeback(page);
+ #else /* CONFIG_SECURITY */
+@@ -2080,6 +2103,20 @@ static inline int security_task_dup(struct task_security *p)
+ 	return 0;
  }
  
-+/**
-+ * page_has_private - Determine if page has private stuff
-+ * @page: The page to be checked
-+ *
-+ * Determine if a page has private stuff, indicating that release routines
-+ * should be invoked upon it.
-+ */
-+#define page_has_private(page)			\
-+	((page)->flags & ((1 << PG_private) |	\
-+			  (1 << PG_private_2)))
-+
- #endif	/* PAGE_FLAGS_H */
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index 4b62a10..51c39f8 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -226,6 +226,17 @@ static inline void wait_on_page_writeback(struct page *page)
- extern void end_page_writeback(struct page *page);
- 
- /*
-+ * Wait for a PG_owner_priv_2 to become clear
-+ */
-+static inline void wait_on_page_owner_priv_2(struct page *page)
++static inline int security_task_kernel_act_as(struct task_struct *p,
++					      struct task_security *sec,
++					      u32 secid)
 +{
-+	if (PageOwnerPriv2(page))
-+		wait_on_page_bit(page, PG_owner_priv_2);
++	return 0;
 +}
 +
-+extern void end_page_owner_priv_2(struct page *page);
++static inline int security_task_create_files_as(struct task_struct *p,
++						struct task_security *sec,
++						struct inode *inode)
++{
++	return 0;
++}
++
+ static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
+ 					int flags)
+ {
+@@ -2331,7 +2368,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline int security_secctx_to_secid(char *secdata,
++static inline int security_secctx_to_secid(const char *secdata,
+ 					   u32 seclen,
+ 					   u32 *secid)
+ {
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 298f26e..aaa630a 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -11,6 +11,7 @@
+ #include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/key.h>
++#include <linux/keyctl.h>
+ #include <linux/init_task.h>
+ #include <linux/security.h>
+ 
+@@ -138,3 +139,114 @@ void put_task_security(struct task_security *sec)
+ 	}
+ }
+ EXPORT_SYMBOL(put_task_security);
++
++/**
++ * get_kernel_security - Get a task security record for a kernel service
++ * @daemon: A userspace daemon to be used as a reference
++ *
++ * Get a task security record for a kernel service.  This can then be used to
++ * override a task's own security so that work can be done on behalf of that
++ * task that requires a different security context.
++ *
++ * @daemon is used to provide a base for the security record, but can be NULL.
++ * If @daemon is supplied, then the security data will be derived from that;
++ * otherwise they'll be set to 0 and no groups, full capabilities and no keys.
++ *
++ * The caller may change these controls afterwards if desired.
++ */
++struct task_security *get_kernel_security(struct task_struct *daemon)
++{
++	const struct task_security *dsec;
++	struct task_security *sec;
++
++	sec = kzalloc(sizeof *sec, GFP_KERNEL);
++	if (!sec)
++		return ERR_PTR(-ENOMEM);
++
++	if (daemon) {
++		rcu_read_lock();
++		dsec = rcu_dereference(daemon->sec);
++		*sec = *dsec;
++		get_group_info(sec->group_info);
++		get_uid(sec->user);
++		rcu_read_unlock();
++#ifdef CONFIG_KEYS
++		sec->request_key_auth = NULL;
++		sec->thread_keyring = NULL;
++		sec->tgsec = NULL;
++#endif
++	} else {
++		sec->keep_capabilities = 0;
++		sec->cap_inheritable = CAP_INIT_INH_SET;
++		sec->cap_permitted = CAP_FULL_SET;
++		sec->cap_effective = CAP_INIT_EFF_SET;
++		sec->cap_bset = CAP_INIT_BSET;
++		sec->user = &root_user;
++		get_uid(sec->user);
++		sec->group_info = &init_groups;
++		get_group_info(sec->group_info);
++	}
++
++	atomic_set(&sec->usage, 1);
++	spin_lock_init(&sec->lock);
++#ifdef CONFIG_KEYS
++	sec->jit_keyring = KEY_REQKEY_DEFL_THREAD_KEYRING;
++#endif
++
++	return sec;
++}
++EXPORT_SYMBOL(get_kernel_security);
++
++/**
++ * set_security_override - Set the security ID in a security record
++ * @sec: The security record to alter
++ * @secid: The LSM security ID to set
++ *
++ * Set the LSM security ID in a security record so that the subjective security
++ * is overridden when the act_as pointer of a task is overridden.
++ */
++int set_security_override(struct task_security *sec, u32 secid)
++{
++	return security_task_kernel_act_as(current, sec, secid);
++}
++EXPORT_SYMBOL(set_security_override);
++
++/**
++ * set_security_override_from_ctx - Set the security ID in a security record
++ * @sec: The security record to alter
++ * @secctx: The LSM security context to generate the security ID from.
++ *
++ * Set the LSM security ID in a security record so that the subjective security
++ * is overridden when the act_as pointer of a task is overridden.  The security
++ * ID is specified in string form as a security context to be interpreted by
++ * the LSM.
++ */
++int set_security_override_from_ctx(struct task_security *sec, const char *secctx)
++{
++	u32 secid;
++	int ret;
++
++	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
++	if (ret < 0)
++		return ret;
++
++	return set_security_override(sec, secid);
++}
++EXPORT_SYMBOL(set_security_override_from_ctx);
++
++/**
++ * change_create_files_as - Change the file create context in a security record
++ * @sec: The security record to alter
++ * @inode: The inode to take the context from
++ *
++ * Change the file creation context in a security record to be the same as the
++ * object context of the specified inode, so that the new inodes have the same
++ * MAC context as that inode.
++ */
++int change_create_files_as(struct task_security *sec, struct inode *inode)
++{
++	sec->fsuid = inode->i_uid;
++	sec->fsgid = inode->i_gid;
++	return security_task_create_files_as(current, sec, inode);
++}
++EXPORT_SYMBOL(change_create_files_as);
+diff --git a/security/dummy.c b/security/dummy.c
+index cc516ab..965504a 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -518,6 +518,19 @@ static int dummy_task_dup_security(struct task_security *p)
+ 	return 0;
+ }
+ 
++static int dummy_task_kernel_act_as(struct task_struct *p,
++				    struct task_security *sec, u32 secid)
++{
++	return 0;
++}
++
++static int dummy_task_create_files_as(struct task_struct *p,
++				      struct task_security *sec,
++				      struct inode *inode)
++{
++	return 0;
++}
++
+ static int dummy_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	return 0;
+@@ -966,7 +979,7 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int dummy_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -1093,6 +1106,8 @@ void security_fixup_ops (struct security_operations *ops)
+ 	set_to_dummy_if_null(ops, task_alloc_security);
+ 	set_to_dummy_if_null(ops, task_free_security);
+ 	set_to_dummy_if_null(ops, task_dup_security);
++	set_to_dummy_if_null(ops, task_kernel_act_as);
++	set_to_dummy_if_null(ops, task_create_files_as);
+ 	set_to_dummy_if_null(ops, task_setuid);
+ 	set_to_dummy_if_null(ops, task_post_setuid);
+ 	set_to_dummy_if_null(ops, task_setgid);
+diff --git a/security/security.c b/security/security.c
+index 3aceeac..e7345e1 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -600,6 +600,19 @@ int security_task_dup(struct task_security *sec)
+ 	return security_ops->task_dup_security(sec);
+ }
+ 
++int security_task_kernel_act_as(struct task_struct *p,
++				struct task_security *sec, u32 secid)
++{
++	return security_ops->task_kernel_act_as(p, sec, secid);
++}
++
++int security_task_create_files_as(struct task_struct *p,
++				  struct task_security *sec,
++				  struct inode *inode)
++{
++	return security_ops->task_create_files_as(p, sec, inode);
++}
++
+ int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	return security_ops->task_setuid(id0, id1, id2, flags);
+@@ -838,7 +851,7 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
+-int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return security_ops->secctx_to_secid(secdata, seclen, secid);
+ }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ea9e0a8..815e03d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3092,6 +3092,53 @@ static int selinux_task_dup_security(struct task_security *sec)
+ 	return 0;
+ }
+ 
++/*
++ * set the security data for a kernel service
++ * - all the creation contexts are set to unlabelled
++ */
++static int selinux_task_kernel_act_as(struct task_struct *p,
++				      struct task_security *sec, u32 secid)
++{
++	struct task_security_struct *tsec = sec->security;
++	struct task_security_struct *ptsec = p->act_as->security;
++	int ret;
++
++ 	ret = avc_has_perm(ptsec->sid, secid,
++			   SECCLASS_KERNEL_SERVICE,
++			   KERNEL_SERVICE__USE_AS_OVERRIDE,
++			   NULL);
++	if (ret == 0) {
++		tsec->sid = secid;
++		tsec->create_sid = 0;
++		tsec->keycreate_sid = 0;
++		tsec->sockcreate_sid = 0;
++	}
++	return ret;
++}
 +
 +/*
-  * Fault a userspace page into pagetables.  Return non-zero on a fault.
-  *
-  * This assumes that two userspace pages are always sufficient.  That's
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 5357fcc..138e791 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -587,6 +587,21 @@ void end_page_writeback(struct page *page)
- EXPORT_SYMBOL(end_page_writeback);
- 
- /**
-+ * end_page_own - Clear PG_owner_priv_2 and wake up any waiters
-+ * @page: the page
-+ *
-+ * Clear PG_owner_priv_2 and wake up any processes waiting for that event.
++ * set the file creation context in a security record to the same as the
++ * objective context of the specified inode
 + */
-+void end_page_owner_priv_2(struct page *page)
++static int selinux_task_create_files_as(struct task_struct *p,
++					struct task_security *sec,
++					struct inode *inode)
 +{
-+	if (!TestClearPageOwnerPriv2(page))
-+		BUG();
-+	smp_mb__after_clear_bit();
-+	wake_up_page(page, PG_owner_priv_2);
-+}
-+EXPORT_SYMBOL(end_page_owner_priv_2);
++	struct inode_security_struct *isec = inode->i_security;
++	struct task_security_struct *tsec = sec->security;
++	struct task_security_struct *ptsec = p->act_as->security;
++	int ret;
 +
-+/**
-  * __lock_page - get a lock on the page, assuming we need to sleep to get it
-  * @page: the page to lock
-  *
-@@ -2570,6 +2585,9 @@ out:
-  * (presumably at page->private).  If the release was successful, return `1'.
-  * Otherwise return zero.
-  *
-+ * This may also be called if PG_fscache is set on a page, indicating that the
-+ * page is known to the local caching routines.
-+ *
-  * The @gfp_mask argument specifies whether I/O may be performed to release
-  * this page (__GFP_IO), and whether the call may block (__GFP_WAIT).
-  *
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 75ae1fb..ba4a9b2 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -546,7 +546,7 @@ static int fallback_migrate_page(struct address_space *mapping,
- 	 * Buffers may be managed in a filesystem specific way.
- 	 * We must have no buffers or drop them.
- 	 */
--	if (PagePrivate(page) &&
-+	if (page_has_private(page) &&
- 	    !try_to_release_page(page, GFP_KERNEL))
- 		return -EAGAIN;
- 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 26a54a1..e039087 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -231,6 +231,7 @@ static void bad_page(struct page *page)
- 	dump_stack();
- 	page->flags &= ~(1 << PG_lru	|
- 			1 << PG_private |
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_dirty	|
-@@ -457,6 +458,7 @@ static inline int free_pages_check(struct page *page)
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private |
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_slab	|
-@@ -606,6 +608,7 @@ static int prep_new_page(struct page *page, int order, gfp_t gfp_flags)
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private	|
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_dirty	|
-diff --git a/mm/readahead.c b/mm/readahead.c
-index 75aa6b6..272ffc7 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -46,14 +46,15 @@ EXPORT_SYMBOL_GPL(file_ra_state_init);
- 
- /*
-  * see if a page needs releasing upon read_cache_pages() failure
-- * - the caller of read_cache_pages() may have set PG_private before calling,
-- *   such as the NFS fs marking pages that are cached locally on disk, thus we
-- *   need to give the fs a chance to clean up in the event of an error
-+ * - the caller of read_cache_pages() may have set PG_private or PG_fscache
-+ *   before calling, such as the NFS fs marking pages that are cached locally
-+ *   on disk, thus we need to give the fs a chance to clean up in the event of
-+ *   an error
-  */
- static void read_cache_pages_invalidate_page(struct address_space *mapping,
- 					     struct page *page)
++ 	ret = avc_has_perm(ptsec->sid, isec->sid,
++			   SECCLASS_KERNEL_SERVICE,
++			   KERNEL_SERVICE__CREATE_FILES_AS,
++			   NULL);
++
++	if (ret == 0)
++		tsec->create_sid = isec->sid;
++	return 0;
++}
++
+ static int selinux_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
  {
--	if (PagePrivate(page)) {
-+	if (page_has_private(page)) {
- 		if (TestSetPageLocked(page))
- 			BUG();
- 		page->mapping = mapping;
-diff --git a/mm/swap.c b/mm/swap.c
-index 710a20b..36aa619 100644
---- a/mm/swap.c
-+++ b/mm/swap.c
-@@ -457,8 +457,8 @@ void pagevec_strip(struct pagevec *pvec)
- 	for (i = 0; i < pagevec_count(pvec); i++) {
- 		struct page *page = pvec->pages[i];
- 
--		if (PagePrivate(page) && !TestSetPageLocked(page)) {
--			if (PagePrivate(page))
-+		if (page_has_private(page) && !TestSetPageLocked(page)) {
-+			if (page_has_private(page))
- 				try_to_release_page(page, 0);
- 			unlock_page(page);
- 		}
-diff --git a/mm/swap_state.c b/mm/swap_state.c
-index ec42f01..c3509f2 100644
---- a/mm/swap_state.c
-+++ b/mm/swap_state.c
-@@ -73,7 +73,7 @@ int add_to_swap_cache(struct page *page, swp_entry_t entry, gfp_t gfp_mask)
- 
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(PageSwapCache(page));
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 	error = radix_tree_preload(gfp_mask);
- 	if (!error) {
- 		write_lock_irq(&swapper_space.tree_lock);
-@@ -102,7 +102,7 @@ void __delete_from_swap_cache(struct page *page)
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(!PageSwapCache(page));
- 	BUG_ON(PageWriteback(page));
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 
- 	radix_tree_delete(&swapper_space.page_tree, page_private(page));
- 	set_page_private(page, 0);
-diff --git a/mm/truncate.c b/mm/truncate.c
-index c35c49e..78b22a1 100644
---- a/mm/truncate.c
-+++ b/mm/truncate.c
-@@ -49,7 +49,7 @@ void do_invalidatepage(struct page *page, unsigned long offset)
- static inline void truncate_partial_page(struct page *page, unsigned partial)
- {
- 	zero_user_segment(page, partial, PAGE_CACHE_SIZE);
--	if (PagePrivate(page))
-+	if (page_has_private(page))
- 		do_invalidatepage(page, partial);
+ 	/* Since setuid only affects the current process, and
+@@ -5164,7 +5211,7 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return security_sid_to_context(secid, secdata, seclen);
  }
  
-@@ -98,7 +98,7 @@ truncate_complete_page(struct address_space *mapping, struct page *page)
- 	if (page->mapping != mapping)
- 		return;
+-static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return security_context_to_sid(secdata, seclen, secid);
+ }
+@@ -5322,6 +5369,8 @@ static struct security_operations selinux_ops = {
+ 	.task_alloc_security =		selinux_task_alloc_security,
+ 	.task_free_security =		selinux_task_free_security,
+ 	.task_dup_security =		selinux_task_dup_security,
++	.task_kernel_act_as =		selinux_task_kernel_act_as,
++	.task_create_files_as =		selinux_task_create_files_as,
+ 	.task_setuid =			selinux_task_setuid,
+ 	.task_post_setuid =		selinux_task_post_setuid,
+ 	.task_setgid =			selinux_task_setgid,
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 837ce42..7c1e8ba 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -78,7 +78,7 @@ int security_change_sid(u32 ssid, u32 tsid,
+ int security_sid_to_context(u32 sid, char **scontext,
+ 	u32 *scontext_len);
  
--	if (PagePrivate(page))
-+	if (page_has_private(page))
- 		do_invalidatepage(page, 0);
+-int security_context_to_sid(char *scontext, u32 scontext_len,
++int security_context_to_sid(const char *scontext, u32 scontext_len,
+ 	u32 *out_sid);
  
- 	cancel_dirty_page(page, PAGE_CACHE_SIZE);
-@@ -125,7 +125,7 @@ invalidate_complete_page(struct address_space *mapping, struct page *page)
- 	if (page->mapping != mapping)
- 		return 0;
+ int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *out_sid, u32 def_sid);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f374186..519b2c1 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -680,7 +680,8 @@ out:
  
--	if (PagePrivate(page) && !try_to_release_page(page, 0))
-+	if (page_has_private(page) && !try_to_release_page(page, 0))
- 		return 0;
+ }
  
- 	ret = remove_mapping(mapping, page);
-@@ -347,14 +347,14 @@ invalidate_complete_page2(struct address_space *mapping, struct page *page)
- 	if (page->mapping != mapping)
- 		return 0;
- 
--	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
-+	if (page_has_private(page) && !try_to_release_page(page, GFP_KERNEL))
- 		return 0;
- 
- 	write_lock_irq(&mapping->tree_lock);
- 	if (PageDirty(page))
- 		goto failed;
- 
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 	__remove_from_page_cache(page);
- 	write_unlock_irq(&mapping->tree_lock);
- 	ClearPageUptodate(page);
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index a26dabd..e1cc660 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -607,7 +607,7 @@ static unsigned long shrink_page_list(struct list_head *page_list,
- 		 * process address space (page_count == 1) it can be freed.
- 		 * Otherwise, leave the page on the LRU so it is swappable.
- 		 */
--		if (PagePrivate(page)) {
-+		if (page_has_private(page)) {
- 			if (!try_to_release_page(page, sc->gfp_mask))
- 				goto activate_locked;
- 			if (!mapping && page_count(page) == 1)
+-static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
++static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
++					u32 *sid, u32 def_sid)
+ {
+ 	char *scontext2;
+ 	struct context context;
+@@ -806,7 +807,7 @@ out:
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+-int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
++int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+ 	                                    sid, SECSID_NULL);
 
 
 --
