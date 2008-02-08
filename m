@@ -1,39 +1,60 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m18NpfJ2030778
-	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 18:51:41 -0500
-Message-ID: <47ACEB0C.4030201@tycho.nsa.gov>
-Date: Fri, 08 Feb 2008 18:51:40 -0500
+Message-ID: <47ACECB1.70103@tycho.nsa.gov>
+Date: Fri, 08 Feb 2008 18:58:41 -0500
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: Glenn Faden <Glenn.Faden@sun.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: X avcs
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>	 <cadfc0e40712281326k31e9238ci8604298596ade04d@mail.gmail.com>	 <cadfc0e40801020711w1e3a3a2dv422280f1f9d9595d@mail.gmail.com>	 <477BEFF1.2090507@sun.com> <47867FCA.50408@tycho.nsa.gov>	 <47878130.5010000@gmail.com> <4787D5B7.9090606@sun.com>	 <478FD1A7.8060401@tycho.nsa.gov> <4793FDC7.9050700@sun.com>	 <4797D7CB.6010501@tycho.nsa.gov> <cadfc0e40801290748v3e02a305i8ef36f39ceef16af@mail.gmail.com> <47A131D5.2030906@tycho.nsa.gov>
-In-Reply-To: <47A131D5.2030906@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: James Morris <jmorris@namei.org>, Xavier Toth <txtoth@gmail.com>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
+References: <4798F57C.8090300@tycho.nsa.gov>	 <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>	 <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>	 <Xine.LNX.4.64.0802060934570.10987@us.intercode.com.au>	 <1202309389.27371.140.camel@moss-spartans.epoch.ncsc.mil> <1202502358.27371.413.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1202502358.27371.413.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> Xavier Toth wrote:
+Stephen Smalley wrote:
+> On Wed, 2008-02-06 at 09:49 -0500, Stephen Smalley wrote:
 >   
->> Has this made it into the git tree yet?
->>   
+>> On Wed, 2008-02-06 at 09:35 +1100, James Morris wrote:
+>>     
+>>> On Tue, 5 Feb 2008, Stephen Smalley wrote:
+>>>
+>>>       
+>>>> On Tue, 2008-02-05 at 11:52 -0600, Xavier Toth wrote:
+>>>>         
+>>>>> Is this in rawhide, if not when will it be?
+>>>>>           
+>>>> Not up to us, obviously.  The patch is in Linus' git tree, but looks
+>>>> like latest fedora devel kernel is frozen on 2.6.24 + specific
+>>>> individual patches, not feeding from Linus' git presently.  James could
+>>>> possibly ask the Fedora kernel maintainer about adding it - it is small,
+>>>> self-contained, and has no side effects on existing code (nothing prior
+>>>> to XSELinux uses the compute member support; pam_namespace usage was
+>>>> disabled since it didn't work right for multi-level dirs).
+>>>>         
+>>> The rawhide kernel usually tracks Linus pretty closely -- perhaps wait a 
+>>> couple of days until people recover from LCA.
+>>>       
+>> Looks like they froze it on 2.6.24 (kernel.spec has released_kernel 1,
+>> gitrev 0 in Fedora devel CVS), and are only cherry picking individual
+>> patches, like the /proc/net fix for SELinux.  Unless that was only for
+>> the Fedora 9 Alpha release and they'll re-open the flood gates soon?
+>>
+>> If they don't start pulling from git again soon, we should likely take
+>> the specific patch to fedora kernel list.
+>>     
+>
+> Latest rawhide kernel pulled in 2.6.24.1-rc1, so they seem to be
+> stabilizing on 2.6.24.x rather than pulling from git again for Fedora 9.
+> Which means we'll have to get the patch added explicitly if we want it
+> in Fedora 9.  Likely requires posting of the patch to fedora kernel
+> list.
+>   
 
-It's pushed into the XACE-SELINUX branch, so you can play with it now.   
-I did some simple testing of the polyinstantiation and it worked OK for 
-me.  You'll need the kernel patch, an updated libselinux from SVN, and 
-an updated refpolicy (or just add "getattr" and "setattr" permissions to 
-your x_property class and tweak the x_contexts file to add poly_property 
-notations).  I'll push it into the master branch next week unless I get 
-any feedback directing otherwise.
-
-With regard to the rawhide X server, I just ran "strings" on a rawhide 
-Xorg binary and it shows SELinux extension messages.  The package has a 
-date of Jan 7 in the version number.  So you might try compiling an X 
-server from SRPM, passing the --enable-xselinux=yes flag to the 
-configure script.  It might just work, however there have been some 
-changes since Jan 7.
+Please do get this pulled in if you can.  Although, with the ongoing 
+schedule slip in the X server, I'm wondering if Fedora 9 is even going 
+to be able to ship a 1.4.1 point release, much less a 1.5 server that 
+would include my stuff.
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
