@@ -1,64 +1,75 @@
-Message-ID: <47ACECB1.70103@tycho.nsa.gov>
-Date: Fri, 08 Feb 2008 18:58:41 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m190fKTp004307
+	for <selinux@tycho.nsa.gov>; Fri, 8 Feb 2008 19:41:20 -0500
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m190fJ7a003644
+	for <selinux@tycho.nsa.gov>; Sat, 9 Feb 2008 00:41:19 GMT
+Received: by py-out-1112.google.com with SMTP id a78so4668150pyh.32
+        for <selinux@tycho.nsa.gov>; Fri, 08 Feb 2008 16:41:19 -0800 (PST)
+Message-ID: <47ACF626.7090004@gmail.com>
+Date: Fri, 08 Feb 2008 18:39:02 -0600
+From: Ted X Toth <txtoth@gmail.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Morris <jmorris@namei.org>, Xavier Toth <txtoth@gmail.com>,
-        SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: make mls_compute_sid always polyinstantiate
-References: <4798F57C.8090300@tycho.nsa.gov>	 <cadfc0e40802050952p519dae9co7ecec84bb67231dd@mail.gmail.com>	 <1202244504.27371.105.camel@moss-spartans.epoch.ncsc.mil>	 <Xine.LNX.4.64.0802060934570.10987@us.intercode.com.au>	 <1202309389.27371.140.camel@moss-spartans.epoch.ncsc.mil> <1202502358.27371.413.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1202502358.27371.413.camel@moss-spartans.epoch.ncsc.mil>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: Glenn Faden <Glenn.Faden@sun.com>, SELinux List <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] libselinux: add "poly_property" type to X contexts backend
+References: <47A8D586.7080202@tycho.nsa.gov> <cadfc0e40802051412p393dd42ei3632bee0b9842b73@mail.gmail.com> <47A9047D.1000501@tycho.nsa.gov> <47A9DA5D.2030109@sun.com> <47AA0A2C.6090009@tycho.nsa.gov>
+In-Reply-To: <47AA0A2C.6090009@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2008-02-06 at 09:49 -0500, Stephen Smalley wrote:
->   
->> On Wed, 2008-02-06 at 09:35 +1100, James Morris wrote:
->>     
->>> On Tue, 5 Feb 2008, Stephen Smalley wrote:
+Eamon Walsh wrote:
+> Glenn Faden wrote:
+>> Eamon Walsh wrote:
+>>  
+>>> Xavier Toth wrote:
+>>>    
+>>>> I'm curious as to why you chose the route of specifying which
+>>>> properties are polyinstantiated instead of which are not bearing in
+>>>> mind what Glenn said in a previous post?
+>>>>         
+>>> The server will check the "property" lines first and if it doesn't 
+>>> find a match it will check the "poly_property" lines.  So, as long 
+>>> as the wildcard entry in the x_contexts file is changed from 
+>>> property to poly_property, the default will be to polyinstantiate.
 >>>
->>>       
->>>> On Tue, 2008-02-05 at 11:52 -0600, Xavier Toth wrote:
->>>>         
->>>>> Is this in rawhide, if not when will it be?
->>>>>           
->>>> Not up to us, obviously.  The patch is in Linus' git tree, but looks
->>>> like latest fedora devel kernel is frozen on 2.6.24 + specific
->>>> individual patches, not feeding from Linus' git presently.  James could
->>>> possibly ask the Fedora kernel maintainer about adding it - it is small,
->>>> self-contained, and has no side effects on existing code (nothing prior
->>>> to XSELinux uses the compute member support; pam_namespace usage was
->>>> disabled since it didn't work right for multi-level dirs).
->>>>         
->>> The rawhide kernel usually tracks Linus pretty closely -- perhaps wait a 
->>> couple of days until people recover from LCA.
->>>       
->> Looks like they froze it on 2.6.24 (kernel.spec has released_kernel 1,
->> gitrev 0 in Fedora devel CVS), and are only cherry picking individual
->> patches, like the /proc/net fix for SELinux.  Unless that was only for
->> the Fedora 9 Alpha release and they'll re-open the flood gates soon?
->>
->> If they don't start pulling from git again soon, we should likely take
->> the specific patch to fedora kernel list.
->>     
+>>> However I wasn't planning on treating the root window any 
+>>> differently from other windows, so this behavior would apply to all 
+>>> windows.
+>>>     
+>> I've never seen a requirement for polyinstantiation of properties on 
+>> per-client windows. I've seen requirements for relabeling properties, 
+>> however. For example, the trusted selection manager needs to create 
+>> properties that are readable by the client who requests a 
+>> ConvertSelection. We do this by calling a new X protocol extension.
 >
-> Latest rawhide kernel pulled in 2.6.24.1-rc1, so they seem to be
-> stabilizing on 2.6.24.x rather than pulling from git again for Fedora 9.
-> Which means we'll have to get the patch added explicitly if we want it
-> in Fedora 9.  Likely requires posting of the patch to fedora kernel
-> list.
->   
+> SELinux protocol extension allows clients to create windows and 
+> properties with different security contexts.
+>
+>>  How do you plan to have trusted clients act on behalf of other 
+>> clients with different security contexts?
+>
+> I haven't done the polyinstantiation for selections yet, but my 
+> current plan is to implement a trusted clipboard manager that will 
+> display the various clipboard contents and allow users to upgrade or 
+> downgrade, which means that the clipboard manager will take ownership 
+> of the selection at the target level and just pipe the data through.  
+> This scheme shouldn't require tweaking properties on the fly.  However 
+> this would not be point-to-point but would make the selection 
+> available to all applications at the target level.
+>
+This is extremely high on our list of 'must have's and it is critical 
+that this be targeted for RHEL6 is this your goal too?
 
-Please do get this pulled in if you can.  Although, with the ongoing 
-schedule slip in the X server, I'm wondering if Fedora 9 is even going 
-to be able to ship a 1.4.1 point release, much less a 1.5 server that 
-would include my stuff.
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+>> Similarly, how can a trusted client read/write a polyinstantiated 
+>> property with a different security context?
+>>   
+>
+> By launching a helper process at the appropriate level.
+>
+>
 
 
 --
