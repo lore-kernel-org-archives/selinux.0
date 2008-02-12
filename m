@@ -1,65 +1,42 @@
-Subject: Re: Disabling SELinux by kernel vulnerability
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <20080212234339.40551955.himainu-ynakam@miomio.jp>
-References: <20080212234339.40551955.himainu-ynakam@miomio.jp>
-Content-Type: text/plain
-Date: Tue, 12 Feb 2008 13:45:12 -0500
-Message-Id: <1202841912.24250.105.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1CKxwsA001792
+	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 15:59:58 -0500
+Received: from cadmus.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1CKxtr8029648
+	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 20:59:56 GMT
+Received: from cadmus.columbia.tresys.com (localhost.localdomain [127.0.0.1])
+	by cadmus.columbia.tresys.com (8.14.1/8.14.1) with ESMTP id m1CKx4nR001959
+	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 15:59:05 -0500
+Received: (from tmiller@localhost)
+	by cadmus.columbia.tresys.com (8.14.1/8.14.1/Submit) id m1CKx3ea001958
+	for selinux@tycho.nsa.gov; Tue, 12 Feb 2008 15:59:03 -0500
+Date: Tue, 12 Feb 2008 15:59:03 -0500
+From: "Todd C. Miller" <tmiller@tresys.com>
+Message-Id: <200802122059.m1CKx3ea001958@cadmus.columbia.tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: PATCH: libsepol use correct pointer type in sizeof()
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This looks to be a cut & pasto from the chunk above it.  It won't change
+the code generated since sizeof(foo *) == sizeof(bar *) but it should
+probably be fixed anyway.
 
-On Tue, 2008-02-12 at 23:43 +0900, Yuichi Nakamura wrote:
-> Hi.
-> 
-> I saw an article on slashdot.
-> http://it.slashdot.org/article.pl?sid=08/02/10/2011257
-> 
-> Local exploit code for Linux kernel exists, 
-> exploit code is also disclosed in http://www.milw0rm.com/exploits/5092.
-> 
-> In the exploit code, only uid is changed to 0.
-> So, SELinux is not affected.
-> 
-> However, SELinux can be disabled by overwriting selinux_enforcing to 0.
-> The address of selinux_enforcing can be seen in /proc/kallsyms, 
-> and I've set the value on the address to 0.
-> 
-> I tried that on Fedora 8, 
-> and I could disable SELinux(set selinux as permissive) from xguest_t
-> domain.
-> 
-> I want to make it more difficult 
-> for attackers to disable SELinux by kernel exploit.
-> 
-> I think not exporting selinux_enforcing(and selinux_disable) to
-> /proc/kallsyms is useful.
-> And /proc/kallsyms is visible from many processes because it is proc_t,
-> assigning /proc/kallsyms label such as proc_ksym_t may be also useful.
-> Are they really useful?
-> Or any idea??
+Signed-off-by: Todd C. Miller <tmiller@tresys.com>
 
-It would be more useful to just build a kernel with a config that
-disabled the support for permissive mode and runtime disable altogether;
-such config options already exist.  And you can also omit /proc/kallsyms
-altogether via kernel config.
-
-Labeling /proc/kallsyms with a distinct type is likely feasible, so that
-could be changed in policy.
-
-There is a patch floating around to turn the LSM hook calls into direct
-SELinux calls so that there is no more security_ops pointer that can be
-overwritten.  But there will still be other critical variables, and
-SELinux can't protect against kernel vulnerabilities in general.
-
--- 
-Stephen Smalley
-National Security Agency
-
+Index: trunk/libsepol/src/users.c
+===================================================================
+--- trunk/libsepol/src/users.c	(revision 2802)
++++ trunk/libsepol/src/users.c	(working copy)
+@@ -237,7 +237,7 @@
+ 
+ 		tmp_ptr = realloc(policydb->sym_val_to_name[SYM_USERS],
+ 				  (policydb->p_users.nprim +
+-				   1) * sizeof(user_datum_t *));
++				   1) * sizeof(char *));
+ 		if (!tmp_ptr)
+ 			goto omem;
+ 		policydb->sym_val_to_name[SYM_USERS] = tmp_ptr;
 
 --
 This message was distributed to subscribers of the selinux mailing list.
