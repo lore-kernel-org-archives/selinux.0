@@ -1,90 +1,65 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1CHrqPx011844
-	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 12:53:52 -0500
-Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1CHrmDK011824
-	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 17:53:48 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so3772295fgg.40
-        for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 09:53:46 -0800 (PST)
-Message-ID: <cadfc0e40802120953i324f078eq94d8a4187424094@mail.gmail.com>
-Date: Tue, 12 Feb 2008 11:53:46 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux: add "poly_property" type to X contexts backend
-Cc: "SELinux List" <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>
-In-Reply-To: <47AA0A2C.6090009@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <47A8D586.7080202@tycho.nsa.gov>
-	 <cadfc0e40802051412p393dd42ei3632bee0b9842b73@mail.gmail.com>
-	 <47A9047D.1000501@tycho.nsa.gov> <47A9DA5D.2030109@sun.com>
-	 <47AA0A2C.6090009@tycho.nsa.gov>
+Subject: Re: Disabling SELinux by kernel vulnerability
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <20080212234339.40551955.himainu-ynakam@miomio.jp>
+References: <20080212234339.40551955.himainu-ynakam@miomio.jp>
+Content-Type: text/plain
+Date: Tue, 12 Feb 2008 13:45:12 -0500
+Message-Id: <1202841912.24250.105.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Feb 6, 2008 at 1:27 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> Glenn Faden wrote:
->  > Eamon Walsh wrote:
->  >
->  >> Xavier Toth wrote:
->  >>
->  >>> I'm curious as to why you chose the route of specifying which
->  >>> properties are polyinstantiated instead of which are not bearing in
->  >>> mind what Glenn said in a previous post?
->  >>>
->  >>>
->  >> The server will check the "property" lines first and if it doesn't
->  >> find a match it will check the "poly_property" lines.  So, as long as
->  >> the wildcard entry in the x_contexts file is changed from property to
->  >> poly_property, the default will be to polyinstantiate.
->  >>
->  >> However I wasn't planning on treating the root window any differently
->  >> from other windows, so this behavior would apply to all windows.
->  >>
->  > I've never seen a requirement for polyinstantiation of properties on
->  > per-client windows. I've seen requirements for relabeling properties,
->  > however. For example, the trusted selection manager needs to create
->  > properties that are readable by the client who requests a
->  > ConvertSelection. We do this by calling a new X protocol extension.
->
->  SELinux protocol extension allows clients to create windows and
->  properties with different security contexts.
->
->
->  >  How
->  > do you plan to have trusted clients act on behalf of other clients with
->  > different security contexts?
->
->  I haven't done the polyinstantiation for selections yet, but my current
->  plan is to implement a trusted clipboard manager that will display the
->  various clipboard contents and allow users to upgrade or downgrade,
->  which means that the clipboard manager will take ownership of the
->  selection at the target level and just pipe the data through.  This
->  scheme shouldn't require tweaking properties on the fly.  However this
->  would not be point-to-point but would make the selection available to
->  all applications at the target level.
->
 
+On Tue, 2008-02-12 at 23:43 +0900, Yuichi Nakamura wrote:
+> Hi.
+> 
+> I saw an article on slashdot.
+> http://it.slashdot.org/article.pl?sid=08/02/10/2011257
+> 
+> Local exploit code for Linux kernel exists, 
+> exploit code is also disclosed in http://www.milw0rm.com/exploits/5092.
+> 
+> In the exploit code, only uid is changed to 0.
+> So, SELinux is not affected.
+> 
+> However, SELinux can be disabled by overwriting selinux_enforcing to 0.
+> The address of selinux_enforcing can be seen in /proc/kallsyms, 
+> and I've set the value on the address to 0.
+> 
+> I tried that on Fedora 8, 
+> and I could disable SELinux(set selinux as permissive) from xguest_t
+> domain.
+> 
+> I want to make it more difficult 
+> for attackers to disable SELinux by kernel exploit.
+> 
+> I think not exporting selinux_enforcing(and selinux_disable) to
+> /proc/kallsyms is useful.
+> And /proc/kallsyms is visible from many processes because it is proc_t,
+> assigning /proc/kallsyms label such as proc_ksym_t may be also useful.
+> Are they really useful?
+> Or any idea??
 
-Are you thinking of starting with an existing clipboard manager like Glipper?
+It would be more useful to just build a kernel with a config that
+disabled the support for permissive mode and runtime disable altogether;
+such config options already exist.  And you can also omit /proc/kallsyms
+altogether via kernel config.
 
+Labeling /proc/kallsyms with a distinct type is likely feasible, so that
+could be changed in policy.
 
->
->  > Similarly, how can a trusted client
->  > read/write a polyinstantiated property with a different security context?
->  >
->
->  By launching a helper process at the appropriate level.
->
->
->  --
->
->
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
->  National Security Agency
->
->
+There is a patch floating around to turn the LSM hook calls into direct
+SELinux calls so that there is no more security_ops pointer that can be
+overwritten.  But there will still be other critical variables, and
+SELinux can't protect against kernel vulnerabilities in general.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
