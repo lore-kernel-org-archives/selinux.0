@@ -1,99 +1,51 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1CEevi2022201
-	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 09:40:57 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1CEer4S023634
-	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 14:40:53 GMT
-Subject: Re: [PATCH 3/4] REFPOL: Remove the unlabeled_t SECMARK policy in
-	kernel_sendrecv_unlabeled_association
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: paul.moore@hp.com
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20080208212825.408095221@hp.com>
-References: <20080208212534.491651808@hp.com>
-	 <20080208212825.408095221@hp.com>
-Content-Type: text/plain
-Date: Tue, 12 Feb 2008 09:37:21 -0500
-Message-Id: <1202827041.30706.7.camel@gorn>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1CEhsV4022502
+	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 09:43:54 -0500
+Received: from mo11.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1CEhn4S024837
+	for <selinux@tycho.nsa.gov>; Tue, 12 Feb 2008 14:43:50 GMT
+Date: Tue, 12 Feb 2008 23:43:39 +0900
+From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
+To: selinux@tycho.nsa.gov
+Cc: himainu-ynakam@miomio.jp
+Subject: Disabling SELinux by kernel vulnerability
+Message-Id: <20080212234339.40551955.himainu-ynakam@miomio.jp>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-02-08 at 16:25 -0500, paul.moore@hp.com wrote:
-> plain text document attachment (refpol-secmark_perms_fix)
-> There is really no need for the SECMARK policy hack in the
-> kernel_sendrecv_unlabeled_association() interface since we already have an
-> interface call, kernel_sendrecv_unlabeled_packets(), which handles the
-> unlabeled SECMARK case.  Remove the hack and use the
-> kernel_sendrecv_unlabeled_packets() where appropriate.
+Hi.
 
-I don't think this is any better as, in reality, there should be no
-mixing of secmark rules with labeled networking rules since they are
-orthogonal.
+I saw an article on slashdot.
+http://it.slashdot.org/article.pl?sid=08/02/10/2011257
 
+Local exploit code for Linux kernel exists, 
+exploit code is also disclosed in http://www.milw0rm.com/exploits/5092.
 
-> Signed-off-by: Paul Moore <paul.moore@hp.com>
-> ---
->  policy/modules/kernel/corenetwork.if.in |    4 ++++
->  policy/modules/kernel/kernel.if         |    3 ---
->  2 files changed, 4 insertions(+), 3 deletions(-)
-> 
-> Index: refpolicy_svn_repo/policy/modules/kernel/corenetwork.if.in
-> ===================================================================
-> --- refpolicy_svn_repo.orig/policy/modules/kernel/corenetwork.if.in
-> +++ refpolicy_svn_repo/policy/modules/kernel/corenetwork.if.in
-> @@ -1752,6 +1752,7 @@ interface(`corenet_tcp_recvfrom_netlabel
->  #
->  interface(`corenet_tcp_recvfrom_unlabeled',`
->  	kernel_tcp_recvfrom_unlabeled($1)
-> +	kernel_sendrecv_unlabeled_packets($1)
->  
->  	# XXX - at some point the oubound/send access check will be removed
->  	# but for right now we need to keep this in place so as not to break
-> @@ -1859,6 +1860,7 @@ interface(`corenet_udp_recvfrom_netlabel
->  #
->  interface(`corenet_udp_recvfrom_unlabeled',`
->  	kernel_udp_recvfrom_unlabeled($1)
-> +	kernel_sendrecv_unlabeled_packets($1)
->  
->  	# XXX - at some point the oubound/send access check will be removed
->  	# but for right now we need to keep this in place so as not to break
-> @@ -1966,6 +1968,7 @@ interface(`corenet_raw_recvfrom_netlabel
->  #
->  interface(`corenet_raw_recvfrom_unlabeled',`
->  	kernel_raw_recvfrom_unlabeled($1)
-> +	kernel_sendrecv_unlabeled_packets($1)
->  
->  	# XXX - at some point the oubound/send access check will be removed
->  	# but for right now we need to keep this in place so as not to break
-> @@ -2042,6 +2045,7 @@ interface(`corenet_all_recvfrom_unlabele
->  	kernel_tcp_recvfrom_unlabeled($1)
->  	kernel_udp_recvfrom_unlabeled($1)
->  	kernel_raw_recvfrom_unlabeled($1)
-> +	kernel_sendrecv_unlabeled_packets($1)
->  
->  	# XXX - at some point the oubound/send access check will be removed
->  	# but for right now we need to keep this in place so as not to break
-> Index: refpolicy_svn_repo/policy/modules/kernel/kernel.if
-> ===================================================================
-> --- refpolicy_svn_repo.orig/policy/modules/kernel/kernel.if
-> +++ refpolicy_svn_repo/policy/modules/kernel/kernel.if
-> @@ -2255,9 +2255,6 @@ interface(`kernel_sendrecv_unlabeled_ass
->  	')
->  
->  	allow $1 unlabeled_t:association { sendto recvfrom };
-> -
-> -	# temporary hack until labeling on packets is supported
-> -	allow $1 unlabeled_t:packet { send recv };
->  ')
->  
->  ########################################
-> 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+In the exploit code, only uid is changed to 0.
+So, SELinux is not affected.
 
+However, SELinux can be disabled by overwriting selinux_enforcing to 0.
+The address of selinux_enforcing can be seen in /proc/kallsyms, 
+and I've set the value on the address to 0.
+
+I tried that on Fedora 8, 
+and I could disable SELinux(set selinux as permissive) from xguest_t
+domain.
+
+I want to make it more difficult 
+for attackers to disable SELinux by kernel exploit.
+
+I think not exporting selinux_enforcing(and selinux_disable) to
+/proc/kallsyms is useful.
+And /proc/kallsyms is visible from many processes because it is proc_t,
+assigning /proc/kallsyms label such as proc_ksym_t may be also useful.
+Are they really useful?
+Or any idea??
+
+--
+Yuichi Nakamura
 
 --
 This message was distributed to subscribers of the selinux mailing list.
