@@ -1,107 +1,61 @@
-Subject: Re: Disabling SELinux by kernel vulnerability
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <20080213224705.36a6b84e.himainu-ynakam@miomio.jp>
-References: <20080212234339.40551955.himainu-ynakam@miomio.jp>
-	 <1202841912.24250.105.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080213224705.36a6b84e.himainu-ynakam@miomio.jp>
-Content-Type: text/plain
-Date: Wed, 13 Feb 2008 09:47:20 -0500
-Message-Id: <1202914040.16038.13.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1DHIwWC021347
+	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 12:18:58 -0500
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1DHIvNg028278
+	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 17:18:58 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so45763fgg.40
+        for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 09:18:56 -0800 (PST)
+Message-ID: <cadfc0e40802130852m46a6930ag396ed655d54c88b4@mail.gmail.com>
+Date: Wed, 13 Feb 2008 10:52:45 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: Re: X avcs
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <47ACEB0C.4030201@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
+	 <47867FCA.50408@tycho.nsa.gov> <47878130.5010000@gmail.com>
+	 <4787D5B7.9090606@sun.com> <478FD1A7.8060401@tycho.nsa.gov>
+	 <4793FDC7.9050700@sun.com> <4797D7CB.6010501@tycho.nsa.gov>
+	 <cadfc0e40801290748v3e02a305i8ef36f39ceef16af@mail.gmail.com>
+	 <47A131D5.2030906@tycho.nsa.gov> <47ACEB0C.4030201@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, Feb 8, 2008 at 5:51 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> Eamon Walsh wrote:
+>  > Xavier Toth wrote:
+>  >
+>  >> Has this made it into the git tree yet?
+>  >>
+>
+>  It's pushed into the XACE-SELINUX branch, so you can play with it now.
+>  I did some simple testing of the polyinstantiation and it worked OK for
+>  me.  You'll need the kernel patch, an updated libselinux from SVN, and
 
-On Wed, 2008-02-13 at 22:47 +0900, Yuichi Nakamura wrote:
-> 
-> On Tue, 12 Feb 2008 13:45:12 -0500
-> Stephen Smalley  wrote:
-> > 
-> > On Tue, 2008-02-12 at 23:43 +0900, Yuichi Nakamura wrote:
-> > > Hi.
-> > > 
-> > > I saw an article on slashdot.
-> > > http://it.slashdot.org/article.pl?sid=08/02/10/2011257
-> > > 
-> > > Local exploit code for Linux kernel exists, 
-> > > exploit code is also disclosed in http://www.milw0rm.com/exploits/5092.
-> > > 
-> > > In the exploit code, only uid is changed to 0.
-> > > So, SELinux is not affected.
-> > > 
-> > > However, SELinux can be disabled by overwriting selinux_enforcing to 0.
-> > > The address of selinux_enforcing can be seen in /proc/kallsyms, 
-> > > and I've set the value on the address to 0.
-> > > 
-> > > I tried that on Fedora 8, 
-> > > and I could disable SELinux(set selinux as permissive) from xguest_t
-> > > domain.
-> > > 
-> > > I want to make it more difficult 
-> > > for attackers to disable SELinux by kernel exploit.
-> > > 
-> > > I think not exporting selinux_enforcing(and selinux_disable) to
-> > > /proc/kallsyms is useful.
-> > > And /proc/kallsyms is visible from many processes because it is proc_t,
-> > > assigning /proc/kallsyms label such as proc_ksym_t may be also useful.
-> > > Are they really useful?
-> > > Or any idea??
-> > 
-> > It would be more useful to just build a kernel with a config that
-> > disabled the support for permissive mode and runtime disable altogether;
-> > such config options already exist.  And you can also omit /proc/kallsyms
-> > altogether via kernel config.
-> > 
-> > Labeling /proc/kallsyms with a distinct type is likely feasible, so that
-> > could be changed in policy.
-> Many people do not want to recompile kernel,
-> so this looks more useful.
-> 
-> But I am not sure whether this is really useful or not.
-> In my environment(Fedora 8), 
-> the address of selinux_enforcing is the same in every boot.
-> So I guess the address of selinux_enforcing is the same in the same kernel binary.
-> The same kernel binary is used in Fedora, 
-> so attacker see the address of selinux_enforcing in his own Fedora,
-> and he can use the address in other Fedora machines.
-> If this is correct, it makes no sense to give different label for /proc/kallsyms.
+libselinux from SVN? Is this change not in rawhide?
 
-Correct - you'd need to either eliminate selinux_enforcing (and certain
-other variables) altogether, or you'd need to somehow make them
-read-only after initial setting.
-
-If going the separate label route, rather than introducing a separate
-type for /proc/kallsyms, you could possibly just re-use the type
-of /boot/System.map*.
-
-> > There is a patch floating around to turn the LSM hook calls into direct
-> > SELinux calls so that there is no more security_ops pointer that can be
-> > overwritten.  But there will still be other critical variables, and
-> > SELinux can't protect against kernel vulnerabilities in general.
-> Yes, basically it is correct.
-> But making attack harder is good thing.
-> 
-> > 
-> > -- 
-> > Stephen Smalley
-> > National Security Agency
-> > 
-> > 
-> 
-> Regards,
-> Yuichi Nakamura
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
-
+>  an updated refpolicy (or just add "getattr" and "setattr" permissions to
+>  your x_property class and tweak the x_contexts file to add poly_property
+>  notations).  I'll push it into the master branch next week unless I get
+>  any feedback directing otherwise.
+>
+>  With regard to the rawhide X server, I just ran "strings" on a rawhide
+>  Xorg binary and it shows SELinux extension messages.  The package has a
+>  date of Jan 7 in the version number.  So you might try compiling an X
+>  server from SRPM, passing the --enable-xselinux=yes flag to the
+>  configure script.  It might just work, however there have been some
+>  changes since Jan 7.
+>
+>  --
+>
+>
+> Eamon Walsh <ewalsh@tycho.nsa.gov>
+>  National Security Agency
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
