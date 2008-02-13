@@ -1,54 +1,88 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1DDNMOg030510
-	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 08:23:23 -0500
-Received: from mfo11.iijmio.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1DDNJfw003799
-	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 13:23:20 GMT
-Date: Wed, 13 Feb 2008 22:19:24 +0900
+Date: Wed, 13 Feb 2008 22:47:05 +0900
 From: Yuichi Nakamura <himainu-ynakam@miomio.jp>
-To: "Todd Miller" <Tmiller@tresys.com>
-Cc: himainu-ynakam@miomio.jp, "Daniel J Walsh" <dwalsh@redhat.com>,
-        <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: himainu-ynakam@miomio.jp, selinux@tycho.nsa.gov,
+        James Morris
+ <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        Daniel J Walsh
+ <dwalsh@redhat.com>
 Subject: Re: Disabling SELinux by kernel vulnerability
-Message-Id: <20080213221924.9c8048a9.himainu-ynakam@miomio.jp>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015880181F709@exchange.columbia.tresys.com>
+Message-Id: <20080213224705.36a6b84e.himainu-ynakam@miomio.jp>
+In-Reply-To: <1202841912.24250.105.camel@moss-spartans.epoch.ncsc.mil>
 References: <20080212234339.40551955.himainu-ynakam@miomio.jp>
-	<47B1B440.7030701@redhat.com>
-	<6FE441CD9F0C0C479F2D88F959B015880181F709@exchange.columbia.tresys.com>
+	<1202841912.24250.105.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 12 Feb 2008 10:45:41 -0500
-"Todd Miller" wrote:
 
-> Daniel J Walsh wrote:
-> > So this exploit, don't you neet to write to /proc?  xguest_t should
-> > not be allowed to do this?
+
+On Tue, 12 Feb 2008 13:45:12 -0500
+Stephen Smalley  wrote:
 > 
-> No, you don't need to be able to write to /proc to exploit the bug.
-> Having read access /proc/kallsyms just makes things a little easier
-> for the attacker.  Removing the address of selinux_enforcing from
-> kallsyms doesn't stop the attack, it just makes the attacker work
-> a little harder.
-Yes, we do not need write access to /proc/kallsyms.
+> On Tue, 2008-02-12 at 23:43 +0900, Yuichi Nakamura wrote:
+> > Hi.
+> > 
+> > I saw an article on slashdot.
+> > http://it.slashdot.org/article.pl?sid=08/02/10/2011257
+> > 
+> > Local exploit code for Linux kernel exists, 
+> > exploit code is also disclosed in http://www.milw0rm.com/exploits/5092.
+> > 
+> > In the exploit code, only uid is changed to 0.
+> > So, SELinux is not affected.
+> > 
+> > However, SELinux can be disabled by overwriting selinux_enforcing to 0.
+> > The address of selinux_enforcing can be seen in /proc/kallsyms, 
+> > and I've set the value on the address to 0.
+> > 
+> > I tried that on Fedora 8, 
+> > and I could disable SELinux(set selinux as permissive) from xguest_t
+> > domain.
+> > 
+> > I want to make it more difficult 
+> > for attackers to disable SELinux by kernel exploit.
+> > 
+> > I think not exporting selinux_enforcing(and selinux_disable) to
+> > /proc/kallsyms is useful.
+> > And /proc/kallsyms is visible from many processes because it is proc_t,
+> > assigning /proc/kallsyms label such as proc_ksym_t may be also useful.
+> > Are they really useful?
+> > Or any idea??
+> 
+> It would be more useful to just build a kernel with a config that
+> disabled the support for permissive mode and runtime disable altogether;
+> such config options already exist.  And you can also omit /proc/kallsyms
+> altogether via kernel config.
+> 
+> Labeling /proc/kallsyms with a distinct type is likely feasible, so that
+> could be changed in policy.
+Many people do not want to recompile kernel,
+so this looks more useful.
 
-> Note that the modified exploit that uses kallsyms to find the address
-> of vmsplice and then opens /dev/kmem read/write to do its work would
-> be stopped by SELinux.
-Default xguest_t does not allow execution of program on /home
-so, exploit program can not be executed.
-I tried exploit with boolean allow_xguest_exec_content on.
+But I am not sure whether this is really useful or not.
+In my environment(Fedora 8), 
+the address of selinux_enforcing is the same in every boot.
+So I guess the address of selinux_enforcing is the same in the same kernel binary.
+The same kernel binary is used in Fedora, 
+so attacker see the address of selinux_enforcing in his own Fedora,
+and he can use the address in other Fedora machines.
+If this is correct, it makes no sense to give different label for /proc/kallsyms.
 
-However, in this case, 
-it is easy to guess address of selinux_enforcing,
-because the address of selinux_enforcing is the same in another machine,
-as long as the same kernel binary is used.
-
+> There is a patch floating around to turn the LSM hook calls into direct
+> SELinux calls so that there is no more security_ops pointer that can be
+> overwritten.  But there will still be other critical variables, and
+> SELinux can't protect against kernel vulnerabilities in general.
+Yes, basically it is correct.
+But making attack harder is good thing.
 
 > 
->  - todd
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+> 
 
 Regards,
 Yuichi Nakamura
