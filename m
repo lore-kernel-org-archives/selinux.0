@@ -1,61 +1,43 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1DI4Mqc026441
-	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 13:04:22 -0500
-Received: from g5t0008.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1DI3gNg010020
-	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 18:04:07 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Subject: Re: CORBA and network labeling capabilities
-Date: Wed, 13 Feb 2008 08:47:20 -0500
-Cc: selinux@tycho.nsa.gov
-References: <FB39F4E77226B448BC1388D3BE4E00CD02AF94F9@blums0008.bluelnk.net>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD02AF94F9@blums0008.bluelnk.net>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1DJeF15006557
+	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 14:40:15 -0500
+Received: from rn-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1DJeFNg006645
+	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 19:40:15 GMT
+Received: by rn-out-0910.google.com with SMTP id e13so213563rng.12
+        for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 11:40:15 -0800 (PST)
+Message-ID: <dd18b0c30802131140i275195aao25bcac1bba37e51@mail.gmail.com>
+Date: Wed, 13 Feb 2008 19:40:14 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: s.m.a.c.k
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200802130847.21044.paul.moore@hp.com>
+Content-Type: multipart/alternative;
+	boundary="----=_Part_24035_5382279.1202931614222"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 12 February 2008 7:50:31 pm Clarkson, Mike R (US SSA) wrote:
-> The problem results from the fact that there are no rules associating
-> any of the 3 domains with each other. This means that if I have multiple
-> clients and servers, I can't set up rules to specify which clients can
-> communicate with which servers. I'm stuck with every client being able
-> to communicate with every server. (Actually, I could limit communication
-> by running the clients and servers on specified labeled ports, but this
-> eliminates any practical method of enforcing MLS constraints)
->
-> If the client and server were running on separate hosts, with an IPSec
-> tunnel set up between them, the functionality that I'm looking for is
-> provided with the IPSec security association object class:
->
-> allow sample_client_orbix_client_server_t
-> sample_server_orbix_client_server_t:association recvfrom;
->
-> Is there some way to get similar functionality when the processes are
-> running on the same host? (Can an IPSec tunnel can be created through
-> the loopback interface? Or is there a better way to do this?)
+------=_Part_24035_5382279.1202931614222
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Hi Mike,
+Hello; When trying out kernel 2.6.25-rc1 everything seems o.k., but when
+compiling the kernel  with the new s.m.a.c.k option I'm receiving this error
+when booting:
+Kernel panic not syncing : smack : unable to register with kernel
 
-If you can live with only MLS label information you can use NetLabel/CIPSO to 
-convey security attributes over the network, including localhost/loopback.  
-The problem is that the standard CIPSO protocol doesn't have a way to convey 
-the SELinux type enforcement information so only the effective MLS 
-sensitivity label can be transferred over the network.  Labeled IPsec does 
-work over localhost/loopback but as you can imagine it is not an elegant 
-solution.  Which method you chose largely depends on your requirements, 
-typically the need for full TE information and performance.
+   --Justin P. Mattock
 
-Once things settle down a bit with 2.6.25 and the labeled networking changes 
-that were just merged I plan on starting work on improved local labeling 
-which would provide some better options than those listed above.
+------=_Part_24035_5382279.1202931614222
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--- 
-paul moore
-linux security @ hp
+Hello; When trying out kernel 2.6.25-rc1 everything seems o.k., but when compiling the kernel&nbsp; with the new s.m.a.c.k option I&#39;m receiving this error when booting:<br>Kernel panic not syncing : smack : unable to register with kernel <br>
+<br>&nbsp;&nbsp; --Justin P. Mattock<br>
+
+------=_Part_24035_5382279.1202931614222--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
