@@ -1,63 +1,57 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1EKlXlR011750
-	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 15:47:33 -0500
-Received: from el-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1EKlWrZ023870
-	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 20:47:32 GMT
-Received: by el-out-1112.google.com with SMTP id j27so488984elf.0
-        for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 12:47:31 -0800 (PST)
-Message-ID: <dd18b0c30802141247v2d54b5fej5780e2ab6fe665cb@mail.gmail.com>
-Date: Thu, 14 Feb 2008 20:47:30 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: pommed
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_3045_12463908.1203022050136"
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1EN9lxg027932
+	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 18:09:47 -0500
+Received: from penguin.goodinassociates.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1EN9jQo016997
+	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 23:09:45 GMT
+Received: from [206.80.71.242] ([206.80.71.242])
+	(authenticated bits=0)
+	by penguin.goodinassociates.com (8.13.1/8.13.1) with ESMTP id m1F0ALak000732
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
+	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 18:10:21 -0600
+Subject: secadm question
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-f0WRn5e7XkRW0x4m6Whg"
+Date: Thu, 14 Feb 2008 17:09:43 -0600
+Message-Id: <1203030583.3669.197.camel@bluejay.goodinassociates.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_3045_12463908.1203022050136
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hello; I seem to have noticed something with pommed daemon, causing my
-screen dimmer to not work as well as the keyboard ambient lights, the
-messages I see are these
-cat /var/log/daemon.log =
+--=-f0WRn5e7XkRW0x4m6Whg
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-pommed[2771]: DBus system bus connection failed: An SELinux policy prevents
-this sender from sending this message to this recipient (rejected message
-had interface
-"org.freedesktop.DBus" member "Hello" error name "(unset)" destination "
-org.freedesktop.DBus")
+I see a number of places where the secadm_r role shows up, but It
+doesn't show up in the list of users and what not, Is there something
+simple I need to enable it, or 	do I need to build it from scratch? My
+goal it to have sysadm not able to modify policy enforcement, and my
+secadm not be able to do anything but. If there is a standard way to do
+this, I'd love to know.
 
-pommed[1865]: DBus system bus connection failed: Failed to connect to socket
-/var/run/dbus/system_bus_socket: No such file or directory
+thanx,
+-jj-
 
-pommed[1864]: Could not open /sys/class/leds/smc::kbd_backlight/brightness:
-No such file or directory
 
-(Interesting part is these two files brightness and system_bus_socket do
-exsist)
 
-I've issued make clean && make enableaudit && make policy
- to acquire as  many avc's as possible  but am still receiving this error,
-any help;
-                --Justin P. Mattock
+Things are more like they used to be than they are now.
 
-------=_Part_3045_12463908.1203022050136
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+--=-f0WRn5e7XkRW0x4m6Whg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Hello; I seem to have noticed something with pommed daemon, causing my screen dimmer to not work as well as the keyboard ambient lights, the messages I see are these <br>cat /var/log/daemon.log =<br><br>pommed[2771]: DBus system bus connection failed: An SELinux policy prevents this sender from sending this message to this recipient (rejected message had interface <br>
-&quot;org.freedesktop.DBus&quot; member &quot;Hello&quot; error name &quot;(unset)&quot; destination &quot;org.freedesktop.DBus&quot;)<br><br>pommed[1865]: DBus system bus connection failed: Failed to connect to socket /var/run/dbus/system_bus_socket: No such file or directory<br>
-<br>pommed[1864]: Could not open /sys/class/leds/smc::kbd_backlight/brightness: No such file or directory&nbsp; <br><br>(Interesting part is these two files brightness and system_bus_socket do exsist)<br><br>I&#39;ve issued make clean &amp;&amp; make enableaudit &amp;&amp; make policy <br>
-&nbsp;to acquire as&nbsp; many avc&#39;s as possible&nbsp; but am still receiving this error, <br>any help;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
 
-------=_Part_3045_12463908.1203022050136--
+iD8DBQBHtMo36caZY8jbHDkRApDEAKDDgMAFhBu9FeFLOOxhLH6uwg8trwCgxoTh
+/64RZqLNvBx68rqcCVT5qBQ=
+=Iv/h
+-----END PGP SIGNATURE-----
+
+--=-f0WRn5e7XkRW0x4m6Whg--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
