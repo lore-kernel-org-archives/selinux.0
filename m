@@ -1,42 +1,42 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1E4QP55032022
-	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 23:26:25 -0500
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1E4QNY2001165
-	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 04:26:23 GMT
-Date: Thu, 14 Feb 2008 15:25:54 +1100 (EST)
-From: James Morris <jmorris@namei.org>
+Subject: Re: s.m.a.c.k
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Justin Mattock <justinmattock@gmail.com>
-cc: selinux@tycho.nsa.gov, Arjan van de Ven <arjan@infradead.org>
-Subject: SELinux power consumption (was Re: s.m.a.c.k)
+Cc: selinux@tycho.nsa.gov
 In-Reply-To: <dd18b0c30802131822v3a7dd93bkba75363d65c262df@mail.gmail.com>
-Message-ID: <Xine.LNX.4.64.0802141523010.10898@us.intercode.com.au>
 References: <dd18b0c30802131822v3a7dd93bkba75363d65c262df@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Date: Thu, 14 Feb 2008 07:31:47 -0500
+Message-Id: <1202992307.16038.69.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 14 Feb 2008, Justin Mattock wrote:
 
-> I had a quick question about power consumption, I've been doing a lot of
-> testing and seem to find no signs of SELinux or audit causing any wakeups at
-> all to the processor, but then googling some web site I came acrossed  said
-> there was a 7% overhead of energy or something in this area. What info do
-> you have in the area of power consumption, wakeups to the processor or load
-> on the processor with SELinux or audit that I should be aware of while Im
-> doing some testing?
+On Thu, 2008-02-14 at 02:22 +0000, Justin Mattock wrote:
+> Hello; Thanks for the info on s.m.a.c.k, ("I thought it was part of
+> SELinux");  it seems similar to apparmour!  I think I'll stick with
+> SELinux. 
+> I had a quick question about power consumption, I've been doing a lot
+> of testing and seem to find no signs of SELinux or audit causing any
+> wakeups at all to the processor, but then googling some web site I
+> came acrossed  said there was a 7% overhead of energy or something in
+> this area. What info do you have in the area of power consumption,
+> wakeups to the processor or load on the processor with SELinux or
+> audit that I should be aware of while Im doing some testing?
+> regards;
 
-IIRC, this was something like the setroubleshoot desktop applet, and I'm 
-not sure if it was fixed or not.  If not, it needs to be.
+Smack is quite different from AppArmor, but also quite different from
+SELinux.
 
-(cc'd Arjan, who I think discovered the issue).
+SELinux imposes a performance overhead, but it shouldn't especially
+affect power consumption.  You might be thinking of bugs in certain
+SELinux-related daemons, like setroubleshootd in Fedora, that caused it
+to spin.
 
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
