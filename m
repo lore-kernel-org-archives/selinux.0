@@ -1,57 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1E40S0Z029899
-	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 23:00:28 -0500
-Received: from g5t0006.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1E40S6g013850
-	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 04:00:28 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Subject: Re: CORBA and network labeling capabilities
-Date: Wed, 13 Feb 2008 23:00:23 -0500
-Cc: selinux@tycho.nsa.gov
-References: <FB39F4E77226B448BC1388D3BE4E00CD02AF94F9@blums0008.bluelnk.net> <200802131632.05679.paul.moore@hp.com> <FB39F4E77226B448BC1388D3BE4E00CD02AF95E6@blums0008.bluelnk.net>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD02AF95E6@blums0008.bluelnk.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1E4QP55032022
+	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 23:26:25 -0500
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1E4QNY2001165
+	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 04:26:23 GMT
+Date: Thu, 14 Feb 2008 15:25:54 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Justin Mattock <justinmattock@gmail.com>
+cc: selinux@tycho.nsa.gov, Arjan van de Ven <arjan@infradead.org>
+Subject: SELinux power consumption (was Re: s.m.a.c.k)
+In-Reply-To: <dd18b0c30802131822v3a7dd93bkba75363d65c262df@mail.gmail.com>
+Message-ID: <Xine.LNX.4.64.0802141523010.10898@us.intercode.com.au>
+References: <dd18b0c30802131822v3a7dd93bkba75363d65c262df@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200802132300.23563.paul.moore@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 13 February 2008 8:45:50 pm Clarkson, Mike R (US SSA) wrote:
-> Paul,
->
-> Thanks for your help. I've got labeled IPSec working on the loopback
-> interface. I've still got some policy work to do to get everything
-> working like I want, but the labeled IPSec portion appears to be
-> working.
->
-> The key was enabling XFRM as you mentioned below and updating my setkey
-> commands as follows:
->
-> spdflush;
-> flush;
-> spdadd 127.0.0.1 127.0.0.1 any
-> -ctx 1 1 "system_u:object_r:ipsec_spd_t:s0-s4:c0.c255"
-> -P in ipsec esp/transport//require;
-> spdadd 127.0.0.1 127.0.0.1 any
-> -ctx 1 1 "system_u:object_r:ipsec_spd_t:s0-s4:c0.c255"
-> -P out ipsec esp/transport//require;
->
-> The key differences are using 127.0.0.1 for both the src and dest
-> addresses, and using "any" for the upperspec.
+On Thu, 14 Feb 2008, Justin Mattock wrote:
 
-Glad to hear you got everything working.  I forgot to mention this earlier, 
-but in case you haven't seen it already Joshua Brindle wrote up a nice 
-article on labeled IPsec which might help you with some of the policy pieces.
+> I had a quick question about power consumption, I've been doing a lot of
+> testing and seem to find no signs of SELinux or audit causing any wakeups at
+> all to the processor, but then googling some web site I came acrossed  said
+> there was a 7% overhead of energy or something in this area. What info do
+> you have in the area of power consumption, wakeups to the processor or load
+> on the processor with SELinux or audit that I should be aware of while Im
+> doing some testing?
 
- * http://securityblog.org/brindle/2007/05/28/secure-networking-with-selinux
+IIRC, this was something like the setroubleshoot desktop applet, and I'm 
+not sure if it was fixed or not.  If not, it needs to be.
 
-Good luck and let us know if you run into any problems.
+(cc'd Arjan, who I think discovered the issue).
 
+
+- James
 -- 
-paul moore
-linux security @ hp
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
