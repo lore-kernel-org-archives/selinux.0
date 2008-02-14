@@ -1,49 +1,46 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1E2MlXr021770
-	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 21:22:47 -0500
-Received: from el-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1E2Mk6g017074
-	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 02:22:46 GMT
-Received: by el-out-1112.google.com with SMTP id j27so221645elf.0
-        for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 18:22:45 -0800 (PST)
-Message-ID: <dd18b0c30802131822v3a7dd93bkba75363d65c262df@mail.gmail.com>
-Date: Thu, 14 Feb 2008 02:22:44 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: s.m.a.c.k
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1E3ohds029093
+	for <selinux@tycho.nsa.gov>; Wed, 13 Feb 2008 22:50:43 -0500
+Received: from g4t0015.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1E3og6g011383
+	for <selinux@tycho.nsa.gov>; Thu, 14 Feb 2008 03:50:42 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: [PATCH 3/4] REFPOL: Remove the unlabeled_t SECMARK policy in kernel_sendrecv_unlabeled_association
+Date: Wed, 13 Feb 2008 22:50:32 -0500
+Cc: selinux@tycho.nsa.gov
+References: <20080208212534.491651808@hp.com> <20080208212825.408095221@hp.com> <1202827041.30706.7.camel@gorn>
+In-Reply-To: <1202827041.30706.7.camel@gorn>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_25574_25036754.1202955764184"
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200802132250.32516.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_25574_25036754.1202955764184
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tuesday 12 February 2008 9:37:21 am Christopher J. PeBenito wrote:
+> On Fri, 2008-02-08 at 16:25 -0500, paul.moore@hp.com wrote:
+> > plain text document attachment (refpol-secmark_perms_fix)
+> > There is really no need for the SECMARK policy hack in the
+> > kernel_sendrecv_unlabeled_association() interface since we already have
+> > an interface call, kernel_sendrecv_unlabeled_packets(), which handles the
+> > unlabeled SECMARK case.  Remove the hack and use the
+> > kernel_sendrecv_unlabeled_packets() where appropriate.
+>
+> I don't think this is any better as, in reality, there should be no
+> mixing of secmark rules with labeled networking rules since they are
+> orthogonal.
 
-Hello; Thanks for the info on s.m.a.c.k, ("I thought it was part of
-SELinux");  it seems similar to apparmour!  I think I'll stick with SELinux.
+First, thanks for merging the other changes.  Second, I suppose you are right 
+about these changes, mixing them (never thought about it that way which is 
+kinda funny everything considered) probably isn't the best thing to do long 
+term.
 
-I had a quick question about power consumption, I've been doing a lot of
-testing and seem to find no signs of SELinux or audit causing any wakeups at
-all to the processor, but then googling some web site I came acrossed  said
-there was a 7% overhead of energy or something in this area. What info do
-you have in the area of power consumption, wakeups to the processor or load
-on the processor with SELinux or audit that I should be aware of while Im
-doing some testing?
-regards;
-              --Justin P. Mattock
+Thanks.
 
-------=_Part_25574_25036754.1202955764184
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hello; Thanks for the info on s.m.a.c.k, (&quot;I thought it was part of SELinux&quot;);&nbsp; it seems similar to apparmour!&nbsp; I think I&#39;ll stick with SELinux. <br>I had a quick question about power consumption, I&#39;ve been doing a lot of testing and seem to find no signs of SELinux or audit causing any wakeups at all to the processor, but then googling some web site I came acrossed&nbsp; said there was a 7% overhead of energy or something in this area. What info do you have in the area of power consumption, wakeups to the processor or load on the processor with SELinux or audit that I should be aware of while Im doing some testing?<br>
-regards;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; --Justin P. Mattock<br>
-
-------=_Part_25574_25036754.1202955764184--
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
