@@ -1,56 +1,108 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1FHIb7D005011
-	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 12:18:37 -0500
-Message-ID: <47B5C968.9010607@tycho.nsa.gov>
-Date: Fri, 15 Feb 2008 12:18:32 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: X avcs
-References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>	 <47867FCA.50408@tycho.nsa.gov> <47878130.5010000@gmail.com>	 <4787D5B7.9090606@sun.com> <478FD1A7.8060401@tycho.nsa.gov>	 <4793FDC7.9050700@sun.com> <4797D7CB.6010501@tycho.nsa.gov>	 <cadfc0e40801290748v3e02a305i8ef36f39ceef16af@mail.gmail.com>	 <47A131D5.2030906@tycho.nsa.gov> <47ACEB0C.4030201@tycho.nsa.gov> <cadfc0e40802150653q54e1bec9m3437e0a68af36f4f@mail.gmail.com>
-In-Reply-To: <cadfc0e40802150653q54e1bec9m3437e0a68af36f4f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: how to implement permissive domains + an old bug
+From: Eric Paris <eparis@redhat.com>
+To: selinux <selinux@tycho.nsa.gov>
+Cc: dwalsh@redhat.com, sds@tycho.nsa.gov, jmorris@namei.org,
+        method@manicmethod.com, kmacmillan@tresys.com, setools@tresys.com,
+        cpebenito@tresys.com, pmoore@hp.com
+Content-Type: text/plain
+Date: Fri, 15 Feb 2008 12:50:03 -0500
+Message-Id: <1203097803.2843.49.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Xavier Toth wrote:
-> On Fri, Feb 8, 2008 at 5:51 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
->   
->> Eamon Walsh wrote:
->>  > Xavier Toth wrote:
->>  >
->>  >> Has this made it into the git tree yet?
->>  >>
->>
->>  It's pushed into the XACE-SELINUX branch, so you can play with it now.
->>  I did some simple testing of the polyinstantiation and it worked OK for
->>  me.  You'll need the kernel patch, an updated libselinux from SVN, and
->>  an updated refpolicy (or just add "getattr" and "setattr" permissions to
->>  your x_property class and tweak the x_contexts file to add poly_property
->>  notations).  I'll push it into the master branch next week unless I get
->>  any feedback directing otherwise.
->>     
->
-> I've been running the rawhide xserver and a patched metacity which
-> uses the _SELINUX_CLIENT_CONTEXT xproperty to get the context for
-> window labels. Because of my desire to maintain a working system I've
-> taken the approach of changing just one thing at a time. So I chose to
-> update my policy first by merging the refpolicy with the rawhide
-> source rpm and patch-20071130.patch. After a few issues I've built and
-> installed the new policy but now metacity is no longer getting a
-> context in _SELINUX_CLIENT_CONTEXT. I've looked around in the audit
-> log but nothing jumps out at me as being amiss. Any ideas on how I can
-> track down why this property was impacted by this new policy?
->   
+So after many months of trying to avoid it Dan finally beat me into
+looking at permissive domains.  I'm coming to the list to ask how people
+feel the transfer of knowledge that a domain is permissive between the
+policy and the kernel should be implemented.  (And to point out what I
+think is a bug I found while trolling around the code today)
 
-Look in the Xorg.0.log file for SELinux messages.  The extension might 
-have disabled itself, perhaps because the object classes and permissions 
-weren't right.
+Old discussion of permissive domains.
+http://marc.info/?l=selinux&m=118953810913436&w=2
 
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+The basic idea is that we want a domain in which a process can run
+without any permission enforcement and without flooding the audit logs.
+After much discussion I think everyone agreed with (or at least stopped
+arguing against) a couple of things.
+
+1) do this in policy (not selinuxfs)
+2) have it act just like 'setenforce 0'
+
+My question today is about #1.  How to implement?  Karl suggested
+stealing a bit from the type_datum->primary field to indicate to the
+kernel that a certain type was a permissive domain.  Can I do this?  I
+guess this is a question for the setools group.  Do you make use of the
+actual value stored in 'primary'?  The kernel does not.  Does anything
+make use of the actual value outside of the tool chain?  Please say 'no'
+and make this easier for me.
+
+I want to throw away the 'primary' field all together in the final
+binary policy and create a 'new' field called 'flags' in its place.
+After my change flags would make use of 2 bits.
+
+#define F_PRIMARY		0x00000001
+#define F_PERMISSIVE		0x80000000
+if (type_datum->old_primary)
+	type_datum->flags = F_PRIMARY;
+if (permissive domain)
+    type_datum->flags |= F_PERMISSIVE
+
+This only works if noone makes actual use of the value in ->primary.  If
+someone makes use of the value in primary I can't really reuse that area
+on disk and I think I'm going to have to bump the policy version and add
+a whole new ->flags field on disk (I don't think pmoore's capability
+stuff really helps).  Maybe the tools could just agree to ignore the
+last bit?  To be honest I'm not personally terribly concerned about
+setools backwards compatibility.  I'm really only thinking about
+function backwards compatibility, so maybe the tools people would be ok
+with me just userping a bit (but I'd much rather have a more clear
+'flags' than 'primary + one bit stolen for some other random crap).  For
+backwards compatibility I might have to bump the policy number even if
+noone has a problem with me redefining the meaning of the ->primary
+field, not sure yet haven't really wrapped my brain around it.  I think
+there is a kernel bug which actually makes it possible to reuse the
+field in my new way and maintain backwards kernel compatibility.
+
+**The Bug**
+In the binary policy on disk ->primary is a uint32_t but in the kernel
+->primary is an unsigned char.  When we load policy we just have
+
+typdatum->primary = le32_to_cpu(buf[2]);
+
+So we are truncating to 8 bits.  I think that means that if the on disk
+->primary value is greater than 0xFF but the lower 8 bits are all 0 we
+are going to screw this up (maybe this is impossible, but I don't see
+why looking at libsepol quickly).  Thanks to this bug though I think I
+could use the 32nd bit of the on disk representation on old kernels and
+they wouldn't even realize it.  New kernels could be made to pay
+attention to that bit.  Backwards compatibility through bugs, I love it.
+It also means I don't really want to fix this bug right now *smile*
+**End bug**
+
+There are other options on how to represent permissive domains in
+policy, I think someone suggested
+
+allow domain domain:process permissive
+
+which would mean 2 passes through the avc for denials (at least the
+first time for every sub/obj/class triple).  But this method got poo
+poohd because of * and ^ usage.  Do we really use * and ^ any more?  I
+honestly don't know.  It also makes all denials a little slower, but
+shouldn't be noticeable on a system with a 'proper' policy.
+
+What other ideas exist?  I'm looking for any ingenious ideas on how we
+can transfer 'this is a permissive domain' from the policy into the
+kernel.  What I really want is a way to do it being backwards compatible
+and without bumping the policy version....
+
+Please, thoughts and brilliance requested, I'll do the coding, just
+point me in the direction you see brightest.  Can I redefine ->primary
+to be ->flags?  Do I need to just make a new ->flags?  Should I go
+through the avc twice to see if we are a permissive domain?  Is there a
+better way to communicate this information from the policy into the
+kernel?
+
+-Eric
 
 
 --
