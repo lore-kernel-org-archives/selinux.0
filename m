@@ -1,50 +1,70 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1FE6wSL015432
-	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 09:06:58 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1FE6v8Q011007
-	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 14:06:57 GMT
-Subject: RFC: fcglob prototype
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Fri, 15 Feb 2008 09:04:42 -0500
-Message-Id: <1203084282.13618.25.camel@gorn>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1FErRe3020256
+	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 09:53:27 -0500
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1FErQ31023881
+	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 14:53:26 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so445170fgg.40
+        for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 06:53:16 -0800 (PST)
+Message-ID: <cadfc0e40802150653q54e1bec9m3437e0a68af36f4f@mail.gmail.com>
+Date: Fri, 15 Feb 2008 08:53:15 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: Re: X avcs
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <47ACEB0C.4030201@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40712261301l3765f85fyc813a6ccfb262e3b@mail.gmail.com>
+	 <47867FCA.50408@tycho.nsa.gov> <47878130.5010000@gmail.com>
+	 <4787D5B7.9090606@sun.com> <478FD1A7.8060401@tycho.nsa.gov>
+	 <4793FDC7.9050700@sun.com> <4797D7CB.6010501@tycho.nsa.gov>
+	 <cadfc0e40801290748v3e02a305i8ef36f39ceef16af@mail.gmail.com>
+	 <47A131D5.2030906@tycho.nsa.gov> <47ACEB0C.4030201@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We have created a prototype implementation of FCGlob [1], with a
-refpolicy branch converted over to the globs.  FCGlob uses globbing
-instead of regular expressions for file context specification.  This is
-more straightforward for users and is deterministic for sorting.  Both
-the policy and code can be checked out in the fcglob branch of refpolicy
-[2].
+On Fri, Feb 8, 2008 at 5:51 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> Eamon Walsh wrote:
+>  > Xavier Toth wrote:
+>  >
+>  >> Has this made it into the git tree yet?
+>  >>
+>
+>  It's pushed into the XACE-SELINUX branch, so you can play with it now.
+>  I did some simple testing of the polyinstantiation and it worked OK for
+>  me.  You'll need the kernel patch, an updated libselinux from SVN, and
+>  an updated refpolicy (or just add "getattr" and "setattr" permissions to
+>  your x_property class and tweak the x_contexts file to add poly_property
+>  notations).  I'll push it into the master branch next week unless I get
+>  any feedback directing otherwise.
 
-I'd request that you give it a spin on your system.  There is a
-non-destructive test function which uses your filesystem as input and
-compares the result of the fcglob matchpathcon versus the current regex
-matchpathcon result and reports mismatches.  The caveat being that this
-is not optimized code, and in fact is quite slow, especially because the
-python must exec a matchpathcon wrapper for each path for the regex
-match.  Unfortunately the regex matchpathcon couldn't be run in the
-python, since the context validation could not be disabled since python
-can't use function pointers.
+I've been running the rawhide xserver and a patched metacity which
+uses the _SELINUX_CLIENT_CONTEXT xproperty to get the context for
+window labels. Because of my desire to maintain a working system I've
+taken the approach of changing just one thing at a time. So I chose to
+update my policy first by merging the refpolicy with the rawhide
+source rpm and patch-20071130.patch. After a few issues I've built and
+installed the new policy but now metacity is no longer getting a
+context in _SELINUX_CLIENT_CONTEXT. I've looked around in the audit
+log but nothing jumps out at me as being amiss. Any ideas on how I can
+track down why this property was impacted by this new policy?
 
-Simply check out the branch, and run "make globtest".  Mismatches are
-likely due to insufficient globs (there may not be enough globs to
-replicate the regex coverage), but could possibly expose incorrect
-results from the regex matchpathcon (I've seen this a couple times), or
-a bug in the code, or worst case, a flaw in the FCGlob design.
-
-[1] http://selinux-symposium.org/2007/papers/06-fcglob.pdf
-[2] http://oss.tresys.com/projects/refpolicy/wiki/SubversionCheckout
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+>
+>  With regard to the rawhide X server, I just ran "strings" on a rawhide
+>  Xorg binary and it shows SELinux extension messages.  The package has a
+>  date of Jan 7 in the version number.  So you might try compiling an X
+>  server from SRPM, passing the --enable-xselinux=yes flag to the
+>  configure script.  It might just work, however there have been some
+>  changes since Jan 7.
+>
+>  --
+>
+>
+> Eamon Walsh <ewalsh@tycho.nsa.gov>
+>  National Security Agency
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
