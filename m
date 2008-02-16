@@ -1,96 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1G1cXcw030551
-	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 20:38:33 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m1G1cWqF024791
-	for <selinux@tycho.nsa.gov>; Sat, 16 Feb 2008 01:38:32 GMT
-Message-ID: <47B63E7E.4000000@manicmethod.com>
-Date: Fri, 15 Feb 2008 20:38:06 -0500
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-CC: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov
-Subject: Re: Brindle example of labeled IPSec
-References: <FB39F4E77226B448BC1388D3BE4E00CD02AF96FD@blums0008.bluelnk.net> <200802151640.53368.paul.moore@hp.com> <FB39F4E77226B448BC1388D3BE4E00CD02AF9741@blums0008.bluelnk.net> <47B62DAD.2030204@manicmethod.com> <FB39F4E77226B448BC1388D3BE4E00CD02AF976E@blums0008.bluelnk.net> <47B63A37.3080606@manicmethod.com> <FB39F4E77226B448BC1388D3BE4E00CD02AF9774@blums0008.bluelnk.net>
-In-Reply-To: <FB39F4E77226B448BC1388D3BE4E00CD02AF9774@blums0008.bluelnk.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1G1h6nR030974
+	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 20:43:06 -0500
+Received: from e33.co.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1G1h53r003980
+	for <selinux@tycho.nsa.gov>; Sat, 16 Feb 2008 01:43:05 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e33.co.us.ibm.com (8.13.8/8.13.8) with ESMTP id m1G1h5eJ004097
+	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 20:43:05 -0500
+Received: from d03av03.boulder.ibm.com (d03av03.boulder.ibm.com [9.17.195.169])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v8.7) with ESMTP id m1G1h4PI186458
+	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 18:43:04 -0700
+Received: from d03av03.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av03.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id m1G1h4gh000450
+	for <selinux@tycho.nsa.gov>; Fri, 15 Feb 2008 18:43:04 -0700
+Date: Fri, 15 Feb 2008 19:40:34 -0600
+From: Joy Latten <latten@austin.ibm.com>
+Message-Id: <200802160140.m1G1eY30025542@faith.austin.ibm.com>
+To: mike.clarkson@baesystems.com
+Subject: RE: Brindle example of labeled IPSec
+Cc: selinux@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Clarkson, Mike R (US SSA) wrote:
->   
->>>> As for the recvfrom part, in your policy you have:
->>>>
->>>> corenet_non_ipsec_sendrecv(brindle_client_t)
->>>>
->>>>
->>>> this interface allows a domain to receive from unlabeled ipsec
->>>> connections, which means it will work regardless of associations
->>>>         
-> being
->   
->>>> present, be sure to remove interfaces like this before testing in
->>>> enforcing.
->>>>
->>>>
->>>>
->>>>
->>>>         
->>> True that the non_ipsec interface will allow the client and server
->>>       
-> to
->   
->>> communicate, but it wouldn't be a labeled communication, which means
->>>       
-> the
->   
->>> output of the client and server should look like this:
->>>
->>> [mr_clarkson@blade5 test]$ ./brindle_server
->>> getsockopt: Protocol not available
->>> server: got connection from 127.0.0.1, (null)
->>>
->>> [mr_clarkson@blade5 test]$ ./brindle_client 127.0.0.1
->>> getpeercon: Protocol not available
->>> Received: Hello, (null) from (null)
->>>
->>> I know that it is sending the packets over the labeled IPSec
->>>       
-> loopback,
->   
->>> because it stops working when I remove the SPDs using "setkey -FP"
->>>
->>> In any case, it quits working when I replace
->>> corenet_non_ipsec_sendrecv(brindle_client_t) with
->>> ipsec_labeled(brindle_client_t) and do likewise for the server. And
->>>       
-> I
->   
->>> get the following from audit2allow:
->>>
->>> #============= brindle_client_t ==============
->>> # src="brindle_client_t" tgt="unlabeled_t" class="packet",
->>>       
-> perms="send"
->   
->>> # comm="brindle_client" exe="" path=""
->>> allow brindle_client_t unlabeled_t:packet send;
->>>
->>> Is there something else that I need to provide?
->>>
->>>
->>>       
->> I think corenet_sendrecv_unlabeled_packets()
->>
->>     
->
-> That's the same as corenet_non_ipsec_sendrecv(). They both just call
-> kernel_sendrecv_unlabeled_packets().
->   
+>I agree with everything that you've mentioned above, the only problem
+>being that my brindle_client and brindle_server modules didn't call the
+>ipsec_labeled interface. That's why I'm confused as to why it is
+>working. It shouldn't be working.
 
-perhaps just call kernel_sendrecv_unlabeled_packets then?
+It's been a while and I don't have the policy in front of me, 
+so others may be better able to answer this...
+The base reference policy (when using mls) contains this rule. It has a
+rule, ipsec_labeled(domain). 
 
 
+regards,
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
