@@ -1,50 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1GNCwSY011856
-	for <selinux@tycho.nsa.gov>; Sat, 16 Feb 2008 18:12:58 -0500
-Received: from wf-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1GNCvxe017979
-	for <selinux@tycho.nsa.gov>; Sat, 16 Feb 2008 23:12:57 GMT
-Received: by wf-out-1314.google.com with SMTP id 28so305334wfc.30
-        for <selinux@tycho.nsa.gov>; Sat, 16 Feb 2008 15:12:56 -0800 (PST)
-Message-ID: <f71a82820802161512w757dc2f4u272225baa670ce9f@mail.gmail.com>
-Date: Sun, 17 Feb 2008 08:12:56 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: fedora-selinux-list@redhat.com, selinux <selinux@tycho.nsa.gov>
-Subject: [ANN]segatex-4.90 released
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: s.m.a.c.k
+Date: Sun, 17 Feb 2008 21:15:06 +1100
+Cc: Justin Mattock <justinmattock@gmail.com>, selinux@tycho.nsa.gov
+References: <dd18b0c30802131822v3a7dd93bkba75363d65c262df@mail.gmail.com> <1202992307.16038.69.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1202992307.16038.69.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_2648_23462759.1203203576697"
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200802172115.08256.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_2648_23462759.1203203576697
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thursday 14 February 2008 23:31, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> SELinux imposes a performance overhead, but it shouldn't especially
+> affect power consumption.  You might be thinking of bugs in certain
+> SELinux-related daemons, like setroubleshootd in Fedora, that caused it
+> to spin.
 
-I released segatex-4.90.
-Incorporated policygentool.
+There are a couple of cases where SE Linux will increase power use.
 
-It generates files, but when you do not set path, modules will fail when you
-try to install it.
-I will fix this problem on segatex-5.0.
-Please wait.
+One is the case of broken applications that go into an infinite loop when 
+confronted with an unexpected EPERM.  If you have a power hungry CPU (P4 or 
+P-D) then a single process doing that can cost a significant amount of power.
 
-But, you can edit files so if you are interested, please try and have some
-fun.
+Another is the issue of auditing.  When SE Linux denies an operation and 
+doesn't have a dontaudit rule the event will be logged.  This involves some 
+CPU use by the kernel and syslogd or auditd and then some disk IO.  Obviously 
+in those cases more power is used than otherwise.
+
+Ideally neither of these situations would ever occur on your machines, and in 
+practice they are quite uncommon.
+
+The vast majority of SE Linux access control decisions (on a system without 
+Security Enhanced X) will concern system calls.  On most systems the majority 
+of power is taken by IO (moving disk heads takes energy) and application 
+computation (Firefox on my system has accumulated 24 DAYS of CPU time).  
+Neither application computation nor disk IO will be affected by SE Linux 
+(except in the cases of looping programs and logging).
+
+On my desktop machine nothing other than Firefox matters for electricity use.  
+The servers I run at the moment are mostly idle so the electricity use would 
+be pretty close to the minimum for an idle system.
 
 -- 
-http://intrajp.no-ip.com/ Home Page
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
 
-------=_Part_2648_23462759.1203203576697
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-I released segatex-4.90.<br>Incorporated policygentool.<br><br>It generates files, but when you do not set path, modules will fail when you try to install it.<br>I will fix this problem on segatex-5.0.<br>Please wait.<br clear="all">
-<br>But, you can edit files so if you are interested, please try and have some fun.<br><br>-- <br><a href="http://intrajp.no-ip.com/">http://intrajp.no-ip.com/</a> Home Page
-
-------=_Part_2648_23462759.1203203576697--
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
