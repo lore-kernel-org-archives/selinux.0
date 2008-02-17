@@ -1,48 +1,65 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1HBI255007579
+	for <selinux@tycho.nsa.gov>; Sun, 17 Feb 2008 06:18:02 -0500
+Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1HBHxQu010816
+	for <selinux@tycho.nsa.gov>; Sun, 17 Feb 2008 11:18:00 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: s.m.a.c.k
-Date: Sun, 17 Feb 2008 21:15:06 +1100
-Cc: Justin Mattock <justinmattock@gmail.com>, selinux@tycho.nsa.gov
-References: <dd18b0c30802131822v3a7dd93bkba75363d65c262df@mail.gmail.com> <1202992307.16038.69.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1202992307.16038.69.camel@moss-spartans.epoch.ncsc.mil>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: secadm/sysadm discussion
+Date: Sun, 17 Feb 2008 22:17:55 +1100
+Cc: selinux <selinux@tycho.nsa.gov>
+References: <1203030583.3669.197.camel@bluejay.goodinassociates.com> <1203093415.3669.258.camel@bluejay.goodinassociates.com> <47B60285.9010801@redhat.com>
+In-Reply-To: <47B60285.9010801@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200802172115.08256.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200802172217.56506.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 14 February 2008 23:31, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> SELinux imposes a performance overhead, but it shouldn't especially
-> affect power consumption.  You might be thinking of bugs in certain
-> SELinux-related daemons, like setroubleshootd in Fedora, that caused it
-> to spin.
+On Saturday 16 February 2008 08:22, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Personally I think sysadm_t is a waste of time.  It is a poor mans
+> unconfined_t and should be eliminated from the face of the earth.
 
-There are a couple of cases where SE Linux will increase power use.
+I agree.
 
-One is the case of broken applications that go into an infinite loop when 
-confronted with an unexpected EPERM.  If you have a power hungry CPU (P4 or 
-P-D) then a single process doing that can cost a significant amount of power.
+For those who aren't aware of the history sysadm_t predates unconfined_t by 
+years and was used for things for which unconfined_t is now used.
 
-Another is the issue of auditing.  When SE Linux denies an operation and 
-doesn't have a dontaudit rule the event will be logged.  This involves some 
-CPU use by the kernel and syslogd or auditd and then some disk IO.  Obviously 
-in those cases more power is used than otherwise.
+There is also a conceptual difference, as indicated by the name sysadm_t was 
+for system administration not regular user sessions.  Many of the problems 
+with user_t which drove the development of the Targeted policy would not have 
+occurred if sysadm_t had been used for all users (although even if that had 
+been done there was still need for unconfined_t at that time).
 
-Ideally neither of these situations would ever occur on your machines, and in 
-practice they are quite uncommon.
+> All 
+> it does is generate Bugs and avc messages without supplying any real
+> security.  It makes no sense, as a confinement of a root user since it
+> is so easily gotten around.
 
-The vast majority of SE Linux access control decisions (on a system without 
-Security Enhanced X) will concern system calls.  On most systems the majority 
-of power is taken by IO (moving disk heads takes energy) and application 
-computation (Firefox on my system has accumulated 24 DAYS of CPU time).  
-Neither application computation nor disk IO will be affected by SE Linux 
-(except in the cases of looping programs and logging).
+Also the sysadm_t vs secadm_t distinction is even worse in some ways.
 
-On my desktop machine nothing other than Firefox matters for electricity use.  
-The servers I run at the moment are mostly idle so the electricity use would 
-be pretty close to the minimum for an idle system.
+> Fedora 9 will have the ability to easily design an confined admin role.
+>  I have added NAME_admin interfaces to every confined service domain,
+> and system-config-selinux/polgengui now has the ability to select the
+> NAME_admin domains that you want to administer.  I believe this is the
+> way to confine a root user.  You can than setup a confined login user
+> staff_t or guest_t and define transitions from this domain to the admin
+> domain.  sudo can now be used to handle the transition.
+
+Good work.  I had experimented with such things in the past, but policy now 
+supports them in a better manner (without getting the macro hell).
+
+> I think we will find lots of bugs in this method, but we need people to
+> experiment with it.  I think we will also find security vulnerabilities
+> which we will need to fix in the kernel.  (chmod 4755 shell) for example.
+
+While I agree with the general concept, chmod 4755 shell doesn't do what you 
+imagine for the common shells (at least the shells I tested last time I saw 
+this issue on a mailing list).  Similar chcon commands will however allow you 
+to do interesting things.
 
 -- 
 russell@coker.com.au
