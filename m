@@ -1,41 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1HKBljK026514
-	for <selinux@tycho.nsa.gov>; Sun, 17 Feb 2008 15:11:47 -0500
-Received: from hs-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1HKBlko010815
-	for <selinux@tycho.nsa.gov>; Sun, 17 Feb 2008 20:11:47 GMT
-Received: by hs-out-0708.google.com with SMTP id 55so2109796hsc.2
-        for <selinux@tycho.nsa.gov>; Sun, 17 Feb 2008 12:11:47 -0800 (PST)
-Message-ID: <dd18b0c30802171211n1d251231p5f7d52a9de492093@mail.gmail.com>
-Date: Sun, 17 Feb 2008 20:11:46 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1IBdTSO013536
+	for <selinux@tycho.nsa.gov>; Mon, 18 Feb 2008 06:39:29 -0500
+Received: from web32205.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1IBdS9G011245
+	for <selinux@tycho.nsa.gov>; Mon, 18 Feb 2008 11:39:28 GMT
+Date: Mon, 18 Feb 2008 03:39:13 -0800 (PST)
+From: Hal <hal_bg@yahoo.com>
+Subject: xguest LDAP authentication
 To: selinux@tycho.nsa.gov
-Subject: SELinux
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_4762_22202302.1203279106319"
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <504340.31062.qm@web32205.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_4762_22202302.1203279106319
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi all,
+I have a selinux question concerning xguest and ldap user authentication. 
+I want to achieve two goals:
 
-Thanks for the info on how SELinux and audit run in the situation of power
-conservativeness, and handling; very interesting about applications going
-into a loop. or power hungry CPU's.
+1. All the users are authenticated by LDAP (I have several machines that share
+the same users and same user home dirs on the common storage.) and I want to
+convert most of the users to Selinux xguest users.
 
-   Justin P. Mattock
+2. I want all the new users created in the LDAP to be assumed as xguest users
+on all machines by default. 
 
-------=_Part_4762_22202302.1203279106319
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+How can this be done?
+I am running Fedora 8. 
 
-Thanks for the info on how SELinux and audit run in the situation of power conservativeness, and handling; very interesting about applications going into a loop. or power hungry CPU&#39;s.<br><br>&nbsp;&nbsp; Justin P. Mattock<br>
+Regrards
+Hal
 
-------=_Part_4762_22202302.1203279106319--
+
+      ____________________________________________________________________________________
+Looking for last minute shopping deals?  
+Find them fast with Yahoo! Search.  http://tools.search.yahoo.com/newsearch/category.php?category=shopping
 
 --
 This message was distributed to subscribers of the selinux mailing list.
