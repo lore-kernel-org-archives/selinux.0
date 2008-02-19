@@ -1,66 +1,59 @@
-Subject: Re: [PATCH] invalid memory allocation in policydb_index_others()
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "J. Tang" <jtang@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1203436124.31208.9.camel@venom.columbia.tresys.com>
-References: <1203436124.31208.9.camel@venom.columbia.tresys.com>
-Content-Type: text/plain
-Date: Tue, 19 Feb 2008 14:42:11 -0500
-Message-Id: <1203450131.9902.93.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47BB3240.3010300@redhat.com>
+Date: Tue, 19 Feb 2008 14:47:12 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Todd Miller <Tmiller@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        Stefan Schulze Frielinghaus <stefan@seekline.net>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Resend: Sudo Changes for SELinux
+References: <4784EFE8.9050106@redhat.com>	 <6FE441CD9F0C0C479F2D88F959B015880153F49C@exchange.columbia.tresys.com>	 <1199903006.9393.296.camel@moss-spartans.epoch.ncsc.mil>	 <478670A8.5080902@redhat.com> <1199995291.3707.15.camel@vogon>	 <47877F43.5030401@redhat.com>	 <1200065528.29816.66.camel@moss-spartans.epoch.ncsc.mil> <1200065923.29816.69.camel@moss-spartans.epoch.ncsc.mil> <4787BF20.1050105@redhat.com> <47A08F44.20308@redhat.com> <6FE441CD9F0C0C479F2D88F959B015880181F138@exchange.columbia.tresys.com> <47A9D23A.80405@redhat.com> <6FE441CD9F0C0C479F2D88F959B015880181F2A3@exchange.columbia.tresys.com> <47AB3DE4.6040308@redhat.com> <6FE441CD9F0C0C479F2D88F959B015880181F2BF@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015880181F2BF@exchange.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue, 2008-02-19 at 10:48 -0500, J. Tang wrote:
-> There is an error in libsepol's policydb_index_others().  If a policy
-> is lacking symbols of some kind (e.g., a policy with no booleans),
-> then the function will attempt a calloc() of 0, which is undefined.
-> The following patch checks for this condition and explicitly sets the
-> field upon zero symbols.
-
-IIUC, this doesn't manifest under glibc since it returns a non-NULL
-pointer that can be later free'd without error, but could create a
-problem for other C libraries (e.g. uclibc) that may instead return
-NULL, producing an error return here.
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-> Index: libsepol/src/policydb.c
-> ===================================================================
-> --- libsepol/src/policydb.c	(revision 2804)
-> +++ libsepol/src/policydb.c	(working copy)
-> @@ -820,14 +820,16 @@
->  	cond_init_bool_indexes(p);
->  
->  	for (i = SYM_ROLES; i < SYM_NUM; i++) {
-> -		if (p->sym_val_to_name[i])
-> -			free(p->sym_val_to_name[i]);
-> -		p->sym_val_to_name[i] = (char **)
-> -		    calloc(p->symtab[i].nprim, sizeof(char *));
-> -		if (!p->sym_val_to_name[i])
-> -			return -1;
-> -		if (hashtab_map(p->symtab[i].table, index_f[i], p))
-> -			return -1;
-> +		free(p->sym_val_to_name[i]);
-> +		p->sym_val_to_name[i] = NULL;
-> +		if (p->symtab[i].nprim) {
-> +			p->sym_val_to_name[i] = (char **)
-> +			    calloc(p->symtab[i].nprim, sizeof(char *));
-> +			if (!p->sym_val_to_name[i])
-> +				return -1;
-> +			if (hashtab_map(p->symtab[i].table, index_f[i], p))
-> +				return -1;
-> +		}
->  	}
->  
->  	/* This pre-expands the roles and users for context validity checking */
+Todd Miller wrote:
+> Daniel J Walsh wrote:
+>> You are the boss.  Move it to /usr/libexec.  And I will fix policy to
+>> label it correctly.  I would not put SELinux awareness into the
+>> install, that is either "install", rpm. dpkg problem.
 > 
+> OK, I changed the path and updated the tarball.  Glad I don't have to
+> worry about the label.
 > 
--- 
-Stephen Smalley
-National Security Agency
+>  - todd
+There seems to be a bug. When I exit the shell it is not setting my tty
+back.
 
+In permissive mode.
+
+$ ls -lZ `tty`
+crw--w----  dwalsh tty staff_u:object_r:staff_devpts_t:s0 /dev/pts/2
+ sudo sh
+# ls -lZ `tty`
+crw--w----  dwalsh tty staff_u:object_r:unconfined_devpts_t:s0 /dev/pts/2
+# exit
+$ ls -lZ `tty`
+crw--w----  dwalsh tty staff_u:object_r:unconfined_devpts_t:s0 /dev/pts/2
+
+In enforcing mode it kills the shell  :^(
+
+I have it setup as staff_t and unconfined_t for root.
+
+
+Other than this it looks greate.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAke7MkAACgkQrlYvE4MpobMX3ACfa/DoyI4J9NaJDsm93fX7ptZk
+Ya4AnifwZsH8iLGjAhYF2n7Aaf+As0Xo
+=NQhj
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
