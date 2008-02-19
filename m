@@ -1,45 +1,50 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1JNIe6R019710
+	for <selinux@tycho.nsa.gov>; Tue, 19 Feb 2008 18:18:40 -0500
+Received: from web36603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1JNIZAh012057
+	for <selinux@tycho.nsa.gov>; Tue, 19 Feb 2008 23:18:35 GMT
+Date: Tue, 19 Feb 2008 15:18:10 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
 Subject: Re: NFS/LSM: allow NFS to control all of its own mount options
-From: Eric Paris <eparis@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Eric Paris <eparis@redhat.com>
 Cc: linux-nfs@vger.kernel.org, selinux <selinux@tycho.nsa.gov>,
         linux-security-module@vger.kernel.org, steved@redhat.com,
         jlayton@redhat.com, sds@tycho.nsa.gov, jmorris@namei.org,
         casey@schaufler-ca.com, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com, linux-fsdevel@vger.kernel.org
 In-Reply-To: <20080219222408.GB10656@infradead.org>
-References: <1203457094.2928.113.camel@localhost.localdomain>
-	 <20080219222408.GB10656@infradead.org>
-Content-Type: text/plain
-Date: Tue, 19 Feb 2008 17:36:46 -0500
-Message-Id: <1203460606.2928.127.camel@localhost.localdomain>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <84435.4520.qm@web36603.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-02-19 at 17:24 -0500, Christoph Hellwig wrote:
+--- Christoph Hellwig <hch@infradead.org> wrote:
+
 > Please don't introduce a special case for just nfs.  All filesystems
 > should control their mount options, so please provide some library
 > helpers for context= handling and move it into all filesystems that
 > can support selinux.
 
-A library helper that looks like what?
+Smack has options that are filesystem independent
+(smackfsdef= smackfsroot= smackfsfloor= smackfshat=)
+instead of the context= SELinux seems happy with.
+Since there is no reason that a file system even
+really needs to know what these values are it would
+be completely unreasonable to teach every filesystem
+about them. The information is completely controlled
+and used by the LSM.
 
-Only NFS knows how it is storing that mount option in its blobs.  Only
-NFS knows how to translate its blob into the generic LSM interface
-needed to set security options.  I'd say the solution is going to have
-to be very much NFS specific.
+Of course, we could use something other than mount options
+(vfsctl? sorry - only kidding) to set the LSM specific
+information, and that might be the right approach.
 
-Both in kernel LSMs already provide methods for dealing with mount
-options for filesystems that use text strings (see the
-security_sb_copy_data stuff called from vfs_kern_mount()).  How is this
-'library' going to deal with anything other than a text string, and if
-that's all it deals with we already have that.  NFS just can't use it
-because it isn't using a string for mount data.  I'm sure I'm just
-misunderstanding how to design your solution...
 
--Eric
-
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
