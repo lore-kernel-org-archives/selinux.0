@@ -1,58 +1,61 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1JEIqls013697
-	for <selinux@tycho.nsa.gov>; Tue, 19 Feb 2008 09:18:52 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m1JEIpPP028638
-	for <selinux@tycho.nsa.gov>; Tue, 19 Feb 2008 14:18:51 GMT
-Subject: Re: refpolicy: patch for Debian backup cron daily jobs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-In-Reply-To: <20080219122951.GA23700@bobek.pm.i.cz>
-References: <20080219122951.GA23700@bobek.pm.i.cz>
+Message-ID: <47BAEC42.60708@redhat.com>
+Date: Tue, 19 Feb 2008 09:48:34 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Jeremiah Jahn <jeremiah@goodinassociates.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>,
+        selinux <selinux@tycho.nsa.gov>
+Subject: Re: secadm/sysadm discussion
+References: <1203030583.3669.197.camel@bluejay.goodinassociates.com>	 <200802150855.47722.paul.moore@hp.com>	 <1203088187.3669.241.camel@bluejay.goodinassociates.com>	 <1203088562.16038.196.camel@moss-spartans.epoch.ncsc.mil>	 <1203089944.13618.40.camel@gorn>	 <1203091760.3669.249.camel@bluejay.goodinassociates.com>	 <1203091792.13618.56.camel@gorn>	 <1203092070.3669.251.camel@bluejay.goodinassociates.com>	 <1203092610.13618.58.camel@gorn>	 <1203093415.3669.258.camel@bluejay.goodinassociates.com>	 <47B60285.9010801@redhat.com> <1203341839.13618.71.camel@gorn>
+In-Reply-To: <1203341839.13618.71.camel@gorn>
 Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 19 Feb 2008 09:16:11 -0500
-Message-Id: <1203430571.13618.88.camel@gorn>
-Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-02-19 at 13:29 +0100, Václav Ovsík wrote:
-> Hi,
-> this patch solves following denials on Debian:
-> 
-> audit(1203020199.510:16): avc:  denied  { execute } for  pid=1841 comm="aptitude" name="bash" dev=sda1 ino=81922 scontext=system_u:system_r:backup_t:s0 tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-> audit(1203020199.526:17): avc:  denied  { remove_name } for  pid=1847 comm="rm" name="aptitude.pkgstates.6.gz" dev=sda1 ino=213244 scontext=system_u:system_r:backup_t:s0 tcontext=system_u:object_r:backup_store_t:s0 tclass=dir
-> audit(1203020199.526:18): avc:  denied  { unlink } for  pid=1847 comm="rm" name="aptitude.pkgstates.6.gz" dev=sda1 ino=213244 scontext=system_u:system_r:backup_t:s0 tcontext=system_u:object_r:backup_store_t:s0 tclass=file
-> audit(1203020199.538:19): avc:  denied  { rename } for  pid=1848 comm="mv" name="aptitude.pkgstates.5.gz" dev=sda1 ino=213147 scontext=system_u:system_r:backup_t:s0 tcontext=system_u:object_r:backup_store_t:s0 tclass=file
-> audit(1203020212.719:22): avc:  denied  { fsetid } for  pid=1932 comm="cp" capability=4 scontext=system_u:system_r:backup_t:s0 tcontext=system_u:system_r:backup_t:s0 tclass=capability
-> audit(1203020212.759:23): avc:  denied  { execute } for  pid=1940 comm="standard" name="bash" dev=sda1 ino=81922 scontext=system_u:system_r:backup_t:s0 tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-> 
-> Aptitude backup script /etc/cron.daily/aptitude saves the aptitude state
-> into /var/backup. Cron backup script /etc/cron.daily/standard saves
-> shadow files and the dpkg status into /var/backup.
-> 
-> The utility savelog from debianutils is used for rotating state
-> information of aptitude and dpkg (unfortunately). Savelog context
-> (logrotate_exec_t) should be removed (no specialisation for log files
-> only). Log rotation cron jobs /etc/cron.{daily,weekly}/sysklogd has
-> logrotate_exec_t already and some init scipts that uses savelog for
-> rotating logs during the boot has persmissions already too. So this is
-> ok alone hope.
-> 
-> Attached patch adds context for /etc/cron.daily/{aptitude,standard}
-> backup_exec_t. Permission to execute shell and manage files under
-> /var/backup is granted further.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Merged.  I moved the file context change into a distro_debian block,
-though I suspect the backup policy is fairly Debian-specific.
+Christopher J. PeBenito wrote:
+> On Fri, 2008-02-15 at 16:22 -0500, Daniel J Walsh wrote:
+>> <rant>
+>>
+>>
+>> Personally I think sysadm_t is a waste of time.  It is a poor mans
+>> unconfined_t and should be eliminated from the face of the earth.  All
+>> it does is generate Bugs and avc messages without supplying any real
+>> security.  It makes no sense, as a confinement of a root user since it
+>> is so easily gotten around.  If you have an administrator of a machine,
+>> that you want to confine, start with only allowing him the privs that
+>> are required to do his job.  You can't start by saying he can do
+>> everything except ABC.
+> 
+> As long as policy is used in a strict configuration, sysadm will be
+> needed.  I would prefer to tighten it up.
+> 
+This is what I question.  If you can not define what a strict
+configuration is then sysadm_t is useless.  And tightening it up a
+little does nothing.  If sysadm_t can build an install an RPM all bets
+are off.  If he can format disk, add users, change passwords, run su,
+modify sudo, change contents of the homedir of the "sysadm_t" homedir.
+Then you can not stop him.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+So why carry on the charade that this is useful.  I my mind you either
+fully trust your admin or you don't.  If you don't you need to define
+exactly what you want him to be allowed to do, and then write policy for
+that.  If you can't write policy tight enough to stop him from doing
+evil things, then you need to fall back to auditing his every move.
+Writing a special mishmash of admin called sysadm is a waste of time.
 
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAke67EIACgkQrlYvE4MpobPtxACePPwf7FQeH+TME/pcZ1SvwRq8
+6hYAnR3S1xw8DVjySDuJAMgw6q9bMl1M
+=hqGN
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
