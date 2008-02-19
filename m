@@ -1,57 +1,191 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1J7A9Tb000362
+	for <selinux@tycho.nsa.gov>; Tue, 19 Feb 2008 02:10:10 -0500
+Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1J7A6kj021198
+	for <selinux@tycho.nsa.gov>; Tue, 19 Feb 2008 07:10:08 GMT
+Message-ID: <47BA8094.5000707@ak.jp.nec.com>
+Date: Tue, 19 Feb 2008 16:09:08 +0900
+From: Kohei KaiGai <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: secadm/sysadm discussion
-Date: Mon, 18 Feb 2008 12:01:12 -0500
-Message-ID: <D709A20F2164C84E8B7014B0301F5EF8C3741A@HAVOC.tcs-sec.com>
-References: <1203030583.3669.197.camel@bluejay.goodinassociates.com> <200802150855.47722.paul.moore@hp.com> <1203088187.3669.241.camel@bluejay.goodinassociates.com> <1203088562.16038.196.camel@moss-spartans.epoch.ncsc.mil> <1203089944.13618.40.camel@gorn> <1203091760.3669.249.camel@bluejay.goodinassociates.com> <1203091792.13618.56.camel@gorn> <1203092070.3669.251.camel@bluejay.goodinassociates.com> <1203092610.13618.58.camel@gorn> <1203093415.3669.258.camel@bluejay.goodinassociates.com> <47B60285.9010801@redhat.com> <1203341839.13618.71.camel@gorn>
-From: "Chad Hanson" <chanson@TrustedCS.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        "Daniel J Walsh" <dwalsh@redhat.com>
-Cc: "Jeremiah Jahn" <jeremiah@goodinassociates.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Paul Moore" <paul.moore@hp.com>, "selinux" <selinux@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: selinux@tycho.nsa.gov, paul.moore@hp.com, DGoeddel@TrustedCS.com,
+        vyekkirala@TrustedCS.com
+Subject: [PATCH] Labeled IPsec for PostgreSQL/MySQL/SSHd (Re: [PATCH] IPsec
+ SPD default security context)
+References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>	 <47331BAB.8040107@kaigai.gr.jp>  <473872F8.7000208@ak.jp.nec.com>	 <1195055160.13737.33.camel@gorn.columbia.tresys.com>	 <473B23F9.4080506@ak.jp.nec.com>	 <1195064402.13737.42.camel@gorn.columbia.tresys.com>	 <473BB437.3070005@ak.jp.nec.com>	 <1195136813.13737.67.camel@gorn.columbia.tresys.com>	 <4740F30D.9000304@ak.jp.nec.com> <1195498093.16660.44.camel@gorn>	 <4742A571.1060601@ak.jp.nec.com> <1195583693.16660.49.camel@gorn>	 <4743B38D.3070803@ak.jp.nec.com> <1196095135.20918.32.camel@gorn> <474EA68E.9010108@ak.jp.nec.com> <4796ADE9.8000608@ak.jp.nec.com>
+In-Reply-To: <4796ADE9.8000608@ak.jp.nec.com>
+Content-Type: multipart/mixed;
+ boundary="------------080006000303030405070505"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------080006000303030405070505
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-I would concur that something like sysadm is needed.  But in the current
-mls/strict configuration sysadm has too much power. 
+>>> Merged [1], but I made some changes.  I created corenetwork interfaces
+>>> to use instead of the patterns, so the current MLS-only netlabel case
+>>> can be handled too.  I also updated the domain module to use the
+>>> interfaces.
+>>>
+>>> The thing that makes me a little nervous, which I didn't realize at
+>>> first, is if you use non-labeled networking, the peer policy will still
+>>> be needed, since the corenet connect/sendrecv calls are abstracted into
+>>> the interface.  Consider the non-labeled case for apache.  The
+>>> httpd_can_network_connect_db tunable won't work for postgresql, if the
+>>> postgresql module isn't in the apache server's policy.  Whats worse is,
+>>> to make it work, you need to bring in the entire postgresql policy, even
+>>> though you only need one type, and only need the recvfrom rules.
+>>>
+>>> [1] http://oss.tresys.com/projects/refpolicy/changeset/2531
 
-The ability to customize roles and there respective powers in a modular
-manner seems like a good idea. Hopefully this could lead to more
-directed policy instead of blanket allow rules. These are hard to deal
-with when people require changes to the default behavior.
+Chris, what is the current status of my patch submitted previously?
 
--Chad
+You pointed out that undeprecating postgresql_tcp_connect() to allow
+permissions for labeled and traditional networks can make unneeded
+dependency.
 
-> On Fri, 2008-02-15 at 16:22 -0500, Daniel J Walsh wrote:
-> > <rant>
-> > 
-> > 
-> > Personally I think sysadm_t is a waste of time.  It is a poor mans
-> > unconfined_t and should be eliminated from the face of the earth.
-All
-> > it does is generate Bugs and avc messages without supplying any real
-> > security.  It makes no sense, as a confinement of a root user since
-it
-> > is so easily gotten around.  If you have an administrator of a
-machine,
-> > that you want to confine, start with only allowing him the privs
-that
-> > are required to do his job.  You can't start by saying he can do
-> > everything except ABC.
-> 
-> As long as policy is used in a strict configuration, sysadm will be
-> needed.  I would prefer to tighten it up.
-> 
-> -- 
-> Chris PeBenito
-> Tresys Technology, LLC
-> (410) 290-1411 x150
-> 
+The attached patch reverts postgresql_tcp_connect() and related part,
+and puts corenet_tcp_recvfrom_labeled() and ipsec_match_default_spd()
+within optional_policy block, if necessary.
+It enables any userdomain to communicate PostgreSQL/MySQL/SSHd via
+labeled networking, at first.
+However, I believe we can apply this method for other domains also.
 
+Please consider to apply.
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
+--------------080006000303030405070505
+Content-Type: text/x-patch;
+ name="refpolicy-use-corenet-for-ipsec.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="refpolicy-use-corenet-for-ipsec.patch"
+
+Index: refpolicy/policy/modules/services/postgresql.if
+===================================================================
+--- refpolicy/policy/modules/services/postgresql.if	(revision 2614)
++++ refpolicy/policy/modules/services/postgresql.if	(working copy)
+@@ -79,7 +79,7 @@
+ 
+ ########################################
+ ## <summary>
+-##	Allow the specified domain to connect to postgresql with a tcp socket.
++##	Allow the specified domain to connect to postgresql with a tcp socket.  (Deprecated)
+ ## </summary>
+ ## <param name="domain">
+ ##	<summary>
+@@ -88,14 +88,7 @@
+ ## </param>
+ #
+ interface(`postgresql_tcp_connect',`
+-	gen_require(`
+-		type postgresql_t;
+-	')
+-
+-	corenet_tcp_recvfrom_labeled($1,postgresql_t)
+-	corenet_tcp_sendrecv_postgresql_port($1)
+-	corenet_tcp_connect_postgresql_port($1)
+-	corenet_sendrecv_postgresql_client_packets($1)
++	refpolicywarn(`$0($*) has been deprecated.')
+ ')
+ 
+ ########################################
+Index: refpolicy/policy/modules/services/ssh.te
+===================================================================
+--- refpolicy/policy/modules/services/ssh.te	(revision 2614)
++++ refpolicy/policy/modules/services/ssh.te	(working copy)
+@@ -109,6 +109,10 @@
+ ')
+ 
+ optional_policy(`
++	ipsec_match_default_spd(sshd_t)
++')
++
++optional_policy(`
+ 	rpm_use_script_fds(sshd_t)
+ ')
+ 
+Index: refpolicy/policy/modules/services/apache.te
+===================================================================
+--- refpolicy/policy/modules/services/apache.te	(revision 2614)
++++ refpolicy/policy/modules/services/apache.te	(working copy)
+@@ -370,6 +370,14 @@
+ 	corenet_tcp_connect_all_ports(httpd_t)
+ ')
+ 
++tunable_policy(`httpd_can_network_connect_db',`
++	# allow httpd to connect to mysql/posgresql
++	corenet_tcp_connect_postgresql_port(httpd_t)
++	corenet_tcp_connect_mysqld_port(httpd_t)
++	corenet_sendrecv_postgresql_client_packets(httpd_t)
++	corenet_sendrecv_mysqld_client_packets(httpd_t)
++')
++
+ tunable_policy(`httpd_can_network_relay',`
+ 	# allow httpd to work as a relay
+ 	corenet_tcp_connect_gopher_port(httpd_t)
+@@ -455,8 +463,7 @@
+ 	mysql_rw_db_sockets(httpd_t)
+ 
+ 	tunable_policy(`httpd_can_network_connect_db',`
+-		corenet_tcp_connect_mysqld_port(httpd_t)
+-		corenet_sendrecv_mysqld_client_packets(httpd_t)
++		corenet_tcp_recvfrom_labeled(httpd_t,mysqld_t)
+ 	')
+ ')
+ 
+@@ -477,7 +484,7 @@
+ 	postgresql_stream_connect(httpd_t)
+ 
+ 	tunable_policy(`httpd_can_network_connect_db',`
+-		postgresql_tcp_connect(httpd_t)
++		corenet_tcp_recvfrom_labeled(httpd_t,postgresql_t)
+ 	')
+ ')
+ 
+Index: refpolicy/policy/modules/system/userdomain.if
+===================================================================
+--- refpolicy/policy/modules/system/userdomain.if	(revision 2614)
++++ refpolicy/policy/modules/system/userdomain.if	(working copy)
+@@ -834,6 +834,7 @@
+ 	optional_policy(`
+ 		tunable_policy(`allow_user_mysql_connect',`
+ 			mysql_stream_connect($1_t)
++			corenet_tcp_recvfrom_labeled($1_t,mysqld_t)
+ 		')
+ 	')
+ 
+@@ -850,7 +851,7 @@
+ 	optional_policy(`
+ 		tunable_policy(`allow_user_postgresql_connect',`
+ 			postgresql_stream_connect($1_t)
+-			postgresql_tcp_connect($1_t)
++			corenet_tcp_recvfrom_labeled($1_t,postgresql_t)
+ 		')
+ 	')
+ 
+@@ -872,6 +873,13 @@
+ 	')
+ 
+ 	optional_policy(`
++		gen_require(`
++			type sshd_t;
++		')
++		corenet_tcp_recvfrom_labeled($1_t,sshd_t)
++	')
++
++	optional_policy(`
+ 		usernetctl_run($1_t,$1_r,{ $1_devpts_t $1_tty_device_t })
+ 	')
+ ')
+
+--------------080006000303030405070505--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
