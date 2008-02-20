@@ -1,17 +1,17 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGib4u004505
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:44:37 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGjDJ3004597
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:45:13 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGiRC0011669
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:44:36 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGiRC2011669
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:45:13 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 18/37] CacheFiles: Permit the page lock state to be monitored
+Subject: [PATCH 36/37] NFS: Display local caching state
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:07:35 +0000
-Message-ID: <20080220160734.4715.86403.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:09:11 +0000
+Message-ID: <20080220160911.4715.54650.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,65 +19,77 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a function to install a monitor on the page lock waitqueue for a particular
-page, thus allowing the page being unlocked to be detected.
-
-This is used by CacheFiles to detect read completion on a page in the backing
-filesystem so that it can then copy the data to the waiting netfs page.
+Display the local caching state in /proc/fs/nfsfs/volumes.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/pagemap.h |    5 +++++
- mm/filemap.c            |   18 ++++++++++++++++++
- 2 files changed, 23 insertions(+), 0 deletions(-)
+ fs/nfs/client.c  |    7 ++++---
+ fs/nfs/fscache.h |   15 +++++++++++++++
+ 2 files changed, 19 insertions(+), 3 deletions(-)
 
 
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index c8bd762..76b5307 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -242,6 +242,11 @@ static inline void wait_on_page_owner_priv_2(struct page *page)
- extern void end_page_owner_priv_2(struct page *page);
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 51e9346..d67d52f 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -1451,7 +1451,7 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
  
- /*
-+ * Add an arbitrary waiter to a page's wait queue
-+ */
-+extern void add_page_wait_queue(struct page *page, wait_queue_t *waiter);
-+
+ 	/* display header on line 1 */
+ 	if (v == &nfs_volume_list) {
+-		seq_puts(m, "NV SERVER   PORT DEV     FSID\n");
++		seq_puts(m, "NV SERVER   PORT DEV     FSID              FSC\n");
+ 		return 0;
+ 	}
+ 	/* display one transport per line on subsequent lines */
+@@ -1465,12 +1465,13 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
+ 		 (unsigned long long) server->fsid.major,
+ 		 (unsigned long long) server->fsid.minor);
+ 
+-	seq_printf(m, "v%u %s %s %-7s %-17s\n",
++	seq_printf(m, "v%u %s %s %-7s %-17s %s\n",
+ 		   clp->rpc_ops->version,
+ 		   rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_HEX_ADDR),
+ 		   rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_HEX_PORT),
+ 		   dev,
+-		   fsid);
++		   fsid,
++		   nfs_server_fscache_state(server));
+ 
+ 	return 0;
+ }
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index 6264cd8..5f7806f 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -146,6 +146,16 @@ static inline void nfs_readpage_to_fscache(struct inode *inode,
+ 		__nfs_readpage_to_fscache(inode, page, sync);
+ }
+ 
 +/*
-  * Fault a userspace page into pagetables.  Return non-zero on a fault.
-  *
-  * This assumes that two userspace pages are always sufficient.  That's
-diff --git a/mm/filemap.c b/mm/filemap.c
-index a583f44..561e6c7 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -548,6 +548,24 @@ void wait_on_page_bit(struct page *page, int bit_nr)
- EXPORT_SYMBOL(wait_on_page_bit);
- 
- /**
-+ * add_page_wait_queue - Add an arbitrary waiter to a page's wait queue
-+ * @page - Page defining the wait queue of interest
-+ * @waiter - Waiter to add to the queue
-+ *
-+ * Add an arbitrary @waiter to the wait queue for the nominated @page.
++ * indicate the client caching state as readable text
 + */
-+void add_page_wait_queue(struct page *page, wait_queue_t *waiter)
++static inline const char *nfs_server_fscache_state(struct nfs_server *server)
 +{
-+	wait_queue_head_t *q = page_waitqueue(page);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue(q, waiter);
-+	spin_unlock_irqrestore(&q->lock, flags);
++	if (server->fscache && (server->options & NFS_OPTION_FSCACHE))
++		return "yes";
++	return "no ";
 +}
-+EXPORT_SYMBOL_GPL(add_page_wait_queue);
 +
-+/**
-  * unlock_page - unlock a locked page
-  * @page: the page
-  *
+ 
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+@@ -195,5 +205,10 @@ static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
+ static inline void nfs_readpage_to_fscache(struct inode *inode,
+ 					   struct page *page, int sync) {}
+ 
++static inline const char *nfs_server_fscache_state(struct nfs_server *server)
++{
++	return "no ";
++}
++
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
 
 
 --
