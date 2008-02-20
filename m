@@ -1,17 +1,17 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGjE16004609
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:45:14 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGjxiw004763
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:45:59 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGiRC4011669
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:45:13 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGiRCC011669
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:45:57 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 01/37] KEYS: Increase the payload size when instantiating a key
+Subject: [PATCH 25/37] NFS: Define and create server-level objects
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:06:03 +0000
-Message-ID: <20080220160603.4715.83086.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:08:12 +0000
+Message-ID: <20080220160812.4715.94174.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,116 +19,258 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Increase the size of a payload that can be used to instantiate a key in
-add_key() and keyctl_instantiate_key().  This permits huge CIFS SPNEGO blobs to
-be passed around.  The limit is raised to 1MB.  If kmalloc() can't allocate a
-buffer of sufficient size, vmalloc() will be tried instead.
+Define and create server-level cache index objects (as managed by nfs_client
+structs).
+
+Each server object is created in the NFS top-level index object and is itself
+an index into which superblock-level objects are inserted.
+
+Ideally there would be one superblock-level object per server, and the former
+would be folded into the latter; however, since the "nosharecache" option
+exists this isn't possible.
+
+The server object key is a sequence consisting of:
+
+ (1) NFS version
+
+ (2) Server address family (eg: AF_INET or AF_INET6)
+
+ (3) Server port.
+
+ (4) Server IP address.
+
+The key blob is of variable length, depending on the length of (4).
+
+The server object is given no coherency data to carry in the auxiliary data
+permitted by the cache.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- security/keys/keyctl.c |   38 ++++++++++++++++++++++++++++++--------
- 1 files changed, 30 insertions(+), 8 deletions(-)
+ fs/nfs/Makefile           |    2 +
+ fs/nfs/client.c           |    5 +++
+ fs/nfs/fscache-index.c    |   65 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.c          |   52 ++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h          |   10 +++++++
+ include/linux/nfs_fs_sb.h |    4 +++
+ 6 files changed, 137 insertions(+), 1 deletions(-)
+ create mode 100644 fs/nfs/fscache.c
 
 
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index d9ca15c..8ec8432 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -19,6 +19,7 @@
- #include <linux/capability.h>
- #include <linux/string.h>
- #include <linux/err.h>
-+#include <linux/vmalloc.h>
- #include <asm/uaccess.h>
+diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
+index 6d7176d..d848c97 100644
+--- a/fs/nfs/Makefile
++++ b/fs/nfs/Makefile
+@@ -16,4 +16,4 @@ nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
+ 			   nfs4namespace.o
+ nfs-$(CONFIG_NFS_DIRECTIO) += direct.o
+ nfs-$(CONFIG_SYSCTL) += sysctl.o
+-nfs-$(CONFIG_NFS_FSCACHE) += fscache-index.o
++nfs-$(CONFIG_NFS_FSCACHE) += fscache.o fscache-index.o
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index c5c0175..51e9346 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -45,6 +45,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
  #include "internal.h"
++#include "fscache.h"
  
-@@ -62,9 +63,10 @@ asmlinkage long sys_add_key(const char __user *_type,
- 	char type[32], *description;
- 	void *payload;
- 	long ret;
-+	bool vm;
+ #define NFSDBG_FACILITY		NFSDBG_CLIENT
  
- 	ret = -EINVAL;
--	if (plen > 32767)
-+	if (plen > 1024 * 1024 - 1)
- 		goto error;
+@@ -151,6 +152,8 @@ static struct nfs_client *nfs_alloc_client(const struct nfs_client_initdata *cl_
+ 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
+ #endif
  
- 	/* draw all the data into kernel space */
-@@ -81,11 +83,18 @@ asmlinkage long sys_add_key(const char __user *_type,
- 	/* pull the payload in if one was supplied */
- 	payload = NULL;
++	nfs_fscache_get_client_cookie(clp);
++
+ 	return clp;
  
-+	vm = false;
- 	if (_payload) {
- 		ret = -ENOMEM;
- 		payload = kmalloc(plen, GFP_KERNEL);
--		if (!payload)
--			goto error2;
-+		if (!payload) {
-+			if (plen <= PAGE_SIZE)
-+				goto error2;
-+			vm = true;
-+			payload = vmalloc(plen);
-+			if (!payload)
-+				goto error2;
-+		}
+ error_3:
+@@ -182,6 +185,8 @@ static void nfs_free_client(struct nfs_client *clp)
  
- 		ret = -EFAULT;
- 		if (copy_from_user(payload, _payload, plen) != 0)
-@@ -113,7 +122,10 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 	nfs4_shutdown_client(clp);
  
- 	key_ref_put(keyring_ref);
-  error3:
--	kfree(payload);
-+	if (!vm)
-+		kfree(payload);
-+	else
-+		vfree(payload);
-  error2:
- 	kfree(description);
-  error:
-@@ -821,9 +833,10 @@ long keyctl_instantiate_key(key_serial_t id,
- 	key_ref_t keyring_ref;
- 	void *payload;
- 	long ret;
-+	bool vm = false;
++	nfs_fscache_release_client_cookie(clp);
++
+ 	/* -EIO all pending I/O */
+ 	if (!IS_ERR(clp->cl_rpcclient))
+ 		rpc_shutdown_client(clp->cl_rpcclient);
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+index 225ed5d..25ac4a1 100644
+--- a/fs/nfs/fscache-index.c
++++ b/fs/nfs/fscache-index.c
+@@ -51,3 +51,68 @@ void nfs_fscache_unregister(void)
+ {
+ 	fscache_unregister_netfs(&nfs_cache_netfs);
+ }
++
++/*
++ * Layout of the key for an NFS server cache object.
++ */
++struct nfs_server_key {
++	uint16_t	nfsversion;		/* NFS protocol version */
++	uint16_t	family;			/* address family */
++	uint16_t	port;			/* IP port */
++	union {
++		struct in_addr	ipv4_addr;	/* IPv4 address */
++		struct in6_addr ipv6_addr;	/* IPv6 address */
++	} addr[0];
++};
++
++/*
++ * Generate a key to describe a server in the main NFS index
++ * - We return the length of the key, or 0 if we can't generate one
++ */
++static uint16_t nfs_server_get_key(const void *cookie_netfs_data,
++				   void *buffer, uint16_t bufmax)
++{
++	const struct nfs_client *clp = cookie_netfs_data;
++	const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &clp->cl_addr;
++	const struct sockaddr_in *sin = (struct sockaddr_in *) &clp->cl_addr;
++	struct nfs_server_key *key = buffer;
++	uint16_t len = 0;
++
++	key->nfsversion = clp->rpc_ops->version;
++	key->family = clp->cl_addr.ss_family;
++
++	len = sizeof(struct nfs_server_key);
++
++	switch (clp->cl_addr.ss_family) {
++	case AF_INET:
++		key->port = sin->sin_port;
++		key->addr[0].ipv4_addr = sin->sin_addr;
++		len += sizeof(key->addr[0].ipv4_addr);
++		break;
++
++	case AF_INET6:
++		key->port = sin6->sin6_port;
++		key->addr[0].ipv6_addr = sin6->sin6_addr;
++		len += sizeof(key->addr[0].ipv6_addr);
++		break;
++
++	default:
++		printk(KERN_WARNING "NFS: Unknown network family '%d'\n",
++		       clp->cl_addr.ss_family);
++		len = 0;
++		break;
++	}
++
++	return len;
++}
++
++/*
++ * Define the server object for FS-Cache.  This is used to describe a server
++ * object to fscache_acquire_cookie().  It is keyed by the NFS protocol and
++ * server address parameters.
++ */
++const struct fscache_cookie_def nfs_cache_server_index_def = {
++	.name		= "NFS.server",
++	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key	= nfs_server_get_key,
++};
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+new file mode 100644
+index 0000000..dcc1800
+--- /dev/null
++++ b/fs/nfs/fscache.c
+@@ -0,0 +1,52 @@
++/* NFS filesystem cache interface
++ *
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/nfs_fs.h>
++#include <linux/nfs_fs_sb.h>
++#include <linux/in6.h>
++#include <linux/seq_file.h>
++
++#include "internal.h"
++#include "fscache.h"
++
++#define NFSDBG_FACILITY		NFSDBG_FSCACHE
++
++/*
++ * Get the per-client index cookie for an NFS client if the appropriate mount
++ * flag was set
++ * - We always try and get an index cookie for the client, but get filehandle
++ *   cookies on a per-superblock basis, depending on the mount flags
++ */
++void nfs_fscache_get_client_cookie(struct nfs_client *clp)
++{
++	/* create a cache index for looking up filehandles */
++	clp->fscache = fscache_acquire_cookie(nfs_cache_netfs.primary_index,
++					      &nfs_cache_server_index_def,
++					      clp);
++	dfprintk(FSCACHE, "NFS: get client cookie (0x%p/0x%p)\n",
++		 clp, clp->fscache);
++}
++
++/*
++ * Dispose of a per-client cookie
++ */
++void nfs_fscache_release_client_cookie(struct nfs_client *clp)
++{
++	dfprintk(FSCACHE, "NFS: releasing client cookie (0x%p/0x%p)\n",
++		 clp, clp->fscache);
++
++	fscache_relinquish_cookie(clp->fscache, 0);
++	clp->fscache = NULL;
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index 75e5a03..df6dbb4 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -23,13 +23,23 @@
+  * fscache-index.c
+  */
+ extern struct fscache_netfs nfs_cache_netfs;
++extern const struct fscache_cookie_def nfs_cache_server_index_def;
  
- 	ret = -EINVAL;
--	if (plen > 32767)
-+	if (plen > 1024 * 1024 - 1)
- 		goto error;
+ extern int nfs_fscache_register(void);
+ extern void nfs_fscache_unregister(void);
  
- 	/* the appropriate instantiation authorisation key must have been
-@@ -843,8 +856,14 @@ long keyctl_instantiate_key(key_serial_t id,
- 	if (_payload) {
- 		ret = -ENOMEM;
- 		payload = kmalloc(plen, GFP_KERNEL);
--		if (!payload)
--			goto error;
-+		if (!payload) {
-+			if (plen <= PAGE_SIZE)
-+				goto error;
-+			vm = true;
-+			payload = vmalloc(plen);
-+			if (!payload)
-+				goto error;
-+		}
++/*
++ * fscache.c
++ */
++extern void nfs_fscache_get_client_cookie(struct nfs_client *);
++extern void nfs_fscache_release_client_cookie(struct nfs_client *);
++
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+ static inline void nfs_fscache_unregister(void) {}
  
- 		ret = -EFAULT;
- 		if (copy_from_user(payload, _payload, plen) != 0)
-@@ -877,7 +896,10 @@ long keyctl_instantiate_key(key_serial_t id,
- 	}
++static inline void nfs_fscache_get_client_cookie(struct nfs_client *clp) {}
++static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
++
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index e7c4cdd..8d23dcb 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -68,6 +68,10 @@ struct nfs_client {
+ 	char			cl_ipaddr[48];
+ 	unsigned char		cl_id_uniquifier;
+ #endif
++
++#ifdef CONFIG_NFS_FSCACHE
++	struct fscache_cookie	*fscache;	/* client index cache cookie */
++#endif
+ };
  
- error2:
--	kfree(payload);
-+	if (!vm)
-+		kfree(payload);
-+	else
-+		vfree(payload);
- error:
- 	return ret;
- 
+ /*
 
 
 --
