@@ -1,291 +1,151 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1K5CDkf020602
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 00:12:13 -0500
-Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1K5CBlK015615
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 05:12:12 GMT
-Message-ID: <47BBB69C.2050007@ak.jp.nec.com>
-Date: Wed, 20 Feb 2008 14:11:56 +0900
-From: Kohei KaiGai <kaigai@ak.jp.nec.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KA10m4014350
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 05:01:00 -0500
+Received: from atlantic.devin.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KA0xd5003511
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 10:00:59 GMT
+Received: from aqua by atlantic.devin.com with local (Exim 4.63)
+	(envelope-from <aqua@atlantic.devin.com>)
+	id 1JRll4-0001TF-L2
+	for selinux@tycho.nsa.gov; Wed, 20 Feb 2008 02:00:58 -0800
+Date: Wed, 20 Feb 2008 02:00:58 -0800
+From: Devin Carraway <selinux-list@devin.com>
+To: selinux@tycho.nsa.gov
+Subject: [patch] refpolicy: exim policy fixes
+Message-ID: <20080220100058.GG5439@atlantic.devin.com>
 MIME-Version: 1.0
-To: Paul Moore <paul.moore@hp.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: selinux@tycho.nsa.gov, DGoeddel@TrustedCS.com, vyekkirala@TrustedCS.com
-Subject: Re: [PATCH] Labeled IPsec for PostgreSQL/MySQL/SSHd (Re: [PATCH]
- IPsec SPD default security context)
-References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com> <1203428116.13618.77.camel@gorn> <47BB7B6A.1090207@ak.jp.nec.com> <200802192237.22546.paul.moore@hp.com>
-In-Reply-To: <200802192237.22546.paul.moore@hp.com>
-Content-Type: multipart/mixed;
- boundary="------------070900000900070705060806"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q8BnQc91gJZX4vDc"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070900000900070705060806
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Paul Moore wrote:
-> On Tuesday 19 February 2008 7:59:22 pm Kohei KaiGai wrote:
->> Is it acceptable one, if we provide an interface to allow a domain
->> to communicate postgresql_t via labeled networking, separated from
->> existing permissions for local ports and nodes?
->>
->> For example:
->> -- at postgresql.if
->> interface(`postgresql_labeled_connect',`
->> 	gen_require(`
->> 		type postgresql_t;
->> 	')
->> 	corenet_tcp_recvfrom_labeled($1,postgresql_t)
->> ')
->>
->> and
->> -- at apache.te
->> postgresql_labeled_connect(httpd_t)
->>
->> I think this approach enables to keep independency between modules
->> in unlabeled networking cases too.
-> 
-> For what it is worth, it looks like a good idea to me.
+--Q8BnQc91gJZX4vDc
+Content-Type: multipart/mixed; boundary="hxkXGo8AKqTJ+9QI"
+Content-Disposition: inline
 
-At first, I implemented this idea for three services (PostgreSQL/MySQL/SSHd).
 
-This patch adds the following interfaces:
-- postgresql_labeled_communicate(domain)
-- mysql_labeled_communicate(domain)
-- ssh_labeled_communicate(domain)
+--hxkXGo8AKqTJ+9QI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Chris, is it suitable for refpolicy framework?
+Here are a handful of localized fixes to the Exim policy, based on SVN head
+refpolicy and Debian Sid:
 
-Thanks
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+=2Efc:
 
---------------070900000900070705060806
-Content-Type: text/x-patch;
- name="refpolicy-labeled_communicate.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="refpolicy-labeled_communicate.patch"
+- Debian uses a version-numbered naming scheme for exim binaries and
+  directories; tolerate a trailing digit, e.g. "/var/lib/exim4".
+- var_run_t labels a PID file if it's there, but not a directory.
 
-Index: refpolicy/policy/modules/services/postgresql.if
-===================================================================
---- refpolicy/policy/modules/services/postgresql.if	(revision 2614)
-+++ refpolicy/policy/modules/services/postgresql.if	(working copy)
-@@ -79,7 +79,7 @@
- 
- ########################################
- ## <summary>
--##	Allow the specified domain to connect to postgresql with a tcp socket.
-+##	Allow the specified domain to connect to postgresql with a tcp socket.  (Deprecated)
- ## </summary>
- ## <param name="domain">
- ##	<summary>
-@@ -88,14 +88,7 @@
- ## </param>
+=2Ete:
+
+- add missing fowner/chown perms by exim_t on itself
+- grant readonly access to var_lib_t, to read runtime-generated conf
+- grant read on /dev/{u,}random; Exim may use either depending on the conte=
+xt
+  and how it was built
+- dontaudit on reads to /proc/stat (read but not used, probably indirectly =
+via
+  a libc call)
+- grant missing TCP send/recv to the SMTP & identd ports; grant missing SMTP
+  connect (identd was already there)
+- grant connect/sendrecv to LDAP, where the local mail accounts are often
+  defined
+
+--=20
+Devin  \ aqua(at)devin.com, IRC:Requiem; http://www.devin.com
+Carraway \ 1024D/E9ABFCD2: 13E7 199E DD1E 65F0 8905 2E43 5395 CA0D E9AB FCD2
+
+--hxkXGo8AKqTJ+9QI
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="exim-refpolicy-fixes-20080220.patch"
+Content-Transfer-Encoding: quoted-printable
+
+Index: exim.te
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- exim.te	(revision 2617)
++++ exim.te	(working copy)
+@@ -42,7 +42,7 @@
+ # exim local policy
  #
- interface(`postgresql_tcp_connect',`
--	gen_require(`
--		type postgresql_t;
--	')
--
--	corenet_tcp_recvfrom_labeled($1,postgresql_t)
--	corenet_tcp_sendrecv_postgresql_port($1)
--	corenet_tcp_connect_postgresql_port($1)
--	corenet_sendrecv_postgresql_client_packets($1)
-+	refpolicywarn(`$0($*) has been deprecated.')
- ')
- 
- ########################################
-@@ -120,3 +113,20 @@
-         # Some versions of postgresql put the sock file in /tmp
- 	allow $1 postgresql_tmp_t:sock_file write;
- ')
+=20
+-allow exim_t self:capability { dac_override dac_read_search setuid setgid =
+};
++allow exim_t self:capability { dac_override dac_read_search setuid setgid =
+fowner chown };
+ allow exim_t self:fifo_file rw_fifo_file_perms;
+ allow exim_t self:unix_stream_socket create_stream_socket_perms;
+ allow exim_t self:tcp_socket create_stream_socket_perms;
+@@ -65,18 +65,30 @@
+ manage_files_pattern(exim_t, exim_var_run_t, exim_var_run_t)
+ files_pid_filetrans(exim_t, exim_var_run_t, { file dir })
+=20
++files_read_var_lib_files(exim_t)
 +
-+########################################
-+## <summary>
-+##	Allow the specified domain to communicate with postgresql via labeled network.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`postgresql_labeled_communicate',`
-+	gen_require(`
-+		type postgresql_t;
-+	')
-+	corenet_tcp_recvfrom_labeled($1,postgresql_t)
-+')
-Index: refpolicy/policy/modules/services/ssh.te
-===================================================================
---- refpolicy/policy/modules/services/ssh.te	(revision 2614)
-+++ refpolicy/policy/modules/services/ssh.te	(working copy)
-@@ -109,6 +109,10 @@
- ')
- 
- optional_policy(`
-+	ipsec_match_default_spd(sshd_t)
-+')
++dev_read_rand(exim_t)
++dev_read_urand(exim_t)
 +
-+optional_policy(`
- 	rpm_use_script_fds(sshd_t)
- ')
- 
-Index: refpolicy/policy/modules/services/mysql.if
-===================================================================
---- refpolicy/policy/modules/services/mysql.if	(revision 2614)
-+++ refpolicy/policy/modules/services/mysql.if	(working copy)
-@@ -39,6 +39,23 @@
- 
- ########################################
- ## <summary>
-+##	Allow the specified domain to communicate with MySQL via labeled network.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`mysql_labeled_communicate',`
-+	gen_require(`
-+		type mysqld_t;
-+	')
-+	corenet_tcp_recvfrom_labeled($1,mysqld_t)
-+')
+ kernel_read_kernel_sysctls(exim_t)
+=20
++kernel_dontaudit_read_system_state(exim_t)
 +
-+########################################
-+## <summary>
- ##	Read MySQL configuration files.
- ## </summary>
- ## <param name="domain">
-Index: refpolicy/policy/modules/services/apache.te
-===================================================================
---- refpolicy/policy/modules/services/apache.te	(revision 2614)
-+++ refpolicy/policy/modules/services/apache.te	(working copy)
-@@ -370,6 +370,14 @@
- 	corenet_tcp_connect_all_ports(httpd_t)
- ')
- 
-+tunable_policy(`httpd_can_network_connect_db',`
-+	# allow httpd to connect to mysql/posgresql
-+	corenet_tcp_connect_postgresql_port(httpd_t)
-+	corenet_tcp_connect_mysqld_port(httpd_t)
-+	corenet_sendrecv_postgresql_client_packets(httpd_t)
-+	corenet_sendrecv_mysqld_client_packets(httpd_t)
-+')
-+
- tunable_policy(`httpd_can_network_relay',`
- 	# allow httpd to work as a relay
- 	corenet_tcp_connect_gopher_port(httpd_t)
-@@ -455,8 +463,7 @@
- 	mysql_rw_db_sockets(httpd_t)
- 
- 	tunable_policy(`httpd_can_network_connect_db',`
--		corenet_tcp_connect_mysqld_port(httpd_t)
--		corenet_sendrecv_mysqld_client_packets(httpd_t)
-+		mysql_labeled_communicate(httpd_t)
- 	')
- ')
- 
-@@ -477,7 +484,7 @@
- 	postgresql_stream_connect(httpd_t)
- 
- 	tunable_policy(`httpd_can_network_connect_db',`
--		postgresql_tcp_connect(httpd_t)
-+		postgresql_labeled_communicate(httpd_t)
- 	')
- ')
- 
-Index: refpolicy/policy/modules/services/ssh.if
-===================================================================
---- refpolicy/policy/modules/services/ssh.if	(revision 2614)
-+++ refpolicy/policy/modules/services/ssh.if	(working copy)
-@@ -640,6 +640,23 @@
- 
- ########################################
- ## <summary>
-+##	Allow the specified domain to communicate with SSH daemons via labeled network.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`ssh_labeled_communicate',`
-+	gen_require(`
-+		type sshd_t;
-+	')
-+	corenet_tcp_recvfrom_labeled($1,sshd_t)
-+')
-+
-+########################################
-+## <summary>
- ##	Execute the ssh daemon sshd domain.
- ## </summary>
- ## <param name="domain">
-Index: refpolicy/policy/modules/services/apache.if
-===================================================================
---- refpolicy/policy/modules/services/apache.if	(revision 2614)
-+++ refpolicy/policy/modules/services/apache.if	(working copy)
-@@ -226,6 +226,18 @@
- 	')
- 
- 	optional_policy(`
-+		tunable_policy(`httpd_enable_cgi && httpd_can_network_connect_db',`
-+			mysql_labeled_communicate(httpd_$1_script_t)
-+		')
-+	')
-+
-+	optional_policy(`
-+		tunable_policy(`httpd_enable_cgi && httpd_can_network_connect_db',`
-+			postgresql_labeled_communicate(httpd_$1_script_t)
-+		')
-+	')
-+
-+	optional_policy(`
- 		nscd_socket_use(httpd_$1_script_t)
- 	')
- ')
-Index: refpolicy/policy/modules/system/userdomain.if
-===================================================================
---- refpolicy/policy/modules/system/userdomain.if	(revision 2614)
-+++ refpolicy/policy/modules/system/userdomain.if	(working copy)
-@@ -834,6 +834,7 @@
- 	optional_policy(`
- 		tunable_policy(`allow_user_mysql_connect',`
- 			mysql_stream_connect($1_t)
-+			mysql_labeled_communicate($1_t)
- 		')
- 	')
- 
-@@ -850,7 +851,7 @@
- 	optional_policy(`
- 		tunable_policy(`allow_user_postgresql_connect',`
- 			postgresql_stream_connect($1_t)
--			postgresql_tcp_connect($1_t)
-+			postgresql_labeled_communicate($1_t)
- 		')
- 	')
- 
-@@ -872,6 +873,10 @@
- 	')
- 
- 	optional_policy(`
-+		ssh_labeled_communicate($1_t)
-+	')
-+
-+	optional_policy(`
- 		usernetctl_run($1_t,$1_r,{ $1_devpts_t $1_tty_device_t })
- 	')
- ')
+ corecmd_search_bin(exim_t)
+=20
+ corenet_all_recvfrom_unlabeled(exim_t)
+ corenet_tcp_sendrecv_all_if(exim_t)
+ corenet_tcp_sendrecv_all_nodes(exim_t)
+ corenet_tcp_sendrecv_all_ports(exim_t)
++corenet_tcp_sendrecv_smtp_port(exim_t)
++corenet_tcp_sendrecv_auth_port(exim_t)
++corenet_tcp_sendrecv_ldap_port(exim_t)
+ corenet_tcp_bind_all_nodes(exim_t)
+ corenet_tcp_bind_smtp_port(exim_t)
+ corenet_tcp_bind_amavisd_send_port(exim_t)
+ corenet_tcp_connect_auth_port(exim_t)
++corenet_tcp_connect_smtp_port(exim_t)
++corenet_tcp_connect_ldap_port(exim_t)
+ corenet_tcp_connect_inetd_child_port(exim_t)
+=20
+ # Init script handling
+Index: exim.fc
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- exim.fc	(revision 2617)
++++ exim.fc	(working copy)
+@@ -1,4 +1,5 @@
+-/usr/sbin/exim		--	gen_context(system_u:object_r:exim_exec_t,s0)
+-/var/log/exim(/.*)?		gen_context(system_u:object_r:exim_log_t,s0)
+-/var/run/exim.pid	--	gen_context(system_u:object_r:exim_var_run_t,s0)
+-/var/spool/exim(/.*)?		gen_context(system_u:object_r:exim_spool_t,s0)
++/usr/sbin/exim[0-9]?		--	gen_context(system_u:object_r:exim_exec_t,s0)
++/var/log/exim[0-9]?(/.*)?		gen_context(system_u:object_r:exim_log_t,s0)
++/var/run/exim[0-9]?\.pid	--	gen_context(system_u:object_r:exim_var_run_t,s=
+0)
++/var/run/exim[0-9]?(/.*)?	  	gen_context(system_u:object_r:exim_var_run_t,=
+s0)
++/var/spool/exim[0-9]?(/.*)?		gen_context(system_u:object_r:exim_spool_t,s0)
 
---------------070900000900070705060806--
+--hxkXGo8AKqTJ+9QI--
+
+--Q8BnQc91gJZX4vDc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFHu/paU5XKDemr/NIRAtJwAKCN7lzVJqdyAo9Kf54O7rkCB2jJlwCfX81X
+KfIpfyZuU+ErW6iCtzQ+suo=
+=IU3f
+-----END PGP SIGNATURE-----
+
+--Q8BnQc91gJZX4vDc--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
