@@ -1,50 +1,56 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1JNIe6R019710
-	for <selinux@tycho.nsa.gov>; Tue, 19 Feb 2008 18:18:40 -0500
-Received: from web36603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1JNIZAh012057
-	for <selinux@tycho.nsa.gov>; Tue, 19 Feb 2008 23:18:35 GMT
-Date: Tue, 19 Feb 2008 15:18:10 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: NFS/LSM: allow NFS to control all of its own mount options
-To: Christoph Hellwig <hch@infradead.org>, Eric Paris <eparis@redhat.com>
-Cc: linux-nfs@vger.kernel.org, selinux <selinux@tycho.nsa.gov>,
-        linux-security-module@vger.kernel.org, steved@redhat.com,
-        jlayton@redhat.com, sds@tycho.nsa.gov, jmorris@namei.org,
+Date: Wed, 20 Feb 2008 11:25:45 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Eric Paris <eparis@redhat.com>, linux-nfs@vger.kernel.org,
+        selinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
+        steved@redhat.com, jlayton@redhat.com, sds@tycho.nsa.gov,
         casey@schaufler-ca.com, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com, linux-fsdevel@vger.kernel.org
+Subject: Re: NFS/LSM: allow NFS to control all of its own mount options
 In-Reply-To: <20080219222408.GB10656@infradead.org>
+Message-ID: <Xine.LNX.4.64.0802201114030.2475@us.intercode.com.au>
+References: <1203457094.2928.113.camel@localhost.localdomain>
+ <20080219222408.GB10656@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <84435.4520.qm@web36603.mail.mud.yahoo.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Christoph Hellwig <hch@infradead.org> wrote:
+On Tue, 19 Feb 2008, Christoph Hellwig wrote:
 
 > Please don't introduce a special case for just nfs.  All filesystems
 > should control their mount options, so please provide some library
 > helpers for context= handling and move it into all filesystems that
 > can support selinux.
 
-Smack has options that are filesystem independent
-(smackfsdef= smackfsroot= smackfsfloor= smackfshat=)
-instead of the context= SELinux seems happy with.
-Since there is no reason that a file system even
-really needs to know what these values are it would
-be completely unreasonable to teach every filesystem
-about them. The information is completely controlled
-and used by the LSM.
+It's not so much a special case for NFS, just that NFS happens to use 
+binary mount options.  So, I guess it could be put into a library for 
+other potential filesystems with binary mount options.
 
-Of course, we could use something other than mount options
-(vfsctl? sorry - only kidding) to set the LSM specific
-information, and that might be the right approach.
+To clarify:
+
+The SELinux options are indeed filesystem independent, and the FS should 
+really not need to be concerned at all with them.  For everything except 
+NFS, we parse text options looking for context=, then use that value from 
+within SELinux as the label for all files in the mount.
+
+Previously, as Eric mentions, we were using a method initially approved by 
+the NFS folk, where, for NFS, SELinux was peeking around inside the binary 
+options.  We were then asked to change that so that NFS (or other 
+binary-option FS) would obtain the values itself and call into LSM with 
+them.  This is what Eric's latest patch enables (a previous patch 
+installed the infrastructure for it).
+
+While this code could be put into a library if desired, there is no need 
+to make any changes for filesystems with text options (i.e. the general 
+case).
 
 
-Casey Schaufler
-casey@schaufler-ca.com
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
