@@ -1,18 +1,17 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGiYW6004462
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:44:34 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGjGOh004644
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:45:16 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGiRBu011669
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:44:33 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGiRC8011669
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:45:15 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 33/37] NFS: nfs_readpage_async() needs to be accessible as a
-	fallback for local caching
+Subject: [PATCH 02/37] KEYS: Check starting keyring as part of search
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:08:55 +0000
-Message-ID: <20080220160855.4715.84031.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:06:09 +0000
+Message-ID: <20080220160608.4715.31033.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,46 +19,117 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-nfs_readpage_async() needs to be non-static so that it can be used as a
-fallback for the local on-disk caching should an EIO crop up when reading the
-cache.
+Check the starting keyring as part of the search to (a) see if that is what
+we're searching for, and (b) to check it is still valid for searching.
 
+The scenario:  User in process A does things that cause things to be
+created in its process session keyring.  The user then does an su to
+another user and starts a new process, B.  The two processes now
+share the same process session keyring.
+
+Process B does an NFS access which results in an upcall to gssd.
+When gssd attempts to instantiate the context key (to be linked
+into the process session keyring), it is denied access even though it
+has an authorization key.
+
+The order of calls is:
+
+   keyctl_instantiate_key()
+      lookup_user_key()				    (the default: case)
+         search_process_keyrings(current)
+	    search_process_keyrings(rka->context)   (recursive call)
+	       keyring_search_aux()
+
+keyring_search_aux() verifies the keys and keyrings underneath the
+top-level keyring it is given, but that top-level keyring is neither
+fully validated nor checked to see if it is the thing being searched for.
+
+This patch changes keyring_search_aux() to:
+1) do more validation on the top keyring it is given and
+2) check whether that top-level keyring is the thing being searched for
+
+
+Signed-off-by: Kevin Coffman <kwc@citi.umich.edu>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/read.c          |    4 ++--
- include/linux/nfs_fs.h |    2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ security/keys/keyring.c |   35 +++++++++++++++++++++++++++++++----
+ 1 files changed, 31 insertions(+), 4 deletions(-)
 
 
-diff --git a/fs/nfs/read.c b/fs/nfs/read.c
-index 3d7d963..725a5a2 100644
---- a/fs/nfs/read.c
-+++ b/fs/nfs/read.c
-@@ -114,8 +114,8 @@ static void nfs_readpage_truncate_uninitialised_page(struct nfs_read_data *data)
- 	}
- }
+diff --git a/security/keys/keyring.c b/security/keys/keyring.c
+index 88292e3..76b89b2 100644
+--- a/security/keys/keyring.c
++++ b/security/keys/keyring.c
+@@ -292,7 +292,7 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
  
--static int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
--		struct page *page)
-+int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
-+		       struct page *page)
- {
- 	LIST_HEAD(one_request);
- 	struct nfs_page	*new;
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index d9adb53..d1d545e 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -505,6 +505,8 @@ extern int  nfs_readpages(struct file *, struct address_space *,
- 		struct list_head *, unsigned);
- extern int  nfs_readpage_result(struct rpc_task *, struct nfs_read_data *);
- extern void nfs_readdata_release(void *data);
-+extern int  nfs_readpage_async(struct nfs_open_context *, struct inode *,
-+			       struct page *);
+ 	struct keyring_list *keylist;
+ 	struct timespec now;
+-	unsigned long possessed;
++	unsigned long possessed, kflags;
+ 	struct key *keyring, *key;
+ 	key_ref_t key_ref;
+ 	long err;
+@@ -318,6 +318,32 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
+ 	now = current_kernel_time();
+ 	err = -EAGAIN;
+ 	sp = 0;
++	
++	/* firstly we should check to see if this top-level keyring is what we
++	 * are looking for */
++	key_ref = ERR_PTR(-EAGAIN);
++	kflags = keyring->flags;
++	if (keyring->type == type && match(keyring, description)) {
++		key = keyring;
++
++		/* check it isn't negative and hasn't expired or been
++		 * revoked */
++		if (kflags & (1 << KEY_FLAG_REVOKED))
++			goto error_2;
++		if (key->expiry && now.tv_sec >= key->expiry)
++			goto error_2;
++		key_ref = ERR_PTR(-ENOKEY);
++		if (kflags & (1 << KEY_FLAG_NEGATIVE))
++			goto error_2;
++		goto found;
++	}
++
++	/* otherwise, the top keyring must not be revoked, expired, or
++	 * negatively instantiated if we are to search it */
++	key_ref = ERR_PTR(-EAGAIN);
++	if (kflags & ((1 << KEY_FLAG_REVOKED) | (1 << KEY_FLAG_NEGATIVE)) ||
++	    (keyring->expiry && now.tv_sec >= keyring->expiry))
++		goto error_2;
  
- /*
-  * Allocate nfs_read_data structures
+ 	/* start processing a new keyring */
+ descend:
+@@ -331,13 +357,14 @@ descend:
+ 	/* iterate through the keys in this keyring first */
+ 	for (kix = 0; kix < keylist->nkeys; kix++) {
+ 		key = keylist->keys[kix];
++		kflags = key->flags;
+ 
+ 		/* ignore keys not of this type */
+ 		if (key->type != type)
+ 			continue;
+ 
+ 		/* skip revoked keys and expired keys */
+-		if (test_bit(KEY_FLAG_REVOKED, &key->flags))
++		if (kflags & (1 << KEY_FLAG_REVOKED))
+ 			continue;
+ 
+ 		if (key->expiry && now.tv_sec >= key->expiry)
+@@ -352,8 +379,8 @@ descend:
+ 					context, KEY_SEARCH) < 0)
+ 			continue;
+ 
+-		/* we set a different error code if we find a negative key */
+-		if (test_bit(KEY_FLAG_NEGATIVE, &key->flags)) {
++		/* we set a different error code if we pass a negative key */
++		if (kflags & (1 << KEY_FLAG_NEGATIVE)) {
+ 			err = -ENOKEY;
+ 			continue;
+ 		}
 
 
 --
