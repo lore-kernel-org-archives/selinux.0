@@ -1,77 +1,31 @@
-Subject: Re: How would I go about figuring out if two SELinux MLS
-	Levels	intersect?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        Darrel Goeddel <dgoeddel@TrustedCS.com>
-In-Reply-To: <47BC6DCE.4040203@manicmethod.com>
-References: <47BB5488.1070008@redhat.com>
-	 <1203528302.9902.226.camel@moss-spartans.epoch.ncsc.mil>
-	 <1203528489.9902.230.camel@moss-spartans.epoch.ncsc.mil>
-	 <47BC6DCE.4040203@manicmethod.com>
-Content-Type: text/plain
-Date: Wed, 20 Feb 2008 13:19:52 -0500
-Message-Id: <1203531592.9902.234.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KJOqRH025899
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 14:24:52 -0500
+Received: from fk-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KJOoBs024220
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 19:24:51 GMT
+Received: by fk-out-0910.google.com with SMTP id 18so5209143fkq.2
+        for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:24:50 -0800 (PST)
+Message-ID: <cadfc0e40802201124l5f8b2330x159eb3f7485687c4@mail.gmail.com>
+Date: Wed, 20 Feb 2008 13:24:50 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SE Linux" <selinux@tycho.nsa.gov>
+Subject: FC8 enforcing auditd, mcstransd, NFS statd fail to start
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+type=AVC msg=audit(1197625021.926:66): avc:  denied  { write } for
+pid=1494 comm="audispd" path="socket:[7238]" dev=sockfs ino=7238
+scontext=system_u:system_r:auditd_t:s15:c0.c1023
+tcontext=system_u:system_r:auditd_t:s0-s15:c0.c1023
+tclass=unix_stream_socket
 
-On Wed, 2008-02-20 at 13:13 -0500, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2008-02-20 at 12:25 -0500, Stephen Smalley wrote:
-> >   
-> >> On Tue, 2008-02-19 at 17:13 -0500, Daniel J Walsh wrote:
-> >>     
-> >>> -----BEGIN PGP SIGNED MESSAGE-----
-> >>> Hash: SHA1
-> >>>
-> >>> s2:c0-s2:c0.c10 and s2:c9.c10
-> >>>
-> >>>
-> >>> IE How do I do the arbitration/dominance math in Code?
-> >>>       
-> >> (cc'ing the list)
-> >>
-> >> You can model it as a permission check between the two contexts, and
-> >> then write a MLS constraint in policy that requires dominance or
-> >> whatever relationship you want.  Then it is just an avc_has_perm call.
-> >> Same thing that we did for permission check in the pam_selinux code to
-> >> verify that the user's level is within his range.  Or what we talked
-> >> about for applying a permission check in mcstransd to see if the
-> >> requestor is allowed to translate the context.  Not sure that ever got
-> >> implemented in mcstransd though?
-> >>     
-> >
-> > Also, just to note:  the MLS dominance logic already exists within
-> > libsepol and within the kernel security server.  We just have to expose
-> > it via an interface.  One way to do that is to express it as a
-> > permission check, where we already have an interface.  Another way would
-> > be to introduce a new interface specifically for that purpose.
-> >   
-> 
-> I strongly disagree with exporting the security server logic in this 
-> way, that will just encourage people to implement blp in their 
-> application instead of using the security server interface to do 
-> permission checking. This is based off what I've seen people trying to 
-> do, even within the SELinux community, with respect to MLS.
-
-Well, as I said, one way to do it is via a permission checking
-interface, and that is what we've done for the user level validation in
-pam_selinux and what we proposed for mcstransd.
-
-Where that may break down is when you want to actually order a set of
-contexts.  Dave Quigley ran into that in his work to provide a union
-view of a polyinstantiated directory and wanted to be able to decide
-which instance should be the default when there is a conflict in names.
-There you may need an actual MLS dominance interface.  Which is
-MLS-specific, yes, but there will be such applications even if we keep
-them minimized.
-
--- 
-Stephen Smalley
-National Security Agency
-
+type=AVC msg=audit(1203524274.667:562): avc:  denied  { use } for
+pid=19909 comm="mcstransd" path="/lib/ld-2.7.so" dev=dm-0 ino=2359430
+scontext=system_u:system_r:setrans_t:s15:c0.c1023
+tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=fd
 
 --
 This message was distributed to subscribers of the selinux mailing list.
