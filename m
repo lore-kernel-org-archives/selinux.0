@@ -1,42 +1,64 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KBP2ZO025456
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 06:25:02 -0500
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KBOsd5008445
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:25:00 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: refpolicy: patch for Debian backup cron daily jobs
-Date: Wed, 20 Feb 2008 22:24:45 +1100
-Cc: =?iso-8859-1?q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>,
-        selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-References: <20080219122951.GA23700@bobek.pm.i.cz> <1203430571.13618.88.camel@gorn>
-In-Reply-To: <1203430571.13618.88.camel@gorn>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200802202224.48452.russell@coker.com.au>
+Subject: Re: NFS/LSM: allow NFS to control all of its own mount options
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Eric Paris <eparis@redhat.com>,
+        linux-nfs@vger.kernel.org, selinux <selinux@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org, steved@redhat.com,
+        jlayton@redhat.com, casey@schaufler-ca.com, trond.myklebust@fys.uio.no,
+        chuck.lever@oracle.com, linux-fsdevel@vger.kernel.org
+In-Reply-To: <Xine.LNX.4.64.0802201114030.2475@us.intercode.com.au>
+References: <1203457094.2928.113.camel@localhost.localdomain>
+	 <20080219222408.GB10656@infradead.org>
+	 <Xine.LNX.4.64.0802201114030.2475@us.intercode.com.au>
+Content-Type: text/plain
+Date: Wed, 20 Feb 2008 08:48:28 -0500
+Message-Id: <1203515308.9902.126.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 20 February 2008 01:16, "Christopher J. PeBenito" 
-<cpebenito@tresys.com> wrote:
-> Merged.  I moved the file context change into a distro_debian block,
-> though I suspect the backup policy is fairly Debian-specific.
 
-What do people who don't use Debian do for their backup then?
+On Wed, 2008-02-20 at 11:25 +1100, James Morris wrote:
+> On Tue, 19 Feb 2008, Christoph Hellwig wrote:
+> 
+> > Please don't introduce a special case for just nfs.  All filesystems
+> > should control their mount options, so please provide some library
+> > helpers for context= handling and move it into all filesystems that
+> > can support selinux.
+> 
+> It's not so much a special case for NFS, just that NFS happens to use 
+> binary mount options.  So, I guess it could be put into a library for 
+> other potential filesystems with binary mount options.
+> 
+> To clarify:
+> 
+> The SELinux options are indeed filesystem independent, and the FS should 
+> really not need to be concerned at all with them.  For everything except 
+> NFS, we parse text options looking for context=, then use that value from 
+> within SELinux as the label for all files in the mount.
+> 
+> Previously, as Eric mentions, we were using a method initially approved by 
+> the NFS folk, where, for NFS, SELinux was peeking around inside the binary 
+> options.  We were then asked to change that so that NFS (or other 
+> binary-option FS) would obtain the values itself and call into LSM with 
+> them.  This is what Eric's latest patch enables (a previous patch 
+> installed the infrastructure for it).
+> 
+> While this code could be put into a library if desired, there is no need 
+> to make any changes for filesystems with text options (i.e. the general 
+> case).
 
-I wrote the policy for backup_t as a domain for anything the sys-admin might 
-run at the command-line for the purpose of backing things up.  For me it's 
-LVM snapshots that are copied (via dd or gzip) to a USB device.  Nothing 
-Debian specific there, and I've run it on a few Fedora machines too.
+And to be clear:  this patch fixes a real bug in the nfs/selinux
+interaction on nohide mounts, a bug that needs to be fixed upstream as
+soon as possible.  A bug that was introduced by changes in nfs, not
+changes in selinux AFAIK, given that the original approach to context
+mounts was introduced and approved by nfs folks long ago.  So regardless
+of what happens wrt the text mount options, this patch needs to get
+merged.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+Stephen Smalley
+National Security Agency
 
 
 --
