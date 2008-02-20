@@ -1,18 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG7uLB029531
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:07:56 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG8D9g029586
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:08:13 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG7rDb011078
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:07:53 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG8CDb011235
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:08:12 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 03/37] KEYS: Allow the callout data to be passed as a blob
-	rather than a string
+Subject: [PATCH 13/37] FS-Cache: Provide an add_wait_queue_tail() function
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:06:14 +0000
-Message-ID: <20080220160614.4715.26590.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:07:08 +0000
+Message-ID: <20080220160708.4715.82739.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,405 +19,91 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Allow the callout data to be passed as a blob rather than a string for internal
-kernel services that call any request_key_*() interface other than
-request_key().  request_key() itself still takes a NUL-terminated string.
-
-The functions that change are:
-
-	request_key_with_auxdata()
-	request_key_async()
-	request_key_async_with_auxdata()
+Provide an add_wait_queue_tail() function to add a waiter to the back of a
+wait queue instead of the front.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- Documentation/keys-request-key.txt |   11 +++++---
- Documentation/keys.txt             |   14 +++++++---
- include/linux/key.h                |    9 ++++---
- security/keys/internal.h           |    9 ++++---
- security/keys/keyctl.c             |    7 ++++-
- security/keys/request_key.c        |   49 ++++++++++++++++++++++--------------
- security/keys/request_key_auth.c   |   12 +++++----
- 7 files changed, 70 insertions(+), 41 deletions(-)
+ include/linux/pagemap.h |    7 +++++--
+ include/linux/wait.h    |    1 +
+ kernel/wait.c           |   18 ++++++++++++++++++
+ mm/filemap.c            |    2 +-
+ 4 files changed, 25 insertions(+), 3 deletions(-)
 
 
-diff --git a/Documentation/keys-request-key.txt b/Documentation/keys-request-key.txt
-index 266955d..09b55e4 100644
---- a/Documentation/keys-request-key.txt
-+++ b/Documentation/keys-request-key.txt
-@@ -11,26 +11,29 @@ request_key*():
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index c5df3ae..ad9484f 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -225,8 +225,11 @@ static inline void wait_on_page_writeback(struct page *page)
  
- 	struct key *request_key(const struct key_type *type,
- 				const char *description,
--				const char *callout_string);
-+				const char *callout_info);
+ extern void end_page_writeback(struct page *page);
  
- or:
- 
- 	struct key *request_key_with_auxdata(const struct key_type *type,
- 					     const char *description,
--					     const char *callout_string,
-+					     const char *callout_info,
-+					     size_t callout_len,
- 					     void *aux);
- 
- or:
- 
- 	struct key *request_key_async(const struct key_type *type,
- 				      const char *description,
--				      const char *callout_string);
-+				      const char *callout_info,
-+				      size_t callout_len);
- 
- or:
- 
- 	struct key *request_key_async_with_auxdata(const struct key_type *type,
- 						   const char *description,
--						   const char *callout_string,
-+						   const char *callout_info,
-+					     	   size_t callout_len,
- 						   void *aux);
- 
- Or by userspace invoking the request_key system call:
-diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-index 51652d3..b82d38d 100644
---- a/Documentation/keys.txt
-+++ b/Documentation/keys.txt
-@@ -771,7 +771,7 @@ payload contents" for more information.
- 
- 	struct key *request_key(const struct key_type *type,
- 				const char *description,
--				const char *callout_string);
-+				const char *callout_info);
- 
-     This is used to request a key or keyring with a description that matches
-     the description specified according to the key type's match function. This
-@@ -793,24 +793,28 @@ payload contents" for more information.
- 
- 	struct key *request_key_with_auxdata(const struct key_type *type,
- 					     const char *description,
--					     const char *callout_string,
-+					     const void *callout_info,
-+					     size_t callout_len,
- 					     void *aux);
- 
-     This is identical to request_key(), except that the auxiliary data is
--    passed to the key_type->request_key() op if it exists.
-+    passed to the key_type->request_key() op if it exists, and the callout_info
-+    is a blob of length callout_len, if given (the length may be 0).
- 
- 
- (*) A key can be requested asynchronously by calling one of:
- 
- 	struct key *request_key_async(const struct key_type *type,
- 				      const char *description,
--				      const char *callout_string);
-+				      const void *callout_info,
-+				      size_t callout_len);
- 
-     or:
- 
- 	struct key *request_key_async_with_auxdata(const struct key_type *type,
- 						   const char *description,
--						   const char *callout_string,
-+						   const char *callout_info,
-+					     	   size_t callout_len,
- 					     	   void *aux);
- 
-     which are asynchronous equivalents of request_key() and
-diff --git a/include/linux/key.h b/include/linux/key.h
-index a70b8a8..163f864 100644
---- a/include/linux/key.h
-+++ b/include/linux/key.h
-@@ -208,16 +208,19 @@ extern struct key *request_key(struct key_type *type,
- 
- extern struct key *request_key_with_auxdata(struct key_type *type,
- 					    const char *description,
--					    const char *callout_info,
-+					    const void *callout_info,
-+					    size_t callout_len,
- 					    void *aux);
- 
- extern struct key *request_key_async(struct key_type *type,
- 				     const char *description,
--				     const char *callout_info);
-+				     const void *callout_info,
-+				     size_t callout_len);
- 
- extern struct key *request_key_async_with_auxdata(struct key_type *type,
- 						  const char *description,
--						  const char *callout_info,
-+						  const void *callout_info,
-+						  size_t callout_len,
- 						  void *aux);
- 
- extern int wait_for_key_construction(struct key *key, bool intr);
-diff --git a/security/keys/internal.h b/security/keys/internal.h
-index d36d693..f004835 100644
---- a/security/keys/internal.h
-+++ b/security/keys/internal.h
-@@ -109,7 +109,8 @@ extern int install_process_keyring(struct task_struct *tsk);
- 
- extern struct key *request_key_and_link(struct key_type *type,
- 					const char *description,
--					const char *callout_info,
-+					const void *callout_info,
-+					size_t callout_len,
- 					void *aux,
- 					struct key *dest_keyring,
- 					unsigned long flags);
-@@ -120,13 +121,15 @@ extern struct key *request_key_and_link(struct key_type *type,
- struct request_key_auth {
- 	struct key		*target_key;
- 	struct task_struct	*context;
--	char			*callout_info;
-+	void			*callout_info;
-+	size_t			callout_len;
- 	pid_t			pid;
- };
- 
- extern struct key_type key_type_request_key_auth;
- extern struct key *request_key_auth_new(struct key *target,
--					const char *callout_info);
-+					const void *callout_info,
-+					size_t callout_len);
- 
- extern struct key *key_get_instantiation_authkey(key_serial_t target_id);
- 
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 8ec8432..1698bf9 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -152,6 +152,7 @@ asmlinkage long sys_request_key(const char __user *_type,
- 	struct key_type *ktype;
- 	struct key *key;
- 	key_ref_t dest_ref;
-+	size_t callout_len;
- 	char type[32], *description, *callout_info;
- 	long ret;
- 
-@@ -169,12 +170,14 @@ asmlinkage long sys_request_key(const char __user *_type,
- 
- 	/* pull the callout info into kernel space */
- 	callout_info = NULL;
-+	callout_len = 0;
- 	if (_callout_info) {
- 		callout_info = strndup_user(_callout_info, PAGE_SIZE);
- 		if (IS_ERR(callout_info)) {
- 			ret = PTR_ERR(callout_info);
- 			goto error2;
- 		}
-+		callout_len = strlen(callout_info);
- 	}
- 
- 	/* get the destination keyring if specified */
-@@ -195,8 +198,8 @@ asmlinkage long sys_request_key(const char __user *_type,
- 	}
- 
- 	/* do the search */
--	key = request_key_and_link(ktype, description, callout_info, NULL,
--				   key_ref_to_ptr(dest_ref),
-+	key = request_key_and_link(ktype, description, callout_info,
-+				   callout_len, NULL, key_ref_to_ptr(dest_ref),
- 				   KEY_ALLOC_IN_QUOTA);
- 	if (IS_ERR(key)) {
- 		ret = PTR_ERR(key);
-diff --git a/security/keys/request_key.c b/security/keys/request_key.c
-index 5ecc505..a3f94c6 100644
---- a/security/keys/request_key.c
-+++ b/security/keys/request_key.c
-@@ -161,21 +161,22 @@ error_alloc:
-  * call out to userspace for key construction
-  * - we ignore program failure and go on key status instead
+-/*
+- * Wait for a PG_owner_priv_2 to become clear
++/**
++ * wait_on_page_owner_priv_2 - Wait for PG_owner_priv_2 to become clear
++ * @page: The page to monitor
++ *
++ * Wait for a PG_owner_priv_2 to become clear on the specified page.
   */
--static int construct_key(struct key *key, const char *callout_info, void *aux)
-+static int construct_key(struct key *key, const void *callout_info,
-+			 size_t callout_len, void *aux)
+ static inline void wait_on_page_owner_priv_2(struct page *page)
  {
- 	struct key_construction *cons;
- 	request_key_actor_t actor;
- 	struct key *authkey;
- 	int ret;
+diff --git a/include/linux/wait.h b/include/linux/wait.h
+index 0081147..a6a6607 100644
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -118,6 +118,7 @@ static inline int waitqueue_active(wait_queue_head_t *q)
+ #define is_sync_wait(wait)	(!(wait) || ((wait)->private))
  
--	kenter("%d,%s,%p", key->serial, callout_info, aux);
-+	kenter("%d,%p,%zu,%p", key->serial, callout_info, callout_len, aux);
+ extern void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
++extern void add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait);
+ extern void add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait);
+ extern void remove_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
  
- 	cons = kmalloc(sizeof(*cons), GFP_KERNEL);
- 	if (!cons)
- 		return -ENOMEM;
- 
- 	/* allocate an authorisation key */
--	authkey = request_key_auth_new(key, callout_info);
-+	authkey = request_key_auth_new(key, callout_info, callout_len);
- 	if (IS_ERR(authkey)) {
- 		kfree(cons);
- 		ret = PTR_ERR(authkey);
-@@ -331,6 +332,7 @@ alloc_failed:
- static struct key *construct_key_and_link(struct key_type *type,
- 					  const char *description,
- 					  const char *callout_info,
-+					  size_t callout_len,
- 					  void *aux,
- 					  struct key *dest_keyring,
- 					  unsigned long flags)
-@@ -348,7 +350,7 @@ static struct key *construct_key_and_link(struct key_type *type,
- 	key_user_put(user);
- 
- 	if (ret == 0) {
--		ret = construct_key(key, callout_info, aux);
-+		ret = construct_key(key, callout_info, callout_len, aux);
- 		if (ret < 0)
- 			goto construction_failed;
- 	}
-@@ -370,7 +372,8 @@ construction_failed:
-  */
- struct key *request_key_and_link(struct key_type *type,
- 				 const char *description,
--				 const char *callout_info,
-+				 const void *callout_info,
-+				 size_t callout_len,
- 				 void *aux,
- 				 struct key *dest_keyring,
- 				 unsigned long flags)
-@@ -378,8 +381,8 @@ struct key *request_key_and_link(struct key_type *type,
- 	struct key *key;
- 	key_ref_t key_ref;
- 
--	kenter("%s,%s,%s,%p,%p,%lx",
--	       type->name, description, callout_info, aux,
-+	kenter("%s,%s,%p,%zu,%p,%p,%lx",
-+	       type->name, description, callout_info, callout_len, aux,
- 	       dest_keyring, flags);
- 
- 	/* search all the process keyrings for a key */
-@@ -398,7 +401,8 @@ struct key *request_key_and_link(struct key_type *type,
- 			goto error;
- 
- 		key = construct_key_and_link(type, description, callout_info,
--					     aux, dest_keyring, flags);
-+					     callout_len, aux, dest_keyring,
-+					     flags);
- 	}
- 
- error:
-@@ -434,10 +438,13 @@ struct key *request_key(struct key_type *type,
- 			const char *callout_info)
- {
- 	struct key *key;
-+	size_t callout_len = 0;
- 	int ret;
- 
--	key = request_key_and_link(type, description, callout_info, NULL,
--				   NULL, KEY_ALLOC_IN_QUOTA);
-+	if (callout_info)
-+		callout_len = strlen(callout_info);
-+	key = request_key_and_link(type, description, callout_info, callout_len,
-+				   NULL, NULL, KEY_ALLOC_IN_QUOTA);
- 	if (!IS_ERR(key)) {
- 		ret = wait_for_key_construction(key, false);
- 		if (ret < 0) {
-@@ -458,14 +465,15 @@ EXPORT_SYMBOL(request_key);
-  */
- struct key *request_key_with_auxdata(struct key_type *type,
- 				     const char *description,
--				     const char *callout_info,
-+				     const void *callout_info,
-+				     size_t callout_len,
- 				     void *aux)
- {
- 	struct key *key;
- 	int ret;
- 
--	key = request_key_and_link(type, description, callout_info, aux,
--				   NULL, KEY_ALLOC_IN_QUOTA);
-+	key = request_key_and_link(type, description, callout_info, callout_len,
-+				   aux, NULL, KEY_ALLOC_IN_QUOTA);
- 	if (!IS_ERR(key)) {
- 		ret = wait_for_key_construction(key, false);
- 		if (ret < 0) {
-@@ -485,10 +493,12 @@ EXPORT_SYMBOL(request_key_with_auxdata);
-  */
- struct key *request_key_async(struct key_type *type,
- 			      const char *description,
--			      const char *callout_info)
-+			      const void *callout_info,
-+			      size_t callout_len)
- {
--	return request_key_and_link(type, description, callout_info, NULL,
--				    NULL, KEY_ALLOC_IN_QUOTA);
-+	return request_key_and_link(type, description, callout_info,
-+				    callout_len, NULL, NULL,
-+				    KEY_ALLOC_IN_QUOTA);
+diff --git a/kernel/wait.c b/kernel/wait.c
+index c275c56..191df0d 100644
+--- a/kernel/wait.c
++++ b/kernel/wait.c
+@@ -29,6 +29,24 @@ void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
  }
- EXPORT_SYMBOL(request_key_async);
+ EXPORT_SYMBOL(add_wait_queue);
  
-@@ -500,10 +510,11 @@ EXPORT_SYMBOL(request_key_async);
-  */
- struct key *request_key_async_with_auxdata(struct key_type *type,
- 					   const char *description,
--					   const char *callout_info,
-+					   const void *callout_info,
-+					   size_t callout_len,
- 					   void *aux)
++/**
++ * add_wait_queue_tail - Add a waiter to the back of a waitqueue
++ * @q: the wait queue to append the waiter to
++ * @wait: the waiter to be queued
++ *
++ * Add a waiter to the back of a waitqueue so that it gets woken up last.
++ */
++void add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait)
++{
++	unsigned long flags;
++
++	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
++	spin_lock_irqsave(&q->lock, flags);
++	__add_wait_queue_tail(q, wait);
++	spin_unlock_irqrestore(&q->lock, flags);
++}
++EXPORT_SYMBOL(add_wait_queue_tail);
++
+ void add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
  {
--	return request_key_and_link(type, description, callout_info, aux,
--				    NULL, KEY_ALLOC_IN_QUOTA);
-+	return request_key_and_link(type, description, callout_info,
-+				    callout_len, aux, NULL, KEY_ALLOC_IN_QUOTA);
- }
- EXPORT_SYMBOL(request_key_async_with_auxdata);
-diff --git a/security/keys/request_key_auth.c b/security/keys/request_key_auth.c
-index e42b525..c615d47 100644
---- a/security/keys/request_key_auth.c
-+++ b/security/keys/request_key_auth.c
-@@ -61,7 +61,7 @@ static void request_key_auth_describe(const struct key *key,
+ 	unsigned long flags;
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 8951d67..b72e112 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -587,7 +587,7 @@ void end_page_writeback(struct page *page)
+ EXPORT_SYMBOL(end_page_writeback);
  
- 	seq_puts(m, "key:");
- 	seq_puts(m, key->description);
--	seq_printf(m, " pid:%d ci:%zu", rka->pid, strlen(rka->callout_info));
-+	seq_printf(m, " pid:%d ci:%zu", rka->pid, rka->callout_len);
- 
- } /* end request_key_auth_describe() */
- 
-@@ -77,7 +77,7 @@ static long request_key_auth_read(const struct key *key,
- 	size_t datalen;
- 	long ret;
- 
--	datalen = strlen(rka->callout_info);
-+	datalen = rka->callout_len;
- 	ret = datalen;
- 
- 	/* we can return the data as is */
-@@ -137,7 +137,8 @@ static void request_key_auth_destroy(struct key *key)
-  * create an authorisation token for /sbin/request-key or whoever to gain
-  * access to the caller's security data
-  */
--struct key *request_key_auth_new(struct key *target, const char *callout_info)
-+struct key *request_key_auth_new(struct key *target, const void *callout_info,
-+				 size_t callout_len)
- {
- 	struct request_key_auth *rka, *irka;
- 	struct key *authkey = NULL;
-@@ -152,7 +153,7 @@ struct key *request_key_auth_new(struct key *target, const char *callout_info)
- 		kleave(" = -ENOMEM");
- 		return ERR_PTR(-ENOMEM);
- 	}
--	rka->callout_info = kmalloc(strlen(callout_info) + 1, GFP_KERNEL);
-+	rka->callout_info = kmalloc(callout_len, GFP_KERNEL);
- 	if (!rka->callout_info) {
- 		kleave(" = -ENOMEM");
- 		kfree(rka);
-@@ -186,7 +187,8 @@ struct key *request_key_auth_new(struct key *target, const char *callout_info)
- 	}
- 
- 	rka->target_key = key_get(target);
--	strcpy(rka->callout_info, callout_info);
-+	memcpy(rka->callout_info, callout_info, callout_len);
-+	rka->callout_len = callout_len;
- 
- 	/* allocate the auth key */
- 	sprintf(desc, "%x", target->serial);
+ /**
+- * end_page_own - Clear PG_owner_priv_2 and wake up any waiters
++ * end_page_owner_priv_2 - Clear PG_owner_priv_2 and wake up any waiters
+  * @page: the page
+  *
+  * Clear PG_owner_priv_2 and wake up any processes waiting for that event.
 
 
 --
