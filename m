@@ -1,91 +1,42 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KH3DJb007372
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 12:03:13 -0500
-Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KH39fY005347
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 17:03:09 GMT
-Date: Wed, 20 Feb 2008 18:03:00 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-Subject: refpolicy: patch for gpg-agent
-Message-ID: <20080220170300.GA13312@bobek.pm.i.cz>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="EVF5PPMfhYS0aIcm"
+Subject: Re: How would I go about figuring out if two SELinux MLS Levels
+	intersect?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov, Darrel Goeddel <dgoeddel@TrustedCS.com>
+In-Reply-To: <47BB5488.1070008@redhat.com>
+References: <47BB5488.1070008@redhat.com>
+Content-Type: text/plain
+Date: Wed, 20 Feb 2008 12:25:02 -0500
+Message-Id: <1203528302.9902.226.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Tue, 2008-02-19 at 17:13 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> s2:c0-s2:c0.c10 and s2:c9.c10
+> 
+> 
+> IE How do I do the arbitration/dominance math in Code?
 
-Hi,
-I'm running HEAD refpolicy on Debian Sid, but this patch is not
-Debian-specific this time.
-Having a copy of my std bash profile on the testing machine with
-a snippet (from gpg-agent man page):
+(cc'ing the list)
 
-    if test -f $HOME/.gpg-agent-info \
-	     && kill -0 `cut -d: -f 2 $HOME/.gpg-agent-info` 2>/dev/null
-    then
-	. $HOME/.gpg-agent-info
-	export GPG_AGENT_INFO
-	export SSH_AUTH_SOCK
-	export SSH_AGENT_PID
-    else
-	eval `gpg-agent --daemon --write-env-file`
-    fi
+You can model it as a permission check between the two contexts, and
+then write a MLS constraint in policy that requires dominance or
+whatever relationship you want.  Then it is just an avc_has_perm call.
+Same thing that we did for permission check in the pam_selinux code to
+verify that the user's level is within his range.  Or what we talked
+about for applying a permission check in mcstransd to see if the
+requestor is allowed to translate the context.  Not sure that ever got
+implemented in mcstransd though?
 
-I got a number of denials for this snippet of commands.
-
-1. Found a typo for permissions to create socket in the /tmp.
-2. Added permission to send signal 0 by the user (see above).
-3. Added permissions for writing agent info file into users home
-   directory.
-
-Regards
 -- 
-Zito
+Stephen Smalley
+National Security Agency
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="gpg.patch"
-
-Index: policy/modules/apps/gpg.if
-===================================================================
---- policy/modules/apps/gpg.if	(revision 2617)
-+++ policy/modules/apps/gpg.if	(working copy)
-@@ -212,6 +212,12 @@
- 	manage_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
- 	manage_lnk_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
- 
-+	# write ~/.gpg-agent-info (gpg-agent --write-env-file option)
-+	allow $1_gpg_agent_t { $1_home_dir_t $1_home_t }:dir add_entry_dir_perms;
-+	type_transition $1_gpg_agent_t $1_home_dir_t:file $1_home_t;
-+	allow $1_gpg_agent_t $1_home_t:file create_file_perms;
-+	allow $1_gpg_agent_t $1_home_t:file write_file_perms;
-+
- 	# allow gpg to connect to the gpg agent
- 	stream_connect_pattern($1_gpg_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t,$1_gpg_agent_t)
- 
-@@ -219,11 +225,11 @@
- 	ps_process_pattern($2,$1_gpg_agent_t)
- 
- 	# Allow the user shell to signal the gpg-agent program.
--	allow $2 $1_gpg_agent_t:process { signal sigkill };
-+	allow $2 $1_gpg_agent_t:process { signal sigkill signull };
- 
--	manage_dirs_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
--	manage_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
--	manage_sock_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-+	manage_dirs_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-+	manage_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-+	manage_sock_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
- 	files_tmp_filetrans($1_gpg_agent_t, $1_gpg_agent_tmp_t, { file sock_file dir })
- 
- 	# Transition from the user domain to the derived domain.
-
---EVF5PPMfhYS0aIcm--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
