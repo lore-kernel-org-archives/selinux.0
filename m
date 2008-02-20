@@ -1,17 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG8D9g029586
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:08:13 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG8Lhb029606
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:08:21 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG8CDb011235
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:08:12 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG8KDb011312
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:08:21 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 13/37] FS-Cache: Provide an add_wait_queue_tail() function
+Subject: [PATCH 24/37] NFS: Register NFS for caching and retrieve the
+	top-level index
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:07:08 +0000
-Message-ID: <20080220160708.4715.82739.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:08:07 +0000
+Message-ID: <20080220160807.4715.26218.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,91 +20,169 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Provide an add_wait_queue_tail() function to add a waiter to the back of a
-wait queue instead of the front.
+Register NFS for caching and retrieve the top-level cache index object cookie.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/pagemap.h |    7 +++++--
- include/linux/wait.h    |    1 +
- kernel/wait.c           |   18 ++++++++++++++++++
- mm/filemap.c            |    2 +-
- 4 files changed, 25 insertions(+), 3 deletions(-)
+ fs/nfs/Makefile        |    1 +
+ fs/nfs/fscache-index.c |   53 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h       |   35 ++++++++++++++++++++++++++++++++
+ fs/nfs/inode.c         |    8 +++++++
+ 4 files changed, 97 insertions(+), 0 deletions(-)
+ create mode 100644 fs/nfs/fscache-index.c
+ create mode 100644 fs/nfs/fscache.h
 
 
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index c5df3ae..ad9484f 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -225,8 +225,11 @@ static inline void wait_on_page_writeback(struct page *page)
- 
- extern void end_page_writeback(struct page *page);
- 
--/*
-- * Wait for a PG_owner_priv_2 to become clear
-+/**
-+ * wait_on_page_owner_priv_2 - Wait for PG_owner_priv_2 to become clear
-+ * @page: The page to monitor
+diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
+index df0f41e..6d7176d 100644
+--- a/fs/nfs/Makefile
++++ b/fs/nfs/Makefile
+@@ -16,3 +16,4 @@ nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
+ 			   nfs4namespace.o
+ nfs-$(CONFIG_NFS_DIRECTIO) += direct.o
+ nfs-$(CONFIG_SYSCTL) += sysctl.o
++nfs-$(CONFIG_NFS_FSCACHE) += fscache-index.o
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+new file mode 100644
+index 0000000..225ed5d
+--- /dev/null
++++ b/fs/nfs/fscache-index.c
+@@ -0,0 +1,53 @@
++/* NFS FS-Cache index structure definition
 + *
-+ * Wait for a PG_owner_priv_2 to become clear on the specified page.
-  */
- static inline void wait_on_page_owner_priv_2(struct page *page)
- {
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index 0081147..a6a6607 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -118,6 +118,7 @@ static inline int waitqueue_active(wait_queue_head_t *q)
- #define is_sync_wait(wait)	(!(wait) || ((wait)->private))
- 
- extern void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
-+extern void add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait);
- extern void add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait);
- extern void remove_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
- 
-diff --git a/kernel/wait.c b/kernel/wait.c
-index c275c56..191df0d 100644
---- a/kernel/wait.c
-+++ b/kernel/wait.c
-@@ -29,6 +29,24 @@ void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
- }
- EXPORT_SYMBOL(add_wait_queue);
- 
-+/**
-+ * add_wait_queue_tail - Add a waiter to the back of a waitqueue
-+ * @q: the wait queue to append the waiter to
-+ * @wait: the waiter to be queued
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
 + *
-+ * Add a waiter to the back of a waitqueue so that it gets woken up last.
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
 + */
-+void add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait)
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/nfs_fs.h>
++#include <linux/nfs_fs_sb.h>
++#include <linux/in6.h>
++
++#include "internal.h"
++#include "fscache.h"
++
++#define NFSDBG_FACILITY		NFSDBG_FSCACHE
++
++static const struct fscache_netfs_operations nfs_cache_ops = {
++};
++
++/*
++ * Define the NFS filesystem for FS-Cache.  Upon registration FS-Cache sticks
++ * the cookie for the top-level index object for NFS into this structure.  The
++ * top-level index can than have other cache objects inserted into it.
++ */
++struct fscache_netfs nfs_cache_netfs = {
++	.name		= "nfs",
++	.version	= 0,
++	.ops		= &nfs_cache_ops,
++};
++
++/*
++ * Register NFS for caching
++ */
++int nfs_fscache_register(void)
 +{
-+	unsigned long flags;
-+
-+	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue_tail(q, wait);
-+	spin_unlock_irqrestore(&q->lock, flags);
++	return fscache_register_netfs(&nfs_cache_netfs);
 +}
-+EXPORT_SYMBOL(add_wait_queue_tail);
 +
- void add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
- {
- 	unsigned long flags;
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 8951d67..b72e112 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -587,7 +587,7 @@ void end_page_writeback(struct page *page)
- EXPORT_SYMBOL(end_page_writeback);
++/*
++ * Unregister NFS for caching
++ */
++void nfs_fscache_unregister(void)
++{
++	fscache_unregister_netfs(&nfs_cache_netfs);
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+new file mode 100644
+index 0000000..75e5a03
+--- /dev/null
++++ b/fs/nfs/fscache.h
+@@ -0,0 +1,35 @@
++/* NFS filesystem cache interface definitions
++ *
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#ifndef _NFS_FSCACHE_H
++#define _NFS_FSCACHE_H
++
++#include <linux/nfs_fs.h>
++#include <linux/nfs_mount.h>
++#include <linux/nfs4_mount.h>
++
++#ifdef CONFIG_NFS_FSCACHE
++#include <linux/fscache.h>
++
++/*
++ * fscache-index.c
++ */
++extern struct fscache_netfs nfs_cache_netfs;
++
++extern int nfs_fscache_register(void);
++extern void nfs_fscache_unregister(void);
++
++#else /* CONFIG_NFS_FSCACHE */
++static inline int nfs_fscache_register(void) { return 0; }
++static inline void nfs_fscache_unregister(void) {}
++
++#endif /* CONFIG_NFS_FSCACHE */
++#endif /* _NFS_FSCACHE_H */
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 966a885..7254d5c 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -46,6 +46,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ #include "internal.h"
++#include "fscache.h"
  
- /**
-- * end_page_own - Clear PG_owner_priv_2 and wake up any waiters
-+ * end_page_owner_priv_2 - Clear PG_owner_priv_2 and wake up any waiters
-  * @page: the page
-  *
-  * Clear PG_owner_priv_2 and wake up any processes waiting for that event.
+ #define NFSDBG_FACILITY		NFSDBG_VFS
+ 
+@@ -1222,6 +1223,10 @@ static int __init init_nfs_fs(void)
+ {
+ 	int err;
+ 
++	err = nfs_fscache_register();
++	if (err < 0)
++		goto out6;
++
+ 	err = nfs_fs_proc_init();
+ 	if (err)
+ 		goto out5;
+@@ -1268,6 +1273,8 @@ out3:
+ out4:
+ 	nfs_fs_proc_exit();
+ out5:
++	nfs_fscache_unregister();
++out6:
+ 	return err;
+ }
+ 
+@@ -1278,6 +1285,7 @@ static void __exit exit_nfs_fs(void)
+ 	nfs_destroy_readpagecache();
+ 	nfs_destroy_inodecache();
+ 	nfs_destroy_nfspagecache();
++	nfs_fscache_unregister();
+ #ifdef CONFIG_PROC_FS
+ 	rpc_proc_unregister("nfs");
+ #endif
 
 
 --
