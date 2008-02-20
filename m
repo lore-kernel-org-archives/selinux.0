@@ -1,18 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG97X1029854
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:09:07 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG9Pd5029975
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:09:25 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG94Db011554
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:09:04 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG9MDb011739
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:09:22 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 23/37] NFS: Permit local filesystem caching to be enabled for
-	NFS
+Subject: [PATCH 11/37] FS-Cache: Release page->private after failed readahead
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:08:01 +0000
-Message-ID: <20080220160801.4715.75688.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:06:57 +0000
+Message-ID: <20080220160657.4715.2133.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,35 +19,82 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Permit local filesystem caching to be enabled for NFS in the kernel
-configuration.
+The attached patch causes read_cache_pages() to release page-private data on a
+page for which add_to_page_cache() fails or the filler function fails. This
+permits pages with caching references associated with them to be cleaned up.
+
+The invalidatepage() address space op is called (indirectly) to do the honours.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/Kconfig |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+ mm/readahead.c |   39 +++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 37 insertions(+), 2 deletions(-)
 
 
-diff --git a/fs/Kconfig b/fs/Kconfig
-index c42ec50..fa8e978 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -1644,6 +1644,14 @@ config NFS_V4
+diff --git a/mm/readahead.c b/mm/readahead.c
+index c9c50ca..75aa6b6 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -44,6 +44,41 @@ EXPORT_SYMBOL_GPL(file_ra_state_init);
  
- 	  If unsure, say N.
+ #define list_to_page(head) (list_entry((head)->prev, struct page, lru))
  
-+config NFS_FSCACHE
-+	bool "Provide NFS client caching support (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL
-+	depends on NFS_FS=m && FSCACHE || NFS_FS=y && FSCACHE=y
-+	help
-+	  Say Y here if you want NFS data to be cached locally on disc through
-+	  the general filesystem cache manager
++/*
++ * see if a page needs releasing upon read_cache_pages() failure
++ * - the caller of read_cache_pages() may have set PG_private before calling,
++ *   such as the NFS fs marking pages that are cached locally on disk, thus we
++ *   need to give the fs a chance to clean up in the event of an error
++ */
++static void read_cache_pages_invalidate_page(struct address_space *mapping,
++					     struct page *page)
++{
++	if (PagePrivate(page)) {
++		if (TestSetPageLocked(page))
++			BUG();
++		page->mapping = mapping;
++		do_invalidatepage(page, 0);
++		page->mapping = NULL;
++		unlock_page(page);
++	}
++	page_cache_release(page);
++}
 +
- config NFS_DIRECTIO
- 	bool "Allow direct I/O on NFS files"
- 	depends on NFS_FS
++/*
++ * release a list of pages, invalidating them first if need be
++ */
++static void read_cache_pages_invalidate_pages(struct address_space *mapping,
++					      struct list_head *pages)
++{
++	struct page *victim;
++
++	while (!list_empty(pages)) {
++		victim = list_to_page(pages);
++		list_del(&victim->lru);
++		read_cache_pages_invalidate_page(mapping, victim);
++	}
++}
++
+ /**
+  * read_cache_pages - populate an address space with some pages & start reads against them
+  * @mapping: the address_space
+@@ -65,14 +100,14 @@ int read_cache_pages(struct address_space *mapping, struct list_head *pages,
+ 		list_del(&page->lru);
+ 		if (add_to_page_cache_lru(page, mapping,
+ 					page->index, GFP_KERNEL)) {
+-			page_cache_release(page);
++			read_cache_pages_invalidate_page(mapping, page);
+ 			continue;
+ 		}
+ 		page_cache_release(page);
+ 
+ 		ret = filler(data, page);
+ 		if (unlikely(ret)) {
+-			put_pages_list(pages);
++			read_cache_pages_invalidate_pages(mapping, pages);
+ 			break;
+ 		}
+ 		task_io_account_read(PAGE_CACHE_SIZE);
 
 
 --
