@@ -1,53 +1,43 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGBbqC030431
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:11:37 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGBWfY012688
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:11:32 GMT
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 30/37] NFS: Add some new I/O event counters for FS-Cache events
-To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
-Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:08:39 +0000
-Message-ID: <20080220160839.4715.90209.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
-References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGESKY030696
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:14:28 -0500
+Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGEQBs029320
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:14:27 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: =?iso-8859-2?q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Subject: Re: refpolicy: patch for Debian backup cron daily jobs
+Date: Thu, 21 Feb 2008 03:13:48 +1100
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+References: <20080219122951.GA23700@bobek.pm.i.cz> <200802202224.48452.russell@coker.com.au> <20080220154140.GA9839@bobek.pm.i.cz>
+In-Reply-To: <20080220154140.GA9839@bobek.pm.i.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Message-Id: <200802210313.50682.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add some new NFS I/O event counters for FS-Cache events.  They have to be
-added as byte counters because I may need to be able to increase the numbers
-by more than 1 at a time.
+On Thursday 21 February 2008 02:41, Václav Ovsík <vaclav.ovsik@i.cz> wrote:
+> > I wrote the policy for backup_t as a domain for anything the sys-admin
+> > might run at the command-line for the purpose of backing things up.  For
+> > me it's LVM snapshots that are copied (via dd or gzip) to a USB device. 
+> > Nothing Debian specific there, and I've run it on a few Fedora machines
+> > too.
+>
+> This was really Debian-specific - cron jobs doing a local backup into
+> /var/backup...
 
-Signed-off-by: David Howells <dhowells@redhat.com>
----
+backup_store_t might be Debian specific at the moment (but could be used for 
+other things), executing a shell script to perform the backup is quite 
+generic.
 
- fs/nfs/iostat.h |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
 
-
-diff --git a/fs/nfs/iostat.h b/fs/nfs/iostat.h
-index 6350ecb..0e3b170 100644
---- a/fs/nfs/iostat.h
-+++ b/fs/nfs/iostat.h
-@@ -60,6 +60,13 @@ enum nfs_stat_bytecounters {
- 	NFSIOS_SERVERWRITTENBYTES,
- 	NFSIOS_READPAGES,
- 	NFSIOS_WRITEPAGES,
-+#ifdef CONFIG_NFS_FSCACHE
-+	NFSIOS_FSCACHE_READ_OK,
-+	NFSIOS_FSCACHE_READ_FAIL,
-+	NFSIOS_FSCACHE_WRITE_OK,
-+	NFSIOS_FSCACHE_WRITE_FAIL,
-+	NFSIOS_FSCACHE_UNCACHE,
-+#endif
- 	__NFSIOS_BYTESMAX,
- };
- 
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 
 --
