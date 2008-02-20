@@ -1,17 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGB3WN030356
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGB3QX030355
 	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:11:03 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGAvfY012324
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGAvfY012315
 	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:10:57 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 31/37] NFS: FS-Cache page management
+Subject: [PATCH 17/37] CacheFiles: Add a hook to write a single page of data
+	to an inode
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:08:44 +0000
-Message-ID: <20080220160844.4715.11336.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:07:29 +0000
+Message-ID: <20080220160729.4715.28442.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,192 +20,174 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-FS-Cache page management for NFS.  This includes hooking the releasing and
-invalidation of pages marked with PG_fscache (aka PG_private_2) and waiting for
-completion of the write-to-cache flag (PG_fscache_write aka PG_owner_priv_2).
+Add an address space operation to write one single page of data to an inode at
+a page-aligned location (thus permitting the implementation to be highly
+optimised).  The data source is a single page.
+
+This is used by CacheFiles to store the contents of netfs pages into their
+backing file pages.
+
+Supply a generic implementation for this that uses the write_begin() and
+write_end() address_space operations to bind a copy directly into the page
+cache.
+
+Hook the Ext2 and Ext3 operations to the generic implementation.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/file.c    |   17 +++++++++++++----
- fs/nfs/fscache.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/fscache.h |   22 ++++++++++++++++++++++
- 3 files changed, 84 insertions(+), 4 deletions(-)
+ fs/ext2/inode.c    |    2 ++
+ fs/ext3/inode.c    |    3 +++
+ include/linux/fs.h |    7 ++++++
+ mm/filemap.c       |   61 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 73 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index 26a073b..60db3ea 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -35,6 +35,7 @@
- #include "delegation.h"
- #include "internal.h"
- #include "iostat.h"
-+#include "fscache.h"
+diff --git a/fs/ext2/inode.c b/fs/ext2/inode.c
+index c620068..f483014 100644
+--- a/fs/ext2/inode.c
++++ b/fs/ext2/inode.c
+@@ -792,6 +792,7 @@ const struct address_space_operations ext2_aops = {
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
+ 	.migratepage		= buffer_migrate_page,
++	.write_one_page		= generic_file_buffered_write_one_page,
+ };
  
- #define NFSDBG_FACILITY		NFSDBG_FILE
- 
-@@ -358,7 +359,7 @@ static int nfs_write_end(struct file *file, struct address_space *mapping,
-  * Partially or wholly invalidate a page
-  * - Release the private state associated with a page if undergoing complete
-  *   page invalidation
-- * - Called if either PG_private or PG_private_2 is set on the page
-+ * - Called if either PG_private or PG_fscache is set on the page
-  * - Caller holds page lock
-  */
- static void nfs_invalidate_page(struct page *page, unsigned long offset)
-@@ -367,30 +368,35 @@ static void nfs_invalidate_page(struct page *page, unsigned long offset)
- 		return;
- 	/* Cancel any unstarted writes on this page */
- 	nfs_wb_page_cancel(page->mapping->host, page);
-+
-+	nfs_fscache_invalidate_page(page, page->mapping->host);
- }
+ const struct address_space_operations ext2_aops_xip = {
+@@ -810,6 +811,7 @@ const struct address_space_operations ext2_nobh_aops = {
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
+ 	.migratepage		= buffer_migrate_page,
++	.write_one_page		= generic_file_buffered_write_one_page,
+ };
  
  /*
-  * Attempt to release the private state associated with a page
-- * - Called if either PG_private or PG_private_2 is set on the page
-+ * - Called if either PG_private or PG_fscache is set on the page
-  * - Caller holds page lock
-  * - Return true (may release page) or false (may not)
-  */
- static int nfs_release_page(struct page *page, gfp_t gfp)
- {
- 	/* If PagePrivate() is set, then the page is not freeable */
--	return 0;
-+	if (PagePrivate(page))
-+		return 0;
-+	return nfs_fscache_release_page(page, gfp);
- }
+diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
+index c976123..0209f3b 100644
+--- a/fs/ext3/inode.c
++++ b/fs/ext3/inode.c
+@@ -1776,6 +1776,7 @@ static const struct address_space_operations ext3_ordered_aops = {
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
+ 	.migratepage	= buffer_migrate_page,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ static const struct address_space_operations ext3_writeback_aops = {
+@@ -1790,6 +1791,7 @@ static const struct address_space_operations ext3_writeback_aops = {
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
+ 	.migratepage	= buffer_migrate_page,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ static const struct address_space_operations ext3_journalled_aops = {
+@@ -1803,6 +1805,7 @@ static const struct address_space_operations ext3_journalled_aops = {
+ 	.bmap		= ext3_bmap,
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ void ext3_set_aops(struct inode *inode)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index d218ef5..dd6c3d1 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -481,6 +481,11 @@ struct address_space_operations {
+ 	int (*migratepage) (struct address_space *,
+ 			struct page *, struct page *);
+ 	int (*launder_page) (struct page *);
++	/* write the contents of the source page over the page at the specified
++	 * index in the target address space (the source page does not need to
++	 * be related to the target address space) */
++	int (*write_one_page)(struct address_space *, pgoff_t, struct page *);
++
+ };
  
  /*
-  * Attempt to clear the private state associated with a page when an error
-  * occurs that requires the cached contents of an inode to be written back or
-  * destroyed
-- * - Called if either PG_private or PG_private_2 is set on the page
-+ * - Called if either PG_private or fscache is set on the page
-  * - Caller holds page lock
-  * - Return 0 if successful, -error otherwise
-  */
- static int nfs_launder_page(struct page *page)
- {
-+	wait_on_page_fscache_write(page);
- 	return nfs_wb_page(page->mapping->host, page);
+@@ -1811,6 +1816,8 @@ extern ssize_t generic_file_direct_write(struct kiocb *, const struct iovec *,
+ 		unsigned long *, loff_t, loff_t *, size_t, size_t);
+ extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
+ 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
++extern int generic_file_buffered_write_one_page(struct address_space *,
++						pgoff_t, struct page *);
+ extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
+ extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
+ extern int generic_segment_checks(const struct iovec *iov,
+diff --git a/mm/filemap.c b/mm/filemap.c
+index df1e149..a583f44 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2359,6 +2359,67 @@ generic_file_buffered_write(struct kiocb *iocb, const struct iovec *iov,
  }
+ EXPORT_SYMBOL(generic_file_buffered_write);
  
-@@ -422,6 +428,9 @@ static int nfs_vm_page_mkwrite(struct vm_area_struct *vma, struct page *page)
- 	int ret = -EINVAL;
- 	struct address_space *mapping;
- 
-+	/* make sure the cache has finished storing the page */
-+	wait_on_page_fscache_write(page);
-+
- 	lock_page(page);
- 	mapping = page->mapping;
- 	if (mapping != vma->vm_file->f_path.dentry->d_inode->i_mapping)
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index c0e0320..d475ff5 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -19,6 +19,7 @@
- #include <linux/seq_file.h>
- 
- #include "internal.h"
-+#include "iostat.h"
- #include "fscache.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_FSCACHE
-@@ -297,3 +298,51 @@ void nfs_fscache_attr_changed(struct inode *inode)
- {
- 	fscache_attr_changed(NFS_I(inode)->fscache);
- }
-+
-+/*
-+ * Release the caching state associated with a page, if the page isn't busy
-+ * interacting with the cache.
-+ * - Returns true (can release page) or false (page busy).
++/**
++ * generic_file_buffered_write_one_page - Write a single page of data to an
++ *	inode
++ * @mapping - The address space of the target inode
++ * @index - The target page in the target inode to fill
++ * @source - The data to write into the target page
++ *
++ * Write the data from the source page to the page in the nominated address
++ * space at the @index specified.  Note that the file will not be extended if
++ * the page crosses the EOF marker, in which case only the first part of the
++ * page will be written.
++ *
++ * The @source page does not need to have any association with the file or the
++ * target page offset.
 + */
-+int nfs_fscache_release_page(struct page *page, gfp_t gfp)
++int generic_file_buffered_write_one_page(struct address_space *mapping,
++					 pgoff_t index,
++					 struct page *source)
 +{
-+	if (PageFsCacheWrite(page)) {
-+		if (!(gfp & __GFP_WAIT))
-+			return 0;
-+		wait_on_page_fscache_write(page);
-+	}
++	const struct address_space_operations *a_ops = mapping->a_ops;
++	struct page *page;
++	unsigned len;
++	loff_t isize, pos;
++	void *fsdata;
++	int ret;
 +
-+	if (PageFsCache(page)) {
-+		struct nfs_inode *nfsi = NFS_I(page->mapping->host);
++	pos = index;
++	pos <<= PAGE_CACHE_SHIFT;
 +
-+		BUG_ON(!nfsi->fscache);
++	len = PAGE_CACHE_SIZE;
++	isize = i_size_read(mapping->host);
++	if ((isize >> PAGE_CACHE_SHIFT) == index)
++		len = isize & (PAGE_CACHE_SIZE - 1);
 +
-+		dfprintk(FSCACHE, "NFS: fscache releasepage (0x%p/0x%p/0x%p)\n",
-+			 nfsi->fscache, page, nfsi);
++	ret = pagecache_write_begin(NULL, mapping, pos, len,
++				    AOP_FLAG_UNINTERRUPTIBLE, &page, &fsdata);
++	if (ret < 0)
++		goto sync;
 +
-+		fscache_uncache_page(nfsi->fscache, page);
-+		nfs_add_stats(page->mapping->host, NFSIOS_FSCACHE_UNCACHE, 1);
-+	}
++	copy_highpage(page, source);
 +
-+	return 1;
++	ret = pagecache_write_end(NULL, mapping, pos, len, len, page, fsdata);
++	if (ret < 0)
++		goto sync;
++
++	balance_dirty_pages_ratelimited(mapping);
++	cond_resched();
++
++sync:
++	/* the caller must handle O_SYNC themselves, but we handle S_SYNC and
++	 * MS_SYNCHRONOUS here */
++	if (unlikely(IS_SYNC(mapping->host)) && !a_ops->writepage)
++		ret = generic_osync_inode(mapping->host, mapping,
++					     OSYNC_METADATA | OSYNC_DATA);
++
++	/* the caller must handle O_DIRECT for themselves */
++
++	return ret;
 +}
++EXPORT_SYMBOL(generic_file_buffered_write_one_page);
 +
-+/*
-+ * Release the caching state associated with a page if undergoing complete page
-+ * invalidation.
-+ */
-+void __nfs_fscache_invalidate_page(struct page *page, struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	BUG_ON(!nfsi->fscache);
-+
-+	dfprintk(FSCACHE, "NFS: fscache invalidatepage (0x%p/0x%p/0x%p)\n",
-+		 nfsi->fscache, page, nfsi);
-+
-+	wait_on_page_fscache_write(page);
-+
-+	BUG_ON(!PageLocked(page));
-+	fscache_uncache_page(nfsi->fscache, page);
-+	nfs_add_stats(page->mapping->host, NFSIOS_FSCACHE_UNCACHE, 1);
-+}
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index d730ec8..1cb7d96 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -86,6 +86,21 @@ extern void nfs_fscache_set_inode_cookie(struct inode *, struct file *);
- extern void nfs_fscache_renew_inode_cookie(struct inode *);
- extern void nfs_fscache_attr_changed(struct inode *);
- 
-+extern void __nfs_fscache_invalidate_page(struct page *, struct inode *);
-+extern int nfs_fscache_release_page(struct page *, gfp_t);
-+
-+/*
-+ * release the caching state associated with a page if undergoing complete page
-+ * invalidation
-+ */
-+static inline void nfs_fscache_invalidate_page(struct page *page,
-+					       struct inode *inode)
-+{
-+	if (PageFsCache(page))
-+		__nfs_fscache_invalidate_page(page, inode);
-+}
-+
-+
- #else /* CONFIG_NFS_FSCACHE */
- static inline int nfs_fscache_register(void) { return 0; }
- static inline void nfs_fscache_unregister(void) {}
-@@ -110,5 +125,12 @@ static inline void nfs_fscache_set_inode_cookie(struct inode *inode,
- 					     struct file *filp) {}
- static inline void nfs_fscache_attr_changed(struct inode *inode) {}
- 
-+static inline int nfs_fscache_release_page(struct page *page, gfp_t gfp)
-+{
-+	return 1; /* True: may release page */
-+}
-+static inline void nfs_fscache_invalidate_page(struct page *page,
-+					       struct inode *inode) {}
-+
- #endif /* CONFIG_NFS_FSCACHE */
- #endif /* _NFS_FSCACHE_H */
+ static ssize_t
+ __generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos)
 
 
 --
