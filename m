@@ -1,18 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG9t1R030130
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG9t8q030132
 	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:09:55 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG9rDb011935
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:09:54 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG9rDb011930
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:09:53 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 16/37] CacheFiles: Be consistent about the use of mapping vs
-	file->f_mapping in Ext3
+Subject: [PATCH 29/37] NFS: Invalidate FsCache page flags when cache removed
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:07:24 +0000
-Message-ID: <20080220160724.4715.33532.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:08:34 +0000
+Message-ID: <20080220160833.4715.87201.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,54 +19,74 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Change all the usages of file->f_mapping in ext3_*write_end() functions to use
-the mapping argument directly.  This has two consequences:
+Invalidate the FsCache page flags on the pages belonging to an inode when the
+cache backing that NFS inode is removed.
 
- (*) Consistency.  Without this patch sometimes one is used and sometimes the
-     other is.
-
- (*) A NULL file pointer can be passed.  This feature is then made use of by
-     the generic hook in the next patch, which is used by CacheFiles to write
-     pages to a file without setting up a file struct.
+This allows a live cache to be withdrawn.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/ext3/inode.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ fs/nfs/fscache-index.c |   40 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 40 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
-index eb95670..c976123 100644
---- a/fs/ext3/inode.c
-+++ b/fs/ext3/inode.c
-@@ -1215,7 +1215,7 @@ static int ext3_generic_write_end(struct file *file,
- 				loff_t pos, unsigned len, unsigned copied,
- 				struct page *page, void *fsdata)
- {
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+index c3c63fa..eec8e7e 100644
+--- a/fs/nfs/fscache-index.c
++++ b/fs/nfs/fscache-index.c
+@@ -246,6 +246,45 @@ static enum fscache_checkaux nfs_cache_inode_check_aux(void *cookie_netfs_data,
+ }
  
- 	copied = block_write_end(file, mapping, pos, len, copied, page, fsdata);
- 
-@@ -1240,7 +1240,7 @@ static int ext3_ordered_write_end(struct file *file,
- 				struct page *page, void *fsdata)
- {
- 	handle_t *handle = ext3_journal_current_handle();
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
- 	unsigned from, to;
- 	int ret = 0, ret2;
- 
-@@ -1281,7 +1281,7 @@ static int ext3_writeback_write_end(struct file *file,
- 				struct page *page, void *fsdata)
- {
- 	handle_t *handle = ext3_journal_current_handle();
--	struct inode *inode = file->f_mapping->host;
-+	struct inode *inode = mapping->host;
- 	int ret = 0, ret2;
- 	loff_t new_i_size;
- 
+ /*
++ * Indication from FS-Cache that the cookie is no longer cached
++ * - This function is called when the backing store currently caching a cookie
++ *   is removed
++ * - The netfs should use this to clean up any markers indicating cached pages
++ * - This is mandatory for any object that may have data
++ */
++static void nfs_cache_inode_now_uncached(void *cookie_netfs_data)
++{
++	struct nfs_inode *nfsi = cookie_netfs_data;
++	struct pagevec pvec;
++	pgoff_t first;
++	int loop, nr_pages;
++
++	pagevec_init(&pvec, 0);
++	first = 0;
++
++	dprintk("NFS: nfs_inode_now_uncached: nfs_inode 0x%p\n", nfsi);
++
++	for (;;) {
++		/* grab a bunch of pages to unmark */
++		nr_pages = pagevec_lookup(&pvec,
++					  nfsi->vfs_inode.i_mapping,
++					  first,
++					  PAGEVEC_SIZE - pagevec_count(&pvec));
++		if (!nr_pages)
++			break;
++
++		for (loop = 0; loop < nr_pages; loop++)
++			ClearPageFsCache(pvec.pages[loop]);
++
++		first = pvec.pages[nr_pages - 1]->index + 1;
++
++		pvec.nr = nr_pages;
++		pagevec_release(&pvec);
++		cond_resched();
++	}
++}
++
++/*
+  * Define the inode object for FS-Cache.  This is used to describe an inode
+  * object to fscache_acquire_cookie().  It is keyed by the NFS file handle for
+  * an inode.
+@@ -261,4 +300,5 @@ const struct fscache_cookie_def nfs_cache_inode_object_def = {
+ 	.get_attr	= nfs_cache_inode_get_attr,
+ 	.get_aux	= nfs_cache_inode_get_aux,
+ 	.check_aux	= nfs_cache_inode_check_aux,
++	.now_uncached	= nfs_cache_inode_now_uncached,
+ };
 
 
 --
