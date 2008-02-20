@@ -1,17 +1,18 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGjDJ3004597
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:45:13 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KGiakS004479
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:44:36 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGiRC2011669
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:45:13 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KGiRBw011669
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:44:35 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 36/37] NFS: Display local caching state
+Subject: [PATCH 32/37] NFS: Add read context retention for FS-Cache to call
+	back with
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:09:11 +0000
-Message-ID: <20080220160911.4715.54650.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:08:50 +0000
+Message-ID: <20080220160849.4715.2979.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,77 +20,60 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Display the local caching state in /proc/fs/nfsfs/volumes.
+Add read context retention so that FS-Cache can call back into NFS when a read
+operation on the cache fails EIO rather than reading data.  This permits NFS to
+then fetch the data from the server instead using the appropriate security
+context.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/client.c  |    7 ++++---
- fs/nfs/fscache.h |   15 +++++++++++++++
- 2 files changed, 19 insertions(+), 3 deletions(-)
+ fs/nfs/fscache-index.c |   26 ++++++++++++++++++++++++++
+ 1 files changed, 26 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 51e9346..d67d52f 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -1451,7 +1451,7 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
- 
- 	/* display header on line 1 */
- 	if (v == &nfs_volume_list) {
--		seq_puts(m, "NV SERVER   PORT DEV     FSID\n");
-+		seq_puts(m, "NV SERVER   PORT DEV     FSID              FSC\n");
- 		return 0;
- 	}
- 	/* display one transport per line on subsequent lines */
-@@ -1465,12 +1465,13 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
- 		 (unsigned long long) server->fsid.major,
- 		 (unsigned long long) server->fsid.minor);
- 
--	seq_printf(m, "v%u %s %s %-7s %-17s\n",
-+	seq_printf(m, "v%u %s %s %-7s %-17s %s\n",
- 		   clp->rpc_ops->version,
- 		   rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_HEX_ADDR),
- 		   rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_HEX_PORT),
- 		   dev,
--		   fsid);
-+		   fsid,
-+		   nfs_server_fscache_state(server));
- 
- 	return 0;
- }
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index 6264cd8..5f7806f 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -146,6 +146,16 @@ static inline void nfs_readpage_to_fscache(struct inode *inode,
- 		__nfs_readpage_to_fscache(inode, page, sync);
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+index eec8e7e..af9f06b 100644
+--- a/fs/nfs/fscache-index.c
++++ b/fs/nfs/fscache-index.c
+@@ -285,6 +285,30 @@ static void nfs_cache_inode_now_uncached(void *cookie_netfs_data)
  }
  
-+/*
-+ * indicate the client caching state as readable text
+ /*
++ * Get an extra reference on a read context.
++ * - This function can be absent if the completion function doesn't require a
++ *   context.
++ * - The read context is passed back to NFS in the event that a data read on the
++ *   cache fails with EIO - in which case the server must be contacted to
++ *   retrieve the data, which requires the read context for security.
 + */
-+static inline const char *nfs_server_fscache_state(struct nfs_server *server)
++static void nfs_fh_get_context(void *cookie_netfs_data, void *context)
 +{
-+	if (server->fscache && (server->options & NFS_OPTION_FSCACHE))
-+		return "yes";
-+	return "no ";
++	get_nfs_open_context(context);
 +}
 +
- 
- #else /* CONFIG_NFS_FSCACHE */
- static inline int nfs_fscache_register(void) { return 0; }
-@@ -195,5 +205,10 @@ static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
- static inline void nfs_readpage_to_fscache(struct inode *inode,
- 					   struct page *page, int sync) {}
- 
-+static inline const char *nfs_server_fscache_state(struct nfs_server *server)
++/*
++ * Release an extra reference on a read context.
++ * - This function can be absent if the completion function doesn't require a
++ *   context.
++ */
++static void nfs_fh_put_context(void *cookie_netfs_data, void *context)
 +{
-+	return "no ";
++	if (context)
++		put_nfs_open_context(context);
 +}
 +
- #endif /* CONFIG_NFS_FSCACHE */
- #endif /* _NFS_FSCACHE_H */
++/*
+  * Define the inode object for FS-Cache.  This is used to describe an inode
+  * object to fscache_acquire_cookie().  It is keyed by the NFS file handle for
+  * an inode.
+@@ -301,4 +325,6 @@ const struct fscache_cookie_def nfs_cache_inode_object_def = {
+ 	.get_aux	= nfs_cache_inode_get_aux,
+ 	.check_aux	= nfs_cache_inode_check_aux,
+ 	.now_uncached	= nfs_cache_inode_now_uncached,
++	.get_context	= nfs_fh_get_context,
++	.put_context	= nfs_fh_put_context,
+ };
 
 
 --
