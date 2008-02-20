@@ -1,17 +1,17 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG8lFA029733
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:08:47 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG8kBs028268
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:08:46 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG8m0C029762
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:08:48 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG8kDb011470
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:08:47 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 21/37] NFS: Add comment banners to some NFS functions
+Subject: [PATCH 19/37] CacheFiles: Export things for CacheFiles
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:07:51 +0000
-Message-ID: <20080220160751.4715.54315.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:07:40 +0000
+Message-ID: <20080220160740.4715.96103.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,73 +19,27 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add comment banners to some NFS functions so that they can be modified by the
-NFS fscache patches for further information.
+Export a number of functions for CacheFiles's use.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/file.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+ fs/super.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/nfs/file.c b/fs/nfs/file.c
-index ef57a5a..26a073b 100644
---- a/fs/nfs/file.c
-+++ b/fs/nfs/file.c
-@@ -354,6 +354,13 @@ static int nfs_write_end(struct file *file, struct address_space *mapping,
- 	return copied;
+diff --git a/fs/super.c b/fs/super.c
+index 88811f6..1133b43 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -267,6 +267,7 @@ int fsync_super(struct super_block *sb)
+ 	__fsync_super(sb);
+ 	return sync_blockdev(sb->s_bdev);
  }
++EXPORT_SYMBOL_GPL(fsync_super);
  
-+/*
-+ * Partially or wholly invalidate a page
-+ * - Release the private state associated with a page if undergoing complete
-+ *   page invalidation
-+ * - Called if either PG_private or PG_private_2 is set on the page
-+ * - Caller holds page lock
-+ */
- static void nfs_invalidate_page(struct page *page, unsigned long offset)
- {
- 	if (offset != 0)
-@@ -362,12 +369,26 @@ static void nfs_invalidate_page(struct page *page, unsigned long offset)
- 	nfs_wb_page_cancel(page->mapping->host, page);
- }
- 
-+/*
-+ * Attempt to release the private state associated with a page
-+ * - Called if either PG_private or PG_private_2 is set on the page
-+ * - Caller holds page lock
-+ * - Return true (may release page) or false (may not)
-+ */
- static int nfs_release_page(struct page *page, gfp_t gfp)
- {
- 	/* If PagePrivate() is set, then the page is not freeable */
- 	return 0;
- }
- 
-+/*
-+ * Attempt to clear the private state associated with a page when an error
-+ * occurs that requires the cached contents of an inode to be written back or
-+ * destroyed
-+ * - Called if either PG_private or PG_private_2 is set on the page
-+ * - Caller holds page lock
-+ * - Return 0 if successful, -error otherwise
-+ */
- static int nfs_launder_page(struct page *page)
- {
- 	return nfs_wb_page(page->mapping->host, page);
-@@ -389,6 +410,11 @@ const struct address_space_operations nfs_file_aops = {
- 	.launder_page = nfs_launder_page,
- };
- 
-+/*
-+ * Notification that a PTE pointing to an NFS page is about to be made
-+ * writable, implying that someone is about to modify the page through a
-+ * shared-writable mapping
-+ */
- static int nfs_vm_page_mkwrite(struct vm_area_struct *vma, struct page *page)
- {
- 	struct file *filp = vma->vm_file;
+ /**
+  *	generic_shutdown_super	-	common helper for ->kill_sb()
 
 
 --
