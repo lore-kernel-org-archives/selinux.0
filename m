@@ -1,126 +1,306 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG7Awt029425
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:07:10 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG79Bs028103
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:07:09 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KG8145029555
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 11:08:01 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KG80Db011146
+	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 16:08:00 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 00/37] Permit filesystem local caching
+Subject: [PATCH 10/37] Security: Make NFSD work with detached security
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Wed, 20 Feb 2008 16:05:58 +0000
-Message-ID: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
+Date: Wed, 20 Feb 2008 16:06:52 +0000
+Message-ID: <20080220160652.4715.50448.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
+References: <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Make NFSD work with detached security, using the patches that excise the
+security information from task_struct to struct task_security as a base.
+
+Each time NFSD wants a new security descriptor (to do NFS4 recovery or just to
+do NFS operations), a task_security record is derived from NFSD's *objective*
+security, modified and then applied as the *subjective* security.  This means
+(a) the changes are not visible to anyone looking at NFSD through /proc, (b)
+there is no leakage between two consecutive ops with different security
+configurations.
+
+Consideration should probably be given to caching the task_security record on
+the basis that there'll probably be several ops that will want to use any
+particular security configuration.
+
+Furthermore, nfs4recover.c perhaps ought to set an appropriate LSM context on
+the record pointed to by rec_security so that the disk is accessed
+appropriately (see set_security_override[_from_ctx]()).
+
+NOTE!  This patch must be rolled in to one of the earlier security patches to
+make it compile fully.
+
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
+
+ fs/nfsd/auth.c        |   37 +++++++++++++++++++---------
+ fs/nfsd/nfs4recover.c |   64 +++++++++++++++++++++++++++++++------------------
+ 2 files changed, 65 insertions(+), 36 deletions(-)
 
 
-These patches add local caching for network filesystems such as NFS.
+diff --git a/fs/nfsd/auth.c b/fs/nfsd/auth.c
+index 5586157..ebdc562 100644
+--- a/fs/nfsd/auth.c
++++ b/fs/nfsd/auth.c
+@@ -6,6 +6,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/sched.h>
++#include <linux/cred.h>
+ #include <linux/sunrpc/svc.h>
+ #include <linux/sunrpc/svcauth.h>
+ #include <linux/nfsd/nfsd.h>
+@@ -26,12 +27,17 @@ int nfsexp_flags(struct svc_rqst *rqstp, struct svc_export *exp)
+ 
+ int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
+ {
+-	struct task_security *act_as = current->act_as;
++	struct task_security *sec, *old;
+ 	struct svc_cred	cred = rqstp->rq_cred;
+ 	int i;
+ 	int flags = nfsexp_flags(rqstp, exp);
+ 	int ret;
+ 
++	/* derive the new security record from nfsd's objective security */
++	sec = get_kernel_security(current);
++	if (!sec)
++		return -ENOMEM;
++
+ 	if (flags & NFSEXP_ALLSQUASH) {
+ 		cred.cr_uid = exp->ex_anon_uid;
+ 		cred.cr_gid = exp->ex_anon_gid;
+@@ -55,26 +61,33 @@ int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
+ 		get_group_info(cred.cr_group_info);
+ 
+ 	if (cred.cr_uid != (uid_t) -1)
+-		act_as->fsuid = cred.cr_uid;
++		sec->fsuid = cred.cr_uid;
+ 	else
+-		act_as->fsuid = exp->ex_anon_uid;
++		sec->fsuid = exp->ex_anon_uid;
+ 	if (cred.cr_gid != (gid_t) -1)
+-		act_as->fsgid = cred.cr_gid;
++		sec->fsgid = cred.cr_gid;
+ 	else
+-		act_as->fsgid = exp->ex_anon_gid;
++		sec->fsgid = exp->ex_anon_gid;
+ 
+-	if (!cred.cr_group_info)
++	if (!cred.cr_group_info) {
++		put_task_security(sec);
+ 		return -ENOMEM;
+-	ret = set_groups(act_as, cred.cr_group_info);
++	}
++	ret = set_groups(sec, cred.cr_group_info);
+ 	put_group_info(cred.cr_group_info);
+ 	if ((cred.cr_uid)) {
+-		act_as->cap_effective =
+-			cap_drop_nfsd_set(act_as->cap_effective);
++		sec->cap_effective =
++			cap_drop_nfsd_set(sec->cap_effective);
+ 	} else {
+-		act_as->cap_effective =
+-			cap_raise_nfsd_set(act_as->cap_effective,
+-					   act_as->cap_permitted);
++		sec->cap_effective =
++			cap_raise_nfsd_set(sec->cap_effective,
++					   sec->cap_permitted);
+ 	}
++
++	/* set the new security as nfsd's subjective security */
++	old = current->act_as;
++	current->act_as = sec;
++	put_task_security(old);
+ 	return ret;
+ }
+ 
+diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
+index afddc9b..c86aa92 100644
+--- a/fs/nfsd/nfs4recover.c
++++ b/fs/nfsd/nfs4recover.c
+@@ -46,27 +46,37 @@
+ #include <linux/scatterlist.h>
+ #include <linux/crypto.h>
+ #include <linux/sched.h>
++#include <linux/cred.h>
+ 
+ #define NFSDDBG_FACILITY                NFSDDBG_PROC
+ 
+ /* Globals */
+ static struct nameidata rec_dir;
+ static int rec_dir_init = 0;
++static struct task_security *rec_security;
+ 
++/*
++ * switch the special recovery access security in on the current task's
++ * subjective security
++ */
+ static void
+-nfs4_save_user(uid_t *saveuid, gid_t *savegid)
++nfs4_begin_secure(struct task_security **saved_sec)
+ {
+-	*saveuid = current->act_as->fsuid;
+-	*savegid = current->act_as->fsgid;
+-	current->act_as->fsuid = 0;
+-	current->act_as->fsgid = 0;
++	*saved_sec = current->act_as;
++	current->act_as = get_task_security(rec_security);
+ }
+ 
++/*
++ * return the current task's subjective security to its former glory
++ */
+ static void
+-nfs4_reset_user(uid_t saveuid, gid_t savegid)
++nfs4_end_secure(struct task_security *saved_sec)
+ {
+-	current->act_as->fsuid = saveuid;
+-	current->act_as->fsgid = savegid;
++	struct task_security *discard;
++
++	discard = current->act_as;
++	current->act_as = saved_sec;
++	put_task_security(discard);
+ }
+ 
+ static void
+@@ -128,10 +138,9 @@ nfsd4_sync_rec_dir(void)
+ int
+ nfsd4_create_clid_dir(struct nfs4_client *clp)
+ {
++	struct task_security *saved_sec;
+ 	char *dname = clp->cl_recdir;
+ 	struct dentry *dentry;
+-	uid_t uid;
+-	gid_t gid;
+ 	int status;
+ 
+ 	dprintk("NFSD: nfsd4_create_clid_dir for \"%s\"\n", dname);
+@@ -139,7 +148,7 @@ nfsd4_create_clid_dir(struct nfs4_client *clp)
+ 	if (!rec_dir_init || clp->cl_firststate)
+ 		return 0;
+ 
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	/* lock the parent */
+ 	mutex_lock(&rec_dir.path.dentry->d_inode->i_mutex);
+@@ -163,7 +172,7 @@ out_unlock:
+ 		clp->cl_firststate = 1;
+ 		nfsd4_sync_rec_dir();
+ 	}
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	dprintk("NFSD: nfsd4_create_clid_dir returns %d\n", status);
+ 	return status;
+ }
+@@ -206,20 +215,19 @@ nfsd4_build_dentrylist(void *arg, const char *name, int namlen,
+ static int
+ nfsd4_list_rec_dir(struct dentry *dir, recdir_func *f)
+ {
++	struct task_security *saved_sec;
+ 	struct file *filp;
+ 	struct dentry_list_arg dla = {
+ 		.parent = dir,
+ 	};
+ 	struct list_head *dentries = &dla.dentries;
+ 	struct dentry_list *child;
+-	uid_t uid;
+-	gid_t gid;
+ 	int status;
+ 
+ 	if (!rec_dir_init)
+ 		return 0;
+ 
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	filp = dentry_open(dget(dir), mntget(rec_dir.path.mnt), O_RDONLY);
+ 	status = PTR_ERR(filp);
+@@ -244,7 +252,7 @@ out:
+ 		dput(child->dentry);
+ 		kfree(child);
+ 	}
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	return status;
+ }
+ 
+@@ -306,17 +314,16 @@ out:
+ void
+ nfsd4_remove_clid_dir(struct nfs4_client *clp)
+ {
+-	uid_t uid;
+-	gid_t gid;
++	struct task_security *saved_sec;
+ 	int status;
+ 
+ 	if (!rec_dir_init || !clp->cl_firststate)
+ 		return;
+ 
+ 	clp->cl_firststate = 0;
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 	status = nfsd4_unlink_clid_dir(clp->cl_recdir, HEXDIR_LEN-1);
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	if (status == 0)
+ 		nfsd4_sync_rec_dir();
+ 	if (status)
+@@ -387,8 +394,7 @@ nfsd4_recdir_load(void) {
+ void
+ nfsd4_init_recdir(char *rec_dirname)
+ {
+-	uid_t			uid = 0;
+-	gid_t			gid = 0;
++	struct task_security	*saved_sec;
+ 	int 			status;
+ 
+ 	printk("NFSD: Using %s as the NFSv4 state recovery directory\n",
+@@ -396,7 +402,15 @@ nfsd4_init_recdir(char *rec_dirname)
+ 
+ 	BUG_ON(rec_dir_init);
+ 
+-	nfs4_save_user(&uid, &gid);
++	/* derive the security record from this task's objective security */
++	rec_security = get_kernel_security(current);
++	if (!rec_security) {
++		printk("NFSD:"
++		       " unable to allocate recovery directory security\n");
++		return;
++	}
++
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	status = path_lookup(rec_dirname, LOOKUP_FOLLOW | LOOKUP_DIRECTORY,
+ 			&rec_dir);
+@@ -406,7 +420,8 @@ nfsd4_init_recdir(char *rec_dirname)
+ 
+ 	if (!status)
+ 		rec_dir_init = 1;
+-	nfs4_reset_user(uid, gid);
++
++	nfs4_end_secure(saved_sec);
+ }
+ 
+ void
+@@ -416,4 +431,5 @@ nfsd4_shutdown_recdir(void)
+ 		return;
+ 	rec_dir_init = 0;
+ 	path_put(&rec_dir.path);
++	put_task_security(rec_security);
+ }
 
-The patches can roughly be broken down into a number of sets:
-
-  (*) 01-keys-inc-payload.diff
-  (*) 02-keys-search-keyring.diff
-  (*) 03-keys-callout-blob.diff
-
-      Three patches to the keyring code made to help the CIFS people.
-      Included because of patches 05-08.
-
-  (*) 04-keys-get-label.diff
-
-      A patch to allow the security label of a key to be retrieved.
-      Included because of patches 05-08.
-
-  (*) 05-security-current-fsugid.diff
-  (*) 06-security-separate-task-bits.diff
-  (*) 07-security-subjective.diff
-  (*) 08-security-kernel_service-class.diff
-  (*) 09-security-kernel-service.diff
-  (*) 10-security-nfsd.diff
-
-      Patches to permit the subjective security of a task to be overridden.
-      All the security details in task_struct are decanted into a new struct
-      that task_struct then has two pointers two: one that defines the
-      objective security of that task (how other tasks may affect it) and one
-      that defines the subjective security (how it may affect other objects).
-
-      Note that I have dropped the idea of struct cred for the moment.  With
-      the amount of stuff that was excluded from it, it wasn't actually any
-      use to me.  However, it can be added later.
-
-      Required for cachefiles.
-
-  (*) 11-release-page.diff
-  (*) 12-fscache-page-flags.diff
-  (*) 13-add_wait_queue_tail.diff
-  (*) 14-fscache.diff
-
-      Patches to provide a local caching facility for network filesystems.
-
-  (*) 15-cachefiles-ia64.diff
-  (*) 16-cachefiles-ext3-f_mapping.diff
-  (*) 17-cachefiles-write.diff
-  (*) 18-cachefiles-monitor.diff
-  (*) 19-cachefiles-export.diff
-  (*) 20-cachefiles.diff
-
-      Patches to provide a local cache in a directory of an already mounted
-      filesystem.
-
-  (*) 21-nfs-comment.diff
-  (*) 22-nfs-fscache-option.diff
-  (*) 23-nfs-fscache-kconfig.diff
-  (*) 24-nfs-fscache-top-index.diff
-  (*) 25-nfs-fscache-server-obj.diff
-  (*) 26-nfs-fscache-super-obj.diff
-  (*) 27-nfs-fscache-inode-obj.diff
-  (*) 28-nfs-fscache-use-inode.diff
-  (*) 29-nfs-fscache-invalidate-pages.diff
-  (*) 30-nfs-fscache-iostats.diff
-  (*) 31-nfs-fscache-page-management.diff
-  (*) 32-nfs-fscache-read-context.diff
-  (*) 33-nfs-fscache-read-fallback.diff
-  (*) 34-nfs-fscache-read-from-cache.diff
-  (*) 35-nfs-fscache-store-to-cache.diff
-  (*) 36-nfs-fscache-mount.diff
-  (*) 37-nfs-fscache-display.diff
-
-      Patches to provide NFS with local caching.
-
-      A couple of questions on the NFS iostat changes: (1) Should I update the
-      iostat version number; (2) is it permitted to have conditional iostats?
-
-
-I've brought the patchset up to date with respect to the 2.6.25-rc1 merge
-window, in particular altering Smack to handle the split in objective and
-subjective security in the task_struct.
-
---
-A tarball of the patches is available at:
-
-	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-30.tar.bz2
-
-
-To use this version of CacheFiles, the cachefilesd-0.9 is also required.  It
-is available as an SRPM:
-
-	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9-1.fc7.src.rpm
-
-Or as individual bits:
-
-	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9.tar.bz2
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
-
-The .fc, .if and .te files are for manipulating SELinux.
-
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
