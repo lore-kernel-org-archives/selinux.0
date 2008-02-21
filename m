@@ -1,34 +1,49 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1LCVVIw006877
-	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 07:31:31 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1LCVTGd025121
-	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 12:31:30 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200802201907.40406.phillips@phunq.net>
-References: <200802201907.40406.phillips@phunq.net> <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
-To: Daniel Phillips <phillips@phunq.net>
-Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
-        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 00/37] Permit filesystem local caching
-Date: Thu, 21 Feb 2008 12:31:12 +0000
-Message-ID: <19566.1203597072@redhat.com>
+Subject: Re: [RFS] Application changing remote policy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: shahbaz khan <shazalive@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <7b740b700802210400k7251155at88cf77e761cb6248@mail.gmail.com>
+References: <7b740b700802210400k7251155at88cf77e761cb6248@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 21 Feb 2008 08:38:48 -0500
+Message-Id: <1203601128.9902.252.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel Phillips <phillips@phunq.net> wrote:
 
-> > These patches add local caching for network filesystems such as NFS.
-> 
-> Have you got before/after benchmark results?
+On Thu, 2008-02-21 at 17:00 +0500, shahbaz khan wrote:
+> I am working on an application that needs access to a remote selinux
+> system and this application would like to change the policy for itself
+> so that it can use some resources. Definitely it has to be trusted! I
+> know its weird but in case it has to then what should basically be the
+> sensible thing to do? Is there a possibility that my application can
+> pick the policy that is relevant to itself from the remote selinux so
+> that it can try to modify it? If the policy is not available in text
+> form (monolithic/base or LPM) then what can be the possibilities?
+> Something from the selinuxfs or maybe some tweaking module needed to
+> handle the AVC. If anyone thinks I am stupid (especially Mr. Smalley)
+> then I already know this ;-)
 
-I need to get a new hard drive for my test machine before I can go and get
-some more up to date benchmark results.  It does seem, however, that the I/O
-error handling capabilities of FS-Cache work properly:-)
+Can you clarify the real requirements?
 
-David
+If the application is truly trusted to change its own policy at will,
+then it is effectively unconfined - so what is the purpose of not just
+running it unconfined_t?  Just to reduce the likelihood of it
+unintentionally exercising a permission?
+
+What kinds of policy changes does it want to apply?  If they can be
+expressed as conditional policy, then you can just write the policy once
+and have the application or some other process just change booeans
+rather than having to rewrite policy.
+
+And in order to achieve any access control over changes to policy other
+than boolean changes, you need to be using the policy management server.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
