@@ -1,239 +1,87 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1LEtwix024406
-	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 09:55:58 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1LEtuGd028164
-	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 14:55:56 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200802201907.40406.phillips@phunq.net>
-References: <200802201907.40406.phillips@phunq.net> <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
-To: Daniel Phillips <phillips@phunq.net>
-Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
-        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 00/37] Permit filesystem local caching
-Date: Thu, 21 Feb 2008 14:55:03 +0000
-Message-ID: <28196.1203605703@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1LJwbe7031428
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 14:58:37 -0500
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1LJwZB1022704
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 19:58:35 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so114270fgg.40
+        for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 11:58:34 -0800 (PST)
+Message-ID: <cadfc0e40802211158s3f794202s98fff7dd99f3492@mail.gmail.com>
+Date: Thu, 21 Feb 2008 13:58:33 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Subject: Re: FC8 enforcing auditd, mcstransd, NFS statd fail to start
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <47BCAC42.50003@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40802201124l5f8b2330x159eb3f7485687c4@mail.gmail.com>
+	 <47BCAC42.50003@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel Phillips <phillips@phunq.net> wrote:
+Everyone else will too.
 
-> Have you got before/after benchmark results?
+--- serefpolicy-3.0.8/policy/modules/system/logging.te  2008-02-21
+13:10:20.000000000 -0600
++++ serefpolicy-3.0.8.new/policy/modules/system/logging.te
+2008-02-21 13:46:32.000000000 -0600
+@@ -162,6 +162,8 @@
 
-See attached.
+ miscfiles_read_localization(auditd_t)
 
-These show a couple of things:
++init_use_script_fds(auditd_t)
++mls_fd_use_all_levels(auditd_t)
+ mls_file_read_all_levels(auditd_t)
+ mls_file_write_all_levels(auditd_t) # Need to be able to write to
+/var/run/ directory
 
- (1) Dealing with lots of metadata slows things down a lot.  Note the result of
-     looking and reading lots of small files with tar (the last result).  The
-     NFS client has to both consult the NFS server *and* the cache.  Not only
-     that, but any asynchronicity the cache may like to do is rendered
-     ineffective by the fact tar wants to do a read on a file pretty much
-     directly after opening it.
+--- serefpolicy-3.0.8/policy/modules/system/setrans.te  2007-09-18
+09:48:05.000000000 -0500
++++ serefpolicy-3.0.8.new/policy/modules/system/setrans.te
+2008-02-21 13:44:42.000000000 -0600
+@@ -52,6 +52,7 @@
 
- (2) Getting metadata from the local disk fs is slower than pulling it across
-     an unshared gigabit ethernet from a server that already has it in memory.
+ files_read_etc_runtime_files(setrans_t)
 
-These points don't mean that fscache is no use, just that you have to consider
-carefully whether it's of use to *you* given your particular situation, and
-that depends on various factors.
-
-Note that currently FS-Caching is disabled for individual NFS files opened for
-writing as there's no way to handle the coherency problems thereby introduced.
-
-David
----
-
-			  ===========================
-			  FS-CACHE FOR NFS BENCHMARKS
-			  ===========================
-
- (*) The NFS client has a 1.86GHz Core2 Duo CPU and 1GB of RAM.
-
- (*) The NFS client has a Seagate ST380211AS 80GB 7200rpm SATA disk on an
-     interface running in AHCI mode.  The chipset is an Intel G965.
-
- (*) A partition of approx 4.5GB is committed to caching, and is formatted as
-     Ext3 with a blocksize of 4096 and directory indices.
-
- (*) The NFS client is using SELinux.
-
- (*) The NFS server is running an in-kernel NFSd, and has a 2.66GHz Core2 Duo
-     CPU and 6GB of RAM.  The chipset is an Intel P965.
-
- (*) The NFS client is connected to the NFS server by Gigabit Ethernet.
-
- (*) The NFS mount is made with defaults for all options not relating to the
-     cache:
-
-	warthog:/warthog /warthog nfs
-		rw,vers=3,rsize=1048576,wsize=1048576,hard,proto=tcp,timeo=600,
-		retrans=2,sec=sys,fsc,addr=w.x.y.z 0 0
++mls_fd_use_all_levels(setrans_t)
+ mls_file_read_all_levels(setrans_t)
+ mls_file_write_all_levels(setrans_t)
+ mls_net_receive_all_levels(setrans_t)
 
 
-==================
-FEW BIG FILES TEST
-==================
-
-Where:
-
- (*) The NFS server has two files:
-
-	[root@andromeda ~]# ls -l /warthog/bigfile
-	-rw-rw-r-- 1 4043 4043 104857600 2006-11-30 09:39 /warthog/bigfile
-	[root@andromeda ~]# ls -l /warthog/biggerfile 
-	-rw-rw-r-- 1 4043 4041 209715200 2006-03-21 13:56 /warthog/biggerfile
-
-     Both of which are in memory on the server in all cases.
-
-
-No patches, cold NFS cache:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m1.909s
-	user    0m0.000s
-	sys     0m0.520s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m3.750s
-	user    0m0.000s
-	sys     0m0.904s
-
-CONFIG_FSCACHE=n, cold NFS cache:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m2.003s
-	user    0m0.000s
-	sys     0m0.124s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m4.100s
-	user    0m0.004s
-	sys     0m0.488s
-
-Cold NFS cache, no disk cache:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m2.084s
-	user    0m0.000s
-	sys     0m0.136s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m4.020s
-	user    0m0.000s
-	sys     0m0.720s
-
-Completely cold caches:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m2.412s
-	user    0m0.000s
-	sys     0m0.892s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m4.449s
-	user    0m0.000s
-	sys     0m2.300s
-
-Warm NFS pagecache:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m0.067s
-	user    0m0.000s
-	sys     0m0.064s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m0.133s
-	user    0m0.000s
-	sys     0m0.136s
-
-Warm Ext3 pagecache, cold NFS pagecache:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m0.173s
-	user    0m0.000s
-	sys     0m0.172s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m0.316s
-	user    0m0.000s
-	sys     0m0.316s
-
-Warm on-disk cache, cold pagecaches:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m1.955s
-	user    0m0.000s
-	sys     0m0.244s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m3.596s
-	user    0m0.000s
-	sys     0m0.460s
-
-
-===================================
-MANY SMALL/MEDIUM FILE READING TEST
-===================================
-
-Where:
-
- (*) The NFS server has an old kernel tree:
-
-	[root@andromeda ~]# du -s /warthog/aaa
-	347340  /warthog/aaa
-	[root@andromeda ~]# find /warthog/aaa | wc -l
-	20443
-
-     All of which is in memory on the server in all cases.
-
-
-No patches, cold NFS cache:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    0m21.698s
-	user    0m0.156s
-	sys     0m5.284s
-
-CONFIG_FSCACHE=n, cold NFS cache:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    0m22.337s
-	user    0m0.152s
-	sys     0m5.476s
-
-Cold NFS cache, no disk cache:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    0m22.734s
-	user    0m0.124s
-	sys     0m5.796s
-
-Completely cold caches:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    0m37.497s
-	user    0m0.248s
-	sys     0m6.648s
-
-Warm NFS pagecache:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    0m15.167s
-	user    0m0.168s
-	sys     0m4.856s
-
-Warm Ext3 pagecache, cold NFS pagecache:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	tar: Removing leading `/' from member names
-	tar: Removing leading `/' from hard link targets
-
-	real    0m13.818s
-	user    0m0.200s
-	sys     0m5.492s
-
-Warm on-disk cache, cold pagecaches:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    1m54.350s
-	user    0m0.044s
-	sys     0m1.256s
+On Wed, Feb 20, 2008 at 4:40 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+>  Hash: SHA1
+>
+>
+>
+>  Xavier Toth wrote:
+>  > type=AVC msg=audit(1197625021.926:66): avc:  denied  { write } for
+>  > pid=1494 comm="audispd" path="socket:[7238]" dev=sockfs ino=7238
+>  > scontext=system_u:system_r:auditd_t:s15:c0.c1023
+>  > tcontext=system_u:system_r:auditd_t:s0-s15:c0.c1023
+>  > tclass=unix_stream_socket
+>  >
+>  > type=AVC msg=audit(1203524274.667:562): avc:  denied  { use } for
+>  > pid=19909 comm="mcstransd" path="/lib/ld-2.7.so" dev=dm-0 ino=2359430
+>  > scontext=system_u:system_r:setrans_t:s15:c0.c1023
+>  > tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=fd
+>  >
+>  > --
+>  > This message was distributed to subscribers of the selinux mailing list.
+>  > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>  > the words "unsubscribe selinux" without quotes as the message.
+>  Looks like you have an MLS constraint problem.
+>  -----BEGIN PGP SIGNATURE-----
+>  Version: GnuPG v1.4.8 (GNU/Linux)
+>  Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+>
+>  iEYEARECAAYFAke8rEIACgkQrlYvE4MpobP0CACgqFCF2JTlJQVyHNNTpfx5pJpo
+>  8poAoJlMUL0Qp529P5+jLhpOV/yJFNUl
+>  =GfHP
+>  -----END PGP SIGNATURE-----
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
