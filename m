@@ -1,50 +1,56 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1KMeBAe020895
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 17:40:11 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1KMe6MM008640
-	for <selinux@tycho.nsa.gov>; Wed, 20 Feb 2008 22:40:06 GMT
-Message-ID: <47BCAC42.50003@redhat.com>
-Date: Wed, 20 Feb 2008 17:40:02 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1LC0AQb002993
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 07:00:10 -0500
+Received: from qb-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1LC09fK028634
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 12:00:09 GMT
+Received: by qb-out-0506.google.com with SMTP id e7so3332564qbe.8
+        for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 04:00:09 -0800 (PST)
+Message-ID: <7b740b700802210400k7251155at88cf77e761cb6248@mail.gmail.com>
+Date: Thu, 21 Feb 2008 17:00:05 +0500
+From: "shahbaz khan" <shazalive@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: [RFS] Application changing remote policy
 MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: FC8 enforcing auditd, mcstransd, NFS statd fail to start
-References: <cadfc0e40802201124l5f8b2330x159eb3f7485687c4@mail.gmail.com>
-In-Reply-To: <cadfc0e40802201124l5f8b2330x159eb3f7485687c4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/alternative;
+	boundary="----=_Part_1863_30135987.1203595205734"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+------=_Part_1863_30135987.1203595205734
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Xavier Toth wrote:
-> type=AVC msg=audit(1197625021.926:66): avc:  denied  { write } for
-> pid=1494 comm="audispd" path="socket:[7238]" dev=sockfs ino=7238
-> scontext=system_u:system_r:auditd_t:s15:c0.c1023
-> tcontext=system_u:system_r:auditd_t:s0-s15:c0.c1023
-> tclass=unix_stream_socket
-> 
-> type=AVC msg=audit(1203524274.667:562): avc:  denied  { use } for
-> pid=19909 comm="mcstransd" path="/lib/ld-2.7.so" dev=dm-0 ino=2359430
-> scontext=system_u:system_r:setrans_t:s15:c0.c1023
-> tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=fd
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-Looks like you have an MLS constraint problem.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+I am working on an application that needs access to a remote selinux system
+and this application would like to change the policy for itself so that it
+can use some resources. Definitely it has to be trusted! I know its weird
+but in case it has to then what should basically be the sensible thing to
+do? Is there a possibility that my application can pick the policy that is
+relevant to itself from the remote selinux so that it can try to modify it?
+If the policy is not available in text form (monolithic/base or LPM) then
+what can be the possibilities? Something from the selinuxfs or maybe some
+tweaking module needed to handle the AVC. If anyone thinks I am stupid
+(especially Mr. Smalley) then I already know this ;-)
 
-iEYEARECAAYFAke8rEIACgkQrlYvE4MpobP0CACgqFCF2JTlJQVyHNNTpfx5pJpo
-8poAoJlMUL0Qp529P5+jLhpOV/yJFNUl
-=GfHP
------END PGP SIGNATURE-----
+-- 
+Shahbaz Khan
+Research Associate, SERG, IMSciences
+Group: http://serg.imsciences.edu.pk
+Site: http://shazkhan.wordpress.com
+Email: shazalive@gmail.com
+cell: +92 300 5944647
+
+------=_Part_1863_30135987.1203595205734
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+I am working on an application that needs access to a remote selinux system and this application would like to change the policy for itself so that it can use some resources. Definitely it has to be trusted! I know its weird but in case it has to then what should basically be the sensible thing to do? Is there a possibility that my application can pick the policy that is relevant to itself from the remote selinux so that it can try to modify it? If the policy is not available in text form (monolithic/base or LPM) then what can be the possibilities? Something from the selinuxfs or maybe some tweaking module needed to handle the AVC. If anyone thinks I am stupid (especially Mr. Smalley) then I already know this ;-)<br clear="all">
+<br>-- <br>Shahbaz Khan<br>Research Associate, SERG, IMSciences<br>Group: <a href="http://serg.imsciences.edu.pk">http://serg.imsciences.edu.pk</a><br>Site: <a href="http://shazkhan.wordpress.com">http://shazkhan.wordpress.com</a><br>
+Email: <a href="mailto:shazalive@gmail.com">shazalive@gmail.com</a><br>cell: +92 300 5944647
+
+------=_Part_1863_30135987.1203595205734--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
