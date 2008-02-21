@@ -1,49 +1,239 @@
-Subject: Re: [RFS] Application changing remote policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: shahbaz khan <shazalive@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <7b740b700802210400k7251155at88cf77e761cb6248@mail.gmail.com>
-References: <7b740b700802210400k7251155at88cf77e761cb6248@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 21 Feb 2008 08:38:48 -0500
-Message-Id: <1203601128.9902.252.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1LEtwix024406
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 09:55:58 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1LEtuGd028164
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 14:55:56 GMT
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200802201907.40406.phillips@phunq.net>
+References: <200802201907.40406.phillips@phunq.net> <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
+To: Daniel Phillips <phillips@phunq.net>
+Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
+        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 00/37] Permit filesystem local caching
+Date: Thu, 21 Feb 2008 14:55:03 +0000
+Message-ID: <28196.1203605703@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Daniel Phillips <phillips@phunq.net> wrote:
 
-On Thu, 2008-02-21 at 17:00 +0500, shahbaz khan wrote:
-> I am working on an application that needs access to a remote selinux
-> system and this application would like to change the policy for itself
-> so that it can use some resources. Definitely it has to be trusted! I
-> know its weird but in case it has to then what should basically be the
-> sensible thing to do? Is there a possibility that my application can
-> pick the policy that is relevant to itself from the remote selinux so
-> that it can try to modify it? If the policy is not available in text
-> form (monolithic/base or LPM) then what can be the possibilities?
-> Something from the selinuxfs or maybe some tweaking module needed to
-> handle the AVC. If anyone thinks I am stupid (especially Mr. Smalley)
-> then I already know this ;-)
+> Have you got before/after benchmark results?
 
-Can you clarify the real requirements?
+See attached.
 
-If the application is truly trusted to change its own policy at will,
-then it is effectively unconfined - so what is the purpose of not just
-running it unconfined_t?  Just to reduce the likelihood of it
-unintentionally exercising a permission?
+These show a couple of things:
 
-What kinds of policy changes does it want to apply?  If they can be
-expressed as conditional policy, then you can just write the policy once
-and have the application or some other process just change booeans
-rather than having to rewrite policy.
+ (1) Dealing with lots of metadata slows things down a lot.  Note the result of
+     looking and reading lots of small files with tar (the last result).  The
+     NFS client has to both consult the NFS server *and* the cache.  Not only
+     that, but any asynchronicity the cache may like to do is rendered
+     ineffective by the fact tar wants to do a read on a file pretty much
+     directly after opening it.
 
-And in order to achieve any access control over changes to policy other
-than boolean changes, you need to be using the policy management server.
+ (2) Getting metadata from the local disk fs is slower than pulling it across
+     an unshared gigabit ethernet from a server that already has it in memory.
 
--- 
-Stephen Smalley
-National Security Agency
+These points don't mean that fscache is no use, just that you have to consider
+carefully whether it's of use to *you* given your particular situation, and
+that depends on various factors.
 
+Note that currently FS-Caching is disabled for individual NFS files opened for
+writing as there's no way to handle the coherency problems thereby introduced.
+
+David
+---
+
+			  ===========================
+			  FS-CACHE FOR NFS BENCHMARKS
+			  ===========================
+
+ (*) The NFS client has a 1.86GHz Core2 Duo CPU and 1GB of RAM.
+
+ (*) The NFS client has a Seagate ST380211AS 80GB 7200rpm SATA disk on an
+     interface running in AHCI mode.  The chipset is an Intel G965.
+
+ (*) A partition of approx 4.5GB is committed to caching, and is formatted as
+     Ext3 with a blocksize of 4096 and directory indices.
+
+ (*) The NFS client is using SELinux.
+
+ (*) The NFS server is running an in-kernel NFSd, and has a 2.66GHz Core2 Duo
+     CPU and 6GB of RAM.  The chipset is an Intel P965.
+
+ (*) The NFS client is connected to the NFS server by Gigabit Ethernet.
+
+ (*) The NFS mount is made with defaults for all options not relating to the
+     cache:
+
+	warthog:/warthog /warthog nfs
+		rw,vers=3,rsize=1048576,wsize=1048576,hard,proto=tcp,timeo=600,
+		retrans=2,sec=sys,fsc,addr=w.x.y.z 0 0
+
+
+==================
+FEW BIG FILES TEST
+==================
+
+Where:
+
+ (*) The NFS server has two files:
+
+	[root@andromeda ~]# ls -l /warthog/bigfile
+	-rw-rw-r-- 1 4043 4043 104857600 2006-11-30 09:39 /warthog/bigfile
+	[root@andromeda ~]# ls -l /warthog/biggerfile 
+	-rw-rw-r-- 1 4043 4041 209715200 2006-03-21 13:56 /warthog/biggerfile
+
+     Both of which are in memory on the server in all cases.
+
+
+No patches, cold NFS cache:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m1.909s
+	user    0m0.000s
+	sys     0m0.520s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m3.750s
+	user    0m0.000s
+	sys     0m0.904s
+
+CONFIG_FSCACHE=n, cold NFS cache:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m2.003s
+	user    0m0.000s
+	sys     0m0.124s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m4.100s
+	user    0m0.004s
+	sys     0m0.488s
+
+Cold NFS cache, no disk cache:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m2.084s
+	user    0m0.000s
+	sys     0m0.136s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m4.020s
+	user    0m0.000s
+	sys     0m0.720s
+
+Completely cold caches:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m2.412s
+	user    0m0.000s
+	sys     0m0.892s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m4.449s
+	user    0m0.000s
+	sys     0m2.300s
+
+Warm NFS pagecache:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m0.067s
+	user    0m0.000s
+	sys     0m0.064s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m0.133s
+	user    0m0.000s
+	sys     0m0.136s
+
+Warm Ext3 pagecache, cold NFS pagecache:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m0.173s
+	user    0m0.000s
+	sys     0m0.172s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m0.316s
+	user    0m0.000s
+	sys     0m0.316s
+
+Warm on-disk cache, cold pagecaches:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m1.955s
+	user    0m0.000s
+	sys     0m0.244s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m3.596s
+	user    0m0.000s
+	sys     0m0.460s
+
+
+===================================
+MANY SMALL/MEDIUM FILE READING TEST
+===================================
+
+Where:
+
+ (*) The NFS server has an old kernel tree:
+
+	[root@andromeda ~]# du -s /warthog/aaa
+	347340  /warthog/aaa
+	[root@andromeda ~]# find /warthog/aaa | wc -l
+	20443
+
+     All of which is in memory on the server in all cases.
+
+
+No patches, cold NFS cache:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    0m21.698s
+	user    0m0.156s
+	sys     0m5.284s
+
+CONFIG_FSCACHE=n, cold NFS cache:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    0m22.337s
+	user    0m0.152s
+	sys     0m5.476s
+
+Cold NFS cache, no disk cache:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    0m22.734s
+	user    0m0.124s
+	sys     0m5.796s
+
+Completely cold caches:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    0m37.497s
+	user    0m0.248s
+	sys     0m6.648s
+
+Warm NFS pagecache:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    0m15.167s
+	user    0m0.168s
+	sys     0m4.856s
+
+Warm Ext3 pagecache, cold NFS pagecache:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	tar: Removing leading `/' from member names
+	tar: Removing leading `/' from hard link targets
+
+	real    0m13.818s
+	user    0m0.200s
+	sys     0m5.492s
+
+Warm on-disk cache, cold pagecaches:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    1m54.350s
+	user    0m0.044s
+	sys     0m1.256s
 
 --
 This message was distributed to subscribers of the selinux mailing list.
