@@ -1,137 +1,113 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1M4vJiL024815
-	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 23:57:20 -0500
-Received: from web36607.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1M4vJKi000712
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 04:57:19 GMT
-Date: Thu, 21 Feb 2008 20:57:18 -0800 (PST)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1M56DlU025560
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 00:06:13 -0500
+Received: from web36602.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1M56CKi002582
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 05:06:12 GMT
+Date: Thu, 21 Feb 2008 21:06:12 -0800 (PST)
 From: Casey Schaufler <casey@schaufler-ca.com>
 Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 07/37] Security: De-embed task security record from task and use refcounting
+Subject: Re: [PATCH 09/37] Security: Allow kernel services to override LSM settings for task actions
 To: David Howells <dhowells@redhat.com>, Trond.Myklebust@netapp.com,
         chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-In-Reply-To: <20080220160635.4715.81967.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20080220160646.4715.7268.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <847728.57737.qm@web36607.mail.mud.yahoo.com>
+Message-ID: <55722.57422.qm@web36602.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
 --- David Howells <dhowells@redhat.com> wrote:
 
-> Remove the temporarily embedded task security record from task_struct. 
-> Instead
-> it is made to dangle from the task_struct::sec and task_struct::act_as
-> pointers
-> with references counted for each.
+> Allow kernel services to override LSM settings appropriate to the actions
+> performed by a task by duplicating a security record, modifying it and then
+> using task_struct::act_as to point to it when performing operations on behalf
+> of a task.
 > 
-> ...
+> This is used, for example, by CacheFiles which has to transparently access
+> the
+> cache on behalf of a process that thinks it is doing, say, NFS accesses with
+> a
+> potentially inappropriate (with respect to accessing the cache) set of
+> security data.
 > 
-> The LSM hooks for dealing with task security are modified to deal with the
-> task
-> security struct directly rather than going via the task_struct as appopriate.
+> This patch provides two LSM hooks for modifying a task security record:
+> 
+>  (*) security_kernel_act_as() which allows modification of the security datum
+>      with which a task acts on other objects (most notably files).
+> 
+>  (*) security_create_files_as() which allows modification of the security
+>      datum that is used to initialise the security data on a file that a task
+>      creates.
 > 
 > ...
 
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index a49d94f..dbce607 100644
 > --- a/security/smack/smack_lsm.c
 > +++ b/security/smack/smack_lsm.c
-> @@ -957,9 +957,22 @@ static int smack_task_alloc_security(struct task_struct
-> *tsk)
->   * points to an immutable list. The blobs never go away.
->   * There is no leak here.
->   */
-> -static void smack_task_free_security(struct task_struct *task)
-> +static void smack_task_free_security(struct task_security *sec)
->  {
-> -	task->sec->security = NULL;
-> +	sec->security = NULL;
+> @@ -976,6 +976,36 @@ static int smack_task_dup_security(struct task_security
+> *sec)
+>  }
+>  
+>  /**
+> + * smack_task_kernel_act_as - Set the subjective context in a security
+> record
+> + * @p points to the task that nominated @secid.
+> + * @sec points to the task security record to be modified.
+> + * @secid specifies the security ID to be set
+> + *
+> + * Set the security data for a kernel service.
+> + */
+> +static int smack_task_kernel_act_as(struct task_struct *p,
+> +				    struct task_security *sec, u32 secid)
+> +{
+> +	return -ENOTSUPP;
 > +}
 > +
 > +/**
-> + * task_dup_security - Duplicate task security
-> + * @p points to the task_security struct that has been copied
+> + * smack_task_create_files_as - Set the file creation label in a security
+> record
+> + * @p points to the task that nominated @inode.
+> + * @sec points to the task security record to be modified.
+> + * @inode points to the inode to use as a reference.
 > + *
-> + * Duplicate the security structure currently attached to the p->security
-> field
-> + * and attach back to p->security (the pointer itself was copied, so there's
-> + * nothing to be done here).
+> + * Set the file creation context in a security record to the same as the
+> + * objective context of the specified inode
 > + */
-> +static int smack_task_dup_security(struct task_security *sec)
+> +static int smack_task_create_files_as(struct task_struct *p,
+> +				      struct task_security *sec,
+> +				      struct inode *inode)
 > +{
-> +	return 0;
->  }
+> +	return -ENOTSUPP;
+> +}
 
-Thank you for adding this hook. The comment is helpful.
-  
->  /**
-> @@ -2276,17 +2289,17 @@ static int smack_inet_conn_request(struct sock *sk,
-> struct sk_buff *skb,
->  /**
->   * smack_key_alloc - Set the key security blob
->   * @key: object
-> - * @tsk: the task associated with the key
-> + * @context: the task security associated with the key
->   * @flags: unused
->   *
->   * No allocation required
->   *
->   * Returns 0
->   */
-> -static int smack_key_alloc(struct key *key, struct task_struct *tsk,
-> +static int smack_key_alloc(struct key *key, struct task_security *context,
->  			   unsigned long flags)
->  {
-> -	key->security = tsk->act_as->security;
-> +	key->security = context->security;
->  	return 0;
->  }
->  
-> @@ -2304,14 +2317,14 @@ static void smack_key_free(struct key *key)
->  /*
->   * smack_key_permission - Smack access on a key
->   * @key_ref: gets to the object
-> - * @context: task involved
-> + * @context: task security involved
->   * @perm: unused
->   *
->   * Return 0 if the task has read and write to the object,
->   * an error code otherwise
->   */
->  static int smack_key_permission(key_ref_t key_ref,
-> -				struct task_struct *context, key_perm_t perm)
-> +				struct task_security *context, key_perm_t perm)
->  {
->  	struct key *keyp;
->  
-> @@ -2327,10 +2340,10 @@ static int smack_key_permission(key_ref_t key_ref,
->  	/*
->  	 * This should not occur
->  	 */
-> -	if (context->act_as->security == NULL)
-> +	if (context->security == NULL)
->  		return -EACCES;
->  
-> -	return smk_access(context->act_as->security, keyp->security,
-> +	return smk_access(context->security, keyp->security,
->  			  MAY_READWRITE);
->  }
->  #endif /* CONFIG_KEYS */
-> @@ -2430,6 +2443,7 @@ static struct security_operations smack_ops = {
->  
+Hum. ENOTSUPP is not not very satisfying, is it? I will have to
+think on this a bit.
+
+> +
+> +/**
+>   * smack_task_setpgid - Smack check on setting pgid
+>   * @p: the task object
+>   * @pgid: unused
+> @@ -2444,6 +2474,8 @@ static struct security_operations smack_ops = {
 >  	.task_alloc_security = 		smack_task_alloc_security,
 >  	.task_free_security = 		smack_task_free_security,
-> +	.task_dup_security =		smack_task_dup_security,
+>  	.task_dup_security =		smack_task_dup_security,
+> +	.task_kernel_act_as =		smack_task_kernel_act_as,
+> +	.task_create_files_as =		smack_task_create_files_as,
 >  	.task_post_setuid =		cap_task_post_setuid,
 >  	.task_setpgid = 		smack_task_setpgid,
 >  	.task_getpgid = 		smack_task_getpgid,
 
-No objections from the Smack side. Thank you.
+Except for the fact that the hooks don't do anything this
+looks fine. I'm not sure that I would want these hooks to
+do anything, it requires additional thought to determine if
+there is a good behavior for them.
+
+Thank you.
 
 
 Casey Schaufler
