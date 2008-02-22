@@ -1,51 +1,58 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RDQEaX022985
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 08:26:14 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m1RDQDDA025936
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:26:13 GMT
-Subject: Re: [PATCH 0/5] New labeled networking permissions for 2.6.25
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RDsdKK028141
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 08:54:39 -0500
+Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RDsZDp019747
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:54:35 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id m1RDrHae006923
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 08:53:18 -0500
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id m1RDrHsY006922
+	for selinux@tycho.nsa.gov; Wed, 27 Feb 2008 08:53:17 -0500
+Subject: Re: default user roles
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: Eric Paris <eparis@parisplace.org>, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <200802261708.08090.paul.moore@hp.com>
-References: <20080226184032.834798290@hp.com>
-	 <7e0fb38c0802261352r52318774v562f8e635a3f44cc@mail.gmail.com>
-	 <200802261708.08090.paul.moore@hp.com>
+To: Jeremiah Jahn <jeremiah@goodinassociates.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1203707351.3669.961.camel@bluejay.goodinassociates.com>
+References: <1203704148.3669.953.camel@bluejay.goodinassociates.com>
+	 <1203706878.32061.28.camel@gorn>
+	 <1203707351.3669.961.camel@bluejay.goodinassociates.com>
 Content-Type: text/plain
-Date: Wed, 27 Feb 2008 08:23:41 -0500
-Message-Id: <1204118622.32061.209.camel@gorn>
+Date: Fri, 22 Feb 2008 14:38:49 -0500
+Message-Id: <1203709129.32061.31.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-02-26 at 17:08 -0500, Paul Moore wrote:
-> On Tuesday 26 February 2008 4:52:34 pm Eric Paris wrote:
-> > On 2/26/08, paul.moore@hp.com <paul.moore@hp.com> wrote:
-> > >  It is important to note that
-> > >  while this patchset adds the permissions required it doesn't
-> > > enable the "network_peer_controls" policy capability.
-[...]
-> > So, does anyone have a good idea suggestions where we should turn
-> > on/off these new capabilities?  I know it has to be in the base
-> > module in the end, but I don't know what file to put them in.  I
-> > might just throw it in kernel.te for now for me to keep testing but I
-> > assume we are going to want all of these definitions in one place? 
-> > Are we going to want them all over as long as they end up being built
-> > into base?
-> 
-> I have no idea but I suspect Chris has given this some thought and 
-> probably has some ideas.  I tend to think putting them in one place is 
-> probably a good idea ...
+On Fri, 2008-02-22 at 13:09 -0600, Jeremiah Jahn wrote:
+> Since I'm working with the refpolicy source can I set it up there, or
+> does this have to be a file separate from the source?
 
-I haven't thought about this much, but my initial idea would be to have
-a specific file, maybe policy/polcaps or policy/capabilites.
+The equivalent file in the refpolicy source tree would be
+config/appconfig-(mcs|mls)/secstaff_u_default_contexts
+
+> On Fri, 2008-02-22 at 14:01 -0500, Christopher J. PeBenito wrote:
+> > On Fri, 2008-02-22 at 12:15 -0600, Jeremiah Jahn wrote:
+> > > I can't seem to get the login to set the proper initial role for a user.
+> > > Every time I login, I end up as auditadm, and not secstaff.
+> > > 
+> > > I have the following in my policy:
+> > [...]
+> > > user secstaff_u roles { secstaff_r secadm_r auditadm_r } level s0 range s0 - s0;
+> > 
+> > You want to make the file /etc/selinux/NAME/contexts/users/secstaff_u
+> > with the default contexts that you want.  You probably want at least
+> > this:
+> > 
+> > system_r:local_login_t:s0     auditadm_r:auditadm_t:s0
+> > system_r:remote_login_t:s0    auditadm_r:auditadm_t:s0
+> > system_r:sshd_t:s0            auditadm_r:auditadm_t:s0
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
