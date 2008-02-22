@@ -1,65 +1,92 @@
-Subject: Re: default user roles
-From: Jeremiah Jahn <jeremiah@goodinassociates.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1203706878.32061.28.camel@gorn>
-References: <1203704148.3669.953.camel@bluejay.goodinassociates.com>
-	 <1203706878.32061.28.camel@gorn>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-K/FcRseRfjxrCH2Su148"
-Date: Fri, 22 Feb 2008 13:09:11 -0600
-Message-Id: <1203707351.3669.961.camel@bluejay.goodinassociates.com>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MJDFNe026672
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 14:13:15 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MJD829009449
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 19:13:08 GMT
+Message-ID: <47BF1EBD.6050603@redhat.com>
+Date: Fri, 22 Feb 2008 14:13:01 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Todd Miller <Tmiller@tresys.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Not that anyone would ever run in permissive mode but...
+Content-Type: multipart/mixed;
+ boundary="------------030803070300020008070400"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------030803070300020008070400
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
---=-K/FcRseRfjxrCH2Su148
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Since I'm working with the refpolicy source can I set it up there, or
-does this have to be a file separate from the source?
+This patch is needed for sudo.
 
-On Fri, 2008-02-22 at 14:01 -0500, Christopher J. PeBenito wrote:
-> On Fri, 2008-02-22 at 12:15 -0600, Jeremiah Jahn wrote:
-> > I can't seem to get the login to set the proper initial role for a user=
-.
-> > Every time I login, I end up as auditadm, and not secstaff.
-> >=20
-> > I have the following in my policy:
-> [...]
-> > user secstaff_u roles { secstaff_r secadm_r auditadm_r } level s0 range=
- s0 - s0;
->=20
-> You want to make the file /etc/selinux/NAME/contexts/users/secstaff_u
-> with the default contexts that you want.  You probably want at least
-> this:
->=20
-> system_r:local_login_t:s0     auditadm_r:auditadm_t:s0
-> system_r:remote_login_t:s0    auditadm_r:auditadm_t:s0
-> system_r:sshd_t:s0            auditadm_r:auditadm_t:s0
->=20
-PLUNDERER'S THEME (to Supercalifragilisticexpialidocius) Pillage, rape,
-and loot and burn, but all in moderation. If you do the things we say,
-then you'll soon rule the nation. Kill your foes and enemies and then
-kill your relations. Pillage, rape, and loot and burn, but all in
-moderation.
+Also added setkeycreatecon, although this will not work the way the code
+is currently.
 
---=-K/FcRseRfjxrCH2Su148
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Pam activity should probably be happening after setkeycreatecon and
+setexeccon
 
+But I am not sure how pam_keyinit should work here any ways.
+
+Currently you loose access to your keying material when you su or sudo.
+
+These things will not be labeled corectly as currently used.
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iD8DBQBHvx3X6caZY8jbHDkRAvkPAJ0Vu/oAxeuLOyf7Nik6KWhgaZiZpgCggrBK
-uNpqUpZ/7F12GlosqHm03tk=
-=3hJO
+iEYEARECAAYFAke/HrwACgkQrlYvE4MpobND4QCg4L9uaKuKhMxQwlhCBUY5icwT
+wCkAoIzPvgXScs286cbO2g8RZG3WVWtN
+=5+0w
 -----END PGP SIGNATURE-----
 
---=-K/FcRseRfjxrCH2Su148--
+--------------030803070300020008070400
+Content-Type: text/plain;
+ name="sudo-1.6.9p13-selinux.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sudo-1.6.9p13-selinux.patch"
 
+diff -up sudo-1.6.9p13/selinux.c.selinux sudo-1.6.9p13/selinux.c
+--- sudo-1.6.9p13/selinux.c.selinux	2008-02-20 12:00:48.000000000 -0500
++++ sudo-1.6.9p13/selinux.c	2008-02-22 13:34:08.000000000 -0500
+@@ -314,9 +314,19 @@ selinux_exec(char *role, char *type, cha
+ 
+     if (setexeccon(new_context)) {
+ 	warn("unable to set exec context to %s", new_context);
+-	goto error;
++	if (security_getenforce() == 1) {
++		goto error;
++	}
+     }
+ 
++    if (setkeycreatecon(new_context)) {
++	    warn("Error!  Unable to set key creation context to %s",
++		 new_context);
++	    if (security_getenforce() == 1) {
++		    goto error;
++	    }
++    } 
++
+ #ifdef WITH_AUDIT
+     if (send_audit_message(1, old_context, new_context, user_ttypath)) 
+ 	goto error;
+
+--------------030803070300020008070400
+Content-Type: application/octet-stream;
+ name="sudo-1.6.9p13-selinux.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="sudo-1.6.9p13-selinux.patch.sig"
+
+iEYEABECAAYFAke/HrwACgkQrlYvE4MpobNUlACfeG5ppnTfHPAJyqnzA9kdLiT3rawAnjLF
+vxpwDEHz3/tlFm2emRg+qMqj
+--------------030803070300020008070400--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
