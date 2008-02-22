@@ -1,66 +1,97 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MGwPnX006650
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:58:25 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1MGwO29001460
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 16:58:24 GMT
-Message-ID: <47BEFE89.4080201@manicmethod.com>
-Date: Fri, 22 Feb 2008 11:55:37 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MHBbcF008738
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 12:11:37 -0500
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MHBZYC028190
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 17:11:35 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so310408fgg.40
+        for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 09:11:34 -0800 (PST)
+Message-ID: <cadfc0e40802220911j7b232ecckcc89a61daf09b77c@mail.gmail.com>
+Date: Fri, 22 Feb 2008 11:11:34 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Subject: Re: FC8 enforcing auditd, mcstransd, NFS statd fail to start
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <cadfc0e40802211158s3f794202s98fff7dd99f3492@mail.gmail.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: selinux <selinux@tycho.nsa.gov>
-Subject: Re: segfault in semodule
-References: <1203696668.2914.25.camel@localhost.localdomain>
-In-Reply-To: <1203696668.2914.25.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40802201124l5f8b2330x159eb3f7485687c4@mail.gmail.com>
+	 <47BCAC42.50003@redhat.com>
+	 <cadfc0e40802211158s3f794202s98fff7dd99f3492@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> I added "allow-unknown = deny" in semanage.conf and ran semodule -R
+Dan,
+Is this the right thing to do? If so will you apply it or should I open a bug?
+
+Ted
+
+On Thu, Feb 21, 2008 at 1:58 PM, Xavier Toth <txtoth@gmail.com> wrote:
+> Everyone else will too.
 >
-> [root@dhcp231-146 ~]# semodule -R
-> error parsing semanage configuration file: syntax error
-> semodule:  Could not create semanage handle
-> semodule: handle.c:123: semanage_is_connected: Assertion `sh != ((void *)0)' failed.
-> Segmentation fault
+>  --- serefpolicy-3.0.8/policy/modules/system/logging.te  2008-02-21
+>  13:10:20.000000000 -0600
+>  +++ serefpolicy-3.0.8.new/policy/modules/system/logging.te
+>  2008-02-21 13:46:32.000000000 -0600
+>  @@ -162,6 +162,8 @@
 >
-> It was supposed to bail (allow-unknown is not a valid entry, it should
-> be handle-unknown) but it wasn't supposed to segfault.  Maybe someone
-> who knows this code can find/fix it really quickly, if not I'm sure I'll
-> get to look at it when it gets to the top of my list in 10 or 12
-> months  :)
+>   miscfiles_read_localization(auditd_t)
 >
-> policycoreutils-2.0.43-2.fc9.x86_64
->   
-
-This is totally untested but should fix it:
-
-Index: trunk/policycoreutils/semodule/semodule.c
-===================================================================
---- trunk/policycoreutils/semodule/semodule.c   (revision 2808)
-+++ trunk/policycoreutils/semodule/semodule.c   (working copy)
-@@ -285,7 +285,7 @@
-        if (!sh) {
-                fprintf(stderr, "%s:  Could not create semanage handle\n",
-                        argv[0]);
--               goto cleanup;
-+               goto cleanup_nohandle;
-        }
- 
-        if (store) {
-@@ -473,6 +473,8 @@
-                }
-        }
-        semanage_handle_destroy(sh);
-+
-+      cleanup_nohandle:
-        cleanup();
-        exit(status);
- }
-
-
+>  +init_use_script_fds(auditd_t)
+>  +mls_fd_use_all_levels(auditd_t)
+>   mls_file_read_all_levels(auditd_t)
+>   mls_file_write_all_levels(auditd_t) # Need to be able to write to
+>  /var/run/ directory
+>
+>  --- serefpolicy-3.0.8/policy/modules/system/setrans.te  2007-09-18
+>  09:48:05.000000000 -0500
+>  +++ serefpolicy-3.0.8.new/policy/modules/system/setrans.te
+>  2008-02-21 13:44:42.000000000 -0600
+>  @@ -52,6 +52,7 @@
+>
+>   files_read_etc_runtime_files(setrans_t)
+>
+>  +mls_fd_use_all_levels(setrans_t)
+>   mls_file_read_all_levels(setrans_t)
+>   mls_file_write_all_levels(setrans_t)
+>   mls_net_receive_all_levels(setrans_t)
+>
+>
+>
+>
+>  On Wed, Feb 20, 2008 at 4:40 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>  > -----BEGIN PGP SIGNED MESSAGE-----
+>  >  Hash: SHA1
+>  >
+>  >
+>  >
+>  >  Xavier Toth wrote:
+>  >  > type=AVC msg=audit(1197625021.926:66): avc:  denied  { write } for
+>  >  > pid=1494 comm="audispd" path="socket:[7238]" dev=sockfs ino=7238
+>  >  > scontext=system_u:system_r:auditd_t:s15:c0.c1023
+>  >  > tcontext=system_u:system_r:auditd_t:s0-s15:c0.c1023
+>  >  > tclass=unix_stream_socket
+>  >  >
+>  >  > type=AVC msg=audit(1203524274.667:562): avc:  denied  { use } for
+>  >  > pid=19909 comm="mcstransd" path="/lib/ld-2.7.so" dev=dm-0 ino=2359430
+>  >  > scontext=system_u:system_r:setrans_t:s15:c0.c1023
+>  >  > tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=fd
+>  >  >
+>  >  > --
+>  >  > This message was distributed to subscribers of the selinux mailing list.
+>  >  > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>  >  > the words "unsubscribe selinux" without quotes as the message.
+>  >  Looks like you have an MLS constraint problem.
+>  >  -----BEGIN PGP SIGNATURE-----
+>  >  Version: GnuPG v1.4.8 (GNU/Linux)
+>  >  Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+>  >
+>  >  iEYEARECAAYFAke8rEIACgkQrlYvE4MpobP0CACgqFCF2JTlJQVyHNNTpfx5pJpo
+>  >  8poAoJlMUL0Qp529P5+jLhpOV/yJFNUl
+>  >  =GfHP
+>  >  -----END PGP SIGNATURE-----
+>  >
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
