@@ -1,45 +1,61 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MGVQ6B001552
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:31:26 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MGVPYC012834
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 16:31:25 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m1MGBE5R025269
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:11:14 -0500
-Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [10.11.255.20])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1MGBD8P005525
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:11:13 -0500
-Received: from [10.11.14.227] (vpn-14-227.rdu.redhat.com [10.11.14.227])
-	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1MGBDcp012862
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:11:13 -0500
-Subject: segfault in semodule
-From: Eric Paris <eparis@redhat.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Fri, 22 Feb 2008 11:11:08 -0500
-Message-Id: <1203696668.2914.25.camel@localhost.localdomain>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: [Fwd: excessively verbose policy]
+Date: Fri, 22 Feb 2008 10:27:19 -0500
+Message-ID: <1203694039.32061.20.camel@gorn>
+In-Reply-To: <1203690375.2804.19.camel@moss-spartans.epoch.ncsc.mil>
+References: <1203690375.2804.19.camel@moss-spartans.epoch.ncsc.mil>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "Karl MacMillan" <kmacmillan@tresys.com>,
+        "Chad Sellers" <csellers@tresys.com>,
+        "Daniel J Walsh" <dwalsh@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I added "allow-unknown = deny" in semanage.conf and ran semodule -R
+On Fri, 2008-02-22 at 09:26 -0500, Stephen Smalley wrote:
+> I think that this concern is legitimate, although I understand the
+> motivation for the current approach.
+> 
+> -------- Forwarded Message --------
+> From: Bill Nottingham <notting@redhat.com>
+> To: fedora-selinux-list@redhat.com
+> Subject: excessively verbose policy
+> Date: Thu, 21 Feb 2008 18:23:21 -0500
+> 
+> I was writing policy today, and I couldn't help notice a lot of
+> repetitiveness in our policy:
+> 
+> 	libs_use_ld_so(...)
+> 	libs_use_shared_libs(...)
 
-[root@dhcp231-146 ~]# semodule -R
-error parsing semanage configuration file: syntax error
-semodule:  Could not create semanage handle
-semodule: handle.c:123: semanage_is_connected: Assertion `sh != ((void *)0)' failed.
-Segmentation fault
+I've been thinking about moving this into domain_type() since the only
+domain that wouldn't need this would be static linked.  These two
+interfaces should also be collapsed into one.
 
-It was supposed to bail (allow-unknown is not a valid entry, it should
-be handle-unknown) but it wasn't supposed to segfault.  Maybe someone
-who knows this code can find/fix it really quickly, if not I'm sure I'll
-get to look at it when it gets to the top of my list in 10 or 12
-months  :)
+> These are needed by, well, everything. Can't they be assumed-unless-denied?
+> 
+> Similarly, 99% of confined apps need:
+> 
+> 	miscfiles_read_localization()
+> 	files_read_etc_files(.)
 
-policycoreutils-2.0.43-2.fc9.x86_64
+An approach I was considering was making some sort of interface like
+"libs_glibc_linked()" or the like, which would have the above shared
+libs access plus things like the above two and other related access that
+being linked to a fat libc brings along.
 
--Eric
+>         pipes & stream sockets
+
+the stream sockets tend to be for syslog(), which the
+logging_send_syslog_msg() has.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
