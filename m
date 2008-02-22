@@ -1,124 +1,140 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1M09e77029245
-	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 19:09:40 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1M09bJq004637
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 00:09:37 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200802211444.04986.phillips@phunq.net>
-References: <200802211444.04986.phillips@phunq.net> <200802201907.40406.phillips@phunq.net> <20080220160557.4715.66608.stgit@warthog.procyon.org.uk> <28196.1203605703@redhat.com>
-To: Daniel Phillips <phillips@phunq.net>
-Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
-        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 00/37] Permit filesystem local caching
-Date: Fri, 22 Feb 2008 00:07:41 +0000
-Message-ID: <18063.1203638861@redhat.com>
+Message-ID: <47BE1DDA.4040203@manicmethod.com>
+Date: Thu, 21 Feb 2008 19:56:58 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Darrel Goeddel <dgoeddel@TrustedCS.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: How would I go about figuring out if two SELinux MLS	Levels	intersect?
+References: <47BB5488.1070008@redhat.com>	 <1203528302.9902.226.camel@moss-spartans.epoch.ncsc.mil>	 <1203528489.9902.230.camel@moss-spartans.epoch.ncsc.mil>	 <47BC6DCE.4040203@manicmethod.com> <1203531592.9902.234.camel@moss-spartans.epoch.ncsc.mil> <47BDE410.1020205@trustedcs.com>
+In-Reply-To: <47BDE410.1020205@trustedcs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel Phillips <phillips@phunq.net> wrote:
+Darrel Goeddel wrote:
+> Stephen Smalley wrote:
+>> On Wed, 2008-02-20 at 13:13 -0500, Joshua Brindle wrote:
+>>> Stephen Smalley wrote:
+>>>> On Wed, 2008-02-20 at 12:25 -0500, Stephen Smalley wrote:
+>>>>  
+>>>>> On Tue, 2008-02-19 at 17:13 -0500, Daniel J Walsh wrote:
+>>>>>    
+>>>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>>>> Hash: SHA1
+>>>>>>
+>>>>>> s2:c0-s2:c0.c10 and s2:c9.c10
+>>>>>>
+>>>>>>
+>>>>>> IE How do I do the arbitration/dominance math in Code?
+>>>>>>       
+>>>>> (cc'ing the list)
+>>>>>
+>>>>> You can model it as a permission check between the two contexts, and
+>>>>> then write a MLS constraint in policy that requires dominance or
+>>>>> whatever relationship you want.  Then it is just an avc_has_perm 
+>>>>> call.
+>>>>> Same thing that we did for permission check in the pam_selinux 
+>>>>> code to
+>>>>> verify that the user's level is within his range.  Or what we talked
+>>>>> about for applying a permission check in mcstransd to see if the
+>>>>> requestor is allowed to translate the context.  Not sure that ever 
+>>>>> got
+>>>>> implemented in mcstransd though?
+>>>>>     
+>
+> I think this is what you are referring to:
+>
+> http://marc.info/?l=selinux&m=116110364714182&w=2
+>
+> It doesn't look like that ever got incorporated into mcstransd.  
+> However, the
+> policy support is there.
+>
+>>>> Also, just to note:  the MLS dominance logic already exists within
+>>>> libsepol and within the kernel security server.  We just have to 
+>>>> expose
+>>>> it via an interface.  One way to do that is to express it as a
+>>>> permission check, where we already have an interface.  Another way 
+>>>> would
+>>>> be to introduce a new interface specifically for that purpose.
+>>>>   
+>>> I strongly disagree with exporting the security server logic in this 
+>>> way, that will just encourage people to implement blp in their 
+>>> application instead of using the security server interface to do 
+>>> permission checking. This is based off what I've seen people trying 
+>>> to do, even within the SELinux community, with respect to MLS.
+>>
+>> Well, as I said, one way to do it is via a permission checking
+>> interface, and that is what we've done for the user level validation in
+>> pam_selinux and what we proposed for mcstransd.
+>>
+>> Where that may break down is when you want to actually order a set of
+>> contexts.  Dave Quigley ran into that in his work to provide a union
+>> view of a polyinstantiated directory and wanted to be able to decide
+>> which instance should be the default when there is a conflict in names.
+>> There you may need an actual MLS dominance interface.  Which is
+>> MLS-specific, yes, but there will be such applications even if we keep
+>> them minimized.
+>
+> The domination check can be faked just like it is in the mcstransd patch.
+> The big problem is that TE complicates the process.
+>
+> Let's say we have an "mls" security class with the permissions "dom",
+> "domby", "eq", and "incomp" along with the following mls constraints:
+>
+> mlsconstrain mls dom
+>     (l1 dom l2);
+>
+> mlsconstrain mls domby
+>     (l1 domby l2);
+>
+> mlsconstrain mls eq
+>     (l1 eq l2);
+>
+> mlsconstrain mls incomp
+>     (l1 incomp l2);
+>
+> You can implement a routine in you app that will create fake contexts
+> like know_user:known_role:known_type:LEVEL1 and
+> know_user:known_role:known_type:LEVEL2 where LEVEL1 and LEVEL2 are the
+> levels you want to compare and make the appropriate avc call to determine
+> the relationship.  The the non-mls portions of the context must be set up
+> so that the contexts are valid and TE will never fail for the operations
+> on the mls class.  The mcstrand patch did such faking.  This works, but
+> it is not a very elegant solution to the problem.  You can probably
+> find existing mlsconstraints on various classes to meet your needs 
+> without
+> the "mls" class.  Note that this is policy dependent and does not work
+> in permissive mode (they will all pass then and your levels will be
+> incomparable and equal at the same time).
+>
+> Ordering can be done with a whole lot of comparisons if your set of 
+> levels
+> does not contain disjoint categories (no incomparables)...
+>
+> You can also take advantage of the format of the raw mls context to 
+> create
+> mls structures and write a function to do the comparisons on those, 
+> but that
+> would be *very* dependent on the mls definitions in the policy and 
+> therefore
+> risky.  It completely blows away the abstraction.  I actually feel bad 
+> for
+> even mentioning that, but there it is.
+>
+:) I feel bad for you mentioning it too..
 
-> When you say Ext3 cache vs NFS cache is the first on the server and the 
-> second on the client?
-
-The filesystem on the server is pretty much irrelevant as long as (a) it
-doesn't change, and (b) all the data is in memory on the server anyway.
-
-The way the client works is like this:
-
-	+---------+
-	|         |                   
-	|   NFS   |--+                
-	|         |  |                
-	+---------+  |   +----------+ 
-	             |   |          | 
-	+---------+  +-->|          | 
-	|         |      |          |
-	|   AFS   |----->| FS-Cache |
-	|         |      |          |--+
-	+---------+  +-->|          |  |
-	             |   |          |  |   +--------------+   +--------------+
-	+---------+  |   +----------+  |   |              |   |              |
-	|         |  |                 +-->|  CacheFiles  |-->|  Ext3        |
-	|  ISOFS  |--+                     |  /var/cache  |   |  /dev/sda6   |
-	|         |                        +--------------+   +--------------+
-	+---------+
+I guess from what you and Steve have said something like this is 
+necessary and if its necessary I'd rather us not hack around it. It 
+sounds like the interface that is required is something to order 
+contexts based on sensitivity. This, ofcourse, would not be suitable for 
+the mcstransd patch. The mcstransd patch should use the full subject 
+context so that mls overrides still work correctly (or am thinking about 
+this incorrectly).
 
 
- (1) NFS, say, asks FS-Cache to store/retrieve data for it;
 
- (2) FS-Cache asks the cache backend, in this case CacheFiles to honour the
-     operation;
-
- (3) CacheFiles 'opens' a file in a mounted filesystem, say Ext3, and does read
-     and write operations of a sort on it;
-
- (4) Ext3 decides how the cache data is laid out on disk - CacheFiles just
-     attempts to use one sparse file per netfs inode.
-
-> I am trying to spot the numbers that show the sweet spot for this 
-> optimization, without much success so far.
-
-What are you trying to do exactly?  Are you actually playing with it, or just
-looking at the numbers I've produced?
-
-> Who is supposed to win big?  Is this mainly about reducing the load on 
-> the server, or is the client supposed to win even with a lightly loaded 
-> server?
-
-These are difficult questions to answer.  The obvious answer to both is "it
-depends", and the real answer to both is "it's a compromise".
-
-Inserting a cache adds overhead: you have to look in the cache to see if your
-objects are mirrored there, and then you have to look in the cache to see if
-the data you want is stored there; and then you might have to go to the server
-anyway and then schedule a copy to be stored in the cache.
-
-The characteristics of this type of cache depend on a number of things: the
-filesystem backing it being the most obvious variable, but also how fragmented
-it is and the properties of the disk drive or drives it is on.
-
-Whether it's worth having a cache depend on the characteristics of the network
-versus the characteristics of the cache.  Latency of the cache vs latency of
-the network, for example.  Network loading is another: having a cache on each
-of several clients sharing a server can reduce network traffic by avoiding the
-read requests to the server.  NFS has a characteristic that it keeps spamming
-the server with file status requests, so even if you take the read requests out
-of the load, an NFS client still generates quite a lot of network traffic to
-the server - but the reduction is still useful.
-
-The metadata problem is quite a tricky one since it increases with the number
-of files you're dealing with.  As things stand in my patches, when NFS, for
-example, wants to access a new inode, it first has to go to the server to
-lookup the NFS file handle, and only then can it go to the cache to find out if
-there's a matching object in the case.  Worse, the cache must then perform
-several synchronous disk bound metadata operations before it can be possible to
-read from the cache.  Worse still, this means that a read on the network file
-cannot proceed until (a) we've been to the server *plus* (b) we've been to the
-disk.
-
-The reason my client going to my server is so quick is that the server has the
-dcache and the pagecache preloaded, so that across-network lookup operations
-are really, really quick, as compared to the synchronous slogging of the local
-disk to find the cache object.
-
-I can probably improve this a little by pre-loading the subindex directories
-(hash tables) that I use to reduce the directory size in the cache, but I don't
-know by how much.
-
-
-Anyway, to answer your questions:
-
- (1) It may help with heavily loaded networks with lots of read-only traffic.
-
- (2) It may help with slow connections (like doing NFS between the UK and
-     Australia).
-
- (3) It could be used to do offline/disconnected operation.
-
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
