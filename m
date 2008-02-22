@@ -1,61 +1,95 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [Fwd: excessively verbose policy]
-Date: Fri, 22 Feb 2008 10:27:19 -0500
-Message-ID: <1203694039.32061.20.camel@gorn>
-In-Reply-To: <1203690375.2804.19.camel@moss-spartans.epoch.ncsc.mil>
-References: <1203690375.2804.19.camel@moss-spartans.epoch.ncsc.mil>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>, "Karl MacMillan" <kmacmillan@tresys.com>,
-        "Chad Sellers" <csellers@tresys.com>,
-        "Daniel J Walsh" <dwalsh@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MGnqpZ005219
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:49:52 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MGnp29027553
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 16:49:51 GMT
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200802220852.26584.chris.mason@oracle.com>
+References: <200802220852.26584.chris.mason@oracle.com> <28196.1203605703@redhat.com> <20080220160557.4715.66608.stgit@warthog.procyon.org.uk> <17916.1203636833@redhat.com>
+To: Chris Mason <chris.mason@oracle.com>
+Cc: dhowells@redhat.com, Daniel Phillips <phillips@phunq.net>,
+        Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
+        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 00/37] Permit filesystem local caching
+Date: Fri, 22 Feb 2008 16:47:27 +0000
+Message-ID: <25210.1203698847@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-02-22 at 09:26 -0500, Stephen Smalley wrote:
-> I think that this concern is legitimate, although I understand the
-> motivation for the current approach.
-> 
-> -------- Forwarded Message --------
-> From: Bill Nottingham <notting@redhat.com>
-> To: fedora-selinux-list@redhat.com
-> Subject: excessively verbose policy
-> Date: Thu, 21 Feb 2008 18:23:21 -0500
-> 
-> I was writing policy today, and I couldn't help notice a lot of
-> repetitiveness in our policy:
-> 
-> 	libs_use_ld_so(...)
-> 	libs_use_shared_libs(...)
+Chris Mason <chris.mason@oracle.com> wrote:
 
-I've been thinking about moving this into domain_type() since the only
-domain that wouldn't need this would be static linked.  These two
-interfaces should also be collapsed into one.
+> Thanks for trying this, of course I'll ask you to try again with the latest 
+> v0.13 code, it has a number of optimizations especially for CPU usage.
 
-> These are needed by, well, everything. Can't they be assumed-unless-denied?
-> 
-> Similarly, 99% of confined apps need:
-> 
-> 	miscfiles_read_localization()
-> 	files_read_etc_files(.)
+Here you go.  The numbers are very similar.
 
-An approach I was considering was making some sort of interface like
-"libs_glibc_linked()" or the like, which would have the above shared
-libs access plus things like the above two and other related access that
-being linked to a fat libc brings along.
+David
 
->         pipes & stream sockets
+=================================
+FEW BIG FILES TEST ON BTRFS v0.13
+=================================
 
-the stream sockets tend to be for syslog(), which the
-logging_send_syslog_msg() has.
+Completely cold caches:
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m2.202s
+	user    0m0.000s
+	sys     0m1.716s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m4.212s
+	user    0m0.000s
+	sys     0m0.896s
 
+Warm BTRFS pagecache, cold NFS pagecache:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m0.197s
+	user    0m0.000s
+	sys     0m0.192s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m0.376s
+	user    0m0.000s
+	sys     0m0.372s
+
+Warm on-disk cache, cold pagecaches:
+
+	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
+	real    0m1.543s
+	user    0m0.004s
+	sys     0m1.448s
+	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
+	real    0m3.111s
+	user    0m0.000s
+	sys     0m2.856s
+
+
+==================================================
+MANY SMALL/MEDIUM FILE READING TEST ON BTRFS v0.13
+==================================================
+
+Completely cold caches:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    0m31.575s
+	user    0m0.176s
+	sys     0m6.316s
+
+Warm BTRFS pagecache, cold NFS pagecache:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    0m16.081s
+	user    0m0.164s
+	sys     0m5.528s
+
+Warm on-disk cache, cold pagecaches:
+
+	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
+	real    2m15.245s
+	user    0m0.064s
+	sys     0m2.808s
 
 
 --
