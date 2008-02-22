@@ -1,93 +1,36 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MFXq3G024793
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 10:33:52 -0500
-Received: from ns1.a61.nl (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MFXoVo026722
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 15:33:50 GMT
-Received: from localhost ([127.0.0.1] helo=www.a61.nl)
-	by ns1.a61.nl with esmtp (Exim 4.54)
-	id 1JSZuG-0007cJ-JL
-	for selinux@tycho.nsa.gov; Fri, 22 Feb 2008 16:33:49 +0100
-Message-ID: <54715.80.95.164.250.1203694428.squirrel@www.a61.nl>
-In-Reply-To: <1203692479.2804.54.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: ps aux output under sysadm context in refpolicy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jeremiah Jahn <jeremiah@goodinassociates.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1203693559.3669.915.camel@bluejay.goodinassociates.com>
 References: <1203628966.3669.820.camel@bluejay.goodinassociates.com>
-    <1203690930.2804.33.camel@moss-spartans.epoch.ncsc.mil>
-    <1203692165.3669.910.camel@bluejay.goodinassociates.com>
-    <1203692479.2804.54.camel@moss-spartans.epoch.ncsc.mil>
-Date: Fri, 22 Feb 2008 16:33:48 +0100 (CET)
-Subject: Gen_require scoping?
-From: selinux@a61.nl
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+	 <1203690930.2804.33.camel@moss-spartans.epoch.ncsc.mil>
+	 <1203692165.3669.910.camel@bluejay.goodinassociates.com>
+	 <1203692479.2804.54.camel@moss-spartans.epoch.ncsc.mil>
+	 <1203693559.3669.915.camel@bluejay.goodinassociates.com>
+Content-Type: text/plain
+Date: Fri, 22 Feb 2008 10:49:17 -0500
+Message-Id: <1203695357.2804.58.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
 
-we're trying to setup an JBoss-module. As you probably know JBoss needs
-Java and vice versa.
+On Fri, 2008-02-22 at 09:19 -0600, Jeremiah Jahn wrote:
+> okay, done, apparently I have some attribute set some place, but apol
+> only shows it a @ttr2718 Is there some way I can get this to translate
+> to English? I'm not that familiar with apol.
 
-For this we created an .te and if. Part of the .if is an interface to
-allow writing logfiles. Relevant part:
+Kernel policy doesn't preserve attribute names in the symbol table,
+because it doesn't need them (my fault).
 
-########################################
-## <summary>
-##	Allow the specified domain to
-##	write jboss log files
-## </summary>
-## <param name="domain">
-##	<summary>
-##	Domain allowed access.
-##	</summary>
-## </param>
-#
-interface(`jboss_write_log',`
-	gen_require(`
-		type jboss_log_t;
-	')
-	logging_search_logs($1)
-	allow $1 jboss_log_t:dir list_dir_perms;
-	allow $1 jboss_log_t:dir rw_dir_perms;
-	allow $1 jboss_log_t:file read_file_perms;
-	write_files_pattern($1,jboss_log_t,jboss_log_t);
-	allow $1 jboss_log_t:dir search_dir_perms;
-        allow $1 jboss_log_t:dir getattr_dir_perms;
-')
+To get the attribute name, you'd need to run the analysis on the modular
+policy or source policy instead.  The current version of apol can load
+up any form of policy.
 
-However, when compiling this modules, all fails at "allow $1
-jboss_log_t:dir list_dir_perms;" with this error:
-
-Compiling targeted base module
-/usr/bin/checkmodule -M -U allow base.conf -o tmp/base.mod
-/usr/bin/checkmodule:  loading policy configuration from base.conf
-policy/modules/apps/java.te:22:ERROR 'unknown type jboss_log_t' at token
-';' on line 491016:
-#line 22
-        allow java_t jboss_log_t:dir { getattr search read lock ioctl };
-/usr/bin/checkmodule:  error(s) encountered while parsing configuration
-make: *** [tmp/base.mod] Error 1
-
-Just to try, we declared "type jboss_log_t;" before logging_search_logs
-and after the gen_require. After this I was able to compile the module
-(but did run into other problems)...
-
-So, I believe I have an scoping issue; gen_require checks (and find)
-jboss_log_t. But as soon as someone is trying to use jboss_log_t in the
-interface, it breaks..
-
-To make everything clear:
-We changed java.te and added:
-
-#Java needs access to jboss_log_t
-jboss_write_log(java_t);
-
-What I am doing wrong here??
-
-Cheers,
-
-Bart
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
