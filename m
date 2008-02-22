@@ -6,8 +6,8 @@ In-Reply-To: <47BEFE89.4080201@manicmethod.com>
 References: <1203696668.2914.25.camel@localhost.localdomain>
 	 <47BEFE89.4080201@manicmethod.com>
 Content-Type: text/plain
-Date: Fri, 22 Feb 2008 12:22:41 -0500
-Message-Id: <1203700961.2804.61.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 22 Feb 2008 12:41:53 -0500
+Message-Id: <1203702113.2804.71.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -34,11 +34,9 @@ On Fri, 2008-02-22 at 11:55 -0500, Joshua Brindle wrote:
 > 
 > This is totally untested but should fix it:
 
-Whitespace damaged, but applied with -l and it fixed the problem.
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-Merge at will.
+I suppose the other option would be to make semanage_is_connected()
+return 0 if sh == NULL rather than assert'ing that sh is non-NULL.
+Then the same error path could be used.  
 
 > 
 > Index: trunk/policycoreutils/semodule/semodule.c
