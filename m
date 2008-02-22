@@ -1,79 +1,66 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MGs4G0006043
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:54:04 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MGs129029619
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 16:54:01 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200802220852.26584.chris.mason@oracle.com>
-References: <200802220852.26584.chris.mason@oracle.com> <28196.1203605703@redhat.com> <20080220160557.4715.66608.stgit@warthog.procyon.org.uk> <17916.1203636833@redhat.com>
-To: Chris Mason <chris.mason@oracle.com>
-Cc: dhowells@redhat.com, Daniel Phillips <phillips@phunq.net>,
-        Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
-        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 00/37] Permit filesystem local caching
-Date: Fri, 22 Feb 2008 16:12:24 +0000
-Message-ID: <18998.1203696744@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MGwPnX006650
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:58:25 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1MGwO29001460
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 16:58:24 GMT
+Message-ID: <47BEFE89.4080201@manicmethod.com>
+Date: Fri, 22 Feb 2008 11:55:37 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Eric Paris <eparis@redhat.com>
+CC: selinux <selinux@tycho.nsa.gov>
+Subject: Re: segfault in semodule
+References: <1203696668.2914.25.camel@localhost.localdomain>
+In-Reply-To: <1203696668.2914.25.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chris Mason <chris.mason@oracle.com> wrote:
+Eric Paris wrote:
+> I added "allow-unknown = deny" in semanage.conf and ran semodule -R
+>
+> [root@dhcp231-146 ~]# semodule -R
+> error parsing semanage configuration file: syntax error
+> semodule:  Could not create semanage handle
+> semodule: handle.c:123: semanage_is_connected: Assertion `sh != ((void *)0)' failed.
+> Segmentation fault
+>
+> It was supposed to bail (allow-unknown is not a valid entry, it should
+> be handle-unknown) but it wasn't supposed to segfault.  Maybe someone
+> who knows this code can find/fix it really quickly, if not I'm sure I'll
+> get to look at it when it gets to the top of my list in 10 or 12
+> months  :)
+>
+> policycoreutils-2.0.43-2.fc9.x86_64
+>   
 
-> > The interesting case is where the disk cache is warm, but the pagecache is
-> > cold (ie: just after a reboot after filling the caches).  Here, for the two
-> > big files case, BTRFS appears quite a bit better than Ext3, showing a 21%
-> > reduction in time for the smaller case and a 13% reduction for the larger
-> > case.
-> 
-> I'm afraid I don't have a good handle on the filesystem operations that
-> result from this workload.  Are we reading from the FS to fill the NFS page
-> cache?
+This is totally untested but should fix it:
 
-I'm not sure what you're asking.
+Index: trunk/policycoreutils/semodule/semodule.c
+===================================================================
+--- trunk/policycoreutils/semodule/semodule.c   (revision 2808)
++++ trunk/policycoreutils/semodule/semodule.c   (working copy)
+@@ -285,7 +285,7 @@
+        if (!sh) {
+                fprintf(stderr, "%s:  Could not create semanage handle\n",
+                        argv[0]);
+-               goto cleanup;
++               goto cleanup_nohandle;
+        }
+ 
+        if (store) {
+@@ -473,6 +473,8 @@
+                }
+        }
+        semanage_handle_destroy(sh);
++
++      cleanup_nohandle:
+        cleanup();
+        exit(status);
+ }
 
-When the cache is cold, we determine that we can't read from the cache very
-quickly.  We then read data from the server and, in the background, create the
-metadata in the cache and store the data to it (by copying netfs pages to
-backingfs pages).
 
-When the cache is warm, we read the data from the cache, copying the data from
-the backingfs pages to the netfs pages.  We use bmap() to ascertain that there
-is data to be read, otherwise we detect a hole and fallback to reading from
-the server.
-
-Looking up cache object involves a sequence of lookup() ops and getxattr() ops
-on the backingfs.  Should an object not exist, we defer creation of that
-object to a background thread and do lookups(), mkdirs() and setxattrs() and a
-create() to manufacture the object.
-
-We read data from an object by calling readpages() on the backingfs to bring
-the data into the pagecache.  We monitor the PG_lock bits to find out when
-each page is read or has completed with an error.
-
-Writing pages to the cache is done completely in the background.
-PG_fscache_write is set on a page when it is handed to fscache to storage,
-then at some point a background thread wakes up and calls write_one_page() in
-the backingfs to write that page to the cache file.  At the moment, this
-copies the data into a backingfs page which is then marked PG_dirty, and the
-VM writes it out in the usual way.
-
-> > More surprising is that BTRFS performed significantly worse (15% increase
-> > in time) in the case where the cache on disk was fully populated and then
-> > the machine had been rebooted to clear the pagecaches.
-> 
-> Which FS operations are included here?  Finding all the files or just an 
-> unmount?  Btrfs defrags metadata in the background, and unmount has to wait 
-> for that defrag to finish.
-
-BTRFS might not be doing any writing at all here - apart from local atimes
-(used by cache culling), that is.
-
-What it does have to do is lots of lookups, reads and getxattrs, all of which
-are synchronous.
-
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
