@@ -1,117 +1,112 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1M56DlU025560
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 00:06:13 -0500
-Received: from web36602.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1M56CKi002582
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 05:06:12 GMT
-Date: Thu, 21 Feb 2008 21:06:12 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 09/37] Security: Allow kernel services to override LSM settings for task actions
-To: David Howells <dhowells@redhat.com>, Trond.Myklebust@netapp.com,
-        chuck.lever@oracle.com, casey@schaufler-ca.com
-Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, dhowells@redhat.com
-In-Reply-To: <20080220160646.4715.7268.stgit@warthog.procyon.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <55722.57422.qm@web36602.mail.mud.yahoo.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MCodOF007301
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 07:50:39 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MCocDE009640
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 12:50:38 GMT
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200802211657.01704.phillips@phunq.net>
+References: <200802211657.01704.phillips@phunq.net> <200802211444.04986.phillips@phunq.net> <28196.1203605703@redhat.com> <18063.1203638861@redhat.com>
+To: Daniel Phillips <phillips@phunq.net>
+Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
+        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 00/37] Permit filesystem local caching
+Date: Fri, 22 Feb 2008 12:48:51 +0000
+Message-ID: <20089.1203684531@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Daniel Phillips <phillips@phunq.net> wrote:
 
---- David Howells <dhowells@redhat.com> wrote:
-
-> Allow kernel services to override LSM settings appropriate to the actions
-> performed by a task by duplicating a security record, modifying it and then
-> using task_struct::act_as to point to it when performing operations on behalf
-> of a task.
+> > The way the client works is like this:
 > 
-> This is used, for example, by CacheFiles which has to transparently access
-> the
-> cache on behalf of a process that thinks it is doing, say, NFS accesses with
-> a
-> potentially inappropriate (with respect to accessing the cache) set of
-> security data.
+> Thanks for the excellent ascii art, that cleared up the confusion right
+> away.
+
+You know what they say about pictures... :-)
+
+> > What are you trying to do exactly?  Are you actually playing with it, or
+> > just looking at the numbers I've produced?
 > 
-> This patch provides two LSM hooks for modifying a task security record:
+> Trying to see if you are offering enough of a win to justify testing it,
+> and if that works out, then going shopping for a bin of rotten vegetables
+> to throw at your design, which I hope you will perceive as useful.
+
+One thing that you have to remember: my test setup is pretty much the
+worst-case for being appropriate for showing the need for caching to improve
+performance.  There's a single client and a single server, they've got GigE
+networking between them that has very little other load, and the server has
+sufficient memory to hold the entire test data set.
+
+> From the numbers you have posted I think you are missing some basic
+> efficiencies that could take this design from the sorta-ok zone to wow!
+
+Not really, it's just that this lashup could be considered designed to show
+local caching in the worst light.
+
+> But looking up the object in the cache should be nearly free - much less
+> than a microsecond per block.
+
+The problem is that you have to do a database lookup of some sort, possibly
+involving several synchronous disk operations.
+
+CacheFiles does a disk lookup by taking the key given to it by NFS, turning it
+into a set of file or directory names, and doing a short pathwalk to the target
+cache file.  Throwing in extra indices won't necessarily help.  What matters is
+how quick the backing filesystem is at doing lookups.  As it turns out, Ext3 is
+a fair bit better then BTRFS when the disk cache is cold.
+
+> > The metadata problem is quite a tricky one since it increases with the
+> > number of files you're dealing with.  As things stand in my patches, when
+> > NFS, for example, wants to access a new inode, it first has to go to the
+> > server to lookup the NFS file handle, and only then can it go to the cache
+> > to find out if there's a matching object in the case.
 > 
->  (*) security_kernel_act_as() which allows modification of the security datum
->      with which a task acts on other objects (most notably files).
+> So without the persistent cache it can omit the LOOKUP and just send the
+> filehandle as part of the READ?
+
+What 'it'?  Note that the get the filehandle, you have to do a LOOKUP op.  With
+the cache, we could actually cache the results of lookups that we've done,
+however, we don't know that the results are still valid without going to the
+server:-/
+
+AFS has a way around that - it versions its vnode (inode) IDs.
+
+> > The reason my client going to my server is so quick is that the server has
+> > the dcache and the pagecache preloaded, so that across-network lookup
+> > operations are really, really quick, as compared to the synchronous
+> > slogging of the local disk to find the cache object.
 > 
->  (*) security_create_files_as() which allows modification of the security
->      datum that is used to initialise the security data on a file that a task
->      creates.
+> Doesn't that just mean you have to preload the lookup table for the
+> persistent cache so you can determine whether you are caching the data
+> for a filehandle without going to disk?
+
+Where "lookup table" == "dcache".  That would be good yes.  cachefilesd
+prescans all the files in the cache, which ought to do just that, but it
+doesn't seem to be very effective.  I'm not sure why.
+
+> > I can probably improve this a little by pre-loading the subindex
+> > directories (hash tables) that I use to reduce the directory size in the
+> > cache, but I don't know by how much.
 > 
-> ...
+> Ah I should have read ahead.  I think the correct answer is "a lot".
 
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -976,6 +976,36 @@ static int smack_task_dup_security(struct task_security
-> *sec)
->  }
->  
->  /**
-> + * smack_task_kernel_act_as - Set the subjective context in a security
-> record
-> + * @p points to the task that nominated @secid.
-> + * @sec points to the task security record to be modified.
-> + * @secid specifies the security ID to be set
-> + *
-> + * Set the security data for a kernel service.
-> + */
-> +static int smack_task_kernel_act_as(struct task_struct *p,
-> +				    struct task_security *sec, u32 secid)
-> +{
-> +	return -ENOTSUPP;
-> +}
-> +
-> +/**
-> + * smack_task_create_files_as - Set the file creation label in a security
-> record
-> + * @p points to the task that nominated @inode.
-> + * @sec points to the task security record to be modified.
-> + * @inode points to the inode to use as a reference.
-> + *
-> + * Set the file creation context in a security record to the same as the
-> + * objective context of the specified inode
-> + */
-> +static int smack_task_create_files_as(struct task_struct *p,
-> +				      struct task_security *sec,
-> +				      struct inode *inode)
-> +{
-> +	return -ENOTSUPP;
-> +}
+Quite possibly.  It'll allow me to dispense with at least one fs lookup call
+per cache object request call.
 
-Hum. ENOTSUPP is not not very satisfying, is it? I will have to
-think on this a bit.
+> Your big can-t-get-there-from-here is the round trip to the server to
+> determine whether you should read from the local cache.  Got any ideas?
 
-> +
-> +/**
->   * smack_task_setpgid - Smack check on setting pgid
->   * @p: the task object
->   * @pgid: unused
-> @@ -2444,6 +2474,8 @@ static struct security_operations smack_ops = {
->  	.task_alloc_security = 		smack_task_alloc_security,
->  	.task_free_security = 		smack_task_free_security,
->  	.task_dup_security =		smack_task_dup_security,
-> +	.task_kernel_act_as =		smack_task_kernel_act_as,
-> +	.task_create_files_as =		smack_task_create_files_as,
->  	.task_post_setuid =		cap_task_post_setuid,
->  	.task_setpgid = 		smack_task_setpgid,
->  	.task_getpgid = 		smack_task_getpgid,
+I'm not sure what you mean.  Your statement should probably read "... to
+determine _what_ you should read from the local cache".
 
-Except for the fact that the hooks don't do anything this
-looks fine. I'm not sure that I would want these hooks to
-do anything, it requires additional thought to determine if
-there is a good behavior for them.
+> And where is the Trond-meister in all of this?
 
-Thank you.
+Keeping quiet as far as I can tell.
 
-
-Casey Schaufler
-casey@schaufler-ca.com
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
