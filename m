@@ -1,74 +1,65 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MJ7mgW025824
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 14:07:48 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MJ7k29006270
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 19:07:46 GMT
-Message-ID: <47BF1D7C.4060207@redhat.com>
-Date: Fri, 22 Feb 2008 14:07:40 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Jeremiah Jahn <jeremiah@goodinassociates.com>
-CC: selinux <selinux@tycho.nsa.gov>
 Subject: Re: default user roles
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1203706878.32061.28.camel@gorn>
 References: <1203704148.3669.953.camel@bluejay.goodinassociates.com>
-In-Reply-To: <1203704148.3669.953.camel@bluejay.goodinassociates.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	 <1203706878.32061.28.camel@gorn>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-K/FcRseRfjxrCH2Su148"
+Date: Fri, 22 Feb 2008 13:09:11 -0600
+Message-Id: <1203707351.3669.961.camel@bluejay.goodinassociates.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Jeremiah Jahn wrote:
-> I can't seem to get the login to set the proper initial role for a user.
-> Every time I login, I end up as auditadm, and not secstaff.
-> 
-> I have the following in my policy:
-> 
-> userdom_unpriv_user_template(secstaff)
-> userdom_role_change_template(secstaff, secadm)
-> userdom_role_change_template(secstaff, auditadm)
-> allow secstaff_t devlog_t:sock_file write;
-> allow secstaff_t newrole_t:process { siginh noatsecure rlimitinh };
-> allow secstaff_t syslogd_t:unix_dgram_socket sendto;
-> allow secstaff_t unconfined_tmp_t:dir { write search rmdir remove_name create getattr add_name };
-> allow secstaff_t user_home_dir_t:dir { read getattr search };
-> userdom_manage_generic_user_home_content_files(secstaff_t)
-> userdom_read_generic_user_home_content_files(secstaff_t)
-> 
-> ############################################################
-> # Set default role for sec staff <-- not quite :)
-> #
-> role secstaff_r types secstaff_t;
-> 
-> ############################################################
-> # define roles the secstaff can transition to
-> #
-> user secstaff_u roles { secstaff_r secadm_r auditadm_r } level s0 range s0 - s0;
-> 	
-> 
-> 
-> 
-> 
-> In the olden days in England, you could be hung for stealing a sheep or
-> a loaf of bread. However, if a sheep stole a loaf of bread and gave it
-> to you, you would only be tried for receiving, a crime punishable by
-> forty lashes with the cat or the dog, whichever was handy. If you stole
-> a dog and were caught, you were punished with twelve rabbit punches,
-> although it was hard to find rabbits big enough or strong enough to
-> punch you. -- Mike Harding, "The Armchair Anarchist's Almanac"
-You probably need a
+--=-K/FcRseRfjxrCH2Su148
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-/etc/selinux/TYPE/contexts/users/secstaff_u
+Since I'm working with the refpolicy source can I set it up there, or
+does this have to be a file separate from the source?
+
+On Fri, 2008-02-22 at 14:01 -0500, Christopher J. PeBenito wrote:
+> On Fri, 2008-02-22 at 12:15 -0600, Jeremiah Jahn wrote:
+> > I can't seem to get the login to set the proper initial role for a user=
+.
+> > Every time I login, I end up as auditadm, and not secstaff.
+> >=20
+> > I have the following in my policy:
+> [...]
+> > user secstaff_u roles { secstaff_r secadm_r auditadm_r } level s0 range=
+ s0 - s0;
+>=20
+> You want to make the file /etc/selinux/NAME/contexts/users/secstaff_u
+> with the default contexts that you want.  You probably want at least
+> this:
+>=20
+> system_r:local_login_t:s0     auditadm_r:auditadm_t:s0
+> system_r:remote_login_t:s0    auditadm_r:auditadm_t:s0
+> system_r:sshd_t:s0            auditadm_r:auditadm_t:s0
+>=20
+PLUNDERER'S THEME (to Supercalifragilisticexpialidocius) Pillage, rape,
+and loot and burn, but all in moderation. If you do the things we say,
+then you'll soon rule the nation. Kill your foes and enemies and then
+kill your relations. Pillage, rape, and loot and burn, but all in
+moderation.
+
+--=-K/FcRseRfjxrCH2Su148
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Version: GnuPG v1.4.7 (GNU/Linux)
 
-iEYEARECAAYFAke/HXwACgkQrlYvE4MpobOX5ACeO5fHUGU3f4xqttOd/YktKDTG
-eVMAn2XUtWC6zeLZEkybzGMUQqIDUZkA
-=6Hjz
+iD8DBQBHvx3X6caZY8jbHDkRAvkPAJ0Vu/oAxeuLOyf7Nik6KWhgaZiZpgCggrBK
+uNpqUpZ/7F12GlosqHm03tk=
+=3hJO
 -----END PGP SIGNATURE-----
+
+--=-K/FcRseRfjxrCH2Su148--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
