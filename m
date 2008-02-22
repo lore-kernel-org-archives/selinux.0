@@ -1,143 +1,46 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MGGfaZ030993
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:16:41 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MGGT29009197
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 16:16:30 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <17916.1203636833@redhat.com>
-References: <17916.1203636833@redhat.com> <28196.1203605703@redhat.com> <200802201907.40406.phillips@phunq.net> <20080220160557.4715.66608.stgit@warthog.procyon.org.uk>
-Cc: dhowells@redhat.com, Daniel Phillips <phillips@phunq.net>,
-        Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
-        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 00/37] Permit filesystem local caching
-Date: Fri, 22 Feb 2008 16:14:35 +0000
-Message-ID: <19020.1203696875@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MGVQ6B001552
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:31:26 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MGVPYC012834
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 16:31:25 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m1MGBE5R025269
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:11:14 -0500
+Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [10.11.255.20])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1MGBD8P005525
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:11:13 -0500
+Received: from [10.11.14.227] (vpn-14-227.rdu.redhat.com [10.11.14.227])
+	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1MGBDcp012862
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 11:11:13 -0500
+Subject: segfault in semodule
+From: Eric Paris <eparis@redhat.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Fri, 22 Feb 2008 11:11:08 -0500
+Message-Id: <1203696668.2914.25.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David Howells <dhowells@redhat.com> wrote:
+I added "allow-unknown = deny" in semanage.conf and ran semodule -R
 
-> > > Have you got before/after benchmark results?
-> > 
-> > See attached.
-> 
-> Attached here are results using BTRFS (patched so that it'll work at all)
-> rather than Ext3 on the client on the partition backing the cache.
+[root@dhcp231-146 ~]# semodule -R
+error parsing semanage configuration file: syntax error
+semodule:  Could not create semanage handle
+semodule: handle.c:123: semanage_is_connected: Assertion `sh != ((void *)0)' failed.
+Segmentation fault
 
-And here are XFS results.
+It was supposed to bail (allow-unknown is not a valid entry, it should
+be handle-unknown) but it wasn't supposed to segfault.  Maybe someone
+who knows this code can find/fix it really quickly, if not I'm sure I'll
+get to look at it when it gets to the top of my list in 10 or 12
+months  :)
 
-Tuning XFS makes a *really* big difference for the lots of small/medium files
-being tarred case.  However, in general BTRFS is much better.
+policycoreutils-2.0.43-2.fc9.x86_64
 
-David
----
+-Eric
 
-
-=========================
-FEW BIG FILES TEST ON XFS
-=========================
-
-Completely cold caches:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m2.286s
-	user    0m0.000s
-	sys     0m1.828s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m4.228s
-	user    0m0.000s
-	sys     0m1.360s
-
-Warm NFS pagecache:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m0.058s
-	user    0m0.000s
-	sys     0m0.060s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m0.122s
-	user    0m0.000s
-	sys     0m0.120s
-
-Warm XFS pagecache, cold NFS pagecache:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m0.181s
-	user    0m0.000s
-	sys     0m0.180s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m1.034s
-	user    0m0.000s
-	sys     0m0.404s
-
-Warm on-disk cache, cold pagecaches:
-
-	[root@andromeda ~]# time cat /warthog/bigfile >/dev/null
-	real    0m1.540s
-	user    0m0.000s
-	sys     0m0.256s
-	[root@andromeda ~]# time cat /warthog/biggerfile >/dev/null
-	real    0m3.003s
-	user    0m0.000s
-	sys     0m0.532s
-
-
-==========================================
-MANY SMALL/MEDIUM FILE READING TEST ON XFS
-==========================================
-
-Completely cold caches:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    4m56.827s
-	user    0m0.180s
-	sys     0m6.668s
-
-Warm NFS pagecache:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    0m15.084s
-	user    0m0.212s
-	sys     0m5.008s
-
-Warm XFS pagecache, cold NFS pagecache:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    0m13.547s
-	user    0m0.220s
-	sys     0m5.652s
-
-Warm on-disk cache, cold pagecaches:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    4m36.316s
-	user    0m0.148s
-	sys     0m4.440s
-
-
-=======================================================
-MANY SMALL/MEDIUM FILE READING TEST ON AN OPTIMISED XFS
-=======================================================
-
-mkfs.xfs -d agcount=4 -l size=128m,version=2 /dev/sda6
-
-
-Completely cold caches:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    3m44.033s
-	user    0m0.248s
-	sys     0m6.632s
-
-Warm on-disk cache, cold pagecaches:
-
-	[root@andromeda ~]# time tar cf - /warthog/aaa >/dev/zero
-	real    3m8.582s
-	user    0m0.108s
-	sys     0m3.420s
 
 --
 This message was distributed to subscribers of the selinux mailing list.
