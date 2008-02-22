@@ -1,42 +1,82 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MI85ZR017291
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 13:08:05 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1MI8529006928
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 18:08:05 GMT
-Subject: Re: refpolicy: patch for ldconfig from glibc 2.7
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-In-Reply-To: <20080222152703.GA4163@bobek.pm.i.cz>
-References: <20080222152703.GA4163@bobek.pm.i.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 22 Feb 2008 13:05:39 -0500
-Message-Id: <1203703539.32061.22.camel@gorn>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MIFptl018663
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 13:15:51 -0500
+Received: from penguin.goodinassociates.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MIFmYC019185
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 18:15:49 GMT
+Received: from [206.80.71.242] ([206.80.71.242])
+	(authenticated bits=0)
+	by penguin.goodinassociates.com (8.13.1/8.13.1) with ESMTP id m1MIFmpw019612
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 12:15:48 -0600
+Subject: default user roles
+From: Jeremiah Jahn <jeremiah@goodinassociates.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MZx+2iEhS/mpgevj8u2m"
+Date: Fri, 22 Feb 2008 12:15:48 -0600
+Message-Id: <1203704148.3669.953.camel@bluejay.goodinassociates.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-02-22 at 16:27 +0100, Václav Ovsík wrote:
-> Hi,
-> I had some denials for ldconfig on Debian Sid. I took changes from
-> Fedora policy package - a patch attached. I grabed only things needed
-> to suppress denials below from Fedora.
-> 
-> audit(1203580520.435:11): avc:  denied  { read } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
-> audit(1203580520.435:12): avc:  denied  { getattr } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
-> audit(1203580520.907:13): avc:  denied  { write } for  pid=3985 comm="ldconfig" name="ldconfig" dev=sda1 ino=294986 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
-> audit(1203580520.907:14): avc:  denied  { add_name } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
-> audit(1203580520.907:15): avc:  denied  { create } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
 
-This is the right fix, and basically the same fix is queued up for
-merging as part of Dan's patch set.
+--=-MZx+2iEhS/mpgevj8u2m
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I can't seem to get the login to set the proper initial role for a user.
+Every time I login, I end up as auditadm, and not secstaff.
 
+I have the following in my policy:
+
+userdom_unpriv_user_template(secstaff)
+userdom_role_change_template(secstaff, secadm)
+userdom_role_change_template(secstaff, auditadm)
+allow secstaff_t devlog_t:sock_file write;
+allow secstaff_t newrole_t:process { siginh noatsecure rlimitinh };
+allow secstaff_t syslogd_t:unix_dgram_socket sendto;
+allow secstaff_t unconfined_tmp_t:dir { write search rmdir remove_name crea=
+te getattr add_name };
+allow secstaff_t user_home_dir_t:dir { read getattr search };
+userdom_manage_generic_user_home_content_files(secstaff_t)
+userdom_read_generic_user_home_content_files(secstaff_t)
+
+############################################################
+# Set default role for sec staff <-- not quite :)
+#
+role secstaff_r types secstaff_t;
+
+############################################################
+# define roles the secstaff can transition to
+#
+user secstaff_u roles { secstaff_r secadm_r auditadm_r } level s0 range s0 =
+- s0;
+=09
+
+
+
+
+In the olden days in England, you could be hung for stealing a sheep or
+a loaf of bread. However, if a sheep stole a loaf of bread and gave it
+to you, you would only be tried for receiving, a crime punishable by
+forty lashes with the cat or the dog, whichever was handy. If you stole
+a dog and were caught, you were punished with twelve rabbit punches,
+although it was hard to find rabbits big enough or strong enough to
+punch you. -- Mike Harding, "The Armchair Anarchist's Almanac"
+
+--=-MZx+2iEhS/mpgevj8u2m
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHvxFU6caZY8jbHDkRAmECAKClI6pqCnDZSTALk1GMaNEyxAGcqQCgg80T
+xvKR6jgbNUKqgJEb7CLs5qk=
+=iLrF
+-----END PGP SIGNATURE-----
+
+--=-MZx+2iEhS/mpgevj8u2m--
 
 
 --
