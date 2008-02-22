@@ -1,81 +1,94 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MFROjg023874
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 10:27:25 -0500
-Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MFRNDE018323
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 15:27:24 GMT
-Date: Fri, 22 Feb 2008 16:27:04 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-Subject: refpolicy: patch for ldconfig from glibc 2.7
-Message-ID: <20080222152703.GA4163@bobek.pm.i.cz>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MFXq3G024793
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 10:33:52 -0500
+Received: from ns1.a61.nl (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MFXoVo026722
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 15:33:50 GMT
+Received: from localhost ([127.0.0.1] helo=www.a61.nl)
+	by ns1.a61.nl with esmtp (Exim 4.54)
+	id 1JSZuG-0007cJ-JL
+	for selinux@tycho.nsa.gov; Fri, 22 Feb 2008 16:33:49 +0100
+Message-ID: <54715.80.95.164.250.1203694428.squirrel@www.a61.nl>
+In-Reply-To: <1203692479.2804.54.camel@moss-spartans.epoch.ncsc.mil>
+References: <1203628966.3669.820.camel@bluejay.goodinassociates.com>
+    <1203690930.2804.33.camel@moss-spartans.epoch.ncsc.mil>
+    <1203692165.3669.910.camel@bluejay.goodinassociates.com>
+    <1203692479.2804.54.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 22 Feb 2008 16:33:48 +0100 (CET)
+Subject: Gen_require scoping?
+From: selinux@a61.nl
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi all,
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+we're trying to setup an JBoss-module. As you probably know JBoss needs
+Java and vice versa.
 
-Hi,
-I had some denials for ldconfig on Debian Sid. I took changes from
-Fedora policy package - a patch attached. I grabed only things needed
-to suppress denials below from Fedora.
+For this we created an .te and if. Part of the .if is an interface to
+allow writing logfiles. Relevant part:
 
-audit(1203580520.435:11): avc:  denied  { read } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
-audit(1203580520.435:12): avc:  denied  { getattr } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
-audit(1203580520.907:13): avc:  denied  { write } for  pid=3985 comm="ldconfig" name="ldconfig" dev=sda1 ino=294986 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
-audit(1203580520.907:14): avc:  denied  { add_name } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
-audit(1203580520.907:15): avc:  denied  { create } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
-...
+########################################
+## <summary>
+##	Allow the specified domain to
+##	write jboss log files
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`jboss_write_log',`
+	gen_require(`
+		type jboss_log_t;
+	')
+	logging_search_logs($1)
+	allow $1 jboss_log_t:dir list_dir_perms;
+	allow $1 jboss_log_t:dir rw_dir_perms;
+	allow $1 jboss_log_t:file read_file_perms;
+	write_files_pattern($1,jboss_log_t,jboss_log_t);
+	allow $1 jboss_log_t:dir search_dir_perms;
+        allow $1 jboss_log_t:dir getattr_dir_perms;
+')
 
-Thanks
--- 
-Zito
+However, when compiling this modules, all fails at "allow $1
+jboss_log_t:dir list_dir_perms;" with this error:
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="libraries.ldconfig.patch"
+Compiling targeted base module
+/usr/bin/checkmodule -M -U allow base.conf -o tmp/base.mod
+/usr/bin/checkmodule:  loading policy configuration from base.conf
+policy/modules/apps/java.te:22:ERROR 'unknown type jboss_log_t' at token
+';' on line 491016:
+#line 22
+        allow java_t jboss_log_t:dir { getattr search read lock ioctl };
+/usr/bin/checkmodule:  error(s) encountered while parsing configuration
+make: *** [tmp/base.mod] Error 1
 
-Index: policy/modules/system/libraries.fc
-===================================================================
---- policy/modules/system/libraries.fc	(revision 2624)
-+++ policy/modules/system/libraries.fc	(working copy)
-@@ -304,3 +304,5 @@
- /var/spool/postfix/lib(64)?(/.*)? 		gen_context(system_u:object_r:lib_t,s0)
- /var/spool/postfix/usr(/.*)?			gen_context(system_u:object_r:lib_t,s0)
- /var/spool/postfix/lib(64)?/ld.*\.so.*	--	gen_context(system_u:object_r:ld_so_t,s0)
-+
-+/var/cache/ldconfig(/.*)?		    	gen_context(system_u:object_r:ldconfig_cache_t,s0)
-Index: policy/modules/system/libraries.te
-===================================================================
---- policy/modules/system/libraries.te	(revision 2624)
-+++ policy/modules/system/libraries.te	(working copy)
-@@ -23,6 +23,9 @@
- init_system_domain(ldconfig_t,ldconfig_exec_t)
- role system_r types ldconfig_t;
- 
-+type ldconfig_cache_t;
-+files_type(ldconfig_cache_t)
-+
- type ldconfig_tmp_t;
- files_tmp_file(ldconfig_tmp_t)
- 
-@@ -46,7 +49,9 @@
- 
- allow ldconfig_t self:capability sys_chroot;
- 
--allow ldconfig_t ld_so_cache_t:file manage_file_perms;
-+manage_files_pattern(ldconfig_t,ldconfig_cache_t,ldconfig_cache_t)
-+
-+manage_files_pattern(ldconfig_t,ld_so_cache_t,ld_so_cache_t)
- files_etc_filetrans(ldconfig_t,ld_so_cache_t,file)
- 
- manage_dirs_pattern(ldconfig_t,ldconfig_tmp_t,ldconfig_tmp_t)
+Just to try, we declared "type jboss_log_t;" before logging_search_logs
+and after the gen_require. After this I was able to compile the module
+(but did run into other problems)...
 
---4Ckj6UjgE2iN1+kY--
+So, I believe I have an scoping issue; gen_require checks (and find)
+jboss_log_t. But as soon as someone is trying to use jboss_log_t in the
+interface, it breaks..
+
+To make everything clear:
+We changed java.te and added:
+
+#Java needs access to jboss_log_t
+jboss_write_log(java_t);
+
+What I am doing wrong here??
+
+Cheers,
+
+Bart
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
