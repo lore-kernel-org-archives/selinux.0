@@ -1,124 +1,81 @@
-Subject: Re: ps aux output under sysadm context in refpolicy
-From: Jeremiah Jahn <jeremiah@goodinassociates.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1203692479.2804.54.camel@moss-spartans.epoch.ncsc.mil>
-References: <1203628966.3669.820.camel@bluejay.goodinassociates.com>
-	 <1203690930.2804.33.camel@moss-spartans.epoch.ncsc.mil>
-	 <1203692165.3669.910.camel@bluejay.goodinassociates.com>
-	 <1203692479.2804.54.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sA8LJQgHa5zShZ3c/DNn"
-Date: Fri, 22 Feb 2008 09:19:19 -0600
-Message-Id: <1203693559.3669.915.camel@bluejay.goodinassociates.com>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1MFROjg023874
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 10:27:25 -0500
+Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1MFRNDE018323
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 15:27:24 GMT
+Date: Fri, 22 Feb 2008 16:27:04 +0100
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+Subject: refpolicy: patch for ldconfig from glibc 2.7
+Message-ID: <20080222152703.GA4163@bobek.pm.i.cz>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-sA8LJQgHa5zShZ3c/DNn
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-okay, done, apparently I have some attribute set some place, but apol
-only shows it a @ttr2718 Is there some way I can get this to translate
-to English? I'm not that familiar with apol.
+Hi,
+I had some denials for ldconfig on Debian Sid. I took changes from
+Fedora policy package - a patch attached. I grabed only things needed
+to suppress denials below from Fedora.
 
-On Fri, 2008-02-22 at 10:01 -0500, Stephen Smalley wrote:
-> On Fri, 2008-02-22 at 08:56 -0600, Jeremiah Jahn wrote:
-> > I wonder if I'm using apol incorrectly. I have:
-> > Analysis type =3D Doman Transition
-> > Direction =3D Forward
-> > source domain =3D sysadm_t
-> > use access filters =3D checked
-> > included object types =3D mysecure_t
-> > included object classes =3D dir & file
-> > permission for dir =3D getattr & read & search
-> > permissions for file =3D getattr & read
-> >=20
-> > results tree =3D sysadm_t & nothing else, no possible expansions.
-> >=20
-> > I read this as, there is no possible path from sysadm_t to mysecure_t
-> >=20
-> > yet, I get the following output from pas auxZ
-> > system_u:system_r:mysecure_t:s0  mysecure   3531  0.0  0.0 139276  2396=
- ?        Sl   Feb14   0:00 /usr/local/mysecure/bin/mysecure -Umysecure
-> >=20
-> > I'm stumped :)
->=20
-> Domain transitions are process transitions, i.e. can sysadm_t transition
-> to mysecure_t.  Not can it read from it.
->=20
-> You can use the rule searching facilities to look for direct read rules,
-> or can use the information flow analysis to see if there is any path by
-> which mysecure_t can flow to sysadm_t, but the latter is likely less
-> useful because there is almost always at least one indirect path by
-> which information can flow.
->=20
-> >=20
-> > On Fri, 2008-02-22 at 09:35 -0500, Stephen Smalley wrote:
-> > > On Thu, 2008-02-21 at 15:22 -0600, Jeremiah Jahn wrote:
-> > > > I'm having a heck of a time limiting the ps aux output to show only=
- what
-> > > > I think sysadm should be able to see.
-> > > >=20
-> > > > I have a number of types that are running and I get a ptrace denied=
-, but
-> > > > sysadm can still see the process. I'm really not sure why this is t=
-he
-> > > > case. I've set all the build options correctly, ie left the default=
-s,
-> > > > the booleans are set to no. Somewhere there is something going on t=
-hat
-> > > > lets sysadm see all of this stuff, and I just can't find it.
-> > > >=20
-> > > > According to apol there is not way for me to read the proc files as
-> > > > sysadm. What Am I missing, or where should I look.
-> > >=20
-> > > Access to the basic /proc/pid information is allowed by:
-> > > 	# search the /proc/pid directory for the target domain
-> > > 	allow <source domain> <target domain>:dir search;
-> > > 	# read public information about the target domain
-> > > 	allow <source domain> <target domain>:file read;
-> > > since the /proc/pid files are labeled with the domain of the associat=
-ed
-> > > process.
-> > >=20
-> > > Certain /proc/pid nodes are further limited by ptrace since they reve=
-al
-> > > what should be private information to the process.
-> > >=20
-> > > >=20
-> > > > thanx,
-> > > > -jj-
-> > > >=20
-> > > >=20
-> > > >=20
-> > > > He thought he saw an albatross That fluttered 'round the lamp. He l=
-ooked
-> > > > again and saw it was A penny postage stamp. "You'd best be getting
-> > > > home," he said, "The nights are rather damp."
-> > Political T.V. commercials prove one thing: some candidates can tell al=
-l
-> > their good points and qualifications in just 30 seconds.
-With every passing hour our solar system comes forty-three thousand
-miles closer to globular cluster M13 in the constellation Hercules, and
-still there are some misfits who continue to insist that there is no
-such thing as progress. -- Ransom K. Ferm
+audit(1203580520.435:11): avc:  denied  { read } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
+audit(1203580520.435:12): avc:  denied  { getattr } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
+audit(1203580520.907:13): avc:  denied  { write } for  pid=3985 comm="ldconfig" name="ldconfig" dev=sda1 ino=294986 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
+audit(1203580520.907:14): avc:  denied  { add_name } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
+audit(1203580520.907:15): avc:  denied  { create } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
+...
 
---=-sA8LJQgHa5zShZ3c/DNn
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Thanks
+-- 
+Zito
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="libraries.ldconfig.patch"
 
-iD8DBQBHvuf36caZY8jbHDkRApL4AKCkzg8ZAVA6TvdpNNsOZYUy1W5ixwCeOitZ
-zrY550IxCUt9X98ognYmLKk=
-=PHx6
------END PGP SIGNATURE-----
+Index: policy/modules/system/libraries.fc
+===================================================================
+--- policy/modules/system/libraries.fc	(revision 2624)
++++ policy/modules/system/libraries.fc	(working copy)
+@@ -304,3 +304,5 @@
+ /var/spool/postfix/lib(64)?(/.*)? 		gen_context(system_u:object_r:lib_t,s0)
+ /var/spool/postfix/usr(/.*)?			gen_context(system_u:object_r:lib_t,s0)
+ /var/spool/postfix/lib(64)?/ld.*\.so.*	--	gen_context(system_u:object_r:ld_so_t,s0)
++
++/var/cache/ldconfig(/.*)?		    	gen_context(system_u:object_r:ldconfig_cache_t,s0)
+Index: policy/modules/system/libraries.te
+===================================================================
+--- policy/modules/system/libraries.te	(revision 2624)
++++ policy/modules/system/libraries.te	(working copy)
+@@ -23,6 +23,9 @@
+ init_system_domain(ldconfig_t,ldconfig_exec_t)
+ role system_r types ldconfig_t;
+ 
++type ldconfig_cache_t;
++files_type(ldconfig_cache_t)
++
+ type ldconfig_tmp_t;
+ files_tmp_file(ldconfig_tmp_t)
+ 
+@@ -46,7 +49,9 @@
+ 
+ allow ldconfig_t self:capability sys_chroot;
+ 
+-allow ldconfig_t ld_so_cache_t:file manage_file_perms;
++manage_files_pattern(ldconfig_t,ldconfig_cache_t,ldconfig_cache_t)
++
++manage_files_pattern(ldconfig_t,ld_so_cache_t,ld_so_cache_t)
+ files_etc_filetrans(ldconfig_t,ld_so_cache_t,file)
+ 
+ manage_dirs_pattern(ldconfig_t,ldconfig_tmp_t,ldconfig_tmp_t)
 
---=-sA8LJQgHa5zShZ3c/DNn--
-
+--4Ckj6UjgE2iN1+kY--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
