@@ -1,140 +1,419 @@
-Message-ID: <47BE1DDA.4040203@manicmethod.com>
-Date: Thu, 21 Feb 2008 19:56:58 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1M4lSF8024099
+	for <selinux@tycho.nsa.gov>; Thu, 21 Feb 2008 23:47:28 -0500
+Received: from web36615.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m1M4lR5V028950
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 04:47:27 GMT
+Date: Thu, 21 Feb 2008 20:47:11 -0800 (PST)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 06/37] Security: Separate task security context from task_struct
+To: David Howells <dhowells@redhat.com>, Trond.Myklebust@netapp.com,
+        chuck.lever@oracle.com, casey@schaufler-ca.com
+Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, dhowells@redhat.com
+In-Reply-To: <20080220160630.4715.28518.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-To: Darrel Goeddel <dgoeddel@TrustedCS.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        selinux@tycho.nsa.gov
-Subject: Re: How would I go about figuring out if two SELinux MLS	Levels	intersect?
-References: <47BB5488.1070008@redhat.com>	 <1203528302.9902.226.camel@moss-spartans.epoch.ncsc.mil>	 <1203528489.9902.230.camel@moss-spartans.epoch.ncsc.mil>	 <47BC6DCE.4040203@manicmethod.com> <1203531592.9902.234.camel@moss-spartans.epoch.ncsc.mil> <47BDE410.1020205@trustedcs.com>
-In-Reply-To: <47BDE410.1020205@trustedcs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <307968.59354.qm@web36615.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Darrel Goeddel wrote:
-> Stephen Smalley wrote:
->> On Wed, 2008-02-20 at 13:13 -0500, Joshua Brindle wrote:
->>> Stephen Smalley wrote:
->>>> On Wed, 2008-02-20 at 12:25 -0500, Stephen Smalley wrote:
->>>>  
->>>>> On Tue, 2008-02-19 at 17:13 -0500, Daniel J Walsh wrote:
->>>>>    
->>>>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>>>> Hash: SHA1
->>>>>>
->>>>>> s2:c0-s2:c0.c10 and s2:c9.c10
->>>>>>
->>>>>>
->>>>>> IE How do I do the arbitration/dominance math in Code?
->>>>>>       
->>>>> (cc'ing the list)
->>>>>
->>>>> You can model it as a permission check between the two contexts, and
->>>>> then write a MLS constraint in policy that requires dominance or
->>>>> whatever relationship you want.  Then it is just an avc_has_perm 
->>>>> call.
->>>>> Same thing that we did for permission check in the pam_selinux 
->>>>> code to
->>>>> verify that the user's level is within his range.  Or what we talked
->>>>> about for applying a permission check in mcstransd to see if the
->>>>> requestor is allowed to translate the context.  Not sure that ever 
->>>>> got
->>>>> implemented in mcstransd though?
->>>>>     
->
-> I think this is what you are referring to:
->
-> http://marc.info/?l=selinux&m=116110364714182&w=2
->
-> It doesn't look like that ever got incorporated into mcstransd.  
-> However, the
-> policy support is there.
->
->>>> Also, just to note:  the MLS dominance logic already exists within
->>>> libsepol and within the kernel security server.  We just have to 
->>>> expose
->>>> it via an interface.  One way to do that is to express it as a
->>>> permission check, where we already have an interface.  Another way 
->>>> would
->>>> be to introduce a new interface specifically for that purpose.
->>>>   
->>> I strongly disagree with exporting the security server logic in this 
->>> way, that will just encourage people to implement blp in their 
->>> application instead of using the security server interface to do 
->>> permission checking. This is based off what I've seen people trying 
->>> to do, even within the SELinux community, with respect to MLS.
->>
->> Well, as I said, one way to do it is via a permission checking
->> interface, and that is what we've done for the user level validation in
->> pam_selinux and what we proposed for mcstransd.
->>
->> Where that may break down is when you want to actually order a set of
->> contexts.  Dave Quigley ran into that in his work to provide a union
->> view of a polyinstantiated directory and wanted to be able to decide
->> which instance should be the default when there is a conflict in names.
->> There you may need an actual MLS dominance interface.  Which is
->> MLS-specific, yes, but there will be such applications even if we keep
->> them minimized.
->
-> The domination check can be faked just like it is in the mcstransd patch.
-> The big problem is that TE complicates the process.
->
-> Let's say we have an "mls" security class with the permissions "dom",
-> "domby", "eq", and "incomp" along with the following mls constraints:
->
-> mlsconstrain mls dom
->     (l1 dom l2);
->
-> mlsconstrain mls domby
->     (l1 domby l2);
->
-> mlsconstrain mls eq
->     (l1 eq l2);
->
-> mlsconstrain mls incomp
->     (l1 incomp l2);
->
-> You can implement a routine in you app that will create fake contexts
-> like know_user:known_role:known_type:LEVEL1 and
-> know_user:known_role:known_type:LEVEL2 where LEVEL1 and LEVEL2 are the
-> levels you want to compare and make the appropriate avc call to determine
-> the relationship.  The the non-mls portions of the context must be set up
-> so that the contexts are valid and TE will never fail for the operations
-> on the mls class.  The mcstrand patch did such faking.  This works, but
-> it is not a very elegant solution to the problem.  You can probably
-> find existing mlsconstraints on various classes to meet your needs 
-> without
-> the "mls" class.  Note that this is policy dependent and does not work
-> in permissive mode (they will all pass then and your levels will be
-> incomparable and equal at the same time).
->
-> Ordering can be done with a whole lot of comparisons if your set of 
-> levels
-> does not contain disjoint categories (no incomparables)...
->
-> You can also take advantage of the format of the raw mls context to 
-> create
-> mls structures and write a function to do the comparisons on those, 
-> but that
-> would be *very* dependent on the mls definitions in the policy and 
-> therefore
-> risky.  It completely blows away the abstraction.  I actually feel bad 
-> for
-> even mentioning that, but there it is.
->
-:) I feel bad for you mentioning it too..
 
-I guess from what you and Steve have said something like this is 
-necessary and if its necessary I'd rather us not hack around it. It 
-sounds like the interface that is required is something to order 
-contexts based on sensitivity. This, ofcourse, would not be suitable for 
-the mcstransd patch. The mcstransd patch should use the full subject 
-context so that mls overrides still work correctly (or am thinking about 
-this incorrectly).
+--- David Howells <dhowells@redhat.com> wrote:
+
+> Separate the task security context from task_struct.  At this point, the
+> security data is temporarily embedded in the task_struct with two pointers
+> pointing to it.
+
+> ...
+
+> diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+> index f6b5f6e..722752f 100644
+> --- a/security/smack/smack_access.c
+> +++ b/security/smack/smack_access.c
+> @@ -164,7 +164,7 @@ int smk_curacc(char *obj_label, u32 mode)
+>  {
+>  	int rc;
+>  
+> -	rc = smk_access(current->security, obj_label, mode);
+> +	rc = smk_access(current->act_as->security, obj_label, mode);
+>  	if (rc == 0)
+>  		return 0;
+>  
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 25cbfa3..a49d94f 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -102,7 +102,8 @@ static int smack_ptrace(struct task_struct *ptp, struct
+> task_struct *ctp)
+>  	if (rc != 0)
+>  		return rc;
+>  
+> -	rc = smk_access(ptp->security, ctp->security, MAY_READWRITE);
+> +	rc = smk_access(ptp->act_as->security, ctp->sec->security,
+> +			MAY_READWRITE);
+>  	if (rc != 0 && __capable(ptp, CAP_MAC_OVERRIDE))
+>  		return 0;
+>  
+> @@ -120,7 +121,7 @@ static int smack_ptrace(struct task_struct *ptp, struct
+> task_struct *ctp)
+>  static int smack_syslog(int type)
+>  {
+>  	int rc;
+> -	char *sp = current->security;
+> +	char *sp = current->act_as->security;
+>  
+>  	rc = cap_syslog(type);
+>  	if (rc != 0)
+> @@ -359,7 +360,7 @@ static int smack_sb_umount(struct vfsmount *mnt, int
+> flags)
+>   */
+>  static int smack_inode_alloc_security(struct inode *inode)
+>  {
+> -	inode->i_security = new_inode_smack(current->security);
+> +	inode->i_security = new_inode_smack(current->act_as->security);
+>  	if (inode->i_security == NULL)
+>  		return -ENOMEM;
+>  	return 0;
+> @@ -777,7 +778,7 @@ static int smack_file_permission(struct file *file, int
+> mask)
+>   */
+>  static int smack_file_alloc_security(struct file *file)
+>  {
+> -	file->f_security = current->security;
+> +	file->f_security = current->act_as->security;
+>  	return 0;
+>  }
+>  
+> @@ -875,7 +876,7 @@ static int smack_file_fcntl(struct file *file, unsigned
+> int cmd,
+>   */
+>  static int smack_file_set_fowner(struct file *file)
+>  {
+> -	file->f_security = current->security;
+> +	file->f_security = current->act_as->security;
+>  	return 0;
+>  }
+>  
+> @@ -900,7 +901,7 @@ static int smack_file_send_sigiotask(struct task_struct
+> *tsk,
+>  	 * struct fown_struct is never outside the context of a struct file
+>  	 */
+>  	file = container_of(fown, struct file, f_owner);
+> -	rc = smk_access(file->f_security, tsk->security, MAY_WRITE);
+> +	rc = smk_access(file->f_security, tsk->sec->security, MAY_WRITE);
+>  	if (rc != 0 && __capable(tsk, CAP_MAC_OVERRIDE))
+>  		return 0;
+>  	return rc;
+> @@ -943,7 +944,7 @@ static int smack_file_receive(struct file *file)
+>   */
+>  static int smack_task_alloc_security(struct task_struct *tsk)
+>  {
+> -	tsk->security = current->security;
+> +	tsk->sec->security = current->act_as->security;
+>  
+>  	return 0;
+>  }
+> @@ -958,7 +959,7 @@ static int smack_task_alloc_security(struct task_struct
+> *tsk)
+>   */
+>  static void smack_task_free_security(struct task_struct *task)
+>  {
+> -	task->security = NULL;
+> +	task->sec->security = NULL;
+>  }
+>  
+>  /**
+> @@ -970,7 +971,7 @@ static void smack_task_free_security(struct task_struct
+> *task)
+>   */
+>  static int smack_task_setpgid(struct task_struct *p, pid_t pgid)
+>  {
+> -	return smk_curacc(p->security, MAY_WRITE);
+> +	return smk_curacc(p->sec->security, MAY_WRITE);
+>  }
+>  
+>  /**
+> @@ -981,7 +982,7 @@ static int smack_task_setpgid(struct task_struct *p,
+> pid_t pgid)
+>   */
+>  static int smack_task_getpgid(struct task_struct *p)
+>  {
+> -	return smk_curacc(p->security, MAY_READ);
+> +	return smk_curacc(p->sec->security, MAY_READ);
+>  }
+>  
+>  /**
+> @@ -992,7 +993,7 @@ static int smack_task_getpgid(struct task_struct *p)
+>   */
+>  static int smack_task_getsid(struct task_struct *p)
+>  {
+> -	return smk_curacc(p->security, MAY_READ);
+> +	return smk_curacc(p->sec->security, MAY_READ);
+>  }
+>  
+>  /**
+> @@ -1004,7 +1005,7 @@ static int smack_task_getsid(struct task_struct *p)
+>   */
+>  static void smack_task_getsecid(struct task_struct *p, u32 *secid)
+>  {
+> -	*secid = smack_to_secid(p->security);
+> +	*secid = smack_to_secid(p->sec->security);
+>  }
+>  
+>  /**
+> @@ -1016,7 +1017,7 @@ static void smack_task_getsecid(struct task_struct *p,
+> u32 *secid)
+>   */
+>  static int smack_task_setnice(struct task_struct *p, int nice)
+>  {
+> -	return smk_curacc(p->security, MAY_WRITE);
+> +	return smk_curacc(p->sec->security, MAY_WRITE);
+>  }
+>  
+>  /**
+> @@ -1028,7 +1029,7 @@ static int smack_task_setnice(struct task_struct *p,
+> int nice)
+>   */
+>  static int smack_task_setioprio(struct task_struct *p, int ioprio)
+>  {
+> -	return smk_curacc(p->security, MAY_WRITE);
+> +	return smk_curacc(p->sec->security, MAY_WRITE);
+>  }
+>  
+>  /**
+> @@ -1039,7 +1040,7 @@ static int smack_task_setioprio(struct task_struct *p,
+> int ioprio)
+>   */
+>  static int smack_task_getioprio(struct task_struct *p)
+>  {
+> -	return smk_curacc(p->security, MAY_READ);
+> +	return smk_curacc(p->sec->security, MAY_READ);
+>  }
+>  
+>  /**
+> @@ -1053,7 +1054,7 @@ static int smack_task_getioprio(struct task_struct *p)
+>  static int smack_task_setscheduler(struct task_struct *p, int policy,
+>  				   struct sched_param *lp)
+>  {
+> -	return smk_curacc(p->security, MAY_WRITE);
+> +	return smk_curacc(p->sec->security, MAY_WRITE);
+>  }
+>  
+>  /**
+> @@ -1064,7 +1065,7 @@ static int smack_task_setscheduler(struct task_struct
+> *p, int policy,
+>   */
+>  static int smack_task_getscheduler(struct task_struct *p)
+>  {
+> -	return smk_curacc(p->security, MAY_READ);
+> +	return smk_curacc(p->sec->security, MAY_READ);
+>  }
+>  
+>  /**
+> @@ -1075,7 +1076,7 @@ static int smack_task_getscheduler(struct task_struct
+> *p)
+>   */
+>  static int smack_task_movememory(struct task_struct *p)
+>  {
+> -	return smk_curacc(p->security, MAY_WRITE);
+> +	return smk_curacc(p->act_as->security, MAY_WRITE);
+>  }
+>  
+>  /**
+> @@ -1107,13 +1108,13 @@ static int smack_task_kill(struct task_struct *p,
+> struct siginfo *info,
+>  	 * can write the receiver.
+>  	 */
+>  	if (secid == 0)
+> -		return smk_curacc(p->security, MAY_WRITE);
+> +		return smk_curacc(p->sec->security, MAY_WRITE);
+>  	/*
+>  	 * If the secid isn't 0 we're dealing with some USB IO
+>  	 * specific behavior. This is not clean. For one thing
+>  	 * we can't take privilege into account.
+>  	 */
+> -	return smk_access(smack_from_secid(secid), p->security, MAY_WRITE);
+> +	return smk_access(smack_from_secid(secid), p->sec->security, MAY_WRITE);
+>  }
+>  
+>  /**
+> @@ -1126,7 +1127,7 @@ static int smack_task_wait(struct task_struct *p)
+>  {
+>  	int rc;
+>  
+> -	rc = smk_access(current->security, p->security, MAY_WRITE);
+> +	rc = smk_access(current->act_as->security, p->sec->security, MAY_WRITE);
+>  	if (rc == 0)
+>  		return 0;
+>  
+> @@ -1157,7 +1158,7 @@ static int smack_task_wait(struct task_struct *p)
+>  static void smack_task_to_inode(struct task_struct *p, struct inode *inode)
+>  {
+>  	struct inode_smack *isp = inode->i_security;
+> -	isp->smk_inode = p->security;
+> +	isp->smk_inode = p->act_as->security;
+>  }
+>  
+>  /*
+> @@ -1176,7 +1177,7 @@ static void smack_task_to_inode(struct task_struct *p,
+> struct inode *inode)
+>   */
+>  static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t
+> gfp_flags)
+>  {
+> -	char *csp = current->security;
+> +	char *csp = current->act_as->security;
+>  	struct socket_smack *ssp;
+>  
+>  	ssp = kzalloc(sizeof(struct socket_smack), gfp_flags);
+> @@ -1401,7 +1402,7 @@ static int smack_flags_to_may(int flags)
+>   */
+>  static int smack_msg_msg_alloc_security(struct msg_msg *msg)
+>  {
+> -	msg->security = current->security;
+> +	msg->security = current->act_as->security;
+>  	return 0;
+>  }
+>  
+> @@ -1437,7 +1438,7 @@ static int smack_shm_alloc_security(struct shmid_kernel
+> *shp)
+>  {
+>  	struct kern_ipc_perm *isp = &shp->shm_perm;
+>  
+> -	isp->security = current->security;
+> +	isp->security = current->act_as->security;
+>  	return 0;
+>  }
+>  
+> @@ -1545,7 +1546,7 @@ static int smack_sem_alloc_security(struct sem_array
+> *sma)
+>  {
+>  	struct kern_ipc_perm *isp = &sma->sem_perm;
+>  
+> -	isp->security = current->security;
+> +	isp->security = current->act_as->security;
+>  	return 0;
+>  }
+>  
+> @@ -1648,7 +1649,7 @@ static int smack_msg_queue_alloc_security(struct
+> msg_queue *msq)
+>  {
+>  	struct kern_ipc_perm *kisp = &msq->q_perm;
+>  
+> -	kisp->security = current->security;
+> +	kisp->security = current->act_as->security;
+>  	return 0;
+>  }
+>  
+> @@ -1790,7 +1791,7 @@ static void smack_d_instantiate(struct dentry
+> *opt_dentry, struct inode *inode)
+>  	struct super_block *sbp;
+>  	struct superblock_smack *sbsp;
+>  	struct inode_smack *isp;
+> -	char *csp = current->security;
+> +	char *csp = current->act_as->security;
+>  	char *fetched;
+>  	char *final;
+>  	struct dentry *dp;
+> @@ -1935,7 +1936,7 @@ static int smack_getprocattr(struct task_struct *p,
+> char *name, char **value)
+>  	if (strcmp(name, "current") != 0)
+>  		return -EINVAL;
+>  
+> -	cp = kstrdup(p->security, GFP_KERNEL);
+> +	cp = kstrdup(p->sec->security, GFP_KERNEL);
+>  	if (cp == NULL)
+>  		return -ENOMEM;
+>  
+> @@ -1981,7 +1982,7 @@ static int smack_setprocattr(struct task_struct *p,
+> char *name,
+>  	if (newsmack == NULL)
+>  		return -EINVAL;
+>  
+> -	p->security = newsmack;
+> +	p->sec->security = newsmack;
+>  	return size;
+>  }
+>  
+> @@ -2211,8 +2212,8 @@ static void smack_sock_graft(struct sock *sk, struct
+> socket *parent)
+>  		return;
+>  
+>  	ssp = sk->sk_security;
+> -	ssp->smk_in = current->security;
+> -	ssp->smk_out = current->security;
+> +	ssp->smk_in = current->act_as->security;
+> +	ssp->smk_out = current->act_as->security;
+>  	ssp->smk_packet[0] = '\0';
+>  
+>  	rc = smack_netlabel(sk);
+> @@ -2285,7 +2286,7 @@ static int smack_inet_conn_request(struct sock *sk,
+> struct sk_buff *skb,
+>  static int smack_key_alloc(struct key *key, struct task_struct *tsk,
+>  			   unsigned long flags)
+>  {
+> -	key->security = tsk->security;
+> +	key->security = tsk->act_as->security;
+>  	return 0;
+>  }
+>  
+> @@ -2326,10 +2327,11 @@ static int smack_key_permission(key_ref_t key_ref,
+>  	/*
+>  	 * This should not occur
+>  	 */
+> -	if (context->security == NULL)
+> +	if (context->act_as->security == NULL)
+>  		return -EACCES;
+>  
+> -	return smk_access(context->security, keyp->security, MAY_READWRITE);
+> +	return smk_access(context->act_as->security, keyp->security,
+> +			  MAY_READWRITE);
+>  }
+>  #endif /* CONFIG_KEYS */
+>  
+> @@ -2510,7 +2512,7 @@ static __init int smack_init(void)
+>  	/*
+>  	 * Set the security state for the initial task.
+>  	 */
+> -	current->security = &smack_known_floor.smk_known;
+> +	current->sec->security = &smack_known_floor.smk_known;
+>  
+>  	/*
+>  	 * Initialize locks
+> diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+> index 358c92c..2cb3a5e 100644
+> --- a/security/smack/smackfs.c
+> +++ b/security/smack/smackfs.c
+> @@ -345,7 +345,7 @@ void smk_cipso_doi(void)
+>  	struct netlbl_audit audit_info;
+>  
+>  	audit_info.loginuid = audit_get_loginuid(current);
+> -	audit_info.secid = smack_to_secid(current->security);
+> +	audit_info.secid = smack_to_secid(current->sec->security);
+>  
+>  	rc = netlbl_cfg_map_del(NULL, &audit_info);
+>  	if (rc != 0)
+> @@ -377,7 +377,7 @@ void smk_unlbl_ambient(char *oldambient)
+>  	struct netlbl_audit audit_info;
+>  
+>  	audit_info.loginuid = audit_get_loginuid(current);
+> -	audit_info.secid = smack_to_secid(current->security);
+> +	audit_info.secid = smack_to_secid(current->sec->security);
+>  
+>  	if (oldambient != NULL) {
+>  		rc = netlbl_cfg_map_del(oldambient, &audit_info);
 
 
+The Smack portions look fine.
 
+Thank you.
+
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
