@@ -1,77 +1,49 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1NHvOA9007907
-	for <selinux@tycho.nsa.gov>; Sat, 23 Feb 2008 12:57:24 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1NI5BaU008939
+	for <selinux@tycho.nsa.gov>; Sat, 23 Feb 2008 13:05:11 -0500
 Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1NHvKLr029418
-	for <selinux@tycho.nsa.gov>; Sat, 23 Feb 2008 17:57:21 GMT
-Subject: [refpolicy] storage.if addition
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1NI56Lr002631
+	for <selinux@tycho.nsa.gov>; Sat, 23 Feb 2008 18:05:07 GMT
+Subject: [refpolicy] dovecot.fc.patch (resend)
 From: Stefan Schulze Frielinghaus <stefan@seekline.net>
 To: cpebenito@tresys.com
 Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/mixed; boundary="=-NfnXwQLUXtrH7KyOzfKx"
-Date: Sat, 23 Feb 2008 18:57:12 +0100
-Message-Id: <1203789432.2668.2.camel@vogon>
+Content-Type: multipart/mixed; boundary="=-/Vlnsvx5k82aDWIMybC2"
+Date: Sat, 23 Feb 2008 19:04:57 +0100
+Message-Id: <1203789897.2668.5.camel@vogon>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-NfnXwQLUXtrH7KyOzfKx
+--=-/Vlnsvx5k82aDWIMybC2
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-There is already a read and write interface to access
-fixed_disk_device_t but I also need a read/write interface.
+Dovecot needs a hard link and therefor a special label.
 
-Attached patch should provide that.
+I resend this patch. For background have a look at this thread:
+http://marc.info/?l=selinux&m=118830456207512&w=2
 
---=-NfnXwQLUXtrH7KyOzfKx
-Content-Disposition: attachment; filename=storage.if.patch
-Content-Type: text/x-patch; name=storage.if.patch; charset=UTF-8
+
+--=-/Vlnsvx5k82aDWIMybC2
+Content-Disposition: attachment; filename=dovecot.fc.patch
+Content-Type: text/x-patch; name=dovecot.fc.patch; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
---- /usr/src/refpolicy-20071214/policy/modules/kernel/storage.if	2007-10-29 19:35:32.000000000 +0100
-+++ policy/modules/kernel/storage.if	2008-02-23 18:36:05.000000000 +0100
-@@ -171,6 +171,37 @@
+--- /usr/src/refpolicy-20070629/policy/modules/services/dovecot.fc	2006-07-28 17:13:58.000000000 +0200
++++ policy/modules/services/dovecot.fc	2007-08-28 14:16:44.000000000 +0200
+@@ -27,6 +27,8 @@
+ # /var
+ #
+ /var/run/dovecot(-login)?(/.*)?		gen_context(system_u:object_r:dovecot_var_run_t,s0)
++# this is a hard link to /var/lib/dovecot/ssl-parameters.dat
++/var/run/dovecot/login/ssl-parameters.dat	gen_context(system_u:object_r:dovecot_var_lib_t,s0)
  
- ########################################
- ## <summary>
-+##      Allow the caller to directly read and write to a fixed disk.
-+##      This is extremly dangerous as it can bypass the
-+##      SELinux protections for filesystem objects, and
-+##      should only be used by trusted domains.
-+## </summary>
-+## <param name="domain">
-+##      <summary>
-+##      The type of the process performing this action.
-+##      </summary>
-+## </param>
-+#
-+interface(`storage_raw_rw_fixed_disk',`
-+	gen_require(`
-+		attribute fixed_disk_raw_read;
-+		attribute fixed_disk_raw_write;
-+		type fixed_disk_device_t;
-+	')
-+
-+	dev_list_all_dev_nodes($1)
-+
-+	allow $1 fixed_disk_device_t:blk_file read_blk_file_perms;
-+	allow $1 fixed_disk_device_t:chr_file read_chr_file_perms;
-+	typeattribute $1 fixed_disk_raw_read;
-+
-+	allow $1 fixed_disk_device_t:blk_file write_blk_file_perms;
-+	allow $1 fixed_disk_device_t:chr_file write_chr_file_perms;
-+	typeattribute $1 fixed_disk_raw_write;
-+')
-+
-+########################################
-+## <summary>
- ##	Create, read, write, and delete fixed disk device nodes.
- ## </summary>
- ## <param name="domain">
+ /var/lib/dovecot(/.*)?			gen_context(system_u:object_r:dovecot_var_lib_t,s0)
+ 
 
---=-NfnXwQLUXtrH7KyOzfKx--
+--=-/Vlnsvx5k82aDWIMybC2--
 
 
 --
