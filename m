@@ -1,61 +1,125 @@
-Message-ID: <47BF63B2.9030406@redhat.com>
-Date: Fri, 22 Feb 2008 19:07:14 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Ted X Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: So how would I write policy with xace/XSELinux to stop xspy from
- working?
-References: <47BDE1A9.7090908@redhat.com> <47BF5B06.3040108@tycho.nsa.gov>
-In-Reply-To: <47BF5B06.3040108@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1N1N0oS010765
+	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 20:23:00 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1N1MxC5013853
+	for <selinux@tycho.nsa.gov>; Sat, 23 Feb 2008 01:22:59 GMT
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200802221425.48535.phillips@phunq.net>
+References: <200802221425.48535.phillips@phunq.net> <200802211657.01704.phillips@phunq.net> <18063.1203638861@redhat.com> <20089.1203684531@redhat.com>
+To: Daniel Phillips <phillips@phunq.net>
+Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
+        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 00/37] Permit filesystem local caching
+Date: Sat, 23 Feb 2008 01:22:38 +0000
+Message-ID: <25049.1203729758@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Daniel Phillips <phillips@phunq.net> wrote:
 
-Eamon Walsh wrote:
-> Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> http://www.acm.vt.edu/~jmaxwell/programs/xspy/xspy.html
->>
->> I want to lauch gnome-screensaver with a different context and not let
->> xspy grab the password.
->>   
-> 
-> Unfortunately, putting gnome-screensaver into a separate context cannot
-> solve this problem.  xspy works by directly reading the state of the
-> keyboard using XQueryKeymap().  The location of the input focus does not
-> matter to this call; this is by design of the X protocol.
-> 
-> The solution has to be globally denying "read" permission on the default
-> keyboard device.  The vast majority of apps should never need this
-> permission because the proper way to receive input is to passively wait
-> for input events on your own windows, not to go out and actively query
-> device state in this manner.
-> 
-> I tried this just now and it stopped xspy cold.  However, there may need
-> to be some refinement of the controls in this area.  In particular,
-> XQueryPointer() also requires "read" permission and this seems to be
-> more frequently called, e.g. by toolkit libraries, even though it really
-> is snooping; you can likely determine a lot just by knowing the
-> movements of the mouse.
-> 
-> 
-Well it seems like all confined domains should have the read on the
-keyboard blocked, then and maybe unconfined_t by boolean.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> I am eventually going to suggest cutting the backing filesystem entirely out
+> of the picture,
 
-iEYEARECAAYFAke/Y7IACgkQrlYvE4MpobMdVQCfWCoHNbctduPivnzO54hSAGti
-2hgAoMGf0tY88ys0SBzhFs6NbS+C6K6E
-=z3wN
------END PGP SIGNATURE-----
+You still need a database to manage the cache.  A filesystem such as Ext3
+makes a very handy database for four reasons:
+
+ (1) It exists and works.
+
+ (2) It has a well defined interface within the kernel.
+
+ (3) I can place my cache on, say, my root partition on my laptop.  I don't
+     have to dedicate a partition to the cache.
+
+ (4) Userspace cache management tools (such as cachefilesd) have an already
+     existing interface to use: rmdir, unlink, open, getdents, etc..
+
+I do have a cache-on-blockdev thing, but it's basically a wandering tree
+filesystem inside.  It is, or was, much faster than ext3 on a clean cache, but
+it degrades horribly over time because my free space reclamation sucks - it
+gradually randomises the block allocation sequence over time.
+
+So, what would you suggest instead of a backing filesystem?
+
+> I really do not like idea of force fitting this cache into a generic
+> vfs model.  Sun was collectively smoking some serious crack when they
+> cooked that one up.  But there is also the ageless principle "isness is
+> more important than niceness".
+
+What do you mean?  I'm not doing it like Sun.  The cache is a side path from
+the netfs.  It should be transparent to the user, the VFS and the server.
+
+The only place it might not be transparent is that you might to have to
+instruct the netfs mount to use the cache.  I'd prefer to do it some other way
+than passing parameters to mount, though, as (1) this causes fun with NIS
+distributed automounter maps, and (2) people are asking for a finer grain of
+control than per-mountpoint.  Unfortunately, I can't seem to find a way to do
+it that's acceptable to Al.
+
+> Which would require a change to NFS, not an option because you hope to
+> work with standard servers?  Of course with years to think about this,
+> the required protocol changes were put into v4.  Not.
+
+I don't think there's much I can do about NFS.  It requires the filesystem
+from which the NFS server is dealing to have inode uniquifiers, which are then
+incorporated into the file handle.  I don't think the NFS protocol itself
+needs to change to support this.
+
+> Have you completely exhausted optimization ideas for the file handle
+> lookup?
+
+No, but there aren't many.  CacheFiles doesn't actually do very much, and it's
+hard to reduce that not very much.  The most obvious thing is to prepopulate
+the dcache, but that's at the expense of memory usage.
+
+Actually, if I cache the name => FH mapping I used last time, I can make a
+start on looking up in the cache whilst simultaneously accessing the server.
+If what's on the server has changed, I can ditch the speculative cache lookup
+I was making and start a new cache lookup.
+
+However, storing directory entries has penalties of its own, though it'll be
+necesary if we want to do disconnected operation.
+
+> > Where "lookup table" == "dcache".  That would be good yes.  cachefilesd
+> > prescans all the files in the cache, which ought to do just that, but it
+> > doesn't seem to be very effective.  I'm not sure why.
+> 
+> RCU?  Anyway, it is something to be tracked down and put right.
+
+cachefilesd runs in userspace.  It's possible it isn't doing enough to preload
+all the metadata.
+
+> What I tried to say.  So still... got any ideas?  That extra synchronous
+> network round trip is a killer.  Can it be made streaming/async to keep
+> throughput healthy?
+
+That's a per-netfs thing.  With the test rig I've got, it's going to the
+on-disk cache that's the killer.  Going over the network is much faster.
+
+See the results I posted.  For the tarball load, and using Ext3 to back the
+cache:
+
+	Cold NFS cache, no disk cache:		0m22.734s
+	Warm on-disk cache, cold pagecaches:	1m54.350s
+
+The problem is reading using tar is a worst case workload for this.  Everything
+it does is pretty much completely synchronous.
+
+One thing that might help is if things like tar and find can be made to use
+fadvise() on directories to hint to the filesystem (NFS, AFS, whatever) that
+it's going to access every file in those directories.
+
+Certainly AFS could make use of that: the directory is read as a file, and the
+netfs then parses the file to get a list of vnode IDs that that directory
+points to.  It could then do bulk status fetch operations to instantiate the
+inodes 50 at a time.
+
+I don't know whether NFS could use it.  Someone like Trond or SteveD or Chuck
+would have to answer that.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
