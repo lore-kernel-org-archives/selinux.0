@@ -1,125 +1,53 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1N1N0oS010765
-	for <selinux@tycho.nsa.gov>; Fri, 22 Feb 2008 20:23:00 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1N1MxC5013853
-	for <selinux@tycho.nsa.gov>; Sat, 23 Feb 2008 01:22:59 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200802221425.48535.phillips@phunq.net>
-References: <200802221425.48535.phillips@phunq.net> <200802211657.01704.phillips@phunq.net> <18063.1203638861@redhat.com> <20089.1203684531@redhat.com>
-To: Daniel Phillips <phillips@phunq.net>
-Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
-        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 00/37] Permit filesystem local caching
-Date: Sat, 23 Feb 2008 01:22:38 +0000
-Message-ID: <25049.1203729758@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1NDfKXM015851
+	for <selinux@tycho.nsa.gov>; Sat, 23 Feb 2008 08:41:20 -0500
+Received: from mail.seekline.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1NDfJCS028013
+	for <selinux@tycho.nsa.gov>; Sat, 23 Feb 2008 13:41:19 GMT
+Subject: [refpolicy] rsyslogd, rklogd and Debian
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: cpebenito@tresys.com
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/mixed; boundary="=-qZsiPo5rpyplcsWsBJQA"
+Date: Sat, 23 Feb 2008 14:41:12 +0100
+Message-Id: <1203774072.2694.8.camel@vogon>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel Phillips <phillips@phunq.net> wrote:
 
-> I am eventually going to suggest cutting the backing filesystem entirely out
-> of the picture,
+--=-qZsiPo5rpyplcsWsBJQA
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-You still need a database to manage the cache.  A filesystem such as Ext3
-makes a very handy database for four reasons:
+You can find rsyslogd and rklogd under /usr/sbin instead of /sbin like
+Fedora does.
 
- (1) It exists and works.
+Attached patch adds the file context especially for Debian. But I would
+recommend a clean up of the whole file. Because several entries exist
+for klogd in /sbin and /usr/sbin and so on. It's not really consistent.
 
- (2) It has a well defined interface within the kernel.
+--=-qZsiPo5rpyplcsWsBJQA
+Content-Disposition: attachment; filename=logging.fc.patch
+Content-Type: text/x-patch; name=logging.fc.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
- (3) I can place my cache on, say, my root partition on my laptop.  I don't
-     have to dedicate a partition to the cache.
+--- /usr/src/refpolicy-20071214/policy/modules/system/logging.fc	2007-12-12 16:55:21.000000000 +0100
++++ policy/modules/system/logging.fc	2008-02-22 22:31:17.000000000 +0100
+@@ -19,6 +19,10 @@
+ ifdef(`distro_gentoo', `
+ /usr/sbin/syslog-ng	--	gen_context(system_u:object_r:syslogd_exec_t,s0)
+ ')
++ifdef(`distro_debian',`
++/usr/sbin/rklogd	--	gen_context(system_u:object_r:klogd_exec_t,s0)
++/usr/sbin/rsyslogd	--	gen_context(system_u:object_r:syslogd_exec_t,s0)
++')
+ 
+ ifdef(`distro_suse', `
+ /var/lib/stunnel/dev/log -s	gen_context(system_u:object_r:devlog_t,s0)
 
- (4) Userspace cache management tools (such as cachefilesd) have an already
-     existing interface to use: rmdir, unlink, open, getdents, etc..
+--=-qZsiPo5rpyplcsWsBJQA--
 
-I do have a cache-on-blockdev thing, but it's basically a wandering tree
-filesystem inside.  It is, or was, much faster than ext3 on a clean cache, but
-it degrades horribly over time because my free space reclamation sucks - it
-gradually randomises the block allocation sequence over time.
-
-So, what would you suggest instead of a backing filesystem?
-
-> I really do not like idea of force fitting this cache into a generic
-> vfs model.  Sun was collectively smoking some serious crack when they
-> cooked that one up.  But there is also the ageless principle "isness is
-> more important than niceness".
-
-What do you mean?  I'm not doing it like Sun.  The cache is a side path from
-the netfs.  It should be transparent to the user, the VFS and the server.
-
-The only place it might not be transparent is that you might to have to
-instruct the netfs mount to use the cache.  I'd prefer to do it some other way
-than passing parameters to mount, though, as (1) this causes fun with NIS
-distributed automounter maps, and (2) people are asking for a finer grain of
-control than per-mountpoint.  Unfortunately, I can't seem to find a way to do
-it that's acceptable to Al.
-
-> Which would require a change to NFS, not an option because you hope to
-> work with standard servers?  Of course with years to think about this,
-> the required protocol changes were put into v4.  Not.
-
-I don't think there's much I can do about NFS.  It requires the filesystem
-from which the NFS server is dealing to have inode uniquifiers, which are then
-incorporated into the file handle.  I don't think the NFS protocol itself
-needs to change to support this.
-
-> Have you completely exhausted optimization ideas for the file handle
-> lookup?
-
-No, but there aren't many.  CacheFiles doesn't actually do very much, and it's
-hard to reduce that not very much.  The most obvious thing is to prepopulate
-the dcache, but that's at the expense of memory usage.
-
-Actually, if I cache the name => FH mapping I used last time, I can make a
-start on looking up in the cache whilst simultaneously accessing the server.
-If what's on the server has changed, I can ditch the speculative cache lookup
-I was making and start a new cache lookup.
-
-However, storing directory entries has penalties of its own, though it'll be
-necesary if we want to do disconnected operation.
-
-> > Where "lookup table" == "dcache".  That would be good yes.  cachefilesd
-> > prescans all the files in the cache, which ought to do just that, but it
-> > doesn't seem to be very effective.  I'm not sure why.
-> 
-> RCU?  Anyway, it is something to be tracked down and put right.
-
-cachefilesd runs in userspace.  It's possible it isn't doing enough to preload
-all the metadata.
-
-> What I tried to say.  So still... got any ideas?  That extra synchronous
-> network round trip is a killer.  Can it be made streaming/async to keep
-> throughput healthy?
-
-That's a per-netfs thing.  With the test rig I've got, it's going to the
-on-disk cache that's the killer.  Going over the network is much faster.
-
-See the results I posted.  For the tarball load, and using Ext3 to back the
-cache:
-
-	Cold NFS cache, no disk cache:		0m22.734s
-	Warm on-disk cache, cold pagecaches:	1m54.350s
-
-The problem is reading using tar is a worst case workload for this.  Everything
-it does is pretty much completely synchronous.
-
-One thing that might help is if things like tar and find can be made to use
-fadvise() on directories to hint to the filesystem (NFS, AFS, whatever) that
-it's going to access every file in those directories.
-
-Certainly AFS could make use of that: the directory is read as a file, and the
-netfs then parses the file to get a list of vnode IDs that that directory
-points to.  It could then do bulk status fetch operations to instantiate the
-inodes 50 at a time.
-
-I don't know whether NFS could use it.  Someone like Trond or SteveD or Chuck
-would have to answer that.
-
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
