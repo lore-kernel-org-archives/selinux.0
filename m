@@ -1,12 +1,14 @@
-Message-ID: <47C2D552.8060509@redhat.com>
-Date: Mon, 25 Feb 2008 09:48:50 -0500
+Message-ID: <47C2D2BB.7040303@redhat.com>
+Date: Mon, 25 Feb 2008 09:37:47 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Permissive mode for xace is broken.
-References: <47C2CC18.6080801@redhat.com>	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil> <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Ted X Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: So how would I write policy with xace/XSELinux to stop xspy from
+ working?
+References: <47BDE1A9.7090908@redhat.com> <47BF5B06.3040108@tycho.nsa.gov> <47BF63B2.9030406@redhat.com>
+In-Reply-To: <47BF63B2.9030406@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -14,44 +16,54 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Stephen Smalley wrote:
-> On Mon, 2008-02-25 at 09:12 -0500, Stephen Smalley wrote:
->> On Mon, 2008-02-25 at 09:09 -0500, Daniel J Walsh wrote:
+Daniel J Walsh wrote:
+> Eamon Walsh wrote:
+>> Daniel J Walsh wrote:
 >>> -----BEGIN PGP SIGNED MESSAGE-----
 >>> Hash: SHA1
 >>>
->>> If I turn on xserver_object_manager in rawhide and log in as staff_t in
->>> permissive mode, I get all sorts of things failing, which makes writing
->>> policy for it very difficult.  And is very broken.
->> Hmmm...as I understood it, XSELinux should follow the kernel's enforcing
->> status by default (i.e. if the kernel is permissive, then so should
->> XSELinux), unless you explicitly configure enforcing= in xorg.conf to
->> specify a different setting for the X server than the kernel.  You are
->> supposed to be able to make the X server permissive w/o making the
->> kernel permissive via xorg configuration, I believe, although I'm not
->> sure that made it into the rawhide xorg yet.
+>>> http://www.acm.vt.edu/~jmaxwell/programs/xspy/xspy.html
+>>>
+>>> I want to lauch gnome-screensaver with a different context and not let
+>>> xspy grab the password.
+>>>   
+>> Unfortunately, putting gnome-screensaver into a separate context cannot
+>> solve this problem.  xspy works by directly reading the state of the
+>> keyboard using XQueryKeymap().  The location of the input focus does not
+>> matter to this call; this is by design of the X protocol.
 > 
-> Doesn't look like the rawhide xorg server has that support yet.
+Are you talking about a physical device in /dev?   Or some X device?
+What policy did you write to test this?
+>> The solution has to be globally denying "read" permission on the default
+>> keyboard device.  The vast majority of apps should never need this
+>> permission because the proper way to receive input is to passively wait
+>> for input events on your own windows, not to go out and actively query
+>> device state in this manner.
 > 
-> But it should follow the kernel's enforcing status.  You should see log
-> messages with "received setenforce notice (enforcing=...)" in them from
-> both dbus and X in either /var/log/messages or /var/log/audit/audit.log.
+>> I tried this just now and it stopped xspy cold.  However, there may need
+>> to be some refinement of the controls in this area.  In particular,
+>> XQueryPointer() also requires "read" permission and this seems to be
+>> more frequently called, e.g. by toolkit libraries, even though it really
+>> is snooping; you can likely determine a lot just by knowing the
+>> movements of the mouse.
 > 
-Looking at the code, I do not see security_getenforce() in the code.
-Are you saying that this is not necessary, the kernel will return
-allowed but generate the AVC?
+> 
+> Well it seems like all confined domains should have the read on the
+> keyboard blocked, then and maybe unconfined_t by boolean.
 
-And the only one who mentions setenforce in /var/log/audit/audit.log in
-dbus not X?
-
+- --
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkfC1VIACgkQrlYvE4MpobMGbgCgsApumkxRzzo21JtgjE8S1psc
-GpQAoNt6178sE4a0tWpICiErtJw1MzqH
-=ZTuN
+iEYEARECAAYFAkfC0rsACgkQrlYvE4MpobOoawCdGDxDHq1ONqlwY4eLEox9uUra
+8MUAn2Z3tw+zKvnnfXu2i2fIY7yCbM/S
+=x/sk
 -----END PGP SIGNATURE-----
 
 --
