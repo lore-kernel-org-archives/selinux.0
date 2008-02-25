@@ -1,27 +1,37 @@
-Message-ID: <47C2CC18.6080801@redhat.com>
-Date: Mon, 25 Feb 2008 09:09:28 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PEAEe4014697
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 09:10:14 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1PEADa4000662
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:10:13 GMT
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Permissive mode for xace is broken.
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: [refpolicy] dovecot.fc.patch (resend)
+Date: Mon, 25 Feb 2008 09:05:48 -0500
+Message-ID: <1203948348.32061.45.camel@gorn>
+In-Reply-To: <1203789897.2668.5.camel@vogon>
+References: <1203789897.2668.5.camel@vogon>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Stefan Schulze Frielinghaus" <stefan@seekline.net>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 2008-02-23 at 19:04 +0100, Stefan Schulze Frielinghaus wrote:
+> Dovecot needs a hard link and therefor a special label.
+> 
+> I resend this patch. For background have a look at this thread:
+> http://marc.info/?l=selinux&m=118830456207512&w=2
 
-If I turn on xserver_object_manager in rawhide and log in as staff_t in
-permissive mode, I get all sorts of things failing, which makes writing
-policy for it very difficult.  And is very broken.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+This still needs the dontaudit for initrc_t that you were speaking of.
 
-iEYEARECAAYFAkfCzBgACgkQrlYvE4MpobNniwCgnj1slFGDRupI/ljcDwC5b/Hc
-lDIAnREcNwgXgfwBRwWtUY1VZt902IZ+
-=WuKh
------END PGP SIGNATURE-----
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
