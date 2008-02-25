@@ -1,81 +1,121 @@
-Message-ID: <47C316EF.5090206@redhat.com>
-Date: Mon, 25 Feb 2008 14:28:47 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PJYj1Q023685
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:34:45 -0500
+Message-ID: <47C31800.4020805@tycho.nsa.gov>
+Date: Mon, 25 Feb 2008 14:33:20 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Permissive mode for xace is broken.
-References: <47C2CC18.6080801@redhat.com>	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>	 <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>	 <47C2D552.8060509@redhat.com> <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Ted X Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: So how would I write policy with xace/XSELinux to stop xspy from
+ working?
+References: <47BDE1A9.7090908@redhat.com> <47BF5B06.3040108@tycho.nsa.gov> <47BF63B2.9030406@redhat.com> <47C2D2BB.7040303@redhat.com>
+In-Reply-To: <47C2D2BB.7040303@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Daniel J Walsh wrote:
+>   
+>> Eamon Walsh wrote:
+>>     
+>>> Daniel J Walsh wrote:
+>>>       
+>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>> Hash: SHA1
+>>>>
+>>>> http://www.acm.vt.edu/~jmaxwell/programs/xspy/xspy.html
+>>>>
+>>>> I want to lauch gnome-screensaver with a different context and not let
+>>>> xspy grab the password.
+>>>>   
+>>>>         
+>>> Unfortunately, putting gnome-screensaver into a separate context cannot
+>>> solve this problem.  xspy works by directly reading the state of the
+>>> keyboard using XQueryKeymap().  The location of the input focus does not
+>>> matter to this call; this is by design of the X protocol.
+>>>       
+> Are you talking about a physical device in /dev?   Or some X device?
+>   
 
-Stephen Smalley wrote:
-> On Mon, 2008-02-25 at 09:48 -0500, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Stephen Smalley wrote:
->>> On Mon, 2008-02-25 at 09:12 -0500, Stephen Smalley wrote:
->>>> On Mon, 2008-02-25 at 09:09 -0500, Daniel J Walsh wrote:
->>>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>>> Hash: SHA1
->>>>>
->>>>> If I turn on xserver_object_manager in rawhide and log in as staff_t in
->>>>> permissive mode, I get all sorts of things failing, which makes writing
->>>>> policy for it very difficult.  And is very broken.
->>>> Hmmm...as I understood it, XSELinux should follow the kernel's enforcing
->>>> status by default (i.e. if the kernel is permissive, then so should
->>>> XSELinux), unless you explicitly configure enforcing= in xorg.conf to
->>>> specify a different setting for the X server than the kernel.  You are
->>>> supposed to be able to make the X server permissive w/o making the
->>>> kernel permissive via xorg configuration, I believe, although I'm not
->>>> sure that made it into the rawhide xorg yet.
->>> Doesn't look like the rawhide xorg server has that support yet.
->>>
->>> But it should follow the kernel's enforcing status.  You should see log
->>> messages with "received setenforce notice (enforcing=...)" in them from
->>> both dbus and X in either /var/log/messages or /var/log/audit/audit.log.
->>>
->> Looking at the code, I do not see security_getenforce() in the code.
->> Are you saying that this is not necessary, the kernel will return
->> allowed but generate the AVC?
-> 
-> Handling of enforcing status is hidden within the userspace AVC in
-> libselinux (libselinux/src/avc*.c).  avc_enforcing stores the current
-> value of the enforcing status and is updated when the kernel generates
-> the setenforce notification.  avc_setenforce is set if the object
-> manager explicitly sets its own enforcing mode to a specific value to
-> override the kernel status.
-> 
->> And the only one who mentions setenforce in /var/log/audit/audit.log in
->> dbus not X?
-> 
-> Hmmm...that's seems like a bug in X then, that it isn't getting the
-> notifications from the kernel (via netlink).
-> 
-Yes XAce seems to be very broken in Rawhide.  Enforcing mode was working
-until I fixed the policy to allow xserver to talk to /selinux and run
-the validation routines.  Now xace is blowing up both in permissive and
-enforcing mode.
+The "virtual core keyboard" device, which is an internal X device.  All 
+the old "core" X protocol, from the old days where there was just one 
+keyboard and one mouse, refers to this device as simply "the keyboard."
 
-Trying to start nm-applet is getting a BadWindow error.
+ From the X11 Protocol Specification:
 
-If you update to todays rawhide and try to login in permissive mode,
-metacity and gconf will blow up.
+QueryKeymap: This request returns a bit vector for the logical state of 
+the keyboard.  Each bit set to 1 indicates that the corresponding key is 
+currently pressed.  The vector is represented as 32 bytes.  Byte N (from 
+0) contains the bits for keys 8N to 8N + 7 with the least significant 
+bit in the byte representing key 8N.  Note that the logical state of a 
+device (as seen by means of the protocol) may lag the physical state if 
+device event processing is currently frozen.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+If you read the source for xspy, it's simply a loop around this 
+function, calling it over and over.
 
-iEYEARECAAYFAkfDFu4ACgkQrlYvE4MpobM2dQCfXP1SkniRYwFpx/tBKMJyNLK7
-WkEAmwcUaOmOJtYZwbmRTrqOgrRb8r6l
-=N2VI
------END PGP SIGNATURE-----
+
+
+> What policy did you write to test this?
+>   
+
+I took the refpolicy "xselinux" branch, removed "read" permission from 
+the set of permissions granted on X devices, ran an X server in 
+enforcing mode and an xterm, and then ran xspy and tried typing into the 
+xserver.  xspy didn't do anything except generate 100 avc's per second 
+(the rate at which it calls XQueryKeymaq).
+
+
+>>> The solution has to be globally denying "read" permission on the default
+>>> keyboard device.  The vast majority of apps should never need this
+>>> permission because the proper way to receive input is to passively wait
+>>> for input events on your own windows, not to go out and actively query
+>>> device state in this manner.
+>>>       
+>>> I tried this just now and it stopped xspy cold.  However, there may need
+>>> to be some refinement of the controls in this area.  In particular,
+>>> XQueryPointer() also requires "read" permission and this seems to be
+>>> more frequently called, e.g. by toolkit libraries, even though it really
+>>> is snooping; you can likely determine a lot just by knowing the
+>>> movements of the mouse.
+>>>       
+>> Well it seems like all confined domains should have the read on the
+>> keyboard blocked, then and maybe unconfined_t by boolean.
+>>     
+>
+> - --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.8 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+>
+> iEYEARECAAYFAkfC0rsACgkQrlYvE4MpobOoawCdGDxDHq1ONqlwY4eLEox9uUra
+> 8MUAn2Z3tw+zKvnnfXu2i2fIY7yCbM/S
+> =x/sk
+> -----END PGP SIGNATURE-----
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+>   
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
