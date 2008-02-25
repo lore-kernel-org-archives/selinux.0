@@ -1,54 +1,100 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PKHV55030867
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 15:17:31 -0500
-Message-ID: <47C32259.10505@tycho.nsa.gov>
-Date: Mon, 25 Feb 2008 15:17:29 -0500
+Message-ID: <47C3261C.1070508@tycho.nsa.gov>
+Date: Mon, 25 Feb 2008 15:33:32 -0500
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: I have begun merging XWindows Controls into Rawhide.
-References: <47C2CBA1.5040807@redhat.com> <1203957368.32061.74.camel@gorn>
-In-Reply-To: <1203957368.32061.74.camel@gorn>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Permissive mode for xace is broken.
+References: <47C2CC18.6080801@redhat.com>	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>	 <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>	 <47C2D552.8060509@redhat.com> <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil> <47C316EF.5090206@redhat.com>
+In-Reply-To: <47C316EF.5090206@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Mon, 2008-02-25 at 09:07 -0500, Daniel J Walsh wrote:
->   
->> But the complexity of this stuff is just getting nuts.
->>
->> I don't thing we should have more then one type for xserver.  Allowing a
->> confined user to transition to user_xserver_t is just nuts and ends up
->> having awful policy for getting xdm_xserver_t to work.  Why in the world
->> would we allow a confined user to start and XServer?  And if they can,
->> why not just allow them to start xdm_xserver_t?  In Rawhide right now no
->> users can start and Xserver except unconfined_t and he starts
->> xdm_xserver_t to make sure the transitions work properly.  If someone
->> actually has a use case where they need user separated xservers then I
->> say write that policy off the main stream.  You can still theoretically
->> run multiple xdm_xserver_t at different MLS levels.
->>     
-
-I would be fine with only having one type for the X server; this would 
-certainly simplify the policy that currently has all kinds of kludgery 
-to support both "xdm_" and "$1_".
-
-On a locked-down strict system like an MLS box, the user wouldn't be 
-allowed to run startx anyway.  So I agree that the current constructions 
-are unnecessary.
-
-
->> Having four macro parameters is confusing as hell, and needs to go.
->>     
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 >
-> This comes back to forthcoming effort for trying to use RBAC for role
-> separation.  That would eliminate the structural complexity we see due
-> to using TE for the role separation
+> Stephen Smalley wrote:
+>   
+>> On Mon, 2008-02-25 at 09:48 -0500, Daniel J Walsh wrote:
+>>     
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>>
+>>> Stephen Smalley wrote:
+>>>       
+>>>> On Mon, 2008-02-25 at 09:12 -0500, Stephen Smalley wrote:
+>>>>         
+>>>>> On Mon, 2008-02-25 at 09:09 -0500, Daniel J Walsh wrote:
+>>>>>           
+>>>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>>>> Hash: SHA1
+>>>>>>
+>>>>>> If I turn on xserver_object_manager in rawhide and log in as staff_t in
+>>>>>> permissive mode, I get all sorts of things failing, which makes writing
+>>>>>> policy for it very difficult.  And is very broken.
+>>>>>>             
+>>>>> Hmmm...as I understood it, XSELinux should follow the kernel's enforcing
+>>>>> status by default (i.e. if the kernel is permissive, then so should
+>>>>> XSELinux), unless you explicitly configure enforcing= in xorg.conf to
+>>>>> specify a different setting for the X server than the kernel.  You are
+>>>>> supposed to be able to make the X server permissive w/o making the
+>>>>> kernel permissive via xorg configuration, I believe, although I'm not
+>>>>> sure that made it into the rawhide xorg yet.
+>>>>>           
+>>>> Doesn't look like the rawhide xorg server has that support yet.
+>>>>
+>>>> But it should follow the kernel's enforcing status.  You should see log
+>>>> messages with "received setenforce notice (enforcing=...)" in them from
+>>>> both dbus and X in either /var/log/messages or /var/log/audit/audit.log.
+>>>>
+>>>>         
+>>> Looking at the code, I do not see security_getenforce() in the code.
+>>> Are you saying that this is not necessary, the kernel will return
+>>> allowed but generate the AVC?
+>>>       
+>> Handling of enforcing status is hidden within the userspace AVC in
+>> libselinux (libselinux/src/avc*.c).  avc_enforcing stores the current
+>> value of the enforcing status and is updated when the kernel generates
+>> the setenforce notification.  avc_setenforce is set if the object
+>> manager explicitly sets its own enforcing mode to a specific value to
+>> override the kernel status.
+>>
+>>     
+>>> And the only one who mentions setenforce in /var/log/audit/audit.log in
+>>> dbus not X?
+>>>       
+>> Hmmm...that's seems like a bug in X then, that it isn't getting the
+>> notifications from the kernel (via netlink).
+>>
+>>     
+> Yes XAce seems to be very broken in Rawhide.  Enforcing mode was working
+> until I fixed the policy to allow xserver to talk to /selinux and run
+> the validation routines.  Now xace is blowing up both in permissive and
+> enforcing mode.
+>
+> Trying to start nm-applet is getting a BadWindow error.
+>
+> If you update to todays rawhide and try to login in permissive mode,
+> metacity and gconf will blow up.
+>   
 
-Is work being done on this?  I recall you said you were interested in 
-taking on this task.
+I'll investigate the blowing up today.  I'm puzzled by the BadWindow 
+error; permission denials should always be indicated by "BadAccess".  
+This may be the bug fixed by the errno patch I posted on Friday.
+
+There is no support for configuring the X server in permissive/enforcing 
+in xorg.conf.  You can disable it from xorg.conf, but if it is not 
+disabled, it will follow the system setting.  I proposed adding support 
+for this to /etc/selinux/config, which was shot down on the list.  I 
+have not moved forward with adding a permissive/enforcing switch to Xorg.
+
+The X object manager logs all avc's and status messages (including the 
+AVC netlink stuff) through the audit system using libaudit calls 
+(audit_log_user_avc_message, etc.)   I disavow all responsibility for 
+the messages once they enter libaudit.
+
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
