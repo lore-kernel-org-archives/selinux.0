@@ -1,69 +1,68 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PIKqi9016339
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 13:20:52 -0500
-Received: from an-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1PIKpJD021069
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 18:20:51 GMT
-Received: by an-out-0708.google.com with SMTP id c38so375951ana.75
-        for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 10:20:45 -0800 (PST)
-Reply-To: w.chimiak@ieee.org
-To: selinux <selinux@tycho.nsa.gov>
-Subject: Silly audit2allows
-Date: Mon, 25 Feb 2008 13:11:08 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200802251311.09098.w.chimiak@ieee.org>
-From: Bill Chimiak <wch1m1@gmail.com>
+Subject: Re: Permissive mode for xace is broken.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47C2D552.8060509@redhat.com>
+References: <47C2CC18.6080801@redhat.com>
+	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>
+	 <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>
+	 <47C2D552.8060509@redhat.com>
+Content-Type: text/plain
+Date: Mon, 25 Feb 2008 13:49:23 -0500
+Message-Id: <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Three things:
-1. If one does the audit2allow ...
-	checkmodule -M -m -o mynewmodule.mod mynewmodule.te
-	semodule_package -o mynewmodule.pp -m mynewmodule.mod
-	semodule -i mynewmodule.pp
 
-How does one undo that if mynewmodule.te is a stupid policy?
-Doesn't the semodule make that part of the policy on every boot?
+On Mon, 2008-02-25 at 09:48 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Stephen Smalley wrote:
+> > On Mon, 2008-02-25 at 09:12 -0500, Stephen Smalley wrote:
+> >> On Mon, 2008-02-25 at 09:09 -0500, Daniel J Walsh wrote:
+> >>> -----BEGIN PGP SIGNED MESSAGE-----
+> >>> Hash: SHA1
+> >>>
+> >>> If I turn on xserver_object_manager in rawhide and log in as staff_t in
+> >>> permissive mode, I get all sorts of things failing, which makes writing
+> >>> policy for it very difficult.  And is very broken.
+> >> Hmmm...as I understood it, XSELinux should follow the kernel's enforcing
+> >> status by default (i.e. if the kernel is permissive, then so should
+> >> XSELinux), unless you explicitly configure enforcing= in xorg.conf to
+> >> specify a different setting for the X server than the kernel.  You are
+> >> supposed to be able to make the X server permissive w/o making the
+> >> kernel permissive via xorg configuration, I believe, although I'm not
+> >> sure that made it into the rawhide xorg yet.
+> > 
+> > Doesn't look like the rawhide xorg server has that support yet.
+> > 
+> > But it should follow the kernel's enforcing status.  You should see log
+> > messages with "received setenforce notice (enforcing=...)" in them from
+> > both dbus and X in either /var/log/messages or /var/log/audit/audit.log.
+> > 
+> Looking at the code, I do not see security_getenforce() in the code.
+> Are you saying that this is not necessary, the kernel will return
+> allowed but generate the AVC?
 
-2. As a selinux wannabee and an selinux enthusiast, I want more of
-my coworkers to use selinux.  They are highly resistant and usually
-have selinux=0 or enforce=0 on their boot commands.
-Having a list of dumb audit2allow rules would be most helpful so 
-I could explain to them how to use selinux without it being too cumbersome.
-I know, a lot depends on the situation, but some should make one nervous,
+Handling of enforcing status is hidden within the userspace AVC in
+libselinux (libselinux/src/avc*.c).  avc_enforcing stores the current
+value of the enforcing status and is updated when the kernel generates
+the setenforce notification.  avc_setenforce is set if the object
+manager explicitly sets its own enforcing mode to a specific value to
+override the kernel status.
 
-For example, if one saw the following:
-	allow unconfined_t root_t:file { read write append create};
-one should be very nervous (I would think).  
+> And the only one who mentions setenforce in /var/log/audit/audit.log in
+> dbus not X?
 
-There are other suggestions that I think you all see that might 
-make you all chuckle.  I would like a list of chucklers so I do not
-accidentally become a comedian.
+Hmmm...that's seems like a bug in X then, that it isn't getting the
+notifications from the kernel (via netlink).
 
-3. Are any of these potentially dangerous (my apologies if this is a stupid 
-request)?
-allow automount_t unlabeled_t:dir search;
-allow fsdaemon_t urandom_device_t:chr_file read;
-allow groupadd_t devpts_t:chr_file { read write };
-allow httpd_t default_t:dir search;
-allow insmod_t src_t:dir search;
-allow irqbalance_t user_home_t:dir search;
-allow ldconfig_t var_t:dir write;
-allow pam_console_t file_t:dir read;
-allow semanage_t devpts_t:chr_file { read write };
-allow setfiles_t devpts_t:chr_file { read write };
-allow useradd_t devpts_t:chr_file { read write };
-
-
-Thank you for your time and effort.
 -- 
-William Chimiak
-Laboratory for Telecommunications Sciences
-8080 Greenmead Road
-College Park, MD
-240-949-2778
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
