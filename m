@@ -1,62 +1,57 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PEYbDe016686
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 09:34:37 -0500
-Received: from ppsw-7.csi.cam.ac.uk (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1PEYaa4007808
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:34:36 GMT
-Received: from mpo25.trin.private.cam.ac.uk ([172.16.113.134]:59437)
-	by ppsw-7.csi.cam.ac.uk (ppsw.cam.ac.uk [131.111.8.137]:25)
-	with esmtp id 1JTePS-00018n-Nf (Exim 4.67) for selinux@tycho.nsa.gov
-	(return-path <martin@martinorr.name>); Mon, 25 Feb 2008 14:34:26 +0000
-Message-ID: <47C2D1EE.7060309@martinorr.name>
-Date: Mon, 25 Feb 2008 14:34:22 +0000
-From: Martin Orr <martin@martinorr.name>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_caligula-7955-1203950066-0001-2"
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [refpolicy] loadkeys and init fds
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PEZIVH016860
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 09:35:18 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1PEZHa4008115
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:35:17 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: refpolicy: patch rpc
+Date: Mon, 25 Feb 2008 09:31:07 -0500
+Message-ID: <1203949867.32061.52.camel@gorn>
+In-Reply-To: <20080225123830.GA31035@bobek.pm.i.cz>
+References: <20080225123830.GA31035@bobek.pm.i.cz>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: =?iso-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: <selinux@tycho.nsa.gov>, <selinux-devel@lists.alioth.debian.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Mon, 2008-02-25 at 13:38 +0100, Václav Ovsík wrote:
+> Hi,
+> following denials appears during startup of rpc.statd (nfs-common
+> service) on Debian Sid:
+> 
+> Feb 22 23:27:45 sid kernel: audit(1203719264.336:3): avc:  denied  { search } for  pid=1482 comm="rpc.statd" name="sbin" dev=sda1 ino=245761 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=dir
+> Feb 22 23:27:45 sid kernel: audit(1203719264.336:4): avc:  denied  { execute } for  pid=1482 comm="rpc.statd" name="sm-notify" dev=sda1 ino=376910 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
+> Feb 22 23:27:45 sid kernel: audit(1203719264.336:5): avc:  denied  { execute_no_trans } for  pid=1482 comm="rpc.statd" name="sm-notify" dev=sda1 ino=376910 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
+> Feb 22 23:27:45 sid kernel: audit(1203719264.336:6): avc:  denied  { read } for  pid=1482 comm="rpc.statd" name="sm-notify" dev=sda1 ino=376910 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
+> Feb 22 23:27:45 sid kernel: audit(1203719264.724:7): avc:  denied  { search } for  pid=1482 comm="sm-notify" name="fs" dev=proc ino=-268435429 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:sysctl_fs_t:s0 tclass=dir
 
---=_caligula-7955-1203950066-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+> @@ -60,10 +60,13 @@
+>  manage_files_pattern(rpcd_t,rpcd_var_run_t,rpcd_var_run_t)
+>  files_pid_filetrans(rpcd_t,rpcd_var_run_t,file)
+>  
+> +corecmd_exec_bin(rpcd_t)
+> +
+>  kernel_read_system_state(rpcd_t) 
+>  kernel_search_network_state(rpcd_t) 
+>  # for rpc.rquotad
+>  kernel_read_sysctl(rpcd_t)  
+> +kernel_rw_fs_sysctls(rpcd_t)
+>  
+>  fs_list_rpc(rpcd_t)
+>  fs_read_rpc_files(rpcd_t)
 
-Prevent audit messages on boot:
-
-Feb 25 13:52:47 caligula kernel: audit(1203947566.566:9): avc:  denied  {
-use } for  pid=2900 comm="loadkeys" path="/dev/console" dev=tmpfs ino=311
-context=system_u:system_r:loadkeys_t:s0 tcontext=system_u:system_r:init_t:s0
-tclass=fd
-
-Best wishes,
+Perhaps we should make sm-notify rpcd_exec_t and allow exec on that?
 
 -- 
-Martin Orr
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
---=_caligula-7955-1203950066-0001-2
-Content-Type: text/x-patch; name="loadkeys_init_fd.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="loadkeys_init_fd.patch"
 
-Index: policy/modules/apps/loadkeys.te
-===================================================================
---- policy/modules/apps/loadkeys.te	(revision 2624)
-+++ policy/modules/apps/loadkeys.te	(working copy)
-@@ -32,6 +32,7 @@
- term_dontaudit_use_console(loadkeys_t)
- term_use_unallocated_ttys(loadkeys_t)
- 
-+init_dontaudit_use_fds(loadkeys_t)
- init_dontaudit_use_script_ptys(loadkeys_t)
- 
- libs_use_ld_so(loadkeys_t)
-
---=_caligula-7955-1203950066-0001-2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
