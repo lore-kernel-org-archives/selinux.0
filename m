@@ -1,48 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PH7ITq009041
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 12:07:18 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m1PH7HbX022584
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 17:07:18 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy
-Date: Mon, 25 Feb 2008 11:30:28 -0500
-Message-ID: <1203957028.32061.69.camel@gorn>
-In-Reply-To: <47B2B885.4070300@ak.jp.nec.com>
-References: <47B2B885.4070300@ak.jp.nec.com>
+Subject: Re: I have begun merging XWindows Controls into Rawhide.
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Kohei KaiGai" <kaigai@ak.jp.nec.com>
-Cc: <selinux@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47C2CBA1.5040807@redhat.com>
+References: <47C2CBA1.5040807@redhat.com>
+Content-Type: text/plain
+Date: Mon, 25 Feb 2008 11:36:08 -0500
+Message-Id: <1203957368.32061.74.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-02-13 at 18:29 +0900, Kohei KaiGai wrote:
-> The attached patch adds support for SE-PostgreSQL.
-> Most part of them are same as currently we are distributing via RPM package.
+On Mon, 2008-02-25 at 09:07 -0500, Daniel J Walsh wrote:
+> But the complexity of this stuff is just getting nuts.
 > 
-> This patch adds some booleans, attributes and types.
-> You can find out the detailed description about works of them in the chapter 5
-> of "The Security-Enhanced PostgreSQL Security Guide".
-> See, http://sepgsql.googlecode.com/files/sepgsql_security_guide.20070903.en.pdf
+> I don't thing we should have more then one type for xserver.  Allowing a
+> confined user to transition to user_xserver_t is just nuts and ends up
+> having awful policy for getting xdm_xserver_t to work.  Why in the world
+> would we allow a confined user to start and XServer?  And if they can,
+> why not just allow them to start xdm_xserver_t?  In Rawhide right now no
+> users can start and Xserver except unconfined_t and he starts
+> xdm_xserver_t to make sure the transitions work properly.  If someone
+> actually has a use case where they need user separated xservers then I
+> say write that policy off the main stream.  You can still theoretically
+> run multiple xdm_xserver_t at different MLS levels.
 > 
-> Any comment please,
+> Having four macro parameters is confusing as hell, and needs to go.
 
-Just like with the X server, I don't believe that sepostgres should have
-its own module.  At first glance, there appears to be too many
-attributes.  I'm guessing that you're doing the same thing that is done
-with the *_unconfined() interfaces.  We mainly do that to optimize size
-since unconfined brings in so many rules.  I also see references to
-types and attributes that belong do the module.  Also the auditing
-tunables seem unneeded; they seem to be more for debugging use.  I think
-I can get a better handle on the policy with these revisions.
+This comes back to forthcoming effort for trying to use RBAC for role
+separation.  That would eliminate the structural complexity we see due
+to using TE for the role separation.
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 
 --
