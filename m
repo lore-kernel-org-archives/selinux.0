@@ -1,45 +1,81 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PJOIAZ022342
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:24:18 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1PJOEqv015121
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 19:24:14 GMT
+Message-ID: <47C316EF.5090206@redhat.com>
+Date: Mon, 25 Feb 2008 14:28:47 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [refpolicy] dovecot.fc.patch (resend)
-Date: Mon, 25 Feb 2008 14:20:23 -0500
-Message-ID: <1203967223.32061.92.camel@gorn>
-In-Reply-To: <1203950973.5535.11.camel@vogon>
-References: <1203789897.2668.5.camel@vogon> <1203948348.32061.45.camel@gorn> <1203950973.5535.11.camel@vogon>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Stefan Schulze Frielinghaus" <stefan@seekline.net>
-Cc: "SELinux Mail List" <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Permissive mode for xace is broken.
+References: <47C2CC18.6080801@redhat.com>	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>	 <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>	 <47C2D552.8060509@redhat.com> <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-02-25 at 15:49 +0100, Stefan Schulze Frielinghaus wrote:
-> Yeah I forgot to attach the other patches. Now all three patches should
-> be included. If they get accepted I will open a bugzilla entry to get
-> them backported to RHEL5.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Stephen Smalley wrote:
+> On Mon, 2008-02-25 at 09:48 -0500, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Stephen Smalley wrote:
+>>> On Mon, 2008-02-25 at 09:12 -0500, Stephen Smalley wrote:
+>>>> On Mon, 2008-02-25 at 09:09 -0500, Daniel J Walsh wrote:
+>>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>>> Hash: SHA1
+>>>>>
+>>>>> If I turn on xserver_object_manager in rawhide and log in as staff_t in
+>>>>> permissive mode, I get all sorts of things failing, which makes writing
+>>>>> policy for it very difficult.  And is very broken.
+>>>> Hmmm...as I understood it, XSELinux should follow the kernel's enforcing
+>>>> status by default (i.e. if the kernel is permissive, then so should
+>>>> XSELinux), unless you explicitly configure enforcing= in xorg.conf to
+>>>> specify a different setting for the X server than the kernel.  You are
+>>>> supposed to be able to make the X server permissive w/o making the
+>>>> kernel permissive via xorg configuration, I believe, although I'm not
+>>>> sure that made it into the rawhide xorg yet.
+>>> Doesn't look like the rawhide xorg server has that support yet.
+>>>
+>>> But it should follow the kernel's enforcing status.  You should see log
+>>> messages with "received setenforce notice (enforcing=...)" in them from
+>>> both dbus and X in either /var/log/messages or /var/log/audit/audit.log.
+>>>
+>> Looking at the code, I do not see security_getenforce() in the code.
+>> Are you saying that this is not necessary, the kernel will return
+>> allowed but generate the AVC?
 > 
-> On Mon, 2008-02-25 at 09:05 -0500, Christopher J. PeBenito wrote:
-> > On Sat, 2008-02-23 at 19:04 +0100, Stefan Schulze Frielinghaus wrote:
-> > > Dovecot needs a hard link and therefor a special label.
-> > > 
-> > > I resend this patch. For background have a look at this thread:
-> > > http://marc.info/?l=selinux&m=118830456207512&w=2
-> > 
-> > This still needs the dontaudit for initrc_t that you were speaking of.
+> Handling of enforcing status is hidden within the userspace AVC in
+> libselinux (libselinux/src/avc*.c).  avc_enforcing stores the current
+> value of the enforcing status and is updated when the kernel generates
+> the setenforce notification.  avc_setenforce is set if the object
+> manager explicitly sets its own enforcing mode to a specific value to
+> override the kernel status.
+> 
+>> And the only one who mentions setenforce in /var/log/audit/audit.log in
+>> dbus not X?
+> 
+> Hmmm...that's seems like a bug in X then, that it isn't getting the
+> notifications from the kernel (via netlink).
+> 
+Yes XAce seems to be very broken in Rawhide.  Enforcing mode was working
+until I fixed the policy to allow xserver to talk to /selinux and run
+the validation routines.  Now xace is blowing up both in permissive and
+enforcing mode.
 
-I tweaked the interface name, otherwise, merged.
+Trying to start nm-applet is getting a BadWindow error.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+If you update to todays rawhide and try to login in permissive mode,
+metacity and gconf will blow up.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
+iEYEARECAAYFAkfDFu4ACgkQrlYvE4MpobM2dQCfXP1SkniRYwFpx/tBKMJyNLK7
+WkEAmwcUaOmOJtYZwbmRTrqOgrRb8r6l
+=N2VI
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
