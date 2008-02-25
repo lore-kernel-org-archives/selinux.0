@@ -1,36 +1,38 @@
-Subject: Re: Permissive mode for xace is broken.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <47C2CC18.6080801@redhat.com>
-References: <47C2CC18.6080801@redhat.com>
-Content-Type: text/plain
-Date: Mon, 25 Feb 2008 09:12:44 -0500
-Message-Id: <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PEG2cr015065
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 09:16:02 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1PEG1a4002200
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:16:01 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: [refpolicy] rsyslogd, rklogd and Debian
+Date: Mon, 25 Feb 2008 09:10:01 -0500
+Message-ID: <1203948601.32061.48.camel@gorn>
+In-Reply-To: <1203774072.2694.8.camel@vogon>
+References: <1203774072.2694.8.camel@vogon>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Stefan Schulze Frielinghaus" <stefan@seekline.net>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Mon, 2008-02-25 at 09:09 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Sat, 2008-02-23 at 14:41 +0100, Stefan Schulze Frielinghaus wrote:
+> You can find rsyslogd and rklogd under /usr/sbin instead of /sbin like
+> Fedora does.
 > 
-> If I turn on xserver_object_manager in rawhide and log in as staff_t in
-> permissive mode, I get all sorts of things failing, which makes writing
-> policy for it very difficult.  And is very broken.
+> Attached patch adds the file context especially for Debian. But I would
+> recommend a clean up of the whole file. Because several entries exist
+> for klogd in /sbin and /usr/sbin and so on. It's not really consistent.
 
-Hmmm...as I understood it, XSELinux should follow the kernel's enforcing
-status by default (i.e. if the kernel is permissive, then so should
-XSELinux), unless you explicitly configure enforcing= in xorg.conf to
-specify a different setting for the X server than the kernel.  You are
-supposed to be able to make the X server permissive w/o making the
-kernel permissive via xorg configuration, I believe, although I'm not
-sure that made it into the rawhide xorg yet.
+I added the entries and did some revising.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
