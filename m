@@ -1,45 +1,62 @@
-Subject: Re: Permissive mode for xace is broken.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>
-References: <47C2CC18.6080801@redhat.com>
-	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 25 Feb 2008 09:24:59 -0500
-Message-Id: <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PEYbDe016686
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 09:34:37 -0500
+Received: from ppsw-7.csi.cam.ac.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1PEYaa4007808
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:34:36 GMT
+Received: from mpo25.trin.private.cam.ac.uk ([172.16.113.134]:59437)
+	by ppsw-7.csi.cam.ac.uk (ppsw.cam.ac.uk [131.111.8.137]:25)
+	with esmtp id 1JTePS-00018n-Nf (Exim 4.67) for selinux@tycho.nsa.gov
+	(return-path <martin@martinorr.name>); Mon, 25 Feb 2008 14:34:26 +0000
+Message-ID: <47C2D1EE.7060309@martinorr.name>
+Date: Mon, 25 Feb 2008 14:34:22 +0000
+From: Martin Orr <martin@martinorr.name>
 Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=_caligula-7955-1203950066-0001-2"
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [refpolicy] loadkeys and init fds
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-On Mon, 2008-02-25 at 09:12 -0500, Stephen Smalley wrote:
-> On Mon, 2008-02-25 at 09:09 -0500, Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > If I turn on xserver_object_manager in rawhide and log in as staff_t in
-> > permissive mode, I get all sorts of things failing, which makes writing
-> > policy for it very difficult.  And is very broken.
-> 
-> Hmmm...as I understood it, XSELinux should follow the kernel's enforcing
-> status by default (i.e. if the kernel is permissive, then so should
-> XSELinux), unless you explicitly configure enforcing= in xorg.conf to
-> specify a different setting for the X server than the kernel.  You are
-> supposed to be able to make the X server permissive w/o making the
-> kernel permissive via xorg configuration, I believe, although I'm not
-> sure that made it into the rawhide xorg yet.
+--=_caligula-7955-1203950066-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-Doesn't look like the rawhide xorg server has that support yet.
+Prevent audit messages on boot:
 
-But it should follow the kernel's enforcing status.  You should see log
-messages with "received setenforce notice (enforcing=...)" in them from
-both dbus and X in either /var/log/messages or /var/log/audit/audit.log.
+Feb 25 13:52:47 caligula kernel: audit(1203947566.566:9): avc:  denied  {
+use } for  pid=2900 comm="loadkeys" path="/dev/console" dev=tmpfs ino=311
+context=system_u:system_r:loadkeys_t:s0 tcontext=system_u:system_r:init_t:s0
+tclass=fd
+
+Best wishes,
 
 -- 
-Stephen Smalley
-National Security Agency
+Martin Orr
 
+--=_caligula-7955-1203950066-0001-2
+Content-Type: text/x-patch; name="loadkeys_init_fd.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="loadkeys_init_fd.patch"
+
+Index: policy/modules/apps/loadkeys.te
+===================================================================
+--- policy/modules/apps/loadkeys.te	(revision 2624)
++++ policy/modules/apps/loadkeys.te	(working copy)
+@@ -32,6 +32,7 @@
+ term_dontaudit_use_console(loadkeys_t)
+ term_use_unallocated_ttys(loadkeys_t)
+ 
++init_dontaudit_use_fds(loadkeys_t)
+ init_dontaudit_use_script_ptys(loadkeys_t)
+ 
+ libs_use_ld_so(loadkeys_t)
+
+--=_caligula-7955-1203950066-0001-2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
