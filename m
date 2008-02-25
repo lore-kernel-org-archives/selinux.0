@@ -1,11 +1,12 @@
 Subject: RE: how to implement permissive domains + an old bug
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        Eric Paris <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
-        jmorris@namei.org, method@manicmethod.com,
-        Karl MacMillan <kmacmillan@tresys.com>, setools <setools@tresys.com>,
-        pmoore@hp.com, Todd Miller <tmiller@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
+        selinux <selinux@tycho.nsa.gov>, jmorris@namei.org,
+        method@manicmethod.com, Karl MacMillan <kmacmillan@tresys.com>,
+        setools <setools@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>, pmoore@hp.com,
+        Todd Miller <tmiller@tresys.com>
 In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015880195C8B8@exchange.columbia.tresys.com>
 References: <1203097803.2843.49.camel@localhost.localdomain>
 	 <1203099272.16038.223.camel@moss-spartans.epoch.ncsc.mil>
@@ -20,8 +21,8 @@ References: <1203097803.2843.49.camel@localhost.localdomain>
 	 <1203968898.2804.220.camel@moss-spartans.epoch.ncsc.mil>
 	 <6FE441CD9F0C0C479F2D88F959B015880195C8B8@exchange.columbia.tresys.com>
 Content-Type: text/plain
-Date: Mon, 25 Feb 2008 16:03:22 -0500
-Message-Id: <1203973402.32061.158.camel@gorn>
+Date: Mon, 25 Feb 2008 16:08:26 -0500
+Message-Id: <1203973706.2804.229.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -31,9 +32,122 @@ On Mon, 2008-02-25 at 15:40 -0500, Joshua Brindle wrote:
 > Stephen Smalley wrote:
 > > On Mon, 2008-02-25 at 09:53 -0500, Joshua Brindle wrote:
 > >> Daniel J Walsh wrote:
+> >>> -----BEGIN PGP SIGNED MESSAGE-----
+> >>> Hash: SHA1
+> >>> 
 > >>> Stephen Smalley wrote:
 > >>>> On Fri, 2008-02-15 at 15:17 -0500, Joshua Brindle wrote:
 > >>>>> Stephen Smalley wrote:
+> >>>>>> On Fri, 2008-02-15 at 14:43 -0500, Eric Paris wrote:
+> >>>>>>> On Fri, 2008-02-15 at 13:57 -0500, Stephen Smalley wrote:
+> >>>>>>>> On Fri, 2008-02-15 at 13:35 -0500, Joshua Brindle wrote:
+> >>>>>>>>> Stephen Smalley wrote:
+> >>>>>>>>>> On Fri, 2008-02-15 at 12:50 -0500, Eric Paris wrote:
+> >>>>>>>>>>> So after many months of trying to avoid it Dan finally beat
+> >>>>>>>>>>> me into looking at permissive domains.  I'm coming to the
+> >>>>>>>>>>> list to ask how people feel the transfer of knowledge that a
+> >>>>>>>>>>> domain is permissive between the policy and the kernel
+> >>>>>>>>>>> should be implemented.  (And to point out what I think is a
+> >>>>>>>>>>> bug I found while trolling around the code today)
+> >>>>>>>>>>> 
+> >>>>>>>>>>> Old discussion of permissive domains.
+> >>>>>>>>>>> http://marc.info/?l=selinux&m=118953810913436&w=2
+> >>>>>>>>>>> 
+> >>>>>>>>>>> The basic idea is that we want a domain in which a process
+> >>>>>>>>>>> can run without any permission enforcement and without
+> >>>>>>>>>>> flooding the audit logs. After much discussion I think
+> >>>>>>>>>>> everyone agreed with (or at least stopped arguing against)
+> >>>>>>>>>>> a couple of things. 
+> >>>>>>>>>>> 
+> >>>>>>>>>>> 1) do this in policy (not selinuxfs)
+> >>>>>>>>>>> 2) have it act just like 'setenforce 0'
+> >>>>>>>>>>> 
+> >>>>>>>>>>> My question today is about #1.  How to implement?  Karl
+> >>>>>>>>>>> suggested stealing a bit from the type_datum->primary field
+> >>>>>>>>>>> to indicate to the kernel that a certain type was a
+> >>>>>> permissive domain.  Can I do this?
+> >>>>>>>>>>> I guess this is a question for the setools group. Do you
+> >>>>>>>>>>> make use of the actual value stored in 'primary'?  The
+> >>>>>>>>>>> kernel does not.  Does anything make use of the actual value
+> >>>>>>>>>>> outside of the tool chain? Please say 'no' and make this
+> >>>>>>>>>>> easier for me. 
+> >>>>>>>>>>> 
+> >>>>>>>>>>> I want to throw away the 'primary' field all together in the
+> >>>>>>>>>>> final binary policy and create a 'new' field called 'flags'
+> >>>>>>>>>>> in its place. After my change flags would make use of 2
+> >>>>>>>>>>> bits. 
+> >>>>>>>>>>> 
+> >>>>>>>>>>> #define F_PRIMARY		0x00000001
+> >>>>>>>>>>> #define F_PERMISSIVE		0x80000000
+> >>>>>>>>>>> if (type_datum->old_primary)
+> >>>>>>>>>>> 	type_datum->flags = F_PRIMARY; if (permissive domain)
+> >>>>>>>>>>>     type_datum->flags |= F_PERMISSIVE
+> >>>>>>>>>>> 
+> >>>>>>>>>>> This only works if noone makes actual use of the value in
+> >>>>>>>>>>> ->primary. If someone makes use of the value in primary I
+> >>>>>>>>>>> can't really reuse that area on disk and I think I'm going
+> >>>>>>>>>>> to have to bump the policy version and add a whole new
+> >>>>>>>>>>> ->flags field on disk (I don't think pmoore's capability
+> >>>>>>>>>>> stuff really helps).
+> >>>>>>  Maybe the
+> >>>>>>>>>>> tools could just agree to ignore the last bit? To be honest
+> >>>>>>>>>>> I'm not personally terribly concerned about setools
+> >>>>>>>>>>> backwards compatibility.  I'm really only thinking about
+> >>>>>>>>>>> function backwards compatibility, so maybe the tools people
+> >>>>>>>>>>> would be ok with me just userping a bit (but I'd much rather
+> >>>>>>>>>>> have a more clear 'flags' than 'primary + one bit stolen for
+> >>>>>>>>>>> some other random crap).  For backwards compatibility I
+> >>>>>>>>>>> might have to bump the policy number even if noone has a
+> >>>>>>>>>>> problem with me redefining the meaning of the ->primary
+> >>>>>>>>>>> field, not sure yet haven't really wrapped my brain around
+> >>>>>>>>>>> it.  I think there is a kernel bug which actually makes it
+> >>>>>>>>>>> possible to reuse the field in my new way and maintain
+> >>>>>>>>>> backwards kernel compatibility.
+> >>>>>>>>>>> **The Bug**
+> >>>>>>>>>>> In the binary policy on disk ->primary is a uint32_t but in
+> >>>>>>>>>>> the kernel ->primary is an unsigned char.  When we load
+> >>>>>>>>>>> policy we just have 
+> >>>>>>>>>>> 
+> >>>>>>>>>>> typdatum->primary = le32_to_cpu(buf[2]);
+> >>>>>>>>>>> 
+> >>>>>>>>>>> So we are truncating to 8 bits.  I think that means that if
+> >>>>>>>>>>> the on disk ->primary value is greater than 0xFF but the
+> >>>>>>>>>>> lower 8 bits are all 0 we are going to screw this up (maybe
+> >>>>>>>>>>> this is impossible, but I don't see why looking at libsepol
+> >>>>>>>>>>> quickly). Thanks to this bug though I think I could use the
+> >>>>>>>>>>> 32nd bit of the on disk representation on old kernels and
+> >>>>>>>>>>> they wouldn't even realize it. New kernels could be made to
+> >>>>>>>>>>> pay attention to that bit. Backwards compatibility through
+> >>>>>>>>>>> bugs, I love it. It also means I don't really want to fix
+> >>>>>>>>>>> this bug right now *smile* **End bug**
+> >>>>>>>>>> Kernel policy representation only uses ->primary as a boolean
+> >>>>>>>>>> flag (is it a primary name or an alias, with the type index
+> >>>>>>>>>> value in ->value regardless).  Modular policy introduced the
+> >>>>>>>>>> notion of using it to store the primary type index for
+> >>>>>>>>>> aliases (when ->flavor == TYPE_ALIAS).  By the time we reach
+> >>>>>>>>>> kernel policy (after expansion), it should only be
+> > a boolean again.
+> >>>>>>> I guess this being done in src/expand.c::type_copy_callback().
+> >>>>>>> 
+> >>>>>>> All my thought is for nothing though.  Somehow in the language
+> >>>>>>> we have to represent permissive domains.  That in and of itself
+> >>>>>>> requires a version bump doesn't it?  Drat.
+> >>>>>>> 
+> >>>>>>> So what format do we want to go with?
+> >>>>>>> 
+> >>>>>>> permissive httpd_t;
+> >>>>>>> 
+> >>>>>>> anyone got anything better?
+> >>>>>>> 
+> >>>>>>> So with the policy version bump should I add a new field,
+> >>>>>>> ->flags to the on disk type_datum represenation?  Should I
+> >>>>>>> instead just rename ->primary to ->flags and teach libsepol to
+> >>>>>>> mask off the flag?  I don't know the toolchain well enough to
+> >>>>>>> know if we ever write more than a boolean to disk in ->primary.
+> >>>>>>> Guess that's what I'll look for now but first glance tells me I
+> >>>>>>> might as well use another 32 bits on disk since it seems as
+> >>>>>>> though we have such disperate usage of primary for
+> > POLICY_KERNEL vs everything else.
 > >>>>>> Crazy idea:  Make "permissive" a special type attribute name, and
 > >>>>>> mark types that should be permissive with that attribute via
 > >>>>>> typeattribute. Then let the usual type attribute handling
@@ -105,20 +219,16 @@ On Mon, 2008-02-25 at 15:40 -0500, Joshua Brindle wrote:
 > Even better, that means we are using a magic attribute (part of the TE
 > system) to change the behavior of the avc. AFAIK nothing in the policy
 > really changes the avc behavior (right?).
-> 
+
+Well, that's an argument for controlling it via selinuxfs rather than
+policy, like current enforcing/permissive mode ;)
+
 > I don't want to stand in the way of this feature or anything, I'm just
 > concerned about doing it in a hacky way vs. something more elegant. I'd
 > like to hear others opinions, Chris? Todd?
-
-I don't like the magic attributes as permissive is a mechanism option.
-It has no meaning in the policy, only in the enforcement.  I'd really
-prefer some other option in selinuxfs or a proc/pid/attr, but since that
-doesn't seem to be an option, I'd rather have a policy primitive.
-
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
