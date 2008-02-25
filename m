@@ -1,68 +1,38 @@
-Subject: Re: Permissive mode for xace is broken.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <47C2D552.8060509@redhat.com>
-References: <47C2CC18.6080801@redhat.com>
-	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>
-	 <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>
-	 <47C2D552.8060509@redhat.com>
-Content-Type: text/plain
-Date: Mon, 25 Feb 2008 13:49:23 -0500
-Message-Id: <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PJ6mPt019999
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:06:48 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1PJ6hqv006047
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 19:06:44 GMT
+Cc: selinux <selinux@tycho.nsa.gov>
+Message-Id: <E6973E05-7EEA-4924-A6B3-B0608766D771@nall.com>
+From: Joe Nall <joe@nall.com>
+To: w.chimiak@ieee.org
+In-Reply-To: <200802251311.09098.w.chimiak@ieee.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v919.2)
+Subject: Re: Silly audit2allows
+Date: Mon, 25 Feb 2008 13:06:08 -0600
+References: <200802251311.09098.w.chimiak@ieee.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 2008-02-25 at 09:48 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephen Smalley wrote:
-> > On Mon, 2008-02-25 at 09:12 -0500, Stephen Smalley wrote:
-> >> On Mon, 2008-02-25 at 09:09 -0500, Daniel J Walsh wrote:
-> >>> -----BEGIN PGP SIGNED MESSAGE-----
-> >>> Hash: SHA1
-> >>>
-> >>> If I turn on xserver_object_manager in rawhide and log in as staff_t in
-> >>> permissive mode, I get all sorts of things failing, which makes writing
-> >>> policy for it very difficult.  And is very broken.
-> >> Hmmm...as I understood it, XSELinux should follow the kernel's enforcing
-> >> status by default (i.e. if the kernel is permissive, then so should
-> >> XSELinux), unless you explicitly configure enforcing= in xorg.conf to
-> >> specify a different setting for the X server than the kernel.  You are
-> >> supposed to be able to make the X server permissive w/o making the
-> >> kernel permissive via xorg configuration, I believe, although I'm not
-> >> sure that made it into the rawhide xorg yet.
-> > 
-> > Doesn't look like the rawhide xorg server has that support yet.
-> > 
-> > But it should follow the kernel's enforcing status.  You should see log
-> > messages with "received setenforce notice (enforcing=...)" in them from
-> > both dbus and X in either /var/log/messages or /var/log/audit/audit.log.
-> > 
-> Looking at the code, I do not see security_getenforce() in the code.
-> Are you saying that this is not necessary, the kernel will return
-> allowed but generate the AVC?
+On Feb 25, 2008, at 12:11 PM, Bill Chimiak wrote:
 
-Handling of enforcing status is hidden within the userspace AVC in
-libselinux (libselinux/src/avc*.c).  avc_enforcing stores the current
-value of the enforcing status and is updated when the kernel generates
-the setenforce notification.  avc_setenforce is set if the object
-manager explicitly sets its own enforcing mode to a specific value to
-override the kernel status.
+> Three things:
+> 1. If one does the audit2allow ...
+> 	checkmodule -M -m -o mynewmodule.mod mynewmodule.te
+> 	semodule_package -o mynewmodule.pp -m mynewmodule.mod
+> 	semodule -i mynewmodule.pp
+>
+> How does one undo that if mynewmodule.te is a stupid policy?
 
-> And the only one who mentions setenforce in /var/log/audit/audit.log in
-> dbus not X?
+semodule -r mynewmodule
 
-Hmmm...that's seems like a bug in X then, that it isn't getting the
-notifications from the kernel (via netlink).
+(no .pp)
 
--- 
-Stephen Smalley
-National Security Agency
-
+joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
