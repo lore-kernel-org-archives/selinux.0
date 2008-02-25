@@ -1,57 +1,43 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PEZIVH016860
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 09:35:18 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1PEZHa4008115
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:35:17 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1PEeJDv017637
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 09:40:19 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1PEeIa4009347
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 14:40:18 GMT
+Message-ID: <47C2D302.1060109@redhat.com>
+Date: Mon, 25 Feb 2008 09:38:58 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: refpolicy: patch rpc
-Date: Mon, 25 Feb 2008 09:31:07 -0500
-Message-ID: <1203949867.32061.52.camel@gorn>
-In-Reply-To: <20080225123830.GA31035@bobek.pm.i.cz>
-References: <20080225123830.GA31035@bobek.pm.i.cz>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: =?iso-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: <selinux@tycho.nsa.gov>, <selinux-devel@lists.alioth.debian.org>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov,
+        selinux-devel@lists.alioth.debian.org
+Subject: Re: refpolicy: patch for ldconfig from glibc 2.7
+References: <20080222152703.GA4163@bobek.pm.i.cz> <1203703539.32061.22.camel@gorn> <20080225124131.GB31035@bobek.pm.i.cz>
+In-Reply-To: <20080225124131.GB31035@bobek.pm.i.cz>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-02-25 at 13:38 +0100, Václav Ovsík wrote:
-> Hi,
-> following denials appears during startup of rpc.statd (nfs-common
-> service) on Debian Sid:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Václav Ovsík wrote:
+> On Fri, Feb 22, 2008 at 01:05:39PM -0500, Christopher J. PeBenito wrote:
+>> This is the right fix, and basically the same fix is queued up for
+>> merging as part of Dan's patch set.
 > 
-> Feb 22 23:27:45 sid kernel: audit(1203719264.336:3): avc:  denied  { search } for  pid=1482 comm="rpc.statd" name="sbin" dev=sda1 ino=245761 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=dir
-> Feb 22 23:27:45 sid kernel: audit(1203719264.336:4): avc:  denied  { execute } for  pid=1482 comm="rpc.statd" name="sm-notify" dev=sda1 ino=376910 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
-> Feb 22 23:27:45 sid kernel: audit(1203719264.336:5): avc:  denied  { execute_no_trans } for  pid=1482 comm="rpc.statd" name="sm-notify" dev=sda1 ino=376910 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
-> Feb 22 23:27:45 sid kernel: audit(1203719264.336:6): avc:  denied  { read } for  pid=1482 comm="rpc.statd" name="sm-notify" dev=sda1 ino=376910 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:bin_t:s0 tclass=file
-> Feb 22 23:27:45 sid kernel: audit(1203719264.724:7): avc:  denied  { search } for  pid=1482 comm="sm-notify" name="fs" dev=proc ino=-268435429 scontext=system_u:system_r:rpcd_t:s0 tcontext=system_u:object_r:sysctl_fs_t:s0 tclass=dir
+> Ok. Should I stop to send patches based on the Dan's Fedora policy?
+No if more people report it, it gives a better indication that the
+Fedora policy is correct.
 
-> @@ -60,10 +60,13 @@
->  manage_files_pattern(rpcd_t,rpcd_var_run_t,rpcd_var_run_t)
->  files_pid_filetrans(rpcd_t,rpcd_var_run_t,file)
->  
-> +corecmd_exec_bin(rpcd_t)
-> +
->  kernel_read_system_state(rpcd_t) 
->  kernel_search_network_state(rpcd_t) 
->  # for rpc.rquotad
->  kernel_read_sysctl(rpcd_t)  
-> +kernel_rw_fs_sysctls(rpcd_t)
->  
->  fs_list_rpc(rpcd_t)
->  fs_read_rpc_files(rpcd_t)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Perhaps we should make sm-notify rpcd_exec_t and allow exec on that?
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
-
+iEYEARECAAYFAkfC0wEACgkQrlYvE4MpobPqvwCfTSDwtfvtgxx22/efWEkoHNl3
+0AoAoKNOvowl7D40y0p+3kqlahWuWe9/
+=VhCD
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
