@@ -1,65 +1,56 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1QGXgHe013987
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 11:33:42 -0500
-Received: from ns1.a61.nl (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1QGXeQG001958
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 16:33:40 GMT
-Received: from localhost ([127.0.0.1] helo=www.a61.nl)
-	by ns1.a61.nl with esmtp (Exim 4.54)
-	id 1JU2K6-0006gi-Lu
-	for selinux@tycho.nsa.gov; Tue, 26 Feb 2008 17:06:30 +0100
-Message-ID: <33491.80.95.164.250.1204041990.squirrel@www.a61.nl>
-Date: Tue, 26 Feb 2008 17:06:30 +0100 (CET)
-Subject: Global requirements were not met
-From: selinux@a61.nl
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+Subject: Re: [PATCH][RFC] Unify printk messgaes
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@redhat.com>
+In-Reply-To: <1204038485.32061.183.camel@gorn>
+References: <Xine.LNX.4.64.0802262049370.10387@us.intercode.com.au>
+	 <1204029408.2804.257.camel@moss-spartans.epoch.ncsc.mil>
+	 <1204038485.32061.183.camel@gorn>
+Content-Type: text/plain
+Date: Tue, 26 Feb 2008 12:23:39 -0500
+Message-Id: <1204046619.2804.307.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
 
-Still having problems setting up modules dor JBoss + Java:
+On Tue, 2008-02-26 at 10:08 -0500, Christopher J. PeBenito wrote:
+> On Tue, 2008-02-26 at 07:36 -0500, Stephen Smalley wrote:
+> > On Tue, 2008-02-26 at 20:53 +1100, James Morris wrote:
+> > > I noticed that we had a mix of "SELinux:" and "security:" prefixes in our 
+> > > kernel boot messages, so I've unified these to "SELinux:" with the patch 
+> > > below to reduce user confusion.  (It doesn't try and fix every printk, 
+> > > just the ones with "security:").
+> > > 
+> > > Also simplified the avtab hash message, from:
+> > > 
+> > >   SELinux:8192 avtab hash slots allocated. Num of rules:163922
+> > > 
+> > > to
+> > > 
+> > >   SELinux: 8192 avtab hash slots, 163922 rules.
+> > > 
+> > > 
+> > > Comments?
+> > 
+> > Makes sense from a user perspective - reflects further nativization of
+> > the Flask code for the Linux implementation, but will yield a difference
+> > in output between SELinux and e.g. SEBSD.  Only question I have is
+> > whether any userspace tools are looking for the security: prefix today.
+> 
+> Seaudit/libseaudit does look for the security prefix so that it can
+> report that there is a policy load, for example.  Since the patch just
+> changes "security" into "SELinux", it shouldn't be much of a problem for
+> updating libseaudit's parser.
 
-I believe our JBoss module has a fine start now. We decided to write a
-complete new java-module (jbossjava) so we will be able to get java to
-work is strict-mode.
+I'd suggest switching over to looking for the MAC_STATUS audit messages
+instead.  Of course, that only works for newer kernels/distros (e.g.
+RHEL5, but not RHEL4).
 
-See the following files:
-myjboss.if: http://pastebin.com/f4df202a2
-myjboss.te: http://pastebin.com/d7318637b
-myjboss.fc: http://pastebin.com/f2f66ff68
-
-jbossjava.if: http://pastebin.com/f179749e8
-jbossjava.te: http://pastebin.com/f1731b45d
-jbossjava.fc: http://pastebin.com/f52227f13
-
-(Probably our code isn't optimized or even corect yet, we know. We first
-just want to have everyting up and running)
-
-We are able to build an rpm with the modules included, but when installing
-the newly build rpm's we see:
-
-Preparing...                ###########################################
-[100%]
-   1:selinux-policy-strict  ########################################### [
-33%]
-libsepol.print_missing_requirements: jbossjava's global requirements were
-not met: type/attribute jboss_rx_t
-libsemanage.semanage_link_sandbox: Link packages failed
-semodule:  Failed!
-   2:selinux-policy         ########################################### [
-67%]
-   3:selinux-policy-devel   ###########################################
-[100%]
-
-Apparently, jbossjava doesn't have any access to the interfaces in
-myjboss.pp. why?
-
-Cheers!
-
-Bart + Ronald
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
