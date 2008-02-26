@@ -1,74 +1,41 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1QLAIaR022644
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 16:10:18 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1QLAH9c003837
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 21:10:17 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <200802261143.28348.phillips@phunq.net>
-References: <200802261143.28348.phillips@phunq.net> <200802260226.26984.phillips@phunq.net> <24873.1203991250@redhat.com> <27528.1204036418@redhat.com>
-To: Daniel Phillips <phillips@phunq.net>
-Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
-        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 00/37] Permit filesystem local caching
-Date: Tue, 26 Feb 2008 21:09:09 +0000
-Message-ID: <2140.1204060149@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1QLqa9B030108
+	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 16:52:36 -0500
+Received: from wf-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1QLqZ9c023256
+	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 21:52:35 GMT
+Received: by wf-out-1314.google.com with SMTP id 28so1927534wfc.30
+        for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 13:52:34 -0800 (PST)
+Message-ID: <7e0fb38c0802261352r52318774v562f8e635a3f44cc@mail.gmail.com>
+Date: Tue, 26 Feb 2008 16:52:34 -0500
+From: "Eric Paris" <eparis@parisplace.org>
+To: "paul.moore@hp.com" <paul.moore@hp.com>, selinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 0/5] New labeled networking permissions for 2.6.25
+In-Reply-To: <20080226184032.834798290@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <20080226184032.834798290@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel Phillips <phillips@phunq.net> wrote:
+On 2/26/08, paul.moore@hp.com <paul.moore@hp.com> wrote:
+>  It is important to note that
+>  while this patchset adds the permissions required it doesn't enable the
+>  "network_peer_controls" policy capability.
 
-> > Note further that NFS's write_page() != writing to the cache.  Writing to
-> > the cache is typically done by NFS's readpages().
-> 
-> Yes, of course.  But also by ->write_page no?
+Darn it, I'm trying to play with a new capability for something I'm
+writing and I just read this whole patch set (before i read 0/5) to
+see where you decided to define it so I could copy that in my policy.
+Thanks for not doing the one thing I was hunting for!
 
-Theoretically, perhaps, but currently, no.
+So, does anyone have a good idea suggestions where we should turn
+on/off these new capabilities?  I know it has to be in the base module
+in the end, but I don't know what file to put them in.  I might just
+throw it in kernel.te for now for me to keep testing but I assume we
+are going to want all of these definitions in one place?  Are we going
+to want them all over as long as they end up being built into base?
 
-> 37 Patches, none of which has "Documentation" in the subject line,
-
-Each piece of documentation is included in the patch to which it applies.
-Besides, I, like everyone else, always write full documentation for interfaces
-that I add, so you should have expected it to be there, right? :-)
-
-> and you did not provide a diffstat in patch 0 for the patch set as a whole.
-
-StGIT doesn't do that.  Besides, it's redundant information.  I'll add
-something to the cover note that points out the documentation.
-
-> One bit that already came out of this, which you have alluded to
-> several times yourself but somehow seem to keep glossing over, is that
-> you need a ->direct_bio file operations method.
-
-Which I am not allowed.  I have suggested it, and it has been refused.  The
-problem, as I understand it, is that this would mean BIOs external to the
-filesystem which the filesystem would need additional way of keeping track of.
-You have to consider that a filesystem can't rearrange any bits of itself that
-have I/O in progress on them.
-
-Furthermore, a BIO may not be appropriate.  Consider ReiserFS's tail packing,
-or consider an encrypted filesystem, or, worse, a compressed filesystem.  Also,
-what if the filesystem isn't backed by a blockdev?
-
-> So does loopback mount.  It might be worth putting some effort into seeing
-> how ->direct_IO can be refactored to make that happen.
-
-Have you looked at the horrible tangle of spaghetti that is the current Linux
-direct I/O model?  It would take a lot of effort to refactor it.  I've made a
-couple of attempts, but the assumptions it makes make it hard.
-
-A separate, clean, in-kernel direct-IO thing would be an easier way to go - but
-it's not actually necessary at the moment.
-
-> You can get it in separately on the basis of helping loopback, and it will
-> make your patches nicer.
-
-It will make very little difference to the code.  It would improve cachefiles's
-cf-rdwr.c, yes, and it ought to improve performance.
-
-David
+-Eric
 
 --
 This message was distributed to subscribers of the selinux mailing list.
