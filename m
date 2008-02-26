@@ -1,63 +1,37 @@
-Date: Wed, 27 Feb 2008 00:39:05 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-Subject: Re: [PATCH][RFC] Unify printk messgaes
-In-Reply-To: <1204029408.2804.257.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0802270036270.22022@us.intercode.com.au>
-References: <Xine.LNX.4.64.0802262049370.10387@us.intercode.com.au>
- <1204029408.2804.257.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: I have begun merging XWindows Controls into Rawhide.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: russell@coker.com.au
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200802262026.15197.russell@coker.com.au>
+References: <47C2CBA1.5040807@redhat.com> <1203957368.32061.74.camel@gorn>
+	 <47C32259.10505@tycho.nsa.gov>  <200802262026.15197.russell@coker.com.au>
+Content-Type: text/plain
+Date: Tue, 26 Feb 2008 08:42:28 -0500
+Message-Id: <1204033348.32061.168.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 26 Feb 2008, Stephen Smalley wrote:
+On Tue, 2008-02-26 at 20:26 +1100, Russell Coker wrote:
+> On Tuesday 26 February 2008 07:17, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
 
+> > > This comes back to forthcoming effort for trying to use RBAC for role
+> > > separation.  That would eliminate the structural complexity we see due
+> > > to using TE for the role separation
+> >
+> > Is work being done on this?  I recall you said you were interested in
+> > taking on this task.
 > 
-> On Tue, 2008-02-26 at 20:53 +1100, James Morris wrote:
-> > I noticed that we had a mix of "SELinux:" and "security:" prefixes in our 
-> > kernel boot messages, so I've unified these to "SELinux:" with the patch 
-> > below to reduce user confusion.  (It doesn't try and fix every printk, 
-> > just the ones with "security:").
-> > 
-> > Also simplified the avtab hash message, from:
-> > 
-> >   SELinux:8192 avtab hash slots allocated. Num of rules:163922
-> > 
-> > to
-> > 
-> >   SELinux: 8192 avtab hash slots, 163922 rules.
-> > 
-> > 
-> > Comments?
-> 
-> Makes sense from a user perspective - reflects further nativization of
-> the Flask code for the Linux implementation, but will yield a difference
-> in output between SELinux and e.g. SEBSD.  Only question I have is
-> whether any userspace tools are looking for the security: prefix today.
+> Is this going to involve using roles on filesystem objects?  If not then how 
+> would you distinguish the files created by different roles?
 
-Not that I'm aware of.  These are informational kernel messages, and if 
-userland needs access to the information, it should really be done via an 
-official user interface such as selinuxfs.
-
-> I don't think we can change the avc: prefix for avc messages given the
-> impact on userspace tools that search for them.
-
-Agreed.
-
-> It would also likely help to change error messages in hooks.c to have
-> SELinux in the message in place of the __FUNCTION__ name, and/or to
-> ensure that all such functions have a selinux prefix.
-> inode_doinit_with_dentry is an obvious candidate for renaming - my bad.
-
-I'll add this to the todo list -- the main thing was to not use 
-"security:", as it implies something at the LSM layer.
-
+Yes, the plan is to use roles on objects.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
