@@ -1,51 +1,45 @@
-Subject: Re: I have begun merging XWindows Controls into Rawhide.
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: russell@coker.com.au, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1204034227.2804.292.camel@moss-spartans.epoch.ncsc.mil>
-References: <47C2CBA1.5040807@redhat.com> <1203957368.32061.74.camel@gorn>
-	 <47C32259.10505@tycho.nsa.gov>  <200802262026.15197.russell@coker.com.au>
-	 <1204033348.32061.168.camel@gorn>
-	 <1204034227.2804.292.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 26 Feb 2008 09:01:31 -0500
-Message-Id: <1204034491.32061.174.camel@gorn>
-Mime-Version: 1.0
+Date: Wed, 27 Feb 2008 01:04:19 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH][RFC] Unify printk messgaes
+In-Reply-To: <1204033728.2846.35.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0802270103580.1962@us.intercode.com.au>
+References: <Xine.LNX.4.64.0802262049370.10387@us.intercode.com.au>
+ <1204033728.2846.35.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-02-26 at 08:57 -0500, Stephen Smalley wrote:
-> On Tue, 2008-02-26 at 08:42 -0500, Christopher J. PeBenito wrote:
-> > On Tue, 2008-02-26 at 20:26 +1100, Russell Coker wrote:
-> > > On Tuesday 26 February 2008 07:17, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> > 
-> > > > > This comes back to forthcoming effort for trying to use RBAC for role
-> > > > > separation.  That would eliminate the structural complexity we see due
-> > > > > to using TE for the role separation
-> > > >
-> > > > Is work being done on this?  I recall you said you were interested in
-> > > > taking on this task.
-> > > 
-> > > Is this going to involve using roles on filesystem objects?  If not then how 
-> > > would you distinguish the files created by different roles?
-> > 
-> > Yes, the plan is to use roles on objects.
+On Tue, 26 Feb 2008, Eric Paris wrote:
+
 > 
-> (note: requires a kernel change)
+> On Tue, 2008-02-26 at 20:53 +1100, James Morris wrote:
+> > I noticed that we had a mix of "SELinux:" and "security:" prefixes in our 
+> > kernel boot messages, so I've unified these to "SELinux:" with the patch 
+> > below to reduce user confusion.  (It doesn't try and fix every printk, 
+> > just the ones with "security:").
+> > 
+> > Also simplified the avtab hash message, from:
+> > 
+> >   SELinux:8192 avtab hash slots allocated. Num of rules:163922
+> > 
+> > to
+> > 
+> >   SELinux: 8192 avtab hash slots, 163922 rules.
+> > 
+> > 
+> > Comments?
+> 
+> If you are going to do this can you add a KERN_* prefix to everything
+> that doesn't have one?  Or do we really prefer things to get
+> default_message_loglevel ??
 
-Right, if you label a directory with a role other than object_r and
-create a file in it, the file will get object_r.  Also theres some
-userland changes so login programs set the role on the terminal, newrole
-changes the role on the terminal, etc.  Now that I think about it, that
-causes a problem for RHEL4 and even RHEL5 compatibility for upstream
-refpolicy.
+The patch has already been pushed out, added this to the todo list.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+--
+James Morris <jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
