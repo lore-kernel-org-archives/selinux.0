@@ -1,39 +1,47 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1Q8OOIZ012378
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 03:24:24 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1Q8X8Jo013366
+	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 03:33:08 -0500
 Received: from web90405.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1Q8OMAj021966
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 08:24:23 GMT
-Date: Tue, 26 Feb 2008 00:23:46 -0800 (PST)
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1Q8X7Aj024837
+	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 08:33:07 GMT
+Date: Tue, 26 Feb 2008 00:33:06 -0800 (PST)
 From: kihamba nengo <knengo@yahoo.com>
-Subject: Installing SELinux on Backtrack
+Subject: Problem compiling SELinux poilcy
 To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-944791563-1204014226=:67780"
-Message-ID: <439176.67780.qm@web90405.mail.mud.yahoo.com>
+Content-Type: multipart/alternative; boundary="0-1936910154-1204014786=:73491"
+Message-ID: <434750.73491.qm@web90405.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-944791563-1204014226=:67780
+--0-1936910154-1204014786=:73491
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 
 Hi,
-I have tried to install SELinux on backtrack but i havent been able to manage.Anyone with information on an easy way to do please pass me the information.
-Is there a way i can install in directly from the internet eg using yum on Fedora?
-Godfrey
+I tried compiling the policy on Fedora 5 and i received the following error message:
+
+WARNING: Policy version mismatch! Is your OUTPUT_POLICY set correctly?
+
+    /USR/BIN/CHECKPOLICY POLICY.CONF -O POLICY
+make: *** [policy.] Floating point exception
+
 
        
 ---------------------------------
-Be a better friend, newshound, and know-it-all with Yahoo! Mobile.  Try it now.
---0-944791563-1204014226=:67780
+Never miss a thing.   Make Yahoo your homepage.
+--0-1936910154-1204014786=:73491
 Content-Type: text/html; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 
-Hi,<br>I have tried to install SELinux on backtrack but i havent been able to manage.Anyone with information on an easy way to do please pass me the information.<br>Is there a way i can install in directly from the internet eg using yum on Fedora?<br>Godfrey<br><p>&#32;
-      <hr size=1>Be a better friend, newshound, and 
-know-it-all with Yahoo! Mobile. <a href="http://us.rd.yahoo.com/evt=51733/*http://mobile.yahoo.com/;_ylt=Ahu06i62sR8HDtDypao8Wcj9tAcJ "> Try it now.</a>
---0-944791563-1204014226=:67780--
+Hi,<br>I tried compiling the policy on Fedora 5 and i received the following error message:<br><br>WARNING: Policy version mismatch! Is your OUTPUT_POLICY set correctly?<br><br>&nbsp;&nbsp;&nbsp; /USR/BIN/CHECKPOLICY POLICY.CONF -O POLICY<br>make: *** [policy.] Floating point exception<br><br><p>&#32;
+
+
+
+      <hr size=1>Never miss a thing.  <a href="http://us.rd.yahoo.com/evt=51438/*http://www.yahoo.com/r/hs"> Make Yahoo your homepage.</a>
+
+
+--0-1936910154-1204014786=:73491--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
