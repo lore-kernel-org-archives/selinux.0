@@ -1,36 +1,40 @@
-Subject: Re: I have begun merging XWindows Controls into Rawhide.
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: russell@coker.com.au
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200802262026.15197.russell@coker.com.au>
-References: <47C2CBA1.5040807@redhat.com> <1203957368.32061.74.camel@gorn>
-	 <47C32259.10505@tycho.nsa.gov>  <200802262026.15197.russell@coker.com.au>
+Subject: Re: [PATCH][RFC] Unify printk messgaes
+From: Eric Paris <eparis@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <Xine.LNX.4.64.0802262049370.10387@us.intercode.com.au>
+References: <Xine.LNX.4.64.0802262049370.10387@us.intercode.com.au>
 Content-Type: text/plain
-Date: Tue, 26 Feb 2008 08:42:28 -0500
-Message-Id: <1204033348.32061.168.camel@gorn>
+Date: Tue, 26 Feb 2008 08:48:48 -0500
+Message-Id: <1204033728.2846.35.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-02-26 at 20:26 +1100, Russell Coker wrote:
-> On Tuesday 26 February 2008 07:17, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
 
-> > > This comes back to forthcoming effort for trying to use RBAC for role
-> > > separation.  That would eliminate the structural complexity we see due
-> > > to using TE for the role separation
-> >
-> > Is work being done on this?  I recall you said you were interested in
-> > taking on this task.
+On Tue, 2008-02-26 at 20:53 +1100, James Morris wrote:
+> I noticed that we had a mix of "SELinux:" and "security:" prefixes in our 
+> kernel boot messages, so I've unified these to "SELinux:" with the patch 
+> below to reduce user confusion.  (It doesn't try and fix every printk, 
+> just the ones with "security:").
 > 
-> Is this going to involve using roles on filesystem objects?  If not then how 
-> would you distinguish the files created by different roles?
+> Also simplified the avtab hash message, from:
+> 
+>   SELinux:8192 avtab hash slots allocated. Num of rules:163922
+> 
+> to
+> 
+>   SELinux: 8192 avtab hash slots, 163922 rules.
+> 
+> 
+> Comments?
 
-Yes, the plan is to use roles on objects.
+If you are going to do this can you add a KERN_* prefix to everything
+that doesn't have one?  Or do we really prefer things to get
+default_message_loglevel ??
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+-Eric
+
 
 
 --
