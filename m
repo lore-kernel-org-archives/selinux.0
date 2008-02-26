@@ -1,47 +1,44 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1Q8X8Jo013366
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 03:33:08 -0500
-Received: from web90405.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1Q8X7Aj024837
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 08:33:07 GMT
-Date: Tue, 26 Feb 2008 00:33:06 -0800 (PST)
-From: kihamba nengo <knengo@yahoo.com>
-Subject: Problem compiling SELinux poilcy
-To: selinux@tycho.nsa.gov
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: I have begun merging XWindows Controls into Rawhide.
+Date: Tue, 26 Feb 2008 20:26:13 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <47C2CBA1.5040807@redhat.com> <1203957368.32061.74.camel@gorn> <47C32259.10505@tycho.nsa.gov>
+In-Reply-To: <47C32259.10505@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1936910154-1204014786=:73491"
-Message-ID: <434750.73491.qm@web90405.mail.mud.yahoo.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200802262026.15197.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1936910154-1204014786=:73491
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+On Tuesday 26 February 2008 07:17, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> I would be fine with only having one type for the X server; this would
+> certainly simplify the policy that currently has all kinds of kludgery
+> to support both "xdm_" and "$1_".
 
-Hi,
-I tried compiling the policy on Fedora 5 and i received the following error message:
+With an X server being a trusted object manager the benefit of having separate 
+instances of the X server for various roles is greatly reduced.  Not that it 
+ever was a great benefit given the small number of people who used it.
 
-WARNING: Policy version mismatch! Is your OUTPUT_POLICY set correctly?
+In retrospect it should have been removed some time ago.
 
-    /USR/BIN/CHECKPOLICY POLICY.CONF -O POLICY
-make: *** [policy.] Floating point exception
+> > This comes back to forthcoming effort for trying to use RBAC for role
+> > separation.  That would eliminate the structural complexity we see due
+> > to using TE for the role separation
+>
+> Is work being done on this?  I recall you said you were interested in
+> taking on this task.
 
+Is this going to involve using roles on filesystem objects?  If not then how 
+would you distinguish the files created by different roles?
 
-       
----------------------------------
-Never miss a thing.   Make Yahoo your homepage.
---0-1936910154-1204014786=:73491
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
 
-Hi,<br>I tried compiling the policy on Fedora 5 and i received the following error message:<br><br>WARNING: Policy version mismatch! Is your OUTPUT_POLICY set correctly?<br><br>&nbsp;&nbsp;&nbsp; /USR/BIN/CHECKPOLICY POLICY.CONF -O POLICY<br>make: *** [policy.] Floating point exception<br><br><p>&#32;
-
-
-
-      <hr size=1>Never miss a thing.  <a href="http://us.rd.yahoo.com/evt=51438/*http://www.yahoo.com/r/hs"> Make Yahoo your homepage.</a>
-
-
---0-1936910154-1204014786=:73491--
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
