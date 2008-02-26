@@ -1,70 +1,72 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1Q24Fvh012230
-	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 21:04:15 -0500
-Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1Q24Ceq020369
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 02:04:13 GMT
-Message-ID: <47C3738A.3010007@ak.jp.nec.com>
-Date: Tue, 26 Feb 2008 11:03:54 +0900
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1Q37vju017868
+	for <selinux@tycho.nsa.gov>; Mon, 25 Feb 2008 22:07:58 -0500
+Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1Q37teq009313
+	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 03:07:56 GMT
+Message-ID: <47C38287.4080302@ak.jp.nec.com>
+Date: Tue, 26 Feb 2008 12:07:51 +0900
 From: Kohei KaiGai <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov,
-        DGoeddel@TrustedCS.com, vyekkirala@TrustedCS.com
-Subject: Re: [PATCH] Labeled IPsec for PostgreSQL/MySQL/SSHd (Re: [PATCH]
- IPsec SPD default security context)
-References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>	 <1203428116.13618.77.camel@gorn> <47BB7B6A.1090207@ak.jp.nec.com>	 <200802192237.22546.paul.moore@hp.com>  <47BBB69C.2050007@ak.jp.nec.com> <1203955972.32061.55.camel@gorn>
-In-Reply-To: <1203955972.32061.55.camel@gorn>
-Content-Type: text/plain; charset=ISO-2022-JP
+CC: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SE-PostgreSQL Security Policy
+References: <47B2B885.4070300@ak.jp.nec.com> <1203957028.32061.69.camel@gorn>
+In-Reply-To: <1203957028.32061.69.camel@gorn>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Christopher J. PeBenito wrote:
-> On Wed, 2008-02-20 at 14:11 +0900, Kohei KaiGai wrote:
->> Paul Moore wrote:
->>> On Tuesday 19 February 2008 7:59:22 pm Kohei KaiGai wrote:
->>>> Is it acceptable one, if we provide an interface to allow a domain
->>>> to communicate postgresql_t via labeled networking, separated from
->>>> existing permissions for local ports and nodes?
->>>>
->>>> For example:
->>>> -- at postgresql.if
->>>> interface(`postgresql_labeled_connect',`
->>>> 	gen_require(`
->>>> 		type postgresql_t;
->>>> 	')
->>>> 	corenet_tcp_recvfrom_labeled($1,postgresql_t)
->>>> ')
->>>>
->>>> and
->>>> -- at apache.te
->>>> postgresql_labeled_connect(httpd_t)
->>>>
->>>> I think this approach enables to keep independency between modules
->>>> in unlabeled networking cases too.
->>> For what it is worth, it looks like a good idea to me.
->> At first, I implemented this idea for three services (PostgreSQL/MySQL/SSHd).
+> On Wed, 2008-02-13 at 18:29 +0900, Kohei KaiGai wrote:
+>> The attached patch adds support for SE-PostgreSQL.
+>> Most part of them are same as currently we are distributing via RPM package.
 >>
->> This patch adds the following interfaces:
->> - postgresql_labeled_communicate(domain)
->> - mysql_labeled_communicate(domain)
->> - ssh_labeled_communicate(domain)
+>> This patch adds some booleans, attributes and types.
+>> You can find out the detailed description about works of them in the chapter 5
+>> of "The Security-Enhanced PostgreSQL Security Guide".
+>> See, http://sepgsql.googlecode.com/files/sepgsql_security_guide.20070903.en.pdf
 >>
->> Chris, is it suitable for refpolicy framework?
+>> Any comment please,
 > 
-> The only issue I have with it would just be the interface naming;
-> probably something like mysql_tcp_recvfrom() would be better.
+> Just like with the X server, I don't believe that sepostgres should have
+> its own module.
 
-I think the name of "xxxx_tcp_recvfrom()" is not obvious whether it means
-permissions related to labeled networking, or not.
+OK, I'll make next one as a patch for services/postgresql.*.
 
-What do you think the following ideas?
- - something_labeled_recvfrom(domain)
-      or
- - something_labeled_tcp_recvfrom(domain)
+> At first glance, there appears to be too many
+> attributes.  I'm guessing that you're doing the same thing that is done
+> with the *_unconfined() interfaces.  We mainly do that to optimize size
+> since unconfined brings in so many rules.
+
+OK, I'll replace current interfaces by the following style's one.
+
+interface(`sepostgresql_unconfined',`
+         gen_require(`
+                 attribute sepostgresql_unconfined_type;
+         ')
+         typeattribute $1 sepostgresql_unconfined_type;
+')
+
+> I also see references to types and attributes that belong do the module.
+
+Is it unlabel_t and system_r?
+Where is the best place to associate them with my local policy?
+
+ > Also the auditing
+> tunables seem unneeded; they seem to be more for debugging use.  I think
+> I can get a better handle on the policy with these revisions.
+
+Hmm...
+The reason why I added these tunables is that database folks told me
+that collecting logs in column/tuple level is an attractive feature,
+because native DBMS cannot provide fine-grained access control and
+cannot collect logs in these level.
+Thus, I believe the feature to turn on/off auditing readily should
+be remained.
 
 Thanks,
---
+-- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
 
