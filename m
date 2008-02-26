@@ -1,53 +1,51 @@
-Message-ID: <47C42390.9050607@redhat.com>
-Date: Tue, 26 Feb 2008 09:34:56 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Permissive mode for xace is broken.
-References: <47C2CC18.6080801@redhat.com>	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>	 <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>	 <47C2D552.8060509@redhat.com> <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil> <47C316EF.5090206@redhat.com> <47C3261C.1070508@tycho.nsa.gov> <47C36767.7030503@tycho.nsa.gov>
-In-Reply-To: <47C36767.7030503@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH][RFC] Unify printk messgaes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@redhat.com>
+In-Reply-To: <1204029408.2804.257.camel@moss-spartans.epoch.ncsc.mil>
+References: <Xine.LNX.4.64.0802262049370.10387@us.intercode.com.au>
+	 <1204029408.2804.257.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 26 Feb 2008 10:08:05 -0500
+Message-Id: <1204038485.32061.183.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2008-02-26 at 07:36 -0500, Stephen Smalley wrote:
+> On Tue, 2008-02-26 at 20:53 +1100, James Morris wrote:
+> > I noticed that we had a mix of "SELinux:" and "security:" prefixes in our 
+> > kernel boot messages, so I've unified these to "SELinux:" with the patch 
+> > below to reduce user confusion.  (It doesn't try and fix every printk, 
+> > just the ones with "security:").
+> > 
+> > Also simplified the avtab hash message, from:
+> > 
+> >   SELinux:8192 avtab hash slots allocated. Num of rules:163922
+> > 
+> > to
+> > 
+> >   SELinux: 8192 avtab hash slots, 163922 rules.
+> > 
+> > 
+> > Comments?
+> 
+> Makes sense from a user perspective - reflects further nativization of
+> the Flask code for the Linux implementation, but will yield a difference
+> in output between SELinux and e.g. SEBSD.  Only question I have is
+> whether any userspace tools are looking for the security: prefix today.
 
-Eamon Walsh wrote:
-> Eamon Walsh wrote:
->> The X object manager logs all avc's and status messages (including the
->> AVC netlink stuff) through the audit system using libaudit calls
->> (audit_log_user_avc_message, etc.)   I disavow all responsibility for
->> the messages once they enter libaudit
-> 
-> It's being black-holed in rawhide.  To see for yourself, add the
-> attached patch to the spec file and rebuild the xserver from SRPM.  It
-> will tee the avc messages into /var/log/Xorg.0.log.
-> 
-> Also, pull libselinux from upstream.  The BadWindow error may be fixed.
-> 
-> You'll have to report to me what you see in the X server output.  I'm
-> seeing tons of avc's: it doesn't appear as though staff_t is even
-> getting X permissions allowed.
-> 
-> 
-> 
-> 
-> 
-My current rawhide policy is available at
+Seaudit/libseaudit does look for the security prefix so that it can
+report that there is a policy load, for example.  Since the patch just
+changes "security" into "SELinux", it shouldn't be much of a problem for
+updating libseaudit's parser.
 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
-http://people.fedoraproject.org/~dwalsh/SELinux/F9/
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkfEI5AACgkQrlYvE4MpobNueACeLHwWDZVdB9zHEF+oCOx2aDJR
-ujEAn17mGB7k26icF3bLpSjY7PxW8PvT
-=WmDN
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
