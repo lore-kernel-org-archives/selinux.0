@@ -1,73 +1,74 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1QJn7C9007507
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 14:49:07 -0500
-Received: from ns1.a61.nl (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1QJn6QG002576
-	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 19:49:06 GMT
-Date: Tue, 26 Feb 2008 19:55:24 +0100
-Subject: Re: Global requirements were not met
-From: Ronald van den Blink <selinux@a61.nl>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: <selinux@tycho.nsa.gov>
-Message-ID: <C3EA1F2C.299B%selinux@a61.nl>
-In-Reply-To: <1204049658.32061.189.camel@gorn>
-Mime-version: 1.0
-Content-type: text/plain;
-	charset="US-ASCII"
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1QLAIaR022644
+	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 16:10:18 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1QLAH9c003837
+	for <selinux@tycho.nsa.gov>; Tue, 26 Feb 2008 21:10:17 GMT
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <200802261143.28348.phillips@phunq.net>
+References: <200802261143.28348.phillips@phunq.net> <200802260226.26984.phillips@phunq.net> <24873.1203991250@redhat.com> <27528.1204036418@redhat.com>
+To: Daniel Phillips <phillips@phunq.net>
+Cc: dhowells@redhat.com, Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
+        casey@schaufler-ca.com, nfsv4@linux-nfs.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Subject: Re: [PATCH 00/37] Permit filesystem local caching
+Date: Tue, 26 Feb 2008 21:09:09 +0000
+Message-ID: <2140.1204060149@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On [DATE], "[NAME]" <[ADDRESS]> wrote:
+Daniel Phillips <phillips@phunq.net> wrote:
 
-> On Tue, 2008-02-26 at 17:06 +0100, selinux@a61.nl wrote:
->> Still having problems setting up modules dor JBoss + Java:
->> 
->> I believe our JBoss module has a fine start now. We decided to write a
->> complete new java-module (jbossjava) so we will be able to get java to
->> work is strict-mode.
->> 
->> See the following files:
->> myjboss.if: http://pastebin.com/f4df202a2
->> myjboss.te: http://pastebin.com/d7318637b
->> myjboss.fc: http://pastebin.com/f2f66ff68
->> 
->> jbossjava.if: http://pastebin.com/f179749e8
->> jbossjava.te: http://pastebin.com/f1731b45d
->> jbossjava.fc: http://pastebin.com/f52227f13
-> [...]
->>    1:selinux-policy-strict  ########################################### [
->> 33%]
->> libsepol.print_missing_requirements: jbossjava's global requirements were
->> not met: type/attribute jboss_rx_t
->> libsemanage.semanage_link_sandbox: Link packages failed
->> semodule:  Failed!
-> [...]
->> Apparently, jbossjava doesn't have any access to the interfaces in
->> myjboss.pp. why?
+> > Note further that NFS's write_page() != writing to the cache.  Writing to
+> > the cache is typically done by NFS's readpages().
 > 
-> Its not an interface problem, jboss_rx_t isn't declared.
+> Yes, of course.  But also by ->write_page no?
 
-If I look in the myjboss.if file I see:
+Theoretically, perhaps, but currently, no.
 
+> 37 Patches, none of which has "Documentation" in the subject line,
 
-interface(`jboss_rx_files',`
-        gen_require(`
-                type jboss_rx_t;
-        ')
-        allow $1 jboss_rx_t:file exec_file_perms;
-')
+Each piece of documentation is included in the patch to which it applies.
+Besides, I, like everyone else, always write full documentation for interfaces
+that I add, so you should have expected it to be there, right? :-)
 
-If I understand the interfaces right it is declared in the gen_require
-statement? And then we can use it in jbossjava.te:
+> and you did not provide a diffstat in patch 0 for the patch set as a whole.
 
-jboss_rx_files(jbossjava_t)
+StGIT doesn't do that.  Besides, it's redundant information.  I'll add
+something to the cover note that points out the documentation.
 
-Or do we not understand the way interfaces work? Do we have to declare
-jboss_rx_t in jbossjava.te also?
+> One bit that already came out of this, which you have alluded to
+> several times yourself but somehow seem to keep glossing over, is that
+> you need a ->direct_bio file operations method.
 
+Which I am not allowed.  I have suggested it, and it has been refused.  The
+problem, as I understand it, is that this would mean BIOs external to the
+filesystem which the filesystem would need additional way of keeping track of.
+You have to consider that a filesystem can't rearrange any bits of itself that
+have I/O in progress on them.
 
+Furthermore, a BIO may not be appropriate.  Consider ReiserFS's tail packing,
+or consider an encrypted filesystem, or, worse, a compressed filesystem.  Also,
+what if the filesystem isn't backed by a blockdev?
 
+> So does loopback mount.  It might be worth putting some effort into seeing
+> how ->direct_IO can be refactored to make that happen.
 
+Have you looked at the horrible tangle of spaghetti that is the current Linux
+direct I/O model?  It would take a lot of effort to refactor it.  I've made a
+couple of attempts, but the assumptions it makes make it hard.
+
+A separate, clean, in-kernel direct-IO thing would be an easier way to go - but
+it's not actually necessary at the moment.
+
+> You can get it in separately on the basis of helping loopback, and it will
+> make your patches nicer.
+
+It will make very little difference to the code.  It would improve cachefiles's
+cf-rdwr.c, yes, and it ought to improve performance.
+
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
