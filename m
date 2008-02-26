@@ -1,29 +1,31 @@
-Subject: Re: Installing SELinux on Backtrack
+Subject: Re: Problem compiling SELinux poilcy
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: kihamba nengo <knengo@yahoo.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <439176.67780.qm@web90405.mail.mud.yahoo.com>
-References: <439176.67780.qm@web90405.mail.mud.yahoo.com>
+In-Reply-To: <434750.73491.qm@web90405.mail.mud.yahoo.com>
+References: <434750.73491.qm@web90405.mail.mud.yahoo.com>
 Content-Type: text/plain
-Date: Tue, 26 Feb 2008 13:27:24 -0500
-Message-Id: <1204050444.2804.316.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 26 Feb 2008 13:32:07 -0500
+Message-Id: <1204050727.2804.321.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-02-26 at 00:23 -0800, kihamba nengo wrote:
+On Tue, 2008-02-26 at 00:33 -0800, kihamba nengo wrote:
 > Hi,
-> I have tried to install SELinux on backtrack but i havent been able to
-> manage.Anyone with information on an easy way to do please pass me the
-> information.
-> Is there a way i can install in directly from the internet eg using
-> yum on Fedora?
+> I tried compiling the policy on Fedora 5 and i received the following
+> error message:
+> 
+> WARNING: Policy version mismatch! Is your OUTPUT_POLICY set correctly?
+> 
+>     /USR/BIN/CHECKPOLICY POLICY.CONF -O POLICY
+> make: *** [policy.] Floating point exception
 
-I don't know of any modern selinux packages for backtrack or slackware.
+You didn't mention what policy or checkpolicy you were using above.
 
-Fedora includes SELinux support already integrated and enabled by
-default.
+Regardless, Fedora 5 is obsolete; you'd be advised to install the latest
+Fedora release, presently Fedora 8.
 
 -- 
 Stephen Smalley
