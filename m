@@ -1,73 +1,61 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RBAuWJ028773
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 06:10:57 -0500
-Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RBArvj029965
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 11:10:54 GMT
-Date: Wed, 27 Feb 2008 12:10:51 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-Subject: Re: refpolicy: patch rpc
-Message-ID: <20080227111051.GA22890@bobek.pm.i.cz>
-References: <20080225123830.GA31035@bobek.pm.i.cz> <1203949867.32061.52.camel@gorn>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="W/nzBZO5zC0uMSeA"
-In-Reply-To: <1203949867.32061.52.camel@gorn>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RC4ioX006014
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 07:04:44 -0500
+Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RC4gvj027937
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 12:04:43 GMT
+Received: from [IPv6:2001:6f8:1294:1:211:24ff:fee1:776c] ([IPv6:2001:6f8:1294:1:211:24ff:fee1:776c])
+	(authenticated bits=0)
+	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id m1RC4dlT015068
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:04:39 +0100
+Subject: apache_content_template
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 27 Feb 2008 13:04:39 +0100
+Message-Id: <1204113879.2678.19.camel@vogon>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I wanted to fix a problem with awstats and httpd_t but I ran into a
+problem and just wanted to hear some other ideas.
 
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Awstats uses the apache content template:
+apache_content_template(awstats)
 
-On Mon, Feb 25, 2008 at 09:31:07AM -0500, Christopher J. PeBenito wrote:
->...
-> Perhaps we should make sm-notify rpcd_exec_t and allow exec on that?
+And a few awstats icons are labeled as httpd_awstats_content_t. When the
+awstats CGI script is executed it generates a HTML file which includes
+links to these icons. As soon as the httpd receives a query from the
+client to download these icons an AVC is generated and the request is
+denied. To allow this I would have to include a rule like:
 
-A new patch attached.
--- 
-Zito
+allow httpd_t httpd_awstats_content_t:dir getattr;
+allow httpd_t httpd_awstats_content_t:file { getattr read };
 
---W/nzBZO5zC0uMSeA
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="rpc-2.patch"
+But then I would have to write a require statement for my awstats module
+to include the type httpd_t as a dependency. While reading the apache.te
+file I recognized three lines:
 
-Index: policy/modules/services/rpc.fc
-===================================================================
---- policy/modules/services/rpc.fc	(revision 2626)
-+++ policy/modules/services/rpc.fc	(working copy)
-@@ -7,6 +7,7 @@
- # /sbin
- #
- /sbin/rpc\..*		--	gen_context(system_u:object_r:rpcd_exec_t,s0)
-+/sbin/sm-notify		--	gen_context(system_u:object_r:rpcd_exec_t,s0)
- 
- #
- # /usr
-Index: policy/modules/services/rpc.te
-===================================================================
---- policy/modules/services/rpc.te	(revision 2626)
-+++ policy/modules/services/rpc.te	(working copy)
-@@ -60,10 +60,15 @@
- manage_files_pattern(rpcd_t,rpcd_var_run_t,rpcd_var_run_t)
- files_pid_filetrans(rpcd_t,rpcd_var_run_t,file)
- 
-+# rpc.statd executes sm-notify
-+corecmd_search_bin(rpcd_t)
-+can_exec(rpcd_t, rpcd_exec_t)
-+
- kernel_read_system_state(rpcd_t) 
- kernel_search_network_state(rpcd_t) 
- # for rpc.rquotad
- kernel_read_sysctl(rpcd_t)  
-+kernel_rw_fs_sysctls(rpcd_t)
- 
- fs_list_rpc(rpcd_t)
- fs_read_rpc_files(rpcd_t)
+allow httpd_t httpd_sys_content_t:dir list_dir_perms;
+read_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
+read_lnk_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
 
---W/nzBZO5zC0uMSeA--
+Why aren't these ones included in the apache_content_template like these
+ones:
+
+allow httpd_t httpd_$1_content_t:dir list_dir_perms;
+read_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
+read_lnk_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
+
+This would solve my problem with awstats and what my interpretation of
+the httpd_$1_content_t type is that only these files should be red by
+the httpd_t directly. I think other ones will run into the same problem
+too.
+
+Any thoughts?
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
