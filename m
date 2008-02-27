@@ -1,104 +1,94 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RI7lMf032499
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:07:47 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RIDo2D000827
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:13:50 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RI7hgc029848
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 18:07:46 GMT
-Message-ID: <47C5A6E2.10400@redhat.com>
-Date: Wed, 27 Feb 2008 13:07:30 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stefan Schulze Frielinghaus <stefan@seekline.net>
-CC: selinux@tycho.nsa.gov
-Subject: Re: apache_content_template
-References: <1204113879.2678.19.camel@vogon>  <47C58688.1030504@redhat.com> <1204129416.2678.31.camel@vogon>
-In-Reply-To: <1204129416.2678.31.camel@vogon>
-Content-Type: text/plain; charset=ISO-8859-1
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RIDmgc003871
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 18:13:48 GMT
+Subject: policycaps implementation in checkmodule
+From: Eric Paris <eparis@redhat.com>
+To: Tmiller@tresys.com
+Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Wed, 27 Feb 2008 13:12:22 -0500
+Message-Id: <1204135942.3206.37.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+So I started playing with poliycaps today and it just isn't compiling.
+And lets start off by saying I haven't seen lex or yacc in years.  And
+could be so far off base here it is unbelievable.  Here is my module:
 
-Stefan Schulze Frielinghaus wrote:
-> On Wed, 2008-02-27 at 10:49 -0500, Daniel J Walsh wrote:
->> Stefan Schulze Frielinghaus wrote:
->>> I wanted to fix a problem with awstats and httpd_t but I ran into a
->>> problem and just wanted to hear some other ideas.
->>>
->>> Awstats uses the apache content template:
->>> apache_content_template(awstats)
->>>
->>> And a few awstats icons are labeled as httpd_awstats_content_t. When the
->>> awstats CGI script is executed it generates a HTML file which includes
->>> links to these icons. As soon as the httpd receives a query from the
->>> client to download these icons an AVC is generated and the request is
->>> denied. To allow this I would have to include a rule like:
->>>
->>> allow httpd_t httpd_awstats_content_t:dir getattr;
->>> allow httpd_t httpd_awstats_content_t:file { getattr read };
->>>
->>> But then I would have to write a require statement for my awstats module
->>> to include the type httpd_t as a dependency. While reading the apache.te
->>> file I recognized three lines:
->>>
->>> allow httpd_t httpd_sys_content_t:dir list_dir_perms;
->>> read_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
->>> read_lnk_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
->>>
->>> Why aren't these ones included in the apache_content_template like these
->>> ones:
->>>
->>> allow httpd_t httpd_$1_content_t:dir list_dir_perms;
->>> read_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
->>> read_lnk_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
->>>
->>> This would solve my problem with awstats and what my interpretation of
->>> the httpd_$1_content_t type is that only these files should be red by
->>> the httpd_t directly. I think other ones will run into the same problem
->>> too.
->>>
->>> Any thoughts?
->>>
->>>
->>> --
->>> This message was distributed to subscribers of the selinux mailing list.
->>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->>> the words "unsubscribe selinux" without quotes as the message.
->>>   
->> Making that change would eliminate any possibility  of separation of cgi 
->> data from php data.  IE If I only want my cgi scrips/processes to be 
->> able to read my data, it ie easy to do now.  But with your change, any 
->> script that does not cause a transition can now access my data.
->>
->> I would prefer an
->>
->> apache_can_read(httpd_awstats_content_t)
-> 
-> But if you want to hide data from other scripts you normally use
-> httpd_$1_script_ro_t or httpd_$1_script_rw_t. The policy of the template
-> does not have any allow rules to read httpd_$1_content_t (except two
-> search_dir_perms which does not count). This means that even
-> httpd_$1_script_t can't read httpd_$1_content_t. So whats the purpose of
-> httpd_$1_content_t really? I can't see it.
-> 
-You are right.  Those rules are missing and should be added.
+****
+module capabilities 0.0.1;
 
-read_files_pattern(httpd_$1_script_t, httpdcontent, httpd_$1_content_t)
-read_lnk_files_pattern(httpd_$1_script_t, httpdcontent, httpd_$1_content_t)
+policycap network_peer_controls;
+policycap open_perms;
+****
+
+First thing someone is going to say is that these only work in the base
+module, which is all fine and good, I'm not talking about these actually
+doing anything, I'm talking about these just getting through the
+compiler.  So don't bring that up yet out of the blue.  Here's what I
+get:
+
+[root@dhcp231-146 checkpolicy-2.0.9]# ./checkmodule -M -m -o /root/caps/capabilities.mod /root/caps/capabilities.te
+./checkmodule:  loading policy configuration from /root/caps/capabilities.te
+/root/caps/capabilities.te:3:ERROR 'syntax error' at token 'policycap' on line 3:
+
+policycap network_peer_controls;
+./checkmodule:  error(s) encountered while parsing configuration
+
+So I started playing around adding fprintf all over the place.  We are
+hitting the lexer for policycaps but we are never hitting the stuff in
+the yacc file.  So I looked at it and we have policycap_def listed under
+te_rbac_decl.  Now I have no idea what a te_rbac_decl is but it seemed a
+very odd name to have stuck this under.  I moved it under te_decl and
+all of the sudden it stopped giving me that syntax error and started to
+just tell me "open_perms" wasn't valid.  Which is fine, it isn't valid,
+but at least we are getting network_peer_controls through the compiler
+and bombing on something we should.
+
+So, someone who know lex/yacc please review this patch, explain to me
+why it was wrong, why this works and let us all know what actually
+should be the fix...
+
+Thanks
+-Eric 'doesn't know squat about the tool chain' Paris
+
+diff -Naupr checkpolicy-2.0.9/Makefile checkpolicy-2.0.9.new/Makefile
+--- checkpolicy-2.0.9/Makefile	2008-02-04 12:19:31.000000000 -0500
++++ checkpolicy-2.0.9.new/Makefile	2008-02-27 12:46:08.000000000 -0500
+@@ -10,7 +10,7 @@ TARGETS = checkpolicy checkmodule
+ 
+ YACC = bison -y
+ 
+-CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
++CFLAGS ?= -g -Wall -O2 -pipe -fno-strict-aliasing
+ 
+ override CFLAGS += -I. -I${INCLUDEDIR}
+ 
+diff -Naupr checkpolicy-2.0.9/policy_parse.y checkpolicy-2.0.9.new/policy_parse.y
+--- checkpolicy-2.0.9/policy_parse.y	2008-02-04 12:19:31.000000000 -0500
++++ checkpolicy-2.0.9.new/policy_parse.y	2008-02-27 12:46:22.000000000 -0500
+@@ -311,7 +311,6 @@ te_rbac_decl		: te_decl
+ 			| rbac_decl
+                         | cond_stmt_def
+ 			| optional_block
+-			| policycap_def
+ 			| ';'
+                         ;
+ rbac_decl		: role_type_def
+@@ -327,6 +326,7 @@ te_decl			: attribute_def
+                         | transition_def
+                         | range_trans_def
+                         | te_avtab_def
++			| policycap_def
+ 			;
+ attribute_def           : ATTRIBUTE identifier ';'
+                         { if (define_attrib()) return -1;}
 
 
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkfFpuIACgkQrlYvE4MpobN7rQCeNvTr1StM8WbwV5YHrZozWBcw
-5dMAnjP9k8TaHOo7zNG/KB4vuUVoHB6q
-=GBsr
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
