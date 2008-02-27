@@ -1,58 +1,72 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RIQ9vC001951
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:26:09 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m1RIQ8KD022947
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 18:26:08 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: policycaps implementation in checkmodule
-Date: Wed, 27 Feb 2008 13:25:45 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015880195CAE5@exchange.columbia.tresys.com>
-In-Reply-To: <1204135942.3206.37.camel@localhost.localdomain>
-References: <1204135942.3206.37.camel@localhost.localdomain>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Eric Paris" <eparis@redhat.com>
-Cc: "selinux" <selinux@tycho.nsa.gov>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RIitcT004793
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:44:55 -0500
+Received: from cadmus.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RIijgc018964
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 18:44:51 GMT
+Received: from cadmus.columbia.tresys.com (localhost.localdomain [127.0.0.1])
+	by cadmus.columbia.tresys.com (8.14.1/8.14.1) with ESMTP id m1RIhv1X004383
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:43:57 -0500
+Received: (from tmiller@localhost)
+	by cadmus.columbia.tresys.com (8.14.1/8.14.1/Submit) id m1RIhvvc004382
+	for selinux@tycho.nsa.gov; Wed, 27 Feb 2008 13:43:57 -0500
+Date: Wed, 27 Feb 2008 13:43:57 -0500
+From: "Todd C. Miller" <tmiller@tresys.com>
+Message-Id: <200802271843.m1RIhvvc004382@cadmus.columbia.tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: PATCH: avoid -Werror for parser-generated sources
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> So I started playing with poliycaps today and it just isn't compiling.
-> And lets start off by saying I haven't seen lex or yacc in years.  And
-> could be so far off base here it is unbelievable.  Here is my module:
-> 
-> ****
-> module capabilities 0.0.1;
-> 
-> policycap network_peer_controls;
-> policycap open_perms;
-> ****
-> 
-> First thing someone is going to say is that these only work in the
-> base 
-> module, which is all fine and good, I'm not talking about these
-> actually 
-> doing anything, I'm talking about these just getting through the
-> compiler.  So don't bring that up yet out of the blue.  Here's what I
-> get:
+We've been bitten repeatedly by changes in lex and yacc resulting in
+new compiler warnings.  Now that we build with -Werror this can result
+in broken builds.  Since we have little control over what lex and yacc
+generate, just filter out -Werror when compiling their .c files.
 
-The compiler parses the base module differently from the other modules.
+ checkpolicy/Makefile     |    4 ++--
+ libsemanage/src/Makefile |   12 ++++++++++++
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
-policy                  : base_policy
-                        | module_policy
-                        ;
-
-Since the policycap directive is only valid in the base module you get
-a syntax error when using them in a module.
-
-There was a long discussion about policycaps in modules and why it
-would be unsafe to allow them there.  The upshot of which was they
-were restricted to base.  
-
- - todd
-
+Index: trunk/libsemanage/src/Makefile
+===================================================================
+--- trunk/libsemanage/src/Makefile	(revision 2811)
++++ trunk/libsemanage/src/Makefile	(working copy)
+@@ -71,6 +71,18 @@
+ %.lo:  %.c
+ 	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+ 
++conf-parse.o:  conf-parse.c
++	$(CC) $(filter-out -Werror, $(CFLAGS)) -c -o $@ $<
++
++conf-parse.lo:  conf-parse.c
++	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
++
++conf-scan.o:  conf-scan.c
++	$(CC) $(filter-out -Werror, $(CFLAGS)) -c -o $@ $<
++
++conf-scan.lo:  conf-scan.c
++	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
++
+ $(SWIGCOUT): $(SWIGIF)
+ 	$(SWIG) $^
+ 
+Index: trunk/checkpolicy/Makefile
+===================================================================
+--- trunk/checkpolicy/Makefile	(revision 2811)
++++ trunk/checkpolicy/Makefile	(working copy)
+@@ -33,10 +33,10 @@
+ 	$(CC) $(CFLAGS) -o $@ -c $<
+ 
+ y.tab.o: y.tab.c
+-	$(CC) $(CFLAGS) -o $@ -c $<
++	$(CC) $(filter-out -Werror, $(CFLAGS)) -o $@ -c $<
+ 
+ lex.yy.o: lex.yy.c
+-	$(CC) $(CFLAGS) -o $@ -c $<
++	$(CC) $(filter-out -Werror, $(CFLAGS)) -o $@ -c $<
+ 
+ y.tab.c: policy_parse.y
+ 	$(YACC) -d policy_parse.y
 
 --
 This message was distributed to subscribers of the selinux mailing list.
