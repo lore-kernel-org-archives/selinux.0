@@ -1,84 +1,80 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RGOlOH016871
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 11:24:47 -0500
-Received: from mail.seekline.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RGOiKD011837
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 16:24:45 GMT
-Subject: Re: apache_content_template
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RGun8N020227
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 11:56:49 -0500
+Received: from g1t0026.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RGujgc020554
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 16:56:46 GMT
+From: Paul Moore <paul.moore@hp.com>
 To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <47C58688.1030504@redhat.com>
-References: <1204113879.2678.19.camel@vogon>  <47C58688.1030504@redhat.com>
-Content-Type: text/plain
-Date: Wed, 27 Feb 2008 17:23:36 +0100
-Message-Id: <1204129416.2678.31.camel@vogon>
-Mime-Version: 1.0
+Subject: Re: Speaking of networking...
+Date: Wed, 27 Feb 2008 11:13:29 -0500
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+References: <Xine.LNX.4.64.0802280057060.14155@us.intercode.com.au> <200802270951.55462.paul.moore@hp.com> <47C5879A.2060108@redhat.com>
+In-Reply-To: <47C5879A.2060108@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200802271113.29423.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wednesday 27 February 2008 10:54:02 am Daniel J Walsh wrote:
+> Paul Moore wrote:
+> > On Wednesday 27 February 2008 9:01:31 am James Morris wrote:
+> >> Any further thoughts on how to push the secmark integration
+> >> forward?
+> >>
+> >> The secmark table patch should allow MAC rules to be administered
+> >> independently, and I know there has been some demand for the new
+> >> (well, now not so new) networking controls.
+> >
+> > When I asked this question previously the one thing that came up
+> > was semanage integration/compatibility.  However, there didn't
+> > appear to be a consensus as to if that was a good idea because
+> > semanage has a rather simplistic view of local network controls due
+> > to the limitations of the legacy netif/node controls.
+> >
+> > I'm with you in that I'd really like to see all of the
+> > distributions shift over to using secmark.  Beyond the normal
+> > performance improvement of moving to secmark, starting with 2.6.25
+> > having both secmark and the new network_peer_controls capability
+> > enabled should result in a nice performance boost* over the legacy
+> > network controls.
+> >
+> > * No, I don't have any numbers yet, but looking at the code should
+> > explain why.
+>
+> I have no problem with switching to this, as long as we do NO harm. 
+> IE Everything just works.
+> Nothing breaks when the user shuts down iptables.
+>
+> It needs to be exactly compatible with what we have now.
+>
+> Permissive mode has got to work.
+>
+> And it has to be before Beta 1 March 4.
+>
+> It has to be easy for a user to customize.
+>
+> Most users will never use it, so it better not be a headache.
 
-On Wed, 2008-02-27 at 10:49 -0500, Daniel J Walsh wrote:
-> Stefan Schulze Frielinghaus wrote:
-> > I wanted to fix a problem with awstats and httpd_t but I ran into a
-> > problem and just wanted to hear some other ideas.
-> >
-> > Awstats uses the apache content template:
-> > apache_content_template(awstats)
-> >
-> > And a few awstats icons are labeled as httpd_awstats_content_t. When the
-> > awstats CGI script is executed it generates a HTML file which includes
-> > links to these icons. As soon as the httpd receives a query from the
-> > client to download these icons an AVC is generated and the request is
-> > denied. To allow this I would have to include a rule like:
-> >
-> > allow httpd_t httpd_awstats_content_t:dir getattr;
-> > allow httpd_t httpd_awstats_content_t:file { getattr read };
-> >
-> > But then I would have to write a require statement for my awstats module
-> > to include the type httpd_t as a dependency. While reading the apache.te
-> > file I recognized three lines:
-> >
-> > allow httpd_t httpd_sys_content_t:dir list_dir_perms;
-> > read_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
-> > read_lnk_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
-> >
-> > Why aren't these ones included in the apache_content_template like these
-> > ones:
-> >
-> > allow httpd_t httpd_$1_content_t:dir list_dir_perms;
-> > read_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
-> > read_lnk_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
-> >
-> > This would solve my problem with awstats and what my interpretation of
-> > the httpd_$1_content_t type is that only these files should be red by
-> > the httpd_t directly. I think other ones will run into the same problem
-> > too.
-> >
-> > Any thoughts?
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> >   
-> Making that change would eliminate any possibility  of separation of cgi 
-> data from php data.  IE If I only want my cgi scrips/processes to be 
-> able to read my data, it ie easy to do now.  But with your change, any 
-> script that does not cause a transition can now access my data.
-> 
-> I would prefer an
-> 
-> apache_can_read(httpd_awstats_content_t)
+I'd like to think that at some point we can evolve the mechanisms/tools 
+so that normal users can/will take advantage of these controls ... then 
+again, I'm more than a little bit biased (what do you mean it's hard to 
+use?!) and a tinge starry-eyed.
 
-But if you want to hide data from other scripts you normally use
-httpd_$1_script_ro_t or httpd_$1_script_rw_t. The policy of the template
-does not have any allow rules to read httpd_$1_content_t (except two
-search_dir_perms which does not count). This means that even
-httpd_$1_script_t can't read httpd_$1_content_t. So whats the purpose of
-httpd_$1_content_t really? I can't see it.
+Back to the real world, in 2.6.25 _all_ of the "new" networking controls 
+(including secmark, NetLabel, and labeled IPsec) are dynamic.  This 
+means that by default there are no permission checks applied, not even 
+unlabeled_t checks; you have to configure something (i.e. load the gun 
+and point it at your own foot) for the controls to become active.  In a 
+sense, the new additions _should_* actually make life easier for you.
 
+* Really, I mean it this time :)
+
+-- 
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
