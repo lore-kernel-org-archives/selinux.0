@@ -1,49 +1,44 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1REZJLO002157
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 09:35:19 -0500
-Received: from g1t0028.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1REZHDA026696
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 14:35:17 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1REqWve004633
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 09:52:32 -0500
+Received: from g1t0028.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1REqTDp019342
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 14:52:29 GMT
 From: Paul Moore <paul.moore@hp.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: [PATCH 0/5] New labeled networking permissions for 2.6.25
-Date: Wed, 27 Feb 2008 09:35:15 -0500
-Cc: Eric Paris <eparis@parisplace.org>, selinux <selinux@tycho.nsa.gov>
-References: <20080226184032.834798290@hp.com> <200802261708.08090.paul.moore@hp.com> <1204118622.32061.209.camel@gorn>
-In-Reply-To: <1204118622.32061.209.camel@gorn>
+To: James Morris <jmorris@namei.org>
+Subject: Re: Speaking of networking...
+Date: Wed, 27 Feb 2008 09:51:55 -0500
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+References: <Xine.LNX.4.64.0802280057060.14155@us.intercode.com.au>
+In-Reply-To: <Xine.LNX.4.64.0802280057060.14155@us.intercode.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200802270935.15797.paul.moore@hp.com>
+Message-Id: <200802270951.55462.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 27 February 2008 8:23:41 am Christopher J. PeBenito wrote:
-> On Tue, 2008-02-26 at 17:08 -0500, Paul Moore wrote:
-> > On Tuesday 26 February 2008 4:52:34 pm Eric Paris wrote:
-> > > On 2/26/08, paul.moore@hp.com <paul.moore@hp.com> wrote:
-> > > >  It is important to note that
-> > > >  while this patchset adds the permissions required it doesn't
-> > > > enable the "network_peer_controls" policy capability.
+On Wednesday 27 February 2008 9:01:31 am James Morris wrote:
+> Any further thoughts on how to push the secmark integration forward?
 >
-> [...]
->
-> > > So, does anyone have a good idea suggestions where we should turn
-> > > on/off these new capabilities?  I know it has to be in the base
-> > > module in the end, but I don't know what file to put them in.  I
-> > > might just throw it in kernel.te for now for me to keep testing
-> > > but I assume we are going to want all of these definitions in one
-> > > place? Are we going to want them all over as long as they end up
-> > > being built into base?
-> >
-> > I have no idea but I suspect Chris has given this some thought and
-> > probably has some ideas.  I tend to think putting them in one place
-> > is probably a good idea ...
->
-> I haven't thought about this much, but my initial idea would be to
-> have a specific file, maybe policy/polcaps or policy/capabilites.
+> The secmark table patch should allow MAC rules to be administered
+> independently, and I know there has been some demand for the new
+> (well, now not so new) networking controls.
 
-Sounds good to me.
+When I asked this question previously the one thing that came up was 
+semanage integration/compatibility.  However, there didn't appear to be 
+a consensus as to if that was a good idea because semanage has a rather 
+simplistic view of local network controls due to the limitations of the 
+legacy netif/node controls.
+
+I'm with you in that I'd really like to see all of the distributions 
+shift over to using secmark.  Beyond the normal performance improvement 
+of moving to secmark, starting with 2.6.25 having both secmark and the 
+new network_peer_controls capability enabled should result in a nice 
+performance boost* over the legacy network controls.
+
+* No, I don't have any numbers yet, but looking at the code should 
+explain why.
 
 -- 
 paul moore
