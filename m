@@ -1,60 +1,50 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RC4ioX006014
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 07:04:44 -0500
-Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RC4gvj027937
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 12:04:43 GMT
-Received: from [IPv6:2001:6f8:1294:1:211:24ff:fee1:776c] ([IPv6:2001:6f8:1294:1:211:24ff:fee1:776c])
-	(authenticated bits=0)
-	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id m1RC4dlT015068
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:04:39 +0100
-Subject: apache_content_template
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: selinux@tycho.nsa.gov
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RDQEaX022985
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 08:26:14 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m1RDQDDA025936
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 13:26:13 GMT
+Subject: Re: [PATCH 0/5] New labeled networking permissions for 2.6.25
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Eric Paris <eparis@parisplace.org>, selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <200802261708.08090.paul.moore@hp.com>
+References: <20080226184032.834798290@hp.com>
+	 <7e0fb38c0802261352r52318774v562f8e635a3f44cc@mail.gmail.com>
+	 <200802261708.08090.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Wed, 27 Feb 2008 13:04:39 +0100
-Message-Id: <1204113879.2678.19.camel@vogon>
+Date: Wed, 27 Feb 2008 08:23:41 -0500
+Message-Id: <1204118622.32061.209.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I wanted to fix a problem with awstats and httpd_t but I ran into a
-problem and just wanted to hear some other ideas.
+On Tue, 2008-02-26 at 17:08 -0500, Paul Moore wrote:
+> On Tuesday 26 February 2008 4:52:34 pm Eric Paris wrote:
+> > On 2/26/08, paul.moore@hp.com <paul.moore@hp.com> wrote:
+> > >  It is important to note that
+> > >  while this patchset adds the permissions required it doesn't
+> > > enable the "network_peer_controls" policy capability.
+[...]
+> > So, does anyone have a good idea suggestions where we should turn
+> > on/off these new capabilities?  I know it has to be in the base
+> > module in the end, but I don't know what file to put them in.  I
+> > might just throw it in kernel.te for now for me to keep testing but I
+> > assume we are going to want all of these definitions in one place? 
+> > Are we going to want them all over as long as they end up being built
+> > into base?
+> 
+> I have no idea but I suspect Chris has given this some thought and 
+> probably has some ideas.  I tend to think putting them in one place is 
+> probably a good idea ...
 
-Awstats uses the apache content template:
-apache_content_template(awstats)
+I haven't thought about this much, but my initial idea would be to have
+a specific file, maybe policy/polcaps or policy/capabilites.
 
-And a few awstats icons are labeled as httpd_awstats_content_t. When the
-awstats CGI script is executed it generates a HTML file which includes
-links to these icons. As soon as the httpd receives a query from the
-client to download these icons an AVC is generated and the request is
-denied. To allow this I would have to include a rule like:
-
-allow httpd_t httpd_awstats_content_t:dir getattr;
-allow httpd_t httpd_awstats_content_t:file { getattr read };
-
-But then I would have to write a require statement for my awstats module
-to include the type httpd_t as a dependency. While reading the apache.te
-file I recognized three lines:
-
-allow httpd_t httpd_sys_content_t:dir list_dir_perms;
-read_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
-read_lnk_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
-
-Why aren't these ones included in the apache_content_template like these
-ones:
-
-allow httpd_t httpd_$1_content_t:dir list_dir_perms;
-read_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
-read_lnk_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
-
-This would solve my problem with awstats and what my interpretation of
-the httpd_$1_content_t type is that only these files should be red by
-the httpd_t directly. I think other ones will run into the same problem
-too.
-
-Any thoughts?
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
