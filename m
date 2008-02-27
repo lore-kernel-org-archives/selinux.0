@@ -1,83 +1,114 @@
-Subject: Re: PATCH: avoid -Werror for parser-generated sources
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Todd C. Miller" <tmiller@tresys.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1RJTP8v011607
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 14:29:25 -0500
+Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1RJTJgc013427
+	for <selinux@tycho.nsa.gov>; Wed, 27 Feb 2008 19:29:21 GMT
+Subject: Re: apache_content_template
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200802271843.m1RIhvvc004382@cadmus.columbia.tresys.com>
-References: <200802271843.m1RIhvvc004382@cadmus.columbia.tresys.com>
+In-Reply-To: <47C5A6E2.10400@redhat.com>
+References: <1204113879.2678.19.camel@vogon>  <47C58688.1030504@redhat.com>
+	 <1204129416.2678.31.camel@vogon>  <47C5A6E2.10400@redhat.com>
 Content-Type: text/plain
-Date: Wed, 27 Feb 2008 13:53:55 -0500
-Message-Id: <1204138435.31790.36.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 27 Feb 2008 20:25:24 +0100
+Message-Id: <1204140324.2678.42.camel@vogon>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-02-27 at 13:43 -0500, Todd C. Miller wrote:
-> We've been bitten repeatedly by changes in lex and yacc resulting in
-> new compiler warnings.  Now that we build with -Werror this can result
-> in broken builds.  Since we have little control over what lex and yacc
-> generate, just filter out -Werror when compiling their .c files.
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-Maybe we should move all of our own functions out of the .y files into
-separate .c files too and just #include function prototypes for them
-into the .y files.  Otherwise we loose the strict error checking on our
-action routines.
-
+On Wed, 2008-02-27 at 13:07 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
->  checkpolicy/Makefile     |    4 ++--
->  libsemanage/src/Makefile |   12 ++++++++++++
->  2 files changed, 14 insertions(+), 2 deletions(-)
+> Stefan Schulze Frielinghaus wrote:
+> > On Wed, 2008-02-27 at 10:49 -0500, Daniel J Walsh wrote:
+> >> Stefan Schulze Frielinghaus wrote:
+> >>> I wanted to fix a problem with awstats and httpd_t but I ran into a
+> >>> problem and just wanted to hear some other ideas.
+> >>>
+> >>> Awstats uses the apache content template:
+> >>> apache_content_template(awstats)
+> >>>
+> >>> And a few awstats icons are labeled as httpd_awstats_content_t. When the
+> >>> awstats CGI script is executed it generates a HTML file which includes
+> >>> links to these icons. As soon as the httpd receives a query from the
+> >>> client to download these icons an AVC is generated and the request is
+> >>> denied. To allow this I would have to include a rule like:
+> >>>
+> >>> allow httpd_t httpd_awstats_content_t:dir getattr;
+> >>> allow httpd_t httpd_awstats_content_t:file { getattr read };
+> >>>
+> >>> But then I would have to write a require statement for my awstats module
+> >>> to include the type httpd_t as a dependency. While reading the apache.te
+> >>> file I recognized three lines:
+> >>>
+> >>> allow httpd_t httpd_sys_content_t:dir list_dir_perms;
+> >>> read_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
+> >>> read_lnk_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
+> >>>
+> >>> Why aren't these ones included in the apache_content_template like these
+> >>> ones:
+> >>>
+> >>> allow httpd_t httpd_$1_content_t:dir list_dir_perms;
+> >>> read_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
+> >>> read_lnk_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
+> >>>
+> >>> This would solve my problem with awstats and what my interpretation of
+> >>> the httpd_$1_content_t type is that only these files should be red by
+> >>> the httpd_t directly. I think other ones will run into the same problem
+> >>> too.
+> >>>
+> >>> Any thoughts?
+> >>>
+> >>>
+> >>> --
+> >>> This message was distributed to subscribers of the selinux mailing list.
+> >>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> >>> the words "unsubscribe selinux" without quotes as the message.
+> >>>   
+> >> Making that change would eliminate any possibility  of separation of cgi 
+> >> data from php data.  IE If I only want my cgi scrips/processes to be 
+> >> able to read my data, it ie easy to do now.  But with your change, any 
+> >> script that does not cause a transition can now access my data.
+> >>
+> >> I would prefer an
+> >>
+> >> apache_can_read(httpd_awstats_content_t)
+> > 
+> > But if you want to hide data from other scripts you normally use
+> > httpd_$1_script_ro_t or httpd_$1_script_rw_t. The policy of the template
+> > does not have any allow rules to read httpd_$1_content_t (except two
+> > search_dir_perms which does not count). This means that even
+> > httpd_$1_script_t can't read httpd_$1_content_t. So whats the purpose of
+> > httpd_$1_content_t really? I can't see it.
+> > 
+> You are right.  Those rules are missing and should be added.
 > 
-> Index: trunk/libsemanage/src/Makefile
-> ===================================================================
-> --- trunk/libsemanage/src/Makefile	(revision 2811)
-> +++ trunk/libsemanage/src/Makefile	(working copy)
-> @@ -71,6 +71,18 @@
->  %.lo:  %.c
->  	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
->  
-> +conf-parse.o:  conf-parse.c
-> +	$(CC) $(filter-out -Werror, $(CFLAGS)) -c -o $@ $<
-> +
-> +conf-parse.lo:  conf-parse.c
-> +	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
-> +
-> +conf-scan.o:  conf-scan.c
-> +	$(CC) $(filter-out -Werror, $(CFLAGS)) -c -o $@ $<
-> +
-> +conf-scan.lo:  conf-scan.c
-> +	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
-> +
->  $(SWIGCOUT): $(SWIGIF)
->  	$(SWIG) $^
->  
-> Index: trunk/checkpolicy/Makefile
-> ===================================================================
-> --- trunk/checkpolicy/Makefile	(revision 2811)
-> +++ trunk/checkpolicy/Makefile	(working copy)
-> @@ -33,10 +33,10 @@
->  	$(CC) $(CFLAGS) -o $@ -c $<
->  
->  y.tab.o: y.tab.c
-> -	$(CC) $(CFLAGS) -o $@ -c $<
-> +	$(CC) $(filter-out -Werror, $(CFLAGS)) -o $@ -c $<
->  
->  lex.yy.o: lex.yy.c
-> -	$(CC) $(CFLAGS) -o $@ -c $<
-> +	$(CC) $(filter-out -Werror, $(CFLAGS)) -o $@ -c $<
->  
->  y.tab.c: policy_parse.y
->  	$(YACC) -d policy_parse.y
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+> read_files_pattern(httpd_$1_script_t, httpdcontent, httpd_$1_content_t)
+> read_lnk_files_pattern(httpd_$1_script_t, httpdcontent, httpd_$1_content_t)
+
+I'm sorry but I'm still not convinced.
+
+This would mean we have two types:
+- httpd_$1_content_t
+- httpd_$1_script_ro_t
+which have the same allow rules and the same meaning. No real difference
+(after adding your allow rules).
+
+And a comment from the apache_content_template indicates that there is
+something wrong with your definition:
+
+# The following three are the only areas that 
+# scripts can read, read/write, or append to
+
+After this comment allow rules follow for ro/rw and append types.
+
+I still believe that the initial purpose of httpd_$1_content_t was to
+allow httpd_t to read files/dirs. Otherwise httpd_$1_script_ro_t could
+be used. Or even httpd_$1_content_t is a duplicate and could be removed.
 
 
 --
