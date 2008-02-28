@@ -1,188 +1,223 @@
-Message-ID: <47C6C16D.1010002@redhat.com>
-Date: Thu, 28 Feb 2008 09:13:01 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: SELinux List <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Tonights rawhide contains a fix to stop xspy.
-References: <47C63353.9040008@redhat.com> <47C6650F.2060909@tycho.nsa.gov>
-In-Reply-To: <47C6650F.2060909@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH] SELinux: create new open permission
+From: Eric Paris <eparis@redhat.com>
+To: selinux <selinux@tycho.nsa.gov>
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Content-Type: text/plain
+Date: Thu, 28 Feb 2008 10:09:51 -0500
+Message-Id: <1204211391.3206.66.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Adds a new open permission inside SELinux when 'opening' a file.  The
+idea is that opening a file and reading/writing to that file are not the
+same thing.  Its different if a program had its stdout redirected
+to /tmp/output than if the program tried to directly open /tmp/output.
+This should allow policy writers to more liberally give read/write
+permissions across the policy while still blocking many design and
+programing flaws SELinux is so good at catching today.
 
-Eamon Walsh wrote:
-> Daniel J Walsh wrote:
-> Basically if you turn on xserver_object_manager boolean, no applications
-> will be allowed to read the x_device.  This stops xspy as you said dead
-> in its tracks,  but some other applications start to get AVC's around
-> querypointer, and eventually I hung the server.  You mentioned in
-> another email, that you were going to change the querypointer to a
-> getattr rather then a read, I think this is necessary, to make this work.
->   
-> 
->> I have attached a patch that will do this.  There is another request,
->> XKEYBOARD:GetState, that also requires read and I've noticed that
->> gnome-settings-daemon is calling it (see below).  If you want to drop
->> that down to getattr too, let me know; it doesn't look like it returns
->> the whole keyboard like XQueryKeymap does, however both it and
->> XQueryPointer return the mouse buttons and the modifier keys (shift,
->> alt, ctrl, etc.).  Long-term we really need to get applications to stop
->> calling these.
->
-Is there any way to differentiate the mouse from the keyboard, why are
-the the same type?  Can you get this patch upstream, it is a lot easier
-to get it into rawhide that way.
+Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Open bugzilla's on any you find, is the best way to get it fixed.
+---
+As an example, process1 in httpd_t opened a bunch of files of type
+user_tmp_t.  It then called process2 running as ntpd_t which did nothing
+but accept those open fd's and terminate.  Notice proc1 needed open
+perms and proc2 only needed read and write.
 
->> "Manage" permission on devices is another can of worms you may care to
->> open at some point.  Anyone with that can remap the keys or do other
->> things that affect the device globally.
-> 
->> The other AVC's I'm getting are from interactions between staff_mono and
->> staff.  I believe that this the result of a small application such as
->> the clock or load graph being staff_mono_t, running inside gnome-panel
->> which is staff_t.  This is the type of thing I was trying to solve with
->> the 4-argument templates that allowed some permissions among the entire
->> "role's" windows (however manage was not one of them).
-> 
-Yes this is one of the reasons that I like the ability to extend
-contexts so all privs of staff_t are inherited by staff_mono_t plus the
-exec checks.
+#============= httpd_t ==============
+allow httpd_t tmp_t:dir open;
+allow httpd_t user_tmp_t:blk_file { read write open };
+allow httpd_t user_tmp_t:chr_file { read write open };
+allow httpd_t user_tmp_t:dir { read open };
+allow httpd_t user_tmp_t:fifo_file { read write open };
+allow httpd_t user_tmp_t:file { read write execute entrypoint open };
+allow httpd_t user_tmp_t:lnk_file read;
 
-staff_mono_t == staff_t + execmem execstack;
+#============= ntpd_t ==============
+allow ntpd_t user_tmp_t:blk_file { read write };
+allow ntpd_t user_tmp_t:chr_file { read write };
+allow ntpd_t user_tmp_t:dir read;
+allow ntpd_t user_tmp_t:fifo_file { read write };
+allow ntpd_t user_tmp_t:file { read write entrypoint };
 
 
-I think we are going to need an interface that says one domain can play
-communicate with another domain, sort of the dbus_chat type interfaces.
+ security/selinux/hooks.c                     |   31 +++++++++++++++++++++++++-
+ security/selinux/include/av_perm_to_string.h |    5 ++++
+ security/selinux/include/av_permissions.h    |    5 ++++
+ security/selinux/include/security.h          |    2 +
+ security/selinux/selinuxfs.c                 |    1 +
+ security/selinux/ss/services.c               |    3 ++
+ 6 files changed, 46 insertions(+), 1 deletions(-)
 
-I have not looked at interaction between staff_mozilla_t and staff_t yet.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 75c2e99..a4cf5ff 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1599,6 +1599,35 @@ static inline u32 file_mask_to_av(int mode, int mask)
+ 	return av;
+ }
+ 
++/*
++ * Convert a file mask to an access vector and include the correct open
++ * open permission.
++ */
++static inline u32 open_file_mask_to_av(int mode, int mask)
++{
++	u32 av = file_mask_to_av(mode, mask);
++
++	if (selinux_policycap_openperm) {
++		/*
++		 * lnk files and socks do not really have an 'open'
++		 */
++		if (S_ISREG(mode))
++			av |= FILE__OPEN;
++		else if (S_ISCHR(mode))
++			av |= CHR_FILE__OPEN;
++		else if (S_ISBLK(mode))
++			av |= BLK_FILE__OPEN;
++		else if (S_ISFIFO(mode))
++			av |= FIFO_FILE__OPEN;
++		else if (S_ISDIR(mode))
++			av |= DIR__OPEN;
++		else
++			printk(KERN_ERR "SELinux: WARNING: inside open_file_to_av "
++				"with unknown mode:%x\n", mode);
++	}
++	return av;
++}
++
+ /* Convert a Linux file to an access vector. */
+ static inline u32 file_to_av(struct file *file)
+ {
+@@ -2517,7 +2546,7 @@ static int selinux_inode_permission(struct inode *inode, int mask,
+ 	}
+ 
+ 	return inode_has_perm(current, inode,
+-			       file_mask_to_av(inode->i_mode, mask), NULL);
++			       open_file_mask_to_av(inode->i_mode, mask), NULL);
+ }
+ 
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index d569669..1223b4f 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -14,12 +14,17 @@
+    S_(SECCLASS_DIR, DIR__REPARENT, "reparent")
+    S_(SECCLASS_DIR, DIR__SEARCH, "search")
+    S_(SECCLASS_DIR, DIR__RMDIR, "rmdir")
++   S_(SECCLASS_DIR, DIR__OPEN, "open")
+    S_(SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, "execute_no_trans")
+    S_(SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint")
+    S_(SECCLASS_FILE, FILE__EXECMOD, "execmod")
++   S_(SECCLASS_FILE, FILE__OPEN, "open")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECUTE_NO_TRANS, "execute_no_trans")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__ENTRYPOINT, "entrypoint")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
++   S_(SECCLASS_CHR_FILE, CHR_FILE__OPEN, "open")
++   S_(SECCLASS_BLK_FILE, BLK_FILE__OPEN, "open")
++   S_(SECCLASS_FIFO_FILE, FIFO_FILE__OPEN, "open")
+    S_(SECCLASS_FD, FD__USE, "use")
+    S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__CONNECTTO, "connectto")
+    S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__NEWCONN, "newconn")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index 75b4131..c4c5116 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -79,6 +79,7 @@
+ #define DIR__REPARENT                             0x00080000UL
+ #define DIR__SEARCH                               0x00100000UL
+ #define DIR__RMDIR                                0x00200000UL
++#define DIR__OPEN                                 0x00400000UL
+ #define FILE__IOCTL                               0x00000001UL
+ #define FILE__READ                                0x00000002UL
+ #define FILE__WRITE                               0x00000004UL
+@@ -99,6 +100,7 @@
+ #define FILE__EXECUTE_NO_TRANS                    0x00020000UL
+ #define FILE__ENTRYPOINT                          0x00040000UL
+ #define FILE__EXECMOD                             0x00080000UL
++#define FILE__OPEN                                0x00100000UL
+ #define LNK_FILE__IOCTL                           0x00000001UL
+ #define LNK_FILE__READ                            0x00000002UL
+ #define LNK_FILE__WRITE                           0x00000004UL
+@@ -136,6 +138,7 @@
+ #define CHR_FILE__EXECUTE_NO_TRANS                0x00020000UL
+ #define CHR_FILE__ENTRYPOINT                      0x00040000UL
+ #define CHR_FILE__EXECMOD                         0x00080000UL
++#define CHR_FILE__OPEN                            0x00100000UL
+ #define BLK_FILE__IOCTL                           0x00000001UL
+ #define BLK_FILE__READ                            0x00000002UL
+ #define BLK_FILE__WRITE                           0x00000004UL
+@@ -153,6 +156,7 @@
+ #define BLK_FILE__SWAPON                          0x00004000UL
+ #define BLK_FILE__QUOTAON                         0x00008000UL
+ #define BLK_FILE__MOUNTON                         0x00010000UL
++#define BLK_FILE__OPEN                            0x00020000UL
+ #define SOCK_FILE__IOCTL                          0x00000001UL
+ #define SOCK_FILE__READ                           0x00000002UL
+ #define SOCK_FILE__WRITE                          0x00000004UL
+@@ -187,6 +191,7 @@
+ #define FIFO_FILE__SWAPON                         0x00004000UL
+ #define FIFO_FILE__QUOTAON                        0x00008000UL
+ #define FIFO_FILE__MOUNTON                        0x00010000UL
++#define FIFO_FILE__OPEN                           0x00020000UL
+ #define FD__USE                                   0x00000001UL
+ #define SOCKET__IOCTL                             0x00000001UL
+ #define SOCKET__READ                              0x00000002UL
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 837ce42..fa30f53 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -43,11 +43,13 @@ extern int selinux_mls_enabled;
+ /* Policy capabilities */
+ enum {
+ 	POLICYDB_CAPABILITY_NETPEER,
++	POLICYDB_CAPABILITY_OPENPERM,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+ 
+ extern int selinux_policycap_netpeer;
++extern int selinux_policycap_openperm;
+ 
+ int security_load_policy(void * data, size_t len);
+ 
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 0341567..6e31ce6 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -43,6 +43,7 @@
+ /* Policy capability filenames */
+ static char *policycap_names[] = {
+ 	"network_peer_controls"
++	"open_perms"
+ };
+ 
+ unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f374186..23a61f1 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -61,6 +61,7 @@ extern void selnl_notify_policyload(u32 seqno);
+ unsigned int policydb_loaded_version;
+ 
+ int selinux_policycap_netpeer;
++int selinux_policycap_openperm;
+ 
+ /*
+  * This is declared in avc.c
+@@ -1306,6 +1307,8 @@ static void security_load_policycaps(void)
+ {
+ 	selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
+ 						  POLICYDB_CAPABILITY_NETPEER);
++	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
++						  POLICYDB_CAPABILITY_OPENPERM);
+ }
+ 
+ extern void selinux_complete_init(void);
 
->> avc:  denied  { use } for request=XTEST:GrabControl
->> comm=/usr/libexec/at-spi-registryd extension=XTEST
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=system_u:object_r:debug_xext_t:s0 tclass=x_extension
->> avc:  denied  { read } for request=XKEYBOARD:GetState
->> comm=/usr/libexec/gnome-settings-daemon xdevice="Virtual core keyboard"
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device
->> avc:  denied  { manage } for request=XKEYBOARD:SetMap
->> comm=/usr/libexec/gnome-settings-daemon xdevice="Virtual core keyboard"
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device
->> avc:  denied  { use } for request=RANDR:GetScreenSizeRange
->> comm=/usr/libexec/gnome-settings-daemon extension=RANDR
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=system_u:object_r:output_xext_t:s0 tclass=x_extension
->> avc:  denied  { receive } for request=X11:ChangeWindowAttributes
->> comm=mono resid=1400006 restype=WINDOW
->> scontext=staff_u:staff_r:staff_mono_t:s0
->> tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable
->> avc:  denied  { getattr } for request=X11:GetWindowAttributes comm=mono
->> resid=1400006 restype=WINDOW scontext=staff_u:staff_r:staff_mono_t:s0
->> tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable
->> avc:  denied  { list_child } for request=X11:QueryTree comm=mono
->> resid=1400006 restype=WINDOW scontext=staff_u:staff_r:staff_mono_t:s0
->> tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable
->> avc:  denied  { get_property } for request=X11:GetProperty comm=mono
->> resid=1400006 restype=WINDOW scontext=staff_u:staff_r:staff_mono_t:s0
->> tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable
->> avc:  denied  { read } for request=X11:GetProperty comm=mono
->> property=_XSETTINGS_SETTINGS scontext=staff_u:staff_r:staff_mono_t:s0
->> tcontext=staff_u:object_r:staff_default_xproperty_t:s0 tclass=x_property
->> avc:  denied  { list_child } for request=X11:QueryTree
->> comm=gnome-screensaver resid=4e00001 restype=WINDOW
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { get_property } for request=X11:GetProperty
->> comm=/usr/libexec/gnome-settings-daemon resid=4e00001 restype=WINDOW
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { read } for request=X11:GetProperty
->> comm=/usr/libexec/gnome-settings-daemon property=WM_NAME
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_default_xproperty_t:s0
->> tclass=x_property
->> avc:  denied  { getattr } for request=X11:GetWindowAttributes
->> comm=gnome-screensaver resid=4e00001 restype=WINDOW
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { receive } for request=X11:ChangeWindowAttributes
->> comm=gnome-screensaver resid=4e00001 restype=WINDOW
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { receive } for  comm=/usr/libexec/gnome-settings-daemon
->> event=X11:PropertyNotify scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_property_xevent_t:s0 tclass=x_event
->> avc:  denied  { receive } for  comm=/usr/libexec/gnome-settings-daemon
->> event=X11:CreateNotify scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_manage_xevent_t:s0 tclass=x_event
->> avc:  denied  { hide } for request=X11:UnmapWindow comm=gnome-panel
->> resid=4e00021 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { manage } for request=X11:ReparentWindow comm=gnome-panel
->> resid=4e00021 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { send } for request=X11:SendEvent comm=gnome-panel
->> resid=4e00021 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { send } for request=X11:SendEvent comm=gnome-panel
->> event=X11:ClientMessage scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_client_xevent_t:s0
->> tclass=x_synthetic_event
->> avc:  denied  { setattr } for request=X11:ConfigureWindow
->> comm=gnome-panel resid=4e00021 restype=WINDOW
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { set_property } for request=X11:ChangeProperty
->> comm=gnome-panel resid=4e00021 restype=WINDOW
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { show } for request=X11:MapWindow comm=gnome-panel
->> resid=4e00021 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable
->> avc:  denied  { receive } for  comm=gnome-screensaver event=X11:Expose
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=staff_u:object_r:staff_mono_default_xevent_t:s0 tclass=x_event
->> avc:  denied  { use } for request=GLX:QueryVersion
->> comm=/usr/libexec/gnome-screensaver-gl-helper extension=GLX
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=system_u:object_r:accelgraphics_xext_t:s0 tclass=x_extension
-> 
-> 
-> 
-> 
-> #============= mono_t ==============
-> allow mono_t xdm_xserver_t:x_device read;
-> 
-> #============= unconfined_t ==============
-> allow unconfined_t xdm_xserver_t:x_device read;
-> 
-> #============= xdm_t ==============
-> allow xdm_t xdm_xserver_t:x_device read;
-> 
-> type=USER_AVC msg=audit(1204170576.402:774): user pid=2729 uid=0
-> auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023
-> msg='avc:  denied  { read } for request=X11:QueryPointer comm=mono
-> xdevice="Virtual core pointer"
-> scontext=unconfined_u:unconfined_r:mono_t:s0
-> tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device
-> : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkfGwW0ACgkQrlYvE4MpobNbrwCePmOPBq29FGi+m07NXKpJeORs
-JZgAoMPYEhEitxrnWyHI1tiOjSam8pNj
-=eF82
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
