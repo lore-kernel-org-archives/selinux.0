@@ -1,221 +1,79 @@
-Subject: [PATCH] SELinux: create new open permission
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1SFA8ie001263
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:10:09 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1SFA73D012225
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 15:10:07 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m1SF9xwd017751
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:10:00 -0500
+Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [10.11.255.20])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1SF9xvl002642
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:09:59 -0500
+Received: from [10.11.14.203] (vpn-14-203.rdu.redhat.com [10.11.14.203])
+	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1SF9xgs013014
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:09:59 -0500
+Subject: [PATCH] Refpolicy: Add new permissions for open perms
 From: Eric Paris <eparis@redhat.com>
 To: selinux <selinux@tycho.nsa.gov>
-Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Thu, 28 Feb 2008 10:09:51 -0500
-Message-Id: <1204211391.3206.66.camel@localhost.localdomain>
+Date: Thu, 28 Feb 2008 10:09:58 -0500
+Message-Id: <1204211398.3206.68.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Adds a new open permission inside SELinux when 'opening' a file.  The
-idea is that opening a file and reading/writing to that file are not the
-same thing.  Its different if a program had its stdout redirected
-to /tmp/output than if the program tried to directly open /tmp/output.
-This should allow policy writers to more liberally give read/write
-permissions across the policy while still blocking many design and
-programing flaws SELinux is so good at catching today.
+Add new permissions for open permissions.  This patch does not enable or
+make use of those new permissions.  I'll leave that for a future patch
+from the policy people.
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+-Eric
 
 ---
-As an example, process1 in httpd_t opened a bunch of files of type
-user_tmp_t.  It then called process2 running as ntpd_t which did nothing
-but accept those open fd's and terminate.  Notice proc1 needed open
-perms and proc2 only needed read and write.
 
-#============= httpd_t ==============
-allow httpd_t tmp_t:dir open;
-allow httpd_t user_tmp_t:blk_file { read write open };
-allow httpd_t user_tmp_t:chr_file { read write open };
-allow httpd_t user_tmp_t:dir { read open };
-allow httpd_t user_tmp_t:fifo_file { read write open };
-allow httpd_t user_tmp_t:file { read write execute entrypoint open };
-allow httpd_t user_tmp_t:lnk_file read;
-
-#============= ntpd_t ==============
-allow ntpd_t user_tmp_t:blk_file { read write };
-allow ntpd_t user_tmp_t:chr_file { read write };
-allow ntpd_t user_tmp_t:dir read;
-allow ntpd_t user_tmp_t:fifo_file { read write };
-allow ntpd_t user_tmp_t:file { read write entrypoint };
-
-
- security/selinux/hooks.c                     |   31 +++++++++++++++++++++++++-
- security/selinux/include/av_perm_to_string.h |    5 ++++
- security/selinux/include/av_permissions.h    |    5 ++++
- security/selinux/include/security.h          |    2 +
- security/selinux/selinuxfs.c                 |    1 +
- security/selinux/ss/services.c               |    3 ++
- 6 files changed, 46 insertions(+), 1 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 75c2e99..a4cf5ff 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1599,6 +1599,35 @@ static inline u32 file_mask_to_av(int mode, int mask)
- 	return av;
+diff -Naupr serefpolicy-3.3.0.orig/policy/flask/access_vectors serefpolicy-3.3.0/policy/flask/access_vectors
+--- serefpolicy-3.3.0.orig/policy/flask/access_vectors	2008-02-25 17:00:34.000000000 -0500
++++ serefpolicy-3.3.0/policy/flask/access_vectors	2008-02-26 17:36:05.000000000 -0500
+@@ -125,6 +125,7 @@ inherits file
+ 	reparent
+ 	search
+ 	rmdir
++	open
  }
  
-+/*
-+ * Convert a file mask to an access vector and include the correct open
-+ * open permission.
-+ */
-+static inline u32 open_file_mask_to_av(int mode, int mask)
+ class file
+@@ -133,6 +134,7 @@ inherits file
+ 	execute_no_trans
+ 	entrypoint
+ 	execmod
++	open
+ }
+ 
+ class lnk_file
+@@ -144,16 +146,23 @@ inherits file
+ 	execute_no_trans
+ 	entrypoint
+ 	execmod
++	open
+ }
+ 
+ class blk_file
+ inherits file
 +{
-+	u32 av = file_mask_to_av(mode, mask);
-+
-+	if (selinux_policycap_openperm) {
-+		/*
-+		 * lnk files and socks do not really have an 'open'
-+		 */
-+		if (S_ISREG(mode))
-+			av |= FILE__OPEN;
-+		else if (S_ISCHR(mode))
-+			av |= CHR_FILE__OPEN;
-+		else if (S_ISBLK(mode))
-+			av |= BLK_FILE__OPEN;
-+		else if (S_ISFIFO(mode))
-+			av |= FIFO_FILE__OPEN;
-+		else if (S_ISDIR(mode))
-+			av |= DIR__OPEN;
-+		else
-+			printk(KERN_ERR "SELinux: WARNING: inside open_file_to_av "
-+				"with unknown mode:%x\n", mode);
-+	}
-+	return av;
++	open
 +}
-+
- /* Convert a Linux file to an access vector. */
- static inline u32 file_to_av(struct file *file)
+ 
+ class sock_file
+ inherits file
+ 
+ class fifo_file
+ inherits file
++{
++	open
++}
+ 
+ class fd
  {
-@@ -2517,7 +2546,7 @@ static int selinux_inode_permission(struct inode *inode, int mask,
- 	}
- 
- 	return inode_has_perm(current, inode,
--			       file_mask_to_av(inode->i_mode, mask), NULL);
-+			       open_file_mask_to_av(inode->i_mode, mask), NULL);
- }
- 
- static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
-diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-index d569669..1223b4f 100644
---- a/security/selinux/include/av_perm_to_string.h
-+++ b/security/selinux/include/av_perm_to_string.h
-@@ -14,12 +14,17 @@
-    S_(SECCLASS_DIR, DIR__REPARENT, "reparent")
-    S_(SECCLASS_DIR, DIR__SEARCH, "search")
-    S_(SECCLASS_DIR, DIR__RMDIR, "rmdir")
-+   S_(SECCLASS_DIR, DIR__OPEN, "open")
-    S_(SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, "execute_no_trans")
-    S_(SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint")
-    S_(SECCLASS_FILE, FILE__EXECMOD, "execmod")
-+   S_(SECCLASS_FILE, FILE__OPEN, "open")
-    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECUTE_NO_TRANS, "execute_no_trans")
-    S_(SECCLASS_CHR_FILE, CHR_FILE__ENTRYPOINT, "entrypoint")
-    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
-+   S_(SECCLASS_CHR_FILE, CHR_FILE__OPEN, "open")
-+   S_(SECCLASS_BLK_FILE, BLK_FILE__OPEN, "open")
-+   S_(SECCLASS_FIFO_FILE, FIFO_FILE__OPEN, "open")
-    S_(SECCLASS_FD, FD__USE, "use")
-    S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__CONNECTTO, "connectto")
-    S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__NEWCONN, "newconn")
-diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-index 75b4131..c4c5116 100644
---- a/security/selinux/include/av_permissions.h
-+++ b/security/selinux/include/av_permissions.h
-@@ -79,6 +79,7 @@
- #define DIR__REPARENT                             0x00080000UL
- #define DIR__SEARCH                               0x00100000UL
- #define DIR__RMDIR                                0x00200000UL
-+#define DIR__OPEN                                 0x00400000UL
- #define FILE__IOCTL                               0x00000001UL
- #define FILE__READ                                0x00000002UL
- #define FILE__WRITE                               0x00000004UL
-@@ -99,6 +100,7 @@
- #define FILE__EXECUTE_NO_TRANS                    0x00020000UL
- #define FILE__ENTRYPOINT                          0x00040000UL
- #define FILE__EXECMOD                             0x00080000UL
-+#define FILE__OPEN                                0x00100000UL
- #define LNK_FILE__IOCTL                           0x00000001UL
- #define LNK_FILE__READ                            0x00000002UL
- #define LNK_FILE__WRITE                           0x00000004UL
-@@ -136,6 +138,7 @@
- #define CHR_FILE__EXECUTE_NO_TRANS                0x00020000UL
- #define CHR_FILE__ENTRYPOINT                      0x00040000UL
- #define CHR_FILE__EXECMOD                         0x00080000UL
-+#define CHR_FILE__OPEN                            0x00100000UL
- #define BLK_FILE__IOCTL                           0x00000001UL
- #define BLK_FILE__READ                            0x00000002UL
- #define BLK_FILE__WRITE                           0x00000004UL
-@@ -153,6 +156,7 @@
- #define BLK_FILE__SWAPON                          0x00004000UL
- #define BLK_FILE__QUOTAON                         0x00008000UL
- #define BLK_FILE__MOUNTON                         0x00010000UL
-+#define BLK_FILE__OPEN                            0x00020000UL
- #define SOCK_FILE__IOCTL                          0x00000001UL
- #define SOCK_FILE__READ                           0x00000002UL
- #define SOCK_FILE__WRITE                          0x00000004UL
-@@ -187,6 +191,7 @@
- #define FIFO_FILE__SWAPON                         0x00004000UL
- #define FIFO_FILE__QUOTAON                        0x00008000UL
- #define FIFO_FILE__MOUNTON                        0x00010000UL
-+#define FIFO_FILE__OPEN                           0x00020000UL
- #define FD__USE                                   0x00000001UL
- #define SOCKET__IOCTL                             0x00000001UL
- #define SOCKET__READ                              0x00000002UL
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 837ce42..fa30f53 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -43,11 +43,13 @@ extern int selinux_mls_enabled;
- /* Policy capabilities */
- enum {
- 	POLICYDB_CAPABILITY_NETPEER,
-+	POLICYDB_CAPABILITY_OPENPERM,
- 	__POLICYDB_CAPABILITY_MAX
- };
- #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
- 
- extern int selinux_policycap_netpeer;
-+extern int selinux_policycap_openperm;
- 
- int security_load_policy(void * data, size_t len);
- 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 0341567..6e31ce6 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -43,6 +43,7 @@
- /* Policy capability filenames */
- static char *policycap_names[] = {
- 	"network_peer_controls"
-+	"open_perms"
- };
- 
- unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f374186..23a61f1 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -61,6 +61,7 @@ extern void selnl_notify_policyload(u32 seqno);
- unsigned int policydb_loaded_version;
- 
- int selinux_policycap_netpeer;
-+int selinux_policycap_openperm;
- 
- /*
-  * This is declared in avc.c
-@@ -1306,6 +1307,8 @@ static void security_load_policycaps(void)
- {
- 	selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
- 						  POLICYDB_CAPABILITY_NETPEER);
-+	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
-+						  POLICYDB_CAPABILITY_OPENPERM);
- }
- 
- extern void selinux_complete_init(void);
 
 
 
