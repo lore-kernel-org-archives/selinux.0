@@ -1,37 +1,46 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@redhat.com>
 Subject: Re: [PATCH] SELinux: create new open permission
-Date: Thu, 28 Feb 2008 12:15:44 -0500
+From: Eric Paris <eparis@redhat.com>
+To: Paul Moore <paul.moore@hp.com>
 Cc: selinux <selinux@tycho.nsa.gov>, sds@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <200802281215.45063.paul.moore@hp.com>
 References: <1204211391.3206.66.camel@localhost.localdomain>
-In-Reply-To: <1204211391.3206.66.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200802281215.45063.paul.moore@hp.com>
+	 <200802281215.45063.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Thu, 28 Feb 2008 12:22:45 -0500
+Message-Id: <1204219365.3206.76.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 28 February 2008 10:09:51 am Eric Paris wrote:
-> diff --git a/security/selinux/selinuxfs.c
-> b/security/selinux/selinuxfs.c index 0341567..6e31ce6 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -43,6 +43,7 @@
->  /* Policy capability filenames */
->  static char *policycap_names[] = {
->  	"network_peer_controls"
-> +	"open_perms"
->  };
 
-I think you're missing a comma here :)
+On Thu, 2008-02-28 at 12:15 -0500, Paul Moore wrote:
+> On Thursday 28 February 2008 10:09:51 am Eric Paris wrote:
+> > diff --git a/security/selinux/selinuxfs.c
+> > b/security/selinux/selinuxfs.c index 0341567..6e31ce6 100644
+> > --- a/security/selinux/selinuxfs.c
+> > +++ b/security/selinux/selinuxfs.c
+> > @@ -43,6 +43,7 @@
+> >  /* Policy capability filenames */
+> >  static char *policycap_names[] = {
+> >  	"network_peer_controls"
+> > +	"open_perms"
+> >  };
+> 
+> I think you're missing a comma here :)
+> 
+> This is easy to test by simply checking the /selinux/policy_capabilities 
+> directory.
 
-This is easy to test by simply checking the /selinux/policy_capabilities 
-directory.
+You mean its not supposed to look like this?
 
--- 
-paul moore
-linux security @ hp
+[root@sun-x8420-01 policy_capabilities]# ls
+network_peer_controlsopen_permissions_checking  unknown
+
+fixed patch in 10 minutes.  it would be faster but this machine takes
+forever to reboot.
+
+-Eric
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
