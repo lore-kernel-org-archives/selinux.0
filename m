@@ -1,61 +1,38 @@
-Subject: Re: libselinux does not work properly in upstart/initrd
+Subject: Re: [PATCH] SELinux: create new open permission
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1204223131.31790.161.camel@moss-spartans.epoch.ncsc.mil>
-References: <47C6F067.5050209@redhat.com>
-	 <1204223131.31790.161.camel@moss-spartans.epoch.ncsc.mil>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Eric Paris <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
+        jmorris@namei.org
+In-Reply-To: <200802281215.45063.paul.moore@hp.com>
+References: <1204211391.3206.66.camel@localhost.localdomain>
+	 <200802281215.45063.paul.moore@hp.com>
 Content-Type: text/plain
-Date: Thu, 28 Feb 2008 13:39:52 -0500
-Message-Id: <1204223992.31790.166.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 28 Feb 2008 13:46:31 -0500
+Message-Id: <1204224391.31790.173.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-02-28 at 13:25 -0500, Stephen Smalley wrote:
-> On Thu, 2008-02-28 at 12:33 -0500, Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > https://bugzilla.redhat.com/show_bug.cgi?id=434793
-> > 
-> > The way the upstart initrd works is to run nash with a builtin
-> > loadpolicy.  The problem is nash starts before the /sysmount files
-> > system is mounted, so libselinux does not have an /etc/selinux/config to
-> > read.  It defaults to targeted.  So when nash finally executes
-> > loadpolicy (selinux_init_load_policy) it has the wrong config.
-> > Switching to any other type of policy will fail and
-> > selinux_init_load_policy will look for targeted.
-> > 
-> > I changed this function to reload the config, to fix this problem.
-> > 
-> > I think I did all the hidden stuff correctly.  I don't think we want to
-> > expose these functions.
+On Thu, 2008-02-28 at 12:15 -0500, Paul Moore wrote:
+> On Thursday 28 February 2008 10:09:51 am Eric Paris wrote:
+> > diff --git a/security/selinux/selinuxfs.c
+> > b/security/selinux/selinuxfs.c index 0341567..6e31ce6 100644
+> > --- a/security/selinux/selinuxfs.c
+> > +++ b/security/selinux/selinuxfs.c
+> > @@ -43,6 +43,7 @@
+> >  /* Policy capability filenames */
+> >  static char *policycap_names[] = {
+> >  	"network_peer_controls"
+> > +	"open_perms"
+> >  };
 > 
-> To make a function hidden, just mark it with hidden.
-> hidden_def and hidden_proto are about creating a private definition
-> within the library for intra-library calls that do not cause a
-> relocation, not about hiding the definition altogether.
+> I think you're missing a comma here :)
 
-IOW, hidden_def and hidden_proto are only required when you have a
-symbol that is exported to users of the library that is also called
-internally by the library.  If the symbol is not exported or if the
-symbol is not called internally by the library, then you don't need
-them.
-
-"hidden" by itself is to prevent export entirely.
-
+Ah, good catch - I missed that omission.  Thanks.
 > 
-> Concerns about this patch:
-> - it isn't thread safe,
-> - it only "fixes" the load policy case, not any other libselinux
-> function call.
-> 
-> As an alternative, maybe we should revive Steve Grubb's lazy init patch
-> for libselinux?  That won't reload each time, but will defer the initial
-> reading until you first invoke a libselinux function.  The last version
-> of the patch that I saw is attached.
+> This is easy to test by simply checking the /selinux/policy_capabilities 
+> directory.
 > 
 -- 
 Stephen Smalley
