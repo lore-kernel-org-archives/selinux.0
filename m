@@ -1,85 +1,85 @@
-Subject: Re: libselinux does not work properly in upstart/initrd
+Received: from [144.51.25.121] (moss-spartans [144.51.25.121])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1SJQtOs012118
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 14:26:55 -0500
+Subject: [patch] libsepol:  accept Flask as string identifier in policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <47C701F9.1090706@redhat.com>
-References: <47C6F067.5050209@redhat.com>
-	 <1204223131.31790.161.camel@moss-spartans.epoch.ncsc.mil>
-	 <47C701F9.1090706@redhat.com>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Thu, 28 Feb 2008 14:19:17 -0500
-Message-Id: <1204226357.31790.198.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 28 Feb 2008 14:26:55 -0500
+Message-Id: <1204226815.31790.204.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+SELinux binary policies presently use "SE Linux" as the string
+identifier in the header.  Other Flask/TE implementations would like to
+use a more general identifier while preserving compatibility with
+SELinux policy tools.  Thus, extend the libsepol policy reading code to
+accept "Flask" as an alternate identifier.  This allows checkpolicy and
+setools to read such policies when rebuilt against the updated libsepol.
 
-On Thu, 2008-02-28 at 13:48 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephen Smalley wrote:
-> > On Thu, 2008-02-28 at 12:33 -0500, Daniel J Walsh wrote:
-> >> -----BEGIN PGP SIGNED MESSAGE-----
-> >> Hash: SHA1
-> >>
-> >> https://bugzilla.redhat.com/show_bug.cgi?id=434793
-> >>
-> >> The way the upstart initrd works is to run nash with a builtin
-> >> loadpolicy.  The problem is nash starts before the /sysmount files
-> >> system is mounted, so libselinux does not have an /etc/selinux/config to
-> >> read.  It defaults to targeted.  So when nash finally executes
-> >> loadpolicy (selinux_init_load_policy) it has the wrong config.
-> >> Switching to any other type of policy will fail and
-> >> selinux_init_load_policy will look for targeted.
-> >>
-> >> I changed this function to reload the config, to fix this problem.
-> >>
-> >> I think I did all the hidden stuff correctly.  I don't think we want to
-> >> expose these functions.
-> > 
-> > To make a function hidden, just mark it with hidden.
-> > hidden_def and hidden_proto are about creating a private definition
-> > within the library for intra-library calls that do not cause a
-> > relocation, not about hiding the definition altogether.
-> > 
-> So the hidden_def and hidden_proto lines can be removed as login as the
-> extern hidden remains.
-> > Concerns about this patch:
-> > - it isn't thread safe,
-> selinux_init_load_policy should not be called repeatedly, or probably
-> from a threaded app.
-> > - it only "fixes" the load policy case, not any other libselinux
-> > function call.
-> Well this is a very strange occurrance where the config is not there and
-> then when the function gets called, it is there.
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Fair enough - we can just handle this specific case then.
-I'd suggest a single reset_selinux_config() or similar function added to
-src/selinux_config.c that does the fini_ and init_ calls internally, and
-then call that single function from load policy.
+---
 
-> > 
-> > As an alternative, maybe we should revive Steve Grubb's lazy init patch
-> > for libselinux?  That won't reload each time, but will defer the initial
-> > reading until you first invoke a libselinux function.  The last version
-> > of the patch that I saw is attached.
-> > 
-> > 
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.8 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-> 
-> iEYEARECAAYFAkfHAfgACgkQrlYvE4MpobMjdgCfftLE1H66/lvy5iyZ78884D4s
-> +dYAoKCvAhRpTUu5Oaxtl7w9Lo3JFDB7
-> =oWsG
-> -----END PGP SIGNATURE-----
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+ libsepol/include/sepol/policydb/policydb.h |    1 +
+ libsepol/src/policydb.c                    |    9 ++++++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
+Index: trunk/libsepol/include/sepol/policydb/policydb.h
+===================================================================
+--- trunk/libsepol/include/sepol/policydb/policydb.h	(revision 2817)
++++ trunk/libsepol/include/sepol/policydb/policydb.h	(working copy)
+@@ -617,6 +617,7 @@
+ 
+ #define POLICYDB_MAGIC SELINUX_MAGIC
+ #define POLICYDB_STRING "SE Linux"
++#define POLICYDB_ALT_STRING "Flask"
+ #define POLICYDB_MOD_MAGIC SELINUX_MOD_MAGIC
+ #define POLICYDB_MOD_STRING "SE Linux Module"
+ 
+Index: trunk/libsepol/src/policydb.c
+===================================================================
+--- trunk/libsepol/src/policydb.c	(revision 2817)
++++ trunk/libsepol/src/policydb.c	(working copy)
+@@ -2980,7 +2980,7 @@
+ 	unsigned int i, j, r_policyvers;
+ 	uint32_t buf[5], config;
+ 	size_t len, nprim, nel;
+-	char *policydb_str, *target_str = NULL;
++	char *policydb_str, *target_str = NULL, *alt_target_str = NULL;
+ 	struct policydb_compat_info *info;
+ 	unsigned int policy_type, bufindex;
+ 	ebitmap_node_t *tnode;
+@@ -2998,6 +2998,7 @@
+ 	if (buf[0] == POLICYDB_MAGIC) {
+ 		policy_type = POLICY_KERN;
+ 		target_str = POLICYDB_STRING;
++		alt_target_str = POLICYDB_ALT_STRING;
+ 	} else if (buf[0] == POLICYDB_MOD_MAGIC) {
+ 		policy_type = POLICY_MOD;
+ 		target_str = POLICYDB_MOD_STRING;
+@@ -3009,7 +3010,8 @@
+ 	}
+ 
+ 	len = buf[1];
+-	if (len != strlen(target_str)) {
++	if (len != strlen(target_str) &&
++	    (!alt_target_str || len != strlen(alt_target_str))) {
+ 		ERR(fp->handle, "policydb string length %zu does not match "
+ 		    "expected length %zu", len, strlen(target_str));
+ 		return POLICYDB_ERROR;
+@@ -3028,7 +3030,8 @@
+ 		return POLICYDB_ERROR;
+ 	}
+ 	policydb_str[len] = 0;
+-	if (strcmp(policydb_str, target_str)) {
++	if (strcmp(policydb_str, target_str) &&
++	    (!alt_target_str || strcmp(policydb_str, alt_target_str))) {
+ 		ERR(fp->handle, "policydb string %s does not match "
+ 		    "my string %s", policydb_str, target_str);
+ 		free(policydb_str);
+
 -- 
 Stephen Smalley
 National Security Agency
