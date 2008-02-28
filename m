@@ -1,79 +1,59 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1SFA8ie001263
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:10:09 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1SFBDcK001423
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:11:13 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1SFA73D012225
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 15:10:07 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1SFB93D013293
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 15:11:09 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m1SF9xwd017751
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:10:00 -0500
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m1SF9uSB017723
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:09:56 -0500
 Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [10.11.255.20])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1SF9xvl002642
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:09:59 -0500
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1SF9tg6002595
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:09:55 -0500
 Received: from [10.11.14.203] (vpn-14-203.rdu.redhat.com [10.11.14.203])
-	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1SF9xgs013014
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:09:59 -0500
-Subject: [PATCH] Refpolicy: Add new permissions for open perms
+	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1SF9tS8013000
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:09:55 -0500
+Subject: [PATCH] libsepol: new capability to support open permissions
 From: Eric Paris <eparis@redhat.com>
 To: selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 28 Feb 2008 10:09:58 -0500
-Message-Id: <1204211398.3206.68.camel@localhost.localdomain>
+Date: Thu, 28 Feb 2008 10:09:54 -0500
+Message-Id: <1204211394.3206.67.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add new permissions for open permissions.  This patch does not enable or
-make use of those new permissions.  I'll leave that for a future patch
-from the policy people.
+This patch adds support for the new open_perms policy capability.
+Simple yet true.  I would like to point out that after this change
+checkpolicy will also need to be rebuilt with the new libsepol-static
+installed.
 
 -Eric
 
 ---
 
-diff -Naupr serefpolicy-3.3.0.orig/policy/flask/access_vectors serefpolicy-3.3.0/policy/flask/access_vectors
---- serefpolicy-3.3.0.orig/policy/flask/access_vectors	2008-02-25 17:00:34.000000000 -0500
-+++ serefpolicy-3.3.0/policy/flask/access_vectors	2008-02-26 17:36:05.000000000 -0500
-@@ -125,6 +125,7 @@ inherits file
- 	reparent
- 	search
- 	rmdir
-+	open
- }
+diff -Naupr libsepol-2.0.21/include/sepol/policydb/polcaps.h libsepol-2.0.21.new/include/sepol/policydb/polcaps.h
+--- libsepol-2.0.21/include/sepol/policydb/polcaps.h	2008-02-20 13:47:52.000000000 -0500
++++ libsepol-2.0.21.new/include/sepol/policydb/polcaps.h	2008-02-26 18:58:23.000000000 -0500
+@@ -4,6 +4,7 @@
+ /* Policy capabilities */
+ enum {
+ 	POLICYDB_CAPABILITY_NETPEER,
++	POLICYDB_CAPABILITY_OPENPERM,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+diff -Naupr libsepol-2.0.21/src/polcaps.c libsepol-2.0.21.new/src/polcaps.c
+--- libsepol-2.0.21/src/polcaps.c	2008-02-20 13:47:51.000000000 -0500
++++ libsepol-2.0.21.new/src/polcaps.c	2008-02-26 18:57:56.000000000 -0500
+@@ -7,6 +7,7 @@
  
- class file
-@@ -133,6 +134,7 @@ inherits file
- 	execute_no_trans
- 	entrypoint
- 	execmod
-+	open
- }
+ static const char *polcap_names[] = {
+ 	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
++	"open_perms",			/* POLICYDB_CAPABILITY_OPENPERM */
+ 	NULL
+ };
  
- class lnk_file
-@@ -144,16 +146,23 @@ inherits file
- 	execute_no_trans
- 	entrypoint
- 	execmod
-+	open
- }
- 
- class blk_file
- inherits file
-+{
-+	open
-+}
- 
- class sock_file
- inherits file
- 
- class fifo_file
- inherits file
-+{
-+	open
-+}
- 
- class fd
- {
 
 
 
