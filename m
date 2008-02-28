@@ -1,70 +1,85 @@
-Subject: Re: [PATCH -v2] SELinux: create new open permission
+Subject: Re: libselinux does not work properly in upstart/initrd
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: Eric Paris <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
-        jmorris@namei.org, Paul Moore <paul.moore@hp.com>
-In-Reply-To: <1204224606.32061.218.camel@gorn>
-References: <1204221520.3206.86.camel@localhost.localdomain>
-	 <1204224606.32061.218.camel@gorn>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47C701F9.1090706@redhat.com>
+References: <47C6F067.5050209@redhat.com>
+	 <1204223131.31790.161.camel@moss-spartans.epoch.ncsc.mil>
+	 <47C701F9.1090706@redhat.com>
 Content-Type: text/plain
-Date: Thu, 28 Feb 2008 14:04:00 -0500
-Message-Id: <1204225440.31790.189.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 28 Feb 2008 14:19:17 -0500
+Message-Id: <1204226357.31790.198.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-02-28 at 13:50 -0500, Christopher J. PeBenito wrote:
-> On Thu, 2008-02-28 at 12:58 -0500, Eric Paris wrote:
-> > Adds a new open permission inside SELinux when 'opening' a file.  The
-> > idea is that opening a file and reading/writing to that file are not the
-> > same thing.  Its different if a program had its stdout redirected
-> > to /tmp/output than if the program tried to directly open /tmp/output.
-> > This should allow policy writers to more liberally give read/write
-> > permissions across the policy while still blocking many design and
-> > programing flaws SELinux is so good at catching today.
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> > 
+On Thu, 2008-02-28 at 13:48 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> What does open on a dir mean?  Isn't that the same as the read perm?
+> Stephen Smalley wrote:
+> > On Thu, 2008-02-28 at 12:33 -0500, Daniel J Walsh wrote:
+> >> -----BEGIN PGP SIGNED MESSAGE-----
+> >> Hash: SHA1
+> >>
+> >> https://bugzilla.redhat.com/show_bug.cgi?id=434793
+> >>
+> >> The way the upstart initrd works is to run nash with a builtin
+> >> loadpolicy.  The problem is nash starts before the /sysmount files
+> >> system is mounted, so libselinux does not have an /etc/selinux/config to
+> >> read.  It defaults to targeted.  So when nash finally executes
+> >> loadpolicy (selinux_init_load_policy) it has the wrong config.
+> >> Switching to any other type of policy will fail and
+> >> selinux_init_load_policy will look for targeted.
+> >>
+> >> I changed this function to reload the config, to fix this problem.
+> >>
+> >> I think I did all the hidden stuff correctly.  I don't think we want to
+> >> expose these functions.
+> > 
+> > To make a function hidden, just mark it with hidden.
+> > hidden_def and hidden_proto are about creating a private definition
+> > within the library for intra-library calls that do not cause a
+> > relocation, not about hiding the definition altogether.
+> > 
+> So the hidden_def and hidden_proto lines can be removed as login as the
+> extern hidden remains.
+> > Concerns about this patch:
+> > - it isn't thread safe,
+> selinux_init_load_policy should not be called repeatedly, or probably
+> from a threaded app.
+> > - it only "fixes" the load policy case, not any other libselinux
+> > function call.
+> Well this is a very strange occurrance where the config is not there and
+> then when the function gets called, it is there.
 
-open should only get checked at open(2) time, while read will get
-checked both at open(2) time and if the descriptor is inherited or
-transferred.
-  
+Fair enough - we can just handle this specific case then.
+I'd suggest a single reset_selinux_config() or similar function added to
+src/selinux_config.c that does the fini_ and init_ calls internally, and
+then call that single function from load policy.
+
+> > 
+> > As an alternative, maybe we should revive Steve Grubb's lazy init patch
+> > for libselinux?  That won't reload each time, but will defer the initial
+> > reading until you first invoke a libselinux function.  The last version
+> > of the patch that I saw is attached.
+> > 
+> > 
 > 
-> > allow httpd_t user_tmp_t:dir { read open };
-> [...]
-> > + * Convert a file mask to an access vector and include the correct open
-> > + * open permission.
-> > + */
-> > +static inline u32 open_file_mask_to_av(int mode, int mask)
-> > +{
-> > +	u32 av = file_mask_to_av(mode, mask);
-> > +
-> > +	if (selinux_policycap_openperm) {
-> > +		/*
-> > +		 * lnk files and socks do not really have an 'open'
-> > +		 */
-> > +		if (S_ISREG(mode))
-> > +			av |= FILE__OPEN;
-> > +		else if (S_ISCHR(mode))
-> > +			av |= CHR_FILE__OPEN;
-> > +		else if (S_ISBLK(mode))
-> > +			av |= BLK_FILE__OPEN;
-> > +		else if (S_ISFIFO(mode))
-> > +			av |= FIFO_FILE__OPEN;
-> > +		else if (S_ISDIR(mode))
-> > +			av |= DIR__OPEN;
-> > +		else
-> > +			printk(KERN_ERR "SELinux: WARNING: inside open_file_to_av "
-> > +				"with unknown mode:%x\n", mode);
-> > +	}
-> > +	return av;
-> > +}
-> > +
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.8 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 > 
+> iEYEARECAAYFAkfHAfgACgkQrlYvE4MpobMjdgCfftLE1H66/lvy5iyZ78884D4s
+> +dYAoKCvAhRpTUu5Oaxtl7w9Lo3JFDB7
+> =oWsG
+> -----END PGP SIGNATURE-----
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
