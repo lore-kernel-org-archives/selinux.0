@@ -1,34 +1,38 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1SFDDxI001736
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:13:13 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1SFD73D014675
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 15:13:07 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m1SFD2nI019327
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:13:02 -0500
-Received: from pobox.corp.redhat.com (pobox.corp.redhat.com [10.11.255.20])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1SFD28U006022
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:13:02 -0500
-Received: from [10.11.14.203] (vpn-14-203.rdu.redhat.com [10.11.14.203])
-	by pobox.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m1SFD2qp014282
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 10:13:02 -0500
-Subject: Why does checkpolicy need libsepol-static
-From: Eric Paris <eparis@redhat.com>
-To: selinux <selinux@tycho.nsa.gov>
+Subject: Re: Why does checkpolicy need libsepol-static
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1204211581.3206.71.camel@localhost.localdomain>
+References: <1204211581.3206.71.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 28 Feb 2008 10:13:01 -0500
-Message-Id: <1204211581.3206.71.camel@localhost.localdomain>
+Date: Thu, 28 Feb 2008 10:20:39 -0500
+Message-Id: <1204212039.31790.119.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I noticed while working on open permissions that checkmodule actually is
-being linked statically to libsepol.a.  Why?  This means that when
-adding a new capability in libsepol we have to recompile checkpolicy.
-Just wondering why we do it this way.
 
--Eric 'does not know the toolchain' Paris
+On Thu, 2008-02-28 at 10:13 -0500, Eric Paris wrote:
+> I noticed while working on open permissions that checkmodule actually is
+> being linked statically to libsepol.a.  Why?  This means that when
+> adding a new capability in libsepol we have to recompile checkpolicy.
+> Just wondering why we do it this way.
+> 
+> -Eric 'does not know the toolchain' Paris
+
+libsepol was originally created by taking the guts of checkpolicy and
+moving them into a library, to allow reuse by some other programs.
+We've created shared library interfaces for it over time to support such
+programs, but for programs that are tightly coupled to the core data
+structures and logic like checkpolicy and setools, we've kept using the
+static library.  We would need to provide an abstraction layer for
+everything in libsepol if we wanted to completely use the shared library
+for checkpolicy and setools.  policyrep might help there, at least for
+modules.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
