@@ -1,78 +1,66 @@
-Subject: Re: Permissive mode for xace is broken.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Steve Grubb <sgrubb@redhat.com>
-In-Reply-To: <47C701E8.1030603@tycho.nsa.gov>
-References: <47C2CC18.6080801@redhat.com>
-	 <1203948764.2804.183.camel@moss-spartans.epoch.ncsc.mil>
-	 <1203949499.2804.188.camel@moss-spartans.epoch.ncsc.mil>
-	 <47C2D552.8060509@redhat.com>
-	 <1203965363.2804.201.camel@moss-spartans.epoch.ncsc.mil>
-	 <47C316EF.5090206@redhat.com> <47C3261C.1070508@tycho.nsa.gov>
-	 <47C36767.7030503@tycho.nsa.gov>
-	 <1204030752.2804.282.camel@moss-spartans.epoch.ncsc.mil>
-	 <47C701E8.1030603@tycho.nsa.gov>
+Subject: Re: [PATCH -v2] SELinux: create new open permission
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux <selinux@tycho.nsa.gov>, sds@tycho.nsa.gov, jmorris@namei.org,
+        Paul Moore <paul.moore@hp.com>
+In-Reply-To: <1204221520.3206.86.camel@localhost.localdomain>
+References: <1204221520.3206.86.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 28 Feb 2008 13:51:05 -0500
-Message-Id: <1204224665.31790.179.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 28 Feb 2008 13:50:06 -0500
+Message-Id: <1204224606.32061.218.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, 2008-02-28 at 12:58 -0500, Eric Paris wrote:
+> Adds a new open permission inside SELinux when 'opening' a file.  The
+> idea is that opening a file and reading/writing to that file are not the
+> same thing.  Its different if a program had its stdout redirected
+> to /tmp/output than if the program tried to directly open /tmp/output.
+> This should allow policy writers to more liberally give read/write
+> permissions across the policy while still blocking many design and
+> programing flaws SELinux is so good at catching today.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
 
-On Thu, 2008-02-28 at 13:48 -0500, Eamon Walsh wrote:
-> Stephen Smalley wrote:
-> > On Mon, 2008-02-25 at 20:12 -0500, Eamon Walsh wrote:
-> >   
-> >> Eamon Walsh wrote:
-> >>     
-> >>> The X object manager logs all avc's and status messages (including the 
-> >>> AVC netlink stuff) through the audit system using libaudit calls 
-> >>> (audit_log_user_avc_message, etc.)   I disavow all responsibility for 
-> >>> the messages once they enter libaudit
-> >>>       
-> >> It's being black-holed in rawhide.  To see for yourself, add the 
-> >> attached patch to the spec file and rebuild the xserver from SRPM.  It 
-> >> will tee the avc messages into /var/log/Xorg.0.log.
-> >>     
-> >
-> > Looking at the corresponding code in dbus, I see that dbus is calling
-> > both audit_log_user_avc_message() (if HAVE_LIBAUDIT) and
-> > vsyslog(LOG_INFO...) with the message.
-> >   
-> 
-> Should the X server do this also?  Why does it need to be logged twice?
-> 
-> > Can you verify that the X server was able to create the audit socket
-> > successfully?
-> >   
-> 
-> Yes, because when I actually install the audit package, things started 
-> appearing in /var/log/audit/audit.log.  I did not have the audit package 
-> installed.  Why isn't it redirecting to /var/log/messages in this case?  
-> This is the behavior I was led to believe would happen, and this is what 
-> happens with kernel AVC's.
+What does open on a dir mean?  Isn't that the same as the read perm?  
 
-That's what I would expect, but I don't know.  Safest thing would seem
-to be to follow dbus' example.  The audit calls there are also
-conditionally compiled, so they can be entirely omitted on systems
-without libaudit, whereas the system logging is unconditional.
+> allow httpd_t user_tmp_t:dir { read open };
+[...]
+> + * Convert a file mask to an access vector and include the correct open
+> + * open permission.
+> + */
+> +static inline u32 open_file_mask_to_av(int mode, int mask)
+> +{
+> +	u32 av = file_mask_to_av(mode, mask);
+> +
+> +	if (selinux_policycap_openperm) {
+> +		/*
+> +		 * lnk files and socks do not really have an 'open'
+> +		 */
+> +		if (S_ISREG(mode))
+> +			av |= FILE__OPEN;
+> +		else if (S_ISCHR(mode))
+> +			av |= CHR_FILE__OPEN;
+> +		else if (S_ISBLK(mode))
+> +			av |= BLK_FILE__OPEN;
+> +		else if (S_ISFIFO(mode))
+> +			av |= FIFO_FILE__OPEN;
+> +		else if (S_ISDIR(mode))
+> +			av |= DIR__OPEN;
+> +		else
+> +			printk(KERN_ERR "SELinux: WARNING: inside open_file_to_av "
+> +				"with unknown mode:%x\n", mode);
+> +	}
+> +	return av;
+> +}
+> +
 
-> 
-> > Things that could go wrong:
-> > - X server uses privilege bracketing (switching uids or capabilities)
-> > and lacks the necessary audit capabilities.
-> > - X server shuts down all descriptors _after_ you've opened the audit
-> > socket, thereby closing it down too.
-> > - Policy doesn't allow X server to write audit messages (requires
-> > audit_write capability and netlink_audit_socket perms).
-> >   
-> 
-> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
