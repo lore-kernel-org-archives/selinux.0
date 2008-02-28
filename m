@@ -1,14 +1,14 @@
 Subject: Re: [PATCH -v2] SELinux: create new open permission
-From: Eric Paris <eparis@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux <selinux@tycho.nsa.gov>, sds@tycho.nsa.gov, jmorris@namei.org,
-        Paul Moore <paul.moore@hp.com>
+Cc: Eric Paris <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
+        jmorris@namei.org, Paul Moore <paul.moore@hp.com>
 In-Reply-To: <1204224606.32061.218.camel@gorn>
 References: <1204221520.3206.86.camel@localhost.localdomain>
 	 <1204224606.32061.218.camel@gorn>
 Content-Type: text/plain
-Date: Thu, 28 Feb 2008 14:00:33 -0500
-Message-Id: <1204225233.3206.120.camel@localhost.localdomain>
+Date: Thu, 28 Feb 2008 14:04:00 -0500
+Message-Id: <1204225440.31790.189.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -29,21 +29,11 @@ On Thu, 2008-02-28 at 13:50 -0500, Christopher J. PeBenito wrote:
 > 
 > What does open on a dir mean?  Isn't that the same as the read perm?
 
-Admittedly there is very little distinction and I don't know the
-usefulness, but it is possible for a process to pass an open fd to a
-directory so I saw little reason to exclude it.  lnk and socket files
-were excluded because they could not be 'opened.'  Obvious for a socket,
-but lnk files are magically changed in the kernel to an open on the real
-file before the security check, so you couldn't ever pass an open lnk
-file.
-
-> #============= httpd_t =============
-> allow httpd_t user_tmp_t:dir { read open };
-> #============= ntpd_t ==============
-> allow ntpd_t user_tmp_t:dir read;
-
--Eric
-
+open should only get checked at open(2) time, while read will get
+checked both at open(2) time and if the descriptor is inherited or
+transferred.
+  
+> 
 > > allow httpd_t user_tmp_t:dir { read open };
 > [...]
 > > + * Convert a file mask to an access vector and include the correct open
@@ -75,6 +65,9 @@ file.
 > > +}
 > > +
 > 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
