@@ -1,18 +1,18 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0iRJk025269
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:44:27 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0iQVG000542
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:44:26 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0hr4Q025023
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:43:53 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0hq2Z012285
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:43:52 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 08/37] Security: Add a kernel_service object class to SELinux
-	[ver #34]
+Subject: [PATCH 01/37] KEYS: Increase the payload size when instantiating a
+	key [ver #34]
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 29 Feb 2008 00:44:16 +0000
-Message-ID: <20080229004416.4142.15347.stgit@warthog.procyon.org.uk>
+Date: Fri, 29 Feb 2008 00:43:38 +0000
+Message-ID: <20080229004338.4142.73865.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 References: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,72 +20,116 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a 'kernel_service' object class to SELinux and give this object class two
-access vectors: 'use_as_override' and 'create_files_as'.
-
-The first vector is used to grant a process the right to nominate an alternate
-process security ID for the kernel to use as an override for the SELinux
-subjective security when accessing stuff on behalf of another process.
-
-For example, CacheFiles when accessing the cache on behalf on a process
-accessing an NFS file needs to use a subjective security ID appropriate to the
-cache rather then the one the calling process is using.  The cachefilesd
-daemon will nominate the security ID to be used.
-
-The second vector is used to grant a process the right to nominate a file
-creation label for a kernel service to use.
+Increase the size of a payload that can be used to instantiate a key in
+add_key() and keyctl_instantiate_key().  This permits huge CIFS SPNEGO blobs to
+be passed around.  The limit is raised to 1MB.  If kmalloc() can't allocate a
+buffer of sufficient size, vmalloc() will be tried instead.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- security/selinux/include/av_perm_to_string.h |    2 ++
- security/selinux/include/av_permissions.h    |    2 ++
- security/selinux/include/class_to_string.h   |    1 +
- security/selinux/include/flask.h             |    1 +
- 4 files changed, 6 insertions(+), 0 deletions(-)
+ security/keys/keyctl.c |   38 ++++++++++++++++++++++++++++++--------
+ 1 files changed, 30 insertions(+), 8 deletions(-)
 
 
-diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-index d569669..fd6bef7 100644
---- a/security/selinux/include/av_perm_to_string.h
-+++ b/security/selinux/include/av_perm_to_string.h
-@@ -171,3 +171,5 @@
-    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
-    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
-    S_(SECCLASS_PEER, PEER__RECV, "recv")
-+   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__USE_AS_OVERRIDE, "use_as_override")
-+   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__CREATE_FILES_AS, "create_files_as")
-diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
-index 75b4131..02ddf8d 100644
---- a/security/selinux/include/av_permissions.h
-+++ b/security/selinux/include/av_permissions.h
-@@ -836,3 +836,5 @@
- #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
- #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
- #define PEER__RECV                                0x00000001UL
-+#define KERNEL_SERVICE__USE_AS_OVERRIDE           0x00000001UL
-+#define KERNEL_SERVICE__CREATE_FILES_AS           0x00000002UL
-diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
-index bd813c3..373b191 100644
---- a/security/selinux/include/class_to_string.h
-+++ b/security/selinux/include/class_to_string.h
-@@ -72,3 +72,4 @@
-     S_(NULL)
-     S_("peer")
-     S_("capability2")
-+    S_("kernel_service")
-diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
-index febf886..f3c5166 100644
---- a/security/selinux/include/flask.h
-+++ b/security/selinux/include/flask.h
-@@ -52,6 +52,7 @@
- #define SECCLASS_MEMPROTECT                              61
- #define SECCLASS_PEER                                    68
- #define SECCLASS_CAPABILITY2                             69
-+#define SECCLASS_KERNEL_SERVICE                          70
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index d9ca15c..8ec8432 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -19,6 +19,7 @@
+ #include <linux/capability.h>
+ #include <linux/string.h>
+ #include <linux/err.h>
++#include <linux/vmalloc.h>
+ #include <asm/uaccess.h>
+ #include "internal.h"
  
- /*
-  * Security identifier indices for initial entities
+@@ -62,9 +63,10 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 	char type[32], *description;
+ 	void *payload;
+ 	long ret;
++	bool vm;
+ 
+ 	ret = -EINVAL;
+-	if (plen > 32767)
++	if (plen > 1024 * 1024 - 1)
+ 		goto error;
+ 
+ 	/* draw all the data into kernel space */
+@@ -81,11 +83,18 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 	/* pull the payload in if one was supplied */
+ 	payload = NULL;
+ 
++	vm = false;
+ 	if (_payload) {
+ 		ret = -ENOMEM;
+ 		payload = kmalloc(plen, GFP_KERNEL);
+-		if (!payload)
+-			goto error2;
++		if (!payload) {
++			if (plen <= PAGE_SIZE)
++				goto error2;
++			vm = true;
++			payload = vmalloc(plen);
++			if (!payload)
++				goto error2;
++		}
+ 
+ 		ret = -EFAULT;
+ 		if (copy_from_user(payload, _payload, plen) != 0)
+@@ -113,7 +122,10 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 
+ 	key_ref_put(keyring_ref);
+  error3:
+-	kfree(payload);
++	if (!vm)
++		kfree(payload);
++	else
++		vfree(payload);
+  error2:
+ 	kfree(description);
+  error:
+@@ -821,9 +833,10 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	key_ref_t keyring_ref;
+ 	void *payload;
+ 	long ret;
++	bool vm = false;
+ 
+ 	ret = -EINVAL;
+-	if (plen > 32767)
++	if (plen > 1024 * 1024 - 1)
+ 		goto error;
+ 
+ 	/* the appropriate instantiation authorisation key must have been
+@@ -843,8 +856,14 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	if (_payload) {
+ 		ret = -ENOMEM;
+ 		payload = kmalloc(plen, GFP_KERNEL);
+-		if (!payload)
+-			goto error;
++		if (!payload) {
++			if (plen <= PAGE_SIZE)
++				goto error;
++			vm = true;
++			payload = vmalloc(plen);
++			if (!payload)
++				goto error;
++		}
+ 
+ 		ret = -EFAULT;
+ 		if (copy_from_user(payload, _payload, plen) != 0)
+@@ -877,7 +896,10 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	}
+ 
+ error2:
+-	kfree(payload);
++	if (!vm)
++		kfree(payload);
++	else
++		vfree(payload);
+ error:
+ 	return ret;
+ 
 
 
 --
