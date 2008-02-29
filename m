@@ -1,18 +1,18 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0kthN025991
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:46:55 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0ks2Z013242
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:46:54 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0iRJk025269
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:44:27 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0iQVG000542
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:44:26 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 35/37] NFS: Store pages from an NFS inode into a local cache
+Subject: [PATCH 08/37] Security: Add a kernel_service object class to SELinux
 	[ver #34]
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 29 Feb 2008 00:46:41 +0000
-Message-ID: <20080229004640.4142.46624.stgit@warthog.procyon.org.uk>
+Date: Fri, 29 Feb 2008 00:44:16 +0000
+Message-ID: <20080229004416.4142.15347.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 References: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,109 +20,72 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Store pages from an NFS inode into the cache data storage object associated
-with that inode.
+Add a 'kernel_service' object class to SELinux and give this object class two
+access vectors: 'use_as_override' and 'create_files_as'.
+
+The first vector is used to grant a process the right to nominate an alternate
+process security ID for the kernel to use as an override for the SELinux
+subjective security when accessing stuff on behalf of another process.
+
+For example, CacheFiles when accessing the cache on behalf on a process
+accessing an NFS file needs to use a subjective security ID appropriate to the
+cache rather then the one the calling process is using.  The cachefilesd
+daemon will nominate the security ID to be used.
+
+The second vector is used to grant a process the right to nominate a file
+creation label for a kernel service to use.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/fscache.c |   26 ++++++++++++++++++++++++++
- fs/nfs/fscache.h |   16 ++++++++++++++++
- fs/nfs/read.c    |    5 +++++
- 3 files changed, 47 insertions(+), 0 deletions(-)
+ security/selinux/include/av_perm_to_string.h |    2 ++
+ security/selinux/include/av_permissions.h    |    2 ++
+ security/selinux/include/class_to_string.h   |    1 +
+ security/selinux/include/flask.h             |    1 +
+ 4 files changed, 6 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index 7551c3b..a02ba33 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -499,3 +499,29 @@ int __nfs_readpages_from_fscache(struct nfs_open_context *ctx,
- 
- 	return ret;
- }
-+
-+/*
-+ * Store a newly fetched page in fscache
-+ * - PG_fscache must be set on the page
-+ */
-+void __nfs_readpage_to_fscache(struct inode *inode, struct page *page, int sync)
-+{
-+	int ret;
-+
-+	dfprintk(FSCACHE,
-+		 "NFS: readpage_to_fscache(fsc:%p/p:%p(i:%lx f:%lx)/%d)\n",
-+		 NFS_I(inode)->fscache, page, page->index, page->flags, sync);
-+
-+	ret = fscache_write_page(NFS_I(inode)->fscache, page, GFP_KERNEL);
-+	dfprintk(FSCACHE,
-+		 "NFS:     readpage_to_fscache: p:%p(i:%lu f:%lx) ret %d\n",
-+		 page, page->index, page->flags, ret);
-+
-+	if (ret != 0) {
-+		fscache_uncache_page(NFS_I(inode)->fscache, page);
-+		nfs_add_stats(inode, NFSIOS_FSCACHE_WRITE_FAIL, 1);
-+		nfs_add_stats(inode, NFSIOS_FSCACHE_UNCACHE, 1);
-+	} else {
-+		nfs_add_stats(inode, NFSIOS_FSCACHE_WRITE_OK, 1);
-+	}
-+}
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index a522f89..2dc94e9 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -92,6 +92,7 @@ extern int __nfs_readpage_from_fscache(struct nfs_open_context *,
- extern int __nfs_readpages_from_fscache(struct nfs_open_context *,
- 					struct inode *, struct address_space *,
- 					struct list_head *, unsigned *);
-+extern void __nfs_readpage_to_fscache(struct inode *, struct page *, int);
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index d569669..fd6bef7 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -171,3 +171,5 @@
+    S_(SECCLASS_DCCP_SOCKET, DCCP_SOCKET__NAME_CONNECT, "name_connect")
+    S_(SECCLASS_MEMPROTECT, MEMPROTECT__MMAP_ZERO, "mmap_zero")
+    S_(SECCLASS_PEER, PEER__RECV, "recv")
++   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__USE_AS_OVERRIDE, "use_as_override")
++   S_(SECCLASS_KERNEL_SERVICE, KERNEL_SERVICE__CREATE_FILES_AS, "create_files_as")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index 75b4131..02ddf8d 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -836,3 +836,5 @@
+ #define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
+ #define MEMPROTECT__MMAP_ZERO                     0x00000001UL
+ #define PEER__RECV                                0x00000001UL
++#define KERNEL_SERVICE__USE_AS_OVERRIDE           0x00000001UL
++#define KERNEL_SERVICE__CREATE_FILES_AS           0x00000002UL
+diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
+index bd813c3..373b191 100644
+--- a/security/selinux/include/class_to_string.h
++++ b/security/selinux/include/class_to_string.h
+@@ -72,3 +72,4 @@
+     S_(NULL)
+     S_("peer")
+     S_("capability2")
++    S_("kernel_service")
+diff --git a/security/selinux/include/flask.h b/security/selinux/include/flask.h
+index febf886..f3c5166 100644
+--- a/security/selinux/include/flask.h
++++ b/security/selinux/include/flask.h
+@@ -52,6 +52,7 @@
+ #define SECCLASS_MEMPROTECT                              61
+ #define SECCLASS_PEER                                    68
+ #define SECCLASS_CAPABILITY2                             69
++#define SECCLASS_KERNEL_SERVICE                          70
  
  /*
-  * release the caching state associated with a page if undergoing complete page
-@@ -131,6 +132,19 @@ static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
- 	return -ENOBUFS;
- }
- 
-+/*
-+ * Store a page newly fetched from the server in an inode data storage object
-+ * in the cache.
-+ */
-+static inline void nfs_readpage_to_fscache(struct inode *inode,
-+					   struct page *page,
-+					   int sync)
-+{
-+	if (PageFsCache(page))
-+		__nfs_readpage_to_fscache(inode, page, sync);
-+}
-+
-+
- #else /* CONFIG_NFS_FSCACHE */
- static inline int nfs_fscache_register(void) { return 0; }
- static inline void nfs_fscache_unregister(void) {}
-@@ -174,6 +188,8 @@ static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
- {
- 	return -ENOBUFS;
- }
-+static inline void nfs_readpage_to_fscache(struct inode *inode,
-+					   struct page *page, int sync) {}
- 
- #endif /* CONFIG_NFS_FSCACHE */
- #endif /* _NFS_FSCACHE_H */
-diff --git a/fs/nfs/read.c b/fs/nfs/read.c
-index db27b26..e09bdf9 100644
---- a/fs/nfs/read.c
-+++ b/fs/nfs/read.c
-@@ -143,6 +143,11 @@ int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
- 
- static void nfs_readpage_release(struct nfs_page *req)
- {
-+	struct inode *d_inode = req->wb_context->path.dentry->d_inode;
-+
-+	if (PageUptodate(req->wb_page))
-+		nfs_readpage_to_fscache(d_inode, req->wb_page, 0);
-+
- 	unlock_page(req->wb_page);
- 
- 	dprintk("NFS: read done (%s/%Ld %d@%Ld)\n",
+  * Security identifier indices for initial entities
 
 
 --
