@@ -1,57 +1,67 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1TDcfmK027579
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 08:38:41 -0500
-Received: from g4t0016.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1TDcYQO010081
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 13:38:35 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [RFC PATCH] SELinux: Cleanup the secid/secctx conversion functions
-Date: Fri, 29 Feb 2008 08:27:28 -0500
+Subject: Re: [RFC PATCH] SELinux: Cleanup the secid/secctx conversion
+	functions
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
 Cc: selinux@tycho.nsa.gov
-References: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net> <Xine.LNX.4.64.0802292048010.27014@us.intercode.com.au>
-In-Reply-To: <Xine.LNX.4.64.0802292048010.27014@us.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200802290827.30364.paul.moore@hp.com>
+In-Reply-To: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net>
+References: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net>
+Content-Type: text/plain
+Date: Fri, 29 Feb 2008 08:54:33 -0500
+Message-Id: <1204293273.31790.251.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 29 February 2008 4:49:59 am James Morris wrote:
-> On Thu, 28 Feb 2008, Paul Moore wrote:
-> > While looking at the SELinux secid/secctx conversion functions I realized
-> > they could probably do with a little cleanup to reduce the amount of code
-> > and make better use of existing string processing functions in the
-> > kernel.  Making use of the kernel's existing string processing functions
-> > is a good idea as many architectures have specialized/optimized routines
-> > which should be an improvement over the generic code in the SELinux
-> > security server.
->
-> Please always include a signed-off-by line, in case the patch gets
-> applied.
 
-Not including my sign-off is intentional as I've found it the only reliable to 
-keep patches from being merged upstream before I'm happy with them.  In this 
-particular case I've only booted the patch once or twice and was posting it 
-to see if others felt it worthwhile before I spent any more time on it.
+On Thu, 2008-02-28 at 16:41 -0500, Paul Moore wrote:
+> While looking at the SELinux secid/secctx conversion functions I realized they
+> could probably do with a little cleanup to reduce the amount of code and make
+> better use of existing string processing functions in the kernel.  Making use
+> of the kernel's existing string processing functions is a good idea as many
+> architectures have specialized/optimized routines which should be an
+> improvement over the generic code in the SELinux security server.
+> ---
+> 
+>  security/selinux/ss/mls.c      |   61 +++++--------
+>  security/selinux/ss/mls.h      |    3 -
+>  security/selinux/ss/services.c |  194 ++++++++++++++++------------------------
+>  3 files changed, 103 insertions(+), 155 deletions(-)
+> 
 
-> > -static int context_struct_to_string(struct context *context, char
-> > **scontext, u32 *scontext_len) +static int
-> > context_struct_to_string(struct context *context,
-> > +				    char **scontext, u32 *scontext_len)
->
-> I tend to not prefer the 80-column rule for function declarations, as it
-> makes the code harder to grep (not a show-stopper, but generally, don't
-> try and fix these).
+The snippet below looks like a step backward rather than an improvement
+- single sprintf replaced by series of strcat calls.  That can't be more
+efficient.
 
-I find myself sticking pretty religiously to the 80-column rule, but you make 
-a valid point that if I'm not changing the arguments I probably shouldn't 
-mess with them.  I'll fix that up.
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index f374186..4aab8a5 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+<snip>
+> -	/*
+> -	 * Copy the user name, role name and type name into the context.
+> -	 */
+> -	sprintf(scontextp, "%s:%s:%s",
+> -		policydb.p_user_val_to_name[context->user - 1],
+> -		policydb.p_role_val_to_name[context->role - 1],
+> -		policydb.p_type_val_to_name[context->type - 1]);
+> -	scontextp += strlen(policydb.p_user_val_to_name[context->user - 1]) +
+> -	             1 + strlen(policydb.p_role_val_to_name[context->role - 1]) +
+> -	             1 + strlen(policydb.p_type_val_to_name[context->type - 1]);
+> -
+> -	mls_sid_to_context(context, &scontextp);
+> -
+> -	*scontextp = 0;
+> +	ctx = *scontext;
+> +	strcpy(ctx, policydb.p_user_val_to_name[context->user - 1]);
+> +	strcat(ctx, ":");
+> +	strcat(ctx, policydb.p_role_val_to_name[context->role - 1]);
+> +	strcat(ctx, ":");
+> +	strcat(ctx, policydb.p_type_val_to_name[context->type - 1]);
 
 -- 
-paul moore
-linux security @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
