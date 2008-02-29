@@ -1,115 +1,173 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T7LLD1006540
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 02:21:21 -0500
-Received: from vidle.i.cz (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T7LIVE001809
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 07:21:19 GMT
-Date: Fri, 29 Feb 2008 08:21:16 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-Subject: Re: refpolicy: patch for ldconfig from glibc 2.7, new patch
-Message-ID: <20080229072116.GA13364@bobek.pm.i.cz>
-References: <20080222152703.GA4163@bobek.pm.i.cz> <1203703539.32061.22.camel@gorn>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="pWyiEgJYm5f9v55/"
-In-Reply-To: <1203703539.32061.22.camel@gorn>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T7wiwj012155
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 02:58:44 -0500
+Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T7wgRI016116
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 07:58:42 GMT
+Subject: Re: apache_content_template
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <47C5BAA4.5070407@redhat.com>
+References: <1204113879.2678.19.camel@vogon>  <47C58688.1030504@redhat.com>
+	 <1204129416.2678.31.camel@vogon>  <47C5A6E2.10400@redhat.com>
+	 <1204140324.2678.42.camel@vogon>  <47C5BAA4.5070407@redhat.com>
+Content-Type: text/plain
+Date: Fri, 29 Feb 2008 08:57:40 +0100
+Message-Id: <1204271860.2659.19.camel@vogon>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---pWyiEgJYm5f9v55/
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-
-Hi,
-this is a completion of previos patch...
-
-On Fri, Feb 22, 2008 at 01:05:39PM -0500, Christopher J. PeBenito wrote:
-> On Fri, 2008-02-22 at 16:27 +0100, Václav Ovsík wrote:
-> > Hi,
-> > I had some denials for ldconfig on Debian Sid. I took changes from
-> > Fedora policy package - a patch attached. I grabed only things needed
-> > to suppress denials below from Fedora.
-> > 
-> > audit(1203580520.435:11): avc:  denied  { read } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
-> > audit(1203580520.435:12): avc:  denied  { getattr } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
-> > audit(1203580520.907:13): avc:  denied  { write } for  pid=3985 comm="ldconfig" name="ldconfig" dev=sda1 ino=294986 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
-> > audit(1203580520.907:14): avc:  denied  { add_name } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
-> > audit(1203580520.907:15): avc:  denied  { create } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
+On Wed, 2008-02-27 at 14:31 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> This is the right fix, and basically the same fix is queued up for
-> merging as part of Dan's patch set.
+> Stefan Schulze Frielinghaus wrote:
+> > On Wed, 2008-02-27 at 13:07 -0500, Daniel J Walsh wrote:
+> >> -----BEGIN PGP SIGNED MESSAGE-----
+> >> Hash: SHA1
+> >>
+> >> Stefan Schulze Frielinghaus wrote:
+> >>> On Wed, 2008-02-27 at 10:49 -0500, Daniel J Walsh wrote:
+> >>>> Stefan Schulze Frielinghaus wrote:
+> >>>>> I wanted to fix a problem with awstats and httpd_t but I ran into a
+> >>>>> problem and just wanted to hear some other ideas.
+> >>>>>
+> >>>>> Awstats uses the apache content template:
+> >>>>> apache_content_template(awstats)
+> >>>>>
+> >>>>> And a few awstats icons are labeled as httpd_awstats_content_t. When the
+> >>>>> awstats CGI script is executed it generates a HTML file which includes
+> >>>>> links to these icons. As soon as the httpd receives a query from the
+> >>>>> client to download these icons an AVC is generated and the request is
+> >>>>> denied. To allow this I would have to include a rule like:
+> >>>>>
+> >>>>> allow httpd_t httpd_awstats_content_t:dir getattr;
+> >>>>> allow httpd_t httpd_awstats_content_t:file { getattr read };
+> >>>>>
+> >>>>> But then I would have to write a require statement for my awstats module
+> >>>>> to include the type httpd_t as a dependency. While reading the apache.te
+> >>>>> file I recognized three lines:
+> >>>>>
+> >>>>> allow httpd_t httpd_sys_content_t:dir list_dir_perms;
+> >>>>> read_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
+> >>>>> read_lnk_files_pattern(httpd_t,httpd_sys_content_t,httpd_sys_content_t)
+> >>>>>
+> >>>>> Why aren't these ones included in the apache_content_template like these
+> >>>>> ones:
+> >>>>>
+> >>>>> allow httpd_t httpd_$1_content_t:dir list_dir_perms;
+> >>>>> read_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
+> >>>>> read_lnk_files_pattern(httpd_t,httpd_$1_content_t,httpd_$1_content_t)
+> >>>>>
+> >>>>> This would solve my problem with awstats and what my interpretation of
+> >>>>> the httpd_$1_content_t type is that only these files should be red by
+> >>>>> the httpd_t directly. I think other ones will run into the same problem
+> >>>>> too.
+> >>>>>
+> >>>>> Any thoughts?
+> >>>>>
+> >>>>>
+> >>>>> --
+> >>>>> This message was distributed to subscribers of the selinux mailing list.
+> >>>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> >>>>> the words "unsubscribe selinux" without quotes as the message.
+> >>>>>   
+> >>>> Making that change would eliminate any possibility  of separation of cgi 
+> >>>> data from php data.  IE If I only want my cgi scrips/processes to be 
+> >>>> able to read my data, it ie easy to do now.  But with your change, any 
+> >>>> script that does not cause a transition can now access my data.
+> >>>>
+> >>>> I would prefer an
+> >>>>
+> >>>> apache_can_read(httpd_awstats_content_t)
+> >>> But if you want to hide data from other scripts you normally use
+> >>> httpd_$1_script_ro_t or httpd_$1_script_rw_t. The policy of the template
+> >>> does not have any allow rules to read httpd_$1_content_t (except two
+> >>> search_dir_perms which does not count). This means that even
+> >>> httpd_$1_script_t can't read httpd_$1_content_t. So whats the purpose of
+> >>> httpd_$1_content_t really? I can't see it.
+> >>>
+> >> You are right.  Those rules are missing and should be added.
+> >>
+> >> read_files_pattern(httpd_$1_script_t, httpdcontent, httpd_$1_content_t)
+> >> read_lnk_files_pattern(httpd_$1_script_t, httpdcontent, httpd_$1_content_t)
+> > 
+> > I'm sorry but I'm still not convinced.
+> > 
+> > This would mean we have two types:
+> > - httpd_$1_content_t
+> > - httpd_$1_script_ro_t
+> > which have the same allow rules and the same meaning. No real difference
+> > (after adding your allow rules).
+> > 
+> > And a comment from the apache_content_template indicates that there is
+> > something wrong with your definition:
+> > 
+> > # The following three are the only areas that 
+> > # scripts can read, read/write, or append to
+> > 
+> > After this comment allow rules follow for ro/rw and append types.
+> > 
+> > I still believe that the initial purpose of httpd_$1_content_t was to
+> > allow httpd_t to read files/dirs. Otherwise httpd_$1_script_ro_t could
+> > be used. Or even httpd_$1_content_t is a duplicate and could be removed.
+> > 
+> Yes you might be right.
+> I would say httpd_$1_script_ro_t should go away and be an alias of
+> httpd_$1_content_t.  Then allow httpd_$1_script_t read on all
+> files/directories/lnk_files.  Labeling a directory httpd_$1_script_ro_t
+> and putting rw_t content in is seems strange.
+> 
+> But there is a boolean to allow httpd to read script specific content.
+> 
+> httpd_builtin_scripting
+> 
+> Which if we changed the httpd_$1_script_ro_t would fix the problem.
+> 
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.8 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iEYEARECAAYFAkfFuqQACgkQrlYvE4MpobMBYQCgtO3951Eg0gyq84wlE+H8FKTu
+> Xf8AoKLJeYBhJ96mcwyMBYI9aoLK0NE+
+> =vU6O
+> -----END PGP SIGNATURE-----
 
-When se_aptitude or se_apt is ran on Debian (apt or aptitude execution wrapped
-with run_init), then the ldconfig called from a postinst and/or a postrm
-scripts of shared libs brings following denials:
+Another problem raised up. httpd_t should have at least search
+permissions for httpd_$1_content_t because otherwise httpd_t could not
+read httpd_$1_htaccess_t files. The following rules exists:
 
-Feb 28 12:24:59 sid kernel: audit(1204197899.429:13): avc:  denied  { read write } for  pid=3209 comm="ldconfig" name="2" dev=devpts ino=4 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:devpts_t:s0 tclass=chr_file
-Feb 28 12:24:59 sid kernel: audit(1204197899.429:14): avc:  denied  { use } for  pid=3209 comm="ldconfig" name="2" dev=devpts ino=4 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
-Feb 28 12:24:59 sid kernel: audit(1204197899.429:15): avc:  denied  { write } for  pid=3209 comm="ldconfig" name="[23124]" dev=pipefs ino=23124 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+allow httpd_t httpd_$1_htaccess_t:file read_file_perms;
 
-The attached patch (wich replaces my previos patch) suppresses these messages.
-Maybe this could be solved also by adding unconfined_domain(ldconfig_t) like
-Fedora or Ubuntu solves this. (This could be added to.)
+I would suggest to change this allow rule to read_files_pattern()
 
-Regards
--- 
-Zito
+A small example should summaries the problem:
 
---pWyiEgJYm5f9v55/
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="libraries.ldconfig.2.patch"
+/var/www.myWiki <- is labeled as httpd_myWiki_content_t
+/var/www.myWiki/config/.htaccess <- is labeled as     
+                                    httpd_myWiki_htaccess_t
 
-Index: policy/modules/system/libraries.fc
-===================================================================
---- policy/modules/system/libraries.fc	(revision 2626)
-+++ policy/modules/system/libraries.fc	(working copy)
-@@ -304,3 +304,5 @@
- /var/spool/postfix/lib(64)?(/.*)? 		gen_context(system_u:object_r:lib_t,s0)
- /var/spool/postfix/usr(/.*)?			gen_context(system_u:object_r:lib_t,s0)
- /var/spool/postfix/lib(64)?/ld.*\.so.*	--	gen_context(system_u:object_r:ld_so_t,s0)
-+
-+/var/cache/ldconfig(/.*)?		    	gen_context(system_u:object_r:ldconfig_cache_t,s0)
-Index: policy/modules/system/libraries.te
-===================================================================
---- policy/modules/system/libraries.te	(revision 2626)
-+++ policy/modules/system/libraries.te	(working copy)
-@@ -23,6 +23,9 @@
- init_system_domain(ldconfig_t,ldconfig_exec_t)
- role system_r types ldconfig_t;
- 
-+type ldconfig_cache_t;
-+files_type(ldconfig_cache_t)
-+
- type ldconfig_tmp_t;
- files_tmp_file(ldconfig_tmp_t)
- 
-@@ -46,7 +49,9 @@
- 
- allow ldconfig_t self:capability sys_chroot;
- 
--allow ldconfig_t ld_so_cache_t:file manage_file_perms;
-+manage_files_pattern(ldconfig_t,ldconfig_cache_t,ldconfig_cache_t)
-+
-+manage_files_pattern(ldconfig_t,ld_so_cache_t,ld_so_cache_t)
- files_etc_filetrans(ldconfig_t,ld_so_cache_t,file)
- 
- manage_dirs_pattern(ldconfig_t,ldconfig_tmp_t,ldconfig_tmp_t)
-@@ -103,3 +108,10 @@
- 	# blow up.
- 	rpm_manage_script_tmp_files(ldconfig_t)
- ')
-+
-+optional_policy(`
-+	# ldconfig run from postinstall, postrm scripts on Debian...
-+	apt_rw_pipes(ldconfig_t)
-+	apt_use_fds(ldconfig_t)
-+	term_use_generic_ptys(ldconfig_t)
-+')
+httpd_t could not read the htaccess file because it does not have search
+permissions for /var/www.myWiki.
 
---pWyiEgJYm5f9v55/--
+Another example would be:
+
+/usr/share/awstats/wwwroot <- labeled as httpd_awstats_content_t
+/usr/share/awstats/wwwroot/cgi-bin <- labeled as 
+                                       httpd_awstats_script_exec_t
+/usr/share/awstats/wwwroot/icon <- labeled as httpd_sys_content_t
+
+This would work if httpd_t has search permissions because httpd_t can
+scroll through /usr/share/awstats/wwwroot and then into icon.
+
+The search permissions and the correct labeling of
+e.g. /usr/share/awstats/wwwroot/icon as httpd_sys_content_t would also
+eliminate the need of apache_can_read()
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
