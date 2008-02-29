@@ -1,66 +1,61 @@
-Subject: Re: [RFC PATCH] SELinux: Cleanup the secid/secctx conversion
-	functions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net>
-References: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net>
-Content-Type: text/plain
-Date: Fri, 29 Feb 2008 08:54:33 -0500
-Message-Id: <1204293273.31790.251.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1TED1QW031379
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 09:13:01 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m1TECxQO025778
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 14:12:59 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: refpolicy: patch for ldconfig from glibc 2.7, new patch
+Date: Fri, 29 Feb 2008 08:46:01 -0500
+Message-ID: <1204292761.32061.230.camel@gorn>
+In-Reply-To: <20080229072116.GA13364@bobek.pm.i.cz>
+References: <20080222152703.GA4163@bobek.pm.i.cz> <1203703539.32061.22.camel@gorn>  <20080229072116.GA13364@bobek.pm.i.cz>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: =?iso-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: <selinux@tycho.nsa.gov>, <selinux-devel@lists.alioth.debian.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Thu, 2008-02-28 at 16:41 -0500, Paul Moore wrote:
-> While looking at the SELinux secid/secctx conversion functions I realized they
-> could probably do with a little cleanup to reduce the amount of code and make
-> better use of existing string processing functions in the kernel.  Making use
-> of the kernel's existing string processing functions is a good idea as many
-> architectures have specialized/optimized routines which should be an
-> improvement over the generic code in the SELinux security server.
-> ---
+On Fri, 2008-02-29 at 08:21 +0100, Václav Ovsík wrote:
+> Hi,
+> this is a completion of previos patch...
+[...]
+> When se_aptitude or se_apt is ran on Debian (apt or aptitude execution wrapped
+> with run_init), then the ldconfig called from a postinst and/or a postrm
+> scripts of shared libs brings following denials:
 > 
->  security/selinux/ss/mls.c      |   61 +++++--------
->  security/selinux/ss/mls.h      |    3 -
->  security/selinux/ss/services.c |  194 ++++++++++++++++------------------------
->  3 files changed, 103 insertions(+), 155 deletions(-)
+> Feb 28 12:24:59 sid kernel: audit(1204197899.429:13): avc:  denied  { read write } for  pid=3209 comm="ldconfig" name="2" dev=devpts ino=4 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:devpts_t:s0 tclass=chr_file
+> Feb 28 12:24:59 sid kernel: audit(1204197899.429:14): avc:  denied  { use } for  pid=3209 comm="ldconfig" name="2" dev=devpts ino=4 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> Feb 28 12:24:59 sid kernel: audit(1204197899.429:15): avc:  denied  { write } for  pid=3209 comm="ldconfig" name="[23124]" dev=pipefs ino=23124 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
 > 
+> The attached patch (wich replaces my previos patch) suppresses these messages.
+> Maybe this could be solved also by adding unconfined_domain(ldconfig_t) like
+> Fedora or Ubuntu solves this. (This could be added to.)
 
-The snippet below looks like a step backward rather than an improvement
-- single sprintf replaced by series of strcat calls.  That can't be more
-efficient.
+The apt rules are fine, but there shouldn't be any more generic pty
+usage anymore.  Are you using an older policy that doesn't have strict
+and targeted merged (and unconfined_r)?
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index f374186..4aab8a5 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-<snip>
-> -	/*
-> -	 * Copy the user name, role name and type name into the context.
-> -	 */
-> -	sprintf(scontextp, "%s:%s:%s",
-> -		policydb.p_user_val_to_name[context->user - 1],
-> -		policydb.p_role_val_to_name[context->role - 1],
-> -		policydb.p_type_val_to_name[context->type - 1]);
-> -	scontextp += strlen(policydb.p_user_val_to_name[context->user - 1]) +
-> -	             1 + strlen(policydb.p_role_val_to_name[context->role - 1]) +
-> -	             1 + strlen(policydb.p_type_val_to_name[context->type - 1]);
-> -
-> -	mls_sid_to_context(context, &scontextp);
-> -
-> -	*scontextp = 0;
-> +	ctx = *scontext;
-> +	strcpy(ctx, policydb.p_user_val_to_name[context->user - 1]);
-> +	strcat(ctx, ":");
-> +	strcat(ctx, policydb.p_role_val_to_name[context->role - 1]);
-> +	strcat(ctx, ":");
-> +	strcat(ctx, policydb.p_type_val_to_name[context->type - 1]);
+> @@ -103,3 +108,10 @@
+>         # blow up.
+>         rpm_manage_script_tmp_files(ldconfig_t)
+>  ')
+> +
+> +optional_policy(`
+> +       # ldconfig run from postinstall, postrm scripts on Debian...
+> +       apt_rw_pipes(ldconfig_t)
+> +       apt_use_fds(ldconfig_t)
+> +       term_use_generic_ptys(ldconfig_t)
+> +')
+> 
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
