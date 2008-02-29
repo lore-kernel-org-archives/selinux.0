@@ -1,98 +1,115 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T49YvW020340
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 23:09:34 -0500
-Message-ID: <47C7857C.7070406@tycho.nsa.gov>
-Date: Thu, 28 Feb 2008 23:09:32 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T7LLD1006540
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 02:21:21 -0500
+Received: from vidle.i.cz (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T7LIVE001809
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 07:21:19 GMT
+Date: Fri, 29 Feb 2008 08:21:16 +0100
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+Subject: Re: refpolicy: patch for ldconfig from glibc 2.7, new patch
+Message-ID: <20080229072116.GA13364@bobek.pm.i.cz>
+References: <20080222152703.GA4163@bobek.pm.i.cz> <1203703539.32061.22.camel@gorn>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SELinux List <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Tonights rawhide contains a fix to stop xspy.
-References: <47C63353.9040008@redhat.com> <47C6650F.2060909@tycho.nsa.gov> <47C6C16D.1010002@redhat.com>
-In-Reply-To: <47C6C16D.1010002@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/mixed; boundary="pWyiEgJYm5f9v55/"
+In-Reply-To: <1203703539.32061.22.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+
+--pWyiEgJYm5f9v55/
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+
+Hi,
+this is a completion of previos patch...
+
+On Fri, Feb 22, 2008 at 01:05:39PM -0500, Christopher J. PeBenito wrote:
+> On Fri, 2008-02-22 at 16:27 +0100, Václav Ovsík wrote:
+> > Hi,
+> > I had some denials for ldconfig on Debian Sid. I took changes from
+> > Fedora policy package - a patch attached. I grabed only things needed
+> > to suppress denials below from Fedora.
+> > 
+> > audit(1203580520.435:11): avc:  denied  { read } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
+> > audit(1203580520.435:12): avc:  denied  { getattr } for  pid=3985 comm="ldconfig" name="aux-cache" dev=sda1 ino=294984 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
+> > audit(1203580520.907:13): avc:  denied  { write } for  pid=3985 comm="ldconfig" name="ldconfig" dev=sda1 ino=294986 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
+> > audit(1203580520.907:14): avc:  denied  { add_name } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=dir
+> > audit(1203580520.907:15): avc:  denied  { create } for  pid=3985 comm="ldconfig" name="aux-cache~" scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
 > 
-> Eamon Walsh wrote:
->> Daniel J Walsh wrote:
->> Basically if you turn on xserver_object_manager boolean, no applications
->> will be allowed to read the x_device.  This stops xspy as you said dead
->> in its tracks,  but some other applications start to get AVC's around
->> querypointer, and eventually I hung the server.  You mentioned in
->> another email, that you were going to change the querypointer to a
->> getattr rather then a read, I think this is necessary, to make this work.
->>   
->>
->>> I have attached a patch that will do this.  There is another request,
->>> XKEYBOARD:GetState, that also requires read and I've noticed that
->>> gnome-settings-daemon is calling it (see below).  If you want to drop
->>> that down to getattr too, let me know; it doesn't look like it returns
->>> the whole keyboard like XQueryKeymap does, however both it and
->>> XQueryPointer return the mouse buttons and the modifier keys (shift,
->>> alt, ctrl, etc.).  Long-term we really need to get applications to stop
->>> calling these.
- >
-> Is there any way to differentiate the mouse from the keyboard, why are
-> the the same type?
+> This is the right fix, and basically the same fix is queued up for
+> merging as part of Dan's patch set.
 
-The idea behind the PAM work is to relabel the devices at login time. 
-It's kind of a moot point though because XQueryPointer returns both 
-mouse and keyboard state and should technically require read permission 
-on both devices.
+When se_aptitude or se_apt is ran on Debian (apt or aptitude execution wrapped
+with run_init), then the ldconfig called from a postinst and/or a postrm
+scripts of shared libs brings following denials:
 
-> Can you get this patch upstream, it is a lot easier
-> to get it into rawhide that way.
+Feb 28 12:24:59 sid kernel: audit(1204197899.429:13): avc:  denied  { read write } for  pid=3209 comm="ldconfig" name="2" dev=devpts ino=4 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:object_r:devpts_t:s0 tclass=chr_file
+Feb 28 12:24:59 sid kernel: audit(1204197899.429:14): avc:  denied  { use } for  pid=3209 comm="ldconfig" name="2" dev=devpts ino=4 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+Feb 28 12:24:59 sid kernel: audit(1204197899.429:15): avc:  denied  { write } for  pid=3209 comm="ldconfig" name="[23124]" dev=pipefs ino=23124 scontext=system_u:system_r:ldconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
 
-The patch is upstream now, with a big /*XXX*/ on it.  Tom London's 
-compiz issues are fixed as well.
+The attached patch (wich replaces my previos patch) suppresses these messages.
+Maybe this could be solved also by adding unconfined_domain(ldconfig_t) like
+Fedora or Ubuntu solves this. (This could be added to.)
 
-
-> 
-> Open bugzilla's on any you find, is the best way to get it fixed.
-> 
-
-Rest assured I will.
-
->>> "Manage" permission on devices is another can of worms you may care to
->>> open at some point.  Anyone with that can remap the keys or do other
->>> things that affect the device globally.
->>> The other AVC's I'm getting are from interactions between staff_mono and
->>> staff.  I believe that this the result of a small application such as
->>> the clock or load graph being staff_mono_t, running inside gnome-panel
->>> which is staff_t.  This is the type of thing I was trying to solve with
->>> the 4-argument templates that allowed some permissions among the entire
->>> "role's" windows (however manage was not one of them).
-> Yes this is one of the reasons that I like the ability to extend
-> contexts so all privs of staff_t are inherited by staff_mono_t plus the
-> exec checks.
-> 
-> staff_mono_t == staff_t + execmem execstack;
-
-This would be more than simple inheritance though.  This would be 
-implicitly granting staff_mono_t and staff_t permissions on each other 
-as well.
-
-> 
-> I think we are going to need an interface that says one domain can play
-> communicate with another domain, sort of the dbus_chat type interfaces.
-
-This or the inheritance thing will be necessary, yes, until a better 
-handle is gotten on the interaction issues.
-
-Have you considered starting out by supporting a simpler desktop 
-environment, such as XFCE?
-
-
-
+Regards
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Zito
+
+--pWyiEgJYm5f9v55/
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="libraries.ldconfig.2.patch"
+
+Index: policy/modules/system/libraries.fc
+===================================================================
+--- policy/modules/system/libraries.fc	(revision 2626)
++++ policy/modules/system/libraries.fc	(working copy)
+@@ -304,3 +304,5 @@
+ /var/spool/postfix/lib(64)?(/.*)? 		gen_context(system_u:object_r:lib_t,s0)
+ /var/spool/postfix/usr(/.*)?			gen_context(system_u:object_r:lib_t,s0)
+ /var/spool/postfix/lib(64)?/ld.*\.so.*	--	gen_context(system_u:object_r:ld_so_t,s0)
++
++/var/cache/ldconfig(/.*)?		    	gen_context(system_u:object_r:ldconfig_cache_t,s0)
+Index: policy/modules/system/libraries.te
+===================================================================
+--- policy/modules/system/libraries.te	(revision 2626)
++++ policy/modules/system/libraries.te	(working copy)
+@@ -23,6 +23,9 @@
+ init_system_domain(ldconfig_t,ldconfig_exec_t)
+ role system_r types ldconfig_t;
+ 
++type ldconfig_cache_t;
++files_type(ldconfig_cache_t)
++
+ type ldconfig_tmp_t;
+ files_tmp_file(ldconfig_tmp_t)
+ 
+@@ -46,7 +49,9 @@
+ 
+ allow ldconfig_t self:capability sys_chroot;
+ 
+-allow ldconfig_t ld_so_cache_t:file manage_file_perms;
++manage_files_pattern(ldconfig_t,ldconfig_cache_t,ldconfig_cache_t)
++
++manage_files_pattern(ldconfig_t,ld_so_cache_t,ld_so_cache_t)
+ files_etc_filetrans(ldconfig_t,ld_so_cache_t,file)
+ 
+ manage_dirs_pattern(ldconfig_t,ldconfig_tmp_t,ldconfig_tmp_t)
+@@ -103,3 +108,10 @@
+ 	# blow up.
+ 	rpm_manage_script_tmp_files(ldconfig_t)
+ ')
++
++optional_policy(`
++	# ldconfig run from postinstall, postrm scripts on Debian...
++	apt_rw_pipes(ldconfig_t)
++	apt_use_fds(ldconfig_t)
++	term_use_generic_ptys(ldconfig_t)
++')
+
+--pWyiEgJYm5f9v55/--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
