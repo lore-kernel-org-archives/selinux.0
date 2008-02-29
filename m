@@ -1,17 +1,17 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0lDso026192
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0lDGc026195
 	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:47:13 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0kuVG001056
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0l1VG001095
 	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:47:06 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 22/37] NFS: Add FS-Cache option bit and debug bit [ver #34]
+Subject: [PATCH 21/37] NFS: Add comment banners to some NFS functions [ver #34]
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 29 Feb 2008 00:45:31 +0000
-Message-ID: <20080229004531.4142.88161.stgit@warthog.procyon.org.uk>
+Date: Fri, 29 Feb 2008 00:45:26 +0000
+Message-ID: <20080229004525.4142.64833.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 References: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -19,44 +19,73 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add FS-Cache option bit to nfs_server struct.  This is set to indicate local
-on-disk caching is enabled for a particular superblock.
-
-Also add debug bit for local caching operations.
+Add comment banners to some NFS functions so that they can be modified by the
+NFS fscache patches for further information.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/nfs_fs.h    |    1 +
- include/linux/nfs_fs_sb.h |    2 ++
- 2 files changed, 3 insertions(+), 0 deletions(-)
+ fs/nfs/file.c |   26 ++++++++++++++++++++++++++
+ 1 files changed, 26 insertions(+), 0 deletions(-)
 
 
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index a69ba80..14894c9 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -578,6 +578,7 @@ extern void * nfs_root_data(void);
- #define NFSDBG_CALLBACK		0x0100
- #define NFSDBG_CLIENT		0x0200
- #define NFSDBG_MOUNT		0x0400
-+#define NFSDBG_FSCACHE		0x0800
- #define NFSDBG_ALL		0xFFFF
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index ef57a5a..26a073b 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -354,6 +354,13 @@ static int nfs_write_end(struct file *file, struct address_space *mapping,
+ 	return copied;
+ }
  
- #ifdef __KERNEL__
-diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index 3423c67..e7c4cdd 100644
---- a/include/linux/nfs_fs_sb.h
-+++ b/include/linux/nfs_fs_sb.h
-@@ -99,6 +99,8 @@ struct nfs_server {
- 	unsigned int		acdirmin;
- 	unsigned int		acdirmax;
- 	unsigned int		namelen;
-+	unsigned int		options;	/* extra options enabled by mount */
-+#define NFS_OPTION_FSCACHE	0x00000001	/* - local caching enabled */
++/*
++ * Partially or wholly invalidate a page
++ * - Release the private state associated with a page if undergoing complete
++ *   page invalidation
++ * - Called if either PG_private or PG_private_2 is set on the page
++ * - Caller holds page lock
++ */
+ static void nfs_invalidate_page(struct page *page, unsigned long offset)
+ {
+ 	if (offset != 0)
+@@ -362,12 +369,26 @@ static void nfs_invalidate_page(struct page *page, unsigned long offset)
+ 	nfs_wb_page_cancel(page->mapping->host, page);
+ }
  
- 	struct nfs_fsid		fsid;
- 	__u64			maxfilesize;	/* maximum file size */
++/*
++ * Attempt to release the private state associated with a page
++ * - Called if either PG_private or PG_private_2 is set on the page
++ * - Caller holds page lock
++ * - Return true (may release page) or false (may not)
++ */
+ static int nfs_release_page(struct page *page, gfp_t gfp)
+ {
+ 	/* If PagePrivate() is set, then the page is not freeable */
+ 	return 0;
+ }
+ 
++/*
++ * Attempt to clear the private state associated with a page when an error
++ * occurs that requires the cached contents of an inode to be written back or
++ * destroyed
++ * - Called if either PG_private or PG_private_2 is set on the page
++ * - Caller holds page lock
++ * - Return 0 if successful, -error otherwise
++ */
+ static int nfs_launder_page(struct page *page)
+ {
+ 	return nfs_wb_page(page->mapping->host, page);
+@@ -389,6 +410,11 @@ const struct address_space_operations nfs_file_aops = {
+ 	.launder_page = nfs_launder_page,
+ };
+ 
++/*
++ * Notification that a PTE pointing to an NFS page is about to be made
++ * writable, implying that someone is about to modify the page through a
++ * shared-writable mapping
++ */
+ static int nfs_vm_page_mkwrite(struct vm_area_struct *vma, struct page *page)
+ {
+ 	struct file *filp = vma->vm_file;
 
 
 --
