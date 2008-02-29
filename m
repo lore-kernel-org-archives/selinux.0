@@ -1,18 +1,18 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0kbC4025873
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:46:37 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0ieFw025329
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:44:41 -0500
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0ka2Z013159
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:46:36 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0id2Z012583
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:44:40 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 32/37] NFS: Add read context retention for FS-Cache to call
-	back with [ver #34]
+Subject: [PATCH 10/37] Security: Make NFSD work with detached security [ver
+	#34]
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 29 Feb 2008 00:46:25 +0000
-Message-ID: <20080229004624.4142.56662.stgit@warthog.procyon.org.uk>
+Date: Fri, 29 Feb 2008 00:44:27 +0000
+Message-ID: <20080229004427.4142.82540.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 References: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,60 +20,287 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add read context retention so that FS-Cache can call back into NFS when a read
-operation on the cache fails EIO rather than reading data.  This permits NFS to
-then fetch the data from the server instead using the appropriate security
-context.
+Make NFSD work with detached security, using the patches that excise the
+security information from task_struct to struct task_security as a base.
+
+Each time NFSD wants a new security descriptor (to do NFS4 recovery or just to
+do NFS operations), a task_security record is derived from NFSD's *objective*
+security, modified and then applied as the *subjective* security.  This means
+(a) the changes are not visible to anyone looking at NFSD through /proc, (b)
+there is no leakage between two consecutive ops with different security
+configurations.
+
+Consideration should probably be given to caching the task_security record on
+the basis that there'll probably be several ops that will want to use any
+particular security configuration.
+
+Furthermore, nfs4recover.c perhaps ought to set an appropriate LSM context on
+the record pointed to by rec_security so that the disk is accessed
+appropriately (see set_security_override[_from_ctx]()).
+
+NOTE!  This patch must be rolled in to one of the earlier security patches to
+make it compile fully.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/fscache-index.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+ fs/nfsd/auth.c        |   37 +++++++++++++++++++---------
+ fs/nfsd/nfs4recover.c |   64 +++++++++++++++++++++++++++++++------------------
+ 2 files changed, 65 insertions(+), 36 deletions(-)
 
 
-diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
-index eec8e7e..af9f06b 100644
---- a/fs/nfs/fscache-index.c
-+++ b/fs/nfs/fscache-index.c
-@@ -285,6 +285,30 @@ static void nfs_cache_inode_now_uncached(void *cookie_netfs_data)
+diff --git a/fs/nfsd/auth.c b/fs/nfsd/auth.c
+index 5586157..ebdc562 100644
+--- a/fs/nfsd/auth.c
++++ b/fs/nfsd/auth.c
+@@ -6,6 +6,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/sched.h>
++#include <linux/cred.h>
+ #include <linux/sunrpc/svc.h>
+ #include <linux/sunrpc/svcauth.h>
+ #include <linux/nfsd/nfsd.h>
+@@ -26,12 +27,17 @@ int nfsexp_flags(struct svc_rqst *rqstp, struct svc_export *exp)
+ 
+ int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
+ {
+-	struct task_security *act_as = current->act_as;
++	struct task_security *sec, *old;
+ 	struct svc_cred	cred = rqstp->rq_cred;
+ 	int i;
+ 	int flags = nfsexp_flags(rqstp, exp);
+ 	int ret;
+ 
++	/* derive the new security record from nfsd's objective security */
++	sec = get_kernel_security(current);
++	if (!sec)
++		return -ENOMEM;
++
+ 	if (flags & NFSEXP_ALLSQUASH) {
+ 		cred.cr_uid = exp->ex_anon_uid;
+ 		cred.cr_gid = exp->ex_anon_gid;
+@@ -55,26 +61,33 @@ int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
+ 		get_group_info(cred.cr_group_info);
+ 
+ 	if (cred.cr_uid != (uid_t) -1)
+-		act_as->fsuid = cred.cr_uid;
++		sec->fsuid = cred.cr_uid;
+ 	else
+-		act_as->fsuid = exp->ex_anon_uid;
++		sec->fsuid = exp->ex_anon_uid;
+ 	if (cred.cr_gid != (gid_t) -1)
+-		act_as->fsgid = cred.cr_gid;
++		sec->fsgid = cred.cr_gid;
+ 	else
+-		act_as->fsgid = exp->ex_anon_gid;
++		sec->fsgid = exp->ex_anon_gid;
+ 
+-	if (!cred.cr_group_info)
++	if (!cred.cr_group_info) {
++		put_task_security(sec);
+ 		return -ENOMEM;
+-	ret = set_groups(act_as, cred.cr_group_info);
++	}
++	ret = set_groups(sec, cred.cr_group_info);
+ 	put_group_info(cred.cr_group_info);
+ 	if ((cred.cr_uid)) {
+-		act_as->cap_effective =
+-			cap_drop_nfsd_set(act_as->cap_effective);
++		sec->cap_effective =
++			cap_drop_nfsd_set(sec->cap_effective);
+ 	} else {
+-		act_as->cap_effective =
+-			cap_raise_nfsd_set(act_as->cap_effective,
+-					   act_as->cap_permitted);
++		sec->cap_effective =
++			cap_raise_nfsd_set(sec->cap_effective,
++					   sec->cap_permitted);
+ 	}
++
++	/* set the new security as nfsd's subjective security */
++	old = current->act_as;
++	current->act_as = sec;
++	put_task_security(old);
+ 	return ret;
  }
  
- /*
-+ * Get an extra reference on a read context.
-+ * - This function can be absent if the completion function doesn't require a
-+ *   context.
-+ * - The read context is passed back to NFS in the event that a data read on the
-+ *   cache fails with EIO - in which case the server must be contacted to
-+ *   retrieve the data, which requires the read context for security.
-+ */
-+static void nfs_fh_get_context(void *cookie_netfs_data, void *context)
-+{
-+	get_nfs_open_context(context);
-+}
-+
+diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
+index afddc9b..c86aa92 100644
+--- a/fs/nfsd/nfs4recover.c
++++ b/fs/nfsd/nfs4recover.c
+@@ -46,27 +46,37 @@
+ #include <linux/scatterlist.h>
+ #include <linux/crypto.h>
+ #include <linux/sched.h>
++#include <linux/cred.h>
+ 
+ #define NFSDDBG_FACILITY                NFSDDBG_PROC
+ 
+ /* Globals */
+ static struct nameidata rec_dir;
+ static int rec_dir_init = 0;
++static struct task_security *rec_security;
+ 
 +/*
-+ * Release an extra reference on a read context.
-+ * - This function can be absent if the completion function doesn't require a
-+ *   context.
++ * switch the special recovery access security in on the current task's
++ * subjective security
 + */
-+static void nfs_fh_put_context(void *cookie_netfs_data, void *context)
-+{
-+	if (context)
-+		put_nfs_open_context(context);
-+}
-+
+ static void
+-nfs4_save_user(uid_t *saveuid, gid_t *savegid)
++nfs4_begin_secure(struct task_security **saved_sec)
+ {
+-	*saveuid = current->act_as->fsuid;
+-	*savegid = current->act_as->fsgid;
+-	current->act_as->fsuid = 0;
+-	current->act_as->fsgid = 0;
++	*saved_sec = current->act_as;
++	current->act_as = get_task_security(rec_security);
+ }
+ 
 +/*
-  * Define the inode object for FS-Cache.  This is used to describe an inode
-  * object to fscache_acquire_cookie().  It is keyed by the NFS file handle for
-  * an inode.
-@@ -301,4 +325,6 @@ const struct fscache_cookie_def nfs_cache_inode_object_def = {
- 	.get_aux	= nfs_cache_inode_get_aux,
- 	.check_aux	= nfs_cache_inode_check_aux,
- 	.now_uncached	= nfs_cache_inode_now_uncached,
-+	.get_context	= nfs_fh_get_context,
-+	.put_context	= nfs_fh_put_context,
- };
++ * return the current task's subjective security to its former glory
++ */
+ static void
+-nfs4_reset_user(uid_t saveuid, gid_t savegid)
++nfs4_end_secure(struct task_security *saved_sec)
+ {
+-	current->act_as->fsuid = saveuid;
+-	current->act_as->fsgid = savegid;
++	struct task_security *discard;
++
++	discard = current->act_as;
++	current->act_as = saved_sec;
++	put_task_security(discard);
+ }
+ 
+ static void
+@@ -128,10 +138,9 @@ nfsd4_sync_rec_dir(void)
+ int
+ nfsd4_create_clid_dir(struct nfs4_client *clp)
+ {
++	struct task_security *saved_sec;
+ 	char *dname = clp->cl_recdir;
+ 	struct dentry *dentry;
+-	uid_t uid;
+-	gid_t gid;
+ 	int status;
+ 
+ 	dprintk("NFSD: nfsd4_create_clid_dir for \"%s\"\n", dname);
+@@ -139,7 +148,7 @@ nfsd4_create_clid_dir(struct nfs4_client *clp)
+ 	if (!rec_dir_init || clp->cl_firststate)
+ 		return 0;
+ 
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	/* lock the parent */
+ 	mutex_lock(&rec_dir.path.dentry->d_inode->i_mutex);
+@@ -163,7 +172,7 @@ out_unlock:
+ 		clp->cl_firststate = 1;
+ 		nfsd4_sync_rec_dir();
+ 	}
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	dprintk("NFSD: nfsd4_create_clid_dir returns %d\n", status);
+ 	return status;
+ }
+@@ -206,20 +215,19 @@ nfsd4_build_dentrylist(void *arg, const char *name, int namlen,
+ static int
+ nfsd4_list_rec_dir(struct dentry *dir, recdir_func *f)
+ {
++	struct task_security *saved_sec;
+ 	struct file *filp;
+ 	struct dentry_list_arg dla = {
+ 		.parent = dir,
+ 	};
+ 	struct list_head *dentries = &dla.dentries;
+ 	struct dentry_list *child;
+-	uid_t uid;
+-	gid_t gid;
+ 	int status;
+ 
+ 	if (!rec_dir_init)
+ 		return 0;
+ 
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	filp = dentry_open(dget(dir), mntget(rec_dir.path.mnt), O_RDONLY);
+ 	status = PTR_ERR(filp);
+@@ -244,7 +252,7 @@ out:
+ 		dput(child->dentry);
+ 		kfree(child);
+ 	}
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	return status;
+ }
+ 
+@@ -306,17 +314,16 @@ out:
+ void
+ nfsd4_remove_clid_dir(struct nfs4_client *clp)
+ {
+-	uid_t uid;
+-	gid_t gid;
++	struct task_security *saved_sec;
+ 	int status;
+ 
+ 	if (!rec_dir_init || !clp->cl_firststate)
+ 		return;
+ 
+ 	clp->cl_firststate = 0;
+-	nfs4_save_user(&uid, &gid);
++	nfs4_begin_secure(&saved_sec);
+ 	status = nfsd4_unlink_clid_dir(clp->cl_recdir, HEXDIR_LEN-1);
+-	nfs4_reset_user(uid, gid);
++	nfs4_end_secure(saved_sec);
+ 	if (status == 0)
+ 		nfsd4_sync_rec_dir();
+ 	if (status)
+@@ -387,8 +394,7 @@ nfsd4_recdir_load(void) {
+ void
+ nfsd4_init_recdir(char *rec_dirname)
+ {
+-	uid_t			uid = 0;
+-	gid_t			gid = 0;
++	struct task_security	*saved_sec;
+ 	int 			status;
+ 
+ 	printk("NFSD: Using %s as the NFSv4 state recovery directory\n",
+@@ -396,7 +402,15 @@ nfsd4_init_recdir(char *rec_dirname)
+ 
+ 	BUG_ON(rec_dir_init);
+ 
+-	nfs4_save_user(&uid, &gid);
++	/* derive the security record from this task's objective security */
++	rec_security = get_kernel_security(current);
++	if (!rec_security) {
++		printk("NFSD:"
++		       " unable to allocate recovery directory security\n");
++		return;
++	}
++
++	nfs4_begin_secure(&saved_sec);
+ 
+ 	status = path_lookup(rec_dirname, LOOKUP_FOLLOW | LOOKUP_DIRECTORY,
+ 			&rec_dir);
+@@ -406,7 +420,8 @@ nfsd4_init_recdir(char *rec_dirname)
+ 
+ 	if (!status)
+ 		rec_dir_init = 1;
+-	nfs4_reset_user(uid, gid);
++
++	nfs4_end_secure(saved_sec);
+ }
+ 
+ void
+@@ -416,4 +431,5 @@ nfsd4_shutdown_recdir(void)
+ 		return;
+ 	rec_dir_init = 0;
+ 	path_put(&rec_dir.path);
++	put_task_security(rec_security);
+ }
 
 
 --
