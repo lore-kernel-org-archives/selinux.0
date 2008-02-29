@@ -1,304 +1,277 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0hmMG024994
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:43:48 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0hlVG000298
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:43:47 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0kiTw025921
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:46:44 -0500
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0kh2Z013181
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:46:43 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 00/37] Permit filesystem local caching [ver #34]
+Subject: [PATCH 25/37] NFS: Define and create server-level objects [ver #34]
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 29 Feb 2008 00:43:33 +0000
-Message-ID: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
+Date: Fri, 29 Feb 2008 00:45:47 +0000
+Message-ID: <20080229004547.4142.67131.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
+References: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Define and create server-level cache index objects (as managed by nfs_client
+structs).
+
+Each server object is created in the NFS top-level index object and is itself
+an index into which superblock-level objects are inserted.
+
+Ideally there would be one superblock-level object per server, and the former
+would be folded into the latter; however, since the "nosharecache" option
+exists this isn't possible.
+
+The server object key is a sequence consisting of:
+
+ (1) NFS version
+
+ (2) Server address family (eg: AF_INET or AF_INET6)
+
+ (3) Server port.
+
+ (4) Server IP address.
+
+The key blob is of variable length, depending on the length of (4).
+
+The server object is given no coherency data to carry in the auxiliary data
+permitted by the cache.
+
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
+
+ fs/nfs/Makefile           |    2 +
+ fs/nfs/client.c           |    5 +++
+ fs/nfs/fscache-index.c    |   65 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.c          |   52 ++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h          |   10 +++++++
+ include/linux/nfs_fs_sb.h |    4 +++
+ 6 files changed, 137 insertions(+), 1 deletions(-)
+ create mode 100644 fs/nfs/fscache.c
+
+
+diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
+index 6d7176d..d848c97 100644
+--- a/fs/nfs/Makefile
++++ b/fs/nfs/Makefile
+@@ -16,4 +16,4 @@ nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
+ 			   nfs4namespace.o
+ nfs-$(CONFIG_NFS_DIRECTIO) += direct.o
+ nfs-$(CONFIG_SYSCTL) += sysctl.o
+-nfs-$(CONFIG_NFS_FSCACHE) += fscache-index.o
++nfs-$(CONFIG_NFS_FSCACHE) += fscache.o fscache-index.o
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index c5c0175..51e9346 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -45,6 +45,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ #include "internal.h"
++#include "fscache.h"
+ 
+ #define NFSDBG_FACILITY		NFSDBG_CLIENT
+ 
+@@ -151,6 +152,8 @@ static struct nfs_client *nfs_alloc_client(const struct nfs_client_initdata *cl_
+ 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
+ #endif
+ 
++	nfs_fscache_get_client_cookie(clp);
++
+ 	return clp;
+ 
+ error_3:
+@@ -182,6 +185,8 @@ static void nfs_free_client(struct nfs_client *clp)
+ 
+ 	nfs4_shutdown_client(clp);
+ 
++	nfs_fscache_release_client_cookie(clp);
++
+ 	/* -EIO all pending I/O */
+ 	if (!IS_ERR(clp->cl_rpcclient))
+ 		rpc_shutdown_client(clp->cl_rpcclient);
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+index 225ed5d..25ac4a1 100644
+--- a/fs/nfs/fscache-index.c
++++ b/fs/nfs/fscache-index.c
+@@ -51,3 +51,68 @@ void nfs_fscache_unregister(void)
+ {
+ 	fscache_unregister_netfs(&nfs_cache_netfs);
+ }
++
++/*
++ * Layout of the key for an NFS server cache object.
++ */
++struct nfs_server_key {
++	uint16_t	nfsversion;		/* NFS protocol version */
++	uint16_t	family;			/* address family */
++	uint16_t	port;			/* IP port */
++	union {
++		struct in_addr	ipv4_addr;	/* IPv4 address */
++		struct in6_addr ipv6_addr;	/* IPv6 address */
++	} addr[0];
++};
++
++/*
++ * Generate a key to describe a server in the main NFS index
++ * - We return the length of the key, or 0 if we can't generate one
++ */
++static uint16_t nfs_server_get_key(const void *cookie_netfs_data,
++				   void *buffer, uint16_t bufmax)
++{
++	const struct nfs_client *clp = cookie_netfs_data;
++	const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &clp->cl_addr;
++	const struct sockaddr_in *sin = (struct sockaddr_in *) &clp->cl_addr;
++	struct nfs_server_key *key = buffer;
++	uint16_t len = 0;
++
++	key->nfsversion = clp->rpc_ops->version;
++	key->family = clp->cl_addr.ss_family;
++
++	len = sizeof(struct nfs_server_key);
++
++	switch (clp->cl_addr.ss_family) {
++	case AF_INET:
++		key->port = sin->sin_port;
++		key->addr[0].ipv4_addr = sin->sin_addr;
++		len += sizeof(key->addr[0].ipv4_addr);
++		break;
++
++	case AF_INET6:
++		key->port = sin6->sin6_port;
++		key->addr[0].ipv6_addr = sin6->sin6_addr;
++		len += sizeof(key->addr[0].ipv6_addr);
++		break;
++
++	default:
++		printk(KERN_WARNING "NFS: Unknown network family '%d'\n",
++		       clp->cl_addr.ss_family);
++		len = 0;
++		break;
++	}
++
++	return len;
++}
++
++/*
++ * Define the server object for FS-Cache.  This is used to describe a server
++ * object to fscache_acquire_cookie().  It is keyed by the NFS protocol and
++ * server address parameters.
++ */
++const struct fscache_cookie_def nfs_cache_server_index_def = {
++	.name		= "NFS.server",
++	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key	= nfs_server_get_key,
++};
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+new file mode 100644
+index 0000000..dcc1800
+--- /dev/null
++++ b/fs/nfs/fscache.c
+@@ -0,0 +1,52 @@
++/* NFS filesystem cache interface
++ *
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/nfs_fs.h>
++#include <linux/nfs_fs_sb.h>
++#include <linux/in6.h>
++#include <linux/seq_file.h>
++
++#include "internal.h"
++#include "fscache.h"
++
++#define NFSDBG_FACILITY		NFSDBG_FSCACHE
++
++/*
++ * Get the per-client index cookie for an NFS client if the appropriate mount
++ * flag was set
++ * - We always try and get an index cookie for the client, but get filehandle
++ *   cookies on a per-superblock basis, depending on the mount flags
++ */
++void nfs_fscache_get_client_cookie(struct nfs_client *clp)
++{
++	/* create a cache index for looking up filehandles */
++	clp->fscache = fscache_acquire_cookie(nfs_cache_netfs.primary_index,
++					      &nfs_cache_server_index_def,
++					      clp);
++	dfprintk(FSCACHE, "NFS: get client cookie (0x%p/0x%p)\n",
++		 clp, clp->fscache);
++}
++
++/*
++ * Dispose of a per-client cookie
++ */
++void nfs_fscache_release_client_cookie(struct nfs_client *clp)
++{
++	dfprintk(FSCACHE, "NFS: releasing client cookie (0x%p/0x%p)\n",
++		 clp, clp->fscache);
++
++	fscache_relinquish_cookie(clp->fscache, 0);
++	clp->fscache = NULL;
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index 74ab060..c35c32c 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -23,13 +23,23 @@
+  * fscache-index.c
+  */
+ extern struct fscache_netfs nfs_cache_netfs;
++extern const struct fscache_cookie_def nfs_cache_server_index_def;
+ 
+ extern int nfs_fscache_register(void);
+ extern void nfs_fscache_unregister(void);
+ 
++/*
++ * fscache.c
++ */
++extern void nfs_fscache_get_client_cookie(struct nfs_client *);
++extern void nfs_fscache_release_client_cookie(struct nfs_client *);
++
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+ static inline void nfs_fscache_unregister(void) {}
+ 
++static inline void nfs_fscache_get_client_cookie(struct nfs_client *clp) {}
++static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
++
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index e7c4cdd..8d23dcb 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -68,6 +68,10 @@ struct nfs_client {
+ 	char			cl_ipaddr[48];
+ 	unsigned char		cl_id_uniquifier;
+ #endif
++
++#ifdef CONFIG_NFS_FSCACHE
++	struct fscache_cookie	*fscache;	/* client index cache cookie */
++#endif
+ };
+ 
+ /*
 
-
-These patches add local caching for network filesystems such as NFS.  To give a
-really quick overview of the way the facility works:
-
-	+---------+
-	|         |
-	|   NFS   |--+
-	|         |  |
-	+---------+  |   +----------+
-	             |   |          |
-	+---------+  +-->|          |
-	|         |      |          |
-	|   AFS   |----->| FS-Cache |
-	|         |      |          |--+
-	+---------+  +-->|          |  |
-	             |   |          |  |   +--------------+   +--------------+
-	+---------+  |   +----------+  |   |              |   |              |
-	|         |  |                 +-->|  CacheFiles  |-->|  Ext3        |
-	|  ISOFS  |--+                     |  /var/cache  |   |  /dev/sda6   |
-	|         |                        +--------------+   +--------------+
-	+---------+
-
-
- (1) NFS, say, asks FS-Cache to store/retrieve data for it;
-
- (2) FS-Cache asks the cache backend, in this case CacheFiles to honour the
-     operation;
-
- (3) CacheFiles 'opens' a file in a mounted filesystem, say Ext3, and does read
-     and write operations of a sort on it;
-
- (4) Ext3 decides how the cache data is laid out on disk - CacheFiles just
-     attempts to use one sparse file per netfs inode.
-
- (5) If NFS asks for data from the cache, but the file has a hole in it, NFS
-     falls back to asking the server.  The data obtained from the server is
-     then written over the hole in the file.
-
-To look at it another way:
-
-	+---------+
-	|         |
-	| Server  |
-	|         |
-	+---------+
-	     |                  NETWORK
-	~~~~~|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	     |
-	     |           +----------+
-	     V           |          |
-	+---------+      |          |
-	|         |      |          |
-	|   NFS   |----->| FS-Cache |
-	|         |      |          |--+
-	+---------+      |          |  |   +--------------+   +--------------+
-	     |           |          |  |   |              |   |              |
-	     V           +----------+  +-->|  CacheFiles  |-->|  Ext3        |
-	+---------+                        |  /var/cache  |   |  /dev/sda6   |
-	|         |                        +--------------+   +--------------+
-	|   VFS   |                                ^                     ^
-	|         |                                |                     |
-	+---------+                                +--------------+      |
-	     |                  KERNEL SPACE                      |      |
-	~~~~~|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|~~~~~~|~~~~
-	     |                  USER SPACE                        |      |
-	     V                                                    |      |
-	+---------+                                           +--------------+
-	|         |                                           |              |
-	| Process |                                           | cachefilesd  |
-	|         |                                           |              |
-	+---------+                                           +--------------+
-
-FS-Cache attempts to provide a caching facility to a network filesystem such
-that it's transparent to the users of that network filesystem.
-
-
-The patches can roughly be broken down into a number of sets:
-
-  (*) 01-keys-inc-payload.diff
-  (*) 02-keys-search-keyring.diff
-  (*) 03-keys-callout-blob.diff
-
-      Three patches to the keyring code made to help the CIFS people.
-      Included because patches 05-07 modify the same code.
-
-  (*) 04-keys-get-label.diff
-
-      A patch to allow the security label of a key to be retrieved.
-      Included because patches 05-07 modify the same code.
-
-  (*) 05-security-current-fsugid.diff
-  (*) 06-security-separate-task-bits.diff
-  (*) 07-security-subjective.diff
-  (*) 08-security-kernel_service-class.diff
-  (*) 09-security-kernel-service.diff
-  (*) 10-security-nfsd.diff
-
-      Patches to permit the subjective security of a task to be overridden.
-      All the security details in task_struct are decanted into a new struct
-      that task_struct then has two pointers two: one that defines the
-      objective security of that task (how other tasks may affect it) and one
-      that defines the subjective security (how it may affect other objects).
-
-      Note that I have dropped the idea of struct cred for the moment.  With
-      the amount of stuff that was excluded from it, it wasn't actually any
-      use to me.  However, it can be added later.
-
-      This is required for CacheFiles and potentially other cache backends:
-
-	It has been required that I call vfs_mkdir() and suchlike rather than
-	bypassing security and calling inode ops directly.  Therefore the VFS
-	and LSM get to deny the cache backend access to the cache data because
-	under some circumstances the caching code is running in the security
-	context of whatever process issued the original syscall on the netfs.
-
-	Furthermore, the security parameters with which a file is created (UID,
-	GID, security label) would be derived from that process that issued the
-	system call, thus potentially preventing other processes from accessing
-	the cache, including cache management daemons such as cachefilesd.
-
-	What is required is to temporarily override the security of the process
-	that issued the system call.  We can't, however, just do an in-place
-	change of the security data as that affects the process as an object,
-	not just as a subject.  This means it may lose signals or ptrace events
-	for example, and affects what the process looks like in /proc.
-
-	So what I've done is to make a logical split in the security between
-	the objective security (task->sec) and the subjective security
-	(task->act_as).  The objective security holds the intrinsic security
-	properties of a process and is never overridden.  This is what appears
-	in /proc, and is what is used when a process is the target of an
-	operation by some other process (SIGKILL for example).
-
-	The subjective security holds the active security properties of a
-	process, and may be overridden.  This is not seen externally, and is
-	used whan a process acts upon another object, for example SIGKILLing
-	another process or opening a file.
-
-	The new hooks allow SELinux (or Smack or whatever) to reject a request
-	for a kernel service (such as cachefiles) to run in a context of a
-	specific security label or to create files and directories with another
-	security label.
-
-      These hooks may also be useful for NFSd.
-
-
-  (*) 11-release-page.diff
-  (*) 12-fscache-page-flags.diff
-  (*) 13-add_wait_queue_tail.diff
-  (*) 14-fscache.diff
-
-      Patches to provide a local caching facility for network filesystems.
-
-      FS-Cache is a layer that takes requests from any one of a number of
-      netfs's and passes them to an appropriate cache, if there is one.
-      FS-Cache makes operations requested by the netfs transparently
-      asynchronous where possible.
-
-      FS-Cache also protects the netfs against (a) there being no cache, (b)
-      the cache suffering a fatal I/O error and (c) the cache being removed;
-      and protects the cache against (d) the netfs uncaching pages that the
-      cache is using and (e) conflicting operations from the netfs, some of
-      which may be queued for asynchronous processing.
-
-      A number of documents in text file format that describe the FS-Cache
-      interface are added by the latter patch
-
-      Documentation/filesystems/caching/fscache.txt gives an overview of the
-      facility and describes the statistical data it makes available.
-
-      Documentation/filesystems/caching/netfs-api.txt describes the API by
-      which a network filesystem would make use of the FS-Cache facility.
-
-      Documentation/filesystems/caching/backend-api.txt describes the API that
-      a cache backend must implement to provide caching services through
-      FS-Cache.
-
-      The second of the above patches adds two extra page flags that FS-Cache
-      then uses to keep track of two bits of per-cached-page information:
-
-	 (1) This page is known by the cache, and that the cache must be
-	     informed if the page is going to go away.  It's an indication to
-	     the netfs that the cache has an interest in this page, where an
-	     interest may be a pointer to it, resources allocated or reserved
-	     for it, or I/O in progress upon it.
-
-	 (2) This page is being written to disk by the cache, and that it
-	     cannot be released until completion.  Ideally it shouldn't be
-	     changed until completion either so as to maintain the known state
-	     of the cache.  This cannot be unified with PG_writeback as the
-	     page may be being written to both the server and the cache at the
-	     same time or at different times.
-
-      To avoid using extra page bits, I could, for example, set up a radix tree
-      per data storage object to keep track of both these bits, however this
-      would mean that the netfs would have to do a call, spinlock, conditional
-      jumps, etc to find out either state.
-
-      On the other hand, if we can spare two page flags, those are sufficient.
-
-      Note that the cache doesn't necessarily need to be able to find the netfs
-      pages, but may have to allocate/pin resources for backing them.
-
-      Further note that PG_private may not be used as I want to be able to use
-      caching with ISOFS eventually, and PG_private is owned by the block
-      buffer code.
-
-      These bits can be otherwise used by any filesystem that doesn't want to
-      use FS-Cache.
-
-  (*) 15-cachefiles-ia64.diff
-  (*) 16-cachefiles-ext3-f_mapping.diff
-  (*) 17-cachefiles-write.diff
-  (*) 18-cachefiles-monitor.diff
-  (*) 19-cachefiles-export.diff
-  (*) 20-cachefiles.diff
-
-      Patches to provide a local cache in a directory of an already mounted
-      filesystem.
-
-      The latter patch adds a document in text file format that describes the
-      CacheFiles cache backend and gives instructions on how it is set up and
-      used.  This will be Documentation/filesystems/caching/cachefiles.txt when
-      the patch is applied.
-
-  (*) 21-nfs-comment.diff
-  (*) 22-nfs-fscache-option.diff
-  (*) 23-nfs-fscache-kconfig.diff
-  (*) 24-nfs-fscache-top-index.diff
-  (*) 25-nfs-fscache-server-obj.diff
-  (*) 26-nfs-fscache-super-obj.diff
-  (*) 27-nfs-fscache-inode-obj.diff
-  (*) 28-nfs-fscache-use-inode.diff
-  (*) 29-nfs-fscache-invalidate-pages.diff
-  (*) 30-nfs-fscache-iostats.diff
-  (*) 31-nfs-fscache-page-management.diff
-  (*) 32-nfs-fscache-read-context.diff
-  (*) 33-nfs-fscache-read-fallback.diff
-  (*) 34-nfs-fscache-read-from-cache.diff
-  (*) 35-nfs-fscache-store-to-cache.diff
-  (*) 36-nfs-fscache-mount.diff
-  (*) 37-nfs-fscache-display.diff
-
-      Patches to provide NFS with local caching.
-
-      A couple of questions on the NFS iostat changes: (1) Should I update the
-      iostat version number; (2) is it permitted to have conditional iostats?
-
-
-I've fixed a number of bugs, including the lack of locking around per-inode
-cookie handling in NFS, and updated the documentation in a couple of patches.
-
-I've been testing these patches by throwing batches of eight parallel "tar cf"
-commands across three different 350MB NFS-based kernel trees (3 tars on first
-tree, 3 on second, 2 on third), sometimes with one or more of the trees
-preloaded into the cache.  The complete working data set does not fit into the
-RAM of my test machine, so even three tars that can be entirely satisfied from
-the cache may have to reread everything from disk.
-
---
-A tarball of the patches is available at:
-
-	http://people.redhat.com/~dhowells/fscache/patches/nfs+fscache-34.tar.bz2
-
-
-To use this version of CacheFiles, the cachefilesd-0.9 is also required.  It
-is available as an SRPM:
-
-	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9-1.fc7.src.rpm
-
-Or as individual bits:
-
-	http://people.redhat.com/~dhowells/fscache/cachefilesd-0.9.tar.bz2
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.fc
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.if
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.te
-	http://people.redhat.com/~dhowells/fscache/cachefilesd.spec
-
-The .fc, .if and .te files are for manipulating SELinux.
-
-David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
