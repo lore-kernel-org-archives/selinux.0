@@ -1,46 +1,56 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T9oAIL030614
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 04:50:10 -0500
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T9o7uJ029955
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 09:50:08 GMT
-Date: Fri, 29 Feb 2008 20:49:59 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: [RFC PATCH] SELinux: Cleanup the secid/secctx conversion functions
-In-Reply-To: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net>
-Message-ID: <Xine.LNX.4.64.0802292048010.27014@us.intercode.com.au>
-References: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: James Antill <james.antill@redhat.com>
+Subject: Re: [PATCH -v2] SELinux: create new open permission
+Date: Fri, 29 Feb 2008 23:37:24 +1100
+Cc: Eric Paris <eparis@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux <selinux@tycho.nsa.gov>, sds@tycho.nsa.gov, jmorris@namei.org,
+        Paul Moore <paul.moore@hp.com>
+References: <1204221520.3206.86.camel@localhost.localdomain> <1204225233.3206.120.camel@localhost.localdomain> <1204230728.11268.261.camel@code.and.org>
+In-Reply-To: <1204230728.11268.261.camel@code.and.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200802292337.29243.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 28 Feb 2008, Paul Moore wrote:
+On Friday 29 February 2008 07:32, James Antill <james.antill@redhat.com> 
+wrote:
+> > > What does open on a dir mean?  Isn't that the same as the read perm?
+> >
+> > Admittedly there is very little distinction and I don't know the
+> > usefulness, but it is possible for a process to pass an open fd to a
+> > directory so I saw little reason to exclude it.
+>
+>  Also we have the *at() and fchdir() calls, so this distinction (between
+> open and read on dirs) is useful.
 
-> While looking at the SELinux secid/secctx conversion functions I realized they
-> could probably do with a little cleanup to reduce the amount of code and make
-> better use of existing string processing functions in the kernel.  Making use
-> of the kernel's existing string processing functions is a good idea as many
-> architectures have specialized/optimized routines which should be an
-> improvement over the generic code in the SELinux security server.
+This new open permission is being created specifically to allow file handles 
+to be inherited across exec.
 
-Please always include a signed-off-by line, in case the patch gets 
-applied.
+Inheriting a directory file handle for the purpose of fchdir() seems quite 
+unlikely.  In fact when fchdir() is mentioned in mailing list discussions it 
+always seems to be in the context of allowing a process to break out of a 
+chroot() jail.
 
-> -static int context_struct_to_string(struct context *context, char **scontext, u32 *scontext_len)
-> +static int context_struct_to_string(struct context *context,
-> +				    char **scontext, u32 *scontext_len)
+Does anyone have a hypothetical example of how fchdir() could be used in a way 
+which doesn't break the security of a system but yet need to have open and 
+read access be differentiated?
 
-I tend to not prefer the 80-column rule for function declarations, as it 
-makes the code harder to grep (not a show-stopper, but generally, don't 
-try and fix these).
+As an aside, I'm concerned about the implications of this new file open 
+permission for overall quality of SE Linux policy (both reference policy and 
+custom policy).  I anticipate many people writing policy that allows read and 
+write access wildly with the idea that controls on open will prevent them 
+being exploited.
 
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
