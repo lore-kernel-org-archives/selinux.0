@@ -1,18 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0kpA0025967
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:46:51 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0lBvH026158
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:47:11 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0k5VG000826
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:46:30 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0kSVG000908
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:46:53 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 13/37] FS-Cache: Provide an add_wait_queue_tail() function
-	[ver #34]
+Subject: [PATCH 27/37] NFS: Define and create inode-level cache objects [ver
+	#34]
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 29 Feb 2008 00:44:43 +0000
-Message-ID: <20080229004443.4142.30446.stgit@warthog.procyon.org.uk>
+Date: Fri, 29 Feb 2008 00:45:58 +0000
+Message-ID: <20080229004558.4142.37189.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 References: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,91 +20,168 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Provide an add_wait_queue_tail() function to add a waiter to the back of a
-wait queue instead of the front.
+Define and create inode-level cache data storage objects (as managed by
+nfs_inode structs).
+
+Each inode-level object is created in a superblock-level index object and is
+itself a data storage object into which pages from the inode are stored.
+
+The inode object key is the NFS file handle for the inode.
+
+The inode object is given coherency data to carry in the auxiliary data
+permitted by the cache.  This is a sequence made up of:
+
+ (1) i_mtime from the NFS inode.
+
+ (2) i_ctime from the NFS inode.
+
+ (3) i_size from the NFS inode.
+
+As the cache is a persistent cache, the auxiliary data is checked when a new
+NFS in-memory inode is set up that matches an already existing data storage
+object in the cache.  If the coherency data is the same, the on-disk object is
+retained and used; if not, it is scrapped and a new one created.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/pagemap.h |    7 +++++--
- include/linux/wait.h    |    1 +
- kernel/wait.c           |   18 ++++++++++++++++++
- mm/filemap.c            |    2 +-
- 4 files changed, 25 insertions(+), 3 deletions(-)
+ fs/nfs/fscache-index.c |  112 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h       |    1 
+ 2 files changed, 113 insertions(+), 0 deletions(-)
 
 
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index c5df3ae..ad9484f 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -225,8 +225,11 @@ static inline void wait_on_page_writeback(struct page *page)
- 
- extern void end_page_writeback(struct page *page);
- 
--/*
-- * Wait for a PG_owner_priv_2 to become clear
-+/**
-+ * wait_on_page_owner_priv_2 - Wait for PG_owner_priv_2 to become clear
-+ * @page: The page to monitor
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+index b5a52e3..c3c63fa 100644
+--- a/fs/nfs/fscache-index.c
++++ b/fs/nfs/fscache-index.c
+@@ -150,3 +150,115 @@ const struct fscache_cookie_def nfs_cache_super_index_def = {
+ 	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
+ 	.get_key	= nfs_super_get_key,
+ };
++
++/*
++ * Definition of the auxiliary data attached to NFS inode storage objects
++ * within the cache.
 + *
-+ * Wait for a PG_owner_priv_2 to become clear on the specified page.
-  */
- static inline void wait_on_page_owner_priv_2(struct page *page)
- {
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index 0081147..a6a6607 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -118,6 +118,7 @@ static inline int waitqueue_active(wait_queue_head_t *q)
- #define is_sync_wait(wait)	(!(wait) || ((wait)->private))
- 
- extern void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
-+extern void add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait);
- extern void add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait);
- extern void remove_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
- 
-diff --git a/kernel/wait.c b/kernel/wait.c
-index c275c56..191df0d 100644
---- a/kernel/wait.c
-+++ b/kernel/wait.c
-@@ -29,6 +29,24 @@ void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
- }
- EXPORT_SYMBOL(add_wait_queue);
- 
-+/**
-+ * add_wait_queue_tail - Add a waiter to the back of a waitqueue
-+ * @q: the wait queue to append the waiter to
-+ * @wait: the waiter to be queued
-+ *
-+ * Add a waiter to the back of a waitqueue so that it gets woken up last.
++ * The contents of this struct are recorded in the on-disk local cache in the
++ * auxiliary data attached to the data storage object backing an inode.  This
++ * permits coherency to be managed when a new inode binds to an already extant
++ * cache object.
 + */
-+void add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait)
++struct nfs_cache_inode_auxdata {
++	struct timespec	mtime;
++	struct timespec	ctime;
++	loff_t		size;
++};
++
++/*
++ * Generate a key to describe an NFS inode in an NFS server's index
++ */
++static uint16_t nfs_cache_inode_get_key(const void *cookie_netfs_data,
++					void *buffer, uint16_t bufmax)
 +{
-+	unsigned long flags;
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++	uint16_t nsize;
 +
-+	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue_tail(q, wait);
-+	spin_unlock_irqrestore(&q->lock, flags);
++	/* use the inode's NFS filehandle as the key */
++	nsize = nfsi->fh.size;
++	memcpy(buffer, nfsi->fh.data, nsize);
++	return nsize;
 +}
-+EXPORT_SYMBOL(add_wait_queue_tail);
 +
- void add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
- {
- 	unsigned long flags;
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 8951d67..b72e112 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -587,7 +587,7 @@ void end_page_writeback(struct page *page)
- EXPORT_SYMBOL(end_page_writeback);
++/*
++ * Get certain file attributes from the netfs data
++ * - This function can be absent for an index
++ * - Not permitted to return an error
++ * - The netfs data from the cookie being used as the source is presented
++ */
++static void nfs_cache_inode_get_attr(const void *cookie_netfs_data, uint64_t *size)
++{
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++
++	*size = nfsi->vfs_inode.i_size;
++}
++
++/*
++ * Get the auxiliary data from netfs data
++ * - This function can be absent if the index carries no state data
++ * - Should store the auxiliary data in the buffer
++ * - Should return the amount of amount stored
++ * - Not permitted to return an error
++ * - The netfs data from the cookie being used as the source is presented
++ */
++static uint16_t nfs_cache_inode_get_aux(const void *cookie_netfs_data,
++					void *buffer, uint16_t bufmax)
++{
++	struct nfs_cache_inode_auxdata auxdata;
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++
++	auxdata.size = nfsi->vfs_inode.i_size;
++	auxdata.mtime = nfsi->vfs_inode.i_mtime;
++	auxdata.ctime = nfsi->vfs_inode.i_ctime;
++
++	if (bufmax > sizeof(auxdata))
++		bufmax = sizeof(auxdata);
++
++	memcpy(buffer, &auxdata, bufmax);
++	return bufmax;
++}
++
++/*
++ * Consult the netfs about the state of an object
++ * - This function can be absent if the index carries no state data
++ * - The netfs data from the cookie being used as the target is
++ *   presented, as is the auxiliary data
++ */
++static enum fscache_checkaux nfs_cache_inode_check_aux(void *cookie_netfs_data,
++						       const void *data,
++						       uint16_t datalen)
++{
++	struct nfs_cache_inode_auxdata auxdata;
++	struct nfs_inode *nfsi = cookie_netfs_data;
++
++	if (datalen > sizeof(auxdata))
++		return FSCACHE_CHECKAUX_OBSOLETE;
++
++	auxdata.size = nfsi->vfs_inode.i_size;
++	auxdata.mtime = nfsi->vfs_inode.i_mtime;
++	auxdata.ctime = nfsi->vfs_inode.i_ctime;
++
++	if (memcmp(data, &auxdata, datalen) != 0)
++		return FSCACHE_CHECKAUX_OBSOLETE;
++
++	return FSCACHE_CHECKAUX_OKAY;
++}
++
++/*
++ * Define the inode object for FS-Cache.  This is used to describe an inode
++ * object to fscache_acquire_cookie().  It is keyed by the NFS file handle for
++ * an inode.
++ *
++ * Coherency is managed by comparing the copies of i_size, i_mtime and i_ctime
++ * held in the cache auxiliary data for the data storage object with those in
++ * the inode struct in memory.
++ */
++const struct fscache_cookie_def nfs_cache_inode_object_def = {
++	.name		= "NFS.fh",
++	.type		= FSCACHE_COOKIE_TYPE_DATAFILE,
++	.get_key	= nfs_cache_inode_get_key,
++	.get_attr	= nfs_cache_inode_get_attr,
++	.get_aux	= nfs_cache_inode_get_aux,
++	.check_aux	= nfs_cache_inode_check_aux,
++};
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index d23ca8f..21bf6c4 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -62,6 +62,7 @@ struct nfs_fscache_key {
+ extern struct fscache_netfs nfs_cache_netfs;
+ extern const struct fscache_cookie_def nfs_cache_server_index_def;
+ extern const struct fscache_cookie_def nfs_cache_super_index_def;
++extern const struct fscache_cookie_def nfs_cache_inode_object_def;
  
- /**
-- * end_page_own - Clear PG_owner_priv_2 and wake up any waiters
-+ * end_page_owner_priv_2 - Clear PG_owner_priv_2 and wake up any waiters
-  * @page: the page
-  *
-  * Clear PG_owner_priv_2 and wake up any processes waiting for that event.
+ extern int nfs_fscache_register(void);
+ extern void nfs_fscache_unregister(void);
 
 
 --
