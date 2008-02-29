@@ -1,75 +1,132 @@
-Subject: Re: [RFC PATCH] SELinux: Cleanup the secid/secctx conversion
-	functions
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1204293273.31790.251.camel@moss-spartans.epoch.ncsc.mil>
-References: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net>
-	 <1204293273.31790.251.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 29 Feb 2008 09:13:46 -0500
-Message-Id: <1204294426.31790.256.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47C80DFF.4080307@redhat.com>
+Date: Fri, 29 Feb 2008 08:51:59 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: SELinux List <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Tonights rawhide contains a fix to stop xspy.
+References: <47C63353.9040008@redhat.com> <47C6650F.2060909@tycho.nsa.gov> <47C6C16D.1010002@redhat.com> <47C7857C.7070406@tycho.nsa.gov>
+In-Reply-To: <47C7857C.7070406@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Fri, 2008-02-29 at 08:54 -0500, Stephen Smalley wrote:
-> On Thu, 2008-02-28 at 16:41 -0500, Paul Moore wrote:
-> > While looking at the SELinux secid/secctx conversion functions I realized they
-> > could probably do with a little cleanup to reduce the amount of code and make
-> > better use of existing string processing functions in the kernel.  Making use
-> > of the kernel's existing string processing functions is a good idea as many
-> > architectures have specialized/optimized routines which should be an
-> > improvement over the generic code in the SELinux security server.
-> > ---
-> > 
-> >  security/selinux/ss/mls.c      |   61 +++++--------
-> >  security/selinux/ss/mls.h      |    3 -
-> >  security/selinux/ss/services.c |  194 ++++++++++++++++------------------------
-> >  3 files changed, 103 insertions(+), 155 deletions(-)
-> > 
+Eamon Walsh wrote:
+> Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Eamon Walsh wrote:
+>>> Daniel J Walsh wrote:
+>>> Basically if you turn on xserver_object_manager boolean, no applications
+>>> will be allowed to read the x_device.  This stops xspy as you said dead
+>>> in its tracks,  but some other applications start to get AVC's around
+>>> querypointer, and eventually I hung the server.  You mentioned in
+>>> another email, that you were going to change the querypointer to a
+>>> getattr rather then a read, I think this is necessary, to make this
+>>> work.
+>>>  
+>>>> I have attached a patch that will do this.  There is another request,
+>>>> XKEYBOARD:GetState, that also requires read and I've noticed that
+>>>> gnome-settings-daemon is calling it (see below).  If you want to drop
+>>>> that down to getattr too, let me know; it doesn't look like it returns
+>>>> the whole keyboard like XQueryKeymap does, however both it and
+>>>> XQueryPointer return the mouse buttons and the modifier keys (shift,
+>>>> alt, ctrl, etc.).  Long-term we really need to get applications to stop
+>>>> calling these.
+>>
+>> Is there any way to differentiate the mouse from the keyboard, why are
+>> the the same type?
 > 
-> The snippet below looks like a step backward rather than an improvement
-> - single sprintf replaced by series of strcat calls.  That can't be more
-> efficient.
+> The idea behind the PAM work is to relabel the devices at login time.
+> It's kind of a moot point though because XQueryPointer returns both
+> mouse and keyboard state and should technically require read permission
+> on both devices.
+>
+Ok.
 
-Hmm...well, maybe I'm wrong (after looking at the implementations).
-Pity that Linux doesn't have stpcpy (as in glibc) - that is much nicer
-than a series of strcat's since it returns the end pointer and doesn't
-require finding the end of string each time.
-
+>> Can you get this patch upstream, it is a lot easier
+>> to get it into rawhide that way.
 > 
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > index f374186..4aab8a5 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> <snip>
-> > -	/*
-> > -	 * Copy the user name, role name and type name into the context.
-> > -	 */
-> > -	sprintf(scontextp, "%s:%s:%s",
-> > -		policydb.p_user_val_to_name[context->user - 1],
-> > -		policydb.p_role_val_to_name[context->role - 1],
-> > -		policydb.p_type_val_to_name[context->type - 1]);
-> > -	scontextp += strlen(policydb.p_user_val_to_name[context->user - 1]) +
-> > -	             1 + strlen(policydb.p_role_val_to_name[context->role - 1]) +
-> > -	             1 + strlen(policydb.p_type_val_to_name[context->type - 1]);
-> > -
-> > -	mls_sid_to_context(context, &scontextp);
-> > -
-> > -	*scontextp = 0;
-> > +	ctx = *scontext;
-> > +	strcpy(ctx, policydb.p_user_val_to_name[context->user - 1]);
-> > +	strcat(ctx, ":");
-> > +	strcat(ctx, policydb.p_role_val_to_name[context->role - 1]);
-> > +	strcat(ctx, ":");
-> > +	strcat(ctx, policydb.p_type_val_to_name[context->type - 1]);
+> The patch is upstream now, with a big /*XXX*/ on it.  Tom London's
+> compiz issues are fixed as well.
 > 
--- 
-Stephen Smalley
-National Security Agency
+>
+I already wrote a reply to this once, but the X Controls hung my
+machine.  So this is good news.
 
+>>
+>> Open bugzilla's on any you find, is the best way to get it fixed.
+>>
+> 
+> Rest assured I will.
+> 
+>>>> "Manage" permission on devices is another can of worms you may care to
+>>>> open at some point.  Anyone with that can remap the keys or do other
+>>>> things that affect the device globally.
+>>>> The other AVC's I'm getting are from interactions between staff_mono
+>>>> and
+>>>> staff.  I believe that this the result of a small application such as
+>>>> the clock or load graph being staff_mono_t, running inside gnome-panel
+>>>> which is staff_t.  This is the type of thing I was trying to solve with
+>>>> the 4-argument templates that allowed some permissions among the entire
+>>>> "role's" windows (however manage was not one of them).
+>> Yes this is one of the reasons that I like the ability to extend
+>> contexts so all privs of staff_t are inherited by staff_mono_t plus the
+>> exec checks.
+>>
+>> staff_mono_t == staff_t + execmem execstack;
+> 
+> This would be more than simple inheritance though.  This would be
+> implicitly granting staff_mono_t and staff_t permissions on each other
+> as well.
+> 
+I am using the staff_usertype attribute for the "isa" type domains.
+
+And basically writing
+
+allow staff_usertype staff_usertype:* *;
+
+So we need to extend this to the X Controls.
+>>
+>> I think we are going to need an interface that says one domain can play
+>> communicate with another domain, sort of the dbus_chat type interfaces.
+> 
+> This or the inheritance thing will be necessary, yes, until a better
+> handle is gotten on the interaction issues.
+>
+Right this inheritance works for "isa" domains (mono and java) but will
+not work if we want to isolate nsplugin_t or staff_firefox_t.  So we
+will need to figure out the minimal communication needed between the
+confined X-Application and the XYZ_usertype.
+
+> Have you considered starting out by supporting a simpler desktop
+> environment, such as XFCE?
+
+No.  I want to get stuff that is useful to the larger community.  What
+low hanging fruit can I grab to help out unconfined users on a
+gnome/gtk/gconf/metacity/compiz platform.  I will leave the XFCE to MLS
+people who are trying to prevent malicious information flow.
+
+Can I prevent all apps from sniffing passwords?
+Can I prevent all nsplugin_t from putting up a login screen?  Can I
+prevent it from writing anywhere but to a window owned by firefox_t?
+
+Other than preventing read of x_device_t, is there something else we
+need to do to prevent one app from listing for keyboard input of the
+focus application?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkfIDf8ACgkQrlYvE4MpobO9DACfQndDrWvCDsguZyNc6bdSIf0O
+E8IAoOfaMNZuRoN/sfhq9Kibypyg2l7N
+=3ugt
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
