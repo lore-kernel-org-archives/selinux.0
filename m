@@ -1,5 +1,5 @@
-Message-ID: <47C766D2.3010905@tycho.nsa.gov>
-Date: Thu, 28 Feb 2008 20:58:42 -0500
+Message-ID: <47C767B4.7060606@tycho.nsa.gov>
+Date: Thu, 28 Feb 2008 21:02:28 -0500
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
 To: Steve Grubb <sgrubb@redhat.com>
@@ -32,43 +32,50 @@ Steve Grubb wrote:
 > that we can look over to make sure they conform?
 >   
 
-The  libselinux logging callback has support for four message types: 
-"avc", "info", "warn", and "error".  What are the libaudit codes 
-associated with these?  I see USER_AVC and SELINUX_USER_ERR.  The reload 
-message is not really an "error."
+type=USER_AVC msg=audit(1204226161.048:268): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { read } for request=X11:QueryPointer comm=/usr/libexec/at-spi-registryd xdevice="Virtual core pointer" scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226225.513:271): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { force_cursor } for request=X11:GrabPointer comm=metacity xdevice="Virtual core pointer" scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226228.221:272): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { get_property } for request=X11:GetProperty comm=/usr/lib/firefox-3.0b4pre/firefox resid=480002d restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226228.221:273): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { list_child } for request=X11:QueryTree comm=/usr/lib/firefox-3.0b4pre/firefox resid=480002d restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226245.176:274): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { send } for request=X11:SendEvent comm=gnome-panel resid=4800006 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226245.176:275): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { send } for request=X11:SendEvent comm=gnome-panel event=X11:ClientMessage scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_client_xevent_t:s0 tclass=x_synthetic_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226245.186:276): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { getattr } for request=X11:GetWindowAttributes comm=gnome-screensaver resid=480002e restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226245.190:277): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for request=X11:ChangeWindowAttributes comm=gnome-screensaver resid=480002e restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226245.259:278): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { read } for request=X11:GetProperty comm=/usr/libexec/gnome-settings-daemon property=WM_NAME scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_default_xproperty_t:s0 tclass=x_property : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226247.388:279): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for  comm=gnome-screensaver event=X11:DestroyNotify scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_manage_xevent_t:s0 tclass=x_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226293.995:282): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { use } for request=GLX:QueryVersion comm=/usr/libexec/gnome-screensaver-gl-helper extension=GLX scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:accelgraphics_xext_t:s0 tclass=x_extension : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226294.590:283): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { send } for request=X11:SendEvent comm=/usr/libexec/gnome-screensaver-dialog event=X11:SelectionNotify scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_default_xevent_t:s0 tclass=x_synthetic_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226336.290:287): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for  comm=gnome-screensaver event=X11:PropertyNotify scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_property_xevent_t:s0 tclass=x_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226336.502:288): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { hide } for request=X11:UnmapWindow comm=gnome-panel resid=4800006 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226336.503:289): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { manage } for request=X11:ReparentWindow comm=gnome-panel resid=4800006 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226336.754:292): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for  comm=mono scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226336.754:293): user pid=21267 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for  comm=mono event=X11:DestroyNotify scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=staff_u:object_r:staff_manage_xevent_t:s0 tclass=x_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226339.514:295): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { read } for request=X11:QueryPointer comm=/usr/libexec/gdm-simple-greeter xdevice="Virtual core pointer" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226460.698:307): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { read } for request=X11:QueryPointer comm=gnome-session xdevice="Virtual core pointer" scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226460.807:308): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { use } for request=XTEST:GrabControl comm=/usr/libexec/at-spi-registryd extension=XTEST scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:debug_xext_t:s0 tclass=x_extension : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226466.997:312): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for request=X11:ChangeWindowAttributes comm=mono resid=1400006 restype=WINDOW scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226466.997:313): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { getattr } for request=X11:GetWindowAttributes comm=mono resid=1400006 restype=WINDOW scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226466.999:314): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { list_child } for request=X11:QueryTree comm=mono resid=1400006 restype=WINDOW scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.000:315): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { get_property } for request=X11:GetProperty comm=mono resid=1400006 restype=WINDOW scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=staff_u:object_r:staff_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.000:316): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { read } for request=X11:GetProperty comm=mono property=_XSETTINGS_SETTINGS scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=staff_u:object_r:staff_default_xproperty_t:s0 tclass=x_property : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.025:317): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { get_property } for request=X11:GetProperty comm=/usr/libexec/gnome-settings-daemon resid=4400001 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.026:318): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { read } for request=X11:GetProperty comm=/usr/libexec/gnome-settings-daemon property=WM_NAME scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_default_xproperty_t:s0 tclass=x_property : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.027:319): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { getattr } for request=X11:GetWindowAttributes comm=/usr/libexec/gnome-settings-daemon resid=4400001 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.028:320): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for request=X11:ChangeWindowAttributes comm=/usr/libexec/gnome-settings-daemon resid=4400001 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.067:321): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { read } for request=X11:QueryPointer comm=mono xdevice="Virtual core pointer" scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.118:322): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for  comm=/usr/libexec/gnome-settings-daemon event=X11:PropertyNotify scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_property_xevent_t:s0 tclass=x_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226467.599:324): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { list_child } for request=X11:QueryTree comm=gnome-screensaver resid=4400001 restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.841:326): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for  comm=/usr/libexec/gnome-settings-daemon event=X11:CreateNotify scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_manage_xevent_t:s0 tclass=x_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.847:327): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { hide } for request=X11:UnmapWindow comm=gnome-panel resid=440000c restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.847:328): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { manage } for request=X11:ReparentWindow comm=gnome-panel resid=440000c restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.850:329): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { send } for request=X11:SendEvent comm=gnome-panel resid=440000c restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.850:330): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { send } for request=X11:SendEvent comm=gnome-panel event=X11:ClientMessage scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_client_xevent_t:s0 tclass=x_synthetic_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.859:331): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { setattr } for request=X11:ConfigureWindow comm=gnome-panel resid=440000c restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.860:332): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { set_property } for request=X11:ChangeProperty comm=gnome-panel resid=440000c restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.860:333): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { show } for request=X11:MapWindow comm=gnome-panel resid=440000c restype=WINDOW scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_t:s0 tclass=x_drawable : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226468.861:334): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for  comm=gnome-screensaver event=X11:Expose scontext=staff_u:staff_r:staff_t:s0 tcontext=staff_u:object_r:staff_mono_default_xevent_t:s0 tclass=x_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+type=USER_AVC msg=audit(1204226482.060:338): user pid=21710 uid=0 auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 msg='avc:  denied  { receive } for  comm=mono event=X11:DestroyNotify scontext=staff_u:staff_r:staff_mono_t:s0 tcontext=staff_u:object_r:staff_manage_xevent_t:s0 tclass=x_event : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
 
-Samples attached.  The avc messages generated by the X server have 
-X-specific fields in them:
 
-request (X protocol request name)
-comm (program name)
-client (X client number)
-xdevice (name of X device)
-resid (X resource ID)
-restype (X resource type)
-event (X event type)
-property (X property name)
-selection (X selection name)
-extension (X extension name)
-
-If you want these field names changed, for example prefixed with "x", 
-please let me know.
-
-
->
->   
->>>> Can you verify that the X server was able to create the audit socket
->>>> successfully?
->>>>         
->>> Yes, because when I actually install the audit package, things started
->>> appearing in /var/log/audit/audit.log.  I did not have the audit package
->>> installed.  Why isn't it redirecting to /var/log/messages in this case?
->>>       
->
-> It should be if you have audit enabled. Perhaps you didn't boot with audit=1?
->   
-
-No, I didn't have this flag set.
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
