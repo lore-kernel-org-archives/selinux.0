@@ -1,18 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0iAT2025168
-	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:44:10 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1T0lGTY026278
+	for <selinux@tycho.nsa.gov>; Thu, 28 Feb 2008 19:47:16 -0500
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0i8VG000451
-	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:44:08 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1T0kwVG001079
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 00:47:08 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 04/37] KEYS: Add keyctl function to get a security label [ver
-	#34]
+Subject: [PATCH 24/37] NFS: Register NFS for caching and retrieve the
+	top-level index [ver #34]
 To: Trond.Myklebust@netapp.com, chuck.lever@oracle.com, casey@schaufler-ca.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 29 Feb 2008 00:43:54 +0000
-Message-ID: <20080229004354.4142.80639.stgit@warthog.procyon.org.uk>
+Date: Fri, 29 Feb 2008 00:45:42 +0000
+Message-ID: <20080229004542.4142.34211.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 References: <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,324 +20,169 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a keyctl() function to get the security label of a key.
-
-The following is added to Documentation/keys.txt:
-
- (*) Get the LSM security context attached to a key.
-
-	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
-		    size_t buflen)
-
-     This function returns a string that represents the LSM security context
-     attached to a key in the buffer provided.
-
-     Unless there's an error, it always returns the amount of data it could
-     produce, even if that's too big for the buffer, but it won't copy more
-     than requested to userspace. If the buffer pointer is NULL then no copy
-     will take place.
-
-     A NUL character is included at the end of the string if the buffer is
-     sufficiently big.  This is included in the returned count.  If no LSM is
-     in force then an empty string will be returned.
-
-     A process must have view permission on the key for this function to be
-     successful.
+Register NFS for caching and retrieve the top-level cache index object cookie.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 ---
 
- Documentation/keys.txt   |   21 +++++++++++++++
- include/linux/keyctl.h   |    1 +
- include/linux/security.h |   20 +++++++++++++-
- security/dummy.c         |    8 ++++++
- security/keys/compat.c   |    3 ++
- security/keys/keyctl.c   |   66 ++++++++++++++++++++++++++++++++++++++++++++++
- security/security.c      |    5 +++
- security/selinux/hooks.c |   21 +++++++++++++--
- 8 files changed, 141 insertions(+), 4 deletions(-)
+ fs/nfs/Makefile        |    1 +
+ fs/nfs/fscache-index.c |   53 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h       |   35 ++++++++++++++++++++++++++++++++
+ fs/nfs/inode.c         |    8 +++++++
+ 4 files changed, 97 insertions(+), 0 deletions(-)
+ create mode 100644 fs/nfs/fscache-index.c
+ create mode 100644 fs/nfs/fscache.h
 
 
-diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-index b82d38d..be424b0 100644
---- a/Documentation/keys.txt
-+++ b/Documentation/keys.txt
-@@ -711,6 +711,27 @@ The keyctl syscall functions are:
-      The assumed authoritative key is inherited across fork and exec.
- 
- 
-+ (*) Get the LSM security context attached to a key.
-+
-+	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
-+		    size_t buflen)
-+
-+     This function returns a string that represents the LSM security context
-+     attached to a key in the buffer provided.
-+
-+     Unless there's an error, it always returns the amount of data it could
-+     produce, even if that's too big for the buffer, but it won't copy more
-+     than requested to userspace. If the buffer pointer is NULL then no copy
-+     will take place.
-+
-+     A NUL character is included at the end of the string if the buffer is
-+     sufficiently big.  This is included in the returned count.  If no LSM is
-+     in force then an empty string will be returned.
-+
-+     A process must have view permission on the key for this function to be
-+     successful.
-+
-+
- ===============
- KERNEL SERVICES
- ===============
-diff --git a/include/linux/keyctl.h b/include/linux/keyctl.h
-index 3365945..656ee6b 100644
---- a/include/linux/keyctl.h
-+++ b/include/linux/keyctl.h
-@@ -49,5 +49,6 @@
- #define KEYCTL_SET_REQKEY_KEYRING	14	/* set default request-key keyring */
- #define KEYCTL_SET_TIMEOUT		15	/* set key timeout */
- #define KEYCTL_ASSUME_AUTHORITY		16	/* assume request_key() authorisation */
-+#define KEYCTL_GET_SECURITY		17	/* get key security label */
- 
- #endif /*  _LINUX_KEYCTL_H */
-diff --git a/include/linux/security.h b/include/linux/security.h
-index fe52cde..a33fd03 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -970,6 +970,17 @@ struct request_sock;
-  *	@perm describes the combination of permissions required of this key.
-  *	Return 1 if permission granted, 0 if permission denied and -ve it the
-  *      normal permissions model should be effected.
-+ * @key_getsecurity:
-+ *	Get a textual representation of the security context attached to a key
-+ *	for the purposes of honouring KEYCTL_GETSECURITY.  This function
-+ *	allocates the storage for the NUL-terminated string and the caller
-+ *	should free it.
-+ *	@key points to the key to be queried.
-+ *	@_buffer points to a pointer that should be set to point to the
-+ *	 resulting string (if no label or an error occurs).
-+ *	Return the length of the string (including terminating NUL) or -ve if
-+ *      an error.
-+ *	May also return 0 (and a NULL buffer pointer) if there is no label.
-  *
-  * Security hooks affecting all System V IPC operations.
-  *
-@@ -1459,7 +1470,7 @@ struct security_operations {
- 	int (*key_permission)(key_ref_t key_ref,
- 			      struct task_struct *context,
- 			      key_perm_t perm);
--
-+	int (*key_getsecurity)(struct key *key, char **_buffer);
- #endif	/* CONFIG_KEYS */
- 
- };
-@@ -2600,6 +2611,7 @@ int security_key_alloc(struct key *key, struct task_struct *tsk, unsigned long f
- void security_key_free(struct key *key);
- int security_key_permission(key_ref_t key_ref,
- 			    struct task_struct *context, key_perm_t perm);
-+int security_key_getsecurity(struct key *key, char **_buffer);
- 
- #else
- 
-@@ -2621,6 +2633,12 @@ static inline int security_key_permission(key_ref_t key_ref,
- 	return 0;
- }
- 
-+static inline int security_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	*_buffer = NULL;
-+	return 0;
-+}
-+
- #endif
- #endif /* CONFIG_KEYS */
- 
-diff --git a/security/dummy.c b/security/dummy.c
-index 649326b..6a0056b 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -977,6 +977,13 @@ static inline int dummy_key_permission(key_ref_t key_ref,
- {
- 	return 0;
- }
-+
-+static int dummy_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	*_buffer = NULL;
-+	return 0;
-+}
-+
- #endif /* CONFIG_KEYS */
- 
- struct security_operations dummy_security_ops;
-@@ -1164,6 +1171,7 @@ void security_fixup_ops (struct security_operations *ops)
- 	set_to_dummy_if_null(ops, key_alloc);
- 	set_to_dummy_if_null(ops, key_free);
- 	set_to_dummy_if_null(ops, key_permission);
-+	set_to_dummy_if_null(ops, key_getsecurity);
- #endif	/* CONFIG_KEYS */
- 
- }
-diff --git a/security/keys/compat.c b/security/keys/compat.c
-index e10ec99..c766c68 100644
---- a/security/keys/compat.c
-+++ b/security/keys/compat.c
-@@ -79,6 +79,9 @@ asmlinkage long compat_sys_keyctl(u32 option,
- 	case KEYCTL_ASSUME_AUTHORITY:
- 		return keyctl_assume_authority(arg2);
- 
-+	case KEYCTL_GET_SECURITY:
-+		return keyctl_get_security(arg2, compat_ptr(arg3), arg4);
-+
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 1698bf9..56e963b 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -20,6 +20,7 @@
- #include <linux/string.h>
- #include <linux/err.h>
- #include <linux/vmalloc.h>
-+#include <linux/security.h>
- #include <asm/uaccess.h>
- #include "internal.h"
- 
-@@ -1080,6 +1081,66 @@ error:
- 
- } /* end keyctl_assume_authority() */
- 
-+/*
-+ * get the security label of a key
-+ * - the key must grant us view permission
-+ * - if there's a buffer, we place up to buflen bytes of data into it
-+ * - unless there's an error, we return the amount of information available,
-+ *   irrespective of how much we may have copied (including the terminal NUL)
-+ * - implements keyctl(KEYCTL_GET_SECURITY)
+diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
+index df0f41e..6d7176d 100644
+--- a/fs/nfs/Makefile
++++ b/fs/nfs/Makefile
+@@ -16,3 +16,4 @@ nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
+ 			   nfs4namespace.o
+ nfs-$(CONFIG_NFS_DIRECTIO) += direct.o
+ nfs-$(CONFIG_SYSCTL) += sysctl.o
++nfs-$(CONFIG_NFS_FSCACHE) += fscache-index.o
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+new file mode 100644
+index 0000000..225ed5d
+--- /dev/null
++++ b/fs/nfs/fscache-index.c
+@@ -0,0 +1,53 @@
++/* NFS FS-Cache index structure definition
++ *
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
 + */
-+long keyctl_get_security(key_serial_t keyid,
-+			 char __user *buffer,
-+			 size_t buflen)
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/nfs_fs.h>
++#include <linux/nfs_fs_sb.h>
++#include <linux/in6.h>
++
++#include "internal.h"
++#include "fscache.h"
++
++#define NFSDBG_FACILITY		NFSDBG_FSCACHE
++
++static const struct fscache_netfs_operations nfs_cache_ops = {
++};
++
++/*
++ * Define the NFS filesystem for FS-Cache.  Upon registration FS-Cache sticks
++ * the cookie for the top-level index object for NFS into this structure.  The
++ * top-level index can than have other cache objects inserted into it.
++ */
++struct fscache_netfs nfs_cache_netfs = {
++	.name		= "nfs",
++	.version	= 0,
++	.ops		= &nfs_cache_ops,
++};
++
++/*
++ * Register NFS for caching
++ */
++int nfs_fscache_register(void)
 +{
-+	struct key *key, *instkey;
-+	key_ref_t key_ref;
-+	char *context;
-+	long ret;
-+
-+	key_ref = lookup_user_key(NULL, keyid, 0, 1, KEY_VIEW);
-+	if (IS_ERR(key_ref)) {
-+		if (PTR_ERR(key_ref) != -EACCES)
-+			return PTR_ERR(key_ref);
-+
-+		/* viewing a key under construction is also permitted if we
-+		 * have the authorisation token handy */
-+		instkey = key_get_instantiation_authkey(keyid);
-+		if (IS_ERR(instkey))
-+			return PTR_ERR(key_ref);
-+		key_put(instkey);
-+
-+		key_ref = lookup_user_key(NULL, keyid, 0, 1, 0);
-+		if (IS_ERR(key_ref))
-+			return PTR_ERR(key_ref);
-+	}
-+
-+	key = key_ref_to_ptr(key_ref);
-+	ret = security_key_getsecurity(key, &context);
-+	if (ret == 0) {
-+		/* if no information was returned, give userspace an empty
-+		 * string */
-+		ret = 1;
-+		if (buffer && buflen > 0 &&
-+		    copy_to_user(buffer, "", 1) != 0)
-+			ret = -EFAULT;
-+	} else if (ret > 0) {
-+		/* return as much data as there's room for */
-+		if (buffer && buflen > 0) {
-+			if (buflen > ret)
-+				buflen = ret;
-+
-+			if (copy_to_user(buffer, context, buflen) != 0)
-+				ret = -EFAULT;
-+		}
-+
-+		kfree(context);
-+	}
-+
-+	key_ref_put(key_ref);
-+	return ret;
++	return fscache_register_netfs(&nfs_cache_netfs);
 +}
 +
- /*****************************************************************************/
- /*
-  * the key control system call
-@@ -1160,6 +1221,11 @@ asmlinkage long sys_keyctl(int option, unsigned long arg2, unsigned long arg3,
- 	case KEYCTL_ASSUME_AUTHORITY:
- 		return keyctl_assume_authority((key_serial_t) arg2);
- 
-+	case KEYCTL_GET_SECURITY:
-+		return keyctl_get_security((key_serial_t) arg2,
-+					   (char *) arg3,
-+					   (size_t) arg4);
++/*
++ * Unregister NFS for caching
++ */
++void nfs_fscache_unregister(void)
++{
++	fscache_unregister_netfs(&nfs_cache_netfs);
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+new file mode 100644
+index 0000000..74ab060
+--- /dev/null
++++ b/fs/nfs/fscache.h
+@@ -0,0 +1,35 @@
++/* NFS filesystem cache interface definitions
++ *
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
 +
- 	default:
- 		return -EOPNOTSUPP;
- 	}
-diff --git a/security/security.c b/security/security.c
-index d15e56c..3e75b90 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1102,4 +1102,9 @@ int security_key_permission(key_ref_t key_ref,
- 	return security_ops->key_permission(key_ref, context, perm);
++#ifndef _NFS_FSCACHE_H
++#define _NFS_FSCACHE_H
++
++#include <linux/nfs_fs.h>
++#include <linux/nfs_mount.h>
++#include <linux/nfs4_mount.h>
++#include <linux/fscache.h>
++
++#ifdef CONFIG_NFS_FSCACHE
++
++/*
++ * fscache-index.c
++ */
++extern struct fscache_netfs nfs_cache_netfs;
++
++extern int nfs_fscache_register(void);
++extern void nfs_fscache_unregister(void);
++
++#else /* CONFIG_NFS_FSCACHE */
++static inline int nfs_fscache_register(void) { return 0; }
++static inline void nfs_fscache_unregister(void) {}
++
++#endif /* CONFIG_NFS_FSCACHE */
++#endif /* _NFS_FSCACHE_H */
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 966a885..7254d5c 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -46,6 +46,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ #include "internal.h"
++#include "fscache.h"
+ 
+ #define NFSDBG_FACILITY		NFSDBG_VFS
+ 
+@@ -1222,6 +1223,10 @@ static int __init init_nfs_fs(void)
+ {
+ 	int err;
+ 
++	err = nfs_fscache_register();
++	if (err < 0)
++		goto out6;
++
+ 	err = nfs_fs_proc_init();
+ 	if (err)
+ 		goto out5;
+@@ -1268,6 +1273,8 @@ out3:
+ out4:
+ 	nfs_fs_proc_exit();
+ out5:
++	nfs_fscache_unregister();
++out6:
+ 	return err;
  }
  
-+int security_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	return security_ops->key_getsecurity(key, _buffer);
-+}
-+
- #endif	/* CONFIG_KEYS */
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 75c2e99..f42ebfc 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5216,6 +5216,20 @@ static int selinux_key_permission(key_ref_t key_ref,
- 			    SECCLASS_KEY, perm, NULL);
- }
- 
-+static int selinux_key_getsecurity(struct key *key, char **_buffer)
-+{
-+	struct key_security_struct *ksec = key->security;
-+	char *context = NULL;
-+	unsigned len;
-+	int rc;
-+
-+	rc = security_sid_to_context(ksec->sid, &context, &len);
-+	if (!rc)
-+		rc = len;
-+	*_buffer = context;
-+	return rc;
-+}
-+
+@@ -1278,6 +1285,7 @@ static void __exit exit_nfs_fs(void)
+ 	nfs_destroy_readpagecache();
+ 	nfs_destroy_inodecache();
+ 	nfs_destroy_nfspagecache();
++	nfs_fscache_unregister();
+ #ifdef CONFIG_PROC_FS
+ 	rpc_proc_unregister("nfs");
  #endif
- 
- static struct security_operations selinux_ops = {
-@@ -5395,9 +5409,10 @@ static struct security_operations selinux_ops = {
- #endif
- 
- #ifdef CONFIG_KEYS
--	.key_alloc =                    selinux_key_alloc,
--	.key_free =                     selinux_key_free,
--	.key_permission =               selinux_key_permission,
-+	.key_alloc =			selinux_key_alloc,
-+	.key_free =			selinux_key_free,
-+	.key_permission =		selinux_key_permission,
-+	.key_getsecurity =		selinux_key_getsecurity,
- #endif
- };
- 
 
 
 --
