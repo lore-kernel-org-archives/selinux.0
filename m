@@ -1,62 +1,57 @@
-Subject: Re: [PATCH -v2] SELinux: create new open permission
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: James Antill <james.antill@redhat.com>, Eric Paris <eparis@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux <selinux@tycho.nsa.gov>, jmorris@namei.org,
-        Paul Moore <paul.moore@hp.com>
-In-Reply-To: <200802292337.29243.russell@coker.com.au>
-References: <1204221520.3206.86.camel@localhost.localdomain>
-	 <1204225233.3206.120.camel@localhost.localdomain>
-	 <1204230728.11268.261.camel@code.and.org>
-	 <200802292337.29243.russell@coker.com.au>
-Content-Type: text/plain
-Date: Fri, 29 Feb 2008 08:00:16 -0500
-Message-Id: <1204290016.31790.225.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m1TDcfmK027579
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 08:38:41 -0500
+Received: from g4t0016.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m1TDcYQO010081
+	for <selinux@tycho.nsa.gov>; Fri, 29 Feb 2008 13:38:35 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [RFC PATCH] SELinux: Cleanup the secid/secctx conversion functions
+Date: Fri, 29 Feb 2008 08:27:28 -0500
+Cc: selinux@tycho.nsa.gov
+References: <20080228214152.32557.76137.stgit@flek.americas.hpqcorp.net> <Xine.LNX.4.64.0802292048010.27014@us.intercode.com.au>
+In-Reply-To: <Xine.LNX.4.64.0802292048010.27014@us.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200802290827.30364.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Friday 29 February 2008 4:49:59 am James Morris wrote:
+> On Thu, 28 Feb 2008, Paul Moore wrote:
+> > While looking at the SELinux secid/secctx conversion functions I realized
+> > they could probably do with a little cleanup to reduce the amount of code
+> > and make better use of existing string processing functions in the
+> > kernel.  Making use of the kernel's existing string processing functions
+> > is a good idea as many architectures have specialized/optimized routines
+> > which should be an improvement over the generic code in the SELinux
+> > security server.
+>
+> Please always include a signed-off-by line, in case the patch gets
+> applied.
 
-On Fri, 2008-02-29 at 23:37 +1100, Russell Coker wrote:
-> On Friday 29 February 2008 07:32, James Antill <james.antill@redhat.com> 
-> wrote:
-> > > > What does open on a dir mean?  Isn't that the same as the read perm?
-> > >
-> > > Admittedly there is very little distinction and I don't know the
-> > > usefulness, but it is possible for a process to pass an open fd to a
-> > > directory so I saw little reason to exclude it.
-> >
-> >  Also we have the *at() and fchdir() calls, so this distinction (between
-> > open and read on dirs) is useful.
-> 
-> This new open permission is being created specifically to allow file handles 
-> to be inherited across exec.
-> 
-> Inheriting a directory file handle for the purpose of fchdir() seems quite 
-> unlikely.  In fact when fchdir() is mentioned in mailing list discussions it 
-> always seems to be in the context of allowing a process to break out of a 
-> chroot() jail.
-> 
-> Does anyone have a hypothetical example of how fchdir() could be used in a way 
-> which doesn't break the security of a system but yet need to have open and 
-> read access be differentiated?
-> 
-> As an aside, I'm concerned about the implications of this new file open 
-> permission for overall quality of SE Linux policy (both reference policy and 
-> custom policy).  I anticipate many people writing policy that allows read and 
-> write access wildly with the idea that controls on open will prevent them 
-> being exploited.
+Not including my sign-off is intentional as I've found it the only reliable to 
+keep patches from being merged upstream before I'm happy with them.  In this 
+particular case I've only booted the patch once or twice and was posting it 
+to see if others felt it worthwhile before I spent any more time on it.
 
-That is a concern, but on the other side of it, today we have to either
-allow or dontaudit many cases where a program only inherits a descriptor
-from the caller and should never directly open the file, so the new open
-check gives us a way to distinguish such attempts.
+> > -static int context_struct_to_string(struct context *context, char
+> > **scontext, u32 *scontext_len) +static int
+> > context_struct_to_string(struct context *context,
+> > +				    char **scontext, u32 *scontext_len)
+>
+> I tend to not prefer the 80-column rule for function declarations, as it
+> makes the code harder to grep (not a show-stopper, but generally, don't
+> try and fix these).
+
+I find myself sticking pretty religiously to the 80-column rule, but you make 
+a valid point that if I'm not changing the arguments I probably shouldn't 
+mess with them.  I'll fix that up.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+paul moore
+linux security @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
