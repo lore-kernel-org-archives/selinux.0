@@ -1,30 +1,36 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m23Dj3Tu001145
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 08:45:03 -0500
-Received: from ns1.a61.nl (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m23Dj13A004065
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 13:45:01 GMT
-Received: from localhost ([127.0.0.1] helo=rvandenblink.nl)
-	by ns1.a61.nl with esmtp (Exim 4.54)
-	id 1JWAyT-0002iu-8t
-	for selinux@tycho.nsa.gov; Mon, 03 Mar 2008 14:45:01 +0100
-Message-ID: <53972.80.95.164.250.1204551901.squirrel@rvandenblink.nl>
-Date: Mon, 3 Mar 2008 14:45:01 +0100 (CET)
-Subject: regarding the last message
-From: selinux@a61.nl
-To: selinux@tycho.nsa.gov
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m23GvnLh024637
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 11:57:49 -0500
+Received: from dmzmta101.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m23Gvhl4009537
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 16:57:48 GMT
+Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
+	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m23Gu61n003124
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 11:56:06 -0500
+Received: from blums0041.bluelnk.net ([134.120.81.53])
+	by usdmta001.na.baesystems.com (Switch-3.2.0/Switch-3.2.0) with ESMTP id m23Gtfvj026943
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 11:55:54 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: mcs translation daemon
+Date: Mon, 3 Mar 2008 08:56:26 -0800
+Message-ID: <0794F277152EF94AA637E3AECF5CB70F21A367@blums0042.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Just to let you guys know, the whole jboss/jbossjava shizzle is compiled
-and developed on RHEL5(.1)
+How is the mcs translation daemon supposed to be started/restarted?
 
-With regards,
+When I reboot the machine, mcstransd comes up in the setrans_t domain.
+If I start/restart it with "service mcstrans start/restart" (or
+equivalently "/etc/init.d/mcstrans start/restart"), it comes up in
+whatever user domain I'm in (either staff_t or sysadm_t). There is also
+a /sbin/mcstransd executable which is labeled setrans_exec_t, but using
+that still ends up with the mcstrans daemon running in my user shell
+domain.
 
-
-Ronald van den Blink
 
 
 --
