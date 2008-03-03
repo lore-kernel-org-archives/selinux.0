@@ -1,142 +1,136 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m23M54Zx031059
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 17:05:04 -0500
-Message-ID: <47CC75E2.2020300@tycho.nsa.gov>
-Date: Mon, 03 Mar 2008 17:04:18 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: Tonights rawhide contains a fix to stop xspy.
-References: <47C63353.9040008@redhat.com> <47C6650F.2060909@tycho.nsa.gov> <47C6C16D.1010002@redhat.com> <47C7857C.7070406@tycho.nsa.gov> <47C80DFF.4080307@redhat.com>
-In-Reply-To: <47C80DFF.4080307@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Mon, 3 Mar 2008 17:20:30 -0500
+From: "Todd C. Miller" <tmiller@tresys.com>
+Message-Id: <200803032220.m23MKUZp003057@cadmus.columbia.tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: PATCH: fix uninitialized use of handle in struct policy_file
+Cc: sds@tycho.nsa.gov, tmiller@tresys.com
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Eamon Walsh wrote:
->> Daniel J Walsh wrote:
->>> -----BEGIN PGP SIGNED MESSAGE-----
->>> Hash: SHA1
->>>
->>> Eamon Walsh wrote:
->>>> Daniel J Walsh wrote:
->>>> Basically if you turn on xserver_object_manager boolean, no applications
->>>> will be allowed to read the x_device.  This stops xspy as you said dead
->>>> in its tracks,  but some other applications start to get AVC's around
->>>> querypointer, and eventually I hung the server.  You mentioned in
->>>> another email, that you were going to change the querypointer to a
->>>> getattr rather then a read, I think this is necessary, to make this
->>>> work.
->>>>  
->>>>> I have attached a patch that will do this.  There is another request,
->>>>> XKEYBOARD:GetState, that also requires read and I've noticed that
->>>>> gnome-settings-daemon is calling it (see below).  If you want to drop
->>>>> that down to getattr too, let me know; it doesn't look like it returns
->>>>> the whole keyboard like XQueryKeymap does, however both it and
->>>>> XQueryPointer return the mouse buttons and the modifier keys (shift,
->>>>> alt, ctrl, etc.).  Long-term we really need to get applications to stop
->>>>> calling these.
->>> Is there any way to differentiate the mouse from the keyboard, why are
->>> the the same type?
->> The idea behind the PAM work is to relabel the devices at login time.
->> It's kind of a moot point though because XQueryPointer returns both
->> mouse and keyboard state and should technically require read permission
->> on both devices.
->>
-> Ok.
-> 
->>> Can you get this patch upstream, it is a lot easier
->>> to get it into rawhide that way.
->> The patch is upstream now, with a big /*XXX*/ on it.  Tom London's
->> compiz issues are fixed as well.
->>
->>
-> I already wrote a reply to this once, but the X Controls hung my
-> machine.  So this is good news.
-> 
->>> Open bugzilla's on any you find, is the best way to get it fixed.
->>>
->> Rest assured I will.
->>
->>>>> "Manage" permission on devices is another can of worms you may care to
->>>>> open at some point.  Anyone with that can remap the keys or do other
->>>>> things that affect the device globally.
->>>>> The other AVC's I'm getting are from interactions between staff_mono
->>>>> and
->>>>> staff.  I believe that this the result of a small application such as
->>>>> the clock or load graph being staff_mono_t, running inside gnome-panel
->>>>> which is staff_t.  This is the type of thing I was trying to solve with
->>>>> the 4-argument templates that allowed some permissions among the entire
->>>>> "role's" windows (however manage was not one of them).
->>> Yes this is one of the reasons that I like the ability to extend
->>> contexts so all privs of staff_t are inherited by staff_mono_t plus the
->>> exec checks.
->>>
->>> staff_mono_t == staff_t + execmem execstack;
->> This would be more than simple inheritance though.  This would be
->> implicitly granting staff_mono_t and staff_t permissions on each other
->> as well.
->>
-> I am using the staff_usertype attribute for the "isa" type domains.
-> 
-> And basically writing
-> 
-> allow staff_usertype staff_usertype:* *;
-> 
-> So we need to extend this to the X Controls.
->>> I think we are going to need an interface that says one domain can play
->>> communicate with another domain, sort of the dbus_chat type interfaces.
->> This or the inheritance thing will be necessary, yes, until a better
->> handle is gotten on the interaction issues.
->>
-> Right this inheritance works for "isa" domains (mono and java) but will
-> not work if we want to isolate nsplugin_t or staff_firefox_t.  So we
-> will need to figure out the minimal communication needed between the
-> confined X-Application and the XYZ_usertype.
-> 
->> Have you considered starting out by supporting a simpler desktop
->> environment, such as XFCE?
-> 
-> No.  I want to get stuff that is useful to the larger community.  What
-> low hanging fruit can I grab to help out unconfined users on a
-> gnome/gtk/gconf/metacity/compiz platform.  I will leave the XFCE to MLS
-> people who are trying to prevent malicious information flow.
-> 
-> Can I prevent all apps from sniffing passwords?
+The "handle" member of struct policy_file was being used uninitialized
+in a number of places.  Stephen Smalley noticed that a valgrind of
+dispol reported an uninitialized variable while tracking down a segv.
+I diagnosed the problem and found that there were quite a few instances
+of the bug.
 
-Not without putting apps into separate domains.
+Consumers of sepol_policy_file_create() are not affected by this since
+it uses calloc().
 
+Signed-off-by: Todd C. Miller <tmiller@tresys.com>
 
-> Can I prevent all nsplugin_t from putting up a login screen?  
+ checkpolicy/checkmodule.c |    2 ++
+ checkpolicy/checkpolicy.c |    2 ++
+ checkpolicy/test/dismod.c |    1 +
+ checkpolicy/test/dispol.c |    1 +
+ libsepol/src/genbools.c   |    2 ++
+ libsepol/src/services.c   |    3 ++-
+ 6 files changed, 10 insertions(+), 1 deletion(-)
 
-You can prevent nsplugin_t from creating child windows of the root 
-window (as opposed to child windows of the firefox window).
-
-
-> Can I
-> prevent it from writing anywhere but to a window owned by firefox_t?
-
-Yes, by denying permissions on other types of windows.
-
-
-> 
-> Other than preventing read of x_device_t, is there something else we
-> need to do to prevent one app from listing for keyboard input of the
-> focus application?
-
-Apps in the same domain can listen to keyboard events from each other's 
-windows, fullstop.
-
-
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Index: trunk/libsepol/src/services.c
+===================================================================
+--- trunk/libsepol/src/services.c	(revision 2828)
++++ trunk/libsepol/src/services.c	(working copy)
+@@ -87,6 +87,7 @@
+ 	struct policy_file pf;
+ 	pf.fp = fp;
+ 	pf.type = PF_USE_STDIO;
++	pf.handle = NULL;
+ 	if (mypolicydb.policy_type)
+ 		policydb_destroy(&mypolicydb);
+ 	if (policydb_init(&mypolicydb)) {
+@@ -1007,7 +1008,7 @@
+ 		.type = PF_USE_MEMORY,
+ 		.data = data,
+ 		.len = len,
+-		.fp = NULL
++		.handle = NULL
+ 	}, *fp = &file;
+ 
+ 	if (policydb_init(&newpolicydb))
+Index: trunk/libsepol/src/genbools.c
+===================================================================
+--- trunk/libsepol/src/genbools.c	(revision 2828)
++++ trunk/libsepol/src/genbools.c	(working copy)
+@@ -157,6 +157,7 @@
+ 	pf.type = PF_USE_MEMORY;
+ 	pf.data = data;
+ 	pf.len = len;
++	pf.handle = NULL;
+ 	rc = policydb_write(&policydb, &pf);
+ 	if (rc) {
+ 		ERR(NULL, "unable to write new binary policy image");
+@@ -228,6 +229,7 @@
+ 	pf.type = PF_USE_MEMORY;
+ 	pf.data = data;
+ 	pf.len = len;
++	pf.handle = NULL;
+ 	rc = policydb_write(&policydb, &pf);
+ 	if (rc) {
+ 		ERR(NULL, "unable to write binary policy");
+Index: trunk/checkpolicy/test/dismod.c
+===================================================================
+--- trunk/checkpolicy/test/dismod.c	(revision 2828)
++++ trunk/checkpolicy/test/dismod.c	(working copy)
+@@ -691,6 +691,7 @@
+ 	}
+ 	f.type = PF_USE_STDIO;
+ 	f.fp = in_fp;
++	f.handle = NULL;
+ 
+ 	/* peek at the first byte.  if they are indicative of a
+ 	   package use the package reader, otherwise use the normal
+Index: trunk/checkpolicy/test/dispol.c
+===================================================================
+--- trunk/checkpolicy/test/dispol.c	(revision 2828)
++++ trunk/checkpolicy/test/dispol.c	(working copy)
+@@ -376,6 +376,7 @@
+ 	pf.type = PF_USE_MEMORY;
+ 	pf.data = map;
+ 	pf.len = sb.st_size;
++	pf.handle = NULL;
+ 	if (policydb_init(&policydb)) {
+ 		fprintf(stderr, "%s:  Out of memory!\n", argv[0]);
+ 		exit(1);
+Index: trunk/checkpolicy/checkmodule.c
+===================================================================
+--- trunk/checkpolicy/checkmodule.c	(revision 2829)
++++ trunk/checkpolicy/checkmodule.c	(working copy)
+@@ -74,6 +74,7 @@
+ 	f.type = PF_USE_MEMORY;
+ 	f.data = map;
+ 	f.len = sb.st_size;
++	f.handle = NULL;
+ 	fp = &f;
+ 
+ 	if (policydb_init(p)) {
+@@ -126,6 +127,7 @@
+ 
+ 	pf.type = PF_USE_STDIO;
+ 	pf.fp = outfp;
++	pf.handle = NULL;
+ 	ret = policydb_write(p, &pf);
+ 	if (ret) {
+ 		fprintf(stderr, "%s:  error writing %s\n", progname, file);
+Index: trunk/checkpolicy/checkpolicy.c
+===================================================================
+--- trunk/checkpolicy/checkpolicy.c	(revision 2829)
++++ trunk/checkpolicy/checkpolicy.c	(working copy)
+@@ -492,6 +492,7 @@
+ 		pf.type = PF_USE_MEMORY;
+ 		pf.data = map;
+ 		pf.len = sb.st_size;
++		pf.handle = NULL;
+ 		if (policydb_init(&policydb)) {
+ 			fprintf(stderr, "%s:  policydb_init:  Out of memory!\n",
+ 				argv[0]);
+@@ -579,6 +580,7 @@
+ 
+ 		pf.type = PF_USE_STDIO;
+ 		pf.fp = outfp;
++		pf.handle = NULL;
+ 		ret = policydb_write(&policydb, &pf);
+ 		if (ret) {
+ 			fprintf(stderr, "%s:  error writing %s\n",
 
 --
 This message was distributed to subscribers of the selinux mailing list.
