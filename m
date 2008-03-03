@@ -1,85 +1,31 @@
-Date: Mon, 3 Mar 2008 13:21:27 -0500
-From: "Todd C. Miller" <tmiller@tresys.com>
-Message-Id: <200803031821.m23ILRte000742@cadmus.columbia.tresys.com>
-To: selinux@tycho.nsa.gov
-Subject: PATH: minor checkpolicy cleanup
-Cc: sds@tycho.nsa.gov
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m23IZNLD006385
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 13:35:23 -0500
+Received: from smtp103.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m23IZM82023397
+	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 18:35:22 GMT
+Cc: <selinux@tycho.nsa.gov>
+Message-Id: <ADD7E44B-3EB0-4DF9-A30D-957C23354ADC@nall.com>
+From: Joe Nall <joe@nall.com>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+In-Reply-To: <0794F277152EF94AA637E3AECF5CB70F21A367@blums0042.bluelnk.net>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v919.2)
+Subject: Re: mcs translation daemon
+Date: Mon, 3 Mar 2008 12:35:05 -0600
+References: <0794F277152EF94AA637E3AECF5CB70F21A367@blums0042.bluelnk.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Minor checkpolicy cleanup.  Remove the unused DEBUG define, move
-handle_unknown to checkpolicy.c and checkmodule.c since it is not used
-in policy_parse.y.  Also change COND_ERR to be (avrule_t *)-1 since that
-is guaranteed to not be a valid address.
 
-This is in preparation for a much larger diff.
+On Mar 3, 2008, at 10:56 AM, Clarkson, Mike R (US SSA) wrote:
 
-Signed-off-by: Todd C. Miller <tmiller@tresys.com>
+> How is the mcs translation daemon supposed to be started/restarted?
 
- checkmodule.c  |    2 +-
- checkpolicy.c  |    2 +-
- policy_parse.y |    6 +-----
- 3 files changed, 3 insertions(+), 7 deletions(-)
+run_init
 
-Index: trunk/checkpolicy/policy_parse.y
-===================================================================
---- trunk/checkpolicy/policy_parse.y	(revision 2828)
-+++ trunk/checkpolicy/policy_parse.y	(working copy)
-@@ -57,8 +57,7 @@
-  * when we have a parse error for a conditional rule.  We can't check 
-  * for NULL (ie 0) because that is a potentially valid return.
-  */
--static avrule_t *conditional_unused_error_code;
--#define COND_ERR (avrule_t *)&conditional_unused_error_code
-+#define COND_ERR (avrule_t *)-1
- 
- #define TRUE 1
- #define FALSE 0
-@@ -68,7 +67,6 @@
- static unsigned int pass;
- char *curfile = 0;
- int mlspol = 0;
--int handle_unknown = 0;
- 
- extern unsigned long policydb_lineno;
- extern unsigned long source_lineno;
-@@ -860,8 +858,6 @@
- 	va_end(ap);
- }
- 
--#define DEBUG 1
--
- static int insert_separator(int push)
- {
- 	int error;
-Index: trunk/checkpolicy/checkmodule.c
-===================================================================
---- trunk/checkpolicy/checkmodule.c	(revision 2828)
-+++ trunk/checkpolicy/checkmodule.c	(working copy)
-@@ -39,8 +39,8 @@
- static sidtab_t sidtab;
- 
- extern int mlspol;
--extern int handle_unknown;
- 
-+static int handle_unknown = SEPOL_DENY_UNKNOWN;
- static char *txtfile = "policy.conf";
- static char *binfile = "policy";
- 
-Index: trunk/checkpolicy/checkpolicy.c
-===================================================================
---- trunk/checkpolicy/checkpolicy.c	(revision 2828)
-+++ trunk/checkpolicy/checkpolicy.c	(working copy)
-@@ -90,8 +90,8 @@
- 
- extern policydb_t *policydbp;
- extern int mlspol;
--extern int handle_unknown;
- 
-+static int handle_unknown = SEPOL_DENY_UNKNOWN;
- static char *txtfile = "policy.conf";
- static char *binfile = "policy";
- 
+joe
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
