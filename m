@@ -1,52 +1,79 @@
-Subject: Re: [PATCH -v2] NFS/LSM: allow NFS to control all of its own mount
-	options
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: linux-nfs@vger.kernel.org, selinux <selinux@tycho.nsa.gov>,
-        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        steved@redhat.com, jlayton@redhat.com, sds@tycho.nsa.gov,
-        jmorris@namei.org, casey@schaufler-ca.com, trond.myklebust@fys.uio.no,
-        chuck.lever@oracle.com, hch@infradead.org
-In-Reply-To: <1204575055.3216.49.camel@localhost.localdomain>
-References: <1204573372.3216.42.camel@localhost.localdomain>
-	 <1204573122.14520.90.camel@moss-terrapins.epoch.ncsc.mil>
-	 <1204575055.3216.49.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 03 Mar 2008 14:51:23 -0500
-Message-Id: <1204573883.14520.91.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47CC6061.6090707@redhat.com>
+Date: Mon, 03 Mar 2008 15:32:33 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Ok I am trying to build interfaces using X Controls.
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Cool, I look forward to rebaseing my patches when you get around to
-that.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Dave
+What are these doing?  Why do I need these?
+
+type_transition $2_t default_xproperty_t:x_property
+	$2_default_xproperty_t;
+
+	type_transition $2_t property_xevent_t:x_event $2_property_xevent_t;
+	type_transition $2_t focus_xevent_t:x_event $2_focus_xevent_t;
+	type_transition $2_t manage_xevent_t:x_event $2_manage_xevent_t;
+	type_transition $2_t default_xevent_t:x_event $2_default_xevent_t;
 
 
-On Mon, 2008-03-03 at 15:10 -0500, Eric Paris wrote:
-> On Mon, 2008-03-03 at 14:38 -0500, Dave Quigley wrote:
-> > > This patch was tested with NFSv3 mounts and solves all of the
-> > > regressions that have been introduced in the NFS code.  It supports both
-> > > the binary interface and text options without pushing LSM specific
-> > > parsing into the FS.  It doesn't introduce the new LSM constructs
-> > > necessary to show these mount options in /proc/mounts suggested by
-> > > Miklos Szeredi but that will be coming in 2.6.26 (it's not a regression
-> > > or bug fix).  I also do not have the proper security_sb_set_mnt_opts()
-> > > call in nfs4_get_sb due to a lack of a testing environment, but will add
-> > > that in 2.6.26 as well.
-> >
-> > I see above that the patch does not provide this support for NFSv4. Do
-> > you intend on adding this in the future or is it being deferred to
-> > someone else?
-> 
-> I believe it is just the very same addition to nfs4_get_sb() that i did
-> in nfs_get_sb and plan to test and do that myself in the next release.
-> I'm just trying to make this patch as absolutely small as possible while
-> still fixing all the problems to get it into 2.6.25.
-> 
-> -Eric
+I want to refer to all of the XClass via the main type.
 
+Lets take an example.
+
+I write policy for all X Apps that staff_t runs without a transition to
+stay staff_t.
+
+Now I write a transition rule for staff_mozilla_t.
+
+So I want to say something like
+
+xserver_paste_pattern(staff_mozilla_t, staff_t)
+
+I would like to then write something like
+
+allow staff_mozilla_t staff_t:x_property read;
+
+But you make me write.
+
+allow staff_mozilla_t staff_default_x_property_t:x_property read;
+
+Which screws up the interface and I end up having to pass around staff
+and staff_mozilla.
+
+Is this necessary?
+
+Is this legal?
+	type_transition $2_t input_xevent_t:x_event $2_t;
+
+Or is it even necessary?
+
+I really want to build an interface that says
+
+xserver_application(staff, staff_t)
+
+xserver_application(staff, staff_mozilla_t)
+
+Then define any interactions between staff_t and staff_mozilla_t via
+simple interfaces.
+
+Does any of this make sense?
+
+Dan
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkfMYGEACgkQrlYvE4MpobMNbwCgw/CfdKIrShUD3MTA7lZTO7gq
+9kkAoN8Nbp4Y60ACF9/PkICxqWnzgKU9
+=htFQ
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
