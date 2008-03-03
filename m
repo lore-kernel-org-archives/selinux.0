@@ -1,36 +1,85 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m23HvnUF032316
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 12:57:51 -0500
-Received: from dmzmta101.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m23Hvkl4002462
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 17:57:46 GMT
-Received: from BLUMS0034.bluelnk.net (blums0034.bluelnk.net [10.40.96.55])
-	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m23HuMAX028795
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 12:56:22 -0500
-Received: from blums0041.bluelnk.net ([134.120.81.53])
-	by usdmta001.na.baesystems.com (Switch-3.2.0/Switch-3.2.0) with ESMTP id m23Hu9tf020808
-	for <selinux@tycho.nsa.gov>; Mon, 3 Mar 2008 12:56:09 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: sudo
-Date: Mon, 3 Mar 2008 09:56:54 -0800
-Message-ID: <0794F277152EF94AA637E3AECF5CB70F21A399@blums0042.bluelnk.net>
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: <selinux@tycho.nsa.gov>
+Date: Mon, 3 Mar 2008 13:21:27 -0500
+From: "Todd C. Miller" <tmiller@tresys.com>
+Message-Id: <200803031821.m23ILRte000742@cadmus.columbia.tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: PATH: minor checkpolicy cleanup
+Cc: sds@tycho.nsa.gov
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Should sudo work with the strict policy? Using the RHEL5.1 strict
-policy, sudo doesn't work in enforcing mode. Looking at the audit logs,
-quite a few rules need to be added to get it working. This is seems to
-be the case when I'm in either the staff_t or sysadm_t domain. Is there
-an easy trick to get sudo working? Or do I just need to use the audit
-logs to figure out which rules I need to add?
+Minor checkpolicy cleanup.  Remove the unused DEBUG define, move
+handle_unknown to checkpolicy.c and checkmodule.c since it is not used
+in policy_parse.y.  Also change COND_ERR to be (avrule_t *)-1 since that
+is guaranteed to not be a valid address.
 
-Thanks
+This is in preparation for a much larger diff.
 
+Signed-off-by: Todd C. Miller <tmiller@tresys.com>
 
+ checkmodule.c  |    2 +-
+ checkpolicy.c  |    2 +-
+ policy_parse.y |    6 +-----
+ 3 files changed, 3 insertions(+), 7 deletions(-)
+
+Index: trunk/checkpolicy/policy_parse.y
+===================================================================
+--- trunk/checkpolicy/policy_parse.y	(revision 2828)
++++ trunk/checkpolicy/policy_parse.y	(working copy)
+@@ -57,8 +57,7 @@
+  * when we have a parse error for a conditional rule.  We can't check 
+  * for NULL (ie 0) because that is a potentially valid return.
+  */
+-static avrule_t *conditional_unused_error_code;
+-#define COND_ERR (avrule_t *)&conditional_unused_error_code
++#define COND_ERR (avrule_t *)-1
+ 
+ #define TRUE 1
+ #define FALSE 0
+@@ -68,7 +67,6 @@
+ static unsigned int pass;
+ char *curfile = 0;
+ int mlspol = 0;
+-int handle_unknown = 0;
+ 
+ extern unsigned long policydb_lineno;
+ extern unsigned long source_lineno;
+@@ -860,8 +858,6 @@
+ 	va_end(ap);
+ }
+ 
+-#define DEBUG 1
+-
+ static int insert_separator(int push)
+ {
+ 	int error;
+Index: trunk/checkpolicy/checkmodule.c
+===================================================================
+--- trunk/checkpolicy/checkmodule.c	(revision 2828)
++++ trunk/checkpolicy/checkmodule.c	(working copy)
+@@ -39,8 +39,8 @@
+ static sidtab_t sidtab;
+ 
+ extern int mlspol;
+-extern int handle_unknown;
+ 
++static int handle_unknown = SEPOL_DENY_UNKNOWN;
+ static char *txtfile = "policy.conf";
+ static char *binfile = "policy";
+ 
+Index: trunk/checkpolicy/checkpolicy.c
+===================================================================
+--- trunk/checkpolicy/checkpolicy.c	(revision 2828)
++++ trunk/checkpolicy/checkpolicy.c	(working copy)
+@@ -90,8 +90,8 @@
+ 
+ extern policydb_t *policydbp;
+ extern int mlspol;
+-extern int handle_unknown;
+ 
++static int handle_unknown = SEPOL_DENY_UNKNOWN;
+ static char *txtfile = "policy.conf";
+ static char *binfile = "policy";
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
