@@ -1,105 +1,96 @@
-Subject: Re: PATH: minor checkpolicy cleanup
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Todd C. Miller" <tmiller@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200803031821.m23ILRte000742@cadmus.columbia.tresys.com>
-References: <200803031821.m23ILRte000742@cadmus.columbia.tresys.com>
-Content-Type: text/plain
-Date: Mon, 03 Mar 2008 15:55:07 -0500
-Message-Id: <1204577707.23738.73.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47CC6FF7.7010409@redhat.com>
+Date: Mon, 03 Mar 2008 16:39:03 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Ok I am trying to build interfaces using X Controls.
+References: <47CC6061.6090707@redhat.com>
+In-Reply-To: <47CC6061.6090707@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Mon, 2008-03-03 at 13:21 -0500, Todd C. Miller wrote:
-> Minor checkpolicy cleanup.  Remove the unused DEBUG define, move
-> handle_unknown to checkpolicy.c and checkmodule.c since it is not used
-> in policy_parse.y.  Also change COND_ERR to be (avrule_t *)-1 since that
-> is guaranteed to not be a valid address.
+Daniel J Walsh wrote:
+> What are these doing?  Why do I need these?
 > 
-> This is in preparation for a much larger diff.
+> type_transition $2_t default_xproperty_t:x_property
+> 	$2_default_xproperty_t;
 > 
-> Signed-off-by: Todd C. Miller <tmiller@tresys.com>
+> 	type_transition $2_t property_xevent_t:x_event $2_property_xevent_t;
+> 	type_transition $2_t focus_xevent_t:x_event $2_focus_xevent_t;
+> 	type_transition $2_t manage_xevent_t:x_event $2_manage_xevent_t;
+> 	type_transition $2_t default_xevent_t:x_event $2_default_xevent_t;
+>
+Looking at this further, I think these should be classes.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+allow staff_t self:property_xevent_t send;
 
-Merge at will.
+Have all xevent with the same class is similar to having  blk_file,
+chr_file, sock_file all class file and defining transitions.
 
 > 
->  checkmodule.c  |    2 +-
->  checkpolicy.c  |    2 +-
->  policy_parse.y |    6 +-----
->  3 files changed, 3 insertions(+), 7 deletions(-)
+> I want to refer to all of the XClass via the main type.
 > 
-> Index: trunk/checkpolicy/policy_parse.y
-> ===================================================================
-> --- trunk/checkpolicy/policy_parse.y	(revision 2828)
-> +++ trunk/checkpolicy/policy_parse.y	(working copy)
-> @@ -57,8 +57,7 @@
->   * when we have a parse error for a conditional rule.  We can't check 
->   * for NULL (ie 0) because that is a potentially valid return.
->   */
-> -static avrule_t *conditional_unused_error_code;
-> -#define COND_ERR (avrule_t *)&conditional_unused_error_code
-> +#define COND_ERR (avrule_t *)-1
->  
->  #define TRUE 1
->  #define FALSE 0
-> @@ -68,7 +67,6 @@
->  static unsigned int pass;
->  char *curfile = 0;
->  int mlspol = 0;
-> -int handle_unknown = 0;
->  
->  extern unsigned long policydb_lineno;
->  extern unsigned long source_lineno;
-> @@ -860,8 +858,6 @@
->  	va_end(ap);
->  }
->  
-> -#define DEBUG 1
-> -
->  static int insert_separator(int push)
->  {
->  	int error;
-> Index: trunk/checkpolicy/checkmodule.c
-> ===================================================================
-> --- trunk/checkpolicy/checkmodule.c	(revision 2828)
-> +++ trunk/checkpolicy/checkmodule.c	(working copy)
-> @@ -39,8 +39,8 @@
->  static sidtab_t sidtab;
->  
->  extern int mlspol;
-> -extern int handle_unknown;
->  
-> +static int handle_unknown = SEPOL_DENY_UNKNOWN;
->  static char *txtfile = "policy.conf";
->  static char *binfile = "policy";
->  
-> Index: trunk/checkpolicy/checkpolicy.c
-> ===================================================================
-> --- trunk/checkpolicy/checkpolicy.c	(revision 2828)
-> +++ trunk/checkpolicy/checkpolicy.c	(working copy)
-> @@ -90,8 +90,8 @@
->  
->  extern policydb_t *policydbp;
->  extern int mlspol;
-> -extern int handle_unknown;
->  
-> +static int handle_unknown = SEPOL_DENY_UNKNOWN;
->  static char *txtfile = "policy.conf";
->  static char *binfile = "policy";
->  
+> Lets take an example.
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+> I write policy for all X Apps that staff_t runs without a transition to
+> stay staff_t.
+> 
+> Now I write a transition rule for staff_mozilla_t.
+> 
+> So I want to say something like
+> 
+> xserver_paste_pattern(staff_mozilla_t, staff_t)
+> 
+> I would like to then write something like
+> 
+> allow staff_mozilla_t staff_t:x_property read;
+> 
+> But you make me write.
+> 
+> allow staff_mozilla_t staff_default_x_property_t:x_property read;
+> 
+> Which screws up the interface and I end up having to pass around staff
+> and staff_mozilla.
+> 
+> Is this necessary?
+> 
+> Is this legal?
+> 	type_transition $2_t input_xevent_t:x_event $2_t;
+> 
+> Or is it even necessary?
+> 
+> I really want to build an interface that says
+> 
+> xserver_application(staff, staff_t)
+> 
+> xserver_application(staff, staff_mozilla_t)
+> 
+> Then define any interactions between staff_t and staff_mozilla_t via
+> simple interfaces.
+> 
+> Does any of this make sense?
+> 
+> Dan
+> 
 
+- --
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkfMb/YACgkQrlYvE4MpobN5twCfTyFOeCXWd7leygMfHwSVuuy5
+AGIAnRihufoJhKeFviQ94ETgEy9a3PtR
+=JRVb
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
