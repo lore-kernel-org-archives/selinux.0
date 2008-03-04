@@ -1,37 +1,36 @@
+Date: Tue, 4 Mar 2008 15:52:25 -0800
+From: Chris Wright <chrisw@sous-sol.org>
+To: Dave Quigley <dpquigl@tycho.nsa.gov>
+Cc: Chris Wright <chrisw@sous-sol.org>, sds@tycho.nsa.gov, jmorris@namei.org,
+        casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
 Subject: Re: [PATCH 1/1] LSM/SELinux: {get,set}context hooks to access LSM
 	security context information.
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: sds@tycho.nsa.gov, chrisw@sous-sol.org, casey@schaufler-ca.com,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <Xine.LNX.4.64.0803051045330.22374@us.intercode.com.au>
-References: <1204667623-16224-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <Xine.LNX.4.64.0803051045330.22374@us.intercode.com.au>
-Content-Type: text/plain
-Date: Tue, 04 Mar 2008 18:26:02 -0500
-Message-Id: <1204673162.14520.135.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <20080304235225.GE4416@sequoia.sous-sol.org>
+References: <1204667623-16224-1-git-send-email-dpquigl@tycho.nsa.gov> <20080304232608.GD4416@sequoia.sous-sol.org> <1204672026.14520.133.camel@moss-terrapins.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1204672026.14520.133.camel@moss-terrapins.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-That sounds like a reasonable request.
+* Dave Quigley (dpquigl@tycho.nsa.gov) wrote:
+> The reason for the differentiation is that NFS inodes don't need their
+> on-disk representation set. Normally this would be taken care of with an
+> inode_getsecurity call but as you noted Casey objected to a hook to get
+> the suffix name. Also he did have a point in that the context may have
+> several components to it that could have multiple suffixes. So I need a
+> hook that allows us to set possibly multiple internal security values
+> based on a security context and without using an xattr name.
 
-Dave
+Can you work on a couple things..first the fn name is not particularly
+helpful ({get,set}context are just vague), and second, the SELinux
+implementation is far too close to VFS code (you should not be manually
+calling fsnotify, for example).  IOW, it looks more like a higher
+level helper.
 
-On Wed, 2008-03-05 at 10:48 +1100, James Morris wrote:
-> On Tue, 4 Mar 2008, David P. Quigley wrote:
-> 
-> >  	void (*release_secctx)(char *secdata, u32 seclen);
-> >  
-> > +	int (*setcontext)(struct dentry *dentry, void *ctx, u32 ctxlen, int flags);
-> > +	int (*getcontext)(struct dentry *dentry, void **ctx, u32 *ctxlen);
-> 
-> To remain consistent with the rest of the API, how about getsecctx and 
-> setsecctx ?
-> 
-> 
-> - James
-
+thanks,
+-chris
 
 --
 This message was distributed to subscribers of the selinux mailing list.
