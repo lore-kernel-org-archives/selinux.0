@@ -1,76 +1,27 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m24FaNNS029756
-	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 10:36:24 -0500
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m24FaMRe028824
-	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 15:36:22 GMT
-Message-ID: <47CD6C09.7010609@redhat.com>
-Date: Tue, 04 Mar 2008 10:34:33 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m24FbJO1029942
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 10:37:19 -0500
+Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m24FbGRe029276
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 15:37:17 GMT
+Date: Tue, 4 Mar 2008 16:37:13 +0100
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Martin Orr <martin@martinorr.name>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+Subject: Re: [DSE-Dev] refpolicy: patch for ldconfig from glibc 2.7, new patch
+Message-ID: <20080304153713.GA26575@bobek.pm.i.cz>
+References: <20080222152703.GA4163@bobek.pm.i.cz> <1203703539.32061.22.camel@gorn> <20080229072116.GA13364@bobek.pm.i.cz> <1204292761.32061.230.camel@gorn> <47C824BE.5040001@martinorr.name> <20080222152703.GA4163@bobek.pm.i.cz> <1203703539.32061.22.camel@gorn> <20080229072116.GA13364@bobek.pm.i.cz> <1204292761.32061.230.camel@gorn> <20080304151911.GA22571@bobek.pm.i.cz>
 MIME-Version: 1.0
-To: Hal <hal_bg@yahoo.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: xguest_u, LDAP and /tmp
-References: <394679.44483.qm@web32205.mail.mud.yahoo.com>
-In-Reply-To: <394679.44483.qm@web32205.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20080304151911.GA22571@bobek.pm.i.cz>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Hal wrote:
-> Hi all,
-> I have been trying to implement xguest on our public computer room.
-> The users are authenticated by OpenLDAP (for easier user maintenance since
-> there are many computers) and I successfully converted all the users to
-> xguest_u. 
-> I want to achieve a bit more security: I do not want the users to see other
-> usernames using for example "ps -ef", "who", lastlog, and /tmp or /var/tmp. 
-> 
-> I saw something in D.Walsh blog which seems promising:
-> ======
-> Also add these lines to /etc/secuirty/namespace.conf
-> /tmp    tmpfs   tmpfs   ~xguest
-> /var/tmp        tmpfs   tmpfs   ~xguest
-> $HOME           tmpfs   tmpfs   ~xguest
-> ======
-> So is there any way to make this default for all the users on all machines. And
-> new users to work automatically with such private /tmp and /var/tmp?
-> 
-> Converting users however introduced another problem with firefox, it stopped
-> working for the ldap users, but not for the local (/etc/passwd) ones which are
-> also xguests. Tcpdump revealed LDAP requests by firefox only for the LDAP
-> users. Any idea how to solve this issue?
-> 
-Ok I need to add auth_use_nsswitch to mozilla policy
-
-> Thank you in advance!
-> All ideas and solutions are welcome!
-> 
-> Hal
-> 
-> 
-> 
-> 
->       ____________________________________________________________________________________
-> Looking for last minute shopping deals?  
-> Find them fast with Yahoo! Search.  http://tools.search.yahoo.com/newsearch/category.php?category=shopping
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkfNbAgACgkQrlYvE4MpobPixQCgyhSn0VDs0xlqCMnfkYUN/WsI
-RAAAoKTDrquBqR8uBLCyxcXeSnYHcWZS
-=8lnu
------END PGP SIGNATURE-----
+Sorry for my futile mail. Must remake procmail rules. I found Martin
+mail from March 1st right now in different mailbox.
+-- 
+Zito
 
 --
 This message was distributed to subscribers of the selinux mailing list.
