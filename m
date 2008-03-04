@@ -1,39 +1,46 @@
-Subject: ANN:  Flexible Mandatory Access Control (FMAC) for Solaris
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: John Weeks <John.Weeks@sun.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m24IJ4Gf020777
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 13:19:04 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m24IJ25p025939
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 18:19:03 GMT
+Subject: Re: [patch] refpolicy: exim policy fixes
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Devin Carraway <selinux-list@devin.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20080220100058.GG5439@atlantic.devin.com>
+References: <20080220100058.GG5439@atlantic.devin.com>
 Content-Type: text/plain
-Date: Tue, 04 Mar 2008 13:07:03 -0500
-Message-Id: <1204654023.18928.15.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 04 Mar 2008 13:16:20 -0500
+Message-Id: <1204654580.14217.12.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi all,
+On Wed, 2008-02-20 at 02:00 -0800, Devin Carraway wrote:
+> Here are a handful of localized fixes to the Exim policy, based on SVN
+> head refpolicy and Debian Sid:
 
-I'm pleased to announce that a project to add the Flask architecture for
-flexible mandatory access control to OpenSolaris has been submitted to
-and approved by the OpenSolaris security community. This represents
-another milestone in bringing flexible MAC to mainstream operating
-systems and will broaden the set of platforms that support this
-technology.  The project is a joint initiative of the NSA and Sun
-Microsystems.
+Merged with two exceptions.
 
-The original project proposal and feedback can be found on the
-opensolaris-security-discuss mailing list, at:
-http://opensolaris.org/jive/thread.jspa?threadID=52141&tstart=0
+> - grant readonly access to var_lib_t, to read runtime-generated conf
 
-The project now has a page and separate discussion list set up, which can be found at:
-http://www.opensolaris.org/os/project/fmac/
-http://mail.opensolaris.org/mailman/listinfo/fmac-discuss
+This seems questionable.  It sounds like there should be a specific type
+for this.
 
-If you are interested in participating, please join the fmac-discuss list.
-Contributions of both code and review time are welcome; there is a lot of work
-to be done.
+>  corenet_tcp_sendrecv_all_if(exim_t)
+>  corenet_tcp_sendrecv_all_nodes(exim_t)
+>  corenet_tcp_sendrecv_all_ports(exim_t)
+> +corenet_tcp_sendrecv_smtp_port(exim_t)
+> +corenet_tcp_sendrecv_auth_port(exim_t)
+> +corenet_tcp_sendrecv_ldap_port(exim_t)
+
+This is redundant since it can already sendrecv all ports.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
