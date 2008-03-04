@@ -1,49 +1,87 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m24Jhtkm032199
-	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 14:43:56 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m24JsTZe000955
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 14:54:29 -0500
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m24Jho2k004016
-	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 19:43:50 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [DSE-Dev] refpolicy: patch for ldconfig from glibc2.7,	new	patch
-Date: Tue, 4 Mar 2008 14:39:44 -0500
-Message-ID: <1204659584.14217.21.camel@gorn>
-In-Reply-To: <47C96E41.7020602@martinorr.name>
-References: <20080222152703.GA4163@bobek.pm.i.cz> <1203703539.32061.22.camel@gorn> <20080229072116.GA13364@bobek.pm.i.cz> <1204292761.32061.230.camel@gorn>  <47C824BE.5040001@martinorr.name> <1204302749.32061.241.camel@gorn>  <47C96E41.7020602@martinorr.name>
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m24JsS2k008848
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 19:54:28 GMT
+Subject: Re: refpolicy: patch for gpg-agent
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Martin Orr" <martin@martinorr.name>
-Cc: <selinux@tycho.nsa.gov>, <selinux-devel@lists.alioth.debian.org>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+In-Reply-To: <20080220170300.GA13312@bobek.pm.i.cz>
+References: <20080220170300.GA13312@bobek.pm.i.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 04 Mar 2008 14:51:41 -0500
+Message-Id: <1204660301.14217.26.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2008-03-01 at 14:54 +0000, Martin Orr wrote:
-> On 29/02/08 16:32, Christopher J. PeBenito wrote:
-> > On Fri, 2008-02-29 at 15:29 +0000, Martin Orr wrote:
-> >> The attached patch is what I am using to deal with this.  (I'm not sure if
-> >> it should be apt_dontaudit_use_fds(ldconfig_t) or apt_use_fds(ldconfig_t)
-> >> but dontaudit is what the Debian policy package uses.)
-> > 
-> > You probably want to allow it otherwise ldconfig won't inherit the fds
-> > that point to the apt pty.  By denying the inheritance on an enforcing
-> > system, fd 0,1,2 will be closed and reopened to /dev/null, so you lose
-> > any ldconfig output.
+On Wed, 2008-02-20 at 18:03 +0100, Václav Ovsík wrote:
+> I'm running HEAD refpolicy on Debian Sid, but this patch is not
+> Debian-specific this time.
+> Having a copy of my std bash profile on the testing machine with
+> a snippet (from gpg-agent man page):
 > 
-> Here's an updated patch, with apt_use_fds(ldconfig_t).  This also lets
-> dpkg_t and dpkg_script_t use initrc ptys, so that se_dpkg works.
+>     if test -f $HOME/.gpg-agent-info \
+>              && kill -0 `cut -d: -f 2 $HOME/.gpg-agent-info`
+> 2>/dev/null
+>     then
+>         . $HOME/.gpg-agent-info
+>         export GPG_AGENT_INFO
+>         export SSH_AUTH_SOCK
+>         export SSH_AGENT_PID
+>     else
+>         eval `gpg-agent --daemon --write-env-file`
+>     fi
+> 
+> I got a number of denials for this snippet of commands.
+> 
+> 1. Found a typo for permissions to create socket in the /tmp.
+> 2. Added permission to send signal 0 by the user (see above).
+> 3. Added permissions for writing agent info file into users home
+>    directory.
 
-Merged.
 
-> @@ -1,5 +1,5 @@
+> 
+> Index: policy/modules/apps/gpg.if
+> ===================================================================
+> --- policy/modules/apps/gpg.if  (revision 2617)
+> +++ policy/modules/apps/gpg.if  (working copy)
+> @@ -212,6 +212,12 @@
+>         manage_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
+>         manage_lnk_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
 >  
-> -policy_module(apt,1.3.0)
-> +policy_module(apt,1.3.1)
->  
+> +       # write ~/.gpg-agent-info (gpg-agent --write-env-file option)
+> +       allow $1_gpg_agent_t { $1_home_dir_t $1_home_t }:dir add_entry_dir_perms;
+> +       type_transition $1_gpg_agent_t $1_home_dir_t:file $1_home_t;
+> +       allow $1_gpg_agent_t $1_home_t:file create_file_perms;
+> +       allow $1_gpg_agent_t $1_home_t:file write_file_perms;
 
-In the future please don't submit patches with module version changes.
-It may change between the time you make the patch, and the time I apply
-it, which may cause patches not to apply.
+I'm a little hesitant to add this unconditionally, I don't think we want
+gpg-agent to write out to general home dir content.  Perhaps we should
+have a tunable, or a specific type for this.
+
+>         # allow gpg to connect to the gpg agent
+>         stream_connect_pattern($1_gpg_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t,$1_gpg_agent_t)
+>  
+> @@ -219,11 +225,11 @@
+>         ps_process_pattern($2,$1_gpg_agent_t)
+>  
+>         # Allow the user shell to signal the gpg-agent program.
+> -       allow $2 $1_gpg_agent_t:process { signal sigkill };
+> +       allow $2 $1_gpg_agent_t:process { signal sigkill signull };
+>  
+> -       manage_dirs_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+> -       manage_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+> -       manage_sock_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+> +       manage_dirs_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+> +       manage_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+> +       manage_sock_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+>         files_tmp_filetrans($1_gpg_agent_t, $1_gpg_agent_tmp_t, { file sock_file dir })
+
+This isn't a typo, the user domain should still be able to manage
+gpg-agent's tmp files.
 
 -- 
 Chris PeBenito
