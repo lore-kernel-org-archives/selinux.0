@@ -1,40 +1,36 @@
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: PATCH: fix uninitialized use of handle in struct policy_file
-Date: Tue, 4 Mar 2008 13:35:32 -0500
-Message-ID: <6FE441CD9F0C0C479F2D88F959B015880195CF7D@exchange.columbia.tresys.com>
-In-Reply-To: <1204655672.18928.19.camel@moss-spartans.epoch.ncsc.mil>
-References: <200803041436.m24EaVpO007913@cadmus.columbia.tresys.com> <1204642335.23738.96.camel@moss-spartans.epoch.ncsc.mil> <1204652295.18928.0.camel@moss-spartans.epoch.ncsc.mil> <1204655672.18928.19.camel@moss-spartans.epoch.ncsc.mil>
-From: "Todd Miller" <Tmiller@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: "Joshua Brindle" <jbrindle@tresys.com>, <selinux@tycho.nsa.gov>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m24IfAm2023857
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 13:41:11 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m24If32k001028
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 18:41:03 GMT
+Subject: Re: [refpolicy] loadkeys and init fds
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Martin Orr <martin@martinorr.name>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <47C2D1EE.7060309@martinorr.name>
+References: <47C2D1EE.7060309@martinorr.name>
+Content-Type: text/plain
+Date: Tue, 04 Mar 2008 13:38:16 -0500
+Message-Id: <1204655896.14217.14.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2008-03-04 at 12:38 -0500, Stephen Smalley wrote:
->> On Tue, 2008-03-04 at 09:52 -0500, Stephen Smalley wrote:
->>> On Tue, 2008-03-04 at 09:36 -0500, Todd C. Miller wrote:
->>>> Joshua Brindle wrote:
->>>>> I prefer it to memset or set the values to null explicitly, the
->>>>> caller can then set the members it wants to.
->>>> 
->>>> How about this then?
->>>> 
->>>> Signed-off-by: Todd C. Miller <tmiller@tresys.com>
->>> 
->>> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
->>> 
->>> Merge at will.
->> 
->> Likely should be applied on stable too.
+On Mon, 2008-02-25 at 14:34 +0000, Martin Orr wrote:
+> Prevent audit messages on boot:
 > 
-> I went ahead and merged it there w/ no problems.
+> Feb 25 13:52:47 caligula kernel: audit(1203947566.566:9): avc:  denied  {
+> use } for  pid=2900 comm="loadkeys" path="/dev/console" dev=tmpfs ino=311
+> context=system_u:system_r:loadkeys_t:s0 tcontext=system_u:system_r:init_t:s0
+> tclass=fd
 
-Thanks, you beat me to it ;-)
+Merged.
 
- - todd
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
