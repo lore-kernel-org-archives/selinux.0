@@ -1,138 +1,53 @@
-Message-ID: <47CD53DB.8050101@redhat.com>
-Date: Tue, 04 Mar 2008 08:51:23 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m24E47rC018001
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 09:04:07 -0500
+Received: from web32205.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m24E45Re014702
+	for <selinux@tycho.nsa.gov>; Tue, 4 Mar 2008 14:04:05 GMT
+Date: Tue, 4 Mar 2008 05:37:23 -0800 (PST)
+From: Hal <hal_bg@yahoo.com>
+Subject: xguest_u, LDAP and /tmp
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Ok I am trying to build interfaces using X Controls.
-References: <47CC6061.6090707@redhat.com> <47CC6FF7.7010409@redhat.com> <47CC839B.80005@tycho.nsa.gov>
-In-Reply-To: <47CC839B.80005@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <394679.44483.qm@web32205.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi all,
+I have been trying to implement xguest on our public computer room.
+The users are authenticated by OpenLDAP (for easier user maintenance since
+there are many computers) and I successfully converted all the users to
+xguest_u. 
+I want to achieve a bit more security: I do not want the users to see other
+usernames using for example "ps -ef", "who", lastlog, and /tmp or /var/tmp. 
 
-Eamon Walsh wrote:
-> Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Daniel J Walsh wrote:
->>> What are these doing?  Why do I need these?
->>>
->>> type_transition $2_t default_xproperty_t:x_property
->>>     $2_default_xproperty_t;
->>>
->>>     type_transition $2_t property_xevent_t:x_event $2_property_xevent_t;
->>>     type_transition $2_t focus_xevent_t:x_event $2_focus_xevent_t;
->>>     type_transition $2_t manage_xevent_t:x_event $2_manage_xevent_t;
->>>     type_transition $2_t default_xevent_t:x_event $2_default_xevent_t;
->>>
->> Looking at this further, I think these should be classes.
->>
->> allow staff_t self:property_xevent_t send;
->>
->> Have all xevent with the same class is similar to having  blk_file,
->> chr_file, sock_file all class file and defining transitions.
->>
-> 
-> This makes sense, and it's something I considered, however I couldn't
-> get the set of classes nailed down firmly enough to make a decision. The
-> class structure was too rigid, in my opinion, to support this kind of
-> categorization.
-> 
-> It's even worse with window properties, which are based on an open-ended
-> namespace.  All kinds of zany conventions have been established
-> regarding the use of this or that property, and who knows what other
-> ones might come along.
-> 
->
-But are any of these worth anything from a security perspective?  Are we
-adding huge complexity for any reason.  Is xevent enough or x_property
-in most cases.  If I can set one x_property will I need to set them all.
-   I hate type explosions, because it just generates AVC errors and
-unexpected errors.
+I saw something in D.Walsh blog which seems promising:
+======
+Also add these lines to /etc/secuirty/namespace.conf
+/tmp    tmpfs   tmpfs   ~xguest
+/var/tmp        tmpfs   tmpfs   ~xguest
+$HOME           tmpfs   tmpfs   ~xguest
+======
+So is there any way to make this default for all the users on all machines. And
+new users to work automatically with such private /tmp and /var/tmp?
 
-I think we should think of the interactions we are trying to stop and
-then only generate the types necessary to prevent these interactions.
+Converting users however introduced another problem with firefox, it stopped
+working for the ldap users, but not for the local (/etc/passwd) ones which are
+also xguests. Tcpdump revealed LDAP requests by firefox only for the LDAP
+users. Any idea how to solve this issue?
 
-If all we want to stop is
+Thank you in advance!
+All ideas and solutions are welcome!
 
-cut/paste
-screencapture
-keyboard sniffing
-focus grab
-...
+Hal
 
-Lets build up the limited types to control this interaction.
 
-Another way to look at it would be the way we have labeled /proc.  We
-only add a new type when there is a justifiable security difference.
 
-> 
->>> I want to refer to all of the XClass via the main type.
->>>
->>> Lets take an example.
->>>
->>> I write policy for all X Apps that staff_t runs without a transition to
->>> stay staff_t.
->>>
->>> Now I write a transition rule for staff_mozilla_t.
->>>
->>> So I want to say something like
->>>
->>> xserver_paste_pattern(staff_mozilla_t, staff_t)
->>>
->>> I would like to then write something like
->>>
->>> allow staff_mozilla_t staff_t:x_property read;
->>>
->>> But you make me write.
->>>
->>> allow staff_mozilla_t staff_default_x_property_t:x_property read;
->>>
->>> Which screws up the interface and I end up having to pass around staff
->>> and staff_mozilla.
->>>
->>> Is this necessary?
->>>
->>> Is this legal?
->>>     type_transition $2_t input_xevent_t:x_event $2_t;
->>>
->>> Or is it even necessary?
->>>
->>> I really want to build an interface that says
->>>
->>> xserver_application(staff, staff_t)
->>>
->>> xserver_application(staff, staff_mozilla_t)
->>>
->>> Then define any interactions between staff_t and staff_mozilla_t via
->>> simple interfaces.
-> 
-> If you're already passing (staff, staff_t) around then why not just pass
-> the prefixes to your interaction function?
-> 
-> xserver_interact(staff, staff_t, staff_mozilla, staff_mozilla_t)
-> 
-> doesn't look that bad to me.
-> 
-> It's not my fault that we have all these complex constructions just to
-> make sure everything has a "_t" on the end of it.
-> 
-> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkfNU9oACgkQrlYvE4MpobPAuQCdHLMeuE+kSpfNyNYQ+jzjsyO5
-UUoAn2Pxu030f6iGOCgTc79DY0NFwVm3
-=j+HT
------END PGP SIGNATURE-----
+      ____________________________________________________________________________________
+Looking for last minute shopping deals?  
+Find them fast with Yahoo! Search.  http://tools.search.yahoo.com/newsearch/category.php?category=shopping
 
 --
 This message was distributed to subscribers of the selinux mailing list.
