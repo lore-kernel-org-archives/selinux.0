@@ -1,48 +1,78 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m25IOpQw006594
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 13:24:52 -0500
-Received: from web36608.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m25IOoUA000045
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 18:24:51 GMT
-Date: Wed, 5 Mar 2008 09:24:36 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 1/1] LSM/SELinux: {get,set}context hooks to access LSM security context information.
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc: Dave Quigley <dpquigl@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-        jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1204726080.1397.16.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <804501.84545.qm@web36608.mail.mud.yahoo.com>
+Subject: Re: [PATCH 2/2] NFS: use new LSM interfaces to explicitly set
+	mount options
+From: Eric Paris <eparis@redhat.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        steved@redhat.com, jlayton@redhat.com, sds@tycho.nsa.gov,
+        jmorris@namei.org, casey@schaufler-ca.com, chuck.lever@oracle.com,
+        hch@infradead.org, akpm@linux-foundation.org
+In-Reply-To: <1204741504.3356.14.camel@heimdal.trondhjem.org>
+References: <1204731117.3216.238.camel@localhost.localdomain>
+	 <1204741504.3356.14.camel@heimdal.trondhjem.org>
+Content-Type: text/plain
+Date: Wed, 05 Mar 2008 13:58:08 -0500
+Message-Id: <1204743488.3216.251.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Wed, 2008-03-05 at 13:25 -0500, Trond Myklebust wrote:
+> On Wed, 2008-03-05 at 10:31 -0500, Eric Paris wrote:
 
-> ...
-> IIRC, originally audit directly called inode_getsecurity() to get the
-> string label, and there was a (since removed) LSM hook to get the name
-> suffix that it needed to pass in as input.  That was then replaced by
-> use of interfaces to get the secid at audit collection time and convert
-> that into a context only upon audit record generation to avoid the
-> overhead associated with collecting a context always.
+> > @@ -1214,6 +1232,32 @@ static int nfs_validate_mount_data(void *options,
+> >  		args->namlen		= data->namlen;
+> >  		args->bsize		= data->bsize;
+> >  		args->auth_flavors[0]	= data->pseudoflavor;
+> > +
+> > +		/*
+> > +		 * The legacy version 6 binary mount data from userspace has a
+> > +		 * field used only to transport selinux information into the
+> > +		 * the kernel.  To continue to support that functionality we
+> > +		 * have a touch of selinux knowledge here in the NFS code. The
+> > +		 * userspace code converted context=blah to just blah so we are
+> > +		 * converting back to the full string selinux understands.
+> > +		 */
+> > +		if (data->context[0]){
+> > +#ifdef CONFIG_SECURITY_SELINUX
+> > +			int rc;
+> > +			char *opts_str = kmalloc(sizeof(data->context) + 8, GFP_KERNEL);
+> > +			if (!opts_str)
+> > +				return -ENOMEM;
+> > +			strcpy(opts_str, "context=");
+> > +			strcat(opts_str, &data->context[0]);
 > 
-> Whereas I think NFS just wants the context always, and it doesn't serve
-> any purpose to first get a secid and then later turn it into a context.
+> Shouldn't this be a strncat? I can't see that we're sanity checking the
+> data->context string for \NUL termination anywhere.
 
-It turns out that I agree that hooks to get the secctx of things
-would be good to have, in fact I much prefer them to the secid
-interfaces. I would personally prefer to see audit use them instead
-of the secid interfaces, but I acknowlege the performance implications
-that would have on SELinux.
+No good reason not to make sure since we know the size of the static
+context array.  I just assumed NFS was doing checks on the hostname and
+the context array the same way to make sure they were both valid.  I'll
+send a new patch which uses strncat.
 
+> > +			rc = security_sb_parse_opts_str(opts_str, &args->lsm_opts);
+> > +			kfree(opts_str);
+> > +			if (rc)
+> > +				return rc;
+> > +#else
+> > +			return -EINVAL;
+> 
+> Is this really necessary?
 
-Casey Schaufler
-casey@schaufler-ca.com
+If someone used context= with the binary data interface the kernel needs
+to tell them that it didn't understand.  It's really no different than
+nfs_parse_mount_options() having the out_unknown error case instead of
+just ignoring unknown.  If they used the text interface they would fail
+on the out_unknown case if !CONFIG_SELINUX.
+
+> > +#endif
+> > +		}
+> > +
+> >  		break;
+> >  	default: {
+> >  		unsigned int len;
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
