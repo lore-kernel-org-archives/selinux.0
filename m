@@ -1,84 +1,44 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m25AL3Oi002111
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 05:21:03 -0500
-Received: from atlantic.devin.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m25AL2UA017091
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 10:21:02 GMT
-Date: Wed, 5 Mar 2008 02:20:59 -0800
-From: Devin Carraway <selinux-list@devin.com>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov
-Subject: Re: [patch] refpolicy: exim policy fixes
-Message-ID: <20080305102059.GB32119@atlantic.devin.com>
-References: <20080220100058.GG5439@atlantic.devin.com> <1204654580.14217.12.camel@gorn>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m25AM0Ug002235
+	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 05:22:00 -0500
+Received: from ns1.a61.nl (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m25ALwUA017488
+	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 10:21:59 GMT
+Received: from localhost ([127.0.0.1] helo=www.a61.nl)
+	by ns1.a61.nl with esmtp (Exim 4.54)
+	id 1JWqkg-0005Fg-Mu
+	for selinux@tycho.nsa.gov; Wed, 05 Mar 2008 11:21:34 +0100
+Message-ID: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl>
+Date: Wed, 5 Mar 2008 11:21:34 +0100 (CET)
+Subject: Unreserved portnumbers in corenetwork
+From: selinux@a61.nl
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
-In-Reply-To: <1204654580.14217.12.camel@gorn>
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Gents,
 
---ew6BAiZeqk4r7MaW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We're building a policy for JBoss. Jboss uses atleast port 8080 and 8083.
+Besides this, the application we use on JBoss also opens port 8443 (https)
 
-On Tue, Mar 04, 2008 at 01:16:20PM -0500, Christopher J. PeBenito wrote:
-> On Wed, 2008-02-20 at 02:00 -0800, Devin Carraway wrote:
-> > Here are a handful of localized fixes to the Exim policy, based on SVN
-> > head refpolicy and Debian Sid:
->=20
-> Merged with two exceptions.
+While building the jboss-module we ofcourse want to claim these ports and
+patch corenetwork. However, this is where our problem arises; HTTP has
+claimed some of the ports we need and http-cache has claimed 8080
+allready.
 
-These look good.  Tested successfully from svn trunk.
+But http and http-cache allow to open more ports (80, 443, 488, 8008,
+8009) than we really need. We think this is against the SElinux policy of
+least privilege.
 
+So how do we deal with these kinds of port conflicts? Maybe corenetwork
+isn't the best place to define unreserved (> 1024) ports?
 
-> > - grant readonly access to var_lib_t, to read runtime-generated conf
->=20
-> This seems questionable.  It sounds like there should be a specific type
-> for this.
+Cheers,
 
-Agreed; I had a discrete type and entrypoints for the runtime config
-generators in my original exim policy submission a few months ago, but that
-wans't among the bits that got merged.  I can resubmit that portion as a
-discrete patch.  I'm still trying to determine, though, whether the runtime
-config is necessary outside of Debian/Ubuntu.
+Bart
 
-
-> >  corenet_tcp_sendrecv_all_if(exim_t)
-> >  corenet_tcp_sendrecv_all_nodes(exim_t)
-> >  corenet_tcp_sendrecv_all_ports(exim_t)
-> > +corenet_tcp_sendrecv_smtp_port(exim_t)
-> > +corenet_tcp_sendrecv_auth_port(exim_t)
-> > +corenet_tcp_sendrecv_ldap_port(exim_t)
->=20
-> This is redundant since it can already sendrecv all ports.
-
-Hm, okay.  My own testing had suggested all_ports was actually acting like
-all-nonpriveleged-ports, but now that I recheck I can't verify the behavior,
-and current svn trunk can make & use outbound SMTP just fine.
-
-Thanks.
-
---=20
-Devin  \ aqua(at)devin.com, IRC:Requiem; http://www.devin.com
-Carraway \ 1024D/E9ABFCD2: 13E7 199E DD1E 65F0 8905 2E43 5395 CA0D E9AB FCD2
-
---ew6BAiZeqk4r7MaW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHznQLU5XKDemr/NIRAuMUAKC/NFTlMKC0ofSyLxjieI4gZiXqegCfZDUf
-Y3gI2r9zbcbWS1Ewi2hsvRo=
-=qtMa
------END PGP SIGNATURE-----
-
---ew6BAiZeqk4r7MaW--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
