@@ -1,67 +1,84 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m257JhL9016257
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 02:19:43 -0500
-Received: from web90407.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m257Jgnd016240
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 07:19:42 GMT
-Date: Tue, 4 Mar 2008 23:19:41 -0800 (PST)
-From: kihamba nengo <knengo@yahoo.com>
-Subject: Re: Problem compiling SELinux poilcy
-To: selinux@tycho.nsa.gov
-In-Reply-To: <1204050727.2804.321.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m25AL3Oi002111
+	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 05:21:03 -0500
+Received: from atlantic.devin.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m25AL2UA017091
+	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 10:21:02 GMT
+Date: Wed, 5 Mar 2008 02:20:59 -0800
+From: Devin Carraway <selinux-list@devin.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: [patch] refpolicy: exim policy fixes
+Message-ID: <20080305102059.GB32119@atlantic.devin.com>
+References: <20080220100058.GG5439@atlantic.devin.com> <1204654580.14217.12.camel@gorn>
 MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1874948088-1204701581=:53831"
-Message-ID: <60841.53831.qm@web90407.mail.mud.yahoo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+In-Reply-To: <1204654580.14217.12.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1874948088-1204701581=:53831
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
 
-Hi,
-The checkpolicy version is :checkpolicy-1.33.1-2.fc6.
-When i run rpm -V checkpolicy, i get the following message:
-    Unsatisfied dependencies for checkpolicy-1.33.1-2.fc6.i386
-Stephen Smalley <sds@tycho.nsa.gov> wrote: 
-On Tue, 2008-02-26 at 00:33 -0800, kihamba nengo wrote:
-> Hi,
-> I tried compiling the policy on Fedora 5 and i received the following
-> error message:
-> 
-> WARNING: Policy version mismatch! Is your OUTPUT_POLICY set correctly?
-> 
->     /USR/BIN/CHECKPOLICY POLICY.CONF -O POLICY
-> make: *** [policy.] Floating point exception
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You didn't mention what policy or checkpolicy you were using above.
+On Tue, Mar 04, 2008 at 01:16:20PM -0500, Christopher J. PeBenito wrote:
+> On Wed, 2008-02-20 at 02:00 -0800, Devin Carraway wrote:
+> > Here are a handful of localized fixes to the Exim policy, based on SVN
+> > head refpolicy and Debian Sid:
+>=20
+> Merged with two exceptions.
 
-Regardless, Fedora 5 is obsolete; you'd be advised to install the latest
-Fedora release, presently Fedora 8.
-
--- 
-Stephen Smalley
-National Security Agency
+These look good.  Tested successfully from svn trunk.
 
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+> > - grant readonly access to var_lib_t, to read runtime-generated conf
+>=20
+> This seems questionable.  It sounds like there should be a specific type
+> for this.
+
+Agreed; I had a discrete type and entrypoints for the runtime config
+generators in my original exim policy submission a few months ago, but that
+wans't among the bits that got merged.  I can resubmit that portion as a
+discrete patch.  I'm still trying to determine, though, whether the runtime
+config is necessary outside of Debian/Ubuntu.
 
 
-       
----------------------------------
-Looking for last minute shopping deals?  Find them fast with Yahoo! Search.
---0-1874948088-1204701581=:53831
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+> >  corenet_tcp_sendrecv_all_if(exim_t)
+> >  corenet_tcp_sendrecv_all_nodes(exim_t)
+> >  corenet_tcp_sendrecv_all_ports(exim_t)
+> > +corenet_tcp_sendrecv_smtp_port(exim_t)
+> > +corenet_tcp_sendrecv_auth_port(exim_t)
+> > +corenet_tcp_sendrecv_ldap_port(exim_t)
+>=20
+> This is redundant since it can already sendrecv all ports.
 
-Hi,<br>The checkpolicy version is :checkpolicy-1.33.1-2.fc6.<br>When i run rpm -V checkpolicy, i get the following message:<br>&nbsp;&nbsp;&nbsp; Unsatisfied dependencies for checkpolicy-1.33.1-2.fc6.i386<br><b><i>Stephen Smalley &lt;sds@tycho.nsa.gov&gt;</i></b> wrote:<blockquote class="replbq" style="border-left: 2px solid rgb(16, 16, 255); margin-left: 5px; padding-left: 5px;"> <br>On Tue, 2008-02-26 at 00:33 -0800, kihamba nengo wrote:<br>&gt; Hi,<br>&gt; I tried compiling the policy on Fedora 5 and i received the following<br>&gt; error message:<br>&gt; <br>&gt; WARNING: Policy version mismatch! Is your OUTPUT_POLICY set correctly?<br>&gt; <br>&gt;     /USR/BIN/CHECKPOLICY POLICY.CONF -O POLICY<br>&gt; make: *** [policy.] Floating point exception<br><br>You didn't mention what policy or checkpolicy you were using above.<br><br>Regardless, Fedora 5 is obsolete; you'd be advised to install the latest<br>Fedora release, presently Fedora 8.<br><br>-- <br>Stephen
- Smalley<br>National Security Agency<br><br><br>--<br>This message was distributed to subscribers of the selinux mailing list.<br>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<br>the words "unsubscribe selinux" without quotes as the message.<br></blockquote><br><p>&#32;
-      <hr size=1>Looking for last minute shopping deals? <a href="http://us.rd.yahoo.com/evt=51734/*http://tools.search.yahoo.com/newsearch/category.php?category=shopping"> 
-Find them fast with Yahoo! Search.</a>
---0-1874948088-1204701581=:53831--
+Hm, okay.  My own testing had suggested all_ports was actually acting like
+all-nonpriveleged-ports, but now that I recheck I can't verify the behavior,
+and current svn trunk can make & use outbound SMTP just fine.
+
+Thanks.
+
+--=20
+Devin  \ aqua(at)devin.com, IRC:Requiem; http://www.devin.com
+Carraway \ 1024D/E9ABFCD2: 13E7 199E DD1E 65F0 8905 2E43 5395 CA0D E9AB FCD2
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
+
+iD8DBQFHznQLU5XKDemr/NIRAuMUAKC/NFTlMKC0ofSyLxjieI4gZiXqegCfZDUf
+Y3gI2r9zbcbWS1Ewi2hsvRo=
+=qtMa
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
