@@ -1,24 +1,35 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m25FmD4X020729
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 10:48:13 -0500
-Received: from ns1.a61.nl (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m25FmBMB012128
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 15:48:11 GMT
-Message-ID: <51324.80.95.164.250.1204732077.squirrel@www.a61.nl>
-In-Reply-To: <1204730645.14217.39.camel@gorn>
-References: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl>
-    <1204730645.14217.39.camel@gorn>
-Date: Wed, 5 Mar 2008 16:47:57 +0100 (CET)
 Subject: Re: Unreserved portnumbers in corenetwork
-From: selinux@a61.nl
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Cc: selinux@a61.nl, selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
+In-Reply-To: <1204730645.14217.39.camel@gorn>
+References: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl>
+	 <1204730645.14217.39.camel@gorn>
+Content-Type: text/plain
+Date: Wed, 05 Mar 2008 10:51:54 -0500
+Message-Id: <1204732314.1397.58.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->
+
+On Wed, 2008-03-05 at 10:24 -0500, Christopher J. PeBenito wrote:
+> On Wed, 2008-03-05 at 11:21 +0100, selinux@a61.nl wrote:
+> > We're building a policy for JBoss. Jboss uses atleast port 8080 and 8083.
+> > Besides this, the application we use on JBoss also opens port 8443 (https)
+> > 
+> > While building the jboss-module we ofcourse want to claim these ports and
+> > patch corenetwork. However, this is where our problem arises; HTTP has
+> > claimed some of the ports we need and http-cache has claimed 8080
+> > allready.
+> > 
+> > But http and http-cache allow to open more ports (80, 443, 488, 8008,
+> > 8009) than we really need. We think this is against the SElinux policy of
+> > least privilege.
+> > 
+> > So how do we deal with these kinds of port conflicts? Maybe corenetwork
+> > isn't the best place to define unreserved (> 1024) ports?
+> 
 > Unfortunately there are 3 forces at work.  The first is that for the
 > most part, ports should always be labeled, because, for example, port 80
 > is always going to be regarded as the http port.  The second is that
@@ -27,21 +38,13 @@ List-Id: selinux@tycho.nsa.gov
 > the base module.  So, though we want to make a happy medium between the
 > first two, we can't overcome the final one within the constraints of the
 > current toolchain.
->
 
-Agree with that. But wouldn't the situation be a little less complicated
-if you decide not to define any ports above 1024 in the reference policy?
+Perhaps all port context definitions should be moved to being handled
+via semanage port?  Doesn't brickwall do something similar?
 
-If you decide to do that, you could create a portcon that allows a single
-active module to claim a port above 1024 on a per module basis. A second
-module could claim another one, as long as it's not equal to the first
-(active) one.
-
-In this way you create a generic handler for modules that need ports above
-1024 and can create a reference policy with modules with the same ports.
-As long as they are not both active, you wouldn't have any problem.
-
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
