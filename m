@@ -1,14 +1,15 @@
 Subject: Re: [PATCH 1/1] LSM/SELinux: {get,set}context hooks to access LSM
 	security context information.
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Chris Wright <chrisw@sous-sol.org>, sds@tycho.nsa.gov, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: Dave Quigley <dpquigl@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
+        jmorris@namei.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov
 In-Reply-To: <515206.47792.qm@web36604.mail.mud.yahoo.com>
 References: <515206.47792.qm@web36604.mail.mud.yahoo.com>
 Content-Type: text/plain
-Date: Wed, 05 Mar 2008 08:41:20 -0500
-Message-Id: <1204724480.14520.163.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Wed, 05 Mar 2008 09:08:00 -0500
+Message-Id: <1204726080.1397.16.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -67,19 +68,20 @@ On Tue, 2008-03-04 at 17:08 -0800, Casey Schaufler wrote:
 > You could use Ahmed's hook to get the secid of a file and then
 > use secid_to_secctx to get the context. That's what audit has to
 > do.
-> 
 
-Historically though audit was using inode_getsecurity with the suffix.
-The reason for the switch to secids was that they didn't want to
-overhead of retrieving and storing the context unless they needed it.
-With the NFS case we always want to context so we are going to be going
-through double calls here all the time which is silly. A robust set of
-interfaces should have the ability to get/set contexts get/set secids
-and convert between them. As of right now the context half of that is
-missing.
+IIRC, originally audit directly called inode_getsecurity() to get the
+string label, and there was a (since removed) LSM hook to get the name
+suffix that it needed to pass in as input.  That was then replaced by
+use of interfaces to get the secid at audit collection time and convert
+that into a context only upon audit record generation to avoid the
+overhead associated with collecting a context always.
 
-Dave
+Whereas I think NFS just wants the context always, and it doesn't serve
+any purpose to first get a secid and then later turn it into a context.
 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
