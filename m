@@ -1,53 +1,67 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m25GOaA9025909
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 11:24:36 -0500
-Received: from legolas.drinsama.de (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m25GOXUA014929
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 16:24:34 GMT
-Subject: Re: [DSE-Dev] refpolicy: domains need access to the apt's pty and
-	fifos
-From: Erich Schubert <erich@debian.org>
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-In-Reply-To: <20080305152322.GA9988@bobek.pm.i.cz>
-References: <20080305152322.GA9988@bobek.pm.i.cz>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m25Gjrvt027910
+	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 11:45:53 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m25GjqUA025197
+	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 16:45:52 GMT
+Subject: Re: Unreserved portnumbers in corenetwork
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Ronald van den Blink <selinux@a61.nl>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <DE51A2D4-4153-4E12-BAA8-0D2711553ECF@a61.nl>
+References: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl>
+	 <1204730645.14217.39.camel@gorn>
+	 <51324.80.95.164.250.1204732077.squirrel@www.a61.nl>
+	 <1204733123.14217.48.camel@gorn>
+	 <DE51A2D4-4153-4E12-BAA8-0D2711553ECF@a61.nl>
 Content-Type: text/plain
-Date: Wed, 05 Mar 2008 17:24:28 +0100
-Message-Id: <1204734268.12784.124.camel@hepcat.vitavonni.de>
+Date: Wed, 05 Mar 2008 11:43:00 -0500
+Message-Id: <1204735380.14217.60.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
-Back when I did the initial apt_t policy, I was considering to setup
-domains such as apt_script_t and run the package installation scripts in
-this domain. This would have been similar to the rpm_script_t domain.
-However getting the files in /var/lib/dpkg/info/ labeled correctly would
-probably have required some patches to dpkg. There are non-executable
-files in there as well, and I'm not sure if you'd want to mix them up.
-For example, there are files there storing reference md5sums, or listing
-package contents. apt_script_exec_t doesn't sound appropriate for them.
-But having them in the same directory means we can't use automatic file
-type transitions.
+On Wed, 2008-03-05 at 17:16 +0100, Ronald van den Blink wrote:
+> On Mar 5, 2008, at 5:05 PM, Christopher J. PeBenito wrote:
+> 
+> > On Wed, 2008-03-05 at 16:47 +0100, selinux@a61.nl wrote:
+> >>> Unfortunately there are 3 forces at work.  The first is that for the
+> >>> most part, ports should always be labeled, because, for example,  
+> >>> port 80
+> >>> is always going to be regarded as the http port.  The second is that
+> >>> thats not always the case for non well-defined ports (your  
+> >>> situation).
+> >>> The third is that portcons (the port labeling statements) only  
+> >>> work in
+> >>> the base module.  So, though we want to make a happy medium  
+> >>> between the
+> >>> first two, we can't overcome the final one within the constraints  
+> >>> of the
+> >>> current toolchain.
+> >>>
+> >>
+> >> Agree with that. But wouldn't the situation be a little less  
+> >> complicated
+> >> if you decide not to define any ports above 1024 in the reference  
+> >> policy?
+> >
+> > That breaks people that just want to use reference policy.
+> >
+> Does this mean that any module in the refpol that needs (for instance)  
+> port 8080 but isn't a http-cache-daemon uses corenetwork_httpd_cache  
+> and get's all the other ports defined there as well? Isn't that  
+> breaking the least priviliges idea? Because you're opening up more  
+> ports then needed?
 
-The amount of things done in postinst scripts is one of the things that
-really scares me from a security point of view. It might be very
-valuable to use a tight SELinux policy to restrict these scripts,
-however when it comes down to having a SELinux policy package update it
-becomes a Catch-22 somewhat.
-It would definitely help to have separate apt_t and apt_script_t
-domains, though, to be able to differentiate access for installation
-scripts and the package manager itself.
+It depends on how far you want/need to take least privilege.  By this
+argument, having all of the shared libraries in /lib and /usr/lib being
+the same label would be bad.  You have to evaluate the impact on your
+security goals.
 
-P.S. Thanks for the great work you've been doing on the SELinux policy
-for Debian these days! THANKS!
-
-best regards,
-Erich Schubert
 -- 
-    erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C   (o_
-   There was never a good war or a bad peace. - Benjamin Franklin   //\
-          Liebe ist eine schwere Geisteskrankheit (Platon)          V_/_
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
