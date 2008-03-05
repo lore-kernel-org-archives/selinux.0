@@ -1,87 +1,178 @@
-Subject: Re: [PATCH 1/1] LSM/SELinux: {get,set}context hooks to access LSM
-	security context information.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Dave Quigley <dpquigl@tycho.nsa.gov>, Chris Wright <chrisw@sous-sol.org>,
-        jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov
-In-Reply-To: <515206.47792.qm@web36604.mail.mud.yahoo.com>
-References: <515206.47792.qm@web36604.mail.mud.yahoo.com>
+Subject: Re: [PATCH -v2] NFS/LSM: allow NFS to control all of its own mount
+	options
+From: Eric Paris <eparis@redhat.com>
+To: Jeff Layton <jlayton@redhat.com>
+Cc: linux-nfs@vger.kernel.org, selinux <selinux@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        steved@redhat.com, sds@tycho.nsa.gov, jmorris@namei.org,
+        casey@schaufler-ca.com, trond.myklebust@fys.uio.no,
+        chuck.lever@oracle.com, hch@infradead.org
+In-Reply-To: <20080305084815.4d4f54f8@barsoom.rdu.redhat.com>
+References: <1204573372.3216.42.camel@localhost.localdomain>
+	 <20080305084815.4d4f54f8@barsoom.rdu.redhat.com>
 Content-Type: text/plain
-Date: Wed, 05 Mar 2008 09:08:00 -0500
-Message-Id: <1204726080.1397.16.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 05 Mar 2008 09:11:10 -0500
+Message-Id: <1204726270.3216.196.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-03-04 at 17:08 -0800, Casey Schaufler wrote:
-> ----- Original Message ----
-> > From: Dave Quigley <dpquigl@tycho.nsa.gov>
-> > To: Chris Wright <chrisw@sous-sol.org>
-> > Cc: sds@tycho.nsa.gov; jmorris@namei.org; casey@schaufler-ca.com; linux-security-module@vger.kernel.org; selinux@tycho.nsa.gov
-> > Sent: Tuesday, March 4, 2008 3:07:06 PM
-> > Subject: Re: [PATCH 1/1] LSM/SELinux: {get,set}context hooks to access LSM security context information.
-> > 
-> > 
-> > On Tue, 2008-03-04 at 15:26 -0800, Chris Wright wrote:
-> > > * David P. Quigley (dpquigl@tycho.nsa.gov) wrote:
-> > > > +/* Flags for setcontext */
-> > > > +#define LSM_SETCORE 1
-> > > > +#define LSM_SETDISK 2
-> > > > +
-> > > > #ifdef CONFIG_SECURITY
-> > > > 
-> > > > /**
-> > > > @@ -1395,6 +1399,9 @@ struct security_operations {
-> > > > int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
-> > > > void (*release_secctx)(char *secdata, u32 seclen);
-> > > > 
-> > > > + int (*setcontext)(struct dentry *dentry, void *ctx, u32 ctxlen, int 
-> > flags);
-> > > > + int (*getcontext)(struct dentry *dentry, void **ctx, u32 *ctxlen);
-> > > 
-> > > Is this meant to address Casey's argument about the mac label hook name?
-> > > Also, why have you made the distinction of in-core vs. on disk in the
-> > > interface? As I mentioned, I think just needs a little better
-> > > description of why.
-> > > 
-> > > thanks,
-> > > -chris
-> > 
-> > The reason for the differentiation is that NFS inodes don't need their
-> > on-disk representation set. Normally this would be taken care of with an
-> > inode_getsecurity call but as you noted Casey objected to a hook to get
-> > the suffix name.
+On Wed, 2008-03-05 at 08:48 -0500, Jeff Layton wrote:
+> On Mon, 03 Mar 2008 14:42:52 -0500
+> Eric Paris <eparis@redhat.com> wrote:
 > 
-> No, I objected to a hook that is specific to MAC LSMs that
-> store a single label as an xattr. I objected to it because it
-> was being used to support one file system on one LSM and
-> suggested that for that reason it should be an interface
-> private to either the specific LSM or the specific filesystem.
+> > In the current code (approved by SELinux and NFS people in 2004) SELinux
+> > tries to understand NFS's binary mount data.  This blows up in the face
+> > of things like nohide mounts which don't use struct nfs_mount_data and I
+> > assume just looking at the code that things don't work since NFS moved
+> > to using nfs_parsed_mount_data as its default binary mount data blob.
+> > 
+> > This patch creates a new LSM interfaces allowing NFS to hand argument
+> > processing over to the LSM and get back a binary blob the LSM
+> > understands for later user.  There is no specific SELinux knowledge
+> > inside NFS and no NFS information left inside SELinux.  NFS now passes
+> > either strings or the LSM data blob into the LSM and lets the LSM do its
+> > own work.  This means that all LSM mount options are supported by NFS
+> > when it uses the text userspace interface.
+> > 
+> > This patch makes NFS use the new LSM hooks security_sb_set_mnt_opts()
+> > and security_sb_clone_mnt_opts() inside the ->get_sb() calls so that
+> > security options are set explicitly by NFS before the generic NFS
+> > settings used by non binary mount data fs's.  The only sorta
+> > 'selinux-ism' in this patch is for the NFS binary mount data interface
+> > (which must keep working to stop any regressions) to reattach "context="
+> > to the data.  This part of the string will have been removed by the
+> > older mount.nfs userspace parser.  That little nugget is well commented
+> > and wrapper in CONFIG_SECURITY_SELINUX.
+> > 
+> > We need this for 2.6.25 since at the moment SELinux (and SMACK) + nohide
+> > mounts cause security_sb_copy_mount_data() to copy one page of mount
+> > data starting at the struct nfs_clone_mount_data on the stack.  If the
+> > stack doesn't span 2 pages we run off the end of the stack and hit a
+> > page fault BUG().  This also solves the regression in functionality
+> > since all SELinux support was broken with the switch to
+> > nfs_parsed_mount_data.
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> > 
+> > ---
+> > 
+> > This patch was tested with NFSv3 mounts and solves all of the
+> > regressions that have been introduced in the NFS code.  It supports both
+> > the binary interface and text options without pushing LSM specific
+> > parsing into the FS.  It doesn't introduce the new LSM constructs
+> > necessary to show these mount options in /proc/mounts suggested by
+> > Miklos Szeredi but that will be coming in 2.6.26 (it's not a regression
+> > or bug fix).  I also do not have the proper security_sb_set_mnt_opts()
+> > call in nfs4_get_sb due to a lack of a testing environment, but will add
+> > that in 2.6.26 as well.  SELinux + NFSv4 have never had context mount
+> > options so there is no regression nor loss of functionality.
+> > 
+> > Would the NFS community like to push all of this through their bug fix
+> > trees or would they prefer I just push this whole patch up the SELinux
+> > trees?
+> > 
 > 
-> > Also he did have a point in that the context may have
-> > several components to it that could have multiple suffixes. So I need a
-> > hook that allows us to set possibly multiple internal security values
-> > based on a security context and without using an xattr name.
+> I like the basic approach -- seems like a clean way to do this. I'm
+> not sure I know enough about the selinux/security internals to give
+> that a good review, though I made a quick pass through it. Which brings
+> me to a somewhat minor nit...
 > 
-> You could use Ahmed's hook to get the secid of a file and then
-> use secid_to_secctx to get the context. That's what audit has to
-> do.
+> Would it be possible to break this patch up while keeping the tree
+> cleanly bisectable? Maybe one or more patches that add the new
+> interfaces and then another separate NFS patch that changes it to use
+> the new interfaces? Not only would that make this easier to review, but
+> the separate NFS patch might also help serve as a model for other
+> filesystems that want to take advantage of the new interfaces.
 
-IIRC, originally audit directly called inode_getsecurity() to get the
-string label, and there was a (since removed) LSM hook to get the name
-suffix that it needed to pass in as input.  That was then replaced by
-use of interfaces to get the secid at audit collection time and convert
-that into a context only upon audit record generation to avoid the
-overhead associated with collecting a context always.
+Yes, I can cleanly break the fs/nfs/internal.h and fs/nfs/super.c
+changes into a seperate patch.  It doesn't really help reviewability
+though since they are already clearly segregated.  Originally I was
+keeping around the legacy support for git biscect reasons but the switch
+to nfs_parsed_mount_data already broke everything so there wouldn't be a
+lose to separating them.  I'll send as 2 patches in a moment.
 
-Whereas I think NFS just wants the context always, and it doesn't serve
-any purpose to first get a secid and then later turn it into a context.
+> > @@ -589,6 +582,21 @@ static int selinux_set_mnt_opts(struct super_block *sb, char **mount_options,
+> >  	}
+> >  
+> >  	/*
+> > +	 * Binary mount data FS will come through this function twice.  Once
+> > +	 * from an explicit call and once from the generic calls from the vfs.
+> > +	 * Since the generic VFS calls will not contain any security mount data
+> > +	 * we need to skip the double mount verification.
+> > +	 *
+> > +	 * This does open a hole in which we will not notice if the first
+> > +	 * mount using this sb set explict options and a second mount using
+> > +	 * this sb does not set any security options.  (The first options
+> > +	 * will be used for both mounts)
+> > +	 */
+> > +	if (sbsec->initialized && (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)
+> > +	    && (num_opts == 0))
+> > +	        goto out;
+> > +
+> 
+> I'm not sure I understand this. What purpose does checking num_opts
+> serve here?
+> 
+> > +	/*
+> >  	 * parse the mount options, check if they are valid sids.
+> >  	 * also check if someone is trying to mount the same sb more
+> >  	 * than once with different security options.
 
--- 
-Stephen Smalley
-National Security Agency
+Let me explain the 2 mount paths and all the logic going on in here for
+the case of NFS.  It is the only interesting FS.
+
+The two call paths to get here both come through vfs_kern_mount()
+
+vfs_kern_mount()
+  get_sb()
+    nfs_get_sb()
+      security_sb_set_mnt_opts()
+
+vfs_kern_mount()
+  security_sb_kern_mount()
+    superblock_doinit()
+      security_sb_set_mnt_opts()
+
+Now in this function we do multiple things (even through the name only
+implies one thing.)  1) We set the security options on the superblock
+security structure and 2) we make sure that these options don't conflict
+with options previously used.
+
+The idea is that some someone might do
+
+mount -o context=context1 /dev/whatever /mnt/whatever1
+mount -o context=context2 /dev/whatever /mnt/whatever2
+
+This is going to use the same superblock but the context= needs to the
+same.  There is no was to reconcile the 2, so we just reject the second
+mount.
+
+Binary FS's like NFS which call into the explicit set function will
+still traverse the generic call path.  But on the generic call patch
+vfs_kern_mount() is going to pass in null mount data and
+superblock_doinit is going to turn that into an empty structure with
+num_opts=0.  We don't want the mount to fail here because the mount
+options set explicitly a moment ago aren't the same now.  Solutions
+meant I either needed to be able to tell that it was the same mount
+operation we saw on this code path both time or to just let it through
+the second time.  I decided to just allow it through.
+
+The drawback of the approach I took is that someone who does
+
+mount -o context=context1 server1:/export/ /mnt/whatever1
+mount                     server1:/export/ /mnt/whatever2
+
+is NOT going to get a failure on the second mount.  It will still mount
+just fine and it is going to share the mount options with the first
+mount, just the user is not going to be informed that the security
+options given were not the same on both.
+
+Too much info?  was I just babbling?  did it make sense?  Let me know if
+you still have any questions or problems with the possible outcomes...
+
+-Eric
 
 
 --
