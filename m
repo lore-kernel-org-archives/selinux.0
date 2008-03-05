@@ -1,18 +1,14 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m25LTj1g000699
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 16:29:46 -0500
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m25LTijs000132
-	for <selinux@tycho.nsa.gov>; Wed, 5 Mar 2008 21:29:44 GMT
-Message-ID: <47CF10B8.5000301@redhat.com>
-Date: Wed, 05 Mar 2008 16:29:28 -0500
+Message-ID: <47CF1616.1010201@redhat.com>
+Date: Wed, 05 Mar 2008 16:52:22 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Ronald van den Blink <selinux@a61.nl>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Ronald van den Blink <selinux@a61.nl>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        selinux@tycho.nsa.gov
 Subject: Re: Unreserved portnumbers in corenetwork
-References: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl> <1204730645.14217.39.camel@gorn> <51324.80.95.164.250.1204732077.squirrel@www.a61.nl> <1204733123.14217.48.camel@gorn> <DE51A2D4-4153-4E12-BAA8-0D2711553ECF@a61.nl> <1204735380.14217.60.camel@gorn> <6507AB86-A6D5-4314-BC06-86458D15C786@a61.nl> <47CF034E.2010407@redhat.com> <AC974704-1EB3-4378-AA6A-C6D831D20C96@a61.nl>
-In-Reply-To: <AC974704-1EB3-4378-AA6A-C6D831D20C96@a61.nl>
+References: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl>	 <1204730645.14217.39.camel@gorn>	 <51324.80.95.164.250.1204732077.squirrel@www.a61.nl>	 <1204733123.14217.48.camel@gorn>	 <DE51A2D4-4153-4E12-BAA8-0D2711553ECF@a61.nl>	 <1204735380.14217.60.camel@gorn>	 <6507AB86-A6D5-4314-BC06-86458D15C786@a61.nl> <47CF034E.2010407@redhat.com> <1204749406.1397.136.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1204749406.1397.136.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -20,27 +16,22 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Ronald van den Blink wrote:
-> 
-> On Mar 5, 2008, at 9:32 PM, Daniel J Walsh wrote:
-> 
+Stephen Smalley wrote:
+> On Wed, 2008-03-05 at 15:32 -0500, Daniel J Walsh wrote:
 >> -----BEGIN PGP SIGNED MESSAGE-----
 >> Hash: SHA1
 >>
 >> Ronald van den Blink wrote:
->>>
 >>> On Mar 5, 2008, at 5:43 PM, Christopher J. PeBenito wrote:
 >>>
 >>>> On Wed, 2008-03-05 at 17:16 +0100, Ronald van den Blink wrote:
 >>>>> On Mar 5, 2008, at 5:05 PM, Christopher J. PeBenito wrote:
 >>>>>
 >>>>>> On Wed, 2008-03-05 at 16:47 +0100, selinux@a61.nl wrote:
->>>>>>>> Unfortunately there are 3 forces at work.  The first is that for
->>>>>>>> the
+>>>>>>>> Unfortunately there are 3 forces at work.  The first is that for the
 >>>>>>>> most part, ports should always be labeled, because, for example,
 >>>>>>>> port 80
->>>>>>>> is always going to be regarded as the http port.  The second is
->>>>>>>> that
+>>>>>>>> is always going to be regarded as the http port.  The second is that
 >>>>>>>> thats not always the case for non well-defined ports (your
 >>>>>>>> situation).
 >>>>>>>> The third is that portcons (the port labeling statements) only
@@ -51,12 +42,10 @@ Ronald van den Blink wrote:
 >>>>>>>> of the
 >>>>>>>> current toolchain.
 >>>>>>>>
->>>>>>>
 >>>>>>> Agree with that. But wouldn't the situation be a little less
 >>>>>>> complicated
 >>>>>>> if you decide not to define any ports above 1024 in the reference
 >>>>>>> policy?
->>>>>>
 >>>>>> That breaks people that just want to use reference policy.
 >>>>>>
 >>>>> Does this mean that any module in the refpol that needs (for instance)
@@ -64,7 +53,6 @@ Ronald van den Blink wrote:
 >>>>> and get's all the other ports defined there as well? Isn't that
 >>>>> breaking the least priviliges idea? Because you're opening up more
 >>>>> ports then needed?
->>>>
 >>>> It depends on how far you want/need to take least privilege.  By this
 >>>> argument, having all of the shared libraries in /lib and /usr/lib being
 >>>> the same label would be bad.  You have to evaluate the impact on your
@@ -88,12 +76,10 @@ Ronald van den Blink wrote:
 >>>>
 >>>>
 >>>> -- 
->>>> This message was distributed to subscribers of the selinux mailing
->>>> list.
+>>>> This message was distributed to subscribers of the selinux mailing list.
 >>>> If you no longer wish to subscribe, send mail to
 >>>> majordomo@tycho.nsa.gov with
 >>>> the words "unsubscribe selinux" without quotes as the message.
->>>
 >>>
 >>> -- 
 >>> This message was distributed to subscribers of the selinux mailing list.
@@ -109,31 +95,48 @@ Ronald van den Blink wrote:
 >> The problem with removing corenetwork and adding all the ports via
 >> semanage would take a very long time with the current tool chain.
 > 
-> I think that that is definitely a better way of working then the way we
-> do it right now. If we choose this (semanage) as the way to go you give
-> people more flexibility and security.
-> How much work has to be done if this is the change we want?
-We could extend semanage to read a file
+> Should be a simple extension to semanage front end to take a set of port
+> contexts and update them in a single libsemanage transaction.  Just like
+> semodule lets you insert a set of modules together in a single
+> transaction.
+> 
+Of course we have other problems.  How do you handle update?
 
-semanage port -a --input=portsfile
+Currently we just allow corenetwork to update all the ports.  But if we
+move all the ports to semanage and out of the base policy, we have to
+maintain the fact that a user removed port 8080 from http_port_t.
+
+For example.
+
+User installs SELinux rpm which includes a list of all defined ports.
+semanage adds them.
+
+A user decides he no longer wants to allow httpd_port_t to listen on
+port 80.
+
+semanage port -d 80
+
+Later selinux policy is updated.
+
+How do we stop the update procedure from re-adding port 80?
+
+Another problem is we use the same types for both name_bind and
+name_connect.
+
+So if the user does not want to allow httpd_t to listen on port 80, and
+we allow him to remove it, his confined firefox and squid will now not
+be allowed to connect to port 80.
 
 
-Where ports file looks like
-
-- -t httpd_port_t -P tcp 80
-- -t httpd_port_t -P tcp 8080
-...
 
 
-Which is fairly easy.  But extracting this data from policy would be
-fairly difficult.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkfPELcACgkQrlYvE4MpobMTlwCdFl7gPb10Y0sVJGe/DoUKKP78
-d78AoIAzKJdI9cg/n9LpTEVwjjUTrvMZ
-=P4Qk
+iEYEARECAAYFAkfPFhYACgkQrlYvE4MpobN+8gCgwIY0FwsdPPvy9O6fyT7LCoMi
+CgsAoIt19/8cljfVolMGIxj9p+Cg7nlv
+=h3k/
 -----END PGP SIGNATURE-----
 
 --
