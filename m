@@ -1,29 +1,44 @@
-Received: from [144.51.25.121] (moss-spartans [144.51.25.121])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m26L6q5q007911
-	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 16:06:52 -0500
-Subject: Dropping selinux-doc
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/1] refpolicy: Do not want to transition to sysadm_t when
+	upstart runs a shell
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 06 Mar 2008 16:06:52 -0500
-Message-Id: <1204837612.1397.375.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 06 Mar 2008 16:11:47 -0500
+Message-Id: <1204837907.13547.36.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Upstart spawns a shell during boot and, without this patch, it will
+transition to the sysadm_t domain, but remain in the system_r role.
+Services started by that shell will fail to start, even in permissive
+mode, if system_u:system_r:sysadm_someservice_t is an invalid context.
+We really don't want to be starting services from the sysadm_t domain
+during boot.
 
-selinux-doc is quite out of date due to lack of maintenance, and it
-never had any end user oriented documentation in the first place - just
-READMEs and some technical reports.  The technical reports are mostly
-obsolete at this point and are already available on nsa.gov/selinux in
-PDF and HTML for historical reference.  The READMEs are largely
-obsoleted by man pages and the like.
 
-Any reason for us to keep selinux-doc around or should we just drop it?
+Index: policy/modules/system/init.te
+===================================================================
+--- policy/modules/system/init.te	(revision 2631)
++++ policy/modules/system/init.te	(working copy)
+@@ -164,10 +164,12 @@
+ ')
+ 
+ ifndef(`distro_ubuntu',`
++ifndef(`distro_redhat',`
+ 	# Run the shell in the sysadm role for single-user mode.
+ 	# causes problems with upstart
+ 	userdom_shell_domtrans_sysadm(init_t)
+ ')
++')
+ 
+ optional_policy(`
+ 	auth_rw_login_records(init_t)
 
 -- 
-Stephen Smalley
+James Carter <jwcart2@tycho.nsa.gov>
 National Security Agency
 
 
