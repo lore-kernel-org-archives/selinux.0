@@ -1,49 +1,31 @@
-Subject: Re: [PATCH 2/2] LSM/SELinux: inode_{get,set}secctx hooks to access
-	LSM security context information.
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Morris <jmorris@namei.org>, Christoph Hellwig <hch@infradead.org>,
-        Christoph Hellwig <hch@lst.de>, casey@schaufler-ca.com,
-        chrisw@sous-sol.org, viro@zeniv.linux.org.uk, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <1204814886.1397.244.camel@moss-spartans.epoch.ncsc.mil>
-References: <1204743288-3461-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1204743288-3461-3-git-send-email-dpquigl@tycho.nsa.gov>
-	 <20080306123013.GB4648@lst.de>
-	 <1204811422.1397.205.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080306135444.GA5216@infradead.org>
-	 <1204812304.1397.213.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080306140713.GA20087@infradead.org>
-	 <Xine.LNX.4.64.0803070124160.2139@us.intercode.com.au>
-	 <1204814886.1397.244.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 06 Mar 2008 12:13:58 -0500
-Message-Id: <1204823638.14520.202.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m26HtVX8017617
+	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 12:55:33 -0500
+Received: from dmzmta101.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m26HtOHT014993
+	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 17:55:28 GMT
+Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
+	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m26Hsf7S005779
+	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 12:54:42 -0500
+Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
+	by usdmta002.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m26Hsca4024972
+	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 12:54:39 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: nfs_t mount label
+Date: Thu, 6 Mar 2008 09:55:15 -0800
+Message-ID: <0794F277152EF94AA637E3AECF5CB70F2F8527@blums0042.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-03-06 at 09:48 -0500, Stephen Smalley wrote:
-> On Fri, 2008-03-07 at 01:25 +1100, James Morris wrote:
-> > On Thu, 6 Mar 2008, Christoph Hellwig wrote:
-> > 
-> > > Ok, this makes a lot more sense.  These defintively should be different
-> > > hooks in that case, and no matter what name they have (no good ideas
-> > > from me either currently)
-> > 
-> > Perhaps setsecctx and storesecctx ? 
-> 
-> Or possibly notifysecctx (notify security module of a secctx value for
-> the inode) vs. setsecctx (set this sectx on this inode, including both
-> in-core update and invoking the __vfs_setxattr_noperm helper).
-> 
+nfs_t is the default label for nfs mounted file systems. Where in the
+policy is this set? (RHEL5.1)
 
-So are we keeping the dentry parameter for these calls, or am I changing
-them over to an inode. If it is going to use an inode this means I need
-to change the parameters for the xattr code. Is there a reason why the
-xattr code takes dentries instead of an inode? 
+Thank you
 
-Dave
 
 
 --
