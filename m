@@ -1,84 +1,152 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m26ErU6P026503
-	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 09:53:30 -0500
-Received: from smtp106.sbc.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m26ErQwu015042
-	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 14:53:26 GMT
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Ronald van den Blink <selinux@a61.nl>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        selinux@tycho.nsa.gov
-Message-Id: <ED83C068-55BF-4E28-A7EC-F5EFE20AA2C4@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <47CFFD4F.4000706@redhat.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v919.2)
-Subject: Re: Unreserved portnumbers in corenetwork
-Date: Thu, 6 Mar 2008 08:46:44 -0600
-References: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl>	 <1204730645.14217.39.camel@gorn>	 <51324.80.95.164.250.1204732077.squirrel@www.a61.nl>	 <1204733123.14217.48.camel@gorn>	 <DE51A2D4-4153-4E12-BAA8-0D2711553ECF@a61.nl>	 <1204735380.14217.60.camel@gorn>	 <6507AB86-A6D5-4314-BC06-86458D15C786@a61.nl> <47CF034E.2010407@redhat.com> <1204749406.1397.136.camel@moss-spartans.epoch.ncsc.mil> <47CF1616.1010201@redhat.com> <C5C7FABD-BA26-403D-82D2-8F5066620298@nall.com> <47CFFD4F.4000706@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m26FU788031884
+	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 10:30:07 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m26FU3wu002766
+	for <selinux@tycho.nsa.gov>; Thu, 6 Mar 2008 15:30:03 GMT
+Subject: Re: [PATCH] SE-PostgreSQL Security Policy
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Kohei KaiGai <kaigai@ak.jp.nec.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <47C5189B.9070500@ak.jp.nec.com>
+References: <47B2B885.4070300@ak.jp.nec.com>
+	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>
+	 <47C5189B.9070500@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Thu, 06 Mar 2008 10:27:18 -0500
+Message-Id: <1204817238.3994.59.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2008-02-27 at 17:00 +0900, Kohei KaiGai wrote:
+> The attached patch provides security policies related to
+> SE-PostgreSQL.
+> 
+> The followings are updates/unchanges from the previous version
+> submitted
+> at two weeks ago. These updates replaced most of the part in the
+> previous
+> one.
+> 
+> - The targets of this patch are moved to services/postgresql.*,
+>    although the previous one added new entries.
 
-On Mar 6, 2008, at 8:18 AM, Daniel J Walsh wrote:
+Interfaces must be renamed from sepgsql_* to postgresql_*
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Joe Nall wrote:
->> Why not just decouple the ports from the application by giving them
->> names like port8080_t? This would allow multiple policies to be  
->> written
->> to manage that resource, only one of which should be active at a  
->> time.
->> I think the real issue is the assumption that only one application  
->> will
->> own ports like 80, 8080, 443 and 8443.
->>
->> joe
-> I think the problem here is 65000 types.
+> - Any interface got slim. They contains only one TYPEATTRIBUTE
+>    statement, and postgresql.te allows most of permissions to
+>    the associated attributes.
+
+I'm not convinced that any of these are necessary except for the one for
+unconfined access.
+
+> * Tunables to turn on/off audit are remained now, because database
+>    folks told me fine-grained logs are worthwhile feature.
+
+I'm still not very compelled by this, as I doubt people who do want more
+auditing will want to to enable it so coarsely.
 
 
-I was not suggesting preassigning all 65k ports by number, although  
-the auto decl trick used to generate the mls sensitivities could do it  
-in a few lines, but just to those ports which have many uses in the  
-real world.
 
-In the current fedora policy, the http related ports are all enumerated
+> +interface(`sepgsql_unconfined_domain',`
 
-find . -name \*.te -exec grep portcon {} /dev/null \; | grep http
-./modules/kernel/corenetwork.te:portcon tcp 3128  
-gen_context(system_u:object_r:http_cache_port_t,s0)
-./modules/kernel/corenetwork.te:portcon udp 3130  
-gen_context(system_u:object_r:http_cache_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 8080  
-gen_context(system_u:object_r:http_cache_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 8118  
-gen_context(system_u:object_r:http_cache_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 80  
-gen_context(system_u:object_r:http_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 443  
-gen_context(system_u:object_r:http_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 488  
-gen_context(system_u:object_r:http_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 8008  
-gen_context(system_u:object_r:http_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 8009  
-gen_context(system_u:object_r:http_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 8443  
-gen_context(system_u:object_r:http_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 5988  
-gen_context(system_u:object_r:pegasus_http_port_t,s0)
-./modules/kernel/corenetwork.te:portcon tcp 5989  
-gen_context(system_u:object_r:pegasus_https_port_t,s0)
+This should be postgresql_unconfined().
 
-The problem with 443 and 8443 being the same type is that they are  
-often used by different applications on the same machine (httpd,  
-tomcat) with different security requirements. 8080 and 8443 are very  
-often the same application(JBoss, tomcat), but have different port  
-types.
 
-joe
+> +interface(`sepgsql_client_domain',`
+> +       gen_require(`
+> +               attribute sepgsql_client_type;
+> +       ')
+> +       typeattribute $1 sepgsql_client_type;
+> +')
+
+The two existing connect interfaces (tcp and stream) should probably
+call this interface.  If its regular postgresql, it won't hurt anything.
+
+> +typeattribute unlabeled_t      sepgsql_database_type;
+> +typeattribute unlabeled_t      sepgsql_table_type;
+> +typeattribute unlabeled_t      sepgsql_procedure_type;
+> +typeattribute unlabeled_t      sepgsql_blob_type;
+
+Usage of unlabeled_t here is not permitted.
+
+> +########################################
+> +#
+> +# SE-PostgreSQL Server Local policy
+> +#                    (sepgsql_server_type)
+> +
+> +sepgsql_server_domain(postgresql_t)
+
+I don't see any other usage of this other than on postgresql_t, why is
+it needed?
+
+> +########################################
+> +#
+> +# SE-PostgreSQL Administrative domain local policy
+> +#                    (sepgsql_unconfined_type)
+> +
+> +tunable_policy(`sepgsql_enable_unconfined',`
+> +       allow sepgsql_unconfined_type sepgsql_database_type : db_database *;
+> +       allow sepgsql_unconfined_type sepgsql_module_type : db_database { install_module };
+> +       allow sepgsql_unconfined_type sepgsql_table_type : { db_table db_column db_tuple } *;
+> +       allow sepgsql_unconfined_type { sepgsql_procedure_type - sepgsql_user_proc_t } : db_procedure *;
+> +       allow sepgsql_unconfined_type sepgsql_user_proc_t : db_procedure { create drop getattr setattr relabelfrom relabelto };
+> +       allow sepgsql_unconfined_type sepgsql_blob_type : db_blob *;
+> +       allow sepgsql_unconfined_type postgresql_t : db_blob { import export };
+> +
+> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_proc_t;
+> +',`
+> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_user_proc_t;
+> +')
+
+Why is this tunable?  Why is there a different type_transition behavior?
+
+> +# type transitions for rest of domains
+> +type_transition domain domain : db_database sepgsql_db_t;
+> +type_transition { domain - sepgsql_server_type } sepgsql_database_type : db_table sepgsql_table_t;
+> +type_transition { domain - sepgsql_server_type - sepgsql_unconfined_type } sepgsql_database_type : db_procedure sepgsql_user_proc_t;
+> +type_transition domain sepgsql_database_type : db_blob sepgsql_blob_t;
+[...]
+> +tunable_policy(`sepgsql_enable_auditallow',`
+> +       auditallow domain sepgsql_database_type  : db_database all_db_database_perms;
+> +       auditallow domain sepgsql_table_type     : db_table all_db_table_perms;
+> +       auditallow domain sepgsql_table_type     : db_column all_db_column_perms;
+> +       auditallow domain sepgsql_procedure_type : db_procedure all_db_procedure_perms;
+> +       auditallow domain sepgsql_blob_type      : db_blob all_db_blob_perms;
+> +       auditallow domain sepgsql_server_type    : db_blob { import export };
+> +       auditallow domain sepgsql_module_type    : db_database { install_module };
+> +')
+> +tunable_policy(`sepgsql_enable_audittuple && sepgsql_enable_auditallow',`
+> +       auditallow domain sepgsql_table_type     : db_tuple all_db_tuple_perms;
+> +')
+> +tunable_policy(`! sepgsql_enable_auditdeny',`
+> +       dontaudit domain sepgsql_database_type   : db_database all_db_database_perms;
+> +       dontaudit domain sepgsql_table_type      : db_table all_db_table_perms;
+> +       dontaudit domain sepgsql_table_type      : db_column all_db_column_perms;
+> +       dontaudit domain sepgsql_procedure_type  : db_procedure all_db_procedure_perms;
+> +       dontaudit domain sepgsql_blob_type       : db_blob all_db_blob_perms;
+> +       dontaudit domain sepgsql_server_type     : db_blob { import export };
+> +       dontaudit domain sepgsql_module_type     : db_database { install_module };
+> +')
+> +tunable_policy(`! sepgsql_enable_audittuple || ! sepgsql_enable_auditdeny',`
+> +       dontaudit domain sepgsql_table_type      : db_tuple all_db_tuple_perms;
+> +')
+
+Usage of domain here is not permitted.  Why does everything
+type_transition to sepgsql_table_t, etc?  It makes it impossible to
+type_transition to something else.  With the current config, everything
+is the same type for each table, blob, etc.  Thats fine for the base
+config, but when people add types for their tables, they won't be able
+to type_transition their tables to their type.  It seems like several
+templates need to be created to handle this.  E.g. we want to have
+support for module foo to have a foo_table_t and foo_db_procedure_t.
+The same can be said for columns and other relevant objects.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
