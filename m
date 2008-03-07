@@ -1,73 +1,64 @@
-Subject: Re: [PATCH 1/2] VFS: Factor out part of vfs_setxattr so it can be
-	called from the SELinux hook for inode_setsecctx.
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: Christoph Hellwig <hch@lst.de>, chrisw@sous-sol.org, sds@tycho.nsa.gov,
-        jmorris@namei.org, viro@zeniv.linux.org.uk, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <624405.64789.qm@web36607.mail.mud.yahoo.com>
-References: <624405.64789.qm@web36607.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 07 Mar 2008 12:37:30 -0500
-Message-Id: <1204911451.14520.292.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27HlZMi026178
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 12:47:35 -0500
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m27HlXYd006850
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 17:47:33 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m27HOtlf026771
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 12:24:55 -0500
+From: Steve Grubb <sgrubb@redhat.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH] audit tty selinux permission
+Date: Fri, 7 Mar 2008 12:24:33 -0500
+Cc: James Morris <jmorris@redhat.com>, Eric Paris <eparis@redhat.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200803071224.33871.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For some odd reason I can't quite parse the first two parts of your
-email but to answer your question about it being an NFS only hook. As of
-right now the only user is going to be NFS however any remote filesystem
-(labeled CIFS anyone?) will potentially have this problem. Also even
-though we don't have one today if there ever were an LSM that used
-multiple xattrs for their security attributes this is a useful interface
-to them. So there are many uses for this hook but currently the only one
-is NFS.
+Hi,
 
-Dave
+Dan had mentioned that he wanted a new selinux permission to separate 
+the ability to turn on tty auditing from the ability of setting audit rules.
+It looks to me like the process that reads also writes, so only one new
+permission is needed.
 
-On Fri, 2008-03-07 at 09:11 -0800, Casey Schaufler wrote:
-> --- Dave Quigley <dpquigl@tycho.nsa.gov> wrote:
-> 
-> > Yea, I didn't get to read the rest of the emails before I responded to
-> > this. In the lastest version it is two hooks. inode_notifysecctx and
-> > inode_setsecctx which set incore and both respectivly.
-> 
-> So what is the desired behavior of these two calls in the case
-> where on-disk and inode secctx are in lockstep? Does "notify"
-> imply "set" in this case?
-> 
-> What about the case where there is no "disk", as is the case
-> for virtual filesystems? Would "set" imply "notify" in this case?
-> 
-> I think that if the answer to these questions is "it will never
-> come up because it's only for NFS" what you have is an NFS
-> specific interface in the LSM. That may be OK, but it ain't pretty.
-> On the other hand, NFS is sufficiently important that a little
-> ugly may be a price worth paying.
->  
-> > Dave
-> > 
-> > 
-> > On Fri, 2008-03-07 at 11:05 +0100, Christoph Hellwig wrote:
-> > > On Thu, Mar 06, 2008 at 11:47:06AM -0500, Dave Quigley wrote:
-> > > > Will do. I have to release a new patch set with the hook changed to take
-> > > > a bool instead of a flag so you should see this updated sometime later
-> > > > today.
-> > > 
-> > > I think it really should be a separate hook for the two different
-> > > use-cases as suggested by Stephen.
-> > 
-> > 
-> > 
-> 
-> 
-> Casey Schaufler
-> casey@schaufler-ca.com
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Steve Grubb <sgrubb@redhat.com>
 
+
+ security/selinux/include/av_permissions.h |    1 +
+ security/selinux/nlmsgtab.c               |    4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff -urp linux-2.6.24.x86_64.orig/security/selinux/include/av_permissions.h linux-2.6.24.x86_64/security/selinux/include/av_permissions.h
+--- linux-2.6.24.x86_64.orig/security/selinux/include/av_permissions.h	2008-03-06 17:13:22.000000000 -0500
++++ linux-2.6.24.x86_64/security/selinux/include/av_permissions.h	2008-03-06 17:41:29.000000000 -0500
+@@ -702,6 +702,7 @@
+ #define NETLINK_AUDIT_SOCKET__NLMSG_WRITE         0x00800000UL
+ #define NETLINK_AUDIT_SOCKET__NLMSG_RELAY         0x01000000UL
+ #define NETLINK_AUDIT_SOCKET__NLMSG_READPRIV      0x02000000UL
++#define NETLINK_AUDIT_SOCKET__NLMSG_TTY           0x04000000UL
+ #define NETLINK_IP6FW_SOCKET__IOCTL               0x00000001UL
+ #define NETLINK_IP6FW_SOCKET__READ                0x00000002UL
+ #define NETLINK_IP6FW_SOCKET__WRITE               0x00000004UL
+diff -urp linux-2.6.24.x86_64.orig/security/selinux/nlmsgtab.c linux-2.6.24.x86_64/security/selinux/nlmsgtab.c
+--- linux-2.6.24.x86_64.orig/security/selinux/nlmsgtab.c	2008-03-06 17:13:22.000000000 -0500
++++ linux-2.6.24.x86_64/security/selinux/nlmsgtab.c	2008-03-06 17:41:09.000000000 -0500
+@@ -110,8 +110,8 @@ static struct nlmsg_perm nlmsg_audit_per
+ 	{ AUDIT_DEL_RULE,	NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+ 	{ AUDIT_USER,		NETLINK_AUDIT_SOCKET__NLMSG_RELAY    },
+ 	{ AUDIT_SIGNAL_INFO,	NETLINK_AUDIT_SOCKET__NLMSG_READ     },
+-	{ AUDIT_TTY_GET,	NETLINK_AUDIT_SOCKET__NLMSG_READ     },
+-	{ AUDIT_TTY_SET,	NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
++	{ AUDIT_TTY_GET,	NETLINK_AUDIT_SOCKET__NLMSG_TTY      },
++	{ AUDIT_TTY_SET,	NETLINK_AUDIT_SOCKET__NLMSG_TTY      },
+ };
+ 
+ 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
