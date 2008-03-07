@@ -1,113 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27G2dlO013469
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 11:02:39 -0500
-Received: from smtp112.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m27G2cCe009638
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 16:02:38 GMT
-Cc: jwcart2@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux <selinux@tycho.nsa.gov>
-Message-Id: <972010AD-1752-466D-BF5F-B4B941C211C5@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <D0A88599-46C2-4E2B-9207-2B95462B5FC3@nall.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v919.2)
-Subject: Re: [PATCH 1/1] refpolicy: Do not want to transition to sysadm_t when upstart runs a shell
-Date: Fri, 7 Mar 2008 10:02:27 -0600
-References: <1204837907.13547.36.camel@moss-lions.epoch.ncsc.mil> <96B901A6-B8BE-474E-B7D0-71164D8A64BF@nall.com> <47D148AF.1090606@redhat.com> <D0A88599-46C2-4E2B-9207-2B95462B5FC3@nall.com>
+Subject: Re: [PATCH 2/2] LSM/SELinux: inode_{get,set}secctx hooks to access
+	LSM security context information.
+From: Dave Quigley <dpquigl@tycho.nsa.gov>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        Christoph Hellwig <hch@infradead.org>, casey@schaufler-ca.com,
+        chrisw@sous-sol.org, viro@zeniv.linux.org.uk, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20080307100353.GA16831@lst.de>
+References: <1204743288-3461-1-git-send-email-dpquigl@tycho.nsa.gov>
+	 <1204743288-3461-3-git-send-email-dpquigl@tycho.nsa.gov>
+	 <20080306123013.GB4648@lst.de>
+	 <1204811422.1397.205.camel@moss-spartans.epoch.ncsc.mil>
+	 <20080306135444.GA5216@infradead.org>
+	 <1204812304.1397.213.camel@moss-spartans.epoch.ncsc.mil>
+	 <20080306140713.GA20087@infradead.org>
+	 <Xine.LNX.4.64.0803070124160.2139@us.intercode.com.au>
+	 <1204814886.1397.244.camel@moss-spartans.epoch.ncsc.mil>
+	 <1204823638.14520.202.camel@moss-terrapins.epoch.ncsc.mil>
+	 <20080307100353.GA16831@lst.de>
+Content-Type: text/plain
+Date: Fri, 07 Mar 2008 11:06:56 -0500
+Message-Id: <1204906016.14520.268.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+So I have converted all the xattr internals over to an inode from a
+dentry but there is one issue with that. To set EAs on CIFS they need a
+full path for the file. I don't think we can reconcile using inodes in
+the vfs operation with CIFS needing a path. If you have a suggestion on
+how to handle this I'm more than willing to listen. Everything else
+however seems to be a trivial change.
 
-On Mar 7, 2008, at 9:49 AM, Joe Nall wrote:
+Dave
 
->
-> On Mar 7, 2008, at 7:52 AM, Daniel J Walsh wrote:
->
->>>
->> Looks like it.  I think leaving making it initrc_t would fix most of
->> your avc messages.
->
-> It certainly changed them. Here is the of the changing init_t to  
-> initrc_t
-
-and the result of deleting the transition entirely (Jame's patch)
-
-#============= init_t ==============
-allow init_t self:unix_dgram_socket sendto;
-allow init_t shell_exec_t:file { read execute execute_no_trans };
-
-#============= initrc_t ==============
-allow initrc_t etc_t:file write;
-allow initrc_t lvm_control_t:chr_file write;
-allow initrc_t var_run_t:sock_file create;
-
-#============= insmod_t ==============
-allow insmod_t kernel_t:process setsched;
-
-#============= setrans_t ==============
-allow setrans_t initrc_t:fd use;
-
-
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926624.921:3):  
-avc:  denied  { execute } for  pid=502 comm="init" name="bash"  
-dev=sda2 ino=24084497 scontext=system_u:system_r:init_t:s0- 
-s15:c0.c1023 tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926624.921:4):  
-avc:  denied  { read } for  pid=502 comm="init" name="bash" dev=sda2  
-ino=24084497 scontext=system_u:system_r:init_t:s0-s15:c0.c1023  
-tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926624.922:5):  
-avc:  denied  { execute_no_trans } for  pid=502 comm="init" path="/bin/ 
-bash" dev=sda2 ino=24084497 scontext=system_u:system_r:init_t:s0- 
-s15:c0.c1023 tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926628.114:6):  
-avc:  denied  { setsched } for  pid=612 comm="modprobe"  
-scontext=system_u:system_r:insmod_t:s0-s15:c0.c1023  
-tcontext=system_u:system_r:kernel_t:s15:c0.c1023 tclass=process
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926633.712:7):  
-avc:  denied  { write } for  pid=1310 comm="multipath.stati"  
-name="control" dev=tmpfs ino=5407  
-scontext=system_u:system_r:initrc_t:s0-s15:c0.c1023  
-tcontext=system_u:object_r:lvm_control_t:s0 tclass=chr_file
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926635.761:8):  
-avc:  denied  { execute } for  pid=1448 comm="init" name="bash"  
-dev=sda2 ino=24084497 scontext=system_u:system_r:init_t:s0- 
-s15:c0.c1023 tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926635.761:9):  
-avc:  denied  { read } for  pid=1448 comm="init" name="bash" dev=sda2  
-ino=24084497 scontext=system_u:system_r:init_t:s0-s15:c0.c1023  
-tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926635.761:10):  
-avc:  denied  { execute_no_trans } for  pid=1448 comm="init" path="/ 
-bin/bash" dev=sda2 ino=24084497 scontext=system_u:system_r:init_t:s0- 
-s15:c0.c1023 tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926635.837:11):  
-avc:  denied  { sendto } for  pid=1448 comm="telinit"  
-path=002F636F6D2F7562756E74752F75707374617274  
-scontext=system_u:system_r:init_t:s0-s15:c0.c1023  
-tcontext=system_u:system_r:init_t:s0-s15:c0.c1023  
-tclass=unix_dgram_socket
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926636.048:12):  
-avc:  denied  { setsched } for  pid=1477 comm="modprobe"  
-scontext=system_u:system_r:insmod_t:s0-s15:c0.c1023  
-tcontext=system_u:system_r:kernel_t:s15:c0.c1023 tclass=process
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926638.005:13):  
-avc:  denied  { write } for  pid=1732 comm="ifup-eth" name="dhclient- 
-eth0.conf" dev=sda2 ino=20055551  
-scontext=system_u:system_r:initrc_t:s0-s15:c0.c1023  
-tcontext=system_u:object_r:etc_t:s0 tclass=file
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926644.913:15):  
-avc:  denied  { use } for  pid=2031 comm="mcstransd" path="/lib/ 
-ld-2.7.90.so" dev=sda2 ino=12125240  
-scontext=system_u:system_r:setrans_t:s15:c0.c1023  
-tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=fd
-Mar  7 15:50:46 rawhide kernel: type=1400 audit(1204926645.074:16):  
-avc:  denied  { create } for  pid=2041 comm="rpcbind"  
-name="rpcbind.sock" scontext=system_u:system_r:initrc_t:s0- 
-s15:c0.c1023 tcontext=system_u:object_r:var_run_t:s0 tclass=sock_file
-
-joe
+On Fri, 2008-03-07 at 11:03 +0100, Christoph Hellwig wrote:
+> On Thu, Mar 06, 2008 at 12:13:58PM -0500, Dave Quigley wrote:
+> > So are we keeping the dentry parameter for these calls, or am I changing
+> > them over to an inode. If it is going to use an inode this means I need
+> > to change the parameters for the xattr code. Is there a reason why the
+> > xattr code takes dentries instead of an inode? 
+> 
+> Ah, that's the reason why you use dentries.    Either keep the dentry
+> in the call that does the xattr modification for now and document that
+> why you're doing it, or if you feel eager fix up the xattr interface.
+> 
+> In fact the new fine-grained xattr interface already only passed inodes
+> which is what the inode operations should have been doing aswell -
+> xattrs are a concept tied to the inode and not in any way to a
+> hiearchical pathname component.
 
 
 --
