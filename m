@@ -1,111 +1,145 @@
-Subject: Re: Unreserved portnumbers in corenetwork
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Ronald van den Blink <selinux@a61.nl>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <EEBBC902-36C7-4A69-998A-B5ACA17E2E70@a61.nl>
-References: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl>
-	 <1204730645.14217.39.camel@gorn>
-	 <1204732314.1397.58.camel@moss-spartans.epoch.ncsc.mil>
-	 <1204810640.3994.7.camel@gorn.columbia.tresys.com>
-	 <EEBBC902-36C7-4A69-998A-B5ACA17E2E70@a61.nl>
-Content-Type: text/plain
-Date: Fri, 07 Mar 2008 11:15:17 -0500
-Message-Id: <1204906517.20251.25.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27GIC2o015697
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 11:18:12 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m27GI8Cg013538
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 16:18:09 GMT
+Message-ID: <47D16A6C.7090909@manicmethod.com>
+Date: Fri, 07 Mar 2008 11:16:44 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Kohei KaiGai <kaigai@ak.jp.nec.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SE-PostgreSQL Security Policy
+References: <47B2B885.4070300@ak.jp.nec.com>	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>	 <47C5189B.9070500@ak.jp.nec.com> <1204817238.3994.59.camel@gorn.columbia.tresys.com> <47D03D3D.8060307@manicmethod.com> <47D0A68B.1030002@ak.jp.nec.com>
+In-Reply-To: <47D0A68B.1030002@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-03-07 at 14:13 +0100, Ronald van den Blink wrote:
-> On Mar 6, 2008, at 2:37 PM, Christopher J. PeBenito wrote:
-> > On Wed, 2008-03-05 at 10:51 -0500, Stephen Smalley wrote:
-> >> On Wed, 2008-03-05 at 10:24 -0500, Christopher J. PeBenito wrote:
-> >>> On Wed, 2008-03-05 at 11:21 +0100, selinux@a61.nl wrote:
-> >>>> We're building a policy for JBoss. Jboss uses atleast port 8080  
-> >>>> and 8083.
-> >>>> Besides this, the application we use on JBoss also opens port  
-> >>>> 8443 (https)
-> >>>>
-> >>>> While building the jboss-module we ofcourse want to claim these  
-> >>>> ports and
-> >>>> patch corenetwork. However, this is where our problem arises;  
-> >>>> HTTP has
-> >>>> claimed some of the ports we need and http-cache has claimed 8080
-> >>>> allready.
-> >>>>
-> >>>> But http and http-cache allow to open more ports (80, 443, 488,  
-> >>>> 8008,
-> >>>> 8009) than we really need. We think this is against the SElinux  
-> >>>> policy of
-> >>>> least privilege.
-> >>>>
-> >>>> So how do we deal with these kinds of port conflicts? Maybe  
-> >>>> corenetwork
-> >>>> isn't the best place to define unreserved (> 1024) ports?
-> >>>
-> >>> Unfortunately there are 3 forces at work.  The first is that for the
-> >>> most part, ports should always be labeled, because, for example,  
-> >>> port 80
-> >>> is always going to be regarded as the http port.  The second is that
-> >>> thats not always the case for non well-defined ports (your  
-> >>> situation).
-> >>> The third is that portcons (the port labeling statements) only  
-> >>> work in
-> >>> the base module.  So, though we want to make a happy medium  
-> >>> between the
-> >>> first two, we can't overcome the final one within the constraints  
-> >>> of the
-> >>> current toolchain.
-> >>
-> >> Perhaps all port context definitions should be moved to being handled
-> >> via semanage port?
-> >
-> > I don't think we actually need to move anything, we just have to allow
-> > semanage to delete port labelings, since it can already add and modify
-> > them.
-> 
-> Can I take the fast-lane by saying that we agree on the fact that  
-> something needs to be done to make it more flexible? And if the answer  
-> is yes, what is the consensus right now? Is it likely to assume that  
-> semanage is being allowed to delete port labelings?
-> 
-> And if we take that approach, aren't we still seeing the issue that  
-> someone has to decide which port-number is assigned to which  
-> applications for starters? Because I can see a issue here when new  
-> policy writers are creating policies and choosing "just to use  
-> http_cache because my port-number is in that range" and opening up to  
-> many ports.
+Kohei KaiGai wrote:
+> Joshua Brindle wrote:
+>> Christopher J. PeBenito wrote:
+>>> On Wed, 2008-02-27 at 17:00 +0900, Kohei KaiGai wrote:
+>>>  
+>>>> The attached patch provides security policies related to
+>>>> SE-PostgreSQL.
+>>>>
+>>>> The followings are updates/unchanges from the previous version
+>>>> submitted
+>>>> at two weeks ago. These updates replaced most of the part in the
+>>>> previous
+>>>> one.
+>>>>
+>>>> - The targets of this patch are moved to services/postgresql.*,
+>>>>    although the previous one added new entries.
+>>>>     
+>>>
+>>>  
+>>>> +tunable_policy(`sepgsql_enable_auditallow',`
+>>>> +       auditallow domain sepgsql_database_type  : db_database 
+>>>> all_db_database_perms;
+>>>> +       auditallow domain sepgsql_table_type     : db_table 
+>>>> all_db_table_perms;
+>>>> +       auditallow domain sepgsql_table_type     : db_column 
+>>>> all_db_column_perms;
+>>>> +       auditallow domain sepgsql_procedure_type : db_procedure 
+>>>> all_db_procedure_perms;
+>>>> +       auditallow domain sepgsql_blob_type      : db_blob 
+>>>> all_db_blob_perms;
+>>>> +       auditallow domain sepgsql_server_type    : db_blob { import 
+>>>> export };
+>>>> +       auditallow domain sepgsql_module_type    : db_database { 
+>>>> install_module };
+>>>> +')
+>>>>     
+>>
+>>
+>> A couple questions about the install_module and load_module 
+>> permissions. First they seem here to be refering to 
+>> sepgsql_module_type as the object which currently are lib_t and 
+>> textrel_shlib_t, file types. So the object class of db_database seems 
+>> to be inaccurate.
+>
+> Is it appropriate to define a new permission in file class to associate
+> a database with a library file?
+>
 
-Again, you could argue the same thing for the file labeling.  For the
-default reference policy, the labeling is correct.  We can't possibly
-write labeling that will work for everyone in all cases.  The best we
-can do is provide some sane defaults that can be changed.
+Its an interesting question of how to handle this situation, not just 
+now but in the future.
 
-> Just to make the discussion a little bit bigger, if we speak of least  
-> privileged, why are we making general lib_t, usr_t etc.? Aren't we  
-> making a hole in our security model right then, because of giving to  
-> much read privileges by saying that everyone has to be able to read in  
-> lib_t? So actually giving app X read rights to the lib_t's of app Y?  
-> Of course you have to give access to lib_t first, but after that every  
-> lib_t labeled file is free to read. Or are we seeing things wrong.
-> 
-> If we are right, why aren't we just creating appX_lib_t and appY_lib_t  
-> (the way we are doing in our jboss policy)?
+>> Also, after looking at the code I don't see why install_module and 
+>> load_module need to be different permissions, granted they are a 
+>> privileged operation but why not collapse them into a single access 
+>> vector?
+>
+> load_module is a permission to associate a database and a loadable 
+> module,
+> like filesystem:associate permission.
+>
+> When we tries to load a shared library module, the following permissins
+> are required.
+>
+> (Client)   (Shared Library) : db_database install_module;
+> (Client)   (Database)       : db_database install_module;
+> (Database) (Shared Library) : db_database load_module;
+>
+> `install_module' defines a relationship between a client and 
+> database/library.
+> `load_module' defines a relationship between a database and library.
+>
 
-The policy and the labeling are separate things.  The policy is built
-around types, which are equivalence classes.  Least privilege is with
-respect to types.  The policy is as least privilege as we can make it,
-with some minor concessions to keep complexity in check (eg lock or
-ioctl getting into some file perms).  If user_firefox_t can dlopen a
-jboss library, why does it matter?  It still runs the code in
-user_firefox_t and is still confined by that domain's rules.  In my
-opinion, any gains by adding additional types for shared libraries is
-outweighed by far by the complexity that it brings.
+I see, do you have an actual use case for load_module? I don't know that 
+filesystem:associate has ever been used in a useful way, though I might 
+just not know of such a use.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+>> Also, why are blobs a separate object class? How is it a privileged 
+>> operation to use blobs in a table? As far as reading and writing them 
+>> they should be treated like any other column, shouldn't they?
+>
+> In MySQL, blob is one of the data types, and it can be stored in a table.
+> However, blob is a set of tuples stored in pg_largeobject system catalog
+> in PostgreSQL. To separate large binary object into small blocks improves
+> ramdam access performance, but dameges to consistency in access control.
+> It is the reason why SE-PostgreSQL need special care for blobs.
+>
+> http://www.postgresql.org/docs/8.3/static/catalog-pg-largeobject.html
+>
+> BTW, current PostgreSQL does not have any access controls mechanism
+> in large object. :(
+>
+
+Hrm, I am going to have to ponder this one a little while longer then, 
+I'm much more familiar with how MySQL handles blobs than PostGres.
+
+>> And one more question. I see you have a type transition for 
+>> sepgsql_proc_t but I never saw sepgsql_proc_t as the subject of any 
+>> rules, which I don't understand. The hooks appear to always use the 
+>> client_sid as the subject but for stored procedures to be useful they 
+>> may need to access data that the client wouldn't be able to, or did I 
+>> miss something?
+>
+> When a sepgsql_client_domain invokes sepgsql_trusted_proc_t, the 
+> client_sid
+> is transted into sepgsql_trusted_domain_t.
+> However, domain transition is kept in invokations for another 
+> procedure type.
+> sepgsql_proc_t is always a object type, as postgresql_exex_t is always 
+> a file
+> type, not a domain.
+>
+
+What if you call multiple procedures in a single call? Are the domain 
+transition lifetimes limited to while the procedure is running? Are the 
+other columns queried in the same query the original caller context?
+
+e.g., if I did:
+
+select fname, lname, get_ssn(ssn), dob, get_cr(cr);
+
+and there were type_transitions for get_ssn and get_cr, how are the 
+transitions handled?
+
 
 
 --
