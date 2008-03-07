@@ -1,77 +1,475 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27KqiF0021993
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 15:52:44 -0500
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m27KqgEk006861
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 20:52:42 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy
-Date: Fri, 7 Mar 2008 15:48:32 -0500
-Message-ID: <1204922912.20251.58.camel@gorn.columbia.tresys.com>
-In-Reply-To: <47D09FEB.3030005@ak.jp.nec.com>
-References: <47B2B885.4070300@ak.jp.nec.com> <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com> <47C5189B.9070500@ak.jp.nec.com> <1204817238.3994.59.camel@gorn.columbia.tresys.com> <47D09FEB.3030005@ak.jp.nec.com>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Kohei KaiGai" <kaigai@ak.jp.nec.com>
-Cc: <selinux@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27L0Sp1022932
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 16:00:28 -0500
+Received: from cadmus.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m27L0QWe024816
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 21:00:27 GMT
+Received: from cadmus.columbia.tresys.com (localhost.localdomain [127.0.0.1])
+	by cadmus.columbia.tresys.com (8.14.1/8.14.1) with ESMTP id m27L0Q0x031116
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 16:00:26 -0500
+Received: (from tmiller@localhost)
+	by cadmus.columbia.tresys.com (8.14.1/8.14.1/Submit) id m27L0QOb031115
+	for selinux@tycho.nsa.gov; Fri, 7 Mar 2008 16:00:26 -0500
+Date: Fri, 7 Mar 2008 16:00:26 -0500
+From: "Todd C. Miller" <tmiller@tresys.com>
+Message-Id: <200803072100.m27L0QOb031115@cadmus.columbia.tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: PATCH: add downgrade test to libsepol test harness
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-03-07 at 10:52 +0900, Kohei KaiGai wrote:
-> Christopher J. PeBenito wrote:
-> > On Wed, 2008-02-27 at 17:00 +0900, Kohei KaiGai wrote:
-> >> The attached patch provides security policies related to
-> >> SE-PostgreSQL.
-[...]
-> >> +typeattribute unlabeled_t      sepgsql_database_type;
-> >> +typeattribute unlabeled_t      sepgsql_table_type;
-> >> +typeattribute unlabeled_t      sepgsql_procedure_type;
-> >> +typeattribute unlabeled_t      sepgsql_blob_type;
-> > 
-> > Usage of unlabeled_t here is not permitted.
-> 
-> Is it appropriate manner to deploy optional_policy at kernel/kernel.te?
+Test to check downgrading of policies using libsepol.  Verifies that
+when we downgrade a policy on write we can read it back in again.
 
-Why is this needed at all?
+Note: to test this you will need to mkdir
+      libsepol/tests/policies/test-downgrade by hand.
 
-> >> +########################################
-> >> +#
-> >> +# SE-PostgreSQL Administrative domain local policy
-> >> +#                    (sepgsql_unconfined_type)
-> >> +
-> >> +tunable_policy(`sepgsql_enable_unconfined',`
-> >> +       allow sepgsql_unconfined_type sepgsql_database_type : db_database *;
-> >> +       allow sepgsql_unconfined_type sepgsql_module_type : db_database { install_module };
-> >> +       allow sepgsql_unconfined_type sepgsql_table_type : { db_table db_column db_tuple } *;
-> >> +       allow sepgsql_unconfined_type { sepgsql_procedure_type - sepgsql_user_proc_t } : db_procedure *;
-> >> +       allow sepgsql_unconfined_type sepgsql_user_proc_t : db_procedure { create drop getattr setattr relabelfrom relabelto };
-> >> +       allow sepgsql_unconfined_type sepgsql_blob_type : db_blob *;
-> >> +       allow sepgsql_unconfined_type postgresql_t : db_blob { import export };
-> >> +
-> >> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_proc_t;
-> >> +',`
-> >> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_user_proc_t;
-> >> +')
-> > 
-> > Why is this tunable?  Why is there a different type_transition behavior?
-> 
-> I intend that users can turn off this tunable during its operation phase
-> after initial database setting up, to prevent applying unconfined accesses.
-> 
-> When sepgsql_enable_unconfined is disabled, sepgsql_unconfined_type works
-> as if they are sepgsql_client_type, because sepgsql_unconfined_domain() interface
-> associates a domain with sepgsql_(unconfined|client)_type.
+Signed-off-by:  Todd C. Miller <tmiller@tresys.com>
 
-The problem is that this is inconsistent with the way other
-*_unconfined() access works.
+ Makefile         |    3 
+ libsepol-tests.c |    2 
+ test-downgrade.c |  273 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ test-downgrade.h |  119 +++++++++++++++++++++++
+ 4 files changed, 397 insertions(+)
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
-
+Index: trunk/libsepol/tests/libsepol-tests.c
+===================================================================
+--- trunk/libsepol/tests/libsepol-tests.c	(revision 2845)
++++ trunk/libsepol/tests/libsepol-tests.c	(working copy)
+@@ -22,6 +22,7 @@
+ #include "test-linker.h"
+ #include "test-expander.h"
+ #include "test-deps.h"
++#include "test-downgrade.h"
+ 
+ #include <CUnit/Basic.h>
+ #include <CUnit/Console.h>
+@@ -61,6 +62,7 @@
+ 	DECLARE_SUITE(linker);
+ 	DECLARE_SUITE(expander);
+ 	DECLARE_SUITE(deps);
++	DECLARE_SUITE(downgrade);
+ 
+ 	if (verbose)
+ 		CU_basic_set_mode(CU_BRM_VERBOSE);
+Index: trunk/libsepol/tests/test-downgrade.c
+===================================================================
+--- trunk/libsepol/tests/test-downgrade.c	(revision 0)
++++ trunk/libsepol/tests/test-downgrade.c	(revision 0)
+@@ -0,0 +1,273 @@
++/*
++ * Author: Mary Garvin <mgarvin@tresys.com>
++ *
++ * Copyright (C) 2007-2008 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include "test-downgrade.h"
++#include "parse_util.h"
++#include "helpers.h"
++
++#include <sepol/debug.h>
++#include <sepol/handle.h>
++#include <sepol/policydb/policydb.h>
++#include <sepol/policydb/link.h>
++#include <sepol/policydb/expand.h>
++#include <sepol/policydb/conditional.h>
++#include <limits.h>
++#include <CUnit/Basic.h>
++
++#define POLICY_BIN_HI	"policies/test-downgrade/policy.hi"
++#define POLICY_BIN_LO	"policies/test-downgrade/policy.lo"
++
++static policydb_t policydb;
++
++/*
++ * Function Name:  downgrade_test_init
++ *
++ * Input: None
++ *
++ * Output: None
++ *
++ * Description: Initialize the policydb (policy data base structure)
++ */
++int downgrade_test_init(void)
++{
++	/* Initialize the policydb_t structure */
++	if (policydb_init(&policydb)) {
++		fprintf(stderr, "%s:  Out of memory!\n", __FUNCTION__);
++		return -1;
++	}
++
++	return 0;
++}
++
++/*
++ * Function Name:  downgrade_test_cleanup
++ *
++ * Input: None
++ *
++ * Output: None
++ *
++ * Description: Destroys policydb structure
++ */
++int downgrade_test_cleanup(void)
++{
++	policydb_destroy(&policydb);
++
++	return 0;
++}
++
++/*
++ * Function Name: downgrade_add_tests
++ *
++ * Input: CU_pSuite
++ *
++ * Output: Returns 0 upon success.  Returns a CUnit error value on failure.
++ *
++ * Description:  Add the given downgrade tests to the downgrade suite.
++ */
++int downgrade_add_tests(CU_pSuite suite)
++{
++	if (CU_add_test(suite, "downgrade", test_downgrade) == NULL)
++		return CU_get_error();
++
++	return 0;
++}
++
++/*
++ * Function Name:  test_downgrade_possible
++ *
++ * Input: None
++ *
++ * Output: None
++ *
++ * Description:
++ * Tests the backward compatability of MLS and Non-MLS binary policy versions.
++ */
++void test_downgrade(void)
++{
++	if (do_downgrade_test(0) < 0)
++		fprintf(stderr,
++		        "\nError during downgrade testing of Non-MLS policy\n");
++
++
++	if (do_downgrade_test(1) < 0)
++		fprintf(stderr,
++			"\nError during downgrade testing of MLS policy\n");
++}
++
++/*
++ * Function Name:  do_downgrade_test
++ *
++ * Input: 0 for Non-MLS policy and 1 for MLS policy downgrade testing
++ *
++ * Output: 0 on success, negative number upon failure
++ *
++ * Description: This function handles the downgrade testing.
++ *              A binary policy is read into the policydb structure, the
++ *              policy version is decreased by a specific amount, written
++ *              back out and then read back in again.  The process is
++ *              repeated until the minimum policy version is reached.
++ */
++int do_downgrade_test(int mls)
++{
++	policydb_t policydb_tmp;
++	int hi, lo, version;
++
++	/* Reset policydb for re-use */
++	policydb_destroy(&policydb);
++	downgrade_test_init();
++
++	/* Read in the hi policy from file */
++	if (read_binary_policy(POLICY_BIN_HI, &policydb) != 0) {
++		fprintf(stderr, "error reading %spolicy binary\n", mls ? "mls " : "");
++		CU_FAIL("Unable to read the binary policy");
++		return -1;
++	}
++
++	/* Change MLS value based on parameter */
++	policydb.mls = mls ? 1 : 0;
++
++	for (hi = policydb.policyvers; hi >= POLICYDB_VERSION_MIN; hi--) {
++		/* Stash old version number */
++		version = policydb.policyvers;
++
++		/* Try downgrading to each possible version. */
++		for (lo = hi - 1; lo >= POLICYDB_VERSION_MIN; lo--) {
++
++			/* Reduce policy version */
++			policydb.policyvers = lo;
++
++			/* Write out modified binary policy */
++			if (write_binary_policy(POLICY_BIN_LO, &policydb) != 0) {
++				/*
++				 * Error from MLS to pre-MLS is expected due
++				 * to MLS re-implementation in version 19.
++				 */
++				if (mls && lo < POLICYDB_VERSION_MLS)
++					continue;
++
++				fprintf(stderr, "error writing %spolicy binary, version %d (downgraded from %d)\n", mls ? "mls " : "", lo, hi);
++				CU_FAIL("Failed to write downgraded binary policy");
++					return -1;
++			}
++
++			/* Make sure we can read back what we wrote. */
++			if (policydb_init(&policydb_tmp)) {
++				fprintf(stderr, "%s:  Out of memory!\n",
++					__FUNCTION__);
++				return -1;
++			}
++			if (read_binary_policy(POLICY_BIN_LO, &policydb_tmp) != 0) {
++				fprintf(stderr, "error reading %spolicy binary, version %d (downgraded from %d)\n", mls ? "mls " : "", lo, hi);
++				CU_FAIL("Unable to read downgraded binary policy");
++				return -1;
++			}
++			policydb_destroy(&policydb_tmp);
++		}
++		/* Restore version number */
++		policydb.policyvers = version;
++    }
++
++    return 0;
++}
++
++/*
++ * Function Name: read_binary_policy
++ *
++ * Input: char * which is the path to the file containing the binary policy
++ *
++ * Output: Returns 0 upon success.  Upon failure, -1 is returned.
++ *	   Possible failures are, filename with given path does not exist,
++ *	   a failure to open the file, or a failure from prolicydb_read
++ *	   function call.
++ *
++ * Description:  Get a filename, open file and read binary policy into policydb
++ * 				 structure.
++ */
++int read_binary_policy(const char *path, policydb_t *p)
++{
++	FILE *in_fp = NULL;
++	struct policy_file f;
++	int rc;
++
++	/* Open the binary policy file */
++	if ((in_fp = fopen(path, "rb")) == NULL) {
++		fprintf(stderr, "Unable to open %s: %s\n", path,
++			strerror(errno));
++		sepol_handle_destroy(f.handle);
++		return -1;
++	}
++
++	/* Read in the binary policy.  */
++	memset(&f, 0, sizeof(struct policy_file));
++	f.type = PF_USE_STDIO;
++	f.fp = in_fp;
++	rc = policydb_read(p, &f, 0);
++
++	sepol_handle_destroy(f.handle);
++	fclose(in_fp);
++	return rc;
++}
++
++/*
++ * Function Name: write_binary_policy
++ *
++ * Input: char * which is the path to the file containing the binary policy
++ *
++ * Output: Returns 0 upon success.  Upon failure, -1 is returned.
++ *	   Possible failures are, filename with given path does not exist,
++ *	   a failure to open the file, or a failure from prolicydb_read
++ *	   function call.
++ *
++ * Description:  open file and write the binary policy from policydb structure.
++ */
++int write_binary_policy(const char *path, policydb_t *p)
++{
++	FILE *out_fp = NULL;
++	struct policy_file f;
++	sepol_handle_t *handle;
++	int rc;
++
++	/* We don't want libsepol to print warnings to stderr */
++	handle = sepol_handle_create();
++	if (handle == NULL) {
++		fprintf(stderr, "Out of memory!\n");
++		return -1;
++	}
++	sepol_msg_set_callback(handle, NULL, NULL);
++
++	/* Open the binary policy file for writing */
++	if ((out_fp = fopen(path, "w" )) == NULL) {
++		fprintf(stderr, "Unable to open %s: %s\n", path,
++			strerror(errno));
++		sepol_handle_destroy(f.handle);
++		return -1;
++	}
++
++	/* Write the binary policy */
++	memset(&f, 0, sizeof(struct policy_file));
++	f.type = PF_USE_STDIO;
++	f.fp = out_fp;
++	f.handle = handle;
++	rc = policydb_write(p, &f);
++
++	sepol_handle_destroy(f.handle);
++	fclose(out_fp);
++	return rc;
++}
+Index: trunk/libsepol/tests/Makefile
+===================================================================
+--- trunk/libsepol/tests/Makefile	(revision 2845)
++++ trunk/libsepol/tests/Makefile	(working copy)
+@@ -43,8 +43,11 @@
+ clean: 
+ 	rm -f $(objs) $(EXE)
+ 	rm -f $(policies)
++	rm -f policies/test-downgrade/policy.hi policies/test-downgrade/policy.lo
++	
+ 
+ test: $(EXE) $(policies)
++	../../checkpolicy/checkpolicy -M policies/test-cond/refpolicy-base.conf -o policies/test-downgrade/policy.hi	
+ 	./$(EXE)
+ 
+ .PHONY: all policies clean test
+Index: trunk/libsepol/tests/test-downgrade.h
+===================================================================
+--- trunk/libsepol/tests/test-downgrade.h	(revision 0)
++++ trunk/libsepol/tests/test-downgrade.h	(revision 0)
+@@ -0,0 +1,119 @@
++/*
++ * Author: Mary Garvin <mgarvin@tresys.com>
++ *
++ * Copyright (C) 2007-2008 Tresys Technology, LLC
++ *
++ *  This library is free software; you can redistribute it and/or
++ *  modify it under the terms of the GNU Lesser General Public
++ *  License as published by the Free Software Foundation; either
++ *  version 2.1 of the License, or (at your option) any later version.
++ *
++ *  This library is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  Lesser General Public License for more details.
++ *
++ *  You should have received a copy of the GNU Lesser General Public
++ *  License along with this library; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#ifndef __TEST_DOWNGRADE_H__
++#define __TEST_DOWNGRADE_H__
++
++#include <CUnit/Basic.h>
++#include <sepol/policydb/policydb.h>
++
++/*
++ * Function Name:  downgrade_test_init
++ * 
++ * Input: None
++ * 
++ * Output: None
++ * 
++ * Description: Initialize the policydb (policy data base structure)
++ */
++int downgrade_test_init(void);
++
++/*
++ * Function Name:  downgrade_test_cleanup
++ * 
++ * Input: None
++ * 
++ * Output: None
++ * 
++ * Description: Destroys policydb structure
++ */
++int downgrade_test_cleanup(void);
++
++/*
++ * Function Name: downgrade_add_tests
++ * 
++ * Input: CU_pSuite
++ * 
++ * Output: Returns 0 upon success.  Upon failure, a CUnit testing error
++ *	   value is returned
++ * 
++ * Description:  Add the given downgrade tests to the downgrade suite.
++ */
++int downgrade_add_tests(CU_pSuite suite);
++
++/*
++ * Function Name: test_downgrade_possible
++ * 
++ * Input: None
++ * 
++ * Output: None
++ * 
++ * Description: Tests the backward compatability of MLS and Non-MLS binary
++ *		policy versions. 
++ */
++void test_downgrade(void);
++
++/*
++ * Function Name:  do_downgrade_test
++ * 
++ * Input: int that represents a 0 for Non-MLS policy and a 
++ * 		 1 for MLS policy downgrade testing
++ * 
++ * Output: (int) 0 on success, negative number upon failure
++ * 
++ * Description: This function handles the downgrade testing.  A binary policy
++ *		is read into the policydb structure, the policy version is
++ *		decreased by a specific amount, written back out and then read
++ *		back in again. The process is iterative until the minimum
++ *		policy version is reached. 
++ */
++int do_downgrade_test(int mls);
++
++/*
++ * Function Name: read_binary_policy
++ * 
++ * Input: char * which is the path to the file containing the binary policy
++ * 
++ * Output: Returns 0 upon success.  Upon failure, -1 is returned.
++ *	   Possible failures are, filename with given path does not exist,
++ *	   a failure to open the file, or a failure from prolicydb_read
++ *	   function call.
++ * 
++ * Description: Get a filename, open file and read in the binary policy
++ *		into the policydb structure.
++ */
++int read_binary_policy(const char *path, policydb_t *);
++
++/*
++ * Function Name: write_binary_policy
++ * 
++ * Input: char * which is the path to the file containing the binary policy
++ * 
++ * Output: Returns 0 upon success.  Upon failure, -1 is returned.
++ *	   Possible failures are, filename with given path does not exist,
++ *	   a failure to open the file, or a failure from prolicydb_read
++ *	   function call.
++ * 
++ * Description: Get a filename, open file and read in the binary policy
++ *		into the policydb structure.
++ */
++int write_binary_policy(const char *path, policydb_t *);
++
++#endif
 
 --
 This message was distributed to subscribers of the selinux mailing list.
