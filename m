@@ -1,117 +1,130 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27LKKT8025629
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 16:20:20 -0500
-Received: from web36604.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m27LKHEk021371
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 21:20:17 GMT
-Date: Fri, 7 Mar 2008 13:13:35 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 1/2] VFS: Factor out part of vfs_setxattr so it can be called from the SELinux hook for inode_setsecctx.
-To: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com
-Cc: Dave Quigley <dpquigl@tycho.nsa.gov>, Christoph Hellwig <hch@lst.de>,
-        chrisw@sous-sol.org, jmorris@namei.org, viro@zeniv.linux.org.uk,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <1204920300.1397.554.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <265945.39014.qm@web36604.mail.mud.yahoo.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27LOn4R026465
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 16:24:49 -0500
+Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m27LOhEk023248
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 21:24:44 GMT
+Subject: Re: refpolicy: domains need access to the apt's pty and fifos
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+In-Reply-To: <20080305152322.GA9988@bobek.pm.i.cz>
+References: <20080305152322.GA9988@bobek.pm.i.cz>
+Content-Type: text/plain; charset=utf-8
+Date: Fri, 07 Mar 2008 22:23:32 +0100
+Message-Id: <1204925012.2788.5.camel@vogon>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
+On Wed, 2008-03-05 at 16:23 +0100, Václav Ovsík wrote:
+> Hi,
+> running Debian Sid with HEAD refpolicy...
+> I tried to install bind9 and got some further denials for access to pty
+> and pipe of apt_t domain. This is a continuation of the patch from
+> Martin Orr in thread "refpolicy: patch for ldconfig from glibc 2.7...",
+> witch was about apt finally.
 > 
-> On Fri, 2008-03-07 at 11:48 -0800, Casey Schaufler wrote:
-> > --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > 
-> > > 
-> > > ...
-> > > > So this is a way for filesystem code to pass information to an LSM
-> > > > without specifying semantics. Is there an expectation that
-> > > > inode_getsecctx return the value sent by inode_notifysecctx, or
-> > > > would you expect the "notify" secctx to be stored elsewhere?
-> > > 
-> > > The former (getsecctx should return the value sent by notifysecctx).
-> > > Not a separate value.
-> > 
-> > Now that took me by surprise.
-> > 
-> > I spent a good deal of time working with POSIX, so my perspective
-> > may be a bit twisted, but I looks to me that from an interface
-> > standpoint, inode_setsecctx and inode_notifysecctx are
-> > indistinguishable. How would the man pages for the two differ?
-> > Would you ever use both interfaces on the same inode?
-> > 
-> > Don't take this as me being contrary, I really want to understand
-> > how this makes for a better LSM, not just a bigger one.
+> sid:/var/lib/dpkg/info# se_apt-get install bind9
+> Authenticating root.
+> Password: 
+> Reading package lists... Done
+> Building dependency tree       
+> Reading state information... Done
+> The following extra packages will be installed:
+>   libbind9-30 libdns32 libisc32 libisccc30 libisccfg30 liblwres30
+> Suggested packages:
+>   bind9-doc dnsutils resolvconf
+> The following NEW packages will be installed:
+>   bind9 libbind9-30 libdns32 libisc32 libisccc30 libisccfg30 liblwres30
+> 0 upgraded, 7 newly installed, 0 to remove and 0 not upgraded.
+> Need to get 1005kB of archives.
+> After this operation, 2789kB of additional disk space will be used.
+> Get:1 http://xenbr0.localdomain sid/main libisc32 1:9.4.2-4 [126kB]
+> Get:2 http://xenbr0.localdomain sid/main libdns32 1:9.4.2-4 [491kB]
+> Get:3 http://xenbr0.localdomain sid/main libisccc30 1:9.4.2-4 [22.3kB]
+> Get:4 http://xenbr0.localdomain sid/main libisccfg30 1:9.4.2-4 [37.8kB]
+> Get:5 http://xenbr0.localdomain sid/main libbind9-30 1:9.4.2-4 [26.1kB]
+> Get:6 http://xenbr0.localdomain sid/main liblwres30 1:9.4.2-4 [39.5kB]
+> Get:7 http://xenbr0.localdomain sid/main bind9 1:9.4.2-4 [262kB]
+> Fetched 1005kB in 0s (3524kB/s)
+> Selecting previously deselected package libisc32.
+> (Reading database ... 68006 files and directories currently installed.)
+> Unpacking libisc32 (from .../libisc32_1%3a9.4.2-4_i386.deb) ...
+> Selecting previously deselected package libdns32.
+> Unpacking libdns32 (from .../libdns32_1%3a9.4.2-4_i386.deb) ...
+> Selecting previously deselected package libisccc30.
+> Unpacking libisccc30 (from .../libisccc30_1%3a9.4.2-4_i386.deb) ...
+> Selecting previously deselected package libisccfg30.
+> Unpacking libisccfg30 (from .../libisccfg30_1%3a9.4.2-4_i386.deb) ...
+> Selecting previously deselected package libbind9-30.
+> Unpacking libbind9-30 (from .../libbind9-30_1%3a9.4.2-4_i386.deb) ...
+> Selecting previously deselected package liblwres30.
+> Unpacking liblwres30 (from .../liblwres30_1%3a9.4.2-4_i386.deb) ...
+> Selecting previously deselected package bind9.
+> Unpacking bind9 (from .../bind9_1%3a9.4.2-4_i386.deb) ...
+> Setting up libisc32 (1:9.4.2-4) ...
+> Setting up libdns32 (1:9.4.2-4) ...
+> Setting up libisccc30 (1:9.4.2-4) ...
+> Setting up libisccfg30 (1:9.4.2-4) ...
+> Setting up libbind9-30 (1:9.4.2-4) ...
+> Setting up liblwres30 (1:9.4.2-4) ...
+> Setting up bind9 (1:9.4.2-4) ...
+> Adding group `bind' (GID 116) ...
+> Done.
+> Adding system user `bind' (UID 110) ...
+> Adding new user `bind' (UID 110) with group `bind' ...
+> Not creating home directory `/var/cache/bind'.
+> wrote key file "/etc/bind/rndc.key"
+> Starting domain name service...: bind.
 > 
-> I'll try again to explain, but everything below has been said previously
-> in this discussion.
-
-Never hurts to review the bidding.
-
-> inode_setsecctx:  Change the security context of an inode.  Updates the
-> incore security context managed by the security module and invokes the
-> fs code as needed (via __vfs_setxattr_noperm) to update any backing
-> xattrs that represent the context.  Example usage:  NFS server invokes
-> this hook to change the security context in its incore inode and on the
-> backing filesystem to a value provided by the client on a SETATTR
-> operation.
+> and denials:
 > 
-> inode_notifysecctx:  Notify the security module of what the security
-> context of an inode should be.  Initializes the incore security context
-> managed by the security module for this inode.
-
-I'm not convinced that building a mechanism into the LSM that
-prohibits one from maintaining secctx integrity is a good thing.
-I suppose an LSM that cares about such things can always refuse
-to go along with the inode_notifysecctx hook semantics. That
-will mean such an LSM couldn't support NFS. Oh well.
-
-> Example usage:  NFS
-> client invokes this hook to initialize the security context in its
-> incore inode to the value provided by the server for the file when the
-> server returned the file's attributes to the client.
->  
-> > > The other model I suppose would be something more along the lines of
-> > > David Howell's interfaces for creating a task security struct with a
-> > > particular value and then letting the caller set ->security directly.
-> > > In this case, it would be creating an inode security struct with a
-> > > particular value and then letting the fs code set inode->i_security
-> > > directly.  That seems non-optimal though for this situation (in David's
-> > > case, the setup of the task security struct happens once early on, and
-> > > then the swapping of the task security pointer happens later when
-> > > performing actions that shouldn't be treated as happening under the
-> > > current task's credentials). 
-> > 
-> > David has said, unless I'm remembering incorrectly again, that he
-> > would expect NFS to use his scheme. I would be happier with a single
-> > scheme than this pair. Which of the real/effective secctx values
-> > would be affected by each of these interfaces? Maybe the right
-> > thing is to have setsecctx hit the real and notifysecctx the
-> > effective. Maybe that's a dumb idea. I hope that the interactions
-> > between those schemes can be worked out before either gets adopted.
-> > If not, there's likely to be tears.
+> audit(1204723888.180:9): avc:  denied  { use } for  pid=2164 comm="groupadd" name="3" dev=devpts ino=5 scontext=system_u:system_r:groupadd_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> audit(1204723888.180:10): avc:  denied  { write } for  pid=2164 comm="groupadd" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:groupadd_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> audit(1204723888.428:11): avc:  denied  { use } for  pid=2170 comm="useradd" name="3" dev=devpts ino=5 scontext=system_u:system_r:useradd_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> audit(1204723888.428:12): avc:  denied  { write } for  pid=2170 comm="useradd" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:useradd_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> audit(1204723890.340:13): avc:  denied  { read write } for  pid=2235 comm="modprobe" name="3" dev=devpts ino=5 scontext=system_u:system_r:insmod_t:s0 tcontext=system_u:object_r:apt_devpts_t:s0 tclass=chr_file
+> audit(1204723890.340:14): avc:  denied  { use } for  pid=2235 comm="modprobe" name="3" dev=devpts ino=5 scontext=system_u:system_r:insmod_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> audit(1204723890.340:15): avc:  denied  { write } for  pid=2235 comm="modprobe" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:insmod_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> audit(1204723890.588:16): avc:  denied  { use } for  pid=2239 comm="ifconfig" name="3" dev=devpts ino=5 scontext=system_u:system_r:ifconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> audit(1204723890.588:17): avc:  denied  { write } for  pid=2239 comm="ifconfig" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:ifconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> audit(1204723890.620:18): avc:  denied  { read write } for  pid=2240 comm="named" name="3" dev=devpts ino=5 scontext=system_u:system_r:named_t:s0 tcontext=system_u:object_r:apt_devpts_t:s0 tclass=chr_file
+> audit(1204723890.620:19): avc:  denied  { use } for  pid=2240 comm="named" name="3" dev=devpts ino=5 scontext=system_u:system_r:named_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> audit(1204723890.620:20): avc:  denied  { write } for  pid=2240 comm="named" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:named_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
 > 
-> You're confusing the task security credentials with the inode security
-> context again.  David's work is only dealing with assuming different
-> task credentials than the current process.  Not managing the inode
-> security contexts.
+> 
+> I tried also to install kernel image and got denials:
+> 
+> audit(1204727223.717:45): avc:  denied  { read write } for  pid=2844 comm="depmod" name="3" dev=devpts ino=5 scontext=system_u:system_r:depmod_t:s0 tcontext=system_u:object_r:apt_devpts_t:s0 tclass=chr_file
+> audit(1204727223.717:46): avc:  denied  { use } for  pid=2844 comm="depmod" name="3" dev=devpts ino=5 scontext=system_u:system_r:depmod_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> audit(1204727223.717:47): avc:  denied  { write } for  pid=2844 comm="depmod" name="[99536]" dev=pipefs ino=99536 scontext=system_u:system_r:depmod_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> 
+> 
+> Attached patch solves the most of this denials, but I doubt this is the
+> right way.  Should be used some attribute for this?  I noticed attribute
+> privfd and macro domain_interactive_fd(), what about it?  Rpm already
+> has such macro calls
+> ./policy/modules/admin/rpm.te:domain_interactive_fd(rpm_t)
+> ./policy/modules/admin/rpm.te:domain_interactive_fd(rpm_script_t)
+> 
+> I tried to use this macro for apt_t, and all use fd denials above are
+> solved with it. Should be things done in this way?
+> 
+> Thanks for comments.
 
-Err, yeah. If I've got two task blobs and two ways to deal with
-inode blobs there are more ways to get it wrong than if there is
-only one way to deal with exactly one blob. I'm not confusing
-anything, I'm looking at the implications of all this complexity
-and, although some people don't seem to mind if the internals of
-Linux start to look like the spagetti factory kitchen on all you
-can eat night, I do.
+I think it is not really nice to have all these allow rules directly in
+the modules. A similar discussion can be found here:
+http://marc.info/?l=selinux&m=118707242005853&w=2
 
+Especially the first replay of Stephen Smalley pointing out how rpm
+solves this via domain.if: rpm_use_fds($1) and rpm_read_pipes($1)
 
-Casey Schaufler
-casey@schaufler-ca.com
+If I had to choose between the several fixes for every module or the
+"rpm-way" to allow all usage of file descriptors and read permissions
+then I would vote for the latter.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
