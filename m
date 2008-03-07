@@ -1,62 +1,92 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27JwcMK010801
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 14:58:38 -0500
-Received: from web36607.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m27JwaCe029447
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 19:58:36 GMT
-Date: Fri, 7 Mar 2008 09:11:55 -0800 (PST)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 1/2] VFS: Factor out part of vfs_setxattr so it can be called from the SELinux hook for inode_setsecctx.
-To: Dave Quigley <dpquigl@tycho.nsa.gov>, Christoph Hellwig <hch@lst.de>
-Cc: casey@schaufler-ca.com, chrisw@sous-sol.org, sds@tycho.nsa.gov,
-        jmorris@namei.org, viro@zeniv.linux.org.uk, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <1204906208.14520.270.camel@moss-terrapins.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <624405.64789.qm@web36607.mail.mud.yahoo.com>
+Subject: Re: [PATCH 1/2] VFS: Factor out part of vfs_setxattr so it can be
+	called from the SELinux hook for inode_setsecctx.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: casey@schaufler-ca.com
+Cc: Dave Quigley <dpquigl@tycho.nsa.gov>, Christoph Hellwig <hch@lst.de>,
+        chrisw@sous-sol.org, jmorris@namei.org, viro@zeniv.linux.org.uk,
+        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+In-Reply-To: <421534.56373.qm@web36613.mail.mud.yahoo.com>
+References: <421534.56373.qm@web36613.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Fri, 07 Mar 2008 15:05:00 -0500
+Message-Id: <1204920300.1397.554.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- Dave Quigley <dpquigl@tycho.nsa.gov> wrote:
-
-> Yea, I didn't get to read the rest of the emails before I responded to
-> this. In the lastest version it is two hooks. inode_notifysecctx and
-> inode_setsecctx which set incore and both respectivly.
-
-So what is the desired behavior of these two calls in the case
-where on-disk and inode secctx are in lockstep? Does "notify"
-imply "set" in this case?
-
-What about the case where there is no "disk", as is the case
-for virtual filesystems? Would "set" imply "notify" in this case?
-
-I think that if the answer to these questions is "it will never
-come up because it's only for NFS" what you have is an NFS
-specific interface in the LSM. That may be OK, but it ain't pretty.
-On the other hand, NFS is sufficiently important that a little
-ugly may be a price worth paying.
- 
-> Dave
+On Fri, 2008-03-07 at 11:48 -0800, Casey Schaufler wrote:
+> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 > 
-> 
-> On Fri, 2008-03-07 at 11:05 +0100, Christoph Hellwig wrote:
-> > On Thu, Mar 06, 2008 at 11:47:06AM -0500, Dave Quigley wrote:
-> > > Will do. I have to release a new patch set with the hook changed to take
-> > > a bool instead of a flag so you should see this updated sometime later
-> > > today.
 > > 
-> > I think it really should be a separate hook for the two different
-> > use-cases as suggested by Stephen.
+> > ...
+> > > So this is a way for filesystem code to pass information to an LSM
+> > > without specifying semantics. Is there an expectation that
+> > > inode_getsecctx return the value sent by inode_notifysecctx, or
+> > > would you expect the "notify" secctx to be stored elsewhere?
+> > 
+> > The former (getsecctx should return the value sent by notifysecctx).
+> > Not a separate value.
 > 
+> Now that took me by surprise.
 > 
+> I spent a good deal of time working with POSIX, so my perspective
+> may be a bit twisted, but I looks to me that from an interface
+> standpoint, inode_setsecctx and inode_notifysecctx are
+> indistinguishable. How would the man pages for the two differ?
+> Would you ever use both interfaces on the same inode?
 > 
+> Don't take this as me being contrary, I really want to understand
+> how this makes for a better LSM, not just a bigger one.
 
+I'll try again to explain, but everything below has been said previously
+in this discussion.
 
-Casey Schaufler
-casey@schaufler-ca.com
+inode_setsecctx:  Change the security context of an inode.  Updates the
+incore security context managed by the security module and invokes the
+fs code as needed (via __vfs_setxattr_noperm) to update any backing
+xattrs that represent the context.  Example usage:  NFS server invokes
+this hook to change the security context in its incore inode and on the
+backing filesystem to a value provided by the client on a SETATTR
+operation.
+
+inode_notifysecctx:  Notify the security module of what the security
+context of an inode should be.  Initializes the incore security context
+managed by the security module for this inode.  Example usage:  NFS
+client invokes this hook to initialize the security context in its
+incore inode to the value provided by the server for the file when the
+server returned the file's attributes to the client.
+ 
+> > The other model I suppose would be something more along the lines of
+> > David Howell's interfaces for creating a task security struct with a
+> > particular value and then letting the caller set ->security directly.
+> > In this case, it would be creating an inode security struct with a
+> > particular value and then letting the fs code set inode->i_security
+> > directly.  That seems non-optimal though for this situation (in David's
+> > case, the setup of the task security struct happens once early on, and
+> > then the swapping of the task security pointer happens later when
+> > performing actions that shouldn't be treated as happening under the
+> > current task's credentials). 
+> 
+> David has said, unless I'm remembering incorrectly again, that he
+> would expect NFS to use his scheme. I would be happier with a single
+> scheme than this pair. Which of the real/effective secctx values
+> would be affected by each of these interfaces? Maybe the right
+> thing is to have setsecctx hit the real and notifysecctx the
+> effective. Maybe that's a dumb idea. I hope that the interactions
+> between those schemes can be worked out before either gets adopted.
+> If not, there's likely to be tears.
+
+You're confusing the task security credentials with the inode security
+context again.  David's work is only dealing with assuming different
+task credentials than the current process.  Not managing the inode
+security contexts.
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
