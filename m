@@ -1,83 +1,69 @@
-Subject: Re: [PATCH 1/2] VFS: Factor out part of vfs_setxattr so it can be
-	called from the SELinux hook for inode_setsecctx.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: Dave Quigley <dpquigl@tycho.nsa.gov>, Christoph Hellwig <hch@lst.de>,
-        chrisw@sous-sol.org, jmorris@namei.org, viro@zeniv.linux.org.uk,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <233981.53031.qm@web36601.mail.mud.yahoo.com>
-References: <233981.53031.qm@web36601.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 07 Mar 2008 14:17:16 -0500
-Message-Id: <1204917436.1397.519.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27JLh9F005906
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 14:21:43 -0500
+Received: from smtp112.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m27JLgCe014576
+	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 19:21:42 GMT
+Cc: jwcart2@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux <selinux@tycho.nsa.gov>
+Message-Id: <D021DDF2-37A6-46CE-9F30-0ACE62053E14@nall.com>
+From: Joe Nall <joe@nall.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <47D1867A.9000207@redhat.com>
+Content-Type: multipart/mixed; boundary=Apple-Mail-3--1022766660
+Mime-Version: 1.0 (Apple Message framework v919.2)
+Subject: Re: [PATCH 1/1] refpolicy: Do not want to transition to sysadm_t when upstart runs a shell
+Date: Fri, 7 Mar 2008 13:21:39 -0600
+References: <1204837907.13547.36.camel@moss-lions.epoch.ncsc.mil> <96B901A6-B8BE-474E-B7D0-71164D8A64BF@nall.com> <47D148AF.1090606@redhat.com> <D0A88599-46C2-4E2B-9207-2B95462B5FC3@nall.com> <972010AD-1752-466D-BF5F-B4B941C211C5@nall.com> <47D1867A.9000207@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 2008-03-07 at 10:49 -0800, Casey Schaufler wrote:
-> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > 
-> > On Fri, 2008-03-07 at 10:14 -0800, Casey Schaufler wrote:
-> > > --- Dave Quigley <dpquigl@tycho.nsa.gov> wrote:
-> > > 
-> > > > For some odd reason I can't quite parse the first two parts
-> > > 
-> > > Let me try a different angle on the question. Maybe it just
-> > > doesn't come up as a real issue, and I'm concerned about nothing.
-> > > 
-> > > Just for grins lets say I wanted to set the secctx on a directory
-> > > in a derivative of ramfs in some unspecified way that is not
-> > > related to mkdir. There are no on-disk inodes. Should the code call
-> > > inode_setsecctx, inode_notifysecctx, or both? It seems rational to
-> > > me to call inode_setsecctx, but since the differentiation between
-> > > the interfaces is the "on disk" factor and ramfs only exists as
-> > > in core, it would seem that inode_notifysecctx would be correct.
-> > 
-> > If you are setting (changing) the value, then use inode_setsecctx (or
-> > the existing inode_setsecurity, which is used by the xattr code, but
-> > that is limited to setting a single xattr value by name).
-> 
-> So any code that wants to explicitly set the secctx (as opposed to a
-> specific attribute value) calls inode_setsecctx. This makes perfect
-> sense.
-> 
-> > If you are just notifying the security module of a value that should be
-> > associated with the inode, use inode_notifysecctx.
-> 
-> So this is a way for filesystem code to pass information to an LSM
-> without specifying semantics. Is there an expectation that
-> inode_getsecctx return the value sent by inode_notifysecctx, or
-> would you expect the "notify" secctx to be stored elsewhere?
+--Apple-Mail-3--1022766660
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7bit
 
-The former (getsecctx should return the value sent by notifysecctx).
-Not a separate value.
 
-The other model I suppose would be something more along the lines of
-David Howell's interfaces for creating a task security struct with a
-particular value and then letting the caller set ->security directly.
-In this case, it would be creating an inode security struct with a
-particular value and then letting the fs code set inode->i_security
-directly.  That seems non-optimal though for this situation (in David's
-case, the setup of the task security struct happens once early on, and
-then the swapping of the task security pointer happens later when
-performing actions that shouldn't be treated as happening under the
-current task's credentials). 
+On Mar 7, 2008, at 12:16 PM, Daniel J Walsh wrote:
+>> #============= insmod_t ==============
+>> allow insmod_t kernel_t:process setsched;
+> This looks like an MLS constraint, since the allow rule is in policy
 
-> > Reasonable?
-> 
-> I think that the theory is fine, but I forsee implementation
-> complications if the details of what is expected of an LSM aren't
-> clear. At this point I'm not objecting to the interface so much as
-> hoping to be able to use it properly, even with my limited and
-> deteriorating mental facilties.
+Correct. The attached patch fixes the problem for me.
 
--- 
-Stephen Smalley
-National Security Agency
+joe
 
+
+--Apple-Mail-3--1022766660
+Content-Disposition: attachment;
+	filename=modutils.te.patch
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name="modutils.te.patch"
+Content-Transfer-Encoding: 7bit
+
+--- serefpolicy-3.3.1/policy/modules/system/modutils.te.orig	2008-03-07 18:57:53.000000000 -0600
++++ serefpolicy-3.3.1/policy/modules/system/modutils.te	2008-03-07 18:58:34.000000000 -0600
+@@ -22,6 +22,7 @@ type insmod_t;
+ type insmod_exec_t;
+ application_domain(insmod_t,insmod_exec_t)
+ mls_file_write_all_levels(insmod_t)
++mls_process_write_to_clearance(insmod_t)
+ role system_r types insmod_t;
+ 
+ type depmod_t;
+
+--Apple-Mail-3--1022766660
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+
+--Apple-Mail-3--1022766660--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
