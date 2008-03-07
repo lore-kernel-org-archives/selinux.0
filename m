@@ -1,98 +1,91 @@
-Subject: Re: [PATCH 1/1] refpolicy: Do not want to transition to sysadm_t
-	when upstart runs a shell
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Joe Nall <joe@nall.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <96B901A6-B8BE-474E-B7D0-71164D8A64BF@nall.com>
-References: <1204837907.13547.36.camel@moss-lions.epoch.ncsc.mil>
-	 <96B901A6-B8BE-474E-B7D0-71164D8A64BF@nall.com>
-Content-Type: text/plain
-Date: Fri, 07 Mar 2008 08:59:51 -0500
-Message-Id: <1204898391.21054.4.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>
+Message-Id: <EEBBC902-36C7-4A69-998A-B5ACA17E2E70@a61.nl>
+From: Ronald van den Blink <selinux@a61.nl>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <1204810640.3994.7.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v919.2)
+Subject: Re: Unreserved portnumbers in corenetwork
+Date: Fri, 7 Mar 2008 14:13:37 +0100
+References: <37866.80.95.164.250.1204712494.squirrel@www.a61.nl> <1204730645.14217.39.camel@gorn> <1204732314.1397.58.camel@moss-spartans.epoch.ncsc.mil> <1204810640.3994.7.camel@gorn.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-03-07 at 07:42 -0600, Joe Nall wrote:
-> On Mar 6, 2008, at 3:11 PM, James Carter wrote:
-> 
-> > Upstart spawns a shell during boot and, without this patch, it will
-> > transition to the sysadm_t domain, but remain in the system_r role.
-> 
-> Is that the cause of these mls avcs I'm seeing in /var/log/messages  
-> from selinux-policy-mls-3.3.1-12.fc9?
 
-Yes, for the first two.
+On Mar 6, 2008, at 2:37 PM, Christopher J. PeBenito wrote:
 
-> [root@rawhide ~]# grep sysadm_t /var/log/messages
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884961.873:3):  
-> avc:  denied  { read write } for  pid=502 comm="sh" path="/dev/ 
-> console" dev=tmpfs ino=230 scontext=system_u:system_r:sysadm_t:s0- 
-> s15:c0.c1023 tcontext=system_u:object_r:tmpfs_t:s15:c0.c1023  
-> tclass=chr_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884961.937:4):  
-> avc:  denied  { ioctl } for  pid=502 comm="sh" path="/dev/console"  
-> dev=tmpfs ino=230 scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:tmpfs_t:s15:c0.c1023 tclass=chr_file
+> On Wed, 2008-03-05 at 10:51 -0500, Stephen Smalley wrote:
+>> On Wed, 2008-03-05 at 10:24 -0500, Christopher J. PeBenito wrote:
+>>> On Wed, 2008-03-05 at 11:21 +0100, selinux@a61.nl wrote:
+>>>> We're building a policy for JBoss. Jboss uses atleast port 8080  
+>>>> and 8083.
+>>>> Besides this, the application we use on JBoss also opens port  
+>>>> 8443 (https)
+>>>>
+>>>> While building the jboss-module we ofcourse want to claim these  
+>>>> ports and
+>>>> patch corenetwork. However, this is where our problem arises;  
+>>>> HTTP has
+>>>> claimed some of the ports we need and http-cache has claimed 8080
+>>>> allready.
+>>>>
+>>>> But http and http-cache allow to open more ports (80, 443, 488,  
+>>>> 8008,
+>>>> 8009) than we really need. We think this is against the SElinux  
+>>>> policy of
+>>>> least privilege.
+>>>>
+>>>> So how do we deal with these kinds of port conflicts? Maybe  
+>>>> corenetwork
+>>>> isn't the best place to define unreserved (> 1024) ports?
+>>>
+>>> Unfortunately there are 3 forces at work.  The first is that for the
+>>> most part, ports should always be labeled, because, for example,  
+>>> port 80
+>>> is always going to be regarded as the http port.  The second is that
+>>> thats not always the case for non well-defined ports (your  
+>>> situation).
+>>> The third is that portcons (the port labeling statements) only  
+>>> work in
+>>> the base module.  So, though we want to make a happy medium  
+>>> between the
+>>> first two, we can't overcome the final one within the constraints  
+>>> of the
+>>> current toolchain.
+>>
+>> Perhaps all port context definitions should be moved to being handled
+>> via semanage port?
+>
+> I don't think we actually need to move anything, we just have to allow
+> semanage to delete port labelings, since it can already add and modify
+> them.
 
-I can't say that I saw the rest of these, but I was using refpolicy, not
-the fedora mls policy.
+Can I take the fast-lane by saying that we agree on the fact that  
+something needs to be done to make it more flexible? And if the answer  
+is yes, what is the consensus right now? Is it likely to assume that  
+semanage is being allowed to delete port labelings?
 
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884963.239:5):  
-> avc:  denied  { signal } for  pid=502 comm="rc.sysinit"  
-> scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:system_r:kernel_t:s15:c0.c1023 tclass=process
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884963.511:6):  
-> avc:  denied  { setattr } for  pid=542 comm="MAKEDEV" name="tty1-"  
-> dev=tmpfs ino=1803 scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884963.557:7):  
-> avc:  denied  { create } for  pid=542 comm="MAKEDEV" name="loop0-"  
-> scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:fixed_disk_device_t:s15:c0.c1023  
-> tclass=blk_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884963.557:8):  
-> avc:  denied  { setattr } for  pid=542 comm="MAKEDEV" name="loop0-"  
-> dev=tmpfs ino=1822 scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:fixed_disk_device_t:s15:c0.c1023  
-> tclass=blk_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884963.557:9):  
-> avc:  denied  { rename } for  pid=542 comm="MAKEDEV" name="loop0-"  
-> dev=tmpfs ino=1822 scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:fixed_disk_device_t:s15:c0.c1023  
-> tclass=blk_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884963.658:10):  
-> avc:  denied  { setattr } for  pid=542 comm="MAKEDEV" name="parport0-"  
-> dev=tmpfs ino=1847 scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:printer_device_t:s0 tclass=chr_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884963.680:11):  
-> avc:  denied  { setattr } for  pid=542 comm="MAKEDEV" name="tun-"  
-> dev=tmpfs ino=1862 scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:tun_tap_device_t:s0 tclass=chr_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884967.023:30):  
-> avc:  denied  { unlink } for  pid=785 comm="udevd" name=".tmp-8-0"  
-> dev=tmpfs ino=2965 scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:device_t:s0 tclass=blk_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884971.907:52):  
-> avc:  denied  { write } for  pid=1395 comm="rc.sysinit" name="urandom"  
-> dev=tmpfs ino=3788 scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:object_r:urandom_device_t:s0 tclass=chr_file
-> Mar  7 04:16:21 rawhide kernel: type=1400 audit(1204884980.089:55):  
-> avc:  denied  { listen } for  pid=2051 comm="rpcbind" lport=955  
-> scontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023  
-> tcontext=system_u:system_r:sysadm_t:s0-s15:c0.c1023 tclass=udp_socket
-> 
-> joe
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+And if we take that approach, aren't we still seeing the issue that  
+someone has to decide which port-number is assigned to which  
+applications for starters? Because I can see a issue here when new  
+policy writers are creating policies and choosing "just to use  
+http_cache because my port-number is in that range" and opening up to  
+many ports.
+
+Just to make the discussion a little bit bigger, if we speak of least  
+privileged, why are we making general lib_t, usr_t etc.? Aren't we  
+making a hole in our security model right then, because of giving to  
+much read privileges by saying that everyone has to be able to read in  
+lib_t? So actually giving app X read rights to the lib_t's of app Y?  
+Of course you have to give access to lib_t first, but after that every  
+lib_t labeled file is free to read. Or are we seeing things wrong.
+
+If we are right, why aren't we just creating appX_lib_t and appY_lib_t  
+(the way we are doing in our jboss policy)?
+
+
+
 
 
 --
