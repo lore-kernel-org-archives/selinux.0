@@ -1,54 +1,38 @@
-Subject: Re: [PATCH 2/2] LSM/SELinux: inode_{get,set}secctx hooks to access
-	LSM security context information.
+Subject: Re: [PATCH 1/2] VFS: Factor out part of vfs_setxattr so it can be
+	called from the SELinux hook for inode_setsecctx.
 From: Dave Quigley <dpquigl@tycho.nsa.gov>
 To: Christoph Hellwig <hch@lst.de>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Christoph Hellwig <hch@infradead.org>, casey@schaufler-ca.com,
-        chrisw@sous-sol.org, viro@zeniv.linux.org.uk, selinux@tycho.nsa.gov,
+Cc: casey@schaufler-ca.com, chrisw@sous-sol.org, sds@tycho.nsa.gov,
+        jmorris@namei.org, viro@zeniv.linux.org.uk, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <20080307100353.GA16831@lst.de>
+In-Reply-To: <20080307100538.GB16831@lst.de>
 References: <1204743288-3461-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1204743288-3461-3-git-send-email-dpquigl@tycho.nsa.gov>
-	 <20080306123013.GB4648@lst.de>
-	 <1204811422.1397.205.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080306135444.GA5216@infradead.org>
-	 <1204812304.1397.213.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080306140713.GA20087@infradead.org>
-	 <Xine.LNX.4.64.0803070124160.2139@us.intercode.com.au>
-	 <1204814886.1397.244.camel@moss-spartans.epoch.ncsc.mil>
-	 <1204823638.14520.202.camel@moss-terrapins.epoch.ncsc.mil>
-	 <20080307100353.GA16831@lst.de>
+	 <1204743288-3461-2-git-send-email-dpquigl@tycho.nsa.gov>
+	 <20080306122703.GA4648@lst.de>
+	 <1204822026.14520.193.camel@moss-terrapins.epoch.ncsc.mil>
+	 <20080307100538.GB16831@lst.de>
 Content-Type: text/plain
-Date: Fri, 07 Mar 2008 11:06:56 -0500
-Message-Id: <1204906016.14520.268.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 07 Mar 2008 11:10:08 -0500
+Message-Id: <1204906208.14520.270.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-So I have converted all the xattr internals over to an inode from a
-dentry but there is one issue with that. To set EAs on CIFS they need a
-full path for the file. I don't think we can reconcile using inodes in
-the vfs operation with CIFS needing a path. If you have a suggestion on
-how to handle this I'm more than willing to listen. Everything else
-however seems to be a trivial change.
+Yea, I didn't get to read the rest of the emails before I responded to
+this. In the lastest version it is two hooks. inode_notifysecctx and
+inode_setsecctx which set incore and both respectivly.
 
 Dave
 
-On Fri, 2008-03-07 at 11:03 +0100, Christoph Hellwig wrote:
-> On Thu, Mar 06, 2008 at 12:13:58PM -0500, Dave Quigley wrote:
-> > So are we keeping the dentry parameter for these calls, or am I changing
-> > them over to an inode. If it is going to use an inode this means I need
-> > to change the parameters for the xattr code. Is there a reason why the
-> > xattr code takes dentries instead of an inode? 
+
+On Fri, 2008-03-07 at 11:05 +0100, Christoph Hellwig wrote:
+> On Thu, Mar 06, 2008 at 11:47:06AM -0500, Dave Quigley wrote:
+> > Will do. I have to release a new patch set with the hook changed to take
+> > a bool instead of a flag so you should see this updated sometime later
+> > today.
 > 
-> Ah, that's the reason why you use dentries.    Either keep the dentry
-> in the call that does the xattr modification for now and document that
-> why you're doing it, or if you feel eager fix up the xattr interface.
-> 
-> In fact the new fine-grained xattr interface already only passed inodes
-> which is what the inode operations should have been doing aswell -
-> xattrs are a concept tied to the inode and not in any way to a
-> hiearchical pathname component.
+> I think it really should be a separate hook for the two different
+> use-cases as suggested by Stephen.
 
 
 --
