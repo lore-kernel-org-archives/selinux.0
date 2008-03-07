@@ -1,81 +1,48 @@
-Subject: Re: [PATCH 2/2] LSM/SELinux: inode_{get,set}secctx hooks to access
-	LSM security context information.
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: hch@lst.de, sds@tycho.nsa.gov, jmorris@namei.org, hch@infradead.org,
-        casey@schaufler-ca.com, chrisw@sous-sol.org, viro@zeniv.linux.org.uk,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1JXj6y-000241-IP@pomaz-ex.szeredi.hu>
-References: <1204743288-3461-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1204743288-3461-3-git-send-email-dpquigl@tycho.nsa.gov>
-	 <20080306123013.GB4648@lst.de>
-	 <1204811422.1397.205.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080306135444.GA5216@infradead.org>
-	 <1204812304.1397.213.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080306140713.GA20087@infradead.org>
-	 <Xine.LNX.4.64.0803070124160.2139@us.intercode.com.au>
-	 <1204814886.1397.244.camel@moss-spartans.epoch.ncsc.mil>
-	 <1204823638.14520.202.camel@moss-terrapins.epoch.ncsc.mil>
-	 <20080307100353.GA16831@lst.de>
-	 <1204906016.14520.268.camel@moss-terrapins.epoch.ncsc.mil>
-	 <E1JXfpu-0001d1-57@pomaz-ex.szeredi.hu>
-	 <1204911010.14520.287.camel@moss-terrapins.epoch.ncsc.mil>
-	 <E1JXj6y-000241-IP@pomaz-ex.szeredi.hu>
-Content-Type: text/plain
-Date: Fri, 07 Mar 2008 16:07:59 -0500
-Message-Id: <1204924079.14520.319.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47D1AEB2.2000209@redhat.com>
+Date: Fri, 07 Mar 2008 16:08:02 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, jwcart2@tycho.nsa.gov,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH 1/1] refpolicy: Do not want to transition to sysadm_t
+ when upstart runs a shell
+References: <1204837907.13547.36.camel@moss-lions.epoch.ncsc.mil>	 <1204838797.1397.378.camel@moss-spartans.epoch.ncsc.mil>	 <47D065E2.3000702@redhat.com> <1204916629.20251.44.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1204916629.20251.44.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Fri, 2008-03-07 at 21:24 +0100, Miklos Szeredi wrote:
-> > This isn't hiding information from the lower layers. The only use of the
-> > dentry is much higher up in the call chain. If you take a look at
-> > sys_chmod (another inode attr modifying call) the dentry is really only
-> > used in
-> > 
-> > sys_chmod->chown_common->notify_change->fsnotify_change
+Christopher J. PeBenito wrote:
+> On Thu, 2008-03-06 at 16:45 -0500, Daniel J Walsh wrote:
+>> Stephen Smalley wrote:
+>>> On Thu, 2008-03-06 at 16:11 -0500, James Carter wrote:
+>>>> Upstart spawns a shell during boot and, without this patch, it will
+>>>> transition to the sysadm_t domain, but remain in the system_r role.
+>>>> Services started by that shell will fail to start, even in permissive
+>>>> mode, if system_u:system_r:sysadm_someservice_t is an invalid context.
+>>>> We really don't want to be starting services from the sysadm_t domain
+>>>> during boot.
+>> So it should probably transition to initrc_t, so apps started this way
+>> would have a chance of transitioning properly.
 > 
-> And i_op->setattr().
-
-Which is in the same boat as setxattr since most filesystems just grab
-the inode from the dentry that is passed in (although I didn't look as
-extensively as I did with setxattr). This is another example of
-needlessly passing a dentry where an inode is sufficient and correct. So
-once again the only real purpose for the dentry to be there is
-fsnotify_change. 
-
-I also don't see a reason for getattr to take a vfsmount and a dentry.
-Even fuse_getattr does nothing with the vfsmount and only pulls the
-inode from the dentry to pass into fuse_do_getattr(which takes an
-inode). The libfs code for simple_getattr does nothing with them as
-well. Can anyone cite a real use for all of this? It seems that the
-pervasiveness of dentries in all the file system code isn't justified.
-Note I haven't looked through every file system (yet) but from what I've
-seen there are no real users of these dentries except for CIFS.
-
+> No, the shell will execute /etc/rc.d/rc to start processing the init
+> scripts, and thats when it'll transition to initrc_t.  If we do it on
+> shell execution, it may cause problems for things executed directly out
+> of init, like getty.
 > 
-> > 
-> > The operations that actually change the inode metadata on disk do not
-> > touch the dentry at all except to get the inode(rightly so since it is
-> > an INODE operation). 
-> 
-> "Disk" and "inode" are concepts specific to a certain class of
-> filesystems, but make no sense for a different set.  What makes sense
-> for all filesystems is the hierarchy of path components, which is what
-> dentries represent.
+Ok corecmd_exec_shell then.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-
-Would you care to elaborate? Perhaps an example in tree (or out). Path
-names are nothing but a user friendly way of telling the file system
-which inode you want. I've even had someone ask me once if they could
-just open a file by inode.
-
-> 
-> Miklos
-
+iEYEARECAAYFAkfRrq8ACgkQrlYvE4MpobPtnQCgohT2MZsmSBR4xqflB2UPLTw1
+mm0AoJV1PFk+ZAHiI+EPCG0jPAEqO2pL
+=G+EA
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
