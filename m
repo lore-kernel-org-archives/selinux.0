@@ -1,475 +1,123 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m27L0Sp1022932
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 16:00:28 -0500
-Received: from cadmus.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m27L0QWe024816
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 21:00:27 GMT
-Received: from cadmus.columbia.tresys.com (localhost.localdomain [127.0.0.1])
-	by cadmus.columbia.tresys.com (8.14.1/8.14.1) with ESMTP id m27L0Q0x031116
-	for <selinux@tycho.nsa.gov>; Fri, 7 Mar 2008 16:00:26 -0500
-Received: (from tmiller@localhost)
-	by cadmus.columbia.tresys.com (8.14.1/8.14.1/Submit) id m27L0QOb031115
-	for selinux@tycho.nsa.gov; Fri, 7 Mar 2008 16:00:26 -0500
-Date: Fri, 7 Mar 2008 16:00:26 -0500
-From: "Todd C. Miller" <tmiller@tresys.com>
-Message-Id: <200803072100.m27L0QOb031115@cadmus.columbia.tresys.com>
-To: selinux@tycho.nsa.gov
-Subject: PATCH: add downgrade test to libsepol test harness
+Subject: Re: [PATCH] SELinux: introduce permissive types
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux <selinux@tycho.nsa.gov>, jmorris@namei.org,
+        Paul Moore <paul.moore@hp.com>
+In-Reply-To: <1204922191.8402.13.camel@localhost.localdomain>
+References: <1204919043.2891.50.camel@localhost.localdomain>
+	 <1204920587.1397.559.camel@moss-spartans.epoch.ncsc.mil>
+	 <1204922191.8402.13.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 07 Mar 2008 16:04:37 -0500
+Message-Id: <1204923877.1397.601.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Test to check downgrading of policies using libsepol.  Verifies that
-when we downgrade a policy on write we can read it back in again.
 
-Note: to test this you will need to mkdir
-      libsepol/tests/policies/test-downgrade by hand.
+On Fri, 2008-03-07 at 15:36 -0500, Eric Paris wrote:
+> On Fri, 2008-03-07 at 15:09 -0500, Stephen Smalley wrote:
+> > On Fri, 2008-03-07 at 14:44 -0500, Eric Paris wrote:
+> 
+> > > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> > > index 187964e..3eb5d69 100644
+> > > --- a/security/selinux/avc.c
+> > > +++ b/security/selinux/avc.c
+> > > @@ -891,8 +891,15 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+> > >  	denied = requested & ~(p_ae->avd.allowed);
+> > >  
+> > >  	if (!requested || denied) {
+> > > -		if (selinux_enforcing || (flags & AVC_STRICT))
+> > > +		if (flags & AVC_STRICT)
+> > >  			rc = -EACCES;
+> > > +		else if (selinux_enforcing)
+> > > +			if (unlikely(security_permissive_sid(ssid) &&
+> > > +				     requested && node))
+> > > +				avc_update_node(AVC_CALLBACK_GRANT,requested,
+> > > +						ssid,tsid,tclass);
+> > > +			else
+> > > +				rc = -EACCES;
+> > >  		else
+> > >  			if (node)
+> > >  				avc_update_node(AVC_CALLBACK_GRANT,requested,
+> > 
+> > Can you unify the branches above so only one avc_update_node() call is
+> > present?
+> 
+> Yeah, I'm sure I can come up with something.
+> 
+> else if (!selinux_enforcing || 
+> 	 (unlikely(security_permissive_sid(ssid)) && requested && node))
+> 	avc_update_node(AVC_CALLBACK_GRANT.....
+> else
+> 	rc = -EACCES;
+> 
+> 
+> 
+> > > -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
+> > > +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
+> 
+> Will make a similar change in Kconfig
+> 
+> > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > > index f374186..97b4453 100644
+> > > --- a/security/selinux/ss/services.c
+> > > +++ b/security/selinux/ss/services.c
+> > > @@ -416,6 +416,21 @@ inval_class:
+> > >  	return -EINVAL;
+> > >  }
+> > >  
+> > > +/*
+> > > + * Given a sid find if the type has the permissive flag set
+> > > + */
+> > > +int security_permissive_sid(u32 sid)
+> > > +{
+> > > +	struct context *context;
+> > > +	u32 type;
+> > > +
+> > > +	context = sidtab_search(&sidtab, sid);
+> > > +	BUG_ON(!context);
+> > > +
+> > > +	type = context->type;
+> > > +	return ebitmap_get_bit(&policydb.permissive_map, type);
+> > 
+> > This all needs to happen under policy rdlock - take it before looking up
+> > in the sidtab and release after ebitmap_get_bit (so you have to save
+> > result to temporary var and return that).  Otherwise, it can get freed
+> > under you by policy reload.
+> 
+> Do I only need to worry about it freeing under me or should I also worry
+> about atomicity from security_compute_av() ?
 
-Signed-off-by:  Todd C. Miller <tmiller@tresys.com>
+Well, that's a separate issue.  Interesting to be sure, but separate.
 
- Makefile         |    3 
- libsepol-tests.c |    2 
- test-downgrade.c |  273 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- test-downgrade.h |  119 +++++++++++++++++++++++
- 4 files changed, 397 insertions(+)
+>   Do I really have any
+> guarantee that sid is still in the sidtab here?  My BUG_ON() might be
+> bogus, right?
 
-Index: trunk/libsepol/tests/libsepol-tests.c
-===================================================================
---- trunk/libsepol/tests/libsepol-tests.c	(revision 2845)
-+++ trunk/libsepol/tests/libsepol-tests.c	(working copy)
-@@ -22,6 +22,7 @@
- #include "test-linker.h"
- #include "test-expander.h"
- #include "test-deps.h"
-+#include "test-downgrade.h"
- 
- #include <CUnit/Basic.h>
- #include <CUnit/Console.h>
-@@ -61,6 +62,7 @@
- 	DECLARE_SUITE(linker);
- 	DECLARE_SUITE(expander);
- 	DECLARE_SUITE(deps);
-+	DECLARE_SUITE(downgrade);
- 
- 	if (verbose)
- 		CU_basic_set_mode(CU_BRM_VERBOSE);
-Index: trunk/libsepol/tests/test-downgrade.c
-===================================================================
---- trunk/libsepol/tests/test-downgrade.c	(revision 0)
-+++ trunk/libsepol/tests/test-downgrade.c	(revision 0)
-@@ -0,0 +1,273 @@
-+/*
-+ * Author: Mary Garvin <mgarvin@tresys.com>
-+ *
-+ * Copyright (C) 2007-2008 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#include "test-downgrade.h"
-+#include "parse_util.h"
-+#include "helpers.h"
-+
-+#include <sepol/debug.h>
-+#include <sepol/handle.h>
-+#include <sepol/policydb/policydb.h>
-+#include <sepol/policydb/link.h>
-+#include <sepol/policydb/expand.h>
-+#include <sepol/policydb/conditional.h>
-+#include <limits.h>
-+#include <CUnit/Basic.h>
-+
-+#define POLICY_BIN_HI	"policies/test-downgrade/policy.hi"
-+#define POLICY_BIN_LO	"policies/test-downgrade/policy.lo"
-+
-+static policydb_t policydb;
-+
-+/*
-+ * Function Name:  downgrade_test_init
-+ *
-+ * Input: None
-+ *
-+ * Output: None
-+ *
-+ * Description: Initialize the policydb (policy data base structure)
-+ */
-+int downgrade_test_init(void)
-+{
-+	/* Initialize the policydb_t structure */
-+	if (policydb_init(&policydb)) {
-+		fprintf(stderr, "%s:  Out of memory!\n", __FUNCTION__);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Function Name:  downgrade_test_cleanup
-+ *
-+ * Input: None
-+ *
-+ * Output: None
-+ *
-+ * Description: Destroys policydb structure
-+ */
-+int downgrade_test_cleanup(void)
-+{
-+	policydb_destroy(&policydb);
-+
-+	return 0;
-+}
-+
-+/*
-+ * Function Name: downgrade_add_tests
-+ *
-+ * Input: CU_pSuite
-+ *
-+ * Output: Returns 0 upon success.  Returns a CUnit error value on failure.
-+ *
-+ * Description:  Add the given downgrade tests to the downgrade suite.
-+ */
-+int downgrade_add_tests(CU_pSuite suite)
-+{
-+	if (CU_add_test(suite, "downgrade", test_downgrade) == NULL)
-+		return CU_get_error();
-+
-+	return 0;
-+}
-+
-+/*
-+ * Function Name:  test_downgrade_possible
-+ *
-+ * Input: None
-+ *
-+ * Output: None
-+ *
-+ * Description:
-+ * Tests the backward compatability of MLS and Non-MLS binary policy versions.
-+ */
-+void test_downgrade(void)
-+{
-+	if (do_downgrade_test(0) < 0)
-+		fprintf(stderr,
-+		        "\nError during downgrade testing of Non-MLS policy\n");
-+
-+
-+	if (do_downgrade_test(1) < 0)
-+		fprintf(stderr,
-+			"\nError during downgrade testing of MLS policy\n");
-+}
-+
-+/*
-+ * Function Name:  do_downgrade_test
-+ *
-+ * Input: 0 for Non-MLS policy and 1 for MLS policy downgrade testing
-+ *
-+ * Output: 0 on success, negative number upon failure
-+ *
-+ * Description: This function handles the downgrade testing.
-+ *              A binary policy is read into the policydb structure, the
-+ *              policy version is decreased by a specific amount, written
-+ *              back out and then read back in again.  The process is
-+ *              repeated until the minimum policy version is reached.
-+ */
-+int do_downgrade_test(int mls)
-+{
-+	policydb_t policydb_tmp;
-+	int hi, lo, version;
-+
-+	/* Reset policydb for re-use */
-+	policydb_destroy(&policydb);
-+	downgrade_test_init();
-+
-+	/* Read in the hi policy from file */
-+	if (read_binary_policy(POLICY_BIN_HI, &policydb) != 0) {
-+		fprintf(stderr, "error reading %spolicy binary\n", mls ? "mls " : "");
-+		CU_FAIL("Unable to read the binary policy");
-+		return -1;
-+	}
-+
-+	/* Change MLS value based on parameter */
-+	policydb.mls = mls ? 1 : 0;
-+
-+	for (hi = policydb.policyvers; hi >= POLICYDB_VERSION_MIN; hi--) {
-+		/* Stash old version number */
-+		version = policydb.policyvers;
-+
-+		/* Try downgrading to each possible version. */
-+		for (lo = hi - 1; lo >= POLICYDB_VERSION_MIN; lo--) {
-+
-+			/* Reduce policy version */
-+			policydb.policyvers = lo;
-+
-+			/* Write out modified binary policy */
-+			if (write_binary_policy(POLICY_BIN_LO, &policydb) != 0) {
-+				/*
-+				 * Error from MLS to pre-MLS is expected due
-+				 * to MLS re-implementation in version 19.
-+				 */
-+				if (mls && lo < POLICYDB_VERSION_MLS)
-+					continue;
-+
-+				fprintf(stderr, "error writing %spolicy binary, version %d (downgraded from %d)\n", mls ? "mls " : "", lo, hi);
-+				CU_FAIL("Failed to write downgraded binary policy");
-+					return -1;
-+			}
-+
-+			/* Make sure we can read back what we wrote. */
-+			if (policydb_init(&policydb_tmp)) {
-+				fprintf(stderr, "%s:  Out of memory!\n",
-+					__FUNCTION__);
-+				return -1;
-+			}
-+			if (read_binary_policy(POLICY_BIN_LO, &policydb_tmp) != 0) {
-+				fprintf(stderr, "error reading %spolicy binary, version %d (downgraded from %d)\n", mls ? "mls " : "", lo, hi);
-+				CU_FAIL("Unable to read downgraded binary policy");
-+				return -1;
-+			}
-+			policydb_destroy(&policydb_tmp);
-+		}
-+		/* Restore version number */
-+		policydb.policyvers = version;
-+    }
-+
-+    return 0;
-+}
-+
-+/*
-+ * Function Name: read_binary_policy
-+ *
-+ * Input: char * which is the path to the file containing the binary policy
-+ *
-+ * Output: Returns 0 upon success.  Upon failure, -1 is returned.
-+ *	   Possible failures are, filename with given path does not exist,
-+ *	   a failure to open the file, or a failure from prolicydb_read
-+ *	   function call.
-+ *
-+ * Description:  Get a filename, open file and read binary policy into policydb
-+ * 				 structure.
-+ */
-+int read_binary_policy(const char *path, policydb_t *p)
-+{
-+	FILE *in_fp = NULL;
-+	struct policy_file f;
-+	int rc;
-+
-+	/* Open the binary policy file */
-+	if ((in_fp = fopen(path, "rb")) == NULL) {
-+		fprintf(stderr, "Unable to open %s: %s\n", path,
-+			strerror(errno));
-+		sepol_handle_destroy(f.handle);
-+		return -1;
-+	}
-+
-+	/* Read in the binary policy.  */
-+	memset(&f, 0, sizeof(struct policy_file));
-+	f.type = PF_USE_STDIO;
-+	f.fp = in_fp;
-+	rc = policydb_read(p, &f, 0);
-+
-+	sepol_handle_destroy(f.handle);
-+	fclose(in_fp);
-+	return rc;
-+}
-+
-+/*
-+ * Function Name: write_binary_policy
-+ *
-+ * Input: char * which is the path to the file containing the binary policy
-+ *
-+ * Output: Returns 0 upon success.  Upon failure, -1 is returned.
-+ *	   Possible failures are, filename with given path does not exist,
-+ *	   a failure to open the file, or a failure from prolicydb_read
-+ *	   function call.
-+ *
-+ * Description:  open file and write the binary policy from policydb structure.
-+ */
-+int write_binary_policy(const char *path, policydb_t *p)
-+{
-+	FILE *out_fp = NULL;
-+	struct policy_file f;
-+	sepol_handle_t *handle;
-+	int rc;
-+
-+	/* We don't want libsepol to print warnings to stderr */
-+	handle = sepol_handle_create();
-+	if (handle == NULL) {
-+		fprintf(stderr, "Out of memory!\n");
-+		return -1;
-+	}
-+	sepol_msg_set_callback(handle, NULL, NULL);
-+
-+	/* Open the binary policy file for writing */
-+	if ((out_fp = fopen(path, "w" )) == NULL) {
-+		fprintf(stderr, "Unable to open %s: %s\n", path,
-+			strerror(errno));
-+		sepol_handle_destroy(f.handle);
-+		return -1;
-+	}
-+
-+	/* Write the binary policy */
-+	memset(&f, 0, sizeof(struct policy_file));
-+	f.type = PF_USE_STDIO;
-+	f.fp = out_fp;
-+	f.handle = handle;
-+	rc = policydb_write(p, &f);
-+
-+	sepol_handle_destroy(f.handle);
-+	fclose(out_fp);
-+	return rc;
-+}
-Index: trunk/libsepol/tests/Makefile
-===================================================================
---- trunk/libsepol/tests/Makefile	(revision 2845)
-+++ trunk/libsepol/tests/Makefile	(working copy)
-@@ -43,8 +43,11 @@
- clean: 
- 	rm -f $(objs) $(EXE)
- 	rm -f $(policies)
-+	rm -f policies/test-downgrade/policy.hi policies/test-downgrade/policy.lo
-+	
- 
- test: $(EXE) $(policies)
-+	../../checkpolicy/checkpolicy -M policies/test-cond/refpolicy-base.conf -o policies/test-downgrade/policy.hi	
- 	./$(EXE)
- 
- .PHONY: all policies clean test
-Index: trunk/libsepol/tests/test-downgrade.h
-===================================================================
---- trunk/libsepol/tests/test-downgrade.h	(revision 0)
-+++ trunk/libsepol/tests/test-downgrade.h	(revision 0)
-@@ -0,0 +1,119 @@
-+/*
-+ * Author: Mary Garvin <mgarvin@tresys.com>
-+ *
-+ * Copyright (C) 2007-2008 Tresys Technology, LLC
-+ *
-+ *  This library is free software; you can redistribute it and/or
-+ *  modify it under the terms of the GNU Lesser General Public
-+ *  License as published by the Free Software Foundation; either
-+ *  version 2.1 of the License, or (at your option) any later version.
-+ *
-+ *  This library is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-+ *  Lesser General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU Lesser General Public
-+ *  License along with this library; if not, write to the Free Software
-+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ */
-+
-+#ifndef __TEST_DOWNGRADE_H__
-+#define __TEST_DOWNGRADE_H__
-+
-+#include <CUnit/Basic.h>
-+#include <sepol/policydb/policydb.h>
-+
-+/*
-+ * Function Name:  downgrade_test_init
-+ * 
-+ * Input: None
-+ * 
-+ * Output: None
-+ * 
-+ * Description: Initialize the policydb (policy data base structure)
-+ */
-+int downgrade_test_init(void);
-+
-+/*
-+ * Function Name:  downgrade_test_cleanup
-+ * 
-+ * Input: None
-+ * 
-+ * Output: None
-+ * 
-+ * Description: Destroys policydb structure
-+ */
-+int downgrade_test_cleanup(void);
-+
-+/*
-+ * Function Name: downgrade_add_tests
-+ * 
-+ * Input: CU_pSuite
-+ * 
-+ * Output: Returns 0 upon success.  Upon failure, a CUnit testing error
-+ *	   value is returned
-+ * 
-+ * Description:  Add the given downgrade tests to the downgrade suite.
-+ */
-+int downgrade_add_tests(CU_pSuite suite);
-+
-+/*
-+ * Function Name: test_downgrade_possible
-+ * 
-+ * Input: None
-+ * 
-+ * Output: None
-+ * 
-+ * Description: Tests the backward compatability of MLS and Non-MLS binary
-+ *		policy versions. 
-+ */
-+void test_downgrade(void);
-+
-+/*
-+ * Function Name:  do_downgrade_test
-+ * 
-+ * Input: int that represents a 0 for Non-MLS policy and a 
-+ * 		 1 for MLS policy downgrade testing
-+ * 
-+ * Output: (int) 0 on success, negative number upon failure
-+ * 
-+ * Description: This function handles the downgrade testing.  A binary policy
-+ *		is read into the policydb structure, the policy version is
-+ *		decreased by a specific amount, written back out and then read
-+ *		back in again. The process is iterative until the minimum
-+ *		policy version is reached. 
-+ */
-+int do_downgrade_test(int mls);
-+
-+/*
-+ * Function Name: read_binary_policy
-+ * 
-+ * Input: char * which is the path to the file containing the binary policy
-+ * 
-+ * Output: Returns 0 upon success.  Upon failure, -1 is returned.
-+ *	   Possible failures are, filename with given path does not exist,
-+ *	   a failure to open the file, or a failure from prolicydb_read
-+ *	   function call.
-+ * 
-+ * Description: Get a filename, open file and read in the binary policy
-+ *		into the policydb structure.
-+ */
-+int read_binary_policy(const char *path, policydb_t *);
-+
-+/*
-+ * Function Name: write_binary_policy
-+ * 
-+ * Input: char * which is the path to the file containing the binary policy
-+ * 
-+ * Output: Returns 0 upon success.  Upon failure, -1 is returned.
-+ *	   Possible failures are, filename with given path does not exist,
-+ *	   a failure to open the file, or a failure from prolicydb_read
-+ *	   function call.
-+ * 
-+ * Description: Get a filename, open file and read in the binary policy
-+ *		into the policydb structure.
-+ */
-+int write_binary_policy(const char *path, policydb_t *);
-+
-+#endif
+Not really.  sidtab_search was changed long ago to remap undefined SIDs
+to the unlabeled SID.
+
+>   Should I move the permissive bit check into
+> security_compute_av() and carry about the bit in the avd_decision?
+
+Yuck.
+
+>   Is
+> doing an ebitmap_get too high of a penalty to pay for all access as
+> opposed to this way which only does it for denials?
+
+Not too heavy for compute_av (happens in constraint eval), but too heavy
+for the AVC.  But I'm not sure we need it.
+
+>   If we don't want
+> the penalty on successful permission requests I can just drop the
+> BUG_ON() and not worry about things changing under us....
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
