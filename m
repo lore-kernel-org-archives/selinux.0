@@ -1,40 +1,102 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m28A1Yhe014513
-	for <selinux@tycho.nsa.gov>; Sat, 8 Mar 2008 05:01:34 -0500
-Received: from mail.seekline.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m28A1WEN002954
-	for <selinux@tycho.nsa.gov>; Sat, 8 Mar 2008 10:01:33 GMT
-Received: from [IPv6:2001:6f8:1294:1:211:24ff:fee1:776c] ([IPv6:2001:6f8:1294:1:211:24ff:fee1:776c])
-	(authenticated bits=0)
-	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id m28A15Mg003450
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Sat, 8 Mar 2008 11:01:31 +0100
-Subject: prelink, cron-job and SELinux compliance
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Sat, 08 Mar 2008 11:01:05 +0100
-Message-Id: <1204970465.4229.10.camel@vogon>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m28GI8pb021149
+	for <selinux@tycho.nsa.gov>; Sat, 8 Mar 2008 11:18:08 -0500
+Received: from smtp109.sbc.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m28GI3UN013962
+	for <selinux@tycho.nsa.gov>; Sat, 8 Mar 2008 16:18:03 GMT
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, jwcart2@tycho.nsa.gov,
+        SELinux <selinux@tycho.nsa.gov>
+Message-Id: <C235111B-51EE-43CB-B536-4522ECAE426C@nall.com>
+From: Joe Nall <joe@nall.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <47D1AEB2.2000209@redhat.com>
+Content-Type: multipart/mixed; boundary=Apple-Mail-6--947390285
+Mime-Version: 1.0 (Apple Message framework v919.2)
+Subject: Re: [PATCH 1/1] refpolicy: Do not want to transition to sysadm_t when upstart runs a shell
+Date: Sat, 8 Mar 2008 10:17:56 -0600
+References: <1204837907.13547.36.camel@moss-lions.epoch.ncsc.mil>	 <1204838797.1397.378.camel@moss-spartans.epoch.ncsc.mil>	 <47D065E2.3000702@redhat.com> <1204916629.20251.44.camel@gorn.columbia.tresys.com> <47D1AEB2.2000209@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In RHEL/CentOS 5.1 a cron job (/etc/cron.daily/prelink) runs prelink.
-The cron job itself removes a file (/etc/prelink.cache) if necessary and
-updates the database. This does not work with the strict SELinux policy.
 
-To solve this I patched the prelink application to
-use /var/cache/prelink/prelink.cache instead of /etc/prelink.cache
-This would make it more easier to write SELinux policies. But know my
-actual question is how to modify the cron job to work properly? All cron
-jobs on my system are labeled as bin_t. This would mean that
-system_crond_t needs write/create etc. permissions
-on /var/cache/prelink. Thats not really nice and I would prefer to
-create a domain like cron_script_prelink_t for /etc/cron.daily/prelink
-which gets all the rights to manage /var/cache/prelink.
+--Apple-Mail-6--947390285
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed;
+	delsp=yes
+Content-Transfer-Encoding: 7bit
 
-What are your ideas to handle cron scripts properly?
 
+On Mar 7, 2008, at 3:08 PM, Daniel J Walsh wrote:
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Christopher J. PeBenito wrote:
+>> On Thu, 2008-03-06 at 16:45 -0500, Daniel J Walsh wrote:
+>>> Stephen Smalley wrote:
+>>>> On Thu, 2008-03-06 at 16:11 -0500, James Carter wrote:
+>>>>> Upstart spawns a shell during boot and, without this patch, it  
+>>>>> will
+>>>>> transition to the sysadm_t domain, but remain in the system_r  
+>>>>> role.
+>>>>> Services started by that shell will fail to start, even in  
+>>>>> permissive
+>>>>> mode, if system_u:system_r:sysadm_someservice_t is an invalid  
+>>>>> context.
+>>>>> We really don't want to be starting services from the sysadm_t  
+>>>>> domain
+>>>>> during boot.
+>>> So it should probably transition to initrc_t, so apps started this  
+>>> way
+>>> would have a chance of transitioning properly.
+>>
+>> No, the shell will execute /etc/rc.d/rc to start processing the init
+>> scripts, and thats when it'll transition to initrc_t.  If we do it on
+>> shell execution, it may cause problems for things executed directly  
+>> out
+>> of init, like getty.
+>>
+> Ok corecmd_exec_shell then.
+
+The attached patch works for me.
+
+joe
+
+
+
+--Apple-Mail-6--947390285
+Content-Disposition: attachment;
+	filename=init.te.patch
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name="init.te.patch"
+Content-Transfer-Encoding: 7bit
+
+--- serefpolicy-3.3.1/policy/modules/system/init.te.orig	2008-03-07 16:04:28.000000000 -0600
++++ serefpolicy-3.3.1/policy/modules/system/init.te	2008-03-07 16:04:46.000000000 -0600
+@@ -212,7 +212,8 @@ optional_policy(`
+ ifndef(`distro_ubuntu',`
+ # Run the shell in the unconfined_t or sysadm_t domain for single-user mode.
+ ifdef(`enable_mls',`
+-	userdom_shell_domtrans_sysadm(init_t)
++	corecmd_shell_domtrans(init_t,initrc_t)
++	corecmd_shell_entry_type(initrc_t)
+ ',`
+ 	optional_policy(`
+ 		unconfined_shell_domtrans(init_t)
+
+--Apple-Mail-6--947390285
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+
+
+--Apple-Mail-6--947390285--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
