@@ -1,92 +1,29 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m29EP2mS009144
-	for <selinux@tycho.nsa.gov>; Sun, 9 Mar 2008 10:25:02 -0400
-Received: from mail.asahi-net.or.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m29EOt2C016787
-	for <selinux@tycho.nsa.gov>; Sun, 9 Mar 2008 14:24:57 GMT
-Message-ID: <47D3F33B.5010209@kaigai.gr.jp>
-Date: Sun, 09 Mar 2008 23:24:59 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m29JhjiT008452
+	for <selinux@tycho.nsa.gov>; Sun, 9 Mar 2008 15:43:45 -0400
+Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m29JhfBt018973
+	for <selinux@tycho.nsa.gov>; Sun, 9 Mar 2008 19:43:41 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so1204670fgg.40
+        for <selinux@tycho.nsa.gov>; Sun, 09 Mar 2008 12:43:37 -0700 (PDT)
+Message-ID: <cadfc0e40803091236i5ddca650hd81d470109295541@mail.gmail.com>
+Date: Sun, 9 Mar 2008 13:36:21 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SE Linux" <selinux@tycho.nsa.gov>, "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: x fails to start on fc9
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Kohei KaiGai <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy
-References: <47B2B885.4070300@ak.jp.nec.com> <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com> <47C5189B.9070500@ak.jp.nec.com> <1204817238.3994.59.camel@gorn.columbia.tresys.com> <47D09FEB.3030005@ak.jp.nec.com> <1204922912.20251.58.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1204922912.20251.58.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Fri, 2008-03-07 at 10:52 +0900, Kohei KaiGai wrote:
->> Christopher J. PeBenito wrote:
->>> On Wed, 2008-02-27 at 17:00 +0900, Kohei KaiGai wrote:
->>>> The attached patch provides security policies related to
->>>> SE-PostgreSQL.
-> [...]
->>>> +typeattribute unlabeled_t      sepgsql_database_type;
->>>> +typeattribute unlabeled_t      sepgsql_table_type;
->>>> +typeattribute unlabeled_t      sepgsql_procedure_type;
->>>> +typeattribute unlabeled_t      sepgsql_blob_type;
->>> Usage of unlabeled_t here is not permitted.
->> Is it appropriate manner to deploy optional_policy at kernel/kernel.te?
-> 
-> Why is this needed at all?
+selinux-policy 3.3.1-11
+xorg-x11-server-Xorg-1.4.99.900-0.28.20080304
 
-Database objects have persistent security context, as filesystem doing.
-If their security contexts are invalidated by policy reloading etc, it is
-necessary them to be relabeled.
+Error message something like:
+file_contexts line 0 invalid context system_u:object_r:info_xproperty_t:s0
+SELinux: Failed to set label property on window!
 
-Above rules enables administrative domains to access and relabel these objects
-in this case.
-
->>>> +########################################
->>>> +#
->>>> +# SE-PostgreSQL Administrative domain local policy
->>>> +#                    (sepgsql_unconfined_type)
->>>> +
->>>> +tunable_policy(`sepgsql_enable_unconfined',`
->>>> +       allow sepgsql_unconfined_type sepgsql_database_type : db_database *;
->>>> +       allow sepgsql_unconfined_type sepgsql_module_type : db_database { install_module };
->>>> +       allow sepgsql_unconfined_type sepgsql_table_type : { db_table db_column db_tuple } *;
->>>> +       allow sepgsql_unconfined_type { sepgsql_procedure_type - sepgsql_user_proc_t } : db_procedure *;
->>>> +       allow sepgsql_unconfined_type sepgsql_user_proc_t : db_procedure { create drop getattr setattr relabelfrom relabelto };
->>>> +       allow sepgsql_unconfined_type sepgsql_blob_type : db_blob *;
->>>> +       allow sepgsql_unconfined_type postgresql_t : db_blob { import export };
->>>> +
->>>> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_proc_t;
->>>> +',`
->>>> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_user_proc_t;
->>>> +')
->>> Why is this tunable?  Why is there a different type_transition behavior?
->> I intend that users can turn off this tunable during its operation phase
->> after initial database setting up, to prevent applying unconfined accesses.
->>
->> When sepgsql_enable_unconfined is disabled, sepgsql_unconfined_type works
->> as if they are sepgsql_client_type, because sepgsql_unconfined_domain() interface
->> associates a domain with sepgsql_(unconfined|client)_type.
-> 
-> The problem is that this is inconsistent with the way other
-> *_unconfined() access works.
-
-However, this feature to disclaim widespread permissions is worthwhile in database
-management system, because it is less frequently required in operation phase different
-from construction phase.
-So, I think the default security policy should provide a way to restrict permissions
-for administrative domain.
-
-If you concerned about its name is confusable with other *_unconfined() interfaces,
-`sepgsql_enable_unconfined' can be renamed to `sepgsql_enable_administrative' and
-ditto for the name of interface.
-
-In the latest my patch, newly created tables are labeled as sepgsql_FOO_table_t
-when client does not belong to administrative domains. Because unconfined_t loses
-the grounds of its widespread permission when the boolean is disabled, it works as
-a generic domain. It also includes behavior changing in type_transition for tables.
-
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+I'm using MLS policy in permissive mode.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
