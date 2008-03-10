@@ -1,56 +1,44 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2AJ6dY5031247
-	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 15:06:39 -0400
-Received: from legolas.drinsama.de (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2AJ6b0u012181
-	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 19:06:38 GMT
-Subject: Re: [DSE-Dev] Refpolicy quilt series for Debian
-From: Erich Schubert <erich@debian.org>
-To: Martin Orr <martin@martinorr.name>
-Cc: SELinux List <selinux@tycho.nsa.gov>,
-        selinux-devel@lists.alioth.debian.org
-In-Reply-To: <47D57913.2080809@martinorr.name>
-References: <47D57913.2080809@martinorr.name>
-Content-Type: text/plain
-Date: Mon, 10 Mar 2008 20:06:08 +0100
-Message-Id: <1205175968.5002.96.camel@hepcat.vitavonni.de>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2AJOv9X001019
+	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 15:24:57 -0400
+Received: from ppsw-9.csi.cam.ac.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2AJOo0u021994
+	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 19:24:50 GMT
+Received: from mpo25.trin.private.cam.ac.uk ([172.16.113.134]:49393)
+	by ppsw-9.csi.cam.ac.uk (ppsw.cam.ac.uk [131.111.8.139]:25)
+	with esmtp id 1JYmQB-0003Ep-VL (Exim 4.67) for selinux@tycho.nsa.gov
+	(return-path <martin@martinorr.name>); Mon, 10 Mar 2008 18:08:23 +0000
+Message-ID: <47D57913.2080809@martinorr.name>
+Date: Mon, 10 Mar 2008 18:08:19 +0000
+From: Martin Orr <martin@martinorr.name>
+MIME-Version: 1.0
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: selinux-devel@lists.alioth.debian.org
+Subject: Refpolicy quilt series for Debian
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello Martin,
-Thanks for your work.
+I have published the patches I am using to reference policy, on Debian sid.
+ This includes all the patches from Manoj's official Debian package, split
+out into a quilt series.
 
-> I have published the patches I am using to reference policy, on Debian sid.
->  This includes all the patches from Manoj's official Debian package, split
-> out into a quilt series.
+You can browse the patches at
+http://www.martinorr.name/selinux/patches/
+or download them all at
+http://www.martinorr.name/selinux/patches/patches.tar.gz
 
-There is also a policy tree in Debian SVN which might contain some more
-changes I did for my packages. Not all of that was merged into Manojs
-package, I believe. I don't have an overview of which of my changes were
-merged by Manoj. Some of them might also no longer be required.
+For explanation:
+1* are patches ready for submission to refpolicy SVN
+2* are things that need a bit more work before going to SVN
+3*, 4* are from the Debian package
+5* are my patches on top of the Debian package
+9* are things I use locally, not intended to be merged by anyone else
 
-You can browse the tree here
-http://svn.debian.org/wsvn/selinux/refpolicy/branches/debian/?rev=0&sc=0
-SVN urls etc. are listed on svn.debian.org
+Best wishes,
 
-There is also a packaged version:
- http://selinux.alioth.debian.org/experimental/refpolicy/
-(strict and targeted are already merged in that version, but it is
-totally untested.)
-
-Keep up the good work. It's nice to see the increased interest in Debian
-SELinux and all the recent contributions!
-
-best regards,
-Erich Schubert
 -- 
-   erich@(vitavonni.de|debian.org)    --    GPG Key ID: 4B3A135C    (o_
-                Friends are those who reach out for                 //\
-                  your hand but touch your heart.                   V_/_
-            Es lohnt sich nicht, die Augen aufzumachen,
-                   wenn der Kopf im Sand steckt.
-
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
