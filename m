@@ -1,14 +1,14 @@
 Subject: Re: [PATCH] SELinux: introduce permissive types
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux <selinux@tycho.nsa.gov>, jmorris@namei.org,
         Paul Moore <paul.moore@hp.com>
 In-Reply-To: <1205167649.23866.91.camel@moss-spartans.epoch.ncsc.mil>
 References: <1205166057.5297.20.camel@localhost.localdomain>
 	 <1205167649.23866.91.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 10 Mar 2008 13:04:11 -0400
-Message-Id: <1205168651.23866.96.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 10 Mar 2008 13:15:25 -0400
+Message-Id: <1205169325.5297.45.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -69,115 +69,21 @@ On Mon, 2008-03-10 at 12:47 -0400, Stephen Smalley wrote:
 > > +		else if ((!selinux_enforcing) ||
 > 
 > Extraneous parens?
+
+yeah, I can't format code.
+
 > 
 > > +			 (unlikely(security_permissive_sid(ssid, p_ae->avd.seqno) &&
 > > +				   requested && node)))
 > 
 > Do we really need the test of requested here?
-> 
-> > +			avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
-> > +					tsid, tclass);
-> >  		else
-> > -			if (node)
-> > -				avc_update_node(AVC_CALLBACK_GRANT,requested,
-> > -						ssid,tsid,tclass);
-> > +			rc = -EACCES;
-> >  	}
-> >  
-> >  	rcu_read_unlock();
-> > diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> > index f7d2f03..f317a4e 100644
-> > --- a/security/selinux/include/security.h
-> > +++ b/security/selinux/include/security.h
-> > @@ -26,13 +26,14 @@
-> >  #define POLICYDB_VERSION_AVTAB		20
-> >  #define POLICYDB_VERSION_RANGETRANS	21
-> >  #define POLICYDB_VERSION_POLCAP		22
-> > +#define POLICYDB_VERSION_PERMISSIVE	23
-> >  
-> >  /* Range of policy versions we understand*/
-> >  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
-> >  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
-> >  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
-> >  #else
-> > -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
-> > +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
-> >  #endif
-> >  
-> >  #define CONTEXT_MNT	0x01
-> > @@ -67,6 +68,8 @@ struct av_decision {
-> >  	u32 seqno;
-> >  };
-> >  
-> > +int security_permissive_sid(u32 sid, u32 seqno);
-> > +
-> >  int security_compute_av(u32 ssid, u32 tsid,
-> >  	u16 tclass, u32 requested,
-> >  	struct av_decision *avd);
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> > index bd7d6a0..84dbab9 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -111,6 +111,11 @@ static struct policydb_compat_info policydb_compat[] = {
-> >  		.version	= POLICYDB_VERSION_POLCAP,
-> >  		.sym_num	= SYM_NUM,
-> >  		.ocon_num	= OCON_NUM,
-> > +	},
-> > +	{
-> > +		.version	= POLICYDB_VERSION_PERMISSIVE,
-> > +		.sym_num	= SYM_NUM,
-> > +		.ocon_num	= OCON_NUM,
-> >  	}
-> >  };
-> >  
-> > @@ -194,6 +199,7 @@ static int policydb_init(struct policydb *p)
-> >  		goto out_free_symtab;
-> >  
-> >  	ebitmap_init(&p->policycaps);
-> > +	ebitmap_init(&p->permissive_map);
-> >  
-> >  out:
-> >  	return rc;
-> > @@ -687,6 +693,7 @@ void policydb_destroy(struct policydb *p)
-> >  	kfree(p->type_attr_map);
-> >  	kfree(p->undefined_perms);
-> >  	ebitmap_destroy(&p->policycaps);
-> > +	ebitmap_destroy(&p->permissive_map);
-> >  
-> >  	return;
-> >  }
-> > @@ -1570,6 +1577,10 @@ int policydb_read(struct policydb *p, void *fp)
-> >  	    ebitmap_read(&p->policycaps, fp) != 0)
-> >  		goto bad;
-> >  
-> > +	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
-> > +	    ebitmap_read(&p->permissive_map, fp) != 0)
-> > +		goto bad;
-> > +
-> >  	info = policydb_lookup_compat(p->policyvers);
-> >  	if (!info) {
-> >  		printk(KERN_ERR "security:  unable to find policy compat info "
-> > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-> > index c4ce996..ba593a3 100644
-> > --- a/security/selinux/ss/policydb.h
-> > +++ b/security/selinux/ss/policydb.h
-> > @@ -243,6 +243,8 @@ struct policydb {
-> >  
-> >  	struct ebitmap policycaps;
-> >  
-> > +	struct ebitmap permissive_map;
-> > +
-> >  	unsigned int policyvers;
-> >  
-> >  	unsigned int reject_unknown : 1;
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > index f374186..b5eb9f5 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -416,6 +416,31 @@ inval_class:
-> >  	return -EINVAL;
-> >  }
-> >  
+
+What is supposed to be the return code of !requested?  I was surprised
+to find that !requested would typically get back -EACCES even though
+clearly nothing was denied.  Not quite sure what !requested means in
+this context so I'm not sure what the correct handling of the permissive
+bit should be.
+
 > > +/*
 > > + * Given a sid find if the type has the permissive flag set
 > > + */
@@ -195,18 +101,19 @@ On Mon, 2008-03-10 at 12:47 -0400, Stephen Smalley wrote:
 > 
 > Is this really needed?  May cause false denials.
 
-If this is a concern, then I'd say go with what you suggested
-originally, i.e. do the ebitmap test in compute_av on the source type,
-and add a char flag field to struct av_decision to carry it back to the
-AVC.  Then you can just test p_ae->avd.permissive in the AVC and
-everything is guaranteed to be atomic.
+I decided to be less worried about false denials then false allows.
+Assume policy has type1_t not permissive and type1_t is number 100.  It
+gets a denial and between the av_computer call and the permissive check
+someone loads new policy with some_other_type_t as number 100.  If
+some_other_type_t is permissive I want to make sure that type1_t still
+gets its denial.  Its not a particularly large window (reload between
+the compute and the permissive check) and I'm not sure if we would
+rather have accidental allows or accidental denials?  I'll leave that up
+to the list.
 
-What I don't want is someone running a permissive domain, doing a policy
-reload, and seeing their permissive domain process fall over dead
-because the seqno changed even though it stayed permissive across the
-reload.
+Then again anyone using a permissive domain is probably the type of user
+who would prefer an accidental allow to an accidental denial....
 
-> 
 > > +
 > > +	context = sidtab_search(&sidtab, sid);
 > > +	BUG_ON(!context);
@@ -215,25 +122,15 @@ reload.
 > > +	rc = ebitmap_get_bit(&policydb.permissive_map, type);
 > 
 > Typically we'd use (type - 1) above.
-> 
-> > +	
-> > +	POLICY_RDUNLOCK;
-> > +	return rc;
-> > +}
-> > +
-> >  static int security_validtrans_handle_fail(struct context *ocontext,
-> >                                             struct context *ncontext,
-> >                                             struct context *tcontext,
-> > 
-> > 
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+
+Yes, I actually left bit 0 open in case we ever wanted to put global
+permissive into the policy rather than through the selinuxfs interface.
+Using bit 0 to do this seemed like an easy and ideal solution.  I wasn't
+going to bring that discussion up just yet to see if people liked the
+idea but here it is.  Who would be interested in seeing global
+permissive inside policy rather than through selinuxfs?
+
+-Eric
 
 
 --
