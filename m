@@ -1,164 +1,139 @@
-Subject: Re: [PATCH] SELinux: introduce permissive types
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux <selinux@tycho.nsa.gov>, jmorris@namei.org,
-        Paul Moore <paul.moore@hp.com>
-In-Reply-To: <1205169325.5297.45.camel@localhost.localdomain>
-References: <1205166057.5297.20.camel@localhost.localdomain>
-	 <1205167649.23866.91.camel@moss-spartans.epoch.ncsc.mil>
-	 <1205169325.5297.45.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 10 Mar 2008 13:29:05 -0400
-Message-Id: <1205170145.23866.104.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2AIX4cq027744
+	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 14:33:04 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2AIWo0u028375
+	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 18:32:51 GMT
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: refpolicy: domains need access to the apt's pty and fifos
+Date: Mon, 10 Mar 2008 13:39:49 -0400
+Message-ID: <1205170789.25555.20.camel@gorn>
+In-Reply-To: <1204925012.2788.5.camel@vogon>
+References: <20080305152322.GA9988@bobek.pm.i.cz> <1204925012.2788.5.camel@vogon>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Stefan Schulze Frielinghaus" <stefan@seekline.net>
+Cc: =?iso-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>,
+        <selinux@tycho.nsa.gov>, <selinux-devel@lists.alioth.debian.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Mon, 2008-03-10 at 13:15 -0400, Eric Paris wrote:
-> On Mon, 2008-03-10 at 12:47 -0400, Stephen Smalley wrote:
-> > On Mon, 2008-03-10 at 12:20 -0400, Eric Paris wrote:
-> > > Introduce the concept of a permissive type.  A new ebitmap is introduced
-> > > to the policy database which indicates if a given type has the
-> > > permissive bit set or not.  This bit is tested for the scontext of any
-> > > denial.  The bit is meaningless on types which only appear as the target
-> > > of a decision and never the source.  A domain running with a permissive
-> > > type will be allowed to perform any action similarly to when the system
-> > > is globally set permissive.
-> > > 
-> > > Signed-off-by: Eric Paris <eparis@redhat.com>
-> > > 
-> > > ---
-> > > 
-> > > I 'solved' the issue where security_compute_av and the permissive sid
-> > > checking are not atomic by checking that the seqno in the avd still
-> > > matches the latest_granting.  latest_granting is protected by
-> > > POLICY_WRLOCK except when !ss_initialized so this should close any
-> > > races.  Also cleaned up some formatting and fixed Kconfig.
-> > > 
-> > >  security/selinux/Kconfig            |    2 +-
-> > >  security/selinux/avc.c              |   11 +++++++----
-> > >  security/selinux/include/security.h |    5 ++++-
-> > >  security/selinux/ss/policydb.c      |   11 +++++++++++
-> > >  security/selinux/ss/policydb.h      |    2 ++
-> > >  security/selinux/ss/services.c      |   25 +++++++++++++++++++++++++
-> > >  6 files changed, 50 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-> > > index 2b517d6..a436d1c 100644
-> > > --- a/security/selinux/Kconfig
-> > > +++ b/security/selinux/Kconfig
-> > > @@ -145,7 +145,7 @@ config SECURITY_SELINUX_POLICYDB_VERSION_MAX
-> > >  config SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
-> > >  	int "NSA SELinux maximum supported policy format version value"
-> > >  	depends on SECURITY_SELINUX_POLICYDB_VERSION_MAX
-> > > -	range 15 22
-> > > +	range 15 23
-> > >  	default 19
-> > >  	help
-> > >  	  This option sets the value for the maximum policy format version
-> > > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> > > index 187964e..b13cbc6 100644
-> > > --- a/security/selinux/avc.c
-> > > +++ b/security/selinux/avc.c
-> > > @@ -891,12 +891,15 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
-> > >  	denied = requested & ~(p_ae->avd.allowed);
-> > >  
-> > >  	if (!requested || denied) {
-> > > -		if (selinux_enforcing || (flags & AVC_STRICT))
-> > > +		if (flags & AVC_STRICT)
-> > >  			rc = -EACCES;
-> > > +		else if ((!selinux_enforcing) ||
+On Fri, 2008-03-07 at 22:23 +0100, Stefan Schulze Frielinghaus wrote:
+> On Wed, 2008-03-05 at 16:23 +0100, Václav Ovsík wrote:
+> > Hi,
+> > running Debian Sid with HEAD refpolicy...
+> > I tried to install bind9 and got some further denials for access to pty
+> > and pipe of apt_t domain. This is a continuation of the patch from
+> > Martin Orr in thread "refpolicy: patch for ldconfig from glibc 2.7...",
+> > witch was about apt finally.
 > > 
-> > Extraneous parens?
-> 
-> yeah, I can't format code.
-> 
+> > sid:/var/lib/dpkg/info# se_apt-get install bind9
+> > Authenticating root.
+> > Password: 
+> > Reading package lists... Done
+> > Building dependency tree       
+> > Reading state information... Done
+> > The following extra packages will be installed:
+> >   libbind9-30 libdns32 libisc32 libisccc30 libisccfg30 liblwres30
+> > Suggested packages:
+> >   bind9-doc dnsutils resolvconf
+> > The following NEW packages will be installed:
+> >   bind9 libbind9-30 libdns32 libisc32 libisccc30 libisccfg30 liblwres30
+> > 0 upgraded, 7 newly installed, 0 to remove and 0 not upgraded.
+> > Need to get 1005kB of archives.
+> > After this operation, 2789kB of additional disk space will be used.
+> > Get:1 http://xenbr0.localdomain sid/main libisc32 1:9.4.2-4 [126kB]
+> > Get:2 http://xenbr0.localdomain sid/main libdns32 1:9.4.2-4 [491kB]
+> > Get:3 http://xenbr0.localdomain sid/main libisccc30 1:9.4.2-4 [22.3kB]
+> > Get:4 http://xenbr0.localdomain sid/main libisccfg30 1:9.4.2-4 [37.8kB]
+> > Get:5 http://xenbr0.localdomain sid/main libbind9-30 1:9.4.2-4 [26.1kB]
+> > Get:6 http://xenbr0.localdomain sid/main liblwres30 1:9.4.2-4 [39.5kB]
+> > Get:7 http://xenbr0.localdomain sid/main bind9 1:9.4.2-4 [262kB]
+> > Fetched 1005kB in 0s (3524kB/s)
+> > Selecting previously deselected package libisc32.
+> > (Reading database ... 68006 files and directories currently installed.)
+> > Unpacking libisc32 (from .../libisc32_1%3a9.4.2-4_i386.deb) ...
+> > Selecting previously deselected package libdns32.
+> > Unpacking libdns32 (from .../libdns32_1%3a9.4.2-4_i386.deb) ...
+> > Selecting previously deselected package libisccc30.
+> > Unpacking libisccc30 (from .../libisccc30_1%3a9.4.2-4_i386.deb) ...
+> > Selecting previously deselected package libisccfg30.
+> > Unpacking libisccfg30 (from .../libisccfg30_1%3a9.4.2-4_i386.deb) ...
+> > Selecting previously deselected package libbind9-30.
+> > Unpacking libbind9-30 (from .../libbind9-30_1%3a9.4.2-4_i386.deb) ...
+> > Selecting previously deselected package liblwres30.
+> > Unpacking liblwres30 (from .../liblwres30_1%3a9.4.2-4_i386.deb) ...
+> > Selecting previously deselected package bind9.
+> > Unpacking bind9 (from .../bind9_1%3a9.4.2-4_i386.deb) ...
+> > Setting up libisc32 (1:9.4.2-4) ...
+> > Setting up libdns32 (1:9.4.2-4) ...
+> > Setting up libisccc30 (1:9.4.2-4) ...
+> > Setting up libisccfg30 (1:9.4.2-4) ...
+> > Setting up libbind9-30 (1:9.4.2-4) ...
+> > Setting up liblwres30 (1:9.4.2-4) ...
+> > Setting up bind9 (1:9.4.2-4) ...
+> > Adding group `bind' (GID 116) ...
+> > Done.
+> > Adding system user `bind' (UID 110) ...
+> > Adding new user `bind' (UID 110) with group `bind' ...
+> > Not creating home directory `/var/cache/bind'.
+> > wrote key file "/etc/bind/rndc.key"
+> > Starting domain name service...: bind.
 > > 
-> > > +			 (unlikely(security_permissive_sid(ssid, p_ae->avd.seqno) &&
-> > > +				   requested && node)))
-
-Ditto here.
-
+> > and denials:
 > > 
-> > Do we really need the test of requested here?
-> 
-> What is supposed to be the return code of !requested?  I was surprised
-> to find that !requested would typically get back -EACCES even though
-> clearly nothing was denied.  Not quite sure what !requested means in
-> this context so I'm not sure what the correct handling of the permissive
-> bit should be.
-
-It's really a bug, but we were turning it into a null denial.
-Except avc_audit doesn't quite get it right, as we found in userspace
-(the avc:  granted null bug, recently fixed in libselinux AVC but not in
-the kernel one).
-
-I suppose we could just make it a BUG_ON(!requested) on entry.
-
-> > > +/*
-> > > + * Given a sid find if the type has the permissive flag set
-> > > + */
-> > > +int security_permissive_sid(u32 sid, u32 seqno)
-> > > +{
-> > > +	struct context *context;
-> > > +	u32 type;
-> > > +	int rc;
-> > > +
-> > > +	POLICY_RDLOCK;
-> > > +
-> > > +	/* return 0 if policy changed since decision was made */
-> > > +	if (seqno != latest_granting)
-> > > +		return 0;
+> > audit(1204723888.180:9): avc:  denied  { use } for  pid=2164 comm="groupadd" name="3" dev=devpts ino=5 scontext=system_u:system_r:groupadd_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> > audit(1204723888.180:10): avc:  denied  { write } for  pid=2164 comm="groupadd" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:groupadd_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> > audit(1204723888.428:11): avc:  denied  { use } for  pid=2170 comm="useradd" name="3" dev=devpts ino=5 scontext=system_u:system_r:useradd_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> > audit(1204723888.428:12): avc:  denied  { write } for  pid=2170 comm="useradd" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:useradd_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> > audit(1204723890.340:13): avc:  denied  { read write } for  pid=2235 comm="modprobe" name="3" dev=devpts ino=5 scontext=system_u:system_r:insmod_t:s0 tcontext=system_u:object_r:apt_devpts_t:s0 tclass=chr_file
+> > audit(1204723890.340:14): avc:  denied  { use } for  pid=2235 comm="modprobe" name="3" dev=devpts ino=5 scontext=system_u:system_r:insmod_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> > audit(1204723890.340:15): avc:  denied  { write } for  pid=2235 comm="modprobe" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:insmod_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> > audit(1204723890.588:16): avc:  denied  { use } for  pid=2239 comm="ifconfig" name="3" dev=devpts ino=5 scontext=system_u:system_r:ifconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> > audit(1204723890.588:17): avc:  denied  { write } for  pid=2239 comm="ifconfig" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:ifconfig_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> > audit(1204723890.620:18): avc:  denied  { read write } for  pid=2240 comm="named" name="3" dev=devpts ino=5 scontext=system_u:system_r:named_t:s0 tcontext=system_u:object_r:apt_devpts_t:s0 tclass=chr_file
+> > audit(1204723890.620:19): avc:  denied  { use } for  pid=2240 comm="named" name="3" dev=devpts ino=5 scontext=system_u:system_r:named_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> > audit(1204723890.620:20): avc:  denied  { write } for  pid=2240 comm="named" name="[96277]" dev=pipefs ino=96277 scontext=system_u:system_r:named_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
 > > 
-> > Is this really needed?  May cause false denials.
-> 
-> I decided to be less worried about false denials then false allows.
-
-Bad strategy for permissive domains, as it can cause breakage which is
-precisely the thing you are trying to prevent with permissive domains.
-
-> Assume policy has type1_t not permissive and type1_t is number 100.  It
-> gets a denial and between the av_computer call and the permissive check
-> someone loads new policy with some_other_type_t as number 100.  If
-> some_other_type_t is permissive I want to make sure that type1_t still
-> gets its denial.
-
-Contexts in the sidtab get remapped across policy reload.
-
->   Its not a particularly large window (reload between
-> the compute and the permissive check) and I'm not sure if we would
-> rather have accidental allows or accidental denials?  I'll leave that up
-> to the list.
-
-I'd rather just have it correct - so the compute_av approach.
-
-> Then again anyone using a permissive domain is probably the type of user
-> who would prefer an accidental allow to an accidental denial....
-> 
-> > > +
-> > > +	context = sidtab_search(&sidtab, sid);
-> > > +	BUG_ON(!context);
-> > > +
-> > > +	type = context->type;
-> > > +	rc = ebitmap_get_bit(&policydb.permissive_map, type);
 > > 
-> > Typically we'd use (type - 1) above.
+> > I tried also to install kernel image and got denials:
+> > 
+> > audit(1204727223.717:45): avc:  denied  { read write } for  pid=2844 comm="depmod" name="3" dev=devpts ino=5 scontext=system_u:system_r:depmod_t:s0 tcontext=system_u:object_r:apt_devpts_t:s0 tclass=chr_file
+> > audit(1204727223.717:46): avc:  denied  { use } for  pid=2844 comm="depmod" name="3" dev=devpts ino=5 scontext=system_u:system_r:depmod_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fd
+> > audit(1204727223.717:47): avc:  denied  { write } for  pid=2844 comm="depmod" name="[99536]" dev=pipefs ino=99536 scontext=system_u:system_r:depmod_t:s0 tcontext=system_u:system_r:apt_t:s0 tclass=fifo_file
+> > 
+> > 
+> > Attached patch solves the most of this denials, but I doubt this is the
+> > right way.  Should be used some attribute for this?  I noticed attribute
+> > privfd and macro domain_interactive_fd(), what about it?  Rpm already
+> > has such macro calls
+> > ./policy/modules/admin/rpm.te:domain_interactive_fd(rpm_t)
+> > ./policy/modules/admin/rpm.te:domain_interactive_fd(rpm_script_t)
+> > 
+> > I tried to use this macro for apt_t, and all use fd denials above are
+> > solved with it. Should be things done in this way?
+> > 
+> > Thanks for comments.
 > 
-> Yes, I actually left bit 0 open in case we ever wanted to put global
-> permissive into the policy rather than through the selinuxfs interface.
-> Using bit 0 to do this seemed like an easy and ideal solution.  I wasn't
-> going to bring that discussion up just yet to see if people liked the
-> idea but here it is.  Who would be interested in seeing global
-> permissive inside policy rather than through selinuxfs?
+> I think it is not really nice to have all these allow rules directly in
+> the modules. A similar discussion can be found here:
+> http://marc.info/?l=selinux&m=118707242005853&w=2
+> 
+> Especially the first replay of Stephen Smalley pointing out how rpm
+> solves this via domain.if: rpm_use_fds($1) and rpm_read_pipes($1)
+> 
+> If I had to choose between the several fixes for every module or the
+> "rpm-way" to allow all usage of file descriptors and read permissions
+> then I would vote for the latter.
 
-Hmmm...but selinuxfs would still be able to override the policy setting?
-And what about enforcing=0 on the command line - who wins at initial
-policy load?  Seems confusing.
+A better option might be to mimic the inheritance of fds and pipes.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
