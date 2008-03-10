@@ -1,121 +1,148 @@
-Message-ID: <47D596C0.8040201@redhat.com>
-Date: Mon, 10 Mar 2008 16:14:56 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Joe Nall <joe@nall.com>
-CC: Xavier Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-Subject: Re: x fails to start on fc9
-References: <cadfc0e40803091236i5ddca650hd81d470109295541@mail.gmail.com> <46514C07-63FC-4CD1-8507-D0799BAE9BF5@nall.com>
-In-Reply-To: <46514C07-63FC-4CD1-8507-D0799BAE9BF5@nall.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH] SELinux: introduce permissive types
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>, jmorris@namei.org,
+        Paul Moore <paul.moore@hp.com>
+In-Reply-To: <1205170145.23866.104.camel@moss-spartans.epoch.ncsc.mil>
+References: <1205166057.5297.20.camel@localhost.localdomain>
+	 <1205167649.23866.91.camel@moss-spartans.epoch.ncsc.mil>
+	 <1205169325.5297.45.camel@localhost.localdomain>
+	 <1205170145.23866.104.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Mon, 10 Mar 2008 15:35:59 -0400
+Message-Id: <1205177759.5297.54.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Joe Nall wrote:
-> 
-> On Mar 9, 2008, at 2:36 PM, Xavier Toth wrote:
-> 
->> selinux-policy 3.3.1-11
->> xorg-x11-server-Xorg-1.4.99.900-0.28.20080304
->>
->> Error message something like:
->> file_contexts line 0 invalid context
->> system_u:object_r:info_xproperty_t:s0
->> SELinux: Failed to set label property on window!
->>
->> I'm using MLS policy in permissive mode.
-> 
-> Using selinux-policy 3.3.1-13 (or what I think it will be) and
-> xorg-x11-server-Xorg-1.4.99.901-1.20080307.fc9.i386 on a rawhide box
-> build today  and
-> 
-> setsebool xdm_sysadm_login on
-> setsebool xserver_object_manager on
-> setsebool allow_xserver_execmem on
-> setsebool allow_read_x_device on
-> 
-> I can login to a Fedora 9 system in mls/Permissive as a normal user.  An
-> attempt to login as 'Other' fails before the username prompt.
-> 
-> A 'restorecon -rv /' does have an X related relabel.
-> 
-> restorecon reset /tmp/.X11-unix context
-> system_u:object_r:tmp_t:s0->system_u:object_r:xdm_tmp_t:s0
-> 
-> The following avcs were in dmesg
-> type=1400 audit(1205177196.981:5): avc:  denied  { read } for  pid=1299
-> comm="Xorg" name="mem" dev=tmpfs ino=3742
-> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-> tcontext=system_u:object_r:memory_device_t:s15:c0.c1023 tclass=chr_file
-This is MLS Violation
-> type=1400 audit(1205177197.000:6): avc:  denied  { getpgid } for 
-> pid=1299 comm="Xorg"
-> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-> tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=process
-What is running as initrc_t?
-> type=1400 audit(1205177197.295:7): avc:  denied  { write } for  pid=1299
-> comm="Xorg" name="mem" dev=tmpfs ino=3742
-> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-> tcontext=system_u:object_r:memory_device_t:s15:c0.c1023 tclass=chr_file
-> type=1400 audit(1205177197.546:8): avc:  denied  { read } for  pid=1299
-> comm="Xorg" name="perms" dev=selinuxfs ino=67111368
-> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-> tcontext=system_u:object_r:security_t:s0 tclass=dir
-> type=1400 audit(1205177197.568:9): avc:  denied  { write } for  pid=1299
-> comm="Xorg" name="create" dev=selinuxfs ino=7
-> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-> tcontext=system_u:object_r:security_t:s0 tclass=file
-> type=1400 audit(1205177197.568:10): avc:  denied  { compute_create }
-> for  pid=1299 comm="Xorg"
-> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-> tcontext=system_u:object_r:security_t:s15:c0.c1023 tclass=security
-> type=1400 audit(1205177197.680:11): avc:  denied  { check_context } for 
-> pid=1299 comm="Xorg"
-> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-> tcontext=system_u:object_r:security_t:s15:c0.c1023 tclass=security
-> type=1400 audit(1205177198.574:12): avc:  denied  { signal } for 
-> pid=1299 comm="Xorg"
-> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-> tcontext=system_u:system_r:initrc_t:s0-s15:c0.c1023 tclass=process
-> 
-> audit2allow says
-> 
-> #============= initrc_t ==============
-> allow initrc_t mnt_t:dir mounton;
-> allow initrc_t ramfs_t:dir setattr;
-What app is running as initrc_t?
-> 
-> #============= xdm_xserver_t ==============
-> allow xdm_xserver_t initrc_t:process { signal getpgid };
-> allow xdm_xserver_t memory_device_t:chr_file { read write };
+On Mon, 2008-03-10 at 13:29 -0400, Stephen Smalley wrote:
+> On Mon, 2008-03-10 at 13:15 -0400, Eric Paris wrote:
+> > On Mon, 2008-03-10 at 12:47 -0400, Stephen Smalley wrote:
+> > > On Mon, 2008-03-10 at 12:20 -0400, Eric Paris wrote:
+> > > > Introduce the concept of a permissive type.  A new ebitmap is introduced
+> > > > to the policy database which indicates if a given type has the
+> > > > permissive bit set or not.  This bit is tested for the scontext of any
+> > > > denial.  The bit is meaningless on types which only appear as the target
+> > > > of a decision and never the source.  A domain running with a permissive
+> > > > type will be allowed to perform any action similarly to when the system
+> > > > is globally set permissive.
 
-> allow xdm_xserver_t security_t:dir read;
-> allow xdm_xserver_t security_t:file write;
-> allow xdm_xserver_t security_t:security { check_context compute_create };
-These should be allowed via the xserver_object_manager boolean so these
-might also be MLS Violations.  xdm_xserver_t probably needs lots of mls
-attributes.
-> 
-> joe
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> > > > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> > > > index 187964e..b13cbc6 100644
+> > > > --- a/security/selinux/avc.c
+> > > > +++ b/security/selinux/avc.c
+> > > > @@ -891,12 +891,15 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+> > > >  	denied = requested & ~(p_ae->avd.allowed);
+> > > >  
+> > > >  	if (!requested || denied) {
+> > > > -		if (selinux_enforcing || (flags & AVC_STRICT))
+> > > > +		if (flags & AVC_STRICT)
+> > > >  			rc = -EACCES;
+> > > > +		else if ((!selinux_enforcing) ||
+> > > 
+> > > Extraneous parens?
+> > 
+> > yeah, I can't format code.
+> > 
+> > > 
+> > > > +			 (unlikely(security_permissive_sid(ssid, p_ae->avd.seqno) &&
+> > > > +				   requested && node)))
+> 
+> Ditto here.
 
-iEYEARECAAYFAkfVlr8ACgkQrlYvE4MpobP6sQCgm1IBY1+bJLUI5P0uNHMtZXzS
-1jAAoNutL6KDOryjCtnEhNkRtf5KKbUk
-=OMAi
------END PGP SIGNATURE-----
+No, I think those parens are correct....
+
+> 
+> > > 
+> > > Do we really need the test of requested here?
+> > 
+> > What is supposed to be the return code of !requested?  I was surprised
+> > to find that !requested would typically get back -EACCES even though
+> > clearly nothing was denied.  Not quite sure what !requested means in
+> > this context so I'm not sure what the correct handling of the permissive
+> > bit should be.
+> 
+> It's really a bug, but we were turning it into a null denial.
+> Except avc_audit doesn't quite get it right, as we found in userspace
+> (the avc:  granted null bug, recently fixed in libselinux AVC but not in
+> the kernel one).
+> 
+> I suppose we could just make it a BUG_ON(!requested) on entry.
+
+Ok then, how about I stop paying attention to !requested at all, I think
+that whole section gets a little easier....
+
+if (unlikely(!requested)) {
+	printk("null requested\n")
+	WARN_ON(1);
+	return -EACCES;
+}
+
+if (denied)
+	do cool stuff
+
+> > > > +/*
+> > > > + * Given a sid find if the type has the permissive flag set
+> > > > + */
+> > > > +int security_permissive_sid(u32 sid, u32 seqno)
+> > > > +{
+> > > > +	struct context *context;
+> > > > +	u32 type;
+> > > > +	int rc;
+> > > > +
+> > > > +	POLICY_RDLOCK;
+> > > > +
+> > > > +	/* return 0 if policy changed since decision was made */
+> > > > +	if (seqno != latest_granting)
+> > > > +		return 0;
+> > > 
+> > > Is this really needed?  May cause false denials.
+> > 
+> > I decided to be less worried about false denials then false allows.
+> 
+> Bad strategy for permissive domains, as it can cause breakage which is
+> precisely the thing you are trying to prevent with permissive domains.
+> 
+> > Assume policy has type1_t not permissive and type1_t is number 100.  It
+> > gets a denial and between the av_computer call and the permissive check
+> > someone loads new policy with some_other_type_t as number 100.  If
+> > some_other_type_t is permissive I want to make sure that type1_t still
+> > gets its denial.
+> 
+> Contexts in the sidtab get remapped across policy reload.
+
+I'll reread the remapping stuff to convince myself that all of this is
+going to work correctly.  As is most likely you are right and just
+allowing the permissive bit even on policy reload is the right way to
+go.
+
+> > > > +
+> > > > +	context = sidtab_search(&sidtab, sid);
+> > > > +	BUG_ON(!context);
+> > > > +
+> > > > +	type = context->type;
+> > > > +	rc = ebitmap_get_bit(&policydb.permissive_map, type);
+> > > 
+> > > Typically we'd use (type - 1) above.
+> > 
+> > Yes, I actually left bit 0 open in case we ever wanted to put global
+> > permissive into the policy rather than through the selinuxfs interface.
+> > Using bit 0 to do this seemed like an easy and ideal solution.  I wasn't
+> > going to bring that discussion up just yet to see if people liked the
+> > idea but here it is.  Who would be interested in seeing global
+> > permissive inside policy rather than through selinuxfs?
+> 
+> Hmmm...but selinuxfs would still be able to override the policy setting?
+> And what about enforcing=0 on the command line - who wins at initial
+> policy load?  Seems confusing.
+
+Still a bit of thought before it comes to pass.  But there was a reason
+I left the 0 bit unused...
+
+-Eric
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
