@@ -1,74 +1,54 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2A7qVAN007041
-	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 03:52:32 -0400
-Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2A7qSPi024342
-	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 07:52:30 GMT
-Message-ID: <47D4E8B6.8000405@ak.jp.nec.com>
-Date: Mon, 10 Mar 2008 16:52:22 +0900
-From: Kohei KaiGai <kaigai@ak.jp.nec.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2ABbM0e001451
+	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 07:37:22 -0400
+Received: from web90404.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2ABbKSA013091
+	for <selinux@tycho.nsa.gov>; Mon, 10 Mar 2008 11:37:20 GMT
+Date: Mon, 10 Mar 2008 04:36:42 -0700 (PDT)
+From: kihamba nengo <knengo@yahoo.com>
+Subject: Problem compiling policy on Fedora 5.
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy
-References: <47B2B885.4070300@ak.jp.nec.com>	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>	 <47C5189B.9070500@ak.jp.nec.com> <1204817238.3994.59.camel@gorn.columbia.tresys.com> <47D09FEB.3030005@ak.jp.nec.com>
-In-Reply-To: <47D09FEB.3030005@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: multipart/alternative; boundary="0-150549449-1205149002=:73722"
+Message-ID: <548571.73722.qm@web90404.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chris,
+--0-150549449-1205149002=:73722
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
->>> * Tunables to turn on/off audit are remained now, because database
->>>    folks told me fine-grained logs are worthwhile feature.
->> I'm still not very compelled by this, as I doubt people who do want more
->> auditing will want to to enable it so coarsely.
-> 
-> Hmm...
-> OK, I'll remove these tunable, and add a documentation to collect
-> fine-grained database access logs.
 
-When we apply tuple-level access control, access denied logs of filtered
-tuples are noisy, and it gives adversed effect for performance.
-For example, if a table contains 1,000,000 tuples and half of them are
-labeled as ":s0:c0", unclassified users will look a flood of logs
-on every accesses.
+Hi, 
+When i run make in the policy directory, i get the error below.How can i solve this problem? I am running Fedora 5, checkpolicy-1.32-1.
 
-At least, is it necessary to be controlable on tuples?
+Compiling refpolicy policy.21
+WARNING: Policy version mismatch!  Is your OUTPUT_POLICY set correctly?
 
---------
-[kaigai@saba ~]$ psql postgres -q
-postgres=# SELECT * FROM drink;
- id | name  | price | alcohol
-----+-------+-------+---------
-  1 | water |   100 | f
-  2 | coke  |   120 | f
-  3 | juice |   130 | f
-  4 | cofee |   180 | f
-  5 | beer  |   240 | t
-  6 | sake  |   320 | t
-(6 rows)
+/usr/bin/checkpolicy policy.conf -o policy.21
+/usr/bin/checkpolicy:  loading policy configuration from policy.conf
+tmp/rolemap.conf:1017:ERROR 'syntax error' at token 'ntfs-3g' on line 2430160:
+genfscon ntfs-3g / system_u:object_r:dosfs_t
+genfscon msdos / system_u:object_r:dosfs_t
+checkpolicy:  error(s) encountered while parsing configuration
+make: *** [policy.21] Error 1
 
-postgres=#
-[kaigai@saba ~]$ runcon -l s0 psql postgres -q
-postgres=# SELECT * FROM drink;
-NOTICE:  SELinux: denied { select } scontext=unconfined_u:unconfined_r:unconfined_t:s0 tcontext=system_u:object_r:sepgsql_table_t:s0:c0 tclass=db_tuple name=relid:16482,oid:16490
-NOTICE:  SELinux: denied { select } scontext=unconfined_u:unconfined_r:unconfined_t:s0 tcontext=system_u:object_r:sepgsql_table_t:s0:c0 tclass=db_tuple name=relid:16482,oid:16491
-NOTICE:  SELinux: denied { select } scontext=unconfined_u:unconfined_r:unconfined_t:s0 tcontext=system_u:object_r:sepgsql_table_t:s0:c0 tclass=db_tuple name=relid:16482,oid:16492
- id | name  | price | alcohol
-----+-------+-------+---------
-  1 | water |   100 | f
-  2 | coke  |   120 | f
-  3 | juice |   130 | f
-(3 rows)
 
-postgres=#
---------
+       
+---------------------------------
+Never miss a thing.   Make Yahoo your homepage.
+--0-150549449-1205149002=:73722
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+<br>Hi, <br>When i run make in the policy directory, i get the error below.How can i solve this problem? I am running Fedora 5, checkpolicy-1.32-1.<br><br>Compiling refpolicy policy.21<br>WARNING: Policy version mismatch!&nbsp; Is your OUTPUT_POLICY set correctly?<br><br>/usr/bin/checkpolicy policy.conf -o policy.21<br>/usr/bin/checkpolicy:&nbsp; loading policy configuration from policy.conf<br>tmp/rolemap.conf:1017:ERROR 'syntax error' at token 'ntfs-3g' on line 2430160:<br>genfscon ntfs-3g / system_u:object_r:dosfs_t<br>genfscon msdos / system_u:object_r:dosfs_t<br>checkpolicy:&nbsp; error(s) encountered while parsing configuration<br>make: *** [policy.21] Error 1<br><br><p>&#32;
+
+
+
+      <hr size=1>Never miss a thing.  <a href="http://us.rd.yahoo.com/evt=51438/*http://www.yahoo.com/r/hs"> Make Yahoo your homepage.</a>
+
+
+--0-150549449-1205149002=:73722--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
