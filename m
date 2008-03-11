@@ -1,41 +1,88 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2BKqejx019873
-	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 16:52:40 -0400
-Received: from wf-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2BKqZHB010977
-	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 20:52:36 GMT
-Received: by wf-out-1314.google.com with SMTP id 28so2738442wfc.30
-        for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 13:52:29 -0700 (PDT)
-Message-ID: <dd18b0c30803111352r25eb64a0m335b5a0740d5646c@mail.gmail.com>
-Date: Tue, 11 Mar 2008 20:52:29 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: 2.6.25-rc5
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_3457_13058246.1205268749481"
+Subject: Re: [PATCH] libsepol: support for permissive types
+From: Eric Paris <eparis@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>, tmiller@tresys.com, jbrindle@tresys.com
+In-Reply-To: <1205261201.23866.186.camel@moss-spartans.epoch.ncsc.mil>
+References: <1205243961.5297.79.camel@localhost.localdomain>
+	 <1205260096.23866.168.camel@moss-spartans.epoch.ncsc.mil>
+	 <1205260543.5297.113.camel@localhost.localdomain>
+	 <1205261201.23866.186.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Tue, 11 Mar 2008 17:28:26 -0400
+Message-Id: <1205270906.5297.141.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_3457_13058246.1205268749481
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hi;
-Thanks for the reply, With handle_unkown=deny  should this provide enough
-security, until the upstream release comes out?
-regards,
-              Justin P. Mattock
+On Tue, 2008-03-11 at 14:46 -0400, Stephen Smalley wrote:
+> On Tue, 2008-03-11 at 14:35 -0400, Eric Paris wrote:
+> > On Tue, 2008-03-11 at 14:28 -0400, Stephen Smalley wrote:
+> > > On Tue, 2008-03-11 at 09:59 -0400, Eric Paris wrote:
 
-------=_Part_3457_13058246.1205268749481
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> > > Have you tested the handling of aliases, e.g. declare a type alias to a
+> > > type in one module, then mark that type alias as permissive in another
+> > > module, and confirm proper propagation of the permissive flag?
+> > 
+> > I tested declare a type in base and then in a module require that base
+> > type, alias to that base type, and then permissive the alias.  Is there
+> > a different between that and actually declaring the type in another
+> > module?
+> 
+> The interesting case is when you declare the type and alias in one
+> module, then use that alias as if it were a type in another module.
+> Then checkmodule doesn't know that it is dealing with an alias while
+> compiling the latter module, and the link/expand logic has to properly
+> deal with it.  Same issue occurs for attributes.
 
-Hi;<br>Thanks for the reply, With handle_unkown=deny&nbsp; should this provide enough security, until the upstream release comes out?<br>regards,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Justin P. Mattock<br>
+Let me know if this is what you wanted tested:
 
-------=_Part_3457_13058246.1205268749481--
+******
+module define_alias 1.0;
+
+require {
+	type type1_t;
+}
+
+type type_t;
+typealias type_t alias alias_t;
+*****
+module perm_alias 1.0;
+
+require {
+	type alias_t;
+}
+
+permissive alias_t;
+******
+[root@dhcp231-146 perm]# semodule -s tmp -l
+No modules.
+[root@dhcp231-146 perm]# semodule -s tmp -i define_alias.pp
+[root@dhcp231-146 perm]# semodule -s tmp -i perm_alias.pp
+[root@dhcp231-146 perm]# semodule -s tmp -l
+define_alias	1.0
+perm_alias	1.0
+******
+[root@dhcp231-146 perm]# sedispol /etc/selinux/tmp/policy/policy.23 
+Reading policy...
+libsepol.policydb_index_others: security:  1 users, 2 roles, 4 types, 1 bools
+libsepol.policydb_index_others: security: 2 sens, 2 cats
+libsepol.policydb_index_others: security:  1 classes, 1 rules, 0 cond rules
+binary policy file loaded
+
+[snip]
+
+Command ('m' for menu):  p
+permissive sids:
+	 type_t
+
+Command ('m' for menu):  
+*******
+
+Looks like it worked to me.
+
+-Eric
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
