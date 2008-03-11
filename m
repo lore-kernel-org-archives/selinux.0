@@ -1,101 +1,49 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2B8N9OD016509
-	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 04:23:09 -0400
-Received: from mk-filter-4-a-1.mail.uk.tiscali.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2B8N5pH011264
-	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 08:23:06 GMT
-From: "Martin J. Green" <mail@martinjgreen.me.uk>
-To: "Martin J. Green" <mail@martinjgreen.me.uk>,
-        "selinux@tycho.nsa.gov"
-	<selinux@tycho.nsa.gov>
-Date: Tue, 11 Mar 2008 08:22:58 +0000
-Subject: Re: Getting started with SELinux and Slackware
-Message-ID: <54EE10FFA0116B408D3A5172CB52729F01311A12DABD@exchange.home.martinjgreen.me.uk>
-References: <77FD49B9B8D2394FB1B63A63934913126A55770EA8@exchange.home.martinjgreen.me.uk>
- <54EE10FFA0116B408D3A5172CB52729F012DC48610D7@exchange.home.martinjgreen.me.uk>
-In-Reply-To: <54EE10FFA0116B408D3A5172CB52729F012DC48610D7@exchange.home.martinjgreen.me.uk>
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Subject: Re: [PATCH 1/1] refpolicy: Do not want to transition to sysadm_t
+	when upstart runs a shell
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, jwcart2@tycho.nsa.gov,
+        SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1204916629.20251.44.camel@gorn.columbia.tresys.com>
+References: <1204837907.13547.36.camel@moss-lions.epoch.ncsc.mil>
+	 <1204838797.1397.378.camel@moss-spartans.epoch.ncsc.mil>
+	 <47D065E2.3000702@redhat.com>
+	 <1204916629.20251.44.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain
+Date: Tue, 11 Mar 2008 08:19:46 -0400
+Message-Id: <1205237986.25555.37.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It looks like a number of packages now have patches upstreamed (--with-selinux) - any idea how up to date/complete they are? (Openssh, util-linux & shadow all have --with-selinux configure flags).
+On Fri, 2008-03-07 at 14:03 -0500, Christopher J. PeBenito wrote:
+> On Thu, 2008-03-06 at 16:45 -0500, Daniel J Walsh wrote:
+> > Stephen Smalley wrote:
+> > > On Thu, 2008-03-06 at 16:11 -0500, James Carter wrote:
+> > >> Upstart spawns a shell during boot and, without this patch, it will
+> > >> transition to the sysadm_t domain, but remain in the system_r role.
+> > >> Services started by that shell will fail to start, even in permissive
+> > >> mode, if system_u:system_r:sysadm_someservice_t is an invalid context.
+> > >> We really don't want to be starting services from the sysadm_t domain
+> > >> during boot.
+> > > 
+> > So it should probably transition to initrc_t, so apps started this way
+> > would have a chance of transitioning properly.
+> 
+> No, the shell will execute /etc/rc.d/rc to start processing the init
+> scripts, and thats when it'll transition to initrc_t.  If we do it on
+> shell execution, it may cause problems for things executed directly out
+> of init, like getty.
 
-I'm seeing this error:
+Turns out I was wrong, and upstart has separate stanzas in the config
+files (/etc/event.d/*), one for directly executing programs like getty,
+and one for scripting.  As also confirmed by Joe, the transition to
+initrc_t makes sense, so I went with this in the init_upstart tunable.
 
-sftp.c: In function 'parse_dispatch_command':/usr/lib/gcc/i486-slackware-linux/4.2.3/../../../libselinux.a(load_policy.o): In function `selinux_mkload_policy':
-load_policy.c:(.text+0xbf): undefined reference to `sepol_policy_kern_vers_max'
-load_policy.c:(.text+0x114): undefined reference to `sepol_policy_kern_vers_min'
-load_policy.c:(.text+0x212): undefined reference to `sepol_policy_file_create'
-load_policy.c:(.text+0x229): undefined reference to `sepol_policydb_create'
-load_policy.c:(.text+0x256): undefined reference to `sepol_policy_file_set_mem'
-load_policy.c:(.text+0x270): undefined reference to `sepol_policydb_read'
-load_policy.c:(.text+0x28f): undefined reference to `sepol_policydb_set_vers'
-load_policy.c:(.text+0x2c0): undefined reference to `sepol_policydb_to_image'
-load_policy.c:(.text+0x2d8): undefined reference to `sepol_policy_file_free'
-load_policy.c:(.text+0x2e7): undefined reference to `sepol_policydb_free'
-load_policy.c:(.text+0x328): undefined reference to `sepol_policy_file_free'
-load_policy.c:(.text+0x337): undefined reference to `sepol_policydb_free'
-load_policy.c:(.text+0x373): undefined reference to `sepol_policy_file_free'
-load_policy.c:(.text+0x382): undefined reference to `sepol_policydb_free'
-load_policy.c:(.text+0x3d8): undefined reference to `sepol_policy_file_free'
-load_policy.c:(.text+0x473): undefined reference to `sepol_genbools_array'
-load_policy.c:(.text+0x4f5): undefined reference to `sepol_genusers'
-load_policy.c:(.text+0x534): undefined reference to `sepol_genbools'
-collect2: ld returned 1 exit status
-make: *** [sshd] Error 1
-make: *** Waiting for unfinished jobs....
-
-sftp.c:1031: warning: 'n_arg' may be used uninitialized in this function
-sftp.c:1030: warning: 'iflag' may be used uninitialized in this function
-sftp.c:1030: warning: 'lflag' may be used uninitialized in this function
-sftp.c:1030: warning: 'pflag' may be used uninitialized in this function
-
-Any idea what I'm missing?
-
-Martin
-
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On Behalf Of Martin J. Green
-Sent: 11 March 2008 03:28
-To: selinux@tycho.nsa.gov
-Subject: RE: Re: Getting started with SELinux and Slackware
-
-I grabbed a copy of from http://www.filewatcher.com/p/util-linux-2.11y-31.2.src.rpm.1552730/util-linux-selinux.patch.html and had a go at patching it against the 2.12r code to see what was going to patch/what needed fixing, and it appears 2.12r already has some selinux code/support included? (the 2.11y patch creates two files, amongst other things, called selinux_utils.c and .h - these already exist) The MCONFIG file has an option to enable selinux - it appears the patch is already integrated?
-
-Looking at fedora sources, it looks like they only patch util-linux for pam, not selinux, so this would seem to confirm this is the case (though looking at Timothy Wood's patchset, he's also adding the use_selinux define to MCONFIG).
-
-So I don't need to do anything to util-linux except enable selinux on compile?
-
-Login would come from Shadow in any event, so probably need to be looking there...
-
-M
-
-From: Stephen Smalley <sds@tycho.nsa.gov>
-
-The switch from using a direct patch to login to using pam_selinux
-happened back in 2003, so I think Fedora might have always used
-pam_selinux (since Fedora first included SELinux in Fedora Core 2, which
-came out later). You can tell by whether or not the
-util-linux-selinux.patch included a diff to login.c or not.
-
-
-Of course, pam_selinux has undergone a lot of changes since that time,
-so you may want to consider just back porting its logic into login.c,
-removing its pam'isms.
-
-
-google on util-linux-selinux.patch found a copy that still had the
-login.c mods at:
-http://mirror.caoslinux.org/cAos-1/creation/util-linux-2.11y-31.1/SOURCES/util-linux-selinux.patch
-among other places.
-
-
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
