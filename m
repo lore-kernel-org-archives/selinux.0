@@ -1,127 +1,46 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2BH04lO022172
-	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 13:00:04 -0400
-Received: from mail.asahi-net.or.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2BH02FI014416
-	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 17:00:02 GMT
-Message-ID: <47D6BA17.5080606@kaigai.gr.jp>
-Date: Wed, 12 Mar 2008 01:57:59 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Kohei KaiGai <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy
-References: <47B2B885.4070300@ak.jp.nec.com>	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>	 <47C5189B.9070500@ak.jp.nec.com>	 <1204817238.3994.59.camel@gorn.columbia.tresys.com>	 <47D09FEB.3030005@ak.jp.nec.com>	 <1204922912.20251.58.camel@gorn.columbia.tresys.com>	 <47D3F33B.5010209@kaigai.gr.jp> <1205240234.25555.55.camel@gorn>
-In-Reply-To: <1205240234.25555.55.camel@gorn>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: Semanage return codes...
+Date: Tue, 11 Mar 2008 13:08:53 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D046E2705@de01exm68.ds.mot.com>
+In-Reply-To: <1205248684.23866.137.camel@moss-spartans.epoch.ncsc.mil>
+References: <1205188557.5297.66.camel@localhost.localdomain> <1205248684.23866.137.camel@moss-spartans.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "selinux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Sun, 2008-03-09 at 23:24 +0900, KaiGai Kohei wrote:
->> Christopher J. PeBenito wrote:
->>> On Fri, 2008-03-07 at 10:52 +0900, Kohei KaiGai wrote:
->>>> Christopher J. PeBenito wrote:
->>>>> On Wed, 2008-02-27 at 17:00 +0900, Kohei KaiGai wrote:
->>>>>> The attached patch provides security policies related to
->>>>>> SE-PostgreSQL.
->>> [...]
->>>>>> +typeattribute unlabeled_t      sepgsql_database_type;
->>>>>> +typeattribute unlabeled_t      sepgsql_table_type;
->>>>>> +typeattribute unlabeled_t      sepgsql_procedure_type;
->>>>>> +typeattribute unlabeled_t      sepgsql_blob_type;
->>>>> Usage of unlabeled_t here is not permitted.
->>>> Is it appropriate manner to deploy optional_policy at kernel/kernel.te?
->>> Why is this needed at all?
->> Database objects have persistent security context, as filesystem doing.
->> If their security contexts are invalidated by policy reloading etc, it is
->> necessary them to be relabeled.
->>
->> Above rules enables administrative domains to access and relabel these objects
->> in this case.
-> 
-> You need to add interfaces in the kernel module.
+ 
+Hi All,
 
-Are you saying I should put new interfaces on kernel/kernel.if and use them in
-services/postgresql.te? Or inverse meaning?
+Have a weird question...
 
->>>>>> +########################################
->>>>>> +#
->>>>>> +# SE-PostgreSQL Administrative domain local policy
->>>>>> +#                    (sepgsql_unconfined_type)
->>>>>> +
->>>>>> +tunable_policy(`sepgsql_enable_unconfined',`
->>>>>> +       allow sepgsql_unconfined_type sepgsql_database_type : db_database *;
->>>>>> +       allow sepgsql_unconfined_type sepgsql_module_type : db_database { install_module };
->>>>>> +       allow sepgsql_unconfined_type sepgsql_table_type : { db_table db_column db_tuple } *;
->>>>>> +       allow sepgsql_unconfined_type { sepgsql_procedure_type - sepgsql_user_proc_t } : db_procedure *;
->>>>>> +       allow sepgsql_unconfined_type sepgsql_user_proc_t : db_procedure { create drop getattr setattr relabelfrom relabelto };
->>>>>> +       allow sepgsql_unconfined_type sepgsql_blob_type : db_blob *;
->>>>>> +       allow sepgsql_unconfined_type postgresql_t : db_blob { import export };
->>>>>> +
->>>>>> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_proc_t;
->>>>>> +',`
->>>>>> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_user_proc_t;
->>>>>> +')
->>>>> Why is this tunable?  Why is there a different type_transition behavior?
->>>> I intend that users can turn off this tunable during its operation phase
->>>> after initial database setting up, to prevent applying unconfined accesses.
->>>>
->>>> When sepgsql_enable_unconfined is disabled, sepgsql_unconfined_type works
->>>> as if they are sepgsql_client_type, because sepgsql_unconfined_domain() interface
->>>> associates a domain with sepgsql_(unconfined|client)_type.
->>> The problem is that this is inconsistent with the way other
->>> *_unconfined() access works.
->> However, this feature to disclaim widespread permissions is worthwhile in database
->> management system, because it is less frequently required in operation phase different
->> from construction phase.
->> So, I think the default security policy should provide a way to restrict permissions
->> for administrative domain.
->>
->> If you concerned about its name is confusable with other *_unconfined() interfaces,
->> `sepgsql_enable_unconfined' can be renamed to `sepgsql_enable_administrative' and
->> ditto for the name of interface.
-> 
-> It seems to make more sense to have the interfaces be unconditional, and
-> then have the tunable at the call site.
+I run the semanage command inside a script to create/delete user
+mappings as follows:
 
-Is it possible?
-Currently, we cannot put TYPEATTRIBUTE statement in a tunable block.
-If caller side put postgresql_unconfined() in a tunable block, we cannot build it well.
+-------------------------------------
+semanage login -a -s staff_u Admin
+ret_code = $?
 
->> In the latest my patch, newly created tables are labeled as sepgsql_FOO_table_t
->> when client does not belong to administrative domains. Because unconfined_t loses
->> the grounds of its widespread permission when the boolean is disabled,
-> 
-> unconfined_t is going to have to always have unconfined access.
+semanage login -d Admin
+ret_code = $?
+--------------------------------------
 
-I can understand unconfined_t should work as its literal.
+Almost always the return_code is ZERO after the command executes.
 
-However, I'm worry about unconfined domain can invoke user defined functions
-with his capabilities, because it can contain malicious queries.
-In my current policy, it denies unconfined domains to invoke user defined
-functions directly. They have to confirm its harmless and to relabel it to
-sepgsql_proc_t.
+However, I have noticed, sometimes the creation or deletion of the user
+mapping actually "seems" to succeed, BUT the return_code of the semanage
+command is Non-Zero ?!?  I cant understand why ?  Does this make sense ?
 
-It is a different issue from the tunable unconfined domain.
-However, I want you to understand allowing unconfined domains to invoke
-user defined functions directly is fundamentally risky.
-(Thus, I don't allow unconfined domains to invoke sepgsql_FOO_proc_t.)
-
->>  it works as
->> a generic domain. It also includes behavior changing in type_transition for tables.
-> 
-> I'll have to re-review it, but I'm still uneasy about changing
-> type_transitions.
-
-I think the default type of database objects should be common, not a local type
-like sepgsql_FOO_table_t. When it works as a DBA, a newly created table should
-be labled as sepgsql_table_t, even if unconfined_t has its local sepgsql_unconfined_table_t.
-Thus, type_transition also need to be tunable, if unconfined domain is tunable.
+Is there a man page or something out there that shows the various
+possible return/error codes of the semanage command(s) ?
 
 Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+
+- Rezaul.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
