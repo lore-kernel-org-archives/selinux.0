@@ -1,200 +1,261 @@
-Subject: [PATCH-v2] checkpolicy: support for permissive types
-From: Eric Paris <eparis@redhat.com>
-To: selinux <selinux@tycho.nsa.gov>
-Cc: tmiller@tresys.com, sds@tycho.nsa.gov, jbrindle@tresys.com
+Subject: Re: [PATCH-v3] SELinux: introduce permissive types
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux <selinux@tycho.nsa.gov>, jmorris@namei.org,
+        Paul Moore <paul.moore@hp.com>
+In-Reply-To: <1205188557.5297.66.camel@localhost.localdomain>
+References: <1205188557.5297.66.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 11 Mar 2008 11:16:05 -0400
-Message-Id: <1205248565.5297.98.camel@localhost.localdomain>
+Date: Tue, 11 Mar 2008 11:18:04 -0400
+Message-Id: <1205248684.23866.137.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds support for permissive types.
 
-A very simple module to make httpd_t a permissive domain would be:
+On Mon, 2008-03-10 at 18:35 -0400, Eric Paris wrote:
+> Introduce the concept of a permissive type.  A new ebitmap is introduced
+> to the policy database which indicates if a given type has the
+> permissive bit set or not.  This bit is tested for the scontext of any
+> denial.  The bit is meaningless on types which only appear as the target
+> of a decision and never the source.  A domain running with a permissive
+> type will be allowed to perform any action similarly to when the system
+> is globally set permissive.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
+> ---
+> 
+> - Threw out all of the atomic stuff.  Either the sid is going to get
+> mapped to unlabeled or to the right context in the new policydb and will
+> be the new type number and all will be well.  As usual I was just making
+> things harder on myself.
 
-policy_module(permissiveapache, 1.0)
-gen_require(`
-	type httpd_t;
-')
-permissive httpd_t;
+Technically, the following could still happen:
+- policy has domain marked as permissive and does not allow an access,
+- the AVC determines that the access is denied and is following the
+permissive code path but has not yet taken the policy rdlock,
+- policy is reloaded with domain marked as non-permissive with access
+allowed,
+- security_permissive_sid is called and takes the policy rdlock,
+- the domain is found to be non-permissive,
+- the AVC denies the access.
 
-Obviously this syntax can be used in both the base policy and in a
-policy module.
+Particularly if we do something like:
+- insert policy module that just makes a domain permissive,
+- run for a while collecting audit messages,
+- generate new policy module from audit messages,
+- replace the permissive policy module with the one that contains the
+allows.
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+Don't know if you are concerned about the above, but it could create
+mysterious breakage.
 
----
+> - moved !requested into its own handling
 
-- drop support for displaying all types in dispol
-- do the define_permissive() work on pass 2
-- leave the whitespace fix  :)
+Separate patch, put it first, and I think BUG_ON is cleaner there.
 
+> - dropped unlikely() around the permissive sid, because really, if we
+> get a denial and we are selinux_enforcing its actually not all that
+> unlikely that we might not have a permissive domain.  Just let the
+> compiler do its thing.
 
- policy_parse.y |   43 +++++++++++++++++++++++++++++++++++++++++++
- policy_scan.l  |    4 +++-
- test/dismod.c  |    2 +-
- test/dispol.c  |   26 ++++++++++++++++++++++++++
- 4 files changed, 73 insertions(+), 2 deletions(-)
+Ok.
 
-diff -up checkpolicy-2.0.10/policy_parse.y.pre.permissive checkpolicy-2.0.10/policy_parse.y
---- checkpolicy-2.0.10/policy_parse.y.pre.permissive	2008-03-11 11:05:36.000000000 -0400
-+++ checkpolicy-2.0.10/policy_parse.y	2008-03-11 11:05:54.000000000 -0400
-@@ -126,6 +126,7 @@ static int define_netif_context(void);
- static int define_ipv4_node_context(void);
- static int define_ipv6_node_context(void);
- static int define_polcap(void);
-+static int define_permissive(void);
- 
- typedef int (* require_func_t)();
- 
-@@ -201,6 +202,7 @@ typedef int (* require_func_t)();
- %token IPV6_ADDR
- %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
- %token POLICYCAP
-+%token PERMISSIVE
- 
- %left OR
- %left XOR
-@@ -327,6 +329,7 @@ te_decl			: attribute_def
-                         | transition_def
-                         | range_trans_def
-                         | te_avtab_def
-+			| permissive_def
- 			;
- attribute_def           : ATTRIBUTE identifier ';'
-                         { if (define_attrib()) return -1;}
-@@ -772,6 +775,8 @@ ipv6_addr		: IPV6_ADDR
- policycap_def		: POLICYCAP identifier ';'
- 			{if (define_polcap()) return -1;}
- 			;
-+permissive_def		: PERMISSIVE identifier ';'
-+			{if (define_permissive()) return -1;}
- 
- /*********** module grammar below ***********/
- 
-@@ -1007,6 +1012,44 @@ static int define_polcap(void)
- 	return -1;
- }
- 
-+static int define_permissive(void)
-+{
-+	char *type = NULL;
-+	struct type_datum *t;
-+
-+	if (pass == 1) {
-+		type = queue_remove(id_queue);
-+		free(type);
-+		return 0;
-+	}
-+
-+	type = queue_remove(id_queue);
-+
-+	if (!is_id_in_scope(SYM_TYPES, type)) {
-+		yyerror2("type %s is not within scope", type);
-+		goto bad;
-+	}
-+
-+	t = hashtab_search(policydbp->p_types.table, type);
-+	if (!t) {
-+		yyerror2("type is not defined: %s", type);
-+		goto bad;
-+	}
-+
-+	if (t->flavor == TYPE_ATTRIB) {
-+		yyerror2("attributes may not be permissive: %s\n", type);
-+		goto bad;
-+	}
-+
-+	t->flags |= TYPE_FLAGS_PERMISSIVE;
-+
-+	free(type);
-+	return 0;
-+bad:
-+	free(type);
-+	return -1;
-+}
-+
- static int define_initial_sid(void)
- {
- 	char *id = 0;
-diff -up checkpolicy-2.0.10/policy_scan.l.pre.permissive checkpolicy-2.0.10/policy_scan.l
---- checkpolicy-2.0.10/policy_scan.l.pre.permissive	2008-03-11 11:05:36.000000000 -0400
-+++ checkpolicy-2.0.10/policy_scan.l	2008-03-11 11:05:54.000000000 -0400
-@@ -202,7 +202,9 @@ H1				{ return(H1); }
- h2 |
- H2				{ return(H2); }
- policycap |
--POLICYCAP			{ return(POLICYCAP);}
-+POLICYCAP			{ return(POLICYCAP); }
-+permissive |
-+PERMISSIVE			{ return(PERMISSIVE); }
- "/"({alnum}|[_.-/])*	        { return(PATH); }
- {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
- {digit}+                        { return(NUMBER); }
-diff -up checkpolicy-2.0.10/test/dispol.c.pre.permissive checkpolicy-2.0.10/test/dispol.c
---- checkpolicy-2.0.10/test/dispol.c.pre.permissive	2008-03-11 11:05:36.000000000 -0400
-+++ checkpolicy-2.0.10/test/dispol.c	2008-03-11 11:09:17.000000000 -0400
-@@ -319,6 +319,28 @@ static void display_policycaps(policydb_
- 	}
- }
- 
-+static void display_id(policydb_t *p, FILE *fp, uint32_t symbol_type,
-+		       uint32_t symbol_value, char *prefix)
-+{
-+	char *id = p->sym_val_to_name[symbol_type][symbol_value];
-+	fprintf(fp, " %s%s", prefix, id);
-+}
-+
-+static void display_permissive(policydb_t *p, FILE *fp)
-+{
-+	ebitmap_node_t *node;
-+	int i;
-+
-+	fprintf(fp, "permissive sids:\n");
-+	ebitmap_for_each_bit(&p->permissive_map, node, i) {
-+		if (ebitmap_node_get_bit(node, i)) {
-+			fprintf(fp, "\t");
-+			display_id(p, fp, SYM_TYPES, i - 1, "");
-+			fprintf(fp, "\n");
-+		}
-+	}
-+}
-+
- int menu()
- {
- 	printf("\nSelect a command:\n");
-@@ -331,6 +353,7 @@ int menu()
- 	printf("7)  change a boolean value\n");
- 	printf("\n");
- 	printf("c)  display policy capabilities\n");
-+	printf("p)  display the list of permissive types\n");
- 	printf("u)  display unknown handling setting\n");
- 	printf("f)  set output file\n");
- 	printf("m)  display menu\n");
-@@ -446,6 +469,9 @@ int main(int argc, char **argv)
- 		case 'c':
- 			display_policycaps(&policydb, out_fp);
- 			break;
-+		case 'p':
-+			display_permissive(&policydb, out_fp);
-+			break;
- 		case 'u':
- 		case 'U':
- 			display_handle_unknown(&policydb, out_fp);
-diff -up checkpolicy-2.0.10/test/dismod.c.pre.permissive checkpolicy-2.0.10/test/dismod.c
---- checkpolicy-2.0.10/test/dismod.c.pre.permissive	2008-03-11 11:05:36.000000000 -0400
-+++ checkpolicy-2.0.10/test/dismod.c	2008-03-11 11:05:54.000000000 -0400
-@@ -323,7 +323,7 @@ int display_type_callback(hashtab_key_t 
- 		fprintf(fp, "alias for type");
- 		display_id(&policydb, fp, SYM_TYPES, type->s.value - 1, "");
- 	}
--	fprintf(fp, "\n");
-+	fprintf(fp, " flags:%x\n", type->flags);
- 
- 	return 0;
- }
+> - dropped the test for the existence of node.  avc_update_node might
+> return -ENOENT, but really who cares?  We are on a slow code path here
+> so it seems to be needless complexity.  Isn't this code nice and clear
+> now?  I can add it in, but its just a slight perf win and not much
+> else..
 
+Seems fine - we will rarely not have a node (requires that there not
+already be a node for the key, and that the allocation of a new node
+fail), and it is harmless to proceed.
+> 
+>  security/selinux/Kconfig            |    2 +-
+>  security/selinux/avc.c              |   18 +++++++++++++-----
+>  security/selinux/include/security.h |    5 ++++-
+>  security/selinux/ss/policydb.c      |   11 +++++++++++
+>  security/selinux/ss/policydb.h      |    2 ++
+>  security/selinux/ss/services.c      |   21 +++++++++++++++++++++
+>  6 files changed, 52 insertions(+), 7 deletions(-)
+> 
+> diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+> index 2b517d6..a436d1c 100644
+> --- a/security/selinux/Kconfig
+> +++ b/security/selinux/Kconfig
+> @@ -145,7 +145,7 @@ config SECURITY_SELINUX_POLICYDB_VERSION_MAX
+>  config SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+>  	int "NSA SELinux maximum supported policy format version value"
+>  	depends on SECURITY_SELINUX_POLICYDB_VERSION_MAX
+> -	range 15 22
+> +	range 15 23
+>  	default 19
+>  	help
+>  	  This option sets the value for the maximum policy format version
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 187964e..8d78b88 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -890,13 +890,21 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+>  
+>  	denied = requested & ~(p_ae->avd.allowed);
+>  
+> -	if (!requested || denied) {
+> -		if (selinux_enforcing || (flags & AVC_STRICT))
+> +	if (unlikely(!requested)) {
+> +		printk(KERN_ERR "%s: found !requested, fix me\n", __func__);
+
+Likely want SELinux somewhere in that message for clarity.
+
+> +		WARN_ON(1);
+> +		if (selinux_enforcing)
+>  			rc = -EACCES;
+
+Simpler as a BUG_ON, and correct.
+
+> +	}
+> +
+> +	if (denied) {
+> +		if (flags & AVC_STRICT)
+> +			rc = -EACCES;
+> +		else if (!selinux_enforcing || security_permissive_sid(ssid))
+> +			avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
+> +					tsid, tclass);
+>  		else
+> -			if (node)
+> -				avc_update_node(AVC_CALLBACK_GRANT,requested,
+> -						ssid,tsid,tclass);
+> +			rc = -EACCES;
+>  	}
+>  
+>  	rcu_read_unlock();
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index f7d2f03..fde8690 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -26,13 +26,14 @@
+>  #define POLICYDB_VERSION_AVTAB		20
+>  #define POLICYDB_VERSION_RANGETRANS	21
+>  #define POLICYDB_VERSION_POLCAP		22
+> +#define POLICYDB_VERSION_PERMISSIVE	23
+>  
+>  /* Range of policy versions we understand*/
+>  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+>  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+>  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+>  #else
+> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
+> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
+>  #endif
+>  
+>  #define CONTEXT_MNT	0x01
+> @@ -67,6 +68,8 @@ struct av_decision {
+>  	u32 seqno;
+>  };
+>  
+> +int security_permissive_sid(u32 sid);
+> +
+>  int security_compute_av(u32 ssid, u32 tsid,
+>  	u16 tclass, u32 requested,
+>  	struct av_decision *avd);
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index bd7d6a0..84dbab9 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -111,6 +111,11 @@ static struct policydb_compat_info policydb_compat[] = {
+>  		.version	= POLICYDB_VERSION_POLCAP,
+>  		.sym_num	= SYM_NUM,
+>  		.ocon_num	= OCON_NUM,
+> +	},
+> +	{
+> +		.version	= POLICYDB_VERSION_PERMISSIVE,
+> +		.sym_num	= SYM_NUM,
+> +		.ocon_num	= OCON_NUM,
+>  	}
+>  };
+>  
+> @@ -194,6 +199,7 @@ static int policydb_init(struct policydb *p)
+>  		goto out_free_symtab;
+>  
+>  	ebitmap_init(&p->policycaps);
+> +	ebitmap_init(&p->permissive_map);
+>  
+>  out:
+>  	return rc;
+> @@ -687,6 +693,7 @@ void policydb_destroy(struct policydb *p)
+>  	kfree(p->type_attr_map);
+>  	kfree(p->undefined_perms);
+>  	ebitmap_destroy(&p->policycaps);
+> +	ebitmap_destroy(&p->permissive_map);
+>  
+>  	return;
+>  }
+> @@ -1570,6 +1577,10 @@ int policydb_read(struct policydb *p, void *fp)
+>  	    ebitmap_read(&p->policycaps, fp) != 0)
+>  		goto bad;
+>  
+> +	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
+> +	    ebitmap_read(&p->permissive_map, fp) != 0)
+> +		goto bad;
+> +
+>  	info = policydb_lookup_compat(p->policyvers);
+>  	if (!info) {
+>  		printk(KERN_ERR "security:  unable to find policy compat info "
+> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+> index c4ce996..ba593a3 100644
+> --- a/security/selinux/ss/policydb.h
+> +++ b/security/selinux/ss/policydb.h
+> @@ -243,6 +243,8 @@ struct policydb {
+>  
+>  	struct ebitmap policycaps;
+>  
+> +	struct ebitmap permissive_map;
+> +
+>  	unsigned int policyvers;
+>  
+>  	unsigned int reject_unknown : 1;
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index f374186..f5d1dcc 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -416,6 +416,27 @@ inval_class:
+>  	return -EINVAL;
+>  }
+>  
+> +/*
+> + * Given a sid find if the type has the permissive flag set
+> + */
+> +int security_permissive_sid(u32 sid)
+> +{
+> +	struct context *context;
+> +	u32 type;
+> +	int rc;
+> +
+> +	POLICY_RDLOCK;
+> +
+> +	context = sidtab_search(&sidtab, sid);
+> +	BUG_ON(!context);
+> +
+> +	type = context->type;
+> +	rc = ebitmap_get_bit(&policydb.permissive_map, type);
+
+Maybe a comment then to note that we are intentionally not using (type -
+1) here due to possibly global use of that bit - otherwise it is a
+confusing inconsistency with other ebitmap_get_bit calls.
+
+> +
+> +	POLICY_RDUNLOCK;
+> +	return rc;
+> +}
+> +
+>  static int security_validtrans_handle_fail(struct context *ocontext,
+>                                             struct context *ncontext,
+>                                             struct context *tcontext,
+> 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
