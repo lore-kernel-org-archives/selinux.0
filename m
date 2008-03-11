@@ -1,27 +1,32 @@
-Date: Wed, 12 Mar 2008 09:05:25 +1100 (EST)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2BMAiK5029508
+	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 18:10:44 -0400
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2BMAgHB022451
+	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 22:10:42 GMT
+Date: Wed, 12 Mar 2008 09:10:29 +1100 (EST)
 From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux <selinux@tycho.nsa.gov>, sds@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: printk normalization
-In-Reply-To: <1205265613.5297.131.camel@localhost.localdomain>
-Message-ID: <Xine.LNX.4.64.0803120903030.8423@us.intercode.com.au>
-References: <1205265613.5297.131.camel@localhost.localdomain>
+To: Justin Mattock <justinmattock@gmail.com>
+cc: selinux@tycho.nsa.gov
+Subject: Re: 2.6.25-rc5
+In-Reply-To: <dd18b0c30803111352r25eb64a0m335b5a0740d5646c@mail.gmail.com>
+Message-ID: <Xine.LNX.4.64.0803120907480.8423@us.intercode.com.au>
+References: <dd18b0c30803111352r25eb64a0m335b5a0740d5646c@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 11 Mar 2008, Eric Paris wrote:
+On Tue, 11 Mar 2008, Justin Mattock wrote:
 
-> Attach a KERN_* to the front of every printk and make sure that every
-> printk ends with a \n
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Hi;
+> Thanks for the reply, With handle_unkown=deny  should this provide enough
+> security, until the upstream release comes out?
 
-Nack.  
-
-I just removed all of the "security:" prefixes in the for-akpm branch -- 
-please patch against that.
+Yes, although the default is 'allow', so that your system doesn't break 
+due to lack of policy for the new permissions.  For production systems, I 
+suggest ensuring that you have both the kernel and policy updated to match 
+each other.
 
 
 - James
