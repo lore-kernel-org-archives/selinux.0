@@ -1,88 +1,58 @@
-Subject: Re: [PATCH] checkpolicy: support for permissive types
+Subject: Re: [PATCH] SELinux: requesting no permissions in
+	avc_has_perm_noaudit is a BUG()
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eric Paris <eparis@redhat.com>
-Cc: selinux <selinux@tycho.nsa.gov>, tmiller@tresys.com, jbrindle@tresys.com
-In-Reply-To: <1205245845.5297.90.camel@localhost.localdomain>
-References: <1205245845.5297.90.camel@localhost.localdomain>
+Cc: selinux <selinux@tycho.nsa.gov>, jmorris@namei.org
+In-Reply-To: <1205259574.5297.107.camel@localhost.localdomain>
+References: <1205259574.5297.107.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 11 Mar 2008 14:31:36 -0400
-Message-Id: <1205260296.23866.172.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 11 Mar 2008 14:35:28 -0400
+Message-Id: <1205260528.23866.177.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-03-11 at 10:30 -0400, Eric Paris wrote:
-> This patch adds support for permissive types.
-> 
-> A very simple module to make httpd_t a permissive domain would be:
-> 
-> policy_module(permissiveapache, 1.0)
-> gen_require(`
-> 	type httpd_t;
-> ')
-> permissive httpd_t;
-> 
-> Obviously this syntax can be used in both the base policy and in a
-> policy module.
+On Tue, 2008-03-11 at 14:19 -0400, Eric Paris wrote:
+> This patch turns the case where we have a call into avc_has_perm with no
+> requested permissions into a BUG_ON.  All callers to this should be in
+> the kernel and thus should be a function we need to fix if we ever hit
+> this.  The /selinux/access permission checking it done directly in the
+> security server and not through the avc, so those requests which we
+> cannot control from userspace should not be able to trigger this BUG_ON.
 > 
 > Signed-off-by: Eric Paris <eparis@redhat.com>
+
+Acked-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
+
 > 
 > ---
 > 
->  policy_parse.y |   43 +++++++++++++++++++++++++++++++
->  policy_scan.l  |    4 ++
->  test/dismod.c  |    2 -
->  test/dispol.c  |   78 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 125 insertions(+), 2 deletions(-)
+>  security/selinux/avc.c         |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletion(-)
 > 
-> diff -up checkpolicy-2.0.10/policy_parse.y.pre.permissive checkpolicy-2.0.10/policy_parse.y
-> --- checkpolicy-2.0.10/policy_parse.y.pre.permissive	2008-03-11 10:18:31.000000000 -0400
-> +++ checkpolicy-2.0.10/policy_parse.y	2008-03-11 10:23:33.000000000 -0400
-> @@ -126,6 +126,7 @@ static int define_netif_context(void);
->  static int define_ipv4_node_context(void);
->  static int define_ipv6_node_context(void);
->  static int define_polcap(void);
-> +static int define_permissive(void);
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 187964e..cb3f0ce 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -871,6 +871,8 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+>  	int rc = 0;
+>  	u32 denied;
 >  
->  typedef int (* require_func_t)();
+> +	BUG_ON(!requested);
+> +
+>  	rcu_read_lock();
 >  
-> @@ -201,6 +202,7 @@ typedef int (* require_func_t)();
->  %token IPV6_ADDR
->  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
->  %token POLICYCAP
-> +%token PERMISSIVE
+>  	node = avc_lookup(ssid, tsid, tclass, requested);
+> @@ -890,7 +892,7 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
 >  
->  %left OR
->  %left XOR
-> @@ -327,6 +329,7 @@ te_decl			: attribute_def
->                          | transition_def
->                          | range_trans_def
->                          | te_avtab_def
-> +			| permissive_def
->  			;
->  attribute_def           : ATTRIBUTE identifier ';'
->                          { if (define_attrib()) return -1;}
-> @@ -772,6 +775,8 @@ ipv6_addr		: IPV6_ADDR
->  policycap_def		: POLICYCAP identifier ';'
->  			{if (define_polcap()) return -1;}
->  			;
-> +permissive_def		: PERMISSIVE identifier ';'
-> +			{if (define_permissive()) return -1;}
+>  	denied = requested & ~(p_ae->avd.allowed);
 >  
->  /*********** module grammar below ***********/
->  
-> @@ -1007,6 +1012,44 @@ static int define_polcap(void)
->  	return -1;
->  }
->  
-> +static int define_permissive(void)
-> +{
-
-The action functions have been moved out to a separate .c file
-(policy_define.[ch]) in the latest checkpolicy, so someone will have to
-move this over for merge.  Trivial, of course.
-
+> -	if (!requested || denied) {
+> +	if (denied) {
+>  		if (selinux_enforcing || (flags & AVC_STRICT))
+>  			rc = -EACCES;
+>  		else
 -- 
 Stephen Smalley
 National Security Agency
