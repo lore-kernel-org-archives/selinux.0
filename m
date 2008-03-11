@@ -1,35 +1,33 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2BMAiK5029508
-	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 18:10:44 -0400
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2BMAgHB022451
-	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 22:10:42 GMT
-Date: Wed, 12 Mar 2008 09:10:29 +1100 (EST)
+Date: Wed, 12 Mar 2008 09:16:48 +1100 (EST)
 From: James Morris <jmorris@namei.org>
-To: Justin Mattock <justinmattock@gmail.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: 2.6.25-rc5
-In-Reply-To: <dd18b0c30803111352r25eb64a0m335b5a0740d5646c@mail.gmail.com>
-Message-ID: <Xine.LNX.4.64.0803120907480.8423@us.intercode.com.au>
-References: <dd18b0c30803111352r25eb64a0m335b5a0740d5646c@mail.gmail.com>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux <selinux@tycho.nsa.gov>, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: requesting no permissions in avc_has_perm_noaudit
+ is a BUG()
+In-Reply-To: <1205259574.5297.107.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0803120916170.21778@us.intercode.com.au>
+References: <1205259574.5297.107.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 11 Mar 2008, Justin Mattock wrote:
+On Tue, 11 Mar 2008, Eric Paris wrote:
 
-> Hi;
-> Thanks for the reply, With handle_unkown=deny  should this provide enough
-> security, until the upstream release comes out?
+> This patch turns the case where we have a call into avc_has_perm with no
+> requested permissions into a BUG_ON.  All callers to this should be in
+> the kernel and thus should be a function we need to fix if we ever hit
+> this.  The /selinux/access permission checking it done directly in the
+> security server and not through the avc, so those requests which we
+> cannot control from userspace should not be able to trigger this BUG_ON.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
 
-Yes, although the default is 'allow', so that your system doesn't break 
-due to lack of policy for the new permissions.  For production systems, I 
-suggest ensuring that you have both the kernel and policy updated to match 
-each other.
+Applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
 
 
-- James
 -- 
 James Morris
 <jmorris@namei.org>
