@@ -1,95 +1,87 @@
-Subject: Re: [PATCH] libsepol: support for permissive types
+Subject: Re: [PATCH] checkpolicy: support for permissive types
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Eric Paris <eparis@redhat.com>
 Cc: selinux <selinux@tycho.nsa.gov>, tmiller@tresys.com, jbrindle@tresys.com
-In-Reply-To: <1205243961.5297.79.camel@localhost.localdomain>
-References: <1205243961.5297.79.camel@localhost.localdomain>
+In-Reply-To: <1205245845.5297.90.camel@localhost.localdomain>
+References: <1205245845.5297.90.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Tue, 11 Mar 2008 14:28:16 -0400
-Message-Id: <1205260096.23866.168.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 11 Mar 2008 14:31:36 -0400
+Message-Id: <1205260296.23866.172.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-03-11 at 09:59 -0400, Eric Paris wrote:
+On Tue, 2008-03-11 at 10:30 -0400, Eric Paris wrote:
 > This patch adds support for permissive types.
 > 
-> In the kernel policy format the permissive types are in a bitmap
-> referenced by the type value.
+> A very simple module to make httpd_t a permissive domain would be:
 > 
-> In the module policy format a new field in the type_datum_t called
-> 'flags' was added.  The only currently defined flag is
-> TYPE_FLAGS_PERMISSIVE.
+> policy_module(permissiveapache, 1.0)
+> gen_require(`
+> 	type httpd_t;
+> ')
+> permissive httpd_t;
 > 
-> Checkpolicy can set the permissive flag on the type_datum_t in question
-> and that flag will persist on disk.  It will be OR'd at link time
-> against the type in the base policy.  At expand time we build the bit
-> array the kernel uses.
+> Obviously this syntax can be used in both the base policy and in a
+> policy module.
 > 
 > Signed-off-by: Eric Paris <eparis@redhat.com>
 > 
 > ---
-
-<snip>
-> @@ -112,6 +113,9 @@ static int type_copy_callback(hashtab_ke
->  		return -1;
->  	}
+> 
+>  policy_parse.y |   43 +++++++++++++++++++++++++++++++
+>  policy_scan.l  |    4 ++
+>  test/dismod.c  |    2 -
+>  test/dispol.c  |   78 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 125 insertions(+), 2 deletions(-)
+> 
+> diff -up checkpolicy-2.0.10/policy_parse.y.pre.permissive checkpolicy-2.0.10/policy_parse.y
+> --- checkpolicy-2.0.10/policy_parse.y.pre.permissive	2008-03-11 10:18:31.000000000 -0400
+> +++ checkpolicy-2.0.10/policy_parse.y	2008-03-11 10:23:33.000000000 -0400
+> @@ -126,6 +126,7 @@ static int define_netif_context(void);
+>  static int define_ipv4_node_context(void);
+>  static int define_ipv6_node_context(void);
+>  static int define_polcap(void);
+> +static int define_permissive(void);
 >  
-> +	if (new_type->flags & TYPE_FLAGS_PERMISSIVE)
-> +		ebitmap_set_bit(&state->out->permissive_map, new_type->s.value, 1);
-
-ebitmap_set_bit() can fail due to memory allocation failure, so you need
-to check for it.
-
-Somewhere we also need to clearly document that the permissive map is
-_not_ using zero-based indexing for the types, unlike other ebitmaps in
-policy.
-
-> @@ -492,6 +498,10 @@ static int alias_copy_callback(hashtab_k
->  	}
+>  typedef int (* require_func_t)();
 >  
->  	state->typemap[alias->s.value - 1] = new_alias->s.value;
-> +
-> +	if (new_alias->flags & TYPE_FLAGS_PERMISSIVE)
-> +		ebitmap_set_bit(&state->out->permissive_map, new_alias->s.value, 1);
-
-Ditto.
-
-Have you tested the handling of aliases, e.g. declare a type alias to a
-type in one module, then mark that type alias as permissive in another
-module, and confirm proper propagation of the permissive flag?
-
-> diff -Naupr libsepol-2.0.23/src/write.c libsepol-2.0.23.new/src/write.c
-> --- libsepol-2.0.23/src/write.c	2008-03-06 13:31:08.000000000 -0500
-> +++ libsepol-2.0.23.new/src/write.c	2008-03-06 10:08:37.000000000 -0500
-> @@ -959,6 +959,8 @@ static int type_write(hashtab_key_t key,
->  	buf[items++] = cpu_to_le32(typdatum->primary);
->  	if (p->policy_type != POLICY_KERN) {
->  		buf[items++] = cpu_to_le32(typdatum->flavor);
-> +		if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
-> +			buf[items++] = cpu_to_le32(typdatum->flags);
->  	}
->  	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
->  	if (items != items2)
-> @@ -1618,6 +1620,12 @@ int policydb_write(policydb_t * p, struc
->  			return POLICYDB_ERROR;
->  	}
+> @@ -201,6 +202,7 @@ typedef int (* require_func_t)();
+>  %token IPV6_ADDR
+>  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
+>  %token POLICYCAP
+> +%token PERMISSIVE
 >  
-> +	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
-> +	    p->policy_type == POLICY_KERN) {
-> +		if (ebitmap_write(&p->permissive_map, fp) == -1)
-> +			return POLICYDB_ERROR;
-> +	}
-> +
->  	num_syms = info->sym_num;
->  	for (i = 0; i < num_syms; i++) {
->  		buf[0] = cpu_to_le32(p->symtab[i].nprim);
+>  %left OR
+>  %left XOR
+> @@ -327,6 +329,7 @@ te_decl			: attribute_def
+>                          | transition_def
+>                          | range_trans_def
+>                          | te_avtab_def
+> +			| permissive_def
+>  			;
+>  attribute_def           : ATTRIBUTE identifier ';'
+>                          { if (define_attrib()) return -1;}
+> @@ -772,6 +775,8 @@ ipv6_addr		: IPV6_ADDR
+>  policycap_def		: POLICYCAP identifier ';'
+>  			{if (define_polcap()) return -1;}
+>  			;
+> +permissive_def		: PERMISSIVE identifier ';'
+> +			{if (define_permissive()) return -1;}
+>  
+>  /*********** module grammar below ***********/
+>  
+> @@ -1007,6 +1012,44 @@ static int define_polcap(void)
+>  	return -1;
+>  }
+>  
+> +static int define_permissive(void)
+> +{
 
-So in the case of automatic policy downgrade by libselinux load policy
-logic, we will silently shed any permissive maps.  Likely need a warning
-if the permissive map has any bits set at all to warn the user that he
-isn't going to get what he expected.
+The action functions have been moved out to a separate .c file
+(policy_define.[ch]) in the latest checkpolicy, so someone will have to
+move this over for merge.  Trivial, of course.
 
 -- 
 Stephen Smalley
