@@ -1,180 +1,56 @@
-Subject: [PATCH] SELinux: printk normalization
-From: Eric Paris <eparis@redhat.com>
-To: selinux <selinux@tycho.nsa.gov>
-Cc: sds@tycho.nsa.gov, jmorris@namei.org
-Content-Type: text/plain
-Date: Tue, 11 Mar 2008 16:00:13 -0400
-Message-Id: <1205265613.5297.131.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2BKlVbh019238
+	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 16:47:31 -0400
+Received: from mk-filter-3-a-4.mail.uk.tiscali.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2BKlNHB007956
+	for <selinux@tycho.nsa.gov>; Tue, 11 Mar 2008 20:47:28 GMT
+From: "Martin J. Green" <mail@martinjgreen.me.uk>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Tue, 11 Mar 2008 20:35:33 +0000
+Subject: RE: Getting started with SELinux and Slackware
+Message-ID: <54EE10FFA0116B408D3A5172CB52729F01311A12DAC2@exchange.home.martinjgreen.me.uk>
+References: <77FD49B9B8D2394FB1B63A63934913126A55770EA8@exchange.home.martinjgreen.me.uk>
+	 <54EE10FFA0116B408D3A5172CB52729F012DC48610D7@exchange.home.martinjgreen.me.uk>
+	 <54EE10FFA0116B408D3A5172CB52729F01311A12DABD@exchange.home.martinjgreen.me.uk>
+	 <1205249079.23866.145.camel@moss-spartans.epoch.ncsc.mil>
+	 <54EE10FFA0116B408D3A5172CB52729F01311A12DABF@exchange.home.martinjgreen.me.uk>
+ <1205260397.23866.175.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1205260397.23866.175.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Attach a KERN_* to the front of every printk and make sure that every
-printk ends with a \n
+Solved the compile issues, I symlinked the libs in /lib to /usr/lib - but should I actually have them in /usr/lib instead? (I followed Tim Wood's scripts which used /lib).
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+The buildscripts for slackware at http://www.firstinternetservices.com/selinux are complete & working for the base selinux packages for the new version (I'm working on userland now - will post to the same when I'm done)
 
----
+I take it since this is linking against sepol its probably safe to assume that the patch upstreamed into ssh is relatively up-to-date? (util-linux had a similar compile problem so the same should be true)
 
- security/selinux/ss/avtab.c       |   22 +++++++++++-----------
- security/selinux/ss/conditional.c |   14 +++++++-------
- 2 files changed, 18 insertions(+), 18 deletions(-)
+Martin
 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index cd10e27..f740887 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -364,19 +364,19 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 		val = le32_to_cpu(buf32[items++]);
- 		key.source_type = (u16)val;
- 		if (key.source_type != val) {
--			printk("security: avtab: truncated source type\n");
-+			printk(KERN_ERR "security: avtab: truncated source type\n");
- 			return -1;
- 		}
- 		val = le32_to_cpu(buf32[items++]);
- 		key.target_type = (u16)val;
- 		if (key.target_type != val) {
--			printk("security: avtab: truncated target type\n");
-+			printk(KERN_ERR "security: avtab: truncated target type\n");
- 			return -1;
- 		}
- 		val = le32_to_cpu(buf32[items++]);
- 		key.target_class = (u16)val;
- 		if (key.target_class != val) {
--			printk("security: avtab: truncated target class\n");
-+			printk(KERN_ERR "security: avtab: truncated target class\n");
- 			return -1;
- 		}
- 
-@@ -384,12 +384,12 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 		enabled = (val & AVTAB_ENABLED_OLD) ? AVTAB_ENABLED : 0;
- 
- 		if (!(val & (AVTAB_AV | AVTAB_TYPE))) {
--			printk("security: avtab: null entry\n");
-+			printk(KERN_ERR "security: avtab: null entry\n");
- 			return -1;
- 		}
- 		if ((val & AVTAB_AV) &&
- 		    (val & AVTAB_TYPE)) {
--			printk("security: avtab: entry has both access vectors and types\n");
-+			printk(KERN_ERR "security: avtab: entry has both access vectors and types\n");
- 			return -1;
- 		}
- 
-@@ -403,7 +403,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 		}
- 
- 		if (items != items2) {
--			printk("security: avtab: entry only had %d items, expected %d\n", items2, items);
-+			printk(KERN_ERR "security: avtab: entry only had %d items, expected %d\n", items2, items);
- 			return -1;
- 		}
- 		return 0;
-@@ -411,7 +411,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 
- 	rc = next_entry(buf16, fp, sizeof(u16)*4);
- 	if (rc < 0) {
--		printk("security: avtab: truncated entry\n");
-+		printk(KERN_ERR "security: avtab: truncated entry\n");
- 		return -1;
- 	}
- 
-@@ -424,7 +424,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 	if (!policydb_type_isvalid(pol, key.source_type) ||
- 	    !policydb_type_isvalid(pol, key.target_type) ||
- 	    !policydb_class_isvalid(pol, key.target_class)) {
--		printk(KERN_WARNING "security: avtab: invalid type or class\n");
-+		printk(KERN_ERR "security: avtab: invalid type or class\n");
- 		return -1;
- 	}
- 
-@@ -434,20 +434,20 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 			set++;
- 	}
- 	if (!set || set > 1) {
--		printk(KERN_WARNING
-+		printk(KERN_ERR
- 			"security:  avtab:  more than one specifier\n");
- 		return -1;
- 	}
- 
- 	rc = next_entry(buf32, fp, sizeof(u32));
- 	if (rc < 0) {
--		printk("security: avtab: truncated entry\n");
-+		printk(KERN_ERR "security: avtab: truncated entry\n");
- 		return -1;
- 	}
- 	datum.data = le32_to_cpu(*buf32);
- 	if ((key.specified & AVTAB_TYPE) &&
- 	    !policydb_type_isvalid(pol, datum.data)) {
--		printk(KERN_WARNING "security: avtab: invalid type\n");
-+		printk(KERN_ERR "security: avtab: invalid type\n");
- 		return -1;
- 	}
- 	return insertf(a, &key, &datum, p);
-diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index 50ad85d..1a5b6da 100644
---- a/security/selinux/ss/conditional.c
-+++ b/security/selinux/ss/conditional.c
-@@ -276,7 +276,7 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
- 	 */
- 	if (k->specified & AVTAB_TYPE) {
- 		if (avtab_search(&p->te_avtab, k)) {
--			printk("security: type rule already exists outside of a conditional.");
-+			printk(KERN_ERR "security: type rule already exists outside of a conditional.\n");
- 			goto err;
- 		}
- 		/*
-@@ -291,7 +291,7 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
- 			node_ptr = avtab_search_node(&p->te_cond_avtab, k);
- 			if (node_ptr) {
- 				if (avtab_search_node_next(node_ptr, k->specified)) {
--					printk("security: too many conflicting type rules.");
-+					printk(KERN_ERR "security: too many conflicting type rules.\n");
- 					goto err;
- 				}
- 				found = 0;
-@@ -302,13 +302,13 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
- 					}
- 				}
- 				if (!found) {
--					printk("security: conflicting type rules.\n");
-+					printk(KERN_ERR "security: conflicting type rules.\n");
- 					goto err;
- 				}
- 			}
- 		} else {
- 			if (avtab_search(&p->te_cond_avtab, k)) {
--				printk("security: conflicting type rules when adding type rule for true.\n");
-+				printk(KERN_ERR "security: conflicting type rules when adding type rule for true.\n");
- 				goto err;
- 			}
- 		}
-@@ -316,7 +316,7 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
- 
- 	node_ptr = avtab_insert_nonunique(&p->te_cond_avtab, k, d);
- 	if (!node_ptr) {
--		printk("security: could not insert rule.");
-+		printk(KERN_ERR "security: could not insert rule.\n");
- 		goto err;
- 	}
- 
-@@ -376,12 +376,12 @@ static int cond_read_av_list(struct policydb *p, void *fp, struct cond_av_list *
- static int expr_isvalid(struct policydb *p, struct cond_expr *expr)
- {
- 	if (expr->expr_type <= 0 || expr->expr_type > COND_LAST) {
--		printk("security: conditional expressions uses unknown operator.\n");
-+		printk(KERN_ERR "security: conditional expressions uses unknown operator.\n");
- 		return 0;
- 	}
- 
- 	if (expr->bool > p->p_bools.nprim) {
--		printk("security: conditional expressions uses unknown bool.\n");
-+		printk(KERN_ERR "security: conditional expressions uses unknown bool.\n");
- 		return 0;
- 	}
- 	return 1;
+-----Original Message-----
+From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+Sent: 11 March 2008 18:33
+To: Martin J. Green
+Subject: RE: Getting started with SELinux and Slackware
+
+
+On Tue, 2008-03-11 at 18:14 +0000, Martin J. Green wrote:
+> That particular example was just openssh with --with-selinux added to normal options (none of which include disabling shared or enabling static). I've see the same error when compiling checkpolicy and util-linux though
+
+Possibly your environment doesn't support shared libs or you don't have
+the shared libraries installed first?
+
+You need to build and install libsepol.
+
+Older versions of libselinux didn't have the libsepol dependency, so
+older versions of the openssh selinux patch wouldn't have linked against
+it either.
+
+--
+Stephen Smalley
+National Security Agency
 
 
 
