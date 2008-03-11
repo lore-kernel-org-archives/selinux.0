@@ -1,88 +1,33 @@
-Subject: Re: [PATCH] libsepol: support for permissive types
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>, tmiller@tresys.com, jbrindle@tresys.com
-In-Reply-To: <1205261201.23866.186.camel@moss-spartans.epoch.ncsc.mil>
-References: <1205243961.5297.79.camel@localhost.localdomain>
-	 <1205260096.23866.168.camel@moss-spartans.epoch.ncsc.mil>
-	 <1205260543.5297.113.camel@localhost.localdomain>
-	 <1205261201.23866.186.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 11 Mar 2008 17:28:26 -0400
-Message-Id: <1205270906.5297.141.camel@localhost.localdomain>
-Mime-Version: 1.0
+Date: Wed, 12 Mar 2008 09:05:25 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux <selinux@tycho.nsa.gov>, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: printk normalization
+In-Reply-To: <1205265613.5297.131.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0803120903030.8423@us.intercode.com.au>
+References: <1205265613.5297.131.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 11 Mar 2008, Eric Paris wrote:
 
-On Tue, 2008-03-11 at 14:46 -0400, Stephen Smalley wrote:
-> On Tue, 2008-03-11 at 14:35 -0400, Eric Paris wrote:
-> > On Tue, 2008-03-11 at 14:28 -0400, Stephen Smalley wrote:
-> > > On Tue, 2008-03-11 at 09:59 -0400, Eric Paris wrote:
-
-> > > Have you tested the handling of aliases, e.g. declare a type alias to a
-> > > type in one module, then mark that type alias as permissive in another
-> > > module, and confirm proper propagation of the permissive flag?
-> > 
-> > I tested declare a type in base and then in a module require that base
-> > type, alias to that base type, and then permissive the alias.  Is there
-> > a different between that and actually declaring the type in another
-> > module?
+> Attach a KERN_* to the front of every printk and make sure that every
+> printk ends with a \n
 > 
-> The interesting case is when you declare the type and alias in one
-> module, then use that alias as if it were a type in another module.
-> Then checkmodule doesn't know that it is dealing with an alias while
-> compiling the latter module, and the link/expand logic has to properly
-> deal with it.  Same issue occurs for attributes.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Let me know if this is what you wanted tested:
+Nack.  
 
-******
-module define_alias 1.0;
+I just removed all of the "security:" prefixes in the for-akpm branch -- 
+please patch against that.
 
-require {
-	type type1_t;
-}
 
-type type_t;
-typealias type_t alias alias_t;
-*****
-module perm_alias 1.0;
-
-require {
-	type alias_t;
-}
-
-permissive alias_t;
-******
-[root@dhcp231-146 perm]# semodule -s tmp -l
-No modules.
-[root@dhcp231-146 perm]# semodule -s tmp -i define_alias.pp
-[root@dhcp231-146 perm]# semodule -s tmp -i perm_alias.pp
-[root@dhcp231-146 perm]# semodule -s tmp -l
-define_alias	1.0
-perm_alias	1.0
-******
-[root@dhcp231-146 perm]# sedispol /etc/selinux/tmp/policy/policy.23 
-Reading policy...
-libsepol.policydb_index_others: security:  1 users, 2 roles, 4 types, 1 bools
-libsepol.policydb_index_others: security: 2 sens, 2 cats
-libsepol.policydb_index_others: security:  1 classes, 1 rules, 0 cond rules
-binary policy file loaded
-
-[snip]
-
-Command ('m' for menu):  p
-permissive sids:
-	 type_t
-
-Command ('m' for menu):  
-*******
-
-Looks like it worked to me.
-
--Eric
-
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
