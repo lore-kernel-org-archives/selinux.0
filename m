@@ -1,74 +1,49 @@
-Date: Wed, 12 Mar 2008 09:26:45 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] SELinux: requesting no permissions in avc_has_perm_noaudit
- is a BUG()
-In-Reply-To: <Xine.LNX.4.64.0803120916170.21778@us.intercode.com.au>
-Message-ID: <Xine.LNX.4.64.0803120924590.26039@us.intercode.com.au>
-References: <1205259574.5297.107.camel@localhost.localdomain>
- <Xine.LNX.4.64.0803120916170.21778@us.intercode.com.au>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Getting started with SELinux and Slackware
+Date: Wed, 12 Mar 2008 11:58:14 +1100
+Cc: "Martin J. Green" <mail@martinjgreen.me.uk>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+References: <77FD49B9B8D2394FB1B63A63934913126A55770EA8@exchange.home.martinjgreen.me.uk> <54EE10FFA0116B408D3A5172CB52729F012DC48610D7@exchange.home.martinjgreen.me.uk> <1205249581.23866.151.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1205249581.23866.151.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200803121158.16830.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 12 Mar 2008, James Morris wrote:
+On Wednesday 12 March 2008 02:33, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> As far as login goes, Fedora doesn't patch it since they use
+> pam_selinux.  If you can't use pam_selinux, then just look to see if
+> login.c calls setexeccon() anywhere - it would need to do that to set up
+> the user security context for the shell.
 
-> Applied to 
-> git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+I recommend converting a Slackware system to use PAM.
 
-Just saw this during boot.
+If the same login is used in Slackware as in Debian (there are several login 
+programs to choose from) then the code is quite hairy and it's easy to make a 
+mistake.
 
-[    8.238863] ------------[ cut here ]------------
-[    8.239762] kernel BUG at security/selinux/avc.c:874!
-[    8.239762] invalid opcode: 0000 [1] SMP 
-[    8.239762] CPU 2 
-[    8.239762] Modules linked in: ipv6 cpufreq_ondemand acpi_cpufreq freq_table dm_mirror dm_multipath kvm_intel kvm rtc
-_cmos rtc_core serio_raw pcspkr rtc_lib e1000e button pata_acpi [last unloaded: microcode]
-[    8.239762] Pid: 1795, comm: mdadm Not tainted 2.6.25-rc4 #19
-[    8.239762] RIP: 0010:[<ffffffff80319c4c>]  [<ffffffff80319c4c>] avc_has_perm_noaudit+0x31/0x43c
-[    8.239762] RSP: 0018:ffff81007ad3dc28  EFLAGS: 00010246
-[    8.239762] RAX: ffff81007ad3dd58 RBX: 000000000000000a RCX: 0000000000000000
-[    8.239762] RDX: 000000000000000a RSI: 000000000000001b RDI: 000000000000007a
-[    8.239762] RBP: ffff81007ad3dcc8 R08: 0000000000000000 R09: ffff81007ad3dcf8
-[    8.239762] R10: ffff81007ad3dbd4 R11: 0000000000000246 R12: ffff81007dc1e170
-[    8.239762] R13: 000000000000001b R14: 000000000000001b R15: 000000000000007a
-[    8.239762] FS:  00007fc4cfc1c6f0(0000) GS:ffff81007f8dd768(0000) knlGS:0000000000000000
-[    8.239762] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-[    8.239762] CR2: 00000000004239b7 CR3: 000000007adb8000 CR4: 00000000000026e0
-[    8.239762] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    8.239762] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
-[    8.239762] Process mdadm (pid: 1795, threadinfo ffff81007ad3c000, task ffff81007ba3a180)
-[    8.239762] Stack:  ffff81007ad3dca8 ffff81007ad3dcf8 000000007ad3dcb8 ffff810000000000
-[    8.239762]  ffff81007ad3dc68 0000007a802a54cd ffffffffffffffff ffffffef00000000
-[    8.239762]  ffff810000000001 ffffffff802a7e65 ffff81007f81c168 ffff81007ad3dcb8
-[    8.239762] Call Trace:
-[    8.239762]  [<ffffffff802a7e65>] ? link_path_walk+0xbd/0xcd
-[    8.239762]  [<ffffffff8031ab34>] avc_has_perm+0x2e/0x5e
-[    8.239762]  [<ffffffff8031b9ca>] inode_has_perm+0x6b/0x7a
-[    8.239762]  [<ffffffff8031f242>] selinux_dentry_open+0x6a/0x73
-[    8.239762]  [<ffffffff8031742e>] security_dentry_open+0x11/0x13
-[    8.239762]  [<ffffffff8029c69a>] __dentry_open+0xce/0x1d3
-[    8.239762]  [<ffffffff8029c838>] nameidata_to_filp+0x2e/0x40
-[    8.239762]  [<ffffffff8029c880>] do_filp_open+0x36/0x46
-[    8.239762]  [<ffffffff804a9da3>] ? _spin_unlock+0x26/0x2a
-[    8.239762]  [<ffffffff8029c5b1>] ? get_unused_fd_flags+0x113/0x121
-[    8.239762]  [<ffffffff8029c8e1>] do_sys_open+0x51/0xd2
-[    8.239762]  [<ffffffff8029c98b>] sys_open+0x1b/0x1d
-[    8.239762]  [<ffffffff8020bf7b>] system_call_after_swapgs+0x7b/0x80
-[    8.239762] 
-[    8.239762] 
-[    8.239762] Code: 41 89 ff 41 56 41 89 f6 41 55 41 54 53 89 d3 48 83 ec 78 89 8d 78 ff ff ff 44 89 85 74 ff ff ff 4c 89 8d 68 ff ff ff 85 c9 75 04 <0f> 0b eb fe b9 02 00 00 00 31 d2 49 c7 c1 50 9c 31 80 41 b8 01 
-[    8.239762] RIP  [<ffffffff80319c4c>] avc_has_perm_noaudit+0x31/0x43c
-[    8.239762]  RSP <ffff81007ad3dc28>
-[    8.239769] ---[ end trace ca143223eefdc828 ]---
+Back in 2002 I released a login package for Debian which allowed a user to 
+login with the wrong SE Linux context due to a mistake when patching login 
+(the Debian login is not the same as the Red Hat login which the patch was 
+originall written for).
 
+Even sshd (which has a high code quality) is not something that's easy to 
+modify.
 
- 
+Taking the PAM source from Debian or Fedora and building it on Slackware 
+should not be that difficult and will probably give a better result than 
+doing some entirely new development.
+
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
