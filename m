@@ -1,50 +1,92 @@
-Subject: RE: Getting started with SELinux and Slackware
+Subject: Re: [PATCH] libsepol: support for permissive types
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Martin J. Green" <mail@martinjgreen.me.uk>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-In-Reply-To: <54EE10FFA0116B408D3A5172CB52729F01311A12DAC2@exchange.home.martinjgreen.me.uk>
-References: 
-	 <77FD49B9B8D2394FB1B63A63934913126A55770EA8@exchange.home.martinjgreen.me.uk>
-	 <54EE10FFA0116B408D3A5172CB52729F012DC48610D7@exchange.home.martinjgreen.me.uk>
-	 <54EE10FFA0116B408D3A5172CB52729F01311A12DABD@exchange.home.martinjgreen.me.uk>
-	 <1205249079.23866.145.camel@moss-spartans.epoch.ncsc.mil>
-	 <54EE10FFA0116B408D3A5172CB52729F01311A12DABF@exchange.home.martinjgreen.me.uk>
-	 <1205260397.23866.175.camel@moss-spartans.epoch.ncsc.mil>
-	 <54EE10FFA0116B408D3A5172CB52729F01311A12DAC2@exchange.home.martinjgreen.me.uk>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux <selinux@tycho.nsa.gov>, tmiller@tresys.com, jbrindle@tresys.com
+In-Reply-To: <1205270906.5297.141.camel@localhost.localdomain>
+References: <1205243961.5297.79.camel@localhost.localdomain>
+	 <1205260096.23866.168.camel@moss-spartans.epoch.ncsc.mil>
+	 <1205260543.5297.113.camel@localhost.localdomain>
+	 <1205261201.23866.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <1205270906.5297.141.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 12 Mar 2008 08:46:49 -0400
-Message-Id: <1205326009.23866.208.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 12 Mar 2008 08:49:27 -0400
+Message-Id: <1205326167.23866.211.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-03-11 at 20:35 +0000, Martin J. Green wrote:
-> Solved the compile issues, I symlinked the libs in /lib to /usr/lib -
-> but should I actually have them in /usr/lib instead? (I followed Tim
-> Wood's scripts which used /lib).
-
-Fedora has the following layout (example for libselinux, other libraries
-are the same way):
-/lib/libselinux.so.1 - the shared library
-/usr/lib/libselinux.a - the static library
-/usr/lib/libselinux.so - symlink to /lib/libselinux.so.1
-
+On Tue, 2008-03-11 at 17:28 -0400, Eric Paris wrote:
+> On Tue, 2008-03-11 at 14:46 -0400, Stephen Smalley wrote:
+> > On Tue, 2008-03-11 at 14:35 -0400, Eric Paris wrote:
+> > > On Tue, 2008-03-11 at 14:28 -0400, Stephen Smalley wrote:
+> > > > On Tue, 2008-03-11 at 09:59 -0400, Eric Paris wrote:
 > 
-> The buildscripts for slackware at http://www.firstinternetservices.com/selinux are complete & working for the base selinux packages for the new version (I'm working on userland now - will post to the same when I'm done)
+> > > > Have you tested the handling of aliases, e.g. declare a type alias to a
+> > > > type in one module, then mark that type alias as permissive in another
+> > > > module, and confirm proper propagation of the permissive flag?
+> > > 
+> > > I tested declare a type in base and then in a module require that base
+> > > type, alias to that base type, and then permissive the alias.  Is there
+> > > a different between that and actually declaring the type in another
+> > > module?
+> > 
+> > The interesting case is when you declare the type and alias in one
+> > module, then use that alias as if it were a type in another module.
+> > Then checkmodule doesn't know that it is dealing with an alias while
+> > compiling the latter module, and the link/expand logic has to properly
+> > deal with it.  Same issue occurs for attributes.
 > 
-> I take it since this is linking against sepol its probably safe to assume that the patch upstreamed into ssh is relatively up-to-date? (util-linux had a similar compile problem so the same should be true)
+> Let me know if this is what you wanted tested:
+> 
+> ******
+> module define_alias 1.0;
+> 
+> require {
+> 	type type1_t;
+> }
+> 
+> type type_t;
+> typealias type_t alias alias_t;
 
-Look for a call to getseuserbyname() in it.
+Not sure what that require is for - remnant of earlier test?
 
-Changes that are still patches in the Fedora package against openssh
-4.7p1 include:
-- support for specifying desired role and level rather than always using
-the user's default context,
-- LSPP-related changes (MLS/audit).
+> *****
+> module perm_alias 1.0;
+> 
+> require {
+> 	type alias_t;
+> }
+> 
+> permissive alias_t;
+> ******
+> [root@dhcp231-146 perm]# semodule -s tmp -l
+> No modules.
+> [root@dhcp231-146 perm]# semodule -s tmp -i define_alias.pp
+> [root@dhcp231-146 perm]# semodule -s tmp -i perm_alias.pp
+> [root@dhcp231-146 perm]# semodule -s tmp -l
+> define_alias	1.0
+> perm_alias	1.0
+> ******
+> [root@dhcp231-146 perm]# sedispol /etc/selinux/tmp/policy/policy.23 
+> Reading policy...
+> libsepol.policydb_index_others: security:  1 users, 2 roles, 4 types, 1 bools
+> libsepol.policydb_index_others: security: 2 sens, 2 cats
+> libsepol.policydb_index_others: security:  1 classes, 1 rules, 0 cond rules
+> binary policy file loaded
+> 
+> [snip]
+> 
+> Command ('m' for menu):  p
+> permissive sids:
+> 	 type_t
+> 
+> Command ('m' for menu):  
+> *******
+> 
+> Looks like it worked to me.
 
-Neither of which are critical unless you are specifically targeting LSPP
-functionality.
+Yes, looks ok.
 
 -- 
 Stephen Smalley
