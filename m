@@ -1,275 +1,171 @@
-Message-ID: <47D74042.8060008@redhat.com>
-Date: Tue, 11 Mar 2008 22:30:26 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2C8gF6B013121
+	for <selinux@tycho.nsa.gov>; Wed, 12 Mar 2008 04:42:15 -0400
+Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2C8gCUK029946
+	for <selinux@tycho.nsa.gov>; Wed, 12 Mar 2008 08:42:14 GMT
+Message-ID: <47D7975E.7000805@ak.jp.nec.com>
+Date: Wed, 12 Mar 2008 17:42:06 +0900
+From: Kohei KaiGai <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
-        jmorris@namei.org, Paul Moore <paul.moore@hp.com>
-Subject: Re: [PATCH-v3] SELinux: introduce permissive types
-References: <1205188557.5297.66.camel@localhost.localdomain> <1205248684.23866.137.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1205248684.23866.137.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SE-PostgreSQL Security Policy
+References: <47B2B885.4070300@ak.jp.nec.com>	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>	 <47C5189B.9070500@ak.jp.nec.com>	 <1204817238.3994.59.camel@gorn.columbia.tresys.com>	 <47D09FEB.3030005@ak.jp.nec.com>	 <1204922912.20251.58.camel@gorn.columbia.tresys.com>	 <47D3F33B.5010209@kaigai.gr.jp> <1205240234.25555.55.camel@gorn> <47D6BA17.5080606@kaigai.gr.jp>
+In-Reply-To: <47D6BA17.5080606@kaigai.gr.jp>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Chris,
 
-Stephen Smalley wrote:
-> On Mon, 2008-03-10 at 18:35 -0400, Eric Paris wrote:
->> Introduce the concept of a permissive type.  A new ebitmap is introduced
->> to the policy database which indicates if a given type has the
->> permissive bit set or not.  This bit is tested for the scontext of any
->> denial.  The bit is meaningless on types which only appear as the target
->> of a decision and never the source.  A domain running with a permissive
->> type will be allowed to perform any action similarly to when the system
->> is globally set permissive.
->>
->> Signed-off-by: Eric Paris <eparis@redhat.com>
->>
->> ---
->>
->> - Threw out all of the atomic stuff.  Either the sid is going to get
->> mapped to unlabeled or to the right context in the new policydb and will
->> be the new type number and all will be well.  As usual I was just making
->> things harder on myself.
-> 
-> Technically, the following could still happen:
-> - policy has domain marked as permissive and does not allow an access,
-> - the AVC determines that the access is denied and is following the
-> permissive code path but has not yet taken the policy rdlock,
-> - policy is reloaded with domain marked as non-permissive with access
-> allowed,
-> - security_permissive_sid is called and takes the policy rdlock,
-> - the domain is found to be non-permissive,
-> - the AVC denies the access.
-> 
-> Particularly if we do something like:
-> - insert policy module that just makes a domain permissive,
-> - run for a while collecting audit messages,
-> - generate new policy module from audit messages,
-> - replace the permissive policy module with the one that contains the
-> allows.
-> 
-> Don't know if you are concerned about the above, but it could create
-> mysterious breakage.
+This is a summary of this thread.
+I think we have three iseeues now, as follows:
 
-I think this is highly unlikely.  I believe the standard way to use
-permissive domains, would be to ship a policy.  Once you have gone a
-considerable amount of time without any AVC messages, you would reload
-the policy with the permissive domain removed.  So I don't think this
-race is likely to happen unless forced.
-> 
->> - moved !requested into its own handling
-> 
-> Separate patch, put it first, and I think BUG_ON is cleaner there.
-> 
->> - dropped unlikely() around the permissive sid, because really, if we
->> get a denial and we are selinux_enforcing its actually not all that
->> unlikely that we might not have a permissive domain.  Just let the
->> compiler do its thing.
-> 
-> Ok.
-> 
->> - dropped the test for the existence of node.  avc_update_node might
->> return -ENOENT, but really who cares?  We are on a slow code path here
->> so it seems to be needless complexity.  Isn't this code nice and clear
->> now?  I can add it in, but its just a slight perf win and not much
->> else..
-> 
-> Seems fine - we will rarely not have a node (requires that there not
-> already be a node for the key, and that the allocation of a new node
-> fail), and it is harmless to proceed.
->>  security/selinux/Kconfig            |    2 +-
->>  security/selinux/avc.c              |   18 +++++++++++++-----
->>  security/selinux/include/security.h |    5 ++++-
->>  security/selinux/ss/policydb.c      |   11 +++++++++++
->>  security/selinux/ss/policydb.h      |    2 ++
->>  security/selinux/ss/services.c      |   21 +++++++++++++++++++++
->>  6 files changed, 52 insertions(+), 7 deletions(-)
->>
->> diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
->> index 2b517d6..a436d1c 100644
->> --- a/security/selinux/Kconfig
->> +++ b/security/selinux/Kconfig
->> @@ -145,7 +145,7 @@ config SECURITY_SELINUX_POLICYDB_VERSION_MAX
->>  config SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
->>  	int "NSA SELinux maximum supported policy format version value"
->>  	depends on SECURITY_SELINUX_POLICYDB_VERSION_MAX
->> -	range 15 22
->> +	range 15 23
->>  	default 19
->>  	help
->>  	  This option sets the value for the maximum policy format version
->> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
->> index 187964e..8d78b88 100644
->> --- a/security/selinux/avc.c
->> +++ b/security/selinux/avc.c
->> @@ -890,13 +890,21 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
->>  
->>  	denied = requested & ~(p_ae->avd.allowed);
->>  
->> -	if (!requested || denied) {
->> -		if (selinux_enforcing || (flags & AVC_STRICT))
->> +	if (unlikely(!requested)) {
->> +		printk(KERN_ERR "%s: found !requested, fix me\n", __func__);
-> 
-> Likely want SELinux somewhere in that message for clarity.
-> 
->> +		WARN_ON(1);
->> +		if (selinux_enforcing)
->>  			rc = -EACCES;
-> 
-> Simpler as a BUG_ON, and correct.
-> 
->> +	}
->> +
->> +	if (denied) {
->> +		if (flags & AVC_STRICT)
->> +			rc = -EACCES;
->> +		else if (!selinux_enforcing || security_permissive_sid(ssid))
->> +			avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
->> +					tsid, tclass);
->>  		else
->> -			if (node)
->> -				avc_update_node(AVC_CALLBACK_GRANT,requested,
->> -						ssid,tsid,tclass);
->> +			rc = -EACCES;
->>  	}
->>  
->>  	rcu_read_unlock();
->> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
->> index f7d2f03..fde8690 100644
->> --- a/security/selinux/include/security.h
->> +++ b/security/selinux/include/security.h
->> @@ -26,13 +26,14 @@
->>  #define POLICYDB_VERSION_AVTAB		20
->>  #define POLICYDB_VERSION_RANGETRANS	21
->>  #define POLICYDB_VERSION_POLCAP		22
->> +#define POLICYDB_VERSION_PERMISSIVE	23
->>  
->>  /* Range of policy versions we understand*/
->>  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
->>  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
->>  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
->>  #else
->> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
->> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
->>  #endif
->>  
->>  #define CONTEXT_MNT	0x01
->> @@ -67,6 +68,8 @@ struct av_decision {
->>  	u32 seqno;
->>  };
->>  
->> +int security_permissive_sid(u32 sid);
->> +
->>  int security_compute_av(u32 ssid, u32 tsid,
->>  	u16 tclass, u32 requested,
->>  	struct av_decision *avd);
->> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
->> index bd7d6a0..84dbab9 100644
->> --- a/security/selinux/ss/policydb.c
->> +++ b/security/selinux/ss/policydb.c
->> @@ -111,6 +111,11 @@ static struct policydb_compat_info policydb_compat[] = {
->>  		.version	= POLICYDB_VERSION_POLCAP,
->>  		.sym_num	= SYM_NUM,
->>  		.ocon_num	= OCON_NUM,
->> +	},
->> +	{
->> +		.version	= POLICYDB_VERSION_PERMISSIVE,
->> +		.sym_num	= SYM_NUM,
->> +		.ocon_num	= OCON_NUM,
->>  	}
->>  };
->>  
->> @@ -194,6 +199,7 @@ static int policydb_init(struct policydb *p)
->>  		goto out_free_symtab;
->>  
->>  	ebitmap_init(&p->policycaps);
->> +	ebitmap_init(&p->permissive_map);
->>  
->>  out:
->>  	return rc;
->> @@ -687,6 +693,7 @@ void policydb_destroy(struct policydb *p)
->>  	kfree(p->type_attr_map);
->>  	kfree(p->undefined_perms);
->>  	ebitmap_destroy(&p->policycaps);
->> +	ebitmap_destroy(&p->permissive_map);
->>  
->>  	return;
->>  }
->> @@ -1570,6 +1577,10 @@ int policydb_read(struct policydb *p, void *fp)
->>  	    ebitmap_read(&p->policycaps, fp) != 0)
->>  		goto bad;
->>  
->> +	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
->> +	    ebitmap_read(&p->permissive_map, fp) != 0)
->> +		goto bad;
->> +
->>  	info = policydb_lookup_compat(p->policyvers);
->>  	if (!info) {
->>  		printk(KERN_ERR "security:  unable to find policy compat info "
->> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
->> index c4ce996..ba593a3 100644
->> --- a/security/selinux/ss/policydb.h
->> +++ b/security/selinux/ss/policydb.h
->> @@ -243,6 +243,8 @@ struct policydb {
->>  
->>  	struct ebitmap policycaps;
->>  
->> +	struct ebitmap permissive_map;
->> +
->>  	unsigned int policyvers;
->>  
->>  	unsigned int reject_unknown : 1;
->> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
->> index f374186..f5d1dcc 100644
->> --- a/security/selinux/ss/services.c
->> +++ b/security/selinux/ss/services.c
->> @@ -416,6 +416,27 @@ inval_class:
->>  	return -EINVAL;
->>  }
->>  
->> +/*
->> + * Given a sid find if the type has the permissive flag set
->> + */
->> +int security_permissive_sid(u32 sid)
->> +{
->> +	struct context *context;
->> +	u32 type;
->> +	int rc;
->> +
->> +	POLICY_RDLOCK;
->> +
->> +	context = sidtab_search(&sidtab, sid);
->> +	BUG_ON(!context);
->> +
->> +	type = context->type;
->> +	rc = ebitmap_get_bit(&policydb.permissive_map, type);
-> 
-> Maybe a comment then to note that we are intentionally not using (type -
-> 1) here due to possibly global use of that bit - otherwise it is a
-> confusing inconsistency with other ebitmap_get_bit calls.
-> 
->> +
->> +	POLICY_RDUNLOCK;
->> +	return rc;
->> +}
->> +
->>  static int security_validtrans_handle_fail(struct context *ocontext,
->>                                             struct context *ncontext,
->>                                             struct context *tcontext,
->>
+[1] unconfined_t is not always unconfined
+The current my policy does not allow unconfined domains to invoke
+user defined functions, because malicious queries can be stored in.
+Thus, unconfined domain has to confirm its harmless and relabel it
+to sepgsql_proc_t type.
+However, this approach does not allow unconfined domain works as its name.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+[2] conditional unconfined domain
+Most of administrative users less less frequently requires widespread
+permissions in operation phase, different from construction phase.
+Thus, a option to revoke unconfined authorities is worthwhile for
+secure database administration.
+However, no other domain has a similar option.
 
-iEYEARECAAYFAkfXQEIACgkQrlYvE4MpobNsBgCffHW2x1Pq3g8ArEcgSF3HfUBG
-nEgAoOMQlwnm0+g4VwC3IAF5vPgwTCkF
-=wSvv
------END PGP SIGNATURE-----
+[3] conditional type_transition
+Applying per-user local type is a good idea. It enables to separate
+database objects logically. However, I think the default types created
+by DBA should be labeled as a common type, not a local one.
+ e.g) I want to be labeled as "sepgsql_table_t" on a newly created tables,
+      not "sepgsql_unconfined_table_t".
+If unconfined domain is conditional, it depends on the tunable whether
+the subject is DBA, or not. So, type_transition need to be conditional.
+
+
+I can understand [2] is an odd manner in the current upstreamed policy
+design. Therefore, it can remove [3] of conditional type_transiton with
+"sepgsql_enable_unconfined".
+However, I want to remain [1] rules. As unconfined_t is restricted at
+execmem and execmod, it should be handled as a special case for risky
+situation.
+In addition, I want to provide end-users a option to turn on/off
+applying per-user local types. If end-users decide to apply MCS
+for logical separation or they don't need it, per-users local types
+are not necessary. A new tunable ("sepgsql_enable_unified" for example)
+can be considerable, but it means type_transition rules are put within
+tunable block.
+
+Thanks,
+
+KaiGai Kohei wrote:
+> Christopher J. PeBenito wrote:
+>> On Sun, 2008-03-09 at 23:24 +0900, KaiGai Kohei wrote:
+>>> Christopher J. PeBenito wrote:
+>>>> On Fri, 2008-03-07 at 10:52 +0900, Kohei KaiGai wrote:
+>>>>> Christopher J. PeBenito wrote:
+>>>>>> On Wed, 2008-02-27 at 17:00 +0900, Kohei KaiGai wrote:
+>>>>>>> The attached patch provides security policies related to
+>>>>>>> SE-PostgreSQL.
+>>>> [...]
+>>>>>>> +typeattribute unlabeled_t      sepgsql_database_type;
+>>>>>>> +typeattribute unlabeled_t      sepgsql_table_type;
+>>>>>>> +typeattribute unlabeled_t      sepgsql_procedure_type;
+>>>>>>> +typeattribute unlabeled_t      sepgsql_blob_type;
+>>>>>> Usage of unlabeled_t here is not permitted.
+>>>>> Is it appropriate manner to deploy optional_policy at kernel/kernel.te?
+>>>> Why is this needed at all?
+>>> Database objects have persistent security context, as filesystem doing.
+>>> If their security contexts are invalidated by policy reloading etc, it is
+>>> necessary them to be relabeled.
+>>>
+>>> Above rules enables administrative domains to access and relabel these objects
+>>> in this case.
+>> You need to add interfaces in the kernel module.
+> 
+> Are you saying I should put new interfaces on kernel/kernel.if and use them in
+> services/postgresql.te? Or inverse meaning?
+> 
+>>>>>>> +########################################
+>>>>>>> +#
+>>>>>>> +# SE-PostgreSQL Administrative domain local policy
+>>>>>>> +#                    (sepgsql_unconfined_type)
+>>>>>>> +
+>>>>>>> +tunable_policy(`sepgsql_enable_unconfined',`
+>>>>>>> +       allow sepgsql_unconfined_type sepgsql_database_type : db_database *;
+>>>>>>> +       allow sepgsql_unconfined_type sepgsql_module_type : db_database { install_module };
+>>>>>>> +       allow sepgsql_unconfined_type sepgsql_table_type : { db_table db_column db_tuple } *;
+>>>>>>> +       allow sepgsql_unconfined_type { sepgsql_procedure_type - sepgsql_user_proc_t } : db_procedure *;
+>>>>>>> +       allow sepgsql_unconfined_type sepgsql_user_proc_t : db_procedure { create drop getattr setattr relabelfrom relabelto };
+>>>>>>> +       allow sepgsql_unconfined_type sepgsql_blob_type : db_blob *;
+>>>>>>> +       allow sepgsql_unconfined_type postgresql_t : db_blob { import export };
+>>>>>>> +
+>>>>>>> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_proc_t;
+>>>>>>> +',`
+>>>>>>> +       type_transition { sepgsql_unconfined_type - sepgsql_server_type } sepgsql_database_type : db_procedure sepgsql_user_proc_t;
+>>>>>>> +')
+>>>>>> Why is this tunable?  Why is there a different type_transition behavior?
+>>>>> I intend that users can turn off this tunable during its operation phase
+>>>>> after initial database setting up, to prevent applying unconfined accesses.
+>>>>>
+>>>>> When sepgsql_enable_unconfined is disabled, sepgsql_unconfined_type works
+>>>>> as if they are sepgsql_client_type, because sepgsql_unconfined_domain() interface
+>>>>> associates a domain with sepgsql_(unconfined|client)_type.
+>>>> The problem is that this is inconsistent with the way other
+>>>> *_unconfined() access works.
+>>> However, this feature to disclaim widespread permissions is worthwhile in database
+>>> management system, because it is less frequently required in operation phase different
+>>> from construction phase.
+>>> So, I think the default security policy should provide a way to restrict permissions
+>>> for administrative domain.
+>>>
+>>> If you concerned about its name is confusable with other *_unconfined() interfaces,
+>>> `sepgsql_enable_unconfined' can be renamed to `sepgsql_enable_administrative' and
+>>> ditto for the name of interface.
+>> It seems to make more sense to have the interfaces be unconditional, and
+>> then have the tunable at the call site.
+> 
+> Is it possible?
+> Currently, we cannot put TYPEATTRIBUTE statement in a tunable block.
+> If caller side put postgresql_unconfined() in a tunable block, we cannot build it well.
+> 
+>>> In the latest my patch, newly created tables are labeled as sepgsql_FOO_table_t
+>>> when client does not belong to administrative domains. Because unconfined_t loses
+>>> the grounds of its widespread permission when the boolean is disabled,
+>> unconfined_t is going to have to always have unconfined access.
+> 
+> I can understand unconfined_t should work as its literal.
+> 
+> However, I'm worry about unconfined domain can invoke user defined functions
+> with his capabilities, because it can contain malicious queries.
+> In my current policy, it denies unconfined domains to invoke user defined
+> functions directly. They have to confirm its harmless and to relabel it to
+> sepgsql_proc_t.
+> 
+> It is a different issue from the tunable unconfined domain.
+> However, I want you to understand allowing unconfined domains to invoke
+> user defined functions directly is fundamentally risky.
+> (Thus, I don't allow unconfined domains to invoke sepgsql_FOO_proc_t.)
+> 
+>>>  it works as
+>>> a generic domain. It also includes behavior changing in type_transition for tables.
+>> I'll have to re-review it, but I'm still uneasy about changing
+>> type_transitions.
+> 
+> I think the default type of database objects should be common, not a local type
+> like sepgsql_FOO_table_t. When it works as a DBA, a newly created table should
+> be labled as sepgsql_table_t, even if unconfined_t has its local sepgsql_unconfined_table_t.
+> Thus, type_transition also need to be tunable, if unconfined domain is tunable.
+> 
+> Thanks,
+
+
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
