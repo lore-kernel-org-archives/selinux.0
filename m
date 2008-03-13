@@ -1,206 +1,140 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2DBv1v7021546
-	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 07:57:01 -0400
-Received: from po-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2DBuvew010235
-	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 11:56:58 GMT
-Received: by po-out-1718.google.com with SMTP id b23so3276908poe.4
-        for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 04:56:56 -0700 (PDT)
-Message-ID: <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
-Date: Thu, 13 Mar 2008 07:56:54 -0400
-From: "Stephen Smalley" <stephen.smalley@gmail.com>
-To: "Eric Paris" <eparis@parisplace.org>
-Subject: Re: How to handle security_dentry_open when the open flags are 'special'
-Cc: "Eric Paris" <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
-        linux-security-module@vger.kernel.org, sds@tycho.nsa.gov,
-        jmorris@namei.org, casey@schaufler-ca.com
-In-Reply-To: <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2DMuFj6005812
+	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 18:56:15 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2DMuE3k008191
+	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 22:56:14 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m2DMtPEL025617
+	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 18:55:25 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m2DMtOlg029612
+	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 18:55:24 -0400
+Received: from localhost.localdomain (dhcp-10-12-34-104.boston.devel.redhat.com [10.12.34.104])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m2DMtOXk014216
+	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 18:55:24 -0400
+Message-ID: <47D9B0DB.90308@redhat.com>
+Date: Thu, 13 Mar 2008 18:55:23 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <1205349239.2925.11.camel@localhost.localdomain>
-	 <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: libselinux/matchpathcon has a memory leak
+Content-Type: multipart/mixed;
+ boundary="------------040707060306020809060501"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric,
+This is a multi-part message in MIME format.
+--------------040707060306020809060501
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-IIUC, in this situation, we are setting up a file that cannot be used
-for read or write operations due to its lack of FMODE_READ or
-FMODE_WRITE.  Thus, we don't actually need to check anything in
-selinux_dentry_open - that check is only to avoid losing checking on
-read/write revalidation altogether in the case where the policy seqno
-or file label has changed since the inode_permission check.  If we can
-never use this file for read/write, it isn't needed.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-For the revalidation of open files on exec or transfer, if it cannot
-be used for read or write, then we likewise can't (and don't need to)
-revalidate it.  If/when it gets used in a ioctl call, we'll check it
-via selinux_file_ioctl.
+Looks like the selabel stuff is leaking.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.8 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Thus, IMHO, we need to change callers of file_to_av() to check for a 0
-return and skip checking in that case - it is apparently a legal case
-that we didn't realize originally.
+iEYEARECAAYFAkfZsNoACgkQrlYvE4MpobOFMgCfeZLFY2nmV+AmYWCkf64pWU60
+M9MAoOenkWW6cjXuhP3dgJHzCWX7kKLg
+=9INA
+-----END PGP SIGNATURE-----
 
-Stephen "not in the office today" Smalley
+--------------040707060306020809060501
+Content-Type: text/plain;
+ name="out"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="out"
 
+valgrind --leak-check=full matchpathcon /etc/security/access.conf /etc/security/chroot.conf /etc/security/console.apps /etc/security/console.handlers /etc/security/console.perms /etc/security/console.perms.d /etc/security/group.conf /etc/security/group.conf.rpmnew /etc/security/limits.conf /etc/security/limits.conf.rpmnew /etc/security/limits.d /etc/security/namespace.conf /etc/security/namespace.d /etc/security/namespace.init /etc/security/opasswd /etc/security/pam_env.conf /etc/security/pam_mount.conf.xml /etc/security/pam_winbind.conf /etc/security/sepermit.conf /etc/security/sepermit.conf.rpmnew /etc/security/time.conf
+==22135== Memcheck, a memory error detector.
+==22135== Copyright (C) 2002-2007, and GNU GPL'd, by Julian Seward et al.
+==22135== Using LibVEX rev 1804, a library for dynamic binary translation.
+==22135== Copyright (C) 2004-2007, and GNU GPL'd, by OpenWorks LLP.
+==22135== Using valgrind-3.3.0, a dynamic binary instrumentation framework.
+==22135== Copyright (C) 2000-2007, and GNU GPL'd, by Julian Seward et al.
+==22135== For more details, rerun with: -v
+==22135== 
+/etc/security/access.conf	system_u:object_r:etc_t
+/etc/security/chroot.conf	system_u:object_r:etc_t
+/etc/security/console.apps	system_u:object_r:userhelper_conf_t
+/etc/security/console.handlers	system_u:object_r:etc_t
+/etc/security/console.perms	system_u:object_r:etc_t
+/etc/security/console.perms.d	system_u:object_r:etc_t
+/etc/security/group.conf	system_u:object_r:etc_t
+/etc/security/group.conf.rpmnew	system_u:object_r:etc_t
+/etc/security/limits.conf	system_u:object_r:etc_t
+/etc/security/limits.conf.rpmnew	system_u:object_r:etc_t
+/etc/security/limits.d	system_u:object_r:etc_t
+/etc/security/namespace.conf	system_u:object_r:etc_t
+/etc/security/namespace.d	system_u:object_r:etc_t
+/etc/security/namespace.init	system_u:object_r:bin_t
+/etc/security/opasswd	system_u:object_r:etc_t
+/etc/security/pam_env.conf	system_u:object_r:etc_t
+/etc/security/pam_mount.conf.xml	system_u:object_r:etc_t
+/etc/security/pam_winbind.conf	system_u:object_r:etc_t
+/etc/security/sepermit.conf	system_u:object_r:etc_t
+/etc/security/sepermit.conf.rpmnew	system_u:object_r:etc_t
+/etc/security/time.conf	system_u:object_r:etc_t
+==22135== 
+==22135== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 4 from 1)
+==22135== malloc/free: in use at exit: 464 bytes in 19 blocks.
+==22135== malloc/free: 62,395 allocs, 62,376 frees, 7,306,530 bytes allocated.
+==22135== For counts of detected errors, rerun with: -v
+==22135== searching for pointers to 19 not-freed blocks.
+==22135== checked 78,424 bytes.
+==22135== 
+==22135== 32 bytes in 1 blocks are definitely lost in loss record 1 of 3
+==22135==    at 0x4A0739E: malloc (vg_replace_malloc.c:207)
+==22135==    by 0x3457E0DA34: (within /lib64/libselinux.so.1)
+==22135==    by 0x3457E0C928: selabel_open (in /lib64/libselinux.so.1)
+==22135==    by 0x3457E105A6: matchpathcon_init_prefix (in /lib64/libselinux.so.1)
+==22135==    by 0x3457E1067E: matchpathcon (in /lib64/libselinux.so.1)
+==22135==    by 0x400BE6: (within /usr/sbin/matchpathcon)
+==22135==    by 0x400E95: (within /usr/sbin/matchpathcon)
+==22135==    by 0x3456E1E479: (below main) (in /lib64/libc-2.7.90.so)
+==22135== 
+==22135== 
+==22135== 72 bytes in 3 blocks are definitely lost in loss record 2 of 3
+==22135==    at 0x4A0739E: malloc (vg_replace_malloc.c:207)
+==22135==    by 0x3457E12453: (within /lib64/libselinux.so.1)
+==22135==    by 0x3457E12943: selinux_raw_to_trans_context (in /lib64/libselinux.so.1)
+==22135==    by 0x3457E0C7E9: (within /lib64/libselinux.so.1)
+==22135==    by 0x3457E0C84D: selabel_lookup (in /lib64/libselinux.so.1)
+==22135==    by 0x400BE6: (within /usr/sbin/matchpathcon)
+==22135==    by 0x400E95: (within /usr/sbin/matchpathcon)
+==22135==    by 0x3456E1E479: (below main) (in /lib64/libc-2.7.90.so)
+==22135== 
+==22135== 
+==22135== 360 bytes in 15 blocks are definitely lost in loss record 3 of 3
+==22135==    at 0x4A0739E: malloc (vg_replace_malloc.c:207)
+==22135==    by 0x3456E822C1: strdup (in /lib64/libc-2.7.90.so)
+==22135==    by 0x3457E12923: selinux_raw_to_trans_context (in /lib64/libselinux.so.1)
+==22135==    by 0x3457E0C7E9: (within /lib64/libselinux.so.1)
+==22135==    by 0x3457E0C84D: selabel_lookup (in /lib64/libselinux.so.1)
+==22135==    by 0x400BE6: (within /usr/sbin/matchpathcon)
+==22135==    by 0x400E95: (within /usr/sbin/matchpathcon)
+==22135==    by 0x3456E1E479: (below main) (in /lib64/libc-2.7.90.so)
+==22135== 
+==22135== LEAK SUMMARY:
+==22135==    definitely lost: 464 bytes in 19 blocks.
+==22135==      possibly lost: 0 bytes in 0 blocks.
+==22135==    still reachable: 0 bytes in 0 blocks.
+==22135==         suppressed: 0 bytes in 0 blocks.
 
-On 3/12/08, Eric Paris <eparis@parisplace.org> wrote:
-> Which I think then blows up if we pass this file to another process or
-> if we exec something.  Uggh....
->
-> -Eric
->
->
-> On 3/12/08, Eric Paris <eparis@redhat.com> wrote:
-> > See LKML posting http://marc.info/?l=linux-kernel&m=120534660832189&w=2
-> >
-> >  according to viro a call to sys_open like: open("/dev/null", 3) is
-> >  supposed to mean: check read and write but not set FMODE_READ or
-> >  FMODE_WRITE.  This is exactly the security check we get through the
-> >  security_inode_permission hook but not what happens through the
-> >  security_dentry_open hook.  This patch actually passes the bare flags
-> >  into security_dentry_open so that we can do the correct permission
-> >  checking there.
-> >
-> >  What do people think?
-> >
-> >  Untested, uncompiled, just thoughts and fleshing it out....
-> >
-> >  -Eric
-> >
-> >   fs/open.c                |    2 +-
-> >   include/linux/security.h |    6 +++---
-> >   security/security.c      |    4 ++--
-> >   security/selinux/hooks.c |   20 ++++++++++++++++++--
-> >   4 files changed, 24 insertions(+), 8 deletions(-)
-> >
-> >  diff --git a/fs/open.c b/fs/open.c
-> >  index 5419853..2560a3e 100644
-> >  --- a/fs/open.c
-> >  +++ b/fs/open.c
-> >  @@ -754,7 +754,7 @@ static struct file *__dentry_open(struct dentry
-> *dentry, struct vfsmount *mnt,
-> >         f->f_op = fops_get(inode->i_fop);
-> >         file_move(f, &inode->i_sb->s_files);
-> >
-> >  -       error = security_dentry_open(f);
-> >  +       error = security_dentry_open(f, flags);
-> >         if (error)
-> >                 goto cleanup_all;
-> >
-> >  diff --git a/include/linux/security.h b/include/linux/security.h
-> >  index b07357c..704a5f7 100644
-> >  --- a/include/linux/security.h
-> >  +++ b/include/linux/security.h
-> >  @@ -1338,7 +1338,7 @@ struct security_operations {
-> >         int (*file_send_sigiotask) (struct task_struct * tsk,
-> >                                     struct fown_struct * fown, int sig);
-> >         int (*file_receive) (struct file * file);
-> >  -       int (*dentry_open)  (struct file *file);
-> >  +       int (*dentry_open)  (struct file *file, int flags);
-> >
-> >         int (*task_create) (unsigned long clone_flags);
-> >         int (*task_alloc_security) (struct task_struct * p);
-> >  @@ -1594,7 +1594,7 @@ int security_file_set_fowner(struct file *file);
-> >   int security_file_send_sigiotask(struct task_struct *tsk,
-> >                                   struct fown_struct *fown, int sig);
-> >   int security_file_receive(struct file *file);
-> >  -int security_dentry_open(struct file *file);
-> >  +int security_dentry_open(struct file *file, int flags);
-> >   int security_task_create(unsigned long clone_flags);
-> >   int security_task_alloc(struct task_struct *p);
-> >   void security_task_free(struct task_struct *p);
-> >  @@ -2086,7 +2086,7 @@ static inline int security_file_receive (struct
-> file *file)
-> >         return 0;
-> >   }
-> >
-> >  -static inline int security_dentry_open (struct file *file)
-> >  +static inline int security_dentry_open (struct file *file, int flags)
-> >   {
-> >         return 0;
-> >   }
-> >  diff --git a/security/security.c b/security/security.c
-> >  index b1387a6..28a4f2a 100644
-> >  --- a/security/security.c
-> >  +++ b/security/security.c
-> >  @@ -582,9 +582,9 @@ int security_file_receive(struct file *file)
-> >         return security_ops->file_receive(file);
-> >   }
-> >
-> >  -int security_dentry_open(struct file *file)
-> >  +int security_dentry_open(struct file *file, int flags)
-> >   {
-> >  -       return security_ops->dentry_open(file);
-> >  +       return security_ops->dentry_open(file, flags);
-> >   }
-> >
-> >   int security_task_create(unsigned long clone_flags)
-> >  diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> >  index 4bf4807..1966590 100644
-> >  --- a/security/selinux/hooks.c
-> >  +++ b/security/selinux/hooks.c
-> >  @@ -3017,11 +3017,14 @@ static int selinux_file_receive(struct file
-> *file)
-> >         return file_has_perm(current, file, file_to_av(file));
-> >   }
-> >
-> >  -static int selinux_dentry_open(struct file *file)
-> >  +static int selinux_dentry_open(struct file *file, int flags)
-> >   {
-> >         struct file_security_struct *fsec;
-> >         struct inode *inode;
-> >         struct inode_security_struct *isec;
-> >  +       u32 av = 0;
-> >  +       mode_t f_mode;
-> >  +
-> >         inode = file->f_path.dentry->d_inode;
-> >         fsec = file->f_security;
-> >         isec = inode->i_security;
-> >  @@ -3034,6 +3037,19 @@ static int selinux_dentry_open(struct file *file)
-> >          */
-> >         fsec->isid = isec->sid;
-> >         fsec->pseqno = avc_policy_seqno();
-> >  +
-> >  +       f_mode = flags & O_ACCMODE;
-> >  +       if ((f_mode+1) & O_ACCMODE)
-> >  +               f_mode++;
-> >  +
-> >  +       if (f_mode & FMODE_READ)
-> >  +               av |= FILE__READ;
-> >  +       if (f_mode & FMODE_WRITE) {
-> >  +               if (file->f_flags & O_APPEND)
-> >  +                       av |= FILE__APPEND;
-> >  +               else
-> >  +                       av |= FILE__WRITE;
-> >  +       }
-> >         /*
-> >          * Since the inode label or policy seqno may have changed
-> >          * between the selinux_inode_permission check and the saving
-> >  @@ -3042,7 +3058,7 @@ static int selinux_dentry_open(struct file *file)
-> >          * new inode label or new policy.
-> >          * This check is not redundant - do not remove.
-> >          */
-> >  -       return inode_has_perm(current, inode, file_to_av(file), NULL);
-> >  +       return inode_has_perm(current, inode, av, NULL);
-> >   }
-> >
-> >   /* task security operations */
-> >
-> >
-> >
-> >  --
-> >  To unsubscribe from this list: send the line "unsubscribe
-> linux-security-module" in
-> >  the body of a message to majordomo@vger.kernel.org
-> >  More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >
-> --
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+--------------040707060306020809060501
+Content-Type: application/pgp-signature;
+ name="out.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="out.sig"
+
+iEYEABECAAYFAkfZsNoACgkQrlYvE4MpobN/3QCfZZijEcT02HYTn5Yuf6rOER65PpgAoN1q
+QH3oBmdoUMjBN4xp8wlXXIl2
+--------------040707060306020809060501--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
