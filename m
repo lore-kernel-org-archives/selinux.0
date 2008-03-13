@@ -1,125 +1,206 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2D85nhI023038
-	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 04:05:49 -0400
-Received: from wf-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2D85mew010207
-	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 08:05:49 GMT
-Received: by wf-out-1314.google.com with SMTP id 28so3545888wfc.30
-        for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 01:05:48 -0700 (PDT)
-Message-ID: <dd18b0c30803130105l7cfc19d8y793518d20b2fcd22@mail.gmail.com>
-Date: Thu, 13 Mar 2008 08:05:48 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: 2.6.25-rc5
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2DBv1v7021546
+	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 07:57:01 -0400
+Received: from po-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2DBuvew010235
+	for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 11:56:58 GMT
+Received: by po-out-1718.google.com with SMTP id b23so3276908poe.4
+        for <selinux@tycho.nsa.gov>; Thu, 13 Mar 2008 04:56:56 -0700 (PDT)
+Message-ID: <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
+Date: Thu, 13 Mar 2008 07:56:54 -0400
+From: "Stephen Smalley" <stephen.smalley@gmail.com>
+To: "Eric Paris" <eparis@parisplace.org>
+Subject: Re: How to handle security_dentry_open when the open flags are 'special'
+Cc: "Eric Paris" <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org, sds@tycho.nsa.gov,
+        jmorris@namei.org, casey@schaufler-ca.com
+In-Reply-To: <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_9886_11893075.1205395548256"
+Content-Type: text/plain; charset=ISO-8859-1
+References: <1205349239.2925.11.camel@localhost.localdomain>
+	 <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_9886_11893075.1205395548256
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Eric,
 
-Hello; I need to open my eyes better when looking for new versions of a
-program.(I located svn refpolicy and plugged it on, looks very nice,)
-The only question for now with this policy is, with building the allow
-rules, its seems it takes longer to attain avc's, as in other policies. i.g.
-when doing a reboot after the first install of the policy I noticed only
-around 7 to 8 avc's, then after those were defined,  then the same amount on
-the next reboot.
-Previous policies would pour 100's of avc's on the first reboot of the newly
-installed policy(was this planned).Personally; sitting and slowly going
-through each and every avc's frustrated me, but then made me realize it is
-better to take you're time with the rules, due to some rule that should'nt
-be there that might find it's way in. Below is what I see in dmesg with
-SELinux.
+IIUC, in this situation, we are setting up a file that cannot be used
+for read or write operations due to its lack of FMODE_READ or
+FMODE_WRITE.  Thus, we don't actually need to check anything in
+selinux_dentry_open - that check is only to avoid losing checking on
+read/write revalidation altogether in the case where the policy seqno
+or file label has changed since the inode_permission check.  If we can
+never use this file for read/write, it isn't needed.
 
+For the revalidation of open files on exec or transfer, if it cannot
+be used for read or write, then we likewise can't (and don't need to)
+revalidate it.  If/when it gets used in a ioctl call, we'll check it
+via selinux_file_ioctl.
 
+Thus, IMHO, we need to change callers of file_to_av() to check for a 0
+return and skip checking in that case - it is apparently a legal case
+that we didn't realize originally.
 
-
-
-[    0.164286] SELinux:  Registering netfilter hooks
-[    1.015122] SELinux:8192 avtab hash slots allocated. Num of rules:202124
-[    1.045833] SELinux:8192 avtab hash slots allocated. Num of rules:202124
-[    1.076950] security:  7 users, 7 roles, 2618 types, 89 bools
-[    1.076953] security:  69 classes, 202124 rules
-[    1.078288] SELinux:  Completing initialization.
-[    1.078290] SELinux:  Setting up existing superblocks.
-[    1.080008] SELinux: initialized (dev sda1, type ext3), uses xattr
-[    1.080008] SELinux: initialized (dev debugfs, type debugfs), uses
-genfs_contexts
-[    1.080008] SELinux: initialized (dev selinuxfs, type selinuxfs), uses
-genfs_contexts
-[    1.080008] SELinux: initialized (dev mqueue, type mqueue), uses
-transition SIDs
-[    1.080008] SELinux: initialized (dev hugetlbfs, type hugetlbfs), uses
-genfs_contexts
-[    1.080008] SELinux: initialized (dev devpts, type devpts), uses
-transition SIDs
-[    1.080008] SELinux: initialized (dev inotifyfs, type inotifyfs), uses
-genfs_contexts
-[    1.080008] SELinux: initialized (dev tmpfs, type tmpfs), uses transition
-SIDs
-[    1.080008] SELinux: initialized (dev futexfs, type futexfs), uses
-genfs_contexts
-[    1.080008] SELinux: initialized (dev anon_inodefs, type anon_inodefs),
-uses genfs_contexts
-[    1.080008] SELinux: initialized (dev pipefs, type pipefs), uses task
-SIDs
-[    1.080008] SELinux: initialized (dev sockfs, type sockfs), uses task
-SIDs
-[    1.080008] SELinux: initialized (dev proc, type proc), uses
-genfs_contexts
-[    1.080008] SELinux: initialized (dev bdev, type bdev), uses
-genfs_contexts
-[    1.080008] SELinux: initialized (dev rootfs, type rootfs), uses
-genfs_contexts
-[    1.080008] SELinux: initialized (dev sysfs, type sysfs), uses
-genfs_contexts
-[    0.691525] SELinux: policy loaded with handle_unknown=deny
-[    0.691532] type=1403 audit(1205354634.730:2): policy loaded
-auid=4294967295 ses=4294967295
-[    0.990260] SELinux: initialized (dev tmpfs, type tmpfs), uses transition
-SIDs
-[    1.373915] SELinux: initialized (dev tmpfs, type tmpfs), uses transition
-SIDs
-[    2.802217] SELinux: initialized (dev tmpfs, type tmpfs), uses transition
-SIDs
-[    4.354764] SELinux: initialized (dev usbfs, type usbfs), uses
-genfs_contexts
-[    5.863940] SELinux: initialized (dev tmpfs, type tmpfs), uses transition
-SIDs
-
-I'll leave this policy in place for the time being and test and see if
-anything happens.
-Thank you for the help.
+Stephen "not in the office today" Smalley
 
 
--- 
-Justin P. Mattock
-
-------=_Part_9886_11893075.1205395548256
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hello; I need to open my eyes better when looking for new versions of a program.(I located svn refpolicy and plugged it on, looks very nice,)<br>The only question for now with this policy is, with building the allow rules, its seems it takes longer to attain avc&#39;s, as in other policies. i.g.<br>
-when doing a reboot after the first install of the policy I noticed only around 7 to 8 avc&#39;s, then after those were defined,&nbsp; then the same amount on the next reboot.<br>Previous policies would pour 100&#39;s of avc&#39;s on the first reboot of the newly installed policy(was this planned).Personally; sitting and slowly going through each and every avc&#39;s frustrated me, but then made me realize it is better to take you&#39;re time with the rules, due to some rule that should&#39;nt be there that might find it&#39;s way in. Below is what I see in dmesg with SELinux.<br>
-<br><br><br><br><br>[&nbsp;&nbsp;&nbsp; 0.164286] SELinux:&nbsp; Registering netfilter hooks<br>[&nbsp;&nbsp;&nbsp; 1.015122] SELinux:8192 avtab hash slots allocated. Num of rules:202124<br>[&nbsp;&nbsp;&nbsp; 1.045833] SELinux:8192 avtab hash slots allocated. Num of rules:202124<br>
-[&nbsp;&nbsp;&nbsp; 1.076950] security:&nbsp; 7 users, 7 roles, 2618 types, 89 bools<br>[&nbsp;&nbsp;&nbsp; 1.076953] security:&nbsp; 69 classes, 202124 rules<br>[&nbsp;&nbsp;&nbsp; 1.078288] SELinux:&nbsp; Completing initialization.<br>[&nbsp;&nbsp;&nbsp; 1.078290] SELinux:&nbsp; Setting up existing superblocks.<br>
-[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev sda1, type ext3), uses xattr<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev debugfs, type debugfs), uses genfs_contexts<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev selinuxfs, type selinuxfs), uses genfs_contexts<br>
-[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev mqueue, type mqueue), uses transition SIDs<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev hugetlbfs, type hugetlbfs), uses genfs_contexts<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev devpts, type devpts), uses transition SIDs<br>
-[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev inotifyfs, type inotifyfs), uses genfs_contexts<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev futexfs, type futexfs), uses genfs_contexts<br>
-[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev anon_inodefs, type anon_inodefs), uses genfs_contexts<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev pipefs, type pipefs), uses task SIDs<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev sockfs, type sockfs), uses task SIDs<br>
-[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev proc, type proc), uses genfs_contexts<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev bdev, type bdev), uses genfs_contexts<br>[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev rootfs, type rootfs), uses genfs_contexts<br>
-[&nbsp;&nbsp;&nbsp; 1.080008] SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts<br>[&nbsp;&nbsp;&nbsp; 0.691525] SELinux: policy loaded with handle_unknown=deny<br>[&nbsp;&nbsp;&nbsp; 0.691532] type=1403 audit(1205354634.730:2): policy loaded auid=4294967295 ses=4294967295<br>
-[&nbsp;&nbsp;&nbsp; 0.990260] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs<br>[&nbsp;&nbsp;&nbsp; 1.373915] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs<br>[&nbsp;&nbsp;&nbsp; 2.802217] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs<br>
-[&nbsp;&nbsp;&nbsp; 4.354764] SELinux: initialized (dev usbfs, type usbfs), uses genfs_contexts<br>[&nbsp;&nbsp;&nbsp; 5.863940] SELinux: initialized (dev tmpfs, type tmpfs), uses transition SIDs<br><br>I&#39;ll leave this policy in place for the time being and test and see if anything happens.<br>
-Thank you for the help.<br><br clear="all"><br>-- <br>Justin P. Mattock
-
-------=_Part_9886_11893075.1205395548256--
+On 3/12/08, Eric Paris <eparis@parisplace.org> wrote:
+> Which I think then blows up if we pass this file to another process or
+> if we exec something.  Uggh....
+>
+> -Eric
+>
+>
+> On 3/12/08, Eric Paris <eparis@redhat.com> wrote:
+> > See LKML posting http://marc.info/?l=linux-kernel&m=120534660832189&w=2
+> >
+> >  according to viro a call to sys_open like: open("/dev/null", 3) is
+> >  supposed to mean: check read and write but not set FMODE_READ or
+> >  FMODE_WRITE.  This is exactly the security check we get through the
+> >  security_inode_permission hook but not what happens through the
+> >  security_dentry_open hook.  This patch actually passes the bare flags
+> >  into security_dentry_open so that we can do the correct permission
+> >  checking there.
+> >
+> >  What do people think?
+> >
+> >  Untested, uncompiled, just thoughts and fleshing it out....
+> >
+> >  -Eric
+> >
+> >   fs/open.c                |    2 +-
+> >   include/linux/security.h |    6 +++---
+> >   security/security.c      |    4 ++--
+> >   security/selinux/hooks.c |   20 ++++++++++++++++++--
+> >   4 files changed, 24 insertions(+), 8 deletions(-)
+> >
+> >  diff --git a/fs/open.c b/fs/open.c
+> >  index 5419853..2560a3e 100644
+> >  --- a/fs/open.c
+> >  +++ b/fs/open.c
+> >  @@ -754,7 +754,7 @@ static struct file *__dentry_open(struct dentry
+> *dentry, struct vfsmount *mnt,
+> >         f->f_op = fops_get(inode->i_fop);
+> >         file_move(f, &inode->i_sb->s_files);
+> >
+> >  -       error = security_dentry_open(f);
+> >  +       error = security_dentry_open(f, flags);
+> >         if (error)
+> >                 goto cleanup_all;
+> >
+> >  diff --git a/include/linux/security.h b/include/linux/security.h
+> >  index b07357c..704a5f7 100644
+> >  --- a/include/linux/security.h
+> >  +++ b/include/linux/security.h
+> >  @@ -1338,7 +1338,7 @@ struct security_operations {
+> >         int (*file_send_sigiotask) (struct task_struct * tsk,
+> >                                     struct fown_struct * fown, int sig);
+> >         int (*file_receive) (struct file * file);
+> >  -       int (*dentry_open)  (struct file *file);
+> >  +       int (*dentry_open)  (struct file *file, int flags);
+> >
+> >         int (*task_create) (unsigned long clone_flags);
+> >         int (*task_alloc_security) (struct task_struct * p);
+> >  @@ -1594,7 +1594,7 @@ int security_file_set_fowner(struct file *file);
+> >   int security_file_send_sigiotask(struct task_struct *tsk,
+> >                                   struct fown_struct *fown, int sig);
+> >   int security_file_receive(struct file *file);
+> >  -int security_dentry_open(struct file *file);
+> >  +int security_dentry_open(struct file *file, int flags);
+> >   int security_task_create(unsigned long clone_flags);
+> >   int security_task_alloc(struct task_struct *p);
+> >   void security_task_free(struct task_struct *p);
+> >  @@ -2086,7 +2086,7 @@ static inline int security_file_receive (struct
+> file *file)
+> >         return 0;
+> >   }
+> >
+> >  -static inline int security_dentry_open (struct file *file)
+> >  +static inline int security_dentry_open (struct file *file, int flags)
+> >   {
+> >         return 0;
+> >   }
+> >  diff --git a/security/security.c b/security/security.c
+> >  index b1387a6..28a4f2a 100644
+> >  --- a/security/security.c
+> >  +++ b/security/security.c
+> >  @@ -582,9 +582,9 @@ int security_file_receive(struct file *file)
+> >         return security_ops->file_receive(file);
+> >   }
+> >
+> >  -int security_dentry_open(struct file *file)
+> >  +int security_dentry_open(struct file *file, int flags)
+> >   {
+> >  -       return security_ops->dentry_open(file);
+> >  +       return security_ops->dentry_open(file, flags);
+> >   }
+> >
+> >   int security_task_create(unsigned long clone_flags)
+> >  diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> >  index 4bf4807..1966590 100644
+> >  --- a/security/selinux/hooks.c
+> >  +++ b/security/selinux/hooks.c
+> >  @@ -3017,11 +3017,14 @@ static int selinux_file_receive(struct file
+> *file)
+> >         return file_has_perm(current, file, file_to_av(file));
+> >   }
+> >
+> >  -static int selinux_dentry_open(struct file *file)
+> >  +static int selinux_dentry_open(struct file *file, int flags)
+> >   {
+> >         struct file_security_struct *fsec;
+> >         struct inode *inode;
+> >         struct inode_security_struct *isec;
+> >  +       u32 av = 0;
+> >  +       mode_t f_mode;
+> >  +
+> >         inode = file->f_path.dentry->d_inode;
+> >         fsec = file->f_security;
+> >         isec = inode->i_security;
+> >  @@ -3034,6 +3037,19 @@ static int selinux_dentry_open(struct file *file)
+> >          */
+> >         fsec->isid = isec->sid;
+> >         fsec->pseqno = avc_policy_seqno();
+> >  +
+> >  +       f_mode = flags & O_ACCMODE;
+> >  +       if ((f_mode+1) & O_ACCMODE)
+> >  +               f_mode++;
+> >  +
+> >  +       if (f_mode & FMODE_READ)
+> >  +               av |= FILE__READ;
+> >  +       if (f_mode & FMODE_WRITE) {
+> >  +               if (file->f_flags & O_APPEND)
+> >  +                       av |= FILE__APPEND;
+> >  +               else
+> >  +                       av |= FILE__WRITE;
+> >  +       }
+> >         /*
+> >          * Since the inode label or policy seqno may have changed
+> >          * between the selinux_inode_permission check and the saving
+> >  @@ -3042,7 +3058,7 @@ static int selinux_dentry_open(struct file *file)
+> >          * new inode label or new policy.
+> >          * This check is not redundant - do not remove.
+> >          */
+> >  -       return inode_has_perm(current, inode, file_to_av(file), NULL);
+> >  +       return inode_has_perm(current, inode, av, NULL);
+> >   }
+> >
+> >   /* task security operations */
+> >
+> >
+> >
+> >  --
+> >  To unsubscribe from this list: send the line "unsubscribe
+> linux-security-module" in
+> >  the body of a message to majordomo@vger.kernel.org
+> >  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
+> --
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
