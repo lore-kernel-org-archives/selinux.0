@@ -1,109 +1,94 @@
-Subject: Re: 2.6.25-rc5
+Subject: Re: libselinux/matchpathcon has a memory leak
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30803130105l7cfc19d8y793518d20b2fcd22@mail.gmail.com>
-References: <dd18b0c30803130105l7cfc19d8y793518d20b2fcd22@mail.gmail.com>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <47D9B7AB.4040701@tycho.nsa.gov>
+References: <47D9B0DB.90308@redhat.com>  <47D9B7AB.4040701@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Fri, 14 Mar 2008 09:09:01 -0400
-Message-Id: <1205500141.22912.13.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 14 Mar 2008 09:20:11 -0400
+Message-Id: <1205500811.22912.26.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-03-13 at 08:05 +0000, Justin Mattock wrote:
-> Hello; I need to open my eyes better when looking for new versions of
-> a program.(I located svn refpolicy and plugged it on, looks very
-> nice,)
-> The only question for now with this policy is, with building the allow
-> rules, its seems it takes longer to attain avc's, as in other
-> policies. i.g.
-> when doing a reboot after the first install of the policy I noticed
-> only around 7 to 8 avc's, then after those were defined,  then the
-> same amount on the next reboot.
-> Previous policies would pour 100's of avc's on the first reboot of the
-> newly installed policy(was this planned).Personally; sitting and
-> slowly going through each and every avc's frustrated me, but then made
-> me realize it is better to take you're time with the rules, due to
-> some rule that should'nt be there that might find it's way in. Below
-> is what I see in dmesg with SELinux.
+On Thu, 2008-03-13 at 19:24 -0400, Eamon Walsh wrote:
+> Daniel J Walsh wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> > Looks like the selabel stuff is leaking.
+> >   
+> 
+> Try this patch please:
+> 
+> Index: libselinux/src/label_file.c
+> ===================================================================
+> --- libselinux/src/label_file.c	(revision 2848)
+> +++ libselinux/src/label_file.c	(working copy)
+> @@ -490,9 +490,8 @@
+>  				goto finish;
+>  			}
+>  			if (NULL == (data->spec_arr =
+> -				     malloc(sizeof(spec_t) * data->nspec)))
+> +				     calloc(data->nspec, sizeof(spec_t))))
+>  				goto finish;
+> -			memset(data->spec_arr, 0, sizeof(spec_t)*data->nspec);
 
-I think that just reflects the fact that the latest refpolicy has
-incorporated many additional permissions since the one that you were
-originally using based on user feedback, and thus has fewer gaps in its
-coverage.  Not any fundamental change in how it reports avcs.
+Fine as a cleanup, but wouldn't make a difference to this leak, so
+that's a separate patch.
 
-> 
-> 
-> 
-> 
-> [    0.164286] SELinux:  Registering netfilter hooks
-> [    1.015122] SELinux:8192 avtab hash slots allocated. Num of
-> rules:202124
-> [    1.045833] SELinux:8192 avtab hash slots allocated. Num of
-> rules:202124
-> [    1.076950] security:  7 users, 7 roles, 2618 types, 89 bools
-> [    1.076953] security:  69 classes, 202124 rules
+>  			maxnspec = data->nspec;
+>  			rewind(fp);
+>  			if (homedirfp)
+> @@ -504,7 +503,7 @@
+>  	free(line_buf);
+>  
+>  	/* Move exact pathname specifications to the end. */
+> -	spec_copy = malloc(sizeof(spec_t) * data->nspec);
+> +	spec_copy = calloc(data->nspec, sizeof(spec_t));
 
-Good, so all classes/perms known to the kernel are defined by your
-policy.  Although they might still not be in use (due to the policy
-capabilities not yet being defined upstream).
+Unnecessary - if you look at the code that follows, it ensures that
+every entry in spec_copy is initialized.
 
-> [    1.078288] SELinux:  Completing initialization.
-> [    1.078290] SELinux:  Setting up existing superblocks.
-> [    1.080008] SELinux: initialized (dev sda1, type ext3), uses xattr
-> [    1.080008] SELinux: initialized (dev debugfs, type debugfs), uses
-> genfs_contexts
-> [    1.080008] SELinux: initialized (dev selinuxfs, type selinuxfs),
-> uses genfs_contexts
-> [    1.080008] SELinux: initialized (dev mqueue, type mqueue), uses
-> transition SIDs
-> [    1.080008] SELinux: initialized (dev hugetlbfs, type hugetlbfs),
-> uses genfs_contexts
-> [    1.080008] SELinux: initialized (dev devpts, type devpts), uses
-> transition SIDs
-> [    1.080008] SELinux: initialized (dev inotifyfs, type inotifyfs),
-> uses genfs_contexts
-> [    1.080008] SELinux: initialized (dev tmpfs, type tmpfs), uses
-> transition SIDs
-> [    1.080008] SELinux: initialized (dev futexfs, type futexfs), uses
-> genfs_contexts
-> [    1.080008] SELinux: initialized (dev anon_inodefs, type
-> anon_inodefs), uses genfs_contexts
-> [    1.080008] SELinux: initialized (dev pipefs, type pipefs), uses
-> task SIDs
-> [    1.080008] SELinux: initialized (dev sockfs, type sockfs), uses
-> task SIDs
-> [    1.080008] SELinux: initialized (dev proc, type proc), uses
-> genfs_contexts
-> [    1.080008] SELinux: initialized (dev bdev, type bdev), uses
-> genfs_contexts
-> [    1.080008] SELinux: initialized (dev rootfs, type rootfs), uses
-> genfs_contexts
-> [    1.080008] SELinux: initialized (dev sysfs, type sysfs), uses
-> genfs_contexts
-> [    0.691525] SELinux: policy loaded with handle_unknown=deny
-> [    0.691532] type=1403 audit(1205354634.730:2): policy loaded
-> auid=4294967295 ses=4294967295
-> [    0.990260] SELinux: initialized (dev tmpfs, type tmpfs), uses
-> transition SIDs
-> [    1.373915] SELinux: initialized (dev tmpfs, type tmpfs), uses
-> transition SIDs
-> [    2.802217] SELinux: initialized (dev tmpfs, type tmpfs), uses
-> transition SIDs
-> [    4.354764] SELinux: initialized (dev usbfs, type usbfs), uses
-> genfs_contexts
-> [    5.863940] SELinux: initialized (dev tmpfs, type tmpfs), uses
-> transition SIDs
-> 
-> I'll leave this policy in place for the time being and test and see if
-> anything happens.
-> Thank you for the help.
+>  	if (!spec_copy)
+>  		goto finish;
+>  	j = 0;
+> Index: libselinux/src/matchpathcon.c
+> ===================================================================
+> --- libselinux/src/matchpathcon.c	(revision 2848)
+> +++ libselinux/src/matchpathcon.c	(working copy)
+> @@ -284,6 +284,8 @@
+>  
+>  int matchpathcon_init_prefix(const char *path, const char *subset)
+>  {
+> +	matchpathcon_fini();
+
+I think this burden belongs on the caller and shouldn't be silently done
+here.
+
+> +
+>  	if (!mycanoncon)
+>  		mycanoncon = default_canoncon;
+>  
+> Index: libselinux/src/label.c
+> ===================================================================
+> --- libselinux/src/label.c	(revision 2848)
+> +++ libselinux/src/label.c	(working copy)
+> @@ -95,7 +95,7 @@
+>  	if (compat_validate(rec, lr, "file_contexts", 0))
+>  		return NULL;
+>  
+> -	if (translating &&
+> +	if (translating && !lr->ctx_trans &&
+>  	    selinux_raw_to_trans_context(lr->ctx_raw, &lr->ctx_trans))
+>  		return NULL;
+
+This is the only part applicable to the leak.
+
+>  
 > 
 > 
-> -- 
-> Justin P. Mattock
 -- 
 Stephen Smalley
 National Security Agency
