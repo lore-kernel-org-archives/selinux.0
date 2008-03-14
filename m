@@ -1,94 +1,60 @@
 Subject: Re: libselinux/matchpathcon has a memory leak
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <47D9B7AB.4040701@tycho.nsa.gov>
-References: <47D9B0DB.90308@redhat.com>  <47D9B7AB.4040701@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>
+In-Reply-To: <47D9BBEE.5090105@redhat.com>
+References: <47D9B0DB.90308@redhat.com> <47D9B8BB.2080402@redhat.com>
+	 <47D9BBEE.5090105@redhat.com>
 Content-Type: text/plain
-Date: Fri, 14 Mar 2008 09:20:11 -0400
-Message-Id: <1205500811.22912.26.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 14 Mar 2008 09:36:00 -0400
+Message-Id: <1205501760.22912.38.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-03-13 at 19:24 -0400, Eamon Walsh wrote:
-> Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Looks like the selabel stuff is leaking.
-> >   
+On Thu, 2008-03-13 at 19:42 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Try this patch please:
+> The attached patch fixes the leaks.
 > 
-> Index: libselinux/src/label_file.c
-> ===================================================================
-> --- libselinux/src/label_file.c	(revision 2848)
-> +++ libselinux/src/label_file.c	(working copy)
-> @@ -490,9 +490,8 @@
->  				goto finish;
->  			}
->  			if (NULL == (data->spec_arr =
-> -				     malloc(sizeof(spec_t) * data->nspec)))
-> +				     calloc(data->nspec, sizeof(spec_t))))
->  				goto finish;
-> -			memset(data->spec_arr, 0, sizeof(spec_t)*data->nspec);
-
-Fine as a cleanup, but wouldn't make a difference to this leak, so
-that's a separate patch.
-
->  			maxnspec = data->nspec;
->  			rewind(fp);
->  			if (homedirfp)
-> @@ -504,7 +503,7 @@
->  	free(line_buf);
->  
->  	/* Move exact pathname specifications to the end. */
-> -	spec_copy = malloc(sizeof(spec_t) * data->nspec);
-> +	spec_copy = calloc(data->nspec, sizeof(spec_t));
-
-Unnecessary - if you look at the code that follows, it ensures that
-every entry in spec_copy is initialized.
-
->  	if (!spec_copy)
->  		goto finish;
->  	j = 0;
-> Index: libselinux/src/matchpathcon.c
-> ===================================================================
-> --- libselinux/src/matchpathcon.c	(revision 2848)
-> +++ libselinux/src/matchpathcon.c	(working copy)
-> @@ -284,6 +284,8 @@
->  
->  int matchpathcon_init_prefix(const char *path, const char *subset)
->  {
-> +	matchpathcon_fini();
-
-I think this burden belongs on the caller and shouldn't be silently done
-here.
-
-> +
->  	if (!mycanoncon)
->  		mycanoncon = default_canoncon;
->  
-> Index: libselinux/src/label.c
-> ===================================================================
-> --- libselinux/src/label.c	(revision 2848)
-> +++ libselinux/src/label.c	(working copy)
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.8 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iEYEARECAAYFAkfZu+0ACgkQrlYvE4MpobPbRQCeOFM6HzBGz2N3l56z+yvHEGwl
+> /7sAnjiJkOYsJFZcR8yXrVCdOl3iRFT5
+> =+kwB
+> -----END PGP SIGNATURE-----
+> plain text document attachment (diff)
+> diff --exclude-from=exclude -N -u -r nsalibselinux/src/label.c libselinux-2.0.59/src/label.c
+> --- nsalibselinux/src/label.c	2007-07-16 14:20:46.000000000 -0400
+> +++ libselinux-2.0.59/src/label.c	2008-03-13 19:40:24.000000000 -0400
 > @@ -95,7 +95,7 @@
 >  	if (compat_validate(rec, lr, "file_contexts", 0))
 >  		return NULL;
 >  
 > -	if (translating &&
-> +	if (translating && !lr->ctx_trans &&
+> +	if (translating && (! lr->ctx_trans) &&
+
+No parentheses required there.
+
 >  	    selinux_raw_to_trans_context(lr->ctx_raw, &lr->ctx_trans))
 >  		return NULL;
-
-This is the only part applicable to the leak.
-
 >  
-> 
-> 
+> @@ -131,6 +131,7 @@
+>  void selabel_close(struct selabel_handle *rec)
+>  {
+>  	rec->func_close(rec);
+> +	free(rec->data);
+
+Wrong layer - we don't know how rec->data was allocated here.
+Needs to happen in label_file.c:close(), I think, at the end of it.
+
+>  	free(rec);
+>  }
+>  
 -- 
 Stephen Smalley
 National Security Agency
