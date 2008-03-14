@@ -1,60 +1,52 @@
-Subject: Re: libselinux/matchpathcon has a memory leak
+Subject: Re: How to handle security_dentry_open when the open flags are
+	'special'
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <47D9BBEE.5090105@redhat.com>
-References: <47D9B0DB.90308@redhat.com> <47D9B8BB.2080402@redhat.com>
-	 <47D9BBEE.5090105@redhat.com>
+To: Eric Paris <eparis@parisplace.org>
+Cc: Eric Paris <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org, jmorris@namei.org,
+        casey@schaufler-ca.com
+In-Reply-To: <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
+References: <1205349239.2925.11.camel@localhost.localdomain>
+	 <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
+	 <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
 Content-Type: text/plain
-Date: Fri, 14 Mar 2008 09:36:00 -0400
-Message-Id: <1205501760.22912.38.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 14 Mar 2008 10:16:39 -0400
+Message-Id: <1205504199.22912.52.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-03-13 at 19:42 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Thu, 2008-03-13 at 07:56 -0400, Stephen Smalley wrote:
+> Eric,
 > 
-> The attached patch fixes the leaks.
+> IIUC, in this situation, we are setting up a file that cannot be used
+> for read or write operations due to its lack of FMODE_READ or
+> FMODE_WRITE.  Thus, we don't actually need to check anything in
+> selinux_dentry_open - that check is only to avoid losing checking on
+> read/write revalidation altogether in the case where the policy seqno
+> or file label has changed since the inode_permission check.  If we can
+> never use this file for read/write, it isn't needed.
 > 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.8 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> For the revalidation of open files on exec or transfer, if it cannot
+> be used for read or write, then we likewise can't (and don't need to)
+> revalidate it.  If/when it gets used in a ioctl call, we'll check it
+> via selinux_file_ioctl.
 > 
-> iEYEARECAAYFAkfZu+0ACgkQrlYvE4MpobPbRQCeOFM6HzBGz2N3l56z+yvHEGwl
-> /7sAnjiJkOYsJFZcR8yXrVCdOl3iRFT5
-> =+kwB
-> -----END PGP SIGNATURE-----
-> plain text document attachment (diff)
-> diff --exclude-from=exclude -N -u -r nsalibselinux/src/label.c libselinux-2.0.59/src/label.c
-> --- nsalibselinux/src/label.c	2007-07-16 14:20:46.000000000 -0400
-> +++ libselinux-2.0.59/src/label.c	2008-03-13 19:40:24.000000000 -0400
-> @@ -95,7 +95,7 @@
->  	if (compat_validate(rec, lr, "file_contexts", 0))
->  		return NULL;
->  
-> -	if (translating &&
-> +	if (translating && (! lr->ctx_trans) &&
+> Thus, IMHO, we need to change callers of file_to_av() to check for a 0
+> return and skip checking in that case - it is apparently a legal case
+> that we didn't realize originally.
 
-No parentheses required there.
+Alternatively, we could default to returning FILE__IOCTL from
+file_to_av() if the f_mode has neither FMODE_READ nor FMODE_WRITE, and
+thus check ioctl permission on exec or transfer, thereby validating such
+descriptors early as with normal r/w descriptors and catching leaks of
+them prior to attempted usage.
 
->  	    selinux_raw_to_trans_context(lr->ctx_raw, &lr->ctx_trans))
->  		return NULL;
->  
-> @@ -131,6 +131,7 @@
->  void selabel_close(struct selabel_handle *rec)
->  {
->  	rec->func_close(rec);
-> +	free(rec->data);
+selinux_dentry_open() though doesn't need to check anything in this
+case; its checking is only required for descriptors that can later be
+used in read/write operations.
 
-Wrong layer - we don't know how rec->data was allocated here.
-Needs to happen in label_file.c:close(), I think, at the end of it.
-
->  	free(rec);
->  }
->  
 -- 
 Stephen Smalley
 National Security Agency
