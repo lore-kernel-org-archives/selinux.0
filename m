@@ -1,56 +1,52 @@
-Subject: Re: How to handle security_dentry_open when the open flags are
-	'special'
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@parisplace.org>
-Cc: Eric Paris <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
-        linux-security-module@vger.kernel.org, jmorris@namei.org,
-        casey@schaufler-ca.com
-In-Reply-To: <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
-References: <1205349239.2925.11.camel@localhost.localdomain>
-	 <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
-	 <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 14 Mar 2008 10:16:39 -0400
-Message-Id: <1205504199.22912.52.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2EFGXgO026251
+	for <selinux@tycho.nsa.gov>; Fri, 14 Mar 2008 11:16:33 -0400
+Received: from rn-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2EFGWsT009552
+	for <selinux@tycho.nsa.gov>; Fri, 14 Mar 2008 15:16:32 GMT
+Received: by rn-out-0910.google.com with SMTP id e24so2881708rng.8
+        for <selinux@tycho.nsa.gov>; Fri, 14 Mar 2008 08:16:31 -0700 (PDT)
+Message-ID: <dd18b0c30803140816n68edaf2fg82f3b551f728b28@mail.gmail.com>
+Date: Fri, 14 Mar 2008 15:16:30 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: 2.6.25-rc5
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_1022_18885612.1205507790977"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+------=_Part_1022_18885612.1205507790977
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Thu, 2008-03-13 at 07:56 -0400, Stephen Smalley wrote:
-> Eric,
-> 
-> IIUC, in this situation, we are setting up a file that cannot be used
-> for read or write operations due to its lack of FMODE_READ or
-> FMODE_WRITE.  Thus, we don't actually need to check anything in
-> selinux_dentry_open - that check is only to avoid losing checking on
-> read/write revalidation altogether in the case where the policy seqno
-> or file label has changed since the inode_permission check.  If we can
-> never use this file for read/write, it isn't needed.
-> 
-> For the revalidation of open files on exec or transfer, if it cannot
-> be used for read or write, then we likewise can't (and don't need to)
-> revalidate it.  If/when it gets used in a ioctl call, we'll check it
-> via selinux_file_ioctl.
-> 
-> Thus, IMHO, we need to change callers of file_to_av() to check for a 0
-> return and skip checking in that case - it is apparently a legal case
-> that we didn't realize originally.
+Hi;
 
-Alternatively, we could default to returning FILE__IOCTL from
-file_to_av() if the f_mode has neither FMODE_READ nor FMODE_WRITE, and
-thus check ioctl permission on exec or transfer, thereby validating such
-descriptors early as with normal r/w descriptors and catching leaks of
-them prior to attempted usage.
-
-selinux_dentry_open() though doesn't need to check anything in this
-case; its checking is only required for descriptors that can later be
-used in read/write operations.
+Thanks for the response.  I think the policy and the kernel is running
+smoothly, of course there's quirks here and there, in the meantime,
+I've been side tracked from power consumption, to capability.h. In doing so
+Its been interesting reading that file. I've been  trying to compile a
+driver(fglrx) thats been complaining about KCLPosixSecurityCap, cap_t. With
+reading capability.h cap_t is being moved to libcap, so having cap_t put in
+libcap, and having fglrx read libcap, for cap_t
+ seems to be interesting. with capability2 will it reside in the same file
+as capability.h, or somewhere else.
+Overall I think capability's are a very good idea.
 
 -- 
-Stephen Smalley
-National Security Agency
+Justin P. Mattock
 
+------=_Part_1022_18885612.1205507790977
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hi; <br><br>Thanks for the response.&nbsp; I think the policy and the kernel is running smoothly, of course there&#39;s quirks here and there, in the meantime,<br>I&#39;ve been side tracked from power consumption, to capability.h. In doing so Its been interesting reading that file. I&#39;ve been&nbsp; trying to compile a driver(fglrx) thats been complaining about KCLPosixSecurityCap, cap_t. With reading capability.h cap_t is being moved to libcap, so having cap_t put in libcap, and having fglrx read libcap, for cap_t<br>
+&nbsp;seems to be interesting. with capability2 will it reside in the same file as capability.h, or somewhere else.<br>Overall I think capability&#39;s are a very good idea.<br clear="all"><br>-- <br>Justin P. Mattock
+
+------=_Part_1022_18885612.1205507790977--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
