@@ -1,37 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2GEJd7V029064
-	for <selinux@tycho.nsa.gov>; Sun, 16 Mar 2008 10:19:39 -0400
-Received: from smtp114.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m2GEJcd6023244
-	for <selinux@tycho.nsa.gov>; Sun, 16 Mar 2008 14:19:39 GMT
-Cc: selinux@tycho.nsa.gov
-Message-Id: <F13409B8-339D-428F-B0C5-A115A8A8E944@nall.com>
-From: Joe Nall <joe@nall.com>
-To: kihamba nengo <knengo@yahoo.com>
-In-Reply-To: <108108.89635.qm@web90403.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v919.2)
-Subject: Re: policy module for httpd
-Date: Sun, 16 Mar 2008 09:19:10 -0500
-References: <108108.89635.qm@web90403.mail.mud.yahoo.com>
+Date: Mon, 17 Mar 2008 08:41:27 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@parisplace.org>, Eric Paris <eparis@redhat.com>,
+        selinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
+        casey@schaufler-ca.com
+Subject: Re: How to handle security_dentry_open when the open flags are
+ 'special'
+In-Reply-To: <1205504199.22912.52.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0803170840430.24928@us.intercode.com.au>
+References: <1205349239.2925.11.camel@localhost.localdomain>
+ <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
+ <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
+ <1205504199.22912.52.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 14 Mar 2008, Stephen Smalley wrote:
 
-On Mar 16, 2008, at 8:43 AM, kihamba nengo wrote:
+> Alternatively, we could default to returning FILE__IOCTL from
+> file_to_av() if the f_mode has neither FMODE_READ nor FMODE_WRITE, and
+> thus check ioctl permission on exec or transfer, thereby validating such
+> descriptors early as with normal r/w descriptors and catching leaks of
+> them prior to attempted usage.
 
-> Hi,
-> How can i develop a policy module for apache on fedora 8. I have  
-> the .te file and i would like to know how to build a policy module  
-> manually without using the policy generation tools.
+I think this sounds like a good plan.
 
-Dan Walsh's blog has a number of howto entries. This entry is a good  
-start:
+> 
+> selinux_dentry_open() though doesn't need to check anything in this
+> case; its checking is only required for descriptors that can later be
+> used in read/write operations.
+> 
+> 
 
-http://danwalsh.livejournal.com/2007/10/02/
-
-joe
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
