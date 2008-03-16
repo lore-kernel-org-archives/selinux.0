@@ -1,37 +1,37 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2GDhVpK024609
-	for <selinux@tycho.nsa.gov>; Sun, 16 Mar 2008 09:43:31 -0400
-Received: from web90403.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2GDhUKY005671
-	for <selinux@tycho.nsa.gov>; Sun, 16 Mar 2008 13:43:30 GMT
-Date: Sun, 16 Mar 2008 06:43:29 -0700 (PDT)
-From: kihamba nengo <knengo@yahoo.com>
-Subject: policy module for httpd
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1993332815-1205675009=:89635"
-Message-ID: <108108.89635.qm@web90403.mail.mud.yahoo.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2GEJd7V029064
+	for <selinux@tycho.nsa.gov>; Sun, 16 Mar 2008 10:19:39 -0400
+Received: from smtp114.sbc.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m2GEJcd6023244
+	for <selinux@tycho.nsa.gov>; Sun, 16 Mar 2008 14:19:39 GMT
+Cc: selinux@tycho.nsa.gov
+Message-Id: <F13409B8-339D-428F-B0C5-A115A8A8E944@nall.com>
+From: Joe Nall <joe@nall.com>
+To: kihamba nengo <knengo@yahoo.com>
+In-Reply-To: <108108.89635.qm@web90403.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v919.2)
+Subject: Re: policy module for httpd
+Date: Sun, 16 Mar 2008 09:19:10 -0500
+References: <108108.89635.qm@web90403.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1993332815-1205675009=:89635
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
 
-Hi,
-How can i develop a policy module for apache on fedora 8. I have the .te file and i would like to know how to build a policy module manually without using the policy generation tools.
+On Mar 16, 2008, at 8:43 AM, kihamba nengo wrote:
 
-       
----------------------------------
-Looking for last minute shopping deals?  Find them fast with Yahoo! Search.
---0-1993332815-1205675009=:89635
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+> Hi,
+> How can i develop a policy module for apache on fedora 8. I have  
+> the .te file and i would like to know how to build a policy module  
+> manually without using the policy generation tools.
 
-Hi,<br>How can i develop a policy module for apache on fedora 8. I have the .te file and i would like to know how to build a policy module manually without using the policy generation tools.<br><p>&#32;
-      <hr size=1>Looking for last minute shopping deals? <a href="http://us.rd.yahoo.com/evt=51734/*http://tools.search.yahoo.com/newsearch/category.php?category=shopping"> 
-Find them fast with Yahoo! Search.</a>
---0-1993332815-1205675009=:89635--
+Dan Walsh's blog has a number of howto entries. This entry is a good  
+start:
+
+http://danwalsh.livejournal.com/2007/10/02/
+
+joe
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
