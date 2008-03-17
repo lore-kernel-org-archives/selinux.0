@@ -1,45 +1,70 @@
-Date: Tue, 18 Mar 2008 10:02:17 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        selinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
-        casey@schaufler-ca.com
-Subject: Re: [patch] selinux:  handle files opened with flags 3 by checking
- ioctl permission
-In-Reply-To: <1205792367.2891.1.camel@localhost.localdomain>
-Message-ID: <Xine.LNX.4.64.0803181000390.18000@us.intercode.com.au>
-References: <1205349239.2925.11.camel@localhost.localdomain>
- <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
- <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
- <1205504199.22912.52.camel@moss-spartans.epoch.ncsc.mil>
- <Xine.LNX.4.64.0803170840430.24928@us.intercode.com.au>
- <1205758518.22912.154.camel@moss-spartans.epoch.ncsc.mil>
- <1205764248.4169.0.camel@localhost.localdomain>
- <Xine.LNX.4.64.0803180915000.25060@us.intercode.com.au>
- <1205792367.2891.1.camel@localhost.localdomain>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2HNGuLm032676
+	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2008 19:16:56 -0400
+Received: from wf-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2HNGtNE021661
+	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2008 23:16:56 GMT
+Received: by wf-out-1314.google.com with SMTP id 28so6059465wfc.30
+        for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2008 16:16:55 -0700 (PDT)
+Message-ID: <dd18b0c30803171616l371dd04eq49281a9fd33e5e9f@mail.gmail.com>
+Date: Mon, 17 Mar 2008 23:16:55 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+Subject: Re: pam.d
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D0472B4F6@de01exm68.ds.mot.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+References: <dd18b0c30803141633j6a57b32q5cd25ae8e16b6e54@mail.gmail.com>
+	 <D06FE0A2807BC145B0D38744789D4F5D0472B4F6@de01exm68.ds.mot.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 17 Mar 2008, Eric Paris wrote:
+Hello;  Hasan,
+ Sorry there hasn't been a solution; hopefully somebody who has better
+experience diagnosing problems can help you.
+regards; (Does you're system login with SELinux disabled?)
 
-> > Fixes the problem I was seeing.  Applied to for-akpm.
-> 
-> Are you at least now seeing a FILE__IOCTL avc for mdadm?  If not why
-> would mdadm have that permission for /dev/null?
+-- 
+    Justin P. Mattock
 
-kernel: [ 4.779280] type=1400 audit(1205792724.308:4): avc:  granted null 
-for pid=1792 comm="mdadm" name="null" dev=tmpfs ino=189 
-scontext=system_u:system_r:mdadm_t:s0 
-tcontext=system_u:object_r:null_device_t:s0 tclass=chr_file
 
-Possibly related.
+
+
+
+On Mon, Mar 17, 2008 at 10:26 PM, Hasan Rezaul-CHR010
+<CHR010@motorola.com> wrote:
+>
+>
+> Thanks Justin,
+>
+> I tried adding/modifying the lines you mentioned below... but it didnt get
+> rid of my problem  :-(
+>
+> Thanks anayway.. and please let me know if you have any other suggestions.
+>
+> - Rezaul.
+>
+>  ________________________________
+>  From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On
+> Behalf Of Justin Mattock
+> Sent: Friday, March 14, 2008 6:34 PM
+> To: selinux@tycho.nsa.gov
+> Subject: pam.d
+>
+>
+> Hello;
+>  try putting: session required pam_selinux.so multiple in /etc/pam.d/login
+> for namespace I have the folowing: session required pam_namespace.so
+> multiple
+> hope this helps with logging in.
+> --
+> Justin P. Mattock
+
 
 
 -- 
-James Morris
-<jmorris@namei.org>
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
