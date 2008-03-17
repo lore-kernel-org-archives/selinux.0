@@ -1,53 +1,58 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2HJwl9T008498
-	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2008 15:58:47 -0400
-Received: from wf-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2HJwkCw019650
-	for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2008 19:58:47 GMT
-Received: by wf-out-1314.google.com with SMTP id 28so5973017wfc.30
-        for <selinux@tycho.nsa.gov>; Mon, 17 Mar 2008 12:58:32 -0700 (PDT)
-Message-ID: <dd18b0c30803171117p8d400dfk28c7168723b7b2e@mail.gmail.com>
-Date: Mon, 17 Mar 2008 18:17:18 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: 2.6.25
+From: Steve Grubb <sgrubb@redhat.com>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: Permissive mode for xace is broken.
+Date: Mon, 17 Mar 2008 16:11:08 -0400
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+References: <47C2CC18.6080801@redhat.com> <200802281617.17223.sgrubb@redhat.com> <47C767B4.7060606@tycho.nsa.gov>
+In-Reply-To: <47C767B4.7060606@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200803171611.08351.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sorry to get you confused, (I feel like a blind man that cant read
-braille) with fglrx inside the scripting there is a call for
-KCL_PosixSecurityCapGetEffectiveVector:(below)
+On Thursday 28 February 2008 21:02:28 Eamon Walsh wrote:
+> Steve Grubb wrote:
+> > On Thursday 28 February 2008 13:51:05 Stephen Smalley wrote:
+> >> On Thu, 2008-02-28 at 13:48 -0500, Eamon Walsh wrote:
+> >>> Stephen Smalley wrote:
+> >>>> On Mon, 2008-02-25 at 20:12 -0500, Eamon Walsh wrote:
+> >>>>> Eamon Walsh wrote:
+> >>>>>> The X object manager logs all avc's and status messages (including
+> >>>>>> the AVC netlink stuff) through the audit system using libaudit calls
+> >>>>>> (audit_log_user_avc_message, etc.)
+> >
+> > Please tell me they have different record types. Also do you have any
+> > samples that we can look over to make sure they conform?
+>
+> type=USER_AVC msg=audit(1204226161.048:268): user pid=21267 uid=0
+> auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023
+> msg='avc:  denied  { read } for request=X11:QueryPointer
+> comm=/usr/libexec/at-spi-registryd xdevice="Virtual core pointer"
+> scontext=staff_u:staff_r:staff_t:s0
+> tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device :
+> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
 
-KCL_TYPE_Cap ATI_API_CALL KCL_PosixSecurityCapGetEffectiveVector()
-{
-    return cap_t(current->cap_effective);
-}
-void ATI_API_CALL KCL_PosixSecurityCapSetEffectiveVector(KCL_TYPE_Cap cap)
-{
-    cap_t(current->cap_effective) = cap;
-}
+comm & xdevice are not escaped the right way. exe is. The audit utilities are 
+expecting the comm field to be comm="/usr/libexec/at-spi-registryd" in this 
+case. The standard has been untrusted fields have " " enclosing the field. 
+Whenever there is a space, double quote, or control character, its ASCII HEX 
+encoded with no quotes. xdevice is not a field that the audit system knows 
+about, so we could do something different with it, but comm is known for a 
+long time and has to follow the standards.
 
-Like what you said about the bit being changed this is probably what
-I'm looking at (cap_t is no longer in there)
-There error is this:(below)
+Also, is there any information about who caused the event? uid, auid, gid? 
+Even though this was a denied action, what is the results? Were they 
+successful (permissive) or was it really a failed and denied request?
 
-/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c: In function
-'KCL_PosixSecurityCapGetEffectiveVector':
-/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c:1888: error:
-implicit declaration of function 'cap_t'
-/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c: In function
-'KCL_PosixSecurityCapSetEffectiveVector':
-/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c:1896: error:
-invalid lvalue in assignment
+Would it make sense to fill in the workspace:window information for the 
+terminal? If X is being used remotely, is the addr & hostname fields correct?
 
-How hard is it to go in and change the old capability requests to fit
-the new capability.h ?
+That's the only things I notice at this point.
 
-
--- 
-Justin P. Mattock
+-Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
