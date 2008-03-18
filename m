@@ -1,48 +1,41 @@
-Subject: Re: [patch] selinux:  handle files opened with flags 3 by checking
-	ioctl permission
+Subject: RE: First Attempt at root login on console always FAILS ??
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>,
-        selinux <selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
-        casey@schaufler-ca.com
-In-Reply-To: <Xine.LNX.4.64.0803181000390.18000@us.intercode.com.au>
-References: <1205349239.2925.11.camel@localhost.localdomain>
-	 <7e0fb38c0803121220w21275aadl7f148eccf645a7f1@mail.gmail.com>
-	 <43af0f430803130456y844d429j2a64fb46ec4d71a7@mail.gmail.com>
-	 <1205504199.22912.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <Xine.LNX.4.64.0803170840430.24928@us.intercode.com.au>
-	 <1205758518.22912.154.camel@moss-spartans.epoch.ncsc.mil>
-	 <1205764248.4169.0.camel@localhost.localdomain>
-	 <Xine.LNX.4.64.0803180915000.25060@us.intercode.com.au>
-	 <1205792367.2891.1.camel@localhost.localdomain>
-	 <Xine.LNX.4.64.0803181000390.18000@us.intercode.com.au>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D0472B4EF@de01exm68.ds.mot.com>
+References: <47D9B0DB.90308@redhat.com> <47D9B8BB.2080402@redhat.com>
+	 <47D9BBEE.5090105@redhat.com>
+	 <1205501760.22912.38.camel@moss-spartans.epoch.ncsc.mil>
+	 <47DA9A3C.3080802@redhat.com>  <47DAD18F.5000309@tycho.nsa.gov>
+	 <1205525125.22912.96.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D0472B132@de01exm68.ds.mot.com>
+	 <1205756531.22912.128.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D0472B4EF@de01exm68.ds.mot.com>
 Content-Type: text/plain
-Date: Tue, 18 Mar 2008 08:54:38 -0400
-Message-Id: <1205844878.6466.3.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 18 Mar 2008 09:56:17 -0400
+Message-Id: <1205848577.6466.43.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-03-18 at 10:02 +1100, James Morris wrote:
-> On Mon, 17 Mar 2008, Eric Paris wrote:
+On Mon, 2008-03-17 at 18:09 -0400, Hasan Rezaul-CHR010 wrote:
+> Hi Stephen & Dan,
 > 
-> > > Fixes the problem I was seeing.  Applied to for-akpm.
-> > 
-> > Are you at least now seeing a FILE__IOCTL avc for mdadm?  If not why
-> > would mdadm have that permission for /dev/null?
+> From the /var/log/ files, I am not sure what pam module is having
+> problems ?!?  All I get, is a "System error" in the /var/log/secure
+> file !
 > 
-> kernel: [ 4.779280] type=1400 audit(1205792724.308:4): avc:  granted null 
-> for pid=1792 comm="mdadm" name="null" dev=tmpfs ino=189 
-> scontext=system_u:system_r:mdadm_t:s0 
-> tcontext=system_u:object_r:null_device_t:s0 tclass=chr_file
-> 
-> Possibly related.
+> So I reset the card, when I try to login the first time on the console
+> as root, I get "Login incorrect", and the second time, the login is
+> successful. This is 100% reproducible.  Selinux is running in
+> "Permissive" mode.
 
-Did that happen before or after the patch was applied?
-That indicates that we had a requested==0 value passed into the avc, so
-it should have hit the BUG_ON if it happened after Eric's earlier patch,
-and my patch should have eliminated the case altogether.
+This means that one of your pam auth modules failed with a system error.
+
+I'd suggest commenting out some of those pam modules, as I suggested
+earlier.  In particular, pam_tally is often a source of problems (and an
+easy denial of service).
 
 -- 
 Stephen Smalley
