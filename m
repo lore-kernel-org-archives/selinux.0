@@ -1,79 +1,76 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2IFrDpF013953
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 11:53:13 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2IFrCFc005492
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 15:53:12 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m2IFR1nd000533
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 11:27:01 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m2IFR1fT025172
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 11:27:01 -0400
-Received: from dhcp-10-12-34-132.boston.devel.redhat.com (vpn-248-104.boston.redhat.com [10.13.248.104])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m2IFR0lM027650
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 11:27:00 -0400
-Message-ID: <47DFDF4A.8090006@redhat.com>
-Date: Tue, 18 Mar 2008 11:27:06 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2IIvGSV003389
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 14:57:16 -0400
+Received: from az25ege01.gdc4s.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2IIvFB4026768
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 18:57:15 GMT
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Audit2allow/audit2why patch for policycoreutils.
-Content-Type: multipart/mixed;
- boundary="------------070406030208010402030909"
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C88926.5A8944C4"
+Subject: unconfined_t Domain with MLS Policy
+Date: Tue, 18 Mar 2008 11:31:59 -0700
+Message-ID: <EC684739C863494FB46F604CEDEC3E241BBA2F@AZ25EXM01.gddsi.com>
+From: "Henley, Tim-P64420" <Timothy.Henley@gdc4s.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------070406030208010402030909
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Reveals dontaudit rules in policy.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkff30kACgkQrlYvE4MpobP0IgCfTxNojL6yGB6t26Nl+aERmQc4
-pJUAoNlJHmee/Q++U18HG2ty5UcECkte
-=qpCx
------END PGP SIGNATURE-----
-
---------------070406030208010402030909
+------_=_NextPart_001_01C88926.5A8944C4
 Content-Type: text/plain;
- name="audit2why.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="audit2why.patch"
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
---- nsapolicycoreutils/audit2allow/audit2allow	2008-01-28 16:52:25.000000000 -0500
-+++ policycoreutils-2.0.44/audit2allow/audit2allow	2008-03-18 11:22:52.000000000 -0400
-@@ -247,6 +247,11 @@
-                     print "\t\tPossible mismatch between this policy and the one under which the audit message was generated.\n"
-                     print "\t\tPossible mismatch between current in-memory boolean settings vs. permanent ones.\n"
-                     continue
-+                if rc == audit2why.DONTAUDIT:
-+                    print "\t\tUnknown - should be dontaudit'd by active policy\n",
-+                    print "\t\tPossible mismatch between this policy and the one under which the audit message was generated.\n"
-+                    print "\t\tPossible mismatch between current in-memory boolean settings vs. permanent ones.\n"
-+                    continue
-                 if rc == audit2why.BOOLEAN:
-                     if len(bools) > 1:
-                         print "\tOne of the following booleans was set incorrectly."
+Is the unconfined_t Domain available when running with the MLS Policy? I
+was attempting to assign a Perl script to the domain using chcon (with
+the -t switch). The result is that I get an "Invalid argument" error
+message. I'm doing this on a development box (the Perl script is for dev
+use only) as a means of trying to avoid having to stop and write a
+policy for every script/executable I create during development. Is this
+how I should be handling this or is there a more appropriate way to do
+this? Thanks in advance.
+=20
+Regards,
+Tim Henley
 
---------------070406030208010402030909
-Content-Type: application/octet-stream;
- name="audit2why.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="audit2why.patch.sig"
+------_=_NextPart_001_01C88926.5A8944C4
+Content-Type: text/html;
+	charset="US-ASCII"
+Content-Transfer-Encoding: quoted-printable
 
-iEYEABECAAYFAkff30oACgkQrlYvE4MpobOr8wCgzOVDX17pEt6GIGDDgO8qM1IVCuYAoK3l
-7RwKJZXO2/AEdyHmCxhWrlP2
---------------070406030208010402030909--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<META NAME=3D"Generator" CONTENT=3D"MS Exchange Server version =
+6.5.7652.24">
+<TITLE>unconfined_t Domain with MLS Policy</TITLE>
+</HEAD>
+<BODY>
+<!-- Converted from text/rtf format -->
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">Is the unconfined_t Domain available =
+when running with the MLS Policy? I was attempting to assign a Perl =
+script to the domain using chcon (with the -t switch). The result is =
+that I get an &quot;Invalid argument&quot; error message. I'm doing this =
+on a development box (the Perl script is for dev use only) as a means of =
+trying to avoid having to stop and write a policy for every =
+script/executable I create during development. Is this how I should be =
+handling this or is there a more appropriate way to do this? Thanks in =
+advance.</FONT></P>
+
+<P><FONT SIZE=3D2 FACE=3D"Arial">&nbsp;</FONT>
+
+<BR><FONT SIZE=3D2 FACE=3D"Arial">Regards,</FONT>
+
+<BR><FONT SIZE=3D2 FACE=3D"Arial">Tim Henley</FONT>
+</P>
+
+</BODY>
+</HTML>
+------_=_NextPart_001_01C88926.5A8944C4--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
