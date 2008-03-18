@@ -1,58 +1,45 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2IEmES8005438
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 10:48:14 -0400
-Received: from QMTA07.emeryville.ca.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2IEmAlK024454
-	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 14:48:10 GMT
-Received: from ccase by shiva.hsd1.md.comcast.net. with local (Exim 4.69)
-	(envelope-from <ccase@tresys.com>)
-	id 1JbcqS-0003pv-CG
-	for selinux@tycho.nsa.gov; Tue, 18 Mar 2008 10:31:16 -0400
-Subject: policycoreutils semanage --proto --protocol inconsistent flags
-To: <selinux@tycho.nsa.gov>
-Message-Id: <E1JbcqS-0003pv-CG@shiva.hsd1.md.comcast.net.>
-From: Caleb Case <ccase@tresys.com>
-Date: Tue, 18 Mar 2008 10:31:16 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2IFSQVA010599
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 11:28:26 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2IFSPFc029949
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 15:28:26 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m2IFSPYv001049
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 11:28:25 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m2IFSP2o025862
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 11:28:25 -0400
+Received: from dhcp-10-12-34-132.boston.devel.redhat.com (vpn-248-104.boston.redhat.com [10.13.248.104])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m2IFSOkB027857
+	for <selinux@tycho.nsa.gov>; Tue, 18 Mar 2008 11:28:24 -0400
+Message-ID: <47DFDF9E.4010008@redhat.com>
+Date: Tue, 18 Mar 2008 11:28:30 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: semanage patch from Caleb with man page fix
+Content-Type: multipart/mixed;
+ boundary="------------050608080904030003070606"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-semanage --help indicates two conflicting ways of using the port protocol flag:
+This is a multi-part message in MIME format.
+--------------050608080904030003070606
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-# semanage --help | grep proto
-semanage port -{a|d|m} [-tr] [ -p protocol ] port | port_range
-	-p, --proto      Port protocol (tcp or udp)
 
-That is --protocol and --proto.
+--------------050608080904030003070606
+Content-Type: text/plain;
+ name="semanage.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="semanage.patch"
 
-The code paths are similarly conflicted with --protocol as the 'valid_option', but --proto as the flag actually used in getopt. This results in --protocol not being recognized:
-
-# semanage port -t ftp_port_t -a --protocol tcp 12345
-/usr/sbin/semanage: Options Error option --protocol not recognized 
-
-The port is not added in this case.
-
-Using --proto instead results in a 'not valid for port objects' error, but the error is ignored and the port added:
-
-# semanage port -t ftp_port_t -a --proto tcp 12345
---proto not valid for port objects
-
-# semanage port -l | grep 12345
-ftp_port_t                     tcp      12345, 21
-
-The man pages for semanage are also inconsistent.
-
-This patch resolves the inconsistency to use --proto.
-
----
- semanage/semanage   |    4 ++--
- semanage/semanage.8 |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-Index: policycoreutils/semanage/semanage
-===================================================================
---- policycoreutils.orig/semanage/semanage
-+++ policycoreutils/semanage/semanage
-@@ -47,7 +47,7 @@ if __name__ == '__main__':
+--- nsapolicycoreutils/semanage/semanage	2008-01-28 16:52:22.000000000 -0500
++++ policycoreutils-2.0.44/semanage/semanage	2008-03-18 11:23:20.000000000 -0400
+@@ -47,7 +47,7 @@
  semanage {boolean|login|user|port|interface|fcontext|translation} -{l|D} [-n] \n\
  semanage login -{a|d|m} [-sr] login_name\n\
  semanage user -{a|d|m} [-LrRP] selinux_name\n\
@@ -61,20 +48,18 @@ Index: policycoreutils/semanage/semanage
  semanage interface -{a|d|m} [-tr] interface_spec\n\
  semanage fcontext -{a|d|m} [-frst] file_spec\n\
  semanage translation -{a|d|m} [-T] level\n\n\
-@@ -103,7 +103,7 @@ Object-specific Options (see above):\n\
+@@ -103,7 +103,7 @@
  		valid_option["user"] = []
  		valid_option["user"] += valid_everyone + [ '-L', '--level', '-r', '--range', '-R', '--roles', '-P', '--prefix' ] 
  		valid_option["port"] = []
 -		valid_option["port"] += valid_everyone + [ '-t', '--type', '-r', '--range', '-p', '--protocol' ] 
-+		valid_option["port"] += valid_everyone + [ '-t', '--type', '-r', '--range', '-p', '--proto' ]
++		valid_option["port"] += valid_everyone + [ '-t', '--type', '-r', '--range', '-p', '--proto' ] 
  		valid_option["interface"] = []
  		valid_option["interface"] += valid_everyone + [ '-t', '--type', '-r', '--range'] 
  		valid_option["fcontext"] = []
-Index: policycoreutils/semanage/semanage.8
-===================================================================
---- policycoreutils.orig/semanage/semanage.8
-+++ policycoreutils/semanage/semanage.8
-@@ -9,7 +9,7 @@ semanage \- SELinux Policy Management to
+--- nsapolicycoreutils/semanage/semanage.8	2007-07-16 14:20:41.000000000 -0400
++++ policycoreutils-2.0.44/semanage/semanage.8	2008-03-18 11:23:24.000000000 -0400
+@@ -9,7 +9,7 @@
  .br
  .B semanage user \-{a|d|m} [\-LrRP] selinux_name
  .br
@@ -83,6 +68,17 @@ Index: policycoreutils/semanage/semanage.8
  .br
  .B semanage interface \-{a|d|m} [\-tr] interface_spec
  .br
+
+--------------050608080904030003070606
+Content-Type: application/octet-stream;
+ name="semanage.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="semanage.patch.sig"
+
+iEYEABECAAYFAkff354ACgkQrlYvE4MpobMEugCgy/atUm5LD4KCcigvpOUu54ckgb4AnAjS
+4SWOKsnzQ60ApdMJtAGrf9KC
+--------------050608080904030003070606--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
