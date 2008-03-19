@@ -1,79 +1,63 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2JDPqDB004476
-	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 09:25:52 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2JDPpYY012938
-	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 13:25:51 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2JE4pH7009131
+	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 10:04:51 -0400
+Received: from web36604.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m2JE4oGp024823
+	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 14:04:50 GMT
+Date: Wed, 19 Mar 2008 06:38:09 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC]Introduce generalized hooks for getting and setting inode secctx v3
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>, casey@schaufler-ca.com,
+        chrisw@sous-sol.org, sds@tycho.nsa.gov, jmorris@namei.org, hch@lst.de,
+        viro@zeniv.linux.org.uk
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
+In-Reply-To: <1205866664-24902-1-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: [PATCH 1/5] REFPOL: Add new labeled networking permissions
-Date: Wed, 19 Mar 2008 09:19:53 -0400
-Message-ID: <1205932793.16113.42.camel@gorn>
-In-Reply-To: <20080226184404.862575664@hp.com>
-References: <20080226184032.834798290@hp.com> <20080226184404.862575664@hp.com>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: <paul.moore@hp.com>
-Cc: <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <868245.60928.qm@web36604.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-02-26 at 13:40 -0500, paul.moore@hp.com wrote:
-> The 2.6.25 kernel will introduce a new set of labeled networking controls to
-> SELinux and this patch makes the necessary changes to the Reference Policy
-> to support unlabeled network traffic with the new controls.
-> 
-> A description of the new/improved labeled networking controls was posted to
-> the SELinux list back in early January 2008.
-> 
->  * http://marc.info/?l=selinux&m=119991234501200&w=2
-> 
-> Signed-off-by: Paul Moore <paul.moore@hp.com>
-> ---
->  policy/modules/kernel/corenetwork.if.in |   69 +++++++++++++++++++++++---------
 
-Is there a reason why you skipped adding ingress/egress to the "all"
-interfaces (e.g. corenet_udp_receive_all_if)?
+--- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
 
->  policy/modules/kernel/corenetwork.if.m4 |   20 ++++-----
->  policy/modules/kernel/kernel.if         |   30 +++++++++++++
->  policy/modules/kernel/kernel.te         |    3 +
->  4 files changed, 94 insertions(+), 28 deletions(-)
+> This patch set does two things. First it factors the section of vfs_setxattr
+> that does the real work into a helper function. This allows LSMs the ability
+> to
+> set the xattrs they need without hitting the permission check inside
+> vfs_setxattr each time.
 
-> --- refpolicy_svn_repo.orig/policy/modules/kernel/corenetwork.if.in
-> +++ refpolicy_svn_repo/policy/modules/kernel/corenetwork.if.in
-> @@ -2380,6 +2392,27 @@ interface(`corenet_sendrecv_unlabeled_pa
->  
->  ########################################
->  ## <summary>
-> +##	Receive packets from an unlabeled peer.
-> +## </summary>
-> +## <desc>
-> +##	<p>
-> +##	Receive packets from an unlabeled peer,
-> +##      these packets do not have any peer labeling
-> +##      information present.
-> +##	</p>
-> +## </desc>
-> +## <param name="domain">
-> +##	<summary>
-> +##	Domain allowed access.
-> +##	</summary>
-> +## </param>
-> +#
-> +interface(`corenet_recvfrom_unlabeled_peer',`
-> +	kernel_recvfrom_unlabeled_peer($1)
-> +')
+Why is this important? I'm perfectly willing to believe that it is,
+but I would hesitate to say that it's completely obvious to the
+casual observer. After all, we've gotten by with things the way they
+are for some time. Perhaps you could describe the use to which you
+would be putting this. I expect that if I go through the backlog
+discussions on or about this topic I could probably make some
+logical assumptions about what you want to do, but it will save
+everyone some time if you could spell it out here.
 
-Seems unnecessary since it seems like it should be called from
-corenet_(tcp|udp|raw)_recvfrom_unlabeled?
+> Second it introduces three new hooks
+> inode_{get,set}secctx, and inode_notifysecctx.
+>
+> The first hook retreives all security information the
+> LSM feels is relavent in the form of a security context. The second hook
+> given
+> this context can sets both the in-core and on-disk store for the particular
+> inode. The third hook is used to notify the in-core inode of a change to it's
+> security state.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I still dislike having an interface that explicitly disallows
+security attribute integrity. That does not help me feel secure.
+
+> This is the third revision of this patch which takes into account concerns by
+> Casey Schaufler, and Christop Hellwig.
 
 
+
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
