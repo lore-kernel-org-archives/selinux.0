@@ -1,61 +1,150 @@
-Subject: Re: [RFC]Introduce generalized hooks for getting and setting inode
-	secctx v3
+Subject: Re: unix_domain_sockets in mls
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: casey@schaufler-ca.com
-Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, chrisw@sous-sol.org,
-        jmorris@namei.org, hch@lst.de, viro@zeniv.linux.org.uk,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
-In-Reply-To: <868245.60928.qm@web36604.mail.mud.yahoo.com>
-References: <868245.60928.qm@web36604.mail.mud.yahoo.com>
+To: B Topscher <bryan@jennandbryan.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <8b4cbe570803190704u56b1181ta9502561324dd7f4@mail.gmail.com>
+References: <8b4cbe570803190704u56b1181ta9502561324dd7f4@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 19 Mar 2008 10:28:07 -0400
-Message-Id: <1205936887.6466.210.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 19 Mar 2008 10:43:18 -0400
+Message-Id: <1205937798.6466.223.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-03-19 at 06:38 -0700, Casey Schaufler wrote:
-> --- "David P. Quigley" <dpquigl@tycho.nsa.gov> wrote:
+On Wed, 2008-03-19 at 10:04 -0400, B Topscher wrote:
+> FWD from a coworker:
 > 
-> > This patch set does two things. First it factors the section of vfs_setxattr
-> > that does the real work into a helper function. This allows LSMs the ability
-> > to
-> > set the xattrs they need without hitting the permission check inside
-> > vfs_setxattr each time.
 > 
-> Why is this important? I'm perfectly willing to believe that it is,
-> but I would hesitate to say that it's completely obvious to the
-> casual observer. After all, we've gotten by with things the way they
-> are for some time. Perhaps you could describe the use to which you
-> would be putting this. I expect that if I go through the backlog
-> discussions on or about this topic I could probably make some
-> logical assumptions about what you want to do, but it will save
-> everyone some time if you could spell it out here.
+> I'm a policy newbie, writing a custom module to allow streaming data
+> through unix domain sockets on an mls system.
 > 
-> > Second it introduces three new hooks
-> > inode_{get,set}secctx, and inode_notifysecctx.
-> >
-> > The first hook retreives all security information the
-> > LSM feels is relavent in the form of a security context. The second hook
-> > given
-> > this context can sets both the in-core and on-disk store for the particular
-> > inode. The third hook is used to notify the in-core inode of a change to it's
-> > security state.
+>  
 > 
-> I still dislike having an interface that explicitly disallows
-> security attribute integrity. That does not help me feel secure.
+> My problem is that, no matter what I do, I can't seem to transition
+> either the type or the level of the unix_stream_socket.
 
-Which part of our prior explanations of this functionality didn't you
-understand?
+Transitions would apply to the socket file, not to the socket itself.
+They are two distinct objects with distinct labels - the file is merely
+a way of referencing the Unix/local socket, much as a port is merely a
+way of referencing a TCP socket.
 
-http://marc.info/?l=linux-fsdevel&m=120515271614741&w=2
+Sockets always inherit the context of their creator unless the task used
+the setsockcreatecon() interface of libselinux.  Except for new
+connection sockets, which have a mixed model - they inherit the type
+from the server but the MLS level from the client in order to reflect
+back the client's level for level preservation.
 
-I would agree though that the final patch submission ought to include
-some of that prior explanation in its patch description for historical
-purposes.
+> My three processes have the following contexts:
+> 
+> system_u:servA_r:servA_t:s4:c1
+> 
+> system_u:levmA_r:levmA_t:s4-s4:c1,c100
+> 
+> system_u:FCM_r:FCM_t:s4:c100
+> 
+>  
+> 
+> Ideally, servA should be able to talk to levmA on a unix_stream_socket
+> at running at s4:c1, levmA should be able to read from s4:c1 and
+> writeinrange (via a custom mls attribute and a modification of the
+> mlsconstraints) to s4:c100. Another perfectly acceptable solution
+> would be to set the levmA unix_stream_socket to levmA's clearance
+> level (s4:c1,c100). What's important here is that I do not want to
+> allow the servA_t context to "write-down".  That should be reserved
+> only to the levm process.
+> 
+>  
+> 
+> What I'm seeing is that, regardless of the permissions on the
+> sock_file, when levmA connects to the servA unix_stream_socket, the
+> target context takes the servA_t type, but keeps the mls level of the
+> levmA process. The AVC message is as follows:
+> 
+> type=AVC msg=audit(1205874819.221:1476): avc:  denied  { write } for
+> pid=3303 comm="ServA" name="[59950]" dev=sockfs ino=59950
+> scontext=system_u:servA_r:servA_t:s4:c1
+> tcontext=system_u:servA_r:servA_t:s4-s4:c1,c100
+> tclass=unix_stream_socket
 
+This isn't related to the socket file.  What appears to be happening
+here is that the server accepted a connection from the client, and the
+new connection socket was labeled with the type of the server and the
+level of the client, which is correct.  Then when the server tries to
+write on that connection, it gets denied due to the mismatch in MLS
+ranges - the server is only running at s4:c1 while the client is ranged.
+
+Transitions aren't going to help with this issue.
+
+> 
+>         Was caused by:
+> 
+>                 Constraint violation.
+> 
+>                 Check policy/constraints.
+> 
+>                 Typically, you just need to add a type attribute to
+> the domain to satisfy the constraint.
+> 
+>  
+> 
+> It's failing because that ranged tcontext s4-s4:c1,c100 makes it a
+> "write-down" operation (s4:c1 to s4). I have found nothing that can
+> actually affect the context of the target unix_stream_socket. What am
+> I missing?
+> 
+>  
+> 
+> Here are some of the relevant snippets of the policy:
+> 
+>  
+> 
+> #from the .te file.  
+> 
+> levm_bidir(high, levmA, h2l, s4, c1, servA, s4, c100, FCM)
+>                                     
+> 
+> levm_bidir(high, levmA, h2l, s4, c100, FCM, s4, c1, servA)
+> 
+>  
+> 
+> #from the .if file. Lots of superfluous transition statements to see
+> if anything can affect the unix_stream_socket
+> 
+>     allow $2_t self:unix_stream_socket { create_stream_socket_perms
+> connectto }; 
+> 
+>     allow $2_t $9_t:unix_stream_socket { create_stream_socket_perms
+> connectto };            
+> 
+>     allow $9_t self:unix_stream_socket { create_stream_socket_perms
+> connectto };             
+> 
+>     filetrans_add_pattern($2_t, $9_dir_t, $9_t, file)
+> 
+>     filetrans_add_pattern($2_t, $9_dir_t, $9_t, sock_file)
+> 
+>     filetrans_add_pattern($2_t, $9_t, $2_t, unix_stream_socket)
+> 
+>     filetrans_add_pattern($2_t, $9_dir_t, $2_t, unix_stream_socket)
+> 
+>     range_transition $2_t $9_dir_t:file $7:$8;
+> 
+>     range_transition $2_t $9_dir_t:sock_file $7:$8;
+> 
+>     range_transition $2_t $9_t:unix_stream_socket $7:8;
+> 
+>     range_transition $2_t $2_t:unix_stream_socket $7:8;
+> 
+>     range_transition $9_t $9_t:unix_stream_socket $7:8;
+> 
+>  
+> 
+> Best regards,
+> 
+>  
+> 
+> Tim 
 -- 
 Stephen Smalley
 National Security Agency
