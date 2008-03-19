@@ -1,338 +1,243 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2JEmrs0014377
-	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 10:48:53 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2JEmkYY000076
-	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 14:48:47 GMT
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy (try #3)
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Kohei KaiGai <kaigai@ak.jp.nec.com>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
-In-Reply-To: <47DE3A66.602@ak.jp.nec.com>
-References: <47B2B885.4070300@ak.jp.nec.com>
-	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>
-	 <47C5189B.9070500@ak.jp.nec.com>
-	 <1204817238.3994.59.camel@gorn.columbia.tresys.com>
-	 <47D09FEB.3030005@ak.jp.nec.com>
-	 <1204922912.20251.58.camel@gorn.columbia.tresys.com>
-	 <47D3F33B.5010209@kaigai.gr.jp> <1205240234.25555.55.camel@gorn>
-	 <47DE3A66.602@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Wed, 19 Mar 2008 10:45:28 -0400
-Message-Id: <1205937929.16113.78.camel@gorn>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2JF9Gdq017220
+	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 11:09:16 -0400
+Received: from el-out-1112.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2JF9EYY011650
+	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 15:09:14 GMT
+Received: by el-out-1112.google.com with SMTP id v27so331494ele.17
+        for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 08:09:11 -0700 (PDT)
+Message-ID: <8b4cbe570803190802k4a597140p41a042dae85b0bcb@mail.gmail.com>
+Date: Wed, 19 Mar 2008 11:02:31 -0400
+From: "B Topscher" <bryan@jennandbryan.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: unix_domain_sockets in mls
+Cc: "SELinux List" <selinux@tycho.nsa.gov>
+In-Reply-To: <1205937798.6466.223.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_3313_20644437.1205938951841"
+References: <8b4cbe570803190704u56b1181ta9502561324dd7f4@mail.gmail.com>
+	 <1205937798.6466.223.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-03-17 at 18:31 +0900, Kohei KaiGai wrote:
-> The attached patch provides revised SE-PostgreSQL policy.
-> 
-> Updates from the previous version:
-> o sepgsql_enable_unconfined was removed.
-> o conditional type_transition was removed.
-> 
-> However, the following policies are unchanged, because I'm not
-> sure what is your opinion.
-> - In kernel/kernel.te, interfaces declared in services/postgresql.if
->    are invoked.
-> - Unconfined domains cannot invoke user defined functions due to
->    security reason.
-> 
-> In the discussion about conditional type_transiton, I mentioned about
-> a new boolean "sepgsql_unified_type" to turn on/off per-domain types
-> like sepgsql_user_table_t, it is not included in this patch yet.
-> 
-> Please review this one.
-> Thanks,
-> 
+------=_Part_3313_20644437.1205938951841
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> 
-> Index: refpolicy-sepgsql/policy/modules/kernel/kernel.te
-> ===================================================================
-> --- refpolicy-sepgsql/policy/modules/kernel/kernel.te   (revision 2639)
-> +++ refpolicy-sepgsql/policy/modules/kernel/kernel.te   (working copy)
-> @@ -358,6 +358,17 @@
->  
->  ########################################
->  #
-> +# Unlabeled database objects
-> +#
-> +optional_policy(`
-> +       postgresql_database_object(unlabeled_t)
-> +       postgresql_table_object(unlabeled_t)
-> +       postgresql_procedure_object(unlabeled_t)
-> +       postgresql_blob_object(unlabeled_t)
-> +')
+Will I be allowed to use setsockcreatecon() on my
+system_u:levmA_r:levmA_t:s4-s4:c1,c100
+process to set the connection to s4:c1 prior to connecting to the server
+from the client?  This would be the ideal way for me to do it given the
+information available.
 
-I think interfaces should be added to kernel.if to allow the appropriate
-access.  It seems that the database would have some access to the
-objects, and then an admin would be able to relabel from unlabeled_t for
-db_database, db_table, etc.
+Ideally we want the connection to be made at s4:c1 level because it is the
+common mls level.   If there is another way to do it let me know.
 
-for example:
+Thank you
+Bryan
 
-interface(`kernel_relabelfrom_unlabeled_table',`
-	gen_require(`
-		type unlabeled_t;
-		class db_table relabelfrom;
-	')
+On 3/19/08, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+>
+> On Wed, 2008-03-19 at 10:04 -0400, B Topscher wrote:
+> > FWD from a coworker:
+> >
+> >
+> > I'm a policy newbie, writing a custom module to allow streaming data
+> > through unix domain sockets on an mls system.
+> >
+> >
+> >
+> > My problem is that, no matter what I do, I can't seem to transition
+> > either the type or the level of the unix_stream_socket.
+>
+>
+> Transitions would apply to the socket file, not to the socket itself.
+> They are two distinct objects with distinct labels - the file is merely
+> a way of referencing the Unix/local socket, much as a port is merely a
+> way of referencing a TCP socket.
+>
+> Sockets always inherit the context of their creator unless the task used
+> the setsockcreatecon() interface of libselinux.  Except for new
+> connection sockets, which have a mixed model - they inherit the type
+> from the server but the MLS level from the client in order to reflect
+> back the client's level for level preservation.
+>
+>
+> > My three processes have the following contexts:
+> >
+> > system_u:servA_r:servA_t:s4:c1
+> >
+> > system_u:levmA_r:levmA_t:s4-s4:c1,c100
+> >
+> > system_u:FCM_r:FCM_t:s4:c100
+> >
+> >
+> >
+> > Ideally, servA should be able to talk to levmA on a unix_stream_socket
+> > at running at s4:c1, levmA should be able to read from s4:c1 and
+> > writeinrange (via a custom mls attribute and a modification of the
+> > mlsconstraints) to s4:c100. Another perfectly acceptable solution
+> > would be to set the levmA unix_stream_socket to levmA's clearance
+> > level (s4:c1,c100). What's important here is that I do not want to
+> > allow the servA_t context to "write-down".  That should be reserved
+> > only to the levm process.
+> >
+> >
+> >
+> > What I'm seeing is that, regardless of the permissions on the
+> > sock_file, when levmA connects to the servA unix_stream_socket, the
+> > target context takes the servA_t type, but keeps the mls level of the
+> > levmA process. The AVC message is as follows:
+> >
+> > type=AVC msg=audit(1205874819.221:1476): avc:  denied  { write } for
+> > pid=3303 comm="ServA" name="[59950]" dev=sockfs ino=59950
+> > scontext=system_u:servA_r:servA_t:s4:c1
+> > tcontext=system_u:servA_r:servA_t:s4-s4:c1,c100
+> > tclass=unix_stream_socket
+>
+>
+> This isn't related to the socket file.  What appears to be happening
+> here is that the server accepted a connection from the client, and the
+> new connection socket was labeled with the type of the server and the
+> level of the client, which is correct.  Then when the server tries to
+> write on that connection, it gets denied due to the mismatch in MLS
+> ranges - the server is only running at s4:c1 while the client is ranged.
+>
+> Transitions aren't going to help with this issue.
+>
+>
+> >
+> >         Was caused by:
+> >
+> >                 Constraint violation.
+> >
+> >                 Check policy/constraints.
+> >
+> >                 Typically, you just need to add a type attribute to
+> > the domain to satisfy the constraint.
+> >
+> >
+> >
+> > It's failing because that ranged tcontext s4-s4:c1,c100 makes it a
+> > "write-down" operation (s4:c1 to s4). I have found nothing that can
+> > actually affect the context of the target unix_stream_socket. What am
+> > I missing?
+> >
+> >
+> >
+> > Here are some of the relevant snippets of the policy:
+> >
+> >
+> >
+> > #from the .te file.
+> >
+> > levm_bidir(high, levmA, h2l, s4, c1, servA, s4, c100, FCM)
+> >
+> >
+> > levm_bidir(high, levmA, h2l, s4, c100, FCM, s4, c1, servA)
+> >
+> >
+> >
+> > #from the .if file. Lots of superfluous transition statements to see
+> > if anything can affect the unix_stream_socket
+> >
+> >     allow $2_t self:unix_stream_socket { create_stream_socket_perms
+> > connectto };
+> >
+> >     allow $2_t $9_t:unix_stream_socket { create_stream_socket_perms
+> > connectto };
+> >
+> >     allow $9_t self:unix_stream_socket { create_stream_socket_perms
+> > connectto };
+> >
+> >     filetrans_add_pattern($2_t, $9_dir_t, $9_t, file)
+> >
+> >     filetrans_add_pattern($2_t, $9_dir_t, $9_t, sock_file)
+> >
+> >     filetrans_add_pattern($2_t, $9_t, $2_t, unix_stream_socket)
+> >
+> >     filetrans_add_pattern($2_t, $9_dir_t, $2_t, unix_stream_socket)
+> >
+> >     range_transition $2_t $9_dir_t:file $7:$8;
+> >
+> >     range_transition $2_t $9_dir_t:sock_file $7:$8;
+> >
+> >     range_transition $2_t $9_t:unix_stream_socket $7:8;
+> >
+> >     range_transition $2_t $2_t:unix_stream_socket $7:8;
+> >
+> >     range_transition $9_t $9_t:unix_stream_socket $7:8;
+> >
+> >
+> >
+> > Best regards,
+> >
+> >
+> >
+> > Tim
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
-	allow $1 unlabeled_t:db_table relabelfrom;
-')
+------=_Part_3313_20644437.1205938951841
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
- 
-> Index: refpolicy-sepgsql/policy/modules/services/postgresql.if
-> ===================================================================
-> --- refpolicy-sepgsql/policy/modules/services/postgresql.if     (revision 2639)
-> +++ refpolicy-sepgsql/policy/modules/services/postgresql.if     (working copy)
-> @@ -120,3 +120,228 @@
->          # Some versions of postgresql put the sock file in /tmp
->         allow $1 postgresql_tmp_t:sock_file write;
->  ')
-> +
-> +#######################################
-> +## <summary>
-> +##      The userdomain template for the SE-PostgreSQL.
-> +## </summary>
-> +## <desc>
-> +##      This template creates a delivered types which are used
-> +##     for given userdomains.
-> +## </desc>
-> +## <param name="userdomain_prefix">
-> +##      <summary>
-> +##      The prefix of the user domain (e.g., user
-> +##      is the prefix for user_t).
-> +##      </summary>
-> +## </param>
-> +#
-> +template(`postgresql_userdom_template',`
-> +       gen_require(`
-> +               class db_database all_db_database_perms;
-> +               class db_table all_db_table_perms;
-> +               class db_procedure all_db_procedure_perms;
-> +               class db_column all_db_column_perms;
-> +               class db_tuple all_db_tuple_perms;
-> +               class db_blob all_db_blob_perms;
-> +
-> +               attribute sepgsql_client_type;
-> +               attribute sepgsql_unconfined_type;
-> +               attribute sepgsql_userdom_type;
-> +
-> +               attribute sepgsql_database_type;
-> +               type sepgsql_trusted_domain_t;
-> +               type sepgsql_sysobj_t;
-> +
-> +               bool sepgsql_enable_users_ddl;
-> +       ')
-> +
-> +       ########################################
-> +       #
-> +       # Declarations
-> +       #
-> +
-> +       typeattribute $1_t sepgsql_client_type;
-> +       typeattribute $1_t sepgsql_userdom_type;
-> +
-> +       type sepgsql_$1_table_t;
-> +       postgresql_table_object(sepgsql_$1_table_t)
-> +
-> +       type sepgsql_$1_sysobj_t;
-> +       postgresql_system_table_object(sepgsql_$1_sysobj_t)
-> +
-> +       type sepgsql_$1_proc_t;
-> +       postgresql_procedure_object(sepgsql_$1_proc_t)
-> +
-> +       type sepgsql_$1_blob_t;
-> +       postgresql_blob_object(sepgsql_$1_blob_t)
-> +
-> +       ##############################
-> +       #
-> +       # Client local policy
-> +       #
-> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_table     sepgsql_$1_table_t;
-> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_procedure sepgsql_$1_proc_t;
-> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_blob      sepgsql_$1_blob_t;
-> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_sysobj_t      : db_tuple     sepgsql_$1_sysobj_t;
+Will I be allowed to use setsockcreatecon() on my <span class="q">system_u:levmA_r:levmA_t:s4-s4:c1,c100 process to set the connection to </span><span class="q">s4:c1 prior to connecting to the server from the client?&nbsp; This would be the ideal way for me to do it given the information available. <br>
+<br>Ideally we want the connection to be made at s4:c1 level because it is the common mls level.&nbsp;&nbsp; If there is another way to do it let me know.<br><br>Thank you<br>Bryan<br></span><br><div><span class="gmail_quote">On 3/19/08, <b class="gmail_sendername">Stephen Smalley</b> &lt;<a href="mailto:sds@tycho.nsa.gov" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">sds@tycho.nsa.gov</a>&gt; wrote:</span><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
 
-This should probably transition even if its unconfined.  If a user
-starts out unconfined and then the admin later decides the user should
-be confined, the user will lose access to its object, right?
+<br> On Wed, 2008-03-19 at 10:04 -0400, B Topscher wrote:<br> &gt; FWD from a coworker:<br> &gt;<br> &gt;<br> &gt; I&#39;m a policy newbie, writing a custom module to allow streaming data<br> &gt; through unix domain sockets on an mls system.<br>
 
-> +       tunable_policy(`sepgsql_enable_users_ddl',`
-> +               allow $1_t sepgsql_$1_table_t  : db_table { create drop };
-> +               allow $1_t sepgsql_$1_table_t  : db_column { create drop };
-> +               allow $1_t sepgsql_$1_sysobj_t : db_tuple { update insert delete };
-> +       ')
-> +
-> +       allow $1_t sepgsql_$1_table_t  : db_table  { getattr setattr use select update insert delete };
-> +       allow $1_t sepgsql_$1_table_t  : db_column { getattr setattr use select update insert };
-> +       allow $1_t sepgsql_$1_table_t  : db_tuple  { use select update insert delete };
-> +       allow $1_t sepgsql_$1_sysobj_t : db_tuple  { use select };
-> +
-> +       allow $1_t sepgsql_$1_proc_t : db_procedure { create drop getattr setattr execute };
-> +
-> +       allow $1_t sepgsql_$1_blob_t : db_blob { create drop getattr setattr read write };
-> +
-> +       # Trusted Procedure
-> +       role $1_r types sepgsql_trusted_domain_t;
-> +')
+ &gt;<br> &gt;<br> &gt;<br> &gt; My problem is that, no matter what I do, I can&#39;t seem to transition<br> &gt; either the type or the level of the unix_stream_socket.<br> <br> <br>Transitions would apply to the socket file, not to the socket itself.<br>
 
-Seems that this should have 3 parameters, just like per-role templates.
-Then $1_t becomes $2 and $1_r becomes $3.
+ They are two distinct objects with distinct labels - the file is merely<br> a way of referencing the Unix/local socket, much as a port is merely a<br> way of referencing a TCP socket.<br> <br> Sockets always inherit the context of their creator unless the task used<br>
 
-> --- refpolicy-sepgsql/policy/modules/services/postgresql.te     (revision 2639)
-> +++ refpolicy-sepgsql/policy/modules/services/postgresql.te     (working copy)
-> @@ -166,3 +166,178 @@
->  optional_policy(`
->         udev_read_db(postgresql_t)
->  ')
-> +
-> +#################################
-> +#
-> +# SE-PostgreSQL Boolean declarations
-> +#
-> +
-> +## <desc>
-> +## <p>
-> +## Allow unprived users to execute DDL statement
-> +## </p>
-> +## </desc>
-> +gen_tunable(sepgsql_enable_users_ddl, true)
-> +
-> +#################################
-> +#
-> +# SE-PostgreSQL Type/Attribute declarations
-> +#
-> +
-> +# database subjects
-> +attribute sepgsql_client_type;
-> +attribute sepgsql_unconfined_type;
-> +attribute sepgsql_userdom_type;
-> +
-> +# database objects attribute
-> +attribute sepgsql_database_type;
-> +attribute sepgsql_table_type;
-> +attribute sepgsql_sysobj_table_type;
-> +attribute sepgsql_procedure_type;
-> +attribute sepgsql_blob_type;
-> +attribute sepgsql_module_type;
-> +
-> +# database trusted domain
-> +type sepgsql_trusted_domain_t;
-> +
-> +# database object types
-> +type sepgsql_db_t;
-> +postgresql_database_object(sepgsql_db_t)
-> +
-> +type sepgsql_table_t;
-> +postgresql_table_object(sepgsql_table_t)
-> +type sepgsql_sysobj_t;
-> +postgresql_system_table_object(sepgsql_sysobj_t)
-> +type sepgsql_secret_table_t;
-> +postgresql_table_object(sepgsql_secret_table_t)
-> +type sepgsql_ro_table_t;
-> +postgresql_table_object(sepgsql_ro_table_t)
-> +type sepgsql_fixed_table_t;
-> +postgresql_table_object(sepgsql_fixed_table_t)
-> +
-> +type sepgsql_proc_t;
-> +postgresql_procedure_object(sepgsql_proc_t)
-> +type sepgsql_trusted_proc_t;
-> +postgresql_procedure_object(sepgsql_trusted_proc_t)
-> +
-> +type sepgsql_blob_t;
-> +postgresql_blob_object(sepgsql_blob_t)
-> +type sepgsql_ro_blob_t;
-> +postgresql_blob_object(sepgsql_ro_blob_t)
-> +type sepgsql_secret_blob_t;
-> +postgresql_blob_object(sepgsql_secret_blob_t)
+ the setsockcreatecon() interface of libselinux.&nbsp;&nbsp;Except for new<br> connection sockets, which have a mixed model - they inherit the type<br> from the server but the MLS level from the client in order to reflect<br> back the client&#39;s level for level preservation.<br>
 
-The declarations should be moved up with the other declarations in this
-file.
+ <br><br> &gt; My three processes have the following contexts:<br> &gt;<br> &gt; system_u:servA_r:servA_t:s4:c1<br> &gt;<br> &gt; system_u:levmA_r:levmA_t:s4-s4:c1,c100<br> &gt;<br> &gt; system_u:FCM_r:FCM_t:s4:c100<br> &gt;<br>
 
-> +########################################
-> +#
-> +# SE-PostgreSQL unpriv-Client domain local policy
-> +#                    (sepgsql_client_type)
-> +
-> +allow sepgsql_client_type sepgsql_db_t : db_database { getattr access get_param set_param};
-> +
-> +allow sepgsql_client_type sepgsql_table_t : db_table { getattr use select update insert delete };
-> +allow sepgsql_client_type sepgsql_table_t : db_column { getattr use select update insert };
-> +allow sepgsql_client_type sepgsql_table_t : db_tuple { use select update insert delete };
-> +
-> +tunable_policy(`sepgsql_enable_users_ddl',`
-> +       allow sepgsql_client_type sepgsql_table_t  : db_table  { create drop setattr };
-> +       allow sepgsql_client_type sepgsql_table_t  : db_column { create drop setattr };
-> +       allow sepgsql_client_type sepgsql_sysobj_t : db_tuple  { update insert delete };
-> +')
-> +
-> +allow sepgsql_client_type sepgsql_sysobj_t : db_table { getattr use select };
-> +allow sepgsql_client_type sepgsql_sysobj_t : db_column { getattr use select };
-> +allow sepgsql_client_type sepgsql_sysobj_t : db_tuple { use select };
-> +
-> +allow sepgsql_client_type sepgsql_secret_table_t : db_table { getattr };
-> +allow sepgsql_client_type sepgsql_secret_table_t : db_column { getattr };
-> +
-> +allow sepgsql_client_type sepgsql_ro_table_t : db_table { getattr use select };
-> +allow sepgsql_client_type sepgsql_ro_table_t : db_column { getattr use select };
-> +allow sepgsql_client_type sepgsql_ro_table_t : db_tuple { use select };
-> +
-> +allow sepgsql_client_type sepgsql_fixed_table_t : db_table { getattr use select insert };
-> +allow sepgsql_client_type sepgsql_fixed_table_t : db_column { getattr use select insert };
-> +allow sepgsql_client_type sepgsql_fixed_table_t : db_tuple { use select insert };
-> +
-> +allow sepgsql_client_type sepgsql_proc_t : db_procedure { getattr execute };
-> +allow sepgsql_client_type sepgsql_trusted_proc_t : db_procedure { getattr execute entrypoint };
-> +
-> +allow sepgsql_client_type sepgsql_blob_t : db_blob { create drop getattr setattr read write };
-> +allow sepgsql_client_type sepgsql_ro_blob_t : db_blob { getattr read };
-> +allow sepgsql_client_type sepgsql_secret_blob_t : db_blob { getattr };
-> +
-> +# call trusted procedure
-> +type_transition sepgsql_client_type sepgsql_trusted_proc_t : process sepgsql_trusted_domain_t;
-> +allow sepgsql_client_type sepgsql_trusted_domain_t : process { transition };
-> +
-> +# type transitions for rest of domains
-> +type_transition sepgsql_client_type postgresql_t : db_database sepgsql_db_t;
+ &gt;<br> &gt;<br> &gt; Ideally, servA should be able to talk to levmA on a unix_stream_socket<br> &gt; at running at s4:c1, levmA should be able to read from s4:c1 and<br> &gt; writeinrange (via a custom mls attribute and a modification of the<br>
 
-Seems like this type_transition should go in the above
-sepgsql_enable_users_ddl tunable.
+ &gt; mlsconstraints) to s4:c100. Another perfectly acceptable solution<br> &gt; would be to set the levmA unix_stream_socket to levmA&#39;s clearance<br> &gt; level (s4:c1,c100). What&#39;s important here is that I do not want to<br>
 
-> +type_transition { sepgsql_client_type - sepgsql_unconfined_type - sepgsql_userdom_type } sepgsql_database_type : db_table sepgsql_table_t;
-> +type_transition { sepgsql_client_type - sepgsql_unconfined_type - sepgsql_userdom_type } sepgsql_database_type : db_procedure sepgsql_proc_t;
-> +type_transition { sepgsql_client_type - sepgsql_unconfined_type - sepgsql_userdom_type } sepgsql_database_type : db_blob sepgsql_blob_t;
+ &gt; allow the servA_t context to &quot;write-down&quot;.&nbsp;&nbsp;That should be reserved<br> &gt; only to the levm process.<br> &gt;<br> &gt;<br> &gt;<br> &gt; What I&#39;m seeing is that, regardless of the permissions on the<br>
 
-Is the negation here to prevent type_transition conflicts/duplicates?
-It seems that if the user template is instantiated, then it should
-already have all the access that a client might have.  I'm still
-thinking about it, but we might want to just drop the type transition
-out of the unconfined section and just require that something that is
-unconfined should be either a client or userdom too, to make the the
-type_transitions are correct.
+ &gt; sock_file, when levmA connects to the servA unix_stream_socket, the<br> &gt; target context takes the servA_t type, but keeps the mls level of the<br> &gt; levmA process. The AVC message is as follows:<br> &gt;<br>
+ &gt; type=AVC msg=audit(1205874819.221:1476): avc:&nbsp;&nbsp;denied&nbsp;&nbsp;{ write } for<br>
+ &gt; pid=3303 comm=&quot;ServA&quot; name=&quot;[59950]&quot; dev=sockfs ino=59950<br> &gt; scontext=system_u:servA_r:servA_t:s4:c1<br> &gt; tcontext=system_u:servA_r:servA_t:s4-s4:c1,c100<br> &gt; tclass=unix_stream_socket<br>
 
-This whole section should probably just go into postgresql_client() and
-then the attribute could be dropped.
+ <br> <br>This isn&#39;t related to the socket file.&nbsp;&nbsp;What appears to be happening<br> here is that the server accepted a connection from the client, and the<br> new connection socket was labeled with the type of the server and the<br>
 
-> +########################################
-> +#
-> +# SE-PostgreSQL Misc policies
-> +#
-> +
-> +# Trusted Procedure Domain
-> +domain_type(sepgsql_trusted_domain_t)
-> +postgresql_unconfined(sepgsql_trusted_domain_t)
-> +role system_r types sepgsql_trusted_domain_t;
+ level of the client, which is correct.&nbsp;&nbsp;Then when the server tries to<br> write on that connection, it gets denied due to the mismatch in MLS<br> ranges - the server is only running at s4:c1 while the client is ranged.<br>
 
-This declaration should go with the others.  sepgsql_trusted_proc_t
-seems like a better type name.
+ <br> Transitions aren&#39;t going to help with this issue.<br> <br><br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Was caused by:<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Constraint violation.<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Check policy/constraints.<br>
 
+ &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Typically, you just need to add a type attribute to<br> &gt; the domain to satisfy the constraint.<br> &gt;<br> &gt;<br> &gt;<br> &gt; It&#39;s failing because that ranged tcontext s4-s4:c1,c100 makes it a<br>
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+ &gt; &quot;write-down&quot; operation (s4:c1 to s4). I have found nothing that can<br> &gt; actually affect the context of the target unix_stream_socket. What am<br> &gt; I missing?<br> &gt;<br> &gt;<br> &gt;<br> &gt; Here are some of the relevant snippets of the policy:<br>
 
+ &gt;<br> &gt;<br> &gt;<br> &gt; #from the .te file.<br> &gt;<br> &gt; levm_bidir(high, levmA, h2l, s4, c1, servA, s4, c100, FCM)<br> &gt;<br> &gt;<br> &gt; levm_bidir(high, levmA, h2l, s4, c100, FCM, s4, c1, servA)<br> &gt;<br>
+
+ &gt;<br> &gt;<br> &gt; #from the .if file. Lots of superfluous transition statements to see<br> &gt; if anything can affect the unix_stream_socket<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; allow $2_t self:unix_stream_socket { create_stream_socket_perms<br>
+
+ &gt; connectto };<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; allow $2_t $9_t:unix_stream_socket { create_stream_socket_perms<br> &gt; connectto };<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; allow $9_t self:unix_stream_socket { create_stream_socket_perms<br> &gt; connectto };<br>
+
+ &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; filetrans_add_pattern($2_t, $9_dir_t, $9_t, file)<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; filetrans_add_pattern($2_t, $9_dir_t, $9_t, sock_file)<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; filetrans_add_pattern($2_t, $9_t, $2_t, unix_stream_socket)<br>
+
+ &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; filetrans_add_pattern($2_t, $9_dir_t, $2_t, unix_stream_socket)<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; range_transition $2_t $9_dir_t:file $7:$8;<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; range_transition $2_t $9_dir_t:sock_file $7:$8;<br>
+
+ &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; range_transition $2_t $9_t:unix_stream_socket $7:8;<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; range_transition $2_t $2_t:unix_stream_socket $7:8;<br> &gt;<br> &gt;&nbsp;&nbsp;&nbsp;&nbsp; range_transition $9_t $9_t:unix_stream_socket $7:8;<br>
+
+ &gt;<br> &gt;<br> &gt;<br> &gt; Best regards,<br> &gt;<br> &gt;<br> &gt;<br> &gt; Tim<br> <br>--<br> Stephen Smalley<br> National Security Agency<br> <br> </blockquote></div><br>
+
+------=_Part_3313_20644437.1205938951841--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
