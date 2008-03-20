@@ -1,66 +1,95 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2K3BMSm017501
-	for <selinux@tycho.nsa.gov>; Wed, 19 Mar 2008 23:11:22 -0400
-Message-ID: <47E1D5D8.30901@tycho.nsa.gov>
-Date: Wed, 19 Mar 2008 23:11:20 -0400
+Message-ID: <47E1E050.7060006@tycho.nsa.gov>
+Date: Wed, 19 Mar 2008 23:56:00 -0400
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: selection labeling
-References: <1205849784.16113.11.camel@gorn>  <47E01BF2.80200@tycho.nsa.gov> <1205929659.16113.31.camel@gorn>
-In-Reply-To: <1205929659.16113.31.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Steve Grubb <sgrubb@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Permissive mode for xace is broken.
+References: <47C2CC18.6080801@redhat.com> <200802281617.17223.sgrubb@redhat.com> <47C767B4.7060606@tycho.nsa.gov> <200803171611.08351.sgrubb@redhat.com>
+In-Reply-To: <200803171611.08351.sgrubb@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Tue, 2008-03-18 at 15:45 -0400, Eamon Walsh wrote:
+Steve Grubb wrote:
+> On Thursday 28 February 2008 21:02:28 Eamon Walsh wrote:
 >   
->> Christopher J. PeBenito wrote:
+>> Steve Grubb wrote:
 >>     
->>> I ran into an interesting denial:
->>>
->>> avc:  denied  { setattr setattr } for request=X11:SetSelectionOwner
->>> comm=dbus-launch
->>> selection=_DBUS_SESSION_BUS_SELECTION_root_3c39a16f05862d57c3d6ef0047356754
->>> scontext=root:staff_r:staff_t
->>> tcontext=system_u:object_r:xselection_t
->>> tclass=x_selection
->>>
->>> Other than the double setattr in the permissions, trying to label this
->>> selection for anything but the default doesn't seem possible.  It seems
->>> that this should be type_transitioned, but it didn't seem to work.
->>>   
+>>> On Thursday 28 February 2008 13:51:05 Stephen Smalley wrote:
 >>>       
->> Whoops, I know why the double setattr is there.  I'll get that fixed, 
->> ignore that for now.
->>
->> We probably need to have wildcarding in the X label support, like the 
->> way filenames work.  Do you agree?
+>>>> On Thu, 2008-02-28 at 13:48 -0500, Eamon Walsh wrote:
+>>>>         
+>>>>> Stephen Smalley wrote:
+>>>>>           
+>>>>>> On Mon, 2008-02-25 at 20:12 -0500, Eamon Walsh wrote:
+>>>>>>             
+>>>>>>> Eamon Walsh wrote:
+>>>>>>>               
+>>>>>>>> The X object manager logs all avc's and status messages (including
+>>>>>>>> the AVC netlink stuff) through the audit system using libaudit calls
+>>>>>>>> (audit_log_user_avc_message, etc.)
+>>>>>>>>                 
+>>> Please tell me they have different record types. Also do you have any
+>>> samples that we can look over to make sure they conform?
+>>>       
+>> type=USER_AVC msg=audit(1204226161.048:268): user pid=21267 uid=0
+>> auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023
+>> msg='avc:  denied  { read } for request=X11:QueryPointer
+>> comm=/usr/libexec/at-spi-registryd xdevice="Virtual core pointer"
+>> scontext=staff_u:staff_r:staff_t:s0
+>> tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device :
+>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
 >>     
 >
-> This is the role's session bus, not the system bus, so the preference
-> would be to have a type_transition so the selection would be
-> staff_dbus_xselection_t.  I don't see how we could get this behavior in
-> x_contexts except by putting in entries for all of the users, which
-> would be suboptimal.  Especially since in this case where I logged in as
-> root/staff_r; I could also log in as root/sysadm_r and then in that case
-> we have a problem since the label would be wrong in one of those cases.
->
+> comm & xdevice are not escaped the right way. exe is. The audit utilities are 
+> expecting the comm field to be comm="/usr/libexec/at-spi-registryd" in this 
+> case. The standard has been untrusted fields have " " enclosing the field. 
+> Whenever there is a space, double quote, or control character, its ASCII HEX 
+> encoded with no quotes. xdevice is not a field that the audit system knows 
+> about, so we could do something different with it, but comm is known for a 
+> long time and has to follow the standards.
 >   
 
+Why can't libaudit automatically perform this escaping?  That way we 
+avoid promulgating this "standard" into every caller of libaudit.
 
-Two thoughts:
+If everything is going to be name-value based, then I want a libaudit 
+function that takes a list of name/value pairs.
 
-1. Do this through D-BUS not X, by modifying the D-BUS daemon to set the 
-selection create context when it creates these selections.
 
-or better yet:
+> Also, is there any information about who caused the event? uid, auid, gid? 
+> Even though this was a denied action, what is the results? Were they 
+> successful (permissive) or was it really a failed and denied request?
+>   
 
-2. Fix D-BUS to provide some other way for people to find out the name 
-of the session bus (if that's what in fact this is for, which I'm still 
-unclear on).  Like maybe through a D-BUS service.
+I don't understand this last part with the result of the action.  How am 
+I supposed to specify this?
+
+I need to modify libselinux (again) to support all of this extra uid and 
+hostname stuff getting passed into the logging callback.
+
+
+> Would it make sense to fill in the workspace:window information for the 
+> terminal? If X is being used remotely, is the addr & hostname fields correct?
+>   
+
+The X server has a terminal that it runs on, /dev/tty7 or whatever.  The 
+desktop workspaces and gnome-terminal/xterm pseudo-tty's are external to 
+the X server and it doesn't know about them.
+
+
+> That's the only things I notice at this point.
+>
+> -Steve
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+>   
 
 
 -- 
