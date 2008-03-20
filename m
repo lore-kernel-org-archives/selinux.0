@@ -1,100 +1,75 @@
-Message-ID: <47E1E050.7060006@tycho.nsa.gov>
-Date: Wed, 19 Mar 2008 23:56:00 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Steve Grubb <sgrubb@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Permissive mode for xace is broken.
-References: <47C2CC18.6080801@redhat.com> <200802281617.17223.sgrubb@redhat.com> <47C767B4.7060606@tycho.nsa.gov> <200803171611.08351.sgrubb@redhat.com>
-In-Reply-To: <200803171611.08351.sgrubb@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2KCsLSl029879
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2008 08:54:21 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2KCsHO6020036
+	for <selinux@tycho.nsa.gov>; Thu, 20 Mar 2008 12:54:17 GMT
+Subject: Re: [PATCH 1/5] REFPOL: Add new labeled networking permissions
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200803191424.16724.paul.moore@hp.com>
+References: <20080226184032.834798290@hp.com>
+	 <20080226184404.862575664@hp.com> <1205932793.16113.42.camel@gorn>
+	 <200803191424.16724.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Thu, 20 Mar 2008 08:50:56 -0400
+Message-Id: <1206017456.16113.86.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Steve Grubb wrote:
-> On Thursday 28 February 2008 21:02:28 Eamon Walsh wrote:
->   
->> Steve Grubb wrote:
->>     
->>> On Thursday 28 February 2008 13:51:05 Stephen Smalley wrote:
->>>       
->>>> On Thu, 2008-02-28 at 13:48 -0500, Eamon Walsh wrote:
->>>>         
->>>>> Stephen Smalley wrote:
->>>>>           
->>>>>> On Mon, 2008-02-25 at 20:12 -0500, Eamon Walsh wrote:
->>>>>>             
->>>>>>> Eamon Walsh wrote:
->>>>>>>               
->>>>>>>> The X object manager logs all avc's and status messages (including
->>>>>>>> the AVC netlink stuff) through the audit system using libaudit calls
->>>>>>>> (audit_log_user_avc_message, etc.)
->>>>>>>>                 
->>> Please tell me they have different record types. Also do you have any
->>> samples that we can look over to make sure they conform?
->>>       
->> type=USER_AVC msg=audit(1204226161.048:268): user pid=21267 uid=0
->> auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023
->> msg='avc:  denied  { read } for request=X11:QueryPointer
->> comm=/usr/libexec/at-spi-registryd xdevice="Virtual core pointer"
->> scontext=staff_u:staff_r:staff_t:s0
->> tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device :
->> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>     
->
-> comm & xdevice are not escaped the right way. exe is. The audit utilities are 
-> expecting the comm field to be comm="/usr/libexec/at-spi-registryd" in this 
-> case. The standard has been untrusted fields have " " enclosing the field. 
-> Whenever there is a space, double quote, or control character, its ASCII HEX 
-> encoded with no quotes. xdevice is not a field that the audit system knows 
-> about, so we could do something different with it, but comm is known for a 
-> long time and has to follow the standards.
->   
+On Wed, 2008-03-19 at 14:24 -0400, Paul Moore wrote:
+> On Wednesday 19 March 2008 9:19:53 am Christopher J. PeBenito wrote:
+> > On Tue, 2008-02-26 at 13:40 -0500, paul.moore@hp.com wrote:
+> > > The 2.6.25 kernel will introduce a new set of labeled networking
+> > > controls to SELinux and this patch makes the necessary changes to
+> > > the Reference Policy to support unlabeled network traffic with the
+> > > new controls.
+> > >
+> > > A description of the new/improved labeled networking controls was
+> > > posted to the SELinux list back in early January 2008.
+> > >
+> > >  * http://marc.info/?l=selinux&m=119991234501200&w=2
 
-Why can't libaudit automatically perform this escaping?  That way we 
-avoid promulgating this "standard" into every caller of libaudit.
+> > > --- refpolicy_svn_repo.orig/policy/modules/kernel/corenetwork.if.in
+> > > +++ refpolicy_svn_repo/policy/modules/kernel/corenetwork.if.in
+> > > @@ -2380,6 +2392,27 @@ interface(`corenet_sendrecv_unlabeled_pa
+> > >
+> > >  ########################################
+> > >  ## <summary>
+> > > +##	Receive packets from an unlabeled peer.
+> > > +## </summary>
+> > > +## <desc>
+> > > +##	<p>
+> > > +##	Receive packets from an unlabeled peer,
+> > > +##      these packets do not have any peer labeling
+> > > +##      information present.
+> > > +##	</p>
+> > > +## </desc>
+> > > +## <param name="domain">
+> > > +##	<summary>
+> > > +##	Domain allowed access.
+> > > +##	</summary>
+> > > +## </param>
+> > > +#
+> > > +interface(`corenet_recvfrom_unlabeled_peer',`
+> > > +	kernel_recvfrom_unlabeled_peer($1)
+> > > +')
+> >
+> > Seems unnecessary since it seems like it should be called from
+> > corenet_(tcp|udp|raw)_recvfrom_unlabeled?
+> 
+> Okay, would you prefer to add kernel_recvfrom_unlabeled_peer() to 
+> corenet_{tcp,udp,raw}_recvfrom_unlabeled() or simply add the new allow 
+> rule to kernel_{tcp,udp,raw}_recvfrom_unlabeled()?
 
-If everything is going to be name-value based, then I want a libaudit 
-function that takes a list of name/value pairs.
-
-
-> Also, is there any information about who caused the event? uid, auid, gid? 
-> Even though this was a denied action, what is the results? Were they 
-> successful (permissive) or was it really a failed and denied request?
->   
-
-I don't understand this last part with the result of the action.  How am 
-I supposed to specify this?
-
-I need to modify libselinux (again) to support all of this extra uid and 
-hostname stuff getting passed into the logging callback.
-
-
-> Would it make sense to fill in the workspace:window information for the 
-> terminal? If X is being used remotely, is the addr & hostname fields correct?
->   
-
-The X server has a terminal that it runs on, /dev/tty7 or whatever.  The 
-desktop workspaces and gnome-terminal/xterm pseudo-tty's are external to 
-the X server and it doesn't know about them.
-
-
-> That's the only things I notice at this point.
->
-> -Steve
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
->   
-
+The latter seems the best choice.
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
