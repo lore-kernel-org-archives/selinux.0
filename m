@@ -1,170 +1,41 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2LDUYtI005286
-	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2008 09:30:35 -0400
-Received: from vidle.i.cz (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2LDUXl2001743
-	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2008 13:30:34 GMT
-Date: Fri, 21 Mar 2008 14:03:15 +0100
-From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-Subject: Re: refpolicy: patch for gpg-agent
-Message-ID: <20080321130315.GA21980@bobek.pm.i.cz>
-References: <20080220170300.GA13312@bobek.pm.i.cz> <1204660301.14217.26.camel@gorn>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2LM29HB032059
+	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2008 18:02:09 -0400
+Received: from web90402.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2LM28CP023802
+	for <selinux@tycho.nsa.gov>; Fri, 21 Mar 2008 22:02:08 GMT
+Date: Fri, 21 Mar 2008 15:01:55 -0700 (PDT)
+From: kihamba nengo <knengo@yahoo.com>
+Subject: problem when running checkmodule
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="mP3DRpeJDSE+ciuQ"
-In-Reply-To: <1204660301.14217.26.camel@gorn>
+Content-Type: multipart/alternative; boundary="0-1746352723-1206136915=:63527"
+Message-ID: <680209.63527.qm@web90402.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
+--0-1746352723-1206136915=:63527
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 
 Hi,
-sorry for a delay...
-
-On Tue, Mar 04, 2008 at 02:51:41PM -0500, Christopher J. PeBenito wrote:
-> On Wed, 2008-02-20 at 18:03 +0100, Václav Ovsík wrote:
-> > I'm running HEAD refpolicy on Debian Sid, but this patch is not
-> > Debian-specific this time.
-> > Having a copy of my std bash profile on the testing machine with
-> > a snippet (from gpg-agent man page):
-> > 
-> >     if test -f $HOME/.gpg-agent-info \
-> >              && kill -0 `cut -d: -f 2 $HOME/.gpg-agent-info`
-> > 2>/dev/null
-> >     then
-> >         . $HOME/.gpg-agent-info
-> >         export GPG_AGENT_INFO
-> >         export SSH_AUTH_SOCK
-> >         export SSH_AGENT_PID
-> >     else
-> >         eval `gpg-agent --daemon --write-env-file`
-> >     fi
-> > 
-> > I got a number of denials for this snippet of commands.
-> > 
-> > 1. Found a typo for permissions to create socket in the /tmp.
-> > 2. Added permission to send signal 0 by the user (see above).
-> > 3. Added permissions for writing agent info file into users home
-> >    directory.
-> 
-> 
-> > 
-> > Index: policy/modules/apps/gpg.if
-> > ===================================================================
-> > --- policy/modules/apps/gpg.if  (revision 2617)
-> > +++ policy/modules/apps/gpg.if  (working copy)
-> > @@ -212,6 +212,12 @@
-> >         manage_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
-> >         manage_lnk_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
-> >  
-> > +       # write ~/.gpg-agent-info (gpg-agent --write-env-file option)
-> > +       allow $1_gpg_agent_t { $1_home_dir_t $1_home_t }:dir add_entry_dir_perms;
-> > +       type_transition $1_gpg_agent_t $1_home_dir_t:file $1_home_t;
-> > +       allow $1_gpg_agent_t $1_home_t:file create_file_perms;
-> > +       allow $1_gpg_agent_t $1_home_t:file write_file_perms;
-> 
-> I'm a little hesitant to add this unconditionally, I don't think we want
-> gpg-agent to write out to general home dir content.  Perhaps we should
-> have a tunable, or a specific type for this.
-
-I added this rules, so an example from gpg-agent manpage can work
-out-of-the-box. Adding a tunable (with the default to disallow) will not
-satisfy this. Maybe the later - specific type, but what security risk
-poses this rules?
-I thought, that domain X_gpg_agent_t is very trusted domain, that
-manages my secret keys and should be shielded against the world around
-and not the opposite.
+when i run checkmodule -M -m apache.te -o apache.mod i get the following error:
+checkmodule: loading policy configuration from apache.te
+token too large, exceeds YYLMAX
+what is the problem
 
 
-> >         # allow gpg to connect to the gpg agent
-> >         stream_connect_pattern($1_gpg_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t,$1_gpg_agent_t)
-> >  
-> > @@ -219,11 +225,11 @@
-> >         ps_process_pattern($2,$1_gpg_agent_t)
-> >  
-> >         # Allow the user shell to signal the gpg-agent program.
-> > -       allow $2 $1_gpg_agent_t:process { signal sigkill };
-> > +       allow $2 $1_gpg_agent_t:process { signal sigkill signull };
-> >  
-> > -       manage_dirs_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-> > -       manage_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-> > -       manage_sock_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-> > +       manage_dirs_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-> > +       manage_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-> > +       manage_sock_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-> >         files_tmp_filetrans($1_gpg_agent_t, $1_gpg_agent_tmp_t, { file sock_file dir })
-> 
-> This isn't a typo, the user domain should still be able to manage
-> gpg-agent's tmp files.
+       
+---------------------------------
+Be a better friend, newshound, and know-it-all with Yahoo! Mobile.  Try it now.
+--0-1746352723-1206136915=:63527
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Yes, you are right. I looked at ssh-agent rules just and considered it
-more or less equivalent to gpg-agent. Gpg-agent should do clean-up of
-its socket, but maybe some crash.
-
-Ok, what about ssh-agent? Shoul be these rules for userdomain added for
-it too?
-
-zito@sid:/tmp$ rm -rf ssh-*
-
-audit(1206101398.028:16): avc:  denied  { write } for  pid=2155 comm="rm" name="ssh-IgYHrr2122" dev=sda1 ino=49168 scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:sshd_tmp_t:s0 tclass=dir
-audit(1206101398.028:17): avc:  denied  { remove_name } for  pid=2155 comm="rm" name="agent.2122" dev=sda1 ino=49169 scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:sshd_tmp_t:s0 tclass=dir
-audit(1206101398.028:18): avc:  denied  { unlink } for  pid=2155 comm="rm" name="agent.2122" dev=sda1 ino=49169 scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:sshd_tmp_t:s0 tclass=sock_file
-audit(1206101398.028:19): avc:  denied  { rmdir } for  pid=2155 comm="rm" name="ssh-IgYHrr2122" dev=sda1 ino=49168 scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:sshd_tmp_t:s0 tclass=dir
-
-
-Thanks for suggestions.
-Regards
--- 
-Zito
-
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=gpg-agent
-
-Index: policy/modules/apps/gpg.if
-===================================================================
---- policy/modules/apps/gpg.if.orig	2008-03-20 12:00:48.000000000 +0100
-+++ policy/modules/apps/gpg.if	2008-03-21 13:18:29.000000000 +0100
-@@ -212,6 +212,12 @@
- 	manage_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
- 	manage_lnk_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
- 
-+	# write ~/.gpg-agent-info (gpg-agent --write-env-file option)
-+	allow $1_gpg_agent_t { $1_home_dir_t $1_home_t }:dir add_entry_dir_perms;
-+	type_transition $1_gpg_agent_t $1_home_dir_t:file $1_home_t;
-+	allow $1_gpg_agent_t $1_home_t:file create_file_perms;
-+	allow $1_gpg_agent_t $1_home_t:file write_file_perms;
-+
- 	# allow gpg to connect to the gpg agent
- 	stream_connect_pattern($1_gpg_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t,$1_gpg_agent_t)
- 
-@@ -219,11 +225,18 @@
- 	ps_process_pattern($2,$1_gpg_agent_t)
- 
- 	# Allow the user shell to signal the gpg-agent program.
--	allow $2 $1_gpg_agent_t:process { signal sigkill };
-+	allow $2 $1_gpg_agent_t:process { signal sigkill signull };
- 
-+	# Allow the user to manage gpg-agent tmp files (socket)
- 	manage_dirs_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
- 	manage_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
- 	manage_sock_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-+
-+	# Allow the gpg-agent to manage its tmp files (socket)
-+	manage_dirs_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-+	manage_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-+	manage_sock_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
-+
- 	files_tmp_filetrans($1_gpg_agent_t, $1_gpg_agent_tmp_t, { file sock_file dir })
- 
- 	# Transition from the user domain to the derived domain.
-
---mP3DRpeJDSE+ciuQ--
+Hi,<br>when i run checkmodule -M -m apache.te -o apache.mod i get the following error:<br>checkmodule: loading policy configuration from apache.te<br>token too large, exceeds YYLMAX<br>what is the problem<br><br><p>&#32;
+      <hr size=1>Be a better friend, newshound, and 
+know-it-all with Yahoo! Mobile. <a href="http://us.rd.yahoo.com/evt=51733/*http://mobile.yahoo.com/;_ylt=Ahu06i62sR8HDtDypao8Wcj9tAcJ "> Try it now.</a>
+--0-1746352723-1206136915=:63527--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
