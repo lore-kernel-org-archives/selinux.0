@@ -1,62 +1,43 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2N5IWSk007347
-	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 01:18:32 -0400
-Received: from turing-police.cc.vt.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2N5IUKO010056
-	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 05:18:30 GMT
-To: David Howells <dhowells@redhat.com>
-Cc: akpm@linux-foundation.org, torvalds@osdl.org, Trond.Myklebust@netapp.com,
-        chuck.lever@oracle.com, nfsv4@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2NCfOnE032143
+	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 08:41:24 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2NCfMtS021382
+	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 12:41:23 GMT
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <25920.1206249437@turing-police.cc.vt.edu>
+References: <25920.1206249437@turing-police.cc.vt.edu> <20080229004405.4142.32147.stgit@warthog.procyon.org.uk> <20080229004332.4142.51771.stgit@warthog.procyon.org.uk> <17688.1205946728@redhat.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: dhowells@redhat.com, akpm@linux-foundation.org, torvalds@osdl.org,
+        Trond.Myklebust@netapp.com, chuck.lever@oracle.com,
+        nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
 Subject: Re: Performance degradation measurement [was Re: [PATCH 06/37] Security: Separate task security context from task_struct [ver #34]]
-In-Reply-To: Your message of "Wed, 19 Mar 2008 17:12:08 -0000."
-             <17688.1205946728@redhat.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20080229004405.4142.32147.stgit@warthog.procyon.org.uk> <20080229004332.4142.51771.stgit@warthog.procyon.org.uk>
-            <17688.1205946728@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1206249437_3492P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Date: Sun, 23 Mar 2008 01:17:17 -0400
-Message-ID: <25920.1206249437@turing-police.cc.vt.edu>
+Date: Sun, 23 Mar 2008 12:40:48 +0000
+Message-ID: <17671.1206276048@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---==_Exmh_1206249437_3492P
-Content-Type: text/plain; charset=us-ascii
+Valdis.Kletnieks@vt.edu wrote:
 
-On Wed, 19 Mar 2008 17:12:08 -0000, David Howells said:
+> What's up with *that*?  The *fastest* run with it disabled is 1.118, and
+> the *slowest* with it enabled is 1.119.  At that point, I have to wonder
+> what we're really measuring here....
 
-(Sorry - finally catching up)
+That's a good point.  I missed that, probably because I *knew* it would be
+slower with SELinux enabled, and so just assumed that it was.
 
->  (1) SELinux enabled, none of the security patches:
-> 
-> 	(gdb) p (1.119+1.110+1.104+1.106+1.095+1.112+1.094+1.091+1.112)/9
-> 	$3 = 1.104777777777777
+That's really odd. There should be no disk accesses happening (the
+pagecache/buffer cache is preloaded and noatime is turned on), the CPUs are
+running at top speed at all times, and there's lots of free RAM available.
+Network activity should also be minimal, so I'm not sure why there's so much
+variance.
 
->  (4) LSM/SELinux disabled, none of the security patches:
-> 
-> 	(gdb) p (1.121+1.136+1.137+1.121+1.122+1.131+1.121+1.131+1.118)/9
-> 	$7 = 1.1264444444444437
+I'll re-run my tests from a kernel running a single bash and nothing else, see
+if I can get more consistent data.
 
-What's up with *that*?  The *fastest* run with it disabled is 1.118, and
-the *slowest* with it enabled is 1.119.  At that point, I have to wonder
-what we're really measuring here....
-
---==_Exmh_1206249437_3492P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.8 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFH5efdcC3lWbTT17ARAg2qAJwKHeKqOVtSgql6bvnN+qdx6dg5ywCfQrPf
-5uPBBxeg5QOLo8zbaUxDe+0=
-=gNsw
------END PGP SIGNATURE-----
-
---==_Exmh_1206249437_3492P--
+David
 
 --
 This message was distributed to subscribers of the selinux mailing list.
