@@ -1,51 +1,64 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2NHf0rs000585
-	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 13:41:00 -0400
-Received: from web36614.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m2NHexQn017125
-	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 17:40:59 GMT
-Date: Sun, 23 Mar 2008 10:40:57 -0700 (PDT)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2NHqbFR001880
+	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 13:52:37 -0400
+Received: from web36601.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2NHqZKo013744
+	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 17:52:35 GMT
+Date: Sun, 23 Mar 2008 10:25:50 -0700 (PDT)
 From: Casey Schaufler <casey@schaufler-ca.com>
 Reply-To: casey@schaufler-ca.com
 Subject: Re: Removing DAC.
-To: casey@schaufler-ca.com, cinthya aranguren <cinthya.aranguren@gmail.com>,
-        selinux@tycho.nsa.gov
+To: cinthya aranguren <cinthya.aranguren@gmail.com>, selinux@tycho.nsa.gov
 Cc: LSM List <linux-security-module@vger.kernel.org>
-In-Reply-To: <613578.78683.qm@web36601.mail.mud.yahoo.com>
+In-Reply-To: <50771f160803230854n18bd2a07q34eb154fc016f351@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <404587.40497.qm@web36614.mail.mud.yahoo.com>
+Message-ID: <613578.78683.qm@web36601.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---- Casey Schaufler <casey@schaufler-ca.com> wrote:
+--- cinthya aranguren <cinthya.aranguren@gmail.com> wrote:
 
+> Hi,
 > 
-> --- cinthya aranguren <cinthya.aranguren@gmail.com> wrote:
-> 
-> > Hi,
-> > 
-> > Is there any way to avoid o remove DAC controls ? I'd like to have only one
-> > security scheme in my system. I mean a pure SElinux system. not DAC + MAC.
-> > only MAC.
-> 
-> No.
-> 
-> Well, not today.
+> Is there any way to avoid o remove DAC controls ? I'd like to have only one
+> security scheme in my system. I mean a pure SElinux system. not DAC + MAC.
+> only MAC.
 
-I will add that if every process runs with CAP_DAC_OVERRIDE set
-you can approach "no DAC", but I think you would probably have
-to dig very deeply into the behavior of security cognizant
-applications (sendmail comes to mind) and make sure that they
-aren't explictly dropping that capability. I will let those
-who work more closely with SELinux policy than I do describe
-how capabilities possessed are related to an SELinux policy
-and how that might impact the behavior of SELinux. You should
-also note that SELinux takes what are traditionally DAC
-attributes into account when making decisions and that if you
-use MCS you are using a DAC mechanism within SELinux. I'm not
-saying that's bad, just that it's there.
+No.
+
+Well, not today.
+
+The LSM, which is the interface that SELinux uses to plug into
+the rest of the kernel is explicity designed to allow additional
+restrictions but not replacement or override of existing
+restrictions. In the early days of LSM both restrictive models,
+like what we have today, and authoritiative models, which would
+allow replacement of traditional DAC where considered. The
+authoritative model was rejected based on how easy it would be
+for proprietary modules that had nothing to do with security to
+exploit the interface.
+
+I am currently putting some work into separating the LSM into
+a pair of interface sets, one for the privilege model and one
+for the additional restrictions. Once in place it could be
+possible to create a privilege scheme that reports to the 
+traditional DAC that everyone has DAC override, and leave it
+to SELinux (or whatever restrictive model you might prefer)
+to make the only decision.
+
+That work is not done, nor is there any assurance that it
+might be accepted when it is. Since it would result in a
+system where the privilege module and the access restriction
+module could team up to provide an authoritative model
+it is within reason that the arguments that blocked an
+authoritative LSM could be raised again with the same result.
+
+Now I'll ask the 37 cent question:
+
+Why would you want to do that?
+
 
 
 Casey Schaufler
