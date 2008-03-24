@@ -1,54 +1,84 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2OBYUJS024017
-	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 07:34:31 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2OBYKKA026179
-	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 11:34:27 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 2ACE018C6C
-	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 21:33:06 +1100 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sfInsEX94wIl for <selinux@tycho.nsa.gov>;
-	Mon, 24 Mar 2008 21:33:05 +1100 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id C78CD18547
-	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 21:33:05 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 84EC821D3D
-	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 21:33:03 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
 Subject: Re: /bin/passwd and a basic MLS install of Fedora 8
-Date: Mon, 24 Mar 2008 21:33:01 +1100
-References: <200803240035.40028.russell@coker.com.au>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>
 In-Reply-To: <200803240035.40028.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200803242133.03227.russell@coker.com.au>
+References: <200803240035.40028.russell@coker.com.au>
+Content-Type: text/plain
+Date: Mon, 24 Mar 2008 08:00:45 -0400
+Message-Id: <1206360045.3302.3.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 24 March 2008 00:35, Russell Coker <russell@coker.com.au> wrote:
-> /tmp/a.out is a test program I wrote which calls setresuid(0,0,0);
 
-I was trying to reproduce a problem from Debian/Etch with the latest Fedora to 
-see if it was an upstream issue or an issue in Debian.
+On Mon, 2008-03-24 at 00:35 +1100, Russell Coker wrote:
+> -rwsr-xr-x  root root system_u:object_r:bin_t:SystemLow /usr/bin/newgrp
+> -rwsr-xr-x  root root system_u:object_r:bin_t:SystemLow /usr/bin/rcp
+> -rwsr-xr-x  root root system_u:object_r:bin_t:SystemLow /usr/bin/rlogin
+> -rwsr-xr-x  root root system_u:object_r:bin_t:SystemLow /usr/bin/rsh
+> -rwsr-xr-x  root root system_u:object_r:bin_t:SystemLow /usr/kerberos/bin/ksu
+> -rwsr-xr-x  root root 
+> system_u:object_r:bin_t:SystemLow /usr/sbin/ccreds_validate
+> -rws--x--x  root root system_u:object_r:bin_t:SystemLow /usr/sbin/userhelper
+> -rwsr-xr-x  root root system_u:object_r:bin_t:SystemLow /usr/sbin/userisdnctl
+> -rwsr-xr-x  root root system_u:object_r:bin_t:SystemLow /usr/sbin/usernetctl
+> 
+> 
+> /tmp/a.out is a test program I wrote which calls setresuid(0,0,0); 
+> system("/bin/bash");  But for the sake of discussion, let's assume it's one 
+> of the above programs (from a minimal install of Fedora 8) which has been 
+> cracked.  Of course it could also be one of the other SUID root programs 
+> which are probably installed in a default or typical install but which have 
+> no special labelling.
+> 
+> $ ls -lZ /tmp/a.out
+> -rwsr-xr-x  root test user_u:object_r:bin_t:SystemLow  /tmp/a.out
+> $ /tmp/a.out
+> # id
+> uid=0(root) gid=500(test) groups=500(test) 
+> context=user_u:user_r:user_t:SystemLow
+> # passwd
+> Changing password for user root.
+> New UNIX password:
+> BAD PASSWORD: it is too short
+> Retype new UNIX password:
+> passwd: all authentication tokens updated successfully.
+> 
+> 
+> Then of course I just ssh back in to the machine as root and get the context 
+> root:sysadm_r:sysadm_t:SystemLow:SystemLow-SystemHigh.
+> 
+> 
+> It seems to me that a reasonable way of preventing this particular attack (and 
+> many others of a similar nature) is to have /bin/passwd check which identity 
+> may be used for a login of the account which is getting it's password (or 
+> finger name or shell) changed and then verify that it matches the identity 
+> used to run /bin/passwd.  So for example if you change the password for 
+> the "root" account then merely having UID=0 should not be sufficient, but 
+> also having an identity of "root" (in the case of the default MLS policy) 
+> would be required.
+> 
+> One possible ways of mitigating this are to cause domain transitions on every 
+> execution of a SUID root program by labelling them all in an appropriate 
+> manner (maybe even with a non_exec_t type for ones which can't be properly 
+> supported with the policy that is running).  This could be helped by denying 
+> user_t access to the setuid capability.
+> 
+> But then we have programs such as crontab which by design will run programs in 
+> a different UID and if tricked into choosing the wrong UID will bring the 
+> same problem back.  This is not to say that relabelling some of the programs 
+> such as rcp, rlogin, etc isn't a good idea - merely that I don't think it 
+> removes the need for extra checks in /bin/passwd.
 
-I had a few issues with the MLS policy (rsyslogd not being permitted to write 
-to the log files and auditd not working) and by the time I got to doing the 
-actual test (at about midnight) I forgot to put it in enforcing mode again.
-
-Sorry for the inconvenience, I'll double-check my test results before posting 
-in future.
+Should be blocked by SELinux permission checks applied by passwd and
+friends.  If not, that's a bug that needs to be filed against those
+programs.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
