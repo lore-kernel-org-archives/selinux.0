@@ -1,88 +1,54 @@
-Subject: Re: [RFC][PATCH] user_transition support for libsepol/checkpolicy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Caleb Case <ccase@tresys.com>,
-        jmowery@tresys.com
-In-Reply-To: <47E80EBE.4090508@manicmethod.com>
-References: <47E7E7A5.6090603@manicmethod.com>
-	 <1206389718.3302.107.camel@moss-spartans.epoch.ncsc.mil>
-	 <47E80EBE.4090508@manicmethod.com>
-Content-Type: text/plain
-Date: Mon, 24 Mar 2008 16:36:26 -0400
-Message-Id: <1206390986.3302.113.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Steve Grubb <sgrubb@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Permissive mode for xace is broken.
+Date: Mon, 24 Mar 2008 16:28:41 -0400
+Cc: Steve G <linux_4ever@yahoo.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>
+References: <729568.16778.qm@web51505.mail.re2.yahoo.com> <1206388745.3302.88.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1206388745.3302.88.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200803241628.41673.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Monday 24 March 2008 15:59:05 Stephen Smalley wrote:
+> > SE Linux is the only user of the audit system that does not follow the
+> > name=value standard. Would you (and the community) really be willing to
+> > convert selinux over to that if we have the API for it?  Do you have any
+> > suggestions about how you'd like to see the new API implemented?
+>
+> When the topic last came up on list, we weren't opposed to converting to
+> the name=value model, just cautious about not breaking userspace in the
+> process.
 
-On Mon, 2008-03-24 at 16:27 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
-> >   
-> >> This implements user_transition in the toolchain. It should help on
-> >> distro's like Ubuntu that can't use run_init due to the user not knowing
-> >> the root password. It also seems like a more eloquent way to handle
-> >> service restarts than assigning system_r to user accounts and having the
-> >> daemons run as someuser:system_r:foo_t.
-> >>     
-> >
-> > Yes, that's something that has been wanted in Fedora for quite some
-> > time.
-> >
-> > The real issue with run_init isn't the re-authentication stage, as that
-> > can always be disabled via pam config (and was just a weak form of
-> > confirming user intent, not an authorization mechanism), but rather the
-> > difficulty in transparently interposing it into all situations where
-> > services get started/re-started.  Only Gentoo seemed to have a good
-> > story there.
-> >
-> >   
-> >> This has some issues in policy due to users not always being known in
-> >> the policy (eg., semanage users). I hope Chris or Dan will be able to
-> >> give some suggestions there.
-> >>     
-> >
-> > I'm not sure why anyone needs to add users to policy via semanage users
-> > given the base set of generic users and the ability to map Linux users
-> > to them via seusers aka semanage login.
-> >
-> >   
-> >> The kernel patch (forthcoming after this is accepted) so far only
-> >> implements the transition on process transitions. Later on I plan on
-> >> doing a patch to expand role_transition to object classes (this is a
-> >> change needed for policy rbac support to work). I suspect I'll do the
-> >> same for user at that time. The question here is, do we think its worth
-> >> it to do fine grained transitions like we did for range_trans? (I don't).
-> >>     
-> >
-> > Offhand, I can't see a use for per-class user transitions, if that is
-> > what you mean.
-> >
-> > I don't think per-class role transitions is really the fundamental
-> > obstacle to enabling use of roles on objects - more thought is required
-> > there.  What will be fun there is role/type and user/range validation,
-> > which presently gets to ignore everything that has object_r.
-> >   
-> 
-> Ah, another thing. While going through the policyrep implementation the 
-> question of object_r came up. My thought is to start adding object_r 
-> magic into the toolchain (adding all types, etc) and eventually purge 
-> object_r from the kernel. at least one magic instance of object_r will 
-> be removed by object role_transitions, the others are really short 
-> circuits in the security server that can be removed after sufficient 
-> support is in the toolchain. What are your thoughts on that (for future 
-> reference)?
+Sure. Completely understandable.
 
-Well, the interesting question is what should the default role be in the
-new context in security_compute_sid, if not object_r.  Even aside from
-the support for per-class role transitions.  User defaults to the source
-context, type defaults to the related object context, and MLS range
-defaults to the low level of the source context.  Role could be the
-subject's role or the related object's role.
 
--- 
-Stephen Smalley
-National Security Agency
+> As I recall, we even agreed on field names for the avc fields during the
+> prior thread.  But no one followed up with actual patches to make it
+> happen.
+
+On the audit side, I implemented what we agreed on. It creates 2 fake names 
+for use with values (seresult & seperm). At some point, I would recommend 
+that the tools experiment with switching over to the auparse library. If that 
+happens, then we can change the actual format since auparse is already 
+providing the illusion of name=value for all of selinux.
+
+I recommend experimenting with switching over for a couple other reasons. At 
+some point we'll start zipping the logs. That will break existing tools 
+unless they are gzip aware. And people have been talking about adding 
+database support for audit records. If people store events that way, we'll 
+have auparse updated to extract events. Its yet another hurdle for the tools 
+doing their own parsing.
+
+This isn't likely to happen for another month or two so there is time to 
+experiment. What I am concerned about right now, though, is what to do about 
+user space AVCs since that is needing some work.  :)
+
+-Steve
 
 
 --
