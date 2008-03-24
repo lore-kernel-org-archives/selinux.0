@@ -1,209 +1,94 @@
-Subject: [PATCH] checkpolicy: support for permissive types
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jbrindle@tresys.com, tmiller@tresys.com
-Content-Type: text/plain
-Date: Mon, 24 Mar 2008 10:11:20 -0400
-Message-Id: <1206367880.3192.24.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2OHKIDQ025213
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 13:20:18 -0400
+Received: from rv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2OHKFFR012584
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 17:20:15 GMT
+Received: by rv-out-0910.google.com with SMTP id k15so1425244rvb.54
+        for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 10:20:11 -0700 (PDT)
+Message-ID: <50771f160803241020q829f988s2c1441ca3fde5032@mail.gmail.com>
+Date: Mon, 24 Mar 2008 14:20:11 -0300
+From: "cinthya aranguren" <cinthya.aranguren@gmail.com>
+To: casey@schaufler-ca.com
+Subject: Re: Removing DAC.
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <613578.78683.qm@web36601.mail.mud.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <50771f160803230854n18bd2a07q34eb154fc016f351@mail.gmail.com>
+	 <613578.78683.qm@web36601.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds support for permissive domains.
-
-A very simple module to make httpd_t a permissive domain would be:
-
-policy_module(permissiveapache, 1.0)
-gen_require(`
-       type httpd_t;
-')
-permissive httpd_t;
-
-Obviously this syntax can be used in both the base policy and in a
-policy module.
-
-Signed-off-by: Eric Paris <eparis@redhat.com>
-
----
-
- policy_define.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- policy_define.h |    1 +
- policy_parse.y  |    4 ++++
- policy_scan.l   |    4 +++-
- test/dismod.c   |    2 +-
- test/dispol.c   |   26 ++++++++++++++++++++++++++
- 6 files changed, 78 insertions(+), 2 deletions(-)
-
-diff -up checkpolicy-2.0.13/policy_parse.y.pre.permissive checkpolicy-2.0.13/policy_parse.y
---- checkpolicy-2.0.13/policy_parse.y.pre.permissive	2008-03-24 09:56:14.000000000 -0400
-+++ checkpolicy-2.0.13/policy_parse.y	2008-03-24 09:56:23.000000000 -0400
-@@ -135,6 +135,7 @@ typedef int (* require_func_t)();
- %token IPV6_ADDR
- %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
- %token POLICYCAP
-+%token PERMISSIVE
- 
- %left OR
- %left XOR
-@@ -261,6 +262,7 @@ te_decl			: attribute_def
-                         | transition_def
-                         | range_trans_def
-                         | te_avtab_def
-+			| permissive_def
- 			;
- attribute_def           : ATTRIBUTE identifier ';'
-                         { if (define_attrib()) return -1;}
-@@ -706,6 +708,8 @@ ipv6_addr		: IPV6_ADDR
- policycap_def		: POLICYCAP identifier ';'
- 			{if (define_polcap()) return -1;}
- 			;
-+permissive_def		: PERMISSIVE identifier ';'
-+			{if (define_permissive()) return -1;}
- 
- /*********** module grammar below ***********/
- 
-diff -up checkpolicy-2.0.13/policy_define.c.pre.permissive checkpolicy-2.0.13/policy_define.c
---- checkpolicy-2.0.13/policy_define.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
-+++ checkpolicy-2.0.13/policy_define.c	2008-03-24 10:06:56.000000000 -0400
-@@ -195,6 +195,49 @@ int define_class(void)
- 	return -1;
- }
- 
-+int define_permissive(void)
-+{
-+	char *type = NULL;
-+	struct type_datum *t;
-+	int rc = 0;
-+
-+	type = queue_remove(id_queue);
-+
-+	if (!type) {
-+		yyerror2("forgot to include type in permissive definition?");
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	if (pass == 1)
-+		goto out;
-+
-+	if (!is_id_in_scope(SYM_TYPES, type)) {
-+		yyerror2("type %s is not within scope", type);
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	t = hashtab_search(policydbp->p_types.table, type);
-+	if (!t) {
-+		yyerror2("type is not defined: %s", type);
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	if (t->flavor == TYPE_ATTRIB) {
-+		yyerror2("attributes may not be permissive: %s\n", type);
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	t->flags |= TYPE_FLAGS_PERMISSIVE;
-+
-+out:
-+	free(type);
-+	return rc;
-+}
-+
- int define_polcap(void)
- {
- 	char *id = 0;
-diff -up checkpolicy-2.0.13/policy_define.h.pre.permissive checkpolicy-2.0.13/policy_define.h
---- checkpolicy-2.0.13/policy_define.h.pre.permissive	2008-03-24 09:56:14.000000000 -0400
-+++ checkpolicy-2.0.13/policy_define.h	2008-03-24 09:56:23.000000000 -0400
-@@ -36,6 +36,7 @@ int define_ipv4_node_context(void);
- int define_ipv6_node_context(void);
- int define_level(void);
- int define_netif_context(void);
-+int define_permissive(void);
- int define_polcap(void);
- int define_port_context(unsigned int low, unsigned int high);
- int define_range_trans(int class_specified);
-diff -up checkpolicy-2.0.13/test/dispol.c.pre.permissive checkpolicy-2.0.13/test/dispol.c
---- checkpolicy-2.0.13/test/dispol.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
-+++ checkpolicy-2.0.13/test/dispol.c	2008-03-24 09:58:00.000000000 -0400
-@@ -319,6 +319,28 @@ static void display_policycaps(policydb_
- 	}
- }
- 
-+static void display_id(policydb_t *p, FILE *fp, uint32_t symbol_type,
-+		       uint32_t symbol_value, char *prefix)
-+{
-+	char *id = p->sym_val_to_name[symbol_type][symbol_value];
-+	fprintf(fp, " %s%s", prefix, id);
-+}
-+
-+static void display_permissive(policydb_t *p, FILE *fp)
-+{
-+	ebitmap_node_t *node;
-+	int i;
-+
-+	fprintf(fp, "permissive sids:\n");
-+	ebitmap_for_each_bit(&p->permissive_map, node, i) {
-+		if (ebitmap_node_get_bit(node, i)) {
-+			fprintf(fp, "\t");
-+			display_id(p, fp, SYM_TYPES, i - 1, "");
-+			fprintf(fp, "\n");
-+		}
-+	}
-+}
-+
- int menu()
- {
- 	printf("\nSelect a command:\n");
-@@ -331,6 +353,7 @@ int menu()
- 	printf("7)  change a boolean value\n");
- 	printf("\n");
- 	printf("c)  display policy capabilities\n");
-+	printf("p)  display the list of permissive types\n");
- 	printf("u)  display unknown handling setting\n");
- 	printf("f)  set output file\n");
- 	printf("m)  display menu\n");
-@@ -447,6 +470,9 @@ int main(int argc, char **argv)
- 		case 'c':
- 			display_policycaps(&policydb, out_fp);
- 			break;
-+		case 'p':
-+			display_permissive(&policydb, out_fp);
-+			break;
- 		case 'u':
- 		case 'U':
- 			display_handle_unknown(&policydb, out_fp);
-diff -up checkpolicy-2.0.13/test/dismod.c.pre.permissive checkpolicy-2.0.13/test/dismod.c
---- checkpolicy-2.0.13/test/dismod.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
-+++ checkpolicy-2.0.13/test/dismod.c	2008-03-24 09:56:23.000000000 -0400
-@@ -323,7 +323,7 @@ int display_type_callback(hashtab_key_t 
- 		fprintf(fp, "alias for type");
- 		display_id(&policydb, fp, SYM_TYPES, type->s.value - 1, "");
- 	}
--	fprintf(fp, "\n");
-+	fprintf(fp, " flags:%x\n", type->flags);
- 
- 	return 0;
- }
-diff -up checkpolicy-2.0.13/policy_scan.l.pre.permissive checkpolicy-2.0.13/policy_scan.l
---- checkpolicy-2.0.13/policy_scan.l.pre.permissive	2008-03-24 09:56:14.000000000 -0400
-+++ checkpolicy-2.0.13/policy_scan.l	2008-03-24 09:56:23.000000000 -0400
-@@ -202,7 +202,9 @@ H1				{ return(H1); }
- h2 |
- H2				{ return(H2); }
- policycap |
--POLICYCAP			{ return(POLICYCAP);}
-+POLICYCAP			{ return(POLICYCAP); }
-+permissive |
-+PERMISSIVE			{ return(PERMISSIVE); }
- "/"({alnum}|[_.-/])*	        { return(PATH); }
- {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
- {digit}+                        { return(NUMBER); }
+On Sun, Mar 23, 2008 at 2:25 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+>
+> --- cinthya aranguren <cinthya.aranguren@gmail.com> wrote:
+>
+> > Hi,
+> >
+> > Is there any way to avoid o remove DAC controls ? I'd like to have only one
+> > security scheme in my system. I mean a pure SElinux system. not DAC + MAC.
+> > only MAC.
+>
+> No.
+>
+> Well, not today.
+>
+> The LSM, which is the interface that SELinux uses to plug into
+> the rest of the kernel is explicity designed to allow additional
+> restrictions but not replacement or override of existing
+> restrictions. In the early days of LSM both restrictive models,
+> like what we have today, and authoritiative models, which would
+> allow replacement of traditional DAC where considered. The
+> authoritative model was rejected based on how easy it would be
+> for proprietary modules that had nothing to do with security to
+> exploit the interface.
+>
+> I am currently putting some work into separating the LSM into
+> a pair of interface sets, one for the privilege model and one
+> for the additional restrictions. Once in place it could be
+> possible to create a privilege scheme that reports to the
+> traditional DAC that everyone has DAC override, and leave it
+> to SELinux (or whatever restrictive model you might prefer)
+> to make the only decision.
+>
+> That work is not done, nor is there any assurance that it
+> might be accepted when it is. Since it would result in a
+> system where the privilege module and the access restriction
+> module could team up to provide an authoritative model
+> it is within reason that the arguments that blocked an
+> authoritative LSM could be raised again with the same result.
+>
 
 
+Thanks for the reply...
+
+Thats means it's imposible to separate DAC from MAC. There is no way
+to have only one security scheme.
+
+
+> Now I'll ask the 37 cent question:
+>
+> Why would you want to do that?
+>
+>
+
+Just because i'm trying to simplify the security management of a linux
+instalation. I'd like to use  MAC security, but i realize  this means
+still have DAC. I can't get rid of this. I have to admin the DAC
+burden plus MAC.
+May be I'm thinking in a oversimplified reality.
+
+
+
+>
+> Casey Schaufler
+> casey@schaufler-ca.com
+>
+
+
+Cinthya.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
