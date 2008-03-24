@@ -1,99 +1,215 @@
-Subject: Re: Permissive mode for xace is broken.
+Subject: Re: [PATCH] checkpolicy: support for permissive types
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve G <linux_4ever@yahoo.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Steve Grubb <sgrubb@redhat.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <729568.16778.qm@web51505.mail.re2.yahoo.com>
-References: <729568.16778.qm@web51505.mail.re2.yahoo.com>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jbrindle@tresys.com, tmiller@tresys.com
+In-Reply-To: <1206367880.3192.24.camel@localhost.localdomain>
+References: <1206367880.3192.24.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Mon, 24 Mar 2008 15:59:05 -0400
-Message-Id: <1206388745.3302.88.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 24 Mar 2008 16:01:42 -0400
+Message-Id: <1206388902.3302.92.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 2008-03-24 at 08:55 -0700, Steve G wrote:
+On Mon, 2008-03-24 at 10:11 -0400, Eric Paris wrote:
+> This patch adds support for permissive domains.
 > 
-> ----- Original Message ----
-> > From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> > To: Steve Grubb <sgrubb@redhat.com>
-> > Cc: Stephen Smalley <sds@tycho.nsa.gov>; Daniel J Walsh <dwalsh@redhat.com>; SE Linux <selinux@tycho.nsa.gov>
-> > Sent: Wednesday, March 19, 2008 11:56:00 PM
-> > Subject: Re: Permissive mode for xace is broken.
-> > 
-> > Steve Grubb wrote:
-> > > On Thursday 28 February 2008 21:02:28 Eamon Walsh wrote:
-> > >   
-> > >> Steve Grubb wrote:
-> > >>     
-> > >>> On Thursday 28 February 2008 13:51:05 Stephen Smalley wrote:
-> > >>>       
-> > >>>> On Thu, 2008-02-28 at 13:48 -0500, Eamon Walsh wrote:
-> > >>>>         
-> > >>>>> Stephen Smalley wrote:
-> > >>>>>           
-> > >>>>>> On Mon, 2008-02-25 at 20:12 -0500, Eamon Walsh wrote:
-> > >>>>>>             
-> > >>>>>>> Eamon Walsh wrote:
-> > >>>>>>>               
-> > >>>>>>>> The X object manager logs all avc's and status messages (including
-> > >>>>>>>> the AVC netlink stuff) through the audit system using libaudit calls
-> > >>>>>>>> (audit_log_user_avc_message, etc.)
-> > >>>>>>>>                 
-> > >>> Please tell me they have different record types. Also do you have any
-> > >>> samples that we can look over to make sure they conform?
-> > >>>       
-> > >> type=USER_AVC msg=audit(1204226161.048:268): user pid=21267 uid=0
-> > >> auid=4294967295 subj=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023
-> > >> msg='avc:  denied  { read } for request=X11:QueryPointer
-> > >> comm=/usr/libexec/at-spi-registryd xdevice="Virtual core pointer"
-> > >> scontext=staff_u:staff_r:staff_t:s0
-> > >> tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=x_device :
-> > >> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
-> > >>     
-> > >
-> > > comm & xdevice are not escaped the right way. exe is. The audit utilities are 
-> > > expecting the comm field to be comm="/usr/libexec/at-spi-registryd" in this 
-> > > case. The standard has been untrusted fields have " " enclosing the field. 
-> > > Whenever there is a space, double quote, or control character, its ASCII HEX 
-> > > encoded with no quotes. xdevice is not a field that the audit system knows 
-> > > about, so we could do something different with it, but comm is known for a 
-> > > long time and has to follow the standards.
-> > >   
-> > 
-> > Why can't libaudit automatically perform this escaping?
+> A very simple module to make httpd_t a permissive domain would be:
 > 
-> Well, it could. However, this is the API that you currently have:
+> policy_module(permissiveapache, 1.0)
+> gen_require(`
+>        type httpd_t;
+> ')
+> permissive httpd_t;
 > 
-> extern int audit_log_user_avc_message(int audit_fd, int type,
->         const char *message, const char *hostname, const char *addr,
->         const char *tty, uid_t uid);
+> Obviously this syntax can be used in both the base policy and in a
+> policy module.
 > 
-> The whole avc from msg=  up to the exe= statement comes from libselinux. So, libselinux has to do the escaping unless we build a better API for selinux use. I could probably expose the function that does the escaping, but I had really wanted to try to maintain some consistency in the event by API.
-> 
-> 
-> >  That way we avoid promulgating this "standard" into every caller of libaudit.
-> > 
-> > If everything is going to be name-value based, then I want a libaudit 
-> > function that takes a list of name/value pairs.
-> 
-> SE Linux is the only user of the audit system that does not follow the name=value standard. Would you (and the community) really be willing to convert selinux over to that if we have the API for it?  Do you have any suggestions about how you'd like to see the new API implemented?
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-When the topic last came up on list, we weren't opposed to converting to
-the name=value model, just cautious about not breaking userspace in the
-process.   We don't want users suddenly finding that audit2allow,
-setroubleshoot, setools, etc suddenly stop working over night.  And that
-isn't so far fetched - Fedora pushes new upstream kernels as updates to
-old releases w/o any corresponding userland updates, which has caused us
-breakage in the past, and akpm specifically tests new kernels on ancient
-Fedora releases to see if anything breaks.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-As I recall, we even agreed on field names for the avc fields during the
-prior thread.  But no one followed up with actual patches to make it
-happen.
-
+> 
+> ---
+> 
+>  policy_define.c |   43 +++++++++++++++++++++++++++++++++++++++++++
+>  policy_define.h |    1 +
+>  policy_parse.y  |    4 ++++
+>  policy_scan.l   |    4 +++-
+>  test/dismod.c   |    2 +-
+>  test/dispol.c   |   26 ++++++++++++++++++++++++++
+>  6 files changed, 78 insertions(+), 2 deletions(-)
+> 
+> diff -up checkpolicy-2.0.13/policy_parse.y.pre.permissive checkpolicy-2.0.13/policy_parse.y
+> --- checkpolicy-2.0.13/policy_parse.y.pre.permissive	2008-03-24 09:56:14.000000000 -0400
+> +++ checkpolicy-2.0.13/policy_parse.y	2008-03-24 09:56:23.000000000 -0400
+> @@ -135,6 +135,7 @@ typedef int (* require_func_t)();
+>  %token IPV6_ADDR
+>  %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
+>  %token POLICYCAP
+> +%token PERMISSIVE
+>  
+>  %left OR
+>  %left XOR
+> @@ -261,6 +262,7 @@ te_decl			: attribute_def
+>                          | transition_def
+>                          | range_trans_def
+>                          | te_avtab_def
+> +			| permissive_def
+>  			;
+>  attribute_def           : ATTRIBUTE identifier ';'
+>                          { if (define_attrib()) return -1;}
+> @@ -706,6 +708,8 @@ ipv6_addr		: IPV6_ADDR
+>  policycap_def		: POLICYCAP identifier ';'
+>  			{if (define_polcap()) return -1;}
+>  			;
+> +permissive_def		: PERMISSIVE identifier ';'
+> +			{if (define_permissive()) return -1;}
+>  
+>  /*********** module grammar below ***********/
+>  
+> diff -up checkpolicy-2.0.13/policy_define.c.pre.permissive checkpolicy-2.0.13/policy_define.c
+> --- checkpolicy-2.0.13/policy_define.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
+> +++ checkpolicy-2.0.13/policy_define.c	2008-03-24 10:06:56.000000000 -0400
+> @@ -195,6 +195,49 @@ int define_class(void)
+>  	return -1;
+>  }
+>  
+> +int define_permissive(void)
+> +{
+> +	char *type = NULL;
+> +	struct type_datum *t;
+> +	int rc = 0;
+> +
+> +	type = queue_remove(id_queue);
+> +
+> +	if (!type) {
+> +		yyerror2("forgot to include type in permissive definition?");
+> +		rc = -1;
+> +		goto out;
+> +	}
+> +
+> +	if (pass == 1)
+> +		goto out;
+> +
+> +	if (!is_id_in_scope(SYM_TYPES, type)) {
+> +		yyerror2("type %s is not within scope", type);
+> +		rc = -1;
+> +		goto out;
+> +	}
+> +
+> +	t = hashtab_search(policydbp->p_types.table, type);
+> +	if (!t) {
+> +		yyerror2("type is not defined: %s", type);
+> +		rc = -1;
+> +		goto out;
+> +	}
+> +
+> +	if (t->flavor == TYPE_ATTRIB) {
+> +		yyerror2("attributes may not be permissive: %s\n", type);
+> +		rc = -1;
+> +		goto out;
+> +	}
+> +
+> +	t->flags |= TYPE_FLAGS_PERMISSIVE;
+> +
+> +out:
+> +	free(type);
+> +	return rc;
+> +}
+> +
+>  int define_polcap(void)
+>  {
+>  	char *id = 0;
+> diff -up checkpolicy-2.0.13/policy_define.h.pre.permissive checkpolicy-2.0.13/policy_define.h
+> --- checkpolicy-2.0.13/policy_define.h.pre.permissive	2008-03-24 09:56:14.000000000 -0400
+> +++ checkpolicy-2.0.13/policy_define.h	2008-03-24 09:56:23.000000000 -0400
+> @@ -36,6 +36,7 @@ int define_ipv4_node_context(void);
+>  int define_ipv6_node_context(void);
+>  int define_level(void);
+>  int define_netif_context(void);
+> +int define_permissive(void);
+>  int define_polcap(void);
+>  int define_port_context(unsigned int low, unsigned int high);
+>  int define_range_trans(int class_specified);
+> diff -up checkpolicy-2.0.13/test/dispol.c.pre.permissive checkpolicy-2.0.13/test/dispol.c
+> --- checkpolicy-2.0.13/test/dispol.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
+> +++ checkpolicy-2.0.13/test/dispol.c	2008-03-24 09:58:00.000000000 -0400
+> @@ -319,6 +319,28 @@ static void display_policycaps(policydb_
+>  	}
+>  }
+>  
+> +static void display_id(policydb_t *p, FILE *fp, uint32_t symbol_type,
+> +		       uint32_t symbol_value, char *prefix)
+> +{
+> +	char *id = p->sym_val_to_name[symbol_type][symbol_value];
+> +	fprintf(fp, " %s%s", prefix, id);
+> +}
+> +
+> +static void display_permissive(policydb_t *p, FILE *fp)
+> +{
+> +	ebitmap_node_t *node;
+> +	int i;
+> +
+> +	fprintf(fp, "permissive sids:\n");
+> +	ebitmap_for_each_bit(&p->permissive_map, node, i) {
+> +		if (ebitmap_node_get_bit(node, i)) {
+> +			fprintf(fp, "\t");
+> +			display_id(p, fp, SYM_TYPES, i - 1, "");
+> +			fprintf(fp, "\n");
+> +		}
+> +	}
+> +}
+> +
+>  int menu()
+>  {
+>  	printf("\nSelect a command:\n");
+> @@ -331,6 +353,7 @@ int menu()
+>  	printf("7)  change a boolean value\n");
+>  	printf("\n");
+>  	printf("c)  display policy capabilities\n");
+> +	printf("p)  display the list of permissive types\n");
+>  	printf("u)  display unknown handling setting\n");
+>  	printf("f)  set output file\n");
+>  	printf("m)  display menu\n");
+> @@ -447,6 +470,9 @@ int main(int argc, char **argv)
+>  		case 'c':
+>  			display_policycaps(&policydb, out_fp);
+>  			break;
+> +		case 'p':
+> +			display_permissive(&policydb, out_fp);
+> +			break;
+>  		case 'u':
+>  		case 'U':
+>  			display_handle_unknown(&policydb, out_fp);
+> diff -up checkpolicy-2.0.13/test/dismod.c.pre.permissive checkpolicy-2.0.13/test/dismod.c
+> --- checkpolicy-2.0.13/test/dismod.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
+> +++ checkpolicy-2.0.13/test/dismod.c	2008-03-24 09:56:23.000000000 -0400
+> @@ -323,7 +323,7 @@ int display_type_callback(hashtab_key_t 
+>  		fprintf(fp, "alias for type");
+>  		display_id(&policydb, fp, SYM_TYPES, type->s.value - 1, "");
+>  	}
+> -	fprintf(fp, "\n");
+> +	fprintf(fp, " flags:%x\n", type->flags);
+>  
+>  	return 0;
+>  }
+> diff -up checkpolicy-2.0.13/policy_scan.l.pre.permissive checkpolicy-2.0.13/policy_scan.l
+> --- checkpolicy-2.0.13/policy_scan.l.pre.permissive	2008-03-24 09:56:14.000000000 -0400
+> +++ checkpolicy-2.0.13/policy_scan.l	2008-03-24 09:56:23.000000000 -0400
+> @@ -202,7 +202,9 @@ H1				{ return(H1); }
+>  h2 |
+>  H2				{ return(H2); }
+>  policycap |
+> -POLICYCAP			{ return(POLICYCAP);}
+> +POLICYCAP			{ return(POLICYCAP); }
+> +permissive |
+> +PERMISSIVE			{ return(PERMISSIVE); }
+>  "/"({alnum}|[_.-/])*	        { return(PATH); }
+>  {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
+>  {digit}+                        { return(NUMBER); }
+> 
 -- 
 Stephen Smalley
 National Security Agency
