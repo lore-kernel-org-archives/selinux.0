@@ -1,40 +1,48 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2NN48mu005284
-	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 19:04:08 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2OBYUJS024017
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 07:34:31 -0400
 Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2NN3vBr013747
-	for <selinux@tycho.nsa.gov>; Sun, 23 Mar 2008 23:04:03 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2OBYKKA026179
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 11:34:27 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 2ACE018C6C
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 21:33:06 +1100 (EST)
+Received: from nospam.sws.net.au ([127.0.0.1])
+	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sfInsEX94wIl for <selinux@tycho.nsa.gov>;
+	Mon, 24 Mar 2008 21:33:05 +1100 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id C78CD18547
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 21:33:05 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 84EC821D3D
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 21:33:03 +1100 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: "cinthya aranguren" <cinthya.aranguren@gmail.com>
-Subject: Re: Removing DAC.
-Date: Mon, 24 Mar 2008 09:34:14 +1100
-Cc: selinux@tycho.nsa.gov
-References: <50771f160803230854n18bd2a07q34eb154fc016f351@mail.gmail.com>
-In-Reply-To: <50771f160803230854n18bd2a07q34eb154fc016f351@mail.gmail.com>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: Re: /bin/passwd and a basic MLS install of Fedora 8
+Date: Mon, 24 Mar 2008 21:33:01 +1100
+References: <200803240035.40028.russell@coker.com.au>
+In-Reply-To: <200803240035.40028.russell@coker.com.au>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200803240934.16380.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200803242133.03227.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 24 March 2008 02:54, "cinthya aranguren" 
-<cinthya.aranguren@gmail.com> wrote:
-> Is there any way to avoid o remove DAC controls ? I'd like to have only one
-> security scheme in my system. I mean a pure SElinux system. not DAC + MAC.
-> only MAC.
+On Monday 24 March 2008 00:35, Russell Coker <russell@coker.com.au> wrote:
+> /tmp/a.out is a test program I wrote which calls setresuid(0,0,0);
 
-Back in about 2003 as an experiment I changed the ownership of all files on a 
-SE Linux strict system to root and changed the permission to 777.  It didn't 
-work very well.  One problem was that many programs rely on the Unix 
-permissions to identify the difference between a configuration file and a 
-shell script.  In directories such as /etc there is not sufficiently 
-fine-grained SE Linux labelling to replace this use of Unix permissions.
+I was trying to reproduce a problem from Debian/Etch with the latest Fedora to 
+see if it was an upstream issue or an issue in Debian.
 
-It's possible that in the last 5 years things have changed significantly, but 
-my last experiments showed enough obstacles to make me not want to bother 
-going further with it.
+I had a few issues with the MLS policy (rsyslogd not being permitted to write 
+to the log files and auditd not working) and by the time I got to doing the 
+actual test (at about midnight) I forgot to put it in enforcing mode again.
+
+Sorry for the inconvenience, I'll double-check my test results before posting 
+in future.
 
 -- 
 russell@coker.com.au
