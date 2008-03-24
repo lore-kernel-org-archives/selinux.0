@@ -1,69 +1,64 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2OHrx1S029556
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 13:53:59 -0400
+Received: from el-out-1112.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2OHrsQR029899
+	for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 17:53:54 GMT
+Received: by el-out-1112.google.com with SMTP id v27so1351362ele.17
+        for <selinux@tycho.nsa.gov>; Mon, 24 Mar 2008 10:53:46 -0700 (PDT)
+Message-ID: <50771f160803241053i34e6eb7cqf3e3df64b8e90ab3@mail.gmail.com>
+Date: Mon, 24 Mar 2008 14:53:45 -0300
+From: "cinthya aranguren" <cinthya.aranguren@gmail.com>
+To: russell@coker.com.au
 Subject: Re: Removing DAC.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: cinthya aranguren <cinthya.aranguren@gmail.com>
-Cc: casey@schaufler-ca.com, selinux@tycho.nsa.gov
-In-Reply-To: <50771f160803241029r41c75d93r6babbd5d911a305a@mail.gmail.com>
-References: <613578.78683.qm@web36601.mail.mud.yahoo.com>
-	 <404587.40497.qm@web36614.mail.mud.yahoo.com>
-	 <50771f160803241029r41c75d93r6babbd5d911a305a@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 24 Mar 2008 13:45:13 -0400
-Message-Id: <1206380713.3302.43.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <200803240934.16380.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <50771f160803230854n18bd2a07q34eb154fc016f351@mail.gmail.com>
+	 <200803240934.16380.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sun, Mar 23, 2008 at 7:34 PM, Russell Coker <russell@coker.com.au> wrote:
+> On Monday 24 March 2008 02:54, "cinthya aranguren"
+>
+> <cinthya.aranguren@gmail.com> wrote:
+>
+> > Is there any way to avoid o remove DAC controls ? I'd like to have only one
+>  > security scheme in my system. I mean a pure SElinux system. not DAC + MAC.
+>  > only MAC.
+>
+>  Back in about 2003 as an experiment I changed the ownership of all files on a
+>  SE Linux strict system to root and changed the permission to 777.  It didn't
+>  work very well.  One problem was that many programs rely on the Unix
+>  permissions to identify the difference between a configuration file and a
+>  shell script.  In directories such as /etc there is not sufficiently
+>  fine-grained SE Linux labelling to replace this use of Unix permissions.
 
-On Mon, 2008-03-24 at 14:29 -0300, cinthya aranguren wrote:
-> On Sun, Mar 23, 2008 at 2:40 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >
-> >  --- Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >
-> >  >
-> >  > --- cinthya aranguren <cinthya.aranguren@gmail.com> wrote:
-> >  >
-> >  > > Hi,
-> >  > >
-> >  > > Is there any way to avoid o remove DAC controls ? I'd like to have only one
-> >  > > security scheme in my system. I mean a pure SElinux system. not DAC + MAC.
-> >  > > only MAC.
-> >  >
-> >  > No.
-> >  >
-> >  > Well, not today.
-> >
-> >  I will add that if every process runs with CAP_DAC_OVERRIDE set
-> >  you can approach "no DAC", but I think you would probably have
-> >  to dig very deeply into the behavior of security cognizant
-> >  applications (sendmail comes to mind) and make sure that they
-> >  aren't explictly dropping that capability. I will let those
-> >  who work more closely with SELinux policy than I do describe
-> >  how capabilities possessed are related to an SELinux policy
-> >  and how that might impact the behavior of SELinux. You should
-> >  also note that SELinux takes what are traditionally DAC
-> >  attributes into account when making decisions and that if you
-> >  use MCS you are using a DAC mechanism within SELinux. I'm not
-> >  saying that's bad, just that it's there.
-> >
-> 
-> This is a good point. I will experiment with CAP_DAC_OVERRIDE.
-> but .. why SELinux take DAC attributes into account when making
-> decisions ?? this does not violate the separation of "policy" from
-> "Enforcement" ??
 
-SELinux does not use the DAC attributes (uid, gid, mode bits) as part of
-its decision.
+Ok, I understand. In a pure SELinux ditribution this would be fixed or
+patched. It does not seems to be a problem. I mean .. a security
+issue.
 
-SELinux does however control the use of capabilities/privileges in
-accordance with its policy.  And it does have a notion of user identity
-in its security context, although that is separately managed and is
-usually used just as a "role set" construct in modern SELinux (e.g.
-staff_u authorized for staff_r and sysadm_r).
 
--- 
-Stephen Smalley
-National Security Agency
 
+>
+>  It's possible that in the last 5 years things have changed significantly, but
+>  my last experiments showed enough obstacles to make me not want to bother
+>  going further with it.
+>
+
+don't lost your faith :-)
+
+>  --
+>  russell@coker.com.au
+>  http://etbe.coker.com.au/          My Blog
+>
+>  http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+>
+
+Cinthya.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
