@@ -1,346 +1,207 @@
-Subject: [PATCH] libsepol: add permissive domain support
+Subject: [PATCH] checkpolicy: support for permissive types
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jbrindle@tresys.com, tmiller@tresys.com
 Content-Type: text/plain
-Date: Mon, 24 Mar 2008 09:51:37 -0400
-Message-Id: <1206366697.3192.17.camel@localhost.localdomain>
+Date: Mon, 24 Mar 2008 10:11:20 -0400
+Message-Id: <1206367880.3192.24.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds support for permissive types.
+This patch adds support for permissive domains.
 
-In the kernel policy format the permissive types are in a bitmap
-referenced by the type value.
+A very simple module to make httpd_t a permissive domain would be:
 
-In the module policy format a new field in the type_datum_t called
-'flags' was added.  The only currently defined flag is
-TYPE_FLAGS_PERMISSIVE.
+policy_module(permissiveapache, 1.0)
+gen_require(`
+       type httpd_t;
+')
+permissive httpd_t;
 
-Checkpolicy can set the permissive flag on the type_datum_t in question
-and that flag will persist on disk.  It will be OR'd at link time
-against the type in the base policy.  At expand time we build the bit
-array the kernel uses.
+Obviously this syntax can be used in both the base policy and in a
+policy module.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 
 ---
 
- include/sepol/policydb/policydb.h |   12 +++++++--
- src/expand.c                      |   16 ++++++++++++
- src/link.c                        |    8 ++++++
- src/policydb.c                    |   50 +++++++++++++++++++++++++++++++-------
- src/write.c                       |   27 ++++++++++++++++++++
- 5 files changed, 103 insertions(+), 10 deletions(-)
+ policy_define.c |   43 +++++++++++++++++++++++++++++++++++++++++++
+ policy_define.h |    1 +
+ policy_parse.y  |    4 ++++
+ policy_scan.l   |    4 +++-
+ test/dismod.c   |    2 +-
+ test/dispol.c   |   26 ++++++++++++++++++++++++++
+ 6 files changed, 78 insertions(+), 2 deletions(-)
 
-diff -up libsepol-2.0.25/src/expand.c.pre.permissive libsepol-2.0.25/src/expand.c
---- libsepol-2.0.25/src/expand.c.pre.permissive
-+++ libsepol-2.0.25/src/expand.c
-@@ -92,6 +92,7 @@ static int type_copy_callback(hashtab_ke
- 	memset(new_type, 0, sizeof(type_datum_t));
+diff -up checkpolicy-2.0.13/policy_parse.y.pre.permissive checkpolicy-2.0.13/policy_parse.y
+--- checkpolicy-2.0.13/policy_parse.y.pre.permissive	2008-03-24 09:56:14.000000000 -0400
++++ checkpolicy-2.0.13/policy_parse.y	2008-03-24 09:56:23.000000000 -0400
+@@ -135,6 +135,7 @@ typedef int (* require_func_t)();
+ %token IPV6_ADDR
+ %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
+ %token POLICYCAP
++%token PERMISSIVE
  
- 	new_type->flavor = type->flavor;
-+	new_type->flags = type->flags;
- 	new_type->s.value = ++state->out->p_types.nprim;
- 	if (new_type->s.value > UINT16_MAX) {
- 		free(new_id);
-@@ -112,6 +113,12 @@ static int type_copy_callback(hashtab_ke
- 		return -1;
- 	}
+ %left OR
+ %left XOR
+@@ -261,6 +262,7 @@ te_decl			: attribute_def
+                         | transition_def
+                         | range_trans_def
+                         | te_avtab_def
++			| permissive_def
+ 			;
+ attribute_def           : ATTRIBUTE identifier ';'
+                         { if (define_attrib()) return -1;}
+@@ -706,6 +708,8 @@ ipv6_addr		: IPV6_ADDR
+ policycap_def		: POLICYCAP identifier ';'
+ 			{if (define_polcap()) return -1;}
+ 			;
++permissive_def		: PERMISSIVE identifier ';'
++			{if (define_permissive()) return -1;}
  
-+	if (new_type->flags & TYPE_FLAGS_PERMISSIVE)
-+		if (ebitmap_set_bit(&state->out->permissive_map, new_type->s.value, 1)) {
-+			ERR(state->handle, "Out of memory!\n");
-+			return -1;
-+		}
-+
- 	return 0;
+ /*********** module grammar below ***********/
+ 
+diff -up checkpolicy-2.0.13/policy_define.c.pre.permissive checkpolicy-2.0.13/policy_define.c
+--- checkpolicy-2.0.13/policy_define.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
++++ checkpolicy-2.0.13/policy_define.c	2008-03-24 10:06:56.000000000 -0400
+@@ -195,6 +195,49 @@ int define_class(void)
+ 	return -1;
  }
  
-@@ -480,6 +487,8 @@ static int alias_copy_callback(hashtab_k
- 	else
- 		assert(0);	/* unreachable */
- 
-+	new_alias->flags = alias->flags;
++int define_permissive(void)
++{
++	char *type = NULL;
++	struct type_datum *t;
++	int rc = 0;
 +
- 	ret = hashtab_insert(state->out->p_types.table,
- 			     (hashtab_key_t) new_id,
- 			     (hashtab_datum_t) new_alias);
-@@ -492,6 +501,13 @@ static int alias_copy_callback(hashtab_k
- 	}
- 
- 	state->typemap[alias->s.value - 1] = new_alias->s.value;
++	type = queue_remove(id_queue);
 +
-+	if (new_alias->flags & TYPE_FLAGS_PERMISSIVE)
-+		if (ebitmap_set_bit(&state->out->permissive_map, new_alias->s.value, 1)) {
-+			ERR(state->handle, "Out of memory!");
-+			return -1;
-+		}
++	if (!type) {
++		yyerror2("forgot to include type in permissive definition?");
++		rc = -1;
++		goto out;
++	}
 +
- 	return 0;
- }
- 
-diff -up libsepol-2.0.25/src/policydb.c.pre.permissive libsepol-2.0.25/src/policydb.c
---- libsepol-2.0.25/src/policydb.c.pre.permissive
-+++ libsepol-2.0.25/src/policydb.c
-@@ -105,6 +105,12 @@ static struct policydb_compat_info polic
- 	 .ocon_num = OCON_NODE6 + 1,
- 	 },
- 	{
-+	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_PERMISSIVE,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 },
-+	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -129,6 +135,12 @@ static struct policydb_compat_info polic
- 	 .ocon_num = OCON_NODE6 + 1,
- 	 },
- 	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_PERMISSIVE,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 },
-+	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -150,7 +162,14 @@ static struct policydb_compat_info polic
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_POLCAP,
- 	 .sym_num = SYM_NUM,
--	 .ocon_num = 0},
-+	 .ocon_num = 0
-+	 },
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_PERMISSIVE,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0
-+	 },
- };
- 
- #if 0
-@@ -467,6 +486,8 @@ int policydb_init(policydb_t * p)
- 
- 	ebitmap_init(&p->policycaps);
- 
-+	ebitmap_init(&p->permissive_map);
++	if (pass == 1)
++		goto out;
 +
- 	for (i = 0; i < SYM_NUM; i++) {
- 		p->sym_val_to_name[i] = NULL;
- 		rc = symtab_init(&p->symtab[i], symtab_sizes[i]);
-@@ -992,6 +1013,8 @@ void policydb_destroy(policydb_t * p)
- 
- 	ebitmap_destroy(&p->policycaps);
- 
-+	ebitmap_destroy(&p->permissive_map);
++	if (!is_id_in_scope(SYM_TYPES, type)) {
++		yyerror2("type %s is not within scope", type);
++		rc = -1;
++		goto out;
++	}
 +
- 	symtabs_destroy(p->symtab);
- 
- 	for (i = 0; i < SYM_NUM; i++) {
-@@ -1907,19 +1930,22 @@ static int type_read(policydb_t * p
++	t = hashtab_search(policydbp->p_types.table, type);
++	if (!t) {
++		yyerror2("type is not defined: %s", type);
++		rc = -1;
++		goto out;
++	}
++
++	if (t->flavor == TYPE_ATTRIB) {
++		yyerror2("attributes may not be permissive: %s\n", type);
++		rc = -1;
++		goto out;
++	}
++
++	t->flags |= TYPE_FLAGS_PERMISSIVE;
++
++out:
++	free(type);
++	return rc;
++}
++
+ int define_polcap(void)
  {
- 	char *key = 0;
- 	type_datum_t *typdatum;
--	uint32_t buf[4];
-+	uint32_t buf[5];
- 	size_t len;
--	int rc;
-+	int rc, to_read;
+ 	char *id = 0;
+diff -up checkpolicy-2.0.13/policy_define.h.pre.permissive checkpolicy-2.0.13/policy_define.h
+--- checkpolicy-2.0.13/policy_define.h.pre.permissive	2008-03-24 09:56:14.000000000 -0400
++++ checkpolicy-2.0.13/policy_define.h	2008-03-24 09:56:23.000000000 -0400
+@@ -36,6 +36,7 @@ int define_ipv4_node_context(void);
+ int define_ipv6_node_context(void);
+ int define_level(void);
+ int define_netif_context(void);
++int define_permissive(void);
+ int define_polcap(void);
+ int define_port_context(unsigned int low, unsigned int high);
+ int define_range_trans(int class_specified);
+diff -up checkpolicy-2.0.13/test/dispol.c.pre.permissive checkpolicy-2.0.13/test/dispol.c
+--- checkpolicy-2.0.13/test/dispol.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
++++ checkpolicy-2.0.13/test/dispol.c	2008-03-24 09:58:00.000000000 -0400
+@@ -319,6 +319,28 @@ static void display_policycaps(policydb_
+ 	}
+ }
  
- 	typdatum = calloc(1, sizeof(type_datum_t));
- 	if (!typdatum)
- 		return -1;
- 
--	if (p->policy_type == POLICY_KERN) {
--		rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
--	} else {
--		rc = next_entry(buf, fp, sizeof(uint32_t) * 4);
--	}
-+	if (p->policy_type == POLICY_KERN)
-+		to_read = 3;
-+	else if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
-+		to_read = 5;
-+	else
-+		to_read = 4;
++static void display_id(policydb_t *p, FILE *fp, uint32_t symbol_type,
++		       uint32_t symbol_value, char *prefix)
++{
++	char *id = p->sym_val_to_name[symbol_type][symbol_value];
++	fprintf(fp, " %s%s", prefix, id);
++}
 +
-+	rc = next_entry(buf, fp, sizeof(uint32_t) * to_read);
- 	if (rc < 0)
- 		goto bad;
- 
-@@ -1928,6 +1954,8 @@ static int type_read(policydb_t * p
- 	typdatum->primary = le32_to_cpu(buf[2]);
- 	if (p->policy_type != POLICY_KERN) {
- 		typdatum->flavor = le32_to_cpu(buf[3]);
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
-+			typdatum->flags = le32_to_cpu(buf[4]);
- 		if (ebitmap_read(&typdatum->types, fp))
- 			goto bad;
- 	}
-@@ -3157,6 +3185,12 @@ int policydb_read(policydb_t * p, struct
- 			goto bad;
- 	}
- 
-+	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
-+	    p->policy_type == POLICY_KERN) {
-+		if (ebitmap_read(&p->permissive_map, fp))
-+			goto bad;
-+	}
++static void display_permissive(policydb_t *p, FILE *fp)
++{
++	ebitmap_node_t *node;
++	int i;
 +
- 	for (i = 0; i < info->sym_num; i++) {
- 		rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
- 		if (rc < 0)
-diff -up libsepol-2.0.25/src/write.c.pre.permissive libsepol-2.0.25/src/write.c
---- libsepol-2.0.25/src/write.c.pre.permissive
-+++ libsepol-2.0.25/src/write.c
-@@ -959,6 +959,12 @@ static int type_write(hashtab_key_t key,
- 	buf[items++] = cpu_to_le32(typdatum->primary);
- 	if (p->policy_type != POLICY_KERN) {
- 		buf[items++] = cpu_to_le32(typdatum->flavor);
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
-+			buf[items++] = cpu_to_le32(typdatum->flags);
-+		else if (typdatum->flags & TYPE_FLAGS_PERMISSIVE)
-+			WARN(fp->handle, "Warning! Module policy version %d cannnot "
-+			     "support permissive types, but one was defined",
-+			     p->policyvers);
- 	}
- 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
- 	if (items != items2)
-@@ -1618,6 +1624,27 @@ int policydb_write(policydb_t * p, struc
- 			return POLICYDB_ERROR;
- 	}
- 
-+	if (p->policyvers < POLICYDB_VERSION_PERMISSIVE &&
-+	    p->policy_type == POLICY_KERN) {
-+		ebitmap_node_t *tnode;
-+		unsigned int i;
-+
-+		ebitmap_for_each_bit(&p->permissive_map, tnode, i) {
-+			if (ebitmap_node_get_bit(tnode, i)) {
-+				WARN(fp->handle, "Warning! Policy version %d cannot "
-+				     "support permissive types, but some were defined",
-+				     p->policyvers);
-+				break;
-+			}
++	fprintf(fp, "permissive sids:\n");
++	ebitmap_for_each_bit(&p->permissive_map, node, i) {
++		if (ebitmap_node_get_bit(node, i)) {
++			fprintf(fp, "\t");
++			display_id(p, fp, SYM_TYPES, i - 1, "");
++			fprintf(fp, "\n");
 +		}
 +	}
++}
 +
-+	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
-+	    p->policy_type == POLICY_KERN) {
-+		if (ebitmap_write(&p->permissive_map, fp) == -1)
-+			return POLICYDB_ERROR;
-+	}
-+
- 	num_syms = info->sym_num;
- 	for (i = 0; i < num_syms; i++) {
- 		buf[0] = cpu_to_le32(p->symtab[i].nprim);
-diff -up libsepol-2.0.25/src/link.c.pre.permissive libsepol-2.0.25/src/link.c
---- libsepol-2.0.25/src/link.c.pre.permissive
-+++ libsepol-2.0.25/src/link.c
-@@ -405,6 +405,8 @@ static int type_copy_callback(hashtab_ke
- 			    state->cur_mod_name, id);
- 			return -1;
- 		}
-+		/* permissive should pass to the base type */
-+		base_type->flags |= (type->flags & TYPE_FLAGS_PERMISSIVE);
- 	} else {
- 		if (state->verbose)
- 			INFO(state->handle, "copying type %s", id);
-@@ -418,6 +420,7 @@ static int type_copy_callback(hashtab_ke
- 			goto cleanup;
- 		}
- 		new_type->primary = type->primary;
-+		new_type->flags = type->flags;
- 		new_type->flavor = type->flavor;
- 		/* for attributes, the writing of new_type->types is
- 		   done in type_fix_callback() */
-@@ -441,6 +444,7 @@ static int type_copy_callback(hashtab_ke
- 		}
- 		new_type->primary = type->primary;
- 		new_type->flavor = type->flavor;
-+		new_type->flags = type->flags;
- 		new_type->s.value = base_type->s.value;
- 		if ((new_id = strdup(id)) == NULL) {
- 			goto cleanup;
-@@ -702,6 +706,8 @@ static int alias_copy_callback(hashtab_k
- 		return -1;
+ int menu()
+ {
+ 	printf("\nSelect a command:\n");
+@@ -331,6 +353,7 @@ int menu()
+ 	printf("7)  change a boolean value\n");
+ 	printf("\n");
+ 	printf("c)  display policy capabilities\n");
++	printf("p)  display the list of permissive types\n");
+ 	printf("u)  display unknown handling setting\n");
+ 	printf("f)  set output file\n");
+ 	printf("m)  display menu\n");
+@@ -447,6 +470,9 @@ int main(int argc, char **argv)
+ 		case 'c':
+ 			display_policycaps(&policydb, out_fp);
+ 			break;
++		case 'p':
++			display_permissive(&policydb, out_fp);
++			break;
+ 		case 'u':
+ 		case 'U':
+ 			display_handle_unknown(&policydb, out_fp);
+diff -up checkpolicy-2.0.13/test/dismod.c.pre.permissive checkpolicy-2.0.13/test/dismod.c
+--- checkpolicy-2.0.13/test/dismod.c.pre.permissive	2008-03-24 09:56:14.000000000 -0400
++++ checkpolicy-2.0.13/test/dismod.c	2008-03-24 09:56:23.000000000 -0400
+@@ -323,7 +323,7 @@ int display_type_callback(hashtab_key_t 
+ 		fprintf(fp, "alias for type");
+ 		display_id(&policydb, fp, SYM_TYPES, type->s.value - 1, "");
  	}
+-	fprintf(fp, "\n");
++	fprintf(fp, " flags:%x\n", type->flags);
  
-+	target_type->flags |= (type->flags & TYPE_FLAGS_PERMISSIVE);
-+
- 	base_type = hashtab_search(state->base->p_types.table, id);
- 	if (base_type == NULL) {
- 		if (state->verbose)
-@@ -713,6 +719,7 @@ static int alias_copy_callback(hashtab_k
- 		}
- 		/* the linked copy always has TYPE_ALIAS style aliases */
- 		new_type->primary = target_type->s.value;
-+		new_type->flags = target_type->flags;
- 		new_type->flavor = TYPE_ALIAS;
- 		new_type->s.value = state->base->p_types.nprim + 1;
- 		if ((new_id = strdup(id)) == NULL) {
-@@ -747,6 +754,7 @@ static int alias_copy_callback(hashtab_k
- 
- 		base_type->flavor = TYPE_ALIAS;
- 		base_type->primary = target_type->s.value;
-+		base_type->flags |= (target_type->flags & TYPE_FLAGS_PERMISSIVE);
- 
- 	}
- 	/* the aliases map points from its value to its primary so when this module 
-diff -up libsepol-2.0.25/include/sepol/policydb/policydb.h.pre.permissive libsepol-2.0.25/include/sepol/policydb/policydb.h
---- libsepol-2.0.25/include/sepol/policydb/policydb.h.pre.permissive
-+++ libsepol-2.0.25/include/sepol/policydb/policydb.h
-@@ -143,6 +143,8 @@ typedef struct type_datum {
- #define TYPE_ALIAS 2		/* alias in modular policy */
- 	uint32_t flavor;
- 	ebitmap_t types;	/* types with this attribute */
-+#define TYPE_FLAGS_PERMISSIVE	0x01
-+	uint32_t flags;
- } type_datum_t;
- 
- /* User attributes */
-@@ -470,6 +472,10 @@ typedef struct policydb {
- 
- 	ebitmap_t policycaps;
- 
-+	/* this bitmap is referenced by type NOT the typical type-1 used in other
-+	   bitmaps.  Someday the 0 bit may be used for global permissive */
-+	ebitmap_t permissive_map;
-+
- 	unsigned policyvers;
- 
- 	unsigned handle_unknown;
-@@ -588,10 +594,11 @@ extern int policydb_write(struct policyd
- #define POLICYDB_VERSION_AVTAB		20
- #define POLICYDB_VERSION_RANGETRANS	21
- #define POLICYDB_VERSION_POLCAP		22
-+#define POLICYDB_VERSION_PERMISSIVE	23
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_POLCAP
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
- 
- /* Module versions and specific changes*/
- #define MOD_POLICYDB_VERSION_BASE	   4
-@@ -600,9 +607,10 @@ extern int policydb_write(struct policyd
- #define MOD_POLICYDB_VERSION_RANGETRANS	   6
- #define MOD_POLICYDB_VERSION_MLS_USERS	   6
- #define MOD_POLICYDB_VERSION_POLCAP	   7
-+#define MOD_POLICYDB_VERSION_PERMISSIVE	   8
- 
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_POLCAP
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_PERMISSIVE
- 
- #define POLICYDB_CONFIG_MLS    1
- 
+ 	return 0;
+ }
+diff -up checkpolicy-2.0.13/policy_scan.l.pre.permissive checkpolicy-2.0.13/policy_scan.l
+--- checkpolicy-2.0.13/policy_scan.l.pre.permissive	2008-03-24 09:56:14.000000000 -0400
++++ checkpolicy-2.0.13/policy_scan.l	2008-03-24 09:56:23.000000000 -0400
+@@ -202,7 +202,9 @@ H1				{ return(H1); }
+ h2 |
+ H2				{ return(H2); }
+ policycap |
+-POLICYCAP			{ return(POLICYCAP);}
++POLICYCAP			{ return(POLICYCAP); }
++permissive |
++PERMISSIVE			{ return(PERMISSIVE); }
+ "/"({alnum}|[_.-/])*	        { return(PATH); }
+ {letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
+ {digit}+                        { return(NUMBER); }
 
 
 
