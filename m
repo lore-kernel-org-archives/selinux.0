@@ -1,127 +1,40 @@
-Message-ID: <47E965AE.8090804@manicmethod.com>
-Date: Tue, 25 Mar 2008 16:50:54 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2PLTFlE023381
+	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2008 17:29:15 -0400
+Received: from mx.meyering.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2PLTEYg024097
+	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2008 21:29:14 GMT
+From: Jim Meyering <jim@meyering.net>
+To: russell@coker.com.au
+Cc: Michael Stone <mstone@debian.org>, 472590@bugs.debian.org,
+        SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Bug#472590: ls in Debian/Unstable
+In-Reply-To: <200803260824.17731.russell@coker.com.au> (Russell Coker's
+	message of "Wed, 26 Mar 2008 08:24:15 +1100")
+References: <200803251523.34329.russell@coker.com.au>
+	<87tziu96yz.fsf@rho.meyering.net> <20080325173116.GQ2626@mathom.us>
+	<200803260824.17731.russell@coker.com.au>
+Date: Tue, 25 Mar 2008 22:28:28 +0100
+Message-ID: <873aqe8pdv.fsf@rho.meyering.net>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, Caleb Case <ccase@tresys.com>
-Subject: Re: [RFC][PATCH] user_transition support for libsepol/checkpolicy
-References: <47E7E7A5.6090603@manicmethod.com> <1206463352.3302.200.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1206463352.3302.200.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
->   
->> This implements user_transition in the toolchain. It should help on
->> distro's like Ubuntu that can't use run_init due to the user not knowing
->> the root password. It also seems like a more eloquent way to handle
->> service restarts than assigning system_r to user accounts and having the
->> daemons run as someuser:system_r:foo_t.
->>
->> This has some issues in policy due to users not always being known in
->> the policy (eg., semanage users). I hope Chris or Dan will be able to
->> give some suggestions there.
->>
->> The kernel patch (forthcoming after this is accepted) so far only
->> implements the transition on process transitions. Later on I plan on
->> doing a patch to expand role_transition to object classes (this is a
->> change needed for policy rbac support to work). I suspect I'll do the
->> same for user at that time. The question here is, do we think its worth
->> it to do fine grained transitions like we did for range_trans? (I don't).
->>
->> Index: libsepol/include/sepol/policydb/policydb.h
->> ===================================================================
->> --- libsepol/include/sepol/policydb/policydb.h	(revision 2854)
->> +++ libsepol/include/sepol/policydb/policydb.h	(working copy)
->> @@ -156,6 +156,14 @@
->> 	mls_level_t exp_dfltlevel; /* expanded range used for validation */
->> } user_datum_t;
->>
->> +typedef struct user_trans {
->> +	uint32_t user;		/* current role */
->> +	uint32_t type;		/* program executable type */
->> +	uint32_t new_user;	/* new role */
->> +	struct user_trans *next;
->> +} user_trans_t;
->> +
->> +
->> /* Sensitivity attributes */
->> typedef struct level_datum {
->> 	mls_level_t *level;	/* sensitivity and associated categories */
->> @@ -225,6 +233,13 @@
->> 	struct role_trans_rule *next;
->> } role_trans_rule_t;
->>
->> +typedef struct user_trans_rule {
->> +	ebitmap_t users;	/* current role */
->> +	type_set_t types;	/* program executable type */
->> +	uint32_t new_user;	/* new role */
->> +	struct user_trans_rule *next;
->> +} user_trans_rule_t;
->>     
->
-> Possibly crazy idea - given the current trend, would it be better to
-> just save the user transition rules in symbolic form in the module
-> format.  Would that simplify the link/expand code?
->
->   
+Russell Coker <russell@coker.com.au> wrote:
 
-Possibly, I am hoping policyrep will supplant this code in the near 
-future so I didn't think about it much. This is consistent with how we 
-store other modular things.
-
->> Index: libsepol/src/policydb.c
->> ===================================================================
->> --- libsepol/src/policydb.c	(revision 2854)
->> +++ libsepol/src/policydb.c	(working copy)
->> @@ -348,6 +367,30 @@
->> 	}
->> }
->>
->> +void user_trans_rule_init(user_trans_rule_t * x)
->> +{
->> +	memset(x, 0, sizeof(*x));
->>     
+> On Wednesday 26 March 2008 04:31, Michael Stone <mstone@debian.org> wrote:
+>> if (acl) then '+'
+>> else if (selinux) then '.'
 >
-> Not unique to this patch, but it seems funny that we use memset followed
-> by explicit initializers for fields that have them.  And that as a
-> result of the memset here, we don't calloc when allocate the structs.
+> Should there be some special marking of files with both a SE Linux context and
+> an ACL?
 >
->   
+> Pity that they didn't choose an "a" to mark an ACL which would then permit
+> using "A" for ACL + MAC.
 
-I would normally never memset a struct, rather than use an initializer 
-but I was going for minimal changes here, I don't plan on this code 
-being around for long.
-
->> +	ebitmap_init(&x->users);
->> +	type_set_init(&x->types);
->> +}
->> +
->> +void user_trans_rule_destroy(user_trans_rule_t * x)
->> +{
->> +	if (x != NULL) {
->> +		ebitmap_init(&x->users);
->>     
->
-> Should be ebitmap_destroy, right?
->
->   
-Oops, yes
-
->> +		type_set_destroy(&x->types);
->> +	}
->> +}
->> +
->>     
->
-> Usual boilerplate - make sure it runs under valgrind cleanly and doesn't
-> introduce any (new) leaks on monolithic and modular build+link
-
-This was an RFC patch and didn't go through any rigorous testing or 
-valgrind (though I did ask for comments..) I recently found a bug in it 
-so there will be another patch soon. Thanks for the comments.
+What if it has an ACL, a MAC, *and* some chattr-style attribute?
+Á  ;-)
 
 
 --
