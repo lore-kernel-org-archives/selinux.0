@@ -1,88 +1,98 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2PAaD2u017083
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2008 06:36:13 -0400
-Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2PAaA63027005
-	for <selinux@tycho.nsa.gov>; Tue, 25 Mar 2008 10:36:11 GMT
-Message-ID: <47E8D58B.5040707@ak.jp.nec.com>
-Date: Tue, 25 Mar 2008 19:35:55 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Message-ID: <47E8DC2B.6010205@manicmethod.com>
+Date: Tue, 25 Mar 2008 07:04:11 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy (try #3)
-References: <47B2B885.4070300@ak.jp.nec.com>	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>	 <47C5189B.9070500@ak.jp.nec.com>	 <1204817238.3994.59.camel@gorn.columbia.tresys.com>	 <47D09FEB.3030005@ak.jp.nec.com>	 <1204922912.20251.58.camel@gorn.columbia.tresys.com>	 <47D3F33B.5010209@kaigai.gr.jp> <1205240234.25555.55.camel@gorn>	 <47DE3A66.602@ak.jp.nec.com> <1205937929.16113.78.camel@gorn>	 <47E33A66.6030705@ak.jp.nec.com> <1206384282.16113.205.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1206384282.16113.205.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>, Caleb Case <ccase@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: [RFC][PATCH] user_transition support for libsepol/checkpolicy
+References: <47E7E7A5.6090603@manicmethod.com>	 <1206389718.3302.107.camel@moss-spartans.epoch.ncsc.mil>	 <47E80EBE.4090508@manicmethod.com> <1206390986.3302.113.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1206390986.3302.113.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Fri, 2008-03-21 at 13:32 +0900, KaiGai Kohei wrote:
->> Chris, Thanks for your reviewing.
->>
->> Rest of comments are bellow.
->>
->> Christopher J. PeBenito wrote:
->>> On Mon, 2008-03-17 at 18:31 +0900, Kohei KaiGai wrote:
->>>> The attached patch provides revised SE-PostgreSQL policy.
-> 
->>>> +template(`postgresql_userdom_template',`
->>   - snip -
->>>> +       ##############################
->>>> +       #
->>>> +       # Client local policy
->>>> +       #
->>>> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_table     sepgsql_$1_table_t;
->>>> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_procedure sepgsql_$1_proc_t;
->>>> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_blob      sepgsql_$1_blob_t;
->>>> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_sysobj_t      : db_tuple     sepgsql_$1_sysobj_t;
-> 
-> I missed this previously but I just realized that to be consistent with
-> the rest of the policy the prefix should actually be a prefix, not
-> infix.  i.e. the types should be like $1_sepgsql_table_t not sepgsql_
-> $1_table_t.
+Stephen Smalley wrote:
+> On Mon, 2008-03-24 at 16:27 -0400, Joshua Brindle wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
+>>>   
+>>>       
+>>>> This implements user_transition in the toolchain. It should help on
+>>>> distro's like Ubuntu that can't use run_init due to the user not knowing
+>>>> the root password. It also seems like a more eloquent way to handle
+>>>> service restarts than assigning system_r to user accounts and having the
+>>>> daemons run as someuser:system_r:foo_t.
+>>>>     
+>>>>         
+>>> Yes, that's something that has been wanted in Fedora for quite some
+>>> time.
+>>>
+>>> The real issue with run_init isn't the re-authentication stage, as that
+>>> can always be disabled via pam config (and was just a weak form of
+>>> confirming user intent, not an authorization mechanism), but rather the
+>>> difficulty in transparently interposing it into all situations where
+>>> services get started/re-started.  Only Gentoo seemed to have a good
+>>> story there.
+>>>
+>>>   
+>>>       
+>>>> This has some issues in policy due to users not always being known in
+>>>> the policy (eg., semanage users). I hope Chris or Dan will be able to
+>>>> give some suggestions there.
+>>>>     
+>>>>         
+>>> I'm not sure why anyone needs to add users to policy via semanage users
+>>> given the base set of generic users and the ability to map Linux users
+>>> to them via seusers aka semanage login.
+>>>
+>>>   
+>>>       
+>>>> The kernel patch (forthcoming after this is accepted) so far only
+>>>> implements the transition on process transitions. Later on I plan on
+>>>> doing a patch to expand role_transition to object classes (this is a
+>>>> change needed for policy rbac support to work). I suspect I'll do the
+>>>> same for user at that time. The question here is, do we think its worth
+>>>> it to do fine grained transitions like we did for range_trans? (I don't).
+>>>>     
+>>>>         
+>>> Offhand, I can't see a use for per-class user transitions, if that is
+>>> what you mean.
+>>>
+>>> I don't think per-class role transitions is really the fundamental
+>>> obstacle to enabling use of roles on objects - more thought is required
+>>> there.  What will be fun there is role/type and user/range validation,
+>>> which presently gets to ignore everything that has object_r.
+>>>   
+>>>       
+>> Ah, another thing. While going through the policyrep implementation the 
+>> question of object_r came up. My thought is to start adding object_r 
+>> magic into the toolchain (adding all types, etc) and eventually purge 
+>> object_r from the kernel. at least one magic instance of object_r will 
+>> be removed by object role_transitions, the others are really short 
+>> circuits in the security server that can be removed after sufficient 
+>> support is in the toolchain. What are your thoughts on that (for future 
+>> reference)?
+>>     
+>
+> Well, the interesting question is what should the default role be in the
+> new context in security_compute_sid, if not object_r.  Even aside from
+> the support for per-class role transitions.  User defaults to the source
+> context, type defaults to the related object context, and MLS range
+> defaults to the low level of the source context.  Role could be the
+> subject's role or the related object's role.
+>
+>   
 
-I want to keep "sepgsql_" as a prefix for types related to SE-PostgreSQL,
-because all of them have uniformed naming convention.
-Can you consider the head of "sepgsql_" means its assumed object manager,
-and we are omitting it for most of types managed by kernel?
-I feel that object manager identification should have higher priority than
-user domain prefix in naming convention.
-In my sense, "kernel_user_home_t" is better than "user_kernel_home_t",
-if object manager identification is not omitted.
+Good question. My original assumption was that we'd use the related 
+object role. That would require that home directories be correctly 
+labeled with the role of the user. If we start using the source role 
+then things will quickly change from object_r to system_r, so maybe the 
+policy should do that anyway. Chris, any opinions on this?
 
-However, it is just a name. I don't oppose this strongly.
 
->>> This should probably transition even if its unconfined.  If a user
->>> starts out unconfined and then the admin later decides the user should
->>> be confined, the user will lose access to its object, right?
->> No. In this case, a new confined user can access to its object if it was
->> not explicitly relabeled.
->> The default type of db_table class created by unconfined users is sepgsql_table_t.
->> Any confined users can also access to them with restricted permissions.
-> 
-> I finally realized what the problem with the type_transitions.  You have
-> many of them to set up the default type for tables, procedures, blobs,
-> etc.  Shouldn't the default labels just be settings in a config file?
-> Then all of the complex type transitioning behavior isn't needed.
-
-I dislike thie option.
-It can make harder to find out the cause of trouble came from labeling behavior,
-if end users put incorrect configuration. Especially, I don't want to require
-database folks additional configuration, because they are not SELinux specialist.
-It can be configured in the security policy enough simply, so the default behavior
-should be also described in.
-
-In the latest patch, these rules are simpler.
-  Domains with template    -> sepgsql_FOO_table_t convention
-  Domains without template -> sepgsql_table_t convention
-We have no conditional type_transition, negative operations now.
-
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
