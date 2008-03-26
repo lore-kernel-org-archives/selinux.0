@@ -1,176 +1,191 @@
-Message-ID: <47EA60A1.50805@manicmethod.com>
-Date: Wed, 26 Mar 2008 10:41:37 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, Caleb Case <ccase@tresys.com>
-Subject: Re: [RFC][PATCH] user_transition support for libsepol/checkpolicy
-References: <47E7E7A5.6090603@manicmethod.com>	 <1206463352.3302.200.camel@moss-spartans.epoch.ncsc.mil>	 <47E965AE.8090804@manicmethod.com>	 <1206535700.3302.294.camel@moss-spartans.epoch.ncsc.mil>	 <47EA4FC5.6000907@manicmethod.com>	 <1206538884.3302.337.camel@moss-spartans.epoch.ncsc.mil> <1206539871.3302.341.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1206539871.3302.341.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2QGIKgo018462
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 12:18:20 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m2QGIC15019741
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 16:18:13 GMT
+Subject: Re: [DSE-Dev] refpolicy: domains need access to the apt's pty and
+	fifos
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+In-Reply-To: <20080321073158.GA12456@bobek.pm.i.cz>
+References: <200803062346.58639.russell@coker.com.au>
+	 <20080305152322.GA9988@bobek.pm.i.cz>
+	 <1204734268.12784.124.camel@hepcat.vitavonni.de>
+	 <200803062117.20441.russell@coker.com.au>
+	 <1204805640.5885.4.camel@hepcat.vitavonni.de>
+	 <20080305152322.GA9988@bobek.pm.i.cz>
+	 <1204734268.12784.124.camel@hepcat.vitavonni.de>
+	 <200803062117.20441.russell@coker.com.au>
+	 <20080305152322.GA9988@bobek.pm.i.cz>
+	 <1204734268.12784.124.camel@hepcat.vitavonni.de>
+	 <20080321073158.GA12456@bobek.pm.i.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 26 Mar 2008 11:57:09 -0400
+Message-Id: <1206547029.16113.272.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2008-03-26 at 09:41 -0400, Stephen Smalley wrote:
->   
->> On Wed, 2008-03-26 at 09:29 -0400, Joshua Brindle wrote:
->>     
->>> Stephen Smalley wrote:
->>>       
->>>> On Tue, 2008-03-25 at 16:50 -0400, Joshua Brindle wrote:
->>>>   
->>>>         
->>>>> Stephen Smalley wrote:
->>>>>     
->>>>>           
->>>>>> On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
->>>>>>   
->>>>>>       
->>>>>>             
->>>>>>> This implements user_transition in the toolchain. It should help on
->>>>>>> distro's like Ubuntu that can't use run_init due to the user not knowing
->>>>>>> the root password. It also seems like a more eloquent way to handle
->>>>>>> service restarts than assigning system_r to user accounts and having the
->>>>>>> daemons run as someuser:system_r:foo_t.
->>>>>>>
->>>>>>> This has some issues in policy due to users not always being known in
->>>>>>> the policy (eg., semanage users). I hope Chris or Dan will be able to
->>>>>>> give some suggestions there.
->>>>>>>
->>>>>>> The kernel patch (forthcoming after this is accepted) so far only
->>>>>>> implements the transition on process transitions. Later on I plan on
->>>>>>> doing a patch to expand role_transition to object classes (this is a
->>>>>>> change needed for policy rbac support to work). I suspect I'll do the
->>>>>>> same for user at that time. The question here is, do we think its worth
->>>>>>> it to do fine grained transitions like we did for range_trans? (I don't).
->>>>>>>
->>>>>>> Index: libsepol/include/sepol/policydb/policydb.h
->>>>>>> ===================================================================
->>>>>>> --- libsepol/include/sepol/policydb/policydb.h	(revision 2854)
->>>>>>> +++ libsepol/include/sepol/policydb/policydb.h	(working copy)
->>>>>>> @@ -156,6 +156,14 @@
->>>>>>> 	mls_level_t exp_dfltlevel; /* expanded range used for validation */
->>>>>>> } user_datum_t;
->>>>>>>
->>>>>>> +typedef struct user_trans {
->>>>>>> +	uint32_t user;		/* current role */
->>>>>>> +	uint32_t type;		/* program executable type */
->>>>>>> +	uint32_t new_user;	/* new role */
->>>>>>> +	struct user_trans *next;
->>>>>>> +} user_trans_t;
->>>>>>> +
->>>>>>> +
->>>>>>> /* Sensitivity attributes */
->>>>>>> typedef struct level_datum {
->>>>>>> 	mls_level_t *level;	/* sensitivity and associated categories */
->>>>>>> @@ -225,6 +233,13 @@
->>>>>>> 	struct role_trans_rule *next;
->>>>>>> } role_trans_rule_t;
->>>>>>>
->>>>>>> +typedef struct user_trans_rule {
->>>>>>> +	ebitmap_t users;	/* current role */
->>>>>>> +	type_set_t types;	/* program executable type */
->>>>>>> +	uint32_t new_user;	/* new role */
->>>>>>> +	struct user_trans_rule *next;
->>>>>>> +} user_trans_rule_t;
->>>>>>>     
->>>>>>>         
->>>>>>>               
->>>>>> Possibly crazy idea - given the current trend, would it be better to
->>>>>> just save the user transition rules in symbolic form in the module
->>>>>> format.  Would that simplify the link/expand code?
->>>>>>
->>>>>>   
->>>>>>       
->>>>>>             
->>>>> Possibly, I am hoping policyrep will supplant this code in the near 
->>>>> future so I didn't think about it much. This is consistent with how we 
->>>>> store other modular things.
->>>>>
->>>>>     
->>>>>           
->>>>>>> Index: libsepol/src/policydb.c
->>>>>>> ===================================================================
->>>>>>> --- libsepol/src/policydb.c	(revision 2854)
->>>>>>> +++ libsepol/src/policydb.c	(working copy)
->>>>>>> @@ -348,6 +367,30 @@
->>>>>>> 	}
->>>>>>> }
->>>>>>>
->>>>>>> +void user_trans_rule_init(user_trans_rule_t * x)
->>>>>>> +{
->>>>>>> +	memset(x, 0, sizeof(*x));
->>>>>>>     
->>>>>>>         
->>>>>>>               
->>>>>> Not unique to this patch, but it seems funny that we use memset followed
->>>>>> by explicit initializers for fields that have them.  And that as a
->>>>>> result of the memset here, we don't calloc when allocate the structs.
->>>>>>
->>>>>>   
->>>>>>       
->>>>>>             
->>>>> I would normally never memset a struct, rather than use an initializer 
->>>>> but I was going for minimal changes here, I don't plan on this code 
->>>>> being around for long.
->>>>>     
->>>>>           
->>>> Famous last words.  Don't ever make that assumption ;)
->>>> Especially given life cycles of distributions that might incorporate
->>>> said code.
->>>>   
->>>>         
->>> I know, I typed it tongue-in-cheek.
->>>
->>>       
->>>> I know that this is consistent with how we store other modular things
->>>> and that policyrep will "make all things better".  But I'm wondering
->>>> whether you could have greatly simplified even this "transient"
->>>> implementation of user transition support by keeping it in symbolic
->>>> form, even within a "binary" module format, to simplify linking and
->>>> reduce likelihood of mapping errors.
->>>>
->>>>   
->>>>         
->>> I understand and if there were more time I wouldn't mind doing it. Right 
->>> now I wanted to push these through as fast as possible so that we could 
->>> maybe get them in to Hardy, which as of right now has no solution to 
->>> restart services other than rebooting.
->>>       
->> Rushing through a new feature considered harmful.  Look, Fedora has
->> lived for years without this feature and works fine, albeit requiring
->> adding system_r to user accounts and enabling DIRECT_INITRC=y in
->> build.conf.
->>     
->
-> Seriously - this sounds like a recipe for disaster; the last thing we
-> want is to risk de-stabilizing the Ubuntu kernel with a last minute
-> change, making selinux unusable there.  Why not just follow the example
-> of Fedora (and I assume Debian?) here for now and use the above
-> workaround in policy, then you can switch to user transitions in the
-> future once this feature has had time to bake in -mm for a bit and then
-> gone into the mainline kernel.
->
->   
 
-Fair enough.
+On Fri, 2008-03-21 at 08:31 +0100, Václav Ovsík wrote:
+> Hi,
+> sorry for a delay. Beforehand thanks for all worth reactions. I'm very
+> thankful for these.
+> 
+> BTW: I found, that dpkg passes (and should not) to child processes
+> a file descriptor of apt pipe:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=471488
+> The access to apts fifo should not be needed for dpkg scripts.
 
->>> This method is well understood in this codebase and chances are in 
->>> mapping is broken one place its broken in five so I'm not entirely sure 
->>> what it would gain us now.
->>>
->>> On the note of getting this out quickly I'm hitting this strange kernel 
->>> but where class_read says a common is unknown when I try to load a 23 
->>> policy, I'm currently working through that but building ubuntu kernels 
->>> takes hours :X
->>>       
->> Cute.  But a good example of why we shouldn't rush this out.  And even
->> if it is implemented tomorrow, what is the likelihood that the Ubuntu
->> kernel folks are going to want to pull it into their existing kernel for
->> this release - at such a late date?
->>
->>     
+> On Thu, Mar 06, 2008 at 11:46:54PM +1100, Russell Coker wrote:
+> > On Thursday 06 March 2008 23:13, Erich Schubert <erich@debian.org> wrote:
+> > > > > It would definitely help to have separate apt_t and apt_script_t
+> > > > > domains, though, to be able to differentiate access for installation
+> > > > > scripts and the package manager itself.
+> > > >
+> > > > What meaningful restrictions can be applied to one but not the other?
+> > >
+> > > I agree with you that we would currently have to allow pretty much any
+> > > access by apt_script_t, unfortunately. Sorry for mixing up apt and dpkg
+> > > again in that post btw, yes, it sould be dpkg_t and dpkg_script_t,
+> > > obviously.
+> > > No, I can't really think of ways to restrict dpkg_script_t apart from
+> > > not messing with the dpkg_t state files. Maybe we could make some policy
+> > 
+> > But given that dpkg_script_t can make all manner of other changes (including 
+> > loading a SE Linux policy) it seems rather minor to restrict access to dpkg 
+> > state files.
+> > 
+> > > that /usr is to be modified by dpkg_t only whereas dynamically generated
+> > > files have to reside in /var, but I doubt this would currently hold.
+> > 
+> > It's a standard practice to convert the data files under /var in an upgrade.
+> > 
+> > > And after all, dpkg_script_t needs to be able to even add users
+> > > to /etc/passwd (although through the helper applications, not directly).
+> > 
+> > Yes.
+> > 
+> > In fact while we have unconfined_t, the benefit of having a separate dpkg_t 
+> > instead of using unconfined_t for installing packages doesn't seem 
+> > significant.
+
+> Seems to me dpkg_script_t is not used now really.  Should be removed
+> dpkg_script_t from the refpolicy?  A part of rules should be moved from
+> the domain dpkg_script_t to the domain dpkg_t probably if such a removal
+> will take place.
+
+As I recall it was a work in progress by either Erich or Manoj.  If it
+was never finished or abandoned, then it should probably be removed.
+
+
+> On Mon, Mar 10, 2008 at 01:39:49PM -0400, Christopher J. PeBenito wrote:
+> > On Fri, 2008-03-07 at 22:23 +0100, Stefan Schulze Frielinghaus wrote:
+> > > On Wed, 2008-03-05 at 16:23 +0100, Václav Ovsík wrote:
+> > > > Hi,
+> > > > running Debian Sid with HEAD refpolicy...
+> > > > I tried to install bind9 and got some further denials for access to pty
+> > > > and pipe of apt_t domain. This is a continuation of the patch from
+> > > > Martin Orr in thread "refpolicy: patch for ldconfig from glibc 2.7...",
+> > > > witch was about apt finally.
+> > > > 
+> > > > ...
+> > > > 
+> > > > Attached patch solves the most of this denials, but I doubt this is the
+> > > > right way.  Should be used some attribute for this?  I noticed attribute
+> > > > privfd and macro domain_interactive_fd(), what about it?  Rpm already
+> > > > has such macro calls
+> > > > ./policy/modules/admin/rpm.te:domain_interactive_fd(rpm_t)
+> > > > ./policy/modules/admin/rpm.te:domain_interactive_fd(rpm_script_t)
+> > > > 
+> > > > I tried to use this macro for apt_t, and all use fd denials above are
+> > > > solved with it. Should be things done in this way?
+> > > > 
+> > > > Thanks for comments.
+> > > 
+> > > I think it is not really nice to have all these allow rules directly in
+> > > the modules. A similar discussion can be found here:
+> > > http://marc.info/?l=selinux&m=118707242005853&w=2
+> > > 
+> > > Especially the first replay of Stephen Smalley pointing out how rpm
+> > > solves this via domain.if: rpm_use_fds($1) and rpm_read_pipes($1)
+> > > 
+> > > If I had to choose between the several fixes for every module or the
+> > > "rpm-way" to allow all usage of file descriptors and read permissions
+> > > then I would vote for the latter.
+> > 
+> > A better option might be to mimic the inheritance of fds and pipes.
+> 
+> I'm not certain I understood this correctly.  I understood `to mimic the
+> inheritance', that for all domains runnable from dpkg scripts should be
+> inserted appropriate rules for access explicitly.  If I'm wrong, please
+> explain it a bit further.  Sorry for my English.
+
+No thats not what I mean.  If you do that, then it means each module has
+to know about domains that indirectly execute it.  My suggestion is if
+you have a chain of execs like this:
+
+user -> foo -> bar -> yar
+
+then you would want yar to inherit and use user's fds so that it can
+write out to the user's terminal.  So it seems best to structure the
+policy so that at each run interface call you put in your own fd and
+pipes and also the pipes and fds that you've inherited.  So that results
+in:
+
+foo inherits user fds/pipes
+bar inherits user and foo fds/pipes
+yar inherits user, bar, and foo pipes
+
+I managed to partially do this with roles and terminals, in run
+interfaces.  My initial idea is for each domain to keep an attribute of
+fds and redirections that it inherits.  Unfortunately this turns run
+interfaces ugly due to fds possibly opened to a file, pipe, or terminal
+(I suppose there could be other redirections but these are by far the
+common ones).  For example (in pseudo-policy)
+
+interface foo_run
+	foo_domtrans($domain)
+	roleattribute foo_inherited_roles $role;
+	typeattribute foo_inherited_fds $inherit_fds;
+	typeattribute foo_inherited_terms $inherit_terms;
+	typeattribute foo_inherited_pipes $inherit_pipes;
+
+Then in foo.te we have
+
+role foo_inherited_roles types foo_t;
+allow foo_t foo_inh_fds:fd use;
+allow foo_t foo_inh_files:file rw_file_perms;
+allow foo_t foo_inh_terms:chr_file rw_chr_file_perms;
+allow foo_t foo_inh_pipes:fifo_file rw_fifo_file_perms;
+
+bar_run(foo_t,
+	foo_inh_roles,
+	{ foo_t foo_inh_fds },
+	{ foo_t foo_inh_pipes },
+	foo_inh_files,
+	foo_inh_terms
+	)
+
+if foo opens up a pty for its call to bar then we could break most of
+the inheritance
+
+bar_run(foo_t,foo_inh_roles,foo_t,,,foo_pty_t)
+
+The problem is that not all of the constructs I used in my example are
+available in the current language, and optional parameters on interfaces
+are not currently allowed.
+
+Its not so pretty, but thats my idea.  I'm certainly open to suggestions
+for something better.  In the mean time I suppose we just have to
+continue adding rules to the individual modules.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 
