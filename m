@@ -1,174 +1,65 @@
-Message-ID: <47EA4FC5.6000907@manicmethod.com>
-Date: Wed, 26 Mar 2008 09:29:41 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, Caleb Case <ccase@tresys.com>
 Subject: Re: [RFC][PATCH] user_transition support for libsepol/checkpolicy
-References: <47E7E7A5.6090603@manicmethod.com>	 <1206463352.3302.200.camel@moss-spartans.epoch.ncsc.mil>	 <47E965AE.8090804@manicmethod.com> <1206535700.3302.294.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1206535700.3302.294.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Caleb Case <ccase@tresys.com>
+In-Reply-To: <47EA0C14.5060304@redhat.com>
+References: <47E7E7A5.6090603@manicmethod.com>
+	 <1206389718.3302.107.camel@moss-spartans.epoch.ncsc.mil>
+	 <47EA0C14.5060304@redhat.com>
+Content-Type: text/plain
+Date: Wed, 26 Mar 2008 09:33:58 -0400
+Message-Id: <1206538438.3302.328.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2008-03-25 at 16:50 -0400, Joshua Brindle wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
->>>   
->>>       
->>>> This implements user_transition in the toolchain. It should help on
->>>> distro's like Ubuntu that can't use run_init due to the user not knowing
->>>> the root password. It also seems like a more eloquent way to handle
->>>> service restarts than assigning system_r to user accounts and having the
->>>> daemons run as someuser:system_r:foo_t.
->>>>
->>>> This has some issues in policy due to users not always being known in
->>>> the policy (eg., semanage users). I hope Chris or Dan will be able to
->>>> give some suggestions there.
->>>>
->>>> The kernel patch (forthcoming after this is accepted) so far only
->>>> implements the transition on process transitions. Later on I plan on
->>>> doing a patch to expand role_transition to object classes (this is a
->>>> change needed for policy rbac support to work). I suspect I'll do the
->>>> same for user at that time. The question here is, do we think its worth
->>>> it to do fine grained transitions like we did for range_trans? (I don't).
->>>>
->>>> Index: libsepol/include/sepol/policydb/policydb.h
->>>> ===================================================================
->>>> --- libsepol/include/sepol/policydb/policydb.h	(revision 2854)
->>>> +++ libsepol/include/sepol/policydb/policydb.h	(working copy)
->>>> @@ -156,6 +156,14 @@
->>>> 	mls_level_t exp_dfltlevel; /* expanded range used for validation */
->>>> } user_datum_t;
->>>>
->>>> +typedef struct user_trans {
->>>> +	uint32_t user;		/* current role */
->>>> +	uint32_t type;		/* program executable type */
->>>> +	uint32_t new_user;	/* new role */
->>>> +	struct user_trans *next;
->>>> +} user_trans_t;
->>>> +
->>>> +
->>>> /* Sensitivity attributes */
->>>> typedef struct level_datum {
->>>> 	mls_level_t *level;	/* sensitivity and associated categories */
->>>> @@ -225,6 +233,13 @@
->>>> 	struct role_trans_rule *next;
->>>> } role_trans_rule_t;
->>>>
->>>> +typedef struct user_trans_rule {
->>>> +	ebitmap_t users;	/* current role */
->>>> +	type_set_t types;	/* program executable type */
->>>> +	uint32_t new_user;	/* new role */
->>>> +	struct user_trans_rule *next;
->>>> +} user_trans_rule_t;
->>>>     
->>>>         
->>> Possibly crazy idea - given the current trend, would it be better to
->>> just save the user transition rules in symbolic form in the module
->>> format.  Would that simplify the link/expand code?
->>>
->>>   
->>>       
->> Possibly, I am hoping policyrep will supplant this code in the near 
->> future so I didn't think about it much. This is consistent with how we 
->> store other modular things.
->>
->>     
->>>> Index: libsepol/src/policydb.c
->>>> ===================================================================
->>>> --- libsepol/src/policydb.c	(revision 2854)
->>>> +++ libsepol/src/policydb.c	(working copy)
->>>> @@ -348,6 +367,30 @@
->>>> 	}
->>>> }
->>>>
->>>> +void user_trans_rule_init(user_trans_rule_t * x)
->>>> +{
->>>> +	memset(x, 0, sizeof(*x));
->>>>     
->>>>         
->>> Not unique to this patch, but it seems funny that we use memset followed
->>> by explicit initializers for fields that have them.  And that as a
->>> result of the memset here, we don't calloc when allocate the structs.
->>>
->>>   
->>>       
->> I would normally never memset a struct, rather than use an initializer 
->> but I was going for minimal changes here, I don't plan on this code 
->> being around for long.
->>     
->
-> Famous last words.  Don't ever make that assumption ;)
-> Especially given life cycles of distributions that might incorporate
-> said code.
->   
 
-I know, I typed it tongue-in-cheek.
+On Wed, 2008-03-26 at 09:40 +0100, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Stephen Smalley wrote:
+> > On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
+> >> This implements user_transition in the toolchain. It should help on
+> >> distro's like Ubuntu that can't use run_init due to the user not knowing
+> >> the root password. It also seems like a more eloquent way to handle
+> >> service restarts than assigning system_r to user accounts and having the
+> >> daemons run as someuser:system_r:foo_t.
+> > 
+> > Yes, that's something that has been wanted in Fedora for quite some
+> > time.
+> > 
+> > The real issue with run_init isn't the re-authentication stage, as that
+> > can always be disabled via pam config (and was just a weak form of
+> > confirming user intent, not an authorization mechanism), but rather the
+> > difficulty in transparently interposing it into all situations where
+> > services get started/re-started.  Only Gentoo seemed to have a good
+> > story there.
+> > 
+> >> This has some issues in policy due to users not always being known in
+> >> the policy (eg., semanage users). I hope Chris or Dan will be able to
+> >> give some suggestions there.
+> > 
+> > I'm not sure why anyone needs to add users to policy via semanage users
+> > given the base set of generic users and the ability to map Linux users
+> > to them via seusers aka semanage login.
+> > 
+> Can we define users in modules?  I envision and have provided
+> modifications to do system-config-selinux for someone to take a guest_t
+> and create a new role/type guest_plussendmail_t for a limited privileged
+> login account that can connect to the sendmail port.
+> 
+> So once I have created this new User Type,  I need a way to define the
+> user.  In Fedora right now, we define the xguest and guest accounts in
+> the postinstall using semanage.
 
-> I know that this is consistent with how we store other modular things
-> and that policyrep will "make all things better".  But I'm wondering
-> whether you could have greatly simplified even this "transient"
-> implementation of user transition support by keeping it in symbolic
-> form, even within a "binary" module format, to simplify linking and
-> reduce likelihood of mapping errors.
->
->   
+You can already define SELinux users in modules (after any TE/RBAC
+rules).
 
-I understand and if there were more time I wouldn't mind doing it. Right 
-now I wanted to push these through as fast as possible so that we could 
-maybe get them in to Hardy, which as of right now has no solution to 
-restart services other than rebooting.
-
-This method is well understood in this codebase and chances are in 
-mapping is broken one place its broken in five so I'm not entirely sure 
-what it would gain us now.
-
-On the note of getting this out quickly I'm hitting this strange kernel 
-but where class_read says a common is unknown when I try to load a 23 
-policy, I'm currently working through that but building ubuntu kernels 
-takes hours :X
-
->>>> +	ebitmap_init(&x->users);
->>>> +	type_set_init(&x->types);
->>>> +}
->>>> +
->>>> +void user_trans_rule_destroy(user_trans_rule_t * x)
->>>> +{
->>>> +	if (x != NULL) {
->>>> +		ebitmap_init(&x->users);
->>>>     
->>>>         
->>> Should be ebitmap_destroy, right?
->>>
->>>   
->>>       
->> Oops, yes
->>
->>     
->>>> +		type_set_destroy(&x->types);
->>>> +	}
->>>> +}
->>>> +
->>>>     
->>>>         
->>> Usual boilerplate - make sure it runs under valgrind cleanly and doesn't
->>> introduce any (new) leaks on monolithic and modular build+link
->>>       
->> This was an RFC patch and didn't go through any rigorous testing or 
->> valgrind (though I did ask for comments..) I recently found a bug in it 
->> so there will be another patch soon. Thanks for the comments.
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>     
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
