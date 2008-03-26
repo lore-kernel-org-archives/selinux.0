@@ -1,89 +1,86 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2QHPEqB027846
-	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 13:25:14 -0400
-Received: from pne-smtpout1-sn2.hy.skanova.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2QHP815023115
-	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 17:25:08 GMT
-From: =?iso-8859-1?q?P=E4r_Aronsson?= <par.aronsson@telia.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: SELinux policy for Fedora Directory Server 1.1.0
-Date: Wed, 26 Mar 2008 18:23:53 +0100
-Cc: selinux@tycho.nsa.gov
-References: <200803111734.10289.par.aronsson@telia.com> <47DFD303.4080004@redhat.com>
-In-Reply-To: <47DFD303.4080004@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2QN11Ku031568
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 19:01:02 -0400
+Received: from queueout02-winn.ispmail.ntl.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2QN0v21008746
+	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 23:00:57 GMT
+Received: from aamtaout04-winn.ispmail.ntl.com ([81.103.221.35])
+          by mtaout03-winn.ispmail.ntl.com with ESMTP
+          id <20080326212216.XHBP1244.mtaout03-winn.ispmail.ntl.com@aamtaout04-winn.ispmail.ntl.com>
+          for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 21:22:16 +0000
+Received: from [192.168.1.102] (really [82.18.189.14])
+          by aamtaout04-winn.ispmail.ntl.com with ESMTP
+          id <20080326211853.FOVE29112.aamtaout04-winn.ispmail.ntl.com@[192.168.1.102]>
+          for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 21:18:53 +0000
+Message-ID: <47EABDB2.8090305@martinorr.name>
+Date: Wed, 26 Mar 2008 21:18:42 +0000
+From: Martin Orr <martin@martinorr.name>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200803261823.54027.par.aronsson@telia.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        =?ISO-8859-1?Q?V=E1?= =?ISO-8859-1?Q?clav_Ovs=EDk?= <vaclav.ovsik@i.cz>,
+        SELinux List <selinux@tycho.nsa.gov>,
+        selinux-devel@lists.alioth.debian.org
+Subject: Re: [DSE-Dev] refpolicy: domains need access to the apt's pty	and
+ fifos
+References: <200803062346.58639.russell@coker.com.au>	<20080305152322.GA9988@bobek.pm.i.cz>	<1204734268.12784.124.camel@hepcat.vitavonni.de>	<200803062117.20441.russell@coker.com.au>	<1204805640.5885.4.camel@hepcat.vitavonni.de>	<20080305152322.GA9988@bobek.pm.i.cz>	<1204734268.12784.124.camel@hepcat.vitavonni.de>	<200803062117.20441.russell@coker.com.au>	<20080305152322.GA9988@bobek.pm.i.cz>	<1204734268.12784.124.camel@hepcat.vitavonni.de>	<20080321073158.GA12456@bobek.pm.i.cz> <1206547029.16113.272.camel@gorn>
+In-Reply-To: <1206547029.16113.272.camel@gorn>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-tisdag 18 mars 2008 skrev Daniel J Walsh:
-> Pär Aronsson wrote:
-> > Hello,
-> >
-> > Attached is a SELinux policy for the Fedora Directory Server 1.1.0.
-> > It is composed of three parts.
-> > * dirsrv - directory server and setup programs
-> > * dirsrv-admin - administration server and setup programs
-> > * fedora-idm-console - java based console for administration
-> >
-> > The policies were developed on a CentOS 5.1 with the following packages:
-> > fedora-ds-base-1.1.0-3.fc6
-> > fedora-ds-admin-1.1.1-1.fc6
-> > fedora-ds-console-1.1.0-5.fc6
-> > selinux-policy-2.4.6-106.el5_1.3
-> > kernel-2.6.18-53.1.4.el5
-> >
-> > I've succesfully tested the policies in targeted and strict mode.
-> >
-> > The dirsrv-admin policy requires that the apache policy module is loaded.
-> > Also run:
-> > setsebool -P httpd_enable_cgi on
-> >
-> > Comment out the following in /usr/sbin/start-ds-admin (line 63-65):
-> > if [ -x /usr/sbin/selinuxenabled ] && /usr/sbin/selinuxenabled; then
-> > 	SELINUX_CMD="runcon -t unconfined_t --"
-> > fi
-> >
-> > I had trouble with the replication plugin so I haven't been able to do
-> > any testing with replication.
-> >
-> > Any comments are welcome.
-> >
-> > // Pär Aronsson
->
-> Just started looking at this policy
-> dirsrv.te looks pretty good,  I have never setup a directory server, so
-> I am guessing on some of this stuff.
->
-> You want 	logging_search_logs($1) in
-> dirsrv_read_setuplog
->
-> The fedora-idm-console stuff makes no sense.  Looks like you are trying
-> to fix bugs in javaplugin policy.
->
-> Not sure if you want/need  dirserv-admin policy?  If this is just stuff
-> to be run in cgi, just extend it.
->
-> ALso not sure you need dirsrv_setup_t  Why not leave in admin context?
+On 26/03/08 15:57, Christopher J. PeBenito wrote:
+> On Fri, 2008-03-21 at 08:31 +0100, Václav Ovsík wrote:
+>> BTW: I found, that dpkg passes (and should not) to child processes
+>> a file descriptor of apt pipe:
+>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=471488
+>> The access to apts fifo should not be needed for dpkg scripts.
 
-Thanks Dan!
+Ah, that explains a lot.
 
-How should I handle the fedora-idm-console? A patch? Against what? The console 
-need read access to the directory server db-files. There's an interface for 
-it in dirsrv policy. What should I do with that in a patch?
+>> On Thu, Mar 06, 2008 at 11:46:54PM +1100, Russell Coker wrote:
+>>> On Thursday 06 March 2008 23:13, Erich Schubert <erich@debian.org> wrote:
+>>>>>> It would definitely help to have separate apt_t and apt_script_t
+>>>>>> domains, though, to be able to differentiate access for installation
+>>>>>> scripts and the package manager itself.
+>>>>> What meaningful restrictions can be applied to one but not the other?
+>>>> I agree with you that we would currently have to allow pretty much any
+>>>> access by apt_script_t, unfortunately. Sorry for mixing up apt and dpkg
+>>>> again in that post btw, yes, it sould be dpkg_t and dpkg_script_t,
+>>>> obviously.
+>>>> No, I can't really think of ways to restrict dpkg_script_t apart from
+>>>> not messing with the dpkg_t state files. Maybe we could make some policy
+>>> But given that dpkg_script_t can make all manner of other changes (including 
+>>> loading a SE Linux policy) it seems rather minor to restrict access to dpkg 
+>>> state files.
+>>>
+>>>> that /usr is to be modified by dpkg_t only whereas dynamically generated
+>>>> files have to reside in /var, but I doubt this would currently hold.
+>>> It's a standard practice to convert the data files under /var in an upgrade.
+>>>
+>>>> And after all, dpkg_script_t needs to be able to even add users
+>>>> to /etc/passwd (although through the helper applications, not directly).
+>>> Yes.
+>>>
+>>> In fact while we have unconfined_t, the benefit of having a separate dpkg_t 
+>>> instead of using unconfined_t for installing packages doesn't seem 
+>>> significant.
+> 
+>> Seems to me dpkg_script_t is not used now really.  Should be removed
+>> dpkg_script_t from the refpolicy?  A part of rules should be moved from
+>> the domain dpkg_script_t to the domain dpkg_t probably if such a removal
+>> will take place.
+> 
+> As I recall it was a work in progress by either Erich or Manoj.  If it
+> was never finished or abandoned, then it should probably be removed.
 
-The cgi-scripts in dirsrv-admin are run from httpd and from the 
-fedora-idm-console. Most of the policy extends the apache_content_template 
-interface. The rest is for the start script.
-Can you suggest how it should be dealt with?
+Because of
+dpkg_domtrans_script(dpkg_t)
+maintainer scripts written in shell (i.e. most) are run in dpkg_script_t,
+but any written in something else (usually Perl) stay in dpkg_t.  So at the
+moment a bunch of rules are needed for both domains, which is not very sensible.
 
-The setup- and migration utilities in dirsrv and dirsrv-admin create files 
-in /tmp that may contain sensitive information and need be readable by the 
-daemons. I couldn't find another way to make the files private. Any 
-suggestions?
-
+-- 
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
