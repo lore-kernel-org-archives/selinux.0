@@ -1,135 +1,152 @@
 Subject: Re: [RFC][PATCH] user_transition support for libsepol/checkpolicy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Caleb Case <ccase@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <47EA0D4F.4040102@redhat.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Caleb Case <ccase@tresys.com>
+In-Reply-To: <47EA4FC5.6000907@manicmethod.com>
 References: <47E7E7A5.6090603@manicmethod.com>
-	 <1206389718.3302.107.camel@moss-spartans.epoch.ncsc.mil>
-	 <47E80EBE.4090508@manicmethod.com>
-	 <1206390986.3302.113.camel@moss-spartans.epoch.ncsc.mil>
-	 <47E8DC2B.6010205@manicmethod.com>
-	 <1206446939.3302.139.camel@moss-spartans.epoch.ncsc.mil>
-	 <47EA0D4F.4040102@redhat.com>
+	 <1206463352.3302.200.camel@moss-spartans.epoch.ncsc.mil>
+	 <47E965AE.8090804@manicmethod.com>
+	 <1206535700.3302.294.camel@moss-spartans.epoch.ncsc.mil>
+	 <47EA4FC5.6000907@manicmethod.com>
 Content-Type: text/plain
-Date: Wed, 26 Mar 2008 09:36:39 -0400
-Message-Id: <1206538599.3302.333.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 26 Mar 2008 09:41:24 -0400
+Message-Id: <1206538884.3302.337.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-03-26 at 09:46 +0100, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
+On Wed, 2008-03-26 at 09:29 -0400, Joshua Brindle wrote:
 > Stephen Smalley wrote:
-> > On Tue, 2008-03-25 at 07:04 -0400, Joshua Brindle wrote:
+> > On Tue, 2008-03-25 at 16:50 -0400, Joshua Brindle wrote:
+> >   
 > >> Stephen Smalley wrote:
-> >>> On Mon, 2008-03-24 at 16:27 -0400, Joshua Brindle wrote:
+> >>     
+> >>> On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
 > >>>   
-> >>>> Stephen Smalley wrote:
+> >>>       
+> >>>> This implements user_transition in the toolchain. It should help on
+> >>>> distro's like Ubuntu that can't use run_init due to the user not knowing
+> >>>> the root password. It also seems like a more eloquent way to handle
+> >>>> service restarts than assigning system_r to user accounts and having the
+> >>>> daemons run as someuser:system_r:foo_t.
+> >>>>
+> >>>> This has some issues in policy due to users not always being known in
+> >>>> the policy (eg., semanage users). I hope Chris or Dan will be able to
+> >>>> give some suggestions there.
+> >>>>
+> >>>> The kernel patch (forthcoming after this is accepted) so far only
+> >>>> implements the transition on process transitions. Later on I plan on
+> >>>> doing a patch to expand role_transition to object classes (this is a
+> >>>> change needed for policy rbac support to work). I suspect I'll do the
+> >>>> same for user at that time. The question here is, do we think its worth
+> >>>> it to do fine grained transitions like we did for range_trans? (I don't).
+> >>>>
+> >>>> Index: libsepol/include/sepol/policydb/policydb.h
+> >>>> ===================================================================
+> >>>> --- libsepol/include/sepol/policydb/policydb.h	(revision 2854)
+> >>>> +++ libsepol/include/sepol/policydb/policydb.h	(working copy)
+> >>>> @@ -156,6 +156,14 @@
+> >>>> 	mls_level_t exp_dfltlevel; /* expanded range used for validation */
+> >>>> } user_datum_t;
+> >>>>
+> >>>> +typedef struct user_trans {
+> >>>> +	uint32_t user;		/* current role */
+> >>>> +	uint32_t type;		/* program executable type */
+> >>>> +	uint32_t new_user;	/* new role */
+> >>>> +	struct user_trans *next;
+> >>>> +} user_trans_t;
+> >>>> +
+> >>>> +
+> >>>> /* Sensitivity attributes */
+> >>>> typedef struct level_datum {
+> >>>> 	mls_level_t *level;	/* sensitivity and associated categories */
+> >>>> @@ -225,6 +233,13 @@
+> >>>> 	struct role_trans_rule *next;
+> >>>> } role_trans_rule_t;
+> >>>>
+> >>>> +typedef struct user_trans_rule {
+> >>>> +	ebitmap_t users;	/* current role */
+> >>>> +	type_set_t types;	/* program executable type */
+> >>>> +	uint32_t new_user;	/* new role */
+> >>>> +	struct user_trans_rule *next;
+> >>>> +} user_trans_rule_t;
 > >>>>     
-> >>>>> On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
-> >>>>>   
-> >>>>>       
-> >>>>>> This implements user_transition in the toolchain. It should help on
-> >>>>>> distro's like Ubuntu that can't use run_init due to the user not knowing
-> >>>>>> the root password. It also seems like a more eloquent way to handle
-> >>>>>> service restarts than assigning system_r to user accounts and having the
-> >>>>>> daemons run as someuser:system_r:foo_t.
-> >>>>>>     
-> >>>>>>         
-> >>>>> Yes, that's something that has been wanted in Fedora for quite some
-> >>>>> time.
-> >>>>>
-> >>>>> The real issue with run_init isn't the re-authentication stage, as that
-> >>>>> can always be disabled via pam config (and was just a weak form of
-> >>>>> confirming user intent, not an authorization mechanism), but rather the
-> >>>>> difficulty in transparently interposing it into all situations where
-> >>>>> services get started/re-started.  Only Gentoo seemed to have a good
-> >>>>> story there.
-> >>>>>
-> >>>>>   
-> >>>>>       
-> >>>>>> This has some issues in policy due to users not always being known in
-> >>>>>> the policy (eg., semanage users). I hope Chris or Dan will be able to
-> >>>>>> give some suggestions there.
-> >>>>>>     
-> >>>>>>         
-> >>>>> I'm not sure why anyone needs to add users to policy via semanage users
-> >>>>> given the base set of generic users and the ability to map Linux users
-> >>>>> to them via seusers aka semanage login.
-> >>>>>
-> >>>>>   
-> >>>>>       
-> >>>>>> The kernel patch (forthcoming after this is accepted) so far only
-> >>>>>> implements the transition on process transitions. Later on I plan on
-> >>>>>> doing a patch to expand role_transition to object classes (this is a
-> >>>>>> change needed for policy rbac support to work). I suspect I'll do the
-> >>>>>> same for user at that time. The question here is, do we think its worth
-> >>>>>> it to do fine grained transitions like we did for range_trans? (I don't).
-> >>>>>>     
-> >>>>>>         
-> >>>>> Offhand, I can't see a use for per-class user transitions, if that is
-> >>>>> what you mean.
-> >>>>>
-> >>>>> I don't think per-class role transitions is really the fundamental
-> >>>>> obstacle to enabling use of roles on objects - more thought is required
-> >>>>> there.  What will be fun there is role/type and user/range validation,
-> >>>>> which presently gets to ignore everything that has object_r.
-> >>>>>   
-> >>>>>       
-> >>>> Ah, another thing. While going through the policyrep implementation the 
-> >>>> question of object_r came up. My thought is to start adding object_r 
-> >>>> magic into the toolchain (adding all types, etc) and eventually purge 
-> >>>> object_r from the kernel. at least one magic instance of object_r will 
-> >>>> be removed by object role_transitions, the others are really short 
-> >>>> circuits in the security server that can be removed after sufficient 
-> >>>> support is in the toolchain. What are your thoughts on that (for future 
-> >>>> reference)?
-> >>>>     
-> >>> Well, the interesting question is what should the default role be in the
-> >>> new context in security_compute_sid, if not object_r.  Even aside from
-> >>> the support for per-class role transitions.  User defaults to the source
-> >>> context, type defaults to the related object context, and MLS range
-> >>> defaults to the low level of the source context.  Role could be the
-> >>> subject's role or the related object's role.
+> >>>>         
+> >>> Possibly crazy idea - given the current trend, would it be better to
+> >>> just save the user transition rules in symbolic form in the module
+> >>> format.  Would that simplify the link/expand code?
 > >>>
 > >>>   
-> >> Good question. My original assumption was that we'd use the related 
-> >> object role. That would require that home directories be correctly 
-> >> labeled with the role of the user. If we start using the source role 
-> >> then things will quickly change from object_r to system_r, so maybe the 
-> >> policy should do that anyway. Chris, any opinions on this?
-> > 
-> > Yes, related object role would likely cause the least breakage.  It
-> > would preserve the existing default for existing filesystems (as they
-> > already have object_r in the directory contexts), while allowing us to
-> > switch over to the user's role for home directories upon a relabel or
-> > new filesystem.  Source role might create more conflicts, as we enforce
-> > the role/type relationship for contexts and there might be a mismatch
-> > between the creating process role and the parent directory type.
-> > 
-> I am not sure where this is going, but I believe that separation based
-> on role in the home directory is a mistake.  It assumes that the home
-> directory will always be used by the same user with the same role.   And
-> will not work when you have a network file system that supports labels.
+> >>>       
+> >> Possibly, I am hoping policyrep will supplant this code in the near 
+> >> future so I didn't think about it much. This is consistent with how we 
+> >> store other modular things.
+> >>
+> >>     
+> >>>> Index: libsepol/src/policydb.c
+> >>>> ===================================================================
+> >>>> --- libsepol/src/policydb.c	(revision 2854)
+> >>>> +++ libsepol/src/policydb.c	(working copy)
+> >>>> @@ -348,6 +367,30 @@
+> >>>> 	}
+> >>>> }
+> >>>>
+> >>>> +void user_trans_rule_init(user_trans_rule_t * x)
+> >>>> +{
+> >>>> +	memset(x, 0, sizeof(*x));
+> >>>>     
+> >>>>         
+> >>> Not unique to this patch, but it seems funny that we use memset followed
+> >>> by explicit initializers for fields that have them.  And that as a
+> >>> result of the memset here, we don't calloc when allocate the structs.
+> >>>
+> >>>   
+> >>>       
+> >> I would normally never memset a struct, rather than use an initializer 
+> >> but I was going for minimal changes here, I don't plan on this code 
+> >> being around for long.
+> >>     
+> >
+> > Famous last words.  Don't ever make that assumption ;)
+> > Especially given life cycles of distributions that might incorporate
+> > said code.
+> >   
 > 
-> In Red Hat I can login to people.redhat.com people.fedoraproject.com
-> which I should use the guest_r.  While logging into my laptop I would be
-> unconfined_t and on test machines I might get staff_r or user_r.  All of
-> them would use the same homedirectory.  So how would this work in this
-> environment?
+> I know, I typed it tongue-in-cheek.
+> 
+> > I know that this is consistent with how we store other modular things
+> > and that policyrep will "make all things better".  But I'm wondering
+> > whether you could have greatly simplified even this "transient"
+> > implementation of user transition support by keeping it in symbolic
+> > form, even within a "binary" module format, to simplify linking and
+> > reduce likelihood of mapping errors.
+> >
+> >   
+> 
+> I understand and if there were more time I wouldn't mind doing it. Right 
+> now I wanted to push these through as fast as possible so that we could 
+> maybe get them in to Hardy, which as of right now has no solution to 
+> restart services other than rebooting.
 
-That's an interesting question, and I know that in some operating
-systems, roles are actually separate user accounts altogether.
+Rushing through a new feature considered harmful.  Look, Fedora has
+lived for years without this feature and works fine, albeit requiring
+adding system_r to user accounts and enabling DIRECT_INITRC=y in
+build.conf.
 
-However, the mechanism being described here doesn't prevent you from
-continuing to use a generic role (object_r or otherwise) on all files;
-it just allows for people who want to apply distinct roles on files to
-do so.
+> This method is well understood in this codebase and chances are in 
+> mapping is broken one place its broken in five so I'm not entirely sure 
+> what it would gain us now.
+> 
+> On the note of getting this out quickly I'm hitting this strange kernel 
+> but where class_read says a common is unknown when I try to load a 23 
+> policy, I'm currently working through that but building ubuntu kernels 
+> takes hours :X
+
+Cute.  But a good example of why we shouldn't rush this out.  And even
+if it is implemented tomorrow, what is the likelihood that the Ubuntu
+kernel folks are going to want to pull it into their existing kernel for
+this release - at such a late date?
 
 -- 
 Stephen Smalley
