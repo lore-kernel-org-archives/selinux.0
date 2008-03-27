@@ -1,14 +1,18 @@
-Message-ID: <47EBF8B6.4000403@redhat.com>
-Date: Thu, 27 Mar 2008 20:42:46 +0100
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2RN3b9u006210
+	for <selinux@tycho.nsa.gov>; Thu, 27 Mar 2008 19:03:37 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2RN3Qwi017758
+	for <selinux@tycho.nsa.gov>; Thu, 27 Mar 2008 23:03:27 GMT
+Message-ID: <47EBFA12.40406@redhat.com>
+Date: Thu, 27 Mar 2008 20:48:34 +0100
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Caleb Case <ccase@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: russell@coker.com.au
+CC: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: [RFC][PATCH] user_transition support for libsepol/checkpolicy
-References: <47E7E7A5.6090603@manicmethod.com>	 <1206389718.3302.107.camel@moss-spartans.epoch.ncsc.mil>	 <47E80EBE.4090508@manicmethod.com>	 <1206390986.3302.113.camel@moss-spartans.epoch.ncsc.mil>	 <47E8DC2B.6010205@manicmethod.com>	 <1206446939.3302.139.camel@moss-spartans.epoch.ncsc.mil>	 <47EA0D4F.4040102@redhat.com> <1206538599.3302.333.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1206538599.3302.333.camel@moss-spartans.epoch.ncsc.mil>
+References: <47E7E7A5.6090603@manicmethod.com> <1206446939.3302.139.camel@moss-spartans.epoch.ncsc.mil> <47EA0D4F.4040102@redhat.com> <200803271543.16340.russell@coker.com.au>
+In-Reply-To: <200803271543.16340.russell@coker.com.au>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -16,98 +20,8 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Stephen Smalley wrote:
-> On Wed, 2008-03-26 at 09:46 +0100, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Stephen Smalley wrote:
->>> On Tue, 2008-03-25 at 07:04 -0400, Joshua Brindle wrote:
->>>> Stephen Smalley wrote:
->>>>> On Mon, 2008-03-24 at 16:27 -0400, Joshua Brindle wrote:
->>>>>   
->>>>>> Stephen Smalley wrote:
->>>>>>     
->>>>>>> On Mon, 2008-03-24 at 13:40 -0400, Joshua Brindle wrote:
->>>>>>>   
->>>>>>>       
->>>>>>>> This implements user_transition in the toolchain. It should help on
->>>>>>>> distro's like Ubuntu that can't use run_init due to the user not knowing
->>>>>>>> the root password. It also seems like a more eloquent way to handle
->>>>>>>> service restarts than assigning system_r to user accounts and having the
->>>>>>>> daemons run as someuser:system_r:foo_t.
->>>>>>>>     
->>>>>>>>         
->>>>>>> Yes, that's something that has been wanted in Fedora for quite some
->>>>>>> time.
->>>>>>>
->>>>>>> The real issue with run_init isn't the re-authentication stage, as that
->>>>>>> can always be disabled via pam config (and was just a weak form of
->>>>>>> confirming user intent, not an authorization mechanism), but rather the
->>>>>>> difficulty in transparently interposing it into all situations where
->>>>>>> services get started/re-started.  Only Gentoo seemed to have a good
->>>>>>> story there.
->>>>>>>
->>>>>>>   
->>>>>>>       
->>>>>>>> This has some issues in policy due to users not always being known in
->>>>>>>> the policy (eg., semanage users). I hope Chris or Dan will be able to
->>>>>>>> give some suggestions there.
->>>>>>>>     
->>>>>>>>         
->>>>>>> I'm not sure why anyone needs to add users to policy via semanage users
->>>>>>> given the base set of generic users and the ability to map Linux users
->>>>>>> to them via seusers aka semanage login.
->>>>>>>
->>>>>>>   
->>>>>>>       
->>>>>>>> The kernel patch (forthcoming after this is accepted) so far only
->>>>>>>> implements the transition on process transitions. Later on I plan on
->>>>>>>> doing a patch to expand role_transition to object classes (this is a
->>>>>>>> change needed for policy rbac support to work). I suspect I'll do the
->>>>>>>> same for user at that time. The question here is, do we think its worth
->>>>>>>> it to do fine grained transitions like we did for range_trans? (I don't).
->>>>>>>>     
->>>>>>>>         
->>>>>>> Offhand, I can't see a use for per-class user transitions, if that is
->>>>>>> what you mean.
->>>>>>>
->>>>>>> I don't think per-class role transitions is really the fundamental
->>>>>>> obstacle to enabling use of roles on objects - more thought is required
->>>>>>> there.  What will be fun there is role/type and user/range validation,
->>>>>>> which presently gets to ignore everything that has object_r.
->>>>>>>   
->>>>>>>       
->>>>>> Ah, another thing. While going through the policyrep implementation the 
->>>>>> question of object_r came up. My thought is to start adding object_r 
->>>>>> magic into the toolchain (adding all types, etc) and eventually purge 
->>>>>> object_r from the kernel. at least one magic instance of object_r will 
->>>>>> be removed by object role_transitions, the others are really short 
->>>>>> circuits in the security server that can be removed after sufficient 
->>>>>> support is in the toolchain. What are your thoughts on that (for future 
->>>>>> reference)?
->>>>>>     
->>>>> Well, the interesting question is what should the default role be in the
->>>>> new context in security_compute_sid, if not object_r.  Even aside from
->>>>> the support for per-class role transitions.  User defaults to the source
->>>>> context, type defaults to the related object context, and MLS range
->>>>> defaults to the low level of the source context.  Role could be the
->>>>> subject's role or the related object's role.
->>>>>
->>>>>   
->>>> Good question. My original assumption was that we'd use the related 
->>>> object role. That would require that home directories be correctly 
->>>> labeled with the role of the user. If we start using the source role 
->>>> then things will quickly change from object_r to system_r, so maybe the 
->>>> policy should do that anyway. Chris, any opinions on this?
->>> Yes, related object role would likely cause the least breakage.  It
->>> would preserve the existing default for existing filesystems (as they
->>> already have object_r in the directory contexts), while allowing us to
->>> switch over to the user's role for home directories upon a relabel or
->>> new filesystem.  Source role might create more conflicts, as we enforce
->>> the role/type relationship for contexts and there might be a mismatch
->>> between the creating process role and the parent directory type.
->>>
+Russell Coker wrote:
+> On Wednesday 26 March 2008 19:46, Daniel J Walsh <dwalsh@redhat.com> wrote:
 >> I am not sure where this is going, but I believe that separation based
 >> on role in the home directory is a mistake.  It assumes that the home
 >> directory will always be used by the same user with the same role.   And
@@ -119,23 +33,44 @@ Stephen Smalley wrote:
 >> them would use the same homedirectory.  So how would this work in this
 >> environment?
 > 
-> That's an interesting question, and I know that in some operating
-> systems, roles are actually separate user accounts altogether.
+> If you have the same home directory contents (including .login, .bashrc, and 
+> equivalent files) and you can execute programs from the home directory, then 
+> how can you usefully have roles which are really different on different 
+> machines?
 > 
-> However, the mechanism being described here doesn't prevent you from
-> continuing to use a generic role (object_r or otherwise) on all files;
-> it just allows for people who want to apply distinct roles on files to
-> do so.
+If I login to people.redhat.com I will log in as guest_t this type is
+not allowed to use the network, execute files in the home directory or
+run any setuid apps.  If I as the guest_t user want to muck around with
+the .login file so that when I login to a different machine as
+unconfined_t, I don't see a problem.  This is about defining roles and
+policy based on the machine you login to.
+> You could for example have guest_r on machine A mapping to sysadm_r on machine 
+> B (which I believe bears some similarity to the reclassification of documents 
+> when going between certain military organisations).
 > 
-Well I guess I will be the first one to state that if this breaks the
-situation I stated above, I am not interested.
+This is not an MLS issue, and this does happen on MLS environments where
+they say the same user on one machine can get to Secret while on another
+machine he can get to TopSecret,  I would surmise that bother users
+would have the same home dir, of course on the machine that is Secret he
+would not be able to access the top secret files.
+> The idea of a network filesystem having the same labels on all machines where 
+> it is mounted even when there are differences in policy and/or user rights on 
+> those machines makes no sense to me.
+> 
+
+Well I would assume that the policy is the same on each machine except
+the default context that the user logs in as.  And I have given you a
+descrete example of how things work at Red Hat.  This is also how our
+customers expect this to work.  CA/EATrust has made major money on this
+concept...
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.8 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkfr+LYACgkQrlYvE4MpobOpRQCfSma66Z5JG6CV1bfAbd2xMJf8
-MA4AoJbRYBB6coyQnnvIdH8kw0eE3Erq
-=xtQ8
+iEYEARECAAYFAkfr+hIACgkQrlYvE4MpobNidgCgnljhMx4GjdKbAdRzpUZUPGmN
+qqoAn27gqpThN26Si285ne2uLxEr22on
+=/dFC
 -----END PGP SIGNATURE-----
 
 --
