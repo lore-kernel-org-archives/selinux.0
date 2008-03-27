@@ -1,86 +1,55 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2QN11Ku031568
-	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 19:01:02 -0400
-Received: from queueout02-winn.ispmail.ntl.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2QN0v21008746
-	for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 23:00:57 GMT
-Received: from aamtaout04-winn.ispmail.ntl.com ([81.103.221.35])
-          by mtaout03-winn.ispmail.ntl.com with ESMTP
-          id <20080326212216.XHBP1244.mtaout03-winn.ispmail.ntl.com@aamtaout04-winn.ispmail.ntl.com>
-          for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 21:22:16 +0000
-Received: from [192.168.1.102] (really [82.18.189.14])
-          by aamtaout04-winn.ispmail.ntl.com with ESMTP
-          id <20080326211853.FOVE29112.aamtaout04-winn.ispmail.ntl.com@[192.168.1.102]>
-          for <selinux@tycho.nsa.gov>; Wed, 26 Mar 2008 21:18:53 +0000
-Message-ID: <47EABDB2.8090305@martinorr.name>
-Date: Wed, 26 Mar 2008 21:18:42 +0000
-From: Martin Orr <martin@martinorr.name>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2R4hSd6002730
+	for <selinux@tycho.nsa.gov>; Thu, 27 Mar 2008 00:43:29 -0400
+Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2R4hPVs022240
+	for <selinux@tycho.nsa.gov>; Thu, 27 Mar 2008 04:43:27 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [RFC][PATCH] user_transition support for libsepol/checkpolicy
+Date: Thu, 27 Mar 2008 15:43:14 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <47E7E7A5.6090603@manicmethod.com> <1206446939.3302.139.camel@moss-spartans.epoch.ncsc.mil> <47EA0D4F.4040102@redhat.com>
+In-Reply-To: <47EA0D4F.4040102@redhat.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        =?ISO-8859-1?Q?V=E1?= =?ISO-8859-1?Q?clav_Ovs=EDk?= <vaclav.ovsik@i.cz>,
-        SELinux List <selinux@tycho.nsa.gov>,
-        selinux-devel@lists.alioth.debian.org
-Subject: Re: [DSE-Dev] refpolicy: domains need access to the apt's pty	and
- fifos
-References: <200803062346.58639.russell@coker.com.au>	<20080305152322.GA9988@bobek.pm.i.cz>	<1204734268.12784.124.camel@hepcat.vitavonni.de>	<200803062117.20441.russell@coker.com.au>	<1204805640.5885.4.camel@hepcat.vitavonni.de>	<20080305152322.GA9988@bobek.pm.i.cz>	<1204734268.12784.124.camel@hepcat.vitavonni.de>	<200803062117.20441.russell@coker.com.au>	<20080305152322.GA9988@bobek.pm.i.cz>	<1204734268.12784.124.camel@hepcat.vitavonni.de>	<20080321073158.GA12456@bobek.pm.i.cz> <1206547029.16113.272.camel@gorn>
-In-Reply-To: <1206547029.16113.272.camel@gorn>
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200803271543.16340.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 26/03/08 15:57, Christopher J. PeBenito wrote:
-> On Fri, 2008-03-21 at 08:31 +0100, Václav Ovsík wrote:
->> BTW: I found, that dpkg passes (and should not) to child processes
->> a file descriptor of apt pipe:
->> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=471488
->> The access to apts fifo should not be needed for dpkg scripts.
+On Wednesday 26 March 2008 19:46, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> I am not sure where this is going, but I believe that separation based
+> on role in the home directory is a mistake.  It assumes that the home
+> directory will always be used by the same user with the same role.   And
+> will not work when you have a network file system that supports labels.
+>
+> In Red Hat I can login to people.redhat.com people.fedoraproject.com
+> which I should use the guest_r.  While logging into my laptop I would be
+> unconfined_t and on test machines I might get staff_r or user_r.  All of
+> them would use the same homedirectory.  So how would this work in this
+> environment?
 
-Ah, that explains a lot.
+If you have the same home directory contents (including .login, .bashrc, and 
+equivalent files) and you can execute programs from the home directory, then 
+how can you usefully have roles which are really different on different 
+machines?
 
->> On Thu, Mar 06, 2008 at 11:46:54PM +1100, Russell Coker wrote:
->>> On Thursday 06 March 2008 23:13, Erich Schubert <erich@debian.org> wrote:
->>>>>> It would definitely help to have separate apt_t and apt_script_t
->>>>>> domains, though, to be able to differentiate access for installation
->>>>>> scripts and the package manager itself.
->>>>> What meaningful restrictions can be applied to one but not the other?
->>>> I agree with you that we would currently have to allow pretty much any
->>>> access by apt_script_t, unfortunately. Sorry for mixing up apt and dpkg
->>>> again in that post btw, yes, it sould be dpkg_t and dpkg_script_t,
->>>> obviously.
->>>> No, I can't really think of ways to restrict dpkg_script_t apart from
->>>> not messing with the dpkg_t state files. Maybe we could make some policy
->>> But given that dpkg_script_t can make all manner of other changes (including 
->>> loading a SE Linux policy) it seems rather minor to restrict access to dpkg 
->>> state files.
->>>
->>>> that /usr is to be modified by dpkg_t only whereas dynamically generated
->>>> files have to reside in /var, but I doubt this would currently hold.
->>> It's a standard practice to convert the data files under /var in an upgrade.
->>>
->>>> And after all, dpkg_script_t needs to be able to even add users
->>>> to /etc/passwd (although through the helper applications, not directly).
->>> Yes.
->>>
->>> In fact while we have unconfined_t, the benefit of having a separate dpkg_t 
->>> instead of using unconfined_t for installing packages doesn't seem 
->>> significant.
-> 
->> Seems to me dpkg_script_t is not used now really.  Should be removed
->> dpkg_script_t from the refpolicy?  A part of rules should be moved from
->> the domain dpkg_script_t to the domain dpkg_t probably if such a removal
->> will take place.
-> 
-> As I recall it was a work in progress by either Erich or Manoj.  If it
-> was never finished or abandoned, then it should probably be removed.
+You could for example have guest_r on machine A mapping to sysadm_r on machine 
+B (which I believe bears some similarity to the reclassification of documents 
+when going between certain military organisations).
 
-Because of
-dpkg_domtrans_script(dpkg_t)
-maintainer scripts written in shell (i.e. most) are run in dpkg_script_t,
-but any written in something else (usually Perl) stay in dpkg_t.  So at the
-moment a bunch of rules are needed for both domains, which is not very sensible.
+The idea of a network filesystem having the same labels on all machines where 
+it is mounted even when there are differences in policy and/or user rights on 
+those machines makes no sense to me.
 
 -- 
-Martin Orr
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
