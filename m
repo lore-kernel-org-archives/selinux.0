@@ -1,104 +1,142 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2RFBhGj020491
-	for <selinux@tycho.nsa.gov>; Thu, 27 Mar 2008 11:11:43 -0400
-Received: from tyo200.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2RFBaCe002937
-	for <selinux@tycho.nsa.gov>; Thu, 27 Mar 2008 15:11:37 GMT
-Received: from tyo201.gate.nec.co.jp ([10.7.69.201])
-	by tyo200.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id m2R9s57v002205
-	for <selinux@tycho.nsa.gov>; Thu, 27 Mar 2008 18:54:05 +0900 (JST)
-Message-ID: <47EB6E41.9040309@ak.jp.nec.com>
-Date: Thu, 27 Mar 2008 18:52:01 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Message-ID: <47EBFED7.8010109@tycho.nsa.gov>
+Date: Thu, 27 Mar 2008 16:08:55 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy (try #3)
-References: <47B2B885.4070300@ak.jp.nec.com>	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>	 <47C5189B.9070500@ak.jp.nec.com>	 <1204817238.3994.59.camel@gorn.columbia.tresys.com>	 <47D09FEB.3030005@ak.jp.nec.com>	 <1204922912.20251.58.camel@gorn.columbia.tresys.com>	 <47D3F33B.5010209@kaigai.gr.jp> <1205240234.25555.55.camel@gorn>	 <47DE3A66.602@ak.jp.nec.com> <1205937929.16113.78.camel@gorn>	 <47E33A66.6030705@ak.jp.nec.com>	 <1206384282.16113.205.camel@gorn.columbia.tresys.com>	 <47E8D58B.5040707@ak.jp.nec.com> <1206451493.16113.217.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1206451493.16113.217.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Steve G <linux_4ever@yahoo.com>
+CC: Steve Grubb <sgrubb@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Permissive mode for xace is broken.
+References: <729568.16778.qm@web51505.mail.re2.yahoo.com>
+In-Reply-To: <729568.16778.qm@web51505.mail.re2.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Tue, 2008-03-25 at 19:35 +0900, KaiGai Kohei wrote:
->> Christopher J. PeBenito wrote:
->>> On Fri, 2008-03-21 at 13:32 +0900, KaiGai Kohei wrote:
->>>> Chris, Thanks for your reviewing.
->>>>
->>>> Rest of comments are bellow.
->>>>
->>>> Christopher J. PeBenito wrote:
->>>>> On Mon, 2008-03-17 at 18:31 +0900, Kohei KaiGai wrote:
->>>>>> The attached patch provides revised SE-PostgreSQL policy.
->>>>>> +template(`postgresql_userdom_template',`
->>>>   - snip -
->>>>>> +       ##############################
->>>>>> +       #
->>>>>> +       # Client local policy
->>>>>> +       #
->>>>>> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_table     sepgsql_$1_table_t;
->>>>>> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_procedure sepgsql_$1_proc_t;
->>>>>> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_database_type : db_blob      sepgsql_$1_blob_t;
->>>>>> +       type_transition { $1_t - sepgsql_unconfined_type } sepgsql_sysobj_t      : db_tuple     sepgsql_$1_sysobj_t;
->>> I missed this previously but I just realized that to be consistent with
->>> the rest of the policy the prefix should actually be a prefix, not
->>> infix.  i.e. the types should be like $1_sepgsql_table_t not sepgsql_
->>> $1_table_t.
->> I want to keep "sepgsql_" as a prefix for types related to SE-PostgreSQL,
->> because all of them have uniformed naming convention.
->> Can you consider the head of "sepgsql_" means its assumed object manager,
->> and we are omitting it for most of types managed by kernel?
->> I feel that object manager identification should have higher priority than
->> user domain prefix in naming convention.
->> In my sense, "kernel_user_home_t" is better than "user_kernel_home_t",
->> if object manager identification is not omitted.
+Steve G wrote:
+> Well, it could. However, this is the API that you currently have:
+>   
+
+API can always be changed or augmented.  For heaven's sake, the man page 
+for "audit_log_user_semanage_message" isn't even spelled correctly right 
+now.
+
+> extern int audit_log_user_avc_message(int audit_fd, int type,
+>         const char *message, const char *hostname, const char *addr,
+>         const char *tty, uid_t uid);
+>
+> The whole avc from msg=  up to the exe= statement comes from libselinux. So, libselinux has to do the escaping unless we build a better API for selinux use. I could probably expose the function that does the escaping, but I had really wanted to try to maintain some consistency in the event by API.
+>   
+
+I would like to see an API that takes an array of struct { name, value 
+}, or a variadic (name, value, name, value...).  I think this would be 
+far more flexible than the current situation where libaudit functions 
+are being defined that take 10, 15, or more parameters.  Furthermore, 
+libaudit would handle all escaping of these values according to whatever 
+it's format du jour is.  Let's please not start
+
+I realize that this API would be more open ended since it would not 
+hardcode specific name/value pairs being passed in, which is what the 
+current set of functions are attempting to do with their fixed 
+arguments.  But this could be handled some other way, by printing out a 
+warning in the logs, doing an assert in the code, or returning an error 
+condition if the criteria ones are missing.  Or just doing question 
+marks like the current implementation.  Which you're going to have to do 
+anyway, because as I have pointed out, not all machines have IP 
+addresses or hostnames and not all programs have terminals.
+
+I also made a suggestion earlier about cleaning up the taxonomy of audit 
+fields, perhaps by using namespacing such as "selinux.perms, 
+selinux.result" etc.
+
+Finally, a good place to start might be to start putting a version 
+number field into the messages.  The version number could be bumped for 
+each change to the format or fields.
+
+
+>
+>   
+>>  That way we avoid promulgating this "standard" into every caller of libaudit.
 >>
->> However, it is just a name. I don't oppose this strongly.
-> 
-> I think we want consistency across the policy in naming.  Determining if
-> it goes with a userspace object manager can be found based on what
-> object classes have the label.
+>> If everything is going to be name-value based, then I want a libaudit 
+>> function that takes a list of name/value pairs.
+>>     
+>
+> SE Linux is the only user of the audit system that does not follow the name=value standard. Would you (and the community) really be willing to convert selinux over to that if we have the API for it?  Do you have any suggestions about how you'd like to see the new API implemented?
+>
+>
+>   
+>>> Also, is there any information about who caused the event? uid, auid, gid? 
+>>> Even though this was a denied action, what is the results? Were they 
+>>> successful (permissive) or was it really a failed and denied request?
+>>>   
+>>>       
+>> I don't understand this last part with the result of the action.  How am 
+>> I supposed to specify this?
+>>     
+>
+> res=0 for failed and res=1 for success even though the action was denied. Admittedly, the audit avc API does not require this from SE Linux, but I could fix that if we change the API to something around name value pairs.
+>   
 
-OK, I'll change the previous naming convention.
 
->>>>> This should probably transition even if its unconfined.  If a user
->>>>> starts out unconfined and then the admin later decides the user should
->>>>> be confined, the user will lose access to its object, right?
->>>> No. In this case, a new confined user can access to its object if it was
->>>> not explicitly relabeled.
->>>> The default type of db_table class created by unconfined users is sepgsql_table_t.
->>>> Any confined users can also access to them with restricted permissions.
->>> I finally realized what the problem with the type_transitions.  You have
->>> many of them to set up the default type for tables, procedures, blobs,
->>> etc.  Shouldn't the default labels just be settings in a config file?
->>> Then all of the complex type transitioning behavior isn't needed.
->> I dislike thie option.
->> It can make harder to find out the cause of trouble came from labeling behavior,
->> if end users put incorrect configuration. Especially, I don't want to require
->> database folks additional configuration, because they are not SELinux specialist.
->> It can be configured in the security policy enough simply, so the default behavior
->> should be also described in.
-> 
-> I think I was a little unclear.  I'm suggesting they go in a file
-> like /etc/selinux/refpolicy/contexts/postgresql_contexts, not in a
-> primary config file for postgresql.
+OK.
 
-Yes, I have same implementation image as you suggested.
+>
+>   
+>> I need to modify libselinux (again) to support all of this extra uid and 
+>> hostname stuff getting passed into the logging callback.
+>>     
+>
+> Yes, CAPP and other CC protection profiles require that sufficient information be logged to determine who did the action that was denied or granted. 
+>
+>  
+>   
+>>> Would it make sense to fill in the workspace:window information for the 
+>>> terminal? If X is being used remotely, is the addr & hostname fields correct?
+>>>   
+>>>       
+>> The X server has a terminal that it runs on, /dev/tty7 or whatever.  The 
+>> desktop workspaces and gnome-terminal/xterm pseudo-tty's are external to 
+>> the X server and it doesn't know about them.
+>>     
+>
+> So, should we also make a new field that logs the workspace:window that a request came from?
+>   
 
-However, I don't want to add this kind of stuff although it can be described
-within the security policy, because it provides us uncertainties on SE-PostgreSQL
-behavior. It shall make harder to find out the cause of trouble came from labeling
-matter as I said before.
+A request does not come from a window.  A request comes from a process.  
+The process comm name is already in the message, and the PID of the 
+process is also known.  For remote connections, the address and hostname 
+are known and can be logged (with some API changes as I mentioned).
 
-I want to ask it again.
-Do you consider they are really complex type_transition rules now?
-They are not conditional, not set operations.
+I think there's some misunderstanding here about the workspaces, so let 
+me try to explain this in more detail.  There is no such thing as a 
+"workspace" in the X Window System.   The concept of a workspace is 
+completely internal to the metacity window manager.  When you switch 
+workspaces, what actually happens is that metacity hides all the windows 
+on your screen and then shows a new set of windows.  The only thing the 
+X server sees is the requests that are coming in to hide and show 
+windows.  There is no workspace information in any X protocol 
+requests.   It is _not possible_ for me to log a workspace from the X 
+server.
 
-Thanks,
+
+> Thanks,
+> -Steve
+>
+>
+>
+>
+>
+>       ____________________________________________________________________________________
+> Never miss a thing.  Make Yahoo your home page. 
+> http://www.yahoo.com/r/hs
+>
+>   
+
+
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
