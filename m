@@ -1,19 +1,19 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF6Tv4024802
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:29 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF6UnA024812
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:30 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUg018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:28 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUi018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:29 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 06/45] KEYS: Make the keyring quotas controllable through
-	/proc/sys [ver #35]
+Subject: [PATCH 08/45] KEYS: Add keyctl function to get a security label [ver
+	#35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:30:41 +0000
-Message-ID: <20080328143041.3483.46359.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:30:51 +0000
+Message-ID: <20080328143051.3483.99108.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,335 +21,338 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Make the keyring quotas controllable through /proc/sys files:
+Add a keyctl() function to get the security label of a key.
 
- (*) /proc/sys/kernel/keys/root_maxkeys
-     /proc/sys/kernel/keys/root_maxbytes
+The following is added to Documentation/keys.txt:
 
-     Maximum number of keys that root may have and the maximum total number of
-     bytes of data that root may have stored in those keys.
+ (*) Get the LSM security context attached to a key.
 
- (*) /proc/sys/kernel/keys/maxkeys
-     /proc/sys/kernel/keys/maxbytes
+	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
+		    size_t buflen)
 
-     Maximum number of keys that each non-root user may have and the maximum
-     total number of bytes of data that each of those users may have stored in
-     their keys.
+     This function returns a string that represents the LSM security context
+     attached to a key in the buffer provided.
 
-Also increase the quotas as a number of people have been complaining that it's
-not big enough.  I'm not sure that it's big enough now either, but on the
-other hand, it can now be set in /etc/sysctl.conf.
+     Unless there's an error, it always returns the amount of data it could
+     produce, even if that's too big for the buffer, but it won't copy more
+     than requested to userspace. If the buffer pointer is NULL then no copy
+     will take place.
+
+     A NUL character is included at the end of the string if the buffer is
+     sufficiently big.  This is included in the returned count.  If no LSM is
+     in force then an empty string will be returned.
+
+     A process must have view permission on the key for this function to be
+     successful.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 ---
 
- Documentation/keys.txt   |   24 +++++++++++++++++++++-
- include/linux/key.h      |    5 +++++
- kernel/sysctl.c          |    9 ++++++++
- security/keys/Makefile   |    1 +
- security/keys/internal.h |   14 +++++++++----
- security/keys/key.c      |   23 +++++++++++++++++----
- security/keys/keyctl.c   |   12 ++++++++---
- security/keys/proc.c     |    9 ++++++--
- security/keys/sysctl.c   |   50 ++++++++++++++++++++++++++++++++++++++++++++++
- 9 files changed, 131 insertions(+), 16 deletions(-)
- create mode 100644 security/keys/sysctl.c
+ Documentation/keys.txt   |   21 +++++++++++++++
+ include/linux/keyctl.h   |    1 +
+ include/linux/security.h |   20 +++++++++++++-
+ security/dummy.c         |    8 ++++++
+ security/keys/compat.c   |    3 ++
+ security/keys/internal.h |    2 +
+ security/keys/keyctl.c   |   66 ++++++++++++++++++++++++++++++++++++++++++++++
+ security/security.c      |    5 +++
+ security/selinux/hooks.c |   21 +++++++++++++--
+ 9 files changed, 142 insertions(+), 5 deletions(-)
 
 
 diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-index b82d38d..38a90d9 100644
+index 38a90d9..d5c7a57 100644
 --- a/Documentation/keys.txt
 +++ b/Documentation/keys.txt
-@@ -170,7 +170,8 @@ The key service provides a number of features besides keys:
-      amount of description and payload space that can be consumed.
- 
-      The user can view information on this and other statistics through procfs
--     files.
-+     files.  The root user may also alter the quota limits through sysctl files
-+     (see the section "New procfs files").
- 
-      Process-specific and thread-specific keyrings are not counted towards a
-      user's quota.
-@@ -329,6 +330,27 @@ about the status of the key service:
- 	<bytes>/<max>		Key size quota
+@@ -733,6 +733,27 @@ The keyctl syscall functions are:
+      The assumed authoritative key is inherited across fork and exec.
  
  
-+Four new sysctl files have been added also for the purpose of controlling the
-+quota limits on keys:
++ (*) Get the LSM security context attached to a key.
 +
-+ (*) /proc/sys/kernel/keys/root_maxkeys
-+     /proc/sys/kernel/keys/root_maxbytes
++	long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer,
++		    size_t buflen)
 +
-+     These files hold the maximum number of keys that root may have and the
-+     maximum total number of bytes of data that root may have stored in those
-+     keys.
++     This function returns a string that represents the LSM security context
++     attached to a key in the buffer provided.
 +
-+ (*) /proc/sys/kernel/keys/maxkeys
-+     /proc/sys/kernel/keys/maxbytes
++     Unless there's an error, it always returns the amount of data it could
++     produce, even if that's too big for the buffer, but it won't copy more
++     than requested to userspace. If the buffer pointer is NULL then no copy
++     will take place.
 +
-+     These files hold the maximum number of keys that each non-root user may
-+     have and the maximum total number of bytes of data that each of those
-+     users may have stored in their keys.
++     A NUL character is included at the end of the string if the buffer is
++     sufficiently big.  This is included in the returned count.  If no LSM is
++     in force then an empty string will be returned.
 +
-+Root may alter these by writing each new limit as a decimal number string to
-+the appropriate file.
++     A process must have view permission on the key for this function to be
++     successful.
 +
 +
- ===============================
- USERSPACE SYSTEM CALL INTERFACE
- ===============================
-diff --git a/include/linux/key.h b/include/linux/key.h
-index 2effd03..ad02d9c 100644
---- a/include/linux/key.h
-+++ b/include/linux/key.h
-@@ -19,6 +19,7 @@
- #include <linux/list.h>
- #include <linux/rbtree.h>
- #include <linux/rcupdate.h>
-+#include <linux/sysctl.h>
- #include <asm/atomic.h>
+ ===============
+ KERNEL SERVICES
+ ===============
+diff --git a/include/linux/keyctl.h b/include/linux/keyctl.h
+index 3365945..656ee6b 100644
+--- a/include/linux/keyctl.h
++++ b/include/linux/keyctl.h
+@@ -49,5 +49,6 @@
+ #define KEYCTL_SET_REQKEY_KEYRING	14	/* set default request-key keyring */
+ #define KEYCTL_SET_TIMEOUT		15	/* set key timeout */
+ #define KEYCTL_ASSUME_AUTHORITY		16	/* assume request_key() authorisation */
++#define KEYCTL_GET_SECURITY		17	/* get key security label */
  
- #ifdef __KERNEL__
-@@ -265,6 +266,10 @@ extern struct key *key_lookup(key_serial_t id);
+ #endif /*  _LINUX_KEYCTL_H */
+diff --git a/include/linux/security.h b/include/linux/security.h
+index c673dfd..491c195 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -989,6 +989,17 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+  *	@perm describes the combination of permissions required of this key.
+  *	Return 1 if permission granted, 0 if permission denied and -ve it the
+  *      normal permissions model should be effected.
++ * @key_getsecurity:
++ *	Get a textual representation of the security context attached to a key
++ *	for the purposes of honouring KEYCTL_GETSECURITY.  This function
++ *	allocates the storage for the NUL-terminated string and the caller
++ *	should free it.
++ *	@key points to the key to be queried.
++ *	@_buffer points to a pointer that should be set to point to the
++ *	 resulting string (if no label or an error occurs).
++ *	Return the length of the string (including terminating NUL) or -ve if
++ *      an error.
++ *	May also return 0 (and a NULL buffer pointer) if there is no label.
+  *
+  * Security hooks affecting all System V IPC operations.
+  *
+@@ -1477,7 +1488,7 @@ struct security_operations {
+ 	int (*key_permission)(key_ref_t key_ref,
+ 			      struct task_struct *context,
+ 			      key_perm_t perm);
+-
++	int (*key_getsecurity)(struct key *key, char **_buffer);
+ #endif	/* CONFIG_KEYS */
  
- #define key_serial(key) ((key) ? (key)->serial : 0)
+ };
+@@ -2648,6 +2659,7 @@ int security_key_alloc(struct key *key, struct task_struct *tsk, unsigned long f
+ void security_key_free(struct key *key);
+ int security_key_permission(key_ref_t key_ref,
+ 			    struct task_struct *context, key_perm_t perm);
++int security_key_getsecurity(struct key *key, char **_buffer);
  
-+#ifdef CONFIG_SYSCTL
-+extern ctl_table key_sysctls[];
-+#endif
+ #else
+ 
+@@ -2669,6 +2681,12 @@ static inline int security_key_permission(key_ref_t key_ref,
+ 	return 0;
+ }
+ 
++static inline int security_key_getsecurity(struct key *key, char **_buffer)
++{
++	*_buffer = NULL;
++	return 0;
++}
 +
- /*
-  * the userspace interface
-  */
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index b2a2d68..1e89295 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -45,6 +45,7 @@
- #include <linux/nfs_fs.h>
- #include <linux/acpi.h>
- #include <linux/reboot.h>
-+#include <linux/key.h>
+ #endif
+ #endif /* CONFIG_KEYS */
  
- #include <asm/uaccess.h>
- #include <asm/processor.h>
-@@ -820,6 +821,14 @@ static struct ctl_table kern_table[] = {
- 		.proc_handler	= &proc_dostring,
- 		.strategy	= &sysctl_string,
- 	},
-+#ifdef CONFIG_KEYS
-+	{
-+		.ctl_name	= CTL_UNNUMBERED,
-+		.procname	= "keys",
-+		.mode		= 0555,
-+		.child		= key_sysctls,
-+	},
-+#endif
- /*
-  * NOTE: do not add new entries to this table unless you have read
-  * Documentation/sysctl/ctl_unnumbered.txt
-diff --git a/security/keys/Makefile b/security/keys/Makefile
-index 5145adf..747a464 100644
---- a/security/keys/Makefile
-+++ b/security/keys/Makefile
-@@ -14,3 +14,4 @@ obj-y := \
+diff --git a/security/dummy.c b/security/dummy.c
+index 78d8f92..f26da49 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -979,6 +979,13 @@ static inline int dummy_key_permission(key_ref_t key_ref,
+ {
+ 	return 0;
+ }
++
++static int dummy_key_getsecurity(struct key *key, char **_buffer)
++{
++	*_buffer = NULL;
++	return 0;
++}
++
+ #endif /* CONFIG_KEYS */
  
- obj-$(CONFIG_KEYS_COMPAT) += compat.o
- obj-$(CONFIG_PROC_FS) += proc.o
-+obj-$(CONFIG_SYSCTL) += sysctl.o
+ struct security_operations dummy_security_ops;
+@@ -1167,6 +1174,7 @@ void security_fixup_ops (struct security_operations *ops)
+ 	set_to_dummy_if_null(ops, key_alloc);
+ 	set_to_dummy_if_null(ops, key_free);
+ 	set_to_dummy_if_null(ops, key_permission);
++	set_to_dummy_if_null(ops, key_getsecurity);
+ #endif	/* CONFIG_KEYS */
+ 
+ }
+diff --git a/security/keys/compat.c b/security/keys/compat.c
+index e10ec99..c766c68 100644
+--- a/security/keys/compat.c
++++ b/security/keys/compat.c
+@@ -79,6 +79,9 @@ asmlinkage long compat_sys_keyctl(u32 option,
+ 	case KEYCTL_ASSUME_AUTHORITY:
+ 		return keyctl_assume_authority(arg2);
+ 
++	case KEYCTL_GET_SECURITY:
++		return keyctl_get_security(arg2, compat_ptr(arg3), arg4);
++
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
 diff --git a/security/keys/internal.h b/security/keys/internal.h
-index b84f04a..e385066 100644
+index e385066..72e3576 100644
 --- a/security/keys/internal.h
 +++ b/security/keys/internal.h
-@@ -57,10 +57,6 @@ struct key_user {
- 	int			qnbytes;	/* number of bytes allocated to this user */
- };
- 
--#define KEYQUOTA_MAX_KEYS	100
--#define KEYQUOTA_MAX_BYTES	10000
--#define KEYQUOTA_LINK_BYTES	4		/* a link in a keyring is worth 4 bytes */
+@@ -159,7 +159,7 @@ extern long keyctl_negate_key(key_serial_t, unsigned, key_serial_t);
+ extern long keyctl_set_reqkey_keyring(int);
+ extern long keyctl_set_timeout(key_serial_t, unsigned);
+ extern long keyctl_assume_authority(key_serial_t);
 -
- extern struct rb_root	key_user_tree;
- extern spinlock_t	key_user_lock;
- extern struct key_user	root_key_user;
-@@ -68,6 +64,16 @@ extern struct key_user	root_key_user;
- extern struct key_user *key_user_lookup(uid_t uid);
- extern void key_user_put(struct key_user *user);
++extern long keyctl_get_security(key_serial_t, char __user *, size_t);
  
-+/*
-+ * key quota limits
-+ * - root has its own separate limits to everyone else
-+ */
-+extern unsigned key_quota_root_maxkeys;
-+extern unsigned key_quota_root_maxbytes;
-+extern unsigned key_quota_maxkeys;
-+extern unsigned key_quota_maxbytes;
-+
-+#define KEYQUOTA_LINK_BYTES	4		/* a link in a keyring is worth 4 bytes */
- 
- 
- extern struct rb_root key_serial_tree;
-diff --git a/security/keys/key.c b/security/keys/key.c
-index 46f125a..14948cf 100644
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -27,6 +27,11 @@ DEFINE_SPINLOCK(key_serial_lock);
- struct rb_root	key_user_tree; /* tree of quota records indexed by UID */
- DEFINE_SPINLOCK(key_user_lock);
- 
-+unsigned int key_quota_root_maxkeys = 200;	/* root's key count quota */
-+unsigned int key_quota_root_maxbytes = 20000;	/* root's key space quota */
-+unsigned int key_quota_maxkeys = 200;		/* general key count quota */
-+unsigned int key_quota_maxbytes = 20000;	/* general key space quota */
-+
- static LIST_HEAD(key_types_list);
- static DECLARE_RWSEM(key_types_sem);
- 
-@@ -236,11 +241,16 @@ struct key *key_alloc(struct key_type *type, const char *desc,
- 	/* check that the user's quota permits allocation of another key and
- 	 * its description */
- 	if (!(flags & KEY_ALLOC_NOT_IN_QUOTA)) {
-+		unsigned maxkeys = (uid == 0) ?
-+			key_quota_root_maxkeys : key_quota_maxkeys;
-+		unsigned maxbytes = (uid == 0) ?
-+			key_quota_root_maxbytes : key_quota_maxbytes;
-+
- 		spin_lock(&user->lock);
- 		if (!(flags & KEY_ALLOC_QUOTA_OVERRUN)) {
--			if (user->qnkeys + 1 >= KEYQUOTA_MAX_KEYS ||
--			    user->qnbytes + quotalen >= KEYQUOTA_MAX_BYTES
--			    )
-+			if (user->qnkeys + 1 >= maxkeys ||
-+			    user->qnbytes + quotalen >= maxbytes ||
-+			    user->qnbytes + quotalen < user->qnbytes)
- 				goto no_quota;
- 		}
- 
-@@ -345,11 +355,14 @@ int key_payload_reserve(struct key *key, size_t datalen)
- 
- 	/* contemplate the quota adjustment */
- 	if (delta != 0 && test_bit(KEY_FLAG_IN_QUOTA, &key->flags)) {
-+		unsigned maxbytes = (key->user->uid == 0) ?
-+			key_quota_root_maxbytes : key_quota_maxbytes;
-+
- 		spin_lock(&key->user->lock);
- 
- 		if (delta > 0 &&
--		    key->user->qnbytes + delta > KEYQUOTA_MAX_BYTES
--		    ) {
-+		    (key->user->qnbytes + delta >= maxbytes ||
-+		     key->user->qnbytes + delta < key->user->qnbytes)) {
- 			ret = -EDQUOT;
- 		}
- 		else {
+ /*
+  * debugging key validation
 diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 5f0d85b..c32f5c6 100644
+index c32f5c6..acc9c89 100644
 --- a/security/keys/keyctl.c
 +++ b/security/keys/keyctl.c
-@@ -730,10 +730,16 @@ long keyctl_chown_key(key_serial_t id, uid_t uid, gid_t gid)
+@@ -20,6 +20,7 @@
+ #include <linux/string.h>
+ #include <linux/err.h>
+ #include <linux/vmalloc.h>
++#include <linux/security.h>
+ #include <asm/uaccess.h>
+ #include "internal.h"
  
- 		/* transfer the quota burden to the new user */
- 		if (test_bit(KEY_FLAG_IN_QUOTA, &key->flags)) {
-+			unsigned maxkeys = (uid == 0) ?
-+				key_quota_root_maxkeys : key_quota_maxkeys;
-+			unsigned maxbytes = (uid == 0) ?
-+				key_quota_root_maxbytes : key_quota_maxbytes;
-+
- 			spin_lock(&newowner->lock);
--			if (newowner->qnkeys + 1 >= KEYQUOTA_MAX_KEYS ||
--			    newowner->qnbytes + key->quotalen >=
--			    KEYQUOTA_MAX_BYTES)
-+			if (newowner->qnkeys + 1 >= maxkeys ||
-+			    newowner->qnbytes + key->quotalen >= maxbytes ||
-+			    newowner->qnbytes + key->quotalen <
-+			    newowner->qnbytes)
- 				goto quota_overrun;
+@@ -1087,6 +1088,66 @@ error:
  
- 			newowner->qnkeys++;
-diff --git a/security/keys/proc.c b/security/keys/proc.c
-index 6941260..b49ad38 100644
---- a/security/keys/proc.c
-+++ b/security/keys/proc.c
-@@ -246,6 +246,10 @@ static int proc_key_users_show(struct seq_file *m, void *v)
- {
- 	struct rb_node *_p = v;
- 	struct key_user *user = rb_entry(_p, struct key_user, node);
-+	unsigned maxkeys = (user->uid == 0) ?
-+		key_quota_root_maxkeys : key_quota_maxkeys;
-+	unsigned maxbytes = (user->uid == 0) ?
-+		key_quota_root_maxbytes : key_quota_maxbytes;
+ } /* end keyctl_assume_authority() */
  
- 	seq_printf(m, "%5u: %5d %d/%d %d/%d %d/%d\n",
- 		   user->uid,
-@@ -253,10 +257,9 @@ static int proc_key_users_show(struct seq_file *m, void *v)
- 		   atomic_read(&user->nkeys),
- 		   atomic_read(&user->nikeys),
- 		   user->qnkeys,
--		   KEYQUOTA_MAX_KEYS,
-+		   maxkeys,
- 		   user->qnbytes,
--		   KEYQUOTA_MAX_BYTES
--		   );
-+		   maxbytes);
- 
- 	return 0;
- 
-diff --git a/security/keys/sysctl.c b/security/keys/sysctl.c
-new file mode 100644
-index 0000000..b611d49
---- /dev/null
-+++ b/security/keys/sysctl.c
-@@ -0,0 +1,50 @@
-+/* Key management controls
-+ *
-+ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public Licence
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the Licence, or (at your option) any later version.
++/*
++ * get the security label of a key
++ * - the key must grant us view permission
++ * - if there's a buffer, we place up to buflen bytes of data into it
++ * - unless there's an error, we return the amount of information available,
++ *   irrespective of how much we may have copied (including the terminal NUL)
++ * - implements keyctl(KEYCTL_GET_SECURITY)
 + */
++long keyctl_get_security(key_serial_t keyid,
++			 char __user *buffer,
++			 size_t buflen)
++{
++	struct key *key, *instkey;
++	key_ref_t key_ref;
++	char *context;
++	long ret;
 +
-+#include <linux/key.h>
-+#include <linux/sysctl.h>
-+#include "internal.h"
++	key_ref = lookup_user_key(NULL, keyid, 0, 1, KEY_VIEW);
++	if (IS_ERR(key_ref)) {
++		if (PTR_ERR(key_ref) != -EACCES)
++			return PTR_ERR(key_ref);
 +
-+ctl_table key_sysctls[] = {
-+	{
-+		.ctl_name = CTL_UNNUMBERED,
-+		.procname = "maxkeys",
-+		.data = &key_quota_maxkeys,
-+		.maxlen = sizeof(unsigned),
-+		.mode = 0644,
-+		.proc_handler = &proc_dointvec,
-+	},
-+	{
-+		.ctl_name = CTL_UNNUMBERED,
-+		.procname = "maxbytes",
-+		.data = &key_quota_maxbytes,
-+		.maxlen = sizeof(unsigned),
-+		.mode = 0644,
-+		.proc_handler = &proc_dointvec,
-+	},
-+	{
-+		.ctl_name = CTL_UNNUMBERED,
-+		.procname = "root_maxkeys",
-+		.data = &key_quota_root_maxkeys,
-+		.maxlen = sizeof(unsigned),
-+		.mode = 0644,
-+		.proc_handler = &proc_dointvec,
-+	},
-+	{
-+		.ctl_name = CTL_UNNUMBERED,
-+		.procname = "root_maxbytes",
-+		.data = &key_quota_root_maxbytes,
-+		.maxlen = sizeof(unsigned),
-+		.mode = 0644,
-+		.proc_handler = &proc_dointvec,
-+	},
-+	{ .ctl_name = 0 }
-+};
++		/* viewing a key under construction is also permitted if we
++		 * have the authorisation token handy */
++		instkey = key_get_instantiation_authkey(keyid);
++		if (IS_ERR(instkey))
++			return PTR_ERR(key_ref);
++		key_put(instkey);
++
++		key_ref = lookup_user_key(NULL, keyid, 0, 1, 0);
++		if (IS_ERR(key_ref))
++			return PTR_ERR(key_ref);
++	}
++
++	key = key_ref_to_ptr(key_ref);
++	ret = security_key_getsecurity(key, &context);
++	if (ret == 0) {
++		/* if no information was returned, give userspace an empty
++		 * string */
++		ret = 1;
++		if (buffer && buflen > 0 &&
++		    copy_to_user(buffer, "", 1) != 0)
++			ret = -EFAULT;
++	} else if (ret > 0) {
++		/* return as much data as there's room for */
++		if (buffer && buflen > 0) {
++			if (buflen > ret)
++				buflen = ret;
++
++			if (copy_to_user(buffer, context, buflen) != 0)
++				ret = -EFAULT;
++		}
++
++		kfree(context);
++	}
++
++	key_ref_put(key_ref);
++	return ret;
++}
++
+ /*****************************************************************************/
+ /*
+  * the key control system call
+@@ -1167,6 +1228,11 @@ asmlinkage long sys_keyctl(int option, unsigned long arg2, unsigned long arg3,
+ 	case KEYCTL_ASSUME_AUTHORITY:
+ 		return keyctl_assume_authority((key_serial_t) arg2);
+ 
++	case KEYCTL_GET_SECURITY:
++		return keyctl_get_security((key_serial_t) arg2,
++					   (char *) arg3,
++					   (size_t) arg4);
++
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+diff --git a/security/security.c b/security/security.c
+index b1387a6..b1f4568 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1109,4 +1109,9 @@ int security_key_permission(key_ref_t key_ref,
+ 	return security_ops->key_permission(key_ref, context, perm);
+ }
+ 
++int security_key_getsecurity(struct key *key, char **_buffer)
++{
++	return security_ops->key_getsecurity(key, _buffer);
++}
++
+ #endif	/* CONFIG_KEYS */
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e3dabb1..bfb8b27 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5228,6 +5228,20 @@ static int selinux_key_permission(key_ref_t key_ref,
+ 			    SECCLASS_KEY, perm, NULL);
+ }
+ 
++static int selinux_key_getsecurity(struct key *key, char **_buffer)
++{
++	struct key_security_struct *ksec = key->security;
++	char *context = NULL;
++	unsigned len;
++	int rc;
++
++	rc = security_sid_to_context(ksec->sid, &context, &len);
++	if (!rc)
++		rc = len;
++	*_buffer = context;
++	return rc;
++}
++
+ #endif
+ 
+ static struct security_operations selinux_ops = {
+@@ -5409,9 +5423,10 @@ static struct security_operations selinux_ops = {
+ #endif
+ 
+ #ifdef CONFIG_KEYS
+-	.key_alloc =                    selinux_key_alloc,
+-	.key_free =                     selinux_key_free,
+-	.key_permission =               selinux_key_permission,
++	.key_alloc =			selinux_key_alloc,
++	.key_free =			selinux_key_free,
++	.key_permission =		selinux_key_permission,
++	.key_getsecurity =		selinux_key_getsecurity,
+ #endif
+ };
+ 
 
 
 --
