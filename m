@@ -1,19 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF58Aw023813
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:08 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5DJi023871
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:13 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qTw018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:05 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qU2018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:12 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 20/45] CacheFiles: Add missing copy_page export for ia64 [ver
-	#35]
+Subject: [PATCH 24/45] CacheFiles: Export things for CacheFiles [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:31:53 +0000
-Message-ID: <20080328143153.3483.41630.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:32:14 +0000
+Message-ID: <20080328143214.3483.24952.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,33 +20,48 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-From: Prarit Bhargava <prarit@redhat.com>
+Export a number of functions for CacheFiles's use.
 
-This one-line patch fixes the missing export of copy_page introduced
-by the cachefile patches.  This patch is not yet upstream, but is required
-for cachefile on ia64.  It will be pushed upstream when cachefile goes
-upstream.
-
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- arch/ia64/kernel/ia64_ksyms.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ fs/super.c          |    1 +
+ security/security.c |    2 ++
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
 
-diff --git a/arch/ia64/kernel/ia64_ksyms.c b/arch/ia64/kernel/ia64_ksyms.c
-index 8e7193d..3e544f4 100644
---- a/arch/ia64/kernel/ia64_ksyms.c
-+++ b/arch/ia64/kernel/ia64_ksyms.c
-@@ -46,6 +46,7 @@ EXPORT_SYMBOL(__do_clear_user);
- EXPORT_SYMBOL(__strlen_user);
- EXPORT_SYMBOL(__strncpy_from_user);
- EXPORT_SYMBOL(__strnlen_user);
-+EXPORT_SYMBOL(copy_page);
+diff --git a/fs/super.c b/fs/super.c
+index 09008db..8030909 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -267,6 +267,7 @@ int fsync_super(struct super_block *sb)
+ 	__fsync_super(sb);
+ 	return sync_blockdev(sb->s_bdev);
+ }
++EXPORT_SYMBOL_GPL(fsync_super);
  
- /* from arch/ia64/lib */
- extern void __divsi3(void);
+ /**
+  *	generic_shutdown_super	-	common helper for ->kill_sb()
+diff --git a/security/security.c b/security/security.c
+index 87cd150..deb2e65 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -358,6 +358,7 @@ int security_inode_create(struct inode *dir, struct dentry *dentry, int mode)
+ 		return 0;
+ 	return security_ops->inode_create(dir, dentry, mode);
+ }
++EXPORT_SYMBOL_GPL(security_inode_create);
+ 
+ int security_inode_link(struct dentry *old_dentry, struct inode *dir,
+ 			 struct dentry *new_dentry)
+@@ -388,6 +389,7 @@ int security_inode_mkdir(struct inode *dir, struct dentry *dentry, int mode)
+ 		return 0;
+ 	return security_ops->inode_mkdir(dir, dentry, mode);
+ }
++EXPORT_SYMBOL_GPL(security_inode_mkdir);
+ 
+ int security_inode_rmdir(struct inode *dir, struct dentry *dentry)
+ {
 
 
 --
