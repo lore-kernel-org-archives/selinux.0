@@ -1,18 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5BLs023844
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:11 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5F3K023908
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:15 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qU0018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:08 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qU4018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:14 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 30/45] NFS: Add FS-Cache option bit and debug bit [ver #35]
+Subject: [PATCH 27/45] AFS: prevent double cell registration [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:32:45 +0000
-Message-ID: <20080328143244.3483.15642.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:32:29 +0000
+Message-ID: <20080328143229.3483.92808.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,44 +20,60 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add FS-Cache option bit to nfs_server struct.  This is set to indicate local
-on-disk caching is enabled for a particular superblock.
+From: Sven Schnelle <svens@stackframe.org>
 
-Also add debug bit for local caching operations.
+kafs doesn't check if the cell already exists - so if you do an
+echo "add newcell.org 1.2.3.4" >/proc/fs/afs/cells it will try to
+create this cell again. kobject will also complain about a double
+registration. To prevent such problems, return -EEXIST in that case.
 
+Signed-off-by: Sven Schnelle <svens@stackframe.org>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/nfs_fs.h    |    1 +
- include/linux/nfs_fs_sb.h |    2 ++
- 2 files changed, 3 insertions(+), 0 deletions(-)
+ fs/afs/cell.c |   15 +++++++++++++--
+ 1 files changed, 13 insertions(+), 2 deletions(-)
 
 
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index f4a0e4c..720cdad 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -579,6 +579,7 @@ extern void * nfs_root_data(void);
- #define NFSDBG_CALLBACK		0x0100
- #define NFSDBG_CLIENT		0x0200
- #define NFSDBG_MOUNT		0x0400
-+#define NFSDBG_FSCACHE		0x0800
- #define NFSDBG_ALL		0xFFFF
+diff --git a/fs/afs/cell.c b/fs/afs/cell.c
+index 970d38f..788865d 100644
+--- a/fs/afs/cell.c
++++ b/fs/afs/cell.c
+@@ -127,14 +127,20 @@ struct afs_cell *afs_cell_create(const char *name, char *vllist)
  
- #ifdef __KERNEL__
-diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index 3423c67..e7c4cdd 100644
---- a/include/linux/nfs_fs_sb.h
-+++ b/include/linux/nfs_fs_sb.h
-@@ -99,6 +99,8 @@ struct nfs_server {
- 	unsigned int		acdirmin;
- 	unsigned int		acdirmax;
- 	unsigned int		namelen;
-+	unsigned int		options;	/* extra options enabled by mount */
-+#define NFS_OPTION_FSCACHE	0x00000001	/* - local caching enabled */
+ 	_enter("%s,%s", name, vllist);
  
- 	struct nfs_fsid		fsid;
- 	__u64			maxfilesize;	/* maximum file size */
++	down_write(&afs_cells_sem);
++	read_lock(&afs_cells_lock);
++	list_for_each_entry(cell, &afs_cells, link) {
++		if (strcasecmp(cell->name, name) == 0)
++			goto duplicate_name;
++	}
++	read_unlock(&afs_cells_lock);
++
+ 	cell = afs_cell_alloc(name, vllist);
+ 	if (IS_ERR(cell)) {
+ 		_leave(" = %ld", PTR_ERR(cell));
+ 		return cell;
+ 	}
+ 
+-	down_write(&afs_cells_sem);
+-
+ 	/* add a proc directory for this cell */
+ 	ret = afs_proc_cell_setup(cell);
+ 	if (ret < 0)
+@@ -167,6 +173,11 @@ error:
+ 	kfree(cell);
+ 	_leave(" = %d", ret);
+ 	return ERR_PTR(ret);
++
++duplicate_name:
++	read_unlock(&afs_cells_lock);
++	up_write(&afs_cells_sem);
++	return ERR_PTR(-EEXIST);
+ }
+ 
+ /*
 
 
 --
