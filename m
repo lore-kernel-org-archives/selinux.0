@@ -1,19 +1,19 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEWStE017202
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:32:28 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEWQ7C009523
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:32:26 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEW2Tm017151
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:32:02 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEW1Ts004414
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:32:01 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 17/45] FS-Cache: Provide an add_wait_queue_tail() function
-	[ver #35]
+Subject: [PATCH 01/45] KEYS: Increase the payload size when instantiating a
+	key [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:31:38 +0000
-Message-ID: <20080328143138.3483.84659.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:30:16 +0000
+Message-ID: <20080328143015.3483.31881.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,91 +21,116 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Provide an add_wait_queue_tail() function to add a waiter to the back of a
-wait queue instead of the front.
+Increase the size of a payload that can be used to instantiate a key in
+add_key() and keyctl_instantiate_key().  This permits huge CIFS SPNEGO blobs to
+be passed around.  The limit is raised to 1MB.  If kmalloc() can't allocate a
+buffer of sufficient size, vmalloc() will be tried instead.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/pagemap.h |    7 +++++--
- include/linux/wait.h    |    1 +
- kernel/wait.c           |   18 ++++++++++++++++++
- mm/filemap.c            |    2 +-
- 4 files changed, 25 insertions(+), 3 deletions(-)
+ security/keys/keyctl.c |   38 ++++++++++++++++++++++++++++++--------
+ 1 files changed, 30 insertions(+), 8 deletions(-)
 
 
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index c5df3ae..ad9484f 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -225,8 +225,11 @@ static inline void wait_on_page_writeback(struct page *page)
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index d9ca15c..8ec8432 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -19,6 +19,7 @@
+ #include <linux/capability.h>
+ #include <linux/string.h>
+ #include <linux/err.h>
++#include <linux/vmalloc.h>
+ #include <asm/uaccess.h>
+ #include "internal.h"
  
- extern void end_page_writeback(struct page *page);
+@@ -62,9 +63,10 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 	char type[32], *description;
+ 	void *payload;
+ 	long ret;
++	bool vm;
  
--/*
-- * Wait for a PG_owner_priv_2 to become clear
-+/**
-+ * wait_on_page_owner_priv_2 - Wait for PG_owner_priv_2 to become clear
-+ * @page: The page to monitor
-+ *
-+ * Wait for a PG_owner_priv_2 to become clear on the specified page.
-  */
- static inline void wait_on_page_owner_priv_2(struct page *page)
- {
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index 0081147..a6a6607 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -118,6 +118,7 @@ static inline int waitqueue_active(wait_queue_head_t *q)
- #define is_sync_wait(wait)	(!(wait) || ((wait)->private))
+ 	ret = -EINVAL;
+-	if (plen > 32767)
++	if (plen > 1024 * 1024 - 1)
+ 		goto error;
  
- extern void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
-+extern void add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait);
- extern void add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait);
- extern void remove_wait_queue(wait_queue_head_t *q, wait_queue_t *wait);
+ 	/* draw all the data into kernel space */
+@@ -81,11 +83,18 @@ asmlinkage long sys_add_key(const char __user *_type,
+ 	/* pull the payload in if one was supplied */
+ 	payload = NULL;
  
-diff --git a/kernel/wait.c b/kernel/wait.c
-index c275c56..191df0d 100644
---- a/kernel/wait.c
-+++ b/kernel/wait.c
-@@ -29,6 +29,24 @@ void add_wait_queue(wait_queue_head_t *q, wait_queue_t *wait)
- }
- EXPORT_SYMBOL(add_wait_queue);
++	vm = false;
+ 	if (_payload) {
+ 		ret = -ENOMEM;
+ 		payload = kmalloc(plen, GFP_KERNEL);
+-		if (!payload)
+-			goto error2;
++		if (!payload) {
++			if (plen <= PAGE_SIZE)
++				goto error2;
++			vm = true;
++			payload = vmalloc(plen);
++			if (!payload)
++				goto error2;
++		}
  
-+/**
-+ * add_wait_queue_tail - Add a waiter to the back of a waitqueue
-+ * @q: the wait queue to append the waiter to
-+ * @wait: the waiter to be queued
-+ *
-+ * Add a waiter to the back of a waitqueue so that it gets woken up last.
-+ */
-+void add_wait_queue_tail(wait_queue_head_t *q, wait_queue_t *wait)
-+{
-+	unsigned long flags;
-+
-+	wait->flags &= ~WQ_FLAG_EXCLUSIVE;
-+	spin_lock_irqsave(&q->lock, flags);
-+	__add_wait_queue_tail(q, wait);
-+	spin_unlock_irqrestore(&q->lock, flags);
-+}
-+EXPORT_SYMBOL(add_wait_queue_tail);
-+
- void add_wait_queue_exclusive(wait_queue_head_t *q, wait_queue_t *wait)
- {
- 	unsigned long flags;
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 636adf2..9a0c803 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -586,7 +586,7 @@ void end_page_writeback(struct page *page)
- EXPORT_SYMBOL(end_page_writeback);
+ 		ret = -EFAULT;
+ 		if (copy_from_user(payload, _payload, plen) != 0)
+@@ -113,7 +122,10 @@ asmlinkage long sys_add_key(const char __user *_type,
  
- /**
-- * end_page_own - Clear PG_owner_priv_2 and wake up any waiters
-+ * end_page_owner_priv_2 - Clear PG_owner_priv_2 and wake up any waiters
-  * @page: the page
-  *
-  * Clear PG_owner_priv_2 and wake up any processes waiting for that event.
+ 	key_ref_put(keyring_ref);
+  error3:
+-	kfree(payload);
++	if (!vm)
++		kfree(payload);
++	else
++		vfree(payload);
+  error2:
+ 	kfree(description);
+  error:
+@@ -821,9 +833,10 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	key_ref_t keyring_ref;
+ 	void *payload;
+ 	long ret;
++	bool vm = false;
+ 
+ 	ret = -EINVAL;
+-	if (plen > 32767)
++	if (plen > 1024 * 1024 - 1)
+ 		goto error;
+ 
+ 	/* the appropriate instantiation authorisation key must have been
+@@ -843,8 +856,14 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	if (_payload) {
+ 		ret = -ENOMEM;
+ 		payload = kmalloc(plen, GFP_KERNEL);
+-		if (!payload)
+-			goto error;
++		if (!payload) {
++			if (plen <= PAGE_SIZE)
++				goto error;
++			vm = true;
++			payload = vmalloc(plen);
++			if (!payload)
++				goto error;
++		}
+ 
+ 		ret = -EFAULT;
+ 		if (copy_from_user(payload, _payload, plen) != 0)
+@@ -877,7 +896,10 @@ long keyctl_instantiate_key(key_serial_t id,
+ 	}
+ 
+ error2:
+-	kfree(payload);
++	if (!vm)
++		kfree(payload);
++	else
++		vfree(payload);
+ error:
+ 	return ret;
+ 
 
 
 --
