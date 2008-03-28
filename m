@@ -1,19 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF67ll024620
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:07 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF69Jx024638
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:09 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUS018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:04 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUU018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:07 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 16/45] FS-Cache: Recruit a couple of page flags for cache
-	management [ver #35]
+Subject: [PATCH 36/45] NFS: Use local disk inode cache [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:31:33 +0000
-Message-ID: <20080328143133.3483.78845.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:33:15 +0000
+Message-ID: <20080328143315.3483.4685.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,354 +20,399 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Recruit a couple of page flags to aid in cache management.  The following extra
-flags are defined:
-
- (1) PG_fscache (PG_private_2)
-
-     The marked page is backed by a local cache and is pinning resources in the
-     cache driver.
-
- (2) PG_fscache_write (PG_owner_priv_2)
-
-     The marked page is being written to the local cache.  The page may not be
-     modified whilst this is in progress.
-
-If PG_fscache is set, then things that checked for PG_private will now also
-check for that.  This includes things like truncation and page invalidation.
-The function page_has_private() had been added to make the checks for both
-PG_private and PG_private_2 at the same time.
+Bind data storage objects in the local cache to NFS inodes.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/splice.c                |    2 +-
- include/linux/page-flags.h |   39 +++++++++++++++++++++++++++++++++++++--
- include/linux/pagemap.h    |   11 +++++++++++
- mm/filemap.c               |   18 ++++++++++++++++++
- mm/migrate.c               |    2 +-
- mm/page_alloc.c            |    3 +++
- mm/readahead.c             |    9 +++++----
- mm/swap.c                  |    4 ++--
- mm/swap_state.c            |    4 ++--
- mm/truncate.c              |   10 +++++-----
- mm/vmscan.c                |    2 +-
- 11 files changed, 86 insertions(+), 18 deletions(-)
+ fs/nfs/fscache.c       |  174 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h       |   15 ++++
+ fs/nfs/inode.c         |   39 +++++++++--
+ include/linux/nfs_fs.h |   11 +++
+ 4 files changed, 233 insertions(+), 6 deletions(-)
 
 
-diff --git a/fs/splice.c b/fs/splice.c
-index 0670c91..40fdc28 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -58,7 +58,7 @@ static int page_cache_pipe_buf_steal(struct pipe_inode_info *pipe,
- 		 */
- 		wait_on_page_writeback(page);
- 
--		if (PagePrivate(page))
-+		if (page_has_private(page))
- 			try_to_release_page(page, GFP_KERNEL);
- 
- 		/*
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index b5b30f1..3c16772 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -77,25 +77,32 @@
- #define PG_active		 6
- #define PG_slab			 7	/* slab debug (Suparna wants this) */
- 
--#define PG_owner_priv_1		 8	/* Owner use. If pagecache, fs may use*/
-+#define PG_owner_priv_1		 8	/* Owner use. fs may use in pagecache */
- #define PG_arch_1		 9
- #define PG_reserved		10
- #define PG_private		11	/* If pagecache, has fs-private data */
- 
- #define PG_writeback		12	/* Page is under writeback */
-+#define PG_private_2		13	/* If pagecache, has fs aux data */
- #define PG_compound		14	/* Part of a compound page */
- #define PG_swapcache		15	/* Swap page: swp_entry_t in private */
- 
- #define PG_mappedtodisk		16	/* Has blocks allocated on-disk */
- #define PG_reclaim		17	/* To be reclaimed asap */
-+#define PG_owner_priv_2		18	/* Owner use. fs may use in pagecache */
- #define PG_buddy		19	/* Page is free, on buddy lists */
- 
- /* PG_readahead is only used for file reads; PG_reclaim is only for writes */
- #define PG_readahead		PG_reclaim /* Reminder to do async read-ahead */
- 
--/* PG_owner_priv_1 users should have descriptive aliases */
-+/* PG_owner_priv_1/2 users should have descriptive aliases */
- #define PG_checked		PG_owner_priv_1 /* Used by some filesystems */
- #define PG_pinned		PG_owner_priv_1	/* Xen pinned pagetable */
-+#define PG_fscache_write	PG_owner_priv_2	/* Writing to local cache */
-+
-+/* PG_private_2 causes releasepage() and co to be invoked */
-+#define PG_fscache		PG_private_2	/* Backed by local cache */
-+
- 
- #if (BITS_PER_LONG > 32)
- /*
-@@ -235,6 +242,23 @@ static inline void SetPageUptodate(struct page *page)
- #define TestClearPageWriteback(page) test_and_clear_bit(PG_writeback,	\
- 							&(page)->flags)
- 
-+#define PagePrivate2(page)	test_bit(PG_private_2, &(page)->flags)
-+#define SetPagePrivate2(page)	set_bit(PG_private_2, &(page)->flags)
-+#define ClearPagePrivate2(page)	clear_bit(PG_private_2, &(page)->flags)
-+#define TestSetPagePrivate2(page) test_and_set_bit(PG_private_2, &(page)->flags)
-+#define TestClearPagePrivate2(page) test_and_clear_bit(PG_private_2, \
-+						      &(page)->flags)
-+
-+#define PageOwnerPriv2(page)		test_bit(PG_owner_priv_2, \
-+						 &(page)->flags)
-+#define SetPageOwnerPriv2(page)		set_bit(PG_owner_priv_2, &(page)->flags)
-+#define ClearPageOwnerPriv2(page)	clear_bit(PG_owner_priv_2, \
-+						  &(page)->flags)
-+#define TestSetPageOwnerPriv2(page)	test_and_set_bit(PG_owner_priv_2, \
-+							 &(page)->flags)
-+#define TestClearPageOwnerPriv2(page)	test_and_clear_bit(PG_owner_priv_2, \
-+							   &(page)->flags)
-+
- #define PageBuddy(page)		test_bit(PG_buddy, &(page)->flags)
- #define __SetPageBuddy(page)	__set_bit(PG_buddy, &(page)->flags)
- #define __ClearPageBuddy(page)	__clear_bit(PG_buddy, &(page)->flags)
-@@ -308,4 +332,15 @@ static inline void set_page_writeback(struct page *page)
- 	test_set_page_writeback(page);
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index ab2de2c..0c71bae 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -166,3 +166,177 @@ void nfs_fscache_release_super_cookie(struct super_block *sb)
+ 		nfss->fscache_key = NULL;
+ 	}
  }
- 
-+/**
-+ * page_has_private - Determine if page has private stuff
-+ * @page: The page to be checked
-+ *
-+ * Determine if a page has private stuff, indicating that release routines
-+ * should be invoked upon it.
-+ */
-+#define page_has_private(page)			\
-+	((page)->flags & ((1 << PG_private) |	\
-+			  (1 << PG_private_2)))
-+
- #endif	/* PAGE_FLAGS_H */
-diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
-index d2fca80..c5df3ae 100644
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -226,6 +226,17 @@ static inline void wait_on_page_writeback(struct page *page)
- extern void end_page_writeback(struct page *page);
- 
- /*
-+ * Wait for a PG_owner_priv_2 to become clear
-+ */
-+static inline void wait_on_page_owner_priv_2(struct page *page)
-+{
-+	if (PageOwnerPriv2(page))
-+		wait_on_page_bit(page, PG_owner_priv_2);
-+}
-+
-+extern void end_page_owner_priv_2(struct page *page);
 +
 +/*
-  * Fault a userspace page into pagetables.  Return non-zero on a fault.
-  *
-  * This assumes that two userspace pages are always sufficient.  That's
-diff --git a/mm/filemap.c b/mm/filemap.c
-index 07e9d92..636adf2 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -586,6 +586,21 @@ void end_page_writeback(struct page *page)
- EXPORT_SYMBOL(end_page_writeback);
- 
- /**
-+ * end_page_own - Clear PG_owner_priv_2 and wake up any waiters
-+ * @page: the page
-+ *
-+ * Clear PG_owner_priv_2 and wake up any processes waiting for that event.
++ * Initialise the per-inode cache cookie pointer for an NFS inode.
 + */
-+void end_page_owner_priv_2(struct page *page)
++void nfs_fscache_init_inode_cookie(struct inode *inode)
 +{
-+	if (!TestClearPageOwnerPriv2(page))
-+		BUG();
-+	smp_mb__after_clear_bit();
-+	wake_up_page(page, PG_owner_priv_2);
++	NFS_I(inode)->fscache = NULL;
++	if (S_ISREG(inode->i_mode))
++		set_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
 +}
-+EXPORT_SYMBOL(end_page_owner_priv_2);
 +
-+/**
-  * __lock_page - get a lock on the page, assuming we need to sleep to get it
-  * @page: the page to lock
-  *
-@@ -2573,6 +2588,9 @@ out:
-  * (presumably at page->private).  If the release was successful, return `1'.
-  * Otherwise return zero.
-  *
-+ * This may also be called if PG_fscache is set on a page, indicating that the
-+ * page is known to the local caching routines.
-+ *
-  * The @gfp_mask argument specifies whether I/O may be performed to release
-  * this page (__GFP_IO), and whether the call may block (__GFP_WAIT).
-  *
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 9f0e5a9..92877ab 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -555,7 +555,7 @@ static int fallback_migrate_page(struct address_space *mapping,
- 	 * Buffers may be managed in a filesystem specific way.
- 	 * We must have no buffers or drop them.
- 	 */
--	if (PagePrivate(page) &&
-+	if (page_has_private(page) &&
- 	    !try_to_release_page(page, GFP_KERNEL))
- 		return -EAGAIN;
++/*
++ * Get the per-inode cache cookie for an NFS inode.
++ */
++static void nfs_fscache_enable_inode_cookie(struct inode *inode)
++{
++	struct super_block *sb = inode->i_sb;
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	if (nfsi->fscache || !NFS_FSCACHE(inode))
++		return;
++
++	if ((NFS_SB(sb)->options & NFS_OPTION_FSCACHE)) {
++		nfsi->fscache = fscache_acquire_cookie(
++			NFS_SB(sb)->fscache,
++			&nfs_fscache_inode_object_def,
++			nfsi);
++
++		dfprintk(FSCACHE, "NFS: get FH cookie (0x%p/0x%p/0x%p)\n",
++			 sb, nfsi, nfsi->fscache);
++	}
++}
++
++/*
++ * Release a per-inode cookie.
++ */
++void nfs_fscache_release_inode_cookie(struct inode *inode)
++{
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	dfprintk(FSCACHE, "NFS: clear cookie (0x%p/0x%p)\n",
++		 nfsi, nfsi->fscache);
++
++	fscache_relinquish_cookie(nfsi->fscache, 0);
++	nfsi->fscache = NULL;
++}
++
++/*
++ * Retire a per-inode cookie, destroying the data attached to it.
++ */
++void nfs_fscache_zap_inode_cookie(struct inode *inode)
++{
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	dfprintk(FSCACHE, "NFS: zapping cookie (0x%p/0x%p)\n",
++		 nfsi, nfsi->fscache);
++
++	fscache_relinquish_cookie(nfsi->fscache, 1);
++	nfsi->fscache = NULL;
++}
++
++/*
++ * Turn off the cache with regard to a per-inode cookie if opened for writing,
++ * invalidating all the pages in the page cache relating to the associated
++ * inode to clear the per-page caching.
++ */
++static void nfs_fscache_disable_inode_cookie(struct inode *inode)
++{
++	clear_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
++
++	if (NFS_I(inode)->fscache) {
++		dfprintk(FSCACHE,
++			 "NFS: nfsi 0x%p turning cache off\n", NFS_I(inode));
++
++		/* Need to invalidate any mapped pages that were read in before
++		 * turning off the cache.
++		 */
++		if (inode->i_mapping && inode->i_mapping->nrpages)
++			invalidate_inode_pages2(inode->i_mapping);
++
++		nfs_fscache_zap_inode_cookie(inode);
++	}
++}
++
++/*
++ * wait_on_bit() sleep function for uninterruptible waiting
++ */
++static int nfs_fscache_wait_bit(void *flags)
++{
++	schedule();
++	return 0;
++}
++
++/*
++ * Lock against someone else trying to also acquire or relinquish a cookie
++ */
++static inline void nfs_fscache_inode_lock(struct inode *inode)
++{
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	if (test_and_set_bit(NFS_INO_FSCACHE_LOCK, &nfsi->flags)) {
++		printk(KERN_WARNING "NFS:"
++		       " Inode already locked for cache management\n");
++		wait_on_bit(&nfsi->flags, NFS_INO_FSCACHE_LOCK,
++			    nfs_fscache_wait_bit, TASK_UNINTERRUPTIBLE);
++	}
++}
++
++/*
++ * Unlock cookie management lock
++ */
++static inline void nfs_fscache_inode_unlock(struct inode *inode)
++{
++	struct nfs_inode *nfsi = NFS_I(inode);
++
++	smp_mb__before_clear_bit();
++	clear_bit(NFS_INO_FSCACHE_LOCK, &nfsi->flags);
++	smp_mb__after_clear_bit();
++	wake_up_bit(&nfsi->flags, NFS_INO_FSCACHE_LOCK);
++}
++
++/*
++ * Decide if we should enable or disable local caching for this inode.
++ * - For now, with NFS, only regular files that are open read-only will be able
++ *   to use the cache.
++ */
++void nfs_fscache_set_inode_cookie(struct inode *inode, struct file *filp)
++{
++	if (NFS_FSCACHE(inode)) {
++		nfs_fscache_inode_lock(inode);
++		if ((filp->f_flags & O_ACCMODE) != O_RDONLY)
++			nfs_fscache_disable_inode_cookie(inode);
++		else
++			nfs_fscache_enable_inode_cookie(inode);
++		nfs_fscache_inode_unlock(inode);
++	}
++}
++
++/*
++ * Replace a per-inode cookie due to revalidation detecting a file having
++ * changed on the server.
++ */
++void nfs_fscache_renew_inode_cookie(struct inode *inode)
++{
++	struct nfs_inode *nfsi = NFS_I(inode);
++	struct nfs_server *nfss = NFS_SERVER(inode);
++	struct fscache_cookie *old = nfsi->fscache;
++
++	nfs_fscache_inode_lock(inode);
++	if (nfsi->fscache) {
++		/* retire the current fscache cache and get a new one */
++		fscache_relinquish_cookie(nfsi->fscache, 1);
++
++		nfsi->fscache = fscache_acquire_cookie(
++			nfss->nfs_client->fscache,
++			&nfs_fscache_inode_object_def,
++			nfsi);
++
++		dfprintk(FSCACHE,
++			 "NFS: revalidation new cookie (0x%p/0x%p/0x%p/0x%p)\n",
++			 nfss, nfsi, old, nfsi->fscache);
++	}
++	nfs_fscache_inode_unlock(inode);
++}
++
++/*
++ * Update the filesize associated with a per-inode cookie.
++ */
++void nfs_fscache_attr_changed(struct inode *inode)
++{
++	nfs_fscache_inode_lock(inode);
++	fscache_attr_changed(NFS_I(inode)->fscache);
++	nfs_fscache_inode_unlock(inode);
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index d21b590..595f7e7 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -77,6 +77,13 @@ extern void nfs_fscache_get_super_cookie(struct super_block *,
+ 					 struct nfs_parsed_mount_data *);
+ extern void nfs_fscache_release_super_cookie(struct super_block *);
  
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 402a504..9627c97 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -238,6 +238,7 @@ static void bad_page(struct page *page)
- 	dump_stack();
- 	page->flags &= ~(1 << PG_lru	|
- 			1 << PG_private |
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_dirty	|
-@@ -465,6 +466,7 @@ static inline int free_pages_check(struct page *page)
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private |
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_slab	|
-@@ -615,6 +617,7 @@ static int prep_new_page(struct page *page, int order, gfp_t gfp_flags)
- 		(page->flags & (
- 			1 << PG_lru	|
- 			1 << PG_private	|
-+			1 << PG_fscache	|
- 			1 << PG_locked	|
- 			1 << PG_active	|
- 			1 << PG_dirty	|
-diff --git a/mm/readahead.c b/mm/readahead.c
-index d6b14c1..9444024 100644
---- a/mm/readahead.c
-+++ b/mm/readahead.c
-@@ -46,14 +46,15 @@ EXPORT_SYMBOL_GPL(file_ra_state_init);
++extern void nfs_fscache_init_inode_cookie(struct inode *);
++extern void nfs_fscache_release_inode_cookie(struct inode *);
++extern void nfs_fscache_zap_inode_cookie(struct inode *);
++extern void nfs_fscache_set_inode_cookie(struct inode *, struct file *);
++extern void nfs_fscache_renew_inode_cookie(struct inode *);
++extern void nfs_fscache_attr_changed(struct inode *);
++
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+ static inline void nfs_fscache_unregister(void) {}
+@@ -91,5 +98,13 @@ static inline void nfs_fscache_get_super_cookie(
+ }
+ static inline void nfs_fscache_release_super_cookie(struct super_block *sb) {}
  
- /*
-  * see if a page needs releasing upon read_cache_pages() failure
-- * - the caller of read_cache_pages() may have set PG_private before calling,
-- *   such as the NFS fs marking pages that are cached locally on disk, thus we
-- *   need to give the fs a chance to clean up in the event of an error
-+ * - the caller of read_cache_pages() may have set PG_private or PG_fscache
-+ *   before calling, such as the NFS fs marking pages that are cached locally
-+ *   on disk, thus we need to give the fs a chance to clean up in the event of
-+ *   an error
-  */
- static void read_cache_pages_invalidate_page(struct address_space *mapping,
- 					     struct page *page)
- {
--	if (PagePrivate(page)) {
-+	if (page_has_private(page)) {
- 		if (TestSetPageLocked(page))
- 			BUG();
- 		page->mapping = mapping;
-diff --git a/mm/swap.c b/mm/swap.c
-index aa1139c..ebb90dc 100644
---- a/mm/swap.c
-+++ b/mm/swap.c
-@@ -456,8 +456,8 @@ void pagevec_strip(struct pagevec *pvec)
- 	for (i = 0; i < pagevec_count(pvec); i++) {
- 		struct page *page = pvec->pages[i];
- 
--		if (PagePrivate(page) && !TestSetPageLocked(page)) {
--			if (PagePrivate(page))
-+		if (page_has_private(page) && !TestSetPageLocked(page)) {
-+			if (page_has_private(page))
- 				try_to_release_page(page, 0);
- 			unlock_page(page);
- 		}
-diff --git a/mm/swap_state.c b/mm/swap_state.c
-index 50757ee..0d40b56 100644
---- a/mm/swap_state.c
-+++ b/mm/swap_state.c
-@@ -73,7 +73,7 @@ int add_to_swap_cache(struct page *page, swp_entry_t entry, gfp_t gfp_mask)
- 
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(PageSwapCache(page));
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 	error = radix_tree_preload(gfp_mask);
- 	if (!error) {
- 		write_lock_irq(&swapper_space.tree_lock);
-@@ -102,7 +102,7 @@ void __delete_from_swap_cache(struct page *page)
- 	BUG_ON(!PageLocked(page));
- 	BUG_ON(!PageSwapCache(page));
- 	BUG_ON(PageWriteback(page));
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 
- 	radix_tree_delete(&swapper_space.page_tree, page_private(page));
- 	set_page_private(page, 0);
-diff --git a/mm/truncate.c b/mm/truncate.c
-index 7d20ce4..126096c 100644
---- a/mm/truncate.c
-+++ b/mm/truncate.c
-@@ -49,7 +49,7 @@ void do_invalidatepage(struct page *page, unsigned long offset)
- static inline void truncate_partial_page(struct page *page, unsigned partial)
- {
- 	zero_user_segment(page, partial, PAGE_CACHE_SIZE);
--	if (PagePrivate(page))
-+	if (page_has_private(page))
- 		do_invalidatepage(page, partial);
++static inline void nfs_fscache_init_inode_cookie(struct inode *inode) {}
++static inline void nfs_fscache_release_inode_cookie(struct inode *inode) {}
++static inline void nfs_fscache_zap_inode_cookie(struct inode *inode) {}
++static inline void nfs_fscache_renew_inode_cookie(struct inode *inode) {}
++static inline void nfs_fscache_set_inode_cookie(struct inode *inode,
++					     struct file *filp) {}
++static inline void nfs_fscache_attr_changed(struct inode *inode) {}
++
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 702315a..7223252 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -112,6 +112,7 @@ void nfs_clear_inode(struct inode *inode)
+ 	BUG_ON(!list_empty(&NFS_I(inode)->open_files));
+ 	nfs_zap_acl_cache(inode);
+ 	nfs_access_zap_cache(inode);
++	nfs_fscache_release_inode_cookie(inode);
  }
  
-@@ -98,7 +98,7 @@ truncate_complete_page(struct address_space *mapping, struct page *page)
- 	if (page->mapping != mapping)
- 		return;
+ /**
+@@ -332,6 +333,8 @@ nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
+ 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
+ 		nfsi->access_cache = RB_ROOT;
  
--	if (PagePrivate(page))
-+	if (page_has_private(page))
- 		do_invalidatepage(page, 0);
++		nfs_fscache_init_inode_cookie(inode);
++
+ 		unlock_new_inode(inode);
+ 	} else
+ 		nfs_refresh_inode(inode, fattr);
+@@ -620,6 +623,7 @@ int nfs_open(struct inode *inode, struct file *filp)
+ 	ctx->mode = filp->f_mode;
+ 	nfs_file_set_open_context(filp, ctx);
+ 	put_nfs_open_context(ctx);
++	nfs_fscache_set_inode_cookie(inode, filp);
+ 	return 0;
+ }
  
- 	cancel_dirty_page(page, PAGE_CACHE_SIZE);
-@@ -125,7 +125,7 @@ invalidate_complete_page(struct address_space *mapping, struct page *page)
- 	if (page->mapping != mapping)
- 		return 0;
+@@ -680,7 +684,13 @@ __nfs_revalidate_inode(struct nfs_server *server, struct inode *inode)
+ 			 (long long)NFS_FILEID(inode), status);
+ 		goto out;
+ 	}
+-	spin_unlock(&inode->i_lock);
++	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
++		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
++		spin_unlock(&inode->i_lock);
++		nfs_fscache_attr_changed(inode);
++	} else {
++		spin_unlock(&inode->i_lock);
++	}
  
--	if (PagePrivate(page) && !try_to_release_page(page, 0))
-+	if (page_has_private(page) && !try_to_release_page(page, 0))
- 		return 0;
+ 	if (nfsi->cache_validity & NFS_INO_INVALID_ACL)
+ 		nfs_zap_acl_cache(inode);
+@@ -736,6 +746,7 @@ static int nfs_invalidate_mapping_nolock(struct inode *inode, struct address_spa
+ 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
+ 	spin_unlock(&inode->i_lock);
+ 	nfs_inc_stats(inode, NFSIOS_DATAINVALIDATE);
++	nfs_fscache_renew_inode_cookie(inode);
+ 	dfprintk(PAGECACHE, "NFS: (%s/%Ld) data cache invalidated\n",
+ 			inode->i_sb->s_id, (long long)NFS_FILEID(inode));
+ 	return 0;
+@@ -912,7 +923,13 @@ int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 	else
+ 		status = nfs_check_inode_attributes(inode, fattr);
  
- 	ret = remove_mapping(mapping, page);
-@@ -346,14 +346,14 @@ invalidate_complete_page2(struct address_space *mapping, struct page *page)
- 	if (page->mapping != mapping)
- 		return 0;
+-	spin_unlock(&inode->i_lock);
++	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
++		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
++		spin_unlock(&inode->i_lock);
++		nfs_fscache_attr_changed(inode);
++	} else {
++		spin_unlock(&inode->i_lock);
++	}
+ 	return status;
+ }
  
--	if (PagePrivate(page) && !try_to_release_page(page, GFP_KERNEL))
-+	if (page_has_private(page) && !try_to_release_page(page, GFP_KERNEL))
- 		return 0;
+@@ -933,12 +950,19 @@ int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
+ int nfs_post_op_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ {
+ 	struct nfs_inode *nfsi = NFS_I(inode);
++	bool update_fscache = false;
  
- 	write_lock_irq(&mapping->tree_lock);
- 	if (PageDirty(page))
- 		goto failed;
+ 	spin_lock(&inode->i_lock);
+ 	nfsi->cache_validity |= NFS_INO_INVALID_ATTR|NFS_INO_REVAL_PAGECACHE;
+ 	if (S_ISDIR(inode->i_mode))
+ 		nfsi->cache_validity |= NFS_INO_INVALID_DATA;
++	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
++		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
++		update_fscache = true;
++	}
+ 	spin_unlock(&inode->i_lock);
++	if (update_fscache)
++		nfs_fscache_attr_changed(inode);
+ 	return nfs_refresh_inode(inode, fattr);
+ }
  
--	BUG_ON(PagePrivate(page));
-+	BUG_ON(page_has_private(page));
- 	__remove_from_page_cache(page);
- 	write_unlock_irq(&mapping->tree_lock);
- 	ClearPageUptodate(page);
-diff --git a/mm/vmscan.c b/mm/vmscan.c
-index 4046434..99f9852 100644
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -594,7 +594,7 @@ static unsigned long shrink_page_list(struct list_head *page_list,
- 		 * process address space (page_count == 1) it can be freed.
- 		 * Otherwise, leave the page on the LRU so it is swappable.
- 		 */
--		if (PagePrivate(page)) {
-+		if (page_has_private(page)) {
- 			if (!try_to_release_page(page, sc->gfp_mask))
- 				goto activate_locked;
- 			if (!mapping && page_count(page) == 1)
+@@ -1027,7 +1051,8 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 		if (!timespec_equal(&inode->i_mtime, &fattr->mtime)) {
+ 			dprintk("NFS: mtime change on server for file %s/%ld\n",
+ 					inode->i_sb->s_id, inode->i_ino);
+-			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
++			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
++				NFS_INO_INVALID_FSCACHE_ATTR;
+ 			if (S_ISDIR(inode->i_mode))
+ 				nfs_force_lookup_revalidate(inode);
+ 		}
+@@ -1037,7 +1062,9 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 	} else if (nfsi->change_attr != fattr->change_attr) {
+ 		dprintk("NFS: change_attr change on server for file %s/%ld\n",
+ 				inode->i_sb->s_id, inode->i_ino);
+-		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA|NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL;
++		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
++			NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL |
++			NFS_INO_INVALID_FSCACHE_ATTR;
+ 		if (S_ISDIR(inode->i_mode))
+ 			nfs_force_lookup_revalidate(inode);
+ 	}
+@@ -1050,13 +1077,13 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 		 * the file grown beyond our last write? */
+ 		if (nfsi->npages == 0 || new_isize > cur_isize) {
+ 			inode->i_size = new_isize;
+-			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
++			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
++				NFS_INO_INVALID_FSCACHE_ATTR;
+ 		}
+ 		dprintk("NFS: isize change on server for file %s/%ld\n",
+ 				inode->i_sb->s_id, inode->i_ino);
+ 	}
+ 
+-
+ 	memcpy(&inode->i_mtime, &fattr->mtime, sizeof(inode->i_mtime));
+ 	memcpy(&inode->i_ctime, &fattr->ctime, sizeof(inode->i_ctime));
+ 	memcpy(&inode->i_atime, &fattr->atime, sizeof(inode->i_atime));
+diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
+index 720cdad..b41806b 100644
+--- a/include/linux/nfs_fs.h
++++ b/include/linux/nfs_fs.h
+@@ -174,6 +174,9 @@ struct nfs_inode {
+ 	int			 delegation_state;
+ 	struct rw_semaphore	rwsem;
+ #endif /* CONFIG_NFS_V4*/
++#ifdef CONFIG_NFS_FSCACHE
++	struct fscache_cookie	*fscache;
++#endif
+ 	struct inode		vfs_inode;
+ };
+ 
+@@ -187,6 +190,7 @@ struct nfs_inode {
+ #define NFS_INO_INVALID_ACL	0x0010		/* cached acls are invalid */
+ #define NFS_INO_REVAL_PAGECACHE	0x0020		/* must revalidate pagecache */
+ #define NFS_INO_REVAL_FORCED	0x0040		/* force revalidation ignoring a delegation */
++#define NFS_INO_INVALID_FSCACHE_ATTR	0x0080	/* local cache attributes are invalid */
+ 
+ /*
+  * Bit offsets in flags field
+@@ -196,6 +200,8 @@ struct nfs_inode {
+ #define NFS_INO_STALE		(2)		/* possible stale inode */
+ #define NFS_INO_ACL_LRU_SET	(3)		/* Inode is on the LRU list */
+ #define NFS_INO_MOUNTPOINT	(4)		/* inode is remote mountpoint */
++#define NFS_INO_FSCACHE		(5)		/* inode can be cached by FS-Cache */
++#define NFS_INO_FSCACHE_LOCK	(6)		/* FS-Cache cookie management lock */
+ 
+ static inline struct nfs_inode *NFS_I(const struct inode *inode)
+ {
+@@ -249,6 +255,11 @@ static inline int NFS_STALE(const struct inode *inode)
+ 	return test_bit(NFS_INO_STALE, &NFS_I(inode)->flags);
+ }
+ 
++static inline int NFS_FSCACHE(const struct inode *inode)
++{
++	return test_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
++}
++
+ static inline __u64 NFS_FILEID(const struct inode *inode)
+ {
+ 	return NFS_I(inode)->fileid;
 
 
 --
