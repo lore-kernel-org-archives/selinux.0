@@ -1,19 +1,19 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5X7K024222
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:33 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5ccY024291
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:38 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUG018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:29 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUI018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:34 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 35/45] NFS: Define and create inode-level cache objects [ver
-	#35]
+Subject: [PATCH 22/45] CacheFiles: Add a hook to write a single page of data
+	to an inode [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:33:10 +0000
-Message-ID: <20080328143310.3483.33925.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:32:04 +0000
+Message-ID: <20080328143203.3483.18861.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,170 +21,174 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Define and create inode-level cache data storage objects (as managed by
-nfs_inode structs).
+Add an address space operation to write one single page of data to an inode at
+a page-aligned location (thus permitting the implementation to be highly
+optimised).  The data source is a single page.
 
-Each inode-level object is created in a superblock-level index object and is
-itself a data storage object into which pages from the inode are stored.
+This is used by CacheFiles to store the contents of netfs pages into their
+backing file pages.
 
-The inode object key is the NFS file handle for the inode.
+Supply a generic implementation for this that uses the write_begin() and
+write_end() address_space operations to bind a copy directly into the page
+cache.
 
-The inode object is given coherency data to carry in the auxiliary data
-permitted by the cache.  This is a sequence made up of:
-
- (1) i_mtime from the NFS inode.
-
- (2) i_ctime from the NFS inode.
-
- (3) i_size from the NFS inode.
-
-As the cache is a persistent cache, the auxiliary data is checked when a new
-NFS in-memory inode is set up that matches an already existing data storage
-object in the cache.  If the coherency data is the same, the on-disk object is
-retained and used; if not, it is scrapped and a new one created.
+Hook the Ext2 and Ext3 operations to the generic implementation.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/fscache-index.c |  114 ++++++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/fscache.h       |    1 
- 2 files changed, 115 insertions(+), 0 deletions(-)
+ fs/ext2/inode.c    |    2 ++
+ fs/ext3/inode.c    |    3 +++
+ include/linux/fs.h |    7 ++++++
+ mm/filemap.c       |   61 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 73 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
-index e092a73..1c158d5 100644
---- a/fs/nfs/fscache-index.c
-+++ b/fs/nfs/fscache-index.c
-@@ -150,3 +150,117 @@ const struct fscache_cookie_def nfs_fscache_super_index_def = {
- 	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
- 	.get_key	= nfs_super_get_key,
+diff --git a/fs/ext2/inode.c b/fs/ext2/inode.c
+index c620068..f483014 100644
+--- a/fs/ext2/inode.c
++++ b/fs/ext2/inode.c
+@@ -792,6 +792,7 @@ const struct address_space_operations ext2_aops = {
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
+ 	.migratepage		= buffer_migrate_page,
++	.write_one_page		= generic_file_buffered_write_one_page,
  };
-+
-+/*
-+ * Definition of the auxiliary data attached to NFS inode storage objects
-+ * within the cache.
-+ *
-+ * The contents of this struct are recorded in the on-disk local cache in the
-+ * auxiliary data attached to the data storage object backing an inode.  This
-+ * permits coherency to be managed when a new inode binds to an already extant
-+ * cache object.
-+ */
-+struct nfs_fscache_inode_auxdata {
-+	struct timespec	mtime;
-+	struct timespec	ctime;
-+	loff_t		size;
-+};
-+
-+/*
-+ * Generate a key to describe an NFS inode in an NFS server's index
-+ */
-+static uint16_t nfs_fscache_inode_get_key(const void *cookie_netfs_data,
-+					  void *buffer, uint16_t bufmax)
-+{
-+	const struct nfs_inode *nfsi = cookie_netfs_data;
-+	uint16_t nsize;
-+
-+	/* use the inode's NFS filehandle as the key */
-+	nsize = nfsi->fh.size;
-+	memcpy(buffer, nfsi->fh.data, nsize);
-+	return nsize;
-+}
-+
-+/*
-+ * Get certain file attributes from the netfs data
-+ * - This function can be absent for an index
-+ * - Not permitted to return an error
-+ * - The netfs data from the cookie being used as the source is presented
-+ */
-+static void nfs_fscache_inode_get_attr(const void *cookie_netfs_data,
-+				       uint64_t *size)
-+{
-+	const struct nfs_inode *nfsi = cookie_netfs_data;
-+
-+	*size = nfsi->vfs_inode.i_size;
-+}
-+
-+/*
-+ * Get the auxiliary data from netfs data
-+ * - This function can be absent if the index carries no state data
-+ * - Should store the auxiliary data in the buffer
-+ * - Should return the amount of amount stored
-+ * - Not permitted to return an error
-+ * - The netfs data from the cookie being used as the source is presented
-+ */
-+static uint16_t nfs_fscache_inode_get_aux(const void *cookie_netfs_data,
-+					  void *buffer, uint16_t bufmax)
-+{
-+	struct nfs_fscache_inode_auxdata auxdata;
-+	const struct nfs_inode *nfsi = cookie_netfs_data;
-+
-+	auxdata.size = nfsi->vfs_inode.i_size;
-+	auxdata.mtime = nfsi->vfs_inode.i_mtime;
-+	auxdata.ctime = nfsi->vfs_inode.i_ctime;
-+
-+	if (bufmax > sizeof(auxdata))
-+		bufmax = sizeof(auxdata);
-+
-+	memcpy(buffer, &auxdata, bufmax);
-+	return bufmax;
-+}
-+
-+/*
-+ * Consult the netfs about the state of an object
-+ * - This function can be absent if the index carries no state data
-+ * - The netfs data from the cookie being used as the target is
-+ *   presented, as is the auxiliary data
-+ */
-+static
-+enum fscache_checkaux nfs_fscache_inode_check_aux(void *cookie_netfs_data,
-+						  const void *data,
-+						  uint16_t datalen)
-+{
-+	struct nfs_fscache_inode_auxdata auxdata;
-+	struct nfs_inode *nfsi = cookie_netfs_data;
-+
-+	if (datalen > sizeof(auxdata))
-+		return FSCACHE_CHECKAUX_OBSOLETE;
-+
-+	auxdata.size = nfsi->vfs_inode.i_size;
-+	auxdata.mtime = nfsi->vfs_inode.i_mtime;
-+	auxdata.ctime = nfsi->vfs_inode.i_ctime;
-+
-+	if (memcmp(data, &auxdata, datalen) != 0)
-+		return FSCACHE_CHECKAUX_OBSOLETE;
-+
-+	return FSCACHE_CHECKAUX_OKAY;
-+}
-+
-+/*
-+ * Define the inode object for FS-Cache.  This is used to describe an inode
-+ * object to fscache_acquire_cookie().  It is keyed by the NFS file handle for
-+ * an inode.
-+ *
-+ * Coherency is managed by comparing the copies of i_size, i_mtime and i_ctime
-+ * held in the cache auxiliary data for the data storage object with those in
-+ * the inode struct in memory.
-+ */
-+const struct fscache_cookie_def nfs_fscache_inode_object_def = {
-+	.name		= "NFS.fh",
-+	.type		= FSCACHE_COOKIE_TYPE_DATAFILE,
-+	.get_key	= nfs_fscache_inode_get_key,
-+	.get_attr	= nfs_fscache_inode_get_attr,
-+	.get_aux	= nfs_fscache_inode_get_aux,
-+	.check_aux	= nfs_fscache_inode_check_aux,
-+};
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index 22b971e..d21b590 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -62,6 +62,7 @@ struct nfs_fscache_key {
- extern struct fscache_netfs nfs_fscache_netfs;
- extern const struct fscache_cookie_def nfs_fscache_server_index_def;
- extern const struct fscache_cookie_def nfs_fscache_super_index_def;
-+extern const struct fscache_cookie_def nfs_fscache_inode_object_def;
  
- extern int nfs_fscache_register(void);
- extern void nfs_fscache_unregister(void);
+ const struct address_space_operations ext2_aops_xip = {
+@@ -810,6 +811,7 @@ const struct address_space_operations ext2_nobh_aops = {
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
+ 	.migratepage		= buffer_migrate_page,
++	.write_one_page		= generic_file_buffered_write_one_page,
+ };
+ 
+ /*
+diff --git a/fs/ext3/inode.c b/fs/ext3/inode.c
+index c976123..0209f3b 100644
+--- a/fs/ext3/inode.c
++++ b/fs/ext3/inode.c
+@@ -1776,6 +1776,7 @@ static const struct address_space_operations ext3_ordered_aops = {
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
+ 	.migratepage	= buffer_migrate_page,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ static const struct address_space_operations ext3_writeback_aops = {
+@@ -1790,6 +1791,7 @@ static const struct address_space_operations ext3_writeback_aops = {
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
+ 	.migratepage	= buffer_migrate_page,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ static const struct address_space_operations ext3_journalled_aops = {
+@@ -1803,6 +1805,7 @@ static const struct address_space_operations ext3_journalled_aops = {
+ 	.bmap		= ext3_bmap,
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
++	.write_one_page	= generic_file_buffered_write_one_page,
+ };
+ 
+ void ext3_set_aops(struct inode *inode)
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index d218ef5..dd6c3d1 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -481,6 +481,11 @@ struct address_space_operations {
+ 	int (*migratepage) (struct address_space *,
+ 			struct page *, struct page *);
+ 	int (*launder_page) (struct page *);
++	/* write the contents of the source page over the page at the specified
++	 * index in the target address space (the source page does not need to
++	 * be related to the target address space) */
++	int (*write_one_page)(struct address_space *, pgoff_t, struct page *);
++
+ };
+ 
+ /*
+@@ -1811,6 +1816,8 @@ extern ssize_t generic_file_direct_write(struct kiocb *, const struct iovec *,
+ 		unsigned long *, loff_t, loff_t *, size_t, size_t);
+ extern ssize_t generic_file_buffered_write(struct kiocb *, const struct iovec *,
+ 		unsigned long, loff_t, loff_t *, size_t, ssize_t);
++extern int generic_file_buffered_write_one_page(struct address_space *,
++						pgoff_t, struct page *);
+ extern ssize_t do_sync_read(struct file *filp, char __user *buf, size_t len, loff_t *ppos);
+ extern ssize_t do_sync_write(struct file *filp, const char __user *buf, size_t len, loff_t *ppos);
+ extern int generic_segment_checks(const struct iovec *iov,
+diff --git a/mm/filemap.c b/mm/filemap.c
+index 1c01452..bd3ab83 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -2370,6 +2370,67 @@ generic_file_buffered_write(struct kiocb *iocb, const struct iovec *iov,
+ }
+ EXPORT_SYMBOL(generic_file_buffered_write);
+ 
++/**
++ * generic_file_buffered_write_one_page - Write a single page of data to an
++ *	inode
++ * @mapping - The address space of the target inode
++ * @index - The target page in the target inode to fill
++ * @source - The data to write into the target page
++ *
++ * Write the data from the source page to the page in the nominated address
++ * space at the @index specified.  Note that the file will not be extended if
++ * the page crosses the EOF marker, in which case only the first part of the
++ * page will be written.
++ *
++ * The @source page does not need to have any association with the file or the
++ * target page offset.
++ */
++int generic_file_buffered_write_one_page(struct address_space *mapping,
++					 pgoff_t index,
++					 struct page *source)
++{
++	const struct address_space_operations *a_ops = mapping->a_ops;
++	struct page *page;
++	unsigned len;
++	loff_t isize, pos;
++	void *fsdata;
++	int ret;
++
++	pos = index;
++	pos <<= PAGE_CACHE_SHIFT;
++
++	len = PAGE_CACHE_SIZE;
++	isize = i_size_read(mapping->host);
++	if ((isize >> PAGE_CACHE_SHIFT) == index)
++		len = isize & (PAGE_CACHE_SIZE - 1);
++
++	ret = pagecache_write_begin(NULL, mapping, pos, len,
++				    AOP_FLAG_UNINTERRUPTIBLE, &page, &fsdata);
++	if (ret < 0)
++		goto sync;
++
++	copy_highpage(page, source);
++
++	ret = pagecache_write_end(NULL, mapping, pos, len, len, page, fsdata);
++	if (ret < 0)
++		goto sync;
++
++	balance_dirty_pages_ratelimited(mapping);
++	cond_resched();
++
++sync:
++	/* the caller must handle O_SYNC themselves, but we handle S_SYNC and
++	 * MS_SYNCHRONOUS here */
++	if (unlikely(IS_SYNC(mapping->host)) && !a_ops->writepage)
++		ret = generic_osync_inode(mapping->host, mapping,
++					     OSYNC_METADATA | OSYNC_DATA);
++
++	/* the caller must handle O_DIRECT for themselves */
++
++	return ret;
++}
++EXPORT_SYMBOL(generic_file_buffered_write_one_page);
++
+ static ssize_t
+ __generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+ 				unsigned long nr_segs, loff_t *ppos)
 
 
 --
