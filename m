@@ -1,65 +1,80 @@
-Subject: Re: policy package names for Debian
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: russell@coker.com.au, Manoj Srivastava <srivasta@debian.org>,
-        "SE-Linux," <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>, Chad Sellers <csellers@tresys.com>
-In-Reply-To: <1206715818.16113.324.camel@gorn>
-References: <200803281340.01991.russell@coker.com.au>
-	 <1206707218.3302.393.camel@moss-spartans.epoch.ncsc.mil>
-	 <1206710819.16113.310.camel@gorn>
-	 <1206712622.3302.460.camel@moss-spartans.epoch.ncsc.mil>
-	 <1206715818.16113.324.camel@gorn>
-Content-Type: text/plain
-Date: Fri, 28 Mar 2008 11:37:06 -0400
-Message-Id: <1206718626.3302.511.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: file(1)
+Date: Fri, 28 Mar 2008 11:10:02 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158801CD1E16@exchange.columbia.tresys.com>
+In-Reply-To: <1206711214.3302.442.camel@moss-spartans.epoch.ncsc.mil>
+References: <200803272349.32854.russell@coker.com.au> <1206711214.3302.442.camel@moss-spartans.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>, <russell@coker.com.au>
+Cc: "SE-Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Thu, 2008-03-27 at 23:49 +1100, Russell Coker wrote:
+>> # SE Linux policy modules *.pp
+>> 0       lelong  0xf97cff8f      SE Linux modular policy
+>>> 4      lelong  x       version %d,
+>>> 8      lelong  x       %d sections,
+>>>> (12.l) lelong 0xf97cff8d
+>>>>> (12.l+27) lelong x           mod version %d,
+>>>>> (12.l+31) lelong 0           Not MLS,
+>>>>> (12.l+31) lelong 1           MLS,
+>>>>> (12.l+23) lelong 2
+>>>>>> (12.l+47) string >\0        module name %s
+>>>>> (12.l+23) lelong 1          base
+>> 
+>> The above /etc/magic entry allows file(1) to display some information
+>> about policy modules.  Below is a sample of the result:
+>> 
+>> # file qmail.pp  base.pp  /tmp/loadkeys.pp
+>> qmail.pp:         SE Linux modular policy version 1, 2 sections, mod
+>> version 7, Not MLS, module name qmail\005
 
-On Fri, 2008-03-28 at 10:50 -0400, Christopher J. PeBenito wrote:
-> On Fri, 2008-03-28 at 09:57 -0400, Stephen Smalley wrote:
-> > > Neglecting the above, I still disagree with dropping a TE-only
-> > > configuration.  While you can arrive at the same configuration by having
-> > > one category and one sensitivity and/or dropping the MLS constraints,
-> > > you still get MLS bits leaking through, eg. in semanage.
-> > 
-> > That's the point - the presence/absence of a context field is visible to
-> > users and applications no matter how much we try to encapsulate the
-> > contexts, and having the two different configurations makes maintenance
-> > and user experience more difficult/confusing.
+Also I think SELinux policy package, this magic number is for packages,
+modules have their own magic number.
+
+>> base.pp:          SE Linux modular policy version 1, 4 sections, mod
+>> version 7, Not MLS, base /tmp/loadkeys.pp: SE Linux modular policy
+>> version 1, 2 sections, mod version 6, MLS, module name loadkeys\005
+>> 
+>> Please let me know what you think of this, in terms of text
+>> formatting, information displayed, and use of file(1) features.
 > 
-> I think the confusion is worse for the TE-only case (emulated by no mls
-> constraints or only one category/sensitivity).  For example, if you
-> short circuit the level translation to "", then people get confused when
-> their setexecon() fails because they haven't put :s0 at the end of the
-> context, but none of their ps -AZ processes have it.  Thats
-> significantly more obtuse than people thinking "Fedora has that MCS
-> stuff, and Ubuntu doesn't."  There is always configuration/support
-> variances between distros.
+> "policy version 1" ought to be "policy type 1", or more
+> simply, "base module" (1) or "non-base module" (2).
+> 
+> Just for comparison with the existing support in file for
+> kernel policies, "file policy.21" displays:
+> policy.21: SE Linux policy v21 8 symbols 7 ocons
+> 
+> Not sure though that the symbols and ocons info is helpful
+> there to users, and it should always be implicit from the version.
+> 
+> Note btw that this format is expected to be obsoleted by the
+> policyrep work. 
+> 
+>> The \005 after the module name is due to the fact that file(1) seems
+>> to support only two types of string, a "C string" (terminated by \0)
+>> and a "Pascal string" where a single byte is used to indicate the
+>> length.  Using a 32bit little-endian word to indicate the length
+>> doesn't seem to work with file(1) - but if anyone can figure out a
+>> way then please let me know. 
+>> 
+>> It seems to me that it would be a good idea to write /etc/magic
+>> entries at the same time as devising file formats.  Being able to
+>> quickly and easily determine the contents of a file is a really handy
+>> feature.  Working with the limitations of file(1) to support this to
+>> the greatest degree possible would be a good thing.  If the module
+>> name was limited to 255 characters I doubt that it would ever
+>> inconvenience anyone (in the past I've used compilers that support
+>> symbol lengths of ~30 characters), but having a better display in
+>> file(1) output would often help people.  Another option would be to
+>> have a word indicating the string length while also having a 0
+>> terminator (wasting the occasional byte isn't really a problem).
 
-Ah, that's likely true.  And people do find the difference between MCS
-and MLS confusing as it is.
-
-> I'm not convinced many people actually use MCS at all.  Users have a
-> hard enough time dealing with TE.  If it wasn't for MCS I don't think
-> we'd even be having this discussion.
-
-For me, the value of MCS is getting the MLS support adequately tested
-and supported throughout the distribution.  That's about it.
-
-The ideal scenario from a "mainstreaming MAC" perspective would be to
-have the real MLS constraints in place by default, and the only
-difference between the default setup and a MLS one would be whether one
-actually puts anything in any level other than s0.  That would carry
-some cost from the constraint evaluation on compute_av calls, but that
-should be largely masked by the AVC.  It shouldn't really affect memory
-or disk use as long as everything defaults to s0 and no categories.
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
