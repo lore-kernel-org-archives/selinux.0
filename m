@@ -1,19 +1,19 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEXFt4017355
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:33:15 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEXvRn017448
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:33:57 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEXDTs004677
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:33:13 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEXrTs004939
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:33:53 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 03/45] KEYS: Allow the callout data to be passed as a blob
-	rather than a string [ver #35]
+Subject: [PATCH 38/45] NFS: Add some new I/O counters for FS-Cache doing
+	things for NFS [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:30:26 +0000
-Message-ID: <20080328143026.3483.68524.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:33:26 +0000
+Message-ID: <20080328143325.3483.43820.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,405 +21,109 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Allow the callout data to be passed as a blob rather than a string for internal
-kernel services that call any request_key_*() interface other than
-request_key().  request_key() itself still takes a NUL-terminated string.
+Add some new NFS I/O counters for FS-Cache doing things for NFS.  A new line is
+emitted into /proc/pid/mountstats if caching is enabled that looks like:
 
-The functions that change are:
+	fsc: <rok> <rfl> <wok> <wfl> <unc>
 
-	request_key_with_auxdata()
-	request_key_async()
-	request_key_async_with_auxdata()
+Where <rok> is the number of pages read successfully from the cache, <rfl> is
+the number of failed page reads against the cache, <wok> is the number of
+successful page writes to the cache, <wfl> is the number of failed page writes
+to the cache, and <unc> is the number of NFS pages that have been disconnected
+from the cache.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- Documentation/keys-request-key.txt |   11 +++++---
- Documentation/keys.txt             |   14 +++++++---
- include/linux/key.h                |    9 ++++---
- security/keys/internal.h           |    9 ++++---
- security/keys/keyctl.c             |    7 ++++-
- security/keys/request_key.c        |   49 ++++++++++++++++++++++--------------
- security/keys/request_key_auth.c   |   12 +++++----
- 7 files changed, 70 insertions(+), 41 deletions(-)
+ fs/nfs/iostat.h |   30 ++++++++++++++++++++++++++++++
+ fs/nfs/super.c  |   11 +++++++++++
+ 2 files changed, 41 insertions(+), 0 deletions(-)
 
 
-diff --git a/Documentation/keys-request-key.txt b/Documentation/keys-request-key.txt
-index 266955d..09b55e4 100644
---- a/Documentation/keys-request-key.txt
-+++ b/Documentation/keys-request-key.txt
-@@ -11,26 +11,29 @@ request_key*():
- 
- 	struct key *request_key(const struct key_type *type,
- 				const char *description,
--				const char *callout_string);
-+				const char *callout_info);
- 
- or:
- 
- 	struct key *request_key_with_auxdata(const struct key_type *type,
- 					     const char *description,
--					     const char *callout_string,
-+					     const char *callout_info,
-+					     size_t callout_len,
- 					     void *aux);
- 
- or:
- 
- 	struct key *request_key_async(const struct key_type *type,
- 				      const char *description,
--				      const char *callout_string);
-+				      const char *callout_info,
-+				      size_t callout_len);
- 
- or:
- 
- 	struct key *request_key_async_with_auxdata(const struct key_type *type,
- 						   const char *description,
--						   const char *callout_string,
-+						   const char *callout_info,
-+					     	   size_t callout_len,
- 						   void *aux);
- 
- Or by userspace invoking the request_key system call:
-diff --git a/Documentation/keys.txt b/Documentation/keys.txt
-index 51652d3..b82d38d 100644
---- a/Documentation/keys.txt
-+++ b/Documentation/keys.txt
-@@ -771,7 +771,7 @@ payload contents" for more information.
- 
- 	struct key *request_key(const struct key_type *type,
- 				const char *description,
--				const char *callout_string);
-+				const char *callout_info);
- 
-     This is used to request a key or keyring with a description that matches
-     the description specified according to the key type's match function. This
-@@ -793,24 +793,28 @@ payload contents" for more information.
- 
- 	struct key *request_key_with_auxdata(const struct key_type *type,
- 					     const char *description,
--					     const char *callout_string,
-+					     const void *callout_info,
-+					     size_t callout_len,
- 					     void *aux);
- 
-     This is identical to request_key(), except that the auxiliary data is
--    passed to the key_type->request_key() op if it exists.
-+    passed to the key_type->request_key() op if it exists, and the callout_info
-+    is a blob of length callout_len, if given (the length may be 0).
- 
- 
- (*) A key can be requested asynchronously by calling one of:
- 
- 	struct key *request_key_async(const struct key_type *type,
- 				      const char *description,
--				      const char *callout_string);
-+				      const void *callout_info,
-+				      size_t callout_len);
- 
-     or:
- 
- 	struct key *request_key_async_with_auxdata(const struct key_type *type,
- 						   const char *description,
--						   const char *callout_string,
-+						   const char *callout_info,
-+					     	   size_t callout_len,
- 					     	   void *aux);
- 
-     which are asynchronous equivalents of request_key() and
-diff --git a/include/linux/key.h b/include/linux/key.h
-index a70b8a8..163f864 100644
---- a/include/linux/key.h
-+++ b/include/linux/key.h
-@@ -208,16 +208,19 @@ extern struct key *request_key(struct key_type *type,
- 
- extern struct key *request_key_with_auxdata(struct key_type *type,
- 					    const char *description,
--					    const char *callout_info,
-+					    const void *callout_info,
-+					    size_t callout_len,
- 					    void *aux);
- 
- extern struct key *request_key_async(struct key_type *type,
- 				     const char *description,
--				     const char *callout_info);
-+				     const void *callout_info,
-+				     size_t callout_len);
- 
- extern struct key *request_key_async_with_auxdata(struct key_type *type,
- 						  const char *description,
--						  const char *callout_info,
-+						  const void *callout_info,
-+						  size_t callout_len,
- 						  void *aux);
- 
- extern int wait_for_key_construction(struct key *key, bool intr);
-diff --git a/security/keys/internal.h b/security/keys/internal.h
-index d36d693..f004835 100644
---- a/security/keys/internal.h
-+++ b/security/keys/internal.h
-@@ -109,7 +109,8 @@ extern int install_process_keyring(struct task_struct *tsk);
- 
- extern struct key *request_key_and_link(struct key_type *type,
- 					const char *description,
--					const char *callout_info,
-+					const void *callout_info,
-+					size_t callout_len,
- 					void *aux,
- 					struct key *dest_keyring,
- 					unsigned long flags);
-@@ -120,13 +121,15 @@ extern struct key *request_key_and_link(struct key_type *type,
- struct request_key_auth {
- 	struct key		*target_key;
- 	struct task_struct	*context;
--	char			*callout_info;
-+	void			*callout_info;
-+	size_t			callout_len;
- 	pid_t			pid;
+diff --git a/fs/nfs/iostat.h b/fs/nfs/iostat.h
+index 6350ecb..20dbc4f 100644
+--- a/fs/nfs/iostat.h
++++ b/fs/nfs/iostat.h
+@@ -107,6 +107,18 @@ enum nfs_stat_eventcounters {
+ 	__NFSIOS_COUNTSMAX,
  };
  
- extern struct key_type key_type_request_key_auth;
- extern struct key *request_key_auth_new(struct key *target,
--					const char *callout_info);
-+					const void *callout_info,
-+					size_t callout_len);
++/*
++ * NFS local caching servicing counters
++ */
++enum nfs_stat_fscachecounters {
++	NFSIOS_FSCACHE_PAGES_READ_OK,
++	NFSIOS_FSCACHE_PAGES_READ_FAIL,
++	NFSIOS_FSCACHE_PAGES_WRITTEN_OK,
++	NFSIOS_FSCACHE_PAGES_WRITTEN_FAIL,
++	NFSIOS_FSCACHE_PAGES_UNCACHED,
++	__NFSIOS_FSCACHEMAX,
++};
++
+ #ifdef __KERNEL__
  
- extern struct key *key_get_instantiation_authkey(key_serial_t target_id);
+ #include <linux/percpu.h>
+@@ -114,6 +126,9 @@ enum nfs_stat_eventcounters {
  
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index 8ec8432..1698bf9 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -152,6 +152,7 @@ asmlinkage long sys_request_key(const char __user *_type,
- 	struct key_type *ktype;
- 	struct key *key;
- 	key_ref_t dest_ref;
-+	size_t callout_len;
- 	char type[32], *description, *callout_info;
- 	long ret;
+ struct nfs_iostats {
+ 	unsigned long long	bytes[__NFSIOS_BYTESMAX];
++#ifdef CONFIG_NFS_FSCACHE
++	unsigned long long	fscache[__NFSIOS_FSCACHEMAX];
++#endif
+ 	unsigned long		events[__NFSIOS_COUNTSMAX];
+ } ____cacheline_aligned;
  
-@@ -169,12 +170,14 @@ asmlinkage long sys_request_key(const char __user *_type,
- 
- 	/* pull the callout info into kernel space */
- 	callout_info = NULL;
-+	callout_len = 0;
- 	if (_callout_info) {
- 		callout_info = strndup_user(_callout_info, PAGE_SIZE);
- 		if (IS_ERR(callout_info)) {
- 			ret = PTR_ERR(callout_info);
- 			goto error2;
- 		}
-+		callout_len = strlen(callout_info);
- 	}
- 
- 	/* get the destination keyring if specified */
-@@ -195,8 +198,8 @@ asmlinkage long sys_request_key(const char __user *_type,
- 	}
- 
- 	/* do the search */
--	key = request_key_and_link(ktype, description, callout_info, NULL,
--				   key_ref_to_ptr(dest_ref),
-+	key = request_key_and_link(ktype, description, callout_info,
-+				   callout_len, NULL, key_ref_to_ptr(dest_ref),
- 				   KEY_ALLOC_IN_QUOTA);
- 	if (IS_ERR(key)) {
- 		ret = PTR_ERR(key);
-diff --git a/security/keys/request_key.c b/security/keys/request_key.c
-index 5ecc505..a3f94c6 100644
---- a/security/keys/request_key.c
-+++ b/security/keys/request_key.c
-@@ -161,21 +161,22 @@ error_alloc:
-  * call out to userspace for key construction
-  * - we ignore program failure and go on key status instead
-  */
--static int construct_key(struct key *key, const char *callout_info, void *aux)
-+static int construct_key(struct key *key, const void *callout_info,
-+			 size_t callout_len, void *aux)
- {
- 	struct key_construction *cons;
- 	request_key_actor_t actor;
- 	struct key *authkey;
- 	int ret;
- 
--	kenter("%d,%s,%p", key->serial, callout_info, aux);
-+	kenter("%d,%p,%zu,%p", key->serial, callout_info, callout_len, aux);
- 
- 	cons = kmalloc(sizeof(*cons), GFP_KERNEL);
- 	if (!cons)
- 		return -ENOMEM;
- 
- 	/* allocate an authorisation key */
--	authkey = request_key_auth_new(key, callout_info);
-+	authkey = request_key_auth_new(key, callout_info, callout_len);
- 	if (IS_ERR(authkey)) {
- 		kfree(cons);
- 		ret = PTR_ERR(authkey);
-@@ -331,6 +332,7 @@ alloc_failed:
- static struct key *construct_key_and_link(struct key_type *type,
- 					  const char *description,
- 					  const char *callout_info,
-+					  size_t callout_len,
- 					  void *aux,
- 					  struct key *dest_keyring,
- 					  unsigned long flags)
-@@ -348,7 +350,7 @@ static struct key *construct_key_and_link(struct key_type *type,
- 	key_user_put(user);
- 
- 	if (ret == 0) {
--		ret = construct_key(key, callout_info, aux);
-+		ret = construct_key(key, callout_info, callout_len, aux);
- 		if (ret < 0)
- 			goto construction_failed;
- 	}
-@@ -370,7 +372,8 @@ construction_failed:
-  */
- struct key *request_key_and_link(struct key_type *type,
- 				 const char *description,
--				 const char *callout_info,
-+				 const void *callout_info,
-+				 size_t callout_len,
- 				 void *aux,
- 				 struct key *dest_keyring,
- 				 unsigned long flags)
-@@ -378,8 +381,8 @@ struct key *request_key_and_link(struct key_type *type,
- 	struct key *key;
- 	key_ref_t key_ref;
- 
--	kenter("%s,%s,%s,%p,%p,%lx",
--	       type->name, description, callout_info, aux,
-+	kenter("%s,%s,%p,%zu,%p,%p,%lx",
-+	       type->name, description, callout_info, callout_len, aux,
- 	       dest_keyring, flags);
- 
- 	/* search all the process keyrings for a key */
-@@ -398,7 +401,8 @@ struct key *request_key_and_link(struct key_type *type,
- 			goto error;
- 
- 		key = construct_key_and_link(type, description, callout_info,
--					     aux, dest_keyring, flags);
-+					     callout_len, aux, dest_keyring,
-+					     flags);
- 	}
- 
- error:
-@@ -434,10 +438,13 @@ struct key *request_key(struct key_type *type,
- 			const char *callout_info)
- {
- 	struct key *key;
-+	size_t callout_len = 0;
- 	int ret;
- 
--	key = request_key_and_link(type, description, callout_info, NULL,
--				   NULL, KEY_ALLOC_IN_QUOTA);
-+	if (callout_info)
-+		callout_len = strlen(callout_info);
-+	key = request_key_and_link(type, description, callout_info, callout_len,
-+				   NULL, NULL, KEY_ALLOC_IN_QUOTA);
- 	if (!IS_ERR(key)) {
- 		ret = wait_for_key_construction(key, false);
- 		if (ret < 0) {
-@@ -458,14 +465,15 @@ EXPORT_SYMBOL(request_key);
-  */
- struct key *request_key_with_auxdata(struct key_type *type,
- 				     const char *description,
--				     const char *callout_info,
-+				     const void *callout_info,
-+				     size_t callout_len,
- 				     void *aux)
- {
- 	struct key *key;
- 	int ret;
- 
--	key = request_key_and_link(type, description, callout_info, aux,
--				   NULL, KEY_ALLOC_IN_QUOTA);
-+	key = request_key_and_link(type, description, callout_info, callout_len,
-+				   aux, NULL, KEY_ALLOC_IN_QUOTA);
- 	if (!IS_ERR(key)) {
- 		ret = wait_for_key_construction(key, false);
- 		if (ret < 0) {
-@@ -485,10 +493,12 @@ EXPORT_SYMBOL(request_key_with_auxdata);
-  */
- struct key *request_key_async(struct key_type *type,
- 			      const char *description,
--			      const char *callout_info)
-+			      const void *callout_info,
-+			      size_t callout_len)
- {
--	return request_key_and_link(type, description, callout_info, NULL,
--				    NULL, KEY_ALLOC_IN_QUOTA);
-+	return request_key_and_link(type, description, callout_info,
-+				    callout_len, NULL, NULL,
-+				    KEY_ALLOC_IN_QUOTA);
+@@ -149,6 +164,21 @@ static inline void nfs_add_stats(struct inode *inode, enum nfs_stat_bytecounters
+ 	nfs_add_server_stats(NFS_SERVER(inode), stat, addend);
  }
- EXPORT_SYMBOL(request_key_async);
  
-@@ -500,10 +510,11 @@ EXPORT_SYMBOL(request_key_async);
-  */
- struct key *request_key_async_with_auxdata(struct key_type *type,
- 					   const char *description,
--					   const char *callout_info,
-+					   const void *callout_info,
-+					   size_t callout_len,
- 					   void *aux)
++#ifdef CONFIG_NFS_FSCACHE
++static inline void nfs_add_fscache_stats(struct inode *inode,
++					 enum nfs_stat_fscachecounters stat,
++					 unsigned long addend)
++{
++	struct nfs_iostats *iostats;
++	int cpu;
++
++	cpu = get_cpu();
++	iostats = per_cpu_ptr(NFS_SERVER(inode)->io_stats, cpu);
++	iostats->fscache[stat] += addend;
++	put_cpu_no_resched();
++}
++#endif
++
+ static inline struct nfs_iostats *nfs_alloc_iostats(void)
  {
--	return request_key_and_link(type, description, callout_info, aux,
--				    NULL, KEY_ALLOC_IN_QUOTA);
-+	return request_key_and_link(type, description, callout_info,
-+				    callout_len, aux, NULL, KEY_ALLOC_IN_QUOTA);
- }
- EXPORT_SYMBOL(request_key_async_with_auxdata);
-diff --git a/security/keys/request_key_auth.c b/security/keys/request_key_auth.c
-index e42b525..c615d47 100644
---- a/security/keys/request_key_auth.c
-+++ b/security/keys/request_key_auth.c
-@@ -61,7 +61,7 @@ static void request_key_auth_describe(const struct key *key,
+ 	return alloc_percpu(struct nfs_iostats);
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index 70604b9..7cd9e41 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -564,6 +564,10 @@ static int nfs_show_stats(struct seq_file *m, struct vfsmount *mnt)
+ 			totals.events[i] += stats->events[i];
+ 		for (i = 0; i < __NFSIOS_BYTESMAX; i++)
+ 			totals.bytes[i] += stats->bytes[i];
++#ifdef CONFIG_NFS_FSCACHE
++		for (i = 0; i < __NFSIOS_FSCACHEMAX; i++)
++			totals.fscache[i] += stats->fscache[i];
++#endif
  
- 	seq_puts(m, "key:");
- 	seq_puts(m, key->description);
--	seq_printf(m, " pid:%d ci:%zu", rka->pid, strlen(rka->callout_info));
-+	seq_printf(m, " pid:%d ci:%zu", rka->pid, rka->callout_len);
- 
- } /* end request_key_auth_describe() */
- 
-@@ -77,7 +77,7 @@ static long request_key_auth_read(const struct key *key,
- 	size_t datalen;
- 	long ret;
- 
--	datalen = strlen(rka->callout_info);
-+	datalen = rka->callout_len;
- 	ret = datalen;
- 
- 	/* we can return the data as is */
-@@ -137,7 +137,8 @@ static void request_key_auth_destroy(struct key *key)
-  * create an authorisation token for /sbin/request-key or whoever to gain
-  * access to the caller's security data
-  */
--struct key *request_key_auth_new(struct key *target, const char *callout_info)
-+struct key *request_key_auth_new(struct key *target, const void *callout_info,
-+				 size_t callout_len)
- {
- 	struct request_key_auth *rka, *irka;
- 	struct key *authkey = NULL;
-@@ -152,7 +153,7 @@ struct key *request_key_auth_new(struct key *target, const char *callout_info)
- 		kleave(" = -ENOMEM");
- 		return ERR_PTR(-ENOMEM);
+ 		preempt_enable();
  	}
--	rka->callout_info = kmalloc(strlen(callout_info) + 1, GFP_KERNEL);
-+	rka->callout_info = kmalloc(callout_len, GFP_KERNEL);
- 	if (!rka->callout_info) {
- 		kleave(" = -ENOMEM");
- 		kfree(rka);
-@@ -186,7 +187,8 @@ struct key *request_key_auth_new(struct key *target, const char *callout_info)
- 	}
+@@ -574,6 +578,13 @@ static int nfs_show_stats(struct seq_file *m, struct vfsmount *mnt)
+ 	seq_printf(m, "\n\tbytes:\t");
+ 	for (i = 0; i < __NFSIOS_BYTESMAX; i++)
+ 		seq_printf(m, "%Lu ", totals.bytes[i]);
++#ifdef CONFIG_NFS_FSCACHE
++	if (nfss->options & NFS_OPTION_FSCACHE) {
++		seq_printf(m, "\n\tfsc:\t");
++		for (i = 0; i < __NFSIOS_FSCACHEMAX; i++)
++			seq_printf(m, "%Lu ", totals.bytes[i]);
++	}
++#endif
+ 	seq_printf(m, "\n");
  
- 	rka->target_key = key_get(target);
--	strcpy(rka->callout_info, callout_info);
-+	memcpy(rka->callout_info, callout_info, callout_len);
-+	rka->callout_len = callout_len;
- 
- 	/* allocate the auth key */
- 	sprintf(desc, "%x", target->serial);
+ 	rpc_print_iostats(m, nfss->client);
 
 
 --
