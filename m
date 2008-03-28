@@ -1,79 +1,52 @@
-Subject: Re: policy package names for Debian
+Subject: Re: Debian SE Linux status
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: russell@coker.com.au
-Cc: Manoj Srivastava <srivasta@debian.org>,
-        "SE-Linux," <selinux@tycho.nsa.gov>,
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <200803281340.01991.russell@coker.com.au>
-References: <200803281340.01991.russell@coker.com.au>
+        Joshua Brindle <method@manicmethod.com>,
+        Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <200803281106.47699.russell@coker.com.au>
+References: <200803281106.47699.russell@coker.com.au>
 Content-Type: text/plain
-Date: Fri, 28 Mar 2008 08:26:58 -0400
-Message-Id: <1206707218.3302.393.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 28 Mar 2008 08:53:10 -0400
+Message-Id: <1206708790.3302.414.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 2008-03-28 at 13:40 +1100, Russell Coker wrote:
-> The policy names used in Fedora/RHEL (according to the SELINUXTYPE field 
-> in /etc/selinux/config) are "targeted", "strict", and "mls".
+On Fri, 2008-03-28 at 11:06 +1100, Russell Coker wrote:
+> http://etbe.coker.com.au/2008/03/28/debian-se-linux-status/
 > 
-> The names currently used in Debian are "refpolicy-targeted" 
-> and "refpolicy-strict".  For my work on MLS in Debian I have started with a 
-> package named "refpolicy-mls" (but hope to release it just as "mls").
-> 
-> I believe that the contents of /etc/selinux/config should match between 
-> distributions as much as possible.  It would be good if documentation for how 
-> to solve problems on Fedora would work for people using Debian.
-> 
-> Also the "refpolicy" part of the name doesn't seem to add any value.  Policy 
-> other than "refpolicy" is old and forgotten, and more importantly there is no 
-> possibility of switching between them.  If a user could choose to have 
-> either "refpolicy-targeted" or the old "targeted" then that would be a good 
-> reason for having the different name.  But as they have no choice it seems 
-> better to have shorter names everywhere (both in the config file and in the 
-> package name).
-> 
-> pn  postfix-policy <none>         (no description available)
-> un  selinux-policy <none>         (no description available)
-> ii  selinux-policy 0.0.20061018-5 Headers from the SELinux reference policy fo
-> pn  selinux-policy <none>         (no description available)
-> pn  selinux-policy <none>         (no description available)
-> pn  selinux-policy <none>         (no description available)
-> ii  selinux-policy 0.0.20061018-5 Targeted variant of the SELinux reference po
-> 
-> The package name "selinux-policy-refpolicy-targeted" is unreasonably long to 
-> type and is too long to be usable in a default operation of "dpkg -l" (see 
-> the above output from "dpkg -l" on an 80 column xterm).
-> 
-> Manoj, I suggest that we change the package names to selinux-pol-targeted, 
-> selinux-pol-strict, and selinux-pol-mls.  That saves typing and results in 
-> the above dpkg command giving useful data.
+> Those of you who don't read Planet SE Linux but who are interested in Debian 
+> may want to read the above.
 
-If you are seeking consistency with Fedora, then note that it calls the
-packages selinux-policy-targeted and selinux-policy-mls. The
-selinux-policy-strict package is gone as of Fedora 8 and later,
-obsoleted by the merge of strict and targeted policies (now one just
-maps users to confined roles via semanage login and if one truly doesn't
-want to leave anything unconfined at all, one can semodule -r
-unconfined).
+Regarding the mismatch in policy version between your domU vs. dom0, you
+should be able to build older policy versions via the config setting
+in /etc/selinux/semanage.conf (modular build) or via the OUTPUT_POLICY=
+setting in build.conf, overridable on the make command line (monolithic
+build).
 
-Also, there is a selinux-policy-devel package in Fedora that has what is
-needed to build local policy modules.
+Or you could install newer selinux core userland in your dom0 such that
+it can read and downgrade the latest policy to the one supported by your
+kernel (libselinux policy load logic will convert a newer policy to an
+older one at load time for you).
 
-If on the other hand you want to track the names used by upstream
-refpolicy these days, then those would be standard, mcs, and mls.  The
-old strict/targeted distinction is no longer there either, so the only
-real distinctions are whether you have a policy with MLS field/logic
-completely disabled (standard), enabled and used for MCS (mcs) or
-enabled and used for MLS (mls).
+Agree that converting between non-MLS and MLS/MCS is very painful at
+present.  Part of that we can fix (inappropriate dependencies in
+semanage/seobject.py that should be querying the policy store via
+libsemanage/libsepol rather than checking the running policy), and part
+we cannot (still won't be able to switch the kind of policy at policy
+reload in the kernel).  I'd actually prefer that we just always enable
+the MLS engine and field for simplification, presenting the same
+experience to all users, and ensuring that we are all testing the same
+code paths.  I don't know how others feel about that though - I know
+that Gentoo has historically not enabled MCS/MLS, and that upstream
+refpolicy still defaults to not enabling it (standard).
 
-BTW, recently noticed that semanage user -a is broken under standard
-(non-mcs/mls) policy as there is a hardcoded :s0 in seobject.py on a
-prefix context check - so that needs to be resolved.  Or we just need to
-give up on non-mcs/mls policies altogether (that would simplify life for
-applications and users - a single format for all contexts).
+I'm not sure why MLS support significantly increases policy build time
+though.
 
 -- 
 Stephen Smalley
