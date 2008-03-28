@@ -1,18 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF6GAn024697
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:16 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF6JFI024737
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:19 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUY018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:14 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUa018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:17 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 19/45] Add missing consts to xattr function arguments [ver #35]
+Subject: [PATCH 28/45] FS-Cache: Make kAFS use FS-Cache [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:31:48 +0000
-Message-ID: <20080328143148.3483.50478.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:32:34 +0000
+Message-ID: <20080328143234.3483.48930.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,587 +20,1424 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add missing consts to xattr function arguments.
+The attached patch makes the kAFS filesystem in fs/afs/ use FS-Cache, and
+through it any attached caches.  The kAFS filesystem will use caching
+automatically if it's available.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
+Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- fs/xattr.c                          |   41 ++++++++++++++++---------------
- include/linux/security.h            |   46 ++++++++++++++++++++---------------
- include/linux/syscalls.h            |   30 ++++++++++++-----------
- include/linux/xattr.h               |    6 ++---
- security/commoncap.c                |    6 ++---
- security/dummy.c                    |   13 +++++-----
- security/security.c                 |   12 +++++----
- security/selinux/hooks.c            |   14 ++++++-----
- security/selinux/include/security.h |    2 +-
- security/selinux/ss/services.c      |    5 ++--
- security/smack/smack_lsm.c          |   12 +++++----
- 11 files changed, 100 insertions(+), 87 deletions(-)
+ fs/Kconfig         |    8 +
+ fs/afs/Makefile    |    3 
+ fs/afs/cache.c     |  507 ++++++++++++++++++++++++++++++++++------------------
+ fs/afs/cache.h     |   15 --
+ fs/afs/cell.c      |   16 +-
+ fs/afs/file.c      |  212 +++++++++++++---------
+ fs/afs/inode.c     |   25 +--
+ fs/afs/internal.h  |   53 ++---
+ fs/afs/main.c      |   27 +--
+ fs/afs/mntpt.c     |    4 
+ fs/afs/vlocation.c |   23 +-
+ fs/afs/volume.c    |   14 -
+ fs/afs/write.c     |   19 ++
+ 13 files changed, 553 insertions(+), 373 deletions(-)
 
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 3acab16..391c752 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -68,7 +68,7 @@ xattr_permission(struct inode *inode, const char *name, int mask)
- }
+diff --git a/fs/Kconfig b/fs/Kconfig
+index c42ec50..6ca14c1 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -2118,6 +2118,14 @@ config AFS_DEBUG
  
- int
--vfs_setxattr(struct dentry *dentry, char *name, void *value,
-+vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
- 		size_t size, int flags)
- {
- 	struct inode *inode = dentry->d_inode;
-@@ -132,7 +132,7 @@ out_noalloc:
- EXPORT_SYMBOL_GPL(xattr_getsecurity);
+ 	  If unsure, say N.
  
- ssize_t
--vfs_getxattr(struct dentry *dentry, char *name, void *value, size_t size)
-+vfs_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
- {
- 	struct inode *inode = dentry->d_inode;
- 	int error;
-@@ -188,7 +188,7 @@ vfs_listxattr(struct dentry *d, char *list, size_t size)
- EXPORT_SYMBOL_GPL(vfs_listxattr);
++config AFS_FSCACHE
++	bool "Provide AFS client caching support (EXPERIMENTAL)"
++	depends on EXPERIMENTAL
++	depends on AFS_FS=m && FSCACHE || AFS_FS=y && FSCACHE=y
++	help
++	  Say Y here if you want AFS data to be cached locally on disk through
++	  the generic filesystem cache manager
++
+ config 9P_FS
+ 	tristate "Plan 9 Resource Sharing Support (9P2000) (Experimental)"
+ 	depends on INET && NET_9P && EXPERIMENTAL
+diff --git a/fs/afs/Makefile b/fs/afs/Makefile
+index a666710..4f64b95 100644
+--- a/fs/afs/Makefile
++++ b/fs/afs/Makefile
+@@ -2,7 +2,10 @@
+ # Makefile for Red Hat Linux AFS client.
+ #
  
- int
--vfs_removexattr(struct dentry *dentry, char *name)
-+vfs_removexattr(struct dentry *dentry, const char *name)
- {
- 	struct inode *inode = dentry->d_inode;
- 	int error;
-@@ -219,7 +219,7 @@ EXPORT_SYMBOL_GPL(vfs_removexattr);
-  * Extended attribute SET operations
++afs-cache-$(CONFIG_AFS_FSCACHE) := cache.o
++
+ kafs-objs := \
++	$(afs-cache-y) \
+ 	callback.o \
+ 	cell.o \
+ 	cmservice.o \
+diff --git a/fs/afs/cache.c b/fs/afs/cache.c
+index de0d7de..9b93466 100644
+--- a/fs/afs/cache.c
++++ b/fs/afs/cache.c
+@@ -1,6 +1,6 @@
+ /* AFS caching stuff
+  *
+- * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
+  * Written by David Howells (dhowells@redhat.com)
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -9,248 +9,399 @@
+  * 2 of the License, or (at your option) any later version.
   */
- static long
--setxattr(struct dentry *d, char __user *name, void __user *value,
-+setxattr(struct dentry *d, const char __user *name, const void __user *value,
- 	 size_t size, int flags)
- {
- 	int error;
-@@ -253,8 +253,8 @@ setxattr(struct dentry *d, char __user *name, void __user *value,
- }
  
- asmlinkage long
--sys_setxattr(char __user *path, char __user *name, void __user *value,
--	     size_t size, int flags)
-+sys_setxattr(const char __user *path, const char __user *name,
-+	     const void __user *value, size_t size, int flags)
- {
- 	struct nameidata nd;
- 	int error;
-@@ -268,8 +268,8 @@ sys_setxattr(char __user *path, char __user *name, void __user *value,
- }
+-#ifdef AFS_CACHING_SUPPORT
+-static cachefs_match_val_t afs_cell_cache_match(void *target,
+-						const void *entry);
+-static void afs_cell_cache_update(void *source, void *entry);
+-
+-struct cachefs_index_def afs_cache_cell_index_def = {
+-	.name			= "cell_ix",
+-	.data_size		= sizeof(struct afs_cache_cell),
+-	.keys[0]		= { CACHEFS_INDEX_KEYS_ASCIIZ, 64 },
+-	.match			= afs_cell_cache_match,
+-	.update			= afs_cell_cache_update,
++#include <linux/slab.h>
++#include <linux/sched.h>
++#include "internal.h"
++
++static uint16_t afs_cell_cache_get_key(const void *cookie_netfs_data,
++				       void *buffer, uint16_t buflen);
++static uint16_t afs_cell_cache_get_aux(const void *cookie_netfs_data,
++				       void *buffer, uint16_t buflen);
++static enum fscache_checkaux afs_cell_cache_check_aux(void *cookie_netfs_data,
++						      const void *buffer,
++						      uint16_t buflen);
++
++static uint16_t afs_vlocation_cache_get_key(const void *cookie_netfs_data,
++					    void *buffer, uint16_t buflen);
++static uint16_t afs_vlocation_cache_get_aux(const void *cookie_netfs_data,
++					    void *buffer, uint16_t buflen);
++static enum fscache_checkaux afs_vlocation_cache_check_aux(
++	void *cookie_netfs_data, const void *buffer, uint16_t buflen);
++
++static uint16_t afs_volume_cache_get_key(const void *cookie_netfs_data,
++					 void *buffer, uint16_t buflen);
++
++static uint16_t afs_vnode_cache_get_key(const void *cookie_netfs_data,
++					void *buffer, uint16_t buflen);
++static void afs_vnode_cache_get_attr(const void *cookie_netfs_data,
++				     uint64_t *size);
++static uint16_t afs_vnode_cache_get_aux(const void *cookie_netfs_data,
++					void *buffer, uint16_t buflen);
++static enum fscache_checkaux afs_vnode_cache_check_aux(void *cookie_netfs_data,
++						       const void *buffer,
++						       uint16_t buflen);
++static void afs_vnode_cache_now_uncached(void *cookie_netfs_data);
++
++static struct fscache_netfs_operations afs_cache_ops = {
++};
++
++struct fscache_netfs afs_cache_netfs = {
++	.name			= "afs",
++	.version		= 0,
++	.ops			= &afs_cache_ops,
++};
++
++struct fscache_cookie_def afs_cell_cache_index_def = {
++	.name		= "AFS.cell",
++	.type		= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key	= afs_cell_cache_get_key,
++	.get_aux	= afs_cell_cache_get_aux,
++	.check_aux	= afs_cell_cache_check_aux,
++};
++
++struct fscache_cookie_def afs_vlocation_cache_index_def = {
++	.name			= "AFS.vldb",
++	.type			= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key		= afs_vlocation_cache_get_key,
++	.get_aux		= afs_vlocation_cache_get_aux,
++	.check_aux		= afs_vlocation_cache_check_aux,
++};
++
++struct fscache_cookie_def afs_volume_cache_index_def = {
++	.name		= "AFS.volume",
++	.type		= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key	= afs_volume_cache_get_key,
++};
++
++struct fscache_cookie_def afs_vnode_cache_index_def = {
++	.name			= "AFS.vnode",
++	.type			= FSCACHE_COOKIE_TYPE_DATAFILE,
++	.get_key		= afs_vnode_cache_get_key,
++	.get_attr		= afs_vnode_cache_get_attr,
++	.get_aux		= afs_vnode_cache_get_aux,
++	.check_aux		= afs_vnode_cache_check_aux,
++	.now_uncached		= afs_vnode_cache_now_uncached,
+ };
+-#endif
  
- asmlinkage long
--sys_lsetxattr(char __user *path, char __user *name, void __user *value,
--	      size_t size, int flags)
-+sys_lsetxattr(const char __user *path, const char __user *name,
-+	      const void __user *value, size_t size, int flags)
- {
- 	struct nameidata nd;
- 	int error;
-@@ -283,7 +283,7 @@ sys_lsetxattr(char __user *path, char __user *name, void __user *value,
- }
- 
- asmlinkage long
--sys_fsetxattr(int fd, char __user *name, void __user *value,
-+sys_fsetxattr(int fd, const char __user *name, const void __user *value,
- 	      size_t size, int flags)
- {
- 	struct file *f;
-@@ -304,7 +304,8 @@ sys_fsetxattr(int fd, char __user *name, void __user *value,
-  * Extended attribute GET operations
+ /*
+- * match a cell record obtained from the cache
++ * set the key for the index entry
   */
- static ssize_t
--getxattr(struct dentry *d, char __user *name, void __user *value, size_t size)
-+getxattr(struct dentry *d, const char __user *name, void __user *value,
-+	 size_t size)
+-#ifdef AFS_CACHING_SUPPORT
+-static cachefs_match_val_t afs_cell_cache_match(void *target,
+-						const void *entry)
++static uint16_t afs_cell_cache_get_key(const void *cookie_netfs_data,
++				       void *buffer, uint16_t bufmax)
  {
- 	ssize_t error;
- 	void *kvalue = NULL;
-@@ -338,8 +339,8 @@ getxattr(struct dentry *d, char __user *name, void __user *value, size_t size)
- }
+-	const struct afs_cache_cell *ccell = entry;
+-	struct afs_cell *cell = target;
++	const struct afs_cell *cell = cookie_netfs_data;
++	uint16_t klen;
  
- asmlinkage ssize_t
--sys_getxattr(char __user *path, char __user *name, void __user *value,
--	     size_t size)
-+sys_getxattr(const char __user *path, const char __user *name,
-+	     void __user *value, size_t size)
- {
- 	struct nameidata nd;
- 	ssize_t error;
-@@ -353,7 +354,7 @@ sys_getxattr(char __user *path, char __user *name, void __user *value,
- }
+-	_enter("{%s},{%s}", ccell->name, cell->name);
++	_enter("%p,%p,%u", cell, buffer, bufmax);
  
- asmlinkage ssize_t
--sys_lgetxattr(char __user *path, char __user *name, void __user *value,
-+sys_lgetxattr(const char __user *path, const char __user *name, void __user *value,
- 	      size_t size)
- {
- 	struct nameidata nd;
-@@ -368,7 +369,7 @@ sys_lgetxattr(char __user *path, char __user *name, void __user *value,
- }
+-	if (strncmp(ccell->name, cell->name, sizeof(ccell->name)) == 0) {
+-		_leave(" = SUCCESS");
+-		return CACHEFS_MATCH_SUCCESS;
+-	}
++	klen = strlen(cell->name);
++	if (klen > bufmax)
++		return 0;
  
- asmlinkage ssize_t
--sys_fgetxattr(int fd, char __user *name, void __user *value, size_t size)
-+sys_fgetxattr(int fd, const char __user *name, void __user *value, size_t size)
- {
- 	struct file *f;
- 	ssize_t error = -EBADF;
-@@ -413,7 +414,7 @@ listxattr(struct dentry *d, char __user *list, size_t size)
+-	_leave(" = FAILED");
+-	return CACHEFS_MATCH_FAILED;
++	memcpy(buffer, cell->name, klen);
++	return klen;
  }
+-#endif
  
- asmlinkage ssize_t
--sys_listxattr(char __user *path, char __user *list, size_t size)
-+sys_listxattr(const char __user *path, char __user *list, size_t size)
- {
- 	struct nameidata nd;
- 	ssize_t error;
-@@ -427,7 +428,7 @@ sys_listxattr(char __user *path, char __user *list, size_t size)
- }
- 
- asmlinkage ssize_t
--sys_llistxattr(char __user *path, char __user *list, size_t size)
-+sys_llistxattr(const char __user *path, char __user *list, size_t size)
- {
- 	struct nameidata nd;
- 	ssize_t error;
-@@ -459,7 +460,7 @@ sys_flistxattr(int fd, char __user *list, size_t size)
-  * Extended attribute REMOVE operations
+ /*
+- * update a cell record in the cache
++ * provide new auxilliary cache data
   */
- static long
--removexattr(struct dentry *d, char __user *name)
-+removexattr(struct dentry *d, const char __user *name)
+-#ifdef AFS_CACHING_SUPPORT
+-static void afs_cell_cache_update(void *source, void *entry)
++static uint16_t afs_cell_cache_get_aux(const void *cookie_netfs_data,
++				       void *buffer, uint16_t bufmax)
  {
- 	int error;
- 	char kname[XATTR_NAME_MAX + 1];
-@@ -474,7 +475,7 @@ removexattr(struct dentry *d, char __user *name)
- }
+-	struct afs_cache_cell *ccell = entry;
+-	struct afs_cell *cell = source;
++	const struct afs_cell *cell = cookie_netfs_data;
++	uint16_t dlen;
  
- asmlinkage long
--sys_removexattr(char __user *path, char __user *name)
-+sys_removexattr(const char __user *path, const char __user *name)
+-	_enter("%p,%p", source, entry);
++	_enter("%p,%p,%u", cell, buffer, bufmax);
+ 
+-	strncpy(ccell->name, cell->name, sizeof(ccell->name));
++	dlen = cell->vl_naddrs * sizeof(cell->vl_addrs[0]);
++	dlen = min(dlen, bufmax);
++	dlen &= ~(sizeof(cell->vl_addrs[0]) - 1);
+ 
+-	memcpy(ccell->vl_servers,
+-	       cell->vl_addrs,
+-	       min(sizeof(ccell->vl_servers), sizeof(cell->vl_addrs)));
++	memcpy(buffer, cell->vl_addrs, dlen);
++	return dlen;
++}
+ 
++/*
++ * check that the auxilliary data indicates that the entry is still valid
++ */
++static enum fscache_checkaux afs_cell_cache_check_aux(void *cookie_netfs_data,
++						      const void *buffer,
++						      uint16_t buflen)
++{
++	_leave(" = OKAY");
++	return FSCACHE_CHECKAUX_OKAY;
+ }
+-#endif
+-
+-#ifdef AFS_CACHING_SUPPORT
+-static cachefs_match_val_t afs_vlocation_cache_match(void *target,
+-						     const void *entry);
+-static void afs_vlocation_cache_update(void *source, void *entry);
+-
+-struct cachefs_index_def afs_vlocation_cache_index_def = {
+-	.name		= "vldb",
+-	.data_size	= sizeof(struct afs_cache_vlocation),
+-	.keys[0]	= { CACHEFS_INDEX_KEYS_ASCIIZ, 64 },
+-	.match		= afs_vlocation_cache_match,
+-	.update		= afs_vlocation_cache_update,
+-};
+-#endif
+ 
++/*****************************************************************************/
+ /*
+- * match a VLDB record stored in the cache
+- * - may also load target from entry
++ * set the key for the index entry
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-static cachefs_match_val_t afs_vlocation_cache_match(void *target,
+-						     const void *entry)
++static uint16_t afs_vlocation_cache_get_key(const void *cookie_netfs_data,
++					    void *buffer, uint16_t bufmax)
  {
- 	struct nameidata nd;
- 	int error;
-@@ -488,7 +489,7 @@ sys_removexattr(char __user *path, char __user *name)
- }
+-	const struct afs_cache_vlocation *vldb = entry;
+-	struct afs_vlocation *vlocation = target;
++	const struct afs_vlocation *vlocation = cookie_netfs_data;
++	uint16_t klen;
  
- asmlinkage long
--sys_lremovexattr(char __user *path, char __user *name)
-+sys_lremovexattr(const char __user *path, const char __user *name)
+-	_enter("{%s},{%s}", vlocation->vldb.name, vldb->name);
++	_enter("{%s},%p,%u", vlocation->vldb.name, buffer, bufmax);
+ 
+-	if (strncmp(vlocation->vldb.name, vldb->name, sizeof(vldb->name)) == 0
+-	    ) {
+-		if (!vlocation->valid ||
+-		    vlocation->vldb.rtime == vldb->rtime
++	klen = strnlen(vlocation->vldb.name, sizeof(vlocation->vldb.name));
++	if (klen > bufmax)
++		return 0;
++
++	memcpy(buffer, vlocation->vldb.name, klen);
++
++	_leave(" = %u", klen);
++	return klen;
++}
++
++/*
++ * provide new auxilliary cache data
++ */
++static uint16_t afs_vlocation_cache_get_aux(const void *cookie_netfs_data,
++					    void *buffer, uint16_t bufmax)
++{
++	const struct afs_vlocation *vlocation = cookie_netfs_data;
++	uint16_t dlen;
++
++	_enter("{%s},%p,%u", vlocation->vldb.name, buffer, bufmax);
++
++	dlen = sizeof(struct afs_cache_vlocation);
++	dlen -= offsetof(struct afs_cache_vlocation, nservers);
++	if (dlen > bufmax)
++		return 0;
++
++	memcpy(buffer, (uint8_t *)&vlocation->vldb.nservers, dlen);
++
++	_leave(" = %u", dlen);
++	return dlen;
++}
++
++/*
++ * check that the auxilliary data indicates that the entry is still valid
++ */
++static
++enum fscache_checkaux afs_vlocation_cache_check_aux(void *cookie_netfs_data,
++						    const void *buffer,
++						    uint16_t buflen)
++{
++	const struct afs_cache_vlocation *cvldb;
++	struct afs_vlocation *vlocation = cookie_netfs_data;
++	uint16_t dlen;
++
++	_enter("{%s},%p,%u", vlocation->vldb.name, buffer, buflen);
++
++	/* check the size of the data is what we're expecting */
++	dlen = sizeof(struct afs_cache_vlocation);
++	dlen -= offsetof(struct afs_cache_vlocation, nservers);
++	if (dlen != buflen)
++		return FSCACHE_CHECKAUX_OBSOLETE;
++
++	cvldb = container_of(buffer, struct afs_cache_vlocation, nservers);
++
++	/* if what's on disk is more valid than what's in memory, then use the
++	 * VL record from the cache */
++	if (!vlocation->valid || vlocation->vldb.rtime == cvldb->rtime) {
++		memcpy((uint8_t *)&vlocation->vldb.nservers, buffer, dlen);
++		vlocation->valid = 1;
++		_leave(" = SUCCESS [c->m]");
++		return FSCACHE_CHECKAUX_OKAY;
++	}
++
++	/* need to update the cache if the cached info differs */
++	if (memcmp(&vlocation->vldb, buffer, dlen) != 0) {
++		/* delete if the volume IDs for this name differ */
++		if (memcmp(&vlocation->vldb.vid, &cvldb->vid,
++			   sizeof(cvldb->vid)) != 0
+ 		    ) {
+-			vlocation->vldb = *vldb;
+-			vlocation->valid = 1;
+-			_leave(" = SUCCESS [c->m]");
+-			return CACHEFS_MATCH_SUCCESS;
+-		} else if (memcmp(&vlocation->vldb, vldb, sizeof(*vldb)) != 0) {
+-			/* delete if VIDs for this name differ */
+-			if (memcmp(&vlocation->vldb.vid,
+-				   &vldb->vid,
+-				   sizeof(vldb->vid)) != 0) {
+-				_leave(" = DELETE");
+-				return CACHEFS_MATCH_SUCCESS_DELETE;
+-			}
+-
+-			_leave(" = UPDATE");
+-			return CACHEFS_MATCH_SUCCESS_UPDATE;
+-		} else {
+-			_leave(" = SUCCESS");
+-			return CACHEFS_MATCH_SUCCESS;
++			_leave(" = OBSOLETE");
++			return FSCACHE_CHECKAUX_OBSOLETE;
+ 		}
++
++		_leave(" = UPDATE");
++		return FSCACHE_CHECKAUX_NEEDS_UPDATE;
+ 	}
+ 
+-	_leave(" = FAILED");
+-	return CACHEFS_MATCH_FAILED;
++	_leave(" = OKAY");
++	return FSCACHE_CHECKAUX_OKAY;
+ }
+-#endif
+ 
++/*****************************************************************************/
+ /*
+- * update a VLDB record stored in the cache
++ * set the key for the volume index entry
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-static void afs_vlocation_cache_update(void *source, void *entry)
++static uint16_t afs_volume_cache_get_key(const void *cookie_netfs_data,
++					void *buffer, uint16_t bufmax)
  {
- 	struct nameidata nd;
- 	int error;
-@@ -502,7 +503,7 @@ sys_lremovexattr(char __user *path, char __user *name)
- }
+-	struct afs_cache_vlocation *vldb = entry;
+-	struct afs_vlocation *vlocation = source;
++	const struct afs_volume *volume = cookie_netfs_data;
++	uint16_t klen;
++
++	_enter("{%u},%p,%u", volume->type, buffer, bufmax);
  
- asmlinkage long
--sys_fremovexattr(int fd, char __user *name)
-+sys_fremovexattr(int fd, const char __user *name)
+-	_enter("");
++	klen = sizeof(volume->type);
++	if (klen > bufmax)
++		return 0;
++
++	memcpy(buffer, &volume->type, sizeof(volume->type));
++
++	_leave(" = %u", klen);
++	return klen;
+ 
+-	*vldb = vlocation->vldb;
+ }
+-#endif
+-
+-#ifdef AFS_CACHING_SUPPORT
+-static cachefs_match_val_t afs_volume_cache_match(void *target,
+-						  const void *entry);
+-static void afs_volume_cache_update(void *source, void *entry);
+-
+-struct cachefs_index_def afs_volume_cache_index_def = {
+-	.name		= "volume",
+-	.data_size	= sizeof(struct afs_cache_vhash),
+-	.keys[0]	= { CACHEFS_INDEX_KEYS_BIN, 1 },
+-	.keys[1]	= { CACHEFS_INDEX_KEYS_BIN, 1 },
+-	.match		= afs_volume_cache_match,
+-	.update		= afs_volume_cache_update,
+-};
+-#endif
+ 
++/*****************************************************************************/
+ /*
+- * match a volume hash record stored in the cache
++ * set the key for the index entry
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-static cachefs_match_val_t afs_volume_cache_match(void *target,
+-						  const void *entry)
++static uint16_t afs_vnode_cache_get_key(const void *cookie_netfs_data,
++					void *buffer, uint16_t bufmax)
  {
- 	struct file *f;
- 	struct dentry *dentry;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index f6edffd..f293a00 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -51,8 +51,9 @@ extern void cap_capset_set (struct task_struct *target, kernel_cap_t *effective,
- extern int cap_bprm_set_security (struct linux_binprm *bprm);
- extern void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe);
- extern int cap_bprm_secureexec(struct linux_binprm *bprm);
--extern int cap_inode_setxattr(struct dentry *dentry, char *name, void *value, size_t size, int flags);
--extern int cap_inode_removexattr(struct dentry *dentry, char *name);
-+extern int cap_inode_setxattr(struct dentry *dentry, const char *name,
-+			      const void *value, size_t size, int flags);
-+extern int cap_inode_removexattr(struct dentry *dentry, const char *name);
- extern int cap_inode_need_killpriv(struct dentry *dentry);
- extern int cap_inode_killpriv(struct dentry *dentry);
- extern int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid, int flags);
-@@ -1335,13 +1336,13 @@ struct security_operations {
- 	int (*inode_setattr)	(struct dentry *dentry, struct iattr *attr);
- 	int (*inode_getattr) (struct vfsmount *mnt, struct dentry *dentry);
-         void (*inode_delete) (struct inode *inode);
--	int (*inode_setxattr) (struct dentry *dentry, char *name, void *value,
--			       size_t size, int flags);
--	void (*inode_post_setxattr) (struct dentry *dentry, char *name, void *value,
--				     size_t size, int flags);
--	int (*inode_getxattr) (struct dentry *dentry, char *name);
-+	int (*inode_setxattr) (struct dentry *dentry, const char *name,
-+			       const void *value, size_t size, int flags);
-+	void (*inode_post_setxattr) (struct dentry *dentry, const char *name,
-+				     const void *value, size_t size, int flags);
-+	int (*inode_getxattr) (struct dentry *dentry, const char *name);
- 	int (*inode_listxattr) (struct dentry *dentry);
--	int (*inode_removexattr) (struct dentry *dentry, char *name);
-+	int (*inode_removexattr) (struct dentry *dentry, const char *name);
- 	int (*inode_need_killpriv) (struct dentry *dentry);
- 	int (*inode_killpriv) (struct dentry *dentry);
- 	int (*inode_getsecurity)(const struct inode *inode, const char *name, void **buffer, bool alloc);
-@@ -1603,13 +1604,13 @@ int security_inode_permission(struct inode *inode, int mask, struct nameidata *n
- int security_inode_setattr(struct dentry *dentry, struct iattr *attr);
- int security_inode_getattr(struct vfsmount *mnt, struct dentry *dentry);
- void security_inode_delete(struct inode *inode);
--int security_inode_setxattr(struct dentry *dentry, char *name,
--			     void *value, size_t size, int flags);
--void security_inode_post_setxattr(struct dentry *dentry, char *name,
--				   void *value, size_t size, int flags);
--int security_inode_getxattr(struct dentry *dentry, char *name);
-+int security_inode_setxattr(struct dentry *dentry, const char *name,
-+			    const void *value, size_t size, int flags);
-+void security_inode_post_setxattr(struct dentry *dentry, const char *name,
-+				  const void *value, size_t size, int flags);
-+int security_inode_getxattr(struct dentry *dentry, const char *name);
- int security_inode_listxattr(struct dentry *dentry);
--int security_inode_removexattr(struct dentry *dentry, char *name);
-+int security_inode_removexattr(struct dentry *dentry, const char *name);
- int security_inode_need_killpriv(struct dentry *dentry);
- int security_inode_killpriv(struct dentry *dentry);
- int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc);
-@@ -2015,17 +2016,21 @@ static inline int security_inode_getattr (struct vfsmount *mnt,
- static inline void security_inode_delete (struct inode *inode)
- { }
+-	const struct afs_cache_vhash *vhash = entry;
+-	struct afs_volume *volume = target;
++	const struct afs_vnode *vnode = cookie_netfs_data;
++	uint16_t klen;
  
--static inline int security_inode_setxattr (struct dentry *dentry, char *name,
--					   void *value, size_t size, int flags)
-+static inline int security_inode_setxattr (struct dentry *dentry,
-+					   const char *name, const void *value,
-+					   size_t size, int flags)
+-	_enter("{%u},{%u}", volume->type, vhash->vtype);
++	_enter("{%x,%x,%llx},%p,%u",
++	       vnode->fid.vnode, vnode->fid.unique, vnode->status.data_version,
++	       buffer, bufmax);
+ 
+-	if (volume->type == vhash->vtype) {
+-		_leave(" = SUCCESS");
+-		return CACHEFS_MATCH_SUCCESS;
+-	}
++	klen = sizeof(vnode->fid.vnode);
++	if (klen > bufmax)
++		return 0;
+ 
+-	_leave(" = FAILED");
+-	return CACHEFS_MATCH_FAILED;
++	memcpy(buffer, &vnode->fid.vnode, sizeof(vnode->fid.vnode));
++
++	_leave(" = %u", klen);
++	return klen;
+ }
+-#endif
+ 
+ /*
+- * update a volume hash record stored in the cache
++ * provide updated file attributes
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-static void afs_volume_cache_update(void *source, void *entry)
++static void afs_vnode_cache_get_attr(const void *cookie_netfs_data,
++				     uint64_t *size)
  {
- 	return cap_inode_setxattr(dentry, name, value, size, flags);
+-	struct afs_cache_vhash *vhash = entry;
+-	struct afs_volume *volume = source;
++	const struct afs_vnode *vnode = cookie_netfs_data;
+ 
+-	_enter("");
++	_enter("{%x,%x,%llx},",
++	       vnode->fid.vnode, vnode->fid.unique,
++	       vnode->status.data_version);
+ 
+-	vhash->vtype = volume->type;
++	*size = vnode->status.size;
  }
+-#endif
+-
+-#ifdef AFS_CACHING_SUPPORT
+-static cachefs_match_val_t afs_vnode_cache_match(void *target,
+-						 const void *entry);
+-static void afs_vnode_cache_update(void *source, void *entry);
+-
+-struct cachefs_index_def afs_vnode_cache_index_def = {
+-	.name		= "vnode",
+-	.data_size	= sizeof(struct afs_cache_vnode),
+-	.keys[0]	= { CACHEFS_INDEX_KEYS_BIN, 4 },
+-	.match		= afs_vnode_cache_match,
+-	.update		= afs_vnode_cache_update,
+-};
+-#endif
  
--static inline void security_inode_post_setxattr (struct dentry *dentry, char *name,
--						 void *value, size_t size, int flags)
-+static inline void security_inode_post_setxattr (struct dentry *dentry,
-+						 const char *name,
-+						 const void *value, size_t size,
-+						 int flags)
- { }
- 
--static inline int security_inode_getxattr (struct dentry *dentry, char *name)
-+static inline int security_inode_getxattr (struct dentry *dentry,
-+					   const char *name)
+ /*
+- * match a vnode record stored in the cache
++ * provide new auxilliary cache data
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-static cachefs_match_val_t afs_vnode_cache_match(void *target,
+-						 const void *entry)
++static uint16_t afs_vnode_cache_get_aux(const void *cookie_netfs_data,
++					void *buffer, uint16_t bufmax)
  {
- 	return 0;
- }
-@@ -2035,7 +2040,8 @@ static inline int security_inode_listxattr (struct dentry *dentry)
- 	return 0;
- }
+-	const struct afs_cache_vnode *cvnode = entry;
+-	struct afs_vnode *vnode = target;
+-
+-	_enter("{%x,%x,%Lx},{%x,%x,%Lx}",
+-	       vnode->fid.vnode,
+-	       vnode->fid.unique,
+-	       vnode->status.version,
+-	       cvnode->vnode_id,
+-	       cvnode->vnode_unique,
+-	       cvnode->data_version);
+-
+-	if (vnode->fid.vnode != cvnode->vnode_id) {
+-		_leave(" = FAILED");
+-		return CACHEFS_MATCH_FAILED;
++	const struct afs_vnode *vnode = cookie_netfs_data;
++	uint16_t dlen;
++
++	_enter("{%x,%x,%Lx},%p,%u",
++	       vnode->fid.vnode, vnode->fid.unique, vnode->status.data_version,
++	       buffer, bufmax);
++
++	dlen = sizeof(vnode->fid.unique) + sizeof(vnode->status.data_version);
++	if (dlen > bufmax)
++		return 0;
++
++	memcpy(buffer, &vnode->fid.unique, sizeof(vnode->fid.unique));
++	buffer += sizeof(vnode->fid.unique);
++	memcpy(buffer, &vnode->status.data_version,
++	       sizeof(vnode->status.data_version));
++
++	_leave(" = %u", dlen);
++	return dlen;
++}
++
++/*
++ * check that the auxilliary data indicates that the entry is still valid
++ */
++static enum fscache_checkaux afs_vnode_cache_check_aux(void *cookie_netfs_data,
++						       const void *buffer,
++						       uint16_t buflen)
++{
++	struct afs_vnode *vnode = cookie_netfs_data;
++	uint16_t dlen;
++
++	_enter("{%x,%x,%llx},%p,%u",
++	       vnode->fid.vnode, vnode->fid.unique, vnode->status.data_version,
++	       buffer, buflen);
++
++	/* check the size of the data is what we're expecting */
++	dlen = sizeof(vnode->fid.unique) + sizeof(vnode->status.data_version);
++	if (dlen != buflen) {
++		_leave(" = OBSOLETE [len %hx != %hx]", dlen, buflen);
++		return FSCACHE_CHECKAUX_OBSOLETE;
+ 	}
  
--static inline int security_inode_removexattr (struct dentry *dentry, char *name)
-+static inline int security_inode_removexattr (struct dentry *dentry,
-+					      const char *name)
- {
- 	return cap_inode_removexattr(dentry, name);
+-	if (vnode->fid.unique != cvnode->vnode_unique ||
+-	    vnode->status.version != cvnode->data_version) {
+-		_leave(" = DELETE");
+-		return CACHEFS_MATCH_SUCCESS_DELETE;
++	if (memcmp(buffer,
++		   &vnode->fid.unique,
++		   sizeof(vnode->fid.unique)
++		   ) != 0) {
++		unsigned unique;
++
++		memcpy(&unique, buffer, sizeof(unique));
++
++		_leave(" = OBSOLETE [uniq %x != %x]",
++		       unique, vnode->fid.unique);
++		return FSCACHE_CHECKAUX_OBSOLETE;
++	}
++
++	if (memcmp(buffer + sizeof(vnode->fid.unique),
++		   &vnode->status.data_version,
++		   sizeof(vnode->status.data_version)
++		   ) != 0) {
++		afs_dataversion_t version;
++
++		memcpy(&version, buffer + sizeof(vnode->fid.unique),
++		       sizeof(version));
++
++		_leave(" = OBSOLETE [vers %llx != %llx]",
++		       version, vnode->status.data_version);
++		return FSCACHE_CHECKAUX_OBSOLETE;
+ 	}
+ 
+ 	_leave(" = SUCCESS");
+-	return CACHEFS_MATCH_SUCCESS;
++	return FSCACHE_CHECKAUX_OKAY;
  }
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index 4c2577b..f65e9fe 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -241,26 +241,28 @@ asmlinkage long sys_truncate64(const char __user *path, loff_t length);
- asmlinkage long sys_ftruncate64(unsigned int fd, loff_t length);
+-#endif
+ 
+ /*
+- * update a vnode record stored in the cache
++ * indication the cookie is no longer uncached
++ * - this function is called when the backing store currently caching a cookie
++ *   is removed
++ * - the netfs should use this to clean up any markers indicating cached pages
++ * - this is mandatory for any object that may have data
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-static void afs_vnode_cache_update(void *source, void *entry)
++static void afs_vnode_cache_now_uncached(void *cookie_netfs_data)
+ {
+-	struct afs_cache_vnode *cvnode = entry;
+-	struct afs_vnode *vnode = source;
++	struct afs_vnode *vnode = cookie_netfs_data;
++	struct pagevec pvec;
++	pgoff_t first;
++	int loop, nr_pages;
++
++	_enter("{%x,%x,%Lx}",
++	       vnode->fid.vnode, vnode->fid.unique, vnode->status.data_version);
++
++	pagevec_init(&pvec, 0);
++	first = 0;
++
++	for (;;) {
++		/* grab a bunch of pages to clean */
++		nr_pages = pagevec_lookup(&pvec, vnode->vfs_inode.i_mapping,
++					  first,
++					  PAGEVEC_SIZE - pagevec_count(&pvec));
++		if (!nr_pages)
++			break;
+ 
+-	_enter("");
++		for (loop = 0; loop < nr_pages; loop++)
++			ClearPageFsCache(pvec.pages[loop]);
++
++		first = pvec.pages[nr_pages - 1]->index + 1;
++
++		pvec.nr = nr_pages;
++		pagevec_release(&pvec);
++		cond_resched();
++	}
+ 
+-	cvnode->vnode_id	= vnode->fid.vnode;
+-	cvnode->vnode_unique	= vnode->fid.unique;
+-	cvnode->data_version	= vnode->status.version;
++	_leave("");
+ }
+-#endif
+diff --git a/fs/afs/cache.h b/fs/afs/cache.h
+index 36a3642..5c4f6b4 100644
+--- a/fs/afs/cache.h
++++ b/fs/afs/cache.h
+@@ -1,6 +1,6 @@
+ /* AFS local cache management interface
+  *
+- * Copyright (C) 2002 Red Hat, Inc. All Rights Reserved.
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
+  * Written by David Howells (dhowells@redhat.com)
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -9,15 +9,4 @@
+  * 2 of the License, or (at your option) any later version.
+  */
+ 
+-#ifndef AFS_CACHE_H
+-#define AFS_CACHE_H
+-
+-#undef AFS_CACHING_SUPPORT
+-
+-#include <linux/mm.h>
+-#ifdef AFS_CACHING_SUPPORT
+-#include <linux/cachefs.h>
+-#endif
+-#include "types.h"
+-
+-#endif /* AFS_CACHE_H */
++#include <linux/fscache.h>
+diff --git a/fs/afs/cell.c b/fs/afs/cell.c
+index 788865d..ed71eaf 100644
+--- a/fs/afs/cell.c
++++ b/fs/afs/cell.c
+@@ -146,12 +146,11 @@ struct afs_cell *afs_cell_create(const char *name, char *vllist)
+ 	if (ret < 0)
+ 		goto error;
+ 
+-#ifdef AFS_CACHING_SUPPORT
+-	/* put it up for caching */
+-	cachefs_acquire_cookie(afs_cache_netfs.primary_index,
+-			       &afs_vlocation_cache_index_def,
+-			       cell,
+-			       &cell->cache);
++#ifdef CONFIG_AFS_FSCACHE
++	/* put it up for caching (this never returns an error) */
++	cell->cache = fscache_acquire_cookie(afs_cache_netfs.primary_index,
++					     &afs_cell_cache_index_def,
++					     cell);
  #endif
  
--asmlinkage long sys_setxattr(char __user *path, char __user *name,
--				void __user *value, size_t size, int flags);
--asmlinkage long sys_lsetxattr(char __user *path, char __user *name,
--				void __user *value, size_t size, int flags);
--asmlinkage long sys_fsetxattr(int fd, char __user *name, void __user *value,
--				size_t size, int flags);
--asmlinkage ssize_t sys_getxattr(char __user *path, char __user *name,
-+asmlinkage long sys_setxattr(const char __user *path, const char __user *name,
-+			     const void __user *value, size_t size, int flags);
-+asmlinkage long sys_lsetxattr(const char __user *path, const char __user *name,
-+			      const void __user *value, size_t size, int flags);
-+asmlinkage long sys_fsetxattr(int fd, const char __user *name,
-+			      const void __user *value, size_t size, int flags);
-+asmlinkage ssize_t sys_getxattr(const char __user *path, const char __user *name,
- 				void __user *value, size_t size);
--asmlinkage ssize_t sys_lgetxattr(char __user *path, char __user *name,
-+asmlinkage ssize_t sys_lgetxattr(const char __user *path, const char __user *name,
- 				void __user *value, size_t size);
--asmlinkage ssize_t sys_fgetxattr(int fd, char __user *name,
-+asmlinkage ssize_t sys_fgetxattr(int fd, const char __user *name,
- 				void __user *value, size_t size);
--asmlinkage ssize_t sys_listxattr(char __user *path, char __user *list,
-+asmlinkage ssize_t sys_listxattr(const char __user *path, char __user *list,
- 				size_t size);
--asmlinkage ssize_t sys_llistxattr(char __user *path, char __user *list,
-+asmlinkage ssize_t sys_llistxattr(const char __user *path, char __user *list,
- 				size_t size);
- asmlinkage ssize_t sys_flistxattr(int fd, char __user *list, size_t size);
--asmlinkage long sys_removexattr(char __user *path, char __user *name);
--asmlinkage long sys_lremovexattr(char __user *path, char __user *name);
--asmlinkage long sys_fremovexattr(int fd, char __user *name);
-+asmlinkage long sys_removexattr(const char __user *path,
-+				const char __user *name);
-+asmlinkage long sys_lremovexattr(const char __user *path,
-+				 const char __user *name);
-+asmlinkage long sys_fremovexattr(int fd, const char __user *name);
+ 	/* add to the cell lists */
+@@ -361,10 +360,7 @@ static void afs_cell_destroy(struct afs_cell *cell)
+ 	list_del_init(&cell->proc_link);
+ 	up_write(&afs_proc_cells_sem);
  
- asmlinkage unsigned long sys_brk(unsigned long brk);
- asmlinkage long sys_mprotect(unsigned long start, size_t len,
-diff --git a/include/linux/xattr.h b/include/linux/xattr.h
-index df6b95d..d131e35 100644
---- a/include/linux/xattr.h
-+++ b/include/linux/xattr.h
-@@ -47,10 +47,10 @@ struct xattr_handler {
- };
+-#ifdef AFS_CACHING_SUPPORT
+-	cachefs_relinquish_cookie(cell->cache, 0);
+-#endif
+-
++	fscache_relinquish_cookie(cell->cache, 0);
+ 	key_put(cell->anonymous_key);
+ 	kfree(cell);
  
- ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
--ssize_t vfs_getxattr(struct dentry *, char *, void *, size_t);
-+ssize_t vfs_getxattr(struct dentry *, const char *, void *, size_t);
- ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
--int vfs_setxattr(struct dentry *, char *, void *, size_t, int);
--int vfs_removexattr(struct dentry *, char *);
-+int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
-+int vfs_removexattr(struct dentry *, const char *);
+diff --git a/fs/afs/file.c b/fs/afs/file.c
+index 525f7c5..f18f276 100644
+--- a/fs/afs/file.c
++++ b/fs/afs/file.c
+@@ -23,6 +23,9 @@ static void afs_invalidatepage(struct page *page, unsigned long offset);
+ static int afs_releasepage(struct page *page, gfp_t gfp_flags);
+ static int afs_launder_page(struct page *page);
  
- ssize_t generic_getxattr(struct dentry *dentry, const char *name, void *buffer, size_t size);
- ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size);
-diff --git a/security/commoncap.c b/security/commoncap.c
-index e8c6940..534e411 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -395,8 +395,8 @@ int cap_bprm_secureexec (struct linux_binprm *bprm)
- 		sec->egid != sec->gid);
- }
++static int afs_readpages(struct file *filp, struct address_space *mapping,
++			 struct list_head *pages, unsigned nr_pages);
++
+ const struct file_operations afs_file_operations = {
+ 	.open		= afs_open,
+ 	.release	= afs_release,
+@@ -46,6 +49,7 @@ const struct inode_operations afs_file_inode_operations = {
  
--int cap_inode_setxattr(struct dentry *dentry, char *name, void *value,
--		       size_t size, int flags)
-+int cap_inode_setxattr(struct dentry *dentry, const char *name,
-+		       const void *value, size_t size, int flags)
- {
- 	if (!strcmp(name, XATTR_NAME_CAPS)) {
- 		if (!capable(CAP_SETFCAP))
-@@ -409,7 +409,7 @@ int cap_inode_setxattr(struct dentry *dentry, char *name, void *value,
- 	return 0;
- }
- 
--int cap_inode_removexattr(struct dentry *dentry, char *name)
-+int cap_inode_removexattr(struct dentry *dentry, const char *name)
- {
- 	if (!strcmp(name, XATTR_NAME_CAPS)) {
- 		if (!capable(CAP_SETFCAP))
-diff --git a/security/dummy.c b/security/dummy.c
-index 3d3db47..3f0c8cb 100644
---- a/security/dummy.c
-+++ b/security/dummy.c
-@@ -370,8 +370,8 @@ static void dummy_inode_delete (struct inode *ino)
- 	return;
- }
- 
--static int dummy_inode_setxattr (struct dentry *dentry, char *name, void *value,
--				size_t size, int flags)
-+static int dummy_inode_setxattr (struct dentry *dentry, const char *name,
-+				 const void *value, size_t size, int flags)
- {
- 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
- 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
-@@ -380,12 +380,13 @@ static int dummy_inode_setxattr (struct dentry *dentry, char *name, void *value,
- 	return 0;
- }
- 
--static void dummy_inode_post_setxattr (struct dentry *dentry, char *name, void *value,
--				       size_t size, int flags)
-+static void dummy_inode_post_setxattr (struct dentry *dentry, const char *name,
-+				       const void *value, size_t size,
-+				       int flags)
- {
- }
- 
--static int dummy_inode_getxattr (struct dentry *dentry, char *name)
-+static int dummy_inode_getxattr (struct dentry *dentry, const char *name)
- {
- 	return 0;
- }
-@@ -395,7 +396,7 @@ static int dummy_inode_listxattr (struct dentry *dentry)
- 	return 0;
- }
- 
--static int dummy_inode_removexattr (struct dentry *dentry, char *name)
-+static int dummy_inode_removexattr (struct dentry *dentry, const char *name)
- {
- 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
- 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
-diff --git a/security/security.c b/security/security.c
-index 881e372..87cd150 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -455,23 +455,23 @@ void security_inode_delete(struct inode *inode)
- 	security_ops->inode_delete(inode);
- }
- 
--int security_inode_setxattr(struct dentry *dentry, char *name,
--			     void *value, size_t size, int flags)
-+int security_inode_setxattr(struct dentry *dentry, const char *name,
-+			    const void *value, size_t size, int flags)
- {
- 	if (unlikely(IS_PRIVATE(dentry->d_inode)))
- 		return 0;
- 	return security_ops->inode_setxattr(dentry, name, value, size, flags);
- }
- 
--void security_inode_post_setxattr(struct dentry *dentry, char *name,
--				   void *value, size_t size, int flags)
-+void security_inode_post_setxattr(struct dentry *dentry, const char *name,
-+				  const void *value, size_t size, int flags)
- {
- 	if (unlikely(IS_PRIVATE(dentry->d_inode)))
- 		return;
- 	security_ops->inode_post_setxattr(dentry, name, value, size, flags);
- }
- 
--int security_inode_getxattr(struct dentry *dentry, char *name)
-+int security_inode_getxattr(struct dentry *dentry, const char *name)
- {
- 	if (unlikely(IS_PRIVATE(dentry->d_inode)))
- 		return 0;
-@@ -485,7 +485,7 @@ int security_inode_listxattr(struct dentry *dentry)
- 	return security_ops->inode_listxattr(dentry);
- }
- 
--int security_inode_removexattr(struct dentry *dentry, char *name)
-+int security_inode_removexattr(struct dentry *dentry, const char *name)
- {
- 	if (unlikely(IS_PRIVATE(dentry->d_inode)))
- 		return 0;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index cf79f25..1ac3e71 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2554,7 +2554,7 @@ static int selinux_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
- 	return dentry_has_perm(current, mnt, dentry, FILE__GETATTR);
- }
- 
--static int selinux_inode_setotherxattr(struct dentry *dentry, char *name)
-+static int selinux_inode_setotherxattr(struct dentry *dentry, const char *name)
- {
- 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
- 		     sizeof XATTR_SECURITY_PREFIX - 1)) {
-@@ -2573,7 +2573,8 @@ static int selinux_inode_setotherxattr(struct dentry *dentry, char *name)
- 	return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
- }
- 
--static int selinux_inode_setxattr(struct dentry *dentry, char *name, void *value, size_t size, int flags)
-+static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
-+				  const void *value, size_t size, int flags)
- {
- 	struct task_security_struct *tsec = current->act_as->security;
- 	struct inode *inode = dentry->d_inode;
-@@ -2622,8 +2623,9 @@ static int selinux_inode_setxattr(struct dentry *dentry, char *name, void *value
- 			    &ad);
- }
- 
--static void selinux_inode_post_setxattr(struct dentry *dentry, char *name,
--                                        void *value, size_t size, int flags)
-+static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
-+                                        const void *value, size_t size,
-+					int flags)
- {
- 	struct inode *inode = dentry->d_inode;
- 	struct inode_security_struct *isec = inode->i_security;
-@@ -2646,7 +2648,7 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, char *name,
- 	return;
- }
- 
--static int selinux_inode_getxattr (struct dentry *dentry, char *name)
-+static int selinux_inode_getxattr (struct dentry *dentry, const char *name)
- {
- 	return dentry_has_perm(current, NULL, dentry, FILE__GETATTR);
- }
-@@ -2656,7 +2658,7 @@ static int selinux_inode_listxattr (struct dentry *dentry)
- 	return dentry_has_perm(current, NULL, dentry, FILE__GETATTR);
- }
- 
--static int selinux_inode_removexattr (struct dentry *dentry, char *name)
-+static int selinux_inode_removexattr (struct dentry *dentry, const char *name)
- {
- 	if (strcmp(name, XATTR_NAME_SELINUX))
- 		return selinux_inode_setotherxattr(dentry, name);
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index f7d2f03..526e959 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -83,7 +83,7 @@ int security_change_sid(u32 ssid, u32 tsid,
- int security_sid_to_context(u32 sid, char **scontext,
- 	u32 *scontext_len);
- 
--int security_context_to_sid(char *scontext, u32 scontext_len,
-+int security_context_to_sid(const char *scontext, u32 scontext_len,
- 	u32 *out_sid);
- 
- int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *out_sid, u32 def_sid);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f374186..519b2c1 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -680,7 +680,8 @@ out:
- 
- }
- 
--static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
-+static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
-+					u32 *sid, u32 def_sid)
- {
- 	char *scontext2;
- 	struct context context;
-@@ -806,7 +807,7 @@ out:
-  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
-  * memory is available, or 0 on success.
+ const struct address_space_operations afs_fs_aops = {
+ 	.readpage	= afs_readpage,
++	.readpages	= afs_readpages,
+ 	.set_page_dirty	= afs_set_page_dirty,
+ 	.launder_page	= afs_launder_page,
+ 	.releasepage	= afs_releasepage,
+@@ -101,37 +105,18 @@ int afs_release(struct inode *inode, struct file *file)
+ /*
+  * deal with notification that a page was read from the cache
   */
--int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
-+int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
+-#ifdef AFS_CACHING_SUPPORT
+-static void afs_readpage_read_complete(void *cookie_data,
+-				       struct page *page,
+-				       void *data,
+-				       int error)
++static void afs_file_readpage_read_complete(struct page *page,
++					    void *data,
++					    int error)
  {
- 	return security_context_to_sid_core(scontext, scontext_len,
- 	                                    sid, SECSID_NULL);
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 90f2534..a4ece02 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -575,8 +575,8 @@ static int smack_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
+-	_enter("%p,%p,%p,%d", cookie_data, page, data, error);
++	_enter("%p,%p,%d", page, data, error);
+ 
+-	if (error)
+-		SetPageError(page);
+-	else
++	/* if the read completes with an error, we just unlock the page and let
++	 * the VM reissue the readpage */
++	if (!error)
+ 		SetPageUptodate(page);
+ 	unlock_page(page);
+-
+-}
+-#endif
+-
+-/*
+- * deal with notification that a page was written to the cache
+- */
+-#ifdef AFS_CACHING_SUPPORT
+-static void afs_readpage_write_complete(void *cookie_data,
+-					struct page *page,
+-					void *data,
+-					int error)
+-{
+-	_enter("%p,%p,%p,%d", cookie_data, page, data, error);
+-
+-	unlock_page(page);
+ }
+-#endif
+ 
+ /*
+  * AFS read page from file, directory or symlink
+@@ -161,30 +146,27 @@ static int afs_readpage(struct file *file, struct page *page)
+ 	if (test_bit(AFS_VNODE_DELETED, &vnode->flags))
+ 		goto error;
+ 
+-#ifdef AFS_CACHING_SUPPORT
+ 	/* is it cached? */
+-	ret = cachefs_read_or_alloc_page(vnode->cache,
++	ret = fscache_read_or_alloc_page(vnode->cache,
+ 					 page,
+ 					 afs_file_readpage_read_complete,
+ 					 NULL,
+ 					 GFP_KERNEL);
+-#else
+-	ret = -ENOBUFS;
+-#endif
+-
+ 	switch (ret) {
+-		/* read BIO submitted and wb-journal entry found */
+-	case 1:
+-		BUG(); // TODO - handle wb-journal match
+-
+ 		/* read BIO submitted (page in cache) */
+ 	case 0:
+ 		break;
+ 
+-		/* no page available in cache */
+-	case -ENOBUFS:
++		/* page not yet cached */
+ 	case -ENODATA:
++		_debug("cache said ENODATA");
++		goto go_on;
++
++		/* page will not be cached */
++	case -ENOBUFS:
++		_debug("cache said ENOBUFS");
+ 	default:
++	go_on:
+ 		offset = page->index << PAGE_CACHE_SHIFT;
+ 		len = min_t(size_t, i_size_read(inode) - offset, PAGE_SIZE);
+ 
+@@ -198,27 +180,21 @@ static int afs_readpage(struct file *file, struct page *page)
+ 				set_bit(AFS_VNODE_DELETED, &vnode->flags);
+ 				ret = -ESTALE;
+ 			}
+-#ifdef AFS_CACHING_SUPPORT
+-			cachefs_uncache_page(vnode->cache, page);
+-#endif
++
++			fscache_uncache_page(vnode->cache, page);
++			BUG_ON(PageFsCache(page));
+ 			goto error;
+ 		}
+ 
+ 		SetPageUptodate(page);
+ 
+-#ifdef AFS_CACHING_SUPPORT
+-		if (cachefs_write_page(vnode->cache,
+-				       page,
+-				       afs_file_readpage_write_complete,
+-				       NULL,
+-				       GFP_KERNEL) != 0
+-		    ) {
+-			cachefs_uncache_page(vnode->cache, page);
+-			unlock_page(page);
++		/* send the page to the cache */
++		if (PageFsCache(page) &&
++		    fscache_write_page(vnode->cache, page, GFP_KERNEL) != 0) {
++			fscache_uncache_page(vnode->cache, page);
++			BUG_ON(PageFsCache(page));
+ 		}
+-#else
+ 		unlock_page(page);
+-#endif
+ 	}
+ 
+ 	_leave(" = 0");
+@@ -232,34 +208,55 @@ error:
+ }
+ 
+ /*
+- * invalidate part or all of a page
++ * read a set of pages
+  */
+-static void afs_invalidatepage(struct page *page, unsigned long offset)
++static int afs_readpages(struct file *file, struct address_space *mapping,
++			 struct list_head *pages, unsigned nr_pages)
+ {
+-	int ret = 1;
++	struct afs_vnode *vnode;
++	int ret = 0;
+ 
+-	_enter("{%lu},%lu", page->index, offset);
++	_enter(",{%lu},,%d", mapping->host->i_ino, nr_pages);
+ 
+-	BUG_ON(!PageLocked(page));
++	vnode = AFS_FS_I(mapping->host);
++	if (vnode->flags & AFS_VNODE_DELETED) {
++		_leave(" = -ESTALE");
++		return -ESTALE;
++	}
+ 
+-	if (PagePrivate(page)) {
+-		/* We release buffers only if the entire page is being
+-		 * invalidated.
+-		 * The get_block cached value has been unconditionally
+-		 * invalidated, so real IO is not possible anymore.
+-		 */
+-		if (offset == 0) {
+-			BUG_ON(!PageLocked(page));
+-
+-			ret = 0;
+-			if (!PageWriteback(page))
+-				ret = page->mapping->a_ops->releasepage(page,
+-									0);
+-			/* possibly should BUG_ON(!ret); - neilb */
+-		}
++	/* attempt to read as many of the pages as possible */
++	ret = fscache_read_or_alloc_pages(vnode->cache,
++					  mapping,
++					  pages,
++					  &nr_pages,
++					  afs_file_readpage_read_complete,
++					  NULL,
++					  mapping_gfp_mask(mapping));
++
++	switch (ret) {
++		/* all pages are being read from the cache */
++	case 0:
++		BUG_ON(!list_empty(pages));
++		BUG_ON(nr_pages != 0);
++		_leave(" = 0 [reading all]");
++		return 0;
++
++		/* there were pages that couldn't be read from the cache */
++	case -ENODATA:
++	case -ENOBUFS:
++		break;
++
++		/* other error */
++	default:
++		_leave(" = %d", ret);
++		return ret;
+ 	}
+ 
+-	_leave(" = %d", ret);
++	/* load the missing pages from the network */
++	ret = read_cache_pages(mapping, pages, (void *) afs_readpage, file);
++
++	_leave(" = %d [netting]", ret);
++	return ret;
+ }
+ 
+ /*
+@@ -273,25 +270,78 @@ static int afs_launder_page(struct page *page)
+ }
+ 
+ /*
+- * release a page and cleanup its private data
++ * invalidate part or all of a page
++ * - release a page and clean up its private data if offset is 0 (indicating
++ *   the entire page)
++ */
++static void afs_invalidatepage(struct page *page, unsigned long offset)
++{
++	struct afs_writeback *wb = (struct afs_writeback *) page_private(page);
++	struct afs_vnode *vnode = AFS_FS_I(page->mapping->host);
++
++	_enter("{%lu},%lu", page->index, offset);
++
++	BUG_ON(!PageLocked(page));
++
++	/* we clean up only if the entire page is being invalidated */
++	if (offset == 0) {
++		if (PageFsCache(page)) {
++			wait_on_page_fscache_write(page);
++			fscache_uncache_page(vnode->cache, page);
++			ClearPageFsCache(page);
++		}
++
++		if (PagePrivate(page)) {
++			if (wb && !PageWriteback(page)) {
++				set_page_private(page, 0);
++				afs_put_writeback(wb);
++			}
++
++			if (!page_private(page))
++				ClearPagePrivate(page);
++		}
++	}
++
++	_leave("");
++}
++
++/*
++ * release a page and clean up its private state if it's not busy
++ * - return true if the page can now be released, false if not
+  */
+ static int afs_releasepage(struct page *page, gfp_t gfp_flags)
+ {
++	struct afs_writeback *wb = (struct afs_writeback *) page_private(page);
+ 	struct afs_vnode *vnode = AFS_FS_I(page->mapping->host);
+-	struct afs_writeback *wb;
+ 
+ 	_enter("{{%x:%u}[%lu],%lx},%x",
+ 	       vnode->fid.vid, vnode->fid.vnode, page->index, page->flags,
+ 	       gfp_flags);
+ 
++	/* deny if page is being written to the cache and the caller hasn't
++	 * elected to wait */
++	if (PageFsCache(page)) {
++		if (PageFsCacheWrite(page)) {
++			if (!(gfp_flags & __GFP_WAIT)) {
++				_leave(" = F [cache busy]");
++				return 0;
++			}
++			wait_on_page_fscache_write(page);
++		}
++
++		fscache_uncache_page(vnode->cache, page);
++		ClearPageFsCache(page);
++	}
++
+ 	if (PagePrivate(page)) {
+-		wb = (struct afs_writeback *) page_private(page);
+-		ASSERT(wb != NULL);
+-		set_page_private(page, 0);
++		if (wb) {
++			set_page_private(page, 0);
++			afs_put_writeback(wb);
++		}
+ 		ClearPagePrivate(page);
+-		afs_put_writeback(wb);
+ 	}
+ 
+-	_leave(" = 0");
+-	return 0;
++	/* indicate that the page can be released */
++	_leave(" = T");
++	return 1;
+ }
+diff --git a/fs/afs/inode.c b/fs/afs/inode.c
+index 08db82e..8902221 100644
+--- a/fs/afs/inode.c
++++ b/fs/afs/inode.c
+@@ -61,6 +61,9 @@ static int afs_inode_map_status(struct afs_vnode *vnode, struct key *key)
+ 		return -EBADMSG;
+ 	}
+ 
++	if (vnode->status.size != inode->i_size)
++		fscache_attr_changed(vnode->cache);
++
+ 	inode->i_nlink		= vnode->status.nlink;
+ 	inode->i_uid		= vnode->status.owner;
+ 	inode->i_gid		= 0;
+@@ -149,15 +152,6 @@ struct inode *afs_iget(struct super_block *sb, struct key *key,
+ 		return inode;
+ 	}
+ 
+-#ifdef AFS_CACHING_SUPPORT
+-	/* set up caching before reading the status, as fetch-status reads the
+-	 * first page of symlinks to see if they're really mntpts */
+-	cachefs_acquire_cookie(vnode->volume->cache,
+-			       NULL,
+-			       vnode,
+-			       &vnode->cache);
+-#endif
+-
+ 	if (!status) {
+ 		/* it's a remotely extant inode */
+ 		set_bit(AFS_VNODE_CB_BROKEN, &vnode->flags);
+@@ -183,6 +177,13 @@ struct inode *afs_iget(struct super_block *sb, struct key *key,
+ 		}
+ 	}
+ 
++	/* set up caching before mapping the status, as map-status reads the
++	 * first page of symlinks to see if they're really mountpoints */
++	inode->i_size = vnode->status.size;
++	vnode->cache = fscache_acquire_cookie(vnode->volume->cache,
++					      &afs_vnode_cache_index_def,
++					      vnode);
++
+ 	ret = afs_inode_map_status(vnode, key);
+ 	if (ret < 0)
+ 		goto bad_inode;
+@@ -196,6 +197,8 @@ struct inode *afs_iget(struct super_block *sb, struct key *key,
+ 
+ 	/* failure */
+ bad_inode:
++	fscache_relinquish_cookie(vnode->cache, 0);
++	vnode->cache = NULL;
+ 	iget_failed(inode);
+ 	_leave(" = %d [bad]", ret);
+ 	return ERR_PTR(ret);
+@@ -340,10 +343,8 @@ void afs_clear_inode(struct inode *inode)
+ 	ASSERT(list_empty(&vnode->writebacks));
+ 	ASSERT(!vnode->cb_promised);
+ 
+-#ifdef AFS_CACHING_SUPPORT
+-	cachefs_relinquish_cookie(vnode->cache, 0);
++	fscache_relinquish_cookie(vnode->cache, 0);
+ 	vnode->cache = NULL;
+-#endif
+ 
+ 	mutex_lock(&vnode->permits_lock);
+ 	permits = vnode->permits;
+diff --git a/fs/afs/internal.h b/fs/afs/internal.h
+index 5ca3625..85820a2 100644
+--- a/fs/afs/internal.h
++++ b/fs/afs/internal.h
+@@ -21,6 +21,7 @@
+ 
+ #include "afs.h"
+ #include "afs_vl.h"
++#include "cache.h"
+ 
+ #define AFS_CELL_MAX_ADDRS 15
+ 
+@@ -193,9 +194,7 @@ struct afs_cell {
+ 	struct key		*anonymous_key;	/* anonymous user key for this cell */
+ 	struct list_head	proc_link;	/* /proc cell list link */
+ 	struct proc_dir_entry	*proc_dir;	/* /proc dir for this cell */
+-#ifdef AFS_CACHING_SUPPORT
+-	struct cachefs_cookie	*cache;		/* caching cookie */
+-#endif
++	struct fscache_cookie	*cache;		/* caching cookie */
+ 
+ 	/* server record management */
+ 	rwlock_t		servers_lock;	/* active server list lock */
+@@ -249,9 +248,7 @@ struct afs_vlocation {
+ 	struct list_head	grave;		/* link in master graveyard list */
+ 	struct list_head	update;		/* link in master update list */
+ 	struct afs_cell		*cell;		/* cell to which volume belongs */
+-#ifdef AFS_CACHING_SUPPORT
+-	struct cachefs_cookie	*cache;		/* caching cookie */
+-#endif
++	struct fscache_cookie	*cache;		/* caching cookie */
+ 	struct afs_cache_vlocation vldb;	/* volume information DB record */
+ 	struct afs_volume	*vols[3];	/* volume access record pointer (index by type) */
+ 	wait_queue_head_t	waitq;		/* status change waitqueue */
+@@ -302,9 +299,7 @@ struct afs_volume {
+ 	atomic_t		usage;
+ 	struct afs_cell		*cell;		/* cell to which belongs (unrefd ptr) */
+ 	struct afs_vlocation	*vlocation;	/* volume location */
+-#ifdef AFS_CACHING_SUPPORT
+-	struct cachefs_cookie	*cache;		/* caching cookie */
+-#endif
++	struct fscache_cookie	*cache;		/* caching cookie */
+ 	afs_volid_t		vid;		/* volume ID */
+ 	afs_voltype_t		type;		/* type of volume */
+ 	char			type_force;	/* force volume type (suppress R/O -> R/W) */
+@@ -333,9 +328,7 @@ struct afs_vnode {
+ 	struct afs_server	*server;	/* server currently supplying this file */
+ 	struct afs_fid		fid;		/* the file identifier for this inode */
+ 	struct afs_file_status	status;		/* AFS status info for this file */
+-#ifdef AFS_CACHING_SUPPORT
+-	struct cachefs_cookie	*cache;		/* caching cookie */
+-#endif
++	struct fscache_cookie	*cache;		/* caching cookie */
+ 	struct afs_permits	*permits;	/* cache of permits so far obtained */
+ 	struct mutex		permits_lock;	/* lock for altering permits list */
+ 	struct mutex		validate_lock;	/* lock for validating this vnode */
+@@ -428,6 +421,22 @@ struct afs_uuid {
+ 
+ /*****************************************************************************/
+ /*
++ * cache.c
++ */
++#ifdef CONFIG_AFS_FSCACHE
++extern struct fscache_netfs afs_cache_netfs;
++extern struct fscache_cookie_def afs_cell_cache_index_def;
++extern struct fscache_cookie_def afs_vlocation_cache_index_def;
++extern struct fscache_cookie_def afs_volume_cache_index_def;
++extern struct fscache_cookie_def afs_vnode_cache_index_def;
++#else
++#define afs_cell_cache_index_def	(*(struct fscache_cookie_def *) NULL)
++#define afs_vlocation_cache_index_def	(*(struct fscache_cookie_def *) NULL)
++#define afs_volume_cache_index_def	(*(struct fscache_cookie_def *) NULL)
++#define afs_vnode_cache_index_def	(*(struct fscache_cookie_def *) NULL)
++#endif
++
++/*
+  * callback.c
+  */
+ extern void afs_init_callback_state(struct afs_server *);
+@@ -446,9 +455,6 @@ extern void afs_callback_update_kill(void);
+  */
+ extern struct rw_semaphore afs_proc_cells_sem;
+ extern struct list_head afs_proc_cells;
+-#ifdef AFS_CACHING_SUPPORT
+-extern struct cachefs_index_def afs_cache_cell_index_def;
+-#endif
+ 
+ #define afs_get_cell(C) do { atomic_inc(&(C)->usage); } while(0)
+ extern int afs_cell_init(char *);
+@@ -556,9 +562,6 @@ extern void afs_clear_inode(struct inode *);
+  * main.c
+  */
+ extern struct afs_uuid afs_uuid;
+-#ifdef AFS_CACHING_SUPPORT
+-extern struct cachefs_netfs afs_cache_netfs;
+-#endif
+ 
+ /*
+  * misc.c
+@@ -640,10 +643,6 @@ extern int afs_get_MAC_address(u8 *, size_t);
+ /*
+  * vlclient.c
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-extern struct cachefs_index_def afs_vlocation_cache_index_def;
+-#endif
+-
+ extern int afs_vl_get_entry_by_name(struct in_addr *, struct key *,
+ 				    const char *, struct afs_cache_vlocation *,
+ 				    const struct afs_wait_mode *);
+@@ -667,12 +666,6 @@ extern void afs_vlocation_purge(void);
+ /*
+  * vnode.c
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-extern struct cachefs_index_def afs_vnode_cache_index_def;
+-#endif
+-
+-extern struct afs_timer_ops afs_vnode_cb_timed_out_ops;
+-
+ static inline struct afs_vnode *AFS_FS_I(struct inode *inode)
+ {
+ 	return container_of(inode, struct afs_vnode, vfs_inode);
+@@ -714,10 +707,6 @@ extern int afs_vnode_release_lock(struct afs_vnode *, struct key *);
+ /*
+  * volume.c
+  */
+-#ifdef AFS_CACHING_SUPPORT
+-extern struct cachefs_index_def afs_volume_cache_index_def;
+-#endif
+-
+ #define afs_get_volume(V) do { atomic_inc(&(V)->usage); } while(0)
+ 
+ extern void afs_put_volume(struct afs_volume *);
+diff --git a/fs/afs/main.c b/fs/afs/main.c
+index 0f60f6b..f04b838 100644
+--- a/fs/afs/main.c
++++ b/fs/afs/main.c
+@@ -1,6 +1,6 @@
+ /* AFS client file system
   *
-  * Returns 0 if access is permitted, an error code otherwise
-  */
--static int smack_inode_setxattr(struct dentry *dentry, char *name,
--				void *value, size_t size, int flags)
-+static int smack_inode_setxattr(struct dentry *dentry, const char *name,
-+				const void *value, size_t size, int flags)
- {
- 	int rc = 0;
- 
-@@ -605,8 +605,8 @@ static int smack_inode_setxattr(struct dentry *dentry, char *name,
-  * Set the pointer in the inode blob to the entry found
-  * in the master label list.
-  */
--static void smack_inode_post_setxattr(struct dentry *dentry, char *name,
--				      void *value, size_t size, int flags)
-+static void smack_inode_post_setxattr(struct dentry *dentry, const char *name,
-+				      const void *value, size_t size, int flags)
- {
- 	struct inode_smack *isp;
- 	char *nsp;
-@@ -642,7 +642,7 @@ static void smack_inode_post_setxattr(struct dentry *dentry, char *name,
+- * Copyright (C) 2002 Red Hat, Inc. All Rights Reserved.
++ * Copyright (C) 2002,5 Red Hat, Inc. All Rights Reserved.
+  * Written by David Howells (dhowells@redhat.com)
   *
-  * Returns 0 if access is permitted, an error code otherwise
-  */
--static int smack_inode_getxattr(struct dentry *dentry, char *name)
-+static int smack_inode_getxattr(struct dentry *dentry, const char *name)
- {
- 	return smk_curacc(smk_of_inode(dentry->d_inode), MAY_READ);
+  * This program is free software; you can redistribute it and/or
+@@ -29,18 +29,6 @@ static char *rootcell;
+ module_param(rootcell, charp, 0);
+ MODULE_PARM_DESC(rootcell, "root AFS cell name and VL server IP addr list");
+ 
+-#ifdef AFS_CACHING_SUPPORT
+-static struct cachefs_netfs_operations afs_cache_ops = {
+-	.get_page_cookie	= afs_cache_get_page_cookie,
+-};
+-
+-struct cachefs_netfs afs_cache_netfs = {
+-	.name			= "afs",
+-	.version		= 0,
+-	.ops			= &afs_cache_ops,
+-};
+-#endif
+-
+ struct afs_uuid afs_uuid;
+ 
+ /*
+@@ -104,10 +92,9 @@ static int __init afs_init(void)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-#ifdef AFS_CACHING_SUPPORT
++#ifdef CONFIG_AFS_FSCACHE
+ 	/* we want to be able to cache */
+-	ret = cachefs_register_netfs(&afs_cache_netfs,
+-				     &afs_cache_cell_index_def);
++	ret = fscache_register_netfs(&afs_cache_netfs);
+ 	if (ret < 0)
+ 		goto error_cache;
+ #endif
+@@ -142,8 +129,8 @@ error_fs:
+ error_open_socket:
+ error_vl_update_init:
+ error_cell_init:
+-#ifdef AFS_CACHING_SUPPORT
+-	cachefs_unregister_netfs(&afs_cache_netfs);
++#ifdef CONFIG_AFS_FSCACHE
++	fscache_unregister_netfs(&afs_cache_netfs);
+ error_cache:
+ #endif
+ 	afs_callback_update_kill();
+@@ -175,8 +162,8 @@ static void __exit afs_exit(void)
+ 	afs_vlocation_purge();
+ 	flush_scheduled_work();
+ 	afs_cell_purge();
+-#ifdef AFS_CACHING_SUPPORT
+-	cachefs_unregister_netfs(&afs_cache_netfs);
++#ifdef CONFIG_AFS_FSCACHE
++	fscache_unregister_netfs(&afs_cache_netfs);
+ #endif
+ 	afs_proc_cleanup();
+ 	rcu_barrier();
+diff --git a/fs/afs/mntpt.c b/fs/afs/mntpt.c
+index a3510b8..47ff627 100644
+--- a/fs/afs/mntpt.c
++++ b/fs/afs/mntpt.c
+@@ -173,9 +173,9 @@ static struct vfsmount *afs_mntpt_do_automount(struct dentry *mntpt)
+ 	if (PageError(page))
+ 		goto error;
+ 
+-	buf = kmap(page);
++	buf = kmap_atomic(page, KM_USER0);
+ 	memcpy(devname, buf, size);
+-	kunmap(page);
++	kunmap_atomic(buf, KM_USER0);
+ 	page_cache_release(page);
+ 	page = NULL;
+ 
+diff --git a/fs/afs/vlocation.c b/fs/afs/vlocation.c
+index 849fc31..0b6ee24 100644
+--- a/fs/afs/vlocation.c
++++ b/fs/afs/vlocation.c
+@@ -281,10 +281,7 @@ static void afs_vlocation_apply_update(struct afs_vlocation *vl,
+ 
+ 	vl->vldb = *vldb;
+ 
+-#ifdef AFS_CACHING_SUPPORT
+-	/* update volume entry in local cache */
+-	cachefs_update_cookie(vl->cache);
+-#endif
++	fscache_update_cookie(vl->cache);
  }
-@@ -656,7 +656,7 @@ static int smack_inode_getxattr(struct dentry *dentry, char *name)
-  *
-  * Returns 0 if access is permitted, an error code otherwise
-  */
--static int smack_inode_removexattr(struct dentry *dentry, char *name)
-+static int smack_inode_removexattr(struct dentry *dentry, const char *name)
- {
- 	int rc = 0;
  
+ /*
+@@ -304,12 +301,8 @@ static int afs_vlocation_fill_in_record(struct afs_vlocation *vl,
+ 	memset(&vldb, 0, sizeof(vldb));
+ 
+ 	/* see if we have an in-cache copy (will set vl->valid if there is) */
+-#ifdef AFS_CACHING_SUPPORT
+-	cachefs_acquire_cookie(cell->cache,
+-			       &afs_volume_cache_index_def,
+-			       vlocation,
+-			       &vl->cache);
+-#endif
++	vl->cache = fscache_acquire_cookie(vl->cell->cache,
++					   &afs_vlocation_cache_index_def, vl);
+ 
+ 	if (vl->valid) {
+ 		/* try to update a known volume in the cell VL databases by
+@@ -420,6 +413,9 @@ fill_in_record:
+ 	spin_unlock(&vl->lock);
+ 	wake_up(&vl->waitq);
+ 
++	/* update volume entry in local cache */
++	fscache_update_cookie(vl->cache);
++
+ 	/* schedule for regular updates */
+ 	afs_vlocation_queue_for_updates(vl);
+ 	goto success;
+@@ -465,7 +461,7 @@ found_in_memory:
+ 	spin_unlock(&vl->lock);
+ 
+ success:
+-	_leave(" = %p",vl);
++	_leave(" = %p", vl);
+ 	return vl;
+ 
+ error_abandon:
+@@ -523,10 +519,7 @@ static void afs_vlocation_destroy(struct afs_vlocation *vl)
+ {
+ 	_enter("%p", vl);
+ 
+-#ifdef AFS_CACHING_SUPPORT
+-	cachefs_relinquish_cookie(vl->cache, 0);
+-#endif
+-
++	fscache_relinquish_cookie(vl->cache, 0);
+ 	afs_put_cell(vl->cell);
+ 	kfree(vl);
+ }
+diff --git a/fs/afs/volume.c b/fs/afs/volume.c
+index 8bab0e3..2cc3dab 100644
+--- a/fs/afs/volume.c
++++ b/fs/afs/volume.c
+@@ -124,13 +124,9 @@ struct afs_volume *afs_volume_lookup(struct afs_mount_params *params)
+ 	}
+ 
+ 	/* attach the cache and volume location */
+-#ifdef AFS_CACHING_SUPPORT
+-	cachefs_acquire_cookie(vlocation->cache,
+-			       &afs_vnode_cache_index_def,
+-			       volume,
+-			       &volume->cache);
+-#endif
+-
++	volume->cache = fscache_acquire_cookie(vlocation->cache,
++					       &afs_volume_cache_index_def,
++					       volume);
+ 	afs_get_vlocation(vlocation);
+ 	volume->vlocation = vlocation;
+ 
+@@ -194,9 +190,7 @@ void afs_put_volume(struct afs_volume *volume)
+ 	up_write(&vlocation->cell->vl_sem);
+ 
+ 	/* finish cleaning up the volume */
+-#ifdef AFS_CACHING_SUPPORT
+-	cachefs_relinquish_cookie(volume->cache, 0);
+-#endif
++	fscache_relinquish_cookie(volume->cache, 0);
+ 	afs_put_vlocation(vlocation);
+ 
+ 	for (loop = volume->nservers - 1; loop >= 0; loop--)
+diff --git a/fs/afs/write.c b/fs/afs/write.c
+index 9a849ad..51e1f1b 100644
+--- a/fs/afs/write.c
++++ b/fs/afs/write.c
+@@ -825,3 +825,22 @@ int afs_fsync(struct file *file, struct dentry *dentry, int datasync)
+ 	_leave(" = %d", ret);
+ 	return ret;
+ }
++
++/*
++ * notification that a previously read-only page is about to become writable
++ * - if it returns an error, the caller will deliver a bus error signal
++ */
++int afs_page_mkwrite(struct vm_area_struct *vma, struct page *page)
++{
++	struct afs_vnode *vnode = AFS_FS_I(vma->vm_file->f_mapping->host);
++
++	_enter("{{%x:%u}},{%lx}",
++	       vnode->fid.vid, vnode->fid.vnode, page->index);
++
++	/* wait for the page to be written to the cache before we allow it to
++	 * be modified */
++	wait_on_page_fscache_write(page);
++
++	_leave(" = 0");
++	return 0;
++}
 
 
 --
