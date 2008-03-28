@@ -1,49 +1,63 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5BLs023844
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:11 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qU0018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:08 GMT
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 30/45] NFS: Add FS-Cache option bit and debug bit [ver #35]
+To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
+        chuck.lever@oracle.com
+Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, dhowells@redhat.com
+Date: Fri, 28 Mar 2008 14:32:45 +0000
+Message-ID: <20080328143244.3483.15642.stgit@warthog.procyon.org.uk>
+In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
+References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Subject: Re: policy package names for Debian
-Date: Fri, 28 Mar 2008 10:50:18 -0400
-Message-ID: <1206715818.16113.324.camel@gorn>
-In-Reply-To: <1206712622.3302.460.camel@moss-spartans.epoch.ncsc.mil>
-References: <200803281340.01991.russell@coker.com.au> <1206707218.3302.393.camel@moss-spartans.epoch.ncsc.mil> <1206710819.16113.310.camel@gorn> <1206712622.3302.460.camel@moss-spartans.epoch.ncsc.mil>
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <russell@coker.com.au>, "Manoj Srivastava" <srivasta@debian.org>,
-        "SE-Linux," <selinux@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Chad Sellers" <csellers@tresys.com>
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-03-28 at 09:57 -0400, Stephen Smalley wrote:
-> > Neglecting the above, I still disagree with dropping a TE-only
-> > configuration.  While you can arrive at the same configuration by having
-> > one category and one sensitivity and/or dropping the MLS constraints,
-> > you still get MLS bits leaking through, eg. in semanage.
-> 
-> That's the point - the presence/absence of a context field is visible to
-> users and applications no matter how much we try to encapsulate the
-> contexts, and having the two different configurations makes maintenance
-> and user experience more difficult/confusing.
+Add FS-Cache option bit to nfs_server struct.  This is set to indicate local
+on-disk caching is enabled for a particular superblock.
 
-I think the confusion is worse for the TE-only case (emulated by no mls
-constraints or only one category/sensitivity).  For example, if you
-short circuit the level translation to "", then people get confused when
-their setexecon() fails because they haven't put :s0 at the end of the
-context, but none of their ps -AZ processes have it.  Thats
-significantly more obtuse than people thinking "Fedora has that MCS
-stuff, and Ubuntu doesn't."  There is always configuration/support
-variances between distros.
+Also add debug bit for local caching operations.
 
-I'm not convinced many people actually use MCS at all.  Users have a
-hard enough time dealing with TE.  If it wasn't for MCS I don't think
-we'd even be having this discussion.
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+ include/linux/nfs_fs.h    |    1 +
+ include/linux/nfs_fs_sb.h |    2 ++
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
+
+diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
+index f4a0e4c..720cdad 100644
+--- a/include/linux/nfs_fs.h
++++ b/include/linux/nfs_fs.h
+@@ -579,6 +579,7 @@ extern void * nfs_root_data(void);
+ #define NFSDBG_CALLBACK		0x0100
+ #define NFSDBG_CLIENT		0x0200
+ #define NFSDBG_MOUNT		0x0400
++#define NFSDBG_FSCACHE		0x0800
+ #define NFSDBG_ALL		0xFFFF
+ 
+ #ifdef __KERNEL__
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index 3423c67..e7c4cdd 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -99,6 +99,8 @@ struct nfs_server {
+ 	unsigned int		acdirmin;
+ 	unsigned int		acdirmax;
+ 	unsigned int		namelen;
++	unsigned int		options;	/* extra options enabled by mount */
++#define NFS_OPTION_FSCACHE	0x00000001	/* - local caching enabled */
+ 
+ 	struct nfs_fsid		fsid;
+ 	__u64			maxfilesize;	/* maximum file size */
 
 
 --
