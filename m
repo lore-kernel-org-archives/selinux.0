@@ -1,19 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEY9II017501
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:34:09 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEYFfo017533
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:34:15 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEY6Ts005031
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:34:06 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEYCTs005080
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:34:13 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 07/45] KEYS: Make key_serial() a function if CONFIG_KEYS=y
-	[ver #35]
+Subject: [PATCH 02/45] KEYS: Check starting keyring as part of search [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:30:46 +0000
-Message-ID: <20080328143046.3483.46994.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:30:21 +0000
+Message-ID: <20080328143021.3483.17742.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,33 +20,117 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Make key_serial() an inline function rather than a macro if CONFIG_KEYS=y.
-This prevents double evaluation of the key pointer and also provides better
-type checking.
+Check the starting keyring as part of the search to (a) see if that is what
+we're searching for, and (b) to check it is still valid for searching.
 
+The scenario:  User in process A does things that cause things to be
+created in its process session keyring.  The user then does an su to
+another user and starts a new process, B.  The two processes now
+share the same process session keyring.
+
+Process B does an NFS access which results in an upcall to gssd.
+When gssd attempts to instantiate the context key (to be linked
+into the process session keyring), it is denied access even though it
+has an authorization key.
+
+The order of calls is:
+
+   keyctl_instantiate_key()
+      lookup_user_key()				    (the default: case)
+         search_process_keyrings(current)
+	    search_process_keyrings(rka->context)   (recursive call)
+	       keyring_search_aux()
+
+keyring_search_aux() verifies the keys and keyrings underneath the
+top-level keyring it is given, but that top-level keyring is neither
+fully validated nor checked to see if it is the thing being searched for.
+
+This patch changes keyring_search_aux() to:
+1) do more validation on the top keyring it is given and
+2) check whether that top-level keyring is the thing being searched for
+
+
+Signed-off-by: Kevin Coffman <kwc@citi.umich.edu>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/key.h |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ security/keys/keyring.c |   35 +++++++++++++++++++++++++++++++----
+ 1 files changed, 31 insertions(+), 4 deletions(-)
 
 
-diff --git a/include/linux/key.h b/include/linux/key.h
-index ad02d9c..c45c962 100644
---- a/include/linux/key.h
-+++ b/include/linux/key.h
-@@ -264,7 +264,10 @@ extern int keyring_add_key(struct key *keyring,
+diff --git a/security/keys/keyring.c b/security/keys/keyring.c
+index 88292e3..76b89b2 100644
+--- a/security/keys/keyring.c
++++ b/security/keys/keyring.c
+@@ -292,7 +292,7 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
  
- extern struct key *key_lookup(key_serial_t id);
+ 	struct keyring_list *keylist;
+ 	struct timespec now;
+-	unsigned long possessed;
++	unsigned long possessed, kflags;
+ 	struct key *keyring, *key;
+ 	key_ref_t key_ref;
+ 	long err;
+@@ -318,6 +318,32 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
+ 	now = current_kernel_time();
+ 	err = -EAGAIN;
+ 	sp = 0;
++	
++	/* firstly we should check to see if this top-level keyring is what we
++	 * are looking for */
++	key_ref = ERR_PTR(-EAGAIN);
++	kflags = keyring->flags;
++	if (keyring->type == type && match(keyring, description)) {
++		key = keyring;
++
++		/* check it isn't negative and hasn't expired or been
++		 * revoked */
++		if (kflags & (1 << KEY_FLAG_REVOKED))
++			goto error_2;
++		if (key->expiry && now.tv_sec >= key->expiry)
++			goto error_2;
++		key_ref = ERR_PTR(-ENOKEY);
++		if (kflags & (1 << KEY_FLAG_NEGATIVE))
++			goto error_2;
++		goto found;
++	}
++
++	/* otherwise, the top keyring must not be revoked, expired, or
++	 * negatively instantiated if we are to search it */
++	key_ref = ERR_PTR(-EAGAIN);
++	if (kflags & ((1 << KEY_FLAG_REVOKED) | (1 << KEY_FLAG_NEGATIVE)) ||
++	    (keyring->expiry && now.tv_sec >= keyring->expiry))
++		goto error_2;
  
--#define key_serial(key) ((key) ? (key)->serial : 0)
-+static inline key_serial_t key_serial(struct key *key)
-+{
-+	return key ? key->serial : 0;
-+}
+ 	/* start processing a new keyring */
+ descend:
+@@ -331,13 +357,14 @@ descend:
+ 	/* iterate through the keys in this keyring first */
+ 	for (kix = 0; kix < keylist->nkeys; kix++) {
+ 		key = keylist->keys[kix];
++		kflags = key->flags;
  
- #ifdef CONFIG_SYSCTL
- extern ctl_table key_sysctls[];
+ 		/* ignore keys not of this type */
+ 		if (key->type != type)
+ 			continue;
+ 
+ 		/* skip revoked keys and expired keys */
+-		if (test_bit(KEY_FLAG_REVOKED, &key->flags))
++		if (kflags & (1 << KEY_FLAG_REVOKED))
+ 			continue;
+ 
+ 		if (key->expiry && now.tv_sec >= key->expiry)
+@@ -352,8 +379,8 @@ descend:
+ 					context, KEY_SEARCH) < 0)
+ 			continue;
+ 
+-		/* we set a different error code if we find a negative key */
+-		if (test_bit(KEY_FLAG_NEGATIVE, &key->flags)) {
++		/* we set a different error code if we pass a negative key */
++		if (kflags & (1 << KEY_FLAG_NEGATIVE)) {
+ 			err = -ENOKEY;
+ 			continue;
+ 		}
 
 
 --
