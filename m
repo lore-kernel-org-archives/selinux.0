@@ -1,19 +1,19 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5SUF024192
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:28 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5X7K024222
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:33 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUE018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:26 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUG018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:29 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 32/45] NFS: Register NFS for caching and retrieve the
-	top-level index [ver #35]
+Subject: [PATCH 35/45] NFS: Define and create inode-level cache objects [ver
+	#35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:32:55 +0000
-Message-ID: <20080328143255.3483.59150.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:33:10 +0000
+Message-ID: <20080328143310.3483.33925.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,169 +21,170 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Register NFS for caching and retrieve the top-level cache index object cookie.
+Define and create inode-level cache data storage objects (as managed by
+nfs_inode structs).
+
+Each inode-level object is created in a superblock-level index object and is
+itself a data storage object into which pages from the inode are stored.
+
+The inode object key is the NFS file handle for the inode.
+
+The inode object is given coherency data to carry in the auxiliary data
+permitted by the cache.  This is a sequence made up of:
+
+ (1) i_mtime from the NFS inode.
+
+ (2) i_ctime from the NFS inode.
+
+ (3) i_size from the NFS inode.
+
+As the cache is a persistent cache, the auxiliary data is checked when a new
+NFS in-memory inode is set up that matches an already existing data storage
+object in the cache.  If the coherency data is the same, the on-disk object is
+retained and used; if not, it is scrapped and a new one created.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/Makefile        |    1 +
- fs/nfs/fscache-index.c |   53 ++++++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/fscache.h       |   35 ++++++++++++++++++++++++++++++++
- fs/nfs/inode.c         |    8 +++++++
- 4 files changed, 97 insertions(+), 0 deletions(-)
- create mode 100644 fs/nfs/fscache-index.c
- create mode 100644 fs/nfs/fscache.h
+ fs/nfs/fscache-index.c |  114 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h       |    1 
+ 2 files changed, 115 insertions(+), 0 deletions(-)
 
 
-diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
-index df0f41e..6d7176d 100644
---- a/fs/nfs/Makefile
-+++ b/fs/nfs/Makefile
-@@ -16,3 +16,4 @@ nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
- 			   nfs4namespace.o
- nfs-$(CONFIG_NFS_DIRECTIO) += direct.o
- nfs-$(CONFIG_SYSCTL) += sysctl.o
-+nfs-$(CONFIG_NFS_FSCACHE) += fscache-index.o
 diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
-new file mode 100644
-index 0000000..d696c06
---- /dev/null
+index e092a73..1c158d5 100644
+--- a/fs/nfs/fscache-index.c
 +++ b/fs/nfs/fscache-index.c
-@@ -0,0 +1,53 @@
-+/* NFS FS-Cache index structure definition
+@@ -150,3 +150,117 @@ const struct fscache_cookie_def nfs_fscache_super_index_def = {
+ 	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
+ 	.get_key	= nfs_super_get_key,
+ };
++
++/*
++ * Definition of the auxiliary data attached to NFS inode storage objects
++ * within the cache.
 + *
-+ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public Licence
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the Licence, or (at your option) any later version.
++ * The contents of this struct are recorded in the on-disk local cache in the
++ * auxiliary data attached to the data storage object backing an inode.  This
++ * permits coherency to be managed when a new inode binds to an already extant
++ * cache object.
 + */
-+
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/mm.h>
-+#include <linux/nfs_fs.h>
-+#include <linux/nfs_fs_sb.h>
-+#include <linux/in6.h>
-+
-+#include "internal.h"
-+#include "fscache.h"
-+
-+#define NFSDBG_FACILITY		NFSDBG_FSCACHE
-+
-+static const struct fscache_netfs_operations nfs_fscache_ops = {
++struct nfs_fscache_inode_auxdata {
++	struct timespec	mtime;
++	struct timespec	ctime;
++	loff_t		size;
 +};
 +
 +/*
-+ * Define the NFS filesystem for FS-Cache.  Upon registration FS-Cache sticks
-+ * the cookie for the top-level index object for NFS into here.  The top-level
-+ * index can than have other cache objects inserted into it.
++ * Generate a key to describe an NFS inode in an NFS server's index
 + */
-+struct fscache_netfs nfs_fscache_netfs = {
-+	.name		= "nfs",
-+	.version	= 0,
-+	.ops		= &nfs_fscache_ops,
++static uint16_t nfs_fscache_inode_get_key(const void *cookie_netfs_data,
++					  void *buffer, uint16_t bufmax)
++{
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++	uint16_t nsize;
++
++	/* use the inode's NFS filehandle as the key */
++	nsize = nfsi->fh.size;
++	memcpy(buffer, nfsi->fh.data, nsize);
++	return nsize;
++}
++
++/*
++ * Get certain file attributes from the netfs data
++ * - This function can be absent for an index
++ * - Not permitted to return an error
++ * - The netfs data from the cookie being used as the source is presented
++ */
++static void nfs_fscache_inode_get_attr(const void *cookie_netfs_data,
++				       uint64_t *size)
++{
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++
++	*size = nfsi->vfs_inode.i_size;
++}
++
++/*
++ * Get the auxiliary data from netfs data
++ * - This function can be absent if the index carries no state data
++ * - Should store the auxiliary data in the buffer
++ * - Should return the amount of amount stored
++ * - Not permitted to return an error
++ * - The netfs data from the cookie being used as the source is presented
++ */
++static uint16_t nfs_fscache_inode_get_aux(const void *cookie_netfs_data,
++					  void *buffer, uint16_t bufmax)
++{
++	struct nfs_fscache_inode_auxdata auxdata;
++	const struct nfs_inode *nfsi = cookie_netfs_data;
++
++	auxdata.size = nfsi->vfs_inode.i_size;
++	auxdata.mtime = nfsi->vfs_inode.i_mtime;
++	auxdata.ctime = nfsi->vfs_inode.i_ctime;
++
++	if (bufmax > sizeof(auxdata))
++		bufmax = sizeof(auxdata);
++
++	memcpy(buffer, &auxdata, bufmax);
++	return bufmax;
++}
++
++/*
++ * Consult the netfs about the state of an object
++ * - This function can be absent if the index carries no state data
++ * - The netfs data from the cookie being used as the target is
++ *   presented, as is the auxiliary data
++ */
++static
++enum fscache_checkaux nfs_fscache_inode_check_aux(void *cookie_netfs_data,
++						  const void *data,
++						  uint16_t datalen)
++{
++	struct nfs_fscache_inode_auxdata auxdata;
++	struct nfs_inode *nfsi = cookie_netfs_data;
++
++	if (datalen > sizeof(auxdata))
++		return FSCACHE_CHECKAUX_OBSOLETE;
++
++	auxdata.size = nfsi->vfs_inode.i_size;
++	auxdata.mtime = nfsi->vfs_inode.i_mtime;
++	auxdata.ctime = nfsi->vfs_inode.i_ctime;
++
++	if (memcmp(data, &auxdata, datalen) != 0)
++		return FSCACHE_CHECKAUX_OBSOLETE;
++
++	return FSCACHE_CHECKAUX_OKAY;
++}
++
++/*
++ * Define the inode object for FS-Cache.  This is used to describe an inode
++ * object to fscache_acquire_cookie().  It is keyed by the NFS file handle for
++ * an inode.
++ *
++ * Coherency is managed by comparing the copies of i_size, i_mtime and i_ctime
++ * held in the cache auxiliary data for the data storage object with those in
++ * the inode struct in memory.
++ */
++const struct fscache_cookie_def nfs_fscache_inode_object_def = {
++	.name		= "NFS.fh",
++	.type		= FSCACHE_COOKIE_TYPE_DATAFILE,
++	.get_key	= nfs_fscache_inode_get_key,
++	.get_attr	= nfs_fscache_inode_get_attr,
++	.get_aux	= nfs_fscache_inode_get_aux,
++	.check_aux	= nfs_fscache_inode_check_aux,
 +};
-+
-+/*
-+ * Register NFS for caching
-+ */
-+int nfs_fscache_register(void)
-+{
-+	return fscache_register_netfs(&nfs_fscache_netfs);
-+}
-+
-+/*
-+ * Unregister NFS for caching
-+ */
-+void nfs_fscache_unregister(void)
-+{
-+	fscache_unregister_netfs(&nfs_fscache_netfs);
-+}
 diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-new file mode 100644
-index 0000000..ccfcdc5
---- /dev/null
+index 22b971e..d21b590 100644
+--- a/fs/nfs/fscache.h
 +++ b/fs/nfs/fscache.h
-@@ -0,0 +1,35 @@
-+/* NFS filesystem cache interface definitions
-+ *
-+ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public Licence
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the Licence, or (at your option) any later version.
-+ */
-+
-+#ifndef _NFS_FSCACHE_H
-+#define _NFS_FSCACHE_H
-+
-+#include <linux/nfs_fs.h>
-+#include <linux/nfs_mount.h>
-+#include <linux/nfs4_mount.h>
-+#include <linux/fscache.h>
-+
-+#ifdef CONFIG_NFS_FSCACHE
-+
-+/*
-+ * fscache-index.c
-+ */
-+extern struct fscache_netfs nfs_fscache_netfs;
-+
-+extern int nfs_fscache_register(void);
-+extern void nfs_fscache_unregister(void);
-+
-+#else /* CONFIG_NFS_FSCACHE */
-+static inline int nfs_fscache_register(void) { return 0; }
-+static inline void nfs_fscache_unregister(void) {}
-+
-+#endif /* CONFIG_NFS_FSCACHE */
-+#endif /* _NFS_FSCACHE_H */
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index a4c7cf2..702315a 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -46,6 +46,7 @@
- #include "delegation.h"
- #include "iostat.h"
- #include "internal.h"
-+#include "fscache.h"
+@@ -62,6 +62,7 @@ struct nfs_fscache_key {
+ extern struct fscache_netfs nfs_fscache_netfs;
+ extern const struct fscache_cookie_def nfs_fscache_server_index_def;
+ extern const struct fscache_cookie_def nfs_fscache_super_index_def;
++extern const struct fscache_cookie_def nfs_fscache_inode_object_def;
  
- #define NFSDBG_FACILITY		NFSDBG_VFS
- 
-@@ -1224,6 +1225,10 @@ static int __init init_nfs_fs(void)
- {
- 	int err;
- 
-+	err = nfs_fscache_register();
-+	if (err < 0)
-+		goto out6;
-+
- 	err = nfs_fs_proc_init();
- 	if (err)
- 		goto out5;
-@@ -1270,6 +1275,8 @@ out3:
- out4:
- 	nfs_fs_proc_exit();
- out5:
-+	nfs_fscache_unregister();
-+out6:
- 	return err;
- }
- 
-@@ -1280,6 +1287,7 @@ static void __exit exit_nfs_fs(void)
- 	nfs_destroy_readpagecache();
- 	nfs_destroy_inodecache();
- 	nfs_destroy_nfspagecache();
-+	nfs_fscache_unregister();
- #ifdef CONFIG_PROC_FS
- 	rpc_proc_unregister("nfs");
- #endif
+ extern int nfs_fscache_register(void);
+ extern void nfs_fscache_unregister(void);
 
 
 --
