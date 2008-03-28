@@ -1,19 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF6EFl024683
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:14 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF6GAn024697
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:16 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUW018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:11 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUY018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:14 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 13/45] Security: Allow kernel services to override LSM
-	settings for task actions [ver #35]
+Subject: [PATCH 19/45] Add missing consts to xattr function arguments [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:31:17 +0000
-Message-ID: <20080328143117.3483.29167.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:31:48 +0000
+Message-ID: <20080328143148.3483.50478.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,535 +20,587 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Allow kernel services to override LSM settings appropriate to the actions
-performed by a task by duplicating a security record, modifying it and then
-using task_struct::act_as to point to it when performing operations on behalf
-of a task.
+Add missing consts to xattr function arguments.
 
-This is used, for example, by CacheFiles which has to transparently access the
-cache on behalf of a process that thinks it is doing, say, NFS accesses with a
-potentially inappropriate (with respect to accessing the cache) set of
-security data.
-
-This patch provides two LSM hooks for modifying a task security record:
-
- (*) security_kernel_act_as() which allows modification of the security datum
-     with which a task acts on other objects (most notably files).
-
- (*) security_create_files_as() which allows modification of the security
-     datum that is used to initialise the security data on a file that a task
-     creates.
-
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com> [Smack changes]
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/capability.h |   12 ++---
- include/linux/cred.h       |   23 +++++++++
- include/linux/security.h   |   43 ++++++++++++++++-
- kernel/cred.c              |  112 ++++++++++++++++++++++++++++++++++++++++++++
- security/dummy.c           |   17 ++++++-
- security/security.c        |   15 ++++++
- security/selinux/hooks.c   |   51 ++++++++++++++++++++
- security/smack/smack_lsm.c |   43 +++++++++++++++++
- 8 files changed, 303 insertions(+), 13 deletions(-)
- create mode 100644 include/linux/cred.h
+ fs/xattr.c                          |   41 ++++++++++++++++---------------
+ include/linux/security.h            |   46 ++++++++++++++++++++---------------
+ include/linux/syscalls.h            |   30 ++++++++++++-----------
+ include/linux/xattr.h               |    6 ++---
+ security/commoncap.c                |    6 ++---
+ security/dummy.c                    |   13 +++++-----
+ security/security.c                 |   12 +++++----
+ security/selinux/hooks.c            |   14 ++++++-----
+ security/selinux/include/security.h |    2 +-
+ security/selinux/ss/services.c      |    5 ++--
+ security/smack/smack_lsm.c          |   12 +++++----
+ 11 files changed, 100 insertions(+), 87 deletions(-)
 
 
-diff --git a/include/linux/capability.h b/include/linux/capability.h
-index 7d50ff6..424de01 100644
---- a/include/linux/capability.h
-+++ b/include/linux/capability.h
-@@ -364,12 +364,12 @@ typedef struct kernel_cap_struct {
- # error Fix up hand-coded capability macro initializers
- #else /* HAND-CODED capability initializers */
+diff --git a/fs/xattr.c b/fs/xattr.c
+index 3acab16..391c752 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -68,7 +68,7 @@ xattr_permission(struct inode *inode, const char *name, int mask)
+ }
  
--# define CAP_EMPTY_SET    {{ 0, 0 }}
--# define CAP_FULL_SET     {{ ~0, ~0 }}
--# define CAP_INIT_EFF_SET {{ ~CAP_TO_MASK(CAP_SETPCAP), ~0 }}
--# define CAP_FS_SET       {{ CAP_FS_MASK_B0, CAP_FS_MASK_B1 } }
--# define CAP_NFSD_SET     {{ CAP_FS_MASK_B0|CAP_TO_MASK(CAP_SYS_RESOURCE), \
--			     CAP_FS_MASK_B1 } }
-+# define CAP_EMPTY_SET    ((kernel_cap_t){{ 0, 0 }})
-+# define CAP_FULL_SET     ((kernel_cap_t){{ ~0, ~0 }})
-+# define CAP_INIT_EFF_SET ((kernel_cap_t){{ ~CAP_TO_MASK(CAP_SETPCAP), ~0 }})
-+# define CAP_FS_SET       ((kernel_cap_t){{ CAP_FS_MASK_B0, CAP_FS_MASK_B1 } })
-+# define CAP_NFSD_SET     ((kernel_cap_t){{ CAP_FS_MASK_B0|CAP_TO_MASK(CAP_SYS_RESOURCE), \
-+					CAP_FS_MASK_B1 } })
+ int
+-vfs_setxattr(struct dentry *dentry, char *name, void *value,
++vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+ 		size_t size, int flags)
+ {
+ 	struct inode *inode = dentry->d_inode;
+@@ -132,7 +132,7 @@ out_noalloc:
+ EXPORT_SYMBOL_GPL(xattr_getsecurity);
  
- #endif /* _LINUX_CAPABILITY_U32S != 2 */
+ ssize_t
+-vfs_getxattr(struct dentry *dentry, char *name, void *value, size_t size)
++vfs_getxattr(struct dentry *dentry, const char *name, void *value, size_t size)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	int error;
+@@ -188,7 +188,7 @@ vfs_listxattr(struct dentry *d, char *list, size_t size)
+ EXPORT_SYMBOL_GPL(vfs_listxattr);
  
-diff --git a/include/linux/cred.h b/include/linux/cred.h
-new file mode 100644
-index 0000000..497af5b
---- /dev/null
-+++ b/include/linux/cred.h
-@@ -0,0 +1,23 @@
-+/* Credential management
-+ *
-+ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public Licence
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the Licence, or (at your option) any later version.
-+ */
-+
-+#ifndef _LINUX_CRED_H
-+#define _LINUX_CRED_H
-+
-+struct task_security;
-+struct inode;
-+
-+extern struct task_security *get_kernel_security(struct task_struct *);
-+extern int set_security_override(struct task_security *, u32);
-+extern int set_security_override_from_ctx(struct task_security *, const char *);
-+extern int change_create_files_as(struct task_security *, struct inode *);
-+
-+#endif /* _LINUX_CRED_H */
+ int
+-vfs_removexattr(struct dentry *dentry, char *name)
++vfs_removexattr(struct dentry *dentry, const char *name)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	int error;
+@@ -219,7 +219,7 @@ EXPORT_SYMBOL_GPL(vfs_removexattr);
+  * Extended attribute SET operations
+  */
+ static long
+-setxattr(struct dentry *d, char __user *name, void __user *value,
++setxattr(struct dentry *d, const char __user *name, const void __user *value,
+ 	 size_t size, int flags)
+ {
+ 	int error;
+@@ -253,8 +253,8 @@ setxattr(struct dentry *d, char __user *name, void __user *value,
+ }
+ 
+ asmlinkage long
+-sys_setxattr(char __user *path, char __user *name, void __user *value,
+-	     size_t size, int flags)
++sys_setxattr(const char __user *path, const char __user *name,
++	     const void __user *value, size_t size, int flags)
+ {
+ 	struct nameidata nd;
+ 	int error;
+@@ -268,8 +268,8 @@ sys_setxattr(char __user *path, char __user *name, void __user *value,
+ }
+ 
+ asmlinkage long
+-sys_lsetxattr(char __user *path, char __user *name, void __user *value,
+-	      size_t size, int flags)
++sys_lsetxattr(const char __user *path, const char __user *name,
++	      const void __user *value, size_t size, int flags)
+ {
+ 	struct nameidata nd;
+ 	int error;
+@@ -283,7 +283,7 @@ sys_lsetxattr(char __user *path, char __user *name, void __user *value,
+ }
+ 
+ asmlinkage long
+-sys_fsetxattr(int fd, char __user *name, void __user *value,
++sys_fsetxattr(int fd, const char __user *name, const void __user *value,
+ 	      size_t size, int flags)
+ {
+ 	struct file *f;
+@@ -304,7 +304,8 @@ sys_fsetxattr(int fd, char __user *name, void __user *value,
+  * Extended attribute GET operations
+  */
+ static ssize_t
+-getxattr(struct dentry *d, char __user *name, void __user *value, size_t size)
++getxattr(struct dentry *d, const char __user *name, void __user *value,
++	 size_t size)
+ {
+ 	ssize_t error;
+ 	void *kvalue = NULL;
+@@ -338,8 +339,8 @@ getxattr(struct dentry *d, char __user *name, void __user *value, size_t size)
+ }
+ 
+ asmlinkage ssize_t
+-sys_getxattr(char __user *path, char __user *name, void __user *value,
+-	     size_t size)
++sys_getxattr(const char __user *path, const char __user *name,
++	     void __user *value, size_t size)
+ {
+ 	struct nameidata nd;
+ 	ssize_t error;
+@@ -353,7 +354,7 @@ sys_getxattr(char __user *path, char __user *name, void __user *value,
+ }
+ 
+ asmlinkage ssize_t
+-sys_lgetxattr(char __user *path, char __user *name, void __user *value,
++sys_lgetxattr(const char __user *path, const char __user *name, void __user *value,
+ 	      size_t size)
+ {
+ 	struct nameidata nd;
+@@ -368,7 +369,7 @@ sys_lgetxattr(char __user *path, char __user *name, void __user *value,
+ }
+ 
+ asmlinkage ssize_t
+-sys_fgetxattr(int fd, char __user *name, void __user *value, size_t size)
++sys_fgetxattr(int fd, const char __user *name, void __user *value, size_t size)
+ {
+ 	struct file *f;
+ 	ssize_t error = -EBADF;
+@@ -413,7 +414,7 @@ listxattr(struct dentry *d, char __user *list, size_t size)
+ }
+ 
+ asmlinkage ssize_t
+-sys_listxattr(char __user *path, char __user *list, size_t size)
++sys_listxattr(const char __user *path, char __user *list, size_t size)
+ {
+ 	struct nameidata nd;
+ 	ssize_t error;
+@@ -427,7 +428,7 @@ sys_listxattr(char __user *path, char __user *list, size_t size)
+ }
+ 
+ asmlinkage ssize_t
+-sys_llistxattr(char __user *path, char __user *list, size_t size)
++sys_llistxattr(const char __user *path, char __user *list, size_t size)
+ {
+ 	struct nameidata nd;
+ 	ssize_t error;
+@@ -459,7 +460,7 @@ sys_flistxattr(int fd, char __user *list, size_t size)
+  * Extended attribute REMOVE operations
+  */
+ static long
+-removexattr(struct dentry *d, char __user *name)
++removexattr(struct dentry *d, const char __user *name)
+ {
+ 	int error;
+ 	char kname[XATTR_NAME_MAX + 1];
+@@ -474,7 +475,7 @@ removexattr(struct dentry *d, char __user *name)
+ }
+ 
+ asmlinkage long
+-sys_removexattr(char __user *path, char __user *name)
++sys_removexattr(const char __user *path, const char __user *name)
+ {
+ 	struct nameidata nd;
+ 	int error;
+@@ -488,7 +489,7 @@ sys_removexattr(char __user *path, char __user *name)
+ }
+ 
+ asmlinkage long
+-sys_lremovexattr(char __user *path, char __user *name)
++sys_lremovexattr(const char __user *path, const char __user *name)
+ {
+ 	struct nameidata nd;
+ 	int error;
+@@ -502,7 +503,7 @@ sys_lremovexattr(char __user *path, char __user *name)
+ }
+ 
+ asmlinkage long
+-sys_fremovexattr(int fd, char __user *name)
++sys_fremovexattr(int fd, const char __user *name)
+ {
+ 	struct file *f;
+ 	struct dentry *dentry;
 diff --git a/include/linux/security.h b/include/linux/security.h
-index d814b2b..f6edffd 100644
+index f6edffd..f293a00 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -587,6 +587,19 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
-  *	Duplicate and attach the security structure currently attached to the
-  *	p->security field.
-  *	Return 0 if operation was successful.
-+ * @task_kernel_act_as:
-+ *	Set the credentials for a kernel service to act as (subjective context).
-+ *	@p points to the task that nominated @secid.
-+ *	@sec points to the task security record to be modified.
-+ *	@secid specifies the security ID to be set
-+ *	Return 0 if successful.
-+ * @task_create_files_as:
-+ *	Set the file creation context in a task security record to be the same
-+ *	as the objective context of the specified inode.
-+ *	@p points to the task that nominated @inode.
-+ *	@sec points to the task security record to be modified.
-+ *	@inode points to the inode to use as a reference.
-+ *	Return 0 if successful.
-  * @task_setuid:
-  *	Check permission before setting one or more of the user identity
-  *	attributes of the current process.  The @flags parameter indicates
-@@ -1360,6 +1373,11 @@ struct security_operations {
- 	int (*task_alloc_security) (struct task_struct *p);
- 	void (*task_free_security) (struct task_security *p);
- 	int (*task_dup_security) (struct task_security *p);
-+	int (*task_kernel_act_as)(struct task_struct *p,
-+				  struct task_security *sec, u32 secid);
-+	int (*task_create_files_as)(struct task_struct *p,
-+				    struct task_security *sec,
-+				    struct inode *inode);
- 	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
- 	int (*task_post_setuid) (uid_t old_ruid /* or fsuid */ ,
- 				 uid_t old_euid, uid_t old_suid, int flags);
-@@ -1428,7 +1446,7 @@ struct security_operations {
-  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
-  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
- 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
--	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
-+	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
- 	void (*release_secctx)(char *secdata, u32 seclen);
+@@ -51,8 +51,9 @@ extern void cap_capset_set (struct task_struct *target, kernel_cap_t *effective,
+ extern int cap_bprm_set_security (struct linux_binprm *bprm);
+ extern void cap_bprm_apply_creds (struct linux_binprm *bprm, int unsafe);
+ extern int cap_bprm_secureexec(struct linux_binprm *bprm);
+-extern int cap_inode_setxattr(struct dentry *dentry, char *name, void *value, size_t size, int flags);
+-extern int cap_inode_removexattr(struct dentry *dentry, char *name);
++extern int cap_inode_setxattr(struct dentry *dentry, const char *name,
++			      const void *value, size_t size, int flags);
++extern int cap_inode_removexattr(struct dentry *dentry, const char *name);
+ extern int cap_inode_need_killpriv(struct dentry *dentry);
+ extern int cap_inode_killpriv(struct dentry *dentry);
+ extern int cap_task_post_setuid (uid_t old_ruid, uid_t old_euid, uid_t old_suid, int flags);
+@@ -1335,13 +1336,13 @@ struct security_operations {
+ 	int (*inode_setattr)	(struct dentry *dentry, struct iattr *attr);
+ 	int (*inode_getattr) (struct vfsmount *mnt, struct dentry *dentry);
+         void (*inode_delete) (struct inode *inode);
+-	int (*inode_setxattr) (struct dentry *dentry, char *name, void *value,
+-			       size_t size, int flags);
+-	void (*inode_post_setxattr) (struct dentry *dentry, char *name, void *value,
+-				     size_t size, int flags);
+-	int (*inode_getxattr) (struct dentry *dentry, char *name);
++	int (*inode_setxattr) (struct dentry *dentry, const char *name,
++			       const void *value, size_t size, int flags);
++	void (*inode_post_setxattr) (struct dentry *dentry, const char *name,
++				     const void *value, size_t size, int flags);
++	int (*inode_getxattr) (struct dentry *dentry, const char *name);
+ 	int (*inode_listxattr) (struct dentry *dentry);
+-	int (*inode_removexattr) (struct dentry *dentry, char *name);
++	int (*inode_removexattr) (struct dentry *dentry, const char *name);
+ 	int (*inode_need_killpriv) (struct dentry *dentry);
+ 	int (*inode_killpriv) (struct dentry *dentry);
+ 	int (*inode_getsecurity)(const struct inode *inode, const char *name, void **buffer, bool alloc);
+@@ -1603,13 +1604,13 @@ int security_inode_permission(struct inode *inode, int mask, struct nameidata *n
+ int security_inode_setattr(struct dentry *dentry, struct iattr *attr);
+ int security_inode_getattr(struct vfsmount *mnt, struct dentry *dentry);
+ void security_inode_delete(struct inode *inode);
+-int security_inode_setxattr(struct dentry *dentry, char *name,
+-			     void *value, size_t size, int flags);
+-void security_inode_post_setxattr(struct dentry *dentry, char *name,
+-				   void *value, size_t size, int flags);
+-int security_inode_getxattr(struct dentry *dentry, char *name);
++int security_inode_setxattr(struct dentry *dentry, const char *name,
++			    const void *value, size_t size, int flags);
++void security_inode_post_setxattr(struct dentry *dentry, const char *name,
++				  const void *value, size_t size, int flags);
++int security_inode_getxattr(struct dentry *dentry, const char *name);
+ int security_inode_listxattr(struct dentry *dentry);
+-int security_inode_removexattr(struct dentry *dentry, char *name);
++int security_inode_removexattr(struct dentry *dentry, const char *name);
+ int security_inode_need_killpriv(struct dentry *dentry);
+ int security_inode_killpriv(struct dentry *dentry);
+ int security_inode_getsecurity(const struct inode *inode, const char *name, void **buffer, bool alloc);
+@@ -2015,17 +2016,21 @@ static inline int security_inode_getattr (struct vfsmount *mnt,
+ static inline void security_inode_delete (struct inode *inode)
+ { }
  
- #ifdef CONFIG_SECURITY_NETWORK
-@@ -1617,6 +1635,11 @@ int security_task_create(unsigned long clone_flags);
- int security_task_alloc(struct task_struct *p);
- void security_task_free(struct task_security *p);
- int security_task_dup(struct task_security *p);
-+int security_task_kernel_act_as(struct task_struct *p,
-+				struct task_security *sec, u32 secid);
-+int security_task_create_files_as(struct task_struct *p,
-+				  struct task_security *sec,
-+				  struct inode *inode);
- int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags);
- int security_task_post_setuid(uid_t old_ruid, uid_t old_euid,
- 			       uid_t old_suid, int flags);
-@@ -1669,7 +1692,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
- int security_netlink_recv(struct sk_buff *skb, int cap);
- int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
--int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
-+int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
- void security_release_secctx(char *secdata, u32 seclen);
+-static inline int security_inode_setxattr (struct dentry *dentry, char *name,
+-					   void *value, size_t size, int flags)
++static inline int security_inode_setxattr (struct dentry *dentry,
++					   const char *name, const void *value,
++					   size_t size, int flags)
+ {
+ 	return cap_inode_setxattr(dentry, name, value, size, flags);
+ }
  
- #else /* CONFIG_SECURITY */
-@@ -2128,6 +2151,20 @@ static inline int security_task_dup(struct task_security *p)
+-static inline void security_inode_post_setxattr (struct dentry *dentry, char *name,
+-						 void *value, size_t size, int flags)
++static inline void security_inode_post_setxattr (struct dentry *dentry,
++						 const char *name,
++						 const void *value, size_t size,
++						 int flags)
+ { }
+ 
+-static inline int security_inode_getxattr (struct dentry *dentry, char *name)
++static inline int security_inode_getxattr (struct dentry *dentry,
++					   const char *name)
+ {
+ 	return 0;
+ }
+@@ -2035,7 +2040,8 @@ static inline int security_inode_listxattr (struct dentry *dentry)
  	return 0;
  }
  
-+static inline int security_task_kernel_act_as(struct task_struct *p,
-+					      struct task_security *sec,
-+					      u32 secid)
-+{
-+	return 0;
-+}
-+
-+static inline int security_task_create_files_as(struct task_struct *p,
-+						struct task_security *sec,
-+						struct inode *inode)
-+{
-+	return 0;
-+}
-+
- static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
- 					int flags)
+-static inline int security_inode_removexattr (struct dentry *dentry, char *name)
++static inline int security_inode_removexattr (struct dentry *dentry,
++					      const char *name)
  {
-@@ -2379,7 +2416,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
- 	return -EOPNOTSUPP;
+ 	return cap_inode_removexattr(dentry, name);
+ }
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 4c2577b..f65e9fe 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -241,26 +241,28 @@ asmlinkage long sys_truncate64(const char __user *path, loff_t length);
+ asmlinkage long sys_ftruncate64(unsigned int fd, loff_t length);
+ #endif
+ 
+-asmlinkage long sys_setxattr(char __user *path, char __user *name,
+-				void __user *value, size_t size, int flags);
+-asmlinkage long sys_lsetxattr(char __user *path, char __user *name,
+-				void __user *value, size_t size, int flags);
+-asmlinkage long sys_fsetxattr(int fd, char __user *name, void __user *value,
+-				size_t size, int flags);
+-asmlinkage ssize_t sys_getxattr(char __user *path, char __user *name,
++asmlinkage long sys_setxattr(const char __user *path, const char __user *name,
++			     const void __user *value, size_t size, int flags);
++asmlinkage long sys_lsetxattr(const char __user *path, const char __user *name,
++			      const void __user *value, size_t size, int flags);
++asmlinkage long sys_fsetxattr(int fd, const char __user *name,
++			      const void __user *value, size_t size, int flags);
++asmlinkage ssize_t sys_getxattr(const char __user *path, const char __user *name,
+ 				void __user *value, size_t size);
+-asmlinkage ssize_t sys_lgetxattr(char __user *path, char __user *name,
++asmlinkage ssize_t sys_lgetxattr(const char __user *path, const char __user *name,
+ 				void __user *value, size_t size);
+-asmlinkage ssize_t sys_fgetxattr(int fd, char __user *name,
++asmlinkage ssize_t sys_fgetxattr(int fd, const char __user *name,
+ 				void __user *value, size_t size);
+-asmlinkage ssize_t sys_listxattr(char __user *path, char __user *list,
++asmlinkage ssize_t sys_listxattr(const char __user *path, char __user *list,
+ 				size_t size);
+-asmlinkage ssize_t sys_llistxattr(char __user *path, char __user *list,
++asmlinkage ssize_t sys_llistxattr(const char __user *path, char __user *list,
+ 				size_t size);
+ asmlinkage ssize_t sys_flistxattr(int fd, char __user *list, size_t size);
+-asmlinkage long sys_removexattr(char __user *path, char __user *name);
+-asmlinkage long sys_lremovexattr(char __user *path, char __user *name);
+-asmlinkage long sys_fremovexattr(int fd, char __user *name);
++asmlinkage long sys_removexattr(const char __user *path,
++				const char __user *name);
++asmlinkage long sys_lremovexattr(const char __user *path,
++				 const char __user *name);
++asmlinkage long sys_fremovexattr(int fd, const char __user *name);
+ 
+ asmlinkage unsigned long sys_brk(unsigned long brk);
+ asmlinkage long sys_mprotect(unsigned long start, size_t len,
+diff --git a/include/linux/xattr.h b/include/linux/xattr.h
+index df6b95d..d131e35 100644
+--- a/include/linux/xattr.h
++++ b/include/linux/xattr.h
+@@ -47,10 +47,10 @@ struct xattr_handler {
+ };
+ 
+ ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
+-ssize_t vfs_getxattr(struct dentry *, char *, void *, size_t);
++ssize_t vfs_getxattr(struct dentry *, const char *, void *, size_t);
+ ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
+-int vfs_setxattr(struct dentry *, char *, void *, size_t, int);
+-int vfs_removexattr(struct dentry *, char *);
++int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
++int vfs_removexattr(struct dentry *, const char *);
+ 
+ ssize_t generic_getxattr(struct dentry *dentry, const char *name, void *buffer, size_t size);
+ ssize_t generic_listxattr(struct dentry *dentry, char *buffer, size_t buffer_size);
+diff --git a/security/commoncap.c b/security/commoncap.c
+index e8c6940..534e411 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -395,8 +395,8 @@ int cap_bprm_secureexec (struct linux_binprm *bprm)
+ 		sec->egid != sec->gid);
  }
  
--static inline int security_secctx_to_secid(char *secdata,
-+static inline int security_secctx_to_secid(const char *secdata,
- 					   u32 seclen,
- 					   u32 *secid)
+-int cap_inode_setxattr(struct dentry *dentry, char *name, void *value,
+-		       size_t size, int flags)
++int cap_inode_setxattr(struct dentry *dentry, const char *name,
++		       const void *value, size_t size, int flags)
  {
-diff --git a/kernel/cred.c b/kernel/cred.c
-index 298f26e..aaa630a 100644
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -11,6 +11,7 @@
- #include <linux/module.h>
- #include <linux/sched.h>
- #include <linux/key.h>
-+#include <linux/keyctl.h>
- #include <linux/init_task.h>
- #include <linux/security.h>
- 
-@@ -138,3 +139,114 @@ void put_task_security(struct task_security *sec)
- 	}
+ 	if (!strcmp(name, XATTR_NAME_CAPS)) {
+ 		if (!capable(CAP_SETFCAP))
+@@ -409,7 +409,7 @@ int cap_inode_setxattr(struct dentry *dentry, char *name, void *value,
+ 	return 0;
  }
- EXPORT_SYMBOL(put_task_security);
-+
-+/**
-+ * get_kernel_security - Get a task security record for a kernel service
-+ * @daemon: A userspace daemon to be used as a reference
-+ *
-+ * Get a task security record for a kernel service.  This can then be used to
-+ * override a task's own security so that work can be done on behalf of that
-+ * task that requires a different security context.
-+ *
-+ * @daemon is used to provide a base for the security record, but can be NULL.
-+ * If @daemon is supplied, then the security data will be derived from that;
-+ * otherwise they'll be set to 0 and no groups, full capabilities and no keys.
-+ *
-+ * The caller may change these controls afterwards if desired.
-+ */
-+struct task_security *get_kernel_security(struct task_struct *daemon)
-+{
-+	const struct task_security *dsec;
-+	struct task_security *sec;
-+
-+	sec = kzalloc(sizeof *sec, GFP_KERNEL);
-+	if (!sec)
-+		return ERR_PTR(-ENOMEM);
-+
-+	if (daemon) {
-+		rcu_read_lock();
-+		dsec = rcu_dereference(daemon->sec);
-+		*sec = *dsec;
-+		get_group_info(sec->group_info);
-+		get_uid(sec->user);
-+		rcu_read_unlock();
-+#ifdef CONFIG_KEYS
-+		sec->request_key_auth = NULL;
-+		sec->thread_keyring = NULL;
-+		sec->tgsec = NULL;
-+#endif
-+	} else {
-+		sec->keep_capabilities = 0;
-+		sec->cap_inheritable = CAP_INIT_INH_SET;
-+		sec->cap_permitted = CAP_FULL_SET;
-+		sec->cap_effective = CAP_INIT_EFF_SET;
-+		sec->cap_bset = CAP_INIT_BSET;
-+		sec->user = &root_user;
-+		get_uid(sec->user);
-+		sec->group_info = &init_groups;
-+		get_group_info(sec->group_info);
-+	}
-+
-+	atomic_set(&sec->usage, 1);
-+	spin_lock_init(&sec->lock);
-+#ifdef CONFIG_KEYS
-+	sec->jit_keyring = KEY_REQKEY_DEFL_THREAD_KEYRING;
-+#endif
-+
-+	return sec;
-+}
-+EXPORT_SYMBOL(get_kernel_security);
-+
-+/**
-+ * set_security_override - Set the security ID in a security record
-+ * @sec: The security record to alter
-+ * @secid: The LSM security ID to set
-+ *
-+ * Set the LSM security ID in a security record so that the subjective security
-+ * is overridden when the act_as pointer of a task is overridden.
-+ */
-+int set_security_override(struct task_security *sec, u32 secid)
-+{
-+	return security_task_kernel_act_as(current, sec, secid);
-+}
-+EXPORT_SYMBOL(set_security_override);
-+
-+/**
-+ * set_security_override_from_ctx - Set the security ID in a security record
-+ * @sec: The security record to alter
-+ * @secctx: The LSM security context to generate the security ID from.
-+ *
-+ * Set the LSM security ID in a security record so that the subjective security
-+ * is overridden when the act_as pointer of a task is overridden.  The security
-+ * ID is specified in string form as a security context to be interpreted by
-+ * the LSM.
-+ */
-+int set_security_override_from_ctx(struct task_security *sec, const char *secctx)
-+{
-+	u32 secid;
-+	int ret;
-+
-+	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
-+	if (ret < 0)
-+		return ret;
-+
-+	return set_security_override(sec, secid);
-+}
-+EXPORT_SYMBOL(set_security_override_from_ctx);
-+
-+/**
-+ * change_create_files_as - Change the file create context in a security record
-+ * @sec: The security record to alter
-+ * @inode: The inode to take the context from
-+ *
-+ * Change the file creation context in a security record to be the same as the
-+ * object context of the specified inode, so that the new inodes have the same
-+ * MAC context as that inode.
-+ */
-+int change_create_files_as(struct task_security *sec, struct inode *inode)
-+{
-+	sec->fsuid = inode->i_uid;
-+	sec->fsgid = inode->i_gid;
-+	return security_task_create_files_as(current, sec, inode);
-+}
-+EXPORT_SYMBOL(change_create_files_as);
+ 
+-int cap_inode_removexattr(struct dentry *dentry, char *name)
++int cap_inode_removexattr(struct dentry *dentry, const char *name)
+ {
+ 	if (!strcmp(name, XATTR_NAME_CAPS)) {
+ 		if (!capable(CAP_SETFCAP))
 diff --git a/security/dummy.c b/security/dummy.c
-index d2e6407..3d3db47 100644
+index 3d3db47..3f0c8cb 100644
 --- a/security/dummy.c
 +++ b/security/dummy.c
-@@ -520,6 +520,19 @@ static int dummy_task_dup_security(struct task_security *p)
+@@ -370,8 +370,8 @@ static void dummy_inode_delete (struct inode *ino)
+ 	return;
+ }
+ 
+-static int dummy_inode_setxattr (struct dentry *dentry, char *name, void *value,
+-				size_t size, int flags)
++static int dummy_inode_setxattr (struct dentry *dentry, const char *name,
++				 const void *value, size_t size, int flags)
+ {
+ 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
+ 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
+@@ -380,12 +380,13 @@ static int dummy_inode_setxattr (struct dentry *dentry, char *name, void *value,
  	return 0;
  }
  
-+static int dummy_task_kernel_act_as(struct task_struct *p,
-+				    struct task_security *sec, u32 secid)
-+{
-+	return 0;
-+}
-+
-+static int dummy_task_create_files_as(struct task_struct *p,
-+				      struct task_security *sec,
-+				      struct inode *inode)
-+{
-+	return 0;
-+}
-+
- static int dummy_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
+-static void dummy_inode_post_setxattr (struct dentry *dentry, char *name, void *value,
+-				       size_t size, int flags)
++static void dummy_inode_post_setxattr (struct dentry *dentry, const char *name,
++				       const void *value, size_t size,
++				       int flags)
  {
- 	return 0;
-@@ -968,7 +981,7 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return -EOPNOTSUPP;
  }
  
--static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+static int dummy_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+-static int dummy_inode_getxattr (struct dentry *dentry, char *name)
++static int dummy_inode_getxattr (struct dentry *dentry, const char *name)
  {
- 	return -EOPNOTSUPP;
+ 	return 0;
  }
-@@ -1096,6 +1109,8 @@ void security_fixup_ops (struct security_operations *ops)
- 	set_to_dummy_if_null(ops, task_alloc_security);
- 	set_to_dummy_if_null(ops, task_free_security);
- 	set_to_dummy_if_null(ops, task_dup_security);
-+	set_to_dummy_if_null(ops, task_kernel_act_as);
-+	set_to_dummy_if_null(ops, task_create_files_as);
- 	set_to_dummy_if_null(ops, task_setuid);
- 	set_to_dummy_if_null(ops, task_post_setuid);
- 	set_to_dummy_if_null(ops, task_setgid);
+@@ -395,7 +396,7 @@ static int dummy_inode_listxattr (struct dentry *dentry)
+ 	return 0;
+ }
+ 
+-static int dummy_inode_removexattr (struct dentry *dentry, char *name)
++static int dummy_inode_removexattr (struct dentry *dentry, const char *name)
+ {
+ 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
+ 		     sizeof(XATTR_SECURITY_PREFIX) - 1) &&
 diff --git a/security/security.c b/security/security.c
-index b5ac1cb..881e372 100644
+index 881e372..87cd150 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -607,6 +607,19 @@ int security_task_dup(struct task_security *sec)
- 	return security_ops->task_dup_security(sec);
+@@ -455,23 +455,23 @@ void security_inode_delete(struct inode *inode)
+ 	security_ops->inode_delete(inode);
  }
  
-+int security_task_kernel_act_as(struct task_struct *p,
-+				struct task_security *sec, u32 secid)
-+{
-+	return security_ops->task_kernel_act_as(p, sec, secid);
-+}
-+
-+int security_task_create_files_as(struct task_struct *p,
-+				  struct task_security *sec,
-+				  struct inode *inode)
-+{
-+	return security_ops->task_create_files_as(p, sec, inode);
-+}
-+
- int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+-int security_inode_setxattr(struct dentry *dentry, char *name,
+-			     void *value, size_t size, int flags)
++int security_inode_setxattr(struct dentry *dentry, const char *name,
++			    const void *value, size_t size, int flags)
  {
- 	return security_ops->task_setuid(id0, id1, id2, flags);
-@@ -845,7 +858,7 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	if (unlikely(IS_PRIVATE(dentry->d_inode)))
+ 		return 0;
+ 	return security_ops->inode_setxattr(dentry, name, value, size, flags);
  }
- EXPORT_SYMBOL(security_secid_to_secctx);
  
--int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+-void security_inode_post_setxattr(struct dentry *dentry, char *name,
+-				   void *value, size_t size, int flags)
++void security_inode_post_setxattr(struct dentry *dentry, const char *name,
++				  const void *value, size_t size, int flags)
  {
- 	return security_ops->secctx_to_secid(secdata, seclen, secid);
+ 	if (unlikely(IS_PRIVATE(dentry->d_inode)))
+ 		return;
+ 	security_ops->inode_post_setxattr(dentry, name, value, size, flags);
  }
+ 
+-int security_inode_getxattr(struct dentry *dentry, char *name)
++int security_inode_getxattr(struct dentry *dentry, const char *name)
+ {
+ 	if (unlikely(IS_PRIVATE(dentry->d_inode)))
+ 		return 0;
+@@ -485,7 +485,7 @@ int security_inode_listxattr(struct dentry *dentry)
+ 	return security_ops->inode_listxattr(dentry);
+ }
+ 
+-int security_inode_removexattr(struct dentry *dentry, char *name)
++int security_inode_removexattr(struct dentry *dentry, const char *name)
+ {
+ 	if (unlikely(IS_PRIVATE(dentry->d_inode)))
+ 		return 0;
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8508050..cf79f25 100644
+index cf79f25..1ac3e71 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -3109,6 +3109,53 @@ static int selinux_task_dup_security(struct task_security *sec)
- 	return 0;
+@@ -2554,7 +2554,7 @@ static int selinux_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
+ 	return dentry_has_perm(current, mnt, dentry, FILE__GETATTR);
  }
  
-+/*
-+ * set the security data for a kernel service
-+ * - all the creation contexts are set to unlabelled
-+ */
-+static int selinux_task_kernel_act_as(struct task_struct *p,
-+				      struct task_security *sec, u32 secid)
-+{
-+	struct task_security_struct *tsec = sec->security;
-+	struct task_security_struct *ptsec = p->act_as->security;
-+	int ret;
-+
-+ 	ret = avc_has_perm(ptsec->sid, secid,
-+			   SECCLASS_KERNEL_SERVICE,
-+			   KERNEL_SERVICE__USE_AS_OVERRIDE,
-+			   NULL);
-+	if (ret == 0) {
-+		tsec->sid = secid;
-+		tsec->create_sid = 0;
-+		tsec->keycreate_sid = 0;
-+		tsec->sockcreate_sid = 0;
-+	}
-+	return ret;
-+}
-+
-+/*
-+ * set the file creation context in a security record to the same as the
-+ * objective context of the specified inode
-+ */
-+static int selinux_task_create_files_as(struct task_struct *p,
-+					struct task_security *sec,
-+					struct inode *inode)
-+{
-+	struct inode_security_struct *isec = inode->i_security;
-+	struct task_security_struct *tsec = sec->security;
-+	struct task_security_struct *ptsec = p->act_as->security;
-+	int ret;
-+
-+ 	ret = avc_has_perm(ptsec->sid, isec->sid,
-+			   SECCLASS_KERNEL_SERVICE,
-+			   KERNEL_SERVICE__CREATE_FILES_AS,
-+			   NULL);
-+
-+	if (ret == 0)
-+		tsec->create_sid = isec->sid;
-+	return 0;
-+}
-+
- static int selinux_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+-static int selinux_inode_setotherxattr(struct dentry *dentry, char *name)
++static int selinux_inode_setotherxattr(struct dentry *dentry, const char *name)
  {
- 	/* Since setuid only affects the current process, and
-@@ -5181,7 +5228,7 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return security_sid_to_context(secid, secdata, seclen);
+ 	if (!strncmp(name, XATTR_SECURITY_PREFIX,
+ 		     sizeof XATTR_SECURITY_PREFIX - 1)) {
+@@ -2573,7 +2573,8 @@ static int selinux_inode_setotherxattr(struct dentry *dentry, char *name)
+ 	return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
  }
  
--static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+-static int selinux_inode_setxattr(struct dentry *dentry, char *name, void *value, size_t size, int flags)
++static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
++				  const void *value, size_t size, int flags)
  {
- 	return security_context_to_sid(secdata, seclen, secid);
+ 	struct task_security_struct *tsec = current->act_as->security;
+ 	struct inode *inode = dentry->d_inode;
+@@ -2622,8 +2623,9 @@ static int selinux_inode_setxattr(struct dentry *dentry, char *name, void *value
+ 			    &ad);
  }
-@@ -5341,6 +5388,8 @@ static struct security_operations selinux_ops = {
- 	.task_alloc_security =		selinux_task_alloc_security,
- 	.task_free_security =		selinux_task_free_security,
- 	.task_dup_security =		selinux_task_dup_security,
-+	.task_kernel_act_as =		selinux_task_kernel_act_as,
-+	.task_create_files_as =		selinux_task_create_files_as,
- 	.task_setuid =			selinux_task_setuid,
- 	.task_post_setuid =		selinux_task_post_setuid,
- 	.task_setgid =			selinux_task_setgid,
+ 
+-static void selinux_inode_post_setxattr(struct dentry *dentry, char *name,
+-                                        void *value, size_t size, int flags)
++static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
++                                        const void *value, size_t size,
++					int flags)
+ {
+ 	struct inode *inode = dentry->d_inode;
+ 	struct inode_security_struct *isec = inode->i_security;
+@@ -2646,7 +2648,7 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, char *name,
+ 	return;
+ }
+ 
+-static int selinux_inode_getxattr (struct dentry *dentry, char *name)
++static int selinux_inode_getxattr (struct dentry *dentry, const char *name)
+ {
+ 	return dentry_has_perm(current, NULL, dentry, FILE__GETATTR);
+ }
+@@ -2656,7 +2658,7 @@ static int selinux_inode_listxattr (struct dentry *dentry)
+ 	return dentry_has_perm(current, NULL, dentry, FILE__GETATTR);
+ }
+ 
+-static int selinux_inode_removexattr (struct dentry *dentry, char *name)
++static int selinux_inode_removexattr (struct dentry *dentry, const char *name)
+ {
+ 	if (strcmp(name, XATTR_NAME_SELINUX))
+ 		return selinux_inode_setotherxattr(dentry, name);
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index f7d2f03..526e959 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -83,7 +83,7 @@ int security_change_sid(u32 ssid, u32 tsid,
+ int security_sid_to_context(u32 sid, char **scontext,
+ 	u32 *scontext_len);
+ 
+-int security_context_to_sid(char *scontext, u32 scontext_len,
++int security_context_to_sid(const char *scontext, u32 scontext_len,
+ 	u32 *out_sid);
+ 
+ int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *out_sid, u32 def_sid);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f374186..519b2c1 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -680,7 +680,8 @@ out:
+ 
+ }
+ 
+-static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
++static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
++					u32 *sid, u32 def_sid)
+ {
+ 	char *scontext2;
+ 	struct context context;
+@@ -806,7 +807,7 @@ out:
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+-int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
++int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+ 	                                    sid, SECSID_NULL);
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 5336115..90f2534 100644
+index 90f2534..a4ece02 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -985,6 +985,45 @@ static int smack_task_dup_security(struct task_security *sec)
- }
- 
- /**
-+ * smack_task_kernel_act_as - Set the subjective context in a security record
-+ * @p points to the task that nominated @secid.
-+ * @sec points to the task security record to be modified.
-+ * @secid specifies the security ID to be set
-+ *
-+ * Set the security data for a kernel service.
-+ */
-+static int smack_task_kernel_act_as(struct task_struct *p,
-+				    struct task_security *sec, u32 secid)
-+{
-+	char *smack = smack_from_secid(secid);
-+
-+	if (smack == NULL)
-+		return -EINVAL;
-+
-+	sec->security = smack;
-+	return 0;
-+}
-+
-+/**
-+ * smack_task_create_files_as - Set the file creation label in a security record
-+ * @p points to the task that nominated @inode.
-+ * @sec points to the task security record to be modified.
-+ * @inode points to the inode to use as a reference.
-+ *
-+ * Set the file creation context in a security record to the same as the
-+ * objective context of the specified inode
-+ */
-+static int smack_task_create_files_as(struct task_struct *p,
-+				      struct task_security *sec,
-+				      struct inode *inode)
-+{
-+	struct inode_smack *isp = inode->i_security;
-+
-+	sec->security = isp->smk_inode;
-+	return 0;
-+}
-+
-+/**
-  * smack_task_setpgid - Smack check on setting pgid
-  * @p: the task object
-  * @pgid: unused
-@@ -2421,7 +2460,7 @@ static int smack_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+@@ -575,8 +575,8 @@ static int smack_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
   *
-  * Exists for audit and networking code.
+  * Returns 0 if access is permitted, an error code otherwise
   */
--static int smack_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
-+static int smack_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+-static int smack_inode_setxattr(struct dentry *dentry, char *name,
+-				void *value, size_t size, int flags)
++static int smack_inode_setxattr(struct dentry *dentry, const char *name,
++				const void *value, size_t size, int flags)
  {
- 	*secid = smack_to_secid(secdata);
- 	return 0;
-@@ -2494,6 +2533,8 @@ static struct security_operations smack_ops = {
- 	.task_alloc_security = 		smack_task_alloc_security,
- 	.task_free_security = 		smack_task_free_security,
- 	.task_dup_security =		smack_task_dup_security,
-+	.task_kernel_act_as =		smack_task_kernel_act_as,
-+	.task_create_files_as =		smack_task_create_files_as,
- 	.task_post_setuid =		cap_task_post_setuid,
- 	.task_setpgid = 		smack_task_setpgid,
- 	.task_getpgid = 		smack_task_getpgid,
+ 	int rc = 0;
+ 
+@@ -605,8 +605,8 @@ static int smack_inode_setxattr(struct dentry *dentry, char *name,
+  * Set the pointer in the inode blob to the entry found
+  * in the master label list.
+  */
+-static void smack_inode_post_setxattr(struct dentry *dentry, char *name,
+-				      void *value, size_t size, int flags)
++static void smack_inode_post_setxattr(struct dentry *dentry, const char *name,
++				      const void *value, size_t size, int flags)
+ {
+ 	struct inode_smack *isp;
+ 	char *nsp;
+@@ -642,7 +642,7 @@ static void smack_inode_post_setxattr(struct dentry *dentry, char *name,
+  *
+  * Returns 0 if access is permitted, an error code otherwise
+  */
+-static int smack_inode_getxattr(struct dentry *dentry, char *name)
++static int smack_inode_getxattr(struct dentry *dentry, const char *name)
+ {
+ 	return smk_curacc(smk_of_inode(dentry->d_inode), MAY_READ);
+ }
+@@ -656,7 +656,7 @@ static int smack_inode_getxattr(struct dentry *dentry, char *name)
+  *
+  * Returns 0 if access is permitted, an error code otherwise
+  */
+-static int smack_inode_removexattr(struct dentry *dentry, char *name)
++static int smack_inode_removexattr(struct dentry *dentry, const char *name)
+ {
+ 	int rc = 0;
+ 
 
 
 --
