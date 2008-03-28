@@ -1,165 +1,61 @@
-Subject: Re: Debian SE Linux status
+Subject: Re: policy package names for Debian
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: jwcart2@epoch.ncsc.mil
-Cc: Joshua Brindle <method@manicmethod.com>, russell@coker.com.au,
-        SE-Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <1206714753.29088.35.camel@moss-lions.epoch.ncsc.mil>
-References: <200803281106.47699.russell@coker.com.au>
-	 <1206708790.3302.414.camel@moss-spartans.epoch.ncsc.mil>
-	 <47ECEAF0.4090304@manicmethod.com>
-	 <1206709188.3302.419.camel@moss-spartans.epoch.ncsc.mil>
-	 <1206711402.29088.21.camel@moss-lions.epoch.ncsc.mil>
-	 <1206712290.3302.455.camel@moss-spartans.epoch.ncsc.mil>
-	 <1206714753.29088.35.camel@moss-lions.epoch.ncsc.mil>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: russell@coker.com.au, Manoj Srivastava <srivasta@debian.org>,
+        "SE-Linux," <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>, Chad Sellers <csellers@tresys.com>
+In-Reply-To: <1206715818.16113.324.camel@gorn>
+References: <200803281340.01991.russell@coker.com.au>
+	 <1206707218.3302.393.camel@moss-spartans.epoch.ncsc.mil>
+	 <1206710819.16113.310.camel@gorn>
+	 <1206712622.3302.460.camel@moss-spartans.epoch.ncsc.mil>
+	 <1206715818.16113.324.camel@gorn>
 Content-Type: text/plain
-Date: Fri, 28 Mar 2008 11:19:01 -0400
-Message-Id: <1206717541.3302.492.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 28 Mar 2008 11:37:06 -0400
+Message-Id: <1206718626.3302.511.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 2008-03-28 at 10:32 -0400, James Carter wrote:
-> On Fri, 2008-03-28 at 09:51 -0400, Stephen Smalley wrote:
-> > On Fri, 2008-03-28 at 09:36 -0400, James Carter wrote:
-> > > On Fri, 2008-03-28 at 08:59 -0400, Stephen Smalley wrote:
-> > > > On Fri, 2008-03-28 at 08:56 -0400, Joshua Brindle wrote:
-> > > > > Stephen Smalley wrote:
-> > > > > > On Fri, 2008-03-28 at 11:06 +1100, Russell Coker wrote:
-> > > > > >   
-> > > > > >> http://etbe.coker.com.au/2008/03/28/debian-se-linux-status/
-> > > > > >>
-> > > > > >> Those of you who don't read Planet SE Linux but who are interested in Debian 
-> > > > > >> may want to read the above.
-> > > > > >>     
-> > > > > >
-> > > > > > Regarding the mismatch in policy version between your domU vs. dom0, you
-> > > > > > should be able to build older policy versions via the config setting
-> > > > > > in /etc/selinux/semanage.conf (modular build) or via the OUTPUT_POLICY=
-> > > > > > setting in build.conf, overridable on the make command line (monolithic
-> > > > > > build).
-> > > > > >
-> > > > > > Or you could install newer selinux core userland in your dom0 such that
-> > > > > > it can read and downgrade the latest policy to the one supported by your
-> > > > > > kernel (libselinux policy load logic will convert a newer policy to an
-> > > > > > older one at load time for you).
-> > > > > >
-> > > > > > Agree that converting between non-MLS and MLS/MCS is very painful at
-> > > > > > present.  Part of that we can fix (inappropriate dependencies in
-> > > > > > semanage/seobject.py that should be querying the policy store via
-> > > > > > libsemanage/libsepol rather than checking the running policy), and part
-> > > > > > we cannot (still won't be able to switch the kind of policy at policy
-> > > > > > reload in the kernel).  I'd actually prefer that we just always enable
-> > > > > > the MLS engine and field for simplification, presenting the same
-> > > > > > experience to all users, and ensuring that we are all testing the same
-> > > > > > code paths.  
-> > > 
-> > > I thought that MLS just added additional code paths.  Are there code
-> > > paths that are only taken for non-MLS policies?
-> > > 
-> > > > I don't know how others feel about that though - I know
-> > > > > > that Gentoo has historically not enabled MCS/MLS, and that upstream
-> > > > > > refpolicy still defaults to not enabling it (standard).
-> > > > > >
-> > > > > > I'm not sure why MLS support significantly increases policy build time
-> > > > > > though.
-> > > > > >   
-> > > 
-> > > Isn't that an argument for keeping non-MLS support? ;)
+On Fri, 2008-03-28 at 10:50 -0400, Christopher J. PeBenito wrote:
+> On Fri, 2008-03-28 at 09:57 -0400, Stephen Smalley wrote:
+> > > Neglecting the above, I still disagree with dropping a TE-only
+> > > configuration.  While you can arrive at the same configuration by having
+> > > one category and one sensitivity and/or dropping the MLS constraints,
+> > > you still get MLS bits leaking through, eg. in semanage.
 > > 
-> > I don't believe that it actually does significantly increase policy
-> > build time (or if it does, that would be a bug).  Possibly Russell just
-> > means that building both MLS and non-MLS takes longer, or that the mls
-> > modules.conf includes more modules, or something along those lines?
-> > 
-> > > What is the difference in overhead between an MLS and a non-MLS system?
-> > > Would there be a noticeable difference in resources used by a non-MLS
-> > > system and one that had a single level of s0 and no categories?  (Can
-> > > you actually define only one level and no categories?)
-> > 
-> > If you don't define any actual MLS constraints in policy, then it
-> > shouldn't impose any real runtime overhead (and even when you do, that's
-> > all masked by the AVC, of course).  Yes, you should be able to define
-> > just one level and no categories, although I doubt that defining
-> > categories significantly expands the policy (just because they are
-> > defined doesn't mean you have to use them in contexts).
+> > That's the point - the presence/absence of a context field is visible to
+> > users and applications no matter how much we try to encapsulate the
+> > contexts, and having the two different configurations makes maintenance
+> > and user experience more difficult/confusing.
 > 
-> You can't.
-> 
-> m4 -D enable_mls -D distro_redhat -D mls_num_sens=1 -D mls_num_cats=0 -D
-> mcs_num_cats=256 -D hide_broken_symptoms -D self_contained_policy
-> policy/flask/security_classes policy/flask/initial_sids
-> policy/flask/access_vectors policy/support/file_patterns.spt
-> policy/support/ipc_patterns.spt policy/support/loadable_module.spt
-> policy/support/misc_macros.spt policy/support/misc_patterns.spt
-> policy/support/mls_mcs_macros.spt policy/support/obj_perm_sets.spt
-> policy/mls policy/mcs > tmp/pre_te_files.conf
-> m4: memory exhausted
-> make: *** [tmp/pre_te_files.conf] Error 1
+> I think the confusion is worse for the TE-only case (emulated by no mls
+> constraints or only one category/sensitivity).  For example, if you
+> short circuit the level translation to "", then people get confused when
+> their setexecon() fails because they haven't put :s0 at the end of the
+> context, but none of their ps -AZ processes have it.  Thats
+> significantly more obtuse than people thinking "Fedora has that MCS
+> stuff, and Ubuntu doesn't."  There is always configuration/support
+> variances between distros.
 
-Ok - I only glanced at the checkpolicy grammar, which allows no
-categories to be defined.  But I suppose that refpolicy build
-infrastructure and likely even the libsepol and kernel code will be
-unhappy with zero categories presently.
+Ah, that's likely true.  And people do find the difference between MCS
+and MLS confusing as it is.
 
-> But I see your point.  There isn't going to be any appreciable overhead
-> in defining additional levels and categories that aren't used.  And
-> there is really no gain in running a non-MLS system as compared to an
-> MLS system that is running everything at the same level and which
-> doesn't have any MLS constraints.
+> I'm not convinced many people actually use MCS at all.  Users have a
+> hard enough time dealing with TE.  If it wasn't for MCS I don't think
+> we'd even be having this discussion.
 
-Yes, that's the point.
+For me, the value of MCS is getting the MLS support adequately tested
+and supported throughout the distribution.  That's about it.
 
-> > 
-> > With the mainstreaming of the MLS support and turning it from a
-> > compile-time option into a runtime load option, there isn't any real
-> > difference in the in-core context structures even when you have MLS
-> > disabled.  So you aren't saving anything there.
-> > 
-> > > > > Also note that the default (and only) policy on Ubuntu is non-mls.
-> > > > 
-> > > > Why?
-> > > > 
-> > > > I think we set ourselves up for application and user confusion and
-> > > > incompatibility by having different context formats in the different
-> > > > distributions that support SELinux.  And it definitely creates a
-> > > > maintenance burden - having to test both cases always.  Which apparently
-> > > > we aren't doing a good job of, as semanage user -a will presently always
-> > > > fail on a non-MCS/MLS system.
-> > > > 
-> > > 
-> > > I don't think that we should address deficiencies in the tool-chain by
-> > > reducing flexibility.
-> > 
-> > No - it isn't just deficiencies in the tool chain.  It increases our
-> > maintenance burden to have multiple options and code paths to exercise,
-> > and it is user- and application visible since it affects the context
-> > format.
-> > 
-> 
-> What about the differences between monolithic policy and modular policy?
-> Isn't that a maintenance burden as well?  A monolithic policy can't be
-> managed with semange, so that is a user visible difference as well.
-
-That was a technology transition for SELinux, one that all the
-distributions went through.  All the distributions now use modular,
-managed policy by default, and monolithic policy support remains for
-legacy systems (e.g. RHEL4) and possibly for embedded systems since
-modular, managed policy presently has a real cost to it (unlike the MLS
-support).
-
-Similarly, MLS has gone from a compile-time only, universally disabled
-option to a load-time, enabled-by-default option in the majority of
-SELinux systems today.
-
-So possibly the maintenance burden argument doesn't hold up, since we'd
-need to retain such support anyway for legacy systems - although we
-could at least deprecate it and eventually drop it from the trunk,
-leaving it only in some legacy stable branch.  But the common user
-experience argument seems valid to me.
+The ideal scenario from a "mainstreaming MAC" perspective would be to
+have the real MLS constraints in place by default, and the only
+difference between the default setup and a MLS one would be whether one
+actually puts anything in any level other than s0.  That would carry
+some cost from the constraint evaluation on compute_av calls, but that
+should be largely masked by the AVC.  It shouldn't really affect memory
+or disk use as long as everything defaults to s0 and no categories.
 
 -- 
 Stephen Smalley
