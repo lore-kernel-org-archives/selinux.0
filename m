@@ -1,19 +1,19 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF5xe0024551
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:05:59 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF62i9024593
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:02 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUO018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:56 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUQ018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:05:59 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 14/45] Security: Make NFSD work with detached security [ver
+Subject: [PATCH 34/45] NFS: Define and create superblock-level objects [ver
 	#35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:31:22 +0000
-Message-ID: <20080328143122.3483.31028.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:33:05 +0000
+Message-ID: <20080328143305.3483.99532.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -21,287 +21,404 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Make NFSD work with detached security, using the patches that excise the
-security information from task_struct to struct task_security as a base.
+Define and create superblock-level cache index objects (as managed by
+nfs_server structs).
 
-Each time NFSD wants a new security descriptor (to do NFS4 recovery or just to
-do NFS operations), a task_security record is derived from NFSD's *objective*
-security, modified and then applied as the *subjective* security.  This means
-(a) the changes are not visible to anyone looking at NFSD through /proc, (b)
-there is no leakage between two consecutive ops with different security
-configurations.
+Each superblock object is created in a server level index object and is itself
+an index into which inode-level objects are inserted.
 
-Consideration should probably be given to caching the task_security record on
-the basis that there'll probably be several ops that will want to use any
-particular security configuration.
+Ideally there would be one superblock-level object per server, and the former
+would be folded into the latter; however, since the "nosharecache" option
+exists this isn't possible.
 
-Furthermore, nfs4recover.c perhaps ought to set an appropriate LSM context on
-the record pointed to by rec_security so that the disk is accessed
-appropriately (see set_security_override[_from_ctx]()).
+The superblock object key is a sequence consisting of:
 
-NOTE!  This patch must be rolled in to one of the earlier security patches to
-make it compile fully.
+ (1) Certain superblock s_flags.
+
+ (2) Various connection parameters that serve to distinguish superblocks for
+     sget().
+
+ (3) The volume FSID.
+
+ (4) The security flavour.
+
+ (5) The uniquifier length.
+
+ (6) The uniquifier text.  This is normally an empty string, unless the fsc=xyz
+     mount option was used to explicitly specify a uniquifier.
+
+The key blob is of variable length, depending on the length of (6).
+
+The superblock object is given no coherency data to carry in the auxiliary data
+permitted by the cache.  It is assumed that the superblock is always coherent.
+
+
+This patch also adds uniquification handling such that two otherwise identical
+superblocks, at least one of which is marked "nosharecache", won't end up
+trying to share the on-disk cache.  It will be possible to manually provide a
+uniquifier through a mount option with a later patch to avoid the error
+otherwise produced.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfsd/auth.c        |   37 +++++++++++++++++++---------
- fs/nfsd/nfs4recover.c |   64 +++++++++++++++++++++++++++++++------------------
- 2 files changed, 65 insertions(+), 36 deletions(-)
+ fs/nfs/fscache-index.c    |   34 +++++++++++++
+ fs/nfs/fscache.c          |  116 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h          |   49 +++++++++++++++++++
+ fs/nfs/internal.h         |    3 +
+ fs/nfs/super.c            |    8 ++-
+ include/linux/nfs_fs_sb.h |    5 ++
+ 6 files changed, 213 insertions(+), 2 deletions(-)
 
 
-diff --git a/fs/nfsd/auth.c b/fs/nfsd/auth.c
-index 5586157..ebdc562 100644
---- a/fs/nfsd/auth.c
-+++ b/fs/nfsd/auth.c
-@@ -6,6 +6,7 @@
- 
- #include <linux/types.h>
- #include <linux/sched.h>
-+#include <linux/cred.h>
- #include <linux/sunrpc/svc.h>
- #include <linux/sunrpc/svcauth.h>
- #include <linux/nfsd/nfsd.h>
-@@ -26,12 +27,17 @@ int nfsexp_flags(struct svc_rqst *rqstp, struct svc_export *exp)
- 
- int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
- {
--	struct task_security *act_as = current->act_as;
-+	struct task_security *sec, *old;
- 	struct svc_cred	cred = rqstp->rq_cred;
- 	int i;
- 	int flags = nfsexp_flags(rqstp, exp);
- 	int ret;
- 
-+	/* derive the new security record from nfsd's objective security */
-+	sec = get_kernel_security(current);
-+	if (!sec)
-+		return -ENOMEM;
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+index 01f0f41..e092a73 100644
+--- a/fs/nfs/fscache-index.c
++++ b/fs/nfs/fscache-index.c
+@@ -116,3 +116,37 @@ const struct fscache_cookie_def nfs_fscache_server_index_def = {
+ 	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
+ 	.get_key	= nfs_server_get_key,
+ };
 +
- 	if (flags & NFSEXP_ALLSQUASH) {
- 		cred.cr_uid = exp->ex_anon_uid;
- 		cred.cr_gid = exp->ex_anon_gid;
-@@ -55,26 +61,33 @@ int nfsd_setuser(struct svc_rqst *rqstp, struct svc_export *exp)
- 		get_group_info(cred.cr_group_info);
- 
- 	if (cred.cr_uid != (uid_t) -1)
--		act_as->fsuid = cred.cr_uid;
-+		sec->fsuid = cred.cr_uid;
- 	else
--		act_as->fsuid = exp->ex_anon_uid;
-+		sec->fsuid = exp->ex_anon_uid;
- 	if (cred.cr_gid != (gid_t) -1)
--		act_as->fsgid = cred.cr_gid;
-+		sec->fsgid = cred.cr_gid;
- 	else
--		act_as->fsgid = exp->ex_anon_gid;
-+		sec->fsgid = exp->ex_anon_gid;
- 
--	if (!cred.cr_group_info)
-+	if (!cred.cr_group_info) {
-+		put_task_security(sec);
- 		return -ENOMEM;
--	ret = set_groups(act_as, cred.cr_group_info);
++/*
++ * Generate a key to describe a superblock key in the main NFS index
++ */
++static uint16_t nfs_super_get_key(const void *cookie_netfs_data,
++				  void *buffer, uint16_t bufmax)
++{
++	const struct nfs_fscache_key *key;
++	const struct nfs_server *nfss = cookie_netfs_data;
++	uint16_t len;
++
++	key = nfss->fscache_key;
++	len = sizeof(key->key) + key->key.uniq_len;
++	if (len > bufmax) {
++		len = 0;
++	} else {
++		memcpy(buffer, &key->key, sizeof(key->key));
++		memcpy(buffer + sizeof(key->key),
++		       key->key.uniquifier, key->key.uniq_len);
 +	}
-+	ret = set_groups(sec, cred.cr_group_info);
- 	put_group_info(cred.cr_group_info);
- 	if ((cred.cr_uid)) {
--		act_as->cap_effective =
--			cap_drop_nfsd_set(act_as->cap_effective);
-+		sec->cap_effective =
-+			cap_drop_nfsd_set(sec->cap_effective);
- 	} else {
--		act_as->cap_effective =
--			cap_raise_nfsd_set(act_as->cap_effective,
--					   act_as->cap_permitted);
-+		sec->cap_effective =
-+			cap_raise_nfsd_set(sec->cap_effective,
-+					   sec->cap_permitted);
- 	}
 +
-+	/* set the new security as nfsd's subjective security */
-+	old = current->act_as;
-+	current->act_as = sec;
-+	put_task_security(old);
- 	return ret;
- }
- 
-diff --git a/fs/nfsd/nfs4recover.c b/fs/nfsd/nfs4recover.c
-index afddc9b..c86aa92 100644
---- a/fs/nfsd/nfs4recover.c
-+++ b/fs/nfsd/nfs4recover.c
-@@ -46,27 +46,37 @@
- #include <linux/scatterlist.h>
- #include <linux/crypto.h>
- #include <linux/sched.h>
-+#include <linux/cred.h>
- 
- #define NFSDDBG_FACILITY                NFSDDBG_PROC
- 
- /* Globals */
- static struct nameidata rec_dir;
- static int rec_dir_init = 0;
-+static struct task_security *rec_security;
- 
-+/*
-+ * switch the special recovery access security in on the current task's
-+ * subjective security
-+ */
- static void
--nfs4_save_user(uid_t *saveuid, gid_t *savegid)
-+nfs4_begin_secure(struct task_security **saved_sec)
- {
--	*saveuid = current->act_as->fsuid;
--	*savegid = current->act_as->fsgid;
--	current->act_as->fsuid = 0;
--	current->act_as->fsgid = 0;
-+	*saved_sec = current->act_as;
-+	current->act_as = get_task_security(rec_security);
- }
- 
-+/*
-+ * return the current task's subjective security to its former glory
-+ */
- static void
--nfs4_reset_user(uid_t saveuid, gid_t savegid)
-+nfs4_end_secure(struct task_security *saved_sec)
- {
--	current->act_as->fsuid = saveuid;
--	current->act_as->fsgid = savegid;
-+	struct task_security *discard;
++	return len;
++}
 +
-+	discard = current->act_as;
-+	current->act_as = saved_sec;
-+	put_task_security(discard);
++/*
++ * Define the superblock object for FS-Cache.  This is used to describe a
++ * superblock object to fscache_acquire_cookie().  It is keyed by all the NFS
++ * parameters that might cause a separate superblock.
++ */
++const struct fscache_cookie_def nfs_fscache_super_index_def = {
++	.name		= "NFS.super",
++	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key	= nfs_super_get_key,
++};
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index c3f056f..ab2de2c 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -23,6 +23,9 @@
+ 
+ #define NFSDBG_FACILITY		NFSDBG_FSCACHE
+ 
++static struct rb_root nfs_fscache_keys = RB_ROOT;
++static DEFINE_SPINLOCK(nfs_fscache_keys_lock);
++
+ /*
+  * Get the per-client index cookie for an NFS client if the appropriate mount
+  * flag was set
+@@ -50,3 +53,116 @@ void nfs_fscache_release_client_cookie(struct nfs_client *clp)
+ 	fscache_relinquish_cookie(clp->fscache, 0);
+ 	clp->fscache = NULL;
  }
- 
- static void
-@@ -128,10 +138,9 @@ nfsd4_sync_rec_dir(void)
- int
- nfsd4_create_clid_dir(struct nfs4_client *clp)
- {
-+	struct task_security *saved_sec;
- 	char *dname = clp->cl_recdir;
- 	struct dentry *dentry;
--	uid_t uid;
--	gid_t gid;
- 	int status;
- 
- 	dprintk("NFSD: nfsd4_create_clid_dir for \"%s\"\n", dname);
-@@ -139,7 +148,7 @@ nfsd4_create_clid_dir(struct nfs4_client *clp)
- 	if (!rec_dir_init || clp->cl_firststate)
- 		return 0;
- 
--	nfs4_save_user(&uid, &gid);
-+	nfs4_begin_secure(&saved_sec);
- 
- 	/* lock the parent */
- 	mutex_lock(&rec_dir.path.dentry->d_inode->i_mutex);
-@@ -163,7 +172,7 @@ out_unlock:
- 		clp->cl_firststate = 1;
- 		nfsd4_sync_rec_dir();
- 	}
--	nfs4_reset_user(uid, gid);
-+	nfs4_end_secure(saved_sec);
- 	dprintk("NFSD: nfsd4_create_clid_dir returns %d\n", status);
- 	return status;
- }
-@@ -206,20 +215,19 @@ nfsd4_build_dentrylist(void *arg, const char *name, int namlen,
- static int
- nfsd4_list_rec_dir(struct dentry *dir, recdir_func *f)
- {
-+	struct task_security *saved_sec;
- 	struct file *filp;
- 	struct dentry_list_arg dla = {
- 		.parent = dir,
- 	};
- 	struct list_head *dentries = &dla.dentries;
- 	struct dentry_list *child;
--	uid_t uid;
--	gid_t gid;
- 	int status;
- 
- 	if (!rec_dir_init)
- 		return 0;
- 
--	nfs4_save_user(&uid, &gid);
-+	nfs4_begin_secure(&saved_sec);
- 
- 	filp = dentry_open(dget(dir), mntget(rec_dir.path.mnt), O_RDONLY);
- 	status = PTR_ERR(filp);
-@@ -244,7 +252,7 @@ out:
- 		dput(child->dentry);
- 		kfree(child);
- 	}
--	nfs4_reset_user(uid, gid);
-+	nfs4_end_secure(saved_sec);
- 	return status;
- }
- 
-@@ -306,17 +314,16 @@ out:
- void
- nfsd4_remove_clid_dir(struct nfs4_client *clp)
- {
--	uid_t uid;
--	gid_t gid;
-+	struct task_security *saved_sec;
- 	int status;
- 
- 	if (!rec_dir_init || !clp->cl_firststate)
- 		return;
- 
- 	clp->cl_firststate = 0;
--	nfs4_save_user(&uid, &gid);
-+	nfs4_begin_secure(&saved_sec);
- 	status = nfsd4_unlink_clid_dir(clp->cl_recdir, HEXDIR_LEN-1);
--	nfs4_reset_user(uid, gid);
-+	nfs4_end_secure(saved_sec);
- 	if (status == 0)
- 		nfsd4_sync_rec_dir();
- 	if (status)
-@@ -387,8 +394,7 @@ nfsd4_recdir_load(void) {
- void
- nfsd4_init_recdir(char *rec_dirname)
- {
--	uid_t			uid = 0;
--	gid_t			gid = 0;
-+	struct task_security	*saved_sec;
- 	int 			status;
- 
- 	printk("NFSD: Using %s as the NFSv4 state recovery directory\n",
-@@ -396,7 +402,15 @@ nfsd4_init_recdir(char *rec_dirname)
- 
- 	BUG_ON(rec_dir_init);
- 
--	nfs4_save_user(&uid, &gid);
-+	/* derive the security record from this task's objective security */
-+	rec_security = get_kernel_security(current);
-+	if (!rec_security) {
-+		printk("NFSD:"
-+		       " unable to allocate recovery directory security\n");
++
++/*
++ * Get the cache cookie for an NFS superblock.  We have to handle
++ * uniquification here because the cache doesn't do it for us.
++ */
++void nfs_fscache_get_super_cookie(struct super_block *sb,
++				  struct nfs_parsed_mount_data *data)
++{
++	struct nfs_fscache_key *key, *xkey;
++	struct nfs_server *nfss = NFS_SB(sb);
++	struct rb_node **p, *parent;
++	const char *uniq = data->fscache_uniq ?: "";
++	int diff, ulen;
++
++	ulen = strlen(uniq);
++	key = kzalloc(sizeof(*key) + ulen, GFP_KERNEL);
++	if (!key)
 +		return;
++
++	key->nfs_client = nfss->nfs_client;
++	key->key.super.s_flags = sb->s_flags & NFS_MS_MASK;
++	key->key.nfs_server.flags = nfss->flags;
++	key->key.nfs_server.rsize = nfss->rsize;
++	key->key.nfs_server.wsize = nfss->wsize;
++	key->key.nfs_server.acregmin = nfss->acregmin;
++	key->key.nfs_server.acregmax = nfss->acregmax;
++	key->key.nfs_server.acdirmin = nfss->acdirmin;
++	key->key.nfs_server.acdirmax = nfss->acdirmax;
++	key->key.nfs_server.fsid = nfss->fsid;
++	key->key.rpc_auth.au_flavor = nfss->client->cl_auth->au_flavor;
++
++	key->key.uniq_len = ulen;
++	memcpy(key->key.uniquifier, uniq, ulen);
++
++	spin_lock(&nfs_fscache_keys_lock);
++	p = &nfs_fscache_keys.rb_node;
++	parent = NULL;
++	while (*p) {
++		parent = *p;
++		xkey = rb_entry(parent, struct nfs_fscache_key, node);
++
++		if (key->nfs_client < xkey->nfs_client)
++			goto go_left;
++		if (key->nfs_client > xkey->nfs_client)
++			goto go_right;
++
++		diff = memcmp(&key->key, &xkey->key, sizeof(key->key));
++		if (diff < 0)
++			goto go_left;
++		if (diff > 0)
++			goto go_right;
++
++		if (key->key.uniq_len == 0)
++			goto non_unique;
++		diff = memcmp(key->key.uniquifier,
++			      xkey->key.uniquifier,
++			      key->key.uniq_len);
++		if (diff < 0)
++			goto go_left;
++		if (diff > 0)
++			goto go_right;
++		goto non_unique;
++
++	go_left:
++		p = &(*p)->rb_left;
++		continue;
++	go_right:
++		p = &(*p)->rb_right;
 +	}
 +
-+	nfs4_begin_secure(&saved_sec);
- 
- 	status = path_lookup(rec_dirname, LOOKUP_FOLLOW | LOOKUP_DIRECTORY,
- 			&rec_dir);
-@@ -406,7 +420,8 @@ nfsd4_init_recdir(char *rec_dirname)
- 
- 	if (!status)
- 		rec_dir_init = 1;
--	nfs4_reset_user(uid, gid);
++	rb_link_node(&key->node, parent, p);
++	rb_insert_color(&key->node, &nfs_fscache_keys);
++	spin_unlock(&nfs_fscache_keys_lock);
++	nfss->fscache_key = key;
 +
-+	nfs4_end_secure(saved_sec);
++	/* create a cache index for looking up filehandles */
++	nfss->fscache = fscache_acquire_cookie(nfss->nfs_client->fscache,
++					       &nfs_fscache_super_index_def,
++					       nfss);
++	dfprintk(FSCACHE, "NFS: get superblock cookie (0x%p/0x%p)\n",
++		 nfss, nfss->fscache);
++	return;
++
++non_unique:
++	spin_unlock(&nfs_fscache_keys_lock);
++	kfree(key);
++	nfss->fscache_key = NULL;
++	nfss->fscache = NULL;
++	printk(KERN_WARNING "NFS:"
++	       " Cache request denied due to non-unique superblock keys\n");
++}
++
++/*
++ * release a per-superblock cookie
++ */
++void nfs_fscache_release_super_cookie(struct super_block *sb)
++{
++	struct nfs_server *nfss = NFS_SB(sb);
++
++	dfprintk(FSCACHE, "NFS: releasing superblock cookie (0x%p/0x%p)\n",
++		 nfss, nfss->fscache);
++
++	fscache_relinquish_cookie(nfss->fscache, 0);
++	nfss->fscache = NULL;
++
++	if (nfss->fscache_key) {
++		spin_lock(&nfs_fscache_keys_lock);
++		rb_erase(&nfss->fscache_key->node, &nfs_fscache_keys);
++		spin_unlock(&nfs_fscache_keys_lock);
++		kfree(nfss->fscache_key);
++		nfss->fscache_key = NULL;
++	}
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index 1d864be..22b971e 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -20,10 +20,48 @@
+ #ifdef CONFIG_NFS_FSCACHE
+ 
+ /*
++ * set of NFS FS-Cache objects that form a superblock key
++ */
++struct nfs_fscache_key {
++	struct rb_node		node;
++	struct nfs_client	*nfs_client;	/* the server */
++
++	/* the elements of the unique key - as used by nfs_compare_super() and
++	 * nfs_compare_mount_options() to distinguish superblocks */
++	struct {
++		struct {
++			unsigned long	s_flags;	/* various flags
++							 * (& NFS_MS_MASK) */
++		} super;
++
++		struct {
++			struct nfs_fsid fsid;
++			int		flags;
++			unsigned int	rsize;		/* read size */
++			unsigned int	wsize;		/* write size */
++			unsigned int	acregmin;	/* attr cache timeouts */
++			unsigned int	acregmax;
++			unsigned int	acdirmin;
++			unsigned int	acdirmax;
++		} nfs_server;
++
++		struct {
++			rpc_authflavor_t au_flavor;
++		} rpc_auth;
++
++		/* uniquifier - can be used if nfs_server.flags includes
++		 * NFS_MOUNT_UNSHARED  */
++		u8 uniq_len;
++		char uniquifier[0];
++	} key;
++};
++
++/*
+  * fscache-index.c
+  */
+ extern struct fscache_netfs nfs_fscache_netfs;
+ extern const struct fscache_cookie_def nfs_fscache_server_index_def;
++extern const struct fscache_cookie_def nfs_fscache_super_index_def;
+ 
+ extern int nfs_fscache_register(void);
+ extern void nfs_fscache_unregister(void);
+@@ -34,6 +72,10 @@ extern void nfs_fscache_unregister(void);
+ extern void nfs_fscache_get_client_cookie(struct nfs_client *);
+ extern void nfs_fscache_release_client_cookie(struct nfs_client *);
+ 
++extern void nfs_fscache_get_super_cookie(struct super_block *,
++					 struct nfs_parsed_mount_data *);
++extern void nfs_fscache_release_super_cookie(struct super_block *);
++
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+ static inline void nfs_fscache_unregister(void) {}
+@@ -41,5 +83,12 @@ static inline void nfs_fscache_unregister(void) {}
+ static inline void nfs_fscache_get_client_cookie(struct nfs_client *clp) {}
+ static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
+ 
++static inline void nfs_fscache_get_super_cookie(
++	struct super_block *sb,
++	struct nfs_parsed_mount_data *data)
++{
++}
++static inline void nfs_fscache_release_super_cookie(struct super_block *sb) {}
++
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
+diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
+index 9319927..ab23769 100644
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -5,6 +5,8 @@
+ #include <linux/mount.h>
+ #include <linux/security.h>
+ 
++#define NFS_MS_MASK (MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|MS_SYNCHRONOUS)
++
+ struct nfs_string;
+ 
+ /* Maximum number of readahead requests
+@@ -41,6 +43,7 @@ struct nfs_parsed_mount_data {
+ 	unsigned int		auth_flavor_len;
+ 	rpc_authflavor_t	auth_flavors[1];
+ 	char			*client_address;
++	char			*fscache_uniq;
+ 
+ 	struct {
+ 		struct sockaddr_storage	address;
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index dd4dfcd..70604b9 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -59,6 +59,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ #include "internal.h"
++#include "fscache.h"
+ 
+ #define NFSDBG_FACILITY		NFSDBG_VFS
+ 
+@@ -1402,8 +1403,6 @@ static void nfs_clone_super(struct super_block *sb,
+  	nfs_initialise_sb(sb);
  }
  
- void
-@@ -416,4 +431,5 @@ nfsd4_shutdown_recdir(void)
- 		return;
- 	rec_dir_init = 0;
- 	path_put(&rec_dir.path);
-+	put_task_security(rec_security);
+-#define NFS_MS_MASK (MS_RDONLY|MS_NOSUID|MS_NODEV|MS_NOEXEC|MS_SYNCHRONOUS)
+-
+ static int nfs_compare_mount_options(const struct super_block *s, const struct nfs_server *b, int flags)
+ {
+ 	const struct nfs_server *a = s->s_fs_info;
+@@ -1554,6 +1553,7 @@ static int nfs_get_sb(struct file_system_type *fs_type,
+ 	if (!s->s_root) {
+ 		/* initial superblock/root creation */
+ 		nfs_fill_super(s, &data);
++		nfs_fscache_get_super_cookie(s, &data);
+ 	}
+ 
+ 	mntroot = nfs_get_root(s, &mntfh);
+@@ -1574,6 +1574,7 @@ static int nfs_get_sb(struct file_system_type *fs_type,
+ out:
+ 	kfree(data.nfs_server.hostname);
+ 	kfree(data.mount_server.hostname);
++	kfree(data.fscache_uniq);
+ 	security_free_mnt_opts(&data.lsm_opts);
+ 	return error;
+ 
+@@ -1597,6 +1598,7 @@ static void nfs_kill_super(struct super_block *s)
+ 	struct nfs_server *server = NFS_SB(s);
+ 
+ 	kill_anon_super(s);
++	nfs_fscache_release_super_cookie(s);
+ 	nfs_free_server(server);
  }
+ 
+@@ -1940,6 +1942,7 @@ static int nfs4_get_sb(struct file_system_type *fs_type,
+ 	if (!s->s_root) {
+ 		/* initial superblock/root creation */
+ 		nfs4_fill_super(s);
++		nfs_fscache_get_super_cookie(s, &data);
+ 	}
+ 
+ 	mntroot = nfs4_get_root(s, &mntfh);
+@@ -1957,6 +1960,7 @@ out:
+ 	kfree(data.client_address);
+ 	kfree(data.nfs_server.export_path);
+ 	kfree(data.nfs_server.hostname);
++	kfree(data.fscache_uniq);
+ 	security_free_mnt_opts(&data.lsm_opts);
+ 	return error;
+ 
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index 8d23dcb..fd592cc 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -110,6 +110,11 @@ struct nfs_server {
+ 	__u64			maxfilesize;	/* maximum file size */
+ 	unsigned long		mount_time;	/* when this fs was mounted */
+ 	dev_t			s_dev;		/* superblock dev numbers */
++ 
++#ifdef CONFIG_NFS_FSCACHE
++	struct nfs_fscache_key	*fscache_key;	/* unique key for superblock */
++	struct fscache_cookie	*fscache;	/* superblock cookie */
++#endif
+ 
+ #ifdef CONFIG_NFS_V4
+ 	u32			attr_bitmask[2];/* V4 bitmask representing the set
 
 
 --
