@@ -1,18 +1,19 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEYFfo017533
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:34:15 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEYQNx017571
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:34:26 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEYCTs005080
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:34:13 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEYMTs005166
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:34:23 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 02/45] KEYS: Check starting keyring as part of search [ver #35]
+Subject: [PATCH 43/45] NFS: Store pages from an NFS inode into a local cache
+	[ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:30:21 +0000
-Message-ID: <20080328143021.3483.17742.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:33:51 +0000
+Message-ID: <20080328143351.3483.864.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,117 +21,111 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Check the starting keyring as part of the search to (a) see if that is what
-we're searching for, and (b) to check it is still valid for searching.
+Store pages from an NFS inode into the cache data storage object associated
+with that inode.
 
-The scenario:  User in process A does things that cause things to be
-created in its process session keyring.  The user then does an su to
-another user and starts a new process, B.  The two processes now
-share the same process session keyring.
-
-Process B does an NFS access which results in an upcall to gssd.
-When gssd attempts to instantiate the context key (to be linked
-into the process session keyring), it is denied access even though it
-has an authorization key.
-
-The order of calls is:
-
-   keyctl_instantiate_key()
-      lookup_user_key()				    (the default: case)
-         search_process_keyrings(current)
-	    search_process_keyrings(rka->context)   (recursive call)
-	       keyring_search_aux()
-
-keyring_search_aux() verifies the keys and keyrings underneath the
-top-level keyring it is given, but that top-level keyring is neither
-fully validated nor checked to see if it is the thing being searched for.
-
-This patch changes keyring_search_aux() to:
-1) do more validation on the top keyring it is given and
-2) check whether that top-level keyring is the thing being searched for
-
-
-Signed-off-by: Kevin Coffman <kwc@citi.umich.edu>
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- security/keys/keyring.c |   35 +++++++++++++++++++++++++++++++----
- 1 files changed, 31 insertions(+), 4 deletions(-)
+ fs/nfs/fscache.c |   28 ++++++++++++++++++++++++++++
+ fs/nfs/fscache.h |   16 ++++++++++++++++
+ fs/nfs/read.c    |    5 +++++
+ 3 files changed, 49 insertions(+), 0 deletions(-)
 
 
-diff --git a/security/keys/keyring.c b/security/keys/keyring.c
-index 88292e3..76b89b2 100644
---- a/security/keys/keyring.c
-+++ b/security/keys/keyring.c
-@@ -292,7 +292,7 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index d147bd0..5ca900a 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -503,3 +503,31 @@ int __nfs_readpages_from_fscache(struct nfs_open_context *ctx,
  
- 	struct keyring_list *keylist;
- 	struct timespec now;
--	unsigned long possessed;
-+	unsigned long possessed, kflags;
- 	struct key *keyring, *key;
- 	key_ref_t key_ref;
- 	long err;
-@@ -318,6 +318,32 @@ key_ref_t keyring_search_aux(key_ref_t keyring_ref,
- 	now = current_kernel_time();
- 	err = -EAGAIN;
- 	sp = 0;
-+	
-+	/* firstly we should check to see if this top-level keyring is what we
-+	 * are looking for */
-+	key_ref = ERR_PTR(-EAGAIN);
-+	kflags = keyring->flags;
-+	if (keyring->type == type && match(keyring, description)) {
-+		key = keyring;
+ 	return ret;
+ }
 +
-+		/* check it isn't negative and hasn't expired or been
-+		 * revoked */
-+		if (kflags & (1 << KEY_FLAG_REVOKED))
-+			goto error_2;
-+		if (key->expiry && now.tv_sec >= key->expiry)
-+			goto error_2;
-+		key_ref = ERR_PTR(-ENOKEY);
-+		if (kflags & (1 << KEY_FLAG_NEGATIVE))
-+			goto error_2;
-+		goto found;
++/*
++ * Store a newly fetched page in fscache
++ * - PG_fscache must be set on the page
++ */
++void __nfs_readpage_to_fscache(struct inode *inode, struct page *page, int sync)
++{
++	int ret;
++
++	dfprintk(FSCACHE,
++		 "NFS: readpage_to_fscache(fsc:%p/p:%p(i:%lx f:%lx)/%d)\n",
++		 NFS_I(inode)->fscache, page, page->index, page->flags, sync);
++
++	ret = fscache_write_page(NFS_I(inode)->fscache, page, GFP_KERNEL);
++	dfprintk(FSCACHE,
++		 "NFS:     readpage_to_fscache: p:%p(i:%lu f:%lx) ret %d\n",
++		 page, page->index, page->flags, ret);
++
++	if (ret != 0) {
++		fscache_uncache_page(NFS_I(inode)->fscache, page);
++		nfs_add_fscache_stats(inode,
++				      NFSIOS_FSCACHE_PAGES_WRITTEN_FAIL, 1);
++		nfs_add_fscache_stats(inode, NFSIOS_FSCACHE_PAGES_UNCACHED, 1);
++	} else {
++		nfs_add_fscache_stats(inode,
++				      NFSIOS_FSCACHE_PAGES_WRITTEN_OK, 1);
 +	}
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index 52f0ccf..2f71d7e 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -92,6 +92,7 @@ extern int __nfs_readpage_from_fscache(struct nfs_open_context *,
+ extern int __nfs_readpages_from_fscache(struct nfs_open_context *,
+ 					struct inode *, struct address_space *,
+ 					struct list_head *, unsigned *);
++extern void __nfs_readpage_to_fscache(struct inode *, struct page *, int);
+ 
+ /*
+  * release the caching state associated with a page if undergoing complete page
+@@ -131,6 +132,19 @@ static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
+ 	return -ENOBUFS;
+ }
+ 
++/*
++ * Store a page newly fetched from the server in an inode data storage object
++ * in the cache.
++ */
++static inline void nfs_readpage_to_fscache(struct inode *inode,
++					   struct page *page,
++					   int sync)
++{
++	if (PageFsCache(page))
++		__nfs_readpage_to_fscache(inode, page, sync);
++}
 +
-+	/* otherwise, the top keyring must not be revoked, expired, or
-+	 * negatively instantiated if we are to search it */
-+	key_ref = ERR_PTR(-EAGAIN);
-+	if (kflags & ((1 << KEY_FLAG_REVOKED) | (1 << KEY_FLAG_NEGATIVE)) ||
-+	    (keyring->expiry && now.tv_sec >= keyring->expiry))
-+		goto error_2;
++
+ #else /* CONFIG_NFS_FSCACHE */
+ static inline int nfs_fscache_register(void) { return 0; }
+ static inline void nfs_fscache_unregister(void) {}
+@@ -174,6 +188,8 @@ static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
+ {
+ 	return -ENOBUFS;
+ }
++static inline void nfs_readpage_to_fscache(struct inode *inode,
++					   struct page *page, int sync) {}
  
- 	/* start processing a new keyring */
- descend:
-@@ -331,13 +357,14 @@ descend:
- 	/* iterate through the keys in this keyring first */
- 	for (kix = 0; kix < keylist->nkeys; kix++) {
- 		key = keylist->keys[kix];
-+		kflags = key->flags;
+ #endif /* CONFIG_NFS_FSCACHE */
+ #endif /* _NFS_FSCACHE_H */
+diff --git a/fs/nfs/read.c b/fs/nfs/read.c
+index 63be802..071dda1 100644
+--- a/fs/nfs/read.c
++++ b/fs/nfs/read.c
+@@ -143,6 +143,11 @@ int nfs_readpage_async(struct nfs_open_context *ctx, struct inode *inode,
  
- 		/* ignore keys not of this type */
- 		if (key->type != type)
- 			continue;
+ static void nfs_readpage_release(struct nfs_page *req)
+ {
++	struct inode *d_inode = req->wb_context->path.dentry->d_inode;
++
++	if (PageUptodate(req->wb_page))
++		nfs_readpage_to_fscache(d_inode, req->wb_page, 0);
++
+ 	unlock_page(req->wb_page);
  
- 		/* skip revoked keys and expired keys */
--		if (test_bit(KEY_FLAG_REVOKED, &key->flags))
-+		if (kflags & (1 << KEY_FLAG_REVOKED))
- 			continue;
- 
- 		if (key->expiry && now.tv_sec >= key->expiry)
-@@ -352,8 +379,8 @@ descend:
- 					context, KEY_SEARCH) < 0)
- 			continue;
- 
--		/* we set a different error code if we find a negative key */
--		if (test_bit(KEY_FLAG_NEGATIVE, &key->flags)) {
-+		/* we set a different error code if we pass a negative key */
-+		if (kflags & (1 << KEY_FLAG_NEGATIVE)) {
- 			err = -ENOKEY;
- 			continue;
- 		}
+ 	dprintk("NFS: read done (%s/%Ld %d@%Ld)\n",
 
 
 --
