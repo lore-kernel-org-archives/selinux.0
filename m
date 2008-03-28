@@ -1,18 +1,19 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF69Jx024638
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:09 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SF6EFl024683
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 11:06:14 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUU018693
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:07 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SF4qUW018693
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 15:06:11 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 36/45] NFS: Use local disk inode cache [ver #35]
+Subject: [PATCH 13/45] Security: Allow kernel services to override LSM
+	settings for task actions [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:33:15 +0000
-Message-ID: <20080328143315.3483.4685.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:31:17 +0000
+Message-ID: <20080328143117.3483.29167.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,399 +21,535 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Bind data storage objects in the local cache to NFS inodes.
+Allow kernel services to override LSM settings appropriate to the actions
+performed by a task by duplicating a security record, modifying it and then
+using task_struct::act_as to point to it when performing operations on behalf
+of a task.
 
+This is used, for example, by CacheFiles which has to transparently access the
+cache on behalf of a process that thinks it is doing, say, NFS accesses with a
+potentially inappropriate (with respect to accessing the cache) set of
+security data.
+
+This patch provides two LSM hooks for modifying a task security record:
+
+ (*) security_kernel_act_as() which allows modification of the security datum
+     with which a task acts on other objects (most notably files).
+
+ (*) security_create_files_as() which allows modification of the security
+     datum that is used to initialise the security data on a file that a task
+     creates.
+
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com> [Smack changes]
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/fscache.c       |  174 ++++++++++++++++++++++++++++++++++++++++++++++++
- fs/nfs/fscache.h       |   15 ++++
- fs/nfs/inode.c         |   39 +++++++++--
- include/linux/nfs_fs.h |   11 +++
- 4 files changed, 233 insertions(+), 6 deletions(-)
+ include/linux/capability.h |   12 ++---
+ include/linux/cred.h       |   23 +++++++++
+ include/linux/security.h   |   43 ++++++++++++++++-
+ kernel/cred.c              |  112 ++++++++++++++++++++++++++++++++++++++++++++
+ security/dummy.c           |   17 ++++++-
+ security/security.c        |   15 ++++++
+ security/selinux/hooks.c   |   51 ++++++++++++++++++++
+ security/smack/smack_lsm.c |   43 +++++++++++++++++
+ 8 files changed, 303 insertions(+), 13 deletions(-)
+ create mode 100644 include/linux/cred.h
 
 
-diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
-index ab2de2c..0c71bae 100644
---- a/fs/nfs/fscache.c
-+++ b/fs/nfs/fscache.c
-@@ -166,3 +166,177 @@ void nfs_fscache_release_super_cookie(struct super_block *sb)
- 		nfss->fscache_key = NULL;
- 	}
+diff --git a/include/linux/capability.h b/include/linux/capability.h
+index 7d50ff6..424de01 100644
+--- a/include/linux/capability.h
++++ b/include/linux/capability.h
+@@ -364,12 +364,12 @@ typedef struct kernel_cap_struct {
+ # error Fix up hand-coded capability macro initializers
+ #else /* HAND-CODED capability initializers */
+ 
+-# define CAP_EMPTY_SET    {{ 0, 0 }}
+-# define CAP_FULL_SET     {{ ~0, ~0 }}
+-# define CAP_INIT_EFF_SET {{ ~CAP_TO_MASK(CAP_SETPCAP), ~0 }}
+-# define CAP_FS_SET       {{ CAP_FS_MASK_B0, CAP_FS_MASK_B1 } }
+-# define CAP_NFSD_SET     {{ CAP_FS_MASK_B0|CAP_TO_MASK(CAP_SYS_RESOURCE), \
+-			     CAP_FS_MASK_B1 } }
++# define CAP_EMPTY_SET    ((kernel_cap_t){{ 0, 0 }})
++# define CAP_FULL_SET     ((kernel_cap_t){{ ~0, ~0 }})
++# define CAP_INIT_EFF_SET ((kernel_cap_t){{ ~CAP_TO_MASK(CAP_SETPCAP), ~0 }})
++# define CAP_FS_SET       ((kernel_cap_t){{ CAP_FS_MASK_B0, CAP_FS_MASK_B1 } })
++# define CAP_NFSD_SET     ((kernel_cap_t){{ CAP_FS_MASK_B0|CAP_TO_MASK(CAP_SYS_RESOURCE), \
++					CAP_FS_MASK_B1 } })
+ 
+ #endif /* _LINUX_CAPABILITY_U32S != 2 */
+ 
+diff --git a/include/linux/cred.h b/include/linux/cred.h
+new file mode 100644
+index 0000000..497af5b
+--- /dev/null
++++ b/include/linux/cred.h
+@@ -0,0 +1,23 @@
++/* Credential management
++ *
++ * Copyright (C) 2007 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#ifndef _LINUX_CRED_H
++#define _LINUX_CRED_H
++
++struct task_security;
++struct inode;
++
++extern struct task_security *get_kernel_security(struct task_struct *);
++extern int set_security_override(struct task_security *, u32);
++extern int set_security_override_from_ctx(struct task_security *, const char *);
++extern int change_create_files_as(struct task_security *, struct inode *);
++
++#endif /* _LINUX_CRED_H */
+diff --git a/include/linux/security.h b/include/linux/security.h
+index d814b2b..f6edffd 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -587,6 +587,19 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+  *	Duplicate and attach the security structure currently attached to the
+  *	p->security field.
+  *	Return 0 if operation was successful.
++ * @task_kernel_act_as:
++ *	Set the credentials for a kernel service to act as (subjective context).
++ *	@p points to the task that nominated @secid.
++ *	@sec points to the task security record to be modified.
++ *	@secid specifies the security ID to be set
++ *	Return 0 if successful.
++ * @task_create_files_as:
++ *	Set the file creation context in a task security record to be the same
++ *	as the objective context of the specified inode.
++ *	@p points to the task that nominated @inode.
++ *	@sec points to the task security record to be modified.
++ *	@inode points to the inode to use as a reference.
++ *	Return 0 if successful.
+  * @task_setuid:
+  *	Check permission before setting one or more of the user identity
+  *	attributes of the current process.  The @flags parameter indicates
+@@ -1360,6 +1373,11 @@ struct security_operations {
+ 	int (*task_alloc_security) (struct task_struct *p);
+ 	void (*task_free_security) (struct task_security *p);
+ 	int (*task_dup_security) (struct task_security *p);
++	int (*task_kernel_act_as)(struct task_struct *p,
++				  struct task_security *sec, u32 secid);
++	int (*task_create_files_as)(struct task_struct *p,
++				    struct task_security *sec,
++				    struct inode *inode);
+ 	int (*task_setuid) (uid_t id0, uid_t id1, uid_t id2, int flags);
+ 	int (*task_post_setuid) (uid_t old_ruid /* or fsuid */ ,
+ 				 uid_t old_euid, uid_t old_suid, int flags);
+@@ -1428,7 +1446,7 @@ struct security_operations {
+  	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+  	int (*setprocattr)(struct task_struct *p, char *name, void *value, size_t size);
+ 	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
+-	int (*secctx_to_secid)(char *secdata, u32 seclen, u32 *secid);
++	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+@@ -1617,6 +1635,11 @@ int security_task_create(unsigned long clone_flags);
+ int security_task_alloc(struct task_struct *p);
+ void security_task_free(struct task_security *p);
+ int security_task_dup(struct task_security *p);
++int security_task_kernel_act_as(struct task_struct *p,
++				struct task_security *sec, u32 secid);
++int security_task_create_files_as(struct task_struct *p,
++				  struct task_security *sec,
++				  struct inode *inode);
+ int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags);
+ int security_task_post_setuid(uid_t old_ruid, uid_t old_euid,
+ 			       uid_t old_suid, int flags);
+@@ -1669,7 +1692,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_netlink_recv(struct sk_buff *skb, int cap);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+-int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
++int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
+ void security_release_secctx(char *secdata, u32 seclen);
+ 
+ #else /* CONFIG_SECURITY */
+@@ -2128,6 +2151,20 @@ static inline int security_task_dup(struct task_security *p)
+ 	return 0;
  }
-+
-+/*
-+ * Initialise the per-inode cache cookie pointer for an NFS inode.
-+ */
-+void nfs_fscache_init_inode_cookie(struct inode *inode)
+ 
++static inline int security_task_kernel_act_as(struct task_struct *p,
++					      struct task_security *sec,
++					      u32 secid)
 +{
-+	NFS_I(inode)->fscache = NULL;
-+	if (S_ISREG(inode->i_mode))
-+		set_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
-+}
-+
-+/*
-+ * Get the per-inode cache cookie for an NFS inode.
-+ */
-+static void nfs_fscache_enable_inode_cookie(struct inode *inode)
-+{
-+	struct super_block *sb = inode->i_sb;
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	if (nfsi->fscache || !NFS_FSCACHE(inode))
-+		return;
-+
-+	if ((NFS_SB(sb)->options & NFS_OPTION_FSCACHE)) {
-+		nfsi->fscache = fscache_acquire_cookie(
-+			NFS_SB(sb)->fscache,
-+			&nfs_fscache_inode_object_def,
-+			nfsi);
-+
-+		dfprintk(FSCACHE, "NFS: get FH cookie (0x%p/0x%p/0x%p)\n",
-+			 sb, nfsi, nfsi->fscache);
-+	}
-+}
-+
-+/*
-+ * Release a per-inode cookie.
-+ */
-+void nfs_fscache_release_inode_cookie(struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	dfprintk(FSCACHE, "NFS: clear cookie (0x%p/0x%p)\n",
-+		 nfsi, nfsi->fscache);
-+
-+	fscache_relinquish_cookie(nfsi->fscache, 0);
-+	nfsi->fscache = NULL;
-+}
-+
-+/*
-+ * Retire a per-inode cookie, destroying the data attached to it.
-+ */
-+void nfs_fscache_zap_inode_cookie(struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	dfprintk(FSCACHE, "NFS: zapping cookie (0x%p/0x%p)\n",
-+		 nfsi, nfsi->fscache);
-+
-+	fscache_relinquish_cookie(nfsi->fscache, 1);
-+	nfsi->fscache = NULL;
-+}
-+
-+/*
-+ * Turn off the cache with regard to a per-inode cookie if opened for writing,
-+ * invalidating all the pages in the page cache relating to the associated
-+ * inode to clear the per-page caching.
-+ */
-+static void nfs_fscache_disable_inode_cookie(struct inode *inode)
-+{
-+	clear_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
-+
-+	if (NFS_I(inode)->fscache) {
-+		dfprintk(FSCACHE,
-+			 "NFS: nfsi 0x%p turning cache off\n", NFS_I(inode));
-+
-+		/* Need to invalidate any mapped pages that were read in before
-+		 * turning off the cache.
-+		 */
-+		if (inode->i_mapping && inode->i_mapping->nrpages)
-+			invalidate_inode_pages2(inode->i_mapping);
-+
-+		nfs_fscache_zap_inode_cookie(inode);
-+	}
-+}
-+
-+/*
-+ * wait_on_bit() sleep function for uninterruptible waiting
-+ */
-+static int nfs_fscache_wait_bit(void *flags)
-+{
-+	schedule();
 +	return 0;
 +}
 +
-+/*
-+ * Lock against someone else trying to also acquire or relinquish a cookie
-+ */
-+static inline void nfs_fscache_inode_lock(struct inode *inode)
++static inline int security_task_create_files_as(struct task_struct *p,
++						struct task_security *sec,
++						struct inode *inode)
 +{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	if (test_and_set_bit(NFS_INO_FSCACHE_LOCK, &nfsi->flags)) {
-+		printk(KERN_WARNING "NFS:"
-+		       " Inode already locked for cache management\n");
-+		wait_on_bit(&nfsi->flags, NFS_INO_FSCACHE_LOCK,
-+			    nfs_fscache_wait_bit, TASK_UNINTERRUPTIBLE);
-+	}
++	return 0;
 +}
 +
-+/*
-+ * Unlock cookie management lock
-+ */
-+static inline void nfs_fscache_inode_unlock(struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	smp_mb__before_clear_bit();
-+	clear_bit(NFS_INO_FSCACHE_LOCK, &nfsi->flags);
-+	smp_mb__after_clear_bit();
-+	wake_up_bit(&nfsi->flags, NFS_INO_FSCACHE_LOCK);
-+}
-+
-+/*
-+ * Decide if we should enable or disable local caching for this inode.
-+ * - For now, with NFS, only regular files that are open read-only will be able
-+ *   to use the cache.
-+ */
-+void nfs_fscache_set_inode_cookie(struct inode *inode, struct file *filp)
-+{
-+	if (NFS_FSCACHE(inode)) {
-+		nfs_fscache_inode_lock(inode);
-+		if ((filp->f_flags & O_ACCMODE) != O_RDONLY)
-+			nfs_fscache_disable_inode_cookie(inode);
-+		else
-+			nfs_fscache_enable_inode_cookie(inode);
-+		nfs_fscache_inode_unlock(inode);
-+	}
-+}
-+
-+/*
-+ * Replace a per-inode cookie due to revalidation detecting a file having
-+ * changed on the server.
-+ */
-+void nfs_fscache_renew_inode_cookie(struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+	struct nfs_server *nfss = NFS_SERVER(inode);
-+	struct fscache_cookie *old = nfsi->fscache;
-+
-+	nfs_fscache_inode_lock(inode);
-+	if (nfsi->fscache) {
-+		/* retire the current fscache cache and get a new one */
-+		fscache_relinquish_cookie(nfsi->fscache, 1);
-+
-+		nfsi->fscache = fscache_acquire_cookie(
-+			nfss->nfs_client->fscache,
-+			&nfs_fscache_inode_object_def,
-+			nfsi);
-+
-+		dfprintk(FSCACHE,
-+			 "NFS: revalidation new cookie (0x%p/0x%p/0x%p/0x%p)\n",
-+			 nfss, nfsi, old, nfsi->fscache);
-+	}
-+	nfs_fscache_inode_unlock(inode);
-+}
-+
-+/*
-+ * Update the filesize associated with a per-inode cookie.
-+ */
-+void nfs_fscache_attr_changed(struct inode *inode)
-+{
-+	nfs_fscache_inode_lock(inode);
-+	fscache_attr_changed(NFS_I(inode)->fscache);
-+	nfs_fscache_inode_unlock(inode);
-+}
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index d21b590..595f7e7 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -77,6 +77,13 @@ extern void nfs_fscache_get_super_cookie(struct super_block *,
- 					 struct nfs_parsed_mount_data *);
- extern void nfs_fscache_release_super_cookie(struct super_block *);
- 
-+extern void nfs_fscache_init_inode_cookie(struct inode *);
-+extern void nfs_fscache_release_inode_cookie(struct inode *);
-+extern void nfs_fscache_zap_inode_cookie(struct inode *);
-+extern void nfs_fscache_set_inode_cookie(struct inode *, struct file *);
-+extern void nfs_fscache_renew_inode_cookie(struct inode *);
-+extern void nfs_fscache_attr_changed(struct inode *);
-+
- #else /* CONFIG_NFS_FSCACHE */
- static inline int nfs_fscache_register(void) { return 0; }
- static inline void nfs_fscache_unregister(void) {}
-@@ -91,5 +98,13 @@ static inline void nfs_fscache_get_super_cookie(
+ static inline int security_task_setuid (uid_t id0, uid_t id1, uid_t id2,
+ 					int flags)
+ {
+@@ -2379,7 +2416,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 	return -EOPNOTSUPP;
  }
- static inline void nfs_fscache_release_super_cookie(struct super_block *sb) {}
  
-+static inline void nfs_fscache_init_inode_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_release_inode_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_zap_inode_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_renew_inode_cookie(struct inode *inode) {}
-+static inline void nfs_fscache_set_inode_cookie(struct inode *inode,
-+					     struct file *filp) {}
-+static inline void nfs_fscache_attr_changed(struct inode *inode) {}
+-static inline int security_secctx_to_secid(char *secdata,
++static inline int security_secctx_to_secid(const char *secdata,
+ 					   u32 seclen,
+ 					   u32 *secid)
+ {
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 298f26e..aaa630a 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -11,6 +11,7 @@
+ #include <linux/module.h>
+ #include <linux/sched.h>
+ #include <linux/key.h>
++#include <linux/keyctl.h>
+ #include <linux/init_task.h>
+ #include <linux/security.h>
+ 
+@@ -138,3 +139,114 @@ void put_task_security(struct task_security *sec)
+ 	}
+ }
+ EXPORT_SYMBOL(put_task_security);
 +
- #endif /* CONFIG_NFS_FSCACHE */
- #endif /* _NFS_FSCACHE_H */
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 702315a..7223252 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -112,6 +112,7 @@ void nfs_clear_inode(struct inode *inode)
- 	BUG_ON(!list_empty(&NFS_I(inode)->open_files));
- 	nfs_zap_acl_cache(inode);
- 	nfs_access_zap_cache(inode);
-+	nfs_fscache_release_inode_cookie(inode);
++/**
++ * get_kernel_security - Get a task security record for a kernel service
++ * @daemon: A userspace daemon to be used as a reference
++ *
++ * Get a task security record for a kernel service.  This can then be used to
++ * override a task's own security so that work can be done on behalf of that
++ * task that requires a different security context.
++ *
++ * @daemon is used to provide a base for the security record, but can be NULL.
++ * If @daemon is supplied, then the security data will be derived from that;
++ * otherwise they'll be set to 0 and no groups, full capabilities and no keys.
++ *
++ * The caller may change these controls afterwards if desired.
++ */
++struct task_security *get_kernel_security(struct task_struct *daemon)
++{
++	const struct task_security *dsec;
++	struct task_security *sec;
++
++	sec = kzalloc(sizeof *sec, GFP_KERNEL);
++	if (!sec)
++		return ERR_PTR(-ENOMEM);
++
++	if (daemon) {
++		rcu_read_lock();
++		dsec = rcu_dereference(daemon->sec);
++		*sec = *dsec;
++		get_group_info(sec->group_info);
++		get_uid(sec->user);
++		rcu_read_unlock();
++#ifdef CONFIG_KEYS
++		sec->request_key_auth = NULL;
++		sec->thread_keyring = NULL;
++		sec->tgsec = NULL;
++#endif
++	} else {
++		sec->keep_capabilities = 0;
++		sec->cap_inheritable = CAP_INIT_INH_SET;
++		sec->cap_permitted = CAP_FULL_SET;
++		sec->cap_effective = CAP_INIT_EFF_SET;
++		sec->cap_bset = CAP_INIT_BSET;
++		sec->user = &root_user;
++		get_uid(sec->user);
++		sec->group_info = &init_groups;
++		get_group_info(sec->group_info);
++	}
++
++	atomic_set(&sec->usage, 1);
++	spin_lock_init(&sec->lock);
++#ifdef CONFIG_KEYS
++	sec->jit_keyring = KEY_REQKEY_DEFL_THREAD_KEYRING;
++#endif
++
++	return sec;
++}
++EXPORT_SYMBOL(get_kernel_security);
++
++/**
++ * set_security_override - Set the security ID in a security record
++ * @sec: The security record to alter
++ * @secid: The LSM security ID to set
++ *
++ * Set the LSM security ID in a security record so that the subjective security
++ * is overridden when the act_as pointer of a task is overridden.
++ */
++int set_security_override(struct task_security *sec, u32 secid)
++{
++	return security_task_kernel_act_as(current, sec, secid);
++}
++EXPORT_SYMBOL(set_security_override);
++
++/**
++ * set_security_override_from_ctx - Set the security ID in a security record
++ * @sec: The security record to alter
++ * @secctx: The LSM security context to generate the security ID from.
++ *
++ * Set the LSM security ID in a security record so that the subjective security
++ * is overridden when the act_as pointer of a task is overridden.  The security
++ * ID is specified in string form as a security context to be interpreted by
++ * the LSM.
++ */
++int set_security_override_from_ctx(struct task_security *sec, const char *secctx)
++{
++	u32 secid;
++	int ret;
++
++	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
++	if (ret < 0)
++		return ret;
++
++	return set_security_override(sec, secid);
++}
++EXPORT_SYMBOL(set_security_override_from_ctx);
++
++/**
++ * change_create_files_as - Change the file create context in a security record
++ * @sec: The security record to alter
++ * @inode: The inode to take the context from
++ *
++ * Change the file creation context in a security record to be the same as the
++ * object context of the specified inode, so that the new inodes have the same
++ * MAC context as that inode.
++ */
++int change_create_files_as(struct task_security *sec, struct inode *inode)
++{
++	sec->fsuid = inode->i_uid;
++	sec->fsgid = inode->i_gid;
++	return security_task_create_files_as(current, sec, inode);
++}
++EXPORT_SYMBOL(change_create_files_as);
+diff --git a/security/dummy.c b/security/dummy.c
+index d2e6407..3d3db47 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -520,6 +520,19 @@ static int dummy_task_dup_security(struct task_security *p)
+ 	return 0;
+ }
+ 
++static int dummy_task_kernel_act_as(struct task_struct *p,
++				    struct task_security *sec, u32 secid)
++{
++	return 0;
++}
++
++static int dummy_task_create_files_as(struct task_struct *p,
++				      struct task_security *sec,
++				      struct inode *inode)
++{
++	return 0;
++}
++
+ static int dummy_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	return 0;
+@@ -968,7 +981,7 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int dummy_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -1096,6 +1109,8 @@ void security_fixup_ops (struct security_operations *ops)
+ 	set_to_dummy_if_null(ops, task_alloc_security);
+ 	set_to_dummy_if_null(ops, task_free_security);
+ 	set_to_dummy_if_null(ops, task_dup_security);
++	set_to_dummy_if_null(ops, task_kernel_act_as);
++	set_to_dummy_if_null(ops, task_create_files_as);
+ 	set_to_dummy_if_null(ops, task_setuid);
+ 	set_to_dummy_if_null(ops, task_post_setuid);
+ 	set_to_dummy_if_null(ops, task_setgid);
+diff --git a/security/security.c b/security/security.c
+index b5ac1cb..881e372 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -607,6 +607,19 @@ int security_task_dup(struct task_security *sec)
+ 	return security_ops->task_dup_security(sec);
+ }
+ 
++int security_task_kernel_act_as(struct task_struct *p,
++				struct task_security *sec, u32 secid)
++{
++	return security_ops->task_kernel_act_as(p, sec, secid);
++}
++
++int security_task_create_files_as(struct task_struct *p,
++				  struct task_security *sec,
++				  struct inode *inode)
++{
++	return security_ops->task_create_files_as(p, sec, inode);
++}
++
+ int security_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	return security_ops->task_setuid(id0, id1, id2, flags);
+@@ -845,7 +858,7 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
+-int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return security_ops->secctx_to_secid(secdata, seclen, secid);
+ }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 8508050..cf79f25 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3109,6 +3109,53 @@ static int selinux_task_dup_security(struct task_security *sec)
+ 	return 0;
+ }
+ 
++/*
++ * set the security data for a kernel service
++ * - all the creation contexts are set to unlabelled
++ */
++static int selinux_task_kernel_act_as(struct task_struct *p,
++				      struct task_security *sec, u32 secid)
++{
++	struct task_security_struct *tsec = sec->security;
++	struct task_security_struct *ptsec = p->act_as->security;
++	int ret;
++
++ 	ret = avc_has_perm(ptsec->sid, secid,
++			   SECCLASS_KERNEL_SERVICE,
++			   KERNEL_SERVICE__USE_AS_OVERRIDE,
++			   NULL);
++	if (ret == 0) {
++		tsec->sid = secid;
++		tsec->create_sid = 0;
++		tsec->keycreate_sid = 0;
++		tsec->sockcreate_sid = 0;
++	}
++	return ret;
++}
++
++/*
++ * set the file creation context in a security record to the same as the
++ * objective context of the specified inode
++ */
++static int selinux_task_create_files_as(struct task_struct *p,
++					struct task_security *sec,
++					struct inode *inode)
++{
++	struct inode_security_struct *isec = inode->i_security;
++	struct task_security_struct *tsec = sec->security;
++	struct task_security_struct *ptsec = p->act_as->security;
++	int ret;
++
++ 	ret = avc_has_perm(ptsec->sid, isec->sid,
++			   SECCLASS_KERNEL_SERVICE,
++			   KERNEL_SERVICE__CREATE_FILES_AS,
++			   NULL);
++
++	if (ret == 0)
++		tsec->create_sid = isec->sid;
++	return 0;
++}
++
+ static int selinux_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+ {
+ 	/* Since setuid only affects the current process, and
+@@ -5181,7 +5228,7 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return security_sid_to_context(secid, secdata, seclen);
+ }
+ 
+-static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return security_context_to_sid(secdata, seclen, secid);
+ }
+@@ -5341,6 +5388,8 @@ static struct security_operations selinux_ops = {
+ 	.task_alloc_security =		selinux_task_alloc_security,
+ 	.task_free_security =		selinux_task_free_security,
+ 	.task_dup_security =		selinux_task_dup_security,
++	.task_kernel_act_as =		selinux_task_kernel_act_as,
++	.task_create_files_as =		selinux_task_create_files_as,
+ 	.task_setuid =			selinux_task_setuid,
+ 	.task_post_setuid =		selinux_task_post_setuid,
+ 	.task_setgid =			selinux_task_setgid,
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 5336115..90f2534 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -985,6 +985,45 @@ static int smack_task_dup_security(struct task_security *sec)
  }
  
  /**
-@@ -332,6 +333,8 @@ nfs_fhget(struct super_block *sb, struct nfs_fh *fh, struct nfs_fattr *fattr)
- 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
- 		nfsi->access_cache = RB_ROOT;
- 
-+		nfs_fscache_init_inode_cookie(inode);
-+
- 		unlock_new_inode(inode);
- 	} else
- 		nfs_refresh_inode(inode, fattr);
-@@ -620,6 +623,7 @@ int nfs_open(struct inode *inode, struct file *filp)
- 	ctx->mode = filp->f_mode;
- 	nfs_file_set_open_context(filp, ctx);
- 	put_nfs_open_context(ctx);
-+	nfs_fscache_set_inode_cookie(inode, filp);
- 	return 0;
- }
- 
-@@ -680,7 +684,13 @@ __nfs_revalidate_inode(struct nfs_server *server, struct inode *inode)
- 			 (long long)NFS_FILEID(inode), status);
- 		goto out;
- 	}
--	spin_unlock(&inode->i_lock);
-+	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
-+		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
-+		spin_unlock(&inode->i_lock);
-+		nfs_fscache_attr_changed(inode);
-+	} else {
-+		spin_unlock(&inode->i_lock);
-+	}
- 
- 	if (nfsi->cache_validity & NFS_INO_INVALID_ACL)
- 		nfs_zap_acl_cache(inode);
-@@ -736,6 +746,7 @@ static int nfs_invalidate_mapping_nolock(struct inode *inode, struct address_spa
- 		memset(nfsi->cookieverf, 0, sizeof(nfsi->cookieverf));
- 	spin_unlock(&inode->i_lock);
- 	nfs_inc_stats(inode, NFSIOS_DATAINVALIDATE);
-+	nfs_fscache_renew_inode_cookie(inode);
- 	dfprintk(PAGECACHE, "NFS: (%s/%Ld) data cache invalidated\n",
- 			inode->i_sb->s_id, (long long)NFS_FILEID(inode));
- 	return 0;
-@@ -912,7 +923,13 @@ int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
- 	else
- 		status = nfs_check_inode_attributes(inode, fattr);
- 
--	spin_unlock(&inode->i_lock);
-+	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
-+		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
-+		spin_unlock(&inode->i_lock);
-+		nfs_fscache_attr_changed(inode);
-+	} else {
-+		spin_unlock(&inode->i_lock);
-+	}
- 	return status;
- }
- 
-@@ -933,12 +950,19 @@ int nfs_refresh_inode(struct inode *inode, struct nfs_fattr *fattr)
- int nfs_post_op_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- {
- 	struct nfs_inode *nfsi = NFS_I(inode);
-+	bool update_fscache = false;
- 
- 	spin_lock(&inode->i_lock);
- 	nfsi->cache_validity |= NFS_INO_INVALID_ATTR|NFS_INO_REVAL_PAGECACHE;
- 	if (S_ISDIR(inode->i_mode))
- 		nfsi->cache_validity |= NFS_INO_INVALID_DATA;
-+	if (nfsi->cache_validity & NFS_INO_INVALID_FSCACHE_ATTR) {
-+		nfsi->cache_validity &= ~NFS_INO_INVALID_FSCACHE_ATTR;
-+		update_fscache = true;
-+	}
- 	spin_unlock(&inode->i_lock);
-+	if (update_fscache)
-+		nfs_fscache_attr_changed(inode);
- 	return nfs_refresh_inode(inode, fattr);
- }
- 
-@@ -1027,7 +1051,8 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- 		if (!timespec_equal(&inode->i_mtime, &fattr->mtime)) {
- 			dprintk("NFS: mtime change on server for file %s/%ld\n",
- 					inode->i_sb->s_id, inode->i_ino);
--			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
-+			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
-+				NFS_INO_INVALID_FSCACHE_ATTR;
- 			if (S_ISDIR(inode->i_mode))
- 				nfs_force_lookup_revalidate(inode);
- 		}
-@@ -1037,7 +1062,9 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- 	} else if (nfsi->change_attr != fattr->change_attr) {
- 		dprintk("NFS: change_attr change on server for file %s/%ld\n",
- 				inode->i_sb->s_id, inode->i_ino);
--		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA|NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL;
-+		invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
-+			NFS_INO_INVALID_ACCESS|NFS_INO_INVALID_ACL |
-+			NFS_INO_INVALID_FSCACHE_ATTR;
- 		if (S_ISDIR(inode->i_mode))
- 			nfs_force_lookup_revalidate(inode);
- 	}
-@@ -1050,13 +1077,13 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- 		 * the file grown beyond our last write? */
- 		if (nfsi->npages == 0 || new_isize > cur_isize) {
- 			inode->i_size = new_isize;
--			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
-+			invalid |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA |
-+				NFS_INO_INVALID_FSCACHE_ATTR;
- 		}
- 		dprintk("NFS: isize change on server for file %s/%ld\n",
- 				inode->i_sb->s_id, inode->i_ino);
- 	}
- 
--
- 	memcpy(&inode->i_mtime, &fattr->mtime, sizeof(inode->i_mtime));
- 	memcpy(&inode->i_ctime, &fattr->ctime, sizeof(inode->i_ctime));
- 	memcpy(&inode->i_atime, &fattr->atime, sizeof(inode->i_atime));
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index 720cdad..b41806b 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -174,6 +174,9 @@ struct nfs_inode {
- 	int			 delegation_state;
- 	struct rw_semaphore	rwsem;
- #endif /* CONFIG_NFS_V4*/
-+#ifdef CONFIG_NFS_FSCACHE
-+	struct fscache_cookie	*fscache;
-+#endif
- 	struct inode		vfs_inode;
- };
- 
-@@ -187,6 +190,7 @@ struct nfs_inode {
- #define NFS_INO_INVALID_ACL	0x0010		/* cached acls are invalid */
- #define NFS_INO_REVAL_PAGECACHE	0x0020		/* must revalidate pagecache */
- #define NFS_INO_REVAL_FORCED	0x0040		/* force revalidation ignoring a delegation */
-+#define NFS_INO_INVALID_FSCACHE_ATTR	0x0080	/* local cache attributes are invalid */
- 
- /*
-  * Bit offsets in flags field
-@@ -196,6 +200,8 @@ struct nfs_inode {
- #define NFS_INO_STALE		(2)		/* possible stale inode */
- #define NFS_INO_ACL_LRU_SET	(3)		/* Inode is on the LRU list */
- #define NFS_INO_MOUNTPOINT	(4)		/* inode is remote mountpoint */
-+#define NFS_INO_FSCACHE		(5)		/* inode can be cached by FS-Cache */
-+#define NFS_INO_FSCACHE_LOCK	(6)		/* FS-Cache cookie management lock */
- 
- static inline struct nfs_inode *NFS_I(const struct inode *inode)
- {
-@@ -249,6 +255,11 @@ static inline int NFS_STALE(const struct inode *inode)
- 	return test_bit(NFS_INO_STALE, &NFS_I(inode)->flags);
- }
- 
-+static inline int NFS_FSCACHE(const struct inode *inode)
++ * smack_task_kernel_act_as - Set the subjective context in a security record
++ * @p points to the task that nominated @secid.
++ * @sec points to the task security record to be modified.
++ * @secid specifies the security ID to be set
++ *
++ * Set the security data for a kernel service.
++ */
++static int smack_task_kernel_act_as(struct task_struct *p,
++				    struct task_security *sec, u32 secid)
 +{
-+	return test_bit(NFS_INO_FSCACHE, &NFS_I(inode)->flags);
++	char *smack = smack_from_secid(secid);
++
++	if (smack == NULL)
++		return -EINVAL;
++
++	sec->security = smack;
++	return 0;
 +}
 +
- static inline __u64 NFS_FILEID(const struct inode *inode)
++/**
++ * smack_task_create_files_as - Set the file creation label in a security record
++ * @p points to the task that nominated @inode.
++ * @sec points to the task security record to be modified.
++ * @inode points to the inode to use as a reference.
++ *
++ * Set the file creation context in a security record to the same as the
++ * objective context of the specified inode
++ */
++static int smack_task_create_files_as(struct task_struct *p,
++				      struct task_security *sec,
++				      struct inode *inode)
++{
++	struct inode_smack *isp = inode->i_security;
++
++	sec->security = isp->smk_inode;
++	return 0;
++}
++
++/**
+  * smack_task_setpgid - Smack check on setting pgid
+  * @p: the task object
+  * @pgid: unused
+@@ -2421,7 +2460,7 @@ static int smack_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+  *
+  * Exists for audit and networking code.
+  */
+-static int smack_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int smack_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
  {
- 	return NFS_I(inode)->fileid;
+ 	*secid = smack_to_secid(secdata);
+ 	return 0;
+@@ -2494,6 +2533,8 @@ static struct security_operations smack_ops = {
+ 	.task_alloc_security = 		smack_task_alloc_security,
+ 	.task_free_security = 		smack_task_free_security,
+ 	.task_dup_security =		smack_task_dup_security,
++	.task_kernel_act_as =		smack_task_kernel_act_as,
++	.task_create_files_as =		smack_task_create_files_as,
+ 	.task_post_setuid =		cap_task_post_setuid,
+ 	.task_setpgid = 		smack_task_setpgid,
+ 	.task_getpgid = 		smack_task_getpgid,
 
 
 --
