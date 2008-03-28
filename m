@@ -1,18 +1,18 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEZFRu017690
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:35:15 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEZQtv017755
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:35:26 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEZBTs005515
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:35:12 GMT
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEZMTs005621
+	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:35:23 GMT
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 44/45] NFS: Display local caching state [ver #35]
+Subject: [PATCH 33/45] NFS: Define and create server-level objects [ver #35]
 To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
         chuck.lever@oracle.com
 Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
         linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:33:56 +0000
-Message-ID: <20080328143356.3483.8208.stgit@warthog.procyon.org.uk>
+Date: Fri, 28 Mar 2008 14:33:00 +0000
+Message-ID: <20080328143300.3483.84565.stgit@warthog.procyon.org.uk>
 In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
@@ -20,77 +20,258 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Display the local caching state in /proc/fs/nfsfs/volumes.
+Define and create server-level cache index objects (as managed by nfs_client
+structs).
+
+Each server object is created in the NFS top-level index object and is itself
+an index into which superblock-level objects are inserted.
+
+Ideally there would be one superblock-level object per server, and the former
+would be folded into the latter; however, since the "nosharecache" option
+exists this isn't possible.
+
+The server object key is a sequence consisting of:
+
+ (1) NFS version
+
+ (2) Server address family (eg: AF_INET or AF_INET6)
+
+ (3) Server port.
+
+ (4) Server IP address.
+
+The key blob is of variable length, depending on the length of (4).
+
+The server object is given no coherency data to carry in the auxiliary data
+permitted by the cache.
 
 Signed-off-by: David Howells <dhowells@redhat.com>
 ---
 
- fs/nfs/client.c  |    7 ++++---
- fs/nfs/fscache.h |   15 +++++++++++++++
- 2 files changed, 19 insertions(+), 3 deletions(-)
+ fs/nfs/Makefile           |    2 +
+ fs/nfs/client.c           |    5 +++
+ fs/nfs/fscache-index.c    |   65 +++++++++++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.c          |   52 ++++++++++++++++++++++++++++++++++++
+ fs/nfs/fscache.h          |   10 +++++++
+ include/linux/nfs_fs_sb.h |    4 +++
+ 6 files changed, 137 insertions(+), 1 deletions(-)
+ create mode 100644 fs/nfs/fscache.c
 
 
+diff --git a/fs/nfs/Makefile b/fs/nfs/Makefile
+index 6d7176d..d848c97 100644
+--- a/fs/nfs/Makefile
++++ b/fs/nfs/Makefile
+@@ -16,4 +16,4 @@ nfs-$(CONFIG_NFS_V4)	+= nfs4proc.o nfs4xdr.o nfs4state.o nfs4renewd.o \
+ 			   nfs4namespace.o
+ nfs-$(CONFIG_NFS_DIRECTIO) += direct.o
+ nfs-$(CONFIG_SYSCTL) += sysctl.o
+-nfs-$(CONFIG_NFS_FSCACHE) += fscache-index.o
++nfs-$(CONFIG_NFS_FSCACHE) += fscache.o fscache-index.o
 diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 51e9346..d67d52f 100644
+index c5c0175..51e9346 100644
 --- a/fs/nfs/client.c
 +++ b/fs/nfs/client.c
-@@ -1451,7 +1451,7 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
+@@ -45,6 +45,7 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ #include "internal.h"
++#include "fscache.h"
  
- 	/* display header on line 1 */
- 	if (v == &nfs_volume_list) {
--		seq_puts(m, "NV SERVER   PORT DEV     FSID\n");
-+		seq_puts(m, "NV SERVER   PORT DEV     FSID              FSC\n");
- 		return 0;
- 	}
- 	/* display one transport per line on subsequent lines */
-@@ -1465,12 +1465,13 @@ static int nfs_volume_list_show(struct seq_file *m, void *v)
- 		 (unsigned long long) server->fsid.major,
- 		 (unsigned long long) server->fsid.minor);
+ #define NFSDBG_FACILITY		NFSDBG_CLIENT
  
--	seq_printf(m, "v%u %s %s %-7s %-17s\n",
-+	seq_printf(m, "v%u %s %s %-7s %-17s %s\n",
- 		   clp->rpc_ops->version,
- 		   rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_HEX_ADDR),
- 		   rpc_peeraddr2str(clp->cl_rpcclient, RPC_DISPLAY_HEX_PORT),
- 		   dev,
--		   fsid);
-+		   fsid,
-+		   nfs_server_fscache_state(server));
+@@ -151,6 +152,8 @@ static struct nfs_client *nfs_alloc_client(const struct nfs_client_initdata *cl_
+ 	clp->cl_state = 1 << NFS4CLNT_LEASE_EXPIRED;
+ #endif
  
- 	return 0;
++	nfs_fscache_get_client_cookie(clp);
++
+ 	return clp;
+ 
+ error_3:
+@@ -182,6 +185,8 @@ static void nfs_free_client(struct nfs_client *clp)
+ 
+ 	nfs4_shutdown_client(clp);
+ 
++	nfs_fscache_release_client_cookie(clp);
++
+ 	/* -EIO all pending I/O */
+ 	if (!IS_ERR(clp->cl_rpcclient))
+ 		rpc_shutdown_client(clp->cl_rpcclient);
+diff --git a/fs/nfs/fscache-index.c b/fs/nfs/fscache-index.c
+index d696c06..01f0f41 100644
+--- a/fs/nfs/fscache-index.c
++++ b/fs/nfs/fscache-index.c
+@@ -51,3 +51,68 @@ void nfs_fscache_unregister(void)
+ {
+ 	fscache_unregister_netfs(&nfs_fscache_netfs);
  }
-diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
-index 2f71d7e..027a4ca 100644
---- a/fs/nfs/fscache.h
-+++ b/fs/nfs/fscache.h
-@@ -144,6 +144,16 @@ static inline void nfs_readpage_to_fscache(struct inode *inode,
- 		__nfs_readpage_to_fscache(inode, page, sync);
- }
- 
++
 +/*
-+ * indicate the client caching state as readable text
++ * Layout of the key for an NFS server cache object.
 + */
-+static inline const char *nfs_server_fscache_state(struct nfs_server *server)
++struct nfs_server_key {
++	uint16_t	nfsversion;		/* NFS protocol version */
++	uint16_t	family;			/* address family */
++	uint16_t	port;			/* IP port */
++	union {
++		struct in_addr	ipv4_addr;	/* IPv4 address */
++		struct in6_addr ipv6_addr;	/* IPv6 address */
++	} addr[0];
++};
++
++/*
++ * Generate a key to describe a server in the main NFS index
++ * - We return the length of the key, or 0 if we can't generate one
++ */
++static uint16_t nfs_server_get_key(const void *cookie_netfs_data,
++				   void *buffer, uint16_t bufmax)
 +{
-+	if (server->fscache && (server->options & NFS_OPTION_FSCACHE))
-+		return "yes";
-+	return "no ";
++	const struct nfs_client *clp = cookie_netfs_data;
++	const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &clp->cl_addr;
++	const struct sockaddr_in *sin = (struct sockaddr_in *) &clp->cl_addr;
++	struct nfs_server_key *key = buffer;
++	uint16_t len = 0;
++
++	key->nfsversion = clp->rpc_ops->version;
++	key->family = clp->cl_addr.ss_family;
++
++	len = sizeof(struct nfs_server_key);
++
++	switch (clp->cl_addr.ss_family) {
++	case AF_INET:
++		key->port = sin->sin_port;
++		key->addr[0].ipv4_addr = sin->sin_addr;
++		len += sizeof(key->addr[0].ipv4_addr);
++		break;
++
++	case AF_INET6:
++		key->port = sin6->sin6_port;
++		key->addr[0].ipv6_addr = sin6->sin6_addr;
++		len += sizeof(key->addr[0].ipv6_addr);
++		break;
++
++	default:
++		printk(KERN_WARNING "NFS: Unknown network family '%d'\n",
++		       clp->cl_addr.ss_family);
++		len = 0;
++		break;
++	}
++
++	return len;
 +}
 +
++/*
++ * Define the server object for FS-Cache.  This is used to describe a server
++ * object to fscache_acquire_cookie().  It is keyed by the NFS protocol and
++ * server address parameters.
++ */
++const struct fscache_cookie_def nfs_fscache_server_index_def = {
++	.name		= "NFS.server",
++	.type 		= FSCACHE_COOKIE_TYPE_INDEX,
++	.get_key	= nfs_server_get_key,
++};
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+new file mode 100644
+index 0000000..c3f056f
+--- /dev/null
++++ b/fs/nfs/fscache.c
+@@ -0,0 +1,52 @@
++/* NFS filesystem cache interface
++ *
++ * Copyright (C) 2008 Red Hat, Inc. All Rights Reserved.
++ * Written by David Howells (dhowells@redhat.com)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public Licence
++ * as published by the Free Software Foundation; either version
++ * 2 of the Licence, or (at your option) any later version.
++ */
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/nfs_fs.h>
++#include <linux/nfs_fs_sb.h>
++#include <linux/in6.h>
++#include <linux/seq_file.h>
++
++#include "internal.h"
++#include "fscache.h"
++
++#define NFSDBG_FACILITY		NFSDBG_FSCACHE
++
++/*
++ * Get the per-client index cookie for an NFS client if the appropriate mount
++ * flag was set
++ * - We always try and get an index cookie for the client, but get filehandle
++ *   cookies on a per-superblock basis, depending on the mount flags
++ */
++void nfs_fscache_get_client_cookie(struct nfs_client *clp)
++{
++	/* create a cache index for looking up filehandles */
++	clp->fscache = fscache_acquire_cookie(nfs_fscache_netfs.primary_index,
++					      &nfs_fscache_server_index_def,
++					      clp);
++	dfprintk(FSCACHE, "NFS: get client cookie (0x%p/0x%p)\n",
++		 clp, clp->fscache);
++}
++
++/*
++ * Dispose of a per-client cookie
++ */
++void nfs_fscache_release_client_cookie(struct nfs_client *clp)
++{
++	dfprintk(FSCACHE, "NFS: releasing client cookie (0x%p/0x%p)\n",
++		 clp, clp->fscache);
++
++	fscache_relinquish_cookie(clp->fscache, 0);
++	clp->fscache = NULL;
++}
+diff --git a/fs/nfs/fscache.h b/fs/nfs/fscache.h
+index ccfcdc5..1d864be 100644
+--- a/fs/nfs/fscache.h
++++ b/fs/nfs/fscache.h
+@@ -23,13 +23,23 @@
+  * fscache-index.c
+  */
+ extern struct fscache_netfs nfs_fscache_netfs;
++extern const struct fscache_cookie_def nfs_fscache_server_index_def;
  
+ extern int nfs_fscache_register(void);
+ extern void nfs_fscache_unregister(void);
+ 
++/*
++ * fscache.c
++ */
++extern void nfs_fscache_get_client_cookie(struct nfs_client *);
++extern void nfs_fscache_release_client_cookie(struct nfs_client *);
++
  #else /* CONFIG_NFS_FSCACHE */
  static inline int nfs_fscache_register(void) { return 0; }
-@@ -191,5 +201,10 @@ static inline int nfs_readpages_from_fscache(struct nfs_open_context *ctx,
- static inline void nfs_readpage_to_fscache(struct inode *inode,
- 					   struct page *page, int sync) {}
+ static inline void nfs_fscache_unregister(void) {}
  
-+static inline const char *nfs_server_fscache_state(struct nfs_server *server)
-+{
-+	return "no ";
-+}
++static inline void nfs_fscache_get_client_cookie(struct nfs_client *clp) {}
++static inline void nfs_fscache_release_client_cookie(struct nfs_client *clp) {}
 +
  #endif /* CONFIG_NFS_FSCACHE */
  #endif /* _NFS_FSCACHE_H */
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index e7c4cdd..8d23dcb 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -68,6 +68,10 @@ struct nfs_client {
+ 	char			cl_ipaddr[48];
+ 	unsigned char		cl_id_uniquifier;
+ #endif
++
++#ifdef CONFIG_NFS_FSCACHE
++	struct fscache_cookie	*fscache;	/* client index cache cookie */
++#endif
+ };
+ 
+ /*
 
 
 --
