@@ -1,165 +1,143 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2SEZP4D017750
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 10:35:26 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2SEZLTs005599
-	for <selinux@tycho.nsa.gov>; Fri, 28 Mar 2008 14:35:21 GMT
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 45/45] NFS: Add mount options to enable local caching on NFS
-	[ver #35]
-To: torvalds@osdl.org, akpm@linux-foundation.org, trond.myklebust@fys.uio.no,
-        chuck.lever@oracle.com
-Cc: nfsv4@linux-nfs.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, dhowells@redhat.com
-Date: Fri, 28 Mar 2008 14:34:01 +0000
-Message-ID: <20080328143401.3483.55053.stgit@warthog.procyon.org.uk>
-In-Reply-To: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
-References: <20080328143010.3483.99079.stgit@warthog.procyon.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: Debian SE Linux status
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Joshua Brindle <method@manicmethod.com>, russell@coker.com.au,
+        SE-Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <1206712290.3302.455.camel@moss-spartans.epoch.ncsc.mil>
+References: <200803281106.47699.russell@coker.com.au>
+	 <1206708790.3302.414.camel@moss-spartans.epoch.ncsc.mil>
+	 <47ECEAF0.4090304@manicmethod.com>
+	 <1206709188.3302.419.camel@moss-spartans.epoch.ncsc.mil>
+	 <1206711402.29088.21.camel@moss-lions.epoch.ncsc.mil>
+	 <1206712290.3302.455.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 28 Mar 2008 10:32:33 -0400
+Message-Id: <1206714753.29088.35.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add NFS mount options to allow the local caching support to be enabled.
+On Fri, 2008-03-28 at 09:51 -0400, Stephen Smalley wrote:
+> On Fri, 2008-03-28 at 09:36 -0400, James Carter wrote:
+> > On Fri, 2008-03-28 at 08:59 -0400, Stephen Smalley wrote:
+> > > On Fri, 2008-03-28 at 08:56 -0400, Joshua Brindle wrote:
+> > > > Stephen Smalley wrote:
+> > > > > On Fri, 2008-03-28 at 11:06 +1100, Russell Coker wrote:
+> > > > >   
+> > > > >> http://etbe.coker.com.au/2008/03/28/debian-se-linux-status/
+> > > > >>
+> > > > >> Those of you who don't read Planet SE Linux but who are interested in Debian 
+> > > > >> may want to read the above.
+> > > > >>     
+> > > > >
+> > > > > Regarding the mismatch in policy version between your domU vs. dom0, you
+> > > > > should be able to build older policy versions via the config setting
+> > > > > in /etc/selinux/semanage.conf (modular build) or via the OUTPUT_POLICY=
+> > > > > setting in build.conf, overridable on the make command line (monolithic
+> > > > > build).
+> > > > >
+> > > > > Or you could install newer selinux core userland in your dom0 such that
+> > > > > it can read and downgrade the latest policy to the one supported by your
+> > > > > kernel (libselinux policy load logic will convert a newer policy to an
+> > > > > older one at load time for you).
+> > > > >
+> > > > > Agree that converting between non-MLS and MLS/MCS is very painful at
+> > > > > present.  Part of that we can fix (inappropriate dependencies in
+> > > > > semanage/seobject.py that should be querying the policy store via
+> > > > > libsemanage/libsepol rather than checking the running policy), and part
+> > > > > we cannot (still won't be able to switch the kind of policy at policy
+> > > > > reload in the kernel).  I'd actually prefer that we just always enable
+> > > > > the MLS engine and field for simplification, presenting the same
+> > > > > experience to all users, and ensuring that we are all testing the same
+> > > > > code paths.  
+> > 
+> > I thought that MLS just added additional code paths.  Are there code
+> > paths that are only taken for non-MLS policies?
+> > 
+> > > I don't know how others feel about that though - I know
+> > > > > that Gentoo has historically not enabled MCS/MLS, and that upstream
+> > > > > refpolicy still defaults to not enabling it (standard).
+> > > > >
+> > > > > I'm not sure why MLS support significantly increases policy build time
+> > > > > though.
+> > > > >   
+> > 
+> > Isn't that an argument for keeping non-MLS support? ;)
+> 
+> I don't believe that it actually does significantly increase policy
+> build time (or if it does, that would be a bug).  Possibly Russell just
+> means that building both MLS and non-MLS takes longer, or that the mls
+> modules.conf includes more modules, or something along those lines?
+> 
+> > What is the difference in overhead between an MLS and a non-MLS system?
+> > Would there be a noticeable difference in resources used by a non-MLS
+> > system and one that had a single level of s0 and no categories?  (Can
+> > you actually define only one level and no categories?)
+> 
+> If you don't define any actual MLS constraints in policy, then it
+> shouldn't impose any real runtime overhead (and even when you do, that's
+> all masked by the AVC, of course).  Yes, you should be able to define
+> just one level and no categories, although I doubt that defining
+> categories significantly expands the policy (just because they are
+> defined doesn't mean you have to use them in contexts).
 
-The attached patch makes it possible for the NFS filesystem to be told to make
-use of the network filesystem local caching service (FS-Cache).
+You can't.
 
-To be able to use this, a recent nfsutils package is required.
+m4 -D enable_mls -D distro_redhat -D mls_num_sens=1 -D mls_num_cats=0 -D
+mcs_num_cats=256 -D hide_broken_symptoms -D self_contained_policy
+policy/flask/security_classes policy/flask/initial_sids
+policy/flask/access_vectors policy/support/file_patterns.spt
+policy/support/ipc_patterns.spt policy/support/loadable_module.spt
+policy/support/misc_macros.spt policy/support/misc_patterns.spt
+policy/support/mls_mcs_macros.spt policy/support/obj_perm_sets.spt
+policy/mls policy/mcs > tmp/pre_te_files.conf
+m4: memory exhausted
+make: *** [tmp/pre_te_files.conf] Error 1
 
-There are three variant NFS mount options that can be added to a mount command
-to control caching for a mount.  Only the last one specified takes effect:
+But I see your point.  There isn't going to be any appreciable overhead
+in defining additional levels and categories that aren't used.  And
+there is really no gain in running a non-MLS system as compared to an
+MLS system that is running everything at the same level and which
+doesn't have any MLS constraints.
 
- (*) Adding "fsc" will request caching.
+> 
+> With the mainstreaming of the MLS support and turning it from a
+> compile-time option into a runtime load option, there isn't any real
+> difference in the in-core context structures even when you have MLS
+> disabled.  So you aren't saving anything there.
+> 
+> > > > Also note that the default (and only) policy on Ubuntu is non-mls.
+> > > 
+> > > Why?
+> > > 
+> > > I think we set ourselves up for application and user confusion and
+> > > incompatibility by having different context formats in the different
+> > > distributions that support SELinux.  And it definitely creates a
+> > > maintenance burden - having to test both cases always.  Which apparently
+> > > we aren't doing a good job of, as semanage user -a will presently always
+> > > fail on a non-MCS/MLS system.
+> > > 
+> > 
+> > I don't think that we should address deficiencies in the tool-chain by
+> > reducing flexibility.
+> 
+> No - it isn't just deficiencies in the tool chain.  It increases our
+> maintenance burden to have multiple options and code paths to exercise,
+> and it is user- and application visible since it affects the context
+> format.
+> 
 
- (*) Adding "fsc=<string>" will request caching and also specify a uniquifier.
+What about the differences between monolithic policy and modular policy?
+Isn't that a maintenance burden as well?  A monolithic policy can't be
+managed with semange, so that is a user visible difference as well.
 
- (*) Adding "nofsc" will disable caching.
-
-For example:
-
-	mount warthog:/ /a -o fsc
-
-
-The cache of a particular superblock (NFS FSID) will be shared between all
-mounts of that volume, provided they have the same connection parameters and
-are not marked 'nosharecache'.
-
-Where it is otherwise impossible to distinguish superblocks because all the
-parameters are identical, but the 'nosharecache' option is supplied, a
-uniquifying string must be supplied, else only the first mount will be
-permitted to use the cache.
-
-If there's a key collision, then the second mount will disable caching and give
-a warning into the kernel log.
-
-
-Signed-off-by: David Howells <dhowells@redhat.com>
----
-
- fs/nfs/client.c   |    2 ++
- fs/nfs/internal.h |    1 +
- fs/nfs/super.c    |   25 +++++++++++++++++++++++++
- 3 files changed, 28 insertions(+), 0 deletions(-)
-
-
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index d67d52f..8357f68 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -669,6 +669,7 @@ static int nfs_init_server(struct nfs_server *server,
- 
- 	/* Initialise the client representation from the mount data */
- 	server->flags = data->flags & NFS_MOUNT_FLAGMASK;
-+	server->options = data->options;
- 
- 	if (data->rsize)
- 		server->rsize = nfs_block_size(data->rsize, NULL);
-@@ -1056,6 +1057,7 @@ static int nfs4_init_server(struct nfs_server *server,
- 	/* Initialise the client representation from the mount data */
- 	server->flags = data->flags & NFS_MOUNT_FLAGMASK;
- 	server->caps |= NFS_CAP_ATOMIC_OPEN;
-+	server->options = data->options;
- 
- 	if (data->rsize)
- 		server->rsize = nfs_block_size(data->rsize, NULL);
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index ab23769..dac9eea 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -39,6 +39,7 @@ struct nfs_parsed_mount_data {
- 	int			acregmin, acregmax,
- 				acdirmin, acdirmax;
- 	int			namlen;
-+	unsigned int		options;
- 	unsigned int		bsize;
- 	unsigned int		auth_flavor_len;
- 	rpc_authflavor_t	auth_flavors[1];
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 7cd9e41..6215f54 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -76,6 +76,7 @@ enum {
- 	Opt_acl, Opt_noacl,
- 	Opt_rdirplus, Opt_nordirplus,
- 	Opt_sharecache, Opt_nosharecache,
-+	Opt_fscache, Opt_nofscache,
- 
- 	/* Mount options that take integer arguments */
- 	Opt_port,
-@@ -92,6 +93,7 @@ enum {
- 	/* Mount options that take string arguments */
- 	Opt_sec, Opt_proto, Opt_mountproto, Opt_mounthost,
- 	Opt_addr, Opt_mountaddr, Opt_clientaddr,
-+	Opt_fscache_uniq,
- 
- 	/* Mount options that are ignored */
- 	Opt_userspace, Opt_deprecated,
-@@ -125,6 +127,9 @@ static match_table_t nfs_mount_option_tokens = {
- 	{ Opt_nordirplus, "nordirplus" },
- 	{ Opt_sharecache, "sharecache" },
- 	{ Opt_nosharecache, "nosharecache" },
-+	{ Opt_fscache, "fsc" },
-+	{ Opt_fscache_uniq, "fsc=%s" },
-+	{ Opt_nofscache, "nofsc" },
- 
- 	{ Opt_port, "port=%u" },
- 	{ Opt_rsize, "rsize=%u" },
-@@ -486,6 +491,8 @@ static void nfs_show_mount_options(struct seq_file *m, struct nfs_server *nfss,
- 	seq_printf(m, ",timeo=%lu", 10U * nfss->client->cl_timeout->to_initval / HZ);
- 	seq_printf(m, ",retrans=%u", nfss->client->cl_timeout->to_retries);
- 	seq_printf(m, ",sec=%s", nfs_pseudoflavour_to_name(nfss->client->cl_auth->au_flavor));
-+	if (nfss->options & NFS_OPTION_FSCACHE)
-+		seq_printf(m, ",fsc");
- }
- 
- /*
-@@ -806,6 +813,24 @@ static int nfs_parse_mount_options(char *raw,
- 		case Opt_nosharecache:
- 			mnt->flags |= NFS_MOUNT_UNSHARED;
- 			break;
-+		case Opt_fscache:
-+			mnt->options |= NFS_OPTION_FSCACHE;
-+			kfree(mnt->fscache_uniq);
-+			mnt->fscache_uniq = NULL;
-+			break;
-+		case Opt_nofscache:
-+			mnt->options &= ~NFS_OPTION_FSCACHE;
-+			kfree(mnt->fscache_uniq);
-+			mnt->fscache_uniq = NULL;
-+			break;
-+		case Opt_fscache_uniq:
-+			string = match_strdup(args);
-+			if (!string)
-+				goto out_nomem;
-+			kfree(mnt->fscache_uniq);
-+			mnt->fscache_uniq = string;
-+			mnt->options |= NFS_OPTION_FSCACHE;
-+			break;
- 
- 		case Opt_port:
- 			if (match_int(args, &option))
+-- 
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
 
 
 --
