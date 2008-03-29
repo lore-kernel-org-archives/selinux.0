@@ -1,35 +1,45 @@
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Debian SE Linux status
+Date: Sat, 29 Mar 2008 12:30:18 +1100
+Cc: jwcart2@epoch.ncsc.mil, Joshua Brindle <method@manicmethod.com>,
+        SE-Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@tresys.com>
+References: <200803281106.47699.russell@coker.com.au> <1206714753.29088.35.camel@moss-lions.epoch.ncsc.mil> <1206717541.3302.492.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1206717541.3302.492.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: file(1)
-Date: Fri, 28 Mar 2008 21:21:58 -0400
-Message-ID: <6FE441CD9F0C0C479F2D88F959B0158801CD1E90@exchange.columbia.tresys.com>
-In-Reply-To: <200803291219.12623.russell@coker.com.au>
-References: <200803272349.32854.russell@coker.com.au> <1206711214.3302.442.camel@moss-spartans.epoch.ncsc.mil> <6FE441CD9F0C0C479F2D88F959B0158801CD1E16@exchange.columbia.tresys.com> <200803291219.12623.russell@coker.com.au>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: <russell@coker.com.au>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, "SE-Linux" <selinux@tycho.nsa.gov>
+  charset="utf-8"
+Message-Id: <200803291230.23311.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-<snip>
-> > > Note btw that this format is expected to be obsoleted by the 
-> > > policyrep work.
-> 
-> Which format?  The module format or the policy binary format?
-> 
+On Saturday 29 March 2008 02:19, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> That was a technology transition for SELinux, one that all the
+> distributions went through.  All the distributions now use modular,
+> managed policy by default, and monolithic policy support remains for
+> legacy systems (e.g. RHEL4) and possibly for embedded systems since
+> modular, managed policy presently has a real cost to it (unlike the MLS
+> support).
 
-The kernel binary format isn't changing. The module format (and policy
-package format) are going away in favor of source based modules. 
+Nowadays it seems that a very common case of development for embedded systems 
+(probably the most common case) is to use some sort of bigger system to do 
+the development and then deploy on the small system.  An example of this is 
+the Familiar developers who built iPaQ machines with hard drives...
 
-> In either case we still need file(1) support.  When someone 
-> gives me a disk containing a Debian/Etch or Fedora Core 5 
-> filesystem in 2012 which has most files in /lost+found and 
-> asks me to recover data then the presence of magic entries 
-> will really help.
-> 
+Given the use of such a bigger system, which could even have a different CPU - 
+AFAIK there are no CPU specific requirements in the policy build (or if they 
+are then it's a bug) you could have a modular managed policy development 
+process that results in copying the policy.N file to the destination machine.
 
-Which is fine, but it just won't be useful for future modules.
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 
 --
