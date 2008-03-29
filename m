@@ -1,40 +1,69 @@
-Message-ID: <47ED987C.8000008@manicmethod.com>
-Date: Fri, 28 Mar 2008 21:16:44 -0400
-From: Joshua Brindle <method@manicmethod.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Joshua Brindle" <jbrindle@tresys.com>
+Subject: Re: file(1)
+Date: Sat, 29 Mar 2008 12:19:10 +1100
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, "SE-Linux" <selinux@tycho.nsa.gov>
+References: <200803272349.32854.russell@coker.com.au> <1206711214.3302.442.camel@moss-spartans.epoch.ncsc.mil> <6FE441CD9F0C0C479F2D88F959B0158801CD1E16@exchange.columbia.tresys.com>
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B0158801CD1E16@exchange.columbia.tresys.com>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Stephen Smalley <sds@tycho.nsa.gov>, jwcart2@epoch.ncsc.mil,
-        SE-Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@tresys.com>
-Subject: Re: Debian SE Linux status
-References: <200803281106.47699.russell@coker.com.au> <1206711402.29088.21.camel@moss-lions.epoch.ncsc.mil> <1206712290.3302.455.camel@moss-spartans.epoch.ncsc.mil> <200803291200.00643.russell@coker.com.au>
-In-Reply-To: <200803291200.00643.russell@coker.com.au>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200803291219.12623.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Saturday 29 March 2008 00:51, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->   
->>> Isn't that an argument for keeping non-MLS support? ;)
->>>       
->> I don't believe that it actually does significantly increase policy
->> build time (or if it does, that would be a bug).  Possibly Russell just
->> means that building both MLS and non-MLS takes longer, or that the mls
->> modules.conf includes more modules, or something along those lines?
->>     
+On Saturday 29 March 2008 02:10, "Joshua Brindle" <jbrindle@tresys.com> wrote:
+> >> # file qmail.pp  base.pp  /tmp/loadkeys.pp
+> >> qmail.pp:         SE Linux modular policy version 1, 2 sections, mod
+> >> version 7, Not MLS, module name qmail\005
 >
-> Yes.  Currently I have it building three policy packages, strict, targeted, 
-> and mls.  This takes 50% longer than just strict and targeted.  But if we go 
-> to a single policy for strict/targeted and a policy for mls then we would 
-> have the same build times as before
+> Also I think SELinux policy package, this magic number is for packages,
+> modules have their own magic number.
 
-Strict and targeted don't mean anything anymore. If you want targeted 
-behavior you insert the unconfined module into the standard policy.
+# file /etc/selinux/refpolicy-mls/policy/policy.22
+/etc/selinux/refpolicy-mls/policy/policy.22: SE Linux policy v22 MLS 8 symbols 
+7 ocons
 
+Yes, I've got that.
 
+> >> base.pp:          SE Linux modular policy version 1, 4 sections, mod
+> >> version 7, Not MLS, base /tmp/loadkeys.pp: SE Linux modular policy
+> >> version 1, 2 sections, mod version 6, MLS, module name loadkeys\005
+> >>
+> >> Please let me know what you think of this, in terms of text
+> >> formatting, information displayed, and use of file(1) features.
+> >
+> > "policy version 1" ought to be "policy type 1", or more
+> > simply, "base module" (1) or "non-base module" (2).
+
+But non-base modules have a 1 in that field too!
+
+> > Just for comparison with the existing support in file for
+> > kernel policies, "file policy.21" displays:
+> > policy.21: SE Linux policy v21 8 symbols 7 ocons
+> >
+> > Not sure though that the symbols and ocons info is helpful
+> > there to users, and it should always be implicit from the version.
+
+Probably not.  But that was a mistake I made long ago.  Hopefully this 
+discussion will help avoid such things this time.
+
+> > Note btw that this format is expected to be obsoleted by the
+> > policyrep work.
+
+Which format?  The module format or the policy binary format?
+
+In either case we still need file(1) support.  When someone gives me a disk 
+containing a Debian/Etch or Fedora Core 5 filesystem in 2012 which has most 
+files in /lost+found and asks me to recover data then the presence of magic 
+entries will really help.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
