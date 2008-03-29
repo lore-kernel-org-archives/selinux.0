@@ -1,64 +1,90 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2T65WH2031734
-	for <selinux@tycho.nsa.gov>; Sat, 29 Mar 2008 02:05:32 -0400
-Received: from fed1rmmtao107.cox.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2T65Rga002289
-	for <selinux@tycho.nsa.gov>; Sat, 29 Mar 2008 06:05:28 GMT
-Message-ID: <20080329020522.A3DQP.80555.imail@fed1rmwml42>
-Date: Fri, 28 Mar 2008 23:05:22 -0700
-From: "Lisa R." <lraykow@cox.net>
-To: selinux@tycho.nsa.gov
-Subject: Things were going great until...
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: file(1)
+Date: Sat, 29 Mar 2008 12:33:45 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158801CD1E96@exchange.columbia.tresys.com>
+In-Reply-To: <200803291417.50126.russell@coker.com.au>
+References: <200803272349.32854.russell@coker.com.au> <200803291249.25936.russell@coker.com.au> <6FE441CD9F0C0C479F2D88F959B0158801CD1E91@exchange.columbia.tresys.com> <200803291417.50126.russell@coker.com.au>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: <russell@coker.com.au>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, "SE-Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello.
+> -----Original Message-----
+> From: Russell Coker [mailto:russell@coker.com.au] 
+> Sent: Friday, March 28, 2008 11:18 PM
+> To: Joshua Brindle
+> Cc: Stephen Smalley; SE-Linux
+> Subject: Re: file(1)
+> 
+> On Saturday 29 March 2008 12:55, "Joshua Brindle" 
+> <jbrindle@tresys.com> wrote:
+> > > <jbrindle@tresys.com> wrote:
+> > > > Which is fine, but it just won't be useful for future modules.
+> > >
+> > > Would it be possible to try and make things work well with
+> > > file(1) when designing future module formats?  Little things like 
+> > > zero terminating strings really help.
+> >
+> > We want modules to be user editable using standard editors so no 
+> > binary data will be used..
+> 
+> So we are back to editing source?  That's fine by me.
+> 
 
-I am on a Debian Etch box with SELinux in permissive mode.  I am using the Strict policy.
+Yes, but with the infrastructure to link in modules, etc. Source just
+makes it much easier to manage the modules from the user perspective.
 
-Of course I have no problem adding a user with something like:
-useradd -c "SE Linux test user 1" -m -d /home/setest_1 -g users -s /bin/bash -u 1005 setest_1
+> > Unless file will be able to find the first non-comment line I'm not 
+> > sure how it'll work.
+> 
+> It seems to work fine for many other text files.  Also there 
+> is nothing preventing the creator of a text file format from 
+> specifying that the first line must contain some specific 
+> text indicating the format.  It probably would be good if the 
+> compiler (loader, linker, semanage, whatever you call
+> it) could recognise something that might be suitable input.  
+> If it could give a specific error that it's operating on 
+> something it considers not to be a suitable source file it 
+> would help cover some common error cases.
+> 
+> $ file src/*
+> src/Makefile:      ASCII make commands text
+> src/dso.h:         ASCII C program text
+> src/mcstrans.c:    ASCII C program text
+> src/mcstrans.init: Bourne-Again shell script text executable
+> src/mcstransd.c:   ASCII C program text
+> 
+> The above is the file(1) output for some common file types.  
+> It seems to work quite well for them.
+> 
+> Below are some quick magic entries I hacked up for SE Linux 
+> policy source.  
+> I'm not sure at this stage whether I should submit them for 
+> inclusion.  But they do demonstrate what can be done with 
+> recognising text files.
+> 
+> 0       string  policy_module(  SE Linux policy module source
+> 1       string  policy_module(  SE Linux policy module source
+> 2       string  policy_module(  SE Linux policy module source
+> 
+> 0       string ##\ <summary>    SE Linux policy interface source
+> 
+> 0       search  gen_context(    SE Linux policy file contexts
+> 
 
-I then create a new SElinux user group:
-semanage user -a -R 'user_r' -P selinuxtest selinuxtest_u
+One thing, there won't be separate files for interfaces, modules, and
+file contexts anymore (at least from the toolchain perspective,
+refpolicy might keep them separate internally)
 
-Finally I create the login for setest_1:
-semanage login -a -s selinuxtest_u setest_1
+So modules will be self contained source files with everything
+necessary.
 
-***I am doing this for example purposes***
-
-The other day this all worked great. I verified by logging in as setest_1 and ensuring the security context showed selinuxtest_u.
-
-However, later I created a very small policy module and added a new type mysetype_t.
-
-I created the .pp file with make -c Makefile
-I installed the .pp file with semodule -i mymodule.pp
-
-I applied that type to everything under the /lisa directory with:
-semanage fcontext -a -t mysetype_t "/lisa(/.*)?"
-
-I verified the type was applied with ls -Z.
-
-So no problems yet...
-
-Today when I login as setest_1 the security context is that of what it defaults to when root creates the user.  The login I applied the other day is gone.
-
-HOWEVER, if I do a semanage user -l and semanage login -l everything looks as it should. I see that the login for setest_1 is selinuxtest_u.
-
-I tried to semanage fcontext -a -t mysetype_t "/somedirectory(/.*)?"
-and that didn't work either.
-
-HOWEVER, I did a restorecon on each individual file and that seemed to work.  
-
-What is going on or how do I "restorecon" my logins so I can see any new logins I applied?
-
-Thanks,
-Lisa
-
-
-
+I wouldn't submit anything yet, a lot of the refpolicy things are slated
+to become parts of the proper language and the way modules are going to
+look haven't been completely hammered down.
 
 
 --
