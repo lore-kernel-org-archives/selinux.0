@@ -1,81 +1,80 @@
-Subject: Re: file(1)
+Subject: Re: Things were going great until...
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: Joshua Brindle <jbrindle@tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1206968234.5610.7.camel@moss-spartans.epoch.ncsc.mil>
-References: <200803272349.32854.russell@coker.com.au>
-	 <1206711214.3302.442.camel@moss-spartans.epoch.ncsc.mil>
-	 <6FE441CD9F0C0C479F2D88F959B0158801CD1E16@exchange.columbia.tresys.com>
-	 <200803291219.12623.russell@coker.com.au>
-	 <1206968234.5610.7.camel@moss-spartans.epoch.ncsc.mil>
+To: "Lisa R." <lraykow@cox.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20080329020522.A3DQP.80555.imail@fed1rmwml42>
+References: <20080329020522.A3DQP.80555.imail@fed1rmwml42>
 Content-Type: text/plain
-Date: Mon, 31 Mar 2008 10:12:58 -0400
-Message-Id: <1206972778.5610.25.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 31 Mar 2008 10:20:06 -0400
+Message-Id: <1206973206.5610.30.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 2008-03-31 at 08:57 -0400, Stephen Smalley wrote:
-> On Sat, 2008-03-29 at 12:19 +1100, Russell Coker wrote:
-> > On Saturday 29 March 2008 02:10, "Joshua Brindle" <jbrindle@tresys.com> wrote:
-> > > >> # file qmail.pp  base.pp  /tmp/loadkeys.pp
-> > > >> qmail.pp:         SE Linux modular policy version 1, 2 sections, mod
-> > > >> version 7, Not MLS, module name qmail\005
-> > >
-> > > Also I think SELinux policy package, this magic number is for packages,
-> > > modules have their own magic number.
-> > 
-> > # file /etc/selinux/refpolicy-mls/policy/policy.22
-> > /etc/selinux/refpolicy-mls/policy/policy.22: SE Linux policy v22 MLS 8 symbols 
-> > 7 ocons
-> > 
-> > Yes, I've got that.
+On Fri, 2008-03-28 at 23:05 -0700, Lisa R. wrote:
+> Hello.
 > 
-> Wait - I think there might be some confusion here.
+> I am on a Debian Etch box with SELinux in permissive mode.  I am using the Strict policy.
 > 
-> There are three or four formats depending on how you are counting:
-> - the kernel binary policy file (policy.N),
-> - the module policy package file (.pp files),
-> - the binary module file (.mod files, and these come in two flavors -
-> base and non-base).
+> Of course I have no problem adding a user with something like:
+> useradd -c "SE Linux test user 1" -m -d /home/setest_1 -g users -s /bin/bash -u 1005 setest_1
 > 
-> base.pp is a module policy package file containing a binary module
-> (.mod) file, a file contexts (.fc) file, and potentially other
-> components (e.g. seusers, users_extra).
+> I then create a new SElinux user group:
+> semanage user -a -R 'user_r' -P selinuxtest selinuxtest_u
+
+Isn't there already a SELinux user defined in your policy that maps to
+user_r that you can use?  Like user_u?
+
+> Finally I create the login for setest_1:
+> semanage login -a -s selinuxtest_u setest_1
+
+>From the rest of the thread, it sounds like your pam (and presumably
+sshd) just lacks the support for seusers and thus ignores semanage login
+entries.
+
+In which case you can either update your pam and friends, or you can
+just directly add a semanage user entry for setest_1 and drop the
+indirection of selinuxtest_u altogether.  
+
+> ***I am doing this for example purposes***
 > 
-> So don't confuse the module policy package file with a module file - the
-> module policy package file has its own header before the module file.
-
-So, to be precise, we've got the following format for the module policy
-package file:
-module package magic number (different from the module magic number)
-module package format version (different from the module format version)
-number of sections
-offset array, indexed by section number
-binary module (with its own header)
-any other sections (file contexts, etc)
-
-Note that the offset array is variable length - it will be the number of
-sections * sizeof uint32.
-
-And note that the order of sections isn't necessarily fixed, although
-the current module package writing code always puts the binary module
-first.  But the read code doesn't make any assumptions about ordering
-and just determines what each section is as it encounters it.
-
-At present, we require each .pp file to at least contain a .mod file,
-but we've talked before about lifting that requirement so that a .pp
-file can just carry a .fc file or other data without requiring a module.
-Although today people favor using semanage fcontext instead since it
-provides safer ordering guarantees.
-
-One other fun tidbit - in libsepol 2.0.23, I changed the policy reading
-code to accept either "Flask" or "SE Linux" as the string identifier as
-other projects, like Solaris FMAC, are using "Flask" as the string
-identifier as a more general specifier.  So it would be nice if file(1)
-ultimately accepted either as well.
-
+> The other day this all worked great. I verified by logging in as setest_1 and ensuring the security context showed selinuxtest_u.
+> 
+> However, later I created a very small policy module and added a new type mysetype_t.
+> 
+> I created the .pp file with make -c Makefile
+> I installed the .pp file with semodule -i mymodule.pp
+> 
+> I applied that type to everything under the /lisa directory with:
+> semanage fcontext -a -t mysetype_t "/lisa(/.*)?"
+> 
+> I verified the type was applied with ls -Z.
+> 
+> So no problems yet...
+> 
+> Today when I login as setest_1 the security context is that of what it defaults to when root creates the user.  The login I applied the other day is gone.
+> 
+> HOWEVER, if I do a semanage user -l and semanage login -l everything looks as it should. I see that the login for setest_1 is selinuxtest_u.
+> 
+> I tried to semanage fcontext -a -t mysetype_t "/somedirectory(/.*)?"
+> and that didn't work either.
+> 
+> HOWEVER, I did a restorecon on each individual file and that seemed to work.  
+> 
+> What is going on or how do I "restorecon" my logins so I can see any new logins I applied?
+> 
+> Thanks,
+> Lisa
+> 
+> 
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
