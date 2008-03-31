@@ -1,42 +1,76 @@
-Date: Mon, 31 Mar 2008 12:25:53 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eric Paris <eparis@redhat.com>, selinux <selinux@tycho.nsa.gov>,
-        Paul Moore <paul.moore@hp.com>
-Subject: Re: [PATCH-v4] SELinux: introduce permissive types
-In-Reply-To: <1206711773.3302.448.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0803311224080.11733@us.intercode.com.au>
-References: <1205260003.5297.109.camel@localhost.localdomain>
- <1206711773.3302.448.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2V92VmH007672
+	for <selinux@tycho.nsa.gov>; Mon, 31 Mar 2008 05:02:32 -0400
+Received: from mx.meyering.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2V92Tqk029833
+	for <selinux@tycho.nsa.gov>; Mon, 31 Mar 2008 09:02:30 GMT
+From: Jim Meyering <jim@meyering.net>
+To: russell@coker.com.au
+Cc: bug-coreutils@gnu.org
+Cc: Michael Stone <mstone@debian.org>, 472590@bugs.debian.org,
+        SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Bug#472590: ls in Debian/Unstable
+In-Reply-To: <200803260824.17731.russell@coker.com.au> (Russell Coker's
+	message of "Wed, 26 Mar 2008 08:24:15 +1100")
+References: <200803251523.34329.russell@coker.com.au>
+	<87tziu96yz.fsf@rho.meyering.net> <20080325173116.GQ2626@mathom.us>
+	<200803260824.17731.russell@coker.com.au>
+Date: Mon, 31 Mar 2008 11:02:27 +0200
+Message-ID: <877ifj9sgs.fsf@rho.meyering.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 28 Mar 2008, Stephen Smalley wrote:
+[ I'm Cc'ing bug-coreutils@gnu.org.
+  FYI, this is a continuation of discussion from the SELinux list:
+  http://marc.info/?t=120645074000003&r=1&w=2
+  and the debian bug tracking system: http://bugs.debian.org/472590
 
-> 
-> On Tue, 2008-03-11 at 14:26 -0400, Eric Paris wrote:
-> > Introduce the concept of a permissive type.  A new ebitmap is introduced
-> > to the policy database which indicates if a given type has the
-> > permissive bit set or not.  This bit is tested for the scontext of any
-> > denial.  The bit is meaningless on types which only appear as the target
-> > of a decision and never the source.  A domain running with a permissive
-> > type will be allowed to perform any action similarly to when the system
-> > is globally set permissive.
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> 
+  The problem is that on an SELinux-enabled system, 'ls -l's "+",
+  the "alternate access method" indicator, is useless, because it
+  appears on every file:
 
-Applied to 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+      $ ls -glo /var
+      total 164
+      drwxr-xr-x+  3 4096 2008-03-29 08:43 kerberos
+      drwxr-xr-x+ 39 4096 2008-03-29 08:43 lib
+      drwxr-xr-x+  2 4096 2008-03-27 17:33 local
+      drwxrwxr-x+  8 4096 2008-03-31 04:15 lock
+      drwxr-xr-x+ 20 4096 2008-03-31 09:55 log
+      lrwxrwxrwx+  1   10 2008-03-28 23:33 mail -> spool/mail
+      ...
 
+  Newer POSIX allows any non-space character as the indicator, and
+  that's what we're discussing now.
+  ]
 
--- 
-James Morris
-<jmorris@namei.org>
+Russell Coker <russell@coker.com.au> wrote:
+> On Wednesday 26 March 2008 04:31, Michael Stone <mstone@debian.org> wrote:
+>> if (acl) then '+'
+>> else if (selinux) then '.'
+>
+> Should there be some special marking of files with both a SE Linux context and
+> an ACL?
+>
+> Pity that they didn't choose an "a" to mark an ACL which would then permit
+> using "A" for ACL + MAC.
+
+This is probably as good a time as any to make such a change, though
+I doubt it will make the cut for the upcoming release.  I'd like to keep
+it simple (i.e., not try to encode all possible combinations).  If you
+want to get full details, stat(1) is probably the program to change.
+
+I like Michael's suggestion.  Rephrasing it,
+
+    if (SELinux, with no other MAC or ACL)
+      use '.'
+    else if (any other combination of alternate access methods)
+      use '+'
+
+If someone who already has a copyright assignment on file for coreutils
+wants to write the patch (including doc update, tests, NEWS, ChangeLog,
+etc.), please speak up ASAP.  Otherwise I'll do it.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
