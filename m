@@ -1,50 +1,91 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2V9hkvb012217
-	for <selinux@tycho.nsa.gov>; Mon, 31 Mar 2008 05:43:46 -0400
-Received: from mx.meyering.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2V9hhCR023194
-	for <selinux@tycho.nsa.gov>; Mon, 31 Mar 2008 09:43:44 GMT
-From: Jim Meyering <jim@meyering.net>
+Subject: Re: file(1)
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: russell@coker.com.au
-Cc: bug-coreutils@gnu.org, Michael Stone <mstone@debian.org>,
-        472590@bugs.debian.org, SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Bug#472590: ls in Debian/Unstable
-In-Reply-To: <200803312024.03028.russell@coker.com.au> (Russell Coker's
-	message of "Mon, 31 Mar 2008 20:23:59 +1100")
-References: <200803251523.34329.russell@coker.com.au>
-	<200803260824.17731.russell@coker.com.au>
-	<877ifj9sgs.fsf@rho.meyering.net>
-	<200803312024.03028.russell@coker.com.au>
-Date: Mon, 31 Mar 2008 11:43:42 +0200
-Message-ID: <871w5r9qk1.fsf@rho.meyering.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Cc: Joshua Brindle <jbrindle@tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200803291219.12623.russell@coker.com.au>
+References: <200803272349.32854.russell@coker.com.au>
+	 <1206711214.3302.442.camel@moss-spartans.epoch.ncsc.mil>
+	 <6FE441CD9F0C0C479F2D88F959B0158801CD1E16@exchange.columbia.tresys.com>
+	 <200803291219.12623.russell@coker.com.au>
+Content-Type: text/plain
+Date: Mon, 31 Mar 2008 08:57:14 -0400
+Message-Id: <1206968234.5610.7.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker <russell@coker.com.au> wrote:
-> On Monday 31 March 2008 20:02, Jim Meyering <jim@meyering.net> wrote:
->> I like Michael's suggestion.  Rephrasing it,
->>
->>     if (SELinux, with no other MAC or ACL)
->>       use '.'
->>     else if (any other combination of alternate access methods)
->>       use '+'
->>
->> If someone who already has a copyright assignment on file for coreutils
->> wants to write the patch (including doc update, tests, NEWS, ChangeLog,
->> etc.), please speak up ASAP.  Otherwise I'll do it.
->
-> I still believe that as when running SE Linux all files will have contexts
-> (the kernel code generates them if they are on a filesystem that doesn't
-> support persistent storage of contexts or if they are unlabelled) then the SE
-> Linux access controls should not be listed in "ls -l" output.
 
-I do understand your sentiment.
-If you raise the issue with the Austin Group, they'll at least
-consider whether to adjust that part of the POSIX ls specification.
+On Sat, 2008-03-29 at 12:19 +1100, Russell Coker wrote:
+> On Saturday 29 March 2008 02:10, "Joshua Brindle" <jbrindle@tresys.com> wrote:
+> > >> # file qmail.pp  base.pp  /tmp/loadkeys.pp
+> > >> qmail.pp:         SE Linux modular policy version 1, 2 sections, mod
+> > >> version 7, Not MLS, module name qmail\005
+> >
+> > Also I think SELinux policy package, this magic number is for packages,
+> > modules have their own magic number.
+> 
+> # file /etc/selinux/refpolicy-mls/policy/policy.22
+> /etc/selinux/refpolicy-mls/policy/policy.22: SE Linux policy v22 MLS 8 symbols 
+> 7 ocons
+> 
+> Yes, I've got that.
 
-> That said, the above suggestion makes sense and would work reasonably well.
+Wait - I think there might be some confusion here.
+
+There are three or four formats depending on how you are counting:
+- the kernel binary policy file (policy.N),
+- the module policy package file (.pp files),
+- the binary module file (.mod files, and these come in two flavors -
+base and non-base).
+
+base.pp is a module policy package file containing a binary module
+(.mod) file, a file contexts (.fc) file, and potentially other
+components (e.g. seusers, users_extra).
+
+So don't confuse the module policy package file with a module file - the
+module policy package file has its own header before the module file.
+
+> 
+> > >> base.pp:          SE Linux modular policy version 1, 4 sections, mod
+> > >> version 7, Not MLS, base /tmp/loadkeys.pp: SE Linux modular policy
+> > >> version 1, 2 sections, mod version 6, MLS, module name loadkeys\005
+> > >>
+> > >> Please let me know what you think of this, in terms of text
+> > >> formatting, information displayed, and use of file(1) features.
+> > >
+> > > "policy version 1" ought to be "policy type 1", or more
+> > > simply, "base module" (1) or "non-base module" (2).
+> 
+> But non-base modules have a 1 in that field too!
+
+Right - I mistakenly thought you were dealing with .mod files there
+rather than .pp files.  So that value reflects the version of the
+modular policy package format, which is independent of the module type
+or the module version.
+
+> > > Just for comparison with the existing support in file for
+> > > kernel policies, "file policy.21" displays:
+> > > policy.21: SE Linux policy v21 8 symbols 7 ocons
+> > >
+> > > Not sure though that the symbols and ocons info is helpful
+> > > there to users, and it should always be implicit from the version.
+> 
+> Probably not.  But that was a mistake I made long ago.  Hopefully this 
+> discussion will help avoid such things this time.
+> 
+> > > Note btw that this format is expected to be obsoleted by the
+> > > policyrep work.
+> 
+> Which format?  The module format or the policy binary format?
+> 
+> In either case we still need file(1) support.  When someone gives me a disk 
+> containing a Debian/Etch or Fedora Core 5 filesystem in 2012 which has most 
+> files in /lost+found and asks me to recover data then the presence of magic 
+> entries will really help.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
