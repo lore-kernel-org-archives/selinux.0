@@ -1,52 +1,63 @@
-Subject: Re: SSH + file_contexts + kerberos
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Karrels, Jeffrey J (US SSA)" <jeffrey.karrels@baesystems.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <4AE25A7D8CBE4E4DA8E87173237DE27E8B91@blums0042.bluelnk.net>
-References: <4AE25A7D8CBE4E4DA8E87173237DE27E8B91@blums0042.bluelnk.net>
-Content-Type: text/plain
-Date: Tue, 01 Apr 2008 08:16:26 -0400
-Message-Id: <1207052186.5610.139.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: Need to break or reduce the dependency on a static libsepol
+Date: Tue, 1 Apr 2008 08:24:51 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B0158801CD201C@exchange.columbia.tresys.com>
+In-Reply-To: <1207051630.5610.125.camel@moss-spartans.epoch.ncsc.mil>
+References: <1207051630.5610.125.camel@moss-spartans.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+Cc: "Chad Sellers" <csellers@tresys.com>,
+        "Karl MacMillan" <kmacmillan@tresys.com>,
+        "Daniel J Walsh" <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Mon, 2008-03-31 at 15:59 -0700, Karrels, Jeffrey J (US SSA) wrote:
-> Hello everyone.
+Stephen Smalley wrote:
+> This is likely my fault, but we're encountering increasing
+> problems from growth in the set of things that depend on the
+> static libsepol whenever we make a change to libsepol,
+> particularly a policy version change.  We now have (at least)
+> the following dependencies on it:
+> checkpolicy (always true, not likely to go away) libselinux
+> (for the audit2why python binding module, which used to be
+> its own utility in policycoreutils) setools
 > 
-> I have two questions:
+> Does slide also have this dependency or is it clean? Anything else to
+> worry about? 
 > 
-> 1) Is there a preferred way to search this lists archives?
-
-http://marc.info/?l=selinux is an unofficial archive that is easily
-searchable.  And there is always google.
-
-> 2) I have a problem I could use a pointer on. I am using the 1217
-> reference policy on Machine A. I have a script on Machine A that
-> attempts to SSH into another Machine B with an older policy on it (set
-> in permissive mode). When I set Machine A to enforcing and call the
-> script, when the SSH gets called I get:
-> file_contexts: invalid context system_u:object_r:krb5_conf_t:s0.
+> The result is that when a newer libsepol gets incorporated
+> and libselinux or setools does not, we encounter breakage
+> (unable to find a policy file they can read or unable to read
+> the policy file at which they are pointed) or confusion
+> (reading an older policy file left around from before the
+> libsepol update) upon trying to use audit2why or setools.
 > 
-> I am assuming that this is because Machine B does not know of type
-> krb5_conf_t. Is there a way to still SSH from Machine A to Machine B
-> without updating Machine B's policy? 
+> We ran into this problem twice in rawhide / F9, once upon the
+> policy capability support (policy.22) and now for permissive types
+> (policy.23). 
+> 
+> Only real way forward that I can see it to actually
+> encapsulate the interfaces required by audit2why and setools
+> so that they can use the shared libsepol.
 
-ssh'ing does not update the machine's policy.  What is presumably
-happening here is that ssh or sshd internally calls matchpathcon() to
-decide how to label some file it is creating, and there is an error in
-your file_contexts configuration file on the client or server.  Run the
-following command on machine A and on machine B:
+One thing that we are doing for policyrep is encapsulating all the "add
+this kind of thing to a policydb" functionality because we didn't want
+policyrep users to be static libsepol users. 
 
-setfiles -c /etc/selinux/$SELINUXTYPE/policy/policy.N /etc/selinux/$SELINUXTYPE/contexts/files/file_contexts
+This has multiple disadvantages including its huge, it is slow (7 hash
+lookups to add an av rule currently, since its string based) and doesn't
+include the other functionality like the security server, query
+functions that would be required for audit2why and setools.
 
-where $SELINUXTYPE is the value from your /etc/selinux/config file and N
-is the policy version that you have.
-
--- 
-Stephen Smalley
-National Security Agency
+After going through that effort and seeing the pain first hand I
+honestly think it is a better alternative to forgo encapsulation and
+just make the policydb public. Not yet though, since we ripped out all
+the module stuff in it for policyrep. Since it is returning to a more
+pristine state that can't realistically change much in the future maybe
+it would be better for everyone to rip out the encapsulation as well.
 
 
 --
