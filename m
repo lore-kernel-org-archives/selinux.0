@@ -1,79 +1,60 @@
-Message-ID: <47F27C7D.4070203@tycho.nsa.gov>
-Date: Tue, 01 Apr 2008 14:18:37 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Xavier Toth <txtoth@gmail.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: copy&paste security_compute_av from python
-References: <cadfc0e40803311235h3e3440fbn395dd55b8ab0e534@mail.gmail.com>	 <47F18500.3030201@tycho.nsa.gov> <1207050208.5610.104.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1207050208.5610.104.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: Need to break or reduce the dependency on a static libsepol
+Date: Tue, 1 Apr 2008 14:27:24 -0400
+Message-ID: <1207074444.9987.0.camel@localhost.localdomain>
+In-Reply-To: <1207051630.5610.125.camel@moss-spartans.epoch.ncsc.mil>
+References: <1207051630.5610.125.camel@moss-spartans.epoch.ncsc.mil>
+From: "David Sugar" <dsugar@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2008-03-31 at 20:42 -0400, Eamon Walsh wrote:
->   
->> Xavier Toth wrote:
->>     
->>> I'm working on the code for the selection request where I've got the
->>> source context and the destination context and I've got to decide if I
->>> need to popup the downgrade dialog. The class for the
->>> security_compute_av call should probably be SECCLASS_PROPERTY, right?
->>> But what about the av bits?
->>>   
->>>       
->> If we want to use a permission check in the selection manager 
->> application to decide whether to pop up the confirmation dialog, then I 
->> think we need a new security class to express the concept of "clipboard 
->> data".  The existing set of classes and permissions is oriented towards 
->> the low-level mechanics of the X selection mechanism: the individual 
->> property objects where data is written and the selection objects that 
->> are used for the IPC.  Neither of those really captures the notion of 
->> actually reading or writing the clipboard data itself.
->>
->> This concept is already implemented in the X server; you can call 
->> SetSelectionCreateContext to set a context on the "data" when you take 
->> ownership of a selection, and the GetSelectionDataContext request 
->> returns this context for the current selection owner.  The server itself 
->> doesn't perform any checks on this data context at present.
->>
->> But, is there a different way to decide whether the paste operation 
->> would be a downgrade?  Some type of context dominance call?
->>     
->
-> Just define a permission for it, and then you can define a mls
-> constraint on it to express the requirement that downgrades require a
-> particular type attribute.
->
-> Somewhat analogous is that pam and sshd apply a context:contains
-> permission check these days to see if selected level falls within the
-> user's authorized range (since the authorized range information for
-> Linux users is maintained in seusers and is not directly defined by the
-> kernel policy).
->   
+Steve,
 
-It's a little more complicated because there are three possibilities: 
-deny the paste, allow the paste, or allow the paste after user confirmation.
+SLIDE does not have any dependency on libsepol.  But in what we are
+working on for CDS Framework we have recently introduced dependencies on
+the static libsepol.  We need to be able to query the policy to verify
+that any particular allow rules have been put in place.  This is
+specifically important when MLS is enabled to verify that MLS
+constraints are not denying an access.
 
-How about the following security class:
+I don't remember off the top of my head exactly which functions are
+being used from the static libsepol but I know there were a few things
+that were not exported in the shared object and Josh said to use the
+static version.
 
-class x_application_data {
-    read
-    read_after_confirm
-    write
-}
+Dave
 
-The selection manager would have to do two checks, first on read then on 
-read_after_confirm, if the former succeeds the paste goes through, if 
-the latter succeeds the user must confirm, otherwise the paste is 
-disallowed.
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+On Tue, 2008-04-01 at 08:07 -0400, Stephen Smalley wrote:
+> This is likely my fault, but we're encountering increasing problems from
+> growth in the set of things that depend on the static libsepol whenever
+> we make a change to libsepol, particularly a policy version change.  We
+> now have (at least) the following dependencies on it:
+> checkpolicy (always true, not likely to go away)
+> libselinux (for the audit2why python binding module, which used to be
+> its own utility in policycoreutils)
+> setools
+> 
+> Does slide also have this dependency or is it clean?  Anything else to
+> worry about?
+> 
+> The result is that when a newer libsepol gets incorporated and
+> libselinux or setools does not, we encounter breakage (unable to find a
+> policy file they can read or unable to read the policy file at which
+> they are pointed) or confusion (reading an older policy file left around
+> from before the libsepol update) upon trying to use audit2why or
+> setools.
+> 
+> We ran into this problem twice in rawhide / F9, once upon the policy
+> capability support (policy.22) and now for permissive types (policy.23).
+> 
+> Only real way forward that I can see it to actually encapsulate the
+> interfaces required by audit2why and setools so that they can use the
+> shared libsepol.
+> 
 
 
 --
