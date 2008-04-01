@@ -1,56 +1,42 @@
-Subject: Re: copy&paste security_compute_av from python
+Subject: Need to break or reduce the dependency on a static libsepol
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Xavier Toth <txtoth@gmail.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <47F18500.3030201@tycho.nsa.gov>
-References: <cadfc0e40803311235h3e3440fbn395dd55b8ab0e534@mail.gmail.com>
-	 <47F18500.3030201@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Joshua Brindle <jbrindle@tresys.com>, Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 Content-Type: text/plain
-Date: Tue, 01 Apr 2008 07:43:28 -0400
-Message-Id: <1207050208.5610.104.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 01 Apr 2008 08:07:10 -0400
+Message-Id: <1207051630.5610.125.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is likely my fault, but we're encountering increasing problems from
+growth in the set of things that depend on the static libsepol whenever
+we make a change to libsepol, particularly a policy version change.  We
+now have (at least) the following dependencies on it:
+checkpolicy (always true, not likely to go away)
+libselinux (for the audit2why python binding module, which used to be
+its own utility in policycoreutils)
+setools
 
-On Mon, 2008-03-31 at 20:42 -0400, Eamon Walsh wrote:
-> Xavier Toth wrote:
-> > I'm working on the code for the selection request where I've got the
-> > source context and the destination context and I've got to decide if I
-> > need to popup the downgrade dialog. The class for the
-> > security_compute_av call should probably be SECCLASS_PROPERTY, right?
-> > But what about the av bits?
-> >   
-> 
-> If we want to use a permission check in the selection manager 
-> application to decide whether to pop up the confirmation dialog, then I 
-> think we need a new security class to express the concept of "clipboard 
-> data".  The existing set of classes and permissions is oriented towards 
-> the low-level mechanics of the X selection mechanism: the individual 
-> property objects where data is written and the selection objects that 
-> are used for the IPC.  Neither of those really captures the notion of 
-> actually reading or writing the clipboard data itself.
-> 
-> This concept is already implemented in the X server; you can call 
-> SetSelectionCreateContext to set a context on the "data" when you take 
-> ownership of a selection, and the GetSelectionDataContext request 
-> returns this context for the current selection owner.  The server itself 
-> doesn't perform any checks on this data context at present.
-> 
-> But, is there a different way to decide whether the paste operation 
-> would be a downgrade?  Some type of context dominance call?
+Does slide also have this dependency or is it clean?  Anything else to
+worry about?
 
-Just define a permission for it, and then you can define a mls
-constraint on it to express the requirement that downgrades require a
-particular type attribute.
+The result is that when a newer libsepol gets incorporated and
+libselinux or setools does not, we encounter breakage (unable to find a
+policy file they can read or unable to read the policy file at which
+they are pointed) or confusion (reading an older policy file left around
+from before the libsepol update) upon trying to use audit2why or
+setools.
 
-Somewhat analogous is that pam and sshd apply a context:contains
-permission check these days to see if selected level falls within the
-user's authorized range (since the authorized range information for
-Linux users is maintained in seusers and is not directly defined by the
-kernel policy).
+We ran into this problem twice in rawhide / F9, once upon the policy
+capability support (policy.22) and now for permissive types (policy.23).
+
+Only real way forward that I can see it to actually encapsulate the
+interfaces required by audit2why and setools so that they can use the
+shared libsepol.
 
 -- 
 Stephen Smalley
