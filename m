@@ -1,89 +1,78 @@
-Subject: Re: [PATCH 1/2] SELinux: turn mount options strings into defines
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1207070649.3556.15.camel@localhost.localdomain>
-References: <1207070649.3556.15.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 01 Apr 2008 13:28:23 -0400
-Message-Id: <1207070903.5610.224.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <47F27C7D.4070203@tycho.nsa.gov>
+Date: Tue, 01 Apr 2008 14:18:37 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Xavier Toth <txtoth@gmail.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: copy&paste security_compute_av from python
+References: <cadfc0e40803311235h3e3440fbn395dd55b8ab0e534@mail.gmail.com>	 <47F18500.3030201@tycho.nsa.gov> <1207050208.5610.104.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1207050208.5610.104.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Mon, 2008-03-31 at 20:42 -0400, Eamon Walsh wrote:
+>   
+>> Xavier Toth wrote:
+>>     
+>>> I'm working on the code for the selection request where I've got the
+>>> source context and the destination context and I've got to decide if I
+>>> need to popup the downgrade dialog. The class for the
+>>> security_compute_av call should probably be SECCLASS_PROPERTY, right?
+>>> But what about the av bits?
+>>>   
+>>>       
+>> If we want to use a permission check in the selection manager 
+>> application to decide whether to pop up the confirmation dialog, then I 
+>> think we need a new security class to express the concept of "clipboard 
+>> data".  The existing set of classes and permissions is oriented towards 
+>> the low-level mechanics of the X selection mechanism: the individual 
+>> property objects where data is written and the selection objects that 
+>> are used for the IPC.  Neither of those really captures the notion of 
+>> actually reading or writing the clipboard data itself.
+>>
+>> This concept is already implemented in the X server; you can call 
+>> SetSelectionCreateContext to set a context on the "data" when you take 
+>> ownership of a selection, and the GetSelectionDataContext request 
+>> returns this context for the current selection owner.  The server itself 
+>> doesn't perform any checks on this data context at present.
+>>
+>> But, is there a different way to decide whether the paste operation 
+>> would be a downgrade?  Some type of context dominance call?
+>>     
+>
+> Just define a permission for it, and then you can define a mls
+> constraint on it to express the requirement that downgrades require a
+> particular type attribute.
+>
+> Somewhat analogous is that pam and sshd apply a context:contains
+> permission check these days to see if selected level falls within the
+> user's authorized range (since the authorized range information for
+> Linux users is maintained in seusers and is not directly defined by the
+> kernel policy).
+>   
 
-On Tue, 2008-04-01 at 13:24 -0400, Eric Paris wrote:
-> Convert the strings used for mount options into #defines rather than
-> retyping the string throughout the SELinux code.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+It's a little more complicated because there are three possibilities: 
+deny the paste, allow the paste, or allow the paste after user confirmation.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+How about the following security class:
 
-Possibly as a follow up, one could simplify or wrap the match_prefix()
-interface to be a macro that only required the string to be specified
-once to avoid inconsistency in the prefix and plen arguments.
+class x_application_data {
+    read
+    read_after_confirm
+    write
+}
 
-> 
-> ---
-> 
-> security/selinux/hooks.c            |   16 ++++++++--------
->  security/selinux/include/security.h |    5 +++++
->  2 files changed, 13 insertions(+), 8 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 41a049f..d6aa4a6 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -324,10 +324,10 @@ enum {
->  };
->  
->  static match_table_t tokens = {
-> -	{Opt_context, "context=%s"},
-> -	{Opt_fscontext, "fscontext=%s"},
-> -	{Opt_defcontext, "defcontext=%s"},
-> -	{Opt_rootcontext, "rootcontext=%s"},
-> +	{Opt_context, CONTEXT_STR "%s"},
-> +	{Opt_fscontext, FSCONTEXT_STR "%s"},
-> +	{Opt_defcontext, DEFCONTEXT_STR "%s"},
-> +	{Opt_rootcontext, ROOTCONTEXT_STR "%s"},
->  	{Opt_error, NULL},
->  };
->  
-> @@ -2232,10 +2232,10 @@ static inline int match_prefix(char *prefix, int plen, char *option, int olen)
->  
->  static inline int selinux_option(char *option, int len)
->  {
-> -	return (match_prefix("context=", sizeof("context=")-1, option, len) ||
-> -	        match_prefix("fscontext=", sizeof("fscontext=")-1, option, len) ||
-> -	        match_prefix("defcontext=", sizeof("defcontext=")-1, option, len) ||
-> -		match_prefix("rootcontext=", sizeof("rootcontext=")-1, option, len));
-> +	return (match_prefix(CONTEXT_STR, sizeof(CONTEXT_STR)-1, option, len) ||
-> +		match_prefix(FSCONTEXT_STR, sizeof(FSCONTEXT_STR)-1, option, len) ||
-> +		match_prefix(DEFCONTEXT_STR, sizeof(DEFCONTEXT_STR)-1, option, len) ||
-> +		match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len));
->  }
->  
->  static inline void take_option(char **to, char *from, int *first, int len)
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index f7d2f03..63e0171 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -40,6 +40,11 @@
->  #define ROOTCONTEXT_MNT	0x04
->  #define DEFCONTEXT_MNT	0x08
->  
-> +#define CONTEXT_STR	"context="
-> +#define FSCONTEXT_STR	"fscontext="
-> +#define ROOTCONTEXT_STR	"rootcontext="
-> +#define DEFCONTEXT_STR	"defcontext="
-> +
->  struct netlbl_lsm_secattr;
->  
->  extern int selinux_enabled;
-> 
+The selection manager would have to do two checks, first on read then on 
+read_after_confirm, if the former succeeds the paste goes through, if 
+the latter succeeds the user must confirm, otherwise the paste is 
+disallowed.
+
 -- 
-Stephen Smalley
+Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
 
 
