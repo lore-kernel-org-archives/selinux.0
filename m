@@ -1,72 +1,62 @@
-Subject: Re: Need to break or reduce the dependency on a static libsepol
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: David Sugar <dsugar@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1207074444.9987.0.camel@localhost.localdomain>
-References: <1207051630.5610.125.camel@moss-spartans.epoch.ncsc.mil>
-	 <1207074444.9987.0.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 01 Apr 2008 15:01:36 -0400
-Message-Id: <1207076496.5610.266.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m31Ng4PS001103
+	for <selinux@tycho.nsa.gov>; Tue, 1 Apr 2008 19:42:04 -0400
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m31Ng0sr029480
+	for <selinux@tycho.nsa.gov>; Tue, 1 Apr 2008 23:42:00 GMT
+Date: Wed, 2 Apr 2008 10:41:01 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+cc: fedora-selinux-list@redhat.com, fmac-discuss@opensolaris.org, lwn@lwn.net,
+        ubuntu-hardened@lists.ubuntu.com, gentoo-hardened@lists.gentoo.org,
+        selinux-devel@lists.alioth.debian.org
+Subject: ANN: SELinux Developer Summit 2008, Ottawa
+Message-ID: <Xine.LNX.4.64.0804021025040.25321@us.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+----------------------------------------------------------------------------
+SELinux Developer Summit 2008, Ottawa
+----------------------------------------------------------------------------
 
-On Tue, 2008-04-01 at 14:27 -0400, David Sugar wrote:
-> Steve,
-> 
-> SLIDE does not have any dependency on libsepol.  But in what we are
-> working on for CDS Framework we have recently introduced dependencies on
-> the static libsepol.  We need to be able to query the policy to verify
-> that any particular allow rules have been put in place.  This is
-> specifically important when MLS is enabled to verify that MLS
-> constraints are not denying an access.
-> 
-> I don't remember off the top of my head exactly which functions are
-> being used from the static libsepol but I know there were a few things
-> that were not exported in the shared object and Josh said to use the
-> static version.
+This is to announce the 2008 SELinux Developer Summit, which is to be held
+in Ottawa on the 22nd of July, as an OLS mini-summit.
 
-Don't know if this helps, but audit2why will tell you whether or not a
-denial is due to a constraint violation (not specifically MLS, but any
-constraint).  And libselinux now provides a python binding to audit2why.
-If you can use that or extend it, then we at least don't add one more
-copy of the static libsepol on the system.
+The SELinux Developer Summit will be a one day summit intended to provide 
+a forum for focused technical discussion regarding current and future 
+development plans for SELinux and related Flask/TE projects.
 
-> Dave
-> 
-> On Tue, 2008-04-01 at 08:07 -0400, Stephen Smalley wrote:
-> > This is likely my fault, but we're encountering increasing problems from
-> > growth in the set of things that depend on the static libsepol whenever
-> > we make a change to libsepol, particularly a policy version change.  We
-> > now have (at least) the following dependencies on it:
-> > checkpolicy (always true, not likely to go away)
-> > libselinux (for the audit2why python binding module, which used to be
-> > its own utility in policycoreutils)
-> > setools
-> > 
-> > Does slide also have this dependency or is it clean?  Anything else to
-> > worry about?
-> > 
-> > The result is that when a newer libsepol gets incorporated and
-> > libselinux or setools does not, we encounter breakage (unable to find a
-> > policy file they can read or unable to read the policy file at which
-> > they are pointed) or confusion (reading an older policy file left around
-> > from before the libsepol update) upon trying to use audit2why or
-> > setools.
-> > 
-> > We ran into this problem twice in rawhide / F9, once upon the policy
-> > capability support (policy.22) and now for permissive types (policy.23).
-> > 
-> > Only real way forward that I can see it to actually encapsulate the
-> > interfaces required by audit2why and setools so that they can use the
-> > shared libsepol.
-> > 
+The intended audience will consist of current SELinux developers,
+system/security administrators, distribution organizers/packagers, and power
+users.  The format will be a mix of presentations and moderated discussion,
+including a panel where attendees will be invited to submit questions and
+feedback.
+
+** This will be an open event, although, to attend, you will be required to be
+registered for the 2008 Linux Symposium. **
+
+A Call for Participation (CFP) will be issued on 7th April, 2008.  If you wish
+to submit a presentation or panel topic, please do so then.
+
+To contact the organizing team, send email to:
+
+    selinux-summit-team AT namei.org
+
+Also refer to the resources below for more information.
+
+[1] SELinux Developer Summit:
+    http://selinuxproject.org/page/Developer_Summit_2008
+
+[2] OLS mini-summits:
+    http://www.linuxsymposium.org/2008/minisummits.php
+
+----------------------------------------------------------------------------
+
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
