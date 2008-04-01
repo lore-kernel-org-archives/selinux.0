@@ -1,46 +1,54 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m2VMxx5h003169
-	for <selinux@tycho.nsa.gov>; Mon, 31 Mar 2008 18:59:59 -0400
-Received: from dmzmta102.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m2VMxug2019269
-	for <selinux@tycho.nsa.gov>; Mon, 31 Mar 2008 22:59:56 GMT
-Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
-	by dmzmta102.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m2VMx3IO011528
-	for <selinux@tycho.nsa.gov>; Mon, 31 Mar 2008 18:59:03 -0400
-Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
-	by usdmta002.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m2VMwtgQ002766
-	for <selinux@tycho.nsa.gov>; Mon, 31 Mar 2008 18:58:55 -0400
+Message-ID: <47F18500.3030201@tycho.nsa.gov>
+Date: Mon, 31 Mar 2008 20:42:40 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: SSH + file_contexts + kerberos
-Date: Mon, 31 Mar 2008 15:59:47 -0700
-Message-ID: <4AE25A7D8CBE4E4DA8E87173237DE27E8B91@blums0042.bluelnk.net>
-From: "Karrels, Jeffrey J \(US SSA\)" <jeffrey.karrels@baesystems.com>
-To: <selinux@tycho.nsa.gov>
+To: Xavier Toth <txtoth@gmail.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: copy&paste security_compute_av from python
+References: <cadfc0e40803311235h3e3440fbn395dd55b8ab0e534@mail.gmail.com>
+In-Reply-To: <cadfc0e40803311235h3e3440fbn395dd55b8ab0e534@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello everyone.
+Xavier Toth wrote:
+> I'm working on the code for the selection request where I've got the
+> source context and the destination context and I've got to decide if I
+> need to popup the downgrade dialog. The class for the
+> security_compute_av call should probably be SECCLASS_PROPERTY, right?
+> But what about the av bits?
+>   
 
-I have two questions:
+If we want to use a permission check in the selection manager 
+application to decide whether to pop up the confirmation dialog, then I 
+think we need a new security class to express the concept of "clipboard 
+data".  The existing set of classes and permissions is oriented towards 
+the low-level mechanics of the X selection mechanism: the individual 
+property objects where data is written and the selection objects that 
+are used for the IPC.  Neither of those really captures the notion of 
+actually reading or writing the clipboard data itself.
 
-1) Is there a preferred way to search this lists archives?
+This concept is already implemented in the X server; you can call 
+SetSelectionCreateContext to set a context on the "data" when you take 
+ownership of a selection, and the GetSelectionDataContext request 
+returns this context for the current selection owner.  The server itself 
+doesn't perform any checks on this data context at present.
 
-2) I have a problem I could use a pointer on. I am using the 1217
-reference policy on Machine A. I have a script on Machine A that
-attempts to SSH into another Machine B with an older policy on it (set
-in permissive mode). When I set Machine A to enforcing and call the
-script, when the SSH gets called I get:
-file_contexts: invalid context system_u:object_r:krb5_conf_t:s0.
+But, is there a different way to decide whether the paste operation 
+would be a downgrade?  Some type of context dominance call?
 
-I am assuming that this is because Machine B does not know of type
-krb5_conf_t. Is there a way to still SSH from Machine A to Machine B
-without updating Machine B's policy? 
+> Dan have you ever called security_compute_av from Python?
+>
+> Ted
+>
+>   
 
-Thanks
-Jeff Karrels 
 
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
