@@ -1,112 +1,178 @@
-Subject: Re: file(1)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: Joshua Brindle <jbrindle@tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200804022202.35412.russell@coker.com.au>
-References: <200803272349.32854.russell@coker.com.au>
-	 <1206968234.5610.7.camel@moss-spartans.epoch.ncsc.mil>
-	 <1206972778.5610.25.camel@moss-spartans.epoch.ncsc.mil>
-	 <200804022202.35412.russell@coker.com.au>
-Content-Type: text/plain
-Date: Wed, 02 Apr 2008 08:10:06 -0400
-Message-Id: <1207138206.27710.43.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m32Flk1a001949
+	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2008 11:47:46 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m32FlhGS006293
+	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2008 15:47:43 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m32Fjqcm004832
+	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2008 11:45:52 -0400
+Received: from lacrosse.corp.redhat.com (lacrosse.corp.redhat.com [172.16.52.154])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m32FjqLM014704
+	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2008 11:45:52 -0400
+Received: from titanic.englab.brq.redhat.com (titanic.englab.brq.redhat.com [10.34.32.62])
+	by lacrosse.corp.redhat.com (8.12.11.20060308/8.11.6) with ESMTP id m32FjoQ1004802
+	for <selinux@tycho.nsa.gov>; Wed, 2 Apr 2008 11:45:51 -0400
+Message-ID: <47F3A9B8.7080302@redhat.com>
+Date: Wed, 02 Apr 2008 17:43:52 +0200
+From: Josef Kubin <jkubin@redhat.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
+Subject: semanage library problem on RHEL5
+Content-Type: multipart/mixed;
+ boundary="------------090900030107040201060700"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------090900030107040201060700
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, 2008-04-02 at 22:02 +1100, Russell Coker wrote:
-> On Tuesday 01 April 2008 01:12, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > There are three or four formats depending on how you are counting:
-> > > - the kernel binary policy file (policy.N),
-> > > - the module policy package file (.pp files),
-> > > - the binary module file (.mod files, and these come in two flavors -
-> > > base and non-base).
-> > >
-> > > base.pp is a module policy package file containing a binary module
-> > > (.mod) file, a file contexts (.fc) file, and potentially other
-> > > components (e.g. seusers, users_extra).
-> > >
-> > > So don't confuse the module policy package file with a module file - the
-> > > module policy package file has its own header before the module file.
-> >
-> > So, to be precise, we've got the following format for the module policy
-> > package file:
-> > module package magic number (different from the module magic number)
-> > module package format version (different from the module format version)
-> > number of sections
-> > offset array, indexed by section number
-> > binary module (with its own header)
-> > any other sections (file contexts, etc)
-> >
-> > Note that the offset array is variable length - it will be the number of
-> > sections * sizeof uint32.
-> 
-> This is where things start to become tricky, magic(5) doesn't support arrays.  
-> I could probably handle this with nested if statements for a reasonable 
-> number (it seems that we generally don't have that many).
+Hello, it looks as a problem of semanage library:
 
-Yes, in general you're likely to only encounter three situations:
-- base.pp file with all of the sections present (or at least the ones
-that we actually use these days),
-- foo.pp file with only a module section,
-- bar.pp file with a module section and a file contexts section.
+$ rpm -qf /lib/libsemanage.so.1
+libsemanage-1.9.1-3.el5
+$ rpm -qf /usr/lib/python2.4/site-packages/_semanage.so
+libsemanage-1.9.1-3.el5
+$ rpm -qf /lib/libselinux.so.1
+libselinux-1.33.4-4.el5
+$ rpm -qf /usr/lib/libpython2.4.so.1.0
+python-2.4.3-19.el5
 
-> > And note that the order of sections isn't necessarily fixed, although
-> > the current module package writing code always puts the binary module
-> > first.  But the read code doesn't make any assumptions about ordering
-> > and just determines what each section is as it encounters it.
-> 
-> My current effort just gives information on the first one, the binary seems to 
-> be the most interesting one (if for example qmail.pp 
-> becomes /lost+found/#1234 then having the string "qmail\5" be displayed would 
-> be helpful).
+$ getenforce
+Disabled
 
-Yes - I was just saying that the format doesn't actually guarantee that
-the binary module will always be first.  That's just an artifact of the
-current implementation.
+Run semanage as root:
 
-> > One other fun tidbit - in libsepol 2.0.23, I changed the policy reading
-> > code to accept either "Flask" or "SE Linux" as the string identifier as
-> > other projects, like Solaris FMAC, are using "Flask" as the string
-> > identifier as a more general specifier.  So it would be nice if file(1)
-> > ultimately accepted either as well.
-> 
-> Given that we already have hex magic numbers to recognise the various 
-> structures and that the most desirable way for humans to recognise file types 
-> is via file(1), what is the benefit of having either "SE Linux" or "Flask" in 
-> there?
+# semanage port -a -S targeted -t ldap_port_t -p tcp 4389
+libsepol.context_from_record: MLS is enabled, but no MLS context found
+libsepol.context_from_record: could not create context structure
+libsepol.port_from_record: could not create port structure for range 
+4389:4389 (tcp)
+libsepol.sepol_port_modify: could not load port range 4389 - 4389 (tcp)
+libsemanage.dbase_policydb_modify: could not modify record value
+libsemanage.semanage_base_merge_components: could not merge local 
+modifications into policy
+/usr/sbin/semanage: Could not add port tcp/4389
 
-Possibly none, but the string identifier is well entrenched there.
 
-> Would it be possible to just accept that for the current version of the file 
-> format "SE Linux" will be contained in there and not bother about this?  It's 
-> no secret that the Flask code was not originally developed for Solaris.
+Run semanage as a user (see attachment):
 
-The Flask code wasn't originally developed for Linux either ;)
-It would be confusing to use "SE Linux" there on other platforms.  The
-change to accept either string identifier in libsepol is so that higher
-level policy tools like setools can read and analyze either kind of
-policy, as they don't really care whether the underlying platform is
-Linux or some other OS.  Possibly not so important for file(1).
+Regards,
+Josef Kubin.
 
-> Eventually we just have to lose some data from file(1) output when these 
-> situations arise, I suspect that we have already reached the stage where we 
-> exceed the flexibility of the magic(5) configuration language.  It may be 
-> that on the Linux platform we just get the wrong data from other platforms.
-> 
-> It seems that there are ongoing plans for new file formats.  Could we agree 
-> that getting things to work with file(1) will be a pre-requisite for future 
-> file formats?
+--------------090900030107040201060700
+Content-Type: text/plain;
+ name="segfault"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="segfault"
 
-The only new format I'm aware of is for the policyrep work, and that is
-mostly a reversion to source text format for policy modules and policy
-packages.
+$ semanage port -a -S targeted -t ldap_port_t -p tcp 4389
+*** glibc detected *** /usr/bin/python: free(): invalid pointer: 0xb7f52c94 ***
+======= Backtrace: =========
+/lib/libc.so.6[0x3c8aa6]
+/lib/libc.so.6(cfree+0x90)[0x3cbfc0]
+/lib/libsemanage.so.1[0x148b25]
+/lib/libsemanage.so.1(semanage_handle_destroy+0x3c)[0x13b9ac]
+/usr/lib/python2.4/site-packages/_semanage.so[0xa87ddf]
+/usr/lib/libpython2.4.so.1.0(PyCFunction_Call+0x14d)[0x59745d]
+/usr/lib/libpython2.4.so.1.0(PyEval_EvalFrame+0x498d)[0x5d19bd]
+/usr/lib/libpython2.4.so.1.0(PyEval_EvalCodeEx+0x898)[0x5d2c68]
+/usr/lib/libpython2.4.so.1.0[0x584c6a]
+/usr/lib/libpython2.4.so.1.0(PyObject_Call+0x37)[0x56cd57]
+/usr/lib/libpython2.4.so.1.0[0x573358]
+/usr/lib/libpython2.4.so.1.0(PyObject_Call+0x37)[0x56cd57]
+/usr/lib/libpython2.4.so.1.0(PyEval_EvalFrame+0x2518)[0x5cf548]
+/usr/lib/libpython2.4.so.1.0(PyEval_EvalCodeEx+0x898)[0x5d2c68]
+/usr/lib/libpython2.4.so.1.0[0x584c6a]
+/usr/lib/libpython2.4.so.1.0(PyObject_Call+0x37)[0x56cd57]
+/usr/lib/libpython2.4.so.1.0[0x573358]
+/usr/lib/libpython2.4.so.1.0(PyObject_Call+0x37)[0x56cd57]
+/usr/lib/libpython2.4.so.1.0(PyEval_CallObjectWithKeywords+0x7c)[0x5cc48c]
+/usr/lib/libpython2.4.so.1.0(PyInstance_New+0x70)[0x577100]
+/usr/lib/libpython2.4.so.1.0(PyObject_Call+0x37)[0x56cd57]
+/usr/lib/libpython2.4.so.1.0(PyEval_EvalFrame+0x2518)[0x5cf548]
+/usr/lib/libpython2.4.so.1.0(PyEval_EvalCodeEx+0x898)[0x5d2c68]
+/usr/lib/libpython2.4.so.1.0(PyEval_EvalCode+0x63)[0x5d2cf3]
+/usr/lib/libpython2.4.so.1.0[0x5ef998]
+/usr/lib/libpython2.4.so.1.0(PyRun_SimpleFileExFlags+0x198)[0x5f10a8]
+/usr/lib/libpython2.4.so.1.0(PyRun_AnyFileExFlags+0x7a)[0x5f178a]
+/usr/lib/libpython2.4.so.1.0(Py_Main+0xb85)[0x5f8185]
+/usr/bin/python(main+0x32)[0x8048582]
+/lib/libc.so.6(__libc_start_main+0xdc)[0x377dec]
+/usr/bin/python[0x80484c1]
+======= Memory map: ========
+00110000-00114000 r-xp 00000000 08:01 788038     /usr/lib/python2.4/lib-dynload/stropmodule.so
+00114000-00116000 rwxp 00003000 08:01 788038     /usr/lib/python2.4/lib-dynload/stropmodule.so
+00116000-00120000 r-xp 00000000 08:01 790061     /usr/lib/python2.4/site-packages/_selinux.so
+00120000-00121000 rwxp 0000a000 08:01 790061     /usr/lib/python2.4/site-packages/_selinux.so
+00121000-00125000 r-xp 00000000 08:01 788007     /usr/lib/python2.4/lib-dynload/binascii.so
+00125000-00126000 rwxp 00003000 08:01 788007     /usr/lib/python2.4/lib-dynload/binascii.so
+00126000-00129000 r-xp 00000000 08:01 787998     /usr/lib/python2.4/lib-dynload/_localemodule.so
+00129000-0012a000 rwxp 00003000 08:01 787998     /usr/lib/python2.4/lib-dynload/_localemodule.so
+0012d000-00153000 r-xp 00000000 08:01 590028     /lib/libsemanage.so.1
+00153000-00154000 rwxp 00026000 08:01 590028     /lib/libsemanage.so.1
+00227000-0022a000 r-xp 00000000 08:01 788017     /usr/lib/python2.4/lib-dynload/fcntlmodule.so
+0022a000-0022b000 rwxp 00003000 08:01 788017     /usr/lib/python2.4/lib-dynload/fcntlmodule.so
+00311000-00323000 r-xp 00000000 08:01 589897     /lib/libaudit.so.0.0.0
+00323000-00325000 rwxp 00011000 08:01 589897     /lib/libaudit.so.0.0.0
+00345000-0035e000 r-xp 00000000 08:01 589826     /lib/ld-2.5.so
+0035e000-0035f000 r-xp 00019000 08:01 589826     /lib/ld-2.5.so
+0035f000-00360000 rwxp 0001a000 08:01 589826     /lib/ld-2.5.so
+00362000-0049c000 r-xp 00000000 08:01 589842     /lib/libc-2.5.so
+0049c000-0049e000 r-xp 0013a000 08:01 589842     /lib/libc-2.5.so
+0049e000-0049f000 rwxp 0013c000 08:01 589842     /lib/libc-2.5.so
+0049f000-004a2000 rwxp 0049f000 00:00 0 
+004a4000-004a6000 r-xp 00000000 08:01 589855     /lib/libdl-2.5.so
+004a6000-004a7000 r-xp 00001000 08:01 589855     /lib/libdl-2.5.so
+004a7000-004a8000 rwxp 00002000 08:01 589855     /lib/libdl-2.5.so
+0050b000-0051e000 r-xp 00000000 08:01 589875     /lib/libpthread-2.5.so
+0051e000-0051f000 r-xp 00012000 08:01 589875     /lib/libpthread-2.5.so
+0051f000-00520000 rwxp 00013000 08:01 589875     /lib/libpthread-2.5.so
+00520000-00522000 rwxp 00520000 00:00 0 
+00524000-00549000 r-xp 00000000 08:01 589853     /lib/libm-2.5.so
+00549000-0054a000 r-xp 00024000 08:01 589853     /lib/libm-2.5.so
+0054a000-0054b000 rwxp 00025000 08:01 589853     /lib/libm-2.5.so
+0054d000-00640000 r-xp 00000000 08:01 665143     /usr/lib/libpython2.4.so.1.0
+00640000-00662000 rwxp 000f3000 08:01 665143     /usr/lib/libpython2.4.so.1.0
+00662000-00665000 rwxp 00662000 00:00 0 
+00697000-00699000 r-xp 00000000 08:01 590064     /lib/libutil-2.5.so
+00699000-0069a000 r-xp 00001000 08:01 590064     /lib/libutil-2.5.so
+0069a000-0069b000 rwxp 00002000 08:01 590064     /lib/libutil-2.5.so
+00a75000-00a9f000 r-xp 00000000 08:01 788743     /usr/lib/python2.4/site-packages/_semanage.so
+00a9f000-00aa2000 rwxp 0002a000 08:01 788743     /usr/lib/python2.4/site-packages/_semanage.so
+00aaa000-00aae000 r-xp 00000000 08:01 788039     /usr/lib/python2.4/lib-dynload/structmodule.so
+00aae000-00aaf000 rwxp 00004000 08:01 788039     /usr/lib/python2.4/lib-dynload/structmodule.so
+00ba1000-00bbb000 r-xp 00000000 08:01 790069     /usr/lib/python2.4/site-packages/_audit.so
+00bbb000-00bbd000 rwxp 0001a000 08:01 790069     /usr/lib/python2.4/site-packages/_audit.so
+00c07000-00c09000 r-xp 00000000 08:01 788000     /usr/lib/python2.4/lib-dynload/_randommodule.so
+00c09000-00c0a000 rwxp 00002000 08:01 788000     /usr/lib/python2.4/lib-dynload/_randommodule.so
+00c3b000-00c3e000 r-xp 00000000 08:01 788023     /usr/lib/python2.4/lib-dynload/mathmodule.so
+00c3e000-00c3f000 rwxp 00002000 08:01 788023     /usr/lib/python2.4/lib-dynload/mathmodule.so
+00c50000-00c8b000 r-xp 00000000 08:01 589858     /lib/libsepol.so.1
+00c8b000-00c8c000 rwxp 0003a000 08:01 589858     /lib/libsepol.so.1
+00c8c000-00c96000 rwxp 00c8c000 00:00 0 
+00c98000-00cad000 r-xp 00000000 08:01 589872     /lib/libselinux.so.1
+00cad000-00caf000 rwxp 00015000 08:01 589872     /lib/libselinux.so.1
+00d7e000-00d80000 r-xp 00000000 08:01 788040     /usr/lib/python2.4/lib-dynload/syslog.so
+00d80000-00d81000 rwxp 00001000 08:01 788040     /usr/lib/python2.4/lib-dynload/syslog.so
+00f7a000-00f7b000 r-xp 00f7a000 00:00 0          [vdso]
+02f11000-02f1c000 r-xp 00000000 08:01 589848     /lib/libgcc_s-4.1.2-20070626.so.1
+02f1c000-02f1d000 rwxp 0000a000 08:01 589848     /lib/libgcc_s-4.1.2-20070626.so.1
+08048000-08049000 r-xp 00000000 08:01 661104     /usr/bin/python
+08049000-0804a000 rw-p 00000000 08:01 661104     /usr/bin/python
+08148000-081ff000 rw-p 08148000 00:00 0 
+b7c00000-b7c21000 rw-p b7c00000 00:00 0 
+b7c21000-b7d00000 ---p b7c21000 00:00 0 
+b7d04000-b7d45000 rw-p b7d04000 00:00 0 
+b7d46000-b7f46000 r--p 00000000 08:01 667524     /usr/lib/locale/locale-archive
+b7f46000-b7fcb000 rw-p b7f46000 00:00 0 
+bfa3b000-bfa50000 rw-p bfa3b000 00:00 0          [stack]
+Aborted
 
--- 
-Stephen Smalley
-National Security Agency
-
+--------------090900030107040201060700--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
