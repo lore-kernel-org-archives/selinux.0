@@ -1,58 +1,95 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m31Ng4PS001103
-	for <selinux@tycho.nsa.gov>; Tue, 1 Apr 2008 19:42:04 -0400
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m31Ng0sr029480
-	for <selinux@tycho.nsa.gov>; Tue, 1 Apr 2008 23:42:00 GMT
-Date: Wed, 2 Apr 2008 10:41:01 +1100 (EST)
+Date: Wed, 2 Apr 2008 16:22:40 +1100 (EST)
 From: James Morris <jmorris@namei.org>
-To: selinux@tycho.nsa.gov
-cc: fedora-selinux-list@redhat.com, fmac-discuss@opensolaris.org, lwn@lwn.net,
-        ubuntu-hardened@lists.ubuntu.com, gentoo-hardened@lists.gentoo.org,
-        selinux-devel@lists.alioth.debian.org
-Subject: ANN: SELinux Developer Summit 2008, Ottawa
-Message-ID: <Xine.LNX.4.64.0804021025040.25321@us.intercode.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/2] SELinux: turn mount options strings into defines
+In-Reply-To: <1207070903.5610.224.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0804021622290.1282@us.intercode.com.au>
+References: <1207070649.3556.15.camel@localhost.localdomain>
+ <1207070903.5610.224.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-----------------------------------------------------------------------------
-SELinux Developer Summit 2008, Ottawa
-----------------------------------------------------------------------------
+On Tue, 1 Apr 2008, Stephen Smalley wrote:
 
-This is to announce the 2008 SELinux Developer Summit, which is to be held
-in Ottawa on the 22nd of July, as an OLS mini-summit.
+> 
+> On Tue, 2008-04-01 at 13:24 -0400, Eric Paris wrote:
+> > Convert the strings used for mount options into #defines rather than
+> > retyping the string throughout the SELinux code.
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-The SELinux Developer Summit will be a one day summit intended to provide 
-a forum for focused technical discussion regarding current and future 
-development plans for SELinux and related Flask/TE projects.
+Applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
 
-The intended audience will consist of current SELinux developers,
-system/security administrators, distribution organizers/packagers, and power
-users.  The format will be a mix of presentations and moderated discussion,
-including a panel where attendees will be invited to submit questions and
-feedback.
-
-** This will be an open event, although, to attend, you will be required to be
-registered for the 2008 Linux Symposium. **
-
-A Call for Participation (CFP) will be issued on 7th April, 2008.  If you wish
-to submit a presentation or panel topic, please do so then.
-
-To contact the organizing team, send email to:
-
-    selinux-summit-team AT namei.org
-
-Also refer to the resources below for more information.
-
-[1] SELinux Developer Summit:
-    http://selinuxproject.org/page/Developer_Summit_2008
-
-[2] OLS mini-summits:
-    http://www.linuxsymposium.org/2008/minisummits.php
-
-----------------------------------------------------------------------------
+> 
+> Possibly as a follow up, one could simplify or wrap the match_prefix()
+> interface to be a macro that only required the string to be specified
+> once to avoid inconsistency in the prefix and plen arguments.
+> 
+> > 
+> > ---
+> > 
+> > security/selinux/hooks.c            |   16 ++++++++--------
+> >  security/selinux/include/security.h |    5 +++++
+> >  2 files changed, 13 insertions(+), 8 deletions(-)
+> > 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 41a049f..d6aa4a6 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -324,10 +324,10 @@ enum {
+> >  };
+> >  
+> >  static match_table_t tokens = {
+> > -	{Opt_context, "context=%s"},
+> > -	{Opt_fscontext, "fscontext=%s"},
+> > -	{Opt_defcontext, "defcontext=%s"},
+> > -	{Opt_rootcontext, "rootcontext=%s"},
+> > +	{Opt_context, CONTEXT_STR "%s"},
+> > +	{Opt_fscontext, FSCONTEXT_STR "%s"},
+> > +	{Opt_defcontext, DEFCONTEXT_STR "%s"},
+> > +	{Opt_rootcontext, ROOTCONTEXT_STR "%s"},
+> >  	{Opt_error, NULL},
+> >  };
+> >  
+> > @@ -2232,10 +2232,10 @@ static inline int match_prefix(char *prefix, int plen, char *option, int olen)
+> >  
+> >  static inline int selinux_option(char *option, int len)
+> >  {
+> > -	return (match_prefix("context=", sizeof("context=")-1, option, len) ||
+> > -	        match_prefix("fscontext=", sizeof("fscontext=")-1, option, len) ||
+> > -	        match_prefix("defcontext=", sizeof("defcontext=")-1, option, len) ||
+> > -		match_prefix("rootcontext=", sizeof("rootcontext=")-1, option, len));
+> > +	return (match_prefix(CONTEXT_STR, sizeof(CONTEXT_STR)-1, option, len) ||
+> > +		match_prefix(FSCONTEXT_STR, sizeof(FSCONTEXT_STR)-1, option, len) ||
+> > +		match_prefix(DEFCONTEXT_STR, sizeof(DEFCONTEXT_STR)-1, option, len) ||
+> > +		match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len));
+> >  }
+> >  
+> >  static inline void take_option(char **to, char *from, int *first, int len)
+> > diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> > index f7d2f03..63e0171 100644
+> > --- a/security/selinux/include/security.h
+> > +++ b/security/selinux/include/security.h
+> > @@ -40,6 +40,11 @@
+> >  #define ROOTCONTEXT_MNT	0x04
+> >  #define DEFCONTEXT_MNT	0x08
+> >  
+> > +#define CONTEXT_STR	"context="
+> > +#define FSCONTEXT_STR	"fscontext="
+> > +#define ROOTCONTEXT_STR	"rootcontext="
+> > +#define DEFCONTEXT_STR	"defcontext="
+> > +
+> >  struct netlbl_lsm_secattr;
+> >  
+> >  extern int selinux_enabled;
+> > 
+> 
 
 -- 
 James Morris
