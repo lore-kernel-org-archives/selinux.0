@@ -1,99 +1,87 @@
-Date: Wed, 2 Apr 2008 16:22:40 +1100 (EST)
-From: James Morris <jmorris@namei.org>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/2] SELinux: turn mount options strings into defines
-In-Reply-To: <1207070903.5610.224.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0804021622290.1282@us.intercode.com.au>
-References: <1207070649.3556.15.camel@localhost.localdomain>
- <1207070903.5610.224.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: file(1)
+Date: Wed, 2 Apr 2008 22:02:32 +1100
+Cc: Joshua Brindle <jbrindle@tresys.com>, SE-Linux <selinux@tycho.nsa.gov>
+References: <200803272349.32854.russell@coker.com.au> <1206968234.5610.7.camel@moss-spartans.epoch.ncsc.mil> <1206972778.5610.25.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1206972778.5610.25.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200804022202.35412.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 1 Apr 2008, Stephen Smalley wrote:
+On Tuesday 01 April 2008 01:12, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > There are three or four formats depending on how you are counting:
+> > - the kernel binary policy file (policy.N),
+> > - the module policy package file (.pp files),
+> > - the binary module file (.mod files, and these come in two flavors -
+> > base and non-base).
+> >
+> > base.pp is a module policy package file containing a binary module
+> > (.mod) file, a file contexts (.fc) file, and potentially other
+> > components (e.g. seusers, users_extra).
+> >
+> > So don't confuse the module policy package file with a module file - the
+> > module policy package file has its own header before the module file.
+>
+> So, to be precise, we've got the following format for the module policy
+> package file:
+> module package magic number (different from the module magic number)
+> module package format version (different from the module format version)
+> number of sections
+> offset array, indexed by section number
+> binary module (with its own header)
+> any other sections (file contexts, etc)
+>
+> Note that the offset array is variable length - it will be the number of
+> sections * sizeof uint32.
 
-> 
-> On Tue, 2008-04-01 at 13:24 -0400, Eric Paris wrote:
-> > Convert the strings used for mount options into #defines rather than
-> > retyping the string throughout the SELinux code.
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+This is where things start to become tricky, magic(5) doesn't support arrays.  
+I could probably handle this with nested if statements for a reasonable 
+number (it seems that we generally don't have that many).
 
-Applied to 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+> And note that the order of sections isn't necessarily fixed, although
+> the current module package writing code always puts the binary module
+> first.  But the read code doesn't make any assumptions about ordering
+> and just determines what each section is as it encounters it.
 
-> 
-> Possibly as a follow up, one could simplify or wrap the match_prefix()
-> interface to be a macro that only required the string to be specified
-> once to avoid inconsistency in the prefix and plen arguments.
-> 
-> > 
-> > ---
-> > 
-> > security/selinux/hooks.c            |   16 ++++++++--------
-> >  security/selinux/include/security.h |    5 +++++
-> >  2 files changed, 13 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 41a049f..d6aa4a6 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -324,10 +324,10 @@ enum {
-> >  };
-> >  
-> >  static match_table_t tokens = {
-> > -	{Opt_context, "context=%s"},
-> > -	{Opt_fscontext, "fscontext=%s"},
-> > -	{Opt_defcontext, "defcontext=%s"},
-> > -	{Opt_rootcontext, "rootcontext=%s"},
-> > +	{Opt_context, CONTEXT_STR "%s"},
-> > +	{Opt_fscontext, FSCONTEXT_STR "%s"},
-> > +	{Opt_defcontext, DEFCONTEXT_STR "%s"},
-> > +	{Opt_rootcontext, ROOTCONTEXT_STR "%s"},
-> >  	{Opt_error, NULL},
-> >  };
-> >  
-> > @@ -2232,10 +2232,10 @@ static inline int match_prefix(char *prefix, int plen, char *option, int olen)
-> >  
-> >  static inline int selinux_option(char *option, int len)
-> >  {
-> > -	return (match_prefix("context=", sizeof("context=")-1, option, len) ||
-> > -	        match_prefix("fscontext=", sizeof("fscontext=")-1, option, len) ||
-> > -	        match_prefix("defcontext=", sizeof("defcontext=")-1, option, len) ||
-> > -		match_prefix("rootcontext=", sizeof("rootcontext=")-1, option, len));
-> > +	return (match_prefix(CONTEXT_STR, sizeof(CONTEXT_STR)-1, option, len) ||
-> > +		match_prefix(FSCONTEXT_STR, sizeof(FSCONTEXT_STR)-1, option, len) ||
-> > +		match_prefix(DEFCONTEXT_STR, sizeof(DEFCONTEXT_STR)-1, option, len) ||
-> > +		match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len));
-> >  }
-> >  
-> >  static inline void take_option(char **to, char *from, int *first, int len)
-> > diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> > index f7d2f03..63e0171 100644
-> > --- a/security/selinux/include/security.h
-> > +++ b/security/selinux/include/security.h
-> > @@ -40,6 +40,11 @@
-> >  #define ROOTCONTEXT_MNT	0x04
-> >  #define DEFCONTEXT_MNT	0x08
-> >  
-> > +#define CONTEXT_STR	"context="
-> > +#define FSCONTEXT_STR	"fscontext="
-> > +#define ROOTCONTEXT_STR	"rootcontext="
-> > +#define DEFCONTEXT_STR	"defcontext="
-> > +
-> >  struct netlbl_lsm_secattr;
-> >  
-> >  extern int selinux_enabled;
-> > 
-> 
+My current effort just gives information on the first one, the binary seems to 
+be the most interesting one (if for example qmail.pp 
+becomes /lost+found/#1234 then having the string "qmail\5" be displayed would 
+be helpful).
+
+> One other fun tidbit - in libsepol 2.0.23, I changed the policy reading
+> code to accept either "Flask" or "SE Linux" as the string identifier as
+> other projects, like Solaris FMAC, are using "Flask" as the string
+> identifier as a more general specifier.  So it would be nice if file(1)
+> ultimately accepted either as well.
+
+Given that we already have hex magic numbers to recognise the various 
+structures and that the most desirable way for humans to recognise file types 
+is via file(1), what is the benefit of having either "SE Linux" or "Flask" in 
+there?
+
+Would it be possible to just accept that for the current version of the file 
+format "SE Linux" will be contained in there and not bother about this?  It's 
+no secret that the Flask code was not originally developed for Solaris.
+
+Eventually we just have to lose some data from file(1) output when these 
+situations arise, I suspect that we have already reached the stage where we 
+exceed the flexibility of the magic(5) configuration language.  It may be 
+that on the Linux platform we just get the wrong data from other platforms.
+
+It seems that there are ongoing plans for new file formats.  Could we agree 
+that getting things to work with file(1) will be a pre-requisite for future 
+file formats?
 
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
