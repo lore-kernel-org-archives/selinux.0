@@ -1,173 +1,84 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m340HUo7005374
-	for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2008 20:17:30 -0400
-Received: from dmzmta103.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m340HP66026640
-	for <selinux@tycho.nsa.gov>; Fri, 4 Apr 2008 00:17:29 GMT
-Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
-	by dmzmta103.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m33N57Y0001823
-	for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2008 19:05:07 -0400
-Received: from blums0008.bluelnk.net (blums0008.sd.gd.com [134.120.81.40])
-	by usdmta002.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m33N5AOE032143
-	for <selinux@tycho.nsa.gov>; Thu, 3 Apr 2008 19:05:10 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m34AHTWo003242
+	for <selinux@tycho.nsa.gov>; Fri, 4 Apr 2008 06:17:29 -0400
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m34AHNVR001483
+	for <selinux@tycho.nsa.gov>; Fri, 4 Apr 2008 10:17:24 GMT
+Date: Fri, 4 Apr 2008 21:16:06 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+cc: fedora-selinux-list@redhat.com, fmac-discuss@opensolaris.org,
+        ubuntu-hardened@lists.ubuntu.com, gentoo-hardened@lists.gentoo.org,
+        selinux-devel@lists.alioth.debian.org
+Subject: ANN: 2008 SELinux Developer Summit CFP
+Message-ID: <Xine.LNX.4.64.0804042114060.29760@us.intercode.com.au>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----_=_NextPart_001_01C895DF.4B0AA2B4"
-Subject: Audit2allow + allow rule for 'granted' access
-Date: Thu, 3 Apr 2008 16:06:04 -0700
-Message-ID: <4AE25A7D8CBE4E4DA8E87173237DE27E8B95@blums0042.bluelnk.net>
-From: "Karrels, Jeffrey J \(US SSA\)" <jeffrey.karrels@baesystems.com>
-To: <selinux@tycho.nsa.gov>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+---------------------------------------------------------------------------
+2008 SELinux Developer Summit Call For Participation (CFP)
+---------------------------------------------------------------------------
 
-------_=_NextPart_001_01C895DF.4B0AA2B4
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
+The call for participation for the 2008 SELinux Developer Summit is now
+open.  The summit will be held July 22nd in Ottawa.  See the original
+announcement[1] for the summit and the summit wiki page[2] for background
+about the summit and summaries of prior summits.  Note that all attendees of
+the mini-summit must be registered as attendees of the Linux Symposium [3].
 
-Not that this is a big deal, but is there a way to stop audit2allow from
-processing and creating rules for audits that are 'granted'?=20
+The focus of this year's summit will be usability and infrastructure.
+Usability topics of interest include (but are not limited to) policy
+development, administration, and desktop integration.  Infrastructure topics
+of interest include (but are not limited to) embedded systems, label
+translation, userspace object managers, network filesystems, and labeled
+networking.
 
-=20
+Other topics relating to SELinux technology, flexible mandatory access
+control, and its application to real-world problems are also of interest for
+this symposium. Such topics might include:
 
-I turned on auditing for a couple of rules so I can keep an eye on
-domain transitions. That creates some entries in the audit log such as:
-"avc:  granted  { transition } for  pid=3D3409 ".=20
+    * Updates on the various Linux distributions using SELinux
+    * Flexible MAC in other operating systems
+    * Case studies and application experience with flexible MAC
+    * User and customer concerns and needs
 
-=20
+Forms of participation include:
 
-When I run audit2allow on that entry, audit2allow creates a rule for
-that entry as if the entry were a 'denied' rather than a 'granted'. It
-came into being an issue when I was ignoring the allow transition
-entries, and there was an actual 'denied' audit (hidden amongst the
-granted transitions [for mls reasons]) that I was not catching when
-manually going through the logs.
+    * Technical presentations (20-30 minutes each, papers are optional)
+    * Discussions (submitter acts as facilitator)
+    * Panels (submitter acts as moderator)
+    * Lightning talks (work-in-progress reports)
 
-=20
+No marketing pitches will be accepted.
 
-Thanks again
+Proposals may be sent to the organizing team at:
 
-Jeff
+    selinux-summit-team AT namei.org
 
-=20
+In your proposal, please identify the form of participation, the amount of
+time you expect to need, and a title and abstract describing the topic you
+wish to cover.
 
- =20
+If you wish to attend the summit without presenting, please also send a
+notification of your intent to attend to the organizing team at the above
+alias.
 
+** Whether presenting or just attending, you must register for the Linux
+Symposium[3] in order to attend the SELinux Developer Summit. **
 
-------_=_NextPart_001_01C895DF.4B0AA2B4
-Content-Type: text/html;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
+This CFP will end on April 18.  Participants will be notified by April 25,
+and the schedule will be published on April 02.
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
+[1] SELinux Summit announcement, http://marc.info/?l=selinux&m=120716549912011&w=2
+[2] SELinux Summit wiki page, http://selinuxproject.org/page/Developer_Summit_2008
+[3] Linux Symposium, http://www.linuxsymposium.org/2008/
 
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+----------------------------------------------------------------------------
 
-</head>
-
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
-
-<div class=3DSection1>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Not that this is a big deal, but is there a way to =
-stop
-audit2allow from processing and creating rules for audits that are =
-&#8216;granted&#8217;?
-<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>I turned on auditing for a couple of rules so I can =
-keep an
-eye on domain transitions. That creates some entries in the audit log =
-such as: &#8220;avc:&nbsp;
-granted&nbsp; { transition } for&nbsp; pid=3D3409 &#8221;. =
-<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>When I run audit2allow on that entry, audit2allow =
-creates a
-rule for that entry as if the entry were a &#8216;denied&#8217; rather =
-than a &#8216;granted&#8217;.
-It came into being an issue when I was ignoring the allow transition =
-entries,
-and there was an actual &#8216;denied&#8217; audit (hidden amongst the =
-granted
-transitions [for mls reasons]) that I was not catching when manually =
-going
-through the logs.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Thanks again<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Jeff<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>&nbsp; <o:p></o:p></span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------_=_NextPart_001_01C895DF.4B0AA2B4--
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
