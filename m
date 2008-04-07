@@ -1,41 +1,36 @@
-Subject: Re: mcstransd
+Subject: Re: dpkg bug related to SE Linux
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200804071413.20072.russell@coker.com.au>
-References: <200804071413.20072.russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
+        Manoj Srivastava <manoj.srivastava@stdc.com>
+In-Reply-To: <200804051347.55320.russell@coker.com.au>
+References: <200804051347.55320.russell@coker.com.au>
 Content-Type: text/plain
-Date: Mon, 07 Apr 2008 11:58:34 -0400
-Message-Id: <1207583914.21223.29.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 07 Apr 2008 12:48:55 -0400
+Message-Id: <1207586935.21223.40.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 2008-04-07 at 15:13 +1100, Russell Coker wrote:
-> Is there a plan for a mlstransd daemon?  If there is no plan for a different 
-> daemon for translating MLS contexts then this should be renamed to senstransd 
-> or something similar.
+On Sat, 2008-04-05 at 13:47 +1100, Russell Coker wrote:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474339
+> 
+> When the file_contexts file has an invalid context then dpkg will crash, see 
+> the above bug report.
+> 
+> dpkg is statically linked against libselinux.
 
-We're looking into getting the MITRE label encoding library released so
-that it can be used as the core of a mlstransd.
+Can you reproduce with a simpler caller, e.g. compile matchpathcon from
+libselinux/utils statically and run it on your corrupted file_contexts
+file, passing in a pathname that will match the invalid line?
 
-> Also the man page mcs.8 (which incidentally needs the following patch) 
-> probably belongs somewhere else.  We need a mls.8 as well, and a man page for 
-> mcstransd (which I'll write soon).
-> 
-> --- mcstrans-0.2.7.orig/man/man8/mcs.8
-> +++ mcstrans-0.2.7/man/man8/mcs.8
-> @@ -20,7 +20,7 @@
->  Certain applications like printing and auditing will use these labels to
->  identify the files.  By setting a category on a file you will prevent
->  other applications/services from having access to the files.
-> -.p
-> +.P
->  Examples of file lables would be PatientRecord, CompanyConfidential etc.
-> 
->  .SH "SEE ALSO"
-> 
+I wasn't able to reproduce the bug myself.
+
+libselinux does rely on its constructors having run before any functions
+are called.  dpkg isn't built in such a way as to suppress constructor
+execution, is it?  What options are passed to gcc when compiling dpkg?
+
 -- 
 Stephen Smalley
 National Security Agency
