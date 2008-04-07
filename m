@@ -1,43 +1,55 @@
-Subject: Re: dpkg bug related to SE Linux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>,
-        Manoj Srivastava <manoj.srivastava@stdc.com>
-In-Reply-To: <1207586935.21223.40.camel@moss-spartans.epoch.ncsc.mil>
-References: <200804051347.55320.russell@coker.com.au>
-	 <1207586935.21223.40.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Mon, 07 Apr 2008 12:55:15 -0400
-Message-Id: <1207587315.21223.50.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: Audit2allow + allow rule for 'granted' access
+Date: Mon, 7 Apr 2008 08:41:56 -0700
+Message-ID: <4AE25A7D8CBE4E4DA8E87173237DE27E7E50@blums0042.bluelnk.net>
+From: "Karrels, Jeffrey J \(US SSA\)" <jeffrey.karrels@baesystems.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>, "Daniel J Walsh" <dwalsh@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+policycoreutils-1.33.12-12.el5
 
-On Mon, 2008-04-07 at 12:48 -0400, Stephen Smalley wrote:
-> On Sat, 2008-04-05 at 13:47 +1100, Russell Coker wrote:
-> > http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474339
-> > 
-> > When the file_contexts file has an invalid context then dpkg will crash, see 
-> > the above bug report.
-> > 
-> > dpkg is statically linked against libselinux.
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> Sent: Friday, April 04, 2008 5:05 AM
+> To: Karrels, Jeffrey J (US SSA)
+> Cc: selinux@tycho.nsa.gov; Daniel J Walsh
+> Subject: Re: Audit2allow + allow rule for 'granted' access
 > 
-> Can you reproduce with a simpler caller, e.g. compile matchpathcon from
-> libselinux/utils statically and run it on your corrupted file_contexts
-> file, passing in a pathname that will match the invalid line?
 > 
-> I wasn't able to reproduce the bug myself.
+> On Thu, 2008-04-03 at 16:06 -0700, Karrels, Jeffrey J (US SSA) wrote:
+> > Not that this is a big deal, but is there a way to stop audit2allow
+> > from processing and creating rules for audits that are 'granted'?
+> >
+> >
+> >
+> > I turned on auditing for a couple of rules so I can keep an eye on
+> > domain transitions. That creates some entries in the audit log such
+> > as: "avc:  granted  { transition } for  pid=3409 ".
+> >
+> >
+> >
+> > When I run audit2allow on that entry, audit2allow creates a rule for
+> > that entry as if the entry were a 'denied' rather than a 'granted'.
+It
+> > came into being an issue when I was ignoring the allow transition
+> > entries, and there was an actual 'denied' audit (hidden amongst the
+> > granted transitions [for mls reasons]) that I was not catching when
+> > manually going through the logs.
 > 
-> libselinux does rely on its constructors having run before any functions
-> are called.  dpkg isn't built in such a way as to suppress constructor
-> execution, is it?  What options are passed to gcc when compiling dpkg?
+> That's a bug.  What version of policycoreutils?  Fixed upstream
+already,
+> I believe, so bugzilla it against RHEL.
+> 
+> --
+> Stephen Smalley
+> National Security Agency
+> 
 
-Oh, and what version of libselinux and libsepol was dpkg built against?
 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
