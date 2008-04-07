@@ -1,99 +1,48 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m37N6pOw003033
+	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2008 19:06:51 -0400
+Received: from web36603.mail.mud.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m37N6pZK015623
+	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2008 23:06:51 GMT
+Date: Mon, 7 Apr 2008 16:05:11 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: mcstransd
+To: Stephen Smalley <sds@tycho.nsa.gov>, russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <1207583914.21223.29.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: Audit2allow + allow rule for 'granted' access
-Date: Mon, 7 Apr 2008 13:47:58 -0700
-Message-ID: <4AE25A7D8CBE4E4DA8E87173237DE27E7E54@blums0042.bluelnk.net>
-From: "Karrels, Jeffrey J \(US SSA\)" <jeffrey.karrels@baesystems.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>, "Daniel J Walsh" <dwalsh@redhat.com>
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <85213.40548.qm@web36603.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Bugzilla Bug 441402: audit2allow parses 'granted' audit entries like
-they were 'denied'
 
+--- Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> -----Original Message-----
-> From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> Sent: Monday, April 07, 2008 1:21 PM
-> To: Karrels, Jeffrey J (US SSA)
-> Cc: selinux@tycho.nsa.gov; Daniel J Walsh
-> Subject: RE: Audit2allow + allow rule for 'granted' access
 > 
+> On Mon, 2008-04-07 at 15:13 +1100, Russell Coker wrote:
+> > Is there a plan for a mlstransd daemon?  If there is no plan for a
+> different 
+> > daemon for translating MLS contexts then this should be renamed to
+> senstransd 
+> > or something similar.
 > 
-> On Mon, 2008-04-07 at 08:41 -0700, Karrels, Jeffrey J (US SSA) wrote:
-> > policycoreutils-1.33.12-12.el5
-> 
-> Ok, file a bugzilla against it, please.
-> Dan will have to extract the bug fix from sepolgen upstream and back
-> port it.
-> 
-> >
-> > > -----Original Message-----
-> > > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> > > Sent: Friday, April 04, 2008 5:05 AM
-> > > To: Karrels, Jeffrey J (US SSA)
-> > > Cc: selinux@tycho.nsa.gov; Daniel J Walsh
-> > > Subject: Re: Audit2allow + allow rule for 'granted' access
-> > >
-> > >
-> > > On Thu, 2008-04-03 at 16:06 -0700, Karrels, Jeffrey J (US SSA)
-wrote:
-> > > > Not that this is a big deal, but is there a way to stop
-audit2allow
-> > > > from processing and creating rules for audits that are
-'granted'?
-> > > >
-> > > >
-> > > >
-> > > > I turned on auditing for a couple of rules so I can keep an eye
-on
-> > > > domain transitions. That creates some entries in the audit log
-such
-> > > > as: "avc:  granted  { transition } for  pid=3409 ".
-> > > >
-> > > >
-> > > >
-> > > > When I run audit2allow on that entry, audit2allow creates a rule
-for
-> > > > that entry as if the entry were a 'denied' rather than a
-'granted'.
-> > It
-> > > > came into being an issue when I was ignoring the allow
-transition
-> > > > entries, and there was an actual 'denied' audit (hidden amongst
-the
-> > > > granted transitions [for mls reasons]) that I was not catching
-when
-> > > > manually going through the logs.
-> > >
-> > > That's a bug.  What version of policycoreutils?  Fixed upstream
-> > already,
-> > > I believe, so bugzilla it against RHEL.
-> > >
-> > > --
-> > > Stephen Smalley
-> > > National Security Agency
-> > >
-> >
-> >
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing
-list.
-> > If you no longer wish to subscribe, send mail to
-majordomo@tycho.nsa.gov
-> with
-> > the words "unsubscribe selinux" without quotes as the message.
-> --
-> Stephen Smalley
-> National Security Agency
-> 
+> We're looking into getting the MITRE label encoding library released so
+> that it can be used as the core of a mlstransd.
+
+Oh my. I do hope that you will have spoken with people
+who have worked professionally with that code prior to
+committing to that plan. During the CMW days the MITRE
+label encoding facility raised much concern with its
+level of complexity. There were also concerns raised
+about the code on 2 of the 3 B1 evaluations that used
+it. You may decide to use it anyway, but do be careful.
 
 
 
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
