@@ -1,44 +1,67 @@
-Subject: Re: dpkg bug related to SE Linux
+Subject: Re: upstart/SELinux problem loading the wrong policy with kernel
+	version change
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>,
-        Manoj Srivastava <manoj.srivastava@stdc.com>, 474339@bugs.debian.org
-In-Reply-To: <200804080930.13447.russell@coker.com.au>
-References: <200804051347.55320.russell@coker.com.au>
-	 <1207586935.21223.40.camel@moss-spartans.epoch.ncsc.mil>
-	 <1207587315.21223.50.camel@moss-spartans.epoch.ncsc.mil>
-	 <200804080930.13447.russell@coker.com.au>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <47FACB0F.5050208@redhat.com>
+References: <47FACB0F.5050208@redhat.com>
 Content-Type: text/plain
-Date: Tue, 08 Apr 2008 08:23:23 -0400
-Message-Id: <1207657403.21223.232.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 08 Apr 2008 08:54:21 -0400
+Message-Id: <1207659261.21223.261.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-04-08 at 10:30 +1100, Russell Coker wrote:
-> On Tuesday 08 April 2008 02:55, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On Mon, 2008-04-07 at 12:48 -0400, Stephen Smalley wrote:
-> > > On Sat, 2008-04-05 at 13:47 +1100, Russell Coker wrote:
-> > > > http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474339
-> > > >
-> > > > When the file_contexts file has an invalid context then dpkg will
-> > > > crash, see the above bug report.
-> > > >
-> > > > dpkg is statically linked against libselinux.
-> > >
-> > > Can you reproduce with a simpler caller, e.g. compile matchpathcon from
-> > > libselinux/utils statically and run it on your corrupted file_contexts
-> > > file, passing in a pathname that will match the invalid line?
+On Mon, 2008-04-07 at 21:31 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Restorecon doesn't have this problem, neither when dynamically nor statically 
-> linked.
+> If you have a kernel that supports policy.21 and a tool chain that
+> supports policy.22 newer versions of policy and semanage changes will
+> update policy.22.  However if there is a policy.21 around upstart will
+> load this on a reboot.  (I guess init would have done the same.)
 
-In that case, I'd recommend looking more closely at the dpkg selinux
-code itself rather than libselinux.  For example, does dpkg try to free
-the context from matchpathcon() upon an error return?  That would be a
-bug in it rather than libselinux.  Or is dpkg double free'ing a returned
-context?
+No, init wouldn't have done the same, because init (in Fedora and RHEL)
+is dynamically linked and thus picks up the latest libsepol each time.
+
+> If the policy.21 does not exist libselinux will grab the highest policy
+> version and try to load it.
+
+No, libselinux presently always starts from the latest version supported
+by libsepol and works its way downwards.  But it will not look for any
+newer version than the one supported by libsepol, which is why you are
+having a problem.  And that is because it historically needed libsepol
+support to do any of the following:
+- patch in the current boolean values,
+- patch in local user definitions,
+- downgrade the policy to a version supported by the kernel.
+
+The first two are obsolete but not the last.
+
+> This is causing unlabeled_t files to be showing up.  Basically if I
+> install a new policy with a new type, and then assign the context to a
+> file, the next reboot will cause the file to be labeled unlabeled_t.
+> 
+> I suggest that we either remove policy versioning all together, or
+> change libselinux to default to loading the highest policy version.
+> Either way the current loading of policy is broken.
+
+Per Chad, they don't have this problem in Ubuntu because they just have
+a shell script in the initrd that chroot's to the real root and runs
+load_policy from there, thereby picking up the latest libsepol from the
+real root filesystem.  So Fedora only has a problem because it patches
+nash directly and thus brings in a libsepol dependency into the initrd.
+
+We have to consider the implications of any change in the current
+behavior on existing systems too.  Suppose that libselinux was changed
+to start with the max(kernelversion,libsepolversion) and then probe
+downward from there.  That would find the newer policy files when they
+are supported by the kernel.  However, it would then be unable to patch
+in boolean or user values into those policies since libsepol wouldn't
+understand them.  Which could potentially break RHEL 4 systems.
+Although one should never have more than one policy file there, right?
 
 -- 
 Stephen Smalley
