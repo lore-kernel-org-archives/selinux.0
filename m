@@ -7,8 +7,8 @@ In-Reply-To: <20080407231101.8052.68591.stgit@flek.lan>
 References: <20080407230647.8052.79603.stgit@flek.lan>
 	 <20080407231101.8052.68591.stgit@flek.lan>
 Content-Type: text/plain
-Date: Tue, 08 Apr 2008 10:38:57 -0400
-Message-Id: <1207665537.21223.305.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 08 Apr 2008 10:43:44 -0400
+Message-Id: <1207665824.21223.311.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -21,11 +21,6 @@ On Mon, 2008-04-07 at 19:11 -0400, Paul Moore wrote:
 > of the kernel's existing string processing functions is a good idea as many
 > architectures have specialized/optimized routines which should be an
 > improvement over the generic code in the SELinux security server.
-
-Needs to be re-based for the recent GFP_NOFS changes,
-http://marc.info/?t=120716967100004&r=1&w=2
-http://marc.info/?l=git-commits-head&m=120762715428197&w=2
-
 > 
 > Signed-off-by: Paul Moore <paul.moore@hp.com>
 > ---
@@ -34,336 +29,7 @@ http://marc.info/?l=git-commits-head&m=120762715428197&w=2
 >  security/selinux/ss/mls.h      |    3 -
 >  security/selinux/ss/services.c |  188 ++++++++++++++++------------------------
 >  3 files changed, 99 insertions(+), 153 deletions(-)
-> 
-> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-> index feaf0a5..ba211b4 100644
-> --- a/security/selinux/ss/mls.c
-> +++ b/security/selinux/ss/mls.c
-> @@ -239,8 +239,7 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
->   * Policy read-lock must be held for sidtab lookup.
->   *
->   */
-> -int mls_context_to_sid(char oldc,
-> -		       char **scontext,
-> +int mls_context_to_sid(char **scontext,
->  		       struct context *context,
->  		       struct sidtab *s,
->  		       u32 def_sid)
-> @@ -250,10 +249,10 @@ int mls_context_to_sid(char oldc,
->  	char *scontextp, *p, *rngptr;
->  	struct level_datum *levdatum;
->  	struct cat_datum *catdatum, *rngdatum;
-> -	int l, rc = -EINVAL;
-> +	int l, rc;
->  
->  	if (!selinux_mls_enabled) {
-> -		if (def_sid != SECSID_NULL && oldc)
-> +		if (def_sid != SECSID_NULL && *scontext && **scontext)
->  			*scontext += strlen(*scontext)+1;
->  		return 0;
->  	}
-> @@ -262,18 +261,17 @@ int mls_context_to_sid(char oldc,
->  	 * No MLS component to the security context, try and map to
->  	 * default if provided.
->  	 */
-> -	if (!oldc) {
-> +	if (!(*scontext) || !(**scontext)) {
->  		struct context *defcon;
->  
->  		if (def_sid == SECSID_NULL)
-> -			goto out;
-> +			return -EINVAL;
->  
->  		defcon = sidtab_search(s, def_sid);
->  		if (!defcon)
-> -			goto out;
-> +			return -EINVAL;
->  
-> -		rc = mls_context_cpy(context, defcon);
-> -		goto out;
-> +		return mls_context_cpy(context, defcon);
->  	}
->  
->  	/* Extract low sensitivity. */
-> @@ -287,10 +285,8 @@ int mls_context_to_sid(char oldc,
->  
->  	for (l = 0; l < 2; l++) {
->  		levdatum = hashtab_search(policydb.p_levels.table, scontextp);
-> -		if (!levdatum) {
-> -			rc = -EINVAL;
-> -			goto out;
-> -		}
-> +		if (!levdatum)
-> +			return -EINVAL;
->  
->  		context->range.level[l].sens = levdatum->level->sens;
->  
-> @@ -312,35 +308,29 @@ int mls_context_to_sid(char oldc,
->  
->  				catdatum = hashtab_search(policydb.p_cats.table,
->  				                          scontextp);
-> -				if (!catdatum) {
-> -					rc = -EINVAL;
-> -					goto out;
-> -				}
-> +				if (!catdatum)
-> +					return -EINVAL;
->  
->  				rc = ebitmap_set_bit(&context->range.level[l].cat,
->  				                     catdatum->value - 1, 1);
->  				if (rc)
-> -					goto out;
-> +					return rc;
->  
->  				/* If range, set all categories in range */
->  				if (rngptr) {
->  					int i;
->  
->  					rngdatum = hashtab_search(policydb.p_cats.table, rngptr);
-> -					if (!rngdatum) {
-> -						rc = -EINVAL;
-> -						goto out;
-> -					}
-> +					if (!rngdatum)
-> +						return -EINVAL;
->  
-> -					if (catdatum->value >= rngdatum->value) {
-> -						rc = -EINVAL;
-> -						goto out;
-> -					}
-> +					if (catdatum->value >= rngdatum->value)
-> +						return -EINVAL;
->  
->  					for (i = catdatum->value; i < rngdatum->value; i++) {
->  						rc = ebitmap_set_bit(&context->range.level[l].cat, i, 1);
->  						if (rc)
-> -							goto out;
-> +							return rc;
->  					}
->  				}
->  
-> @@ -366,12 +356,10 @@ int mls_context_to_sid(char oldc,
->  		rc = ebitmap_cpy(&context->range.level[1].cat,
->  				 &context->range.level[0].cat);
->  		if (rc)
-> -			goto out;
-> +			return rc;
->  	}
->  	*scontext = ++p;
-> -	rc = 0;
-> -out:
-> -	return rc;
-> +	return 0;
->  }
->  
->  /*
-> @@ -391,13 +379,10 @@ int mls_from_string(char *str, struct context *context, gfp_t gfp_mask)
->  	/* we need freestr because mls_context_to_sid will change
->  	   the value of tmpstr */
->  	tmpstr = freestr = kstrdup(str, gfp_mask);
-> -	if (!tmpstr) {
-> -		rc = -ENOMEM;
-> -	} else {
-> -		rc = mls_context_to_sid(':', &tmpstr, context,
-> -		                        NULL, SECSID_NULL);
-> -		kfree(freestr);
-> -	}
-> +	if (!tmpstr)
-> +		return -ENOMEM;
-> +	rc = mls_context_to_sid(&tmpstr, context, NULL, SECSID_NULL);
-> +	kfree(freestr);
->  
->  	return rc;
->  }
-> diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-> index ab53663..b364f61 100644
-> --- a/security/selinux/ss/mls.h
-> +++ b/security/selinux/ss/mls.h
-> @@ -30,8 +30,7 @@ int mls_context_isvalid(struct policydb *p, struct context *c);
->  int mls_range_isvalid(struct policydb *p, struct mls_range *r);
->  int mls_level_isvalid(struct policydb *p, struct mls_level *l);
->  
-> -int mls_context_to_sid(char oldc,
-> -	               char **scontext,
-> +int mls_context_to_sid(char **scontext,
->  		       struct context *context,
->  		       struct sidtab *s,
->  		       u32 def_sid);
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index f374186..c9943ca 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -573,47 +573,42 @@ out:
->  	return rc;
->  }
->  
-> -/*
-> - * Write the security context string representation of
-> - * the context structure `context' into a dynamically
-> - * allocated string of the correct size.  Set `*scontext'
-> - * to point to this string and set `*scontext_len' to
-> - * the length of the string.
-> +/**
-> + * context_struct_to_string - Generate a string representation of a context
-> + * @context: native security context
-> + * @scontext: security context string
-> + * @scontext_len: length of security context string
-> + *
-> + * Description:
-> + * Write the security context string representation of @context into
-> + * @scontext.  The caller must free @scontext when finished.  Returns zero on
-> + * success, negative values on failure.
-> + *
->   */
->  static int context_struct_to_string(struct context *context, char **scontext, u32 *scontext_len)
->  {
-> -	char *scontextp;
-> +	char *ctx;
->  
-> -	*scontext = NULL;
-> -	*scontext_len = 0;
-> -
-> -	/* Compute the size of the context. */
-> -	*scontext_len += strlen(policydb.p_user_val_to_name[context->user - 1]) + 1;
-> -	*scontext_len += strlen(policydb.p_role_val_to_name[context->role - 1]) + 1;
-> -	*scontext_len += strlen(policydb.p_type_val_to_name[context->type - 1]) + 1;
-> -	*scontext_len += mls_compute_context_len(context);
-> +	*scontext_len = strlen(policydb.p_user_val_to_name[context->user - 1]) +
-> +		strlen(policydb.p_role_val_to_name[context->role - 1]) +
-> +		strlen(policydb.p_type_val_to_name[context->type - 1]) +
-> +		mls_compute_context_len(context) + 3;
->  
->  	/* Allocate space for the context; caller must free this space. */
-> -	scontextp = kmalloc(*scontext_len, GFP_ATOMIC);
-> -	if (!scontextp) {
-> +	*scontext = kmalloc(*scontext_len, GFP_ATOMIC);
-> +	if (!*scontext) {
-> +		*scontext_len = 0;
->  		return -ENOMEM;
->  	}
-> -	*scontext = scontextp;
->  
-> -	/*
-> -	 * Copy the user name, role name and type name into the context.
-> -	 */
-> -	sprintf(scontextp, "%s:%s:%s",
-> -		policydb.p_user_val_to_name[context->user - 1],
-> -		policydb.p_role_val_to_name[context->role - 1],
-> -		policydb.p_type_val_to_name[context->type - 1]);
-> -	scontextp += strlen(policydb.p_user_val_to_name[context->user - 1]) +
-> -	             1 + strlen(policydb.p_role_val_to_name[context->role - 1]) +
-> -	             1 + strlen(policydb.p_type_val_to_name[context->type - 1]);
-> -
-> -	mls_sid_to_context(context, &scontextp);
-> -
-> -	*scontextp = 0;
-> +	ctx = *scontext;
-> +	strcpy(ctx, policydb.p_user_val_to_name[context->user - 1]);
-> +	strcat(ctx, ":");
-> +	strcat(ctx, policydb.p_role_val_to_name[context->role - 1]);
-> +	strcat(ctx, ":");
-> +	strcat(ctx, policydb.p_type_val_to_name[context->type - 1]);
-> +	ctx += strlen(ctx);
-> +	mls_sid_to_context(context, &ctx);
->  
->  	return 0;
->  }
-> @@ -640,68 +635,61 @@ const char *security_get_initial_sid_context(u32 sid)
->  int security_sid_to_context(u32 sid, char **scontext, u32 *scontext_len)
->  {
->  	struct context *context;
-> -	int rc = 0;
-> -
-> -	*scontext = NULL;
-> -	*scontext_len  = 0;
-> +	int rc;
->  
->  	if (!ss_initialized) {
-> -		if (sid <= SECINITSID_NUM) {
-> -			char *scontextp;
-> -
-> -			*scontext_len = strlen(initial_sid_to_string[sid]) + 1;
-> -			scontextp = kmalloc(*scontext_len,GFP_ATOMIC);
-> -			if (!scontextp) {
-> -				rc = -ENOMEM;
-> -				goto out;
-> -			}
-> -			strcpy(scontextp, initial_sid_to_string[sid]);
-> -			*scontext = scontextp;
-> -			goto out;
-> +		if (sid > SECINITSID_NUM) {
-> +			printk(KERN_ERR
-> +			       "security_sid_to_context:  called before "
-> +			       "initial load_policy on unknown SID %d\n", sid);
-> +			goto err;
->  		}
-> -		printk(KERN_ERR "security_sid_to_context:  called before initial "
-> -		       "load_policy on unknown SID %d\n", sid);
-> -		rc = -EINVAL;
-> -		goto out;
-> +		*scontext = kstrdup(initial_sid_to_string[sid], GFP_ATOMIC);
-> +		if (*scontext == NULL)
-> +			return -ENOMEM;
-> +		*scontext_len = strlen(*scontext) + 1;
-> +		return 0;
->  	}
-> +
->  	POLICY_RDLOCK;
->  	context = sidtab_search(&sidtab, sid);
->  	if (!context) {
-> -		printk(KERN_ERR "security_sid_to_context:  unrecognized SID "
-> -		       "%d\n", sid);
-> -		rc = -EINVAL;
-> -		goto out_unlock;
-> +		POLICY_RDUNLOCK;
-> +		printk(KERN_ERR
-> +		       "security_sid_to_context:  unrecognized SID %d\n", sid);
-> +		goto err;
->  	}
->  	rc = context_struct_to_string(context, scontext, scontext_len);
-> -out_unlock:
->  	POLICY_RDUNLOCK;
-> -out:
->  	return rc;
->  
-> +err:
-> +	*scontext = NULL;
-> +	*scontext_len = 0;
-> +	return -EINVAL;
->  }
->  
->  static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *sid, u32 def_sid)
->  {
-> -	char *scontext2;
-> +	char *scontext_dup, *scontext_iter, *scontext_next;
->  	struct context context;
-> -	struct role_datum *role;
-> +	struct role_datum *roledatum;
->  	struct type_datum *typdatum;
->  	struct user_datum *usrdatum;
-> -	char *scontextp, *p, oldc;
-> -	int rc = 0;
-> +	int rc = -EINVAL;
->  
->  	if (!ss_initialized) {
->  		int i;
->  
-> -		for (i = 1; i < SECINITSID_NUM; i++) {
-> +		for (i = 1; i < SECINITSID_NUM; i++)
->  			if (!strcmp(initial_sid_to_string[i], scontext)) {
->  				*sid = i;
-> -				goto out;
-> +				return 0;
->  			}
-> -		}
->  		*sid = SECINITSID_KERNEL;
-> -		goto out;
-> +		return 0;
->  	}
-> +
->  	*sid = SECSID_NULL;
->  
->  	/* Copy the string so that we can modify the copy as we parse it.
+
 > @@ -709,73 +697,46 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len, u32 *s
 >  	   null suffix to the copy to avoid problems with the existing
 >  	   attr package, which doesn't view the null terminator as part
@@ -376,9 +42,18 @@ http://marc.info/?l=git-commits-head&m=120762715428197&w=2
 > -	memcpy(scontext2, scontext, scontext_len);
 > -	scontext2[scontext_len] = 0;
 > +	scontext_dup = kmemdup(scontext, scontext_len + 1, GFP_KERNEL);
+
+Also, in addition to the gfp_flags change, I'm not clear that the above
+change is correct.  We are taking a byte array "scontext" of length
+"scontext_len" and copying it into a buffer of length "scontext_len+1"
+so that we can ensure that it is NUL terminated prior to parsing.  Won't
+kmemdup with scontext_len+1 ultimately run off the end of the original
+string?
+
 > +	if (!scontext_dup)
 > +		return -ENOMEM;
 > +	scontext_dup[scontext_len] = 0;
+
 >  
 >  	context_init(&context);
 > -	*sid = SECSID_NULL;
