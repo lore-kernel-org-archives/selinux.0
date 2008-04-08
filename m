@@ -1,41 +1,38 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m38IpdrQ018763
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2008 14:51:39 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m38Ipcgo017419
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2008 18:51:38 GMT
-Message-ID: <47FBB698.7070103@redhat.com>
-Date: Tue, 08 Apr 2008 14:16:56 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m38L24Vk029107
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2008 17:02:04 -0400
+Received: from g4t0015.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m38L23qY017308
+	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2008 21:02:03 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: hadi@cyberus.ca
+Subject: Re: [RFC PATCH 2/2] LSM: Make the Labeled IPsec hooks more stack friendly
+Date: Tue, 8 Apr 2008 17:01:48 -0400
+Cc: linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
+        selinux@tycho.nsa.gov
+References: <20080407231143.8087.77531.stgit@flek.lan> <20080407231635.8087.42161.stgit@flek.lan> <1207650292.30750.43.camel@localhost>
+In-Reply-To: <1207650292.30750.43.camel@localhost>
 MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: gdm login problem when polyinstantiating /tmp
-References: <cadfc0e40804070718s23964c78p5f8f7da33e946733@mail.gmail.com> <cadfc0e40804080819y14c0f18el220681d1f14f2d40@mail.gmail.com>
-In-Reply-To: <cadfc0e40804080819y14c0f18el220681d1f14f2d40@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200804081701.48667.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tuesday 08 April 2008 6:24:52 am jamal wrote:
+> On Mon, 2008-07-04 at 19:16 -0400, Paul Moore wrote:
+> > The xfrm_get_policy() and xfrm_add_pol_expire() put some rather
+> > large structs on the stack to work around the LSM API.
+>
+> You missed a spot which applies similar logic:
+> net/key/af_key.c::pfkey_spddelete()
 
-Xavier Toth wrote:
-> Resolved: You've also got to move /tmp/.gdm-xauth`id -u -n`.* to the
-> polyinstantiated directory.
-> 
-Looks like we are getting a new version of gdm that stops using /tmp.
-/var/run/gdm
+Thanks, I'll check all the pfkey bits to see if anything else jumps out 
+too ... and figure out why my config wasn't building pfkey :)
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkf7tpgACgkQrlYvE4MpobPq3gCg2EE9n4YbVukR9g/hM5qYT75E
-6QYAniXLRznndn1S/JmEJSIRURBxtDNV
-=oY7R
------END PGP SIGNATURE-----
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
