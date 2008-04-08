@@ -1,56 +1,49 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m381VqIF017066
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2008 21:31:52 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m381VoBp011345
-	for <selinux@tycho.nsa.gov>; Tue, 8 Apr 2008 01:31:50 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m381VnDI008109
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2008 21:31:49 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m381VmRB021752
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2008 21:31:48 -0400
-Received: from localhost.localdomain (vpn-14-147.rdu.redhat.com [10.11.14.147])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m381Vlnf026315
-	for <selinux@tycho.nsa.gov>; Mon, 7 Apr 2008 21:31:48 -0400
-Message-ID: <47FACB0F.5050208@redhat.com>
-Date: Mon, 07 Apr 2008 21:31:59 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: upstart/SELinux problem loading the wrong policy with kernel version
- change
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: dpkg bug related to SE Linux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
+        Manoj Srivastava <manoj.srivastava@stdc.com>, 474339@bugs.debian.org
+In-Reply-To: <200804080930.13447.russell@coker.com.au>
+References: <200804051347.55320.russell@coker.com.au>
+	 <1207586935.21223.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <1207587315.21223.50.camel@moss-spartans.epoch.ncsc.mil>
+	 <200804080930.13447.russell@coker.com.au>
+Content-Type: text/plain
+Date: Tue, 08 Apr 2008 08:23:23 -0400
+Message-Id: <1207657403.21223.232.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-If you have a kernel that supports policy.21 and a tool chain that
-supports policy.22 newer versions of policy and semanage changes will
-update policy.22.  However if there is a policy.21 around upstart will
-load this on a reboot.  (I guess init would have done the same.)
+On Tue, 2008-04-08 at 10:30 +1100, Russell Coker wrote:
+> On Tuesday 08 April 2008 02:55, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On Mon, 2008-04-07 at 12:48 -0400, Stephen Smalley wrote:
+> > > On Sat, 2008-04-05 at 13:47 +1100, Russell Coker wrote:
+> > > > http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474339
+> > > >
+> > > > When the file_contexts file has an invalid context then dpkg will
+> > > > crash, see the above bug report.
+> > > >
+> > > > dpkg is statically linked against libselinux.
+> > >
+> > > Can you reproduce with a simpler caller, e.g. compile matchpathcon from
+> > > libselinux/utils statically and run it on your corrupted file_contexts
+> > > file, passing in a pathname that will match the invalid line?
+> 
+> Restorecon doesn't have this problem, neither when dynamically nor statically 
+> linked.
 
-If the policy.21 does not exist libselinux will grab the highest policy
-version and try to load it.
+In that case, I'd recommend looking more closely at the dpkg selinux
+code itself rather than libselinux.  For example, does dpkg try to free
+the context from matchpathcon() upon an error return?  That would be a
+bug in it rather than libselinux.  Or is dpkg double free'ing a returned
+context?
 
-This is causing unlabeled_t files to be showing up.  Basically if I
-install a new policy with a new type, and then assign the context to a
-file, the next reboot will cause the file to be labeled unlabeled_t.
+-- 
+Stephen Smalley
+National Security Agency
 
-I suggest that we either remove policy versioning all together, or
-change libselinux to default to loading the highest policy version.
-Either way the current loading of policy is broken.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkf6ywoACgkQrlYvE4MpobPKuwCePdHBoGYI13pVvugI/B9veFGo
-88UAoKjr7Dp5gIaVW91rfbxgJQhngLCZ
-=sAa6
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
