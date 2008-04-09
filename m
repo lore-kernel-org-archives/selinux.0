@@ -1,90 +1,53 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m39K4DL4009330
-	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2008 16:04:13 -0400
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m39K4BDh029996
-	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2008 20:04:11 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so2236851fgg.40
-        for <selinux@tycho.nsa.gov>; Wed, 09 Apr 2008 13:04:03 -0700 (PDT)
-Message-ID: <cadfc0e40804091304p6812fca9i132c36bb4c49e9b1@mail.gmail.com>
-Date: Wed, 9 Apr 2008 15:04:03 -0500
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>,
-        "SE Linux" <selinux@tycho.nsa.gov>
-Subject: Re: copy&paste security_compute_av from python
-Cc: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-In-Reply-To: <1207765707.21223.523.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <cadfc0e40803311235h3e3440fbn395dd55b8ab0e534@mail.gmail.com>
-	 <47F18500.3030201@tycho.nsa.gov>
-	 <1207050208.5610.104.camel@moss-spartans.epoch.ncsc.mil>
-	 <47F27C7D.4070203@tycho.nsa.gov> <47F28FEB.9000901@tycho.nsa.gov>
-	 <cadfc0e40804081150k336ff301i1a382b117a4d44e2@mail.gmail.com>
-	 <cadfc0e40804081222g6fe8fed0xda16c1923a0ee6fe@mail.gmail.com>
-	 <47FD0731.2030202@tycho.nsa.gov>
-	 <1207765707.21223.523.camel@moss-spartans.epoch.ncsc.mil>
+Subject: [PATCH] SELinux: don't BUG if fs reuses a superblock
+From: Eric Paris <eparis@redhat.com>
+To: linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: steved@redhat.com, jlayton@redhat.com, sds@tycho.nsa.gov,
+        jmorris@namei.org, trond.myklebust@fys.uio.no, chuck.lever@oracle.com
+Content-Type: text/plain
+Date: Wed, 09 Apr 2008 14:08:35 -0400
+Message-Id: <1207764515.3070.39.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Apr 9, 2008 at 1:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
->  On Wed, 2008-04-09 at 14:13 -0400, Eamon Walsh wrote:
->  > Xavier Toth wrote:
->  > > Also what about the mlsconstrain(s):
->  > >
->  > > #
->  > > # MLS policy for the x_application_data class
->  > > #
->  > > mlsconstrain x_application_data { paste_after_confirm }
->  > >     (( l1 eq l2 ) or
->  > >      (( t1 == mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
->  > >      ( t1 == mlsxwinwrite ));
->  > >
->  > >
->  > > ??
->  > >
->  >
->  > I dunno.  Configure to suit your environment.  This is for write-downs,
->  > correct?  If so then you probably don't want any constraints, since
->  > regular "paste" should succeed in the write-up case (in which case no
->  > confirmation is required), and the point of this permission is to allow
->  > write downs.
->  >
->  > >
->  > > On Tue, Apr 8, 2008 at 1:50 PM, Xavier Toth <txtoth@gmail.com> wrote:
->  > >
->  > >> I'd prefer copy instead cut.
->  > >>
->  >
->  > This is fine.
->  >
->  > My work on the XCB Python binding is coming along OK.  I see that you
->  > are working on Python bindings for the userspace AVC.  That's fine, but
->  > you could probably get away with not using the AVC in the selection
->  > manager.  You could simply look up the permission and class values in
->  > /selinux, then use security_compute_create for permission checking.
->  > Since the selection manager is driven by user clicking, performance
->  > shouldn't be that big of a deal.
->
->  security_compute_av().
->  But then he loses out on the libselinux infrastructure for things like
->  permissive mode, mapping the class/perm values internally for him, etc.
->  I think using the AVC interface is best whenever possible.
->
->
+I (wrongly) assumed that nfs_xdev_get_sb() would not ever share a
+superblock and so cloning mount options would always be correct.  Turns
+out that isn't the case and we could fall over a BUG_ON() that wasn't a
+BUG at all.  Since there is little we can do to reconcile different
+mount options this patch just leaves the sb alone and the first set of
+options wins.
 
-This is what I'd prefer also and I was hoping Dan would add the avc
-header so that the avc interface bindings would get built into
-_selinux.so.
+Signed-off-by: Eric Paris <eparis@redhat.com>
 
->
->  --
->  Stephen Smalley
->  National Security Agency
->
->
+---
+
+ security/selinux/hooks.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 89bb6d3..d39b59c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -760,13 +760,13 @@ static void selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 	 * this early in the boot process. */
+ 	BUG_ON(!ss_initialized);
+ 
+-	/* this might go away sometime down the line if there is a new user
+-	 * of clone, but for now, nfs better not get here... */
+-	BUG_ON(newsbsec->initialized);
+-
+ 	/* how can we clone if the old one wasn't set up?? */
+ 	BUG_ON(!oldsbsec->initialized);
+ 
++	/* if fs is reusing a sb, just let its options stand... */
++	if (newsbsec->initialized)
++		return;
++
+ 	mutex_lock(&newsbsec->lock);
+ 
+ 	newsbsec->flags = oldsbsec->flags;
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
