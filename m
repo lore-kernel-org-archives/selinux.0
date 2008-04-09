@@ -1,35 +1,92 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: dpkg bug related to SE Linux
-Date: Wed, 9 Apr 2008 17:11:47 +1100
-Cc: SE-Linux <selinux@tycho.nsa.gov>,
-        Manoj Srivastava <manoj.srivastava@stdc.com>, 474339@bugs.debian.org
-References: <200804051347.55320.russell@coker.com.au> <200804080930.13447.russell@coker.com.au> <1207657403.21223.232.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1207657403.21223.232.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200804091611.55435.russell@coker.com.au>
+Subject: nfs_xdev_get_sb appears to sometimes reuse a sb and makes SELinux
+	angry
+From: Eric Paris <eparis@redhat.com>
+To: linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: steved@redhat.com, jlayton@redhat.com, sds@tycho.nsa.gov,
+        jmorris@namei.org, trond.myklebust@fys.uio.no, chuck.lever@oracle.com
+Content-Type: text/plain
+Date: Wed, 09 Apr 2008 11:05:02 -0400
+Message-Id: <1207753502.3070.25.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The following patch fixes the problem.
+When I wrote the new NFS/SELinux mount options code I was working under
+the assumption that nfs_xdev_get_sb() would always give a new superblock
+without the security struct initialized.  I now have a report of a user
+in which we hit BUG_ON(newsbsec->initialized) indicating to me that NFS
+is reusing a superblock.  The user says that he only has one mount to
+the server in fstab, but doesn't know much about the server setup.  Is
+it expected that nfs_xdev_get_sb might reuse a superblock?  If so maybe
+we want this patch below?  Instead of me BUGing every time selinux sees
+a reused superblock we but only if the reused superblock has different
+security options than the old one.  I can't reproduce the issue so I
+can't really test it....
 
-scontext is allocated by matchpathcon(3) and needs to be freed by the caller.  
-If it's not set to NULL before the attempted allocation then it'll keep the 
-previous value (which had been freed) and then you get a double-free.
+comments?  should NFS be reusing a superblock here?  Can the NFS people
+let me know how I can trigger it to make sure my patch fixes it?
 
---- dpkg-1.14.16.6.orig/src/archives.c
-+++ dpkg-1.14.16.6/src/archives.c
-@@ -629,6 +629,7 @@
-      * or if it has no context; in which case the default
-      * context shall be applied.
-      */
-+    scontext = NULL;
-     if( ! ((matchpathcon(fnamevb.buf,
-                          (nifd->namenode->statoverride ?
-                           nifd->namenode->statoverride->mode : ti->Mode)
+-Eric
+
+---
+
+ security/selinux/hooks.c |   38 ++++++++++++++++++++++++++++++++++----
+ 1 files changed, 34 insertions(+), 4 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 89bb6d3..71b01a4 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -760,13 +760,43 @@ static void selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 	 * this early in the boot process. */
+ 	BUG_ON(!ss_initialized);
+ 
+-	/* this might go away sometime down the line if there is a new user
+-	 * of clone, but for now, nfs better not get here... */
+-	BUG_ON(newsbsec->initialized);
+-
+ 	/* how can we clone if the old one wasn't set up?? */
+ 	BUG_ON(!oldsbsec->initialized);
+ 
++	/*
++	 * check to make sure something isn't trying to reuse a superblock that
++	 * isn't actually the same.  if it is, that's the FS fault, not ours
++	 */
++	if (unlikely(newsbsec->initialized)) {
++		struct security_mnt_opts new_opts, old_opts;
++		int i;
++
++		if (newsb == oldsb)
++			return;
++
++		if (selinux_get_mnt_opts(newsb, &new_opts))
++			return;
++		if (selinux_get_mnt_opts(oldsb, &old_opts)) {
++			security_free_mnt_opts(&new_opts);
++			return;
++		}
++
++		BUG_ON(new_opts.num_mnt_opts != old_opts.num_mnt_opts);
++
++		/*
++		 * this is safe since _get_mnt_opts puts things in the same
++		 * order every time.
++		 */
++		for (i = 0; i < new_opts.num_mnt_opts; i++) {
++			BUG_ON(new_opts.mnt_opts_flags[i] != old_opts.mnt_opts_flags[i]);
++			BUG_ON(strcmp(new_opts.mnt_opts[i], old_opts.mnt_opts[i]));
++		}
++
++		security_free_mnt_opts(&new_opts);
++		security_free_mnt_opts(&old_opts);
++		return;
++	}
++
+ 	mutex_lock(&newsbsec->lock);
+ 
+ 	newsbsec->flags = oldsbsec->flags;
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
