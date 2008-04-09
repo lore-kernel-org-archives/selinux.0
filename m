@@ -1,67 +1,87 @@
-Subject: Re: nfs_xdev_get_sb appears to sometimes reuse a sb and makes
-	SELinux angry
+Subject: Re: [PATCH 2/3] SELinux: Made netnode cache adds faster
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov, steved@redhat.com,
-        jlayton@redhat.com, jmorris@namei.org, trond.myklebust@fys.uio.no,
-        chuck.lever@oracle.com
-In-Reply-To: <1207757286.3070.32.camel@localhost.localdomain>
-References: <1207753502.3070.25.camel@localhost.localdomain>
-	 <1207754713.21223.449.camel@moss-spartans.epoch.ncsc.mil>
-	 <1207757286.3070.32.camel@localhost.localdomain>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20080407231106.8052.72925.stgit@flek.lan>
+References: <20080407230647.8052.79603.stgit@flek.lan>
+	 <20080407231106.8052.72925.stgit@flek.lan>
 Content-Type: text/plain
-Date: Wed, 09 Apr 2008 12:52:24 -0400
-Message-Id: <1207759944.21223.464.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 09 Apr 2008 13:08:55 -0400
+Message-Id: <1207760935.21223.468.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-04-09 at 12:08 -0400, Eric Paris wrote:
-> On Wed, 2008-04-09 at 11:25 -0400, Stephen Smalley wrote:
-> > On Wed, 2008-04-09 at 11:05 -0400, Eric Paris wrote:
-> > > When I wrote the new NFS/SELinux mount options code I was working under
-> > > the assumption that nfs_xdev_get_sb() would always give a new superblock
-> > > without the security struct initialized.  I now have a report of a user
-> > > in which we hit BUG_ON(newsbsec->initialized) indicating to me that NFS
-> > > is reusing a superblock.  The user says that he only has one mount to
-> > > the server in fstab, but doesn't know much about the server setup.  Is
-> > > it expected that nfs_xdev_get_sb might reuse a superblock?  If so maybe
-> > > we want this patch below?  Instead of me BUGing every time selinux sees
-> > > a reused superblock we but only if the reused superblock has different
-> > > security options than the old one.  I can't reproduce the issue so I
-> > > can't really test it....
-> > > 
-> > > comments?  should NFS be reusing a superblock here?  Can the NFS people
-> > > let me know how I can trigger it to make sure my patch fixes it?
-> > 
-> > Looks to me like nfs_compare_mount_options() needs to also compare
-> > security options as part of the criteria for deciding when sharing is
-> > permissible.  Otherwise, it seems quite possible that you'll still hit
-> > the new BUG.
+On Mon, 2008-04-07 at 19:11 -0400, Paul Moore wrote:
+> When adding new entries to the network node cache we would walk the entire
+> hash bucket to make sure we didn't cross a threshold (done to bound the cache
+> size).  This isn't a very quick or elegant solution for something which is
+> supposed to be quick-ish so add a counter to each hash bucket to track the
+> size of the bucket and eliminate the need to walk the entire bucket list on
+> each add.
 > 
-> Making nfs_compare_mount_options() security aware is not the right
-> answer.  Doing so means that we could end up with the same data 2 places
-> with different security options.  This is just not what we want...
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
+> ---
 > 
-> I could make the _clone_ functions return -EINVAL instead of BUG but
-> since this is inside nfs_xdev_get_sb the user has no way to 'fix' it.
-> So that's not the right fix. (this is what I do with user controlled
-> mounts already which go through nfs_get_sb)
+>  security/selinux/netnode.c |   57 +++++++++++++++++++++-----------------------
+>  1 files changed, 27 insertions(+), 30 deletions(-)
 > 
-> I'm currently leaning towards changing all of this to
-> 
-> if (newsbsec->initialized)
-> 	return;
-> 
-> so the first sb wins and its mount options stick forever.  At least we
-> know we did our best to maintain labeling of the data and nothing is
-> going to explode.....
+> diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+> index f3c526f..b3a5a65 100644
+> --- a/security/selinux/netnode.c
+> +++ b/security/selinux/netnode.c
+> @@ -40,11 +40,17 @@
+>  #include <net/ipv6.h>
+>  #include <asm/bug.h>
+>  
+> +#include "netnode.h"
+>  #include "objsec.h"
+>  
+>  #define SEL_NETNODE_HASH_SIZE       256
+>  #define SEL_NETNODE_HASH_BKT_LIMIT   16
+>  
+> +struct sel_netnode_bkt {
+> +	u32 size;
 
-Yes, and that is consistent with how user-initiated mounts used to work,
-IIRC - first mount would determine the security options and all
-subsequent ones would just re-use them as the superblock security
-structure was already set up.
+Technically this could just be an ordinary unsigned int, right?
+We tend to overuse fixed-size integers in our code at present.
+
+> +	struct list_head list;
+> +};
+> +
+>  struct sel_netnode {
+>  	struct netnode_security_struct nsec;
+>  
+
+> @@ -179,35 +183,22 @@ static int sel_netnode_insert(struct sel_netnode *node)
+>  	default:
+>  		BUG();
+>  	}
+> -	list_add_rcu(&node->list, &sel_netnode_hash[idx]);
+>  
+>  	/* we need to impose a limit on the growth of the hash table so check
+>  	 * this bucket to make sure it is within the specified bounds */
+> -	list_for_each_entry(iter, &sel_netnode_hash[idx], list)
+> -		if (++count > SEL_NETNODE_HASH_BKT_LIMIT) {
+> -			list_del_rcu(&iter->list);
+> -			call_rcu(&iter->rcu, sel_netnode_free);
+> -			break;
+> -		}
+> +	list_add_rcu(&node->list, &sel_netnode_hash[idx].list);
+> +	if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
+> +		struct sel_netnode *tail;
+> +		tail = list_entry(node->list.prev, struct sel_netnode, list);
+> +		__list_del(node->list.prev, node->list.next);
+
+Can you clarify the change from list_del_rcu() to __list_del() here?
+
+> +		call_rcu(&tail->rcu, sel_netnode_free);
+> +	} else
+> +		sel_netnode_hash[idx].size++;
+>  
+>  	return 0;
+>  }
 
 -- 
 Stephen Smalley
