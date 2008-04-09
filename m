@@ -1,59 +1,90 @@
-Subject: Re: [PATCH 3/3] SELinux: Add network port SID cache
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul.moore@hp.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <200804091337.07861.paul.moore@hp.com>
-References: <20080407230647.8052.79603.stgit@flek.lan>
-	 <20080407231112.8052.8688.stgit@flek.lan>
-	 <1207761331.21223.475.camel@moss-spartans.epoch.ncsc.mil>
-	 <200804091337.07861.paul.moore@hp.com>
-Content-Type: text/plain
-Date: Wed, 09 Apr 2008 14:08:33 -0400
-Message-Id: <1207764513.21223.517.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m39K4DL4009330
+	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2008 16:04:13 -0400
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m39K4BDh029996
+	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2008 20:04:11 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so2236851fgg.40
+        for <selinux@tycho.nsa.gov>; Wed, 09 Apr 2008 13:04:03 -0700 (PDT)
+Message-ID: <cadfc0e40804091304p6812fca9i132c36bb4c49e9b1@mail.gmail.com>
+Date: Wed, 9 Apr 2008 15:04:03 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Daniel J Walsh" <dwalsh@redhat.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>
+Subject: Re: copy&paste security_compute_av from python
+Cc: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+In-Reply-To: <1207765707.21223.523.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40803311235h3e3440fbn395dd55b8ab0e534@mail.gmail.com>
+	 <47F18500.3030201@tycho.nsa.gov>
+	 <1207050208.5610.104.camel@moss-spartans.epoch.ncsc.mil>
+	 <47F27C7D.4070203@tycho.nsa.gov> <47F28FEB.9000901@tycho.nsa.gov>
+	 <cadfc0e40804081150k336ff301i1a382b117a4d44e2@mail.gmail.com>
+	 <cadfc0e40804081222g6fe8fed0xda16c1923a0ee6fe@mail.gmail.com>
+	 <47FD0731.2030202@tycho.nsa.gov>
+	 <1207765707.21223.523.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, Apr 9, 2008 at 1:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+>  On Wed, 2008-04-09 at 14:13 -0400, Eamon Walsh wrote:
+>  > Xavier Toth wrote:
+>  > > Also what about the mlsconstrain(s):
+>  > >
+>  > > #
+>  > > # MLS policy for the x_application_data class
+>  > > #
+>  > > mlsconstrain x_application_data { paste_after_confirm }
+>  > >     (( l1 eq l2 ) or
+>  > >      (( t1 == mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
+>  > >      ( t1 == mlsxwinwrite ));
+>  > >
+>  > >
+>  > > ??
+>  > >
+>  >
+>  > I dunno.  Configure to suit your environment.  This is for write-downs,
+>  > correct?  If so then you probably don't want any constraints, since
+>  > regular "paste" should succeed in the write-up case (in which case no
+>  > confirmation is required), and the point of this permission is to allow
+>  > write downs.
+>  >
+>  > >
+>  > > On Tue, Apr 8, 2008 at 1:50 PM, Xavier Toth <txtoth@gmail.com> wrote:
+>  > >
+>  > >> I'd prefer copy instead cut.
+>  > >>
+>  >
+>  > This is fine.
+>  >
+>  > My work on the XCB Python binding is coming along OK.  I see that you
+>  > are working on Python bindings for the userspace AVC.  That's fine, but
+>  > you could probably get away with not using the AVC in the selection
+>  > manager.  You could simply look up the permission and class values in
+>  > /selinux, then use security_compute_create for permission checking.
+>  > Since the selection manager is driven by user clicking, performance
+>  > shouldn't be that big of a deal.
+>
+>  security_compute_av().
+>  But then he loses out on the libselinux infrastructure for things like
+>  permissive mode, mapping the class/perm values internally for him, etc.
+>  I think using the AVC interface is best whenever possible.
+>
+>
 
-On Wed, 2008-04-09 at 13:37 -0400, Paul Moore wrote:
-> On Wednesday 09 April 2008 1:15:31 pm Stephen Smalley wrote:
-> > On Mon, 2008-04-07 at 19:11 -0400, Paul Moore wrote:
-> > > Much like we added a network node cache, this patch adds a network
-> > > port cache. The design is taken almost completely from the network
-> > > node cache which in turn was taken from the network interface
-> > > cache.  The basic idea is to cache entries in a hash table based on
-> > > protocol/port information.  The hash function only takes the port
-> > > number into account since the number of different protocols in use
-> > > at any one time is expected to be relatively small.
-> >
-> > Not necessarily an obstacle to merging, but I was wondering if it
-> > would be worthwhile to investigating unifying these caches into a
-> > single code base with a more general interface, or if that would be a
-> > loss overall.
-> 
-> Yeah, I thought of that too when I was doing the network node cache but 
-> I convinced myself it would probably do more harm than good.  The core 
-> problem is that all of the hashing and lookup functions are slightly 
-> different.  Not fatal, we can workaround it via case statments, a 
-> function table, or something similar but all of these solutions will 
-> impose some additional overhead.  For something which is supposed to be 
-> fast I thought it better to not go down this path.
+This is what I'd prefer also and I was hoping Dan would add the avc
+header so that the avc interface bindings would get built into
+_selinux.so.
 
-Ok - I'm fine with keeping them separate at present, but wanted to toss
-out the idea for possible future investigation.  And we have examples
-where we have gone the other direction, e.g. the avtab originally
-re-used the hashtab code, but we eventually split it out into its own
-direct implementation.
-
-So other than that, my comments on the changes to the node cache also
-apply to this code I think.
-
-> I'm open to suggestions if you have any.
-
--- 
-Stephen Smalley
-National Security Agency
-
+>
+>  --
+>  Stephen Smalley
+>  National Security Agency
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
