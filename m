@@ -1,56 +1,35 @@
-From: Paul Moore <paul.moore@hp.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH 1/3] SELinux: Cleanup the secid/secctx conversion functions
-Date: Tue, 8 Apr 2008 17:13:08 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20080407230647.8052.79603.stgit@flek.lan> <20080407231101.8052.68591.stgit@flek.lan> <1207665824.21223.311.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1207665824.21223.311.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: dpkg bug related to SE Linux
+Date: Wed, 9 Apr 2008 17:11:47 +1100
+Cc: SE-Linux <selinux@tycho.nsa.gov>,
+        Manoj Srivastava <manoj.srivastava@stdc.com>, 474339@bugs.debian.org
+References: <200804051347.55320.russell@coker.com.au> <200804080930.13447.russell@coker.com.au> <1207657403.21223.232.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1207657403.21223.232.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200804081713.08660.paul.moore@hp.com>
+  charset="utf-8"
+Message-Id: <200804091611.55435.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 08 April 2008 10:43:44 am Stephen Smalley wrote:
-> On Mon, 2008-04-07 at 19:11 -0400, Paul Moore wrote:
-> > @@ -709,73 +697,46 @@ static int security_context_to_sid_core(char
-> > *scontext, u32 scontext_len, u32 *s null suffix to the copy to
-> > avoid problems with the existing attr package, which doesn't view
-> > the null terminator as part of the attribute value. */
-> > -	scontext2 = kmalloc(scontext_len+1,GFP_KERNEL);
-> > -	if (!scontext2) {
-> > -		rc = -ENOMEM;
-> > -		goto out;
-> > -	}
-> > -	memcpy(scontext2, scontext, scontext_len);
-> > -	scontext2[scontext_len] = 0;
-> > +	scontext_dup = kmemdup(scontext, scontext_len + 1, GFP_KERNEL);
->
-> Also, in addition to the gfp_flags change, I'm not clear that the
-> above change is correct.  We are taking a byte array "scontext" of
-> length "scontext_len" and copying it into a buffer of length
-> "scontext_len+1" so that we can ensure that it is NUL terminated
-> prior to parsing.  Won't kmemdup with scontext_len+1 ultimately run
-> off the end of the original string?
+The following patch fixes the problem.
 
-Good point, I believe you're right.  I'll add this and the gfp stuff to 
-the list of needed changes.
+scontext is allocated by matchpathcon(3) and needs to be freed by the caller.  
+If it's not set to NULL before the attempted allocation then it'll keep the 
+previous value (which had been freed) and then you get a double-free.
 
-I think I may also suggest shelving this patch for 2.6.26 as a little 
-birdie mentioned it would be a good idea to give this a through testing 
-on non-MLS/MCS systems which I haven't yet done and don't expect to be 
-able to do so before the merge window opens.
-
-I haven't seen any objections to the other two patches, so I'll 
-re-submit those for 2.6.27 and leave the secid/secctx cleanup for the 
-next time around.
-
-Thanks for the review.
-
--- 
-paul moore
-linux @ hp
+--- dpkg-1.14.16.6.orig/src/archives.c
++++ dpkg-1.14.16.6/src/archives.c
+@@ -629,6 +629,7 @@
+      * or if it has no context; in which case the default
+      * context shall be applied.
+      */
++    scontext = NULL;
+     if( ! ((matchpathcon(fnamevb.buf,
+                          (nifd->namenode->statoverride ?
+                           nifd->namenode->statoverride->mode : ti->Mode)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
