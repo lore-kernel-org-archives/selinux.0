@@ -1,66 +1,45 @@
-Subject: Re: [PATCH] SELinux: don't BUG if fs reuses a superblock
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov, steved@redhat.com,
-        jlayton@redhat.com, jmorris@namei.org, trond.myklebust@fys.uio.no,
-        chuck.lever@oracle.com
-In-Reply-To: <1207764515.3070.39.camel@localhost.localdomain>
-References: <1207764515.3070.39.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 09 Apr 2008 16:22:35 -0400
-Message-Id: <1207772555.21223.624.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m39Kbkox012122
+	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2008 16:37:46 -0400
+Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m39Kbj2t013244
+	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2008 20:37:46 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so2245731fgg.40
+        for <selinux@tycho.nsa.gov>; Wed, 09 Apr 2008 13:37:37 -0700 (PDT)
+Message-ID: <cadfc0e40804091330t6ff1aadbned7d5fbc1479fdf5@mail.gmail.com>
+Date: Wed, 9 Apr 2008 15:30:58 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: avc_* functions not in libselinux-python
+Cc: "SE Linux" <selinux@tycho.nsa.gov>, "Eamon Walsh" <ewalsh@tycho.nsa.gov>,
+        "Daniel J Walsh" <dwalsh@redhat.com>
+In-Reply-To: <1207762256.21223.489.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40804081502j335cbc4au8d32d4d5fd956c8c@mail.gmail.com>
+	 <1207762256.21223.489.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+For now I don't think that's a problem as I was looking at using
+avc_has_perm and the context to sid conversion function.
 
-On Wed, 2008-04-09 at 14:08 -0400, Eric Paris wrote:
-> I (wrongly) assumed that nfs_xdev_get_sb() would not ever share a
-> superblock and so cloning mount options would always be correct.  Turns
-> out that isn't the case and we could fall over a BUG_ON() that wasn't a
-> BUG at all.  Since there is little we can do to reconcile different
-> mount options this patch just leaves the sb alone and the first set of
-> options wins.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-This is a bug fix - should go into 2.6.25.
-
-> 
-> ---
-> 
->  security/selinux/hooks.c |    8 ++++----
->  1 files changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 89bb6d3..d39b59c 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -760,13 +760,13 @@ static void selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
->  	 * this early in the boot process. */
->  	BUG_ON(!ss_initialized);
->  
-> -	/* this might go away sometime down the line if there is a new user
-> -	 * of clone, but for now, nfs better not get here... */
-> -	BUG_ON(newsbsec->initialized);
-> -
->  	/* how can we clone if the old one wasn't set up?? */
->  	BUG_ON(!oldsbsec->initialized);
->  
-> +	/* if fs is reusing a sb, just let its options stand... */
-> +	if (newsbsec->initialized)
-> +		return;
-> +
->  	mutex_lock(&newsbsec->lock);
->  
->  	newsbsec->flags = oldsbsec->flags;
-> 
--- 
-Stephen Smalley
-National Security Agency
-
+On Wed, Apr 9, 2008 at 12:30 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+>  On Tue, 2008-04-08 at 17:02 -0500, Xavier Toth wrote:
+>  > Can these functions get swig'd and their wrappers built into _selinux.so?
+>
+>  Patches accepted.
+>
+>  One possible issue here is function pointer callbacks, which is a more
+>  general problem than just the avc interfaces in libselinux.  But if you
+>  are ok with the default callbacks, I suppose there is no problem there.
+>
+>  --
+>  Stephen Smalley
+>  National Security Agency
+>
+>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
