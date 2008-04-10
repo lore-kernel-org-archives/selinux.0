@@ -1,110 +1,33 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3AJql8R024505
-	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 15:52:47 -0400
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3AJqc1I015024
-	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 19:52:42 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so92114fgg.40
-        for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 12:52:07 -0700 (PDT)
-Message-ID: <cadfc0e40804100958p7b82e478lcdf381e548444b98@mail.gmail.com>
-Date: Thu, 10 Apr 2008 11:58:26 -0500
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>
-Subject: Re: copy&paste security_compute_av from python
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, "SE Linux" <selinux@tycho.nsa.gov>,
-        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-In-Reply-To: <47FE45B8.20909@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3ALQC5Y031218
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 17:26:12 -0400
+Received: from g4t0016.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3ALQB8I007074
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 21:26:12 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: linux-security-module@vger.kernel.org
+Subject: Re: [RFC PATCH v2 0/2] Labeled networking patches for 2.6.26
+Date: Thu, 10 Apr 2008 17:25:59 -0400
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
+References: <20080409204936.26774.55254.stgit@flek.lan>
+In-Reply-To: <20080409204936.26774.55254.stgit@flek.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <cadfc0e40803311235h3e3440fbn395dd55b8ab0e534@mail.gmail.com>
-	 <1207050208.5610.104.camel@moss-spartans.epoch.ncsc.mil>
-	 <47F27C7D.4070203@tycho.nsa.gov> <47F28FEB.9000901@tycho.nsa.gov>
-	 <cadfc0e40804081150k336ff301i1a382b117a4d44e2@mail.gmail.com>
-	 <cadfc0e40804081222g6fe8fed0xda16c1923a0ee6fe@mail.gmail.com>
-	 <47FD0731.2030202@tycho.nsa.gov>
-	 <1207765707.21223.523.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40804091304p6812fca9i132c36bb4c49e9b1@mail.gmail.com>
-	 <47FE45B8.20909@redhat.com>
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200804101725.59604.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-avc_has_perm and avc_context_to_sid_raw which don't require structs
+Just a quick follow-up on testing, I've run this for a few hours on two 
+Fedora systems with both labeled and unlabeled IPsec in use with SAs 
+rekeying every 5 minutes and didn't notice anything evil.
 
-On Thu, Apr 10, 2008 at 11:52 AM, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
->  Hash: SHA1
->
->  Xavier Toth wrote:
->
->
-> > On Wed, Apr 9, 2008 at 1:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->  >>  On Wed, 2008-04-09 at 14:13 -0400, Eamon Walsh wrote:
->  >>  > Xavier Toth wrote:
->  >>  > > Also what about the mlsconstrain(s):
->  >>  > >
->  >>  > > #
->  >>  > > # MLS policy for the x_application_data class
->  >>  > > #
->  >>  > > mlsconstrain x_application_data { paste_after_confirm }
->  >>  > >     (( l1 eq l2 ) or
->  >>  > >      (( t1 == mlsxwinwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
->  >>  > >      ( t1 == mlsxwinwrite ));
->  >>  > >
->  >>  > >
->  >>  > > ??
->  >>  > >
->  >>  >
->  >>  > I dunno.  Configure to suit your environment.  This is for write-downs,
->  >>  > correct?  If so then you probably don't want any constraints, since
->  >>  > regular "paste" should succeed in the write-up case (in which case no
->  >>  > confirmation is required), and the point of this permission is to allow
->  >>  > write downs.
->  >>  >
->  >>  > >
->  >>  > > On Tue, Apr 8, 2008 at 1:50 PM, Xavier Toth <txtoth@gmail.com> wrote:
->  >>  > >
->  >>  > >> I'd prefer copy instead cut.
->  >>  > >>
->  >>  >
->  >>  > This is fine.
->  >>  >
->  >>  > My work on the XCB Python binding is coming along OK.  I see that you
->  >>  > are working on Python bindings for the userspace AVC.  That's fine, but
->  >>  > you could probably get away with not using the AVC in the selection
->  >>  > manager.  You could simply look up the permission and class values in
->  >>  > /selinux, then use security_compute_create for permission checking.
->  >>  > Since the selection manager is driven by user clicking, performance
->  >>  > shouldn't be that big of a deal.
->  >>
->  >>  security_compute_av().
->  >>  But then he loses out on the libselinux infrastructure for things like
->  >>  permissive mode, mapping the class/perm values internally for him, etc.
->  >>  I think using the AVC interface is best whenever possible.
->  >>
->  >>
->  >
->  > This is what I'd prefer also and I was hoping Dan would add the avc
->  > header so that the avc interface bindings would get built into
->  > _selinux.so.
->  >
->  >>  --
->  >>  Stephen Smalley
->  >>  National Security Agency
->  >>
->  >>
->  Most of the avc.h will not work without a lot of work.  Which interfaces
->  do you need?  If the interfaces take a struct, we probably would need to
->  write a lot of binding code.
->
-> -----BEGIN PGP SIGNATURE-----
->  Version: GnuPG v1.4.9 (GNU/Linux)
->  Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
->
->  iEYEARECAAYFAkf+RbgACgkQrlYvE4MpobOwlgCggooBGCaUN1IHv54VdDhrYSxe
->  HokAoMGbjUvRsoFdGVOgVcUkBw0r+6NW
->  =ssmU
->  -----END PGP SIGNATURE-----
->
+At this point I'd strip the "RFC" from the patchset and ask that they be 
+considered for inclusion in 2.6.26 assuming there are no objections.
+
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
