@@ -1,47 +1,48 @@
-Message-ID: <47FE3A52.2080702@redhat.com>
-Date: Thu, 10 Apr 2008 12:03:30 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@parisplace.org>, Paul Moore <paul.moore@hp.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3AM6o6m001712
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 18:06:50 -0400
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3AM6nsY029611
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 22:06:50 GMT
+Date: Fri, 11 Apr 2008 08:06:04 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
         selinux@tycho.nsa.gov
-Subject: Re: Enabling policy capabilities
-References: <1207834719.21223.730.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1207834719.21223.730.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [RFC PATCH v2 1/2] NetLabel: Allow passing the LSM domain as a
+ shared pointer
+In-Reply-To: <20080409205039.26774.50884.stgit@flek.lan>
+Message-ID: <Xine.LNX.4.64.0804110805370.1313@us.intercode.com.au>
+References: <20080409204936.26774.55254.stgit@flek.lan>
+ <20080409205039.26774.50884.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 9 Apr 2008, Paul Moore wrote:
 
-Stephen Smalley wrote:
-> Where do we stand on actually enabling policy capabilities in policy so
-> that people can start using newer features that depend on them?
+> Smack doesn't have the need to create a private copy of the LSM "domain" when
+> setting NetLabel security attributes like SELinux, however, the current
+> NetLabel code requires a private copy of the LSM "domain".  This patches fixes
+> that by letting the LSM determine how it wants to pass the domain value.
 > 
-> I've definitely seen patches adding permissions for the peer checks, so
-> is there anything preventing us from trying to enable
-> network_peer_controls in policy and seeing what breaks (after Fedora 9
-> at this point, I suppose - unfortunate that we didn't enable it sooner)?
+>  * NETLBL_SECATTR_DOMAIN_CPY
+>    The current behavior, NetLabel assumes that the domain value is a copy and
+>    frees it when done
 > 
-> I haven't seen patches adding permissions for open other than just to
-> define them, IIRC.  So enabling open_perms would be rather bad right now
-> except for unconfined domains.  As a possible strategy for gradual
-> roll-out of open perm, we could add open everywhere there is a read or
-> write granted, enable the open_perms capability, verify no breakage, and
-> then gradually remove open permission where we know it to be unneeded.
+>  * NETLBL_SECATTR_DOMAIN
+>    New, Smack-friendly behavior, NetLabel assumes that the domain value is a
+>    reference to a string managed by the LSM and does not free it when done
 > 
-Open checks will be added in Fedora 10, along with turning on Xace.  We
-are frozen in Fedora 9.  No new functionality.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
 
-iEYEARECAAYFAkf+OlIACgkQrlYvE4MpobM+4gCcCHxrHzMnej50qajUUFTqMU3j
-BMcAn3JWNm2zr6nl6QiyqZbWwfLSjQx1
-=bMXX
------END PGP SIGNATURE-----
+Acked-by: James Morris <jmorris@namei.org>
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
