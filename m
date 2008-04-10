@@ -1,23 +1,45 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3AB9O69016089
-	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 07:09:24 -0400
-Received: from ladon.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3AB9NYN014009
-	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 11:09:24 GMT
-Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
-	by ladon.golden-gryphon.com (8.13.8/8.13.8/Debian-3) with ESMTP id m3A9aG2R023120
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 04:36:18 -0500
-Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
-	by anzu.internal.golden-gryphon.com (8.14.2/8.14.2/Debian-3) with ESMTP id m3A9VpR1022546
-	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 04:31:52 -0500
-From: Manoj Srivastava <manoj.srivastava@stdc.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] setools 3.3.4: Fix build failure with gcc-4.3.X
-Date: Thu, 10 Apr 2008 04:31:51 -0500
-Message-ID: <87d4oyqcmw.fsf@anzu.internal.golden-gryphon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: A Question about MLS in SELinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: zhao hui <zhaohui1976@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1a5e4bd80804091316m1b8cbb29i3f9ebb653b6f8bf9@mail.gmail.com>
+References: <1a5e4bd80804091316m1b8cbb29i3f9ebb653b6f8bf9@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 10 Apr 2008 07:38:58 -0400
+Message-Id: <1207827538.21223.647.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+
+On Wed, 2008-04-09 at 16:16 -0400, zhao hui wrote:
+> In the book of <SELinux by Example>,in the chapter 8, there is a
+> sentence says "
+> 
+> 
+> 
+> In recent enhancements to SELinux, the constraint feature has been
+> extended to implement an optional multilevel security (MLS) policy.
+> MLS is another form of mandatory access control, which is built upon
+> type enforcement (TE). In this chapter, we explore the optional MLS
+> policy features.
+> 
+> 
+> 
+> What does the "MLS is built upon type enforcement (TE)" means?
+
+In SELinux, we use type enforcement to identify and protect the subjects
+that are allowed to override MLS in particular ways.  This is done by
+expressing exceptions within the MLS constraints based on type
+attributes that are then associated with specific domains and types in
+the TE policy.
+
+-- 
+Stephen Smalley
+National Security Agency
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
