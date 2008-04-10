@@ -1,118 +1,144 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH 2/3] SELinux: Made netnode cache adds faster
-Date: Wed, 9 Apr 2008 13:41:57 -0400
-Cc: selinux@tycho.nsa.gov
-References: <20080407230647.8052.79603.stgit@flek.lan> <20080407231106.8052.72925.stgit@flek.lan> <1207760935.21223.468.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1207760935.21223.468.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3A29OLm009162
+	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2008 22:09:24 -0400
+Received: from web36603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m3A29M8k022557
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 02:09:22 GMT
+Date: Wed, 9 Apr 2008 19:08:57 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [RFC PATCH 1/2] NetLabel: Allow passing the LSM domain as a shared pointer
+To: Paul Moore <paul.moore@hp.com>, linux-security-module@vger.kernel.org,
+        netdev@vger.kernel.org, selinux@tycho.nsa.gov
+In-Reply-To: <20080407231629.8087.43341.stgit@flek.lan>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200804091341.57537.paul.moore@hp.com>
+Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <66343.68126.qm@web36603.mail.mud.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 09 April 2008 1:08:55 pm Stephen Smalley wrote:
-> On Mon, 2008-04-07 at 19:11 -0400, Paul Moore wrote:
-> > When adding new entries to the network node cache we would walk the
-> > entire hash bucket to make sure we didn't cross a threshold (done
-> > to bound the cache size).  This isn't a very quick or elegant
-> > solution for something which is supposed to be quick-ish so add a
-> > counter to each hash bucket to track the size of the bucket and
-> > eliminate the need to walk the entire bucket list on each add.
-> >
-> > Signed-off-by: Paul Moore <paul.moore@hp.com>
-> > ---
-> >
-> >  security/selinux/netnode.c |   57
-> > +++++++++++++++++++++----------------------- 1 files changed, 27
-> > insertions(+), 30 deletions(-)
-> >
-> > diff --git a/security/selinux/netnode.c
-> > b/security/selinux/netnode.c index f3c526f..b3a5a65 100644
-> > --- a/security/selinux/netnode.c
-> > +++ b/security/selinux/netnode.c
-> > @@ -40,11 +40,17 @@
-> >  #include <net/ipv6.h>
-> >  #include <asm/bug.h>
-> >
-> > +#include "netnode.h"
-> >  #include "objsec.h"
-> >
-> >  #define SEL_NETNODE_HASH_SIZE       256
-> >  #define SEL_NETNODE_HASH_BKT_LIMIT   16
-> >
-> > +struct sel_netnode_bkt {
-> > +	u32 size;
->
-> Technically this could just be an ordinary unsigned int, right?
-> We tend to overuse fixed-size integers in our code at present.
 
-[Thanks for taking a look]
+--- Paul Moore <paul.moore@hp.com> wrote:
 
-Yep, we can make this anything we want.  I suppose if we are adverse to 
-fixed-size scalars (not really an issue here, but I understand your 
-point) a size_t variable might be a better pick since it is a "size" 
-even though it isn't the traditional memory chunk size.  The only 
-drawback is that it varies in size, but it shouldn't messup the packing 
-of the struct.
+> Smack doesn't have the need to create a private copy of the LSM "domain" when
+> setting NetLabel security attributes like SELinux, however, the current
+> NetLabel code requires a private copy of the LSM "domain".  This patches
+> fixes
+> that by letting the LSM determine how it wants to pass the domain value.
+> 
+>  * NETLBL_SECATTR_DOMAIN_CPY
+>    The current behavior, NetLabel assumes that the domain value is a copy and
+>    frees it when done
+> 
+>  * NETLBL_SECATTR_DOMAIN
+>    New, Smack-friendly behavior, NetLabel assumes that the domain value is a
+>    reference to a string managed by the LSM and does not free it when done
+> 
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
 
-I guess I still kinda like the limit imposed by the u32 (I suppose I 
-could make it smaller, u8?, but the compiler is just going to waste the 
-memory for alignment reasons anyway) but if you feel strongly about 
-this I can change it to an int or size_t type.
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 
-> > +	struct list_head list;
-> > +};
+Works fine for Smack. Sorry for the delay. Real Life and RSA
+got in the way.
 
-...
+> ---
+> 
+>  include/net/netlabel.h         |   14 ++++++++++----
+>  security/selinux/ss/services.c |    2 +-
+>  security/smack/smack_lsm.c     |    2 +-
+>  3 files changed, 12 insertions(+), 6 deletions(-)
+> 
+> diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+> index 0ca67d7..5e53a85 100644
+> --- a/include/net/netlabel.h
+> +++ b/include/net/netlabel.h
+> @@ -162,7 +162,7 @@ struct netlbl_lsm_secattr_catmap {
+>  
+>  /**
+>   * struct netlbl_lsm_secattr - NetLabel LSM security attributes
+> - * @flags: indicate which attributes are contained in this structure
+> + * @flags: indicate structure attributes, see NETLBL_SECATTR_*
+>   * @type: indicate the NLTYPE of the attributes
+>   * @domain: the NetLabel LSM domain
+>   * @cache: NetLabel LSM specific cache
+> @@ -180,17 +180,22 @@ struct netlbl_lsm_secattr_catmap {
+>   * NetLabel itself when returning security attributes to the LSM.
+>   *
+>   */
+> +struct netlbl_lsm_secattr {
+> +	u32 flags;
+> +	/* bitmap values for 'flags' */
+>  #define NETLBL_SECATTR_NONE             0x00000000
+>  #define NETLBL_SECATTR_DOMAIN           0x00000001
+> +#define NETLBL_SECATTR_DOMAIN_CPY       (NETLBL_SECATTR_DOMAIN | \
+> +					 NETLBL_SECATTR_FREE_DOMAIN)
+>  #define NETLBL_SECATTR_CACHE            0x00000002
+>  #define NETLBL_SECATTR_MLS_LVL          0x00000004
+>  #define NETLBL_SECATTR_MLS_CAT          0x00000008
+>  #define NETLBL_SECATTR_SECID            0x00000010
+> +	/* bitmap meta-values for 'flags' */
+> +#define NETLBL_SECATTR_FREE_DOMAIN      0x01000000
+>  #define NETLBL_SECATTR_CACHEABLE        (NETLBL_SECATTR_MLS_LVL | \
+>  					 NETLBL_SECATTR_MLS_CAT | \
+>  					 NETLBL_SECATTR_SECID)
+> -struct netlbl_lsm_secattr {
+> -	u32 flags;
+>  	u32 type;
+>  	char *domain;
+>  	struct netlbl_lsm_cache *cache;
+> @@ -303,7 +308,8 @@ static inline void netlbl_secattr_init(struct
+> netlbl_lsm_secattr *secattr)
+>   */
+>  static inline void netlbl_secattr_destroy(struct netlbl_lsm_secattr
+> *secattr)
+>  {
+> -	kfree(secattr->domain);
+> +	if (secattr->flags & NETLBL_SECATTR_FREE_DOMAIN)
+> +		kfree(secattr->domain);
+>  	if (secattr->flags & NETLBL_SECATTR_CACHE)
+>  		netlbl_secattr_cache_free(secattr->cache);
+>  	if (secattr->flags & NETLBL_SECATTR_MLS_CAT)
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index f374186..47295ac 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2649,7 +2649,7 @@ int security_netlbl_sid_to_secattr(u32 sid, struct
+> netlbl_lsm_secattr *secattr)
+>  		goto netlbl_sid_to_secattr_failure;
+>  	secattr->domain = kstrdup(policydb.p_type_val_to_name[ctx->type - 1],
+>  				  GFP_ATOMIC);
+> -	secattr->flags |= NETLBL_SECATTR_DOMAIN;
+> +	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY;
+>  	mls_export_netlbl_lvl(ctx, secattr);
+>  	rc = mls_export_netlbl_cat(ctx, secattr);
+>  	if (rc != 0)
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 732ba27..e2d6f7c 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -1275,7 +1275,7 @@ static void smack_to_secattr(char *smack, struct
+> netlbl_lsm_secattr *nlsp)
+>  
+>  	switch (smack_net_nltype) {
+>  	case NETLBL_NLTYPE_CIPSOV4:
+> -		nlsp->domain = kstrdup(smack, GFP_ATOMIC);
+> +		nlsp->domain = smack;
+>  		nlsp->flags = NETLBL_SECATTR_DOMAIN | NETLBL_SECATTR_MLS_LVL;
+>  
+>  		rc = smack_to_cipso(smack, &cipso);
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> 
+> 
 
-> > @@ -179,35 +183,22 @@ static int sel_netnode_insert(struct
-> > sel_netnode *node) default:
-> >  		BUG();
-> >  	}
-> > -	list_add_rcu(&node->list, &sel_netnode_hash[idx]);
-> >
-> >  	/* we need to impose a limit on the growth of the hash table so
-> > check * this bucket to make sure it is within the specified bounds
-> > */ -	list_for_each_entry(iter, &sel_netnode_hash[idx], list)
-> > -		if (++count > SEL_NETNODE_HASH_BKT_LIMIT) {
-> > -			list_del_rcu(&iter->list);
-> > -			call_rcu(&iter->rcu, sel_netnode_free);
-> > -			break;
-> > -		}
-> > +	list_add_rcu(&node->list, &sel_netnode_hash[idx].list);
-> > +	if (sel_netnode_hash[idx].size == SEL_NETNODE_HASH_BKT_LIMIT) {
-> > +		struct sel_netnode *tail;
-> > +		tail = list_entry(node->list.prev, struct sel_netnode, list);
-> > +		__list_del(node->list.prev, node->list.next);
->
-> Can you clarify the change from list_del_rcu() to __list_del() here?
 
-Well, the main reason for the change is I want to delete the tail of the 
-list without having to traverse the entire list, there doesn't appear 
-to be a list_*_rcu() that will allow me to do this so I simply used the 
-__list_del() function to do what I needed.  The only danger here is 
-maintaining all of the right RCUisms and looking at the different 
-implementations the only real difference is that the RCU version sets 
-the removed entry's prev pointer to a poison value.  Since 
-I "immediately" remove the entry and don't make use of the prev pointer 
-in any of the list functions I decided to just skip that step.
-
-However, I am not an RCU expert (tricky thing to master) so if this 
-sounds problematic to you let me know and I'll add the "poisoning" to 
-the code.
-
-> > +		call_rcu(&tail->rcu, sel_netnode_free);
-> > +	} else
-> > +		sel_netnode_hash[idx].size++;
-> >
-> >  	return 0;
-> >  }
-
--- 
-paul moore
-linux @ hp
+Casey Schaufler
+casey@schaufler-ca.com
 
 --
 This message was distributed to subscribers of the selinux mailing list.
