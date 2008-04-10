@@ -1,146 +1,23 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3A29OLm009162
-	for <selinux@tycho.nsa.gov>; Wed, 9 Apr 2008 22:09:24 -0400
-Received: from web36603.mail.mud.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m3A29M8k022557
-	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 02:09:22 GMT
-Date: Wed, 9 Apr 2008 19:08:57 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [RFC PATCH 1/2] NetLabel: Allow passing the LSM domain as a shared pointer
-To: Paul Moore <paul.moore@hp.com>, linux-security-module@vger.kernel.org,
-        netdev@vger.kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <20080407231629.8087.43341.stgit@flek.lan>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3AAUJLv013713
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 06:30:19 -0400
+Received: from ladon.golden-gryphon.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3AAUIYN007830
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 10:30:18 GMT
+Received: from anzu.internal.golden-gryphon.com (tiamat.golden-gryphon.com [204.117.95.118])
+	by ladon.golden-gryphon.com (8.13.8/8.13.8/Debian-3) with ESMTP id m3A9aG2P023120
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 04:36:17 -0500
+Received: from anzu.internal.golden-gryphon.com.internal.golden-gryphon.com (localhost [127.0.0.1])
+	by anzu.internal.golden-gryphon.com (8.14.2/8.14.2/Debian-3) with ESMTP id m3A9a5Tv022801
+	for <selinux@tycho.nsa.gov>; Thu, 10 Apr 2008 04:36:05 -0500
+From: Manoj Srivastava <manoj.srivastava@stdc.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] setools 3.3.4: Fix configure.ac to allow generation of configuration files
+Date: Thu, 10 Apr 2008 04:36:05 -0500
+Message-ID: <877if6qcfu.fsf@anzu.internal.golden-gryphon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-ID: <66343.68126.qm@web36603.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
---- Paul Moore <paul.moore@hp.com> wrote:
-
-> Smack doesn't have the need to create a private copy of the LSM "domain" when
-> setting NetLabel security attributes like SELinux, however, the current
-> NetLabel code requires a private copy of the LSM "domain".  This patches
-> fixes
-> that by letting the LSM determine how it wants to pass the domain value.
-> 
->  * NETLBL_SECATTR_DOMAIN_CPY
->    The current behavior, NetLabel assumes that the domain value is a copy and
->    frees it when done
-> 
->  * NETLBL_SECATTR_DOMAIN
->    New, Smack-friendly behavior, NetLabel assumes that the domain value is a
->    reference to a string managed by the LSM and does not free it when done
-> 
-> Signed-off-by: Paul Moore <paul.moore@hp.com>
-
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-
-Works fine for Smack. Sorry for the delay. Real Life and RSA
-got in the way.
-
-> ---
-> 
->  include/net/netlabel.h         |   14 ++++++++++----
->  security/selinux/ss/services.c |    2 +-
->  security/smack/smack_lsm.c     |    2 +-
->  3 files changed, 12 insertions(+), 6 deletions(-)
-> 
-> diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-> index 0ca67d7..5e53a85 100644
-> --- a/include/net/netlabel.h
-> +++ b/include/net/netlabel.h
-> @@ -162,7 +162,7 @@ struct netlbl_lsm_secattr_catmap {
->  
->  /**
->   * struct netlbl_lsm_secattr - NetLabel LSM security attributes
-> - * @flags: indicate which attributes are contained in this structure
-> + * @flags: indicate structure attributes, see NETLBL_SECATTR_*
->   * @type: indicate the NLTYPE of the attributes
->   * @domain: the NetLabel LSM domain
->   * @cache: NetLabel LSM specific cache
-> @@ -180,17 +180,22 @@ struct netlbl_lsm_secattr_catmap {
->   * NetLabel itself when returning security attributes to the LSM.
->   *
->   */
-> +struct netlbl_lsm_secattr {
-> +	u32 flags;
-> +	/* bitmap values for 'flags' */
->  #define NETLBL_SECATTR_NONE             0x00000000
->  #define NETLBL_SECATTR_DOMAIN           0x00000001
-> +#define NETLBL_SECATTR_DOMAIN_CPY       (NETLBL_SECATTR_DOMAIN | \
-> +					 NETLBL_SECATTR_FREE_DOMAIN)
->  #define NETLBL_SECATTR_CACHE            0x00000002
->  #define NETLBL_SECATTR_MLS_LVL          0x00000004
->  #define NETLBL_SECATTR_MLS_CAT          0x00000008
->  #define NETLBL_SECATTR_SECID            0x00000010
-> +	/* bitmap meta-values for 'flags' */
-> +#define NETLBL_SECATTR_FREE_DOMAIN      0x01000000
->  #define NETLBL_SECATTR_CACHEABLE        (NETLBL_SECATTR_MLS_LVL | \
->  					 NETLBL_SECATTR_MLS_CAT | \
->  					 NETLBL_SECATTR_SECID)
-> -struct netlbl_lsm_secattr {
-> -	u32 flags;
->  	u32 type;
->  	char *domain;
->  	struct netlbl_lsm_cache *cache;
-> @@ -303,7 +308,8 @@ static inline void netlbl_secattr_init(struct
-> netlbl_lsm_secattr *secattr)
->   */
->  static inline void netlbl_secattr_destroy(struct netlbl_lsm_secattr
-> *secattr)
->  {
-> -	kfree(secattr->domain);
-> +	if (secattr->flags & NETLBL_SECATTR_FREE_DOMAIN)
-> +		kfree(secattr->domain);
->  	if (secattr->flags & NETLBL_SECATTR_CACHE)
->  		netlbl_secattr_cache_free(secattr->cache);
->  	if (secattr->flags & NETLBL_SECATTR_MLS_CAT)
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index f374186..47295ac 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -2649,7 +2649,7 @@ int security_netlbl_sid_to_secattr(u32 sid, struct
-> netlbl_lsm_secattr *secattr)
->  		goto netlbl_sid_to_secattr_failure;
->  	secattr->domain = kstrdup(policydb.p_type_val_to_name[ctx->type - 1],
->  				  GFP_ATOMIC);
-> -	secattr->flags |= NETLBL_SECATTR_DOMAIN;
-> +	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY;
->  	mls_export_netlbl_lvl(ctx, secattr);
->  	rc = mls_export_netlbl_cat(ctx, secattr);
->  	if (rc != 0)
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index 732ba27..e2d6f7c 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -1275,7 +1275,7 @@ static void smack_to_secattr(char *smack, struct
-> netlbl_lsm_secattr *nlsp)
->  
->  	switch (smack_net_nltype) {
->  	case NETLBL_NLTYPE_CIPSOV4:
-> -		nlsp->domain = kstrdup(smack, GFP_ATOMIC);
-> +		nlsp->domain = smack;
->  		nlsp->flags = NETLBL_SECATTR_DOMAIN | NETLBL_SECATTR_MLS_LVL;
->  
->  		rc = smack_to_cipso(smack, &cipso);
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> 
-> 
-
-
-Casey Schaufler
-casey@schaufler-ca.com
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
