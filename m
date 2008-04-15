@@ -1,219 +1,225 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3FD96bJ008518
-	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2008 09:09:06 -0400
-Received: from relay1.gtri.gatech.edu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3FD95jo023385
-	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2008 13:09:05 GMT
-Received: from apatlisdmail24.core.gtri.org (apatlisdmail24.core.gtri.org [130.207.199.195])
-	by relay1.gtri.gatech.edu (Spam Firewall) with ESMTP id AEF988FCF2
-	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2008 08:53:36 -0400 (EDT)
-Received: from apatlisdmail24.core.gtri.org (apatlisdmail24.core.gtri.org [130.207.199.195]) by relay1.gtri.gatech.edu with ESMTP id kqLYsBaaTsxysBtJ for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2008 08:53:34 -0400 (EDT)
-Message-ID: <4804A54F.1020108@gtri.gatech.edu>
-Date: Tue, 15 Apr 2008 08:53:35 -0400
-From: Patrick Neely <patrick.neely@gtri.gatech.edu>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3FDQgUC009512
+	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2008 09:26:42 -0400
+Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3FDQejo027014
+	for <selinux@tycho.nsa.gov>; Tue, 15 Apr 2008 13:26:40 GMT
+Date: Tue, 15 Apr 2008 15:26:02 +0200
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
+Subject: Re: refpolicy: patch for gpg-agent
+Message-ID: <20080415132602.GA6685@bobek.pm.i.cz>
+References: <20080220170300.GA13312@bobek.pm.i.cz> <1204660301.14217.26.camel@gorn> <20080321130315.GA21980@bobek.pm.i.cz> <1206544272.16113.228.camel@gorn>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: [refpolicy] potential rsync patch
-Content-Type: multipart/mixed;
-	boundary="------------000104080008030008030908"
+Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
+In-Reply-To: <1206544272.16113.228.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---------------000104080008030008030908
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello,
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-I was creating a module for a script that uses rsync.  I wanted to keep 
-the program in the callers domain throughout, so I developed an 
-interface for "rsync.if" that gives a domain the privileges it needs to 
-execute a rsync without transitioning to the rsync domain.  Next, I 
-replaced the appropriate te rules in the "rsync.te" with this interface 
-which I called "can_rsync_notrans".
+Hi,
+after a longer period of inactivity I'm back with a new try :)
 
-Finally, the transport mechanism I used for rsync was ssh, so I created 
-a "can_rsync_over_ssh" interface and added that to the "rysnc.if" file.
+On Wed, Mar 26, 2008 at 11:11:12AM -0400, Christopher J. PeBenito wrote:
+> On Fri, 2008-03-21 at 14:03 +0100, Václav Ovsík wrote:
+> > On Tue, Mar 04, 2008 at 02:51:41PM -0500, Christopher J. PeBenito wrote:
+> > > On Wed, 2008-02-20 at 18:03 +0100, Václav Ovsík wrote:
+> > > > I'm running HEAD refpolicy on Debian Sid, but this patch is not
+> > > > Debian-specific this time.
+> > > > Having a copy of my std bash profile on the testing machine with
+> > > > a snippet (from gpg-agent man page):
+> > > > 
+> > > >     if test -f $HOME/.gpg-agent-info \
+> > > >              && kill -0 `cut -d: -f 2 $HOME/.gpg-agent-info`
+> > > > 2>/dev/null
+> > > >     then
+> > > >         . $HOME/.gpg-agent-info
+> > > >         export GPG_AGENT_INFO
+> > > >         export SSH_AUTH_SOCK
+> > > >         export SSH_AGENT_PID
+> > > >     else
+> > > >         eval `gpg-agent --daemon --write-env-file`
+> > > >     fi
+> > > > 
+> > > > I got a number of denials for this snippet of commands.
+> > > > 
+> > > > 1. Found a typo for permissions to create socket in the /tmp.
+> > > > 2. Added permission to send signal 0 by the user (see above).
+> > > > 3. Added permissions for writing agent info file into users home
+> > > >    directory.
+> > > > 
+> > > > Index: policy/modules/apps/gpg.if
+> > > > ===================================================================
+> > > > --- policy/modules/apps/gpg.if  (revision 2617)
+> > > > +++ policy/modules/apps/gpg.if  (working copy)
+> > > > @@ -212,6 +212,12 @@
+> > > >         manage_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
+> > > >         manage_lnk_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
+> > > >  
+> > > > +       # write ~/.gpg-agent-info (gpg-agent --write-env-file option)
+> > > > +       allow $1_gpg_agent_t { $1_home_dir_t $1_home_t }:dir add_entry_dir_perms;
+> > > > +       type_transition $1_gpg_agent_t $1_home_dir_t:file $1_home_t;
+> > > > +       allow $1_gpg_agent_t $1_home_t:file create_file_perms;
+> > > > +       allow $1_gpg_agent_t $1_home_t:file write_file_perms;
+> > > 
+> > > I'm a little hesitant to add this unconditionally, I don't think we want
+> > > gpg-agent to write out to general home dir content.  Perhaps we should
+> > > have a tunable, or a specific type for this.
+> > 
+> > I added this rules, so an example from gpg-agent manpage can work
+> > out-of-the-box. Adding a tunable (with the default to disallow) will not
+> > satisfy this. Maybe the later - specific type, but what security risk
+> > poses this rules?
+> > I thought, that domain X_gpg_agent_t is very trusted domain, that
+> > manages my secret keys and should be shielded against the world around
+> > and not the opposite.
+> 
+> Its trusted for handling keys, not trusted for handling general content
+> in the user's home directory.  Remember that if the rules are made
+> conditional, theres nothing stopping distros from making the tunable
+> default to true.
+> 
+> > Ok, what about ssh-agent? Shoul be these rules for userdomain added for
+> > it too?
+> > 
+> > zito@sid:/tmp$ rm -rf ssh-*
+> > 
+> > audit(1206101398.028:16): avc:  denied  { write } for  pid=2155 comm="rm" name="ssh-IgYHrr2122" dev=sda1 ino=49168 scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:sshd_tmp_t:s0 tclass=dir
+> > audit(1206101398.028:17): avc:  denied  { remove_name } for  pid=2155 comm="rm" name="agent.2122" dev=sda1 ino=49169 scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:sshd_tmp_t:s0 tclass=dir
+> > audit(1206101398.028:18): avc:  denied  { unlink } for  pid=2155 comm="rm" name="agent.2122" dev=sda1 ino=49169 scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:sshd_tmp_t:s0 tclass=sock_file
+> > audit(1206101398.028:19): avc:  denied  { rmdir } for  pid=2155 comm="rm" name="ssh-IgYHrr2122" dev=sda1 ino=49168 scontext=staff_u:staff_r:staff_t:s0 tcontext=system_u:object_r:sshd_tmp_t:s0 tclass=dir
+> 
+> Yes, it seems reasonable to me.
+> 
+> -- 
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
 
-This is my first attempt at doing something like this, so I am looking 
-for feedback on how to make this more correct and more correctly 
-styled.  It is my goal to get these interfaces incorporated into the 
-reference policy.
 
-Any help is greatly appreciated!
+Another patch is attached with the specific type for home file
+(<ROLE>_gpg_agent_home_t). I hope, this is better than general write
+permission from the previous patch and without administrative overhead
+of tunable.
 
-Patrick Neely
+Allowed rules for userdomain on gpg-agent tmp files (socket) are
+contained, but I'm not completely certain this is needed. Gpg-agent
+creates socket while starting and cleans it up when exits. The socket
+file remains in /tmp only when gpg-agent is killed by SIGKILL, and there
+is probably no need to remove this stuff by the userdomain either.
+Tmpreaper/tmpwatch cron job should do cleanup. Although I hope including
+these rules for userdomain is harmless.
 
---------------000104080008030008030908
-Content-Type: text/x-patch; name="rsync.if.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="rsync.if.patch"
+Concerning SSH...
+After some investigation I found, that it is a bit more complicated.
+When I ssh into the host with agent forwarded, than socket is created by
+sshd and it has a context:
 
-This adds interfaces to the rsync module.
+zito@bobek:~$ ssh -A sid  
+zito@sid:~$ ls -lZa $SSH_AUTH_SOCK 
+srwxr-xr-x 1 zito zito system_u:object_r:sshd_tmp_t:s0 0 Apr 15 14:34 /tmp/ssh-afqvGT1954/agent.1954
 
-"can_rsync_notrans" allows other domains to run the rysnc command within the caller domain.
-	- executing the rsync binary
-	- sending and receiving packets
-	- reading network state
+The socket of ssh agent started localy has context:
 
-"can_rsync_over_ssh" adds the ability to use rsync over ssh within the caller domain.
-	- executing the ssh binary
-	- connecting to ssh port
+zito@sid:~$ eval `ssh-agent`
+Agent pid 2097
+zito@sid:~$ ls -laZ $SSH_AUTH_SOCK
+srw------- 1 zito zito staff_u:object_r:staff_ssh_agent_tmp_t:s0 0 Apr 15 14:48 /tmp/ssh-LgmzMU2096/agent.2096
 
-Additional rules are needed to enable public key authentication.
 
-Index: policy/modules/services/rsync.te
+If you consider the userdomain rules needless, than gpg-agent-nouser is
+attached as addon patch.
+
+Best Regards
+-- 
+Zito
+
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=gpg-agent
+
+---
+ policy/modules/apps/gpg.if |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
+
+Index: policy/modules/apps/gpg.if
 ===================================================================
---- policy/modules/services/rsync.te	(revision 2659)
-+++ policy/modules/services/rsync.te	(working copy)
-@@ -52,7 +52,6 @@
- # cjp: this should probably only be inetd_child_t rules?
- # search home and kerberos also.
- allow rsync_t self:netlink_tcpdiag_socket r_netlink_socket_perms;
--allow rsync_t self:capability { setuid setgid };
- #end for identd
+--- policy/modules/apps/gpg.if.orig	2008-04-09 18:05:09.000000000 +0200
++++ policy/modules/apps/gpg.if	2008-04-09 18:29:28.000000000 +0200
+@@ -56,6 +56,9 @@
+ 	type $1_gpg_agent_tmp_t;
+ 	files_tmp_file($1_gpg_agent_tmp_t)
  
- allow rsync_t rsync_data_t:dir list_dir_perms;
-@@ -66,44 +65,10 @@
- manage_files_pattern(rsync_t,rsync_var_run_t,rsync_var_run_t)
- files_pid_filetrans(rsync_t,rsync_var_run_t,file)
++	type $1_gpg_agent_home_t;
++	userdom_user_home_content($1,$1_gpg_agent_home_t)
++
+ 	type $1_gpg_secret_t;
+ 	userdom_user_home_content($1,$1_gpg_secret_t)
  
--kernel_read_kernel_sysctls(rsync_t)
--kernel_read_system_state(rsync_t)
--kernel_read_network_state(rsync_t)
--
--corenet_all_recvfrom_unlabeled(rsync_t)
--corenet_all_recvfrom_netlabel(rsync_t)
--corenet_tcp_sendrecv_all_if(rsync_t)
--corenet_udp_sendrecv_all_if(rsync_t)
--corenet_tcp_sendrecv_all_nodes(rsync_t)
--corenet_udp_sendrecv_all_nodes(rsync_t)
--corenet_tcp_sendrecv_all_ports(rsync_t)
--corenet_udp_sendrecv_all_ports(rsync_t)
--corenet_tcp_bind_all_nodes(rsync_t)
--corenet_tcp_bind_rsync_port(rsync_t)
--corenet_sendrecv_rsync_server_packets(rsync_t)
--
--dev_read_urand(rsync_t)
--
--fs_getattr_xattr_fs(rsync_t)
--
--files_read_etc_files(rsync_t)
--files_search_home(rsync_t)
--
--auth_use_nsswitch(rsync_t)
--
--libs_use_ld_so(rsync_t)
--libs_use_shared_libs(rsync_t)
--
--logging_send_syslog_msg(rsync_t)
- logging_dontaudit_search_logs(rsync_t)
+@@ -212,6 +215,14 @@
+ 	manage_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
+ 	manage_lnk_files_pattern($1_gpg_agent_t,$1_gpg_secret_t,$1_gpg_secret_t)
  
--miscfiles_read_localization(rsync_t)
--miscfiles_read_public_files(rsync_t)
-+can_rsync_notrans(rsync_t)
++	# write ~/.gpg-agent-info or a similar to the users home dir or subdir
++	# (gpg-agent --write-env-file option)
++	userdom_user_home_dir_filetrans($1,$1_gpg_agent_t,$1_gpg_agent_home_t,file)
++	userdom_user_home_content_filetrans($1,$1_gpg_agent_t,$1_gpg_agent_home_t,file)
++	allow $1_gpg_agent_t $1_gpg_agent_home_t : file { create_file_perms write_file_perms };
++	# the user can manage the gpg-agent-info file
++	allow $2 $1_gpg_agent_home_t:file manage_file_perms;
++
+ 	# allow gpg to connect to the gpg agent
+ 	stream_connect_pattern($1_gpg_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t,$1_gpg_agent_t)
  
--tunable_policy(`allow_rsync_anon_write',`
--	miscfiles_manage_public_files(rsync_t)
--')
--
- optional_policy(`
- 	daemontools_service_domain(rsync_t, rsync_exec_t)
- ')
-Index: policy/modules/services/rsync.if
-===================================================================
---- policy/modules/services/rsync.if	(revision 2659)
-+++ policy/modules/services/rsync.if	(working copy)
-@@ -103,3 +103,87 @@
+@@ -219,11 +230,18 @@
+ 	ps_process_pattern($2,$1_gpg_agent_t)
  
- 	can_exec($1,rsync_exec_t)
- ')
+ 	# Allow the user shell to signal the gpg-agent program.
+-	allow $2 $1_gpg_agent_t:process { signal sigkill };
++	allow $2 $1_gpg_agent_t:process { signal sigkill signull };
+ 
++	# Allow the user to manage gpg-agent tmp files (socket)
+ 	manage_dirs_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+ 	manage_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+ 	manage_sock_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
 +
-+############################################################
-+## <summary>
-+##	Allow calling domain to use rsync over ssh
-+## </summary>
-+## <desc>
-+##	<p>
-+##		Allows the supplied domain to execute rsync and use
-+##		ssh as the underlying transport mechanism.
-+##	</p>
-+## </desc>
-+## <param name="domain">
-+##	<summary>
-+##		Domain allowed access
-+##	</summary>
-+## </param>
-+#
-+interface(`can_rsync_over_ssh',`
++	# Allow the gpg-agent to manage its tmp files (socket)
++	manage_dirs_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
++	manage_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
++	manage_sock_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
 +
-+	can_rsync_domain($1)
-+	ssh_exec($1)
-+	corenet_tcp_connect_ssh_port($1)
-+
-+')
-+
-+############################################################
-+## <summary>
-+##	Allow calling domain to execute rsync in calling domain
-+## </summary>
-+## <desc>
-+##	<p>
-+##		Allows the supplied domain required privileges to execute
-+##		rsync without transitioning domains.
-+##	</p>
-+## </desc>
-+## <param name="domain">
-+##	<summary>
-+##		Domain allowed access
-+##	</summary>
-+## </param>
-+#
-+interface(`can_rsync_notrans',`
-+
-+	rsync_exec($1)
-+	allow $1 self:capability { setuid setgid };
-+
-+	kernel_read_kernel_sysctls($1)
-+	kernel_read_system_state($1)
-+	kernel_read_network_state($1)
-+
-+	corenet_all_recvfrom_unlabeled($1)
-+	corenet_all_recvfrom_netlabel($1)
-+	corenet_tcp_sendrecv_all_if($1)
-+	corenet_udp_sendrecv_all_if($1)
-+	corenet_tcp_sendrecv_all_nodes($1)
-+	corenet_udp_sendrecv_all_nodes($1)
-+	corenet_tcp_sendrecv_all_ports($1)
-+	corenet_udp_sendrecv_all_ports($1)
-+	corenet_tcp_bind_all_nodes($1)
-+	corenet_tcp_bind_rsync_port($1)
-+	corenet_sendrecv_rsync_server_packets($1)
-+
-+	dev_read_urand($1)
-+	
-+	fs_getattr_xattr_fs($1)
-+	
-+	files_read_etc_files($1)
-+	files_search_home($1)
-+	
-+	auth_use_nsswitch($1)
-+	
-+	libs_use_ld_so($1)
-+	libs_use_shared_libs($1)
-+
-+	logging_send_syslog_msg($1)
-+
-+	miscfiles_read_localization($1)
-+	miscfiles_read_public_files($1)
-+
-+	tunable_policy(`allow_rsync_anon_write',`
-+		miscfiles_manage_public_files($1)
-+	')
-+
-+')
+ 	files_tmp_filetrans($1_gpg_agent_t, $1_gpg_agent_tmp_t, { file sock_file dir })
+ 
+ 	# Transition from the user domain to the derived domain.
 
---------------000104080008030008030908--
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=gpg-agent-nouser
+
+Index: refpolicy-svn/policy/modules/apps/gpg.if
+===================================================================
+--- refpolicy-svn.orig/policy/modules/apps/gpg.if	2008-04-15 14:55:36.000000000 +0200
++++ refpolicy-svn/policy/modules/apps/gpg.if	2008-04-15 14:56:00.000000000 +0200
+@@ -232,11 +232,6 @@
+ 	# Allow the user shell to signal the gpg-agent program.
+ 	allow $2 $1_gpg_agent_t:process { signal sigkill signull };
+ 
+-	# Allow the user to manage gpg-agent tmp files (socket)
+-	manage_dirs_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+-	manage_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+-	manage_sock_files_pattern($2,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+-
+ 	# Allow the gpg-agent to manage its tmp files (socket)
+ 	manage_dirs_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+ 	manage_files_pattern($1_gpg_agent_t,$1_gpg_agent_tmp_t,$1_gpg_agent_tmp_t)
+
+--AqsLC8rIMeq19msA--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
