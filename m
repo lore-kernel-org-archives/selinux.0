@@ -1,71 +1,40 @@
-Subject: Re: Fwd: adding a new security class
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Xavier Toth <txtoth@gmail.com>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1208452550.18883.400.camel@moss-spartans.epoch.ncsc.mil>
-References: <cadfc0e40804161540u2c8796dcr99f67dc7c1aba33d@mail.gmail.com>
-	 <48073FC6.6040908@redhat.com>
-	 <cadfc0e40804170600g610fb3fdy2f7f416d4d7849ff@mail.gmail.com>
-	 <1208438080.18883.361.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40804170720q56eb623bn22dc7b7af31f671c@mail.gmail.com>
-	 <1208442613.18883.386.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40804170822n2ff34af1lcc92aa2c0a1cfff2@mail.gmail.com>
-	 <1208446196.18883.394.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40804170855q25d3e24fw61fa1a45b874c98@mail.gmail.com>
-	 <1208447943.18883.396.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40804170933r63ebccd1w14df5c1efb78f697@mail.gmail.com>
-	 <1208452550.18883.400.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 17 Apr 2008 17:14:14 -0400
-Message-Id: <1208466854.1548.14.camel@gorn>
-Mime-Version: 1.0
+Date: Fri, 18 Apr 2008 09:12:24 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: linux-nfs@vger.kernel.org, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, steved@redhat.com,
+        jlayton@redhat.com, sds@tycho.nsa.gov, chuck.lever@oracle.com,
+        akpm@linux-foundation.org
+Subject: Re: [PATCH] NFS/LSM: Make NFSv4 set LSM mount options
+In-Reply-To: <1208441091.2985.8.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0804180911570.23675@us.intercode.com.au>
+References: <1204744818.3216.254.camel@localhost.localdomain>
+ <1208441091.2985.8.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-04-17 at 13:15 -0400, Stephen Smalley wrote:
-> On Thu, 2008-04-17 at 11:33 -0500, Xavier Toth wrote:
-> > This te file is not the finally resting place for copy/paste policy
-> > simply a convenient place to try out the class.
-> > 
-> > [tedx@comms hack-policy]$ make rebuild
-> > rm -f /home/tedx/src2/Linux_i386/OED/policy/hack-policy.pp
-> > rm -f *.CKP *.ln *.o core errs ,* *~ .emacs_* tags TAGS make.log *.i
-> > if [ ! -d /usr/share/selinux/devel/include/jcdx ]; then \
-> > 		sudo mkdir /usr/share/selinux/devel/include/jcdx; \
-> > 		sudo chmod 777 /usr/share/selinux/devel/include/jcdx; \
-> > 	fi; \
-> > 	cp hack-policy.if /usr/share/selinux/devel/include/jcdx;
-> > rm -f /usr/share/selinux/devel/include/jcdx/hack-policy.if
-> > make -f /usr/share/selinux/devel/Makefile
-> > make[1]: Entering directory `/home/tedx/src2/hack-policy'
-> > Compiling mls hack-policy module
-> > /usr/bin/checkmodule:  loading policy configuration from tmp/hack-policy.tmp
-> > hack-policy.te":30:ERROR 'unknown class x_application_data used in
-> > rule' at token ';' on line 3343:
-> > allow x_rootwindow_t self:x_application_data paste_without_confirm;
-> > ;
-> > /usr/bin/checkmodule:  error(s) encountered while parsing configuration
-> > make[1]: *** [tmp/hack-policy.mod] Error 1
-> > make[1]: Leaving directory `/home/tedx/src2/hack-policy'
-> > make: *** [progs] Error 2
-> 
-> You need a 
-> require {
-> 	class x_application_data { paste_without_confirm };
-> }
-> statement in your module or one of the interfaces it uses.
-> 
-> policy_module() only automatically imports requires for the kernel
-> classes and perms, I think.
+On Thu, 17 Apr 2008, Eric Paris wrote:
 
-Correct, and it determines what is a kernel class by the userspace
-notation in security_classes.
+> NFSv3 get_sb operations call into the LSM layer to set security options
+> passed from userspace.  NFSv4 hooks were not originally added since it
+> was reasonably late in the merge window and NFSv3 was the only thing
+> that had regressed (v4 has never supported any LSM options)
+> 
+> This patch makes NFSv4 call into the LSM to set security options rather
+> than just blindly dropping them with no notice to the user as happens
+> today.  This patch was tested in a simple NFSv4 environment with the
+> context= option and appeared to work as expected.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+
+Acked-by: James Morris <jmorris@namei.org> 
+
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
