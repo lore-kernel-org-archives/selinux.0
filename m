@@ -1,78 +1,41 @@
-Subject: [PATCH] NFS/LSM: Make NFSv4 set LSM mount options
-From: Eric Paris <eparis@redhat.com>
-To: linux-nfs@vger.kernel.org
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        steved@redhat.com, jlayton@redhat.com, sds@tycho.nsa.gov,
-        jmorris@namei.org, chuck.lever@oracle.com, akpm@linux-foundation.org
-In-Reply-To: <1204744818.3216.254.camel@localhost.localdomain>
-References: <1204744818.3216.254.camel@localhost.localdomain>
+Subject: Re: Fwd: adding a new security class
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <cadfc0e40804170720q56eb623bn22dc7b7af31f671c@mail.gmail.com>
+References: <cadfc0e40804161540u2c8796dcr99f67dc7c1aba33d@mail.gmail.com>
+	 <48073FC6.6040908@redhat.com>
+	 <cadfc0e40804170600g610fb3fdy2f7f416d4d7849ff@mail.gmail.com>
+	 <1208438080.18883.361.camel@moss-spartans.epoch.ncsc.mil>
+	 <cadfc0e40804170720q56eb623bn22dc7b7af31f671c@mail.gmail.com>
 Content-Type: text/plain
-Date: Thu, 17 Apr 2008 10:04:51 -0400
-Message-Id: <1208441091.2985.8.camel@localhost.localdomain>
+Date: Thu, 17 Apr 2008 10:30:13 -0400
+Message-Id: <1208442613.18883.386.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-NFSv3 get_sb operations call into the LSM layer to set security options
-passed from userspace.  NFSv4 hooks were not originally added since it
-was reasonably late in the merge window and NFSv3 was the only thing
-that had regressed (v4 has never supported any LSM options)
 
-This patch makes NFSv4 call into the LSM to set security options rather
-than just blindly dropping them with no notice to the user as happens
-today.  This patch was tested in a simple NFSv4 environment with the
-context= option and appeared to work as expected.
+On Thu, 2008-04-17 at 09:20 -0500, Xavier Toth wrote:
+> If the new security class is a userspace object manager related class
+> do I still need to rebuild the kernel?
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+No.  You should find that the regenerated kernel headers are no
+different, as they no longer include userspace classes (if annotated as
+such in the security_classes file).
 
----
+I assume though that you are adding your new class to the end of the
+security_classes list.  Inserting a class before an existing one can
+perturb the values of the existing classes, which isn't a good idea
+(forbidden for kernel classes and any userspace object managers that use
+the old libselinux API; permissible for new userspace object classes
+when they use the dynamic class/permission discovery support but can
+still break running applications until we have support for remapping
+upon reload there).
 
- fs/nfs/super.c |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
-
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index f921902..ffd46f8 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -1946,6 +1946,10 @@ static int nfs4_get_sb(struct file_system_type *fs_type,
- 		goto error_splat_super;
- 	}
- 
-+	error = security_sb_set_mnt_opts(s, &data.lsm_opts);
-+	if (error)
-+		goto error_splat_root;
-+
- 	s->s_flags |= MS_ACTIVE;
- 	mnt->mnt_sb = s;
- 	mnt->mnt_root = mntroot;
-@@ -1962,6 +1966,8 @@ out_free:
- 	nfs_free_server(server);
- 	goto out;
- 
-+error_splat_root:
-+	dput(mntroot);
- error_splat_super:
- 	up_write(&s->s_umount);
- 	deactivate_super(s);
-@@ -2041,6 +2047,8 @@ static int nfs4_xdev_get_sb(struct file_system_type *fs_type, int flags,
- 	mnt->mnt_sb = s;
- 	mnt->mnt_root = mntroot;
- 
-+	security_sb_clone_mnt_opts(data->sb, s);
-+
- 	dprintk("<-- nfs4_xdev_get_sb() = 0\n");
- 	return 0;
- 
-@@ -2120,6 +2128,8 @@ static int nfs4_referral_get_sb(struct file_system_type *fs_type, int flags,
- 	mnt->mnt_sb = s;
- 	mnt->mnt_root = mntroot;
- 
-+	security_sb_clone_mnt_opts(data->sb, s);
-+
- 	dprintk("<-- nfs4_referral_get_sb() = 0\n");
- 	return 0;
- 
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
