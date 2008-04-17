@@ -1,434 +1,215 @@
-Subject: [PATCH] SELinux: cleanup on isle selinuxfs.c
+Subject: [PATCH] SELinux: one little, two little, three little whitespaces,
+	the avc.c saga.
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Thu, 17 Apr 2008 14:15:45 -0400
-Message-Id: <1208456145.2985.36.camel@localhost.localdomain>
+Date: Thu, 17 Apr 2008 14:42:10 -0400
+Message-Id: <1208457730.2985.39.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Why would anyone just clean up white space all day?  Because they were
-out too late last night and don't want to think for a day.  So here is a
-nice clean selinuxfs.c patch.
+avc.c was bad.  It had whitespace and syntax issues which are against
+our coding style.  I have had a little chat with it and the result of
+that conversation looked like this patch.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 
 ---
 
- security/selinux/selinuxfs.c |  112 +++++++++++++++++++++--------------------
- 1 files changed, 57 insertions(+), 55 deletions(-)
+ security/selinux/avc.c |   56 ++++++++++++++++++++++++------------------------
+ 1 files changed, 28 insertions(+), 28 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 6c05e30..893b3db 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1,16 +1,16 @@
- /* Updated: Karl MacMillan <kmacmillan@tresys.com>
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index a628e11..1d69f66 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -2,16 +2,16 @@
+  * Implementation of the kernel access vector cache (AVC).
   *
-- * 	Added conditional policy language extensions
-+ *	Added conditional policy language extensions
+  * Authors:  Stephen Smalley, <sds@epoch.ncsc.mil>
+- *           James Morris <jmorris@redhat.com>
++ *	     James Morris <jmorris@redhat.com>
   *
-  *  Updated: Hewlett-Packard <paul.moore@hp.com>
+  * Update:   KaiGai, Kohei <kaigai@ak.jp.nec.com>
+- *     Replaced the avc_lock spinlock by RCU.
++ *	Replaced the avc_lock spinlock by RCU.
   *
-- *      Added support for the policy capability bitmap
-+ *	Added support for the policy capability bitmap
+  * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
   *
-  * Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
-  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
-  * Copyright (C) 2004 Red Hat, Inc., James Morris <jmorris@redhat.com>
   *	This program is free software; you can redistribute it and/or modify
-- *  	it under the terms of the GNU General Public License as published by
-+ *	it under the terms of the GNU General Public License as published by
-  *	the Free Software Foundation, version 2.
+  *	it under the terms of the GNU General Public License version 2,
+- *      as published by the Free Software Foundation.
++ *	as published by the Free Software Foundation.
   */
- 
-@@ -58,14 +58,14 @@ int selinux_compat_net = SELINUX_COMPAT_NET_VALUE;
- 
- static int __init checkreqprot_setup(char *str)
- {
--	selinux_checkreqprot = simple_strtoul(str,NULL,0) ? 1 : 0;
-+	selinux_checkreqprot = simple_strtoul(str, NULL, 0) ? 1 : 0;
- 	return 1;
- }
- __setup("checkreqprot=", checkreqprot_setup);
- 
- static int __init selinux_compat_net_setup(char *str)
- {
--	selinux_compat_net = simple_strtoul(str,NULL,0) ? 1 : 0;
-+	selinux_compat_net = simple_strtoul(str, NULL, 0) ? 1 : 0;
- 	return 1;
- }
- __setup("selinux_compat_net=", selinux_compat_net_setup);
-@@ -74,17 +74,17 @@ __setup("selinux_compat_net=", selinux_compat_net_setup);
- static DEFINE_MUTEX(sel_mutex);
- 
- /* global data for booleans */
--static struct dentry *bool_dir = NULL;
--static int bool_num = 0;
-+static struct dentry *bool_dir;
-+static int bool_num;
- static char **bool_pending_names;
--static int *bool_pending_values = NULL;
-+static int *bool_pending_values;
- 
- /* global data for classes */
--static struct dentry *class_dir = NULL;
-+static struct dentry *class_dir;
- static unsigned long last_class_ino;
- 
- /* global data for policy capabilities */
--static struct dentry *policycap_dir = NULL;
-+static struct dentry *policycap_dir;
- 
- extern void selnl_notify_setenforce(int val);
- 
-@@ -143,7 +143,7 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
- }
- 
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
--static ssize_t sel_write_enforce(struct file * file, const char __user * buf,
-+static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 				 size_t count, loff_t *ppos)
- 
- {
-@@ -157,7 +157,7 @@ static ssize_t sel_write_enforce(struct file * file, const char __user * buf,
- 		/* No partial writes. */
- 		return -EINVAL;
- 	}
--	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
- 	if (!page)
- 		return -ENOMEM;
- 	length = -EFAULT;
-@@ -214,7 +214,7 @@ static const struct file_operations sel_handle_unknown_ops = {
+ #include <linux/types.h>
+ #include <linux/stddef.h>
+@@ -44,7 +44,7 @@ static const char *class_to_string[] = {
+ #undef S_
  };
  
- #ifdef CONFIG_SECURITY_SELINUX_DISABLE
--static ssize_t sel_write_disable(struct file * file, const char __user * buf,
-+static ssize_t sel_write_disable(struct file *file, const char __user *buf,
- 				 size_t count, loff_t *ppos)
+-#define TB_(s) static const char * s [] = {
++#define TB_(s) static const char *s[] = {
+ #define TE_(s) };
+ #define S_(s) s,
+ #include "common_perm_to_string.h"
+@@ -72,7 +72,7 @@ const struct selinux_class_perm selinux_class_perm = {
+ #define AVC_CACHE_RECLAIM		16
  
- {
-@@ -229,7 +229,7 @@ static ssize_t sel_write_disable(struct file * file, const char __user * buf,
- 		/* No partial writes. */
- 		return -EINVAL;
- 	}
--	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
- 	if (!page)
- 		return -ENOMEM;
- 	length = -EFAULT;
-@@ -264,7 +264,7 @@ static const struct file_operations sel_disable_ops = {
+ #ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
+-#define avc_cache_stats_incr(field) 				\
++#define avc_cache_stats_incr(field)				\
+ do {								\
+ 	per_cpu(avc_cache_stats, get_cpu()).field++;		\
+ 	put_cpu();						\
+@@ -92,7 +92,7 @@ struct avc_entry {
+ struct avc_node {
+ 	struct avc_entry	ae;
+ 	struct list_head	list;
+-	struct rcu_head         rhead;
++	struct rcu_head		rhead;
  };
  
- static ssize_t sel_read_policyvers(struct file *filp, char __user *buf,
--                                   size_t count, loff_t *ppos)
-+				   size_t count, loff_t *ppos)
- {
- 	char tmpbuf[TMPBUFLEN];
- 	ssize_t length;
-@@ -300,7 +300,7 @@ static const struct file_operations sel_mls_ops = {
- 	.read		= sel_read_mls,
- };
+ struct avc_cache {
+@@ -105,8 +105,8 @@ struct avc_cache {
  
--static ssize_t sel_write_load(struct file * file, const char __user * buf,
-+static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 			      size_t count, loff_t *ppos)
+ struct avc_callback_node {
+ 	int (*callback) (u32 event, u32 ssid, u32 tsid,
+-	                 u16 tclass, u32 perms,
+-	                 u32 *out_retained);
++			 u16 tclass, u32 perms,
++			 u32 *out_retained);
+ 	u32 events;
+ 	u32 ssid;
+ 	u32 tsid;
+@@ -202,7 +202,7 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
+ 	char *scontext;
+ 	u32 scontext_len;
  
- {
-@@ -372,7 +372,7 @@ static const struct file_operations sel_load_ops = {
- 	.write		= sel_write_load,
- };
+- 	rc = security_sid_to_context(ssid, &scontext, &scontext_len);
++	rc = security_sid_to_context(ssid, &scontext, &scontext_len);
+ 	if (rc)
+ 		audit_log_format(ab, "ssid=%d", ssid);
+ 	else {
+@@ -306,7 +306,7 @@ static inline int avc_reclaim_node(void)
+ 	int hvalue, try, ecx;
+ 	unsigned long flags;
  
--static ssize_t sel_write_context(struct file * file, char *buf, size_t size)
-+static ssize_t sel_write_context(struct file *file, char *buf, size_t size)
- {
- 	char *canon;
- 	u32 sid, len;
-@@ -414,7 +414,7 @@ static ssize_t sel_read_checkreqprot(struct file *filp, char __user *buf,
- 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
- }
+-	for (try = 0, ecx = 0; try < AVC_CACHE_SLOTS; try++ ) {
++	for (try = 0, ecx = 0; try < AVC_CACHE_SLOTS; try++) {
+ 		hvalue = atomic_inc_return(&avc_cache.lru_hint) & (AVC_CACHE_SLOTS - 1);
  
--static ssize_t sel_write_checkreqprot(struct file * file, const char __user * buf,
-+static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
- 				      size_t count, loff_t *ppos)
- {
- 	char *page;
-@@ -431,7 +431,7 @@ static ssize_t sel_write_checkreqprot(struct file * file, const char __user * bu
- 		/* No partial writes. */
- 		return -EINVAL;
- 	}
--	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
- 	if (!page)
- 		return -ENOMEM;
- 	length = -EFAULT;
-@@ -463,7 +463,7 @@ static ssize_t sel_read_compat_net(struct file *filp, char __user *buf,
- 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
- }
- 
--static ssize_t sel_write_compat_net(struct file * file, const char __user * buf,
-+static ssize_t sel_write_compat_net(struct file *file, const char __user *buf,
- 				    size_t count, loff_t *ppos)
- {
- 	char *page;
-@@ -480,7 +480,7 @@ static ssize_t sel_write_compat_net(struct file * file, const char __user * buf,
- 		/* No partial writes. */
- 		return -EINVAL;
- 	}
--	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
- 	if (!page)
- 		return -ENOMEM;
- 	length = -EFAULT;
-@@ -505,11 +505,11 @@ static const struct file_operations sel_compat_net_ops = {
- /*
-  * Remaining nodes use transaction based IO methods like nfsd/nfsctl.c
-  */
--static ssize_t sel_write_access(struct file * file, char *buf, size_t size);
--static ssize_t sel_write_create(struct file * file, char *buf, size_t size);
--static ssize_t sel_write_relabel(struct file * file, char *buf, size_t size);
--static ssize_t sel_write_user(struct file * file, char *buf, size_t size);
--static ssize_t sel_write_member(struct file * file, char *buf, size_t size);
-+static ssize_t sel_write_access(struct file *file, char *buf, size_t size);
-+static ssize_t sel_write_create(struct file *file, char *buf, size_t size);
-+static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size);
-+static ssize_t sel_write_user(struct file *file, char *buf, size_t size);
-+static ssize_t sel_write_member(struct file *file, char *buf, size_t size);
- 
- static ssize_t (*write_op[])(struct file *, char *, size_t) = {
- 	[SEL_ACCESS] = sel_write_access,
-@@ -522,7 +522,7 @@ static ssize_t (*write_op[])(struct file *, char *, size_t) = {
- 
- static ssize_t selinux_transaction_write(struct file *file, const char __user *buf, size_t size, loff_t *pos)
- {
--	ino_t ino =  file->f_path.dentry->d_inode->i_ino;
-+	ino_t ino = file->f_path.dentry->d_inode->i_ino;
- 	char *data;
- 	ssize_t rv;
- 
-@@ -533,8 +533,8 @@ static ssize_t selinux_transaction_write(struct file *file, const char __user *b
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
- 
--	rv =  write_op[ino](file, data, size);
--	if (rv>0) {
-+	rv = write_op[ino](file, data, size);
-+	if (rv > 0) {
- 		simple_transaction_set(file, rv);
- 		rv = size;
- 	}
-@@ -553,7 +553,7 @@ static const struct file_operations transaction_ops = {
-  * and the length returned.  Otherwise return 0 or and -error.
-  */
- 
--static ssize_t sel_write_access(struct file * file, char *buf, size_t size)
-+static ssize_t sel_write_access(struct file *file, char *buf, size_t size)
- {
- 	char *scon, *tcon;
- 	u32 ssid, tsid;
-@@ -602,7 +602,7 @@ out:
- 	return length;
- }
- 
--static ssize_t sel_write_create(struct file * file, char *buf, size_t size)
-+static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
- {
- 	char *scon, *tcon;
- 	u32 ssid, tsid, newsid;
-@@ -661,7 +661,7 @@ out:
- 	return length;
- }
- 
--static ssize_t sel_write_relabel(struct file * file, char *buf, size_t size)
-+static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size)
- {
- 	char *scon, *tcon;
- 	u32 ssid, tsid, newsid;
-@@ -718,7 +718,7 @@ out:
- 	return length;
- }
- 
--static ssize_t sel_write_user(struct file * file, char *buf, size_t size)
-+static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
- {
- 	char *con, *user, *ptr;
- 	u32 sid, *sids;
-@@ -779,7 +779,7 @@ out:
- 	return length;
- }
- 
--static ssize_t sel_write_member(struct file * file, char *buf, size_t size)
-+static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
- {
- 	char *scon, *tcon;
- 	u32 ssid, tsid, newsid;
-@@ -873,7 +873,8 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	if (!(page = (char*)get_zeroed_page(GFP_KERNEL))) {
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
-+	if (!page) {
- 		ret = -ENOMEM;
- 		goto out;
- 	}
-@@ -924,7 +925,7 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
- 		length = -EINVAL;
- 		goto out;
- 	}
--	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
- 	if (!page) {
- 		length = -ENOMEM;
- 		goto out;
-@@ -952,8 +953,8 @@ out:
- }
- 
- static const struct file_operations sel_bool_ops = {
--	.read           = sel_read_bool,
--	.write          = sel_write_bool,
-+	.read		= sel_read_bool,
-+	.write		= sel_write_bool,
- };
- 
- static ssize_t sel_commit_bools_write(struct file *filep,
-@@ -978,7 +979,7 @@ static ssize_t sel_commit_bools_write(struct file *filep,
- 		/* No partial writes. */
- 		goto out;
- 	}
--	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
- 	if (!page) {
- 		length = -ENOMEM;
- 		goto out;
-@@ -992,9 +993,8 @@ static ssize_t sel_commit_bools_write(struct file *filep,
- 	if (sscanf(page, "%d", &new_value) != 1)
- 		goto out;
- 
--	if (new_value && bool_pending_values) {
-+	if (new_value && bool_pending_values)
- 		security_set_bools(bool_num, bool_pending_values);
--	}
- 
- 	length = count;
- 
-@@ -1006,7 +1006,7 @@ out:
- }
- 
- static const struct file_operations sel_commit_bools_ops = {
--	.write          = sel_commit_bools_write,
-+	.write		= sel_commit_bools_write,
- };
- 
- static void sel_remove_entries(struct dentry *de)
-@@ -1056,7 +1056,8 @@ static int sel_make_bools(void)
- 
- 	sel_remove_entries(dir);
- 
--	if (!(page = (char*)get_zeroed_page(GFP_KERNEL)))
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
-+	if (!page)
- 		return -ENOMEM;
- 
- 	ret = security_get_bools(&num, &names, &values);
-@@ -1083,8 +1084,9 @@ static int sel_make_bools(void)
- 			ret = -ENAMETOOLONG;
- 			goto err;
+ 		if (!spin_trylock_irqsave(&avc_cache.slots_lock[hvalue], flags))
+@@ -475,7 +475,7 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct avc_en
+ 			if (pos->ae.ssid == ssid &&
+ 			    pos->ae.tsid == tsid &&
+ 			    pos->ae.tclass == tclass) {
+-			    	avc_node_replace(node, pos);
++				avc_node_replace(node, pos);
+ 				goto found;
+ 			}
  		}
--		isec = (struct inode_security_struct*)inode->i_security;
--		if ((ret = security_genfs_sid("selinuxfs", page, SECCLASS_FILE, &sid)))
-+		isec = (struct inode_security_struct *)inode->i_security;
-+		ret = security_genfs_sid("selinuxfs", page, SECCLASS_FILE, &sid);
-+		if (ret)
- 			goto err;
- 		isec->sid = sid;
- 		isec->initialized = 1;
-@@ -1112,7 +1114,7 @@ err:
- 
- #define NULL_FILE_NAME "null"
- 
--struct dentry *selinux_null = NULL;
-+struct dentry *selinux_null;
- 
- static ssize_t sel_read_avc_cache_threshold(struct file *filp, char __user *buf,
- 					    size_t count, loff_t *ppos)
-@@ -1124,8 +1126,8 @@ static ssize_t sel_read_avc_cache_threshold(struct file *filp, char __user *buf,
- 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
- }
- 
--static ssize_t sel_write_avc_cache_threshold(struct file * file,
--					     const char __user * buf,
-+static ssize_t sel_write_avc_cache_threshold(struct file *file,
-+					     const char __user *buf,
- 					     size_t count, loff_t *ppos)
- 
+@@ -526,8 +526,8 @@ static inline void avc_print_ipv4_addr(struct audit_buffer *ab, __be32 addr,
+  * before calling the auditing code.
+  */
+ void avc_audit(u32 ssid, u32 tsid,
+-               u16 tclass, u32 requested,
+-               struct av_decision *avd, int result, struct avc_audit_data *a)
++	       u16 tclass, u32 requested,
++	       struct av_decision *avd, int result, struct avc_audit_data *a)
  {
-@@ -1144,7 +1146,7 @@ static ssize_t sel_write_avc_cache_threshold(struct file * file,
- 		goto out;
+ 	struct task_struct *tsk = current;
+ 	struct inode *inode = NULL;
+@@ -541,7 +541,7 @@ void avc_audit(u32 ssid, u32 tsid,
+ 			return;
+ 	} else if (result) {
+ 		audited = denied = requested;
+-        } else {
++	} else {
+ 		audited = requested;
+ 		if (!(audited & avd->auditallow))
+ 			return;
+@@ -551,7 +551,7 @@ void avc_audit(u32 ssid, u32 tsid,
+ 	if (!ab)
+ 		return;		/* audit_panic has been called */
+ 	audit_log_format(ab, "avc:  %s ", denied ? "denied" : "granted");
+-	avc_dump_av(ab, tclass,audited);
++	avc_dump_av(ab, tclass, audited);
+ 	audit_log_format(ab, " for ");
+ 	if (a && a->tsk)
+ 		tsk = a->tsk;
+@@ -647,7 +647,7 @@ void avc_audit(u32 ssid, u32 tsid,
+ 					break;
+ 				}
+ 			}
+-			
++
+ 			switch (a->u.net.family) {
+ 			case AF_INET:
+ 				avc_print_ipv4_addr(ab, a->u.net.v4info.saddr,
+@@ -702,10 +702,10 @@ void avc_audit(u32 ssid, u32 tsid,
+  * -%ENOMEM if insufficient memory exists to add the callback.
+  */
+ int avc_add_callback(int (*callback)(u32 event, u32 ssid, u32 tsid,
+-                                     u16 tclass, u32 perms,
+-                                     u32 *out_retained),
+-                     u32 events, u32 ssid, u32 tsid,
+-                     u16 tclass, u32 perms)
++				     u16 tclass, u32 perms,
++				     u32 *out_retained),
++		     u32 events, u32 ssid, u32 tsid,
++		     u16 tclass, u32 perms)
+ {
+ 	struct avc_callback_node *c;
+ 	int rc = 0;
+@@ -759,10 +759,10 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass)
+ 	hvalue = avc_hash(ssid, tsid, tclass);
+ 	spin_lock_irqsave(&avc_cache.slots_lock[hvalue], flag);
+ 
+-	list_for_each_entry(pos, &avc_cache.slots[hvalue], list){
+-		if ( ssid==pos->ae.ssid &&
+-		     tsid==pos->ae.tsid &&
+-		     tclass==pos->ae.tclass ){
++	list_for_each_entry(pos, &avc_cache.slots[hvalue], list) {
++		if (ssid == pos->ae.ssid &&
++		    tsid == pos->ae.tsid &&
++		    tclass == pos->ae.tclass){
+ 			orig = pos;
+ 			break;
+ 		}
+@@ -829,7 +829,7 @@ int avc_ss_reset(u32 seqno)
+ 	for (c = avc_callbacks; c; c = c->next) {
+ 		if (c->events & AVC_CALLBACK_RESET) {
+ 			tmprc = c->callback(AVC_CALLBACK_RESET,
+-			                    0, 0, 0, 0, NULL);
++					    0, 0, 0, 0, NULL);
+ 			/* save the first error encountered for the return
+ 			   value and continue processing the callbacks */
+ 			if (!rc)
+@@ -878,11 +878,11 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+ 	node = avc_lookup(ssid, tsid, tclass, requested);
+ 	if (!node) {
+ 		rcu_read_unlock();
+-		rc = security_compute_av(ssid,tsid,tclass,requested,&entry.avd);
++		rc = security_compute_av(ssid, tsid, tclass, requested, &entry.avd);
+ 		if (rc)
+ 			goto out;
+ 		rcu_read_lock();
+-		node = avc_insert(ssid,tsid,tclass,&entry);
++		node = avc_insert(ssid, tsid, tclass, &entry);
  	}
  
--	page = (char*)get_zeroed_page(GFP_KERNEL);
-+	page = (char *)get_zeroed_page(GFP_KERNEL);
- 	if (!page) {
- 		ret = -ENOMEM;
- 		goto out;
-@@ -1302,7 +1304,7 @@ out:
- 	return ret;
- }
- 
--static ssize_t sel_read_initcon(struct file * file, char __user *buf,
-+static ssize_t sel_read_initcon(struct file *file, char __user *buf,
- 				size_t count, loff_t *ppos)
+ 	p_ae = node ? &node->ae : &entry;
+@@ -924,7 +924,7 @@ out:
+  * another -errno upon other errors.
+  */
+ int avc_has_perm(u32 ssid, u32 tsid, u16 tclass,
+-                 u32 requested, struct avc_audit_data *auditdata)
++		 u32 requested, struct avc_audit_data *auditdata)
  {
- 	struct inode *inode;
-@@ -1376,7 +1378,7 @@ static inline u32 sel_ino_to_perm(unsigned long ino)
- 	return (ino & SEL_INO_MASK) % (SEL_VEC_MAX + 1);
- }
- 
--static ssize_t sel_read_class(struct file * file, char __user *buf,
-+static ssize_t sel_read_class(struct file *file, char __user *buf,
- 				size_t count, loff_t *ppos)
- {
- 	ssize_t rc, len;
-@@ -1400,7 +1402,7 @@ static const struct file_operations sel_class_ops = {
- 	.read		= sel_read_class,
- };
- 
--static ssize_t sel_read_perm(struct file * file, char __user *buf,
-+static ssize_t sel_read_perm(struct file *file, char __user *buf,
- 				size_t count, loff_t *ppos)
- {
- 	ssize_t rc, len;
-@@ -1413,7 +1415,7 @@ static ssize_t sel_read_perm(struct file * file, char __user *buf,
- 		goto out;
- 	}
- 
--	len = snprintf(page, PAGE_SIZE,"%d", sel_ino_to_perm(ino));
-+	len = snprintf(page, PAGE_SIZE, "%d", sel_ino_to_perm(ino));
- 	rc = simple_read_from_buffer(buf, count, ppos, page, len);
- 	free_page((unsigned long)page);
- out:
-@@ -1641,7 +1643,7 @@ out:
- 	return ret;
- }
- 
--static int sel_fill_super(struct super_block * sb, void * data, int silent)
-+static int sel_fill_super(struct super_block *sb, void *data, int silent)
- {
- 	int ret;
- 	struct dentry *dentry;
-@@ -1697,7 +1699,7 @@ static int sel_fill_super(struct super_block * sb, void * data, int silent)
- 		goto err;
- 	}
- 	inode->i_ino = ++sel_last_ino;
--	isec = (struct inode_security_struct*)inode->i_security;
-+	isec = (struct inode_security_struct *)inode->i_security;
- 	isec->sid = SECINITSID_DEVNULL;
- 	isec->sclass = SECCLASS_CHR_FILE;
- 	isec->initialized = 1;
+ 	struct av_decision avd;
+ 	int rc;
 
 
 
