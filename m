@@ -1,56 +1,45 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3IGWVki019769
-	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2008 12:32:31 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m3IGWTSc029417
-	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2008 16:32:30 GMT
-Subject: Re: [refpolicy] lvm runs shell scripts
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: Re: Enabling policy capabilities
+Date: Fri, 18 Apr 2008 10:21:27 -0400
+Message-ID: <1208528487.1548.59.camel@gorn>
+In-Reply-To: <200804101001.23288.paul.moore@hp.com>
+References: <1207834719.21223.730.camel@moss-spartans.epoch.ncsc.mil> <200804101001.23288.paul.moore@hp.com>
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Martin Orr <martin@martinorr.name>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <47EB7AA5.1030502@martinorr.name>
-References: <47EB7AA5.1030502@martinorr.name>
-Content-Type: text/plain
-Date: Fri, 18 Apr 2008 11:22:08 -0400
-Message-Id: <1208532128.7113.0.camel@gorn>
-Mime-Version: 1.0
+To: "Paul Moore" <paul.moore@hp.com>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Eric Paris" <eparis@parisplace.org>,
+        "Daniel J Walsh" <dwalsh@redhat.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-03-27 at 10:44 +0000, Martin Orr wrote:
-> crytpsetup, for setting up encrypted volumes, runs shell scripts during this
-> process which gives me:
+On Thu, 2008-04-10 at 10:01 -0400, Paul Moore wrote:
+> On Thursday 10 April 2008 9:38:39 am Stephen Smalley wrote:
+> > Where do we stand on actually enabling policy capabilities in policy
+> > so that people can start using newer features that depend on them?
+> >
+> > I've definitely seen patches adding permissions for the peer checks,
+> > so is there anything preventing us from trying to enable
+> > network_peer_controls in policy and seeing what breaks (after Fedora
+> > 9 at this point, I suppose - unfortunate that we didn't enable it
+> > sooner)?
 > 
-> Mar 27 10:16:41 caligula kernel: audit(1206612989.635:4): avc:  denied  {
-> execute } for  pid=2929 comm="cryptsetup" name="dash" dev=dm-0 ino=470542
-> scontext=system_u:system_r:lvm_t:s0
-> tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
+> I still owe Chris an updated set of patches for refpolicy to put all the 
+> right unlabeled checks in place for the new peer controls.  There have 
+> been lots of patches on the lists but none have been right, yet :)
+> 
+> Once I get the 2.6.26 patches straightened out I'm going to work on 
+> those.
 
-Sorry for the delay; merged.
+I added a policy_capabilities file with the two existing caps commented
+out.
 
-> plain text document attachment (113_cryptsetup_shell)
-> Written by: Martin Orr
-> 
-> Allow cryptsetup to run shell scripts
-> 
-> Mar 27 10:16:41 caligula kernel: audit(1206612989.635:4): avc:  denied  { execute } for  pid=2929 comm="cryptsetup" name="dash" dev=dm-0 ino=470542 scontext=system_u:system_r:lvm_t:s0 tcontext=system_u:object_r:shell_exec_t:s0 tclass=file
-> 
-> Index: policy/modules/system/lvm.te
-> ===================================================================
-> --- policy/modules/system/lvm.te.orig
-> +++ policy/modules/system/lvm.te
-> @@ -247,6 +247,7 @@
->  term_list_ptys(lvm_t)
->  
->  corecmd_exec_bin(lvm_t)
-> +corecmd_exec_shell(lvm_t)
->  
->  domain_use_interactive_fds(lvm_t)
->  
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
+
 
 
 --
