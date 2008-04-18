@@ -1,62 +1,75 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3IGWXD9019804
-	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2008 12:32:33 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m3IGWTSg029417
-	for <selinux@tycho.nsa.gov>; Fri, 18 Apr 2008 16:32:32 GMT
-Subject: Re: [refpolicy] RFC: hal_read_log interface
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: rob myers <rob.myers@gtri.gatech.edu>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1208213525.31069.77.camel@rxm-581b.stl.gtri.gatech.edu>
-References: <1208213525.31069.77.camel@rxm-581b.stl.gtri.gatech.edu>
-Content-Type: text/plain
-Date: Fri, 18 Apr 2008 11:55:00 -0400
-Message-Id: <1208534100.7113.9.camel@gorn>
-Mime-Version: 1.0
+Message-ID: <4808E4AA.2070707@redhat.com>
+Date: Fri, 18 Apr 2008 14:12:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: semanage man page updated for booleans
+References: <47FB7A26.6020604@redhat.com>	 <1208529338.18883.480.camel@moss-spartans.epoch.ncsc.mil> <1208529570.18883.485.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1208529570.18883.485.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-04-14 at 18:52 -0400, rob myers wrote:
-> While trying to create a domain that could read all the files
-> in /var/log, I noticed that hald_log_t files do not have the logfile
-> attribute.  This appears to be intentional because the
-> logging_log_filetrans interface was used instead of the logging_log_file
-> interface.  Is this still the intention?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Stephen Smalley wrote:
+> On Fri, 2008-04-18 at 10:35 -0400, Stephen Smalley wrote:
+>> On Tue, 2008-04-08 at 09:59 -0400, Daniel J Walsh wrote:
+>>> plain text document attachment (diff.part003)
+>>> --- nsapolicycoreutils/semanage/semanage.8	2008-04-08 09:37:21.000000000 -0400
+>>> +++ policycoreutils-2.0.46/semanage/semanage.8	2008-04-08 09:35:46.000000000 -0400
+>>> @@ -3,7 +3,9 @@
+>>>  semanage \- SELinux Policy Management tool
+>>>  
+>>>  .SH "SYNOPSIS"
+>>> -.B semanage {login|user|port|interface|fcontext|translation} \-l [\-n]
+>>> +.B semanage {boolean|login|user|port|interface|fcontext|translation} \-{l|D} [\-n] 
+>>> +.br
+>>> +.B semanage boolean \-{d|m} [\-T] boolean
+>> Merged with some fixes (no -T, added --on/--off/-1/-0).
+>>
+>> Also added a mention of the -C/--locallist option for only listing local
+>> settings.  And added error checking on the set_active() call.
 > 
-> Attached is a patch to add an interface to allow domains to read
-> hald_log_t in case hald_log_t needs to remain a private type.
+> Also, last I tried, policy didn't allow semanage_t to set boolean
+> values, so attempting to modify booleans using semanage rather than
+> setsebool fails.  So policy needs to be updated.
+> 
+Rawhide has this.
+> And what domain is system-config-selinux running in at present?
+> 
+system-config-selinux runs in the users context (bin_t).  But it execs
+the semanage command.
+>>>  .br
+>>>  .B semanage login \-{a|d|m} [\-sr] login_name
+>>>  .br
+>>> @@ -43,6 +45,9 @@
+>>>  .I                \-d, \-\-delete     
+>>>  Delete a OBJECT record NAME
+>>>  .TP
+>>> +.I                \-D, \-\-deleteall
+>>> +Remove all OBJECTS local customizations
+>> Does this actually yield the expected result for booleans?  IOW, if I
+>> delete all local customizations, does it also change the active boolean
+>> settings to the base policy values?  If not, then the user won't see the
+>> real effect until they next reboot since the kernel will keep preserving
+>> the active boolean settings across reload.
+>>  
+>>> +.TP
+>>>  .I                \-f, \-\-ftype
+>>>  File Type.   This is used with fcontext.
+>>>  Requires a file type as shown in the mode field by ls, e.g. use -d to match only directories or -- to match only regular files.
 
-The filetrans interface is needed so that when hal creates it's log
-in /var/log, it gets the correct type.  It should also have the log_file
-interface too, since its a log file.  I changed hald_log_t to be a log
-file.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-However that doesn't necessarily mean that your patch is undesirable,
-but I do have a comment:
-
-> +interface(`hal_read_log',`
-> +       gen_require(`
-> +               type hald_log_t;
-> +       ')
-> +
-> +       logging_search_logs($1)
-
-> +       allow $1 hald_log_t:dir search_dir_perms;
-> +       allow $1 hald_log_t:dir r_dir_perms;
-> +       allow $1 hald_log_t:file read_file_perms;
-
-Likely that you want to use read_files_pattern() instead of these three
-lines.  If not, the list_dir_perms permission set on the directory would
-be sufficient for the first two lines.
-
-> +')
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+iEYEARECAAYFAkgI5KoACgkQrlYvE4MpobPTOwCcDL9zVaUPnfAEcCb6aJA0Hcwt
+NWAAoObepDwXUlYyZGAnirTYjAKRChS5
+=QtwN
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
