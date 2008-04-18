@@ -1,69 +1,66 @@
-Message-ID: <4808E4D6.4040907@redhat.com>
-Date: Fri, 18 Apr 2008 14:13:42 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: semanage man page updated for booleans
-References: <47FB7A26.6020604@redhat.com> <1208529338.18883.480.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1208529338.18883.480.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+From: eparis@redhat.com
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, Eric Paris <eparis@redhat.com>
+Subject: [PATCH 05/13] SELinux: nlmsgtab.c whitespace, syntax, and static declaraction cleanups
+Date: Fri, 18 Apr 2008 17:38:26 -0400
+Message-Id: <12085547142971-git-send-email-eparis@redhat.com>
+In-Reply-To: <12085547143090-git-send-email-eparis@redhat.com>
+References: <1208554714617-git-send-email-eparis@redhat.com>
+ <12085547142360-git-send-email-eparis@redhat.com>
+ <12085547142711-git-send-email-eparis@redhat.com>
+ <12085547143090-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+From: Eric Paris <eparis@redhat.com>
 
-Stephen Smalley wrote:
-> On Tue, 2008-04-08 at 09:59 -0400, Daniel J Walsh wrote:
->> plain text document attachment (diff.part003)
->> --- nsapolicycoreutils/semanage/semanage.8	2008-04-08 09:37:21.000000000 -0400
->> +++ policycoreutils-2.0.46/semanage/semanage.8	2008-04-08 09:35:46.000000000 -0400
->> @@ -3,7 +3,9 @@
->>  semanage \- SELinux Policy Management tool
->>  
->>  .SH "SYNOPSIS"
->> -.B semanage {login|user|port|interface|fcontext|translation} \-l [\-n]
->> +.B semanage {boolean|login|user|port|interface|fcontext|translation} \-{l|D} [\-n] 
->> +.br
->> +.B semanage boolean \-{d|m} [\-T] boolean
-> 
-> Merged with some fixes (no -T, added --on/--off/-1/-0).
-> 
-> Also added a mention of the -C/--locallist option for only listing local
-> settings.  And added error checking on the set_active() call.
-> 
->>  .br
->>  .B semanage login \-{a|d|m} [\-sr] login_name
->>  .br
->> @@ -43,6 +45,9 @@
->>  .I                \-d, \-\-delete     
->>  Delete a OBJECT record NAME
->>  .TP
->> +.I                \-D, \-\-deleteall
->> +Remove all OBJECTS local customizations
-I have an open bugreport where this actually crashes libsemanage, so I
-will check when I work on the bug.
-> 
-> Does this actually yield the expected result for booleans?  IOW, if I
-> delete all local customizations, does it also change the active boolean
-> settings to the base policy values?  If not, then the user won't see the
-> real effect until they next reboot since the kernel will keep preserving
-> the active boolean settings across reload.
->  
->> +.TP
->>  .I                \-f, \-\-ftype
->>  File Type.   This is used with fcontext.
->>  Requires a file type as shown in the mode field by ls, e.g. use -d to match only directories or -- to match only regular files.
+This patch changes nlmsgtab.c to fix whitespace and syntax issues.  Things that
+are fixed may include (does not not have to include)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+whitespace at end of lines
+spaces followed by tabs
+spaces used instead of tabs
+spacing around parenthesis
+locateion of { around struct and else clauses
+location of * in pointer declarations
+removal of initialization of static data to keep it in the right section
+useless {} in if statemetns
+useless checking for NULL before kfree
+fixing of the indentation depth of switch statements
+and any number of other things I forgot to mention
 
-iEYEARECAAYFAkgI5NYACgkQrlYvE4MpobOaxQCgprN/ncwNL+BzPbPOcyAmbozq
-S+8AnRJWyOKRwjj1WKXr2WJ//yScZffJ
-=N0ur
------END PGP SIGNATURE-----
+Signed-off-by: Eric Paris <eparis@redhat.com>
+
+---
+ security/selinux/nlmsgtab.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
+index eddc7b4..ff59c0c 100644
+--- a/security/selinux/nlmsgtab.c
++++ b/security/selinux/nlmsgtab.c
+@@ -23,8 +23,7 @@
+ #include "flask.h"
+ #include "av_permissions.h"
+ 
+-struct nlmsg_perm
+-{
++struct nlmsg_perm {
+ 	u16	nlmsg_type;
+ 	u32	perm;
+ };
+@@ -159,7 +158,7 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
+ 		if ((nlmsg_type >= AUDIT_FIRST_USER_MSG &&
+ 		     nlmsg_type <= AUDIT_LAST_USER_MSG) ||
+ 		    (nlmsg_type >= AUDIT_FIRST_USER_MSG2 &&
+-                     nlmsg_type <= AUDIT_LAST_USER_MSG2)) {
++		     nlmsg_type <= AUDIT_LAST_USER_MSG2)) {
+ 			*perm = NETLINK_AUDIT_SOCKET__NLMSG_RELAY;
+ 		} else {
+ 			err = nlmsg_perm(nlmsg_type, perm, nlmsg_audit_perms,
+-- 
+1.5.2.1
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
