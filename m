@@ -1,24 +1,17 @@
 From: eparis@redhat.com
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org, Eric Paris <eparis@redhat.com>
-Subject: [PATCH 09/13] SELinux: ebitmap.c whitespace, syntax, and static declaraction cleanups
-Date: Fri, 18 Apr 2008 17:38:30 -0400
-Message-Id: <12085547141952-git-send-email-eparis@redhat.com>
-In-Reply-To: <12085547142556-git-send-email-eparis@redhat.com>
+Subject: [PATCH 02/13] SELinux: netlabel.c whitespace, syntax, and static declaraction cleanups
+Date: Fri, 18 Apr 2008 17:38:23 -0400
+Message-Id: <12085547142360-git-send-email-eparis@redhat.com>
+In-Reply-To: <1208554714617-git-send-email-eparis@redhat.com>
 References: <1208554714617-git-send-email-eparis@redhat.com>
- <12085547142360-git-send-email-eparis@redhat.com>
- <12085547142711-git-send-email-eparis@redhat.com>
- <12085547143090-git-send-email-eparis@redhat.com>
- <12085547142971-git-send-email-eparis@redhat.com>
- <12085547141335-git-send-email-eparis@redhat.com>
- <12085547141160-git-send-email-eparis@redhat.com>
- <12085547142556-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 From: Eric Paris <eparis@redhat.com>
 
-This patch changes ebitmap.c to fix whitespace and syntax issues.  Things that
+This patch changes netlabel.c to fix whitespace and syntax issues.  Things that
 are fixed may include (does not not have to include)
 
 whitespace at end of lines
@@ -36,27 +29,22 @@ and any number of other things I forgot to mention
 Signed-off-by: Eric Paris <eparis@redhat.com>
 
 ---
- security/selinux/ss/ebitmap.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+ security/selinux/netlabel.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index e499af4..ddc2754 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -411,11 +411,10 @@ int ebitmap_read(struct ebitmap *e, void *fp)
- 			}
- 			/* round down */
- 			tmp->startbit = startbit - (startbit % EBITMAP_SIZE);
--			if (n) {
-+			if (n)
- 				n->next = tmp;
--			} else {
-+			else
- 				e->node = tmp;
--			}
- 			n = tmp;
- 		} else if (startbit <= n->startbit) {
- 			printk(KERN_ERR "SELinux: ebitmap: start bit %d"
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index e8ee91a..89b4183 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -118,7 +118,7 @@ void selinux_netlbl_cache_invalidate(void)
+ void selinux_netlbl_sk_security_reset(struct sk_security_struct *ssec,
+ 				      int family)
+ {
+-        if (family == PF_INET)
++	if (family == PF_INET)
+ 		ssec->nlbl_state = NLBL_REQUIRE;
+ 	else
+ 		ssec->nlbl_state = NLBL_UNSET;
 -- 
 1.5.2.1
 
