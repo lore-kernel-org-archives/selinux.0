@@ -1,71 +1,63 @@
-Subject: Re: upstart/SELinux problem loading the wrong policy with kernel
-	version change
+Subject: Re: libselinux/matchpathcon has a memory leak
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Chad Sellers <csellers@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1207661386.21223.272.camel@moss-spartans.epoch.ncsc.mil>
-References: <47FACB0F.5050208@redhat.com>
-	 <1207659261.21223.261.camel@moss-spartans.epoch.ncsc.mil>
-	 <1207661386.21223.272.camel@moss-spartans.epoch.ncsc.mil>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <47DAD18F.5000309@tycho.nsa.gov>
+References: <47D9B0DB.90308@redhat.com> <47D9B8BB.2080402@redhat.com>
+	 <47D9BBEE.5090105@redhat.com>
+	 <1205501760.22912.38.camel@moss-spartans.epoch.ncsc.mil>
+	 <47DA9A3C.3080802@redhat.com>  <47DAD18F.5000309@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Fri, 18 Apr 2008 10:32:59 -0400
-Message-Id: <1208529179.18883.476.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 18 Apr 2008 10:31:36 -0400
+Message-Id: <1208529096.18883.474.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-04-08 at 09:29 -0400, Stephen Smalley wrote:
-> If we are not setting local definitions or preserving booleans, then the
-> maximum policy version for load can be the max of the kernel-supported
-> version and the libsepol-supported version since we do not need to
-> manipulate the policy image prior to load.
+On Fri, 2008-03-14 at 15:27 -0400, Eamon Walsh wrote:
+> Here is a new version of the patch.
+> 
+> The clearing out of the data instead of freeing it is a leftover from 
+> when that was a global variable.  That was the cause of the leak I 
+> thought was the result of a missing matchpathcon_fini().
+> 
+> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
 
-This patch has been merged, although it doesn't fully solve the problem
-that started this thread (only helps when the kernel is updated to the
-new policy version).
+Merged.  Note that the Fedora patch must be reverted or you'll get a
+double free when re-basing to this one.
 
-> Index: trunk/libselinux/src/load_policy.c
+> ---
+> 
+> Index: src/label_file.c
 > ===================================================================
-> --- trunk/libselinux/src/load_policy.c	(revision 2858)
-> +++ trunk/libselinux/src/load_policy.c	(working copy)
-> @@ -43,6 +43,9 @@
+> --- src/label_file.c	(revision 2848)
+> +++ src/label_file.c	(working copy)
+> @@ -562,7 +562,7 @@
+>  	if (data->stem_arr)
+>  		free(data->stem_arr);
+>  	
+> -	memset(data, 0, sizeof(*data));
+> +	free(data);
+>  }
 >  
->  int load_setlocaldefs hidden = 1;
+>  static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+> Index: src/label.c
+> ===================================================================
+> --- src/label.c	(revision 2848)
+> +++ src/label.c	(working copy)
+> @@ -95,7 +95,7 @@
+>  	if (compat_validate(rec, lr, "file_contexts", 0))
+>  		return NULL;
 >  
-> +#undef max
-> +#define max(a, b) (((a) > (b)) ? (a) : (b))
-> +
->  int selinux_mkload_policy(int preservebools)
->  {	
->  	int kernvers = security_policyvers();
-> @@ -127,11 +130,6 @@
+> -	if (translating &&
+> +	if (translating && !lr->ctx_trans &&
+>  	    selinux_raw_to_trans_context(lr->ctx_raw, &lr->ctx_trans))
+>  		return NULL;
 >  
->  #endif
->  
-> -	if (usesepol) {
-> -		maxvers = vers_max();
-> -		minvers = vers_min();
-> -	}
-> -
->  	/*
->  	 * Check whether we need to support local boolean and user definitions.
->  	 */
-> @@ -157,6 +155,13 @@
->  	if (preservebools && uname(&uts) == 0 && strverscmp(uts.release, "2.6.22") >= 0)
->  		preservebools = 0;
->  
-> +	if (usesepol) {
-> +		maxvers = vers_max();
-> +		minvers = vers_min();
-> +		if (!setlocaldefs && !preservebools)
-> +			maxvers = max(kernvers, maxvers);
-> +	}
-> +
->  	vers = maxvers;
->        search:
->  	snprintf(path, sizeof(path), "%s.%d",
+> 
+> 
+> 
 > 
 -- 
 Stephen Smalley
