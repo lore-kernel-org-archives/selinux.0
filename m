@@ -1,35 +1,61 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Eric Paris <eparis@redhat.com>
-Subject: Re: [PATCH 01/13] SELinux: netif.c whitespace, syntax, and static declaraction cleanups
-Date: Mon, 21 Apr 2008 09:10:53 -0400
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org
-References: <1208554714617-git-send-email-eparis@redhat.com> <200804210826.28776.paul.moore@hp.com> <1208782504.2985.62.camel@localhost.localdomain>
-In-Reply-To: <1208782504.2985.62.camel@localhost.localdomain>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3LKOqJD028399
+	for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2008 16:24:52 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3LKOph6029285
+	for <selinux@tycho.nsa.gov>; Mon, 21 Apr 2008 20:24:52 GMT
+Message-ID: <480CF80B.5020103@redhat.com>
+Date: Mon, 21 Apr 2008 16:24:43 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200804210910.53992.paul.moore@hp.com>
+To: =?ISO-8859-1?Q?Herv=E9_WERNER?= <herve.werner@ensi-bourges.fr>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: SELinux with NFSv4
+References: <56222.82.246.196.177.1208808724.squirrel@webmail.ensi-bourges.fr>
+In-Reply-To: <56222.82.246.196.177.1208808724.squirrel@webmail.ensi-bourges.fr>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 21 April 2008 8:55:04 am Eric Paris wrote:
-> On Mon, 2008-04-21 at 08:26 -0400, Paul Moore wrote:
-> > On Friday 18 April 2008 5:38:22 pm eparis@redhat.com wrote:
-> > > From: Eric Paris <eparis@redhat.com>
-> > >
-> > > This patch changes netif.c to fix whitespace and syntax issues.
-> > > Things that are fixed may include (does not not have to include)
-> >
-> > You get paid based on the number of lines you change right?
->
-> Naaah, I just want to make the lwn.net "who wrote 2.6.26" list   :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Sweet, I hear you get an autographed plaque from Andrew if you make it 
-into the top 10.  Good luck, you're off to a strong start!
+Hervé WERNER wrote:
+> Hello,
+> 
+> 
+> I'm a French student working on NFSv4 through SELinux. I would like to
+> know where I could find information about this. Is there something I could
+> try to make files labeling working with NFSv4? Is there a patch I could
+> try?
+> 
+> I am especially looking for a simple method that makes me able to limit
+> permissions for users through NFSv4, for exemple :
+> - allowing only sysadm_t to read write and execute a file and not to
+> normal users
+> - allowing access to everybody
+> 
+> 
+> 
+> I would appreciate any advice.
+> 
+> 
+> Hervé WERNER
+> 
+> 
+NFS extended attribute discussion is happing on the SELinux NSA Mail
+list <selinux@tycho.nsa.gov>
 
--- 
-paul moore
-linux @ hp
+You can add a label to the NFS mount and make this not accessable by
+normal users which would get you what you want.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkgM+AsACgkQrlYvE4MpobNpmgCeNDDclNrFAesCwY6kTM8se2e7
+CdoAnRNlBZPB4mtpzhodKMSW3sp5aQMW
+=hPK3
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
