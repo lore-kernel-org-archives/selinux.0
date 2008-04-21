@@ -1,25 +1,54 @@
-Subject: Re: avc_init & avc_open
+Subject: [patch] libsemanage:  don't call genhomedircon if policy was not
+	rebuilt
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <7A092CE0-19C7-4686-96CF-698A69267BBA@nall.com>
-References: <7A092CE0-19C7-4686-96CF-698A69267BBA@nall.com>
+To: Joshua Brindle <jbrindle@tresys.com>, Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov
 Content-Type: text/plain
-Date: Mon, 21 Apr 2008 09:37:35 -0400
-Message-Id: <1208785055.15796.40.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 21 Apr 2008 09:41:15 -0400
+Message-Id: <1208785275.15796.45.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+See:
+https://bugzilla.redhat.com/show_bug.cgi?id=441379
 
-On Mon, 2008-04-21 at 08:21 -0500, Joe Nall wrote:
-> I have a userspace object manager that I would like to specify the log  
-> callback and the enforcing mode for simultaneously. The enforcing mode  
-> can be set with avc_open (no man page) and the callbacks with  
-> avc_init(3). What is the best strategy?
+It appears to me that what is happening here is we have a case where
+nothing is being rebuilt (semanage boolean -D is being applied but there
+are no local boolean definitions and thus no change), and thus
+semanage_direct_commit() does not rebuild the policy (conditional on
+sh->do_rebuild || modified), leaving the out policydb == NULL.  Then
+when it calls semanage_genhomedircon(sh, out, 1) the NULL policydb
+pointer ultimately gets passed down to libsepol and that then triggers a
+seg fault upon the attempted dereference.
 
-avc_init() was the old interface.
-selinux_set_callback() + avc_open() is the new interface.
+This patch ensures that we do not call genhomedircon if the policy was
+not rebuilt, as there is no need to regenerate home directory contexts
+in that situation.  This avoids the bug for semanage boolean -D while
+still properly handling semodule -Bn aka genhomedircon or other
+operations.
+
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+---
+
+ libsemanage/src/direct_api.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: trunk/libsemanage/src/direct_api.c
+===================================================================
+--- trunk/libsemanage/src/direct_api.c	(revision 2860)
++++ trunk/libsemanage/src/direct_api.c	(working copy)
+@@ -708,7 +708,7 @@
+ 	/* run genhomedircon if its enabled, this should be the last operation
+ 	 * which requires the out policydb */
+ 	if (!sh->conf->disable_genhomedircon) {
+-		if ((retval =
++		if (out && (retval =
+ 		     semanage_genhomedircon(sh, out, 1)) != 0) {
+ 			ERR(sh, "semanage_genhomedircon returned error code %d.",
+ 			    retval);
+
 
 -- 
 Stephen Smalley
