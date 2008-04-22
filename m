@@ -1,67 +1,46 @@
-Subject: Re: [PATCH] SELinux: no BUG_ON(!ss_initialized) in
-	selinux_clone_mnt_opts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, stable@kernel.org, jmorris@namei.org
-In-Reply-To: <1208809451.2985.82.camel@localhost.localdomain>
-References: <1208809451.2985.82.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 22 Apr 2008 07:13:38 -0400
-Message-Id: <1208862818.15796.73.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3MDhYgY023945
+	for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2008 09:43:34 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3MDhXgG006003
+	for <selinux@tycho.nsa.gov>; Tue, 22 Apr 2008 13:43:33 GMT
+Message-ID: <480DEB70.1060707@redhat.com>
+Date: Tue, 22 Apr 2008 09:43:12 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Herv=E9_WERNER?= <herve.werner@ensi-bourges.fr>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: SELinux with NFSv4
+References: <45448.82.246.196.177.1208811177.squirrel@webmail.ensi-bourges.fr>
+In-Reply-To: <45448.82.246.196.177.1208811177.squirrel@webmail.ensi-bourges.fr>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Mon, 2008-04-21 at 16:24 -0400, Eric Paris wrote:
-> The Fedora installer actually makes multiple NFS mounts before it loads
-> selinux policy.  The code in selinux_clone_mnt_opts() assumed that the
-> init process would always be loading policy before NFS was up and
-> running.  It might be possible to hit this in a diskless environment as
-> well, I'm not sure.  There is no need to BUG_ON() in this situation
-> since we can safely continue given the circumstances.
+Hervé WERNER wrote:
+>> NFS extended attribute discussion is happing on the SELinux NSA Mail
+>> list <selinux@tycho.nsa.gov>
+>>
+>> You can add a label to the NFS mount and make this not accessable by
+>> normal users which would get you what you want.
+> I meant putting different labels on files resulting from the same mount.
+> Currently I can only put an only label on all files coming from the same
+> mount. I would like to be able to label differently files from a same
+> mount. It is a kind of public share with permissions that I would like to
+> do...
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+Sorry you can not do that currently.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
-> 
-> ---
-> 
->  security/selinux/hooks.c |   15 ++++++++++++---
->  1 files changed, 12 insertions(+), 3 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index f9927f0..92c8910 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -755,9 +755,18 @@ static void selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
->  	int set_context =	(oldsbsec->flags & CONTEXT_MNT);
->  	int set_rootcontext =	(oldsbsec->flags & ROOTCONTEXT_MNT);
->  
-> -	/* we can't error, we can't save the info, this shouldn't get called
-> -	 * this early in the boot process. */
-> -	BUG_ON(!ss_initialized);
-> +	/*
-> +	 * if the parent was able to be mounted it clearly had no special lsm
-> +	 * mount options.  thus we can safely put this sb on the list and deal
-> +	 * with it later
-> +	 */
-> +	if (!ss_initialized) {
-> +		spin_lock(&sb_security_lock);
-> +		if (list_empty(&newsbsec->list))
-> +			list_add(&newsbsec->list, &superblock_security_head);
-> +		spin_unlock(&sb_security_lock);
-> +		return;
-> +	}
->  
->  	/* how can we clone if the old one wasn't set up?? */
->  	BUG_ON(!oldsbsec->initialized);
-> 
--- 
-Stephen Smalley
-National Security Agency
-
+iEYEARECAAYFAkgN63AACgkQrlYvE4MpobNS0gCeKaCM90qYaqlfDedFCm62nt0U
+4TMAoJUFle8W2/j+KnBHB/dPrSDrVx1z
+=aVrU
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
