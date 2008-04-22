@@ -1,65 +1,47 @@
 From: eparis@redhat.com
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org, Eric Paris <eparis@redhat.com>
-Subject: [PATCH] SELinux: avc_ss.h whitespace, syntax, and other cleanups
-Date: Tue, 22 Apr 2008 17:46:08 -0400
-Message-Id: <12089007782175-git-send-email-eparis@redhat.com>
+Subject: [PATCH] SELinux: ss/conditional.h whitespace, syntax, and other cleanups
+Date: Tue, 22 Apr 2008 17:46:12 -0400
+Message-Id: <12089007784055-git-send-email-eparis@redhat.com>
+In-Reply-To: <120890077840-git-send-email-eparis@redhat.com>
+References: <12089007782175-git-send-email-eparis@redhat.com>
+ <1208900778580-git-send-email-eparis@redhat.com>
+ <12089007782327-git-send-email-eparis@redhat.com>
+ <120890077840-git-send-email-eparis@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 From: Eric Paris <eparis@redhat.com>
 
-This patch changes avc_ss.h to fix whitespace and syntax issues.  Things that
+This patch changes ss/conditional.h to fix whitespace and syntax issues.  Things that
 are fixed may include (does not not have to include)
 
-whitespace at end of lines
-spaces followed by tabs
-spaces used instead of tabs
-spacing around parenthesis
-location of { around structs and else clauses
 location of * in pointer declarations
-removal of initialization of static data to keep it in the right section
-useless {} in if statemetns
-useless checking for NULL before kfree
-fixing of the indentation depth of switch statements
-no assignments in if statements
-and any number of other things I forgot to mention
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
- security/selinux/include/avc_ss.h |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
+ security/selinux/ss/conditional.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/security/selinux/include/avc_ss.h b/security/selinux/include/avc_ss.h
-index ff869e8..c0d314d 100644
---- a/security/selinux/include/avc_ss.h
-+++ b/security/selinux/include/avc_ss.h
-@@ -10,22 +10,19 @@
- 
- int avc_ss_reset(u32 seqno);
- 
--struct av_perm_to_string
--{
-+struct av_perm_to_string {
- 	u16 tclass;
- 	u32 value;
- 	const char *name;
+diff --git a/security/selinux/ss/conditional.h b/security/selinux/ss/conditional.h
+index f3a1fc6..65b9f83 100644
+--- a/security/selinux/ss/conditional.h
++++ b/security/selinux/ss/conditional.h
+@@ -59,10 +59,10 @@ struct cond_node {
+ 	struct cond_node *next;
  };
  
--struct av_inherit
--{
-+struct av_inherit {
- 	u16 tclass;
- 	const char **common_pts;
- 	u32 common_base;
- };
+-int cond_policydb_init(struct policydb* p);
+-void cond_policydb_destroy(struct policydb* p);
++int cond_policydb_init(struct policydb *p);
++void cond_policydb_destroy(struct policydb *p);
  
--struct selinux_class_perm
--{
-+struct selinux_class_perm {
- 	const struct av_perm_to_string *av_perm_to_string;
- 	u32 av_pts_len;
- 	const char **class_to_string;
+-int cond_init_bool_indexes(struct policydb* p);
++int cond_init_bool_indexes(struct policydb *p);
+ int cond_destroy_bool(void *key, void *datum, void *p);
+ 
+ int cond_index_bool(void *key, void *datum, void *datap);
 -- 
 1.5.2.1
 
