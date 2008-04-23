@@ -2,35 +2,118 @@ From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: casey@schaufler-ca.com, chrisw@sous-sol.org, sds@tycho.nsa.gov,
         jmorris@namei.org, hch@lst.de, viro@zeniv.linux.org.uk
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
-Subject: [PATCH]Introduce generalized hooks for getting and setting inode secctx.
-Date: Wed, 23 Apr 2008 12:57:14 -0400
-Message-Id: <1208969836-8129-1-git-send-email-dpquigl@tycho.nsa.gov>
+        linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Subject: [PATCH 1/2] VFS: Factor out part of vfs_setxattr so it can be called from the SELinux hook for inode_setsecctx.
+Date: Wed, 23 Apr 2008 12:57:15 -0400
+Message-Id: <1208969836-8129-2-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1208969836-8129-1-git-send-email-dpquigl@tycho.nsa.gov>
+References: <1208969836-8129-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This factors out the part of the vfs_setxattr function that performs the
+setting of the xattr and its notification. This is needed so the SELinux
+implementation of inode_setsecctx can handle the setting of it's xattr while
+maintaining the proper separation of layers.
 
-This patch set does two things. First it factors the section of vfs_setxattr
-that does the real work into a helper function. This allows LSMs the ability 
-to set the xattrs they need without hitting the permission check inside
-vfs_setxattr each time. Second it introduces three new hooks
-inode_{get,set}secctx, and inode_notifysecctx.
+Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+---
+ fs/xattr.c            |   57 +++++++++++++++++++++++++++++++++++++------------
+ include/linux/xattr.h |    1 +
+ 2 files changed, 44 insertions(+), 14 deletions(-)
 
-The first hook retreives all security information the LSM feels is relavent in
-the form of a security context. The second hook given this context can sets
-both the in-core and on-disk store for the particular inode. The third hook is
-used to notify the in-core inode of a change to it's security state.
-
-This is the fourth revision of this patch set which takes into account
-concerns by Casey Schaufler, and Christop Hellwig.
-
-fs/xattr.c               |   57 ++++++++++++++++++++++++++++++++++-----------
-include/linux/security.h |   50 ++++++++++++++++++++++++++++++++++++++++
-include/linux/xattr.h    |    1 +
-security/dummy.c         |   17 +++++++++++++
-security/security.c      |   18 ++++++++++++++
-security/selinux/hooks.c |   28 ++++++++++++++++++++++
-6 files changed, 157 insertions(+), 14 deletions(-)
+diff --git a/fs/xattr.c b/fs/xattr.c
+index f7062da..dd349ea 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -66,22 +66,28 @@ xattr_permission(struct inode *inode, const char *name, int mask)
+ 	return permission(inode, mask, NULL);
+ }
+ 
+-int
+-vfs_setxattr(struct dentry *dentry, char *name, void *value,
+-		size_t size, int flags)
++/**
++ *  __vfs_setxattr_noperm - perform setxattr operation without performing
++ *  permission checks.
++ *
++ *  @dentry - object to perform setxattr on
++ *  @name - xattr name to set
++ *  @value - value to set @name to
++ *  @size - size of @value
++ *  @flags - flags to pass into filesystem operations
++ *
++ *  returns the result of the internal setxattr or setsecurity operations.
++ *
++ *  This function requires the caller to lock the inode's i_mutex before it
++ *  is executed. It also assumes that the caller will make the appropriate 
++ *  permission checks.
++ */
++int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
++		const void *value, size_t size, int flags)
+ {
+ 	struct inode *inode = dentry->d_inode;
+-	int error;
+-
+-	error = xattr_permission(inode, name, MAY_WRITE);
+-	if (error)
+-		return error;
+-
+-	mutex_lock(&inode->i_mutex);
+-	error = security_inode_setxattr(dentry, name, value, size, flags);
+-	if (error)
+-		goto out;
+-	error = -EOPNOTSUPP;
++	int error = -EOPNOTSUPP;
++	
+ 	if (inode->i_op->setxattr) {
+ 		error = inode->i_op->setxattr(dentry, name, value, size, flags);
+ 		if (!error) {
+@@ -97,6 +103,29 @@ vfs_setxattr(struct dentry *dentry, char *name, void *value,
+ 		if (!error)
+ 			fsnotify_xattr(dentry);
+ 	}
++
++	return error;
++}
++
++
++int
++vfs_setxattr(struct dentry *dentry, char *name, void *value,
++		size_t size, int flags)
++{
++	struct inode *inode = dentry->d_inode;
++	int error;
++
++	error = xattr_permission(inode, name, MAY_WRITE);
++	if (error)
++		return error;
++
++	mutex_lock(&inode->i_mutex);
++	error = security_inode_setxattr(dentry, name, value, size, flags);
++	if (error)
++		goto out;
++
++	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
++
+ out:
+ 	mutex_unlock(&inode->i_mutex);
+ 	return error;
+diff --git a/include/linux/xattr.h b/include/linux/xattr.h
+index df6b95d..b23d6a8 100644
+--- a/include/linux/xattr.h
++++ b/include/linux/xattr.h
+@@ -49,6 +49,7 @@ struct xattr_handler {
+ ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
+ ssize_t vfs_getxattr(struct dentry *, char *, void *, size_t);
+ ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
++int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
+ int vfs_setxattr(struct dentry *, char *, void *, size_t, int);
+ int vfs_removexattr(struct dentry *, char *);
+ 
+-- 
+1.5.4.1
 
 
 --
