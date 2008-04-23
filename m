@@ -1,120 +1,48 @@
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: casey@schaufler-ca.com, chrisw@sous-sol.org, sds@tycho.nsa.gov,
-        jmorris@namei.org, hch@lst.de, viro@zeniv.linux.org.uk
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>
-Subject: [PATCH 1/2] VFS: Factor out part of vfs_setxattr so it can be called from the SELinux hook for inode_setsecctx.
-Date: Wed, 23 Apr 2008 12:57:15 -0400
-Message-Id: <1208969836-8129-2-git-send-email-dpquigl@tycho.nsa.gov>
-In-Reply-To: <1208969836-8129-1-git-send-email-dpquigl@tycho.nsa.gov>
-References: <1208969836-8129-1-git-send-email-dpquigl@tycho.nsa.gov>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3NJGKQh003591
+	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2008 15:16:20 -0400
+Received: from web63005.mail.re1.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m3NJGKeq015128
+	for <selinux@tycho.nsa.gov>; Wed, 23 Apr 2008 19:16:20 GMT
+Date: Wed, 23 Apr 2008 12:07:52 -0700 (PDT)
+From: run zhang <zhang4run@yahoo.com>
+Subject: labelling with genfscon
+To: selinux@tycho.nsa.gov
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-126358939-1208977672=:20897"
+Message-ID: <358705.20897.qm@web63005.mail.re1.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This factors out the part of the vfs_setxattr function that performs the
-setting of the xattr and its notification. This is needed so the SELinux
-implementation of inode_setsecctx can handle the setting of it's xattr while
-maintaining the proper separation of layers.
+--0-126358939-1208977672=:20897
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
----
- fs/xattr.c            |   57 +++++++++++++++++++++++++++++++++++++------------
- include/linux/xattr.h |    1 +
- 2 files changed, 44 insertions(+), 14 deletions(-)
+In the NSA example policy package, the genfs_contexts explains that except /proc, all other filesystems without xattr support are limited to a single entry /. Can I specify the subdirs of a filesystem with different lables with genfscon just like /proc? 
+  More specifically, I am using NFS and cramfs, where I specify 
+  genfscon nfs /   root_t
+  genfscon nfs /bin bin_t
+   
+  However, after boot and load the result policy, still every dir in rootfs is labelled with root_t. It seems the same result for cramfs. According this thread: http://marc.info/?l=selinux&m=102587231814793&w=2, it seems that this should be doable. 
+  Please give hand, thanks very much!
+   
+  --Run
+   
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index f7062da..dd349ea 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -66,22 +66,28 @@ xattr_permission(struct inode *inode, const char *name, int mask)
- 	return permission(inode, mask, NULL);
- }
- 
--int
--vfs_setxattr(struct dentry *dentry, char *name, void *value,
--		size_t size, int flags)
-+/**
-+ *  __vfs_setxattr_noperm - perform setxattr operation without performing
-+ *  permission checks.
-+ *
-+ *  @dentry - object to perform setxattr on
-+ *  @name - xattr name to set
-+ *  @value - value to set @name to
-+ *  @size - size of @value
-+ *  @flags - flags to pass into filesystem operations
-+ *
-+ *  returns the result of the internal setxattr or setsecurity operations.
-+ *
-+ *  This function requires the caller to lock the inode's i_mutex before it
-+ *  is executed. It also assumes that the caller will make the appropriate 
-+ *  permission checks.
-+ */
-+int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
-+		const void *value, size_t size, int flags)
- {
- 	struct inode *inode = dentry->d_inode;
--	int error;
--
--	error = xattr_permission(inode, name, MAY_WRITE);
--	if (error)
--		return error;
--
--	mutex_lock(&inode->i_mutex);
--	error = security_inode_setxattr(dentry, name, value, size, flags);
--	if (error)
--		goto out;
--	error = -EOPNOTSUPP;
-+	int error = -EOPNOTSUPP;
-+	
- 	if (inode->i_op->setxattr) {
- 		error = inode->i_op->setxattr(dentry, name, value, size, flags);
- 		if (!error) {
-@@ -97,6 +103,29 @@ vfs_setxattr(struct dentry *dentry, char *name, void *value,
- 		if (!error)
- 			fsnotify_xattr(dentry);
- 	}
-+
-+	return error;
-+}
-+
-+
-+int
-+vfs_setxattr(struct dentry *dentry, char *name, void *value,
-+		size_t size, int flags)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	int error;
-+
-+	error = xattr_permission(inode, name, MAY_WRITE);
-+	if (error)
-+		return error;
-+
-+	mutex_lock(&inode->i_mutex);
-+	error = security_inode_setxattr(dentry, name, value, size, flags);
-+	if (error)
-+		goto out;
-+
-+	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
-+
- out:
- 	mutex_unlock(&inode->i_mutex);
- 	return error;
-diff --git a/include/linux/xattr.h b/include/linux/xattr.h
-index df6b95d..b23d6a8 100644
---- a/include/linux/xattr.h
-+++ b/include/linux/xattr.h
-@@ -49,6 +49,7 @@ struct xattr_handler {
- ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
- ssize_t vfs_getxattr(struct dentry *, char *, void *, size_t);
- ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
-+int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
- int vfs_setxattr(struct dentry *, char *, void *, size_t, int);
- int vfs_removexattr(struct dentry *, char *);
- 
--- 
-1.5.4.1
+       
+---------------------------------
+Be a better friend, newshound, and know-it-all with Yahoo! Mobile.  Try it now.
+--0-126358939-1208977672=:20897
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
+<div>In the NSA example policy package, the genfs_contexts explains that except /proc, all other filesystems without xattr support are&nbsp;limited to a single entry /.&nbsp;Can&nbsp;I specify the subdirs&nbsp;of a filesystem with different lables with genfscon just like /proc? </div>  <div>More specifically, I am using NFS and cramfs, where&nbsp;I specify </div>  <div>genfscon nfs /&nbsp;&nbsp; root_t</div>  <div>genfscon nfs /bin bin_t</div>  <div>&nbsp;</div>  <div>However,&nbsp;after&nbsp;boot and load the&nbsp;result policy, still every dir in rootfs is&nbsp;labelled with root_t.&nbsp;It seems the same result for cramfs. According this&nbsp;thread: <A href="http://marc.info/?l=selinux&amp;m=102587231814793&amp;w=2">http://marc.info/?l=selinux&amp;m=102587231814793&amp;w=2</A>, it seems that this should be doable. </div>  <div>Please give hand, thanks very much!</div>  <div>&nbsp;</div>  <div>--Run</div>  <div>&nbsp;</div><p>&#32;
+
+
+
+      <hr size=1>Be a better friend, newshound, and 
+know-it-all with Yahoo! Mobile. <a href="http://us.rd.yahoo.com/evt=51733/*http://mobile.yahoo.com/;_ylt=Ahu06i62sR8HDtDypao8Wcj9tAcJ "> Try it now.</a>
+--0-126358939-1208977672=:20897--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
