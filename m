@@ -1,32 +1,51 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3PJ5mRc019794
-	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 15:05:48 -0400
-Received: from QMTA08.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3PJ5lef016955
-	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 19:05:47 GMT
-From: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 0/2] Fixes for 2.6.26
-To: selinux@tycho.nsa.gov
-Date: Fri, 25 Apr 2008 15:03:28 -0400
-Message-ID: <20080425185928.18002.88176.stgit@flek.lan>
+Message-ID: <481230EB.2000805@redhat.com>
+Date: Fri, 25 Apr 2008 15:28:43 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: audit2allow -R
+References: <1209146062.26761.173.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1209146062.26761.173.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-These two patches fix the SLAB corruption problems seen by Andrew Morton
-which caused the netnode cache changes to be bumped from the initial 2.6.26
-SELinux patchset.  The patches are backed against Linus' tree from this
-morning and have been testing against 2.6.25-mm1 with a reduced hash table
-size to stress the problem; I have not seen any regressions.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The first patch in the corrected netnode cache changes and the second patch
-applies the same fix to the netport cache (it suffers the same problem but
-it hasn't been seen yet).
+Stephen Smalley wrote:
+> Per the man page, audit2allow -R is supposed to be the default.
+> And the code says:
+>         parser.add_option("-R", "--reference", action="store_true", dest="refpolicy",
+>                           default=True, help="generate refpolicy style output")
+> 
+> which seems to confirm that.  But running audit2allow w/o -R does not
+> generate interface calls.
+> 
+> On the next line, we have the opposite option:
+>         parser.add_option("-N", "--noreference", action="store_false", dest="refpolicy",
+>                           default=False, help="do not generate refpolicy style output")
+> 
+> I'm wondering if the default= value there is clobbering the prior one
+> and needs to get updated too if we actually want this to be the default.
+> 
+> But before we do that, do we truly want to make it the default?  How
+> confident are we in the interface matching?
+> 
+> 
+I do not think we want it the default.  I have seen several times where
+it gives back some bizarre interface.   Usually because we don't have a
+good match.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
--- 
-paul moore
-linux security @ hp
+iEYEARECAAYFAkgSMOsACgkQrlYvE4MpobOwFACePYYg9A03oDQ2M00Ia/0fm6ma
+PbYAn2HWo8KZyGpsKqPhj8/p/9mdCOUt
+=Mi40
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
