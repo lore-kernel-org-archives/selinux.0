@@ -1,146 +1,144 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3PGRQtS000950
-	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 12:27:26 -0400
-Received: from fw5540.nrl.navy.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3PGRPef027431
-	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 16:27:25 GMT
-Received: from chacs.nrl.navy.mil (sun1.fw5540.net [10.0.0.11])
-	by fw5540.nrl.navy.mil (8.13.6/8.13.6) with ESMTP id m3PGRPvR009032
-	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 12:27:25 -0400 (EDT)
-Received: from chacs.nrl.navy.mil (sun1 [10.0.0.11])
-	by chacs.nrl.navy.mil (8.13.6/8.13.6) with SMTP id m3PGRPAO002592
-	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 12:27:25 -0400 (EDT)
-Received: (from PC05 [10.0.1.195])
- by chacs.nrl.navy.mil (SMSSMTP 4.1.16.48) with SMTP id M2008042512272522507
- for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 12:27:25 -0400
-From: "Kim Lawson-Jenkins" <lawson@itd.nrl.navy.mil>
-To: <selinux@tycho.nsa.gov>
-Subject: sepolgen-ifgen
-Date: Fri, 25 Apr 2008 12:22:35 -0500
-Message-ID: <001f01c8a6f8$f42a9230$c301000a@PC05>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3PHQUs7008805
+	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 13:26:30 -0400
+Received: from web63011.mail.re1.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m3PHQTef022139
+	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 17:26:29 GMT
+Date: Fri, 25 Apr 2008 10:26:13 -0700 (PDT)
+From: run zhang <zhang4run@yahoo.com>
+Subject: Re: labelling with genfscon
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+In-Reply-To: <1209126530.26761.95.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0020_01C8A6CF.0B548A30"
+Content-Type: multipart/alternative; boundary="0-408860394-1209144373=:53592"
+Message-ID: <621160.53592.qm@web63011.mail.re1.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+--0-408860394-1209144373=:53592
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-------=_NextPart_000_0020_01C8A6CF.0B548A30
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+I am working on 2.6.21.1. 
+  Thanks!
+  
 
-Hi,
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+  
+On Thu, 2008-04-24 at 13:30 -0700, run zhang wrote:
+> Thanks Stephen for the clarifying.
+> So where can I find the patch you mentioned? I want to try it.
 
- 
+It will have to be re-based as it no longer applies to a current kernel.
+What kernel version are you using as your baseline?
 
-Can someone point me to some text on the Web that explains sepolgen-ifgen?
-When running audit2allow I received an error "could not open interface info"
-and I found a post stating that using sepolgen-ifgen might help solve this
-particular problem, but then I couldn't find details about how to use
-sepolgen-ifgen.
+> Also, I will try with the new feature of NFSv4. 
 
- 
+Those changes aren't upstreamed yet; the labeled NFS work is still in
+progress.
 
-Thanks in advance.
+> 
+> Stephen Smalley wrote:
+> 
+> On Wed, 2008-04-23 at 12:07 -0700, run zhang wrote:
+> > In the NSA example policy package, the genfs_contexts
+> explains that
+> > except /proc, all other filesystems without xattr support
+> are limited
+> > to a single entry /. Can I specify the subdirs of a
+> filesystem with
+> > different lables with genfscon just like /proc? 
+> > More specifically, I am using NFS and cramfs, where I
+> specify 
+> > genfscon nfs / root_t
+> > genfscon nfs /bin bin_t
+> > 
+> > However, after boot and load the result policy, still every
+> dir in
+> > rootfs is labelled with root_t. It seems the same result for
+> cramfs.
+> > According this thread:
+> > http://marc.info/?l=selinux&m=102587231814793&w=2, it seems
+> that this
+> > should be doable. 
+> > Please give hand, thanks very much!
+> 
+> At the time of that thread, SELinux did support use of
+> genfs_contexts
+> for other filesystem types. However, that support was dropped
+> because
+> a) we couldn't provide strong guarantees about such labeling
+> for other
+> filesystem types (in the case of proc, we can generate an
+> unambiguous
+> and immutable pathname from the internal kernel data
+> structures to use
+> as a key; most other filesystem types would suffer from
+> aliasing and
+> userspace-manipulation issues), and b) it was frowned upon by
+> the vfs
+> folks as unacceptable for merging selinux into mainline. It
+> was
+> nonetheless a relatively simple patch to SELinux to support it
+> if you
+> are willing to patch your kernel.
+> 
+> For NFS, you are currently limited to per-mount granularity
+> (using the
+> mount context= option) or the default genfscon label. There is
+> ongoing
+> work on labeled NFSv4 support to provide native support for
+> per-file
+> labeling.
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux
+> mailing list.
+> If you no longer wish to subscribe, send mail to
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+> 
+> 
+> 
+> 
+> ______________________________________________________________________
+> Be a better friend, newshound, and know-it-all with Yahoo! Mobile. Try
+> it now.
+-- 
+Stephen Smalley
+National Security Agency
 
- 
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
 
 
-------=_NextPart_000_0020_01C8A6CF.0B548A30
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:12.0pt;
-	font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:Arial;
-	color:windowtext;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-<!--[if gte mso 9]><xml>
- <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <o:shapelayout v:ext=3D"edit">
-  <o:idmap v:ext=3D"edit" data=3D"1" />
- </o:shapelayout></xml><![endif]-->
-</head>
+       
+---------------------------------
+Be a better friend, newshound, and know-it-all with Yahoo! Mobile.  Try it now.
+--0-408860394-1209144373=:53592
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+<div>I am working on 2.6.21.1. </div>  <div>Thanks!</div>  <div><BR><BR><B><I>Stephen Smalley &lt;sds@tycho.nsa.gov&gt;</I></B> wrote:</div>  <BLOCKQUOTE class=replbq style="PADDING-LEFT: 5px; MARGIN-LEFT: 5px; BORDER-LEFT: #1010ff 2px solid"><BR>On Thu, 2008-04-24 at 13:30 -0700, run zhang wrote:<BR>&gt; Thanks Stephen for the clarifying.<BR>&gt; So where can I find the patch you mentioned? I want to try it.<BR><BR>It will have to be re-based as it no longer applies to a current kernel.<BR>What kernel version are you using as your baseline?<BR><BR>&gt; Also, I will try with the new feature of NFSv4. <BR><BR>Those changes aren't upstreamed yet; the labeled NFS work is still in<BR>progress.<BR><BR>&gt; <BR>&gt; Stephen Smalley <SDS@TYCHO.NSA.GOV>wrote:<BR>&gt; <BR>&gt; On Wed, 2008-04-23 at 12:07 -0700, run zhang wrote:<BR>&gt; &gt; In the NSA example policy package, the genfs_contexts<BR>&gt; explains that<BR>&gt; &gt; except /proc, all other filesystems without xattr
+ support<BR>&gt; are limited<BR>&gt; &gt; to a single entry /. Can I specify the subdirs of a<BR>&gt; filesystem with<BR>&gt; &gt; different lables with genfscon just like /proc? <BR>&gt; &gt; More specifically, I am using NFS and cramfs, where I<BR>&gt; specify <BR>&gt; &gt; genfscon nfs / root_t<BR>&gt; &gt; genfscon nfs /bin bin_t<BR>&gt; &gt; <BR>&gt; &gt; However, after boot and load the result policy, still every<BR>&gt; dir in<BR>&gt; &gt; rootfs is labelled with root_t. It seems the same result for<BR>&gt; cramfs.<BR>&gt; &gt; According this thread:<BR>&gt; &gt; http://marc.info/?l=selinux&amp;m=102587231814793&amp;w=2, it seems<BR>&gt; that this<BR>&gt; &gt; should be doable. <BR>&gt; &gt; Please give hand, thanks very much!<BR>&gt; <BR>&gt; At the time of that thread, SELinux did support use of<BR>&gt; genfs_contexts<BR>&gt; for other filesystem types. However, that support was dropped<BR>&gt; because<BR>&gt; a) we couldn't provide strong guarantees about such
+ labeling<BR>&gt; for other<BR>&gt; filesystem types (in the case of proc, we can generate an<BR>&gt; unambiguous<BR>&gt; and immutable pathname from the internal kernel data<BR>&gt; structures to use<BR>&gt; as a key; most other filesystem types would suffer from<BR>&gt; aliasing and<BR>&gt; userspace-manipulation issues), and b) it was frowned upon by<BR>&gt; the vfs<BR>&gt; folks as unacceptable for merging selinux into mainline. It<BR>&gt; was<BR>&gt; nonetheless a relatively simple patch to SELinux to support it<BR>&gt; if you<BR>&gt; are willing to patch your kernel.<BR>&gt; <BR>&gt; For NFS, you are currently limited to per-mount granularity<BR>&gt; (using the<BR>&gt; mount context= option) or the default genfscon label. There is<BR>&gt; ongoing<BR>&gt; work on labeled NFSv4 support to provide native support for<BR>&gt; per-file<BR>&gt; labeling.<BR>&gt; <BR>&gt; -- <BR>&gt; Stephen Smalley<BR>&gt; National Security Agency<BR>&gt; <BR>&gt; <BR>&gt; --<BR>&gt; This
+ message was distributed to subscribers of the selinux<BR>&gt; mailing list.<BR>&gt; If you no longer wish to subscribe, send mail to<BR>&gt; majordomo@tycho.nsa.gov with<BR>&gt; the words "unsubscribe selinux" without quotes as the message.<BR>&gt; <BR>&gt; <BR>&gt; <BR>&gt; <BR>&gt; ______________________________________________________________________<BR>&gt; Be a better friend, newshound, and know-it-all with Yahoo! Mobile. Try<BR>&gt; it now.<BR>-- <BR>Stephen Smalley<BR>National Security Agency<BR><BR><BR>--<BR>This message was distributed to subscribers of the selinux mailing list.<BR>If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with<BR>the words "unsubscribe selinux" without quotes as the message.<BR></BLOCKQUOTE><BR><BR><BR><p>&#32;
 
-<div class=3DSection1>
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Hi,<o:p></o:p></span></font></p>
 
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Can someone point me to some text on the Web that =
-explains <b><span
-style=3D'font-weight:bold'>sepolgen-ifgen</span></b>?&nbsp; When running
-audit2allow I received an error &#8220;could not open interface =
-info&#8221; and
-I found a post stating that using sepolgen-ifgen might help solve this
-particular problem, but then I couldn&#8217;t find details about how to =
-use sepolgen-ifgen.<o:p></o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
-
-<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
-style=3D'font-size:10.0pt;
-font-family:Arial'>Thanks in advance.</span></font><font size=3D2 =
-face=3DArial><span
-style=3D'font-size:10.0pt;font-family:Arial'><o:p></o:p></span></font></p=
->
-
-<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
-style=3D'font-size:
-12.0pt'><o:p>&nbsp;</o:p></span></font></p>
-
-</div>
-
-</body>
-
-</html>
-
-------=_NextPart_000_0020_01C8A6CF.0B548A30--
-
+      <hr size=1>Be a better friend, newshound, and 
+know-it-all with Yahoo! Mobile. <a href="http://us.rd.yahoo.com/evt=51733/*http://mobile.yahoo.com/;_ylt=Ahu06i62sR8HDtDypao8Wcj9tAcJ "> Try it now.</a>
+--0-408860394-1209144373=:53592--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
