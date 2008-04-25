@@ -1,88 +1,146 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3PExdAl016043
-	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 10:59:39 -0400
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3PExYTG004171
-	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 14:59:34 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so3232920fgg.40
-        for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 07:59:33 -0700 (PDT)
-Message-ID: <cadfc0e40804250607q6e6542ecmc1fa3d1e78a84cb8@mail.gmail.com>
-Date: Fri, 25 Apr 2008 08:07:52 -0500
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>, "Eamon Walsh" <ewalsh@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: copy/paste policy patch
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3PGRQtS000950
+	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 12:27:26 -0400
+Received: from fw5540.nrl.navy.mil (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3PGRPef027431
+	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 16:27:25 GMT
+Received: from chacs.nrl.navy.mil (sun1.fw5540.net [10.0.0.11])
+	by fw5540.nrl.navy.mil (8.13.6/8.13.6) with ESMTP id m3PGRPvR009032
+	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 12:27:25 -0400 (EDT)
+Received: from chacs.nrl.navy.mil (sun1 [10.0.0.11])
+	by chacs.nrl.navy.mil (8.13.6/8.13.6) with SMTP id m3PGRPAO002592
+	for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 12:27:25 -0400 (EDT)
+Received: (from PC05 [10.0.1.195])
+ by chacs.nrl.navy.mil (SMSSMTP 4.1.16.48) with SMTP id M2008042512272522507
+ for <selinux@tycho.nsa.gov>; Fri, 25 Apr 2008 12:27:25 -0400
+From: "Kim Lawson-Jenkins" <lawson@itd.nrl.navy.mil>
+To: <selinux@tycho.nsa.gov>
+Subject: sepolgen-ifgen
+Date: Fri, 25 Apr 2008 12:22:35 -0500
+Message-ID: <001f01c8a6f8$f42a9230$c301000a@PC05>
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_Part_1698_30447241.1209128872473"
+	boundary="----=_NextPart_000_0020_01C8A6CF.0B548A30"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_1698_30447241.1209128872473
-Content-Type: text/plain; charset=ISO-8859-1
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0020_01C8A6CF.0B548A30
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Here's a patch I'm using with an MLS version of glipper to give the
-capability to check for dominance between copy and paste data contexts.
-Hopefully some version of this can be upstreamed.
+Hi,
 
---- serefpolicy-3.3.1/policy/flask/access_vectors       2008-04-08
-13:41:18.000000000 -0500
-+++ serefpolicy-3.3.1.new//policy/flask/access_vectors  2008-04-08
-13:35:43.000000000 -0500
-@@ -765,3 +765,10 @@
- {
-        recv
- }
-+
-+class x_application_data
-+{
-+        paste
-+        paste_without_confirm
-+        copy
-+}
---- serefpolicy-3.3.1/policy/flask/security_classes     2008-04-08
-13:41:18.000000000 -0500
-+++ serefpolicy-3.3.1.new//policy/flask/security_classes        2008-04-08
-13:34:36.000000000 -0500
-@@ -114,5 +114,6 @@
- class x_resource               # userspace
- class x_event                  # userspace
- class x_synthetic_event                # userspace
-+class x_application_data        # userspace
+ 
 
- # FLASK
---- serefpolicy-3.3.1/policy/mls        2008-04-08 13:41:18.000000000 -0500
-+++ serefpolicy-3.3.1.new/policy/mls    2008-04-08 14:20:49.000000000 -0500
-@@ -567,6 +567,12 @@
-         ( t1 == mlsxwinwritexinput ) or
-         ( t1 == mlsxwinwrite ));
+Can someone point me to some text on the Web that explains sepolgen-ifgen?
+When running audit2allow I received an error "could not open interface info"
+and I found a post stating that using sepolgen-ifgen might help solve this
+particular problem, but then I couldn't find details about how to use
+sepolgen-ifgen.
 
-+#
-+# MLS policy for the x_application_data class
-+#
-+mlsconstrain x_application_data { paste_without_confirm }
-+       ( l1 domby l2 );
-+
+ 
 
- #
- # MLS policy for the pax class
+Thanks in advance.
 
-------=_Part_1698_30447241.1209128872473
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ 
 
-Here&#39;s a patch I&#39;m using with an MLS version of glipper to give the capability to check for dominance between copy and paste data contexts. Hopefully some version of this can be upstreamed.<br><br>--- serefpolicy-3.3.1/policy/flask/access_vectors&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2008-04-08 13:41:18.000000000 -0500<br>
-+++ serefpolicy-3.3.1.new//policy/flask/access_vectors&nbsp; 2008-04-08 13:35:43.000000000 -0500<br>@@ -765,3 +765,10 @@<br>&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; recv<br>&nbsp;}<br>+<br>+class x_application_data <br>+{<br>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; paste<br>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; paste_without_confirm<br>
-+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; copy<br>+}<br>--- serefpolicy-3.3.1/policy/flask/security_classes&nbsp;&nbsp;&nbsp;&nbsp; 2008-04-08 13:41:18.000000000 -0500<br>+++ serefpolicy-3.3.1.new//policy/flask/security_classes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2008-04-08 13:34:36.000000000 -0500<br>
-@@ -114,5 +114,6 @@<br>&nbsp;class x_resource&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # userspace<br>&nbsp;class x_event&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # userspace<br>&nbsp;class x_synthetic_event&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # userspace<br>+class x_application_data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # userspace<br>&nbsp;<br>
-&nbsp;# FLASK<br>--- serefpolicy-3.3.1/policy/mls&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2008-04-08 13:41:18.000000000 -0500<br>+++ serefpolicy-3.3.1.new/policy/mls&nbsp;&nbsp;&nbsp; 2008-04-08 14:20:49.000000000 -0500<br>@@ -567,6 +567,12 @@<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( t1 == mlsxwinwritexinput ) or<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( t1 == mlsxwinwrite ));<br>&nbsp;<br>+#<br>+# MLS policy for the x_application_data class<br>+#<br>+mlsconstrain x_application_data { paste_without_confirm }<br>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( l1 domby l2 );<br>+<br>&nbsp;<br>&nbsp;#<br>&nbsp;# MLS policy for the pax class<br>
-<br>
 
-------=_Part_1698_30447241.1209128872473--
+------=_NextPart_000_0020_01C8A6CF.0B548A30
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:Arial;
+	color:windowtext;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext=3D"edit">
+  <o:idmap v:ext=3D"edit" data=3D"1" />
+ </o:shapelayout></xml><![endif]-->
+</head>
+
+<body lang=3DEN-US link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Hi,<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Can someone point me to some text on the Web that =
+explains <b><span
+style=3D'font-weight:bold'>sepolgen-ifgen</span></b>?&nbsp; When running
+audit2allow I received an error &#8220;could not open interface =
+info&#8221; and
+I found a post stating that using sepolgen-ifgen might help solve this
+particular problem, but then I couldn&#8217;t find details about how to =
+use sepolgen-ifgen.<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'>Thanks in advance.</span></font><font size=3D2 =
+face=3DArial><span
+style=3D'font-size:10.0pt;font-family:Arial'><o:p></o:p></span></font></p=
+>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_000_0020_01C8A6CF.0B548A30--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
