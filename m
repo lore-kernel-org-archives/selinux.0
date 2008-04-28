@@ -1,46 +1,84 @@
-Subject: Re: [PATCH]Introduce generalized hooks for getting and setting
-	inode secctx.
-From: Dave Quigley <dpquigl@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Christoph Hellwig <hch@lst.de>, Casey Schaufler <casey@schaufler-ca.com>,
-        Chris Wright <chrisw@sous-sol.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>, viro@zeniv.linux.org.uk,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, nfsv4@linux-nfs.org
-In-Reply-To: <Xine.LNX.4.64.0804290104000.2081@us.intercode.com.au>
-References: <1208969836-8129-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <Xine.LNX.4.64.0804280932520.17090@us.intercode.com.au>
-	 <20080428060620.GA9902@lst.de>
-	 <Xine.LNX.4.64.0804290104000.2081@us.intercode.com.au>
-Content-Type: text/plain
-Date: Mon, 28 Apr 2008 11:10:27 -0400
-Message-Id: <1209395427.29937.299.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3SIQ95d009567
+	for <selinux@tycho.nsa.gov>; Mon, 28 Apr 2008 14:26:09 -0400
+Message-ID: <481616BF.8020102@tycho.nsa.gov>
+Date: Mon, 28 Apr 2008 14:26:07 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Xavier Toth <txtoth@gmail.com>
+CC: SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: copy/paste policy patch
+References: <cadfc0e40804250607q6e6542ecmc1fa3d1e78a84cb8@mail.gmail.com>
+In-Reply-To: <cadfc0e40804250607q6e6542ecmc1fa3d1e78a84cb8@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My main goal here is to get labeled-nfs in to mainline in chunks instead
-of throwing massive 25+ patch sets at you later on. People are far less
-likely to review patch sets when they are massive so I figured a series
-of smaller chunks would attract more attention. I have no problem
-working off of a labeled-nfs tree with this patches applied to it but
-I'd like to avoid getting stuff reacked every time I post it.
+Xavier Toth wrote:
+> Here's a patch I'm using with an MLS version of glipper to give the 
+> capability to check for dominance between copy and paste data 
+> contexts. Hopefully some version of this can be upstreamed.
 
-Dave
+Hi, why did you reverse the two paste operations?  In my suggestion I 
+had the "paste" bit meaning "unconditional paste" and 
+"paste_after_confirm" meaning "allow paste only after the user confirms."
 
-On Tue, 2008-04-29 at 01:04 +1000, James Morris wrote:
-> On Mon, 28 Apr 2008, Christoph Hellwig wrote:
-> 
-> > On Mon, Apr 28, 2008 at 09:33:22AM +1000, James Morris wrote:
-> > > Cristoph, Casey -- any chance of getting ack or nack on this before the 
-> > > merge window closes?
-> > 
-> > No concernes about this patch, but as usual strong objections against
-> > introducing it without the actual user.
-> 
-> Ok, we might put them into a labeled-nfs tree rather than pushing them to 
-> mainline at this stage.
-> 
+Having the confirmation dialog semantics built in to the plain old 
+"paste" permission seems to me like it would be more confusing, and 
+difficult to change later.
+
+
+>
+> --- serefpolicy-3.3.1/policy/flask/access_vectors       2008-04-08 
+> 13:41:18.000000000 -0500
+> +++ serefpolicy-3.3.1.new//policy/flask/access_vectors  2008-04-08 
+> 13:35:43.000000000 -0500
+> @@ -765,3 +765,10 @@
+>  {
+>         recv
+>  }
+> +
+> +class x_application_data
+> +{
+> +        paste
+> +        paste_without_confirm
+> +        copy
+> +}
+> --- serefpolicy-3.3.1/policy/flask/security_classes     2008-04-08 
+> 13:41:18.000000000 -0500
+> +++ serefpolicy-3.3.1.new//policy/flask/security_classes        
+> 2008-04-08 13:34:36.000000000 -0500
+> @@ -114,5 +114,6 @@
+>  class x_resource               # userspace
+>  class x_event                  # userspace
+>  class x_synthetic_event                # userspace
+> +class x_application_data        # userspace
+>  
+>  # FLASK
+> --- serefpolicy-3.3.1/policy/mls        2008-04-08 13:41:18.000000000 
+> -0500
+> +++ serefpolicy-3.3.1.new/policy/mls    2008-04-08 14:20:49.000000000 
+> -0500
+> @@ -567,6 +567,12 @@
+>          ( t1 == mlsxwinwritexinput ) or
+>          ( t1 == mlsxwinwrite ));
+>  
+> +#
+> +# MLS policy for the x_application_data class
+> +#
+> +mlsconstrain x_application_data { paste_without_confirm }
+> +       ( l1 domby l2 );
+> +
+>  
+>  #
+>  # MLS policy for the pax class
+>
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
