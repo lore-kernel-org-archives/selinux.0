@@ -1,106 +1,87 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3THTom7029296
-	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2008 13:29:50 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3THTjFm020737
-	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2008 17:29:45 GMT
-Message-ID: <48175B0A.4080800@redhat.com>
-Date: Tue, 29 Apr 2008 13:29:46 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3THUidR029515
+	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2008 13:30:44 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3THUfFm021269
+	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2008 17:30:41 GMT
+Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id m3THVeSc011106
+	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2008 13:31:40 -0400
+Received: (from jwcart2@localhost)
+	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id m3THVex4011105
+	for selinux@tycho.nsa.gov; Tue, 29 Apr 2008 13:31:40 -0400
+Date: Tue, 29 Apr 2008 10:18:43 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org, selinux@tycho.nsa.gov
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+        Chris Wedgwood <reviews@ml.cw.f00f.org>,
+        Michael Krufky <mkrufky@linuxtv.org>,
+        Chuck Ebbert <cebbert@redhat.com>,
+        Domenico Andreoli <cavokz@gmail.com>, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, alan@lxorguk.ukuu.org.uk, sds@tycho.nsa.gov,
+        jmorris@namei.org, Eric Paris <eparis@redhat.com>
+Subject: [20/37] SELinux: no BUG_ON(!ss_initialized) in
+	selinux_clone_mnt_opts
+Message-ID: <20080429171843.GU14724@suse.de>
+References: <20080429171222.073929148@mini.kroah.org>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: refpolicy roles / RBAC separation RFC
-References: <1209484450.6110.47.camel@gorn>
-In-Reply-To: <1209484450.6110.47.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20080429171730.GA14724@suse.de>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+2.6.25-stable review patch.  If anyone has any objections, please let us
+know.
 
-Christopher J. PeBenito wrote:
-> For those interested all of the user roles have been separated out into
-> individual modules in a new roles refpolicy layer, in refpolicy trunk.
-> This should enable interested users to add and remove roles more easily.
-> Each of the user roles has a module named after it (e.g., sysadm module
-> for sysadm_r), except user_r, which has a name unprivuser, since its not
-> possible to use "user" as a module name since it is a policy keyword.
-> 
-> Next we will be doing an experiment attempting to use the SELinux RBAC
-> functionality to separate users instead of SELinux TE.  What this means
-> is that the role field will start being used more substantially than it
-> currently is.  In a nutshell, this means that all user objects will have
-> the user's role rather than object_r.  Then the separate types will be
-> collapsed into one type where possible.  This will result in per-role
-> types (e.g., user_mozilla_t, staff_mozilla_t) collapsing too
-> (mozilla_t).
-> 
-> So for example, all of the home directory types will be collapsed into
-> home_t and home_dir_t.  This results in /root having the context
-> root:sysadm_r:home_dir_t.
-> 
-> My current idea for RBAC rules is to group object classes in RBAC
-> constraints similar to the current MLS constraints (e.g. file classes
-> together, network classes together).  The basic RBAC rule will be:
-> 
-> constrain { dir file ... } { getattr read write .... }
-> 	r1 == r2
-> 	or r1 == system_r
-> 	or r2 == object_r
-> 	or r1 == rbac_subj_role_file_exempt
-> 	or r2 == rbac_obj_role_file_exempt
-> 	or t1 == rbac_subj_type_file_exempt
-> 	or t2 == rbac_obj_type_file_exempt;
-> 
-> Is this too coarse?  Do we want to break it down into read and write
-> rather than just exempt?
-> 
-> Unfortunately this necessitates some kernel and userspace changes:
-> 
-> Roles aren't respected on objects in the kernel.  So if you create a
-> file in a directory that has the role staff_r, the file will have an
-> object_r role instead of staff_r.
-> 
-> Login programs and newrole will have to be changed to set the role on
-> the terminal.
-> 
-> The above example rule utilizes a role attribute, which doesn't exist.
-> In the absence of role attributes, role dominance can be used, but its
-> unclear if the dominance code works, since no one uses it.
-> 
-> Genhomedircon may need to be updated.
-> 
-> Tools such as audit2allow will need more audit2why-like support and
-> policy info to fix RBAC denials (a general constraints usability issue).
-> 
-> Comments?
-> 
-As has been stated before, I am not interested in separation of the
-homedir based on Role, since this will prevent shared homedirs on
-machines where the same user has different roles.  Also makes testing of
-homedir roles difficult since changing a role requires a full relabel of
-the homedir.  Labeling of the /root directory should be static and not
-related to user or role, because domains often want read/write access to
-the root directory and dontauditing this becomes complex if this changes
-based on semanage rules.
+------------------
+From: Eric Paris <eparis@redhat.com>
 
-service XYZ start in /root will almost always generate a search of the
-/root directory.
+commit 0f5e64200f20fc8f5b759c4010082f577ab0af3f upstream
 
-Currently Fedora labeling on the homedir is user_home_t or
-user_mozilla_home_t, Ie everything user_* So switching this to
-mozilla_home_t or home_t would be fine.
+The Fedora installer actually makes multiple NFS mounts before it loads
+selinux policy.  The code in selinux_clone_mnt_opts() assumed that the
+init process would always be loading policy before NFS was up and
+running.  It might be possible to hit this in a diskless environment as
+well, I'm not sure.  There is no need to BUG_ON() in this situation
+since we can safely continue given the circumstances.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Signed-off-by: Eric Paris <eparis@redhat.com>
+Signed-off-by: James Morris <jmorris@namei.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-iEYEARECAAYFAkgXWwoACgkQrlYvE4MpobMjhgCaAwNYj1MhxbOMA1ONpoh4FvkP
-N2UAoMZkGBkmDdt6zaMyBUz/tui30l+8
-=/CFO
------END PGP SIGNATURE-----
+---
+ security/selinux/hooks.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
+
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -756,9 +756,18 @@ static void selinux_sb_clone_mnt_opts(co
+ 	int set_context =	(oldsbsec->flags & CONTEXT_MNT);
+ 	int set_rootcontext =	(oldsbsec->flags & ROOTCONTEXT_MNT);
+ 
+-	/* we can't error, we can't save the info, this shouldn't get called
+-	 * this early in the boot process. */
+-	BUG_ON(!ss_initialized);
++	/*
++	 * if the parent was able to be mounted it clearly had no special lsm
++	 * mount options.  thus we can safely put this sb on the list and deal
++	 * with it later
++	 */
++	if (!ss_initialized) {
++		spin_lock(&sb_security_lock);
++		if (list_empty(&newsbsec->list))
++			list_add(&newsbsec->list, &superblock_security_head);
++		spin_unlock(&sb_security_lock);
++		return;
++	}
+ 
+ 	/* how can we clone if the old one wasn't set up?? */
+ 	BUG_ON(!oldsbsec->initialized);
+
+-- 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
