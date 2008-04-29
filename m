@@ -1,94 +1,148 @@
-Subject: Re: refpolicy roles / RBAC separation RFC
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1209497665.6110.65.camel@gorn>
-References: <1209484450.6110.47.camel@gorn>
-	 <1209495402.25678.239.camel@moss-spartans.epoch.ncsc.mil>
-	 <1209497665.6110.65.camel@gorn>
-Content-Type: text/plain
-Date: Tue, 29 Apr 2008 15:48:41 -0400
-Message-Id: <1209498521.25678.258.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3TJsrYk002824
+	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2008 15:54:53 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m3TJsqtX008077
+	for <selinux@tycho.nsa.gov>; Tue, 29 Apr 2008 19:54:52 GMT
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] Security: Make secctx_to_secid() take const secdata
+To: torvalds@osdl.org, akpm@linux-foundation.org, jmorris@namei.org,
+        casey@schaufler-ca.com
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Date: Tue, 29 Apr 2008 20:52:51 +0100
+Message-ID: <20080429195250.12265.62856.stgit@warthog.procyon.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Make secctx_to_secid() take constant secdata.
 
-On Tue, 2008-04-29 at 15:34 -0400, Christopher J. PeBenito wrote:
-> On Tue, 2008-04-29 at 14:56 -0400, Stephen Smalley wrote:
-> > On Tue, 2008-04-29 at 11:54 -0400, Christopher J. PeBenito wrote:
-> > > Next we will be doing an experiment attempting to use the SELinux RBAC
-> > > functionality to separate users instead of SELinux TE.  What this means
-> > > is that the role field will start being used more substantially than it
-> > > currently is.  In a nutshell, this means that all user objects will have
-> > > the user's role rather than object_r.  Then the separate types will be
-> > > collapsed into one type where possible.  This will result in per-role
-> > > types (e.g., user_mozilla_t, staff_mozilla_t) collapsing too
-> > > (mozilla_t).
-> > > 
-> > > So for example, all of the home directory types will be collapsed into
-> > > home_t and home_dir_t.  This results in /root having the context
-> > > root:sysadm_r:home_dir_t.
-> > > 
-> > > My current idea for RBAC rules is to group object classes in RBAC
-> > > constraints similar to the current MLS constraints (e.g. file classes
-> > > together, network classes together).  The basic RBAC rule will be:
-> > > 
-> > > constrain { dir file ... } { getattr read write .... }
-> > > 	r1 == r2
-> > > 	or r1 == system_r
-> > > 	or r2 == object_r
-> > > 	or r1 == rbac_subj_role_file_exempt
-> > > 	or r2 == rbac_obj_role_file_exempt
-> > 
-> > Do we think there will ever be another "exempt" object role other than
-> > object_r?  What benefit would it provide?
-> 
-> Perhaps if someone wants an exempt only on a specific set of object
-> classes, like on files or on process?  I don't have a good example, so I
-> could just as well drop it.
-> 
-> > > 	or t1 == rbac_subj_type_file_exempt
-> > > 	or t2 == rbac_obj_type_file_exempt;
-> > > 
-> > > Is this too coarse?  Do we want to break it down into read and write
-> > > rather than just exempt?
-> > 
-> > Seems reasonable as a starting point - offhand I don't see the use case
-> > for splitting it into read/write cases.
-> 
-> I didn't have a use case on this one either.
-> 
-> > > Unfortunately this necessitates some kernel and userspace changes:
-> [...]
-> > > Login programs and newrole will have to be changed to set the role on
-> > > the terminal.
-> > 
-> > Not if we get the security_compute_sid logic right and introduce
-> > role_change rules analogous to the type_change rules.  Then the existing
-> > security_compute_relabel() calls by login programs and newrole will
-> > return the desired context.
-> 
-> I just assumed that userspace changes would be preferred since there
-> doesn't necessarily have to be any logic in figuring out what role to
-> set on the object, the app would just set whatever role was logging in
-> (or the role being changed to, in the case of newrole).
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
 
-So under that approach, would userspace cease using
-security_compute_relabel() altogether?  As its only real use today is to
-obtain a derived type, and you are eliminating those.
+ include/linux/security.h            |    6 +++---
+ security/dummy.c                    |    2 +-
+ security/security.c                 |    2 +-
+ security/selinux/hooks.c            |    2 +-
+ security/selinux/include/security.h |    2 +-
+ security/selinux/ss/services.c      |    4 ++--
+ security/smack/smack_lsm.c          |    2 +-
+ 7 files changed, 10 insertions(+), 10 deletions(-)
 
-I suppose that would be simpler.
 
-This isn't directly related, but we'd also like to obsolete
-security_compute_user() and have userspace directly determine the set of
-legal contexts for get_ordered_context_list and friends.  Possibly with
-some additional selinuxfs information, or via another config file that
-gets generated from policy.
-
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 594abd8..e7882ef 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1488,7 +1488,7 @@ struct security_operations {
+ 	int (*getprocattr) (struct task_struct *p, char *name, char **value);
+ 	int (*setprocattr) (struct task_struct *p, char *name, void *value, size_t size);
+ 	int (*secid_to_secctx) (u32 secid, char **secdata, u32 *seclen);
+-	int (*secctx_to_secid) (char *secdata, u32 seclen, u32 *secid);
++	int (*secctx_to_secid) (const char *secdata, u32 seclen, u32 *secid);
+ 	void (*release_secctx) (char *secdata, u32 seclen);
+ 
+ #ifdef CONFIG_SECURITY_NETWORK
+@@ -1739,7 +1739,7 @@ int security_setprocattr(struct task_struct *p, char *name, void *value, size_t
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_netlink_recv(struct sk_buff *skb, int cap);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+-int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid);
++int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
+ void security_release_secctx(char *secdata, u32 seclen);
+ 
+ #else /* CONFIG_SECURITY */
+@@ -2463,7 +2463,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static inline int security_secctx_to_secid(char *secdata,
++static inline int security_secctx_to_secid(const char *secdata,
+ 					   u32 seclen,
+ 					   u32 *secid)
+ {
+diff --git a/security/dummy.c b/security/dummy.c
+index d254a0c..d3116f2 100644
+--- a/security/dummy.c
++++ b/security/dummy.c
+@@ -983,7 +983,7 @@ static int dummy_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return -EOPNOTSUPP;
+ }
+ 
+-static int dummy_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int dummy_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return -EOPNOTSUPP;
+ }
+diff --git a/security/security.c b/security/security.c
+index a5daaac..885c776 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -891,7 +891,7 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
+-int security_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return security_ops->secctx_to_secid(secdata, seclen, secid);
+ }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 81ce29f..fb25441 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5255,7 +5255,7 @@ static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+ 	return security_sid_to_context(secid, secdata, seclen);
+ }
+ 
+-static int selinux_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	return security_context_to_sid(secdata, seclen, secid);
+ }
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index cdb14ad..ad30ac4 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -96,7 +96,7 @@ int security_sid_to_context(u32 sid, char **scontext,
+ int security_context_to_sid(const char *scontext, u32 scontext_len,
+ 	u32 *out_sid);
+ 
+-int security_context_to_sid_default(char *scontext, u32 scontext_len,
++int security_context_to_sid_default(const char *scontext, u32 scontext_len,
+ 				    u32 *out_sid, u32 def_sid, gfp_t gfp_flags);
+ 
+ int security_get_user_sids(u32 callsid, char *username,
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 25cac5a..dcc2e1c 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -858,8 +858,8 @@ int security_context_to_sid(const char *scontext, u32 scontext_len, u32 *sid)
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+-int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *sid,
+-				    u32 def_sid, gfp_t gfp_flags)
++int security_context_to_sid_default(const char *scontext, u32 scontext_len,
++				    u32 *sid, u32 def_sid, gfp_t gfp_flags)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+ 					    sid, def_sid, gfp_flags);
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 45a690e..1e6c5af 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2421,7 +2421,7 @@ static int smack_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+  *
+  * Exists for audit and networking code.
+  */
+-static int smack_secctx_to_secid(char *secdata, u32 seclen, u32 *secid)
++static int smack_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+ {
+ 	*secid = smack_to_secid(secdata);
+ 	return 0;
 
 
 --
