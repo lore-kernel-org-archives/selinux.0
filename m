@@ -1,75 +1,60 @@
 Subject: Re: refpolicy roles / RBAC separation RFC
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
-In-Reply-To: <4818637C.30108@redhat.com>
-References: <1209484450.6110.47.camel@gorn>  <48175B0A.4080800@redhat.com>
-	 <1209496821.25678.249.camel@moss-spartans.epoch.ncsc.mil>
-	 <4818637C.30108@redhat.com>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1209498521.25678.258.camel@moss-spartans.epoch.ncsc.mil>
+References: <1209484450.6110.47.camel@gorn>
+	 <1209495402.25678.239.camel@moss-spartans.epoch.ncsc.mil>
+	 <1209497665.6110.65.camel@gorn>
+	 <1209498521.25678.258.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 30 Apr 2008 08:57:13 -0400
-Message-Id: <1209560233.25678.277.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 30 Apr 2008 09:48:30 -0400
+Message-Id: <1209563310.1053.7.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2008-04-29 at 15:48 -0400, Stephen Smalley wrote:
+> On Tue, 2008-04-29 at 15:34 -0400, Christopher J. PeBenito wrote:
+> > On Tue, 2008-04-29 at 14:56 -0400, Stephen Smalley wrote:
+> > > On Tue, 2008-04-29 at 11:54 -0400, Christopher J. PeBenito wrote:
+> > > > Next we will be doing an experiment attempting to use the SELinux RBAC
+> > > > functionality to separate users instead of SELinux TE.  What this means
+> > > > is that the role field will start being used more substantially than it
+> > > > currently is.  In a nutshell, this means that all user objects will have
+> > > > the user's role rather than object_r.  Then the separate types will be
+> > > > collapsed into one type where possible.  This will result in per-role
+> > > > types (e.g., user_mozilla_t, staff_mozilla_t) collapsing too
+> > > > (mozilla_t).
+[...]
+> > > > Unfortunately this necessitates some kernel and userspace changes:
+> > [...]
+> > > > Login programs and newrole will have to be changed to set the role on
+> > > > the terminal.
+> > > 
+> > > Not if we get the security_compute_sid logic right and introduce
+> > > role_change rules analogous to the type_change rules.  Then the existing
+> > > security_compute_relabel() calls by login programs and newrole will
+> > > return the desired context.
+> > 
+> > I just assumed that userspace changes would be preferred since there
+> > doesn't necessarily have to be any logic in figuring out what role to
+> > set on the object, the app would just set whatever role was logging in
+> > (or the role being changed to, in the case of newrole).
+> 
+> So under that approach, would userspace cease using
+> security_compute_relabel() altogether?  As its only real use today is to
+> obtain a derived type, and you are eliminating those.
+> 
+> I suppose that would be simpler.
 
-On Wed, 2008-04-30 at 08:18 -0400, Daniel J Walsh wrote:
-> If I want to run a confined role say webadm_r, I would not allow
-> webadm_r to touch any files in /root, so I don't see that I need
-> protection.  Similarly webadm_r can not touch entries in the Homedir so
-> it can not attack other roles.  If you need to create an admin role
-> which administrates more then one confined domain, then you would
-> generate a new admin role or enhance an existing admin role.  For
-> example if you want to allow the webadm_r:webadm_t to be able to admin
-> mysql,  you simply create a policy module with
-> 
-> mysql_admin(webadm_t, webadm_r, { webadm_devpts_t webadm_tty_device_t })
+I didn't think of removing security_compute_relabel().  I figured it
+would stick around for compatibility.
 
-Just noticed this - is the plan to retain the derived types for
-ttys/ptys, or are those also going away as part of this elimination of
-per-role types?
-
-If you retain the derived types on ttys/ptys, then I'm not sure how you
-eliminate the per-role program domains, as one of the reasons for them
-to exist is to preserve isolation of the ttys/ptys.
-
-> Or you create a brand new admin module with
-> 
-> policy_module(myadm, 1.0)
-> 
-> userdom_base_user_template(myadm)
-> allow myadm_t self:capability { dac_override dac_read_search kill
-> sys_ptrace sys_nice };
-> 
-> apache_admin(myadm_t, myadm_r,  { myadm_devpts_t myadm_tty_device_t })
-> mysql_admin(myadm_t, myadm_r,  { myadm_devpts_t myadm_tty_device_t })
-> 
-> gen_require(`
->         type staff_t;
-> ')
-> allow staff_t myadm_t:process transition;
-> allow myadm_t staff_t:dir getattr;
-> 
-> 
-> We need to keep it this simple, or only Consultants will ever be able to
-> use this stuff.
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.9 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-> 
-> iEYEARECAAYFAkgYY3wACgkQrlYvE4MpobMekQCcDcsUwL2YM4t/MzkH07qDlRbS
-> gdcAoJ2GbnSCqrioDU5LXRB6Amvoyl06
-> =tyy7
-> -----END PGP SIGNATURE-----
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
