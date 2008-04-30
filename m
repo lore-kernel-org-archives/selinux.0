@@ -1,215 +1,634 @@
-Message-ID: <4818B319.6050807@redhat.com>
-Date: Wed, 30 Apr 2008 13:57:45 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: refpolicy roles / RBAC separation RFC
-References: <1209484450.6110.47.camel@gorn>  <48175B0A.4080800@redhat.com>	 <1209496821.25678.249.camel@moss-spartans.epoch.ncsc.mil>	 <4818637C.30108@redhat.com>	 <1209559500.25678.268.camel@moss-spartans.epoch.ncsc.mil>	 <48189194.1090607@redhat.com>	 <1209575852.25678.332.camel@moss-spartans.epoch.ncsc.mil>	 <4818ADD4.4000505@redhat.com> <1209577847.25678.360.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1209577847.25678.360.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [RFC][PATCH v2] selinux:  support deferred mapping of contexts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Content-Type: text/plain
+Date: Wed, 30 Apr 2008 16:56:24 -0400
+Message-Id: <1209588984.25678.389.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+As discussed in:
+http://marc.info/?t=120837952900003&r=1&w=2
+the ability to permit package managers and similar programs to set down
+unknown file contexts is still desired/required, not only for putting
+policy modules in packages but also for enabling build systems to create
+images of different distro releases with different policies w/o
+requiring all of the types to be defined in the build host policy.
 
-Stephen Smalley wrote:
-> On Wed, 2008-04-30 at 13:35 -0400, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Stephen Smalley wrote:
->>> On Wed, 2008-04-30 at 11:34 -0400, Daniel J Walsh wrote:
->>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>> Hash: SHA1
->>>>
->>>> Stephen Smalley wrote:
->>>>> On Wed, 2008-04-30 at 08:18 -0400, Daniel J Walsh wrote:
->>>>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>>>> Hash: SHA1
->>>>>>
->>>>>> Stephen Smalley wrote:
->>>>>>> On Tue, 2008-04-29 at 13:29 -0400, Daniel J Walsh wrote:
->>>>>>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>>>>>> Hash: SHA1
->>>>>>>>
->>>>>>>> Christopher J. PeBenito wrote:
->>>>>>>>> For those interested all of the user roles have been separated out into
->>>>>>>>> individual modules in a new roles refpolicy layer, in refpolicy trunk.
->>>>>>>>> This should enable interested users to add and remove roles more easily.
->>>>>>>>> Each of the user roles has a module named after it (e.g., sysadm module
->>>>>>>>> for sysadm_r), except user_r, which has a name unprivuser, since its not
->>>>>>>>> possible to use "user" as a module name since it is a policy keyword.
->>>>>>>>>
->>>>>>>>> Next we will be doing an experiment attempting to use the SELinux RBAC
->>>>>>>>> functionality to separate users instead of SELinux TE.  What this means
->>>>>>>>> is that the role field will start being used more substantially than it
->>>>>>>>> currently is.  In a nutshell, this means that all user objects will have
->>>>>>>>> the user's role rather than object_r.  Then the separate types will be
->>>>>>>>> collapsed into one type where possible.  This will result in per-role
->>>>>>>>> types (e.g., user_mozilla_t, staff_mozilla_t) collapsing too
->>>>>>>>> (mozilla_t).
->>>>>>>>>
->>>>>>>>> So for example, all of the home directory types will be collapsed into
->>>>>>>>> home_t and home_dir_t.  This results in /root having the context
->>>>>>>>> root:sysadm_r:home_dir_t.
->>>>>>>>>
->>>>>>>>> My current idea for RBAC rules is to group object classes in RBAC
->>>>>>>>> constraints similar to the current MLS constraints (e.g. file classes
->>>>>>>>> together, network classes together).  The basic RBAC rule will be:
->>>>>>>>>
->>>>>>>>> constrain { dir file ... } { getattr read write .... }
->>>>>>>>> 	r1 == r2
->>>>>>>>> 	or r1 == system_r
->>>>>>>>> 	or r2 == object_r
->>>>>>>>> 	or r1 == rbac_subj_role_file_exempt
->>>>>>>>> 	or r2 == rbac_obj_role_file_exempt
->>>>>>>>> 	or t1 == rbac_subj_type_file_exempt
->>>>>>>>> 	or t2 == rbac_obj_type_file_exempt;
->>>>>>>>>
->>>>>>>>> Is this too coarse?  Do we want to break it down into read and write
->>>>>>>>> rather than just exempt?
->>>>>>>>>
->>>>>>>>> Unfortunately this necessitates some kernel and userspace changes:
->>>>>>>>>
->>>>>>>>> Roles aren't respected on objects in the kernel.  So if you create a
->>>>>>>>> file in a directory that has the role staff_r, the file will have an
->>>>>>>>> object_r role instead of staff_r.
->>>>>>>>>
->>>>>>>>> Login programs and newrole will have to be changed to set the role on
->>>>>>>>> the terminal.
->>>>>>>>>
->>>>>>>>> The above example rule utilizes a role attribute, which doesn't exist.
->>>>>>>>> In the absence of role attributes, role dominance can be used, but its
->>>>>>>>> unclear if the dominance code works, since no one uses it.
->>>>>>>>>
->>>>>>>>> Genhomedircon may need to be updated.
->>>>>>>>>
->>>>>>>>> Tools such as audit2allow will need more audit2why-like support and
->>>>>>>>> policy info to fix RBAC denials (a general constraints usability issue).
->>>>>>>>>
->>>>>>>>> Comments?
->>>>>>>>>
->>>>>>>> As has been stated before, I am not interested in separation of the
->>>>>>>> homedir based on Role, since this will prevent shared homedirs on
->>>>>>>> machines where the same user has different roles.  Also makes testing of
->>>>>>>> homedir roles difficult since changing a role requires a full relabel of
->>>>>>>> the homedir.  Labeling of the /root directory should be static and not
->>>>>>>> related to user or role, because domains often want read/write access to
->>>>>>>> the root directory and dontauditing this becomes complex if this changes
->>>>>>>> based on semanage rules.
->>>>>>>>
->>>>>>>> service XYZ start in /root will almost always generate a search of the
->>>>>>>> /root directory.
->>>>>>>>
->>>>>>>> Currently Fedora labeling on the homedir is user_home_t or
->>>>>>>> user_mozilla_home_t, Ie everything user_* So switching this to
->>>>>>>> mozilla_home_t or home_t would be fine.
->>>>>>> As before, I don't believe any of this would force anyone to separate
->>>>>>> files based on role; it would be driven by policy configuration and
->>>>>>> using object_r pervasively would continue to work fine.  It would just
->>>>>>> offer the ability to provide such separation based on role if so
->>>>>>> configured, and it would drop the use of derived types to achieve such
->>>>>>> separation.
->>>>>>>
->>>>>>> If you aren't going to separate files based on role though, you may want
->>>>>>> to think about how to protect roles against influence by other roles so
->>>>>>> that e.g. user_r or staff_r cannot inject commands to be run by sysadm_r
->>>>>>> into dotfiles.  DAC will help you with user-based separation (somewhat),
->>>>>>> but there is still the case where you have a user who is authorized for
->>>>>>> staff_r and sysadm_r who logs in initially in staff_r and later switches
->>>>>>> to sysadm_r.  There you have consider the potential of a flawed or
->>>>>>> malicious program run while in staff_r trying to inject commands to be
->>>>>>> run in sysadm_r, all running under the same user identity.
->>>>>>>
->>>>>> I label /root admin_home_t and don't allow any confined role to write to
->>>>>> it.  I have sysadm_r but have written before that I think it is a waste
->>>>>> of time, and prefer to just use unconfined_r.
->>>>>>
->>>>>> My view of the world is that you have a "login" role and you have an
->>>>>> "admin" role.  On my machine this is staff_r and unconfined_r, respectively.
->>>>> Right, but whether unconfined_r or sysadm_r, the question is how to
->>>>> protect the more-privileged role (unconfined_r in your case) from
->>>>> influence by the less-privileged login role (staff_r) when they both
->>>>> operate under the same DAC uid and thus share the same set of dotfiles.
->>>>> The per-role types or roles on home directory files are one mechanism
->>>>> for achieving that protection.  Another way would be to polyinstantiate
->>>>> the home directories by role.  Another way that relies on DAC-only would
->>>>> be to create a dedicated (pseudo) user account for each role with its
->>>>> own home directory and "safe" set of dotfiles and switch to that account
->>>>> when switching roles.
->>>>>
->>>> But you are assuming the UID does not change.   Since I look at the
->>>> world as Two Roles,  One Role when I am normal user and another role
->>>> when I am root.   I don't have this problem.  I don't want users using
->>>> newrole,  I want them to use sudo.  So unconfined_t or webadm_t when
->>>> UID==root, staff_t when UID=dwalsh.  newrole is just a complexity that
->>>> most users do not understand.    Since a confined application can not
->>>> read by default the directories of the user, the user will not be able
->>>> to effect the confined domain.
->>> That's essentially the last case (create a dedicated pseudo user account
->>> for each role with its own home directory) simplified to two-roles-only.
->>> But I think you'll eventually find two-roles-only to be too limiting
->>> (and certainly not sufficient for RBAC for organizations).
->>>
->> But I would argue this is exactly why RBAC has never caught on, because
->> administrators and users do not think of themselves as Roles, they run
->> applications.  The only roles an administrator of Unix systems
->> understands and his login role and his admin role.  He is not going to
->> want to run commands to Switch Roles other than Sudo, which my mechanism
->> fully supports.  But imagining him switching roles while root or while a
->> user is way too complicated.
-> 
-> It doesn't have to be too complicated, and it is actually quite natural
-> as a model for organizations.
-> 
-> In any event, all I am saying is that there has to be a mechanism for
-> protecting the role against influence by less privileged roles, and if
-> you want to use separate user accounts (which is what you are doing
-> here) to achieve that protection as far as the filesystem is concerned
-> (while still using SELinux for role process isolation), then that is
-> certainly an option.  But doing it via primary user accounts is less
-> helpful than introducing pseudo user accounts dedicated to the
-> particular role, I think, as we want to preserve user accountability
-> while acting in a given role.  This btw is the Solaris model for roles -
-> they are pseudo user accounts that cannot be directly logged into, only
-> assumable via su.
-> 
->> We have had a hard time convincing users to Leave SELinux on, now we
->> want to start adding new complexities, that have nothing to do with the
->> way they are used to working.  Seems to be a lot of work for little
->> benefit for the masses.
-> 
-> Well, first, as you know, from what we've seen, the majority of Fedora
-> users now seem to be leaving SELinux enabled as they now have the tools
-> they need to recognize and solve the most common problems.
-> 
-> I'm not sure why you think we're adding complexity here; Chris is merely
-> migrating an existing mechanism for supporting role-based separation in
-> the filesystem (via derived types) to a new mechanism (directly based on
-> roles).  And you just want to use neither of those mechanisms, which is
-> your option, instead choosing to use a DAC-based mechanism.  Nothing
-> Chris is doing makes your job any harder AFAICS.
-> 
-> Meanwhile, there is real use of RBAC in organizations; you might want to
-> look over some of the resources on:
-> http://csrc.nist.gov/groups/SNS/rbac/
-> 
-That is fine.  I am not objecting, and if it makes it easier to merge in
-my changes that would be great.  But userspace tools are going to need
-to become smarter about handling differences in the Role.  For example
-restorecon.
+This is an updated form of the patch originally posted in:
+http://marc.info/?l=selinux&m=114771094617968&w=2
+
+The only significant change to the patch aside from re-basing is that
+rather than introducing a labelpriv permission in the security class to
+control the new operation, I chose to use a class/permission that is not
+already allowed for unconfined domains so that unconfined user shells
+won't get this permission by default.  I was going to add a new class
+and permission but then realized that the mac_override capability check
+seemed to fit well conceptually and since it falls in the new
+capability2 class, it is not allowed to any existing domains in policy.
+Further, by making this a capable() check rather than only a SELinux
+permission check, the ability to set unknown file contexts is still
+limited to superuser (or at least CAP_MAC_OVERRIDE) processes even if
+SELinux is in permissive mode, which I think is desirable.  These
+safeguards should help against accidental setting of invalid contexts.
+
+With this patch applied, the following sequence is possible, subject to
+policy, which must allow <domain> self:capability2 mac_override; and
+allow unlabeled_t fs_t:filesystem associate; in order for this to work
+in enforcing mode or you can try it in permissive mode.
+
+# touch bar
+# chcon -t foo_exec_t bar # foo_exec_t is not yet defined
+# ls -Z bar
+-rw-r--r--  root root system_u:object_r:unlabeled_t    bar
+# cat foo.te
+policy_module(foo, 1.0)
+type foo_exec_t;
+files_type(foo_exec_t)
+# make -f /usr/share/selinux/devel/Makefile foo.pp
+# semodule -i foo.pp # defines foo_exec_t
+# ls -Z bar
+-rw-r--r--  root root user_u:object_r:foo_exec_t       bar
+# semodule -r foo
+# ls -Z bar
+-rw-r--r--  root root system_u:object_r:unlabeled_t    bar
+# semodule -i foo.pp
+# ls -Z bar
+-rw-r--r--  root root user_u:object_r:foo_exec_t       bar
+
+---<snip>---
+
+Introduce support for deferred mapping of security contexts in the
+SID table upon policy reload, and use this support for inode security
+contexts when the context is not yet valid under the current policy.
+Only processes with CAP_MAC_OVERRIDE + mac_override permission can
+set such invalid security contexts on inodes.  Inodes with such
+invalid contexts are treated as having the unlabeled SID until the context 
+becomes valid under a policy.  This support is for use by privileged processes
+like rpm that need to set down files in the proper security contexts prior to 
+loading the policy module that defines the context and its associated rules.
+
+---
+
+ security/selinux/hooks.c            |   18 ++-
+ security/selinux/include/security.h |    2 
+ security/selinux/ss/context.h       |   27 ++++
+ security/selinux/ss/mls.c           |   11 +-
+ security/selinux/ss/mls.h           |    3 
+ security/selinux/ss/services.c      |  198 +++++++++++++++++++++++++-----------
+ security/selinux/ss/sidtab.c        |    6 -
+ 7 files changed, 194 insertions(+), 71 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 308e2cf..250344c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2667,6 +2667,11 @@ static int selinux_inode_setxattr(struct dentry *dentry, char *name, void *value
+ 		return rc;
+ 
+ 	rc = security_context_to_sid(value, size, &newsid);
++	if (rc == -EINVAL) {
++		if (!capable(CAP_MAC_OVERRIDE))
++			return rc;
++		rc = security_context_to_sid_force(value, size, &newsid);
++	}
+ 	if (rc)
+ 		return rc;
+ 
+@@ -2700,10 +2705,11 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, char *name,
+ 		return;
+ 	}
+ 
+-	rc = security_context_to_sid(value, size, &newsid);
++	rc = security_context_to_sid_force(value, size, &newsid);
+ 	if (rc) {
+-		printk(KERN_WARNING "%s:  unable to obtain SID for context "
+-		       "%s, rc=%d\n", __func__, (char *)value, -rc);
++		printk(KERN_ERR "SELinux:  unable to map context to SID"
++		       "for (%s, %lu), rc=%d\n",
++		       inode->i_sb->s_id, inode->i_ino, -rc);
+ 		return;
+ 	}
+ 
+@@ -5152,6 +5158,12 @@ static int selinux_setprocattr(struct task_struct *p,
+ 			size--;
+ 		}
+ 		error = security_context_to_sid(value, size, &sid);
++		if (error == -EINVAL && !strcmp(name, "fscreate")) {
++			if (!capable(CAP_MAC_OVERRIDE))
++				return error;
++			error = security_context_to_sid_force(value, size,
++							      &sid);
++		}
+ 		if (error)
+ 			return error;
+ 	}
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 1904c46..112d4b1 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -99,6 +99,8 @@ int security_context_to_sid(char *scontext, u32 scontext_len,
+ int security_context_to_sid_default(char *scontext, u32 scontext_len,
+ 				    u32 *out_sid, u32 def_sid, gfp_t gfp_flags);
+ 
++int security_context_to_sid_force(char *scontext, u32 scontext_len, u32 *sid);
++
+ int security_get_user_sids(u32 callsid, char *username,
+ 			   u32 **sids, u32 *nel);
+ 
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 2eee0da..776d90f 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -28,6 +28,8 @@ struct context {
+ 	u32 role;
+ 	u32 type;
+ 	struct mls_range range;
++	char *str;	/* string representation if context cannot be mapped. */
++	u32 len;        /* length of string in bytes */
+ };
+ 
+ static inline void mls_context_init(struct context *c)
+@@ -106,20 +108,43 @@ static inline void context_init(struct context *c)
+ 
+ static inline int context_cpy(struct context *dst, struct context *src)
+ {
++	int rc;
++
+ 	dst->user = src->user;
+ 	dst->role = src->role;
+ 	dst->type = src->type;
+-	return mls_context_cpy(dst, src);
++	if (src->str) {
++		dst->str = kstrdup(src->str, GFP_ATOMIC);
++		if (!dst->str)
++			return -ENOMEM;
++		dst->len = src->len;
++	} else {
++		dst->str = NULL;
++		dst->len = 0;
++	}
++	rc = mls_context_cpy(dst, src);
++	if (rc) {
++		kfree(dst->str);
++		return rc;
++	}
++	return 0;
+ }
+ 
+ static inline void context_destroy(struct context *c)
+ {
+ 	c->user = c->role = c->type = 0;
++	kfree(c->str);
++	c->str = NULL;
++	c->len = 0;
+ 	mls_context_destroy(c);
+ }
+ 
+ static inline int context_cmp(struct context *c1, struct context *c2)
+ {
++	if (c1->len && c2->len)
++		return (c1->len == c2->len && !strcmp(c1->str, c2->str));
++	if (c1->len || c2->len)
++		return 0;
+ 	return ((c1->user == c2->user) &&
+ 		(c1->role == c2->role) &&
+ 		(c1->type == c2->type) &&
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index 8b1706b..a6ca058 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -239,7 +239,8 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
+  * Policy read-lock must be held for sidtab lookup.
+  *
+  */
+-int mls_context_to_sid(char oldc,
++int mls_context_to_sid(struct policydb *pol,
++		       char oldc,
+ 		       char **scontext,
+ 		       struct context *context,
+ 		       struct sidtab *s,
+@@ -286,7 +287,7 @@ int mls_context_to_sid(char oldc,
+ 		*p++ = 0;
+ 
+ 	for (l = 0; l < 2; l++) {
+-		levdatum = hashtab_search(policydb.p_levels.table, scontextp);
++		levdatum = hashtab_search(pol->p_levels.table, scontextp);
+ 		if (!levdatum) {
+ 			rc = -EINVAL;
+ 			goto out;
+@@ -311,7 +312,7 @@ int mls_context_to_sid(char oldc,
+ 					*rngptr++ = 0;
+ 				}
+ 
+-				catdatum = hashtab_search(policydb.p_cats.table,
++				catdatum = hashtab_search(pol->p_cats.table,
+ 							  scontextp);
+ 				if (!catdatum) {
+ 					rc = -EINVAL;
+@@ -327,7 +328,7 @@ int mls_context_to_sid(char oldc,
+ 				if (rngptr) {
+ 					int i;
+ 
+-					rngdatum = hashtab_search(policydb.p_cats.table, rngptr);
++					rngdatum = hashtab_search(pol->p_cats.table, rngptr);
+ 					if (!rngdatum) {
+ 						rc = -EINVAL;
+ 						goto out;
+@@ -395,7 +396,7 @@ int mls_from_string(char *str, struct context *context, gfp_t gfp_mask)
+ 	if (!tmpstr) {
+ 		rc = -ENOMEM;
+ 	} else {
+-		rc = mls_context_to_sid(':', &tmpstr, context,
++		rc = mls_context_to_sid(&policydb, ':', &tmpstr, context,
+ 					NULL, SECSID_NULL);
+ 		kfree(freestr);
+ 	}
+diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+index ab53663..900fb0e 100644
+--- a/security/selinux/ss/mls.h
++++ b/security/selinux/ss/mls.h
+@@ -30,7 +30,8 @@ int mls_context_isvalid(struct policydb *p, struct context *c);
+ int mls_range_isvalid(struct policydb *p, struct mls_range *r);
+ int mls_level_isvalid(struct policydb *p, struct mls_level *l);
+ 
+-int mls_context_to_sid(char oldc,
++int mls_context_to_sid(struct policydb *p,
++		       char oldc,
+ 	               char **scontext,
+ 		       struct context *context,
+ 		       struct sidtab *s,
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 2daaddb..6724b4f 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -708,36 +708,24 @@ out:
+ 
+ }
+ 
+-static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+-					u32 *sid, u32 def_sid, gfp_t gfp_flags)
++static int string_to_context_struct(struct policydb *pol,
++				    struct sidtab *sidtabp,
++				    char *scontext,
++				    u32 scontext_len,
++				    struct context *ctx,
++				    u32 def_sid,
++				    gfp_t gfp_flags)
+ {
+-	char *scontext2;
+-	struct context context;
++	char *scontext2 = NULL;
+ 	struct role_datum *role;
+ 	struct type_datum *typdatum;
+ 	struct user_datum *usrdatum;
+ 	char *scontextp, *p, oldc;
+ 	int rc = 0;
+ 
+-	if (!ss_initialized) {
+-		int i;
++	context_init(ctx);
+ 
+-		for (i = 1; i < SECINITSID_NUM; i++) {
+-			if (!strcmp(initial_sid_to_string[i], scontext)) {
+-				*sid = i;
+-				goto out;
+-			}
+-		}
+-		*sid = SECINITSID_KERNEL;
+-		goto out;
+-	}
+-	*sid = SECSID_NULL;
+-
+-	/* Copy the string so that we can modify the copy as we parse it.
+-	   The string should already by null terminated, but we append a
+-	   null suffix to the copy to avoid problems with the existing
+-	   attr package, which doesn't view the null terminator as part
+-	   of the attribute value. */
++	/* Copy the string so that we can modify the copy as we parse it. */
+ 	scontext2 = kmalloc(scontext_len+1, gfp_flags);
+ 	if (!scontext2) {
+ 		rc = -ENOMEM;
+@@ -746,11 +734,6 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+ 	memcpy(scontext2, scontext, scontext_len);
+ 	scontext2[scontext_len] = 0;
+ 
+-	context_init(&context);
+-	*sid = SECSID_NULL;
+-
+-	POLICY_RDLOCK;
+-
+ 	/* Parse the security context. */
+ 
+ 	rc = -EINVAL;
+@@ -762,15 +745,15 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+ 		p++;
+ 
+ 	if (*p == 0)
+-		goto out_unlock;
++		goto out;
+ 
+ 	*p++ = 0;
+ 
+-	usrdatum = hashtab_search(policydb.p_users.table, scontextp);
++	usrdatum = hashtab_search(pol->p_users.table, scontextp);
+ 	if (!usrdatum)
+-		goto out_unlock;
++		goto out;
+ 
+-	context.user = usrdatum->value;
++	ctx->user = usrdatum->value;
+ 
+ 	/* Extract role. */
+ 	scontextp = p;
+@@ -778,14 +761,14 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+ 		p++;
+ 
+ 	if (*p == 0)
+-		goto out_unlock;
++		goto out;
+ 
+ 	*p++ = 0;
+ 
+-	role = hashtab_search(policydb.p_roles.table, scontextp);
++	role = hashtab_search(pol->p_roles.table, scontextp);
+ 	if (!role)
+-		goto out_unlock;
+-	context.role = role->value;
++		goto out;
++	ctx->role = role->value;
+ 
+ 	/* Extract type. */
+ 	scontextp = p;
+@@ -794,33 +777,74 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+ 	oldc = *p;
+ 	*p++ = 0;
+ 
+-	typdatum = hashtab_search(policydb.p_types.table, scontextp);
++	typdatum = hashtab_search(pol->p_types.table, scontextp);
+ 	if (!typdatum)
+-		goto out_unlock;
++		goto out;
+ 
+-	context.type = typdatum->value;
++	ctx->type = typdatum->value;
+ 
+-	rc = mls_context_to_sid(oldc, &p, &context, &sidtab, def_sid);
++	rc = mls_context_to_sid(pol, oldc, &p, ctx, sidtabp, def_sid);
+ 	if (rc)
+-		goto out_unlock;
++		goto out;
+ 
+ 	if ((p - scontext2) < scontext_len) {
+ 		rc = -EINVAL;
+-		goto out_unlock;
++		goto out;
+ 	}
+ 
+ 	/* Check the validity of the new context. */
+-	if (!policydb_context_isvalid(&policydb, &context)) {
++	if (!policydb_context_isvalid(pol, ctx)) {
+ 		rc = -EINVAL;
+-		goto out_unlock;
++		context_destroy(ctx);
++		goto out;
+ 	}
+-	/* Obtain the new sid. */
+-	rc = sidtab_context_to_sid(&sidtab, &context, sid);
+-out_unlock:
+-	POLICY_RDUNLOCK;
+-	context_destroy(&context);
++	rc = 0;
++out:
+ 	kfree(scontext2);
++	return rc;
++}
++
++static int security_context_to_sid_core(char *scontext, u32 scontext_len,
++					u32 *sid, u32 def_sid, gfp_t gfp_flags,
++					int force)
++{
++	struct context context;
++	int rc = 0;
++
++	if (!ss_initialized) {
++		int i;
++
++		for (i = 1; i < SECINITSID_NUM; i++) {
++			if (!strcmp(initial_sid_to_string[i], scontext)) {
++				*sid = i;
++				goto out;
++			}
++		}
++		*sid = SECINITSID_KERNEL;
++		goto out;
++	}
++	*sid = SECSID_NULL;
++
++	POLICY_RDLOCK;
++	rc = string_to_context_struct(&policydb, &sidtab,
++				      scontext, scontext_len,
++				      &context, def_sid, gfp_flags);
++	if (rc == -EINVAL && force) {
++		context.str = kmalloc(scontext_len+1, gfp_flags);
++		if (!context.str) {
++			rc = -ENOMEM;
++			goto out;
++		}
++		memcpy(context.str, scontext, scontext_len);
++		context.str[scontext_len] = 0;
++		context.len = scontext_len;
++	} else if (rc)
++		goto out;
++	rc = sidtab_context_to_sid(&sidtab, &context, sid);
++	if (rc)
++		context_destroy(&context);
+ out:
++	POLICY_RDUNLOCK;
+ 	return rc;
+ }
+ 
+@@ -838,7 +862,7 @@ out:
+ int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+-					    sid, SECSID_NULL, GFP_KERNEL);
++					    sid, SECSID_NULL, GFP_KERNEL, 0);
+ }
+ 
+ /**
+@@ -855,6 +879,7 @@ int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
+  * The default SID is passed to the MLS layer to be used to allow
+  * kernel labeling of the MLS field if the MLS field is not present
+  * (for upgrading to MLS without full relabel).
++ * Implicitly forces adding of the context even if it cannot be mapped yet.
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+@@ -862,7 +887,13 @@ int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *sid,
+ 				    u32 def_sid, gfp_t gfp_flags)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+-					    sid, def_sid, gfp_flags);
++					    sid, def_sid, gfp_flags, 1);
++}
++
++int security_context_to_sid_force(char *scontext, u32 scontext_len, u32 *sid)
++{
++	return security_context_to_sid_core(scontext, scontext_len,
++					    sid, SECSID_NULL, GFP_KERNEL, 1);
+ }
+ 
+ static int compute_sid_handle_invalid_context(
+@@ -1246,9 +1277,12 @@ static inline int convert_context_handle_invalid_context(struct context *context
+ 		char *s;
+ 		u32 len;
+ 
+-		context_struct_to_string(context, &s, &len);
+-		printk(KERN_ERR "SELinux:  context %s is invalid\n", s);
+-		kfree(s);
++		if (!context_struct_to_string(context, &s, &len)) {
++			printk(KERN_WARNING
++		       "SELinux:  Context %s would be invalid if enforcing\n",
++			       s);
++			kfree(s);
++		}
+ 	}
+ 	return rc;
+ }
+@@ -1280,6 +1314,32 @@ static int convert_context(u32 key,
+ 
+ 	args = p;
+ 
++	if (c->str) {
++		struct context ctx;
++		rc = string_to_context_struct(args->newp, NULL, c->str,
++					      c->len, &ctx, SECSID_NULL,
++					      GFP_KERNEL);
++		if (!rc) {
++			printk(KERN_INFO
++		       "SELinux:  Context %s became valid (mapped).\n",
++			       c->str);
++			/* Replace string with mapped representation. */
++			kfree(c->str);
++			memcpy(c, &ctx, sizeof(*c));
++			goto out;
++		} else if (rc == -EINVAL) {
++			/* Retain string representation for later mapping. */
++			rc = 0;
++			goto out;
++		} else {
++			/* Other error condition, e.g. ENOMEM. */
++			printk(KERN_ERR
++		       "SELinux:   Unable to map context %s, rc = %d.\n",
++			       c->str, -rc);
++			goto out;
++		}
++	}
++
+ 	rc = context_cpy(&oldc, c);
+ 	if (rc)
+ 		goto out;
+@@ -1319,13 +1379,21 @@ static int convert_context(u32 key,
+ 	}
+ 
+ 	context_destroy(&oldc);
++	rc = 0;
+ out:
+ 	return rc;
+ bad:
+-	context_struct_to_string(&oldc, &s, &len);
++	/* Map old representation to string and save it. */
++	if (context_struct_to_string(&oldc, &s, &len))
++		return -ENOMEM;
+ 	context_destroy(&oldc);
+-	printk(KERN_ERR "SELinux:  invalidating context %s\n", s);
+-	kfree(s);
++	context_destroy(c);
++	c->str = s;
++	c->len = len;
++	printk(KERN_INFO
++	       "SELinux:  Context %s became invalid (unmapped).\n",
++	       c->str);
++	rc = 0;
+ 	goto out;
+ }
+ 
+@@ -1406,7 +1474,11 @@ int security_load_policy(void *data, size_t len)
+ 		return -EINVAL;
+ 	}
+ 
+-	sidtab_init(&newsidtab);
++	if (sidtab_init(&newsidtab)) {
++		LOAD_UNLOCK;
++		policydb_destroy(&newpolicydb);
++		return -ENOMEM;
++	}
+ 
+ 	/* Verify that the kernel defined classes are correct. */
+ 	if (validate_classes(&newpolicydb)) {
+@@ -1429,11 +1501,15 @@ int security_load_policy(void *data, size_t len)
+ 		goto err;
+ 	}
+ 
+-	/* Convert the internal representations of contexts
+-	   in the new SID table and remove invalid SIDs. */
++	/*
++	 * Convert the internal representations of contexts
++	 * in the new SID table.
++	 */
+ 	args.oldp = &policydb;
+ 	args.newp = &newpolicydb;
+-	sidtab_map_remove_on_error(&newsidtab, convert_context, &args);
++	rc = sidtab_map(&newsidtab, convert_context, &args);
++	if (rc)
++		goto err;
+ 
+ 	/* Save the old policydb and SID table to free later. */
+ 	memcpy(&oldpolicydb, &policydb, sizeof policydb);
+@@ -1673,6 +1749,8 @@ int security_get_user_sids(u32 fromsid,
+ 
+ 	POLICY_RDLOCK;
+ 
++	context_init(&usercon);
++
+ 	fromcon = sidtab_search(&sidtab, fromsid);
+ 	if (!fromcon) {
+ 		rc = -EINVAL;
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index 4a516ff..7f4c0d0 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -99,7 +99,7 @@ struct context *sidtab_search(struct sidtab *s, u32 sid)
+ 	while (cur != NULL && sid > cur->sid)
+ 		cur = cur->next;
+ 
+-	if (cur == NULL || sid != cur->sid) {
++	if (cur == NULL || sid != cur->sid || cur->context.len) {
+ 		/* Remap invalid SIDs to the unlabeled SID. */
+ 		sid = SECINITSID_UNLABELED;
+ 		hvalue = SIDTAB_HASH(sid);
+@@ -215,6 +215,10 @@ int sidtab_context_to_sid(struct sidtab *s,
+ 			goto unlock_out;
+ 		}
+ 		sid = s->next_sid++;
++		if (context->len)
++			printk(KERN_INFO
++		       "SELinux:  Context %s is not valid (left unmapped).\n",
++			       context->str);
+ 		ret = sidtab_insert(s, sid, context);
+ 		if (ret)
+ 			s->next_sid--;
 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkgYsxkACgkQrlYvE4MpobNamACgmS14YcAFnfSMgHmeguzCXFRR
-wQoAoLzKKpD5XFoKVIwH13U43+e3h04Q
-=c0K9
------END PGP SIGNATURE-----
+ 
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
