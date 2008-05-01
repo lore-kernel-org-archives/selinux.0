@@ -1,83 +1,54 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m3UNVxAO001749
-	for <selinux@tycho.nsa.gov>; Wed, 30 Apr 2008 19:31:59 -0400
-Message-ID: <481900C9.40406@tycho.nsa.gov>
-Date: Wed, 30 Apr 2008 19:29:13 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: copy/paste policy patch
-References: <cadfc0e40804250607q6e6542ecmc1fa3d1e78a84cb8@mail.gmail.com>	 <1209386863.30483.44.camel@gorn.columbia.tresys.com>	 <4816523B.4030905@tycho.nsa.gov> <cadfc0e40804281546n188882c2w2c84241878f2d7ef@mail.gmail.com>
-In-Reply-To: <cadfc0e40804281546n188882c2w2c84241878f2d7ef@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [RFC][PATCH v2] selinux:  support deferred mapping of contexts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: casey@schaufler-ca.com
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <183965.2243.qm@web36606.mail.mud.yahoo.com>
+References: <183965.2243.qm@web36606.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 01 May 2008 06:37:42 -0400
+Message-Id: <1209638262.25678.393.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Xavier Toth wrote:
-> Seems to me that paste mlsconstrain should be (l1 eq l2) and should be 
-> a mlsconstrain for paste_after_confirm which is (l1 domby l2).
 
-Revised patch attached.
+On Wed, 2008-04-30 at 14:51 -0700, Casey Schaufler wrote:
+> --- Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > As discussed in:
+> > http://marc.info/?t=120837952900003&r=1&w=2
+> > the ability to permit package managers and similar programs to set down
+> > unknown file contexts is still desired/required, not only for putting
+> > policy modules in packages but also for enabling build systems to create
+> > images of different distro releases with different policies w/o
+> > requiring all of the types to be defined in the build host policy.
+> > 
+> > This is an updated form of the patch originally posted in:
+> > http://marc.info/?l=selinux&m=114771094617968&w=2
+> > 
+> > The only significant change to the patch aside from re-basing is that
+> > rather than introducing a labelpriv permission in the security class to
+> > control the new operation, I chose to use a class/permission that is not
+> > already allowed for unconfined domains so that unconfined user shells
+> > won't get this permission by default.  I was going to add a new class
+> > and permission but then realized that the mac_override capability check
+> > seemed to fit well conceptually and since it falls in the new
+> > capability2 class, it is not allowed to any existing domains in policy.
+> > Further, by making this a capable() check rather than only a SELinux
+> > permission check, the ability to set unknown file contexts is still
+> > limited to superuser (or at least CAP_MAC_OVERRIDE)
+> 
+> I think you should be using CAP_MAC_ADMIN as you are explictly
+> setting the attribute. CAP_MAC_OVERRIDE is for violations of
+> normal policy, whereas this appears more like an administrative
+> action.
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
-
-Index: policy/flask/security_classes
-===================================================================
---- policy/flask/security_classes	(revision 2669)
-+++ policy/flask/security_classes	(working copy)
-@@ -114,5 +114,6 @@
- class x_resource		# userspace
- class x_event			# userspace
- class x_synthetic_event		# userspace
-+class x_application_data	# userspace
- 
- # FLASK
-Index: policy/flask/access_vectors
-===================================================================
---- policy/flask/access_vectors	(revision 2669)
-+++ policy/flask/access_vectors	(working copy)
-@@ -775,3 +775,10 @@
- {
- 	recv
- }
-+
-+class x_application_data
-+{
-+	paste
-+	paste_after_confirm
-+	copy
-+}
-Index: policy/mls
-===================================================================
---- policy/mls	(revision 2669)
-+++ policy/mls	(working copy)
-@@ -568,7 +568,19 @@
- 	 ( t1 == mlsxwinwrite ));
- 
- 
-+#
-+# MLS policy for the x_application_data class
-+#
- 
-+# the x_application_data "paste" ops (explicit single level)
-+mlsconstrain x_application_data { paste }
-+	( l1 eq l2 );
-+
-+# the x_application_data "paste_after_confirm" ops (downgrade permitted)
-+mlsconstrain x_application_data { paste_after_confirm }
-+	( l1 domby l2 );
-+
-+
- #
- # MLS policy for the pax class
- #
-
+Ok, I'll include that change in the next version of the patch (if there
+is one).  Thanks.
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
