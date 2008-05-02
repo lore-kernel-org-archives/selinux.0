@@ -1,107 +1,53 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m41K4Rq9005532
-	for <selinux@tycho.nsa.gov>; Thu, 1 May 2008 16:04:27 -0400
-Received: from rn-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m41K4QaW014467
-	for <selinux@tycho.nsa.gov>; Thu, 1 May 2008 20:04:27 GMT
-Received: by rn-out-0910.google.com with SMTP id e11so558436rng.17
-        for <selinux@tycho.nsa.gov>; Thu, 01 May 2008 13:04:13 -0700 (PDT)
-Message-ID: <7e0fb38c0805011304i3f63a0d0g987473892a76abb2@mail.gmail.com>
-Date: Thu, 1 May 2008 16:04:12 -0400
-From: "Eric Paris" <eparis@parisplace.org>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: segfault using dismod when linking modules
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_6674_20334165.1209672252266"
+Subject: Re: segfault using dismod when linking modules
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+Cc: selinux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <7e0fb38c0805011304i3f63a0d0g987473892a76abb2@mail.gmail.com>
+References: <7e0fb38c0805011304i3f63a0d0g987473892a76abb2@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 02 May 2008 09:45:12 -0400
+Message-Id: <1209735912.25678.510.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_6674_20334165.1209672252266
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Maybe someone else will know this pretty quickly.  I'm attaching a
-tiny little base.conf and base.mod and a tiny test.te and test.mod
-that I built.  When I try to link them together I get a segfault
-somewhere through user_fix_callback() -> mls_level_convert()
+On Thu, 2008-05-01 at 16:04 -0400, Eric Paris wrote:
+> Maybe someone else will know this pretty quickly.  I'm attaching a
+> tiny little base.conf and base.mod and a tiny test.te and test.mod
+> that I built.  When I try to link them together I get a segfault
+> somewhere through user_fix_callback() -> mls_level_convert()
+> 
+> Anyway, maybe I'll get to looking at it tomorrow, but if anyone else
+> who actually understands all of this has a chance to look let me
+> know....
 
-Anyway, maybe I'll get to looking at it tomorrow, but if anyone else
-who actually understands all of this has a chance to look let me
-know....
+Looks like mls_level_convert() falls over dead if passed an "empty" user
+declaration, which appears to happen when you specify a require on it
+but not a declaration for it in your module, which is what you do in
+test.te.  Patch below will at least fix the symptom - not sure whether
+it will yield the expected end result though.
 
--Eric
+Index: trunk/libsepol/src/link.c
+===================================================================
+--- trunk/libsepol/src/link.c	(revision 2874)
++++ trunk/libsepol/src/link.c	(working copy)
+@@ -864,6 +864,10 @@
+ 	if (!mod->policy->mls)
+ 		return 0;
+ 
++	/* Required not declared. */
++	if (!src->sens)
++		return 0;
++
+ 	assert(mod->map[SYM_LEVELS][src->sens - 1]);
+ 	dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
+ 
 
-------=_Part_6674_20334165.1209672252266
-Content-Type: application/octet-stream; name=base.conf
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ffprkfwo0
-Content-Disposition: attachment; filename=base.conf
+-- 
+Stephen Smalley
+National Security Agency
 
-Y2xhc3MgY2xhc3MxCgpzaWQgc2lkMQoKY2xhc3MgY2xhc3MxCnsKCXBlcm0xCglwZXJtMgp9Cgpz
-ZW5zaXRpdml0eSBzMDsKCmRvbWluYW5jZSB7IHMwIH0KCmNhdGVnb3J5IGMwOyBjYXRlZ29yeSBj
-MTsgY2F0ZWdvcnkgYzI7IGNhdGVnb3J5IGMzOwpjYXRlZ29yeSBjNDsgY2F0ZWdvcnkgYzU7IGNh
-dGVnb3J5IGM2OyBjYXRlZ29yeSBjNzsKCmxldmVsIHMwOmMwLmM3OwoKbWxzY29uc3RyYWluIGNs
-YXNzMSB7IHBlcm0xIHBlcm0yIH0KCSggaDEgZG9tIGgyICk7CgphdHRyaWJ1dGUgYXR0cmlidXRl
-MTsKCnR5cGUgdHlwZTFfdCwgYXR0cmlidXRlMTsKcm9sZSByb2xlX3IgdHlwZXMgdHlwZTFfdDsK
-CnR5cGUgdHlwZTJfdDsKCmFsbG93IHR5cGUxX3QgdHlwZTJfdDogY2xhc3MxIHsgcGVybTEgfTsK
-CiNhbGxvdyB1c2VyX3Igc3lzYWRtX3I7Cgpib29sIGJvb2xlYW4gZmFsc2U7Cgp1c2VyIHVzZXJf
-dSByb2xlcyB7IHJvbGVfciB9IGxldmVsIHMwIHJhbmdlIHMwIC0gczA6YzAuYzc7CgoKc2lkIHNp
-ZDEgdXNlcl91OnJvbGVfcjp0eXBlMV90OnMwCgpmc191c2VfeGF0dHIgZXh0MiB1c2VyX3U6cm9s
-ZV9yOnR5cGUxX3Q6czA7CgpnZW5mc2NvbiBwcm9jIC8JdXNlcl91OnJvbGVfcjp0eXBlMV90OnMw
-Cgpub2RlY29uIDo6MSBGRkZGOkZGRkY6RkZGRjpGRkZGOjogdXNlcl91Om9iamVjdF9yOnR5cGUy
-X3Q6czAK
-------=_Part_6674_20334165.1209672252266
-Content-Type: audio/x-mod; name=base.mod
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ffprkt3j1
-Content-Disposition: attachment; filename=base.mod
-
-jf98+Q8AAABTRSBMaW51eCBNb2R1bGUBAAAACAAAAAEAAAAIAAAABwAAAEAAAAAAAAAAAAAAAAAA
-AAAAAAAAAQAAAAEAAAAGAAAAAAAAAAEAAAACAAAAAgAAAAEAAABjbGFzczEFAAAAAQAAAHBlcm0x
-BQAAAAIAAABwZXJtMgMAAAABAAAABAAAAAABAAADAAAAAAAAAAIAAAACAAAABgAAAAIAAAByb2xl
-X3JAAAAAQAAAAAEAAAAAAAAAAgAAAAAAAABAAAAAQAAAAAEAAAAAAAAAAgAAAAAAAABAAAAAAAAA
-AAAAAAAAAAAACAAAAAEAAABvYmplY3RfckAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAA
-AAAAAAAAAAADAAAAAwAAAAoAAAABAAAAAQAAAAEAAAAAAAAAQAAAAEAAAAABAAAAAAAAAAIAAAAA
-AAAAYXR0cmlidXRlMQcAAAACAAAAAQAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAdHlwZTFfdAcAAAAD
-AAAAAQAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAdHlwZTJfdAEAAAABAAAABgAAAAEAAAB1c2VyX3VA
-AAAAQAAAAAEAAAAAAAAAAgAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAQAAAAEAAAAIAAAAAQAAAAAA
-AAABAAAAAQAAAAEAAAAAAAAABwAAAGJvb2xlYW4BAAAAAQAAAAIAAAAAAAAAczABAAAAQAAAAEAA
-AAABAAAAAAAAAP8AAAAAAAAACAAAAAgAAAACAAAAAQAAAAAAAABjMAIAAAACAAAAAAAAAGMxAgAA
-AAMAAAAAAAAAYzICAAAABAAAAAAAAABjMwIAAAAFAAAAAAAAAGM0AgAAAAYAAAAAAAAAYzUCAAAA
-BwAAAAAAAABjNgIAAAAIAAAAAAAAAGM3AQAAAAEAAAABAAAAAQAAAAAAAAABAAAAAQAAAAAAAABA
-AAAAQAAAAAEAAAAAAAAAAgAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAEAAAAABAAAAAAAAAAQA
-AAAAAAAAQAAAAAAAAAAAAAAAAAAAAAEAAAABAAAAAQAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAA
-AEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAA
-AAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAEAAABAAAAAQAAAAAEAAAAAAAAAAwAAAAAAAABA
-AAAAAAAAAAAAAABAAAAAQAAAAAEAAAAAAAAAAQAAAAAAAABAAAAAQAAAAAEAAAAAAAAAAgAAAAAA
-AABAAAAAQAAAAAEAAAAAAAAABwAAAAAAAABAAAAAQAAAAAEAAAAAAAAAAQAAAAAAAABAAAAAQAAA
-AAEAAAAAAAAAAQAAAAAAAABAAAAAQAAAAAEAAAAAAAAAAQAAAAAAAABAAAAAQAAAAAEAAAAAAAAA
-/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAABgAAAGNsYXNzMQIAAAABAAAAAQAAAAIAAAAGAAAA
-cm9sZV9yAgAAAAEAAAABAAAACAAAAG9iamVjdF9yAgAAAAEAAAABAAAAAwAAAAoAAABhdHRyaWJ1
-dGUxAgAAAAEAAAABAAAABwAAAHR5cGUxX3QCAAAAAQAAAAEAAAAHAAAAdHlwZTJfdAIAAAABAAAA
-AQAAAAEAAAAGAAAAdXNlcl91AgAAAAEAAAABAAAAAQAAAAcAAABib29sZWFuAgAAAAEAAAABAAAA
-AQAAAAIAAABzMAIAAAABAAAAAQAAAAgAAAACAAAAYzACAAAAAQAAAAEAAAACAAAAYzECAAAAAQAA
-AAEAAAACAAAAYzICAAAAAQAAAAEAAAACAAAAYzMCAAAAAQAAAAEAAAACAAAAYzQCAAAAAQAAAAEA
-AAACAAAAYzUCAAAAAQAAAAEAAAACAAAAYzYCAAAAAQAAAAEAAAACAAAAYzcCAAAAAQAAAAEAAAAB
-AAAAAQAAAAEAAAACAAAAAgAAAAEAAAABAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEA
-AAABAAAABAAAAGV4dDIBAAAAAgAAAAIAAAABAAAAAQAAAEAAAAAAAAAAAAAAAAEAAAAAAAAAAAAA
-AAAAAAAAAAAB//////////8AAAAAAAAAAAEAAAABAAAAAwAAAAEAAAABAAAAQAAAAAAAAAAAAAAA
-AQAAAAQAAABwcm9jAQAAAAEAAAAvAAAAAAEAAAACAAAAAgAAAAEAAAABAAAAQAAAAAAAAAAAAAAA
-
-------=_Part_6674_20334165.1209672252266
-Content-Type: application/octet-stream; name=test.te
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_ffprl0oq2
-Content-Disposition: attachment; filename=test.te
-
-bW9kdWxlIG1vZGdlbmZzIDEuMDsKCnJlcXVpcmUgewoJdXNlciB1c2VyX3U7Cglyb2xlIHJvbGVf
-cjsKCXR5cGUgdHlwZTFfdDsKCWNsYXNzIGNsYXNzMSBwZXJtMTsKfQoKYWxsb3cgdHlwZTFfdCB0
-eXBlMV90OmNsYXNzMSBwZXJtMTsKI2dlbmZzY29uIHByb2MgLyB1c2VyX3U6cm9sZV9yOnR5cGUx
-X3Q6czAKCgo=
-------=_Part_6674_20334165.1209672252266--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
