@@ -1,19 +1,13 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m42FjPok006539
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2008 11:45:25 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m42FjMJ3025843
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2008 15:45:23 GMT
-Message-ID: <481B2E15.7070703@redhat.com>
-Date: Fri, 02 May 2008 11:07:01 -0400
+Message-ID: <481B37AF.4040806@redhat.com>
+Date: Fri, 02 May 2008 11:47:59 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-CC: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org,
-        debian-ssh@lists.debian.org
-Subject: Re: [refpolicy] initrc_t access to sshd /proc to adjust OOM killer
-References: <20080502143041.GA26592@bobek.pm.i.cz>
-In-Reply-To: <20080502143041.GA26592@bobek.pm.i.cz>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: [RFC][PATCH v2] selinux:  support deferred mapping of contexts
+References: <1209588984.25678.389.camel@moss-spartans.epoch.ncsc.mil>	 <Xine.LNX.4.64.0805010853300.2731@us.intercode.com.au>	 <1209639872.25678.409.camel@moss-spartans.epoch.ncsc.mil>	 <Xine.LNX.4.64.0805012209480.24536@us.intercode.com.au>	 <1209645099.25678.434.camel@moss-spartans.epoch.ncsc.mil>	 <Xine.LNX.4.64.0805012318440.4703@us.intercode.com.au> <1209649760.25678.455.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1209649760.25678.455.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -21,55 +15,44 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Václav Ovsík wrote:
-> Hi,
-> the startup script of Open SSH server on the Debian Sid adjusts the OOM
-> killer to not kill sshd in the condition of OOM. It simply does
+Stephen Smalley wrote:
+> On Thu, 2008-05-01 at 23:22 +1000, James Morris wrote:
+>> On Thu, 1 May 2008, Stephen Smalley wrote:
+>>
+>>> the build host with no way to define it).  Or a mechanism for a
+>>> hierarchy of policies (complex, and not clear how to handle objects as
+>>> they may be visible to processes operating under more than one policy,
+>>> e.g. both inside and outside of the chroot).
+>> Indeed, this might be helped by encoding DOIs into labels but would likely 
+>> add lots of complexity and performance overhead.  AFAICT, entities in 
+>> different policy namespaces would need to be totally separated (unless 
+>> purely hierarchical).
 > 
->     printf '%s' "$SSHD_OOM_ADJUST" >"/proc/$PID/oom_adj" || true
+> Pure isolation would be cleaner, but won't work in the buildsys example,
+> as there we have rpm (running outside the chroot) installing files into
+> the chroot tree and then launching scriptlets within the chroot, so we
+> have processes both outside and within the chroot acting on the files.
 > 
-> BTW: I am not certain if this do exactly what was intended, because this
-> parameter is inherited by all child processes, as one can see using
-> attached simple script.
+> In any event, of the available alternatives, I think the
+> set-unknown-label option may be the only practical one. So if you have
+> any comments on the code in the patch or if you want it split into two
+> stages, let me know.  Otherwise, I'll re-spin it with Casey's suggested
+> change.
 > 
-> Nevertheless I don't know how to enable such write under SE Linux. It
-> triggers:
-> 
-> [   66.417499] type=1400 audit(1209737438.955:6): avc:  denied  { write
-> } for  pid=1600 comm="S16ssh" name="oom_adj" dev=proc ino=70952 s
-> context=system_u:system_r:initrc_t:s0
-> tcontext=system_u:system_r:sshd_t:s0-s0:c0.c1023 tclass=file
-> 
-> I wrote attached patch, but the denial still appears.
-> 
-> sid:~# sesearch --allow -s initrc_t  -t sshd_t -c file 
-> WARNING: This policy contained disabled aliases; they have been removed.
-> Found 3 semantic av rules:
->    allow @ttr1634 @ttr2356 : file { ioctl read getattr lock }; 
->    allow initrc_t sshd_t : file { ioctl write getattr lock append }; 
->    allow initrc_t @ttr2356 : file { ioctl read getattr lock }; 
-> 
-> sid:~# sestatus   
-> SELinux status:                 enabled
-> SELinuxfs mount:                /selinux
-> Current mode:                   permissive
-> Mode from config file:          permissive
-> Policy version:                 22
-> Policy from config file:        refpolicy
-> sid:~# uname -a
-> Linux sid 2.6.25-1-686 #1 SMP Mon Apr 28 13:54:58 UTC 2008 i686 GNU/Linux
-> 
-> What am I doing wrong please?
-> Best Regards
-> 
-Run the avc messages through audit2why
+This is half the solution.  Don't we need a new /selinux for inside the
+chroot, so that when selinux-policy rpm installs the policy, it lies and
+says the policy was loaded.  Then at the end of the install , restorecon
+is running on the entire image to make sure the labels match the
+file_context in the chroot.
+
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkgbLhQACgkQrlYvE4MpobPWYgCeJk1o6mgpEESA92OMKdB1/cDh
-SagAn3IXRfQ36jry/E6UB6K2c/rZf1G3
-=y3Lj
+iEYEARECAAYFAkgbN68ACgkQrlYvE4MpobNNHwCg2nEftevFAgohBB7sWYe1olzk
+WjQAn2BKSqmNkEaiZZrhAJZBTp32PvdC
+=+3Br
 -----END PGP SIGNATURE-----
 
 --
