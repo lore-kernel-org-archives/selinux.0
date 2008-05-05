@@ -1,478 +1,624 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m45Dmp56031367
-	for <selinux@tycho.nsa.gov>; Mon, 5 May 2008 09:48:51 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m45Dmnjg013964
-	for <selinux@tycho.nsa.gov>; Mon, 5 May 2008 13:48:49 GMT
-Subject: Re: [PATCH] SE-PostgreSQL Security Policy (try #3)
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, selinux@tycho.nsa.gov
-In-Reply-To: <47EC7910.2060505@ak.jp.nec.com>
-References: <47B2B885.4070300@ak.jp.nec.com>
-	 <1203957028.32061.69.camel@gorn> <47C38287.4080302@ak.jp.nec.com>
-	 <47C5189B.9070500@ak.jp.nec.com>
-	 <1204817238.3994.59.camel@gorn.columbia.tresys.com>
-	 <47D09FEB.3030005@ak.jp.nec.com>
-	 <1204922912.20251.58.camel@gorn.columbia.tresys.com>
-	 <47D3F33B.5010209@kaigai.gr.jp> <1205240234.25555.55.camel@gorn>
-	 <47DE3A66.602@ak.jp.nec.com> <1205937929.16113.78.camel@gorn>
-	 <47E33A66.6030705@ak.jp.nec.com>
-	 <1206384282.16113.205.camel@gorn.columbia.tresys.com>
-	 <47E8D58B.5040707@ak.jp.nec.com>
-	 <1206451493.16113.217.camel@gorn.columbia.tresys.com>
-	 <47EB6E41.9040309@ak.jp.nec.com> <1206624233.16113.291.camel@gorn>
-	 <47EC7910.2060505@ak.jp.nec.com>
-Content-Type: multipart/mixed; boundary="=-1yMdAXuqREx94lrBFYbV"
-Date: Mon, 05 May 2008 09:48:38 -0400
-Message-Id: <1209995318.8276.13.camel@gorn>
+Subject: [PATCH v3] selinux:  support deferred mapping of contexts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+Content-Type: text/plain
+Date: Mon, 05 May 2008 11:43:15 -0400
+Message-Id: <1210002195.25678.678.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Introduce SELinux support for deferred mapping of security contexts in
+the SID table upon policy reload, and use this support for inode
+security contexts when the context is not yet valid under the current
+policy.  Only processes with CAP_MAC_ADMIN + mac_admin permission in
+policy can set undefined security contexts on inodes.  Inodes with
+such undefined contexts are treated as having the unlabeled context
+until the context becomes valid upon a policy reload that defines the
+context.  Context invalidation upon policy reload also uses this
+support to save the context information in the SID table and later
+recover it upon a subsequent policy reload that defines the context
+again.
 
---=-1yMdAXuqREx94lrBFYbV
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+This support is to enable package managers and similar programs to set
+down file contexts unknown to the system policy at the time the file
+is created in order to better support placing loadable policy modules
+in packages and to support build systems that need to create images of
+different distro releases with different policies w/o requiring all of
+the contexts to be defined or legal in the build host policy.
 
-On Fri, 2008-03-28 at 13:50 +0900, KaiGai Kohei wrote:
-> >> Do you consider they are really complex type_transition rules now?
-> >> They are not conditional, not set operations.
-> > 
-> > Sounds like they are ok, but I'd have to see the policy to make sure.
-> 
-> I'm sorry, I din't submit the latest one yet, although I gave assurance
-> to update some points you pointed out.
-> 
-> The attached one is the latest one.
-> Please confirm this version.
-> 
-> Significant updates:
-> - kernel_relabelfrom_unlabeled_database() is added to kernel/kernel.if.
->    It enables sepgsql_unconfined_type to relabel unlabaled_t to other types.
-> - Any types/attributes/booleans are declared at the head of services/postgresql.te.
-> - postgresql_userdom_template() requires tree arguments of prefix, domain and role.
-> - Naming convention is changed. When userdomain tries to create a new object,
->    it is labeled as FOO_sepgsql_table_t, not sepgsql_FOO_table_t.
-> - The target of type_transition is unconditional.
->    If userdomain create a new objects, it is always labeled as FOO_sepgsql_xxx_t.
->    If others create a new one, it is always labeled as sepgsql_xxx_t.
-> - A new attribute of sepgsql_unpriv_client_type provides baseline permissions to
->    attached domain. It is necessary to avoid to deploy sepgsql_enable_users_ddl
->    boolean within interfaces.
-> - The meanings of sepgsql_client_type is changed. It means a set of domains
->    connectable to SE-PostgreSQL.
+With this patch applied, the following sequence is possible, although
+in practice it is recommended that this permission only be allowed to
+specific program domains such as the package manager.
 
-I'd like to wrap this one up, so I spent some time revising the patch
-(attached).  Its just about ready to merge.  Is the neverallow really
-needed?  Also, I'd still strongly urge you to reconsider adding the
-postgresql_contexts file with the default object labels.  I think this
-is the clearest example why:
+# cat setundefined.te
+policy_module(setundefined, 1.0)
+require {
+	type unconfined_t;
+	type unlabeled_t;
+}
+files_type(unlabeled_t)
+allow unconfined_t self:capability2 mac_admin;
+# make -f /usr/share/selinux/devel/Makefile setundefined.pp
+# semodule -i setundefined.pp
+# touch bar
+# chcon -t foo_exec_t bar # foo_exec_t is not yet defined
+# ls -Z bar
+-rw-r--r--  root root system_u:object_r:unlabeled_t    bar
+# cat foo.te
+policy_module(foo, 1.0)
+type foo_exec_t;
+files_type(foo_exec_t)
+# make -f /usr/share/selinux/devel/Makefile foo.pp
+# semodule -i foo.pp # defines foo_exec_t
+# ls -Z bar
+-rw-r--r--  root root user_u:object_r:foo_exec_t       bar
+# semodule -r foo
+# ls -Z bar
+-rw-r--r--  root root system_u:object_r:unlabeled_t    bar
+# semodule -i foo.pp
+# ls -Z bar
+-rw-r--r--  root root user_u:object_r:foo_exec_t       bar
 
-type_transition postgresql_t postgresql_t:db_database sepgsql_db_t;
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-What object is being transitioned on?  Other type transitions are
-clearer: a file being created in a directory or a message enqueued to a
-message queue.  I won't block merging the policy over this, but I think
-the postgresql_contexts is the better method.
+---
+
+ security/selinux/hooks.c            |   18 ++-
+ security/selinux/include/security.h |    2 
+ security/selinux/ss/context.h       |   27 ++++
+ security/selinux/ss/mls.c           |   11 +-
+ security/selinux/ss/mls.h           |    3 
+ security/selinux/ss/services.c      |  198 +++++++++++++++++++++++++-----------
+ security/selinux/ss/sidtab.c        |    6 -
+ 7 files changed, 194 insertions(+), 71 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 308e2cf..530aa00 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2667,6 +2667,11 @@ static int selinux_inode_setxattr(struct dentry *dentry, char *name, void *value
+ 		return rc;
+ 
+ 	rc = security_context_to_sid(value, size, &newsid);
++	if (rc == -EINVAL) {
++		if (!capable(CAP_MAC_ADMIN))
++			return rc;
++		rc = security_context_to_sid_force(value, size, &newsid);
++	}
+ 	if (rc)
+ 		return rc;
+ 
+@@ -2700,10 +2705,11 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, char *name,
+ 		return;
+ 	}
+ 
+-	rc = security_context_to_sid(value, size, &newsid);
++	rc = security_context_to_sid_force(value, size, &newsid);
+ 	if (rc) {
+-		printk(KERN_WARNING "%s:  unable to obtain SID for context "
+-		       "%s, rc=%d\n", __func__, (char *)value, -rc);
++		printk(KERN_ERR "SELinux:  unable to map context to SID"
++		       "for (%s, %lu), rc=%d\n",
++		       inode->i_sb->s_id, inode->i_ino, -rc);
+ 		return;
+ 	}
+ 
+@@ -5152,6 +5158,12 @@ static int selinux_setprocattr(struct task_struct *p,
+ 			size--;
+ 		}
+ 		error = security_context_to_sid(value, size, &sid);
++		if (error == -EINVAL && !strcmp(name, "fscreate")) {
++			if (!capable(CAP_MAC_ADMIN))
++				return error;
++			error = security_context_to_sid_force(value, size,
++							      &sid);
++		}
+ 		if (error)
+ 			return error;
+ 	}
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 1904c46..112d4b1 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -99,6 +99,8 @@ int security_context_to_sid(char *scontext, u32 scontext_len,
+ int security_context_to_sid_default(char *scontext, u32 scontext_len,
+ 				    u32 *out_sid, u32 def_sid, gfp_t gfp_flags);
+ 
++int security_context_to_sid_force(char *scontext, u32 scontext_len, u32 *sid);
++
+ int security_get_user_sids(u32 callsid, char *username,
+ 			   u32 **sids, u32 *nel);
+ 
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 2eee0da..776d90f 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -28,6 +28,8 @@ struct context {
+ 	u32 role;
+ 	u32 type;
+ 	struct mls_range range;
++	char *str;	/* string representation if context cannot be mapped. */
++	u32 len;        /* length of string in bytes */
+ };
+ 
+ static inline void mls_context_init(struct context *c)
+@@ -106,20 +108,43 @@ static inline void context_init(struct context *c)
+ 
+ static inline int context_cpy(struct context *dst, struct context *src)
+ {
++	int rc;
++
+ 	dst->user = src->user;
+ 	dst->role = src->role;
+ 	dst->type = src->type;
+-	return mls_context_cpy(dst, src);
++	if (src->str) {
++		dst->str = kstrdup(src->str, GFP_ATOMIC);
++		if (!dst->str)
++			return -ENOMEM;
++		dst->len = src->len;
++	} else {
++		dst->str = NULL;
++		dst->len = 0;
++	}
++	rc = mls_context_cpy(dst, src);
++	if (rc) {
++		kfree(dst->str);
++		return rc;
++	}
++	return 0;
+ }
+ 
+ static inline void context_destroy(struct context *c)
+ {
+ 	c->user = c->role = c->type = 0;
++	kfree(c->str);
++	c->str = NULL;
++	c->len = 0;
+ 	mls_context_destroy(c);
+ }
+ 
+ static inline int context_cmp(struct context *c1, struct context *c2)
+ {
++	if (c1->len && c2->len)
++		return (c1->len == c2->len && !strcmp(c1->str, c2->str));
++	if (c1->len || c2->len)
++		return 0;
+ 	return ((c1->user == c2->user) &&
+ 		(c1->role == c2->role) &&
+ 		(c1->type == c2->type) &&
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index 8b1706b..a6ca058 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -239,7 +239,8 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
+  * Policy read-lock must be held for sidtab lookup.
+  *
+  */
+-int mls_context_to_sid(char oldc,
++int mls_context_to_sid(struct policydb *pol,
++		       char oldc,
+ 		       char **scontext,
+ 		       struct context *context,
+ 		       struct sidtab *s,
+@@ -286,7 +287,7 @@ int mls_context_to_sid(char oldc,
+ 		*p++ = 0;
+ 
+ 	for (l = 0; l < 2; l++) {
+-		levdatum = hashtab_search(policydb.p_levels.table, scontextp);
++		levdatum = hashtab_search(pol->p_levels.table, scontextp);
+ 		if (!levdatum) {
+ 			rc = -EINVAL;
+ 			goto out;
+@@ -311,7 +312,7 @@ int mls_context_to_sid(char oldc,
+ 					*rngptr++ = 0;
+ 				}
+ 
+-				catdatum = hashtab_search(policydb.p_cats.table,
++				catdatum = hashtab_search(pol->p_cats.table,
+ 							  scontextp);
+ 				if (!catdatum) {
+ 					rc = -EINVAL;
+@@ -327,7 +328,7 @@ int mls_context_to_sid(char oldc,
+ 				if (rngptr) {
+ 					int i;
+ 
+-					rngdatum = hashtab_search(policydb.p_cats.table, rngptr);
++					rngdatum = hashtab_search(pol->p_cats.table, rngptr);
+ 					if (!rngdatum) {
+ 						rc = -EINVAL;
+ 						goto out;
+@@ -395,7 +396,7 @@ int mls_from_string(char *str, struct context *context, gfp_t gfp_mask)
+ 	if (!tmpstr) {
+ 		rc = -ENOMEM;
+ 	} else {
+-		rc = mls_context_to_sid(':', &tmpstr, context,
++		rc = mls_context_to_sid(&policydb, ':', &tmpstr, context,
+ 					NULL, SECSID_NULL);
+ 		kfree(freestr);
+ 	}
+diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+index ab53663..900fb0e 100644
+--- a/security/selinux/ss/mls.h
++++ b/security/selinux/ss/mls.h
+@@ -30,7 +30,8 @@ int mls_context_isvalid(struct policydb *p, struct context *c);
+ int mls_range_isvalid(struct policydb *p, struct mls_range *r);
+ int mls_level_isvalid(struct policydb *p, struct mls_level *l);
+ 
+-int mls_context_to_sid(char oldc,
++int mls_context_to_sid(struct policydb *p,
++		       char oldc,
+ 	               char **scontext,
+ 		       struct context *context,
+ 		       struct sidtab *s,
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 2daaddb..6724b4f 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -708,36 +708,24 @@ out:
+ 
+ }
+ 
+-static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+-					u32 *sid, u32 def_sid, gfp_t gfp_flags)
++static int string_to_context_struct(struct policydb *pol,
++				    struct sidtab *sidtabp,
++				    char *scontext,
++				    u32 scontext_len,
++				    struct context *ctx,
++				    u32 def_sid,
++				    gfp_t gfp_flags)
+ {
+-	char *scontext2;
+-	struct context context;
++	char *scontext2 = NULL;
+ 	struct role_datum *role;
+ 	struct type_datum *typdatum;
+ 	struct user_datum *usrdatum;
+ 	char *scontextp, *p, oldc;
+ 	int rc = 0;
+ 
+-	if (!ss_initialized) {
+-		int i;
++	context_init(ctx);
+ 
+-		for (i = 1; i < SECINITSID_NUM; i++) {
+-			if (!strcmp(initial_sid_to_string[i], scontext)) {
+-				*sid = i;
+-				goto out;
+-			}
+-		}
+-		*sid = SECINITSID_KERNEL;
+-		goto out;
+-	}
+-	*sid = SECSID_NULL;
+-
+-	/* Copy the string so that we can modify the copy as we parse it.
+-	   The string should already by null terminated, but we append a
+-	   null suffix to the copy to avoid problems with the existing
+-	   attr package, which doesn't view the null terminator as part
+-	   of the attribute value. */
++	/* Copy the string so that we can modify the copy as we parse it. */
+ 	scontext2 = kmalloc(scontext_len+1, gfp_flags);
+ 	if (!scontext2) {
+ 		rc = -ENOMEM;
+@@ -746,11 +734,6 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+ 	memcpy(scontext2, scontext, scontext_len);
+ 	scontext2[scontext_len] = 0;
+ 
+-	context_init(&context);
+-	*sid = SECSID_NULL;
+-
+-	POLICY_RDLOCK;
+-
+ 	/* Parse the security context. */
+ 
+ 	rc = -EINVAL;
+@@ -762,15 +745,15 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+ 		p++;
+ 
+ 	if (*p == 0)
+-		goto out_unlock;
++		goto out;
+ 
+ 	*p++ = 0;
+ 
+-	usrdatum = hashtab_search(policydb.p_users.table, scontextp);
++	usrdatum = hashtab_search(pol->p_users.table, scontextp);
+ 	if (!usrdatum)
+-		goto out_unlock;
++		goto out;
+ 
+-	context.user = usrdatum->value;
++	ctx->user = usrdatum->value;
+ 
+ 	/* Extract role. */
+ 	scontextp = p;
+@@ -778,14 +761,14 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+ 		p++;
+ 
+ 	if (*p == 0)
+-		goto out_unlock;
++		goto out;
+ 
+ 	*p++ = 0;
+ 
+-	role = hashtab_search(policydb.p_roles.table, scontextp);
++	role = hashtab_search(pol->p_roles.table, scontextp);
+ 	if (!role)
+-		goto out_unlock;
+-	context.role = role->value;
++		goto out;
++	ctx->role = role->value;
+ 
+ 	/* Extract type. */
+ 	scontextp = p;
+@@ -794,33 +777,74 @@ static int security_context_to_sid_core(char *scontext, u32 scontext_len,
+ 	oldc = *p;
+ 	*p++ = 0;
+ 
+-	typdatum = hashtab_search(policydb.p_types.table, scontextp);
++	typdatum = hashtab_search(pol->p_types.table, scontextp);
+ 	if (!typdatum)
+-		goto out_unlock;
++		goto out;
+ 
+-	context.type = typdatum->value;
++	ctx->type = typdatum->value;
+ 
+-	rc = mls_context_to_sid(oldc, &p, &context, &sidtab, def_sid);
++	rc = mls_context_to_sid(pol, oldc, &p, ctx, sidtabp, def_sid);
+ 	if (rc)
+-		goto out_unlock;
++		goto out;
+ 
+ 	if ((p - scontext2) < scontext_len) {
+ 		rc = -EINVAL;
+-		goto out_unlock;
++		goto out;
+ 	}
+ 
+ 	/* Check the validity of the new context. */
+-	if (!policydb_context_isvalid(&policydb, &context)) {
++	if (!policydb_context_isvalid(pol, ctx)) {
+ 		rc = -EINVAL;
+-		goto out_unlock;
++		context_destroy(ctx);
++		goto out;
+ 	}
+-	/* Obtain the new sid. */
+-	rc = sidtab_context_to_sid(&sidtab, &context, sid);
+-out_unlock:
+-	POLICY_RDUNLOCK;
+-	context_destroy(&context);
++	rc = 0;
++out:
+ 	kfree(scontext2);
++	return rc;
++}
++
++static int security_context_to_sid_core(char *scontext, u32 scontext_len,
++					u32 *sid, u32 def_sid, gfp_t gfp_flags,
++					int force)
++{
++	struct context context;
++	int rc = 0;
++
++	if (!ss_initialized) {
++		int i;
++
++		for (i = 1; i < SECINITSID_NUM; i++) {
++			if (!strcmp(initial_sid_to_string[i], scontext)) {
++				*sid = i;
++				goto out;
++			}
++		}
++		*sid = SECINITSID_KERNEL;
++		goto out;
++	}
++	*sid = SECSID_NULL;
++
++	POLICY_RDLOCK;
++	rc = string_to_context_struct(&policydb, &sidtab,
++				      scontext, scontext_len,
++				      &context, def_sid, gfp_flags);
++	if (rc == -EINVAL && force) {
++		context.str = kmalloc(scontext_len+1, gfp_flags);
++		if (!context.str) {
++			rc = -ENOMEM;
++			goto out;
++		}
++		memcpy(context.str, scontext, scontext_len);
++		context.str[scontext_len] = 0;
++		context.len = scontext_len;
++	} else if (rc)
++		goto out;
++	rc = sidtab_context_to_sid(&sidtab, &context, sid);
++	if (rc)
++		context_destroy(&context);
+ out:
++	POLICY_RDUNLOCK;
+ 	return rc;
+ }
+ 
+@@ -838,7 +862,7 @@ out:
+ int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+-					    sid, SECSID_NULL, GFP_KERNEL);
++					    sid, SECSID_NULL, GFP_KERNEL, 0);
+ }
+ 
+ /**
+@@ -855,6 +879,7 @@ int security_context_to_sid(char *scontext, u32 scontext_len, u32 *sid)
+  * The default SID is passed to the MLS layer to be used to allow
+  * kernel labeling of the MLS field if the MLS field is not present
+  * (for upgrading to MLS without full relabel).
++ * Implicitly forces adding of the context even if it cannot be mapped yet.
+  * Returns -%EINVAL if the context is invalid, -%ENOMEM if insufficient
+  * memory is available, or 0 on success.
+  */
+@@ -862,7 +887,13 @@ int security_context_to_sid_default(char *scontext, u32 scontext_len, u32 *sid,
+ 				    u32 def_sid, gfp_t gfp_flags)
+ {
+ 	return security_context_to_sid_core(scontext, scontext_len,
+-					    sid, def_sid, gfp_flags);
++					    sid, def_sid, gfp_flags, 1);
++}
++
++int security_context_to_sid_force(char *scontext, u32 scontext_len, u32 *sid)
++{
++	return security_context_to_sid_core(scontext, scontext_len,
++					    sid, SECSID_NULL, GFP_KERNEL, 1);
+ }
+ 
+ static int compute_sid_handle_invalid_context(
+@@ -1246,9 +1277,12 @@ static inline int convert_context_handle_invalid_context(struct context *context
+ 		char *s;
+ 		u32 len;
+ 
+-		context_struct_to_string(context, &s, &len);
+-		printk(KERN_ERR "SELinux:  context %s is invalid\n", s);
+-		kfree(s);
++		if (!context_struct_to_string(context, &s, &len)) {
++			printk(KERN_WARNING
++		       "SELinux:  Context %s would be invalid if enforcing\n",
++			       s);
++			kfree(s);
++		}
+ 	}
+ 	return rc;
+ }
+@@ -1280,6 +1314,32 @@ static int convert_context(u32 key,
+ 
+ 	args = p;
+ 
++	if (c->str) {
++		struct context ctx;
++		rc = string_to_context_struct(args->newp, NULL, c->str,
++					      c->len, &ctx, SECSID_NULL,
++					      GFP_KERNEL);
++		if (!rc) {
++			printk(KERN_INFO
++		       "SELinux:  Context %s became valid (mapped).\n",
++			       c->str);
++			/* Replace string with mapped representation. */
++			kfree(c->str);
++			memcpy(c, &ctx, sizeof(*c));
++			goto out;
++		} else if (rc == -EINVAL) {
++			/* Retain string representation for later mapping. */
++			rc = 0;
++			goto out;
++		} else {
++			/* Other error condition, e.g. ENOMEM. */
++			printk(KERN_ERR
++		       "SELinux:   Unable to map context %s, rc = %d.\n",
++			       c->str, -rc);
++			goto out;
++		}
++	}
++
+ 	rc = context_cpy(&oldc, c);
+ 	if (rc)
+ 		goto out;
+@@ -1319,13 +1379,21 @@ static int convert_context(u32 key,
+ 	}
+ 
+ 	context_destroy(&oldc);
++	rc = 0;
+ out:
+ 	return rc;
+ bad:
+-	context_struct_to_string(&oldc, &s, &len);
++	/* Map old representation to string and save it. */
++	if (context_struct_to_string(&oldc, &s, &len))
++		return -ENOMEM;
+ 	context_destroy(&oldc);
+-	printk(KERN_ERR "SELinux:  invalidating context %s\n", s);
+-	kfree(s);
++	context_destroy(c);
++	c->str = s;
++	c->len = len;
++	printk(KERN_INFO
++	       "SELinux:  Context %s became invalid (unmapped).\n",
++	       c->str);
++	rc = 0;
+ 	goto out;
+ }
+ 
+@@ -1406,7 +1474,11 @@ int security_load_policy(void *data, size_t len)
+ 		return -EINVAL;
+ 	}
+ 
+-	sidtab_init(&newsidtab);
++	if (sidtab_init(&newsidtab)) {
++		LOAD_UNLOCK;
++		policydb_destroy(&newpolicydb);
++		return -ENOMEM;
++	}
+ 
+ 	/* Verify that the kernel defined classes are correct. */
+ 	if (validate_classes(&newpolicydb)) {
+@@ -1429,11 +1501,15 @@ int security_load_policy(void *data, size_t len)
+ 		goto err;
+ 	}
+ 
+-	/* Convert the internal representations of contexts
+-	   in the new SID table and remove invalid SIDs. */
++	/*
++	 * Convert the internal representations of contexts
++	 * in the new SID table.
++	 */
+ 	args.oldp = &policydb;
+ 	args.newp = &newpolicydb;
+-	sidtab_map_remove_on_error(&newsidtab, convert_context, &args);
++	rc = sidtab_map(&newsidtab, convert_context, &args);
++	if (rc)
++		goto err;
+ 
+ 	/* Save the old policydb and SID table to free later. */
+ 	memcpy(&oldpolicydb, &policydb, sizeof policydb);
+@@ -1673,6 +1749,8 @@ int security_get_user_sids(u32 fromsid,
+ 
+ 	POLICY_RDLOCK;
+ 
++	context_init(&usercon);
++
+ 	fromcon = sidtab_search(&sidtab, fromsid);
+ 	if (!fromcon) {
+ 		rc = -EINVAL;
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index 4a516ff..7f4c0d0 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -99,7 +99,7 @@ struct context *sidtab_search(struct sidtab *s, u32 sid)
+ 	while (cur != NULL && sid > cur->sid)
+ 		cur = cur->next;
+ 
+-	if (cur == NULL || sid != cur->sid) {
++	if (cur == NULL || sid != cur->sid || cur->context.len) {
+ 		/* Remap invalid SIDs to the unlabeled SID. */
+ 		sid = SECINITSID_UNLABELED;
+ 		hvalue = SIDTAB_HASH(sid);
+@@ -215,6 +215,10 @@ int sidtab_context_to_sid(struct sidtab *s,
+ 			goto unlock_out;
+ 		}
+ 		sid = s->next_sid++;
++		if (context->len)
++			printk(KERN_INFO
++		       "SELinux:  Context %s is not valid (left unmapped).\n",
++			       context->str);
+ 		ret = sidtab_insert(s, sid, context);
+ 		if (ret)
+ 			s->next_sid--;
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
-
---=-1yMdAXuqREx94lrBFYbV
-Content-Disposition: attachment; filename=sepgsql.diff
-Content-Type: text/x-patch; name=sepgsql.diff; charset=us-ascii
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IHBvbGljeS9tb2R1bGVzL2tlcm5lbC9rZXJuZWwuaWYNCj09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBw
-b2xpY3kvbW9kdWxlcy9rZXJuZWwva2VybmVsLmlmCShyZXZpc2lvbiAyNjU5KQ0KKysrIHBvbGlj
-eS9tb2R1bGVzL2tlcm5lbC9rZXJuZWwuaWYJKHdvcmtpbmcgY29weSkNCkBAIC0yNDkyLDYgKzI0
-OTIsMzUgQEANCiANCiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQog
-IyMgPHN1bW1hcnk+DQorIyMgICAgICBSZWxhYmVsZnJvbSB1bmxhYmVsZWQgZGF0YWJhc2Ugb2Jq
-ZWN0cyBvZiBTRS1Qb3N0Z3JlU1FMDQorIyMgPC9zdW1tYXJ5Pg0KKyMjIDxwYXJhbSBuYW1lPSJk
-b21haW4iPg0KKyMjICAgICAgPHN1bW1hcnk+DQorIyMgICAgICBEb21haW4gYWxsb3dlZCBhY2Nl
-c3MuDQorIyMgICAgICA8L3N1bW1hcnk+DQorIyMgPC9wYXJhbT4NCisjDQoraW50ZXJmYWNlKGBr
-ZXJuZWxfcmVsYWJlbGZyb21fdW5sYWJlbGVkX2RhdGFiYXNlJyxgDQorCWdlbl9yZXF1aXJlKGAN
-CisJCXR5cGUgdW5sYWJlbGVkX3Q7DQorDQorCQljbGFzcyBkYl9kYXRhYmFzZSB7IHNldGF0dHIg
-cmVsYWJlbGZyb20gfTsNCisJCWNsYXNzIGRiX3RhYmxlIHsgc2V0YXR0ciByZWxhYmVsZnJvbSB9
-Ow0KKwkJY2xhc3MgZGJfcHJvY2VkdXJlIHsgc2V0YXR0ciByZWxhYmVsZnJvbSB9Ow0KKwkJY2xh
-c3MgZGJfY29sdW1uIHsgc2V0YXR0ciByZWxhYmVsZnJvbSB9Ow0KKwkJY2xhc3MgZGJfdHVwbGUg
-eyB1cGRhdGUgcmVsYWJlbGZyb20gfTsNCisJCWNsYXNzIGRiX2Jsb2IgeyBzZXRhdHRyIHJlbGFi
-ZWxmcm9tIH07DQorCScpDQorCWFsbG93ICQxIHVubGFiZWxlZF90OmRiX2RhdGFiYXNlIHsgc2V0
-YXR0ciByZWxhYmVsZnJvbSB9Ow0KKwlhbGxvdyAkMSB1bmxhYmVsZWRfdDpkYl90YWJsZSB7IHNl
-dGF0dHIgcmVsYWJlbGZyb20gfTsNCisJYWxsb3cgJDEgdW5sYWJlbGVkX3Q6ZGJfcHJvY2VkdXJl
-IHsgc2V0YXR0ciByZWxhYmVsZnJvbSB9Ow0KKwlhbGxvdyAkMSB1bmxhYmVsZWRfdDpkYl9jb2x1
-bW4geyBzZXRhdHRyIHJlbGFiZWxmcm9tIH07DQorCWFsbG93ICQxIHVubGFiZWxlZF90OmRiX3R1
-cGxlIHsgdXBkYXRlIHJlbGFiZWxmcm9tIH07DQorCWFsbG93ICQxIHVubGFiZWxlZF90OmRiX2Js
-b2IgeyBzZXRhdHRyIHJlbGFiZWxmcm9tIH07DQorJykNCisNCisjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorIyMgPHN1bW1hcnk+DQogIyMJVW5jb25maW5lZCBhY2Nl
-c3MgdG8ga2VybmVsIG1vZHVsZSByZXNvdXJjZXMuDQogIyMgPC9zdW1tYXJ5Pg0KICMjIDxwYXJh
-bSBuYW1lPSJkb21haW4iPg0KSW5kZXg6IHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3Bvc3RncmVz
-cWwuaWYNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT0NCi0tLSBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9wb3N0Z3Jlc3Fs
-LmlmCShyZXZpc2lvbiAyNjE0KQ0KKysrIHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3Bvc3RncmVz
-cWwuaWYJKHdvcmtpbmcgY29weSkNCkBAIC0xLDcgKzEsMjEwIEBADQogIyMgPHN1bW1hcnk+UG9z
-dGdyZVNRTCByZWxhdGlvbmFsIGRhdGFiYXNlPC9zdW1tYXJ5Pg0KIA0KKyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0KKyMjIDxzdW1tYXJ5Pg0KKyMjICAgICAgVGhlIHVz
-ZXJkb21haW4gdGVtcGxhdGUgZm9yIHRoZSBTRS1Qb3N0Z3JlU1FMLg0KKyMjIDwvc3VtbWFyeT4N
-CisjIyA8ZGVzYz4NCisjIyAgICAgIFRoaXMgdGVtcGxhdGUgY3JlYXRlcyBhIGRlbGl2ZXJlZCB0
-eXBlcyB3aGljaCBhcmUgdXNlZA0KKyMjCWZvciBnaXZlbiB1c2VyZG9tYWlucy4NCisjIyA8L2Rl
-c2M+DQorIyMgPHBhcmFtIG5hbWU9InVzZXJkb21haW5fcHJlZml4Ij4NCisjIyAgICAgIDxzdW1t
-YXJ5Pg0KKyMjICAgICAgVGhlIHByZWZpeCBvZiB0aGUgdXNlciBkb21haW4gKGUuZy4sIHVzZXIN
-CisjIyAgICAgIGlzIHRoZSBwcmVmaXggZm9yIHVzZXJfdCkuDQorIyMgICAgICA8L3N1bW1hcnk+
-DQorIyMgPC9wYXJhbT4NCisjIyA8cGFyYW0gbmFtZT0idXNlcl9kb21haW4iPg0KKyMjIAk8c3Vt
-bWFyeT4NCisjIyAgICAgIFRoZSB0eXBlIG9mIHRoZSB1c2VyIGRvbWFpbi4NCisjIyAgICAgIDwv
-c3VtbWFyeT4NCisjIyA8L3BhcmFtPg0KKyMjIDxwYXJhbSBuYW1lPSJ1c2VyX3JvbGUiPg0KKyMj
-ICAgICAgPHN1bW1hcnk+DQorIyMgICAgICBUaGUgcm9sZSBhc3NvY2lhdGVkIHdpdGggdGhlIHVz
-ZXIgZG9tYWluLg0KKyMjICAgICAgPC9zdW1tYXJ5Pg0KKyMjIDwvcGFyYW0+DQorIw0KK3RlbXBs
-YXRlKGBwb3N0Z3Jlc3FsX3VzZXJkb21fdGVtcGxhdGUnLGANCisJZ2VuX3JlcXVpcmUoYA0KKwkJ
-Y2xhc3MgZGJfZGF0YWJhc2UgYWxsX2RiX2RhdGFiYXNlX3Blcm1zOw0KKwkJY2xhc3MgZGJfdGFi
-bGUgYWxsX2RiX3RhYmxlX3Blcm1zOw0KKwkJY2xhc3MgZGJfcHJvY2VkdXJlIGFsbF9kYl9wcm9j
-ZWR1cmVfcGVybXM7DQorCQljbGFzcyBkYl9jb2x1bW4gYWxsX2RiX2NvbHVtbl9wZXJtczsNCisJ
-CWNsYXNzIGRiX3R1cGxlIGFsbF9kYl90dXBsZV9wZXJtczsNCisJCWNsYXNzIGRiX2Jsb2IgYWxs
-X2RiX2Jsb2JfcGVybXM7DQorDQorCQlhdHRyaWJ1dGUgc2VwZ3NxbF9jbGllbnRfdHlwZTsNCisJ
-CWF0dHJpYnV0ZSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU7DQorCQlhdHRyaWJ1dGUgc2VwZ3NxbF9z
-eXNvYmpfdGFibGVfdHlwZTsNCisNCisJCXR5cGUgc2VwZ3NxbF90cnVzdGVkX3Byb2NfdDsNCisJ
-CXR5cGUgc2VwZ3NxbF90cnVzdGVkX2RvbWFpbl90Ow0KKwknKQ0KKw0KKwkjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorCSMNCisJIyBEZWNsYXJhdGlvbnMNCisJIw0K
-Kw0KKwl0eXBlYXR0cmlidXRlICQyIHNlcGdzcWxfY2xpZW50X3R5cGU7DQorDQorCXR5cGUgJDFf
-c2VwZ3NxbF9ibG9iX3Q7DQorCXBvc3RncmVzcWxfYmxvYl9vYmplY3QoJDFfc2VwZ3NxbF9ibG9i
-X3QpDQorDQorCXR5cGUgJDFfc2VwZ3NxbF9wcm9jX3Q7DQorCXBvc3RncmVzcWxfcHJvY2VkdXJl
-X29iamVjdCgkMV9zZXBnc3FsX3Byb2NfdCkNCisNCisJdHlwZSAkMV9zZXBnc3FsX3N5c29ial90
-Ow0KKwlwb3N0Z3Jlc3FsX3N5c3RlbV90YWJsZV9vYmplY3QoJDFfc2VwZ3NxbF9zeXNvYmpfdCkN
-CisNCisJdHlwZSAkMV9zZXBnc3FsX3RhYmxlX3Q7DQorCXBvc3RncmVzcWxfdGFibGVfb2JqZWN0
-KCQxX3NlcGdzcWxfdGFibGVfdCkNCisNCisJcm9sZSAkMyB0eXBlcyBzZXBnc3FsX3RydXN0ZWRf
-ZG9tYWluX3Q7DQorDQorCSMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0KKwkjDQorCSMg
-Q2xpZW50IGxvY2FsIHBvbGljeQ0KKwkjDQorDQorCXR1bmFibGVfcG9saWN5KGBzZXBnc3FsX2Vu
-YWJsZV91c2Vyc19kZGwnLGANCisJCWFsbG93ICQyICQxX3NlcGdzcWxfdGFibGVfdCAgOiBkYl90
-YWJsZSB7IGNyZWF0ZSBkcm9wIH07DQorCQl0eXBlX3RyYW5zaXRpb24gJDIgc2VwZ3NxbF9kYXRh
-YmFzZV90eXBlOmRiX3RhYmxlICQxX3NlcGdzcWxfdGFibGVfdDsNCisNCisJCWFsbG93ICQyICQx
-X3NlcGdzcWxfdGFibGVfdCAgOiBkYl9jb2x1bW4geyBjcmVhdGUgZHJvcCB9Ow0KKw0KKwkJYWxs
-b3cgJDIgJDFfc2VwZ3NxbF9zeXNvYmpfdCA6IGRiX3R1cGxlIHsgdXBkYXRlIGluc2VydCBkZWxl
-dGUgfTsNCisJCXR5cGVfdHJhbnNpdGlvbiAkMiBzZXBnc3FsX3N5c29ial90YWJsZV90eXBlOmRi
-X3R1cGxlICQxX3NlcGdzcWxfc3lzb2JqX3Q7DQorCScpDQorDQorCWFsbG93ICQyICQxX3NlcGdz
-cWxfdGFibGVfdCAgOiBkYl90YWJsZSAgeyBnZXRhdHRyIHNldGF0dHIgdXNlIHNlbGVjdCB1cGRh
-dGUgaW5zZXJ0IGRlbGV0ZSB9Ow0KKwlhbGxvdyAkMiAkMV9zZXBnc3FsX3RhYmxlX3QgIDogZGJf
-Y29sdW1uIHsgZ2V0YXR0ciBzZXRhdHRyIHVzZSBzZWxlY3QgdXBkYXRlIGluc2VydCB9Ow0KKwlh
-bGxvdyAkMiAkMV9zZXBnc3FsX3RhYmxlX3QgIDogZGJfdHVwbGUgIHsgdXNlIHNlbGVjdCB1cGRh
-dGUgaW5zZXJ0IGRlbGV0ZSB9Ow0KKwlhbGxvdyAkMiAkMV9zZXBnc3FsX3N5c29ial90IDogZGJf
-dHVwbGUgIHsgdXNlIHNlbGVjdCB9Ow0KKw0KKwlhbGxvdyAkMiAkMV9zZXBnc3FsX3Byb2NfdCA6
-IGRiX3Byb2NlZHVyZSB7IGNyZWF0ZSBkcm9wIGdldGF0dHIgc2V0YXR0ciBleGVjdXRlIH07DQor
-CXR5cGVfdHJhbnNpdGlvbiAkMiBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJfcHJvY2VkdXJlICQx
-X3NlcGdzcWxfcHJvY190Ow0KKw0KKwlhbGxvdyAkMiAkMV9zZXBnc3FsX2Jsb2JfdCA6IGRiX2Js
-b2IgeyBjcmVhdGUgZHJvcCBnZXRhdHRyIHNldGF0dHIgcmVhZCB3cml0ZSB9Ow0KKwl0eXBlX3Ry
-YW5zaXRpb24gJDIgc2VwZ3NxbF9kYXRhYmFzZV90eXBlOmRiX2Jsb2IgJDFfc2VwZ3NxbF9ibG9i
-X3Q7DQorDQorCWFsbG93ICQyIHNlcGdzcWxfdHJ1c3RlZF9kb21haW5fdDpwcm9jZXNzIHRyYW5z
-aXRpb247DQorCXR5cGVfdHJhbnNpdGlvbiAkMiBzZXBnc3FsX3RydXN0ZWRfcHJvY190OnByb2Nl
-c3Mgc2VwZ3NxbF90cnVzdGVkX2RvbWFpbl90Ow0KKycpDQorDQogIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0KICMjIDxzdW1tYXJ5Pg0KKyMjICAgICBNYXJrcyBhcyBh
-IFNFLVBvc3RncmVTUUwgbG9hZGFibGUgc2hhcmVkIGxpYnJhcnkgbW9kdWxlDQorIyMgPC9zdW1t
-YXJ5Pg0KKyMjIDxwYXJhbSBuYW1lPSJ0eXBlIj4NCisjIyAgICAgPHN1bW1hcnk+DQorIyMgICAg
-IFR5cGUgbWFya2VkIGFzIGEgZGF0YWJhc2Ugb2JqZWN0IHR5cGUuDQorIyMgICAgIDwvc3VtbWFy
-eT4NCisjIyA8L3BhcmFtPg0KKyMNCitpbnRlcmZhY2UoYHBvc3RncmVzcWxfbG9hZGFibGVfbW9k
-dWxlJyxgDQorCWdlbl9yZXF1aXJlKGANCisJCWF0dHJpYnV0ZSBzZXBnc3FsX21vZHVsZV90eXBl
-Ow0KKwknKQ0KKw0KKwl0eXBlYXR0cmlidXRlICQxIHNlcGdzcWxfbW9kdWxlX3R5cGU7DQorJykN
-CisNCisjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorIyMgPHN1bW1h
-cnk+DQorIyMgICAgIE1hcmtzIGFzIGEgU0UtUG9zdGdyZVNRTCBkYXRhYmFzZSBvYmplY3QgdHlw
-ZQ0KKyMjIDwvc3VtbWFyeT4NCisjIyA8cGFyYW0gbmFtZT0idHlwZSI+DQorIyMgICAgIDxzdW1t
-YXJ5Pg0KKyMjICAgICBUeXBlIG1hcmtlZCBhcyBhIGRhdGFiYXNlIG9iamVjdCB0eXBlLg0KKyMj
-ICAgICA8L3N1bW1hcnk+DQorIyMgPC9wYXJhbT4NCisjDQoraW50ZXJmYWNlKGBwb3N0Z3Jlc3Fs
-X2RhdGFiYXNlX29iamVjdCcsYA0KKwlnZW5fcmVxdWlyZShgDQorCQlhdHRyaWJ1dGUgc2VwZ3Nx
-bF9kYXRhYmFzZV90eXBlOw0KKwknKQ0KKw0KKwl0eXBlYXR0cmlidXRlICQxIHNlcGdzcWxfZGF0
-YWJhc2VfdHlwZTsNCisnKQ0KKw0KKyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMNCisjIyA8c3VtbWFyeT4NCisjIyAgICAgTWFya3MgYXMgYSBTRS1Qb3N0Z3JlU1FMIHRh
-YmxlL2NvbHVtbi90dXBsZSBvYmplY3QgdHlwZQ0KKyMjIDwvc3VtbWFyeT4NCisjIyA8cGFyYW0g
-bmFtZT0idHlwZSI+DQorIyMgICAgIDxzdW1tYXJ5Pg0KKyMjICAgICBUeXBlIG1hcmtlZCBhcyBh
-IHRhYmxlL2NvbHVtbi90dXBsZSBvYmplY3QgdHlwZS4NCisjIyAgICAgPC9zdW1tYXJ5Pg0KKyMj
-IDwvcGFyYW0+DQorIw0KK2ludGVyZmFjZShgcG9zdGdyZXNxbF90YWJsZV9vYmplY3QnLGANCisJ
-Z2VuX3JlcXVpcmUoYA0KKwkJYXR0cmlidXRlIHNlcGdzcWxfdGFibGVfdHlwZTsNCisJJykNCisN
-CisJdHlwZWF0dHJpYnV0ZSAkMSBzZXBnc3FsX3RhYmxlX3R5cGU7DQorJykNCisNCisjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorIyMgPHN1bW1hcnk+DQorIyMgICAg
-IE1hcmtzIGFzIGEgU0UtUG9zdGdyZVNRTCBzeXN0ZW0gdGFibGUvY29sdW1uL3R1cGxlIG9iamVj
-dCB0eXBlDQorIyMgPC9zdW1tYXJ5Pg0KKyMjIDxwYXJhbSBuYW1lPSJ0eXBlIj4NCisjIyAgICAg
-PHN1bW1hcnk+DQorIyMgICAgIFR5cGUgbWFya2VkIGFzIGEgdGFibGUvY29sdW1uL3R1cGxlIG9i
-amVjdCB0eXBlLg0KKyMjICAgICA8L3N1bW1hcnk+DQorIyMgPC9wYXJhbT4NCisjDQoraW50ZXJm
-YWNlKGBwb3N0Z3Jlc3FsX3N5c3RlbV90YWJsZV9vYmplY3QnLGANCisJZ2VuX3JlcXVpcmUoYA0K
-KwkJYXR0cmlidXRlIHNlcGdzcWxfdGFibGVfdHlwZTsNCisJCWF0dHJpYnV0ZSBzZXBnc3FsX3N5
-c29ial90YWJsZV90eXBlOw0KKwknKQ0KKw0KKwl0eXBlYXR0cmlidXRlICQxIHNlcGdzcWxfdGFi
-bGVfdHlwZTsNCisJdHlwZWF0dHJpYnV0ZSAkMSBzZXBnc3FsX3N5c29ial90YWJsZV90eXBlOw0K
-KycpDQorDQorIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0KKyMjIDxz
-dW1tYXJ5Pg0KKyMjICAgICBNYXJrcyBhcyBhIFNFLVBvc3RncmVTUUwgcHJvY2VkdXJlIG9iamVj
-dCB0eXBlDQorIyMgPC9zdW1tYXJ5Pg0KKyMjIDxwYXJhbSBuYW1lPSJ0eXBlIj4NCisjIyAgICAg
-PHN1bW1hcnk+DQorIyMgICAgIFR5cGUgbWFya2VkIGFzIGEgZGF0YWJhc2Ugb2JqZWN0IHR5cGUu
-DQorIyMgICAgIDwvc3VtbWFyeT4NCisjIyA8L3BhcmFtPg0KKyMNCitpbnRlcmZhY2UoYHBvc3Rn
-cmVzcWxfcHJvY2VkdXJlX29iamVjdCcsYA0KKwlnZW5fcmVxdWlyZShgDQorCQlhdHRyaWJ1dGUg
-c2VwZ3NxbF9wcm9jZWR1cmVfdHlwZTsNCisJJykNCisNCisJdHlwZWF0dHJpYnV0ZSAkMSBzZXBn
-c3FsX3Byb2NlZHVyZV90eXBlOw0KKycpDQorDQorIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIw0KKyMjIDxzdW1tYXJ5Pg0KKyMjICAgICBNYXJrcyBhcyBhIFNFLVBvc3Rn
-cmVTUUwgYmluYXJ5IGxhcmdlIG9iamVjdCB0eXBlDQorIyMgPC9zdW1tYXJ5Pg0KKyMjIDxwYXJh
-bSBuYW1lPSJ0eXBlIj4NCisjIyAgICAgPHN1bW1hcnk+DQorIyMgICAgIFR5cGUgbWFya2VkIGFz
-IGEgZGF0YWJhc2UgYmluYXJ5IGxhcmdlIG9iamVjdCB0eXBlLg0KKyMjICAgICA8L3N1bW1hcnk+
-DQorIyMgPC9wYXJhbT4NCisjDQoraW50ZXJmYWNlKGBwb3N0Z3Jlc3FsX2Jsb2Jfb2JqZWN0Jyxg
-DQorCWdlbl9yZXF1aXJlKGANCisJCWF0dHJpYnV0ZSBzZXBnc3FsX2Jsb2JfdHlwZTsNCisJJykN
-CisNCisJdHlwZWF0dHJpYnV0ZSAkMSBzZXBnc3FsX2Jsb2JfdHlwZTsNCisnKQ0KKw0KKyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCisjIyA8c3VtbWFyeT4NCiAjIwlB
-bGxvdyB0aGUgc3BlY2lmaWVkIGRvbWFpbiB0byBzZWFyY2ggcG9zdGdyZXNxbCdzIGRhdGFiYXNl
-IGRpcmVjdG9yeS4NCiAjIyA8L3N1bW1hcnk+DQogIyMgPHBhcmFtIG5hbWU9ImRvbWFpbiI+DQpA
-QCAtMTIwLDMgKzMyMyw2MCBAQA0KICAgICAgICAgIyBTb21lIHZlcnNpb25zIG9mIHBvc3RncmVz
-cWwgcHV0IHRoZSBzb2NrIGZpbGUgaW4gL3RtcA0KIAlhbGxvdyAkMSBwb3N0Z3Jlc3FsX3RtcF90
-OnNvY2tfZmlsZSB3cml0ZTsNCiAnKQ0KKw0KKyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMNCisjIyA8c3VtbWFyeT4NCisjIyAgICAgIEFsbG93IHRoZSBzcGVjaWZpZWQg
-ZG9tYWluIHVucHJpdmlsZWdlZCBhY2Nlc3NlcyB0byB1bmlmaW5lZCBkYXRhYmFzZSBvYmplY3Rz
-DQorIyMJbWFuYWdlZCBieSBTRS1Qb3N0Z3JlU1FMLA0KKyMjIDwvc3VtbWFyeT4NCisjIyA8cGFy
-YW0gbmFtZT0iZG9tYWluIj4NCisjIyAgICAgIDxzdW1tYXJ5Pg0KKyMjICAgICAgRG9tYWluIGFs
-bG93ZWQgYWNjZXNzLg0KKyMjICAgICAgPC9zdW1tYXJ5Pg0KKyMjIDwvcGFyYW0+DQorIw0KK2lu
-dGVyZmFjZShgcG9zdGdyZXNxbF91bnByaXZfY2xpZW50JyxgDQorCWdlbl9yZXF1aXJlKGANCisJ
-CWNsYXNzIGRiX3RhYmxlIGFsbF9kYl90YWJsZV9wZXJtczsNCisJCWNsYXNzIGRiX3Byb2NlZHVy
-ZSBhbGxfZGJfcHJvY2VkdXJlX3Blcm1zOw0KKwkJY2xhc3MgZGJfYmxvYiBhbGxfZGJfYmxvYl9w
-ZXJtczsNCisNCisJCWF0dHJpYnV0ZSBzZXBnc3FsX2NsaWVudF90eXBlOw0KKwkJYXR0cmlidXRl
-IHNlcGdzcWxfZGF0YWJhc2VfdHlwZTsNCisNCisJCXR5cGUgc2VwZ3NxbF90YWJsZV90Ow0KKwkJ
-dHlwZSBzZXBnc3FsX3Byb2NfdDsNCisJCXR5cGUgc2VwZ3NxbF9ibG9iX3Q7DQorDQorCQl0eXBl
-IHNlcGdzcWxfdHJ1c3RlZF9wcm9jX3Q7DQorCQl0eXBlIHNlcGdzcWxfdHJ1c3RlZF9kb21haW5f
-dDsNCisJJykNCisNCisJdHlwZWF0dHJpYnV0ZSAkMSBzZXBnc3FsX2NsaWVudF90eXBlOw0KKw0K
-Kwl0eXBlX3RyYW5zaXRpb24gJDEgc2VwZ3NxbF9kYXRhYmFzZV90eXBlOmRiX3RhYmxlIHNlcGdz
-cWxfdGFibGVfdDsNCisJdHlwZV90cmFuc2l0aW9uICQxIHNlcGdzcWxfZGF0YWJhc2VfdHlwZTpk
-Yl9wcm9jZWR1cmUgc2VwZ3NxbF9wcm9jX3Q7DQorCXR5cGVfdHJhbnNpdGlvbiAkMSBzZXBnc3Fs
-X2RhdGFiYXNlX3R5cGU6ZGJfYmxvYiBzZXBnc3FsX2Jsb2JfdDsNCisNCisJdHlwZV90cmFuc2l0
-aW9uICQxIHNlcGdzcWxfdHJ1c3RlZF9wcm9jX3Q6cHJvY2VzcyBzZXBnc3FsX3RydXN0ZWRfZG9t
-YWluX3Q7DQorCWFsbG93ICQxIHNlcGdzcWxfdHJ1c3RlZF9kb21haW5fdDpwcm9jZXNzIHRyYW5z
-aXRpb247DQorJykNCisNCisjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-DQorIyMgPHN1bW1hcnk+DQorIyMgICAgICBBbGxvdyB0aGUgc3BlY2lmaWVkIGRvbWFpbiB1bmNv
-bmZpbmVkIGFjY2Vzc2VzIHRvIGFueSBkYXRhYmFzZSBvYmplY3RzDQorIyMJbWFuYWdlZCBieSBT
-RS1Qb3N0Z3JlU1FMLA0KKyMjIDwvc3VtbWFyeT4NCisjIyA8cGFyYW0gbmFtZT0iZG9tYWluIj4N
-CisjIyAgICAgIDxzdW1tYXJ5Pg0KKyMjICAgICAgRG9tYWluIGFsbG93ZWQgYWNjZXNzLg0KKyMj
-ICAgICAgPC9zdW1tYXJ5Pg0KKyMjIDwvcGFyYW0+DQorIw0KK2ludGVyZmFjZShgcG9zdGdyZXNx
-bF91bmNvbmZpbmVkJyxgDQorCWdlbl9yZXF1aXJlKGANCisJCWF0dHJpYnV0ZSBzZXBnc3FsX3Vu
-Y29uZmluZWRfdHlwZTsNCisJJykNCisNCisJdHlwZWF0dHJpYnV0ZSAkMSBzZXBnc3FsX3VuY29u
-ZmluZWRfdHlwZTsNCisnKQ0KSW5kZXg6IHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL2FwYWNoZS50
-ZQ0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PQ0KLS0tIHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL2FwYWNoZS50ZQkocmV2
-aXNpb24gMjY2OCkNCisrKyBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9hcGFjaGUudGUJKHdvcmtp
-bmcgY29weSkNCkBAIC00NzUsNiArNDc1LDcgQEANCiBvcHRpb25hbF9wb2xpY3koYA0KIAkjIEFs
-bG93IGh0dHBkIHRvIHdvcmsgd2l0aCBwb3N0Z3Jlc3FsDQogCXBvc3RncmVzcWxfc3RyZWFtX2Nv
-bm5lY3QoaHR0cGRfdCkNCisJcG9zdGdyZXNxbF91bnByaXZfY2xpZW50KGh0dHBkX3QpDQogDQog
-CXR1bmFibGVfcG9saWN5KGBodHRwZF9jYW5fbmV0d29ya19jb25uZWN0X2RiJyxgDQogCQlwb3N0
-Z3Jlc3FsX3RjcF9jb25uZWN0KGh0dHBkX3QpDQpJbmRleDogcG9saWN5L21vZHVsZXMvc2Vydmlj
-ZXMvYXBhY2hlLmlmDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gcG9saWN5L21vZHVsZXMvc2VydmljZXMvYXBh
-Y2hlLmlmCShyZXZpc2lvbiAyNjE0KQ0KKysrIHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL2FwYWNo
-ZS5pZgkod29ya2luZyBjb3B5KQ0KQEAgLTIyNiw2ICsyMjYsMTAgQEANCiAJJykNCiANCiAJb3B0
-aW9uYWxfcG9saWN5KGANCisJCXBvc3RncmVzcWxfdW5wcml2X2NsaWVudChodHRwZF8kMV9zY3Jp
-cHRfdCkNCisJJykNCisNCisJb3B0aW9uYWxfcG9saWN5KGANCiAJCW5zY2Rfc29ja2V0X3VzZSho
-dHRwZF8kMV9zY3JpcHRfdCkNCiAJJykNCiAnKQ0KSW5kZXg6IHBvbGljeS9tb2R1bGVzL3NlcnZp
-Y2VzL3Bvc3RncmVzcWwudGUNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNl
-cy9wb3N0Z3Jlc3FsLnRlCShyZXZpc2lvbiAyNjY4KQ0KKysrIHBvbGljeS9tb2R1bGVzL3NlcnZp
-Y2VzL3Bvc3RncmVzcWwudGUJKHdvcmtpbmcgY29weSkNCkBAIC0xLDEwICsxLDI3IEBADQogDQog
-cG9saWN5X21vZHVsZShwb3N0Z3Jlc3FsLDEuNS4xKQ0KIA0KK2dlbl9yZXF1aXJlKGANCisJY2xh
-c3MgZGJfZGF0YWJhc2UgYWxsX2RiX2RhdGFiYXNlX3Blcm1zOw0KKwljbGFzcyBkYl90YWJsZSBh
-bGxfZGJfdGFibGVfcGVybXM7DQorCWNsYXNzIGRiX3Byb2NlZHVyZSBhbGxfZGJfcHJvY2VkdXJl
-X3Blcm1zOw0KKwljbGFzcyBkYl9jb2x1bW4gYWxsX2RiX2NvbHVtbl9wZXJtczsNCisJY2xhc3Mg
-ZGJfdHVwbGUgYWxsX2RiX3R1cGxlX3Blcm1zOw0KKwljbGFzcyBkYl9ibG9iIGFsbF9kYl9ibG9i
-X3Blcm1zOw0KKycpDQorDQogIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQogIw0K
-ICMgRGVjbGFyYXRpb25zDQogIw0KKw0KKyMjIDxkZXNjPg0KKyMjIDxwPg0KKyMjIEFsbG93IHVu
-cHJpdmVkIHVzZXJzIHRvIGV4ZWN1dGUgRERMIHN0YXRlbWVudA0KKyMjIDwvcD4NCisjIyA8L2Rl
-c2M+DQorZ2VuX3R1bmFibGUoc2VwZ3NxbF9lbmFibGVfdXNlcnNfZGRsLCB0cnVlKQ0KKw0KIHR5
-cGUgcG9zdGdyZXNxbF90Ow0KIHR5cGUgcG9zdGdyZXNxbF9leGVjX3Q7DQogaW5pdF9kYWVtb25f
-ZG9tYWluKHBvc3RncmVzcWxfdCxwb3N0Z3Jlc3FsX2V4ZWNfdCkNCkBAIC0yNyw2ICs0NCw1OCBA
-QA0KIHR5cGUgcG9zdGdyZXNxbF92YXJfcnVuX3Q7DQogZmlsZXNfcGlkX2ZpbGUocG9zdGdyZXNx
-bF92YXJfcnVuX3QpDQogDQorIyBkYXRhYmFzZSBjbGllbnRzIGF0dHJpYnV0ZQ0KK2F0dHJpYnV0
-ZSBzZXBnc3FsX2NsaWVudF90eXBlOw0KK2F0dHJpYnV0ZSBzZXBnc3FsX3VuY29uZmluZWRfdHlw
-ZTsNCisNCisjIGRhdGFiYXNlIG9iamVjdHMgYXR0cmlidXRlDQorYXR0cmlidXRlIHNlcGdzcWxf
-ZGF0YWJhc2VfdHlwZTsNCithdHRyaWJ1dGUgc2VwZ3NxbF90YWJsZV90eXBlOw0KK2F0dHJpYnV0
-ZSBzZXBnc3FsX3N5c29ial90YWJsZV90eXBlOw0KK2F0dHJpYnV0ZSBzZXBnc3FsX3Byb2NlZHVy
-ZV90eXBlOw0KK2F0dHJpYnV0ZSBzZXBnc3FsX2Jsb2JfdHlwZTsNCithdHRyaWJ1dGUgc2VwZ3Nx
-bF9tb2R1bGVfdHlwZTsNCisNCisjIGRhdGFiYXNlIG9iamVjdCB0eXBlcw0KK3R5cGUgc2VwZ3Nx
-bF9ibG9iX3Q7DQorcG9zdGdyZXNxbF9ibG9iX29iamVjdChzZXBnc3FsX2Jsb2JfdCkNCisNCit0
-eXBlIHNlcGdzcWxfZGJfdDsNCitwb3N0Z3Jlc3FsX2RhdGFiYXNlX29iamVjdChzZXBnc3FsX2Ri
-X3QpDQorDQordHlwZSBzZXBnc3FsX2ZpeGVkX3RhYmxlX3Q7DQorcG9zdGdyZXNxbF90YWJsZV9v
-YmplY3Qoc2VwZ3NxbF9maXhlZF90YWJsZV90KQ0KKw0KK3R5cGUgc2VwZ3NxbF9wcm9jX3Q7DQor
-cG9zdGdyZXNxbF9wcm9jZWR1cmVfb2JqZWN0KHNlcGdzcWxfcHJvY190KQ0KKw0KK3R5cGUgc2Vw
-Z3NxbF9yb19ibG9iX3Q7DQorcG9zdGdyZXNxbF9ibG9iX29iamVjdChzZXBnc3FsX3JvX2Jsb2Jf
-dCkNCisNCit0eXBlIHNlcGdzcWxfcm9fdGFibGVfdDsNCitwb3N0Z3Jlc3FsX3RhYmxlX29iamVj
-dChzZXBnc3FsX3JvX3RhYmxlX3QpDQorDQordHlwZSBzZXBnc3FsX3NlY3JldF9ibG9iX3Q7DQor
-cG9zdGdyZXNxbF9ibG9iX29iamVjdChzZXBnc3FsX3NlY3JldF9ibG9iX3QpDQorDQordHlwZSBz
-ZXBnc3FsX3NlY3JldF90YWJsZV90Ow0KK3Bvc3RncmVzcWxfdGFibGVfb2JqZWN0KHNlcGdzcWxf
-c2VjcmV0X3RhYmxlX3QpDQorDQordHlwZSBzZXBnc3FsX3N5c29ial90Ow0KK3Bvc3RncmVzcWxf
-c3lzdGVtX3RhYmxlX29iamVjdChzZXBnc3FsX3N5c29ial90KQ0KKw0KK3R5cGUgc2VwZ3NxbF90
-YWJsZV90Ow0KK3Bvc3RncmVzcWxfdGFibGVfb2JqZWN0KHNlcGdzcWxfdGFibGVfdCkNCisNCit0
-eXBlIHNlcGdzcWxfdHJ1c3RlZF9wcm9jX3Q7DQorcG9zdGdyZXNxbF9wcm9jZWR1cmVfb2JqZWN0
-KHNlcGdzcWxfdHJ1c3RlZF9wcm9jX3QpDQorDQorIyBUcnVzdGVkIFByb2NlZHVyZSBEb21haW4N
-Cit0eXBlIHNlcGdzcWxfdHJ1c3RlZF9kb21haW5fdDsNCitkb21haW5fdHlwZShzZXBnc3FsX3Ry
-dXN0ZWRfZG9tYWluX3QpDQorcG9zdGdyZXNxbF91bmNvbmZpbmVkKHNlcGdzcWxfdHJ1c3RlZF9k
-b21haW5fdCkNCityb2xlIHN5c3RlbV9yIHR5cGVzIHNlcGdzcWxfdHJ1c3RlZF9kb21haW5fdDsN
-CisNCiAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQogIw0KICMgcG9z
-dGdyZXNxbCBMb2NhbCBwb2xpY3kNCkBAIC00Miw3ICsxMTEsMjEgQEANCiBhbGxvdyBwb3N0Z3Jl
-c3FsX3Qgc2VsZjp1ZHBfc29ja2V0IGNyZWF0ZV9zdHJlYW1fc29ja2V0X3Blcm1zOw0KIGFsbG93
-IHBvc3RncmVzcWxfdCBzZWxmOnVuaXhfZGdyYW1fc29ja2V0IGNyZWF0ZV9zb2NrZXRfcGVybXM7
-DQogYWxsb3cgcG9zdGdyZXNxbF90IHNlbGY6dW5peF9zdHJlYW1fc29ja2V0IGNyZWF0ZV9zdHJl
-YW1fc29ja2V0X3Blcm1zOw0KK2FsbG93IHBvc3RncmVzcWxfdCBzZWxmOm5ldGxpbmtfc2VsaW51
-eF9zb2NrZXQgY3JlYXRlX3NvY2tldF9wZXJtczsNCiANCithbGxvdyBwb3N0Z3Jlc3FsX3Qgc2Vw
-Z3NxbF9kYXRhYmFzZV90eXBlOmRiX2RhdGFiYXNlICo7DQordHlwZV90cmFuc2l0aW9uIHBvc3Rn
-cmVzcWxfdCBwb3N0Z3Jlc3FsX3Q6ZGJfZGF0YWJhc2Ugc2VwZ3NxbF9kYl90Ow0KKw0KK2FsbG93
-IHBvc3RncmVzcWxfdCBzZXBnc3FsX21vZHVsZV90eXBlOmRiX2RhdGFiYXNlIGluc3RhbGxfbW9k
-dWxlOw0KK2FsbG93IHBvc3RncmVzcWxfdCBzZXBnc3FsX3RhYmxlX3R5cGU6eyBkYl90YWJsZSBk
-Yl9jb2x1bW4gZGJfdHVwbGUgfSAqOw0KK2FsbG93IHBvc3RncmVzcWxfdCBzZXBnc3FsX3Byb2Nl
-ZHVyZV90eXBlOmRiX3Byb2NlZHVyZSAqOw0KK2FsbG93IHBvc3RncmVzcWxfdCBzZXBnc3FsX2Js
-b2JfdHlwZTpkYl9ibG9iICo7DQorDQorIyBzZXJ2ZXIgc3BlY2lmaWMgdHlwZSB0cmFuc2l0aW9u
-cw0KK3R5cGVfdHJhbnNpdGlvbiBwb3N0Z3Jlc3FsX3Qgc2VwZ3NxbF9kYXRhYmFzZV90eXBlOmRi
-X3RhYmxlIHNlcGdzcWxfc3lzb2JqX3Q7DQordHlwZV90cmFuc2l0aW9uIHBvc3RncmVzcWxfdCBz
-ZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJfcHJvY2VkdXJlIHNlcGdzcWxfcHJvY190Ow0KK3R5cGVf
-dHJhbnNpdGlvbiBwb3N0Z3Jlc3FsX3Qgc2VwZ3NxbF9kYXRhYmFzZV90eXBlOmRiX2Jsb2Igc2Vw
-Z3NxbF9ibG9iX3Q7DQorDQogbWFuYWdlX2RpcnNfcGF0dGVybihwb3N0Z3Jlc3FsX3QscG9zdGdy
-ZXNxbF9kYl90LHBvc3RncmVzcWxfZGJfdCkNCiBtYW5hZ2VfZmlsZXNfcGF0dGVybihwb3N0Z3Jl
-c3FsX3QscG9zdGdyZXNxbF9kYl90LHBvc3RncmVzcWxfZGJfdCkNCiBtYW5hZ2VfbG5rX2ZpbGVz
-X3BhdHRlcm4ocG9zdGdyZXNxbF90LHBvc3RncmVzcWxfZGJfdCxwb3N0Z3Jlc3FsX2RiX3QpDQpA
-QCAtNzUsNiArMTU4LDkgQEANCiBtYW5hZ2Vfc29ja19maWxlc19wYXR0ZXJuKHBvc3RncmVzcWxf
-dCxwb3N0Z3Jlc3FsX3Zhcl9ydW5fdCxwb3N0Z3Jlc3FsX3Zhcl9ydW5fdCkNCiBmaWxlc19waWRf
-ZmlsZXRyYW5zKHBvc3RncmVzcWxfdCxwb3N0Z3Jlc3FsX3Zhcl9ydW5fdCxmaWxlKQ0KIA0KKyMg
-RGF0YWJhc2UvTG9hZGFibGUgbW9kdWxlDQorYWxsb3cgc2VwZ3NxbF9kYXRhYmFzZV90eXBlIHNl
-cGdzcWxfbW9kdWxlX3R5cGU6ZGJfZGF0YWJhc2UgbG9hZF9tb2R1bGU7DQorDQoga2VybmVsX3Jl
-YWRfa2VybmVsX3N5c2N0bHMocG9zdGdyZXNxbF90KQ0KIGtlcm5lbF9yZWFkX3N5c3RlbV9zdGF0
-ZShwb3N0Z3Jlc3FsX3QpDQoga2VybmVsX2xpc3RfcHJvYyhwb3N0Z3Jlc3FsX3QpDQpAQCAtMTAx
-LDYgKzE4NywxMiBAQA0KIGZzX2dldGF0dHJfYWxsX2ZzKHBvc3RncmVzcWxfdCkNCiBmc19zZWFy
-Y2hfYXV0b19tb3VudHBvaW50cyhwb3N0Z3Jlc3FsX3QpDQogDQorc2VsaW51eF9nZXRfZW5mb3Jj
-ZV9tb2RlKHBvc3RncmVzcWxfdCkNCitzZWxpbnV4X3ZhbGlkYXRlX2NvbnRleHQocG9zdGdyZXNx
-bF90KQ0KK3NlbGludXhfY29tcHV0ZV9hY2Nlc3NfdmVjdG9yKHBvc3RncmVzcWxfdCkNCitzZWxp
-bnV4X2NvbXB1dGVfY3JlYXRlX2NvbnRleHQocG9zdGdyZXNxbF90KQ0KK3NlbGludXhfY29tcHV0
-ZV9yZWxhYmVsX2NvbnRleHQocG9zdGdyZXNxbF90KQ0KKw0KIHRlcm1fdXNlX2NvbnRyb2xsaW5n
-X3Rlcm0ocG9zdGdyZXNxbF90KQ0KIA0KIGNvcmVjbWRfZXhlY19iaW4ocG9zdGdyZXNxbF90KQ0K
-QEAgLTEyNiw3ICsyMTgsNyBAQA0KIA0KIG1pc2NmaWxlc19yZWFkX2xvY2FsaXphdGlvbihwb3N0
-Z3Jlc3FsX3QpDQogDQotc2V1dGlsX2RvbnRhdWRpdF9zZWFyY2hfY29uZmlnKHBvc3RncmVzcWxf
-dCkNCitzZXV0aWxfbGlic2VsaW51eF9saW5rZWQocG9zdGdyZXNxbF90KQ0KIA0KIHVzZXJkb21f
-ZG9udGF1ZGl0X3VzZV91bnByaXZfdXNlcl9mZHMocG9zdGdyZXNxbF90KQ0KIA0KQEAgLTE2Nywz
-ICsyNTksNzUgQEANCiBvcHRpb25hbF9wb2xpY3koYA0KIAl1ZGV2X3JlYWRfZGIocG9zdGdyZXNx
-bF90KQ0KICcpDQorDQorIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0K
-KyMNCisjIFJ1bGVzIGNvbW1vbiB0byBhbGwgY2xpZW50cw0KKyMNCisNCisjIENsaWVudCBkb21h
-aW4gY29uc3RyYWludA0KK25ldmVyYWxsb3cgfnsgcG9zdGdyZXNxbF90IHNlcGdzcWxfY2xpZW50
-X3R5cGUgc2VwZ3NxbF91bmNvbmZpbmVkX3R5cGUgfSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJf
-ZGF0YWJhc2UgYWNjZXNzOw0KKw0KK2FsbG93IHNlcGdzcWxfY2xpZW50X3R5cGUgc2VwZ3NxbF9k
-Yl90OmRiX2RhdGFiYXNlIHsgZ2V0YXR0ciBhY2Nlc3MgZ2V0X3BhcmFtIHNldF9wYXJhbSB9Ow0K
-K3R5cGVfdHJhbnNpdGlvbiBzZXBnc3FsX2NsaWVudF90eXBlIHBvc3RncmVzcWxfdDpkYl9kYXRh
-YmFzZSBzZXBnc3FsX2RiX3Q7DQorDQorYWxsb3cgc2VwZ3NxbF9jbGllbnRfdHlwZSBzZXBnc3Fs
-X2ZpeGVkX3RhYmxlX3Q6ZGJfdGFibGUgeyBnZXRhdHRyIHVzZSBzZWxlY3QgaW5zZXJ0IH07DQor
-YWxsb3cgc2VwZ3NxbF9jbGllbnRfdHlwZSBzZXBnc3FsX2ZpeGVkX3RhYmxlX3Q6ZGJfY29sdW1u
-IHsgZ2V0YXR0ciB1c2Ugc2VsZWN0IGluc2VydCB9Ow0KK2FsbG93IHNlcGdzcWxfY2xpZW50X3R5
-cGUgc2VwZ3NxbF9maXhlZF90YWJsZV90OmRiX3R1cGxlIHsgdXNlIHNlbGVjdCBpbnNlcnQgfTsN
-CisNCithbGxvdyBzZXBnc3FsX2NsaWVudF90eXBlIHNlcGdzcWxfdGFibGVfdDpkYl90YWJsZSB7
-IGdldGF0dHIgdXNlIHNlbGVjdCB1cGRhdGUgaW5zZXJ0IGRlbGV0ZSB9Ow0KK2FsbG93IHNlcGdz
-cWxfY2xpZW50X3R5cGUgc2VwZ3NxbF90YWJsZV90OmRiX2NvbHVtbiB7IGdldGF0dHIgdXNlIHNl
-bGVjdCB1cGRhdGUgaW5zZXJ0IH07DQorYWxsb3cgc2VwZ3NxbF9jbGllbnRfdHlwZSBzZXBnc3Fs
-X3RhYmxlX3Q6ZGJfdHVwbGUgeyB1c2Ugc2VsZWN0IHVwZGF0ZSBpbnNlcnQgZGVsZXRlIH07DQor
-DQorIyBEb250YXVkaXQgZGVueSBsb2dzIGluIHJvdy1sZXZlbCBhY2Nlc3MgY29udHJvbA0KK2Rv
-bnRhdWRpdCBzZXBnc3FsX2NsaWVudF90eXBlIHsgc2VwZ3NxbF90YWJsZV90eXBlIC1zZXBnc3Fs
-X3N5c29ial90YWJsZV90eXBlIH06ZGJfdHVwbGUgKjsNCisNCithbGxvdyBzZXBnc3FsX2NsaWVu
-dF90eXBlIHNlcGdzcWxfcm9fdGFibGVfdDpkYl90YWJsZSB7IGdldGF0dHIgdXNlIHNlbGVjdCB9
-Ow0KK2FsbG93IHNlcGdzcWxfY2xpZW50X3R5cGUgc2VwZ3NxbF9yb190YWJsZV90OmRiX2NvbHVt
-biB7IGdldGF0dHIgdXNlIHNlbGVjdCB9Ow0KK2FsbG93IHNlcGdzcWxfY2xpZW50X3R5cGUgc2Vw
-Z3NxbF9yb190YWJsZV90OmRiX3R1cGxlIHsgdXNlIHNlbGVjdCB9Ow0KKw0KK2FsbG93IHNlcGdz
-cWxfY2xpZW50X3R5cGUgc2VwZ3NxbF9zZWNyZXRfdGFibGVfdDpkYl90YWJsZSBnZXRhdHRyOw0K
-K2FsbG93IHNlcGdzcWxfY2xpZW50X3R5cGUgc2VwZ3NxbF9zZWNyZXRfdGFibGVfdDpkYl9jb2x1
-bW4gZ2V0YXR0cjsNCisNCithbGxvdyBzZXBnc3FsX2NsaWVudF90eXBlIHNlcGdzcWxfc3lzb2Jq
-X3Q6ZGJfdGFibGUgeyBnZXRhdHRyIHVzZSBzZWxlY3QgfTsNCithbGxvdyBzZXBnc3FsX2NsaWVu
-dF90eXBlIHNlcGdzcWxfc3lzb2JqX3Q6ZGJfY29sdW1uIHsgZ2V0YXR0ciB1c2Ugc2VsZWN0IH07
-DQorYWxsb3cgc2VwZ3NxbF9jbGllbnRfdHlwZSBzZXBnc3FsX3N5c29ial90OmRiX3R1cGxlIHsg
-dXNlIHNlbGVjdCB9Ow0KKw0KK2FsbG93IHNlcGdzcWxfY2xpZW50X3R5cGUgc2VwZ3NxbF9wcm9j
-X3Q6ZGJfcHJvY2VkdXJlIHsgZ2V0YXR0ciBleGVjdXRlIH07DQorYWxsb3cgc2VwZ3NxbF9jbGll
-bnRfdHlwZSBzZXBnc3FsX3RydXN0ZWRfcHJvY190OmRiX3Byb2NlZHVyZSB7IGdldGF0dHIgZXhl
-Y3V0ZSBlbnRyeXBvaW50IH07DQorDQorYWxsb3cgc2VwZ3NxbF9jbGllbnRfdHlwZSBzZXBnc3Fs
-X2Jsb2JfdDpkYl9ibG9iIHsgY3JlYXRlIGRyb3AgZ2V0YXR0ciBzZXRhdHRyIHJlYWQgd3JpdGUg
-fTsNCithbGxvdyBzZXBnc3FsX2NsaWVudF90eXBlIHNlcGdzcWxfcm9fYmxvYl90OmRiX2Jsb2Ig
-eyBnZXRhdHRyIHJlYWQgfTsNCithbGxvdyBzZXBnc3FsX2NsaWVudF90eXBlIHNlcGdzcWxfc2Vj
-cmV0X2Jsb2JfdDpkYl9ibG9iIGdldGF0dHI7DQorDQordHVuYWJsZV9wb2xpY3koYHNlcGdzcWxf
-ZW5hYmxlX3VzZXJzX2RkbCcsYA0KKwlhbGxvdyBzZXBnc3FsX2NsaWVudF90eXBlIHNlcGdzcWxf
-dGFibGVfdDpkYl90YWJsZSAgeyBjcmVhdGUgZHJvcCBzZXRhdHRyIH07DQorCWFsbG93IHNlcGdz
-cWxfY2xpZW50X3R5cGUgc2VwZ3NxbF90YWJsZV90OmRiX2NvbHVtbiB7IGNyZWF0ZSBkcm9wIHNl
-dGF0dHIgfTsNCisJYWxsb3cgc2VwZ3NxbF9jbGllbnRfdHlwZSBzZXBnc3FsX3N5c29ial90OmRi
-X3R1cGxlICB7IHVwZGF0ZSBpbnNlcnQgZGVsZXRlIH07DQorJykNCisNCisjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorIw0KKyMgVW5jb25maW5lZCBhY2Nlc3MgdG8g
-dGhpcyBtb2R1bGUNCisjDQorDQorYWxsb3cgc2VwZ3NxbF91bmNvbmZpbmVkX3R5cGUgcG9zdGdy
-ZXNxbF90OmRiX2Jsb2IgeyBpbXBvcnQgZXhwb3J0IH07DQorDQorYWxsb3cgc2VwZ3NxbF91bmNv
-bmZpbmVkX3R5cGUgc2VwZ3NxbF9ibG9iX3R5cGU6ZGJfYmxvYiAqOw0KK3R5cGVfdHJhbnNpdGlv
-biBzZXBnc3FsX3VuY29uZmluZWRfdHlwZSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJfYmxvYiBz
-ZXBnc3FsX2Jsb2JfdDsNCisNCithbGxvdyBzZXBnc3FsX3VuY29uZmluZWRfdHlwZSBzZXBnc3Fs
-X2RhdGFiYXNlX3R5cGU6ZGJfZGF0YWJhc2UgKjsNCit0eXBlX3RyYW5zaXRpb24gc2VwZ3NxbF91
-bmNvbmZpbmVkX3R5cGUgc2VwZ3NxbF9kYXRhYmFzZV90eXBlOmRiX3RhYmxlIHNlcGdzcWxfdGFi
-bGVfdDsNCit0eXBlX3RyYW5zaXRpb24gc2VwZ3NxbF91bmNvbmZpbmVkX3R5cGUgcG9zdGdyZXNx
-bF90OmRiX2RhdGFiYXNlIHNlcGdzcWxfZGJfdDsNCisNCithbGxvdyBzZXBnc3FsX3VuY29uZmlu
-ZWRfdHlwZSBzZXBnc3FsX21vZHVsZV90eXBlOmRiX2RhdGFiYXNlIGluc3RhbGxfbW9kdWxlOw0K
-Kw0KK2FsbG93IHNlcGdzcWxfdW5jb25maW5lZF90eXBlIHsgc2VwZ3NxbF9wcm9jX3Qgc2VwZ3Nx
-bF90cnVzdGVkX3Byb2NfdCB9OmRiX3Byb2NlZHVyZSAqOw0KK2FsbG93IHNlcGdzcWxfdW5jb25m
-aW5lZF90eXBlIHNlcGdzcWxfcHJvY2VkdXJlX3R5cGU6ZGJfcHJvY2VkdXJlIHsgY3JlYXRlIGRy
-b3AgZ2V0YXR0ciBzZXRhdHRyIHJlbGFiZWxmcm9tIHJlbGFiZWx0byB9Ow0KK3R5cGVfdHJhbnNp
-dGlvbiBzZXBnc3FsX3VuY29uZmluZWRfdHlwZSBzZXBnc3FsX2RhdGFiYXNlX3R5cGU6ZGJfcHJv
-Y2VkdXJlIHNlcGdzcWxfcHJvY190Ow0KKw0KK2FsbG93IHNlcGdzcWxfdW5jb25maW5lZF90eXBl
-IHNlcGdzcWxfdGFibGVfdHlwZTp7IGRiX3RhYmxlIGRiX2NvbHVtbiBkYl90dXBsZSB9ICo7DQor
-DQorb3B0aW9uYWxfcG9saWN5KGANCisJa2VybmVsX3JlbGFiZWxmcm9tX3VubGFiZWxlZF9kYXRh
-YmFzZShzZXBnc3FsX3VuY29uZmluZWRfdHlwZSkNCisnKQ0KSW5kZXg6IHBvbGljeS9tb2R1bGVz
-L3NlcnZpY2VzL3Bvc3RncmVzcWwuZmMNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBwb2xpY3kvbW9kdWxlcy9z
-ZXJ2aWNlcy9wb3N0Z3Jlc3FsLmZjCShyZXZpc2lvbiAyNjE0KQ0KKysrIHBvbGljeS9tb2R1bGVz
-L3NlcnZpY2VzL3Bvc3RncmVzcWwuZmMJKHdvcmtpbmcgY29weSkNCkBAIC02LDggKzYsOCBAQA0K
-ICMNCiAjIC91c3INCiAjDQotL3Vzci9iaW4vaW5pdGRiCQkJLS0JZ2VuX2NvbnRleHQoc3lzdGVt
-X3U6b2JqZWN0X3I6cG9zdGdyZXNxbF9leGVjX3QsczApDQotL3Vzci9iaW4vcG9zdGdyZXMJCS0t
-CWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOnBvc3RncmVzcWxfZXhlY190LHMwKQ0KKy91
-c3IvYmluL2luaXRkYihcLnNlcGdzcWwpPwktLQlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3Rf
-cjpwb3N0Z3Jlc3FsX2V4ZWNfdCxzMCkNCisvdXNyL2Jpbi8oc2UpP3Bvc3RncmVzCQktLQlnZW5f
-Y29udGV4dChzeXN0ZW1fdTpvYmplY3Rfcjpwb3N0Z3Jlc3FsX2V4ZWNfdCxzMCkNCiANCiAvdXNy
-L2xpYi9wZ3NxbC90ZXN0L3JlZ3JlcygvLiopPwlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3Rf
-cjpwb3N0Z3Jlc3FsX2RiX3QsczApDQogL3Vzci9saWIvcGdzcWwvdGVzdC9yZWdyZXNzL3BnX3Jl
-Z3Jlc3MgLS0gZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6cG9zdGdyZXNxbF9leGVjX3Qs
-czApDQpAQCAtMzAsOCArMzAsMTIgQEANCiAvdmFyL2xpYi9wZ3NxbC9kYXRhKC8uKik/CQlnZW5f
-Y29udGV4dChzeXN0ZW1fdTpvYmplY3Rfcjpwb3N0Z3Jlc3FsX2RiX3QsczApDQogL3Zhci9saWIv
-cGdzcWwvcGdzdGFydHVwXC5sb2cJCWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOnBvc3Rn
-cmVzcWxfbG9nX3QsczApDQogDQorL3Zhci9saWIvc2VwZ3NxbCgvLiopPwkJCWdlbl9jb250ZXh0
-KHN5c3RlbV91Om9iamVjdF9yOnBvc3RncmVzcWxfZGJfdCxzMCkNCisvdmFyL2xpYi9zZXBnc3Fs
-L3Bnc3RhcnR1cFwubG9nCS0tCWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOnBvc3RncmVz
-cWxfbG9nX3QsczApDQorDQogL3Zhci9sb2cvcG9zdGdyZXNcLmxvZy4qIAktLQlnZW5fY29udGV4
-dChzeXN0ZW1fdTpvYmplY3Rfcjpwb3N0Z3Jlc3FsX2xvZ190LHMwKQ0KIC92YXIvbG9nL3Bvc3Rn
-cmVzcWwoLy4qKT8JCWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOnBvc3RncmVzcWxfbG9n
-X3QsczApDQorL3Zhci9sb2cvc2Vwb3N0Z3Jlc3FsXC5sb2cuKgktLQlnZW5fY29udGV4dChzeXN0
-ZW1fdTpvYmplY3Rfcjpwb3N0Z3Jlc3FsX2xvZ190LHMwKQ0KIA0KIGlmZGVmKGBkaXN0cm9fcmVk
-aGF0JywgYA0KIC92YXIvbG9nL3JoZGIvcmhkYigvLiopPwkJZ2VuX2NvbnRleHQoc3lzdGVtX3U6
-b2JqZWN0X3I6cG9zdGdyZXNxbF9sb2dfdCxzMCkNCkluZGV4OiBwb2xpY3kvbW9kdWxlcy9zeXN0
-ZW0vdXNlcmRvbWFpbi5pZg0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIHBvbGljeS9tb2R1bGVzL3N5c3RlbS91
-c2VyZG9tYWluLmlmCShyZXZpc2lvbiAyNjY4KQ0KKysrIHBvbGljeS9tb2R1bGVzL3N5c3RlbS91
-c2VyZG9tYWluLmlmCSh3b3JraW5nIGNvcHkpDQpAQCAtMTIwMSw2ICsxMjAxLDEwIEBADQogCQlu
-ZXR1dGlsc19ydW5fdHJhY2Vyb3V0ZV9jb25kKCQxX3QsJDFfcix7ICQxX3R0eV9kZXZpY2VfdCAk
-MV9kZXZwdHNfdCB9KQ0KIAknKQ0KIA0KKwlvcHRpb25hbF9wb2xpY3koYA0KKwkJcG9zdGdyZXNx
-bF91c2VyZG9tX3RlbXBsYXRlKCQxLCQxX3QsJDFfcikNCisJJykNCisNCiAJIyBSdW4gcHBwZCBp
-biBwcHBkX3QgYnkgZGVmYXVsdCBmb3IgdXNlcg0KIAlvcHRpb25hbF9wb2xpY3koYA0KIAkJcHBw
-X3J1bl9jb25kKCQxX3QsJDFfcix7ICQxX3R0eV9kZXZpY2VfdCAkMV9kZXZwdHNfdCB9KQ0KQEAg
-LTEzNzEsNiArMTM3NSwxMCBAQA0KIAknKQ0KIA0KIAlvcHRpb25hbF9wb2xpY3koYA0KKwkJcG9z
-dGdyZXNxbF91bmNvbmZpbmVkKCQxX3QpDQorCScpDQorDQorCW9wdGlvbmFsX3BvbGljeShgDQog
-CQl1c2VyaGVscGVyX2V4ZWMoJDFfdCkNCiAJJykNCiAnKQ0KSW5kZXg6IHBvbGljeS9tb2R1bGVz
-L3N5c3RlbS9saWJyYXJpZXMudGUNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSBwb2xpY3kvbW9kdWxlcy9zeXN0
-ZW0vbGlicmFyaWVzLnRlCShyZXZpc2lvbiAyNjU2KQ0KKysrIHBvbGljeS9tb2R1bGVzL3N5c3Rl
-bS9saWJyYXJpZXMudGUJKHdvcmtpbmcgY29weSkNCkBAIC0xMDksMyArMTA5LDggQEANCiAJIyBi
-bG93IHVwLg0KIAlycG1fbWFuYWdlX3NjcmlwdF90bXBfZmlsZXMobGRjb25maWdfdCkNCiAnKQ0K
-Kw0KK29wdGlvbmFsX3BvbGljeShgDQorCXBvc3RncmVzcWxfbG9hZGFibGVfbW9kdWxlKGxpYl90
-KQ0KKwlwb3N0Z3Jlc3FsX2xvYWRhYmxlX21vZHVsZSh0ZXh0cmVsX3NobGliX3QpDQorJykNCklu
-ZGV4OiBwb2xpY3kvbW9kdWxlcy9zeXN0ZW0vdW5jb25maW5lZC5pZg0KPT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0t
-IHBvbGljeS9tb2R1bGVzL3N5c3RlbS91bmNvbmZpbmVkLmlmCShyZXZpc2lvbiAyNjU1KQ0KKysr
-IHBvbGljeS9tb2R1bGVzL3N5c3RlbS91bmNvbmZpbmVkLmlmCSh3b3JraW5nIGNvcHkpDQpAQCAt
-ODgsNiArODgsMTAgQEANCiAJJykNCiANCiAJb3B0aW9uYWxfcG9saWN5KGANCisJCXBvc3RncmVz
-cWxfdW5jb25maW5lZCgkMSkNCisJJykNCisNCisJb3B0aW9uYWxfcG9saWN5KGANCiAJCXNldXRp
-bF9jcmVhdGVfYmluX3BvbGljeSgkMSkNCiAJCXNldXRpbF9yZWxhYmVsdG9fYmluX3BvbGljeSgk
-MSkNCiAJJykNCkluZGV4OiBwb2xpY3kvbW9kdWxlcy9zeXN0ZW0vaW5pdC5mYw0KPT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PQ0KLS0tIHBvbGljeS9tb2R1bGVzL3N5c3RlbS9pbml0LmZjCShyZXZpc2lvbiAyNjE0KQ0KKysr
-IHBvbGljeS9tb2R1bGVzL3N5c3RlbS9pbml0LmZjCSh3b3JraW5nIGNvcHkpDQpAQCAtMzgsNiAr
-MzgsOCBAQA0KICMNCiAjIC91c3INCiAjDQorL3Vzci9iaW4vc2VwZ19jdGwJLS0JZ2VuX2NvbnRl
-eHQoc3lzdGVtX3U6b2JqZWN0X3I6aW5pdHJjX2V4ZWNfdCxzMCkNCisNCiAvdXNyL2xpYmV4ZWMv
-ZGNjL3N0YXJ0LS4qIC0tCWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOmluaXRyY19leGVj
-X3QsczApDQogL3Vzci9saWJleGVjL2RjYy9zdG9wLS4qIC0tCWdlbl9jb250ZXh0KHN5c3RlbV91
-Om9iamVjdF9yOmluaXRyY19leGVjX3QsczApDQogDQo=
-
-
---=-1yMdAXuqREx94lrBFYbV--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
