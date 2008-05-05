@@ -1,71 +1,94 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m42LrSG4028271
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2008 17:53:28 -0400
-Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m42LrPDH006795
-	for <selinux@tycho.nsa.gov>; Fri, 2 May 2008 21:53:25 GMT
-Received: by wr-out-0506.google.com with SMTP id c30so1148765wra.21
-        for <selinux@tycho.nsa.gov>; Fri, 02 May 2008 14:53:22 -0700 (PDT)
-Message-ID: <7e0fb38c0805021453m4274bb4cgf9d40de2ec3daead@mail.gmail.com>
-Date: Fri, 2 May 2008 17:53:21 -0400
-From: "Eric Paris" <eparis@parisplace.org>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: Re: segfault using dismod when linking modules
-Cc: selinux <selinux@tycho.nsa.gov>, "Joshua Brindle" <jbrindle@tresys.com>
-In-Reply-To: <1209735912.25678.510.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m45D5O3g023657
+	for <selinux@tycho.nsa.gov>; Mon, 5 May 2008 09:05:24 -0400
+Received: from vidle.i.cz (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m45D5NN6022262
+	for <selinux@tycho.nsa.gov>; Mon, 5 May 2008 13:05:23 GMT
+Date: Mon, 5 May 2008 15:05:21 +0200
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org,
+        debian-ssh@lists.debian.org
+Subject: Re: [refpolicy] initrc_t access to sshd /proc to adjust OOM killer
+Message-ID: <20080505130521.GA13631@bobek.pm.i.cz>
+References: <20080502143041.GA26592@bobek.pm.i.cz> <481B2E15.7070703@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <7e0fb38c0805011304i3f63a0d0g987473892a76abb2@mail.gmail.com>
-	 <1209735912.25678.510.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=iso-8859-2
+In-Reply-To: <481B2E15.7070703@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Well at least it doesn't segfault   :)
+On Fri, May 02, 2008 at 11:07:01AM -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Václav Ovsík wrote:
+> > Hi,
+> > the startup script of Open SSH server on the Debian Sid adjusts the OOM
+> > killer to not kill sshd in the condition of OOM. It simply does
+> > 
+> >     printf '%s' "$SSHD_OOM_ADJUST" >"/proc/$PID/oom_adj" || true
+> > 
+> > BTW: I am not certain if this do exactly what was intended, because this
+> > parameter is inherited by all child processes, as one can see using
+> > attached simple script.
+> > 
+> > Nevertheless I don't know how to enable such write under SE Linux. It
+> > triggers:
+> > 
+> > [   66.417499] type=1400 audit(1209737438.955:6): avc:  denied  { write
+> > } for  pid=1600 comm="S16ssh" name="oom_adj" dev=proc ino=70952 s
+> > context=system_u:system_r:initrc_t:s0
+> > tcontext=system_u:system_r:sshd_t:s0-s0:c0.c1023 tclass=file
+> > 
+> > I wrote attached patch, but the denial still appears.
+> > 
+> > sid:~# sesearch --allow -s initrc_t  -t sshd_t -c file 
+> > WARNING: This policy contained disabled aliases; they have been removed.
+> > Found 3 semantic av rules:
+> >    allow @ttr1634 @ttr2356 : file { ioctl read getattr lock }; 
+> >    allow initrc_t sshd_t : file { ioctl write getattr lock append }; 
+> >    allow initrc_t @ttr2356 : file { ioctl read getattr lock }; 
+> > 
+> > sid:~# sestatus   
+> > SELinux status:                 enabled
+> > SELinuxfs mount:                /selinux
+> > Current mode:                   permissive
+> > Mode from config file:          permissive
+> > Policy version:                 22
+> > Policy from config file:        refpolicy
+> > sid:~# uname -a
+> > Linux sid 2.6.25-1-686 #1 SMP Mon Apr 28 13:54:58 UTC 2008 i686 GNU/Linux
+> > 
+> > What am I doing wrong please?
+> > Best Regards
+> > 
+> Run the avc messages through audit2why
 
-/me has much pain trying to move genfs_context type messages into a module.
+Great, I got:
 
--Eric
+[   19.816342] type=1400 audit(1209977556.108:5): avc:  denied  { write } for  pid=1466 comm="S16ssh" name="oom_adj" dev=proc ino=5408 scontext=system_u:system_r:initrc_t:s0 tcontext=system_u:system_r:sshd_t:s0-s0:c0.c1023 tclass=file
 
-On Fri, May 2, 2008 at 9:45 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
->
->  On Thu, 2008-05-01 at 16:04 -0400, Eric Paris wrote:
->  > Maybe someone else will know this pretty quickly.  I'm attaching a
->  > tiny little base.conf and base.mod and a tiny test.te and test.mod
->  > that I built.  When I try to link them together I get a segfault
->  > somewhere through user_fix_callback() -> mls_level_convert()
->  >
->  > Anyway, maybe I'll get to looking at it tomorrow, but if anyone else
->  > who actually understands all of this has a chance to look let me
->  > know....
->
->  Looks like mls_level_convert() falls over dead if passed an "empty" user
->  declaration, which appears to happen when you specify a require on it
->  but not a declaration for it in your module, which is what you do in
->  test.te.  Patch below will at least fix the symptom - not sure whether
->  it will yield the expected end result though.
->
->  Index: trunk/libsepol/src/link.c
->  ===================================================================
->  --- trunk/libsepol/src/link.c   (revision 2874)
->  +++ trunk/libsepol/src/link.c   (working copy)
->  @@ -864,6 +864,10 @@
->         if (!mod->policy->mls)
->                 return 0;
->
->  +       /* Required not declared. */
->  +       if (!src->sens)
->  +               return 0;
->  +
->         assert(mod->map[SYM_LEVELS][src->sens - 1]);
->         dst->sens = mod->map[SYM_LEVELS][src->sens - 1];
->
->
->  --
->  Stephen Smalley
->  National Security Agency
->
->
+        Was caused by:
+                Policy constraint violation.
+
+                May require adding a type attribute to the domain or type to satisfy the constraint.
+
+                Constraints are defined in the policy sources in policy/constraints (general), policy/mcs (MCS), and policy/mls (MLS).
+
+
+I expected problems to enable such thing (to write to file with context
+of domain). Constraints in policy/constraints etc are rather complex.
+Now I am going in the way of the least friction :) - to fill bugreport
+against openssh-server with a patch, that will do OOM adjustment in the
+C-code by sshd itself (like udev does).
+
+IMO to write into /proc/N/oom_adj can be need by administrator
+sometimes, so there should be some role capable to write there.
+
+Thanks
+-- 
+Zito
 
 --
 This message was distributed to subscribers of the selinux mailing list.
