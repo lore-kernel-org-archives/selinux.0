@@ -1,63 +1,29 @@
-Subject: Re: [PATCH v4] selinux:  support deferred mapping of contexts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1210088427.25678.771.camel@moss-spartans.epoch.ncsc.mil>
-References: <1210002195.25678.678.camel@moss-spartans.epoch.ncsc.mil>
-	 <Xine.LNX.4.64.0805060930520.17367@us.intercode.com.au>
-	 <1210088427.25678.771.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m46KI4Ci007612
+	for <selinux@tycho.nsa.gov>; Tue, 6 May 2008 16:18:04 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m46KI3AB012867
+	for <selinux@tycho.nsa.gov>; Tue, 6 May 2008 20:18:03 GMT
+Subject: rbacsep: transition/inherit perms
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 06 May 2008 16:17:28 -0400
-Message-Id: <1210105048.25678.799.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 06 May 2008 16:17:51 -0400
+Message-Id: <1210105071.8778.5.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Tue, 2008-05-06 at 11:40 -0400, Stephen Smalley wrote:
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 1c864c0..1fe4550 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -5153,6 +5159,12 @@ static int selinux_setprocattr(struct task_struct *p,
->  			size--;
->  		}
->  		error = security_context_to_sid(value, size, &sid);
-> +		if (error == -EINVAL && !strcmp(name, "fscreate")) {
-> +			if (!capable(CAP_MAC_ADMIN))
-> +				return error;
-> +			error = security_context_to_sid_force(value, size,
-> +							      &sid);
-> +		}
->  		if (error)
->  			return error;
->  	}
-
-I realized that this part of the patch won't work as advertised, at
-least not presently.
-
-The corresponding logic in the setxattr hooks will work, and is what I
-exercised in my example sequence.  And I believe that rpm does
-setfilecon() the files after creation rather than using setfscreatecon()
-followed by creat, so it should work for rpm's purposes.
-
-The problem with this support in the fscreate case is that we later turn
-the SID back into a context in selinux_inode_init_security() for setting
-the xattr for the new file in the same transaction as the create, and as
-the context will still be undefined by policy, we will get back the
-unlabeled context instead and that will be stored on disk.
-
-So, the question is should we just drop this hunk of the patch and only
-support this functionality for setxattr, or do we need
-selinux_inode_init_security() to recover the original context string
-(which is available in the SID table, just not returned by
-security_sid_to_context when it isn't defined by policy) and use that
-for the on-disk xattr value?
+I branched refpolicy for the RBAC separation, and began the new
+constraints.  I'm trying to decide what to do with the process
+permissions rlimitinh, siginh, and noatsecure.  Since these go with a
+transition, it seems that they could be added the the existing role
+constraint on transition.  Opinions?
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
