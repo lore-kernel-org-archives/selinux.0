@@ -1,54 +1,42 @@
-Subject: Re: [PATCH v4] selinux: support deferred mapping of contexts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Steve Grubb <sgrubb@redhat.com>
-Cc: linux-audit@redhat.com, Eric Paris <eparis@parisplace.org>,
-        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-In-Reply-To: <200805071248.13439.sgrubb@redhat.com>
-References: <1210002195.25678.678.camel@moss-spartans.epoch.ncsc.mil>
-	 <1210173806.6434.84.camel@moss-spartans.epoch.ncsc.mil>
-	 <7e0fb38c0805070829q1bda9233h1f71865634776e71@mail.gmail.com>
-	 <200805071248.13439.sgrubb@redhat.com>
+Subject: Re: refpolicy roles / RBAC separation RFC
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1209495402.25678.239.camel@moss-spartans.epoch.ncsc.mil>
+References: <1209484450.6110.47.camel@gorn>
+	 <1209495402.25678.239.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 07 May 2008 13:20:42 -0400
-Message-Id: <1210180842.6434.98.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 07 May 2008 13:32:26 -0400
+Message-Id: <1210181546.8778.20.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2008-04-29 at 14:56 -0400, Stephen Smalley wrote:
+> On Tue, 2008-04-29 at 11:54 -0400, Christopher J. PeBenito wrote:
+> > Next we will be doing an experiment attempting to use the SELinux RBAC
+> > functionality to separate users instead of SELinux TE.  What this means
+> > is that the role field will start being used more substantially than it
+> > currently is.  In a nutshell, this means that all user objects will have
+> > the user's role rather than object_r.  Then the separate types will be
+> > collapsed into one type where possible.  This will result in per-role
+> > types (e.g., user_mozilla_t, staff_mozilla_t) collapsing too
+> > (mozilla_t).
+[...]
+> > The above example rule utilizes a role attribute, which doesn't exist.
+> > In the absence of role attributes, role dominance can be used, but its
+> > unclear if the dominance code works, since no one uses it.
 
-On Wed, 2008-05-07 at 12:48 -0400, Steve Grubb wrote:
-> On Wednesday 07 May 2008 11:29:36 Eric Paris wrote:
-> > On Wed, May 7, 2008 at 11:23 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > >  On Wed, 2008-05-07 at 11:17 -0400, Eric Paris wrote:
-> > >  > >  I assume we do NOT want to use this variant interface when getting
-> > >  > >  contexts to display in audit messages, as we want the audit
-> > >  > > messages to correspond to the actual denial and to yield proper
-> > >  > > policy if turned into an allow rule.
-> > >  >
-> > >  > Is there any way we could get them both displayed if there is a
-> > >  > denial?  Might be interesting to know both that the denial was
-> > >  > actually unlabeled_t object but also what the 'incorrect' label
-> > >  > was.....
-> > >
-> > >  Easy to do kernel-side, but requires a new avc audit field that won't
-> > >  cause any complaints by audit userland or tools like audit2allow.
-> 
-> What would be the proposed name of this new field? Would it hold just a 
-> context string? FWIW, audit user land doesn't really care except that we 
-> don't have name collisions on fields.
+Turns out that I can't use role dominance because dom and domby in
+constraints only seem to work (syntax error) between r1 and r2, rather
+than r1 and a specific role.
 
-If we did this (not part of my current patch, but can be done as a
-follow-on), then we'd need to define two new fields, one to correspond
-to the real/raw context string corresponding to the scontext and one to
-correspond to the real/raw context string corresponding to the tcontext.
-And they would only be present if the scontext and/or tcontext happened
-to be invalid under current policy.  Maybe "rscontext" and "rtcontext"
-if we don't think that will confuse existing userspace
-(audit2allow/sepolgen, setroubleshoot, seaudit, ...).
-   
+> Yes, I think we should just add role attribute support.
+
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
