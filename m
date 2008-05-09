@@ -1,146 +1,49 @@
-Subject: [RFC][PATCH] selinux:  simplify ioctl checking
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-Content-Type: text/plain
-Date: Fri, 09 May 2008 08:43:11 -0400
-Message-Id: <1210336991.6434.200.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m49DmQM8004086
+	for <selinux@tycho.nsa.gov>; Fri, 9 May 2008 09:48:26 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m49DmPBH007184
+	for <selinux@tycho.nsa.gov>; Fri, 9 May 2008 13:48:26 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m49DmQ89025103
+	for <selinux@tycho.nsa.gov>; Fri, 9 May 2008 09:48:26 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m49DmPlA031700
+	for <selinux@tycho.nsa.gov>; Fri, 9 May 2008 09:48:25 -0400
+Received: from localhost.localdomain (vpn-14-235.rdu.redhat.com [10.11.14.235])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m49DmNPe007565
+	for <selinux@tycho.nsa.gov>; Fri, 9 May 2008 09:48:24 -0400
+Message-ID: <4824560E.8060500@redhat.com>
+Date: Fri, 09 May 2008 09:47:58 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: I think this is a bug in the kernel
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is an RFC for changing the SELinux ioctl checking.  There have been
-prior discussions and patches for this in the past, but they've never
-been brought to conclusion.  This does yield a change in behavior, but
-I'm hoping to avoid having to introduce yet another policy capability or
-compatibility knob for it unless we find that it actually yields
-breakage with existing policies.  I was able to boot and login with this
-patch applied without any denials, both as an unconfined_u user and as a
-user_u user.  
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-A few comments on the patch:
-1) It completely removes all knowledge of individual ioctl commands.
-Alternatively, we could retain specific knowledge of the vfs layer
-generic ioctl commands while dropping the specific driver and filesystem
-ioctl commands (which represent a layering/encapsulation violation
-presently).  But I'm not sure we want to deal with tracking any
-individual ioctls vs. just using the IOC_DIR for everything.
+https://bugzilla.redhat.com/show_bug.cgi?id=445709	
 
-2) It uses read vs. write permissions rather than getattr vs. setattr
-permissions.  With the prior patches, we found that mapping IOC_WRITE to
-SETATTR caused real breakage with existing policies as we tend to be
-stingy with setattr permission in policy to specifically limit
-chmod/chown and friends, and not everything marked with IOC_WRITE truly
-corresponds to a SETATTR.  If we feel we need SETATTR checking on
-specific ioctl commands, then I think we need to introduce
-security_inode_setattr() hook calls in the corresponding driver and/or
-filesystem code rather than trying to catch them here since we are
-otherwise violating layering.
+libvirtd is clearly not ptracing the unconfined_t domain.  It is
+problably looking under /proc for some information about the app that is
+communicating with it.  It might be reading unconfined_t environment.  I
+am not sure, but we generate a ptrace and stop the app from working.  My
+only choice is to allow virtd to ptrace unconfined_t processes which is
+not a good idea.  This has to be fixes in the kernel.
 
-3) It removes ext2-specific handling that is a legacy of the original
-SELinux kernel patches that was never updated to cover ext3 ioctls.  Yet
-another reason for doing it the general way instead.
+Dan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-4) It removes the special checking of KDSKBENT/KDSKBSENT that was
-introduced into SELinux a long time ago.  I believe that checking
-CAP_SYS_TTY_CONFIG was added to the vt code (see
-drivers/char/vt_ioctl.c) a while back for those ioctls, such that the
-SELinux check is now redundant.  Also another example of a layering
-violation.
-
-5) If the ioctl command access mode bits are clear, then it still falls
-through to checking the IOCTL permission. So all operations remain
-mediated.
-
-Review and wider testing requested.
-
----<snip>---
-
-Simplify and improve the robustness of the SELinux ioctl checking by 
-using the "access mode" bits of the ioctl command to determine the 
-permission check rather than dealing with individual command values.
-This removes any knowledge of specific ioctl commands from SELinux
-and follows the same guidance we gave to Smack earlier.
-
----
-
- security/selinux/hooks.c |   48 +++++++----------------------------------------
- 1 file changed, 8 insertions(+), 40 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 59c6e98..88ddb46 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -42,9 +42,7 @@
- #include <linux/fdtable.h>
- #include <linux/namei.h>
- #include <linux/mount.h>
--#include <linux/ext2_fs.h>
- #include <linux/proc_fs.h>
--#include <linux/kd.h>
- #include <linux/netfilter_ipv4.h>
- #include <linux/netfilter_ipv6.h>
- #include <linux/tty.h>
-@@ -2871,46 +2869,16 @@ static void selinux_file_free_security(struct file *file)
- static int selinux_file_ioctl(struct file *file, unsigned int cmd,
- 			      unsigned long arg)
- {
--	int error = 0;
--
--	switch (cmd) {
--	case FIONREAD:
--	/* fall through */
--	case FIBMAP:
--	/* fall through */
--	case FIGETBSZ:
--	/* fall through */
--	case EXT2_IOC_GETFLAGS:
--	/* fall through */
--	case EXT2_IOC_GETVERSION:
--		error = file_has_perm(current, file, FILE__GETATTR);
--		break;
--
--	case EXT2_IOC_SETFLAGS:
--	/* fall through */
--	case EXT2_IOC_SETVERSION:
--		error = file_has_perm(current, file, FILE__SETATTR);
--		break;
--
--	/* sys_ioctl() checks */
--	case FIONBIO:
--	/* fall through */
--	case FIOASYNC:
--		error = file_has_perm(current, file, 0);
--		break;
-+	u32 av = 0;
- 
--	case KDSKBENT:
--	case KDSKBSENT:
--		error = task_has_capability(current, CAP_SYS_TTY_CONFIG);
--		break;
-+	if (_IOC_DIR(cmd) & _IOC_WRITE)
-+		av |= FILE__WRITE;
-+	if (_IOC_DIR(cmd) & _IOC_READ)
-+		av |= FILE__READ;
-+	if (!av)
-+		av = FILE__IOCTL;
- 
--	/* default case assumes that the command will go
--	 * to the file's ioctl() function.
--	 */
--	default:
--		error = file_has_perm(current, file, FILE__IOCTL);
--	}
--	return error;
-+	return file_has_perm(current, file, av);
- }
- 
- static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
-
--- 
-Stephen Smalley
-National Security Agency
-
+iEYEARECAAYFAkgkVg4ACgkQrlYvE4MpobPCvwCfa/iBjD3h2dFnEDvB39c8db0a
+ITAAn1ktC480Tvx6lgx01ufjPNeQGOxC
+=7O2c
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
