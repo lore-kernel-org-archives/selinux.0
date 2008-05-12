@@ -1,33 +1,47 @@
-Subject: Re: [RFC][PATCH] security:  split ptrace checking in proc
+Subject: Re: I think this is a bug in the kernel
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <Xine.LNX.4.64.0805121039170.22560@us.intercode.com.au>
-References: <1210358948.6434.244.camel@moss-spartans.epoch.ncsc.mil>
-	 <Xine.LNX.4.64.0805121039170.22560@us.intercode.com.au>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>
+In-Reply-To: <48283791.80709@redhat.com>
+References: <4824560E.8060500@redhat.com>  <48283791.80709@redhat.com>
 Content-Type: text/plain
-Date: Mon, 12 May 2008 08:47:29 -0400
-Message-Id: <1210596449.6206.32.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 12 May 2008 09:08:51 -0400
+Message-Id: <1210597731.6206.36.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 2008-05-12 at 10:39 +1000, James Morris wrote:
-> On Fri, 9 May 2008, Stephen Smalley wrote:
+On Mon, 2008-05-12 at 08:26 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> > This is a first cut at a patch to address the issue raised in:
-> > http://marc.info/?t=121034132000001&r=1&w=2
-> > which was first raised in:
-> > http://marc.info/?t=115937617100001&r=1&w=2
-> > 
-> > After we get agreement here on what we want for SELinux, I'll circulate
-> > it on lsm and lkml for wider discussion.
+> Daniel J Walsh wrote:
+> | https://bugzilla.redhat.com/show_bug.cgi?id=445709
+> |
+> | libvirtd is clearly not ptracing the unconfined_t domain.  It is
+> | problably looking under /proc for some information about the app that is
+> | communicating with it.  It might be reading unconfined_t environment.  I
+> | am not sure, but we generate a ptrace and stop the app from working.  My
+> | only choice is to allow virtd to ptrace unconfined_t processes which is
+> | not a good idea.  This has to be fixes in the kernel.
+> |
+> | Dan
 > 
-> Looks good to me.
+> The policykit developer informs me that
+> 
+> "PolicyKit is trying to resolve the /proc/<pid>/exe link for the
+> connecting client."
 
-Ok, I've posted this RFC to lsm and lkml now.
+Racy and unsafe, as previously noted.
+
+However, I did post a patch to split the ptrace checking in proc that
+should change SELinux to only checking <sourcedomain>
+<targetdomain>:file read; for access to those symlinks and environ like
+it used to do prior to 2.6.18.  See the separate thread.  So if you want
+to get that added to the F10/rawhide kernel, you can take that up with
+Eric.
 
 -- 
 Stephen Smalley
