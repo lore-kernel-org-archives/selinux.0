@@ -1,123 +1,30 @@
-Subject: Re: [PATCH-v3] libsepol: allow genfscon statements in modules
-From: Eric Paris <eparis@redhat.com>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, dwalsh@redhat.com
-In-Reply-To: <4829F4C4.4020306@manicmethod.com>
-References: <1210173297.3084.13.camel@localhost.localdomain>
-	 <4829F4C4.4020306@manicmethod.com>
-Content-Type: text/plain
-Date: Tue, 13 May 2008 16:26:10 -0400
-Message-Id: <1210710370.3118.15.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4DKjVLI010208
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 16:45:31 -0400
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4DKjUpR022193
+	for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 20:45:30 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so2317641fgg.40
+        for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 13:45:29 -0700 (PDT)
+Message-ID: <911f42990805131345o43ad62b5pd9aee31feb01e6a9@mail.gmail.com>
+Date: Tue, 13 May 2008 22:45:28 +0200
+From: "Jan-Frode Myklebust" <janfrode@tanso.net>
+To: selinux@tycho.nsa.gov
+Subject: RHEL5 initrc_t vs. unconfined_t
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-05-13 at 16:06 -0400, Joshua Brindle wrote:
-> > +static void free_genfs(genfs_t *genfs)
-> >   
-> 
-> I don't think this should go in link.c
-
-meaning what?  you want me to static inline it from a header file?
-Doesn't matter to me...
-> 
-> > +{
-> > +	ocontext_t *con;
-> > +	while (genfs) {
-> > +		con = genfs->head;
-> > +		while (con) {
-> > +			free(con->u.name);
-> > +			con->u.name = NULL;
-> > +			free(con);
-> > +			con = con->next;
-> > +		}
-> > +		genfs->head = NULL;
-> > +		free(genfs->fstype);
-> > +		genfs->fstype = NULL;
-> > +		genfs = genfs->next;
-> > +	}
-> > +}
-
-[snip]
-
-> > +		while (base_con->next) {
-> > +			base_len = strlen(base_con->next->u.name);
-> > +			if (len > base_len)
-> > +				break;
-> > +			base_con = base_con->next;
-> > +			if (len < base_len)
-> > +				continue;
-> > +			/* (len == base_len) */
-> > +			if (!strcmp(con->u.name, base_con->u.name) &&
-> > +			    ((!con->v.sclass || !base_con->v.sclass || con->v.sclass == base_con->v.sclass))) {
-> >   
-> 
-> I don't get this. Shouldn't it be ((!con->v.sclass && 
-> !base_con->v.sclass)) ... or am I missing something?
-
-I could make this more complex, but what I have is correct.
-
-If con->v.sclass is 0 that means this rule is supposed to cover all file
-types thus any rule already in base must overlap.  The converse is also
-true.  If the value in the base is 0 that means that this rule from the
-incoming module must already be covered by the rule in base.
-
-The last part says, if both the rule in the module and the rule in the
-base are non-zero we have an overlap if they are for the same file type.
-
-> > +		newgenfs = calloc(1, sizeof(genfs_t));
-> >   
-> 
-> initializer preferred over calloc()
-
-grummbles about getting memset backwards and calloc always being right.
+I'm running IBM's GPFS filesystem on RHEL5, and am having some
+problems with selinux blocking some ifconfig's the GPFS daemons wants
+to launch. GPFS works fine if launched manually, but not when started
+from the initscripts. So, is there any way to say that this initscript
+should run unconfined, instead of as initrc_t where things might
+transition to other domains ?
 
 
-> > +		if (!newgenfs) {
-> > +			ERR(state->handle, "Out of memory!");
-> > +			return -ENOMEM;
-> > +		}
-> > +		newgenfs->fstype = strdup(genfs->fstype);
-> > +		if (!newgenfs->fstype) {
-> > +			free_genfs(newgenfs);
-> > +			ERR(state->handle, "Out of memory!");
-> > +			return -ENOMEM;
-> > +		}
-> > +
-> > +		l = NULL;
-> > +		for (c = genfs->head; c; c = c->next) {
-> > +			newc = calloc(1, sizeof(ocontext_t));
-> >   
-> 
-> ditto
-
-grummble grubble, fine.
-
-> > @@ -2202,8 +2435,19 @@ int link_modules(sepol_handle_t * handle
-> >  	for (i = 0; i < len; i++) {
-> >  		state.cur = modules[i];
-> >  		state.cur_mod_name = modules[i]->policy->name;
-> > -		ret =
-> > -		    copy_identifiers(&state, modules[i]->policy->symtab, NULL);
-> > +		ret = copy_identifiers(&state, modules[i]->policy->symtab, NULL);
-> > +		if (ret) {
-> > +			retval = ret;
-> > +			goto cleanup;
-> > +		}
-> > +	}
-> > +
-> > +	/* copy genfs_context stuff into base */
-> > +	for (i = 0; i < len; i++) {
-> > +		state.cur = modules[i];
-> > +		state.cur_mod_name = modules[i]->policy->name;
-> > +
-> > +		ret = genfs_context_copy_helper(&state);
-> >   
-> 
-> Why isn't this part of copy_module?
-
-No good reason.  I can put it there (and should have)
-
+  -jf
 
 --
 This message was distributed to subscribers of the selinux mailing list.
