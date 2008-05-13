@@ -1,74 +1,459 @@
-Subject: Re: [PATCH] selinux:  fix sleeping allocation in
-	security_context_to_sid (Was: + selinux-dopey-hack.patch added to -mm tree)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <20080513092150.c819e1fc.akpm@linux-foundation.org>
-References: <200805130810.m4D8ACbM032389@imap1.linux-foundation.org>
-	 <1210688804.6206.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080513092150.c819e1fc.akpm@linux-foundation.org>
-Content-Type: text/plain
-Date: Tue, 13 May 2008 13:01:46 -0400
-Message-Id: <1210698106.6206.188.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4829F4C4.4020306@manicmethod.com>
+Date: Tue, 13 May 2008 16:06:28 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Eric Paris <eparis@redhat.com>
+CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, dwalsh@redhat.com
+Subject: Re: [PATCH-v3] libsepol: allow genfscon statements in modules
+References: <1210173297.3084.13.camel@localhost.localdomain>
+In-Reply-To: <1210173297.3084.13.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Eric Paris wrote:
+> This patch provides the libsepol support for the usage of genfscon
+> statements in policy modules.  The module must declare/require all of
+> the components of the context associated with the declaration but the
+> actual validation of that context is delayed until link time.
+>
+> Comments and criticism appreciated.  (note that this patch may require
+> the recent bug fix from sds for mls_level_convert())
+>
+>   
 
-On Tue, 2008-05-13 at 09:21 -0700, Andrew Morton wrote:
-> On Tue, 13 May 2008 10:26:44 -0400 Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > On Tue, 2008-05-13 at 01:10 -0700, akpm@linux-foundation.org wrote:
-> > > From: Andrew Morton <akpm@linux-foundation.org>
-> > > 
-> > > BUG: sleeping function called from invalid context at mm/slab.c:3052
-> > > in_atomic():1, irqs_disabled():0
-> > > 3 locks held by S99local/2391:
-> > >  #0:  (&type->i_mutex_dir_key#4){--..}, at: [<c017973c>] do_lookup+0x72/0x146
-> > >  #1:  (&isec->lock){--..}, at: [<c01cc3e5>] inode_doinit_with_dentry+0x35/0x52f
-> > >  #2:  (policy_rwlock){..-?}, at: [<c01d7f89>] security_context_to_sid_core+0x5e/0x157
-> > > Pid: 2391, comm: S99local Not tainted 2.6.26-rc2 #1
-> > >  [<c011863c>] __might_sleep+0xde/0xe5
-> > >  [<c01706e5>] __kmalloc+0x52/0xd5
-> > >  [<c01d7d9f>] string_to_context_struct+0x2e/0x1ba
-> > >  [<c01d7fa3>] security_context_to_sid_core+0x78/0x157
-> > >  [<c01d80a5>] security_context_to_sid_default+0x10/0x12
-> > >  [<c01cc609>] inode_doinit_with_dentry+0x259/0x52f
-> > >  [<c01cc8f1>] selinux_d_instantiate+0x12/0x14
-> > 
-> > Please use this patch instead.
-> 
-> I'd rather not.
-> 
-> > Fix a sleeping function called from invalid context bug introduced by 
-> > the deferred mapping of contexts support, which restructured the code 
-> > into a helper and moved the locking to the caller.  Always use GFP_ATOMIC 
-> > for allocating copies of the context  and remove the gfp_flags argument as it
-> > is no longer used.  These allocations are generally small and transient.
-> > 
-> 
-> GFP_ATOMIC is bad.  It can fail and it drains page reserves for things
-> which actually need to use it.
-> 
-> It seems particualrly bad to use an unreliable mechanism in something
-> which is security-related.
-> 
-> Please reconsider.
+This work is appreciated, though I wonder if it is enough to just have 
+genfscon in modules or if they should be part of the optional block 
+grammar (and this part of the avrule_block struct, etc). This, of 
+course, would require a module version bump. Other comments below.
 
-I don't see a good alternative without replacing the policy rwlock with
-a different locking scheme.  Which is certainly something to investigate
-but will take longer (efforts were made in the past to convert to RCU
-but the results were not encouraging).  GFP_ATOMIC allocations certainly
-aren't new in that code path or elsewhere in the security server at
-times due to its own internal locking and at other times due to caller
-locking, and the code does handle allocation failure in a safe manner.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> ---
+>
+> Example module with genfscon statements:
+>
+> require {
+> 	user user_u;
+> 	role role_r;
+> 	type type2_t;
+> 	type type1_t;
+> 	sensitivity s0;
+> }
+>
+> genfscon proc /paris0000	user_u:role_r:type1_t:s0
+> genfscon proc /paris4444	user_u:role_r:type2_t:s0
+> genfscon proc /paris00000	user_u:role_r:type1_t:s0
+> genfscon proc /			user_u:role_r:type2_t:s0
+>
+>  src/link.c     |  244 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+>  src/policydb.c |   30 +++----
+>  2 files changed, 259 insertions(+), 15 deletions(-)
+>
+> diff -Naupr libsepol-2.0.26.orig/src/link.c libsepol-2.0.26/src/link.c
+> --- libsepol-2.0.26.orig/src/link.c	2008-03-27 13:20:03.000000000 -0400
+> +++ libsepol-2.0.26/src/link.c	2008-05-07 11:00:42.000000000 -0400
+> @@ -33,6 +33,7 @@
+>  #include <string.h>
+>  #include <assert.h>
+>  
+> +#include "context.h"
+>  #include "debug.h"
+>  
+>  #undef min
+> @@ -2120,6 +2125,234 @@ static int prepare_base(link_state_t * s
+>  	return 0;
+>  }
+>  
+> +/*
+> + * We are working under the assumption that these types now exist in base
+> + * at the very least it should have been taken care of by requires blocks
+> + * in the policy module or previously been copied into base by the previous
+> + * link time operations (so don't call this too early in the linking process
+> + */
+> +static int context_copy_and_validate(link_state_t *state, context_struct_t *dst, context_struct_t *src)
+> +{
+> +	user_datum_t *base_user_datum;
+> +	role_datum_t *base_role_datum;
+> +	type_datum_t *base_type_datum;
+> +	char *key;
+> +	int ret;
+> +
+> +	key = state->cur->policy->p_user_val_to_name[src->user - 1];
+> +	base_user_datum = hashtab_search(state->base->p_users.table, key);
+> +	assert(base_user_datum);
+> +	dst->user = base_user_datum->s.value;
+> +
+> +	key = state->cur->policy->p_role_val_to_name[src->role - 1];
+> +	base_role_datum = hashtab_search(state->base->p_roles.table, key);
+> +	assert(base_role_datum);
+> +	dst->role = base_role_datum->s.value;
+> +
+> +	key = state->cur->policy->p_type_val_to_name[src->type - 1];
+> +	base_type_datum = hashtab_search(state->base->p_types.table, key);
+> +	assert(base_type_datum);
+> +	dst->type = base_type_datum->s.value;
+> +
+> +	ret = mls_context_cpy(dst, src);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return context_is_valid(state->base, dst);
+> +}
+> +
+> +static void free_genfs(genfs_t *genfs)
+>   
 
-James or Eric - do you see a better alternative at present?
+I don't think this should go in link.c
 
--- 
-Stephen Smalley
-National Security Agency
+> +{
+> +	ocontext_t *con;
+> +	while (genfs) {
+> +		con = genfs->head;
+> +		while (con) {
+> +			free(con->u.name);
+> +			con->u.name = NULL;
+> +			free(con);
+> +			con = con->next;
+> +		}
+> +		genfs->head = NULL;
+> +		free(genfs->fstype);
+> +		genfs->fstype = NULL;
+> +		genfs = genfs->next;
+> +	}
+> +}
+> +
+> +/* merge 2 genfs sets with the same fstype, we also should free everything we
+> + * can if it goes badly */
+> +static int genfs_merge(link_state_t *state, genfs_t *genfs, genfs_t *base_genfs)
+> +{
+> +	ocontext_t *con, *next_con, *base_con, *prev;
+> +	int len, base_len;
+> +
+> +	assert(!strcmp(genfs->fstype, base_genfs->fstype));
+> +
+> +	con = genfs->head;
+> +
+> +	/*
+> +	 * this loop is a bit odd formed because I have a list of items in genfs
+> +	 * that I am trying to merge into the list of items in base_genfs.  So
+> +	 * we have to grab next_con before we start inserting the object into
+> +	 * the other list
+> +	 */
+> +	while (con) {
+> +		next_con = con->next;
+> +		base_con = base_genfs->head;
+> +
+> +		/* insert at head of list because list is blank */
+> +		if (!base_con) {
+> +			base_genfs->head = con;
+> +			con = next_con;
+> +			continue;
+> +		}
+> +
+> +		/* test against the first entry in the list */
+> +		len = strlen(con->u.name);
+> +		base_len = strlen(base_con->u.name);
+> +		/* longer name goes at the head */
+> +		if (len > base_len) {
+> +			con->next = base_con;
+> +			base_genfs->head = con;
+> +			con = next_con;
+> +			continue;
+> +		}
+> +
+> +		/*
+> +		 * walk the base_con list until we need to insert between
+> +		 * base_con and base_con->next
+> +		 */
+> +		while (base_con->next) {
+> +			base_len = strlen(base_con->next->u.name);
+> +			if (len > base_len)
+> +				break;
+> +			base_con = base_con->next;
+> +			if (len < base_len)
+> +				continue;
+> +			/* (len == base_len) */
+> +			if (!strcmp(con->u.name, base_con->u.name) &&
+> +			    ((!con->v.sclass || !base_con->v.sclass || con->v.sclass == base_con->v.sclass))) {
+>   
+
+I don't get this. Shouldn't it be ((!con->v.sclass && 
+!base_con->v.sclass)) ... or am I missing something?
+
+> +				ERR(state->handle, "dup genfs entry (%s,%s)", genfs->fstype, con->u.name);
+> +				/*
+> +				 * everything earlier in the list is now associated with
+> +				 * the base genfs, so we need to leave all of it alone and
+> +				 * let it get freed naturaly when we tear down the base.
+> +				 */
+> +				while (con) {
+> +					free(con->u.name);
+> +					prev = con;
+> +					con = con->next;
+> +					free(prev);
+> +				}
+> +				free(genfs->fstype);
+> +				free(genfs);
+> +				return -EINVAL;
+> +			}
+> +		}
+> +
+> +		if (!base_con->next || (len > base_len)) {
+> +			con->next = base_con->next;
+> +			base_con->next = con;
+> +			con = next_con;
+> +			continue;
+> +		} else {
+> +			assert(0);
+> +		}
+> +	}
+> +	/* free these since we are using the genfs and fstype already in the base */
+> +	free(genfs->fstype);
+> +	free(genfs);
+> +	return 0;
+> +}
+> +
+> +/* so this is going to merge genfs info from modules into the base policy */
+> +static int genfs_context_copy_helper(link_state_t *state)
+> +{
+> +	ocontext_t *c, *newc, *l;
+> +	genfs_t *genfs, *newgenfs, *base_genfs;
+> +	int cmp, ret;
+> +
+> +	for (genfs = state->cur->policy->genfs; genfs; genfs = genfs->next) {
+> +		/* build a newgenfs, we might free peices and parts
+> +		 * later if the base already had them */
+> +		newgenfs = calloc(1, sizeof(genfs_t));
+>   
+
+initializer preferred over calloc()
+
+> +		if (!newgenfs) {
+> +			ERR(state->handle, "Out of memory!");
+> +			return -ENOMEM;
+> +		}
+> +		newgenfs->fstype = strdup(genfs->fstype);
+> +		if (!newgenfs->fstype) {
+> +			free_genfs(newgenfs);
+> +			ERR(state->handle, "Out of memory!");
+> +			return -ENOMEM;
+> +		}
+> +
+> +		l = NULL;
+> +		for (c = genfs->head; c; c = c->next) {
+> +			newc = calloc(1, sizeof(ocontext_t));
+>   
+
+ditto
+
+> +			if (!newc) {
+> +				free_genfs(newgenfs);
+> +				ERR(state->handle, "Out of memory!");
+> +				return -ENOMEM;
+> +			}
+> +			newc->u.name = strdup(c->u.name);
+> +			if (!newc->u.name) {
+> +				free_genfs(newgenfs);
+> +				ERR(state->handle, "Out of memory!");
+> +				return -ENOMEM;
+> +			}
+> +			newc->v.sclass = c->v.sclass;
+> +			context_copy_and_validate(state, &newc->context[0], &c->context[0]);
+> +
+> +			if (l)
+> +				l->next = newc;
+> +			else
+> +				newgenfs->head = newc;
+> +			l = newc;
+> +		}
+> +
+> +		base_genfs = state->base->genfs;
+> +		/* base had no genfs, insert at front */
+> +		if (!base_genfs) {
+> +			state->base->genfs = newgenfs;
+> +			continue;
+> +		}
+> +		/* first base entry is after this entry, insert at front */
+> +		cmp = strcmp(newgenfs->fstype, base_genfs->fstype);
+> +		if (cmp < 0) {
+> +			newgenfs->next = base_genfs;
+> +			state->base->genfs = newgenfs;
+> +			continue;
+> +		} else if (cmp == 0) {
+> +			/* merge with head of list */
+> +			ret = genfs_merge(state, newgenfs, base_genfs);
+> +			if (ret)
+> +				return ret;
+> +			continue;
+> +		}
+> +		/* move down the list until we either need to be inserted between
+> +		 * base_genfs and base_genfs->next or we need to merge with
+> +		 * base_genfs->next */
+> +		while (base_genfs->next && (strcmp(newgenfs->fstype, base_genfs->next->fstype) > 0))
+> +			base_genfs = base_genfs->next;
+> +		/* insert between if appropiete */
+> +		if (!base_genfs->next || (strcmp(newgenfs->fstype, base_genfs->next->fstype) < 0)) {
+> +			newgenfs->next = base_genfs->next;
+> +			base_genfs->next = newgenfs;
+> +			continue;
+> +		}
+> +		/* this is the fun part, merge..... */
+> +		if (strcmp(newgenfs->fstype, base_genfs->next->fstype) == 0) {
+> +			ret = genfs_merge(state, newgenfs, base_genfs->next);
+> +			if (ret)
+> +				return ret;
+> +		} else {
+> +			assert(0);
+> +		}
+> +	}
+> +	return 0;
+> +}
+> +
+>  /* Link a set of modules into a base module. This process is somewhat
+>   * similar to an actual compiler: it requires a set of order dependent
+>   * steps.  The base and every module must have been indexed prior to
+> @@ -2202,8 +2435,19 @@ int link_modules(sepol_handle_t * handle
+>  	for (i = 0; i < len; i++) {
+>  		state.cur = modules[i];
+>  		state.cur_mod_name = modules[i]->policy->name;
+> -		ret =
+> -		    copy_identifiers(&state, modules[i]->policy->symtab, NULL);
+> +		ret = copy_identifiers(&state, modules[i]->policy->symtab, NULL);
+> +		if (ret) {
+> +			retval = ret;
+> +			goto cleanup;
+> +		}
+> +	}
+> +
+> +	/* copy genfs_context stuff into base */
+> +	for (i = 0; i < len; i++) {
+> +		state.cur = modules[i];
+> +		state.cur_mod_name = modules[i]->policy->name;
+> +
+> +		ret = genfs_context_copy_helper(&state);
+>   
+
+Why isn't this part of copy_module?
+
+>  		if (ret) {
+>  			retval = ret;
+>  			goto cleanup;
+> diff -Naupr libsepol-2.0.26.orig/src/policydb.c libsepol-2.0.26/src/policydb.c
+> --- libsepol-2.0.26.orig/src/policydb.c	2008-03-27 13:20:03.000000000 -0400
+> +++ libsepol-2.0.26/src/policydb.c	2008-05-07 10:53:52.000000000 -0400
+> @@ -1563,8 +1563,9 @@ static int mls_range_to_semantic(mls_ran
+>   * Read and validate a security context structure
+>   * from a policydb binary representation file.
+>   */
+> -static int context_read_and_validate(context_struct_t * c,
+> -				     policydb_t * p, struct policy_file *fp)
+> +static int context_read_and_validate(context_struct_t *c,
+> +				     policydb_t *p, struct policy_file *fp,
+> +				     uint32_t validate)
+>  {
+>  	uint32_t buf[3];
+>  	int rc;
+> @@ -1588,7 +1589,7 @@ static int context_read_and_validate(con
+>  		}
+>  	}
+>  
+> -	if (!policydb_context_isvalid(p, c)) {
+> +	if (validate && !policydb_context_isvalid(p, c)) {
+>  		ERR(fp->handle, "invalid security context");
+>  		context_destroy(c);
+>  		return -1;
+> @@ -2076,7 +2077,7 @@ static int ocontext_read(struct policydb
+>  					return -1;
+>  				c->sid[0] = le32_to_cpu(buf[0]);
+>  				if (context_read_and_validate
+> -				    (&c->context[0], p, fp))
+> +				    (&c->context[0], p, fp, 1))
+>  					return -1;
+>  				break;
+>  			case OCON_FS:
+> @@ -2093,10 +2094,10 @@ static int ocontext_read(struct policydb
+>  					return -1;
+>  				c->u.name[len] = 0;
+>  				if (context_read_and_validate
+> -				    (&c->context[0], p, fp))
+> +				    (&c->context[0], p, fp, 1))
+>  					return -1;
+>  				if (context_read_and_validate
+> -				    (&c->context[1], p, fp))
+> +				    (&c->context[1], p, fp, 1))
+>  					return -1;
+>  				break;
+>  			case OCON_PORT:
+> @@ -2107,7 +2108,7 @@ static int ocontext_read(struct policydb
+>  				c->u.port.low_port = le32_to_cpu(buf[1]);
+>  				c->u.port.high_port = le32_to_cpu(buf[2]);
+>  				if (context_read_and_validate
+> -				    (&c->context[0], p, fp))
+> +				    (&c->context[0], p, fp, 1))
+>  					return -1;
+>  				break;
+>  			case OCON_NODE:
+> @@ -2117,7 +2118,7 @@ static int ocontext_read(struct policydb
+>  				c->u.node.addr = le32_to_cpu(buf[0]);
+>  				c->u.node.mask = le32_to_cpu(buf[1]);
+>  				if (context_read_and_validate
+> -				    (&c->context[0], p, fp))
+> +				    (&c->context[0], p, fp, 1))
+>  					return -1;
+>  				break;
+>  			case OCON_FSUSE:
+> @@ -2134,7 +2135,7 @@ static int ocontext_read(struct policydb
+>  					return -1;
+>  				c->u.name[len] = 0;
+>  				if (context_read_and_validate
+> -				    (&c->context[0], p, fp))
+> +				    (&c->context[0], p, fp, 1))
+>  					return -1;
+>  				break;
+>  			case OCON_NODE6:{
+> @@ -2151,7 +2152,7 @@ static int ocontext_read(struct policydb
+>  						c->u.node6.mask[k] =
+>  						    le32_to_cpu(buf[k + 4]);
+>  					if (context_read_and_validate
+> -					    (&c->context[0], p, fp))
+> +					    (&c->context[0], p, fp, 1))
+>  						return -1;
+>  					break;
+>  				}
+> @@ -2173,6 +2174,10 @@ static int genfs_read(policydb_t * p, st
+>  	ocontext_t *l, *c, *newc = NULL;
+>  	int rc;
+>  
+> +	/* don't validate full contexts in modules, will do that at link
+> +	 * time later */
+> +	int validate = (p->policy_type != POLICY_MOD);
+> +
+>  	rc = next_entry(buf, fp, sizeof(uint32_t));
+>  	if (rc < 0)
+>  		goto bad;
+> @@ -2240,10 +2245,9 @@ static int genfs_read(policydb_t * p, st
+>  			if (rc < 0)
+>  				goto bad;
+>  			newc->v.sclass = le32_to_cpu(buf[0]);
+> -			if (context_read_and_validate(&newc->context[0], p, fp))
+> +			if (context_read_and_validate(&newc->context[0], p, fp, validate))
+>  				goto bad;
+> -			for (l = NULL, c = newgenfs->head; c;
+> -			     l = c, c = c->next) {
+> +			for (l = NULL, c = newgenfs->head; c; l = c, c = c->next) {
+>  				if (!strcmp(newc->u.name, c->u.name) &&
+>  				    (!c->v.sclass || !newc->v.sclass ||
+>  				     newc->v.sclass == c->v.sclass)) {
+>
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+>   
+
 
 
 --
