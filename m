@@ -1,30 +1,31 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4DKjVLI010208
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 16:45:31 -0400
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4DKjUpR022193
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 20:45:30 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so2317641fgg.40
-        for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 13:45:29 -0700 (PDT)
-Message-ID: <911f42990805131345o43ad62b5pd9aee31feb01e6a9@mail.gmail.com>
-Date: Tue, 13 May 2008 22:45:28 +0200
-From: "Jan-Frode Myklebust" <janfrode@tanso.net>
-To: selinux@tycho.nsa.gov
-Subject: RHEL5 initrc_t vs. unconfined_t
+Message-ID: <482A0789.5060504@manicmethod.com>
+Date: Tue, 13 May 2008 17:26:33 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Eric Paris <eparis@redhat.com>
+CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, dwalsh@redhat.com
+Subject: Re: [PATCH-v3] libsepol: allow genfscon statements in modules
+References: <1210173297.3084.13.camel@localhost.localdomain>	 <4829F4C4.4020306@manicmethod.com> <1210710370.3118.15.camel@localhost.localdomain>
+In-Reply-To: <1210710370.3118.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm running IBM's GPFS filesystem on RHEL5, and am having some
-problems with selinux blocking some ifconfig's the GPFS daemons wants
-to launch. GPFS works fine if launched manually, but not when started
-from the initscripts. So, is there any way to say that this initscript
-should run unconfined, instead of as initrc_t where things might
-transition to other domains ?
+Eric Paris wrote:
+> On Tue, 2008-05-13 at 16:06 -0400, Joshua Brindle wrote:
+>   
+>>> +static void free_genfs(genfs_t *genfs)
+>>>   
+>>>       
+>> I don't think this should go in link.c
+>>     
+>
+> meaning what?  you want me to static inline it from a header file?
+> Doesn't matter to me...
+>   
 
+IMO put it in policydb.c and change policydb_destroy to use it as well.
 
-  -jf
 
 --
 This message was distributed to subscribers of the selinux mailing list.
