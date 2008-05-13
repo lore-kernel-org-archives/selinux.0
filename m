@@ -1,44 +1,75 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4DFuhSx012927
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 11:56:43 -0400
-Received: from us.intercode.com.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4DFudZ3020341
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 15:56:40 GMT
-Received: from us.intercode.com.au (us.intercode.com.au [69.55.235.187])
-	by us.intercode.com.au (8.12.11.20060308/8.12.11) with ESMTP id m4DFub0g013567
-	for <selinux@tycho.nsa.gov>; Tue, 13 May 2008 08:56:39 -0700
-Date: Wed, 14 May 2008 01:56:36 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: selinux@tycho.nsa.gov
-Subject: ANN: SELinux Project Wiki migration
-Message-ID: <Xine.LNX.4.64.0805140130001.12950@us.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] selinux:  fix sleeping allocation in
+	security_context_to_sid (Was: + selinux-dopey-hack.patch added to -mm tree)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <20080513092150.c819e1fc.akpm@linux-foundation.org>
+References: <200805130810.m4D8ACbM032389@imap1.linux-foundation.org>
+	 <1210688804.6206.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <20080513092150.c819e1fc.akpm@linux-foundation.org>
+Content-Type: text/plain
+Date: Tue, 13 May 2008 13:01:46 -0400
+Message-Id: <1210698106.6206.188.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SELinux project wiki has been migrated to a new server.  The content 
-and most of the history was able to be retained, although it's likely best 
-to create the wiki user accounts again as there were only a few, and it 
-seems the safest way to do things (rather than messing directly with 
-database tables).
 
-http://selinuxproject.org/page/Main_Page
+On Tue, 2008-05-13 at 09:21 -0700, Andrew Morton wrote:
+> On Tue, 13 May 2008 10:26:44 -0400 Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > On Tue, 2008-05-13 at 01:10 -0700, akpm@linux-foundation.org wrote:
+> > > From: Andrew Morton <akpm@linux-foundation.org>
+> > > 
+> > > BUG: sleeping function called from invalid context at mm/slab.c:3052
+> > > in_atomic():1, irqs_disabled():0
+> > > 3 locks held by S99local/2391:
+> > >  #0:  (&type->i_mutex_dir_key#4){--..}, at: [<c017973c>] do_lookup+0x72/0x146
+> > >  #1:  (&isec->lock){--..}, at: [<c01cc3e5>] inode_doinit_with_dentry+0x35/0x52f
+> > >  #2:  (policy_rwlock){..-?}, at: [<c01d7f89>] security_context_to_sid_core+0x5e/0x157
+> > > Pid: 2391, comm: S99local Not tainted 2.6.26-rc2 #1
+> > >  [<c011863c>] __might_sleep+0xde/0xe5
+> > >  [<c01706e5>] __kmalloc+0x52/0xd5
+> > >  [<c01d7d9f>] string_to_context_struct+0x2e/0x1ba
+> > >  [<c01d7fa3>] security_context_to_sid_core+0x78/0x157
+> > >  [<c01d80a5>] security_context_to_sid_default+0x10/0x12
+> > >  [<c01cc609>] inode_doinit_with_dentry+0x259/0x52f
+> > >  [<c01cc8f1>] selinux_d_instantiate+0x12/0x14
+> > 
+> > Please use this patch instead.
+> 
+> I'd rather not.
+> 
+> > Fix a sleeping function called from invalid context bug introduced by 
+> > the deferred mapping of contexts support, which restructured the code 
+> > into a helper and moved the locking to the caller.  Always use GFP_ATOMIC 
+> > for allocating copies of the context  and remove the gfp_flags argument as it
+> > is no longer used.  These allocations are generally small and transient.
+> > 
+> 
+> GFP_ATOMIC is bad.  It can fail and it drains page reserves for things
+> which actually need to use it.
+> 
+> It seems particualrly bad to use an unreliable mechanism in something
+> which is security-related.
+> 
+> Please reconsider.
 
-(DNS may still be propagating).
+I don't see a good alternative without replacing the policy rwlock with
+a different locking scheme.  Which is certainly something to investigate
+but will take longer (efforts were made in the past to convert to RCU
+but the results were not encouraging).  GFP_ATOMIC allocations certainly
+aren't new in that code path or elsewhere in the security server at
+times due to its own internal locking and at other times due to caller
+locking, and the code does handle allocation failure in a safe manner.
 
-If you had an account on the wiki, or would like one please email myself 
-or Stephen Smalley to have one set up.
+James or Eric - do you see a better alternative at present?
 
-(Also, this new server will be available soon for more general developer 
-use, with shell accounts, email, mailing lists, git hosting, web/ftp 
-hosting, trac and similar -- it'll take a while to set up properly).
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
