@@ -1,43 +1,40 @@
-Subject: Re: [PATCH] selinux:  fix sleeping allocation in
-	security_context_to_sid (Was: + selinux-dopey-hack.patch added to -mm tree)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <20080514110650.add0aa7d.akpm@linux-foundation.org>
-References: <200805130810.m4D8ACbM032389@imap1.linux-foundation.org>
-	 <1210688804.6206.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080513092150.c819e1fc.akpm@linux-foundation.org>
-	 <1210698106.6206.188.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080513114018.5bfa7fb0.akpm@linux-foundation.org>
-	 <1210774363.6206.344.camel@moss-spartans.epoch.ncsc.mil>
-	 <1210775635.6206.354.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080514110650.add0aa7d.akpm@linux-foundation.org>
-Content-Type: text/plain
-Date: Wed, 14 May 2008 14:55:10 -0400
-Message-Id: <1210791310.28282.53.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4EJkouF016365
+	for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 15:46:50 -0400
+Received: from fk-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4EJkmwE007574
+	for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 19:46:49 GMT
+Received: by fk-out-0910.google.com with SMTP id 18so43166fks.2
+        for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 12:46:47 -0700 (PDT)
+Message-ID: <911f42990805141246r16c20dqf8effdc48b901dd1@mail.gmail.com>
+Date: Wed, 14 May 2008 21:46:47 +0200
+From: "Jan-Frode Myklebust" <janfrode@tanso.net>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Subject: Re: RHEL5 initrc_t vs. unconfined_t
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <482AFDFB.4080404@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <911f42990805131345o43ad62b5pd9aee31feb01e6a9@mail.gmail.com>
+	 <482AEBA8.7090604@redhat.com>
+	 <20080514144243.GA21546@lc4eb8045376502.ibm.com>
+	 <482AFDFB.4080404@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, May 14, 2008 at 4:58 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>
+> The one to be concerned about is mounting of the unlabeled_t file
+> system.  This looks like you have a file system that SELinux does not
+> know about?
 
-On Wed, 2008-05-14 at 11:06 -0700, Andrew Morton wrote:
-> On Wed, 14 May 2008 10:33:55 -0400 Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > Fix a sleeping function called from invalid context bug by moving allocation
-> > to the callers prior to taking the policy rdlock.
-> 
-> Looks good to me, from a quick peek.  If it passes testing please
-> submit for 2.6.26 (if 2.6.26 needs it, which I think it does)..
 
-AFAIK, it is only applicable to James' for-akpm branch, where a prior
-patch targeted 2.6.27 introduced the bug in the first place.  So
-shouldn't affect 2.6.26 at all.
+Yes, GPFS doesn't support the selinux extended attributes, so the
+filesystems has to be mounted with f.ex. "-o
+"fscontext=user_u:object_r:httpd_var_run_t" for static labelling.
 
--- 
-Stephen Smalley
-National Security Agency
 
+  -jf
 
 --
 This message was distributed to subscribers of the selinux mailing list.
