@@ -1,79 +1,41 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4EMgQAV013561
-	for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 18:42:26 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4EMgQuf016699
-	for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 22:42:26 GMT
-Message-ID: <482B6AA6.3050500@redhat.com>
-Date: Wed, 14 May 2008 18:41:42 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Date: Thu, 15 May 2008 09:55:03 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Andrew Morton <akpm@linux-foundation.org>, selinux@tycho.nsa.gov,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: [PATCH] selinux:  fix sleeping allocation in security_context_to_sid
+ (Was: + selinux-dopey-hack.patch added to -mm tree)
+In-Reply-To: <1210775635.6206.354.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0805150954100.21686@us.intercode.com.au>
+References: <200805130810.m4D8ACbM032389@imap1.linux-foundation.org>
+ <1210688804.6206.141.camel@moss-spartans.epoch.ncsc.mil>
+ <20080513092150.c819e1fc.akpm@linux-foundation.org>
+ <1210698106.6206.188.camel@moss-spartans.epoch.ncsc.mil>
+ <20080513114018.5bfa7fb0.akpm@linux-foundation.org>
+ <1210774363.6206.344.camel@moss-spartans.epoch.ncsc.mil>
+ <1210775635.6206.354.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Jan-Frode Myklebust <janfrode@tanso.net>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: RHEL5 initrc_t vs. unconfined_t
-References: <911f42990805131345o43ad62b5pd9aee31feb01e6a9@mail.gmail.com> <482AEBA8.7090604@redhat.com> <20080514144243.GA21546@lc4eb8045376502.ibm.com> <482AFDFB.4080404@redhat.com> <911f42990805141246r16c20dqf8effdc48b901dd1@mail.gmail.com> <482B6434.4050300@redhat.com> <20080514223129.GA29418@lc4eb8045376502.ibm.com>
-In-Reply-To: <20080514223129.GA29418@lc4eb8045376502.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 14 May 2008, Stephen Smalley wrote:
 
-Jan-Frode Myklebust wrote:
-| On Wed, May 14, 2008 at 06:14:12PM -0400, Daniel J Walsh wrote:
-|> |
-|> | Yes, GPFS doesn't support the selinux extended attributes, so the
-|> | filesystems has to be mounted with f.ex. "-o
-|> | "fscontext=user_u:object_r:httpd_var_run_t" for static labelling.
-|> |
-|
-|> The other ones are just leaked file descriptors and can be ignored.
-|
-| So what about the mount/umount and everything else GPFS might want to
-| do in the lifetime of the system. I have no way of guessing all things
-| it might want to do that could possibly be denied in a transitioning
-| domain. Is my only option to manually start the fs from an interactive
-| shell to get it running as unconfined ?
-|
-|
-|   -jf
-You might be able to use the runcon command, or write a simple policy
-modules for it.
+> Fix a sleeping function called from invalid context bug by moving allocation
+> to the callers prior to taking the policy rdlock.
+> 
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Something like
+Applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
 
-...
-
-# cat myapp.te
-policy_module(myapp, 1.0)
-
-type myapp_t;
-type myapp_exec_t;
-init_daemon_domain(myapp_t, myapp_exec_t)
-
-unconfined_domains(myapp_exec_t)
-
-#cat myapp.fc
-
-/usr/bin/myapp  gen_context("system_u:object_r:myapp_exec_t:s0)
+Andrew, you'll need to drop selinux-dopey-hack.patch before merging this.
 
 
-
-# make -f /usr/share/selinux/devel/Makefile
-# semodule -i myapp.pp
-
-
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkgraqYACgkQrlYvE4MpobP68gCgoBRwcHg1+xGq++qyZCT6bhf+
-YTEAn2kGm+rkgq/3uwGz9J77c8hysijo
-=vF4t
------END PGP SIGNATURE-----
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
