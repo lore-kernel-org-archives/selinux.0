@@ -4,47 +4,53 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: selinux@tycho.nsa.gov, jmorris@namei.org,
         Eric Paris <eparis@parisplace.org>
-In-Reply-To: <20080513114018.5bfa7fb0.akpm@linux-foundation.org>
+In-Reply-To: <1210774363.6206.344.camel@moss-spartans.epoch.ncsc.mil>
 References: <200805130810.m4D8ACbM032389@imap1.linux-foundation.org>
 	 <1210688804.6206.141.camel@moss-spartans.epoch.ncsc.mil>
 	 <20080513092150.c819e1fc.akpm@linux-foundation.org>
 	 <1210698106.6206.188.camel@moss-spartans.epoch.ncsc.mil>
 	 <20080513114018.5bfa7fb0.akpm@linux-foundation.org>
+	 <1210774363.6206.344.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Wed, 14 May 2008 10:12:43 -0400
-Message-Id: <1210774363.6206.344.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 14 May 2008 10:33:55 -0400
+Message-Id: <1210775635.6206.354.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-05-13 at 11:40 -0700, Andrew Morton wrote:
-> On Tue, 13 May 2008 13:01:46 -0400 Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> 
-> > > > Fix a sleeping function called from invalid context bug introduced by 
-> > > > the deferred mapping of contexts support, which restructured the code 
-> > > > into a helper and moved the locking to the caller.  Always use GFP_ATOMIC 
-> > > > for allocating copies of the context  and remove the gfp_flags argument as it
-> > > > is no longer used.  These allocations are generally small and transient.
-> > > > 
-> > > 
-> > > GFP_ATOMIC is bad.  It can fail and it drains page reserves for things
-> > > which actually need to use it.
-> > > 
-> > > It seems particualrly bad to use an unreliable mechanism in something
-> > > which is security-related.
-> > > 
-> > > Please reconsider.
-> > 
-> > I don't see a good alternative without replacing the policy rwlock with
-> > a different locking scheme. 
-> 
-> There are, afacit, only two kmallocs there, and their sizes are both
-> known before we do the POLICY_RDLOCK.
-> 
-> So can't we just perform those kmallocs before taking POLICY_RDLOCK? 
-> That'll mean adding another arg to string_to_context_struct().
 
-Ok, let's try this instead then.
+On Wed, 2008-05-14 at 10:12 -0400, Stephen Smalley wrote:
+> On Tue, 2008-05-13 at 11:40 -0700, Andrew Morton wrote:
+> > On Tue, 13 May 2008 13:01:46 -0400 Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > 
+> > > > > Fix a sleeping function called from invalid context bug introduced by 
+> > > > > the deferred mapping of contexts support, which restructured the code 
+> > > > > into a helper and moved the locking to the caller.  Always use GFP_ATOMIC 
+> > > > > for allocating copies of the context  and remove the gfp_flags argument as it
+> > > > > is no longer used.  These allocations are generally small and transient.
+> > > > > 
+> > > > 
+> > > > GFP_ATOMIC is bad.  It can fail and it drains page reserves for things
+> > > > which actually need to use it.
+> > > > 
+> > > > It seems particualrly bad to use an unreliable mechanism in something
+> > > > which is security-related.
+> > > > 
+> > > > Please reconsider.
+> > > 
+> > > I don't see a good alternative without replacing the policy rwlock with
+> > > a different locking scheme. 
+> > 
+> > There are, afacit, only two kmallocs there, and their sizes are both
+> > known before we do the POLICY_RDLOCK.
+> > 
+> > So can't we just perform those kmallocs before taking POLICY_RDLOCK? 
+> > That'll mean adding another arg to string_to_context_struct().
+> 
+> Ok, let's try this instead then.
+
+Ah, but we can skip the second copy entirely if !force, so the patch
+below would be less wasteful.
 
 Fix a sleeping function called from invalid context bug by moving allocation
 to the callers prior to taking the policy rdlock.
@@ -53,11 +59,11 @@ Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
 ---
 
- security/selinux/ss/services.c |   68 ++++++++++++++++++++++-------------------
- 1 file changed, 38 insertions(+), 30 deletions(-)
+ security/selinux/ss/services.c |   70 +++++++++++++++++++++++------------------
+ 1 file changed, 40 insertions(+), 30 deletions(-)
 
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index b86ac9d..010f203 100644
+index b86ac9d..40255f6 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
 @@ -730,15 +730,16 @@ int security_sid_to_context_force(u32 sid, char **scontext, u32 *scontext_len)
@@ -123,11 +129,11 @@ index b86ac9d..010f203 100644
  					u32 *sid, u32 def_sid, gfp_t gfp_flags,
  					int force)
  {
-+	char *scontext2, *str;
++	char *scontext2, *str = NULL;
  	struct context context;
  	int rc = 0;
  
-@@ -839,27 +831,36 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
+@@ -839,27 +831,38 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
  		for (i = 1; i < SECINITSID_NUM; i++) {
  			if (!strcmp(initial_sid_to_string[i], scontext)) {
  				*sid = i;
@@ -148,11 +154,13 @@ index b86ac9d..010f203 100644
 +	memcpy(scontext2, scontext, scontext_len);
 +	scontext2[scontext_len] = 0;
 +
-+	/* And save another copy for possible storage in uninterpreted form */
-+	str = kstrdup(scontext2, gfp_flags);
-+	if (!str) {
-+		kfree(scontext2);
-+		return -ENOMEM;
++	if (force) {
++		/* Save another copy for storing in uninterpreted form */
++		str = kstrdup(scontext2, gfp_flags);
++		if (!str) {
++			kfree(scontext2);
++			return -ENOMEM;
++		}
 +	}
 +
  	POLICY_RDLOCK;
@@ -175,7 +183,7 @@ index b86ac9d..010f203 100644
  	} else if (rc)
  		goto out;
  	rc = sidtab_context_to_sid(&sidtab, &context, sid);
-@@ -867,6 +868,8 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
+@@ -867,6 +870,8 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
  		context_destroy(&context);
  out:
  	POLICY_RDUNLOCK;
@@ -184,7 +192,7 @@ index b86ac9d..010f203 100644
  	return rc;
  }
  
-@@ -1339,9 +1342,14 @@ static int convert_context(u32 key,
+@@ -1339,9 +1344,14 @@ static int convert_context(u32 key,
  
  	if (c->str) {
  		struct context ctx;
@@ -202,7 +210,6 @@ index b86ac9d..010f203 100644
  		if (!rc) {
  			printk(KERN_INFO
  		       "SELinux:  Context %s became valid (mapped).\n",
-
 
 -- 
 Stephen Smalley
