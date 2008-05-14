@@ -1,220 +1,49 @@
-Subject: Re: [PATCH] selinux:  fix sleeping allocation in
-	security_context_to_sid (Was: + selinux-dopey-hack.patch added to -mm tree)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1210774363.6206.344.camel@moss-spartans.epoch.ncsc.mil>
-References: <200805130810.m4D8ACbM032389@imap1.linux-foundation.org>
-	 <1210688804.6206.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080513092150.c819e1fc.akpm@linux-foundation.org>
-	 <1210698106.6206.188.camel@moss-spartans.epoch.ncsc.mil>
-	 <20080513114018.5bfa7fb0.akpm@linux-foundation.org>
-	 <1210774363.6206.344.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 14 May 2008 10:33:55 -0400
-Message-Id: <1210775635.6206.354.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4EEhW1L017470
+	for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 10:43:32 -0400
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4EEhVTh000454
+	for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 14:43:31 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so2594985fgg.40
+        for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 07:43:30 -0700 (PDT)
+Date: Wed, 14 May 2008 16:42:43 +0200
+From: Jan-Frode Myklebust <janfrode@tanso.net>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: RHEL5 initrc_t vs. unconfined_t
+Message-ID: <20080514144243.GA21546@lc4eb8045376502.ibm.com>
+References: <911f42990805131345o43ad62b5pd9aee31feb01e6a9@mail.gmail.com> <482AEBA8.7090604@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <482AEBA8.7090604@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, May 14, 2008 at 09:39:52AM -0400, Daniel J Walsh wrote:
+> The problem is exactly the opposite of what you are asking.
+> unconfined_t transitions to very few domains currently while initrc_t
+> transitions to many.  unconfined_t is a logged in user domain.  So I
+> would not run init scripts as unconfined_t.
 
-On Wed, 2008-05-14 at 10:12 -0400, Stephen Smalley wrote:
-> On Tue, 2008-05-13 at 11:40 -0700, Andrew Morton wrote:
-> > On Tue, 13 May 2008 13:01:46 -0400 Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > 
-> > > > > Fix a sleeping function called from invalid context bug introduced by 
-> > > > > the deferred mapping of contexts support, which restructured the code 
-> > > > > into a helper and moved the locking to the caller.  Always use GFP_ATOMIC 
-> > > > > for allocating copies of the context  and remove the gfp_flags argument as it
-> > > > > is no longer used.  These allocations are generally small and transient.
-> > > > > 
-> > > > 
-> > > > GFP_ATOMIC is bad.  It can fail and it drains page reserves for things
-> > > > which actually need to use it.
-> > > > 
-> > > > It seems particualrly bad to use an unreliable mechanism in something
-> > > > which is security-related.
-> > > > 
-> > > > Please reconsider.
-> > > 
-> > > I don't see a good alternative without replacing the policy rwlock with
-> > > a different locking scheme. 
-> > 
-> > There are, afacit, only two kmallocs there, and their sizes are both
-> > known before we do the POLICY_RDLOCK.
-> > 
-> > So can't we just perform those kmallocs before taking POLICY_RDLOCK? 
-> > That'll mean adding another arg to string_to_context_struct().
-> 
-> Ok, let's try this instead then.
+Please, please, pretty please, may I be allowed to run a critical filesystem
+and high availability solution unconfined until the vendors of these implement
+and certify them for selinux? ;-)
 
-Ah, but we can skip the second copy entirely if !force, so the patch
-below would be less wasteful.
+> The better answer is to fix the avc's that you are seeing when trying to
+> run ifconfig from initrc.  What avc's are you seeing?
 
-Fix a sleeping function called from invalid context bug by moving allocation
-to the callers prior to taking the policy rdlock.
+I haven't tried running in permissive, so there will likely be more than
+these, but that's what I've got right now:
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+type=AVC msg=audit(1210760976.747:24): avc:  denied  { read write } for pid=4739 comm="ifconfig" path="socket:[17163]" dev=sockfs ino=17163 scontext=user_u:system_r:ifconfig_t:s0 tcontext=user_u:system_r:initrc_t:s0 tclass=unix_stream_socket
+type=AVC msg=audit(1210758692.381:10): avc:  denied  { read } for pid=4137 comm="mount" path="eventpoll:[17363]" dev=eventpollfs ino=17363 scontext=system_u:system_r:mount_t:s0 tcontext=system_u:system_r:initrc_t:s0 tclass=file
+type=AVC msg=audit(1210758684.281:6): avc:  denied  { append } for pid=3763 comm="umount" path="/var/adm/ras/mmfs.log.2008.05.14.11.51.24.lagring2" dev=dm-2 ino=720912 scontext=system_u:system_r:mount_t:s0 tcontext=system_u:object_r:var_t:s0 tclass=file
+type=AVC msg=audit(1210758692.378:9): avc:  denied  { relabelfrom } for pid=4136 comm="mount" scontext=system_u:system_r:mount_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=filesystem
+type=AVC msg=audit(1210758692.381:10): avc:  denied  { read } for  pid=4137 comm="mount" path="eventpoll:[17360]" dev=eventpollfs ino=17360 scontext=system_u:system_r:mount_t:s0 tcontext=system_u:system_r:initrc_t:s0 tclass=file
 
----
 
- security/selinux/ss/services.c |   70 +++++++++++++++++++++++------------------
- 1 file changed, 40 insertions(+), 30 deletions(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index b86ac9d..40255f6 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -730,15 +730,16 @@ int security_sid_to_context_force(u32 sid, char **scontext, u32 *scontext_len)
- 	return security_sid_to_context_core(sid, scontext, scontext_len, 1);
- }
- 
-+/*
-+ * Caveat:  Mutates scontext.
-+ */
- static int string_to_context_struct(struct policydb *pol,
- 				    struct sidtab *sidtabp,
--				    const char *scontext,
-+				    char *scontext,
- 				    u32 scontext_len,
- 				    struct context *ctx,
--				    u32 def_sid,
--				    gfp_t gfp_flags)
-+				    u32 def_sid)
- {
--	char *scontext2 = NULL;
- 	struct role_datum *role;
- 	struct type_datum *typdatum;
- 	struct user_datum *usrdatum;
-@@ -747,19 +748,10 @@ static int string_to_context_struct(struct policydb *pol,
- 
- 	context_init(ctx);
- 
--	/* Copy the string so that we can modify the copy as we parse it. */
--	scontext2 = kmalloc(scontext_len+1, gfp_flags);
--	if (!scontext2) {
--		rc = -ENOMEM;
--		goto out;
--	}
--	memcpy(scontext2, scontext, scontext_len);
--	scontext2[scontext_len] = 0;
--
- 	/* Parse the security context. */
- 
- 	rc = -EINVAL;
--	scontextp = (char *) scontext2;
-+	scontextp = (char *) scontext;
- 
- 	/* Extract the user. */
- 	p = scontextp;
-@@ -809,7 +801,7 @@ static int string_to_context_struct(struct policydb *pol,
- 	if (rc)
- 		goto out;
- 
--	if ((p - scontext2) < scontext_len) {
-+	if ((p - scontext) < scontext_len) {
- 		rc = -EINVAL;
- 		goto out;
- 	}
-@@ -822,7 +814,6 @@ static int string_to_context_struct(struct policydb *pol,
- 	}
- 	rc = 0;
- out:
--	kfree(scontext2);
- 	return rc;
- }
- 
-@@ -830,6 +821,7 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
- 					u32 *sid, u32 def_sid, gfp_t gfp_flags,
- 					int force)
- {
-+	char *scontext2, *str = NULL;
- 	struct context context;
- 	int rc = 0;
- 
-@@ -839,27 +831,38 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
- 		for (i = 1; i < SECINITSID_NUM; i++) {
- 			if (!strcmp(initial_sid_to_string[i], scontext)) {
- 				*sid = i;
--				goto out;
-+				return 0;
- 			}
- 		}
- 		*sid = SECINITSID_KERNEL;
--		goto out;
-+		return 0;
- 	}
- 	*sid = SECSID_NULL;
- 
-+	/* Copy the string so that we can modify the copy as we parse it. */
-+	scontext2 = kmalloc(scontext_len+1, gfp_flags);
-+	if (!scontext2)
-+		return -ENOMEM;
-+	memcpy(scontext2, scontext, scontext_len);
-+	scontext2[scontext_len] = 0;
-+
-+	if (force) {
-+		/* Save another copy for storing in uninterpreted form */
-+		str = kstrdup(scontext2, gfp_flags);
-+		if (!str) {
-+			kfree(scontext2);
-+			return -ENOMEM;
-+		}
-+	}
-+
- 	POLICY_RDLOCK;
- 	rc = string_to_context_struct(&policydb, &sidtab,
--				      scontext, scontext_len,
--				      &context, def_sid, gfp_flags);
-+				      scontext2, scontext_len,
-+				      &context, def_sid);
- 	if (rc == -EINVAL && force) {
--		context.str = kmalloc(scontext_len+1, gfp_flags);
--		if (!context.str) {
--			rc = -ENOMEM;
--			goto out;
--		}
--		memcpy(context.str, scontext, scontext_len);
--		context.str[scontext_len] = 0;
-+		context.str = str;
- 		context.len = scontext_len;
-+		str = NULL;
- 	} else if (rc)
- 		goto out;
- 	rc = sidtab_context_to_sid(&sidtab, &context, sid);
-@@ -867,6 +870,8 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
- 		context_destroy(&context);
- out:
- 	POLICY_RDUNLOCK;
-+	kfree(scontext2);
-+	kfree(str);
- 	return rc;
- }
- 
-@@ -1339,9 +1344,14 @@ static int convert_context(u32 key,
- 
- 	if (c->str) {
- 		struct context ctx;
--		rc = string_to_context_struct(args->newp, NULL, c->str,
--					      c->len, &ctx, SECSID_NULL,
--					      GFP_KERNEL);
-+		s = kstrdup(c->str, GFP_KERNEL);
-+		if (!s) {
-+			rc = -ENOMEM;
-+			goto out;
-+		}
-+		rc = string_to_context_struct(args->newp, NULL, s,
-+					      c->len, &ctx, SECSID_NULL);
-+		kfree(s);
- 		if (!rc) {
- 			printk(KERN_INFO
- 		       "SELinux:  Context %s became valid (mapped).\n",
-
--- 
-Stephen Smalley
-National Security Agency
-
+  -jf
 
 --
 This message was distributed to subscribers of the selinux mailing list.
