@@ -1,38 +1,38 @@
-Date: Thu, 15 May 2008 09:55:03 +1000 (EST)
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4F0c95g026998
+	for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 20:38:09 -0400
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4F0c74Y021268
+	for <selinux@tycho.nsa.gov>; Thu, 15 May 2008 00:38:08 GMT
+Date: Thu, 15 May 2008 10:37:47 +1000 (EST)
 From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Andrew Morton <akpm@linux-foundation.org>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: [PATCH] selinux:  fix sleeping allocation in security_context_to_sid
- (Was: + selinux-dopey-hack.patch added to -mm tree)
-In-Reply-To: <1210775635.6206.354.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0805150954100.21686@us.intercode.com.au>
-References: <200805130810.m4D8ACbM032389@imap1.linux-foundation.org>
- <1210688804.6206.141.camel@moss-spartans.epoch.ncsc.mil>
- <20080513092150.c819e1fc.akpm@linux-foundation.org>
- <1210698106.6206.188.camel@moss-spartans.epoch.ncsc.mil>
- <20080513114018.5bfa7fb0.akpm@linux-foundation.org>
- <1210774363.6206.344.camel@moss-spartans.epoch.ncsc.mil>
- <1210775635.6206.354.camel@moss-spartans.epoch.ncsc.mil>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: keep the code clean formating and syntax
+In-Reply-To: <1210778865.3216.13.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0805151037340.21686@us.intercode.com.au>
+References: <1210778865.3216.13.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 14 May 2008, Stephen Smalley wrote:
+On Wed, 14 May 2008, Eric Paris wrote:
 
-> Fix a sleeping function called from invalid context bug by moving allocation
-> to the callers prior to taking the policy rdlock.
+> Formatting and syntax changes
 > 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> whitespace, tabs to spaces, trailing space
+> put open { on same line as struct def
+> remove unneeded {} after if statements
+> change printk("Lu") to printk("llu")
+> convert asm/uaccess.h to linux/uaacess.h includes
+> remove unnecessary asm/bug.h includes
+> convert all users of simple_strtol to strict_strtol
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Applied to 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/selinux-2.6.git#for-akpm
+Applied to for-akpm.
 
-Andrew, you'll need to drop selinux-dopey-hack.patch before merging this.
-
-
-- James
 -- 
 James Morris
 <jmorris@namei.org>
