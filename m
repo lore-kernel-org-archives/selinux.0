@@ -1,41 +1,37 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4F0c95g026998
-	for <selinux@tycho.nsa.gov>; Wed, 14 May 2008 20:38:09 -0400
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4F0c74Y021268
-	for <selinux@tycho.nsa.gov>; Thu, 15 May 2008 00:38:08 GMT
-Date: Thu, 15 May 2008 10:37:47 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: keep the code clean formating and syntax
-In-Reply-To: <1210778865.3216.13.camel@localhost.localdomain>
-Message-ID: <Xine.LNX.4.64.0805151037340.21686@us.intercode.com.au>
-References: <1210778865.3216.13.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4GCElXF022617
+	for <selinux@tycho.nsa.gov>; Fri, 16 May 2008 08:14:47 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m4GCEkns022509
+	for <selinux@tycho.nsa.gov>; Fri, 16 May 2008 12:14:46 GMT
+Subject: rbacsep: RFC cron jobs execute under user domain
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Fri, 16 May 2008 08:14:17 -0400
+Message-Id: <1210940057.11188.73.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 14 May 2008, Eric Paris wrote:
+I think this has been talked about a little, but I'd like some feedback
+on having cron jobs execute directly in the user domain rather than in a
+special cron job domain.  Was there a specific reason cron jobs were not
+done this way from the start?
 
-> Formatting and syntax changes
-> 
-> whitespace, tabs to spaces, trailing space
-> put open { on same line as struct def
-> remove unneeded {} after if statements
-> change printk("Lu") to printk("llu")
-> convert asm/uaccess.h to linux/uaacess.h includes
-> remove unnecessary asm/bug.h includes
-> convert all users of simple_strtol to strict_strtol
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+To be more specific, right now cron jobs will execute under
+user_crond_t, staff_crond_t, etc.  My thought is to have them run under
+user_t, staff_t, etc.  It seems logical since that tends to be how users
+see cron jobs: running as the user/having the same permissions as the
+user.
 
-Applied to for-akpm.
+The system cron jobs (system_crond_t) would be unchanged.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
