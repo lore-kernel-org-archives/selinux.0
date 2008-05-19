@@ -1,85 +1,77 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4JMPB8w008585
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:25:11 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4JMP9vM019970
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 22:25:10 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4JMOc1D008474
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:38 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4JMObBI020426
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 22:24:38 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m4JMP9HM001791
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:25:09 -0400
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m4JMObbQ001359
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:38 -0400
 Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4JMP9Pc003647
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:25:09 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4JMObCn002891
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:37 -0400
 Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m4JMP8NX026856
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:25:09 -0400
-Message-ID: <4831FE5B.1060600@redhat.com>
-Date: Mon, 19 May 2008 18:25:31 -0400
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m4JMOb2m026480
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:37 -0400
+Message-ID: <4831FE3C.1090603@redhat.com>
+Date: Mon, 19 May 2008 18:25:00 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: new domain for policy kit
+Subject: New domain for qemu
 Content-Type: multipart/mixed;
- boundary="------------050109090901040008060100"
+ boundary="------------000003060403020909080906"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------050109090901040008060100
+--------------000003060403020909080906
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 
 
---------------050109090901040008060100
+--------------000003060403020909080906
 Content-Type: application/x-gzip;
- name="services_polkit.patch.gz"
+ name="system_qemu.patch.gz"
 Content-Transfer-Encoding: base64
 Content-Disposition: inline;
- filename="services_polkit.patch.gz"
+ filename="system_qemu.patch.gz"
 
-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
-qmL14Kea8W6GsoT/AwTfHMzPKwAA
---------------050109090901040008060100--
+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
+DWaA6SsXIAAA
+--------------000003060403020909080906--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
