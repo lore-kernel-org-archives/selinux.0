@@ -1,65 +1,70 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4JMP1mq008549
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:25:01 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4JMP0vM019907
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 22:25:00 GMT
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4JMOPtU008443
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:25 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4JMOOBI020322
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 22:24:24 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m4JMP0FH001450
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:25:00 -0400
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m4JMOOG2001302
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:24 -0400
 Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4JMOxNu003200
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:59 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4JMOO7d002840
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:24 -0400
 Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m4JMOxtv026503
-	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:59 -0400
-Message-ID: <4831FE52.6020008@redhat.com>
-Date: Mon, 19 May 2008 18:25:22 -0400
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m4JMOO8T026477
+	for <selinux@tycho.nsa.gov>; Mon, 19 May 2008 18:24:24 -0400
+Message-ID: <4831FE2F.5020802@redhat.com>
+Date: Mon, 19 May 2008 18:24:47 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: new domain for gnomeclock
+Subject: New policy for kerneloops
 Content-Type: multipart/mixed;
- boundary="------------070502020802050609030009"
+ boundary="------------060603020308090103060309"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------070502020802050609030009
+--------------060603020308090103060309
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 
 
---------------070502020802050609030009
+--------------060603020308090103060309
 Content-Type: application/x-gzip;
- name="services_gnomeclock.patch.gz"
+ name="services_kerneloops.patch.gz"
 Content-Transfer-Encoding: base64
 Content-Disposition: inline;
- filename="services_gnomeclock.patch.gz"
+ filename="services_kerneloops.patch.gz"
 
-H4sICCmmMUgAA3NlcnZpY2VzX2dub21lY2xvY2sucGF0Y2gAtVdtb9s2EP4s/QqiDRAHsmzJ
-jrtayYoM64B9HNB+GwaWpiibq0RqJJXEG/rfeyQtW7blLA5Sw7Be+Nxzp7uHd/KnZvE3oyZD
-f/7xy+dff/8LKVbUsuR0nSHN1D2nTOOlkBWjpaRfEV0RsWQ6jGPDHg0qZFnKB43MimtUcsHi
-GJZiJDQB65ZqvDlUMm9Kpsct8XhHPCpokM7fzeN0Ek9TlM6zJIHvKGk/KE5mSRJGUYQ6zPF0
-dD1Kn8k/SZL3wBKnc5Sm2fRdNpmNZukcvp7/Gvjv7uBkmKAoHU7R3V0YhdG40Wpc8gV7ZNQz
-xo4yJnVdMhODB0gK11UQx8GSCUylsMkZ6LU2rMJNJl2Oscp28WDLhs1QJ1fg42Up48WPTRnw
-96Zs8n6WXvem7KfZJmdv36Jb3VQVUesP3hNIRaEd+e24Xfbw5332ie1V8BvksTEMEZTLinCB
-jCJCc8MlnEqkGtHxOvIE4y4Duq2JIhUSpGI/v/Ekbz70ePro+YlVPMst+c5VP/HYMduLMOKg
-CVUQygZfOioAd47kcvgljJx4FPun4QpQcB2Ydc064WNzE0bo4HOI8cICYHBppRUFrQ9cEwMx
-iMFFOjwWYtcL2HnbV6lMp3vY8qz27vh8DxERuTNy2XUgXTPKCw6ZVrJk/Xbn1TN4sp6Egvy1
-x52s4wG7jayX+zNE68OWaMF2mjn5EM/3CSWsuCDlSb9OELJwzmwMl9CeNzb/5+qUTGEXnaHQ
-Vng9OgftwVrgUnMxcaHqI/Mc+idpcm72VtDFNKMrhQsOtuoB22fCNfzom1eR6ycmcitDmICU
-8XuGKpADgVmHCiUrB+mUTt4zhfJFo19fgi8tko0Gwygy55QqoCXR2j0JDAmR40ovOyX02/Ei
-3bPLjtAetl+t9AgGnC8bdIb92EEH/L2DbprO0qR30M38oPPc2HMPdozDdAThXZ2lR/iij2AO
-ZbYTRbtbYdRXtZMt30lg89rhZTfomg6Pja7O3DU2ys42gB9SIp8Gt9qjBM3KIqOkJgtecrNG
-/yGIEAsogjsxvPInNXQIuPft5jRLraTdIUCxZAammbJHTVewd6yZDc7tDWh1iMqqasCLyyaC
-11NZGCag5wqGGs3FEhW8kG7HA+wRafADZKPT3i1+237scdt+TllYYqyNYqTCnh9RuDBs/+aW
-J4yohPZT5b46i4P6uWI1oGCo7SZdGFxje0sfI22IGnoAATpDXcRHqA4GXnP7MWFUcU09siIC
-eiJ2def/utwewnfg1qt//XjKBgIBANcGcyENL9ZFTxSkMSv7rFho/cANXR1D4DVdO0iZQ24P
-17erekUUy7G9fuphXVqeDruthoNuawHlhSIfo2VtWUiJ/Y5xfRn+LWgYh1+52XXwQ8vL09b7
-4/XZdnDqPLbvhja3h9YtyKeBL3rZvwP6dXSZQQ4AAA==
---------------070502020802050609030009--
+H4sICCmmMUgAA3NlcnZpY2VzX2tlcm5lbG9vcHMucGF0Y2gA1Vhbb9s2FH6Wf8VBE6ApFF+U
+S1e7WZGgHbC9DWjfhoGlqSOHi0RqJJUmG/rfd0jasSxfGqfLgBkpZIkfv0Od6+d+bKZ/oHAT
++O3Xq0/vf/4dDBa1LqW4n4BFcysFWnaDRmGpdW1BXHM1Q9vr9x3eOSh0WeovFty1tFBKhf0+
+LfVBWU67F1TD+aXSeVOiHS6Ih0viQSGSbPx63M9O+qcZZOPJaER/g9HiA/3R+WjUS9MUWsz9
+08HZIHsk/8lo9IZY+tkYsmxy+npycj44H4/OxmeRny69y0v6cjyCNDs+g8vLXtpLh401QzuV
+qkWX9PvJDBUTWnk/HNl767BizUQHdzIzWWIZ3qFg7tiOXgU6dGJoxCAfSiUdXZ7IaoWRtWuT
+P83xsnhexxP/Zsefno1HGx2fnZzPXX9wABe2qSpu7t9FU5RxBpbsF8PFcoQ/7rNK7O+Sn8iN
+jUPgkOuKSwXOcGWlk5q+ajCNalkdRIJhmwEuam54BYpX+OOLSPLi3QZLHyI/94WDuSdfmtpM
+PAzM/qaXSsoMU3CBR59buUDmAsnL48+9NKSQwT8baQhF94m7r7F1fObe9lLofLqYmFcETF6G
+tE0WNljNHZ1BHR1mx+tJ3rZC++LefyUyrSbk0wwN+ChdryxEt+8XnmTV3CdiDL7QRWCvjaaE
+tlCT27WppJrFZsfFQ8CS/QM2L94947ZS8q3Q+EbSpWS2RtGJ0cr+h+h8R2w+osqB0z+DAuUt
+QkWu4jQfoDC6CpBWdLQPWj5t9qyfZGf9cOHD89Q4+NMwmmluj8pJElFyygi/l1JR5ayys1Y0
+wsngMFvZN1lDR1gbQ3vWYN8dopxmCW9y6cCXbVU761vO/z9wi9d6lhAunfbNMC6hzx7Kq7Jc
+dCXjxy3M3zMMEZ5Tb5KWap96ZYDz9sgCVLfSaFWhcv95EDv0Rpe4tff6Rf8+U2yPyIorys4d
+7f7x1imbyFO8fFT3b2jUwGLHIwz50wteD3elbojUPsm6s68s5tPfUFPsBYKVMzoro3lVWZih
+o7I38NXzGOQ5KyRlTnuGr9Ct3pHdZKEPwhGePKEO4Gq93XldhdZx44Kvec0FXeYakjZtn5d0
+7ldRklD82Vwmx58m3jZ1OZrNc5APCWupucOTrQeGOZNZ9mdCtx6GIn6azHb4vDKb+DfL7POz
+N+ONMvv8h6CyIzeL3EdLxuNsQMfbt2fRH3xA6q7Uh8jbNjzqpZvyeqvinIfVrx910jEonZxj
+pRWLsKOt6fsgc9ZNddO0LaC6ZruiaW93tBpWqQUvIXo8rG4QARbLYkI9hE9lKd29Tz+mKNpv
+t6OXPcCis1REuS/8+OVrSNsD+IVeEeK7ABVKTj/WZw+upjbHQrPyqvYWWZHbruc9R4BQcwGh
+q6qhQ4UYA6lhXThU1I+Vb5leIxey0EFgEOwOrBY3dKDB9lfw+NCbwHwJ19jAdry0J2Y075BX
+LPKDoBuHqw+/yaPQkS9umNGN3xuZDFs87rD0UqEN0iIjPuqF4tYLJtaokk+xxLzrto1oz+3h
+28BO1MwLB78h7JTFo6FK57gWvK3oWhu3Ez2VpF+unasDdBdSaKX8f1JsBffSOHvCGEIn4iha
+R8UHEWYol9i0KQo068BSTm1I3TKnMHXXH1btNSeNxPz9Bg49m3kbQadRqdG9l2trZHNYOBRN
+QTRSMHq4gbGSVrReNJS8/CtUyjqYLHr/5fR7zasT2mJ1ebvW9nqpDiPNz/XQPML0Dcp3Pp2C
+CC4lqTvmVX5JddDu5d2pHkXzPGJLiq7dML3/AaH54PojFAAA
+--------------060603020308090103060309--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
