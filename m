@@ -1,38 +1,84 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4LGouVM020238
-	for <selinux@tycho.nsa.gov>; Wed, 21 May 2008 12:50:56 -0400
-Received: from g1t0028.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4LGofmg026244
-	for <selinux@tycho.nsa.gov>; Wed, 21 May 2008 16:50:43 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: "Takesi satoh" <t_mail@mail2Airport.com>
-Subject: Re: netif and node check in RHEL5
-Date: Wed, 21 May 2008 12:50:38 -0400
-Cc: selinux@tycho.nsa.gov
-References: <0a1101c8bb47$d12c4270$036a010a@mail2world.com>
-In-Reply-To: <0a1101c8bb47$d12c4270$036a010a@mail2world.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200805211250.38460.paul.moore@hp.com>
+Subject: [PATCH] selinux:  enable processes with mac_admin to get the raw
+	inode contexts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Content-Type: text/plain
+Date: Wed, 21 May 2008 14:16:12 -0400
+Message-Id: <1211393772.7486.392.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 21 May 2008 9:37:30 am Takesi satoh wrote:
-> I wonder that whether node and netif are checked in RHEL5 or not.
+Enable processes with CAP_MAC_ADMIN + mac_admin permission in policy
+to get undefined contexts on inodes.  This extends the support for
+deferred mapping of security contexts in order to permit restorecon
+and similar programs to see the raw file contexts unknown to the
+system policy in order to check them.
 
-Hello,
 
-I believe RHEL5 makes use of secmark controls instead of the node/netif 
-checks (the RH folks can correct me if I am wrong).  You can enable the 
-node/netif checks in place of secmark if you want by 
-enabling "compat_net" ...
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
- # echo 1 > /selinux/compat_net
+---
+
+ security/selinux/hooks.c |   27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 4be1563..91b666a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2754,9 +2754,7 @@ static int selinux_inode_removexattr(struct dentry *dentry, const char *name)
+ }
+ 
+ /*
+- * Copy the in-core inode security context value to the user.  If the
+- * getxattr() prior to this succeeded, check to see if we need to
+- * canonicalize the value to be finally returned to the user.
++ * Copy the inode security context value to the user.
+  *
+  * Permission check is handled by selinux_inode_getxattr hook.
+  */
+@@ -2765,12 +2763,33 @@ static int selinux_inode_getsecurity(const struct inode *inode, const char *name
+ 	u32 size;
+ 	int error;
+ 	char *context = NULL;
++	struct task_security_struct *tsec = current->security;
+ 	struct inode_security_struct *isec = inode->i_security;
+ 
+ 	if (strcmp(name, XATTR_SELINUX_SUFFIX))
+ 		return -EOPNOTSUPP;
+ 
+-	error = security_sid_to_context(isec->sid, &context, &size);
++	/*
++	 * If the caller has CAP_MAC_ADMIN, then get the raw context
++	 * value even if it is not defined by current policy; otherwise,
++	 * use the in-core value under current policy.
++	 * Use the non-auditing forms of the permission checks since
++	 * getxattr may be called by unprivileged processes commonly
++	 * and lack of permission just means that we fall back to the
++	 * in-core context value, not a denial.
++	 */
++	error = secondary_ops->capable(current, CAP_MAC_ADMIN);
++	if (!error)
++		error = avc_has_perm_noaudit(tsec->sid, tsec->sid,
++					     SECCLASS_CAPABILITY2,
++					     CAPABILITY2__MAC_ADMIN,
++					     0,
++					     NULL);
++	if (!error)
++		error = security_sid_to_context_force(isec->sid, &context,
++						      &size);
++	else
++		error = security_sid_to_context(isec->sid, &context, &size);
+ 	if (error)
+ 		return error;
+ 	error = size;
 
 -- 
-paul moore
-linux @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
