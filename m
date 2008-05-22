@@ -1,54 +1,85 @@
-Subject: Re: refpolicy: syscall init_module needs sys_nice & setsched
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Martin Orr <martin@martinorr.name>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Chris PeBenito <pebenito@gentoo.org>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <20080522122919.GA32485@bobek.pm.i.cz>
-References: <1197949627.4790.4.camel@defiant.pebenito.net>
-	 <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil>
-	 <476988ED.4070003@martinorr.name>
-	 <1199374256.12626.292.camel@gorn.columbia.tresys.com>
-	 <47673B12.6040205@tycho.nsa.gov>
-	 <1197949627.4790.4.camel@defiant.pebenito.net>
-	 <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil>
-	 <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil>
-	 <476988ED.4070003@martinorr.name>  <20080522122919.GA32485@bobek.pm.i.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 22 May 2008 14:29:46 -0400
-Message-Id: <1211480986.11188.152.camel@gorn>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4MKGsrb012665
+	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 16:16:54 -0400
+Received: from dmzmta102.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4MKGqF0027835
+	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 20:16:53 GMT
+Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
+	by dmzmta102.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m4MKFX2C015876
+	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 16:15:35 -0400
+Received: from blums0042.bluelnk.net ([134.120.81.54])
+	by usdmta001.na.baesystems.com (Switch-3.2.0/Switch-3.2.0) with ESMTP id m4MKGjWl009995
+	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 16:16:46 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: overriding home directory file contexts
+Date: Thu, 22 May 2008 13:16:47 -0700
+Message-ID: <0794F277152EF94AA637E3AECF5CB70FB9DD15@blums0042.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-05-22 at 14:29 +0200, Václav Ovsík wrote:
-> while playing with current Debian Sid, Linux 2.6.25 I noticed, denials
-> on modprobe:
-> 
-> May 22 07:26:11 sid kernel: [    9.195474] type=1400 audit(1211433957.144:3): avc:  denied  { sys_nice } for  pid=801 comm="modprobe" capability=23 scontext=system_u:system_r:insmod_t:s0-s0:c0.c1023 tcontext=system_u:system_r:insmod_t:s0-s0:c0.c1023 tclass=capability
-> May 22 07:26:11 sid kernel: [    9.198362] type=1400 audit(1211433957.144:3): avc:  denied  { setsched } for  pid=801 comm="modprobe" scontext=system_u:system_r:insmod_t:s0-s0:c0.c1023 tcontext=system_u:system_r:kernel_t:s0 tclass=process
-> 
-> After a longer investigation with git-bisect I found, that above
-> denials appeared after kernel commit:
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=85653af7d488702165eba72c6c1dd0250fae4e70
-> A function stop_machine() (from kernel/stop_machine.c) was changed in
-> this commit in such a way, that system calls init_module()
-> & delete_module() needs sys_nice & setsched. I did'n try to understand
-> code too much (consequences of this commit).
-> 
-> I found in the history of SE Linux mailing list Martin Orr sent a patch
-> already. (The correspondence attached.)
-> The Martins patch is available at URL:
-> http://www.martinorr.name/selinux/patches/151_module_setsched
 
-I added that and comments as to why its needed.
+There seems to be a very strong preference by the policy to label files
+and directories under a home directory to user_home_t. I would like to
+override that for a particular directory structure.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+I have the following directory with many other files and directories
+below it:
+/opt/home/oracle/product/10.2.0
+
+Many of files are libraries, which I would like to label lib_t and
+shlib_t. As a specific example I have the following two files:
+
+# ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
+-r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+/opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
+-r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+/opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
+
+If I add the following file context line to my policy without any regex
+wildcard chars, it works. The libsqlplus.so file is properly labeled as
+shlib_t.
+
+/opt/home/oracle/product/10\.2\.0/lib32/libsqlplus\.so --
+gen_context(system_u:object_r:shlib_t,__SYSTEMLOW__)
+
+# ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
+-r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+/opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
+-r-xr-xr-x  oracle oinstall system_u:object_r:shlib_t:SystemLow
+/opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
+
+However, if I add any regex wildcard chars, the label reverts back to
+the default user_home_t context. For example, with the following
+modification to the above file context line:
+
+/opt/home/oracle/product/10\.2\.0/lib32/libsqlplus.*\.so --
+gen_context(system_u:object_r:shlib_t,__SYSTEMLOW__)
+
+# ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
+-r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+/opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
+-r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+/opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
+
+Being that this is a large directory structure with lots of files, I do
+not want to have to label each one explicitly, without the use of regex
+wildcards. 
+
+My understanding is that the policy should apply the most specific file
+context line. But that does not appear to be what is happening in this
+case. Is there some way to override this strong preference to label
+files under a home directory as user_home_t?
+
+I'm using the rhel5.1 mls policy
+
+Any help would be greatly appreciated.
+
+Thanks,
+  Mike
 
 
 
