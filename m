@@ -1,55 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4ME0Xth010522
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 10:00:33 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4ME0TCZ006628
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 14:00:29 GMT
-Message-ID: <48357C8D.5040408@redhat.com>
-Date: Thu, 22 May 2008 10:00:45 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Date: Thu, 22 May 2008 14:29:19 +0200
+From: =?iso-8859-2?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+To: SELinux List <selinux@tycho.nsa.gov>
+Cc: Martin Orr <martin@martinorr.name>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Chris PeBenito <pebenito@gentoo.org>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: refpolicy: syscall init_module needs sys_nice & setsched
+Message-ID: <20080522122919.GA32485@bobek.pm.i.cz>
+References: <1197949627.4790.4.camel@defiant.pebenito.net> <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil> <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil> <476988ED.4070003@martinorr.name> <1199374256.12626.292.camel@gorn.columbia.tresys.com> <47673B12.6040205@tycho.nsa.gov> <1197949627.4790.4.camel@defiant.pebenito.net> <1197984841.7967.5.camel@moss-spartans.epoch.ncsc.mil> <1197986223.7967.17.camel@moss-spartans.epoch.ncsc.mil> <476988ED.4070003@martinorr.name>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Suggested global change to policy
-References: <483446D5.3050300@redhat.com> <1211462263.11188.95.camel@gorn>
-In-Reply-To: <1211462263.11188.95.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/mixed; boundary="M9NhX3UHpAaciwkO"
+In-Reply-To: <477D1A9D.7000900@martinorr.name> <1199374256.12626.292.camel@gorn.columbia.tresys.com> <476988ED.4070003@martinorr.name>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Wed, 2008-05-21 at 11:59 -0400, Daniel J Walsh wrote:
->> Remove all init programs calls to
->> sysadm_dontaudit_list_home_dirs and put that call in the
->>
->> init_system_domain and init_daemon_domain
-> 
-Well the whole cause of this avc is apps doing a getcwd() call when they
-start up.  Which seems to be build into glibc?  Or just executables in
-Linux.  So any app that gets started by an administrator sitting in the
-/root directory requires this dontaudit rule.  If you look though the
-policy this rule is everywhere for both types of init domains.
 
-> I might be able to buy that for the latter, but I don't see it for the
-> former.
-> 
->> That way we can think about making role/sysadm a module.
->>
->> Of course I believe the /root should have a special context of
->> admin_home_t and not be affected by whether or not you have sysadm
->> policy defined.
-> 
-> In the RBAC separation branch I was planning to have all the roles have
-> the same home directory type anyway (owned by the userdomain module).
-> If it ends up that we still need to have a type-based separation between
-> unpriv user and admin user home directories, then it will end up being
-> as you suggest above.
-> 
-As long as they are different.  Allowing any confined app to write to
-/root should be heavily constrained while writing to random users home
-directories is a lot more common.
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-the words "unsubscribe selinux" without quotes as the message.
+Hi,
+while playing with current Debian Sid, Linux 2.6.25 I noticed, denials
+on modprobe:
+
+May 22 07:26:11 sid kernel: [    9.195474] type=1400 audit(1211433957.144:3): avc:  denied  { sys_nice } for  pid=801 comm="modprobe" capability=23 scontext=system_u:system_r:insmod_t:s0-s0:c0.c1023 tcontext=system_u:system_r:insmod_t:s0-s0:c0.c1023 tclass=capability
+May 22 07:26:11 sid kernel: [    9.198362] type=1400 audit(1211433957.144:3): avc:  denied  { setsched } for  pid=801 comm="modprobe" scontext=system_u:system_r:insmod_t:s0-s0:c0.c1023 tcontext=system_u:system_r:kernel_t:s0 tclass=process
+
+After a longer investigation with git-bisect I found, that above
+denials appeared after kernel commit:
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=85653af7d488702165eba72c6c1dd0250fae4e70
+A function stop_machine() (from kernel/stop_machine.c) was changed in
+this commit in such a way, that system calls init_module()
+& delete_module() needs sys_nice & setsched. I did'n try to understand
+code too much (consequences of this commit).
+
+I found in the history of SE Linux mailing list Martin Orr sent a patch
+already. (The correspondence attached.)
+The Martins patch is available at URL:
+http://www.martinorr.name/selinux/patches/151_module_setsched
+
+Can be Martins patch merged?
+Thanks
+-- 
+Zito
+
+--M9NhX3UHpAaciwkO
+Content-Type: message/rfc822
+Content-Disposition: attachment; filename=m1
+
+
+
+--M9NhX3UHpAaciwkO--
