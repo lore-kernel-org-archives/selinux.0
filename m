@@ -1,62 +1,156 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4NFsT7e000436
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 11:54:29 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4NFsSLq013250
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 15:54:29 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m4NFsSRZ003355
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 11:54:28 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m4NFsR0v009362
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 11:54:28 -0400
-Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m4NFsRnJ025883
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 11:54:27 -0400
-Message-ID: <4836E8CD.2030806@redhat.com>
-Date: Fri, 23 May 2008 11:54:53 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4NH6JNX012643
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 13:06:19 -0400
+Received: from icweb02oc.mail2world.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4NH6IKd013884
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 17:06:18 GMT
+From: "Takesi satoh" <t_mail@mail2Airport.com>
+To: <paul.moore@hp.com>
+Cc: <selinux@tycho.nsa.gov>
+Subject: Re: netif and node check in RHEL5
+Date: Fri, 23 May 2008 10:05:40 -0700
+Message-ID: <0a0001c8bcf7$3aa64ba0$036a010a@mail2world.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: We need to do a better job of merging policy into Refpolicy
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0A01_01C8BCBC.8E4773A0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chris has done a brilliant job up to this point but I see my differences
-between the upstream growing astronomically.  This is causing other
-distributions to not be able to take advantage of SELinux use in Fedora
-and  similarly it is getting harder for me to merge in upstream changes.
+This is a multi-part message in MIME format.
 
-Currently the patch that I am applying to Refpolicy is huge
+------=_NextPart_000_0A01_01C8BCBC.8E4773A0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-# wc policy-20080509.patch
-38260   95488 1171253 policy-20080509.patch
+Hello Paul,
 
-And I don't see how we can get this merged without huge amounts of
-effort by me or Chris and neither of us have the time.
+Thank you for your reply,
+> # echo 1 > /selinux/compat_net
+It works fine!
+Again, thank you very much.
 
-I think we need a way for third parties to come in an peruse the diffs
-and apply the no brainer changes to policy.
+Regards,
+K
 
-We need the ability for a couple of acks to get minor changes in,
-without Chris having to look at each change.
 
-Most of my changes to policy come about via bugzilla's so I fix a
-problem reported by an AVC and update policy.   I have come up with a
-system of hundreds/thousands of small changes, but it does not make
-merging upstream easy.
 
-I also have made some grand sweeping changes in the same pool that Chris
-does not currently agree with or is moving in a slightly different
-direction (Roles Based Home Dirs)
+<-----Original Message-----> 
+>From: Paul Moore [paul.moore@hp.com]
+>Sent: 22/5/2008 1:53:38 AM
+>To: t_mail@mail2airport.com
+>Cc: selinux@tycho.nsa.gov
+>Subject: Re: netif and node check in RHEL5
+>
+>On Wednesday 21 May 2008 9:37:30 am Takesi satoh wrote:
+>> I wonder that whether node and netif are checked in RHEL5 or not.
+>
+>Hello,
+>
+>I believe RHEL5 makes use of secmark controls instead of the node/netif
+>checks (the RH folks can correct me if I am wrong). You can enable the 
+>node/netif checks in place of secmark if you want by 
+>enabling "compat_net" ...
+>
+> # echo 1 > /selinux/compat_net
+>
+>-- 
+>paul moore
+>linux @ hp
+>.
+> 
 
-So I guess I am saying help.
 
-Can we setup a system of policy Triages, which can look at the policy
-patches and apply small obvious changes?
+Click to make millions by owning your own franchise.
+<http://tagline.bidsystem.com/fc/Ioyw36XIjJ7iSBZ3r8Nw2oFv47LqDSMeEA0KgJL
+jwBELfau1cSYPrk/> 
 
-Dan
+
+
+<span id=m2wTl><p><font face="Arial, Helvetica, sans-serif" size="2" style="font-size:13.5px">_______________________________________________________________<BR>Get the FREE email that has everyone talking at <a href=http://www.mail2world.com target=new>http://www.mail2world.com</a><br>  <font color=#999999>Unlimited Email Storage &#150; POP3 &#150; Calendar &#150; SMS &#150; Translator &#150; Much More!</font></font></span>
+------=_NextPart_000_0A01_01C8BCBC.8E4773A0
+Content-Type: text/html
+Content-Transfer-Encoding: 7bit
+
+<HTML>
+<BODY>
+Hello Paul,<br>
+
+<br>
+
+Thank you for your reply,<br>
+
+&gt; # echo 1 &gt; /selinux/compat_net<br>
+
+It works fine!<br>
+
+Again, thank you very much.<br>
+
+<br>
+
+Regards,<br>
+
+K<br>
+
+<br>
+
+<br>
+
+<br>
+
+&lt;-----Original Message-----&gt; <br>
+
+&gt;From: Paul Moore [paul.moore@hp.com]<br>
+
+&gt;Sent: 22/5/2008 1:53:38 AM<br>
+
+&gt;To: t_mail@mail2airport.com<br>
+
+&gt;Cc: selinux@tycho.nsa.gov<br>
+
+&gt;Subject: Re: netif and node check in RHEL5<br>
+
+&gt;<br>
+
+&gt;On Wednesday 21 May 2008 9:37:30 am Takesi satoh wrote:<br>
+
+&gt;&gt; I wonder that whether node and netif are checked in RHEL5 or not.<br>
+
+&gt;<br>
+
+&gt;Hello,<br>
+
+&gt;<br>
+
+&gt;I believe RHEL5 makes use of secmark controls instead of the node/netif <br>
+
+&gt;checks (the RH folks can correct me if I am wrong).  You can enable the <br>
+
+&gt;node/netif checks in place of secmark if you want by <br>
+
+&gt;enabling "compat_net" ...<br>
+
+&gt;<br>
+
+&gt; # echo 1 &gt; /selinux/compat_net<br>
+
+&gt;<br>
+
+&gt;-- <br>
+
+&gt;paul moore<br>
+
+&gt;linux @ hp<br>
+
+&gt;.<br>
+
+&gt;
+</BODY></HTML>
+<br><br><div style="tag_ad_s_ord_66_99:ord_66;border-top: 1px #cccccc solid"><a target="_blank" style="FONT-SIZE: 13px; COLOR: #006599; FONT-FAMILY: Trebuchet MS" href="http://tagline.bidsystem.com/fc/Ioyw36XIjJ7iSBZ3r8Nw2oFv47LqDSMeEA0KgJLjwBELfau1cSYPrk/">Click to make millions by owning your own franchise.</a></div><br>
+
+<span id=m2wTl><p><font face="Arial, Helvetica, sans-serif" size="2" style="font-size:13.5px">_______________________________________________________________<BR>Get the FREE email that has everyone talking at <a href=http://www.mail2world.com target=new>http://www.mail2world.com</a><br>  <font color=#999999>Unlimited Email Storage &#150; POP3 &#150; Calendar &#150; SMS &#150; Translator &#150; Much More!</font></font></span>
+------=_NextPart_000_0A01_01C8BCBC.8E4773A0--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
