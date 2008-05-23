@@ -1,603 +1,172 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4MLZSnR027378
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 17:35:28 -0400
-Received: from g5t0007.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4MLZRF0005165
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 21:35:27 GMT
-Received: from g5t0030.atlanta.hp.com (g5t0030.atlanta.hp.com [16.228.8.142])
-	by g5t0007.atlanta.hp.com (Postfix) with ESMTP id B0DE514876
-	for <selinux@tycho.nsa.gov>; Thu, 22 May 2008 21:35:26 +0000 (UTC)
-Message-Id: <20080522213520.152108259@hp.com>
-References: <20080522213252.557433869@hp.com>
-Date: Thu, 22 May 2008 17:32:53 -0400
-From: Paul Moore <paul.moore@hp.com>
-To: selinux@tycho.nsa.gov
-Cc: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 1/1] REFPOL: Add new labeled networking permissions
+Subject: RE: overriding home directory file contexts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Chad Sellers <csellers@tresys.com>,
+        Karl MacMillan <kmacmillan@tresys.com>
+In-Reply-To: <0794F277152EF94AA637E3AECF5CB70FB9DD3C@blums0042.bluelnk.net>
+References: <0794F277152EF94AA637E3AECF5CB70FB9DD15@blums0042.bluelnk.net>
+	 <1211487975.7486.543.camel@moss-spartans.epoch.ncsc.mil>
+	 <0794F277152EF94AA637E3AECF5CB70FB9DD3C@blums0042.bluelnk.net>
+Content-Type: text/plain
+Date: Fri, 23 May 2008 08:21:52 -0400
+Message-Id: <1211545312.7486.569.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The 2.6.25 kernel introduced a new set of labeled networking controls to
-SELinux and this patch makes the necessary changes to the Reference Policy to
-support unlabeled network traffic with the new controls.
 
-A description of the new/improved labeled networking controls was posted to
-the SELinux list back in early January 2008.
+On Thu, 2008-05-22 at 14:19 -0700, Clarkson, Mike R (US SSA) wrote:
+> 
+> > -----Original Message-----
+> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
+> > Sent: Thursday, May 22, 2008 1:26 PM
+> > To: Clarkson, Mike R (US SSA)
+> > Cc: selinux@tycho.nsa.gov
+> > Subject: Re: overriding home directory file contexts
+> > 
+> > 
+> > On Thu, 2008-05-22 at 13:16 -0700, Clarkson, Mike R (US SSA) wrote:
+> > > There seems to be a very strong preference by the policy to label
+> files
+> > > and directories under a home directory to user_home_t. I would like
+> to
+> > > override that for a particular directory structure.
+> > >
+> > > I have the following directory with many other files and directories
+> > > below it:
+> > > /opt/home/oracle/product/10.2.0
+> > >
+> > > Many of files are libraries, which I would like to label lib_t and
+> > > shlib_t. As a specific example I have the following two files:
+> > >
+> > > # ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
+> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
+> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
+> > >
+> > > If I add the following file context line to my policy without any
+> regex
+> > > wildcard chars, it works. The libsqlplus.so file is properly labeled
+> as
+> > > shlib_t.
+> > >
+> > > /opt/home/oracle/product/10\.2\.0/lib32/libsqlplus\.so --
+> > > gen_context(system_u:object_r:shlib_t,__SYSTEMLOW__)
+> > >
+> > > # ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
+> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
+> > > -r-xr-xr-x  oracle oinstall system_u:object_r:shlib_t:SystemLow
+> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
+> > >
+> > > However, if I add any regex wildcard chars, the label reverts back
+> to
+> > > the default user_home_t context. For example, with the following
+> > > modification to the above file context line:
+> > >
+> > > /opt/home/oracle/product/10\.2\.0/lib32/libsqlplus.*\.so --
+> > > gen_context(system_u:object_r:shlib_t,__SYSTEMLOW__)
+> > >
+> > > # ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
+> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
+> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
+> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
+> > >
+> > > Being that this is a large directory structure with lots of files, I
+> do
+> > > not want to have to label each one explicitly, without the use of
+> regex
+> > > wildcards.
+> > >
+> > > My understanding is that the policy should apply the most specific
+> file
+> > > context line. But that does not appear to be what is happening in
+> this
+> > > case. Is there some way to override this strong preference to label
+> > > files under a home directory as user_home_t?
+> > >
+> > > I'm using the rhel5.1 mls policy
+> > >
+> > > Any help would be greatly appreciated.
+> > 
+> > Use semanage fcontext -a to add the entries to your
+> file_contexts.local
+> > file.  That will take precedence.
+> > 
+> 
+> Thanks. That helps.
+> 
+> There are some disadvantages to doing it this way though. 
+> 
+> Mainly, I can't use M4 macros to make the file context definition more
+> portable. For instance I usually do something like this to make it
+> easier to port the policy from one machine to another, where something
+> like the ORACLE_HOME path may change:
+> 
+> __DB_ORACLE_HOME__/lib/lib.+\.so.* --
+> gen_context(system_u:object_r:shlib_t,__SYSTEMLOW__)
+> 
+> Also, the semanage interface it harder to use than editing a file
+> directly, and it is less obvious to look in the file_contexts.local file
+> for oracle file context definitions than in the oracle_db.fc file
+> 
+> Is there any way to make the policy source *.fc files override the
+> file_contexts.homedirs file?
 
- * http://marc.info/?l=selinux&m=119991234501200&w=2
+Not at present, although we're open to suggestions.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
----
- policy/modules/kernel/corenetwork.if.in |   80 ++++++++++++++++++++------------
- policy/modules/kernel/corenetwork.if.m4 |   20 ++++----
- policy/modules/kernel/kernel.if         |   56 ++++++++++++++++++++++
- policy/modules/kernel/kernel.te         |    3 +
- 4 files changed, 119 insertions(+), 40 deletions(-)
+The current situation is that the file contexts configuration consists
+of three generated files (all managed by libsemanage and all read by
+libselinux):  file_contexts, file_contexts.homedirs, and
+file_contexts.local.
 
-Index: refpolicy_svn_repo/policy/modules/kernel/corenetwork.if.in
-===================================================================
---- refpolicy_svn_repo.orig/policy/modules/kernel/corenetwork.if.in
-+++ refpolicy_svn_repo/policy/modules/kernel/corenetwork.if.in
-@@ -154,7 +154,7 @@ interface(`corenet_tcp_sendrecv_generic_
- 		type netif_t;
- 	')
- 
--	allow $1 netif_t:netif { tcp_send tcp_recv };
-+	allow $1 netif_t:netif { tcp_send tcp_recv egress ingress };
- ')
- 
- ########################################
-@@ -172,7 +172,7 @@ interface(`corenet_udp_send_generic_if',
- 		type netif_t;
- 	')
- 
--	allow $1 netif_t:netif udp_send;
-+	allow $1 netif_t:netif { udp_send egress };
- ')
- 
- ########################################
-@@ -191,7 +191,7 @@ interface(`corenet_dontaudit_udp_send_ge
- 		type netif_t;
- 	')
- 
--	dontaudit $1 netif_t:netif udp_send;
-+	dontaudit $1 netif_t:netif { udp_send egress };
- ')
- 
- ########################################
-@@ -209,7 +209,7 @@ interface(`corenet_udp_receive_generic_i
- 		type netif_t;
- 	')
- 
--	allow $1 netif_t:netif udp_recv;
-+	allow $1 netif_t:netif { udp_recv ingress };
- ')
- 
- ########################################
-@@ -228,7 +228,7 @@ interface(`corenet_dontaudit_udp_receive
- 		type netif_t;
- 	')
- 
--	dontaudit $1 netif_t:netif udp_recv;
-+	dontaudit $1 netif_t:netif { udp_recv ingress };
- ')
- 
- ########################################
-@@ -277,7 +277,7 @@ interface(`corenet_raw_send_generic_if',
- 		type netif_t;
- 	')
- 
--	allow $1 netif_t:netif rawip_send;
-+	allow $1 netif_t:netif { rawip_send egress };
- ')
- 
- ########################################
-@@ -295,7 +295,7 @@ interface(`corenet_raw_receive_generic_i
- 		type netif_t;
- 	')
- 
--	allow $1 netif_t:netif rawip_recv;
-+	allow $1 netif_t:netif { rawip_recv ingress };
- ')
- 
- ########################################
-@@ -328,7 +328,7 @@ interface(`corenet_tcp_sendrecv_all_if',
- 		attribute netif_type;
- 	')
- 
--	allow $1 netif_type:netif { tcp_send tcp_recv };
-+	allow $1 netif_type:netif { tcp_send tcp_recv egress ingress };
- ')
- 
- ########################################
-@@ -346,7 +346,7 @@ interface(`corenet_udp_send_all_if',`
- 		attribute netif_type;
- 	')
- 
--	allow $1 netif_type:netif udp_send;
-+	allow $1 netif_type:netif { udp_send egress };
- ')
- 
- ########################################
-@@ -364,7 +364,7 @@ interface(`corenet_udp_receive_all_if',`
- 		attribute netif_type;
- 	')
- 
--	allow $1 netif_type:netif udp_recv;
-+	allow $1 netif_type:netif { udp_recv ingress };
- ')
- 
- ########################################
-@@ -397,7 +397,7 @@ interface(`corenet_raw_send_all_if',`
- 		attribute netif_type;
- 	')
- 
--	allow $1 netif_type:netif rawip_send;
-+	allow $1 netif_type:netif { rawip_send egress };
- ')
- 
- ########################################
-@@ -415,7 +415,7 @@ interface(`corenet_raw_receive_all_if',`
- 		attribute netif_type;
- 	')
- 
--	allow $1 netif_type:netif rawip_recv;
-+	allow $1 netif_type:netif { rawip_recv ingress };
- ')
- 
- ########################################
-@@ -448,7 +448,7 @@ interface(`corenet_tcp_sendrecv_generic_
- 		type node_t;
- 	')
- 
--	allow $1 node_t:node { tcp_send tcp_recv };
-+	allow $1 node_t:node { tcp_send tcp_recv sendto recvfrom };
- ')
- 
- ########################################
-@@ -466,7 +466,7 @@ interface(`corenet_udp_send_generic_node
- 		type node_t;
- 	')
- 
--	allow $1 node_t:node udp_send;
-+	allow $1 node_t:node { udp_send sendto };
- ')
- 
- ########################################
-@@ -484,7 +484,7 @@ interface(`corenet_udp_receive_generic_n
- 		type node_t;
- 	')
- 
--	allow $1 node_t:node udp_recv;
-+	allow $1 node_t:node { udp_recv recvfrom };
- ')
- 
- ########################################
-@@ -517,7 +517,7 @@ interface(`corenet_raw_send_generic_node
- 		type node_t;
- 	')
- 
--	allow $1 node_t:node rawip_send;
-+	allow $1 node_t:node { rawip_send sendto };
- ')
- 
- ########################################
-@@ -535,7 +535,7 @@ interface(`corenet_raw_receive_generic_n
- 		type node_t;
- 	')
- 
--	allow $1 node_t:node rawip_recv;
-+	allow $1 node_t:node { rawip_recv recvfrom };
- ')
- 
- ########################################
-@@ -604,7 +604,7 @@ interface(`corenet_tcp_sendrecv_all_node
- 		attribute node_type;
- 	')
- 
--	allow $1 node_type:node { tcp_send tcp_recv };
-+	allow $1 node_type:node { tcp_send tcp_recv sendto recvfrom };
- ')
- 
- ########################################
-@@ -622,7 +622,7 @@ interface(`corenet_udp_send_all_nodes',`
- 		attribute node_type;
- 	')
- 
--	allow $1 node_type:node udp_send;
-+	allow $1 node_type:node { udp_send sendto };
- ')
- 
- ########################################
-@@ -641,7 +641,7 @@ interface(`corenet_dontaudit_udp_send_al
- 		attribute node_type;
- 	')
- 
--	dontaudit $1 node_type:node udp_send;
-+	dontaudit $1 node_type:node { udp_send sendto };
- ')
- 
- ########################################
-@@ -659,7 +659,7 @@ interface(`corenet_udp_receive_all_nodes
- 		attribute node_type;
- 	')
- 
--	allow $1 node_type:node udp_recv;
-+	allow $1 node_type:node { udp_recv recvfrom };
- ')
- 
- ########################################
-@@ -678,7 +678,7 @@ interface(`corenet_dontaudit_udp_receive
- 		attribute node_type;
- 	')
- 
--	dontaudit $1 node_type:node udp_recv;
-+	dontaudit $1 node_type:node { udp_recv recvfrom };
- ')
- 
- ########################################
-@@ -727,7 +727,7 @@ interface(`corenet_raw_send_all_nodes',`
- 		attribute node_type;
- 	')
- 
--	allow $1 node_type:node rawip_send;
-+	allow $1 node_type:node { rawip_send sendto };
- ')
- 
- ########################################
-@@ -745,7 +745,7 @@ interface(`corenet_raw_receive_all_nodes
- 		attribute node_type;
- 	')
- 
--	allow $1 node_type:node rawip_recv;
-+	allow $1 node_type:node { rawip_recv recvfrom };
- ')
- 
- ########################################
-@@ -1737,6 +1737,7 @@ interface(`corenet_tcp_recvfrom_netlabel
- 		type netlabel_peer_t;
- 	')
- 
-+	allow $1 netlabel_peer_t:peer recv;
- 	allow $1 netlabel_peer_t:tcp_socket recvfrom;
- ')
- 
-@@ -1752,6 +1753,7 @@ interface(`corenet_tcp_recvfrom_netlabel
- #
- interface(`corenet_tcp_recvfrom_unlabeled',`
- 	kernel_tcp_recvfrom_unlabeled($1)
-+	kernel_recvfrom_unlabeled_peer($1)
- 
- 	# XXX - at some point the oubound/send access check will be removed
- 	# but for right now we need to keep this in place so as not to break
-@@ -1791,6 +1793,7 @@ interface(`corenet_dontaudit_tcp_recvfro
- 		type netlabel_peer_t;
- 	')
- 
-+	dontaudit $1 netlabel_peer_t:peer recv;
- 	dontaudit $1 netlabel_peer_t:tcp_socket recvfrom;
- ')
- 
-@@ -1807,6 +1810,7 @@ interface(`corenet_dontaudit_tcp_recvfro
- #
- interface(`corenet_dontaudit_tcp_recvfrom_unlabeled',`
- 	kernel_dontaudit_tcp_recvfrom_unlabeled($1)
-+	kernel_dontaudit_recvfrom_unlabeled_peer($1)
- 
- 	# XXX - at some point the oubound/send access check will be removed
- 	# but for right now we need to keep this in place so as not to break
-@@ -1844,6 +1848,7 @@ interface(`corenet_udp_recvfrom_netlabel
- 		type netlabel_peer_t;
- 	')
- 
-+	allow $1 netlabel_peer_t:peer recv;
- 	allow $1 netlabel_peer_t:udp_socket recvfrom;
- ')
- 
-@@ -1859,6 +1864,7 @@ interface(`corenet_udp_recvfrom_netlabel
- #
- interface(`corenet_udp_recvfrom_unlabeled',`
- 	kernel_udp_recvfrom_unlabeled($1)
-+	kernel_recvfrom_unlabeled_peer($1)
- 
- 	# XXX - at some point the oubound/send access check will be removed
- 	# but for right now we need to keep this in place so as not to break
-@@ -1898,6 +1904,7 @@ interface(`corenet_dontaudit_udp_recvfro
- 		type netlabel_peer_t;
- 	')
- 
-+	dontaudit $1 netlabel_peer_t:peer recv;
- 	dontaudit $1 netlabel_peer_t:udp_socket recvfrom;
- ')
- 
-@@ -1914,6 +1921,7 @@ interface(`corenet_dontaudit_udp_recvfro
- #
- interface(`corenet_dontaudit_udp_recvfrom_unlabeled',`
- 	kernel_dontaudit_udp_recvfrom_unlabeled($1)
-+	kernel_dontaudit_recvfrom_unlabeled_peer($1)
- 
- 	# XXX - at some point the oubound/send access check will be removed
- 	# but for right now we need to keep this in place so as not to break
-@@ -1951,6 +1959,7 @@ interface(`corenet_raw_recvfrom_netlabel
- 		type netlabel_peer_t;
- 	')
- 
-+	allow $1 netlabel_peer_t:peer recv;
- 	allow $1 netlabel_peer_t:rawip_socket recvfrom;
- ')
- 
-@@ -1966,6 +1975,7 @@ interface(`corenet_raw_recvfrom_netlabel
- #
- interface(`corenet_raw_recvfrom_unlabeled',`
- 	kernel_raw_recvfrom_unlabeled($1)
-+	kernel_recvfrom_unlabeled_peer($1)
- 
- 	# XXX - at some point the oubound/send access check will be removed
- 	# but for right now we need to keep this in place so as not to break
-@@ -2005,6 +2015,7 @@ interface(`corenet_dontaudit_raw_recvfro
- 		type netlabel_peer_t;
- 	')
- 
-+	dontaudit $1 netlabel_peer_t:peer recv;
- 	dontaudit $1 netlabel_peer_t:rawip_socket recvfrom;
- ')
- 
-@@ -2021,6 +2032,7 @@ interface(`corenet_dontaudit_raw_recvfro
- #
- interface(`corenet_dontaudit_raw_recvfrom_unlabeled',`
- 	kernel_dontaudit_raw_recvfrom_unlabeled($1)
-+	kernel_dontaudit_recvfrom_unlabeled_peer($1)
- 
- 	# XXX - at some point the oubound/send access check will be removed
- 	# but for right now we need to keep this in place so as not to break
-@@ -2042,6 +2054,7 @@ interface(`corenet_all_recvfrom_unlabele
- 	kernel_tcp_recvfrom_unlabeled($1)
- 	kernel_udp_recvfrom_unlabeled($1)
- 	kernel_raw_recvfrom_unlabeled($1)
-+	kernel_recvfrom_unlabeled_peer($1)
- 
- 	# XXX - at some point the oubound/send access check will be removed
- 	# but for right now we need to keep this in place so as not to break
-@@ -2064,6 +2077,7 @@ interface(`corenet_all_recvfrom_netlabel
- 		type netlabel_peer_t;
- 	')
- 
-+	allow $1 netlabel_peer_t:peer recv;
- 	allow $1 netlabel_peer_t:{ tcp_socket udp_socket rawip_socket } recvfrom;
- ')
- 
-@@ -2081,6 +2095,7 @@ interface(`corenet_dontaudit_all_recvfro
- 	kernel_dontaudit_tcp_recvfrom_unlabeled($1)
- 	kernel_dontaudit_udp_recvfrom_unlabeled($1)
- 	kernel_dontaudit_raw_recvfrom_unlabeled($1)
-+	kernel_dontaudit_recvfrom_unlabeled_peer($1)
- 
- 	# XXX - at some point the oubound/send access check will be removed
- 	# but for right now we need to keep this in place so as not to break
-@@ -2104,6 +2119,7 @@ interface(`corenet_dontaudit_all_recvfro
- 		type netlabel_peer_t;
- 	')
- 
-+	dontaudit $1 netlabel_peer_t:peer recv;
- 	dontaudit $1 netlabel_peer_t:{ tcp_socket udp_socket rawip_socket } recvfrom;
- ')
- 
-@@ -2135,8 +2151,10 @@ interface(`corenet_tcp_recvfrom_labeled'
- 	allow $1 $2:{ association tcp_socket } recvfrom;
- 	allow $2 $1:{ association tcp_socket } recvfrom;
- 
--	# Netlabel (CIPSO)-based labeled networking
--	# currently only supports MLS portion of label
-+	allow $1 $2:peer recv;
-+	allow $2 $1:peer recv;
-+
-+	# allow receiving packets from MLS-only peers using NetLabel
- 	corenet_tcp_recvfrom_netlabel($1)
- 	corenet_tcp_recvfrom_netlabel($2)
- ')
-@@ -2160,8 +2178,9 @@ interface(`corenet_udp_recvfrom_labeled'
- 	allow $2 self:association sendto;
- 	allow $1 $2:{ association udp_socket } recvfrom;
- 
--	# Netlabel (CIPSO)-based labeled networking
--	# currently only supports MLS portion of label
-+	allow $1 $2:peer recv;
-+
-+	# allow receiving packets from MLS-only peers using NetLabel
- 	corenet_udp_recvfrom_netlabel($1)
- ')
- 
-@@ -2184,8 +2203,9 @@ interface(`corenet_raw_recvfrom_labeled'
- 	allow $2 self:association sendto;
- 	allow $1 $2:{ association rawip_socket } recvfrom;
- 
--	# Netlabel (CIPSO)-based labeled networking
--	# currently only supports MLS portion of label
-+	allow $1 $2:peer recv;
-+
-+	# allow receiving packets from MLS-only peers using NetLabel
- 	corenet_raw_recvfrom_netlabel($1)
- ')
- 
-Index: refpolicy_svn_repo/policy/modules/kernel/corenetwork.if.m4
-===================================================================
---- refpolicy_svn_repo.orig/policy/modules/kernel/corenetwork.if.m4
-+++ refpolicy_svn_repo/policy/modules/kernel/corenetwork.if.m4
-@@ -28,7 +28,7 @@ interface(`corenet_tcp_sendrecv_$1_if',`
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:netif { tcp_send tcp_recv };
-+	allow dollarsone $1_$2:netif { tcp_send tcp_recv egress ingress };
- ')
- 
- ########################################
-@@ -47,7 +47,7 @@ interface(`corenet_udp_send_$1_if',`
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:netif udp_send;
-+	allow dollarsone $1_$2:netif { udp_send egress };
- ')
- 
- ########################################
-@@ -66,7 +66,7 @@ interface(`corenet_udp_receive_$1_if',`
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:netif udp_recv;
-+	allow dollarsone $1_$2:netif { udp_recv ingress };
- ')
- 
- ########################################
-@@ -101,7 +101,7 @@ interface(`corenet_raw_send_$1_if',`
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:netif rawip_send;
-+	allow dollarsone $1_$2:netif { rawip_send egress };
- ')
- 
- ########################################
-@@ -120,7 +120,7 @@ interface(`corenet_raw_receive_$1_if',`
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:netif rawip_recv;
-+	allow dollarsone $1_$2:netif { rawip_recv ingress };
- ')
- 
- ########################################
-@@ -163,7 +163,7 @@ interface(`corenet_tcp_sendrecv_$1_node'
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:node { tcp_send tcp_recv };
-+	allow dollarsone $1_$2:node { tcp_send tcp_recv sendto recvfrom };
- ')
- 
- ########################################
-@@ -182,7 +182,7 @@ interface(`corenet_udp_send_$1_node',`
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:node udp_send;
-+	allow dollarsone $1_$2:node { udp_send sendto };
- ')
- 
- ########################################
-@@ -201,7 +201,7 @@ interface(`corenet_udp_receive_$1_node',
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:node udp_recv;
-+	allow dollarsone $1_$2:node { udp_recv recvfrom };
- ')
- 
- ########################################
-@@ -236,7 +236,7 @@ interface(`corenet_raw_send_$1_node',`
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:node rawip_send;
-+	allow dollarsone $1_$2:node { rawip_send sendto };
- ')
- 
- ########################################
-@@ -255,7 +255,7 @@ interface(`corenet_raw_receive_$1_node',
- 		$3 $1_$2;
- 	')
- 
--	allow dollarsone $1_$2:node rawip_recv;
-+	allow dollarsone $1_$2:node { rawip_recv recvfrom };
- ')
- 
- ########################################
-Index: refpolicy_svn_repo/policy/modules/kernel/kernel.if
-===================================================================
---- refpolicy_svn_repo.orig/policy/modules/kernel/kernel.if
-+++ refpolicy_svn_repo/policy/modules/kernel/kernel.if
-@@ -2497,6 +2497,62 @@ interface(`kernel_sendrecv_unlabeled_pac
- 
- ########################################
- ## <summary>
-+##	Receive packets from an unlabeled peer.
-+## </summary>
-+## <desc>
-+##	<p>
-+##	Receive packets from an unlabeled peer, these packets do not have any
-+##      peer labeling information present.
-+##	</p>
-+##	<p>
-+##	The corenetwork interface corenet_recvfrom_unlabeled_peer() should
-+##	be used instead of this one.
-+##	</p>
-+## </desc>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`kernel_recvfrom_unlabeled_peer',`
-+	gen_require(`
-+		type unlabeled_t;
-+	')
-+
-+	allow $1 unlabeled_t:peer recv;
-+')
-+
-+########################################
-+## <summary>
-+##	Do not audit attempts to receive packets from an unlabeled peer.
-+## </summary>
-+## <desc>
-+##	<p>
-+##	Do not audit attempts to receive packets from an unlabeled peer,
-+##      these packets do not have any peer labeling information present.
-+##	</p>
-+##	<p>
-+##	The corenetwork interface corenet_dontaudit_*_recvfrom_unlabeled()
-+##	should be used instead of this one.
-+##	</p>
-+## </desc>
-+## <param name="domain">
-+##	<summary>
-+##	Domain to not audit.
-+##	</summary>
-+## </param>
-+#
-+interface(`kernel_dontaudit_recvfrom_unlabeled_peer',`
-+	gen_require(`
-+		type unlabeled_t;
-+	')
-+
-+	dontaudit $1 unlabeled_t:peer recv;
-+')
-+
-+########################################
-+## <summary>
- ##	Unconfined access to kernel module resources.
- ## </summary>
- ## <param name="domain">
-Index: refpolicy_svn_repo/policy/modules/kernel/kernel.te
-===================================================================
---- refpolicy_svn_repo.orig/policy/modules/kernel/kernel.te
-+++ refpolicy_svn_repo/policy/modules/kernel/kernel.te
-@@ -212,6 +212,9 @@ allow kernel_t unlabeled_t:dir mounton;
- # connections with invalidated labels:
- allow kernel_t unlabeled_t:packet send;
- 
-+# Forwarded traffic
-+allow unlabeled_t unlabeled_t:packet { forward_in forward_out };
-+
- corenet_all_recvfrom_unlabeled(kernel_t)
- corenet_all_recvfrom_netlabel(kernel_t)
- # Kernel-generated traffic e.g., ICMP replies:
+file_contexts is generated from the .fc files in the individual policy
+modules in the policy store.  It used to be unordered aside from the
+relative ordering between the base module and non-base modules but
+libsemanage was later changed to apply the sorting heuristics introduced
+in the reference policy when creating it.
+
+file_contexts.homedirs is generated from template entries extracted from
+the .fc files in the individual policy modules and from user data
+extracted from system databases like passwd.  It used to be created by
+the separate genhomedircon script, but that logic has now moved into
+libsemanage.
+
+file_contexts.local is populated via semanage fcontext (RHEL5) or by
+manual editing (RHEL4).  I don't believe it is presently sorted at
+generation time.
+
+libselinux reads the three files in such a way as to give first
+precedence to file_contexts.local, then second to
+file_contexts.homedirs, then last to file_contexts.  The only sorting
+libselinux applies to the final result is to move entries that are fully
+specified (i.e. no regex) to highest precedence.  The libselinux logic
+predates the libsemanage or reference policy sorting heuristics by a
+long time, and has to continue to work even in the absence of any
+sorting of the file_contexts file at creation time for use on old
+systems (e.g. RHEL4).
+
+Simply flipping the precedence of file_contexts.homedirs and
+file_contexts would be unsafe as file_contexts generally has the
+catch-all /.* regex.  Applying the full sorting heuristics in libselinux
+was viewed as too expensive IIRC.  Merging the three files together in
+libsemanage and sorting them all together at generation time would solve
+some problems but break the ability to ensure that local modifications
+via semanage always take precedence over base policy.
+
+Given that genhomedircon has been merged into libsemanage though, we
+might be able to eliminate the separation between file_contexts and
+file_contexts.homedirs, and sort them together?  While leaving
+file_contexts.local separate.
 
 -- 
-paul moore
-linux @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
