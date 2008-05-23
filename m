@@ -1,68 +1,2826 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4NEHjU8015152
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 10:17:46 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4NEL6L0015764
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 10:21:06 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4NEHjLq000860
-	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 14:17:45 GMT
-Message-ID: <4836D221.3080605@redhat.com>
-Date: Fri, 23 May 2008 10:18:09 -0400
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4NEL4Lq002358
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 14:21:04 GMT
+Message-ID: <4836D2E8.2080707@redhat.com>
+Date: Fri, 23 May 2008 10:21:28 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Updated kernel/filesystem.* patch
+Subject: Fedora 10 modules config for MLS and Targeted policy
 Content-Type: multipart/mixed;
- boundary="------------030302000102010606020901"
+ boundary="------------050105050304070507040708"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------030302000102010606020901
+--------------050105050304070507040708
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
 
---------------030302000102010606020901
-Content-Type: application/x-gzip;
- name="kernel_filesystem.patch.gz"
-Content-Transfer-Encoding: base64
+--------------050105050304070507040708
+Content-Type: text/plain;
+ name="modules-mls.conf"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="kernel_filesystem.patch.gz"
+ filename="modules-mls.conf"
 
-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
---------------030302000102010606020901--
+#
+# This file contains a listing of available modules.
+# To prevent a module from  being used in policy
+# creation, set the module name to "off".
+#
+# For monolithic policies, modules set to "base" and "module"
+# will be built into the policy.
+#
+# For modular policies, modules set to "base" will be
+# included in the base module.  "module" will be compiled
+# as individual loadable modules.
+#
+
+# Layer: kernel
+# Module: terminal
+# Required in base
+#
+# Policy for terminals.
+# 
+terminal = base
+
+# Layer: kernel
+# Module: kernel
+# Required in base
+#
+# Policy for kernel threads, proc filesystem,and unlabeled processes and objects.
+# 
+kernel = base
+
+# Layer: kernel
+# Module: filesystem
+# Required in base
+#
+# Policy for filesystems.
+# 
+filesystem = base
+
+# Layer: kernel
+# Module: devices
+# Required in base
+#
+# Device nodes and interfaces for many basic system devices.
+# 
+devices = base
+
+# Layer: kernel
+# Module: corenetwork
+# Required in base
+#
+# Policy controlling access to network objects
+# 
+corenetwork = base
+
+# Layer: kernel
+# Module: mls
+# Required in base
+#
+# Multilevel security policy
+# 
+mls = base
+
+# Layer: kernel
+# Module: mcs
+# Required in base
+#
+# MultiCategory security policy
+# 
+mcs = base
+
+# Layer: kernel
+# Module: selinux
+# Required in base
+#
+# Policy for kernel security interface, in particular, selinuxfs.
+# 
+selinux = base
+
+# Layer: kernel
+# Module: files
+# Required in base
+#
+# Basic filesystem types and interfaces.
+# 
+files = base
+
+# Layer: kernel
+# Module: domain
+# Required in base
+#
+# Core policy for domains.
+# 
+domain = base
+
+# Layer: kernel
+# Module: corecommands
+# Required in base
+#
+# Core policy for shells, and generic programs
+# in /bin, /sbin, /usr/bin, and /usr/sbin.
+# 
+corecommands = base
+
+# Layer: admin
+# Module: acct
+#
+# Berkeley process accounting
+# 
+acct = base
+
+# Layer: admin
+# Module: usermanage
+#
+# Policy for managing user accounts.
+# 
+usermanage = base
+
+# Layer: admin
+# Module: rpm
+#
+# Policy for the RPM package manager.
+# 
+rpm = base
+
+# Layer: admin
+# Module: readahead
+#
+# Readahead, read files into page cache for improved performance
+# 
+readahead = base
+
+# Layer: apps
+# Module: alsa
+#
+# alsa - Configure sound
+# 
+alsa = base
+
+# Layer: admin
+# Module: kudzu
+#
+# Hardware detection and configuration tools
+# 
+kudzu = base
+
+# Layer: admin
+# Module: updfstab
+#
+# Red Hat utility to change /etc/fstab.
+# 
+updfstab = base
+
+# Layer: admin
+# Module: netutils
+#
+# Network analysis utilities
+# 
+netutils = base
+
+# Layer: admin
+# Module: vpn
+#
+# Virtual Private Networking client
+# 
+vpn = base
+
+# Layer: admin
+# Module: su
+#
+# Run shells with substitute user and group
+# 
+su = base
+
+# Layer: admin
+# Module: dmesg
+#
+# Policy for dmesg.
+# 
+dmesg = base
+
+# Layer: admin
+# Module: anaconda
+#
+# Policy for the Anaconda installer.
+# 
+anaconda = base
+
+# Layer: admin
+# Module: amanda
+#
+# Automated backup program.
+# 
+amanda = base
+
+# Layer: admin
+# Module: logrotate
+#
+# Rotate and archive system logs
+# 
+logrotate = base
+
+# Layer: admin
+# Module: quota
+#
+# File system quota management
+# 
+quota = base
+
+# Layer: admin
+# Module: consoletype
+#
+# Determine of the console connected to the controlling terminal.
+# 
+consoletype = base
+
+# Layer: admin
+# Module: sudo
+#
+# Execute a command with a substitute user
+# 
+sudo = base
+
+# Layer: admin
+# Module: firstboot
+#
+# Final system configuration run during the first boot
+# after installation of Red Hat/Fedora systems.
+# 
+firstboot = base
+
+# Layer: admin
+# Module: certwatch
+#
+# Digital Certificate Tracking
+# 
+certwatch = base
+
+# Layer: admin
+# Module: tmpreaper
+#
+# Manage temporary directory sizes and file ages
+# 
+tmpreaper = base
+
+# Layer: admin
+# Module: dmidecode
+#
+# Decode DMI data for x86/ia64 bioses.
+# 
+dmidecode = base
+
+# Layer: apps
+# Module: gpg
+#
+# Policy for GNU Privacy Guard and related programs.
+# 
+gpg = base
+
+# Layer: apps
+# Module: loadkeys
+#
+# Load keyboard mappings.
+# 
+loadkeys = base
+
+# Layer: apps
+# Module: webalizer
+#
+# Web server log analysis
+# 
+webalizer = base
+
+# Layer: kernel
+# Module: bootloader
+#
+# Policy for the kernel modules, kernel image, and bootloader.
+# 
+bootloader = base
+
+# Layer: kernel
+# Module: storage
+#
+# Policy controlling access to storage devices
+# 
+storage = base
+
+# Layer: services
+# Module: nis
+#
+# Policy for NIS (YP) servers and clients
+# 
+nis = base
+
+# Layer: services
+# Module: distcc
+#
+# Distributed compiler daemon
+# 
+distcc = off
+
+# Layer: services
+# Module: rshd
+#
+# Remote shell service.
+# 
+rshd = base
+
+# Layer: services
+# Module: cpucontrol
+#
+# Services for loading CPU microcode and CPU frequency scaling.
+# 
+cpucontrol = base
+
+# Layer: services
+# Module: vbetool 
+#
+# run real-mode video BIOS code to alter hardware state
+# 
+vbetool = base
+
+# Layer: services
+# Module: bind
+#
+# Berkeley internet name domain DNS server.
+# 
+bind = base
+
+# Layer: services
+# Module: canna
+#
+# Canna - kana-kanji conversion server
+# 
+canna = base
+
+# Layer: services
+# Module: uucp
+#
+# Unix to Unix Copy
+# 
+uucp = base
+
+# Layer: services
+# Module: sasl
+#
+# SASL authentication server
+# 
+sasl = base
+
+# Layer: services
+# Module: pegasus
+#
+# The Open Group Pegasus CIM/WBEM Server.
+# 
+pegasus = base
+
+# Layer: services
+# Module: cron
+#
+# Periodic execution of scheduled commands.
+# 
+cron = base
+
+# Layer: services
+# Module: sendmail
+#
+# Policy for sendmail.
+# 
+sendmail = base
+
+# Layer: services
+# Module: samba
+#
+# SMB and CIFS client/server programs for UNIX and
+# name  Service  Switch  daemon for resolving names
+# from Windows NT servers.
+# 
+samba = base
+
+# Layer: services
+# Module: dbus
+#
+# Desktop messaging bus
+# 
+dbus = base
+
+# Layer: services
+# Module: howl
+#
+# Port of Apple Rendezvous multicast DNS
+# 
+howl = base
+
+# Layer: services
+# Module: postgresql
+#
+# PostgreSQL relational database
+# 
+postgresql = base
+
+# Layer: services
+# Module: snmp
+#
+# Simple network management protocol services
+# 
+snmp = base
+
+# Layer: services
+# Module: remotelogin
+#
+# Policy for rshd, rlogind, and telnetd.
+# 
+remotelogin = base
+
+# Layer: services
+# Module: telnet
+#
+# Telnet daemon
+# 
+telnet = base
+
+# Layer: services
+# Module: irqbalance
+#
+# IRQ balancing daemon
+# 
+irqbalance = base
+
+# Layer: services
+# Module: mailman
+#
+# Mailman is for managing electronic mail discussion and e-newsletter lists
+# 
+mailman = base
+
+# Layer: services
+# Module: dbskk
+#
+# Dictionary server for the SKK Japanese input method system.
+# 
+dbskk = base
+
+# Layer: services
+# Module: ldap
+#
+# OpenLDAP directory server
+# 
+ldap = base
+
+# Layer: services
+# Module: tftp
+#
+# Trivial file transfer protocol daemon
+# 
+tftp = base
+
+# Layer: services
+# Module: portmap
+#
+# RPC port mapping service.
+# 
+portmap = base
+
+# Layer: services
+# Module: arpwatch
+#
+# Ethernet activity monitor.
+# 
+arpwatch = base
+
+# Layer: services
+# Module: dovecot
+#
+# Dovecot POP and IMAP mail server
+# 
+dovecot = base
+
+# Layer: services
+# Module: cups
+#
+# Common UNIX printing system
+# 
+cups = base
+
+# Layer: services
+# Module: networkmanager
+#
+# Manager for dynamically switching between networks.
+# 
+networkmanager = base
+
+# Layer: services
+# Module: inn
+#
+# Internet News NNTP server
+# 
+inn = base
+
+# Layer: services
+# Module: sysstat
+#
+# Policy for sysstat. Reports on various system states
+# 
+sysstat = base
+
+# Layer: services
+# Module: comsat
+#
+# Comsat, a biff server.
+# 
+comsat = base
+
+# Layer: services
+# Module: squid
+#
+# Squid caching http proxy server
+# 
+squid = base
+
+# Layer: services
+# Module: zebra
+#
+# Zebra border gateway protocol network routing service
+# 
+zebra = base
+
+# Layer: services
+# Module: xfs
+#
+# X Windows Font Server
+# 
+xfs = off
+
+# Layer: services
+# Module: ktalk
+#
+# KDE Talk daemon
+# 
+ktalk = base
+
+# Layer: services
+# Module: procmail
+#
+# Procmail mail delivery agent
+# 
+procmail = base
+
+# Layer: services
+# Module: lpd
+#
+# Line printer daemon
+# 
+lpd = base
+
+# Layer: services
+# Module: cyrus
+#
+# Cyrus is an IMAP service intended to be run on sealed servers
+# 
+cyrus = base
+
+# Layer: services
+# Module: rdisc
+#
+# Network router discovery daemon
+# 
+rdisc = base
+
+# Layer: services
+# Module: xserver
+#
+# X windows login display manager
+# 
+xserver = base
+
+# Layer: services
+# Module: nscd
+#
+# Name service cache daemon
+# 
+nscd = base
+
+# Layer: services
+# Module: ppp
+#
+# Point to Point Protocol daemon creates links in ppp networks
+# 
+ppp = base
+
+# Layer: services
+# Module: ftp
+#
+# File transfer protocol service
+# 
+ftp = base
+
+# Layer: services
+# Module: gpm
+#
+# General Purpose Mouse driver
+# 
+gpm = base
+
+# Layer: services
+# Module: mta
+#
+# Policy common to all email tranfer agents.
+# 
+mta = base
+
+# Layer: services
+# Module: postfix
+#
+# Postfix email server
+# 
+postfix = base
+
+# Layer: services
+# Module: fetchmail
+#
+# Remote-mail retrieval and forwarding utility
+# 
+fetchmail = base
+
+# Layer: services
+# Module: ntp
+#
+# Network time protocol daemon
+# 
+ntp = base
+
+# Layer: services
+# Module: bluetooth
+#
+# Bluetooth tools and system services.
+# 
+bluetooth = base
+
+# Layer: services
+# Module: hal
+#
+# Hardware abstraction layer
+# 
+hal = base
+
+# Layer: services
+# Module: avahi
+#
+# mDNS/DNS-SD daemon implementing Apple ZeroConf architecture
+# 
+avahi = base
+
+# Layer: services
+# Module: rpc
+#
+# Remote Procedure Call Daemon for managment of network based process communication
+# 
+rpc = base
+
+# Layer: services
+# Module: apache
+#
+# Apache web server
+# 
+apache = base
+
+# Layer: services
+# Module: rsync
+#
+# Fast incremental file transfer for synchronization
+# 
+rsync = base
+
+# Layer: services
+# Module: automount
+#
+# Filesystem automounter service.
+# 
+automount = base
+
+# Layer: services
+# Module: kerberos
+#
+# MIT Kerberos admin and KDC
+# 
+kerberos = base
+
+# Layer: services
+# Module: dhcp
+#
+# Dynamic host configuration protocol (DHCP) server
+# 
+dhcp = base
+
+# Layer: services
+# Module: ssh
+#
+# Secure shell client and server policy.
+# 
+ssh = base
+
+# Layer: services
+# Module: inetd
+#
+# Internet services daemon.
+# 
+inetd = base
+
+# Layer: services
+# Module: mysql
+#
+# Policy for MySQL
+# 
+mysql = base
+
+# Layer: services
+# Module: dictd
+#
+# Dictionary daemon
+# 
+dictd = base
+
+# Layer: services
+# Module: finger
+#
+# Finger user information service.
+# 
+finger = base
+
+# Layer: services
+# Module: radius
+#
+# RADIUS authentication and accounting server.
+# 
+radius = base
+
+# Layer: services
+# Module: spamassassin
+#
+# Filter used for removing unsolicited email.
+# 
+spamassassin = base
+
+# Layer: services
+# Module: radvd
+#
+# IPv6 router advertisement daemon
+# 
+radvd = base
+
+# Layer: services
+# Module: apm
+#
+# Advanced power management daemon
+# 
+apm = base
+
+# Layer: system
+# Module: application
+# Required in base
+#
+# Defines attributs and interfaces for all user applications
+# 
+application = base
+
+# Layer: services
+# Module: tcpd
+#
+# Policy for TCP daemon.
+# 
+tcpd = base
+
+# Layer: services
+# Module: stunnel
+#
+# SSL Tunneling Proxy
+# 
+stunnel = base
+
+# Layer: services
+# Module: privoxy
+#
+# Privacy enhancing web proxy.
+# 
+privoxy = base
+
+# Layer: services
+# Module: cvs
+#
+# Concurrent versions system
+# 
+cvs = base
+
+# Layer: services
+# Module: rlogin
+#
+# Remote login daemon
+# 
+rlogin = base
+
+# Layer: system
+# Module: application
+# Required in base
+#
+# Defines attributs and interfaces for all user applications
+# 
+application = base
+
+# Layer: system
+# Module: fstools
+#
+# Tools for filesystem management, such as mkfs and fsck.
+# 
+fstools = base
+
+# Layer: system
+# Module: logging
+#
+# Policy for the kernel message logger and system logging daemon.
+# 
+logging = base
+
+# Layer: system
+# Module: hostname
+#
+# Policy for changing the system host name.
+# 
+hostname = base
+
+# Layer: system
+# Module: getty
+#
+# Policy for getty.
+# 
+getty = base
+
+# Layer: system
+# Module: lvm
+#
+# Policy for logical volume management programs.
+# 
+lvm = base
+
+# Layer: system
+# Module: sysnetwork
+#
+# Policy for network configuration: ifconfig and dhcp client.
+# 
+sysnetwork = base
+
+# Layer: system
+# Module: init
+#
+# System initialization programs (init and init scripts).
+# 
+init = base
+
+# Layer: system
+# Module: selinuxutil
+#
+# Policy for SELinux policy and userland applications.
+# 
+selinuxutil = base
+
+# Layer: system
+# Module: udev
+#
+# Policy for udev.
+# 
+udev = base
+
+# Layer: system
+# Module: pcmcia
+#
+# PCMCIA card management services
+# 
+pcmcia = base
+
+# Layer: system
+# Module: authlogin
+#
+# Common policy for authentication and user login.
+# 
+authlogin = base
+
+# Layer: system
+# Module: libraries
+#
+# Policy for system libraries.
+# 
+libraries = base
+
+# Layer: system
+# Module: raid
+#
+# RAID array management tools
+# 
+raid = base
+
+# Layer: system
+# Module: userdomain
+#
+# Policy for user domains
+# 
+userdomain = base
+
+# Layer: system
+# Module: modutils
+#
+# Policy for kernel module utilities
+# 
+modutils = base
+
+# Layer: system
+# Module: hotplug
+#
+# Policy for hotplug system, for supporting the
+# connection and disconnection of devices at runtime.
+# 
+hotplug = base
+
+# Layer: system
+# Module: clock
+#
+# Policy for reading and setting the hardware clock.
+# 
+clock = base
+
+# Layer: system
+# Module: locallogin
+#
+# Policy for local logins.
+# 
+locallogin = base
+
+# Layer: system
+# Module: iptables
+#
+# Policy for iptables.
+# 
+iptables = base
+
+# Layer: system
+# Module: mount
+#
+# Policy for mount.
+# 
+mount = base
+
+# Layer: system
+# Module: unconfined
+#
+# The unconfined domain.
+# 
+unconfined = off
+
+# Layer: system
+# Module: miscfiles
+#
+# Miscelaneous files.
+# 
+miscfiles = base
+
+# Layer: system
+# Module: ipsec
+#
+# TCP/IP encryption
+# 
+ipsec = base
+
+# Layer: apps
+# Module: java
+#
+# java executable
+# 
+java = module
+
+# Layer: services
+# Module: prelink
+#
+# prelink executable
+# 
+prelink = base
+
+# Layer: apps
+# Module: slocate
+#
+# locate executable
+# 
+slocate = base
+
+# Layer: services
+# Module: logwatch
+#
+# logwatch executable
+# 
+logwatch = base
+
+# Layer: system
+# Module: setrans
+# Required in base
+#
+# Policy for setrans
+# 
+setrans = base
+
+# Layer: services
+# Module: openvpn
+#
+# Policy for OPENVPN full-featured SSL VPN solution
+# 
+openvpn = base
+
+# Layer: services
+# Module: smartmon
+#
+# Smart disk monitoring daemon policy
+# 
+smartmon = base
+
+# Layer: system
+# Module: netlabel
+# Required in base
+#
+# Basic netlabel types and interfaces.
+# 
+netlabel = base
+
+# Layer: services
+# Module: aide
+#
+# Policy for aide
+# 
+aide = base
+
+# Layer: service
+# Module: pcscd
+#
+# PC/SC Smart Card Daemon
+#
+pcscd = module
+
+# Layer: service
+# Module: openct
+# 
+# Middleware framework for smart card terminals
+#
+openct = module
+
+# Layer: system
+# Module: tzdata
+#
+# Policy for tzdata-update
+# 
+tzdata = base
+
+# Layer: admin
+# Module: amtu
+#
+# Abstract Machine Test Utility (AMTU)
+# 
+amtu = module
+
+# Layer: services
+# Module: prelude
+#
+# 
+# 
+prelude = module
+
+# Layer: role
+# Module: secadm
+#
+# Root role used to manage selinux 
+# 
+secadm = module
+
+# Layer: role
+# Module: auditadm
+#
+# Root role used to manage audit system
+# 
+auditadm = module
+
+# Layer:role
+# Module: staff
+#
+# admin account 
+# 
+staff = base
+
+# Layer:role
+# Module: sysadm
+#
+# System Administrator
+# 
+sysadm = base
+
+# Layer: role
+# Module: unprivuser
+#
+# user account 
+# 
+unprivuser = base
+
+# Layer: role
+# Module: guest
+#
+# Minimally privs guest account on tty logins
+# 
+guest = module
+
+# Layer: role
+# Module: xguest
+#
+# Minimally privs guest account on X Windows logins
+# 
+xguest = module
+
+
+--------------050105050304070507040708
+Content-Type: text/plain;
+ name="modules-targeted.conf"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline;
+ filename="modules-targeted.conf"
+
+#
+# This file contains a listing of available modules.
+# To prevent a module from  being used in policy
+# creation, set the module name to "off".
+#
+# For monolithic policies, modules set to "base" and "module"
+# will be built into the policy.
+#
+# For modular policies, modules set to "base" will be
+# included in the base module.  "module" will be compiled
+# as individual loadable modules.
+#
+
+# Layer: admin
+# Module: acct
+#
+# Berkeley process accounting
+# 
+acct = base
+
+# Layer: admin
+# Module: alsa
+#
+# Ainit ALSA configuration tool
+# 
+alsa = base
+
+# Layer: apps
+# Module: ada
+#
+# ada executable
+# 
+ada = base
+
+# Layer: modules
+# Module: awstats
+#
+# awstats executable
+# 
+awstats = module
+
+# Layer: admin
+# Module: amanda
+#
+# Automated backup program.
+# 
+amanda = base
+
+# Layer: services
+# Module: amavis
+#
+# Anti-virus
+# 
+amavis = module
+
+# Layer: admin
+# Module: anaconda
+#
+# Policy for the Anaconda installer.
+# 
+anaconda = base
+
+# Layer: services
+# Module: apache
+#
+# Apache web server
+# 
+apache = base
+
+# Layer: services
+# Module: apm
+#
+# Advanced power management daemon
+# 
+apm = base
+
+# Layer: system
+# Module: application
+# Required in base
+#
+# Defines attributs and interfaces for all user applications
+# 
+application = base
+
+# Layer: services
+# Module: arpwatch
+#
+# Ethernet activity monitor.
+# 
+arpwatch = base
+
+# Layer: services
+# Module: audioentropy
+#
+# Generate entropy from audio input
+# 
+audioentropy = module
+
+# Layer: system
+# Module: authlogin
+#
+# Common policy for authentication and user login.
+# 
+authlogin = base
+
+# Layer: services
+# Module: automount
+#
+# Filesystem automounter service.
+# 
+automount = base
+
+# Layer: services
+# Module: avahi
+#
+# mDNS/DNS-SD daemon implementing Apple ZeroConf architecture
+# 
+avahi = base
+
+# Layer: services
+# Module: bind
+#
+# Berkeley internet name domain DNS server.
+# 
+bind = base
+
+# Layer: services
+# Module: dnsmasq
+#
+# A lightweight DHCP and caching DNS server.
+# 
+dnsmasq = base
+
+# Layer: services
+# Module: bluetooth
+#
+# Bluetooth tools and system services.
+# 
+bluetooth = base
+
+# Layer: kernel
+# Module: bootloader
+#
+# Policy for the kernel modules, kernel image, and bootloader.
+# 
+bootloader = base
+
+
+# Layer: services
+# Module: canna
+#
+# Canna - kana-kanji conversion server
+# 
+canna = base
+
+
+# Layer: services
+# Module: ccs
+#
+# policy for ccs
+# 
+ccs = module
+
+# Layer: apps
+# Module: calamaris
+#
+#
+# Squid log analysis
+# 
+calamaris = module
+
+# Layer: apps
+# Module: cdrecord
+#
+# Policy for cdrecord
+# 
+cdrecord = module
+
+# Layer: admin
+# Module: certwatch
+#
+# Digital Certificate Tracking
+# 
+certwatch = module
+
+# Layer: services
+# Module: cipe
+#
+# Encrypted tunnel daemon
+# 
+cipe = module
+
+# Layer: services
+# Module: comsat
+#
+# Comsat, a biff server.
+# 
+comsat = base
+
+# Layer: services
+# Module: clamav
+#
+# ClamAV Virus Scanner
+# 
+clamav = module
+
+# Layer: system
+# Module: clock
+#
+# Policy for reading and setting the hardware clock.
+# 
+clock = base
+
+# Layer: services
+# Module: consolekit
+#
+# ConsoleKit is a system daemon for tracking what users are logged
+# 
+consolekit = module
+
+# Layer: admin
+# Module: consoletype
+#
+# Determine of the console connected to the controlling terminal.
+# 
+consoletype = base
+
+# Layer: kernel
+# Module: corecommands
+# Required in base
+#
+# Core policy for shells, and generic programs
+# in /bin, /sbin, /usr/bin, and /usr/sbin.
+# 
+corecommands = base
+
+# Layer: kernel
+# Module: corenetwork
+# Required in base
+#
+# Policy controlling access to network objects
+# 
+corenetwork = base
+
+# Layer: services
+# Module: cpucontrol
+#
+# Services for loading CPU microcode and CPU frequency scaling.
+# 
+cpucontrol = base
+
+# Layer: services
+# Module: cron
+#
+# Periodic execution of scheduled commands.
+# 
+cron = base
+
+# Layer: services
+# Module: cups
+#
+# Common UNIX printing system
+# 
+cups = base
+
+# Layer: services
+# Module: cvs
+#
+# Concurrent versions system
+# 
+cvs = base
+
+# Layer: services
+# Module: cyphesis
+#
+# cyphesis game server
+# 
+cyphesis = module
+
+# Layer: services
+# Module: gamin
+#
+#  FAM File Alteration Monitor API
+# 
+gamin = module
+
+# Layer: services
+# Module: cyrus
+#
+# Cyrus is an IMAP service intended to be run on sealed servers
+# 
+cyrus = base
+
+# Layer: system
+# Module: daemontools
+#
+# Collection of tools for managing UNIX services
+# 
+daemontools = module
+
+# Layer: services
+# Module: dbskk
+#
+# Dictionary server for the SKK Japanese input method system.
+# 
+dbskk = base
+
+# Layer: services
+# Module: dbus
+#
+# Desktop messaging bus
+# 
+dbus = base
+
+
+# Layer: services
+# Module: dcc
+#
+# A distributed, collaborative, spam detection and filtering network.
+# 
+dcc = module
+
+# Layer: admin
+# Module: ddcprobe
+#
+# ddcprobe retrieves monitor and graphics card information
+# 
+ddcprobe = off
+
+# Layer: kernel
+# Module: devices
+# Required in base
+#
+# Device nodes and interfaces for many basic system devices.
+# 
+devices = base
+
+# Layer: services
+# Module: dhcp
+#
+# Dynamic host configuration protocol (DHCP) server
+# 
+dhcp = base
+
+# Layer: services
+# Module: dictd
+#
+# Dictionary daemon
+# 
+dictd = base
+
+# Layer: services
+# Module: distcc
+#
+# Distributed compiler daemon
+# 
+distcc = off
+
+# Layer: admin
+# Module: dmesg
+#
+# Policy for dmesg.
+# 
+dmesg = base
+
+# Layer: admin
+# Module: dmidecode
+#
+# Decode DMI data for x86/ia64 bioses.
+# 
+dmidecode = base
+
+# Layer: system
+# Module: domain
+# Required in base
+#
+# Core policy for domains.
+# 
+domain = base
+
+# Layer: services
+# Module: dovecot
+#
+# Dovecot POP and IMAP mail server
+# 
+dovecot = base
+
+# Layer: apps
+# Module: gpg
+#
+# Policy for GNU Privacy Guard and related programs.
+# 
+gpg = off
+
+# Layer: services
+# Module: gpm
+#
+# General Purpose Mouse driver
+# 
+gpm = base
+
+# Layer: apps
+# Module: ethereal
+#
+# Ethereal packet capture tool.
+# 
+ethereal = module
+
+# Layer: services
+# Module: fail2ban
+#
+# daiemon that bans IP that makes too many password failures
+# 
+fail2ban = module
+
+# Layer: services
+# Module: fetchmail
+#
+# Remote-mail retrieval and forwarding utility
+# 
+fetchmail = base
+
+# Layer: kernel
+# Module: files
+# Required in base
+#
+# Basic filesystem types and interfaces.
+# 
+files = base
+
+# Layer: kernel
+# Module: filesystem
+# Required in base
+#
+# Policy for filesystems.
+# 
+filesystem = base
+
+# Layer: services
+# Module: finger
+#
+# Finger user information service.
+# 
+finger = base
+
+# Layer: admin
+# Module: firstboot
+#
+# Final system configuration run during the first boot
+# after installation of Red Hat/Fedora systems.
+# 
+firstboot = base
+
+# Layer: system
+# Module: fstools
+#
+# Tools for filesystem management, such as mkfs and fsck.
+# 
+fstools = base
+
+# Layer: services
+# Module: ftp
+#
+# File transfer protocol service
+# 
+ftp = base
+
+# Layer: apps
+# Module: games
+#
+# The Open Group Pegasus CIM/WBEM Server.
+# 
+games = module
+
+# Layer: system
+# Module: getty
+#
+# Policy for getty.
+# 
+getty = base
+
+# Layer: apps
+# Module: gnome
+#
+# gnome session and gconf
+# 
+gnome = module
+
+# Layer: services
+# Module: gnomeclock
+#
+# gnomeclock used by dbus/polkit to set time
+# 
+gnomeclock = module
+
+# Layer: services
+# Module: hal
+#
+# Hardware abstraction layer
+# 
+hal = module
+
+# Layer: services
+# Module: polkit
+#
+# Hardware abstraction layer
+# 
+polkit = module
+
+# Layer: system
+# Module: hostname
+#
+# Policy for changing the system host name.
+# 
+hostname = base
+
+
+# Layer: system
+# Module: hotplug
+#
+# Policy for hotplug system, for supporting the
+# connection and disconnection of devices at runtime.
+# 
+hotplug = base
+
+# Layer: services
+# Module: howl
+#
+# Port of Apple Rendezvous multicast DNS
+# 
+howl = base
+
+# Layer: services
+# Module: inetd
+#
+# Internet services daemon.
+# 
+inetd = base
+
+# Layer: system
+# Module: init
+#
+# System initialization programs (init and init scripts).
+# 
+init = base
+
+# Layer: services
+# Module: inn
+#
+# Internet News NNTP server
+# 
+inn = base
+
+# Layer: system
+# Module: iptables
+#
+# Policy for iptables.
+# 
+iptables = base
+
+# Layer: system
+# Module: ipsec
+#
+# TCP/IP encryption
+# 
+ipsec = module
+
+# Layer: apps
+# Module: irc
+#
+# IRC client policy
+# 
+irc = module
+
+# Layer: services
+# Module: irqbalance
+#
+# IRQ balancing daemon
+# 
+irqbalance = base
+
+# Layer: system
+# Module: iscsi
+#
+# Open-iSCSI daemon
+# 
+iscsi = module
+
+# Layer: services
+# Module: i18n_input
+#
+# IIIMF htt server
+# 
+i18n_input = off
+
+
+# Layer: apps
+# Module: java
+#
+# java executable
+# 
+java = base
+
+# Layer: services
+# Module: kerberos
+#
+# MIT Kerberos admin and KDC
+# 
+kerberos = base
+
+# Layer: kernel
+# Module: kernel
+# Required in base
+#
+# Policy for kernel threads, proc filesystem,and unlabeled processes and objects.
+# 
+kernel = base
+
+# Layer: services
+# Module: ktalk
+#
+# KDE Talk daemon
+# 
+ktalk = base
+
+# Layer: admin
+# Module: kudzu
+#
+# Hardware detection and configuration tools
+# 
+kudzu = base
+
+
+# Layer: services
+# Module: ldap
+#
+# OpenLDAP directory server
+# 
+ldap = base
+
+# Layer: system
+# Module: libraries
+#
+# Policy for system libraries.
+# 
+libraries = base
+
+# Layer: apps
+# Module: loadkeys
+#
+# Load keyboard mappings.
+# 
+loadkeys = base
+
+# Layer: system
+# Module: locallogin
+#
+# Policy for local logins.
+# 
+locallogin = base
+
+# Layer: apps
+# Module: lockdev
+#
+# device locking policy for lockdev
+# 
+lockdev = module
+
+# Layer: system
+# Module: logging
+#
+# Policy for the kernel message logger and system logging daemon.
+# 
+logging = base
+
+# Layer: admin
+# Module: logrotate
+#
+# Rotate and archive system logs
+# 
+logrotate = base
+
+# Layer: services
+# Module: logwatch
+#
+# logwatch executable
+# 
+logwatch = base
+
+# Layer: services
+# Module: lpd
+#
+# Line printer daemon
+# 
+lpd = base
+
+# Layer: system
+# Module: lvm
+#
+# Policy for logical volume management programs.
+# 
+lvm = base
+
+
+# Layer: services
+# Module: mailman
+#
+# Mailman is for managing electronic mail discussion and e-newsletter lists
+# 
+mailman = base
+
+
+# Layer: services
+# Module: mailscanner
+#
+# Anti-Virus and Anti-Spam Filter
+# 
+mailscanner = module
+
+# Layer: kernel
+# Module: mcs
+# Required in base
+#
+# MultiCategory security policy
+# 
+mcs = base
+
+# Layer: system
+# Module: miscfiles
+#
+# Miscelaneous files.
+# 
+miscfiles = base
+
+# Layer: kernel
+# Module: mls
+# Required in base
+#
+# Multilevel security policy
+# 
+mls = base
+
+# Layer: system
+# Module: modutils
+#
+# Policy for kernel module utilities
+# 
+modutils = base
+
+# Layer: apps
+# Module: mono
+#
+# mono executable
+# 
+mono = base
+
+# Layer: system
+# Module: mount
+#
+# Policy for mount.
+# 
+mount = base
+
+# Layer: apps
+# Module: mozilla
+#
+# Policy for Mozilla and related web browsers
+# 
+mozilla = module
+
+# Layer: apps
+# Module: nsplugin
+#
+# Policy for nspluginwrapper 
+# 
+nsplugin = module
+
+# Layer: apps
+# Module: mplayer
+#
+# Policy for Mozilla and related web browsers
+# 
+mplayer = module
+
+# Layer: apps
+# Module: gpg
+#
+# Policy for Mozilla and related web browsers
+# 
+gpg = module
+
+# Layer: admin
+# Module: mrtg
+#
+# Network traffic graphing
+# 
+mrtg = module
+
+
+# Layer: services
+# Module: mta
+#
+# Policy common to all email tranfer agents.
+# 
+mta = base
+
+
+# Layer: services
+# Module: mysql
+#
+# Policy for MySQL
+# 
+mysql = base
+
+# Layer: services
+# Module: nagios
+#
+# policy for nagios Host/service/network monitoring program
+# 
+nagios = module
+
+# Layer: admin
+# Module: netutils
+#
+# Network analysis utilities
+# 
+netutils = base
+
+# Layer: services
+# Module: networkmanager
+#
+# Manager for dynamically switching between networks.
+# 
+networkmanager = base
+
+# Layer: services
+# Module: nis
+#
+# Policy for NIS (YP) servers and clients
+# 
+nis = base
+
+
+# Layer: services
+# Module: nscd
+#
+# Name service cache daemon
+# 
+nscd = base
+
+
+# Layer: services
+# Module: ntp
+#
+# Network time protocol daemon
+# 
+ntp = base
+
+# Layer: services
+# Module: nx
+#
+# NX Remote Desktop
+# 
+nx = module
+
+
+# Layer: services
+# Module: oddjob
+#
+# policy for oddjob
+# 
+oddjob = module
+
+# Layer: services
+# Module: openct
+#
+# Service for handling smart card readers.
+# 
+openct = off
+
+# Layer: services
+# Module: openvpn
+#
+# Policy for OPENVPN full-featured SSL VPN solution
+# 
+openvpn = base
+
+
+# Layer: service
+# Module: pcscd
+#
+# PC/SC Smart Card Daemon
+#
+pcscd = module
+
+# Layer: service
+# Module: openct
+# 
+# Middleware framework for smart card terminals
+#
+openct = module
+
+# Layer: system
+# Module: pcmcia
+#
+# PCMCIA card management services
+# 
+pcmcia = base
+
+# Layer: services
+# Module: pegasus
+#
+# The Open Group Pegasus CIM/WBEM Server.
+# 
+pegasus = base
+
+# Layer: services
+# Module: postgresql
+#
+# PostgreSQL relational database
+# 
+postgresql = base
+
+# Layer: services
+# Module: portmap
+#
+# RPC port mapping service.
+# 
+portmap = base
+
+
+# Layer: services
+# Module: postfix
+#
+# Postfix email server
+# 
+postfix = base
+
+o# Layer: services
+# Module: postgrey
+#
+# email scanner
+# 
+postgrey = base
+
+# Layer: services
+# Module: ppp
+#
+# Point to Point Protocol daemon creates links in ppp networks
+# 
+ppp = base
+
+# Layer: admin
+# Module: prelink
+#
+# Manage temporary directory sizes and file ages
+# 
+prelink = base
+
+# Layer: services
+# Module: procmail
+#
+# Procmail mail delivery agent
+# 
+procmail = base
+
+# Layer: services
+# Module: privoxy
+#
+# Privacy enhancing web proxy.
+# 
+privoxy = base
+
+# Layer: services
+# Module: publicfile
+#
+# publicfile supplies files to the public through HTTP and FTP
+# 
+publicfile = module
+
+# Layer: services
+# Module: pyzor
+#
+# Spam Blocker
+# 
+pyzor = module
+
+
+# Layer: services
+# Module: qmail
+#
+# Policy for qmail
+# 
+qmail = module
+
+# Layer: admin
+# Module: quota
+#
+# File system quota management
+# 
+quota = off
+
+# Layer: system
+# Module: raid
+#
+# RAID array management tools
+# 
+raid = base
+
+# Layer: services
+# Module: radius
+#
+# RADIUS authentication and accounting server.
+# 
+radius = base
+
+# Layer: services
+# Module: radius
+#
+# RADIUS authentication and accounting server.
+# 
+radius = base
+
+
+# Layer: services
+# Module: radvd
+#
+# IPv6 router advertisement daemon
+# 
+radvd = base
+
+# Layer: services
+# Module: razor
+#
+# A distributed, collaborative, spam detection and filtering network.
+# 
+razor = module
+
+# Layer: admin
+# Module: readahead
+#
+# Readahead, read files into page cache for improved performance
+# 
+readahead = base
+
+# Layer: services
+# Module: rhgb
+#
+# X windows login display manager
+# 
+rhgb = base
+
+# Layer: services
+# Module: rdisc
+#
+# Network router discovery daemon
+# 
+rdisc = base
+
+# Layer: services
+# Module: remotelogin
+#
+# Policy for rshd, rlogind, and telnetd.
+# 
+remotelogin = base
+
+# Layer: services
+# Module: ricci
+#
+# policy for ricci
+# 
+ricci = module
+
+# Layer: services
+# Module: rlogin
+#
+# Remote login daemon
+# 
+rlogin = base
+
+# Layer: services
+# Module: roundup
+#
+# Roundup Issue Tracking System policy
+# 
+roundup = module
+
+# Layer: services
+# Module: rpc
+#
+# Remote Procedure Call Daemon for managment of network based process communication
+# 
+rpc = base
+
+# Layer: admin
+# Module: rpm
+#
+# Policy for the RPM package manager.
+# 
+rpm = base
+
+
+# Layer: services
+# Module: rshd
+#
+# Remote shell service.
+# 
+rshd = base
+
+# Layer: services
+# Module: rsync
+#
+# Fast incremental file transfer for synchronization
+# 
+rsync = base
+
+# Layer: services
+# Module: rwho
+#
+# who is logged in on local machines
+# 
+rwho = module
+
+# Layer: services
+# Module: sasl
+#
+# SASL authentication server
+# 
+sasl = base
+
+# Layer: services
+# Module: sendmail
+#
+# Policy for sendmail.
+# 
+sendmail = base
+
+# Layer: services
+# Module: samba
+#
+# SMB and CIFS client/server programs for UNIX and
+# name  Service  Switch  daemon for resolving names
+# from Windows NT servers.
+# 
+samba = base
+
+# Layer: apps
+# Module: screen
+#
+# GNU terminal multiplexer
+# 
+screen = module
+
+# Layer: kernel
+# Module: selinux
+# Required in base
+#
+# Policy for kernel security interface, in particular, selinuxfs.
+# 
+selinux = base
+
+# Layer: system
+# Module: selinuxutil
+#
+# Policy for SELinux policy and userland applications.
+# 
+selinuxutil = base
+
+# Layer: system
+# Module: setrans
+# Required in base
+#
+# Policy for setrans
+# 
+setrans = base
+
+# Layer: services
+# Module: setroubleshoot
+#
+# Policy for the SELinux troubleshooting utility
+# 
+setroubleshoot = base
+
+# Layer: services
+# Module: slrnpull
+#
+# Service for downloading news feeds the slrn newsreader.
+# 
+slrnpull = off
+
+
+# Layer: apps
+# Module: slocate
+#
+# Update database for mlocate
+# 
+slocate = module
+
+# Layer: services
+# Module: smartmon
+#
+# Smart disk monitoring daemon policy
+# 
+smartmon = module
+
+# Layer: services
+# Module: snmp
+#
+# Simple network management protocol services
+# 
+snmp = base
+
+# Layer: services
+# Module: spamassassin
+#
+# Filter used for removing unsolicited email.
+# 
+spamassassin = base
+
+# Layer: services
+# Module: squid
+#
+# Squid caching http proxy server
+# 
+squid = base
+
+# Layer: services
+# Module: ssh
+#
+# Secure shell client and server policy.
+# 
+ssh = base
+
+# Layer: kernel
+# Module: storage
+#
+# Policy controlling access to storage devices
+# 
+storage = base
+
+# Layer: services
+# Module: stunnel
+#
+# SSL Tunneling Proxy
+# 
+stunnel = base
+
+# Layer: admin
+# Module: su
+#
+# Run shells with substitute user and group
+# 
+su = base
+
+# Layer: admin
+# Module: sudo
+#
+# Execute a command with a substitute user
+# 
+sudo = base
+
+# Layer: system
+# Module: sysnetwork
+#
+# Policy for network configuration: ifconfig and dhcp client.
+# 
+sysnetwork = base
+
+
+# Layer: services
+# Module: sysstat
+#
+# Policy for sysstat. Reports on various system states
+# 
+sysstat = base
+
+# Layer: services
+# Module: tcpd
+#
+# Policy for TCP daemon.
+# 
+tcpd = base
+
+# Layer: system
+# Module: udev
+#
+# Policy for udev.
+# 
+udev = base
+
+# Layer: system
+# Module: userdomain
+#
+# Policy for user domains
+# 
+userdomain = base
+
+# Layer: system
+# Module: unconfined
+#
+# The unconfined domain.
+# 
+unconfined = module
+
+# Layer: apps
+# Module: wine
+#
+# wine executable
+# 
+wine = base
+
+# Layer: admin
+# Module: tzdata
+#
+# Policy for tzdata-update
+# 
+tzdata = base
+
+# Layer: apps
+# Module: userhelper
+#
+# A helper interface to pam.
+# 
+userhelper = module
+
+# Layer: services
+# Module: tor
+#
+# TOR, the onion router
+# 
+tor = module
+
+# Layer: apps
+# Module: tvtime
+#
+# tvtime - a high quality television application
+# 
+tvtime = module
+
+# Layer: apps
+# Module: uml
+#
+# Policy for UML
+# 
+uml = module
+
+# Layer: admin
+# Module: usbmodules
+#
+# List kernel modules of USB devices
+# 
+usbmodules = module
+
+# Layer: apps
+# Module: usernetctl
+#
+# User network interface configuration helper
+# 
+usernetctl = module
+
+# Layer: system
+# Module: xen
+#
+# virtualization software
+# 
+xen = base
+
+# Layer: system
+# Module: virt
+#
+# Virtualization libraries
+# 
+virt = module
+
+# Layer: system
+# Module: qemu
+#
+# Virtualization emulator 
+# 
+qemu = module
+
+# Layer: system
+# Module: brctl
+#
+# Utilities for configuring the linux ethernet bridge
+# 
+brctl = base
+
+# Layer: services
+# Module: telnet
+#
+# Telnet daemon
+# 
+telnet = base
+
+# Layer: services
+# Module: timidity
+#
+# MIDI to WAV converter and player configured as a service
+# 
+timidity = off
+
+# Layer: services
+# Module: tftp
+#
+# Trivial file transfer protocol daemon
+# 
+tftp = base
+
+# Layer: services
+# Module: uucp
+#
+# Unix to Unix Copy
+# 
+uucp = base
+
+# Layer: services
+# Module: vbetool 
+#
+# run real-mode video BIOS code to alter hardware state
+# 
+vbetool = base
+
+# Layer: apps
+# Module: webalizer
+#
+# Web server log analysis
+# 
+webalizer = base
+
+# Layer: services
+# Module: xfs
+#
+# X Windows Font Server
+# 
+xfs = base
+
+# Layer: services
+# Module: xserver
+#
+# X windows login display manager
+# 
+xserver = base
+
+# Layer: services
+# Module: zebra
+#
+# Zebra border gateway protocol network routing service
+# 
+zebra = base
+
+# Layer: admin
+# Module: usermanage
+#
+# Policy for managing user accounts.
+# 
+usermanage = base
+
+# Layer: admin
+# Module: updfstab
+#
+# Red Hat utility to change /etc/fstab.
+# 
+updfstab = base
+
+# Layer: admin
+# Module: vpn
+#
+# Virtual Private Networking client
+# 
+vpn = base
+
+# Layer: admin
+# Module: vbetool
+#
+# run real-mode video BIOS code to alter hardware state
+# 
+vbetool = base
+
+# Layer: kernel
+# Module: terminal
+# Required in base
+#
+# Policy for terminals.
+# 
+terminal = base
+
+# Layer: admin
+# Module: tmpreaper
+#
+# Manage temporary directory sizes and file ages
+# 
+tmpreaper = module
+
+# Layer: admin
+# Module: amtu
+#
+# Abstract Machine Test Utility (AMTU)
+# 
+amtu = module
+
+# Layer: services
+# Module: zabbix
+#
+# Open-source monitoring solution for your IT infrastructure
+#
+zabbix = module
+
+# Layer: services
+# Module: apcupsd
+#
+# daemon for most APC’s UPS for Linux
+#
+apcupsd = module
+
+# Layer: services
+# Module: aide
+#
+# Policy for aide
+# 
+aide = base
+
+# Layer: services
+# Module: aide
+#
+# Policy for aide
+# 
+aide = base
+
+# Layer: services
+# Module: w3c
+#
+# w3c
+# 
+w3c = module
+
+# Layer: services
+# Module: rpcbind
+#
+#  universal addresses to RPC program number mapper
+# 
+rpcbind = module
+
+# Layer: apps
+# Module: vmware
+#
+# VMWare Workstation virtual machines
+# 
+vmware = module
+
+# Layer: role
+# Module: logadm
+#
+# Minimally prived root role for managing logging system
+# 
+logadm = module
+
+# Layer: role
+# Module: webadm
+#
+# Minimally prived root role for managing apache
+# 
+webadm = module
+
+#
+# Layer: services
+# Module: exim
+#
+# exim mail server 
+# 
+exim = module
+
+
+# Layer: services
+# Module: kismet
+#
+# Wireless sniffing and monitoring
+# 
+kismet = module
+
+# Layer: services
+# Module: munin
+#
+# Munin
+# 
+munin = module
+
+# Layer: services
+# Module: bitlbee
+#
+# An IRC to other chat networks  gateway
+# 
+bitlbee = module
+
+# Layer: services
+# Module: soundserver
+#
+# sound server for network audio server programs, nasd, yiff, etc</summary>
+# 
+soundserver = module
+
+# Layer:role
+# Module: staff
+#
+# admin account 
+# 
+staff = module
+
+# Layer:role
+# Module: sysadm
+#
+# System Administrator
+# 
+sysadm = module
+
+# Layer: role
+# Module: unprivuser
+#
+# Minimally privs guest account on tty logins
+# 
+unprivuser = module
+
+# Layer: services
+# Module: prelude
+#
+# 
+# 
+prelude = module
+
+# Layer: services
+# Module: kerneloops
+#
+# program  to  collect  and  submit  kernel oopses to kerneloops.org
+# 
+kerneloops = module
+
+# Layer: apps
+# Module: openoffice
+#
+# openoffice executable
+# 
+openoffice = base
+
+# Layer: services
+# Module: podsleuth
+#
+# Podsleuth probes, identifies, and exposes properties and metadata bound to iPods.
+# 
+podsleuth = module
+
+# Layer: role
+# Module: guest
+#
+# Minimally privs guest account on tty logins
+# 
+guest = module
+
+# Layer: role
+# Module: xguest
+#
+# Minimally privs guest account on X Windows logins
+# 
+xguest = module
+
+
+--------------050105050304070507040708--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
