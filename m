@@ -1,172 +1,68 @@
-Subject: RE: overriding home directory file contexts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>,
-        Karl MacMillan <kmacmillan@tresys.com>
-In-Reply-To: <0794F277152EF94AA637E3AECF5CB70FB9DD3C@blums0042.bluelnk.net>
-References: <0794F277152EF94AA637E3AECF5CB70FB9DD15@blums0042.bluelnk.net>
-	 <1211487975.7486.543.camel@moss-spartans.epoch.ncsc.mil>
-	 <0794F277152EF94AA637E3AECF5CB70FB9DD3C@blums0042.bluelnk.net>
-Content-Type: text/plain
-Date: Fri, 23 May 2008 08:21:52 -0400
-Message-Id: <1211545312.7486.569.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4NEHjU8015152
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 10:17:46 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4NEHjLq000860
+	for <selinux@tycho.nsa.gov>; Fri, 23 May 2008 14:17:45 GMT
+Message-ID: <4836D221.3080605@redhat.com>
+Date: Fri, 23 May 2008 10:18:09 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Updated kernel/filesystem.* patch
+Content-Type: multipart/mixed;
+ boundary="------------030302000102010606020901"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------030302000102010606020901
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Thu, 2008-05-22 at 14:19 -0700, Clarkson, Mike R (US SSA) wrote:
-> 
-> > -----Original Message-----
-> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> > Sent: Thursday, May 22, 2008 1:26 PM
-> > To: Clarkson, Mike R (US SSA)
-> > Cc: selinux@tycho.nsa.gov
-> > Subject: Re: overriding home directory file contexts
-> > 
-> > 
-> > On Thu, 2008-05-22 at 13:16 -0700, Clarkson, Mike R (US SSA) wrote:
-> > > There seems to be a very strong preference by the policy to label
-> files
-> > > and directories under a home directory to user_home_t. I would like
-> to
-> > > override that for a particular directory structure.
-> > >
-> > > I have the following directory with many other files and directories
-> > > below it:
-> > > /opt/home/oracle/product/10.2.0
-> > >
-> > > Many of files are libraries, which I would like to label lib_t and
-> > > shlib_t. As a specific example I have the following two files:
-> > >
-> > > # ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
-> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
-> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
-> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
-> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
-> > >
-> > > If I add the following file context line to my policy without any
-> regex
-> > > wildcard chars, it works. The libsqlplus.so file is properly labeled
-> as
-> > > shlib_t.
-> > >
-> > > /opt/home/oracle/product/10\.2\.0/lib32/libsqlplus\.so --
-> > > gen_context(system_u:object_r:shlib_t,__SYSTEMLOW__)
-> > >
-> > > # ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
-> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
-> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
-> > > -r-xr-xr-x  oracle oinstall system_u:object_r:shlib_t:SystemLow
-> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
-> > >
-> > > However, if I add any regex wildcard chars, the label reverts back
-> to
-> > > the default user_home_t context. For example, with the following
-> > > modification to the above file context line:
-> > >
-> > > /opt/home/oracle/product/10\.2\.0/lib32/libsqlplus.*\.so --
-> > > gen_context(system_u:object_r:shlib_t,__SYSTEMLOW__)
-> > >
-> > > # ls -Z /opt/home/oracle/product/10.2.0/lib32/libsql*
-> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
-> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplusic.so
-> > > -r-xr-xr-x  oracle oinstall user_u:object_r:user_home_t:SystemLow
-> > > /opt/home/oracle/product/10.2.0/lib32/libsqlplus.so
-> > >
-> > > Being that this is a large directory structure with lots of files, I
-> do
-> > > not want to have to label each one explicitly, without the use of
-> regex
-> > > wildcards.
-> > >
-> > > My understanding is that the policy should apply the most specific
-> file
-> > > context line. But that does not appear to be what is happening in
-> this
-> > > case. Is there some way to override this strong preference to label
-> > > files under a home directory as user_home_t?
-> > >
-> > > I'm using the rhel5.1 mls policy
-> > >
-> > > Any help would be greatly appreciated.
-> > 
-> > Use semanage fcontext -a to add the entries to your
-> file_contexts.local
-> > file.  That will take precedence.
-> > 
-> 
-> Thanks. That helps.
-> 
-> There are some disadvantages to doing it this way though. 
-> 
-> Mainly, I can't use M4 macros to make the file context definition more
-> portable. For instance I usually do something like this to make it
-> easier to port the policy from one machine to another, where something
-> like the ORACLE_HOME path may change:
-> 
-> __DB_ORACLE_HOME__/lib/lib.+\.so.* --
-> gen_context(system_u:object_r:shlib_t,__SYSTEMLOW__)
-> 
-> Also, the semanage interface it harder to use than editing a file
-> directly, and it is less obvious to look in the file_contexts.local file
-> for oracle file context definitions than in the oracle_db.fc file
-> 
-> Is there any way to make the policy source *.fc files override the
-> file_contexts.homedirs file?
 
-Not at present, although we're open to suggestions.
+--------------030302000102010606020901
+Content-Type: application/x-gzip;
+ name="kernel_filesystem.patch.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="kernel_filesystem.patch.gz"
 
-The current situation is that the file contexts configuration consists
-of three generated files (all managed by libsemanage and all read by
-libselinux):  file_contexts, file_contexts.homedirs, and
-file_contexts.local.
-
-file_contexts is generated from the .fc files in the individual policy
-modules in the policy store.  It used to be unordered aside from the
-relative ordering between the base module and non-base modules but
-libsemanage was later changed to apply the sorting heuristics introduced
-in the reference policy when creating it.
-
-file_contexts.homedirs is generated from template entries extracted from
-the .fc files in the individual policy modules and from user data
-extracted from system databases like passwd.  It used to be created by
-the separate genhomedircon script, but that logic has now moved into
-libsemanage.
-
-file_contexts.local is populated via semanage fcontext (RHEL5) or by
-manual editing (RHEL4).  I don't believe it is presently sorted at
-generation time.
-
-libselinux reads the three files in such a way as to give first
-precedence to file_contexts.local, then second to
-file_contexts.homedirs, then last to file_contexts.  The only sorting
-libselinux applies to the final result is to move entries that are fully
-specified (i.e. no regex) to highest precedence.  The libselinux logic
-predates the libsemanage or reference policy sorting heuristics by a
-long time, and has to continue to work even in the absence of any
-sorting of the file_contexts file at creation time for use on old
-systems (e.g. RHEL4).
-
-Simply flipping the precedence of file_contexts.homedirs and
-file_contexts would be unsafe as file_contexts generally has the
-catch-all /.* regex.  Applying the full sorting heuristics in libselinux
-was viewed as too expensive IIRC.  Merging the three files together in
-libsemanage and sorting them all together at generation time would solve
-some problems but break the ability to ensure that local modifications
-via semanage always take precedence over base policy.
-
-Given that genhomedircon has been merged into libsemanage though, we
-might be able to eliminate the separation between file_contexts and
-file_contexts.homedirs, and sort them together?  While leaving
-file_contexts.local separate.
-
--- 
-Stephen Smalley
-National Security Agency
-
+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
+--------------030302000102010606020901--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
