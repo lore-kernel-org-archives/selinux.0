@@ -1,39 +1,26 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4QFkoXd008042
-	for <selinux@tycho.nsa.gov>; Mon, 26 May 2008 11:46:50 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m4QFknLN019864
-	for <selinux@tycho.nsa.gov>; Mon, 26 May 2008 15:46:49 GMT
-Subject: Re: New domain for nsplugin
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4QHe6BC024032
+	for <selinux@tycho.nsa.gov>; Mon, 26 May 2008 13:40:06 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m4QHe5TO025867
+	for <selinux@tycho.nsa.gov>; Mon, 26 May 2008 17:40:05 GMT
+Subject: Re: New policy for kerneloops
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Daniel J Walsh <Dan-Walsh@comcast.net>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4831B4E7.6010000@comcast.net>
-References: <4831B4E7.6010000@comcast.net>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <4831B91B.8010305@comcast.net>
+References: <4831B91B.8010305@comcast.net>
 Content-Type: text/plain
-Date: Mon, 26 May 2008 11:46:02 -0400
-Message-Id: <1211816762.11188.181.camel@gorn.columbia.tresys.com>
+Date: Mon, 26 May 2008 13:39:16 -0400
+Message-Id: <1211823556.11188.182.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-05-19 at 13:12 -0400, Daniel J Walsh wrote:
-> --- nsaserefpolicy/policy/modules/apps/nsplugin.fc	1969-12-31 19:00:00.000000000 -0500
-> +++ serefpolicy-3.4.1/policy/modules/apps/nsplugin.fc	2008-05-19 11:36:24.749177000 -0400
-> @@ -0,0 +1,9 @@
-> +
-> +/usr/lib(64)?/nspluginwrapper/npviewer.bin	--	gen_context(system_u:object_r:nsplugin_exec_t,s0)
-> +/usr/lib(64)?/nspluginwrapper/plugin-config	--	gen_context(system_u:object_r:nsplugin_config_exec_t,s0)
-> +/usr/lib(64)?/mozilla/plugins-wrapped(/.*)?			gen_context(system_u:object_r:nsplugin_rw_t,s0)
-> +
-> +HOME_DIR/\.adobe(/.*)?			gen_context(system_u:object_r:user_nsplugin_home_t,s0)
-> +HOME_DIR/\.macromedia(/.*)?		gen_context(system_u:object_r:user_nsplugin_home_t,s0)
-> +HOME_DIR/\.gstreamer-.*			gen_context(system_u:object_r:user_nsplugin_home_t,s0)
-> +HOME_DIR/\.local.*			gen_context(system_u:object_r:user_nsplugin_home_t,s0)
+On Mon, 2008-05-19 at 13:30 -0400, Daniel J Walsh wrote:
+> Gzip archive attachment (services_kerneloops.patch.gz)
 
-I'm having trouble buying this one.  It seems pretty broad, especially
-since acrobat isn't only a browser plugin, and I'm not sure what
-gstreamer is doing here.
+Merged.
 
 -- 
 Chris PeBenito
