@@ -1,118 +1,166 @@
-Subject: Re: [PATCH Take 3] user and role remapping in expander (was
-	Re:	roles in base module)
+Subject: Re: Is there a command line tool that returns 1 if a file is
+	in	the wrong context?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Martin Orr <martin@martinorr.name>, SELinux List <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Karl MacMillan <kmacmillan@tresys.com>, setools@tresys.com
-In-Reply-To: <483C49CB.8060301@manicmethod.com>
-References: <4820D9FB.8010802@martinorr.name>
-	 <1210248530.6434.145.camel@moss-spartans.epoch.ncsc.mil>
-	 <482E1DCD.1000505@manicmethod.com>
-	 <1211199052.7486.30.camel@moss-spartans.epoch.ncsc.mil>
-	 <4831F82F.3090702@manicmethod.com>
-	 <1211306138.7486.189.camel@moss-spartans.epoch.ncsc.mil>
-	 <4838CDDB.5000409@manicmethod.com>
-	 <1211907188.19360.17.camel@moss-spartans.epoch.ncsc.mil>
-	 <483C49CB.8060301@manicmethod.com>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Joe Nall <joe@nall.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <483C66B1.7010604@tycho.nsa.gov>
+References: <552999F5-C6B1-4ACE-B6CF-A4020CD13B5F@nall.com>
+	 <1211902117.19360.6.camel@moss-spartans.epoch.ncsc.mil>
+	 <483C66B1.7010604@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Tue, 27 May 2008 16:10:40 -0400
-Message-Id: <1211919040.19360.110.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 27 May 2008 16:12:21 -0400
+Message-Id: <1211919141.19360.112.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-05-27 at 13:50 -0400, Joshua Brindle wrote:
+On Tue, 2008-05-27 at 15:53 -0400, Eamon Walsh wrote:
 > Stephen Smalley wrote:
-> > On Sat, 2008-05-24 at 22:24 -0400, Joshua Brindle wrote:
-> >> Stephen Smalley wrote:
-> >>> On Mon, 2008-05-19 at 17:59 -0400, Joshua Brindle wrote:
-> >>>> Stephen Smalley wrote:
-> >>>>> On Fri, 2008-05-16 at 19:50 -0400, Joshua Brindle wrote:
-> >>>>>> Stephen Smalley wrote:
-> >>>>>>> On Tue, 2008-05-06 at 23:21 +0100, Martin Orr wrote:
-> >>>>>>>> Should I be able to build trunk refpolicy with the user roles included in
-> >>>>>>>> the base module?  I can build it with the roles as modules, but if I try
-> >>>>>>>> building them into base I get
-> >>>>>>>> /usr/bin/checkmodule -M base.conf -o tmp/base.mod
-> >>>>>>>> /usr/bin/checkmodule:  loading policy configuration from base.conf
-> >>>>>>>> libsepol.expand_module: Error while indexing out symbols
-> >>>>>>>> /usr/bin/checkmodule:  expand module failed
-> >>>>>>>>
-> >>>>>>>> I have refpolicy revision 2669, libsepol 2.0.25, checkpolicy 2.0.12.  I have
-> >>>>>>>> attached the modules.conf I am using, which seems to be the minimum number
-> >>>>>>>> of things I need to build in to be able to build in roles.
-> >>>>>>> Reproduced here as well, and naturally one should be able to build roles
-> >>>>>>> into base.
-> >>>>>>>
-> >>>>>>> We've seen this error condition in the past - it indicates that there is
-> >>>>>>> a hole in the symbol table, and requires mapping support in the expand
-> >>>>>>> code for roles to correctly handle it.  So that represents a
-> >>>>>>> bug/limitation of the current policy compiler.
-> >>>>>>>
-> >>>>>>> Walking through it I see that it is omitting the auditadm_r and secadm_r
-> >>>>>>> roles during the expand, and this is leaving the holes in the symbol
-> >>>>>>> table.
-> >>>>>>>
-> >>>>>>> Fixing the compiler requires adding mapping support for the roles
-> >>>>>>> similar to what Karl did for booleans in r2308.
-> >>>>>>>
-> >>>>>>> Hopefully though Chris can work around it in the policy in the interim.
-> >>>>>>>
-> >>>>>> Patch below should fix both user and role mapping issues.
-> >>>>> Why is it that we don't need a usermap too?
-> >>>>>
-> >>>> Updated patch includes usermap and mapping in constraint_node_clone, completely untested.
-> >>> Still fails in the same way as reported by Martin upon semodule -b of the base module.
-> >>> libsepol.context_read_and_validate: invalid security context
-> >>> libsepol.sepol_set_policydb_from_file: can't read binary policy: Success
-> >>> Error reading policy /etc/selinux/test/policy/policy.23: Success
-> >>> libsemanage.semanage_install_active: setfiles returned error code 1.
-> >>>
-> >>> Also fails upon just trying to semodule -B an existing valid policy
-> >>> store using the patched libsepol.
-> >>>
-> >> Ok, the following patch should address everything, it was more intrusive than I originally thought. 
-> >>
-> >> role->dominates will be incorrect when roles are copied and mapped from base into out policy, this is fixed after they've all been copied. 
-> >>
-> >> There is a tiny hack concerning object_r, at some point I'd like to address all the object_r hardcoding (both in the kernel and toolchain) but that is pretty low on the list.
-> >>
-> >> expand_module_avrules() which is used by external apps (eg., setools) has changed so those users will need to be fixed.
-> >>
-> >> valgrind and sediff are clean
-> >>
-> >> ------
-> >>
-> > 
-> >> diff -pruN -x .svn trunk.old/libsepol/src/expand.c trunk/libsepol/src/expand.c
-> >> --- trunk.old/libsepol/src/expand.c	2008-05-14 06:03:34.088691020 -0400
-> >> +++ trunk/libsepol/src/expand.c	2008-05-20 04:37:12.830478955 -0400
-> >> @@ -511,6 +538,28 @@ static int alias_copy_callback(hashtab_k
-> >>  	return 0;
-> >>  }
-> >>  
-> >> +static int role_remap_dominates(hashtab_key_t key __attribute__ ((unused)), hashtab_datum_t datum, void *data)
-> >> +{
-> >> +	ebitmap_t mapped_roles;
-> >> +	role_datum_t *role = (role_datum_t *) datum;
-> >> +	expand_state_t *state = (expand_state_t *) data;
-> >> +
-> >> +	if (!(&role->dominates.node)) 
-> >> +		return 0;
-> > 
-> > That looks very odd.  What are you trying to test?
-> > !ebitmap_length(&role->dominates) is a test for empty ebitmap if you
-> > want that.
-> > 
+> > On Sat, 2008-05-24 at 18:58 -0500, Joe Nall wrote:
+> >   
+> >> Is there a command line tool that returns 1 if a file is in the wrong  
+> >> context?. I want to add a %verifyscript to our rpms to validate the  
+> >> installed file context when rpm -V is invoked.
+> >>     
+> >
+> > I was going to suggest matchpathcon -V, except when trying it, I found
+> > that there is a bug in the current libselinux that makes it seg fault
+> > and it also doesn't return the status but rather displays it.  So how
+> > about the patch below to fix the bug and make the exit status usable?
+> >
+> > After this patch, you can run '/usr/sbin/matchpathcon -Vq path1
+> > [path2...]' and check the exit status; 0 will mean that all verified;
+> > non-zero will be the count of failures.
+> >   
 > 
-> Right, that was copied from role_copy_callback. looks like there are a few occurrences of this in expand.c, I'll make a patch on top of this to fix them all when I get a chance.
+> Minor nit, but return codes are limited to 1 byte; multiples of 256 
+> errors will "succeed":
 
-Merged with all instances of those always-false branches removed.
-AFAICS, they were either entirely useless or premature optimization (and
-never executed regardless).
+Ok, that's already a bug in the current matchpathcon utility in that
+case.  So I'll just make it always exit 0 or 1.
 
+> 
+> $ for i in {250..260}; do sh -c "exit $i"; echo $? ; done
+> 250
+> 251
+> 252
+> 253
+> 254
+> 255
+> 0
+> 1
+> 2
+> 3
+> 4
+> 
+> 
+> 
+> 
+> 
+> > Index: libselinux/utils/matchpathcon.c
+> > ===================================================================
+> > --- libselinux/utils/matchpathcon.c	(revision 2883)
+> > +++ libselinux/utils/matchpathcon.c	(working copy)
+> > @@ -12,7 +12,7 @@
+> >  void usage(const char *progname)
+> >  {
+> >  	fprintf(stderr,
+> > -		"usage:  %s [-N] [-n] [-f file_contexts] [-p prefix] [-V] path...\n",
+> > +		"usage:  %s [-N] [-n] [-f file_contexts] [-p prefix] [-Vq] path...\n",
+> >  		progname);
+> >  	exit(1);
+> >  }
+> > @@ -42,11 +42,12 @@
+> >  	int verify = 0;
+> >  	int notrans = 0;
+> >  	int error = 0;
+> > +	int quiet = 0;
+> >  
+> >  	if (argc < 2)
+> >  		usage(argv[0]);
+> >  
+> > -	while ((opt = getopt(argc, argv, "Nnf:p:V")) > 0) {
+> > +	while ((opt = getopt(argc, argv, "Nnf:p:Vq")) > 0) {
+> >  		switch (opt) {
+> >  		case 'n':
+> >  			header = 0;
+> > @@ -90,6 +91,9 @@
+> >  				exit(1);
+> >  			}
+> >  			break;
+> > +		case 'q':
+> > +			quiet = 1;
+> > +			break;
+> >  		default:
+> >  			usage(argv[0]);
+> >  		}
+> > @@ -101,11 +105,18 @@
+> >  			mode = buf.st_mode;
+> >  
+> >  		if (verify) {
+> > +			if (quiet) {
+> > +				if (selinux_file_context_verify(argv[i], 0))
+> > +					continue;
+> > +				else
+> > +					exit(1);
+> > +			}
+> >  			if (selinux_file_context_verify(argv[i], 0)) {
+> >  				printf("%s verified.\n", argv[i]);
+> >  			} else {
+> >  				security_context_t con;
+> >  				int rc;
+> > +				error++;
+> >  				if (notrans)
+> >  					rc = lgetfilecon_raw(argv[i], &con);
+> >  				else
+> > @@ -114,15 +125,13 @@
+> >  				if (rc >= 0) {
+> >  					printf("%s has context %s, should be ",
+> >  					       argv[i], con);
+> > -					error +=
+> > -					    printmatchpathcon(argv[i], 0, mode);
+> > +					printmatchpathcon(argv[i], 0, mode);
+> >  					freecon(con);
+> >  				} else {
+> >  					printf
+> >  					    ("actual context unknown: %s, should be ",
+> >  					     strerror(errno));
+> > -					error +=
+> > -					    printmatchpathcon(argv[i], 0, mode);
+> > +					printmatchpathcon(argv[i], 0, mode);
+> >  				}
+> >  			}
+> >  		} else {
+> > Index: libselinux/src/matchpathcon.c
+> > ===================================================================
+> > --- libselinux/src/matchpathcon.c	(revision 2883)
+> > +++ libselinux/src/matchpathcon.c	(working copy)
+> > @@ -372,6 +372,9 @@
+> >  		else
+> >  			return 0;
+> >  	}
+> > +	
+> > +	if (!hnd && (matchpathcon_init_prefix(NULL, NULL) < 0))
+> > +			return -1;
+> >  
+> >  	if (selabel_lookup_raw(hnd, &fcontext, path, mode) != 0) {
+> >  		if (errno != ENOENT)
+> > @@ -394,6 +397,9 @@
+> >  	if (lstat(path, &st) != 0)
+> >  		return rc;
+> >  
+> > +	if (!hnd && (matchpathcon_init_prefix(NULL, NULL) < 0))
+> > +			return -1;
+> > +
+> >  	/* If there's an error determining the context, or it has none, 
+> >  	   return to allow default context */
+> >  	if (selabel_lookup_raw(hnd, &scontext, path, st.st_mode)) {
+> >  
+> >   
+> 
+> 
 -- 
 Stephen Smalley
 National Security Agency
