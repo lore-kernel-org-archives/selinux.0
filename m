@@ -1,49 +1,97 @@
-Subject: Re: Quick question
+Subject: Re: [PATCH] libselinux: add support for
+	/contexts/postgresql_contexts
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ioannis Aslanidis <iaslanidis@flumotion.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <483C4E13.2030903@flumotion.com>
-References: <483C46FA.9030904@flumotion.com>
-	 <1211911009.19360.51.camel@moss-spartans.epoch.ncsc.mil>
-	 <483C4E13.2030903@flumotion.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, ewalsh@tycho.nsa.gov,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1211910942.5008.57.camel@gorn.columbia.tresys.com>
+References: <483A9137.5050509@ak.jp.nec.com>
+	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>
+	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
 Content-Type: text/plain
-Date: Tue, 27 May 2008 14:26:45 -0400
-Message-Id: <1211912805.19360.65.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 27 May 2008 14:34:23 -0400
+Message-Id: <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-05-27 at 20:08 +0200, Ioannis Aslanidis wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephen Smalley wrote:
+On Tue, 2008-05-27 at 13:55 -0400, Christopher J. PeBenito wrote:
+> On Tue, 2008-05-27 at 13:14 -0400, Stephen Smalley wrote:
+> > On Mon, 2008-05-26 at 19:30 +0900, KaiGai Kohei wrote:
+> > > Hello,
+> > > 
+> > > The attached patch enables to obtain the default security context of newly
+> > > created database, defined at /etc/selinux/*/contexts/postgresql_contexts .
+> > > 
+> > > The format is as follows:
+> > > --------
+> > > #
+> > > # Config file for SE-PostgreSQL
+> > > #
+> > > # <domain of client>  <type of newly created database>
+> > > unconfined_t    sepgsql_db_t
+> > > *               sepgsql_db_t
+> > > --------
+> > > 
+> > > '*' means default security context, if given key is not matched for any entry.
+> > > 
+> > > This API requires the security context of client as a key, and it returns
+> > > a security context to be attached for a newly created database.
+> > > It has a type field defined in the right-hand of config file, and inherits
+> > > user and lower-range field of given security context as a key.
+> > > 
+> > > e.g)
+> > > selabel_lookup(sehandle, &context, "user_u:user_r:user_t:s0", 0);
+> > > returns "user_u:object_r:sepgsql_db_t:s0".
 > > 
-> > If I understand correctly, you want to provide separation on a per-user
-> > basis (not just per-role) for NFS-mounted home directories.  I don't
-> > think that is realistically supportable by SELinux today, as 1) SELinux
-> > distinguishes based on security context/label, not uid, and 2) NFS
-> > doesn't support file labeling yet.  Sounds more like a job for 'normal
-> > permissions' i.e. discretionary access modes and/or ACLs.  There is
-> > ongoing work to support file labeling in NFSv4, but it is still in
-> > development, and even then, instantiating a separate role for every user
-> > is going to be problematic for any large number of users.
+> > Chris is investigating the use of roles on objects in order to provide
+> > more fully featured RBAC support without requiring use of per-role
+> > domains.  Hardcoding the use of object_r won't be future compatible for
+> > that situation, and more generally we don't want to hardcode policy
+> > information in libselinux at all.
 > > 
+> > I'm also unclear as to why type_transition rules aren't a better way of
+> > expressing the above, although I know you've been discussing this with
+> > Chris for some time.  Logically I'd expect the client domain to be the
+> > source type of the transition, and the type for the newly created
+> > database to be the new/result type of the transition.  What to use as
+> > the target type is less clear; we'd have a similar issue if we were to
+> > use type_transitions for e.g. sockets.  It could either be the client
+> > domain both as source and target (self relationship, no related object)
+> > or the client domain as source and the object manager domain as target.
+> > 
+> > Chris, what is the objection to using type transitions here, as they are
+> > for labeling new objects and this seems to fit that situation?
 > 
+> I think KaiGai took my idea a little to far.  My issue was just to have
+> postgres determine what the default label for its objects are via
+> postgresql_contexts.  A derived role/type still makes sense to be stated
+> via (type|role)_transition.  I suspect there was confusion on this
+> point.  I mainly had an issue with statements like:
 > 
-> And would there be a way to do something so that each user has a
-> different context? That is to say, I can assign a different context to
-> each user and have something easily maintained. Do you see that viable?
+> type_transition postgresql_t postgresql_t:db_database sepgsql_db_t;
+> type_transition postgresql_t sepgsql_database_type:db_table sepgsql_sysobj_t;
+> type_transition postgresql_t sepgsql_database_type:db_procedure sepgsql_proc_t;
+> type_transition postgresql_t sepgsql_database_type:db_blob sepgsql_blob_t;
+> type_transition sepgsql_client_type postgresql_t:db_database sepgsql_db_t;
 
-It can be done (e.g. you can define a SELinux user in policy for each of
-your users and then use a policy constraint on the user identity field
-to enforce the separation, or you can define per-user roles in policy
-and use the RBAC support), but I'm not sure how practical it is.  But
-even if it were done, without labeling support in NFS, you can't use it
-for NFS-mounted home directories (you are limited to a single context
-per filesystem there at present).
+The first four statements don't make sense to me; the last one does make
+sense (i.e. when a postgres client creates a new database, where the
+only related "object" in view is that object manager's context, label
+the new database with sepgsql_db_t).  That last instance seems valid as
+a way of expressing types for new databases; the first four statements
+seem to be more suited to this postgres contexts configuration (as they
+are independent of client domain entirely).
 
+> which I feel should be instead be expressed in a postgresql_contexts
+> file that says the default context for a database is ::seqpgsql_db_t,
+> default context for table is ::sepgsql_sysobj_t, etc.
+> 
+> This makes perfect sense staying as a type_transition in the policy:
+> 
+> type_transition staff_t sepgsql_sysobj_t:db_tuple staff_sepgsql_sysobj_t;
+> 
 -- 
 Stephen Smalley
 National Security Agency
