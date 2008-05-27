@@ -1,64 +1,55 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4RI8MXB013229
+	for <selinux@tycho.nsa.gov>; Tue, 27 May 2008 14:08:22 -0400
+Received: from mail.fluendo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4RI8KVS024567
+	for <selinux@tycho.nsa.gov>; Tue, 27 May 2008 18:08:21 GMT
+Received: from mail.fluendo.com (localhost.localdomain [127.0.0.1])
+	by mail.fluendo.com (Postfix) with ESMTP id 9872D2500F8
+	for <selinux@tycho.nsa.gov>; Tue, 27 May 2008 20:08:19 +0200 (CEST)
+Received: from deathwing00.fluendo.lan (core.fluendo.com [195.10.6.237])
+	by mail.fluendo.com (Postfix) with ESMTP id 6B64A2500F5
+	for <selinux@tycho.nsa.gov>; Tue, 27 May 2008 20:08:19 +0200 (CEST)
+Message-ID: <483C4E13.2030903@flumotion.com>
+Date: Tue, 27 May 2008 20:08:19 +0200
+From: Ioannis Aslanidis <iaslanidis@flumotion.com>
+MIME-Version: 1.0
+To: selinux@tycho.nsa.gov
 Subject: Re: Quick question
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ioannis Aslanidis <iaslanidis@flumotion.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <483C46FA.9030904@flumotion.com>
-References: <483C46FA.9030904@flumotion.com>
-Content-Type: text/plain
-Date: Tue, 27 May 2008 13:56:49 -0400
-Message-Id: <1211911009.19360.51.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+References: <483C46FA.9030904@flumotion.com> <1211911009.19360.51.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1211911009.19360.51.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue, 2008-05-27 at 19:38 +0200, Ioannis Aslanidis wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Stephen Smalley wrote:
 > 
-> Hello,
+> If I understand correctly, you want to provide separation on a per-user
+> basis (not just per-role) for NFS-mounted home directories.  I don't
+> think that is realistically supportable by SELinux today, as 1) SELinux
+> distinguishes based on security context/label, not uid, and 2) NFS
+> doesn't support file labeling yet.  Sounds more like a job for 'normal
+> permissions' i.e. discretionary access modes and/or ACLs.  There is
+> ongoing work to support file labeling in NFSv4, but it is still in
+> development, and even then, instantiating a separate role for every user
+> is going to be problematic for any large number of users.
 > 
-> I do not know if this is the proper place for this; however, neither on
-> IRC in #selinux on freenode nor in other places related to SELinux I was
-> able to get the appropriate help. I have also spent over a month reading
-> through documentation and googling around to find something similar to
-> what I needed, but to no avail.
-> 
-> I would like to know how to create a module or policy or modify the
-> current policy so that users of the system are:
-> 1. Unable to list the /home directory
-> 2. Unable to get into other users directory using SELinux rules
-> 3. (optional) Be able to list /home, but be unable to see anything apart
-> from his home.
-> 
-> I have specific needs in my production environment which require these
-> specifications. Normal permissions are not an option in my environment,
-> because of shared permissions of nfs mounts.
-> 
-> Getting a template and working over it or converting deny rules to allow
-> rules is not an option for me, as I need to be able to understand and
-> allow others to understand the text and be able to easily maintainy and
-> modify it.
-> 
-> In order to prevent the users from getting any data in /etc/passwd I
-> plan to use PAM + LDAP or a similar solution.
-> 
-> I hope you can give me a hand with this.
 
-If I understand correctly, you want to provide separation on a per-user
-basis (not just per-role) for NFS-mounted home directories.  I don't
-think that is realistically supportable by SELinux today, as 1) SELinux
-distinguishes based on security context/label, not uid, and 2) NFS
-doesn't support file labeling yet.  Sounds more like a job for 'normal
-permissions' i.e. discretionary access modes and/or ACLs.  There is
-ongoing work to support file labeling in NFSv4, but it is still in
-development, and even then, instantiating a separate role for every user
-is going to be problematic for any large number of users.
 
--- 
-Stephen Smalley
-National Security Agency
+And would there be a way to do something so that each user has a
+different context? That is to say, I can assign a different context to
+each user and have something easily maintained. Do you see that viable?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
+iD8DBQFIPE4SFq+8w76sCAARAjn1AJ9WOkv51PzZTueUkD8jCYAN1z/U8wCcDsyj
+r2FnoXXpA0la49+Li2jAuK4=
+=h8RH
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
