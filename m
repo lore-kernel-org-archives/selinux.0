@@ -1,115 +1,118 @@
-Subject: Re: [PATCH] libselinux: add support for
-	/contexts/postgresql_contexts
+Subject: Re: [PATCH Take 3] user and role remapping in expander (was
+	Re:	roles in base module)
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, ewalsh@tycho.nsa.gov,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1211914557.5008.72.camel@gorn.columbia.tresys.com>
-References: <483A9137.5050509@ak.jp.nec.com>
-	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
-	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: Martin Orr <martin@martinorr.name>, SELinux List <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Karl MacMillan <kmacmillan@tresys.com>, setools@tresys.com
+In-Reply-To: <483C49CB.8060301@manicmethod.com>
+References: <4820D9FB.8010802@martinorr.name>
+	 <1210248530.6434.145.camel@moss-spartans.epoch.ncsc.mil>
+	 <482E1DCD.1000505@manicmethod.com>
+	 <1211199052.7486.30.camel@moss-spartans.epoch.ncsc.mil>
+	 <4831F82F.3090702@manicmethod.com>
+	 <1211306138.7486.189.camel@moss-spartans.epoch.ncsc.mil>
+	 <4838CDDB.5000409@manicmethod.com>
+	 <1211907188.19360.17.camel@moss-spartans.epoch.ncsc.mil>
+	 <483C49CB.8060301@manicmethod.com>
 Content-Type: text/plain
-Date: Tue, 27 May 2008 15:59:53 -0400
-Message-Id: <1211918393.19360.108.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 27 May 2008 16:10:40 -0400
+Message-Id: <1211919040.19360.110.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-05-27 at 14:55 -0400, Christopher J. PeBenito wrote:
-> On Tue, 2008-05-27 at 14:34 -0400, Stephen Smalley wrote:
-> > On Tue, 2008-05-27 at 13:55 -0400, Christopher J. PeBenito wrote:
-> > > On Tue, 2008-05-27 at 13:14 -0400, Stephen Smalley wrote:
-> > > > On Mon, 2008-05-26 at 19:30 +0900, KaiGai Kohei wrote:
-> > > > > Hello,
-> > > > > 
-> > > > > The attached patch enables to obtain the default security context of newly
-> > > > > created database, defined at /etc/selinux/*/contexts/postgresql_contexts .
-> > > > > 
-> > > > > The format is as follows:
-> > > > > --------
-> > > > > #
-> > > > > # Config file for SE-PostgreSQL
-> > > > > #
-> > > > > # <domain of client>  <type of newly created database>
-> > > > > unconfined_t    sepgsql_db_t
-> > > > > *               sepgsql_db_t
-> > > > > --------
-> > > > > 
-> > > > > '*' means default security context, if given key is not matched for any entry.
-> > > > > 
-> > > > > This API requires the security context of client as a key, and it returns
-> > > > > a security context to be attached for a newly created database.
-> > > > > It has a type field defined in the right-hand of config file, and inherits
-> > > > > user and lower-range field of given security context as a key.
-> > > > > 
-> > > > > e.g)
-> > > > > selabel_lookup(sehandle, &context, "user_u:user_r:user_t:s0", 0);
-> > > > > returns "user_u:object_r:sepgsql_db_t:s0".
-> > > > 
-> > > > Chris is investigating the use of roles on objects in order to provide
-> > > > more fully featured RBAC support without requiring use of per-role
-> > > > domains.  Hardcoding the use of object_r won't be future compatible for
-> > > > that situation, and more generally we don't want to hardcode policy
-> > > > information in libselinux at all.
-> > > > 
-> > > > I'm also unclear as to why type_transition rules aren't a better way of
-> > > > expressing the above, although I know you've been discussing this with
-> > > > Chris for some time.  Logically I'd expect the client domain to be the
-> > > > source type of the transition, and the type for the newly created
-> > > > database to be the new/result type of the transition.  What to use as
-> > > > the target type is less clear; we'd have a similar issue if we were to
-> > > > use type_transitions for e.g. sockets.  It could either be the client
-> > > > domain both as source and target (self relationship, no related object)
-> > > > or the client domain as source and the object manager domain as target.
-> > > > 
-> > > > Chris, what is the objection to using type transitions here, as they are
-> > > > for labeling new objects and this seems to fit that situation?
-> > > 
-> > > I think KaiGai took my idea a little to far.  My issue was just to have
-> > > postgres determine what the default label for its objects are via
-> > > postgresql_contexts.  A derived role/type still makes sense to be stated
-> > > via (type|role)_transition.  I suspect there was confusion on this
-> > > point.  I mainly had an issue with statements like:
-> > > 
-> > > type_transition postgresql_t postgresql_t:db_database sepgsql_db_t;
-> > > type_transition postgresql_t sepgsql_database_type:db_table sepgsql_sysobj_t;
-> > > type_transition postgresql_t sepgsql_database_type:db_procedure sepgsql_proc_t;
-> > > type_transition postgresql_t sepgsql_database_type:db_blob sepgsql_blob_t;
-> > > type_transition sepgsql_client_type postgresql_t:db_database sepgsql_db_t;
+On Tue, 2008-05-27 at 13:50 -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On Sat, 2008-05-24 at 22:24 -0400, Joshua Brindle wrote:
+> >> Stephen Smalley wrote:
+> >>> On Mon, 2008-05-19 at 17:59 -0400, Joshua Brindle wrote:
+> >>>> Stephen Smalley wrote:
+> >>>>> On Fri, 2008-05-16 at 19:50 -0400, Joshua Brindle wrote:
+> >>>>>> Stephen Smalley wrote:
+> >>>>>>> On Tue, 2008-05-06 at 23:21 +0100, Martin Orr wrote:
+> >>>>>>>> Should I be able to build trunk refpolicy with the user roles included in
+> >>>>>>>> the base module?  I can build it with the roles as modules, but if I try
+> >>>>>>>> building them into base I get
+> >>>>>>>> /usr/bin/checkmodule -M base.conf -o tmp/base.mod
+> >>>>>>>> /usr/bin/checkmodule:  loading policy configuration from base.conf
+> >>>>>>>> libsepol.expand_module: Error while indexing out symbols
+> >>>>>>>> /usr/bin/checkmodule:  expand module failed
+> >>>>>>>>
+> >>>>>>>> I have refpolicy revision 2669, libsepol 2.0.25, checkpolicy 2.0.12.  I have
+> >>>>>>>> attached the modules.conf I am using, which seems to be the minimum number
+> >>>>>>>> of things I need to build in to be able to build in roles.
+> >>>>>>> Reproduced here as well, and naturally one should be able to build roles
+> >>>>>>> into base.
+> >>>>>>>
+> >>>>>>> We've seen this error condition in the past - it indicates that there is
+> >>>>>>> a hole in the symbol table, and requires mapping support in the expand
+> >>>>>>> code for roles to correctly handle it.  So that represents a
+> >>>>>>> bug/limitation of the current policy compiler.
+> >>>>>>>
+> >>>>>>> Walking through it I see that it is omitting the auditadm_r and secadm_r
+> >>>>>>> roles during the expand, and this is leaving the holes in the symbol
+> >>>>>>> table.
+> >>>>>>>
+> >>>>>>> Fixing the compiler requires adding mapping support for the roles
+> >>>>>>> similar to what Karl did for booleans in r2308.
+> >>>>>>>
+> >>>>>>> Hopefully though Chris can work around it in the policy in the interim.
+> >>>>>>>
+> >>>>>> Patch below should fix both user and role mapping issues.
+> >>>>> Why is it that we don't need a usermap too?
+> >>>>>
+> >>>> Updated patch includes usermap and mapping in constraint_node_clone, completely untested.
+> >>> Still fails in the same way as reported by Martin upon semodule -b of the base module.
+> >>> libsepol.context_read_and_validate: invalid security context
+> >>> libsepol.sepol_set_policydb_from_file: can't read binary policy: Success
+> >>> Error reading policy /etc/selinux/test/policy/policy.23: Success
+> >>> libsemanage.semanage_install_active: setfiles returned error code 1.
+> >>>
+> >>> Also fails upon just trying to semodule -B an existing valid policy
+> >>> store using the patched libsepol.
+> >>>
+> >> Ok, the following patch should address everything, it was more intrusive than I originally thought. 
+> >>
+> >> role->dominates will be incorrect when roles are copied and mapped from base into out policy, this is fixed after they've all been copied. 
+> >>
+> >> There is a tiny hack concerning object_r, at some point I'd like to address all the object_r hardcoding (both in the kernel and toolchain) but that is pretty low on the list.
+> >>
+> >> expand_module_avrules() which is used by external apps (eg., setools) has changed so those users will need to be fixed.
+> >>
+> >> valgrind and sediff are clean
+> >>
+> >> ------
+> >>
 > > 
-> > The first four statements don't make sense to me; the last one does make
-> > sense (i.e. when a postgres client creates a new database, where the
-> > only related "object" in view is that object manager's context, label
-> > the new database with sepgsql_db_t).  That last instance seems valid as
-> > a way of expressing types for new databases; the first four statements
-> > seem to be more suited to this postgres contexts configuration (as they
-> > are independent of client domain entirely).
+> >> diff -pruN -x .svn trunk.old/libsepol/src/expand.c trunk/libsepol/src/expand.c
+> >> --- trunk.old/libsepol/src/expand.c	2008-05-14 06:03:34.088691020 -0400
+> >> +++ trunk/libsepol/src/expand.c	2008-05-20 04:37:12.830478955 -0400
+> >> @@ -511,6 +538,28 @@ static int alias_copy_callback(hashtab_k
+> >>  	return 0;
+> >>  }
+> >>  
+> >> +static int role_remap_dominates(hashtab_key_t key __attribute__ ((unused)), hashtab_datum_t datum, void *data)
+> >> +{
+> >> +	ebitmap_t mapped_roles;
+> >> +	role_datum_t *role = (role_datum_t *) datum;
+> >> +	expand_state_t *state = (expand_state_t *) data;
+> >> +
+> >> +	if (!(&role->dominates.node)) 
+> >> +		return 0;
+> > 
+> > That looks very odd.  What are you trying to test?
+> > !ebitmap_length(&role->dominates) is a test for empty ebitmap if you
+> > want that.
+> > 
 > 
-> If we have a default contexts configuration, then none of the above
-> statements would be needed:  speaking of the last statement, in the
-> absence a type_transition, clients that create databases would still get
-> sepgsql_db_t as the type for the database, since that is the default
-> database type.
-> 
-> Nonetheless, it sounds like you don't have a problem with the libselinux
-> change, as long as its just for the default contexts only, right?  Then
-> creating objects with something other than the default context would be
-> the job of type_transition.
+> Right, that was copied from role_copy_callback. looks like there are a few occurrences of this in expand.c, I'll make a patch on top of this to fix them all when I get a chance.
 
-Yes, that sounds right to me.
+Merged with all instances of those always-false branches removed.
+AFAICS, they were either entirely useless or premature optimization (and
+never executed regardless).
 
-> 
-> > > which I feel should be instead be expressed in a postgresql_contexts
-> > > file that says the default context for a database is ::seqpgsql_db_t,
-> > > default context for table is ::sepgsql_sysobj_t, etc.
-> > > 
-> > > This makes perfect sense staying as a type_transition in the policy:
-> > > 
-> > > type_transition staff_t sepgsql_sysobj_t:db_tuple staff_sepgsql_sysobj_t;
-> > > 
 -- 
 Stephen Smalley
 National Security Agency
