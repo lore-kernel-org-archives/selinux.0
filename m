@@ -1,51 +1,53 @@
-Subject: Re: copy/paste policy patch
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40805281018g954170et2bb00a87039e780f@mail.gmail.com>
-References: <cadfc0e40804250607q6e6542ecmc1fa3d1e78a84cb8@mail.gmail.com>
-	 <1209386863.30483.44.camel@gorn.columbia.tresys.com>
-	 <4816523B.4030905@tycho.nsa.gov>
-	 <cadfc0e40804281546n188882c2w2c84241878f2d7ef@mail.gmail.com>
-	 <481900C9.40406@tycho.nsa.gov> <1210084037.8276.28.camel@gorn>
-	 <cadfc0e40805281018g954170et2bb00a87039e780f@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 28 May 2008 14:21:49 -0400
-Message-Id: <1211998909.5008.140.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4SIRZXI022769
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 14:27:35 -0400
+Received: from fk-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4SIRYOB000649
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 18:27:35 GMT
+Received: by fk-out-0910.google.com with SMTP id 18so2882667fks.2
+        for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 11:27:33 -0700 (PDT)
+Message-ID: <ddbc00640805281127ld1e848bs54c9f2dc53eaf8b8@mail.gmail.com>
+Date: Wed, 28 May 2008 13:27:33 -0500
+From: "Joe Nall" <joe@nall.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: rbacsep: collapsing xserver
+Cc: "SELinux Mail List" <selinux@tycho.nsa.gov>,
+        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+In-Reply-To: <1211998598.5008.138.camel@gorn.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <1211985533.5008.116.camel@gorn.columbia.tresys.com>
+	 <ddbc00640805280816i24c06b68u65a7e4d7b68bf213@mail.gmail.com>
+	 <1211990530.5008.127.camel@gorn.columbia.tresys.com>
+	 <ddbc00640805280942n4ca2619h6185e89dc7d3c108@mail.gmail.com>
+	 <1211998598.5008.138.camel@gorn.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-05-28 at 12:18 -0500, Xavier Toth wrote:
-> Here's what I've actually ended up using to allow pasting equal or up
-> without requiring confirmation and to require confirmation when
-> attempting to paste down:
-> 
-> Index: policy/mls
-> ===================================================================
-> --- policy/mls	(revision 2704)
-> +++ policy/mls	(working copy)
-> @@ -574,11 +574,11 @@
-> 
->  # the x_application_data "paste" ops (explicit single level)
->  mlsconstrain x_application_data { paste }
-> -	( l1 eq l2 );
-> +	(( l1 eq l2 ) or ( l1 domby l2 ));
+On Wed, May 28, 2008 at 1:16 PM, Christopher J. PeBenito
+<cpebenito@tresys.com> wrote:
+> On Wed, 2008-05-28 at 11:42 -0500, Joe Nall wrote:
+>> What is the driver for the derived types? User preference files in
+>> their home directory?
 
-Isn't the (l1 eq l2) redundant?
+I'm still trying to understand the need for the derived types. What
+does the xserver need to do that is constrained by user role?
 
->  # the x_application_data "paste_after_confirm" ops (downgrade permitted)
->  mlsconstrain x_application_data { paste_after_confirm }
-> -	( l1 domby l2 );
-> +	( l1 dom l2 );
-> 
-> 
->  #
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+>> Any opinions on spitting the display manager (gdm/xdm) policy out of
+>> the xserver policy? The current xserver policy is quite a bit bigger
+>> than apache and several times the average policy size (te + if).
+>
+> You can blame me for that.  The xdm policy used to be separate before
+> refpolicy, but it was so intertwined with the xserver policy that there
+> wasn't a sane way to write the policies separately and still keep the
+> refpolicy encapsulation.  If we collapse all xservers into xserver_t, it
+> may be possible to separate xdm again.  If not, xdm will be put into a
+> tunable when we get real tunable support in the compiler.
 
+What drives the complexity/policy commingling? Or, what would have to
+change to allow the policies to be separated and simplified?
+
+joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
