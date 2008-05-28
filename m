@@ -1,80 +1,123 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4SGniEH002412
-	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 12:49:44 -0400
-Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4SGngTv023828
-	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 16:49:43 GMT
-Received: by nf-out-0910.google.com with SMTP id f5so1537319nfh.4
-        for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 09:49:41 -0700 (PDT)
-Message-ID: <ddbc00640805280942n4ca2619h6185e89dc7d3c108@mail.gmail.com>
-Date: Wed, 28 May 2008 11:42:50 -0500
-From: "Joe Nall" <joe@nall.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4SHOT6e009294
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 13:24:29 -0400
+Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4SHOSOB005164
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 17:24:28 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so1798168fgg.40
+        for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 10:24:25 -0700 (PDT)
+Message-ID: <cadfc0e40805281018g954170et2bb00a87039e780f@mail.gmail.com>
+Date: Wed, 28 May 2008 12:18:20 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: rbacsep: collapsing xserver
-Cc: "SELinux Mail List" <selinux@tycho.nsa.gov>,
-        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-In-Reply-To: <1211990530.5008.127.camel@gorn.columbia.tresys.com>
+Subject: Re: copy/paste policy patch
+Cc: "Eamon Walsh" <ewalsh@tycho.nsa.gov>, "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <1210084037.8276.28.camel@gorn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-References: <1211985533.5008.116.camel@gorn.columbia.tresys.com>
-	 <ddbc00640805280816i24c06b68u65a7e4d7b68bf213@mail.gmail.com>
-	 <1211990530.5008.127.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40804250607q6e6542ecmc1fa3d1e78a84cb8@mail.gmail.com>
+	 <1209386863.30483.44.camel@gorn.columbia.tresys.com>
+	 <4816523B.4030905@tycho.nsa.gov>
+	 <cadfc0e40804281546n188882c2w2c84241878f2d7ef@mail.gmail.com>
+	 <481900C9.40406@tycho.nsa.gov> <1210084037.8276.28.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, May 28, 2008 at 11:02 AM, Christopher J. PeBenito
+On Tue, May 6, 2008 at 9:27 AM, Christopher J. PeBenito
 <cpebenito@tresys.com> wrote:
-> On Wed, 2008-05-28 at 10:16 -0500, Joe Nall wrote:
->> On Wed, May 28, 2008 at 9:38 AM, Christopher J. PeBenito
->> <cpebenito@tresys.com> wrote:
->> > I've got to the point where I am collapsing the derived types in the
->> > xserver module.  It would be nice to collapse all of the X server
->> > domains into xserver_t, but we have xdm_xserver_t which has permissions
->> > greater than user_xserver_t, staff_server_t, etc.  However, just about
->> > everyone runs their xserver in xdm_xserver_t due to logging in via xdm.
->> > Thoughts on collapsing all of the xservers anyway?
+> On Wed, 2008-04-30 at 19:29 -0400, Eamon Walsh wrote:
+>> Xavier Toth wrote:
+>> > Seems to me that paste mlsconstrain should be (l1 eq l2) and should be
+>> > a mlsconstrain for paste_after_confirm which is (l1 domby l2).
 >>
->> Why is the way the xserver gets launched important once it is running?
+>> Revised patch attached.
 >
-> If you log into the console and run startx, your xserver is
-> user_xserver_t, staff_xserver_t, etc.  ﻿If you log in via a display
-> manager, your xserver is xdm_xserver_t, since the server is started by
-> xdm before a user logs in.  So you lose separation if you log in via
-> xdm.
-
-Understood.
-
-> There have been suggestions about either restarting the xserver or
-> dyntransitioning it to the correct context after logging in, but nothing
-> materialized on that.
+> Merged.
 >
->> Does that change when X is an object manager?
+>> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+>> ---
+>>
+>> Index: policy/flask/security_classes
+>> ===================================================================
+>> --- policy/flask/security_classes     (revision 2669)
+>> +++ policy/flask/security_classes     (working copy)
+>> @@ -114,5 +114,6 @@
+>>  class x_resource             # userspace
+>>  class x_event                        # userspace
+>>  class x_synthetic_event              # userspace
+>> +class x_application_data     # userspace
+>>
+>>  # FLASK
+>> Index: policy/flask/access_vectors
+>> ===================================================================
+>> --- policy/flask/access_vectors       (revision 2669)
+>> +++ policy/flask/access_vectors       (working copy)
+>> @@ -775,3 +775,10 @@
+>>  {
+>>       recv
+>>  }
+>> +
+>> +class x_application_data
+>> +{
+>> +     paste
+>> +     paste_after_confirm
+>> +     copy
+>> +}
+>> Index: policy/mls
+>> ===================================================================
+>> --- policy/mls        (revision 2669)
+>> +++ policy/mls        (working copy)
+>> @@ -568,7 +568,19 @@
+>>        ( t1 == mlsxwinwrite ));
+>>
+>>
+>> +#
+>> +# MLS policy for the x_application_data class
+>> +#
+>>
+>> +# the x_application_data "paste" ops (explicit single level)
+>> +mlsconstrain x_application_data { paste }
+>> +     ( l1 eq l2 );
+>> +
+>> +# the x_application_data "paste_after_confirm" ops (downgrade permitted)
+>> +mlsconstrain x_application_data { paste_after_confirm }
+>> +     ( l1 domby l2 );
+>> +
+>> +
+>>  #
+>>  # MLS policy for the pax class
+>>  #
+>>
+>>
+> --
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
 >
-> No.
-
-Poorly worded question. _Should_ that change when X is a object manager?
-
-What is the driver for the derived types? User preference files in
-their home directory?
-
 >
->> On a related topic, what is the type enforcement strategy for window managers?
->
-> They currently run in the user's context.  The basic templates in the
-> policy should still allow for separations.  The policy for X objects is
-> still immature, so I'm definitely open to suggestions.
 
-I did some brief experiments with the X server in MLS enforcing mode a
-while back and it looked like a separate type would be required to
-avoid giving the user silly levels of privilege. I'll try to get back
-to those experiments next week.
+Here's what I've actually ended up using to allow pasting equal or up
+without requiring confirmation and to require confirmation when
+attempting to paste down:
 
-Any opinions on spitting the display manager (gdm/xdm) policy out of
-the xserver policy? The current xserver policy is quite a bit bigger
-than apache and several times the average policy size (te + if).
+Index: policy/mls
+===================================================================
+--- policy/mls	(revision 2704)
++++ policy/mls	(working copy)
+@@ -574,11 +574,11 @@
 
-joe
+ # the x_application_data "paste" ops (explicit single level)
+ mlsconstrain x_application_data { paste }
+-	( l1 eq l2 );
++	(( l1 eq l2 ) or ( l1 domby l2 ));
 
+ # the x_application_data "paste_after_confirm" ops (downgrade permitted)
+ mlsconstrain x_application_data { paste_after_confirm }
+-	( l1 domby l2 );
++	( l1 dom l2 );
+
+
+ #
 
 --
 This message was distributed to subscribers of the selinux mailing list.
