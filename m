@@ -1,51 +1,20 @@
-Subject: Re: [PATCH] libselinux: add support
-	for	/contexts/postgresql_contexts
+Subject: rbacsep: collapsing xserver
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, KaiGai Kohei <kaigai@ak.jp.nec.com>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <483C6BEA.8040101@tycho.nsa.gov>
-References: <483A9137.5050509@ak.jp.nec.com>
-	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
-	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
-	 <483C6BEA.8040101@tycho.nsa.gov>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Wed, 28 May 2008 09:24:00 -0400
-Message-Id: <1211981040.5008.105.camel@gorn.columbia.tresys.com>
+Date: Wed, 28 May 2008 10:38:53 -0400
+Message-Id: <1211985533.5008.116.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-05-27 at 16:15 -0400, Eamon Walsh wrote:
-> Christopher J. PeBenito wrote:
-> > On Tue, 2008-05-27 at 14:34 -0400, Stephen Smalley wrote:
-> >   
-> >> On Tue, 2008-05-27 at 13:55 -0400, Christopher J. PeBenito wrote:
-> >>> I mainly had an issue with statements like:
-> >>>
-> >>> type_transition postgresql_t postgresql_t:db_database sepgsql_db_t;
-> >>> type_transition postgresql_t sepgsql_database_type:db_table sepgsql_sysobj_t;
-> >>> type_transition postgresql_t sepgsql_database_type:db_procedure sepgsql_proc_t;
-> >>> type_transition postgresql_t sepgsql_database_type:db_blob sepgsql_blob_t;
-> >>> type_transition sepgsql_client_type postgresql_t:db_database sepgsql_db_t;
-> >>>       
-> 
-> I don't see the problem with the above statements - seems like a 
-> reasonable use of transitions to me.  If you don't like the first four 
-> transitions, then I would ask -- why not simply eliminate the target 
-> types in those rules and label all of those objects with postgresql_t 
-> (default transition)?  Clearly the names are just for convenience.  You 
-> did a similar thing with the X policy: going through and combining types.
-
-I don't think this is the same situation.  Having a table labeled
-postgresql_t doesn't make sense to me, since postgresql_t is the type of
-the server process.  Though, I suppose that if it wasn't an object
-manager, then the objects would implicitly be postgresql_t and/or
-postgresql_db_t.  So to conclude my stream of consciousness, I'm
-compelled by your argument, but I'm not sure its enough to change my
-position.
+I've got to the point where I am collapsing the derived types in the
+xserver module.  It would be nice to collapse all of the X server
+domains into xserver_t, but we have xdm_xserver_t which has permissions
+greater than user_xserver_t, staff_server_t, etc.  However, just about
+everyone runs their xserver in xdm_xserver_t due to logging in via xdm.
+Thoughts on collapsing all of the xservers anyway?
 
 -- 
 Chris PeBenito
