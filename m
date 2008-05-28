@@ -1,119 +1,80 @@
-Message-ID: <483D85BA.4040900@kaigai.gr.jp>
-Date: Thu, 29 May 2008 01:18:02 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4SGniEH002412
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 12:49:44 -0400
+Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4SGngTv023828
+	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 16:49:43 GMT
+Received: by nf-out-0910.google.com with SMTP id f5so1537319nfh.4
+        for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 09:49:41 -0700 (PDT)
+Message-ID: <ddbc00640805280942n4ca2619h6185e89dc7d3c108@mail.gmail.com>
+Date: Wed, 28 May 2008 11:42:50 -0500
+From: "Joe Nall" <joe@nall.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: rbacsep: collapsing xserver
+Cc: "SELinux Mail List" <selinux@tycho.nsa.gov>,
+        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+In-Reply-To: <1211990530.5008.127.camel@gorn.columbia.tresys.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: KaiGai Kohei <kaigai@ak.jp.nec.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>, ewalsh@tycho.nsa.gov,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH] libselinux: add support	for	/contexts/postgresql_contexts
-References: <483A9137.5050509@ak.jp.nec.com>	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <483CB19E.9030204@ak.jp.nec.com> <1211987544.19360.262.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1211987544.19360.262.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=UTF-8
+References: <1211985533.5008.116.camel@gorn.columbia.tresys.com>
+	 <ddbc00640805280816i24c06b68u65a7e4d7b68bf213@mail.gmail.com>
+	 <1211990530.5008.127.camel@gorn.columbia.tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Wed, 2008-05-28 at 10:13 +0900, KaiGai Kohei wrote:
->> Stephen Smalley wrote:
->>> On Tue, 2008-05-27 at 13:55 -0400, Christopher J. PeBenito wrote:
->>>> On Tue, 2008-05-27 at 13:14 -0400, Stephen Smalley wrote:
->>>>> On Mon, 2008-05-26 at 19:30 +0900, KaiGai Kohei wrote:
->>>>>> Hello,
->>>>>>
->>>>>> The attached patch enables to obtain the default security context of newly
->>>>>> created database, defined at /etc/selinux/*/contexts/postgresql_contexts .
->>>>>>
->>>>>> The format is as follows:
->>>>>> --------
->>>>>> #
->>>>>> # Config file for SE-PostgreSQL
->>>>>> #
->>>>>> # <domain of client>  <type of newly created database>
->>>>>> unconfined_t    sepgsql_db_t
->>>>>> *               sepgsql_db_t
->>>>>> --------
->>>>>>
->>>>>> '*' means default security context, if given key is not matched for any entry.
->>>>>>
->>>>>> This API requires the security context of client as a key, and it returns
->>>>>> a security context to be attached for a newly created database.
->>>>>> It has a type field defined in the right-hand of config file, and inherits
->>>>>> user and lower-range field of given security context as a key.
->>>>>>
->>>>>> e.g)
->>>>>> selabel_lookup(sehandle, &context, "user_u:user_r:user_t:s0", 0);
->>>>>> returns "user_u:object_r:sepgsql_db_t:s0".
->>>>> Chris is investigating the use of roles on objects in order to provide
->>>>> more fully featured RBAC support without requiring use of per-role
->>>>> domains.  Hardcoding the use of object_r won't be future compatible for
->>>>> that situation, and more generally we don't want to hardcode policy
->>>>> information in libselinux at all.
->>>>>
->>>>> I'm also unclear as to why type_transition rules aren't a better way of
->>>>> expressing the above, although I know you've been discussing this with
->>>>> Chris for some time.  Logically I'd expect the client domain to be the
->>>>> source type of the transition, and the type for the newly created
->>>>> database to be the new/result type of the transition.  What to use as
->>>>> the target type is less clear; we'd have a similar issue if we were to
->>>>> use type_transitions for e.g. sockets.  It could either be the client
->>>>> domain both as source and target (self relationship, no related object)
->>>>> or the client domain as source and the object manager domain as target.
->>>>>
->>>>> Chris, what is the objection to using type transitions here, as they are
->>>>> for labeling new objects and this seems to fit that situation?
->>>> I think KaiGai took my idea a little to far.  My issue was just to have
->>>> postgres determine what the default label for its objects are via
->>>> postgresql_contexts.  A derived role/type still makes sense to be stated
->>>> via (type|role)_transition.  I suspect there was confusion on this
->>>> point.  I mainly had an issue with statements like:
->>>>
->>>> type_transition postgresql_t postgresql_t:db_database sepgsql_db_t;
->>>> type_transition postgresql_t sepgsql_database_type:db_table sepgsql_sysobj_t;
->>>> type_transition postgresql_t sepgsql_database_type:db_procedure sepgsql_proc_t;
->>>> type_transition postgresql_t sepgsql_database_type:db_blob sepgsql_blob_t;
->>>> type_transition sepgsql_client_type postgresql_t:db_database sepgsql_db_t;
->>> The first four statements don't make sense to me; the last one does make
->>> sense (i.e. when a postgres client creates a new database, where the
->>> only related "object" in view is that object manager's context, label
->>> the new database with sepgsql_db_t).  That last instance seems valid as
->>> a way of expressing types for new databases; the first four statements
->>> seem to be more suited to this postgres contexts configuration (as they
->>> are independent of client domain entirely).
->> When SE-PostgreSQL initializes itself, a server process is a client process
->> in same time. The first four rules are necessary to attach proper context
->> of any system object on initialization.
-> 
-> Hmm...in that case, type_transition makes sense for that initialization.
-> 
->> It does not means something default.
+On Wed, May 28, 2008 at 11:02 AM, Christopher J. PeBenito
+<cpebenito@tresys.com> wrote:
+> On Wed, 2008-05-28 at 10:16 -0500, Joe Nall wrote:
+>> On Wed, May 28, 2008 at 9:38 AM, Christopher J. PeBenito
+>> <cpebenito@tresys.com> wrote:
+>> > I've got to the point where I am collapsing the derived types in the
+>> > xserver module.  It would be nice to collapse all of the X server
+>> > domains into xserver_t, but we have xdm_xserver_t which has permissions
+>> > greater than user_xserver_t, staff_server_t, etc.  However, just about
+>> > everyone runs their xserver in xdm_xserver_t due to logging in via xdm.
+>> > Thoughts on collapsing all of the xservers anyway?
 >>
->> In the "default" behavior, if we have no type_transition,
->> - a newly created database inherits the type of server process
->> - a newly created table/procedure/largeobject inherits the type of database
->> - a newly created column/tuple inherits the type of table
-> 
-> So is that "default" behavior fundamentally a problem?
-> Do we really need these other contexts at all?
+>> Why is the way the xserver gets launched important once it is running?
+>
+> If you log into the console and run startx, your xserver is
+> user_xserver_t, staff_xserver_t, etc.  ﻿If you log in via a display
+> manager, your xserver is xdm_xserver_t, since the server is started by
+> xdm before a user logs in.  So you lose separation if you log in via
+> xdm.
 
-No, it is theoretically possible to share only one type for various object
-classes.
-(unlabeled_t can be an example for this case.)
-If a policy writer want, we can label all of database object with same
-security context and allows something for each object classes.
+Understood.
 
-However, it is rightly confusable policy. So, I defined object classes
-specific types, like sepgsql_table_t, sepgsql_proc_t, ...
+> There have been suggestions about either restarting the xserver or
+> dyntransitioning it to the correct context after logging in, but nothing
+> materialized on that.
+>
+>> Does that change when X is an object manager?
+>
+> No.
 
->>>> which I feel should be instead be expressed in a postgresql_contexts
->>>> file that says the default context for a database is ::seqpgsql_db_t,
->>>> default context for table is ::sepgsql_sysobj_t, etc.
->>>>
->>>> This makes perfect sense staying as a type_transition in the policy:
->>>>
->>>> type_transition staff_t sepgsql_sysobj_t:db_tuple staff_sepgsql_sysobj_t;
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+Poorly worded question. _Should_ that change when X is a object manager?
+
+What is the driver for the derived types? User preference files in
+their home directory?
+
+>
+>> On a related topic, what is the type enforcement strategy for window managers?
+>
+> They currently run in the user's context.  The basic templates in the
+> policy should still allow for separations.  The policy for X objects is
+> still immature, so I'm definitely open to suggestions.
+
+I did some brief experiments with the X server in MLS enforcing mode a
+while back and it looked like a separate type would be required to
+avoid giving the user silly levels of privilege. I'll try to get back
+to those experiments next week.
+
+Any opinions on spitting the display manager (gdm/xdm) policy out of
+the xserver policy? The current xserver policy is quite a bit bigger
+than apache and several times the average policy size (te + if).
+
+joe
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
