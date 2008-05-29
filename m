@@ -1,63 +1,174 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4TGIfHw014682
+	for <selinux@tycho.nsa.gov>; Thu, 29 May 2008 12:18:41 -0400
+Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4TGIejT026475
+	for <selinux@tycho.nsa.gov>; Thu, 29 May 2008 16:18:40 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so2051260fgg.40
+        for <selinux@tycho.nsa.gov>; Thu, 29 May 2008 09:18:39 -0700 (PDT)
+Message-ID: <cadfc0e40805290918v55be6a5cn5b6da493185c7ca3@mail.gmail.com>
+Date: Thu, 29 May 2008 11:18:38 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
 Subject: Re: rbacsep: collapsing xserver
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Joe Nall <joe@nall.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <ddbc00640805281127ld1e848bs54c9f2dc53eaf8b8@mail.gmail.com>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        "Joe Nall" <joe@nall.com>, "SELinux Mail List" <selinux@tycho.nsa.gov>
+In-Reply-To: <483DAB87.7090401@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 References: <1211985533.5008.116.camel@gorn.columbia.tresys.com>
 	 <ddbc00640805280816i24c06b68u65a7e4d7b68bf213@mail.gmail.com>
 	 <1211990530.5008.127.camel@gorn.columbia.tresys.com>
 	 <ddbc00640805280942n4ca2619h6185e89dc7d3c108@mail.gmail.com>
 	 <1211998598.5008.138.camel@gorn.columbia.tresys.com>
-	 <ddbc00640805281127ld1e848bs54c9f2dc53eaf8b8@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 29 May 2008 09:04:22 -0400
-Message-Id: <1212066262.5008.159.camel@gorn>
-Mime-Version: 1.0
+	 <483DAB87.7090401@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-05-28 at 13:27 -0500, Joe Nall wrote:
-> On Wed, May 28, 2008 at 1:16 PM, Christopher J. PeBenito
-> <cpebenito@tresys.com> wrote:
-> > On Wed, 2008-05-28 at 11:42 -0500, Joe Nall wrote:
-> >> What is the driver for the derived types? User preference files in
-> >> their home directory?
-> 
-> I'm still trying to understand the need for the derived types. What
-> does the xserver need to do that is constrained by user role?
+On Wed, May 28, 2008 at 1:59 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> Christopher J. PeBenito wrote:
+>>
+>> On Wed, 2008-05-28 at 11:42 -0500, Joe Nall wrote:
+>>
+>>>
+>>> On Wed, May 28, 2008 at 11:02 AM, Christopher J. PeBenito
+>>> <cpebenito@tresys.com> wrote:
+>>>
+>>>>
+>>>> On Wed, 2008-05-28 at 10:16 -0500, Joe Nall wrote:
+>>>>
+>>>>>
+>>>>> On Wed, May 28, 2008 at 9:38 AM, Christopher J. PeBenito
+>>>>> <cpebenito@tresys.com> wrote:
+>>>>>
+>>>>>>
+>>>>>> I've got to the point where I am collapsing the derived types in the
+>>>>>> xserver module.  It would be nice to collapse all of the X server
+>>>>>> domains into xserver_t, but we have xdm_xserver_t which has
+>>>>>> permissions
+>>>>>> greater than user_xserver_t, staff_server_t, etc.  However, just about
+>>>>>> everyone runs their xserver in xdm_xserver_t due to logging in via
+>>>>>> xdm.
+>>>>>> Thoughts on collapsing all of the xservers anyway?
+>>>>>>
+>>>>>
+>>>>> Why is the way the xserver gets launched important once it is running?
+>>>>>
+>>>>
+>>>> If you log into the console and run startx, your xserver is
+>>>> user_xserver_t, staff_xserver_t, etc.  ﻿If you log in via a display
+>>>> manager, your xserver is xdm_xserver_t, since the server is started by
+>>>> xdm before a user logs in.  So you lose separation if you log in via
+>>>> xdm.
+>>>>
+>>>
+>>> Understood.
+>>>
+>>>
+>>>>
+>>>> There have been suggestions about either restarting the xserver or
+>>>> dyntransitioning it to the correct context after logging in, but nothing
+>>>> materialized on that.
+>>>>
+>>>>
+>>>>>
+>>>>> Does that change when X is an object manager?
+>>>>>
+>>>>
+>>>> No.
+>>>>
+>>>
+>>> Poorly worded question. _Should_ that change when X is a object manager?
+>>>
+>>
+>> We would certainly prefer that each role always has their derived type
+>> xserver (or role is set on xserver, if rbacsep succeeds), regardless if
+>> its an object manager or not.
+>>
+>
+> I have always disliked xdm_xserver_t and its associated policy shenanigans
+> (what if someone creates a role named "xdm"?)
+>
+> The problem has always been the display manager behavior described above.
+>  However this can be solved in at least three ways: 1) Restart the X server
+> after the user logs in.  2) Have the X server setcon itself to the new
+> context.  3) Multi-user switching where xdm stays up all the time and users
+> get new X servers on different consoles.
+>
+> The easiest solution for me to work on is 2) because I don't have to touch
+> the GDM code.  I'd like to see rbacsep succeed though.
+>
+>>
+>>>
+>>> What is the driver for the derived types? User preference files in
+>>> their home directory?
+>>>
+>
+>
+> There's some argument to be made that the X server is part of the user's
+> session.  For example, in mulit-user switching there is more than one server
+> running, one for each user.
+>
+> If rbacsep succeeds then the derived types will go away regardless.
+>
+>>>
+>>>>>
+>>>>> On a related topic, what is the type enforcement strategy for window
+>>>>> managers?
+>>>>>
+>>>>
+>>>> They currently run in the user's context.  The basic templates in the
+>>>> policy should still allow for separations.  The policy for X objects is
+>>>> still immature, so I'm definitely open to suggestions.
+>>>>
+>>>
+>>> I did some brief experiments with the X server in MLS enforcing mode a
+>>> while back and it looked like a separate type would be required to
+>>> avoid giving the user silly levels of privilege. I'll try to get back
+>>> to those experiments next week.
+>>>
+>
+> The window manager must have full access to all windows on the screens that
+> it's managing.  In non-MLS this means at least full privileges on the role
+> and probably for other roles too, if you're going to be popping up sysadm
+> windows.  In MLS this means access across all levels, there's really no way
+> around this.
+>
+>
+>>> Any opinions on spitting the display manager (gdm/xdm) policy out of
+>>> the xserver policy? The current xserver policy is quite a bit bigger
+>>> than apache and several times the average policy size (te + if).
+>>>
+>>
+>> You can blame me for that.  The xdm policy used to be separate before
+>> refpolicy, but it was so intertwined with the xserver policy that there
+>> wasn't a sane way to write the policies separately and still keep the
+>> refpolicy encapsulation.  If we collapse all xservers into xserver_t, it
+>> may be possible to separate xdm again.  If not, xdm will be put into a
+>> tunable when we get real tunable support in the compiler.
+>>
+>
+>
+> --
+> Eamon Walsh <ewalsh@tycho.nsa.gov>
+> National Security Agency
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-Mainly it has to do with the associated files and domains, for the
-xserver temp files, xauth, user specific fonts, etc.  If theres no
-separation on the server itself, might be able to open up a window on
-another role's xserver and send/receive info.  Obviously that would be
-mitigated by an enforcing X server.
+>From http://www.gnome.org/projects/gdm/docs/2.20/overview.html:
 
-> >> Any opinions on spitting the display manager (gdm/xdm) policy out of
-> >> the xserver policy? The current xserver policy is quite a bit bigger
-> >> than apache and several times the average policy size (te + if).
-> >
-> > You can blame me for that.  The xdm policy used to be separate before
-> > refpolicy, but it was so intertwined with the xserver policy that there
-> > wasn't a sane way to write the policies separately and still keep the
-> > refpolicy encapsulation.  If we collapse all xservers into xserver_t, it
-> > may be possible to separate xdm again.  If not, xdm will be put into a
-> > tunable when we get real tunable support in the compiler.
-> 
-> What drives the complexity/policy commingling? Or, what would have to
-> change to allow the policies to be separated and simplified?
+"On Solaris, GDM (since version 2.8.0.3) uses the SDTLOGIN interface
+after user authentication to tell the X server to be restarted as the
+user instead of as root for added security. When the user's session
+exits, the GDM daemon will run the PostSession script as root."
 
-Mainly the special rules that xdm_xserver_t requires.
-
-I was also thinking that I could put those extra rules in a tunable.  So
-if I collapse all of the xserver types, then people on that don't want
-the extra rules can just turn them off and then log in at the console
-and use startx.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Couldn't we utilize the same functionality on Fedora?
 
 
 --
