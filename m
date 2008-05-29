@@ -1,76 +1,63 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4T2V1Lb026320
-	for <selinux@tycho.nsa.gov>; Wed, 28 May 2008 22:31:01 -0400
-Received: from QMTA05.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4T2V0XH011384
-	for <selinux@tycho.nsa.gov>; Thu, 29 May 2008 02:31:00 GMT
-Subject: [patch][stable] policycoreutils user_u seuser vs. genhomedircon
-From: Chris PeBenito <pebenito@gentoo.org>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sS2Q8c6nyvfXIJgzK0M7"
-Date: Wed, 28 May 2008 22:30:57 -0400
-Message-Id: <1212028257.5316.7.camel@defiant.pebenito.net>
+Subject: Re: rbacsep: collapsing xserver
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Joe Nall <joe@nall.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>
+In-Reply-To: <ddbc00640805281127ld1e848bs54c9f2dc53eaf8b8@mail.gmail.com>
+References: <1211985533.5008.116.camel@gorn.columbia.tresys.com>
+	 <ddbc00640805280816i24c06b68u65a7e4d7b68bf213@mail.gmail.com>
+	 <1211990530.5008.127.camel@gorn.columbia.tresys.com>
+	 <ddbc00640805280942n4ca2619h6185e89dc7d3c108@mail.gmail.com>
+	 <1211998598.5008.138.camel@gorn.columbia.tresys.com>
+	 <ddbc00640805281127ld1e848bs54c9f2dc53eaf8b8@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 29 May 2008 09:04:22 -0400
+Message-Id: <1212066262.5008.159.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2008-05-28 at 13:27 -0500, Joe Nall wrote:
+> On Wed, May 28, 2008 at 1:16 PM, Christopher J. PeBenito
+> <cpebenito@tresys.com> wrote:
+> > On Wed, 2008-05-28 at 11:42 -0500, Joe Nall wrote:
+> >> What is the driver for the derived types? User preference files in
+> >> their home directory?
+> 
+> I'm still trying to understand the need for the derived types. What
+> does the xserver need to do that is constrained by user role?
 
---=-sS2Q8c6nyvfXIJgzK0M7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Mainly it has to do with the associated files and domains, for the
+xserver temp files, xauth, user specific fonts, etc.  If theres no
+separation on the server itself, might be able to open up a window on
+another role's xserver and send/receive info.  Obviously that would be
+mitigated by an enforcing X server.
 
-In the stable branch, genhomedircon will ignore making home dir contexts
-for linux users mapped to user_u.  For a long time, this was fine since
-user_u was the default for strict and targeted.  With a merged
-strict-targeted policy, a more targeted-like system will have
-unconfined_u as the default.  If you then try to make a confined user_u
-user, a set of home directory contexts will not be created.  This patch
-fixes the behavior.  I made a cursory look through the trunk C
-genhomedircon, and did not see this behavior, but someone should
-probably doublecheck.
+> >> Any opinions on spitting the display manager (gdm/xdm) policy out of
+> >> the xserver policy? The current xserver policy is quite a bit bigger
+> >> than apache and several times the average policy size (te + if).
+> >
+> > You can blame me for that.  The xdm policy used to be separate before
+> > refpolicy, but it was so intertwined with the xserver policy that there
+> > wasn't a sane way to write the policies separately and still keep the
+> > refpolicy encapsulation.  If we collapse all xservers into xserver_t, it
+> > may be possible to separate xdm again.  If not, xdm will be put into a
+> > tunable when we get real tunable support in the compiler.
+> 
+> What drives the complexity/policy commingling? Or, what would have to
+> change to allow the policies to be separated and simplified?
 
-Index: policycoreutils/scripts/genhomedircon
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- policycoreutils/scripts/genhomedircon	(revision 2890)
-+++ policycoreutils/scripts/genhomedircon	(working copy)
-@@ -193,7 +193,7 @@
- 		return prefix
- 	=09
- 	def adduser(self, udict, user, seuser, prefix):
--		if seuser =3D=3D "user_u" or user =3D=3D "__default__" or user =3D=3D "s=
-ystem_u":
-+		if user =3D=3D "__default__" or user =3D=3D "system_u":
- 			return
- 		# !!! chooses first prefix in the list to use in the file context !!!
- 		try:
+Mainly the special rules that xdm_xserver_t requires.
 
+I was also thinking that I could put those extra rules in a tunable.  So
+if I collapse all of the xserver types, then people on that don't want
+the extra rules can just turn them off and then log in at the console
+and use startx.
 
-
---=20
+-- 
 Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
-
---=-sS2Q8c6nyvfXIJgzK0M7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-
-iEYEABECAAYFAkg+FWEACgkQvI7kLeavkkO4OgCgnmAFbmVBzkBvdtWWwa+2v8Xj
-+c0AnipXcRZ28KdCH5esMr7G0pkthh56
-=B2dy
------END PGP SIGNATURE-----
-
---=-sS2Q8c6nyvfXIJgzK0M7--
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
