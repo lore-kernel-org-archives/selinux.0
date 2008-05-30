@@ -1,268 +1,72 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4UEwYbC011779
-	for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 10:58:34 -0400
-Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4UEwXU1004744
-	for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 14:58:33 GMT
-Received: by yw-out-1718.google.com with SMTP id 6so2038946ywa.84
-        for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 07:58:29 -0700 (PDT)
-Message-ID: <cadfc0e40805300758m1fb4c920mb84e49e38a28493a@mail.gmail.com>
-Date: Fri, 30 May 2008 09:58:28 -0500
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4UF1Kk9012396
+	for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 11:01:20 -0400
+Received: from fk-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4UF1JU1006334
+	for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 15:01:19 GMT
+Received: by fk-out-0910.google.com with SMTP id 18so235135fks.2
+        for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 08:01:01 -0700 (PDT)
+Message-ID: <ddbc00640805300801y65fb769u510cea3b1fe3c815@mail.gmail.com>
+Date: Fri, 30 May 2008 10:01:00 -0500
+From: "Joe Nall" <joe@nall.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Subject: Re: rbacsep: collapsing xserver
-Cc: "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        "Joe Nall" <joe@nall.com>, "SELinux Mail List" <selinux@tycho.nsa.gov>
-In-Reply-To: <483F528B.9090802@tycho.nsa.gov>
+Cc: "Xavier Toth" <txtoth@gmail.com>, "Daniel J Walsh" <dwalsh@redhat.com>,
+        "SELinux Mail List" <selinux@tycho.nsa.gov>,
+        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+In-Reply-To: <1212155223.31546.42.camel@gorn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 References: <1211985533.5008.116.camel@gorn.columbia.tresys.com>
 	 <ddbc00640805280816i24c06b68u65a7e4d7b68bf213@mail.gmail.com>
 	 <1211990530.5008.127.camel@gorn.columbia.tresys.com>
 	 <ddbc00640805280942n4ca2619h6185e89dc7d3c108@mail.gmail.com>
 	 <1211998598.5008.138.camel@gorn.columbia.tresys.com>
-	 <483DAB87.7090401@tycho.nsa.gov>
-	 <cadfc0e40805290918v55be6a5cn5b6da493185c7ca3@mail.gmail.com>
-	 <483F090F.2070109@redhat.com> <483F528B.9090802@tycho.nsa.gov>
+	 <ddbc00640805281127ld1e848bs54c9f2dc53eaf8b8@mail.gmail.com>
+	 <483DA6AF.1070807@redhat.com>
+	 <cadfc0e40805300619l5feb8dddj7efb9f9797e3e9c3@mail.gmail.com>
+	 <1212155223.31546.42.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, May 29, 2008 at 8:04 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> Daniel J Walsh wrote:
+On Fri, May 30, 2008 at 8:47 AM, Christopher J. PeBenito
+<cpebenito@tresys.com> wrote:
+> On Fri, 2008-05-30 at 08:19 -0500, Xavier Toth wrote:
+>> On Wed, May 28, 2008 at 1:38 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>> > The current XAce software is far to complex to do anything usefull in my
+>> > opinion.  We have way too many types and transitions.  We need to
+>> > simplify down to a lot less types.
 >>
->> Xavier Toth wrote:
->>
->>>
->>> On Wed, May 28, 2008 at 1:59 PM, Eamon Walsh <ewalsh@tycho.nsa.gov>
->>> wrote:
->>>
->>>>
->>>> Christopher J. PeBenito wrote:
->>>>
->>>>>
->>>>> On Wed, 2008-05-28 at 11:42 -0500, Joe Nall wrote:
->>>>>
->>>>>
->>>>>>
->>>>>> On Wed, May 28, 2008 at 11:02 AM, Christopher J. PeBenito
->>>>>> <cpebenito@tresys.com> wrote:
->>>>>>
->>>>>>
->>>>>>>
->>>>>>> On Wed, 2008-05-28 at 10:16 -0500, Joe Nall wrote:
->>>>>>>
->>>>>>>
->>>>>>>>
->>>>>>>> On Wed, May 28, 2008 at 9:38 AM, Christopher J. PeBenito
->>>>>>>> <cpebenito@tresys.com> wrote:
->>>>>>>>
->>>>>>>>
->>>>>>>>>
->>>>>>>>> I've got to the point where I am collapsing the derived types in
->>>>>>>>> the
->>>>>>>>> xserver module.  It would be nice to collapse all of the X server
->>>>>>>>> domains into xserver_t, but we have xdm_xserver_t which has
->>>>>>>>> permissions
->>>>>>>>> greater than user_xserver_t, staff_server_t, etc.  However, just
->>>>>>>>> about
->>>>>>>>> everyone runs their xserver in xdm_xserver_t due to logging in via
->>>>>>>>> xdm.
->>>>>>>>> Thoughts on collapsing all of the xservers anyway?
->>>>>>>>>
->>>>>>>>>
->>>>>>>>
->>>>>>>> Why is the way the xserver gets launched important once it is
->>>>>>>> running?
->>>>>>>>
->>>>>>>>
->>>>>>>
->>>>>>> If you log into the console and run startx, your xserver is
->>>>>>> user_xserver_t, staff_xserver_t, etc.  ﻿If you log in via a display
->>>>>>> manager, your xserver is xdm_xserver_t, since the server is started
->>>>>>> by
->>>>>>> xdm before a user logs in.  So you lose separation if you log in via
->>>>>>> xdm.
->>>>>>>
->>>>>>>
->>>>>>
->>>>>> Understood.
->>>>>>
->>>>>>
->>>>>>
->>>>>>>
->>>>>>> There have been suggestions about either restarting the xserver or
->>>>>>> dyntransitioning it to the correct context after logging in, but
->>>>>>> nothing
->>>>>>> materialized on that.
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>>>
->>>>>>>> Does that change when X is an object manager?
->>>>>>>>
->>>>>>>>
->>>>>>>
->>>>>>> No.
->>>>>>>
->>>>>>>
->>>>>>
->>>>>> Poorly worded question. _Should_ that change when X is a object
->>>>>> manager?
->>>>>>
->>>>>>
->>>>>
->>>>> We would certainly prefer that each role always has their derived type
->>>>> xserver (or role is set on xserver, if rbacsep succeeds), regardless if
->>>>> its an object manager or not.
->>>>>
->>>>>
->>>>
->>>> I have always disliked xdm_xserver_t and its associated policy
->>>> shenanigans
->>>> (what if someone creates a role named "xdm"?)
->>>>
->>>> The problem has always been the display manager behavior described
->>>> above.
->>>>  However this can be solved in at least three ways: 1) Restart the X
->>>> server
->>>> after the user logs in.  2) Have the X server setcon itself to the new
->>>> context.  3) Multi-user switching where xdm stays up all the time and
->>>> users
->>>> get new X servers on different consoles.
->>>>
->>>> The easiest solution for me to work on is 2) because I don't have to
->>>> touch
->>>> the GDM code.  I'd like to see rbacsep succeed though.
->>>>
->>>>
->>>>>>
->>>>>> What is the driver for the derived types? User preference files in
->>>>>> their home directory?
->>>>>>
->>>>>>
->>>>
->>>> There's some argument to be made that the X server is part of the user's
->>>> session.  For example, in mulit-user switching there is more than one
->>>> server
->>>> running, one for each user.
->>>>
->>>> If rbacsep succeeds then the derived types will go away regardless.
->>>>
->>>>
->>>>>>>>
->>>>>>>> On a related topic, what is the type enforcement strategy for window
->>>>>>>> managers?
->>>>>>>>
->>>>>>>>
->>>>>>>
->>>>>>> They currently run in the user's context.  The basic templates in the
->>>>>>> policy should still allow for separations.  The policy for X objects
->>>>>>> is
->>>>>>> still immature, so I'm definitely open to suggestions.
->>>>>>>
->>>>>>>
->>>>>>
->>>>>> I did some brief experiments with the X server in MLS enforcing mode a
->>>>>> while back and it looked like a separate type would be required to
->>>>>> avoid giving the user silly levels of privilege. I'll try to get back
->>>>>> to those experiments next week.
->>>>>>
->>>>>>
->>>>
->>>> The window manager must have full access to all windows on the screens
->>>> that
->>>> it's managing.  In non-MLS this means at least full privileges on the
->>>> role
->>>> and probably for other roles too, if you're going to be popping up
->>>> sysadm
->>>> windows.  In MLS this means access across all levels, there's really no
->>>> way
->>>> around this.
->>>>
->>>>
->>>>
->>>>>>
->>>>>> Any opinions on spitting the display manager (gdm/xdm) policy out of
->>>>>> the xserver policy? The current xserver policy is quite a bit bigger
->>>>>> than apache and several times the average policy size (te + if).
->>>>>>
->>>>>>
->>>>>
->>>>> You can blame me for that.  The xdm policy used to be separate before
->>>>> refpolicy, but it was so intertwined with the xserver policy that there
->>>>> wasn't a sane way to write the policies separately and still keep the
->>>>> refpolicy encapsulation.  If we collapse all xservers into xserver_t,
->>>>> it
->>>>> may be possible to separate xdm again.  If not, xdm will be put into a
->>>>> tunable when we get real tunable support in the compiler.
->>>>>
->>>>>
->>>>
->>>> --
->>>> Eamon Walsh <ewalsh@tycho.nsa.gov>
->>>> National Security Agency
->>>>
->>>>
->>>> --
->>>> This message was distributed to subscribers of the selinux mailing list.
->>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->>>> with
->>>> the words "unsubscribe selinux" without quotes as the message.
->>>>
->>>>
->>>
->>> From http://www.gnome.org/projects/gdm/docs/2.20/overview.html:
->>>
->>> "On Solaris, GDM (since version 2.8.0.3) uses the SDTLOGIN interface
->>> after user authentication to tell the X server to be restarted as the
->>> user instead of as root for added security. When the user's session
->>> exits, the GDM daemon will run the PostSession script as root."
->>>
->>> Couldn't we utilize the same functionality on Fedora?
->>>
+>> Going back to Dan's concern about the complexity of the X SELinux
+>> extension and the number of types and transitions I'd like to see some
+>> discussion/resolution. Eamon what's your position on this topic?
 >
-> I've got no problem with doing something like this.  I've already written
-> support for communicating with the X server from pam_selinux.so to set up
-> the user's device labels, so it could also tell the server to setcon itself.
->  That work has stalled because of dependency issues (pam depending on
-> libxcb), getting PAM_XAUTH_DATA support into gdm, and waiting for the next
-> release of libxcb.  But, I can pick up work on it once I finish the X Python
-> stuff.
+> I don't want to speak for Eamon, but I suspect that he would defend the
+> current setup since he's the one that wrote the policy.  I just
+> restructured it to fit nicer in refpolicy and actually removed a few
+> types :)
 >
-> With regards to SDTLOGIN, it doesn't look like it restarts the server, only
-> causes it to drop privileges; see
-> http://osdir.com/ml/gnome.gdm.general/2007-10/msg00080.html dated Oct 2007.
->  The current gdm upstream seems to have dropped support for it.  I did some
-> grepping in the gdm source and couldn't find anything.  It's probably a
-> temporary result of the gdm rewrite.
->
+> My position is that its fine as is.  Simplifying it unconditionally
+> starts to make it less usable for people that actually want fine grained
+> controls on the desktop.  Making things simpler tends to be easy, since
+> it tends to be merging types or using attributes for blanket access,
+> like unconfined does.  The black magic voodoo that happens in the
+> xserver, that only a select few have previously known about, has only
+> recently been exposed via the SELinux controls.  I feel that it may be
+> premature to simplify the policy, since side effects probably aren't
+> well understood yet.  At least they aren't understood well by me yet.
 
-Yes, I think Brian mentioned that the server is not actually restarted
-but rather does a setuid/setgid because of the need to be root during
-some portion of the X sever initialization. Hopefully it won't be too
-much trouble to add a setcon too. One question about this is what will
-happen with audit once the X server transition user and context?
+I can relate to that :)
 
->
->>>
->>> --
->>> This message was distributed to subscribers of the selinux mailing list.
->>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->>> with
->>> the words "unsubscribe selinux" without quotes as the message.
->>>
->>
->> Probably better asked on the Fedora List.
->>
->>
->
-> --
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
->
+Voodoo note: Any post-login setuid magic will have to allow the
+xserver object manager to continue to audit.
 
+I chimed in on this thread because we need to get MLS X up and running
+locally in enforcing mode. I wanted to make sure that we (Ted and I)
+understood the issues involved as much as possible before changing any
+policy.
+
+joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
