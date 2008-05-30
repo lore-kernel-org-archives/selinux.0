@@ -1,54 +1,49 @@
-Subject: Re: rbacsep: collapsing xserver
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Joe Nall <joe@nall.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40805300619l5feb8dddj7efb9f9797e3e9c3@mail.gmail.com>
-References: <1211985533.5008.116.camel@gorn.columbia.tresys.com>
-	 <ddbc00640805280816i24c06b68u65a7e4d7b68bf213@mail.gmail.com>
-	 <1211990530.5008.127.camel@gorn.columbia.tresys.com>
-	 <ddbc00640805280942n4ca2619h6185e89dc7d3c108@mail.gmail.com>
-	 <1211998598.5008.138.camel@gorn.columbia.tresys.com>
-	 <ddbc00640805281127ld1e848bs54c9f2dc53eaf8b8@mail.gmail.com>
-	 <483DA6AF.1070807@redhat.com>
-	 <cadfc0e40805300619l5feb8dddj7efb9f9797e3e9c3@mail.gmail.com>
+Subject: Re: Writing SELinux Policy...(Allow ALL, Deny Few)
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D049EC66B@de01exm68.ds.mot.com>
+References: <1210336991.6434.200.camel@moss-spartans.epoch.ncsc.mil>
+	 <Xine.LNX.4.64.0805121034110.22560@us.intercode.com.au>
+	 <1210595177.6206.21.camel@moss-spartans.epoch.ncsc.mil>
+	 <1211200563.7486.40.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D049EC66B@de01exm68.ds.mot.com>
 Content-Type: text/plain
-Date: Fri, 30 May 2008 09:47:03 -0400
-Message-Id: <1212155223.31546.42.camel@gorn>
+Date: Fri, 30 May 2008 10:18:26 -0400
+Message-Id: <1212157106.12889.2.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-05-30 at 08:19 -0500, Xavier Toth wrote:
-> On Wed, May 28, 2008 at 1:38 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > The current XAce software is far to complex to do anything usefull in my
-> > opinion.  We have way too many types and transitions.  We need to
-> > simplify down to a lot less types.
+
+On Wed, 2008-05-28 at 13:29 -0400, Hasan Rezaul-CHR010 wrote:
+> Hi,
 > 
-> Going back to Dan's concern about the complexity of the X SELinux
-> extension and the number of types and transitions I'd like to see some
-> discussion/resolution. Eamon what's your position on this topic?
+> >From what I understand, given the SELinux framework...
+> 
+> EVERY THING by default is Denied, *except* what the policy explicitly
+> allows...
+> 
+> How can I configure things (if at all possible), such that  
+> EVERY THING by default is Allowed, *except* the specific things Denied
+> in the policy !!
+> 
+> Is this doable ?
 
-I don't want to speak for Eamon, but I suspect that he would defend the
-current setup since he's the one that wrote the policy.  I just
-restructured it to fit nicer in refpolicy and actually removed a few
-types :)
+There is no deny statement in the current policy language.
+As far as the mechanism is concerned, anything not allowed is denied.
 
-My position is that its fine as is.  Simplifying it unconditionally
-starts to make it less usable for people that actually want fine grained
-controls on the desktop.  Making things simpler tends to be easy, since
-it tends to be merging types or using attributes for blanket access,
-like unconfined does.  The black magic voodoo that happens in the
-xserver, that only a select few have previously known about, has only
-recently been exposed via the SELinux controls.  I feel that it may be
-premature to simplify the policy, since side effects probably aren't
-well understood yet.  At least they aren't understood well by me yet.
+unconfined_t is an example of domain that is allowed (just about)
+everything.  You can use the same macros/interfaces it uses to construct
+other similarly unconfined domains and then selectively remove rules if
+you want to deny certain actions, but whether or not that will yield a
+meaningful policy is another matter (e.g. denying direct write access to
+a given file might be easily circumvented by controlling another domain
+that has such write access or via more indirect information flows).
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
