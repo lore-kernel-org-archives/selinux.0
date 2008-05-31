@@ -1,125 +1,127 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4UNAX8v012669
-	for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 19:10:33 -0400
-Message-ID: <48408967.7060104@tycho.nsa.gov>
-Date: Fri, 30 May 2008 19:10:31 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m4V0YROn022382
+	for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 20:34:27 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m4V0YQQF023120
+	for <selinux@tycho.nsa.gov>; Sat, 31 May 2008 00:34:26 GMT
+Received: by an-out-0708.google.com with SMTP id d30so107436and.75
+        for <selinux@tycho.nsa.gov>; Fri, 30 May 2008 17:34:26 -0700 (PDT)
+Message-ID: <dd18b0c30805301734q43f4509cle3e89be4451f53f@mail.gmail.com>
+Date: Sat, 31 May 2008 00:34:26 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: "Charles, Theodore" <txc5810@lausd.net>
+Subject: Re: question about security
+Cc: "Daniel J Walsh" <dwalsh@redhat.com>,
+        "Matthew Hammer" <matthewhammer89@gmail.com>, selinux@tycho.nsa.gov
+In-Reply-To: <367BE2FA995D5747B2E75B330734CA616BD237@MAILBE-LA17.lausd.net>
 MIME-Version: 1.0
-To: Joe Nall <joe@nall.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Xavier Toth <txtoth@gmail.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>
-Subject: Re: rbacsep: collapsing xserver
-References: <1211985533.5008.116.camel@gorn.columbia.tresys.com>	 <ddbc00640805280816i24c06b68u65a7e4d7b68bf213@mail.gmail.com>	 <1211990530.5008.127.camel@gorn.columbia.tresys.com>	 <ddbc00640805280942n4ca2619h6185e89dc7d3c108@mail.gmail.com>	 <1211998598.5008.138.camel@gorn.columbia.tresys.com>	 <ddbc00640805281127ld1e848bs54c9f2dc53eaf8b8@mail.gmail.com>	 <483DA6AF.1070807@redhat.com>	 <cadfc0e40805300619l5feb8dddj7efb9f9797e3e9c3@mail.gmail.com>	 <1212155223.31546.42.camel@gorn> <ddbc00640805300801y65fb769u510cea3b1fe3c815@mail.gmail.com>
-In-Reply-To: <ddbc00640805300801y65fb769u510cea3b1fe3c815@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+References: <dd18b0c30805301004h5c9bbf7fmb4bfced81264b8c2@mail.gmail.com>
+	 <20080530135146.11fa7b83@matthew-laptop>
+	 <dd18b0c30805301157x661896c4j65655167ba22df07@mail.gmail.com>
+	 <48405512.2040503@redhat.com>
+	 <dd18b0c30805301329m3a07d004nd86a91c785596912@mail.gmail.com>
+	 <367BE2FA995D5747B2E75B330734CA616BD237@MAILBE-LA17.lausd.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joe Nall wrote:
-> On Fri, May 30, 2008 at 8:47 AM, Christopher J. PeBenito
-> <cpebenito@tresys.com> wrote:
->   
->> On Fri, 2008-05-30 at 08:19 -0500, Xavier Toth wrote:
->>     
->>> On Wed, May 28, 2008 at 1:38 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
->>>       
->>>> The current XAce software is far to complex to do anything usefull in my
->>>> opinion.  We have way too many types and transitions.  We need to
->>>> simplify down to a lot less types.
->>>>         
->>> Going back to Dan's concern about the complexity of the X SELinux
->>> extension and the number of types and transitions I'd like to see some
->>> discussion/resolution. Eamon what's your position on this topic?
->>>       
->> I don't want to speak for Eamon, but I suspect that he would defend the
->> current setup since he's the one that wrote the policy.  I just
->> restructured it to fit nicer in refpolicy and actually removed a few
->> types :)
+On Fri, May 30, 2008 at 10:10 PM, Charles, Theodore <txc5810@lausd.net> wrote:
+> From what I've read, there was an exploit in the way Comcast registers and updates its DNS records with the domain registar (I've already forgotten the name). And, it was this exploit that the "hackers" reported to Comcast, but Comcast ignored. Regardless, this is not a question of whether or not Comcast should be using SELinux or UNIX or Windows Server 2008 or <insert OS here>. This is a question of properly secured methods of communication between two computers on the Internet. I don't think that's applicable to SELinux in the general sense, because most policies deal with objects interacting with the local machine. I would suspect this is more applicable to something like ipfw / iptables / netfilter and possibly their interaction with the SELinux policies. If you really wanted to prevent anyone from connecting to your computer (and making it practically unusable), you could try something like this:
+>
+> iptables -t nat -A PREROUTING -i eth0 -J DROP (not tested)
+>
+> But then you'd pretty much have an unusable internet connected machine (well, technically, you'd still be able to connect out, but diagnosing network problems might be a pain). If I am wrong, please bring it to my attention. :)
+>
+> Last I noticed, Comcast is in fact back up, but I'm sure they're holding their tale between their legs, and let's hope this does not happen again.
+>
+>
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov on behalf of Justin Mattock
+> Sent: Fri 5/30/2008 1:29 PM
+> To: Daniel J Walsh
+> Cc: Matthew Hammer; selinux@tycho.nsa.gov
+> Subject: Re: question about security
+>
+> On Fri, May 30, 2008 at 7:27 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
 >>
->> My position is that its fine as is.  Simplifying it unconditionally
->> starts to make it less usable for people that actually want fine grained
->> controls on the desktop.  Making things simpler tends to be easy, since
->> it tends to be merging types or using attributes for blanket access,
->> like unconfined does.  The black magic voodoo that happens in the
->> xserver, that only a select few have previously known about, has only
->> recently been exposed via the SELinux controls.  I feel that it may be
->> premature to simplify the policy, since side effects probably aren't
->> well understood yet.  At least they aren't understood well by me yet.
->>     
-
-I never signed up to write "the SELinux policy" for X.  It is my 
-responsibility to document my work so that others can write such 
-policies, and I will do so.  See my earlier private message (pasted below).
-
-X policy will be an area where one size doesn't fit all.  I'll try to 
-address the concerns in the "current diff" mail.
-
+>> Justin Mattock wrote:
+>> | On Fri, May 30, 2008 at 5:51 PM, Matthew Hammer
+>> | <matthewhammer89@gmail.com> wrote:
+>> |> On Fri, 30 May 2008 17:04:41 +0000
+>> |> "Justin Mattock" <justinmattock@gmail.com> wrote:
+>> |>
+>> |>> Hello; First I need to start with a status: SELinux seems to be
+>> |>> handling nicely with the latest git, and refpolicy. You guys really do
+>> |>> a good job.
+>> |>> Now for the question: I noticed reading the New York Times that
+>> |>> Comcast was hacked into, after reading the article I couldn't help but
+>> |>> ask the question
+>> |>> of "If comcast was using Linux with SELinux would this have happened".
+>> |>> So the question to SELinux is: If Comcast was using Linux, with
+>> |>> SELinux on there servers
+>> |>> would this attack have been prevented? What should Comcast have had
+>> |>> with there set up to better protect them from this type of
+>> |>> attack?(even though they probably use windows)
+>> |>> How would regular users and small businesses protect themselves from
+>> |>> this type of terrorism?
+>> |>> regards;
+>> |> My understanding of the comcast hack was that the hackers altered
+>> |> Comcast's registration information with the vendor that registers their
+>> |> domain. So no, the problem wasn't anything internal with comcast's own
+>> |> system.
+>> |>
+>> |> --
+>> |> Matthew Hammer
+>> |>
+>> |
+>> | AAhh I see, the vendor that registers their domain.
+>> |
+>> Of course the next question is whether the vendor who registers their
+>> doimains had been running SELinux, could it be stopped, and there is a
+>> good possibility.
+>>
+>> Depending on the Version, SELinux prevents most buffer overflow attacks
+>> on confined domains.
+>> -----BEGIN PGP SIGNATURE-----
+>> Version: GnuPG v1.4.9 (GNU/Linux)
+>> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+>>
+>> iEYEARECAAYFAkhAVPQACgkQrlYvE4MpobPWSwCfQnk59XT5A7vZ/hL8JtHJGBj5
+>> 9fkAoJ+RKyeW/Vcd86U7syYUK9T17zwR
+>> =tzTL
+>> -----END PGP SIGNATURE-----
+>>
 >
-> I can relate to that :)
+> So if the vendor was protected with SELinux, the hacker would have had
+> to really work hard at trying to tweak the numbers
+> inside the vendors computer to cause this(edit a file), or is it  a
+> wire tap scenario i.g. similar to arp spoofing.
 >
-> Voodoo note: Any post-login setuid magic will have to allow the
-> xserver object manager to continue to audit.
+> --
+> Justin P. Mattock
 >
->   
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
+>
 
-Changing the UID isn't all that interesting to me; it's changing the 
-context that matters.  If SDTLOGIN or pam_selinux.so could be used to 
-implement a setcon() solution, great.  If we could launch the server 
-after the user logs in, even better.
-
-> I chimed in on this thread because we need to get MLS X up and running
-> locally in enforcing mode. I wanted to make sure that we (Ted and I)
-> understood the issues involved as much as possible before changing any
-> policy.
->   
-
-The documentation links in the pasted message below are the best way to 
-get started with understanding X.
-
----
-
-I plan to get some documentation into shape for the upcoming X server 
-release.  This will certainly include updated XACE hook documentation, 
-as well as rudimentary one-liner class and permission documentation that 
-can go in the table of classes and permissions I recall seeing somewhere 
-(but can't find at the moment).  The only thing I have right now is a 
-large spreadsheet of X protocol requests and the permissions required 
-for each one.  I will do my best to make sure this knowledge gets put 
-into a communicable form.
-
-However, it is time for other people in this community besides myself to 
-start figuring how X works.  The X Window System is not black magic; the 
-core X protocol is described at [1] and many of the X extensions 
-(additional calls that have been added over the years) are described at 
-[2].  A great place to start would be the Xlib programming manual [3].  
-Wikipedia also has pages on many of the popular extensions.  After that, 
-the various conventions that have been established for using X: the 
-ICCCM, which describes the cut & paste protocol and other aspects of how 
-window managers work [4].  The NETWM standard, its successor [5].  The 
-XSETTINGS selection protocol [6].  Finally, all of the GNOME and KDE 
-conventions and non-conventions (which I do not understand, because I 
-have not gotten that far) and the requirements of the various "core" 
-desktop applications such as nautilus, gnome-panel, gnome-session, gdm, 
-gnome-screensaver, gnome-power-manager, gnome-keyring, etc.
-
-People just know how files, symbolic links, pipes, and sockets work, and 
-they do not need Steve to explain this to them.   X should not be any 
-different.
-
-
-[1] http://cgit.freedesktop.org/xorg/doc/xorg-docs/tree/hardcopy/XProtocol
-[2] http://cgit.freedesktop.org/xorg/doc/xorg-docs/tree/hardcopy/Xext
-[3] http://cgit.freedesktop.org/xorg/doc/xorg-docs/tree/hardcopy/X11
-[4] http://cgit.freedesktop.org/xorg/doc/xorg-docs/tree/hardcopy/ICCCM
-[5] http://freedesktop.org/wiki/Specifications/wm-spec?action=show&redirect=Standards%2Fwm-spec
-[6] http://standards.freedesktop.org/xsettings-spec/xsettings-spec-0.5.html
-
+It sounds like a nice idea, but if there will be problems connecting,
+and so forth then I'll pass, I was just wondering if they were using
+SELinux
+would this have been a better outcome.  As for what happened at
+comcast, I really don't know, I just don't like hearing story's like
+that, The positive side is the hackers exposed holes which can then be
+fixed, but in this case the hackers exposed the holes, they just chose
+to ignore them,(if this is the case) causing a more of a wakeup call
+later in time.
+regards;
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
