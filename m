@@ -1,13 +1,13 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m52GM5Hs005569
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jun 2008 12:22:05 -0400
-Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m52GM5xv013355
-	for <selinux@tycho.nsa.gov>; Mon, 2 Jun 2008 16:22:05 GMT
-Received: by yw-out-1718.google.com with SMTP id 6so473024ywa.84
-        for <selinux@tycho.nsa.gov>; Mon, 02 Jun 2008 09:22:02 -0700 (PDT)
-Message-ID: <dd18b0c30806020921v31b788b5yce65fc9497109203@mail.gmail.com>
-Date: Mon, 2 Jun 2008 16:21:56 +0000
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m52GLq4o005511
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jun 2008 12:21:52 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m52GLoxv013222
+	for <selinux@tycho.nsa.gov>; Mon, 2 Jun 2008 16:21:51 GMT
+Received: by wr-out-0506.google.com with SMTP id c30so312718wra.21
+        for <selinux@tycho.nsa.gov>; Mon, 02 Jun 2008 09:21:50 -0700 (PDT)
+Message-ID: <dd18b0c30806020921t532fc16fk3b6b70c21c7f83a7@mail.gmail.com>
+Date: Mon, 2 Jun 2008 16:21:30 +0000
 From: "Justin Mattock" <justinmattock@gmail.com>
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
 Subject: Re: changing role to user_r
