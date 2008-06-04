@@ -1,93 +1,109 @@
-Message-ID: <4846142F.8090100@ak.jp.nec.com>
-Date: Wed, 04 Jun 2008 13:03:59 +0900
+Message-ID: <48461B8C.60502@ak.jp.nec.com>
+Date: Wed, 04 Jun 2008 13:35:24 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-References: <483A9137.5050509@ak.jp.nec.com>	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com> <1212496632.31546.105.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1212496632.31546.105.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>, Dawid Kuroczko <qnex42@gmail.com>
+CC: SELinux List <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: RFC: Per-object manager controls in /selinux/config
+References: <4769A947.1030403@tycho.nsa.gov> <4769F731.6050002@ak.jp.nec.com>
+In-Reply-To: <4769F731.6050002@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Tue, 2008-06-03 at 19:25 +0900, KaiGai Kohei wrote:
->> Christopher J. PeBenito wrote:
-> 
->>> I'm out of arguments; clearly I'm in the minority on this issue.  I
->>> already said I wouldn't block the policy over this, so KaiGai, if you
->>> would send a last patch based on the revisions I made [1], let see if we
->>> can finally get this merged.
->>>
->>> [1] http://marc.info/?l=selinux&m=120999566809541&w=2
->> I'll submit a revised version later.
->> (Now we cannot update SVN repository, due to server maintenance.)
+KaiGai Kohei wrote:
+> Eamon Walsh wrote:
+>> I am proposing adding a separate config line for each userspace object 
+>> manager, as follows:
 >>
->> Before this, I want to modify the following points:
->>
->> - neverallow rule should be removed, as you suggested before.
->>
->> - The type_transition rule for newly created database should be
->>   described with "self" as its target, like:
->>     type_transition sepgsql_client_type self : db_database sepgsql_db_t;
->>   The purpose is to make clear its meanings that this type_transition
->>   has no appropriate parent as socket creation.
+>> #    permissive - SELinux prints warnings instead of enforcing.
+>> #    disabled - SELinux is fully disabled.
+>> SELINUX=enforcing
+>> +
+>> +# SELINUX_MANAGER= can take one of these four values
+>> +#    enforcing - SELinux security policy is enforced by this object 
+>> manager.
+>> +#    permissive - The object manager prints warnings instead of 
+>> enforcing.
+>> +#    disabled - SELinux is fully disabled by this object manager.
+>> +#    default - The object manager will track the system setting.
+>> +SELINUX_DBUS=default
+>> +SELINUX_XSERVER=permissive
+>> +
+>> # SELINUXTYPE= type of policy in use. Possible values are:
+>> #    targeted - Only targeted network daemons are protected.
+>> #    strict - Full SELinux protection.
 > 
-> Unfortunately self doesn't work in type_transitions.
-
-Oops,
-
->> - postgresql_unconfined() interface should also associate a domin
->>   with sepgsql_client_type, not only sepgsql_unconfined_type.
->>   dontaudit rules on row-level logs are not disabled for unconfined
->>   clients. And, it's not useful to write additional policy module.
+> Eamon,
 > 
-> I don't understand what you mean about the dontaudits.  Otherwise, you
-> should recheck the unconfined rules.  I'm fairly sure I copied anything
-> relevant from the client rules into unconfined so I didn't have to add
-> both attributes in postgresql_unconfined().
+> Could you tell me the purpose of this new feature?
+> 
+> It seems to me this new feature prevents to keep consistency of
+> the SELinux state. I think the internal state of userspace object
+> managers should be just a copy from the in-kernel reference monitor...
+> 
+> Thanks,
 
-A table can contain massive tuples in generally. If 50% of 1,000,000 tuples
-are labaled as "Classified" and hidden from clients (includes unconfined
-domain), tuple-level access denied log will make a flood of logs.
-The dontaudit rule enables to restain the problem.
+In the previous discussion, I told as above.
 
-I intended sepgsql_client_type means all domains connectable to SE-PostgreSQL.
-If it dosen't contain unconfined domains, I think its name is a bit confusable
-and something like "sepgsql_unpriv_type" is better for its name.
-Then, the above dontaudit rule should be rewritten as follows:
+However, some people in pgsql-hackers suggested me a facility to turn on/off
+MAC within SE-PostgreSQL. It seems to me they want to deliver a original
+PostgreSQL and SE- version's one within a single package.
+What is the best answer for this issue?
 
-  dontaudit { sepgsql_client_type sepgsql_unpriv_type postgresql_t } \
-            { sepgsql_table_type - sepgsql_sysobj_table_type } : db_tuple *;
+In my opinion, this kind of configuration should be managed globally in system,
+because it enables to guarantee the consistency of access controls.
+In addition, a "policy-free" storage created by unauthorized users makes
+a loophole of data-flow-control scheme.
+But I can also understand their demands to avoid shipping two similar packages,...
 
-At first, I used a boolean (sepgsql_enable_audittuple) to turn on/off
-tuple-level access logs, but you suggested it is unnecessary, so I removed it.
+--------------------------------------------
+Subject: Re: [HACKERS] [0/4] Proposal of SE-PostgreSQL patches
 
-
-In addition, I found an unclear point which came from my original policy. :(
-
-  allow sepgsql_unconfined_type postgresql_t:db_blob { import export };
-
-A blob import interface enables to read a file on a server host by the server
-process (postgresql_t), and import to database as several frames of largeobject.
-A export interface works for inversed direction.
-
-In the previous discussion, the meaning of these permission is to indicate
-server process to start importing or exporting.
-However, I'm now considering the following rules are more sensefull:
-
-  1. SE-PostgreSQL checks whether the client has db_blob:{import} for
-     the target large object.
-  2. SE-PostgreSQL checks whether the client has file:{read} for
-     the target file.
-  3. SELinux (kernel) checks whether postgresql_t has file:{read} for the
-     target file, because it uses read(2) system call.
-
-Could you tell me your opinion?
+Dawid Kuroczko wrote:
+ > On Wed, May 7, 2008 at 7:52 AM, KaiGai Kohei <kaigai@ak.jp.nec.com> wrote:
+ >> Tom, Thanks for your reviewing.
+ >>> The patch hasn't got a mode in which SELinux support is compiled in but
+ >>> not active.  This is a good way to ensure that no one will ever ship
+ >>> standard RPMs with the feature compiled in, because they will be entirely
+ >>> nonfunctional for people who aren't interested in setting up SELinux.
+ >>> I think you need an "enable_sepostgres" GUC, or something like that.
+ >>> (Of course, the overhead of the per-row security column would probably
+ >>> discourage anyone from wanting to use such a configuration anyway,
+ >>> so maybe the point is moot.)
+ >> We can turn on/off SELinux globally, not bounded to SE-PostgreSQL.
+ >> The reason why I didn't provide a mode bit like "enable_sepostgresql"
+ >> is to keep consistency in system configuration.
+ >
+ > Hmm, I think ACE should be a CREATE DATABASE parameter.
+ >
+ > If I were to create a SE-database I would wish that disabling it was
+ > more difficult than changing a GUC in database.  And being able to
+ > set it on per-database basis would help get SE/ACE enabled by
+ > packagers.
+ >
+ >    Regards,
+ >       Dawid
+--------------------------------------------
 
 Thanks,
+
+>> However, I am a little unclear on how runtime setenforce calls should 
+>> be dealt with.  The way it currently works is if the userspace object 
+>> manager is initialized without an enforcing mode specified in the call 
+>> to avc_open(), it will track the system setting and conform to netlink 
+>> "setenforce" messages.  However, if avc_open() is called with an 
+>> enforcing mode specified, it will stay in that mode and not respond to 
+>> the netlink messages.  Users might thus be confused if they issue a 
+>> "setenforce 0" and the X server stays in enforcing mode because it was 
+>> specified that way in the config file.  But I'm of the opinion that 
+>> runtime setenforcing is an abnormal event, and anyone who edits the 
+>> config file away from "default" and then runs setenforce will 
+>> understand how it works.
+> 
+
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
