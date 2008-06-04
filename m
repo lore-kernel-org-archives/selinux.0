@@ -1,35 +1,49 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m546tGl9021405
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2008 02:55:16 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m546tFn4014649
-	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2008 06:55:16 GMT
-Received: by an-out-0708.google.com with SMTP id d30so536421and.75
-        for <selinux@tycho.nsa.gov>; Tue, 03 Jun 2008 23:55:15 -0700 (PDT)
-Message-ID: <dd18b0c30806032355v44c0b5d2u965e3e7a65ba2e24@mail.gmail.com>
-Date: Wed, 4 Jun 2008 06:55:15 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: NetLabel
+Message-ID: <4846A481.4080805@tresys.com>
+Date: Wed, 04 Jun 2008 10:19:45 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
+References: <483A9137.5050509@ak.jp.nec.com>	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com> <1212496632.31546.105.camel@gorn.columbia.tresys.com> <4846142F.8090100@ak.jp.nec.com>
+In-Reply-To: <4846142F.8090100@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello; Hopefully this is the right list to post this question,
-after looking at  NetLabel, in dmesg I couldn't help but see:
-[    0.570655] NetLabel: Initializing
-[    0.570660] NetLabel:  domain hash size = 128
-[    0.570663] NetLabel:  protocols = UNLABELED CIPSOv4
-[    0.570730] NetLabel:  unlabeled traffic allowed by default
+KaiGai Kohei wrote:
+> Christopher J. PeBenito wrote:
 
-"unlabeled traffic allowed by default."
-is this similar to selinux (handle_unkown=deny, if so is there an
-option to change this to "unlabeled traffic deny."
-Also is there a location for this in the kernel i.g. /proc/sys/net/*
-regards;
--- 
-Justin P. Mattock
+<snip>
+
+> 
+> In addition, I found an unclear point which came from my original policy. :(
+> 
+>   allow sepgsql_unconfined_type postgresql_t:db_blob { import export };
+> 
+> A blob import interface enables to read a file on a server host by the server
+> process (postgresql_t), and import to database as several frames of largeobject.
+> A export interface works for inversed direction.
+> 
+> In the previous discussion, the meaning of these permission is to indicate
+> server process to start importing or exporting.
+> However, I'm now considering the following rules are more sensefull:
+> 
+>   1. SE-PostgreSQL checks whether the client has db_blob:{import} for
+>      the target large object.
+>   2. SE-PostgreSQL checks whether the client has file:{read} for
+>      the target file.
+>   3. SELinux (kernel) checks whether postgresql_t has file:{read} for the
+>      target file, because it uses read(2) system call.
+> 
+> Could you tell me your opinion?
+
+Chris asked me to look at this for him. The access checks above seem completely reasonable to me, much better than the previous check.
+
+I wonder though, how you'll do an export check between the client and file type, since a compute_create between the client and the target directory may be different than between postgresql_t and the directory? Which context would you attempt to use?
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
