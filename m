@@ -1,114 +1,59 @@
-Subject: Re:
-	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <4846142F.8090100@ak.jp.nec.com>
-References: <483A9137.5050509@ak.jp.nec.com>
-	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
-	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
-	 <483C6BEA.8040101@tycho.nsa.gov>
-	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
-	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
-	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
-	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
-	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
-	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
-	 <4846142F.8090100@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Wed, 04 Jun 2008 10:32:10 -0400
-Message-Id: <1212589930.4140.16.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m54EWevr005234
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2008 10:32:40 -0400
+Received: from g1t0026.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m54EWdkF009504
+	for <selinux@tycho.nsa.gov>; Wed, 4 Jun 2008 14:32:39 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: "Justin Mattock" <justinmattock@gmail.com>
+Subject: Re: NetLabel
+Date: Wed, 4 Jun 2008 10:31:33 -0400
+Cc: selinux@tycho.nsa.gov
+References: <dd18b0c30806032355v44c0b5d2u965e3e7a65ba2e24@mail.gmail.com>
+In-Reply-To: <dd18b0c30806032355v44c0b5d2u965e3e7a65ba2e24@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200806041031.33060.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-06-04 at 13:03 +0900, KaiGai Kohei wrote:
-> Christopher J. PeBenito wrote:
-> > On Tue, 2008-06-03 at 19:25 +0900, KaiGai Kohei wrote:
-> >> Christopher J. PeBenito wrote:
-> > 
-> >>> I'm out of arguments; clearly I'm in the minority on this issue.  I
-> >>> already said I wouldn't block the policy over this, so KaiGai, if you
-> >>> would send a last patch based on the revisions I made [1], let see if we
-> >>> can finally get this merged.
-> >>>
-> >>> [1] http://marc.info/?l=selinux&m=120999566809541&w=2
-> >> I'll submit a revised version later.
-> >> (Now we cannot update SVN repository, due to server maintenance.)
-> >>
-> >> Before this, I want to modify the following points:
+On Wednesday 04 June 2008 2:55:15 am Justin Mattock wrote:
+> Hello; Hopefully this is the right list to post this question,
+> after looking at  NetLabel, in dmesg I couldn't help but see:
+> [    0.570655] NetLabel: Initializing
+> [    0.570660] NetLabel:  domain hash size = 128
+> [    0.570663] NetLabel:  protocols = UNLABELED CIPSOv4
+> [    0.570730] NetLabel:  unlabeled traffic allowed by default
+>
+> "unlabeled traffic allowed by default."
+> is this similar to selinux (handle_unkown=deny, if so is there an
+> option to change this to "unlabeled traffic deny."
 
-> >> - postgresql_unconfined() interface should also associate a domin
-> >>   with sepgsql_client_type, not only sepgsql_unconfined_type.
-> >>   dontaudit rules on row-level logs are not disabled for unconfined
-> >>   clients. And, it's not useful to write additional policy module.
-> > 
-> > I don't understand what you mean about the dontaudits.  Otherwise, you
-> > should recheck the unconfined rules.  I'm fairly sure I copied anything
-> > relevant from the client rules into unconfined so I didn't have to add
-> > both attributes in postgresql_unconfined().
-> 
-> A table can contain massive tuples in generally. If 50% of 1,000,000 tuples
-> are labaled as "Classified" and hidden from clients (includes unconfined
-> domain), tuple-level access denied log will make a flood of logs.
-> The dontaudit rule enables to restain the problem.
-> 
-> I intended sepgsql_client_type means all domains connectable to SE-PostgreSQL.
-> If it dosen't contain unconfined domains, I think its name is a bit confusable
-> and something like "sepgsql_unpriv_type" is better for its name.
+Nope, the two are completely unrelated.  By default, NetLabel allows 
+unlabeled traffic to pass (meaning the netlbl_skbuff_getattr() function 
+returns an empty secattr and no error, the LSM does the actual packet 
+pass/drop) so as to keep networking working for the majority of users 
+who do not configure NetLabel.  If you were to disable unlabeled 
+traffic using NetLabel only CIPSO and static/fallback (using 2.6.25 or 
+greater) labeled traffic would be allowed into the system.
 
-The fact is that we need an interface for unconfined access.  If the
-privileged client access is equivalent to unconfined access, then I feel
-that the unconfined interface is clearer.
+Unless you really know what you are doing I wouldn't mess with this 
+setting.
 
-> Then, the above dontaudit rule should be rewritten as follows:
-> 
->   dontaudit { sepgsql_client_type sepgsql_unpriv_type postgresql_t } \
->             { sepgsql_table_type - sepgsql_sysobj_table_type } : db_tuple *;
-> 
-> At first, I used a boolean (sepgsql_enable_audittuple) to turn on/off
-> tuple-level access logs, but you suggested it is unnecessary, so I removed it.
+> Also is there a location for this in the kernel i.g. /proc/sys/net/*
+> regards;
 
-I don't agree because of:
+There are some sysctl variables which offer control of the 
+NetLabel/CIPSO functionality they do no toggle the unlabeled allow/deny 
+behavior, for that you need the netlabel_tools package, specifically 
+netlabelctl.
 
-+allow postgresql_t sepgsql_table_type:{ db_table db_column db_tuple } *;
-+allow sepgsql_unconfined_type sepgsql_table_type:{ db_table db_column db_tuple } *;
-
-so dontauditing for postgresql_t and sepgsql_unconfined_type doesn't do
-anything since the access is allowed.
-
-> In addition, I found an unclear point which came from my original policy. :(
-> 
->   allow sepgsql_unconfined_type postgresql_t:db_blob { import export };
-> 
-> A blob import interface enables to read a file on a server host by the server
-> process (postgresql_t), and import to database as several frames of largeobject.
-> A export interface works for inversed direction.
-> 
-> In the previous discussion, the meaning of these permission is to indicate
-> server process to start importing or exporting.
-> However, I'm now considering the following rules are more sensefull:
-> 
->   1. SE-PostgreSQL checks whether the client has db_blob:{import} for
->      the target large object.
->   2. SE-PostgreSQL checks whether the client has file:{read} for
->      the target file.
->   3. SELinux (kernel) checks whether postgresql_t has file:{read} for the
->      target file, because it uses read(2) system call.
-> 
-> Could you tell me your opinion?
-
-I'll defer to Josh on this one since he knows much more about databases
-than I do.
+ * http://netlabel.sf.net
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
