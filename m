@@ -1,81 +1,101 @@
-Message-ID: <48473C35.4060102@ak.jp.nec.com>
-Date: Thu, 05 Jun 2008 10:07:01 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-References: <483A9137.5050509@ak.jp.nec.com>	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com> <1212496632.31546.105.camel@gorn.columbia.tresys.com> <4846142F.8090100@ak.jp.nec.com> <4846A481.4080805@tresys.com>
-In-Reply-To: <4846A481.4080805@tresys.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Subject: [patch] selinux:  simplify ioctl checking
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Content-Type: text/plain
+Date: Thu, 05 Jun 2008 09:21:28 -0400
+Message-Id: <1212672088.2763.46.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> KaiGai Kohei wrote:
->> Christopher J. PeBenito wrote:
-> 
-> <snip>
-> 
->> In addition, I found an unclear point which came from my original policy. :(
->>
->>   allow sepgsql_unconfined_type postgresql_t:db_blob { import export };
->>
->> A blob import interface enables to read a file on a server host by the server
->> process (postgresql_t), and import to database as several frames of largeobject.
->> A export interface works for inversed direction.
->>
->> In the previous discussion, the meaning of these permission is to indicate
->> server process to start importing or exporting.
->> However, I'm now considering the following rules are more sensefull:
->>
->>   1. SE-PostgreSQL checks whether the client has db_blob:{import} for
->>      the target large object.
+Simplify and improve the robustness of the SELinux ioctl checking by 
+using the "access mode" bits of the ioctl command to determine the 
+permission check rather than dealing with individual command values.
+This removes any knowledge of specific ioctl commands from SELinux
+and follows the same guidance we gave to Smack earlier.
 
-db_blob:{write} is also checked here...
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
->>   2. SE-PostgreSQL checks whether the client has file:{read} for
->>      the target file.
->>   3. SELinux (kernel) checks whether postgresql_t has file:{read} for the
->>      target file, because it uses read(2) system call.
->>
->> Could you tell me your opinion?
-> 
-> Chris asked me to look at this for him. The access checks above seem completely
-> reasonable to me, much better than the previous check.
-> 
-> I wonder though, how you'll do an export check between the client and file type,
-> since a compute_create between the client and the target directory may be different
-> than between postgresql_t and the directory? Which context would you attempt to use?
+---
 
-In export case, the target file is labeled as a newly created one between
-postgresql_t and its parent directly, as SELinux attaches in default.
+ security/selinux/hooks.c |   48 +++++++----------------------------------------
+ 1 file changed, 8 insertions(+), 40 deletions(-)
 
-We can understand the behavior as PostgreSQL owns this file and delivers
-its file descriptor to the client. Thus, the client should be checked
-the file:{write} permission for the result of compute_create between
-postgresql_t and the parent directly.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 91b666a..f530008 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -42,9 +42,7 @@
+ #include <linux/fdtable.h>
+ #include <linux/namei.h>
+ #include <linux/mount.h>
+-#include <linux/ext2_fs.h>
+ #include <linux/proc_fs.h>
+-#include <linux/kd.h>
+ #include <linux/netfilter_ipv4.h>
+ #include <linux/netfilter_ipv6.h>
+ #include <linux/tty.h>
+@@ -2903,46 +2901,16 @@ static void selinux_file_free_security(struct file *file)
+ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+ 			      unsigned long arg)
+ {
+-	int error = 0;
+-
+-	switch (cmd) {
+-	case FIONREAD:
+-	/* fall through */
+-	case FIBMAP:
+-	/* fall through */
+-	case FIGETBSZ:
+-	/* fall through */
+-	case EXT2_IOC_GETFLAGS:
+-	/* fall through */
+-	case EXT2_IOC_GETVERSION:
+-		error = file_has_perm(current, file, FILE__GETATTR);
+-		break;
+-
+-	case EXT2_IOC_SETFLAGS:
+-	/* fall through */
+-	case EXT2_IOC_SETVERSION:
+-		error = file_has_perm(current, file, FILE__SETATTR);
+-		break;
+-
+-	/* sys_ioctl() checks */
+-	case FIONBIO:
+-	/* fall through */
+-	case FIOASYNC:
+-		error = file_has_perm(current, file, 0);
+-		break;
++	u32 av = 0;
+ 
+-	case KDSKBENT:
+-	case KDSKBSENT:
+-		error = task_has_capability(current, CAP_SYS_TTY_CONFIG);
+-		break;
++	if (_IOC_DIR(cmd) & _IOC_WRITE)
++		av |= FILE__WRITE;
++	if (_IOC_DIR(cmd) & _IOC_READ)
++		av |= FILE__READ;
++	if (!av)
++		av = FILE__IOCTL;
+ 
+-	/* default case assumes that the command will go
+-	 * to the file's ioctl() function.
+-	 */
+-	default:
+-		error = file_has_perm(current, file, FILE__IOCTL);
+-	}
+-	return error;
++	return file_has_perm(current, file, av);
+ }
+ 
+ static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
 
-It does not give us any mismatching between DAC and MAC.
-So, I think it is more suitable than using setfscreatecon() to force the
-result between the client and the parent directly.
-
-In the conclusion, the following permissions will be checked for blob export.
-
-1. SELinux (kernel) checks file:{write} between postgresql_t and the newly
-   created file which is labeled as the result between postgresql_t and
-   the parent directory.
-   This file is owned by PostgreSQL in DAC world.
-2. SE-PostgreSQL checks db_blob:{export read} between the client and the target
-   large object.
-3. SE-PostgreSQL checks file:{write} between the client and the target file.
-
-Thanks,
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
