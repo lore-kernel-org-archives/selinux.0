@@ -1,11 +1,13 @@
-Date: Fri, 6 Jun 2008 00:49:44 +1000 (EST)
+Date: Fri, 6 Jun 2008 00:49:56 +1000 (EST)
 From: James Morris <jmorris@namei.org>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>
-Subject: Re: [patch] selinux:  simplify ioctl checking
-In-Reply-To: <1212672088.2763.46.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0806060049380.1677@us.intercode.com.au>
-References: <1212672088.2763.46.camel@moss-spartans.epoch.ncsc.mil>
+cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
+        John Weeks <John.Weeks@sun.com>
+Subject: Re: [patch] selinux:  fix endianness bug in network node address
+ handling
+In-Reply-To: <1212673731.2763.54.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0806060049500.1677@us.intercode.com.au>
+References: <1212673731.2763.54.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -13,92 +15,74 @@ List-Id: selinux@tycho.nsa.gov
 
 On Thu, 5 Jun 2008, Stephen Smalley wrote:
 
-> Simplify and improve the robustness of the SELinux ioctl checking by 
-> using the "access mode" bits of the ioctl command to determine the 
-> permission check rather than dealing with individual command values.
-> This removes any knowledge of specific ioctl commands from SELinux
-> and follows the same guidance we gave to Smack earlier.
+> Fix an endianness bug in the handling of network node addresses by
+> SELinux.  This yields no change on little endian hardware but fixes
+> the incorrect handling on big endian hardware.  The network node
+> addresses are stored in network order in memory by checkpolicy, not in
+> cpu/host order, and thus should not have cpu_to_le32/le32_to_cpu
+> conversions applied upon policy write/read unlike other data in the
+> policy.
+> 
+> Bug reported by John Weeks of Sun, who noticed that binary policy
+> files built from the same policy source on x86 and sparc differed and
+> tracked it down to the ipv4 address handling in checkpolicy.
 > 
 > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
 Applied.
 
-
 > 
 > ---
 > 
->  security/selinux/hooks.c |   48 +++++++----------------------------------------
->  1 file changed, 8 insertions(+), 40 deletions(-)
+>  security/selinux/ss/policydb.c |   15 ++++++++-------
+>  1 file changed, 8 insertions(+), 7 deletions(-)
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 91b666a..f530008 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -42,9 +42,7 @@
->  #include <linux/fdtable.h>
->  #include <linux/namei.h>
->  #include <linux/mount.h>
-> -#include <linux/ext2_fs.h>
->  #include <linux/proc_fs.h>
-> -#include <linux/kd.h>
->  #include <linux/netfilter_ipv4.h>
->  #include <linux/netfilter_ipv6.h>
->  #include <linux/tty.h>
-> @@ -2903,46 +2901,16 @@ static void selinux_file_free_security(struct file *file)
->  static int selinux_file_ioctl(struct file *file, unsigned int cmd,
->  			      unsigned long arg)
->  {
-> -	int error = 0;
-> -
-> -	switch (cmd) {
-> -	case FIONREAD:
-> -	/* fall through */
-> -	case FIBMAP:
-> -	/* fall through */
-> -	case FIGETBSZ:
-> -	/* fall through */
-> -	case EXT2_IOC_GETFLAGS:
-> -	/* fall through */
-> -	case EXT2_IOC_GETVERSION:
-> -		error = file_has_perm(current, file, FILE__GETATTR);
-> -		break;
-> -
-> -	case EXT2_IOC_SETFLAGS:
-> -	/* fall through */
-> -	case EXT2_IOC_SETVERSION:
-> -		error = file_has_perm(current, file, FILE__SETATTR);
-> -		break;
-> -
-> -	/* sys_ioctl() checks */
-> -	case FIONBIO:
-> -	/* fall through */
-> -	case FIOASYNC:
-> -		error = file_has_perm(current, file, 0);
-> -		break;
-> +	u32 av = 0;
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index 84f8cc7..2391761 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -1478,7 +1478,8 @@ int policydb_read(struct policydb *p, void *fp)
+>  	struct ocontext *l, *c, *newc;
+>  	struct genfs *genfs_p, *genfs, *newgenfs;
+>  	int i, j, rc;
+> -	__le32 buf[8];
+> +	__le32 buf[4];
+> +	u32 nodebuf[8];
+>  	u32 len, len2, config, nprim, nel, nel2;
+>  	char *policydb_str;
+>  	struct policydb_compat_info *info;
+> @@ -1749,11 +1750,11 @@ int policydb_read(struct policydb *p, void *fp)
+>  					goto bad;
+>  				break;
+>  			case OCON_NODE:
+> -				rc = next_entry(buf, fp, sizeof(u32) * 2);
+> +				rc = next_entry(nodebuf, fp, sizeof(u32) * 2);
+>  				if (rc < 0)
+>  					goto bad;
+> -				c->u.node.addr = le32_to_cpu(buf[0]);
+> -				c->u.node.mask = le32_to_cpu(buf[1]);
+> +				c->u.node.addr = nodebuf[0]; /* network order */
+> +				c->u.node.mask = nodebuf[1]; /* network order */
+>  				rc = context_read_and_validate(&c->context[0], p, fp);
+>  				if (rc)
+>  					goto bad;
+> @@ -1782,13 +1783,13 @@ int policydb_read(struct policydb *p, void *fp)
+>  			case OCON_NODE6: {
+>  				int k;
 >  
-> -	case KDSKBENT:
-> -	case KDSKBSENT:
-> -		error = task_has_capability(current, CAP_SYS_TTY_CONFIG);
-> -		break;
-> +	if (_IOC_DIR(cmd) & _IOC_WRITE)
-> +		av |= FILE__WRITE;
-> +	if (_IOC_DIR(cmd) & _IOC_READ)
-> +		av |= FILE__READ;
-> +	if (!av)
-> +		av = FILE__IOCTL;
->  
-> -	/* default case assumes that the command will go
-> -	 * to the file's ioctl() function.
-> -	 */
-> -	default:
-> -		error = file_has_perm(current, file, FILE__IOCTL);
-> -	}
-> -	return error;
-> +	return file_has_perm(current, file, av);
->  }
->  
->  static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
+> -				rc = next_entry(buf, fp, sizeof(u32) * 8);
+> +				rc = next_entry(nodebuf, fp, sizeof(u32) * 8);
+>  				if (rc < 0)
+>  					goto bad;
+>  				for (k = 0; k < 4; k++)
+> -					c->u.node6.addr[k] = le32_to_cpu(buf[k]);
+> +					c->u.node6.addr[k] = nodebuf[k];
+>  				for (k = 0; k < 4; k++)
+> -					c->u.node6.mask[k] = le32_to_cpu(buf[k+4]);
+> +					c->u.node6.mask[k] = nodebuf[k+4];
+>  				if (context_read_and_validate(&c->context[0], p, fp))
+>  					goto bad;
+>  				break;
 > 
 > 
 
