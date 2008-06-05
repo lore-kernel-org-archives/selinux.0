@@ -1,98 +1,55 @@
-Message-ID: <48482BC9.10708@tycho.nsa.gov>
-Date: Thu, 05 Jun 2008 14:09:13 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: Joshua Brindle <jbrindle@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-References: <483A9137.5050509@ak.jp.nec.com>	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com> <1212496632.31546.105.camel@gorn.columbia.tresys.com> <4846142F.8090100@ak.jp.nec.com> <4846A481.4080805@tresys.com> <48473C35.4060102@ak.jp.nec.com>
-In-Reply-To: <48473C35.4060102@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Subject: Re: [patch][stable] policycoreutils user_u seuser vs. genhomedircon
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1212028257.5316.7.camel@defiant.pebenito.net>
+References: <1212028257.5316.7.camel@defiant.pebenito.net>
+Content-Type: text/plain
+Date: Thu, 05 Jun 2008 15:08:39 -0400
+Message-Id: <1212692919.2763.146.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Joshua Brindle wrote:
->   
->> KaiGai Kohei wrote:
->>     
->>> Christopher J. PeBenito wrote:
->>>       
->> <snip>
->>
->>     
->>> In addition, I found an unclear point which came from my original policy. :(
->>>
->>>   allow sepgsql_unconfined_type postgresql_t:db_blob { import export };
->>>
->>> A blob import interface enables to read a file on a server host by the server
->>> process (postgresql_t), and import to database as several frames of largeobject.
->>> A export interface works for inversed direction.
->>>
->>> In the previous discussion, the meaning of these permission is to indicate
->>> server process to start importing or exporting.
->>> However, I'm now considering the following rules are more sensefull:
->>>
->>>   1. SE-PostgreSQL checks whether the client has db_blob:{import} for
->>>      the target large object.
->>>       
->
-> db_blob:{write} is also checked here...
->
->   
->>>   2. SE-PostgreSQL checks whether the client has file:{read} for
->>>      the target file.
->>>   3. SELinux (kernel) checks whether postgresql_t has file:{read} for the
->>>      target file, because it uses read(2) system call.
->>>
->>> Could you tell me your opinion?
->>>       
->> Chris asked me to look at this for him. The access checks above seem completely
->> reasonable to me, much better than the previous check.
->>
->> I wonder though, how you'll do an export check between the client and file type,
->> since a compute_create between the client and the target directory may be different
->> than between postgresql_t and the directory? Which context would you attempt to use?
->>     
->
-> In export case, the target file is labeled as a newly created one between
-> postgresql_t and its parent directly, as SELinux attaches in default.
->
-> We can understand the behavior as PostgreSQL owns this file and delivers
-> its file descriptor to the client. Thus, the client should be checked
-> the file:{write} permission for the result of compute_create between
-> postgresql_t and the parent directly.
->   
 
-Doesn't the kernel handle this automatically? Which is to say, if you
-give a file descriptor to another process (I'm assuming it gets passed
-through the local socket), the kernel still checks read and write on
-every access.
+On Wed, 2008-05-28 at 22:30 -0400, Chris PeBenito wrote:
+> In the stable branch, genhomedircon will ignore making home dir contexts
+> for linux users mapped to user_u.  For a long time, this was fine since
+> user_u was the default for strict and targeted.  With a merged
+> strict-targeted policy, a more targeted-like system will have
+> unconfined_u as the default.  If you then try to make a confined user_u
+> user, a set of home directory contexts will not be created.  This patch
+> fixes the behavior.  I made a cursory look through the trunk C
+> genhomedircon, and did not see this behavior, but someone should
+> probably doublecheck.
+> 
+> Index: policycoreutils/scripts/genhomedircon
+> ===================================================================
+> --- policycoreutils/scripts/genhomedircon	(revision 2890)
+> +++ policycoreutils/scripts/genhomedircon	(working copy)
+> @@ -193,7 +193,7 @@
+>  		return prefix
+>  		
+>  	def adduser(self, udict, user, seuser, prefix):
+> -		if seuser == "user_u" or user == "__default__" or user == "system_u":
+> +		if user == "__default__" or user == "system_u":
+>  			return
+>  		# !!! chooses first prefix in the list to use in the file context !!!
+>  		try:
+> 
 
-
-
-> It does not give us any mismatching between DAC and MAC.
-> So, I think it is more suitable than using setfscreatecon() to force the
-> result between the client and the parent directly.
->
-> In the conclusion, the following permissions will be checked for blob export.
->
-> 1. SELinux (kernel) checks file:{write} between postgresql_t and the newly
->    created file which is labeled as the result between postgresql_t and
->    the parent directory.
->    This file is owned by PostgreSQL in DAC world.
-> 2. SE-PostgreSQL checks db_blob:{export read} between the client and the target
->    large object.
-> 3. SE-PostgreSQL checks file:{write} between the client and the target file.
->
-> Thanks,
->   
-
+This appears to be the fallback_user in libsemanage genhomedircon.c,
+which is initialized to "user_u" and then set to whatever seuser is set
+in the __default__ entry of the seusers file (setup_fallback_user).
+get_users() then skips users that map to this fallback user with the
+exception of "root".  Plus the usual skipping of __default__ and
+system_u.  BTW, putting system_u into seusers was never a good idea;
+crond should have just been changed in the first place to not perform
+getseuserbyname() call for system crontabs.
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
+Stephen Smalley
 National Security Agency
 
 
