@@ -1,91 +1,125 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m55DZQQx002858
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 09:35:26 -0400
-Received: from QMTA08.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m55DZQJQ015471
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 13:35:26 GMT
-Subject: Re:
-	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-From: Chris PeBenito <pebenito@gentoo.org>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <48473ECC.6020501@ak.jp.nec.com>
-References: <483A9137.5050509@ak.jp.nec.com>
-	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
-	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
-	 <483C6BEA.8040101@tycho.nsa.gov>
-	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
-	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
-	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
-	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
-	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
-	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
-	 <4846142F.8090100@ak.jp.nec.com>
-	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
-	 <48473ECC.6020501@ak.jp.nec.com>
+Subject: [patch] libsepol:  fix endianness bug in network node address
+	handling
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Eric Paris <eparis@parisplace.org>, Joshua Brindle <jbrindle@tresys.com>,
+        John Weeks <John.Weeks@sun.com>
 Content-Type: text/plain
-Date: Thu, 05 Jun 2008 09:35:16 -0400
-Message-Id: <1212672916.15752.7.camel@gorn.pebenito.net>
+Date: Thu, 05 Jun 2008 09:45:33 -0400
+Message-Id: <1212673533.2763.50.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-06-05 at 10:18 +0900, KaiGai Kohei wrote:
-> Christopher J. PeBenito wrote:
-> > On Wed, 2008-06-04 at 13:03 +0900, KaiGai Kohei wrote:
-> >> Christopher J. PeBenito wrote:
-> >>> On Tue, 2008-06-03 at 19:25 +0900, KaiGai Kohei wrote:
-> >>>> Christopher J. PeBenito wrote:
-> >>>>> I'm out of arguments; clearly I'm in the minority on this issue.  I
-> >>>>> already said I wouldn't block the policy over this, so KaiGai, if you
-> >>>>> would send a last patch based on the revisions I made [1], let see if we
-> >>>>> can finally get this merged.
-> >>>>>
-> >>>>> [1] http://marc.info/?l=selinux&m=120999566809541&w=2
-> >>>> I'll submit a revised version later.
-> >>>> (Now we cannot update SVN repository, due to server maintenance.)
-> >>>>
-> >>>> Before this, I want to modify the following points:
-> > 
+Fix an endianness bug in the handling of network node addresses by
+SELinux.  This yields no change on little endian hardware but fixes
+the incorrect handling on big endian hardware.  The network node
+addresses are stored in network order in memory by checkpolicy, not in
+cpu/host order, and thus should not have cpu_to_le32/le32_to_cpu
+conversions applied upon policy write/read unlike other data in the
+policy.
 
-> >> Then, the above dontaudit rule should be rewritten as follows:
-> >>
-> >>   dontaudit { sepgsql_client_type sepgsql_unpriv_type postgresql_t } \
-> >>             { sepgsql_table_type - sepgsql_sysobj_table_type } : db_tuple *;
-> >>
-> >> At first, I used a boolean (sepgsql_enable_audittuple) to turn on/off
-> >> tuple-level access logs, but you suggested it is unnecessary, so I removed it.
-> > 
-> > I don't agree because of:
-> > 
-> > +allow postgresql_t sepgsql_table_type:{ db_table db_column db_tuple } *;
-> > +allow sepgsql_unconfined_type sepgsql_table_type:{ db_table db_column db_tuple } *;
-> > 
-> > so dontauditing for postgresql_t and sepgsql_unconfined_type doesn't do
-> > anything since the access is allowed.
-> 
-> It is correct in type enforcement.
-> But MCS/MLS can prevent to access by unconfined domains, and make flood of
-> access denied logs.
+Note that checkpolicy was also broken in its handling of ipv4
+addresses on big endian hardware prior to checkpolicy 2.0.5 when the
+ipv4 address handling was changed to be more like the ipv6 address
+handling.
 
-Ok, I see your point.  Please add a comment in the policy that explains
-this, so I don't mistakenly remove the dontaudit in the future :)
+Bug reported by John Weeks of Sun, who noticed that binary policy
+files built from the same policy source on x86 and sparc differed and
+tracked it down to the ipv4 address handling in checkpolicy.
 
-One thing I just realized: do we really want to dontaudit all perms?  It
-seems like use and/or select might be sufficient.  Dontauditing
-relabelto and relabelfrom doesn't seem like a good idea.
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+---
+
+ libsepol/include/sepol/policydb/policydb.h |    8 ++++----
+ libsepol/src/policydb.c                    |   10 ++++------
+ libsepol/src/write.c                       |   10 ++++------
+ 3 files changed, 12 insertions(+), 16 deletions(-)
+
+Index: trunk/libsepol/include/sepol/policydb/policydb.h
+===================================================================
+--- trunk/libsepol/include/sepol/policydb/policydb.h	(revision 2890)
++++ trunk/libsepol/include/sepol/policydb/policydb.h	(working copy)
+@@ -257,12 +257,12 @@
+ 			uint16_t high_port;
+ 		} port;		/* TCP or UDP port information */
+ 		struct {
+-			uint32_t addr;
+-			uint32_t mask;
++			uint32_t addr; /* network order */
++			uint32_t mask; /* network order */
+ 		} node;		/* node information */
+ 		struct {
+-			uint32_t addr[4];
+-			uint32_t mask[4];
++			uint32_t addr[4]; /* network order */
++			uint32_t mask[4]; /* network order */
+ 		} node6;	/* IPv6 node information */
+ 	} u;
+ 	union {
+Index: trunk/libsepol/src/policydb.c
+===================================================================
+--- trunk/libsepol/src/policydb.c	(revision 2890)
++++ trunk/libsepol/src/policydb.c	(working copy)
+@@ -2114,8 +2114,8 @@
+ 				rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
+ 				if (rc < 0)
+ 					return -1;
+-				c->u.node.addr = le32_to_cpu(buf[0]);
+-				c->u.node.mask = le32_to_cpu(buf[1]);
++				c->u.node.addr = buf[0]; /* network order */
++				c->u.node.mask = buf[1]; /* network order */
+ 				if (context_read_and_validate
+ 				    (&c->context[0], p, fp))
+ 					return -1;
+@@ -2145,11 +2145,9 @@
+ 					if (rc < 0)
+ 						return -1;
+ 					for (k = 0; k < 4; k++)
+-						c->u.node6.addr[k] =
+-						    le32_to_cpu(buf[k]);
++						c->u.node6.addr[k] = buf[k]; /* network order */
+ 					for (k = 0; k < 4; k++)
+-						c->u.node6.mask[k] =
+-						    le32_to_cpu(buf[k + 4]);
++						c->u.node6.mask[k] = buf[k + 4]; /* network order */
+ 					if (context_read_and_validate
+ 					    (&c->context[0], p, fp))
+ 						return -1;
+Index: trunk/libsepol/src/write.c
+===================================================================
+--- trunk/libsepol/src/write.c	(revision 2890)
++++ trunk/libsepol/src/write.c	(working copy)
+@@ -1097,8 +1097,8 @@
+ 					return POLICYDB_ERROR;
+ 				break;
+ 			case OCON_NODE:
+-				buf[0] = cpu_to_le32(c->u.node.addr);
+-				buf[1] = cpu_to_le32(c->u.node.mask);
++				buf[0] = c->u.node.addr; /* network order */
++				buf[1] = c->u.node.mask; /* network order */
+ 				items = put_entry(buf, sizeof(uint32_t), 2, fp);
+ 				if (items != 2)
+ 					return POLICYDB_ERROR;
+@@ -1120,11 +1120,9 @@
+ 				break;
+ 			case OCON_NODE6:
+ 				for (j = 0; j < 4; j++)
+-					buf[j] =
+-					    cpu_to_le32(c->u.node6.addr[j]);
++					buf[j] = c->u.node6.addr[j]; /* network order */
+ 				for (j = 0; j < 4; j++)
+-					buf[j + 4] =
+-					    cpu_to_le32(c->u.node6.mask[j]);
++					buf[j + 4] = c->u.node6.mask[j]; /* network order */
+ 				items = put_entry(buf, sizeof(uint32_t), 8, fp);
+ 				if (items != 8)
+ 					return POLICYDB_ERROR;
 
 -- 
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
- 
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xE6AF9243
-Key fingerprint = B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+Stephen Smalley
+National Security Agency
 
 
 --
