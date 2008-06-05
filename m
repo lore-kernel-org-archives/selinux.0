@@ -1,149 +1,51 @@
-Subject: Re: RFC: Per-object manager controls in /selinux/config
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, Dawid Kuroczko <qnex42@gmail.com>,
-        SELinux List <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <48483AB0.9000908@tycho.nsa.gov>
-References: <4769A947.1030403@tycho.nsa.gov>
-	 <4769F731.6050002@ak.jp.nec.com> <48461B8C.60502@ak.jp.nec.com>
-	 <48483AB0.9000908@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Thu, 05 Jun 2008 15:49:36 -0400
-Message-Id: <1212695376.2763.160.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m55L25G2003278
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 17:02:05 -0400
+Received: from dmzmta102.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m55L24rd013868
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 21:02:04 GMT
+Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
+	by dmzmta102.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m55L0cVY018482
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 17:00:38 -0400
+Received: from blums0042.bluelnk.net ([134.120.81.54])
+	by usdmta001.na.baesystems.com (Switch-3.2.0/Switch-3.2.0) with ESMTP id m55L1kca019367
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 17:01:48 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: modules.conf problem
+Date: Thu, 5 Jun 2008 14:01:59 -0700
+Message-ID: <0794F277152EF94AA637E3AECF5CB70FB9E7C9@blums0042.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I'm getting the following compile errors when attempting a clean compile
+of my policy:
 
-On Thu, 2008-06-05 at 15:12 -0400, Eamon Walsh wrote:
-> KaiGai Kohei wrote:
-> > KaiGai Kohei wrote:
-> >   
-> >> Eamon Walsh wrote:
-> >>     
-> >>> I am proposing adding a separate config line for each userspace object 
-> >>> manager, as follows:
-> >>>
-> >>> #    permissive - SELinux prints warnings instead of enforcing.
-> >>> #    disabled - SELinux is fully disabled.
-> >>> SELINUX=enforcing
-> >>> +
-> >>> +# SELINUX_MANAGER= can take one of these four values
-> >>> +#    enforcing - SELinux security policy is enforced by this object 
-> >>> manager.
-> >>> +#    permissive - The object manager prints warnings instead of 
-> >>> enforcing.
-> >>> +#    disabled - SELinux is fully disabled by this object manager.
-> >>> +#    default - The object manager will track the system setting.
-> >>> +SELINUX_DBUS=default
-> >>> +SELINUX_XSERVER=permissive
-> >>> +
-> >>> # SELINUXTYPE= type of policy in use. Possible values are:
-> >>> #    targeted - Only targeted network daemons are protected.
-> >>> #    strict - Full SELinux protection.
-> >>>       
-> >> Eamon,
-> >>
-> >> Could you tell me the purpose of this new feature?
-> >>
-> >> It seems to me this new feature prevents to keep consistency of
-> >> the SELinux state. I think the internal state of userspace object
-> >> managers should be just a copy from the in-kernel reference monitor...
-> >>
-> >> Thanks,
-> >>     
-> >
-> > In the previous discussion, I told as above.
-> >
-> > However, some people in pgsql-hackers suggested me a facility to turn on/off
-> > MAC within SE-PostgreSQL. It seems to me they want to deliver a original
-> > PostgreSQL and SE- version's one within a single package.
-> > What is the best answer for this issue?
-> >
-> > In my opinion, this kind of configuration should be managed globally in system,
-> > because it enables to guarantee the consistency of access controls.
-> > In addition, a "policy-free" storage created by unauthorized users makes
-> > a loophole of data-flow-control scheme.
-> > But I can also understand their demands to avoid shipping two similar packages,...
-> >   
-> 
-> Based on the earlier feedback provided by you and Josh, I figured that 
-> my proposal had been NAK'ed.  Since that time, the Xorg server has been 
-> patched to support a configuration file option to set 
-> enabled/disabled/permissive. 
-> 
-> I would be glad to reopen the discussion though, if you've changed your 
-> mind. 
+policy/modules/apps/import.if:336: Error: duplicate definition of
+nlscripts_dir_search(). Original definition on 25.
+policy/modules/apps/import.if:344: Error: duplicate definition of
+nlscripts_dir_list(). Original definition on 17.
 
-I think a config option in the configuration file for the individual
-object manager is reasonable, with the default behavior being to track
-the kernel's setting.  For Xorg, we can disable just the XSELinux
-extension or make it permissive via xorg.conf while retaining the
-kernel's controls.  For PostgreSQL, I think we'd want a similar setting
-in its config file, whatever that might be, as long as the config file
-is administratively controlled.
+The thing is that I have commented out the import module out of the
+modules.conf file. In fact I commented it out several weeks ago and have
+done many clean compiles since without issue until this morning.
 
-In a given environment, you may choose to run X or Postgres entirely
-within a single context (not allowing connections from other contexts)
-and not require object manager functionality within it, while still
-wanting the kernel's controls.
+The only way that I have been able to get past these errors is to remove
+the import.{te,if,fc} files from the apps directory. Then the policy
+compiles and loads fine. I must have changed something in one of the
+other policy files that caused this to suddenly crop up today but I have
+no idea what.
 
-> 
-> 
-> > --------------------------------------------
-> > Subject: Re: [HACKERS] [0/4] Proposal of SE-PostgreSQL patches
-> >
-> > Dawid Kuroczko wrote:
-> >  > On Wed, May 7, 2008 at 7:52 AM, KaiGai Kohei <kaigai@ak.jp.nec.com> wrote:
-> >  >> Tom, Thanks for your reviewing.
-> >  >>> The patch hasn't got a mode in which SELinux support is compiled in but
-> >  >>> not active.  This is a good way to ensure that no one will ever ship
-> >  >>> standard RPMs with the feature compiled in, because they will be entirely
-> >  >>> nonfunctional for people who aren't interested in setting up SELinux.
-> >  >>> I think you need an "enable_sepostgres" GUC, or something like that.
-> >  >>> (Of course, the overhead of the per-row security column would probably
-> >  >>> discourage anyone from wanting to use such a configuration anyway,
-> >  >>> so maybe the point is moot.)
-> >  >> We can turn on/off SELinux globally, not bounded to SE-PostgreSQL.
-> >  >> The reason why I didn't provide a mode bit like "enable_sepostgresql"
-> >  >> is to keep consistency in system configuration.
-> >  >
-> >  > Hmm, I think ACE should be a CREATE DATABASE parameter.
-> >  >
-> >  > If I were to create a SE-database I would wish that disabling it was
-> >  > more difficult than changing a GUC in database.  And being able to
-> >  > set it on per-database basis would help get SE/ACE enabled by
-> >  > packagers.
-> >  >
-> >  >    Regards,
-> >  >       Dawid
-> > --------------------------------------------
-> >
-> > Thanks,
-> >
-> >   
-> >>> However, I am a little unclear on how runtime setenforce calls should 
-> >>> be dealt with.  The way it currently works is if the userspace object 
-> >>> manager is initialized without an enforcing mode specified in the call 
-> >>> to avc_open(), it will track the system setting and conform to netlink 
-> >>> "setenforce" messages.  However, if avc_open() is called with an 
-> >>> enforcing mode specified, it will stay in that mode and not respond to 
-> >>> the netlink messages.  Users might thus be confused if they issue a 
-> >>> "setenforce 0" and the X server stays in enforcing mode because it was 
-> >>> specified that way in the config file.  But I'm of the opinion that 
-> >>> runtime setenforcing is an abnormal event, and anyone who edits the 
-> >>> config file away from "default" and then runs setenforce will 
-> >>> understand how it works.
-> >>>       
-> >
-> >   
-> 
-> 
--- 
-Stephen Smalley
-National Security Agency
+If anyone has any ideas on what may be causing this or ideas on how to
+track down what the problem is I would greatly appreciate hearing them.
+
+I'm using the RHEL5.1 mls policy.
+
+Thanks
+
 
 
 --
