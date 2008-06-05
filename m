@@ -1,91 +1,99 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m55FBASF023941
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 11:11:10 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m55FBAJQ026720
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 15:11:10 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m55FBAr6017622
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 11:11:10 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m55FB9sn012107
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 11:11:09 -0400
-Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m55FB8F5018102
-	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 11:11:09 -0400
-Message-ID: <48480210.60309@redhat.com>
-Date: Thu, 05 Jun 2008 11:11:12 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <48482BC9.10708@tycho.nsa.gov>
+Date: Thu, 05 Jun 2008 14:09:13 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Trying to get XAce policy straightened out but our tool chain is
- too broken to handle it.
-Content-Type: text/plain; charset=ISO-8859-1
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
+References: <483A9137.5050509@ak.jp.nec.com>	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com> <1212496632.31546.105.camel@gorn.columbia.tresys.com> <4846142F.8090100@ak.jp.nec.com> <4846A481.4080805@tresys.com> <48473C35.4060102@ak.jp.nec.com>
+In-Reply-To: <48473C35.4060102@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The interfaces I want to add are something like
+KaiGai Kohei wrote:
+> Joshua Brindle wrote:
+>   
+>> KaiGai Kohei wrote:
+>>     
+>>> Christopher J. PeBenito wrote:
+>>>       
+>> <snip>
+>>
+>>     
+>>> In addition, I found an unclear point which came from my original policy. :(
+>>>
+>>>   allow sepgsql_unconfined_type postgresql_t:db_blob { import export };
+>>>
+>>> A blob import interface enables to read a file on a server host by the server
+>>> process (postgresql_t), and import to database as several frames of largeobject.
+>>> A export interface works for inversed direction.
+>>>
+>>> In the previous discussion, the meaning of these permission is to indicate
+>>> server process to start importing or exporting.
+>>> However, I'm now considering the following rules are more sensefull:
+>>>
+>>>   1. SE-PostgreSQL checks whether the client has db_blob:{import} for
+>>>      the target large object.
+>>>       
+>
+> db_blob:{write} is also checked here...
+>
+>   
+>>>   2. SE-PostgreSQL checks whether the client has file:{read} for
+>>>      the target file.
+>>>   3. SELinux (kernel) checks whether postgresql_t has file:{read} for the
+>>>      target file, because it uses read(2) system call.
+>>>
+>>> Could you tell me your opinion?
+>>>       
+>> Chris asked me to look at this for him. The access checks above seem completely
+>> reasonable to me, much better than the previous check.
+>>
+>> I wonder though, how you'll do an export check between the client and file type,
+>> since a compute_create between the client and the target directory may be different
+>> than between postgresql_t and the directory? Which context would you attempt to use?
+>>     
+>
+> In export case, the target file is labeled as a newly created one between
+> postgresql_t and its parent directly, as SELinux attaches in default.
+>
+> We can understand the behavior as PostgreSQL owns this file and delivers
+> its file descriptor to the client. Thus, the client should be checked
+> the file:{write} permission for the result of compute_create between
+> postgresql_t and the parent directly.
+>   
 
-template - xserver_common_domain_template(staff)
-	Used to generate types for $1_xserver_t and $1_xrootwindow_t
-
-interface - xserver_use(staff, staff, staff_nsplugin_t)
-	    xserver_use(xdm, staff, staff_nsplugin_t)
-	All interaction between application and X Server
-
-template - xserver_common_user_template(staff, staff_r, staff_t)
-
-	This generates all of the user types/rules for a user X Sessionps
-started by the user, Calls out to xserver_common_template
-
-interface - xserver_common_app(staff, staff_nsplugin_t)
-
-	This defines all the common rules for a confined application like
-nsplugin running in the user domain
-	
-Then we can begin to write communications between staff and unconfined_t
-or other user domains.
-
-The problem I have is the compiler is too stupid to understand the
-differences between a gen_requires block defining the required types and
-the actual type definition.
-
-So I end up in a catch 22 where the compiler tells me I need to require
-$1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
-I have a duplicate definition.
-
-So if you have a derived type in a gen_requires block the compiler can
-not handle it.
+Doesn't the kernel handle this automatically? Which is to say, if you
+give a file descriptor to another process (I'm assuming it gets passed
+through the local socket), the kernel still checks read and write on
+every access.
 
 
-/usr/bin/checkmodule -M -m tmp/staff.tmp -o tmp/staff.mod
-/usr/bin/checkmodule:  loading policy configuration from tmp/staff.tmp
-policy/modules/roles/staff.te":11:ERROR 'duplicate declaration of
-type/attribute' at token 'staff_input_xevent_t' on line 66981:
-#line 11
-		type staff_input_xevent_t;
-/usr/bin/checkmodule:  error(s) encountered while parsing configuration
-make: *** [tmp/staff.mod] Error 1
-error: Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
+
+> It does not give us any mismatching between DAC and MAC.
+> So, I think it is more suitable than using setfscreatecon() to force the
+> result between the client and the parent directly.
+>
+> In the conclusion, the following permissions will be checked for blob export.
+>
+> 1. SELinux (kernel) checks file:{write} between postgresql_t and the newly
+>    created file which is labeled as the result between postgresql_t and
+>    the parent directory.
+>    This file is owned by PostgreSQL in DAC world.
+> 2. SE-PostgreSQL checks db_blob:{export read} between the client and the target
+>    large object.
+> 3. SE-PostgreSQL checks file:{write} between the client and the target file.
+>
+> Thanks,
+>   
 
 
-RPM build errors:
-    Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
-
-
-Which is complaining about:
-
-interface(`xserver_use',`
-	gen_require(`
-		type $1_rootwindow_t;
-		attribute $1_x_domain, $1_input_xevent_type;
-		type $1_xserver_t, $1_xserver_tmpfs_t;
-		type $2_input_xevent_t;
-	')
-
-	typeattribute $2_input_xevent_t $1_input_xevent_type;
-
-...
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
