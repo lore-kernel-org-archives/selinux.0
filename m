@@ -1,94 +1,92 @@
-Date: Fri, 6 Jun 2008 00:49:56 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
-        John Weeks <John.Weeks@sun.com>
-Subject: Re: [patch] selinux:  fix endianness bug in network node address
- handling
-In-Reply-To: <1212673731.2763.54.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0806060049500.1677@us.intercode.com.au>
-References: <1212673731.2763.54.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m55FBASF023941
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 11:11:10 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m55FBAJQ026720
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 15:11:10 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m55FBAr6017622
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 11:11:10 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m55FB9sn012107
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 11:11:09 -0400
+Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m55FB8F5018102
+	for <selinux@tycho.nsa.gov>; Thu, 5 Jun 2008 11:11:09 -0400
+Message-ID: <48480210.60309@redhat.com>
+Date: Thu, 05 Jun 2008 11:11:12 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Trying to get XAce policy straightened out but our tool chain is
+ too broken to handle it.
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 5 Jun 2008, Stephen Smalley wrote:
+The interfaces I want to add are something like
 
-> Fix an endianness bug in the handling of network node addresses by
-> SELinux.  This yields no change on little endian hardware but fixes
-> the incorrect handling on big endian hardware.  The network node
-> addresses are stored in network order in memory by checkpolicy, not in
-> cpu/host order, and thus should not have cpu_to_le32/le32_to_cpu
-> conversions applied upon policy write/read unlike other data in the
-> policy.
-> 
-> Bug reported by John Weeks of Sun, who noticed that binary policy
-> files built from the same policy source on x86 and sparc differed and
-> tracked it down to the ipv4 address handling in checkpolicy.
-> 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+template - xserver_common_domain_template(staff)
+	Used to generate types for $1_xserver_t and $1_xrootwindow_t
 
-Applied.
+interface - xserver_use(staff, staff, staff_nsplugin_t)
+	    xserver_use(xdm, staff, staff_nsplugin_t)
+	All interaction between application and X Server
 
-> 
-> ---
-> 
->  security/selinux/ss/policydb.c |   15 ++++++++-------
->  1 file changed, 8 insertions(+), 7 deletions(-)
-> 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 84f8cc7..2391761 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -1478,7 +1478,8 @@ int policydb_read(struct policydb *p, void *fp)
->  	struct ocontext *l, *c, *newc;
->  	struct genfs *genfs_p, *genfs, *newgenfs;
->  	int i, j, rc;
-> -	__le32 buf[8];
-> +	__le32 buf[4];
-> +	u32 nodebuf[8];
->  	u32 len, len2, config, nprim, nel, nel2;
->  	char *policydb_str;
->  	struct policydb_compat_info *info;
-> @@ -1749,11 +1750,11 @@ int policydb_read(struct policydb *p, void *fp)
->  					goto bad;
->  				break;
->  			case OCON_NODE:
-> -				rc = next_entry(buf, fp, sizeof(u32) * 2);
-> +				rc = next_entry(nodebuf, fp, sizeof(u32) * 2);
->  				if (rc < 0)
->  					goto bad;
-> -				c->u.node.addr = le32_to_cpu(buf[0]);
-> -				c->u.node.mask = le32_to_cpu(buf[1]);
-> +				c->u.node.addr = nodebuf[0]; /* network order */
-> +				c->u.node.mask = nodebuf[1]; /* network order */
->  				rc = context_read_and_validate(&c->context[0], p, fp);
->  				if (rc)
->  					goto bad;
-> @@ -1782,13 +1783,13 @@ int policydb_read(struct policydb *p, void *fp)
->  			case OCON_NODE6: {
->  				int k;
->  
-> -				rc = next_entry(buf, fp, sizeof(u32) * 8);
-> +				rc = next_entry(nodebuf, fp, sizeof(u32) * 8);
->  				if (rc < 0)
->  					goto bad;
->  				for (k = 0; k < 4; k++)
-> -					c->u.node6.addr[k] = le32_to_cpu(buf[k]);
-> +					c->u.node6.addr[k] = nodebuf[k];
->  				for (k = 0; k < 4; k++)
-> -					c->u.node6.mask[k] = le32_to_cpu(buf[k+4]);
-> +					c->u.node6.mask[k] = nodebuf[k+4];
->  				if (context_read_and_validate(&c->context[0], p, fp))
->  					goto bad;
->  				break;
-> 
-> 
+template - xserver_common_user_template(staff, staff_r, staff_t)
 
--- 
-James Morris
-<jmorris@namei.org>
+	This generates all of the user types/rules for a user X Sessionps
+started by the user, Calls out to xserver_common_template
+
+interface - xserver_common_app(staff, staff_nsplugin_t)
+
+	This defines all the common rules for a confined application like
+nsplugin running in the user domain
+	
+Then we can begin to write communications between staff and unconfined_t
+or other user domains.
+
+The problem I have is the compiler is too stupid to understand the
+differences between a gen_requires block defining the required types and
+the actual type definition.
+
+So I end up in a catch 22 where the compiler tells me I need to require
+$1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
+I have a duplicate definition.
+
+So if you have a derived type in a gen_requires block the compiler can
+not handle it.
+
+
+/usr/bin/checkmodule -M -m tmp/staff.tmp -o tmp/staff.mod
+/usr/bin/checkmodule:  loading policy configuration from tmp/staff.tmp
+policy/modules/roles/staff.te":11:ERROR 'duplicate declaration of
+type/attribute' at token 'staff_input_xevent_t' on line 66981:
+#line 11
+		type staff_input_xevent_t;
+/usr/bin/checkmodule:  error(s) encountered while parsing configuration
+make: *** [tmp/staff.mod] Error 1
+error: Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
+
+
+RPM build errors:
+    Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
+
+
+Which is complaining about:
+
+interface(`xserver_use',`
+	gen_require(`
+		type $1_rootwindow_t;
+		attribute $1_x_domain, $1_input_xevent_type;
+		type $1_xserver_t, $1_xserver_tmpfs_t;
+		type $2_input_xevent_t;
+	')
+
+	typeattribute $2_input_xevent_t $1_input_xevent_type;
+
+...
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
