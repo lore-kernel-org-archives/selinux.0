@@ -1,86 +1,27 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m56HvXiK023163
-	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2008 13:57:33 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m56HvWIQ000832
-	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2008 17:57:32 GMT
-Subject: RE: modules.conf problem
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <0794F277152EF94AA637E3AECF5CB70FB9E872@blums0042.bluelnk.net>
-References: <0794F277152EF94AA637E3AECF5CB70FB9E7C9@blums0042.bluelnk.net>
-	 <1212754574.15952.2.camel@gorn.columbia.tresys.com>
-	 <0794F277152EF94AA637E3AECF5CB70FB9E872@blums0042.bluelnk.net>
-Content-Type: text/plain
-Date: Fri, 06 Jun 2008 13:57:29 -0400
-Message-Id: <1212775049.28428.3.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [PATCH RFC 0/3] Open code kernel locks
+Date: Fri, 6 Jun 2008 14:32:05 -0400
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>
+References: <Xine.LNX.4.64.0806061856160.25093@us.intercode.com.au>
+In-Reply-To: <Xine.LNX.4.64.0806061856160.25093@us.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200806061432.05839.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-06-06 at 10:16 -0700, Clarkson, Mike R (US SSA) wrote:
-> > -----Original Message-----
-> > From: Christopher J. PeBenito [mailto:cpebenito@tresys.com]
-> > Sent: Friday, June 06, 2008 5:16 AM
-> > To: Clarkson, Mike R (US SSA)
-> > Cc: selinux@tycho.nsa.gov
-> > Subject: Re: modules.conf problem
-> > 
-> > On Thu, 2008-06-05 at 14:01 -0700, Clarkson, Mike R (US SSA) wrote:
-> > > I'm getting the following compile errors when attempting a clean
-> compile
-> > > of my policy:
-> > >
-> > > policy/modules/apps/import.if:336: Error: duplicate definition of
-> > > nlscripts_dir_search(). Original definition on 25.
-> > > policy/modules/apps/import.if:344: Error: duplicate definition of
-> > > nlscripts_dir_list(). Original definition on 17.
-> > >
-> > > The thing is that I have commented out the import module out of the
-> > > modules.conf file. In fact I commented it out several weeks ago and
-> have
-> > > done many clean compiles since without issue until this morning.
-> > >
-> > > The only way that I have been able to get past these errors is to
-> remove
-> > > the import.{te,if,fc} files from the apps directory. Then the policy
-> > > compiles and loads fine. I must have changed something in one of the
-> > > other policy files that caused this to suddenly crop up today but I
-> have
-> > > no idea what.
-> > >
-> > > If anyone has any ideas on what may be causing this or ideas on how
-> to
-> > > track down what the problem is I would greatly appreciate hearing
-> them.
-> > >
-> > > I'm using the RHEL5.1 mls policy.
-> > 
-> > You have more than one declaration of those two interfaces.  Even if
-> the
-> > module is not enabled in the modules.conf, its interfaces are
-> included,
-> > since if its interfaces are used, they have to be expanded.
-> Unexpanded
-> > interfaces result in compile failures.
-> 
-> In my humble opinion I don't think that the interfaces for modules which
-> are not enabled should be included in the policy. The interfaces to a
-> module provide access to the types declared in that module. If the
-> module is not enabled, you shouldn't need access to those types. Now
-> sometimes more general templates are provided in the interface files.
-> But in my opinion, if someone wants access to those templates, they
-> should enable the module that provides the template.
+On Friday 06 June 2008 4:57:12 am James Morris wrote:
+> Please review the following patches, which open code several kernel
+> locks as suggested by Andrew Morton.
 
-That doesn't work for optionals.  The interfaces have to be expanded
-since the optionals aren't disabled until linking.
+These all look fine to me.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
