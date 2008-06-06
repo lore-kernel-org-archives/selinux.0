@@ -1,56 +1,132 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m56CGGO2011157
-	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2008 08:16:16 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m56CGFd3002322
-	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2008 12:16:15 GMT
-Subject: Re: modules.conf problem
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <0794F277152EF94AA637E3AECF5CB70FB9E7C9@blums0042.bluelnk.net>
-References: <0794F277152EF94AA637E3AECF5CB70FB9E7C9@blums0042.bluelnk.net>
-Content-Type: text/plain
-Date: Fri, 06 Jun 2008 08:16:14 -0400
-Message-Id: <1212754574.15952.2.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+Date: Fri, 6 Jun 2008 22:47:49 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
+Subject: Re: [PATCH 2/3] SELinux: open code load_mutex
+In-Reply-To: <1212754289.2763.169.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <Xine.LNX.4.64.0806062247320.30306@us.intercode.com.au>
+References: <Xine.LNX.4.64.0806061856160.25093@us.intercode.com.au>
+ <Xine.LNX.4.64.0806061858010.25093@us.intercode.com.au>
+ <1212754289.2763.169.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-06-05 at 14:01 -0700, Clarkson, Mike R (US SSA) wrote:
-> I'm getting the following compile errors when attempting a clean compile
-> of my policy:
-> 
-> policy/modules/apps/import.if:336: Error: duplicate definition of
-> nlscripts_dir_search(). Original definition on 25.
-> policy/modules/apps/import.if:344: Error: duplicate definition of
-> nlscripts_dir_list(). Original definition on 17.
-> 
-> The thing is that I have commented out the import module out of the
-> modules.conf file. In fact I commented it out several weeks ago and have
-> done many clean compiles since without issue until this morning.
-> 
-> The only way that I have been able to get past these errors is to remove
-> the import.{te,if,fc} files from the apps directory. Then the policy
-> compiles and loads fine. I must have changed something in one of the
-> other policy files that caused this to suddenly crop up today but I have
-> no idea what.
-> 
-> If anyone has any ideas on what may be causing this or ideas on how to
-> track down what the problem is I would greatly appreciate hearing them.
-> 
-> I'm using the RHEL5.1 mls policy.
+On Fri, 6 Jun 2008, Stephen Smalley wrote:
 
-You have more than one declaration of those two interfaces.  Even if the
-module is not enabled in the modules.conf, its interfaces are included,
-since if its interfaces are used, they have to be expanded.  Unexpanded
-interfaces result in compile failures.
+> 
+> On Fri, 2008-06-06 at 18:58 +1000, James Morris wrote:
+> > Open code load_mutex as suggested by Andrew Morton.
+> > 
+> > Signed-off-by: James Morris <jmorris@namei.org>
+> 
+> This is technically correct, but I believe that load_mutex is actually
+> obsolete and can be completely removed.  Note that
+> security_load_policy() is only called from selinuxfs while holding
+> sel_mutex there, which is required in order to synchronize with boolean
+> manipulation.  load_mutex is a leftover from before the age of policy
+> booleans.
+
+Ok, that should be a separate patch, I think.
+
+> 
+> > ---
+> >  security/selinux/ss/services.c |   21 +++++++++------------
+> >  1 files changed, 9 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index e8ec54d..d06df33 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -71,10 +71,7 @@ int selinux_policycap_openperm;
+> >  extern const struct selinux_class_perm selinux_class_perm;
+> >  
+> >  static DEFINE_RWLOCK(policy_rwlock);
+> > -
+> >  static DEFINE_MUTEX(load_mutex);
+> > -#define LOAD_LOCK mutex_lock(&load_mutex)
+> > -#define LOAD_UNLOCK mutex_unlock(&load_mutex)
+> >  
+> >  static struct sidtab sidtab;
+> >  struct policydb policydb;
+> > @@ -1456,17 +1453,17 @@ int security_load_policy(void *data, size_t len)
+> >  	int rc = 0;
+> >  	struct policy_file file = { data, len }, *fp = &file;
+> >  
+> > -	LOAD_LOCK;
+> > +	mutex_lock(&load_mutex);
+> >  
+> >  	if (!ss_initialized) {
+> >  		avtab_cache_init();
+> >  		if (policydb_read(&policydb, fp)) {
+> > -			LOAD_UNLOCK;
+> > +			mutex_unlock(&load_mutex);
+> >  			avtab_cache_destroy();
+> >  			return -EINVAL;
+> >  		}
+> >  		if (policydb_load_isids(&policydb, &sidtab)) {
+> > -			LOAD_UNLOCK;
+> > +			mutex_unlock(&load_mutex);
+> >  			policydb_destroy(&policydb);
+> >  			avtab_cache_destroy();
+> >  			return -EINVAL;
+> > @@ -1475,7 +1472,7 @@ int security_load_policy(void *data, size_t len)
+> >  		if (validate_classes(&policydb)) {
+> >  			printk(KERN_ERR
+> >  			       "SELinux:  the definition of a class is incorrect\n");
+> > -			LOAD_UNLOCK;
+> > +			mutex_unlock(&load_mutex);
+> >  			sidtab_destroy(&sidtab);
+> >  			policydb_destroy(&policydb);
+> >  			avtab_cache_destroy();
+> > @@ -1485,7 +1482,7 @@ int security_load_policy(void *data, size_t len)
+> >  		policydb_loaded_version = policydb.policyvers;
+> >  		ss_initialized = 1;
+> >  		seqno = ++latest_granting;
+> > -		LOAD_UNLOCK;
+> > +		mutex_unlock(&load_mutex);
+> >  		selinux_complete_init();
+> >  		avc_ss_reset(seqno);
+> >  		selnl_notify_policyload(seqno);
+> > @@ -1499,12 +1496,12 @@ int security_load_policy(void *data, size_t len)
+> >  #endif
+> >  
+> >  	if (policydb_read(&newpolicydb, fp)) {
+> > -		LOAD_UNLOCK;
+> > +		mutex_unlock(&load_mutex);
+> >  		return -EINVAL;
+> >  	}
+> >  
+> >  	if (sidtab_init(&newsidtab)) {
+> > -		LOAD_UNLOCK;
+> > +		mutex_unlock(&load_mutex);
+> >  		policydb_destroy(&newpolicydb);
+> >  		return -ENOMEM;
+> >  	}
+> > @@ -1552,7 +1549,7 @@ int security_load_policy(void *data, size_t len)
+> >  	seqno = ++latest_granting;
+> >  	policydb_loaded_version = policydb.policyvers;
+> >  	write_unlock_irq(&policy_rwlock);
+> > -	LOAD_UNLOCK;
+> > +	mutex_unlock(&load_mutex);
+> >  
+> >  	/* Free the old policydb and SID table. */
+> >  	policydb_destroy(&oldpolicydb);
+> > @@ -1566,7 +1563,7 @@ int security_load_policy(void *data, size_t len)
+> >  	return 0;
+> >  
+> >  err:
+> > -	LOAD_UNLOCK;
+> > +	mutex_unlock(&load_mutex);
+> >  	sidtab_destroy(&newsidtab);
+> >  	policydb_destroy(&newpolicydb);
+> >  	return rc;
+> 
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
