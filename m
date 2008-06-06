@@ -1,137 +1,140 @@
-Subject: Re: [PATCH 2/3] SELinux: open code load_mutex
+Subject: Re: [patch] libsepol:  fix endianness bug in network node address
+	handling
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-In-Reply-To: <Xine.LNX.4.64.0806062247320.30306@us.intercode.com.au>
-References: <Xine.LNX.4.64.0806061856160.25093@us.intercode.com.au>
-	 <Xine.LNX.4.64.0806061858010.25093@us.intercode.com.au>
-	 <1212754289.2763.169.camel@moss-spartans.epoch.ncsc.mil>
-	 <Xine.LNX.4.64.0806062247320.30306@us.intercode.com.au>
+To: selinux@tycho.nsa.gov
+Cc: Eric Paris <eparis@parisplace.org>, Joshua Brindle <jbrindle@tresys.com>,
+        John Weeks <John.Weeks@sun.com>
+In-Reply-To: <1212673533.2763.50.camel@moss-spartans.epoch.ncsc.mil>
+References: <1212673533.2763.50.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 06 Jun 2008 10:27:20 -0400
-Message-Id: <1212762440.2763.261.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 06 Jun 2008 10:48:32 -0400
+Message-Id: <1212763712.2763.265.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 2008-06-06 at 22:47 +1000, James Morris wrote:
-> On Fri, 6 Jun 2008, Stephen Smalley wrote:
+On Thu, 2008-06-05 at 09:45 -0400, Stephen Smalley wrote:
+> Fix an endianness bug in the handling of network node addresses by
+> SELinux.  This yields no change on little endian hardware but fixes
+> the incorrect handling on big endian hardware.  The network node
+> addresses are stored in network order in memory by checkpolicy, not in
+> cpu/host order, and thus should not have cpu_to_le32/le32_to_cpu
+> conversions applied upon policy write/read unlike other data in the
+> policy.
 > 
-> > 
-> > On Fri, 2008-06-06 at 18:58 +1000, James Morris wrote:
-> > > Open code load_mutex as suggested by Andrew Morton.
-> > > 
-> > > Signed-off-by: James Morris <jmorris@namei.org>
-> > 
-> > This is technically correct, but I believe that load_mutex is actually
-> > obsolete and can be completely removed.  Note that
-> > security_load_policy() is only called from selinuxfs while holding
-> > sel_mutex there, which is required in order to synchronize with boolean
-> > manipulation.  load_mutex is a leftover from before the age of policy
-> > booleans.
+> Note that checkpolicy was also broken in its handling of ipv4
+> addresses on big endian hardware prior to checkpolicy 2.0.5 when the
+> ipv4 address handling was changed to be more like the ipv6 address
+> handling.
 > 
-> Ok, that should be a separate patch, I think.
+> Bug reported by John Weeks of Sun, who noticed that binary policy
+> files built from the same policy source on x86 and sparc differed and
+> tracked it down to the ipv4 address handling in checkpolicy.
 
-Ok, you can add my Acked-by to this patch then.
-
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+I merged this on trunk and stable.
+I also merged the reworked ipv4 address handling for checkpolicy that
+went into checkpolicy 2.0.5 on stable.
 
 > 
-> > 
-> > > ---
-> > >  security/selinux/ss/services.c |   21 +++++++++------------
-> > >  1 files changed, 9 insertions(+), 12 deletions(-)
-> > > 
-> > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > > index e8ec54d..d06df33 100644
-> > > --- a/security/selinux/ss/services.c
-> > > +++ b/security/selinux/ss/services.c
-> > > @@ -71,10 +71,7 @@ int selinux_policycap_openperm;
-> > >  extern const struct selinux_class_perm selinux_class_perm;
-> > >  
-> > >  static DEFINE_RWLOCK(policy_rwlock);
-> > > -
-> > >  static DEFINE_MUTEX(load_mutex);
-> > > -#define LOAD_LOCK mutex_lock(&load_mutex)
-> > > -#define LOAD_UNLOCK mutex_unlock(&load_mutex)
-> > >  
-> > >  static struct sidtab sidtab;
-> > >  struct policydb policydb;
-> > > @@ -1456,17 +1453,17 @@ int security_load_policy(void *data, size_t len)
-> > >  	int rc = 0;
-> > >  	struct policy_file file = { data, len }, *fp = &file;
-> > >  
-> > > -	LOAD_LOCK;
-> > > +	mutex_lock(&load_mutex);
-> > >  
-> > >  	if (!ss_initialized) {
-> > >  		avtab_cache_init();
-> > >  		if (policydb_read(&policydb, fp)) {
-> > > -			LOAD_UNLOCK;
-> > > +			mutex_unlock(&load_mutex);
-> > >  			avtab_cache_destroy();
-> > >  			return -EINVAL;
-> > >  		}
-> > >  		if (policydb_load_isids(&policydb, &sidtab)) {
-> > > -			LOAD_UNLOCK;
-> > > +			mutex_unlock(&load_mutex);
-> > >  			policydb_destroy(&policydb);
-> > >  			avtab_cache_destroy();
-> > >  			return -EINVAL;
-> > > @@ -1475,7 +1472,7 @@ int security_load_policy(void *data, size_t len)
-> > >  		if (validate_classes(&policydb)) {
-> > >  			printk(KERN_ERR
-> > >  			       "SELinux:  the definition of a class is incorrect\n");
-> > > -			LOAD_UNLOCK;
-> > > +			mutex_unlock(&load_mutex);
-> > >  			sidtab_destroy(&sidtab);
-> > >  			policydb_destroy(&policydb);
-> > >  			avtab_cache_destroy();
-> > > @@ -1485,7 +1482,7 @@ int security_load_policy(void *data, size_t len)
-> > >  		policydb_loaded_version = policydb.policyvers;
-> > >  		ss_initialized = 1;
-> > >  		seqno = ++latest_granting;
-> > > -		LOAD_UNLOCK;
-> > > +		mutex_unlock(&load_mutex);
-> > >  		selinux_complete_init();
-> > >  		avc_ss_reset(seqno);
-> > >  		selnl_notify_policyload(seqno);
-> > > @@ -1499,12 +1496,12 @@ int security_load_policy(void *data, size_t len)
-> > >  #endif
-> > >  
-> > >  	if (policydb_read(&newpolicydb, fp)) {
-> > > -		LOAD_UNLOCK;
-> > > +		mutex_unlock(&load_mutex);
-> > >  		return -EINVAL;
-> > >  	}
-> > >  
-> > >  	if (sidtab_init(&newsidtab)) {
-> > > -		LOAD_UNLOCK;
-> > > +		mutex_unlock(&load_mutex);
-> > >  		policydb_destroy(&newpolicydb);
-> > >  		return -ENOMEM;
-> > >  	}
-> > > @@ -1552,7 +1549,7 @@ int security_load_policy(void *data, size_t len)
-> > >  	seqno = ++latest_granting;
-> > >  	policydb_loaded_version = policydb.policyvers;
-> > >  	write_unlock_irq(&policy_rwlock);
-> > > -	LOAD_UNLOCK;
-> > > +	mutex_unlock(&load_mutex);
-> > >  
-> > >  	/* Free the old policydb and SID table. */
-> > >  	policydb_destroy(&oldpolicydb);
-> > > @@ -1566,7 +1563,7 @@ int security_load_policy(void *data, size_t len)
-> > >  	return 0;
-> > >  
-> > >  err:
-> > > -	LOAD_UNLOCK;
-> > > +	mutex_unlock(&load_mutex);
-> > >  	sidtab_destroy(&newsidtab);
-> > >  	policydb_destroy(&newpolicydb);
-> > >  	return rc;
-> > 
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 > 
+> ---
+> 
+>  libsepol/include/sepol/policydb/policydb.h |    8 ++++----
+>  libsepol/src/policydb.c                    |   10 ++++------
+>  libsepol/src/write.c                       |   10 ++++------
+>  3 files changed, 12 insertions(+), 16 deletions(-)
+> 
+> Index: trunk/libsepol/include/sepol/policydb/policydb.h
+> ===================================================================
+> --- trunk/libsepol/include/sepol/policydb/policydb.h	(revision 2890)
+> +++ trunk/libsepol/include/sepol/policydb/policydb.h	(working copy)
+> @@ -257,12 +257,12 @@
+>  			uint16_t high_port;
+>  		} port;		/* TCP or UDP port information */
+>  		struct {
+> -			uint32_t addr;
+> -			uint32_t mask;
+> +			uint32_t addr; /* network order */
+> +			uint32_t mask; /* network order */
+>  		} node;		/* node information */
+>  		struct {
+> -			uint32_t addr[4];
+> -			uint32_t mask[4];
+> +			uint32_t addr[4]; /* network order */
+> +			uint32_t mask[4]; /* network order */
+>  		} node6;	/* IPv6 node information */
+>  	} u;
+>  	union {
+> Index: trunk/libsepol/src/policydb.c
+> ===================================================================
+> --- trunk/libsepol/src/policydb.c	(revision 2890)
+> +++ trunk/libsepol/src/policydb.c	(working copy)
+> @@ -2114,8 +2114,8 @@
+>  				rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
+>  				if (rc < 0)
+>  					return -1;
+> -				c->u.node.addr = le32_to_cpu(buf[0]);
+> -				c->u.node.mask = le32_to_cpu(buf[1]);
+> +				c->u.node.addr = buf[0]; /* network order */
+> +				c->u.node.mask = buf[1]; /* network order */
+>  				if (context_read_and_validate
+>  				    (&c->context[0], p, fp))
+>  					return -1;
+> @@ -2145,11 +2145,9 @@
+>  					if (rc < 0)
+>  						return -1;
+>  					for (k = 0; k < 4; k++)
+> -						c->u.node6.addr[k] =
+> -						    le32_to_cpu(buf[k]);
+> +						c->u.node6.addr[k] = buf[k]; /* network order */
+>  					for (k = 0; k < 4; k++)
+> -						c->u.node6.mask[k] =
+> -						    le32_to_cpu(buf[k + 4]);
+> +						c->u.node6.mask[k] = buf[k + 4]; /* network order */
+>  					if (context_read_and_validate
+>  					    (&c->context[0], p, fp))
+>  						return -1;
+> Index: trunk/libsepol/src/write.c
+> ===================================================================
+> --- trunk/libsepol/src/write.c	(revision 2890)
+> +++ trunk/libsepol/src/write.c	(working copy)
+> @@ -1097,8 +1097,8 @@
+>  					return POLICYDB_ERROR;
+>  				break;
+>  			case OCON_NODE:
+> -				buf[0] = cpu_to_le32(c->u.node.addr);
+> -				buf[1] = cpu_to_le32(c->u.node.mask);
+> +				buf[0] = c->u.node.addr; /* network order */
+> +				buf[1] = c->u.node.mask; /* network order */
+>  				items = put_entry(buf, sizeof(uint32_t), 2, fp);
+>  				if (items != 2)
+>  					return POLICYDB_ERROR;
+> @@ -1120,11 +1120,9 @@
+>  				break;
+>  			case OCON_NODE6:
+>  				for (j = 0; j < 4; j++)
+> -					buf[j] =
+> -					    cpu_to_le32(c->u.node6.addr[j]);
+> +					buf[j] = c->u.node6.addr[j]; /* network order */
+>  				for (j = 0; j < 4; j++)
+> -					buf[j + 4] =
+> -					    cpu_to_le32(c->u.node6.mask[j]);
+> +					buf[j + 4] = c->u.node6.mask[j]; /* network order */
+>  				items = put_entry(buf, sizeof(uint32_t), 8, fp);
+>  				if (items != 8)
+>  					return POLICYDB_ERROR;
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
