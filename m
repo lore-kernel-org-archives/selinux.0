@@ -1,109 +1,164 @@
-Message-ID: <4848CBE9.80603@ak.jp.nec.com>
-Date: Fri, 06 Jun 2008 14:32:25 +0900
+Message-ID: <4848D5A6.9020106@ak.jp.nec.com>
+Date: Fri, 06 Jun 2008 15:13:58 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-References: <483A9137.5050509@ak.jp.nec.com>	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com> <1212496632.31546.105.camel@gorn.columbia.tresys.com> <4846142F.8090100@ak.jp.nec.com> <4846A481.4080805@tresys.com> <48473C35.4060102@ak.jp.nec.com> <48482BC9.10708@tycho.nsa.gov>
-In-Reply-To: <48482BC9.10708@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, Dawid Kuroczko <qnex42@gmail.com>,
+        SELinux List <selinux@tycho.nsa.gov>,
+        Karl MacMillan <kmacmillan@mentalrootkit.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: RFC: Per-object manager controls in /selinux/config
+References: <4769A947.1030403@tycho.nsa.gov>	 <4769F731.6050002@ak.jp.nec.com> <48461B8C.60502@ak.jp.nec.com>	 <48483AB0.9000908@tycho.nsa.gov> <1212695376.2763.160.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1212695376.2763.160.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> KaiGai Kohei wrote:
->> Joshua Brindle wrote:
->>   
+Stephen Smalley wrote:
+> On Thu, 2008-06-05 at 15:12 -0400, Eamon Walsh wrote:
+>> KaiGai Kohei wrote:
 >>> KaiGai Kohei wrote:
->>>     
->>>> Christopher J. PeBenito wrote:
->>>>       
->>> <snip>
+>>>   
+>>>> Eamon Walsh wrote:
+>>>>     
+>>>>> I am proposing adding a separate config line for each userspace object 
+>>>>> manager, as follows:
+>>>>>
+>>>>> #    permissive - SELinux prints warnings instead of enforcing.
+>>>>> #    disabled - SELinux is fully disabled.
+>>>>> SELINUX=enforcing
+>>>>> +
+>>>>> +# SELINUX_MANAGER= can take one of these four values
+>>>>> +#    enforcing - SELinux security policy is enforced by this object 
+>>>>> manager.
+>>>>> +#    permissive - The object manager prints warnings instead of 
+>>>>> enforcing.
+>>>>> +#    disabled - SELinux is fully disabled by this object manager.
+>>>>> +#    default - The object manager will track the system setting.
+>>>>> +SELINUX_DBUS=default
+>>>>> +SELINUX_XSERVER=permissive
+>>>>> +
+>>>>> # SELINUXTYPE= type of policy in use. Possible values are:
+>>>>> #    targeted - Only targeted network daemons are protected.
+>>>>> #    strict - Full SELinux protection.
+>>>>>       
+>>>> Eamon,
+>>>>
+>>>> Could you tell me the purpose of this new feature?
+>>>>
+>>>> It seems to me this new feature prevents to keep consistency of
+>>>> the SELinux state. I think the internal state of userspace object
+>>>> managers should be just a copy from the in-kernel reference monitor...
+>>>>
+>>>> Thanks,
+>>>>     
+>>> In the previous discussion, I told as above.
 >>>
->>>     
->>>> In addition, I found an unclear point which came from my original policy. :(
->>>>
->>>>   allow sepgsql_unconfined_type postgresql_t:db_blob { import export };
->>>>
->>>> A blob import interface enables to read a file on a server host by the server
->>>> process (postgresql_t), and import to database as several frames of largeobject.
->>>> A export interface works for inversed direction.
->>>>
->>>> In the previous discussion, the meaning of these permission is to indicate
->>>> server process to start importing or exporting.
->>>> However, I'm now considering the following rules are more sensefull:
->>>>
->>>>   1. SE-PostgreSQL checks whether the client has db_blob:{import} for
->>>>      the target large object.
->>>>       
->> db_blob:{write} is also checked here...
->>
->>   
->>>>   2. SE-PostgreSQL checks whether the client has file:{read} for
->>>>      the target file.
->>>>   3. SELinux (kernel) checks whether postgresql_t has file:{read} for the
->>>>      target file, because it uses read(2) system call.
->>>>
->>>> Could you tell me your opinion?
->>>>       
->>> Chris asked me to look at this for him. The access checks above seem completely
->>> reasonable to me, much better than the previous check.
+>>> However, some people in pgsql-hackers suggested me a facility to turn on/off
+>>> MAC within SE-PostgreSQL. It seems to me they want to deliver a original
+>>> PostgreSQL and SE- version's one within a single package.
+>>> What is the best answer for this issue?
 >>>
->>> I wonder though, how you'll do an export check between the client and file type,
->>> since a compute_create between the client and the target directory may be different
->>> than between postgresql_t and the directory? Which context would you attempt to use?
->>>     
->> In export case, the target file is labeled as a newly created one between
->> postgresql_t and its parent directly, as SELinux attaches in default.
+>>> In my opinion, this kind of configuration should be managed globally in system,
+>>> because it enables to guarantee the consistency of access controls.
+>>> In addition, a "policy-free" storage created by unauthorized users makes
+>>> a loophole of data-flow-control scheme.
+>>> But I can also understand their demands to avoid shipping two similar packages,...
+>>>   
+>> Based on the earlier feedback provided by you and Josh, I figured that 
+>> my proposal had been NAK'ed.  Since that time, the Xorg server has been 
+>> patched to support a configuration file option to set 
+>> enabled/disabled/permissive. 
 >>
->> We can understand the behavior as PostgreSQL owns this file and delivers
->> its file descriptor to the client. Thus, the client should be checked
->> the file:{write} permission for the result of compute_create between
->> postgresql_t and the parent directly.
->>   
+>> I would be glad to reopen the discussion though, if you've changed your 
+>> mind. 
 > 
-> Doesn't the kernel handle this automatically? Which is to say, if you
-> give a file descriptor to another process (I'm assuming it gets passed
-> through the local socket), the kernel still checks read and write on
-> every access.
+> I think a config option in the configuration file for the individual
+> object manager is reasonable, with the default behavior being to track
+> the kernel's setting.  For Xorg, we can disable just the XSELinux
+> extension or make it permissive via xorg.conf while retaining the
+> kernel's controls.  For PostgreSQL, I think we'd want a similar setting
+> in its config file, whatever that might be, as long as the config file
+> is administratively controlled.
 
-No, it seems to kernel as if the write() operation is done by postgresql
-server process.
+Indeed, the configuration file of postgresql is labeled as postgresql_db_t
+and it should not be modified without proper permission allowed by the policy.
+I basically agree for your opinion.
 
-The facility of large object allows postgresql server process to read/write
-files on server host according to the operations come from client.
+However, I have one unclear point of view.
 
-e.g)
-# SELECT lo_import('/etc/passwd');
+These configuration files have different security context.
+It theoretically means different person can change the partial state.
 
-This query come from client (but restricted to database super user) enables
-postgresql server process to read the given file and insert it as database
-records. All interactions between the kernel and userspace are done as
-normal i/o operations invoked by a server process, not a client.
+[root@saba ~]# ls -Z /etc/selinux/config    /etc/X11/xorg.conf  \
+                     /var/lib/sepgsql/data/postgresql.conf
+-rw-r--r--  root    root    system_u:object_r:selinux_config_t     /etc/selinux/config
+-rw-r--r--  root    root    unconfined_u:object_r:etc_t            /etc/X11/xorg.conf
+-rw-------  sepgsql sepgsql unconfined_u:object_r:postgresql_db_t  /var/lib/sepgsql/data/postgresql.conf
 
-Thanks,
+I think /etc/selinux/config is better place to put these configuration
+than /etc/X11/xorg.conf and $PGDATA/postgresql.conf
 
->> It does not give us any mismatching between DAC and MAC.
->> So, I think it is more suitable than using setfscreatecon() to force the
->> result between the client and the parent directly.
->>
->> In the conclusion, the following permissions will be checked for blob export.
->>
->> 1. SELinux (kernel) checks file:{write} between postgresql_t and the newly
->>    created file which is labeled as the result between postgresql_t and
->>    the parent directory.
->>    This file is owned by PostgreSQL in DAC world.
->> 2. SE-PostgreSQL checks db_blob:{export read} between the client and the target
->>    large object.
->> 3. SE-PostgreSQL checks file:{write} between the client and the target file.
->>
->> Thanks,
->>   
+What do you think?
+
+# No need to say, if a malicious user can access files labeled as postgresql_db_t,
+# he don't need to access information stored within them via SQL. :-)
+
+Thanks.
+
+> In a given environment, you may choose to run X or Postgres entirely
+> within a single context (not allowing connections from other contexts)
+> and not require object manager functionality within it, while still
+> wanting the kernel's controls.
 > 
-> 
+>>
+>>> --------------------------------------------
+>>> Subject: Re: [HACKERS] [0/4] Proposal of SE-PostgreSQL patches
+>>>
+>>> Dawid Kuroczko wrote:
+>>>  > On Wed, May 7, 2008 at 7:52 AM, KaiGai Kohei <kaigai@ak.jp.nec.com> wrote:
+>>>  >> Tom, Thanks for your reviewing.
+>>>  >>> The patch hasn't got a mode in which SELinux support is compiled in but
+>>>  >>> not active.  This is a good way to ensure that no one will ever ship
+>>>  >>> standard RPMs with the feature compiled in, because they will be entirely
+>>>  >>> nonfunctional for people who aren't interested in setting up SELinux.
+>>>  >>> I think you need an "enable_sepostgres" GUC, or something like that.
+>>>  >>> (Of course, the overhead of the per-row security column would probably
+>>>  >>> discourage anyone from wanting to use such a configuration anyway,
+>>>  >>> so maybe the point is moot.)
+>>>  >> We can turn on/off SELinux globally, not bounded to SE-PostgreSQL.
+>>>  >> The reason why I didn't provide a mode bit like "enable_sepostgresql"
+>>>  >> is to keep consistency in system configuration.
+>>>  >
+>>>  > Hmm, I think ACE should be a CREATE DATABASE parameter.
+>>>  >
+>>>  > If I were to create a SE-database I would wish that disabling it was
+>>>  > more difficult than changing a GUC in database.  And being able to
+>>>  > set it on per-database basis would help get SE/ACE enabled by
+>>>  > packagers.
+>>>  >
+>>>  >    Regards,
+>>>  >       Dawid
+>>> --------------------------------------------
+>>>
+>>> Thanks,
+>>>
+>>>   
+>>>>> However, I am a little unclear on how runtime setenforce calls should 
+>>>>> be dealt with.  The way it currently works is if the userspace object 
+>>>>> manager is initialized without an enforcing mode specified in the call 
+>>>>> to avc_open(), it will track the system setting and conform to netlink 
+>>>>> "setenforce" messages.  However, if avc_open() is called with an 
+>>>>> enforcing mode specified, it will stay in that mode and not respond to 
+>>>>> the netlink messages.  Users might thus be confused if they issue a 
+>>>>> "setenforce 0" and the X server stays in enforcing mode because it was 
+>>>>> specified that way in the config file.  But I'm of the opinion that 
+>>>>> runtime setenforcing is an abnormal event, and anyone who edits the 
+>>>>> config file away from "default" and then runs setenforce will 
+>>>>> understand how it works.
+>>>>>       
+>>>   
+>>
 
 
 -- 
