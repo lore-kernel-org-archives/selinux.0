@@ -1,143 +1,87 @@
-Subject: Re: [patch] libsepol:  fix endianness bug in network node address
-	handling
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Eric Paris <eparis@parisplace.org>, Joshua Brindle <jbrindle@tresys.com>,
-        John Weeks <John.Weeks@sun.com>
-In-Reply-To: <1212673533.2763.50.camel@moss-spartans.epoch.ncsc.mil>
-References: <1212673533.2763.50.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 06 Jun 2008 10:48:32 -0400
-Message-Id: <1212763712.2763.265.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m56HGL7A014880
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2008 13:16:21 -0400
+Received: from dmzmta101.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m56HGKIQ011604
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2008 17:16:20 GMT
+Received: from BLUMS0033.bluelnk.net (blums0033.bluelnk.net [10.40.96.54])
+	by dmzmta101.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m56HEibL027958
+	for <selinux@tycho.nsa.gov>; Fri, 6 Jun 2008 13:14:46 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: modules.conf problem
+Date: Fri, 6 Jun 2008 10:16:11 -0700
+Message-ID: <0794F277152EF94AA637E3AECF5CB70FB9E872@blums0042.bluelnk.net>
+References: <0794F277152EF94AA637E3AECF5CB70FB9E7C9@blums0042.bluelnk.net> <1212754574.15952.2.camel@gorn.columbia.tresys.com>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-06-05 at 09:45 -0400, Stephen Smalley wrote:
-> Fix an endianness bug in the handling of network node addresses by
-> SELinux.  This yields no change on little endian hardware but fixes
-> the incorrect handling on big endian hardware.  The network node
-> addresses are stored in network order in memory by checkpolicy, not in
-> cpu/host order, and thus should not have cpu_to_le32/le32_to_cpu
-> conversions applied upon policy write/read unlike other data in the
-> policy.
-> 
-> Note that checkpolicy was also broken in its handling of ipv4
-> addresses on big endian hardware prior to checkpolicy 2.0.5 when the
-> ipv4 address handling was changed to be more like the ipv6 address
-> handling.
-> 
-> Bug reported by John Weeks of Sun, who noticed that binary policy
-> files built from the same policy source on x86 and sparc differed and
-> tracked it down to the ipv4 address handling in checkpolicy.
 
-I merged this on trunk and stable.
-I also merged the reworked ipv4 address handling for checkpolicy that
-went into checkpolicy 2.0.5 on stable.
+> -----Original Message-----
+> From: Christopher J. PeBenito [mailto:cpebenito@tresys.com]
+> Sent: Friday, June 06, 2008 5:16 AM
+> To: Clarkson, Mike R (US SSA)
+> Cc: selinux@tycho.nsa.gov
+> Subject: Re: modules.conf problem
+> 
+> On Thu, 2008-06-05 at 14:01 -0700, Clarkson, Mike R (US SSA) wrote:
+> > I'm getting the following compile errors when attempting a clean
+compile
+> > of my policy:
+> >
+> > policy/modules/apps/import.if:336: Error: duplicate definition of
+> > nlscripts_dir_search(). Original definition on 25.
+> > policy/modules/apps/import.if:344: Error: duplicate definition of
+> > nlscripts_dir_list(). Original definition on 17.
+> >
+> > The thing is that I have commented out the import module out of the
+> > modules.conf file. In fact I commented it out several weeks ago and
+have
+> > done many clean compiles since without issue until this morning.
+> >
+> > The only way that I have been able to get past these errors is to
+remove
+> > the import.{te,if,fc} files from the apps directory. Then the policy
+> > compiles and loads fine. I must have changed something in one of the
+> > other policy files that caused this to suddenly crop up today but I
+have
+> > no idea what.
+> >
+> > If anyone has any ideas on what may be causing this or ideas on how
+to
+> > track down what the problem is I would greatly appreciate hearing
+them.
+> >
+> > I'm using the RHEL5.1 mls policy.
+> 
+> You have more than one declaration of those two interfaces.  Even if
+the
+> module is not enabled in the modules.conf, its interfaces are
+included,
+> since if its interfaces are used, they have to be expanded.
+Unexpanded
+> interfaces result in compile failures.
 
-> 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> 
-> ---
-> 
->  libsepol/include/sepol/policydb/policydb.h |    8 ++++----
->  libsepol/src/policydb.c                    |   10 ++++------
->  libsepol/src/write.c                       |   10 ++++------
->  3 files changed, 12 insertions(+), 16 deletions(-)
-> 
-> Index: trunk/libsepol/include/sepol/policydb/policydb.h
-> ===================================================================
-> --- trunk/libsepol/include/sepol/policydb/policydb.h	(revision 2890)
-> +++ trunk/libsepol/include/sepol/policydb/policydb.h	(working copy)
-> @@ -257,12 +257,12 @@
->  			uint16_t high_port;
->  		} port;		/* TCP or UDP port information */
->  		struct {
-> -			uint32_t addr;
-> -			uint32_t mask;
-> +			uint32_t addr; /* network order */
-> +			uint32_t mask; /* network order */
->  		} node;		/* node information */
->  		struct {
-> -			uint32_t addr[4];
-> -			uint32_t mask[4];
-> +			uint32_t addr[4]; /* network order */
-> +			uint32_t mask[4]; /* network order */
->  		} node6;	/* IPv6 node information */
->  	} u;
->  	union {
-> Index: trunk/libsepol/src/policydb.c
-> ===================================================================
-> --- trunk/libsepol/src/policydb.c	(revision 2890)
-> +++ trunk/libsepol/src/policydb.c	(working copy)
-> @@ -2114,8 +2114,8 @@
->  				rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
->  				if (rc < 0)
->  					return -1;
-> -				c->u.node.addr = le32_to_cpu(buf[0]);
-> -				c->u.node.mask = le32_to_cpu(buf[1]);
-> +				c->u.node.addr = buf[0]; /* network order */
-> +				c->u.node.mask = buf[1]; /* network order */
->  				if (context_read_and_validate
->  				    (&c->context[0], p, fp))
->  					return -1;
-> @@ -2145,11 +2145,9 @@
->  					if (rc < 0)
->  						return -1;
->  					for (k = 0; k < 4; k++)
-> -						c->u.node6.addr[k] =
-> -						    le32_to_cpu(buf[k]);
-> +						c->u.node6.addr[k] = buf[k]; /* network order */
->  					for (k = 0; k < 4; k++)
-> -						c->u.node6.mask[k] =
-> -						    le32_to_cpu(buf[k + 4]);
-> +						c->u.node6.mask[k] = buf[k + 4]; /* network order */
->  					if (context_read_and_validate
->  					    (&c->context[0], p, fp))
->  						return -1;
-> Index: trunk/libsepol/src/write.c
-> ===================================================================
-> --- trunk/libsepol/src/write.c	(revision 2890)
-> +++ trunk/libsepol/src/write.c	(working copy)
-> @@ -1097,8 +1097,8 @@
->  					return POLICYDB_ERROR;
->  				break;
->  			case OCON_NODE:
-> -				buf[0] = cpu_to_le32(c->u.node.addr);
-> -				buf[1] = cpu_to_le32(c->u.node.mask);
-> +				buf[0] = c->u.node.addr; /* network order */
-> +				buf[1] = c->u.node.mask; /* network order */
->  				items = put_entry(buf, sizeof(uint32_t), 2, fp);
->  				if (items != 2)
->  					return POLICYDB_ERROR;
-> @@ -1120,11 +1120,9 @@
->  				break;
->  			case OCON_NODE6:
->  				for (j = 0; j < 4; j++)
-> -					buf[j] =
-> -					    cpu_to_le32(c->u.node6.addr[j]);
-> +					buf[j] = c->u.node6.addr[j]; /* network order */
->  				for (j = 0; j < 4; j++)
-> -					buf[j + 4] =
-> -					    cpu_to_le32(c->u.node6.mask[j]);
-> +					buf[j + 4] = c->u.node6.mask[j]; /* network order */
->  				items = put_entry(buf, sizeof(uint32_t), 8, fp);
->  				if (items != 8)
->  					return POLICYDB_ERROR;
-> 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
+In my humble opinion I don't think that the interfaces for modules which
+are not enabled should be included in the policy. The interfaces to a
+module provide access to the types declared in that module. If the
+module is not enabled, you shouldn't need access to those types. Now
+sometimes more general templates are provided in the interface files.
+But in my opinion, if someone wants access to those templates, they
+should enable the module that provides the template.
+
 > 
 > --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
+
+
 
 
 --
