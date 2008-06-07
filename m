@@ -1,111 +1,92 @@
-Message-ID: <4849CD6E.9080405@tycho.nsa.gov>
-Date: Fri, 06 Jun 2008 19:51:10 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: Trying to get XAce policy straightened out but our tool chain
- is too broken to handle it.
-References: <48480210.60309@redhat.com>
-In-Reply-To: <48480210.60309@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m57DGRuu006389
+	for <selinux@tycho.nsa.gov>; Sat, 7 Jun 2008 09:16:27 -0400
+Received: from ppsw-5.csi.cam.ac.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m57DGQdK015474
+	for <selinux@tycho.nsa.gov>; Sat, 7 Jun 2008 13:16:27 GMT
+Received: from mpo25.trin.private.cam.ac.uk ([172.16.113.134]:59830)
+	by ppsw-5.csi.cam.ac.uk (ppsw.cam.ac.uk [131.111.8.135]:25)
+	with esmtp id 1K4yHP-00085A-HG (Exim 4.67) for selinux@tycho.nsa.gov
+	(return-path <martin@martinorr.name>); Sat, 07 Jun 2008 14:16:23 +0100
+Message-ID: <484A8A15.9000507@martinorr.name>
+Date: Sat, 07 Jun 2008 14:16:05 +0100
+From: Martin Orr <martin@martinorr.name>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_caligula-5436-1212844582-0001-2"
+To: SELinux List <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: [refpolicy] /usr/lib32 type
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> The interfaces I want to add are something like
->
-> template - xserver_common_domain_template(staff)
-> 	Used to generate types for $1_xserver_t and $1_xrootwindow_t
->
-> interface - xserver_use(staff, staff, staff_nsplugin_t)
-> 	    xserver_use(xdm, staff, staff_nsplugin_t)
-> 	All interaction between application and X Server
->
-> template - xserver_common_user_template(staff, staff_r, staff_t)
->
-> 	This generates all of the user types/rules for a user X Sessionps
-> started by the user, Calls out to xserver_common_template
->
-> interface - xserver_common_app(staff, staff_nsplugin_t)
->
-> 	This defines all the common rules for a confined application like
-> nsplugin running in the user domain
-> 	
-> Then we can begin to write communications between staff and unconfined_t
-> or other user domains.
->   
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-After some discussion, it's been decided that the desktop effort here 
-should continue devoting time to X policy development.  My earlier 
-statements notwithstanding.
+--=_caligula-5436-1212844582-0001-2
+Content-Type: multipart/mixed;
+ boundary="------------010708020209090906010002"
 
-What's your current policy patch for the above?
+This is a multi-part message in MIME format.
+--------------010708020209090906010002
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> The problem I have is the compiler is too stupid to understand the
-> differences between a gen_requires block defining the required types and
-> the actual type definition.
->
-> So I end up in a catch 22 where the compiler tells me I need to require
-> $1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
-> I have a duplicate definition.
->   
+On a 64-bit Debian system, /usr/lib32 is a symlink to
+/emul/ia32-linux/usr/lib.  It should be labelled as lib_t.
 
-I encountered a bug where the "get_type_attr_decl.sed" script that 
-reorders declarations wasn't matching properly, because it depends on a 
-_comment_ at the end of the block to work (I forgot to use gen_require).
-
-This sounds like a different bug but it might be related.
+I don't know if the distro_debian is necessary - take it out if you want.=
 
 
-> So if you have a derived type in a gen_requires block the compiler can
-> not handle it.
->
->
-> /usr/bin/checkmodule -M -m tmp/staff.tmp -o tmp/staff.mod
-> /usr/bin/checkmodule:  loading policy configuration from tmp/staff.tmp
-> policy/modules/roles/staff.te":11:ERROR 'duplicate declaration of
-> type/attribute' at token 'staff_input_xevent_t' on line 66981:
-> #line 11
-> 		type staff_input_xevent_t;
-> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
-> make: *** [tmp/staff.mod] Error 1
-> error: Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
->
->
-> RPM build errors:
->     Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
->
->
-> Which is complaining about:
->
-> interface(`xserver_use',`
-> 	gen_require(`
-> 		type $1_rootwindow_t;
-> 		attribute $1_x_domain, $1_input_xevent_type;
-> 		type $1_xserver_t, $1_xserver_tmpfs_t;
-> 		type $2_input_xevent_t;
-> 	')
->
-> 	typeattribute $2_input_xevent_t $1_input_xevent_type;
->
-> ...
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
->   
+--=20
+Martin Orr
 
+--------------010708020209090906010002
+Content-Type: text/plain;
+ name="116_usr_lib32"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline;
+ filename="116_usr_lib32"
 
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Written by: Martin Orr
 
+Mark /usr/lib32 as type lib_t
+
+Index: policy/modules/system/libraries.fc
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- policy/modules/system/libraries.fc.orig
++++ policy/modules/system/libraries.fc
+@@ -110,6 +110,9 @@
+=20
+ /usr/(.*/)?lib(/.*)?				gen_context(system_u:object_r:lib_t,s0)
+ /usr/(.*/)?lib64(/.*)?				gen_context(system_u:object_r:lib_t,s0)
++ifdef(`distro_debian',`
++	/usr/(.*/)?lib32(/.*)?		-l	gen_context(system_u:object_r:lib_t,s0)
++')
+=20
+ /usr/(.*/)?lib(64)?(/.*)?/ld-[^/]*\.so(\.[^/]*)* gen_context(system_u:ob=
+ject_r:ld_so_t,s0)
+=20
+
+--------------010708020209090906010002--
+
+--=_caligula-5436-1212844582-0001-2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Transfer-Encoding: 7bit
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkhKiiMACgkQZ6a/BjxtAMDmXgCgrNJqINgRIQPlbGCT0soNfp7n
+kVwAni3TPRwVOl+QrNYmOcZT4K295AvP
+=Af+C
+-----END PGP SIGNATURE-----
+
+--=_caligula-5436-1212844582-0001-2--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
