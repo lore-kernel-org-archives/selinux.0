@@ -1,34 +1,121 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m588hrWI003336
-	for <selinux@tycho.nsa.gov>; Sun, 8 Jun 2008 04:43:53 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m588hqmX015825
-	for <selinux@tycho.nsa.gov>; Sun, 8 Jun 2008 08:43:52 GMT
-Received: by an-out-0708.google.com with SMTP id d30so413334and.75
-        for <selinux@tycho.nsa.gov>; Sun, 08 Jun 2008 01:43:52 -0700 (PDT)
-Message-ID: <dd18b0c30806080143t6d601bacta7b3652331a48dbf@mail.gmail.com>
-Date: Sun, 8 Jun 2008 08:43:52 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: No AVC messages found
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m58JaML1001761
+	for <selinux@tycho.nsa.gov>; Sun, 8 Jun 2008 15:36:22 -0400
+Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m58JaIIH002115
+	for <selinux@tycho.nsa.gov>; Sun, 8 Jun 2008 19:36:18 GMT
+Received: by yw-out-1718.google.com with SMTP id 6so1052685ywa.84
+        for <selinux@tycho.nsa.gov>; Sun, 08 Jun 2008 12:36:18 -0700 (PDT)
+Message-ID: <484C34AE.5060204@gmail.com>
+Date: Sun, 08 Jun 2008 14:36:14 -0500
+From: Ted X Toth <txtoth@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: Trying to get XAce policy straightened out but our tool chain
+ is too broken to handle it.
+References: <48480210.60309@redhat.com> <4849CD6E.9080405@tycho.nsa.gov>
+In-Reply-To: <4849CD6E.9080405@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello; why do I receive this: No AVC messages found when I audit2allow -d when
-I have this under dmesg:
-[ 8395.499759] type=1701 audit(1212909990.108:3): auid=4294967295
-uid=1000 gid=1000 ses=4294967295 subj=a-12:sysadm_r:sysadm_t pid=3389
-comm="aterm" sig=6
+Eamon Walsh wrote:
+> Daniel J Walsh wrote:
+>> The interfaces I want to add are something like
+>>
+>> template - xserver_common_domain_template(staff)
+>>     Used to generate types for $1_xserver_t and $1_xrootwindow_t
+>>
+>> interface - xserver_use(staff, staff, staff_nsplugin_t)
+>>         xserver_use(xdm, staff, staff_nsplugin_t)
+>>     All interaction between application and X Server
+>>
+>> template - xserver_common_user_template(staff, staff_r, staff_t)
+>>
+>>     This generates all of the user types/rules for a user X Sessionps
+>> started by the user, Calls out to xserver_common_template
+>>
+>> interface - xserver_common_app(staff, staff_nsplugin_t)
+>>
+>>     This defines all the common rules for a confined application like
+>> nsplugin running in the user domain
+>>     
+>> Then we can begin to write communications between staff and unconfined_t
+>> or other user domains.
+>>   
+>
+> After some discussion, it's been decided that the desktop effort here 
+> should continue devoting time to X policy development.  My earlier 
+> statements notwithstanding.
 
-the only action that I took was "uptime" in a terminal, could this be it?
-should I have seen the definition uptime in the AVC? i.g. /usr/sbin or  /*/*
-or is this something diff.
-regards;
+Thanks, I think you are doing the right thing.
+>
+> What's your current policy patch for the above?
+>
+>> The problem I have is the compiler is too stupid to understand the
+>> differences between a gen_requires block defining the required types and
+>> the actual type definition.
+>>
+>> So I end up in a catch 22 where the compiler tells me I need to require
+>> $1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
+>> I have a duplicate definition.
+>>   
+>
+> I encountered a bug where the "get_type_attr_decl.sed" script that 
+> reorders declarations wasn't matching properly, because it depends on 
+> a _comment_ at the end of the block to work (I forgot to use 
+> gen_require).
+>
+> This sounds like a different bug but it might be related.
+>
+>
+>> So if you have a derived type in a gen_requires block the compiler can
+>> not handle it.
+>>
+>>
+>> /usr/bin/checkmodule -M -m tmp/staff.tmp -o tmp/staff.mod
+>> /usr/bin/checkmodule:  loading policy configuration from tmp/staff.tmp
+>> policy/modules/roles/staff.te":11:ERROR 'duplicate declaration of
+>> type/attribute' at token 'staff_input_xevent_t' on line 66981:
+>> #line 11
+>>         type staff_input_xevent_t;
+>> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+>> make: *** [tmp/staff.mod] Error 1
+>> error: Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
+>>
+>>
+>> RPM build errors:
+>>     Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
+>>
+>>
+>> Which is complaining about:
+>>
+>> interface(`xserver_use',`
+>>     gen_require(`
+>>         type $1_rootwindow_t;
+>>         attribute $1_x_domain, $1_input_xevent_type;
+>>         type $1_xserver_t, $1_xserver_tmpfs_t;
+>>         type $2_input_xevent_t;
+>>     ')
+>>
+>>     typeattribute $2_input_xevent_t $1_input_xevent_type;
+>>
+>> ...
+>>
+>>
+>> -- 
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to 
+>> majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+>>
+>>   
+>
+>
 
--- 
-Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
