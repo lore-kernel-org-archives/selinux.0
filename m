@@ -1,149 +1,103 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59MaI6f021059
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 18:36:18 -0400
-Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m59MZuJb016094
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 22:35:57 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so1605777fgg.40
-        for <selinux@tycho.nsa.gov>; Mon, 09 Jun 2008 15:35:56 -0700 (PDT)
-Message-ID: <cadfc0e40806091535k1929bbc8gd4eebefb4b6069ff@mail.gmail.com>
-Date: Mon, 9 Jun 2008 17:35:55 -0500
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Chad Hanson" <chanson@TrustedCS.com>
-Subject: Re: X in MLS enforcing problem
-Cc: "SELinux Mail List" <selinux@tycho.nsa.gov>,
-        "Eamon Walsh" <ewalsh@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>
-In-Reply-To: <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <cadfc0e40806091430j7d4734c6l7af3cfbce395eeae@mail.gmail.com>
-	 <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com>
+Subject: Questions regarding labeled ipsec/MAC networking
+From: Joy Latten <latten@austin.ibm.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, paul.moore@hp.com, tjaeger@cse.psu.edu,
+        jmorris@namei.org, serue@us.ibm.com
+Content-Type: text/plain
+Date: Mon, 09 Jun 2008 17:30:32 -0500
+Message-Id: <1213050632.31723.109.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jun 9, 2008 at 4:49 PM, Chad Hanson <chanson@trustedcs.com> wrote:
->
-> mls_trusted_object(xdm_xserver_t) won't help this problem, but something
-> like mls_file_read_up and mls_file_write_down would be more approriate
-> for xdm_xserver_t.
->
-> -Chad
->
->>
->> type=AVC msg=audit(1213041678.053:8): avc:  denied  { read } for
->> pid=2649 comm="Xorg" name="mem" dev=tmpfs ino=3893
->> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tcontext=system_u:object_r:memory_device_t:s15:c0.c1023
->> tclass=chr_file
->> type=AVC msg=audit(1213041678.432:10): avc:  denied  { write } for
->> pid=2649 comm="Xorg" name="mem" dev=tmpfs ino=3893
->> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tcontext=system_u:object_r:memory_device_t:s15:c0.c1023
->> tclass=chr_file
->>
->> The xserver_common_domain_template seems to have the necessary allow
->> rules (dev_read_raw_memory and dev_wx_raw_memory) for the types so  I
->> create a local module and added:
->> mls_trusted_object(xdm_xserver_t)
->> to deal with the MLS constraint violation but I'm still getting these
->> AVC.What else can it be?
->>
->> Ted
->>
->
+I am finishing up the internet-drafts for labeled ipsec. The ipsec RFCs
+have been updated and I have a question about how one of the new
+features in one of the updated rfcs should work with labeled ipsec
+or MAC networking in general.
 
-Indeed that would only work if the target (the chr_file) were an
-mls_trusted_object. So for now I'm using
-mls_file_(read/write)_all_levels and those AVCs are handled.
+1. rfc 4301 - IP Security Architecture introduces and describes a
+Populate From Packet (PFP) flag on page 23. 
 
-Now I looking at the USER_AVCs and trying to figure out how to
-translate those into policy. Will audit2allow be updated to help with
-generating rules for the X USER_AVCs?
-For those who haven't seen the X user space object manager AVCs here
-are some examples:
-type=USER_AVC msg=audit(1213049927.142:132): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { blend } for request=X11:CreateWindow comm=dbus-launch resid=800001
-restype=WINDOW scontext=user_u:user_r:user_t:s0
-tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
-exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
-type=USER_AVC msg=audit(1213049927.144:133): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { setattr } for request=X11:SetSelectionOwner comm=dbus-launch
-selection=_DBUS_SESSION_BUS_SELECTION_tedx_caa2282936b539cb3e36c2ae4845ed0b
-scontext=user_u:user_r:user_t:s0
-tcontext=system_u:object_r:xselection_t:s0 tclass=x_selection :
-exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
-type=USER_AVC msg=audit(1213049927.227:134): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { manage } for request=X11:ChangeHosts comm=xhost
-scontext=user_u:user_r:user_t:s0
-tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-tclass=x_server : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
-terminal=?)'
-type=USER_AVC msg=audit(1213049927.653:135): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { blend } for request=X11:CreateWindow comm=gnome-session
-resid=800001 restype=WINDOW scontext=user_u:user_r:user_t:s0
-tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
-exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
-type=USER_AVC msg=audit(1213049927.656:136): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { blend } for request=X11:CreateWindow comm=gnome-session
-resid=800002 restype=WINDOW scontext=user_u:user_r:user_t:s0
-tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
-exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
-type=USER_AVC msg=audit(1213049927.659:137): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { getattr } for request=X11:QueryPointer comm=gnome-session
-xdevice="Virtual core pointer" scontext=user_u:user_r:user_t:s0
-tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
-terminal=?)'
-type=USER_AVC msg=audit(1213049927.661:138): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { use } for request=XKEYBOARD:SelectEvents comm=gnome-session
-xdevice="Virtual core keyboard" scontext=user_u:user_r:user_t:s0
-tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
-terminal=?)'
-type=USER_AVC msg=audit(1213049927.661:139): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { use } for request=XKEYBOARD:SelectEvents comm=gnome-session
-xdevice="Virtual core keyboard" scontext=user_u:user_r:user_t:s0
-tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
-terminal=?)'
-type=USER_AVC msg=audit(1213049927.661:140): user pid=2636 uid=0
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
- { getattr setattr } for request=XKEYBOARD:PerClientFlags
-comm=gnome-session xdevice="Virtual core keyboard"
-scontext=user_u:user_r:user_t:s0
-tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
-tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
-terminal=?)'
-type=ANOM_ABEND msg=audit(1213049927.662:141): auid=500 uid=500
-gid=500 ses=4 subj=user_u:user_r:user_t:s0 pid=3280
-comm="gnome-session" sig=5
-type=CRED_DISP msg=audit(1213049927.674:142): user pid=2720 uid=0
-auid=500 ses=4 subj=system_u:system_r:xdm_t:s0-s15:c0.c1023
-msg='op=PAM:setcred acct="tedx" exe="/usr/libexec/gdm-session-worker"
-(hostname=?, addr=?, terminal=:0 res=success)'
-type=USER_END msg=audit(1213049927.697:143): user pid=2720 uid=0
-auid=500 ses=4 subj=system_u:system_r:xdm_t:s0-s15:c0.c1023
-msg='op=PAM:session_close acct="tedx"
-exe="/usr/libexec/gdm-session-worker" (hostname=?, addr=?, terminal=:0
-res=success)'
+When creating a new SA, the PFP flag is used to determine whether the
+value for the selector of the new SA will come from the packet that
+triggered the SA's creation or from the SPD entry. For example, the
+source address is a selector. An outbound packet finds an SPD entry, but
+no SA, so must create an SA. Currently, we take packet's source address
+and use this as source address when negotiating and creating new SA. 
+
+However, according to rfc 4301, PFP flag can be set and then used to
+decide whether newly created SA's source address selector might come
+from the packet or from the SPD entry.
+
+My concern is that security context is described in draft as a selector,
+thus I need to consider PFP flag. Do we want PFP-flag capability for
+security context selector? For example, in current selinux policy,
+ipsec_spd_t:s0 is default SPD entry label. 
+Let's say sshd triggers SA creation with sshd_t:s0. Currently, new SA
+will be created with sshd_t:s0. However, with PFP capability, new SA
+being created could have sshd_t:s0 or ipsec_spd_t:s0 depending on what
+PFP-flag is set to? 
+
+In the example, to create the SA with ipsec_spd_t seems like a relabel
+to me. Do we want this to ever happen? At first I thought it could be
+used to map data to certain labels, that is the label in the SPD
+entry... but I don't know if this is a desired thing in MAC networking?
+Do we want to disable using PFP flag for security context and always
+take label from socket triggering SA creation as done currently?
+
+I have another question:
+
+2. Security Gateways in MAC networking.
+
+In obsoleted rfc 2401 -IP Security Architecture, section 8.6 described 
+an MLS security gateway using IPsec as:
+ 
+  "a security gateway acting as an outbound proxy, creating SAs for MLS
+   systems that originate packets forwarded by the gateway. These MLS
+   systems may explicitly label the packets to be forwarded, or the
+   whole originating network may have sensitivity characteristics
+   associated with it. The security gateway MUST create and use
+   appropriate SAs for AH, ESP or both, to protect such traffic it
+   forwards.
+
+   Similarly such a gateway SHOULD accept and process inbound AH and/or
+   ESP packets and forward appropriately, using explicit packet
+   labeling, or relying on the sensitivity characteristics of the
+   destination network."
+
+All mention of MLS networking as in rfc 2401 was left out in rfc 4301. 
+So I want to reintroduce it as MAC networking instead. 
+
+Do we want to consider labeled ipsec for security gateways in MAC
+networking? There would be 2 cases that I can think of.
+ 
+1. machines behind the security gateway that explicitly label the
+   packets (CIPSO). This is stated above. 
+    
+   In this case above text is still applicable. 
+ 
+2. The whole originating network has a security context associated with
+   it. In this case, packets from machines behind the security gateway
+   are not explicitly labeled. These machines send their packets to
+   security security gateway to be forwarded. This incoming interface of
+   the security gateway is labeled. All packets arriving on it (from
+   machines behind the gateway) would be marked with this label. And
+   that would be the label used to negotiate and create the SAs for the
+   packets originating from behind the gateway.
+
+   Is this acceptable MAC networking for security gateways?
+
+
+Sorry, for the long email. I hope I have been clear, but if not, please
+let me know.
+
+Thanks!!
+
+regards,
+Joy
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
