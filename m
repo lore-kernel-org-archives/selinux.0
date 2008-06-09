@@ -1,49 +1,57 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59DTMa2005854
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 09:29:22 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59DTS75005891
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 09:29:28 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m59DTKOD001676
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 13:29:21 GMT
-Subject: Re: [refpolicy] /usr/lib32 type
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m59DTSOD001743
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 13:29:28 GMT
+Subject: Re: [refpolicy] Let xserver chat to hal
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Martin Orr <martin@martinorr.name>
 Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <484A8A15.9000507@martinorr.name>
-References: <484A8A15.9000507@martinorr.name>
+In-Reply-To: <484A8EAB.7030106@martinorr.name>
+References: <484A8EAB.7030106@martinorr.name>
 Content-Type: text/plain
-Date: Mon, 09 Jun 2008 08:54:43 -0400
-Message-Id: <1213016083.28428.9.camel@gorn>
+Date: Mon, 09 Jun 2008 09:17:03 -0400
+Message-Id: <1213017423.28428.12.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2008-06-07 at 14:16 +0100, Martin Orr wrote:
-> On a 64-bit Debian system, /usr/lib32 is a symlink to
-> /emul/ia32-linux/usr/lib.  It should be labelled as lib_t.
+On Sat, 2008-06-07 at 14:35 +0100, Martin Orr wrote:
+> I get messages like:
+> Mar  6 18:17:38 caligula dbus: avc:  denied  { send_msg } for msgtype=signal
+> interface=org.freedesktop.Hal.Device member=PropertyModified
+> dest=org.freedesktop.DBus spid=3245 tpid=3325
+> scontext=system_u:system_r:hald_t:s0
+> tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=dbus
 > 
-> I don't know if the distro_debian is necessary - take it out if you want.
+> Attached patch lets xserver talk to hal by dbus.
 
-Actually what seems excessive is the (.*/)? in the middle.  Is it really
-needed?  Its very broad, and doesn't sound like its needed.
+Merged.  I also added a dbus_system_bus_client_template() call.  I'm
+guessing you're running with unconfined, so that would be covered up.
 
-> plain text document attachment (116_usr_lib32)
+> plain text document attachment (117_xserver_hal_chat)
 > Written by: Martin Orr
 > 
-> Mark /usr/lib32 as type lib_t
+> Let xserver talk to hal by dbus
 > 
-> Index: policy/modules/system/libraries.fc
+> Mar  6 18:17:38 caligula dbus: avc:  denied  { send_msg } for msgtype=signal interface=org.freedesktop.Hal.Device member=PropertyModified dest=org.freedesktop.DBus spid=3245 tpid=3325 scontext=system_u:system_r:hald_t:s0 tcontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tclass=dbus
+> Mar  6 19:21:41 caligula dbus: avc:  denied  { send_msg } for msgtype=method_call interface=org.freedesktop.Hal.Manager member=FindDeviceByCapability dest=org.freedesktop.Hal spid=3394 tpid=3314 scontext=system_u:system_r:xdm_xserver_t:s0-s0:c0.c1023 tcontext=system_u:system_r:hald_t:s0 tclass=dbus
+> 
+> Index: policy/modules/services/xserver.te
 > ===================================================================
-> --- policy/modules/system/libraries.fc.orig
-> +++ policy/modules/system/libraries.fc
-> @@ -110,6 +110,9 @@
+> --- policy/modules/services/xserver.te.orig
+> +++ policy/modules/services/xserver.te
+> @@ -467,6 +467,10 @@
+>  ')
 >  
->  /usr/(.*/)?lib(/.*)?				gen_context(system_u:object_r:lib_t,s0)
->  /usr/(.*/)?lib64(/.*)?				gen_context(system_u:object_r:lib_t,s0)
-> +ifdef(`distro_debian',`
-> +	/usr/(.*/)?lib32(/.*)?		-l	gen_context(system_u:object_r:lib_t,s0)
+>  optional_policy(`
+> +	hal_dbus_chat(xdm_xserver_t)
 > +')
->  
->  /usr/(.*/)?lib(64)?(/.*)?/ld-[^/]*\.so(\.[^/]*)* gen_context(system_u:object_r:ld_so_t,s0)
+> +
+> +optional_policy(`
+>  	resmgr_stream_connect(xdm_t)
+>  ')
 >  
 -- 
 Chris PeBenito
