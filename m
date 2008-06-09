@@ -1,87 +1,210 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59E2gaq011954
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 10:02:42 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m59E2ftb014734
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 14:02:41 GMT
-Subject: Re: kernel/kernel.* diffs
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4836D603.1000506@redhat.com>
-References: <4836D603.1000506@redhat.com>
-Content-Type: text/plain
-Date: Mon, 09 Jun 2008 10:02:29 -0400
-Message-Id: <1213020149.27496.3.camel@gorn>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59FPLQv028049
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 11:25:23 -0400
+Received: from goalkeeper.city-fan.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m59FPIOD003913
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 15:25:19 GMT
+Received: from roary.intranet.virtensys.com (host90-152-25-158.ipv4.regusnet.com [90.152.25.158])
+	(authenticated bits=0)
+	by goalkeeper.city-fan.org (8.14.3/8.14.3) with ESMTP id m59FPCmV021333
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 16:25:13 +0100
+Message-ID: <484D4B53.5020006@city-fan.org>
+Date: Mon, 09 Jun 2008 16:25:07 +0100
+From: Paul Howarth <paul@city-fan.org>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: [refpolicy] Milter Mail Filters
+Content-Type: multipart/mixed;
+ boundary="------------090305060705060001050903"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-05-23 at 10:34 -0400, Daniel J Walsh wrote:
-> Mainly adding additional dontaudits for permissive domains.
+This is a multi-part message in MIME format.
+--------------090305060705060001050903
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Subject: [PATCH] refpolicy: kernel_kernel changes
-> --text follows this line--
-> --- nsaserefpolicy/policy/modules/kernel/kernel.if	2008-05-23 09:15:06.224337000 -0400
-> +++ serefpolicy-3.4.1/policy/modules/kernel/kernel.if	2008-05-23 10:29:05.107838000 -0400
-> @@ -1198,6 +1198,7 @@
->  	')
->  
->  	dontaudit $1 proc_type:dir list_dir_perms;
-> +	dontaudit $1 proc_type:file getattr;
->  ')
->  
->  ########################################
-> @@ -1768,6 +1769,7 @@
->  	')
->  
->  	dontaudit $1 sysctl_type:dir list_dir_perms;
-> +	dontaudit $1 sysctl_type:file read_file_perms;
->  ')
->  
->  ########################################
+Hi,
 
-These two violate the intention of the interface.
+attached is a patch based on local policy I'm using on Fedora 9 to 
+support two "milter" mail filter daemons in conjunction with sendmail, 
+namely spamass-milter and milter-regex (I maintain the packages for both 
+of these in Fedora).
 
-> --- nsaserefpolicy/policy/modules/kernel/kernel.te	2008-05-23 09:15:06.211350000 -0400
-> +++ serefpolicy-3.4.1/policy/modules/kernel/kernel.te	2008-05-23 10:27:34.127426000 -0400
-> @@ -231,6 +231,7 @@
->  # Mount root file system.  Used when loading a policy
->  # from initrd, then mounting the root filesystem
->  fs_mount_all_fs(kernel_t)
-> +fs_unmount_all_fs(kernel_t)
->  
->  selinux_load_policy(kernel_t)
->  
-> @@ -253,6 +254,8 @@
->  
->  mls_process_read_up(kernel_t)
->  mls_process_write_down(kernel_t)
-> +mls_file_write_all_levels(kernel_t)
-> +mls_file_read_all_levels(kernel_t) 
->  
->  ifdef(`distro_redhat',`
->  	# Bugzilla 222337
+I've taken the view that most milter applications will have similar 
+requirements and so I've created a milter_template interface that 
+contains most of what's needed, and then added the specifics that are 
+needed on top of the generic stuff for each application.
 
-These are merged.
+However, as I'm by no means an selinux expert, there are a number of 
+things I'm unsure about:
 
-> @@ -372,3 +375,6 @@
->  allow kern_unconfined unlabeled_t:association *;
->  allow kern_unconfined unlabeled_t:packet *;
->  allow kern_unconfined unlabeled_t:process ~{ transition dyntransition execmem execstack execheap };
-> +
-> +kernel_rw_all_sysctls(kern_unconfined)
-> +
+1. In a situation where sendmail is the running MTA on a system, what is 
+the difference between sendmail_t and system_mail_t?
 
-This one is redundant.  A few lines up is:
+2. MTAs other than sendmail (postfix comes to mind) can also use 
+milters, but as I don't have any boxes running postfix, I don't know 
+what I'd need to add to postfix policy to support milters.
 
-allow kern_unconfined sysctl_type:{ dir file } *;
+3. Fedora 9 has an interface spamassassin_domtrans_spamc that I used in 
+my local policy. It doesn't appear to be present in refpolicy; what 
+would be the right thing to use for a daemon calling spamc?
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+4. I cribbed the milter_port_t stuff from the only example I could find, 
+and it's probably wrong. What would be the correct way of defining this?
 
+5. Does the use of a template for these applications a sane way to do it?
+
+Paul.
+
+--------------090305060705060001050903
+Content-Type: text/plain;
+ name="milters.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="milters.patch"
+
+SW5kZXg6IHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL21pbHRlcnMudGUKPT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PQotLS0gcG9saWN5L21vZHVsZXMvc2VydmljZXMvbWlsdGVycy50ZQkocmV2aXNpb24gMCkK
+KysrIHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL21pbHRlcnMudGUJKHJldmlzaW9uIDApCkBA
+IC0wLDAgKzEsNDQgQEAKK3BvbGljeV9tb2R1bGUobWlsdGVycywwLjAuNykKKworcmVxdWly
+ZSB7CisJYXR0cmlidXRlIHBvcnRfdHlwZTsKK30KKwordHlwZSBtaWx0ZXJfcG9ydF90LCBw
+b3J0X3R5cGU7CisKKyM9PT09PT09PT09PT09IG1pbHRlci1yZWdleCBwb2xpY3kgPT09PT09
+PT09PT09PT0KK21pbHRlcl90ZW1wbGF0ZShyZWdleCkKKworIyBDb25maWcgaXMgaW4gL2V0
+Yy9tYWlsL21pbHRlci1yZWdleC5jb25mCittdGFfcmVhZF9jb25maWcobWlsdGVyX3JlZ2V4
+X3QpCisKKyMgVGhlIG1pbHRlciBjcmVhdGVzIGEgc29ja2V0IGluIC92YXIvc3Bvb2wvbWls
+dGVyLXJlZ2V4LworIyBmb3IgY29tbXVuaWNhdGlvbiB3aXRoIHNlbmRtYWlsCitmaWxlc19z
+ZWFyY2hfc3Bvb2wobWlsdGVyX3JlZ2V4X3QpCittYW5hZ2Vfc29ja19maWxlc19wYXR0ZXJu
+KG1pbHRlcl9yZWdleF90LG1pbHRlcl9yZWdleF9zcG9vbF90LG1pbHRlcl9yZWdleF9zcG9v
+bF90KQorCisjIEl0IHJlbW92ZXMgYW55IGV4aXN0aW5nIHNvY2tldCAobm90IG93bmVkIGJ5
+IHJvb3QpIHdoaWxzdCBydW5uaW5nIGFzIHJvb3QKKyMgYW5kIHRoZW4gY2FsbHMgc2V0Z2lk
+KCkgYW5kIHNldHVpZCgpIHRvIGRyb3AgcHJpdmlsZWdlcworYWxsb3cgbWlsdGVyX3JlZ2V4
+X3Qgc2VsZjpjYXBhYmlsaXR5IHsgc2V0dWlkIHNldGdpZCBkYWNfb3ZlcnJpZGUgfTsKKwor
+CisjPT09PT09PT09PT09PSBzcGFtYXNzLW1pbHRlciBwb2xpY3kgPT09PT09PT09PT09PT0K
+K21pbHRlcl90ZW1wbGF0ZShzcGFtYXNzKQorCisjIFRoZSBtaWx0ZXIgY3JlYXRlcyBhIHNv
+Y2tldCBpbiAvdmFyL3J1bi9zcGFtYXNzLW1pbHRlci8KKyMgZm9yIGNvbW11bmljYXRpb24g
+d2l0aCBzZW5kbWFpbAorbWFuYWdlX2ZpbGVzX3BhdHRlcm4obWlsdGVyX3NwYW1hc3NfdCxt
+aWx0ZXJfc3BhbWFzc192YXJfcnVuX3QsbWlsdGVyX3NwYW1hc3NfdmFyX3J1bl90KQorbWFu
+YWdlX3NvY2tfZmlsZXNfcGF0dGVybihtaWx0ZXJfc3BhbWFzc190LG1pbHRlcl9zcGFtYXNz
+X3Zhcl9ydW5fdCxtaWx0ZXJfc3BhbWFzc192YXJfcnVuX3QpCisKKyMgVGhlIG1haW4gam9i
+IG9mIHRoZSBtaWx0ZXIgaXMgdG8gcGlwZSBzcGFtIHRocm91Z2ggc3BhbWMgYW5kIGFjdCBv
+biB0aGUgcmVzdWx0CisjCisjIFRoZSBzcGFtYXNzYXNzaW5fZG9tdHJhbnNfc3BhbWMgaW50
+ZXJmYWNlIGluIEZlZG9yYSA5ID8/PworI3NwYW1hc3Nhc3Npbl9kb210cmFuc19zcGFtYyht
+aWx0ZXJfc3BhbWFzc190KQorCisjIFdoZW4gdXNlZCB3aXRoIC1iIG9yIC1CIG9wdGlvbnMs
+IHRoZSBtaWx0ZXIgaW52b2tlcyBzZW5kbWFpbCB0byBzZW5kIG1haWwKKyMgdG8gYSBzcGFt
+dHJhcCBhZGRyZXNzLCB1c2luZyBwb3BlbigpCitjb3JlY21kX2V4ZWNfc2hlbGwobWlsdGVy
+X3NwYW1hc3NfdCkKK2NvcmVjbWRfcmVhZF9iaW5fc3ltbGlua3MobWlsdGVyX3NwYW1hc3Nf
+dCkKK2NvcmVjbWRfc2VhcmNoX2JpbihtaWx0ZXJfc3BhbWFzc190KQora2VybmVsX3JlYWRf
+c3lzdGVtX3N0YXRlKG1pbHRlcl9zcGFtYXNzX3QpCittdGFfc2VuZF9tYWlsKG1pbHRlcl9z
+cGFtYXNzX3QpCkluZGV4OiBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9zZW5kbWFpbC50ZQo9
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09Ci0tLSBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9zZW5kbWFpbC50ZQko
+cmV2aXNpb24gMjcxMCkKKysrIHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3NlbmRtYWlsLnRl
+CSh3b3JraW5nIGNvcHkpCkBAIC0xMTIsNiArMTEyLDE0IEBACiAnKQogCiBvcHRpb25hbF9w
+b2xpY3koYAorCW1pbHRlcl9yZWdleF9zdHJlYW1fY29ubmVjdChzZW5kbWFpbF90KQorJykK
+Kworb3B0aW9uYWxfcG9saWN5KGAKKwltaWx0ZXJfc3BhbWFzc19zdHJlYW1fY29ubmVjdChz
+ZW5kbWFpbF90KQorJykKKworb3B0aW9uYWxfcG9saWN5KGAKIAlwb3N0Zml4X2V4ZWNfbWFz
+dGVyKHNlbmRtYWlsX3QpCiAJcG9zdGZpeF9yZWFkX2NvbmZpZyhzZW5kbWFpbF90KQogCXBv
+c3RmaXhfc2VhcmNoX3Nwb29sKHNlbmRtYWlsX3QpCkluZGV4OiBwb2xpY3kvbW9kdWxlcy9z
+ZXJ2aWNlcy9taWx0ZXJzLmZjCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIHBvbGljeS9tb2R1bGVzL3Nl
+cnZpY2VzL21pbHRlcnMuZmMJKHJldmlzaW9uIDApCisrKyBwb2xpY3kvbW9kdWxlcy9zZXJ2
+aWNlcy9taWx0ZXJzLmZjCShyZXZpc2lvbiAwKQpAQCAtMCwwICsxLDE0IEBACisjPT09PT09
+PT09PT09PT09PT0gY29udGV4dHMgZm9yIG1pbHRlci1yZWdleCA9PT09PT09PT09PT09PT09
+PQorCisvdXNyL3NiaW4vbWlsdGVyLXJlZ2V4CQktLQlnZW5fY29udGV4dChzeXN0ZW1fdTpv
+YmplY3RfcjptaWx0ZXJfcmVnZXhfZXhlY190LHMwKQorCisvdmFyL3Nwb29sL21pbHRlci1y
+ZWdleCgvLiopPwkJZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6bWlsdGVyX3JlZ2V4
+X3Nwb29sX3QsczApCisKKyM9PT09PT09PT09PT09PT09PSBjb250ZXh0cyBmb3Igc3BhbWFz
+cy1taWx0ZXIgPT09PT09PT09PT09PT09PT0KKworL3Vzci9zYmluL3NwYW1hc3MtbWlsdGVy
+CS0tCWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOm1pbHRlcl9zcGFtYXNzX2V4ZWNf
+dCxzMCkKKworL3Zhci9ydW4vc3BhbWFzcy1taWx0ZXJcLnBpZAktLQlnZW5fY29udGV4dChz
+eXN0ZW1fdTpvYmplY3RfcjptaWx0ZXJfc3BhbWFzc192YXJfcnVuX3QsczApCisvdmFyL3J1
+bi9zcGFtYXNzLW1pbHRlcigvLiopPwkJZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6
+bWlsdGVyX3NwYW1hc3NfdmFyX3J1bl90LHMwKQorCisKSW5kZXg6IHBvbGljeS9tb2R1bGVz
+L3NlcnZpY2VzL210YS50ZQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBwb2xpY3kvbW9kdWxlcy9zZXJ2
+aWNlcy9tdGEudGUJKHJldmlzaW9uIDI3MTApCisrKyBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNl
+cy9tdGEudGUJKHdvcmtpbmcgY29weSkKQEAgLTE1NCwzICsxNTQsNyBAQAogCQljcm9uX3Jl
+YWRfc3lzdGVtX2pvYl90bXBfZmlsZXMobXRhX3VzZXJfYWdlbnQpCiAJJykKICcpCisKK29w
+dGlvbmFsX3BvbGljeShgCisJbWlsdGVyX3NwYW1hc3Nfcndfc3RyZWFtX3NvY2tldHMoc3lz
+dGVtX21haWxfdCkKKycpCkluZGV4OiBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9taWx0ZXJz
+LmlmCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT0KLS0tIHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL21pbHRlcnMu
+aWYJKHJldmlzaW9uIDApCisrKyBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9taWx0ZXJzLmlm
+CShyZXZpc2lvbiAwKQpAQCAtMCwwICsxLDExNyBAQAorIyMgPHN1bW1hcnk+TWlsdGVyIG1h
+aWwgZmlsdGVyczwvc3VtbWFyeT4KKworIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIworIyMgPHN1bW1hcnk+CisjIwlDcmVhdGUgYSBzZXQgb2YgZGVyaXZlZCB0
+eXBlcyBmb3IgdmFyaW91cworIyMJbWFpbCBmaWx0ZXIgYXBwbGljYXRpb25zIHVzaW5nIHRo
+ZSBtaWx0ZXIgaW50ZXJmYWNlLgorIyMgPC9zdW1tYXJ5PgorIyMgPHBhcmFtIG5hbWU9Im1p
+bHRlcl9uYW1lIj4KKyMjCTxzdW1tYXJ5PgorIyMJVGhlIG5hbWUgdG8gYmUgdXNlZCBmb3Ig
+ZGVyaXZpbmcgdHlwZSBuYW1lcy4KKyMjCTwvc3VtbWFyeT4KKyMjIDwvcGFyYW0+CisjCit0
+ZW1wbGF0ZShgbWlsdGVyX3RlbXBsYXRlJyxgCisKKwkjIFR5cGUgdGhhdCB0aGUgbWlsdGVy
+IGFwcGxpY2F0aW9uIHJ1bnMgYXMKKwl0eXBlIG1pbHRlcl8kMV90OworCWRvbWFpbl90eXBl
+KG1pbHRlcl8kMV90KQorCXJvbGUgc3lzdGVtX3IgdHlwZXMgbWlsdGVyXyQxX3Q7CisKKwkj
+IFR5cGUgZm9yIHRoZSBleGVjdXRhYmxlIGZpbGUKKwl0eXBlIG1pbHRlcl8kMV9leGVjX3Q7
+CisJaW5pdF9kYWVtb25fZG9tYWluKG1pbHRlcl8kMV90LCBtaWx0ZXJfJDFfZXhlY190KQor
+CisJIyBUaGlzIHR5cGUgaXMgZm9yIHBpZGZpbGVzIGV0Yy4KKwl0eXBlIG1pbHRlcl8kMV92
+YXJfcnVuX3Q7CisJZmlsZXNfdHlwZShtaWx0ZXJfJDFfdmFyX3J1bl90KTsKKworCSMgVGhp
+cyB0eXBlIGlzIGZvciBzcG9vbC9jYWNoZSBkYXRhIGV0Yy4KKwl0eXBlIG1pbHRlcl8kMV9j
+YWNoZV90OworCWZpbGVzX3R5cGUobWlsdGVyXyQxX2NhY2hlX3QpOworCisJIyBUaGlzIHR5
+cGUgaXMgZm9yIHNwb29sL2NhY2hlIGRhdGEgZXRjLgorCXR5cGUgbWlsdGVyXyQxX3Nwb29s
+X3Q7CisJZmlsZXNfdHlwZShtaWx0ZXJfJDFfc3Bvb2xfdCk7CisKKwkjIFRoaXMgdHlwZSBp
+cyBmb3Igc3RhdGUgZGF0YSBldGMuCisJdHlwZSBtaWx0ZXJfJDFfdmFyX2xpYl90OworCWZp
+bGVzX3R5cGUobWlsdGVyXyQxX3Zhcl9saWJfdCk7CisKKwkjIEdlbmVyaWMgcnVsZXMgZnJv
+bSBwb2xpY3lnZW50b29sCisJZmlsZXNfcmVhZF9ldGNfZmlsZXMobWlsdGVyXyQxX3QpCisJ
+bGlic191c2VfbGRfc28obWlsdGVyXyQxX3QpCisJbGlic191c2Vfc2hhcmVkX2xpYnMobWls
+dGVyXyQxX3QpCisJbWlzY2ZpbGVzX3JlYWRfbG9jYWxpemF0aW9uKG1pbHRlcl8kMV90KQor
+CXN5c25ldF9kbnNfbmFtZV9yZXNvbHZlKG1pbHRlcl8kMV90KQorCWluaXRfdXNlX2Zkcyht
+aWx0ZXJfJDFfdCkKKwlpbml0X3VzZV9zY3JpcHRfcHR5cyhtaWx0ZXJfJDFfdCkKKwlkb21h
+aW5fdXNlX2ludGVyYWN0aXZlX2ZkcyhtaWx0ZXJfJDFfdCkKKworCSMgQWxsb3cgY29tbXVu
+aWNhdGlvbiB3aXRoIE1UQSBvdmVyIGEgVENQIHNvY2tldAorCSMgaGFjayBzaW5jZSB0aGlz
+IHBvcnQgaGFzIG5vIGludGVyZmFjZXMgc2luY2UgaXQgZG9lcyBub3QgaGF2ZSBuZXRfY29u
+dGV4dHMKKwlnZW5fcmVxdWlyZShgCisJCXR5cGUgbWlsdGVyX3BvcnRfdDsKKwknKQorCWFs
+bG93IG1pbHRlcl8kMV90IG1pbHRlcl9wb3J0X3Q6dGNwX3NvY2tldCBuYW1lX2JpbmQ7CisJ
+Y29yZW5ldF90Y3BfYmluZF9nZW5lcmljX25vZGUobWlsdGVyXyQxX3QpCisJYWxsb3cgbWls
+dGVyXyQxX3Qgc2VsZjp0Y3Bfc29ja2V0IHsgbGlzdGVuIGFjY2VwdCB9OworCisJIyBUaGlu
+Z3MgdGhhdCBtb3N0IG1pbHRlcnMgd2lsbCBuZWVkIHRvIGRvCisJYWxsb3cgbWlsdGVyXyQx
+X3Qgc2VsZjpmaWZvX2ZpbGUgcndfZmlmb19maWxlX3Blcm1zOworCWxvZ2dpbmdfc2VuZF9z
+eXNsb2dfbXNnKG1pbHRlcl8kMV90KQorCisnKQorCisjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjCisjIyA8c3VtbWFyeT4KKyMjCU1UQSBjb21tdW5pY2F0aW9u
+IHdpdGggc3BhbWFzcy1taWx0ZXIgc29ja2V0CisjIyA8L3N1bW1hcnk+CisjIyA8cGFyYW0g
+bmFtZT0iZG9tYWluIj4KKyMjCTxzdW1tYXJ5PgorIyMJRG9tYWluIGFsbG93ZWQgYWNjZXNz
+LgorIyMJPC9zdW1tYXJ5PgorIyMgPC9wYXJhbT4KKyMKK2ludGVyZmFjZShgbWlsdGVyX3Nw
+YW1hc3Nfc3RyZWFtX2Nvbm5lY3QnLGAKKwlnZW5fcmVxdWlyZShgCisJCXR5cGUgbWlsdGVy
+X3NwYW1hc3NfdmFyX3J1bl90LCBtaWx0ZXJfc3BhbWFzc190OworCScpCisJc3RyZWFtX2Nv
+bm5lY3RfcGF0dGVybigkMSxtaWx0ZXJfc3BhbWFzc192YXJfcnVuX3QsbWlsdGVyX3NwYW1h
+c3NfdmFyX3J1bl90LG1pbHRlcl9zcGFtYXNzX3QpCisnKQorCisjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjCisjIyA8c3VtbWFyeT4KKyMjCUFsbG93IHJlYWQv
+d3JpdGUgdW5peCBzdHJlYW0gc29ja2V0cyBmcm9tIHNwYW1hc3MtbWlsdGVyCisjIyA8L3N1
+bW1hcnk+CisjIyA8cGFyYW0gbmFtZT0iZG9tYWluIj4KKyMjICAgICAgPHN1bW1hcnk+Cisj
+IyAgICAgIERvbWFpbiBhbGxvd2VkIGFjY2Vzcy4KKyMjICAgICAgPC9zdW1tYXJ5PgorIyMg
+PC9wYXJhbT4KKyMKK2ludGVyZmFjZShgbWlsdGVyX3NwYW1hc3Nfcndfc3RyZWFtX3NvY2tl
+dHMnLGAKKyAgICAgICAgZ2VuX3JlcXVpcmUoYAorICAgICAgICAgICAgICAgIHR5cGUgbWls
+dGVyX3NwYW1hc3NfdDsKKyAgICAgICAgJykKKworCWFsbG93ICQxIG1pbHRlcl9zcGFtYXNz
+X3Q6dW5peF9zdHJlYW1fc29ja2V0IHsgcmVhZCB3cml0ZSB9OworJykKKworCisjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjCisjIyA8c3VtbWFyeT4KKyMjCU1U
+QSBjb21tdW5pY2F0aW9uIHdpdGggbWlsdGVyLXJlZ2V4IHNvY2tldAorIyMgPC9zdW1tYXJ5
+PgorIyMgPHBhcmFtIG5hbWU9ImRvbWFpbiI+CisjIwk8c3VtbWFyeT4KKyMjCURvbWFpbiBh
+bGxvd2VkIGFjY2Vzcy4KKyMjCTwvc3VtbWFyeT4KKyMjIDwvcGFyYW0+CisjCitpbnRlcmZh
+Y2UoYG1pbHRlcl9yZWdleF9zdHJlYW1fY29ubmVjdCcsYAorCWdlbl9yZXF1aXJlKGAKKwkJ
+dHlwZSBtaWx0ZXJfcmVnZXhfc3Bvb2xfdCwgbWlsdGVyX3JlZ2V4X3Q7CisJJykKKwlzdHJl
+YW1fY29ubmVjdF9wYXR0ZXJuKCQxLG1pbHRlcl9yZWdleF9zcG9vbF90LG1pbHRlcl9yZWdl
+eF9zcG9vbF90LG1pbHRlcl9yZWdleF90KQorJykKSW5kZXg6IHBvbGljeS9tb2R1bGVzL3Nl
+cnZpY2VzL3NwYW1hc3Nhc3Npbi5mYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBwb2xpY3kvbW9kdWxl
+cy9zZXJ2aWNlcy9zcGFtYXNzYXNzaW4uZmMJKHJldmlzaW9uIDI3MTApCisrKyBwb2xpY3kv
+bW9kdWxlcy9zZXJ2aWNlcy9zcGFtYXNzYXNzaW4uZmMJKHdvcmtpbmcgY29weSkKQEAgLTEw
+LDcgKzEwLDYgQEAKIC92YXIvbGliL3NwYW1hc3Nhc3NpbigvLiopPwlnZW5fY29udGV4dChz
+eXN0ZW1fdTpvYmplY3RfcjpzcGFtZF92YXJfbGliX3QsczApCiAKIC92YXIvcnVuL3NwYW1h
+c3Nhc3NpbigvLiopPwlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3RfcjpzcGFtZF92YXJf
+cnVuX3QsczApCi0vdmFyL3J1bi9zcGFtYXNzLW1pbHRlcigvLiopPwlnZW5fY29udGV4dChz
+eXN0ZW1fdTpvYmplY3RfcjpzcGFtZF92YXJfcnVuX3QsczApCiAKIC92YXIvc3Bvb2wvc3Bh
+bWFzc2Fzc2luKC8uKik/CWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOnNwYW1kX3Nw
+b29sX3QsczApCiAvdmFyL3Nwb29sL3NwYW1kKC8uKik/CQlnZW5fY29udGV4dChzeXN0ZW1f
+dTpvYmplY3RfcjpzcGFtZF9zcG9vbF90LHMwKQo=
+--------------090305060705060001050903--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
