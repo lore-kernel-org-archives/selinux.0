@@ -1,46 +1,42 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59LUx3F006994
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 17:30:59 -0400
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m59LUv3R001937
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 21:30:58 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so1591442fgg.40
+        for <selinux@tycho.nsa.gov>; Mon, 09 Jun 2008 14:30:57 -0700 (PDT)
+Message-ID: <cadfc0e40806091430j7d4734c6l7af3cfbce395eeae@mail.gmail.com>
+Date: Mon, 9 Jun 2008 16:30:57 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SELinux Mail List" <selinux@tycho.nsa.gov>,
+        "Eamon Walsh" <ewalsh@tycho.nsa.gov>,
+        "Daniel J Walsh" <dwalsh@redhat.com>
+Subject: X in MLS enforcing problem
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: releasibility in mcstransd
-Date: Mon, 9 Jun 2008 17:04:52 -0400
-Message-ID: <D709A20F2164C84E8B7014B0301F5EF8012E7F23@HAVOC.tcs-sec.com>
-References: <484D91BB.3080904@manicmethod.com>
-From: "Chad Hanson" <chanson@TrustedCS.com>
-To: "Joshua Brindle" <method@manicmethod.com>,
-        "SE Linux" <selinux@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
-Seems reasonable to me unless you want to create a nice new encoding
-language ;)
+type=AVC msg=audit(1213041678.053:8): avc:  denied  { read } for
+pid=2649 comm="Xorg" name="mem" dev=tmpfs ino=3893
+scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
+tcontext=system_u:object_r:memory_device_t:s15:c0.c1023
+tclass=chr_file
+type=AVC msg=audit(1213041678.432:10): avc:  denied  { write } for
+pid=2649 comm="Xorg" name="mem" dev=tmpfs ino=3893
+scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
+tcontext=system_u:object_r:memory_device_t:s15:c0.c1023
+tclass=chr_file
 
-How would the user process translate, eg, s0:c102.c128, just s0?
+The xserver_common_domain_template seems to have the necessary allow
+rules (dev_read_raw_memory and dev_wx_raw_memory) for the types so  I
+create a local module and added:
+mls_trusted_object(xdm_xserver_t)
+to deal with the MLS constraint violation but I'm still getting these
+AVC.What else can it be?
 
--Chad 
-
-> 
-> I am adding releasibility support to mcstransd and just 
-> wanted to see if there were any comments or complaints to 
-> what I'm planning here.
-> 
-> Rather than adding a generic prefix mechanism like the CMW 
-> encodings I did something specific for releasibility, in setrans.conf:
-> 
-> releasibility c100.c128
-> 
-> then encodings look like:
-> 
-> s0:~c100 = rel_US
-> s0:~c101 = rel_Texas
-> 
-> so a file with s0:c102.c128 would translate to s0:rel_US,rel_Texas.
-> 
-> any comments? Does anyone think this is absolutely the wrong approach?
-> 
-> 
-
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
