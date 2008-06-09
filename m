@@ -1,67 +1,127 @@
-Subject: [patch] selinux:  change handling of invalid classes (Was: Re:
-	2.6.26-rc5-mm1 selinux whine)
+Subject: RE: To domain transition or not?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Eric Paris <eparis@parisplace.org>,
-        Andrew Morton <akpm@linux-foundation.org>, selinux@tycho.nsa.gov
-In-Reply-To: <20080609012438.88a50622.akpm@linux-foundation.org>
-References: <20080609012438.88a50622.akpm@linux-foundation.org>
+To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <0794F277152EF94AA637E3AECF5CB70FB9E9D0@blums0042.bluelnk.net>
+References: <0794F277152EF94AA637E3AECF5CB70FB9E986@blums0042.bluelnk.net>
+	 <1213032271.9375.101.camel@moss-spartans.epoch.ncsc.mil>
+	 <0794F277152EF94AA637E3AECF5CB70FB9E9D0@blums0042.bluelnk.net>
 Content-Type: text/plain
-Date: Mon, 09 Jun 2008 16:03:56 -0400
-Message-Id: <1213041836.30576.27.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 09 Jun 2008 16:07:34 -0400
+Message-Id: <1213042054.30576.32.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 2008-06-09 at 01:24 -0700, Andrew Morton wrote:
-> Getting a few of these with FC5:
+On Mon, 2008-06-09 at 12:50 -0700, Clarkson, Mike R (US SSA) wrote:
 > 
-> SELinux: context_struct_compute_av:  unrecognized class 69
-> SELinux: context_struct_compute_av:  unrecognized class 69
+> > -----Original Message-----
+> > From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+> On
+> > Behalf Of Stephen Smalley
+> > Sent: Monday, June 09, 2008 10:25 AM
+> > To: Clarkson, Mike R (US SSA)
+> > Cc: selinux@tycho.nsa.gov
+> > Subject: Re: To domain transition or not?
+> > 
+> > 
+> > On Mon, 2008-06-09 at 10:14 -0700, Clarkson, Mike R (US SSA) wrote:
+> > > I have a general question, followed by a couple more specific
+> questions.
+> > > When creating domains for programs that use linux cmds like ping or
+> > > hostname, which have their own domains, I'm faced with the choice
+> having
+> > > those programs run in my domain or in the domain of the linux cmd.
+> What
+> > > is the better approach?
+> > 
+> > Depends on whether it is useful to separate them in terms of data or
+> > privileges.  If the program requires additional permissions (as ping
+> > does) that would allow the caller to perform actions beyond what it
+> can
+> > do just by running the program if the caller directly possessed those
+> > permissions, then running the program in its own domain is beneficial.
+> > 
+> > > Take "ping" for example. We have a program (MonitorSvcUtil) that
+> uses
+> > > ping and runs in a domain I've created called monitorsvcutil_t.
+> > > Depending on whether I use the netutils_exec_ping or
+> > > netutils_domtrans_ping interface, I can have our program execute
+> ping in
+> > > the monitorsvcutil_t domain, or do a domain transition into the
+> ping_t.
+> > > I would think the latter approach would be better, since ping is
+> then
+> > > running in a domain specifically designed for it and I can avoid
+> having
+> > > to give the monitorsvcutil_t domain the privileges needed to run
+> ping.
+> > 
+> > Agreed.
+> > 
+> > > When I try the latter approach I'm wondering why I run into the
+> > > following denials:
+> > >
+> > > type=AVC msg=audit(1213025579.772:9476): avc:  denied  { read write
+> }
+> > > for  pid=2238 comm="ping" path="socket:[6024549]" dev=sockfs
+> ino=6024549
+> > > scontext=root:staff_r:ping_t:s0-s4:c0.c255
+> > > tcontext=root:staff_r:monitorsvcutil_t:s0-s4:c0.c255
+> tclass=tcp_socket
+> > >
+> > > type=AVC msg=audit(1213025579.030:9446): avc:  denied  { append }
+> for
+> > > pid=2233 comm="ping"
+> > > path="/opt/nl/nltmp/clarkson/NLdata/.mbdev2_2008Jun09_1527_1415.txt"
+> > > dev=sda8 ino=684396 scontext=root:staff_r:ping_t:s0-s4:c0.c255
+> > > tcontext=root:object_r:nl_tmp_data_t:s0 tclass=file
+> > >
+> > > The first denial surprises me because I would have thought that the
+> ping
+> > > program would be creating its own TCP socket and thus I would not
+> expect
+> > > the socket to be labeled with the monitorsvcutil_t type.
+> > >
+> > > The second denial surprises me because the ping program does not
+> have
+> > > anything to do with the ".mbdev2_2008Jun09_1527_1415.txt" file. This
+> > > seems to indicate that once the ping process completes and returns
+> to
+> > > the MonitorSvcUtil process, the domain remains ping_t rather than
+> > > returning to monitorsvcutil_t.
+> > 
+> > 
+> > No, this shows that your MonitorSvcUtil program is leaking open file
+> > descriptors when it runs ping, and SELinux is correctly checking them
+> > upon inheritance across execve and closing them if unauthorized.  Bug
+> in
+> > your program - you should be marking the descriptors as close-on-exec
+> > and/or closing them all before exec'ing ping.
 > 
-> one came out when I logged in.
-> 
-> No other symptoms, yet.
+> I have to admit that I'm not familiar with close-on-exec. Is there a c++
+> interface for it? How about Java? Any recommendations on where to find
+> information on it? I did not get much from a google search.
 
-Change handling of invalid classes by SELinux, reporting class values
-unknown to the kernel as errors (w/ ratelimit applied) and handling
-class values unknown to policy as normal denials.
+fcntl(fd, F_SETFD, FD_CLOEXEC) is the usual interface for marking a
+descriptor as close-on-exec.  Or you can walk your file descriptor table
+after forking before exec'ing the program and close any that you don't
+wish to convey to the child program.  It is a pretty common idiom, so
+you should be able to find examples for your language of choice.
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> So do these AVC denials simply indicate that ping is receiving open file
+> descriptors that would ALLOW ping to append to a nl_tmp_data_t file and
+> read/write to a monitorsvcutil_t tcp_socket? As opposed to ping actually
+> attempting to do an append or read/write.
 
----
+Correct.  And SELinux closes them and replaces them with references to
+the null device at exec time if access is denied by the policy.
 
- security/selinux/ss/services.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+>  If that's the case then I
+> could simply add a dontaudit to the policy for these AVC denials.
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index d06df33..b7b9baa 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -408,9 +408,19 @@ static int context_struct_compute_av(struct context *scontext,
- 	return 0;
- 
- inval_class:
--	printk(KERN_ERR "SELinux: %s:  unrecognized class %d\n", __func__,
--		tclass);
--	return -EINVAL;
-+	if (!tclass || tclass > kdefs->cts_len ||
-+	    !kdefs->class_to_string[tclass]) {
-+		if (printk_ratelimit())
-+			printk(KERN_ERR "SELinux: %s:  unrecognized class %d\n",
-+			       __func__, tclass);
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * Known to the kernel, but not to the policy.
-+	 * Handle as a denial (allowed is 0).
-+	 */
-+	return 0;
- }
- 
- /*
+True, but it would be best to fix your program to not leak descriptors.
 
 -- 
 Stephen Smalley
