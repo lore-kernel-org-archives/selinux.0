@@ -1,18 +1,29 @@
-Date: Tue, 10 Jun 2008 09:34:32 +1000 (EST)
+Date: Tue, 10 Jun 2008 09:37:40 +1000 (EST)
 From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] SELinux: drop load_mutex in security_load_policy
-In-Reply-To: <1213042175.30576.36.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <Xine.LNX.4.64.0806100934290.25308@us.intercode.com.au>
-References: <1213041484.4597.17.camel@localhost.localdomain>
- <1213042175.30576.36.camel@moss-spartans.epoch.ncsc.mil>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: more user friendly unknown handling printk
+In-Reply-To: <1213044697.4597.26.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0806100937240.25308@us.intercode.com.au>
+References: <1213044697.4597.26.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Applied.
+On Mon, 9 Jun 2008, Eric Paris wrote:
+
+> I've gotten complaints and reports about people not understanding the
+> meaning of the current unknown class/perm handling the kernel emits on
+> every policy load.  Hopefully this will make make it clear to everyone
+> the meaning of the message and won't waste a printk the user won't care
+> about anyway on systems where the kernel and the policy agree on
+> everything.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+
+Looks good to me, applied.
+
 
 
 -- 
