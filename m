@@ -1,77 +1,55 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59IKgjw001412
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 14:20:42 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m59IKeiw016454
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 18:20:40 GMT
-Received: by an-out-0708.google.com with SMTP id d30so531925and.75
-        for <selinux@tycho.nsa.gov>; Mon, 09 Jun 2008 11:20:40 -0700 (PDT)
-Message-ID: <dd18b0c30806091120l20128195o633acbd60972f4c9@mail.gmail.com>
-Date: Mon, 9 Jun 2008 18:20:39 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: Re: No AVC messages found
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1213029163.9375.81.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <dd18b0c30806080143t6d601bacta7b3652331a48dbf@mail.gmail.com>
-	 <1213018137.9375.0.camel@moss-spartans.epoch.ncsc.mil>
-	 <dd18b0c30806090915q3092591bqb0f7000b93a0c06c@mail.gmail.com>
-	 <1213029163.9375.81.camel@moss-spartans.epoch.ncsc.mil>
+Subject: [PATCH] SELinux: fix off by 1 reference of class_to_string in
+	context_struct_compute_av
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Content-Type: text/plain
+Date: Mon, 09 Jun 2008 15:43:12 -0400
+Message-Id: <1213040592.4597.8.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jun 9, 2008 at 4:32 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> On Mon, 2008-06-09 at 16:15 +0000, Justin Mattock wrote:
->> On Mon, Jun 9, 2008 at 1:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> >
->> > On Sun, 2008-06-08 at 08:43 +0000, Justin Mattock wrote:
->> >> Hello; why do I receive this: No AVC messages found when I audit2allow -d when
->> >> I have this under dmesg:
->> >> [ 8395.499759] type=1701 audit(1212909990.108:3): auid=4294967295
->> >> uid=1000 gid=1000 ses=4294967295 subj=a-12:sysadm_r:sysadm_t pid=3389
->> >> comm="aterm" sig=6
->> >>
->> >> the only action that I took was "uptime" in a terminal, could this be it?
->> >> should I have seen the definition uptime in the AVC? i.g. /usr/sbin or  /*/*
->> >> or is this something diff.
->> >> regards;
->> >
->> > Not all audit messages are AVC messages.
->> >
->> > --
->> > Stephen Smalley
->> > National Security Agency
->> >
->> >
->>
->> Hello; What might have caused this message to be triggered.
->> just so I get a better idea.
->> regards;
->
-> Use /sbin/ausearch -i to interpret the audit messages in a more readable
-> form.  And ask questions about audit not related to selinux on
-> linux-audit@redhat.com list after subscribing there.
->
-> In this case, type=1701 corresponds to AUDIT_ANON_ABEND in
-> include/linux/audit.h, which means a process died abnormally.
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+The class_to_string array is referenced by tclass.  My code mistakenly
+was using tclass - 1.  If the proceeding class is a userspace class
+rather than kernel class this may cause a denial/EINVAL even if unknown
+handling is set to allow.  The bug shouldn't be allowing excess
+priveladges since those are given based on the contents of another array
+which should be correctly referenced.
 
-Alright; thanks for the info, If I see anything interesting with
-SELinux I'll let you guy's know, and then
-with any audit related stuff I'll inform linux-audit.
-regards;
+At this point in time its pretty unlikely this is going to cause
+problems.  The most recently added kernel classes which could be
+affected are association, dccp_socket, and peer.  Its pretty unlikely
+any policy with handle_unknown=allow doesn't have association and
+dccp_socket undefined (they've been around longer than unknown handling)
+and peer is conditionalized on a policy cap which should only be defined
+if that class exists in policy.
+
+-Eric
+
+---
+
+Should be fine to push this to .26 but I don't think is absolutely
+necessary.
+
+ security/selinux/ss/services.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index dcc2e1c..9294fe2 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -332,7 +332,7 @@ static int context_struct_compute_av(struct context *scontext,
+ 		goto inval_class;
+ 	if (unlikely(tclass > policydb.p_classes.nprim))
+ 		if (tclass > kdefs->cts_len ||
+-		    !kdefs->class_to_string[tclass - 1] ||
++		    !kdefs->class_to_string[tclass] ||
+ 		    !policydb.allow_unknown)
+ 			goto inval_class;
+ 
 
 
--- 
-Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
