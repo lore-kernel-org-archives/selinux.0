@@ -1,42 +1,104 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59Jt0Sa020469
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 15:55:00 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m59Jsxiw012724
-	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 19:54:59 GMT
-Subject: Re: [PATCH] SELinux: fix off by 1 reference of class_to_string in
-	context_struct_compute_av
+Subject: [PATCH] SELinux: drop load_mutex in security_load_policy
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
-Cc: jmorris@namei.org
-In-Reply-To: <1213040592.4597.8.camel@localhost.localdomain>
-References: <1213040592.4597.8.camel@localhost.localdomain>
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Mon, 09 Jun 2008 15:54:55 -0400
-Message-Id: <1213041295.4597.12.camel@localhost.localdomain>
+Date: Mon, 09 Jun 2008 15:58:04 -0400
+Message-Id: <1213041484.4597.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-06-09 at 15:43 -0400, Eric Paris wrote:
-> The class_to_string array is referenced by tclass.  My code mistakenly
-> was using tclass - 1.  If the proceeding class is a userspace class
-> rather than kernel class this may cause a denial/EINVAL even if unknown
-> handling is set to allow.  The bug shouldn't be allowing excess
-> priveladges since those are given based on the contents of another array
-> which should be correctly referenced.
-> 
-> At this point in time its pretty unlikely this is going to cause
-> problems.  The most recently added kernel classes which could be
-> affected are association, dccp_socket, and peer.  Its pretty unlikely
-> any policy with handle_unknown=allow doesn't have association and
-> dccp_socket undefined (they've been around longer than unknown handling)
-> and peer is conditionalized on a policy cap which should only be defined
-> if that class exists in policy.
-> 
-> -Eric
+We used to protect against races of policy load in security_load_policy
+by using the load_mutex.  Since then we have added a new mutex,
+sel_mutex, in sel_write_load() which is always held across all calls to
+security_load_policy we are covered and can safely just drop this one.
 
-James I forgot my signed-off you want to just add it?
+Signed-off-by: Eric Paris <eparis@redhat.com>
+
+---
+
+ security/selinux/ss/services.c |   14 +-------------
+ 1 files changed, 1 insertions(+), 13 deletions(-)
+
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index d06df33..7f07aeb 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -71,7 +71,6 @@ int selinux_policycap_openperm;
+ extern const struct selinux_class_perm selinux_class_perm;
+ 
+ static DEFINE_RWLOCK(policy_rwlock);
+-static DEFINE_MUTEX(load_mutex);
+ 
+ static struct sidtab sidtab;
+ struct policydb policydb;
+@@ -1453,17 +1452,13 @@ int security_load_policy(void *data, size_t len)
+ 	int rc = 0;
+ 	struct policy_file file = { data, len }, *fp = &file;
+ 
+-	mutex_lock(&load_mutex);
+-
+ 	if (!ss_initialized) {
+ 		avtab_cache_init();
+ 		if (policydb_read(&policydb, fp)) {
+-			mutex_unlock(&load_mutex);
+ 			avtab_cache_destroy();
+ 			return -EINVAL;
+ 		}
+ 		if (policydb_load_isids(&policydb, &sidtab)) {
+-			mutex_unlock(&load_mutex);
+ 			policydb_destroy(&policydb);
+ 			avtab_cache_destroy();
+ 			return -EINVAL;
+@@ -1472,7 +1467,6 @@ int security_load_policy(void *data, size_t len)
+ 		if (validate_classes(&policydb)) {
+ 			printk(KERN_ERR
+ 			       "SELinux:  the definition of a class is incorrect\n");
+-			mutex_unlock(&load_mutex);
+ 			sidtab_destroy(&sidtab);
+ 			policydb_destroy(&policydb);
+ 			avtab_cache_destroy();
+@@ -1482,7 +1476,6 @@ int security_load_policy(void *data, size_t len)
+ 		policydb_loaded_version = policydb.policyvers;
+ 		ss_initialized = 1;
+ 		seqno = ++latest_granting;
+-		mutex_unlock(&load_mutex);
+ 		selinux_complete_init();
+ 		avc_ss_reset(seqno);
+ 		selnl_notify_policyload(seqno);
+@@ -1495,13 +1488,10 @@ int security_load_policy(void *data, size_t len)
+ 	sidtab_hash_eval(&sidtab, "sids");
+ #endif
+ 
+-	if (policydb_read(&newpolicydb, fp)) {
+-		mutex_unlock(&load_mutex);
++	if (policydb_read(&newpolicydb, fp))
+ 		return -EINVAL;
+-	}
+ 
+ 	if (sidtab_init(&newsidtab)) {
+-		mutex_unlock(&load_mutex);
+ 		policydb_destroy(&newpolicydb);
+ 		return -ENOMEM;
+ 	}
+@@ -1549,7 +1539,6 @@ int security_load_policy(void *data, size_t len)
+ 	seqno = ++latest_granting;
+ 	policydb_loaded_version = policydb.policyvers;
+ 	write_unlock_irq(&policy_rwlock);
+-	mutex_unlock(&load_mutex);
+ 
+ 	/* Free the old policydb and SID table. */
+ 	policydb_destroy(&oldpolicydb);
+@@ -1563,7 +1552,6 @@ int security_load_policy(void *data, size_t len)
+ 	return 0;
+ 
+ err:
+-	mutex_unlock(&load_mutex);
+ 	sidtab_destroy(&newsidtab);
+ 	policydb_destroy(&newpolicydb);
+ 	return rc;
+
 
 
 --
