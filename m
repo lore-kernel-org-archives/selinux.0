@@ -1,57 +1,65 @@
-Subject: Re: No AVC messages found
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30806090915q3092591bqb0f7000b93a0c06c@mail.gmail.com>
-References: <dd18b0c30806080143t6d601bacta7b3652331a48dbf@mail.gmail.com>
-	 <1213018137.9375.0.camel@moss-spartans.epoch.ncsc.mil>
-	 <dd18b0c30806090915q3092591bqb0f7000b93a0c06c@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 09 Jun 2008 12:32:43 -0400
-Message-Id: <1213029163.9375.81.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59H4WDM015677
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 13:04:33 -0400
+Received: from ppsw-5.csi.cam.ac.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m59H4Viw005256
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 17:04:31 GMT
+Received: from mpo25.trin.private.cam.ac.uk ([172.16.113.134]:37399)
+	by ppsw-5.csi.cam.ac.uk (ppsw.cam.ac.uk [131.111.8.135]:25)
+	with esmtp id 1K5knD-0000Jo-Ip (Exim 4.67) for selinux@tycho.nsa.gov
+	(return-path <martin@martinorr.name>); Mon, 09 Jun 2008 18:04:27 +0100
+Message-ID: <484D6297.1030702@martinorr.name>
+Date: Mon, 09 Jun 2008 18:04:23 +0100
+From: Martin Orr <martin@martinorr.name>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] /usr/lib32 type
+References: <484A8A15.9000507@martinorr.name> <1213016083.28428.9.camel@gorn>
+In-Reply-To: <1213016083.28428.9.camel@gorn>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Mon, 2008-06-09 at 16:15 +0000, Justin Mattock wrote:
-> On Mon, Jun 9, 2008 at 1:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >
-> > On Sun, 2008-06-08 at 08:43 +0000, Justin Mattock wrote:
-> >> Hello; why do I receive this: No AVC messages found when I audit2allow -d when
-> >> I have this under dmesg:
-> >> [ 8395.499759] type=1701 audit(1212909990.108:3): auid=4294967295
-> >> uid=1000 gid=1000 ses=4294967295 subj=a-12:sysadm_r:sysadm_t pid=3389
-> >> comm="aterm" sig=6
-> >>
-> >> the only action that I took was "uptime" in a terminal, could this be it?
-> >> should I have seen the definition uptime in the AVC? i.g. /usr/sbin or  /*/*
-> >> or is this something diff.
-> >> regards;
-> >
-> > Not all audit messages are AVC messages.
-> >
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
+On 09/06/08 13:54, Christopher J. PeBenito wrote:
+> On Sat, 2008-06-07 at 14:16 +0100, Martin Orr wrote:
+>> On a 64-bit Debian system, /usr/lib32 is a symlink to
+>> /emul/ia32-linux/usr/lib.  It should be labelled as lib_t.
+>>
+>> I don't know if the distro_debian is necessary - take it out if you want.
 > 
-> Hello; What might have caused this message to be triggered.
-> just so I get a better idea.
-> regards;
+> Actually what seems excessive is the (.*/)? in the middle.  Is it really
+> needed?  Its very broad, and doesn't sound like its needed.
 
-Use /sbin/ausearch -i to interpret the audit messages in a more readable
-form.  And ask questions about audit not related to selinux on
-linux-audit@redhat.com list after subscribing there.
+I probably copied it from the lines above.  And in fact given the -l, there
+is not much point in the (/.*)? at the end either.
 
-In this case, type=1701 corresponds to AUDIT_ANON_ABEND in
-include/linux/audit.h, which means a process died abnormally.
+Best wishes,
+Martin
+
+>> plain text document attachment (116_usr_lib32)
+>> Written by: Martin Orr
+>>
+>> Mark /usr/lib32 as type lib_t
+>>
+>> Index: policy/modules/system/libraries.fc
+>> ===================================================================
+>> --- policy/modules/system/libraries.fc.orig
+>> +++ policy/modules/system/libraries.fc
+>> @@ -110,6 +110,9 @@
+>>  
+>>  /usr/(.*/)?lib(/.*)?				gen_context(system_u:object_r:lib_t,s0)
+>>  /usr/(.*/)?lib64(/.*)?				gen_context(system_u:object_r:lib_t,s0)
+>> +ifdef(`distro_debian',`
+>> +	/usr/(.*/)?lib32(/.*)?		-l	gen_context(system_u:object_r:lib_t,s0)
+>> +')
+>>  
+>>  /usr/(.*/)?lib(64)?(/.*)?/ld-[^/]*\.so(\.[^/]*)* gen_context(system_u:object_r:ld_so_t,s0)
+>>  
+
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
