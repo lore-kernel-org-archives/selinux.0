@@ -1,76 +1,77 @@
-Subject: Re: To domain transition or not?
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m59IKgjw001412
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 14:20:42 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m59IKeiw016454
+	for <selinux@tycho.nsa.gov>; Mon, 9 Jun 2008 18:20:40 GMT
+Received: by an-out-0708.google.com with SMTP id d30so531925and.75
+        for <selinux@tycho.nsa.gov>; Mon, 09 Jun 2008 11:20:40 -0700 (PDT)
+Message-ID: <dd18b0c30806091120l20128195o633acbd60972f4c9@mail.gmail.com>
+Date: Mon, 9 Jun 2008 18:20:39 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: No AVC messages found
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <0794F277152EF94AA637E3AECF5CB70FB9E986@blums0042.bluelnk.net>
-References: <0794F277152EF94AA637E3AECF5CB70FB9E986@blums0042.bluelnk.net>
-Content-Type: text/plain
-Date: Mon, 09 Jun 2008 13:24:31 -0400
-Message-Id: <1213032271.9375.101.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+In-Reply-To: <1213029163.9375.81.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <dd18b0c30806080143t6d601bacta7b3652331a48dbf@mail.gmail.com>
+	 <1213018137.9375.0.camel@moss-spartans.epoch.ncsc.mil>
+	 <dd18b0c30806090915q3092591bqb0f7000b93a0c06c@mail.gmail.com>
+	 <1213029163.9375.81.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, Jun 9, 2008 at 4:32 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> On Mon, 2008-06-09 at 16:15 +0000, Justin Mattock wrote:
+>> On Mon, Jun 9, 2008 at 1:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> >
+>> > On Sun, 2008-06-08 at 08:43 +0000, Justin Mattock wrote:
+>> >> Hello; why do I receive this: No AVC messages found when I audit2allow -d when
+>> >> I have this under dmesg:
+>> >> [ 8395.499759] type=1701 audit(1212909990.108:3): auid=4294967295
+>> >> uid=1000 gid=1000 ses=4294967295 subj=a-12:sysadm_r:sysadm_t pid=3389
+>> >> comm="aterm" sig=6
+>> >>
+>> >> the only action that I took was "uptime" in a terminal, could this be it?
+>> >> should I have seen the definition uptime in the AVC? i.g. /usr/sbin or  /*/*
+>> >> or is this something diff.
+>> >> regards;
+>> >
+>> > Not all audit messages are AVC messages.
+>> >
+>> > --
+>> > Stephen Smalley
+>> > National Security Agency
+>> >
+>> >
+>>
+>> Hello; What might have caused this message to be triggered.
+>> just so I get a better idea.
+>> regards;
+>
+> Use /sbin/ausearch -i to interpret the audit messages in a more readable
+> form.  And ask questions about audit not related to selinux on
+> linux-audit@redhat.com list after subscribing there.
+>
+> In this case, type=1701 corresponds to AUDIT_ANON_ABEND in
+> include/linux/audit.h, which means a process died abnormally.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
-On Mon, 2008-06-09 at 10:14 -0700, Clarkson, Mike R (US SSA) wrote:
-> I have a general question, followed by a couple more specific questions.
-> When creating domains for programs that use linux cmds like ping or
-> hostname, which have their own domains, I'm faced with the choice having
-> those programs run in my domain or in the domain of the linux cmd. What
-> is the better approach?
+Alright; thanks for the info, If I see anything interesting with
+SELinux I'll let you guy's know, and then
+with any audit related stuff I'll inform linux-audit.
+regards;
 
-Depends on whether it is useful to separate them in terms of data or
-privileges.  If the program requires additional permissions (as ping
-does) that would allow the caller to perform actions beyond what it can
-do just by running the program if the caller directly possessed those
-permissions, then running the program in its own domain is beneficial.  
-
-> Take "ping" for example. We have a program (MonitorSvcUtil) that uses
-> ping and runs in a domain I've created called monitorsvcutil_t.
-> Depending on whether I use the netutils_exec_ping or
-> netutils_domtrans_ping interface, I can have our program execute ping in
-> the monitorsvcutil_t domain, or do a domain transition into the ping_t.
-> I would think the latter approach would be better, since ping is then
-> running in a domain specifically designed for it and I can avoid having
-> to give the monitorsvcutil_t domain the privileges needed to run ping.
-
-Agreed.
-
-> When I try the latter approach I'm wondering why I run into the
-> following denials:
-> 
-> type=AVC msg=audit(1213025579.772:9476): avc:  denied  { read write }
-> for  pid=2238 comm="ping" path="socket:[6024549]" dev=sockfs ino=6024549
-> scontext=root:staff_r:ping_t:s0-s4:c0.c255
-> tcontext=root:staff_r:monitorsvcutil_t:s0-s4:c0.c255 tclass=tcp_socket
-> 
-> type=AVC msg=audit(1213025579.030:9446): avc:  denied  { append } for
-> pid=2233 comm="ping"
-> path="/opt/nl/nltmp/clarkson/NLdata/.mbdev2_2008Jun09_1527_1415.txt"
-> dev=sda8 ino=684396 scontext=root:staff_r:ping_t:s0-s4:c0.c255
-> tcontext=root:object_r:nl_tmp_data_t:s0 tclass=file
-> 
-> The first denial surprises me because I would have thought that the ping
-> program would be creating its own TCP socket and thus I would not expect
-> the socket to be labeled with the monitorsvcutil_t type.
-> 
-> The second denial surprises me because the ping program does not have
-> anything to do with the ".mbdev2_2008Jun09_1527_1415.txt" file. This
-> seems to indicate that once the ping process completes and returns to
-> the MonitorSvcUtil process, the domain remains ping_t rather than
-> returning to monitorsvcutil_t.
-
-
-No, this shows that your MonitorSvcUtil program is leaking open file
-descriptors when it runs ping, and SELinux is correctly checking them
-upon inheritance across execve and closing them if unauthorized.  Bug in
-your program - you should be marking the descriptors as close-on-exec
-and/or closing them all before exec'ing ping.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
