@@ -1,209 +1,104 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5AJKllq004428
-	for <selinux@tycho.nsa.gov>; Tue, 10 Jun 2008 15:20:47 -0400
-Received: from py-out-1112.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5AJKkCd002604
-	for <selinux@tycho.nsa.gov>; Tue, 10 Jun 2008 19:20:46 GMT
-Received: by py-out-1112.google.com with SMTP id a78so1056251pyh.32
-        for <selinux@tycho.nsa.gov>; Tue, 10 Jun 2008 12:20:46 -0700 (PDT)
-Message-ID: <484ED408.4090903@gmail.com>
-Date: Tue, 10 Jun 2008 14:20:40 -0500
-From: Ted X Toth <txtoth@gmail.com>
-MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: Chad Hanson <chanson@TrustedCS.com>,
-        SELinux Mail List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: X in MLS enforcing problem
-References: <cadfc0e40806091430j7d4734c6l7af3cfbce395eeae@mail.gmail.com>	 <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com> <cadfc0e40806091535k1929bbc8gd4eebefb4b6069ff@mail.gmail.com> <484DC4D2.7050201@tycho.nsa.gov>
-In-Reply-To: <484DC4D2.7050201@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Questions regarding labeled ipsec/MAC networking
+From: Joy Latten <latten@austin.ibm.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, tjaeger@cse.psu.edu,
+        jmorris@namei.org, serue@us.ibm.com
+In-Reply-To: <200806101139.56262.paul.moore@hp.com>
+References: <1213050632.31723.109.camel@faith.austin.ibm.com>
+	 <200806101139.56262.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Tue, 10 Jun 2008 14:55:53 -0500
+Message-Id: <1213127753.31723.145.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> Xavier Toth wrote:
->
-> [snip]
->
->> Now I looking at the USER_AVCs and trying to figure out how to
->> translate those into policy. Will audit2allow be updated to help with
->> generating rules for the X USER_AVCs?
->>   
->
-> The stock audit2allow parses my audit.log just fine.  It doesn't work 
-> for you?
->
->
->> For those who haven't seen the X user space object manager AVCs here
->> are some examples:
->> type=USER_AVC msg=audit(1213049927.142:132): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { blend } for request=X11:CreateWindow comm=dbus-launch resid=800001
->> restype=WINDOW scontext=user_u:user_r:user_t:s0
->> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
->> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>   
->
-> This is a program attempting to create a window with no background.  
-> The denial will cause the window background to be filled in with a 
-> solid color.
->
-> Dontaudit should work here.
->
-> However, window managers do need the blend permission (on all 
-> windows).  The "compositing" feature requires this permission.
->
->
->> type=USER_AVC msg=audit(1213049927.144:133): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { setattr } for request=X11:SetSelectionOwner comm=dbus-launch
->> selection=_DBUS_SESSION_BUS_SELECTION_tedx_caa2282936b539cb3e36c2ae4845ed0b 
->>
->> scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:object_r:xselection_t:s0 tclass=x_selection :
->> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>   
->
-> This is a known issue.  I have not found an explanation yet for the 
-> purpose of these D-BUS selections.
->
-> There is no easy solution here.  The selabel system cannot handle 
-> these funky names.  Even if there was regexp support, as Chris has 
-> indicated the name contains a username, implying that it should be 
-> labeled with a derived type.
->
-> I think the "dbus-launch" program needs to undergo surgery to either 
-> not create these things or to label them explicitly.
->
+Hi Paul!
 
-I looked at dbus-launch briefly and it appears that the window which is 
-never mapped is used as storage for a couple of properties, the dbus 
-address and pid. The selection is used to indicate if another 
-dbus-launch is active and if it is its' address and pid are returned and 
-the current dbus-launch exits. I guess there is only supposed to be one 
-dbus for a given user on a given machine.
->
->> type=USER_AVC msg=audit(1213049927.227:134): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { manage } for request=X11:ChangeHosts comm=xhost
->> scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tclass=x_server : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->> terminal=?)'
->>   
->
-> Somewhere in the startup scripts xhost is being called to fiddle with 
-> the lists of hosts that can connect to the server.
->
-> Either solve the xdm_xserver_t versus user_xserver_t problem, which 
-> has been much discussed, or grant the permission above, and rely on 
-> the Xauthority mechanism to keep people from running xhost on other 
-> people's servers.
->
-> As to the former, I'm trying to get something working with setcon and 
-> my GDM/pam_selinux patches.
->
->
->> type=USER_AVC msg=audit(1213049927.653:135): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { blend } for request=X11:CreateWindow comm=gnome-session
->> resid=800001 restype=WINDOW scontext=user_u:user_r:user_t:s0
->> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
->> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->> type=USER_AVC msg=audit(1213049927.656:136): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { blend } for request=X11:CreateWindow comm=gnome-session
->> resid=800002 restype=WINDOW scontext=user_u:user_r:user_t:s0
->> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
->> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>   
->
-> More blend errors.
->
->
->> type=USER_AVC msg=audit(1213049927.659:137): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { getattr } for request=X11:QueryPointer comm=gnome-session
->> xdevice="Virtual core pointer" scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->> terminal=?)'
->>   
->
-> The default label for devices is the server's context.  Another xdm / 
-> user issue.
->
-> My GDM/pam_selinux patches attempt to relabel the devices to the 
-> user's context, the same way the terminal is relabeled when you log in 
-> at the console.
->
->
->> type=USER_AVC msg=audit(1213049927.661:138): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { use } for request=XKEYBOARD:SelectEvents comm=gnome-session
->> xdevice="Virtual core keyboard" scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->> terminal=?)'
->> type=USER_AVC msg=audit(1213049927.661:139): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { use } for request=XKEYBOARD:SelectEvents comm=gnome-session
->> xdevice="Virtual core keyboard" scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->> terminal=?)'
->> type=USER_AVC msg=audit(1213049927.661:140): user pid=2636 uid=0
->> auid=4294967295 ses=4294967295
->> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>  { getattr setattr } for request=XKEYBOARD:PerClientFlags
->> comm=gnome-session xdevice="Virtual core keyboard"
->> scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->> terminal=?)'
->>   
->
-> More device errors.
->
->> type=ANOM_ABEND msg=audit(1213049927.662:141): auid=500 uid=500
->> gid=500 ses=4 subj=user_u:user_r:user_t:s0 pid=3280
->> comm="gnome-session" sig=5
->>   
->
-> Standard error handling behavior for the desktop.
->
->
->
->> type=CRED_DISP msg=audit(1213049927.674:142): user pid=2720 uid=0
->> auid=500 ses=4 subj=system_u:system_r:xdm_t:s0-s15:c0.c1023
->> msg='op=PAM:setcred acct="tedx" exe="/usr/libexec/gdm-session-worker"
->> (hostname=?, addr=?, terminal=:0 res=success)'
->> type=USER_END msg=audit(1213049927.697:143): user pid=2720 uid=0
->> auid=500 ses=4 subj=system_u:system_r:xdm_t:s0-s15:c0.c1023
->> msg='op=PAM:session_close acct="tedx"
->> exe="/usr/libexec/gdm-session-worker" (hostname=?, addr=?, terminal=:0
->> res=success)'
->>
->> -- 
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to 
->> majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>
->>   
->
->
+On Tue, 2008-06-10 at 11:39 -0400, Paul Moore wrote:
+> I agree with Stephen, I don't think we want to ever use a SPD security 
+> label as the SA's security label.  The security label of a SPD entry is 
+> used to signify a specific IPsec configuration (endpoints, 
+> transformations, ciphers, hmacs, etc.) where the security label of a SA 
+> is used to signify the sending subject's security label (SSH versus 
+> Firefox, SECRET versus TOP_SECRET, etc.).  This separation is really 
+> the one nice thing I see about labeled IPsec because it allows you to 
+> match a sending domain with a very specific IPsec configuration through 
+> SELinux policy which allows you to make statements like all Firefox 
+> traffic will be protected with ESP using AES-128 where all SSH traffic 
+> will be protected with AH using SHA1.
+> 
+Yes, I agree. The separation is important. So, I will document PFP flag
+is not applicable to select security context of SA.
 
+> > 2. Security Gateways in MAC networking.
+> >
+> > In obsoleted rfc 2401 -IP Security Architecture, section 8.6
+> > described an MLS security gateway using IPsec as:
+> >
+> >   "a security gateway acting as an outbound proxy, creating SAs for
+> > MLS systems that originate packets forwarded by the gateway. These
+> > MLS systems may explicitly label the packets to be forwarded, or the
+> > whole originating network may have sensitivity characteristics
+> > associated with it. The security gateway MUST create and use
+> > appropriate SAs for AH, ESP or both, to protect such traffic it
+> > forwards.
+> >
+> >    Similarly such a gateway SHOULD accept and process inbound AH
+> > and/or ESP packets and forward appropriately, using explicit packet
+> > labeling, or relying on the sensitivity characteristics of the
+> > destination network."
+> >
+> > All mention of MLS networking as in rfc 2401 was left out in rfc
+> > 4301. So I want to reintroduce it as MAC networking instead.
+> >
+> > Do we want to consider labeled ipsec for security gateways in MAC
+> > networking?
+> 
+> Most definitely yes.
+> 
+> > 1. machines behind the security gateway that explicitly label the
+> >    packets (CIPSO). This is stated above.
+> >
+> >    In this case above text is still applicable.
+> >
+> > 2. The whole originating network has a security context associated
+> > with it. In this case, packets from machines behind the security
+> > gateway are not explicitly labeled. These machines send their packets
+> > to security security gateway to be forwarded. This incoming interface
+> > of the security gateway is labeled. All packets arriving on it (from
+> > machines behind the gateway) would be marked with this label. And
+> > that would be the label used to negotiate and create the SAs for the
+> > packets originating from behind the gateway.
+> >
+> >    Is this acceptable MAC networking for security gateways?
+> 
+> I think so, I know of several users who have multiple single label 
+> networks connected to a multiple label network via a security 
+> gateway/guard that handles the labeling/routing/multiplexing.  Just in 
+> cased you missed the discussion earlier this year, check the SELinux 
+> archives for the discussions around static/fallback labels (included 
+> for the first time in 2.6.25).  The static/fallback labels can be used 
+> to specify per-host, per-network, or per-interface security labels for 
+> unlabeled traffic.
+> 
+Thanks for the pointer, I definitely will take a look. 
+
+> As far as James' comments about assigning network peer security labels 
+> with greater granularity than a single host, we discussed this quite a 
+> bit in the static/fallback label threads; while it makes sense for 
+> things like SECMARK, it makes less sense when you are talking about 
+> unlabeled peers.  That said, I don't think a RFC specification needs to 
+> restrict implementation from assigning network peer labels however they 
+> see fit; I'm just not sure we would end up doing anything finer grained 
+> than a single address.
+> 
+> Hopefully you will send your early drafts to this list for review? :)
+> 
+Sure!
+
+regards, 
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
