@@ -1,78 +1,88 @@
-Subject: RE: tracking down execstack & execmem violations
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>
-Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
-        Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@namei.org>
-In-Reply-To: <0794F277152EF94AA637E3AECF5CB70FB9EACE@blums0042.bluelnk.net>
-References: <0794F277152EF94AA637E3AECF5CB70FB9EAC8@blums0042.bluelnk.net>
-	 <1213118122.30576.147.camel@moss-spartans.epoch.ncsc.mil>
-	 <0794F277152EF94AA637E3AECF5CB70FB9EACE@blums0042.bluelnk.net>
+Subject: Re: Questions regarding labeled ipsec/MAC networking
+From: Joy Latten <latten@austin.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, paul.moore@hp.com, tjaeger@cse.psu.edu,
+        jmorris@namei.org, serue@us.ibm.com,
+        Darrel Goeddel <dgoeddel@TrustedCS.com>,
+        Chad Hanson <chanson@TrustedCS.com>
+In-Reply-To: <1213100787.30576.92.camel@moss-spartans.epoch.ncsc.mil>
+References: <1213050632.31723.109.camel@faith.austin.ibm.com>
+	 <1213100787.30576.92.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 10 Jun 2008 13:49:19 -0400
-Message-Id: <1213120159.30576.158.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 10 Jun 2008 12:24:09 -0500
+Message-Id: <1213118649.31723.136.camel@faith.austin.ibm.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-06-10 at 10:23 -0700, Clarkson, Mike R (US SSA) wrote:
+On Tue, 2008-06-10 at 08:26 -0400, Stephen Smalley wrote:
 > 
-> > -----Original Message-----
-> > From: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> > Sent: Tuesday, June 10, 2008 10:15 AM
-> > To: Clarkson, Mike R (US SSA)
-> > Cc: selinux@tycho.nsa.gov
-> > Subject: Re: tracking down execstack & execmem violations
+> I don't think we want to support taking the label from the SPD entry; or
+> if we did, I think it would be a separate label from the normal SPD
+> label - one specifically dedicated to being applied to SAs.
+> 
+Ok, yes, makes sense because SPD entry's label is for a different
+purpose. 
+
+> > I have another question:
 > > 
+> > 2. Security Gateways in MAC networking.
 > > 
-> > On Tue, 2008-06-10 at 10:10 -0700, Clarkson, Mike R (US SSA) wrote:
-> > > I'm writing a policy for a very large legacy CORBA application, with
-> > > many separate processes. Without fail, every one of our processes
-> > > requires execstack & execmem privileges. I would like to track down
-> the
-> > > cause, but I really don't have any idea how. Does anybody have any
-> good
-> > > recommendations?
-> > >
-> > > I'd like to at least be able to determine whether the offending code
-> is
-> > > ours or some vender's (like our CORBA vender), and if it is ours I'd
-> > > like to track down the source. I'm betting there is a common source
-> > > causing the issue.
+> > In obsoleted rfc 2401 -IP Security Architecture, section 8.6 described 
+> > an MLS security gateway using IPsec as:
+> >  
+> >   "a security gateway acting as an outbound proxy, creating SAs for MLS
+> >    systems that originate packets forwarded by the gateway. These MLS
+> >    systems may explicitly label the packets to be forwarded, or the
+> >    whole originating network may have sensitivity characteristics
+> >    associated with it. The security gateway MUST create and use
+> >    appropriate SAs for AH, ESP or both, to protect such traffic it
+> >    forwards.
 > > 
-> > Resources:
-> > http://people.redhat.com/drepper/selinux-mem.html
-> > http://people.redhat.com/drepper/nonselsec.pdf
-> 
-> I'll look at these. Thanks!
+> >    Similarly such a gateway SHOULD accept and process inbound AH and/or
+> >    ESP packets and forward appropriately, using explicit packet
+> >    labeling, or relying on the sensitivity characteristics of the
+> >    destination network."
 > > 
-> > Also, what does execstack -q show for the executables in question?
+> > All mention of MLS networking as in rfc 2401 was left out in rfc 4301. 
+> > So I want to reintroduce it as MAC networking instead. 
+> > 
+> > Do we want to consider labeled ipsec for security gateways in MAC
+> > networking? There would be 2 cases that I can think of.
 > 
-> I wasn't aware of the execstack cmd. This alone will help a lot. Thanks
-> again.
+> Yes.
 > 
-> > And are these programs:
-> > - multi-threaded?,
-> > - Java-based?
+> >  
+> > 1. machines behind the security gateway that explicitly label the
+> >    packets (CIPSO). This is stated above. 
+> >     
+> >    In this case above text is still applicable. 
+> >  
+> > 2. The whole originating network has a security context associated with
+> >    it. In this case, packets from machines behind the security gateway
+> >    are not explicitly labeled. These machines send their packets to
+> >    security security gateway to be forwarded. This incoming interface of
+> >    the security gateway is labeled. All packets arriving on it (from
+> >    machines behind the gateway) would be marked with this label. And
+> >    that would be the label used to negotiate and create the SAs for the
+> >    packets originating from behind the gateway.
+> > 
+> >    Is this acceptable MAC networking for security gateways?
 > 
-> Mostly C++ but a few Java. Nearly all are multi-threaded.
+> There are likely other scenarios as well, e.g. using the source IP as a
+> selector, etc.
+> 
+> There is also the issue of outer vs. inner label in the Sun labeled
+> IPSEC design, but I'm not certain we want to support that.
+> 
+I am not familiar with outer vs inner label in the Sun's design. 
+I will look it up so I can better understand.
 
-Java is known to require execmem for runtime code generation.  There is
-a java_t domain that you can look at as an example.  I think they allow
-it execstack too, although I'm not as clear as to why that is necessary,
-possibly for the thread stack allocation.
+Thanks!!
 
-Thread stacks may be allocated with PROT_EXEC if the executable is
-marked as requiring an executable stack or if it lacks the marking;
-execstack should tell you the story there.
-
-If we can't give execmem w/o giving execstack too, then execstack isn't
-useful as a separate permission.
-
--- 
-Stephen Smalley
-National Security Agency
-
+regards,
+Joy 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
