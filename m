@@ -1,83 +1,54 @@
-Subject: Re:
-	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Chris PeBenito <pebenito@gentoo.org>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <484C9E55.30702@ak.jp.nec.com>
-References: <483A9137.5050509@ak.jp.nec.com>
-	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
-	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
-	 <483C6BEA.8040101@tycho.nsa.gov>
-	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
-	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
-	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
-	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
-	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
-	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
-	 <4846142F.8090100@ak.jp.nec.com>
-	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
-	 <48473ECC.6020501@ak.jp.nec.com>
-	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>
-	 <484C9E55.30702@ak.jp.nec.com>
+Subject: Re: tracking down execstack & execmem violations
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+Cc: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>,
+        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
+        James Morris <jmorris@namei.org>
+In-Reply-To: <7e0fb38c0806101100x452eae80he5192415b9e02868@mail.gmail.com>
+References: <0794F277152EF94AA637E3AECF5CB70FB9EAC8@blums0042.bluelnk.net>
+	 <1213118122.30576.147.camel@moss-spartans.epoch.ncsc.mil>
+	 <0794F277152EF94AA637E3AECF5CB70FB9EACE@blums0042.bluelnk.net>
+	 <1213120159.30576.158.camel@moss-spartans.epoch.ncsc.mil>
+	 <7e0fb38c0806101100x452eae80he5192415b9e02868@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 10 Jun 2008 14:09:15 -0400
-Message-Id: <1213121355.27496.23.camel@gorn>
+Date: Tue, 10 Jun 2008 14:21:55 -0400
+Message-Id: <1213122115.30576.162.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-06-09 at 12:07 +0900, KaiGai Kohei wrote:
-> In the attached patch, the following points are changed from [1].
-> 
->   [1] http://marc.info/?l=selinux&m=120999566809541&w=2
-> 
-> - type_transition rule of a newly created database got being described
->   as a relation ship between client and itself, like:
->   | type_transition sepgsql_client_type sepgsql_client_type:db_database sepgsql_db_t;
-> 
-> - neverallow rule has gone.
-> 
-> - allow sepgsql_unconfined_type postgresql_t:db_blob { import export }; is removed.
-> 
-> - A comment is added to explain dontaudit rule in row-level denied logs.
->  | # NOTE:
->  | # The purpose of the dontaudit rule in row-level access control is to prevent a flood of logs.
->  | # If a client tries to SELECT a table including violated tuples, these are filtered from
->  | # the result set as if not exist, but its access denied longs can be recorded within log files.
->  | # In generally, the number of tuples are much larger than the number of columns, tables and so on.
->  | # So, it makes a flood of logs when many tuples are violated.
->  | #
->  | # The default policy does not prevent anything for sepgsql_client_type sepgsql_unconfined_type,
->  | # so we don't need "dontaudit" rules in Type-Enforcement. However, MLS/MCS can prevent them
->  | # to access classified tuples and can make a audit record.
->  | #
->  | # Therefore, the following rule is applied for any domains which can connect SE-PostgreSQL.
 
-I merged this, but I was thinking about some revisions that we should
-consider:
+On Tue, 2008-06-10 at 14:00 -0400, Eric Paris wrote:
+> On Tue, Jun 10, 2008 at 1:49 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > Java is known to require execmem for runtime code generation.  There is
+> > a java_t domain that you can look at as an example.  I think they allow
+> > it execstack too, although I'm not as clear as to why that is necessary,
+> > possibly for the thread stack allocation.
+> >
+> > Thread stacks may be allocated with PROT_EXEC if the executable is
+> > marked as requiring an executable stack or if it lacks the marking;
+> > execstack should tell you the story there.
+> >
+> > If we can't give execmem w/o giving execstack too, then execstack isn't
+> > useful as a separate permission.
+> 
+> As I recall, which is always a dangerous thing for me todo, execstack
+> needs execmem for multithreaded processes because the 'stack' of the
+> second thread is just 'memory' from the point of view of the
+> permission checks.
 
-1. in the unpriv client interface, we have these type transitions:
-type_transition $1 sepgsql_database_type:db_table sepgsql_table_t;
-type_transition $1 sepgsql_database_type:db_procedure sepgsql_proc_t;
-type_transition $1 sepgsql_database_type:db_blob sepgsql_blob_t;
+Yes, that one I understand and am ok with.
 
-The client can only access the system database, not all databases, so it
-seems that sepgsql_database_type should be replaced with sepgsql_db_t.
+> execmem does not need execstack.....
 
-2. the stored procedure type names have been in the back of my mind for
-long time but I couldn't come up with a good naming scheme.  This
-especially bugged me for the sepgsql_trusted_domain_t and
-sepgsql_trusted_proc_t.  Why not just go with what we do with regular
-domains and executables: sepgsql_trusted_proc_t and
-sepgsql_trusted_proc_exec_t?
+That is theoretically true but I wasn't sure we had real working
+examples of programs that only require the former and not the latter.
 
+> java probably actually uses an executable stack which is why it needs both.....
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
