@@ -1,57 +1,53 @@
-Subject: Re: [PATCH] SELinux: remove unused and shadowed addrlen variable
+Subject: Re: [PATCH] SELinux: use do_each_thread as a proper do/while block
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: James Morris <jmorris@namei.org>
 Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@redhat.com>
-In-Reply-To: <Xine.LNX.4.64.0806120158580.5379@us.intercode.com.au>
-References: <Xine.LNX.4.64.0806120158580.5379@us.intercode.com.au>
+In-Reply-To: <Xine.LNX.4.64.0806120201140.5379@us.intercode.com.au>
+References: <Xine.LNX.4.64.0806120201140.5379@us.intercode.com.au>
 Content-Type: text/plain
-Date: Wed, 11 Jun 2008 12:06:45 -0400
-Message-Id: <1213200405.17842.84.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 11 Jun 2008 12:08:49 -0400
+Message-Id: <1213200529.17842.86.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Thu, 2008-06-12 at 02:00 +1000, James Morris wrote:
+On Thu, 2008-06-12 at 02:01 +1000, James Morris wrote:
 > Please review.
 > 
 > ----
-> Remove unused and shadowed addrlen variable.  Picked up by sparse.
+> Use do_each_thread as a proper do/while block.  Sparse complained.
 > 
 > Signed-off-by: James Morris <jmorris@namei.org>
 
-It was used previously but obsoleted by the netnode cache interface.
+We may wish to consider removing this restriction altogether, and/or
+making it subject to a permission check.  Per-thread context can be
+useful for multi-threaded server effectively acting as a userspace
+object manager but wanting to set kernel context to avoid race
+conditions on file accesses, ala the samba file server case.
 
 Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
 > ---
->  security/selinux/hooks.c |    4 +---
->  1 files changed, 1 insertions(+), 3 deletions(-)
+>  security/selinux/hooks.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
 > 
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index f530008..6e8d0e9 100644
+> index 6e8d0e9..4130d64 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
-> @@ -3669,7 +3669,7 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
->  		struct sockaddr_in6 *addr6 = NULL;
->  		unsigned short snum;
->  		struct sock *sk = sock->sk;
-> -		u32 sid, node_perm, addrlen;
-> +		u32 sid, node_perm;
->  
->  		tsec = current->security;
->  		isec = SOCK_INODE(sock)->i_security;
-> @@ -3677,12 +3677,10 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
->  		if (family == PF_INET) {
->  			addr4 = (struct sockaddr_in *)address;
->  			snum = ntohs(addr4->sin_port);
-> -			addrlen = sizeof(addr4->sin_addr.s_addr);
->  			addrp = (char *)&addr4->sin_addr.s_addr;
->  		} else {
->  			addr6 = (struct sockaddr_in6 *)address;
->  			snum = ntohs(addr6->sin6_port);
-> -			addrlen = sizeof(addr6->sin6_addr.s6_addr);
->  			addrp = (char *)&addr6->sin6_addr.s6_addr;
+> @@ -5196,12 +5196,12 @@ static int selinux_setprocattr(struct task_struct *p,
+>  			struct task_struct *g, *t;
+>  			struct mm_struct *mm = p->mm;
+>  			read_lock(&tasklist_lock);
+> -			do_each_thread(g, t)
+> +			do_each_thread(g, t) {
+>  				if (t->mm == mm && t != p) {
+>  					read_unlock(&tasklist_lock);
+>  					return -EPERM;
+>  				}
+> -			while_each_thread(g, t);
+> +			} while_each_thread(g, t);
+>  			read_unlock(&tasklist_lock);
 >  		}
 >  
 -- 
