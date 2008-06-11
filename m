@@ -1,62 +1,205 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BDeFVV028072
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 09:40:15 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BDmS8A029955
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 09:48:28 -0400
 Received: from rv-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5BDeE2p028252
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 13:40:14 GMT
-Received: by rv-out-0708.google.com with SMTP id f25so3082283rvb.54
-        for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 06:40:13 -0700 (PDT)
-Message-ID: <484FD5B9.1010302@gmail.com>
-Date: Wed, 11 Jun 2008 08:40:09 -0500
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5BDmR2p002010
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 13:48:28 GMT
+Received: by rv-out-0708.google.com with SMTP id f25so3085625rvb.54
+        for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 06:48:27 -0700 (PDT)
+Message-ID: <484FD7A5.5070806@gmail.com>
+Date: Wed, 11 Jun 2008 08:48:21 -0500
 From: Ted X Toth <txtoth@gmail.com>
 MIME-Version: 1.0
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-CC: Chad Hanson <chanson@TrustedCS.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+CC: Chad Hanson <chanson@TrustedCS.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>,
         Daniel J Walsh <dwalsh@redhat.com>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: MLS constraint interfaces
-References: <cadfc0e40806091430j7d4734c6l7af3cfbce395eeae@mail.gmail.com> <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com>
-In-Reply-To: <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com>
+Subject: Re: X in MLS enforcing problem
+References: <cadfc0e40806091430j7d4734c6l7af3cfbce395eeae@mail.gmail.com>	 <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com> <cadfc0e40806091535k1929bbc8gd4eebefb4b6069ff@mail.gmail.com> <484DC4D2.7050201@tycho.nsa.gov>
+In-Reply-To: <484DC4D2.7050201@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chad Hanson wrote:
-> mls_trusted_object(xdm_xserver_t) won't help this problem, but something
-> like mls_file_read_up and mls_file_write_down would be more approriate
-> for xdm_xserver_t.
+Eamon Walsh wrote:
+> Xavier Toth wrote:
 >
-> -Chad
+> [snip]
 >
->   
->> type=AVC msg=audit(1213041678.053:8): avc:  denied  { read } for
->> pid=2649 comm="Xorg" name="mem" dev=tmpfs ino=3893
->> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tcontext=system_u:object_r:memory_device_t:s15:c0.c1023
->> tclass=chr_file
->> type=AVC msg=audit(1213041678.432:10): avc:  denied  { write } for
->> pid=2649 comm="Xorg" name="mem" dev=tmpfs ino=3893
->> scontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->> tcontext=system_u:object_r:memory_device_t:s15:c0.c1023
->> tclass=chr_file
->>
->> The xserver_common_domain_template seems to have the necessary allow
->> rules (dev_read_raw_memory and dev_wx_raw_memory) for the types so  I
->> create a local module and added:
->> mls_trusted_object(xdm_xserver_t)
->> to deal with the MLS constraint violation but I'm still getting these
->> AVC.What else can it be?
->>
->> Ted
->>
->>     
+>> Now I looking at the USER_AVCs and trying to figure out how to
+>> translate those into policy. Will audit2allow be updated to help with
+>> generating rules for the X USER_AVCs?
+>>   
 >
->   
-As I said in another post I've added mls interface calls to deal with 
-these constraint violations. However I'm concerned about the breath of 
-the interfaces in that they cover many classes/types of files when as 
-far as I know the X server really only needs multilevel access to 
-'chr_file'. Should there be more class specific interfaces?
+> The stock audit2allow parses my audit.log just fine.  It doesn't work 
+> for you?
+>
+>
+>> For those who haven't seen the X user space object manager AVCs here
+>> are some examples:
+>> type=USER_AVC msg=audit(1213049927.142:132): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { blend } for request=X11:CreateWindow comm=dbus-launch resid=800001
+>> restype=WINDOW scontext=user_u:user_r:user_t:s0
+>> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
+>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+>>   
+>
+> This is a program attempting to create a window with no background.  
+> The denial will cause the window background to be filled in with a 
+> solid color.
+>
+> Dontaudit should work here.
+>
+> However, window managers do need the blend permission (on all 
+> windows).  The "compositing" feature requires this permission.
+>
+>
+>> type=USER_AVC msg=audit(1213049927.144:133): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { setattr } for request=X11:SetSelectionOwner comm=dbus-launch
+>> selection=_DBUS_SESSION_BUS_SELECTION_tedx_caa2282936b539cb3e36c2ae4845ed0b 
+>>
+>> scontext=user_u:user_r:user_t:s0
+>> tcontext=system_u:object_r:xselection_t:s0 tclass=x_selection :
+>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+>>   
+>
+> This is a known issue.  I have not found an explanation yet for the 
+> purpose of these D-BUS selections.
+>
+> There is no easy solution here.  The selabel system cannot handle 
+> these funky names.  Even if there was regexp support, as Chris has 
+> indicated the name contains a username, implying that it should be 
+> labeled with a derived type.
+>
+> I think the "dbus-launch" program needs to undergo surgery to either 
+> not create these things or to label them explicitly.
+If I were to do this I'd use either SetSelectionCreateContext or 
+SetSelectionUseContext, could you explain the difference between them 
+and which I should use?
+>
+>
+>> type=USER_AVC msg=audit(1213049927.227:134): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { manage } for request=X11:ChangeHosts comm=xhost
+>> scontext=user_u:user_r:user_t:s0
+>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
+>> tclass=x_server : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
+>> terminal=?)'
+>>   
+>
+> Somewhere in the startup scripts xhost is being called to fiddle with 
+> the lists of hosts that can connect to the server.
+>
+> Either solve the xdm_xserver_t versus user_xserver_t problem, which 
+> has been much discussed, or grant the permission above, and rely on 
+> the Xauthority mechanism to keep people from running xhost on other 
+> people's servers.
+>
+> As to the former, I'm trying to get something working with setcon and 
+> my GDM/pam_selinux patches.
+>
+>
+>> type=USER_AVC msg=audit(1213049927.653:135): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { blend } for request=X11:CreateWindow comm=gnome-session
+>> resid=800001 restype=WINDOW scontext=user_u:user_r:user_t:s0
+>> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
+>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+>> type=USER_AVC msg=audit(1213049927.656:136): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { blend } for request=X11:CreateWindow comm=gnome-session
+>> resid=800002 restype=WINDOW scontext=user_u:user_r:user_t:s0
+>> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
+>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+>>   
+>
+> More blend errors.
+>
+>
+>> type=USER_AVC msg=audit(1213049927.659:137): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { getattr } for request=X11:QueryPointer comm=gnome-session
+>> xdevice="Virtual core pointer" scontext=user_u:user_r:user_t:s0
+>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
+>> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
+>> terminal=?)'
+>>   
+>
+> The default label for devices is the server's context.  Another xdm / 
+> user issue.
+>
+> My GDM/pam_selinux patches attempt to relabel the devices to the 
+> user's context, the same way the terminal is relabeled when you log in 
+> at the console.
+>
+>
+>> type=USER_AVC msg=audit(1213049927.661:138): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { use } for request=XKEYBOARD:SelectEvents comm=gnome-session
+>> xdevice="Virtual core keyboard" scontext=user_u:user_r:user_t:s0
+>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
+>> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
+>> terminal=?)'
+>> type=USER_AVC msg=audit(1213049927.661:139): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { use } for request=XKEYBOARD:SelectEvents comm=gnome-session
+>> xdevice="Virtual core keyboard" scontext=user_u:user_r:user_t:s0
+>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
+>> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
+>> terminal=?)'
+>> type=USER_AVC msg=audit(1213049927.661:140): user pid=2636 uid=0
+>> auid=4294967295 ses=4294967295
+>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>>  { getattr setattr } for request=XKEYBOARD:PerClientFlags
+>> comm=gnome-session xdevice="Virtual core keyboard"
+>> scontext=user_u:user_r:user_t:s0
+>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
+>> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
+>> terminal=?)'
+>>   
+>
+> More device errors.
+>
+>> type=ANOM_ABEND msg=audit(1213049927.662:141): auid=500 uid=500
+>> gid=500 ses=4 subj=user_u:user_r:user_t:s0 pid=3280
+>> comm="gnome-session" sig=5
+>>   
+>
+> Standard error handling behavior for the desktop.
+>
+>
+>
+>> type=CRED_DISP msg=audit(1213049927.674:142): user pid=2720 uid=0
+>> auid=500 ses=4 subj=system_u:system_r:xdm_t:s0-s15:c0.c1023
+>> msg='op=PAM:setcred acct="tedx" exe="/usr/libexec/gdm-session-worker"
+>> (hostname=?, addr=?, terminal=:0 res=success)'
+>> type=USER_END msg=audit(1213049927.697:143): user pid=2720 uid=0
+>> auid=500 ses=4 subj=system_u:system_r:xdm_t:s0-s15:c0.c1023
+>> msg='op=PAM:session_close acct="tedx"
+>> exe="/usr/libexec/gdm-session-worker" (hostname=?, addr=?, terminal=:0
+>> res=success)'
+>>
+>> -- 
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to 
+>> majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+>>
+>>   
+>
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
