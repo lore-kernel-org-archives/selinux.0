@@ -1,91 +1,158 @@
-Subject: Re: [RFC] SELinux: allow fstype unknown to policy to use xattrs if
-	present
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1213203686.4597.59.camel@localhost.localdomain>
-References: <1213203686.4597.59.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 11 Jun 2008 14:01:53 -0400
-Message-Id: <1213207313.17842.101.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BIT6K1030053
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 14:29:06 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5BIT5QD029648
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 18:29:05 GMT
+Message-ID: <4850190B.4000407@redhat.com>
+Date: Wed, 11 Jun 2008 14:27:23 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: postgresql fedora differences
+Content-Type: multipart/mixed;
+ boundary="------------020509000206080808040201"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------020509000206080808040201
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, 2008-06-11 at 13:01 -0400, Eric Paris wrote:
-> Currently if a fs is mounted for which selinux policy does not define an
-> fs_use_* or a genfscon statement that FS will not support labeling of
-> any kind.  This patch allows the kernel to check if the filesystem
-> supports security xattrs and if so will use those if there is no
-> fs_use_* rule in policy.  An fstype with a genfs rule will use xattrs if
-> available and will follow the genfs rule if they are not.
-> 
-> This can be particularly interesting for things like ecryptfs which
-> actually overlays a real underlying FS.  If we define excryptfs in
-> policy to use xattrs we will likely get this wrong at times, so with
-> this path we just don't need to define it!
-> 
-> Overlay ecryptfs on top of NFS with no xattr support:
-> SELinux: initialized (dev ecryptfs, type ecryptfs), uses genfs_contexts
-> Overlay ecryptfs on top of ext4 with xattr support:
-> SELinux: initialized (dev ecryptfs, type ecryptfs), uses xattr
-> 
-> Its also useful as the kernel adds new FS's we don't need to add them in
-> policy if they support xattrs and that's how we want to handle them.
-> 
-> The real question: is this how we want to solve this?  We need some way
-> for ecryptfs to be usable on top of NFS and on top of persistant labeled
-> FS.  What I'm worried about is how to handle ecryptfs on top of
-> non-persistant FS's like tmpfs which has xattrs...
 
-I think that situation is ok; in that case, the tmpfs filesystem will
-follow the fs_use_trans rule in determining its' inodes labels, and then
-ecryptfs will fetch those labels via i_op->getxattr on the lower inode.
+--------------020509000206080808040201
+Content-Type: text/plain;
+ name="services_postgresql.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="services_postgresql.patch"
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index dcc2e1c..3c4afe9 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1849,14 +1851,22 @@ int security_fs_use(
->  				goto out;
->  		}
->  		*sid = c->sid[0];
-> +		goto out;
-> +	}
-> +
-> +	/* labeling behavior not in policy, use xattrs if possible */
-> +	if (can_xattr) {
-> +		*behavior = SECURITY_FS_USE_XATTR;
+Subject: [PATCH] refpolicy: services_postgresql changes
+--text follows this line--
+--- nsaserefpolicy/policy/modules/services/postgresql.fc	2008-06-11 08:15:44.000000000 -0400
++++ serefpolicy-3.4.2/policy/modules/services/postgresql.fc	2008-06-11 13:29:23.000000000 -0400
+@@ -34,6 +34,7 @@
+ /var/lib/sepgsql/pgstartup\.log	--	gen_context(system_u:object_r:postgresql_log_t,s0)
+ 
+ /var/log/postgres\.log.* 	--	gen_context(system_u:object_r:postgresql_log_t,s0)
++/var/lib/pgsql/logfile(/.*)?		gen_context(system_u:object_r:postgresql_log_t,s0)
+ /var/log/postgresql(/.*)?		gen_context(system_u:object_r:postgresql_log_t,s0)
+ /var/log/sepostgresql\.log.*	--	gen_context(system_u:object_r:postgresql_log_t,s0)
+ 
+@@ -42,3 +43,5 @@
+ ')
+ 
+ /var/run/postgresql(/.*)?		gen_context(system_u:object_r:postgresql_var_run_t,s0)
++
++/etc/rc\.d/init\.d/postgresql	--	gen_context(system_u:object_r:postgresql_script_exec_t,s0)
+--- nsaserefpolicy/policy/modules/services/postgresql.if	2008-06-11 08:15:44.000000000 -0400
++++ serefpolicy-3.4.2/policy/modules/services/postgresql.if	2008-06-11 13:35:43.000000000 -0400
+@@ -375,3 +375,72 @@
+ 
+ 	typeattribute $1 sepgsql_unconfined_type;
+ ')
++
++########################################
++## <summary>
++##	Execute postgresql server in the posgresql domain.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	The type of the process performing this action.
++##	</summary>
++## </param>
++#
++interface(`postgresql_script_domtrans',`
++	gen_require(`
++		type postgresql_script_exec_t;
++	')
++
++	init_script_domtrans_spec($1,postgresql_script_exec_t)
++')
++
++########################################
++## <summary>
++##	All of the rules required to administrate an postgresql environment
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <param name="role">
++##	<summary>
++##	The role to be allowed to manage the postgresql domain.
++##	</summary>
++## </param>
++## <param name="terminal">
++##	<summary>
++##	The type of the terminal allow the postgresql domain to use.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`postgresql_admin',`
++	gen_require(`
++		type postgresql_t;
++		type postgresql_var_run_t;
++		type postgresql_tmp_t;
++		type postgresql_db_t;
++		type postgresql_etc_t;
++		type postgresql_log_t;
++	')
++
++	allow $1 postgresql_t:process { ptrace signal_perms getattr };
++	read_files_pattern($1, postgresql_t, postgresql_t)
++
++	# Allow $1 to restart the apache service
++	postgresql_script_domtrans($1)
++	domain_system_change_exemption($1)
++	role_transition $2 postgresql_script_exec_t system_r;
++	allow $2 system_r;
++
++	manage_all_pattern($1,postgresql_var_run_t)
++
++	manage_all_pattern($1,postgresql_db_t)
++
++	manage_all_pattern($1,postgresql_etc_t)
++
++	manage_all_pattern($1,postgresql_log_t)
++
++	manage_all_pattern($1,postgresql_tmp_t)
++')
+--- nsaserefpolicy/policy/modules/services/postgresql.te	2008-06-11 08:15:44.000000000 -0400
++++ serefpolicy-3.4.2/policy/modules/services/postgresql.te	2008-06-11 13:39:57.000000000 -0400
+@@ -44,6 +44,9 @@
+ type postgresql_var_run_t;
+ files_pid_file(postgresql_var_run_t)
+ 
++type postgresql_script_exec_t;
++init_script_type(postgresql_script_exec_t)
++
+ # database clients attribute
+ attribute sepgsql_client_type;
+ attribute sepgsql_unconfined_type;
+@@ -186,6 +189,7 @@
+ 
+ fs_getattr_all_fs(postgresql_t)
+ fs_search_auto_mountpoints(postgresql_t)
++fs_rw_hugetlbfs_files(postgresql_t)
+ 
+ selinux_get_enforce_mode(postgresql_t)
+ selinux_validate_context(postgresql_t)
 
-Need to set *sid to a value before returning for the superblock SID.
-SECINITSID_FS would make sense there.
+--------------020509000206080808040201
+Content-Type: application/pgp-signature;
+ name="services_postgresql.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="services_postgresql.patch.sig"
 
-> +		goto out;
-> +	}
-> +
-> +	/* no behavior in policy and can't use xattrs, try GENFS */
-> +	rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
-> +	if (rc) {
-> +		*behavior = SECURITY_FS_USE_NONE;
-> +		rc = 0;
->  	} else {
-> -		rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
-> -		if (rc) {
-> -			*behavior = SECURITY_FS_USE_NONE;
-> -			rc = 0;
-> -		} else {
-> -			*behavior = SECURITY_FS_USE_GENFS;
-> -		}
-> +		*behavior = SECURITY_FS_USE_GENFS;
->  	}
->  
->  out:
-> 
--- 
-Stephen Smalley
-National Security Agency
-
+iEYEABECAAYFAkhQGQsACgkQrlYvE4MpobMT4gCfZYjpUgEzJX8mXJLHhFwBcWHF/WkAniKJ
+ZIGc8oxnaydWHdoRAoQma8wt
+--------------020509000206080808040201--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
