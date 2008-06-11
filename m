@@ -1,166 +1,121 @@
-Subject: [RFC] SELinux: allow fstype unknown to policy to use xattrs if
-	present
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, jmorris@namei.org
-Content-Type: text/plain
-Date: Wed, 11 Jun 2008 13:01:26 -0400
-Message-Id: <1213203686.4597.59.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BH6pRJ013151
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 13:06:51 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5BH6pX5000365
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 17:06:51 GMT
+Message-ID: <485005C9.8050902@redhat.com>
+Date: Wed, 11 Jun 2008 13:05:13 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: kernel/kernel.* diffs
+References: <4836D603.1000506@redhat.com> <1213020149.27496.3.camel@gorn>
+In-Reply-To: <1213020149.27496.3.camel@gorn>
+Content-Type: multipart/mixed;
+ boundary="------------010009020005070001070502"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently if a fs is mounted for which selinux policy does not define an
-fs_use_* or a genfscon statement that FS will not support labeling of
-any kind.  This patch allows the kernel to check if the filesystem
-supports security xattrs and if so will use those if there is no
-fs_use_* rule in policy.  An fstype with a genfs rule will use xattrs if
-available and will follow the genfs rule if they are not.
+This is a multi-part message in MIME format.
+--------------010009020005070001070502
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This can be particularly interesting for things like ecryptfs which
-actually overlays a real underlying FS.  If we define excryptfs in
-policy to use xattrs we will likely get this wrong at times, so with
-this path we just don't need to define it!
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Overlay ecryptfs on top of NFS with no xattr support:
-SELinux: initialized (dev ecryptfs, type ecryptfs), uses genfs_contexts
-Overlay ecryptfs on top of ext4 with xattr support:
-SELinux: initialized (dev ecryptfs, type ecryptfs), uses xattr
+Christopher J. PeBenito wrote:
+| On Fri, 2008-05-23 at 10:34 -0400, Daniel J Walsh wrote:
+|> Mainly adding additional dontaudits for permissive domains.
+|
+|> Subject: [PATCH] refpolicy: kernel_kernel changes
+|> --text follows this line--
+|> --- nsaserefpolicy/policy/modules/kernel/kernel.if	2008-05-23
+09:15:06.224337000 -0400
+|> +++ serefpolicy-3.4.1/policy/modules/kernel/kernel.if	2008-05-23
+10:29:05.107838000 -0400
+|> @@ -1198,6 +1198,7 @@
+|>  	')
+|>
+|>  	dontaudit $1 proc_type:dir list_dir_perms;
+|> +	dontaudit $1 proc_type:file getattr;
+|>  ')
+|>
+|>  ########################################
+|> @@ -1768,6 +1769,7 @@
+|>  	')
+|>
+|>  	dontaudit $1 sysctl_type:dir list_dir_perms;
+|> +	dontaudit $1 sysctl_type:file read_file_perms;
+|>  ')
+|>
+|>  ########################################
+|
+| These two violate the intention of the interface.
+|
+I though the intention of the interface was to dontaudit list of all
+proc or sysctl.  I believe this means we know this app tries to list
+sysctl or proc so dontaudit the listing.  Well part of the listing in
+permissive mode is the getattr or read.  So to make this work the way
+customers would expect we need to add interfaces all over the place and
+patch every call to this will a dontaudit file, which seems to be a
+colossal waste of time.
 
-Its also useful as the kernel adds new FS's we don't need to add them in
-policy if they support xattrs and that's how we want to handle them.
+Maybe we need a way to indicate whether this should be dontaudited in
+enforcing mode versus permissive.
 
-The real question: is this how we want to solve this?  We need some way
-for ecryptfs to be usable on top of NFS and on top of persistant labeled
-FS.  What I'm worried about is how to handle ecryptfs on top of
-non-persistant FS's like tmpfs which has xattrs...
+Added patch for
 
--Eric
+cgroup_t.
 
----
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
- security/selinux/hooks.c            |   22 +++++++++++++++++-----
- security/selinux/include/security.h |    2 +-
- security/selinux/ss/services.c      |   26 ++++++++++++++++++--------
- 3 files changed, 36 insertions(+), 14 deletions(-)
+iEYEARECAAYFAkhQBckACgkQrlYvE4MpobM7GwCfTcHGsZQV8ZRuKTD9I6/YJ2e4
+snkAoM+HSsJzbfDEfAvXfxb0ZeXbZWo/
+=j1e0
+-----END PGP SIGNATURE-----
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1c864c0..1844966 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -554,13 +554,15 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	struct task_security_struct *tsec = current->security;
- 	struct superblock_security_struct *sbsec = sb->s_security;
- 	const char *name = sb->s_type->name;
--	struct inode *inode = sbsec->sb->s_root->d_inode;
--	struct inode_security_struct *root_isec = inode->i_security;
-+	struct dentry *root = sb->s_root;
-+	struct inode *root_inode = root->d_inode;
-+	struct inode_security_struct *root_isec = root_inode->i_security;
- 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
- 	u32 defcontext_sid = 0;
- 	char **mount_options = opts->mnt_opts;
- 	int *flags = opts->mnt_opts_flags;
- 	int num_opts = opts->num_mnt_opts;
-+	char can_xattr = 0;
+--------------010009020005070001070502
+Content-Type: text/plain;
+ name="kernel_kernel.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kernel_kernel.patch"
+
+--- nsaserefpolicy/policy/modules/kernel/kernel.te	2008-06-11 08:15:43.000000000 -0400
++++ serefpolicy-3.4.1/policy/modules/kernel/kernel.te	2008-06-11 10:06:56.000000000 -0400
+@@ -45,6 +45,15 @@
+ sid kernel gen_context(system_u:system_r:kernel_t,mls_systemhigh)
  
- 	mutex_lock(&sbsec->lock);
- 
-@@ -664,14 +666,24 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 		goto out;
- 	}
- 
--	if (strcmp(sb->s_type->name, "proc") == 0)
-+	if (strcmp(name, "proc") == 0)
- 		sbsec->proc = 1;
- 
-+	/*
-+	 * test if the fs supports xattrs, fs_use might make use of this if the
-+	 * fs has no definition in policy.
-+	 */
-+	if (root_inode->i_op->getxattr) {
-+		rc = root_inode->i_op->getxattr(root, XATTR_NAME_SELINUX, NULL, 0);
-+		if (rc >= 0 || rc == -ENODATA)
-+			can_xattr = 1;
-+	}
+ #
++# cgroup fs
++#
 +
- 	/* Determine the labeling behavior to use for this filesystem type. */
--	rc = security_fs_use(sb->s_type->name, &sbsec->behavior, &sbsec->sid);
-+	rc = security_fs_use(name, &sbsec->behavior, &sbsec->sid, can_xattr);
- 	if (rc) {
- 		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
--		       __func__, sb->s_type->name, rc);
-+		       __func__, name, rc);
- 		goto out;
- 	}
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index ad30ac4..eb6da47 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -131,7 +131,7 @@ int security_get_allow_unknown(void);
- #define SECURITY_FS_USE_MNTPOINT	6 /* use mountpoint labeling */
- 
- int security_fs_use(const char *fstype, unsigned int *behavior,
--	u32 *sid);
-+	u32 *sid, char can_xattr);
- 
- int security_genfs_sid(const char *fstype, char *name, u16 sclass,
- 	u32 *sid);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index dcc2e1c..3c4afe9 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1825,7 +1825,8 @@ out:
- int security_fs_use(
- 	const char *fstype,
- 	unsigned int *behavior,
--	u32 *sid)
-+	u32 *sid,
-+	char can_xattr)
- {
- 	int rc = 0;
- 	struct ocontext *c;
-@@ -1839,6 +1840,7 @@ int security_fs_use(
- 		c = c->next;
- 	}
- 
-+	/* look for labeling behavior defined in policy */
- 	if (c) {
- 		*behavior = c->v.behavior;
- 		if (!c->sid[0]) {
-@@ -1849,14 +1851,22 @@ int security_fs_use(
- 				goto out;
- 		}
- 		*sid = c->sid[0];
-+		goto out;
-+	}
++type cgroup_t;
++fs_type(cgroup_t)
++allow cgroup_t self:filesystem associate;
++genfscon cgroup / gen_context(system_u:object_r:cgroup_t,s0)
 +
-+	/* labeling behavior not in policy, use xattrs if possible */
-+	if (can_xattr) {
-+		*behavior = SECURITY_FS_USE_XATTR;
-+		goto out;
-+	}
-+
-+	/* no behavior in policy and can't use xattrs, try GENFS */
-+	rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
-+	if (rc) {
-+		*behavior = SECURITY_FS_USE_NONE;
-+		rc = 0;
- 	} else {
--		rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
--		if (rc) {
--			*behavior = SECURITY_FS_USE_NONE;
--			rc = 0;
--		} else {
--			*behavior = SECURITY_FS_USE_GENFS;
--		}
-+		*behavior = SECURITY_FS_USE_GENFS;
- 	}
++#
+ # DebugFS
+ #
  
- out:
++
 
+--------------010009020005070001070502
+Content-Type: application/pgp-signature;
+ name="kernel_kernel.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="kernel_kernel.patch.sig"
 
+iEYEABECAAYFAkhQBckACgkQrlYvE4MpobOYQwCg0p2jZ7F6nIFLmL1gywZAW3dQsw0An2i3
+sYoxjsdRlXN6iBevEw9OH1rI
+--------------010009020005070001070502--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
