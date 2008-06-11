@@ -1,216 +1,69 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BLgT7p002891
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 17:42:29 -0400
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5BLgRcw001273
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 21:42:27 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so2217920fgg.40
-        for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 14:42:26 -0700 (PDT)
-Message-ID: <cadfc0e40806111442j5c7ec784k7c65c4df67214571@mail.gmail.com>
-Date: Wed, 11 Jun 2008 16:42:26 -0500
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: X in MLS enforcing problem
-Cc: "Chad Hanson" <chanson@TrustedCS.com>,
-        "SELinux Mail List" <selinux@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <484FD7A5.5070806@gmail.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BLlvSW003923
+	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 17:47:57 -0400
+Message-ID: <4850480C.1040406@tycho.nsa.gov>
+Date: Wed, 11 Jun 2008 17:47:56 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <cadfc0e40806091430j7d4734c6l7af3cfbce395eeae@mail.gmail.com>
-	 <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com>
-	 <cadfc0e40806091535k1929bbc8gd4eebefb4b6069ff@mail.gmail.com>
-	 <484DC4D2.7050201@tycho.nsa.gov> <484FD7A5.5070806@gmail.com>
+To: Ted X Toth <txtoth@gmail.com>
+CC: SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: X in MLS enforcing problem
+References: <cadfc0e40806091430j7d4734c6l7af3cfbce395eeae@mail.gmail.com>	 <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com> <cadfc0e40806091535k1929bbc8gd4eebefb4b6069ff@mail.gmail.com> <484DC4D2.7050201@tycho.nsa.gov> <484FD7A5.5070806@gmail.com>
+In-Reply-To: <484FD7A5.5070806@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jun 11, 2008 at 8:48 AM, Ted X Toth <txtoth@gmail.com> wrote:
-> Eamon Walsh wrote:
->>
->> Xavier Toth wrote:
->>
->> [snip]
->>
->>> Now I looking at the USER_AVCs and trying to figure out how to
->>> translate those into policy. Will audit2allow be updated to help with
->>> generating rules for the X USER_AVCs?
->>>
->>
->> The stock audit2allow parses my audit.log just fine.  It doesn't work for
->> you?
->>
->>
->>> For those who haven't seen the X user space object manager AVCs here
->>> are some examples:
->>> type=USER_AVC msg=audit(1213049927.142:132): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { blend } for request=X11:CreateWindow comm=dbus-launch resid=800001
->>> restype=WINDOW scontext=user_u:user_r:user_t:s0
->>> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
->>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>>
->>
->> This is a program attempting to create a window with no background.  The
->> denial will cause the window background to be filled in with a solid color.
->>
->> Dontaudit should work here.
->>
->> However, window managers do need the blend permission (on all windows).
->>  The "compositing" feature requires this permission.
->>
->>
->>> type=USER_AVC msg=audit(1213049927.144:133): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { setattr } for request=X11:SetSelectionOwner comm=dbus-launch
->>>
->>> selection=_DBUS_SESSION_BUS_SELECTION_tedx_caa2282936b539cb3e36c2ae4845ed0b
->>> scontext=user_u:user_r:user_t:s0
->>> tcontext=system_u:object_r:xselection_t:s0 tclass=x_selection :
->>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>>
->>
->> This is a known issue.  I have not found an explanation yet for the
->> purpose of these D-BUS selections.
->>
->> There is no easy solution here.  The selabel system cannot handle these
->> funky names.  Even if there was regexp support, as Chris has indicated the
->> name contains a username, implying that it should be labeled with a derived
->> type.
->>
->> I think the "dbus-launch" program needs to undergo surgery to either not
->> create these things or to label them explicitly.
+Ted X Toth wrote:
+> If I were to do this I'd use either SetSelectionCreateContext or 
+> SetSelectionUseContext, could you explain the difference between them 
+> and which I should use?
+>   
 >
-> If I were to do this I'd use either SetSelectionCreateContext or
-> SetSelectionUseContext, could you explain the difference between them and
-> which I should use?
 
-I also will need to compute a new context from the process and default
-selection contexts but I'd need an object class definition
-(SECCLASS_XSELECTION?) which I don't think exists yet does it?
+SetSelectionCreateContext is for setting the context on the clipboard 
+_data_.  This is how an SELinux-aware application could specify what 
+type of data the user has made available for pasting.  The 
+"x_application_data" security class represents the "object" labeled by 
+this context, and the selection manager is responsible for checking 
+permission on it.  The X server doesn't perform any checks on this 
+context.  See earlier message [1].
 
->>
->>
->>> type=USER_AVC msg=audit(1213049927.227:134): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { manage } for request=X11:ChangeHosts comm=xhost
->>> scontext=user_u:user_r:user_t:s0
->>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->>> tclass=x_server : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->>> terminal=?)'
->>>
->>
->> Somewhere in the startup scripts xhost is being called to fiddle with the
->> lists of hosts that can connect to the server.
->>
->> Either solve the xdm_xserver_t versus user_xserver_t problem, which has
->> been much discussed, or grant the permission above, and rely on the
->> Xauthority mechanism to keep people from running xhost on other people's
->> servers.
->>
->> As to the former, I'm trying to get something working with setcon and my
->> GDM/pam_selinux patches.
->>
->>
->>> type=USER_AVC msg=audit(1213049927.653:135): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { blend } for request=X11:CreateWindow comm=gnome-session
->>> resid=800001 restype=WINDOW scontext=user_u:user_r:user_t:s0
->>> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
->>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>> type=USER_AVC msg=audit(1213049927.656:136): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { blend } for request=X11:CreateWindow comm=gnome-session
->>> resid=800002 restype=WINDOW scontext=user_u:user_r:user_t:s0
->>> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
->>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>>
->>
->> More blend errors.
->>
->>
->>> type=USER_AVC msg=audit(1213049927.659:137): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { getattr } for request=X11:QueryPointer comm=gnome-session
->>> xdevice="Virtual core pointer" scontext=user_u:user_r:user_t:s0
->>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->>> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->>> terminal=?)'
->>>
->>
->> The default label for devices is the server's context.  Another xdm / user
->> issue.
->>
->> My GDM/pam_selinux patches attempt to relabel the devices to the user's
->> context, the same way the terminal is relabeled when you log in at the
->> console.
->>
->>
->>> type=USER_AVC msg=audit(1213049927.661:138): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { use } for request=XKEYBOARD:SelectEvents comm=gnome-session
->>> xdevice="Virtual core keyboard" scontext=user_u:user_r:user_t:s0
->>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->>> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->>> terminal=?)'
->>> type=USER_AVC msg=audit(1213049927.661:139): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { use } for request=XKEYBOARD:SelectEvents comm=gnome-session
->>> xdevice="Virtual core keyboard" scontext=user_u:user_r:user_t:s0
->>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->>> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->>> terminal=?)'
->>> type=USER_AVC msg=audit(1213049927.661:140): user pid=2636 uid=0
->>> auid=4294967295 ses=4294967295
->>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>  { getattr setattr } for request=XKEYBOARD:PerClientFlags
->>> comm=gnome-session xdevice="Virtual core keyboard"
->>> scontext=user_u:user_r:user_t:s0
->>> tcontext=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023
->>> tclass=x_device : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
->>> terminal=?)'
->>>
->>
->> More device errors.
->>
->>> type=ANOM_ABEND msg=audit(1213049927.662:141): auid=500 uid=500
->>> gid=500 ses=4 subj=user_u:user_r:user_t:s0 pid=3280
->>> comm="gnome-session" sig=5
->>>
->>
->> Standard error handling behavior for the desktop.
->>
->>
->>
->>> type=CRED_DISP msg=audit(1213049927.674:142): user pid=2720 uid=0
->>> auid=500 ses=4 subj=system_u:system_r:xdm_t:s0-s15:c0.c1023
->>> msg='op=PAM:setcred acct="tedx" exe="/usr/libexec/gdm-session-worker"
->>> (hostname=?, addr=?, terminal=:0 res=success)'
->>> type=USER_END msg=audit(1213049927.697:143): user pid=2720 uid=0
->>> auid=500 ses=4 subj=system_u:system_r:xdm_t:s0-s15:c0.c1023
->>> msg='op=PAM:session_close acct="tedx"
->>> exe="/usr/libexec/gdm-session-worker" (hostname=?, addr=?, terminal=:0
->>> res=success)'
->>>
->>> --
->>> This message was distributed to subscribers of the selinux mailing list.
->>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->>> with
->>> the words "unsubscribe selinux" without quotes as the message.
->>>
->>>
->>
->>
->
->
+SetSelectionUseContext is for setting the context of the selection 
+object itself.  It was intended to be used by a selection manager that 
+supports polyinstantiation.  It sets the context of the selection object 
+that the client wants to "use".  So for example if there are three 
+PRIMARY selections labeled foo_t, bar_t, and baz_t the selection manager 
+can choose the one to operate on using SetSelectionUseContext.
+
+In the non-polyinstantiated case, SetSelectionUseContext can be used to 
+override the value from x_contexts and set the label on the one object 
+that will be seen by everyone (which is what we want to do with 
+dbus_launch).  This only works if the selection doesn't already exist 
+because there's currently no way to change the label on an existing object.
+
+So in summary:
+
+Clipboard data - x_application_data object class
+SetSelectionCreateContext / GetSelectionDataContext
+checked by selection manager
+
+Clipboard object - x_selection object class
+SetSelectionUseContext / GetSelectionContext
+checked by X server
+
+
+One more note: the clipboard data context currently defaults to the 
+selection's context (e.g. clipboard_xselection_t), but I think it might 
+be more logical to default it to the client program's context (user_t).  
+This would require a change to the X server.
+
+[1] http://marc.info/?l=selinux&m=120701081703490&w=2
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
