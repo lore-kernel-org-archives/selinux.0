@@ -1,75 +1,52 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BFs7Ou024276
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 11:54:07 -0400
-Received: from smtp109.prem.mail.sp1.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m5BFs7v8023552
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 15:54:07 GMT
-Message-ID: <484FF517.4030400@schaufler-ca.com>
-Date: Wed, 11 Jun 2008 08:53:59 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
+Date: Thu, 12 Jun 2008 02:00:59 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
+Subject: [PATCH] SELinux: remove unused and shadowed addrlen variable
+Message-ID: <Xine.LNX.4.64.0806120158580.5379@us.intercode.com.au>
 MIME-Version: 1.0
-To: Dave Quigley <dpquigl@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
-        bwhalen@tresys.com
-Subject: Re: [RFC] Context ordering based on MLS dominance.
-References: <1213194852.16897.60.camel@moss-terrapins.epoch.ncsc.mil>
-In-Reply-To: <1213194852.16897.60.camel@moss-terrapins.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Dave Quigley wrote:
-> This patch set was original made to help in providing unioned polyinstantiated
-> directories for MLS. The method used Unionfs to order the branches from the
-> highest to lowest levels so when a process at a certain level listed the
-> directory contents it would see all of the polyinstantiated directories as one
-> with duplicates exposing the document at the highest level found.
->
->   
+Please review.
 
-How do you address TS/A and TS/B objects with the same name in
-the presence of a TS/A,B subject? In B&L neither is "higher"
-than the other, they are incomparable, and the subject should
-be able to read both. I suppose you could chose and document
-secondary criteria, but I shouldn't think that very satisfactory.
+----
+Remove unused and shadowed addrlen variable.  Picked up by sparse.
 
+Signed-off-by: James Morris <jmorris@namei.org>
+---
+ security/selinux/hooks.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
 
-> Others have expressed a need for this functionality so the patches have been
-> revived. The question is should this be done as a kernel interface or should
-> it be done on the on disk policy file using libsepol?
->
-> The kernel patch is based off of Linus' current git tree as of 6/10 while the
-> libselinux patch is based off of the current svn tree from sourceforge as of
-> the same date. The patches went through testing initially when I was working
-> on polyinstantiated directories but I haven't tested the new version so give
-> them a try and see if they meet your needs.
->
->   
-
-Whichever way you would do it, I don't think you've
-got a general solution to the problem.
-
-> Dave
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
->
->   
-
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f530008..6e8d0e9 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3669,7 +3669,7 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 		struct sockaddr_in6 *addr6 = NULL;
+ 		unsigned short snum;
+ 		struct sock *sk = sock->sk;
+-		u32 sid, node_perm, addrlen;
++		u32 sid, node_perm;
+ 
+ 		tsec = current->security;
+ 		isec = SOCK_INODE(sock)->i_security;
+@@ -3677,12 +3677,10 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 		if (family == PF_INET) {
+ 			addr4 = (struct sockaddr_in *)address;
+ 			snum = ntohs(addr4->sin_port);
+-			addrlen = sizeof(addr4->sin_addr.s_addr);
+ 			addrp = (char *)&addr4->sin_addr.s_addr;
+ 		} else {
+ 			addr6 = (struct sockaddr_in6 *)address;
+ 			snum = ntohs(addr6->sin6_port);
+-			addrlen = sizeof(addr6->sin6_addr.s6_addr);
+ 			addrp = (char *)&addr6->sin6_addr.s6_addr;
+ 		}
+ 
 -- 
-
-----------------------
-
-Casey Schaufler
-casey@schaufler-ca.com
-650.906.1780
-
+1.5.5.1
 
 
 --
