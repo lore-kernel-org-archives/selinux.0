@@ -1,27 +1,67 @@
-Received: from [144.51.25.121] (moss-spartans [144.51.25.121])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BIpcSt003904
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 14:51:38 -0400
-Subject: ANN:  Updated SELinux core userland release
+Subject: Re: libselinux patch to add interfaces in avc.h to python bindings
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <485000A8.4090705@redhat.com>
+References: <485000A8.4090705@redhat.com>
 Content-Type: text/plain
-Date: Wed, 11 Jun 2008 14:51:38 -0400
-Message-Id: <1213210298.17842.109.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 11 Jun 2008 15:05:25 -0400
+Message-Id: <1213211125.17842.112.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-An updated release of the SELinux core userland is available from the
-NSA web site, see:
-http://www.nsa.gov/selinux/news.cfm#R080611
 
-Updated versions of the stable and development (trunk) series can be
-downloaded from:
-http://www.nsa.gov/selinux/code/
+On Wed, 2008-06-11 at 12:43 -0400, Daniel J Walsh wrote:
+> plain text document attachment (libselinux-rhat.patch)
+> diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig.i libselinux-2.0.64/src/selinuxswig.i
+> --- nsalibselinux/src/selinuxswig.i	2008-05-06 14:33:15.000000000 -0400
+> +++ libselinux-2.0.64/src/selinuxswig.i	2008-05-07 13:08:06.000000000 -0400
+> @@ -5,6 +5,7 @@
+>  %module selinux
+>  %{
+>  	#include "selinux/selinux.h"
+> +	#include "../include/selinux/avc.h"
+>  	#include "../include/selinux/selinux.h"
+>  	#include "../include/selinux/get_default_type.h"
+>  	#include "../include/selinux/get_context_list.h"
+> @@ -47,6 +48,10 @@
+>  %ignore set_matchpathcon_invalidcon;
+>  %ignore set_matchpathcon_canoncon;
+>  
+> +%ignore avc_add_callback;
+> +
+>  %include "../include/selinux/selinux.h"
+> +%include "../include/selinux/avc.h"
+>  %include "../include/selinux/get_default_type.h"
+>  %include "../include/selinux/get_context_list.h"
+> +
+> diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_python.i libselinux-2.0.64/src/selinuxswig_python.i
+> --- nsalibselinux/src/selinuxswig_python.i	2007-10-01 09:54:35.000000000 -0400
+> +++ libselinux-2.0.64/src/selinuxswig_python.i	2008-05-07 13:08:06.000000000 -0400
+> @@ -16,6 +16,20 @@
+>  	$result = SWIG_Python_AppendOutput($result, list);
+>  }
+>  
+> +/* return a sid along with the result */
+> +%typemap(argout) (security_id_t * sid) {
+> +	if (*$1) {
+> +                %append_output(SWIG_NewPointerObj(*$1, $descriptor(security_id_t), 0));
+> +	} else {
+> +		Py_INCREF(Py_None);
+> +		%append_output(Py_None);
+> +	}
+> +}
+> +
+> +%typemap(in,numinputs=0) security_id_t *(security_id_t temp) {
+> +  $1 = &temp;
+> +}
+> +
+>  /* Makes security_compute_user() return a Python list of contexts */
+>  %typemap(argout) (security_context_t **con) {
+>  	PyObject* plist;
 
-For those who use the sourceforge svn tree, the stable branch and trunk
-have been tagged as 20080611 under tags/stable and tags/devel
-respectively for this release.
+Thanks, merged.
 
 -- 
 Stephen Smalley
