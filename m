@@ -1,99 +1,166 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5BGixWe007701
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 12:44:59 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5BGiwQD019452
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 16:44:58 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m5BGiwRk020743
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 12:44:58 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m5BGiu7O021056
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 12:44:56 -0400
-Received: from localhost.localdomain (vpn-14-189.rdu.redhat.com [10.11.14.189])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m5BGitan019446
-	for <selinux@tycho.nsa.gov>; Wed, 11 Jun 2008 12:44:55 -0400
-Message-ID: <485000A8.4090705@redhat.com>
-Date: Wed, 11 Jun 2008 12:43:20 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: libselinux patch to add interfaces in avc.h to python bindings
-Content-Type: multipart/mixed;
- boundary="------------020302080702020801070909"
+Subject: [RFC] SELinux: allow fstype unknown to policy to use xattrs if
+	present
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Content-Type: text/plain
+Date: Wed, 11 Jun 2008 13:01:26 -0400
+Message-Id: <1213203686.4597.59.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020302080702020801070909
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Currently if a fs is mounted for which selinux policy does not define an
+fs_use_* or a genfscon statement that FS will not support labeling of
+any kind.  This patch allows the kernel to check if the filesystem
+supports security xattrs and if so will use those if there is no
+fs_use_* rule in policy.  An fstype with a genfs rule will use xattrs if
+available and will follow the genfs rule if they are not.
 
+This can be particularly interesting for things like ecryptfs which
+actually overlays a real underlying FS.  If we define excryptfs in
+policy to use xattrs we will likely get this wrong at times, so with
+this path we just don't need to define it!
 
---------------020302080702020801070909
-Content-Type: text/plain;
- name="libselinux-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux-rhat.patch"
+Overlay ecryptfs on top of NFS with no xattr support:
+SELinux: initialized (dev ecryptfs, type ecryptfs), uses genfs_contexts
+Overlay ecryptfs on top of ext4 with xattr support:
+SELinux: initialized (dev ecryptfs, type ecryptfs), uses xattr
 
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig.i libselinux-2.0.64/src/selinuxswig.i
---- nsalibselinux/src/selinuxswig.i	2008-05-06 14:33:15.000000000 -0400
-+++ libselinux-2.0.64/src/selinuxswig.i	2008-05-07 13:08:06.000000000 -0400
-@@ -5,6 +5,7 @@
- %module selinux
- %{
- 	#include "selinux/selinux.h"
-+	#include "../include/selinux/avc.h"
- 	#include "../include/selinux/selinux.h"
- 	#include "../include/selinux/get_default_type.h"
- 	#include "../include/selinux/get_context_list.h"
-@@ -47,6 +48,10 @@
- %ignore set_matchpathcon_invalidcon;
- %ignore set_matchpathcon_canoncon;
+Its also useful as the kernel adds new FS's we don't need to add them in
+policy if they support xattrs and that's how we want to handle them.
+
+The real question: is this how we want to solve this?  We need some way
+for ecryptfs to be usable on top of NFS and on top of persistant labeled
+FS.  What I'm worried about is how to handle ecryptfs on top of
+non-persistant FS's like tmpfs which has xattrs...
+
+-Eric
+
+---
+
+ security/selinux/hooks.c            |   22 +++++++++++++++++-----
+ security/selinux/include/security.h |    2 +-
+ security/selinux/ss/services.c      |   26 ++++++++++++++++++--------
+ 3 files changed, 36 insertions(+), 14 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 1c864c0..1844966 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -554,13 +554,15 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	struct task_security_struct *tsec = current->security;
+ 	struct superblock_security_struct *sbsec = sb->s_security;
+ 	const char *name = sb->s_type->name;
+-	struct inode *inode = sbsec->sb->s_root->d_inode;
+-	struct inode_security_struct *root_isec = inode->i_security;
++	struct dentry *root = sb->s_root;
++	struct inode *root_inode = root->d_inode;
++	struct inode_security_struct *root_isec = root_inode->i_security;
+ 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
+ 	u32 defcontext_sid = 0;
+ 	char **mount_options = opts->mnt_opts;
+ 	int *flags = opts->mnt_opts_flags;
+ 	int num_opts = opts->num_mnt_opts;
++	char can_xattr = 0;
  
-+%ignore avc_add_callback;
-+
- %include "../include/selinux/selinux.h"
-+%include "../include/selinux/avc.h"
- %include "../include/selinux/get_default_type.h"
- %include "../include/selinux/get_context_list.h"
-+
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_python.i libselinux-2.0.64/src/selinuxswig_python.i
---- nsalibselinux/src/selinuxswig_python.i	2007-10-01 09:54:35.000000000 -0400
-+++ libselinux-2.0.64/src/selinuxswig_python.i	2008-05-07 13:08:06.000000000 -0400
-@@ -16,6 +16,20 @@
- 	$result = SWIG_Python_AppendOutput($result, list);
- }
+ 	mutex_lock(&sbsec->lock);
  
-+/* return a sid along with the result */
-+%typemap(argout) (security_id_t * sid) {
-+	if (*$1) {
-+                %append_output(SWIG_NewPointerObj(*$1, $descriptor(security_id_t), 0));
-+	} else {
-+		Py_INCREF(Py_None);
-+		%append_output(Py_None);
+@@ -664,14 +666,24 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 		goto out;
+ 	}
+ 
+-	if (strcmp(sb->s_type->name, "proc") == 0)
++	if (strcmp(name, "proc") == 0)
+ 		sbsec->proc = 1;
+ 
++	/*
++	 * test if the fs supports xattrs, fs_use might make use of this if the
++	 * fs has no definition in policy.
++	 */
++	if (root_inode->i_op->getxattr) {
++		rc = root_inode->i_op->getxattr(root, XATTR_NAME_SELINUX, NULL, 0);
++		if (rc >= 0 || rc == -ENODATA)
++			can_xattr = 1;
 +	}
-+}
 +
-+%typemap(in,numinputs=0) security_id_t *(security_id_t temp) {
-+  $1 = &temp;
-+}
+ 	/* Determine the labeling behavior to use for this filesystem type. */
+-	rc = security_fs_use(sb->s_type->name, &sbsec->behavior, &sbsec->sid);
++	rc = security_fs_use(name, &sbsec->behavior, &sbsec->sid, can_xattr);
+ 	if (rc) {
+ 		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
+-		       __func__, sb->s_type->name, rc);
++		       __func__, name, rc);
+ 		goto out;
+ 	}
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index ad30ac4..eb6da47 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -131,7 +131,7 @@ int security_get_allow_unknown(void);
+ #define SECURITY_FS_USE_MNTPOINT	6 /* use mountpoint labeling */
+ 
+ int security_fs_use(const char *fstype, unsigned int *behavior,
+-	u32 *sid);
++	u32 *sid, char can_xattr);
+ 
+ int security_genfs_sid(const char *fstype, char *name, u16 sclass,
+ 	u32 *sid);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index dcc2e1c..3c4afe9 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1825,7 +1825,8 @@ out:
+ int security_fs_use(
+ 	const char *fstype,
+ 	unsigned int *behavior,
+-	u32 *sid)
++	u32 *sid,
++	char can_xattr)
+ {
+ 	int rc = 0;
+ 	struct ocontext *c;
+@@ -1839,6 +1840,7 @@ int security_fs_use(
+ 		c = c->next;
+ 	}
+ 
++	/* look for labeling behavior defined in policy */
+ 	if (c) {
+ 		*behavior = c->v.behavior;
+ 		if (!c->sid[0]) {
+@@ -1849,14 +1851,22 @@ int security_fs_use(
+ 				goto out;
+ 		}
+ 		*sid = c->sid[0];
++		goto out;
++	}
 +
- /* Makes security_compute_user() return a Python list of contexts */
- %typemap(argout) (security_context_t **con) {
- 	PyObject* plist;
++	/* labeling behavior not in policy, use xattrs if possible */
++	if (can_xattr) {
++		*behavior = SECURITY_FS_USE_XATTR;
++		goto out;
++	}
++
++	/* no behavior in policy and can't use xattrs, try GENFS */
++	rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
++	if (rc) {
++		*behavior = SECURITY_FS_USE_NONE;
++		rc = 0;
+ 	} else {
+-		rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
+-		if (rc) {
+-			*behavior = SECURITY_FS_USE_NONE;
+-			rc = 0;
+-		} else {
+-			*behavior = SECURITY_FS_USE_GENFS;
+-		}
++		*behavior = SECURITY_FS_USE_GENFS;
+ 	}
+ 
+ out:
 
---------------020302080702020801070909
-Content-Type: application/pgp-signature;
- name="libselinux-rhat.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="libselinux-rhat.patch.sig"
 
-iEYEABECAAYFAkhQAKgACgkQrlYvE4MpobNLFgCgmPjwiz2raUOYZXDfQXSS4/bfrhMAn1ZT
-lNOO/fReAVLYi7rZi16b16X2
---------------020302080702020801070909--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
