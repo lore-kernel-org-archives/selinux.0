@@ -1,148 +1,25 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5CIOopm024616
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jun 2008 14:24:50 -0400
-Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5CIOngJ026532
-	for <selinux@tycho.nsa.gov>; Thu, 12 Jun 2008 18:24:49 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so2534465fgg.40
-        for <selinux@tycho.nsa.gov>; Thu, 12 Jun 2008 11:24:48 -0700 (PDT)
-Message-ID: <cadfc0e40806121124s4f9057d5yb167e3b1a35823c3@mail.gmail.com>
-Date: Thu, 12 Jun 2008 13:24:48 -0500
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5CIcvDG027190
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jun 2008 14:38:57 -0400
+Received: from gv-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5CIcu3s004538
+	for <selinux@tycho.nsa.gov>; Thu, 12 Jun 2008 18:38:56 GMT
+Received: by gv-out-0910.google.com with SMTP id i36so1199840gve.17
+        for <selinux@tycho.nsa.gov>; Thu, 12 Jun 2008 11:38:55 -0700 (PDT)
+Message-ID: <cadfc0e40806121138x3bb0996asda149528809d4598@mail.gmail.com>
+Date: Thu, 12 Jun 2008 13:38:55 -0500
 From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: X in MLS enforcing problem
-Cc: "Chad Hanson" <chanson@TrustedCS.com>,
-        "SELinux Mail List" <selinux@tycho.nsa.gov>,
-        "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <48504AD4.2020109@tycho.nsa.gov>
+To: "SELinux Mail List" <selinux@tycho.nsa.gov>
+Subject: dynamic security class and access vector lookup
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-References: <cadfc0e40806091430j7d4734c6l7af3cfbce395eeae@mail.gmail.com>
-	 <D709A20F2164C84E8B7014B0301F5EF8012E7F32@HAVOC.tcs-sec.com>
-	 <cadfc0e40806091535k1929bbc8gd4eebefb4b6069ff@mail.gmail.com>
-	 <484DC4D2.7050201@tycho.nsa.gov> <484FD7A5.5070806@gmail.com>
-	 <cadfc0e40806111442j5c7ec784k7c65c4df67214571@mail.gmail.com>
-	 <48504AD4.2020109@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jun 11, 2008 at 4:59 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> Xavier Toth wrote:
->>
->> On Wed, Jun 11, 2008 at 8:48 AM, Ted X Toth <txtoth@gmail.com> wrote:
->>
->>>
->>> Eamon Walsh wrote:
->>>
->>>>
->>>> Xavier Toth wrote:
->>>>
->>>> [snip]
->>>>
->>>>
->>>>>
->>>>> Now I looking at the USER_AVCs and trying to figure out how to
->>>>> translate those into policy. Will audit2allow be updated to help with
->>>>> generating rules for the X USER_AVCs?
->>>>>
->>>>>
->>>>
->>>> The stock audit2allow parses my audit.log just fine.  It doesn't work
->>>> for
->>>> you?
->>>>
->>>>
->>>>
->>>>>
->>>>> For those who haven't seen the X user space object manager AVCs here
->>>>> are some examples:
->>>>> type=USER_AVC msg=audit(1213049927.142:132): user pid=2636 uid=0
->>>>> auid=4294967295 ses=4294967295
->>>>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>>>  { blend } for request=X11:CreateWindow comm=dbus-launch resid=800001
->>>>> restype=WINDOW scontext=user_u:user_r:user_t:s0
->>>>> tcontext=user_u:object_r:user_t:s0 tclass=x_drawable :
->>>>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>>>>
->>>>>
->>>>
->>>> This is a program attempting to create a window with no background.  The
->>>> denial will cause the window background to be filled in with a solid
->>>> color.
->>>>
->>>> Dontaudit should work here.
->>>>
->>>> However, window managers do need the blend permission (on all windows).
->>>>  The "compositing" feature requires this permission.
->>>>
->>>>
->>>>
->>>>>
->>>>> type=USER_AVC msg=audit(1213049927.144:133): user pid=2636 uid=0
->>>>> auid=4294967295 ses=4294967295
->>>>> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->>>>>  { setattr } for request=X11:SetSelectionOwner comm=dbus-launch
->>>>>
->>>>>
->>>>> selection=_DBUS_SESSION_BUS_SELECTION_tedx_caa2282936b539cb3e36c2ae4845ed0b
->>>>> scontext=user_u:user_r:user_t:s0
->>>>> tcontext=system_u:object_r:xselection_t:s0 tclass=x_selection :
->>>>> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->>>>>
->>>>>
->>>>
->>>> This is a known issue.  I have not found an explanation yet for the
->>>> purpose of these D-BUS selections.
->>>>
->>>> There is no easy solution here.  The selabel system cannot handle these
->>>> funky names.  Even if there was regexp support, as Chris has indicated
->>>> the
->>>> name contains a username, implying that it should be labeled with a
->>>> derived
->>>> type.
->>>>
->>>> I think the "dbus-launch" program needs to undergo surgery to either not
->>>> create these things or to label them explicitly.
->>>>
->>>
->>> If I were to do this I'd use either SetSelectionCreateContext or
->>> SetSelectionUseContext, could you explain the difference between them and
->>> which I should use?
->>>
->>
->> I also will need to compute a new context from the process and default
->> selection contexts but I'd need an object class definition
->> (SECCLASS_XSELECTION?) which I don't think exists yet does it?
->>
->
->
-> Use class x_selection.  To find it's value dynamically, you can use the
-> following code.
->
-> #define THE_CLASS 1
->
->   security_class_mapping map[] = { { "x_drawable", { NULL } }, { NULL } };
->
->   if (selinux_set_mapping(map) < 0)
->        /* probably don't have class - skip SELinux stuff */
->
->
-> Then use THE_CLASS (or just "1") as the class value in your code.
->
-> Lots of questions about these interfaces lately - I need to write man pages
-> for them.
-
-Agreed.
-
->
->
->
-> --
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
->
+I wasn't aware until yesterday that there was an API for looking up
+security classes (selinux_set_mapping, the name of which doesn't
+strike me as very intuitive). Can I also lookup the access vectors for
+a class, if so how?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
