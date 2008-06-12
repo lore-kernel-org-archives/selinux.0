@@ -1,92 +1,47 @@
-Message-ID: <48516379.80609@windriver.com>
-Date: Thu, 12 Jun 2008 13:57:13 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>,
-        Caleb Case <ccase@tresys.com>
-Subject: Re: libsemanage.semanage_install_active: error during semodule -n
- -v -b base.pp -s refpolicy
-References: <4851361E.3030305@windriver.com>	 <1213288802.17842.195.camel@moss-spartans.epoch.ncsc.mil>	 <48515E78.40400@windriver.com> <1213293329.17842.246.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1213293329.17842.246.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [PATCH] SELinux: allow fstype unknown to policy to use xattrs
+	if present
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <1213293433.11146.14.camel@gorn>
+References: <1213291584.3029.1.camel@localhost.localdomain>
+	 <1213293433.11146.14.camel@gorn>
+Content-Type: text/plain; charset=utf-8
+Date: Thu, 12 Jun 2008 14:06:16 -0400
+Message-Id: <1213293976.17842.249.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2008-06-12 at 13:35 -0400, Vikram Ambrose wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> On Thu, 2008-06-12 at 10:43 -0400, Vikram Ambrose wrote:
->>>   
->>>       
->>>> During the "make load" procedure with refpolicy, the semodule command 
->>>> fails, so I tried it manually and I see this error.
->>>>
->>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b 
->>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v -n
->>>> Attempting to install base module '/usr/share/selinux/refpolicy/base.pp':
->>>> Ok: return value of 0.
->>>> Committing changes:
->>>> libsemanage.semanage_install_active: setfiles returned error code 1. (No 
->>>> such file or directory).
->>>>     
->>>>         
->>> whereis setfiles
->>>
->>>   
->>>       
->> setfiles and the rest of the SELinux "toolchain" was all built from svn 
->> and placed into /hone/testing/root
->> root's environment has PATH that contains /home/testing/root/bin
->> as well as LD_LIBRARY_PATH to /home/testing/root/lib
->>
->> Does libsemanage have a hard coded path to setfiles?
->>     
->
-> Yes, although it can be overridden via /etc/selinux/semanage.conf.
-> Add something like:
-> [setfiles]
-> path = /path/to/setfiles
-> [end]
->
->   
-I just noticed the hard coded path in conf-parser.y
-Is there a way of doing the above with a generic rule to all of the 
-selinux toolchain and not specifically to "setfiles" as shown above?
-...
-Adding that to semanage.conf produce an almost obvious error " error 
-while loading shared libraries: libsepol.so.0: cannot open shared object 
-file: No such file or directory"
 
-what sort of environment is libsemanage using to execute setfiles? 
-libsepol and friends are in LD_LIBRARY_PATH
+On Thu, 2008-06-12 at 13:57 -0400, Christopher J. PeBenito wrote:
+> On Thu, 2008-06-12 at 13:26 -0400, Eric Paris wrote:
+> > Currently if a fs is mounted for which selinux policy does not define an
+> > fs_use_* or a genfscon statement that FS will not support labeling of
+> > any kind.  This patch allows the kernel to check if the filesystem
+> > supports security xattrs and if so will use those if there is no
+> > fs_use_* rule in policy.  An fstype with a genfs rule will use xattrs if
+> > available and will follow the genfs rule if they are not.
+> 
+> Let met verify what I think I read in the patch.  The filesystem
+> labeling behavior (filesystem class) is unchanged, right? i.e.
+> 
+> 1. no fs_use + genfs + security xattr on fs = genfs type for fs
+> 2. no fs_use + no genfs + ﻿security xattr on fs = unlabeled isid for fs
 
-> Or you could run semodule in a chroot environment if you've set one up.
->
->   
->>> What versions are you using?  Is this with the packages included in
->>> Hardy Heron?
->>>
->>>   
->>>       
->> svn from yesterday.
->>     
->
-> I see.  Are you aware that Ubuntu 8.04 has SELinux support (apt-get
-> install selinux)?  Although you may still want to build a custom policy,
-> as their initial default policy was minimal.
->
->   
-Yes I am, this was a usability exercise of the SELinux toolchain and 
-refpolicy, therefore distribution packages were not employed.
+No.  If there is a fs_use statement for the fs type, then that gets used
+regardless.  If there is no fs_use type and the fs supports selinux
+xattrs, then use them.  If there is no fs_use type and the fs does not
+support selinux xattrs, use genfs or fall back to none/unlabeled if
+none.
 
-Thank you for your help Stephen.
-
+Thus, with ecryptfs, we can put a genfs statement in the policy as the
+fallback behavior, yet use xattrs when the lower filesystem supports
+them.
 
 -- 
-Vikram Ambrose | Linux Products Division | WindRiver Corporation
+Stephen Smalley
+National Security Agency
 
 
 --
