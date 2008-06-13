@@ -1,63 +1,74 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5DCq1Nr019729
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 08:52:01 -0400
-Received: from goalkeeper.city-fan.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5DCpxhG026819
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 12:52:00 GMT
-Received: from roary.intranet.virtensys.com (host90-152-25-158.ipv4.regusnet.com [90.152.25.158])
-	(authenticated bits=0)
-	by goalkeeper.city-fan.org (8.14.3/8.14.3) with ESMTP id m5DCpwV8002735
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 13:51:59 +0100
-Message-ID: <48526D68.1040807@city-fan.org>
-Date: Fri, 13 Jun 2008 13:51:52 +0100
-From: Paul Howarth <paul@city-fan.org>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [refpolicy] Milter Mail Filters
-References: <484D4B53.5020006@city-fan.org>
-In-Reply-To: <484D4B53.5020006@city-fan.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re:
+	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <48524E79.6000508@ak.jp.nec.com>
+References: <483A9137.5050509@ak.jp.nec.com>
+	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>
+	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
+	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
+	 <483C6BEA.8040101@tycho.nsa.gov>
+	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
+	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
+	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
+	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
+	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
+	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
+	 <4846142F.8090100@ak.jp.nec.com>
+	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
+	 <48473ECC.6020501@ak.jp.nec.com>
+	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>
+		 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>
+	  <48524E79.6000508@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Fri, 13 Jun 2008 09:37:35 -0400
+Message-Id: <1213364255.11146.18.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Howarth wrote:
-> attached is a patch based on local policy I'm using on Fedora 9 to 
-> support two "milter" mail filter daemons in conjunction with sendmail, 
-> namely spamass-milter and milter-regex (I maintain the packages for both 
-> of these in Fedora).
+On Fri, 2008-06-13 at 19:39 +0900, KaiGai Kohei wrote:
+> Christopher J. PeBenito wrote:
+> > I merged this, but I was thinking about some revisions that we should
+> > consider:
+> >
+> > 1. in the unpriv client interface, we have these type transitions:
+> > type_transition $1 sepgsql_database_type:db_table sepgsql_table_t;
+> > type_transition $1 sepgsql_database_type:db_procedure sepgsql_proc_t;
+> > type_transition $1 sepgsql_database_type:db_blob sepgsql_blob_t;
+> > 
+> > The client can only access the system database, not all databases, so it
+> > seems that sepgsql_database_type should be replaced with sepgsql_db_t.
 > 
-> I've taken the view that most milter applications will have similar 
-> requirements and so I've created a milter_template interface that 
-> contains most of what's needed, and then added the specifics that are 
-> needed on top of the generic stuff for each application.
+> I agreed.
 > 
-> However, as I'm by no means an selinux expert, there are a number of 
-> things I'm unsure about:
-> 
-> 1. In a situation where sendmail is the running MTA on a system, what is 
-> the difference between sendmail_t and system_mail_t?
-> 
-> 2. MTAs other than sendmail (postfix comes to mind) can also use 
-> milters, but as I don't have any boxes running postfix, I don't know 
-> what I'd need to add to postfix policy to support milters.
-> 
-> 3. Fedora 9 has an interface spamassassin_domtrans_spamc that I used in 
-> my local policy. It doesn't appear to be present in refpolicy; what 
-> would be the right thing to use for a daemon calling spamc?
-> 
-> 4. I cribbed the milter_port_t stuff from the only example I could find, 
-> and it's probably wrong. What would be the correct way of defining this?
-> 
-> 5. Does the use of a template for these applications a sane way to do it?
+> Currently, sepgsql_db_t is the only type of sepgsql_database_type
+> except for unlabeled_t, however, these type_transition can prevent
+> user to add new database type and new type_transition rules.
 
-Should I have raised this somewhere else, or in a different way? I've 
-had no responses either here or on fedora-selinux-list. The 
-spamass-milter is currently broken with SELinux enforcing on Fedora 9 
-and I'd like to be able to make at least a little progress towards 
-fixing that.
+I merged this part of the patch.
 
-Paul.
+> > 2. the stored procedure type names have been in the back of my mind for
+> > long time but I couldn't come up with a good naming scheme.  This
+> > especially bugged me for the sepgsql_trusted_domain_t and
+> > sepgsql_trusted_proc_t.  Why not just go with what we do with regular
+> > domains and executables: sepgsql_trusted_proc_t and
+> > sepgsql_trusted_proc_exec_t?
+> 
+> I don't have a clear reason for the naming of them.
+> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
+> for the purpose, I also think.
+
+It seems that we should also rename $1_sepgsql_proc_t for consistency.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
