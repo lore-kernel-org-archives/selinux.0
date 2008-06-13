@@ -1,128 +1,168 @@
-Message-ID: <48524E79.6000508@ak.jp.nec.com>
-Date: Fri, 13 Jun 2008 19:39:53 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Chris PeBenito <pebenito@gentoo.org>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-References: <483A9137.5050509@ak.jp.nec.com>	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>	 <4846142F.8090100@ak.jp.nec.com>	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>	 <48473ECC.6020501@ak.jp.nec.com>	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>	 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>
-In-Reply-To: <1213121355.27496.23.camel@gorn>
-Content-Type: multipart/mixed;
- boundary="------------010507090806080909040609"
+Subject: Re: [PATCH] libselinux: new and updated man pages for AVC,
+	mapping, label
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Xavier Toth <txtoth@gmail.com>, SELinux Mail List <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <48518F23.6080406@tycho.nsa.gov>
+References: <cadfc0e40806121138x3bb0996asda149528809d4598@mail.gmail.com>
+	 <1213296527.17842.266.camel@moss-spartans.epoch.ncsc.mil>
+	 <cadfc0e40806121205w3381c32fy9aab1aee1cdf97ce@mail.gmail.com>
+	 <1213298430.17842.297.camel@moss-spartans.epoch.ncsc.mil>
+	 <1213300336.17842.309.camel@moss-spartans.epoch.ncsc.mil>
+	 <48518F23.6080406@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Fri, 13 Jun 2008 08:24:20 -0400
+Message-Id: <1213359860.17842.321.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010507090806080909040609
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
 
-Christopher J. PeBenito wrote:
-> I merged this, but I was thinking about some revisions that we should
-> consider:
->
-> 1. in the unpriv client interface, we have these type transitions:
-> type_transition $1 sepgsql_database_type:db_table sepgsql_table_t;
-> type_transition $1 sepgsql_database_type:db_procedure sepgsql_proc_t;
-> type_transition $1 sepgsql_database_type:db_blob sepgsql_blob_t;
+On Thu, 2008-06-12 at 17:03 -0400, Eamon Walsh wrote:
+> New and updated man pages for AVC, mapping, label.
 > 
-> The client can only access the system database, not all databases, so it
-> seems that sepgsql_database_type should be replaced with sepgsql_db_t.
+> Includes avc_open() call, deprecated avc_init(), selinux_set_mapping(), 
+> and new options to the selabel X backend.
 
-I agreed.
+Thanks for writing these.  A few minor comments below.
 
-Currently, sepgsql_db_t is the only type of sepgsql_database_type
-except for unlabeled_t, however, these type_transition can prevent
-user to add new database type and new type_transition rules.
+> Index: libselinux/man/man3/avc_open.3
+> ===================================================================
+> --- libselinux/man/man3/avc_open.3	(revision 0)
+> +++ libselinux/man/man3/avc_open.3	(revision 0)
+> @@ -0,0 +1,70 @@
+> +.\" Hey Emacs! This file is -*- nroff -*- source.
+> +.\"
+> +.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2008
+> +.TH "avc_open" "3" "12 Jun 2008" "" "SELinux API documentation"
+> +.SH "NAME"
+> +avc_open, avc_destroy, avc_reset, avc_cleanup \- userspace SELinux AVC setup and teardown.
+> +.SH "SYNOPSIS"
+> +.B #include <selinux/selinux.h>
+> +
+> +.B #include <selinux/avc.h>
+> +.sp
+> +.BI "int avc_open(struct selinux_opt *" options ", unsigned " nopt ");"
+> +.sp
+> +.BI "void avc_destroy(void);"
+> +.sp
+> +.BI "int avc_reset(void);"
+> +.sp
+> +.BI "void avc_cleanup(void);"
+> +.SH "DESCRIPTION"
+> +.B avc_open
+> +initializes the userspace AVC and must be called before any other AVC operation can be performed.
+> +
+> +.B avc_destroy
+> +destroys the userspace AVC, freeing all internal memory structures.  After this call has been made, 
+> +.B avc_init
 
-> 2. the stored procedure type names have been in the back of my mind for
-> long time but I couldn't come up with a good naming scheme.  This
-> especially bugged me for the sepgsql_trusted_domain_t and
-> sepgsql_trusted_proc_t.  Why not just go with what we do with regular
-> domains and executables: sepgsql_trusted_proc_t and
-> sepgsql_trusted_proc_exec_t?
+s/avc_init/avc_open/
 
-I don't have a clear reason for the naming of them.
-sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
-for the purpose, I also think.
+> Index: libselinux/man/man3/selinux_set_mapping.3
+> ===================================================================
+> --- libselinux/man/man3/selinux_set_mapping.3	(revision 0)
+> +++ libselinux/man/man3/selinux_set_mapping.3	(revision 0)
+> @@ -0,0 +1,86 @@
+> +.\" Hey Emacs! This file is -*- nroff -*- source.
+> +.\"
+> +.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2008
+> +.TH "selinux_set_mapping" "3" "12 Jun 2008" "" "SELinux API documentation"
+> +.SH "NAME"
+> +selinux_set_mapping \- establish dynamic object class and permission mapping.
+> +.SH "SYNOPSIS"
+> +.B #include <selinux/selinux.h>
+> +.sp
+> +.nf
+> +struct security_class_mapping {
+> +	const char *name;
+> +	const char *perms[];
+> +};
+> +.fi
+> +.sp
+> +.BI "int selinux_set_mapping(struct security_class_mapping *" map ");"
+> +
+> +.SH "DESCRIPTION"
+> +.B selinux_set_mapping
+> +establishes a mapping from a user-provided ordering of object classes and permissions to the numbers actually used by the loaded system policy.  Use of this function is highly preferred over the generated constants in the libselinux header files, as this method allows the policy's class and permission values to change over time.
+> +
+> +After the mapping is established, all libselinux functions that operate on class and permission values take the user-provided numbers, which are determined as follows:
+> +
+> +The
+> +.I map
+> +argument consists of an array of 
+> +.B security_class_mapping
+> +structures, which must be terminated by a structure having a NULL name field.  Except for this last structure, the
+> +.I name 
+> +field should refer to the string name of an object class, and the corresponding
+> +.I perms
+> +field should refer to an array of permission bit names terminated by a NULL string.
+> +
+> +The object classes named in the mapping and each set of permission bits are numbered in order starting from 1.  These numbers are the values that should be passed to subsequent libselinux calls.
+> +
+> +.SH "RETURN VALUE"
+> +Zero is returned on success.  On error, -1 is returned and
+> +.I errno
+> +is set appropriately.
+> +
+> +.SH "ERRORS"
+> +.TP
+> +.B EINVAL
+> +One of the class or permission names requested in the mapping is not present in the loaded policy.
+> +.TP
+> +.B ENOMEM
+> +An attempt to allocate memory failed.
+> +
+> +.SH "EXAMPLE"
+> +.RS
+> +.ta 4n 10n
+> +.nf
+> +struct security_class_mapping map[] = {
+> +	{ "file", { "create", "rename", "unlink", NULL } },
+> +	{ "socket", { "bind", NULL } },
+> +	{ "process", { "signal", NULL } },
+> +	{ NULL }
+> +};
+> +
+> +if (selinux_set_mapping(map) < 0)
+> +	exit(1);
+> +.fi
+> +.ta
+> +.RE
+> +
+> +In this example, after the call has succeeded, classes
+> +.BR file ,
+> +.BR socket ,
+> +and
+> +.B process
+> +will be identified by 1, 2 and 3, respectively.  Permissions
+> +.IR create ,
+> +.IR rename ,
+> +and
+> +.I unlink
+> +(for the 
+> +.B file
+> +class) will be identified by 1, 2, and 4, respectively.  Classes and permissions not listed in the mapping cannot be used.
 
-Thanks,
+To be clear, the permissions are identified by bits 1, 2, and 4, but
+their actual values as access vectors are 1 << (bit - 1).
+
+As a separate matter, we may want to discuss whether we are getting the
+flexibility we hoped from this dynamic mapping.  The other day I was
+adding a new kernel class for experimentation purposes and inserted it
+before the new X classes, thinking that this would be ok since they can
+be dynamically looked up and thus don't require fixed indices.  However,
+when booting the resulting kernel with a stock policy, I found that the
+kernel refused to load the policy because it saw a conflict between its
+kernel definition for that class value (the new kernel class) and the
+policy definition for that class value (the X class).  Which would mean
+that new kernels on legacy distros would break.
+
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Stephen Smalley
+National Security Agency
 
---------------010507090806080909040609
-Content-Type: text/x-patch;
- name="sepgsql-policy-fixes.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sepgsql-policy-fixes.patch"
-
-Index: refpolicy/policy/modules/services/postgresql.if
-===================================================================
---- refpolicy/policy/modules/services/postgresql.if	(revision 2714)
-+++ refpolicy/policy/modules/services/postgresql.if	(working copy)
-@@ -37,7 +37,7 @@
- 		attribute sepgsql_client_type, sepgsql_database_type;
- 		attribute sepgsql_sysobj_table_type;
- 
--		type sepgsql_trusted_proc_t, sepgsql_trusted_domain_t;
-+		type sepgsql_trusted_proc_exec_t, sepgsql_trusted_proc_t;
- 	')
- 
- 	########################################
-@@ -59,7 +59,7 @@
- 	type $1_sepgsql_table_t;
- 	postgresql_table_object($1_sepgsql_table_t)
- 
--	role $3 types sepgsql_trusted_domain_t;
-+	role $3 types sepgsql_trusted_proc_t;
- 
- 	##############################
- 	#
-@@ -87,8 +87,8 @@
- 	allow $2 $1_sepgsql_blob_t : db_blob { create drop getattr setattr read write };
- 	type_transition $2 sepgsql_database_type:db_blob $1_sepgsql_blob_t;
- 
--	allow $2 sepgsql_trusted_domain_t:process transition;
--	type_transition $2 sepgsql_trusted_proc_t:process sepgsql_trusted_domain_t;
-+	allow $2 sepgsql_trusted_proc_t:process transition;
-+	type_transition $2 sepgsql_trusted_proc_exec_t:process sepgsql_trusted_proc_t;
- ')
- 
- ########################################
-@@ -340,21 +340,20 @@
- 		class db_blob all_db_blob_perms;
- 
- 		attribute sepgsql_client_type;
--		attribute sepgsql_database_type;
- 
--		type sepgsql_table_t, sepgsql_proc_t, sepgsql_blob_t;
-+		type sepgsql_db_t, sepgsql_table_t, sepgsql_proc_t, sepgsql_blob_t;
- 
--		type sepgsql_trusted_proc_t, sepgsql_trusted_domain_t;
-+		type sepgsql_trusted_proc_t, sepgsql_trusted_proc_exec_t;
- 	')
- 
- 	typeattribute $1 sepgsql_client_type;
- 
--	type_transition $1 sepgsql_database_type:db_table sepgsql_table_t;
--	type_transition $1 sepgsql_database_type:db_procedure sepgsql_proc_t;
--	type_transition $1 sepgsql_database_type:db_blob sepgsql_blob_t;
-+	type_transition $1 sepgsql_db_t:db_table sepgsql_table_t;
-+	type_transition $1 sepgsql_db_t:db_procedure sepgsql_proc_t;
-+	type_transition $1 sepgsql_db_t:db_blob sepgsql_blob_t;
- 
--	type_transition $1 sepgsql_trusted_proc_t:process sepgsql_trusted_domain_t;
--	allow $1 sepgsql_trusted_domain_t:process transition;
-+	type_transition $1 sepgsql_trusted_proc_exec_t:process sepgsql_trusted_proc_t;
-+	allow $1 sepgsql_trusted_proc_t:process transition;
- ')
- 
- ########################################
-
---------------010507090806080909040609--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
