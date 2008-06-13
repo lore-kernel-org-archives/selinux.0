@@ -1,127 +1,91 @@
-Subject: Re: [patch] libsepol write.c has shadowed var
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4852B1F8.7000408@manicmethod.com>
-References: <48529591.90806@manicmethod.com>
-	 <1213374335.17842.356.camel@moss-spartans.epoch.ncsc.mil>
-	 <4852B1F8.7000408@manicmethod.com>
+Subject: checkpolicy misrepresents the line an error is on
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, method@manicmethod.com
 Content-Type: text/plain
-Date: Fri, 13 Jun 2008 13:57:20 -0400
-Message-Id: <1213379840.17842.358.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 13 Jun 2008 14:24:44 -0400
+Message-Id: <1213381484.3029.43.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Here's a neat new issue, (that's i'm not totally sure is an issue) I'll
+get to looking at it myself eventually (yes sds, I do realize this is
+open source :-P), so don't waste much time on it.
 
-On Fri, 2008-06-13 at 13:44 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Fri, 2008-06-13 at 11:43 -0400, Joshua Brindle wrote:
-> >> This patch addresses a shadowed var that prevents libsepol from being built with DEBUG=1
-> >>
-> >> Signed-off-by: Joshua Brindle <method@manicmethod.com>
-> >>
-> >> ---
-> >>
-> >> Index: libsepol/src/write.c
-> >> ===================================================================
-> >> --- libsepol/src/write.c	(revision 2908)
-> >> +++ libsepol/src/write.c	(working copy)
-> >> @@ -1625,10 +1625,10 @@
-> >>  	if (p->policyvers < POLICYDB_VERSION_PERMISSIVE &&
-> >>  	    p->policy_type == POLICY_KERN) {
-> >>  		ebitmap_node_t *tnode;
-> >> -		unsigned int i;
-> >> +		unsigned int j;
-> >>  
-> >> -		ebitmap_for_each_bit(&p->permissive_map, tnode, i) {
-> >> -			if (ebitmap_node_get_bit(tnode, i)) {
-> >> +		ebitmap_for_each_bit(&p->permissive_map, tnode, j) {
-> >> +			if (ebitmap_node_get_bit(tnode, j)) {
-> >>  				WARN(fp->handle, "Warning! Policy version %d cannot "
-> >>  				     "support permissive types, but some were defined",
-> >>  				     p->policyvers);
-> > 
-> > Any particular reason we can't just use the local var from the outer
-> > scope?
-> > 
-> 
-> 
-> good point, I didn't really look at how i was being used. This uses i from the outer scope and adds -Wshadow to library and checkpolicy makefiles.
-> 
-> ---
-> 
-> Index: libsemanage/src/Makefile
-> ===================================================================
-> --- libsemanage/src/Makefile	(revision 2908)
-> +++ libsemanage/src/Makefile	(working copy)
-> @@ -31,7 +31,7 @@
->  LIBSO=$(TARGET).$(LIBVERSION)
->  OBJS= $(patsubst %.c,%.o,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.o conf-parse.o
->  LOBJS= $(patsubst %.c,%.lo,$(filter-out $(SWIGCOUT),$(wildcard *.c))) conf-scan.lo conf-parse.lo
-> -CFLAGS ?= -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
-> +CFLAGS ?= -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
->  
->  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE 
->  
-> Index: libsepol/src/Makefile
-> ===================================================================
-> --- libsepol/src/Makefile	(revision 2908)
-> +++ libsepol/src/Makefile	(working copy)
-> @@ -10,7 +10,7 @@
->  LIBSO=$(TARGET).$(LIBVERSION)
->  OBJS= $(patsubst %.c,%.o,$(wildcard *.c))
->  LOBJS= $(patsubst %.c,%.lo,$(wildcard *.c))
-> -CFLAGS ?= -Werror -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-> +CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
->  override CFLAGS += -I. -I../include -D_GNU_SOURCE
->  
->  all: $(LIBA) $(LIBSO)
-> Index: libsepol/src/write.c
-> ===================================================================
-> --- libsepol/src/write.c	(revision 2908)
-> +++ libsepol/src/write.c	(working copy)
-> @@ -1625,7 +1625,6 @@
->  	if (p->policyvers < POLICYDB_VERSION_PERMISSIVE &&
->  	    p->policy_type == POLICY_KERN) {
->  		ebitmap_node_t *tnode;
-> -		unsigned int i;
->  
->  		ebitmap_for_each_bit(&p->permissive_map, tnode, i) {
->  			if (ebitmap_node_get_bit(tnode, i)) {
-> Index: checkpolicy/Makefile
-> ===================================================================
-> --- checkpolicy/Makefile	(revision 2908)
-> +++ checkpolicy/Makefile	(working copy)
-> @@ -10,7 +10,7 @@
->  
->  YACC = bison -y
->  
-> -CFLAGS ?= -g -Wall -Werror -O2 -pipe -fno-strict-aliasing
-> +CFLAGS ?= -g -Wall -Werror -Wshadow -O2 -pipe -fno-strict-aliasing
->  
->  override CFLAGS += -I. -I${INCLUDEDIR}
->  
-> Index: libselinux/src/Makefile
-> ===================================================================
-> --- libselinux/src/Makefile	(revision 2908)
-> +++ libselinux/src/Makefile	(working copy)
-> @@ -33,7 +33,7 @@
->  
->  OBJS= $(patsubst %.c,%.o,$(SRCS))
->  LOBJS= $(patsubst %.c,%.lo,$(SRCS))
-> -CFLAGS ?= -Werror -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
-> +CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
->  override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 $(EMFLAGS)
->  RANLIB=ranlib
+In the base policy below notice I've got user1_u allowed for role1_r but
+NOT for role2_r.  I then have a genfscon statement which uses
+user1_u:role2_r (illegal)  It bombs, but tells me the wrong line!
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+[paris@localhost dismod-test]$ checkmodule -M -o base.mod base.conf
+checkmodule:  loading policy configuration from base.conf
+base.conf:50:ERROR 'invalid security context' at token 'genfscon' on line 50:
+genfscon proc /2	user1_u:role1_r:type1_t:s0
+genfscon proc /1	user1_u:role2_r:type1_t:s0
+checkmodule:  error(s) encountered while parsing configuration
 
-Merge at will.
+It lays the blame on line 50 which actually has a valid context.
 
--- 
-Stephen Smalley
-National Security Agency
+anyway, feel free to tell me the compiler doesn't know its broken until
+the first token on the next line and I should just deal with it, but I
+know I'd get mad looking at line50 trying to figure out what was wrong
+with that valid context when the busted one was on line 49.
+
+---
+
+class class1
+
+sid sid1
+
+class class1
+{
+	perm1
+	perm2
+}
+
+sensitivity s0;
+
+dominance { s0 }
+
+category c0; category c1; category c2; category c3;
+category c4; category c5; category c6; category c7;
+category c8; category c9; category c10; category c11;
+category c12; category c13; category c14; category c15;
+category c16; category c17; category c18; category c19;
+category c20; category c21; category c22; category c23;
+
+level s0:c0.c23;
+
+mlsconstrain class1 { perm1 perm2 }
+	( h1 dom h2 );
+
+attribute attr1;
+
+type type1_t;
+type type2_t;
+role role1_r types { type1_t type2_t };
+role role2_r types { type1_t type2_t };
+
+allow type1_t type2_t: class1 { perm1 };
+
+allow role1_r role2_r;
+
+bool bool1 true;
+
+#gen_user(user1_u,, role1_r, s0, s0 - s0:c0.c23)
+user user1_u roles { role1_r } level s0 range s0 - s0:c0.c23;
+
+sid sid1	user1_u:role1_r:type1_t:s0
+
+
+fs_use_xattr ext2 user1_u:role1_r:type1_t:s0;
+
+genfscon proc /		user1_u:role1_r:type1_t:s0
+genfscon proc /1	user1_u:role2_r:type1_t:s0
+genfscon proc /2	user1_u:role1_r:type1_t:s0
+
+nodecon ::1 FFFF:FFFF:FFFF:FFFF:: user1_u:role1_r:type1_t:s0
+
 
 
 --
