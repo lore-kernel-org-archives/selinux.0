@@ -1,141 +1,165 @@
-Subject: Re: libsepol segfault when module requires a user not in base
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <48528654.2040000@manicmethod.com>
-References: <1213305675.3029.18.camel@localhost.localdomain>
-	 <1213366266.17842.335.camel@moss-spartans.epoch.ncsc.mil>
-	 <48528654.2040000@manicmethod.com>
-Content-Type: text/plain
-Date: Fri, 13 Jun 2008 10:47:48 -0400
-Message-Id: <1213368468.17842.352.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <48528C12.1030007@windriver.com>
+Date: Fri, 13 Jun 2008 11:02:42 -0400
+From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SELinux@tycho.nsa.gov, Chad Sellers <csellers@tresys.com>,
+        Caleb Case <ccase@tresys.com>, Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: libsemanage.semanage_install_active: error during semodule -n
+ -v -b base.pp -s refpolicy
+References: <4851361E.3030305@windriver.com>	 <1213288802.17842.195.camel@moss-spartans.epoch.ncsc.mil>	 <48515E78.40400@windriver.com>	 <1213293329.17842.246.camel@moss-spartans.epoch.ncsc.mil>	 <48516379.80609@windriver.com>	 <1213294846.17842.261.camel@moss-spartans.epoch.ncsc.mil>	 <48517032.6070805@windriver.com> <1213297922.17842.290.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1213297922.17842.290.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Thu, 2008-06-12 at 14:51 -0400, Vikram Ambrose wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> On Thu, 2008-06-12 at 13:57 -0400, Vikram Ambrose wrote:
+>>>   
+>>>       
+>>>> Stephen Smalley wrote:
+>>>>     
+>>>>         
+>>>>> On Thu, 2008-06-12 at 13:35 -0400, Vikram Ambrose wrote:
+>>>>>   
+>>>>>       
+>>>>>           
+>>>>>> Stephen Smalley wrote:
+>>>>>>     
+>>>>>>         
+>>>>>>             
+>>>>>>> On Thu, 2008-06-12 at 10:43 -0400, Vikram Ambrose wrote:
+>>>>>>>   
+>>>>>>>       
+>>>>>>>           
+>>>>>>>               
+>>>>>>>> During the "make load" procedure with refpolicy, the semodule command 
+>>>>>>>> fails, so I tried it manually and I see this error.
+>>>>>>>>
+>>>>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b 
+>>>>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v -n
+>>>>>>>> Attempting to install base module '/usr/share/selinux/refpolicy/base.pp':
+>>>>>>>> Ok: return value of 0.
+>>>>>>>> Committing changes:
+>>>>>>>> libsemanage.semanage_install_active: setfiles returned error code 1. (No 
+>>>>>>>> such file or directory).
+>>>>>>>>     
+>>>>>>>>         
+>>>>>>>>             
+>>>>>>>>                 
+>>>>>>> whereis setfiles
+>>>>>>>
+>>>>>>>   
+>>>>>>>       
+>>>>>>>           
+>>>>>>>               
+>>>>>> setfiles and the rest of the SELinux "toolchain" was all built from svn 
+>>>>>> and placed into /hone/testing/root
+>>>>>> root's environment has PATH that contains /home/testing/root/bin
+>>>>>> as well as LD_LIBRARY_PATH to /home/testing/root/lib
+>>>>>>
+>>>>>> Does libsemanage have a hard coded path to setfiles?
+>>>>>>     
+>>>>>>         
+>>>>>>             
+>>>>> Yes, although it can be overridden via /etc/selinux/semanage.conf.
+>>>>> Add something like:
+>>>>> [setfiles]
+>>>>> path = /path/to/setfiles
+>>>>> [end]
+>>>>>
+>>>>>   
+>>>>>       
+>>>>>           
+>>>> I just noticed the hard coded path in conf-parser.y
+>>>> Is there a way of doing the above with a generic rule to all of the 
+>>>> selinux toolchain and not specifically to "setfiles" as shown above?
+>>>>     
+>>>>         
+>>> Not presently; it wasn't really intended for an alternate root mechanism
+>>> (and apparently doesn't work for it anyway, as you have found).
+>>>
+>>>   
+>>>       
+>> And specifying each and every tool individual is not possible i suppose?
+>>     
+>
+> There are only two helpers that are executed by default, setfiles and
+> load_policy, and you can specify them both, using the same syntax but
+> different section keyword.
+>
+>   
+>>>> ...
+>>>> Adding that to semanage.conf produce an almost obvious error " error 
+>>>> while loading shared libraries: libsepol.so.0: cannot open shared object 
+>>>> file: No such file or directory"
+>>>>
+>>>> what sort of environment is libsemanage using to execute setfiles? 
+>>>> libsepol and friends are in LD_LIBRARY_PATH
+>>>>     
+>>>>         
+>>> Ah, semanage_exec_prog() passes a NULL environ to execve().
+>>>
+>>>   
+>>>       
+>> Can this be rectified?
+>>     
+>
+> Even if we changed the code, the policy normally won't allow passing of
+> LD_LIBRARY_PATH and the like across a domain transition (noatsecure
+> permission to disable setting of AT_SECURE auxv flag), and setfiles and
+> load_policy typically run in their own domains.  Although you can
+> certainly customize policy and the code for your particular needs.
+>
+>   
+>>> I think this takes us to the "run it in a chroot environment" scenario
+>>> if you don't want to install the libraries and programs to your system
+>>> directories.  I'm not entirely sure what your goal is here though - you
+>>> seem ok with installing the policy files to system directories.
+>>>   
+>>>       
+>> Your last remark there is rather confusing to me. You seem to suggest 
+>> that "installing the policy files to system directories" is an option I 
+>> have been given, and as such chosen to do so. To my knowledge the entire 
+>> toolchain is hard coded to /etc/selinux and as such not possible to 
+>> provide a /different/syconfig/path. How is it that I go about installing 
+>> selinux and its configuration to a non "system directory", yet "system 
+>> wide" path such as /security or /selinux or /seconfig etc..?
+>>     
+>
+> Well, yes, that's true.  Running it chroot'd is the only way right now
+> to do that.  Which would also resolve your problem with setfiles.
+>
+> The other approach would be to change libselinux to support an alternate
+> root setting via some mechanism, but we have to be careful to not give
+> undue influence to callers where it isn't warranted, of course.
+>
+>   
+I added extern char **environ, and passed in environ to execve,  i also 
+added some printfs to see what was being passed into setfiles...
 
-On Fri, 2008-06-13 at 10:38 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2008-06-12 at 17:21 -0400, Eric Paris wrote:
-> >> checkpolicy-2.0.16-2.fc10.x86_64
-> >> libsepol-2.0.30-1.fc10.x86_64
-> >>
-> >> Program terminated with signal 11, Segmentation fault.
-> >> [New process 6347]
-> >> #0  0x000000000041a155 in mls_semantic_level_expand ()
-> >> (gdb) bt
-> >> #0  0x000000000041a155 in mls_semantic_level_expand ()
-> >> #1  0x000000000041a3f9 in mls_semantic_range_expand ()
-> >> #2  0x000000000040dd0d in policydb_user_cache ()
-> >> #3  0x000000000040417e in hashtab_map ()
-> >> #4  0x000000000040d829 in policydb_index_others ()
-> >> #5  0x00000000004082e1 in link_modules ()
-> >> #6  0x00000000004036a7 in main (argc=<value optimized out>, argv=0x7fffe894e178) at dismod.c:761
-> >> (gdb) quit
-> >>
-> >> base.conf:
-> >> **********
-> >> class class1
-> >> sid sid1
-> >> class class1
-> >> {
-> >>         perm1
-> >>         perm2
-> >> }
-> >> sensitivity s0;
-> >> dominance { s0 }
-> >> category c0; category c1; category c2; category c3;
-> >> category c4; category c5; category c6; category c7;
-> >> category c8; category c9; category c10; category c11;
-> >> category c12; category c13; category c14; category c15;
-> >> category c16; category c17; category c18; category c19;
-> >> category c20; category c21; category c22; category c23;
-> >> level s0:c0.c23;
-> >> mlsconstrain class1 { perm1 perm2 }
-> >>         ( h1 dom h2 );
-> >> attribute attr1;
-> >> type type1_t;
-> >> type type2_t;
-> >> role role1_r types { type1_t type2_t };
-> >> role role2_r types { type1_t type2_t };
-> >> allow type1_t type2_t: class1 { perm1 };
-> >> allow role1_r role2_r;
-> >> bool bool1 true;
-> >> user user1_u roles { role1_r } level s0 range s0 - s0:c0.c23;
-> >> sid sid1        user1_u:role1_r:type1_t:s0
-> >> fs_use_xattr ext2 user1_u:role1_r:type1_t:s0;
-> >> genfscon proc /         user1_u:role1_r:type1_t:s0
-> >> nodecon ::1 FFFF:FFFF:FFFF:FFFF:: user1_u:role1_r:type1_t:s0
-> >>
-> >> badmodule.te:
-> >> *************
-> >> module badmodule 1.0.0;
-> >> require {
-> >> 	user baduser_u;
-> >> 	type type2_t;
-> >> 	type type1_t;
-> >> 	class class1 perm1;
-> >> }
-> >>
-> >> allow type1_t type2_t : class1 perm1;
-> >>
-> >> ************
-> >> checkmodule -M -o base.mod base.conf
-> >> checkmodule -M -m -o badmodule.mod badmodule.te
-> >> sedismod base.mod
-> >>    #l
-> >>    #badmodule.mod
-> >>
-> >> ***BOOM***
-> > 
-> > Interestingly doesn't occur on F9 for me, so likely a side effect of the
-> > user/role remapping support leading to earlier indexing/caching.
-> > 
-> > Seems like the same issue as we had with mls_level_convert() in link.
-> > Patch below restores the correct behavior.
-> > 
-> > Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> > 
-> > ---
-> > 
-> >  libsepol/src/expand.c |    4 ++++
-> >  1 file changed, 4 insertions(+)
-> > 
-> > Index: trunk/libsepol/src/expand.c
-> > ===================================================================
-> > --- trunk/libsepol/src/expand.c	(revision 2908)
-> > +++ trunk/libsepol/src/expand.c	(working copy)
-> > @@ -656,6 +656,10 @@
-> >  	if (!p->mls)
-> >  		return 0;
-> >  
-> > +	/* Required not declared. */
-> > +	if (!sl->sens)
-> > +		return 0;
-> > +
-> >  	l->sens = sl->sens;
-> >  	levdatum = (level_datum_t *) hashtab_search(p->p_levels.table,
-> >  						    p->p_sens_val_to_name[l->
-> > 
-> > 
-> > 
-> 
-> Is this sufficient? I did this last night and it seemed to work but I wanted to track down all users in the linker to see if there will be side effects. It is relatively hacky to 'expand' semantic sets in the linker, since the linked copy should be all syntactic. I'm trying to remember why we did this, the linker doesn't use user->cache or user->exp_range.
+root@ubuntu:/home/vikram/refpolicy-ac# semodule -b 
+/usr/share/selinux/refpolicy/base.pp -s refpolicy -v
+Attempting to install base module '/usr/share/selinux/refpolicy/base.pp':
+Ok: return value of 0.
+Committing changes:
+e->path=/home/vikram/root/bin/setfiles
+arg[0] = /home/vikram/root/bin/setfiles
+arg[1] = (null)
+usage:  /home/vikram/root/bin/setfiles [-dnpqvW] [-o filename] [-r 
+alt_root_path ] spec_file pathname...
+usage:  /home/vikram/root/bin/setfiles -c policyfile spec_file
+usage:  /home/vikram/root/bin/setfiles -s [-dnqvW] [-o filename ] spec_file
+libsemanage.semanage_install_active: setfiles returned error code 1.
 
-It looks like link calls policydb_index_others just to generate the
-val_to_name arrays.    And you likely just put the policydb_role_cache
-and policydb_user_cache calls there because that was a natural place to
-do it for expand or policydb_read.  So I suppose you could move them
-into a separate function and only call it on the expand and
-policydb_read paths, and not during link at all.
+Why is setfiles being passed no arguments?
 
-We had the same issue though in mls_level_convert() for link earlier
-also reported by Eric, with similar fix.  BTW, these little test modules
-from Eric make nice test cases to add.
- 
 -- 
-Stephen Smalley
-National Security Agency
+Vikram Ambrose | Linux Products Division | WindRiver Corporation
 
 
 --
