@@ -1,186 +1,123 @@
-Subject: Re: [PATCH] libselinux: new and updated man pages for AVC,
-	mapping, label
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: Xavier Toth <txtoth@gmail.com>, SELinux Mail List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>, Eric Paris <eparis@parisplace.org>,
-        KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1213359860.17842.321.camel@moss-spartans.epoch.ncsc.mil>
-References: <cadfc0e40806121138x3bb0996asda149528809d4598@mail.gmail.com>
-	 <1213296527.17842.266.camel@moss-spartans.epoch.ncsc.mil>
-	 <cadfc0e40806121205w3381c32fy9aab1aee1cdf97ce@mail.gmail.com>
-	 <1213298430.17842.297.camel@moss-spartans.epoch.ncsc.mil>
-	 <1213300336.17842.309.camel@moss-spartans.epoch.ncsc.mil>
-	 <48518F23.6080406@tycho.nsa.gov>
-	 <1213359860.17842.321.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 13 Jun 2008 10:27:06 -0400
-Message-Id: <1213367226.17842.346.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <48528654.2040000@manicmethod.com>
+Date: Fri, 13 Jun 2008 10:38:12 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: libsepol segfault when module requires a user not in base
+References: <1213305675.3029.18.camel@localhost.localdomain> <1213366266.17842.335.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1213366266.17842.335.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Thu, 2008-06-12 at 17:21 -0400, Eric Paris wrote:
+>> checkpolicy-2.0.16-2.fc10.x86_64
+>> libsepol-2.0.30-1.fc10.x86_64
+>>
+>> Program terminated with signal 11, Segmentation fault.
+>> [New process 6347]
+>> #0  0x000000000041a155 in mls_semantic_level_expand ()
+>> (gdb) bt
+>> #0  0x000000000041a155 in mls_semantic_level_expand ()
+>> #1  0x000000000041a3f9 in mls_semantic_range_expand ()
+>> #2  0x000000000040dd0d in policydb_user_cache ()
+>> #3  0x000000000040417e in hashtab_map ()
+>> #4  0x000000000040d829 in policydb_index_others ()
+>> #5  0x00000000004082e1 in link_modules ()
+>> #6  0x00000000004036a7 in main (argc=<value optimized out>, argv=0x7fffe894e178) at dismod.c:761
+>> (gdb) quit
+>>
+>> base.conf:
+>> **********
+>> class class1
+>> sid sid1
+>> class class1
+>> {
+>>         perm1
+>>         perm2
+>> }
+>> sensitivity s0;
+>> dominance { s0 }
+>> category c0; category c1; category c2; category c3;
+>> category c4; category c5; category c6; category c7;
+>> category c8; category c9; category c10; category c11;
+>> category c12; category c13; category c14; category c15;
+>> category c16; category c17; category c18; category c19;
+>> category c20; category c21; category c22; category c23;
+>> level s0:c0.c23;
+>> mlsconstrain class1 { perm1 perm2 }
+>>         ( h1 dom h2 );
+>> attribute attr1;
+>> type type1_t;
+>> type type2_t;
+>> role role1_r types { type1_t type2_t };
+>> role role2_r types { type1_t type2_t };
+>> allow type1_t type2_t: class1 { perm1 };
+>> allow role1_r role2_r;
+>> bool bool1 true;
+>> user user1_u roles { role1_r } level s0 range s0 - s0:c0.c23;
+>> sid sid1        user1_u:role1_r:type1_t:s0
+>> fs_use_xattr ext2 user1_u:role1_r:type1_t:s0;
+>> genfscon proc /         user1_u:role1_r:type1_t:s0
+>> nodecon ::1 FFFF:FFFF:FFFF:FFFF:: user1_u:role1_r:type1_t:s0
+>>
+>> badmodule.te:
+>> *************
+>> module badmodule 1.0.0;
+>> require {
+>> 	user baduser_u;
+>> 	type type2_t;
+>> 	type type1_t;
+>> 	class class1 perm1;
+>> }
+>>
+>> allow type1_t type2_t : class1 perm1;
+>>
+>> ************
+>> checkmodule -M -o base.mod base.conf
+>> checkmodule -M -m -o badmodule.mod badmodule.te
+>> sedismod base.mod
+>>    #l
+>>    #badmodule.mod
+>>
+>> ***BOOM***
+> 
+> Interestingly doesn't occur on F9 for me, so likely a side effect of the
+> user/role remapping support leading to earlier indexing/caching.
+> 
+> Seems like the same issue as we had with mls_level_convert() in link.
+> Patch below restores the correct behavior.
+> 
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> 
+> ---
+> 
+>  libsepol/src/expand.c |    4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> Index: trunk/libsepol/src/expand.c
+> ===================================================================
+> --- trunk/libsepol/src/expand.c	(revision 2908)
+> +++ trunk/libsepol/src/expand.c	(working copy)
+> @@ -656,6 +656,10 @@
+>  	if (!p->mls)
+>  		return 0;
+>  
+> +	/* Required not declared. */
+> +	if (!sl->sens)
+> +		return 0;
+> +
+>  	l->sens = sl->sens;
+>  	levdatum = (level_datum_t *) hashtab_search(p->p_levels.table,
+>  						    p->p_sens_val_to_name[l->
+> 
+> 
+> 
 
-On Fri, 2008-06-13 at 08:24 -0400, Stephen Smalley wrote:
-> On Thu, 2008-06-12 at 17:03 -0400, Eamon Walsh wrote:
-> > New and updated man pages for AVC, mapping, label.
-> > 
-> > Includes avc_open() call, deprecated avc_init(), selinux_set_mapping(), 
-> > and new options to the selabel X backend.
-> 
-> Thanks for writing these.  A few minor comments below.
-> 
-> > Index: libselinux/man/man3/avc_open.3
-> > ===================================================================
-> > --- libselinux/man/man3/avc_open.3	(revision 0)
-> > +++ libselinux/man/man3/avc_open.3	(revision 0)
-> > @@ -0,0 +1,70 @@
-> > +.\" Hey Emacs! This file is -*- nroff -*- source.
-> > +.\"
-> > +.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2008
-> > +.TH "avc_open" "3" "12 Jun 2008" "" "SELinux API documentation"
-> > +.SH "NAME"
-> > +avc_open, avc_destroy, avc_reset, avc_cleanup \- userspace SELinux AVC setup and teardown.
-> > +.SH "SYNOPSIS"
-> > +.B #include <selinux/selinux.h>
-> > +
-> > +.B #include <selinux/avc.h>
-> > +.sp
-> > +.BI "int avc_open(struct selinux_opt *" options ", unsigned " nopt ");"
-> > +.sp
-> > +.BI "void avc_destroy(void);"
-> > +.sp
-> > +.BI "int avc_reset(void);"
-> > +.sp
-> > +.BI "void avc_cleanup(void);"
-> > +.SH "DESCRIPTION"
-> > +.B avc_open
-> > +initializes the userspace AVC and must be called before any other AVC operation can be performed.
-> > +
-> > +.B avc_destroy
-> > +destroys the userspace AVC, freeing all internal memory structures.  After this call has been made, 
-> > +.B avc_init
-> 
-> s/avc_init/avc_open/
-> 
-> > Index: libselinux/man/man3/selinux_set_mapping.3
-> > ===================================================================
-> > --- libselinux/man/man3/selinux_set_mapping.3	(revision 0)
-> > +++ libselinux/man/man3/selinux_set_mapping.3	(revision 0)
-> > @@ -0,0 +1,86 @@
-> > +.\" Hey Emacs! This file is -*- nroff -*- source.
-> > +.\"
-> > +.\" Author: Eamon Walsh (ewalsh@tycho.nsa.gov) 2008
-> > +.TH "selinux_set_mapping" "3" "12 Jun 2008" "" "SELinux API documentation"
-> > +.SH "NAME"
-> > +selinux_set_mapping \- establish dynamic object class and permission mapping.
-> > +.SH "SYNOPSIS"
-> > +.B #include <selinux/selinux.h>
-> > +.sp
-> > +.nf
-> > +struct security_class_mapping {
-> > +	const char *name;
-> > +	const char *perms[];
-> > +};
-> > +.fi
-> > +.sp
-> > +.BI "int selinux_set_mapping(struct security_class_mapping *" map ");"
-> > +
-> > +.SH "DESCRIPTION"
-> > +.B selinux_set_mapping
-> > +establishes a mapping from a user-provided ordering of object classes and permissions to the numbers actually used by the loaded system policy.  Use of this function is highly preferred over the generated constants in the libselinux header files, as this method allows the policy's class and permission values to change over time.
-> > +
-> > +After the mapping is established, all libselinux functions that operate on class and permission values take the user-provided numbers, which are determined as follows:
-> > +
-> > +The
-> > +.I map
-> > +argument consists of an array of 
-> > +.B security_class_mapping
-> > +structures, which must be terminated by a structure having a NULL name field.  Except for this last structure, the
-> > +.I name 
-> > +field should refer to the string name of an object class, and the corresponding
-> > +.I perms
-> > +field should refer to an array of permission bit names terminated by a NULL string.
-> > +
-> > +The object classes named in the mapping and each set of permission bits are numbered in order starting from 1.  These numbers are the values that should be passed to subsequent libselinux calls.
-> > +
-> > +.SH "RETURN VALUE"
-> > +Zero is returned on success.  On error, -1 is returned and
-> > +.I errno
-> > +is set appropriately.
-> > +
-> > +.SH "ERRORS"
-> > +.TP
-> > +.B EINVAL
-> > +One of the class or permission names requested in the mapping is not present in the loaded policy.
-> > +.TP
-> > +.B ENOMEM
-> > +An attempt to allocate memory failed.
-> > +
-> > +.SH "EXAMPLE"
-> > +.RS
-> > +.ta 4n 10n
-> > +.nf
-> > +struct security_class_mapping map[] = {
-> > +	{ "file", { "create", "rename", "unlink", NULL } },
-> > +	{ "socket", { "bind", NULL } },
-> > +	{ "process", { "signal", NULL } },
-> > +	{ NULL }
-> > +};
-> > +
-> > +if (selinux_set_mapping(map) < 0)
-> > +	exit(1);
-> > +.fi
-> > +.ta
-> > +.RE
-> > +
-> > +In this example, after the call has succeeded, classes
-> > +.BR file ,
-> > +.BR socket ,
-> > +and
-> > +.B process
-> > +will be identified by 1, 2 and 3, respectively.  Permissions
-> > +.IR create ,
-> > +.IR rename ,
-> > +and
-> > +.I unlink
-> > +(for the 
-> > +.B file
-> > +class) will be identified by 1, 2, and 4, respectively.  Classes and permissions not listed in the mapping cannot be used.
-> 
-> To be clear, the permissions are identified by bits 1, 2, and 4, but
-> their actual values as access vectors are 1 << (bit - 1).
+Is this sufficient? I did this last night and it seemed to work but I wanted to track down all users in the linker to see if there will be side effects. It is relatively hacky to 'expand' semantic sets in the linker, since the linked copy should be all syntactic. I'm trying to remember why we did this, the linker doesn't use user->cache or user->exp_range.
 
-Oops, never mind - I misread that.  Although you might want to make it
-clear that we are dealing with bit indices for the permissions.
-
-One other question I have is what we should do about the flask.h
-definitions and string tables in libselinux.  We obviously need to
-retain the legacy definitions for old userspace object managers, but we
-also have the old X definitions there and the db definitions.  make
-LIBSELINUX_D=/path/to/libselinux tolib from refpolicy/policy/flask will
-install updated headers and string tables with the latest definitions
-but do we want them all now or just the legacy ones?
-
-I suppose partly that depends on whether we want to use newer object
-managers on older kernels that don't support the dynamic class/perm
-discovery mechanism.  
-
-> As a separate matter, we may want to discuss whether we are getting the
-> flexibility we hoped from this dynamic mapping.  The other day I was
-> adding a new kernel class for experimentation purposes and inserted it
-> before the new X classes, thinking that this would be ok since they can
-> be dynamically looked up and thus don't require fixed indices.  However,
-> when booting the resulting kernel with a stock policy, I found that the
-> kernel refused to load the policy because it saw a conflict between its
-> kernel definition for that class value (the new kernel class) and the
-> policy definition for that class value (the X class).  Which would mean
-> that new kernels on legacy distros would break.
-> 
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
