@@ -1,231 +1,269 @@
-Message-ID: <4852CB28.6020806@windriver.com>
-Date: Fri, 13 Jun 2008 15:31:52 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>, SELinux@tycho.nsa.gov,
-        Chad Sellers <csellers@tresys.com>, Caleb Case <ccase@tresys.com>
 Subject: Re: libsemanage.semanage_install_active: error during semodule -n
- -v -b base.pp -s refpolicy
-References: <4851361E.3030305@windriver.com>	 <1213288802.17842.195.camel@moss-spartans.epoch.ncsc.mil>	 <48515E78.40400@windriver.com>	 <1213293329.17842.246.camel@moss-spartans.epoch.ncsc.mil>	 <48516379.80609@windriver.com>	 <1213294846.17842.261.camel@moss-spartans.epoch.ncsc.mil>	 <48517032.6070805@windriver.com>	 <1213297922.17842.290.camel@moss-spartans.epoch.ncsc.mil>	 <48528C12.1030007@windriver.com> <485290FA.10906@manicmethod.com>	 <4852C668.6040508@windriver.com> <1213385371.17842.400.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1213385371.17842.400.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	-v -b base.pp -s refpolicy
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+Cc: Joshua Brindle <method@manicmethod.com>, SELinux@tycho.nsa.gov,
+        Chad Sellers <csellers@tresys.com>, Caleb Case <ccase@tresys.com>
+In-Reply-To: <4852CB28.6020806@windriver.com>
+References: <4851361E.3030305@windriver.com>
+	 <1213288802.17842.195.camel@moss-spartans.epoch.ncsc.mil>
+	 <48515E78.40400@windriver.com>
+	 <1213293329.17842.246.camel@moss-spartans.epoch.ncsc.mil>
+	 <48516379.80609@windriver.com>
+	 <1213294846.17842.261.camel@moss-spartans.epoch.ncsc.mil>
+	 <48517032.6070805@windriver.com>
+	 <1213297922.17842.290.camel@moss-spartans.epoch.ncsc.mil>
+	 <48528C12.1030007@windriver.com> <485290FA.10906@manicmethod.com>
+	 <4852C668.6040508@windriver.com>
+	 <1213385371.17842.400.camel@moss-spartans.epoch.ncsc.mil>
+	 <4852CB28.6020806@windriver.com>
+Content-Type: text/plain
+Date: Fri, 13 Jun 2008 15:59:06 -0400
+Message-Id: <1213387146.17842.424.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2008-06-13 at 15:11 -0400, Vikram Ambrose wrote:
->   
->> Joshua Brindle wrote:
->>     
->>> Vikram Ambrose wrote:
->>>   
->>>       
->>>> Stephen Smalley wrote:
->>>>     
->>>>         
->>>>> On Thu, 2008-06-12 at 14:51 -0400, Vikram Ambrose wrote:
->>>>>  
->>>>>       
->>>>>           
->>>>>> Stephen Smalley wrote:
->>>>>>    
->>>>>>         
->>>>>>             
->>>>>>> On Thu, 2008-06-12 at 13:57 -0400, Vikram Ambrose wrote:
->>>>>>>        
->>>>>>>           
->>>>>>>               
->>>>>>>> Stephen Smalley wrote:
->>>>>>>>            
->>>>>>>>             
->>>>>>>>                 
->>>>>>>>> On Thu, 2008-06-12 at 13:35 -0400, Vikram Ambrose wrote:
->>>>>>>>>                  
->>>>>>>>>               
->>>>>>>>>                   
->>>>>>>>>> Stephen Smalley wrote:
->>>>>>>>>>                        
->>>>>>>>>>                 
->>>>>>>>>>                     
->>>>>>>>>>> On Thu, 2008-06-12 at 10:43 -0400, Vikram Ambrose wrote:
->>>>>>>>>>>                                
->>>>>>>>>>>                   
->>>>>>>>>>>                       
->>>>>>>>>>>> During the "make load" procedure with refpolicy, the semodule
->>>>>>>>>>>> command fails, so I tried it manually and I see this error.
->>>>>>>>>>>>
->>>>>>>>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
->>>>>>>>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v -n
->>>>>>>>>>>> Attempting to install base module
->>>>>>>>>>>> '/usr/share/selinux/refpolicy/base.pp':
->>>>>>>>>>>> Ok: return value of 0.
->>>>>>>>>>>> Committing changes:
->>>>>>>>>>>> libsemanage.semanage_install_active: setfiles returned error
->>>>>>>>>>>> code 1. (No such file or directory).
->>>>>>>>>>>>                                         
->>>>>>>>>>>>                     
->>>>>>>>>>>>                         
->>>>>>>>>>> whereis setfiles
->>>>>>>>>>>
->>>>>>>>>>>                                 
->>>>>>>>>>>                   
->>>>>>>>>>>                       
->>>>>>>>>> setfiles and the rest of the SELinux "toolchain" was all built
->>>>>>>>>> from svn and placed into /hone/testing/root
->>>>>>>>>> root's environment has PATH that contains /home/testing/root/bin
->>>>>>>>>> as well as LD_LIBRARY_PATH to /home/testing/root/lib
->>>>>>>>>>
->>>>>>>>>> Does libsemanage have a hard coded path to setfiles?
->>>>>>>>>>                         
->>>>>>>>>>                 
->>>>>>>>>>                     
->>>>>>>>> Yes, although it can be overridden via /etc/selinux/semanage.conf.
->>>>>>>>> Add something like:
->>>>>>>>> [setfiles]
->>>>>>>>> path = /path/to/setfiles
->>>>>>>>> [end]
->>>>>>>>>
->>>>>>>>>                   
->>>>>>>>>               
->>>>>>>>>                   
->>>>>>>> I just noticed the hard coded path in conf-parser.y
->>>>>>>> Is there a way of doing the above with a generic rule to all of the
->>>>>>>> selinux toolchain and not specifically to "setfiles" as shown above?
->>>>>>>>             
->>>>>>>>             
->>>>>>>>                 
->>>>>>> Not presently; it wasn't really intended for an alternate root
->>>>>>> mechanism
->>>>>>> (and apparently doesn't work for it anyway, as you have found).
->>>>>>>
->>>>>>>         
->>>>>>>           
->>>>>>>               
->>>>>> And specifying each and every tool individual is not possible i suppose?
->>>>>>     
->>>>>>         
->>>>>>             
->>>>> There are only two helpers that are executed by default, setfiles and
->>>>> load_policy, and you can specify them both, using the same syntax but
->>>>> different section keyword.
->>>>>
->>>>>  
->>>>>       
->>>>>           
->>>>>>>> ...
->>>>>>>> Adding that to semanage.conf produce an almost obvious error "
->>>>>>>> error while loading shared libraries: libsepol.so.0: cannot open
->>>>>>>> shared object file: No such file or directory"
->>>>>>>>
->>>>>>>> what sort of environment is libsemanage using to execute setfiles?
->>>>>>>> libsepol and friends are in LD_LIBRARY_PATH
->>>>>>>>             
->>>>>>>>             
->>>>>>>>                 
->>>>>>> Ah, semanage_exec_prog() passes a NULL environ to execve().
->>>>>>>
->>>>>>>         
->>>>>>>           
->>>>>>>               
->>>>>> Can this be rectified?
->>>>>>     
->>>>>>         
->>>>>>             
->>>>> Even if we changed the code, the policy normally won't allow passing of
->>>>> LD_LIBRARY_PATH and the like across a domain transition (noatsecure
->>>>> permission to disable setting of AT_SECURE auxv flag), and setfiles and
->>>>> load_policy typically run in their own domains.  Although you can
->>>>> certainly customize policy and the code for your particular needs.
->>>>>
->>>>>  
->>>>>       
->>>>>           
->>>>>>> I think this takes us to the "run it in a chroot environment" scenario
->>>>>>> if you don't want to install the libraries and programs to your system
->>>>>>> directories.  I'm not entirely sure what your goal is here though - you
->>>>>>> seem ok with installing the policy files to system directories.
->>>>>>>         
->>>>>>>           
->>>>>>>               
->>>>>> Your last remark there is rather confusing to me. You seem to suggest
->>>>>> that "installing the policy files to system directories" is an option
->>>>>> I have been given, and as such chosen to do so. To my knowledge the
->>>>>> entire toolchain is hard coded to /etc/selinux and as such not
->>>>>> possible to provide a /different/syconfig/path. How is it that I go
->>>>>> about installing selinux and its configuration to a non "system
->>>>>> directory", yet "system wide" path such as /security or /selinux or
->>>>>> /seconfig etc..?
->>>>>>     
->>>>>>         
->>>>>>             
->>>>> Well, yes, that's true.  Running it chroot'd is the only way right now
->>>>> to do that.  Which would also resolve your problem with setfiles.
->>>>>
->>>>> The other approach would be to change libselinux to support an alternate
->>>>> root setting via some mechanism, but we have to be careful to not give
->>>>> undue influence to callers where it isn't warranted, of course.
->>>>>
->>>>>   
->>>>>       
->>>>>           
->>>> I added extern char **environ, and passed in environ to execve,  i also
->>>> added some printfs to see what was being passed into setfiles...
->>>>
->>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
->>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v
->>>> Attempting to install base module '/usr/share/selinux/refpolicy/base.pp':
->>>> Ok: return value of 0.
->>>> Committing changes:
->>>> e->path=/home/vikram/root/bin/setfiles
->>>> arg[0] = /home/vikram/root/bin/setfiles
->>>> arg[1] = (null)
->>>> usage:  /home/vikram/root/bin/setfiles [-dnpqvW] [-o filename] [-r
->>>> alt_root_path ] spec_file pathname...
->>>> usage:  /home/vikram/root/bin/setfiles -c policyfile spec_file
->>>> usage:  /home/vikram/root/bin/setfiles -s [-dnqvW] [-o filename ] spec_file
->>>> libsemanage.semanage_install_active: setfiles returned error code 1.
->>>>
->>>> Why is setfiles being passed no arguments?
->>>>
->>>>     
->>>>         
->>> you need to add:
->>>
->>> args = -q -c $@ $<
->>>
->>> to the setfiles block in semanage.conf
->>>
->>>   
->>>       
->> could execve be changed to execvp? this way a hard coded path is not 
->> necessary.
->> I can write a patch?
->>     
->
-> But then the caller can influence the path and the environment.
-> And that presumes that setfiles and load_policy will always be in the
-> path of the caller of libsemanage.
->
->   
-understood. however the scope of the application's capabilities are 
-limited by the user's unix permissions right? ie a regular user can make 
-his own policy and store it in his home directory, maybe even with a 
-hacked version of semodule, but at the end of the day the policy cannot 
-be put into kernel memory by a regular user. Well thats how i understand 
-it as.
-> You can certainly patch your local copy of it.   Or run it in a chroot.
-> Not clear what the argument is for making it an upstream change.
->
->   
-Could i make a formal request? Is there another list for that? Or should 
-i just start another thread on this list?
 
-thanks.
+On Fri, 2008-06-13 at 15:31 -0400, Vikram Ambrose wrote:
+> Stephen Smalley wrote:
+> > On Fri, 2008-06-13 at 15:11 -0400, Vikram Ambrose wrote:
+> >   
+> >> Joshua Brindle wrote:
+> >>     
+> >>> Vikram Ambrose wrote:
+> >>>   
+> >>>       
+> >>>> Stephen Smalley wrote:
+> >>>>     
+> >>>>         
+> >>>>> On Thu, 2008-06-12 at 14:51 -0400, Vikram Ambrose wrote:
+> >>>>>  
+> >>>>>       
+> >>>>>           
+> >>>>>> Stephen Smalley wrote:
+> >>>>>>    
+> >>>>>>         
+> >>>>>>             
+> >>>>>>> On Thu, 2008-06-12 at 13:57 -0400, Vikram Ambrose wrote:
+> >>>>>>>        
+> >>>>>>>           
+> >>>>>>>               
+> >>>>>>>> Stephen Smalley wrote:
+> >>>>>>>>            
+> >>>>>>>>             
+> >>>>>>>>                 
+> >>>>>>>>> On Thu, 2008-06-12 at 13:35 -0400, Vikram Ambrose wrote:
+> >>>>>>>>>                  
+> >>>>>>>>>               
+> >>>>>>>>>                   
+> >>>>>>>>>> Stephen Smalley wrote:
+> >>>>>>>>>>                        
+> >>>>>>>>>>                 
+> >>>>>>>>>>                     
+> >>>>>>>>>>> On Thu, 2008-06-12 at 10:43 -0400, Vikram Ambrose wrote:
+> >>>>>>>>>>>                                
+> >>>>>>>>>>>                   
+> >>>>>>>>>>>                       
+> >>>>>>>>>>>> During the "make load" procedure with refpolicy, the semodule
+> >>>>>>>>>>>> command fails, so I tried it manually and I see this error.
+> >>>>>>>>>>>>
+> >>>>>>>>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
+> >>>>>>>>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v -n
+> >>>>>>>>>>>> Attempting to install base module
+> >>>>>>>>>>>> '/usr/share/selinux/refpolicy/base.pp':
+> >>>>>>>>>>>> Ok: return value of 0.
+> >>>>>>>>>>>> Committing changes:
+> >>>>>>>>>>>> libsemanage.semanage_install_active: setfiles returned error
+> >>>>>>>>>>>> code 1. (No such file or directory).
+> >>>>>>>>>>>>                                         
+> >>>>>>>>>>>>                     
+> >>>>>>>>>>>>                         
+> >>>>>>>>>>> whereis setfiles
+> >>>>>>>>>>>
+> >>>>>>>>>>>                                 
+> >>>>>>>>>>>                   
+> >>>>>>>>>>>                       
+> >>>>>>>>>> setfiles and the rest of the SELinux "toolchain" was all built
+> >>>>>>>>>> from svn and placed into /hone/testing/root
+> >>>>>>>>>> root's environment has PATH that contains /home/testing/root/bin
+> >>>>>>>>>> as well as LD_LIBRARY_PATH to /home/testing/root/lib
+> >>>>>>>>>>
+> >>>>>>>>>> Does libsemanage have a hard coded path to setfiles?
+> >>>>>>>>>>                         
+> >>>>>>>>>>                 
+> >>>>>>>>>>                     
+> >>>>>>>>> Yes, although it can be overridden via /etc/selinux/semanage.conf.
+> >>>>>>>>> Add something like:
+> >>>>>>>>> [setfiles]
+> >>>>>>>>> path = /path/to/setfiles
+> >>>>>>>>> [end]
+> >>>>>>>>>
+> >>>>>>>>>                   
+> >>>>>>>>>               
+> >>>>>>>>>                   
+> >>>>>>>> I just noticed the hard coded path in conf-parser.y
+> >>>>>>>> Is there a way of doing the above with a generic rule to all of the
+> >>>>>>>> selinux toolchain and not specifically to "setfiles" as shown above?
+> >>>>>>>>             
+> >>>>>>>>             
+> >>>>>>>>                 
+> >>>>>>> Not presently; it wasn't really intended for an alternate root
+> >>>>>>> mechanism
+> >>>>>>> (and apparently doesn't work for it anyway, as you have found).
+> >>>>>>>
+> >>>>>>>         
+> >>>>>>>           
+> >>>>>>>               
+> >>>>>> And specifying each and every tool individual is not possible i suppose?
+> >>>>>>     
+> >>>>>>         
+> >>>>>>             
+> >>>>> There are only two helpers that are executed by default, setfiles and
+> >>>>> load_policy, and you can specify them both, using the same syntax but
+> >>>>> different section keyword.
+> >>>>>
+> >>>>>  
+> >>>>>       
+> >>>>>           
+> >>>>>>>> ...
+> >>>>>>>> Adding that to semanage.conf produce an almost obvious error "
+> >>>>>>>> error while loading shared libraries: libsepol.so.0: cannot open
+> >>>>>>>> shared object file: No such file or directory"
+> >>>>>>>>
+> >>>>>>>> what sort of environment is libsemanage using to execute setfiles?
+> >>>>>>>> libsepol and friends are in LD_LIBRARY_PATH
+> >>>>>>>>             
+> >>>>>>>>             
+> >>>>>>>>                 
+> >>>>>>> Ah, semanage_exec_prog() passes a NULL environ to execve().
+> >>>>>>>
+> >>>>>>>         
+> >>>>>>>           
+> >>>>>>>               
+> >>>>>> Can this be rectified?
+> >>>>>>     
+> >>>>>>         
+> >>>>>>             
+> >>>>> Even if we changed the code, the policy normally won't allow passing of
+> >>>>> LD_LIBRARY_PATH and the like across a domain transition (noatsecure
+> >>>>> permission to disable setting of AT_SECURE auxv flag), and setfiles and
+> >>>>> load_policy typically run in their own domains.  Although you can
+> >>>>> certainly customize policy and the code for your particular needs.
+> >>>>>
+> >>>>>  
+> >>>>>       
+> >>>>>           
+> >>>>>>> I think this takes us to the "run it in a chroot environment" scenario
+> >>>>>>> if you don't want to install the libraries and programs to your system
+> >>>>>>> directories.  I'm not entirely sure what your goal is here though - you
+> >>>>>>> seem ok with installing the policy files to system directories.
+> >>>>>>>         
+> >>>>>>>           
+> >>>>>>>               
+> >>>>>> Your last remark there is rather confusing to me. You seem to suggest
+> >>>>>> that "installing the policy files to system directories" is an option
+> >>>>>> I have been given, and as such chosen to do so. To my knowledge the
+> >>>>>> entire toolchain is hard coded to /etc/selinux and as such not
+> >>>>>> possible to provide a /different/syconfig/path. How is it that I go
+> >>>>>> about installing selinux and its configuration to a non "system
+> >>>>>> directory", yet "system wide" path such as /security or /selinux or
+> >>>>>> /seconfig etc..?
+> >>>>>>     
+> >>>>>>         
+> >>>>>>             
+> >>>>> Well, yes, that's true.  Running it chroot'd is the only way right now
+> >>>>> to do that.  Which would also resolve your problem with setfiles.
+> >>>>>
+> >>>>> The other approach would be to change libselinux to support an alternate
+> >>>>> root setting via some mechanism, but we have to be careful to not give
+> >>>>> undue influence to callers where it isn't warranted, of course.
+> >>>>>
+> >>>>>   
+> >>>>>       
+> >>>>>           
+> >>>> I added extern char **environ, and passed in environ to execve,  i also
+> >>>> added some printfs to see what was being passed into setfiles...
+> >>>>
+> >>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
+> >>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v
+> >>>> Attempting to install base module '/usr/share/selinux/refpolicy/base.pp':
+> >>>> Ok: return value of 0.
+> >>>> Committing changes:
+> >>>> e->path=/home/vikram/root/bin/setfiles
+> >>>> arg[0] = /home/vikram/root/bin/setfiles
+> >>>> arg[1] = (null)
+> >>>> usage:  /home/vikram/root/bin/setfiles [-dnpqvW] [-o filename] [-r
+> >>>> alt_root_path ] spec_file pathname...
+> >>>> usage:  /home/vikram/root/bin/setfiles -c policyfile spec_file
+> >>>> usage:  /home/vikram/root/bin/setfiles -s [-dnqvW] [-o filename ] spec_file
+> >>>> libsemanage.semanage_install_active: setfiles returned error code 1.
+> >>>>
+> >>>> Why is setfiles being passed no arguments?
+> >>>>
+> >>>>     
+> >>>>         
+> >>> you need to add:
+> >>>
+> >>> args = -q -c $@ $<
+> >>>
+> >>> to the setfiles block in semanage.conf
+> >>>
+> >>>   
+> >>>       
+> >> could execve be changed to execvp? this way a hard coded path is not 
+> >> necessary.
+> >> I can write a patch?
+> >>     
+> >
+> > But then the caller can influence the path and the environment.
+> > And that presumes that setfiles and load_policy will always be in the
+> > path of the caller of libsemanage.
+> >
+> >   
+> understood. however the scope of the application's capabilities are 
+> limited by the user's unix permissions right? ie a regular user can make 
+> his own policy and store it in his home directory, maybe even with a 
+> hacked version of semodule, but at the end of the day the policy cannot 
+> be put into kernel memory by a regular user. Well thats how i understand 
+> it as.
 
+We don't necessarily want the process (in this case your shell) that
+invoked semodule to be able to arrange conditions to trick libsemanage
+into executing a different helper of its choosing or to pass environment
+settings to that helper that would enable the calling process to
+control/influence it.  Not so critical for setfiles per se, as that is
+only doing a validity check on the file_contexts configuration, but more
+of a concern for the optional policy checkers/verifiers that can be
+enabled via semanage.conf.
+
+Now, it is true that in a normal configuration, semodule and the helpers
+run in their own domains, and thus the glibc sanitization of the
+environment upon a domain transition should suffice.  In your case I
+presume this doesn't happen because you are installing semodule and the
+helpers to a private directory and they are not being labeled with their
+own executable type as a result.
+
+However, it seems contrary to secure programming practice to open the
+door unnecessarily, and I'm not sure it is even necessary in your case.
+It sounds like all you really need/want is a way to suppress running of
+setfiles altogether.  That shouldn't be hard.  
+
+> > You can certainly patch your local copy of it.   Or run it in a chroot.
+> > Not clear what the argument is for making it an upstream change.
+> >
+> >   
+> Could i make a formal request? Is there another list for that? Or should 
+> i just start another thread on this list?
+
+You'd typically start a thread on this list, posting an RFC and possibly
+a patch if you have one.  But think about whether you really need to
+change this behavior in general, or if you should just be running this
+in a chroot or suppressing the execution of setfiles altogether.
 
 -- 
-Vikram Ambrose | Linux Products Division | WindRiver Corporation
+Stephen Smalley
+National Security Agency
 
 
 --
