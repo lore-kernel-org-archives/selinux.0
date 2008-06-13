@@ -1,133 +1,87 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5DEMdkF004838
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 10:22:39 -0400
-Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5DEMbhG026420
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 14:22:38 GMT
-Received: by wr-out-0506.google.com with SMTP id c37so2720189wra.26
-        for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 07:22:37 -0700 (PDT)
-Message-ID: <485282AB.5010409@gmail.com>
-Date: Fri, 13 Jun 2008 10:22:35 -0400
-From: max <maximilianbianco@gmail.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: selinux@tycho.nsa.gov
-Subject: Re: SELinux References/Books
-References: <48502D42.4030905@gmail.com> <1213273867.17842.179.camel@moss-spartans.epoch.ncsc.mil> <a040ffdc0806121100v7732f155h881379386ad546da@mail.gmail.com> <200806132228.21083.russell@coker.com.au>
-In-Reply-To: <200806132228.21083.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5DENpOO005041
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 10:23:51 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m5DENohG026651
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 14:23:50 GMT
+Subject: Re: [refpolicy] Milter Mail Filters
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Paul Howarth <paul@city-fan.org>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <48526D68.1040807@city-fan.org>
+References: <484D4B53.5020006@city-fan.org>  <48526D68.1040807@city-fan.org>
+Content-Type: text/plain
+Date: Fri, 13 Jun 2008 10:23:25 -0400
+Message-Id: <1213367005.11146.45.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Friday 13 June 2008 04:00, "max bianco" <maximilianbianco@gmail.com> wrote:
->> here that I am unaware of or that simply aren't occurring to me right
->> now. I can't be the first person to have such an idea and it will of
->> course be pointed out that live journals work much the same but here
->> my point is the scope of the audience that you are reaching on a
->> mailing list vs. an individual blog of which there are hundred's of
->> thousands if not millions. Also it would help by adding more
-> 
-> That's why you have blog syndication.  I expect that the number of people who 
-> read my blog via the various Planets exceeds the number of subscribers that 
-> most mailing lists have.  Of course blog syndication does not work well for 
-> content that is being modified.
-> 
->> other thing I noticed, while at the bookstore, is that various/most of
->> the Linux magazines on the shelf right now have articles on security
->> in them and one, i forget which, has a piece on SELinux. It seems its
->> a hot topic everywhere I look. Cspan aired a rerun, from yesterday I
-> 
-> My observation is that SE Linux is not as much of a hot topic as it used to 
-> be.  Now there are many people using it (some of whom don't even realise that 
-> they do), and it's part of the infrastructure.  When SE Linux was a new thing 
-> that few people understood there was a lot more excitement.
-> 
+On Fri, 2008-06-13 at 13:51 +0100, Paul Howarth wrote:
+> Paul Howarth wrote:
+> > attached is a patch based on local policy I'm using on Fedora 9 to 
+> > support two "milter" mail filter daemons in conjunction with sendmail, 
+> > namely spamass-milter and milter-regex (I maintain the packages for both 
+> > of these in Fedora).
+> > 
+> > I've taken the view that most milter applications will have similar 
+> > requirements and so I've created a milter_template interface that 
+> > contains most of what's needed, and then added the specifics that are 
+> > needed on top of the generic stuff for each application.
+> > 
+> > However, as I'm by no means an selinux expert, there are a number of 
+> > things I'm unsure about:
+> > 
+> > 1. In a situation where sendmail is the running MTA on a system, what is 
+> > the difference between sendmail_t and system_mail_t?
 
->> what I saw nobody mentioned the real problem. As far as I am concerned
->> the "real" problem is having the widespread use of an operating system
->> that makes things like drive by downloads so easy in the first place,
-> 
-> Until we get the X access controls in common use, SE Linux won't be doing that 
-> much to prevent desktop attacks.
+The former is the server process, the latter is the client.  In the past
+sendmail_t was also used in the client sense in too, but we've since
+stuck with *_mail_t for clients with few exeptions (which I'd prefer to
+fix).
 
-I had noticed a bit of traffic about X. It seems its going to be quite 
-the effort to properly confine it.
-I noticed also that Eamon Walsh had posted some links to info on X 
-related magic. This interests me a lot because I like to game, although 
-I haven't played any games since switching over to a Linux-based OS : ( 
-  I know online gaming is very popular and there aren't many Linux games 
-that meet expectations but I am sure that will change or maybe everyone 
-will just buy a PS3. I have heard of a few vulnerabilities in games like 
-world of warcraft and eve online, though I am not sure how many are 
-directly related to the xserver or whatever passes for its equivalent on 
-a windows box. I know some of these games are starting to release or 
-work on linux clients, it will be interesting to see how much care they 
-take to do it safely and securely. I am not very hopeful on this but 
-perhaps I will be surprised : )
-> 
->> where most of the security rests with a program(anti virus) that
->> relies almost exclusively on updates but that is another debate and
-> 
-> I don't think that you will get a debate on the merits of anti-virus software 
-> on this list.  I think that there is general agreement that any attacker 
-> worth worrying about will launch an attack that doesn't match a known 
-> signature.  Past discussions on this list have covered issues such as the 
-> utility of shells and interpreters such as Perl for launching attacks.
-> 
-I will have to spend some of this free time I have digging through the 
-archives.
+> > 2. MTAs other than sendmail (postfix comes to mind) can also use 
+> > milters, but as I don't have any boxes running postfix, I don't know 
+> > what I'd need to add to postfix policy to support milters.
 
-> Note that this doesn't mean that virus scanners for email and browser warnings 
-> for bogus sites are a bad idea.  Mitigating factors that reduce the scope of 
-> the threat make it easier to recognise real threats.
-> 
-Understood and I wasn't trying to suggest such a thing but a lot of home 
-users think anti-virus = saftey as in the 100% variety. That attitude is 
-held by a lot of people even unfortunately some in the IT field. Many 
-people take their computers for granted and assume the makers of such 
-devices automatically try to make them as safe as possible, when its 
-actually "as cost effective as possible" that wins out in the majority 
-of cases. One of the first things to get sacrificed is usually security 
-it seems. They seem to like to spend all the dollars on making it look 
-pretty : ( which would be fine if the substance was there but I suspect 
-that's another never ending debate and actually it points to a social 
-problem anyway.
+My guess would be postfix_local_t, since that is where the procmail
+transition is.  Someone more familiar with postfix should confirm.
 
->> probably not one worth having anyway. Unfortunately it will probably
->> take a major virus outbreak, on a scale we have yet to see, or a
->> massive, widespread, and very public breach of security to wake people
->> up. I will go ahead and shutdown here,  my real point is that it seems
->> people are starting to pay a lot more attention :^). Thanks for the
->> feedback.
-> 
-> http://conference.auscert.org.au/conf2006/presentation.php
-> 
-> There are significant amounts of money involved in computer crime nowadays.  
-> At the AusCERT 2006 conference Jake Jacobson of the U.S. Secret Service gave 
-> a very interesting talk about the organised computer crime groups.  The 
-> amounts of money involved give a lot of nasty people significant incentives 
-> to not have public breaches of security.
-> 
-> I've been involved in the SE Linux project for almost seven years.  Over that 
-> time I have always felt that the problem scope is increasing faster than our 
-> progress on fixing things.
-> 
-It would be nice if we (the human race) were as wise as we are eager.
+> > 3. Fedora 9 has an interface spamassassin_domtrans_spamc that I used in 
+> > my local policy. It doesn't appear to be present in refpolicy; what 
+> > would be the right thing to use for a daemon calling spamc?
 
+There isn't currently a system_spamc_t domain, and adding that along
+with appropriate interfaces would likely be the best choice.  Current
+policies just execute spamc w/o transition, for example procmail, which
+would likely be ok for now.
 
-> 
-> PS  If you get a chance I recommend that you attend a lecture by Jake or one 
-> of his colleagues.  It's an experience you'll remember for the rest of your 
-> life.
-> 
-Will do. I am already putting the link you provided to use :^) I love 
-information, if you have any other links I am always looking for good 
-ones. Considering the volume of information available I think I am going 
-to have to take a speed reading&retention course.
+> > 4. I cribbed the milter_port_t stuff from the only example I could find, 
+> > and it's probably wrong. What would be the correct way of defining this?
+
+Adding it to corenetwork.
+
+> > 5. Does the use of a template for these applications a sane way to do it?
+
+Depends.  Based on what I see in your patch, I'd say no.  There are only
+a couple rules, and there are a bunch of types declared that don't have
+rules.
+
+> Should I have raised this somewhere else, or in a different way? I've 
+> had no responses either here or on fedora-selinux-list. The 
+> spamass-milter is currently broken with SELinux enforcing on Fedora 9 
+> and I'd like to be able to make at least a little progress towards 
+> fixing that.
+
+Here is fine.  I can only speak for myself about not responding earlier
+of course, but since there was a policy patch I added it to my queue to
+review.  There are still items in the queue before this :)
 
 -- 
-Fortune favors the BOLD
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
