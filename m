@@ -1,96 +1,63 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5DCSfae015927
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 08:28:41 -0400
-Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5DCSUhG020636
-	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 12:28:38 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "max bianco" <maximilianbianco@gmail.com>
-Subject: Re: SELinux References/Books
-Date: Fri, 13 Jun 2008 22:28:19 +1000
-Cc: selinux@tycho.nsa.gov
-References: <48502D42.4030905@gmail.com> <1213273867.17842.179.camel@moss-spartans.epoch.ncsc.mil> <a040ffdc0806121100v7732f155h881379386ad546da@mail.gmail.com>
-In-Reply-To: <a040ffdc0806121100v7732f155h881379386ad546da@mail.gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5DCq1Nr019729
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 08:52:01 -0400
+Received: from goalkeeper.city-fan.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5DCpxhG026819
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 12:52:00 GMT
+Received: from roary.intranet.virtensys.com (host90-152-25-158.ipv4.regusnet.com [90.152.25.158])
+	(authenticated bits=0)
+	by goalkeeper.city-fan.org (8.14.3/8.14.3) with ESMTP id m5DCpwV8002735
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 13:51:59 +0100
+Message-ID: <48526D68.1040807@city-fan.org>
+Date: Fri, 13 Jun 2008 13:51:52 +0100
+From: Paul Howarth <paul@city-fan.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200806132228.21083.russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] Milter Mail Filters
+References: <484D4B53.5020006@city-fan.org>
+In-Reply-To: <484D4B53.5020006@city-fan.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 13 June 2008 04:00, "max bianco" <maximilianbianco@gmail.com> wrote:
-> here that I am unaware of or that simply aren't occurring to me right
-> now. I can't be the first person to have such an idea and it will of
-> course be pointed out that live journals work much the same but here
-> my point is the scope of the audience that you are reaching on a
-> mailing list vs. an individual blog of which there are hundred's of
-> thousands if not millions. Also it would help by adding more
+Paul Howarth wrote:
+> attached is a patch based on local policy I'm using on Fedora 9 to 
+> support two "milter" mail filter daemons in conjunction with sendmail, 
+> namely spamass-milter and milter-regex (I maintain the packages for both 
+> of these in Fedora).
+> 
+> I've taken the view that most milter applications will have similar 
+> requirements and so I've created a milter_template interface that 
+> contains most of what's needed, and then added the specifics that are 
+> needed on top of the generic stuff for each application.
+> 
+> However, as I'm by no means an selinux expert, there are a number of 
+> things I'm unsure about:
+> 
+> 1. In a situation where sendmail is the running MTA on a system, what is 
+> the difference between sendmail_t and system_mail_t?
+> 
+> 2. MTAs other than sendmail (postfix comes to mind) can also use 
+> milters, but as I don't have any boxes running postfix, I don't know 
+> what I'd need to add to postfix policy to support milters.
+> 
+> 3. Fedora 9 has an interface spamassassin_domtrans_spamc that I used in 
+> my local policy. It doesn't appear to be present in refpolicy; what 
+> would be the right thing to use for a daemon calling spamc?
+> 
+> 4. I cribbed the milter_port_t stuff from the only example I could find, 
+> and it's probably wrong. What would be the correct way of defining this?
+> 
+> 5. Does the use of a template for these applications a sane way to do it?
 
-That's why you have blog syndication.  I expect that the number of people who 
-read my blog via the various Planets exceeds the number of subscribers that 
-most mailing lists have.  Of course blog syndication does not work well for 
-content that is being modified.
+Should I have raised this somewhere else, or in a different way? I've 
+had no responses either here or on fedora-selinux-list. The 
+spamass-milter is currently broken with SELinux enforcing on Fedora 9 
+and I'd like to be able to make at least a little progress towards 
+fixing that.
 
-> other thing I noticed, while at the bookstore, is that various/most of
-> the Linux magazines on the shelf right now have articles on security
-> in them and one, i forget which, has a piece on SELinux. It seems its
-> a hot topic everywhere I look. Cspan aired a rerun, from yesterday I
-
-My observation is that SE Linux is not as much of a hot topic as it used to 
-be.  Now there are many people using it (some of whom don't even realise that 
-they do), and it's part of the infrastructure.  When SE Linux was a new thing 
-that few people understood there was a lot more excitement.
-
-> what I saw nobody mentioned the real problem. As far as I am concerned
-> the "real" problem is having the widespread use of an operating system
-> that makes things like drive by downloads so easy in the first place,
-
-Until we get the X access controls in common use, SE Linux won't be doing that 
-much to prevent desktop attacks.
-
-> where most of the security rests with a program(anti virus) that
-> relies almost exclusively on updates but that is another debate and
-
-I don't think that you will get a debate on the merits of anti-virus software 
-on this list.  I think that there is general agreement that any attacker 
-worth worrying about will launch an attack that doesn't match a known 
-signature.  Past discussions on this list have covered issues such as the 
-utility of shells and interpreters such as Perl for launching attacks.
-
-Note that this doesn't mean that virus scanners for email and browser warnings 
-for bogus sites are a bad idea.  Mitigating factors that reduce the scope of 
-the threat make it easier to recognise real threats.
-
-> probably not one worth having anyway. Unfortunately it will probably
-> take a major virus outbreak, on a scale we have yet to see, or a
-> massive, widespread, and very public breach of security to wake people
-> up. I will go ahead and shutdown here,  my real point is that it seems
-> people are starting to pay a lot more attention :^). Thanks for the
-> feedback.
-
-http://conference.auscert.org.au/conf2006/presentation.php
-
-There are significant amounts of money involved in computer crime nowadays.  
-At the AusCERT 2006 conference Jake Jacobson of the U.S. Secret Service gave 
-a very interesting talk about the organised computer crime groups.  The 
-amounts of money involved give a lot of nasty people significant incentives 
-to not have public breaches of security.
-
-I've been involved in the SE Linux project for almost seven years.  Over that 
-time I have always felt that the problem scope is increasing faster than our 
-progress on fixing things.
-
-
-PS  If you get a chance I recommend that you attend a lecture by Jake or one 
-of his colleagues.  It's an experience you'll remember for the rest of your 
-life.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+Paul.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
