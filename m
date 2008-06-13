@@ -1,68 +1,38 @@
-Subject: Re:
-	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5DDuhWq030999
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 09:56:43 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m5DDufhG017058
+	for <selinux@tycho.nsa.gov>; Fri, 13 Jun 2008 13:56:43 GMT
+Subject: Re: [refpolicy] /usr/lib32 type
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <48524E79.6000508@ak.jp.nec.com>
-References: <483A9137.5050509@ak.jp.nec.com>
-	 <1211908477.19360.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
-	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
-	 <483C6BEA.8040101@tycho.nsa.gov>
-	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
-	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
-	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
-	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
-	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
-	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
-	 <4846142F.8090100@ak.jp.nec.com>
-	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
-	 <48473ECC.6020501@ak.jp.nec.com>
-	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>
-		 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>
-	  <48524E79.6000508@ak.jp.nec.com>
+To: Martin Orr <martin@martinorr.name>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <484D6297.1030702@martinorr.name>
+References: <484A8A15.9000507@martinorr.name>
+	 <1213016083.28428.9.camel@gorn>  <484D6297.1030702@martinorr.name>
 Content-Type: text/plain
-Date: Fri, 13 Jun 2008 09:37:35 -0400
-Message-Id: <1213364255.11146.18.camel@gorn>
+Date: Fri, 13 Jun 2008 09:55:18 -0400
+Message-Id: <1213365318.11146.28.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-06-13 at 19:39 +0900, KaiGai Kohei wrote:
-> Christopher J. PeBenito wrote:
-> > I merged this, but I was thinking about some revisions that we should
-> > consider:
-> >
-> > 1. in the unpriv client interface, we have these type transitions:
-> > type_transition $1 sepgsql_database_type:db_table sepgsql_table_t;
-> > type_transition $1 sepgsql_database_type:db_procedure sepgsql_proc_t;
-> > type_transition $1 sepgsql_database_type:db_blob sepgsql_blob_t;
+On Mon, 2008-06-09 at 18:04 +0100, Martin Orr wrote:
+> On 09/06/08 13:54, Christopher J. PeBenito wrote:
+> > On Sat, 2008-06-07 at 14:16 +0100, Martin Orr wrote:
+> >> On a 64-bit Debian system, /usr/lib32 is a symlink to
+> >> /emul/ia32-linux/usr/lib.  It should be labelled as lib_t.
+> >>
+> >> I don't know if the distro_debian is necessary - take it out if you want.
 > > 
-> > The client can only access the system database, not all databases, so it
-> > seems that sepgsql_database_type should be replaced with sepgsql_db_t.
+> > Actually what seems excessive is the (.*/)? in the middle.  Is it really
+> > needed?  Its very broad, and doesn't sound like its needed.
 > 
-> I agreed.
-> 
-> Currently, sepgsql_db_t is the only type of sepgsql_database_type
-> except for unlabeled_t, however, these type_transition can prevent
-> user to add new database type and new type_transition rules.
+> I probably copied it from the lines above.  And in fact given the -l, there
+> is not much point in the (/.*)? at the end either.
 
-I merged this part of the patch.
-
-> > 2. the stored procedure type names have been in the back of my mind for
-> > long time but I couldn't come up with a good naming scheme.  This
-> > especially bugged me for the sepgsql_trusted_domain_t and
-> > sepgsql_trusted_proc_t.  Why not just go with what we do with regular
-> > domains and executables: sepgsql_trusted_proc_t and
-> > sepgsql_trusted_proc_exec_t?
-> 
-> I don't have a clear reason for the naming of them.
-> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
-> for the purpose, I also think.
-
-It seems that we should also rename $1_sepgsql_proc_t for consistency.
+I added in an entry for the /usr/lib32 symlink.
 
 -- 
 Chris PeBenito
