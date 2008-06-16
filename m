@@ -1,339 +1,77 @@
-Subject: Re: libsemanage.semanage_install_active: error during semodule -n
-	-v -b base.pp -s refpolicy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-Cc: Joshua Brindle <method@manicmethod.com>, SELinux@tycho.nsa.gov,
-        Chad Sellers <csellers@tresys.com>, Caleb Case <ccase@tresys.com>
-In-Reply-To: <4852D5B3.3060204@windriver.com>
-References: <4851361E.3030305@windriver.com>
-	 <1213288802.17842.195.camel@moss-spartans.epoch.ncsc.mil>
-	 <48515E78.40400@windriver.com>
-	 <1213293329.17842.246.camel@moss-spartans.epoch.ncsc.mil>
-	 <48516379.80609@windriver.com>
-	 <1213294846.17842.261.camel@moss-spartans.epoch.ncsc.mil>
-	 <48517032.6070805@windriver.com>
-	 <1213297922.17842.290.camel@moss-spartans.epoch.ncsc.mil>
-	 <48528C12.1030007@windriver.com> <485290FA.10906@manicmethod.com>
-	 <4852C668.6040508@windriver.com>
-	 <1213385371.17842.400.camel@moss-spartans.epoch.ncsc.mil>
-	 <4852CB28.6020806@windriver.com>
-	 <1213387146.17842.424.camel@moss-spartans.epoch.ncsc.mil>
-	 <4852D5B3.3060204@windriver.com>
-Content-Type: text/plain
-Date: Mon, 16 Jun 2008 08:00:21 -0400
-Message-Id: <1213617621.15523.18.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5GDwUbQ024226
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jun 2008 09:58:30 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m5GDwTnk021933
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jun 2008 13:58:29 GMT
+Message-ID: <48567167.9090303@manicmethod.com>
+Date: Mon, 16 Jun 2008 09:57:59 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Mohamed Hassan <mhassan@cse.psu.edu>
+CC: selinux@tycho.nsa.gov
+Subject: Re: defining a new class in a policy module
+References: <1213583952.31114.8.camel@cairo>	 <4855E31E.50004@manicmethod.com> <1213593850.6655.8.camel@cairo>
+In-Reply-To: <1213593850.6655.8.camel@cairo>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Fri, 2008-06-13 at 16:16 -0400, Vikram Ambrose wrote:
-> Stephen Smalley wrote:
-> > On Fri, 2008-06-13 at 15:31 -0400, Vikram Ambrose wrote:
-> >   
-> >> Stephen Smalley wrote:
-> >>     
-> >>> On Fri, 2008-06-13 at 15:11 -0400, Vikram Ambrose wrote:
-> >>>   
-> >>>       
-> >>>> Joshua Brindle wrote:
-> >>>>     
-> >>>>         
-> >>>>> Vikram Ambrose wrote:
-> >>>>>   
-> >>>>>       
-> >>>>>           
-> >>>>>> Stephen Smalley wrote:
-> >>>>>>     
-> >>>>>>         
-> >>>>>>             
-> >>>>>>> On Thu, 2008-06-12 at 14:51 -0400, Vikram Ambrose wrote:
-> >>>>>>>  
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>>>> Stephen Smalley wrote:
-> >>>>>>>>    
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>>>> On Thu, 2008-06-12 at 13:57 -0400, Vikram Ambrose wrote:
-> >>>>>>>>>        
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>>>> Stephen Smalley wrote:
-> >>>>>>>>>>            
-> >>>>>>>>>>             
-> >>>>>>>>>>                 
-> >>>>>>>>>>                     
-> >>>>>>>>>>> On Thu, 2008-06-12 at 13:35 -0400, Vikram Ambrose wrote:
-> >>>>>>>>>>>                  
-> >>>>>>>>>>>               
-> >>>>>>>>>>>                   
-> >>>>>>>>>>>                       
-> >>>>>>>>>>>> Stephen Smalley wrote:
-> >>>>>>>>>>>>                        
-> >>>>>>>>>>>>                 
-> >>>>>>>>>>>>                     
-> >>>>>>>>>>>>                         
-> >>>>>>>>>>>>> On Thu, 2008-06-12 at 10:43 -0400, Vikram Ambrose wrote:
-> >>>>>>>>>>>>>                                
-> >>>>>>>>>>>>>                   
-> >>>>>>>>>>>>>                       
-> >>>>>>>>>>>>>                           
-> >>>>>>>>>>>>>> During the "make load" procedure with refpolicy, the semodule
-> >>>>>>>>>>>>>> command fails, so I tried it manually and I see this error.
-> >>>>>>>>>>>>>>
-> >>>>>>>>>>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
-> >>>>>>>>>>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v -n
-> >>>>>>>>>>>>>> Attempting to install base module
-> >>>>>>>>>>>>>> '/usr/share/selinux/refpolicy/base.pp':
-> >>>>>>>>>>>>>> Ok: return value of 0.
-> >>>>>>>>>>>>>> Committing changes:
-> >>>>>>>>>>>>>> libsemanage.semanage_install_active: setfiles returned error
-> >>>>>>>>>>>>>> code 1. (No such file or directory).
-> >>>>>>>>>>>>>>                                         
-> >>>>>>>>>>>>>>                     
-> >>>>>>>>>>>>>>                         
-> >>>>>>>>>>>>>>                             
-> >>>>>>>>>>>>> whereis setfiles
-> >>>>>>>>>>>>>
-> >>>>>>>>>>>>>                                 
-> >>>>>>>>>>>>>                   
-> >>>>>>>>>>>>>                       
-> >>>>>>>>>>>>>                           
-> >>>>>>>>>>>> setfiles and the rest of the SELinux "toolchain" was all built
-> >>>>>>>>>>>> from svn and placed into /hone/testing/root
-> >>>>>>>>>>>> root's environment has PATH that contains /home/testing/root/bin
-> >>>>>>>>>>>> as well as LD_LIBRARY_PATH to /home/testing/root/lib
-> >>>>>>>>>>>>
-> >>>>>>>>>>>> Does libsemanage have a hard coded path to setfiles?
-> >>>>>>>>>>>>                         
-> >>>>>>>>>>>>                 
-> >>>>>>>>>>>>                     
-> >>>>>>>>>>>>                         
-> >>>>>>>>>>> Yes, although it can be overridden via /etc/selinux/semanage.conf.
-> >>>>>>>>>>> Add something like:
-> >>>>>>>>>>> [setfiles]
-> >>>>>>>>>>> path = /path/to/setfiles
-> >>>>>>>>>>> [end]
-> >>>>>>>>>>>
-> >>>>>>>>>>>                   
-> >>>>>>>>>>>               
-> >>>>>>>>>>>                   
-> >>>>>>>>>>>                       
-> >>>>>>>>>> I just noticed the hard coded path in conf-parser.y
-> >>>>>>>>>> Is there a way of doing the above with a generic rule to all of the
-> >>>>>>>>>> selinux toolchain and not specifically to "setfiles" as shown above?
-> >>>>>>>>>>             
-> >>>>>>>>>>             
-> >>>>>>>>>>                 
-> >>>>>>>>>>                     
-> >>>>>>>>> Not presently; it wasn't really intended for an alternate root
-> >>>>>>>>> mechanism
-> >>>>>>>>> (and apparently doesn't work for it anyway, as you have found).
-> >>>>>>>>>
-> >>>>>>>>>         
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>> And specifying each and every tool individual is not possible i suppose?
-> >>>>>>>>     
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>> There are only two helpers that are executed by default, setfiles and
-> >>>>>>> load_policy, and you can specify them both, using the same syntax but
-> >>>>>>> different section keyword.
-> >>>>>>>
-> >>>>>>>  
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>>>>>> ...
-> >>>>>>>>>> Adding that to semanage.conf produce an almost obvious error "
-> >>>>>>>>>> error while loading shared libraries: libsepol.so.0: cannot open
-> >>>>>>>>>> shared object file: No such file or directory"
-> >>>>>>>>>>
-> >>>>>>>>>> what sort of environment is libsemanage using to execute setfiles?
-> >>>>>>>>>> libsepol and friends are in LD_LIBRARY_PATH
-> >>>>>>>>>>             
-> >>>>>>>>>>             
-> >>>>>>>>>>                 
-> >>>>>>>>>>                     
-> >>>>>>>>> Ah, semanage_exec_prog() passes a NULL environ to execve().
-> >>>>>>>>>
-> >>>>>>>>>         
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>> Can this be rectified?
-> >>>>>>>>     
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>> Even if we changed the code, the policy normally won't allow passing of
-> >>>>>>> LD_LIBRARY_PATH and the like across a domain transition (noatsecure
-> >>>>>>> permission to disable setting of AT_SECURE auxv flag), and setfiles and
-> >>>>>>> load_policy typically run in their own domains.  Although you can
-> >>>>>>> certainly customize policy and the code for your particular needs.
-> >>>>>>>
-> >>>>>>>  
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>>>>> I think this takes us to the "run it in a chroot environment" scenario
-> >>>>>>>>> if you don't want to install the libraries and programs to your system
-> >>>>>>>>> directories.  I'm not entirely sure what your goal is here though - you
-> >>>>>>>>> seem ok with installing the policy files to system directories.
-> >>>>>>>>>         
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>> Your last remark there is rather confusing to me. You seem to suggest
-> >>>>>>>> that "installing the policy files to system directories" is an option
-> >>>>>>>> I have been given, and as such chosen to do so. To my knowledge the
-> >>>>>>>> entire toolchain is hard coded to /etc/selinux and as such not
-> >>>>>>>> possible to provide a /different/syconfig/path. How is it that I go
-> >>>>>>>> about installing selinux and its configuration to a non "system
-> >>>>>>>> directory", yet "system wide" path such as /security or /selinux or
-> >>>>>>>> /seconfig etc..?
-> >>>>>>>>     
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>> Well, yes, that's true.  Running it chroot'd is the only way right now
-> >>>>>>> to do that.  Which would also resolve your problem with setfiles.
-> >>>>>>>
-> >>>>>>> The other approach would be to change libselinux to support an alternate
-> >>>>>>> root setting via some mechanism, but we have to be careful to not give
-> >>>>>>> undue influence to callers where it isn't warranted, of course.
-> >>>>>>>
-> >>>>>>>   
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>> I added extern char **environ, and passed in environ to execve,  i also
-> >>>>>> added some printfs to see what was being passed into setfiles...
-> >>>>>>
-> >>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
-> >>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v
-> >>>>>> Attempting to install base module '/usr/share/selinux/refpolicy/base.pp':
-> >>>>>> Ok: return value of 0.
-> >>>>>> Committing changes:
-> >>>>>> e->path=/home/vikram/root/bin/setfiles
-> >>>>>> arg[0] = /home/vikram/root/bin/setfiles
-> >>>>>> arg[1] = (null)
-> >>>>>> usage:  /home/vikram/root/bin/setfiles [-dnpqvW] [-o filename] [-r
-> >>>>>> alt_root_path ] spec_file pathname...
-> >>>>>> usage:  /home/vikram/root/bin/setfiles -c policyfile spec_file
-> >>>>>> usage:  /home/vikram/root/bin/setfiles -s [-dnqvW] [-o filename ] spec_file
-> >>>>>> libsemanage.semanage_install_active: setfiles returned error code 1.
-> >>>>>>
-> >>>>>> Why is setfiles being passed no arguments?
-> >>>>>>
-> >>>>>>     
-> >>>>>>         
-> >>>>>>             
-> >>>>> you need to add:
-> >>>>>
-> >>>>> args = -q -c $@ $<
-> >>>>>
-> >>>>> to the setfiles block in semanage.conf
-> >>>>>
-> >>>>>   
-> >>>>>       
-> >>>>>           
-> >>>> could execve be changed to execvp? this way a hard coded path is not 
-> >>>> necessary.
-> >>>> I can write a patch?
-> >>>>     
-> >>>>         
-> >>> But then the caller can influence the path and the environment.
-> >>> And that presumes that setfiles and load_policy will always be in the
-> >>> path of the caller of libsemanage.
-> >>>
-> >>>   
-> >>>       
-> >> understood. however the scope of the application's capabilities are 
-> >> limited by the user's unix permissions right? ie a regular user can make 
-> >> his own policy and store it in his home directory, maybe even with a 
-> >> hacked version of semodule, but at the end of the day the policy cannot 
-> >> be put into kernel memory by a regular user. Well thats how i understand 
-> >> it as.
-> >>     
-> >
-> > We don't necessarily want the process (in this case your shell) that
-> > invoked semodule to be able to arrange conditions to trick libsemanage
-> > into executing a different helper of its choosing or to pass environment
-> > settings to that helper that would enable the calling process to
-> > control/influence it.  Not so critical for setfiles per se, as that is
-> > only doing a validity check on the file_contexts configuration, but more
-> > of a concern for the optional policy checkers/verifiers that can be
-> > enabled via semanage.conf.
-> >
-> >   
-> The helper applications dont read environment variables, do they?
-> And however misconfigure the userspace tool maybe kernel security is in 
-> place to protect the system.
+Mohamed Hassan wrote:
+> Thank you for the response. When I modify the flask/ directory and run
+> make (flask.py) it will generate 2 directories kernel and selinux. The
+> kernel one will go under <kernel-src>/security/selinux/include/ and the
+> selinux headers will go under libselinux/include/selinux. 
 > 
-> Yes we "open the door" to the environment, but the tools executed by 
-> libsemanage dont do any harm, unless run as super user. but if you cant 
-> trust super-user then who can you trust?
+> There is another flask.h file under
+> libsepol/include/sepol/policydb/flask.h do I need to update that file
+> for checkpolicy and semodule to work properly?
 > 
-> Or maybe i just dont understand, Could you perhaps give a use case of 
-> how using execvp to allow the helper app to access the environment is a 
-> security risk?
+> 
 
-See for example:
-http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/environment-variables.html
+After adding them to access_vectors and security_classes you want to rebuild your base.pp from that repo so that you'll have those classes included in the policy you are linking your module against. 
 
-It isn't merely about explicit access of the environment by a helper
-application, but rather the automatic use of environment settings by the
-dynamic linker and by glibc in a way that affects security.  If a less
-trusted caller is permitted to invoke semodule and can control the path
-by which helpers it executes runs or the dynamic loader search path or
-preload settings, then it can redirect execution to code of its
-choosing.
+The module will then need to require the classes and permissions:
 
-Your comment about the superuser being trusted is missing the point; one
-of the features of SELinux is the ability to limit each process/program
-to least privilege whether superuser or not.
+require {
+	class gsmd { send_sms_msg receive_sms_msg };
+}
 
-> > Now, it is true that in a normal configuration, semodule and the helpers
-> > run in their own domains, and thus the glibc sanitization of the
-> > environment upon a domain transition should suffice.  In your case I
-> > presume this doesn't happen because you are installing semodule and the
-> > helpers to a private directory and they are not being labeled with their
-> > own executable type as a result.
-> >
-> > However, it seems contrary to secure programming practice to open the
-> > door unnecessarily, and I'm not sure it is even necessary in your case.
-> > It sounds like all you really need/want is a way to suppress running of
-> > setfiles altogether.  That shouldn't be hard.  
-> >
-> >   
-> During the semodule -b -s command, the need to run setfiles is for what? 
-> Perhaps like you said i can just short that out altogether. i only need 
-> the build/install functionality of semodule, setting file contexts and 
-> loading the policy i would rather do manually,  instead of libsemanage 
-> calling execve.
+in order to use those in the module.
 
-The execution of setfiles by libsemanage is merely to check the validity
-of the file_contexts file against the policy.
+You won't necessarily need to do anything with the headers, but like I said, if you want the numbers reserved you need to send a patch to refpolicy for the flask dir (minus the headers)
 
-You can effectively disable the use of setfiles there just by putting
-the following in your /etc/selinux/semanage.conf file:
-[setfiles]
-path = /bin/true
-[end]
+>  
+> On Sun, 2008-06-15 at 23:50 -0400, Joshua Brindle wrote:
+>> Mohamed Hassan wrote:
+>>> Hi,
+>>> I created a new policy inside the refpolicy. I am trying to define a new
+>>> class inside this module. When I compile, it fails with parsing error:
+>>>
+>>> /usr/bin/checkmodule -M -m tmp/gsmd.tmp -o tmp/gsmd.mod
+>>> /usr/bin/checkmodule:  loading policy configuration from tmp/gsmd.tmp
+>>> policy/modules/services/gsmd.te:3:ERROR 'syntax error' at token 'Class'
+>>> on line 1185:
+>>>
+>>> Class gsmd { send_sms_msg receive_sms_msg };
+>>> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+>>>
+>>>
+>>> Here is my class definition:
+>>> Class gsmd { send_sms_msg receive_sms_msg };
+>>>
+>>> I would like to know how to define a new class in policy module?
+>>>
+>> It isn't supported, mainly because class and permission ordering is still very static in the policy. To be sure that policy/library/kernel updates won't disturb the number assigned to your object class it is best to submit a reference policy patch to the flask/ directory and let those header changes propagate to the library and kernel.
+>>
+>>
+>> --
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+> 
+> 
 
-No patching required then.
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
