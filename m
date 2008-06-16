@@ -1,410 +1,48 @@
-Subject: Re: libsemanage.semanage_install_active: error during semodule -n
-	-v -b base.pp -s refpolicy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-Cc: Joshua Brindle <method@manicmethod.com>, SELinux@tycho.nsa.gov,
-        Chad Sellers <csellers@tresys.com>, Caleb Case <ccase@tresys.com>
-In-Reply-To: <48567065.30805@windriver.com>
-References: <4851361E.3030305@windriver.com>
-	 <1213288802.17842.195.camel@moss-spartans.epoch.ncsc.mil>
-	 <48515E78.40400@windriver.com>
-	 <1213293329.17842.246.camel@moss-spartans.epoch.ncsc.mil>
-	 <48516379.80609@windriver.com>
-	 <1213294846.17842.261.camel@moss-spartans.epoch.ncsc.mil>
-	 <48517032.6070805@windriver.com>
-	 <1213297922.17842.290.camel@moss-spartans.epoch.ncsc.mil>
-	 <48528C12.1030007@windriver.com> <485290FA.10906@manicmethod.com>
-	 <4852C668.6040508@windriver.com>
-	 <1213385371.17842.400.camel@moss-spartans.epoch.ncsc.mil>
-	 <4852CB28.6020806@windriver.com>
-	 <1213387146.17842.424.camel@moss-spartans.epoch.ncsc.mil>
-	 <4852D5B3.3060204@windriver.com>
-	 <1213617621.15523.18.camel@moss-spartans.epoch.ncsc.mil>
-	 <48567065.30805@windriver.com>
+Subject: Re: [PATCH-v3] libsepol: allow genfscon statements in modules
+From: Eric Paris <eparis@redhat.com>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, dwalsh@redhat.com
+In-Reply-To: <4829F4C4.4020306@manicmethod.com>
+References: <1210173297.3084.13.camel@localhost.localdomain>
+	 <4829F4C4.4020306@manicmethod.com>
 Content-Type: text/plain
-Date: Mon, 16 Jun 2008 10:21:39 -0400
-Message-Id: <1213626099.15523.82.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 16 Jun 2008 12:39:53 -0400
+Message-Id: <1213634393.3029.59.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2008-05-13 at 16:06 -0400, Joshua Brindle wrote:
+> Eric Paris wrote:
+> > This patch provides the libsepol support for the usage of genfscon
+> > statements in policy modules.  The module must declare/require all of
+> > the components of the context associated with the declaration but the
+> > actual validation of that context is delayed until link time.
+> >
+> > Comments and criticism appreciated.  (note that this patch may require
+> > the recent bug fix from sds for mls_level_convert())
 
-On Mon, 2008-06-16 at 09:53 -0400, Vikram Ambrose wrote:
-> Stephen Smalley wrote:
-> > On Fri, 2008-06-13 at 16:16 -0400, Vikram Ambrose wrote:
-> >   
-> >> Stephen Smalley wrote:
-> >>     
-> >>> On Fri, 2008-06-13 at 15:31 -0400, Vikram Ambrose wrote:
-> >>>   
-> >>>       
-> >>>> Stephen Smalley wrote:
-> >>>>     
-> >>>>         
-> >>>>> On Fri, 2008-06-13 at 15:11 -0400, Vikram Ambrose wrote:
-> >>>>>   
-> >>>>>       
-> >>>>>           
-> >>>>>> Joshua Brindle wrote:
-> >>>>>>     
-> >>>>>>         
-> >>>>>>             
-> >>>>>>> Vikram Ambrose wrote:
-> >>>>>>>   
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>>>> Stephen Smalley wrote:
-> >>>>>>>>     
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>>>> On Thu, 2008-06-12 at 14:51 -0400, Vikram Ambrose wrote:
-> >>>>>>>>>  
-> >>>>>>>>>       
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>>>> Stephen Smalley wrote:
-> >>>>>>>>>>    
-> >>>>>>>>>>         
-> >>>>>>>>>>             
-> >>>>>>>>>>                 
-> >>>>>>>>>>                     
-> >>>>>>>>>>> On Thu, 2008-06-12 at 13:57 -0400, Vikram Ambrose wrote:
-> >>>>>>>>>>>        
-> >>>>>>>>>>>           
-> >>>>>>>>>>>               
-> >>>>>>>>>>>                   
-> >>>>>>>>>>>                       
-> >>>>>>>>>>>> Stephen Smalley wrote:
-> >>>>>>>>>>>>            
-> >>>>>>>>>>>>             
-> >>>>>>>>>>>>                 
-> >>>>>>>>>>>>                     
-> >>>>>>>>>>>>                         
-> >>>>>>>>>>>>> On Thu, 2008-06-12 at 13:35 -0400, Vikram Ambrose wrote:
-> >>>>>>>>>>>>>                  
-> >>>>>>>>>>>>>               
-> >>>>>>>>>>>>>                   
-> >>>>>>>>>>>>>                       
-> >>>>>>>>>>>>>                           
-> >>>>>>>>>>>>>> Stephen Smalley wrote:
-> >>>>>>>>>>>>>>                        
-> >>>>>>>>>>>>>>                 
-> >>>>>>>>>>>>>>                     
-> >>>>>>>>>>>>>>                         
-> >>>>>>>>>>>>>>                             
-> >>>>>>>>>>>>>>> On Thu, 2008-06-12 at 10:43 -0400, Vikram Ambrose wrote:
-> >>>>>>>>>>>>>>>                                
-> >>>>>>>>>>>>>>>                   
-> >>>>>>>>>>>>>>>                       
-> >>>>>>>>>>>>>>>                           
-> >>>>>>>>>>>>>>>                               
-> >>>>>>>>>>>>>>>> During the "make load" procedure with refpolicy, the semodule
-> >>>>>>>>>>>>>>>> command fails, so I tried it manually and I see this error.
-> >>>>>>>>>>>>>>>>
-> >>>>>>>>>>>>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
-> >>>>>>>>>>>>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v -n
-> >>>>>>>>>>>>>>>> Attempting to install base module
-> >>>>>>>>>>>>>>>> '/usr/share/selinux/refpolicy/base.pp':
-> >>>>>>>>>>>>>>>> Ok: return value of 0.
-> >>>>>>>>>>>>>>>> Committing changes:
-> >>>>>>>>>>>>>>>> libsemanage.semanage_install_active: setfiles returned error
-> >>>>>>>>>>>>>>>> code 1. (No such file or directory).
-> >>>>>>>>>>>>>>>>                                         
-> >>>>>>>>>>>>>>>>                     
-> >>>>>>>>>>>>>>>>                         
-> >>>>>>>>>>>>>>>>                             
-> >>>>>>>>>>>>>>>>                                 
-> >>>>>>>>>>>>>>> whereis setfiles
-> >>>>>>>>>>>>>>>
-> >>>>>>>>>>>>>>>                                 
-> >>>>>>>>>>>>>>>                   
-> >>>>>>>>>>>>>>>                       
-> >>>>>>>>>>>>>>>                           
-> >>>>>>>>>>>>>>>                               
-> >>>>>>>>>>>>>> setfiles and the rest of the SELinux "toolchain" was all built
-> >>>>>>>>>>>>>> from svn and placed into /hone/testing/root
-> >>>>>>>>>>>>>> root's environment has PATH that contains /home/testing/root/bin
-> >>>>>>>>>>>>>> as well as LD_LIBRARY_PATH to /home/testing/root/lib
-> >>>>>>>>>>>>>>
-> >>>>>>>>>>>>>> Does libsemanage have a hard coded path to setfiles?
-> >>>>>>>>>>>>>>                         
-> >>>>>>>>>>>>>>                 
-> >>>>>>>>>>>>>>                     
-> >>>>>>>>>>>>>>                         
-> >>>>>>>>>>>>>>                             
-> >>>>>>>>>>>>> Yes, although it can be overridden via /etc/selinux/semanage.conf.
-> >>>>>>>>>>>>> Add something like:
-> >>>>>>>>>>>>> [setfiles]
-> >>>>>>>>>>>>> path = /path/to/setfiles
-> >>>>>>>>>>>>> [end]
-> >>>>>>>>>>>>>
-> >>>>>>>>>>>>>                   
-> >>>>>>>>>>>>>               
-> >>>>>>>>>>>>>                   
-> >>>>>>>>>>>>>                       
-> >>>>>>>>>>>>>                           
-> >>>>>>>>>>>> I just noticed the hard coded path in conf-parser.y
-> >>>>>>>>>>>> Is there a way of doing the above with a generic rule to all of the
-> >>>>>>>>>>>> selinux toolchain and not specifically to "setfiles" as shown above?
-> >>>>>>>>>>>>             
-> >>>>>>>>>>>>             
-> >>>>>>>>>>>>                 
-> >>>>>>>>>>>>                     
-> >>>>>>>>>>>>                         
-> >>>>>>>>>>> Not presently; it wasn't really intended for an alternate root
-> >>>>>>>>>>> mechanism
-> >>>>>>>>>>> (and apparently doesn't work for it anyway, as you have found).
-> >>>>>>>>>>>
-> >>>>>>>>>>>         
-> >>>>>>>>>>>           
-> >>>>>>>>>>>               
-> >>>>>>>>>>>                   
-> >>>>>>>>>>>                       
-> >>>>>>>>>> And specifying each and every tool individual is not possible i suppose?
-> >>>>>>>>>>     
-> >>>>>>>>>>         
-> >>>>>>>>>>             
-> >>>>>>>>>>                 
-> >>>>>>>>>>                     
-> >>>>>>>>> There are only two helpers that are executed by default, setfiles and
-> >>>>>>>>> load_policy, and you can specify them both, using the same syntax but
-> >>>>>>>>> different section keyword.
-> >>>>>>>>>
-> >>>>>>>>>  
-> >>>>>>>>>       
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>>>>>> ...
-> >>>>>>>>>>>> Adding that to semanage.conf produce an almost obvious error "
-> >>>>>>>>>>>> error while loading shared libraries: libsepol.so.0: cannot open
-> >>>>>>>>>>>> shared object file: No such file or directory"
-> >>>>>>>>>>>>
-> >>>>>>>>>>>> what sort of environment is libsemanage using to execute setfiles?
-> >>>>>>>>>>>> libsepol and friends are in LD_LIBRARY_PATH
-> >>>>>>>>>>>>             
-> >>>>>>>>>>>>             
-> >>>>>>>>>>>>                 
-> >>>>>>>>>>>>                     
-> >>>>>>>>>>>>                         
-> >>>>>>>>>>> Ah, semanage_exec_prog() passes a NULL environ to execve().
-> >>>>>>>>>>>
-> >>>>>>>>>>>         
-> >>>>>>>>>>>           
-> >>>>>>>>>>>               
-> >>>>>>>>>>>                   
-> >>>>>>>>>>>                       
-> >>>>>>>>>> Can this be rectified?
-> >>>>>>>>>>     
-> >>>>>>>>>>         
-> >>>>>>>>>>             
-> >>>>>>>>>>                 
-> >>>>>>>>>>                     
-> >>>>>>>>> Even if we changed the code, the policy normally won't allow passing of
-> >>>>>>>>> LD_LIBRARY_PATH and the like across a domain transition (noatsecure
-> >>>>>>>>> permission to disable setting of AT_SECURE auxv flag), and setfiles and
-> >>>>>>>>> load_policy typically run in their own domains.  Although you can
-> >>>>>>>>> certainly customize policy and the code for your particular needs.
-> >>>>>>>>>
-> >>>>>>>>>  
-> >>>>>>>>>       
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>>>>> I think this takes us to the "run it in a chroot environment" scenario
-> >>>>>>>>>>> if you don't want to install the libraries and programs to your system
-> >>>>>>>>>>> directories.  I'm not entirely sure what your goal is here though - you
-> >>>>>>>>>>> seem ok with installing the policy files to system directories.
-> >>>>>>>>>>>         
-> >>>>>>>>>>>           
-> >>>>>>>>>>>               
-> >>>>>>>>>>>                   
-> >>>>>>>>>>>                       
-> >>>>>>>>>> Your last remark there is rather confusing to me. You seem to suggest
-> >>>>>>>>>> that "installing the policy files to system directories" is an option
-> >>>>>>>>>> I have been given, and as such chosen to do so. To my knowledge the
-> >>>>>>>>>> entire toolchain is hard coded to /etc/selinux and as such not
-> >>>>>>>>>> possible to provide a /different/syconfig/path. How is it that I go
-> >>>>>>>>>> about installing selinux and its configuration to a non "system
-> >>>>>>>>>> directory", yet "system wide" path such as /security or /selinux or
-> >>>>>>>>>> /seconfig etc..?
-> >>>>>>>>>>     
-> >>>>>>>>>>         
-> >>>>>>>>>>             
-> >>>>>>>>>>                 
-> >>>>>>>>>>                     
-> >>>>>>>>> Well, yes, that's true.  Running it chroot'd is the only way right now
-> >>>>>>>>> to do that.  Which would also resolve your problem with setfiles.
-> >>>>>>>>>
-> >>>>>>>>> The other approach would be to change libselinux to support an alternate
-> >>>>>>>>> root setting via some mechanism, but we have to be careful to not give
-> >>>>>>>>> undue influence to callers where it isn't warranted, of course.
-> >>>>>>>>>
-> >>>>>>>>>   
-> >>>>>>>>>       
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>> I added extern char **environ, and passed in environ to execve,  i also
-> >>>>>>>> added some printfs to see what was being passed into setfiles...
-> >>>>>>>>
-> >>>>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
-> >>>>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v
-> >>>>>>>> Attempting to install base module '/usr/share/selinux/refpolicy/base.pp':
-> >>>>>>>> Ok: return value of 0.
-> >>>>>>>> Committing changes:
-> >>>>>>>> e->path=/home/vikram/root/bin/setfiles
-> >>>>>>>> arg[0] = /home/vikram/root/bin/setfiles
-> >>>>>>>> arg[1] = (null)
-> >>>>>>>> usage:  /home/vikram/root/bin/setfiles [-dnpqvW] [-o filename] [-r
-> >>>>>>>> alt_root_path ] spec_file pathname...
-> >>>>>>>> usage:  /home/vikram/root/bin/setfiles -c policyfile spec_file
-> >>>>>>>> usage:  /home/vikram/root/bin/setfiles -s [-dnqvW] [-o filename ] spec_file
-> >>>>>>>> libsemanage.semanage_install_active: setfiles returned error code 1.
-> >>>>>>>>
-> >>>>>>>> Why is setfiles being passed no arguments?
-> >>>>>>>>
-> >>>>>>>>     
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>> you need to add:
-> >>>>>>>
-> >>>>>>> args = -q -c $@ $<
-> >>>>>>>
-> >>>>>>> to the setfiles block in semanage.conf
-> >>>>>>>
-> >>>>>>>   
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>> could execve be changed to execvp? this way a hard coded path is not 
-> >>>>>> necessary.
-> >>>>>> I can write a patch?
-> >>>>>>     
-> >>>>>>         
-> >>>>>>             
-> >>>>> But then the caller can influence the path and the environment.
-> >>>>> And that presumes that setfiles and load_policy will always be in the
-> >>>>> path of the caller of libsemanage.
-> >>>>>
-> >>>>>   
-> >>>>>       
-> >>>>>           
-> >>>> understood. however the scope of the application's capabilities are 
-> >>>> limited by the user's unix permissions right? ie a regular user can make 
-> >>>> his own policy and store it in his home directory, maybe even with a 
-> >>>> hacked version of semodule, but at the end of the day the policy cannot 
-> >>>> be put into kernel memory by a regular user. Well thats how i understand 
-> >>>> it as.
-> >>>>     
-> >>>>         
-> >>> We don't necessarily want the process (in this case your shell) that
-> >>> invoked semodule to be able to arrange conditions to trick libsemanage
-> >>> into executing a different helper of its choosing or to pass environment
-> >>> settings to that helper that would enable the calling process to
-> >>> control/influence it.  Not so critical for setfiles per se, as that is
-> >>> only doing a validity check on the file_contexts configuration, but more
-> >>> of a concern for the optional policy checkers/verifiers that can be
-> >>> enabled via semanage.conf.
-> >>>
-> >>>   
-> >>>       
-> >> The helper applications dont read environment variables, do they?
-> >> And however misconfigure the userspace tool maybe kernel security is in 
-> >> place to protect the system.
-> >>
-> >> Yes we "open the door" to the environment, but the tools executed by 
-> >> libsemanage dont do any harm, unless run as super user. but if you cant 
-> >> trust super-user then who can you trust?
-> >>
-> >> Or maybe i just dont understand, Could you perhaps give a use case of 
-> >> how using execvp to allow the helper app to access the environment is a 
-> >> security risk?
-> >>     
-> >
-> > See for example:
-> > http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/environment-variables.html
-> >
-> > It isn't merely about explicit access of the environment by a helper
-> > application, but rather the automatic use of environment settings by the
-> > dynamic linker and by glibc in a way that affects security.  If a less
-> > trusted caller is permitted to invoke semodule and can control the path
-> > by which helpers it executes runs or the dynamic loader search path or
-> > preload settings, then it can redirect execution to code of its
-> > choosing.
-> >
-> > Your comment about the superuser being trusted is missing the point; one
-> > of the features of SELinux is the ability to limit each process/program
-> > to least privilege whether superuser or not.
-> >
-> >   
-> >>> Now, it is true that in a normal configuration, semodule and the helpers
-> >>> run in their own domains, and thus the glibc sanitization of the
-> >>> environment upon a domain transition should suffice.  In your case I
-> >>> presume this doesn't happen because you are installing semodule and the
-> >>> helpers to a private directory and they are not being labeled with their
-> >>> own executable type as a result.
-> >>>
-> >>> However, it seems contrary to secure programming practice to open the
-> >>> door unnecessarily, and I'm not sure it is even necessary in your case.
-> >>> It sounds like all you really need/want is a way to suppress running of
-> >>> setfiles altogether.  That shouldn't be hard.  
-> >>>
-> >>>   
-> >>>       
-> >> During the semodule -b -s command, the need to run setfiles is for what? 
-> >> Perhaps like you said i can just short that out altogether. i only need 
-> >> the build/install functionality of semodule, setting file contexts and 
-> >> loading the policy i would rather do manually,  instead of libsemanage 
-> >> calling execve.
-> >>     
-> >
-> > The execution of setfiles by libsemanage is merely to check the validity
-> > of the file_contexts file against the policy.
-> >
-> > You can effectively disable the use of setfiles there just by putting
-> > the following in your /etc/selinux/semanage.conf file:
-> > [setfiles]
-> > path = /bin/true
-> > [end]
-> >
-> > No patching required then.
-> >
-> >   
-> thanks Stephen, I did not know I could do that. That should solve my 
-> problem.
-> 
-> I dont know if I should open another thread for this or not, but in 
-> libselinux/src/load_policy.c
-> line 80:        libsepolh = dlopen("libsepol.so.1", RTLD_NOW);
-> 
-> Is hard coding .so.1 a security measure as well? Couldn't it be left to 
-> libsepol.so, with sym links to .so.1.2.3 ?
+So I started to get back to this patch and realized it was pretty
+seriously flawed.  I was not checking the validity of the context while
+it was being linked into the base.  When I fixed to pay attention to the
+return code of the return code of context_copy_and_validate() every
+single context coming in from the module failed.  The reason being
+because the MLS information is not getting written or read
+(context_struct_t only reads/writes MLS info for monolithic or the base
+module)
 
-That isn't a security measure.  It was originally motivated by a change
-in Fedora packaging where they moved the .so symbolic links from the
-main library package to separate -devel packages (e.g. libsepol-devel
-vs. libsepol), such that not everyone even had the .so symlinks on their
-systems.  It also was already a potential issue because the .so symlinks
-live in /usr and /usr might not be mounted yet when /sbin/init runs,
-and /sbin/init uses this logic to load policy.
+So, I've come to realize I need to start carrying around the
+mls_semantic_range_t information with my genfs statements in the module
+so that I can map those into the base and actually have/check MLS
+validity.  I'm looking for any helpful suggestions or hints on how to do
+this cleanly and things that people can think of off of the top of their
+head of the gotchas when trying to carry around this MLS information.
 
-Further, I think it may actually be the right model from a compatibility
-point of view, because if we later introduce an incompatible change in
-the library ABI and create a new .so version (since the .so version only
-changes in that case, not on every update to the library, but only for
-an incompatible interface change), we will want this version of
-libselinux to bind with the version of libsepol that is compatible with
-it.  Thus, we want to bind to a specific .so version, not to the latest
-one.  Not my area of expertise, but sounds plausible.
+So really if anyone has tips, tricks, pointers, gotchas, anything really
+that might be interesting as I try to come up with a way for modules to
+support full context strings let me know.
 
--- 
-Stephen Smalley
-National Security Agency
+-Eric
 
 
 --
