@@ -1,66 +1,51 @@
-Message-ID: <4856DC93.5000909@windriver.com>
-Date: Mon, 16 Jun 2008 17:35:15 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5GLv34T017629
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jun 2008 17:57:03 -0400
+Received: from smtp110.prem.mail.sp1.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m5GLv2vV009121
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jun 2008 21:57:02 GMT
+Message-ID: <4856E19B.1060000@schaufler-ca.com>
+Date: Mon, 16 Jun 2008 14:56:43 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@parisplace.org>
-Subject: Re: SELinux Bootstrap - without chroot
-References: <4856998A.1020606@windriver.com>	 <1213639038.15523.141.camel@moss-spartans.epoch.ncsc.mil>	 <4856A941.9080300@windriver.com> <1213640369.15523.152.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1213640369.15523.152.camel@moss-spartans.epoch.ncsc.mil>
+To: Eric Paris <eparis@redhat.com>
+CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org,
+        dwalsh@redhat.com, cpebenito@tresys.com
+Subject: Re: [PATCH-v2] SELinux: allow fstype unknown to policy to use xattrs
+ if present
+References: <1213648942.3029.85.camel@localhost.localdomain>
+In-Reply-To: <1213648942.3029.85.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2008-06-16 at 13:56 -0400, Vikram Ambrose wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> Note that they get installed to $DESTDIR/usr/share/selinux/$SELINUXTYPE
->>> by make install.  In Fedora, they are packaged as such, then when you
->>> install the package on the target host, they are unpacked
->>> to /usr/share/selinux/$SELINUXTYPE by the package manager and then a %
->>> post scriptlet runs semodule on them to install them under /etc/selinux
->>> and load them.
->>>
->>>   
->>>       
->> In Fedora, does anaconda chroot into the sysroot and call semodule 
->> during installation?
->>     
->
-> Some combination of anaconda and rpm, yes.  semodule runs from a %post
-> scriptlet in the selinux-policy-targeted package at package install
-> time.
->
->   
->>> Options for you might include:
->>> 1) Run semodule_link and semodule_expand at build time to link and
->>> expand the modules to a kernel policy up front.  Then you can just put
->>> the files into place without running semodule later.
->>>   
->>>       
->> I will investigate this option further, thank you.
->>     
->
-> Ok.  You can see an example of it in the 'make validate' target,
-> although that is just to check that they will link and expand
-> successfully; it isn't used to install the policy normally and likely
-> doesn't keep the final result around.
->
->   
-I am getting a bit confused between "modular" and "monolithic", in both 
-cases a policy.X file is needed to load the policy into the kernel, right?
+Eric Paris wrote:
+> Currently if a FS is mounted for which SELinux policy does not define an
+> fs_use_* that FS will either be genfs labeled or not labeled at all.
+> This decision is based on the existence of a genfscon rule in policy and
+> is irrespective of the capabilities of the filesystem itself.  This
+> patch allows the kernel to check if the filesystem supports security
+> xattrs and if so will use those if there is no fs_use_* rule in policy.
+> An fstype with a no fs_use_* rule but with a genfs rule will use xattrs
+> if available and will follow the genfs rule
 
-and in the modular case, the policy.X file simply points to the various 
-.pp files and in the monolithic case everything is in the policy.X file? 
-Analogous to shared library and static library link (modular/monolithic)?
+Have you tried this with ntfs-3g and unionfs? I don't
+think you'll have a problem with ntfs-3g, but if your
+code works properly on getxattr on unionfs I'd be mildly
+surprised. Pleased mind you, because then I could look
+at your code and see what I've done wrong, but surprised
+nonetheless.
 
 
 -- 
-Vikram Ambrose | Linux Products Division | WindRiver Corporation
+
+----------------------
+
+Casey Schaufler
+casey@schaufler-ca.com
+650.906.1780
+
 
 
 --
