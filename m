@@ -1,53 +1,35 @@
-Subject: Re: SELinux Bootstrap - without chroot
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-Cc: SELinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <4856A941.9080300@windriver.com>
-References: <4856998A.1020606@windriver.com>
-	 <1213639038.15523.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <4856A941.9080300@windriver.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5GIxUuN023084
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jun 2008 14:59:30 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m5GIxUwL024974
+	for <selinux@tycho.nsa.gov>; Mon, 16 Jun 2008 18:59:30 GMT
+Subject: Re: new domain for libvirt
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <Dan-Walsh@comcast.net>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4831B4CB.4060506@comcast.net>
+References: <4831B4CB.4060506@comcast.net>
 Content-Type: text/plain
-Date: Mon, 16 Jun 2008 14:19:29 -0400
-Message-Id: <1213640369.15523.152.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 16 Jun 2008 14:58:31 -0400
+Message-Id: <1213642711.11146.67.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, 2008-05-19 at 13:11 -0400, Daniel J Walsh wrote:
+> 
+> Gzip archive attachment
+> (system_virt.patch.gz)
 
-On Mon, 2008-06-16 at 13:56 -0400, Vikram Ambrose wrote:
-> Stephen Smalley wrote:
-> > Note that they get installed to $DESTDIR/usr/share/selinux/$SELINUXTYPE
-> > by make install.  In Fedora, they are packaged as such, then when you
-> > install the package on the target host, they are unpacked
-> > to /usr/share/selinux/$SELINUXTYPE by the package manager and then a %
-> > post scriptlet runs semodule on them to install them under /etc/selinux
-> > and load them.
-> >
-> >   
-> In Fedora, does anaconda chroot into the sysroot and call semodule 
-> during installation?
-
-Some combination of anaconda and rpm, yes.  semodule runs from a %post
-scriptlet in the selinux-policy-targeted package at package install
-time.
-
-> > Options for you might include:
-> > 1) Run semodule_link and semodule_expand at build time to link and
-> > expand the modules to a kernel policy up front.  Then you can just put
-> > the files into place without running semodule later.
-> >   
-> I will investigate this option further, thank you.
-
-Ok.  You can see an example of it in the 'make validate' target,
-although that is just to check that they will link and expand
-successfully; it isn't used to install the policy normally and likely
-doesn't keep the final result around.
+Merged.  I commented out missing interface calls.  I also moved the
+kernel proc entries for xen into the optional that has the other xen
+rules.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
