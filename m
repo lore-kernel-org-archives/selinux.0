@@ -1,376 +1,99 @@
-Message-ID: <48567065.30805@windriver.com>
-Date: Mon, 16 Jun 2008 09:53:41 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>, SELinux@tycho.nsa.gov,
-        Chad Sellers <csellers@tresys.com>, Caleb Case <ccase@tresys.com>
-Subject: Re: libsemanage.semanage_install_active: error during semodule -n
- -v -b base.pp -s refpolicy
-References: <4851361E.3030305@windriver.com>	 <1213288802.17842.195.camel@moss-spartans.epoch.ncsc.mil>	 <48515E78.40400@windriver.com>	 <1213293329.17842.246.camel@moss-spartans.epoch.ncsc.mil>	 <48516379.80609@windriver.com>	 <1213294846.17842.261.camel@moss-spartans.epoch.ncsc.mil>	 <48517032.6070805@windriver.com>	 <1213297922.17842.290.camel@moss-spartans.epoch.ncsc.mil>	 <48528C12.1030007@windriver.com> <485290FA.10906@manicmethod.com>	 <4852C668.6040508@windriver.com>	 <1213385371.17842.400.camel@moss-spartans.epoch.ncsc.mil>	 <4852CB28.6020806@windriver.com>	 <1213387146.17842.424.camel@moss-spartans.epoch.ncsc.mil>	 <4852D5B3.3060204@windriver.com> <1213617621.15523.18.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1213617621.15523.18.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Trying to get XAce policy straightened out but our tool chain
+	is too broken to handle it.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <48480210.60309@redhat.com>
+References: <48480210.60309@redhat.com>
+Content-Type: text/plain
+Date: Mon, 16 Jun 2008 10:10:37 -0400
+Message-Id: <1213625437.15523.71.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2008-06-13 at 16:16 -0400, Vikram Ambrose wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> On Fri, 2008-06-13 at 15:31 -0400, Vikram Ambrose wrote:
->>>   
->>>       
->>>> Stephen Smalley wrote:
->>>>     
->>>>         
->>>>> On Fri, 2008-06-13 at 15:11 -0400, Vikram Ambrose wrote:
->>>>>   
->>>>>       
->>>>>           
->>>>>> Joshua Brindle wrote:
->>>>>>     
->>>>>>         
->>>>>>             
->>>>>>> Vikram Ambrose wrote:
->>>>>>>   
->>>>>>>       
->>>>>>>           
->>>>>>>               
->>>>>>>> Stephen Smalley wrote:
->>>>>>>>     
->>>>>>>>         
->>>>>>>>             
->>>>>>>>                 
->>>>>>>>> On Thu, 2008-06-12 at 14:51 -0400, Vikram Ambrose wrote:
->>>>>>>>>  
->>>>>>>>>       
->>>>>>>>>           
->>>>>>>>>               
->>>>>>>>>                   
->>>>>>>>>> Stephen Smalley wrote:
->>>>>>>>>>    
->>>>>>>>>>         
->>>>>>>>>>             
->>>>>>>>>>                 
->>>>>>>>>>                     
->>>>>>>>>>> On Thu, 2008-06-12 at 13:57 -0400, Vikram Ambrose wrote:
->>>>>>>>>>>        
->>>>>>>>>>>           
->>>>>>>>>>>               
->>>>>>>>>>>                   
->>>>>>>>>>>                       
->>>>>>>>>>>> Stephen Smalley wrote:
->>>>>>>>>>>>            
->>>>>>>>>>>>             
->>>>>>>>>>>>                 
->>>>>>>>>>>>                     
->>>>>>>>>>>>                         
->>>>>>>>>>>>> On Thu, 2008-06-12 at 13:35 -0400, Vikram Ambrose wrote:
->>>>>>>>>>>>>                  
->>>>>>>>>>>>>               
->>>>>>>>>>>>>                   
->>>>>>>>>>>>>                       
->>>>>>>>>>>>>                           
->>>>>>>>>>>>>> Stephen Smalley wrote:
->>>>>>>>>>>>>>                        
->>>>>>>>>>>>>>                 
->>>>>>>>>>>>>>                     
->>>>>>>>>>>>>>                         
->>>>>>>>>>>>>>                             
->>>>>>>>>>>>>>> On Thu, 2008-06-12 at 10:43 -0400, Vikram Ambrose wrote:
->>>>>>>>>>>>>>>                                
->>>>>>>>>>>>>>>                   
->>>>>>>>>>>>>>>                       
->>>>>>>>>>>>>>>                           
->>>>>>>>>>>>>>>                               
->>>>>>>>>>>>>>>> During the "make load" procedure with refpolicy, the semodule
->>>>>>>>>>>>>>>> command fails, so I tried it manually and I see this error.
->>>>>>>>>>>>>>>>
->>>>>>>>>>>>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
->>>>>>>>>>>>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v -n
->>>>>>>>>>>>>>>> Attempting to install base module
->>>>>>>>>>>>>>>> '/usr/share/selinux/refpolicy/base.pp':
->>>>>>>>>>>>>>>> Ok: return value of 0.
->>>>>>>>>>>>>>>> Committing changes:
->>>>>>>>>>>>>>>> libsemanage.semanage_install_active: setfiles returned error
->>>>>>>>>>>>>>>> code 1. (No such file or directory).
->>>>>>>>>>>>>>>>                                         
->>>>>>>>>>>>>>>>                     
->>>>>>>>>>>>>>>>                         
->>>>>>>>>>>>>>>>                             
->>>>>>>>>>>>>>>>                                 
->>>>>>>>>>>>>>> whereis setfiles
->>>>>>>>>>>>>>>
->>>>>>>>>>>>>>>                                 
->>>>>>>>>>>>>>>                   
->>>>>>>>>>>>>>>                       
->>>>>>>>>>>>>>>                           
->>>>>>>>>>>>>>>                               
->>>>>>>>>>>>>> setfiles and the rest of the SELinux "toolchain" was all built
->>>>>>>>>>>>>> from svn and placed into /hone/testing/root
->>>>>>>>>>>>>> root's environment has PATH that contains /home/testing/root/bin
->>>>>>>>>>>>>> as well as LD_LIBRARY_PATH to /home/testing/root/lib
->>>>>>>>>>>>>>
->>>>>>>>>>>>>> Does libsemanage have a hard coded path to setfiles?
->>>>>>>>>>>>>>                         
->>>>>>>>>>>>>>                 
->>>>>>>>>>>>>>                     
->>>>>>>>>>>>>>                         
->>>>>>>>>>>>>>                             
->>>>>>>>>>>>> Yes, although it can be overridden via /etc/selinux/semanage.conf.
->>>>>>>>>>>>> Add something like:
->>>>>>>>>>>>> [setfiles]
->>>>>>>>>>>>> path = /path/to/setfiles
->>>>>>>>>>>>> [end]
->>>>>>>>>>>>>
->>>>>>>>>>>>>                   
->>>>>>>>>>>>>               
->>>>>>>>>>>>>                   
->>>>>>>>>>>>>                       
->>>>>>>>>>>>>                           
->>>>>>>>>>>> I just noticed the hard coded path in conf-parser.y
->>>>>>>>>>>> Is there a way of doing the above with a generic rule to all of the
->>>>>>>>>>>> selinux toolchain and not specifically to "setfiles" as shown above?
->>>>>>>>>>>>             
->>>>>>>>>>>>             
->>>>>>>>>>>>                 
->>>>>>>>>>>>                     
->>>>>>>>>>>>                         
->>>>>>>>>>> Not presently; it wasn't really intended for an alternate root
->>>>>>>>>>> mechanism
->>>>>>>>>>> (and apparently doesn't work for it anyway, as you have found).
->>>>>>>>>>>
->>>>>>>>>>>         
->>>>>>>>>>>           
->>>>>>>>>>>               
->>>>>>>>>>>                   
->>>>>>>>>>>                       
->>>>>>>>>> And specifying each and every tool individual is not possible i suppose?
->>>>>>>>>>     
->>>>>>>>>>         
->>>>>>>>>>             
->>>>>>>>>>                 
->>>>>>>>>>                     
->>>>>>>>> There are only two helpers that are executed by default, setfiles and
->>>>>>>>> load_policy, and you can specify them both, using the same syntax but
->>>>>>>>> different section keyword.
->>>>>>>>>
->>>>>>>>>  
->>>>>>>>>       
->>>>>>>>>           
->>>>>>>>>               
->>>>>>>>>                   
->>>>>>>>>>>> ...
->>>>>>>>>>>> Adding that to semanage.conf produce an almost obvious error "
->>>>>>>>>>>> error while loading shared libraries: libsepol.so.0: cannot open
->>>>>>>>>>>> shared object file: No such file or directory"
->>>>>>>>>>>>
->>>>>>>>>>>> what sort of environment is libsemanage using to execute setfiles?
->>>>>>>>>>>> libsepol and friends are in LD_LIBRARY_PATH
->>>>>>>>>>>>             
->>>>>>>>>>>>             
->>>>>>>>>>>>                 
->>>>>>>>>>>>                     
->>>>>>>>>>>>                         
->>>>>>>>>>> Ah, semanage_exec_prog() passes a NULL environ to execve().
->>>>>>>>>>>
->>>>>>>>>>>         
->>>>>>>>>>>           
->>>>>>>>>>>               
->>>>>>>>>>>                   
->>>>>>>>>>>                       
->>>>>>>>>> Can this be rectified?
->>>>>>>>>>     
->>>>>>>>>>         
->>>>>>>>>>             
->>>>>>>>>>                 
->>>>>>>>>>                     
->>>>>>>>> Even if we changed the code, the policy normally won't allow passing of
->>>>>>>>> LD_LIBRARY_PATH and the like across a domain transition (noatsecure
->>>>>>>>> permission to disable setting of AT_SECURE auxv flag), and setfiles and
->>>>>>>>> load_policy typically run in their own domains.  Although you can
->>>>>>>>> certainly customize policy and the code for your particular needs.
->>>>>>>>>
->>>>>>>>>  
->>>>>>>>>       
->>>>>>>>>           
->>>>>>>>>               
->>>>>>>>>                   
->>>>>>>>>>> I think this takes us to the "run it in a chroot environment" scenario
->>>>>>>>>>> if you don't want to install the libraries and programs to your system
->>>>>>>>>>> directories.  I'm not entirely sure what your goal is here though - you
->>>>>>>>>>> seem ok with installing the policy files to system directories.
->>>>>>>>>>>         
->>>>>>>>>>>           
->>>>>>>>>>>               
->>>>>>>>>>>                   
->>>>>>>>>>>                       
->>>>>>>>>> Your last remark there is rather confusing to me. You seem to suggest
->>>>>>>>>> that "installing the policy files to system directories" is an option
->>>>>>>>>> I have been given, and as such chosen to do so. To my knowledge the
->>>>>>>>>> entire toolchain is hard coded to /etc/selinux and as such not
->>>>>>>>>> possible to provide a /different/syconfig/path. How is it that I go
->>>>>>>>>> about installing selinux and its configuration to a non "system
->>>>>>>>>> directory", yet "system wide" path such as /security or /selinux or
->>>>>>>>>> /seconfig etc..?
->>>>>>>>>>     
->>>>>>>>>>         
->>>>>>>>>>             
->>>>>>>>>>                 
->>>>>>>>>>                     
->>>>>>>>> Well, yes, that's true.  Running it chroot'd is the only way right now
->>>>>>>>> to do that.  Which would also resolve your problem with setfiles.
->>>>>>>>>
->>>>>>>>> The other approach would be to change libselinux to support an alternate
->>>>>>>>> root setting via some mechanism, but we have to be careful to not give
->>>>>>>>> undue influence to callers where it isn't warranted, of course.
->>>>>>>>>
->>>>>>>>>   
->>>>>>>>>       
->>>>>>>>>           
->>>>>>>>>               
->>>>>>>>>                   
->>>>>>>> I added extern char **environ, and passed in environ to execve,  i also
->>>>>>>> added some printfs to see what was being passed into setfiles...
->>>>>>>>
->>>>>>>> root@ubuntu:/home/vikram/refpolicy-ac# semodule -b
->>>>>>>> /usr/share/selinux/refpolicy/base.pp -s refpolicy -v
->>>>>>>> Attempting to install base module '/usr/share/selinux/refpolicy/base.pp':
->>>>>>>> Ok: return value of 0.
->>>>>>>> Committing changes:
->>>>>>>> e->path=/home/vikram/root/bin/setfiles
->>>>>>>> arg[0] = /home/vikram/root/bin/setfiles
->>>>>>>> arg[1] = (null)
->>>>>>>> usage:  /home/vikram/root/bin/setfiles [-dnpqvW] [-o filename] [-r
->>>>>>>> alt_root_path ] spec_file pathname...
->>>>>>>> usage:  /home/vikram/root/bin/setfiles -c policyfile spec_file
->>>>>>>> usage:  /home/vikram/root/bin/setfiles -s [-dnqvW] [-o filename ] spec_file
->>>>>>>> libsemanage.semanage_install_active: setfiles returned error code 1.
->>>>>>>>
->>>>>>>> Why is setfiles being passed no arguments?
->>>>>>>>
->>>>>>>>     
->>>>>>>>         
->>>>>>>>             
->>>>>>>>                 
->>>>>>> you need to add:
->>>>>>>
->>>>>>> args = -q -c $@ $<
->>>>>>>
->>>>>>> to the setfiles block in semanage.conf
->>>>>>>
->>>>>>>   
->>>>>>>       
->>>>>>>           
->>>>>>>               
->>>>>> could execve be changed to execvp? this way a hard coded path is not 
->>>>>> necessary.
->>>>>> I can write a patch?
->>>>>>     
->>>>>>         
->>>>>>             
->>>>> But then the caller can influence the path and the environment.
->>>>> And that presumes that setfiles and load_policy will always be in the
->>>>> path of the caller of libsemanage.
->>>>>
->>>>>   
->>>>>       
->>>>>           
->>>> understood. however the scope of the application's capabilities are 
->>>> limited by the user's unix permissions right? ie a regular user can make 
->>>> his own policy and store it in his home directory, maybe even with a 
->>>> hacked version of semodule, but at the end of the day the policy cannot 
->>>> be put into kernel memory by a regular user. Well thats how i understand 
->>>> it as.
->>>>     
->>>>         
->>> We don't necessarily want the process (in this case your shell) that
->>> invoked semodule to be able to arrange conditions to trick libsemanage
->>> into executing a different helper of its choosing or to pass environment
->>> settings to that helper that would enable the calling process to
->>> control/influence it.  Not so critical for setfiles per se, as that is
->>> only doing a validity check on the file_contexts configuration, but more
->>> of a concern for the optional policy checkers/verifiers that can be
->>> enabled via semanage.conf.
->>>
->>>   
->>>       
->> The helper applications dont read environment variables, do they?
->> And however misconfigure the userspace tool maybe kernel security is in 
->> place to protect the system.
->>
->> Yes we "open the door" to the environment, but the tools executed by 
->> libsemanage dont do any harm, unless run as super user. but if you cant 
->> trust super-user then who can you trust?
->>
->> Or maybe i just dont understand, Could you perhaps give a use case of 
->> how using execvp to allow the helper app to access the environment is a 
->> security risk?
->>     
->
-> See for example:
-> http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/environment-variables.html
->
-> It isn't merely about explicit access of the environment by a helper
-> application, but rather the automatic use of environment settings by the
-> dynamic linker and by glibc in a way that affects security.  If a less
-> trusted caller is permitted to invoke semodule and can control the path
-> by which helpers it executes runs or the dynamic loader search path or
-> preload settings, then it can redirect execution to code of its
-> choosing.
->
-> Your comment about the superuser being trusted is missing the point; one
-> of the features of SELinux is the ability to limit each process/program
-> to least privilege whether superuser or not.
->
->   
->>> Now, it is true that in a normal configuration, semodule and the helpers
->>> run in their own domains, and thus the glibc sanitization of the
->>> environment upon a domain transition should suffice.  In your case I
->>> presume this doesn't happen because you are installing semodule and the
->>> helpers to a private directory and they are not being labeled with their
->>> own executable type as a result.
->>>
->>> However, it seems contrary to secure programming practice to open the
->>> door unnecessarily, and I'm not sure it is even necessary in your case.
->>> It sounds like all you really need/want is a way to suppress running of
->>> setfiles altogether.  That shouldn't be hard.  
->>>
->>>   
->>>       
->> During the semodule -b -s command, the need to run setfiles is for what? 
->> Perhaps like you said i can just short that out altogether. i only need 
->> the build/install functionality of semodule, setting file contexts and 
->> loading the policy i would rather do manually,  instead of libsemanage 
->> calling execve.
->>     
->
-> The execution of setfiles by libsemanage is merely to check the validity
-> of the file_contexts file against the policy.
->
-> You can effectively disable the use of setfiles there just by putting
-> the following in your /etc/selinux/semanage.conf file:
-> [setfiles]
-> path = /bin/true
-> [end]
->
-> No patching required then.
->
->   
-thanks Stephen, I did not know I could do that. That should solve my 
-problem.
 
-I dont know if I should open another thread for this or not, but in 
-libselinux/src/load_policy.c
-line 80:        libsepolh = dlopen("libsepol.so.1", RTLD_NOW);
+On Thu, 2008-06-05 at 11:11 -0400, Daniel J Walsh wrote:
+> The interfaces I want to add are something like
+> 
+> template - xserver_common_domain_template(staff)
+> 	Used to generate types for $1_xserver_t and $1_xrootwindow_t
+> 
+> interface - xserver_use(staff, staff, staff_nsplugin_t)
+> 	    xserver_use(xdm, staff, staff_nsplugin_t)
+> 	All interaction between application and X Server
+> 
+> template - xserver_common_user_template(staff, staff_r, staff_t)
+> 
+> 	This generates all of the user types/rules for a user X Sessionps
+> started by the user, Calls out to xserver_common_template
+> 
+> interface - xserver_common_app(staff, staff_nsplugin_t)
+> 
+> 	This defines all the common rules for a confined application like
+> nsplugin running in the user domain
+> 	
+> Then we can begin to write communications between staff and unconfined_t
+> or other user domains.
+> 
+> The problem I have is the compiler is too stupid to understand the
+> differences between a gen_requires block defining the required types and
+> the actual type definition.
+> 
+> So I end up in a catch 22 where the compiler tells me I need to require
+> $1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
+> I have a duplicate definition.
+> 
+> So if you have a derived type in a gen_requires block the compiler can
+> not handle it.
 
-Is hard coding .so.1 a security measure as well? Couldn't it be left to 
-libsepol.so, with sym links to .so.1.2.3 ?
+I'm a little unclear as to why this is required (why do you need to
+require and declare the same symbol again?).  However, is there some
+reason we can't just automatically promote a require to a declaration
+upon encountering the latter?  Seems like we've talked about this
+before.  Not sure whether that should happen within libsepol
+symtab_insert() or in the callers, e.g. declare_type().
 
-
+> 
+> 
+> /usr/bin/checkmodule -M -m tmp/staff.tmp -o tmp/staff.mod
+> /usr/bin/checkmodule:  loading policy configuration from tmp/staff.tmp
+> policy/modules/roles/staff.te":11:ERROR 'duplicate declaration of
+> type/attribute' at token 'staff_input_xevent_t' on line 66981:
+> #line 11
+> 		type staff_input_xevent_t;
+> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+> make: *** [tmp/staff.mod] Error 1
+> error: Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
+> 
+> 
+> RPM build errors:
+>     Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
+> 
+> 
+> Which is complaining about:
+> 
+> interface(`xserver_use',`
+> 	gen_require(`
+> 		type $1_rootwindow_t;
+> 		attribute $1_x_domain, $1_input_xevent_type;
+> 		type $1_xserver_t, $1_xserver_tmpfs_t;
+> 		type $2_input_xevent_t;
+> 	')
+> 
+> 	typeattribute $2_input_xevent_t $1_input_xevent_type;
+> 
+> ...
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
-Vikram Ambrose | Linux Products Division | WindRiver Corporation
+Stephen Smalley
+National Security Agency
 
 
 --
