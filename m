@@ -1,175 +1,228 @@
-Subject: Re: [rfc] refpolicy user based separation
-From: James Carter <jwcart2@epoch.ncsc.mil>
-Reply-To: jwcart2@epoch.ncsc.mil
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@mentalrootkit.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <1213728514.32066.84.camel@moss-spartans.epoch.ncsc.mil>
-References: <48528E71.3000301@manicmethod.com>
-	 <1213715072.2875.57.camel@moss-lions.epoch.ncsc.mil>
-	 <4857D67B.8050606@manicmethod.com>
-	 <1213720834.32066.58.camel@moss-spartans.epoch.ncsc.mil>
-	 <1213725519.2875.118.camel@moss-lions.epoch.ncsc.mil>
-	 <1213726033.32066.69.camel@moss-spartans.epoch.ncsc.mil>
-	 <1213727306.2875.133.camel@moss-lions.epoch.ncsc.mil>
-	 <1213728514.32066.84.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: SELinux Bootstrap - without chroot
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+Cc: SELinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <48581AAF.9060800@windriver.com>
+References: <4856998A.1020606@windriver.com>
+	 <1213639038.15523.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <4856A941.9080300@windriver.com>
+	 <1213640369.15523.152.camel@moss-spartans.epoch.ncsc.mil>
+	 <4856DC93.5000909@windriver.com>
+	 <1213706319.32066.28.camel@moss-spartans.epoch.ncsc.mil>
+	 <4857C18B.6000007@windriver.com>
+	 <1213712831.32066.46.camel@moss-spartans.epoch.ncsc.mil>
+	 <4857CFB6.20000@windriver.com>
+	 <1213721034.32066.62.camel@moss-spartans.epoch.ncsc.mil>
+	 <48581AAF.9060800@windriver.com>
 Content-Type: text/plain
-Date: Tue, 17 Jun 2008 16:31:42 -0400
-Message-Id: <1213734702.2875.139.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 17 Jun 2008 16:41:58 -0400
+Message-Id: <1213735318.32066.102.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-06-17 at 14:48 -0400, Stephen Smalley wrote:
-> On Tue, 2008-06-17 at 14:28 -0400, James Carter wrote:
-> > On Tue, 2008-06-17 at 14:07 -0400, Stephen Smalley wrote:
-> > > On Tue, 2008-06-17 at 13:58 -0400, James Carter wrote:
-> > > > On Tue, 2008-06-17 at 12:40 -0400, Stephen Smalley wrote:
-> > > > > On Tue, 2008-06-17 at 11:21 -0400, Joshua Brindle wrote:
-> > > > > > James Carter wrote:
-> > > > > > > On Fri, 2008-06-13 at 11:12 -0400, Joshua Brindle wrote:
-> > > > > > >> With the role based separation work being done an alternate idea was brought up here. Rather than going through the pain required for role based separation (kernel patches, policy format changes, incompatibility with older distros, long term refpolicy branch) we could do user based separation.
-> > > > > > >>
-> > > > > > >> The work done on refpolicy to merge derived types is still necessary, and much of that work has been done. It just means that rather than separating user home dirs and user processes based on the role field it will be done on the user field. We believe that no kernel patches or format changes are necessary to do this.
-> > > > > > >>
-> > > > > > >> Some advantages include less work, ofcourse. No incompatibility with older distros (eg., trunk refpolicy will still be usable on RHEL4/5). Some disadvantages are less flexibility, more difficult to separate roles given to the same user (TE policy with derived types would be necessary). It would be easy to use roles and users in a 1:1 mapping and force people to log out and back in to assume a new role, or to use sudo with context setting support (although that requires the selinux user identity to be non-immutable, which some have objected to)
-> > > > > > >>
-> > > > > > > It does seem like the user-based separation would work and be easier to
-> > > > > > > implement, but it would be really nice to have the increased flexibility
-> > > > > > > in policy writing that the role-based separation changes would bring.
-> > > > > > > The goal of the Flask architecture is to provide policy flexibility, so
-> > > > > > > these changes would help us to better meet that goal.
-> > > > > > > 
-> > > > > > > It could be argued that if someone wants to add role-based separation
-> > > > > > > later, then the support could be added then, but considering that
-> > > > > > > changes are needed in both the policy toolchain and kernel, and there
-> > > > > > > are only a limited number of people that could probably make the
-> > > > > > > changes, it seems likely that no one would even attempt to write a
-> > > > > > > policy using role-based separation unless it was already supported in
-> > > > > > > the toolchain and kernel.
-> > > > > > > 
-> > > > > > > I think that policy flexibility is important enough to pursue the
-> > > > > > > role-based separation in refpolicy not only to make the mechanisms
-> > > > > > > available, but also to provide an example of how to use them.
-> > > > > > > 
-> > > > > > >> Some work would still need to be done in userspace, such as user attribute support in the module format and libsemanage, to be able to exempt separation for specific users.
-> > > > > > >>
-> > > > > > > I think that user attributes are a good idea regardless -- more
-> > > > > > > flexibility.
-> > > > > > > 
-> > > > > > > Wouldn't a change in module format mean incompatibilities with older
-> > > > > > > distros?  They would need the newer toochain.  Or are you just talking
-> > > > > > > about compatibility with older kernels?
-> > > > > > > 
-> > > > > > 
-> > > > > > The main objection to role based separation is that the kernel changes
-> > > > > > and policy changes which requires a long term reference policy branch
-> > > > > > to support the older distros. Toolchain changes are fine internally
-> > > > > > (eg., CLIP already has backported toolchain features), Dan has his own
-> > > > > > refpolicy branches for rhel4/5 so it won't matter to him.
-> > > > > > 
-> > > > > > >> Opinions?
-> > > > > > >>
-> > > > > > > Flexibility is good.
-> > > > > > 
-> > > > > > I couldn't disagree more. Flexibility for the sake of flexibility creates insane systems that noone can/wants to use (see: xml, sendmail, emacs)
-> > > > > > 
-> > > > > > One thing that occurred to me while talking about this is that neither
-> > > > > > 'user separation' or 'role separation' are real security goals. What
-> > > > > > are we _actually_ trying to accomplish here and which solution meets
-> > > > > > the requirements. Further, does the added flexibility of role based
-> > > > > > separation outweigh the its cost? These are the questions we need to
-> > > > > > answer I think.
-> > > > > 
-> > > > > As I understand it, we are trying to preserve the separation and
-> > > > > protection guarantees that we used to obtain via derived program domains
-> > > > > (e.g. user_crontab_t) and derived file types (e.g. user_home_t,
-> > > > > user_devpts_t) between different user roles in a more direct manner
-> > > > > based on the role or user fields themselves w/o requiring an explosion
-> > > > > in the type space.  Those goals were part of the original papers and
-> > > > > tech reports on the initial SELinux reference implementation and example
-> > > > > policy, particularly with regard to protecting the admin role from
-> > > > > interference by non-admin users.
-> > > > > 
-> > > > > In any event, I think we should be able to experiment with user based
-> > > > > separation in policy w/o any code changes at all initially, if I
-> > > > > understand correctly, since we can write constraints on user
-> > > > > equality/inequality already and if we need special handling for certain
-> > > > > user identities we can work around our current limitations by moving
-> > > > > those identities into the base module.  So performing some initial
-> > > > > experimentation in that area to better understand how well it works and
-> > > > > what else might be required seems reasonable and doesn't really cost us
-> > > > > anything.
-> > > > 
-> > > > Is there doubt whether the user-based separation would work?  I thought
-> > > > that the only question was if the role-based separation was too much
-> > > > work for what it would provide.  Which would imply that more work should
-> > > > be done in that direction to find out the actual cost.  If the
-> > > > user-based separation is pursued first, it seems likely that the
-> > > > role-based separation will never even be tried.
-> > > 
-> > > I don't think it requires much investment to try the user-based
-> > > separation -
-> > 
-> > I agree totally.  It is by far the easier solution for this problem,
-> > which means that role-based separation will never even be tried.
+
+On Tue, 2008-06-17 at 16:12 -0400, Vikram Ambrose wrote:
+> Stephen Smalley wrote:
+> > On Tue, 2008-06-17 at 10:52 -0400, Vikram Ambrose wrote:
+> >   
+> >> Stephen Smalley wrote:
+> >>     
+> >>> On Tue, 2008-06-17 at 09:52 -0400, Vikram Ambrose wrote:
+> >>>   
+> >>>       
+> >>>> Stephen Smalley wrote:
+> >>>>     
+> >>>>         
+> >>>>> On Mon, 2008-06-16 at 17:35 -0400, Vikram Ambrose wrote:
+> >>>>>   
+> >>>>>       
+> >>>>>           
+> >>>>>> Stephen Smalley wrote:
+> >>>>>>     
+> >>>>>>         
+> >>>>>>             
+> >>>>>>> On Mon, 2008-06-16 at 13:56 -0400, Vikram Ambrose wrote:
+> >>>>>>>   
+> >>>>>>>       
+> >>>>>>>           
+> >>>>>>>               
+> >>>>>>>> Stephen Smalley wrote:
+> >>>>>>>>     
+> >>>>>>>>         
+> >>>>>>>>             
+> >>>>>>>>                 
+> >>>>>>>>> Note that they get installed to $DESTDIR/usr/share/selinux/$SELINUXTYPE
+> >>>>>>>>> by make install.  In Fedora, they are packaged as such, then when you
+> >>>>>>>>> install the package on the target host, they are unpacked
+> >>>>>>>>> to /usr/share/selinux/$SELINUXTYPE by the package manager and then a %
+> >>>>>>>>> post scriptlet runs semodule on them to install them under /etc/selinux
+> >>>>>>>>> and load them.
+> >>>>>>>>>
+> >>>>>>>>>   
+> >>>>>>>>>       
+> >>>>>>>>>           
+> >>>>>>>>>               
+> >>>>>>>>>                   
+> >>>>>>>> In Fedora, does anaconda chroot into the sysroot and call semodule 
+> >>>>>>>> during installation?
+> >>>>>>>>     
+> >>>>>>>>         
+> >>>>>>>>             
+> >>>>>>>>                 
+> >>>>>>> Some combination of anaconda and rpm, yes.  semodule runs from a %post
+> >>>>>>> scriptlet in the selinux-policy-targeted package at package install
+> >>>>>>> time.
+> >>>>>>>
+> >>>>>>>   
+> >>>>>>>       
+> >>>>>>>           
+> >>>>>>>               
+> >>>>>>>>> Options for you might include:
+> >>>>>>>>> 1) Run semodule_link and semodule_expand at build time to link and
+> >>>>>>>>> expand the modules to a kernel policy up front.  Then you can just put
+> >>>>>>>>> the files into place without running semodule later.
+> >>>>>>>>>   
+> >>>>>>>>>       
+> >>>>>>>>>           
+> >>>>>>>>>               
+> >>>>>>>>>                   
+> >>>>>>>> I will investigate this option further, thank you.
+> >>>>>>>>     
+> >>>>>>>>         
+> >>>>>>>>             
+> >>>>>>>>                 
+> >>>>>>> Ok.  You can see an example of it in the 'make validate' target,
+> >>>>>>> although that is just to check that they will link and expand
+> >>>>>>> successfully; it isn't used to install the policy normally and likely
+> >>>>>>> doesn't keep the final result around.
+> >>>>>>>
+> >>>>>>>   
+> >>>>>>>       
+> >>>>>>>           
+> >>>>>>>               
+> >>>>>> I am getting a bit confused between "modular" and "monolithic", in both 
+> >>>>>> cases a policy.X file is needed to load the policy into the kernel, right?
+> >>>>>>
+> >>>>>> and in the modular case, the policy.X file simply points to the various 
+> >>>>>> .pp files and in the monolithic case everything is in the policy.X file? 
+> >>>>>> Analogous to shared library and static library link (modular/monolithic)?
+> >>>>>>     
+> >>>>>>         
+> >>>>>>             
+> >>>>> In either case, we ultimately need a complete policy.N file that
+> >>>>> contains all of the information for loading into the kernel.  The kernel
+> >>>>> only knows about the policy.N format; it knows nothing of policy
+> >>>>> modules.
+> >>>>>
+> >>>>> The difference is whether we need to compile a complete set of policy
+> >>>>> sources directly into the policy.N file, or whether we can separately
+> >>>>> compile and package each policy module into a .pp file and then later
+> >>>>> link and expand the set of installed policy modules to create a policy.N
+> >>>>> file.
+> >>>>>
+> >>>>> The modular policy support was introduced later (first appeared in
+> >>>>> Fedora Core 5), to allow for local customization of policy without
+> >>>>> requiring complete policy sources and to enable third party policy and
+> >>>>> decomposition of distribution policy among the packages.
+> >>>>>
+> >>>>> In a monolithic policy build, you take the entire set of policy sources,
+> >>>>> apply various preprocessing steps, combine the result into a single
+> >>>>> policy.conf file, and then feed that to the checkpolicy program to
+> >>>>> generate the policy.N file for the kernel.  And you likewise preprocess
+> >>>>> and combine the .fc files to form the complete file_contexts
+> >>>>> configuration.  Later if you want to add more policy, you drop it into
+> >>>>> the policy source tree and repeat the entire process.
+> >>>>>
+> >>>>> In the modular policy build, you take each policy module's sources (.te
+> >>>>> file), apply various preprocessing steps, feed the result to the
+> >>>>> checkmodule program to generate a binary module (.mod) file, then feed
+> >>>>> the .mod file and the .fc file to semodule_package to generate the
+> >>>>> policy package (.pp) file.  Then you ship the .pp files to the target
+> >>>>> host, run semodule to insert them into the policy module store, link
+> >>>>> them together, and expand them into a policy.N file on that host.  Later
+> >>>>> if you want to add more policy, you compile it as a module separately,
+> >>>>> ship the resulting .pp file to the target host, and then run semodule on
+> >>>>> it, which will add it to the policy store and generate an updated
+> >>>>> policy.N file.
+> >>>>>
+> >>>>>   
+> >>>>>       
+> >>>>>           
+> >>>> hmm, that somewhat explains it, but the terminology used across man 
+> >>>> pages and the internet doesn't seem to be consistent so it's a bit 
+> >>>> difficult to understand whats what.
+> >>>> So to avoid semodule's affinity for /etc/selinux i can get  away with 
+> >>>> semodule_link and semodule_expand?
+> >>>> I don't understand what the output of each command is. I did a 
+> >>>> semodule_link of all my .pp files and then did a senodule_expand of that 
+> >>>> file into another file, and then cat'ed that into /selinux/load and i 
+> >>>> got an error about a map.
+> >>>>
+> >>>> [600793.305757] security: ebitmap: truncated map
+> >>>>
+> >>>> Also, once the policy.X file is loaded, does the system need access to 
+> >>>> /etc/selinux/$POLICY ?
+> >>>>     
+> >>>>         
+> >>> You can do that, but I'm still not clear on why you are doing it.  It
+> >>> seems like you should be doing one of the following instead:
+> >>> 1) run semodule on the target system to install the .pp files and load
+> >>> the resulting policy rather than trying to do it all on the build host,
+> >>> -or-
+> >>>   
+> >>>       
+> >> Yes this works, however i'd like to have it running out of the box 
+> >> without this step.
+> >>     
 > >
-> > >  it only involves some policy configuration work and then
-> > > experimentation on RHEL 5 and/or RHEL 4 to see whether it actually works
-> > > in practice there, 
-> > 
-> > Whether what actually works?  Removing the derived types and providing
-> > separation some other way?
-> 
-> Yes, to see whether we can achieve the desired separation using that
-> mechanism, and to see whether we run into other problems with using the
-> user field in this manner with existing kernel and userspace (where
-> userspace not only includes the core selinux userland but also the
-> support in other userland packages, whether modifications or new
-> components like pam_selinux).  So that we can know the real cost of that
-> approach.
-> 
-> > I would agree totally with the following:
-> > 1)  Remove the derived types using user-based separation
-> > 2)  Investigate the cost of adding role-based separation
-> > 3)  If not too costly, add role-based separation mechanism and convert
-> > the user-based separation to role-based (which shouldn't be too hard).
-> > 
-> > But I still fear that we will stop after step 1.
-> 
-> There are two costs to consider here:
-> - the cost of developing the support for the role-based separation.  We
-> have a sense of how much work is required to implement that support
-> based on Chris' earlier emails.
-> - the cost of maintaining a long term branch of refpolicy that uses this
-> role-based separation since it will never ever ever work on RHEL 4 or
-> RHEL 5 or Debian etch or Ubuntu 8.04 or any existing distro release as
-> it will require a new kernel.
-> 
-> The first cost is relatively minor in comparison to the second.
-> 
+> > Up to you, of course, but note that at least in Fedora, this happens
+> > naturally via a %post scriptlet in the selinux-policy packages and isn't
+> > fundamentally different than other %post actions performed for system
+> > setup when a package is installed.
+> >
+> >   
+> >>> 2) run semodule within a chroot on the build system to install the .pp
+> >>> files and create the kernel policy.  Eric Paris has been getting such
+> >>> builds to work for Fedora live CD creation.
+> >>>   
+> >>>       
+> >> I'm not a fan of the chroot environment, but now that i have learned 
+> >> that i can manually semodule_link/expand to create my policy.X file, i 
+> >> can do the whole operation without using /etc/, this makes 
+> >> packaging/building out of the target system much easier, as well as 
+> >> deployment is a simple:
+> >> 1. untar the .pp files to /usr/share/selinux/policy/ for devs to use
+> >> 2. refpolicy make install, stuff untar'ed to 
+> >> /etc/selinux/policy/contexts  and
+> >> 3. copy my policy.X file that was produced by link/expand (also from the 
+> >> build host), to /etc/selinux/policy/policy
+> >> 4. edit semanage.conf and selinux.conf, throw in load_policy into 
+> >> sysvinit and i'm done!
+> >>     
+> >
+> > You may also need to manually generate the file_contexts file and put it
+> > into place, as semodule_link/expand doesn't presently handle that for
+> > you.
+> >
+> >   
+> How is that file created?
 
-Which will drive us to use the user-based separation.
+Normally libsemanage creates it from the .pp files by combining the
+individual .fc files, sorting the result based on specificity of the
+regexes, then splits the result into two files, the file_contexts file
+and the homedir_template.
 
-I admit that I have no hope of winning against our oppressive backwards
-compatibility requirements.
- 
-> > > as one of the arguments for it is that it in theory
-> > > would allow refpolicy to continue to be used on those distros without a
-> > > separate long term branch.
-> > > 
-> -- 
-> Stephen Smalley
-> National Security Agency
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+semodule_link doesn't do that for you presently.
+
+One option would be to just build the file_contexts config
+"monolithically" i.e. make MONOLITHIC=y file_contexts.
+I expect that would yield the same result as the libsemanage version.
+
 -- 
-James Carter <jwcart2@epoch.ncsc.mil>
+Stephen Smalley
 National Security Agency
 
 
