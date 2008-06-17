@@ -1,93 +1,168 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5HE9NJM014971
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jun 2008 10:09:23 -0400
-Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5HE9MF0027912
-	for <selinux@tycho.nsa.gov>; Tue, 17 Jun 2008 14:09:23 GMT
-Received: by fg-out-1718.google.com with SMTP id 16so3514928fgg.40
-        for <selinux@tycho.nsa.gov>; Tue, 17 Jun 2008 07:09:21 -0700 (PDT)
-Message-ID: <cadfc0e40806170709y76e78ee4pb29c26900a6f7bff@mail.gmail.com>
-Date: Tue, 17 Jun 2008 09:09:21 -0500
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "T S" <t_mail@mail2Airport.com>
-Subject: Re: Question about XACE/X-SELinux
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <07a701c8d078$b15798a0$046a010a@mail2world.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <07a701c8d078$b15798a0$046a010a@mail2world.com>
+Subject: Re: SELinux Bootstrap - without chroot
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+Cc: SELinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>,
+        Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@parisplace.org>
+In-Reply-To: <4857C18B.6000007@windriver.com>
+References: <4856998A.1020606@windriver.com>
+	 <1213639038.15523.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <4856A941.9080300@windriver.com>
+	 <1213640369.15523.152.camel@moss-spartans.epoch.ncsc.mil>
+	 <4856DC93.5000909@windriver.com>
+	 <1213706319.32066.28.camel@moss-spartans.epoch.ncsc.mil>
+	 <4857C18B.6000007@windriver.com>
+Content-Type: text/plain
+Date: Tue, 17 Jun 2008 10:27:11 -0400
+Message-Id: <1213712831.32066.46.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jun 17, 2008 at 7:50 AM, T S <t_mail@mail2airport.com> wrote:
-> Hello,
->
-> I just want to try functionalities X-SELinux, such as prohibiting cut and
-> paste.
-> Since the below changelog(URL) says X-SELinux functionalities are turned off
-> by default,
-> I think I need to turn on at first.
-> I appreciate someone tell me how to turn on.
->> http://lwn.net/Articles/283539/
->
-> I am using Fedora Core9, xorg-server-Xorg-1.4.99.902-3.20080612,
-> and GNOME( meaning just after FC9 and yum update).
->
-> I thought X-SELinux functionalities are turned on by default in FC9,
-> so I tried the below steps.
-> 1) setsebool xserver_object_manager=true
-> 2) insert loadable module like below. because I was expecting
-> some avc logs were generated if I tried cut and paste.
->
->> policy_module(test, 1.0.0)
->> gen_require(`
->> attribute domain;
->> class x_synthetic_event { send receive };
->>')
->>auditallow domain domain:x_synthetic_event {send receive};
->
-> 3) setenforce 1
-> 4) reboot GNOME( init 3 and init 5)
-> 5) trying cut&paste from a window to others. No avclogs are found.
-> Only found "Loading extension SELinux" in /var/log/Xorg.0.org.
->
-> I appreciate someone tell me what I am missing here.
->
-> Regards,
-> K
->
->
-> Need cash? Click to get an emergency loan, bad credit ok
->
-> _______________________________________________________________
-> Get the FREE email that has everyone talking at http://www.mail2world.com
-> Unlimited Email Storage – POP3 – Calendar – SMS – Translator – Much More!
 
-Add this to xorg.conf
+On Tue, 2008-06-17 at 09:52 -0400, Vikram Ambrose wrote:
+> Stephen Smalley wrote:
+> > On Mon, 2008-06-16 at 17:35 -0400, Vikram Ambrose wrote:
+> >   
+> >> Stephen Smalley wrote:
+> >>     
+> >>> On Mon, 2008-06-16 at 13:56 -0400, Vikram Ambrose wrote:
+> >>>   
+> >>>       
+> >>>> Stephen Smalley wrote:
+> >>>>     
+> >>>>         
+> >>>>> Note that they get installed to $DESTDIR/usr/share/selinux/$SELINUXTYPE
+> >>>>> by make install.  In Fedora, they are packaged as such, then when you
+> >>>>> install the package on the target host, they are unpacked
+> >>>>> to /usr/share/selinux/$SELINUXTYPE by the package manager and then a %
+> >>>>> post scriptlet runs semodule on them to install them under /etc/selinux
+> >>>>> and load them.
+> >>>>>
+> >>>>>   
+> >>>>>       
+> >>>>>           
+> >>>> In Fedora, does anaconda chroot into the sysroot and call semodule 
+> >>>> during installation?
+> >>>>     
+> >>>>         
+> >>> Some combination of anaconda and rpm, yes.  semodule runs from a %post
+> >>> scriptlet in the selinux-policy-targeted package at package install
+> >>> time.
+> >>>
+> >>>   
+> >>>       
+> >>>>> Options for you might include:
+> >>>>> 1) Run semodule_link and semodule_expand at build time to link and
+> >>>>> expand the modules to a kernel policy up front.  Then you can just put
+> >>>>> the files into place without running semodule later.
+> >>>>>   
+> >>>>>       
+> >>>>>           
+> >>>> I will investigate this option further, thank you.
+> >>>>     
+> >>>>         
+> >>> Ok.  You can see an example of it in the 'make validate' target,
+> >>> although that is just to check that they will link and expand
+> >>> successfully; it isn't used to install the policy normally and likely
+> >>> doesn't keep the final result around.
+> >>>
+> >>>   
+> >>>       
+> >> I am getting a bit confused between "modular" and "monolithic", in both 
+> >> cases a policy.X file is needed to load the policy into the kernel, right?
+> >>
+> >> and in the modular case, the policy.X file simply points to the various 
+> >> .pp files and in the monolithic case everything is in the policy.X file? 
+> >> Analogous to shared library and static library link (modular/monolithic)?
+> >>     
+> >
+> > In either case, we ultimately need a complete policy.N file that
+> > contains all of the information for loading into the kernel.  The kernel
+> > only knows about the policy.N format; it knows nothing of policy
+> > modules.
+> >
+> > The difference is whether we need to compile a complete set of policy
+> > sources directly into the policy.N file, or whether we can separately
+> > compile and package each policy module into a .pp file and then later
+> > link and expand the set of installed policy modules to create a policy.N
+> > file.
+> >
+> > The modular policy support was introduced later (first appeared in
+> > Fedora Core 5), to allow for local customization of policy without
+> > requiring complete policy sources and to enable third party policy and
+> > decomposition of distribution policy among the packages.
+> >
+> > In a monolithic policy build, you take the entire set of policy sources,
+> > apply various preprocessing steps, combine the result into a single
+> > policy.conf file, and then feed that to the checkpolicy program to
+> > generate the policy.N file for the kernel.  And you likewise preprocess
+> > and combine the .fc files to form the complete file_contexts
+> > configuration.  Later if you want to add more policy, you drop it into
+> > the policy source tree and repeat the entire process.
+> >
+> > In the modular policy build, you take each policy module's sources (.te
+> > file), apply various preprocessing steps, feed the result to the
+> > checkmodule program to generate a binary module (.mod) file, then feed
+> > the .mod file and the .fc file to semodule_package to generate the
+> > policy package (.pp) file.  Then you ship the .pp files to the target
+> > host, run semodule to insert them into the policy module store, link
+> > them together, and expand them into a policy.N file on that host.  Later
+> > if you want to add more policy, you compile it as a module separately,
+> > ship the resulting .pp file to the target host, and then run semodule on
+> > it, which will add it to the policy store and generate an updated
+> > policy.N file.
+> >
+> >   
+> hmm, that somewhat explains it, but the terminology used across man 
+> pages and the internet doesn't seem to be consistent so it's a bit 
+> difficult to understand whats what.
+> So to avoid semodule's affinity for /etc/selinux i can get  away with 
+> semodule_link and semodule_expand?
+> I don't understand what the output of each command is. I did a 
+> semodule_link of all my .pp files and then did a senodule_expand of that 
+> file into another file, and then cat'ed that into /selinux/load and i 
+> got an error about a map.
+> 
+> [600793.305757] security: ebitmap: truncated map
+> 
+> Also, once the policy.X file is loaded, does the system need access to 
+> /etc/selinux/$POLICY ?
 
-Section "Extensions"
-        Option     "SELinux" "Enable"
-EndSection
+You can do that, but I'm still not clear on why you are doing it.  It
+seems like you should be doing one of the following instead:
+1) run semodule on the target system to install the .pp files and load
+the resulting policy rather than trying to do it all on the build host,
+-or-
+2) run semodule within a chroot on the build system to install the .pp
+files and create the kernel policy.  Eric Paris has been getting such
+builds to work for Fedora live CD creation.
+-or-
+3) perform a monolithic policy build in the first place and thus avoid
+the entire indirection of modules and semodule in the first place.
 
-Thr default enforcing state is Permissive.
+Also, you said you didn't want to load the policy on the build host so
+I'm not sure why you are trying to do that. The reason that it is
+failing is not that the policy is invalid but because the cat program
+writes it in fixed size chunks rather than atomically in one write call,
+and /selinux/load requires that the entire policy be fed to it in a
+single write call.  The load_policy program does this by opening the
+policy file, fstat'ing it to get the size, mmap'ing it into memory, and
+then write'ing the entire memory region to /selinux/load in a single
+write() call.  You can see that logic in libselinux/src/load_policy.c;
+it was once directly implemented in the load_policy program but later
+moved into the library and further encapsulated.
 
-Add this to set Enforcing state in X
+semodule_link/expand are developer tools for manually applying the link
++expand phases, and thus will operate on whatever inputs you provide
+rather than only operating on a policy store under /etc/selinux.
 
-Section "Module"
-      SubSection "extmod"
-                Option "SELinux Enforcing"
-      EndSubSection
-EndSection
+The kernel doesn't care where the policy originates; it is only
+userspace that has the convention that it lives under /etc/selinux.
 
-Add this to have the X Enforcing mode track the system enforcing state
-
-Section "Module"
-      SubSection "extmod"
-                Option "SELinux TrackSystem"
-      EndSubSection
-EndSection
-
-xdpyinfo will tell you if the SELinux extension is enabled.
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
