@@ -1,108 +1,150 @@
-Subject: Re: SELinux Bootstrap - without chroot
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-Cc: SELinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <4856DC93.5000909@windriver.com>
-References: <4856998A.1020606@windriver.com>
-	 <1213639038.15523.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <4856A941.9080300@windriver.com>
-	 <1213640369.15523.152.camel@moss-spartans.epoch.ncsc.mil>
-	 <4856DC93.5000909@windriver.com>
-Content-Type: text/plain
-Date: Tue, 17 Jun 2008 08:38:39 -0400
-Message-Id: <1213706319.32066.28.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5HCogpc000573
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jun 2008 08:50:42 -0400
+Received: from icweb02oc.mail2world.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5HCofF0004866
+	for <selinux@tycho.nsa.gov>; Tue, 17 Jun 2008 12:50:42 GMT
+From: "T S" <t_mail@mail2Airport.com>
+To: <selinux@tycho.nsa.gov>
+Subject: Question about XACE/X-SELinux
+Date: Tue, 17 Jun 2008 05:50:17 -0700
+Message-ID: <07a701c8d078$b15798a0$046a010a@mail2world.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_07A8_01C8D03E.04F8C0A0"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
 
-On Mon, 2008-06-16 at 17:35 -0400, Vikram Ambrose wrote:
-> Stephen Smalley wrote:
-> > On Mon, 2008-06-16 at 13:56 -0400, Vikram Ambrose wrote:
-> >   
-> >> Stephen Smalley wrote:
-> >>     
-> >>> Note that they get installed to $DESTDIR/usr/share/selinux/$SELINUXTYPE
-> >>> by make install.  In Fedora, they are packaged as such, then when you
-> >>> install the package on the target host, they are unpacked
-> >>> to /usr/share/selinux/$SELINUXTYPE by the package manager and then a %
-> >>> post scriptlet runs semodule on them to install them under /etc/selinux
-> >>> and load them.
-> >>>
-> >>>   
-> >>>       
-> >> In Fedora, does anaconda chroot into the sysroot and call semodule 
-> >> during installation?
-> >>     
-> >
-> > Some combination of anaconda and rpm, yes.  semodule runs from a %post
-> > scriptlet in the selinux-policy-targeted package at package install
-> > time.
-> >
-> >   
-> >>> Options for you might include:
-> >>> 1) Run semodule_link and semodule_expand at build time to link and
-> >>> expand the modules to a kernel policy up front.  Then you can just put
-> >>> the files into place without running semodule later.
-> >>>   
-> >>>       
-> >> I will investigate this option further, thank you.
-> >>     
-> >
-> > Ok.  You can see an example of it in the 'make validate' target,
-> > although that is just to check that they will link and expand
-> > successfully; it isn't used to install the policy normally and likely
-> > doesn't keep the final result around.
-> >
-> >   
-> I am getting a bit confused between "modular" and "monolithic", in both 
-> cases a policy.X file is needed to load the policy into the kernel, right?
-> 
-> and in the modular case, the policy.X file simply points to the various 
-> .pp files and in the monolithic case everything is in the policy.X file? 
-> Analogous to shared library and static library link (modular/monolithic)?
+------=_NextPart_000_07A8_01C8D03E.04F8C0A0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-In either case, we ultimately need a complete policy.N file that
-contains all of the information for loading into the kernel.  The kernel
-only knows about the policy.N format; it knows nothing of policy
-modules.
+Hello,
 
-The difference is whether we need to compile a complete set of policy
-sources directly into the policy.N file, or whether we can separately
-compile and package each policy module into a .pp file and then later
-link and expand the set of installed policy modules to create a policy.N
-file.
+I just want to try functionalities X-SELinux, such as prohibiting cut
+and paste.
+Since the below changelog(URL) says X-SELinux functionalities are turned
+off by default, 
+I think I need to turn on at first. 
+I appreciate someone tell me how to turn on.
+> http://lwn.net/Articles/283539/
 
-The modular policy support was introduced later (first appeared in
-Fedora Core 5), to allow for local customization of policy without
-requiring complete policy sources and to enable third party policy and
-decomposition of distribution policy among the packages.
+I am using Fedora Core9, xorg-server-Xorg-1.4.99.902-3.20080612,
+and GNOME( meaning just after FC9 and yum update).
 
-In a monolithic policy build, you take the entire set of policy sources,
-apply various preprocessing steps, combine the result into a single
-policy.conf file, and then feed that to the checkpolicy program to
-generate the policy.N file for the kernel.  And you likewise preprocess
-and combine the .fc files to form the complete file_contexts
-configuration.  Later if you want to add more policy, you drop it into
-the policy source tree and repeat the entire process.
+I thought X-SELinux functionalities are turned on by default in FC9,
+so I tried the below steps.
+1) setsebool xserver_object_manager=true
+2) insert loadable module like below. because I was expecting
+some avc logs were generated if I tried cut and paste.
 
-In the modular policy build, you take each policy module's sources (.te
-file), apply various preprocessing steps, feed the result to the
-checkmodule program to generate a binary module (.mod) file, then feed
-the .mod file and the .fc file to semodule_package to generate the
-policy package (.pp) file.  Then you ship the .pp files to the target
-host, run semodule to insert them into the policy module store, link
-them together, and expand them into a policy.N file on that host.  Later
-if you want to add more policy, you compile it as a module separately,
-ship the resulting .pp file to the target host, and then run semodule on
-it, which will add it to the policy store and generate an updated
-policy.N file.
+> policy_module(test, 1.0.0)
+> gen_require(`
+> attribute domain;
+> class x_synthetic_event { send receive };
+>')
+>auditallow domain domain:x_synthetic_event {send receive};
 
--- 
-Stephen Smalley
-National Security Agency
+3) setenforce 1
+4) reboot GNOME( init 3 and init 5)
+5) trying cut&paste from a window to others. No avclogs are found.
+Only found "Loading extension SELinux" in /var/log/Xorg.0.org.
+
+I appreciate someone tell me what I am missing here.
+
+Regards,
+K
+
+
+
+Need cash? Click to get an emergency loan, bad credit ok
+<http://tagline.bidsystem.com/fc/Ioyw36XHxOdtlQEyiBy8w8bGOQx9ugfZFBGL7xG
+NpWaG9Vx6r3wVdx/> 
+
+
+
+<span id=m2wTl><p><font face="Arial, Helvetica, sans-serif" size="2" style="font-size:13.5px">_______________________________________________________________<BR>Get the FREE email that has everyone talking at <a href=http://www.mail2world.com target=new>http://www.mail2world.com</a><br>  <font color=#999999>Unlimited Email Storage &#150; POP3 &#150; Calendar &#150; SMS &#150; Translator &#150; Much More!</font></font></span>
+------=_NextPart_000_07A8_01C8D03E.04F8C0A0
+Content-Type: text/html
+Content-Transfer-Encoding: 7bit
+
+<HTML>
+<BODY>
+Hello,<br>
+
+<br>
+
+I just want to try functionalities X-SELinux, such as prohibiting cut and paste.<br>
+
+Since the below changelog(URL) says X-SELinux functionalities are turned off by default, <br>
+
+I think I need to turn on at first. <br>
+
+I appreciate someone tell me how to turn on.<br>
+
+&gt; http://lwn.net/Articles/283539/<br>
+
+<br>
+
+I am using Fedora Core9, xorg-server-Xorg-1.4.99.902-3.20080612,<br>
+
+and GNOME( meaning just after FC9 and yum update).<br>
+
+<br>
+
+I thought X-SELinux functionalities are turned on by default in FC9,<br>
+
+so I tried the below steps.<br>
+
+1) setsebool xserver_object_manager=true<br>
+
+2) insert loadable module like below. because I was expecting<br>
+
+some avc logs were generated if I tried cut and paste.<br>
+
+<br>
+
+&gt; policy_module(test, 1.0.0)<br>
+
+&gt; gen_require(`<br>
+
+&gt;      attribute domain;<br>
+
+&gt;      class x_synthetic_event { send receive };<br>
+
+&gt;')<br>
+
+&gt;auditallow domain domain:x_synthetic_event {send receive};<br>
+
+<br>
+
+3) setenforce 1<br>
+
+4) reboot GNOME( init 3 and init 5)<br>
+
+5) trying cut&paste from a window to others. No avclogs are found.<br>
+
+Only found "Loading extension SELinux" in /var/log/Xorg.0.org.<br>
+
+<br>
+
+I appreciate someone tell me what I am missing here.<br>
+
+<br>
+
+Regards,<br>
+
+K<br>
+
+
+</BODY></HTML>
+<br><br><div style="tag_ad_s_ord_66_99:ord_66;border-top: 1px #cccccc solid"><a target="_blank" style="FONT-SIZE: 13px; COLOR: #006599; FONT-FAMILY: Trebuchet MS" href="http://tagline.bidsystem.com/fc/Ioyw36XHxOdtlQEyiBy8w8bGOQx9ugfZFBGL7xGNpWaG9Vx6r3wVdx/">Need cash? Click to get an emergency loan, bad credit ok</a></div><br>
+
+<span id=m2wTl><p><font face="Arial, Helvetica, sans-serif" size="2" style="font-size:13.5px">_______________________________________________________________<BR>Get the FREE email that has everyone talking at <a href=http://www.mail2world.com target=new>http://www.mail2world.com</a><br>  <font color=#999999>Unlimited Email Storage &#150; POP3 &#150; Calendar &#150; SMS &#150; Translator &#150; Much More!</font></font></span>
+------=_NextPart_000_07A8_01C8D03E.04F8C0A0--
 
 
 --
