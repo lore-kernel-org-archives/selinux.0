@@ -1,108 +1,60 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5IDJe5L024434
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2008 09:19:40 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m5IDJej3014616
-	for <selinux@tycho.nsa.gov>; Wed, 18 Jun 2008 13:19:40 GMT
-Subject: Re: kernel/kernel.* diffs
+Subject: Re:
+	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <485005C9.8050902@redhat.com>
-References: <4836D603.1000506@redhat.com> <1213020149.27496.3.camel@gorn>
-	 <485005C9.8050902@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 18 Jun 2008 09:18:37 -0400
-Message-Id: <1213795117.11146.118.camel@gorn>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <4858B106.206@ak.jp.nec.com>
+References: <483A9137.5050509@ak.jp.nec.com>
+	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
+	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
+	 <483C6BEA.8040101@tycho.nsa.gov>
+	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
+	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
+	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
+	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
+	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
+	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
+	 <4846142F.8090100@ak.jp.nec.com>
+	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
+	 <48473ECC.6020501@ak.jp.nec.com>
+	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>
+			 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>
+		  <48524E79.6000508@ak.jp.nec.com> <1213364255.11146.18.camel@gorn>
+	  <4858B106.206@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Wed, 18 Jun 2008 09:41:38 -0400
+Message-Id: <1213796498.11146.120.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-06-11 at 13:05 -0400, Daniel J Walsh wrote:
+On Wed, 2008-06-18 at 15:53 +0900, KaiGai Kohei wrote:
 > Christopher J. PeBenito wrote:
-> | On Fri, 2008-05-23 at 10:34 -0400, Daniel J Walsh wrote:
-> |> Mainly adding additional dontaudits for permissive domains.
-> |
-> |> Subject: [PATCH] refpolicy: kernel_kernel changes
-> |> --text follows this line--
-> |> --- nsaserefpolicy/policy/modules/kernel/kernel.if	2008-05-23
-> 09:15:06.224337000 -0400
-> |> +++ serefpolicy-3.4.1/policy/modules/kernel/kernel.if	2008-05-23
-> 10:29:05.107838000 -0400
-> |> @@ -1198,6 +1198,7 @@
-> |>  	')
-> |>
-> |>  	dontaudit $1 proc_type:dir list_dir_perms;
-> |> +	dontaudit $1 proc_type:file getattr;
-> |>  ')
-> |>
-> |>  ########################################
-> |> @@ -1768,6 +1769,7 @@
-> |>  	')
-> |>
-> |>  	dontaudit $1 sysctl_type:dir list_dir_perms;
-> |> +	dontaudit $1 sysctl_type:file read_file_perms;
-> |>  ')
-> |>
-> |>  ########################################
-> |
-> | These two violate the intention of the interface.
-> |
-> I though the intention of the interface was to dontaudit list of all
-> proc or sysctl.  I believe this means we know this app tries to list
-> sysctl or proc so dontaudit the listing.  Well part of the listing in
-> permissive mode is the getattr or read.
-
-﻿As with every other list interface in the policy, list means
-list_dir_perms on the object type(s) and thats it.
-
->   So to make this work the way
-> customers would expect we need to add interfaces all over the place and
-> patch every call to this will a dontaudit file, which seems to be a
-> colossal waste of time.
-
-I don't agree with your characterization.  Making this change would make
-the interfaces inconsistent with all of the other list interfaces, thus
-violating their expectations.  If they are expecting that list
-interfaces behave like your modified interfaces, then we aren't managing
-their expectations correctly.
-
-As for these two interfaces, they're both called once, from selinuxutil.
-
-> Maybe we need a way to indicate whether this should be dontaudited in
-> enforcing mode versus permissive.
+> >>> 2. the stored procedure type names have been in the back of my mind for
+> >>> long time but I couldn't come up with a good naming scheme.  This
+> >>> especially bugged me for the sepgsql_trusted_domain_t and
+> >>> sepgsql_trusted_proc_t.  Why not just go with what we do with regular
+> >>> domains and executables: sepgsql_trusted_proc_t and
+> >>> sepgsql_trusted_proc_exec_t?
+> >> I don't have a clear reason for the naming of them.
+> >> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
+> >> for the purpose, I also think.
+> > 
+> > It seems that we should also rename $1_sepgsql_proc_t for consistency.
 > 
-> Added patch for
+> Sorry for late reply.
 > 
-> cgroup_t.
+> At first, $1_sepgsql_proc_t lost the term of "trusted", so its name
+> does not shows its purpose.
 
-Merged.
+No, I mean having a $1_sepgsql_proc_t and $1_sepgsql_proc_exec_t.
 
-> plain text document attachment (kernel_kernel.patch)
-> --- nsaserefpolicy/policy/modules/kernel/kernel.te	2008-06-11 08:15:43.000000000 -0400
-> +++ serefpolicy-3.4.1/policy/modules/kernel/kernel.te	2008-06-11 10:06:56.000000000 -0400
-> @@ -45,6 +45,15 @@
->  sid kernel gen_context(system_u:system_r:kernel_t,mls_systemhigh)
->  
->  #
-> +# cgroup fs
-> +#
-> +
-> +type cgroup_t;
-> +fs_type(cgroup_t)
-> +allow cgroup_t self:filesystem associate;
-> +genfscon cgroup / gen_context(system_u:object_r:cgroup_t,s0)
-> +
-> +#
->  # DebugFS
->  #
->  
-> +
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 
 --
