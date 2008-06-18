@@ -1,60 +1,174 @@
-Subject: Re:
-	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <4858B106.206@ak.jp.nec.com>
-References: <483A9137.5050509@ak.jp.nec.com>
-	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>
-	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
-	 <483C6BEA.8040101@tycho.nsa.gov>
-	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
-	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
-	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
-	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
-	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
-	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
-	 <4846142F.8090100@ak.jp.nec.com>
-	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
-	 <48473ECC.6020501@ak.jp.nec.com>
-	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>
-			 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>
-		  <48524E79.6000508@ak.jp.nec.com> <1213364255.11146.18.camel@gorn>
-	  <4858B106.206@ak.jp.nec.com>
+Subject: [PATCH-v3] SELinux: allow fstype unknown to policy to use xattrs
+	if present
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, dwalsh@redhat.com,
+        cpebenito@tresys.com
 Content-Type: text/plain
-Date: Wed, 18 Jun 2008 09:41:38 -0400
-Message-Id: <1213796498.11146.120.camel@gorn>
+Date: Wed, 18 Jun 2008 09:50:04 -0400
+Message-Id: <1213797004.16752.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-06-18 at 15:53 +0900, KaiGai Kohei wrote:
-> Christopher J. PeBenito wrote:
-> >>> 2. the stored procedure type names have been in the back of my mind for
-> >>> long time but I couldn't come up with a good naming scheme.  This
-> >>> especially bugged me for the sepgsql_trusted_domain_t and
-> >>> sepgsql_trusted_proc_t.  Why not just go with what we do with regular
-> >>> domains and executables: sepgsql_trusted_proc_t and
-> >>> sepgsql_trusted_proc_exec_t?
-> >> I don't have a clear reason for the naming of them.
-> >> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
-> >> for the purpose, I also think.
-> > 
-> > It seems that we should also rename $1_sepgsql_proc_t for consistency.
-> 
-> Sorry for late reply.
-> 
-> At first, $1_sepgsql_proc_t lost the term of "trusted", so its name
-> does not shows its purpose.
+Currently if a FS is mounted for which SELinux policy does not define an
+fs_use_* that FS will either be genfs labeled or not labeled at all.
+This decision is based on the existence of a genfscon rule in policy and
+is irrespective of the capabilities of the filesystem itself.  This
+patch allows the kernel to check if the filesystem supports security
+xattrs and if so will use those if there is no fs_use_* rule in policy.
+An fstype with a no fs_use_* rule but with a genfs rule will use xattrs
+if available and will follow the genfs rule.
 
-No, I mean having a $1_sepgsql_proc_t and $1_sepgsql_proc_exec_t.
+This can be particularly interesting for things like ecryptfs which
+actually overlays a real underlying FS.  If we define excryptfs in
+policy to use xattrs we will likely get this wrong at times, so with
+this path we just don't need to define it!
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Overlay ecryptfs on top of NFS with no xattr support:
+SELinux: initialized (dev ecryptfs, type ecryptfs), uses genfs_contexts
+Overlay ecryptfs on top of ext4 with xattr support:
+SELinux: initialized (dev ecryptfs, type ecryptfs), uses xattr
+
+It is also useful as the kernel adds new FS we don't need to add them in
+policy if they support xattrs and that is how we want to handle them.
+
+Signed-off-by: Eric Paris <eparis@redhat.com>
+
+---
+
+my current policy looks as follows (but I honestly don't know if
+all of the interface calls are OK/needed, I was just copying other
+things.
+
+-fs_use_xattr ecryptfs gen_context(system_u:object_r:fs_t,s0);
++type ecryptfs_t;
++fs_noxattr_type(ecryptfs_t)
++files_mountpoint(ecryptfs_t)
++genfscon ecryptfs / gen_context(system_u:object_r:ecryptfs_t,s0)
+
+ security/selinux/hooks.c            |   22 +++++++++++++++++-----
+ security/selinux/include/security.h |    2 +-
+ security/selinux/ss/services.c      |   27 +++++++++++++++++++--------
+ 3 files changed, 37 insertions(+), 14 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 1c864c0..e4e5c3e 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -554,13 +554,15 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	struct task_security_struct *tsec = current->security;
+ 	struct superblock_security_struct *sbsec = sb->s_security;
+ 	const char *name = sb->s_type->name;
+-	struct inode *inode = sbsec->sb->s_root->d_inode;
+-	struct inode_security_struct *root_isec = inode->i_security;
++	struct dentry *root = sb->s_root;
++	struct inode *root_inode = root->d_inode;
++	struct inode_security_struct *root_isec = root_inode->i_security;
+ 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
+ 	u32 defcontext_sid = 0;
+ 	char **mount_options = opts->mnt_opts;
+ 	int *flags = opts->mnt_opts_flags;
+ 	int num_opts = opts->num_mnt_opts;
++	bool can_xattr = false;
+ 
+ 	mutex_lock(&sbsec->lock);
+ 
+@@ -664,14 +666,24 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 		goto out;
+ 	}
+ 
+-	if (strcmp(sb->s_type->name, "proc") == 0)
++	if (strcmp(name, "proc") == 0)
+ 		sbsec->proc = 1;
+ 
++	/*
++	 * test if the fs supports xattrs, fs_use might make use of this if the
++	 * fs has no definition in policy.
++	 */
++	if (root_inode->i_op->getxattr) {
++		rc = root_inode->i_op->getxattr(root, XATTR_NAME_SELINUX, NULL, 0);
++		if (rc >= 0 || rc == -ENODATA)
++			can_xattr = true;
++	}
++
+ 	/* Determine the labeling behavior to use for this filesystem type. */
+-	rc = security_fs_use(sb->s_type->name, &sbsec->behavior, &sbsec->sid);
++	rc = security_fs_use(name, &sbsec->behavior, &sbsec->sid, can_xattr);
+ 	if (rc) {
+ 		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
+-		       __func__, sb->s_type->name, rc);
++		       __func__, name, rc);
+ 		goto out;
+ 	}
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index ad30ac4..cc5f791 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -131,7 +131,7 @@ int security_get_allow_unknown(void);
+ #define SECURITY_FS_USE_MNTPOINT	6 /* use mountpoint labeling */
+ 
+ int security_fs_use(const char *fstype, unsigned int *behavior,
+-	u32 *sid);
++	u32 *sid, bool can_xattr);
+ 
+ int security_genfs_sid(const char *fstype, char *name, u16 sclass,
+ 	u32 *sid);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index dcc2e1c..f54c661 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1825,7 +1825,8 @@ out:
+ int security_fs_use(
+ 	const char *fstype,
+ 	unsigned int *behavior,
+-	u32 *sid)
++	u32 *sid,
++	bool can_xattr)
+ {
+ 	int rc = 0;
+ 	struct ocontext *c;
+@@ -1839,6 +1840,7 @@ int security_fs_use(
+ 		c = c->next;
+ 	}
+ 
++	/* look for labeling behavior defined in policy */
+ 	if (c) {
+ 		*behavior = c->v.behavior;
+ 		if (!c->sid[0]) {
+@@ -1849,14 +1851,23 @@ int security_fs_use(
+ 				goto out;
+ 		}
+ 		*sid = c->sid[0];
++		goto out;
++	}
++
++	/* labeling behavior not in policy, use xattrs if possible */
++	if (can_xattr) {
++		*behavior = SECURITY_FS_USE_XATTR;
++		*sid = SECINITSID_FS;
++		goto out;
++	}
++
++	/* no behavior in policy and can't use xattrs, try GENFS */
++	rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
++	if (rc) {
++		*behavior = SECURITY_FS_USE_NONE;
++		rc = 0;
+ 	} else {
+-		rc = security_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
+-		if (rc) {
+-			*behavior = SECURITY_FS_USE_NONE;
+-			rc = 0;
+-		} else {
+-			*behavior = SECURITY_FS_USE_GENFS;
+-		}
++		*behavior = SECURITY_FS_USE_GENFS;
+ 	}
+ 
+ out:
+
 
 
 --
