@@ -1,230 +1,48 @@
-Subject: Re: SELinux Bootstrap - without chroot
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-Cc: SELinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Chad Sellers <csellers@tresys.com>, Eric Paris <eparis@parisplace.org>
-In-Reply-To: <48581AAF.9060800@windriver.com>
-References: <4856998A.1020606@windriver.com>
-	 <1213639038.15523.141.camel@moss-spartans.epoch.ncsc.mil>
-	 <4856A941.9080300@windriver.com>
-	 <1213640369.15523.152.camel@moss-spartans.epoch.ncsc.mil>
-	 <4856DC93.5000909@windriver.com>
-	 <1213706319.32066.28.camel@moss-spartans.epoch.ncsc.mil>
-	 <4857C18B.6000007@windriver.com>
-	 <1213712831.32066.46.camel@moss-spartans.epoch.ncsc.mil>
-	 <4857CFB6.20000@windriver.com>
-	 <1213721034.32066.62.camel@moss-spartans.epoch.ncsc.mil>
-	 <48581AAF.9060800@windriver.com>
-Content-Type: text/plain
-Date: Tue, 17 Jun 2008 16:41:58 -0400
-Message-Id: <1213735318.32066.102.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4858B106.206@ak.jp.nec.com>
+Date: Wed, 18 Jun 2008 15:53:58 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
+References: <483A9137.5050509@ak.jp.nec.com>	 <1211910942.5008.57.camel@gorn.columbia.tresys.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>	 <4846142F.8090100@ak.jp.nec.com>	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>	 <48473ECC.6020501@ak.jp.nec.com>	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>		 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>	  <48524E79.6000508@ak.jp.nec.com> <1213364255.11146.18.camel@gorn>
+In-Reply-To: <1213364255.11146.18.camel@gorn>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Christopher J. PeBenito wrote:
+>>> 2. the stored procedure type names have been in the back of my mind for
+>>> long time but I couldn't come up with a good naming scheme.  This
+>>> especially bugged me for the sepgsql_trusted_domain_t and
+>>> sepgsql_trusted_proc_t.  Why not just go with what we do with regular
+>>> domains and executables: sepgsql_trusted_proc_t and
+>>> sepgsql_trusted_proc_exec_t?
+>> I don't have a clear reason for the naming of them.
+>> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
+>> for the purpose, I also think.
+> 
+> It seems that we should also rename $1_sepgsql_proc_t for consistency.
 
-On Tue, 2008-06-17 at 16:12 -0400, Vikram Ambrose wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2008-06-17 at 10:52 -0400, Vikram Ambrose wrote:
-> >   
-> >> Stephen Smalley wrote:
-> >>     
-> >>> On Tue, 2008-06-17 at 09:52 -0400, Vikram Ambrose wrote:
-> >>>   
-> >>>       
-> >>>> Stephen Smalley wrote:
-> >>>>     
-> >>>>         
-> >>>>> On Mon, 2008-06-16 at 17:35 -0400, Vikram Ambrose wrote:
-> >>>>>   
-> >>>>>       
-> >>>>>           
-> >>>>>> Stephen Smalley wrote:
-> >>>>>>     
-> >>>>>>         
-> >>>>>>             
-> >>>>>>> On Mon, 2008-06-16 at 13:56 -0400, Vikram Ambrose wrote:
-> >>>>>>>   
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>>>> Stephen Smalley wrote:
-> >>>>>>>>     
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>>>> Note that they get installed to $DESTDIR/usr/share/selinux/$SELINUXTYPE
-> >>>>>>>>> by make install.  In Fedora, they are packaged as such, then when you
-> >>>>>>>>> install the package on the target host, they are unpacked
-> >>>>>>>>> to /usr/share/selinux/$SELINUXTYPE by the package manager and then a %
-> >>>>>>>>> post scriptlet runs semodule on them to install them under /etc/selinux
-> >>>>>>>>> and load them.
-> >>>>>>>>>
-> >>>>>>>>>   
-> >>>>>>>>>       
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>> In Fedora, does anaconda chroot into the sysroot and call semodule 
-> >>>>>>>> during installation?
-> >>>>>>>>     
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>> Some combination of anaconda and rpm, yes.  semodule runs from a %post
-> >>>>>>> scriptlet in the selinux-policy-targeted package at package install
-> >>>>>>> time.
-> >>>>>>>
-> >>>>>>>   
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>>>>> Options for you might include:
-> >>>>>>>>> 1) Run semodule_link and semodule_expand at build time to link and
-> >>>>>>>>> expand the modules to a kernel policy up front.  Then you can just put
-> >>>>>>>>> the files into place without running semodule later.
-> >>>>>>>>>   
-> >>>>>>>>>       
-> >>>>>>>>>           
-> >>>>>>>>>               
-> >>>>>>>>>                   
-> >>>>>>>> I will investigate this option further, thank you.
-> >>>>>>>>     
-> >>>>>>>>         
-> >>>>>>>>             
-> >>>>>>>>                 
-> >>>>>>> Ok.  You can see an example of it in the 'make validate' target,
-> >>>>>>> although that is just to check that they will link and expand
-> >>>>>>> successfully; it isn't used to install the policy normally and likely
-> >>>>>>> doesn't keep the final result around.
-> >>>>>>>
-> >>>>>>>   
-> >>>>>>>       
-> >>>>>>>           
-> >>>>>>>               
-> >>>>>> I am getting a bit confused between "modular" and "monolithic", in both 
-> >>>>>> cases a policy.X file is needed to load the policy into the kernel, right?
-> >>>>>>
-> >>>>>> and in the modular case, the policy.X file simply points to the various 
-> >>>>>> .pp files and in the monolithic case everything is in the policy.X file? 
-> >>>>>> Analogous to shared library and static library link (modular/monolithic)?
-> >>>>>>     
-> >>>>>>         
-> >>>>>>             
-> >>>>> In either case, we ultimately need a complete policy.N file that
-> >>>>> contains all of the information for loading into the kernel.  The kernel
-> >>>>> only knows about the policy.N format; it knows nothing of policy
-> >>>>> modules.
-> >>>>>
-> >>>>> The difference is whether we need to compile a complete set of policy
-> >>>>> sources directly into the policy.N file, or whether we can separately
-> >>>>> compile and package each policy module into a .pp file and then later
-> >>>>> link and expand the set of installed policy modules to create a policy.N
-> >>>>> file.
-> >>>>>
-> >>>>> The modular policy support was introduced later (first appeared in
-> >>>>> Fedora Core 5), to allow for local customization of policy without
-> >>>>> requiring complete policy sources and to enable third party policy and
-> >>>>> decomposition of distribution policy among the packages.
-> >>>>>
-> >>>>> In a monolithic policy build, you take the entire set of policy sources,
-> >>>>> apply various preprocessing steps, combine the result into a single
-> >>>>> policy.conf file, and then feed that to the checkpolicy program to
-> >>>>> generate the policy.N file for the kernel.  And you likewise preprocess
-> >>>>> and combine the .fc files to form the complete file_contexts
-> >>>>> configuration.  Later if you want to add more policy, you drop it into
-> >>>>> the policy source tree and repeat the entire process.
-> >>>>>
-> >>>>> In the modular policy build, you take each policy module's sources (.te
-> >>>>> file), apply various preprocessing steps, feed the result to the
-> >>>>> checkmodule program to generate a binary module (.mod) file, then feed
-> >>>>> the .mod file and the .fc file to semodule_package to generate the
-> >>>>> policy package (.pp) file.  Then you ship the .pp files to the target
-> >>>>> host, run semodule to insert them into the policy module store, link
-> >>>>> them together, and expand them into a policy.N file on that host.  Later
-> >>>>> if you want to add more policy, you compile it as a module separately,
-> >>>>> ship the resulting .pp file to the target host, and then run semodule on
-> >>>>> it, which will add it to the policy store and generate an updated
-> >>>>> policy.N file.
-> >>>>>
-> >>>>>   
-> >>>>>       
-> >>>>>           
-> >>>> hmm, that somewhat explains it, but the terminology used across man 
-> >>>> pages and the internet doesn't seem to be consistent so it's a bit 
-> >>>> difficult to understand whats what.
-> >>>> So to avoid semodule's affinity for /etc/selinux i can get  away with 
-> >>>> semodule_link and semodule_expand?
-> >>>> I don't understand what the output of each command is. I did a 
-> >>>> semodule_link of all my .pp files and then did a senodule_expand of that 
-> >>>> file into another file, and then cat'ed that into /selinux/load and i 
-> >>>> got an error about a map.
-> >>>>
-> >>>> [600793.305757] security: ebitmap: truncated map
-> >>>>
-> >>>> Also, once the policy.X file is loaded, does the system need access to 
-> >>>> /etc/selinux/$POLICY ?
-> >>>>     
-> >>>>         
-> >>> You can do that, but I'm still not clear on why you are doing it.  It
-> >>> seems like you should be doing one of the following instead:
-> >>> 1) run semodule on the target system to install the .pp files and load
-> >>> the resulting policy rather than trying to do it all on the build host,
-> >>> -or-
-> >>>   
-> >>>       
-> >> Yes this works, however i'd like to have it running out of the box 
-> >> without this step.
-> >>     
-> >
-> > Up to you, of course, but note that at least in Fedora, this happens
-> > naturally via a %post scriptlet in the selinux-policy packages and isn't
-> > fundamentally different than other %post actions performed for system
-> > setup when a package is installed.
-> >
-> >   
-> >>> 2) run semodule within a chroot on the build system to install the .pp
-> >>> files and create the kernel policy.  Eric Paris has been getting such
-> >>> builds to work for Fedora live CD creation.
-> >>>   
-> >>>       
-> >> I'm not a fan of the chroot environment, but now that i have learned 
-> >> that i can manually semodule_link/expand to create my policy.X file, i 
-> >> can do the whole operation without using /etc/, this makes 
-> >> packaging/building out of the target system much easier, as well as 
-> >> deployment is a simple:
-> >> 1. untar the .pp files to /usr/share/selinux/policy/ for devs to use
-> >> 2. refpolicy make install, stuff untar'ed to 
-> >> /etc/selinux/policy/contexts  and
-> >> 3. copy my policy.X file that was produced by link/expand (also from the 
-> >> build host), to /etc/selinux/policy/policy
-> >> 4. edit semanage.conf and selinux.conf, throw in load_policy into 
-> >> sysvinit and i'm done!
-> >>     
-> >
-> > You may also need to manually generate the file_contexts file and put it
-> > into place, as semodule_link/expand doesn't presently handle that for
-> > you.
-> >
-> >   
-> How is that file created?
+Sorry for late reply.
 
-Normally libsemanage creates it from the .pp files by combining the
-individual .fc files, sorting the result based on specificity of the
-regexes, then splits the result into two files, the file_contexts file
-and the homedir_template.
+At first, $1_sepgsql_proc_t lost the term of "trusted", so its name
+does not shows its purpose.
 
-semodule_link doesn't do that for you presently.
+And, is there any differences between user_sepgsql_proc_t and
+staff_sepgsql_proc_t?
+If you indend this idea enables end-users to extend their policy of
+$1_sepgsql_proc_t by security module, I also think it is a good idea,
+even if there is no differences in the default.
 
-One option would be to just build the file_contexts config
-"monolithically" i.e. make MONOLITHIC=y file_contexts.
-I expect that would yield the same result as the libsemanage version.
+But trusted procedure works as an unconfined database domain.
+There is no margin to customize except for MLS/MCS.
 
+Thanks,
 -- 
-Stephen Smalley
-National Security Agency
-
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
