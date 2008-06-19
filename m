@@ -1,20 +1,20 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5K1l14o032737
-	for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2008 21:47:01 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5K2PXwV006464
+	for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2008 22:25:33 -0400
 Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5K1l06n024406
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2008 01:47:00 GMT
-Received: by yw-out-1718.google.com with SMTP id 6so538767ywa.84
-        for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2008 18:47:00 -0700 (PDT)
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5K2PW6n002208
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2008 02:25:33 GMT
+Received: by yw-out-1718.google.com with SMTP id 6so544760ywa.84
+        for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2008 19:25:32 -0700 (PDT)
 Cc: Xavier Toth <txtoth@gmail.com>, SELinux List <selinux@tycho.nsa.gov>
-Message-Id: <77033ABC-28F3-451A-8400-7AB50FDC929F@nall.com>
+Message-Id: <D6CC6963-BC78-444F-9BEF-93C34FA4576A@nall.com>
 From: Joe Nall <joe@nall.com>
 To: Eamon Walsh <ewalsh@tycho.nsa.gov>
 In-Reply-To: <4859A64C.7050705@tycho.nsa.gov>
 Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
 Mime-Version: 1.0 (Apple Message framework v924)
 Subject: Re: window manager policy
-Date: Thu, 19 Jun 2008 18:12:07 -0500
+Date: Thu, 19 Jun 2008 16:23:12 -0500
 References: <cadfc0e40806181401w635b2a5fo5c257e4050f4a6c0@mail.gmail.com> <4859A64C.7050705@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
