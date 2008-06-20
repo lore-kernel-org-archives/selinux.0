@@ -1,60 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5K2PXwV006464
-	for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2008 22:25:33 -0400
-Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5K2PW6n002208
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2008 02:25:33 GMT
-Received: by yw-out-1718.google.com with SMTP id 6so544760ywa.84
-        for <selinux@tycho.nsa.gov>; Thu, 19 Jun 2008 19:25:32 -0700 (PDT)
-Cc: Xavier Toth <txtoth@gmail.com>, SELinux List <selinux@tycho.nsa.gov>
-Message-Id: <D6CC6963-BC78-444F-9BEF-93C34FA4576A@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <4859A64C.7050705@tycho.nsa.gov>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v924)
-Subject: Re: window manager policy
-Date: Thu, 19 Jun 2008 16:23:12 -0500
-References: <cadfc0e40806181401w635b2a5fo5c257e4050f4a6c0@mail.gmail.com> <4859A64C.7050705@tycho.nsa.gov>
+Message-ID: <485B52D2.6020101@ak.jp.nec.com>
+Date: Fri, 20 Jun 2008 15:48:50 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
+References: <483A9137.5050509@ak.jp.nec.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>	 <4846142F.8090100@ak.jp.nec.com>	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>	 <48473ECC.6020501@ak.jp.nec.com>	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>			 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>		  <48524E79.6000508@ak.jp.nec.com> <1213364255.11146.18.camel@gorn>	  <4858B106.206@ak.jp.nec.com> <1213796498.11146.120.camel@gorn>
+In-Reply-To: <1213796498.11146.120.camel@gorn>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Jun 18, 2008, at 7:20 PM, Eamon Walsh wrote:
-
-> Xavier Toth wrote:
->> I'm contemplating some AVC's that originate in metacity and am
->> wondering whether a window manager is a special case of an X client
->> that requires its' own policy. Are there things that a window manager
->> does that other X clients shouldn't? Also on an MLS system should the
->> window manager run at the users highwater mark or ranged?
+Christopher J. PeBenito wrote:
+> On Wed, 2008-06-18 at 15:53 +0900, KaiGai Kohei wrote:
+>> Christopher J. PeBenito wrote:
+>>>>> 2. the stored procedure type names have been in the back of my mind for
+>>>>> long time but I couldn't come up with a good naming scheme.  This
+>>>>> especially bugged me for the sepgsql_trusted_domain_t and
+>>>>> sepgsql_trusted_proc_t.  Why not just go with what we do with regular
+>>>>> domains and executables: sepgsql_trusted_proc_t and
+>>>>> sepgsql_trusted_proc_exec_t?
+>>>> I don't have a clear reason for the naming of them.
+>>>> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
+>>>> for the purpose, I also think.
+>>> It seems that we should also rename $1_sepgsql_proc_t for consistency.
+>> Sorry for late reply.
 >>
->
-> The window manager basically needs the full run of the display.   
-> When another application creates a window, the window manager  
-> creates a second window with the titlebar and borders, and then  
-> plops the application window down inside of it (reparents it).  It  
-> also moves windows around and resizes them, sets properties on them  
-> (such as the _NET_WM_DESKTOP property that contains the desktop  
-> number) and listens for events so it can tell when to change the  
-> focus window.  Finally, a compositing manager actually needs to read  
-> the window contents.  It's definitely a special-case app that's  
-> going to need its own policy.
->
-> It almost certainly needs permissions on all windows that map to  
-> both read and write in the MLS configuration.  So it will need read-  
-> and write-all-levels.
+>> At first, $1_sepgsql_proc_t lost the term of "trusted", so its name
+>> does not shows its purpose.
+> 
+> No, I mean having a $1_sepgsql_proc_t and $1_sepgsql_proc_exec_t.
 
-What other desktop related processes need MLS policies to be written  
-to get a minimally functional Fedora/Gnome enforcing X environment?
+Do you intend the following domain transition?
+  user_t + user_sepgsql_proc_exec_t -> user_sepgsql_proc_t
 
-What window manager/environment do you use in your enforcing X  
-development and test?
+Is there any reason why users should not invoke their functions
+without domain transition?
 
-Do you have a start on a window manager policy that we could try?
+The purpose of $1_sepgsql_proc_t is to avoid unconfined domain
+to invoke user defined function (may be malicious one) without
+checking its safeness.
 
-joe
-
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
