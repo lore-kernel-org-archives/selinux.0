@@ -1,83 +1,112 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5KIgR1C023286
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2008 14:42:27 -0400
-Received: from hs-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5KIgQNo004159
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2008 18:42:27 GMT
-Received: by hs-out-0708.google.com with SMTP id k27so210624hsc.2
-        for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2008 11:42:26 -0700 (PDT)
-Cc: Chad Hanson <chanson@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Message-Id: <BCA36425-E46A-4BAF-B712-732E2F8A4A4D@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <485BF64E.9060905@manicmethod.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v924)
-Subject: Re: releasibility in mcstransd
-Date: Fri, 20 Jun 2008 13:41:45 -0500
-References: <484D91BB.3080904@manicmethod.com> <D709A20F2164C84E8B7014B0301F5EF8012E7F23@HAVOC.tcs-sec.com> <0D76DBC9-5AF4-43C4-8F38-3B7BAD9F2A1F@nall.com> <485BCED3.9020903@manicmethod.com> <FBDB910C-1B8E-4DCD-A427-6EF0B161F329@nall.com> <485BF64E.9060905@manicmethod.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5KJtOVd004222
+	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2008 15:55:24 -0400
+Message-ID: <485C0B2A.6050809@tycho.nsa.gov>
+Date: Fri, 20 Jun 2008 15:55:22 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: Xavier Toth <txtoth@gmail.com>
+CC: SELinux Mail List <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: x_extension use
+References: <cadfc0e40806191533j265e146q2070b19d2bcd10d@mail.gmail.com>
+In-Reply-To: <cadfc0e40806191533j265e146q2070b19d2bcd10d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Xavier Toth wrote:
+> I'm seeing a number of AVCs out of gnome applications for a range of X
+> extensions. Now I wondering about allowing access to X extensions. In
+> general should apps be able to use any extension or are there specific
+> one that need greater access control?
+>   
 
-On Jun 20, 2008, at 1:26 PM, Joshua Brindle wrote:
+First, the mechanics of the check: the way it's supposed to work is that 
+the application first calls XQueryExtension to see if the extension is 
+present.  This results in a check on the "query" permission, which you 
+are not seeing in your AVC's because there is a dontaudit rule for it.  
+If the "query" permission is denied, then the X server reports the 
+extension as not being present.  The application is then supposed to 
+either fail gracefully, or find some other way of doing its job.
 
-> Joe Nall wrote:
->>
->> On Jun 20, 2008, at 10:37 AM, Joshua Brindle wrote:
->>
->>> Joe Nall wrote:
->>>>
->>>> ...
->>>> Attached is a source rpm based on the mcstransd we are using  
->>>> internally.
->>>> It can translate ranges that look like:
->>>>
->>> Thanks for this. I started looking at the diff and it is pretty
->>> significant, it might take me a while to get through it all. One  
->>> thing
->>> I noticed immediately is that you are duplicating interfaces present
->>> in libsepol such as mls_level_to_string, mls_level_from_string and
->>> importing private headers from libsepol.
->>
->> IIRC, the functions were not exported. I'm more than willing to drop
->> those routines and use libsepol.
->>
->>> I don't think we want to proceed this way. If possible we should be
->>> using the libsepol interfaces and encapsulating the private types as
->>> necessary.
->>
->> I agree
->>
+Since you are in permissive mode, the query checks are succeeding and 
+the apps are going on to use the extension.  There is no dontaudit rule 
+for "use" so you get AVC's.  You _could_ try going into enforcing.  It 
+might just work, since the query will be denied and it will appear as 
+though the extension isn't supported.  However obviously if the app 
+needs the extension to work, you'll have to grant access.
+
+
+Now, as far as which extensions are good and which are bad, I tried to 
+put them in different categories in the x_contexts file.  For example, 
+GLX is the OpenGL extension so I labeled it accelgraphics_xext_t.  Chris 
+has done some experimentation which resulted in changing the labels on 
+some extensions.  A basic extension policy would be to only restrict 
+access to the extensions that are specifically for debugging: XTest, 
+XTrap, and RECORD.  From there, the controls can gradually be tightened 
+up, for example by only allowing gnome-screensaver to touch the screen 
+saver extension.
+
+The extension controls are supposed to be a coarse-grained mechanism.  
+In a perfect world, the fine-grained controls would capture what the 
+application is doing at a lower level (touching this window or that 
+device, etc). 
+
+I have been actively campaigning upstream to try and reduce the number 
+of extensions in the current Xorg server.
+
+
+> type=USER_AVC msg=audit(1213883752.209:892): user pid=23989 uid=0
+> auid=4294967295 ses=4294967295
+> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>  { use } for request=RANDR:QueryVersion comm=gnome-session
+> extension=RANDR scontext=user_u:user_r:user_t:s0
+> tcontext=system_u:object_r:output_xext_t:s0 tclass=x_extension :
+> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+> type=USER_AVC msg=audit(1213883755.647:918): user pid=23989 uid=0
+> auid=4294967295 ses=4294967295
+> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>  { use } for request=XFree86-VidModeExtension:QueryVersion
+> comm=gnome-screensaver extension=XFree86-VidModeExtension
+> scontext=user_u:user_r:user_t:s0
+> tcontext=system_u:object_r:directhw_xext_t:s0 tclass=x_extension :
+> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+> type=USER_AVC msg=audit(1213883796.665:934): user pid=23989 uid=0
+> auid=4294967295 ses=4294967295
+> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>  { use } for request=DPMS:Capable comm=gnome-power-manager
+> extension=DPMS scontext=user_u:user_r:user_t:s0
+> tcontext=system_u:object_r:screensaver_xext_t:s0 tclass=x_extension :
+> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+> type=USER_AVC msg=audit(1213884106.649:948): user pid=23989 uid=0
+> auid=4294967295 ses=4294967295
+> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>  { use } for request=XFree86-Misc:SetGrabKeysState
+> comm=gnome-screensaver extension=XFree86-Misc
+> scontext=user_u:user_r:user_t:s0 tcontext=system_u:object_r:xext_t:s0
+> tclass=x_extension : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
+> terminal=?)'
+> type=USER_AVC msg=audit(1213889695.688:955): user pid=23989 uid=0
+> auid=4294967295 ses=4294967295
+> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
+>  { use } for request=GLX:QueryVersion
+> comm=/usr/libexec/gnome-screensaver-gl-helper extension=GLX
+> scontext=user_u:user_r:user_t:s0
+> tcontext=system_u:object_r:accelgraphics_xext_t:s0 tclass=x_extension
+> : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
 >
-> Stephen: What do you think we should do about this? We've talked  
-> about losing some of the encapsulation in libsepol but that was  
-> related to policydb. Should we just export the mls types for now and  
-> use those or continue by making them opaque? Since this mcstrans  
-> does alot of operations on them it might make making them opaque  
-> difficult. We could probably move alot of the functionality out of  
-> mcstrans and in to libsepol but that would be coupling our libs to  
-> this particular translation scheme which I thought we were trying to  
-> avoid?
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 >
->>> The ebitmap operations can certainly be put in libsepol but  
->>> shouldn't
->>> be called directly the way they are.
->>
->> I like to putting the additional ebitmap functions in libsepol. I was
->> hoping Stephen would make them faster too :) I don't understand the
->> 'shouldn't be called directly the way they are' comment.
->>
->
-> ebitmaps aren't exported so you'd never actually have an  
-> unencapsulated one in the application.
+>   
 
-FWIW, we do a fair amount of application level category bit twiddling  
-beyond what mcstrans does. Having interfaces that allow access to the  
-bits is a good thing. Our needs may not be representative :)
 
-joe
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
