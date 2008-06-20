@@ -1,51 +1,36 @@
-Message-ID: <485B52D2.6020101@ak.jp.nec.com>
-Date: Fri, 20 Jun 2008 15:48:50 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Joe Nall <joe@nall.com>
+Subject: Re: window manager policy
+Date: Fri, 20 Jun 2008 19:50:31 +1000
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Xavier Toth <txtoth@gmail.com>,
+        SELinux List <selinux@tycho.nsa.gov>
+References: <cadfc0e40806181401w635b2a5fo5c257e4050f4a6c0@mail.gmail.com> <4859A64C.7050705@tycho.nsa.gov> <77033ABC-28F3-451A-8400-7AB50FDC929F@nall.com>
+In-Reply-To: <77033ABC-28F3-451A-8400-7AB50FDC929F@nall.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
-References: <483A9137.5050509@ak.jp.nec.com>	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>	 <483C6BEA.8040101@tycho.nsa.gov>	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>	 <4846142F.8090100@ak.jp.nec.com>	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>	 <48473ECC.6020501@ak.jp.nec.com>	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>			 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>		  <48524E79.6000508@ak.jp.nec.com> <1213364255.11146.18.camel@gorn>	  <4858B106.206@ak.jp.nec.com> <1213796498.11146.120.camel@gorn>
-In-Reply-To: <1213796498.11146.120.camel@gorn>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200806201950.41120.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Wed, 2008-06-18 at 15:53 +0900, KaiGai Kohei wrote:
->> Christopher J. PeBenito wrote:
->>>>> 2. the stored procedure type names have been in the back of my mind for
->>>>> long time but I couldn't come up with a good naming scheme.  This
->>>>> especially bugged me for the sepgsql_trusted_domain_t and
->>>>> sepgsql_trusted_proc_t.  Why not just go with what we do with regular
->>>>> domains and executables: sepgsql_trusted_proc_t and
->>>>> sepgsql_trusted_proc_exec_t?
->>>> I don't have a clear reason for the naming of them.
->>>> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
->>>> for the purpose, I also think.
->>> It seems that we should also rename $1_sepgsql_proc_t for consistency.
->> Sorry for late reply.
->>
->> At first, $1_sepgsql_proc_t lost the term of "trusted", so its name
->> does not shows its purpose.
-> 
-> No, I mean having a $1_sepgsql_proc_t and $1_sepgsql_proc_exec_t.
+On Friday 20 June 2008 09:12, Joe Nall <joe@nall.com> wrote:
+> What other desktop related processes need MLS policies to be written  
+> to get a minimally functional Fedora/Gnome enforcing X environment?
 
-Do you intend the following domain transition?
-  user_t + user_sepgsql_proc_exec_t -> user_sepgsql_proc_t
+The clipboard manager.  But of course that also needs some serious coding to 
+preserve the labels on copied data as well as relabelling it if requested and 
+permitted.
 
-Is there any reason why users should not invoke their functions
-without domain transition?
+Of course it may be a matter of opinion whether functional cut/paste 
+is "minimal" desktop use.
 
-The purpose of $1_sepgsql_proc_t is to avoid unconfined domain
-to invoke user defined function (may be malicious one) without
-checking its safeness.
-
-Thanks,
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
