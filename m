@@ -1,112 +1,57 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5KJtOVd004222
-	for <selinux@tycho.nsa.gov>; Fri, 20 Jun 2008 15:55:24 -0400
-Message-ID: <485C0B2A.6050809@tycho.nsa.gov>
-Date: Fri, 20 Jun 2008 15:55:22 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
-MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SELinux Mail List <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: x_extension use
-References: <cadfc0e40806191533j265e146q2070b19d2bcd10d@mail.gmail.com>
-In-Reply-To: <cadfc0e40806191533j265e146q2070b19d2bcd10d@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5LBHex8026933
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jun 2008 07:17:40 -0400
+Received: from mail.seekline.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5LBHdPU005995
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jun 2008 11:17:39 GMT
+Received: from [IPv6:2001:6f8:1294:1:211:24ff:fee1:776c] ([IPv6:2001:6f8:1294:1:211:24ff:fee1:776c])
+	(authenticated bits=0)
+	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id m5LBHZMA009750
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <selinux@tycho.nsa.gov>; Sat, 21 Jun 2008 13:17:38 +0200
+Subject: pam_mount
+From: Stefan Schulze Frielinghaus <stefan@seekline.net>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Sat, 21 Jun 2008 13:17:42 +0200
+Message-Id: <1214047062.30904.13.camel@vogon>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Xavier Toth wrote:
-> I'm seeing a number of AVCs out of gnome applications for a range of X
-> extensions. Now I wondering about allowing access to X extensions. In
-> general should apps be able to use any extension or are there specific
-> one that need greater access control?
->   
+I try to temporarily create a policy fix for pam_mount and I'm running
+into some problems.
 
-First, the mechanics of the check: the way it's supposed to work is that 
-the application first calls XQueryExtension to see if the extension is 
-present.  This results in a check on the "query" permission, which you 
-are not seeing in your AVC's because there is a dontaudit rule for it.  
-If the "query" permission is denied, then the X server reports the 
-extension as not being present.  The application is then supposed to 
-either fail gracefully, or find some other way of doing its job.
+While using local console login mount_t tries to "getattr" every
+sock_file in /var/run which I could dontaudit using the following:
 
-Since you are in permissive mode, the query checks are succeeding and 
-the apps are going on to use the extension.  There is no dontaudit rule 
-for "use" so you get AVC's.  You _could_ try going into enforcing.  It 
-might just work, since the query will be denied and it will appear as 
-though the extension isn't supported.  However obviously if the app 
-needs the extension to work, you'll have to grant access.
+dontaudit mount_t pidfile:sock_file getattr;
 
+But there is still another very annoying AVC message which I get for
+every directory in /proc which is not labeled as proc_t.
 
-Now, as far as which extensions are good and which are bad, I tried to 
-put them in different categories in the x_contexts file.  For example, 
-GLX is the OpenGL extension so I labeled it accelgraphics_xext_t.  Chris 
-has done some experimentation which resulted in changing the labels on 
-some extensions.  A basic extension policy would be to only restrict 
-access to the extensions that are specifically for debugging: XTest, 
-XTrap, and RECORD.  From there, the controls can gradually be tightened 
-up, for example by only allowing gnome-screensaver to touch the screen 
-saver extension.
+type=1400 audit(1214045895.760:29702): avc:  denied  { getattr } for
+pid=28153 comm="fuser" path="/proc/1" dev=proc ino=1675
+scontext=system_u:system_r:mount_t:s0-s0:c0.c1023
+tcontext=system_u:system_r:init_t:s0 tclass=dir
 
-The extension controls are supposed to be a coarse-grained mechanism.  
-In a perfect world, the fine-grained controls would capture what the 
-application is doing at a lower level (touching this window or that 
-device, etc). 
+type=1400 audit(1214045895.762:29703): avc:  denied  { search } for
+pid=28153 comm="fuser" name="1" dev=proc ino=1675
+scontext=system_u:system_r:mount_t:s0-s0:c0.c1023
+tcontext=system_u:system_r:init_t:s0 tclass=dir
 
-I have been actively campaigning upstream to try and reduce the number 
-of extensions in the current Xorg server.
+For the first few tries I dontaudit every occurrence (over a dozen
+types) but I realized that's something I can't win ;-) So I tried using
+the following rule:
 
+dontaudit mount_t proc_type:dir { getattr search };
 
-> type=USER_AVC msg=audit(1213883752.209:892): user pid=23989 uid=0
-> auid=4294967295 ses=4294967295
-> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->  { use } for request=RANDR:QueryVersion comm=gnome-session
-> extension=RANDR scontext=user_u:user_r:user_t:s0
-> tcontext=system_u:object_r:output_xext_t:s0 tclass=x_extension :
-> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
-> type=USER_AVC msg=audit(1213883755.647:918): user pid=23989 uid=0
-> auid=4294967295 ses=4294967295
-> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->  { use } for request=XFree86-VidModeExtension:QueryVersion
-> comm=gnome-screensaver extension=XFree86-VidModeExtension
-> scontext=user_u:user_r:user_t:s0
-> tcontext=system_u:object_r:directhw_xext_t:s0 tclass=x_extension :
-> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
-> type=USER_AVC msg=audit(1213883796.665:934): user pid=23989 uid=0
-> auid=4294967295 ses=4294967295
-> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->  { use } for request=DPMS:Capable comm=gnome-power-manager
-> extension=DPMS scontext=user_u:user_r:user_t:s0
-> tcontext=system_u:object_r:screensaver_xext_t:s0 tclass=x_extension :
-> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
-> type=USER_AVC msg=audit(1213884106.649:948): user pid=23989 uid=0
-> auid=4294967295 ses=4294967295
-> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->  { use } for request=XFree86-Misc:SetGrabKeysState
-> comm=gnome-screensaver extension=XFree86-Misc
-> scontext=user_u:user_r:user_t:s0 tcontext=system_u:object_r:xext_t:s0
-> tclass=x_extension : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?,
-> terminal=?)'
-> type=USER_AVC msg=audit(1213889695.688:955): user pid=23989 uid=0
-> auid=4294967295 ses=4294967295
-> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->  { use } for request=GLX:QueryVersion
-> comm=/usr/libexec/gnome-screensaver-gl-helper extension=GLX
-> scontext=user_u:user_r:user_t:s0
-> tcontext=system_u:object_r:accelgraphics_xext_t:s0 tclass=x_extension
-> : exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
->   
+But the AVC is still generated. I hoped that proc_type is an attribute
+for every file/dir under /proc. Am I wrong? Or why doesn't the dontaudit
+rule count?
 
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+Best regards
+Stefan
 
 
 --
