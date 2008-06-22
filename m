@@ -1,58 +1,44 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5LBHex8026933
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jun 2008 07:17:40 -0400
-Received: from mail.seekline.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5LBHdPU005995
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jun 2008 11:17:39 GMT
-Received: from [IPv6:2001:6f8:1294:1:211:24ff:fee1:776c] ([IPv6:2001:6f8:1294:1:211:24ff:fee1:776c])
-	(authenticated bits=0)
-	by mail.seekline.net (8.13.8/8.13.8) with ESMTP id m5LBHZMA009750
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <selinux@tycho.nsa.gov>; Sat, 21 Jun 2008 13:17:38 +0200
-Subject: pam_mount
-From: Stefan Schulze Frielinghaus <stefan@seekline.net>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Sat, 21 Jun 2008 13:17:42 +0200
-Message-Id: <1214047062.30904.13.camel@vogon>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5MCNEON025130
+	for <selinux@tycho.nsa.gov>; Sun, 22 Jun 2008 08:23:15 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5MCNDFm009531
+	for <selinux@tycho.nsa.gov>; Sun, 22 Jun 2008 12:23:14 GMT
+Received: by wr-out-0506.google.com with SMTP id c37so1588643wra.26
+        for <selinux@tycho.nsa.gov>; Sun, 22 Jun 2008 05:23:13 -0700 (PDT)
+Message-ID: <f71a82820806220523j36fab57fyec707a3b9d0b5810@mail.gmail.com>
+Date: Sun, 22 Jun 2008 21:23:13 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Subject: su command not found
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_16750_23753477.1214137393428"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I try to temporarily create a policy fix for pam_mount and I'm running
-into some problems.
+------=_Part_16750_23753477.1214137393428
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-While using local console login mount_t tries to "getattr" every
-sock_file in /var/run which I could dontaudit using the following:
+I suddenly came upt to a mesage in F9 that
 
-dontaudit mount_t pidfile:sock_file getattr;
+$su command not found
 
-But there is still another very annoying AVC message which I get for
-every directory in /proc which is not labeled as proc_t.
+Why??
 
-type=1400 audit(1214045895.760:29702): avc:  denied  { getattr } for
-pid=28153 comm="fuser" path="/proc/1" dev=proc ino=1675
-scontext=system_u:system_r:mount_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:init_t:s0 tclass=dir
+-- 
+http://intrajp.no-ip.com/ Home Page
 
-type=1400 audit(1214045895.762:29703): avc:  denied  { search } for
-pid=28153 comm="fuser" name="1" dev=proc ino=1675
-scontext=system_u:system_r:mount_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:init_t:s0 tclass=dir
+------=_Part_16750_23753477.1214137393428
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-For the first few tries I dontaudit every occurrence (over a dozen
-types) but I realized that's something I can't win ;-) So I tried using
-the following rule:
+I suddenly came upt to a mesage in F9 that<br><br>$su command not found<br><br>Why??<br clear="all"><br>-- <br><a href="http://intrajp.no-ip.com/">http://intrajp.no-ip.com/</a> Home Page
 
-dontaudit mount_t proc_type:dir { getattr search };
-
-But the AVC is still generated. I hoped that proc_type is an attribute
-for every file/dir under /proc. Am I wrong? Or why doesn't the dontaudit
-rule count?
-
-Best regards
-Stefan
-
+------=_Part_16750_23753477.1214137393428--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
