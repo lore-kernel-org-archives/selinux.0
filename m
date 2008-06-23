@@ -1,61 +1,86 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5NGauDp005255
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 12:36:56 -0400
-Received: from mail.fluendo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5NGatGK010263
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 16:36:56 GMT
-Received: from mail.fluendo.com (localhost.localdomain [127.0.0.1])
-	by mail.fluendo.com (Postfix) with ESMTP id 9EE6F25008B
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 18:36:54 +0200 (CEST)
-Received: from [192.168.0.2] (17.84.219.87.dynamic.jazztel.es [87.219.84.17])
-	by mail.fluendo.com (Postfix) with ESMTP id 637C7250086
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 18:36:54 +0200 (CEST)
-Message-ID: <485FD15F.4080304@flumotion.com>
-Date: Mon, 23 Jun 2008 18:37:51 +0200
-From: Ioannis Aslanidis <iaslanidis@flumotion.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5NHIc8M014472
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 13:18:38 -0400
+Message-ID: <485FDAEC.7010807@tycho.nsa.gov>
+Date: Mon, 23 Jun 2008 13:18:36 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: Re: How to disable/remove MLS
-References: <485FC1FB.3030605@flumotion.com>	 <1214237136.32762.64.camel@moss-spartans.epoch.ncsc.mil>	 <485FCB72.9030407@flumotion.com> <1214238707.32762.86.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1214238707.32762.86.camel@moss-spartans.epoch.ncsc.mil>
+To: Joe Nall <joe@nall.com>
+CC: Xavier Toth <txtoth@gmail.com>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: window manager policy
+References: <cadfc0e40806181401w635b2a5fo5c257e4050f4a6c0@mail.gmail.com> <4859A64C.7050705@tycho.nsa.gov> <77033ABC-28F3-451A-8400-7AB50FDC929F@nall.com>
+In-Reply-To: <77033ABC-28F3-451A-8400-7AB50FDC929F@nall.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Joe Nall wrote:
+> On Jun 18, 2008, at 7:20 PM, Eamon Walsh wrote:
+>
+>   
+>> Xavier Toth wrote:
+>>     
+>>> I'm contemplating some AVC's that originate in metacity and am
+>>> wondering whether a window manager is a special case of an X client
+>>> that requires its' own policy. Are there things that a window manager
+>>> does that other X clients shouldn't? Also on an MLS system should the
+>>> window manager run at the users highwater mark or ranged?
+>>>
+>>>       
+>> The window manager basically needs the full run of the display.   
+>> When another application creates a window, the window manager  
+>> creates a second window with the titlebar and borders, and then  
+>> plops the application window down inside of it (reparents it).  It  
+>> also moves windows around and resizes them, sets properties on them  
+>> (such as the _NET_WM_DESKTOP property that contains the desktop  
+>> number) and listens for events so it can tell when to change the  
+>> focus window.  Finally, a compositing manager actually needs to read  
+>> the window contents.  It's definitely a special-case app that's  
+>> going to need its own policy.
+>>
+>> It almost certainly needs permissions on all windows that map to  
+>> both read and write in the MLS configuration.  So it will need read-  
+>> and write-all-levels.
+>>     
+>
+> What other desktop related processes need MLS policies to be written  
+> to get a minimally functional Fedora/Gnome enforcing X environment?
+>   
 
-Thank you, indeed that was it.
+Don't know for sure...but probably gnome-session (starts up processes), 
+nautilus and gnome-panel (can be used to launch processes; gnome-panel 
+interacts with small applet windows that are inside it).
 
-Stephen Smalley wrote:
-| On Mon, 2008-06-23 at 18:12 +0200, Ioannis Aslanidis wrote:
-|> -----BEGIN PGP SIGNED MESSAGE-----
-|> Hash: SHA1
-|>
-|> Hello and thank you for the reply.
-|>
-|> The problem here is that we also work with older systems (FC5) which do
-|> not have MCS implemented and cause compatibility problems when saving
-|> configuration file contexts. Migrating to a newer version is planned,
-|> but it will take a long while. In the meanwhile we need an intermediate
-|> solution.
-|>
-|> In RHEL 5.1/5.2 is where I see the ':s0' tag when I do ls -Z. Any clues
-|> about that?
-|
-| I believe that FC5 and RHEL5 have MCS enabled.  But the :s0 is hidden if
-| you are running mcstrans.
-|
-| /sbin/service mcstrans status
-|
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> What window manager/environment do you use in your enforcing X  
+> development and test?
+>   
 
-iEYEARECAAYFAkhf0V8ACgkQFq+8w76sCAB6sgCgqACjQAjiNN1LzDXvC2T0l5Ws
-XsAAn33yCX6ALnQoSGrNkuZ+NpFfghtG
-=rtFI
------END PGP SIGNATURE-----
+I have one machine where I compile the full Xorg distribution, policy, 
+and a few other things (pam, gdm) from scratch.  I just finished setting 
+up another machine that runs Fedora 9, with just refpolicy and XCB 
+compiled from source.  This should make it easier for me to develop and 
+test policy.  It's just running regular GNOME, although I may install 
+XFCE on it as well.
+
+> Do you have a start on a window manager policy that we could try?
+>   
+
+It should be transitioned into a domain that has unconfined TE perms 
+over X objects, and is MLS trusted.  After that it's a matter of seeing 
+what permissions regular applications need over window-manager created 
+windows, particularly decoration windows.  They might need some 
+permissions over the window manager's windows since they might try to 
+manipulate the window-manager "decoration" windows that their own app 
+window is reparented into.  To deal with this, I think that the window 
+manager is going to need to call SetWindowCreateContext to put window 
+decorations into the same context as the associated application window.  
+I'm hoping to try and make a patch to do this, this week.
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
