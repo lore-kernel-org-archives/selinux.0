@@ -1,40 +1,40 @@
-Subject: Re: rbacsep: type transition conflicts uncovered
+Subject: Re: How to disable/remove MLS
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1214233382.11146.256.camel@gorn>
-References: <1214233382.11146.256.camel@gorn>
+To: Ioannis Aslanidis <iaslanidis@flumotion.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <485FC1FB.3030605@flumotion.com>
+References: <485FC1FB.3030605@flumotion.com>
 Content-Type: text/plain
-Date: Mon, 23 Jun 2008 11:52:37 -0400
-Message-Id: <1214236357.32762.52.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 23 Jun 2008 12:05:36 -0400
+Message-Id: <1214237136.32762.64.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
-> I was going through and doing refactoring on the rbacsep with the goal
-> of making the branch compilable again after doing all the derived type
-> collapsing.  I ran into a problem with type transition conflicts.  There
-> are several domains which have a type transition back to the caller
-> domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
-> derived types are collapsed, we get conflicts such as:
+On Mon, 2008-06-23 at 17:32 +0200, Ioannis Aslanidis wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> type_transition sudo_t shell_exec_t:process auditadm_t;
-> type_transition sudo_t shell_exec_t:process secadm_t;
-> type_transition sudo_t shell_exec_t:process staff_t;
-> type_transition sudo_t shell_exec_t:process sysadm_t;
-> type_transition sudo_t shell_exec_t:process user_t;
+> Hello,
 > 
-> It would seem that there are two solutions for this:
-> 
-> 1. keep derived types for these affected domains
-> 2. make these applications SELinux aware
-> 
-> We can't collapse user domains because of their vast differences.
+> Is there a way to disable MLS so that the MLS tag gets removed from the
+> context?
 
-I'd vote for (1).  Otherwise the application is a trusted subject that
-can transition to any user role/domain.
+Whether or not MLS is enabled is defined by your policy build options.
+In refpolicy, this is determined by the TYPE= setting in build.conf.
+The upstream refpolicy defaults to "standard", which leaves MLS
+disabled.  Fedora and RHEL use "mcs", which enables the MLS engine and
+field but only uses categories with a different set of constraints than
+"mls".  Fedora and RHEL also run mcstransd, a daemon for label
+translation, which by default strips the ":s0" suffixes so that users
+don't see them.
+
+Disabling MCS/MLS in Fedora or RHEL may cause compatibility problems.
+Such compatibility issues should be reported as bugs, since application
+code should remain independent of policy, but such bugs have been
+encountered in the past, and most users of Fedora and RHEL only use the
+default policy that enables MCS.
 
 -- 
 Stephen Smalley
