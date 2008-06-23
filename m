@@ -1,47 +1,71 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5ND2IfR024606
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 09:02:18 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5NDDTuW027106
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 09:13:29 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m5ND2Hvu020766
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 13:02:17 GMT
-Subject: Re: x_extension use
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m5NDDSvu023767
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 13:13:29 GMT
+Subject: Re: pam_mount
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Xavier Toth <txtoth@gmail.com>
+To: Stefan Schulze Frielinghaus <stefan@seekline.net>
 Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40806191533j265e146q2070b19d2bcd10d@mail.gmail.com>
-References: <cadfc0e40806191533j265e146q2070b19d2bcd10d@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 23 Jun 2008 09:01:18 -0400
-Message-Id: <1214226078.11146.220.camel@gorn>
+In-Reply-To: <1214047062.30904.13.camel@vogon>
+References: <1214047062.30904.13.camel@vogon>
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 23 Jun 2008 09:12:30 -0400
+Message-Id: <1214226750.11146.232.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-06-19 at 17:33 -0500, Xavier Toth wrote:
-> I'm seeing a number of AVCs out of gnome applications for a range of X
-> extensions. Now I wondering about allowing access to X extensions. In
-> general should apps be able to use any extension or are there specific
-> one that need greater access control?
+On Sat, 2008-06-21 at 13:17 +0200, Stefan Schulze Frielinghaus wrote:
+> I try to temporarily create a policy fix for pam_mount and I'm running
+> into some problems.
+> 
+> While using local console login mount_t tries to "getattr" every
+> sock_file in /var/run which I could dontaudit using the following:
+> 
+> dontaudit mount_t pidfile:sock_file getattr;
+> 
+> But there is still another very annoying AVC message which I get for
+> every directory in /proc which is not labeled as proc_t.
+> 
+> type=1400 audit(1214045895.760:29702): avc:  denied  { getattr } for
+> pid=28153 comm="fuser" path="/proc/1" dev=proc ino=1675
+> scontext=system_u:system_r:mount_t:s0-s0:c0.c1023
+> tcontext=system_u:system_r:init_t:s0 tclass=dir
+> 
+> type=1400 audit(1214045895.762:29703): avc:  denied  { search } for
+> pid=28153 comm="fuser" name="1" dev=proc ino=1675
+> scontext=system_u:system_r:mount_t:s0-s0:c0.c1023
+> tcontext=system_u:system_r:init_t:s0 tclass=dir
+> 
+> For the first few tries I dontaudit every occurrence (over a dozen
+> types) but I realized that's something I can't win ;-) So I tried using
+> the following rule:
 
-I can't really add anything to what Eamon said but there is one thing I
-wanted to note:
+﻿This is due to all of the /proc/pid entries being labeled with the
+domain's type.  You need domain_dontaudit_search_all_domains_state(),
+and probably kernel_dontaudit_list_all_sysctls() too.
 
-> type=USER_AVC msg=audit(1213883755.647:918): user pid=23989 uid=0
-> auid=4294967295 ses=4294967295
-> subj=system_u:system_r:xdm_xserver_t:s0-s15:c0.c1023 msg='avc:  denied
->  { use } for request=XFree86-VidModeExtension:QueryVersion
-> comm=gnome-screensaver extension=XFree86-VidModeExtension
-> scontext=user_u:user_r:user_t:s0
-> tcontext=system_u:object_r:directhw_xext_t:s0 tclass=x_extension :
-> exe="/usr/bin/Xorg" (sauid=0, hostname=?, addr=?, terminal=?)'
+> dontaudit mount_t proc_type:dir { getattr search };
+> 
+> But the AVC is still generated. I hoped that proc_type is an attribute
+> for every file/dir under /proc. Am I wrong? Or why doesn't the dontaudit
+> rule count?
 
-This extension gives direct access to hardware, so you may not want to
-allow this one.
+Right now domain types are not included in the proc_type.  The sysctl
+types are not included either.  I don't know that we've ever considered
+extending that attribute to include all of those types.  Right now it
+just includes all the types prefixed with proc, for example, proc_t,
+proc_kmsg_t, proc_net_t, etc.  It may be ok, since the attribute is only
+used in two rules, one is a dontaudit and one is an allow for
+unconfined.
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
+
 
 
 --
