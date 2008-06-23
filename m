@@ -1,331 +1,117 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5NIsNvl003670
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 14:54:23 -0400
-Received: from wx-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5NIsMGK022113
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 18:54:22 GMT
-Received: by wx-out-0506.google.com with SMTP id i26so953509wxd.30
-        for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 11:54:22 -0700 (PDT)
-Message-ID: <485FF153.9060005@mentalrootkit.com>
-Date: Mon, 23 Jun 2008 14:54:11 -0400
-From: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5NJ3Ri9005727
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 15:03:27 -0400
+Message-ID: <485FF37E.1070203@tycho.nsa.gov>
+Date: Mon, 23 Jun 2008 15:03:26 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [patch] sepolgen: fix role-type associations and role allow	rules
-References: <485A7E7B.1080707@manicmethod.com> <1213896552.32066.299.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1213896552.32066.299.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------080409000803020802070002"
+To: Xavier Toth <txtoth@gmail.com>
+CC: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: window manager policy
+References: <cadfc0e40806181401w635b2a5fo5c257e4050f4a6c0@mail.gmail.com>	 <4859A64C.7050705@tycho.nsa.gov>	 <77033ABC-28F3-451A-8400-7AB50FDC929F@nall.com>	 <485FDAEC.7010807@tycho.nsa.gov> <cadfc0e40806231123o146df550p2cb8665016c59410@mail.gmail.com>
+In-Reply-To: <cadfc0e40806231123o146df550p2cb8665016c59410@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080409000803020802070002
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Stephen Smalley wrote:
-> On Thu, 2008-06-19 at 11:42 -0400, Joshua Brindle wrote:
+Xavier Toth wrote:
+> On Mon, Jun 23, 2008 at 12:18 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
 >   
->> This was written by Karl but he is currently unable to send patches
+>> Joe Nall wrote:
+>>     
+>>> On Jun 18, 2008, at 7:20 PM, Eamon Walsh wrote:
+>>>
+>>>
+>>>       
+>>>> Xavier Toth wrote:
+>>>>
+>>>>         
+>>>>> I'm contemplating some AVC's that originate in metacity and am
+>>>>> wondering whether a window manager is a special case of an X client
+>>>>> that requires its' own policy. Are there things that a window manager
+>>>>> does that other X clients shouldn't? Also on an MLS system should the
+>>>>> window manager run at the users highwater mark or ranged?
+>>>>>
+>>>>>
+>>>>>           
+>>>> The window manager basically needs the full run of the display.   When
+>>>> another application creates a window, the window manager  creates a second
+>>>> window with the titlebar and borders, and then  plops the application window
+>>>> down inside of it (reparents it).  It  also moves windows around and resizes
+>>>> them, sets properties on them  (such as the _NET_WM_DESKTOP property that
+>>>> contains the desktop  number) and listens for events so it can tell when to
+>>>> change the  focus window.  Finally, a compositing manager actually needs to
+>>>> read  the window contents.  It's definitely a special-case app that's  going
+>>>> to need its own policy.
+>>>>
+>>>> It almost certainly needs permissions on all windows that map to  both
+>>>> read and write in the MLS configuration.  So it will need read-  and
+>>>> write-all-levels.
+>>>>
+>>>>         
+>>> What other desktop related processes need MLS policies to be written  to
+>>> get a minimally functional Fedora/Gnome enforcing X environment?
+>>>
+>>>       
+>> Don't know for sure...but probably gnome-session (starts up processes),
+>> nautilus and gnome-panel (can be used to launch processes; gnome-panel
+>> interacts with small applet windows that are inside it).
+>>
+>>     
+>>> What window manager/environment do you use in your enforcing X
+>>>  development and test?
+>>>
+>>>       
+>> I have one machine where I compile the full Xorg distribution, policy, and a
+>> few other things (pam, gdm) from scratch.  I just finished setting up
+>> another machine that runs Fedora 9, with just refpolicy and XCB compiled
+>> from source.  This should make it easier for me to develop and test policy.
+>>  It's just running regular GNOME, although I may install XFCE on it as well.
+>>
+>>     
+>>> Do you have a start on a window manager policy that we could try?
+>>>
+>>>       
+>> It should be transitioned into a domain that has unconfined TE perms over X
+>> objects, and is MLS trusted.
 >>     
 >
-> Also need to fix it to extract the right type (the new type from the
-> transition, not the tcontext type) from the error message.
-> Use audit2allow -r < avc with the attached avc to test.
->
-> Correct output is:
-> require {
-> 	type updpwd_t;
-> 	role unconfined_r;
-> }
->
-> role unconfined_r types updpwd_t;
->
+> MLS policy doesn't come with unconfined, right? I can build it in but
+> what's are people thinking long term about doing this, will it be
+> included in future MLS policy configurations?
 >   
-Updated patch attached.
 
-Karl
+Not fully unconfined as in unconfined_t, just unconfined over X 
+permissions.  I think in my earlier policy work I had made, or at least 
+attempted to make, a $1_wm_t domain to fulfill this purpose.
 
---------------080409000803020802070002
-Content-Type: text/plain;
- name="role_type.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="role_type.diff"
 
-Index: policycoreutils/audit2allow/audit2allow
-===================================================================
---- policycoreutils/audit2allow/audit2allow	(revision 2913)
-+++ policycoreutils/audit2allow/audit2allow	(working copy)
-@@ -152,12 +152,13 @@
- 
-     def __process_input(self):
-         if self.__options.type:
--            avcfilter = audit.TypeFilter(self.__options.type)
-+            avcfilter = audit.AVCTypeFilter(self.__options.type)
-             self.__avs = self.__parser.to_access(avcfilter)
--            self.__selinux_errs = self.__parser.to_role(avcfilter)
-+            csfilter = audit.ComputeSidTypeFilter(self.__options.type)
-+            self.__role_types = self.__parser.to_role(csfilter)
-         else:
-             self.__avs = self.__parser.to_access()
--            self.__selinux_errs = self.__parser.to_role()
-+            self.__role_types = self.__parser.to_role()
- 
-     def __load_interface_info(self):
-         # Load interface info file
-@@ -310,6 +311,7 @@
- 
-         # Generate the policy
-         g.add_access(self.__avs)
-+        g.add_role_types(self.__role_types)
- 
-         # Output
-         writer = output.ModuleWriter()
-@@ -328,12 +330,6 @@
-                 fd = sys.stdout
-             writer.write(g.get_module(), fd)
- 
--            if len(self.__selinux_errs) > 0:
--                fd.write("\n=========== ROLES ===============\n")
--
--            for role in self.__selinux_errs:
--                fd.write(role.output())
--
-     def main(self):
-         try:
-             self.__parse_options()
-Index: sepolgen/src/sepolgen/policygen.py
-===================================================================
---- sepolgen/src/sepolgen/policygen.py	(revision 2913)
-+++ sepolgen/src/sepolgen/policygen.py	(working copy)
-@@ -167,7 +167,14 @@
-         if self.gen_requires:
-             gen_requires(self.module)
- 
-+    def add_role_types(self, role_type_set):
-+        for role_type in role_type_set:
-+            self.module.children.append(role_type)
- 
-+        # Generate the requires
-+        if self.gen_requires:
-+            gen_requires(self.module)
-+
- def explain_access(av, ml=None, verbosity=SHORT_EXPLANATION):
-     """Explain why a policy statement was generated.
- 
-@@ -334,8 +341,12 @@
-                 # can actually figure those out.
-                 r.types.add(arg)
- 
-+        for role_type in node.role_types():
-+            r.roles.add(role_type.role)
-+            r.types.update(role_type.types)
-+                
-         r.types.discard("self")
--                
-+
-         node.children.insert(0, r)
- 
-     # FUTURE - this is untested on modules with any sort of
-Index: sepolgen/src/sepolgen/refpolicy.py
-===================================================================
---- sepolgen/src/sepolgen/refpolicy.py	(revision 2913)
-+++ sepolgen/src/sepolgen/refpolicy.py	(working copy)
-@@ -122,6 +122,12 @@
-     def roles(self):
-         return itertools.ifilter(lambda x: isinstance(x, Role), walktree(self))
- 
-+    def role_allows(self):
-+        return itertools.ifilter(lambda x: isinstance(x, RoleAllow), walktree(self))
-+
-+    def role_types(self):
-+        return itertools.ifilter(lambda x: isinstance(x, RoleType), walktree(self))
-+
-     def __str__(self):
-         if self.comment:
-             return str(self.comment) + "\n" + self.to_string()
-@@ -494,6 +500,15 @@
-         return "allow %s %s;" % (self.src_roles.to_comma_str(),
-                                  self.tgt_roles.to_comma_str())
- 
-+class RoleType(Leaf):
-+    def __init__(self, parent=None):
-+        Leaf.__init__(self, parent)
-+        self.role = ""
-+        self.types = IdSet()
-+
-+    def to_string(self):
-+        return "role %s types %s;" % (self.role, self.types.to_comma_str())
-+
- class ModuleDeclaration(Leaf):
-     def __init__(self, parent=None):
-         Leaf.__init__(self, parent)
-Index: sepolgen/src/sepolgen/output.py
-===================================================================
---- sepolgen/src/sepolgen/output.py	(revision 2913)
-+++ sepolgen/src/sepolgen/output.py	(working copy)
-@@ -101,6 +101,8 @@
-         else:
-             return id_set_cmp(a.src_types, [b.args[0]])
-                 
-+def role_type_cmp(a, b):
-+    return cmp(a.role, b.role)
- 
- def sort_filter(module):
-     """Sort and group the output for readability.
-@@ -146,6 +148,18 @@
- 
-         c.extend(sep_rules)
- 
-+
-+        ras = []
-+        ras.extend(node.role_types())
-+        ras.sort(role_type_cmp)
-+        if len(ras):
-+            comment = refpolicy.Comment()
-+            comment.lines.append("============= ROLES ==============")
-+            c.append(comment)
-+        
-+
-+        c.extend(ras)
-+
-         # Everything else
-         for child in node.children:
-             if child not in c:
-Index: sepolgen/src/sepolgen/access.py
-===================================================================
---- sepolgen/src/sepolgen/access.py	(revision 2913)
-+++ sepolgen/src/sepolgen/access.py	(working copy)
-@@ -295,3 +295,32 @@
-             perms[av.obj_class] = s
-         s.update(av.perms)
-     return perms
-+
-+class RoleTypeSet:
-+    """A non-overlapping set of role type statements.
-+
-+    This clas allows the incremental addition of role type statements and
-+    maintains a non-overlapping list of statements.
-+    """
-+    def __init__(self):
-+        """Initialize an access vector set."""
-+        self.role_types = {}
-+
-+    def __iter__(self):
-+        """Iterate over all of the unique role allows statements in the set."""
-+        for role_type in self.role_types.values():
-+            yield role_type
-+
-+    def __len__(self):
-+        """Return the unique number of role allow statements."""
-+        return len(self.roles)
-+
-+    def add(self, role, type):
-+        if self.role_types.has_key(role):
-+            role_type = self.role_types[role]
-+        else:
-+            role_type = refpolicy.RoleType()
-+            role_type.role = role
-+            self.role_types[role] = role_type
-+
-+        role_type.types.add(type)
-Index: sepolgen/src/sepolgen/audit.py
-===================================================================
---- sepolgen/src/sepolgen/audit.py	(revision 2913)
-+++ sepolgen/src/sepolgen/audit.py	(working copy)
-@@ -235,20 +235,21 @@
-     """
-     def __init__(self, message):
-         AuditMessage.__init__(self, message)
--        self.type = ""
--        self.role = ""
-+        self.invalid_context = refpolicy.SecurityContext()
-+        self.scontext = refpolicy.SecurityContext()
-+        self.tcontext = refpolicy.SecurityContext()
-+        self.tclass = ""
- 
-     def from_split_string(self, recs):
-         AuditMessage.from_split_string(self, recs)
--        dict={}
--        for i in recs:
--            t = i.split('=')
--            if len(t) < 2:
--                continue
--            dict[t[0]]=t[1]
-+        if len(recs) < 10:
-+            raise ValueError("Split string does not represent a valid compute sid message")
-+
-         try:
--            self.role = refpolicy.SecurityContext(dict["scontext"]).role
--            self.type = refpolicy.SecurityContext(dict["tcontext"]).type
-+            self.invalid_context = refpolicy.SecurityContext(recs[5])
-+            self.scontext = refpolicy.SecurityContext(recs[7].split("=")[1])
-+            self.tcontext = refpolicy.SecurityContext(recs[8].split("=")[1])
-+            self.tclass = recs[9].split("=")[1]
-         except:
-             raise ValueError("Split string does not represent a valid compute sid message")
-     def output(self):
-@@ -405,7 +406,7 @@
-         self.__post_process()
- 
-     def to_role(self, role_filter=None):
--        """Return list of SELINUX_ERR messages matching the specified filter
-+        """Return RoleAllowSet statements matching the specified filter
- 
-         Filter out types that match the filer, or all roles
- 
-@@ -416,13 +417,12 @@
-            Access vector set representing the denied access in the
-            audit logs parsed by this object.
-         """
--        roles = []
--        if role_filter:
--            for selinux_err in self.compute_sid_msgs:
--                if role_filter.filter(selinux_err):
--                    roles.append(selinux_err)
--            return roles
--        return self.compute_sid_msgs
-+        role_types = access.RoleTypeSet()
-+        for cs in self.compute_sid_msgs:
-+            if not role_filter or role_filter.filter(cs):
-+                role_types.add(cs.invalid_context.role, cs.invalid_context.type)
-+        
-+        return role_types
- 
-     def to_access(self, avc_filter=None, only_denials=True):
-         """Convert the audit logs access into a an access vector set.
-@@ -454,7 +454,7 @@
-                            avc.accesses, avc)
-         return av_set
- 
--class TypeFilter:
-+class AVCTypeFilter:
-     def __init__(self, regex):
-         self.regex = re.compile(regex)
- 
-@@ -465,4 +465,17 @@
-             return True
-         return False
- 
-+class ComputeSidTypeFilter:
-+    def __init__(self, regex):
-+        self.regex = re.compile(regex)
- 
-+    def filter(self, avc):
-+        if self.regex.match(avc.invalid_context.type):
-+            return True
-+        if self.regex.match(avc.scontext.type):
-+            return True
-+        if self.regex.match(avc.tcontext.type):
-+            return True
-+        return False
-+
-+
+>   
+>>  After that it's a matter of seeing what
+>> permissions regular applications need over window-manager created windows,
+>> particularly decoration windows.  They might need some permissions over the
+>> window manager's windows since they might try to manipulate the
+>> window-manager "decoration" windows that their own app window is reparented
+>> into.  To deal with this, I think that the window manager is going to need
+>> to call SetWindowCreateContext to put window decorations into the same
+>> context as the associated application window.
+>>     
+>
+> This will introduce a xcb-xselinux dependency.
+>   
 
---------------080409000803020802070002--
+Right, this would depend on that being released.  But the dependency 
+itself shouldn't be too much of a problem.  If you do a "rpm -q 
+--requires libX11" in Fedora you will see that Xlib already depends on 
+XCB.  So the package should be present on the system, although the 
+specific extension library would be a new link requirement.
+
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
