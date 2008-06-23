@@ -1,46 +1,45 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5NFVJfg024692
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 11:31:19 -0400
-Received: from mail.fluendo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5NFVH2a019961
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 15:31:19 GMT
-Received: from mail.fluendo.com (localhost.localdomain [127.0.0.1])
-	by mail.fluendo.com (Postfix) with ESMTP id 0109E250107
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 17:31:15 +0200 (CEST)
-Received: from [192.168.0.2] (17.84.219.87.dynamic.jazztel.es [87.219.84.17])
-	by mail.fluendo.com (Postfix) with ESMTP id 48BFB25008B
-	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 17:31:14 +0200 (CEST)
-Message-ID: <485FC1FB.3030605@flumotion.com>
-Date: Mon, 23 Jun 2008 17:32:11 +0200
-From: Ioannis Aslanidis <iaslanidis@flumotion.com>
-MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: How to disable/remove MLS
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: rbacsep: type transition conflicts uncovered
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1214233382.11146.256.camel@gorn>
+References: <1214233382.11146.256.camel@gorn>
+Content-Type: text/plain
+Date: Mon, 23 Jun 2008 11:52:37 -0400
+Message-Id: <1214236357.32762.52.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Hello,
+On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
+> I was going through and doing refactoring on the rbacsep with the goal
+> of making the branch compilable again after doing all the derived type
+> collapsing.  I ran into a problem with type transition conflicts.  There
+> are several domains which have a type transition back to the caller
+> domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
+> derived types are collapsed, we get conflicts such as:
+> 
+> type_transition sudo_t shell_exec_t:process auditadm_t;
+> type_transition sudo_t shell_exec_t:process secadm_t;
+> type_transition sudo_t shell_exec_t:process staff_t;
+> type_transition sudo_t shell_exec_t:process sysadm_t;
+> type_transition sudo_t shell_exec_t:process user_t;
+> 
+> It would seem that there are two solutions for this:
+> 
+> 1. keep derived types for these affected domains
+> 2. make these applications SELinux aware
+> 
+> We can't collapse user domains because of their vast differences.
 
-Is there a way to disable MLS so that the MLS tag gets removed from the
-context?
+I'd vote for (1).  Otherwise the application is a trusted subject that
+can transition to any user role/domain.
 
-Thanks in advance.
+-- 
+Stephen Smalley
+National Security Agency
 
-Regards,
-
-Ioannis Aslanidis
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkhfwfsACgkQFq+8w76sCADLuwCeJ4g3GOx+JCsMO8+iv11iltHs
-xC0An2kSe554RxVIPGJ4e+nAQFedG5Ch
-=ZDR3
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
