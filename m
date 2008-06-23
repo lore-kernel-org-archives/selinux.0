@@ -1,53 +1,38 @@
-Subject: Re: Trying to get XAce policy straightened out but our tool chain
-	is too broken to handle it.
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5NF6s66019243
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 11:06:54 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m5NF6r2a012686
+	for <selinux@tycho.nsa.gov>; Mon, 23 Jun 2008 15:06:54 GMT
+Subject: rbacsep: type transition conflicts uncovered
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <485F863B.1040603@redhat.com>
-References: <48480210.60309@redhat.com>
-	 <1213625437.15523.71.camel@moss-spartans.epoch.ncsc.mil>
-	 <485F863B.1040603@redhat.com>
+To: SELinux Mail List <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Mon, 23 Jun 2008 09:22:26 -0400
-Message-Id: <1214227346.11146.237.camel@gorn>
+Date: Mon, 23 Jun 2008 11:03:02 -0400
+Message-Id: <1214233382.11146.256.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-06-23 at 07:17 -0400, Daniel J Walsh wrote:
-> Stephen Smalley wrote:
-> > On Thu, 2008-06-05 at 11:11 -0400, Daniel J Walsh wrote:
+I was going through and doing refactoring on the rbacsep with the goal
+of making the branch compilable again after doing all the derived type
+collapsing.  I ran into a problem with type transition conflicts.  There
+are several domains which have a type transition back to the caller
+domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
+derived types are collapsed, we get conflicts such as:
 
-> >> The problem I have is the compiler is too stupid to understand the
-> >> differences between a gen_requires block defining the required types and
-> >> the actual type definition.
-> >>
-> >> So I end up in a catch 22 where the compiler tells me I need to require
-> >> $1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
-> >> I have a duplicate definition.
-> >>
-> >> So if you have a derived type in a gen_requires block the compiler can
-> >> not handle it.
-> > 
-> > I'm a little unclear as to why this is required (why do you need to
-> > require and declare the same symbol again?).  However, is there some
-> > reason we can't just automatically promote a require to a declaration
-> > upon encountering the latter?  Seems like we've talked about this
-> > before.  Not sure whether that should happen within libsepol
-> > symtab_insert() or in the callers, e.g. declare_type().
-> > 
-> I don't know,  All I know is the compiler complains if it is there and
-> if it is not there.  Catch 22.  I end up going to great lengths to hack
-> around compiler errors...
+type_transition sudo_t shell_exec_t:process auditadm_t;
+type_transition sudo_t shell_exec_t:process secadm_t;
+type_transition sudo_t shell_exec_t:process staff_t;
+type_transition sudo_t shell_exec_t:process sysadm_t;
+type_transition sudo_t shell_exec_t:process user_t;
 
-We add requires to templates, so that if they're used outside xserver,
-the caller gets the appropriate require.  But then we also use the
-template inside xserver for code reuse, which is where the problem
-creeps up.  There are a couple other examples of this in refpolicy, but
-I was able to work around them by reordering statements.  It sounds like
-Dan's situation may not be something that can be easily worked around
-without some restructuring.
+It would seem that there are two solutions for this:
+
+1. keep derived types for these affected domains
+2. make these applications SELinux aware
+
+We can't collapse user domains because of their vast differences.
 
 -- 
 Chris PeBenito
