@@ -1,52 +1,71 @@
-Subject: Re: x client policy interfaces
+Subject: Re:
+	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>,
-        Eamon Walsh <ewalsh@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <cadfc0e40806200936x4c7ceb4aneaaccd09c9061ac8@mail.gmail.com>
-References: <cadfc0e40806200936x4c7ceb4aneaaccd09c9061ac8@mail.gmail.com>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+In-Reply-To: <485F9BA2.6030205@kaigai.gr.jp>
+References: <483A9137.5050509@ak.jp.nec.com>
+	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
+	 <483C6BEA.8040101@tycho.nsa.gov>
+	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
+	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
+	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
+	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
+	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
+	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
+	 <4846142F.8090100@ak.jp.nec.com>
+	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
+	 <48473ECC.6020501@ak.jp.nec.com>
+	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>
+					 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>
+				  <48524E79.6000508@ak.jp.nec.com> <1213364255.11146.18.camel@gorn>
+			  <4858B106.206@ak.jp.nec.com> <1213796498.11146.120.camel@gorn>
+		  <485B52D2.6020101@ak.jp.nec.com> <1214224508.11146.206.camel@gorn>
+	  <485F9BA2.6030205@kaigai.gr.jp>
 Content-Type: text/plain
-Date: Mon, 23 Jun 2008 08:54:03 -0400
-Message-Id: <1214225643.11146.214.camel@gorn>
+Date: Mon, 23 Jun 2008 08:56:41 -0400
+Message-Id: <1214225801.11146.216.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-06-20 at 11:36 -0500, Xavier Toth wrote:
-> I've been looking at the xserver_common_x_domain_template and AVCs
-> coming out of X applications and thinking it would be good to have
-> finer grained interfaces that could be used to build policy for the
-> wide variety of GUI apps. X extensions and selection are a couple of
-> area that caught my eye can you think of others.
-
-Adding the interfaces is fine.  Its something that I expected.  The X
-policy is big beast, and I didn't add any additional interfaces since I
-wanted to make sure the core was right :)
-
-> Example:
-
-
-> interface(`xserver_use_xextension',`
-> 	gen_require(`
->                 class x_extension { use getattr };
-> 		type $2_xext_t;
->	')
->
->        allow $1 $2_xext_t:x_extension { use getattr };
-> ')
+On Mon, 2008-06-23 at 21:48 +0900, KaiGai Kohei wrote:
+> Christopher J. PeBenito wrote:
+> > On Fri, 2008-06-20 at 15:48 +0900, KaiGai Kohei wrote:
+> >> Christopher J. PeBenito wrote:
+> >>> On Wed, 2008-06-18 at 15:53 +0900, KaiGai Kohei wrote:
+> >>>> Christopher J. PeBenito wrote:
+> >>>>>>> 2. the stored procedure type names have been in the back of my mind for
+> >>>>>>> long time but I couldn't come up with a good naming scheme.  This
+> >>>>>>> especially bugged me for the sepgsql_trusted_domain_t and
+> >>>>>>> sepgsql_trusted_proc_t.  Why not just go with what we do with regular
+> >>>>>>> domains and executables: sepgsql_trusted_proc_t and
+> >>>>>>> sepgsql_trusted_proc_exec_t?
+> >>>>>> I don't have a clear reason for the naming of them.
+> >>>>>> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
+> >>>>>> for the purpose, I also think.
+> >>>>> It seems that we should also rename $1_sepgsql_proc_t for consistency.
+> >>>> Sorry for late reply.
+> >>>>
+> >>>> At first, $1_sepgsql_proc_t lost the term of "trusted", so its name
+> >>>> does not shows its purpose.
+> >>> No, I mean having a $1_sepgsql_proc_t and $1_sepgsql_proc_exec_t.
+> >> Do you intend the following domain transition?
+> >>   user_t + user_sepgsql_proc_exec_t -> user_sepgsql_proc_t
+> >>
+> >> Is there any reason why users should not invoke their functions
+> >> without domain transition?
+> > 
+> > I don't think we need a transition.  Mainly I think the procedure should
+> > be $1_sepgsql_proc_exec_t so there is naming consistency for stored
+> > procedures.
 > 
+> I agree it.
+> Do you need a patch?
 
-> interface(`xserver_use_screensaver_xextension',`
-> 	gen_require(`
->                 class x_extension { use getattr };
-> 		type screensaver_xext_t;
->	')
->
->        xclient_use_xextension($1, screensaver)
->')
-
-I think the allow rule should just be used.  I don't think we gain
-anything by having the top interface.
+Well I didn't merge the trusted_proc patch yet, would you update that
+patch with $1_sepgsql_proc_exec_t too?
 
 -- 
 Chris PeBenito
