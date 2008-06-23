@@ -1,98 +1,70 @@
-Message-ID: <485F863B.1040603@redhat.com>
-Date: Mon, 23 Jun 2008 07:17:15 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Trying to get XAce policy straightened out but our tool chain
- is too broken to handle it.
-References: <48480210.60309@redhat.com> <1213625437.15523.71.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1213625437.15523.71.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re:
+	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <485B52D2.6020101@ak.jp.nec.com>
+References: <483A9137.5050509@ak.jp.nec.com>
+	 <1211913263.19360.72.camel@moss-spartans.epoch.ncsc.mil>
+	 <1211914557.5008.72.camel@gorn.columbia.tresys.com>
+	 <483C6BEA.8040101@tycho.nsa.gov>
+	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
+	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
+	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
+	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
+	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
+	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
+	 <4846142F.8090100@ak.jp.nec.com>
+	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
+	 <48473ECC.6020501@ak.jp.nec.com>
+	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>
+				 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>
+			  <48524E79.6000508@ak.jp.nec.com> <1213364255.11146.18.camel@gorn>
+		  <4858B106.206@ak.jp.nec.com> <1213796498.11146.120.camel@gorn>
+	  <485B52D2.6020101@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Mon, 23 Jun 2008 08:35:08 -0400
+Message-Id: <1214224508.11146.206.camel@gorn>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2008-06-05 at 11:11 -0400, Daniel J Walsh wrote:
->> The interfaces I want to add are something like
->>
->> template - xserver_common_domain_template(staff)
->> 	Used to generate types for $1_xserver_t and $1_xrootwindow_t
->>
->> interface - xserver_use(staff, staff, staff_nsplugin_t)
->> 	    xserver_use(xdm, staff, staff_nsplugin_t)
->> 	All interaction between application and X Server
->>
->> template - xserver_common_user_template(staff, staff_r, staff_t)
->>
->> 	This generates all of the user types/rules for a user X Sessionps
->> started by the user, Calls out to xserver_common_template
->>
->> interface - xserver_common_app(staff, staff_nsplugin_t)
->>
->> 	This defines all the common rules for a confined application like
->> nsplugin running in the user domain
->> 	
->> Then we can begin to write communications between staff and unconfined_t
->> or other user domains.
->>
->> The problem I have is the compiler is too stupid to understand the
->> differences between a gen_requires block defining the required types and
->> the actual type definition.
->>
->> So I end up in a catch 22 where the compiler tells me I need to require
->> $1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
->> I have a duplicate definition.
->>
->> So if you have a derived type in a gen_requires block the compiler can
->> not handle it.
+On Fri, 2008-06-20 at 15:48 +0900, KaiGai Kohei wrote:
+> Christopher J. PeBenito wrote:
+> > On Wed, 2008-06-18 at 15:53 +0900, KaiGai Kohei wrote:
+> >> Christopher J. PeBenito wrote:
+> >>>>> 2. the stored procedure type names have been in the back of my mind for
+> >>>>> long time but I couldn't come up with a good naming scheme.  This
+> >>>>> especially bugged me for the sepgsql_trusted_domain_t and
+> >>>>> sepgsql_trusted_proc_t.  Why not just go with what we do with regular
+> >>>>> domains and executables: sepgsql_trusted_proc_t and
+> >>>>> sepgsql_trusted_proc_exec_t?
+> >>>> I don't have a clear reason for the naming of them.
+> >>>> sepgsql_trusted_proc_t and sepgsql_trusted_proc_exec_t are more suitable
+> >>>> for the purpose, I also think.
+> >>> It seems that we should also rename $1_sepgsql_proc_t for consistency.
+> >> Sorry for late reply.
+> >>
+> >> At first, $1_sepgsql_proc_t lost the term of "trusted", so its name
+> >> does not shows its purpose.
+> > 
+> > No, I mean having a $1_sepgsql_proc_t and $1_sepgsql_proc_exec_t.
 > 
-> I'm a little unclear as to why this is required (why do you need to
-> require and declare the same symbol again?).  However, is there some
-> reason we can't just automatically promote a require to a declaration
-> upon encountering the latter?  Seems like we've talked about this
-> before.  Not sure whether that should happen within libsepol
-> symtab_insert() or in the callers, e.g. declare_type().
+> Do you intend the following domain transition?
+>   user_t + user_sepgsql_proc_exec_t -> user_sepgsql_proc_t
 > 
-I don't know,  All I know is the compiler complains if it is there and
-if it is not there.  Catch 22.  I end up going to great lengths to hack
-around compiler errors...
->>
->> /usr/bin/checkmodule -M -m tmp/staff.tmp -o tmp/staff.mod
->> /usr/bin/checkmodule:  loading policy configuration from tmp/staff.tmp
->> policy/modules/roles/staff.te":11:ERROR 'duplicate declaration of
->> type/attribute' at token 'staff_input_xevent_t' on line 66981:
->> #line 11
->> 		type staff_input_xevent_t;
->> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
->> make: *** [tmp/staff.mod] Error 1
->> error: Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
->>
->>
->> RPM build errors:
->>     Bad exit status from /var/tmp/rpm-tmp.86849 (%install)
->>
->>
->> Which is complaining about:
->>
->> interface(`xserver_use',`
->> 	gen_require(`
->> 		type $1_rootwindow_t;
->> 		attribute $1_x_domain, $1_input_xevent_type;
->> 		type $1_xserver_t, $1_xserver_tmpfs_t;
->> 		type $2_input_xevent_t;
->> 	')
->>
->> 	typeattribute $2_input_xevent_t $1_input_xevent_type;
->>
->> ...
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
+> Is there any reason why users should not invoke their functions
+> without domain transition?
+
+I don't think we need a transition.  Mainly I think the procedure should
+be $1_sepgsql_proc_exec_t so there is naming consistency for stored
+procedures.
+
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
