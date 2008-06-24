@@ -1,173 +1,96 @@
-Subject: Re:
-	[PATCH]	libselinux:	add	support	for	/contexts/postgresql_contexts
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5ODMori018014
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2008 09:22:50 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m5ODMoEB008656
+	for <selinux@tycho.nsa.gov>; Tue, 24 Jun 2008 13:22:50 GMT
+Subject: Re: [refpolicy] postfix 2.5.2 - data dir /var/lib/postfix
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: KaiGai Kohei <kaigai@kaigai.gr.jp>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <48605D69.90401@ak.jp.nec.com>
-References: <483A9137.5050509@ak.jp.nec.com>
-	 <1211981040.5008.105.camel@gorn.columbia.tresys.com>
-	 <483EF06E.7080406@tycho.nsa.gov> <1212085228.31546.5.camel@gorn>
-	 <483F48AB.7030406@tycho.nsa.gov> <1212150456.31546.16.camel@gorn>
-	 <4843CB24.1040000@ak.jp.nec.com>  <48442E7E.9050303@tycho.nsa.gov>
-	 <1212431955.31546.94.camel@gorn>  <48451C0C.6060303@ak.jp.nec.com>
-	 <1212496632.31546.105.camel@gorn.columbia.tresys.com>
-	 <4846142F.8090100@ak.jp.nec.com>
-	 <1212589930.4140.16.camel@gorn.columbia.tresys.com>
-	 <48473ECC.6020501@ak.jp.nec.com>
-	 <1212672916.15752.7.camel@gorn.pebenito.net> <4848C96F.50201@ak.jp.nec.com>
-						 <484C9E55.30702@ak.jp.nec.com> <1213121355.27496.23.camel@gorn>
-					  <48524E79.6000508@ak.jp.nec.com> <1213364255.11146.18.camel@gorn>
-				  <4858B106.206@ak.jp.nec.com> <1213796498.11146.120.camel@gorn>
-			  <485B52D2.6020101@ak.jp.nec.com> <1214224508.11146.206.camel@gorn>
-		  <485F9BA2.6030205@kaigai.gr.jp> <1214225801.11146.216.camel@gorn>
-	  <48605D69.90401@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Tue, 24 Jun 2008 08:56:18 -0400
-Message-Id: <1214312178.11146.272.camel@gorn>
+To: =?ISO-8859-1?Q?V=E1clav_Ovs=EDk?= <vaclav.ovsik@i.cz>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20080618154139.GA24178@bobek.pm.i.cz>
+References: <20080618154139.GA24178@bobek.pm.i.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 24 Jun 2008 09:21:48 -0400
+Message-Id: <1214313708.13260.0.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-06-24 at 11:35 +0900, KaiGai Kohei wrote:
-> The attached patch replaces the following names:
+On Wed, 2008-06-18 at 17:41 +0200, Václav Ovsík wrote:
+> I am running Debian Sid and the latest Postfix 2.5.2 uses data_directory
+> (/var/lib/postfix by default) not covered by the latest Refpolicy now.
 > 
->   $1_sepgsql_proc_t         -> $1_sepgsql_proc_exec_t
->   sepgsql_trusted_domain_t  -> sepgsql_trusted_proc_t
->   sepgsql_trusted_proc_t    -> sepgsql_trusted_proc_exec_t
-
+> Postfix 2.5.2 RELEASE_NOTES file:
+> | [Incompat 20071206] The "make install" and "make upgrade" procedures
+> | now create a Postfix-owned directory for Postfix-writable data files
+> | such as caches and random numbers. The location is specified with
+> | the "data_directory" parameter (default: "/var/lib/postfix"), and
+> | the ownership is specified with the "mail_owner" parameter.
+> 
+> 
+> Postfix brought SE Linux messages during startup:
+> 
+> Jun 10 18:02:17 sid kernel: [   19.867231] type=1400 audit(1213113737.501:3): avc:  denied  { read write } for  pid=1573 comm="master" name="master.lock" dev=hda2 ino=57530 scontext=system_u:system_r:postfix_master_t:s0 tcontext=system_u:object_r:var_lib_t:s0 tclass=file
+> Jun 10 18:02:17 sid kernel: [   19.868060] type=1300 audit(1213113737.501:3): arch=40000003 syscall=5 success=yes exit=10 a0=8e29b58 a1=8002 a2=0 a3=8002 items=0 ppid=1553 pid=1573 auid=4294967295 uid=0 gid=0 euid=102 suid=0 fsuid=102 egid=106 sgid=0 fsgid=106 tty=(none) ses=4294967295 comm="master" exe="/usr/lib/postfix/master" subj=system_u:system_r:postfix_master_t:s0 key=(null)
+> Jun 10 18:02:17 sid kernel: [   19.872453] type=1400 audit(1213113737.513:4): avc:  denied  { getattr } for  pid=1573 comm="master" path="/var/lib/postfix/master.lock" dev=hda2 ino=57530 scontext=system_u:system_r:postfix_master_t:s0 tcontext=system_u:object_r:var_lib_t:s0 tclass=file
+> Jun 10 18:02:17 sid kernel: [   19.876056] type=1300 audit(1213113737.513:4): arch=40000003 syscall=197 success=yes exit=0 a0=a a1=bf92fbfc a2=b7bb0ff4 a3=bf92fbfc items=0 ppid=1553 pid=1573 auid=4294967295 uid=0 gid=0 euid=102 suid=0 fsuid=102 egid=106 sgid=0 fsgid=106 tty=(none) ses=4294967295 comm="master" exe="/usr/lib/postfix/master" subj=system_u:system_r:postfix_master_t:s0 key=(null)
+> Jun 10 18:02:17 sid kernel: [   19.880395] type=1400 audit(1213113737.521:5): avc:  denied  { lock } for  pid=1573 comm="master" path="/var/lib/postfix/master.lock" dev=hda2 ino=57530 scontext=system_u:system_r:postfix_master_t:s0 tcontext=system_u:object_r:var_lib_t:s0 tclass=file
+> Jun 10 18:02:17 sid kernel: [   19.883860] type=1300 audit(1213113737.521:5): arch=40000003 syscall=143 success=yes exit=0 a0=a a1=6 a2=b7ede2cc a3=8e2adf8 items=0 ppid=1553 pid=1573 auid=4294967295 uid=0 gid=0 euid=102 suid=0 fsuid=102 egid=106 sgid=0 fsgid=106 tty=(none) ses=4294967295 comm="master" exe="/usr/lib/postfix/master" subj=system_u:system_r:postfix_master_t:s0 key=(null)
+> 
+> 
+> As mentioned in release notes, the data directory is also used by tlsmgr
+> for caching TLS sessions and so on. Tlsmgr runs under postfix_master_t,
+> so I tried to write the attached patch.
 
 Merged.
-
 > 
 > 
 > 
 > 
 > 
 > 
-> differences
-> between files
-> attachment
-> (refpolicy-sepgsql_proc_exec_t.patch)
+> plain text document attachment (postfix)
 > 
-> Index: refpolicy/policy/modules/services/postgresql.if
+> Index: refpolicy-svn/policy/modules/services/postfix.fc
 > ===================================================================
-> --- refpolicy/policy/modules/services/postgresql.if     (revision
-> 2727)
-> +++ refpolicy/policy/modules/services/postgresql.if     (working copy)
-> @@ -37,7 +37,7 @@
->                 attribute sepgsql_client_type, sepgsql_database_type;
->                 attribute sepgsql_sysobj_table_type;
->  
-> -               type sepgsql_trusted_proc_t, sepgsql_trusted_domain_t;
-> +               type sepgsql_trusted_proc_exec_t,
-> sepgsql_trusted_proc_t;
->         ')
->  
->         ########################################
-> @@ -50,8 +50,8 @@
->         type $1_sepgsql_blob_t;
->         postgresql_blob_object($1_sepgsql_blob_t)
->  
-> -       type $1_sepgsql_proc_t;
-> -       postgresql_procedure_object($1_sepgsql_proc_t)
-> +       type $1_sepgsql_proc_exec_t;
-> +       postgresql_procedure_object($1_sepgsql_proc_exec_t)
->  
->         type $1_sepgsql_sysobj_t;
->         postgresql_system_table_object($1_sepgsql_sysobj_t)
-> @@ -59,7 +59,7 @@
->         type $1_sepgsql_table_t;
->         postgresql_table_object($1_sepgsql_table_t)
->  
-> -       role $3 types sepgsql_trusted_domain_t;
-> +       role $3 types sepgsql_trusted_proc_t;
->  
->         ##############################
->         #
-> @@ -81,14 +81,14 @@
->         allow $2 $1_sepgsql_table_t  : db_tuple  { use select update
-> insert delete };
->         allow $2 $1_sepgsql_sysobj_t : db_tuple  { use select };
->  
-> -       allow $2 $1_sepgsql_proc_t : db_procedure { create drop
-> getattr setattr execute };
-> -       type_transition $2 sepgsql_database_type:db_procedure
-> $1_sepgsql_proc_t;
-> +       allow $2 $1_sepgsql_proc_exec_t : db_procedure { create drop
-> getattr setattr execute };
-> +       type_transition $2 sepgsql_database_type:db_procedure
-> $1_sepgsql_proc_exec_t;
->  
->         allow $2 $1_sepgsql_blob_t : db_blob { create drop getattr
-> setattr read write };
->         type_transition $2 sepgsql_database_type:db_blob
-> $1_sepgsql_blob_t;
->  
-> -       allow $2 sepgsql_trusted_domain_t:process transition;
-> -       type_transition $2 sepgsql_trusted_proc_t:process
-> sepgsql_trusted_domain_t;
-> +       allow $2 sepgsql_trusted_proc_t:process transition;
-> +       type_transition $2 sepgsql_trusted_proc_exec_t:process
-> sepgsql_trusted_proc_t;
->  ')
->  
->  ########################################
-> @@ -343,7 +343,7 @@
->  
->                 type sepgsql_db_t, sepgsql_table_t, sepgsql_proc_t,
-> sepgsql_blob_t;
->  
-> -               type sepgsql_trusted_proc_t, sepgsql_trusted_domain_t;
-> +               type sepgsql_trusted_proc_t,
-> sepgsql_trusted_proc_exec_t;
->         ')
->  
->         typeattribute $1 sepgsql_client_type;
-> @@ -352,8 +352,8 @@
->         type_transition $1 sepgsql_db_t:db_procedure sepgsql_proc_t;
->         type_transition $1 sepgsql_db_t:db_blob sepgsql_blob_t;
->  
-> -       type_transition $1 sepgsql_trusted_proc_t:process
-> sepgsql_trusted_domain_t;
-> -       allow $1 sepgsql_trusted_domain_t:process transition;
-> +       type_transition $1 sepgsql_trusted_proc_exec_t:process
-> sepgsql_trusted_proc_t;
-> +       allow $1 sepgsql_trusted_proc_t:process transition;
->  ')
->  
->  ########################################
-> Index: refpolicy/policy/modules/services/postgresql.te
+> --- refpolicy-svn.orig/policy/modules/services/postfix.fc       2008-06-18 11:51:52.000000000 +0200
+> +++ refpolicy-svn/policy/modules/services/postfix.fc    2008-06-18 11:52:05.000000000 +0200
+> @@ -50,3 +50,4 @@
+>  /var/spool/postfix/public(/.*)? gen_context(system_u:object_r:postfix_public_t,s0)
+>  /var/spool/postfix/bounce(/.*)? gen_context(system_u:object_r:postfix_spool_bounce_t,s0)
+>  /var/spool/postfix/flush(/.*)? gen_context(system_u:object_r:postfix_spool_flush_t,s0)
+> +/var/lib/postfix(/.*)?         gen_context(system_u:object_r:postfix_data_t,s0)
+> Index: refpolicy-svn/policy/modules/services/postfix.te
 > ===================================================================
-> --- refpolicy/policy/modules/services/postgresql.te     (revision
-> 2727)
-> +++ refpolicy/policy/modules/services/postgresql.te     (working copy)
-> @@ -87,14 +87,14 @@
->  type sepgsql_table_t;
->  postgresql_table_object(sepgsql_table_t)
+> --- refpolicy-svn.orig/policy/modules/services/postfix.te       2008-06-18 11:51:52.000000000 +0200
+> +++ refpolicy-svn/policy/modules/services/postfix.te    2008-06-18 12:05:28.000000000 +0200
+> @@ -83,6 +83,9 @@
+>  type postfix_var_run_t;
+>  files_pid_file(postfix_var_run_t)
 >  
-> -type sepgsql_trusted_proc_t;
-> -postgresql_procedure_object(sepgsql_trusted_proc_t)
-> +type sepgsql_trusted_proc_exec_t;
-> +postgresql_procedure_object(sepgsql_trusted_proc_exec_t)
+> +type postfix_data_t;
+> +files_type(postfix_data_t)
+> +
+>  postfix_server_domain_template(virtual)
+>  mta_mailserver_delivery(postfix_virtual_t)
 >  
->  # Trusted Procedure Domain
-> -type sepgsql_trusted_domain_t;
-> -domain_type(sepgsql_trusted_domain_t)
-> -postgresql_unconfined(sepgsql_trusted_domain_t)
-> -role system_r types sepgsql_trusted_domain_t;
-> +type sepgsql_trusted_proc_t;
-> +domain_type(sepgsql_trusted_proc_t)
-> +postgresql_unconfined(sepgsql_trusted_proc_t)
-> +role system_r types sepgsql_trusted_proc_t;
+> @@ -104,6 +107,9 @@
 >  
->  ########################################
->  #
+>  can_exec(postfix_master_t,postfix_exec_t)
+>  
+> +allow postfix_master_t postfix_data_t:dir manage_dir_perms;
+> +allow postfix_master_t postfix_data_t:file manage_file_perms;
+> +
+>  allow postfix_master_t postfix_map_exec_t:file { mmap_file_perms ioctl lock };
+>  
+>  allow postfix_master_t postfix_postdrop_exec_t:file getattr;
 > 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
+
 
 
 --
