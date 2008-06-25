@@ -1,46 +1,32 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5PGq3TL000498
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 12:52:04 -0400
-Received: from mtaout02-winn.ispmail.ntl.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5PGq2hq024942
-	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 16:52:03 GMT
-Received: from aamtaout03-winn.ispmail.ntl.com ([81.103.221.35])
-          by mtaout02-winn.ispmail.ntl.com with ESMTP
-          id <20080625165644.MDXR7070.mtaout02-winn.ispmail.ntl.com@aamtaout03-winn.ispmail.ntl.com>
-          for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 17:56:44 +0100
-Received: from [192.168.1.102] (really [82.18.189.14])
-          by aamtaout03-winn.ispmail.ntl.com with ESMTP
-          id <20080625170153.BMUQ8797.aamtaout03-winn.ispmail.ntl.com@[192.168.1.102]>
-          for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 18:01:53 +0100
-Message-ID: <486277AC.9080801@martinorr.name>
-Date: Wed, 25 Jun 2008 17:51:56 +0100
-From: Martin Orr <martin@martinorr.name>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5PINg20016839
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 14:23:42 -0400
+Received: from fg-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5PINf0Z003489
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 18:23:41 GMT
+Received: by fg-out-1718.google.com with SMTP id 16so1394536fgg.40
+        for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 11:23:40 -0700 (PDT)
+Message-ID: <cadfc0e40806251123md6cebeak9a83cd68559bf55c@mail.gmail.com>
+Date: Wed, 25 Jun 2008 13:23:40 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SELinux List" <selinux@tycho.nsa.gov>
+Subject: rawhide audit2allow problem
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: [refpolicy] Let dhcp use init fds
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Without this patch, I see no output from dhclient when it is run during boot.
-There is no avc message because it is dontaudited in init_daemon_domain.
+I updated my rawhide box and now I getting the following error:
 
-Index: policy/modules/system/sysnetwork.te
-===================================================================
---- policy/modules/system/sysnetwork.te.orig
-+++ policy/modules/system/sysnetwork.te
-@@ -126,6 +126,7 @@
- files_dontaudit_search_locks(dhcpc_t)
-
- init_rw_utmp(dhcpc_t)
-+init_use_fds(dhcpc_t)
-
- logging_send_syslog_msg(dhcpc_t)
-
-
--- 
-Martin Orr
+[root@localhost ~]# cat /var/log/audit/audit.log | audit2allow
+Traceback (most recent call last):
+  File "/usr/bin/audit2allow", line 344, in <module>
+    app.main()
+  File "/usr/bin/audit2allow", line 338, in main
+    self.__output()
+  File "/usr/bin/audit2allow", line 314, in __output
+    g.add_role_types(self.__role_types)
+AttributeError: PolicyGenerator instance has no attribute 'add_role_types'
 
 --
 This message was distributed to subscribers of the selinux mailing list.
