@@ -1,67 +1,43 @@
-Message-ID: <48628E65.8030701@tycho.nsa.gov>
-Date: Wed, 25 Jun 2008 14:28:53 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5PJ3KSf024168
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 15:03:20 -0400
+Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5PJ3J0Z014809
+	for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 19:03:19 GMT
+Received: by yw-out-1718.google.com with SMTP id 6so1092513ywa.84
+        for <selinux@tycho.nsa.gov>; Wed, 25 Jun 2008 12:03:17 -0700 (PDT)
+Message-ID: <10143820806251203g139e16d7pf00566d7c6cd9433@mail.gmail.com>
+Date: Wed, 25 Jun 2008 15:03:16 -0400
+From: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+To: "Xavier Toth" <txtoth@gmail.com>
+Subject: Re: rawhide audit2allow problem
+Cc: "SELinux List" <selinux@tycho.nsa.gov>
+In-Reply-To: <cadfc0e40806251123md6cebeak9a83cd68559bf55c@mail.gmail.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: Trying to get XAce policy straightened out but our tool chain
- is too broken to handle it.
-References: <48480210.60309@redhat.com>	 <1213625437.15523.71.camel@moss-spartans.epoch.ncsc.mil>	 <485F863B.1040603@redhat.com> <1214227346.11146.237.camel@gorn>
-In-Reply-To: <1214227346.11146.237.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40806251123md6cebeak9a83cd68559bf55c@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Mon, 2008-06-23 at 07:17 -0400, Daniel J Walsh wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> On Thu, 2008-06-05 at 11:11 -0400, Daniel J Walsh wrote:
->>>       
+On Wed, Jun 25, 2008 at 2:23 PM, Xavier Toth <txtoth@gmail.com> wrote:
+> I updated my rawhide box and now I getting the following error:
 >
->   
->>>> The problem I have is the compiler is too stupid to understand the
->>>> differences between a gen_requires block defining the required types and
->>>> the actual type definition.
->>>>
->>>> So I end up in a catch 22 where the compiler tells me I need to require
->>>> $1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
->>>> I have a duplicate definition.
->>>>
->>>> So if you have a derived type in a gen_requires block the compiler can
->>>> not handle it.
->>>>         
->>> I'm a little unclear as to why this is required (why do you need to
->>> require and declare the same symbol again?).  However, is there some
->>> reason we can't just automatically promote a require to a declaration
->>> upon encountering the latter?  Seems like we've talked about this
->>> before.  Not sure whether that should happen within libsepol
->>> symtab_insert() or in the callers, e.g. declare_type().
->>>
->>>       
->> I don't know,  All I know is the compiler complains if it is there and
->> if it is not there.  Catch 22.  I end up going to great lengths to hack
->> around compiler errors...
->>     
+> [root@localhost ~]# cat /var/log/audit/audit.log | audit2allow
+> Traceback (most recent call last):
+>  File "/usr/bin/audit2allow", line 344, in <module>
+>    app.main()
+>  File "/usr/bin/audit2allow", line 338, in main
+>    self.__output()
+>  File "/usr/bin/audit2allow", line 314, in __output
+>    g.add_role_types(self.__role_types)
+> AttributeError: PolicyGenerator instance has no attribute 'add_role_types'
 >
-> We add requires to templates, so that if they're used outside xserver,
-> the caller gets the appropriate require.  But then we also use the
-> template inside xserver for code reuse, which is where the problem
-> creeps up.  There are a couple other examples of this in refpolicy, but
-> I was able to work around them by reordering statements.  It sounds like
-> Dan's situation may not be something that can be easily worked around
-> without some restructuring
 
-I opened a ticket in the refpolicy Trac for this:   
-http://oss.tresys.com/projects/refpolicy/ticket/43
+This looks like audit2allow has my recent patch but not sepolgen. Not
+certain how that could happen since they appear to be part of the same
+rpm. Dan - any ideas?
 
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
