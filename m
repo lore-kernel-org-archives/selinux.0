@@ -1,234 +1,83 @@
-Subject: [refpolicy] Patch: Create non_security_file_type attribute
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Fri, 27 Jun 2008 14:55:35 -0400
-Message-Id: <1214592935.2888.11.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5RKp5bV011138
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2008 16:51:05 -0400
+Received: from hrndva-omtalb.mail.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5RKp4WT006182
+	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2008 20:51:05 GMT
+Received: from lanikea.austin.rr.com ([70.116.65.78])
+          by hrndva-omta04.mail.rr.com with ESMTP
+          id <20080627205054.LQP18182.hrndva-omta04.mail.rr.com@lanikea.austin.rr.com>
+          for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2008 20:50:54 +0000
+Message-Id: <43CBE7F1-902A-4B27-8EC1-4D03F6A2A05B@austin.rr.com>
+From: Nick Gray <nick@austin.rr.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <26BD11F7-FA5A-4D58-A62D-A040148278A7@austin.rr.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v919.2)
+Subject: Re: SELinux backups
+Date: Fri, 27 Jun 2008 15:50:53 -0500
+References: <905B4D2C-5075-465B-89D2-E320F3DAB85C@austin.rr.com> <4863F5FB.3040601@windriver.com> <26BD11F7-FA5A-4D58-A62D-A040148278A7@austin.rr.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch eliminates the expansion of the file_type attribute (due to
-the "-" set operation) for the *_non_security interfaces by creating a
-non_security_file_type attribute.
 
-On my system the resulting binary policy is almost 20% smaller.  The
-difference is so large because there are over 1000 types labeled with
-the file_type attribute.
+On Jun 26, 2008, at 5:06 PM, Nick Gray wrote:
 
-
- files.if |   61 ++++++++++++++++++++++++++++++-------------------------------
- files.te |    2 ++
- 2 files changed, 32 insertions(+), 31 deletions(-)
-
-Index: policy/modules/kernel/files.if
-===================================================================
---- policy/modules/kernel/files.if	(revision 2739)
-+++ policy/modules/kernel/files.if	(working copy)
-@@ -32,10 +32,10 @@
- #
- interface(`files_type',`
- 	gen_require(`
--		attribute file_type;
-+		attribute file_type, non_security_file_type;
- 	')
- 
--	typeattribute $1 file_type;
-+	typeattribute $1 file_type, non_security_file_type;
- ')
- 
- ########################################
-@@ -217,11 +217,10 @@
- #
- interface(`files_security_file',`
- 	gen_require(`
--		attribute security_file_type;
-+		attribute file_type, security_file_type;
- 	')
- 
--	files_type($1)
--	typeattribute $1 security_file_type;
-+	typeattribute $1 file_type, security_file_type;
- ')
- 
- ########################################
-@@ -316,10 +315,10 @@
- #
- interface(`files_list_non_security',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	list_dirs_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
-+	list_dirs_pattern($1,non_security_file_type,non_security_file_type)
- ')
- 
- ########################################
-@@ -335,10 +334,10 @@
- #
- interface(`files_dontaudit_list_non_security',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	dontaudit $1 { file_type -security_file_type }:dir list_dir_perms;
-+	dontaudit $1 non_security_file_type:dir list_dir_perms;
- ')
- 
- ########################################
-@@ -354,11 +353,11 @@
- #
- interface(`files_mounton_non_security',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	allow $1 { file_type -security_file_type }:dir mounton;
--	allow $1 { file_type -security_file_type }:file mounton;
-+	allow $1 non_security_file_type:dir mounton;
-+	allow $1 non_security_file_type:file mounton;
- ')
- 
- ########################################
-@@ -373,10 +372,10 @@
- #
- interface(`files_write_non_security_dirs',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	allow $1 { file_type -security_file_type }:dir write;
-+	allow $1 non_security_file_type:dir write;
- ')
- 
- ########################################
-@@ -430,10 +429,10 @@
- #
- interface(`files_dontaudit_getattr_non_security_files',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	dontaudit $1 { file_type -security_file_type }:file getattr;
-+	dontaudit $1 non_security_file_type:file getattr;
- ')
- 
- ########################################
-@@ -498,11 +497,11 @@
- #
- interface(`files_read_non_security_files',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	read_files_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
--	read_lnk_files_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
-+	read_files_pattern($1,non_security_file_type,non_security_file_type)
-+	read_lnk_files_pattern($1,non_security_file_type,non_security_file_type)
- ')
- 
- ########################################
-@@ -648,10 +647,10 @@
- #
- interface(`files_dontaudit_getattr_non_security_symlinks',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	dontaudit $1 { file_type -security_file_type }:lnk_file getattr;
-+	dontaudit $1 non_security_file_type:lnk_file getattr;
- ')
- 
- ########################################
-@@ -667,10 +666,10 @@
- #
- interface(`files_dontaudit_getattr_non_security_blk_files',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	dontaudit $1 { file_type -security_file_type }:blk_file getattr;
-+	dontaudit $1 non_security_file_type:blk_file getattr;
- ')
- 
- ########################################
-@@ -686,10 +685,10 @@
- #
- interface(`files_dontaudit_getattr_non_security_chr_files',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	dontaudit $1 { file_type -security_file_type }:chr_file getattr;
-+	dontaudit $1 non_security_file_type:chr_file getattr;
- ')
- 
- ########################################
-@@ -763,10 +762,10 @@
- #
- interface(`files_dontaudit_getattr_non_security_pipes',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	dontaudit $1 { file_type -security_file_type }:fifo_file getattr;
-+	dontaudit $1 non_security_file_type:fifo_file getattr;
- ')
- 
- ########################################
-@@ -820,10 +819,10 @@
- #
- interface(`files_dontaudit_getattr_non_security_sockets',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	dontaudit $1 { file_type -security_file_type }:sock_file getattr;
-+	dontaudit $1 non_security_file_type:sock_file getattr;
- ')
- 
- ########################################
-@@ -4763,8 +4762,8 @@
- #
- interface(`files_manage_non_security_dirs',`
- 	gen_require(`
--		attribute file_type, security_file_type;
-+		attribute non_security_file_type;
- 	')
- 
--	allow $1 { file_type -security_file_type }:dir manage_dir_perms;
-+	allow $1 non_security_file_type:dir manage_dir_perms;
- ')
-Index: policy/modules/kernel/files.te
-===================================================================
---- policy/modules/kernel/files.te	(revision 2739)
-+++ policy/modules/kernel/files.te	(working copy)
-@@ -26,6 +26,8 @@
- # sensitive security files whose accesses should
- # not be dontaudited for uses
- attribute security_file_type;
-+# and its opposite
-+attribute non_security_file_type;
- 
- attribute tmpfile;
- attribute tmpfsfile;
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+>
+> On Jun 26, 2008, at 3:03 PM, Vikram Ambrose wrote:
+>
+>> Nick Gray wrote:
+>>> All,
+>>>
+>>> I would like to speak to anyone who has worked on, has experience  
+>>> with, or just has a general interest in system/database backups on  
+>>> SELinux.
+>>>
+>> What do you mean exactly?
+>> a) Backing up the SELinux policy store on the system?
+>> b) Backing up a system that runs SELinux?
+>> c) Backing up a database running in an SELinux environment?
+>> d) Storing system backups on an SELinux enabled filesystem?
+>
+> Yes :-)
+>
+> Primarily 2 & 3, but certainly not to exclude 1 & 4. I am interested  
+> in a encompassing DRP. The prior system could do something akin to  
+> an LVM snapshot and produce a bootable copy. I would like to know if  
+> there has been any experimentation with SELinux along those lines.  
+> Once that has been accomplished, I would move on to database backups  
+> and incrementals.
+>
+>>
+>>
+>>> I searched my mail folder going back to about 2003 and found very  
+>>> little said about it.
+>>>
+>>> I have been assigned this by the company I am working for and  
+>>> would like to get a little insight into what has been done so far,  
+>>> methods and issues encountered.
+>>>
+>>> Nick G.
+>>>
+>>> -- 
+>>> This message was distributed to subscribers of the selinux mailing  
+>>> list.
+>>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+>>>  with
+>>> the words "unsubscribe selinux" without quotes as the message.
+>>
+>>
+>> -- 
+>> Vikram Ambrose | Linux Products Division | WindRiver Corporation
+>>
+>>
+>> --
+>> This message was distributed to subscribers of the selinux mailing  
+>> list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+>>  with
+>> the words "unsubscribe selinux" without quotes as the message.
+>
 
 
 --
