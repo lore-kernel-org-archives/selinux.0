@@ -1,27 +1,31 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5RHDw7F004867
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2008 13:13:58 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5RHDvWf013689
-	for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2008 17:13:57 GMT
-Received: by an-out-0708.google.com with SMTP id d30so339889and.75
-        for <selinux@tycho.nsa.gov>; Fri, 27 Jun 2008 10:13:57 -0700 (PDT)
-Message-ID: <dd18b0c30806271013g460f1459w15155898d40ee273@mail.gmail.com>
-Date: Fri, 27 Jun 2008 17:13:56 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: refpolicy
+From: Paul Moore <paul.moore@hp.com>
+To: Joshua Brindle <method@manicmethod.com>
+Subject: Re: releasibility in mcstransd
+Date: Fri, 27 Jun 2008 14:41:01 -0400
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Joe Nall <joe@nall.com>,
+        Chad Hanson <chanson@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+References: <484D91BB.3080904@manicmethod.com> <4864D44E.8010505@redhat.com> <4864EE58.2090108@manicmethod.com>
+In-Reply-To: <4864EE58.2090108@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200806271441.01625.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello; I know I should be sending posts about SELinux, and I guess this is, but
-hey tresy's looks pretty good, nice work changing the look of the site.
-regards;
+On Friday 27 June 2008 9:42:48 am Joshua Brindle wrote:
+> I think for the time being we should not be importing the updated
+> mcstrans into fedora. There are still some unanswered questions about
+> the implementation. We are talking about some of these offline.
+
+Any particular reason why the discussion isn't online?  Granted I'm not 
+sure I would have much useful to contribute but I do like hearing about 
+what is going on and the discussion behind the decisions ...
 
 -- 
-Justin P. Mattock
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
