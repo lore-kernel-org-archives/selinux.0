@@ -1,30 +1,234 @@
-Message-ID: <486537FA.2010307@manicmethod.com>
-Date: Fri, 27 Jun 2008 14:56:58 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Paul Moore <paul.moore@hp.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, Joe Nall <joe@nall.com>,
-        Chad Hanson <chanson@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: releasibility in mcstransd
-References: <484D91BB.3080904@manicmethod.com> <4864D44E.8010505@redhat.com> <4864EE58.2090108@manicmethod.com> <200806271441.01625.paul.moore@hp.com>
-In-Reply-To: <200806271441.01625.paul.moore@hp.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [refpolicy] Patch: Create non_security_file_type attribute
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Fri, 27 Jun 2008 14:55:35 -0400
+Message-Id: <1214592935.2888.11.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Paul Moore wrote:
-> On Friday 27 June 2008 9:42:48 am Joshua Brindle wrote:
->> I think for the time being we should not be importing the updated
->> mcstrans into fedora. There are still some unanswered questions about
->> the implementation. We are talking about some of these offline.
-> 
-> Any particular reason why the discussion isn't online?  Granted I'm not 
-> sure I would have much useful to contribute but I do like hearing about 
-> what is going on and the discussion behind the decisions ...
-> 
+This patch eliminates the expansion of the file_type attribute (due to
+the "-" set operation) for the *_non_security interfaces by creating a
+non_security_file_type attribute.
 
-Oops, I misspoke. The unanswered questions were on list, how to deal with the use of private libsepol types, duplicated functions and missing ebitmap functionality in the library. 
+On my system the resulting binary policy is almost 20% smaller.  The
+difference is so large because there are over 1000 types labeled with
+the file_type attribute.
+
+
+ files.if |   61 ++++++++++++++++++++++++++++++-------------------------------
+ files.te |    2 ++
+ 2 files changed, 32 insertions(+), 31 deletions(-)
+
+Index: policy/modules/kernel/files.if
+===================================================================
+--- policy/modules/kernel/files.if	(revision 2739)
++++ policy/modules/kernel/files.if	(working copy)
+@@ -32,10 +32,10 @@
+ #
+ interface(`files_type',`
+ 	gen_require(`
+-		attribute file_type;
++		attribute file_type, non_security_file_type;
+ 	')
+ 
+-	typeattribute $1 file_type;
++	typeattribute $1 file_type, non_security_file_type;
+ ')
+ 
+ ########################################
+@@ -217,11 +217,10 @@
+ #
+ interface(`files_security_file',`
+ 	gen_require(`
+-		attribute security_file_type;
++		attribute file_type, security_file_type;
+ 	')
+ 
+-	files_type($1)
+-	typeattribute $1 security_file_type;
++	typeattribute $1 file_type, security_file_type;
+ ')
+ 
+ ########################################
+@@ -316,10 +315,10 @@
+ #
+ interface(`files_list_non_security',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	list_dirs_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
++	list_dirs_pattern($1,non_security_file_type,non_security_file_type)
+ ')
+ 
+ ########################################
+@@ -335,10 +334,10 @@
+ #
+ interface(`files_dontaudit_list_non_security',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:dir list_dir_perms;
++	dontaudit $1 non_security_file_type:dir list_dir_perms;
+ ')
+ 
+ ########################################
+@@ -354,11 +353,11 @@
+ #
+ interface(`files_mounton_non_security',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	allow $1 { file_type -security_file_type }:dir mounton;
+-	allow $1 { file_type -security_file_type }:file mounton;
++	allow $1 non_security_file_type:dir mounton;
++	allow $1 non_security_file_type:file mounton;
+ ')
+ 
+ ########################################
+@@ -373,10 +372,10 @@
+ #
+ interface(`files_write_non_security_dirs',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	allow $1 { file_type -security_file_type }:dir write;
++	allow $1 non_security_file_type:dir write;
+ ')
+ 
+ ########################################
+@@ -430,10 +429,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_files',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:file getattr;
++	dontaudit $1 non_security_file_type:file getattr;
+ ')
+ 
+ ########################################
+@@ -498,11 +497,11 @@
+ #
+ interface(`files_read_non_security_files',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	read_files_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
+-	read_lnk_files_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
++	read_files_pattern($1,non_security_file_type,non_security_file_type)
++	read_lnk_files_pattern($1,non_security_file_type,non_security_file_type)
+ ')
+ 
+ ########################################
+@@ -648,10 +647,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_symlinks',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:lnk_file getattr;
++	dontaudit $1 non_security_file_type:lnk_file getattr;
+ ')
+ 
+ ########################################
+@@ -667,10 +666,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_blk_files',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:blk_file getattr;
++	dontaudit $1 non_security_file_type:blk_file getattr;
+ ')
+ 
+ ########################################
+@@ -686,10 +685,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_chr_files',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:chr_file getattr;
++	dontaudit $1 non_security_file_type:chr_file getattr;
+ ')
+ 
+ ########################################
+@@ -763,10 +762,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_pipes',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:fifo_file getattr;
++	dontaudit $1 non_security_file_type:fifo_file getattr;
+ ')
+ 
+ ########################################
+@@ -820,10 +819,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_sockets',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:sock_file getattr;
++	dontaudit $1 non_security_file_type:sock_file getattr;
+ ')
+ 
+ ########################################
+@@ -4763,8 +4762,8 @@
+ #
+ interface(`files_manage_non_security_dirs',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	allow $1 { file_type -security_file_type }:dir manage_dir_perms;
++	allow $1 non_security_file_type:dir manage_dir_perms;
+ ')
+Index: policy/modules/kernel/files.te
+===================================================================
+--- policy/modules/kernel/files.te	(revision 2739)
++++ policy/modules/kernel/files.te	(working copy)
+@@ -26,6 +26,8 @@
+ # sensitive security files whose accesses should
+ # not be dontaudited for uses
+ attribute security_file_type;
++# and its opposite
++attribute non_security_file_type;
+ 
+ attribute tmpfile;
+ attribute tmpfsfile;
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
