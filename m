@@ -1,61 +1,38 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5TCXYUB019365
-	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 08:33:34 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5TCXX8t000809
-	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 12:33:34 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m5TCXX67024191
-	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 08:33:33 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m5TCXVaC004619
-	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 08:33:33 -0400
-Received: from localhost.localdomain (vpn-12-28.rdu.redhat.com [10.11.12.28])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m5TCXSFQ021142
-	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 08:33:30 -0400
-Message-ID: <4867811A.9040103@redhat.com>
-Date: Sun, 29 Jun 2008 08:33:30 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5TDfGBL030115
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 09:41:16 -0400
+Received: from wr-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5TDfFPg024687
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 13:41:15 GMT
+Received: by wr-out-0506.google.com with SMTP id c37so1007206wra.26
+        for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 06:41:15 -0700 (PDT)
+Message-ID: <f71a82820806290641i3f44db15j7422d2707ec8ba0d@mail.gmail.com>
+Date: Sun, 29 Jun 2008 22:41:15 +0900
+From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
+To: fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov
+Subject: segatex-6.50 released
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Patch for libselinux man page submitted by Karel Zack
-Content-Type: multipart/mixed;
- boundary="------------000704040707040506050200"
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------000704040707040506050200
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Hi, guys.
 
-Submitted in bugzilla
+I released segatex-6.50.
 
-https://bugzilla.redhat.com/show_bug.cgi?id=452868
+##################################################
+In this version...
+It pops up Widget when denied message happens.
+##################################################
 
---------------000704040707040506050200
-Content-Type: text/plain;
- name="libselinux.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux.patch"
+It can do anything you need when you configure SELinux thing.
 
-diff -up libselinux-2.0.67/man/man3/freecon.3.kzak libselinux-2.0.67/man/man3/freecon.3
---- libselinux-2.0.67/man/man3/freecon.3.kzak	2008-06-25 16:22:59.000000000 +0200
-+++ libselinux-2.0.67/man/man3/freecon.3	2008-06-25 16:22:28.000000000 +0200
-@@ -15,6 +15,11 @@ frees the memory allocated for a securit
- .B freeconary
- frees the memory allocated for a context array.
- 
-+If
-+.I con
-+is NULL, no operation is performed.
-+
-+
- .SH "SEE ALSO"
- .BR selinux "(8)"
+Enjoy.
 
---------------000704040707040506050200--
+http://sourceforge.net/projects/segatex/
+
+-- 
+http://intrajp.no-ip.com/ Home Page
 
 --
 This message was distributed to subscribers of the selinux mailing list.
