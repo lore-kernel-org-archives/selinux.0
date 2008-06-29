@@ -1,43 +1,61 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5SMNST1015264
-	for <selinux@tycho.nsa.gov>; Sat, 28 Jun 2008 18:23:30 -0400
-Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5SMNQQj004029
-	for <selinux@tycho.nsa.gov>; Sat, 28 Jun 2008 22:23:27 GMT
-Received: by nf-out-0910.google.com with SMTP id b21so305394nfd.4
-        for <selinux@tycho.nsa.gov>; Sat, 28 Jun 2008 15:23:25 -0700 (PDT)
-Message-ID: <dd18b0c30806281523h6263237sfdb9061a13f8e167@mail.gmail.com>
-Date: Sat, 28 Jun 2008 22:23:25 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: mls support for xserver
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5TCXYUB019365
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 08:33:34 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5TCXX8t000809
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 12:33:34 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m5TCXX67024191
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 08:33:33 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m5TCXVaC004619
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 08:33:33 -0400
+Received: from localhost.localdomain (vpn-12-28.rdu.redhat.com [10.11.12.28])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m5TCXSFQ021142
+	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 08:33:30 -0400
+Message-ID: <4867811A.9040103@redhat.com>
+Date: Sun, 29 Jun 2008 08:33:30 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Patch for libselinux man page submitted by Karel Zack
+Content-Type: multipart/mixed;
+ boundary="------------000704040707040506050200"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello; after seeing all of these posts about xserver I couldn't help
-but to try MLS policy.
-As the same results a few months back it seems there isn't any support
-for this policy yet to work with xserver is there?
-i.g. from what I see after allowing most of the avc's, I'm left with
-these that seem to keep appearing upon a reboot:
+This is a multi-part message in MIME format.
+--------------000704040707040506050200
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-allow insmod_t kernel_t:process setsched;
-allow kernel_t bluetooth_t:socket write;
-allow sysadm_sudo_t devpts_t:dir search;
-allow sysadm_xserver_t memory_device_t:chr_file { read write };
-<------  I can't start X without this one here.
-allow syslogd_t var_log_t:file append;
+Submitted in bugzilla
 
-I think it's the same with hid2hci --tohci upon wakeup, the ioctl or
-node is changed resulting in a new avc's for that device.
-Is there going to be support to use MLS in the future or is it too
-much of a security risk.(xserver).
-regards;
+https://bugzilla.redhat.com/show_bug.cgi?id=452868
 
--- 
-Justin P. Mattock
+--------------000704040707040506050200
+Content-Type: text/plain;
+ name="libselinux.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libselinux.patch"
+
+diff -up libselinux-2.0.67/man/man3/freecon.3.kzak libselinux-2.0.67/man/man3/freecon.3
+--- libselinux-2.0.67/man/man3/freecon.3.kzak	2008-06-25 16:22:59.000000000 +0200
++++ libselinux-2.0.67/man/man3/freecon.3	2008-06-25 16:22:28.000000000 +0200
+@@ -15,6 +15,11 @@ frees the memory allocated for a securit
+ .B freeconary
+ frees the memory allocated for a context array.
+ 
++If
++.I con
++is NULL, no operation is performed.
++
++
+ .SH "SEE ALSO"
+ .BR selinux "(8)"
+
+--------------000704040707040506050200--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
