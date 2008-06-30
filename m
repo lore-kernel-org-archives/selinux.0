@@ -1,97 +1,104 @@
 Subject: Re: rbacsep: type transition conflicts uncovered
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1214832075.5242.48.camel@gorn>
+In-Reply-To: <1214835401.22447.72.camel@moss-spartans.epoch.ncsc.mil>
 References: <1214233382.11146.256.camel@gorn>
 	 <1214236357.32762.52.camel@moss-spartans.epoch.ncsc.mil>
 	 <1214238773.32762.88.camel@moss-spartans.epoch.ncsc.mil>
 	 <1214310308.11146.270.camel@gorn>  <1214404243.19712.13.camel@gorn>
 	 <1214828690.22447.8.camel@moss-spartans.epoch.ncsc.mil>
 	 <1214832075.5242.48.camel@gorn>
+	 <1214835401.22447.72.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 30 Jun 2008 10:16:41 -0400
-Message-Id: <1214835401.22447.72.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 30 Jun 2008 10:30:42 -0400
+Message-Id: <1214836242.5242.54.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Mon, 2008-06-30 at 09:21 -0400, Christopher J. PeBenito wrote:
-> On Mon, 2008-06-30 at 08:24 -0400, Stephen Smalley wrote:
-> > On Wed, 2008-06-25 at 10:30 -0400, Christopher J. PeBenito wrote:
-> > > On Tue, 2008-06-24 at 08:25 -0400, Christopher J. PeBenito wrote:
-> > > > On Mon, 2008-06-23 at 12:32 -0400, Stephen Smalley wrote:
-> > > > > On Mon, 2008-06-23 at 11:52 -0400, Stephen Smalley wrote:
-> > > > > > On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
-> > > > > > > I was going through and doing refactoring on the rbacsep with the goal
-> > > > > > > of making the branch compilable again after doing all the derived type
-> > > > > > > collapsing.  I ran into a problem with type transition conflicts.  There
-> > > > > > > are several domains which have a type transition back to the caller
-> > > > > > > domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
-> > > > > > > derived types are collapsed, we get conflicts such as:
+On Mon, 2008-06-30 at 10:16 -0400, Stephen Smalley wrote:
+> On Mon, 2008-06-30 at 09:21 -0400, Christopher J. PeBenito wrote:
+> > On Mon, 2008-06-30 at 08:24 -0400, Stephen Smalley wrote:
+> > > On Wed, 2008-06-25 at 10:30 -0400, Christopher J. PeBenito wrote:
+> > > > On Tue, 2008-06-24 at 08:25 -0400, Christopher J. PeBenito wrote:
+> > > > > On Mon, 2008-06-23 at 12:32 -0400, Stephen Smalley wrote:
+> > > > > > On Mon, 2008-06-23 at 11:52 -0400, Stephen Smalley wrote:
+> > > > > > > On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
+> > > > > > > > I was going through and doing refactoring on the rbacsep with the goal
+> > > > > > > > of making the branch compilable again after doing all the derived type
+> > > > > > > > collapsing.  I ran into a problem with type transition conflicts.  There
+> > > > > > > > are several domains which have a type transition back to the caller
+> > > > > > > > domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
+> > > > > > > > derived types are collapsed, we get conflicts such as:
+> > > > > > > > 
+> > > > > > > > type_transition sudo_t shell_exec_t:process auditadm_t;
+> > > > > > > > type_transition sudo_t shell_exec_t:process secadm_t;
+> > > > > > > > type_transition sudo_t shell_exec_t:process staff_t;
+> > > > > > > > type_transition sudo_t shell_exec_t:process sysadm_t;
+> > > > > > > > type_transition sudo_t shell_exec_t:process user_t;
+> > > > > > > > 
+> > > > > > > > It would seem that there are two solutions for this:
+> > > > > > > > 
+> > > > > > > > 1. keep derived types for these affected domains
+> > > > > > > > 2. make these applications SELinux aware
+> > > > > > > > 
+> > > > > > > > We can't collapse user domains because of their vast differences.
 > > > > > > > 
-> > > > > > > type_transition sudo_t shell_exec_t:process auditadm_t;
-> > > > > > > type_transition sudo_t shell_exec_t:process secadm_t;
-> > > > > > > type_transition sudo_t shell_exec_t:process staff_t;
-> > > > > > > type_transition sudo_t shell_exec_t:process sysadm_t;
-> > > > > > > type_transition sudo_t shell_exec_t:process user_t;
-> > > > > > > 
-> > > > > > > It would seem that there are two solutions for this:
-> > > > > > > 
-> > > > > > > 1. keep derived types for these affected domains
-> > > > > > > 2. make these applications SELinux aware
-> > > > > > > 
-> > > > > > > We can't collapse user domains because of their vast differences.
-> > > > > > 
-> > > > > > I'd vote for (1).  Otherwise the application is a trusted subject that
-> > > > > > can transition to any user role/domain.
-> > > > >
-> > > > > Although in this case, hasn't sudo been made SELinux aware lately,
-> > > > > including the ability to transition to other roles/domains?
+> > > > > > > I'd vote for (1).  Otherwise the application is a trusted subject that
+> > > > > > > can transition to any user role/domain.
+> > > > > >
+> > > > > > Although in this case, hasn't sudo been made SELinux aware lately,
+> > > > > > including the ability to transition to other roles/domains?
+> > > > > 
+> > > > > Yes, however, I suppose that we would still want to have a set of
+> > > > > type_transitions in case sudo doesn't have the SELinux awareness.
 > > > > 
-> > > > Yes, however, I suppose that we would still want to have a set of
-> > > > type_transitions in case sudo doesn't have the SELinux awareness.
+> > > > The final list on domains that have this problem are:
+> > > > 
+> > > > crontab_t
+> > > > su_t
+> > > > session_dbusd_t
+> > > > sudo_t
+> > > > ssh_agent_t
+> > > > screen_t
+> > > > userhelper_t
+> > > > 
+> > > > The crontab one was just executing helper programs in the user domain.
+> > > > I suspect that was a poor choice; my cursory investigation of vixie cron
+> > > > and fcron indicated that it was just the editor that was run for crontab
+> > > > -e.  I changed the transition to exec_no_trans,
 > > > 
-> > > The final list on domains that have this problem are:
-> > > 
-> > > crontab_t
-> > > su_t
-> > > session_dbusd_t
-> > > sudo_t
-> > > ssh_agent_t
-> > > screen_t
-> > > userhelper_t
-> > > 
-> > > The crontab one was just executing helper programs in the user domain.
-> > > I suspect that was a poor choice; my cursory investigation of vixie cron
-> > > and fcron indicated that it was just the editor that was run for crontab
-> > > -e.  I changed the transition to exec_no_trans,
+> > > Is that safe?  The reason for transitioning back to the user domain upon
+> > > editor invocation was that the user can shell out of the editor and/or
+> > > execute commands straight from the editor depending on his choice of
+> > > editor, and I didn't want those to run with the same permissions as
+> > > crontab itself (e.g. capabilities, ability to write to crontab spool
+> > > files, etc).
 > > 
-> > Is that safe?  The reason for transitioning back to the user domain upon
-> > editor invocation was that the user can shell out of the editor and/or
-> > execute commands straight from the editor depending on his choice of
-> > editor, and I didn't want those to run with the same permissions as
-> > crontab itself (e.g. capabilities, ability to write to crontab spool
-> > files, etc).
+> > Well it would gain the capabilities, but the only interesting things
+> > that crontab can do is write user temp files and write the cron spool.
 > 
-> Well it would gain the capabilities, but the only interesting things
-> that crontab can do is write user temp files and write the cron spool.
+> Injecting commands into another cron spool file would be of concern
+> (e.g. into root or another privileged user's crontab).  The crond
+> entrypoint check is supposed to help safeguard against that issue, but
+> if you are collapsing the file types, then we lose that too.
 
-Injecting commands into another cron spool file would be of concern
-(e.g. into root or another privileged user's crontab).  The crond
-entrypoint check is supposed to help safeguard against that issue, but
-if you are collapsing the file types, then we lose that too.
+But that shouldn't be happening due to ubac/rbac separation.  Crontab_t
+isn't exempt from ubac/rbac.  I did make an admin_crontab_t that will
+have the exemption on files so the admin can change other user crontabs.
+The entrypoint should also be constrained by ubac/rbac.
 
-> Since the user can already put whatever he wants into his cron spool
-> either by the text editor or by importing it by crontab <filename>, I
-> don't think that part matters.  So would seem that its only a question
-> of how much we care about using capabilities (fowner setuid setgid chown
-> dac_override) to do stuff to user temp files.
-
+> > Since the user can already put whatever he wants into his cron spool
+> > either by the text editor or by importing it by crontab <filename>, I
+> > don't think that part matters.  So would seem that its only a question
+> > of how much we care about using capabilities (fowner setuid setgid chown
+> > dac_override) to do stuff to user temp files.
+> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
