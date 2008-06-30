@@ -1,46 +1,89 @@
-Subject: Re: rawhide audit2allow problem
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Karl MacMillan <kmacmillan@mentalrootkit.com>
-Cc: Xavier Toth <txtoth@gmail.com>, SELinux List <selinux@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <10143820806251203g139e16d7pf00566d7c6cd9433@mail.gmail.com>
-References: <cadfc0e40806251123md6cebeak9a83cd68559bf55c@mail.gmail.com>
-	 <10143820806251203g139e16d7pf00566d7c6cd9433@mail.gmail.com>
+Subject: Re: rbacsep: type transition conflicts uncovered
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1214828690.22447.8.camel@moss-spartans.epoch.ncsc.mil>
+References: <1214233382.11146.256.camel@gorn>
+	 <1214236357.32762.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <1214238773.32762.88.camel@moss-spartans.epoch.ncsc.mil>
+	 <1214310308.11146.270.camel@gorn>  <1214404243.19712.13.camel@gorn>
+	 <1214828690.22447.8.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Mon, 30 Jun 2008 09:17:13 -0400
-Message-Id: <1214831833.22447.17.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 30 Jun 2008 09:21:15 -0400
+Message-Id: <1214832075.5242.48.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Wed, 2008-06-25 at 15:03 -0400, Karl MacMillan wrote:
-> On Wed, Jun 25, 2008 at 2:23 PM, Xavier Toth <txtoth@gmail.com> wrote:
-> > I updated my rawhide box and now I getting the following error:
-> >
-> > [root@localhost ~]# cat /var/log/audit/audit.log | audit2allow
-> > Traceback (most recent call last):
-> >  File "/usr/bin/audit2allow", line 344, in <module>
-> >    app.main()
-> >  File "/usr/bin/audit2allow", line 338, in main
-> >    self.__output()
-> >  File "/usr/bin/audit2allow", line 314, in __output
-> >    g.add_role_types(self.__role_types)
-> > AttributeError: PolicyGenerator instance has no attribute 'add_role_types'
-> >
+On Mon, 2008-06-30 at 08:24 -0400, Stephen Smalley wrote:
+> On Wed, 2008-06-25 at 10:30 -0400, Christopher J. PeBenito wrote:
+> > On Tue, 2008-06-24 at 08:25 -0400, Christopher J. PeBenito wrote:
+> > > On Mon, 2008-06-23 at 12:32 -0400, Stephen Smalley wrote:
+> > > > On Mon, 2008-06-23 at 11:52 -0400, Stephen Smalley wrote:
+> > > > > On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
+> > > > > > I was going through and doing refactoring on the rbacsep with the goal
+> > > > > > of making the branch compilable again after doing all the derived type
+> > > > > > collapsing.  I ran into a problem with type transition conflicts.  There
+> > > > > > are several domains which have a type transition back to the caller
+> > > > > > domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
+> > > > > > derived types are collapsed, we get conflicts such as:
+> > > > > > 
+> > > > > > type_transition sudo_t shell_exec_t:process auditadm_t;
+> > > > > > type_transition sudo_t shell_exec_t:process secadm_t;
+> > > > > > type_transition sudo_t shell_exec_t:process staff_t;
+> > > > > > type_transition sudo_t shell_exec_t:process sysadm_t;
+> > > > > > type_transition sudo_t shell_exec_t:process user_t;
+> > > > > > 
+> > > > > > It would seem that there are two solutions for this:
+> > > > > > 
+> > > > > > 1. keep derived types for these affected domains
+> > > > > > 2. make these applications SELinux aware
+> > > > > > 
+> > > > > > We can't collapse user domains because of their vast differences.
+> > > > > 
+> > > > > I'd vote for (1).  Otherwise the application is a trusted subject that
+> > > > > can transition to any user role/domain.
+> > > >
+> > > > Although in this case, hasn't sudo been made SELinux aware lately,
+> > > > including the ability to transition to other roles/domains?
+> > > 
+> > > Yes, however, I suppose that we would still want to have a set of
+> > > type_transitions in case sudo doesn't have the SELinux awareness.
+> > 
+> > The final list on domains that have this problem are:
+> > 
+> > crontab_t
+> > su_t
+> > session_dbusd_t
+> > sudo_t
+> > ssh_agent_t
+> > screen_t
+> > userhelper_t
+> > 
+> > The crontab one was just executing helper programs in the user domain.
+> > I suspect that was a poor choice; my cursory investigation of vixie cron
+> > and fcron indicated that it was just the editor that was run for crontab
+> > -e.  I changed the transition to exec_no_trans,
 > 
-> This looks like audit2allow has my recent patch but not sepolgen. Not
-> certain how that could happen since they appear to be part of the same
-> rpm. Dan - any ideas?
+> Is that safe?  The reason for transitioning back to the user domain upon
+> editor invocation was that the user can shell out of the editor and/or
+> execute commands straight from the editor depending on his choice of
+> editor, and I didn't want those to run with the same permissions as
+> crontab itself (e.g. capabilities, ability to write to crontab spool
+> files, etc).
 
-Both the audit2allow and sepolgen diffs have now been merged upstream.
-I'm assuming that no changes were made after the posted versions of the
-patches; let me know if any further changes were made in the Fedora
-packages.
+Well it would gain the capabilities, but the only interesting things
+that crontab can do is write user temp files and write the cron spool.
+Since the user can already put whatever he wants into his cron spool
+either by the text editor or by importing it by crontab <filename>, I
+don't think that part matters.  So would seem that its only a question
+of how much we care about using capabilities (fowner setuid setgid chown
+dac_override) to do stuff to user temp files.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
