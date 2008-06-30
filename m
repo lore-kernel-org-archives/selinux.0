@@ -1,112 +1,57 @@
-Subject: Re: rbacsep: type transition conflicts uncovered
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1214836242.5242.54.camel@gorn>
-References: <1214233382.11146.256.camel@gorn>
-	 <1214236357.32762.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214238773.32762.88.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214310308.11146.270.camel@gorn>  <1214404243.19712.13.camel@gorn>
-	 <1214828690.22447.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214832075.5242.48.camel@gorn>
-	 <1214835401.22447.72.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214836242.5242.54.camel@gorn>
-Content-Type: text/plain
-Date: Mon, 30 Jun 2008 11:00:51 -0400
-Message-Id: <1214838051.22447.106.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5UFx8sq016802
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 11:59:08 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5UFx8Xd004698
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 15:59:08 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m5UFx7rV027801
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 11:59:07 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m5UFx7kC009679
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 11:59:07 -0400
+Received: from localhost.localdomain (dhcp-10-16-61-233.boston.devel.redhat.com [10.16.61.233])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m5UFx7Qq031989
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 11:59:07 -0400
+Message-ID: <486902CA.4030607@redhat.com>
+Date: Mon, 30 Jun 2008 11:59:06 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: restorecond should not be started by default
+Content-Type: multipart/mixed;
+ boundary="------------010708070601030107060408"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------010708070601030107060408
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Mon, 2008-06-30 at 10:30 -0400, Christopher J. PeBenito wrote:
-> On Mon, 2008-06-30 at 10:16 -0400, Stephen Smalley wrote:
-> > On Mon, 2008-06-30 at 09:21 -0400, Christopher J. PeBenito wrote:
-> > > On Mon, 2008-06-30 at 08:24 -0400, Stephen Smalley wrote:
-> > > > On Wed, 2008-06-25 at 10:30 -0400, Christopher J. PeBenito wrote:
-> > > > > On Tue, 2008-06-24 at 08:25 -0400, Christopher J. PeBenito wrote:
-> > > > > > On Mon, 2008-06-23 at 12:32 -0400, Stephen Smalley wrote:
-> > > > > > > On Mon, 2008-06-23 at 11:52 -0400, Stephen Smalley wrote:
-> > > > > > > > On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
-> > > > > > > > > I was going through and doing refactoring on the rbacsep with the goal
-> > > > > > > > > of making the branch compilable again after doing all the derived type
-> > > > > > > > > collapsing.  I ran into a problem with type transition conflicts.  There
-> > > > > > > > > are several domains which have a type transition back to the caller
-> > > > > > > > > domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
-> > > > > > > > > derived types are collapsed, we get conflicts such as:
-> > > > > > > > > 
-> > > > > > > > > type_transition sudo_t shell_exec_t:process auditadm_t;
-> > > > > > > > > type_transition sudo_t shell_exec_t:process secadm_t;
-> > > > > > > > > type_transition sudo_t shell_exec_t:process staff_t;
-> > > > > > > > > type_transition sudo_t shell_exec_t:process sysadm_t;
-> > > > > > > > > type_transition sudo_t shell_exec_t:process user_t;
-> > > > > > > > > 
-> > > > > > > > > It would seem that there are two solutions for this:
-> > > > > > > > > 
-> > > > > > > > > 1. keep derived types for these affected domains
-> > > > > > > > > 2. make these applications SELinux aware
-> > > > > > > > > 
-> > > > > > > > > We can't collapse user domains because of their vast differences.
-> > > > > > > > 
-> > > > > > > > I'd vote for (1).  Otherwise the application is a trusted subject that
-> > > > > > > > can transition to any user role/domain.
-> > > > > > >
-> > > > > > > Although in this case, hasn't sudo been made SELinux aware lately,
-> > > > > > > including the ability to transition to other roles/domains?
-> > > > > > 
-> > > > > > Yes, however, I suppose that we would still want to have a set of
-> > > > > > type_transitions in case sudo doesn't have the SELinux awareness.
-> > > > > 
-> > > > > The final list on domains that have this problem are:
-> > > > > 
-> > > > > crontab_t
-> > > > > su_t
-> > > > > session_dbusd_t
-> > > > > sudo_t
-> > > > > ssh_agent_t
-> > > > > screen_t
-> > > > > userhelper_t
-> > > > > 
-> > > > > The crontab one was just executing helper programs in the user domain.
-> > > > > I suspect that was a poor choice; my cursory investigation of vixie cron
-> > > > > and fcron indicated that it was just the editor that was run for crontab
-> > > > > -e.  I changed the transition to exec_no_trans,
-> > > > 
-> > > > Is that safe?  The reason for transitioning back to the user domain upon
-> > > > editor invocation was that the user can shell out of the editor and/or
-> > > > execute commands straight from the editor depending on his choice of
-> > > > editor, and I didn't want those to run with the same permissions as
-> > > > crontab itself (e.g. capabilities, ability to write to crontab spool
-> > > > files, etc).
-> > > 
-> > > Well it would gain the capabilities, but the only interesting things
-> > > that crontab can do is write user temp files and write the cron spool.
-> > 
-> > Injecting commands into another cron spool file would be of concern
-> > (e.g. into root or another privileged user's crontab).  The crond
-> > entrypoint check is supposed to help safeguard against that issue, but
-> > if you are collapsing the file types, then we lose that too.
-> 
-> But that shouldn't be happening due to ubac/rbac separation.  Crontab_t
-> isn't exempt from ubac/rbac.  I did make an admin_crontab_t that will
-> have the exemption on files so the admin can change other user crontabs.
-> The entrypoint should also be constrained by ubac/rbac.
+Fedora is trying to eliminate most daemons that get started by default.
+ They want the admin to select whether the daemon should start.
 
-I see...so you'd have a constraint on entrypoint permission.
+--------------010708070601030107060408
+Content-Type: text/plain;
+ name="restorecond.init.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="restorecond.init.patch"
 
-That might handle matters when using ubac/rbac separation.  Let's
-consider though any implications for downstream consumers of refpolicy
-that won't be using ubac/rbac separation on files at all.  There they
-would be relying on DAC for separation, but the crontab program
-represents a privileged program wrt DAC.  I suppose that it already
-handles switching to the user's identity when invoking the editor and
-thus DAC should prevent tampering with other user's crontabs or temp
-files while in the editor.  So perhaps it is sufficient.
+--- nsapolicycoreutils/restorecond/restorecond.init	2008-06-12 23:25:21.000000000 -0400
++++ policycoreutils-2.0.50/restorecond/restorecond.init	2008-06-30 11:49:38.000000000 -0400
+@@ -2,7 +2,7 @@
+ #
+ # restorecond:		Daemon used to maintain path file context
+ #
+-# chkconfig:	2345 12 87
++# chkconfig:	- 12 87
+ # description:	restorecond uses inotify to look for creation of new files \
+ # listed in the /etc/selinux/restorecond.conf file, and restores the \
+ # correct security context.
 
--- 
-Stephen Smalley
-National Security Agency
-
+--------------010708070601030107060408--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
