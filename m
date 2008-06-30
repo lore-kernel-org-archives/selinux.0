@@ -1,84 +1,51 @@
-Subject: Re: rbacsep: type transition conflicts uncovered
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1214404243.19712.13.camel@gorn>
-References: <1214233382.11146.256.camel@gorn>
-	 <1214236357.32762.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214238773.32762.88.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214310308.11146.270.camel@gorn>  <1214404243.19712.13.camel@gorn>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5UCP38Y002799
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 08:25:03 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m5UCP36k026383
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 12:25:03 GMT
+Subject: Re: mls support for xserver
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <dd18b0c30806281523h6263237sfdb9061a13f8e167@mail.gmail.com>
+References: <dd18b0c30806281523h6263237sfdb9061a13f8e167@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 30 Jun 2008 08:24:50 -0400
-Message-Id: <1214828690.22447.8.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 30 Jun 2008 08:23:40 -0400
+Message-Id: <1214828620.5242.27.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Sat, 2008-06-28 at 22:23 +0000, Justin Mattock wrote:
+> Hello; after seeing all of these posts about xserver I couldn't help
+> but to try MLS policy.
+> As the same results a few months back it seems there isn't any support
+> for this policy yet to work with xserver is there?
+> i.g. from what I see after allowing most of the avc's, I'm left with
+> these that seem to keep appearing upon a reboot:
+> 
+> allow insmod_t kernel_t:process setsched;
+> allow kernel_t bluetooth_t:socket write;
+> allow sysadm_sudo_t devpts_t:dir search;
+> allow sysadm_xserver_t memory_device_t:chr_file { read write };
+> <------  I can't start X without this one here.
+> allow syslogd_t var_log_t:file append;
+> 
+> I think it's the same with hid2hci --tohci upon wakeup, the ioctl or
+> node is changed resulting in a new avc's for that device.
+> Is there going to be support to use MLS in the future or is it too
+> much of a security risk.(xserver).
 
-On Wed, 2008-06-25 at 10:30 -0400, Christopher J. PeBenito wrote:
-> On Tue, 2008-06-24 at 08:25 -0400, Christopher J. PeBenito wrote:
-> > On Mon, 2008-06-23 at 12:32 -0400, Stephen Smalley wrote:
-> > > On Mon, 2008-06-23 at 11:52 -0400, Stephen Smalley wrote:
-> > > > On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
-> > > > > I was going through and doing refactoring on the rbacsep with the goal
-> > > > > of making the branch compilable again after doing all the derived type
-> > > > > collapsing.  I ran into a problem with type transition conflicts.  There
-> > > > > are several domains which have a type transition back to the caller
-> > > > > domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
-> > > > > derived types are collapsed, we get conflicts such as:
-> > > > > 
-> > > > > type_transition sudo_t shell_exec_t:process auditadm_t;
-> > > > > type_transition sudo_t shell_exec_t:process secadm_t;
-> > > > > type_transition sudo_t shell_exec_t:process staff_t;
-> > > > > type_transition sudo_t shell_exec_t:process sysadm_t;
-> > > > > type_transition sudo_t shell_exec_t:process user_t;
-> > > > > 
-> > > > > It would seem that there are two solutions for this:
-> > > > > 
-> > > > > 1. keep derived types for these affected domains
-> > > > > 2. make these applications SELinux aware
-> > > > > 
-> > > > > We can't collapse user domains because of their vast differences.
-> > > > 
-> > > > I'd vote for (1).  Otherwise the application is a trusted subject that
-> > > > can transition to any user role/domain.
-> > >
-> > > Although in this case, hasn't sudo been made SELinux aware lately,
-> > > including the ability to transition to other roles/domains?
-> > 
-> > Yes, however, I suppose that we would still want to have a set of
-> > type_transitions in case sudo doesn't have the SELinux awareness.
-> 
-> The final list on domains that have this problem are:
-> 
-> crontab_t
-> su_t
-> session_dbusd_t
-> sudo_t
-> ssh_agent_t
-> screen_t
-> userhelper_t
-> 
-> The crontab one was just executing helper programs in the user domain.
-> I suspect that was a poor choice; my cursory investigation of vixie cron
-> and fcron indicated that it was just the editor that was run for crontab
-> -e.  I changed the transition to exec_no_trans,
+The X server only has relatively well tested TE policy right now, and
+only in the non object manager sense.  The object manager TE policy is
+still early and needs more time to mature.  The MLS policy for the X
+server is being looked at now, but still has a ways to go.
 
-Is that safe?  The reason for transitioning back to the user domain upon
-editor invocation was that the user can shell out of the editor and/or
-execute commands straight from the editor depending on his choice of
-editor, and I didn't want those to run with the same permissions as
-crontab itself (e.g. capabilities, ability to write to crontab spool
-files, etc).
-
->  but it will take some
-> more crontab testing to possibly catch other rules that need to be
-> added.  The remainder will have to be restored to their derived-types
-> design.
-> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
