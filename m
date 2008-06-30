@@ -1,47 +1,84 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5U5X7ix024972
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 01:33:07 -0400
-Received: from mho-02-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5U5X67j013454
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 05:33:06 GMT
-Received: from cpe-66-25-156-148.austin.res.rr.com ([66.25.156.148] helo=[192.168.20.230])
-	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
-	(Exim 4.68)
-	(envelope-from <joe@nall.com>)
-	id 1KDC0g-000OvZ-27
-	for selinux@tycho.nsa.gov; Mon, 30 Jun 2008 05:33:06 +0000
-Message-Id: <4EE2EE24-1926-4370-A83E-C52101EE3254@nall.com>
-From: Joe Nall <joe@nall.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v924)
-Subject: range_transition question
-Date: Mon, 30 Jun 2008 00:33:04 -0500
+Subject: Re: rbacsep: type transition conflicts uncovered
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <1214404243.19712.13.camel@gorn>
+References: <1214233382.11146.256.camel@gorn>
+	 <1214236357.32762.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <1214238773.32762.88.camel@moss-spartans.epoch.ncsc.mil>
+	 <1214310308.11146.270.camel@gorn>  <1214404243.19712.13.camel@gorn>
+Content-Type: text/plain
+Date: Mon, 30 Jun 2008 08:24:50 -0400
+Message-Id: <1214828690.22447.8.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm trying to get the X server running as  
-user_u:user_r:user_xserver_t:s0-s15:c0.c1023 using a ranged transition.
 
-...
-mls_rangetrans_source(user_t)
-mls_rangetrans_target(user_xserver_t)
-domtrans_pattern(user_t,xserver_exec_t,user_xserver_t)
-range_transition user_t xserver_exec_t:process s0 - s15:c0.c1023;
-...
+On Wed, 2008-06-25 at 10:30 -0400, Christopher J. PeBenito wrote:
+> On Tue, 2008-06-24 at 08:25 -0400, Christopher J. PeBenito wrote:
+> > On Mon, 2008-06-23 at 12:32 -0400, Stephen Smalley wrote:
+> > > On Mon, 2008-06-23 at 11:52 -0400, Stephen Smalley wrote:
+> > > > On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
+> > > > > I was going through and doing refactoring on the rbacsep with the goal
+> > > > > of making the branch compilable again after doing all the derived type
+> > > > > collapsing.  I ran into a problem with type transition conflicts.  There
+> > > > > are several domains which have a type transition back to the caller
+> > > > > domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
+> > > > > derived types are collapsed, we get conflicts such as:
+> > > > > 
+> > > > > type_transition sudo_t shell_exec_t:process auditadm_t;
+> > > > > type_transition sudo_t shell_exec_t:process secadm_t;
+> > > > > type_transition sudo_t shell_exec_t:process staff_t;
+> > > > > type_transition sudo_t shell_exec_t:process sysadm_t;
+> > > > > type_transition sudo_t shell_exec_t:process user_t;
+> > > > > 
+> > > > > It would seem that there are two solutions for this:
+> > > > > 
+> > > > > 1. keep derived types for these affected domains
+> > > > > 2. make these applications SELinux aware
+> > > > > 
+> > > > > We can't collapse user domains because of their vast differences.
+> > > > 
+> > > > I'd vote for (1).  Otherwise the application is a trusted subject that
+> > > > can transition to any user role/domain.
+> > >
+> > > Although in this case, hasn't sudo been made SELinux aware lately,
+> > > including the ability to transition to other roles/domains?
+> > 
+> > Yes, however, I suppose that we would still want to have a set of
+> > type_transitions in case sudo doesn't have the SELinux awareness.
+> 
+> The final list on domains that have this problem are:
+> 
+> crontab_t
+> su_t
+> session_dbusd_t
+> sudo_t
+> ssh_agent_t
+> screen_t
+> userhelper_t
+> 
+> The crontab one was just executing helper programs in the user domain.
+> I suspect that was a poor choice; my cursory investigation of vixie cron
+> and fcron indicated that it was just the editor that was run for crontab
+> -e.  I changed the transition to exec_no_trans,
 
-but I'm still seeing the following avc:
+Is that safe?  The reason for transitioning back to the user domain upon
+editor invocation was that the user can shell out of the editor and/or
+execute commands straight from the editor depending on his choice of
+editor, and I didn't want those to run with the same permissions as
+crontab itself (e.g. capabilities, ability to write to crontab spool
+files, etc).
 
-type=AVC msg=audit(1214800869.443:84): avc:  denied  { transition }  
-for  pid=2298 comm="xinit" path="/usr/bin/Xorg" dev=dm-0 ino=549292  
-scontext=user_u:user_r:user_t:s0  
-tcontext=user_u:user_r:user_xserver_t:s0-s15:c0.c1023 tclass=process
-
-The transition works in permissive, so I'm apparently violating a  
-constraint. What am I missing?
-
-joe
-
+>  but it will take some
+> more crontab testing to possibly catch other rules that need to be
+> added.  The remainder will have to be restored to their derived-types
+> design.
+> 
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
