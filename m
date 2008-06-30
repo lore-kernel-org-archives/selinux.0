@@ -1,172 +1,147 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5UK9WX1031198
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 16:09:32 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5UK9Whx010399
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 20:09:32 GMT
-Message-ID: <48693D78.6090103@redhat.com>
-Date: Mon, 30 Jun 2008 16:09:28 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <48693D92.2010307@manicmethod.com>
+Date: Mon, 30 Jun 2008 16:09:54 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>, lkundrak@v3.sk
-Subject: cvs patch
-Content-Type: multipart/mixed;
- boundary="------------090305010801060705030603"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Trying to get XAce policy straightened out but our tool chain
+ is too broken to handle it.
+References: <48480210.60309@redhat.com>	 <1213625437.15523.71.camel@moss-spartans.epoch.ncsc.mil>	 <485F863B.1040603@redhat.com> <1214227346.11146.237.camel@gorn>	 <48628E65.8030701@tycho.nsa.gov> <1214836852.22447.94.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1214836852.22447.94.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090305010801060705030603
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Stephen Smalley wrote:
+> On Wed, 2008-06-25 at 14:28 -0400, Eamon Walsh wrote:
+>> Christopher J. PeBenito wrote:
+>>> On Mon, 2008-06-23 at 07:17 -0400, Daniel J Walsh wrote:
+>>>   
+>>>> Stephen Smalley wrote:
+>>>>     
+>>>>> On Thu, 2008-06-05 at 11:11 -0400, Daniel J Walsh wrote:
+>>>>>       
+>>>   
+>>>>>> The problem I have is the compiler is too stupid to understand the
+>>>>>> differences between a gen_requires block defining the required types and
+>>>>>> the actual type definition.
+>>>>>>
+>>>>>> So I end up in a catch 22 where the compiler tells me I need to require
+>>>>>> $1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
+>>>>>> I have a duplicate definition.
+>>>>>>
+>>>>>> So if you have a derived type in a gen_requires block the compiler can
+>>>>>> not handle it.
+>>>>>>         
+>>>>> I'm a little unclear as to why this is required (why do you need to
+>>>>> require and declare the same symbol again?).  However, is there some
+>>>>> reason we can't just automatically promote a require to a declaration
+>>>>> upon encountering the latter?  Seems like we've talked about this
+>>>>> before.  Not sure whether that should happen within libsepol
+>>>>> symtab_insert() or in the callers, e.g. declare_type().
+>>>>>
+>>>>>       
+>>>> I don't know,  All I know is the compiler complains if it is there and
+>>>> if it is not there.  Catch 22.  I end up going to great lengths to hack
+>>>> around compiler errors...
+>>>>     
+>>> We add requires to templates, so that if they're used outside xserver,
+>>> the caller gets the appropriate require.  But then we also use the
+>>> template inside xserver for code reuse, which is where the problem
+>>> creeps up.  There are a couple other examples of this in refpolicy, but
+>>> I was able to work around them by reordering statements.  It sounds like
+>>> Dan's situation may not be something that can be easily worked around
+>>> without some restructuring
+>> I opened a ticket in the refpolicy Trac for this:   
+>> http://oss.tresys.com/projects/refpolicy/ticket/43
+> 
+> Ok - although I was thinking that this would be fixed by changing
+> checkpolicy/libsepol to promote requires to decls upon encountering a
+> decl.  Joshua?
+> 
 
-cvs needs auth_use_nsswitch
-Added cvsweb policy from Lubomir Rintel
-Added _admin interface
+I believe this fixes it but I'm still testing for corner cases and such. The require and declare still have to be in the same scope, eg:
 
---------------090305010801060705030603
-Content-Type: text/plain;
- name="cvs.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cvs.patch"
+optional {
+	require {
+		type foo;
+	}
+	type bar;
+}
 
-Subject: [PATCH] refpolicy: services_cvs changes
---text follows this line--
---- nsaserefpolicy/policy/modules/services/cvs.fc	2008-06-12 23:25:05.000000000 -0400
-+++ serefpolicy-3.4.2/policy/modules/services/cvs.fc	2008-06-30 16:00:10.000000000 -0400
-@@ -5,3 +5,6 @@
- 
- /var/cvs(/.*)?		gen_context(system_u:object_r:cvs_data_t,s0)
- 
-+#CVSWeb file context
-+/usr/share/cvsweb/cvsweb\.cgi	--	gen_context(system_u:object_r:httpd_cvs_script_exec_t,s0)
-+/var/www/cgi-bin/cvsweb\.cgi	--	gen_context(system_u:object_r:httpd_cvs_script_exec_t,s0)
---- nsaserefpolicy/policy/modules/services/cvs.if	2008-06-12 23:25:05.000000000 -0400
-+++ serefpolicy-3.4.2/policy/modules/services/cvs.if	2008-06-30 16:04:16.000000000 -0400
-@@ -36,3 +36,70 @@
- 
- 	can_exec($1,cvs_exec_t)
- ')
-+
-+########################################
-+## <summary>
-+##	Execute cvs server in the cvs domain.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+#
-+#
-+interface(`cvs_script_domtrans',`
-+	gen_require(`
-+		type cvs_script_exec_t;
-+	')
-+
-+	init_script_domtrans_spec($1,cvs_script_exec_t)
-+')
-+
-+########################################
-+## <summary>
-+##	All of the rules required to administrate 
-+##	an cvs environment
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+## <param name="role">
-+##	<summary>
-+##	The role to be allowed to manage the cvs domain.
-+##	</summary>
-+## </param>
-+## <param name="terminal">
-+##	<summary>
-+##	The type of the user terminal.
-+##	</summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`cvs_admin',`
-+	gen_require(`
-+		type cvs_t, cvs_tmp_t;
-+		type cvs_data_t, cvs_var_run_t;
-+		type cvs_script_exec_t;
-+	')
-+
-+	allow $1 cvs_t:process { ptrace signal_perms };
-+	ps_process_pattern($1, cvs_t)
-+	        
-+	# Allow cvs_t to restart the apache service
-+	cvs_script_domtrans($1)
-+	domain_system_change_exemption($1)
-+	role_transition $2 cvs_script_exec_t system_r;
-+	allow $2 system_r;
-+
-+	files_list_tmp($1)
-+        manage_all_pattern($1,cvs_tmp_t)
-+
-+	manage_all_pattern($1,cvs_data_t)
-+
-+	files_list_pids($1)
-+        manage_all_pattern($1,cvs_var_run_t)
-+')
-+
---- nsaserefpolicy/policy/modules/services/cvs.te	2008-06-12 23:25:05.000000000 -0400
-+++ serefpolicy-3.4.2/policy/modules/services/cvs.te	2008-06-30 16:00:42.000000000 -0400
-@@ -28,6 +28,9 @@
- type cvs_var_run_t;
- files_pid_file(cvs_var_run_t)
- 
-+type cvs_script_exec_t;
-+init_script_type(cvs_script_exec_t)
-+
- ########################################
- #
- # Local policy
-@@ -69,6 +72,7 @@
- fs_getattr_xattr_fs(cvs_t)
- 
- auth_domtrans_chk_passwd(cvs_t)
-+auth_use_nsswitch(cvs_t)
- 
- corecmd_exec_bin(cvs_t)
- corecmd_exec_shell(cvs_t)
-@@ -86,8 +90,6 @@
- 
- miscfiles_read_localization(cvs_t)
- 
--sysnet_read_config(cvs_t)
+require {
+	type bar;
+}
+
+does not work but the standard use case of:
+
+require {
+	type foo;
+}
+
+type foo;
+
+does work.
+
+-------
+
+Index: libsepol/src/policydb.c
+===================================================================
+--- libsepol/src/policydb.c	(revision 2916)
++++ libsepol/src/policydb.c	(working copy)
+@@ -1215,21 +1215,13 @@
+ 	/* FIX ME - the failures after the hashtab_insert will leave
+ 	 * the policy in a inconsistent state. */
+ 	rc = hashtab_insert(pol->symtab[sym].table, key, datum);
+-	if (rc == 0) {
++	if (rc == SEPOL_OK) {
+ 		/* if no value is passed in the symbol is not primary
+ 		 * (i.e. aliases) */
+ 		if (value)
+ 			*value = ++pol->symtab[sym].nprim;
+-	} else if (rc == SEPOL_EEXIST && scope == SCOPE_REQ) {
++	} else if (rc == SEPOL_EEXIST) {
+ 		retval = 1;	/* symbol not added -- need to free() later */
+-	} else if (rc == SEPOL_EEXIST && scope == SCOPE_DECL) {
+-		if (sym == SYM_ROLES || sym == SYM_USERS) {
+-			/* allow multiple declarations for these two */
+-			retval = 1;
+-		} else {
+-			/* duplicate declarations not allowed for all else */
+-			return -2;
+-		}
+ 	} else {
+ 		return rc;
+ 	}
+@@ -1256,21 +1248,15 @@
+ 			free(scope_datum);
+ 			return rc;
+ 		}
+-	} else if (scope_datum->scope == SCOPE_DECL) {
++	} else if (scope_datum->scope == SCOPE_DECL && scope == SCOPE_DECL) {
+ 		/* disallow multiple declarations for non-roles/users */
+ 		if (sym != SYM_ROLES && sym != SYM_USERS) {
+ 			return -2;
+ 		}
+ 	} else if (scope_datum->scope == SCOPE_REQ && scope == SCOPE_DECL) {
+-		/* appending to required symbol only allowed for roles/users */
+-		if (sym == SYM_ROLES || sym == SYM_USERS) {
+-			scope_datum->scope = SCOPE_DECL;
+-		} else {
+-			return -2;
+-		}
 -
- mta_send_mail(cvs_t)
++		scope_datum->scope = SCOPE_DECL;
+ 	} else if (scope_datum->scope != scope) {
+-		/* scope does not match */
++		/* This only happens in DECL then REQUIRE case, which is handled by caller */
+ 		return -2;
+ 	}
  
- # cjp: typeattribute doesnt work in conditionals yet
-@@ -103,10 +105,13 @@
- 	kerberos_dontaudit_write_config(cvs_t)
- ')
- 
--optional_policy(`
--	nis_use_ypbind(cvs_t)
--')
-+########################################
-+# CVSWeb policy
-+
-+apache_content_template(cvs)
-+
-+read_files_pattern(httpd_cvs_script_t, cvs_data_t, cvs_data_t)
-+manage_dirs_pattern(httpd_cvs_script_t_t,cvs_tmp_t,cvs_tmp_t)
-+manage_files_pattern(httpd_cvs_script_t,cvs_tmp_t,cvs_tmp_t)
-+files_tmp_filetrans(httpd_cvs_script_t, cvs_tmp_t, { file dir })
- 
--optional_policy(`
--	nscd_socket_use(cvs_t)
--')
 
---------------090305010801060705030603--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
