@@ -1,36 +1,33 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5UHwKP4006020
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 13:58:21 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5UI3OMK007102
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 14:03:24 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m5UHwKhx004743
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 17:58:20 GMT
-Message-ID: <48691EB3.30706@manicmethod.com>
-Date: Mon, 30 Jun 2008 13:58:11 -0400
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m5UI3Nhx005830
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 18:03:23 GMT
+Message-ID: <48691FE9.4080608@manicmethod.com>
+Date: Mon, 30 Jun 2008 14:03:21 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
 CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: This patch adds permissive to semanage
-References: <4869037D.5040208@redhat.com>
-In-Reply-To: <4869037D.5040208@redhat.com>
+Subject: Re: fixfiles patch
+References: <4869044A.3070109@redhat.com>
+In-Reply-To: <4869044A.3070109@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Daniel J Walsh wrote:
-> Gives users the ability to set a domain as permissive
+> This patch adds a function onboot
 > 
+> which creates the /.autorelabel file
 > 
-> semanage permissive -a http_t
-> 
-> It created a policy module named permissive_httpd_t.pp with the
-> permissive call.
+> It also removes tmp files that map directly to a user.  This fixes the
+> problem where a user login gets created with the wrong context in /tmp
+> and then can not login, even after a relabel.
 > 
 
-So, a really quick glance brings up a couple issues. First you have '-n', '--noheading' which aren't documented in the man page or elsewhere. Second (and more importantly) why are you executing semodule like that? libsemanage is the library that manages modules, and also the library used by semanage for everything else. 
-
-I would prefer a more 'pure' approach where we keep a list of permissive types and inject them into the kernel policy after linking (like libsemanage does with users, ports, nodes, etc) but I understand that adding a whole new set of databases and interfaces is both annoying and time consuming so I'm fine with it working on modules, I'd just like to see it using libsemanage interfaces instead of calling semodule.
-
+Acked-by: Joshua Brindle <method@manicmethod.com>
 
 
 --
