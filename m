@@ -1,51 +1,46 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5UCP38Y002799
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 08:25:03 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m5UCP36k026383
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 12:25:03 GMT
-Subject: Re: mls support for xserver
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30806281523h6263237sfdb9061a13f8e167@mail.gmail.com>
-References: <dd18b0c30806281523h6263237sfdb9061a13f8e167@mail.gmail.com>
+Subject: Re: rawhide audit2allow problem
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Karl MacMillan <kmacmillan@mentalrootkit.com>
+Cc: Xavier Toth <txtoth@gmail.com>, SELinux List <selinux@tycho.nsa.gov>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <10143820806251203g139e16d7pf00566d7c6cd9433@mail.gmail.com>
+References: <cadfc0e40806251123md6cebeak9a83cd68559bf55c@mail.gmail.com>
+	 <10143820806251203g139e16d7pf00566d7c6cd9433@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 30 Jun 2008 08:23:40 -0400
-Message-Id: <1214828620.5242.27.camel@gorn>
+Date: Mon, 30 Jun 2008 09:17:13 -0400
+Message-Id: <1214831833.22447.17.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2008-06-28 at 22:23 +0000, Justin Mattock wrote:
-> Hello; after seeing all of these posts about xserver I couldn't help
-> but to try MLS policy.
-> As the same results a few months back it seems there isn't any support
-> for this policy yet to work with xserver is there?
-> i.g. from what I see after allowing most of the avc's, I'm left with
-> these that seem to keep appearing upon a reboot:
-> 
-> allow insmod_t kernel_t:process setsched;
-> allow kernel_t bluetooth_t:socket write;
-> allow sysadm_sudo_t devpts_t:dir search;
-> allow sysadm_xserver_t memory_device_t:chr_file { read write };
-> <------  I can't start X without this one here.
-> allow syslogd_t var_log_t:file append;
-> 
-> I think it's the same with hid2hci --tohci upon wakeup, the ioctl or
-> node is changed resulting in a new avc's for that device.
-> Is there going to be support to use MLS in the future or is it too
-> much of a security risk.(xserver).
 
-The X server only has relatively well tested TE policy right now, and
-only in the non object manager sense.  The object manager TE policy is
-still early and needs more time to mature.  The MLS policy for the X
-server is being looked at now, but still has a ways to go.
+On Wed, 2008-06-25 at 15:03 -0400, Karl MacMillan wrote:
+> On Wed, Jun 25, 2008 at 2:23 PM, Xavier Toth <txtoth@gmail.com> wrote:
+> > I updated my rawhide box and now I getting the following error:
+> >
+> > [root@localhost ~]# cat /var/log/audit/audit.log | audit2allow
+> > Traceback (most recent call last):
+> >  File "/usr/bin/audit2allow", line 344, in <module>
+> >    app.main()
+> >  File "/usr/bin/audit2allow", line 338, in main
+> >    self.__output()
+> >  File "/usr/bin/audit2allow", line 314, in __output
+> >    g.add_role_types(self.__role_types)
+> > AttributeError: PolicyGenerator instance has no attribute 'add_role_types'
+> >
+> 
+> This looks like audit2allow has my recent patch but not sepolgen. Not
+> certain how that could happen since they appear to be part of the same
+> rpm. Dan - any ideas?
+
+Both the audit2allow and sepolgen diffs have now been merged upstream.
+I'm assuming that no changes were made after the posted versions of the
+patches; let me know if any further changes were made in the Fedora
+packages.
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
