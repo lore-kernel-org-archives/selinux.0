@@ -1,103 +1,69 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5UG5Wh3018129
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 12:05:32 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5UG5VXd006259
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 16:05:32 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m5UG5VMP030793
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 12:05:31 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m5UG5VdX015496
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 12:05:31 -0400
-Received: from localhost.localdomain (dhcp-10-16-61-233.boston.devel.redhat.com [10.16.61.233])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m5UG5UnY000917
-	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 12:05:30 -0400
-Message-ID: <4869044A.3070109@redhat.com>
-Date: Mon, 30 Jun 2008 12:05:30 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5UG8jTw018679
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 12:08:45 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5UG8idv003545
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 16:08:44 GMT
+Received: by an-out-0708.google.com with SMTP id d30so1135026and.75
+        for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 09:08:44 -0700 (PDT)
+Message-ID: <dd18b0c30806300908r2f3d49e7wcc37f1bb47486c65@mail.gmail.com>
+Date: Mon, 30 Jun 2008 16:08:44 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: mls support for xserver
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1214828620.5242.27.camel@gorn>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: fixfiles patch
-Content-Type: multipart/mixed;
- boundary="------------060006030102090106080208"
+Content-Type: text/plain; charset=ISO-8859-1
+References: <dd18b0c30806281523h6263237sfdb9061a13f8e167@mail.gmail.com>
+	 <1214828620.5242.27.camel@gorn>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060006030102090106080208
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Mon, Jun 30, 2008 at 12:23 PM, Christopher J. PeBenito
+<cpebenito@tresys.com> wrote:
+> On Sat, 2008-06-28 at 22:23 +0000, Justin Mattock wrote:
+>> Hello; after seeing all of these posts about xserver I couldn't help
+>> but to try MLS policy.
+>> As the same results a few months back it seems there isn't any support
+>> for this policy yet to work with xserver is there?
+>> i.g. from what I see after allowing most of the avc's, I'm left with
+>> these that seem to keep appearing upon a reboot:
+>>
+>> allow insmod_t kernel_t:process setsched;
+>> allow kernel_t bluetooth_t:socket write;
+>> allow sysadm_sudo_t devpts_t:dir search;
+>> allow sysadm_xserver_t memory_device_t:chr_file { read write };
+>> <------  I can't start X without this one here.
+>> allow syslogd_t var_log_t:file append;
+>>
+>> I think it's the same with hid2hci --tohci upon wakeup, the ioctl or
+>> node is changed resulting in a new avc's for that device.
+>> Is there going to be support to use MLS in the future or is it too
+>> much of a security risk.(xserver).
+>
+> The X server only has relatively well tested TE policy right now, and
+> only in the non object manager sense.  The object manager TE policy is
+> still early and needs more time to mature.  The MLS policy for the X
+> server is being looked at now, but still has a ways to go.
+>
+> --
+> Chris PeBenito
+> Tresys Technology, LLC
+> (410) 290-1411 x150
+>
+>
 
-This patch adds a function onboot
+Thanks for the response and info, I have to say I really like what I
+see with MLS. As for now
+using refpolicy(standard) is just fine.  But when I see the different
+sensitivity levels, and categories
+I can't help, but to want to know how to use a policy with those
+features. Anyways; time will tell, with what happens.
+regards;
 
-which creates the /.autorelabel file
-
-It also removes tmp files that map directly to a user.  This fixes the
-problem where a user login gets created with the wrong context in /tmp
-and then can not login, even after a relabel.
-
---------------060006030102090106080208
-Content-Type: text/plain;
- name="fixfiles.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fixfiles.patch"
-
---- nsapolicycoreutils/scripts/fixfiles	2008-06-12 23:25:21.000000000 -0400
-+++ policycoreutils-2.0.50/scripts/fixfiles	2008-06-30 11:49:38.000000000 -0400
-@@ -138,6 +138,9 @@
- fi
- LogReadOnly
- ${SETFILES} -q ${OUTFILES} ${SYSLOGFLAG} ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} 2>&1 >> $LOGFILE
-+rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-*
-+find /tmp -context "*:file_t*" -exec chcon -t tmp_t {} \;
-+find /var/tmp -context "*:file_t*" -exec chcon -t tmp_t {} \;
- exit $?
- }
- 
-@@ -180,6 +183,10 @@
-     check) restore -n -v;;
-     verify) restore -n -o -;;
-     relabel) relabel;;
-+    onboot)
-+	touch /.autorelabel
-+	echo "System will relabel on next boot"
-+	;;
-     *)
-     usage
-     exit 1
-@@ -189,6 +196,7 @@
-       	echo $"Usage: $0 [-l logfile ] [-o outputfile ] { check | restore|[-F] relabel } [[dir] ... ] "
- 	echo or
-       	echo $"Usage: $0 -R rpmpackage[,rpmpackage...] -C PREVIOUS_FILECONTEXT [-l logfile ] [-o outputfile ] { check | restore }"
-+      	echo $"Usage: $0 onboot"
- }
- 
- if [ $# = 0 ]; then
---- nsapolicycoreutils/scripts/fixfiles.8	2008-06-12 23:25:21.000000000 -0400
-+++ policycoreutils-2.0.50/scripts/fixfiles.8	2008-06-30 11:49:38.000000000 -0400
-@@ -7,6 +7,8 @@
- 
- .B fixfiles [-F] [-l logfile ] [-o outputfile ] { check | restore|[-f] relabel | verify } [[dir/file] ... ] 
- 
-+.B fixfiles onboot
-+
- .SH "DESCRIPTION"
- This manual page describes the
- .BR fixfiles
-@@ -20,6 +22,9 @@
- as you expect.  By default it will relabel all mounted ext2, ext3, xfs and 
- jfs file systems as long as they do not have a security context mount 
- option.  You can use the -R flag to use rpmpackages as an alternative.
-+.P
-+.B fixfiles onboot 
-+will setup the machine to relabel on the next reboot.
- 
- .SH "OPTIONS"
- .TP 
-
---------------060006030102090106080208--
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
