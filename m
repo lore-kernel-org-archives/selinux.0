@@ -1,104 +1,75 @@
-Subject: Re: rbacsep: type transition conflicts uncovered
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux Mail List <selinux@tycho.nsa.gov>
-In-Reply-To: <1214835401.22447.72.camel@moss-spartans.epoch.ncsc.mil>
-References: <1214233382.11146.256.camel@gorn>
-	 <1214236357.32762.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214238773.32762.88.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214310308.11146.270.camel@gorn>  <1214404243.19712.13.camel@gorn>
-	 <1214828690.22447.8.camel@moss-spartans.epoch.ncsc.mil>
-	 <1214832075.5242.48.camel@gorn>
-	 <1214835401.22447.72.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: Trying to get XAce policy straightened out but our tool chain
+	is too broken to handle it.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <48628E65.8030701@tycho.nsa.gov>
+References: <48480210.60309@redhat.com>
+	 <1213625437.15523.71.camel@moss-spartans.epoch.ncsc.mil>
+	 <485F863B.1040603@redhat.com> <1214227346.11146.237.camel@gorn>
+	 <48628E65.8030701@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Mon, 30 Jun 2008 10:30:42 -0400
-Message-Id: <1214836242.5242.54.camel@gorn>
+Date: Mon, 30 Jun 2008 10:40:52 -0400
+Message-Id: <1214836852.22447.94.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-06-30 at 10:16 -0400, Stephen Smalley wrote:
-> On Mon, 2008-06-30 at 09:21 -0400, Christopher J. PeBenito wrote:
-> > On Mon, 2008-06-30 at 08:24 -0400, Stephen Smalley wrote:
-> > > On Wed, 2008-06-25 at 10:30 -0400, Christopher J. PeBenito wrote:
-> > > > On Tue, 2008-06-24 at 08:25 -0400, Christopher J. PeBenito wrote:
-> > > > > On Mon, 2008-06-23 at 12:32 -0400, Stephen Smalley wrote:
-> > > > > > On Mon, 2008-06-23 at 11:52 -0400, Stephen Smalley wrote:
-> > > > > > > On Mon, 2008-06-23 at 11:03 -0400, Christopher J. PeBenito wrote:
-> > > > > > > > I was going through and doing refactoring on the rbacsep with the goal
-> > > > > > > > of making the branch compilable again after doing all the derived type
-> > > > > > > > collapsing.  I ran into a problem with type transition conflicts.  There
-> > > > > > > > are several domains which have a type transition back to the caller
-> > > > > > > > domain, such as su, sudo, (session) dbus, ssh-agent.  But now that the
-> > > > > > > > derived types are collapsed, we get conflicts such as:
-> > > > > > > > 
-> > > > > > > > type_transition sudo_t shell_exec_t:process auditadm_t;
-> > > > > > > > type_transition sudo_t shell_exec_t:process secadm_t;
-> > > > > > > > type_transition sudo_t shell_exec_t:process staff_t;
-> > > > > > > > type_transition sudo_t shell_exec_t:process sysadm_t;
-> > > > > > > > type_transition sudo_t shell_exec_t:process user_t;
-> > > > > > > > 
-> > > > > > > > It would seem that there are two solutions for this:
-> > > > > > > > 
-> > > > > > > > 1. keep derived types for these affected domains
-> > > > > > > > 2. make these applications SELinux aware
-> > > > > > > > 
-> > > > > > > > We can't collapse user domains because of their vast differences.
-> > > > > > > 
-> > > > > > > I'd vote for (1).  Otherwise the application is a trusted subject that
-> > > > > > > can transition to any user role/domain.
-> > > > > >
-> > > > > > Although in this case, hasn't sudo been made SELinux aware lately,
-> > > > > > including the ability to transition to other roles/domains?
-> > > > > 
-> > > > > Yes, however, I suppose that we would still want to have a set of
-> > > > > type_transitions in case sudo doesn't have the SELinux awareness.
-> > > > 
-> > > > The final list on domains that have this problem are:
-> > > > 
-> > > > crontab_t
-> > > > su_t
-> > > > session_dbusd_t
-> > > > sudo_t
-> > > > ssh_agent_t
-> > > > screen_t
-> > > > userhelper_t
-> > > > 
-> > > > The crontab one was just executing helper programs in the user domain.
-> > > > I suspect that was a poor choice; my cursory investigation of vixie cron
-> > > > and fcron indicated that it was just the editor that was run for crontab
-> > > > -e.  I changed the transition to exec_no_trans,
-> > > 
-> > > Is that safe?  The reason for transitioning back to the user domain upon
-> > > editor invocation was that the user can shell out of the editor and/or
-> > > execute commands straight from the editor depending on his choice of
-> > > editor, and I didn't want those to run with the same permissions as
-> > > crontab itself (e.g. capabilities, ability to write to crontab spool
-> > > files, etc).
-> > 
-> > Well it would gain the capabilities, but the only interesting things
-> > that crontab can do is write user temp files and write the cron spool.
-> 
-> Injecting commands into another cron spool file would be of concern
-> (e.g. into root or another privileged user's crontab).  The crond
-> entrypoint check is supposed to help safeguard against that issue, but
-> if you are collapsing the file types, then we lose that too.
 
-But that shouldn't be happening due to ubac/rbac separation.  Crontab_t
-isn't exempt from ubac/rbac.  I did make an admin_crontab_t that will
-have the exemption on files so the admin can change other user crontabs.
-The entrypoint should also be constrained by ubac/rbac.
-
-> > Since the user can already put whatever he wants into his cron spool
-> > either by the text editor or by importing it by crontab <filename>, I
-> > don't think that part matters.  So would seem that its only a question
-> > of how much we care about using capabilities (fowner setuid setgid chown
-> > dac_override) to do stuff to user temp files.
+On Wed, 2008-06-25 at 14:28 -0400, Eamon Walsh wrote:
+> Christopher J. PeBenito wrote:
+> > On Mon, 2008-06-23 at 07:17 -0400, Daniel J Walsh wrote:
+> >   
+> >> Stephen Smalley wrote:
+> >>     
+> >>> On Thu, 2008-06-05 at 11:11 -0400, Daniel J Walsh wrote:
+> >>>       
+> >
+> >   
+> >>>> The problem I have is the compiler is too stupid to understand the
+> >>>> differences between a gen_requires block defining the required types and
+> >>>> the actual type definition.
+> >>>>
+> >>>> So I end up in a catch 22 where the compiler tells me I need to require
+> >>>> $1_rootwindow_t, but if I gen_require type $1_rootwindow_t, it tells me
+> >>>> I have a duplicate definition.
+> >>>>
+> >>>> So if you have a derived type in a gen_requires block the compiler can
+> >>>> not handle it.
+> >>>>         
+> >>> I'm a little unclear as to why this is required (why do you need to
+> >>> require and declare the same symbol again?).  However, is there some
+> >>> reason we can't just automatically promote a require to a declaration
+> >>> upon encountering the latter?  Seems like we've talked about this
+> >>> before.  Not sure whether that should happen within libsepol
+> >>> symtab_insert() or in the callers, e.g. declare_type().
+> >>>
+> >>>       
+> >> I don't know,  All I know is the compiler complains if it is there and
+> >> if it is not there.  Catch 22.  I end up going to great lengths to hack
+> >> around compiler errors...
+> >>     
+> >
+> > We add requires to templates, so that if they're used outside xserver,
+> > the caller gets the appropriate require.  But then we also use the
+> > template inside xserver for code reuse, which is where the problem
+> > creeps up.  There are a couple other examples of this in refpolicy, but
+> > I was able to work around them by reordering statements.  It sounds like
+> > Dan's situation may not be something that can be easily worked around
+> > without some restructuring
 > 
+> I opened a ticket in the refpolicy Trac for this:   
+> http://oss.tresys.com/projects/refpolicy/ticket/43
+
+Ok - although I was thinking that this would be fixed by changing
+checkpolicy/libsepol to promote requires to decls upon encountering a
+decl.  Joshua?
+
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
