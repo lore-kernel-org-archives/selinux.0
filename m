@@ -1,41 +1,47 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5TIF0MM002284
-	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 14:15:00 -0400
-Received: from mho-01-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5TIExMr023348
-	for <selinux@tycho.nsa.gov>; Sun, 29 Jun 2008 18:14:59 GMT
-Received: from adsl-71-155-178-116.dsl.austtx.sbcglobal.net ([71.155.178.116] helo=[192.168.20.230])
-	by mho-01-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m5U5X7ix024972
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 01:33:07 -0400
+Received: from mho-02-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m5U5X67j013454
+	for <selinux@tycho.nsa.gov>; Mon, 30 Jun 2008 05:33:06 GMT
+Received: from cpe-66-25-156-148.austin.res.rr.com ([66.25.156.148] helo=[192.168.20.230])
+	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
 	(Exim 4.68)
 	(envelope-from <joe@nall.com>)
-	id 1KD1QR-00055W-7F
-	for selinux@tycho.nsa.gov; Sun, 29 Jun 2008 18:14:59 +0000
-Message-Id: <5B8DD16C-FED5-45C9-8032-9760F2C165C9@nall.com>
+	id 1KDC0g-000OvZ-27
+	for selinux@tycho.nsa.gov; Mon, 30 Jun 2008 05:33:06 +0000
+Message-Id: <4EE2EE24-1926-4370-A83E-C52101EE3254@nall.com>
 From: Joe Nall <joe@nall.com>
 To: SELinux List <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
 Mime-Version: 1.0 (Apple Message framework v924)
-Subject: X in enforcing mode
-Date: Sun, 29 Jun 2008 13:14:58 -0500
+Subject: range_transition question
+Date: Mon, 30 Jun 2008 00:33:04 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In order to get firefox, evolution and xterm to run under twm with the  
-X object manager in enforcing/mls at a single level I had to add the  
-following user policy:
+I'm trying to get the X server running as  
+user_u:user_r:user_xserver_t:s0-s15:c0.c1023 using a ranged transition.
 
-         allow $1_t $1_rootwindow_t:x_drawable { get_property getattr  
-read override hide send destroy remove_child };
-         allow $1_t $1_xserver_t:x_resource write;
+...
+mls_rangetrans_source(user_t)
+mls_rangetrans_target(user_xserver_t)
+domtrans_pattern(user_t,xserver_exec_t,user_xserver_t)
+range_transition user_t xserver_exec_t:process s0 - s15:c0.c1023;
+...
 
-Where $1 is user
+but I'm still seeing the following avc:
 
-xinit was started by hand at init 3.
+type=AVC msg=audit(1214800869.443:84): avc:  denied  { transition }  
+for  pid=2298 comm="xinit" path="/usr/bin/Xorg" dev=dm-0 ino=549292  
+scontext=user_u:user_r:user_t:s0  
+tcontext=user_u:user_r:user_xserver_t:s0-s15:c0.c1023 tclass=process
 
-Not being an X guy, I don't really understand what I just allowed.  
-Does this make sense?
+The transition works in permissive, so I'm apparently violating a  
+constraint. What am I missing?
 
 joe
+
 
 
 --
