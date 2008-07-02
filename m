@@ -1,67 +1,27 @@
-Message-ID: <486BC3FF.1070403@redhat.com>
-Date: Wed, 02 Jul 2008 14:07:59 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m62ICJiA023051
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jul 2008 14:12:19 -0400
+Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m62ICIPP008087
+	for <selinux@tycho.nsa.gov>; Wed, 2 Jul 2008 18:12:19 GMT
+Received: by nf-out-0910.google.com with SMTP id b21so170895nfd.4
+        for <selinux@tycho.nsa.gov>; Wed, 02 Jul 2008 11:12:17 -0700 (PDT)
+Message-ID: <dd18b0c30807021112n2112dd30o8b63bb23cf7347b@mail.gmail.com>
+Date: Wed, 2 Jul 2008 18:12:17 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: new refpolicy
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: This patch adds permissive to semanage
-References: <4869037D.5040208@redhat.com>  <48691EB3.30706@manicmethod.com> <1215000045.22447.252.camel@moss-spartans.epoch.ncsc.mil> <486B7E03.1060304@manicmethod.com>
-In-Reply-To: <486B7E03.1060304@manicmethod.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Stephen Smalley wrote:
->> On Mon, 2008-06-30 at 13:58 -0400, Joshua Brindle wrote:
->>> Daniel J Walsh wrote:
->>>> Gives users the ability to set a domain as permissive
->>>>
->>>>
->>>> semanage permissive -a http_t
->>>>
->>>> It created a policy module named permissive_httpd_t.pp with the
->>>> permissive call.
->>>>
->>> So, a really quick glance brings up a couple issues. First you have '-n', '--noheading' which aren't documented in the man page or elsewhere. Second (and more importantly) why are you executing semodule like that? libsemanage is the library that manages modules, and also the library used by semanage for everything else. 
->>>
->>> I would prefer a more 'pure' approach where we keep a list of
->>> permissive types and inject them into the kernel policy after linking
->>> (like libsemanage does with users, ports, nodes, etc) but I understand
->>> that adding a whole new set of databases and interfaces is both
->>> annoying and time consuming so I'm fine with it working on modules,
->>> I'd just like to see it using libsemanage interfaces instead of
->>> calling semodule.
->> Why do you see direct use of the libsemanage interfaces as preferable to
->> invoking semodule (aside from performance, and this isn't really
->> performance critical)?
->>
->> I'm unclear on the tradeoff being made there, as composing small
->> programs together to perform more complex operation is the Unix (tm)
->> way ;)
->>
->> The advantage of just invoking semodule is that semodule is already a
->> well-tested program that performs that function well, does proper error
->> checking and handling of the various libsemanage calls, etc.  And if we
->> later fix a bug or introduce new functionality there, we only have to do
->> it once vs. in multiple places.
->>
->> And the semanage permissive code already has to invoke a helper program
->> to compile the policy module from source to binary, at least today, so
->> it isn't much different to invoke semodule to install the binary module.
->>
->> Then there is the issue of being able to run the semodule stage of
->> processing in a separate domain, although at present semanage and
->> semodule operate in the same domain so it makes no difference at
->> present.
->>
-> 
-> Maybe its just personal preference but I see using library interfaces as much more clean than invoking semodule and grepping. semanage already uses the library interfaces for everything else so this would be the one case where it doesn't. He already fixed it up to use the interfaces so its moot at this point. 
-> 
-One good reason to do it is to test the interfaces or at least the
-python interfaces to make sure they work.  I was pleasantly surprised
-when they did.  Although the semodule -l interface is particularly hideous.
+Hey alright I'll have to give it a try, As for helping in development
+"sure", I may not be the best at writing code, but am willing
+to test out the product and give you feedback.
 
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
