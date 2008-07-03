@@ -1,78 +1,75 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m63K9OV5029707
-	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2008 16:09:24 -0400
-Message-ID: <486D31F3.9030405@tycho.nsa.gov>
-Date: Thu, 03 Jul 2008 16:09:23 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m63KYsY6000988
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2008 16:34:54 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m63KYrYW002862
+	for <selinux@tycho.nsa.gov>; Thu, 3 Jul 2008 20:34:54 GMT
+Message-ID: <486D37BB.2030508@redhat.com>
+Date: Thu, 03 Jul 2008 16:34:03 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Ted X Toth <txtoth@gmail.com>
-CC: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: window manager policy
-References: <cadfc0e40806181401w635b2a5fo5c257e4050f4a6c0@mail.gmail.com> <4859A64C.7050705@tycho.nsa.gov> <77033ABC-28F3-451A-8400-7AB50FDC929F@nall.com> <4865AED6.9020404@tycho.nsa.gov> <48664AD4.1010904@gmail.com>
-In-Reply-To: <48664AD4.1010904@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Xavier Toth <txtoth@gmail.com>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: gnome-screensav AVCs
+References: <cadfc0e40806170746p6de7c1b7m6c27ca74ae0ca183@mail.gmail.com>	 <1213717150.11146.88.camel@gorn> <cadfc0e40806170855hf95edf4vdefe9b9710cadfb6@mail.gmail.com>
+In-Reply-To: <cadfc0e40806170855hf95edf4vdefe9b9710cadfb6@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Ted X Toth wrote:
-> Eamon Walsh wrote:
->   
->> Joe Nall wrote:
->>     
->>> What other desktop related processes need MLS policies to be written  
->>> to get a minimally functional Fedora/Gnome enforcing X environment?
->>>
->>> What window manager/environment do you use in your enforcing X  
->>> development and test?
->>>   
->>>       
->> Many AVC's I'm getting are caused by the fact that the server starts 
->> up as xdm_xserver_t:
->>
->> allow sysadm_t xdm_rootwindow_t:x_colormap { use install uninstall };
->> allow sysadm_t xdm_rootwindow_t:x_drawable { get_property show read 
->> manage add_child remove_child list_child hide setattr receive 
->> set_property create send write
->> allow sysadm_t xdm_xserver_t:x_device { setfocus use setattr grab 
->> manage getattr freeze };
->> allow sysadm_t xdm_xserver_t:x_screen { saver_setattr saver_getattr 
->> setattr };
->> allow sysadm_t xdm_xserver_t:x_server manage;
->>
->>
->> ...and xdm_t windows are apparently still open on the display when the 
->> user's gnome-session is run:
->>
->> allow sysadm_t xdm_t:x_client destroy;
->> allow sysadm_t xdm_t:x_drawable { get_property receive getattr 
->> list_child };
->> allow sysadm_t xdm_xproperty_t:x_property { write read };
->>
->>
->>
->> This week I attempted to write a prototype display manager that would 
->> stop the X server and run a new one after the user logs in.  However 
->> this process looks incredibly ugly and takes forever, and I'm also 
->> having trouble with the X server not starting up at all some of the 
->> time, so I've given up on that for now.
->>
->> I did get a patch into gdm this week though.  
->>     
->
-> What does the gdm mod do, restart the X server as the user?
->   
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It passes the X display name and auth cookie to PAM so that pam_selinux 
-can connect to the X server at login time and do things like relabel 
-device objects in preparation for the user session.
+Xavier Toth wrote:
+> On Tue, Jun 17, 2008 at 10:39 AM, Christopher J. PeBenito
+> <cpebenito@tresys.com> wrote:
+>> On Tue, 2008-06-17 at 09:46 -0500, Xavier Toth wrote:
+>>> I'm seeing AVCs related to netlink_audit_socket when the screen saver
+>>> dialog is run. gnome-screensaver-dialog opens a pam session which uses
+>>> pam_unix which in turn runs the unix_chkpwd helper. I'm thinking that
+>>> gnome-screensaver-dialog is going to need some policy including
+>>> possibly authlogin_common_auth_domain_template.
+>> I'm not 100% clear, is the auditing happening from unix_chkpwd or the
+>> screensaver proper?
+>>
+> 
+> I'm sure that it is unix_chkpwd that is auditing and not
+> gnome-screensaver-dialog.
+> 
+>>> Would it be best to add policy for this to gnome or should it have
+>>> it's own module?
+>> The gnome module is for policies for core gnome components.
+>> Unfortunately "core component" isn't really well defined at the moment.
+>> But I've been thinking about it since Dan has a gnome clock applet
+>> policy since it can set the clock.  If we had a better idea what pieces
+>> needed their own domain, it'd be easier to make a decision.  Something
+>> like dbus doesn't fit since its useful outside of gnome.
+> 
+> Yes there may be other gnome apps that need policy but I don't know
+> which at this point.
+> 
+>> --
+>> Chris PeBenito
+>> Tresys Technology, LLC
+>> (410) 290-1411 x150
+>>
+>>
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+It is the pam library that is calling audit_open, which triggers this
+avc.  You need to dontaudit it.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-
-
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+iEYEARECAAYFAkhtN7sACgkQrlYvE4MpobM8PACbBbESdnuEbdlT6u1fhyiWDSj3
+hkQAnRYuulCW0b2GfcPbbnOzxXqn92CI
+=4478
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
