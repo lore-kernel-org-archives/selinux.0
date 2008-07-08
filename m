@@ -1,55 +1,38 @@
-Subject: Re: Adding local nodecon's through semanage
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Christian Kuester <c.kuester@tarent.de>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, Paul Moore <paul.moore@hp.com>
-In-Reply-To: <48733DCF.3000808@tarent.de>
-References: <486CD88E.2000406@tarent.de>
-	 <1215450682.27975.108.camel@moss-spartans.epoch.ncsc.mil>
-	 <48733DCF.3000808@tarent.de>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m68CuYui029979
+	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2008 08:56:34 -0400
+Subject: Re: running filecaps ltp test
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: David Howells <dhowells@redhat.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, ltp-list@lists.sourceforge.net,
+        SELinux <selinux@tycho.nsa.gov>, Andrew Morgan <morgan@kernel.org>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <8671.1215508448@redhat.com>
+References: <20080707210741.GA13042@us.ibm.com>
+	 <20080707184252.GC22937@us.ibm.com>
+	 <1215456424.27975.165.camel@moss-spartans.epoch.ncsc.mil>
+	 <8671.1215508448@redhat.com>
 Content-Type: text/plain
-Date: Tue, 08 Jul 2008 08:30:45 -0400
-Message-Id: <1215520245.27975.231.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 08 Jul 2008 08:56:32 -0400
+Message-Id: <1215521792.27975.240.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-07-08 at 12:13 +0200, Christian Kuester wrote:
-> Stephen Smalley schrieb:
-> >> [ netmask semantic in nodecon ]
-> > Ok, this isn't actually a bug in the code at all.
+On Tue, 2008-07-08 at 10:14 +0100, David Howells wrote:
+> Serge E. Hallyn <serue@us.ibm.com> wrote:
 > 
-> I see. Thanks for clearing that up for me!
+> > David, what policy version?
 > 
-> > Arguably semanage and checkpolicy should apply the mask to the address
-> > as a precaution against misconfiguration by the user.  That's easy
-> > enough to do.
-> > 
-> > Other tidbits on the semanage patch that I noticed:
-> > - semanage node -l was broken, requires additional argument that has
-> > been added to the list methods subsequently.  Also would be nice to
-> > support locallist/-C option.
-> > - semanage node -p option should take a string rather than an integer
-> > and map it to the proper symbolic constant for ipv4/ipv6.
-> > The ordering issue is a red herring at least for this example as the
-> > sort is only applied to the local entries, and then they are merged to
-> > the front of the policy-provided definitions.  Which may become an issue
-> > down the road particularly if we move object contexts to modules. 
+> selinux-policy-3.3.1-72.fc9.noarch
+> selinux-policy-targeted-3.3.1-72.fc9.noarch
+> selinux-policy-devel-3.3.1-72.fc9.noarch
 > 
-> I think I could do the changes to at least the semanage code, if there
-> is still interest in it.
-> 
-> But I must admit, that my understanding of the "ordering issue" is quiet
-> limited and my list research on an explaination was unsuccessful so far.
-> Is this a blocker for general semanage support of nodecons?
+> Is that what you want to know?
 
-I think it is fine to proceed with merging the semanage support, and
-then we can further investigate and seek to resolve the ordering issues.
-
-Please be sure to test each of the nodeRecords methods.
-
-Dan and/or Joshua - it would help if you could look it over as well.
+Ok, that's a bug in the Fedora policy, not an upstream issue.
+You can work around it by adding it in a local policy module.
 
 -- 
 Stephen Smalley
