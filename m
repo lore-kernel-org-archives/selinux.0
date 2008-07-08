@@ -1,42 +1,42 @@
-Cc: Paul Moore <paul.moore@hp.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        Chad Hanson <chanson@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Message-Id: <90C62997-D6C9-4E64-A89F-A5569943DE67@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Joshua Brindle <method@manicmethod.com>
-In-Reply-To: <486537FA.2010307@manicmethod.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v926)
-Subject: Re: releasibility in mcstransd
-Date: Tue, 8 Jul 2008 10:54:03 -0500
-References: <484D91BB.3080904@manicmethod.com> <4864D44E.8010505@redhat.com> <4864EE58.2090108@manicmethod.com> <200806271441.01625.paul.moore@hp.com> <486537FA.2010307@manicmethod.com>
+Subject: Re: Developer summit
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <dd18b0c30807080845u1653623bi27d94d75c19d7de1@mail.gmail.com>
+References: <dd18b0c30807080845u1653623bi27d94d75c19d7de1@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 08 Jul 2008 13:04:46 -0400
+Message-Id: <1215536686.27975.296.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Jun 27, 2008, at 1:56 PM, Joshua Brindle wrote:
+On Tue, 2008-07-08 at 15:45 +0000, Justin Mattock wrote:
+> Hello; How does one attend such an event?
+> i.g. can anybody just go to these events if they can afford it, or is
+> it invite only?
+> Personally If I had the "$$" (for the plane ticket, and hotel) I would
+> love to attend.
+> regards;
 
-> Paul Moore wrote:
->> On Friday 27 June 2008 9:42:48 am Joshua Brindle wrote:
->>> I think for the time being we should not be importing the updated
->>> mcstrans into fedora. There are still some unanswered questions  
->>> about
->>> the implementation. We are talking about some of these offline.
->>
->> Any particular reason why the discussion isn't online?  Granted I'm  
->> not
->> sure I would have much useful to contribute but I do like hearing  
->> about
->> what is going on and the discussion behind the decisions ...
->>
->
-> Oops, I misspoke. The unanswered questions were on list, how to deal  
-> with the use of private libsepol types, duplicated functions and  
-> missing ebitmap functionality in the library.
+Information about the developer summit has been previously announced on
+this list and is also on the wiki page at:
+http://selinuxproject.org/page/Developer_Summit_2008
 
-Any progress or thoughts on this?
+The summit is an open event this year (i.e. anyone can attend), but you
+must first be registered to attend the Ottawa Linux Symposium since they
+are providing the facilities,
+http://www.linuxsymposium.org/2008/
 
-joe
+If you plan to attend the summit, then please subscribe to the event
+mailing list as indicated by James Morris,
+http://taiga.selinuxproject.org/mailman/listinfo/selinux-developer-summit-2008
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
