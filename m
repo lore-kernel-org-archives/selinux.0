@@ -1,33 +1,60 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m689Ef7I025063
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2008 05:14:41 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m689Eeoq000761
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2008 09:14:41 GMT
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20080707210741.GA13042@us.ibm.com>
-References: <20080707210741.GA13042@us.ibm.com> <20080707184252.GC22937@us.ibm.com> <1215456424.27975.165.camel@moss-spartans.epoch.ncsc.mil>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: dhowells@redhat.com, Stephen Smalley <sds@epoch.ncsc.mil>,
-        ltp-list@lists.sourceforge.net, SELinux <selinux@tycho.nsa.gov>,
-        Andrew Morgan <morgan@kernel.org>
-Subject: Re: running filecaps ltp test
-Date: Tue, 08 Jul 2008 10:14:08 +0100
-Message-ID: <8671.1215508448@redhat.com>
+Message-ID: <48733DCF.3000808@tarent.de>
+Date: Tue, 08 Jul 2008 12:13:35 +0200
+From: Christian Kuester <c.kuester@tarent.de>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Adding local nodecon's through semanage
+References: <486CD88E.2000406@tarent.de> <1215450682.27975.108.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1215450682.27975.108.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Serge E. Hallyn <serue@us.ibm.com> wrote:
+Stephen Smalley schrieb:
+>> [ netmask semantic in nodecon ]
+> Ok, this isn't actually a bug in the code at all.
 
-> David, what policy version?
+I see. Thanks for clearing that up for me!
 
-selinux-policy-3.3.1-72.fc9.noarch
-selinux-policy-targeted-3.3.1-72.fc9.noarch
-selinux-policy-devel-3.3.1-72.fc9.noarch
+> Arguably semanage and checkpolicy should apply the mask to the address
+> as a precaution against misconfiguration by the user.  That's easy
+> enough to do.
+> 
+> Other tidbits on the semanage patch that I noticed:
+> - semanage node -l was broken, requires additional argument that has
+> been added to the list methods subsequently.  Also would be nice to
+> support locallist/-C option.
+> - semanage node -p option should take a string rather than an integer
+> and map it to the proper symbolic constant for ipv4/ipv6.
+> The ordering issue is a red herring at least for this example as the
+> sort is only applied to the local entries, and then they are merged to
+> the front of the policy-provided definitions.  Which may become an issue
+> down the road particularly if we move object contexts to modules. 
 
-Is that what you want to know?
+I think I could do the changes to at least the semanage code, if there
+is still interest in it.
 
-David
+But I must admit, that my understanding of the "ordering issue" is quiet
+limited and my list research on an explaination was unsuccessful so far.
+Is this a blocker for general semanage support of nodecons?
+
+
+
+Christian
+
+
+-- 
+tarent Gesellschaft für Softwareentwicklung und IT-Beratung mbH
+
+Heilsbachstr. 24, 53123 Bonn  | Poststr. 4-5, 10178 Berlin
+fon: +49(228) / 52675-0       | fon: +49(30) / 27594853
+fax: +49(228) / 52675-25      | fax: +49(30) / 78709617
+
+Geschäftsführer
+Boris Esser, Elmar Geese
+HRB AG Bonn 5168
+Ust-ID: DE122264941
 
 --
 This message was distributed to subscribers of the selinux mailing list.
