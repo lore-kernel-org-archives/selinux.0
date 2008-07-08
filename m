@@ -1,30 +1,42 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m68FjEDg002612
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2008 11:45:14 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m68FjDRE010086
-	for <selinux@tycho.nsa.gov>; Tue, 8 Jul 2008 15:45:13 GMT
-Received: by wx-out-0506.google.com with SMTP id i26so1165958wxd.30
-        for <selinux@tycho.nsa.gov>; Tue, 08 Jul 2008 08:45:13 -0700 (PDT)
-Message-ID: <dd18b0c30807080845u1653623bi27d94d75c19d7de1@mail.gmail.com>
-Date: Tue, 8 Jul 2008 15:45:12 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Developer summit
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: Paul Moore <paul.moore@hp.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        Chad Hanson <chanson@TrustedCS.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Message-Id: <90C62997-D6C9-4E64-A89F-A5569943DE67@nall.com>
+From: Joe Nall <joe@nall.com>
+To: Joshua Brindle <method@manicmethod.com>
+In-Reply-To: <486537FA.2010307@manicmethod.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v926)
+Subject: Re: releasibility in mcstransd
+Date: Tue, 8 Jul 2008 10:54:03 -0500
+References: <484D91BB.3080904@manicmethod.com> <4864D44E.8010505@redhat.com> <4864EE58.2090108@manicmethod.com> <200806271441.01625.paul.moore@hp.com> <486537FA.2010307@manicmethod.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello; How does one attend such an event?
-i.g. can anybody just go to these events if they can afford it, or is
-it invite only?
-Personally If I had the "$$" (for the plane ticket, and hotel) I would
-love to attend.
-regards;
 
--- 
-Justin P. Mattock
+On Jun 27, 2008, at 1:56 PM, Joshua Brindle wrote:
+
+> Paul Moore wrote:
+>> On Friday 27 June 2008 9:42:48 am Joshua Brindle wrote:
+>>> I think for the time being we should not be importing the updated
+>>> mcstrans into fedora. There are still some unanswered questions  
+>>> about
+>>> the implementation. We are talking about some of these offline.
+>>
+>> Any particular reason why the discussion isn't online?  Granted I'm  
+>> not
+>> sure I would have much useful to contribute but I do like hearing  
+>> about
+>> what is going on and the discussion behind the decisions ...
+>>
+>
+> Oops, I misspoke. The unanswered questions were on list, how to deal  
+> with the use of private libsepol types, duplicated functions and  
+> missing ebitmap functionality in the library.
+
+Any progress or thoughts on this?
+
+joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
