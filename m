@@ -1,44 +1,94 @@
-Subject: Re: newrole assertion
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Joe Nall <joe@nall.com>
-In-Reply-To: <cadfc0e40807081202l7badbcb8h84ee373161fd6fd2@mail.gmail.com>
-References: <cadfc0e40807081202l7badbcb8h84ee373161fd6fd2@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 09 Jul 2008 11:23:44 -0400
-Message-Id: <1215617024.24864.28.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] Fix a potentially uninitialised variable in SELinux hooks
+To: sds@tycho.nsa.gov, jmorris@namei.org
+Cc: dhowells@redhat.com, selinux@tycho.nsa.gov
+Date: Wed, 09 Jul 2008 17:10:43 +0100
+Message-ID: <20080709161043.24255.62312.stgit@warthog.procyon.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Fix a potentially uninitialised variable in SELinux hooks that's given a
+pointer to the network address by selinux_parse_skb() passing a pointer back
+through its argument list.  By restructuring selinux_parse_skb(), the compiler
+can see that the error case need not set it as the caller will return
+immediately.
 
-On Tue, 2008-07-08 at 14:02 -0500, Xavier Toth wrote:
-> Using MLS enforcing in a gnome-terminal with context
-> user_u:user_r:user_t:s0-s15:c0.c1023 I run newrole and get these
-> results
-> 
-> newrole -l s1-s1 -- -c "gnome-terminal --disable-factory"
-> Password:
-> **
-> ** ERROR:(terminal.c:1016):new_terminal_with_options: assertion
-> failed: (profile)
-> 
-> 
-> I think Joe straced this and has a little more info if he'd like to chime in.
+Signed-off-by: David Howells <dhowells@redhat.com>
+---
 
-So, I assume that this does not happen if in permissive mode?
-What AVC denials occur?  Run semodule -DB and retry if there are no AVCs
-by default.
+ security/selinux/hooks.c |   42 ++++++++++++++++++++++++------------------
+ 1 files changed, 24 insertions(+), 18 deletions(-)
 
-What is the application trying to do at that point (look at the source
-code and/or ask on the gnome lists)?  What are the possible failure
-conditions there?  What external dependencies does it have?  
 
-strace output might help if you have it.
-
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 85f74f6..3c87c59 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3513,38 +3513,44 @@ out:
+ #endif /* IPV6 */
+ 
+ static int selinux_parse_skb(struct sk_buff *skb, struct avc_audit_data *ad,
+-			     char **addrp, int src, u8 *proto)
++			     char **_addrp, int src, u8 *proto)
+ {
+-	int ret = 0;
++	char *addrp;
++	int ret;
+ 
+ 	switch (ad->u.net.family) {
+ 	case PF_INET:
+ 		ret = selinux_parse_skb_ipv4(skb, ad, proto);
+-		if (ret || !addrp)
+-			break;
+-		*addrp = (char *)(src ? &ad->u.net.v4info.saddr :
+-					&ad->u.net.v4info.daddr);
+-		break;
++		if (ret)
++			goto parse_error;
++		addrp = (char *)(src ? &ad->u.net.v4info.saddr :
++				       &ad->u.net.v4info.daddr);
++		goto okay;
+ 
+ #if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+ 	case PF_INET6:
+ 		ret = selinux_parse_skb_ipv6(skb, ad, proto);
+-		if (ret || !addrp)
+-			break;
+-		*addrp = (char *)(src ? &ad->u.net.v6info.saddr :
+-					&ad->u.net.v6info.daddr);
+-		break;
++		if (ret)
++			goto parse_error;
++		addrp = (char *)(src ? &ad->u.net.v6info.saddr :
++				       &ad->u.net.v6info.daddr);
++		goto okay;
+ #endif	/* IPV6 */
+ 	default:
+-		break;
++		addrp = NULL;
++		goto okay;
+ 	}
+ 
+-	if (unlikely(ret))
+-		printk(KERN_WARNING
+-		       "SELinux: failure in selinux_parse_skb(),"
+-		       " unable to parse packet\n");
+-
++parse_error:
++	printk(KERN_WARNING
++	       "SELinux: failure in selinux_parse_skb(),"
++	       " unable to parse packet\n");
+ 	return ret;
++
++okay:
++	if (_addrp)
++		*_addrp = addrp;
++	return 0;
+ }
+ 
+ /**
 
 
 --
