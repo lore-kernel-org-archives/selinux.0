@@ -1,187 +1,36 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6AJ7GfL024192
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jul 2008 15:07:16 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6AJ7FQf027797
-	for <selinux@tycho.nsa.gov>; Thu, 10 Jul 2008 19:07:15 GMT
-Message-ID: <48765DD8.1060301@redhat.com>
-Date: Thu, 10 Jul 2008 15:07:04 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Daniel J Walsh <Dan-Walsh@comcast.net>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: new domain for libvirt
-References: <4831B4CB.4060506@comcast.net> <1213642711.11146.67.camel@gorn>
-In-Reply-To: <1213642711.11146.67.camel@gorn>
-Content-Type: multipart/mixed;
- boundary="------------030802090107040209080302"
+Subject: Re: policycoreutils in SID
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <dd18b0c30807101200u12c70303oae012931a6aa903@mail.gmail.com>
+References: <dd18b0c30807101200u12c70303oae012931a6aa903@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 10 Jul 2008 15:29:00 -0400
+Message-Id: <1215718140.31554.64.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030802090107040209080302
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Christopher J. PeBenito wrote:
-> On Mon, 2008-05-19 at 13:11 -0400, Daniel J Walsh wrote:
->> Gzip archive attachment
->> (system_virt.patch.gz)
+On Thu, 2008-07-10 at 19:00 +0000, Justin Mattock wrote:
+> Hello; I updated my system with debian sid a few days ago, and notice
+> audit2allow -d was giving me this:
+>  File "/usr/bin/audit2allow", line 23
+>     import python-sepolgen.audit as audit
+>                  ^
+> SyntaxError: invalid syntax
 > 
-> Merged.  I commented out missing interface calls.  I also moved the
-> kernel proc entries for xen into the optional that has the other xen
-> rules.
-> 
-Ok here is a patch including all of the changes you are missing.
+> the bug report is here:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=486120
+> is there a workaround for this, or a new package?
 
-This patch includes a policy for polkit.
+That's a question for Debian maintainers, not us.  Upstream audit2allow
+doesn't have that python- prefix at all.
 
-Updates for qemu, dnsmasq and libvirt.
+-- 
+Stephen Smalley
+National Security Agency
 
-Whey are the kernel proc entries for xen optional, if they are defined
-in kernel.te/kernel.if?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkh2XdcACgkQrlYvE4MpobNLAwCeM+fQn6dq4F2X6hzgr1rQOwGF
-U00AnRCduY0AesIFsAbeZS64sbAJ+wrN
-=MNgA
------END PGP SIGNATURE-----
-
---------------030802090107040209080302
-Content-Type: application/x-gzip;
- name="services_virt.patch.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="services_virt.patch.gz"
-
-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
---------------030802090107040209080302
-Content-Type: application/octet-stream;
- name="services_virt.patch.gz.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="services_virt.patch.gz.sig"
-
-iEYEABECAAYFAkh2XdgACgkQrlYvE4MpobNWiQCgsVmCw0QHVco+QWzjdvna2s5JLzgAoKur
-OSinzKtiKVNZ6cPgCP434KEK
---------------030802090107040209080302--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
