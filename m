@@ -1,49 +1,78 @@
-From: Paul Moore <paul.moore@hp.com>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] Fix a potentially uninitialised variable in SELinux hooks
-Date: Wed, 9 Jul 2008 21:23:40 -0400
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, selinux@tycho.nsa.gov
-References: <200807091847.14347.paul.moore@hp.com> <8198.1215643142@redhat.com> <8883.1215645130@redhat.com>
-In-Reply-To: <8883.1215645130@redhat.com>
+Message-ID: <4875EB47.9010908@manicmethod.com>
+Date: Thu, 10 Jul 2008 06:58:15 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200807092123.40667.paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: [patch] libselinux:  eliminate shadowed variables from audit2why
+References: <1215615809.24864.20.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1215615809.24864.20.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 09 July 2008 7:12:10 pm David Howells wrote:
-> Paul Moore <paul.moore@hp.com> wrote:
-> > 	ret = selinux_parse_skb_ipv4(...);
-> > 	if (ret != 0)
-> > 		addrp = (src ? ...);
-> > 	else
-> > 		addrp = NULL;
->
-> I guess you mean "*addrp = ..." in that case, otherwise you haven't
-> eliminated anything.
+Stephen Smalley wrote:
+> audit2why doesn't build with the default build options (-Werror) due to
+> shadowed variables.  In the first case, there isn't much point in
+> passing an avc argument when the rest of the file uses a static global
+> variable for the same object; in the second case, we are dealing with a
+> separate object returned to the caller and should name it accordingly.
+> 
+> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Yes, I did.  Too much pseudo in my pseudo-code I guess.
+Acked-By: Joshua Brindle <method@manicmethod.com>
 
-> Personally, I prefer to add extra variables if it makes things
-> clearer, and I prefer to use gotos for error handling.  It eliminates
-> the else-statements that you would otherwise introduce, and the
-> goto-label can be used as documentation of a sort too.  Furthermore,
-> it moves the error handling clearly out of the main route through the
-> function.  Having said that, I should reorder my patch to put the
-> parse_error segment last - then I can ditch the okay label and use
-> break instead of goto.
->
-> It comes down to personal preference, I guess.
+> 
+> --- 
+> 
+>  libselinux/src/audit2why.c |   10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> Index: trunk/libselinux/src/audit2why.c
+> ===================================================================
+> --- trunk/libselinux/src/audit2why.c	(revision 2924)
+> +++ trunk/libselinux/src/audit2why.c	(working copy)
+> @@ -55,7 +55,7 @@
+>  	return 0;
+>  }
+>  
+> -static int check_booleans(struct avc_t *avc, struct boolean_t **bools)
+> +static int check_booleans(struct boolean_t **bools)
+>  {
+>  	char errormsg[PATH_MAX];
+>  	struct sepol_av_decision avd;
+> @@ -376,7 +376,7 @@
+>  		avc->tsid = tsid;
+>  		avc->tclass = tclass;
+>  		avc->av = av;
+> -		if (check_booleans(avc, &bools) == 0) {
+> +		if (check_booleans(&bools) == 0) {
+>  			if (av & ~avd.auditdeny) {
+>  				RETURN(DONTAUDIT)
+>  			} else {
+> @@ -390,15 +390,15 @@
+>  				len++; b++;
+>  			}
+>  			b = bools;
+> -			PyObject *boollist = PyTuple_New(len);
+> +			PyObject *outboollist = PyTuple_New(len);
+>  			len=0;
+>  			while(b->name) {
+>  				PyObject *bool = Py_BuildValue("(si)", b->name, b->active);
+> -				PyTuple_SetItem(boollist, len++, bool);
+> +				PyTuple_SetItem(outboollist, len++, bool);
+>  				b++;
+>  			}
+>  			free(bools);
+> -			PyTuple_SetItem(result, 1, boollist);
+> +			PyTuple_SetItem(result, 1, outboollist);
+>  			return result;
+>  		}
+>  	}
+> 
+> 
 
-Doesn't it always :)
 
-I don't think it makes a huge difference either way, and since you are 
-the one fixing the problem I'll let you decide.
-
--- 
-paul moore
-linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
