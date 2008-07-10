@@ -1,36 +1,54 @@
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6AMMHP8022264
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jul 2008 18:22:17 -0400
+Received: from an-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6AMMGGm010545
+	for <selinux@tycho.nsa.gov>; Thu, 10 Jul 2008 22:22:17 GMT
+Received: by an-out-0708.google.com with SMTP id d30so740983and.75
+        for <selinux@tycho.nsa.gov>; Thu, 10 Jul 2008 15:22:16 -0700 (PDT)
+Message-ID: <dd18b0c30807101522r24115811ia01562624ec0724a@mail.gmail.com>
+Date: Thu, 10 Jul 2008 22:22:16 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
 Subject: Re: policycoreutils in SID
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30807101200u12c70303oae012931a6aa903@mail.gmail.com>
+In-Reply-To: <1215718140.31554.64.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 References: <dd18b0c30807101200u12c70303oae012931a6aa903@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 10 Jul 2008 15:29:00 -0400
-Message-Id: <1215718140.31554.64.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+	 <1215718140.31554.64.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Thu, Jul 10, 2008 at 7:29 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> On Thu, 2008-07-10 at 19:00 +0000, Justin Mattock wrote:
+>> Hello; I updated my system with debian sid a few days ago, and notice
+>> audit2allow -d was giving me this:
+>>  File "/usr/bin/audit2allow", line 23
+>>     import python-sepolgen.audit as audit
+>>                  ^
+>> SyntaxError: invalid syntax
+>>
+>> the bug report is here:
+>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=486120
+>> is there a workaround for this, or a new package?
+>
+> That's a question for Debian maintainers, not us.  Upstream audit2allow
+> doesn't have that python- prefix at all.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
-On Thu, 2008-07-10 at 19:00 +0000, Justin Mattock wrote:
-> Hello; I updated my system with debian sid a few days ago, and notice
-> audit2allow -d was giving me this:
->  File "/usr/bin/audit2allow", line 23
->     import python-sepolgen.audit as audit
->                  ^
-> SyntaxError: invalid syntax
-> 
-> the bug report is here:
-> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=486120
-> is there a workaround for this, or a new package?
+Alright, cool I'll use that one.
+regards;
 
-That's a question for Debian maintainers, not us.  Upstream audit2allow
-doesn't have that python- prefix at all.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
