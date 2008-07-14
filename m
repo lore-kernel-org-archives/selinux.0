@@ -1,52 +1,36 @@
-Subject: Re: [PATCH-v3] SELinux: allow fstype unknown to policy to use
-	xattrs if present
-From: Eric Paris <eparis@redhat.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, dwalsh@redhat.com,
-        cpebenito@tresys.com
-In-Reply-To: <Xine.LNX.4.64.0806190911320.22390@us.intercode.com.au>
-References: <1213797004.16752.6.camel@localhost.localdomain>
-	 <Xine.LNX.4.64.0806190911320.22390@us.intercode.com.au>
-Content-Type: text/plain
-Date: Fri, 11 Jul 2008 13:13:56 -0400
-Message-Id: <1215796436.7567.106.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6EGAKGP029644
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2008 12:10:20 -0400
+Received: from dmzmta102.na.baesystems.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6EGABiV016714
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2008 16:10:20 GMT
+Received: from BLUMS0035.bluelnk.net (blums0035.bluelnk.net [10.40.96.56])
+	by dmzmta102.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m6EG9ma8001064
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2008 12:09:49 -0400
+Received: from blums0042.bluelnk.net ([134.120.81.54])
+	by usdmta003.na.baesystems.com (Switch-3.2.5/Switch-3.2.5) with ESMTP id m6EG6vEC022849
+	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2008 12:06:58 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: ping and the /tmp directory
+Date: Mon, 14 Jul 2008 09:10:05 -0700
+Message-ID: <0794F277152EF94AA637E3AECF5CB70F010A9C12@blums0042.bluelnk.net>
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-06-19 at 09:11 +1000, James Morris wrote:
-> On Wed, 18 Jun 2008, Eric Paris wrote:
-> 
-> > Currently if a FS is mounted for which SELinux policy does not define an
-> > fs_use_* that FS will either be genfs labeled or not labeled at all.
-> > This decision is based on the existence of a genfscon rule in policy and
-> > is irrespective of the capabilities of the filesystem itself.  This
-> > patch allows the kernel to check if the filesystem supports security
-> > xattrs and if so will use those if there is no fs_use_* rule in policy.
-> > An fstype with a no fs_use_* rule but with a genfs rule will use xattrs
-> > if available and will follow the genfs rule.
-> > 
-> > This can be particularly interesting for things like ecryptfs which
-> > actually overlays a real underlying FS.  If we define excryptfs in
-> > policy to use xattrs we will likely get this wrong at times, so with
-> > this path we just don't need to define it!
-> > 
-> > Overlay ecryptfs on top of NFS with no xattr support:
-> > SELinux: initialized (dev ecryptfs, type ecryptfs), uses genfs_contexts
-> > Overlay ecryptfs on top of ext4 with xattr support:
-> > SELinux: initialized (dev ecryptfs, type ecryptfs), uses xattr
-> > 
-> > It is also useful as the kernel adds new FS we don't need to add them in
-> > policy if they support xattrs and that is how we want to handle them.
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
-> Applied to for-akpm.
+Does the ping utility normally read/write to the /tmp directory?
 
-Please drop this patch for now.  It deadlocks on ntfs-3g.  I need to
-rework it to handle fuse filesystems better.  (casey was right)
+I've got a domain that uses ping in the ping_t domain, using the
+netutils_domtrans_ping interface, and I'm getting the following from
+audit2allow:
 
--Eric
+allow ping_t tmp_t:file { read write getattr ioctl };
+
+Thanks
+
 
 
 --
