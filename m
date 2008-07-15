@@ -1,188 +1,75 @@
-Message-ID: <487D04E8.4050401@redhat.com>
-Date: Tue, 15 Jul 2008 16:13:28 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6FKooPZ014819
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2008 16:50:50 -0400
+Received: from mail.wrs.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6FKonMO004460
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2008 20:50:49 GMT
+Received: from ALA-MAIL03.corp.ad.wrs.com (ala-mail03 [147.11.57.144])
+	by mail.wrs.com (8.13.6/8.13.6) with ESMTP id m6FKom43018116
+	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2008 13:50:48 -0700 (PDT)
+Message-ID: <487D0B1B.1020203@windriver.com>
+Date: Tue, 15 Jul 2008 16:39:55 -0400
+From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
 MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: python gui gconf policy problem
-References: <cadfc0e40807150929nf059a31q9b9435b08b8ac7f6@mail.gmail.com>	 <1216140712.17602.20.camel@moss-spartans.epoch.ncsc.mil> <cadfc0e40807151125ifb109ch4384342766d0b2a2@mail.gmail.com>
-In-Reply-To: <cadfc0e40807151125ifb109ch4384342766d0b2a2@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: 32bit -> 64bit x-compile fail (audit2why)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Xavier Toth wrote:
-> On Tue, Jul 15, 2008 at 11:51 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On Tue, 2008-07-15 at 11:29 -0500, Xavier Toth wrote:
->>> I'm writing policy for a python gui and having a problem getting preferences:
->>>
->>> gobject.GError: Failed to contact configuration server; some possible
->>> causes are that you need to enable TCP/IP networking for ORBit, or you
->>> have a stale NFS locks due to a system crash. See
->>> http://www.gnome.org/project/gconf/ for information. (Details - 1:
->>> Could not send message to gconf daemon: An SELinux policy prevents
->>> this sender from sending this message to this recipient (rejected
->>> message had interface "org.gnome.GConf member "GetIOR" error name
->>> "(unset)" destination "org.gnome.GConf"))
->>>
->>> The error message states that policy is preventing this operation but
->>> there isn't a corresponding AVC in the audit log. I'm using the
->>> gnome_stream_connect_gconf_template but that doesn't help and I'm not
->>> sure it is the right thing to do anyway.
->> Sounds like a dbus denial, which would show up as a USER_AVC.
->> Or might be dontaudit'd - try semodule -DB.
->>
->> --
->> Stephen Smalley
->> National Security Agency
->>
->>
-> 
-> I have used 'semodule -DB' and I don't see any dbus AVCs and this
-> strace shows that a dbus connection is established and some reads and
-> writes occur
-> 
-> 11201 read(6, "", 8192)                 = 0
-> 11201 close(6)                          = 0
-> 11201 munmap(0xb802a000, 4096)          = 0
-> 11201 socket(PF_FILE, SOCK_STREAM, 0)   = 6
-> 11201 connect(6, {sa_family=AF_FILE, path=@/tmp/dbus-9MZAW1huFg}, 23) = 0
-> 11201 fcntl64(6, F_GETFL)               = 0x2 (flags O_RDWR)
-> 11201 fcntl64(6, F_SETFL, O_RDWR|O_NONBLOCK) = 0
-> 11201 fcntl64(6, F_GETFD)               = 0
-> 11201 fcntl64(6, F_SETFD, FD_CLOEXEC)   = 0
-> 11201 geteuid32()                       = 500
-> 11201 rt_sigaction(SIGPIPE, {SIG_IGN}, {SIG_IGN}, 8) = 0
-> 11201 poll([{fd=6, events=POLLOUT, revents=POLLOUT}], 1, 0) = 1
-> 11201 write(6, "\0", 1)                 = 1
-> 11201 write(6, "AUTH EXTERNAL 353030\r\n", 22) = 22
-> 11201 poll([{fd=6, events=POLLIN, revents=POLLIN}], 1, -1) = 1
-> 11201 read(6, "OK 9d1044c841e17b3bd63f63b3487cc"..., 2048) = 37
-> 11201 poll([{fd=6, events=POLLOUT, revents=POLLOUT}], 1, -1) = 1
-> 11201 write(6, "BEGIN\r\n", 7)          = 7
-> 11201 poll([{fd=6, events=POLLIN|POLLOUT, revents=POLLOUT}], 1, -1) = 1
-> 11201 writev(6,
-> [{"l\1\0\1\0\0\0\0\1\0\0\0n\0\0\0\1\1o\0\25\0\0\0/org/fre"..., 128},
-> {"", 0}], 2) = 128
-> 11201 gettimeofday({1216142988, 595361}, NULL) = 0
-> 11201 poll([{fd=6, events=POLLIN, revents=POLLIN}], 1, 25000) = 1
-> 11201 read(6, "l\2\1\1\n\0\0\0\1\0\0\0=\0\0\0\6\1s\0\5\0\0\0:1.29\0\0\0"...,
-> 2048) = 260
-> 11201 read(6, 0x867c4c0, 2048)          = -1 EAGAIN (Resource
-> temporarily unavailable)
-> 11201 writev(6,
-> [{"l\1\2\1\0\0\0\0\2\0\0\0_\0\0\0\1\1o\0\20\0\0\0/org/gno"..., 112},
-> {"", 0}], 2) = 112
-> 11201 gettimeofday({1216142988, 598242}, NULL) = 0
-> 11201 poll([{fd=6, events=POLLIN, revents=POLLIN}], 1, 25000) = 1
-> 11201 read(6, "l\3\1\1\315\0\0\0\3\0\0\0m\0\0\0\6\1s\0\5\0\0\0:1.29\0\0\0"...,
-> 2048) = 333
-> 11201 read(6, 0x867c4c0, 2048)          = -1 EAGAIN (Resource
-> temporarily unavailable)
-> 11201 open("/usr/share/locale/en_US.UTF-8/LC_MESSAGES/GConf2.mo",
-> O_RDONLY) = -1 ENOENT (No such file or directory)
-> 11201 open("/usr/share/locale/en_US.utf8/LC_MESSAGES/GConf2.mo",
-> O_RDONLY) = -1 ENOENT (No such file or directory)
-> 11201 open("/usr/share/locale/en_US/LC_MESSAGES/GConf2.mo", O_RDONLY)
-> = -1 ENOENT (No such file or directory)
-> 11201 open("/usr/share/locale/en.UTF-8/LC_MESSAGES/GConf2.mo",
-> O_RDONLY) = -1 ENOENT (No such file or directory)
-> 11201 open("/usr/share/locale/en.utf8/LC_MESSAGES/GConf2.mo",
-> O_RDONLY) = -1 ENOENT (No such file or directory)
-> 11201 open("/usr/share/locale/en/LC_MESSAGES/GConf2.mo", O_RDONLY) =
-> -1 ENOENT (No such file or directory)
-> 11201 writev(6,
-> [{"l\1\0\1\0\0\0\0\3\0\0\0_\0\0\0\1\1o\0\20\0\0\0/org/gno"..., 112},
-> {"", 0}], 2) = 112
-> 11201 gettimeofday({1216142988, 602061}, NULL) = 0
-> 11201 poll([{fd=6, events=POLLIN, revents=POLLIN}], 1, 25000) = 1
-> 11201 read(6, "l\3\1\1\315\0\0\0\4\0\0\0m\0\0\0\6\1s\0\5\0\0\0:1.29\0\0\0"...,
-> 2048) = 333
-> 11201 read(6, 0x867c4c0, 2048)          = -1 EAGAIN (Resource
-> temporarily unavailable)
-> 11201 write(2, "Traceback (most recent call last"..., 35) = 35
-> 11201 open("/usr/share/ml-launch/ml-launch.py", O_RDONLY|O_LARGEFILE) = 7
-> 11201 write(2, "  File \"/usr/share/ml-launch/ml-"..., 66) = 66
-> 11201 fstat64(7, {st_mode=S_IFREG|0755, st_size=7901, ...}) = 0
-> 11201 mmap2(NULL, 4096, PROT_READ|PROT_WRITE,
-> MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb802a000
-> 11201 read(7, "#!/usr/bin/env python\nimport log"..., 4096) = 4096
-> 11201 read(7, "            gtk.gdk.flush()\n    "..., 4096) = 3805
-> 11201 write(2, "    ", 4)               = 4
-> 11201 write(2, "main()\n", 7)           = 7
-> 11201 close(7)                          = 0
-> 11201 munmap(0xb802a000, 4096)          = 0
-> 11201 open("/usr/share/ml-launch/ml-launch.py", O_RDONLY|O_LARGEFILE) = 7
-> 11201 write(2, "  File \"/usr/share/ml-launch/ml-"..., 62) = 62
-> 11201 fstat64(7, {st_mode=S_IFREG|0755, st_size=7901, ...}) = 0
-> 11201 mmap2(NULL, 4096, PROT_READ|PROT_WRITE,
-> MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb802a000
-> 11201 read(7, "#!/usr/bin/env python\nimport log"..., 4096) = 4096
-> 11201 read(7, "            gtk.gdk.flush()\n    "..., 4096) = 3805
-> 11201 write(2, "    ", 4)               = 4
-> 11201 write(2, "launchLevelDialog = LabelDialog("..., 46) = 46
-> 11201 close(7)                          = 0
-> 11201 munmap(0xb802a000, 4096)          = 0
-> 11201 open("/usr/share/ml-launch/label_dialog.py", O_RDONLY|O_LARGEFILE) = 7
-> 11201 write(2, "  File \"/usr/share/ml-launch/lab"..., 69) = 69
-> 11201 fstat64(7, {st_mode=S_IFREG|0644, st_size=22290, ...}) = 0
-> 11201 mmap2(NULL, 4096, PROT_READ|PROT_WRITE,
-> MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb802a000
-> 11201 read(7, "#!/usr/bin/env python\nimport log"..., 4096) = 4096
-> 11201 read(7, "ifications[key].sensitivities.va"..., 4096) = 4096
-> 11201 read(7, "  if wordIndex < wordCount:\n    "..., 4096) = 4096
-> 11201 write(2, "    ", 4)               = 4
-> 11201 write(2, "self.init_preferences()\n", 24) = 24
-> 11201 close(7)                          = 0
-> 11201 munmap(0xb802a000, 4096)          = 0
-> 11201 open("/usr/share/ml-launch/label_dialog.py", O_RDONLY|O_LARGEFILE) = 7
-> 11201 write(2, "  File \"/usr/share/ml-launch/lab"..., 77) = 77
-> 11201 fstat64(7, {st_mode=S_IFREG|0644, st_size=22290, ...}) = 0
-> 11201 mmap2(NULL, 4096, PROT_READ|PROT_WRITE,
-> MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb802a000
-> 11201 read(7, "#!/usr/bin/env python\nimport log"..., 4096) = 4096
-> 11201 read(7, "ifications[key].sensitivities.va"..., 4096) = 4096
-> 11201 read(7, "  if wordIndex < wordCount:\n    "..., 4096) = 4096
-> 11201 read(7, "  self.levels_combobox.connect(\""..., 4096) = 4096
-> 11201 read(7, " %s\" % (key)\n                   "..., 4096) = 4096
-> 11201 write(2, "    ", 4)               = 4
-> 11201 write(2, "self.saved_labels_max = self.pre"..., 88) = 88
-> 11201 close(7)                          = 0
-> 11201 munmap(0xb802a000, 4096)          = 0
-> 11201 write(2, "gobject", 7)            = 7
-> 11201 write(2, ".", 1)                  = 1
-> 11201 write(2, "GError", 6)             = 6
-> 11201 write(2, ": ", 2)                 = 2
-> 11201 write(2, "Failed to contact configuration "..., 483) = 483
-> 11201 write(2, "\n", 1)                 = 1
-> 11201 close(3)                          = 0
-> 11201 rt_sigaction(SIGINT, {SIG_DFL}, {0x4d651c0, [], 0}, 8) = 0
-> 11200 exit_group(0)                     = ?
-> 11199 <... waitpid resumed> [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], 0) = 11200
-> 11199 rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0
-> 11199 --- SIGCHLD (Child exited) @ 0 (0) ---
-> 11199 waitpid(-1, 0xbf98ea38, WNOHANG)  = -1 ECHILD (No child processes)
-> 11199 sigreturn()                       = ? (mask now [])
-> 11199 rt_sigaction(SIGINT, {SIG_DFL}, {0x807c670, [], 0}, 8) = 0
-> 11199 rt_sigprocmask(SIG_BLOCK, NULL, [], 8) = 0
-> 11199 read(255, "\n", 67)               = 1
-> 11199 rt_sigprocmask(SIG_BLOCK, NULL, [], 8) = 0
-> 11199 read(255, "", 67)                 = 0
-> 11199 exit_group(0)                     = ?
-> 11201 exit_group(1)                     = ?
-Does it happen in permissive ?  If yes, then we are the fall guy for
-some other dbus problem.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+---
+In file included from 
+/vambrose/build_2008-07-15/host-cross/include/python2.4/Python.h:55,
+                 from audit2why.c:1:
+/vambrose/build_2008-07-15/host-cross/include/python2.4/pyport.h:612:2: 
+error: #error "LONG_BIT definition appears wrong for platform (bad 
+gcc/glibc config?)."
+---
 
-iEYEARECAAYFAkh9BOgACgkQrlYvE4MpobO2SwCgq1DdaaVVpbaOpaWloOa5R6IP
-FNwAoMXBSmV8KVDpEu53+QrdVWeK7dgS
-=zN60
------END PGP SIGNATURE-----
+The header in question is pyport.h
+----------------->
+#ifndef LONG_MAX
+#if SIZEOF_LONG == 4
+#define LONG_MAX 0X7FFFFFFFL
+#elif SIZEOF_LONG == 8
+#define LONG_MAX 0X7FFFFFFFFFFFFFFFL
+#else
+#error "could not set LONG_MAX in pyport.h"
+#endif
+#endif
+
+#ifndef LONG_MIN
+#define LONG_MIN (-LONG_MAX-1)
+#endif
+
+#ifndef LONG_BIT
+#define LONG_BIT (8 * SIZEOF_LONG)
+#endif
+
+#if LONG_BIT != 8 * SIZEOF_LONG
+/* 04-Oct-2000 LONG_BIT is apparently (mis)defined as 64 on some recent
+ * 32-bit platforms using gcc.  We try to catch that here at compile-time
+ * rather than waiting for integer multiplication to trigger bogus
+ * overflows.
+ */
+#error "LONG_BIT definition appears wrong for platform (bad gcc/glibc 
+config?)."
+#endif
+<-----------------
+
+Toolchain std-gcc i586 toolchain with x86_64 target support.
+Source: svn 2924
+
+This does not seem to be a problem when compiling for another 32bit 
+architecture, ie i can go from i386 to arm32|ppc32|mips32 and its fine, 
+but from i386 to ppc64, x86_64, etc.. it fails...
+
+
+
+-- 
+Vikram Ambrose | Linux Products Division | WindRiver Corporation
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
