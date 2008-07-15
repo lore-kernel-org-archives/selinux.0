@@ -1,123 +1,134 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6EKT0gw007840
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2008 16:29:00 -0400
-Received: from cdptpa-omtalb.mail.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6EKSx2j002966
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2008 20:29:00 GMT
-Received: from basement.kutulu.org ([70.121.200.185])
-          by cdptpa-omta01.mail.rr.com with ESMTP
-          id <20080714202820.GDNJ8951.cdptpa-omta01.mail.rr.com@basement.kutulu.org>
-          for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2008 20:28:20 +0000
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by basement.kutulu.org (Postfix) with ESMTPS id 02F2D1143D
-	for <selinux@tycho.nsa.gov>; Mon, 14 Jul 2008 16:28:17 -0400 (EDT)
-Message-ID: <487BB78D.6080500@kutulu.org>
-Date: Mon, 14 Jul 2008 16:31:09 -0400
-From: Mike Edenfield <kutulu@kutulu.org>
+Message-ID: <487C7698.60503@ak.jp.nec.com>
+Date: Tue, 15 Jul 2008 19:06:16 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: refpolicy patch: samba enhancements
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: sds@tycho.nsa.gov, jmorris@namei.org, paul.moore@hp.com,
+        jbrindle@tresys.com
+CC: selinux@tycho.nsa.gov
+Subject: [RFC] An idea of thread/child-domain assignment
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I apologize if I'm not doing this right, I'm kinda new at this...
+Hi,
 
-I have made some changes to the SELinux policy for our intranet servers 
-that I thought might be useful to a broader audience.  Included below is 
-a patch to the latest refpolicy.  This has been tested on the Gentoo 
-systems we have here; I don't have easy access to other SELinux systems 
-at the moment.  It does the following:
+I'm now considering the way to apply SELinux from the bottom of LAPP
+stack to the head. But there is a fundamental matter. Web/Application
+server can execute a request come from users in a worker thread.
 
-* Updates samba_stream_connect_winbind to match the observed behavior of 
-winbind
+This idea enables to assign an indivisual domain on a thread under
+the paticular condition.
+I'm sorry for a long description, but I thought it need to describe
+the background of this idea for well understanding.
 
-* Gives winbind access to delete its own sockets
+Please comment anything.
 
-* Gives nmbd access to fully manage (i.e. rename) log files
+Backend of the idea
+-------------------
+How do you define a user?
 
-* Adds a tunable that lets samba create home directories via pam_mkhomedir
+I consider a user is a human. In the most cases, a human is not good at
+communication with electronic circuit of computer system, so he makes a
+substitution of himself to obtain a result which he want.
+
+A process on operating system is a typical substitution of the user.
+Thus, it has a user identifier and a security context for proper access
+controls as a substitution of a user.
+I'm considering database instances, web backends and others are also the
+substitution of users, because they works according to the request come
+from users.
+
+SELinux makes its decison on access controls based on security context of
+subject and various kind of objects. Now we have three options to assign
+a security context on a subject, as follows:
+
+ 1. Authentication     ... Operating System
+ 2. Labeled Networking ... SE-PostgreSQL, X/SELinux, Xinetd
+ 3. Do nothing         ... Apache, Samba
+
+However, the third option is uncomfortable for system security.
+It execute a user's request as a part of the server process, even if it
+is a substitution of the user.
 
 
-Index: policy/modules/services/samba.if
-===================================================================
---- policy/modules/services/samba.if	(revision 2758)
-+++ policy/modules/services/samba.if	(working copy)
-@@ -484,17 +484,19 @@
-  ## </param>
-  #
-  interface(`samba_stream_connect_winbind',`
--	ifdef(`distro_redhat',`
--		gen_require(`
--			type samba_var_t, winbind_t, winbind_var_run_t;
--		')
-+	gen_require(`
-+		type samba_var_t, winbind_t, winbind_var_run_t;
-+	')
+LAPP stack and SELinux
+----------------------
+Nowaday, numerous of online services are available and most of them are
+implemented as a web application using PHP, Jservlet and so on. LAPP is
+a term to represent its system architecture. It shows web applications
+based on Linux, Apache, PostgreSQL and PHP is a popular combination.
 
--		files_search_pids($1)
--		allow $1 samba_var_t:dir search_dir_perms;
--		stream_connect_pattern($1,winbind_var_run_t,winbind_var_run_t,winbind_t)
--	',`
-+	files_search_pids($1)
-+	allow $1 samba_var_t:dir search_dir_perms;
-+	stream_connect_pattern($1,winbind_var_run_t,winbind_var_run_t,winbind_t)
-+	
-+	ifdef(`distro_redhat',`', `
-  		gen_require(`
--			type winbind_t, winbind_tmp_t;
-+			type winbind_tmp_t;
-  		')
+>From the viewpoint of SELinux, we cannot apply inidividual access controls
+for every request come from clients, because web/application server handle
+these requests without individual processes (except for CGI invocation).
+Apache typically assigns a pre-created process/thread with "httpd_t" domain
+to execute the request, independent from the peer's context.
 
-  		# the default for the socket is (poorly named):
-Index: policy/modules/services/samba.te
-===================================================================
---- policy/modules/services/samba.te	(revision 2758)
-+++ policy/modules/services/samba.te	(working copy)
-@@ -59,6 +59,13 @@
-  ## </desc>
-  gen_tunable(samba_share_nfs,false)
+Now SELinux can cover the lowest two layer of the LAPP stack (OS, RDBMS).
+It enables to apply consistent/mandatory access controls for them. I think
+it should be also expanded to whole of the stack to improve web-application
+security.
+But we have a fundamental matter to achieve it.
 
-+## <desc>
-+## <p>
-+## Allow samba to create new home directories (e.g. via PAM)
-+## </p>
-+## </desc>
-+gen_tunable(samba_create_home_dirs,false)
-+
-  type nmbd_t;
-  type nmbd_exec_t;
-  init_daemon_domain(nmbd_t,nmbd_exec_t)
-@@ -379,6 +386,14 @@
-  	unprivuser_home_dir_filetrans_home_content(nmbd_t, { file dir })
-  ')
+ [1] LAPP Stack and SELinux coverage
+ +----------------------------+   <-----------------+
+ |  Application (PHP, Tomcat) |                     |
+ +----------------------------+                     |
+ |    Web Server (Apache)     |                  Future
+ +----------------------------+   <-----------+     |
+ |  Database (SE-PostgreSQL)  |               |     |
+ +----------------------------+   <-----+   Today   |
+ | Operating System (SELinux) |       Past    |     |
+ +----------------------------+   <-----+-----+-----+
 
-+tunable_policy(`samba_create_home_dirs',`
-+    unprivuser_home_filetrans_home_dir(smbd_t)
-+    unprivuser_manage_home_dirs(smbd_t)
-+
-+    allow smbd_t self:capability chown;
-+')
-  ########################################
-  #
-  # nmbd Local policy
-@@ -404,7 +419,7 @@
-  read_files_pattern(nmbd_t,samba_etc_t,samba_etc_t)
 
-  manage_dirs_pattern(nmbd_t,samba_log_t,samba_log_t)
--append_files_pattern(nmbd_t,samba_log_t,samba_log_t)
-+manage_files_pattern(nmbd_t,samba_log_t,samba_log_t)
-  allow nmbd_t samba_log_t:file unlink;
+An idea: thread/hierarchical-domain assignment
+----------------------------------------------
+If possible, Apache should change the security context of web backend
+during it executes a request come from users.
+However, Apache can execute it on a worker thread. It conflicts a wired
+constraint of SELinux which does not allow a multi-threaded process dynamic
+domain transition.
 
-  read_files_pattern(nmbd_t,samba_log_t,samba_log_t)
-@@ -675,6 +690,7 @@
+It is a reasonable constraint, if the source and destination domains are
+completely independent. Because it shares a local memory, mixed security
+context within a process can make a violation in domain separation.
 
-  manage_dirs_pattern(winbind_t,winbind_tmp_t,winbind_tmp_t)
-  manage_files_pattern(winbind_t,winbind_tmp_t,winbind_tmp_t)
-+manage_sock_files_pattern(winbind_t,winbind_tmp_t,winbind_tmp_t)
-  files_tmp_filetrans(winbind_t, winbind_tmp_t, { file dir })
+However, a characteristic relationship between hierarchical domains can
+help the situation. It restricts a child domain (like "httpd_t.staff")
+cannot over the boundary of its parent ("httpd_t"). It also means
+a multi-threaded process cannot over the (parent) domain boundary,
+even if a part of threads has different security context.
 
-  manage_files_pattern(winbind_t,winbind_var_run_t,winbind_var_run_t)
+My suggestion is the hard-wired constraint should be modified.
+It allows to assign threads an indivisual domain, if the new domain
+is a child one of the current domain.
+
+  For example:
+    httpd_t -> httpd_t.staff           = allowed
+    httpd_t -> staff_t                 = disallowed
+    httpd_t.staff -> httpd_t.staff.php = allowed
+
+In other words, this idea requires to change our viewpoint for child domain.
+Previously, these are mutually independent domain, but a child domain will
+mean a state with restricted operations compared to its parent domain.
+
+
+Issues: Domain Reverting
+------------------------
+There is a related issue. To change security context during user request
+execution also means that we have to revert its domain after executions,
+because Apache repeatedly uses worker thread/process for some reasons.
+
+I don't have any good idea for this issue yet.
+A one time cookie like AppArmor is an approach, but it is basically weak
+separation compared from execve() transition.
+
+
+Thanks.
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
