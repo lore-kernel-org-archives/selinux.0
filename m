@@ -1,639 +1,441 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6GEw5PX017447
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 10:58:05 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6GEw4if013842
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 14:58:04 GMT
-Message-ID: <487E0C64.9080208@redhat.com>
-Date: Wed, 16 Jul 2008 10:57:40 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6GF2lf6018409
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 11:02:47 -0400
+Received: from sender-01.it.helsinki.fi (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6GF2jif015635
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 15:02:46 GMT
+Received: from ruuvi.it.helsinki.fi (ruuvi.it.helsinki.fi [128.214.205.65])
+	by sender-01.it.helsinki.fi (8.13.8/8.13.8) with ESMTP id m6GF2iSU004266
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 18:02:44 +0300
+Received: from ruuvi.it.helsinki.fi (localhost.localdomain [127.0.0.1])
+	by ruuvi.it.helsinki.fi (8.13.1/8.13.1) with ESMTP id m6GF2iOG011882
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 18:02:44 +0300
+Received: from localhost (vmkari@localhost)
+	by ruuvi.it.helsinki.fi (8.13.1/8.13.1/Submit) with ESMTP id m6GF2iCE011879
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 18:02:44 +0300
+Date: Wed, 16 Jul 2008 18:02:43 +0300 (EEST)
+From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+To: selinux@tycho.nsa.gov
+Subject: Proposed patch for policycoreutils/sestatus
+Message-ID: <Pine.LNX.4.64L.0807161749060.10705@ruuvi.it.helsinki.fi>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Latest init diffs
-Content-Type: multipart/mixed;
- boundary="------------070505090405050003040003"
+Content-Type: MULTIPART/MIXED; BOUNDARY="-696237619-768465958-1216220563=:10705"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070505090405050003040003
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+---696237619-768465958-1216220563=:10705
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Mainly add the attribute initscripts to allow labeling of initscripts.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Hello,
 
-iEYEARECAAYFAkh+DGMACgkQrlYvE4MpobPuZACgpOLtkKKcQiWOMySqShD1sMF/
-lXEAn3OqzgEQa3I5+rkdkvsFJS027Mc6
-=pLfR
------END PGP SIGNATURE-----
+I have refactored sestatus.c and attached the patch for
+policycoreutils-2.0.46.
 
---------------070505090405050003040003
-Content-Type: text/plain;
- name="system_init.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="system_init.patch"
+However, the latter part of the patch is a bit unreadable due to the
+extensive changes in the code layout. In fact the line count of the
+patch is larger than sestatus.c itself.
 
-Subject: [PATCH] refpolicy: system_init changes
---text follows this line--
---- nsaserefpolicy/policy/modules/system/init.fc	2008-06-12 23:25:07.000000000 -0400
-+++ serefpolicy-3.5.1/policy/modules/system/init.fc	2008-07-16 10:33:11.000000000 -0400
-@@ -4,8 +4,7 @@
- /etc/init\.d/.*		--	gen_context(system_u:object_r:initrc_exec_t,s0)
- 
- /etc/rc\.d/rc		--	gen_context(system_u:object_r:initrc_exec_t,s0)
--/etc/rc\.d/rc\.sysinit	--	gen_context(system_u:object_r:initrc_exec_t,s0)
--/etc/rc\.d/rc\.local	--	gen_context(system_u:object_r:initrc_exec_t,s0)
-+/etc/rc\.d/rc\.[^/]+	--	gen_context(system_u:object_r:initrc_exec_t,s0)
- 
- /etc/rc\.d/init\.d/.*	--	gen_context(system_u:object_r:initrc_exec_t,s0)
- 
---- nsaserefpolicy/policy/modules/system/init.if	2008-07-16 10:26:25.000000000 -0400
-+++ serefpolicy-3.5.1/policy/modules/system/init.if	2008-07-16 10:43:43.000000000 -0400
-@@ -211,6 +211,19 @@
- 			kernel_dontaudit_use_fds($1)
- 		')
- 	')
-+
-+	sysadm_dontaudit_search_home_dirs($1)
-+
-+	tunable_policy(`allow_daemons_use_tty',`
-+	   term_use_all_user_ttys($1)
-+	   term_use_all_user_ptys($1)
-+	', `
-+	   term_dontaudit_use_all_user_ttys($1)
-+	   term_dontaudit_use_all_user_ptys($1)
-+	 ')
-+
-+	 # these apps are often redirect output to random log files
-+	 logging_rw_all_logs($1)
- ')
- 
- ########################################
-@@ -550,18 +563,19 @@
- #
- interface(`init_spec_domtrans_script',`
- 	gen_require(`
--		type initrc_t, initrc_exec_t;
-+		type initrc_t;
-+		attribute initscript;
- 	')
- 
- 	files_list_etc($1)
--	spec_domtrans_pattern($1,initrc_exec_t,initrc_t)
-+	spec_domtrans_pattern($1,initscript,initrc_t)
- 
- 	ifdef(`enable_mcs',`
--		range_transition $1 initrc_exec_t:process s0;
-+		range_transition $1 initscript:process s0;
- 	')
- 
- 	ifdef(`enable_mls',`
--		range_transition $1 initrc_exec_t:process s0 - mls_systemhigh;
-+		range_transition $1 initscript:process s0 - mls_systemhigh;
- 	')
- ')
- 
-@@ -577,19 +591,66 @@
- #
- interface(`init_domtrans_script',`
- 	gen_require(`
--		type initrc_t, initrc_exec_t;
-+		type initrc_t;
-+		attribute initscript;
-+	')
-+
-+	files_list_etc($1)
-+	domtrans_pattern($1,initscript,initrc_t)
-+
-+	ifdef(`enable_mcs',`
-+		range_transition $1 initscript:process s0;
-+	')
-+
-+	ifdef(`enable_mls',`
-+		range_transition $1 initscript:process s0 - mls_systemhigh;
-+	')
-+')
-+
-+########################################
-+## <summary>
-+##	Execute init a specific script with an automatic domain transition.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`init_script_domtrans_spec',`
-+	gen_require(`
-+		type initrc_t;
- 	')
- 
- 	files_list_etc($1)
--	domtrans_pattern($1,initrc_exec_t,initrc_t)
-+	domtrans_pattern($1,$2,initrc_t)
- 
- 	ifdef(`enable_mcs',`
--		range_transition $1 initrc_exec_t:process s0;
-+		range_transition $1 $2:process s0;
- 	')
- 
- 	ifdef(`enable_mls',`
--		range_transition $1 initrc_exec_t:process s0 - mls_systemhigh;
-+		range_transition $1 $2:process s0 - mls_systemhigh;
-+	')
-+')
-+
-+########################################
-+## <summary>
-+##	Execute a file in a bin directory
-+##	in the initrc_t domain 
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`init_bin_domtrans_spec',`
-+	gen_require(`
-+		type initrc_t;
- 	')
-+
-+	corecmd_bin_domtrans($1, initrc_t)
- ')
- 
- ########################################
-@@ -619,11 +680,11 @@
- # cjp: added for gentoo integrated run_init
- interface(`init_script_file_domtrans',`
- 	gen_require(`
--		type initrc_exec_t;
-+		attribute initscript;
- 	')
- 
- 	files_list_etc($1)
--	domain_auto_trans($1,initrc_exec_t,$2)
-+	domain_auto_trans($1,initscript,$2)
- ')
- 
- ########################################
-@@ -694,11 +755,11 @@
- #
- interface(`init_getattr_script_files',`
- 	gen_require(`
--		type initrc_exec_t;
-+		attribute initscript;
- 	')
- 
- 	files_list_etc($1)
--	allow $1 initrc_exec_t:file getattr;
-+	allow $1 initscript:file getattr;
- ')
- 
- ########################################
-@@ -713,11 +774,11 @@
- #
- interface(`init_exec_script_files',`
- 	gen_require(`
--		type initrc_exec_t;
-+		attribute initscript;
- 	')
- 
- 	files_list_etc($1)
--	can_exec($1,initrc_exec_t)
-+	can_exec($1,initscript)
- ')
- 
- ########################################
-@@ -941,6 +1002,7 @@
- 
- 	dontaudit $1 initrc_t:unix_stream_socket connectto;
- ')
-+
- ########################################
- ## <summary>
- ##	Send messages to init scripts over dbus.
-@@ -1040,11 +1102,11 @@
- #
- interface(`init_read_script_files',`
- 	gen_require(`
--		type initrc_exec_t;
-+		attribute initscript;
- 	')
- 
- 	files_search_etc($1)
--	allow $1 initrc_exec_t:file read_file_perms;
-+	allow $1 initscript:file read_file_perms;
- ')
- 
- ########################################
-@@ -1107,6 +1169,25 @@
- 
- ########################################
- ## <summary>
-+##	Read init script temporary data.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`init_read_script_tmp_files',`
-+	gen_require(`
-+		type initrc_tmp_t;
-+	')
-+
-+	files_search_tmp($1)
-+	read_files_pattern($1,initrc_tmp_t,initrc_tmp_t)
-+')
-+
-+########################################
-+## <summary>
- ##	Create files in a init script
- ##	temporary data directory.
- ## </summary>
-@@ -1262,7 +1343,7 @@
- 		type initrc_var_run_t;
- 	')
- 
--	dontaudit $1 initrc_var_run_t:file { getattr read write append };
-+	dontaudit $1 initrc_var_run_t:file rw_file_perms;
- ')
- 
- ########################################
-@@ -1283,3 +1364,113 @@
- 	files_search_pids($1)
- 	allow $1 initrc_var_run_t:file manage_file_perms;
- ')
-+
-+########################################
-+## <summary>
-+##	Read the process state (/proc/pid) of init.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`init_read_init_state',`
-+	gen_require(`
-+		attribute init_t;
-+	')
-+
-+	allow $1 init_t:dir search_dir_perms;
-+	allow $1 init_t:file read_file_perms;
-+	allow $1 init_t:lnk_file read_file_perms;
-+')
-+
-+########################################
-+## <summary>
-+##	Ptrace init
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+## <rolecap/>
-+#
-+interface(`init_ptrace_init_domain',`
-+	gen_require(`
-+		attribute init_t;
-+	')
-+
-+	allow $1 init_t:process ptrace;
-+')
-+
-+########################################
-+## <summary>
-+##	Make the specified type usable for initscripts
-+##	in a filesystem.
-+## </summary>
-+## <param name="type">
-+##	<summary>
-+##	Type to be used for files.
-+##	</summary>
-+## </param>
-+#
-+interface(`init_script_type',`
-+	gen_require(`
-+		type initrc_t;
-+		attribute initscript;
-+	')
-+
-+	typeattribute $1 initscript;
-+	domain_entry_file(initrc_t,$1)
-+
-+')
-+
-+########################################
-+## <summary>
-+##	Transition to system_r when execute an init script
-+## </summary>
-+## <desc>
-+##      <p>
-+##	Execute a init script in a specified role
-+##      </p>
-+##      <p>
-+##      No interprocess communication (signals, pipes,
-+##      etc.) is provided by this interface since
-+##      the domains are not owned by this module.
-+##      </p>
-+## </desc>
-+## <param name="source_role">
-+##	<summary>
-+##	Role to transition from.
-+##	</summary>
-+## </param>
-+# cjp: added for gentoo integrated run_init
-+interface(`init_script_role_transition',`
-+	gen_require(`
-+		attribute initscript;
-+	')
-+
-+	role_transition $1 initscript system_r;
-+')
-+
-+########################################
-+## <summary>
-+##	Send and receive unix_stream_messages with 
-+##	init
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`init_chat',`
-+	gen_require(`
-+		type init_t;
-+	')
-+
-+	allow $1 init_t:unix_dgram_socket sendto;
-+	allow init_t $1:unix_dgram_socket sendto;
-+')
-+
---- nsaserefpolicy/policy/modules/system/init.te	2008-07-16 10:33:56.000000000 -0400
-+++ serefpolicy-3.5.1/policy/modules/system/init.te	2008-07-16 10:50:21.000000000 -0400
-@@ -17,6 +17,20 @@
- ## </desc>
- gen_tunable(init_upstart,false)
- 
-+## <desc>
-+## <p>
-+## Allow all daemons the ability to read/write terminals
-+## </p>
-+## </desc>
-+gen_tunable(allow_daemons_use_tty,false)
-+
-+## <desc>
-+## <p>
-+## Allow all daemons to write corefiles to /
-+## </p>
-+## </desc>
-+gen_tunable(allow_daemons_dump_core,false)
-+
- # used for direct running of init scripts
- # by admin domains
- attribute direct_run_init;
-@@ -26,6 +40,8 @@
- # Mark process types as daemons
- attribute daemon;
- 
-+attribute initscript;
-+
- #
- # init_t is the domain of the init process.
- #
-@@ -52,7 +68,7 @@
- mls_trusted_object(initctl_t)
- 
- type initrc_t;
--type initrc_exec_t;
-+type initrc_exec_t, initscript;
- domain_type(initrc_t)
- domain_entry_file(initrc_t,initrc_exec_t)
- role system_r types initrc_t;
-@@ -84,7 +100,7 @@
- #
- 
- # Use capabilities. old rule:
--allow init_t self:capability ~sys_module;
-+allow init_t self:capability ~{ audit_control audit_write sys_module };
- # is ~sys_module really needed? observed: 
- # sys_boot
- # sys_tty_config
-@@ -97,7 +113,7 @@
- # Re-exec itself
- can_exec(init_t,init_exec_t)
- 
--allow init_t initrc_t:unix_stream_socket connectto;
-+allow init_t initrc_t:unix_stream_socket { connectto rw_stream_socket_perms };
- 
- # For /var/run/shutdown.pid.
- allow init_t init_var_run_t:file manage_file_perms;
-@@ -113,6 +129,8 @@
- kernel_read_system_state(init_t)
- kernel_share_state(init_t)
- 
-+fs_list_inotifyfs(init_t)
-+
- corecmd_exec_chroot(init_t)
- corecmd_exec_bin(init_t)
- 
-@@ -165,6 +183,8 @@
- 
- miscfiles_read_localization(init_t)
- 
-+allow init_t self:process setsched;
-+
- ifdef(`distro_gentoo',`
- 	allow init_t self:process { getcap setcap };
- ')
-@@ -187,6 +207,14 @@
- ')
- 
- optional_policy(`
-+	# /var/run/dovecot/login/ssl-parameters.dat is a hard link to
-+	# /var/lib/dovecot/ssl-parameters.dat and init tries to clean up
-+	# the directory. But we do not want to allow this.
-+	# The master process of dovecot will manage this file.
-+	dovecot_dontaudit_unlink_lib_files(initrc_t)
-+')
-+
-+optional_policy(`
- 	nscd_socket_use(init_t)
- ')
- 
-@@ -200,7 +228,7 @@
- #
- 
- allow initrc_t self:process { getpgid setsched setpgid setrlimit getsched };
--allow initrc_t self:capability ~{ sys_admin sys_module };
-+allow initrc_t self:capability ~{ audit_control audit_write sys_admin sys_module };
- dontaudit initrc_t self:capability sys_module; # sysctl is triggering this
- allow initrc_t self:passwd rootok;
- 
-@@ -214,10 +242,10 @@
- allow initrc_t initrc_devpts_t:chr_file rw_term_perms;
- term_create_pty(initrc_t,initrc_devpts_t)
- 
--# Going to single user mode
--init_exec(initrc_t)
-+init_telinit(initrc_t)
-+init_chat(initrc_t)
- 
--can_exec(initrc_t,initrc_exec_t)
-+can_exec(initrc_t,initscript)
- 
- manage_dirs_pattern(initrc_t,initrc_state_t,initrc_state_t)
- manage_files_pattern(initrc_t,initrc_state_t,initrc_state_t)
-@@ -270,7 +298,7 @@
- dev_read_sound_mixer(initrc_t)
- dev_write_sound_mixer(initrc_t)
- dev_setattr_all_chr_files(initrc_t)
--dev_read_lvm_control(initrc_t)
-+dev_rw_lvm_control(initrc_t)
- dev_delete_lvm_control_dev(initrc_t)
- dev_manage_generic_symlinks(initrc_t)
- dev_manage_generic_files(initrc_t)
-@@ -515,6 +542,31 @@
- 	')
- ')
- 
-+domain_dontaudit_use_interactive_fds(daemon)
-+
-+sysadm_dontaudit_search_home_dirs(daemon)
-+
-+tunable_policy(`allow_daemons_use_tty',`
-+	term_use_unallocated_ttys(daemon)
-+	term_use_generic_ptys(daemon)
-+	term_use_all_user_ttys(daemon)
-+	term_use_all_user_ptys(daemon)
-+', `
-+	term_dontaudit_use_unallocated_ttys(daemon)
-+	term_dontaudit_use_generic_ptys(daemon)
-+	term_dontaudit_use_all_user_ttys(daemon)
-+	term_dontaudit_use_all_user_ptys(daemon)
-+ ')
-+ 
-+# system-config-services causes avc messages that should be dontaudited
-+tunable_policy(`allow_daemons_dump_core',`
-+	files_dump_core(daemon)
-+')
-+
-+optional_policy(`
-+	unconfined_dontaudit_rw_pipes(daemon)
-+')
-+ 
- optional_policy(`
- 	amavis_search_lib(initrc_t)
- 	amavis_setattr_pid_files(initrc_t)
-@@ -573,6 +625,10 @@
- 	dbus_read_config(initrc_t)
- 
- 	optional_policy(`
-+		consolekit_dbus_chat(initrc_t)
-+	')
-+
-+	optional_policy(`
- 		networkmanager_dbus_chat(initrc_t)
- 	')
- ')
-@@ -658,12 +714,6 @@
- 	mta_read_config(initrc_t)
- 	mta_dontaudit_read_spool_symlinks(initrc_t)
- ')
--# cjp: require doesnt work in the else of optionals :\
--# this also would result in a type transition
--# conflict if sendmail is enabled
--#optional_policy(`',`
--#	mta_send_mail(initrc_t)
--#')
- 
- optional_policy(`
- 	ifdef(`distro_redhat',`
-@@ -724,6 +774,9 @@
- 
- 	# why is this needed:
- 	rpm_manage_db(initrc_t)
-+	# Allow SELinux aware applications to request rpm_script_t execution
-+	rpm_transition_script(initrc_t)
-+
- ')
- 
- optional_policy(`
-@@ -736,9 +789,11 @@
- 	squid_manage_logs(initrc_t)
- ')
- 
--optional_policy(`
--	# allow init scripts to su
--	su_restricted_domain_template(initrc,initrc_t,system_r)
-+ifndef(`targeted_policy',`
-+	optional_policy(`
-+		# allow init scripts to su
-+		su_restricted_domain_template(initrc,initrc_t,system_r)
-+	')
- ')
- 
- optional_policy(`
-@@ -757,6 +812,11 @@
- 	uml_setattr_util_sockets(initrc_t)
- ')
- 
-+# Cron jobs used to start and stop services
-+optional_policy(`
-+	cron_rw_pipes(daemon)
-+')
-+
- optional_policy(`
- 	unconfined_domain(initrc_t)
- 
-@@ -771,6 +831,10 @@
- ')
- 
- optional_policy(`
-+	rpm_dontaudit_rw_pipes(daemon)
-+')
-+
-+optional_policy(`
- 	vmware_read_system_config(initrc_t)
- 	vmware_append_system_config(initrc_t)
- ')
-@@ -793,3 +857,8 @@
- optional_policy(`
- 	zebra_read_config(initrc_t)
- ')
-+
-+unprivuser_append_home_content_files(daemon)
-+unprivuser_write_tmp_files(daemon)
-+logging_append_all_logs(daemon)
-+
+The following has been done:
 
---------------070505090405050003040003
-Content-Type: application/octet-stream;
- name="system_init.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="system_init.patch.sig"
+* Refactoring: moved lots of code from main() to static functions
+* Error reporting: some system related error messages are now printed to stderr instead of stdout
+* Usage message now includes the "-b" option as well
+* Fixed some memory leaks (pc[] and fc[])
+* More error checking
+* Removed dead code
+* Replaced sprintf() calls with snprintf()
+* Replaced magic numbers with symbolic constants
 
-iEYEABECAAYFAkh+DGMACgkQrlYvE4MpobPEbgCglwzCuSgs0bL2IGFb5qEmqsi4L3kAoLMH
-Vg6ogjDMaKzMhiY+q/ZOJurE
---------------070505090405050003040003--
+I hope I didn't break anything, so if you have the time, please check out
+the code and test it too. Yes, the program is trivial, but some errors
+may have crept in nevertheless...
+
+
+If you prefer to read the new sestatus.c instead of the patch,
+please go to:
+
+
+  http://www.helsinki.fi/~vmkari/sel
+
+
+Basically I have tried to preserve the old functionality as is,
+so there should be practically no user-visible changes.
+
+However, at least the following changes are visible to the user:
+
+1) When reporting controlling tty security context, I have
+   added checks for NULL return value from ttyname().
+   The older version just passed NULL along and the emitted error
+   message was then a little bit different.
+
+2) Some error messages are now sent to stderr instead of stdout
+
+Best regards,
+vmk
+-- 
+************************************************************************
+               Tietotekniikkaosasto / Helsingin yliopisto
+                 IT Department / University of Helsinki
+************************************************************************
+---696237619-768465958-1216220563=:10705
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=sestatus.diff
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64L.0807161802430.10705@ruuvi.it.helsinki.fi>
+Content-Description: patch for policycoreutils-2.0.46
+Content-Disposition: attachment; filename=sestatus.diff
+
+LS0tIHBvbGljeWNvcmV1dGlscy0yLjAuNDYvc2VzdGF0dXMvc2VzdGF0dXMu
+YwkyMDA4LTAzLTE4IDIyOjU3OjAxLjAwMDAwMDAwMCArMDIwMA0KKysrIHBv
+bGljeWNvcmV1dGlscy0yLjAuNDYtdm1rL3Nlc3RhdHVzL3Nlc3RhdHVzLmMJ
+MjAwOC0wNy0xNiAxNjoyMDo1Ni4wMDAwMDAwMDAgKzAzMDANCkBAIC0zLDI0
+OCArMywyMTUgQEANCiAgKiBEaXN0cmlidXRlZCB1bmRlciB0aGUgdGVybXMg
+b2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIHYyDQogICogJEhl
+YWRlcjogL2hvbWUvY3Zzcm9vdC9nZW50b28tcHJvamVjdHMvaGFyZGVuZWQv
+cG9saWN5Y29yZXV0aWxzLWV4dHJhL3NyYy9zZXN0YXR1cy5jLHYgMS4xMCAy
+MDA0LzAzLzI2IDE5OjI1OjUyIHBlYmVuaXRvIEV4cCAkDQogICogUGF0Y2gg
+cHJvdmlkZWQgYnkgU3RldmUgR3J1YmINCisgKg0KKyAqIDIwMDggUmVmYWN0
+b3JlZCBieSBWZXNhLU1hdHRpIEthcmkNCisgKiANCiAgKi8NCiANCisjaW5j
+bHVkZSA8Y3R5cGUuaD4NCisjaW5jbHVkZSA8ZGlyZW50Lmg+DQorI2luY2x1
+ZGUgPGVycm5vLmg+DQorI2luY2x1ZGUgPGxpYmdlbi5oPg0KICNpbmNsdWRl
+IDxzdGRpby5oPg0KICNpbmNsdWRlIDxzdGRsaWIuaD4NCiAjaW5jbHVkZSA8
+c3RyaW5nLmg+DQotI2luY2x1ZGUgPGVycm5vLmg+DQotI2luY2x1ZGUgPHNl
+bGludXgvc2VsaW51eC5oPg0KLSNpbmNsdWRlIDxzZWxpbnV4L2dldF9kZWZh
+dWx0X3R5cGUuaD4NCi0jaW5jbHVkZSA8c3lzL3R5cGVzLmg+DQotI2luY2x1
+ZGUgPHN5cy9zdGF0Lmg+DQotI2luY2x1ZGUgPGRpcmVudC5oPg0KICNpbmNs
+dWRlIDx1bmlzdGQuaD4NCi0jaW5jbHVkZSA8bGliZ2VuLmg+DQotI2luY2x1
+ZGUgPGN0eXBlLmg+DQorI2luY2x1ZGUgPHN5cy9zdGF0Lmg+DQorI2luY2x1
+ZGUgPHN5cy90eXBlcy5oPg0KKw0KKyNpbmNsdWRlIDxzZWxpbnV4L2dldF9k
+ZWZhdWx0X3R5cGUuaD4NCisjaW5jbHVkZSA8c2VsaW51eC9zZWxpbnV4Lmg+
+DQorDQogDQogI2RlZmluZSBQUk9DX0JBU0UgIi9wcm9jIg0KICNkZWZpbmUg
+TUFYX0NIRUNLIDUwDQogI2RlZmluZSBDT05GICIvZXRjL3Nlc3RhdHVzLmNv
+bmYiDQorI2RlZmluZSBJTklUX1BST0NfUElEIChwaWRfdCkxDQogDQogLyog
+Y29uZiBmaWxlIHNlY3Rpb25zICovDQogI2RlZmluZSBQUk9DUyAiW3Byb2Nl
+c3NdIg0KICNkZWZpbmUgRklMRVMgIltmaWxlc10iDQogDQotLyogYnVmZmVy
+IHNpemUgZm9yIGNtcF9jbWRsaW5lICovDQorLyogYnVmZmVyIHNpemUgZm9y
+IGNtcF9jbWRsaW5lKCkgYW5kIGxvYWRfY2hlY2tzKCkgKi8NCiAjZGVmaW5l
+IEJVRlNJWkUgMjU1DQogDQorDQogLyogY29sdW1uIHRvIHB1dCB0aGUgb3V0
+cHV0IChtdXN0IGJlIGEgbXVsdGlwbGUgb2YgOCkgKi8NCiBzdGF0aWMgdW5z
+aWduZWQgaW50IENPTCA9IDMyOw0KIA0KIGV4dGVybiBjaGFyICpzZWxpbnV4
+X21udDsNCiANCi1pbnQgY21wX2NtZGxpbmUoY29uc3QgY2hhciAqY29tbWFu
+ZCwgaW50IHBpZCkNCi17DQogDQorc3RhdGljIGludCBjbXBfY21kbGluZShj
+b25zdCBjaGFyICpjb21tYW5kLCBwaWRfdCBwaWQpDQorew0KIAljaGFyIGJ1
+ZltCVUZTSVpFXTsNCiAJY2hhciBmaWxlbmFtZVtCVUZTSVpFXTsNCiANCi0J
+bWVtc2V0KGJ1ZiwgJ1wwJywgQlVGU0laRSk7DQorCW1lbXNldChidWYsICdc
+MCcsIHNpemVvZiBidWYpOw0KIA0KLQkvKiBmaXJzdCByZWFkIHRoZSBwcm9j
+IGVudHJ5ICovDQotCXNwcmludGYoZmlsZW5hbWUsICIlcy8lZC9leGUiLCBQ
+Uk9DX0JBU0UsIHBpZCk7DQorCXNucHJpbnRmKGZpbGVuYW1lLCBzaXplb2Yg
+ZmlsZW5hbWUsICIlcy8lZC9leGUiLCBQUk9DX0JBU0UsIHBpZCk7DQogDQot
+CWlmIChyZWFkbGluayhmaWxlbmFtZSwgYnVmLCBCVUZTSVpFKSA8IDApDQor
+CWlmIChyZWFkbGluayhmaWxlbmFtZSwgYnVmLCBzaXplb2YgYnVmKSA8IDAp
+DQogCQlyZXR1cm4gMDsNCiANCi0JaWYgKGJ1ZltCVUZTSVpFIC0gMV0gIT0g
+J1wwJykNCi0JCWJ1ZltCVUZTSVpFIC0gMV0gPSAnXDAnOw0KKwlpZiAoYnVm
+W3NpemVvZiBidWYgLSAxXSAhPSAnXDAnKQ0KKwkJYnVmW3NpemVvZiBidWYg
+LSAxXSA9ICdcMCc7DQogDQotCS8qIGNoZWNrIGlmIHRoaXMgaXMgdGhlIGNv
+bW1hbmQgd2UncmUgbG9va2luZyBmb3IuICovDQotCWlmIChzdHJjbXAoY29t
+bWFuZCwgYnVmKSA9PSAwKQ0KLQkJcmV0dXJuIDE7DQotCWVsc2UNCi0JCXJl
+dHVybiAwOw0KKwlyZXR1cm4gIXN0cmNtcChjb21tYW5kLCBidWYpOw0KIH0N
+CiANCi1pbnQgcGlkb2YoY29uc3QgY2hhciAqY29tbWFuZCkNCitzdGF0aWMg
+aW50IHBpZG9mKGNvbnN0IGNoYXIgKmNvbW1hbmQsIHBpZF90ICpwaWQpDQog
+ew0KLS8qIGluc3BpcmVkIGJ5IGtpbGxhbGw1LmMgZnJvbSBwc21pc2MgKi8N
+CiAJRElSICpkaXI7DQogCXN0cnVjdCBkaXJlbnQgKmRlOw0KLQlpbnQgcGlk
+LCByZXQgPSAtMSwgc2VsZiA9IGdldHBpZCgpOw0KKwlwaWRfdCBzZWxmOw0K
+KwlpbnQgcmM7DQorDQorCXJjID0gLTE7DQogDQotCWlmICghKGRpciA9IG9w
+ZW5kaXIoUFJPQ19CQVNFKSkpIHsNCi0JCXBlcnJvcihQUk9DX0JBU0UpOw0K
+LQkJcmV0dXJuIC0xOw0KKwlkaXIgPSBvcGVuZGlyKFBST0NfQkFTRSk7DQor
+CWlmICghZGlyKSB7DQorCQlmcHJpbnRmKHN0ZGVyciwgIlVuYWJsZSB0byBv
+cGVuICVzOiAlcyIsIFBST0NfQkFTRSwgc3RyZXJyb3IoZXJybm8pKTsNCisJ
+CXJldHVybiByYzsNCiAJfQ0KIA0KLQl3aGlsZSAoKGRlID0gcmVhZGRpcihk
+aXIpKSAhPSBOVUxMKSB7DQorCXNlbGYgPSBnZXRwaWQoKTsNCisJd2hpbGUg
+KChkZSA9IHJlYWRkaXIoZGlyKSkpIHsNCiAJCWVycm5vID0gMDsNCi0JCXBp
+ZCA9IChpbnQpc3RydG9sKGRlLT5kX25hbWUsIChjaGFyICoqKU5VTEwsIDEw
+KTsNCi0JCWlmIChlcnJubyB8fCBwaWQgPT0gMCB8fCBwaWQgPT0gc2VsZikN
+CisJCSpwaWQgPSAocGlkX3Qpc3RydG9sKGRlLT5kX25hbWUsIE5VTEwsIDEw
+KTsNCisJCWlmIChlcnJubyB8fCAqcGlkID09IDAgfHwgKnBpZCA9PSBzZWxm
+KQ0KIAkJCWNvbnRpbnVlOw0KLQkJaWYgKGNtcF9jbWRsaW5lKGNvbW1hbmQs
+IHBpZCkpIHsNCi0JCQlyZXQgPSBwaWQ7DQorCQlpZiAoY21wX2NtZGxpbmUo
+Y29tbWFuZCwgKnBpZCkpIHsNCisJCQlyYyA9IDA7DQogCQkJYnJlYWs7DQog
+CQl9DQogCX0NCiANCiAJY2xvc2VkaXIoZGlyKTsNCi0JcmV0dXJuIHJldDsN
+CisJcmV0dXJuIHJjOw0KIH0NCiANCi12b2lkIGxvYWRfY2hlY2tzKGNoYXIg
+KnBjW10sIGludCAqbnBjLCBjaGFyICpmY1tdLCBpbnQgKm5mYykNCitzdGF0
+aWMgdm9pZCBsb2FkX2NoZWNrcyhjaGFyICpwY1tdLCBpbnQgKm5wYywgY2hh
+ciAqZmNbXSwgaW50ICpuZmMpDQogew0KLQ0KLQlGSUxFICpmcCA9IGZvcGVu
+KENPTkYsICJyIik7DQotCWNoYXIgYnVmWzI1NV0sICpidWZwOw0KLQlpbnQg
+YnVmX2xlbiwgc2VjdGlvbiA9IC0xOw0KLQlpbnQgcHJvY2xlbiA9IHN0cmxl
+bihQUk9DUyk7DQotCWludCBmaWxlbGVuID0gc3RybGVuKEZJTEVTKTsNCi0N
+Ci0JaWYgKGZwID09IE5VTEwpIHsNCi0JCXByaW50ZigiXG5VbmFibGUgdG8g
+b3BlbiAlcy5cbiIsIENPTkYpOw0KKwlGSUxFICpmcDsNCisJY2hhciBidWZb
+QlVGU0laRV07DQorCWNoYXIgKmJ1ZnA7DQorCWludCBidWZsZW4sIHNlY3Rp
+b247DQorCWludCBpOw0KKw0KKwlmcCA9IGZvcGVuKENPTkYsICJyIik7DQor
+CWlmICghZnApIHsNCisJCWZwcmludGYoc3RkZXJyLCAiXG5VbmFibGUgdG8g
+b3BlbiAlczogJXNcbiIsIENPTkYsIHN0cmVycm9yKGVycm5vKSk7DQogCQly
+ZXR1cm47DQogCX0NCiANCi0Jd2hpbGUgKCFmZW9mKGZwKSkgew0KLQkJaWYg
+KCFmZ2V0cyhidWYsIHNpemVvZiBidWYsIGZwKSkNCi0JCQlicmVhazsNCisJ
+c2VjdGlvbiA9IC0xOw0KKw0KKwl3aGlsZSAoZmdldHMoYnVmLCBzaXplb2Yg
+YnVmLCBmcCkpIHsNCiANCi0JCWJ1Zl9sZW4gPSBzdHJsZW4oYnVmKTsNCi0J
+CWlmIChidWZbYnVmX2xlbiAtIDFdID09ICdcbicpDQotCQkJYnVmW2J1Zl9s
+ZW4gLSAxXSA9IDA7DQorCQlidWZsZW4gPSBzdHJsZW4oYnVmKTsNCisJCWlm
+IChidWZbYnVmbGVuIC0gMV0gPT0gJ1xuJykNCisJCQlidWZbYnVmbGVuIC0g
+MV0gPSAnXDAnOw0KIA0KIAkJYnVmcCA9IGJ1ZjsNCi0JCXdoaWxlICgqYnVm
+cCAmJiBpc3NwYWNlKCpidWZwKSkgew0KKwkJd2hpbGUgKCpidWZwICYmIGlz
+c3BhY2UoKmJ1ZnApKQ0KIAkJCWJ1ZnArKzsNCi0JCQlidWZfbGVuLS07DQot
+CQl9DQogDQotCQlpZiAoKmJ1ZnAgPT0gJyMnKQ0KLQkJCS8qIHNraXAgY29t
+bWVudHMgKi8NCisJCWlmICgqYnVmcCA9PSAnIycgfHwgKmJ1ZnAgPT0gJ1ww
+JykNCiAJCQljb250aW51ZTsNCiANCi0JCWlmICgqYnVmcCkgew0KLQkJCWlm
+ICghKCpidWZwKSkNCi0JCQkJZ290byBvdXQ7DQotDQotCQkJaWYgKHN0cm5j
+bXAoYnVmcCwgUFJPQ1MsIHByb2NsZW4pID09IDApDQotCQkJCXNlY3Rpb24g
+PSAwOw0KLQkJCWVsc2UgaWYgKHN0cm5jbXAoYnVmcCwgRklMRVMsIGZpbGVs
+ZW4pID09IDApDQotCQkJCXNlY3Rpb24gPSAxOw0KLQkJCWVsc2Ugew0KLQkJ
+CQlzd2l0Y2ggKHNlY3Rpb24pIHsNCi0JCQkJY2FzZSAwOg0KLQkJCQkJaWYg
+KCpucGMgPj0gTUFYX0NIRUNLKQ0KLQkJCQkJCWJyZWFrOw0KLQkJCQkJcGNb
+Km5wY10gPQ0KLQkJCQkJICAgIChjaGFyICopbWFsbG9jKChidWZfbGVuKSAq
+DQotCQkJCQkJCSAgIHNpemVvZihjaGFyKSk7DQotCQkJCQltZW1jcHkocGNb
+Km5wY10sIGJ1ZnAsIGJ1Zl9sZW4pOw0KLQkJCQkJKCpucGMpKys7DQotCQkJ
+CQlidWZwID0gTlVMTDsNCisJCWlmICghc3RybmNtcChidWZwLCBQUk9DUywg
+c2l6ZW9mIFBST0NTKSkNCisJCQlzZWN0aW9uID0gMDsNCisJCWVsc2UgaWYg
+KCFzdHJuY21wKGJ1ZnAsIEZJTEVTLCBzaXplb2YgRklMRVMpKQ0KKwkJCXNl
+Y3Rpb24gPSAxOw0KKwkJZWxzZSB7DQorCQkJc3dpdGNoIChzZWN0aW9uKSB7
+DQorCQkJY2FzZSAwOg0KKwkJCQlpZiAoKm5wYyA+PSBNQVhfQ0hFQ0spDQog
+CQkJCQlicmVhazsNCi0JCQkJY2FzZSAxOg0KLQkJCQkJaWYgKCpuZmMgPj0g
+TUFYX0NIRUNLKQ0KLQkJCQkJCWJyZWFrOw0KLQkJCQkJZmNbKm5mY10gPQ0K
+LQkJCQkJICAgIChjaGFyICopbWFsbG9jKChidWZfbGVuKSAqDQotCQkJCQkJ
+CSAgIHNpemVvZihjaGFyKSk7DQotCQkJCQltZW1jcHkoZmNbKm5mY10sIGJ1
+ZnAsIGJ1Zl9sZW4pOw0KLQkJCQkJKCpuZmMpKys7DQotCQkJCQlidWZwID0g
+TlVMTDsNCisJCQkJcGNbKm5wY10gPSBzdHJkdXAoYnVmcCk7DQorCQkJCWlm
+ICghcGNbKm5wY10pDQorCQkJCQlnb3RvIG91dGZyZWU7DQorCQkJCSgqbnBj
+KSsrOw0KKwkJCQlicmVhazsNCisJCQljYXNlIDE6DQorCQkJCWlmICgqbmZj
+ID49IE1BWF9DSEVDSykNCiAJCQkJCWJyZWFrOw0KLQkJCQlkZWZhdWx0Og0K
+LQkJCQkJLyogaWdub3JlIGxpbmVzIGJlZm9yZSBhIHNlY3Rpb24gKi8NCi0J
+CQkJCXByaW50ZigiTGluZSBub3QgaW4gYSBzZWN0aW9uOiAlcy5cbiIsDQot
+CQkJCQkgICAgICAgYnVmKTsNCi0JCQkJCWJyZWFrOw0KLQkJCQl9DQorCQkJ
+CWZjWypuZmNdID0gc3RyZHVwKGJ1ZnApOw0KKwkJCQlpZiAoIWZjWypuZmNd
+KSANCisJCQkJCWdvdG8gb3V0ZnJlZTsNCisJCQkJKCpuZmMpKys7DQorCQkJ
+CWJyZWFrOw0KKwkJCWRlZmF1bHQ6DQorCQkJCS8qIGlnbm9yZSBsaW5lcyBi
+ZWZvcmUgYSBzZWN0aW9uICovDQorCQkJCXByaW50ZigiTGluZSBub3QgaW4g
+YSBzZWN0aW9uOiAlcy5cbiIsIGJ1Zik7DQorCQkJCWJyZWFrOw0KIAkJCX0N
+CiAJCX0NCiAJfQ0KLSAgICAgIG91dDoNCisNCisJaWYgKGZlcnJvcihmcCkp
+IHsNCisJCWZwcmludGYoc3RkZXJyLCAiXG5FcnJvciB3aGlsZSByZWFkaW5n
+ICVzOiAlc1xuIiwgQ09ORiwgc3RyZXJyb3IoZXJybm8pKTsNCisJCWdvdG8g
+b3V0ZnJlZTsNCisJfQ0KKw0KK291dDoNCiAJZmNsb3NlKGZwKTsNCiAJcmV0
+dXJuOw0KKw0KK291dGZyZWU6DQorCWZvciAoaSA9IDA7IGkgPCAqbnBjICYm
+IGkgPCBNQVhfQ0hFQ0s7IGkrKykNCisJCWZyZWUocGNbaV0pOw0KKwlmb3Ig
+KGkgPSAwOyBpIDwgKm5mYyAmJiBpIDwgTUFYX0NIRUNLOyBpKyspDQorCQlm
+cmVlKGZjW2ldKTsNCisJZ290byBvdXQ7DQogfQ0KIA0KLXZvaWQgcHJpbnRm
+X3RhYihjb25zdCBjaGFyICpvdXRwKQ0KK3N0YXRpYyB2b2lkIHByaW50Zl90
+YWIoY29uc3QgY2hhciAqb3V0cCkNCiB7DQogCWNoYXIgYnVmWzIwXTsNCi0J
+c25wcmludGYoYnVmLCBzaXplb2YoYnVmKSwgIiUlLSV1cyIsIENPTCk7DQor
+CXNucHJpbnRmKGJ1Ziwgc2l6ZW9mIGJ1ZiwgIiUlLSV1cyIsIENPTCk7DQog
+CXByaW50ZihidWYsIG91dHApOw0KIA0KIH0NCiANCi1pbnQgbWFpbihpbnQg
+YXJnYywgY2hhciAqKmFyZ3YpDQorc3RhdGljIGludCBzdGF0dXNfc2hvdyh2
+b2lkKQ0KIHsNCi0JLyogdGhlc2UgdmFycyBhcmUgcmV1c2VkIHNldmVyYWwg
+dGltZXMgKi8NCi0JaW50IHJjLCBvcHQsIGksIGM7DQotCWNoYXIgKmNvbnRl
+eHQ7DQotDQotCS8qIGZpbGVzIHRoYXQgbmVlZCBjb250ZXh0IGNoZWNrcyAq
+Lw0KLQljaGFyICpmY1tNQVhfQ0hFQ0tdOw0KLQljaGFyICpjdGVybSA9IHR0
+eW5hbWUoMCk7DQotCWludCBuZmMgPSAwOw0KLQlzdHJ1Y3Qgc3RhdCBtOw0K
+LQ0KLQkvKiBwcm9jZXNzZXMgdGhhdCBuZWVkIGNvbnRleHQgY2hlY2tzICov
+DQotCWNoYXIgKnBjW01BWF9DSEVDS107DQotCWludCBucGMgPSAwOw0KLQ0K
+LQkvKiBib29sZWFucyAqLw0KLQljaGFyICoqYm9vbHM7DQotCWludCBuYm9v
+bDsNCi0NCi0JaW50IHZlcmJvc2UgPSAwOw0KLQlpbnQgc2hvd19ib29scyA9
+IDA7DQotDQotCS8qIHBvbGljeSAqLw0KLQljb25zdCBjaGFyICpwb2xfbmFt
+ZTsNCi0JY2hhciAqcG9sX3BhdGg7DQotDQotCXdoaWxlICgxKSB7DQotCQlv
+cHQgPSBnZXRvcHQoYXJnYywgYXJndiwgInZiIik7DQotCQlpZiAob3B0ID09
+IC0xKQ0KLQkJCWJyZWFrOw0KLQkJc3dpdGNoIChvcHQpIHsNCi0JCWNhc2Ug
+J3YnOg0KLQkJCXZlcmJvc2UgPSAxOw0KLQkJCWJyZWFrOw0KLQkJY2FzZSAn
+Yic6DQotCQkJc2hvd19ib29scyA9IDE7DQotCQkJYnJlYWs7DQotCQlkZWZh
+dWx0Og0KLQkJCS8qIGludmFsaWQgb3B0aW9uICovDQotCQkJcHJpbnRmKCJc
+blVzYWdlOiAlcyBbT1BUSU9OXVxuXG4iLCBiYXNlbmFtZShhcmd2WzBdKSk7
+DQotCQkJcHJpbnRmDQotCQkJICAgICgiICAtdiAgVmVyYm9zZSBjaGVjayBv
+ZiBwcm9jZXNzIGFuZCBmaWxlIGNvbnRleHRzLlxuIik7DQotCQkJcHJpbnRm
+KCJcbldpdGhvdXQgb3B0aW9ucywgc2hvdyBTRUxpbnV4IHN0YXR1cy5cbiIp
+Ow0KLQkJCXJldHVybiAtMTsNCi0JCX0NCi0JfQ0KIAlwcmludGZfdGFiKCJT
+RUxpbnV4IHN0YXR1czoiKTsNCi0JcmMgPSBpc19zZWxpbnV4X2VuYWJsZWQo
+KTsNCiANCi0Jc3dpdGNoIChyYykgew0KKwlzd2l0Y2ggKGlzX3NlbGludXhf
+ZW5hYmxlZCgpKSB7DQogCWNhc2UgMToNCiAJCXByaW50ZigiZW5hYmxlZFxu
+Iik7DQorCQlyZXR1cm4gMTsNCiAJCWJyZWFrOw0KIAljYXNlIDA6DQogCQlw
+cmludGYoImRpc2FibGVkXG4iKTsNCiAJCXJldHVybiAwOw0KIAkJYnJlYWs7
+DQogCWRlZmF1bHQ6DQotCQlwcmludGYoInVua25vd24gKCVzKVxuIiwgc3Ry
+ZXJyb3IoZXJybm8pKTsNCisJCXByaW50ZigidW5rbm93biAoJXMpXG4iLCBz
+dHJlcnJvcihlcnJubykpOyANCiAJCXJldHVybiAwOw0KIAkJYnJlYWs7DQog
+CX0NCit9DQogDQorc3RhdGljIGludCBtb3VudF9zaG93KGNvbnN0IGNoYXIg
+Km1udCkNCit7DQogCXByaW50Zl90YWIoIlNFTGludXhmcyBtb3VudDoiKTsN
+Ci0JaWYgKHNlbGludXhfbW50ICE9IE5VTEwpIHsNCi0JCXByaW50ZigiJXNc
+biIsIHNlbGludXhfbW50KTsNCi0JfSBlbHNlIHsNCi0JCXByaW50Zigibm90
+IG1vdW50ZWRcblxuIik7DQotCQlwcmludGYoIlBsZWFzZSBtb3VudCBzZWxp
+bnV4ZnMgZm9yIHByb3BlciByZXN1bHRzLlxuIik7DQotCQlyZXR1cm4gLTE7
+DQotCX0NCiANCisJaWYgKG1udCkgew0KKwkJcHJpbnRmKCIlc1xuIiwgbW50
+KTsNCisJCXJldHVybiAwOw0KKwl9IA0KKw0KKwlyZXR1cm4gLTE7DQorfQ0K
+Kw0KK3N0YXRpYyB2b2lkIG1vZGVfc2hvdyh2b2lkKQ0KK3sNCiAJcHJpbnRm
+X3RhYigiQ3VycmVudCBtb2RlOiIpOw0KLQlyYyA9IHNlY3VyaXR5X2dldGVu
+Zm9yY2UoKTsNCi0Jc3dpdGNoIChyYykgew0KKw0KKwlzd2l0Y2ggKHNlY3Vy
+aXR5X2dldGVuZm9yY2UoKSkgew0KIAljYXNlIDE6DQogCQlwcmludGYoImVu
+Zm9yY2luZ1xuIik7DQogCQlicmVhazsNCkBAIC0yNTUsOCArMjIyLDE0IEBA
+DQogCQlwcmludGYoInVua25vd24gKCVzKVxuIiwgc3RyZXJyb3IoZXJybm8p
+KTsNCiAJCWJyZWFrOw0KIAl9DQorfQ0KKw0KK3N0YXRpYyB2b2lkIGNvbmZt
+b2RlX3Nob3codm9pZCkNCit7DQorCWludCByYzsNCiANCiAJcHJpbnRmX3Rh
+YigiTW9kZSBmcm9tIGNvbmZpZyBmaWxlOiIpOw0KKw0KIAlpZiAoc2VsaW51
+eF9nZXRlbmZvcmNlbW9kZSgmcmMpID09IDApIHsNCiAJCXN3aXRjaCAocmMp
+IHsNCiAJCWNhc2UgMToNCkBAIC0yNjksODEgKzI0Miw5OSBAQA0KIAkJCXBy
+aW50ZigiZGlzYWJsZWRcbiIpOw0KIAkJCWJyZWFrOw0KIAkJfQ0KLQl9IGVs
+c2Ugew0KKwl9IGVsc2UNCiAJCXByaW50ZigiZXJyb3IgKCVzKVxuIiwgc3Ry
+ZXJyb3IoZXJybm8pKTsNCi0JfQ0KK30NCisNCitzdGF0aWMgdm9pZCBwb2xp
+Y3l2ZXJzX3Nob3codm9pZCkNCit7DQorCWludCByYzsNCiANCi0JcmMgPSBz
+ZWN1cml0eV9wb2xpY3l2ZXJzKCk7DQogCXByaW50Zl90YWIoIlBvbGljeSB2
+ZXJzaW9uOiIpOw0KKw0KKwlyYyA9IHNlY3VyaXR5X3BvbGljeXZlcnMoKTsN
+CiAJaWYgKHJjIDwgMCkNCiAJCXByaW50ZigidW5rbm93biAoJXMpXG4iLCBz
+dHJlcnJvcihlcnJubykpOw0KIAllbHNlDQogCQlwcmludGYoIiVkXG4iLCBy
+Yyk7DQorfQ0KKw0KK3N0YXRpYyB2b2lkIGNvbmZwb2xpY3l2ZXJzX3Nob3co
+dm9pZCkNCit7DQorCWNvbnN0IGNoYXIgKnBvbF9uYW1lOw0KKwljaGFyICpw
+b2xfcGF0aDsNCiANCi0JLyogRHVtcCBhbGwgdGhlIHBhdGggaW5mb3JtYXRp
+b24gKi8NCiAJcHJpbnRmX3RhYigiUG9saWN5IGZyb20gY29uZmlnIGZpbGU6
+Iik7DQorDQogCXBvbF9wYXRoID0gc3RyZHVwKHNlbGludXhfcG9saWN5X3Jv
+b3QoKSk7DQotCWlmIChwb2xfcGF0aCkgew0KLQkJcG9sX25hbWUgPSBiYXNl
+bmFtZShwb2xfcGF0aCk7DQotCQlwdXRzKHBvbF9uYW1lKTsNCi0JCWZyZWUo
+cG9sX3BhdGgpOw0KLQl9IGVsc2Ugew0KKwlpZiAoIXBvbF9wYXRoKSB7DQog
+CQlwcmludGYoImVycm9yICglcylcbiIsIHN0cmVycm9yKGVycm5vKSk7DQor
+CQlyZXR1cm47DQogCX0NCiANCi0JaWYgKHNob3dfYm9vbHMpIHsNCi0JCS8q
+IHNob3cgYm9vbGVhbnMgKi8NCi0JCWlmIChzZWN1cml0eV9nZXRfYm9vbGVh
+bl9uYW1lcygmYm9vbHMsICZuYm9vbCkgPj0gMCkgew0KLQkJCXByaW50Zigi
+XG5Qb2xpY3kgYm9vbGVhbnM6XG4iKTsNCi0NCi0JCQlmb3IgKGkgPSAwOyBp
+IDwgbmJvb2w7IGkrKykgew0KLQkJCQlpZiAoc3RybGVuKGJvb2xzW2ldKSAr
+IDEgPiBDT0wpDQotCQkJCQlDT0wgPSBzdHJsZW4oYm9vbHNbaV0pICsgMTsN
+Ci0JCQl9DQotCQkJZm9yIChpID0gMDsgaSA8IG5ib29sOyBpKyspIHsNCi0J
+CQkJcHJpbnRmX3RhYihib29sc1tpXSk7DQorCXBvbF9uYW1lID0gYmFzZW5h
+bWUocG9sX3BhdGgpOw0KKwlwdXRzKHBvbF9uYW1lKTsNCisJZnJlZShwb2xf
+cGF0aCk7DQorfQ0KIA0KLQkJCQlyYyA9IHNlY3VyaXR5X2dldF9ib29sZWFu
+X2FjdGl2ZShib29sc1tpXSk7DQotCQkJCXN3aXRjaCAocmMpIHsNCitzdGF0
+aWMgdm9pZCBib29sc19zaG93KHVuc2lnbmVkIGludCAqY29sdW1uKQ0KK3sN
+CisJY2hhciAqKmJvb2xzOw0KKwlpbnQgbmJvb2w7DQorCWludCBjLCBpLCBy
+YzsNCisNCisJcmMgPSBzZWN1cml0eV9nZXRfYm9vbGVhbl9uYW1lcygmYm9v
+bHMsICZuYm9vbCk7DQorCWlmIChyYyA8IDApDQorCQlyZXR1cm47DQorDQor
+CXByaW50ZigiUG9saWN5IGJvb2xlYW5zOlxuIik7DQorDQorCQlmb3IgKGkg
+PSAwOyBpIDwgbmJvb2w7IGkrKykNCisJCQlpZiAoc3RybGVuKGJvb2xzW2ld
+KSArIDEgPiAqY29sdW1uKQ0KKwkJCQkqY29sdW1uID0gc3RybGVuKGJvb2xz
+W2ldKSArIDE7DQorCQkNCisJCWZvciAoaSA9IDA7IGkgPCBuYm9vbDsgaSsr
+KSB7DQorCQkJcHJpbnRmX3RhYihib29sc1tpXSk7DQorDQorCQkJcmMgPSBz
+ZWN1cml0eV9nZXRfYm9vbGVhbl9hY3RpdmUoYm9vbHNbaV0pOw0KKwkJCXN3
+aXRjaCAocmMpIHsNCisJCQljYXNlIDE6DQorCQkJCXByaW50Zigib24iKTsN
+CisJCQkJYnJlYWs7DQorCQkJY2FzZSAwOg0KKwkJCQlwcmludGYoIm9mZiIp
+Ow0KKwkJCQlicmVhazsNCisJCQlkZWZhdWx0Og0KKwkJCQlwcmludGYoInVu
+a25vd24gKCVzKSIsIHN0cmVycm9yKGVycm5vKSk7DQorCQkJCWJyZWFrOw0K
+KwkJCX0NCisJCQljID0gc2VjdXJpdHlfZ2V0X2Jvb2xlYW5fcGVuZGluZyhi
+b29sc1tpXSk7DQorCQkJaWYgKGMgIT0gcmMpDQorCQkJCXN3aXRjaCAoYykg
+ew0KIAkJCQljYXNlIDE6DQotCQkJCQlwcmludGYoIm9uIik7DQorCQkJCQlw
+cmludGYoIiAoYWN0aXZhdGUgcGVuZGluZykiKTsNCiAJCQkJCWJyZWFrOw0K
+IAkJCQljYXNlIDA6DQotCQkJCQlwcmludGYoIm9mZiIpOw0KKwkJCQkJcHJp
+bnRmKCIgKGluYWN0aXZhdGUgcGVuZGluZykiKTsNCiAJCQkJCWJyZWFrOw0K
+IAkJCQlkZWZhdWx0Og0KLQkJCQkJcHJpbnRmKCJ1bmtub3duICglcykiLCBz
+dHJlcnJvcihlcnJubykpOw0KKwkJCQkJcHJpbnRmKCIgKHBlbmRpbmcgZXJy
+b3I6ICVzKSIsIHN0cmVycm9yKGVycm5vKSk7DQogCQkJCQlicmVhazsNCiAJ
+CQkJfQ0KLQkJCQljID0gc2VjdXJpdHlfZ2V0X2Jvb2xlYW5fcGVuZGluZyhi
+b29sc1tpXSk7DQotCQkJCWlmIChjICE9IHJjKQ0KLQkJCQkJc3dpdGNoIChj
+KSB7DQotCQkJCQljYXNlIDE6DQotCQkJCQkJcHJpbnRmKCIgKGFjdGl2YXRl
+IHBlbmRpbmcpIik7DQotCQkJCQkJYnJlYWs7DQotCQkJCQljYXNlIDA6DQot
+CQkJCQkJcHJpbnRmKCIgKGluYWN0aXZhdGUgcGVuZGluZykiKTsNCi0JCQkJ
+CQlicmVhazsNCi0JCQkJCWRlZmF1bHQ6DQotCQkJCQkJcHJpbnRmKCIgKHBl
+bmRpbmcgZXJyb3I6ICVzKSIsDQotCQkJCQkJICAgICAgIHN0cmVycm9yKGVy
+cm5vKSk7DQotCQkJCQkJYnJlYWs7DQotCQkJCQl9DQotCQkJCXByaW50Zigi
+XG4iKTsNCisJCQlwcmludGYoIlxuIik7DQogDQotCQkJCS8qIGZyZWUgdXAg
+dGhlIGJvb2xlYW5zICovDQotCQkJCWZyZWUoYm9vbHNbaV0pOw0KLQkJCX0N
+Ci0JCQlmcmVlKGJvb2xzKTsNCisJCQlmcmVlKGJvb2xzW2ldKTsNCiAJCX0N
+Ci0JfQ0KLQkvKiBvbmx5IHNob3cgY29udGV4dHMgaWYgLXYgaXMgZ2l2ZW4g
+Ki8NCi0JaWYgKCF2ZXJib3NlKQ0KLQkJcmV0dXJuIDA7DQorCQlmcmVlKGJv
+b2xzKTsNCit9DQogDQotCWxvYWRfY2hlY2tzKHBjLCAmbnBjLCBmYywgJm5m
+Yyk7DQorc3RhdGljIHZvaWQgcHJvY2Nvbl9zaG93KGNoYXIgKnBjW10sIGlu
+dCBucGMpDQorew0KKwljaGFyICpjb250ZXh0Ow0KKwlwaWRfdCBwaWQ7DQor
+CWludCBpLCByYzsNCiANCi0JcHJpbnRmKCJcblByb2Nlc3MgY29udGV4dHM6
+XG4iKTsNCisJcHJpbnRmKCJQcm9jZXNzIGNvbnRleHRzOlxuIik7DQogDQog
+CXByaW50Zl90YWIoIkN1cnJlbnQgY29udGV4dDoiKTsNCiAJaWYgKGdldGNv
+bigmY29udGV4dCkgPj0gMCkgew0KQEAgLTM1Myw0OCArMzQ0LDY0IEBADQog
+CQlwcmludGYoInVua25vd24gKCVzKVxuIiwgc3RyZXJyb3IoZXJybm8pKTsN
+CiANCiAJcHJpbnRmX3RhYigiSW5pdCBjb250ZXh0OiIpOw0KLQlpZiAoZ2V0
+cGlkY29uKDEsICZjb250ZXh0KSA+PSAwKSB7DQorCWlmIChnZXRwaWRjb24o
+SU5JVF9QUk9DX1BJRCwgJmNvbnRleHQpID49IDApIHsNCiAJCXByaW50Zigi
+JXNcbiIsIGNvbnRleHQpOw0KIAkJZnJlZWNvbihjb250ZXh0KTsNCiAJfSBl
+bHNlDQogCQlwcmludGYoInVua25vd24gKCVzKVxuIiwgc3RyZXJyb3IoZXJy
+bm8pKTsNCiANCiAJZm9yIChpID0gMDsgaSA8IG5wYzsgaSsrKSB7DQotCQly
+YyA9IHBpZG9mKHBjW2ldKTsNCi0JCWlmIChyYyA+IDApIHsNCi0JCQlpZiAo
+Z2V0cGlkY29uKHJjLCAmY29udGV4dCkgPCAwKQ0KLQkJCQljb250aW51ZTsN
+CisJCXJjID0gcGlkb2YocGNbaV0sICZwaWQpOw0KIA0KLQkJCXByaW50Zl90
+YWIocGNbaV0pOw0KLQkJCXByaW50ZigiJXNcbiIsIGNvbnRleHQpOw0KLQkJ
+CWZyZWVjb24oY29udGV4dCk7DQotCQl9DQotCX0NCisJCWlmIChyYyA8IDAp
+DQorCQkJY29udGludWU7DQogDQotCXByaW50ZigiXG5GaWxlIGNvbnRleHRz
+OlxuIik7DQorCQlpZiAoZ2V0cGlkY29uKHBpZCwgJmNvbnRleHQpIDwgMCkN
+CisJCQljb250aW51ZTsNCiANCi0JLyogY29udHJvbGxpbmcgdGVybSAqLw0K
+LQlwcmludGZfdGFiKCJDb250cm9sbGluZyB0ZXJtOiIpOw0KLQlpZiAobGdl
+dGZpbGVjb24oY3Rlcm0sICZjb250ZXh0KSA+PSAwKSB7DQorCQlwcmludGZf
+dGFiKHBjW2ldKTsNCiAJCXByaW50ZigiJXNcbiIsIGNvbnRleHQpOw0KIAkJ
+ZnJlZWNvbihjb250ZXh0KTsNCi0JfSBlbHNlIHsNCi0JCXByaW50ZigidW5r
+bm93biAoJXMpXG4iLCBzdHJlcnJvcihlcnJubykpOw0KIAl9DQogDQorCWZv
+ciAoaSA9IDA7IGkgPCBucGM7IGkrKykNCisJCWZyZWUocGNbaV0pOw0KK30N
+CisNCitzdGF0aWMgdm9pZCBmaWxlY29uX3Nob3coY2hhciAqZmNbXSwgaW50
+IG5mYykNCit7DQorCXN0cnVjdCBzdGF0IHN0Ow0KKwljaGFyICpjb250ZXh0
+Ow0KKwljaGFyICpjdHJsdGVybTsNCisJaW50IGk7DQorDQorCXByaW50Zigi
+RmlsZSBjb250ZXh0czpcbiIpOw0KKw0KKwlwcmludGZfdGFiKCJDb250cm9s
+bGluZyB0ZXJtOiIpOw0KKw0KKwljdHJsdGVybSA9IHR0eW5hbWUoU1RESU5f
+RklMRU5PKTsNCisJaWYgKGN0cmx0ZXJtKSB7DQorCQlpZiAobGdldGZpbGVj
+b24oY3RybHRlcm0sICZjb250ZXh0KSA+PSAwKSB7DQorCQkJcHJpbnRmKCIl
+c1xuIiwgY29udGV4dCk7DQorCQkJZnJlZWNvbihjb250ZXh0KTsNCisJCX0g
+ZWxzZSB7DQorCQkJcHJpbnRmKCJ1bmtub3duICglcylcbiIsIHN0cmVycm9y
+KGVycm5vKSk7DQorCQl9DQorCX0gZWxzZQ0KKwkJcHJpbnRmKCJlcnJvcjog
+JXNcbiIsIHN0cmVycm9yKGVycm5vKSk7DQorDQogCWZvciAoaSA9IDA7IGkg
+PCBuZmM7IGkrKykgew0KIAkJaWYgKGxnZXRmaWxlY29uKGZjW2ldLCAmY29u
+dGV4dCkgPj0gMCkgew0KIAkJCXByaW50Zl90YWIoZmNbaV0pOw0KIA0KIAkJ
+CS8qIGNoZWNrIGlmIHRoaXMgaXMgYSBzeW1saW5rICovDQotCQkJaWYgKGxz
+dGF0KGZjW2ldLCAmbSkpIHsNCi0JCQkJcHJpbnRmDQotCQkJCSAgICAoIiVz
+IChjb3VsZCBub3QgY2hlY2sgbGluayBzdGF0dXMgKCVzKSEpXG4iLA0KKwkJ
+CWlmIChsc3RhdChmY1tpXSwgJnN0KSkgew0KKwkJCQlwcmludGYgKCIlcyAo
+Y291bGQgbm90IGNoZWNrIGxpbmsgc3RhdHVzICglcykhKVxuIiwNCiAJCQkJ
+ICAgICBjb250ZXh0LCBzdHJlcnJvcihlcnJubykpOw0KIAkJCQlmcmVlY29u
+KGNvbnRleHQpOw0KIAkJCQljb250aW51ZTsNCiAJCQl9DQotCQkJaWYgKFNf
+SVNMTksobS5zdF9tb2RlKSkgew0KKwkJCWlmIChTX0lTTE5LKHN0LnN0X21v
+ZGUpKSB7DQogCQkJCS8qIHByaW50IGxpbmsgdGFyZ2V0IGNvbnRleHQgKi8N
+CiAJCQkJcHJpbnRmKCIlcyAtPiAiLCBjb250ZXh0KTsNCiAJCQkJZnJlZWNv
+bihjb250ZXh0KTsNCkBAIC00MDIsMTYgKzQwOSw4MSBAQA0KIAkJCQlpZiAo
+Z2V0ZmlsZWNvbihmY1tpXSwgJmNvbnRleHQpID49IDApIHsNCiAJCQkJCXBy
+aW50ZigiJXNcbiIsIGNvbnRleHQpOw0KIAkJCQkJZnJlZWNvbihjb250ZXh0
+KTsNCi0JCQkJfSBlbHNlIHsNCi0JCQkJCXByaW50ZigidW5rbm93biAoJXMp
+XG4iLA0KLQkJCQkJICAgICAgIHN0cmVycm9yKGVycm5vKSk7DQotCQkJCX0N
+CisJCQkJfSBlbHNlIA0KKwkJCQkJcHJpbnRmKCJ1bmtub3duICglcylcbiIs
+IHN0cmVycm9yKGVycm5vKSk7DQogCQkJfSBlbHNlIHsNCiAJCQkJcHJpbnRm
+KCIlc1xuIiwgY29udGV4dCk7DQogCQkJCWZyZWVjb24oY29udGV4dCk7DQog
+CQkJfQ0KKwkJfSANCisJfQ0KKw0KKwlmb3IgKGkgPSAwOyBpIDwgbmZjOyBp
+KyspDQorCQlmcmVlKGZjW2ldKTsNCit9DQorDQoraW50IG1haW4oaW50IGFy
+Z2MsIGNoYXIgKmFyZ3ZbXSkNCit7DQorCWNoYXIgKnBjW01BWF9DSEVDS107
+IC8qIHByb2Nlc3NlcyB0aGF0IG5lZWQgY29udGV4dCBjaGVja3MgKi8NCisJ
+Y2hhciAqZmNbTUFYX0NIRUNLXTsgLyogZmlsZXMgdGhhdCBuZWVkIGNvbnRl
+eHQgY2hlY2tzICovDQorCWludCBucGMsIG5mYzsNCisJaW50IHZlcmJvc2Us
+IGJvb2xzOw0KKwlpbnQgcmMsIG9wdDsNCisNCisJbnBjID0gbmZjID0gMDsN
+CisJdmVyYm9zZSA9IGJvb2xzID0gMDsNCisNCisJd2hpbGUgKDEpIHsNCisJ
+CW9wdCA9IGdldG9wdChhcmdjLCBhcmd2LCAidmIiKTsNCisJCWlmIChvcHQg
+PT0gLTEpDQorCQkJYnJlYWs7DQorCQlzd2l0Y2ggKG9wdCkgew0KKwkJY2Fz
+ZSAndic6DQorCQkJdmVyYm9zZSA9IDE7DQorCQkJYnJlYWs7DQorCQljYXNl
+ICdiJzoNCisJCQlib29scyA9IDE7DQorCQkJYnJlYWs7DQorCQlkZWZhdWx0
+Og0KKwkJCWZwcmludGYoc3RkZXJyLCAiXG5Vc2FnZTogJXMgW09QVElPTl1c
+blxuIiwgYmFzZW5hbWUoYXJndlswXSkpOw0KKwkJCWZwcmludGYoc3RkZXJy
+LCAiICAtYiAgRGlzcGxheSB0aGUgY3VycmVudCBzdGF0ZSBvZiBib29sZWFu
+cy5cbiIpOw0KKwkJCWZwcmludGYoc3RkZXJyLCAiICAtdiAgVmVyYm9zZSBj
+aGVjayBvZiBwcm9jZXNzIGFuZCBmaWxlIGNvbnRleHRzLlxuIik7DQorCQkJ
+ZnByaW50ZihzdGRlcnIsICJcbldpdGhvdXQgb3B0aW9ucywgc2hvdyBTRUxp
+bnV4IHN0YXR1cy5cbiIpOw0KKwkJCXJldHVybiAtMTsNCiAJCX0NCiAJfQ0K
+IA0KKwlyYyA9IHN0YXR1c19zaG93KCk7DQorCWlmIChyYyA8IDEpIHsNCisJ
+CXJldHVybiByYzsNCisJfQ0KKw0KKwlyYyA9IG1vdW50X3Nob3coc2VsaW51
+eF9tbnQpOw0KKwlpZiAocmMgPCAwKSB7DQorCQlmcHJpbnRmKHN0ZGVyciwg
+Im5vdCBtb3VudGVkXG5cblBsZWFzZSBtb3VudCBzZWxpbnV4ZnMgZm9yIHBy
+b3BlciByZXN1bHRzLlxuIik7DQorCQlyZXR1cm4gcmM7DQorCX0NCisNCisJ
+bW9kZV9zaG93KCk7DQorCWNvbmZtb2RlX3Nob3coKTsNCisJcG9saWN5dmVy
+c19zaG93KCk7DQorCWNvbmZwb2xpY3l2ZXJzX3Nob3coKTsNCisNCisJaWYg
+KGJvb2xzKSB7DQorCQlwdXRjaGFyKCdcbicpOw0KKwkJYm9vbHNfc2hvdygm
+Q09MKTsNCisJfQ0KKw0KKwlpZiAoIXZlcmJvc2UpDQorCQlyZXR1cm4gMDsN
+CisNCisJbG9hZF9jaGVja3MocGMsICZucGMsIGZjLCAmbmZjKTsNCisNCisJ
+cHV0Y2hhcignXG4nKTsNCisJcHJvY2Nvbl9zaG93KHBjLCBucGMpOw0KKw0K
+KwlwdXRjaGFyKCdcbicpOw0KKwlmaWxlY29uX3Nob3coZmMsIG5mYyk7DQor
+DQogCXJldHVybiAwOw0KIH0NCg==
+
+---696237619-768465958-1216220563=:10705--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
