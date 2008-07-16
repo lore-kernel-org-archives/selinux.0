@@ -1,56 +1,60 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6G7lttI005375
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 03:47:55 -0400
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6G7lsmS015955
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 07:47:54 GMT
-Received: by an-out-0708.google.com with SMTP id d30so46799and.75
-        for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 00:47:54 -0700 (PDT)
-Message-ID: <dd18b0c30807160047r23d6f795ua8d16ee2534000ab@mail.gmail.com>
-Date: Wed, 16 Jul 2008 07:47:54 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: russell@coker.com.au
-Subject: Re: OpenMoko/JFFS2 sestatus difficulties
-Cc: "KaiGai Kohei" <kaigai@ak.jp.nec.com>,
-        "Willis Vandevanter" <vandevwa@jmu.edu>, selinux@tycho.nsa.gov,
-        ynakam@hitachisoft.jp
-In-Reply-To: <200807161714.35195.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
-	 <487D46B5.9070608@ak.jp.nec.com>
-	 <dd18b0c30807152013s2c21888ei73896ff2a51b67df@mail.gmail.com>
-	 <200807161714.35195.russell@coker.com.au>
+Subject: Re: rawhide policy on FC9 build fails
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <cadfc0e40807151044t62062e1ap7950c5a0f2c1e5a4@mail.gmail.com>
+References: <cadfc0e40807151044t62062e1ap7950c5a0f2c1e5a4@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 16 Jul 2008 06:38:57 -0400
+Message-Id: <1216204737.17602.29.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jul 16, 2008 at 7:14 AM, Russell Coker <russell@coker.com.au> wrote:
-> On Wednesday 16 July 2008 13:13, "Justin Mattock" <justinmattock@gmail.com>
-> wrote:
->> make sure fstab has it entry to mount SELinux, and do a ldd /sbin/init
->
-> I think that in most situations any requirement for a SE Linux entry
-> in /etc/fstab would be a bug.  NB I am not saying that no-one needs it,
-> merely that if you need it then you probably need to fix something else.
->
-> --
-> russell@coker.com.au
-> http://etbe.coker.com.au/          My Blog
->
-> http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
->
 
-I always for some reason put that in fstab just as a good practice,
-from what I remember like what you had said "you probably need to fix
-something else".
-maybe libselinux(older versions) was causing this. Also adding
-libselinux in /etc/ld.so.conf was another step I used to make sure I
-did as well.
-regards;
+On Tue, 2008-07-15 at 12:44 -0500, Xavier Toth wrote:
+> I wanted to experiment with running the latest policy (I want the
+> latest X policy) on FC9 so I got the source rpm and tried to build it.
+> I update to the required checkpolicy version and also update libsepol
+> since rawhide and FC9 use the same version. The rpmbuild however fails
+> 
+> m4 -D enable_mls -D distro_redhat -D mls_num_sens=16 -D
+> mls_num_cats=1024 -D mcs_num_cats=1024 -D hide_broken_symptoms -D
+> self_contained_policy policy/support/file_patterns.spt
+> policy/support/ipc_patterns.spt policy/support/loadable_module.spt
+> policy/support/misc_macros.spt policy/support/misc_patterns.spt
+> policy/support/mls_mcs_macros.spt policy/support/obj_perm_sets.spt
+> tmp/generated_definitions.conf policy/global_booleans
+> policy/global_tunables > tmp/global_bools.conf
+> Creating mls base module base.conf
+> cat tmp/pre_te_files.conf tmp/all_attrs_types.conf
+> tmp/global_bools.conf tmp/only_te_rules.conf tmp/all_post.conf >
+> base.conf
+> Compiling mls base module
+> /usr/bin/checkmodule -M -U deny base.conf -o tmp/base.mod
+> /usr/bin/checkmodule:  loading policy configuration from base.conf
+> libsepol.expand_module: Error while indexing out symbols
+> /usr/bin/checkmodule:  expand module failed
+> make: *** [tmp/base.mod] Error 1
+> error: Bad exit status from /var/tmp/rpm-tmp.2964 (%install)
+> 
+> 
+> RPM build errors:
+>     Bad exit status from /var/tmp/rpm-tmp.2964 (%install)
+> 
+> I know this is a bit out of the mainstream but I'd appreciate any help.
 
+This is the same problem noted by Russell Coker in the checkmodule
+thread.  The latest refpolicy requires the user and role remapping
+support in order to move roles into modules, and that was added in
+libsepol 2.0.29 and checkpolicy 2.0.16 after Fedora 9 GA.  So the Fedora
+9 checkpolicy is too old to build latest refpolicy.  I think Dan was
+planning on pushing an update to F9 with the latest userland.
 
 -- 
-Justin P. Mattock
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
