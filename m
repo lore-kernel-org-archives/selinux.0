@@ -1,91 +1,124 @@
-Message-ID: <487E0E5E.5050900@windriver.com>
-Date: Wed, 16 Jul 2008 11:06:06 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: 32bit -> 64bit x-compile fail (audit2why)
-References: <487D0B1B.1020203@windriver.com> <1216208454.17602.62.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1216208454.17602.62.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: OpenMoko/JFFS2 sestatus difficulties
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: Willis Vandevanter <vandevwa@jmu.edu>, selinux@tycho.nsa.gov
+In-Reply-To: <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
+References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
+	 <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil>
+	 <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 16 Jul 2008 11:18:12 -0400
+Message-Id: <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2008-07-15 at 16:39 -0400, Vikram Ambrose wrote:
->   
->> ---
->> In file included from 
->> /vambrose/build_2008-07-15/host-cross/include/python2.4/Python.h:55,
->>                  from audit2why.c:1:
->> /vambrose/build_2008-07-15/host-cross/include/python2.4/pyport.h:612:2: 
->> error: #error "LONG_BIT definition appears wrong for platform (bad 
->> gcc/glibc config?)."
->> ---
->>
->> The header in question is pyport.h
->> ----------------->
->> #ifndef LONG_MAX
->> #if SIZEOF_LONG == 4
->> #define LONG_MAX 0X7FFFFFFFL
->> #elif SIZEOF_LONG == 8
->> #define LONG_MAX 0X7FFFFFFFFFFFFFFFL
->> #else
->> #error "could not set LONG_MAX in pyport.h"
->> #endif
->> #endif
->>
->> #ifndef LONG_MIN
->> #define LONG_MIN (-LONG_MAX-1)
->> #endif
->>
->> #ifndef LONG_BIT
->> #define LONG_BIT (8 * SIZEOF_LONG)
->> #endif
->>
->> #if LONG_BIT != 8 * SIZEOF_LONG
->> /* 04-Oct-2000 LONG_BIT is apparently (mis)defined as 64 on some recent
->>  * 32-bit platforms using gcc.  We try to catch that here at compile-time
->>  * rather than waiting for integer multiplication to trigger bogus
->>  * overflows.
->>  */
->> #error "LONG_BIT definition appears wrong for platform (bad gcc/glibc 
->> config?)."
->> #endif
->> <-----------------
->>
->> Toolchain std-gcc i586 toolchain with x86_64 target support.
->> Source: svn 2924
->>
->> This does not seem to be a problem when compiling for another 32bit 
->> architecture, ie i can go from i386 to arm32|ppc32|mips32 and its fine, 
->> but from i386 to ppc64, x86_64, etc.. it fails...
->>     
->
-> Hmmm...does it help to move the #include <Python.h> in audit2why.c after
-> the #include <limits.h>?
->
->   
-Figured it out, this is actually a common hole a lot of people fall 
-into. Python headers unlike most headers are not arch independent. 
-During compilation of python, a pyconfig.h is created with arch 
-dependent code. Which basically means there is no clean way of detecting 
-where and what python headers are available when doing cross 
-compilation. ie you have to explicitly say, my python headers are 
-/over/here/
 
-eg. You need to cross compile libselinux from 32bit x86 to 64bit x86 
-which uses python headers.
-You have python already cross compiled and kept in your target's rootfs. 
-Now because the "python" binary is the only tool that can correctly tell 
-where it's home is, there is no means of accessing this information from 
-your host operating system.
+On Wed, 2008-07-16 at 15:03 +0000, Justin Mattock wrote:
+> On Wed, Jul 16, 2008 at 11:56 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >
+> > On Tue, 2008-07-15 at 18:17 -0400, Willis Vandevanter wrote:
+> >> -----BEGIN PGP SIGNED MESSAGE-----
+> >> Hash: SHA1
+> >>
+> >> Hello All,
+> >>
+> >>    I am working on developing a targeted SELinux policy for
+> >> OpenMoko devices (www.openmoko.org) as a Google Summer Of Code project
+> >> (http://code.google.com/p/selinux-openmoko/).
+> >>
+> >> Background:
+> >> I have cross-compiled the necessary SELinux code (libselinux-1.34.15,
+> >> checkpolicy-1.34.7, libsemanage-1.10.9, libsepol-1.16.14,
+> >> policycoreutils-1.34.16) and devloped a very basic targeted policy. I
+> >> ported the code on to the device. The policy compiles (make) and
+> >> installs (make install).
+> >>
+> >> Where I am stuck:
+> >> When cross-compiling libselinux I get some strange behavior.
+> >> Specifically, I compiled libselinux with the following flags:
+> >>  make
+> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/cc ARCH=arm
+> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
+> >>  I then copied the new libselinux.so.1 on to the device. sestatus
+> >> returns that SELinux is enabled and lists the correct policy version,
+> >> etc. *BUT* make relabel doesn't work. make relabel (or setfiles) gives
+> >> the following error:
+> >>
+> >> file_contexts/file_contexts: Invalid argument make: *** [relabel]
+> >> Error 1
+> >> The error seems to be that file_contexts is not being interpreted as a
+> >> regular file (i.e. S_ISREG(sb.st_mode) in setfiles.c is returning 0).
+> >
+> > That doesn't seem consistent with the error message; if the S_ISREG()
+> > test fails, setfiles would send the following output to stderr:
+> >        setfiles:  spec file <path> is not a regular file.
+> > So perhaps you are instead encountering an error on the stat() call that
+> > precedes the S_ISREG() test, and the perror() output there is what you
+> > are getting above?
+> >
+> > setfiles is built with -D_FILE_OFFSET_BITS=64 by default, and thus uses
+> > the 64-bit large file system interfaces.  But this can be overridden via
+> > CFLAGS.
+> >
+> >> I assume this is because I compiled libselinux without the OpenMoko
+> >> specific header files (ie with my host-x86 /usr/include rather than
+> >> the device specific ones), so I re-compiled libselinux:
+> >>
+> >> make
+> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/ccARCH=arm
+> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
+> >> INCLUDEDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/include
+> >> I then copied libselinux.so.1 on to the device. setfiles will now
+> >> correctly label the filesystem, but sestatus now returns SELinux as
+> >> disabled. I set /etc/selinux/config file to permissive and rebooted,
+> >> but it is still listed as disabled.
+> >>
+> >> How is SELinux determined to be enabled? Could missing or
+> >> mis-configured header files in the OpenMoko /usr/include cause SELinux
+> >> to appear as disabled?
+> >
+> > SELinux enabled vs disabled is determined based on:
+> > - presence/absence of selinuxfs in /proc/filesystems, and
+> > - read of /proc/self/attr/current returns something other than
+> > "kernel" (i.e. policy has been loaded).
+> >
+> > --
+> > Stephen Smalley
+> > National Security Agency
+> >
+> >
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+> >
+> 
+> Is there a possibility of having the file system mounted twice
+> i.g. the libraries create /selinux during the boot process
+> before /etc/fstab, and then once /etc/fstab is called
+> another mount point in the same vicinity is created?
+> In my case I was always using debian edgy to install selinux, but
+> then started to use debian sid; when using sid there is no need to
+> enter anything in fstab, due to the packages being up to date.
+> regards;
 
-AM_PATH_PYTHON used by automake falls into this hole. as it defines the 
-python includedir by using the host's python interpreter.
+I'm not sure what you are asking.  In some distributions, selinuxfs is
+mounted by /sbin/init.  In other distributions, it is mounted by early
+userspace from initramfs by invoking load_policy -i or directly calling
+the corresponding libselinux function.
+
+Regardless, you don't need it in your fstab file; selinuxfs gets mounted
+before fstab is ever read normally.
+
+As far as enabled/disabled goes, selinuxfs doesn't even have to be
+presently mounted in the process' namespace; it only needs to be
+registered in the kernel (as shown by /proc/filesystems) and a policy
+has to have been previously loaded.
 
 -- 
-Vikram Ambrose | Linux Products Division | WindRiver Corporation
+Stephen Smalley
+National Security Agency
 
 
 --
