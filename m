@@ -1,173 +1,124 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6GILXcC005504
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 14:21:33 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6GILWhc022293
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 18:21:32 GMT
-Received: by wx-out-0506.google.com with SMTP id i26so2753742wxd.30
-        for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 11:21:32 -0700 (PDT)
-Message-ID: <dd18b0c30807161121i62490cc5yb7a47694198dcbd3@mail.gmail.com>
-Date: Wed, 16 Jul 2008 18:21:31 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: Re: OpenMoko/JFFS2 sestatus difficulties
-Cc: "Willis Vandevanter" <vandevwa@jmu.edu>, selinux@tycho.nsa.gov
-In-Reply-To: <1216227413.17602.149.camel@moss-spartans.epoch.ncsc.mil>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6GIxwHt012561
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 14:59:58 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6GIxuhc002376
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 18:59:56 GMT
+Message-ID: <487E451C.5000603@redhat.com>
+Date: Wed, 16 Jul 2008 14:59:40 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@hardeman.nu>,
+        selinux@tycho.nsa.gov
+Subject: Re: Fedora refpolicy patches
+References: <20080716165634.GA8072@hardeman.nu>	 <487E2C1F.4010308@redhat.com>  <20080716174410.GA9226@hardeman.nu> <1216232357.21191.76.camel@gorn>
+In-Reply-To: <1216232357.21191.76.camel@gorn>
 Content-Type: text/plain; charset=ISO-8859-1
-References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
-	 <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil>
-	 <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
-	 <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
-	 <dd18b0c30807160948mf83bc98rdf63b5809264e1a@mail.gmail.com>
-	 <1216227413.17602.149.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Jul 16, 2008 at 4:56 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> On Wed, 2008-07-16 at 16:48 +0000, Justin Mattock wrote:
->> On Wed, Jul 16, 2008 at 3:18 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> >
->> > On Wed, 2008-07-16 at 15:03 +0000, Justin Mattock wrote:
->> >> On Wed, Jul 16, 2008 at 11:56 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> >> >
->> >> > On Tue, 2008-07-15 at 18:17 -0400, Willis Vandevanter wrote:
->> >> >> -----BEGIN PGP SIGNED MESSAGE-----
->> >> >> Hash: SHA1
->> >> >>
->> >> >> Hello All,
->> >> >>
->> >> >>    I am working on developing a targeted SELinux policy for
->> >> >> OpenMoko devices (www.openmoko.org) as a Google Summer Of Code project
->> >> >> (http://code.google.com/p/selinux-openmoko/).
->> >> >>
->> >> >> Background:
->> >> >> I have cross-compiled the necessary SELinux code (libselinux-1.34.15,
->> >> >> checkpolicy-1.34.7, libsemanage-1.10.9, libsepol-1.16.14,
->> >> >> policycoreutils-1.34.16) and devloped a very basic targeted policy. I
->> >> >> ported the code on to the device. The policy compiles (make) and
->> >> >> installs (make install).
->> >> >>
->> >> >> Where I am stuck:
->> >> >> When cross-compiling libselinux I get some strange behavior.
->> >> >> Specifically, I compiled libselinux with the following flags:
->> >> >>  make
->> >> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/cc ARCH=arm
->> >> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
->> >> >>  I then copied the new libselinux.so.1 on to the device. sestatus
->> >> >> returns that SELinux is enabled and lists the correct policy version,
->> >> >> etc. *BUT* make relabel doesn't work. make relabel (or setfiles) gives
->> >> >> the following error:
->> >> >>
->> >> >> file_contexts/file_contexts: Invalid argument make: *** [relabel]
->> >> >> Error 1
->> >> >> The error seems to be that file_contexts is not being interpreted as a
->> >> >> regular file (i.e. S_ISREG(sb.st_mode) in setfiles.c is returning 0).
->> >> >
->> >> > That doesn't seem consistent with the error message; if the S_ISREG()
->> >> > test fails, setfiles would send the following output to stderr:
->> >> >        setfiles:  spec file <path> is not a regular file.
->> >> > So perhaps you are instead encountering an error on the stat() call that
->> >> > precedes the S_ISREG() test, and the perror() output there is what you
->> >> > are getting above?
->> >> >
->> >> > setfiles is built with -D_FILE_OFFSET_BITS=64 by default, and thus uses
->> >> > the 64-bit large file system interfaces.  But this can be overridden via
->> >> > CFLAGS.
->> >> >
->> >> >> I assume this is because I compiled libselinux without the OpenMoko
->> >> >> specific header files (ie with my host-x86 /usr/include rather than
->> >> >> the device specific ones), so I re-compiled libselinux:
->> >> >>
->> >> >> make
->> >> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/ccARCH=arm
->> >> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
->> >> >> INCLUDEDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/include
->> >> >> I then copied libselinux.so.1 on to the device. setfiles will now
->> >> >> correctly label the filesystem, but sestatus now returns SELinux as
->> >> >> disabled. I set /etc/selinux/config file to permissive and rebooted,
->> >> >> but it is still listed as disabled.
->> >> >>
->> >> >> How is SELinux determined to be enabled? Could missing or
->> >> >> mis-configured header files in the OpenMoko /usr/include cause SELinux
->> >> >> to appear as disabled?
->> >> >
->> >> > SELinux enabled vs disabled is determined based on:
->> >> > - presence/absence of selinuxfs in /proc/filesystems, and
->> >> > - read of /proc/self/attr/current returns something other than
->> >> > "kernel" (i.e. policy has been loaded).
->> >> >
->> >> > --
->> >> > Stephen Smalley
->> >> > National Security Agency
->> >> >
->> >> >
->> >> > --
->> >> > This message was distributed to subscribers of the selinux mailing list.
->> >> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> >> > the words "unsubscribe selinux" without quotes as the message.
->> >> >
->> >>
->> >> Is there a possibility of having the file system mounted twice
->> >> i.g. the libraries create /selinux during the boot process
->> >> before /etc/fstab, and then once /etc/fstab is called
->> >> another mount point in the same vicinity is created?
->> >> In my case I was always using debian edgy to install selinux, but
->> >> then started to use debian sid; when using sid there is no need to
->> >> enter anything in fstab, due to the packages being up to date.
->> >> regards;
->> >
->> > I'm not sure what you are asking.  In some distributions, selinuxfs is
->> > mounted by /sbin/init.  In other distributions, it is mounted by early
->> > userspace from initramfs by invoking load_policy -i or directly calling
->> > the corresponding libselinux function.
->> >
->> > Regardless, you don't need it in your fstab file; selinuxfs gets mounted
->> > before fstab is ever read normally.
->> >
->> > As far as enabled/disabled goes, selinuxfs doesn't even have to be
->> > presently mounted in the process' namespace; it only needs to be
->> > registered in the kernel (as shown by /proc/filesystems) and a policy
->> > has to have been previously loaded.
->> >
->> > --
->> > Stephen Smalley
->> > National Security Agency
->> >
->> >
->>
->> O.K.
->> I think what I'm trying to say, is if it's possible
->> to have selinux mount itself twice in the same location.
->> i.g. init does it's job, and then later on fstab(if you have an entry in there)
->> will mount as well.
->> In other words once init makes a mount,
->> then fstab tries to make a mount in the same location,
->> will it fail. or mount another selinuxfs on top of the already mounted
->> selinuxfs.
->
-> All you have to do is try it, and you can answer that one yourself:
-> # mount -t selinuxfs none /selinux
-> mount: none already mounted or /selinux busy
->
->> And just to let you know, I am not using fstab just was wondering if
->> things like this
->> can occur.
->
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-oops;
-I should of thought about that before saying anything.
+Christopher J. PeBenito wrote:
+> On Wed, 2008-07-16 at 19:44 +0200, David Härdeman wrote:
+>> On Wed, Jul 16, 2008 at 01:13:03PM -0400, Daniel J Walsh wrote:
+>>> David Härdeman wrote:
+>>>> While working on SELinux-enabling a Debian system, I often Google for
+>>>> avc messages that show up in dmesg and 90% of the time it seems that the
+>>>> problem has already been solved in Fedora's version of the refpolicy but
+>>>> not in the upstream version.
+>> ...
+>>>> The question is how to treat the patches after that? Should I post them
+>>>> as I go through them (a couple per day for a couple of weeks?) and hope
+>>>> that someone at Tresys will apply them?
+> [...]
+>> I guess what I'm really wondering is if I can help you in some way? 
+> 
+> The main points which would improve upstreaming efficiency from Dan's
+> set are:
+> 
+> 1. description / justification
+> 
+> What this means tends to vary depending on what access is added by a
+> patch.  A patch that allows reading of usr_t files probably doesn't need
+> a big description while a patch that allows reading shadow_t does.
+> "myapp breaks without this rule" isn't a very good explanation,
+> especially if the access is questionable.  The app may be incorrectly
+> requesting extra access or it might be a bug in the app.
+> 
+> 2. style
+> 
+> The changes need to meet the refpolicy style guidelines.  Dan is pretty
+> good about this, but with the volume, things still get by.
+> 
+> 3. patch composition
+> 
+> A patch should be a changeset.  So if a rule is added to a bunch of
+> domains for the same reason, then that should be in a single patch by
+> itself.  If you add an interface so some modules can call it, that
+> should be a single patch that includes the new interface and the
+> additions to the callers.  This enables me to review the change as a
+> whole, and not have distractions from unrelated changes.  A set of small
+> fixes to a single module can be a single patch.
+> 
+And the problem I have with all of these is volume of change.  When a
+new release goes out and a whole bunch of new users start using SELinux
+the volume of bugzillas generated is use.  My first responsibility is to
+get SELinux fixed for these users.  Marking up the policy with lots of
+bugzilla's or justifications is both time consuming and I believe just
+dirties the policy.  In the more bizarre categories that should be
+required.  My goal is to get the non-bizarre changes upstreamed so we
+could concentrate on the bizarre ones and either justify or remove them.
 
+Changes like adding
 
--- 
-Justin P. Mattock
+fs_list_inotify should just get into the upstream.
+
+grep fs_list_inotify  policy-20080710.patch
++fs_list_inotifyfs(certwatch_t)
++fs_list_inotifyfs(logrotate_t)
++fs_list_inotifyfs(logwatch_t)
++fs_list_inotifyfs(tmpreaper_t)
++	fs_list_inotifyfs($1_gconfd_t)
++fs_list_inotifyfs(gpg_t)
++fs_list_inotifyfs(gpg_helper_t)
+ 	fs_list_inotifyfs($1_mozilla_t)
++fs_list_inotifyfs(nsplugin_t)
++fs_list_inotifyfs(nsplugin_config_t)
++fs_list_inotifyfs(locate_t)
++fs_list_inotifyfs(httpd_t)
++	fs_list_inotifyfs($1_dbusd_t)
++fs_list_inotifyfs(system_dbusd_t)
+ fs_list_inotifyfs(dovecot_t)
++fs_list_inotifyfs(fail2ban_t)
++fs_list_inotifyfs(gamin_t)
++fs_list_inotifyfs(gnomeclock_t)
++fs_list_inotifyfs(system_mail_t)
++fs_list_inotifyfs(NetworkManager_t)
++fs_list_inotifyfs(nscd_t)
++fs_list_inotifyfs(polkit_t)
++fs_list_inotifyfs(prelude_lml_t)
++fs_list_inotifyfs(nmbd_t)
++fs_list_inotifyfs(swat_t)
++	fs_list_inotifyfs($1_xserver_t)
++fs_search_inotifyfs(xdm_t)
++fs_list_inotifyfs(init_t)
++fs_list_inotifyfs(iptables_t)
++	fs_list_inotifyfs($1)
++fs_list_inotifyfs(load_policy_t)
+- -	fs_list_inotifyfs($1_t)
++	fs_list_inotifyfs($1_usertype)
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkh+RRwACgkQrlYvE4MpobM+vgCeJSBxEJ6/uErGs+dsn/JGSzAk
+DBUAoIVP37Ejpr1b21QMfEfdqLrA+QKe
+=sHu2
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
