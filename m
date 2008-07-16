@@ -1,155 +1,63 @@
-Subject: Re: OpenMoko/JFFS2 sestatus difficulties
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: Willis Vandevanter <vandevwa@jmu.edu>, selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30807160948mf83bc98rdf63b5809264e1a@mail.gmail.com>
-References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
-	 <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil>
-	 <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
-	 <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
-	 <dd18b0c30807160948mf83bc98rdf63b5809264e1a@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 16 Jul 2008 12:56:53 -0400
-Message-Id: <1216227413.17602.149.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6GGuaUE018665
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 12:56:36 -0400
+Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6GGuZCD008518
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 16:56:36 GMT
+Date: Wed, 16 Jul 2008 18:56:34 +0200
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+To: selinux@tycho.nsa.gov
+Cc: dwalsh@redhat.com
+Subject: Fedora refpolicy patches
+Message-ID: <20080716165634.GA8072@hardeman.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+While working on SELinux-enabling a Debian system, I often Google for 
+avc messages that show up in dmesg and 90% of the time it seems that the 
+problem has already been solved in Fedora's version of the refpolicy but 
+not in the upstream version.
 
-On Wed, 2008-07-16 at 16:48 +0000, Justin Mattock wrote:
-> On Wed, Jul 16, 2008 at 3:18 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >
-> > On Wed, 2008-07-16 at 15:03 +0000, Justin Mattock wrote:
-> >> On Wed, Jul 16, 2008 at 11:56 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >> >
-> >> > On Tue, 2008-07-15 at 18:17 -0400, Willis Vandevanter wrote:
-> >> >> -----BEGIN PGP SIGNED MESSAGE-----
-> >> >> Hash: SHA1
-> >> >>
-> >> >> Hello All,
-> >> >>
-> >> >>    I am working on developing a targeted SELinux policy for
-> >> >> OpenMoko devices (www.openmoko.org) as a Google Summer Of Code project
-> >> >> (http://code.google.com/p/selinux-openmoko/).
-> >> >>
-> >> >> Background:
-> >> >> I have cross-compiled the necessary SELinux code (libselinux-1.34.15,
-> >> >> checkpolicy-1.34.7, libsemanage-1.10.9, libsepol-1.16.14,
-> >> >> policycoreutils-1.34.16) and devloped a very basic targeted policy. I
-> >> >> ported the code on to the device. The policy compiles (make) and
-> >> >> installs (make install).
-> >> >>
-> >> >> Where I am stuck:
-> >> >> When cross-compiling libselinux I get some strange behavior.
-> >> >> Specifically, I compiled libselinux with the following flags:
-> >> >>  make
-> >> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/cc ARCH=arm
-> >> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
-> >> >>  I then copied the new libselinux.so.1 on to the device. sestatus
-> >> >> returns that SELinux is enabled and lists the correct policy version,
-> >> >> etc. *BUT* make relabel doesn't work. make relabel (or setfiles) gives
-> >> >> the following error:
-> >> >>
-> >> >> file_contexts/file_contexts: Invalid argument make: *** [relabel]
-> >> >> Error 1
-> >> >> The error seems to be that file_contexts is not being interpreted as a
-> >> >> regular file (i.e. S_ISREG(sb.st_mode) in setfiles.c is returning 0).
-> >> >
-> >> > That doesn't seem consistent with the error message; if the S_ISREG()
-> >> > test fails, setfiles would send the following output to stderr:
-> >> >        setfiles:  spec file <path> is not a regular file.
-> >> > So perhaps you are instead encountering an error on the stat() call that
-> >> > precedes the S_ISREG() test, and the perror() output there is what you
-> >> > are getting above?
-> >> >
-> >> > setfiles is built with -D_FILE_OFFSET_BITS=64 by default, and thus uses
-> >> > the 64-bit large file system interfaces.  But this can be overridden via
-> >> > CFLAGS.
-> >> >
-> >> >> I assume this is because I compiled libselinux without the OpenMoko
-> >> >> specific header files (ie with my host-x86 /usr/include rather than
-> >> >> the device specific ones), so I re-compiled libselinux:
-> >> >>
-> >> >> make
-> >> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/ccARCH=arm
-> >> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
-> >> >> INCLUDEDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/include
-> >> >> I then copied libselinux.so.1 on to the device. setfiles will now
-> >> >> correctly label the filesystem, but sestatus now returns SELinux as
-> >> >> disabled. I set /etc/selinux/config file to permissive and rebooted,
-> >> >> but it is still listed as disabled.
-> >> >>
-> >> >> How is SELinux determined to be enabled? Could missing or
-> >> >> mis-configured header files in the OpenMoko /usr/include cause SELinux
-> >> >> to appear as disabled?
-> >> >
-> >> > SELinux enabled vs disabled is determined based on:
-> >> > - presence/absence of selinuxfs in /proc/filesystems, and
-> >> > - read of /proc/self/attr/current returns something other than
-> >> > "kernel" (i.e. policy has been loaded).
-> >> >
-> >> > --
-> >> > Stephen Smalley
-> >> > National Security Agency
-> >> >
-> >> >
-> >> > --
-> >> > This message was distributed to subscribers of the selinux mailing list.
-> >> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> >> > the words "unsubscribe selinux" without quotes as the message.
-> >> >
-> >>
-> >> Is there a possibility of having the file system mounted twice
-> >> i.g. the libraries create /selinux during the boot process
-> >> before /etc/fstab, and then once /etc/fstab is called
-> >> another mount point in the same vicinity is created?
-> >> In my case I was always using debian edgy to install selinux, but
-> >> then started to use debian sid; when using sid there is no need to
-> >> enter anything in fstab, due to the packages being up to date.
-> >> regards;
-> >
-> > I'm not sure what you are asking.  In some distributions, selinuxfs is
-> > mounted by /sbin/init.  In other distributions, it is mounted by early
-> > userspace from initramfs by invoking load_policy -i or directly calling
-> > the corresponding libselinux function.
-> >
-> > Regardless, you don't need it in your fstab file; selinuxfs gets mounted
-> > before fstab is ever read normally.
-> >
-> > As far as enabled/disabled goes, selinuxfs doesn't even have to be
-> > presently mounted in the process' namespace; it only needs to be
-> > registered in the kernel (as shown by /proc/filesystems) and a policy
-> > has to have been previously loaded.
-> >
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
-> 
-> O.K.
-> I think what I'm trying to say, is if it's possible
-> to have selinux mount itself twice in the same location.
-> i.g. init does it's job, and then later on fstab(if you have an entry in there)
-> will mount as well.
-> In other words once init makes a mount,
-> then fstab tries to make a mount in the same location,
-> will it fail. or mount another selinuxfs on top of the already mounted
-> selinuxfs.
+Googling a bit more lead me to these emails:
+http://marc.info/?l=selinux&m=121155835630301&w=2
+http://marc.info/?l=selinux&m=121622105928866&w=2
 
-All you have to do is try it, and you can answer that one yourself:
-# mount -t selinuxfs none /selinux
-mount: none already mounted or /selinux busy
+The latest Fedora patch:
+http://cvs.fedoraproject.org/viewcvs/devel/selinux-policy/policy-20080710.patch?rev=1.2&view=auto
+Is 36918 lines totalling over 1.1 Mb.
 
-> And just to let you know, I am not using fstab just was wondering if
-> things like this
-> can occur.
+The latest Debian patch:
+http://ftp.de.debian.org/debian/pool/main/r/refpolicy/refpolicy_0.0.20080702-1.diff.gz
+Is 8759 lines totalling 258Kb (but that includes the build scripts).
 
+I wrote a quick python script that splits the Fedora patch into 
+per-module patches (much like the ones Daniel J Walsh posted, only that 
+I get 214 patches) and I'm prepared to start going over these patches 
+seeing which ones are relevant and which ones would need some changes to 
+work in Debian as well (for instance, lots of *.fc files would need to 
+have lines like /etc/rc.d/init.d/something changed to 
+/etc/(rc.d/)?init.d/something to work in both RH and Debian).
+
+The question is how to treat the patches after that? Should I post them 
+as I go through them (a couple per day for a couple of weeks?) and hope 
+that someone at Tresys will apply them?
+
+Also, Daniel, do you think it would be possible to change the Redhat 
+build scripts to take a directory of patches instead of the huge patch 
+it uses right now? It would make it much much easier to track the 
+differences if the changes to each module was tracked in one patch in 
+the CVS repo. It would also make it clearer what each change does (not 
+at all clear sometimes with the current huge patch...comments and/or 
+links to bugzilla entries would have been great) as each change to each 
+patch will at least have the commit message to go along with it.
+
+And in the end...does it really help? Someone at Tresys will have to 
+review every patch anyway...so should I start looking at patches?
 
 -- 
-Stephen Smalley
-National Security Agency
-
+David Härdeman
 
 --
 This message was distributed to subscribers of the selinux mailing list.
