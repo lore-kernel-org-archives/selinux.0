@@ -1,103 +1,113 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6G0sO4h017455
-	for <selinux@tycho.nsa.gov>; Tue, 15 Jul 2008 20:54:24 -0400
-Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6G0sMHv023670
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 00:54:23 GMT
-Message-ID: <487D46B5.9070608@ak.jp.nec.com>
-Date: Wed, 16 Jul 2008 09:54:13 +0900
+Message-ID: <487D5A3D.6090801@ak.jp.nec.com>
+Date: Wed, 16 Jul 2008 11:17:33 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Willis Vandevanter <vandevwa@jmu.edu>
-CC: selinux@tycho.nsa.gov, ynakam@hitachisoft.jp
-Subject: Re: OpenMoko/JFFS2 sestatus difficulties
-References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
-In-Reply-To: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov
+Subject: Re: [RFC] An idea of thread/child-domain assignment
+References: <487C7698.60503@ak.jp.nec.com> <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Willis,
+Stephen Smalley wrote:
+> On Tue, 2008-07-15 at 19:06 +0900, KaiGai Kohei wrote:
+>> Hi,
+>>
+>> I'm now considering the way to apply SELinux from the bottom of LAPP
+>> stack to the head. But there is a fundamental matter. Web/Application
+>> server can execute a request come from users in a worker thread.
+>>
+>> This idea enables to assign an indivisual domain on a thread under
+>> the paticular condition.
+> 
+> Yes, this came up recently, e.g.:
+> http://marc.info/?l=selinux&m=121320242220824&w=2
+> 
+> And James added it to the kernel todo list on selinuxproject.org.
 
-I guess selinuxfs is not mounted.
-
-In SELinux environment, /sbin/init is extended to mount selinuxfs
-on /selinux. It enables to communicate between kernel and userspaces.
-
-If your /sbin/init is implemented using busybox, consider to turn on
-"SELinux support" option and make /selinux directory on your jffs2 image.
+Thanks, I overlooked this message.
 
 
-Willis Vandevanter wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+>> An idea: thread/hierarchical-domain assignment
+>> ----------------------------------------------
+>> If possible, Apache should change the security context of web backend
+>> during it executes a request come from users.
+>> However, Apache can execute it on a worker thread. It conflicts a wired
+>> constraint of SELinux which does not allow a multi-threaded process dynamic
+>> domain transition.
+>>
+>> It is a reasonable constraint, if the source and destination domains are
+>> completely independent. Because it shares a local memory, mixed security
+>> context within a process can make a violation in domain separation.
+>>
+>> However, a characteristic relationship between hierarchical domains can
+>> help the situation. It restricts a child domain (like "httpd_t.staff")
+>> cannot over the boundary of its parent ("httpd_t"). It also means
+>> a multi-threaded process cannot over the (parent) domain boundary,
+>> even if a part of threads has different security context.
+>>
+>> My suggestion is the hard-wired constraint should be modified.
+>> It allows to assign threads an indivisual domain, if the new domain
+>> is a child one of the current domain.
+>>
+>>   For example:
+>>     httpd_t -> httpd_t.staff           = allowed
+>>     httpd_t -> staff_t                 = disallowed
+>>     httpd_t.staff -> httpd_t.staff.php = allowed
+>>
+>> In other words, this idea requires to change our viewpoint for child domain.
+>> Previously, these are mutually independent domain, but a child domain will
+>> mean a state with restricted operations compared to its parent domain.
 > 
-> Hello All,
+> I tend to agree that we should support such changes in the kernel
+> mechanism and let the use of it be determined by the policy.
 > 
->    I am working on developing a targeted SELinux policy for
-> OpenMoko devices (www.openmoko.org <http://www.openmoko.org>) as a 
-> Google Summer Of Code project
-> (http://code.google.com/p/selinux-openmoko/).
-> 
-> Background:
-> I have cross-compiled the necessary SELinux code (libselinux-1.34.15,
-> checkpolicy-1.34.7, libsemanage-1.10.9, libsepol-1.16.14,
-> policycoreutils-1.34.16) and devloped a very basic targeted policy. I
-> ported the code on to the device. The policy compiles (make) and
-> installs (make install).
-> 
-> Where I am stuck:
-> When cross-compiling libselinux I get some strange behavior.
-> Specifically, I compiled libselinux with the following flags:
->  make
-> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/cc ARCH=arm
-> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
->  I then copied the new libselinux.so.1 on to the device. sestatus
-> returns that SELinux is enabled and lists the correct policy version,
+> In terms of hierarchy though, the plan was to replace the current
+> name-based hierarchy with an explicitly declared hierarchy.
 
-Is it your host environment, isn't it?
+It needs a new policy statement like:
 
-> etc. *BUT* make relabel doesn't work. make relabel (or setfiles) gives
-> the following error:
-> 
-> file_contexts/file_contexts: Invalid argument make: *** [relabel] Error 1
-> The error seems to be that file_contexts is not being interpreted as a
-> regular file (i.e. S_ISREG(sb.st_mode) in setfiles.c is returning 0).
-> I assume this is because I compiled libselinux without the OpenMoko
-> specific header files (ie with my host-x86 /usr/include rather than
-> the device specific ones), so I re-compiled libselinux:
-> 
-> make
-> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/ccARCH=arm
-> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
-> INCLUDEDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/include
-> I then copied libselinux.so.1 on to the device. setfiles will now
-> correctly label the filesystem, but sestatus now returns SELinux as
-> disabled. I set /etc/selinux/config file to permissive and rebooted,
-> but it is still listed as disabled.
-> 
-> How is SELinux determined to be enabled? Could missing or
-> mis-configured header files in the OpenMoko /usr/include cause SELinux
-> to appear as disabled?
-> 
-> I apologize for the long email. The policy I am using is available at
-> http://code.google.com/p/selinux-openmoko/. The cross-compiled
-> binaries are also available. I am using a 2.6.24.7 <http://2.6.24.7> 
-> kernel with SELinux
-> and JFFS2 XATTR enabled.
-> 
-> Thank you for your help,
->   Willis
-> 
->  
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.6 (GNU/Linux)
-> 
-> iD8DBQFIfSH2qCokMvr1WNARAuJdAJ0Q9iWp7+V0jTxen92WfE8RFnpJeACgiRyX
-> vAFzngclbVPHIZ/YckQi3Sg=
-> =P7dW
-> -----END PGP SIGNATURE-----
+  TYPE <child domain> DOMBY <parent domain>;
+    or
+  TYPEDOMINANCE <parent domain> <child domain> [,<child domain>] ;
 
+I guess these relationships are represented as a ebitmap structure
+in the kernel, and used to mask permissions during AVC entry creation.
+
+>> Issues: Domain Reverting
+>> ------------------------
+>> There is a related issue. To change security context during user request
+>> execution also means that we have to revert its domain after executions,
+>> because Apache repeatedly uses worker thread/process for some reasons.
+>>
+>> I don't have any good idea for this issue yet.
+>> A one time cookie like AppArmor is an approach, but it is basically weak
+>> separation compared from execve() transition.
+> 
+> Perhaps it could pre-populate different pools of threads for different
+> client security contexts, and then just draw from the correct pool for
+> each client.  Then the thread context doesn't have to be reverted at all
+> and we can make the transition unidirectional.
+
+I think this approach requires two precondition.
+
+(1) The number of client security context should be enough small.
+ If we want to assign one of MCS categories, it requires 1024 of thread
+ pool in maximum.
+
+(2) We have to know what client security context should be assigned
+    before the communication between client and backend thread.
+ In the case when we use HTTP authentication to decide client security
+ context, the authentication process has to be done in the backend
+ process after the communication started.
+ It may also require major works in application updates.
+
+In my impression, AA's approach is not perfect, but second best one...
+
+Thanks,
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
