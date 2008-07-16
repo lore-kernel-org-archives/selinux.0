@@ -1,125 +1,82 @@
-Subject: Re: OpenMoko/JFFS2 sestatus difficulties
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: Willis Vandevanter <vandevwa@jmu.edu>, selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
-References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
-	 <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil>
-	 <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 16 Jul 2008 11:18:12 -0400
-Message-Id: <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6GFSN04023626
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 11:28:23 -0400
+Received: from sender-02.it.helsinki.fi (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6GFSMXE005257
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 15:28:22 GMT
+Received: from ruuvi.it.helsinki.fi (ruuvi.it.helsinki.fi [128.214.205.65])
+	by sender-02.it.helsinki.fi (8.13.8/8.13.8) with ESMTP id m6GFSLtA030207
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 18:28:21 +0300
+Received: from ruuvi.it.helsinki.fi (localhost.localdomain [127.0.0.1])
+	by ruuvi.it.helsinki.fi (8.13.1/8.13.1) with ESMTP id m6GFSLfr012314
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 18:28:21 +0300
+Received: from localhost (vmkari@localhost)
+	by ruuvi.it.helsinki.fi (8.13.1/8.13.1/Submit) with ESMTP id m6GFSLsA012311
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 18:28:21 +0300
+Date: Wed, 16 Jul 2008 18:28:21 +0300 (EEST)
+From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+To: selinux@tycho.nsa.gov
+Subject: Buggy patch (Re: Proposed patch for policycoreutils/sestatus)
+In-Reply-To: <Pine.LNX.4.64L.0807161749060.10705@ruuvi.it.helsinki.fi>
+Message-ID: <Pine.LNX.4.64L.0807161817520.12245@ruuvi.it.helsinki.fi>
+References: <Pine.LNX.4.64L.0807161749060.10705@ruuvi.it.helsinki.fi>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-696237619-739464853-1216222101=:12245"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-On Wed, 2008-07-16 at 15:03 +0000, Justin Mattock wrote:
-> On Wed, Jul 16, 2008 at 11:56 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >
-> > On Tue, 2008-07-15 at 18:17 -0400, Willis Vandevanter wrote:
-> >> -----BEGIN PGP SIGNED MESSAGE-----
-> >> Hash: SHA1
-> >>
-> >> Hello All,
-> >>
-> >>    I am working on developing a targeted SELinux policy for
-> >> OpenMoko devices (www.openmoko.org) as a Google Summer Of Code project
-> >> (http://code.google.com/p/selinux-openmoko/).
-> >>
-> >> Background:
-> >> I have cross-compiled the necessary SELinux code (libselinux-1.34.15,
-> >> checkpolicy-1.34.7, libsemanage-1.10.9, libsepol-1.16.14,
-> >> policycoreutils-1.34.16) and devloped a very basic targeted policy. I
-> >> ported the code on to the device. The policy compiles (make) and
-> >> installs (make install).
-> >>
-> >> Where I am stuck:
-> >> When cross-compiling libselinux I get some strange behavior.
-> >> Specifically, I compiled libselinux with the following flags:
-> >>  make
-> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/cc ARCH=arm
-> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
-> >>  I then copied the new libselinux.so.1 on to the device. sestatus
-> >> returns that SELinux is enabled and lists the correct policy version,
-> >> etc. *BUT* make relabel doesn't work. make relabel (or setfiles) gives
-> >> the following error:
-> >>
-> >> file_contexts/file_contexts: Invalid argument make: *** [relabel]
-> >> Error 1
-> >> The error seems to be that file_contexts is not being interpreted as a
-> >> regular file (i.e. S_ISREG(sb.st_mode) in setfiles.c is returning 0).
-> >
-> > That doesn't seem consistent with the error message; if the S_ISREG()
-> > test fails, setfiles would send the following output to stderr:
-> >        setfiles:  spec file <path> is not a regular file.
-> > So perhaps you are instead encountering an error on the stat() call that
-> > precedes the S_ISREG() test, and the perror() output there is what you
-> > are getting above?
-> >
-> > setfiles is built with -D_FILE_OFFSET_BITS=64 by default, and thus uses
-> > the 64-bit large file system interfaces.  But this can be overridden via
-> > CFLAGS.
-> >
-> >> I assume this is because I compiled libselinux without the OpenMoko
-> >> specific header files (ie with my host-x86 /usr/include rather than
-> >> the device specific ones), so I re-compiled libselinux:
-> >>
-> >> make
-> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/ccARCH=arm
-> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
-> >> INCLUDEDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/include
-> >> I then copied libselinux.so.1 on to the device. setfiles will now
-> >> correctly label the filesystem, but sestatus now returns SELinux as
-> >> disabled. I set /etc/selinux/config file to permissive and rebooted,
-> >> but it is still listed as disabled.
-> >>
-> >> How is SELinux determined to be enabled? Could missing or
-> >> mis-configured header files in the OpenMoko /usr/include cause SELinux
-> >> to appear as disabled?
-> >
-> > SELinux enabled vs disabled is determined based on:
-> > - presence/absence of selinuxfs in /proc/filesystems, and
-> > - read of /proc/self/attr/current returns something other than
-> > "kernel" (i.e. policy has been loaded).
-> >
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> >
-> 
-> Is there a possibility of having the file system mounted twice
-> i.g. the libraries create /selinux during the boot process
-> before /etc/fstab, and then once /etc/fstab is called
-> another mount point in the same vicinity is created?
-> In my case I was always using debian edgy to install selinux, but
-> then started to use debian sid; when using sid there is no need to
-> enter anything in fstab, due to the packages being up to date.
-> regards;
+---696237619-739464853-1216222101=:12245
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I'm not sure what you are asking.  In some distributions, selinuxfs is
-mounted by /sbin/init.  In other distributions, it is mounted by early
-userspace from initramfs by invoking load_policy -i or directly calling
-the corresponding libselinux function.
 
-Regardless, you don't need it in your fstab file; selinuxfs gets mounted
-before fstab is ever read normally.
+Hello,
 
-As far as enabled/disabled goes, selinuxfs doesn't even have to be
-presently mounted in the process' namespace; it only needs to be
-registered in the kernel (as shown by /proc/filesystems) and a policy
-has to have been previously loaded.
+On Wed, 16 Jul 2008, Vesa-Matti J Kari wrote:
 
--- 
-Stephen Smalley
-National Security Agency
+> I hope I didn't break anything, so if you have the time, please check out
+> the code and test it too. Yes, the program is trivial, but some errors
+> may have crept in nevertheless...
 
+I am very sorry for being hasty with sending the patch.
+
+My sestatus.diff indeed contains a bug that makes double free() possible.
+
+If strdup() fails to allocate memory, then load_checks() free():s all
+the memory allocated so far, but it does not reset *npc and *nfc to zero.
+
+Hence proccon_show() and filecon_show() might free() the memory that
+has already been free():d by load_checks().
+
+The fix patch is attached.
+
+Apologies again.
+
+Best regards,
+vmk
+--
+************************************************************************
+               Tietotekniikkaosasto / Helsingin yliopisto
+                 IT Department / University of Helsinki
+************************************************************************
+---696237619-739464853-1216222101=:12245
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=sestatus2.diff
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64L.0807161828210.12245@ruuvi.it.helsinki.fi>
+Content-Description: fix to prevent double free():ing
+Content-Disposition: attachment; filename=sestatus2.diff
+
+LS0tIHNlc3RhdHVzLmMub2xkCTIwMDgtMDctMTYgMTY6MjA6NTYuMDAwMDAw
+MDAwICswMzAwDQorKysgc2VzdGF0dXMuYwkyMDA4LTA3LTE2IDE4OjEwOjUy
+LjAwMDAwMDAwMCArMDMwMA0KQEAgLTE2NCw2ICsxNjQsNyBAQA0KIAkJZnJl
+ZShwY1tpXSk7DQogCWZvciAoaSA9IDA7IGkgPCAqbmZjICYmIGkgPCBNQVhf
+Q0hFQ0s7IGkrKykNCiAJCWZyZWUoZmNbaV0pOw0KKwkqbnBjID0gKm5mYyA9
+IDA7DQogCWdvdG8gb3V0Ow0KIH0NCiANCg==
+
+---696237619-739464853-1216222101=:12245--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
