@@ -1,48 +1,155 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6GGCbL0003138
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 12:12:37 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m6GGCbhc009046
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 16:12:37 GMT
-Subject: (u|r)bacsep: initial testing
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: SELinux Mail List <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Wed, 16 Jul 2008 12:12:15 -0400
-Message-Id: <1216224735.21191.50.camel@gorn>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6GGmYGM015622
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 12:48:34 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6GGmThc022575
+	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 16:48:29 GMT
+Received: by an-out-0708.google.com with SMTP id d30so78920and.75
+        for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 09:48:29 -0700 (PDT)
+Message-ID: <dd18b0c30807160948mf83bc98rdf63b5809264e1a@mail.gmail.com>
+Date: Wed, 16 Jul 2008 16:48:28 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: OpenMoko/JFFS2 sestatus difficulties
+Cc: "Willis Vandevanter" <vandevwa@jmu.edu>, selinux@tycho.nsa.gov
+In-Reply-To: <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
+	 <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil>
+	 <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
+	 <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-For those that are interested, the SELinux user-based separation policy
-is ready for some initial testing.  It can be checked out from the
-rbacsep branch of the refpolicy SVN repo.  Not all of the type aliases
-are in place for compatibility yet, so switching from an existing policy
-should be done in permissive.
+On Wed, Jul 16, 2008 at 3:18 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> On Wed, 2008-07-16 at 15:03 +0000, Justin Mattock wrote:
+>> On Wed, Jul 16, 2008 at 11:56 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> >
+>> > On Tue, 2008-07-15 at 18:17 -0400, Willis Vandevanter wrote:
+>> >> -----BEGIN PGP SIGNED MESSAGE-----
+>> >> Hash: SHA1
+>> >>
+>> >> Hello All,
+>> >>
+>> >>    I am working on developing a targeted SELinux policy for
+>> >> OpenMoko devices (www.openmoko.org) as a Google Summer Of Code project
+>> >> (http://code.google.com/p/selinux-openmoko/).
+>> >>
+>> >> Background:
+>> >> I have cross-compiled the necessary SELinux code (libselinux-1.34.15,
+>> >> checkpolicy-1.34.7, libsemanage-1.10.9, libsepol-1.16.14,
+>> >> policycoreutils-1.34.16) and devloped a very basic targeted policy. I
+>> >> ported the code on to the device. The policy compiles (make) and
+>> >> installs (make install).
+>> >>
+>> >> Where I am stuck:
+>> >> When cross-compiling libselinux I get some strange behavior.
+>> >> Specifically, I compiled libselinux with the following flags:
+>> >>  make
+>> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/cc ARCH=arm
+>> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
+>> >>  I then copied the new libselinux.so.1 on to the device. sestatus
+>> >> returns that SELinux is enabled and lists the correct policy version,
+>> >> etc. *BUT* make relabel doesn't work. make relabel (or setfiles) gives
+>> >> the following error:
+>> >>
+>> >> file_contexts/file_contexts: Invalid argument make: *** [relabel]
+>> >> Error 1
+>> >> The error seems to be that file_contexts is not being interpreted as a
+>> >> regular file (i.e. S_ISREG(sb.st_mode) in setfiles.c is returning 0).
+>> >
+>> > That doesn't seem consistent with the error message; if the S_ISREG()
+>> > test fails, setfiles would send the following output to stderr:
+>> >        setfiles:  spec file <path> is not a regular file.
+>> > So perhaps you are instead encountering an error on the stat() call that
+>> > precedes the S_ISREG() test, and the perror() output there is what you
+>> > are getting above?
+>> >
+>> > setfiles is built with -D_FILE_OFFSET_BITS=64 by default, and thus uses
+>> > the 64-bit large file system interfaces.  But this can be overridden via
+>> > CFLAGS.
+>> >
+>> >> I assume this is because I compiled libselinux without the OpenMoko
+>> >> specific header files (ie with my host-x86 /usr/include rather than
+>> >> the device specific ones), so I re-compiled libselinux:
+>> >>
+>> >> make
+>> >> CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/ccARCH=arm
+>> >> LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
+>> >> INCLUDEDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/include
+>> >> I then copied libselinux.so.1 on to the device. setfiles will now
+>> >> correctly label the filesystem, but sestatus now returns SELinux as
+>> >> disabled. I set /etc/selinux/config file to permissive and rebooted,
+>> >> but it is still listed as disabled.
+>> >>
+>> >> How is SELinux determined to be enabled? Could missing or
+>> >> mis-configured header files in the OpenMoko /usr/include cause SELinux
+>> >> to appear as disabled?
+>> >
+>> > SELinux enabled vs disabled is determined based on:
+>> > - presence/absence of selinuxfs in /proc/filesystems, and
+>> > - read of /proc/self/attr/current returns something other than
+>> > "kernel" (i.e. policy has been loaded).
+>> >
+>> > --
+>> > Stephen Smalley
+>> > National Security Agency
+>> >
+>> >
+>> > --
+>> > This message was distributed to subscribers of the selinux mailing list.
+>> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>> > the words "unsubscribe selinux" without quotes as the message.
+>> >
+>>
+>> Is there a possibility of having the file system mounted twice
+>> i.g. the libraries create /selinux during the boot process
+>> before /etc/fstab, and then once /etc/fstab is called
+>> another mount point in the same vicinity is created?
+>> In my case I was always using debian edgy to install selinux, but
+>> then started to use debian sid; when using sid there is no need to
+>> enter anything in fstab, due to the packages being up to date.
+>> regards;
+>
+> I'm not sure what you are asking.  In some distributions, selinuxfs is
+> mounted by /sbin/init.  In other distributions, it is mounted by early
+> userspace from initramfs by invoking load_policy -i or directly calling
+> the corresponding libselinux function.
+>
+> Regardless, you don't need it in your fstab file; selinuxfs gets mounted
+> before fstab is ever read normally.
+>
+> As far as enabled/disabled goes, selinuxfs doesn't even have to be
+> presently mounted in the process' namespace; it only needs to be
+> registered in the kernel (as shown by /proc/filesystems) and a policy
+> has to have been previously loaded.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
-A question that comes up is how exactly to to determine which types
-should be constrained by ubac.  The obvious answer would seem to be that
-if the user isn't system_u, then there should be ubac constraints on the
-access check.  But the problem is that creating new files gets your
-selinux user on files.  So if you look in /etc, you're likely to see non
-system_u files, such as ld.so.cache.  The problem is that we don't want
-ubac constraints on these files.  In addition, since there is no
-run_init on redhat (and possibly other distros) machines, restarted
-services would get non system_u users, which would also cause problems.
+O.K.
+I think what I'm trying to say, is if it's possible
+to have selinux mount itself twice in the same location.
+i.g. init does it's job, and then later on fstab(if you have an entry in there)
+will mount as well.
+In other words once init makes a mount,
+then fstab tries to make a mount in the same location,
+will it fail. or mount another selinuxfs on top of the already mounted
+selinuxfs.
 
-My current implementation is actually more of an allow by default setup,
-where types are explicitly marked as being ubac constrained.  Obviously
-deny by default would be preferred, but that would require all exempted
-types to be marked instead.  The problem is the number of exempted types
-far outnumbers the constrained types.  I'm open to suggestions on
-tweaking this design, especially if it gets us a deny by default without
-the pain of marking most types in the policy as exempted.
+And just to let you know, I am not using fstab just was wondering if
+things like this
+can occur.
+
+regards;
 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
