@@ -1,67 +1,49 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6G5ngqx021429
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 01:49:42 -0400
-Received: from mail7.hitachi.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6G5nfC8026874
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 05:49:41 GMT
-Received: from mlsv5.hitachi.co.jp (unknown [133.144.234.166])
-	by mail7.hitachi.co.jp (Postfix) with ESMTP id 7770A37ACB
-	for <selinux@tycho.nsa.gov>; Wed, 16 Jul 2008 14:49:40 +0900 (JST)
-Date: Wed, 16 Jul 2008 14:49:39 +0900
-From: Yuichi Nakamura <ynakam@hitachisoft.jp>
-To: James Morris <jmorris@namei.org>
-Subject: Re: SELinux for embedded
-Cc: ynakam@hitachisoft.jp, Yuichi Nakamura <himainu-ynakam@miomio.jp>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <Xine.LNX.4.64.0807160833570.2677@us.intercode.com.au>
-References: <20080715224604.13bf1241.himainu-ynakam@miomio.jp> <Xine.LNX.4.64.0807160833570.2677@us.intercode.com.au>
-Message-Id: <20080716142945.E44B.F42EC909@hitachisoft.jp>
+Message-ID: <487D9061.1080304@ak.jp.nec.com>
+Date: Wed, 16 Jul 2008 15:08:33 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov
+Subject: Re: [RFC] An idea of thread/child-domain assignment
+References: <487C7698.60503@ak.jp.nec.com> <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil> <487D5A3D.6090801@ak.jp.nec.com>
+In-Reply-To: <487D5A3D.6090801@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi.
-
-On Wed, 16 Jul 2008 08:35:14 +1000 (EST)
-James Morris  wrote:
-> On Tue, 15 Jul 2008, Yuichi Nakamura wrote:
+>>> In other words, this idea requires to change our viewpoint for child domain.
+>>> Previously, these are mutually independent domain, but a child domain will
+>>> mean a state with restricted operations compared to its parent domain.
+>> I tend to agree that we should support such changes in the kernel
+>> mechanism and let the use of it be determined by the policy.
+>>
+>> In terms of hierarchy though, the plan was to replace the current
+>> name-based hierarchy with an explicitly declared hierarchy.
 > 
-> > Hi.
-> > 
-> > I am using SELinux for embedded devices.
-> > Is there anyone using SELinux for embedded devices on the list?
-> > 
-> > I would like to share information with other embedded SELinux people.
-> > I've set up SELinux topic on Embedded Linux wiki.
-> > http://elinux.org/SELinux
+> It needs a new policy statement like:
 > 
-> I've added a link to this from the selinuxproject.org site:
-> http://selinuxproject.org/page/Project_Links
-Thank you.
-
-> Do you think it would be useful to have an embedded SELinux mailing list?  
-> (A list can easily be created now on that server).
-We need that list after traffic about embedded increases.
-I think we do not need it now.
-
-
-> - James
-> -- 
-> James Morris
-> <jmorris@namei.org>
+>   TYPE <child domain> DOMBY <parent domain>;
+>     or
+>   TYPEDOMINANCE <parent domain> <child domain> [,<child domain>] ;
 > 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> I guess these relationships are represented as a ebitmap structure
+> in the kernel, and used to mask permissions during AVC entry creation.
+
+Should it be possible to have multiple parent domains on the explicitly
+declared hierarchy?
+
+The current name-based hierarchy only supports tree-shaped structure.
+(A child domain can have one parent at most.)
+It implicitly enables to avoid a matter of loop of relationship between
+parents and children.
+
+If we can define a domain with multiple parent, it makes the logic to
+detect the loop complicated.
 
 -- 
-Yuichi Nakamura
-Hitachi Software Engineering Co., Ltd.
-Japan SELinux Users Group(JSELUG): http://www.selinux.gr.jp/
-SELinux Policy Editor: http://seedit.sourceforge.net/
-
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
