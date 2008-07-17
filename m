@@ -1,171 +1,109 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6HKRR7a031776
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 16:27:27 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6HKRQDU027713
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 20:27:26 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1) with ESMTP id m6HKSU49024161
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 16:28:30 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.1/8.14.1/Submit) id m6HKSUht024160
-	for selinux@tycho.nsa.gov; Thu, 17 Jul 2008 16:28:30 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: Attaching multiple user accounts to same home directory...
-Date: Thu, 17 Jul 2008 16:01:00 -0400
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D04BF257F@de01exm68.ds.mot.com>
-In-Reply-To: <487FA2EB.8030608@redhat.com>
-References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com> <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil> <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com> <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D04BAFA1E@de01exm68.ds.mot.com> <487F9610.6010104@redhat.com> <D06FE0A2807BC145B0D38744789D4F5D04BAFAC2@de01exm68.ds.mot.com> <487FA2EB.8030608@redhat.com>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6HKiHu5001928
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 16:44:17 -0400
+Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6HKiGDU001357
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 20:44:17 GMT
+Received: by ug-out-1314.google.com with SMTP id m3so849418ugc.15
+        for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 13:44:16 -0700 (PDT)
+Subject: Patch: selinux-policy: concept: let users relabel their
+	user_home_t files to user_tmp_t and vice versa.
+From: Dominick Grift <domg472@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-A+TN+fiWFRfCqsa3yXMm"
+Date: Thu, 17 Jul 2008 22:44:13 +0200
+Message-Id: <1216327453.11883.46.camel@sulphur.notebook.internal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Dan,
 
-Given the project deadline and other constraints, upgrading to the new
-toolchain is NOT an option for me  :-(
-
-Is there anything else at all I can do as far as tweaking policy or
-config to get by this problem ?  Thanks for your help...
-
-- Rezaul.
+--=-A+TN+fiWFRfCqsa3yXMm
+Content-Type: multipart/mixed; boundary="=-vCEEaU+GmEu3XTSGv5fn"
 
 
------Original Message-----
-From: Daniel J Walsh [mailto:dwalsh@redhat.com] 
-Sent: Thursday, July 17, 2008 2:52 PM
-To: Hasan Rezaul-CHR010
-Cc: Stephen Smalley; selinux@tycho.nsa.gov
-Subject: Re: Attaching multiple user accounts to same home directory...
+--=-vCEEaU+GmEu3XTSGv5fn
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Attached you will find a concept patch that should allow users to
+relabel $1_home_t to $1_tmp_t and vice versa.
 
-Hasan Rezaul-CHR010 wrote:
-> Hi Dan,
-> 
-> I am using Standard Linux 2.6.14.
-> 
-> In case you need this info, the SELinux related packages I am using
-are:
-> 
-> checkpolicy     1.34.1
-> libselinux      1.34.7
-> libsemanage     1.10.3
-> libsepol        1.16.1
-> policycoreutils 1.34.6
-> 
-> - Rezaul.
->
+I was testing the patch program and noticed that it wanted to relabel a
+file on my desktop from user_tmp_t to user_home_t:
 
-Can you upgrade to the newer toolchain?
+[domg472@sulphur Desktop]$ patch -p0 < test.patch
+patching file ktalk.te
+patch: **** Can't set security context on file ktalk.te : Permission
+denied
+[domg472@sulphur Desktop]$ less ktalk.te
+[domg472@sulphur Desktop]$ ls -alZ | grep ktalk.te*
+drwxr-xr-x  domg472 domg472 domg472:object_r:user_home_t
+-rw-rw-r--  domg472 domg472 domg472:object_r:user_tmp_t      ktalk.te
+-rw-rw-r--  domg472 domg472 domg472:object_r:user_tmp_t
+ktalk.te.rej
 
-I tried to do what you are doing in rawhide and it works fine.
-
-rpm -q libselinux checkpolicy libsemanage policycoreutils libsepol
-libselinux-2.0.67-4.fc10.x86_64
-libselinux-2.0.67-4.fc10.i386
-checkpolicy-2.0.16-3.fc10.x86_64
-libsemanage-2.0.25-3.fc10.x86_64
-policycoreutils-2.0.52-5.fc10.x86_64
-libsepol-2.0.32-1.fc10.x86_64
+I suspect patch moves file objects from /tmp to ~/Desktop in this
+scenario, and therefore the file object has a wrong type.=20
+type=3DAVC msg=3Daudit(1216322317.253:231): avc:  denied  { relabelfrom }
+for  pid=3D26588 comm=3D"patch" name=3D"ktalk.te" dev=3Ddm-1 ino=3D1827227
+scontext=3Ddomg472:staff_r:staff_t:s0-s0:c0.c1023
+tcontext=3Ddomg472:object_r:user_tmp_t:s0 tclass=3Dfile
 
 
-> 
-> -----Original Message-----
-> From: Daniel J Walsh [mailto:dwalsh@redhat.com]
-> Sent: Thursday, July 17, 2008 1:57 PM
-> To: Hasan Rezaul-CHR010
-> Cc: Stephen Smalley; selinux@tycho.nsa.gov
-> Subject: Re: Attaching multiple user accounts to same home
-directory...
-> 
-> Hasan Rezaul-CHR010 wrote:
->> Hi All,
-> 
->> Suppose I wanted to have several Linux User Accounts tied to the same
+--=20
+Dominick Grift <domg472@gmail.com>
 
->> Home Directory, by executing the following:
-> 
->> useradd -g wadm -d /home/admin admin1 useradd -g wadm -d /home/admin 
->> admin2
-> 
->> And I wanted all these Linux Users to be tied to the same SELinux 
->> user
->> (staff_u) as follows:
-> 
->> semanage login -a -s staff_u admin1
->> semanage login -a -s staff_u admin2
-> 
->> Does SELinux allow this per design ???
-> 
->> Currently I am getting the following errors on my console, which 
->> somewhat makes sense, considering this is NOT standard practise!
-> 
-> 
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/.+.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/.*/plugins/nprhapengine\.so.*.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/.*/plugins/libflashplayer\.so.*.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.ssh(/.*)?.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.xauth.*.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.gnupg(/.+)?.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.fonts(/.*)?.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.gconf(d)?(/.*)?.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for 
->> /home/admin/\.mozilla(/.*)?/plugins/libflashplayer\.so.*.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.Xauthority.*.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.fonts/auto(/.*)?.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.config/gtk-.*.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.fonts\.cache-.*.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.ICEauthority.*.
->> Inserting powerspanii.ko:
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin.
->> /etc/selinux/strict/contexts/files/file_contexts: Multiple same 
->> specifications for /home/admin/\.fonts\.conf.
-> 
-> 
->> I was wondering if there is any way I can tweak SELinux config or 
->> policy to allow  multiple Linux users to share the same home 
->> directory...without generating all these complaints ?  Thanks in 
->> advance for your help  :-)
-> 
->> - Rezaul.
-> 
-> 
->> --
->> This message was distributed to subscribers of the selinux mailing
-> list.
->> If you no longer wish to subscribe, send mail to 
->> majordomo@tycho.nsa.gov with the words "unsubscribe selinux" without
-> quotes as the message.
-> I think you have confused the tool.  What OS are you doing this on?
+--=-vCEEaU+GmEu3XTSGv5fn
+Content-Disposition: attachment; filename=user_home_t_and_user_tmp_t.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=user_home_t_and_user_tmp_t.patch; charset=UTF-8
+
+SW5kZXg6IC9ob21lL2RvbWc0NzIvV29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9k
+dWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5pZg0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIC9ob21lL2RvbWc0NzIv
+V29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vdXNlcmRvbWFp
+bi5pZgkocmV2aXNpb24gMjc1OCkNCisrKyAvaG9tZS9kb21nNDcyL1dvcmtzcGFjZS9yZWZwb2xp
+Y3lfdHJ1bmsvcG9saWN5L21vZHVsZXMvc3lzdGVtL3VzZXJkb21haW4uaWYJKHdvcmtpbmcgY29w
+eSkNCkBAIC0yNjMsNiArMjYzLDcgQEANCiANCiAJIyBmdWxsIGNvbnRyb2wgb2YgdGhlIGhvbWUg
+ZGlyZWN0b3J5DQogCWFsbG93ICQxX3QgJDFfaG9tZV90OmZpbGUgZW50cnlwb2ludDsNCisJYWxs
+b3cgJDFfdCAkMV9ob21lX3Q6ZGlyX2ZpbGVfY2xhc3Nfc2V0IHsgcmVsYWJlbHRvIHJlbGFiZWxm
+cm9tIH07DQogCW1hbmFnZV9kaXJzX3BhdHRlcm4oJDFfdCx7ICQxX2hvbWVfZGlyX3QgJDFfaG9t
+ZV90IH0sJDFfaG9tZV90KQ0KIAltYW5hZ2VfZmlsZXNfcGF0dGVybigkMV90LHsgJDFfaG9tZV9k
+aXJfdCAkMV9ob21lX3QgfSwkMV9ob21lX3QpDQogCW1hbmFnZV9sbmtfZmlsZXNfcGF0dGVybigk
+MV90LHsgJDFfaG9tZV9kaXJfdCAkMV9ob21lX3QgfSwkMV9ob21lX3QpDQpAQCAtMzc1LDExICsz
+NzYsMTcgQEANCiAJdHlwZSAkMV90bXBfdCwgJDFfZmlsZV90eXBlOw0KIAlmaWxlc190bXBfZmls
+ZSgkMV90bXBfdCkNCiANCisJYWxsb3cgJDFfdCAkMV90bXBfdDpkaXJfZmlsZV9jbGFzc19zZXQg
+eyByZWxhYmVsdG8gcmVsYWJlbGZyb20gfTsNCiAJbWFuYWdlX2RpcnNfcGF0dGVybigkMV90LCQx
+X3RtcF90LCQxX3RtcF90KQ0KIAltYW5hZ2VfZmlsZXNfcGF0dGVybigkMV90LCQxX3RtcF90LCQx
+X3RtcF90KQ0KIAltYW5hZ2VfbG5rX2ZpbGVzX3BhdHRlcm4oJDFfdCwkMV90bXBfdCwkMV90bXBf
+dCkNCiAJbWFuYWdlX3NvY2tfZmlsZXNfcGF0dGVybigkMV90LCQxX3RtcF90LCQxX3RtcF90KQ0K
+IAltYW5hZ2VfZmlmb19maWxlc19wYXR0ZXJuKCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQorCXJl
+bGFiZWxfZGlyc19wYXR0ZXJuKCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQorCXJlbGFiZWxfZmls
+ZXNfcGF0dGVybigkMV90LCQxX3RtcF90LCQxX3RtcF90KQ0KKwlyZWxhYmVsX2xua19maWxlc19w
+YXR0ZXJuKCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQorCXJlbGFiZWxfc29ja19maWxlc19wYXR0
+ZXJuKCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQorCXJlbGFiZWxfZmlmb19maWxlc19wYXR0ZXJu
+KCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQogCWZpbGVzX3RtcF9maWxldHJhbnMoJDFfdCwgJDFf
+dG1wX3QsIHsgZGlyIGZpbGUgbG5rX2ZpbGUgc29ja19maWxlIGZpZm9fZmlsZSB9KQ0KICcpDQog
+DQo=
+
+
+--=-vCEEaU+GmEu3XTSGv5fn--
+
+--=-A+TN+fiWFRfCqsa3yXMm
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkh/ousACgkQrlYvE4MpobMg+wCgnNCVoe1PRea8MUrWctJBLdVA
-F4QAmgP5fROkXJWdwaVjAShJQ8zc9Kxi
-=zUi/
+iEYEABECAAYFAkh/rxwACgkQL00QnzrVtlxX+wCfbA6tw1fntwib9v3HhQVBObMt
+WmsAn1Bw3xyvTWNIzNd4rBnh6s3hogNd
+=A5Hn
 -----END PGP SIGNATURE-----
+
+--=-A+TN+fiWFRfCqsa3yXMm--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
