@@ -1,208 +1,178 @@
-Date: Thu, 17 Jul 2008 21:46:46 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        marc.c.dionne@gmail.com, mszeredi@suse.cz,
-        linux-security-module@vger.kernel.org
-Subject: Re: [PATCH -v2] SELinux: /proc/mounts should show what it can
-In-Reply-To: <1216259442.3070.83.camel@localhost.localdomain>
-Message-ID: <Xine.LNX.4.64.0807172146320.2045@us.intercode.com.au>
-References: <1216259442.3070.83.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6HFDAgx009640
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 11:13:10 -0400
+Received: from nf-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6HFD9DB004742
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 15:13:10 GMT
+Received: by nf-out-0910.google.com with SMTP id b21so2451662nfd.4
+        for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 08:13:09 -0700 (PDT)
+Subject: Patch: selinux-policy: inconsistency: logging_send_syslog_msg is
+	not optional policy.
+From: Dominick Grift <domg472@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-olP04Cfbm/Nvns4mDmOr"
+Date: Thu, 17 Jul 2008 17:13:05 +0200
+Message-Id: <1216307585.11883.17.camel@sulphur.notebook.internal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[cc'ing lsm list]
+
+--=-olP04Cfbm/Nvns4mDmOr
+Content-Type: multipart/mixed; boundary="=-yCzG2KeK9i+N29yPxbPC"
 
 
-On Wed, 16 Jul 2008, Eric Paris wrote:
+--=-yCzG2KeK9i+N29yPxbPC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Given a hosed SELinux config in which a system never loads policy or
-> disables SELinux we currently just return -EINVAL for anyone trying to
-> read /proc/mounts.  This is a configuration problem but we can certainly
-> be more graceful.  This patch just ignores errors from displaying LSM
-> options and causes /proc/mounts display everything else it can.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> Tested-by: Marc Dionne <marc.c.dionne@gmail.com>
-> 
-> ---
-> 
-> Same patch, only now without build warnings.
-> 
-> I could continue to fail showing /proc/mounts rather than skip them on
-> -ENOMEM but -EINVAL errors actually indicate there are no SELinux
-> options so just skipping along is the right thing to do.  I lean towards
-> just skipping on any error like this patch does.  The alternative is
-> selinux_sb_show_options() we can check if the error was -EINVAL and just
-> return 0 and return the actual error if it was anything else.  James,
-> Steve, anyone have feelings on this?
-> 
->  fs/namespace.c           |   14 ++++----------
->  include/linux/security.h |   10 ++++------
->  security/capability.c    |    6 ++----
->  security/security.c      |    4 ++--
->  security/selinux/hooks.c |   10 ++++------
->  5 files changed, 16 insertions(+), 28 deletions(-)
-> 
-> diff --git a/fs/namespace.c b/fs/namespace.c
-> index 4f6f763..9203803 100644
-> --- a/fs/namespace.c
-> +++ b/fs/namespace.c
-> @@ -750,7 +750,7 @@ struct proc_fs_info {
->  	const char *str;
->  };
->  
-> -static int show_sb_opts(struct seq_file *m, struct super_block *sb)
-> +static void show_sb_opts(struct seq_file *m, struct super_block *sb)
->  {
->  	static const struct proc_fs_info fs_info[] = {
->  		{ MS_SYNCHRONOUS, ",sync" },
-> @@ -765,7 +765,7 @@ static int show_sb_opts(struct seq_file *m, struct super_block *sb)
->  			seq_puts(m, fs_infop->str);
->  	}
->  
-> -	return security_sb_show_options(m, sb);
-> +	security_sb_show_options(m, sb);
->  }
->  
->  static void show_mnt_opts(struct seq_file *m, struct vfsmount *mnt)
-> @@ -808,14 +808,11 @@ static int show_vfsmnt(struct seq_file *m, void *v)
->  	seq_putc(m, ' ');
->  	show_type(m, mnt->mnt_sb);
->  	seq_puts(m, __mnt_is_readonly(mnt) ? " ro" : " rw");
-> -	err = show_sb_opts(m, mnt->mnt_sb);
-> -	if (err)
-> -		goto out;
-> +	show_sb_opts(m, mnt->mnt_sb);
->  	show_mnt_opts(m, mnt);
->  	if (mnt->mnt_sb->s_op->show_options)
->  		err = mnt->mnt_sb->s_op->show_options(m, mnt);
->  	seq_puts(m, " 0 0\n");
-> -out:
->  	return err;
->  }
->  
-> @@ -870,13 +867,10 @@ static int show_mountinfo(struct seq_file *m, void *v)
->  	seq_putc(m, ' ');
->  	mangle(m, mnt->mnt_devname ? mnt->mnt_devname : "none");
->  	seq_puts(m, sb->s_flags & MS_RDONLY ? " ro" : " rw");
-> -	err = show_sb_opts(m, sb);
-> -	if (err)
-> -		goto out;
-> +	show_sb_opts(m, sb);
->  	if (sb->s_op->show_options)
->  		err = sb->s_op->show_options(m, mnt);
->  	seq_putc(m, '\n');
-> -out:
->  	return err;
->  }
->  
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 31c8851..c72f4f6 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -1323,7 +1323,7 @@ struct security_operations {
->  	void (*sb_free_security) (struct super_block *sb);
->  	int (*sb_copy_data) (char *orig, char *copy);
->  	int (*sb_kern_mount) (struct super_block *sb, void *data);
-> -	int (*sb_show_options) (struct seq_file *m, struct super_block *sb);
-> +	void (*sb_show_options) (struct seq_file *m, struct super_block *sb);
->  	int (*sb_statfs) (struct dentry *dentry);
->  	int (*sb_mount) (char *dev_name, struct path *path,
->  			 char *type, unsigned long flags, void *data);
-> @@ -1596,7 +1596,7 @@ int security_sb_alloc(struct super_block *sb);
->  void security_sb_free(struct super_block *sb);
->  int security_sb_copy_data(char *orig, char *copy);
->  int security_sb_kern_mount(struct super_block *sb, void *data);
-> -int security_sb_show_options(struct seq_file *m, struct super_block *sb);
-> +void security_sb_show_options(struct seq_file *m, struct super_block *sb);
->  int security_sb_statfs(struct dentry *dentry);
->  int security_sb_mount(char *dev_name, struct path *path,
->  		      char *type, unsigned long flags, void *data);
-> @@ -1872,11 +1872,9 @@ static inline int security_sb_kern_mount(struct super_block *sb, void *data)
->  	return 0;
->  }
->  
-> -static inline int security_sb_show_options(struct seq_file *m,
-> +static inline void security_sb_show_options(struct seq_file *m,
->  					   struct super_block *sb)
-> -{
-> -	return 0;
-> -}
-> +{ }
->  
->  static inline int security_sb_statfs(struct dentry *dentry)
->  {
-> diff --git a/security/capability.c b/security/capability.c
-> index 5b01c0b..368c53a 100644
-> --- a/security/capability.c
-> +++ b/security/capability.c
-> @@ -69,10 +69,8 @@ static int cap_sb_kern_mount(struct super_block *sb, void *data)
->  	return 0;
->  }
->  
-> -static int cap_sb_show_options(struct seq_file *m, struct super_block *sb)
-> -{
-> -	return 0;
-> -}
-> +static void cap_sb_show_options(struct seq_file *m, struct super_block *sb)
-> +{ }
->  
->  static int cap_sb_statfs(struct dentry *dentry)
->  {
-> diff --git a/security/security.c b/security/security.c
-> index 59f23b5..e81ba4d 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -258,9 +258,9 @@ int security_sb_kern_mount(struct super_block *sb, void *data)
->  	return security_ops->sb_kern_mount(sb, data);
->  }
->  
-> -int security_sb_show_options(struct seq_file *m, struct super_block *sb)
-> +void security_sb_show_options(struct seq_file *m, struct super_block *sb)
->  {
-> -	return security_ops->sb_show_options(m, sb);
-> +	security_ops->sb_show_options(m, sb);
->  }
->  
->  int security_sb_statfs(struct dentry *dentry)
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 63f131f..8b0d9ee 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -992,20 +992,18 @@ void selinux_write_opts(struct seq_file *m, struct security_mnt_opts *opts)
->  	}
->  }
->  
-> -static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
-> +static void selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
->  {
->  	struct security_mnt_opts opts;
-> -	int rc;
->  
-> -	rc = selinux_get_mnt_opts(sb, &opts);
-> -	if (rc)
-> -		return rc;
-> +	if (selinux_get_mnt_opts(sb, &opts))
-> +		return;
->  
->  	selinux_write_opts(m, &opts);
->  
->  	security_free_mnt_opts(&opts);
->  
-> -	return rc;
-> +	return;
->  }
->  
->  static inline u16 inode_mode_to_security_class(umode_t mode)
-> 
-> 
+logging_send_syslog_msg is not optional policy.
 
--- 
-James Morris
-<jmorris@namei.org>
+--=20
+Dominick Grift <domg472@gmail.com>
+
+--=-yCzG2KeK9i+N29yPxbPC
+Content-Disposition: attachment; filename=logging_send_syslog_msg_not_optional.patch
+Content-Type: text/x-patch; name=logging_send_syslog_msg_not_optional.patch;
+	charset=UTF-8
+Content-Transfer-Encoding: base64
+
+SW5kZXg6IC9ob21lL2RvbWc0NzIvV29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9k
+dWxlcy9hcHBzL3VzZXJoZWxwZXIuaWYNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSAvaG9tZS9kb21nNDcyL1dv
+cmtzcGFjZS9yZWZwb2xpY3lfdHJ1bmsvcG9saWN5L21vZHVsZXMvYXBwcy91c2VyaGVscGVyLmlm
+CShyZXZpc2lvbiAyNzU4KQ0KKysrIC9ob21lL2RvbWc0NzIvV29ya3NwYWNlL3JlZnBvbGljeV90
+cnVuay9wb2xpY3kvbW9kdWxlcy9hcHBzL3VzZXJoZWxwZXIuaWYJKHdvcmtpbmcgY29weSkNCkBA
+IC0xNDIsNiArMTQyLDggQEANCiAJbGlic191c2VfbGRfc28oJDFfdXNlcmhlbHBlcl90KQ0KIAls
+aWJzX3VzZV9zaGFyZWRfbGlicygkMV91c2VyaGVscGVyX3QpDQogDQorCWxvZ2dpbmdfc2VuZF9z
+eXNsb2dfbXNnKCQxX3VzZXJoZWxwZXJfdCkNCisNCiAJbWlzY2ZpbGVzX3JlYWRfbG9jYWxpemF0
+aW9uKCQxX3VzZXJoZWxwZXJfdCkNCiANCiAJc2V1dGlsX3JlYWRfY29uZmlnKCQxX3VzZXJoZWxw
+ZXJfdCkNCkBAIC0xNzAsMTAgKzE3Miw2IEBADQogCScpDQogDQogCW9wdGlvbmFsX3BvbGljeShg
+DQotCQlsb2dnaW5nX3NlbmRfc3lzbG9nX21zZygkMV91c2VyaGVscGVyX3QpDQotCScpDQotDQot
+CW9wdGlvbmFsX3BvbGljeShgDQogCQluaXNfdXNlX3lwYmluZCgkMV91c2VyaGVscGVyX3QpDQog
+CScpDQogDQpJbmRleDogL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5X3RydW5rL3Bv
+bGljeS9tb2R1bGVzL2FwcHMvbG9ja2Rldi5pZg0KPT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIC9ob21lL2RvbWc0
+NzIvV29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9kdWxlcy9hcHBzL2xvY2tkZXYu
+aWYJKHJldmlzaW9uIDI3NTgpDQorKysgL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5
+X3RydW5rL3BvbGljeS9tb2R1bGVzL2FwcHMvbG9ja2Rldi5pZgkod29ya2luZyBjb3B5KQ0KQEAg
+LTc1LDggKzc1LDQgQEANCiAJbG9nZ2luZ19zZW5kX3N5c2xvZ19tc2coJDFfbG9ja2Rldl90KQ0K
+IA0KIAl1c2VyZG9tX3VzZV91c2VyX3Rlcm1pbmFscygkMSwgJDFfbG9ja2Rldl90KQ0KLQkNCi0J
+b3B0aW9uYWxfcG9saWN5KGANCi0JCWxvZ2dpbmdfc2VuZF9zeXNsb2dfbXNnKCQxX3QpDQotCScp
+DQogJykNCkluZGV4OiAvaG9tZS9kb21nNDcyL1dvcmtzcGFjZS9yZWZwb2xpY3lfdHJ1bmsvcG9s
+aWN5L21vZHVsZXMvc2VydmljZXMvcmF6b3IudGUNCj09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSAvaG9tZS9kb21n
+NDcyL1dvcmtzcGFjZS9yZWZwb2xpY3lfdHJ1bmsvcG9saWN5L21vZHVsZXMvc2VydmljZXMvcmF6
+b3IudGUJKHJldmlzaW9uIDI3NjEpDQorKysgL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9s
+aWN5X3RydW5rL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3Jhem9yLnRlCSh3b3JraW5nIGNvcHkp
+DQpAQCAtNTEsMTIgKzUxLDEwIEBADQogY29yZW5ldF90Y3BfY29ubmVjdF9yYXpvcl9wb3J0KHJh
+em9yX3QpDQogY29yZW5ldF9zZW5kcmVjdl9yYXpvcl9jbGllbnRfcGFja2V0cyhyYXpvcl90KQ0K
+IA0KK2xvZ2dpbmdfc2VuZF9zeXNsb2dfbXNnKHJhem9yX3QpDQorDQogc3lzbmV0X3JlYWRfY29u
+ZmlnKHJhem9yX3QpDQogDQogb3B0aW9uYWxfcG9saWN5KGANCi0JbG9nZ2luZ19zZW5kX3N5c2xv
+Z19tc2cocmF6b3JfdCkNCi0nKQ0KLQ0KLW9wdGlvbmFsX3BvbGljeShgDQogCW5zY2Rfc29ja2V0
+X3VzZShyYXpvcl90KQ0KICcpDQpJbmRleDogL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9s
+aWN5X3RydW5rL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3B5em9yLnRlDQo9PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQot
+LS0gL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5X3RydW5rL3BvbGljeS9tb2R1bGVz
+L3NlcnZpY2VzL3B5em9yLnRlCShyZXZpc2lvbiAyNzYxKQ0KKysrIC9ob21lL2RvbWc0NzIvV29y
+a3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9weXpvci50ZQko
+d29ya2luZyBjb3B5KQ0KQEAgLTEyNywxMiArMTI3LDEwIEBADQogDQogbWlzY2ZpbGVzX3JlYWRf
+bG9jYWxpemF0aW9uKHB5em9yZF90KQ0KIA0KK2xvZ2dpbmdfc2VuZF9zeXNsb2dfbXNnKHB5em9y
+ZF90KQ0KKw0KIG10YV9tYW5hZ2Vfc3Bvb2wocHl6b3JkX3QpDQogDQogIyBEbyBub3QgYXVkaXQg
+YXR0ZW1wdHMgdG8gYWNjZXNzIC9yb290Lg0KIHN0YWZmX2RvbnRhdWRpdF9zZWFyY2hfaG9tZV9k
+aXJzKHB5em9yZF90KQ0KIHN5c2FkbV9kb250YXVkaXRfc2VhcmNoX2hvbWVfZGlycyhweXpvcmRf
+dCkNCi0NCi1vcHRpb25hbF9wb2xpY3koYA0KLQlsb2dnaW5nX3NlbmRfc3lzbG9nX21zZyhweXpv
+cmRfdCkNCi0nKQ0KSW5kZXg6IC9ob21lL2RvbWc0NzIvV29ya3NwYWNlL3JlZnBvbGljeV90cnVu
+ay9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9scGQudGUNCj09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSAvaG9tZS9k
+b21nNDcyL1dvcmtzcGFjZS9yZWZwb2xpY3lfdHJ1bmsvcG9saWN5L21vZHVsZXMvc2VydmljZXMv
+bHBkLnRlCShyZXZpc2lvbiAyNzYxKQ0KKysrIC9ob21lL2RvbWc0NzIvV29ya3NwYWNlL3JlZnBv
+bGljeV90cnVuay9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9scGQudGUJKHdvcmtpbmcgY29weSkN
+CkBAIC0xMDEsNiArMTAxLDggQEANCiBsaWJzX3VzZV9sZF9zbyhjaGVja3BjX3QpDQogbGlic191
+c2Vfc2hhcmVkX2xpYnMoY2hlY2twY190KQ0KIA0KK2xvZ2dpbmdfc2VuZF9zeXNsb2dfbXNnKGNo
+ZWNrcGNfdCkNCisNCiBzeXNuZXRfcmVhZF9jb25maWcoY2hlY2twY190KQ0KIA0KIG9wdGlvbmFs
+X3BvbGljeShgDQpAQCAtMTA4LDEwICsxMTAsNiBAQA0KICcpDQogDQogb3B0aW9uYWxfcG9saWN5
+KGANCi0JbG9nZ2luZ19zZW5kX3N5c2xvZ19tc2coY2hlY2twY190KQ0KLScpDQotDQotb3B0aW9u
+YWxfcG9saWN5KGANCiAJbmlzX3VzZV95cGJpbmQoY2hlY2twY190KQ0KICcpDQogDQpJbmRleDog
+L2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5X3RydW5rL3BvbGljeS9tb2R1bGVzL3Nl
+cnZpY2VzL2RvdmVjb3QudGUNCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCi0tLSAvaG9tZS9kb21nNDcyL1dvcmtzcGFj
+ZS9yZWZwb2xpY3lfdHJ1bmsvcG9saWN5L21vZHVsZXMvc2VydmljZXMvZG92ZWNvdC50ZQkocmV2
+aXNpb24gMjc2MSkNCisrKyAvaG9tZS9kb21nNDcyL1dvcmtzcGFjZS9yZWZwb2xpY3lfdHJ1bmsv
+cG9saWN5L21vZHVsZXMvc2VydmljZXMvZG92ZWNvdC50ZQkod29ya2luZyBjb3B5KQ0KQEAgLTE3
+Niw2ICsxNzYsOCBAQA0KIGxpYnNfdXNlX2xkX3NvKGRvdmVjb3RfYXV0aF90KQ0KIGxpYnNfdXNl
+X3NoYXJlZF9saWJzKGRvdmVjb3RfYXV0aF90KQ0KIA0KK2xvZ2dpbmdfc2VuZF9zeXNsb2dfbXNn
+KGRvdmVjb3RfYXV0aF90KQ0KKw0KIG1pc2NmaWxlc19yZWFkX2xvY2FsaXphdGlvbihkb3ZlY290
+X2F1dGhfdCkNCiANCiBzZXV0aWxfZG9udGF1ZGl0X3NlYXJjaF9jb25maWcoZG92ZWNvdF9hdXRo
+X3QpDQpAQCAtMTgzLDcgKzE4NSwzIEBADQogb3B0aW9uYWxfcG9saWN5KGANCiAJa2VyYmVyb3Nf
+dXNlKGRvdmVjb3RfYXV0aF90KQ0KICcpDQotDQotb3B0aW9uYWxfcG9saWN5KGANCi0JbG9nZ2lu
+Z19zZW5kX3N5c2xvZ19tc2coZG92ZWNvdF9hdXRoX3QpDQotJykNCkluZGV4OiAvaG9tZS9kb21n
+NDcyL1dvcmtzcGFjZS9yZWZwb2xpY3lfdHJ1bmsvcG9saWN5L21vZHVsZXMvc2VydmljZXMvbHBk
+LmlmDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09DQotLS0gL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5X3Ry
+dW5rL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL2xwZC5pZgkocmV2aXNpb24gMjc1OCkNCisrKyAv
+aG9tZS9kb21nNDcyL1dvcmtzcGFjZS9yZWZwb2xpY3lfdHJ1bmsvcG9saWN5L21vZHVsZXMvc2Vy
+dmljZXMvbHBkLmlmCSh3b3JraW5nIGNvcHkpDQpAQCAtMTM3LDYgKzEzNyw4IEBADQogCWxpYnNf
+dXNlX2xkX3NvKCQxX2xwcl90KQ0KIAlsaWJzX3VzZV9zaGFyZWRfbGlicygkMV9scHJfdCkNCiAN
+CisJbG9nZ2luZ19zZW5kX3N5c2xvZ19tc2coJDFfbHByX3QpDQorDQogCW1pc2NmaWxlc19yZWFk
+X2xvY2FsaXphdGlvbigkMV9scHJfdCkNCiANCiAJc3lzbmV0X3JlYWRfY29uZmlnKCQxX2xwcl90
+KQ0KQEAgLTE4NCwxMCArMTg2LDYgQEANCiAJJykNCiANCiAJb3B0aW9uYWxfcG9saWN5KGANCi0J
+CWxvZ2dpbmdfc2VuZF9zeXNsb2dfbXNnKCQxX2xwcl90KQ0KLQknKQ0KLQ0KLQlvcHRpb25hbF9w
+b2xpY3koYA0KIAkJbnNjZF9zb2NrZXRfdXNlKCQxX2xwcl90KQ0KIAknKQ0KIA0KSW5kZXg6IC9o
+b21lL2RvbWc0NzIvV29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9kdWxlcy9zZXJ2
+aWNlcy9zeXNzdGF0LnRlDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2Uv
+cmVmcG9saWN5X3RydW5rL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3N5c3N0YXQudGUJKHJldmlz
+aW9uIDI3NjEpDQorKysgL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5X3RydW5rL3Bv
+bGljeS9tb2R1bGVzL3NlcnZpY2VzL3N5c3N0YXQudGUJKHdvcmtpbmcgY29weSkNCkBAIC01Niw2
+ICs1Niw4IEBADQogbGlic191c2VfbGRfc28oc3lzc3RhdF90KQ0KIGxpYnNfdXNlX3NoYXJlZF9s
+aWJzKHN5c3N0YXRfdCkNCiANCitsb2dnaW5nX3NlbmRfc3lzbG9nX21zZyhzeXNzdGF0X3QpDQor
+DQogbG9jYWxsb2dpbl91c2VfZmRzKHN5c3N0YXRfdCkNCiANCiBtaXNjZmlsZXNfcmVhZF9sb2Nh
+bGl6YXRpb24oc3lzc3RhdF90KQ0KQEAgLTY1LDcgKzY3LDMgQEANCiBvcHRpb25hbF9wb2xpY3ko
+YA0KIAljcm9uX3N5c3RlbV9lbnRyeShzeXNzdGF0X3Qsc3lzc3RhdF9leGVjX3QpDQogJykNCi0N
+Ci1vcHRpb25hbF9wb2xpY3koYA0KLQlsb2dnaW5nX3NlbmRfc3lzbG9nX21zZyhzeXNzdGF0X3Qp
+DQotJykNCkluZGV4OiAvaG9tZS9kb21nNDcyL1dvcmtzcGFjZS9yZWZwb2xpY3lfdHJ1bmsvcG9s
+aWN5L21vZHVsZXMvYWRtaW4vYW1hbmRhLnRlDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gL2hvbWUvZG9tZzQ3
+Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5X3RydW5rL3BvbGljeS9tb2R1bGVzL2FkbWluL2FtYW5kYS50
+ZQkocmV2aXNpb24gMjc2MSkNCisrKyAvaG9tZS9kb21nNDcyL1dvcmtzcGFjZS9yZWZwb2xpY3lf
+dHJ1bmsvcG9saWN5L21vZHVsZXMvYWRtaW4vYW1hbmRhLnRlCSh3b3JraW5nIGNvcHkpDQpAQCAt
+MTU2LDExICsxNTYsOCBAQA0KIGxpYnNfdXNlX2xkX3NvKGFtYW5kYV90KQ0KIGxpYnNfdXNlX3No
+YXJlZF9saWJzKGFtYW5kYV90KQ0KIA0KK2xvZ2dpbmdfc2VuZF9zeXNsb2dfbXNnKGFtYW5kYV90
+KQ0KIA0KLW9wdGlvbmFsX3BvbGljeShgDQotCWxvZ2dpbmdfc2VuZF9zeXNsb2dfbXNnKGFtYW5k
+YV90KQ0KLScpDQotDQogIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0K
+ICMNCiAjIEFtYW5kYSByZWNvdmVyIGxvY2FsIHBvbGljeQ0KSW5kZXg6IC9ob21lL2RvbWc0NzIv
+V29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9kdWxlcy9hZG1pbi91c2Jtb2R1bGVz
+LnRlDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09DQotLS0gL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5X3Ry
+dW5rL3BvbGljeS9tb2R1bGVzL2FkbWluL3VzYm1vZHVsZXMudGUJKHJldmlzaW9uIDI3NjEpDQor
+KysgL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5X3RydW5rL3BvbGljeS9tb2R1bGVz
+L2FkbWluL3VzYm1vZHVsZXMudGUJKHdvcmtpbmcgY29weSkNCkBAIC0zNiw2ICszNiw4IEBADQog
+bGlic191c2VfbGRfc28odXNibW9kdWxlc190KQ0KIGxpYnNfdXNlX3NoYXJlZF9saWJzKHVzYm1v
+ZHVsZXNfdCkNCiANCitsb2dnaW5nX3NlbmRfc3lzbG9nX21zZyh1c2Jtb2R1bGVzX3QpDQorDQog
+bWlzY2ZpbGVzX3JlYWRfaHdkYXRhKHVzYm1vZHVsZXNfdCkNCiANCiBtb2R1dGlsc19yZWFkX21v
+ZHVsZV9kZXBzKHVzYm1vZHVsZXNfdCkNCkBAIC00Myw3ICs0NSwzIEBADQogb3B0aW9uYWxfcG9s
+aWN5KGANCiAJaG90cGx1Z19yZWFkX2NvbmZpZyh1c2Jtb2R1bGVzX3QpDQogJykNCi0NCi1vcHRp
+b25hbF9wb2xpY3koYA0KLQlsb2dnaW5nX3NlbmRfc3lzbG9nX21zZyh1c2Jtb2R1bGVzX3QpDQot
+JykNCg==
+
+
+--=-yCzG2KeK9i+N29yPxbPC--
+
+--=-olP04Cfbm/Nvns4mDmOr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkh/YYAACgkQL00QnzrVtlwvdACg3iBVu01rprxwR16EQBvxWo86
+r8oAninMp9vlYbm1si14Y01eJqtpjWtU
+=gdKe
+-----END PGP SIGNATURE-----
+
+--=-olP04Cfbm/Nvns4mDmOr--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
