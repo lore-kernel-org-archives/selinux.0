@@ -1,86 +1,79 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6HGUtVD023670
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 12:30:55 -0400
-Received: from ug-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6HGUsUv026046
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 16:30:55 GMT
-Received: by ug-out-1314.google.com with SMTP id m3so815863ugc.15
-        for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 09:30:53 -0700 (PDT)
-Subject: Re: Patch: selinux-policy: inconsistency: logging_send_syslog_msg
-	is not optional policy.
-From: Dominick Grift <domg472@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <487F6B54.3040909@redhat.com>
-References: <1216307585.11883.17.camel@sulphur.notebook.internal>
-	 <487F6B54.3040909@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GVlJEJA/v1BDHZyIAHgz"
-Date: Thu, 17 Jul 2008 18:30:51 +0200
-Message-Id: <1216312251.11883.30.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: Attaching multiple user accounts to same home directory...
+Date: Thu, 17 Jul 2008 12:42:29 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D04BAFA1E@de01exm68.ds.mot.com>
+In-Reply-To: <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
+References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com> <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil> <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com> <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi All,
 
---=-GVlJEJA/v1BDHZyIAHgz
-Content-Type: multipart/mixed; boundary="=-POD3MuqpzpAUFRPtiul8"
+Suppose I wanted to have several Linux User Accounts tied to the same
+Home Directory, by executing the following:
 
+useradd -g wadm -d /home/admin admin1
+useradd -g wadm -d /home/admin admin2
 
---=-POD3MuqpzpAUFRPtiul8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+And I wanted all these Linux Users to be tied to the same SELinux user
+(staff_u) as follows:
 
-On Thu, 2008-07-17 at 11:55 -0400, Daniel J Walsh wrote:
+semanage login -a -s staff_u admin1
+semanage login -a -s staff_u admin2
 
-> Shouldn't all of kernel/system be required, with the exception of
-> unconfined?
+Does SELinux allow this per design ???
 
-That is true. You cannot unconditionally require something from a higher
-layer.
-
-The patch that i included has a style error in the sysstat module
-however. logging_send_syslog_msg() should be under locallogin_use_fds()
-i believe. Attached is a patch for sysstat to resolve this issue.
-
---=-POD3MuqpzpAUFRPtiul8
-Content-Disposition: attachment;
-	filename*0=sysstat_logging_send_syslog_message_under_locallogin_use_fds.;
-	filename*1=patch
-Content-Type: text/x-patch;
-	name*0=sysstat_logging_send_syslog_message_under_locallogin_use_fds.patc;
-	name*1=h; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IC9ob21lL2RvbWc0NzIvV29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9k
-dWxlcy9zZXJ2aWNlcy9zeXNzdGF0LnRlDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQotLS0gL2hvbWUvZG9tZzQ3Mi9X
-b3Jrc3BhY2UvcmVmcG9saWN5X3RydW5rL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3N5c3N0YXQu
-dGUJKHJldmlzaW9uIDI3NjEpDQorKysgL2hvbWUvZG9tZzQ3Mi9Xb3Jrc3BhY2UvcmVmcG9saWN5
-X3RydW5rL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3N5c3N0YXQudGUJKHdvcmtpbmcgY29weSkN
-CkBAIC01OCw2ICs1OCw4IEBADQogDQogbG9jYWxsb2dpbl91c2VfZmRzKHN5c3N0YXRfdCkNCiAN
-Citsb2dnaW5nX3NlbmRfc3lzbG9nX21zZyhzeXNzdGF0X3QpDQorDQogbWlzY2ZpbGVzX3JlYWRf
-bG9jYWxpemF0aW9uKHN5c3N0YXRfdCkNCiANCiBzeXNhZG1fZG9udGF1ZGl0X2xpc3RfaG9tZV9k
-aXJzKHN5c3N0YXRfdCkNCkBAIC02NSw3ICs2NywzIEBADQogb3B0aW9uYWxfcG9saWN5KGANCiAJ
-Y3Jvbl9zeXN0ZW1fZW50cnkoc3lzc3RhdF90LHN5c3N0YXRfZXhlY190KQ0KICcpDQotDQotb3B0
-aW9uYWxfcG9saWN5KGANCi0JbG9nZ2luZ19zZW5kX3N5c2xvZ19tc2coc3lzc3RhdF90KQ0KLScp
-DQo=
+Currently I am getting the following errors on my console, which
+somewhat makes sense, considering this is NOT standard practise! 
 
 
---=-POD3MuqpzpAUFRPtiul8--
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/.+.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/.*/plugins/nprhapengine\.so.*.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/.*/plugins/libflashplayer\.so.*.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.ssh(/.*)?.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.xauth.*.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.gnupg(/.+)?.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.fonts(/.*)?.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.gconf(d)?(/.*)?.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for
+/home/admin/\.mozilla(/.*)?/plugins/libflashplayer\.so.*.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.Xauthority.*.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.fonts/auto(/.*)?.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.config/gtk-.*.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.fonts\.cache-.*.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.ICEauthority.*.
+Inserting powerspanii.ko:
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin.
+/etc/selinux/strict/contexts/files/file_contexts: Multiple same
+specifications for /home/admin/\.fonts\.conf.
 
---=-GVlJEJA/v1BDHZyIAHgz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+I was wondering if there is any way I can tweak SELinux config or policy
+to allow  multiple Linux users to share the same home
+directory...without generating all these complaints ?  Thanks in advance
+for your help  :-)
 
-iEYEABECAAYFAkh/c7oACgkQL00QnzrVtly/HQCeLpDGRpRxQUPzIST495kP0skA
-oIkAnjzBYXEWITET7KR8YkfoMDFuKYfE
-=H9fV
------END PGP SIGNATURE-----
-
---=-GVlJEJA/v1BDHZyIAHgz--
+- Rezaul.
 
 
 --
