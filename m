@@ -1,35 +1,208 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6HBFUpF028224
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 07:15:30 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m6HBFTAx027681
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 11:15:30 GMT
-Message-ID: <487F29BF.2080701@manicmethod.com>
-Date: Thu, 17 Jul 2008 07:15:11 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Date: Thu, 17 Jul 2008 21:46:46 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
+        marc.c.dionne@gmail.com, mszeredi@suse.cz,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH -v2] SELinux: /proc/mounts should show what it can
+In-Reply-To: <1216259442.3070.83.camel@localhost.localdomain>
+Message-ID: <Xine.LNX.4.64.0807172146320.2045@us.intercode.com.au>
+References: <1216259442.3070.83.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Proposed patch for policycoreutils/sestatus
-References: <Pine.LNX.4.64L.0807161749060.10705@ruuvi.it.helsinki.fi>
-In-Reply-To: <Pine.LNX.4.64L.0807161749060.10705@ruuvi.it.helsinki.fi>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Vesa-Matti J Kari wrote:
-> Hello,
+[cc'ing lsm list]
+
+
+On Wed, 16 Jul 2008, Eric Paris wrote:
+
+> Given a hosed SELinux config in which a system never loads policy or
+> disables SELinux we currently just return -EINVAL for anyone trying to
+> read /proc/mounts.  This is a configuration problem but we can certainly
+> be more graceful.  This patch just ignores errors from displaying LSM
+> options and causes /proc/mounts display everything else it can.
 > 
-> I have refactored sestatus.c and attached the patch for
-> policycoreutils-2.0.46.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Tested-by: Marc Dionne <marc.c.dionne@gmail.com>
 > 
-> However, the latter part of the patch is a bit unreadable due to the
-> extensive changes in the code layout. In fact the line count of the
-> patch is larger than sestatus.c itself.
+> ---
+> 
+> Same patch, only now without build warnings.
+> 
+> I could continue to fail showing /proc/mounts rather than skip them on
+> -ENOMEM but -EINVAL errors actually indicate there are no SELinux
+> options so just skipping along is the right thing to do.  I lean towards
+> just skipping on any error like this patch does.  The alternative is
+> selinux_sb_show_options() we can check if the error was -EINVAL and just
+> return 0 and return the actual error if it was anything else.  James,
+> Steve, anyone have feelings on this?
+> 
+>  fs/namespace.c           |   14 ++++----------
+>  include/linux/security.h |   10 ++++------
+>  security/capability.c    |    6 ++----
+>  security/security.c      |    4 ++--
+>  security/selinux/hooks.c |   10 ++++------
+>  5 files changed, 16 insertions(+), 28 deletions(-)
+> 
+> diff --git a/fs/namespace.c b/fs/namespace.c
+> index 4f6f763..9203803 100644
+> --- a/fs/namespace.c
+> +++ b/fs/namespace.c
+> @@ -750,7 +750,7 @@ struct proc_fs_info {
+>  	const char *str;
+>  };
+>  
+> -static int show_sb_opts(struct seq_file *m, struct super_block *sb)
+> +static void show_sb_opts(struct seq_file *m, struct super_block *sb)
+>  {
+>  	static const struct proc_fs_info fs_info[] = {
+>  		{ MS_SYNCHRONOUS, ",sync" },
+> @@ -765,7 +765,7 @@ static int show_sb_opts(struct seq_file *m, struct super_block *sb)
+>  			seq_puts(m, fs_infop->str);
+>  	}
+>  
+> -	return security_sb_show_options(m, sb);
+> +	security_sb_show_options(m, sb);
+>  }
+>  
+>  static void show_mnt_opts(struct seq_file *m, struct vfsmount *mnt)
+> @@ -808,14 +808,11 @@ static int show_vfsmnt(struct seq_file *m, void *v)
+>  	seq_putc(m, ' ');
+>  	show_type(m, mnt->mnt_sb);
+>  	seq_puts(m, __mnt_is_readonly(mnt) ? " ro" : " rw");
+> -	err = show_sb_opts(m, mnt->mnt_sb);
+> -	if (err)
+> -		goto out;
+> +	show_sb_opts(m, mnt->mnt_sb);
+>  	show_mnt_opts(m, mnt);
+>  	if (mnt->mnt_sb->s_op->show_options)
+>  		err = mnt->mnt_sb->s_op->show_options(m, mnt);
+>  	seq_puts(m, " 0 0\n");
+> -out:
+>  	return err;
+>  }
+>  
+> @@ -870,13 +867,10 @@ static int show_mountinfo(struct seq_file *m, void *v)
+>  	seq_putc(m, ' ');
+>  	mangle(m, mnt->mnt_devname ? mnt->mnt_devname : "none");
+>  	seq_puts(m, sb->s_flags & MS_RDONLY ? " ro" : " rw");
+> -	err = show_sb_opts(m, sb);
+> -	if (err)
+> -		goto out;
+> +	show_sb_opts(m, sb);
+>  	if (sb->s_op->show_options)
+>  		err = sb->s_op->show_options(m, mnt);
+>  	seq_putc(m, '\n');
+> -out:
+>  	return err;
+>  }
+>  
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 31c8851..c72f4f6 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1323,7 +1323,7 @@ struct security_operations {
+>  	void (*sb_free_security) (struct super_block *sb);
+>  	int (*sb_copy_data) (char *orig, char *copy);
+>  	int (*sb_kern_mount) (struct super_block *sb, void *data);
+> -	int (*sb_show_options) (struct seq_file *m, struct super_block *sb);
+> +	void (*sb_show_options) (struct seq_file *m, struct super_block *sb);
+>  	int (*sb_statfs) (struct dentry *dentry);
+>  	int (*sb_mount) (char *dev_name, struct path *path,
+>  			 char *type, unsigned long flags, void *data);
+> @@ -1596,7 +1596,7 @@ int security_sb_alloc(struct super_block *sb);
+>  void security_sb_free(struct super_block *sb);
+>  int security_sb_copy_data(char *orig, char *copy);
+>  int security_sb_kern_mount(struct super_block *sb, void *data);
+> -int security_sb_show_options(struct seq_file *m, struct super_block *sb);
+> +void security_sb_show_options(struct seq_file *m, struct super_block *sb);
+>  int security_sb_statfs(struct dentry *dentry);
+>  int security_sb_mount(char *dev_name, struct path *path,
+>  		      char *type, unsigned long flags, void *data);
+> @@ -1872,11 +1872,9 @@ static inline int security_sb_kern_mount(struct super_block *sb, void *data)
+>  	return 0;
+>  }
+>  
+> -static inline int security_sb_show_options(struct seq_file *m,
+> +static inline void security_sb_show_options(struct seq_file *m,
+>  					   struct super_block *sb)
+> -{
+> -	return 0;
+> -}
+> +{ }
+>  
+>  static inline int security_sb_statfs(struct dentry *dentry)
+>  {
+> diff --git a/security/capability.c b/security/capability.c
+> index 5b01c0b..368c53a 100644
+> --- a/security/capability.c
+> +++ b/security/capability.c
+> @@ -69,10 +69,8 @@ static int cap_sb_kern_mount(struct super_block *sb, void *data)
+>  	return 0;
+>  }
+>  
+> -static int cap_sb_show_options(struct seq_file *m, struct super_block *sb)
+> -{
+> -	return 0;
+> -}
+> +static void cap_sb_show_options(struct seq_file *m, struct super_block *sb)
+> +{ }
+>  
+>  static int cap_sb_statfs(struct dentry *dentry)
+>  {
+> diff --git a/security/security.c b/security/security.c
+> index 59f23b5..e81ba4d 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -258,9 +258,9 @@ int security_sb_kern_mount(struct super_block *sb, void *data)
+>  	return security_ops->sb_kern_mount(sb, data);
+>  }
+>  
+> -int security_sb_show_options(struct seq_file *m, struct super_block *sb)
+> +void security_sb_show_options(struct seq_file *m, struct super_block *sb)
+>  {
+> -	return security_ops->sb_show_options(m, sb);
+> +	security_ops->sb_show_options(m, sb);
+>  }
+>  
+>  int security_sb_statfs(struct dentry *dentry)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 63f131f..8b0d9ee 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -992,20 +992,18 @@ void selinux_write_opts(struct seq_file *m, struct security_mnt_opts *opts)
+>  	}
+>  }
+>  
+> -static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+> +static void selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+>  {
+>  	struct security_mnt_opts opts;
+> -	int rc;
+>  
+> -	rc = selinux_get_mnt_opts(sb, &opts);
+> -	if (rc)
+> -		return rc;
+> +	if (selinux_get_mnt_opts(sb, &opts))
+> +		return;
+>  
+>  	selinux_write_opts(m, &opts);
+>  
+>  	security_free_mnt_opts(&opts);
+>  
+> -	return rc;
+> +	return;
+>  }
+>  
+>  static inline u16 inode_mode_to_security_class(umode_t mode)
+> 
 > 
 
-split the layout changes from the functional changes and submit 2 patches please.
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
