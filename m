@@ -1,109 +1,131 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6HKiHu5001928
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 16:44:17 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6HKiGDU001357
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 20:44:17 GMT
-Received: by ug-out-1314.google.com with SMTP id m3so849418ugc.15
-        for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 13:44:16 -0700 (PDT)
-Subject: Patch: selinux-policy: concept: let users relabel their
-	user_home_t files to user_tmp_t and vice versa.
-From: Dominick Grift <domg472@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6HMdvsk017247
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 18:39:57 -0400
+Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6HMdvDU022781
+	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 22:39:57 GMT
+Received: by an-out-0708.google.com with SMTP id d30so188472and.75
+        for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 15:39:56 -0700 (PDT)
+Message-ID: <dd18b0c30807171539m772f87fh64f706e8f9cf0e9e@mail.gmail.com>
+Date: Thu, 17 Jul 2008 22:39:56 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
 To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-A+TN+fiWFRfCqsa3yXMm"
-Date: Thu, 17 Jul 2008 22:44:13 +0200
-Message-Id: <1216327453.11883.46.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+Subject: firefox3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I'm trying to tighten up firefox, from what I can see over here:
+when I use firefox I usually change roles to  user_r
+then run firefox. Now I noticed when I execute firefox in sysadm_r
+firefox is able to start up(when in enforce mode).  I remember in the
+past firefox would not
+start in sysadm_r only user_r for me. Is there something I'm missing,
+or is this something new. (below are the allow rules for firefox)
 
---=-A+TN+fiWFRfCqsa3yXMm
-Content-Type: multipart/mixed; boundary="=-vCEEaU+GmEu3XTSGv5fn"
+allow sysadm_xserver_t user_mozilla_t:shm { associate getattr read
+unix_read unix_write write };
+allow sysadm_xserver_t user_mozilla_tmpfs_t:file { read write };
+allow sysadm_xserver_t user_mplayer_t:shm { associate getattr read
+unix_read unix_write write };
+allow sysadm_xserver_t user_mplayer_tmpfs_t:file { read write };
+allow sysadm_xserver_t user_t:shm { associate getattr read unix_read
+unix_write write };
+allow sysadm_xserver_t user_tmpfs_t:file { read write };
+allow user_mozilla_t apmd_t:dir { getattr search };
+allow user_mozilla_t apmd_t:file read;
+allow user_mozilla_t bluetooth_t:dir { getattr search };
+allow user_mozilla_t bluetooth_t:file read;
+allow user_mozilla_t crond_t:dir { getattr search };
+allow user_mozilla_t crond_t:file read;
+allow user_mozilla_t devpts_t:dir search;
+allow user_mozilla_t gconf_etc_t:dir { getattr read search };
+allow user_mozilla_t gconf_etc_t:file { getattr read };
+allow user_mozilla_t getty_t:dir { getattr search };
+allow user_mozilla_t getty_t:file read;
+allow user_mozilla_t hald_t:dir { getattr search };
+allow user_mozilla_t hald_t:file read;
+allow user_mozilla_t init_t:dir { getattr search };
+allow user_mozilla_t init_t:file read;
+allow user_mozilla_t initrc_t:dir { getattr search };
+allow user_mozilla_t initrc_t:file read;
+allow user_mozilla_t initrc_var_run_t:dir search;
+allow user_mozilla_t initrc_var_run_t:sock_file write;
+allow user_mozilla_t kernel_t:dir { getattr search };
+allow user_mozilla_t kernel_t:file read;
+allow user_mozilla_t klogd_t:dir { getattr search };
+allow user_mozilla_t klogd_t:file read;
+allow user_mozilla_t lib_t:file execute_no_trans;
+allow user_mozilla_t local_login_t:dir { getattr search };
+allow user_mozilla_t local_login_t:file read;
+allow user_mozilla_t newrole_t:dir { getattr search };
+allow user_mozilla_t newrole_t:fd use;
+allow user_mozilla_t newrole_t:file read;
+allow user_mozilla_t newrole_t:lnk_file read;
+allow user_mozilla_t staff_t:dir { getattr search };
+allow user_mozilla_t staff_t:file read;
+allow user_mozilla_t sysadm_gconf_home_t:dir { add_name getattr read
+remove_name search write };
+allow user_mozilla_t sysadm_gconf_home_t:file { append create getattr
+read rename unlink write };
+allow user_mozilla_t sysadm_home_dir_t:dir { getattr search };
+allow user_mozilla_t sysadm_home_t:dir { add_name getattr read
+remove_name search write };
+allow user_mozilla_t sysadm_home_t:file { append create getattr read
+rename unlink };
+allow user_mozilla_t sysadm_mozilla_home_t:dir { add_name create
+getattr read remove_name rmdir search write };
+allow user_mozilla_t sysadm_mozilla_home_t:file { create getattr lock
+read rename unlink write };
+allow user_mozilla_t sysadm_mozilla_home_t:lnk_file { create unlink };
+allow user_mozilla_t sysadm_sudo_t:dir { getattr search };
+allow user_mozilla_t sysadm_sudo_t:file read;
+allow user_mozilla_t sysadm_t:dir { getattr search };
+allow user_mozilla_t sysadm_t:file read;
+allow user_mozilla_t sysadm_t:lnk_file read;
+allow user_mozilla_t sysadm_tty_device_t:chr_file getattr;
+allow user_mozilla_t sysadm_xauth_home_t:file { getattr read };
+allow user_mozilla_t sysadm_xserver_t:dir { getattr search };
+allow user_mozilla_t sysadm_xserver_t:file read;
+allow user_mozilla_t sysadm_xserver_t:unix_stream_socket connectto;
+allow user_mozilla_t syslogd_t:dir { getattr search };
+allow user_mozilla_t syslogd_t:file read;
+allow user_mozilla_t system_dbusd_t:dir { getattr search };
+allow user_mozilla_t system_dbusd_t:file read;
+allow user_mozilla_t tmp_t:dir { add_name create remove_name rmdir
+setattr write };
+allow user_mozilla_t tmp_t:file { create getattr link lock read unlink write };
+allow user_mozilla_t tmp_t:sock_file { create unlink write };
+allow user_mozilla_t udev_t:dir { getattr search };
+allow user_mozilla_t udev_t:file read;
+allow user_mozilla_t user_devpts_t:chr_file { getattr ioctl read write };
+allow user_mozilla_t user_t:dir { getattr search };
+allow user_mozilla_t user_t:file read;
+allow user_mozilla_t user_t:lnk_file read;
+allow user_mozilla_t user_t:sem { associate getattr read setattr
+unix_read unix_write write };
+allow user_mozilla_t user_t:shm { associate getattr read setattr
+unix_read unix_write write };
+allow user_mozilla_t user_tmpfs_t:file { read write };
+allow user_mozilla_t v4l_device_t:chr_file { read write };
+
+###########make enableaudit
+
+allow user_mozilla_t security_t:dir { getattr search };
+allow user_mozilla_t security_t:file read;
+allow user_mozilla_t security_t:filesystem getattr;
+allow user_mozilla_t selinux_config_t:dir search;
+allow user_mozilla_t selinux_config_t:file { getattr read };
+allow user_mozilla_t tmp_t:dir read;
+
+Is this safe?  should I comment out some of the allow rules
+and if so which ones.
+regards;
 
 
---=-vCEEaU+GmEu3XTSGv5fn
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Attached you will find a concept patch that should allow users to
-relabel $1_home_t to $1_tmp_t and vice versa.
-
-I was testing the patch program and noticed that it wanted to relabel a
-file on my desktop from user_tmp_t to user_home_t:
-
-[domg472@sulphur Desktop]$ patch -p0 < test.patch
-patching file ktalk.te
-patch: **** Can't set security context on file ktalk.te : Permission
-denied
-[domg472@sulphur Desktop]$ less ktalk.te
-[domg472@sulphur Desktop]$ ls -alZ | grep ktalk.te*
-drwxr-xr-x  domg472 domg472 domg472:object_r:user_home_t
--rw-rw-r--  domg472 domg472 domg472:object_r:user_tmp_t      ktalk.te
--rw-rw-r--  domg472 domg472 domg472:object_r:user_tmp_t
-ktalk.te.rej
-
-I suspect patch moves file objects from /tmp to ~/Desktop in this
-scenario, and therefore the file object has a wrong type.=20
-type=3DAVC msg=3Daudit(1216322317.253:231): avc:  denied  { relabelfrom }
-for  pid=3D26588 comm=3D"patch" name=3D"ktalk.te" dev=3Ddm-1 ino=3D1827227
-scontext=3Ddomg472:staff_r:staff_t:s0-s0:c0.c1023
-tcontext=3Ddomg472:object_r:user_tmp_t:s0 tclass=3Dfile
-
-
---=20
-Dominick Grift <domg472@gmail.com>
-
---=-vCEEaU+GmEu3XTSGv5fn
-Content-Disposition: attachment; filename=user_home_t_and_user_tmp_t.patch
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=user_home_t_and_user_tmp_t.patch; charset=UTF-8
-
-SW5kZXg6IC9ob21lL2RvbWc0NzIvV29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9k
-dWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5pZg0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIC9ob21lL2RvbWc0NzIv
-V29ya3NwYWNlL3JlZnBvbGljeV90cnVuay9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vdXNlcmRvbWFp
-bi5pZgkocmV2aXNpb24gMjc1OCkNCisrKyAvaG9tZS9kb21nNDcyL1dvcmtzcGFjZS9yZWZwb2xp
-Y3lfdHJ1bmsvcG9saWN5L21vZHVsZXMvc3lzdGVtL3VzZXJkb21haW4uaWYJKHdvcmtpbmcgY29w
-eSkNCkBAIC0yNjMsNiArMjYzLDcgQEANCiANCiAJIyBmdWxsIGNvbnRyb2wgb2YgdGhlIGhvbWUg
-ZGlyZWN0b3J5DQogCWFsbG93ICQxX3QgJDFfaG9tZV90OmZpbGUgZW50cnlwb2ludDsNCisJYWxs
-b3cgJDFfdCAkMV9ob21lX3Q6ZGlyX2ZpbGVfY2xhc3Nfc2V0IHsgcmVsYWJlbHRvIHJlbGFiZWxm
-cm9tIH07DQogCW1hbmFnZV9kaXJzX3BhdHRlcm4oJDFfdCx7ICQxX2hvbWVfZGlyX3QgJDFfaG9t
-ZV90IH0sJDFfaG9tZV90KQ0KIAltYW5hZ2VfZmlsZXNfcGF0dGVybigkMV90LHsgJDFfaG9tZV9k
-aXJfdCAkMV9ob21lX3QgfSwkMV9ob21lX3QpDQogCW1hbmFnZV9sbmtfZmlsZXNfcGF0dGVybigk
-MV90LHsgJDFfaG9tZV9kaXJfdCAkMV9ob21lX3QgfSwkMV9ob21lX3QpDQpAQCAtMzc1LDExICsz
-NzYsMTcgQEANCiAJdHlwZSAkMV90bXBfdCwgJDFfZmlsZV90eXBlOw0KIAlmaWxlc190bXBfZmls
-ZSgkMV90bXBfdCkNCiANCisJYWxsb3cgJDFfdCAkMV90bXBfdDpkaXJfZmlsZV9jbGFzc19zZXQg
-eyByZWxhYmVsdG8gcmVsYWJlbGZyb20gfTsNCiAJbWFuYWdlX2RpcnNfcGF0dGVybigkMV90LCQx
-X3RtcF90LCQxX3RtcF90KQ0KIAltYW5hZ2VfZmlsZXNfcGF0dGVybigkMV90LCQxX3RtcF90LCQx
-X3RtcF90KQ0KIAltYW5hZ2VfbG5rX2ZpbGVzX3BhdHRlcm4oJDFfdCwkMV90bXBfdCwkMV90bXBf
-dCkNCiAJbWFuYWdlX3NvY2tfZmlsZXNfcGF0dGVybigkMV90LCQxX3RtcF90LCQxX3RtcF90KQ0K
-IAltYW5hZ2VfZmlmb19maWxlc19wYXR0ZXJuKCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQorCXJl
-bGFiZWxfZGlyc19wYXR0ZXJuKCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQorCXJlbGFiZWxfZmls
-ZXNfcGF0dGVybigkMV90LCQxX3RtcF90LCQxX3RtcF90KQ0KKwlyZWxhYmVsX2xua19maWxlc19w
-YXR0ZXJuKCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQorCXJlbGFiZWxfc29ja19maWxlc19wYXR0
-ZXJuKCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQorCXJlbGFiZWxfZmlmb19maWxlc19wYXR0ZXJu
-KCQxX3QsJDFfdG1wX3QsJDFfdG1wX3QpDQogCWZpbGVzX3RtcF9maWxldHJhbnMoJDFfdCwgJDFf
-dG1wX3QsIHsgZGlyIGZpbGUgbG5rX2ZpbGUgc29ja19maWxlIGZpZm9fZmlsZSB9KQ0KICcpDQog
-DQo=
-
-
---=-vCEEaU+GmEu3XTSGv5fn--
-
---=-A+TN+fiWFRfCqsa3yXMm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkh/rxwACgkQL00QnzrVtlxX+wCfbA6tw1fntwib9v3HhQVBObMt
-WmsAn1Bw3xyvTWNIzNd4rBnh6s3hogNd
-=A5Hn
------END PGP SIGNATURE-----
-
---=-A+TN+fiWFRfCqsa3yXMm--
-
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
