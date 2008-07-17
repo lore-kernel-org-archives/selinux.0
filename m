@@ -1,11 +1,11 @@
-Subject: [PATCH] SELinux: /proc/mounts shoudl show what it can
+Subject: [PATCH -v2] SELinux: /proc/mounts should show what it can
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: jmorris@namei.org, sds@tycho.nsa.gov, marc.c.dionne@gmail.com,
         mszeredi@suse.cz
 Content-Type: text/plain
-Date: Wed, 16 Jul 2008 21:42:30 -0400
-Message-Id: <1216258950.3070.78.camel@localhost.localdomain>
+Date: Wed, 16 Jul 2008 21:50:42 -0400
+Message-Id: <1216259442.3070.83.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -17,10 +17,11 @@ be more graceful.  This patch just ignores errors from displaying LSM
 options and causes /proc/mounts display everything else it can.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
+Tested-by: Marc Dionne <marc.c.dionne@gmail.com>
 
 ---
 
-Marc I hope this fixes your problem.
+Same patch, only now without build warnings.
 
 I could continue to fail showing /proc/mounts rather than skip them on
 -ENOMEM but -EINVAL errors actually indicate there are no SELinux
@@ -30,15 +31,15 @@ selinux_sb_show_options() we can check if the error was -EINVAL and just
 return 0 and return the actual error if it was anything else.  James,
 Steve, anyone have feelings on this?
 
- fs/namespace.c           |   13 ++++---------
+ fs/namespace.c           |   14 ++++----------
  include/linux/security.h |   10 ++++------
  security/capability.c    |    6 ++----
  security/security.c      |    4 ++--
- security/selinux/hooks.c |    9 ++++-----
- 5 files changed, 16 insertions(+), 26 deletions(-)
+ security/selinux/hooks.c |   10 ++++------
+ 5 files changed, 16 insertions(+), 28 deletions(-)
 
 diff --git a/fs/namespace.c b/fs/namespace.c
-index 4f6f763..3d2d48f 100644
+index 4f6f763..9203803 100644
 --- a/fs/namespace.c
 +++ b/fs/namespace.c
 @@ -750,7 +750,7 @@ struct proc_fs_info {
@@ -75,7 +76,7 @@ index 4f6f763..3d2d48f 100644
  	return err;
  }
  
-@@ -870,9 +867,7 @@ static int show_mountinfo(struct seq_file *m, void *v)
+@@ -870,13 +867,10 @@ static int show_mountinfo(struct seq_file *m, void *v)
  	seq_putc(m, ' ');
  	mangle(m, mnt->mnt_devname ? mnt->mnt_devname : "none");
  	seq_puts(m, sb->s_flags & MS_RDONLY ? " ro" : " rw");
@@ -86,6 +87,10 @@ index 4f6f763..3d2d48f 100644
  	if (sb->s_op->show_options)
  		err = sb->s_op->show_options(m, mnt);
  	seq_putc(m, '\n');
+-out:
+ 	return err;
+ }
+ 
 diff --git a/include/linux/security.h b/include/linux/security.h
 index 31c8851..c72f4f6 100644
 --- a/include/linux/security.h
@@ -156,10 +161,10 @@ index 59f23b5..e81ba4d 100644
  
  int security_sb_statfs(struct dentry *dentry)
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 63f131f..4b67e65 100644
+index 63f131f..8b0d9ee 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -992,20 +992,19 @@ void selinux_write_opts(struct seq_file *m, struct security_mnt_opts *opts)
+@@ -992,20 +992,18 @@ void selinux_write_opts(struct seq_file *m, struct security_mnt_opts *opts)
  	}
  }
  
@@ -167,7 +172,7 @@ index 63f131f..4b67e65 100644
 +static void selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
  {
  	struct security_mnt_opts opts;
- 	int rc;
+-	int rc;
  
 -	rc = selinux_get_mnt_opts(sb, &opts);
 -	if (rc)
