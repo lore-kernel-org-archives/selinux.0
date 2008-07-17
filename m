@@ -1,87 +1,97 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6HIlXOc014520
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 14:47:33 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6HIlWf6006037
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 18:47:32 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m6HIlW9k006277
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 14:47:32 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m6HIlVl8010282
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 14:47:32 -0400
-Received: from redsox.boston.devel.redhat.com (redsox.boston.devel.redhat.com [10.16.60.53])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m6HIlVl0006809
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 14:47:31 -0400
-Message-ID: <487F93C3.1040701@redhat.com>
-Date: Thu, 17 Jul 2008 14:47:31 -0400
+Message-ID: <487F9610.6010104@redhat.com>
+Date: Thu, 17 Jul 2008 14:57:20 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Critical bug in semanage
-Content-Type: multipart/mixed;
- boundary="------------030204020402000001080202"
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: Attaching multiple user accounts to same home directory...
+References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com> <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil> <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com> <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil> <D06FE0A2807BC145B0D38744789D4F5D04BAFA1E@de01exm68.ds.mot.com>
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D04BAFA1E@de01exm68.ds.mot.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
-
-This is a multi-part message in MIME format.
---------------030204020402000001080202
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-homedirs in /var and /usr/local were not being matched, causing bad
-context to be added.
-
-genhomedircon port problem.
-
-An extra / at the end of the regex was causing the problem
-
-Geesh I love 'C'.  :^P
+Hasan Rezaul-CHR010 wrote:
+> Hi All,
+> 
+> Suppose I wanted to have several Linux User Accounts tied to the same
+> Home Directory, by executing the following:
+> 
+> useradd -g wadm -d /home/admin admin1
+> useradd -g wadm -d /home/admin admin2
+> 
+> And I wanted all these Linux Users to be tied to the same SELinux user
+> (staff_u) as follows:
+> 
+> semanage login -a -s staff_u admin1
+> semanage login -a -s staff_u admin2
+> 
+> Does SELinux allow this per design ???
+> 
+> Currently I am getting the following errors on my console, which
+> somewhat makes sense, considering this is NOT standard practise! 
+> 
+> 
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/.+.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/.*/plugins/nprhapengine\.so.*.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/.*/plugins/libflashplayer\.so.*.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.ssh(/.*)?.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.xauth.*.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.gnupg(/.+)?.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.fonts(/.*)?.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.gconf(d)?(/.*)?.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for
+> /home/admin/\.mozilla(/.*)?/plugins/libflashplayer\.so.*.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.Xauthority.*.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.fonts/auto(/.*)?.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.config/gtk-.*.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.fonts\.cache-.*.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.ICEauthority.*.
+> Inserting powerspanii.ko:
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin.
+> /etc/selinux/strict/contexts/files/file_contexts: Multiple same
+> specifications for /home/admin/\.fonts\.conf.
+> 
+> 
+> I was wondering if there is any way I can tweak SELinux config or policy
+> to allow  multiple Linux users to share the same home
+> directory...without generating all these complaints ?  Thanks in advance
+> for your help  :-)
+> 
+> - Rezaul.
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+I think you have confused the tool.  What OS are you doing this on?
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkh/k8IACgkQrlYvE4MpobPojgCggaXEFTVV+JdunE/jLOjhiTff
-+E4AoOSIYWVPVlRJ2w7LAo7ewCmt/+KY
-=xb2w
+iEYEARECAAYFAkh/lhAACgkQrlYvE4MpobNVggCeMLFXrNd5m+I9HEYn8qGJifgD
++GEAn3jcHDwH2RSQx3NDNgiFYqz8+xev
+=4Jln
 -----END PGP SIGNATURE-----
-
---------------030204020402000001080202
-Content-Type: text/plain;
- name="libsemanage-rhat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsemanage-rhat.patch"
-
-diff --exclude-from=exclude -N -u -r nsalibsemanage/src/genhomedircon.c libsemanage-2.0.25/src/genhomedircon.c
---- nsalibsemanage/src/genhomedircon.c	2008-06-12 23:25:16.000000000 -0400
-+++ libsemanage-2.0.25/src/genhomedircon.c	2008-07-17 14:32:45.000000000 -0400
-@@ -192,6 +193,11 @@
- 			goto done;
- 	}
- 
-+	if (ustr_cmp_suffix_cstr_eq(expr, "/")) {
-+		if (!ustr_del(&expr, 1))
-+			goto done;
-+	}
-+
- 	/* Append pattern to eat up trailing slashes */
- 	if (!ustr_add_cstr(&expr, "/*$"))
- 		goto done;
-
---------------030204020402000001080202
-Content-Type: application/octet-stream;
- name="libsemanage-rhat.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="libsemanage-rhat.patch.sig"
-
-iEYEABECAAYFAkh/k8MACgkQrlYvE4MpobOAVwCgkw4/LA/cT0athHzZxKpgT1LGBa8AoNjB
-XHrXZZmBbiL76exo+P9ECRa3
---------------030204020402000001080202--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
