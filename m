@@ -1,65 +1,41 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IC7HBF001463
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 08:07:17 -0400
-Received: from wx-out-0506.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IC7GAI015090
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 12:07:16 GMT
-Received: by wx-out-0506.google.com with SMTP id i26so155286wxd.30
-        for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 05:07:16 -0700 (PDT)
-Subject: Re: firefox3
-From: Dominick Grift <domg472@gmail.com>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <dd18b0c30807171539m772f87fh64f706e8f9cf0e9e@mail.gmail.com>
-References: <dd18b0c30807171539m772f87fh64f706e8f9cf0e9e@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-aKIDq664HJj0vy+Kr6iG"
-Date: Fri, 18 Jul 2008 14:07:12 +0200
-Message-Id: <1216382832.8282.27.camel@sulphur.notebook.internal>
+Subject: RE: Attaching multiple user accounts to same home directory...
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D04BF257F@de01exm68.ds.mot.com>
+References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
+	 <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil>
+	 <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
+	 <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
+	 <D06FE0A2807BC145B0D38744789D4F5D04BAFA1E@de01exm68.ds.mot.com>
+	 <487F9610.6010104@redhat.com>
+	 <D06FE0A2807BC145B0D38744789D4F5D04BAFAC2@de01exm68.ds.mot.com>
+	 <487FA2EB.8030608@redhat.com>
+	 <D06FE0A2807BC145B0D38744789D4F5D04BF257F@de01exm68.ds.mot.com>
+Content-Type: text/plain
+Date: Fri, 18 Jul 2008 08:31:10 -0400
+Message-Id: <1216384270.17602.234.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-aKIDq664HJj0vy+Kr6iG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Thu, 2008-07-17 at 16:01 -0400, Hasan Rezaul-CHR010 wrote:
+> Hi Dan,
+> 
+> Given the project deadline and other constraints, upgrading to the new
+> toolchain is NOT an option for me  :-(
+> 
+> Is there anything else at all I can do as far as tweaking policy or
+> config to get by this problem ?  Thanks for your help...
 
-On Thu, 2008-07-17 at 22:39 +0000, Justin Mattock wrote:
-> I'm trying to tighten up firefox, from what I can see over here:
+These are just warnings and not fatal errors, so you can ignore them.
+If you want to silence them, then you could always patch
+libselinux/src/matchpathcon.c to suppress the warning.
 
-I do not encourage people to run Firefox as sysadm_t, and i recommend
-you use staff_t as your default domain. Sysadm_t is a domain specific
-just for sysadmin tasks. Plus sysadm_t is being (kind of) replaced by
-unconfined_t in the targeted policy.=20
-
-Also i think sysadm, user and staff do not transition once they run
-Firefox, but that they run Firefox in the user domain by default.
-
-In Fedora 9 only xguest_t domain by default can run Firefox in the
-Mozilla domain by setting the boolean.
-
-However Nsplugin is now by default confined to the nsplugin_t domain and
-so even though you may not transition to mozilla_t as staff or user, you
-will still be protected by nsplugin_t.
-
-To see in what domain Firefox is running execute ps auxZ | grep -i
-firefox.
---=20
-Dominick Grift <domg472@gmail.com>
-
---=-aKIDq664HJj0vy+Kr6iG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkiAh20ACgkQL00QnzrVtlzDJgCfTxq7WECH/62MbVm2n0ylg0MS
-D1wAoJ4vkmtOC0O/LMux5meTqJT2AVKw
-=bJ+A
------END PGP SIGNATURE-----
-
---=-aKIDq664HJj0vy+Kr6iG--
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
