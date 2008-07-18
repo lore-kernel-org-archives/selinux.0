@@ -1,41 +1,64 @@
-Subject: RE: Attaching multiple user accounts to same home directory...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D04BF257F@de01exm68.ds.mot.com>
-References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
-	 <1216209375.17602.77.camel@moss-spartans.epoch.ncsc.mil>
-	 <dd18b0c30807160803q7b34551cl567cf9d787db75e8@mail.gmail.com>
-	 <1216221492.17602.131.camel@moss-spartans.epoch.ncsc.mil>
-	 <D06FE0A2807BC145B0D38744789D4F5D04BAFA1E@de01exm68.ds.mot.com>
-	 <487F9610.6010104@redhat.com>
-	 <D06FE0A2807BC145B0D38744789D4F5D04BAFAC2@de01exm68.ds.mot.com>
-	 <487FA2EB.8030608@redhat.com>
-	 <D06FE0A2807BC145B0D38744789D4F5D04BF257F@de01exm68.ds.mot.com>
-Content-Type: text/plain
-Date: Fri, 18 Jul 2008 08:31:10 -0400
-Message-Id: <1216384270.17602.234.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6ICX2Fb006663
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 08:33:02 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m6ICX1AI022099
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 12:33:02 GMT
+Subject: Re: Fedora refpolicy patches
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Brett Lentz <blentz@cardomain.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1216238975.4832.11.camel@blentz>
+References: <20080716165634.GA8072@hardeman.nu>
+	 <487E2C1F.4010308@redhat.com> <20080716174410.GA9226@hardeman.nu>
+	 <1216232357.21191.76.camel@gorn> <487E451C.5000603@redhat.com>
+	 <20080716192942.GA11166@hardeman.nu>  <487E4EAD.5070207@redhat.com>
+	 <1216238975.4832.11.camel@blentz>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 18 Jul 2008 08:32:34 -0400
+Message-Id: <1216384354.21191.106.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wed, 2008-07-16 at 13:09 -0700, Brett Lentz wrote:
+> On Wed, 2008-07-16 at 15:40 -0400, Daniel J Walsh wrote:
+> > David Härdeman wrote:
+> > > On Wed, Jul 16, 2008 at 02:59:40PM -0400, Daniel J Walsh wrote:
+> > >> Christopher J. PeBenito wrote:
+> > >>> On Wed, 2008-07-16 at 19:44 +0200, David Härdeman wrote:
+> > >>>> On Wed, Jul 16, 2008 at 01:13:03PM -0400, Daniel J Walsh wrote:
+> > >>>>> David Härdeman wrote:
+> > >>>>>> While working on SELinux-enabling a Debian system, I often Google for
+> > >>>>>> avc messages that show up in dmesg and 90% of the time it seems
+> > >>>>>> that the
+> > >>>>>> problem has already been solved in Fedora's version of the
+> > >>>>>> refpolicy but
+> > >>>>>> not in the upstream version.
+[...]
+> To be honest, from my perspective as an SELinux consumer and long-time
+> follower of this list, it seems to me that Fedora's policy is very
+> nearly becoming the de facto reference policy just by virtue of its more
+> active development.
 
-On Thu, 2008-07-17 at 16:01 -0400, Hasan Rezaul-CHR010 wrote:
-> Hi Dan,
-> 
-> Given the project deadline and other constraints, upgrading to the new
-> toolchain is NOT an option for me  :-(
-> 
-> Is there anything else at all I can do as far as tweaking policy or
-> config to get by this problem ?  Thanks for your help...
-
-These are just warnings and not fatal errors, so you can ignore them.
-If you want to silence them, then you could always patch
-libselinux/src/matchpathcon.c to suppress the warning.
+What is probably not clear to you is that I focus on large scale
+changes/policy architecture, such as the experiment with ubac/rbac
+separations, building the enforcing X desktop policies, and the FCGlob
+file contexts experiment.  Being a distribution policy person, Dan is on
+the front lines handling bugs, while I am somewhat disconnected (Gentoo
+doesn't have nearly as many SELinux users).  As mentioned by others, Dan
+is working mainly on get things functioning.  Obviously, as upstream, I
+want things to work too, but Dan deserves much credit for the many
+policy adjustments that are required as software gets updated.  But to
+say that the Fedora policy has more active development is dead wrong.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 
 --
