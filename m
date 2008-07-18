@@ -1,80 +1,35 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IHG2kI027900
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 13:16:02 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IHG1oF007296
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 17:16:02 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m6IHG161016236
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 13:16:01 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m6IHG1uB022680
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 13:16:01 -0400
-Received: from redsox.boston.devel.redhat.com (redsox.boston.devel.redhat.com [10.16.60.53])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m6IHG041008387
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 13:16:00 -0400
-Message-ID: <4880CFD1.1040102@redhat.com>
-Date: Fri, 18 Jul 2008 13:16:01 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Patch to make libselinux shut up when SELinux is disabled.
-Content-Type: multipart/mixed;
- boundary="------------010705040100060008070301"
+Subject: SELinux developer summit
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Paul Moore <paul.moore@hp.com>, James Morris <jmorris@namei.org>
+Content-Type: text/plain
+Date: Fri, 18 Jul 2008 13:21:27 -0400
+Message-Id: <1216401687.17602.318.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------010705040100060008070301
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+For those who haven't already heard, the SELinux developer summit will
+be held Tue July 22 8:30am - 6:30pm in the Albion B conference room at
+the Novotel Ottawa:
+http://www.novotelottawa.com/
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+If you plan to attend the summit, please join the event mailing list for
+any further notices regarding the summit:
+http://taiga.selinuxproject.org/mailman/listinfo/selinux-developer-summit-2008
 
-SELinux complains about things like restorecon or rpm when conflicts
-exist in file_context file even when SELinux is disabled.
+More information about the SELinux developer summit is available from
+the SELinux project wiki:
+http://selinuxproject.org/page/Developer_Summit_2008
 
-It should just shut up....
+You must be registered with the Ottawa Linux Symposium in order to
+attend:
+http://www.linuxsymposium.org/2008/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+-- 
+Stephen Smalley
+National Security Agency
 
-iEYEARECAAYFAkiAz9AACgkQrlYvE4MpobMO6wCdGC7kvnHsss5gBkQGy1s10MzS
-WgIAn2Ryd93w9zfVihfDKyGa8M78E21W
-=hwEi
------END PGP SIGNATURE-----
-
---------------010705040100060008070301
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
-
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/callbacks.c libselinux-2.0.67/src/callbacks.c
---- nsalibselinux/src/callbacks.c	2008-06-12 23:25:14.000000000 -0400
-+++ libselinux-2.0.67/src/callbacks.c	2008-07-18 11:15:56.000000000 -0400
-@@ -16,6 +16,7 @@
- {
- 	int rc;
- 	va_list ap;
-+	if (is_selinux_enabled() == 0) return 0;
- 	va_start(ap, fmt);
- 	rc = vfprintf(stderr, fmt, ap);
- 	va_end(ap);
-
---------------010705040100060008070301
-Content-Type: application/octet-stream;
- name="diff.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="diff.sig"
-
-iEYEABECAAYFAkiAz9EACgkQrlYvE4MpobNtnQCgynDgPRWFEpFBkPb5AxMN6qp+9TsAoKWm
-Ie1NTKByR39+TvX5phimRPDF
---------------010705040100060008070301--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
