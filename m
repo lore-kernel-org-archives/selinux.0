@@ -1,18 +1,18 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IHgPgc000665
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 13:42:25 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IHgOoF014404
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 17:42:24 GMT
-Message-ID: <4880D5FC.5030400@redhat.com>
-Date: Fri, 18 Jul 2008 13:42:20 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IHift1001120
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 13:44:41 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IHie29007947
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 17:44:41 GMT
+Message-ID: <4880D687.9030509@redhat.com>
+Date: Fri, 18 Jul 2008 13:44:39 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Mike Edenfield <kutulu@kutulu.org>
-CC: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: refpolicy patch: samba enhancements
-References: <487BB78D.6080500@kutulu.org>
-In-Reply-To: <487BB78D.6080500@kutulu.org>
+To: Justin Mattock <justinmattock@gmail.com>
+CC: Dominick Grift <domg472@gmail.com>, selinux@tycho.nsa.gov
+Subject: Re: firefox3
+References: <dd18b0c30807171539m772f87fh64f706e8f9cf0e9e@mail.gmail.com>	 <1216382832.8282.27.camel@sulphur.notebook.internal> <dd18b0c30807180918l5883fa40pe15530585ab320f1@mail.gmail.com>
+In-Reply-To: <dd18b0c30807180918l5883fa40pe15530585ab320f1@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -20,121 +20,61 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Mike Edenfield wrote:
-> I apologize if I'm not doing this right, I'm kinda new at this...
+Justin Mattock wrote:
+> On Fri, Jul 18, 2008 at 12:07 PM, Dominick Grift <domg472@gmail.com> wrote:
+>> On Thu, 2008-07-17 at 22:39 +0000, Justin Mattock wrote:
+>>> I'm trying to tighten up firefox, from what I can see over here:
+>> I do not encourage people to run Firefox as sysadm_t, and i recommend
+>> you use staff_t as your default domain. Sysadm_t is a domain specific
+>> just for sysadmin tasks. Plus sysadm_t is being (kind of) replaced by
+>> unconfined_t in the targeted policy.
+>>
+>> Also i think sysadm, user and staff do not transition once they run
+>> Firefox, but that they run Firefox in the user domain by default.
+>>
+>> In Fedora 9 only xguest_t domain by default can run Firefox in the
+>> Mozilla domain by setting the boolean.
+>>
+>> However Nsplugin is now by default confined to the nsplugin_t domain and
+>> so even though you may not transition to mozilla_t as staff or user, you
+>> will still be protected by nsplugin_t.
+>>
+>> To see in what domain Firefox is running execute ps auxZ | grep -i
+>> firefox.
+>> --
+>> Dominick Grift <domg472@gmail.com>
+>>
 > 
-> I have made some changes to the SELinux policy for our intranet servers
-> that I thought might be useful to a broader audience.  Included below is
-> a patch to the latest refpolicy.  This has been tested on the Gentoo
-> systems we have here; I don't have easy access to other SELinux systems
-> at the moment.  It does the following:
+> Hello;
+> when doing ps I see firefox as what I had intended it
+> to be in user_r:user_t, The interesting thing that I'm seeing
+> is firefox will start under sysadm_r. when it shouldn't.
+> Now keep in mind this is something I've noticed with the new firefox3
+> the beta version of firefox3 was using gconf differently.
+> from looking at the allow rules maybe:
+> allow user_mozilla_t sysadm_gconf_home_t:dir { add_name getattr read
+> remove_name search write };
+> allow user_mozilla_t sysadm_gconf_home_t:file { append create getattr
+> read rename unlink write };
+> is what is causing sysadm to start firefox.(now from what I'm seeing
+> even though sysadm can start firefox, you can't do much with it due to the
+> rules not being defined. it's more of a question to me as to why
+> is it starting in that role. Anyways I'll have a look into my other rules
+> that might be causing this; just to be safe.
+> regards;
 > 
-> * Updates samba_stream_connect_winbind to match the observed behavior of
-> winbind
-> 
-> * Gives winbind access to delete its own sockets
-> 
-> * Gives nmbd access to fully manage (i.e. rename) log files
-> 
-> * Adds a tunable that lets samba create home directories via pam_mkhomedir
-> 
-> 
-> Index: policy/modules/services/samba.if
-> ===================================================================
-> --- policy/modules/services/samba.if    (revision 2758)
-> +++ policy/modules/services/samba.if    (working copy)
-> @@ -484,17 +484,19 @@
->  ## </param>
->  #
->  interface(`samba_stream_connect_winbind',`
-> -    ifdef(`distro_redhat',`
-> -        gen_require(`
-> -            type samba_var_t, winbind_t, winbind_var_run_t;
-> -        ')
-> +    gen_require(`
-> +        type samba_var_t, winbind_t, winbind_var_run_t;
-> +    ')
-> 
-> -        files_search_pids($1)
-> -        allow $1 samba_var_t:dir search_dir_perms;
-> -       
-> stream_connect_pattern($1,winbind_var_run_t,winbind_var_run_t,winbind_t)
-> -    ',`
-> +    files_search_pids($1)
-> +    allow $1 samba_var_t:dir search_dir_perms;
-> +   
-> stream_connect_pattern($1,winbind_var_run_t,winbind_var_run_t,winbind_t)
-> +   
-> +    ifdef(`distro_redhat',`', `
->          gen_require(`
-> -            type winbind_t, winbind_tmp_t;
-> +            type winbind_tmp_t;
->          ')
-> 
->          # the default for the socket is (poorly named):
-> Index: policy/modules/services/samba.te
-> ===================================================================
-> --- policy/modules/services/samba.te    (revision 2758)
-> +++ policy/modules/services/samba.te    (working copy)
-> @@ -59,6 +59,13 @@
->  ## </desc>
->  gen_tunable(samba_share_nfs,false)
-> 
-> +## <desc>
-> +## <p>
-> +## Allow samba to create new home directories (e.g. via PAM)
-> +## </p>
-> +## </desc>
-> +gen_tunable(samba_create_home_dirs,false)
-> +
->  type nmbd_t;
->  type nmbd_exec_t;
->  init_daemon_domain(nmbd_t,nmbd_exec_t)
-> @@ -379,6 +386,14 @@
->      unprivuser_home_dir_filetrans_home_content(nmbd_t, { file dir })
->  ')
-> 
-> +tunable_policy(`samba_create_home_dirs',`
-> +    unprivuser_home_filetrans_home_dir(smbd_t)
-> +    unprivuser_manage_home_dirs(smbd_t)
-> +
-> +    allow smbd_t self:capability chown;
-> +')
->  ########################################
->  #
->  # nmbd Local policy
-> @@ -404,7 +419,7 @@
->  read_files_pattern(nmbd_t,samba_etc_t,samba_etc_t)
-> 
->  manage_dirs_pattern(nmbd_t,samba_log_t,samba_log_t)
-> -append_files_pattern(nmbd_t,samba_log_t,samba_log_t)
-> +manage_files_pattern(nmbd_t,samba_log_t,samba_log_t)
->  allow nmbd_t samba_log_t:file unlink;
-> 
->  read_files_pattern(nmbd_t,samba_log_t,samba_log_t)
-> @@ -675,6 +690,7 @@
-> 
->  manage_dirs_pattern(winbind_t,winbind_tmp_t,winbind_tmp_t)
->  manage_files_pattern(winbind_t,winbind_tmp_t,winbind_tmp_t)
-> +manage_sock_files_pattern(winbind_t,winbind_tmp_t,winbind_tmp_t)
->  files_tmp_filetrans(winbind_t, winbind_tmp_t, { file dir })
-> 
->  manage_files_pattern(winbind_t,winbind_var_run_t,winbind_var_run_t)
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
-Could you do this with pam_oddjob_mkhomedir without having to add the
-privs.  I think this is a better solution.
+Is firefox defined as an application domain?  If so can sysadm_t execute
+_NOTRANS application domains?  I would bet you firefox is running as
+sysadm_t rather then sysadm_mozilla_t or sysadm_firefox_t.
+
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkiA1fwACgkQrlYvE4MpobNGsACfUVTxg3r9Z5BWOcDvyFhhbdyt
-QKMAoJHXtwqhlM2dAIsizZ2bhvjnKtrz
-=E5Av
+iEYEARECAAYFAkiA1ocACgkQrlYvE4MpobPj6wCgnCLi7tjLTrSe/SNblfR68rIX
+LbgAoNhG+dvHqSczszz3k9IuzNUM+VcK
+=mKRC
 -----END PGP SIGNATURE-----
 
 --
