@@ -1,67 +1,93 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IIYTuj010021
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 14:34:29 -0400
-Received: from cdptpa-omtalb.mail.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IIYR29020080
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 18:34:27 GMT
-Message-ID: <4880E2DB.7040202@kutulu.org>
-Date: Fri, 18 Jul 2008 14:37:15 -0400
-From: Mike Edenfield <kutulu@kutulu.org>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: refpolicy patch: samba enhancements
-References: <487BB78D.6080500@kutulu.org> <1216393143.21191.155.camel@gorn>	 <4880D35C.8060302@kutulu.org> <1216405172.21191.179.camel@gorn>
-In-Reply-To: <1216405172.21191.179.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [rfc][patch] setfiles:  validate all file_contexts files when
+	using -c
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil>
+References: <4880CFD1.1040102@redhat.com>
+	 <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>
+	 <4880D585.9000405@redhat.com>
+	 <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 18 Jul 2008 14:34:43 -0400
+Message-Id: <1216406083.17602.352.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Fri, 2008-07-18 at 13:31 -0400, Mike Edenfield wrote:
->> Christopher J. PeBenito wrote:
->>> On Mon, 2008-07-14 at 16:31 -0400, Mike Edenfield wrote:
->>>> +tunable_policy(`samba_create_home_dirs',`
->>>> +    unprivuser_home_filetrans_home_dir(smbd_t)
->>>> +    unprivuser_manage_home_dirs(smbd_t)
->>> I think we want this to be unprivuser_create_home_dirs(), which would
->>> need to be added.
->> That was my first instinct but I didn't see one already present, so I 
->> just copied what I found for oddjob_mkhomedir.
->>
->> I'll define a new interface for this -- I assume that's probably a 
->> separate patch?
-> 
-> No, its fine to include it in this one.
-> 
->>   And I should convert the sysadm role and oddjob type to 
->> use the interface?
-> 
-> Sysadm is fine as is, since it already has broad powers for managing
-> users.  I'm not sure about the oddjob usage; you'd have to check the
-> programs features to see if it does other things in addition to just
-> creating the dirs.
-> 
+In ancient days of yore, setfiles could only validate the base
+file_contexts configuration because the .homedirs or .local
+configurations might include local users that weren't defined by the
+base policy since those definitions were brought in at policy load time.
+These days the policy.N file contains all of the definitions required to
+validate all file_contexts files and thus setfiles can and should
+validate them.
 
-The reason I mentioned it is because both sysadm and oddjob use the same 
-two interfaces I put in the samba patch.  In fact, I don't see anywhere 
-in the ref policy that manage_home_dirs is ever used without the 
-filetrans interface right before it.  This leads me to suggest that I 
-just add a call to home_filetrans_home_dir inside manage_home_dirs, 
-since it seems to be almost a prerequisite anyway.
+Before:
+# /usr/sbin/semanage fcontext -a -t httpd_sys_content_t /tmp
+(no warnings)
+After:
+# /usr/sbin/semanage fcontext -a -t httpd_sys_content_t /tmp
+/etc/selinux/targeted/contexts/files/file_contexts: Multiple different specifications for /tmp  (system_u:object_r:httpd_sys_content_t:s0 and system_u:object_r:tmp_t:s0).
 
-I just checked oddjob -- it calls a series of related interfaces, which 
-sysadm and the samba policy already also called, so perhaps all of these 
-can be put into a "create_home_directories" interface and simplify the 
-policy in three places:
+If we want it to be a fatal error, then libselinux should be patched to
+return an error in this case on the selabel_open() (requires making
+nodups_specs return an error to the caller and propagating it up).
 
-unprivuser_home_filetrans_home_dir(oddjob_mkhomedir_t)
-unprivuser_manage_home_content_dirs(oddjob_mkhomedir_t)
-unprivuser_manage_home_content_files(oddjob_mkhomedir_t)
-unprivuser_manage_home_dirs(oddjob_mkhomedir_t)
-unprivuser_home_dir_filetrans_home_content(oddjob_mkhomedir_t,notdevfile_class_set)
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
---Mike
+---
+
+Index: trunk/policycoreutils/setfiles/setfiles.c
+===================================================================
+--- trunk/policycoreutils/setfiles/setfiles.c	(revision 2927)
++++ trunk/policycoreutils/setfiles/setfiles.c	(working copy)
+@@ -72,7 +72,6 @@
+ static int abort_on_error; /* Abort the file tree walk upon an error. */
+ static int add_assoc; /* Track inode associations for conflict detection. */
+ static int nftw_flags; /* Flags to nftw, e.g. follow links, follow mounts */
+-static int base_only; /* Don't use local file_contexts customizations */
+ static int ctx_validate; /* Validate contexts */
+ static const char *altpath; /* Alternate path to file_contexts */
+ 
+@@ -748,7 +747,6 @@
+ 	char *base;
+ 	struct selinux_opt opts[] = {
+ 		{ SELABEL_OPT_VALIDATE, NULL },
+-		{ SELABEL_OPT_BASEONLY, NULL },
+ 		{ SELABEL_OPT_PATH, NULL }
+ 	};
+ 
+@@ -836,10 +834,6 @@
+ 				}
+ 				fclose(policystream);
+ 
+-				/* Only process the specified file_contexts file, not
+-				   any .homedirs or .local files, and do not perform
+-				   context translations. */
+-				base_only = 1;
+ 				ctx_validate = 1;
+ 
+ 				break;
+@@ -972,10 +966,9 @@
+ 
+ 	/* Load the file contexts configuration and check it. */
+ 	opts[0].value = (ctx_validate ? (char*)1 : NULL);
+-	opts[1].value = (base_only ? (char *)1 : NULL);
+-	opts[2].value = altpath;
++	opts[1].value = altpath;
+ 
+-	hnd = selabel_open(SELABEL_CTX_FILE, opts, 3);
++	hnd = selabel_open(SELABEL_CTX_FILE, opts, 2);
+ 	if (!hnd) {
+ 		perror(altpath);
+ 		exit(1);
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
