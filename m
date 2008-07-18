@@ -1,70 +1,99 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IGIOMm017770
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 12:18:24 -0400
-Received: from ag-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IGIN29017670
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 16:18:23 GMT
-Received: by ag-out-0708.google.com with SMTP id 8so8262852agc.0
-        for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 09:18:23 -0700 (PDT)
-Message-ID: <dd18b0c30807180918l5883fa40pe15530585ab320f1@mail.gmail.com>
-Date: Fri, 18 Jul 2008 16:18:23 +0000
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: "Dominick Grift" <domg472@gmail.com>
-Subject: Re: firefox3
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1216382832.8282.27.camel@sulphur.notebook.internal>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <dd18b0c30807171539m772f87fh64f706e8f9cf0e9e@mail.gmail.com>
-	 <1216382832.8282.27.camel@sulphur.notebook.internal>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IGr4kf023722
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 12:53:04 -0400
+Received: from office.cardomain.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IGr3oF002580
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 16:53:03 GMT
+Received: from cardomain.com (exnode02.intra.cardomain.com [172.21.0.5])
+	by office.cardomain.com (Postfix) with ESMTP id 725B782CD
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 09:53:02 -0700 (PDT)
+Subject: Re: Fedora refpolicy patches
+From: Brett Lentz <blentz@cardomain.com>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>,
+        David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <1216384354.21191.106.camel@gorn>
+References: <20080716165634.GA8072@hardeman.nu>
+	 <487E2C1F.4010308@redhat.com> <20080716174410.GA9226@hardeman.nu>
+	 <1216232357.21191.76.camel@gorn> <487E451C.5000603@redhat.com>
+	 <20080716192942.GA11166@hardeman.nu>  <487E4EAD.5070207@redhat.com>
+	 <1216238975.4832.11.camel@blentz>  <1216384354.21191.106.camel@gorn>
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 18 Jul 2008 09:52:49 -0700
+Message-Id: <1216399969.22997.27.camel@blentz>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Jul 18, 2008 at 12:07 PM, Dominick Grift <domg472@gmail.com> wrote:
-> On Thu, 2008-07-17 at 22:39 +0000, Justin Mattock wrote:
->> I'm trying to tighten up firefox, from what I can see over here:
->
-> I do not encourage people to run Firefox as sysadm_t, and i recommend
-> you use staff_t as your default domain. Sysadm_t is a domain specific
-> just for sysadmin tasks. Plus sysadm_t is being (kind of) replaced by
-> unconfined_t in the targeted policy.
->
-> Also i think sysadm, user and staff do not transition once they run
-> Firefox, but that they run Firefox in the user domain by default.
->
-> In Fedora 9 only xguest_t domain by default can run Firefox in the
-> Mozilla domain by setting the boolean.
->
-> However Nsplugin is now by default confined to the nsplugin_t domain and
-> so even though you may not transition to mozilla_t as staff or user, you
-> will still be protected by nsplugin_t.
->
-> To see in what domain Firefox is running execute ps auxZ | grep -i
-> firefox.
-> --
-> Dominick Grift <domg472@gmail.com>
->
+On Fri, 2008-07-18 at 08:32 -0400, Christopher J. PeBenito wrote:
+> On Wed, 2008-07-16 at 13:09 -0700, Brett Lentz wrote:
+> > On Wed, 2008-07-16 at 15:40 -0400, Daniel J Walsh wrote:
+> > > David Härdeman wrote:
+> > > > On Wed, Jul 16, 2008 at 02:59:40PM -0400, Daniel J Walsh wrote:
+> > > >> Christopher J. PeBenito wrote:
+> > > >>> On Wed, 2008-07-16 at 19:44 +0200, David Härdeman wrote:
+> > > >>>> On Wed, Jul 16, 2008 at 01:13:03PM -0400, Daniel J Walsh wrote:
+> > > >>>>> David Härdeman wrote:
+> > > >>>>>> While working on SELinux-enabling a Debian system, I often Google for
+> > > >>>>>> avc messages that show up in dmesg and 90% of the time it seems
+> > > >>>>>> that the
+> > > >>>>>> problem has already been solved in Fedora's version of the
+> > > >>>>>> refpolicy but
+> > > >>>>>> not in the upstream version.
+> [...]
+> > To be honest, from my perspective as an SELinux consumer and long-time
+> > follower of this list, it seems to me that Fedora's policy is very
+> > nearly becoming the de facto reference policy just by virtue of its more
+> > active development.
+> 
+> What is probably not clear to you is that I focus on large scale
+> changes/policy architecture, such as the experiment with ubac/rbac
+> separations, building the enforcing X desktop policies, and the FCGlob
+> file contexts experiment.  Being a distribution policy person, Dan is on
+> the front lines handling bugs, while I am somewhat disconnected (Gentoo
+> doesn't have nearly as many SELinux users).  As mentioned by others, Dan
+> is working mainly on get things functioning.  Obviously, as upstream, I
+> want things to work too, but Dan deserves much credit for the many
+> policy adjustments that are required as software gets updated.  But to
+> say that the Fedora policy has more active development is dead wrong.
+> 
 
-Hello;
-when doing ps I see firefox as what I had intended it
-to be in user_r:user_t, The interesting thing that I'm seeing
-is firefox will start under sysadm_r. when it shouldn't.
-Now keep in mind this is something I've noticed with the new firefox3
-the beta version of firefox3 was using gconf differently.
-from looking at the allow rules maybe:
-allow user_mozilla_t sysadm_gconf_home_t:dir { add_name getattr read
-remove_name search write };
-allow user_mozilla_t sysadm_gconf_home_t:file { append create getattr
-read rename unlink write };
-is what is causing sysadm to start firefox.(now from what I'm seeing
-even though sysadm can start firefox, you can't do much with it due to the
-rules not being defined. it's more of a question to me as to why
-is it starting in that role. Anyways I'll have a look into my other rules
-that might be causing this; just to be safe.
-regards;
 
--- 
-Justin P. Mattock
+I completely agree.  Apologies for my poor wording. I didn't mean to
+characterize it quite like that. I've been following the list long
+enough to have seen several of your contributions. I believe that, like
+Dan and Stephen, you've been very key in selinux development.
+
+What I meant was this. The Fedora policy tends to be very quick to fix
+bugs and make adjustments. It's maintainers are generally very
+responsive.
+
+When it comes to maintaining the refpolicy, these are qualities that I
+would find desirable. I believe that refpolicy's value is diminished if
+key fixes begin to lag behind specific distros, because then every other
+distro that ships selinux either need to port the changes from Fedora,
+or wait until refpolicy gets around to merging these changes.
+
+There's nothing wrong with focusing on developing large features. It's
+very necessary work. However, this may just be a sign that the refpolicy
+has matured enough that its needs are changing. This seems similar to
+the discussions of changing from a monolithic policy to a modular
+policy.
+
+Perhaps it needs more than a single point of contact for merging
+patches. Alternately, similar to Linus' current role with the kernel, it
+may just need someone whose focus is on merging the work of others
+rather than developing large features themselves.
+
+
+
+ ---Brett.
+
+
+Having nothing, nothing can he lose.
+		-- William Shakespeare, "Henry VI"
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
