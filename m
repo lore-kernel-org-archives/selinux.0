@@ -1,238 +1,42 @@
-Subject: Re: [refpolicy] Patch: Create non_security_file_type attribute
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IEWkd1030758
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 10:32:46 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m6IEWjGo027665
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 14:32:45 GMT
+Subject: Re: [refpolicy] Let dhcp use init fds
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: jwcart2@tycho.nsa.gov
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1214592935.2888.11.camel@moss-lions.epoch.ncsc.mil>
-References: <1214592935.2888.11.camel@moss-lions.epoch.ncsc.mil>
+To: Martin Orr <martin@martinorr.name>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <486277AC.9080801@martinorr.name>
+References: <486277AC.9080801@martinorr.name>
 Content-Type: text/plain
-Date: Fri, 18 Jul 2008 10:15:53 -0400
-Message-Id: <1216390554.21191.147.camel@gorn>
+Date: Fri, 18 Jul 2008 10:32:18 -0400
+Message-Id: <1216391538.21191.149.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-06-27 at 14:55 -0400, James Carter wrote:
-> This patch eliminates the expansion of the file_type attribute (due to
-> the "-" set operation) for the *_non_security interfaces by creating a
-> non_security_file_type attribute.
+On Wed, 2008-06-25 at 17:51 +0100, Martin Orr wrote:
+> Without this patch, I see no output from dhclient when it is run during boot.
+> There is no avc message because it is dontaudited in init_daemon_domain.
 > 
-> On my system the resulting binary policy is almost 20% smaller.  The
-> difference is so large because there are over 1000 types labeled with
-> the file_type attribute.
-
-I'm hesitant to attach non_security_file_type to the files_type
-attribute, since its not clear to me that it makes conceptual sense.  In
-fact a sediff of the policy reveals that auidtd_log_t gains
-non_security_file_type while it already has security_file_type, which
-results in rule additions with this patch added.
-
->  files.if |   61 ++++++++++++++++++++++++++++++-------------------------------
->  files.te |    2 ++
->  2 files changed, 32 insertions(+), 31 deletions(-)
-> 
-> Index: policy/modules/kernel/files.if
+> Index: policy/modules/system/sysnetwork.te
 > ===================================================================
-> --- policy/modules/kernel/files.if	(revision 2739)
-> +++ policy/modules/kernel/files.if	(working copy)
-> @@ -32,10 +32,10 @@
->  #
->  interface(`files_type',`
->  	gen_require(`
-> -		attribute file_type;
-> +		attribute file_type, non_security_file_type;
->  	')
->  
-> -	typeattribute $1 file_type;
-> +	typeattribute $1 file_type, non_security_file_type;
->  ')
->  
->  ########################################
-> @@ -217,11 +217,10 @@
->  #
->  interface(`files_security_file',`
->  	gen_require(`
-> -		attribute security_file_type;
-> +		attribute file_type, security_file_type;
->  	')
->  
-> -	files_type($1)
-> -	typeattribute $1 security_file_type;
-> +	typeattribute $1 file_type, security_file_type;
->  ')
->  
->  ########################################
-> @@ -316,10 +315,10 @@
->  #
->  interface(`files_list_non_security',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	list_dirs_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
-> +	list_dirs_pattern($1,non_security_file_type,non_security_file_type)
->  ')
->  
->  ########################################
-> @@ -335,10 +334,10 @@
->  #
->  interface(`files_dontaudit_list_non_security',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:dir list_dir_perms;
-> +	dontaudit $1 non_security_file_type:dir list_dir_perms;
->  ')
->  
->  ########################################
-> @@ -354,11 +353,11 @@
->  #
->  interface(`files_mounton_non_security',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	allow $1 { file_type -security_file_type }:dir mounton;
-> -	allow $1 { file_type -security_file_type }:file mounton;
-> +	allow $1 non_security_file_type:dir mounton;
-> +	allow $1 non_security_file_type:file mounton;
->  ')
->  
->  ########################################
-> @@ -373,10 +372,10 @@
->  #
->  interface(`files_write_non_security_dirs',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	allow $1 { file_type -security_file_type }:dir write;
-> +	allow $1 non_security_file_type:dir write;
->  ')
->  
->  ########################################
-> @@ -430,10 +429,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_files',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:file getattr;
-> +	dontaudit $1 non_security_file_type:file getattr;
->  ')
->  
->  ########################################
-> @@ -498,11 +497,11 @@
->  #
->  interface(`files_read_non_security_files',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	read_files_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
-> -	read_lnk_files_pattern($1,{ file_type -security_file_type },{ file_type -security_file_type })
-> +	read_files_pattern($1,non_security_file_type,non_security_file_type)
-> +	read_lnk_files_pattern($1,non_security_file_type,non_security_file_type)
->  ')
->  
->  ########################################
-> @@ -648,10 +647,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_symlinks',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:lnk_file getattr;
-> +	dontaudit $1 non_security_file_type:lnk_file getattr;
->  ')
->  
->  ########################################
-> @@ -667,10 +666,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_blk_files',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:blk_file getattr;
-> +	dontaudit $1 non_security_file_type:blk_file getattr;
->  ')
->  
->  ########################################
-> @@ -686,10 +685,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_chr_files',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:chr_file getattr;
-> +	dontaudit $1 non_security_file_type:chr_file getattr;
->  ')
->  
->  ########################################
-> @@ -763,10 +762,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_pipes',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:fifo_file getattr;
-> +	dontaudit $1 non_security_file_type:fifo_file getattr;
->  ')
->  
->  ########################################
-> @@ -820,10 +819,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_sockets',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:sock_file getattr;
-> +	dontaudit $1 non_security_file_type:sock_file getattr;
->  ')
->  
->  ########################################
-> @@ -4763,8 +4762,8 @@
->  #
->  interface(`files_manage_non_security_dirs',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	allow $1 { file_type -security_file_type }:dir manage_dir_perms;
-> +	allow $1 non_security_file_type:dir manage_dir_perms;
->  ')
-> Index: policy/modules/kernel/files.te
-> ===================================================================
-> --- policy/modules/kernel/files.te	(revision 2739)
-> +++ policy/modules/kernel/files.te	(working copy)
-> @@ -26,6 +26,8 @@
->  # sensitive security files whose accesses should
->  # not be dontaudited for uses
->  attribute security_file_type;
-> +# and its opposite
-> +attribute non_security_file_type;
->  
->  attribute tmpfile;
->  attribute tmpfsfile;
+> --- policy/modules/system/sysnetwork.te.orig
+> +++ policy/modules/system/sysnetwork.te
+> @@ -126,6 +126,7 @@
+>  files_dontaudit_search_locks(dhcpc_t)
 > 
+>  init_rw_utmp(dhcpc_t)
+> +init_use_fds(dhcpc_t)
+> 
+>  logging_send_syslog_msg(dhcpc_t)
+
+I would think that allowing it to write to the console would be required
+to make this work too.  If thats the case I'm not sure we want it; I
+don't think we want daemons writing to the console.
+
 -- 
 Chris PeBenito
 Tresys Technology, LLC
