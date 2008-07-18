@@ -1,64 +1,234 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6ICX2Fb006663
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 08:33:02 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m6ICX1AI022099
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 12:33:02 GMT
-Subject: Re: Fedora refpolicy patches
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6ICxAT4011277
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 08:59:10 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m6ICx9Go001547
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 12:59:09 GMT
+Subject: Re: [refpolicy] Milter Mail Filters
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Brett Lentz <blentz@cardomain.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>,
-        David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1216238975.4832.11.camel@blentz>
-References: <20080716165634.GA8072@hardeman.nu>
-	 <487E2C1F.4010308@redhat.com> <20080716174410.GA9226@hardeman.nu>
-	 <1216232357.21191.76.camel@gorn> <487E451C.5000603@redhat.com>
-	 <20080716192942.GA11166@hardeman.nu>  <487E4EAD.5070207@redhat.com>
-	 <1216238975.4832.11.camel@blentz>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 18 Jul 2008 08:32:34 -0400
-Message-Id: <1216384354.21191.106.camel@gorn>
+To: Paul Howarth <paul@city-fan.org>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <484D4B53.5020006@city-fan.org>
+References: <484D4B53.5020006@city-fan.org>
+Content-Type: text/plain
+Date: Fri, 18 Jul 2008 08:58:42 -0400
+Message-Id: <1216385922.21191.125.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-07-16 at 13:09 -0700, Brett Lentz wrote:
-> On Wed, 2008-07-16 at 15:40 -0400, Daniel J Walsh wrote:
-> > David Härdeman wrote:
-> > > On Wed, Jul 16, 2008 at 02:59:40PM -0400, Daniel J Walsh wrote:
-> > >> Christopher J. PeBenito wrote:
-> > >>> On Wed, 2008-07-16 at 19:44 +0200, David Härdeman wrote:
-> > >>>> On Wed, Jul 16, 2008 at 01:13:03PM -0400, Daniel J Walsh wrote:
-> > >>>>> David Härdeman wrote:
-> > >>>>>> While working on SELinux-enabling a Debian system, I often Google for
-> > >>>>>> avc messages that show up in dmesg and 90% of the time it seems
-> > >>>>>> that the
-> > >>>>>> problem has already been solved in Fedora's version of the
-> > >>>>>> refpolicy but
-> > >>>>>> not in the upstream version.
-[...]
-> To be honest, from my perspective as an SELinux consumer and long-time
-> follower of this list, it seems to me that Fedora's policy is very
-> nearly becoming the de facto reference policy just by virtue of its more
-> active development.
+On Mon, 2008-06-09 at 16:25 +0100, Paul Howarth wrote:
+> Hi,
+> 
+> attached is a patch based on local policy I'm using on Fedora 9 to 
+> support two "milter" mail filter daemons in conjunction with
+> sendmail, 
+> namely spamass-milter and milter-regex (I maintain the packages for
+> both 
+> of these in Fedora).
+> 
+> I've taken the view that most milter applications will have similar 
+> requirements and so I've created a milter_template interface that 
+> contains most of what's needed, and then added the specifics that are 
+> needed on top of the generic stuff for each application.
+> 
+> However, as I'm by no means an selinux expert, there are a number of 
+> things I'm unsure about:
+> 
+> 1. In a situation where sendmail is the running MTA on a system, what
+> is 
+> the difference between sendmail_t and system_mail_t?
+> 
+> 2. MTAs other than sendmail (postfix comes to mind) can also use 
+> milters, but as I don't have any boxes running postfix, I don't know 
+> what I'd need to add to postfix policy to support milters.
+> 
+> 3. Fedora 9 has an interface spamassassin_domtrans_spamc that I used
+> in 
+> my local policy. It doesn't appear to be present in refpolicy; what 
+> would be the right thing to use for a daemon calling spamc?
+> 
+> 4. I cribbed the milter_port_t stuff from the only example I could
+> find, 
+> and it's probably wrong. What would be the correct way of defining
+> this?
+> 
+> 5. Does the use of a template for these applications a sane way to do
+> it?
+> 
+> Paul.
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> plain text
+> document
+> attachment
+> (milters.patch)
+> 
+> Index: policy/modules/services/milters.te
+> ===================================================================
+> --- policy/modules/services/milters.te  (revision 0)
+> +++ policy/modules/services/milters.te  (revision 0)
+> @@ -0,0 +1,44 @@
+> +policy_module(milters,0.0.7)
+> +
+> +require {
+> +       attribute port_type;
+> +}
+> +
+> +type milter_port_t, port_type;
 
-What is probably not clear to you is that I focus on large scale
-changes/policy architecture, such as the experiment with ubac/rbac
-separations, building the enforcing X desktop policies, and the FCGlob
-file contexts experiment.  Being a distribution policy person, Dan is on
-the front lines handling bugs, while I am somewhat disconnected (Gentoo
-doesn't have nearly as many SELinux users).  As mentioned by others, Dan
-is working mainly on get things functioning.  Obviously, as upstream, I
-want things to work too, but Dan deserves much credit for the many
-policy adjustments that are required as software gets updated.  But to
-say that the Fedora policy has more active development is dead wrong.
+This declaration would move to corenetwork
+
+> +#============= milter-regex policy ==============
+> +milter_template(regex)
+
+As I mentioned before, it doesn't look like a template is needed, unless
+you think there will be many more milter domains.  Then put all the
+declarations in a section.
+
+> +# Config is in /etc/mail/milter-regex.conf
+> +mta_read_config(milter_regex_t)
+> +
+> +# The milter creates a socket in /var/spool/milter-regex/
+> +# for communication with sendmail
+> +files_search_spool(milter_regex_t)
+> +manage_sock_files_pattern(milter_regex_t,milter_regex_spool_t,milter_regex_spool_t)
+
+If the /var/sool/milter-regex directory can be created by the milter,
+then there should be a files_spool_filetrans().  If you think templates
+are warranted, then it would seem that this should go into the template
+
+> +
+> +# It removes any existing socket (not owned by root) whilst running
+> as root
+> +# and then calls setgid() and setuid() to drop privileges
+> +allow milter_regex_t self:capability { setuid setgid dac_override };
+> +
+> +
+> +#============= spamass-milter policy ==============
+> +milter_template(spamass)
+> +
+> +# The milter creates a socket in /var/run/spamass-milter/
+> +# for communication with sendmail
+> +manage_files_pattern(milter_spamass_t,milter_spamass_var_run_t,milter_spamass_var_run_t)
+> +manage_sock_files_pattern(milter_spamass_t,milter_spamass_var_run_t,milter_spamass_var_run_t)
+> +
+> +# The main job of the milter is to pipe spam through spamc and act on
+> the result
+> +#
+> +# The spamassassin_domtrans_spamc interface in Fedora 9 ???
+> +#spamassassin_domtrans_spamc(milter_spamass_t)
+> +
+> +# When used with -b or -B options, the milter invokes sendmail to
+> send mail
+> +# to a spamtrap address, using popen()
+> +corecmd_exec_shell(milter_spamass_t)
+> +corecmd_read_bin_symlinks(milter_spamass_t)
+> +corecmd_search_bin(milter_spamass_t)
+> +kernel_read_system_state(milter_spamass_t)
+> +mta_send_mail(milter_spamass_t)
+
+Similar comments as the previous domain.
+
+> --- policy/modules/services/sendmail.te (revision 2710)
+> +++ policy/modules/services/sendmail.te (working copy)
+> @@ -112,6 +112,14 @@
+>  ')
+>  
+>  optional_policy(`
+> +       milter_regex_stream_connect(sendmail_t)
+> +')
+> +
+> +optional_policy(`
+> +       milter_spamass_stream_connect(sendmail_t)
+> +')
+
+Perhaps this should be a single milter_stream_connect_all(), since it
+seems like sendmail would want to connect to all milters.
+
+
+> --- policy/modules/services/milters.fc  (revision 0)
+> +++ policy/modules/services/milters.fc  (revision 0)
+> @@ -0,0 +1,14 @@
+> +#================= contexts for milter-regex =================
+> +
+> +/usr/sbin/milter-regex         --      gen_context(system_u:object_r:milter_regex_exec_t,s0)
+> +
+> +/var/spool/milter-regex(/.*)?          gen_context(system_u:object_r:milter_regex_spool_t,s0)
+> +
+> +#================= contexts for spamass-milter =================
+> +
+> +/usr/sbin/spamass-milter       --      gen_context(system_u:object_r:milter_spamass_exec_t,s0)
+> +
+> +/var/run/spamass-milter
+> \.pid   --      gen_context(system_u:object_r:milter_spamass_var_run_t,s0)
+> +/var/run/spamass-milter(/.*)?          gen_context(system_u:object_r:milter_spamass_var_run_t,s0)
+
+The comments don't really add anything here IMO.
+
+
+> +template(`milter_template',`
+[...]
+> +       # This type is for pidfiles etc.
+> +       type milter_$1_var_run_t;
+> +       files_type(milter_$1_var_run_t);
+> +
+> +       # This type is for spool/cache data etc.
+> +       type milter_$1_cache_t;
+> +       files_type(milter_$1_cache_t);
+> +
+> +       # This type is for spool/cache data etc.
+> +       type milter_$1_spool_t;
+> +       files_type(milter_$1_spool_t);
+> +
+> +       # This type is for state data etc.
+> +       type milter_$1_var_lib_t;
+> +       files_type(milter_$1_var_lib_t);
+
+Most of these types aren't used, so they should be dropped.
+
+> +interface(`milter_spamass_stream_connect',`
+> +       gen_require(`
+> +               type milter_spamass_var_run_t, milter_spamass_t;
+> +       ')
+> +       stream_connect_pattern($1,milter_spamass_var_run_t,milter_spamass_var_run_t,milter_spamass_t)
+> +')
+> +
+
+Missing a files_search_spool().  Interface name needs to be fixed [1].
+
+> +interface(`milter_spamass_rw_stream_sockets',`
+> +        gen_require(`
+> +                type milter_spamass_t;
+> +        ')
+> +
+> +       allow $1 milter_spamass_t:unix_stream_socket { read write };
+> +')
+
+Interface naming fix.
+
+
+> +interface(`milter_regex_stream_connect',`
+> +       gen_require(`
+> +               type milter_regex_spool_t, milter_regex_t;
+> +       ')
+> +       stream_connect_pattern($1,milter_regex_spool_t,milter_regex_spool_t,milter_regex_t)
+> +')
+
+Also missing a files_search_spool() and interface naming fix.
+
+
+[1] http://oss.tresys.com/projects/refpolicy/wiki/InterfaceNaming
 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
 (410) 290-1411 x150
-
 
 
 --
