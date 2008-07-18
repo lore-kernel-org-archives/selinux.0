@@ -1,72 +1,70 @@
-Subject: Re: [refpolicy] Patch: Create non_security_file_type attribute
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1216396152.21191.163.camel@gorn>
-References: <1214592935.2888.11.camel@moss-lions.epoch.ncsc.mil>
-	 <1216390554.21191.147.camel@gorn>
-	 <1216395738.26625.45.camel@moss-lions.epoch.ncsc.mil>
-	 <1216396152.21191.163.camel@gorn>
-Content-Type: text/plain
-Date: Fri, 18 Jul 2008 12:03:30 -0400
-Message-Id: <1216397010.26625.53.camel@moss-lions.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IGIOMm017770
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 12:18:24 -0400
+Received: from ag-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IGIN29017670
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 16:18:23 GMT
+Received: by ag-out-0708.google.com with SMTP id 8so8262852agc.0
+        for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 09:18:23 -0700 (PDT)
+Message-ID: <dd18b0c30807180918l5883fa40pe15530585ab320f1@mail.gmail.com>
+Date: Fri, 18 Jul 2008 16:18:23 +0000
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: "Dominick Grift" <domg472@gmail.com>
+Subject: Re: firefox3
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1216382832.8282.27.camel@sulphur.notebook.internal>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <dd18b0c30807171539m772f87fh64f706e8f9cf0e9e@mail.gmail.com>
+	 <1216382832.8282.27.camel@sulphur.notebook.internal>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-07-18 at 11:49 -0400, Christopher J. PeBenito wrote:
-> On Fri, 2008-07-18 at 11:42 -0400, James Carter wrote:
-> > On Fri, 2008-07-18 at 10:15 -0400, Christopher J. PeBenito wrote:
-> > > On Fri, 2008-06-27 at 14:55 -0400, James Carter wrote:
-> > > > This patch eliminates the expansion of the file_type attribute (due to
-> > > > the "-" set operation) for the *_non_security interfaces by creating a
-> > > > non_security_file_type attribute.
-> > > > 
-> > > > On my system the resulting binary policy is almost 20% smaller.  The
-> > > > difference is so large because there are over 1000 types labeled with
-> > > > the file_type attribute.
-> > > 
-> > > I'm hesitant to attach non_security_file_type to the files_type
-> > > attribute, since its not clear to me that it makes conceptual sense.
-> > 
-> > The primary goal here is a smaller binary policy.  But it still makes
-> > sense conceptually to me because the security_file_type attribute is
-> > never used by itself as far as I can tell.  It is always used as
-> > {file_type-security_file_type}.
-> > 
-> > >   In
-> > > fact a sediff of the policy reveals that auidtd_log_t gains
-> > > non_security_file_type while it already has security_file_type, which
-> > > results in rule additions with this patch added.
-> > That's not good.  There are only a handful of types labeled with
-> > security_file_type, I don't know how I missed that.  Sorry.
-> > 
-> > The following line is the problem: files_mountpoint(auditd_log_t).
-> > So, a files_mountpoint_security interface would have to be created.
-> > 
-> > It's not a big deal to me.  If there is no interest in creating a
-> > non_security_file_type attribute, I won't pursue this any farther.
-> 
-> I think the binary policy size savings is a good enough reason to pursue
-> it.  Brainstorming for a second, another way to address this problem
-> would be to change how checkpolicy handles negations.  It could make a
-> new attribute with the resultant type set from the negation;
+On Fri, Jul 18, 2008 at 12:07 PM, Dominick Grift <domg472@gmail.com> wrote:
+> On Thu, 2008-07-17 at 22:39 +0000, Justin Mattock wrote:
+>> I'm trying to tighten up firefox, from what I can see over here:
+>
+> I do not encourage people to run Firefox as sysadm_t, and i recommend
+> you use staff_t as your default domain. Sysadm_t is a domain specific
+> just for sysadmin tasks. Plus sysadm_t is being (kind of) replaced by
+> unconfined_t in the targeted policy.
+>
+> Also i think sysadm, user and staff do not transition once they run
+> Firefox, but that they run Firefox in the user domain by default.
+>
+> In Fedora 9 only xguest_t domain by default can run Firefox in the
+> Mozilla domain by setting the boolean.
+>
+> However Nsplugin is now by default confined to the nsplugin_t domain and
+> so even though you may not transition to mozilla_t as staff or user, you
+> will still be protected by nsplugin_t.
+>
+> To see in what domain Firefox is running execute ps auxZ | grep -i
+> firefox.
+> --
+> Dominick Grift <domg472@gmail.com>
+>
 
-It would need to make sure that the resultant set is not already covered
-by an attribute, or much of the value would be lost.
-
->  however,
-> that might be bad for analysis since an attribute would magically appear
-> out of nowhere.
-
-You already have that problem when analyzing a binary policy, since the
-attribute names aren't preserved.
+Hello;
+when doing ps I see firefox as what I had intended it
+to be in user_r:user_t, The interesting thing that I'm seeing
+is firefox will start under sysadm_r. when it shouldn't.
+Now keep in mind this is something I've noticed with the new firefox3
+the beta version of firefox3 was using gconf differently.
+from looking at the allow rules maybe:
+allow user_mozilla_t sysadm_gconf_home_t:dir { add_name getattr read
+remove_name search write };
+allow user_mozilla_t sysadm_gconf_home_t:file { append create getattr
+read rename unlink write };
+is what is causing sysadm to start firefox.(now from what I'm seeing
+even though sysadm can start firefox, you can't do much with it due to the
+rules not being defined. it's more of a question to me as to why
+is it starting in that role. Anyways I'll have a look into my other rules
+that might be causing this; just to be safe.
+regards;
 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
