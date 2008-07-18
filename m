@@ -1,160 +1,71 @@
-Message-ID: <48803685.1000505@ak.jp.nec.com>
-Date: Fri, 18 Jul 2008 15:21:57 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6I6fLmp005113
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 02:41:21 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6I6fLuG018208
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 06:41:21 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m6I6fK0n023372
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 02:41:20 -0400
+Received: from pobox.bne.redhat.com (pobox.bne.redhat.com [10.64.63.6])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m6I6fJxN018611
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 02:41:20 -0400
+Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
+	by pobox.bne.redhat.com (8.13.1/8.13.1) with ESMTP id m6I6fHBk017684
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 16:41:18 +1000
+Message-ID: <48803B08.1030205@redhat.com>
+Date: Fri, 18 Jul 2008 16:41:12 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [RFC] An idea of thread/child-domain assignment
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: selinux@tycho.nsa.gov
+Subject: SELinux User Guide
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->>>> An idea: thread/hierarchical-domain assignment
->>>> ----------------------------------------------
->>>> If possible, Apache should change the security context of web backend
->>>> during it executes a request come from users.
->>>> However, Apache can execute it on a worker thread. It conflicts a wired
->>>> constraint of SELinux which does not allow a multi-threaded process dynamic
->>>> domain transition.
->>>>
->>>> It is a reasonable constraint, if the source and destination domains are
->>>> completely independent. Because it shares a local memory, mixed security
->>>> context within a process can make a violation in domain separation.
->>>>
->>>> However, a characteristic relationship between hierarchical domains can
->>>> help the situation. It restricts a child domain (like "httpd_t.staff")
->>>> cannot over the boundary of its parent ("httpd_t"). It also means
->>>> a multi-threaded process cannot over the (parent) domain boundary,
->>>> even if a part of threads has different security context.
->>>>
->>>> My suggestion is the hard-wired constraint should be modified.
->>>> It allows to assign threads an indivisual domain, if the new domain
->>>> is a child one of the current domain.
->>>>
->>>>   For example:
->>>>     httpd_t -> httpd_t.staff           = allowed
->>>>     httpd_t -> staff_t                 = disallowed
->>>>     httpd_t.staff -> httpd_t.staff.php = allowed
->>>>
->>>> In other words, this idea requires to change our viewpoint for child domain.
->>>> Previously, these are mutually independent domain, but a child domain will
->>>> mean a state with restricted operations compared to its parent domain.
->>> I tend to agree that we should support such changes in the kernel
->>> mechanism and let the use of it be determined by the policy.
->>>
->>> In terms of hierarchy though, the plan was to replace the current
->>> name-based hierarchy with an explicitly declared hierarchy.
->> It needs a new policy statement like:
->>
->>   TYPE <child domain> DOMBY <parent domain>;
->>     or
->>   TYPEDOMINANCE <parent domain> <child domain> [,<child domain>] ;
->>
->> I guess these relationships are represented as a ebitmap structure
->> in the kernel, and used to mask permissions during AVC entry creation.
-> 
-> You don't necessarily have to represent the hierarchy in the kernel; it
-> can be done entirely in the policy toolchain like the current type
-> hierarchy.
+Hi,
 
-I think it is necessary to check whether required dynamic type transition
-should be allowed, or not.
+Apologies if this doubles up for anyone.
 
-This idea allows a thread to translate its domain, only if the destinated
-domain is a child one. Thus kernel has to check the relationship between
-both domains based on the hierarchy information.
+My name is Murray McAllister and I am working as a content author for 
+Red Hat. I have recently started a new project -- an SELinux User Guide 
+-- with Daniel Walsh, Michael Smith, and a few other people from Red Hat.
 
-In other expression:
-   ssid := current domain
-   tsid := new domain
-   if (is_multi_threaded(current)) {
-+      if (!is_dominated_domain(ssid, tsid))  <-- requires hierarchy info
-           return -EPERM;
-   }
-   avc_has_perm(ssid, tsid, SECCLASS_PROCESS,
-                PROCESS__DYNTRANSITION, NULL);
+There are a few SELinux books, but these are very technical. We want to 
+create a guide that people with no previous SELinux experience can use, 
+to allow them to do what they want without turning SELinux off.
 
+I have started a rough information plan that includes the current 
+schedule, information sources, and some ideas for the content that may 
+be included. The information plan is located at 
+<https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Information_Plan>. 
+The main project page is located at 
+<https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide>.
 
->>>> Issues: Domain Reverting
->>>> ------------------------
->>>> There is a related issue. To change security context during user request
->>>> execution also means that we have to revert its domain after executions,
->>>> because Apache repeatedly uses worker thread/process for some reasons.
->>>>
->>>> I don't have any good idea for this issue yet.
->>>> A one time cookie like AppArmor is an approach, but it is basically weak
->>>> separation compared from execve() transition.
->>> Perhaps it could pre-populate different pools of threads for different
->>> client security contexts, and then just draw from the correct pool for
->>> each client.  Then the thread context doesn't have to be reverted at all
->>> and we can make the transition unidirectional.
->> I think this approach requires two precondition.
->>
->> (1) The number of client security context should be enough small.
->>  If we want to assign one of MCS categories, it requires 1024 of thread
->>  pool in maximum.
-> 
-> The main server thread could lazily create the thread pools as needed to
-> avoid unnecessary pools.  And we could possibly use a hybrid scheme
-> (e.g. one pool per sensitivity or per equivalence class of categories,
-> reuse within that pool).
+Among other things, we are going to try to cover the following topics 
+from the current SELinux project documentation todo list 
+(http://selinuxproject.org/page/Documentation_TODO):
 
-I guess it requires massive reworks for Apache itself. :(
+* "Explain how to interpret an AVC message and how to get additional 
+information via SYSCALL audit, including how to add a simple syscall 
+audit filter to enable collection of PATH information".
+* Document Confined Users".
+* "Update FC5 FAQ".
+* "Document the use of the mount command for overriding file context".
+* "Describe Audit2allow and how it can just Fix the machine".
+* "Update and organize the Fedora SELinux FAQ".
 
-If so, it may be better to implement a SELinux specific multi processing
-module (MPM) which creates a child process with restricted domain per
-request?
-(No need to say, we will get some performance degradation.)
+If anyone has any ideas about what they would like to see in the guide, 
+or any corrections to the current topics we would like to include, 
+please let us know. As well, user feedback and comments can be left at 
+<https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Feedback>. 
+A Fedora account (https://admin.fedoraproject.org/accounts/) is required 
+to use the Wiki - if you do not have one, please do not hesitate to mail 
+me directly, or respond to this thread.
 
+Thanks for your time,
 
->> (2) We have to know what client security context should be assigned
->>     before the communication between client and backend thread.
->>  In the case when we use HTTP authentication to decide client security
->>  context, the authentication process has to be done in the backend
->>  process after the communication started.
->>  It may also require major works in application updates.
-> 
-> True, but not an issue when using labeled networking as the basis for
-> determining the client security context.
-
-In web based services, we have to assume a case when client system
-is running on windows with no labeled networking support.
-
-I think it can be also possible to associate a user and a security
-context of his substitution on authentication, as operating system
-doing.
-
-
->> In my impression, AA's approach is not perfect, but second best one...
-> 
-> I'd have to hear an argument that there is a real security benefit from
-> it.  Do you just mean reverting domain transitions or do you
-> specifically mean the cookie-based approach? 
-
-The cookie-based approach means a process/thread dynamically translated
-into child domain is allowed to revert its domain into original one, only
-if the submitted cookie is matched.
-
-It can protect from script flaws as long as the cookie cannot be accessed
-from script program. But it depends on the correctness of script language
-processor, because the cookie has to be placed within the translated domain.
-
-If PHP language processor itself has a bug to expose a discretional value,
-a malicious one can revert its domain to "httpd_t" from "httpd_t.staff"
-using the cookie illegally obtained.
-
-So, we can find its benefit at preventing harms from buggy scripts.
-However, this idea is the best one in I could flash on unfortunatelly.
-
-Is there any other elegant design?
-
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Murray.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
