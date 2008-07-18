@@ -1,98 +1,56 @@
-Message-ID: <4880E5E1.8050303@redhat.com>
-Date: Fri, 18 Jul 2008 14:50:09 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IJ075Q015020
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 15:00:07 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IJ0629027418
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 19:00:07 GMT
+Message-ID: <4880E818.50201@redhat.com>
+Date: Fri, 18 Jul 2008 14:59:36 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: Patch to make libselinux shut up when SELinux is disabled.
-References: <4880CFD1.1040102@redhat.com>	 <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>	 <4880D585.9000405@redhat.com> <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: Mike Edenfield <kutulu@kutulu.org>,
+        SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Re: refpolicy patch: samba enhancements
+References: <487BB78D.6080500@kutulu.org>  <4880D5FC.5030400@redhat.com> <1216404899.21191.175.camel@gorn>
+In-Reply-To: <1216404899.21191.175.camel@gorn>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2008-07-18 at 13:40 -0400, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Stephen Smalley wrote:
->>> On Fri, 2008-07-18 at 13:16 -0400, Daniel J Walsh wrote:
->>> SELinux complains about things like restorecon or rpm when conflicts
->>> exist in file_context file even when SELinux is disabled.
+Christopher J. PeBenito wrote:
+> On Fri, 2008-07-18 at 13:42 -0400, Daniel J Walsh wrote:
+>> Mike Edenfield wrote:
+>>> I apologize if I'm not doing this right, I'm kinda new at this...
 >>>
->>> It should just shut up....
->>>
->>>> I think that's the wrong place to do it:
->>>> - the fact that the application called libselinux at all except to test
->>>> is_selinux_enabled() when SELinux is disabled is either a bug in the
->>>> application or an indication that the application wants SELinux behavior
->>>> regardless,
->>>> - silencing all log messages coming from libselinux is too broad.
->>>> And of course, file_contexts conflicts should be caught during policy
->>>> build time aside from local customizations; if not, then we need to
->>>> change the policy build process to do that even for modular policy
->>>> builds.
->> Well it could be argued that libraries should never write to the terminal...
+>>> I have made some changes to the SELinux policy for our intranet servers
+>>> that I thought might be useful to a broader audience.  Included below is
+>>> a patch to the latest refpolicy.  This has been tested on the Gentoo
+>>> systems we have here; I don't have easy access to other SELinux systems
+>>> at the moment.  It does the following:
+> [...]
+>>> * Adds a tunable that lets samba create home directories via pam_mkhomedir
 > 
-> selinux_set_callback() lets the application control that behavior.
+>> Could you do this with pam_oddjob_mkhomedir without having to add the
+>> privs.  I think this is a better solution.
 > 
->> Try explaining this to the users we are telling selinux disabled does
->> not effect their machines.  They just come away with the opinion that
->> SELinux Sucks and is broken.  Besides we are even complaining when they
->> are warnings and SELinux is disabled.
+> What if you don't have oddjob?  It doesn't hurt to have the perms in a
+> tunable.  It could be put in a ifndef distro_redhat, if samba in
+> fedora/rh requires pam_oddjob_mkhomedir.
 > 
-> Which reflects a bug in the application - why is it calling matchpathcon
-> if is_selinux_enabled() <= 0?
-> 
-> As far as the warning goes, the log callback does get a type parameter
-> so it can distinguish warnings vs. errors.  But we don't want to hide
-> these kinds of duplications or conflicts - we just want them to be
-> caught earlier.
-> 
->> The problem seems to be a broken genhomedircon, but we don't currently
->> prevent users (rpm post install scripts)  from adding conflicting file
->> context in file context.local
->> plain text document attachment (diff)
->>
->> The tools just complain about it after the fact.
->>
->> # semanage fcontext -a -t httpd_sys_content_t /tmp
-> 
-> Ah, that's interesting.  So the setfiles -c execution by libsemanage
-> only validates the base file contexts.  I'm trying to remember why we
-> did that.  Seems like that could be changed easily enough.
-> 
->> # matchpathcon /etc
->> # matchpathcon /etc/
->> /etc/selinux/targeted/contexts/files/file_contexts: Multiple different
->> specifications for /tmp  (system_u:object_r:httpd_sys_content_t:s0 and
->> system_u:object_r:tmp_t:s0).
->> /etc/	system_u:object_r:etc_t:s0
->>
->> Nice.
-> 
-> That's a real bug in the file_contexts file that shouldn't be hidden
-> from the user.
-> 
-> I do agree that a) the application shouldn't be calling matchpathcon if
-> is_selinux_enabled() <= 0, and b) we ought to catch these kinds of
-> errors at policy build time for the base policy, and c) we ought to
-> catch these kinds of errors at semodule/semanage invocation time for
-> local customizations.  That is what we should be fixing.  Not silencing
-> the messenger.
-> 
-setfiles works while selinux is disabled.  It could be the kerberos
-libraries, or udev.  I still think warnings on a disabled system should
-be quietly ignored or thrown in syslog at most.  Having the machine
-scream at boot, is a mistake.
+I have more of a problem with pam_mkhomedir from login programs since
+samba can currently read/write homedirs with a boolean.  It is not as
+big a deal.  oddjob just breaks things out the way SELinux likes it.
+Pam modure requests a service create a homedir.  Service execs a job to
+create the homedir.  Each process gets a different context.
 
-kerberos libraries can not call selinux_set_callback() since they do not
-know if the process has set it already.
 
-Yes I agree semanage should stop this from happening at compile time.
+gentoo should look into it.
+
+But I am fine with adding the patch.  pam_mkhomedir does not work well
+currently with ssh, locallogin, gdm on Fedora platform.
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
