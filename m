@@ -1,88 +1,87 @@
-Subject: Re: [refpolicy] Patch: Create non_security_file_type attribute
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: jwcart2@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <4880D23E.8070207@redhat.com>
-References: <1214592935.2888.11.camel@moss-lions.epoch.ncsc.mil>
-	 <1216390554.21191.147.camel@gorn>
-	 <1216395738.26625.45.camel@moss-lions.epoch.ncsc.mil>
-	 <1216396152.21191.163.camel@gorn>
-	 <1216397010.26625.53.camel@moss-lions.epoch.ncsc.mil>
-	 <4880D23E.8070207@redhat.com>
-Content-Type: text/plain
-Date: Fri, 18 Jul 2008 13:33:12 -0400
-Message-Id: <1216402392.17602.328.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4880D585.9000405@redhat.com>
+Date: Fri, 18 Jul 2008 13:40:21 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: Patch to make libselinux shut up when SELinux is disabled.
+References: <4880CFD1.1040102@redhat.com> <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Fri, 2008-07-18 at 13:26 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+Stephen Smalley wrote:
+> On Fri, 2008-07-18 at 13:16 -0400, Daniel J Walsh wrote:
+> SELinux complains about things like restorecon or rpm when conflicts
+> exist in file_context file even when SELinux is disabled.
 > 
-> James Carter wrote:
-> > On Fri, 2008-07-18 at 11:49 -0400, Christopher J. PeBenito wrote:
-> >> On Fri, 2008-07-18 at 11:42 -0400, James Carter wrote:
-> >>> On Fri, 2008-07-18 at 10:15 -0400, Christopher J. PeBenito wrote:
-> >>>> On Fri, 2008-06-27 at 14:55 -0400, James Carter wrote:
-> >>>>> This patch eliminates the expansion of the file_type attribute (due to
-> >>>>> the "-" set operation) for the *_non_security interfaces by creating a
-> >>>>> non_security_file_type attribute.
-> >>>>>
-> >>>>> On my system the resulting binary policy is almost 20% smaller.  The
-> >>>>> difference is so large because there are over 1000 types labeled with
-> >>>>> the file_type attribute.
-> >>>> I'm hesitant to attach non_security_file_type to the files_type
-> >>>> attribute, since its not clear to me that it makes conceptual sense.
-> >>> The primary goal here is a smaller binary policy.  But it still makes
-> >>> sense conceptually to me because the security_file_type attribute is
-> >>> never used by itself as far as I can tell.  It is always used as
-> >>> {file_type-security_file_type}.
-> >>>
-> >>>>   In
-> >>>> fact a sediff of the policy reveals that auidtd_log_t gains
-> >>>> non_security_file_type while it already has security_file_type, which
-> >>>> results in rule additions with this patch added.
-> >>> That's not good.  There are only a handful of types labeled with
-> >>> security_file_type, I don't know how I missed that.  Sorry.
-> >>>
-> >>> The following line is the problem: files_mountpoint(auditd_log_t).
-> >>> So, a files_mountpoint_security interface would have to be created.
-> >>>
-> >>> It's not a big deal to me.  If there is no interest in creating a
-> >>> non_security_file_type attribute, I won't pursue this any farther.
-> >> I think the binary policy size savings is a good enough reason to pursue
-> >> it.  Brainstorming for a second, another way to address this problem
-> >> would be to change how checkpolicy handles negations.  It could make a
-> >> new attribute with the resultant type set from the negation;
-> > 
-> > It would need to make sure that the resultant set is not already covered
-> > by an attribute, or much of the value would be lost.
-> > 
-> >>  however,
-> >> that might be bad for analysis since an attribute would magically appear
-> >> out of nowhere.
-> > 
-> > You already have that problem when analyzing a binary policy, since the
-> > attribute names aren't preserved.
-> > 
-> Speaking of which, I thought we were looking into adding that back in?
+> It should just shut up....
 > 
-> It could help out tools like audit2why...
+>> I think that's the wrong place to do it:
+>> - the fact that the application called libselinux at all except to test
+>> is_selinux_enabled() when SELinux is disabled is either a bug in the
+>> application or an indication that the application wants SELinux behavior
+>> regardless,
+>> - silencing all log messages coming from libselinux is too broad.
 > 
-> Constraint violation, go though list of all attributes and see if one
-> fixes the problem.
+>> And of course, file_contexts conflicts should be caught during policy
+>> build time aside from local customizations; if not, then we need to
+>> change the policy build process to do that even for modular policy
+>> builds.
+> 
+Well it could be argued that libraries should never write to the terminal...
 
-I'm not opposed, but requires a policy version bump and kernel patch.
-Alternative is to make tools like audit2why read the modular policy like
-modern setools does and thus have the attribute info from it.
+Try explaining this to the users we are telling selinux disabled does
+not effect their machines.  They just come away with the opinion that
+SELinux Sucks and is broken.  Besides we are even complaining when they
+are warnings and SELinux is disabled.
 
--- 
-Stephen Smalley
-National Security Agency
+The problem seems to be a broken genhomedircon, but we don't currently
+prevent users (rpm post install scripts)  from adding conflicting file
+context in file context.local
+plain text document attachment (diff)
 
+The tools just complain about it after the fact.
+
+# semanage fcontext -a -t httpd_sys_content_t /tmp
+# matchpathcon /etc
+# matchpathcon /etc/
+/etc/selinux/targeted/contexts/files/file_contexts: Multiple different
+specifications for /tmp  (system_u:object_r:httpd_sys_content_t:s0 and
+system_u:object_r:tmp_t:s0).
+/etc/	system_u:object_r:etc_t:s0
+
+Nice.
+
+
+
+
+diff --exclude-from=exclude -N -u -r nsalibselinux/src/callbacks.c
+libselinux-2.0.67/src/callbacks.c
+- --- nsalibselinux/src/callbacks.c	2008-06-12 23:25:14.000000000 -0400
++++ libselinux-2.0.67/src/callbacks.c	2008-07-18 11:15:56.000000000 -0400
+@@ -16,6 +16,7 @@
+ {
+ 	int rc;
+ 	va_list ap;
++	if (is_selinux_enabled() == 0) return 0;
+ 	va_start(ap, fmt);
+ 	rc = vfprintf(stderr, fmt, ap);
+ 	va_end(ap);
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkiA1YUACgkQrlYvE4MpobOXawCgqA+eAWSiytqSXvdmAXSOboMU
+7BMAoOh5vRzyK8u8sWC/fIIaEuiK+I0F
+=XAen
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
