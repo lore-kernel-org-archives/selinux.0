@@ -1,60 +1,88 @@
-Message-ID: <4880D3F0.4030507@redhat.com>
-Date: Fri, 18 Jul 2008 13:33:36 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Critical bug in semanage
-References: <487F93C3.1040701@redhat.com>  <4880B872.20202@manicmethod.com> <1216402217.17602.324.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1216402217.17602.324.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [refpolicy] Patch: Create non_security_file_type attribute
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: jwcart2@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <4880D23E.8070207@redhat.com>
+References: <1214592935.2888.11.camel@moss-lions.epoch.ncsc.mil>
+	 <1216390554.21191.147.camel@gorn>
+	 <1216395738.26625.45.camel@moss-lions.epoch.ncsc.mil>
+	 <1216396152.21191.163.camel@gorn>
+	 <1216397010.26625.53.camel@moss-lions.epoch.ncsc.mil>
+	 <4880D23E.8070207@redhat.com>
+Content-Type: text/plain
+Date: Fri, 18 Jul 2008 13:33:12 -0400
+Message-Id: <1216402392.17602.328.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Stephen Smalley wrote:
-> On Fri, 2008-07-18 at 11:36 -0400, Joshua Brindle wrote:
->> Daniel J Walsh wrote:
->>> -----BEGIN PGP SIGNED MESSAGE-----
->>> Hash: SHA1
->>>
->>> homedirs in /var and /usr/local were not being matched, causing bad
->>> context to be added.
->>>
->>> genhomedircon port problem.
->>>
->>> An extra / at the end of the regex was causing the problem
->>>
->>> Geesh I love 'C'.  :^P
->> It has less to do with C and more to do with crazy string libraries :)
->>
->> I'm not sure what the intention is here though, the comment directly below your patch says
->> " 	/* Append pattern to eat up trailing slashes */"
->>
->> How is that not what you are trying to do?
+On Fri, 2008-07-18 at 13:26 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Trailing / in the pathname regex versus trailing / in the pathname being
-> matched, IIUC.
+> James Carter wrote:
+> > On Fri, 2008-07-18 at 11:49 -0400, Christopher J. PeBenito wrote:
+> >> On Fri, 2008-07-18 at 11:42 -0400, James Carter wrote:
+> >>> On Fri, 2008-07-18 at 10:15 -0400, Christopher J. PeBenito wrote:
+> >>>> On Fri, 2008-06-27 at 14:55 -0400, James Carter wrote:
+> >>>>> This patch eliminates the expansion of the file_type attribute (due to
+> >>>>> the "-" set operation) for the *_non_security interfaces by creating a
+> >>>>> non_security_file_type attribute.
+> >>>>>
+> >>>>> On my system the resulting binary policy is almost 20% smaller.  The
+> >>>>> difference is so large because there are over 1000 types labeled with
+> >>>>> the file_type attribute.
+> >>>> I'm hesitant to attach non_security_file_type to the files_type
+> >>>> attribute, since its not clear to me that it makes conceptual sense.
+> >>> The primary goal here is a smaller binary policy.  But it still makes
+> >>> sense conceptually to me because the security_file_type attribute is
+> >>> never used by itself as far as I can tell.  It is always used as
+> >>> {file_type-security_file_type}.
+> >>>
+> >>>>   In
+> >>>> fact a sediff of the policy reveals that auidtd_log_t gains
+> >>>> non_security_file_type while it already has security_file_type, which
+> >>>> results in rule additions with this patch added.
+> >>> That's not good.  There are only a handful of types labeled with
+> >>> security_file_type, I don't know how I missed that.  Sorry.
+> >>>
+> >>> The following line is the problem: files_mountpoint(auditd_log_t).
+> >>> So, a files_mountpoint_security interface would have to be created.
+> >>>
+> >>> It's not a big deal to me.  If there is no interest in creating a
+> >>> non_security_file_type attribute, I won't pursue this any farther.
+> >> I think the binary policy size savings is a good enough reason to pursue
+> >> it.  Brainstorming for a second, another way to address this problem
+> >> would be to change how checkpolicy handles negations.  It could make a
+> >> new attribute with the resultant type set from the negation;
+> > 
+> > It would need to make sure that the resultant set is not already covered
+> > by an attribute, or much of the value would be lost.
+> > 
+> >>  however,
+> >> that might be bad for analysis since an attribute would magically appear
+> >> out of nowhere.
+> > 
+> > You already have that problem when analyzing a binary policy, since the
+> > attribute names aren't preserved.
+> > 
+> Speaking of which, I thought we were looking into adding that back in?
 > 
-Yes the problem wat the tool was not matching
+> It could help out tools like audit2why...
+> 
+> Constraint violation, go though list of all attributes and see if one
+> fixes the problem.
 
-/var/.* system_u:object_r:var_t:s0
+I'm not opposed, but requires a policy version bump and kernel patch.
+Alternative is to make tools like audit2why read the modular policy like
+modern setools does and thus have the attribute info from it.
 
-Ended up trying to compare
-/var/ to /var
+-- 
+Stephen Smalley
+National Security Agency
 
-And failing to see the similarities.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkiA0/AACgkQrlYvE4MpobMG0ACfSKO9rfQC9iB44zxC5mrIMqKF
-anIAn1pKhwbklwdVUPtAElYjEoN6s4t1
-=hEeI
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
