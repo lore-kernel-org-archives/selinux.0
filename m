@@ -1,55 +1,67 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IIR2QZ008677
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 14:27:02 -0400
-Received: from cdptpa-omtalb.mail.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IIR1oF025788
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 18:27:01 GMT
-Message-ID: <4880E11F.7000108@kutulu.org>
-Date: Fri, 18 Jul 2008 14:29:51 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IIYTuj010021
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 14:34:29 -0400
+Received: from cdptpa-omtalb.mail.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IIYR29020080
+	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 18:34:27 GMT
+Message-ID: <4880E2DB.7040202@kutulu.org>
+Date: Fri, 18 Jul 2008 14:37:15 -0400
 From: Mike Edenfield <kutulu@kutulu.org>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>,
-        SELinux Mailing List <selinux@tycho.nsa.gov>
+CC: SELinux Mailing List <selinux@tycho.nsa.gov>
 Subject: Re: refpolicy patch: samba enhancements
-References: <487BB78D.6080500@kutulu.org>  <4880D5FC.5030400@redhat.com> <1216404899.21191.175.camel@gorn>
-In-Reply-To: <1216404899.21191.175.camel@gorn>
+References: <487BB78D.6080500@kutulu.org> <1216393143.21191.155.camel@gorn>	 <4880D35C.8060302@kutulu.org> <1216405172.21191.179.camel@gorn>
+In-Reply-To: <1216405172.21191.179.camel@gorn>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Christopher J. PeBenito wrote:
-> On Fri, 2008-07-18 at 13:42 -0400, Daniel J Walsh wrote:
->> Mike Edenfield wrote:
->>> I apologize if I'm not doing this right, I'm kinda new at this...
->>>
->>> I have made some changes to the SELinux policy for our intranet servers
->>> that I thought might be useful to a broader audience.  Included below is
->>> a patch to the latest refpolicy.  This has been tested on the Gentoo
->>> systems we have here; I don't have easy access to other SELinux systems
->>> at the moment.  It does the following:
-> [...]
->>> * Adds a tunable that lets samba create home directories via pam_mkhomedir
+> On Fri, 2008-07-18 at 13:31 -0400, Mike Edenfield wrote:
+>> Christopher J. PeBenito wrote:
+>>> On Mon, 2008-07-14 at 16:31 -0400, Mike Edenfield wrote:
+>>>> +tunable_policy(`samba_create_home_dirs',`
+>>>> +    unprivuser_home_filetrans_home_dir(smbd_t)
+>>>> +    unprivuser_manage_home_dirs(smbd_t)
+>>> I think we want this to be unprivuser_create_home_dirs(), which would
+>>> need to be added.
+>> That was my first instinct but I didn't see one already present, so I 
+>> just copied what I found for oddjob_mkhomedir.
+>>
+>> I'll define a new interface for this -- I assume that's probably a 
+>> separate patch?
 > 
->> Could you do this with pam_oddjob_mkhomedir without having to add the
->> privs.  I think this is a better solution.
+> No, its fine to include it in this one.
 > 
-> What if you don't have oddjob?  It doesn't hurt to have the perms in a
-> tunable.  It could be put in a ifndef distro_redhat, if samba in
-> fedora/rh requires pam_oddjob_mkhomedir.
+>>   And I should convert the sysadm role and oddjob type to 
+>> use the interface?
+> 
+> Sysadm is fine as is, since it already has broad powers for managing
+> users.  I'm not sure about the oddjob usage; you'd have to check the
+> programs features to see if it does other things in addition to just
+> creating the dirs.
+> 
 
-If this is the preferable way for RH users to set up samba, would this 
-be an appropriate solution?
+The reason I mentioned it is because both sysadm and oddjob use the same 
+two interfaces I put in the samba patch.  In fact, I don't see anywhere 
+in the ref policy that manage_home_dirs is ever used without the 
+filetrans interface right before it.  This leads me to suggest that I 
+just add a call to home_filetrans_home_dir inside manage_home_dirs, 
+since it seems to be almost a prerequisite anyway.
 
-tunable_policy(`samba_create_home_dirs',`
-     ifdef(`distro_redhat', `
-         refpolicywarn(`Use of samba_create_home_dirs is discouraged. 
-Please use pam_oddjob_mkhomedir instead.')
-     ', `
-         unprivuser_create_home_dirs(smbd_t)
-         allow smbd_t self:capability chown;
-     ')
-')
+I just checked oddjob -- it calls a series of related interfaces, which 
+sysadm and the samba policy already also called, so perhaps all of these 
+can be put into a "create_home_directories" interface and simplify the 
+policy in three places:
+
+unprivuser_home_filetrans_home_dir(oddjob_mkhomedir_t)
+unprivuser_manage_home_content_dirs(oddjob_mkhomedir_t)
+unprivuser_manage_home_content_files(oddjob_mkhomedir_t)
+unprivuser_manage_home_dirs(oddjob_mkhomedir_t)
+unprivuser_home_dir_filetrans_home_content(oddjob_mkhomedir_t,notdevfile_class_set)
+
+--Mike
 
 
 --
