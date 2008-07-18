@@ -1,235 +1,160 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6I0eYwg032370
-	for <selinux@tycho.nsa.gov>; Thu, 17 Jul 2008 20:40:34 -0400
-Received: from arlo.cse.psu.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6I0eVJc016530
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 00:40:34 GMT
-Subject: Re: OpenMoko/JFFS2 sestatus difficulties
-From: Mohamed Hassan <mhassan@cse.psu.edu>
-To: Willis Vandevanter <vandevwa@jmu.edu>
-Cc: selinux@tycho.nsa.gov, KaiGai Kohei <kaigai@ak.jp.nec.com>,
-        ynakam@hitachisoft.jp
-In-Reply-To: <4c63b15c0807152215p271dc8e6m1854ab006245b35@mail.gmail.com>
-References: <4c63b15c0807151517t5c126030q1d80a5c4c4685a4b@mail.gmail.com>
-	 <487D46B5.9070608@ak.jp.nec.com>
-	 <4c63b15c0807152215p271dc8e6m1854ab006245b35@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 17 Jul 2008 20:40:12 -0400
-Message-Id: <1216341612.6120.1.camel@cairo>
-Mime-Version: 1.0
+Message-ID: <48803685.1000505@ak.jp.nec.com>
+Date: Fri, 18 Jul 2008 15:21:57 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov
+Subject: Re: [RFC] An idea of thread/child-domain assignment
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Willis,
-We were working on porting SELinux on OopenMoko as part of our research
-here at Penn State. We successfully got SELinux to work on the phone.
+>>>> An idea: thread/hierarchical-domain assignment
+>>>> ----------------------------------------------
+>>>> If possible, Apache should change the security context of web backend
+>>>> during it executes a request come from users.
+>>>> However, Apache can execute it on a worker thread. It conflicts a wired
+>>>> constraint of SELinux which does not allow a multi-threaded process dynamic
+>>>> domain transition.
+>>>>
+>>>> It is a reasonable constraint, if the source and destination domains are
+>>>> completely independent. Because it shares a local memory, mixed security
+>>>> context within a process can make a violation in domain separation.
+>>>>
+>>>> However, a characteristic relationship between hierarchical domains can
+>>>> help the situation. It restricts a child domain (like "httpd_t.staff")
+>>>> cannot over the boundary of its parent ("httpd_t"). It also means
+>>>> a multi-threaded process cannot over the (parent) domain boundary,
+>>>> even if a part of threads has different security context.
+>>>>
+>>>> My suggestion is the hard-wired constraint should be modified.
+>>>> It allows to assign threads an indivisual domain, if the new domain
+>>>> is a child one of the current domain.
+>>>>
+>>>>   For example:
+>>>>     httpd_t -> httpd_t.staff           = allowed
+>>>>     httpd_t -> staff_t                 = disallowed
+>>>>     httpd_t.staff -> httpd_t.staff.php = allowed
+>>>>
+>>>> In other words, this idea requires to change our viewpoint for child domain.
+>>>> Previously, these are mutually independent domain, but a child domain will
+>>>> mean a state with restricted operations compared to its parent domain.
+>>> I tend to agree that we should support such changes in the kernel
+>>> mechanism and let the use of it be determined by the policy.
+>>>
+>>> In terms of hierarchy though, the plan was to replace the current
+>>> name-based hierarchy with an explicitly declared hierarchy.
+>> It needs a new policy statement like:
+>>
+>>   TYPE <child domain> DOMBY <parent domain>;
+>>     or
+>>   TYPEDOMINANCE <parent domain> <child domain> [,<child domain>] ;
+>>
+>> I guess these relationships are represented as a ebitmap structure
+>> in the kernel, and used to mask permissions during AVC entry creation.
+> 
+> You don't necessarily have to represent the hierarchy in the kernel; it
+> can be done entirely in the policy toolchain like the current type
+> hierarchy.
 
-You can try enabling extended attributes (xattr) in jffs2. This will
-require recompiling mtd-utils-native with selinux support (libacl and
-libattr is required by mtd) 
+I think it is necessary to check whether required dynamic type transition
+should be allowed, or not.
 
-Modify bitbake.conf to flash the phone with selinux enabled jffs2
-Here is the batch
-http://www.cse.psu.edu/~mhassan/openmoko_se/bitbake-conf-selinux.patch
+This idea allows a thread to translate its domain, only if the destinated
+domain is a child one. Thus kernel has to check the relationship between
+both domains based on the hierarchy information.
 
-You can also check our init patch at
-http://www.cse.psu.edu/~mhassan/openmoko_se/sysvinit-selinux.patch
+In other expression:
+   ssid := current domain
+   tsid := new domain
+   if (is_multi_threaded(current)) {
++      if (!is_dominated_domain(ssid, tsid))  <-- requires hierarchy info
+           return -EPERM;
+   }
+   avc_has_perm(ssid, tsid, SECCLASS_PROCESS,
+                PROCESS__DYNTRANSITION, NULL);
 
-Hope this will help.
+
+>>>> Issues: Domain Reverting
+>>>> ------------------------
+>>>> There is a related issue. To change security context during user request
+>>>> execution also means that we have to revert its domain after executions,
+>>>> because Apache repeatedly uses worker thread/process for some reasons.
+>>>>
+>>>> I don't have any good idea for this issue yet.
+>>>> A one time cookie like AppArmor is an approach, but it is basically weak
+>>>> separation compared from execve() transition.
+>>> Perhaps it could pre-populate different pools of threads for different
+>>> client security contexts, and then just draw from the correct pool for
+>>> each client.  Then the thread context doesn't have to be reverted at all
+>>> and we can make the transition unidirectional.
+>> I think this approach requires two precondition.
+>>
+>> (1) The number of client security context should be enough small.
+>>  If we want to assign one of MCS categories, it requires 1024 of thread
+>>  pool in maximum.
+> 
+> The main server thread could lazily create the thread pools as needed to
+> avoid unnecessary pools.  And we could possibly use a hybrid scheme
+> (e.g. one pool per sensitivity or per equivalence class of categories,
+> reuse within that pool).
+
+I guess it requires massive reworks for Apache itself. :(
+
+If so, it may be better to implement a SELinux specific multi processing
+module (MPM) which creates a child process with restricted domain per
+request?
+(No need to say, we will get some performance degradation.)
+
+
+>> (2) We have to know what client security context should be assigned
+>>     before the communication between client and backend thread.
+>>  In the case when we use HTTP authentication to decide client security
+>>  context, the authentication process has to be done in the backend
+>>  process after the communication started.
+>>  It may also require major works in application updates.
+> 
+> True, but not an issue when using labeled networking as the basis for
+> determining the client security context.
+
+In web based services, we have to assume a case when client system
+is running on windows with no labeled networking support.
+
+I think it can be also possible to associate a user and a security
+context of his substitution on authentication, as operating system
+doing.
+
+
+>> In my impression, AA's approach is not perfect, but second best one...
+> 
+> I'd have to hear an argument that there is a real security benefit from
+> it.  Do you just mean reverting domain transitions or do you
+> specifically mean the cookie-based approach? 
+
+The cookie-based approach means a process/thread dynamically translated
+into child domain is allowed to revert its domain into original one, only
+if the submitted cookie is matched.
+
+It can protect from script flaws as long as the cookie cannot be accessed
+from script program. But it depends on the correctness of script language
+processor, because the cookie has to be placed within the translated domain.
+
+If PHP language processor itself has a bug to expose a discretional value,
+a malicious one can revert its domain to "httpd_t" from "httpd_t.staff"
+using the cookie illegally obtained.
+
+So, we can find its benefit at preventing harms from buggy scripts.
+However, this idea is the best one in I could flash on unfortunatelly.
+
+Is there any other elegant design?
 
 Thanks,
-M Hassan
-
-On Wed, 2008-07-16 at 01:15 -0400, Willis Vandevanter wrote:
-> KaiGai said:
->         I guess selinuxfs is not mounted.
-> 
-> I unmounted and remounted /selinux after I copied the new
-> libselinux.so.1 onto the device. sestatus still returns disabled.
-> 
-> I also have the following in /etc/fstab:
->         selinux                /selinux        selinuxfs       noauto
->         0       0
-> 
-> KaiGai said:
->         If your /sbin/init is implemented using busybox, consider to
->         turn on
->         "SELinux support" option
-> 
-> /sbin/init is implemented using busybox, but I'm not sure if the
-> SELinux support option is turned on.  I will have to check on this in
-> the morning. 
-> 
-> Russell said:
->         What exactly is the output of "sestatus"?
-> 
-> The output of sestatus is:
->         SELinux status:                 disabled
-> 
-> Justin said:
->         do a ldd /sbin/init, you should see libsepol, and libselinux
->         if not install sysvinit
-> 
-> The output from ldd /sbin/init is:
->             libc.so.6 => /lib/libc.so.6 (0x40025000)
->             /lib/ld-linux.so.3 (0x40000000)
-> 
-> Oddly enough this is also the output when sestatus reports SELinux as
-> enabled. sysvinit is installed.
-> 
->         in grub.conf put selinux=1 enforcing=1/0  <~~~1=on 0=off
-> 
-> I rebooted with the boot parameters appended, but still sestatus
-> reports SELinux as disabled. Even stranger is dmesg has the following:
-> 
-> 
->         ....
->         Security Framework initialized
->         SELinux:  Initializing.
->         SELinux:  Starting in permissive mode
->         .......
->         SELinux:  Registering netfilter hooks
->         io scheduler noop registered
->         io scheduler deadline registered (default)
->         ......
-> 
-> 
-> It is late here right now =)). I will try the strace on sestatus
-> tomorrow morning.
-> 
-> 
-> -Willis
->  
-> On Tue, Jul 15, 2008 at 8:54 PM, KaiGai Kohei <kaigai@ak.jp.nec.com>
-> wrote:
->         Willis,
->         
->         I guess selinuxfs is not mounted.
->         
->         In SELinux environment, /sbin/init is extended to mount
->         selinuxfs
->         on /selinux. It enables to communicate between kernel and
->         userspaces.
->         
->         If your /sbin/init is implemented using busybox, consider to
->         turn on
->         "SELinux support" option and make /selinux directory on your
->         jffs2 image.
->         
->         
->         Willis Vandevanter wrote:
->                 -----BEGIN PGP SIGNED MESSAGE-----
->                 Hash: SHA1
->                 
->                 Hello All,
->                 
->                   I am working on developing a targeted SELinux policy
->                 for
->                 
->                 OpenMoko devices (www.openmoko.org
->                 <http://www.openmoko.org>) as a Google Summer Of Code
->                 project
->                 
->                 (http://code.google.com/p/selinux-openmoko/).
->                 
->                 Background:
->                 I have cross-compiled the necessary SELinux code
->                 (libselinux-1.34.15,
->                 checkpolicy-1.34.7, libsemanage-1.10.9,
->                 libsepol-1.16.14,
->                 policycoreutils-1.34.16) and devloped a very basic
->                 targeted policy. I
->                 ported the code on to the device. The policy compiles
->                 (make) and
->                 installs (make install).
->                 
->                 Where I am stuck:
->                 When cross-compiling libselinux I get some strange
->                 behavior.
->                 Specifically, I compiled libselinux with the following
->                 flags:
->                  make
->                 CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/cc ARCH=arm
->                 LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
->                  I then copied the new libselinux.so.1 on to the
->                 device. sestatus
->                 returns that SELinux is enabled and lists the correct
->                 policy version,
->                 
->         
->         Is it your host environment, isn't it?
->         
->                 etc. *BUT* make relabel doesn't work. make relabel (or
->                 setfiles) gives
->                 the following error:
->                 
->                 file_contexts/file_contexts: Invalid argument make:
->                 *** [relabel] Error 1
->                 The error seems to be that file_contexts is not being
->                 interpreted as a
->                 regular file (i.e. S_ISREG(sb.st_mode) in setfiles.c
->                 is returning 0).
->                 I assume this is because I compiled libselinux without
->                 the OpenMoko
->                 specific header files (ie with my
->                 host-x86 /usr/include rather than
->                 the device specific ones), so I re-compiled
->                 libselinux:
->                 
->                 make
->                 CC=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/bin/ccARCH=arm
->                 LIBDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/lib
->                 INCLUDEDIR=/usr/local/openmoko/arm/arm-angstrom-linux-gnueabi/usr/include
->                 I then copied libselinux.so.1 on to the device.
->                 setfiles will now
->                 correctly label the filesystem, but sestatus now
->                 returns SELinux as
->                 disabled. I set /etc/selinux/config file to permissive
->                 and rebooted,
->                 but it is still listed as disabled.
->                 
->                 How is SELinux determined to be enabled? Could missing
->                 or
->                 mis-configured header files in the
->                 OpenMoko /usr/include cause SELinux
->                 to appear as disabled?
->                 
->                 I apologize for the long email. The policy I am using
->                 is available at
->                 http://code.google.com/p/selinux-openmoko/. The
->                 cross-compiled
->                 
->                 binaries are also available. I am using a 2.6.24.7
->                 <http://2.6.24.7> kernel with SELinux
->                 
->                 and JFFS2 XATTR enabled.
->                 
->                 Thank you for your help,
->                  Willis
->                 
->                  -----BEGIN PGP SIGNATURE-----
->                 Version: GnuPG v1.4.6 (GNU/Linux)
->                 
->                 iD8DBQFIfSH2qCokMvr1WNARAuJdAJ0Q9iWp7
->                 +V0jTxen92WfE8RFnpJeACgiRyX
->                 vAFzngclbVPHIZ/YckQi3Sg=
->                 =P7dW
->                 -----END PGP SIGNATURE-----
->                 
->         
->         -- 
->         OSS Platform Development Division, NEC
->         KaiGai Kohei <kaigai@ak.jp.nec.com>
->         
->         --
->         This message was distributed to subscribers of the selinux
->         mailing list.
->         If you no longer wish to subscribe, send mail to
->         majordomo@tycho.nsa.gov with
->         the words "unsubscribe selinux" without quotes as the message.
-> 
-> 
-
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
