@@ -1,55 +1,94 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6IJ075Q015020
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 15:00:07 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6IJ0629027418
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 19:00:07 GMT
-Message-ID: <4880E818.50201@redhat.com>
-Date: Fri, 18 Jul 2008 14:59:36 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: Mike Edenfield <kutulu@kutulu.org>,
-        SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: refpolicy patch: samba enhancements
-References: <487BB78D.6080500@kutulu.org>  <4880D5FC.5030400@redhat.com> <1216404899.21191.175.camel@gorn>
-In-Reply-To: <1216404899.21191.175.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [patch] libselinux:  handle conflicting file contexts as a fatal
+	error
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <1216406083.17602.352.camel@moss-spartans.epoch.ncsc.mil>
+References: <4880CFD1.1040102@redhat.com>
+	 <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>
+	 <4880D585.9000405@redhat.com>
+	 <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil>
+	 <1216406083.17602.352.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 18 Jul 2008 15:01:12 -0400
+Message-Id: <1216407672.17602.366.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Fri, 2008-07-18 at 13:42 -0400, Daniel J Walsh wrote:
->> Mike Edenfield wrote:
->>> I apologize if I'm not doing this right, I'm kinda new at this...
->>>
->>> I have made some changes to the SELinux policy for our intranet servers
->>> that I thought might be useful to a broader audience.  Included below is
->>> a patch to the latest refpolicy.  This has been tested on the Gentoo
->>> systems we have here; I don't have easy access to other SELinux systems
->>> at the moment.  It does the following:
-> [...]
->>> * Adds a tunable that lets samba create home directories via pam_mkhomedir
-> 
->> Could you do this with pam_oddjob_mkhomedir without having to add the
->> privs.  I think this is a better solution.
-> 
-> What if you don't have oddjob?  It doesn't hurt to have the perms in a
-> tunable.  It could be put in a ifndef distro_redhat, if samba in
-> fedora/rh requires pam_oddjob_mkhomedir.
-> 
-I have more of a problem with pam_mkhomedir from login programs since
-samba can currently read/write homedirs with a boolean.  It is not as
-big a deal.  oddjob just breaks things out the way SELinux likes it.
-Pam modure requests a service create a homedir.  Service execs a job to
-create the homedir.  Each process gets a different context.
+Ensure that conflicting file context errors are propagated to the
+caller.  This causes setfiles -c to exit with an error status, which in
+turn causes libsemanage to roll back the transaction and prevents such
+entries from being added by semanage.
 
+Duplicate same entries are left as warnings-only since they don't create
+any ambiguity for file labeling.
 
-gentoo should look into it.
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-But I am fine with adding the patch.  pam_mkhomedir does not work well
-currently with ssh, locallogin, gdm on Fedora platform.
+---
 
+Index: trunk/libselinux/src/label_file.c
+===================================================================
+--- trunk/libselinux/src/label_file.c	(revision 2927)
++++ trunk/libselinux/src/label_file.c	(working copy)
+@@ -146,8 +146,9 @@
+ /*
+  * Warn about duplicate specifications.
+  */
+-static void nodups_specs(struct saved_data *data, const char *path)
++static int nodups_specs(struct saved_data *data, const char *path)
+ {
++	int rc = 0;
+ 	unsigned int ii, jj;
+ 	struct spec *curr_spec, *spec_arr = data->spec_arr;
+ 
+@@ -161,8 +162,10 @@
+ 				if (strcmp
+ 				    (spec_arr[jj].lr.ctx_raw,
+ 				     curr_spec->lr.ctx_raw)) {
++					rc = -1;
++					errno = EINVAL;
+ 					COMPAT_LOG
+-						(SELINUX_WARNING,
++						(SELINUX_ERROR,
+ 						 "%s: Multiple different specifications for %s  (%s and %s).\n",
+ 						 path, curr_spec->regex_str,
+ 						 spec_arr[jj].lr.ctx_raw,
+@@ -176,6 +179,7 @@
+ 			}
+ 		}
+ 	}
++	return rc;
+ }
+ 
+ /* Determine if the regular expression specification has any meta characters. */
+@@ -503,6 +507,10 @@
+ 	}
+ 	free(line_buf);
+ 
++	status = nodups_specs(data, path);
++	if (status)
++		goto finish;
++
+ 	/* Move exact pathname specifications to the end. */
+ 	spec_copy = malloc(sizeof(spec_t) * data->nspec);
+ 	if (!spec_copy)
+@@ -519,8 +527,6 @@
+ 	free(data->spec_arr);
+ 	data->spec_arr = spec_copy;
+ 
+-	nodups_specs(data, path);
+-
+ 	status = 0;
+ finish:
+ 	fclose(fp);
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
