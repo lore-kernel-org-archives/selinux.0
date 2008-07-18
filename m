@@ -1,96 +1,80 @@
-Subject: Re: Patch to make libselinux shut up when SELinux is disabled.
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <4880D585.9000405@redhat.com>
-References: <4880CFD1.1040102@redhat.com>
-	 <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>
-	 <4880D585.9000405@redhat.com>
+Subject: Re: [refpolicy] Patch: Create non_security_file_type attribute
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1216397010.26625.53.camel@moss-lions.epoch.ncsc.mil>
+References: <1214592935.2888.11.camel@moss-lions.epoch.ncsc.mil>
+	 <1216390554.21191.147.camel@gorn>
+	 <1216395738.26625.45.camel@moss-lions.epoch.ncsc.mil>
+	 <1216396152.21191.163.camel@gorn>
+	 <1216397010.26625.53.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Fri, 18 Jul 2008 13:54:06 -0400
-Message-Id: <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 18 Jul 2008 14:09:10 -0400
+Message-Id: <1216404550.21191.170.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Fri, 2008-07-18 at 13:40 -0400, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Stephen Smalley wrote:
-> > On Fri, 2008-07-18 at 13:16 -0400, Daniel J Walsh wrote:
-> > SELinux complains about things like restorecon or rpm when conflicts
-> > exist in file_context file even when SELinux is disabled.
+On Fri, 2008-07-18 at 12:03 -0400, James Carter wrote:
+> On Fri, 2008-07-18 at 11:49 -0400, Christopher J. PeBenito wrote:
+> > On Fri, 2008-07-18 at 11:42 -0400, James Carter wrote:
+> > > On Fri, 2008-07-18 at 10:15 -0400, Christopher J. PeBenito wrote:
+> > > > On Fri, 2008-06-27 at 14:55 -0400, James Carter wrote:
+> > > > > This patch eliminates the expansion of the file_type attribute (due to
+> > > > > the "-" set operation) for the *_non_security interfaces by creating a
+> > > > > non_security_file_type attribute.
+> > > > > 
+> > > > > On my system the resulting binary policy is almost 20% smaller.  The
+> > > > > difference is so large because there are over 1000 types labeled with
+> > > > > the file_type attribute.
+> > > > 
+> > > > I'm hesitant to attach non_security_file_type to the files_type
+> > > > attribute, since its not clear to me that it makes conceptual sense.
+> > > 
+> > > The primary goal here is a smaller binary policy.  But it still makes
+> > > sense conceptually to me because the security_file_type attribute is
+> > > never used by itself as far as I can tell.  It is always used as
+> > > {file_type-security_file_type}.
+> > > 
+> > > >   In
+> > > > fact a sediff of the policy reveals that auidtd_log_t gains
+> > > > non_security_file_type while it already has security_file_type, which
+> > > > results in rule additions with this patch added.
+> > > That's not good.  There are only a handful of types labeled with
+> > > security_file_type, I don't know how I missed that.  Sorry.
+> > > 
+> > > The following line is the problem: files_mountpoint(auditd_log_t).
+> > > So, a files_mountpoint_security interface would have to be created.
+> > > 
+> > > It's not a big deal to me.  If there is no interest in creating a
+> > > non_security_file_type attribute, I won't pursue this any farther.
 > > 
-> > It should just shut up....
-> > 
-> >> I think that's the wrong place to do it:
-> >> - the fact that the application called libselinux at all except to test
-> >> is_selinux_enabled() when SELinux is disabled is either a bug in the
-> >> application or an indication that the application wants SELinux behavior
-> >> regardless,
-> >> - silencing all log messages coming from libselinux is too broad.
-> > 
-> >> And of course, file_contexts conflicts should be caught during policy
-> >> build time aside from local customizations; if not, then we need to
-> >> change the policy build process to do that even for modular policy
-> >> builds.
-> > 
-> Well it could be argued that libraries should never write to the terminal...
-
-selinux_set_callback() lets the application control that behavior.
-
-> Try explaining this to the users we are telling selinux disabled does
-> not effect their machines.  They just come away with the opinion that
-> SELinux Sucks and is broken.  Besides we are even complaining when they
-> are warnings and SELinux is disabled.
-
-Which reflects a bug in the application - why is it calling matchpathcon
-if is_selinux_enabled() <= 0?
-
-As far as the warning goes, the log callback does get a type parameter
-so it can distinguish warnings vs. errors.  But we don't want to hide
-these kinds of duplications or conflicts - we just want them to be
-caught earlier.
-
-> The problem seems to be a broken genhomedircon, but we don't currently
-> prevent users (rpm post install scripts)  from adding conflicting file
-> context in file context.local
-> plain text document attachment (diff)
+> > I think the binary policy size savings is a good enough reason to pursue
+> > it.  Brainstorming for a second, another way to address this problem
+> > would be to change how checkpolicy handles negations.  It could make a
+> > new attribute with the resultant type set from the negation;
 > 
-> The tools just complain about it after the fact.
+> It would need to make sure that the resultant set is not already covered
+> by an attribute, or much of the value would be lost.
+
+Yes, that would make sense.
+
+> >  however,
+> > that might be bad for analysis since an attribute would magically appear
+> > out of nowhere.
 > 
-> # semanage fcontext -a -t httpd_sys_content_t /tmp
+> You already have that problem when analyzing a binary policy, since the
+> attribute names aren't preserved.
 
-Ah, that's interesting.  So the setfiles -c execution by libsemanage
-only validates the base file contexts.  I'm trying to remember why we
-did that.  Seems like that could be changed easily enough.
-
-> # matchpathcon /etc
-> # matchpathcon /etc/
-> /etc/selinux/targeted/contexts/files/file_contexts: Multiple different
-> specifications for /tmp  (system_u:object_r:httpd_sys_content_t:s0 and
-> system_u:object_r:tmp_t:s0).
-> /etc/	system_u:object_r:etc_t:s0
-> 
-> Nice.
-
-That's a real bug in the file_contexts file that shouldn't be hidden
-from the user.
-
-I do agree that a) the application shouldn't be calling matchpathcon if
-is_selinux_enabled() <= 0, and b) we ought to catch these kinds of
-errors at policy build time for the base policy, and c) we ought to
-catch these kinds of errors at semodule/semanage invocation time for
-local customizations.  That is what we should be fixing.  Not silencing
-the messenger.
+Well what I mean is that you have your source policy which has X
+attributes, but when you open up your binary policy in setools you have
+X+1, so you wonder if something bad is happening in the compiler, since
+the source and binary don't match up.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
