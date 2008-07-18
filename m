@@ -1,234 +1,211 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6ICxAT4011277
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 08:59:10 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m6ICx9Go001547
-	for <selinux@tycho.nsa.gov>; Fri, 18 Jul 2008 12:59:09 GMT
-Subject: Re: [refpolicy] Milter Mail Filters
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Paul Howarth <paul@city-fan.org>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <484D4B53.5020006@city-fan.org>
-References: <484D4B53.5020006@city-fan.org>
+Subject: Re: [PATCH -v2] SELinux: /proc/mounts should show what it can
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, marc.c.dionne@gmail.com,
+        mszeredi@suse.cz
+In-Reply-To: <1216259442.3070.83.camel@localhost.localdomain>
+References: <1216259442.3070.83.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 18 Jul 2008 08:58:42 -0400
-Message-Id: <1216385922.21191.125.camel@gorn>
+Date: Fri, 18 Jul 2008 09:05:02 -0400
+Message-Id: <1216386302.17602.257.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-06-09 at 16:25 +0100, Paul Howarth wrote:
-> Hi,
-> 
-> attached is a patch based on local policy I'm using on Fedora 9 to 
-> support two "milter" mail filter daemons in conjunction with
-> sendmail, 
-> namely spamass-milter and milter-regex (I maintain the packages for
-> both 
-> of these in Fedora).
-> 
-> I've taken the view that most milter applications will have similar 
-> requirements and so I've created a milter_template interface that 
-> contains most of what's needed, and then added the specifics that are 
-> needed on top of the generic stuff for each application.
-> 
-> However, as I'm by no means an selinux expert, there are a number of 
-> things I'm unsure about:
-> 
-> 1. In a situation where sendmail is the running MTA on a system, what
-> is 
-> the difference between sendmail_t and system_mail_t?
-> 
-> 2. MTAs other than sendmail (postfix comes to mind) can also use 
-> milters, but as I don't have any boxes running postfix, I don't know 
-> what I'd need to add to postfix policy to support milters.
-> 
-> 3. Fedora 9 has an interface spamassassin_domtrans_spamc that I used
-> in 
-> my local policy. It doesn't appear to be present in refpolicy; what 
-> would be the right thing to use for a daemon calling spamc?
-> 
-> 4. I cribbed the milter_port_t stuff from the only example I could
-> find, 
-> and it's probably wrong. What would be the correct way of defining
-> this?
-> 
-> 5. Does the use of a template for these applications a sane way to do
-> it?
-> 
-> Paul.
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> plain text
-> document
-> attachment
-> (milters.patch)
-> 
-> Index: policy/modules/services/milters.te
-> ===================================================================
-> --- policy/modules/services/milters.te  (revision 0)
-> +++ policy/modules/services/milters.te  (revision 0)
-> @@ -0,0 +1,44 @@
-> +policy_module(milters,0.0.7)
-> +
-> +require {
-> +       attribute port_type;
-> +}
-> +
-> +type milter_port_t, port_type;
 
-This declaration would move to corenetwork
+On Wed, 2008-07-16 at 21:50 -0400, Eric Paris wrote:
+> Given a hosed SELinux config in which a system never loads policy or
+> disables SELinux we currently just return -EINVAL for anyone trying to
+> read /proc/mounts.  This is a configuration problem but we can certainly
+> be more graceful.  This patch just ignores errors from displaying LSM
+> options and causes /proc/mounts display everything else it can.
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Tested-by: Marc Dionne <marc.c.dionne@gmail.com>
+> 
+> ---
+> 
+> Same patch, only now without build warnings.
+> 
+> I could continue to fail showing /proc/mounts rather than skip them on
+> -ENOMEM but -EINVAL errors actually indicate there are no SELinux
+> options so just skipping along is the right thing to do.  I lean towards
+> just skipping on any error like this patch does.  The alternative is
+> selinux_sb_show_options() we can check if the error was -EINVAL and just
+> return 0 and return the actual error if it was anything else.  James,
+> Steve, anyone have feelings on this?
 
-> +#============= milter-regex policy ==============
-> +milter_template(regex)
+It seems unfortunate that a transient memory allocation failure within
+the selinux code could cause mount options to be lost, particularly if
+userland uses this as a means of propagating mount options from one
+mount to another.  And it doesn't seem that unlikely given use of atomic
+allocations in that code path (which btw it would be nice to eliminate
+regardless, but ultimately that goes all the way down to
+security_sid_to_context).
 
-As I mentioned before, it doesn't look like a template is needed, unless
-you think there will be many more milter domains.  Then put all the
-declarations in a section.
-
-> +# Config is in /etc/mail/milter-regex.conf
-> +mta_read_config(milter_regex_t)
-> +
-> +# The milter creates a socket in /var/spool/milter-regex/
-> +# for communication with sendmail
-> +files_search_spool(milter_regex_t)
-> +manage_sock_files_pattern(milter_regex_t,milter_regex_spool_t,milter_regex_spool_t)
-
-If the /var/sool/milter-regex directory can be created by the milter,
-then there should be a files_spool_filetrans().  If you think templates
-are warranted, then it would seem that this should go into the template
-
-> +
-> +# It removes any existing socket (not owned by root) whilst running
-> as root
-> +# and then calls setgid() and setuid() to drop privileges
-> +allow milter_regex_t self:capability { setuid setgid dac_override };
-> +
-> +
-> +#============= spamass-milter policy ==============
-> +milter_template(spamass)
-> +
-> +# The milter creates a socket in /var/run/spamass-milter/
-> +# for communication with sendmail
-> +manage_files_pattern(milter_spamass_t,milter_spamass_var_run_t,milter_spamass_var_run_t)
-> +manage_sock_files_pattern(milter_spamass_t,milter_spamass_var_run_t,milter_spamass_var_run_t)
-> +
-> +# The main job of the milter is to pipe spam through spamc and act on
-> the result
-> +#
-> +# The spamassassin_domtrans_spamc interface in Fedora 9 ???
-> +#spamassassin_domtrans_spamc(milter_spamass_t)
-> +
-> +# When used with -b or -B options, the milter invokes sendmail to
-> send mail
-> +# to a spamtrap address, using popen()
-> +corecmd_exec_shell(milter_spamass_t)
-> +corecmd_read_bin_symlinks(milter_spamass_t)
-> +corecmd_search_bin(milter_spamass_t)
-> +kernel_read_system_state(milter_spamass_t)
-> +mta_send_mail(milter_spamass_t)
-
-Similar comments as the previous domain.
-
-> --- policy/modules/services/sendmail.te (revision 2710)
-> +++ policy/modules/services/sendmail.te (working copy)
-> @@ -112,6 +112,14 @@
->  ')
+> 
+>  fs/namespace.c           |   14 ++++----------
+>  include/linux/security.h |   10 ++++------
+>  security/capability.c    |    6 ++----
+>  security/security.c      |    4 ++--
+>  security/selinux/hooks.c |   10 ++++------
+>  5 files changed, 16 insertions(+), 28 deletions(-)
+> 
+> diff --git a/fs/namespace.c b/fs/namespace.c
+> index 4f6f763..9203803 100644
+> --- a/fs/namespace.c
+> +++ b/fs/namespace.c
+> @@ -750,7 +750,7 @@ struct proc_fs_info {
+>  	const char *str;
+>  };
 >  
->  optional_policy(`
-> +       milter_regex_stream_connect(sendmail_t)
-> +')
-> +
-> +optional_policy(`
-> +       milter_spamass_stream_connect(sendmail_t)
-> +')
-
-Perhaps this should be a single milter_stream_connect_all(), since it
-seems like sendmail would want to connect to all milters.
-
-
-> --- policy/modules/services/milters.fc  (revision 0)
-> +++ policy/modules/services/milters.fc  (revision 0)
-> @@ -0,0 +1,14 @@
-> +#================= contexts for milter-regex =================
-> +
-> +/usr/sbin/milter-regex         --      gen_context(system_u:object_r:milter_regex_exec_t,s0)
-> +
-> +/var/spool/milter-regex(/.*)?          gen_context(system_u:object_r:milter_regex_spool_t,s0)
-> +
-> +#================= contexts for spamass-milter =================
-> +
-> +/usr/sbin/spamass-milter       --      gen_context(system_u:object_r:milter_spamass_exec_t,s0)
-> +
-> +/var/run/spamass-milter
-> \.pid   --      gen_context(system_u:object_r:milter_spamass_var_run_t,s0)
-> +/var/run/spamass-milter(/.*)?          gen_context(system_u:object_r:milter_spamass_var_run_t,s0)
-
-The comments don't really add anything here IMO.
-
-
-> +template(`milter_template',`
-[...]
-> +       # This type is for pidfiles etc.
-> +       type milter_$1_var_run_t;
-> +       files_type(milter_$1_var_run_t);
-> +
-> +       # This type is for spool/cache data etc.
-> +       type milter_$1_cache_t;
-> +       files_type(milter_$1_cache_t);
-> +
-> +       # This type is for spool/cache data etc.
-> +       type milter_$1_spool_t;
-> +       files_type(milter_$1_spool_t);
-> +
-> +       # This type is for state data etc.
-> +       type milter_$1_var_lib_t;
-> +       files_type(milter_$1_var_lib_t);
-
-Most of these types aren't used, so they should be dropped.
-
-> +interface(`milter_spamass_stream_connect',`
-> +       gen_require(`
-> +               type milter_spamass_var_run_t, milter_spamass_t;
-> +       ')
-> +       stream_connect_pattern($1,milter_spamass_var_run_t,milter_spamass_var_run_t,milter_spamass_t)
-> +')
-> +
-
-Missing a files_search_spool().  Interface name needs to be fixed [1].
-
-> +interface(`milter_spamass_rw_stream_sockets',`
-> +        gen_require(`
-> +                type milter_spamass_t;
-> +        ')
-> +
-> +       allow $1 milter_spamass_t:unix_stream_socket { read write };
-> +')
-
-Interface naming fix.
-
-
-> +interface(`milter_regex_stream_connect',`
-> +       gen_require(`
-> +               type milter_regex_spool_t, milter_regex_t;
-> +       ')
-> +       stream_connect_pattern($1,milter_regex_spool_t,milter_regex_spool_t,milter_regex_t)
-> +')
-
-Also missing a files_search_spool() and interface naming fix.
-
-
-[1] http://oss.tresys.com/projects/refpolicy/wiki/InterfaceNaming
-
+> -static int show_sb_opts(struct seq_file *m, struct super_block *sb)
+> +static void show_sb_opts(struct seq_file *m, struct super_block *sb)
+>  {
+>  	static const struct proc_fs_info fs_info[] = {
+>  		{ MS_SYNCHRONOUS, ",sync" },
+> @@ -765,7 +765,7 @@ static int show_sb_opts(struct seq_file *m, struct super_block *sb)
+>  			seq_puts(m, fs_infop->str);
+>  	}
+>  
+> -	return security_sb_show_options(m, sb);
+> +	security_sb_show_options(m, sb);
+>  }
+>  
+>  static void show_mnt_opts(struct seq_file *m, struct vfsmount *mnt)
+> @@ -808,14 +808,11 @@ static int show_vfsmnt(struct seq_file *m, void *v)
+>  	seq_putc(m, ' ');
+>  	show_type(m, mnt->mnt_sb);
+>  	seq_puts(m, __mnt_is_readonly(mnt) ? " ro" : " rw");
+> -	err = show_sb_opts(m, mnt->mnt_sb);
+> -	if (err)
+> -		goto out;
+> +	show_sb_opts(m, mnt->mnt_sb);
+>  	show_mnt_opts(m, mnt);
+>  	if (mnt->mnt_sb->s_op->show_options)
+>  		err = mnt->mnt_sb->s_op->show_options(m, mnt);
+>  	seq_puts(m, " 0 0\n");
+> -out:
+>  	return err;
+>  }
+>  
+> @@ -870,13 +867,10 @@ static int show_mountinfo(struct seq_file *m, void *v)
+>  	seq_putc(m, ' ');
+>  	mangle(m, mnt->mnt_devname ? mnt->mnt_devname : "none");
+>  	seq_puts(m, sb->s_flags & MS_RDONLY ? " ro" : " rw");
+> -	err = show_sb_opts(m, sb);
+> -	if (err)
+> -		goto out;
+> +	show_sb_opts(m, sb);
+>  	if (sb->s_op->show_options)
+>  		err = sb->s_op->show_options(m, mnt);
+>  	seq_putc(m, '\n');
+> -out:
+>  	return err;
+>  }
+>  
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 31c8851..c72f4f6 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -1323,7 +1323,7 @@ struct security_operations {
+>  	void (*sb_free_security) (struct super_block *sb);
+>  	int (*sb_copy_data) (char *orig, char *copy);
+>  	int (*sb_kern_mount) (struct super_block *sb, void *data);
+> -	int (*sb_show_options) (struct seq_file *m, struct super_block *sb);
+> +	void (*sb_show_options) (struct seq_file *m, struct super_block *sb);
+>  	int (*sb_statfs) (struct dentry *dentry);
+>  	int (*sb_mount) (char *dev_name, struct path *path,
+>  			 char *type, unsigned long flags, void *data);
+> @@ -1596,7 +1596,7 @@ int security_sb_alloc(struct super_block *sb);
+>  void security_sb_free(struct super_block *sb);
+>  int security_sb_copy_data(char *orig, char *copy);
+>  int security_sb_kern_mount(struct super_block *sb, void *data);
+> -int security_sb_show_options(struct seq_file *m, struct super_block *sb);
+> +void security_sb_show_options(struct seq_file *m, struct super_block *sb);
+>  int security_sb_statfs(struct dentry *dentry);
+>  int security_sb_mount(char *dev_name, struct path *path,
+>  		      char *type, unsigned long flags, void *data);
+> @@ -1872,11 +1872,9 @@ static inline int security_sb_kern_mount(struct super_block *sb, void *data)
+>  	return 0;
+>  }
+>  
+> -static inline int security_sb_show_options(struct seq_file *m,
+> +static inline void security_sb_show_options(struct seq_file *m,
+>  					   struct super_block *sb)
+> -{
+> -	return 0;
+> -}
+> +{ }
+>  
+>  static inline int security_sb_statfs(struct dentry *dentry)
+>  {
+> diff --git a/security/capability.c b/security/capability.c
+> index 5b01c0b..368c53a 100644
+> --- a/security/capability.c
+> +++ b/security/capability.c
+> @@ -69,10 +69,8 @@ static int cap_sb_kern_mount(struct super_block *sb, void *data)
+>  	return 0;
+>  }
+>  
+> -static int cap_sb_show_options(struct seq_file *m, struct super_block *sb)
+> -{
+> -	return 0;
+> -}
+> +static void cap_sb_show_options(struct seq_file *m, struct super_block *sb)
+> +{ }
+>  
+>  static int cap_sb_statfs(struct dentry *dentry)
+>  {
+> diff --git a/security/security.c b/security/security.c
+> index 59f23b5..e81ba4d 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -258,9 +258,9 @@ int security_sb_kern_mount(struct super_block *sb, void *data)
+>  	return security_ops->sb_kern_mount(sb, data);
+>  }
+>  
+> -int security_sb_show_options(struct seq_file *m, struct super_block *sb)
+> +void security_sb_show_options(struct seq_file *m, struct super_block *sb)
+>  {
+> -	return security_ops->sb_show_options(m, sb);
+> +	security_ops->sb_show_options(m, sb);
+>  }
+>  
+>  int security_sb_statfs(struct dentry *dentry)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 63f131f..8b0d9ee 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -992,20 +992,18 @@ void selinux_write_opts(struct seq_file *m, struct security_mnt_opts *opts)
+>  	}
+>  }
+>  
+> -static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+> +static void selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+>  {
+>  	struct security_mnt_opts opts;
+> -	int rc;
+>  
+> -	rc = selinux_get_mnt_opts(sb, &opts);
+> -	if (rc)
+> -		return rc;
+> +	if (selinux_get_mnt_opts(sb, &opts))
+> +		return;
+>  
+>  	selinux_write_opts(m, &opts);
+>  
+>  	security_free_mnt_opts(&opts);
+>  
+> -	return rc;
+> +	return;
+>  }
+>  
+>  static inline u16 inode_mode_to_security_class(umode_t mode)
+> 
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
