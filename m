@@ -1,103 +1,56 @@
-Subject: [patch v2] libselinux:  handle duplicate file context entries as a
-	fatal error
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <4880E954.5070601@redhat.com>
-References: <4880CFD1.1040102@redhat.com>
-	 <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>
-	 <4880D585.9000405@redhat.com>
-	 <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil>
-	 <1216406083.17602.352.camel@moss-spartans.epoch.ncsc.mil>
-	 <1216407672.17602.366.camel@moss-spartans.epoch.ncsc.mil>
-	 <4880E954.5070601@redhat.com>
-Content-Type: text/plain
-Date: Fri, 18 Jul 2008 15:09:15 -0400
-Message-Id: <1216408155.17602.371.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: [rfc][patch] setfiles:  validate all file_contexts fileswhenusing -c
+Date: Fri, 18 Jul 2008 15:09:22 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015880246AFA1@exchange.columbia.tresys.com>
+In-Reply-To: <1216406827.17602.360.camel@moss-spartans.epoch.ncsc.mil>
+References: <4880CFD1.1040102@redhat.com> <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil> <4880D585.9000405@redhat.com> <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil> <1216406083.17602.352.camel@moss-spartans.epoch.ncsc.mil> <6FE441CD9F0C0C479F2D88F959B015880246AF91@exchange.columbia.tresys.com> <1216406827.17602.360.camel@moss-spartans.epoch.ncsc.mil>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: "Daniel J Walsh" <dwalsh@redhat.com>, "SE Linux" <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Take two.  Ensure that duplicate file context entry errors are
-propagated to the caller, causing setfiles -c to exit with an error
-status and libsemanage to roll back the transaction.  Do it for both
-duplicate same entries and for duplicate conflicting entries.
+Stephen Smalley wrote:
+> On Fri, 2008-07-18 at 14:37 -0400, Joshua Brindle wrote:
+>> Stephen Smalley wrote:
+>>> In ancient days of yore, setfiles could only validate the base
+>>> file_contexts configuration because the .homedirs or .local
+>>> configurations might include local users that weren't defined by the
+>>> base policy since those definitions were brought in at policy load
+>>> time. These days the policy.N file contains all of the definitions
+>>> required to validate all file_contexts files and thus setfiles can
+>>> and should validate them. 
+>>> 
+>> 
+>> I don't think that was the motivation. We want to explicitely support
+>> a user overriding a context specified in the policy with semanage and
+>> I think giving this cryptic warning is going to confuse people. For
+>> all other semanage objects we allow overriding the main policy with
+>> no warning, why would this be different?
+> 
+> I actually went back through the mailing list archives, and
+> the reason I stated (inability to validate entries using
+> localusers) was the the motivation for baseonly validation in
+> setfiles -c. 
+> 
+> We've never supported users creating conflicting file
+> contexts entries with the base policy as far as I know.
+> We've always warned on this condition.
+> 
+> I suppose we could alter that behavior but I'm not sure it
+> will work as expected at present; the logic in libselinux to
+> move all exact specs to the end could for example interfere
+> with it.  Or if we did a full fcsort of file_contexts.local
+> as has been suggested elsewhere.  And one could have dups
+> within file_contexts.local itself, which we can't presently
+> distinguish from dups between base and .local with the current logic.
+> 
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
----
-
-Index: trunk/libselinux/src/label_file.c
-===================================================================
---- trunk/libselinux/src/label_file.c	(revision 2927)
-+++ trunk/libselinux/src/label_file.c	(working copy)
-@@ -146,8 +146,9 @@
- /*
-  * Warn about duplicate specifications.
-  */
--static void nodups_specs(struct saved_data *data, const char *path)
-+static int nodups_specs(struct saved_data *data, const char *path)
- {
-+	int rc = 0;
- 	unsigned int ii, jj;
- 	struct spec *curr_spec, *spec_arr = data->spec_arr;
- 
-@@ -158,24 +159,27 @@
- 			     (spec_arr[jj].regex_str, curr_spec->regex_str))
- 			    && (!spec_arr[jj].mode || !curr_spec->mode
- 				|| spec_arr[jj].mode == curr_spec->mode)) {
-+				rc = -1;
-+				errno = EINVAL;
- 				if (strcmp
- 				    (spec_arr[jj].lr.ctx_raw,
- 				     curr_spec->lr.ctx_raw)) {
- 					COMPAT_LOG
--						(SELINUX_WARNING,
-+						(SELINUX_ERROR,
- 						 "%s: Multiple different specifications for %s  (%s and %s).\n",
- 						 path, curr_spec->regex_str,
- 						 spec_arr[jj].lr.ctx_raw,
- 						 curr_spec->lr.ctx_raw);
- 				} else {
- 					COMPAT_LOG
--						(SELINUX_WARNING,
-+						(SELINUX_ERROR,
- 						 "%s: Multiple same specifications for %s.\n",
- 						 path, curr_spec->regex_str);
- 				}
- 			}
- 		}
- 	}
-+	return rc;
- }
- 
- /* Determine if the regular expression specification has any meta characters. */
-@@ -503,6 +507,10 @@
- 	}
- 	free(line_buf);
- 
-+	status = nodups_specs(data, path);
-+	if (status)
-+		goto finish;
-+
- 	/* Move exact pathname specifications to the end. */
- 	spec_copy = malloc(sizeof(spec_t) * data->nspec);
- 	if (!spec_copy)
-@@ -519,8 +527,6 @@
- 	free(data->spec_arr);
- 	data->spec_arr = spec_copy;
- 
--	nodups_specs(data, path);
--
- 	status = 0;
- finish:
- 	fclose(fp);
-
--- 
-Stephen Smalley
-National Security Agency
+All the same I think that a user overriding a policy file context should
+be explicitely supported.
 
 
 --
