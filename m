@@ -1,92 +1,42 @@
-Subject: RE: [rfc][patch] setfiles:  validate all
-	file_contextsfileswhenusing -c
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015880246AFA3@exchange.columbia.tresys.com>
-References: <4880CFD1.1040102@redhat.com>
-	 <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>
-	 <4880D585.9000405@redhat.com>
-	 <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil>
-	 <1216406083.17602.352.camel@moss-spartans.epoch.ncsc.mil>
-	 <6FE441CD9F0C0C479F2D88F959B015880246AF91@exchange.columbia.tresys.com>
-	 <1216406827.17602.360.camel@moss-spartans.epoch.ncsc.mil>
-	 <6FE441CD9F0C0C479F2D88F959B015880246AFA1@exchange.columbia.tresys.com>
-	 <1216408256.17602.372.camel@moss-spartans.epoch.ncsc.mil>
-	 <6FE441CD9F0C0C479F2D88F959B015880246AFA3@exchange.columbia.tresys.com>
-Content-Type: text/plain
-Date: Fri, 18 Jul 2008 15:23:13 -0400
-Message-Id: <1216408993.17602.383.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6J8CmGE022249
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 04:12:48 -0400
+Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6J8CkWT016871
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 08:12:47 GMT
+Date: Sat, 19 Jul 2008 18:12:11 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Murray McAllister <mmcallis@redhat.com>
+cc: selinux@tycho.nsa.gov
+Subject: Re: SELinux User Guide
+In-Reply-To: <48803B08.1030205@redhat.com>
+Message-ID: <Xine.LNX.4.64.0807191810070.32199@us.intercode.com.au>
+References: <48803B08.1030205@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Fri, 18 Jul 2008, Murray McAllister wrote:
 
-On Fri, 2008-07-18 at 15:12 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Fri, 2008-07-18 at 15:09 -0400, Joshua Brindle wrote:
-> >> Stephen Smalley wrote:
-> >>> On Fri, 2008-07-18 at 14:37 -0400, Joshua Brindle wrote:
-> >>>> Stephen Smalley wrote:
-> >>>>> In ancient days of yore, setfiles could only validate the base
-> >>>>> file_contexts configuration because the .homedirs or .local
-> >>>>> configurations might include local users that weren't defined by
-> >>>>> the base policy since those definitions were brought in at policy
-> >>>>> load time. These days the policy.N file contains all of the
-> >>>>> definitions required to validate all file_contexts files and thus
-> >>>>> setfiles can and should validate them.
-> >>>>> 
-> >>>> 
-> >>>> I don't think that was the motivation. We want to explicitely
-> >>>> support a user overriding a context specified in the policy with
-> >>>> semanage and I think giving this cryptic warning is going to
-> >>>> confuse people. For all other semanage objects we allow overriding
-> >>>> the main policy with no warning, why would this be different?
-> >>> 
-> >>> I actually went back through the mailing list archives, and the
-> >>> reason I stated (inability to validate entries using
-> >>> localusers) was the the motivation for baseonly validation in
-> >>> setfiles -c. 
-> >>> 
-> >>> We've never supported users creating conflicting file contexts
-> >>> entries with the base policy as far as I know.
-> >>> We've always warned on this condition.
-> >>> 
-> >>> I suppose we could alter that behavior but I'm not sure it will work
-> >>> as expected at present; the logic in libselinux to move all exact
-> >>> specs to the end could for example interfere with it.  Or if we did
-> >>> a full fcsort of file_contexts.local as has been suggested
-> >>> elsewhere.  And one could have dups within file_contexts.local
-> >>> itself, which we can't presently distinguish from dups between base
-> >>> and .local with the current logic.
-> >>> 
-> >> 
-> >> All the same I think that a user overriding a policy file context
-> >> should be explicitely supported.
-> > 
-> > Patches accepted ;)
-> 
-> So, your current patch is disabling this support altogether, right?
+> If anyone has any ideas about what they would like to see in the guide, or any
+> corrections to the current topics we would like to include, please let us
+> know. As well, user feedback and comments can be left at
+> <https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Feedback>.
+> A Fedora account (https://admin.fedoraproject.org/accounts/) is required to
+> use the Wiki - if you do not have one, please do not hesitate to mail me
+> directly, or respond to this thread.
 
-There is no support for duplicate pathname regexes presently (although
-obviously you can always add more specific ones that overlap), and
-letting the user add duplicates via semanage just means constant spew
-from rpm, udev, restorecon, etc.
+There's a documentation TODO page at the selinuxproject.org wiki:
+http://selinuxproject.org/page/Documentation_TODO
 
-If we want to support duplicates in file_contexts.local that take
-precedence over file_contexts, then we still want nodups checking within
-the base file_contexts at least, and likely within file_contexts.local
-(i.e. no duplication among the local customizations).  We just want to
-support duplication between file_contexts and file_contexts.local, with
-guaranteed precedence/ordering.
+(Not sure if you've incorported any points from that).
 
-I'm not taking any functionality away with these patches.
 
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
