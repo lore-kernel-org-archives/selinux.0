@@ -1,32 +1,32 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6JL2uFs024231
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 17:02:56 -0400
-Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6JL2tTc006527
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 21:02:56 GMT
-Message-Id: <20080719210251.774736957@hardeman.nu>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6JL4cpG024509
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 17:04:38 -0400
+Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6JL4a5T025055
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 21:04:37 GMT
+Message-Id: <20080719210253.958616054@hardeman.nu>
 References: <20080719205002.462190042@hardeman.nu>
-Date: Sat, 19 Jul 2008 22:50:06 +0200
+Date: Sat, 19 Jul 2008 22:50:20 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
 Cc: dwalsh@redhat.com, cpebenito@tresys.com
-Subject: [refpolicy-patch 04/23] kismet policy update
+Subject: [refpolicy-patch 18/23] miscfiles policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is needed by /usr/bin/kismet_server
+Trivial change (perhaps RH specific path?)...
 
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/admin/kismet.te serefpolicy-3.5.0/policy/modules/admin/kismet.te
---- nsaserefpolicy/policy/modules/admin/kismet.te	2008-06-12 23:25:08.000000000 -0400
-+++ serefpolicy-3.5.0/policy/modules/admin/kismet.te	2008-07-15 14:05:12.000000000 -0400
-@@ -26,6 +26,7 @@
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/system/miscfiles.fc serefpolicy-3.5.0/policy/modules/system/miscfiles.fc
+--- nsaserefpolicy/policy/modules/system/miscfiles.fc	2008-06-12 23:25:07.000000000 -0400
++++ serefpolicy-3.5.0/policy/modules/system/miscfiles.fc	2008-07-15 14:05:13.000000000 -0400
+@@ -11,6 +11,7 @@
+ /etc/avahi/etc/localtime --	gen_context(system_u:object_r:locale_t,s0)
+ /etc/localtime		--	gen_context(system_u:object_r:locale_t,s0)
+ /etc/pki(/.*)?			gen_context(system_u:object_r:cert_t,s0)
++/etc/sysconfig/clock	--	gen_context(system_u:object_r:locale_t,s0)
+ 
  #
- 
- allow kismet_t self:capability { net_admin setuid setgid };
-+allow kismet_t self:packet_socket create_socket_perms;
- 
- manage_files_pattern(kismet_t, kismet_log_t, kismet_log_t)
- allow kismet_t kismet_log_t:dir setattr;
+ # /opt
 
 -- 
 David Härdeman
