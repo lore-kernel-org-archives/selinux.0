@@ -1,42 +1,64 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6J8CmGE022249
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 04:12:48 -0400
-Received: from us.intercode.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6J8CkWT016871
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 08:12:47 GMT
-Date: Sat, 19 Jul 2008 18:12:11 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Murray McAllister <mmcallis@redhat.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: SELinux User Guide
-In-Reply-To: <48803B08.1030205@redhat.com>
-Message-ID: <Xine.LNX.4.64.0807191810070.32199@us.intercode.com.au>
-References: <48803B08.1030205@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6J9v1vD003775
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 05:57:01 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6J9v0nU001539
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 09:57:00 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m6J9v0lv010776
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 05:57:00 -0400
+Received: from pobox.bne.redhat.com (pobox.bne.redhat.com [10.64.63.6])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m6J9uw6H010275
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 05:56:59 -0400
+Received: from mmcallis.csb (vpn6-6-15.bne.redhat.com [10.64.6.15])
+	by pobox.bne.redhat.com (8.13.1/8.13.1) with ESMTP id m6J9uvbY032099
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 19:56:57 +1000
+Message-ID: <4881BA63.9050806@redhat.com>
+Date: Sat, 19 Jul 2008 19:56:51 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: selinux@tycho.nsa.gov
+Subject: SELinux User Guide: weekly report 20080708
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 18 Jul 2008, Murray McAllister wrote:
+Hi,
 
-> If anyone has any ideas about what they would like to see in the guide, or any
-> corrections to the current topics we would like to include, please let us
-> know. As well, user feedback and comments can be left at
-> <https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Feedback>.
-> A Fedora account (https://admin.fedoraproject.org/accounts/) is required to
-> use the Wiki - if you do not have one, please do not hesitate to mail me
-> directly, or respond to this thread.
+I am sending a weekly report to this list regarding the progress of the 
+SELinux User Guide.
 
-There's a documentation TODO page at the selinuxproject.org wiki:
-http://selinuxproject.org/page/Documentation_TODO
+Last week:
 
-(Not sure if you've incorported any points from that).
+* Initial research for content to include, audience, schedule, and 
+purpose of the documentation.
 
+* Moved initial research from an internal Red Hat wiki to 
+<http://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide>.
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+* Information Plan (work in progress): 
+<http://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Information_Plan>
+
+This week:
+
+* Migrate all SELinux and security related documentation from the Red 
+Hat Enterprise Linux 4 SELinux guide, and Red Hat Enterprise Linux 5 
+Deployment Guide into Fedora, and rebuild in Fedora branding.
+
+* Lots of research.
+
+* Write a revised Information Plan and Project plan. Due 2008-07-24 
+(Australia).
+
+* Move fantastic feedback from domg472 (#selinux on Freenode) regarding 
+content to include onto the Wiki.
+
+* Open Fedora Hosted Project for SELinux documentation to store XML 
+files for the final deliverable.
+
+Thank you all for your help so far.
+
+Cheers, Murray.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
