@@ -1,245 +1,287 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6JEFipo006032
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 10:15:44 -0400
-Received: from nf-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6JEFhZr010045
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 14:15:43 GMT
-Received: by nf-out-0910.google.com with SMTP id b21so309099nfd.4
-        for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 07:15:43 -0700 (PDT)
-Subject: Patch: 6/6: selinux-policy: remove dupe delimiter.
-From: Dominick Grift <domg472@gmail.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6JL7bIW025046
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 17:07:37 -0400
+Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6JL7a5T025641
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 21:07:37 GMT
+Message-Id: <20080719210254.717421433@hardeman.nu>
+References: <20080719205002.462190042@hardeman.nu>
+Date: Sat, 19 Jul 2008 22:50:25 +0200
+From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-r1pEVQXwTBSHyN2zliNd"
-Date: Sat, 19 Jul 2008 16:15:40 +0200
-Message-Id: <1216476940.4085.26.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+Cc: dwalsh@redhat.com, cpebenito@tresys.com
+Subject: [refpolicy-patch 23/23] qemu policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+None of these changes seem controversial, mostly a couple of new
+interfaces, note that this patch relies on the xen patch.
 
---=-r1pEVQXwTBSHyN2zliNd
-Content-Type: multipart/mixed; boundary="=-l6xoVbmwuPf+xwwjSMys"
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/apps/qemu.if serefpolicy-3.5.0/policy/modules/apps/qemu.if
+--- nsaserefpolicy/policy/modules/apps/qemu.if	2008-07-10 14:13:44.000000000 -0400
++++ serefpolicy-3.5.0/policy/modules/apps/qemu.if	2008-07-15 14:05:12.000000000 -0400
+@@ -104,7 +104,71 @@
+ 
+ ########################################
+ ## <summary>
+-##	Execute a domain transition to run qemu unconfined.
++##	Execute qemu programs in the qemu domain.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <param name="role">
++##	<summary>
++##	The role to allow the PAM domain.
++##	</summary>
++## </param>
++## <param name="terminal">
++##	<summary>
++##	The type of the terminal allow the PAM domain to use.
++##	</summary>
++## </param>
++#
++interface(`qemu_runas',`
++	gen_require(`
++		type qemu_t;
++	')
++
++	qemu_domtrans($1)
++	allow qemu_t $3:chr_file rw_file_perms;
++')
++
++########################################
++## <summary>
++##	Execute qemu programs in the role.
++## </summary>
++## <param name="role">
++##	<summary>
++##	The role to allow the PAM domain.
++##	</summary>
++## </param>
++#
++interface(`qemu_role',`
++	gen_require(`
++		type qemu_t;
++	')
++	role $1 types qemu_t;
++')
++
++########################################
++## <summary>
++##	Execute qemu unconfined programs in the role.
++## </summary>
++## <param name="role">
++##	<summary>
++##	The role to allow the PAM domain.
++##	</summary>
++## </param>
++#
++interface(`qemu_unconfined_role',`
++	gen_require(`
++		type qemu_unconfined_t;
++	')
++	role $1 types qemu_unconfined_t;
++')
++
++
++########################################
++## <summary>
++##	Execute a domain transition to run qemu.
+ ## </summary>
+ ## <param name="domain">
+ ## <summary>
+@@ -122,6 +186,36 @@
+ 
+ ########################################
+ ## <summary>
++##	Execute qemu programs in the qemu unconfined domain.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <param name="role">
++##	<summary>
++##	The role to allow the PAM domain.
++##	</summary>
++## </param>
++## <param name="terminal">
++##	<summary>
++##	The type of the terminal allow the PAM domain to use.
++##	</summary>
++## </param>
++#
++interface(`qemu_runas_unconfined',`
++	gen_require(`
++		type qemu_unconfined_t;
++	')
++
++	qemu_domtrans_unconfined($1)
++	allow qemu_unconfined_t $3:chr_file rw_file_perms;
++')
++
++
++########################################
++## <summary>
+ ##	Creates types and rules for a basic
+ ##	qemu process domain.
+ ## </summary>
+@@ -133,24 +227,23 @@
+ #
+ template(`qemu_domain_template',`
+ 
+-	##############################
+-	#
+-	# Local Policy
+-	#
+-
+ 	type $1_t;
+ 	domain_type($1_t)
+ 
+ 	type $1_tmp_t;
+ 	files_tmp_file($1_tmp_t)
+ 
++	type $1_tmpfs_t;
++	files_tmpfs_file($1_tmpfs_t)
++
+ 	##############################
+ 	#
+ 	# Local Policy
+ 	#
+ 
+ 	allow $1_t self:capability { dac_read_search dac_override };
+-	allow $1_t self:process { execstack execmem signal getsched };
++	allow $1_t self:process { execstack execmem signal getsched signull };
++
+ 	allow $1_t self:fifo_file rw_file_perms;
+ 	allow $1_t self:shm create_shm_perms;
+ 	allow $1_t self:unix_stream_socket create_stream_socket_perms;
+@@ -160,6 +253,11 @@
+ 	manage_files_pattern($1_t, $1_tmp_t, $1_tmp_t)
+ 	files_tmp_filetrans($1_t, $1_tmp_t, { file dir })
+ 
++	manage_dirs_pattern($1_t, $1_tmpfs_t, $1_tmpfs_t)
++	manage_files_pattern($1_t, $1_tmpfs_t, $1_tmpfs_t)
++	manage_lnk_files_pattern($1_t, $1_tmpfs_t, $1_tmpfs_t)
++	fs_tmpfs_filetrans($1_t, $1_tmpfs_t, { dir file lnk_file })
++
+ 	kernel_read_system_state($1_t)
+ 
+ 	corenet_all_recvfrom_unlabeled($1_t)
+@@ -171,7 +269,10 @@
+ 	corenet_tcp_bind_vnc_port($1_t)
+ 	corenet_rw_tun_tap_dev($1_t)
+ 
+-#	dev_rw_kvm($1_t)
++	dev_read_sound($1_t)
++	dev_write_sound($1_t)
++	dev_rw_kvm($1_t)
++	dev_rw_qemu($1_t)
+ 
+ 	domain_use_interactive_fds($1_t)
+ 
+@@ -191,6 +292,8 @@
+ 	term_getattr_pty_fs($1_t)
+ 	term_use_generic_ptys($1_t)
+ 
++	auth_use_nsswitch($1_t)
++
+ 	libs_use_ld_so($1_t)
+ 	libs_use_shared_libs($1_t)
+ 
+@@ -198,9 +301,9 @@
+ 
+ 	sysnet_read_config($1_t)
+ 
+-#	optional_policy(`
+-#		samba_domtrans_smb($1_t)
+-#	')
++	optional_policy(`
++		samba_domtrans_smb($1_t)
++	')
+ 
+ 	optional_policy(`
+ 		virt_manage_images($1_t)
+@@ -212,6 +315,24 @@
+ 		xserver_stream_connect_xdm_xserver($1_t)
+ 		xserver_read_xdm_tmp_files($1_t)
+ 		xserver_read_xdm_pid($1_t)
+-#		xserver_xdm_rw_shm($1_t)
++		xserver_xdm_rw_shm($1_t)
+ 	')
+ ')
++
++########################################
++## <summary>
++##	Set the schedule on qemu.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`qemu_setsched',`
++	gen_require(`
++		type qemu_t;
++	')
++
++	allow $1 qemu_t:process setsched;
++')
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/apps/qemu.te serefpolicy-3.5.0/policy/modules/apps/qemu.te
+--- nsaserefpolicy/policy/modules/apps/qemu.te	2008-07-10 11:38:45.000000000 -0400
++++ serefpolicy-3.5.0/policy/modules/apps/qemu.te	2008-07-15 14:05:12.000000000 -0400
+@@ -13,6 +13,20 @@
+ ## </desc>
+ gen_tunable(qemu_full_network, false)
+ 
++## <desc>
++## <p>
++## Allow qemu to use nfs file systems
++## </p>
++## </desc>
++gen_tunable(qemu_use_nfs, true)
++
++## <desc>
++## <p>
++## Allow qemu to use cifs/Samba file systems
++## </p>
++## </desc>
++gen_tunable(qemu_use_cifs, true)
++
+ type qemu_exec_t;
+ qemu_domain_template(qemu)
+ application_domain(qemu_t, qemu_exec_t)
+@@ -35,6 +49,22 @@
+ 	corenet_tcp_connect_all_ports(qemu_t)
+ ')
+ 
++tunable_policy(`qemu_use_nfs',`
++	fs_manage_nfs_files(qemu_t)
++')
++
++tunable_policy(`qemu_use_cifs',`
++	fs_manage_cifs_dirs(qemu_t)
++')
++
++optional_policy(`
++	xen_rw_image_files(qemu_t)
++')
++
++optional_policy(`
++	xen_rw_image_files(qemu_t)
++')
++
+ ########################################
+ #
+ # qemu_unconfined local policy
 
-
---=-l6xoVbmwuPf+xwwjSMys
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-This patch aims to remove any duplicate delimiter.
-The patch is compressed to keep the size acceptable.
---=20
-Dominick Grift <domg472@gmail.com>
-
---=-l6xoVbmwuPf+xwwjSMys
-Content-Disposition: attachment; filename=dupe_delimiters_system.patch.tar.gz
-Content-Type: application/x-compressed-tar; name=dupe_delimiters_system.patch.tar.gz
-Content-Transfer-Encoding: base64
-
-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
-
-
---=-l6xoVbmwuPf+xwwjSMys
-Content-Disposition: attachment; filename=dupe_delimiters_system.patch.tar.gz.sig
-Content-Type: application/x-font-tex-tfm; name=dupe_delimiters_system.patch.tar.gz.sig
-Content-Transfer-Encoding: base64
-
-iEYEABECAAYFAkiB9WYACgkQL00QnzrVtlyxcwCfTgRFOlcwHn18IsJrLmNtYXEnsH0AoK5tXFfM
-VOmT+ywhWoUZ6LQMdEii
-
-
---=-l6xoVbmwuPf+xwwjSMys--
-
---=-r1pEVQXwTBSHyN2zliNd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkiB9wkACgkQL00QnzrVtlwc8ACfdDI+rCfFmLGHr6rDpI+AF7iJ
-A9AAoJ9A1sPR5eAJbfdCFh61aKP9V6Bw
-=9pvY
------END PGP SIGNATURE-----
-
---=-r1pEVQXwTBSHyN2zliNd--
-
+-- 
+David Härdeman
 
 --
 This message was distributed to subscribers of the selinux mailing list.
