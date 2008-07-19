@@ -1,33 +1,36 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6JL4cIa024506
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 17:04:38 -0400
-Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6JL4aTc006798
-	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 21:04:37 GMT
-Message-Id: <20080719210253.146694148@hardeman.nu>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6JL7c8x025072
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 17:07:38 -0400
+Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6JL7b5T025644
+	for <selinux@tycho.nsa.gov>; Sat, 19 Jul 2008 21:07:38 GMT
+Message-Id: <20080719210252.834349352@hardeman.nu>
 References: <20080719205002.462190042@hardeman.nu>
-Date: Sat, 19 Jul 2008 22:50:15 +0200
+Date: Sat, 19 Jul 2008 22:50:13 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
 Cc: dwalsh@redhat.com, cpebenito@tresys.com
-Subject: [refpolicy-patch 13/23] portslave policy update
+Subject: [refpolicy-patch 11/23] cpucontrol policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Trivial patch
+Only documentation changes...
 
-diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/portslave.te serefpolicy-3.5.0/policy/modules/services/portslave.te
---- nsaserefpolicy/policy/modules/services/portslave.te	2008-06-12 23:25:05.000000000 -0400
-+++ serefpolicy-3.5.0/policy/modules/services/portslave.te	2008-07-15 14:05:13.000000000 -0400
-@@ -12,7 +12,7 @@
- init_daemon_domain(portslave_t,portslave_exec_t)
- 
- type portslave_etc_t;
--files_type(portslave_etc_t)
-+files_config_file(portslave_etc_t)
- 
- type portslave_lock_t;
- files_lock_file(portslave_lock_t)
+diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/services/cpucontrol.if serefpolicy-3.5.0/policy/modules/services/cpucontrol.if
+--- nsaserefpolicy/policy/modules/services/cpucontrol.if	2008-07-10 11:38:46.000000000 -0400
++++ serefpolicy-3.5.0/policy/modules/services/cpucontrol.if	2008-07-15 14:05:12.000000000 -0400
+@@ -4,9 +4,9 @@
+ ## <summary>
+ ##	CPUcontrol stub interface.  No access allowed.
+ ## </summary>
+-## <param name="domain" unused="true">
++## <param name="domain" optional="true">
+ ##	<summary>
+-##	Domain allowed access.
++##	N/A
+ ##	</summary>
+ ## </param>
+ #
 
 -- 
 David Härdeman
