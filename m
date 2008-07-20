@@ -1,10 +1,10 @@
-Date: Mon, 21 Jul 2008 02:24:19 +0300 (EEST)
+Date: Mon, 21 Jul 2008 02:50:20 +0300 (EEST)
 From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
 To: Eric Paris <eparis@parisplace.org>
 cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        paul.moore@hp.com, selinux@tycho.nsa.gov
-Subject: [patch] SELinux: trivial, unify iterator variable naming, part 3
-Message-ID: <Pine.LNX.4.64L.0807210220280.8567@ruuvi.it.helsinki.fi>
+        selinux@tycho.nsa.gov
+Subject: [patch] SELinux: trivial, remove unneeded local variable
+Message-ID: <Pine.LNX.4.64L.0807210244480.8743@ruuvi.it.helsinki.fi>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -12,66 +12,41 @@ List-Id: selinux@tycho.nsa.gov
 
 Hello,
 
-Once again, renamed iterators "idx" to "i", to be in harmony
-with the old unwritten C convention, and with the rest of the code.
+Remove unneeded local variable:
+
+    struct avtab_node *newnode
 
 Signed-off-by: Vesa-Matti Kari <vmkari@cc.helsinki.fi>
 
 ---
 
- security/selinux/netif.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ security/selinux/ss/avtab.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 
 
---- security-testing-2.6/security/selinux/netif.c	2008-07-20 18:29:22.000000000 +0300
-+++ security-testing-2.6-vmk2/security/selinux/netif.c	2008-07-21 02:17:42.000000000 +0300
-@@ -67,10 +67,10 @@ static inline u32 sel_netif_hashfn(int i
-  */
- static inline struct sel_netif *sel_netif_find(int ifindex)
+--- security-testing-2.6/security/selinux/ss/avtab.c	2008-07-20 18:29:22.000000000 +0300
++++ security-testing-2.6-vmk2/security/selinux/ss/avtab.c	2008-07-21 02:40:36.000000000 +0300
+@@ -98,7 +98,7 @@ struct avtab_node *
+ avtab_insert_nonunique(struct avtab *h, struct avtab_key *key, struct avtab_datum *datum)
  {
--	int idx = sel_netif_hashfn(ifindex);
-+	int i = sel_netif_hashfn(ifindex);
- 	struct sel_netif *netif;
+ 	int hvalue;
+-	struct avtab_node *prev, *cur, *newnode;
++	struct avtab_node *prev, *cur;
+ 	u16 specified = key->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
 
--	list_for_each_entry_rcu(netif, &sel_netif_hash[idx], list)
-+	list_for_each_entry_rcu(netif, &sel_netif_hash[i], list)
- 		/* all of the devices should normally fit in the hash, so we
- 		 * optimize for that case */
- 		if (likely(netif->nsec.ifindex == ifindex))
-@@ -90,13 +90,13 @@ static inline struct sel_netif *sel_neti
-  */
- static int sel_netif_insert(struct sel_netif *netif)
- {
--	int idx;
-+	int i;
-
- 	if (sel_netif_total >= SEL_NETIF_HASH_MAX)
- 		return -ENOSPC;
-
--	idx = sel_netif_hashfn(netif->nsec.ifindex);
--	list_add_rcu(&netif->list, &sel_netif_hash[idx]);
-+	i = sel_netif_hashfn(netif->nsec.ifindex);
-+	list_add_rcu(&netif->list, &sel_netif_hash[i]);
- 	sel_netif_total++;
-
- 	return 0;
-@@ -257,12 +257,12 @@ static void sel_netif_kill(int ifindex)
-  */
- static void sel_netif_flush(void)
- {
--	int idx;
-+	int i;
- 	struct sel_netif *netif;
-
- 	spin_lock_bh(&sel_netif_lock);
--	for (idx = 0; idx < SEL_NETIF_HASH_SIZE; idx++)
--		list_for_each_entry(netif, &sel_netif_hash[idx], list)
-+	for (i = 0; i < SEL_NETIF_HASH_SIZE; i++)
-+		list_for_each_entry(netif, &sel_netif_hash[i], list)
- 			sel_netif_destroy(netif);
- 	spin_unlock_bh(&sel_netif_lock);
+ 	if (!h || !h->htable)
+@@ -122,9 +122,7 @@ avtab_insert_nonunique(struct avtab *h,
+ 		    key->target_class < cur->key.target_class)
+ 			break;
+ 	}
+-	newnode = avtab_insert_node(h, hvalue, prev, cur, key, datum);
+-
+-	return newnode;
++	return avtab_insert_node(h, hvalue, prev, cur, key, datum);
  }
+
+ struct avtab_datum *avtab_search(struct avtab *h, struct avtab_key *key)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
