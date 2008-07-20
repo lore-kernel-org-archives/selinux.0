@@ -1,44 +1,72 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6K5rbxh008506
-	for <selinux@tycho.nsa.gov>; Sun, 20 Jul 2008 01:53:38 -0400
-Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6K5rTFO016944
-	for <selinux@tycho.nsa.gov>; Sun, 20 Jul 2008 05:53:36 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: david@hardeman.nu
-Subject: Re: [refpolicy-patch 02/23] anaconda policy update
-Date: Sun, 20 Jul 2008 15:53:20 +1000
-Cc: selinux@tycho.nsa.gov, dwalsh@redhat.com, cpebenito@tresys.com
-References: <20080719205002.462190042@hardeman.nu> <20080719210251.406319184@hardeman.nu>
-In-Reply-To: <20080719210251.406319184@hardeman.nu>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6KBi1Ng026191
+	for <selinux@tycho.nsa.gov>; Sun, 20 Jul 2008 07:44:01 -0400
+Received: from sender-03.it.helsinki.fi (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6KBhx1T022776
+	for <selinux@tycho.nsa.gov>; Sun, 20 Jul 2008 11:44:00 GMT
+Received: from ruuvi.it.helsinki.fi (ruuvi.it.helsinki.fi [128.214.205.65])
+	by sender-03.it.helsinki.fi (8.13.1/8.13.1) with ESMTP id m6KBhx74000670
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
+	for <selinux@tycho.nsa.gov>; Sun, 20 Jul 2008 14:43:59 +0300
+Received: from ruuvi.it.helsinki.fi (localhost.localdomain [127.0.0.1])
+	by ruuvi.it.helsinki.fi (8.13.1/8.13.1) with ESMTP id m6KBhxAS031315
+	for <selinux@tycho.nsa.gov>; Sun, 20 Jul 2008 14:43:59 +0300
+Received: from localhost (vmkari@localhost)
+	by ruuvi.it.helsinki.fi (8.13.1/8.13.1/Submit) with ESMTP id m6KBhxvM031312
+	for <selinux@tycho.nsa.gov>; Sun, 20 Jul 2008 14:43:59 +0300
+Date: Sun, 20 Jul 2008 14:43:59 +0300 (EEST)
+From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+To: selinux@tycho.nsa.gov
+Subject: [patch]: ss/services.c remove unneeded assignment
+Message-ID: <Pine.LNX.4.64L.0807201439520.31208@ruuvi.it.helsinki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200807201553.24020.russell@coker.com.au>
+Content-Type: MULTIPART/MIXED; BOUNDARY="-696237619-1434066240-1216554141=:31208"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 20 July 2008 06:50, david@hardeman.nu wrote:
-> Anaconda is a RH installation program, RH should know their own program and
-> the changes are quite trivial
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Might it be better to leave the Anaconda and dpkg policy in the distribution 
-trees?  It doesn't seem to provide much benefit to non Red Hat users to have 
-Anaconda policy.
+---696237619-1434066240-1216554141=:31208
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.64L.0807201443501.31208@ruuvi.it.helsinki.fi>
 
-Does Red Hat actually do anything useful with the Anaconda policy?  Last time 
-I checked the installation was run in permissive mode (there doesn't really 
-seem to be a benefit in enforcing mode) so it's not as if anaconda.te is 
-needed to permit the install to operation.  Even so there is unconfined_t 
-which could be used for an enforcing-mode install (last time I checked it was 
-not possible to directly install a Red Hat distribution with strict policy).
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Hello,
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+Patch against 2.6.26.
+
+ss/services.c remove unneeded assignment attached.
+
+The assignment
+
+   *sid = SECSID_NULL;
+
+is already done a few lines above.
+
+Best regards,
+vmk
+--
+************************************************************************
+               Tietotekniikkaosasto / Helsingin yliopisto
+                 IT Department / University of Helsinki
+************************************************************************
+---696237619-1434066240-1216554141=:31208
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=services-remove-unneeded-assignment.patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64L.0807201442210.31208@ruuvi.it.helsinki.fi>
+Content-Description: remove unneeded assignment
+Content-Disposition: ATTACHMENT; FILENAME=services-remove-unneeded-assignment.patch
+
+LS0tIGxpbnV4LTIuNi4yNi9zZWN1cml0eS9zZWxpbnV4L3NzL3NlcnZpY2Vz
+LmMJMjAwOC0wNy0xNCAwMDo1MToyOS4wMDAwMDAwMDAgKzAzMDANCisrKyBs
+aW51eC0yLjYuMjYtdm1rL3NlY3VyaXR5L3NlbGludXgvc3Mvc2VydmljZXMu
+YwkyMDA4LTA3LTIwIDE0OjEzOjI4LjAwMDAwMDAwMCArMDMwMA0KQEAgLTc0
+Nyw3ICs3NDcsNiBAQA0KIAlzY29udGV4dDJbc2NvbnRleHRfbGVuXSA9IDA7
+DQogDQogCWNvbnRleHRfaW5pdCgmY29udGV4dCk7DQotCSpzaWQgPSBTRUNT
+SURfTlVMTDsNCiANCiAJUE9MSUNZX1JETE9DSzsNCiANCg==
+
+---696237619-1434066240-1216554141=:31208--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
