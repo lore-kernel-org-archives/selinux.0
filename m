@@ -1,97 +1,50 @@
-Date: Mon, 21 Jul 2008 13:42:19 +0300 (EEST)
-From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-To: Eric Paris <eparis@parisplace.org>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        selinux@tycho.nsa.gov
-Subject: Re: About unifying the coding style
-In-Reply-To: <Pine.LNX.4.64L.0807211208370.17053@ruuvi.it.helsinki.fi>
-Message-ID: <Pine.LNX.4.64L.0807211321270.19239@ruuvi.it.helsinki.fi>
-References: <Pine.LNX.4.64L.0807211208370.17053@ruuvi.it.helsinki.fi>
+From: Paul Moore <paul.moore@hp.com>
+To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
+Date: Mon, 21 Jul 2008 08:24:39 -0400
+Cc: Eric Paris <eparis@parisplace.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi> <200807202125.36525.paul.moore@hp.com> <Pine.LNX.4.64L.0807211104300.15292@ruuvi.it.helsinki.fi>
+In-Reply-To: <Pine.LNX.4.64L.0807211104300.15292@ruuvi.it.helsinki.fi>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200807210824.40003.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Monday 21 July 2008 4:08:04 am Vesa-Matti J Kari wrote:
+> Hello,
+>
+> On Sun, 20 Jul 2008, Paul Moore wrote:
+> > Normally I like janitorial fixes such as whitespace cleanups,
+> > spelling corrections, etc.  However, these three patches seem a bit
+> > silly to me simply changing a variable name from "idx" to "i" and
+> > not adding any real value to the code.  If it were up to me alone,
+> > I would say "NO", but if everyone else agrees they are worthwhile I
+> > won't to stand in the way.
+>
+> I understand, but my preference is that all code should always look
+> as similar as possible style-wise. To my eyes, it is quite annoying
+> to see, e.g. "iter" and "idx" used mixed in the same source file, and
+> it distracts my code reading.
 
-Hello,
+The kernel is a very large piece of code, which is developed and 
+maintained by literally thousands of people.  While there are rules and 
+guidelines to help maintain consistency there will _always_ be 
+inconsistent style in the Linux Kernel.  Further, due to the extremely 
+high rate of change in the kernel it is doubtful that you will be able 
+to stylistically "fix" the entire kernel and maintain it (patch 
+acceptance is another issue entirely).
 
-On Mon, 21 Jul 2008, Vesa-Matti J Kari wrote:
+I know it can be frustrating at times, but I would suggest that adapting 
+yourself to read the Linux Kernel sources will be much more rewarding 
+(both to yourself and to the community) than trying to adapt the kernel 
+sources to you.
 
-> 1) Is there a general agreement that only one style should be used?
-
-Some time ago I came across a very interesting text called "An
-Interview with Brian Kernighan" by Mihai Budiu. You can find it
-at:
-
-  http://www-2.cs.cmu.edu/~mihaib/kernighan-interview/index.html
-
-Below is an excerpt from the interview. It is related to the style issues:
-
-===== excerpt begins ==================================
-
-M: Speaking of sanity checks, I am working on a project which involves a
-large code base; some functions which are edited by several people: they
-constantly change the style of the indentation and identifiers. You have
-published some books on coding style: does your style always match your
-co-author's style, or do you have problems in reconciling?
-
-K: [laughing] That's also a nice question. Occasionally I've had,
-``trouble'' is not the word, but with co-authors, there have been
-discussions about where to put the braces, where to put the spaces and how
-to spell identifier names. Most of those things have been pretty trivial,
-partly because my co-authors have been right around here and we have grown
-up in the same kind of cultural background. But for instance when Rob Pike
-and I were working on ``The Practice of Programming'' a couple of years
-ago, we had pretty intense discussions about trivial keywords like ``where
-do you put the spaces''. How many spaces do you put? I like to put spaces
-after things like if and while and for and Rob does not. I won that part
-of the battle, but there was some other part of the battle I lost, I don't
-even remember now what it was. We definitely didn't agree 100%, but we
-came to a friendly settlement of the whole thing.
-
-The more people you have working on something and the bigger the program,
-the harder it's going to be, and at some point you have to have
-agreed-upon standards that everybody sticks to and mechanized tools like
-pretty-printers that just enforce doing it by the rules, because otherwise
-you lose too much time and there's real chance for making mistakes.
-
-===== excerpt ends =====================================
-
-I think the important lessons are:
-
-1) Style matters. The great masters such as Kernighan & Pike spend
-   time making their code look unified and beautiful.
-
-2) Kernighan & Pike "came to a friendly settlement of the whole thing"
-   despite not agreeing 100%. I interpret that to mean that both
-   had to make some compromises, but ultimately a common coding standard
-   agreement was reached.
-
-
-Linux (the kernel) is critical code, and SELinux, handling crucial
-security issues, is a very critical part of Linux.
-
-Therefore the coding standards should be very high, and preferably made
-explicit by a written standard. That is my opinion.
-
-Yes, there is Linus' "Linux kernel coding style"
-(Documentation/CodingStyle), which serves as a good base document, but I
-think SELinux could have even more explicit rules.
-
-Having a written coding standard document would render style debates
-unnecessary, which would save time in the future and would also lead to a
-cleaner code base.
-
-I also think the coding standard should apply to the SELinux userspace
-too.
-
-Best regards,
-vmk
---
-************************************************************************
-               Tietotekniikkaosasto / Helsingin yliopisto
-                 IT Department / University of Helsinki
-************************************************************************
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
