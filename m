@@ -1,13 +1,10 @@
-Date: Mon, 21 Jul 2008 11:08:04 +0300 (EEST)
+Date: Mon, 21 Jul 2008 12:19:23 +0300 (EEST)
 From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-To: Paul Moore <paul.moore@hp.com>
-cc: Eric Paris <eparis@parisplace.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
-In-Reply-To: <200807202125.36525.paul.moore@hp.com>
-Message-ID: <Pine.LNX.4.64L.0807211104300.15292@ruuvi.it.helsinki.fi>
-References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi>
- <200807202125.36525.paul.moore@hp.com>
+To: Eric Paris <eparis@parisplace.org>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        selinux@tycho.nsa.gov
+Subject: About unifying the coding style
+Message-ID: <Pine.LNX.4.64L.0807211208370.17053@ruuvi.it.helsinki.fi>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -16,19 +13,28 @@ List-Id: selinux@tycho.nsa.gov
 
 Hello,
 
-On Sun, 20 Jul 2008, Paul Moore wrote:
+I'm planning to do more trivial fixes to the SELinux kernel subsystem to
+make the coding style look as unified as possible. Before continuing,
+however, I would like to ask for an opinion, because I do not want to
+waste my time.
 
-> Normally I like janitorial fixes such as whitespace cleanups, spelling
-> corrections, etc.  However, these three patches seem a bit silly to me
-> simply changing a variable name from "idx" to "i" and not adding any
-> real value to the code.  If it were up to me alone, I would say "NO",
-> but if everyone else agrees they are worthwhile I won't to stand in the
-> way.
+There currently exist mixed styles such as:
 
-I understand, but my preference is that all code should always look as
-similar as possible style-wise. To my eyes, it is quite annoying to see,
-e.g. "iter" and "idx" used mixed in the same source file, and it distracts
-my code reading.
+  while (cur != NULL)
+
+vs
+
+  while (cur)
+
+and of course the related "if"- and "for"-variants.
+
+My questions:
+
+1) Is there a general agreement that only one style should be used?
+
+2) If answer to the question 1 is "yes", which one is the preferred style?
+
+Thanks for the information.
 
 Best regards,
 vmk
