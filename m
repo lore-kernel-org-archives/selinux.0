@@ -1,50 +1,73 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
-Date: Mon, 21 Jul 2008 08:24:39 -0400
-Cc: Eric Paris <eparis@parisplace.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi> <200807202125.36525.paul.moore@hp.com> <Pine.LNX.4.64L.0807211104300.15292@ruuvi.it.helsinki.fi>
-In-Reply-To: <Pine.LNX.4.64L.0807211104300.15292@ruuvi.it.helsinki.fi>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200807210824.40003.paul.moore@hp.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6LCQMAl010692
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2008 08:26:22 -0400
+Received: from QMTA07.emeryville.ca.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6LCQKhc011862
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2008 12:26:21 GMT
+Subject: Re: Patch: 1/6: selinux-policy: remove dupe delimiter.
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Dominick Grift <domg472@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1216472939.4085.5.camel@sulphur.notebook.internal>
+References: <1216472939.4085.5.camel@sulphur.notebook.internal>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KWo0urWUvxQcrLJGEwLL"
+Date: Mon, 21 Jul 2008 08:26:17 -0400
+Message-Id: <1216643177.3487.2.camel@defiant.pebenito.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 21 July 2008 4:08:04 am Vesa-Matti J Kari wrote:
-> Hello,
->
-> On Sun, 20 Jul 2008, Paul Moore wrote:
-> > Normally I like janitorial fixes such as whitespace cleanups,
-> > spelling corrections, etc.  However, these three patches seem a bit
-> > silly to me simply changing a variable name from "idx" to "i" and
-> > not adding any real value to the code.  If it were up to me alone,
-> > I would say "NO", but if everyone else agrees they are worthwhile I
-> > won't to stand in the way.
->
-> I understand, but my preference is that all code should always look
-> as similar as possible style-wise. To my eyes, it is quite annoying
-> to see, e.g. "iter" and "idx" used mixed in the same source file, and
-> it distracts my code reading.
 
-The kernel is a very large piece of code, which is developed and 
-maintained by literally thousands of people.  While there are rules and 
-guidelines to help maintain consistency there will _always_ be 
-inconsistent style in the Linux Kernel.  Further, due to the extremely 
-high rate of change in the kernel it is doubtful that you will be able 
-to stylistically "fix" the entire kernel and maintain it (patch 
-acceptance is another issue entirely).
+--=-KWo0urWUvxQcrLJGEwLL
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I know it can be frustrating at times, but I would suggest that adapting 
-yourself to read the Linux Kernel sources will be much more rewarding 
-(both to yourself and to the community) than trying to adapt the kernel 
-sources to you.
+On Sat, 2008-07-19 at 15:08 +0200, Dominick Grift wrote:
+> This patch aims to remove any duplicate delimiter.
 
--- 
-paul moore
-linux @ hp
+Actually, you've got this backwards.  We do want the space after the
+comma for better readability.  I've slowly been applying the change
+though the policy as I make other changes, which is probably why it
+seems like its wrong style.
+
+> @@ -12,10 +12,10 @@
+>  #
+>  interface(`usbmodules_domtrans',`
+>         gen_require(`
+> -               type usbmodules_t, usbmodules_exec_t;
+> +               type usbmodules_t,usbmodules_exec_t;
+>         ')
+> =20
+> -       domtrans_pattern($1, usbmodules_exec_t, usbmodules_t)
+> +       domtrans_pattern($1,usbmodules_exec_t,usbmodules_t)
+>  ')
+> =20
+>  ########################################
+
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+
+--=-KWo0urWUvxQcrLJGEwLL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
+
+iEYEABECAAYFAkiEgGkACgkQvI7kLeavkkPXPQCglo7mWtF7uMEd7eNrbrcgunqY
+KogAnRQ6g3XmyrTH+4dfoulrHiefxW0a
+=RkT0
+-----END PGP SIGNATURE-----
+
+--=-KWo0urWUvxQcrLJGEwLL--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
