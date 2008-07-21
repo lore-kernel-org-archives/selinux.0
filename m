@@ -1,134 +1,102 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6LCmESg014321
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2008 08:48:14 -0400
-Received: from n2.bullet.mail.re3.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with SMTP id m6LCmDId001422
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2008 12:48:13 GMT
-From: "Joe_Wulf" <Joe_Wulf@yahoo.com>
-To: "'Murray McAllister'" <mmcallis@redhat.com>, <selinux@tycho.nsa.gov>
-References: <48803B08.1030205@redhat.com>
-Subject: RE: SELinux User Guide
-Date: Mon, 21 Jul 2008 08:41:30 -0400
-Message-ID: <!&!AAAAAAAAAAAYAAAAAAAAAI0mbVq38OtHvIfYWTLmtk3CgAAAEAAAAOmKrWbzsLBBnydahhNdd5MBAAAAAA==@yahoo.com>
+Date: Mon, 21 Jul 2008 16:08:16 +0300 (EEST)
+From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+To: Paul Moore <paul.moore@hp.com>
+cc: Eric Paris <eparis@parisplace.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
+In-Reply-To: <200807210824.40003.paul.moore@hp.com>
+Message-ID: <Pine.LNX.4.64L.0807211546530.23634@ruuvi.it.helsinki.fi>
+References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi>
+ <200807202125.36525.paul.moore@hp.com> <Pine.LNX.4.64L.0807211104300.15292@ruuvi.it.helsinki.fi>
+ <200807210824.40003.paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-In-Reply-To: <48803B08.1030205@redhat.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Murray,
 
-This is a fantastic idea.  I too work (a little bit) with SELinux, and struggle
-with it.
-I've looked at the detailed reply maximilianbianco@gmail.com gave and concur as
-I'd very
-much love to learn more and in a structured way.  What I recommend is:
--  Integrating in a pretty comprehensive overview section with a bare minimum
-reference
-   to traditional security (but just enough to connect the two).  I myself would
-need
-   the picture painted of what is the scope, breadth and depth of SELinux, what
-it does,
-   and what it doesn't do.
--  Show some methodical and practical examples of exactly what SELinux does, and
-explain
-   in English HOW it does it (maybe why, too).
--  Also, what are the impacts achieved with and without SELinux, and various
-contexts.
-   So, for instance, when a variety of common mistakes (IRT SELinux) are made,
-what is
-   the security-related result? 
-   An example might be a file (/a/b/c) that has some form of SELinux protection
-context,
-   that is moved, updated and rebuilt with some end-SysAdmin's desired
-configuration.
-   What is the resulting security context?---maybe this is overly simple, but its
-about
-   all I do understand at the moment, and I'm sure there are more involved and
-way better
-   examples to use.
--  Maybe have a single chapter devoted to elemental basics.  Along the lines of:
-"If you
-   don't do anything else with SELinux, at least do these things, and here's
-why." type
-   of rationale.
--  I do also recommend a balanced and coordinated approach with the Center for
-Internet
-   Security.  They've a number of benchmarks in development, with recent
-publication of
-   one for RHEL5.
+Hello,
+
+On Mon, 21 Jul 2008, Paul Moore wrote:
+
+> The kernel is a very large piece of code, which is developed and
+> maintained by literally thousands of people.  While there are rules and
+> guidelines to help maintain consistency there will _always_ be
+> inconsistent style in the Linux Kernel.
+
+Sure. But is that really a valid argument to block the changes that
+attempt to bring *at least some* unity to the code?
+
+I mean, what you are saying is analogous to the argument, "the world peace
+can never be achieved, therefore we should not bother to settle local
+issues either".
+
+I certainly don't intend to wade through the entire kernel. I just want to
+make some changes to one particular subsystem that I am interested in
+(SELinux), to make the reading experience more enjoyable to me and others,
+and, hopefully, to somewhat improve the code.
+
+And as I said in my previous message, Linus' CodingStyle-document exists
+and is meant to make the code look more uniform, everywhere.
+
+> Further, due to the extremely high rate of change in the kernel it is
+> doubtful that you will be able to stylistically "fix" the entire kernel
+> and maintain it (patch acceptance is another issue entirely).
+
+I have never set my goal to fix the entire kernel. That should be obvious
+considering the huge size of the source tree.
+
+> I know it can be frustrating at times, but I would suggest that adapting
+> yourself to read the Linux Kernel sources will be much more rewarding
+> (both to yourself and to the community) than trying to adapt the kernel
+> sources to you.
+
+It is true that the sources should not be adapted for specifically for me,
+but I am quite convinced that we need a one true coding style that we
+should try to adhere to. And while coding style deviations might not
+be strong enough reasons to reject patches, the coding standard would
+allow other people to fix "nonstandard" coding without any extra debates.
+
+Let me take one extra example of what I mean.
+
+As it stands, if I look at one single source file implementing hash
+tables, e.g. ss/hashtab.c, I see the following:
+
+hashtab_insert():
+
+  while (cur && h->keycmp(h, key, cur->key) > 0
+
+the very next function, hashtab_search(), has:
+
+  while (cur != NULL && h->keycmp(h, key, cur->key) > 0)
 
 
-R,
--Joe Wulf, CISSP, USN(RET)
- Senior IA Engineer
- ProSync Technology Group, LLC
- www.prosync.com
- (410) 772-7969  office
- (410) 772-7967  fax
- (443) 801-5597  personal cell
+
+function hashtab_map() has:
+
+  while (cur != NULL)
+
+the very next next function, hashtab_stat() has:
+
+  while (cur) {
 
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov] On Behalf
-Of Murray McAllister
-Sent: Friday, July 18, 2008 02:41
-To: selinux@tycho.nsa.gov
-Subject: SELinux User Guide
+I do not like this kind of inconsistency at all.
 
-Hi,
+While the code may be functionally correct, you should write to the reader
+as well as to the compiler. Note: I am not at all saying the SELinux code
+is bad quality. On the contrary, based on my very limited kernel
+knowledge, I think SELinux kernel side is very good.
 
-Apologies if this doubles up for anyone.
+I just think it could be improved by using unified coding style.
 
-My name is Murray McAllister and I am working as a content author for Red Hat. I
-have recently started a new project -- an SELinux User Guide
--- with Daniel Walsh, Michael Smith, and a few other people from Red Hat.
-
-There are a few SELinux books, but these are very technical. We want to create a
-guide that people with no previous SELinux experience can use, to allow them to
-do what they want without turning SELinux off.
-
-I have started a rough information plan that includes the current schedule,
-information sources, and some ideas for the content that may be included. The
-information plan is located at
-<https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Informatio
-n_Plan>. 
-The main project page is located at
-<https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide>.
-
-Among other things, we are going to try to cover the following topics from the
-current SELinux project documentation todo list
-(http://selinuxproject.org/page/Documentation_TODO):
-
-* "Explain how to interpret an AVC message and how to get additional information
-via SYSCALL audit, including how to add a simple syscall audit filter to enable
-collection of PATH information".
-* Document Confined Users".
-* "Update FC5 FAQ".
-* "Document the use of the mount command for overriding file context".
-* "Describe Audit2allow and how it can just Fix the machine".
-* "Update and organize the Fedora SELinux FAQ".
-
-If anyone has any ideas about what they would like to see in the guide, or any
-corrections to the current topics we would like to include, please let us know.
-As well, user feedback and comments can be left at
-<https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Feedback>.
-
-A Fedora account (https://admin.fedoraproject.org/accounts/) is required to use
-the Wiki - if you do not have one, please do not hesitate to mail me directly, or
-respond to this thread.
-
-Thanks for your time,
-
-Murray.
-
+Best regards,
+vmk
 --
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with the
-words "unsubscribe selinux" without quotes as the message.
-
-
+************************************************************************
+               Tietotekniikkaosasto / Helsingin yliopisto
+                 IT Department / University of Helsinki
+************************************************************************
 
 --
 This message was distributed to subscribers of the selinux mailing list.
