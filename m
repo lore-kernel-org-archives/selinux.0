@@ -1,104 +1,69 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6M22npB003184
-	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2008 22:02:49 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6M2758J003584
+	for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2008 22:07:05 -0400
 Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6M22nmn007879
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2008 02:02:49 GMT
-Received: by yw-out-1718.google.com with SMTP id 6so619116ywa.84
-        for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2008 19:02:49 -0700 (PDT)
-Subject: Re: questions about persistent storage of security contexts
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6M275mn008386
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2008 02:07:05 GMT
+Received: by yw-out-1718.google.com with SMTP id 6so619852ywa.84
+        for <selinux@tycho.nsa.gov>; Mon, 21 Jul 2008 19:07:05 -0700 (PDT)
+Subject: Re: About unifying the coding style
 From: Stephen Smalley <stephen.smalley@gmail.com>
-To: Eric Paris <eparis@parisplace.org>
-Cc: Andrew Warner <warner@rubix.com>, selinux@tycho.nsa.gov
-In-Reply-To: <7e0fb38c0807211735w40e6fe4bjb31171b9d13cea45@mail.gmail.com>
-References: <48851770.5020002@rubix.com>
-	 <7e0fb38c0807211735w40e6fe4bjb31171b9d13cea45@mail.gmail.com>
+To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+Cc: Eric Paris <eparis@parisplace.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+In-Reply-To: <Pine.LNX.4.64L.0807211208370.17053@ruuvi.it.helsinki.fi>
+References: <Pine.LNX.4.64L.0807211208370.17053@ruuvi.it.helsinki.fi>
 Content-Type: text/plain
-Date: Mon, 21 Jul 2008 22:01:03 -0400
-Message-Id: <1216692067.17786.21.camel@sulphur>
+Date: Mon, 21 Jul 2008 22:05:16 -0400
+Message-Id: <1216692320.17786.25.camel@sulphur>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-07-21 at 20:35 -0400, Eric Paris wrote:
-> On Mon, Jul 21, 2008 at 7:10 PM, Andrew Warner <warner@rubix.com> wrote:
-> > Hello,
-> >
-> > I am currently developing an "SELinux aware" DBMS (primarily TE and MLS)
-> > that is characterized by:
-> >
-> > 1. The need to store a security context (in some recoverable form) in our
-> > persistent database (storage size of the context is an important factor)
-> > 2. The need to frequently perform a high number of security access checks in
-> > a performance sensitive way
-> >
-> > My question relates to the first characteristic from above. I am having
-> > trouble deciding on the best way to store the security context in the
-> > database. From my research I  see (I think!) three different representations
-> > for a security context: 1) string; 2) raw; 3) SID.
-> >
-> > The string representation, generally, seems clear as this is what is shown
-> > in all documentation as the context representation that exists in user
-> > space. My only question regarding the string representation is: is there is
-> > any hard limit to the length of the security context string? Do I need to
-> > allow for no theoretical size limit on a context string if I choose to store
-> > it?
+On Mon, 2008-07-21 at 12:19 +0300, Vesa-Matti J Kari wrote:
+> Hello,
 > 
-> No hard limit that I can think of. There might be one somewhere but I
-> wouldn't count on it.
-
-Correct - the core logic imposes no fixed limits on the context strings,
-although the kernel interfaces do impose certain practical limits (e.g.
-page size).  The NFSv4 support will likewise impose certain limits in
-accordance with existing limits on the size of containing structures.
-
-> > I am inferring the the raw representation exists from seeing *_raw functions
-> > (e.g., security_compute_create_raw) referenced in selinux header files.
-> > Other than seeing these functions declared I am having trouble finding out
-> > much about a raw representation. Is there any advantage to
-> > storing/manipulating a context in its raw representation? That is, are they
-> > more suited for a fast security access check, are they smaller in size, or
-> > do they have a fixed or maximum length?
+> I'm planning to do more trivial fixes to the SELinux kernel subsystem to
+> make the coding style look as unified as possible. Before continuing,
+> however, I would like to ask for an opinion, because I do not want to
+> waste my time.
 > 
-> The _raw is actually what you want.  _raw basically just means strings
-> without any translations from things like mcstransd.  Given a context
-> like user_u:role_r:type_t the "raw" on an MLS system maybe
-> "user_u:object_r:type_t::s0."  Throwing a context with the MLS portion
-> attched at the !raw functions will work just fine.
+> There currently exist mixed styles such as:
 > 
-> > The SID I have also seen mentioned in various documentations but can
-> > determine little about them. My guess is that they are an integer value that
-> > is used for fast internal access, particularly for the AVC. Are SIDs indeed
-> > integer values? Are they persistent or are they meaningful only for a
-> > particular OS session?
+>   while (cur != NULL)
 > 
-> That's exactly what they are.  They are kernel internal integer
-> representations that are (for the most part) only meaningful for that
-> session.  There are some 'initial sids' that are always the same, but
-> no userspace app should care about 'sids' in the general sense.
+> vs
 > 
-> > I have also considered maintaining my own internal, persistent mapping
-> > between string based contexts and an integer representation, the mapping
-> > being stored/indexed inside the DBMS. This gives me a small storage overhead
-> > with a fixed size.
+>   while (cur)
 > 
-> I don't have a problem with internal mapping like that.
+> and of course the related "if"- and "for"-variants.
+> 
+> My questions:
+> 
+> 1) Is there a general agreement that only one style should be used?
 
-The original SELinux filesystem labeling implementation used something
-like that - they were called "persistent security identifiers" (PSIDs),
-and were maintained as private indices per-filesystem that mapped to
-security context strings.
+I'd agree with that, yes.
 
-> But, don't we already have sepostgresql?  Maybe you should be looking
-> to see if that fits your needs or you might get ideas from the work
-> that they performed?
+> 2) If answer to the question 1 is "yes", which one is the preferred style?
 
-Yes, I'd recommend looking at SE-PostgreSQL as a worked example of
-applying the Flask architecture to a DBMS, including not only its
-approach to storing security contexts but also its approach to the
-userspace AVC.  You can find a link to that work from the Related Work
-page off of the SELinux web site.
+I'm inclined to the latter as it is more concise and loses nothing in
+semantics, but I'm open to hearing the other side of it.
 
+A note however:  the core selinux developers are likely to be somewhat
+unresponsive to non-critical patches right now because we are at the
+SELinux mini-summit and Linux Symposium this week.
+
+> 
+> Thanks for the information.
+> 
+> Best regards,
+> vmk
+> --
+> ************************************************************************
+>                Tietotekniikkaosasto / Helsingin yliopisto
+>                  IT Department / University of Helsinki
+> ************************************************************************
+> 
 
 
 --
