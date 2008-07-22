@@ -1,130 +1,240 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6MAISfY006841
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2008 06:18:28 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6MAIRfY014311
-	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2008 10:18:27 GMT
-Message-ID: <4885B3EB.704@redhat.com>
-Date: Tue, 22 Jul 2008 06:18:19 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6MAe6bh010102
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2008 06:40:06 -0400
+Received: from house.lunarmania.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6MAe5fY018968
+	for <selinux@tycho.nsa.gov>; Tue, 22 Jul 2008 10:40:05 GMT
+Message-ID: <4885B8EB.9040809@rubix.com>
+Date: Tue, 22 Jul 2008 12:39:39 +0200
+From: Andrew Warner <warner@rubix.com>
 MIME-Version: 1.0
-To: david@hardeman.nu
-CC: selinux@tycho.nsa.gov, cpebenito@tresys.com
-Subject: Re: [refpolicy-patch 07/23] corenetwork policy update
-References: <20080719205002.462190042@hardeman.nu> <20080719210252.218847592@hardeman.nu>
-In-Reply-To: <20080719210252.218847592@hardeman.nu>
-Content-Type: text/plain; charset=ISO-8859-1
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
+Subject: Re: questions about persistent storage of security contexts
+References: <48851770.5020002@rubix.com> <7e0fb38c0807211735w40e6fe4bjb31171b9d13cea45@mail.gmail.com> <48853AA5.3040607@ak.jp.nec.com>
+In-Reply-To: <48853AA5.3040607@ak.jp.nec.com>
+Content-Type: multipart/alternative;
+ boundary="------------060002060100020809070400"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------060002060100020809070400
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-david@hardeman.nu wrote:
-> This patch should be a no-brainer, additional network port names only...
-> 
-> diff --exclude-from=exclude -N -u -r nsaserefpolicy/policy/modules/kernel/corenetwork.te.in serefpolicy-3.5.0/policy/modules/kernel/corenetwork.te.in
-> --- nsaserefpolicy/policy/modules/kernel/corenetwork.te.in	2008-06-12 23:25:03.000000000 -0400
-> +++ serefpolicy-3.5.0/policy/modules/kernel/corenetwork.te.in	2008-07-15 14:05:12.000000000 -0400
-> @@ -75,6 +75,7 @@
->  network_port(aol, udp,5190,s0, tcp,5190,s0, udp,5191,s0, tcp,5191,s0, udp,5192,s0, tcp,5192,s0, udp,5193,s0, tcp,5193,s0) 
->  network_port(apcupsd, tcp,3551,s0, udp,3551,s0)
->  network_port(asterisk, tcp,1720,s0, udp,2427,s0, udp,2727,s0, udp,4569,s0, udp,5060,s0)
-> +network_port(audit, tcp,60,s0)
->  network_port(auth, tcp,113,s0)
->  network_port(bgp, tcp,179,s0, udp,179,s0, tcp,2605,s0, udp,2605,s0)
->  type biff_port_t, port_type, reserved_port_type; dnl network_port(biff) # no defined portcon in current strict
-> @@ -82,6 +83,7 @@
->  network_port(clockspeed, udp,4041,s0)
->  network_port(cluster, tcp,5149,s0, udp,5149,s0, tcp,40040,s0, tcp,50006,s0, udp,50006,s0, tcp,50007,s0, udp,50007,s0, tcp,50008,s0, udp,50008,s0)
->  network_port(comsat, udp,512,s0)
-> +network_port(cyphesis, udp,32771,s0, tcp,6767,s0, tcp,6769,s0)
->  network_port(cvs, tcp,2401,s0, udp,2401,s0)
->  network_port(dcc, udp,6276,s0, udp,6277,s0)
->  network_port(dbskkd, tcp,1178,s0)
-> @@ -91,6 +93,7 @@
->  network_port(distccd, tcp,3632,s0)
->  network_port(dns, udp,53,s0, tcp,53,s0)
->  network_port(fingerd, tcp,79,s0)
-> +network_port(flash, tcp,1935,s0, udp,1935,s0)
->  network_port(ftp_data, tcp,20,s0)
->  network_port(ftp, tcp,21,s0)
->  network_port(gatekeeper, udp,1718,s0, udp,1719,s0, tcp,1721,s0, tcp,7000,s0)
-> @@ -109,11 +112,13 @@
->  network_port(ircd, tcp,6667,s0)
->  network_port(isakmp, udp,500,s0)
->  network_port(iscsi, tcp,3260,s0)
-> +network_port(isns, tcp,3205,s0, udp,3205,s0)
->  network_port(jabber_client, tcp,5222,s0, tcp,5223,s0)
->  network_port(jabber_interserver, tcp,5269,s0)
->  network_port(kerberos_admin, tcp,464,s0, udp,464,s0, tcp,749,s0)
->  network_port(kerberos_master, tcp,4444,s0, udp,4444,s0)
->  network_port(kerberos, tcp,88,s0, udp,88,s0, tcp,750,s0, udp,750,s0)
-> +network_port(kprop, tcp,754,s0)
->  network_port(ktalkd, udp,517,s0, udp,518,s0)
->  network_port(ldap, tcp,389,s0, udp,389,s0, tcp,636,s0, udp,636,s0, tcp,3268,s0)
->  type lrrd_port_t, port_type; dnl network_port(lrrd_port_t) # no defined portcon
-> @@ -122,6 +127,8 @@
->  network_port(mmcc, tcp,5050,s0, udp,5050,s0)
->  network_port(monopd, tcp,1234,s0)
->  network_port(msnp, tcp,1863,s0, udp,1863,s0)
-> +network_port(munin, tcp,4949,s0, udp,4949,s0)
-> +network_port(mythtv, tcp,6543,s0, udp,6543,s0)
->  network_port(mysqld, tcp,1186,s0, tcp,3306,s0)
->  portcon tcp 63132-63163 gen_context(system_u:object_r:mysqld_port_t, s0)
->  network_port(nessus, tcp,1241,s0)
-> @@ -133,10 +140,13 @@
->  network_port(pegasus_http, tcp,5988,s0)
->  network_port(pegasus_https, tcp,5989,s0)
->  network_port(postfix_policyd, tcp,10031,s0)
-> +network_port(pulseaudio, tcp,4713,s0)
-> +network_port(pgpkeyserver, udp, 11371,s0, tcp,11371,s0)
->  network_port(pop, tcp,106,s0, tcp,109,s0, tcp,110,s0, tcp,143,s0, tcp,220,s0, tcp,993,s0, tcp,995,s0, tcp,1109,s0)
->  network_port(portmap, udp,111,s0, tcp,111,s0)
->  network_port(postgresql, tcp,5432,s0)
->  network_port(postgrey, tcp,60000,s0)
-> +network_port(prelude, tcp,4690,s0, udp,4690,s0)
->  network_port(printer, tcp,515,s0)
->  network_port(ptal, tcp,5703,s0)
->  network_port(pxe, udp,4011,s0)
-> @@ -148,11 +158,11 @@
->  network_port(ricci_modcluster, tcp,16851,s0, udp,16851,s0)
->  network_port(rlogind, tcp,513,s0)
->  network_port(rndc, tcp,953,s0)
-> -network_port(router, udp,520,s0)
-> +network_port(router, udp,520,s0, udp,521,s0, tcp,521,s0)
->  network_port(rsh, tcp,514,s0)
->  network_port(rsync, tcp,873,s0, udp,873,s0)
->  network_port(rwho, udp,513,s0)
-> -network_port(smbd, tcp,139,s0, tcp,445,s0)
-> +network_port(smbd, tcp,137-139,s0, tcp,445,s0)
->  network_port(smtp, tcp,25,s0, tcp,465,s0, tcp,587,s0)
->  network_port(snmp, udp,161,s0, udp,162,s0, tcp,199,s0)
->  network_port(spamd, tcp,783,s0)
-> @@ -170,7 +180,12 @@
->  network_port(transproxy, tcp,8081,s0)
->  type utcpserver_port_t, port_type; dnl network_port(utcpserver) # no defined portcon
->  network_port(uucpd, tcp,540,s0)
-> +network_port(virt, tcp,16509,s0, udp,16509,s0, tcp,16514,s0, udp,16514,s0)
-> +
->  network_port(vnc, tcp,5900,s0)
-> +# Reserve 100 ports for vnc/virt machines
-> +portcon tcp 5901-5999 gen_context(system_u:object_r:vnc_port_t, s0)
-> +network_port(whois, tcp,43,s0, udp,43,s0)
->  network_port(wccp, udp,2048,s0)
->  network_port(xdmcp, udp,177,s0, tcp,177,s0)
->  network_port(xen, tcp,8002,s0)
-> 
-Port 60 for audit should not be added as this is not a registered port
-and it could change.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Thanks for the information. I have previously looked at the 
+SE-PostgreSQL code/documentation. It was helpful and most interesting. 
+The base DBMS I am using is called Trusted RUBIX, which is an CC EAL-4 
+(Trusted Solaris) evaluated MLS DBMS. We have been contracted to 
+integrate SELinux TE and MLS (Red Hat flavor) into our DBMS. So, 
+obviously using SE-PostgreSQL is not an option :-) In the bigger 
+picture, this current work is a small (and rather detached) step towards 
+a high robustness (EAL-6+) DBMS solution.
 
-iEYEARECAAYFAkiFs+oACgkQrlYvE4MpobPU9QCfblEAulhdQhTUyiQF12BtHV9Y
-CNkAnRdQr73Wcl1O2/dZjy9pRDJNBNvg
-=AIAm
------END PGP SIGNATURE-----
+Historically, our company (and myself personally) have been involved in 
+high(er) assurance MLS DBMS products/research for a number of years. As 
+such, we tend to use a more "traditional" minimized trust, reference 
+monitor architecture as opposed to inserting hooks and using query 
+modification for our security enforcement. This means, for instance, 
+that a label object permeates much of our kernel code at a fairly low 
+level as well as storage objects. Thus, the runtime and storage 
+representation must be chosen carefully as it will touch much of our 
+kernel code. We also support full polyinstantiation of named objects, 
+which dictates an efficient label mechanism. (Integration of TE + MLS 
+into traditional MLS polyinstantiation behavior is an interesting topic!)
+
+Out of curiosity, KaiGai, a question about how SE-PostgreSQL presents 
+the security context to a user. From your security guide I see that the 
+context is a selectable column. But, what SQL type is the column? For 
+instance, do you define your own SQL type, such as "Security Context" or 
+is it a VARCHAR that has special constraints placed upon it to force it 
+to conform to the structure of a security context?
+
+Blessings,
+
+Andy
+
+KaiGai Kohei wrote:
+>>> I have also considered maintaining my own internal, persistent mapping
+>>> between string based contexts and an integer representation, the 
+>>> mapping
+>>> being stored/indexed inside the DBMS. This gives me a small storage 
+>>> overhead
+>>> with a fixed size.
+>>
+>> I don't have a problem with internal mapping like that.
+>
+> In SE-PostgreSQL, it maintains own internal mapping between text 
+> represented
+> security context and its integer identifier. The 'pg_security' system 
+> catalog
+> stores the pair of them.
+>
+> Any tuple (including system catalog) has its security context. It is 
+> stored
+> within padding area of HeapTupleHeader as an integer value, and it 
+> means the
+> primary key of 'pg_security' system catalog.
+>
+> It also enables to boost userspace AVC, because this idea makes 
+> possible to
+> implement it using a relationship between identifiers (not a text 
+> representation).
+>
+>
+> When the security policy is reloaded and it makes invalidate the 
+> stored context,
+> the stored one is dealt as 'unlabeled_t'.
+>
+>> But, don't we already have sepostgresql?  Maybe you should be looking
+>> to see if that fits your needs or you might get ideas from the work
+>> that they performed?
+>
+> FYI:
+>   http://code.google.com/p/sepgsql/
+>
+> Andrew, what is your intended base RDBMS?
+>
+> Currently, SE-PostgreSQL is the only SELinux awared RDBMS.
+> It is now under reviewing for the next release (v8.4) cycle.
+>   http://wiki.postgresql.org/wiki/CommitFest:2008-07
+>
+> However, I think we can apply SELinux for any other relational model 
+> implementation.
+>
+> Thanks,
+
+--------------060002060100020809070400
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<font face="Arial">Thanks for the information. I have previously looked
+at the SE-PostgreSQL code/documentation. It was helpful and most
+interesting. The base DBMS I am using is called Trusted RUBIX, which is
+an CC EAL-4 (Trusted Solaris) evaluated MLS DBMS. We have been
+contracted to integrate SELinux TE and MLS (Red Hat flavor) into our
+DBMS. So, obviously using SE-PostgreSQL is not an option :-) In the
+bigger picture, this current work is a small (and rather detached) step
+towards a high robustness (EAL-6+) DBMS solution. <br>
+<br>
+Historically, our company (and myself personally) have been involved in
+high(er) assurance MLS DBMS products/research for a number of years. As
+such, we tend to use a more "traditional" minimized trust, reference
+monitor architecture as opposed to inserting hooks and using query
+modification for our security enforcement. This means, for instance,
+that a label object permeates much of our kernel code at a fairly low
+level as well as storage objects. Thus, the runtime and storage
+representation must be chosen carefully as it will touch much of our
+kernel code. We also support full polyinstantiation of named objects,
+which dictates an efficient label mechanism. (Integration of TE + MLS
+into traditional MLS polyinstantiation behavior is an interesting
+topic!) <br>
+<br>
+Out of curiosity, KaiGai, a question about how SE-PostgreSQL presents
+the security context to a user. From your security guide I see that the
+context is a selectable column. But, what SQL type is the column? For
+instance, do you define your own SQL type, such as "Security Context"
+or is it a VARCHAR that has special constraints placed upon it to force
+it to conform to the structure of a security context? <br>
+<br>
+Blessings,<br>
+<br>
+Andy <br>
+</font><br>
+KaiGai Kohei wrote:
+<blockquote cite="mid:48853AA5.3040607@ak.jp.nec.com" type="cite">
+  <blockquote type="cite">
+    <blockquote type="cite">I have also considered maintaining my own
+internal, persistent mapping
+      <br>
+between string based contexts and an integer representation, the
+mapping
+      <br>
+being stored/indexed inside the DBMS. This gives me a small storage
+overhead
+      <br>
+with a fixed size.
+      <br>
+    </blockquote>
+    <br>
+I don't have a problem with internal mapping like that.
+    <br>
+  </blockquote>
+  <br>
+In SE-PostgreSQL, it maintains own internal mapping between text
+represented
+  <br>
+security context and its integer identifier. The 'pg_security' system
+catalog
+  <br>
+stores the pair of them.
+  <br>
+  <br>
+Any tuple (including system catalog) has its security context. It is
+stored
+  <br>
+within padding area of HeapTupleHeader as an integer value, and it
+means the
+  <br>
+primary key of 'pg_security' system catalog.
+  <br>
+  <br>
+It also enables to boost userspace AVC, because this idea makes
+possible to
+  <br>
+implement it using a relationship between identifiers (not a text
+representation).
+  <br>
+  <br>
+  <br>
+When the security policy is reloaded and it makes invalidate the stored
+context,
+  <br>
+the stored one is dealt as 'unlabeled_t'.
+  <br>
+  <br>
+  <blockquote type="cite">But, don't we already have sepostgresql?&nbsp;
+Maybe you should be looking
+    <br>
+to see if that fits your needs or you might get ideas from the work
+    <br>
+that they performed?
+    <br>
+  </blockquote>
+  <br>
+FYI:
+  <br>
+&nbsp; <a class="moz-txt-link-freetext" href="http://code.google.com/p/sepgsql/">http://code.google.com/p/sepgsql/</a>
+  <br>
+  <br>
+Andrew, what is your intended base RDBMS?
+  <br>
+  <br>
+Currently, SE-PostgreSQL is the only SELinux awared RDBMS.
+  <br>
+It is now under reviewing for the next release (v8.4) cycle.
+  <br>
+&nbsp; <a class="moz-txt-link-freetext" href="http://wiki.postgresql.org/wiki/CommitFest:2008-07">http://wiki.postgresql.org/wiki/CommitFest:2008-07</a>
+  <br>
+  <br>
+However, I think we can apply SELinux for any other relational model
+implementation.
+  <br>
+  <br>
+Thanks,
+  <br>
+</blockquote>
+</body>
+</html>
+
+--------------060002060100020809070400--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
