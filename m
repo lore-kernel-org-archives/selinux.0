@@ -1,33 +1,34 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6NLksdT028827
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 17:46:54 -0400
-Received: from QMTA01.emeryville.ca.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6NLkg30000623
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 21:46:53 GMT
-Subject: Re: [refpolicy patch] services: add a duplicate delimiter.
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6NLqhbW029781
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 17:52:43 -0400
+Received: from QMTA09.westchester.pa.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6NLqXmM025142
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 21:52:38 GMT
+Subject: Re: [refpolicy patch] retry add irssi module.
 From: Chris PeBenito <pebenito@gentoo.org>
 To: Dominick Grift <domg472@gmail.com>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1216680555.30300.3.camel@sulphur.notebook.internal>
-References: <1216680555.30300.3.camel@sulphur.notebook.internal>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-MJMj//eXrOnCYXO9H3xI"
-Date: Wed, 23 Jul 2008 17:46:23 -0400
-Message-Id: <1216849583.5039.1.camel@defiant.pebenito.net>
+In-Reply-To: <1216769485.3475.5.camel@sulphur.notebook.internal>
+References: <1216769485.3475.5.camel@sulphur.notebook.internal>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VBsvPRWcHILYy2GH8NOW"
+Date: Wed, 23 Jul 2008 17:52:19 -0400
+Message-Id: <1216849939.5039.4.camel@defiant.pebenito.net>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-MJMj//eXrOnCYXO9H3xI
+--=-VBsvPRWcHILYy2GH8NOW
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2008-07-22 at 00:49 +0200, Dominick Grift wrote:
-> This patch aims to add a duplicate delimiter.
+On Wed, 2008-07-23 at 01:31 +0200, Dominick Grift wrote:
+> Patch aims to add the irssi module. The irssi patch that i sent earlier
+> was not complete.
 
-This set is merged.  There was one error that would have been caught by
-a compile test.  Please do a compile test before submitting, regardless
-of how trivial the patch is.
+Is there a reason why the irc module can't be updated to handle irssi?
+Also, please submit patches relative to the top level of the policy
+directory so they apply with patch -p0 or -p1.
 
 --=20
 Chris PeBenito
@@ -39,19 +40,19 @@ Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
 3
 Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
---=-MJMj//eXrOnCYXO9H3xI
+--=-VBsvPRWcHILYy2GH8NOW
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.9 (GNU/Linux)
 
-iEYEABECAAYFAkiHpq8ACgkQvI7kLeavkkOeFQCff/ECMbUGr9JoA9u6s2UP0gnD
-vkUAn3JpKp/KhhRZsKE8YIts6Du3cx2y
-=3o1p
+iEYEABECAAYFAkiHqBMACgkQvI7kLeavkkOzjgCdGJhuLuuRPnTHBT045yAiKa/G
+otgAni2rIY33Uj8VtPPztLOpTFrP3Cjf
+=TMyk
 -----END PGP SIGNATURE-----
 
---=-MJMj//eXrOnCYXO9H3xI--
+--=-VBsvPRWcHILYy2GH8NOW--
 
 
 --
