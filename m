@@ -1,43 +1,60 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
-Date: Tue, 22 Jul 2008 23:10:35 -0400
-Cc: Eric Paris <eparis@parisplace.org>, Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi> <200807210938.31144.paul.moore@hp.com> <Pine.LNX.4.64L.0807222054290.25725@ruuvi.it.helsinki.fi>
-In-Reply-To: <Pine.LNX.4.64L.0807222054290.25725@ruuvi.it.helsinki.fi>
+Message-ID: <4886AC81.9030202@ak.jp.nec.com>
+Date: Wed, 23 Jul 2008 12:58:57 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200807222310.35246.paul.moore@hp.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov
+Subject: Re: [RFC] An idea of thread/child-domain assignment
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com>
+In-Reply-To: <48803685.1000505@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 22 July 2008 2:21:11 pm Vesa-Matti J Kari wrote:
-> On Mon, 21 Jul 2008, Paul Moore wrote:
-> > Another thought, if you want to help improve the code, especially
-> > SELinux, I would encourage you to look at the ToDo lists:
-> >
-> >  * http://www.selinuxproject.org/page/Kernel_Development#To_Do_List
-> >  * http://www.selinuxproject.org/page/Userspace_Development
-> >
-> > ... and attempt to work on one of the issues on those lists.  I
-> > would be more than happy to help if you get stuck and need a hand.
->
-> Thanks for the links. The problem is I have to learn to walk properly
-> before I can run. Only the very first kernel problem seemed solvable
-> by me, and it would probably take lots of time, and I'm not 100%
-> confident about the solution either.
+KaiGai Kohei wrote:
+>>>>> An idea: thread/hierarchical-domain assignment
 
-I understand, it can seem a bit daunting a first but don't hesitate to 
-ask questions when you are unsure.  In general, everyone here on the 
-SELinux list is pretty nice and helpful (although I can get a little 
-ornery from time to time :) ) and I for one would love to see more 
-involvement from other developers.
+Now, under constracting a patch.
 
+>>>>> Issues: Domain Reverting
+ - snip -
+>>> (1) The number of client security context should be enough small.
+>>>  If we want to assign one of MCS categories, it requires 1024 of thread
+>>>  pool in maximum.
+>> The main server thread could lazily create the thread pools as needed to
+>> avoid unnecessary pools.  And we could possibly use a hybrid scheme
+>> (e.g. one pool per sensitivity or per equivalence class of categories,
+>> reuse within that pool).
+> 
+> I guess it requires massive reworks for Apache itself. :(
+> 
+> If so, it may be better to implement a SELinux specific multi processing
+> module (MPM) which creates a child process with restricted domain per
+> request?
+> (No need to say, we will get some performance degradation.)
+
+I reconsidered that SELinux awared MPM is better way than reverting domain
+of backend processes/threads.
+
+It requires a certain level of performance degrading compared to existing
+MPMs (prefork/worker), but forking a child process for a single request
+and existing later model is suitable for SELinux.
+I have an assumption here that performance is not the first priority for
+users of SELinux awared Apache.
+
+I like to add it to my TODO list.
+
+BTW, is there anyone good at the behavior of Tomcat?
+>From its documentation, Tomcat create a thread for a single request and
+kills it after processing, when thread pooling is disabled.
+It seems to me that here is no domain reverting issues.
+Is it correct?
+
+Thanks,
 -- 
-paul moore
-linux @ hp
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
