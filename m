@@ -1,343 +1,204 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6NE2ThO032519
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 10:02:29 -0400
-Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6NE2R2W016726
-	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 14:02:28 GMT
-Received: by nf-out-0910.google.com with SMTP id b21so1068325nfd.4
-        for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 07:02:27 -0700 (PDT)
-Subject: [refpolicy patch 1/2] revisit and apply trivial redhat
-	modifications to amanda module
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6NE6KA7000825
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 10:06:20 -0400
+Received: from ug-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6NE6Is4020381
+	for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 14:06:19 GMT
+Received: by ug-out-1314.google.com with SMTP id m3so523432ugc.15
+        for <selinux@tycho.nsa.gov>; Wed, 23 Jul 2008 07:06:18 -0700 (PDT)
+Subject: [refpolicy patch 2/2] revisit and apply trivial modifications to
+	fstools module.
 From: Dominick Grift <domg472@gmail.com>
 To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YX0aRbY8/WyvhbRsqnSR"
-Date: Wed, 23 Jul 2008 16:02:20 +0200
-Message-Id: <1216821740.14984.7.camel@sulphur.notebook.internal>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yf7uaDtIDxQPaPvSupwg"
+Date: Wed, 23 Jul 2008 16:06:16 +0200
+Message-Id: <1216821976.14984.12.camel@sulphur.notebook.internal>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
---=-YX0aRbY8/WyvhbRsqnSR
+--=-yf7uaDtIDxQPaPvSupwg
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-This patch aims to clean up the amanda module and to apply trivial
-redhat modifications to refpolicy amanda module.
+This patch aims to clean the fstools module, and to apply trivial
+modifications to the fstools module.
 
-Note: fstools_signal() call did not exist and there was also no redhat
-patch for this interface, and so i created one myself.
+Refer to [refpolicy patch 1/2] revisit and apply trivial redhat
+modifications to fstools module.
 
-However , i do not know for sure if only signal perm was meant with
-fstools_signal:
-http://people.fedoraproject.org/~dwalsh/SELinux/Policy/admin_amanda.patch
-
-refer to [refpolicy patch 2/2] revisit and apply trivial modifications
-to fstools module.
-
-Index: /home/domg472/Workspace/refpolicy_trunk/policy/modules/admin/amanda.=
-if
+Index: /home/domg472/Workspace/refpolicy_trunk/policy/modules/system/fstool=
+s.if
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /home/domg472/Workspace/refpolicy_trunk/policy/modules/admin/amanda.if	=
-(revision 2761)
-+++ /home/domg472/Workspace/refpolicy_trunk/policy/modules/admin/amanda.if	=
-(working copy)
-@@ -15,7 +15,7 @@
- 		type amanda_recover_t, amanda_recover_exec_t;
+--- /home/domg472/Workspace/refpolicy_trunk/policy/modules/system/fstools.i=
+f	(revision 2758)
++++ /home/domg472/Workspace/refpolicy_trunk/policy/modules/system/fstools.i=
+f	(working copy)
+@@ -16,7 +16,7 @@
  	')
 =20
--	domtrans_pattern($1,amanda_recover_exec_t,amanda_recover_t)
-+	domtrans_pattern($1, amanda_recover_exec_t, amanda_recover_t)
+ 	corecmd_search_bin($1)
+-	domtrans_pattern($1,fsadm_exec_t,fsadm_t)
++	domtrans_pattern($1, fsadm_exec_t, fsadm_t)
  ')
 =20
  ########################################
-@@ -47,7 +47,7 @@
+@@ -48,7 +48,7 @@
 =20
- 	amanda_domtrans_recover($1)
- 	role $2 types amanda_recover_t;
--	allow amanda_recover_t $3:chr_file rw_term_perms;
-+	rw_chr_files_pattern(amanda_recover_t, $3, $3)=09
+ 	fstools_domtrans($1)
+ 	role $2 types fsadm_t;
+-	allow fsadm_t $3:chr_file { getattr read write ioctl };
++	rw_chr_files_pattern(fsadm_t, $3, $3)
  ')
 =20
  ########################################
-@@ -65,8 +65,8 @@
- 		type amanda_usr_lib_t;
+@@ -66,7 +66,7 @@
+ 		type fsadm_exec_t;
  	')
 =20
--	allow $1 amanda_usr_lib_t:dir search_dir_perms;
- 	files_search_usr($1)
-+	search_dirs_pattern($1, amanda_usr_lib_t, amanda_usr_lib_t)
+-	can_exec($1,fsadm_exec_t)
++	can_exec($1, fsadm_exec_t)
  ')
 =20
  ########################################
-@@ -102,7 +102,7 @@
- 		type amanda_dumpdates_t;
+@@ -84,7 +84,7 @@
+ 		type fsadm_t;
  	')
 =20
--	allow $1 amanda_dumpdates_t:file rw_file_perms;
-+	rw_files_pattern($1, amanda_dumpdates_t, amanda_dumpdates_t)
+-	allow $1 fsadm_t:fifo_file read_fifo_file_perms;
++	read_fifo_files_pattern($1, fsadm_t, fsadm_t)
  ')
 =20
  ########################################
-@@ -120,8 +120,8 @@
- 		type amanda_usr_lib_t;
+@@ -103,7 +103,7 @@
+ 		type fsadm_exec_t;
  	')
 =20
--	allow $1 amanda_usr_lib_t:dir manage_dir_perms;
- 	files_search_usr($1)
-+	manage_dirs_pattern($1, amanda_usr_lib_t, amanda_usr_lib_t)
+-	allow $1 fsadm_exec_t:file relabelto;
++	relabelto_files_pattern($1, fsadm_exec_t, fsadm_exec_t)
  ')
 =20
  ########################################
-@@ -139,7 +139,8 @@
- 		type amanda_log_t;
+@@ -122,7 +122,7 @@
+ 		type fsadm_exec_t;
  	')
 =20
--	allow $1 amanda_log_t:file { read_file_perms append_file_perms };
-+	read_files_pattern($1, amanda_log_t, amanda_log_t)
-+	append_files_pattern($1, amanda_log_t, amanda_log_t)
+-	allow $1 fsadm_exec_t:file manage_file_perms;
++	manage_files_pattern($1, fsadm_exec_t, fsadm_exec_t)
  ')
 =20
- #######################################
-@@ -158,6 +159,5 @@
+ ########################################
+@@ -140,5 +140,23 @@
+ 		type swapfile_t;
  	')
 =20
- 	files_search_var_lib($1)
--	allow $1 amanda_var_lib_t:dir search_dir_perms;
--
-+	search_dirs_pattern($1, amanda_var_lib_t, amanda_var_lib_t)
+-	allow $1 swapfile_t:file getattr;
++	getattr_files_pattern($1, swapfile_t, swapfile_t)
  ')
-Index: /home/domg472/Workspace/refpolicy_trunk/policy/modules/admin/amanda.=
-te
++
++########################################
++## <summary>
++##	Signal the fstools domain.
++## </summary>
++## <param name=3D"domain">
++##	<summary>
++##	The type of the process performing this action.
++##	</summary>
++## </param>
++#
++interface(`fstools_signal',`
++	gen_require(`
++		type fsadm_t;
++	')
++
++	allow $1 fsadm_t:process signal;
++')
+Index: /home/domg472/Workspace/refpolicy_trunk/policy/modules/system/fstool=
+s.te
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /home/domg472/Workspace/refpolicy_trunk/policy/modules/admin/amanda.te	=
-(revision 2761)
-+++ /home/domg472/Workspace/refpolicy_trunk/policy/modules/admin/amanda.te	=
-(working copy)
-@@ -8,53 +8,44 @@
+--- /home/domg472/Workspace/refpolicy_trunk/policy/modules/system/fstools.t=
+e	(revision 2758)
++++ /home/domg472/Workspace/refpolicy_trunk/policy/modules/system/fstools.t=
+e	(working copy)
+@@ -1,5 +1,5 @@
 =20
- type amanda_t;
- type amanda_inetd_exec_t;
--inetd_service_domain(amanda_t,amanda_inetd_exec_t)
-+inetd_service_domain(amanda_t, amanda_inetd_exec_t)
- role system_r types amanda_t;
+-policy_module(fstools,1.10.0)
++policy_module(fstools, 1.10.0)
 =20
- type amanda_exec_t;
--domain_entry_file(amanda_t,amanda_exec_t)
-+domain_entry_file(amanda_t, amanda_exec_t)
-=20
- type amanda_log_t;
- logging_log_file(amanda_log_t)
-=20
--# type for amanda configurations files
- type amanda_config_t;
- files_type(amanda_config_t)
-=20
--# type for files in /usr/lib/amanda
- type amanda_usr_lib_t;
- files_type(amanda_usr_lib_t)
-=20
--# type for all files in /var/lib/amanda
- type amanda_var_lib_t;
- files_type(amanda_var_lib_t)
-=20
--# type for all files in /var/lib/amanda/gnutar-lists/
- type amanda_gnutarlists_t;
- files_type(amanda_gnutarlists_t)
-=20
- type amanda_tmp_t;
- files_tmp_file(amanda_tmp_t)
-=20
--# type for /etc/amandates
- type amanda_amandates_t;
- files_type(amanda_amandates_t)
-=20
--# type for /etc/dumpdates
- type amanda_dumpdates_t;
- files_type(amanda_dumpdates_t)
-=20
--# type for amanda data
- type amanda_data_t;
- files_type(amanda_data_t)
-=20
--# type for amrecover
- type amanda_recover_t;
- type amanda_recover_exec_t;
--application_domain(amanda_recover_t,amanda_recover_exec_t)
-+application_domain(amanda_recover_t, amanda_recover_exec_t)
- role system_r types amanda_recover_t;
-=20
--# type for recover files ( restored data )
- type amanda_recover_dir_t;
- files_type(amanda_recover_dir_t)
-=20
-@@ -75,38 +66,31 @@
- allow amanda_t self:tcp_socket create_stream_socket_perms;
- allow amanda_t self:udp_socket create_socket_perms;
-=20
--# access to amanda_amandates_t
--allow amanda_t amanda_amandates_t:file { getattr lock read write };
-+can_exec(amanda_t, amanda_exec_t)
-+can_exec(amanda_t, amanda_inetd_exec_t)
-=20
--# configuration files -> read only
--allow amanda_t amanda_config_t:file { getattr read };
-+manage_files_pattern(amanda_t, amanda_data_t, amanda_data_t)
-=20
--# access to amandas data structure
--allow amanda_t amanda_data_t:dir { read search write };
--allow amanda_t amanda_data_t:file manage_file_perms;
-+manage_files_pattern(amanda_t, amanda_gnutarlists_t,
-amanda_gnutarlists_t)
-+manage_lnk_files_pattern(amanda_t, amanda_gnutarlists_t,
-amanda_gnutarlists_t)
-=20
--# access to amanda_dumpdates_t
--allow amanda_t amanda_dumpdates_t:file { getattr lock read write };
--
--can_exec(amanda_t,amanda_exec_t)
--can_exec(amanda_t,amanda_inetd_exec_t)
--
--# access to amanda_gnutarlists_t (/var/lib/amanda/gnutar-lists)
--allow amanda_t amanda_gnutarlists_t:dir rw_dir_perms;
--allow amanda_t amanda_gnutarlists_t:file manage_file_perms;
--allow amanda_t amanda_gnutarlists_t:lnk_file manage_lnk_file_perms;
--
- manage_dirs_pattern(amanda_t,amanda_var_lib_t,amanda_var_lib_t)
- manage_files_pattern(amanda_t,amanda_var_lib_t,amanda_var_lib_t)
-=20
--manage_files_pattern(amanda_t,amanda_log_t,amanda_log_t)
--manage_dirs_pattern(amanda_t,amanda_log_t,amanda_log_t)
--logging_log_filetrans(amanda_t,amanda_log_t,{ file dir })
-+manage_files_pattern(amanda_t, amanda_log_t, amanda_log_t)
-+manage_dirs_pattern(amanda_t, amanda_log_t, amanda_log_t)
-+logging_log_filetrans(amanda_t, amanda_log_t, { file dir })
-=20
--manage_files_pattern(amanda_t,amanda_tmp_t,amanda_tmp_t)
--manage_dirs_pattern(amanda_t,amanda_tmp_t,amanda_tmp_t)
-+manage_files_pattern(amanda_t, amanda_tmp_t, amanda_tmp_t)
-+manage_dirs_pattern(amanda_t, amanda_tmp_t, amanda_tmp_t)
- files_tmp_filetrans(amanda_t, amanda_tmp_t, { file dir })
-=20
-+read_files_pattern(amanda_t, amanda_config_t, amanda_config_t)
-+
-+rw_files_pattern(amanda_t, amanda_dumpdates_t, amanda_dumpdates_t)
-+
-+rw_files_pattern(amanda_t, amanda_amandates_t, amanda_amandates_t)
-+
- kernel_read_system_state(amanda_t)
- kernel_read_kernel_sysctls(amanda_t)
- kernel_dontaudit_getattr_unlabeled_files(amanda_t)
-@@ -145,9 +129,13 @@
- fs_getattr_xattr_fs(amanda_t)
- fs_list_all(amanda_t)
-=20
-+fstools_domtrans(amanda_t)
-+fstools_signal(amanda_t)
-+
- storage_raw_read_fixed_disk(amanda_t)
-+storage_read_tape(amanda_t)
-+storage_write_tape(amanda_t)
-=20
--# Added for targeted policy
- term_use_unallocated_ttys(amanda_t)
-=20
- auth_use_nsswitch(amanda_t)
-@@ -156,11 +144,8 @@
- libs_use_ld_so(amanda_t)
- libs_use_shared_libs(amanda_t)
-=20
-+logging_send_syslog_msg(amanda_t)
-=20
--optional_policy(`
--	logging_send_syslog_msg(amanda_t)
--')
--
  ########################################
  #
- # Amanda recover local policy
-@@ -172,23 +157,22 @@
- allow amanda_recover_t self:tcp_socket create_stream_socket_perms;
- allow amanda_recover_t self:udp_socket create_socket_perms;
+@@ -8,7 +8,7 @@
 =20
--manage_files_pattern(amanda_recover_t,amanda_log_t,amanda_log_t)
--manage_lnk_files_pattern(amanda_recover_t,amanda_log_t,amanda_log_t)
-+manage_files_pattern(amanda_recover_t, amanda_log_t, amanda_log_t)
-+manage_lnk_files_pattern(amanda_recover_t, amanda_log_t, amanda_log_t)
+ type fsadm_t;
+ type fsadm_exec_t;
+-init_system_domain(fsadm_t,fsadm_exec_t)
++init_system_domain(fsadm_t, fsadm_exec_t)
+ role system_r types fsadm_t;
 =20
--# access to amanda_recover_dir_t
--manage_dirs_pattern(amanda_recover_t,amanda_recover_dir_t,amanda_recover_d=
-ir_t)
--manage_files_pattern(amanda_recover_t,amanda_recover_dir_t,amanda_recover_=
-dir_t)
--manage_lnk_files_pattern(amanda_recover_t,amanda_recover_dir_t,amanda_reco=
-ver_dir_t)
--manage_fifo_files_pattern(amanda_recover_t,amanda_recover_dir_t,amanda_rec=
-over_dir_t)
--manage_sock_files_pattern(amanda_recover_t,amanda_recover_dir_t,amanda_rec=
-over_dir_t)
--sysadm_home_dir_filetrans(amanda_recover_t,amanda_recover_dir_t,{ dir
-file lnk_file sock_file fifo_file })
-+manage_dirs_pattern(amanda_recover_t, amanda_recover_dir_t,
-amanda_recover_dir_t)
-+manage_files_pattern(amanda_recover_t, amanda_recover_dir_t,
-amanda_recover_dir_t)
-+manage_lnk_files_pattern(amanda_recover_t, amanda_recover_dir_t,
-amanda_recover_dir_t)
-+manage_fifo_files_pattern(amanda_recover_t, amanda_recover_dir_t,
-amanda_recover_dir_t)
-+manage_sock_files_pattern(amanda_recover_t, amanda_recover_dir_t,
-amanda_recover_dir_t)
-+sysadm_home_dir_filetrans(amanda_recover_t, amanda_recover_dir_t, { dir
-file lnk_file sock_file fifo_file })
+ type fsadm_log_t;
+@@ -42,17 +42,16 @@
 =20
--manage_dirs_pattern(amanda_recover_t,amanda_tmp_t,amanda_tmp_t)
--manage_files_pattern(amanda_recover_t,amanda_tmp_t,amanda_tmp_t)
--manage_lnk_files_pattern(amanda_recover_t,amanda_tmp_t,amanda_tmp_t)
--manage_fifo_files_pattern(amanda_recover_t,amanda_tmp_t,amanda_tmp_t)
--manage_sock_files_pattern(amanda_recover_t,amanda_tmp_t,amanda_tmp_t)
--files_tmp_filetrans(amanda_recover_t,amanda_tmp_t,{ dir file lnk_file
-sock_file fifo_file })
-+manage_dirs_pattern(amanda_recover_t, amanda_tmp_t, amanda_tmp_t)
-+manage_files_pattern(amanda_recover_t, amanda_tmp_t, amanda_tmp_t)
-+manage_lnk_files_pattern(amanda_recover_t, amanda_tmp_t, amanda_tmp_t)
-+manage_fifo_files_pattern(amanda_recover_t, amanda_tmp_t, amanda_tmp_t)
-+manage_sock_files_pattern(amanda_recover_t, amanda_tmp_t, amanda_tmp_t)
-+files_tmp_filetrans(amanda_recover_t, amanda_tmp_t, { dir file lnk_file
-sock_file fifo_file })
+ can_exec(fsadm_t, fsadm_exec_t)
 =20
- kernel_read_system_state(amanda_recover_t)
- kernel_read_kernel_sysctls(amanda_recover_t)
-@@ -219,8 +203,6 @@
+-allow fsadm_t fsadm_tmp_t:dir manage_dir_perms;
+-allow fsadm_t fsadm_tmp_t:file manage_file_perms;
++manage_dirs_pattern(fsadm_t, fsadm_tmp_t, fsadm_tmp_t)
++manage_files_pattern(fsadm_t, fsadm_tmp_t, fsadm_tmp_t)
+ files_tmp_filetrans(fsadm_t, fsadm_tmp_t, { file dir })
 =20
- auth_use_nsswitch(amanda_recover_t)
+-# log files
+-allow fsadm_t fsadm_log_t:dir setattr;
+-manage_files_pattern(fsadm_t,fsadm_log_t,fsadm_log_t)
+-logging_log_filetrans(fsadm_t,fsadm_log_t,file)
++manage_files_pattern(fsadm_t, fsadm_log_t, fsadm_log_t)
++logging_log_filetrans(fsadm_t, fsadm_log_t, file)
 =20
--fstools_domtrans(amanda_t)
--
- libs_use_ld_so(amanda_recover_t)
- libs_use_shared_libs(amanda_recover_t)
+ # Enable swapping to files
+-allow fsadm_t swapfile_t:file { rw_file_perms swapon };
++allow fsadm_t swapfile_t:file swapon; # this is no file perm!
++manage_files_pattern(fsadm_t, swapfile_t, swapfile_t)
 =20
+ kernel_read_system_state(fsadm_t)
+ kernel_read_kernel_sysctls(fsadm_t)
+@@ -110,7 +109,6 @@
+ term_use_console(fsadm_t)
+=20
+ corecmd_exec_bin(fsadm_t)
+-#RedHat bug #201164
+ corecmd_exec_shell(fsadm_t)
+=20
+ # cjp: these are probably not needed:
+@@ -170,7 +168,7 @@
+=20
+ optional_policy(`
+ 	# for smartctl cron jobs
+-	cron_system_entry(fsadm_t,fsadm_exec_t)
++	cron_system_entry(fsadm_t, fsadm_exec_t)
+ ')
+=20
+ optional_policy(`
 
 --=20
 Dominick Grift <domg472@gmail.com>
 
---=-YX0aRbY8/WyvhbRsqnSR
+--=-yf7uaDtIDxQPaPvSupwg
 Content-Type: application/pgp-signature; name=signature.asc
 Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 
-iEYEABECAAYFAkiHOeoACgkQL00QnzrVtlzw5QCgwlJw3pg20EE5Ln53rr9zDQUA
-on0AoKsb/D8LsRRTS46YTdUOroxOK0p1
-=m8ct
+iEYEABECAAYFAkiHOtcACgkQL00QnzrVtlzVHgCgviRDnoxWCpoK0rtrgFxBABbd
+LpsAnj1VRbMw7FUlIHK7+IhoX1/udkdO
+=n8lA
 -----END PGP SIGNATURE-----
 
---=-YX0aRbY8/WyvhbRsqnSR--
+--=-yf7uaDtIDxQPaPvSupwg--
 
 
 --
