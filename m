@@ -1,280 +1,54 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6OER8LH019783
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 10:27:08 -0400
-Received: from ug-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6OER7WE016280
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 14:27:07 GMT
-Received: by ug-out-1314.google.com with SMTP id m3so631735ugc.15
-        for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 07:27:06 -0700 (PDT)
-Subject: [refpolicy patch] retry: merge irssi module with irc module.
-From: Dominick Grift <domg472@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hhDJMpxGLdIH7XXbqdj8"
-Date: Thu, 24 Jul 2008 16:27:01 +0200
-Message-Id: <1216909621.16316.5.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6OEelUl022796
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 10:40:47 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m6OEelWE020618
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 14:40:47 GMT
+Subject: RE: hierarchy_check_constraints() needs reworks?
+Date: Thu, 24 Jul 2008 10:40:47 -0400
+Message-ID: <6FE441CD9F0C0C479F2D88F959B015880246B2B9@exchange.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+In-Reply-To: <48881546.6070903@ak.jp.nec.com>
+References: <48881546.6070903@ak.jp.nec.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "KaiGai Kohei" <kaigai@ak.jp.nec.com>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+KaiGai Kohei wrote:
+> 
+> In addition, I found two more potential matter in this code.
+> 
+> The first one is lack of checks for permissions via attribute.
+> When a child domain has an attribute which does not applied
+> to the parent one, the child can have wider permissions that
+> its parent.
+> I think any attribute attached to child domain also have to
+> be attached to the parent domain.
+> (I guess it derived from legacy attribute implementation.)
+>
 
---=-hhDJMpxGLdIH7XXbqdj8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hierarchy.c:409, expand_avtab will expand all attribute usage into the
+avtab. We don't care about attribute usage, only about net permissions
+granted. 
+ 
+> The later one is dependencies to the state of boolean.
+> Hierarchy constraint allows a child domain to have
+> permissions which are enabled for the parent, only if
+> specific boolean is turned on. It potentially makes a
+> situation that child domain has wider permissions.
+> I think it is difficult to check in the policy toolchain, so
+> checks on an avc entry creation is better way.
+> 
 
-This patch aims to merge my irssi module with the existing irc module.
-The previous patch that i submitted is missing a pretty important
-interface for a irc client. corenet_tcp_connect_ircd_port().
-
-I also changed to description of the boolean a bit for clarity.
-
-Index: /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.te
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.te
-(revision 2763)
-+++ /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.te
-(working copy)
-@@ -6,5 +6,17 @@
- # Declarations
- #
-=20
-+## <desc>
-+## <p>
-+## Allow IRC clients to bind TCP sockets to all
-+## unreserved ports, and to connect
-+## to all TCP ports.
-+## </p>
-+## </desc>
-+gen_tunable(irc_unrestricted_tcp_network, false)
-+
- type irc_exec_t;
- application_executable_file(irc_exec_t)
-+
-+type irc_etc_t;
-+files_config_file(irc_etc_t)
-Index: /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.if
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.if
-(revision 2763)
-+++ /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.if
-(working copy)
-@@ -51,6 +51,7 @@
- 	application_domain($1_irc_t, $1_irc_exec_t)
-=20
- 	type $1_irc_home_t;
-+	files_poly_member($1_irc_home_t)
- 	userdom_user_home_content($1, $1_irc_home_t)
-=20
- 	type $1_irc_tmp_t;
-@@ -61,15 +62,29 @@
- 	# Local policy
- 	#
-=20
--	allow $1_irc_t self:unix_stream_socket create_stream_socket_perms;
--	allow $1_irc_t self:tcp_socket create_socket_perms;
--	allow $1_irc_t self:udp_socket create_socket_perms;
-+	allow $1_irc_t self:fifo_file rw_fifo_file_perms;
-+	allow $1_irc_t self:netlink_route_socket create_netlink_socket_perms;
-+	allow $1_irc_t self:process signal;
-+	allow $1_irc_t self:tcp_socket { accept listen create_socket_perms };
-+	allow $1_irc_t self:udp_socket { create_socket_perms };
-+	allow $1_irc_t self:unix_stream_socket { create_stream_socket_perms };
-=20
-+	read_files_pattern($1_irc_t, irc_etc_t, irc_etc_t)
-+
- 	manage_dirs_pattern($1_irc_t, $1_irc_home_t, $1_irc_home_t)
- 	manage_files_pattern($1_irc_t, $1_irc_home_t, $1_irc_home_t)
- 	manage_lnk_files_pattern($1_irc_t, $1_irc_home_t, $1_irc_home_t)
- 	userdom_user_home_dir_filetrans($1, $1_irc_t, $1_irc_home_t,{ dir file
-lnk_file })
-+	userdom_search_user_home_dirs($1, $1_irc_t)
-=20
-+	manage_dirs_pattern($2, $1_irc_home_t, $1_irc_home_t)
-+	manage_files_pattern($2, $1_irc_home_t, $1_irc_home_t)
-+	manage_lnk_files_pattern($2, $1_irc_home_t, $1_irc_home_t)
-+
-+	relabel_dirs_pattern($2, $1_irc_home_t, $1_irc_home_t)
-+	relabel_files_pattern($2, $1_irc_home_t, $1_irc_home_t)
-+	relabel_lnk_files_pattern($2, $1_irc_home_t, $1_irc_home_t)
-+
- 	# access files under /tmp
- 	manage_dirs_pattern($1_irc_t, $1_irc_tmp_t, $1_irc_tmp_t)
- 	manage_files_pattern($1_irc_t, $1_irc_tmp_t, $1_irc_tmp_t)
-@@ -85,10 +100,12 @@
-=20
- 	# allow ps to show irc
- 	ps_process_pattern($2, $1_irc_t)
--	allow $2 $1_irc_t:process signal;
- =09
- 	kernel_read_proc_symlinks($1_irc_t)
-=20
-+	corecmd_search_bin($1_irc_t)
-+	corecmd_read_bin_symlinks($1_irc_t)
-+
- 	corenet_all_recvfrom_unlabeled($1_irc_t)
- 	corenet_all_recvfrom_netlabel($1_irc_t)
- 	corenet_tcp_sendrecv_generic_if($1_irc_t)
-@@ -97,11 +114,11 @@
- 	corenet_udp_sendrecv_all_nodes($1_irc_t)
- 	corenet_tcp_sendrecv_all_ports($1_irc_t)
- 	corenet_udp_sendrecv_all_ports($1_irc_t)
-+	corenet_tcp_connect_ircd_port($1_irc_t)
- 	corenet_sendrecv_ircd_client_packets($1_irc_t)
--	# cjp: this seems excessive:
--	corenet_tcp_connect_all_ports($1_irc_t)
--	corenet_sendrecv_all_client_packets($1_irc_t)
-=20
-+	dev_read_urand($1_irc_t)
-+
- 	domain_use_interactive_fds($1_irc_t)
-=20
- 	files_dontaudit_search_pids($1_irc_t)
-@@ -124,6 +141,8 @@
-=20
- 	miscfiles_read_localization($1_irc_t)
-=20
-+	nscd_read_pid($1_irc_t)
-+
- 	# Inherit and use descriptors from newrole.
- 	seutil_use_newrole_fds($1_irc_t)
-=20
-@@ -131,20 +150,68 @@
-=20
- 	# Write to the user domain tty.
- 	userdom_use_user_terminals($1, $1_irc_t)
-+	userdom_sigchld_all_users($1_irc_t)
-=20
-+	tunable_policy(`irc_unrestricted_tcp_network',`
-+		corenet_tcp_bind_all_unreserved_ports($1_irc_t)
-+		corenet_tcp_connect_all_ports($1_irc_t)
-+		corenet_sendrecv_all_client_packets($1_irc_t)
-+		corenet_sendrecv_all_server_packets($1_irc_t)
-+	')
-+
- 	tunable_policy(`use_nfs_home_dirs',`
-+		fs_search_auto_mountpoints($1_irc_t)
- 		fs_manage_nfs_dirs($1_irc_t)
- 		fs_manage_nfs_files($1_irc_t)
- 		fs_manage_nfs_symlinks($1_irc_t)
- 	')
-=20
- 	tunable_policy(`use_samba_home_dirs',`
-+		fs_search_auto_mountpoints($1_irc_t)
- 		fs_manage_cifs_dirs($1_irc_t)
- 		fs_manage_cifs_files($1_irc_t)
- 		fs_manage_cifs_symlinks($1_irc_t)
- 	')
-=20
- 	optional_policy(`
-+		automount_dontaudit_getattr_tmp_dirs($1_irc_t)
-+	')
-+
-+	optional_policy(`
- 		nis_use_ypbind($1_irc_t)
- 	')
- ')
-+
-+########################################
-+## <summary>
-+##  Signal and trace the user IRC Client process.
-+## </summary>
-+## <desc>
-+##	<p>
-+##	Allows users to signal and trace the user IRC=20
-+##	Client process.
-+##	</p>
-+##	<p>
-+##	This is a templated interface, and should only
-+##	be called from a per-userdomain template.
-+##	</p>
-+## </desc>
-+## <param name=3D"userdomain_prefix">
-+##	<summary>
-+##	The prefix of the user domain (e.g., user
-+##	is the prefix for user_t).
-+##	</summary>
-+## </param>
-+## <param name=3D"domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+template(`irc_signal_user_irc',`
-+	gen_require(`
-+		type $1_irc_t;
-+	')
-+
-+	allow $2 $1_irc_t:process { ptrace signal_perms };=09
-+')
-Index: /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.fc
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.fc
-(revision 2763)
-+++ /home/domg472/Workspace/refpolicy1/policy/modules/apps/irc.fc
-(working copy)
-@@ -1,11 +1,18 @@
- #
-+# /etc
-+#
-+/etc/irssi\.conf                 --
-gen_context(system_u:object_r:irc_etc_t,s0)
-+
-+#
- # /home
- #
- HOME_DIR/\.ircmotd	--	gen_context(system_u:object_r:ROLE_irc_home_t,s0)
-+HOME_DIR/\.irssi(/.*)?
-gen_context(system_u:object_r:ROLE_irc_home_t,s0)
-=20
- #
- # /usr
- #
- /usr/bin/[st]irc		--	gen_context(system_u:object_r:irc_exec_t,s0)
- /usr/bin/ircII		--	gen_context(system_u:object_r:irc_exec_t,s0)
-+/usr/bin/irssi                  --
-gen_context(system_u:object_r:irc_exec_t,s0)
- /usr/bin/tinyirc		--	gen_context(system_u:object_r:irc_exec_t,s0)
-Index: /home/domg472/Workspace/refpolicy1/policy/modules/system/userdomain.=
-if
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- /home/domg472/Workspace/refpolicy1/policy/modules/system/userdomain.if	=
-(revision 2763)
-+++ /home/domg472/Workspace/refpolicy1/policy/modules/system/userdomain.if	=
-(working copy)
-@@ -818,6 +818,10 @@
- 	')
-=20
- 	optional_policy(`
-+		irc_signal_user_irc($1, $1_t)
-+	')
-+
-+	optional_policy(`
- 		locate_read_lib_files($1_t)
- 	')
-=20
-
-
---=-hhDJMpxGLdIH7XXbqdj8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkiIkTMACgkQL00QnzrVtlxPBwCeIVpepQORu1RuWPbS6Zz+mtZn
-M7wAoJkGAspeA8KjADv0QGIKNIZ/nbvg
-=U8RB
------END PGP SIGNATURE-----
-
---=-hhDJMpxGLdIH7XXbqdj8--
+We don't consider the state of booleans when doing analysis of the
+policy. The idea was that the avtab is the maximum permissions allowed
+and we always test on the maximum permissions. Whether a boolean may
+reduce the parents permissions without doing so to the child I think is
+a non-issue. Do you have an example of why this might be detrimental?
 
 
 --
