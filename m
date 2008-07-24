@@ -1,50 +1,49 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6OIMu6i000721
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 14:22:56 -0400
-Received: from mail153.messagelabs.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m6OIMt0l019538
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 18:22:55 GMT
-Received: from il27exr02.cig.mot.com (il27exr02.mot.com [10.17.196.71])
-	by motgate3.mot.com (8.12.11/Motorola) with ESMTP id m6OIMraK016615
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 11:22:53 -0700 (MST)
-Received: from az10vts02.mot.com (il27vts02.cig.mot.com [10.17.196.86])
-	by il27exr02.cig.mot.com (8.13.1/Vontu) with SMTP id m6OIMrt3020784
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 13:22:53 -0500 (CDT)
-Received: from de01exm68.ds.mot.com (de01exm68.am.mot.com [10.176.8.24])
-	by il27exr02.cig.mot.com (8.13.1/8.13.0) with ESMTP id m6OIMqA9020778
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 13:22:53 -0500 (CDT)
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6OKk5gL026300
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 16:46:06 -0400
+Received: from mail.wrs.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6OKk4le001451
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 20:46:04 GMT
+Received: from ALA-MAIL03.corp.ad.wrs.com (ala-mail03 [147.11.57.144])
+	by mail.wrs.com (8.13.6/8.13.6) with ESMTP id m6OKk3QM022060
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 13:46:03 -0700 (PDT)
+Message-ID: <4888E754.9030504@windriver.com>
+Date: Thu, 24 Jul 2008 16:34:28 -0400
+From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: Mapping Linux GROUP to an SELinux user ?...
-Date: Thu, 24 Jul 2008 14:22:51 -0400
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D04BF337D@de01exm68.ds.mot.com>
-In-Reply-To: <1216898673.3881.4.camel@sulphur>
-References: <48881546.6070903@ak.jp.nec.com> <1216898673.3881.4.camel@sulphur>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Stephen Smalley" <stephen.smalley@gmail.com>
-Cc: <selinux@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: libsepol.context_from_record: MLS is disabled, but MLS context "s0"
+ found
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All,
+I keep getting this error with audit2why.
 
-Is there any way at all to map an entire Linux GROUP to an SELinux_user
-??
+root@localhost:/root> cat msg
+type=1400 audit(1216736766.147:35): avc:  denied  { read write } for  
+pid=1829 comm="modprobe" name="console" dev=sda ino=344069 
+scontext=system_u:system_r:insmod_t 
+tcontext=unconfined_u:object_r:default_t tclass=chr_file
 
-For example if Linux User accounts (Admin1, Admin2, and Admin3), all
-belong to the Linux group  "wadm".
+root@localhost:/root> audit2allow < msg
+#============= insmod_t ==============
+allow insmod_t default_t:chr_file { read write };
 
-Is there a simple or tricky way to map the entire Linux group    wadm ->
-to staff_u ?
+root@localhost:/root> audit2why < msg
+libsepol.context_from_record: MLS is disabled, but MLS context "s0" found
+libsepol.context_from_record: could not create context structure
+libsepol.context_from_string: could not create context structure
+libsepol.sepol_context_to_sid: could not convert 
+system_u:system_r:insmod_t:s0 to sid
+Invalid Source Context system_u:system_r:insmod_t:s0
 
-This way, any Linux user account that happens to be part of the "wadm"
-group would automatically be mapped to staff_u  ? This way we don't have
-to execute several semanage commands to create all those individual
-mappings ?
+root@localhost:/root>
 
-Thanks as always.
+Using selinux-svn2928 and refpolicy-2744 (standard)
 
+
+Vikram
 
 --
 This message was distributed to subscribers of the selinux mailing list.
