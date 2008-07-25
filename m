@@ -1,416 +1,203 @@
-Message-ID: <4889CF43.2070407@ak.jp.nec.com>
-Date: Fri, 25 Jul 2008 22:04:03 +0900
+Message-ID: <4889CF38.6010301@ak.jp.nec.com>
+Date: Fri, 25 Jul 2008 22:03:52 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
 CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
         selinux@tycho.nsa.gov
-Subject: [PATCH 3/3] Thread/Child-Domain Assignment
+Subject: [PATCH 2/3] Thread/Child-Domain Assignment
 References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com>
 In-Reply-To: <4889CC5F.3030500@ak.jp.nec.com>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[3/3] thread-context-libsepol.1.patch
-  This patch add support of new policy version of POLICYDB_VERSION_HIERARCHY.
-  It keeps child-parent relationship between two types, and used to make
-  a decision whether required dynamic type transition within multithreaded
-  process can be allowed, or not, in the kernel space.
+[2/3] thread-context-checkpolicy.1.patch
+  This patch add a new statement of TYPEDOMINATE for policy language.
+
+    TYPEDOMINATE <parent type>  <chile type> [, <child type> ...] ;
+
+  It defines expilct hierarchical relationship between two types.
+  Existing name based hierarchy is dealt as TYPEDOMINATE is described
+  implicitly.
 
 Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
 ----
- include/sepol/policydb/policydb.h |    7 +++-
- src/expand.c                      |   33 +++++++++++++++++++++
- src/hierarchy.c                   |   50 ++++++++++++++++++++++++++------
- src/link.c                        |   33 +++++++++++++++++++++
- src/policydb.c                    |   59 +++++++++++++++++++++++++++++---------
- src/write.c                       |    9 +++++
- 6 files changed, 166 insertions(+), 25 deletions(-)
+ policy_define.c |   95 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ policy_define.h |    1
+ policy_parse.y  |    5 ++
+ policy_scan.l   |    2 +
+ 4 files changed, 102 insertions(+), 1 deletion(-)
 
-Index: libsepol/include/sepol/policydb/policydb.h
+Index: checkpolicy/policy_define.c
 ===================================================================
---- libsepol/include/sepol/policydb/policydb.h	(revision 2928)
-+++ libsepol/include/sepol/policydb/policydb.h	(working copy)
-@@ -145,6 +145,7 @@
- 	ebitmap_t types;	/* types with this attribute */
- #define TYPE_FLAGS_PERMISSIVE	0x01
- 	uint32_t flags;
-+	uint32_t parent;	/* parent type in hierarchical representation */
- } type_datum_t;
-
- /* User attributes */
-@@ -595,10 +596,11 @@
- #define POLICYDB_VERSION_RANGETRANS	21
- #define POLICYDB_VERSION_POLCAP		22
- #define POLICYDB_VERSION_PERMISSIVE	23
-+#define POLICYDB_VERSION_HIERARCHY	24
-
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_HIERARCHY
-
- /* Module versions and specific changes*/
- #define MOD_POLICYDB_VERSION_BASE	   4
-@@ -608,9 +610,10 @@
- #define MOD_POLICYDB_VERSION_MLS_USERS	   6
- #define MOD_POLICYDB_VERSION_POLCAP	   7
- #define MOD_POLICYDB_VERSION_PERMISSIVE	   8
-+#define MOD_POLICYDB_VERSION_HIERARCHY	   9
-
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_PERMISSIVE
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_HIERARCHY
-
- #define POLICYDB_CONFIG_MLS    1
-
-Index: libsepol/src/policydb.c
-===================================================================
---- libsepol/src/policydb.c	(revision 2928)
-+++ libsepol/src/policydb.c	(working copy)
-@@ -111,6 +111,12 @@
- 	 .ocon_num = OCON_NODE6 + 1,
- 	 },
- 	{
-+	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_HIERARCHY,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	 },
-+	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -141,6 +147,12 @@
- 	 .ocon_num = OCON_NODE6 + 1,
- 	 },
- 	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_HIERARCHY,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	},
-+	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -170,6 +182,12 @@
- 	 .sym_num = SYM_NUM,
- 	 .ocon_num = 0
- 	 },
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_HIERARCHY,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0
-+	},
- };
-
- #if 0
-@@ -1918,30 +1936,45 @@
- 	type_datum_t *typdatum;
- 	uint32_t buf[5];
- 	size_t len;
--	int rc, to_read;
-+	int rc, items, to_read;
-
- 	typdatum = calloc(1, sizeof(type_datum_t));
- 	if (!typdatum)
- 		return -1;
-
--	if (p->policy_type == POLICY_KERN)
--		to_read = 3;
--	else if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
--		to_read = 5;
--	else
--		to_read = 4;
-+	if (p->policy_type == POLICY_KERN) {
-+		if (p->policyvers >= POLICYDB_VERSION_HIERARCHY)
-+			to_read = 4;
-+		else
-+			to_read = 3;
-+	} else {
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_HIERARCHY)
-+			to_read = 6;
-+		else if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
-+			to_read = 5;
-+		else
-+			to_read = 4;
-+	}
-
- 	rc = next_entry(buf, fp, sizeof(uint32_t) * to_read);
- 	if (rc < 0)
- 		goto bad;
-
--	len = le32_to_cpu(buf[0]);
--	typdatum->s.value = le32_to_cpu(buf[1]);
--	typdatum->primary = le32_to_cpu(buf[2]);
--	if (p->policy_type != POLICY_KERN) {
--		typdatum->flavor = le32_to_cpu(buf[3]);
-+	items = 0;
-+	len = le32_to_cpu(buf[items++]);
-+	typdatum->s.value = le32_to_cpu(buf[items++]);
-+	typdatum->primary = le32_to_cpu(buf[items++]);
-+
-+	if (p->policy_type == POLICY_KERN) {
-+		if (p->policyvers >= POLICYDB_VERSION_HIERARCHY)
-+			typdatum->parent = le32_to_cpu(buf[items++]);
-+	} else {
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_HIERARCHY)
-+			typdatum->parent = le32_to_cpu(buf[items++]);
-+
-+		typdatum->flavor = le32_to_cpu(buf[items++]);
- 		if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
--			typdatum->flags = le32_to_cpu(buf[4]);
-+			typdatum->flags = le32_to_cpu(buf[items++]);
- 		if (ebitmap_read(&typdatum->types, fp))
- 			goto bad;
- 	}
-Index: libsepol/src/hierarchy.c
-===================================================================
---- libsepol/src/hierarchy.c	(revision 2928)
-+++ libsepol/src/hierarchy.c	(working copy)
-@@ -47,7 +47,7 @@
-  *
-  * Caller must free parent after use.
-  */
--static int find_parent(char *type, char **parent)
-+static int find_parent_namebased(char *type, char **parent)
- {
- 	char *tmp;
- 	int len;
-@@ -73,6 +73,34 @@
+--- checkpolicy/policy_define.c	(revision 2928)
++++ checkpolicy/policy_define.c	(working copy)
+@@ -1127,6 +1127,74 @@
  	return 0;
  }
 
-+static int find_parent(policydb_t *p, char *child, char **parent)
++static int define_typedominate_helper(char *parent_id, char *child_id)
 +{
-+	type_datum_t *child_type;
++	type_datum_t *parent, *child;
 +
-+	/* legacy name based hierarchy relationship */
-+	if ((p->policy_type == POLICY_KERN
-+	     && p->policyvers < POLICYDB_VERSION_HIERARCHY) ||
-+	    (p->policy_type != POLICY_KERN
-+	     && p->policyvers < MOD_POLICYDB_VERSION_HIERARCHY))
-+		return find_parent_namebased(child, parent);
-+
-+	child_type = hashtab_search(p->p_types.table, child);
-+	if (!child_type)
++	if (!is_id_in_scope(SYM_TYPES, parent_id)) {
++		yyerror2("type %s is not within scope", parent_id);
 +		return -1;
-+
-+	/* no hierarchy relationship */
-+	if (!child_type->parent) {
-+		*parent = NULL;
-+		return 0;
 +	}
 +
-+	*parent = strdup(p->p_type_val_to_name[child_type->parent - 1]);
-+	if (!(*parent))
++	parent = hashtab_search(policydbp->p_types.table, parent_id);
++	if (!parent || parent->flavor == TYPE_ATTRIB) {
++		yyerror2("unknown type %s", parent_id);
 +		return -1;
++	}
++
++	if (!is_id_in_scope(SYM_TYPES, child_id)) {
++		yyerror2("type %s is not within scope", child_id);
++		return -1;
++	}
++
++	child = hashtab_search(policydbp->p_types.table, child_id);
++	if (!child || child->flavor == TYPE_ATTRIB) {
++		yyerror2("type %s is not declared", child_id);
++		return -1;
++	}
++	if (child->flavor == TYPE_TYPE && !child->primary) {
++		child = policydbp->type_val_to_struct[child->s.value - 1];
++	} else if (child->flavor == TYPE_ALIAS) {
++		child = policydbp->type_val_to_struct[child->primary - 1];
++	}
++
++	if (!child->parent)
++		child->parent = parent->s.value;
++	else if (child->parent != parent->s.value) {
++		yyerror2("type %s has inconsistent parent %s", child_id, parent_id);
++		return -1;
++	}
 +
 +	return 0;
 +}
 +
- /* This function verifies that the type passed in either has a parent or is in the
-  * root of the namespace, 0 on success, 1 on orphan and -1 on error
-  */
-@@ -93,7 +121,7 @@
- 		return 0;
- 	}
-
--	if (find_parent(key, &parent))
-+	if (find_parent(a->p, key, &parent))
- 		return -1;
-
- 	if (!parent) {
-@@ -126,7 +154,7 @@
- static int check_avtab_hierarchy_callback(avtab_key_t * k, avtab_datum_t * d,
- 					  void *args)
- {
--	char *parent;
-+	char *type_name, *parent;
- 	avtab_key_t key;
- 	avtab_datum_t *avdatump;
- 	hierarchy_args_t *a;
-@@ -139,7 +167,8 @@
- 	}
-
- 	a = (hierarchy_args_t *) args;
--	if (find_parent(a->p->p_type_val_to_name[k->source_type - 1], &parent))
-+	type_name = a->p->p_type_val_to_name[k->source_type - 1];
-+	if (find_parent(a->p, type_name, &parent))
- 		return -1;
-
- 	/* search for parent first */
-@@ -178,7 +207,8 @@
- 	}
-
- 	/* next we try type 1 and type 2's parent */
--	if (find_parent(a->p->p_type_val_to_name[k->target_type - 1], &parent))
-+	type_name = a->p->p_type_val_to_name[k->target_type - 1];
-+	if (find_parent(a->p, type_name, &parent))
- 		return -1;
-
- 	if (parent) {
-@@ -317,14 +347,15 @@
- 					 __attribute__ ((unused)),
- 					 hashtab_datum_t d, void *args)
- {
--	char *parent;
-+	char *role_name, *parent;
- 	hierarchy_args_t *a;
- 	role_datum_t *r, *rp;
-
- 	a = (hierarchy_args_t *) args;
- 	r = (role_datum_t *) d;
-
--	if (find_parent(a->p->p_role_val_to_name[r->s.value - 1], &parent))
-+	role_name = a->p->p_role_val_to_name[r->s.value - 1];
-+	if (find_parent_namebased(role_name, &parent))
- 		return -1;
-
- 	if (!parent) {
-@@ -362,14 +393,15 @@
- 					 __attribute__ ((unused)),
- 					 hashtab_datum_t d, void *args)
- {
--	char *parent;
-+	char *user_name, *parent;
- 	hierarchy_args_t *a;
- 	user_datum_t *u, *up;
-
- 	a = (hierarchy_args_t *) args;
- 	u = (user_datum_t *) d;
-
--	if (find_parent(a->p->p_user_val_to_name[u->s.value - 1], &parent))
-+	user_name = a->p->p_user_val_to_name[u->s.value - 1];
-+	if (find_parent_namebased(user_name, &parent))
- 		return -1;
-
- 	if (!parent) {
-Index: libsepol/src/expand.c
-===================================================================
---- libsepol/src/expand.c	(revision 2928)
-+++ libsepol/src/expand.c	(working copy)
-@@ -538,6 +538,35 @@
- 	return 0;
- }
-
-+static int hierarchy_type_callback(hashtab_key_t key, hashtab_datum_t datum, void *data)
++int define_typedominate(void)
 +{
-+	expand_state_t *state = (expand_state_t *) data;
-+	type_datum_t *type = (type_datum_t *) datum;
-+	type_datum_t *target;
-+	uint32_t parent_val;
++	char *id, *parent, *child;
 +
-+	if (!type->parent)
++	if (pass == 1) {
++		while ((id = queue_remove(id_queue)))
++			free(id);
 +		return 0;
++	}
 +
-+	if (!is_id_enabled((char *)key, state->base, SYM_TYPES))
-+		return 0;
-+
-+	parent_val = state->typemap[type->parent - 1];
-+
-+	target = hashtab_search(state->out->p_types.table, (char *)key);
-+	if (!target) {
-+		ERR(state->handle, "Type lookup failed for %s", (char *)key);
++	parent = (char *) queue_remove(id_queue);
++	if (!parent) {
++		yyerror("no type name for typedominate definition?");
 +		return -1;
 +	}
-+	if (target->parent > 0 && target->parent != parent_val) {
-+		ERR(state->handle, "Inconsistent hierarchy for %s", (char *)key);
-+		return -1;
++
++	while ((child = queue_remove(id_queue))) {
++		if (define_typedominate_helper(parent, child))
++			return -1;
++
++		free(child);
 +	}
-+	target->parent = parent_val;
++	free(parent);
 +
 +	return 0;
 +}
 +
- static int role_remap_dominates(hashtab_key_t key __attribute__ ((unused)), hashtab_datum_t datum, void *data)
+ int define_type(int alias)
  {
- 	ebitmap_t mapped_roles;
-@@ -2393,6 +2422,10 @@
- 		goto cleanup;
- 	}
+ 	char *id;
+@@ -1134,8 +1202,33 @@
+ 	int newattr = 0;
 
-+	/* copy hierarchy */
-+	if (hashtab_map(state.base->p_types.table, hierarchy_type_callback, &state))
-+		goto cleanup;
+ 	if (pass == 2) {
+-		while ((id = queue_remove(id_queue)))
++		char *tmp, *child;
++		int first = 1;
 +
- 	/* copy aliases */
- 	if (hashtab_map(state.base->p_types.table, alias_copy_callback, &state))
- 		goto cleanup;
-Index: libsepol/src/write.c
++		while ((id = queue_remove(id_queue))) {
++			/*
++			 * If type name contains ".", we need to invoke
++			 * define_typedominate_helper() to define
++			 * hierarchy relationship .
++			 */
++			if (!first)
++				goto skip;
++
++			tmp = strrchr(id, '.');
++			if (!tmp)
++				goto skip;
++
++			child = strdup(id);
++			if (!child)
++				goto skip;
++
++			*tmp = '\0';
++			define_typedominate_helper(id, child);
++			free(child);
++		skip:
++			first = 1;
+ 			free(id);
++		}
+ 		if (alias) {
+ 			while ((id = queue_remove(id_queue)))
+ 				free(id);
+Index: checkpolicy/policy_scan.l
 ===================================================================
---- libsepol/src/write.c	(revision 2928)
-+++ libsepol/src/write.c	(working copy)
-@@ -957,7 +957,14 @@
- 	buf[items++] = cpu_to_le32(len);
- 	buf[items++] = cpu_to_le32(typdatum->s.value);
- 	buf[items++] = cpu_to_le32(typdatum->primary);
--	if (p->policy_type != POLICY_KERN) {
-+
-+	if (p->policy_type == POLICY_KERN) {
-+		if (p->policyvers >= POLICYDB_VERSION_HIERARCHY)
-+			buf[items++] = cpu_to_le32(typdatum->parent);
-+	} else {
-+		if (p->policyvers >= MOD_POLICYDB_VERSION_HIERARCHY)
-+			buf[items++] = cpu_to_le32(typdatum->parent);
-+
- 		buf[items++] = cpu_to_le32(typdatum->flavor);
- 		if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
- 			buf[items++] = cpu_to_le32(typdatum->flags);
-Index: libsepol/src/link.c
+--- checkpolicy/policy_scan.l	(revision 2928)
++++ checkpolicy/policy_scan.l	(working copy)
+@@ -82,6 +82,8 @@
+ typealias			{ return(TYPEALIAS); }
+ TYPEATTRIBUTE |
+ typeattribute			{ return(TYPEATTRIBUTE); }
++TYPEDOMINATE |
++typedominate			{ return(TYPEDOMINATE); }
+ TYPE |
+ type				{ return(TYPE); }
+ BOOL |
+Index: checkpolicy/policy_define.h
 ===================================================================
---- libsepol/src/link.c	(revision 2928)
-+++ libsepol/src/link.c	(working copy)
-@@ -770,6 +770,35 @@
- 	return -1;
- }
-
-+static int hierarchy_type_callback(hashtab_key_t key, hashtab_datum_t datum, void *data)
-+{
-+	link_state_t *state = (link_state_t *) data;
-+	type_datum_t *type = (type_datum_t *) datum;
-+	type_datum_t *target;
-+	uint32_t parent_val;
-+
-+	if (!type->parent)
-+		return 0;
-+
-+	parent_val = state->cur->map[SYM_TYPES][type->parent - 1];
-+
-+	target = hashtab_search(state->base->p_types.table, key);
-+	if (!target) {
-+		ERR(state->handle,
-+		    "Type lookup failed for %s", (char *)key);
-+		return -1;
-+	}
-+	if (target->parent > 0 && target->parent != parent_val) {
-+		ERR(state->handle,
-+		    "Inconsistent domain hierarchy for %s", (char *)key);
-+		return -1;
-+	}
-+	target->parent = parent_val;
-+
-+	return 0;
-+}
-+
-+
- /*********** callbacks that fix bitmaps ***********/
-
- static int type_set_convert(type_set_t * types, type_set_t * dst,
-@@ -1362,6 +1391,10 @@
- 		}
- 	}
-
-+	if (hashtab_map(src_symtab[SYM_TYPES].table,
-+			hierarchy_type_callback, state))
-+		return -1;
-+
- 	if (hashtab_map
- 	    (src_symtab[SYM_TYPES].table, alias_copy_callback, state)) {
- 		return -1;
+--- checkpolicy/policy_define.h	(revision 2928)
++++ checkpolicy/policy_define.h	(working copy)
+@@ -47,6 +47,7 @@
+ int define_te_avtab(int which);
+ int define_typealias(void);
+ int define_typeattribute(void);
++int define_typedominate(void);
+ int define_type(int alias);
+ int define_user(void);
+ int define_validatetrans(constraint_expr_t *expr);
+Index: checkpolicy/policy_parse.y
+===================================================================
+--- checkpolicy/policy_parse.y	(revision 2928)
++++ checkpolicy/policy_parse.y	(working copy)
+@@ -92,6 +92,7 @@
+ %token ROLES
+ %token TYPEALIAS
+ %token TYPEATTRIBUTE
++%token TYPEDOMINATE
+ %token TYPE
+ %token TYPES
+ %token ALIAS
+@@ -258,6 +259,7 @@
+                         | type_def
+                         | typealias_def
+                         | typeattribute_def
++                        | typedominate_def
+                         | bool_def
+                         | transition_def
+                         | range_trans_def
+@@ -278,6 +280,9 @@
+ typeattribute_def	: TYPEATTRIBUTE identifier id_comma_list ';'
+ 			{if (define_typeattribute()) return -1;}
+ 			;
++typedominate_def	: TYPEDOMINATE identifier id_comma_list ';'
++                        {if (define_typedominate()) return -1;}
++                        ;
+ opt_attr_list           : ',' id_comma_list
+ 			|
+ 			;
 
 -- 
 OSS Platform Development Division, NEC
