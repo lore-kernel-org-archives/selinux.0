@@ -1,63 +1,32 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6PIcZOx010663
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 14:38:45 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6PIgKML011312
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 14:42:20 -0400
 Received: from e1.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6PIcYLe003288
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 18:38:34 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6PIgJLe004508
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 18:42:19 GMT
 Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e1.ny.us.ibm.com (8.13.8/8.13.8) with ESMTP id m6PIcTPZ025929
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 14:38:29 -0400
-Received: from d01av01.pok.ibm.com (d01av01.pok.ibm.com [9.56.224.215])
-	by d01relay02.pok.ibm.com (8.13.8/8.13.8/NCO v9.0) with ESMTP id m6PIcTxI126236
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 14:38:29 -0400
-Received: from d01av01.pok.ibm.com (loopback [127.0.0.1])
-	by d01av01.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id m6PIcTx9023374
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 14:38:29 -0400
-Date: Fri, 25 Jul 2008 12:51:19 -0500
+	by e1.ny.us.ibm.com (8.13.8/8.13.8) with ESMTP id m6PIgJMm003141
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 14:42:19 -0400
+Received: from d01av03.pok.ibm.com (d01av03.pok.ibm.com [9.56.224.217])
+	by d01relay02.pok.ibm.com (8.13.8/8.13.8/NCO v9.0) with ESMTP id m6PIgJkU187010
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 14:42:19 -0400
+Received: from d01av03.pok.ibm.com (loopback [127.0.0.1])
+	by d01av03.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id m6PIgJIv003031
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 14:42:19 -0400
+Date: Fri, 25 Jul 2008 12:55:13 -0500
 From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200807251751.m6PHpJk4012058@faith.austin.ibm.com>
+Message-Id: <200807251755.m6PHtDrb012075@faith.austin.ibm.com>
 To: selinux@tycho.nsa.gov
-Subject: [RFC 1/2] labeled ipsec internet drafts
+Subject: [RFC 2/2] labeled ipsec internet drafts
 Cc: gcwilson@us.ibm.com, serue@us.ibm.com, tjaeger@cse.psu.edu
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-My apologies if you have already received copies of this. 
-I sent this email out earlier this week, but it appears to 
-have never arrived to selinux mailing list, so trying again 
-without attachments.
-
-regards,
-
-Joy 
-
-----------------------------------------------------------------------------
-
-I have attached two internet drafts for labeled ipsec for the community's 
-review if interested.
-
-I have not yet submitted to IETF. I'd need comments by next
-Thursday (July 31) so I can incorporate any comments before submitting. 
-
-There are two drafts because IKEv1 was obsoleted by IKEv2, but most 
-are still using IKEv1. I also noticed some recent IPsec rfcs, particularly 
-those proposing algorithm suites sometimes referred to IKEv1 also, 
-although it has been obsoleted. So just in case, there is a draft for 
-IKEv1 too. It didn't seem the drafts could be merged since ikev1 and ikev2 
-are different.
-
-Lastly, IPsec architecture rfc 2401 was obsoleted by rfc 4301. 
-2401, section 8 supported "MLS networking" within IPsec. All this was 
-removed from rfc 4301. Thus the labeled ipsec draft for ikev2, 
-reintroduces mls networking as MAC Networking and is longer. 
-
-Please let me know if anything is missing or could be improved.
-Thanks!
+2nd internet draft for labeled ipsec based on IKEv2 and updated
+IPSec Architecture, rfc 4301.
 
 regards,
 Joy
-
----------------------------------------------------------------
 
 
 
@@ -69,14 +38,11 @@ Intended Status: Standards Track                        S. Hallyn
 Expires: ?                                                    IBM
                                                         T. Jaeger
                                                        Penn State
-                                                        June 2008
+                                                        July 2008
 
-                        Security Label Addendum to 
-                    IPsec Domain of Interpretation (DOI)
-                      for Internet Security Association 
-                    and Key Management Protocol (ISAKMP)
+                    Security Label Addendum to IPsec
+                 draft-jml-ipsec-ikev2-security-label-00
 
-                  draft-jml-ipsec-ikev1-security-label-00
 
 Status of This Memo
 
@@ -109,50 +75,80 @@ Copyright Notice
 
 Abstract
 
-   This document describes the need for and the use of a security label
-   within IPsec. It describes the extension to the Internet IP Security
+   This document describes the high-level requirements needed within
+   IPsec to support Mandatory Access Control (MAC) on network
+   communications. It describes the extensions to the Security
+   Architecture for the Internet Protocol [RFC4301] and the Internet
+   Key Exchange Protocol Version 2 [RFC4306]. It also describes the 
 
 
 
-Latten, et al.               Expires ?                          [Page 1]
+Latten, et al.             Expires ?                           [Page 1]
 
-Internet-Draft               IKEv1SecurityLabel                June 2008
+Internet-Draft         IKEv2SecurityLabel                      June 2008
 
 
-   Domain of Interpretation (IPsec DOI) [RFC2407] for the Internet
-   Security Association and Key Management Protocol (ISAKMP) [RFC2408]. 
-   This extension supports the negotiation of the security label for a 
-   particular IP Authentication Header (AH) [RFC4302] or IP 
-   Encapsulating Security Payload (ESP) [RFC4303] security association.
+   negotiation of the security label for a particular Authentication 
+   Header (AH) [RFC4302] and/or Encapsulating Security Payload (ESP) 
+   [RFC4303] security association.
 
 1. Introduction
 
-   Traditionally, security context referred to the security level and
-   category used by Multilevel Security (MLS). This document will refer
-   to the security level and category as the security classification.
+   In computer security, Mandatory Access Control usually refers to a
+   system in which all subjects and objects are labeled with a security
+   context. The security context is comprised of a set of security
+   attributes. The security contexts along with a system authorization 
+   policy determine access. Rules within the system authorization policy 
+   determine whether the access will be granted based on the security 
+   attributes of the subject and object.
 
-   Current security mechanisms, such as SELinux, use the security
-   classification and additional security attributes to form their 
-   security context. For example, a type for type enforcement. 
-  
-   Techniques such as IP Security Options (IPSO) allow IP datagrams to
-   be labeled with an MLS security classification [RFC1108]. This 
-   ensured the same security applied to local objects and resources was 
-   utilized when communicating over the network with homogenous systems.
-   However, these techniques cannot pass along the additional security
-   attributes used in current security mechanisms.
+   Traditionally, MAC implied Multilevel Security (MLS) systems. MLS
+   utilizes a security context consisting of a sensitivity or security
+   level and category. This document will refer to the security level 
+   and category as the security classiffication. In MLS, the use of a
+   security classification allowed segregation of information thus
+   facilitating data confidentiality. 
 
-   The ISAKMP specification defines a Situation field in the Security 
-   Association payload [RFC2408]. The IPsec DOI describes the use of 
-   this field to communicate sensitivity and integrity classification 
-   information between initiator and responder when negotiating a 
-   security association [RFC2407]. However, it does not provide for 
-   additional security attributes that may be required by the security 
-   mechanism being deployed in the environment.
+   MAC systems have become more mainstream and is no longer just
+   associated with MLS. Within a strictly hierarchical system such as 
+   MLS, often there are tasks that need to be exempt from the MLS
+   policy, thus leaving them exposed. However, methods such as Type 
+   Enforcement (TE) are not hierarchical and allow precise rules to 
+   be written about access using security attributes [MayMacCap]. TE can
+   be used to control access these "exempt" tasks. A MAC system can 
+   employ both MLS and TE to control access. Such systems require 
+   additional security attributes besides the security classification 
+   used by MLS. For example, a domain type attribute may be used to 
+   control access in TE [MayMacCap]. 
 
-   This document describes the additions to the IPsec DOI for ISAKMP
-   that are needed to support communication of additional security 
-   attributes between two hosts, in particular a security label.
+   These MAC systems concentrate on securing local objects and
+   resources but have no way of applying their security contexts to
+   network communications to ensure the same security when
+   communicating with homogenous systems.
+
+   Techniques such as IP Security Options (IPSO) allow IP datagrams to 
+   be labeled with a MLS security classification [RFC1108]. However,
+   they do not accomodate additional security attributes such as the 
+   type in TE. MAC implementations requiring additional security 
+   attributes, such as SELinux, can use IPsec mechanisms to control 
+   access [LevIPsecMAC].
+
+   This document will describe how IPsec mechanisms can support 
+   MAC networking. It will also describe the additions to IKEv2 to 
+   support communication of a security context during negotiations to 
+
+
+
+Latten, et al.             Expires ?                           [Page 2]
+
+Internet-Draft         IKEv2SecurityLabel                      June 2008
+
+
+   establish an AH and ESP security association. 
+
+   Within this document, security label and security context refer to
+   the same thing. And MAC networking and labeled networking are
+   used interchangeably. 
 
 2. Terminology
  
@@ -160,53 +156,248 @@ Internet-Draft               IKEv1SecurityLabel                June 2008
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
 
+3. Labeled Networking
+
+   Within a MAC environment, the underlying security mechanism applies 
+   a security context to all the subjects and objects on the local
+   system. The security context along with a MAC authorization policy 
+   determines whether a subject may access an object.
+
+   In labeled networking, a security context is applied to data 
+   exported over the network. The MAC system can then use labeled 
+   networking to make informed access decisions. Systems wishing to 
+   communicate with each other must deploy the same MAC authorization 
+   policy and security context for consistency.
+
+   IPsec mechanisms can support labeled networking whether implicit or
+   explicit labels are being used.
+
+   Explicit labeling refers to transmitting the security context in the
+   IP datagram, such as in IPSO. When explicit labeling is used the 
+   encryption and authentication services provided in IPsec can be
+   used to authenticate the bindings between the security label in the
+   IP header and payload and provide confidentiality [RFC2401].
+
+   In an implicit labeling scheme, the security context is not
+   transmitted as part of the IP datagram. IPsec provides implicit
+   labeling in that the security context is part of the IPsec Security 
+   Association and not transmitted with each packet.
+
+3.1 Relationship Between a Security Association and Security Label
+
+   In MAC networking, the traffic between two systems may require 
+   several different security contexts. For example, ftp and a mail 
+   program may each label their data with a different security context. 
+   Recall that SAs exist in pairs, one for inbound and one for outbound. 
+   Each instance of a security label will require an SA pair. Thus 
+   traffic between two systems may have several SA pairs with identical 
+   selectors except for the security context. If using a combination of 
 
 
 
-
-
-
-
-
-
-
-Latten, et al.               Expires ?                          [Page 2]
+Latten, et al.             Expires ?                           [Page 3]
 
-Internet-Draft               IKEv1SecurityLabel                June 2008
+Internet-Draft         IKEv2SecurityLabel                      June 2008
 
 
-3. IPsec Security Association Attribute
+   ESP and AH, then there will be an ESP SA pair and an AH SA pair per 
+   instance of a security label.
 
-    The following SA attribute definition is used in Phase II of an
-    Internet Key Exchange Protocol (IKE) negotiation that includes a 
-    security label. The attribute type is Variable-Length (V).  
-    Encoding of attributes is defined in the base ISAKMP specification 
-    [RFC2408].
+3.2 Security Context Selector
 
-    Attribute Type
+   [RFC4301] describes the Security Policy Database (SPD), and the
+   Security Association Database (SAD) and corresponding selectors.
 
-                class                   value           type
-          ------------------------------------------------------
-               Security Label             ?              V
+   MAC networking introduces an additional selector, the Security
+   Context selector. This selector is only required when MAC
+   networking is deployed. 
     
-    Class Values
+        - Security Context: MAC implementation's security context.
+          The security context can be an IPSO/CIPSO label when
+          IPsec is used to support explicit labels.
 
-      Security Label
+   Recall, in MAC networking, multiple SAs may exist between two 
+   systems differing only in their security labels. The Security Context
+   selector ensures that the appropriate SA pair is used to secure a
+   particular communication.
 
-        Specifies that the security association is being negotiated 
-        in an environment that requires labeled security. This field 
-        will contain the security label.
+   The Security Context selector within the SPD allows the system
+   administrator to specify which traffic streams will be authorized
+   to communicate within the system's MAC policy. It also specifies
+   which traffic streams will have labeled communications and which
+   will not.
 
-        The security label has the following format.
+3.3 Security Context Selector and PFP
 
-        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-       |     doi       |  algorithm    |            length             |
-       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-       |                 security label (variable)                     |
-       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   [RFC4301] introduced and described Populate From Packet (PFP)
+   flags. When creating an SA, the PFP flag determines whether to
+   instantiate the corresponding selector in the new SA with 
+   information from the packet that triggered the creation or from
+   information in the corresponding SPD entry.
 
-                     Figure 1: Security Label format
+   In MAC implementations, the security context that will be associated
+   with the new SA MUST NOT be the SPD entry's security context. The
+   security contexts in the SPD entry and in the SA entry are to label
+   two different objects respectively. The security context in the SPD 
+   entry controls access to the entry itself and it's IPsec 
+   configuration information. Thus the SPD entry itself is considered an 
+   object. The SA's security context provides security attributes for 
+   the packet which can also indicate the security attributes of the 
+   sender or process. Keeping these separate allows a MAC implementation 
+   to control which packets may use a particular IPsec configuration.
+
+   Therefore, when using IPsec to provide implicit labels, the PFP flag 
+   must not be used to determine where to get the security context for 
+   the new SA.
+
+
+Latten, et al.             Expires ?                           [Page 4]
+
+Internet-Draft         IKEv2SecurityLabel                      June 2008
+
+
+3.4 Outbound Processing for MAC Networking
+
+   When consulting the SPD for an outbound policy, the data's security
+   label is used to determine if it is authorized to access the
+   particular SPD entry and use its configuration information for
+   sending. This adds the additional check in that the outbound packet
+   will not generate an SA pair that the policy entry does not allow.
+   So for example, in an MLS implementation, a high secrecy process
+   cannot generate an SA allowing it to send data to a low secrecy 
+   process.
+
+   Similarly, when consulting the SAD to find an outbound SA, the
+   the data's security context is used to select the appropriate SA to
+   send on.
+
+   In the case that a suitable outbound policy is found, but there isn't
+   an SA, the message sent to the key management system to create an SA
+   MUST contain the security label associated with the data. This allows 
+   for the key manager to create an SA pair with the correct security 
+   label for the data to be transmitted.
+
+   A MAC implementation MAY label it's interface and/or configured IP
+   address. If so, before forwarding the packet out to its destination,
+   a check should be made that the outbound packet is authorized to
+   send out on the interface and/or configured ip address [RFC2401].
+
+3.4 Inbound Processing for MAC Networking
+
+   The use of the SPI to map IPsec protected packets to an SA ensures
+   we select the correct SA to process the inbound packet.
+
+   The MAC implementation MUST retain the binding between the data
+   received in the IPsec protected packet and the security label in
+   the SA used to process the packet. This is required so that
+   suitable MAC policy decisions can be made when delivering the data
+   to an application or when fowarding. The means for maintaining this
+   binding are implementation specific. [RFC2401]
+
+   A MAC implementation MAY label it's interface or configured IP
+   address. If so, the MAC implementation SHOULD check the inbound
+   packet's security label (as defined by the SA used to process the
+   packet) with the security label of the interface or configured IP
+   address before forwarding to upper-layer protocol or to
+   destination [RFC2401].
+
+3.5 MAC Processing for Security Gateways
+
+   A security gateway enforcing MAC and using labeled SAs MUST follow
+
+
+
+Latten, et al.             Expires ?                           [Page 5]
+
+Internet-Draft         IKEv2SecurityLabel                      June 2008
+
+
+   the inbound and outbound processing mentioned above as well as some
+   additional processing particular to the intermediate protection of
+   packets in a MAC environment [RFC2401].
+
+   A security gateway enforcing MAC MUST create and use appropriate
+   SAs to protect packets that it forwards for systems behind it. 
+   [RFC2401] The systems behind the security gateway may or may not be 
+   using MAC. The gateway SHOULD utilize various attributes of the 
+   traffic and/or existing labels to determine the security labels for 
+   the SAs to be created and applied.
+
+   Similarly, such a gateway SHOULD accept and process inbound AH
+   and/or ESP packets and forward appropriately, utilizing various
+   attributes of the traffic and/or existing labels [RFC2401].
+
+4. Security Context Transform
+
+   When the initiator requests a new SA to be created, the 
+   security context is communicated in the information required for 
+   the new IPsec SA. Security contexts are not communicated for IKE_SAs, 
+   only IPsec SAs.
+
+   The following transform definition is used to communicate a security
+   context when creating the CHILD_SA in the IKE_AUTH exchange or when
+   creating or rekeying an IPsec SA in the CREATE_CHILD_SA exchange.
+
+   The transform type value is:
+
+   Description        Transform Type      Used In
+   .................................................
+   Security Context       (?)6            ESP and AH
+
+   When using IPsec's implicit labelin, the existence of a security
+   context for the SPD entry indicates all SAs created by this entry
+   MUST be labeled. If an SPD entry does not have a security context, 
+   then resulting SAs will not have a security context. Within MAC 
+   it may be desireable that some network communications not be labeled 
+   and just protected by IPsec. For example, a security gateway 
+   enforcing MAC but the systems behind it do not. These SPD entries 
+   would not have a security context. However, when the security 
+   gateway talks to another security gateway, it may want to use 
+   implicit labeling. Therefore, the use of a security context with 
+   the ESP and AH protocols when MAC is enforced is optional.
+
+   Only one transform of type (?)6 is allowed per protocol. In other
+   words, you cannot communicate two different security contexts within 
+   a single SA payload being negotiated.
+
+
+
+
+Latten, et al.             Expires ?                           [Page 6]
+
+Internet-Draft         IKEv2SecurityLabel                      June 2008
+
+
+   For Transform Type (?)6 (Security Context), the defined Transform IDs
+   are:
+  
+   Security Mechanism          Number
+   ...........................................
+   Reserved                     0
+   SELinux                      (?)1  
+   Smack                        (?)2
+   Reserved to IANA             (?)3 - 1023
+   Private Use                  1024 - 65535
+
+
+   The Transform Attribute Type:
+
+   Attribute Type       Value       Attribute Format
+   .......................................................
+   Security Context     (?)18             TLV
+
+   The attribute format is Type/Length/Value allowing for a variable
+   length security context.
+
+
+   The security context has the following format.
+
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     doi       |   security context (variable length)          |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                  Figure 1: Security Context Format
 
        - doi (1 octet) - The first octet contains the security label's
          domain of interpretation.
@@ -215,150 +406,171 @@ Internet-Draft               IKEv1SecurityLabel                June 2008
          systems that agree on the meaning of particular values within
          the security label of a security mechanism.
 
-         The value of 1 is reserved as the default.
+       Reserved        0
+       Default        (?)1
+       Private Use    (?)2 - 255
 
-         Reserved       0
-         Default        1
-
-       - algorithm (1 octet) - The second octet contains the security 
-         label's algorithm.
-
-
-
-
-Latten, et al.               Expires ?                          [Page 3]
-
-Internet-Draft               IKEv1SecurityLabel                June 2008
-
-
-         The security label's algorithm specifies the security
-         mechanism or context in which the label is applicable. For
-         example, the security label is interpreted within the SELinux
-         context.
-
-         Requests for assignment of additional algorithms should be 
-         addressed to the Internet Assigned Numbers Authority (IANA).
-
-         Reserved       0
-         SELinux        1
-         Smack          2
-         Private Use    120-128
-
-       - length (2 octets) - The third and fourth octets contain the 
-         string length of the security context.
-
-       - security label (1 or more octets) - The security label. The
-         actual content will be dependent on the security algorithm
+       - security context (variable length number of octets)
+         The actual content will be dependent on the security mechanism
          that is specified. Within IKE context, this is regarded as
          an opaque bit string.
 
-3. Attribute Negotiation
 
-   If an implementation receives an IPsec DOI attribute or attribute
-   value that it does not support, it SHOULD send an 
-   ATTRIBUTES-NOT-SUPPORT and the security association negotiation 
-   and setup MUST be aborted.
+
+
+
+Latten, et al.             Expires ?                           [Page 7]
+
+Internet-Draft         IKEv2SecurityLabel                      June 2008
+
+
+4.1 Attribute Negotiation
+
+   The description of attribute negotiation in [RFC4306] is applicable
+   also when using security contexts. In addition, only one security
+   context transform (Type 6) is allowed per protocol. And if the
+   initiator sends multiple proposals when negotiating an SA, each
+   proposal MUST contain the same transform type and security context.
+   In other words, a single SA negotiation should contain only one
+   security context.
+
+4.3 CREATE_CHILD_SA Exchange
+
+   [RFC4306] describes the NO_ADDITIONAL_SAS notification.
+   This notification is sent by a responder who is unwilling to accept
+   additional SAs on an IKE_SA or a minimal IPsec implementation.
+
+   Within MAC, the data transmitted between two systems may have 
+   different security contexts. For example, ftp and telnet data may
+   each have their own security contexts. Each instance of a security
+   context requires an SA pair to support context granularity.  
+   There may be multiple SAs with same selectors except for the 
+   security context selector. A responder should be willing to accept 
+   more than one SA on an IKE_SA in MAC networking.
 
 4. Security Considerations
 
-   This document describes an extension to IKE [RFC2409] and ISAKMP 
-   [RFC2408] protocols. The use of the described security label should 
-   not change the basic security features of the two. 
+   Some IPsec implementations may dynamically update the SPD.
+   If the responder does not have an SPD entry, the information within
+   the SA payload is used to generate an SPD entry.
 
-   The IPsec DOI describes a Situation field whose values can be 
-   SIT_SECRECY and/or SIT_INTEGRITY. When SIT_SECRECY is used, it 
-   indicates an environment requiring labeled secrecy and is
-   followed with sensitivity label. When SIT_INTEGITY is used,
-   it indicates an environment requiring labeled integrity and 
-   is followed with integrity information. 
+   MAC networking may impose limitations on IPsec implementations that
+   dynamically update the SPD. The security contexts associated with an
+   SPD entry and an SA are for different purposes as described
+   already in this document. Therefore, the security context in the
+   SA should not be used as the security context for the SPD entry.
 
-   SIT_SECRECY and SIT_INTEGRITY themselves indicate the use of
-   a security label and therefore the security attribute described
-   in this document MUST NOT be used in conjunction with either.
-   The new security attribute extends the existing security
-   mechanism to allow for additional interpretations of a security
-   label and not just those defined by SIT_SECRECY and SIT INTEGRITY.
-   It is possible that the sensitivity level and/or integrity level are
+   IPsec implementations that generate SPD entries during SA
+   negotiation and wish to enforce labeled networking will require a
+   mechanism for system administrators to specify the security context
+   to be used for these SPD entries.
 
 
 
-Latten, et al.               Expires ?                          [Page 4]
+
+
+
+
+
+
+
+
+Latten, et al.             Expires ?                           [Page 8]
 
-Internet-Draft               IKEv1SecurityLabel                June 2008
+Internet-Draft         IKEv2SecurityLabel                      June 2008
 
-
-   included in the security label defined by the security algorithm 
-   using the new security attribute.
 
 5. IANA Considerations
 
-   This document contains two new "magic numbers" which are allocated
-   and maintained by IANA registry.
+   This document contains several new numbers which are allocated
+   and maintained by the IANA registry.
 
-        - The class value for the security label attribute.
+   - The Transform Type value for the security context.
 
-                  class            value     type
-              -----------------------------------------
-                Security Label       ?        V
+     Description             Transform type
+    -----------------------------------------
+     Security Context             (?)6
 
-          Only one value assigned by IANA is required.
+   - The Transform IDs defined within the Security Context Transform
+     Type.
 
-          - The value for the security algorithm.
+     Name              Number
+    ---------------------------
+     Reserved              0
+     SELinux            (?)1
+     Smack              (?)2
+     Reserved to IANA   (?)3 - 1023
+     Private Use        1024 - 65535
 
-                SELinux         1(?)
-                Smack           2(?)
+     Additional values may be assigned by IANA for the security
+     mechanisms requiring IKE to communicate its security label.
 
-          Additional values may be assigned by IANA for the
-          security mechanisms requiring IKE to communicate its
-          security label.
+   - The Security Context attribute type.
 
-Acknowledgements
+     Attribute Type      Value      Attribute Format
+    -----------------------------------------------------
+     Security Context     (?)18           TLV
 
-   The authors would like to thank Stephen Smalley, James Morris and
-   the SELinux community for their work on labeled ipsec.
+6. Acknowledgements
 
-Normative References
+   The authors would like to thank Stephen Smalley and James Morris
+   for their contributions during the initial design; and the members 
+   of the SELinux community who have contributed to the development 
+   and improvement of labeled ipsec and this specification.
+
+7. References
+
+7.1 Normative References
 
    [RFC2119]    Bradner, S., "Key words for use in RFCs to Indicate
                 Requirement Level", BCP 14, RFC 2119, March 1997.
 
-   [RFC2407]    Piper, D., "The Internet IP Security Domain of
-                Interpretation for ISAKMP", RFC 2407, November 1998.
-
-   [RFC2408]    Maughan, D., Schertler, M., Schneider, M., and
-                J. Turner, "Internet Security Association and Key
-                Management Protocol", RFC 2408, November 1998.
-
-   [RFC2409]    Harkins, D. and D. Carrel, "The Internet Key Exchange",
-                RFC 2409, November 1998.
-
-   [RFC4302]   Kent, S., "IP Authentication Header", RFC 4302, 
-               December 2005.
+   [RFC4301]    Kent, S. and K. Seo, "Security Architecture for the
+                Internet Protocol", RFC 4301, December 2005.
 
 
 
-
-Latten, et al.               Expires ?                          [Page 5]
+Latten, et al.             Expires ?                           [Page 9]
 
-Internet-Draft               IKEv1SecurityLabel                June 2008
+Internet-Draft         IKEv2SecurityLabel                      June 2008
 
 
-   [RFC4303]   Kent, S., "IP Encapsulating Security Payload (ESP)", 
-               RFC 4303, December 2005. 
+   [RFC4306]    Kaufman, Ed., "Internet Key Exchange (IKEv2) Protocol",
+                RFC 4306, December 2005.
 
-Informative references
+7.2 Informative References
 
-   [RFC1108]   Kent, S., "U.S. DoD Security Options for the Internet
-               Protocol, RFC 1108, November 1991.
+   [LevIPsecMAC]
+                Jaeger, T., King, David., Butler, K., Hallyn, S.,
+                Latten, J., Zhang, X., "Leveraging IPsec for Mandatory
+                Per-Packet Access Control", 2006
+                http://www.cse.psu.edu/~tjaeger/papers/securecomm06.pdf
+
+   [MayMacCap]  Mayer, F., Macmillan K., Caplan D., SELinux by Example, 
+                Section 1.2.4, Prentice Hall, Upper Saddle River, NJ, 
+                2007
+
+   [RFC1108]    Kent, S., "U.S. DoD Security Options for the Internet
+                Protocol", RFC 1108, November 1991. 
+
+   [RFC2401]    Kent, S., Atkinson, R., Security Architecture for the
+                Internet Protocol, RFC 2401, November 1998. 
+
+   [RFC4302]    Kent, S., "IP Authentication Header", RFC 4302,
+                December 2005.
+
+   [RFC4303]    Kent, S. "IP Encapsulating Security Payload (ESP)",
+                RFC 4303, December 2005.
+
 
 Authors' Addresses
 
 Joy Latten
-IBM 
+IBM
 email: latten@austin.ibm.com
 
 George Wilson
-IBM 
+IBM
 email: gcwilson@us.ibm.com
 
 Serge Hallyn
@@ -374,45 +586,25 @@ email: tjaeger@cse.psu.edu
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Latten, et al.               Expires ?                          [Page 6]
+Latten, et al.             Expires ?                          [Page 10]
 
-Internet-Draft               IKEv1SecurityLabel                June 2008
+Internet-Draft         IKEv2SecurityLabel                      June 2008
 
 
 Full Copyright Statement
 
    Copyright (C) The IETF Trust (2008).
 
-   This document is subject to the rights, licenses and restrictions 
+   This document is subject to the rights, licenses and restrictions
    contained in BCP 78, and except as set forth therein, the authors
    retain all their rights.
 
    This document and the information contained herein are provided on an
    "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
-   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND 
-   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS 
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF 
-   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED 
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
 Intellectual Property
@@ -450,7 +642,7 @@ Intellectual Property
 
 
 
-Latten, et al.               Expires ?                          [Page 7]
+Latten, et al.             Expires ?                          [Page 11]
 
 
 --
