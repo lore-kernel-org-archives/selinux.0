@@ -1,83 +1,88 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6P3Zcn9013055
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 23:35:41 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6P3ZZgJ007375
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 03:35:37 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <stephen.smalley@gmail.com>
-Subject: Re: Policy loading:  initramfs vs. patched /sbin/init
-Date: Fri, 25 Jul 2008 13:35:22 +1000
-Cc: selinux@tycho.nsa.gov, Caleb Case <ccase@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, Chad Sellers <csellers@tresys.com>
-References: <200807231017.30237.russell@coker.com.au> <200807231242.51484.russell@coker.com.au> <1216951692.5185.36.camel@sulphur>
-In-Reply-To: <1216951692.5185.36.camel@sulphur>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200807251335.26628.russell@coker.com.au>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6P4Adhe016525
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 00:10:39 -0400
+Received: from QMTA05.emeryville.ca.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6P4AcGx002732
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 04:10:39 GMT
+Subject: Re: [PATCH] Communication between domains under labeled networks
+From: Chris PeBenito <pebenito@gentoo.org>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov,
+        DGoeddel@TrustedCS.com, vyekkirala@TrustedCS.com
+In-Reply-To: <4885BB42.4060603@ak.jp.nec.com>
+References: <D709A20F2164C84E8B7014B0301F5EF87C72FA@HAVOC.tcs-sec.com>
+	 <1203428116.13618.77.camel@gorn> <47BB7B6A.1090207@ak.jp.nec.com>
+	 <200802192237.22546.paul.moore@hp.com>  <47BBB69C.2050007@ak.jp.nec.com>
+	 <1203955972.32061.55.camel@gorn> <47C3738A.3010007@ak.jp.nec.com>
+	 <4860BA1B.5030302@ak.jp.nec.com>  <4861DED0.9050407@ak.jp.nec.com>
+	 <1216388484.21191.139.camel@gorn>  <4885BB42.4060603@ak.jp.nec.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YqYshakdoDr0E+qHiK4J"
+Date: Fri, 25 Jul 2008 00:10:17 -0400
+Message-Id: <1216959017.5022.42.camel@defiant.pebenito.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://etbe.coker.com.au/2008/07/24/se-linux-policy-loading/
 
-Firstly above is the URL for the blog post in question, for the benefit of 
-people who don't normally read Planet SE Linux.
+--=-YqYshakdoDr0E+qHiK4J
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Friday 25 July 2008 12:08, Stephen Smalley <stephen.smalley@gmail.com> 
-wrote:
-> I saw your blog entry about policy loading on planet selinux - you ought
-> to bring issues like that up on selinux list for discussion rather than
-> just blogging about them.
+On Tue, 2008-07-22 at 19:49 +0900, KaiGai Kohei wrote:
+> Christopher J. PeBenito wrote:
+> > On Wed, 2008-06-25 at 14:59 +0900, KaiGai Kohei wrote:
+> >> Hi,
+> >>
+> >> The attached patch allows user domains to communicate with daemon
+> >> domain, and some other domains (Apache and CGI script) to communicate
+> >> with RDBMS (PostgreSQL and MySQL) using xxxx_tcp_connect() interface.
+> >>
+> >> This approach enables to cover most of relationship needed.
+> >> All we have to do is to describe the rest of relationship like
+> >> ones between CGI script and RDBMS, daemons and name server,
+> >> anything and samba server, ....
+> >>
+> >> At least, we cannot get labeled networks available unless adding
+> >> policies to communicate between proper domains.
+> >> I think it is necessary to make a decision to describe the policies.
 
-If I had realised what was going on before the release of Fedora 9 I would 
-have.  But it seems that the Red Hat people have made their decision, so the 
-decisions about what to do for Debian and Ubuntu have to be made separately.
+> The attached patch is a revised version.
+> Please review it again.
+>=20
+> And I also noticed that ipsec_match_default_spd() should be invoked with
+> server's domain as postgresql_t doing.
+> (e.g: communication between staff_t and sshd_t)
+> I think it also should be allowed for whole of daemon attribute.
+> What is your opinion? The version.3 patch also contains this fix.
 
-> First, to clarify, while Ubuntu and Fedora are initiating the policy
-> load from the initramfs, they are taking the policy from the real root
-> filesystem.  Thus, the policy is not being stored on the initramfs image
-> and updates to policy do not require rebuilding the image.
+I merged everything except for the default spd part.  I don't know if
+its been suggested before, but I'm considering putting that match rule
+into corenet_*_recvfrom_unlabeled().
 
-I have been told that an Ubuntu initramfs generated for a non-SE system will 
-not have the scripts in question installed.  So there is a need to regenerate 
-the initramfs when converting to SE Linux.
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
-> On the positive side, the initramfs-based approach does mean
-> that /sbin/init from the real root automatically transitions into the
-> right domain since policy is already loaded.
+--=-YqYshakdoDr0E+qHiK4J
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Saving one exec system call.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
 
-> And policy gets loaded no 
-> matter what init is used or even if the user specifies an alternate
-> init= program on the kernel command line.
+iEYEABECAAYFAkiJUikACgkQvI7kLeavkkMw8wCgrVnDCSo6FYAH7VNcVjS965kH
+F5AAoJNuiBOEqYt4lCzEGTebmwiT/H5n
+=Q6pJ
+-----END PGP SIGNATURE-----
 
-As I noted in my blog post there are not many init programs.  Only two are 
-commonly used, and one of them has the patch well supported for a long time.  
-Deciding to patch two vastly different initramfs systems instead of one init 
-system (which is very similar the other one) was never going to reduce pain.
+--=-YqYshakdoDr0E+qHiK4J--
 
-> As you note, performing the load from initramfs can be problematic for
-> systems that cannot or choose not to use an initramfs,
-
-Not problematic, a major show-stopper!
-
-> So I'm not fundamentally opposed to having the support in /sbin/init as
-> well if that's feasible, but you'll need it to detect whether policy has
-> already been loaded and skip it if so or it will end up loading policy
-> twice on systems that are using the initramfs-based approach.
-
-Caleb has suggested having the already patched SysV init for systems that 
-can't use initramfs.  That means such detection would be required in that 
-case.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
