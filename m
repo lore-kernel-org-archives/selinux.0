@@ -1,99 +1,68 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6P0MvKu024916
-	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 20:22:57 -0400
-Received: from QMTA06.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6P0MvgJ001716
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 00:22:57 GMT
-Subject: Re: [refpolicy patch]  mozilla replace local policy by interface
-	calls.
-From: Chris PeBenito <pebenito@gentoo.org>
-To: Dominick Grift <domg472@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1216761068.26661.15.camel@sulphur.notebook.internal>
-References: <1216761068.26661.15.camel@sulphur.notebook.internal>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-43Ld3CwF7JTqDBKjRA5X"
-Date: Thu, 24 Jul 2008 20:22:40 -0400
-Message-Id: <1216945360.4931.25.camel@defiant.pebenito.net>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6P0dMCU027050
+	for <selinux@tycho.nsa.gov>; Thu, 24 Jul 2008 20:39:22 -0400
+Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6P0dKgJ005387
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 00:39:21 GMT
+Message-ID: <488920B2.8030408@ak.jp.nec.com>
+Date: Fri, 25 Jul 2008 09:39:14 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: Stephen Smalley <stephen.smalley@gmail.com>
+CC: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
+Subject: Re: hierarchy_check_constraints() needs reworks?
+References: <48881546.6070903@ak.jp.nec.com> <1216898673.3881.4.camel@sulphur>
+In-Reply-To: <1216898673.3881.4.camel@sulphur>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Thu, 2008-07-24 at 14:38 +0900, KaiGai Kohei wrote:
+>> I found out that hierarchy_check_constraints() in libsepol
+>> does not work correctly, as follows:
+>>
+>> ---- example: foo.te ----
+>> module foo 1.0;
+>>
+>> require {
+>>         class file { read write getattr setattr ioctl };
+>> };
+>>
+>> type src;
+>> type src.child;
+>> type tgt;
+>>
+>> allow src       tgt : file { read write };
+>> allow src.child tgt : file { read write getattr setattr };
+>> ----------
+>> [root@fedora9 kaigai]# checkmodule -m -M foo.te -o foo.mod
+>> checkmodule:  loading policy configuration from foo.te
+>> checkmodule:  policy configuration loaded
+>> checkmodule:  writing binary representation (version 8) to foo.mod
+>> [root@fedora9 kaigai]# /usr/sbin/semodule -i foo.pp
+> 
+> Check /etc/selinux/semanage.conf to see if you have expand-check=1 set;
+> otherwise, there is no hierarchy checking or neverallow checking
+> occurring there.  Disabled by default in Fedora due to the overhead and
+> the view that it should be handled at policy build time rather than
+> insertion time.  refpolicy has a make validate target that runs
+> semodule_link followed by semodule_expand manually.
 
---=-43Ld3CwF7JTqDBKjRA5X
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Thanks for your information.
 
-On Tue, 2008-07-22 at 23:11 +0200, Dominick Grift wrote:
-> This patch replaces local policy by interface calls
+I could get an expected behavior under expand-check=1.
 
-These aren't 1:1 replacements (see below).
+[root@fedora9 ~]# semodule -i ~kaigai/foo.pp
+libsepol.check_avtab_hierarchy_callback: hierarchy violation between types sbj.child and tgt : file {  getattr setattr }
+libsepol.hierarchy_check_constraints: 1 total errors found during hierarchy check
+libsemanage.semanage_expand_sandbox: Expand module failed
+semodule:  Failed!
+[root@fedora9 ~]#
 
-> Index: /home/domg472/Workspace/refpolicy_trunk/policy/modules/apps/mozill=
-a.if
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- /home/domg472/Workspace/refpolicy_trunk/policy/modules/apps/mozilla.i=
-f	(revision 2762)
-> +++ /home/domg472/Workspace/refpolicy_trunk/policy/modules/apps/mozilla.i=
-f	(working copy)
-> @@ -78,10 +78,9 @@
->  	userdom_search_user_home_dirs($1,$1_mozilla_t)
-> =20
->  	# Mozpluggerrc
-> -	allow $1_mozilla_t mozilla_conf_t:file read_file_perms;
-> +	read_files_pattern($1_mozilla_t, mozilla_conf_t, mozilla_conf_t)
-
-Based on the .fc, there aren't any mozilla_conf_t directories.  The
-pattern adds that permission
-
->  	allow $1_mozilla_t $2:fd use;
-> -	allow $1_mozilla_t $2:process sigchld;
->  	allow $1_mozilla_t $2:unix_stream_socket connectto;
->  	allow $2 $1_mozilla_t:fd use;
->  	allow $2 $1_mozilla_t:shm { associate getattr };
-> @@ -190,6 +189,8 @@
->  	userdom_manage_user_tmp_dirs($1,$1_mozilla_t)
->  	userdom_manage_user_tmp_files($1,$1_mozilla_t)
->  	userdom_manage_user_tmp_sockets($1,$1_mozilla_t)
-> +
-> +	userdom_sigchld_all_users($1_mozilla_t)
-
-The raw rule only allows the mozilla to sigchld the user domain that
-transitions to the mozilla instance, e.g., user_mozilla_t sigchld'ing
-user_t.  The above rule allows user_mozilla_t to sigchld all user
-domains, which we don't want.
- =09
->  	xserver_user_x_domain_template($1,$1_mozilla,$1_mozilla_t,
-> $1_mozilla_tmpfs_t)
->  	xserver_dontaudit_read_xdm_tmp_files($1_mozilla_t)
-
-
-
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
-
---=-43Ld3CwF7JTqDBKjRA5X
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-
-iEYEABECAAYFAkiJHM8ACgkQvI7kLeavkkOzvgCdEusIh94BOwFWSf3reXZtuM/Y
-w4EAn2zestFFH8pRRK36DRBiqrJXbYdJ
-=BITm
------END PGP SIGNATURE-----
-
---=-43Ld3CwF7JTqDBKjRA5X--
-
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
