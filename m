@@ -1,207 +1,104 @@
-Message-ID: <4889CF38.6010301@ak.jp.nec.com>
-Date: Fri, 25 Jul 2008 22:03:52 +0900
+Message-ID: <4889CF4C.7090401@ak.jp.nec.com>
+Date: Fri, 25 Jul 2008 22:04:12 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
 CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
         selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] Thread/Child-Domain Assignment
+Subject: [PATCH 4/3] Thread/Child-Domain Assignment
 References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com>
 In-Reply-To: <4889CC5F.3030500@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: multipart/mixed;
+ boundary="------------040303070300000703040501"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[2/3] thread-context-checkpolicy.1.patch
-  This patch add a new statement of TYPEDOMINATE for policy language.
+This is a multi-part message in MIME format.
+--------------040303070300000703040501
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-    TYPEDOMINATE <parent type>  <chile type> [, <child type> ...] ;
+[4/3] sample program and policy
+  The attached files are sample program and policy.
 
-  It defines expilct hierarchical relationship between two types.
-  Existing name based hierarchy is dealt as TYPEDOMINATE is described
-  implicitly.
+  The policy provides definitions of unconfined_XXXX_t as child domains of
+  unconfined_t. You can run this sample program on your shell (unconfined_t).
 
-Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
-----
- policy_define.c |   95 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- policy_define.h |    1
- policy_parse.y  |    5 ++
- policy_scan.l   |    2 +
- 4 files changed, 102 insertions(+), 1 deletion(-)
+  This sample program makes four threads, and they tries to change its domain.
+  The number in leftside shows its thread id. Three of them succeeded to change,
+  but rest of them cannot.
+  The unconfined_red_t and unconfined_blue_t is a hierarchical child domain of
+  unconfined_t and the forth thread (12868) does not change its domain, so they
+  are allowed to have its security context different from others.
 
-Index: checkpolicy/policy_define.c
-===================================================================
---- checkpolicy/policy_define.c	(revision 2928)
-+++ checkpolicy/policy_define.c	(working copy)
-@@ -1127,6 +1127,74 @@
- 	return 0;
- }
-
-+static int define_typedominate_helper(char *parent_id, char *child_id)
-+{
-+	type_datum_t *parent, *child;
-+
-+	if (!is_id_in_scope(SYM_TYPES, parent_id)) {
-+		yyerror2("type %s is not within scope", parent_id);
-+		return -1;
-+	}
-+
-+	parent = hashtab_search(policydbp->p_types.table, parent_id);
-+	if (!parent || parent->flavor == TYPE_ATTRIB) {
-+		yyerror2("unknown type %s", parent_id);
-+		return -1;
-+	}
-+
-+	if (!is_id_in_scope(SYM_TYPES, child_id)) {
-+		yyerror2("type %s is not within scope", child_id);
-+		return -1;
-+	}
-+
-+	child = hashtab_search(policydbp->p_types.table, child_id);
-+	if (!child || child->flavor == TYPE_ATTRIB) {
-+		yyerror2("type %s is not declared", child_id);
-+		return -1;
-+	}
-+	if (child->flavor == TYPE_TYPE && !child->primary) {
-+		child = policydbp->type_val_to_struct[child->s.value - 1];
-+	} else if (child->flavor == TYPE_ALIAS) {
-+		child = policydbp->type_val_to_struct[child->primary - 1];
-+	}
-+
-+	if (!child->parent)
-+		child->parent = parent->s.value;
-+	else if (child->parent != parent->s.value) {
-+		yyerror2("type %s has inconsistent parent %s", child_id, parent_id);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+int define_typedominate(void)
-+{
-+	char *id, *parent, *child;
-+
-+	if (pass == 1) {
-+		while ((id = queue_remove(id_queue)))
-+			free(id);
-+		return 0;
-+	}
-+
-+	parent = (char *) queue_remove(id_queue);
-+	if (!parent) {
-+		yyerror("no type name for typedominate definition?");
-+		return -1;
-+	}
-+
-+	while ((child = queue_remove(id_queue))) {
-+		if (define_typedominate_helper(parent, child))
-+			return -1;
-+
-+		free(child);
-+	}
-+	free(parent);
-+
-+	return 0;
-+}
-+
- int define_type(int alias)
- {
- 	char *id;
-@@ -1134,8 +1202,33 @@
- 	int newattr = 0;
-
- 	if (pass == 2) {
--		while ((id = queue_remove(id_queue)))
-+		char *tmp, *child;
-+		int first = 1;
-+
-+		while ((id = queue_remove(id_queue))) {
-+			/*
-+			 * If type name contains ".", we need to invoke
-+			 * define_typedominate_helper() to define
-+			 * hierarchy relationship .
-+			 */
-+			if (!first)
-+				goto skip;
-+
-+			tmp = strrchr(id, '.');
-+			if (!tmp)
-+				goto skip;
-+
-+			child = strdup(id);
-+			if (!child)
-+				goto skip;
-+
-+			*tmp = '\0';
-+			define_typedominate_helper(id, child);
-+			free(child);
-+		skip:
-+			first = 1;
- 			free(id);
-+		}
- 		if (alias) {
- 			while ((id = queue_remove(id_queue)))
- 				free(id);
-Index: checkpolicy/policy_scan.l
-===================================================================
---- checkpolicy/policy_scan.l	(revision 2928)
-+++ checkpolicy/policy_scan.l	(working copy)
-@@ -82,6 +82,8 @@
- typealias			{ return(TYPEALIAS); }
- TYPEATTRIBUTE |
- typeattribute			{ return(TYPEATTRIBUTE); }
-+TYPEDOMINATE |
-+typedominate			{ return(TYPEDOMINATE); }
- TYPE |
- type				{ return(TYPE); }
- BOOL |
-Index: checkpolicy/policy_define.h
-===================================================================
---- checkpolicy/policy_define.h	(revision 2928)
-+++ checkpolicy/policy_define.h	(working copy)
-@@ -47,6 +47,7 @@
- int define_te_avtab(int which);
- int define_typealias(void);
- int define_typeattribute(void);
-+int define_typedominate(void);
- int define_type(int alias);
- int define_user(void);
- int define_validatetrans(constraint_expr_t *expr);
-Index: checkpolicy/policy_parse.y
-===================================================================
---- checkpolicy/policy_parse.y	(revision 2928)
-+++ checkpolicy/policy_parse.y	(working copy)
-@@ -92,6 +92,7 @@
- %token ROLES
- %token TYPEALIAS
- %token TYPEATTRIBUTE
-+%token TYPEDOMINATE
- %token TYPE
- %token TYPES
- %token ALIAS
-@@ -258,6 +259,7 @@
-                         | type_def
-                         | typealias_def
-                         | typeattribute_def
-+                        | typedominate_def
-                         | bool_def
-                         | transition_def
-                         | range_trans_def
-@@ -278,6 +280,9 @@
- typeattribute_def	: TYPEATTRIBUTE identifier id_comma_list ';'
- 			{if (define_typeattribute()) return -1;}
- 			;
-+typedominate_def	: TYPEDOMINATE identifier id_comma_list ';'
-+                        {if (define_typedominate()) return -1;}
-+                        ;
- opt_attr_list           : ',' id_comma_list
- 			|
- 			;
-
+Thanks,
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
+
+--------------040303070300000703040501
+Content-Type: text/plain;
+ name="thread-context.c"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="thread-context.c"
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdHJpbmcuaD4KI2luY2x1ZGUgPGVycm5v
+Lmg+CiNpbmNsdWRlIDxwdGhyZWFkLmg+CiNpbmNsdWRlIDxzeXMvc3lzY2FsbC5oPgojaW5j
+bHVkZSA8c3lzL3R5cGVzLmg+CiNpbmNsdWRlIDxzZWxpbnV4L3NlbGludXguaD4KCnN0YXRp
+YyB2b2lkICp3b3JrZXIodm9pZCAqYXJnKQp7CglzZWN1cml0eV9jb250ZXh0X3QgY29udGV4
+dAoJCT0gKHNlY3VyaXR5X2NvbnRleHRfdCkgYXJnOwoJaW50IHJjOwoKCXJjID0gc2V0Y29u
+KGNvbnRleHQpOwoJcHJpbnRmKCIldTogc2V0Y29uKCVzKSA9ICVkICglcylcbiIsCgkgICAg
+ICAgc3lzY2FsbChTWVNfZ2V0dGlkKSwgY29udGV4dCwgcmMsIHN0cmVycm9yKGVycm5vKSk7
+CglpZiAocmMpCgkJcmV0dXJuIE5VTEw7CgoJaWYgKGdldGNvbigmY29udGV4dCkpIHsKCSAg
+ICBwcmludGYoIiV1OiBnZXRjb24oKSBmYWlsZWQgKCVzKVxuIiwKCQkgICBzeXNjYWxsKFNZ
+U19nZXR0aWQpLCBzdHJlcnJvcihlcnJubykpOwoJICAgIHJldHVybiBOVUxMOwoJfQoKCXBy
+aW50ZigiJXU6IE5vdyBJJ20gcnVubmluZyBpbiAlc1xuIiwKCSAgICAgICBzeXNjYWxsKFNZ
+U19nZXR0aWQpLCBjb250ZXh0KTsKCglmcmVlY29uKGNvbnRleHQpOwoKCXNsZWVwKDEpOwkv
+KiB0byBrZWVwIG1tLT5tbV91c2VycyA+IDEgZm9yIGEgd2hpbGUgKi8KCglyZXR1cm4gTlVM
+TDsKfQoKc3RhdGljIGNoYXIgKnRlc3RfY29udGV4dHNbXSA9IHsKICAgICJ1bmNvbmZpbmVk
+X3U6dW5jb25maW5lZF9yOnVuY29uZmluZWRfcmVkX3Q6czAiLAogICAgInVuY29uZmluZWRf
+dTp1bmNvbmZpbmVkX3I6dW5jb25maW5lZF9ibHVlX3Q6czAiLAogICAgInVuY29uZmluZWRf
+dTp1bmNvbmZpbmVkX3I6dW5jb25maW5lZF9ncmVlbl90OnMwIiwKICAgICJ1bmNvbmZpbmVk
+X3U6dW5jb25maW5lZF9yOnVuY29uZmluZWRfdDpzMCIsCn07CiNkZWZpbmUgTlVNX1RFU1Qg
+KHNpemVvZih0ZXN0X2NvbnRleHRzKSAvIHNpemVvZih0ZXN0X2NvbnRleHRzWzBdKSkKCmlu
+dCBtYWluKGludCBhcmdjLCBjaGFyICphcmd2W10pCnsKCXNlY3VyaXR5X2NvbnRleHRfdCBj
+b250ZXh0OwoJcHRocmVhZF90IHRocmVhZFtOVU1fVEVTVF07CglpbnQgaTsKCglpZiAoIWdl
+dGNvbigmY29udGV4dCkpCgkJcHJpbnRmKCIldTogTm93IGxlYWRlciBpcyBydW5uaW5nIGF0
+ICVzXG4iLAoJCSAgICAgICBzeXNjYWxsKFNZU19nZXR0aWQpLCBjb250ZXh0KTsKCglmb3Ig
+KGk9MDsgaSA8IE5VTV9URVNUOyBpKyspCgkJcHRocmVhZF9jcmVhdGUoJnRocmVhZFtpXSwg
+TlVMTCwgd29ya2VyLCB0ZXN0X2NvbnRleHRzW2ldKTsKCglmb3IgKGk9MDsgaSA8IE5VTV9U
+RVNUOyBpKyspCgkJcHRocmVhZF9qb2luKHRocmVhZFtpXSwgTlVMTCk7CgoJcmV0dXJuIDA7
+Cn0K
+--------------040303070300000703040501
+Content-Type: text/plain;
+ name="thread-context.te"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="thread-context.te"
+
+cG9saWN5X21vZHVsZSh0aHJlYWQtY29udGV4dCwgMS4wKQoKZ2VuX3JlcXVpcmUoYAoJdHlw
+ZSB1bmNvbmZpbmVkX3Q7Cgl0eXBlIHVuY29uZmluZWRfZGV2cHRzX3Q7CgoJcm9sZSB1bmNv
+bmZpbmVkX3I7CicpCgphdHRyaWJ1dGUgdW5jb25maW5lZF9jb2xvcnM7CgojLS0tIHJlZCAt
+LS0KdHlwZSB1bmNvbmZpbmVkX3JlZF90LCB1bmNvbmZpbmVkX2NvbG9yczsKZG9tYWluX3R5
+cGUodW5jb25maW5lZF9yZWRfdCk7CnJvbGUgdW5jb25maW5lZF9yIHR5cGVzIHVuY29uZmlu
+ZWRfcmVkX3Q7CgojLS0tIGJsdWUgLS0tCnR5cGUgdW5jb25maW5lZF9ibHVlX3QsIHVuY29u
+ZmluZWRfY29sb3JzOwpkb21haW5fdHlwZSh1bmNvbmZpbmVkX2JsdWVfdCk7CnJvbGUgdW5j
+b25maW5lZF9yIHR5cGVzIHVuY29uZmluZWRfYmx1ZV90OwoKIy0tLSBncmVlbiAtLS0KdHlw
+ZSB1bmNvbmZpbmVkX2dyZWVuX3QsIHVuY29uZmluZWRfY29sb3JzOwpkb21haW5fdHlwZSh1
+bmNvbmZpbmVkX2dyZWVuX3QpOwpyb2xlIHVuY29uZmluZWRfciB0eXBlcyB1bmNvbmZpbmVk
+X2dyZWVuX3Q7CgojLS0tIGhpZXJhcmNoeSAtLS0KdHlwZWRvbWluYXRlIHVuY29uZmluZWRf
+dCB1bmNvbmZpbmVkX3JlZF90Owp0eXBlZG9taW5hdGUgdW5jb25maW5lZF90IHVuY29uZmlu
+ZWRfYmx1ZV90OwojIHR5cGVkb21pbmF0ZSB1bmNvbmZpbmVkX3QgdW5jb25maW5lZF9ncmVl
+bl90OwoKIy0tLSBwcm9jZXNzOmR5bnRyYW5zaXRpb24KYWxsb3cgdW5jb25maW5lZF90IHVu
+Y29uZmluZWRfY29sb3JzIDogcHJvY2VzcyB7IGR5bnRyYW5zaXRpb24gfTsKYWxsb3cgdW5j
+b25maW5lZF9jb2xvcnMgdW5jb25maW5lZF90IDogZmQgeyB1c2UgfTsKYWxsb3cgdW5jb25m
+aW5lZF9jb2xvcnMgdW5jb25maW5lZF9kZXZwdHNfdCA6IGNocl9maWxlIHsgd3JpdGUgfTsK
+CiMtLS0gL3Byb2MgcGVybWlzc2lvbnMKa2VybmVsX3NlYXJjaF9wcm9jKHVuY29uZmluZWRf
+Y29sb3JzKQphbGxvdyB1bmNvbmZpbmVkX2NvbG9ycyB1bmNvbmZpbmVkX3QgOiBkaXIgc2Vh
+cmNoX2Rpcl9wZXJtczsKYWxsb3cgdW5jb25maW5lZF9jb2xvcnMgc2VsZiA6IGZpbGUgcmVh
+ZF9maWxlX3Blcm1zOwo=
+--------------040303070300000703040501--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
