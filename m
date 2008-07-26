@@ -1,62 +1,52 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6Q0lGNp025922
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 20:47:16 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6Q0lGDo020135
-	for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 00:47:16 GMT
-Received: by py-out-1112.google.com with SMTP id a78so9659906pyh.32
-        for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 17:47:15 -0700 (PDT)
-Subject: Re: [patch] SELinux: trivial, unify iterator variable naming, part
-	3
-From: Stephen Smalley <stephen.smalley@gmail.com>
-To: James Morris <jmorris@namei.org>
-Cc: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>,
-        Eric Paris <eparis@parisplace.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>,
+Message-ID: <488AD868.9050507@kaigai.gr.jp>
+Date: Sat, 26 Jul 2008 16:55:20 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Stephen Smalley <stephen.smalley@gmail.com>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
         selinux@tycho.nsa.gov
-In-Reply-To: <Xine.LNX.4.64.0807260046250.19915@us.intercode.com.au>
-References: <Pine.LNX.4.64L.0807210220280.8567@ruuvi.it.helsinki.fi>
-	 <Xine.LNX.4.64.0807242320060.8246@us.intercode.com.au>
-	 <Pine.LNX.4.64L.0807241800060.14689@ruuvi.it.helsinki.fi>
-	 <1216948850.5185.10.camel@sulphur>
-	 <Xine.LNX.4.64.0807252302500.12139@us.intercode.com.au>
-	 <1216992009.11948.1.camel@sulphur>
-	 <Xine.LNX.4.64.0807260046250.19915@us.intercode.com.au>
-Content-Type: text/plain
-Date: Fri, 25 Jul 2008 20:45:26 -0400
-Message-Id: <1217033137.14295.11.camel@sulphur>
-Mime-Version: 1.0
+Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com>	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>	 <4889CC5F.3030500@ak.jp.nec.com>  <4889CF30.2060306@ak.jp.nec.com> <1216993463.11948.22.camel@sulphur>
+In-Reply-To: <1216993463.11948.22.camel@sulphur>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 2008-07-26 at 00:47 +1000, James Morris wrote:
-> On Fri, 25 Jul 2008, Stephen Smalley wrote:
+Stephen Smalley wrote:
+> On Fri, 2008-07-25 at 22:03 +0900, KaiGai Kohei wrote:
+>> [1/3] thread-context-kernel.1.patch
+>>   This patch enables to assign a thread a "weaker" hierarchical domain,
+>>   only if the destinated domain is a child of the current domain.
+>>   Hierachy relationships are defined in the policy version 24.
+>>   This patch also enables to read the new version of policy.
 > 
-> > On Fri, 2008-07-25 at 23:03 +1000, James Morris wrote:
-> > > Turns out it was caused by 
-> > > CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE being set to the 
-> > > default of 19.
-> > > 
-> > > After setting it to 22 (same as the Fedora kernel), the problem went away.  
-> > 
-> > Makes sense - policy.19 predates the avtab memory optimization work I
-> > did, and requires the policy toolchain to fully expand all
-> > attribute-based rules into individual type pairs.  So that shows how
-> > much memory we are saving from that particular optimization today.
-> 
-> Should we bump that value so that kernel developers don't hit the same 
-> problem if they have SELinux enabled?  (Many would assume the boot hung).
+> If you are going to take type hierarchy support into the kernel, then it
+> seems like it should be completely taken into the kernel, i.e. the
+> hierarchy checking should be applied by the kernel rather than by the
+> toolchain.  That is what the Flask security server did for its
+> extensible policy mechanism.
 
-No - the whole point of that config option is to avoid breakage on
-Fedora 3 and 4, as noted in the help text.  And the option on which it
-depends defaults to n and thus shouldn't be enabled for anyone by
-default.
+When the checks are applied in the kernel?
+One candidate is policy loading time, and the other is AVC entry creation
+time. I prefers the later one, because checks in policy loading time will
+require the expensive checks in kernel space.
 
-As to whether or not we need to care about Fedora 3 and 4 anymore is
-perhaps a reasonable question; if not, then the entire option could go
-away.
+In my idea, violated permission bits on AVC entries are masked by ones of
+its parent types, with/without printing logs.
+Now hierarchy/neverallow constraint makes abort whole of policy loading.
+It can be a significant difference.
 
+> And I think both the neverallow checking and the type hierarchy checking
+> needs to move away from needing to do a full expansion in order to
+> check; it is just too expensive these days.
 
+I agree. expand-check=1 makes slow downed so much. :(
+It should be done on-demand.
+
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
