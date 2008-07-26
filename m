@@ -1,104 +1,73 @@
 Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6PLXr0b005343
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 17:33:53 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6PLXoe4022769
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 21:33:51 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <stephen.smalley@gmail.com>
-Subject: Re: Policy loading:  initramfs vs. patched /sbin/init
-Date: Sat, 26 Jul 2008 07:33:39 +1000
-Cc: selinux@tycho.nsa.gov, Caleb Case <ccase@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, Chad Sellers <csellers@tresys.com>
-References: <200807231017.30237.russell@coker.com.au> <200807251335.26628.russell@coker.com.au> <1216993113.11948.16.camel@sulphur>
-In-Reply-To: <1216993113.11948.16.camel@sulphur>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200807260733.43622.russell@coker.com.au>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6Q0c2SF024819
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 20:38:02 -0400
+Received: from py-out-1112.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6Q0c10D027174
+	for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 00:38:01 GMT
+Received: by py-out-1112.google.com with SMTP id a78so9651871pyh.32
+        for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 17:38:01 -0700 (PDT)
+Subject: RE: user_identify for httpd (warning: newbie question)
+From: Stephen Smalley <stephen.smalley@gmail.com>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: Murray McAllister <mmcallis@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015880246B42F@exchange.columbia.tresys.com>
+References: <488967D8.1020203@redhat.com> <1216992548.11948.7.camel@sulphur>
+	 <6FE441CD9F0C0C479F2D88F959B015880246B42F@exchange.columbia.tresys.com>
+Content-Type: text/plain
+Date: Fri, 25 Jul 2008 20:36:11 -0400
+Message-Id: <1217032581.14295.4.camel@sulphur>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 25 July 2008 23:38, Stephen Smalley <stephen.smalley@gmail.com> 
-wrote:
-> > > First, to clarify, while Ubuntu and Fedora are initiating the policy
-> > > load from the initramfs, they are taking the policy from the real root
-> > > filesystem.  Thus, the policy is not being stored on the initramfs
-> > > image and updates to policy do not require rebuilding the image.
-> >
-> > I have been told that an Ubuntu initramfs generated for a non-SE system
-> > will not have the scripts in question installed.  So there is a need to
-> > regenerate the initramfs when converting to SE Linux.
->
-> True, but that's a one-time regeneration vs. per-policy-update.
+On Fri, 2008-07-25 at 11:50 -0400, Joshua Brindle wrote:
+> Stephen Smalley wrote:
+> > On Fri, 2008-07-25 at 15:42 +1000, Murray McAllister wrote:
+> >> Hi,
+> >> 
+> >> On Red Hat Enterprise Linux 5 (policy-targeted), I run my main user
+> >> account as "user_u:system_r:unconfined_t". When I do a "sudo service
+> >> httpd start", httpd runs as "user_u:system_r:httpd_t".
+> >> 
+> >> On Fedora 9 (policy-targeted), I run my main user account as
+> >> "unconfined_u:unconfined_r:unconfined_t". When I do a "sudo service
+> >> httpd start", httpd runs as "unconfined_u:system_r:httpd_t".
+> >> 
+> >> "httpd.conf" is configured on each system to run as the user and
+> >> group "apache". 
+> >> 
+> >> With regards to Fedora 9, am I doing something wrong? Is it okay for
+> >> the SELinux user to be "unconfined_u" for services?
+> >> 
+> >> Thanks for any advice,
+> > 
+> > It is non-ideal but not a vulnerability (since the TE policy
+> > governs what domains can be reached from the service domain, e.g.
+> > httpd_t). 
+> > 
+> > Ideally it would be transitioned to system_u.  Requires
+> > SELinux to support automatic user identity transitions,
+> > something we didn't expect would be needed since user
+> > identity is normally set explicitly by programs.  SELinux has
+> > a "run_init" program that will explicitly transition into a
+> > system context for restarting system services, but it isn't
+> > integrated into /sbin/service and friends - early on in
+> > Fedora SELinux integration, they ran into problems with
+> > seamlessly making it work with existing usage patterns.
+> > 
+> > There have been some preliminary patches floated to add user
+> > identity transitions to SELinux.  Not sure what the status is
+> > on that - Joshua?
+> 
+> I dropped them when Ubuntu worked around the issue in policy. I can dig
+> them out again but I'm not sure its worth bumping the policy version
+> just for this and not convinced its entirely necessary anyway.
 
-Any time you regenerate an initramfs there is a risk that it will result in a 
-non-bootable system.
+It has been a long-standing problem with SELinux.  As I said at the
+time, I think it is worth adding the user transition support - I just
+didn't want to rush the merging of it to suit the Ubuntu schedule.
 
-The way Debian currently works is that existing initramfs images are replaced 
-when there is an upgrade to the tools related to generating them.  I believe 
-that this is a mistake, an initramfs that has been used to successfully boot 
-the system is good by definition and should not be touched.
 
-The Ubuntu changes in this regard have merely extended the scope of this 
-mistake.
-
-> > > On the positive side, the initramfs-based approach does mean
-> > > that /sbin/init from the real root automatically transitions into the
-> > > right domain since policy is already loaded.
-> >
-> > Saving one exec system call.
->
-> Requiring init to re-exec itself was always a hack; this is cleaner and
-> closer to the original model where the kernel loaded policy before init
-> ever ran.
-
-For a long time (as long as I remember - more than 10 years) SysV Init has had 
-the ability to re-exec itself (while preserving state) for an upgrade.  To 
-re-exec while preserving state across an upgrade while in the middle of 
-operation is not a trivial task.  To exec before actually doing anything when 
-there is no real state to be saved is however trivial.
-
-> > > So I'm not fundamentally opposed to having the support in /sbin/init as
-> > > well if that's feasible, but you'll need it to detect whether policy
-> > > has already been loaded and skip it if so or it will end up loading
-> > > policy twice on systems that are using the initramfs-based approach.
-> >
-> > Caleb has suggested having the already patched SysV init for systems that
-> > can't use initramfs.  That means such detection would be required in that
-> > case.
->
-> Yes.  Detecting it likely requires mounting /proc and then calling
-> is_selinux_enabled(), since our current test for whether policy has been
-> loaded is based on /proc/self/attr/current value ("kernel" or not).
-
-So it seems that having the initramfs load policy for upstart gives you the 
-union of all possible disadvantages.  You have to support SysV Init loading 
-it (for non-initramfs systems), you need to have SysV Init deal with the case 
-where an initramfs has already loaded the policy, and you need to maintain 
-two vastly different methods of loading policy (initramfs and Init - which is 
-more work than maintaining two patched Init systems).
-
-Not to mention that the options of including chroot in initramfs or mounting 
-all the filesystems there are both hacks and both have disadvantages.
-
-If the Fedora people want to support only one Init system and only machines 
-that use initramfs then it works OK (as they have demonstrated with Fedora 
-9).  But if you want to support multiple Init systems (in Debian we always 
-like to offer users a choice), support hardware which can't use initramfs 
-(Debian supports a huge range of hardware - many people have machines more 
-than 10 years old), and support people who just don't want to use initramfs 
-(choice again) then it's not such a good option.
-
-I'm not sure how much choice the Ubuntu people are planning to offer their 
-users.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
