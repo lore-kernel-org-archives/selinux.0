@@ -1,98 +1,60 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6Q0aqMW024678
-	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 20:36:52 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6Q0lGNp025922
+	for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 20:47:16 -0400
 Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6Q0aqDo018243
-	for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 00:36:52 GMT
-Received: by py-out-1112.google.com with SMTP id a78so9650768pyh.32
-        for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 17:36:51 -0700 (PDT)
-Subject: RE: libsepol.context_from_record: MLS is disabled, but MLS
-	context"s0" found
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6Q0lGDo020135
+	for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 00:47:16 GMT
+Received: by py-out-1112.google.com with SMTP id a78so9659906pyh.32
+        for <selinux@tycho.nsa.gov>; Fri, 25 Jul 2008 17:47:15 -0700 (PDT)
+Subject: Re: [patch] SELinux: trivial, unify iterator variable naming, part
+	3
 From: Stephen Smalley <stephen.smalley@gmail.com>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-        Vikram Ambrose <Vikram.Ambrose@windriver.com>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1216998548.4906.2.camel@defiant.pebenito.net>
-References: <4888E754.9030504@windriver.com>
-	 <1216944435.4931.20.camel@defiant.pebenito.net>
-	 <6FE441CD9F0C0C479F2D88F959B015880246B40D@exchange.columbia.tresys.com>
-	 <1216997739.5392.14.camel@defiant.pebenito.net>
-	 <1216998548.4906.2.camel@defiant.pebenito.net>
+To: James Morris <jmorris@namei.org>
+Cc: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>,
+        Eric Paris <eparis@parisplace.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>,
+        selinux@tycho.nsa.gov
+In-Reply-To: <Xine.LNX.4.64.0807260046250.19915@us.intercode.com.au>
+References: <Pine.LNX.4.64L.0807210220280.8567@ruuvi.it.helsinki.fi>
+	 <Xine.LNX.4.64.0807242320060.8246@us.intercode.com.au>
+	 <Pine.LNX.4.64L.0807241800060.14689@ruuvi.it.helsinki.fi>
+	 <1216948850.5185.10.camel@sulphur>
+	 <Xine.LNX.4.64.0807252302500.12139@us.intercode.com.au>
+	 <1216992009.11948.1.camel@sulphur>
+	 <Xine.LNX.4.64.0807260046250.19915@us.intercode.com.au>
 Content-Type: text/plain
-Date: Fri, 25 Jul 2008 20:34:50 -0400
-Message-Id: <1217032502.14295.1.camel@sulphur>
+Date: Fri, 25 Jul 2008 20:45:26 -0400
+Message-Id: <1217033137.14295.11.camel@sulphur>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-07-25 at 11:09 -0400, Chris PeBenito wrote:
-> On Fri, 2008-07-25 at 10:55 -0400, Chris PeBenito wrote:
-> > On Fri, 2008-07-25 at 10:30 -0400, Karl MacMillan wrote:
-> > > > -----Original Message-----
-> > > > From: Chris PeBenito [mailto:pebenito@gentoo.org]
-> > > > Sent: Thursday, July 24, 2008 8:07 PM
-> > > > To: Vikram Ambrose
-> > > > Cc: selinux@tycho.nsa.gov; Karl MacMillan
-> > > > Subject: Re: libsepol.context_from_record: MLS is disabled, but MLS
-> > > > context"s0" found
-> > > > 
-> > > > On Thu, 2008-07-24 at 16:34 -0400, Vikram Ambrose wrote:
-> > > > > I keep getting this error with audit2why.
-> > > > >
-> > > > > root@localhost:/root> cat msg
-> > > > > type=1400 audit(1216736766.147:35): avc:  denied  { read write }
-> > > > for
-> > > > > pid=1829 comm="modprobe" name="console" dev=sda ino=344069
-> > > > > scontext=system_u:system_r:insmod_t
-> > > > > tcontext=unconfined_u:object_r:default_t tclass=chr_file
-> > > > >
-> > > > > root@localhost:/root> audit2allow < msg #============= insmod_t
-> > > > > ============== allow insmod_t default_t:chr_file { read write };
-> > > > >
-> > > > > root@localhost:/root> audit2why < msg
-> > > > > libsepol.context_from_record: MLS is disabled, but MLS context "s0"
-> > > > > found
-> > > > > libsepol.context_from_record: could not create context structure
-> > > > > libsepol.context_from_string: could not create context structure
-> > > > > libsepol.sepol_context_to_sid: could not convert
-> > > > > system_u:system_r:insmod_t:s0 to sid Invalid Source Context
-> > > > > system_u:system_r:insmod_t:s0
-> > > > 
-> > > > I ran into this last week.  Sepolgen incorrectly adds the MLS portion
-> > > > of the context regardless if MLS is enabled or not.  Then when the
-> > > > tool uses the context, libsepol throws the above errors when MLS is
-> > > > disabled.
-> > > > I haven't had a chance to really look at what would be the right way
-> > > > to fix it, since I'm no python expert.  Karl?
-> > > > 
-> > > 
-> > > Maybe I'm missing something, but from above this looks like an audit2why
-> > > bug not an sepolgen bug.
-> > 
-> > Perhaps.  I didn't have a change to analyze the problem fully, so I
-> > don't know if sepolgen is supposed to be informed if this is an MLS
-> > policy or not, or if sepolgen itself is supposed to figure it out.  In
-> > the end the offending function is in the SecurityContext class in
-> > sepolgen:
-> > 
-> > def to_string(self, default_level="s0"):
-> >         fields = [self.user, self.role, self.type]
-> >         if self.level == "":
-> >             if default_level != "":
-> >                 fields.append(default_level)
-> >         else:
-> >             fields.append(self.level)
-> >         return ":".join(fields)
+On Sat, 2008-07-26 at 00:47 +1000, James Morris wrote:
+> On Fri, 25 Jul 2008, Stephen Smalley wrote:
 > 
-> To be clear, I couldn't find any example of default_level being set to
-> anything when to_string() is called, so in the end it gets a level no
-> matter what.
+> > On Fri, 2008-07-25 at 23:03 +1000, James Morris wrote:
+> > > Turns out it was caused by 
+> > > CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE being set to the 
+> > > default of 19.
+> > > 
+> > > After setting it to 22 (same as the Fedora kernel), the problem went away.  
+> > 
+> > Makes sense - policy.19 predates the avtab memory optimization work I
+> > did, and requires the policy toolchain to fully expand all
+> > attribute-based rules into individual type pairs.  So that shows how
+> > much memory we are saving from that particular optimization today.
+> 
+> Should we bump that value so that kernel developers don't hit the same 
+> problem if they have SELinux enabled?  (Many would assume the boot hung).
 
-Right - it shouldn't do that if is_selinux_mls_enabled() <= 0.
-I think this is a result of the audit2allow / audit2why integration;
-previously, audit2why was directly consuming audit messages but now it
-is leveraging sepolgen.
+No - the whole point of that config option is to avoid breakage on
+Fedora 3 and 4, as noted in the help text.  And the option on which it
+depends defaults to n and thus shouldn't be enabled for anyone by
+default.
+
+As to whether or not we need to care about Fedora 3 and 4 anymore is
+perhaps a reasonable question; if not, then the entire option could go
+away.
 
 
 
