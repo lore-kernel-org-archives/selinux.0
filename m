@@ -1,82 +1,168 @@
-Message-ID: <488ADF55.9020007@kaigai.gr.jp>
-Date: Sat, 26 Jul 2008 17:24:53 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <stephen.smalley@gmail.com>,
-        KaiGai Kohei <kaigai@ak.jp.nec.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org,
-        paul.moore@hp.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment
-References: <487C7698.60503@ak.jp.nec.com> <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil> <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com>  <4889CF30.2060306@ak.jp.nec.com> <1216993463.11948.22.camel@sulphur> <6FE441CD9F0C0C479F2D88F959B015880246B43E@exchange.columbia.tresys.com>
-In-Reply-To: <6FE441CD9F0C0C479F2D88F959B015880246B43E@exchange.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6QD7tWX017601
+	for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 09:07:55 -0400
+Received: from hu-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6QD7rut005411
+	for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 13:07:54 GMT
+Received: by hu-out-0506.google.com with SMTP id 22so691645hug.4
+        for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 06:07:53 -0700 (PDT)
+Subject: [REFPOLICY PATCH] Added policy module for the oident daemon.
+From: Dominick Grift <domg472@gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OkfX0ZbtEcsXNbfx2XrF"
+Date: Sat, 26 Jul 2008 15:07:49 +0200
+Message-Id: <1217077669.8496.2.camel@sulphur.notebook.internal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Stephen Smalley wrote:
->> On Fri, 2008-07-25 at 22:03 +0900, KaiGai Kohei wrote:
->>> [1/3] thread-context-kernel.1.patch
->>>   This patch enables to assign a thread a "weaker" hierarchical
->>>   domain, only if the destinated domain is a child of the current
->>>   domain. Hierachy relationships are defined in the policy version
->>>   24. This patch also enables to read the new version of policy.
->> If you are going to take type hierarchy support into the
->> kernel, then it seems like it should be completely taken into
->> the kernel, i.e. the hierarchy checking should be applied by
->> the kernel rather than by the toolchain.  That is what the
->> Flask security server did for its extensible policy mechanism.
->>
-> 
-> If we are going to do this we also might as well implement the explicit
-> hierarchy support and get away from name based hierarchy.
-> 
->> And I think both the neverallow checking and the type
->> hierarchy checking needs to move away from needing to do a
->> full expansion in order to check; it is just too expensive these days.
->>
-> 
-> Do you think it will be faster to do attribute based lookups? It will
-> certainly use significantly less memory.
 
-What do you means the attribute based lookups?
+--=-OkfX0ZbtEcsXNbfx2XrF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-In hierarchy checks, we should not expand any attribute of type without
-applying them to its parent type. We can check it by comparing type_attr_map
-of both types, without additional memory consumption.
+Signed-off-by: Dominick Grift <domg472@gmail.com>
+---
+ policy/modules/services/oidentd.fc |    9 +++++
+ policy/modules/services/oidentd.if |    7 ++++
+ policy/modules/services/oidentd.te |   68
+++++++++++++++++++++++++++++++++++++
+ 3 files changed, 84 insertions(+), 0 deletions(-)
+ create mode 100644 policy/modules/services/oidentd.fc
+ create mode 100644 policy/modules/services/oidentd.if
+ create mode 100644 policy/modules/services/oidentd.te
 
-In never allow checks, all we have to do is adding a "else if" block to check
-in context_struct_compute_av(), like:
+diff --git a/policy/modules/services/oidentd.fc
+b/policy/modules/services/oidentd.fc
+new file mode 100644
+index 0000000..a9209dc
+--- /dev/null
++++ b/policy/modules/services/oidentd.fc
+@@ -0,0 +1,9 @@
++
++/etc/oidentd.conf		--
+gen_context(system_u:object_r:oidentd_config_t,s0)
++/etc/oidentd_masq.conf	--
+gen_context(system_u:object_r:oidentd_config_t,s0)
++
++ifdef(`distro_redhat', `
++/etc/rc\.d/init\.d/oidentd		--
+gen_context(system_u:object_r:oidentd_script_exec_t,s0)
++')
++
++/usr/sbin/oidentd		--	gen_context(system_u:object_r:oidentd_exec_t,s0)
+diff --git a/policy/modules/services/oidentd.if
+b/policy/modules/services/oidentd.if
+new file mode 100644
+index 0000000..a745861
+--- /dev/null
++++ b/policy/modules/services/oidentd.if
+@@ -0,0 +1,7 @@
++## <summary>SELinux policy for the oident daemon.</summary>
++## <desc>
++##	<p>
++##	Applies SELinux security to the oident daemon.
++##	</p>
++## </desc>
++
+diff --git a/policy/modules/services/oidentd.te
+b/policy/modules/services/oidentd.te
+new file mode 100644
+index 0000000..1b770cf
+--- /dev/null
++++ b/policy/modules/services/oidentd.te
+@@ -0,0 +1,68 @@
++
++policy_module(oidentd, 0.0.1)=20
++
++########################################
++#
++# oidentd private declarations
++#
++
++## <desc>
++## <p>
++## Allow the oident daemon to read
++## unprivileged user home content files.
++## </p>
++## </desc>
++gen_tunable(oidentd_read_unprivileged_user_home_content_files, false)
++
++type oidentd_t;
++type oidentd_exec_t;
++init_daemon_domain(oidentd_t, oidentd_exec_t)
++
++ifdef(`distro_redhat', `
++type oidentd_script_exec_t;
++init_script_type(oidentd_script_exec_t)
++')
++
++type oidentd_config_t;
++files_config_file(oidentd_config_t)
++
++########################################
++#
++# oidentd private policy
++#
++allow oidentd_t self:capability { setuid setgid };
++allow oidentd_t self:netlink_route_socket { write getattr read bind
+create nlmsg_read };
++allow oidentd_t self:netlink_tcpdiag_socket { write read create
+nlmsg_read };
++allow oidentd_t self:tcp_socket { setopt read bind create accept write
+getattr listen };
++allow oidentd_t self:udp_socket { write read create connect getattr };
++allow oidentd_t self:unix_dgram_socket { create connect };
++
++allow oidentd_t oidentd_config_t:file read_file_perms;
++
++corenet_all_recvfrom_unlabeled(oidentd_t)
++corenet_all_recvfrom_netlabel(oidentd_t)
++corenet_tcp_sendrecv_all_if(oidentd_t)
++corenet_tcp_sendrecv_all_nodes(oidentd_t)
++corenet_tcp_bind_all_nodes(oidentd_t)
++corenet_tcp_bind_auth_port(oidentd_t);
++
++files_read_etc_files(oidentd_t)
++
++kernel_read_kernel_sysctls(oidentd_t)
++kernel_read_network_state(oidentd_t)
++kernel_read_network_state_symlinks(oidentd_t)
++kernel_read_sysctl(oidentd_t)
++
++libs_use_ld_so(oidentd_t)
++libs_use_shared_libs(oidentd_t)
++
++logging_send_syslog_msg(oidentd_t)
++
++miscfiles_read_localization(oidentd_t)
++
++sysnet_read_config(oidentd_t)
++
++tunable_policy(`oidentd_read_unprivileged_user_home_content_files', `
++	# ~/.oidentd.conf
++	userdom_read_unpriv_users_home_content_files(oidentd_t)
++')
+--=20
+1.5.5.2
 
-------------
-   ebitmap_for_each_positive_bit(sattr, snode, i) {
-       ebitmap_for_each_positive_bit(tattr, tnode, j) {
-           avkey.source_type = i + 1;
-           avkey.target_type = j + 1;
-           for (node = avtab_search_node(&policydb.te_avtab, &avkey);
-                node != NULL;
-                node = avtab_search_node_next(node, avkey.specified)) {
-               if (node->key.specified == AVTAB_ALLOWED)
-                   avd->allowed |= node->datum.data;
-               else if (node->key.specified == AVTAB_AUDITALLOW)
-                   avd->auditallow |= node->datum.data;
-               else if (node->key.specified == AVTAB_AUDITDENY)
-                   avd->auditdeny &= node->datum.data;
-+             else if (node->key.specified == AVTAB_NEVERALLOW)
-+                  avd->allowed &= ~node->datum.data;
-+                  /* TODO: print logs to notice masked perms */
-           }
+--=20
+Dominick Grift <domg472@gmail.com>
 
-           /* Check conditional av table for additional permissions */
-           cond_compute_av(&policydb.te_cond_avtab, &avkey, avd);
-       }
-   }
-------------
+--=-OkfX0ZbtEcsXNbfx2XrF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkiLIZsACgkQL00QnzrVtly0gACgpQDDvejswnUoy8QNY7I3Vokb
+vrcAn0aw+91gU/gvxOETD/0NP7Oqt4E+
+=Ppb3
+-----END PGP SIGNATURE-----
+
+--=-OkfX0ZbtEcsXNbfx2XrF--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
