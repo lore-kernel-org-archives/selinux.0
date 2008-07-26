@@ -1,168 +1,56 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6QD7tWX017601
-	for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 09:07:55 -0400
-Received: from hu-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6QD7rut005411
-	for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 13:07:54 GMT
-Received: by hu-out-0506.google.com with SMTP id 22so691645hug.4
-        for <selinux@tycho.nsa.gov>; Sat, 26 Jul 2008 06:07:53 -0700 (PDT)
-Subject: [REFPOLICY PATCH] Added policy module for the oident daemon.
-From: Dominick Grift <domg472@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OkfX0ZbtEcsXNbfx2XrF"
-Date: Sat, 26 Jul 2008 15:07:49 +0200
-Message-Id: <1217077669.8496.2.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Stephen Smalley <stephen.smalley@gmail.com>
+Subject: Re: [patch] SELinux: trivial, unify iterator variable naming, part 3
+Date: Sat, 26 Jul 2008 10:23:08 -0400
+Cc: James Morris <jmorris@namei.org>,
+        Vesa-Matti J Kari <vmkari@cc.helsinki.fi>,
+        Eric Paris <eparis@parisplace.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <Pine.LNX.4.64L.0807210220280.8567@ruuvi.it.helsinki.fi> <Xine.LNX.4.64.0807260046250.19915@us.intercode.com.au> <1217033137.14295.11.camel@sulphur>
+In-Reply-To: <1217033137.14295.11.camel@sulphur>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200807261023.09091.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Friday 25 July 2008 8:45:26 pm Stephen Smalley wrote:
+> On Sat, 2008-07-26 at 00:47 +1000, James Morris wrote:
+> > On Fri, 25 Jul 2008, Stephen Smalley wrote:
+> > > On Fri, 2008-07-25 at 23:03 +1000, James Morris wrote:
+> > > > Turns out it was caused by
+> > > > CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE being set to
+> > > > the default of 19.
+> > > >
+> > > > After setting it to 22 (same as the Fedora kernel), the problem
+> > > > went away.
+> > >
+> > > Makes sense - policy.19 predates the avtab memory optimization
+> > > work I did, and requires the policy toolchain to fully expand all
+> > > attribute-based rules into individual type pairs.  So that shows
+> > > how much memory we are saving from that particular optimization
+> > > today.
+> >
+> > Should we bump that value so that kernel developers don't hit the
+> > same problem if they have SELinux enabled?  (Many would assume the
+> > boot hung).
+>
+> No - the whole point of that config option is to avoid breakage on
+> Fedora 3 and 4, as noted in the help text.  And the option on which
+> it depends defaults to n and thus shouldn't be enabled for anyone by
+> default.
+>
+> As to whether or not we need to care about Fedora 3 and 4 anymore is
+> perhaps a reasonable question; if not, then the entire option could
+> go away.
 
---=-OkfX0ZbtEcsXNbfx2XrF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I'm thinking of Andrew Morton's crufty old Fedora Core 2 laptop right 
+now ...
 
-Signed-off-by: Dominick Grift <domg472@gmail.com>
----
- policy/modules/services/oidentd.fc |    9 +++++
- policy/modules/services/oidentd.if |    7 ++++
- policy/modules/services/oidentd.te |   68
-++++++++++++++++++++++++++++++++++++
- 3 files changed, 84 insertions(+), 0 deletions(-)
- create mode 100644 policy/modules/services/oidentd.fc
- create mode 100644 policy/modules/services/oidentd.if
- create mode 100644 policy/modules/services/oidentd.te
-
-diff --git a/policy/modules/services/oidentd.fc
-b/policy/modules/services/oidentd.fc
-new file mode 100644
-index 0000000..a9209dc
---- /dev/null
-+++ b/policy/modules/services/oidentd.fc
-@@ -0,0 +1,9 @@
-+
-+/etc/oidentd.conf		--
-gen_context(system_u:object_r:oidentd_config_t,s0)
-+/etc/oidentd_masq.conf	--
-gen_context(system_u:object_r:oidentd_config_t,s0)
-+
-+ifdef(`distro_redhat', `
-+/etc/rc\.d/init\.d/oidentd		--
-gen_context(system_u:object_r:oidentd_script_exec_t,s0)
-+')
-+
-+/usr/sbin/oidentd		--	gen_context(system_u:object_r:oidentd_exec_t,s0)
-diff --git a/policy/modules/services/oidentd.if
-b/policy/modules/services/oidentd.if
-new file mode 100644
-index 0000000..a745861
---- /dev/null
-+++ b/policy/modules/services/oidentd.if
-@@ -0,0 +1,7 @@
-+## <summary>SELinux policy for the oident daemon.</summary>
-+## <desc>
-+##	<p>
-+##	Applies SELinux security to the oident daemon.
-+##	</p>
-+## </desc>
-+
-diff --git a/policy/modules/services/oidentd.te
-b/policy/modules/services/oidentd.te
-new file mode 100644
-index 0000000..1b770cf
---- /dev/null
-+++ b/policy/modules/services/oidentd.te
-@@ -0,0 +1,68 @@
-+
-+policy_module(oidentd, 0.0.1)=20
-+
-+########################################
-+#
-+# oidentd private declarations
-+#
-+
-+## <desc>
-+## <p>
-+## Allow the oident daemon to read
-+## unprivileged user home content files.
-+## </p>
-+## </desc>
-+gen_tunable(oidentd_read_unprivileged_user_home_content_files, false)
-+
-+type oidentd_t;
-+type oidentd_exec_t;
-+init_daemon_domain(oidentd_t, oidentd_exec_t)
-+
-+ifdef(`distro_redhat', `
-+type oidentd_script_exec_t;
-+init_script_type(oidentd_script_exec_t)
-+')
-+
-+type oidentd_config_t;
-+files_config_file(oidentd_config_t)
-+
-+########################################
-+#
-+# oidentd private policy
-+#
-+allow oidentd_t self:capability { setuid setgid };
-+allow oidentd_t self:netlink_route_socket { write getattr read bind
-create nlmsg_read };
-+allow oidentd_t self:netlink_tcpdiag_socket { write read create
-nlmsg_read };
-+allow oidentd_t self:tcp_socket { setopt read bind create accept write
-getattr listen };
-+allow oidentd_t self:udp_socket { write read create connect getattr };
-+allow oidentd_t self:unix_dgram_socket { create connect };
-+
-+allow oidentd_t oidentd_config_t:file read_file_perms;
-+
-+corenet_all_recvfrom_unlabeled(oidentd_t)
-+corenet_all_recvfrom_netlabel(oidentd_t)
-+corenet_tcp_sendrecv_all_if(oidentd_t)
-+corenet_tcp_sendrecv_all_nodes(oidentd_t)
-+corenet_tcp_bind_all_nodes(oidentd_t)
-+corenet_tcp_bind_auth_port(oidentd_t);
-+
-+files_read_etc_files(oidentd_t)
-+
-+kernel_read_kernel_sysctls(oidentd_t)
-+kernel_read_network_state(oidentd_t)
-+kernel_read_network_state_symlinks(oidentd_t)
-+kernel_read_sysctl(oidentd_t)
-+
-+libs_use_ld_so(oidentd_t)
-+libs_use_shared_libs(oidentd_t)
-+
-+logging_send_syslog_msg(oidentd_t)
-+
-+miscfiles_read_localization(oidentd_t)
-+
-+sysnet_read_config(oidentd_t)
-+
-+tunable_policy(`oidentd_read_unprivileged_user_home_content_files', `
-+	# ~/.oidentd.conf
-+	userdom_read_unpriv_users_home_content_files(oidentd_t)
-+')
---=20
-1.5.5.2
-
---=20
-Dominick Grift <domg472@gmail.com>
-
---=-OkfX0ZbtEcsXNbfx2XrF
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkiLIZsACgkQL00QnzrVtly0gACgpQDDvejswnUoy8QNY7I3Vokb
-vrcAn0aw+91gU/gvxOETD/0NP7Oqt4E+
-=Ppb3
------END PGP SIGNATURE-----
-
---=-OkfX0ZbtEcsXNbfx2XrF--
-
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
