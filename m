@@ -1,159 +1,108 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6SFw94P028294
-	for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 11:58:09 -0400
-Received: from cdptpa-omtalb.mail.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6SFw9gU022654
-	for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 15:58:09 GMT
-Received: from basement.kutulu.org ([70.121.200.185])
-          by cdptpa-omta06.mail.rr.com with ESMTP
-          id <20080728155808.ODQD9085.cdptpa-omta06.mail.rr.com@basement.kutulu.org>
-          for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 15:58:08 +0000
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by basement.kutulu.org (Postfix) with ESMTPS id A14BB11471
-	for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 11:58:01 -0400 (EDT)
-Message-ID: <488DED3A.1030005@kutulu.org>
-Date: Mon, 28 Jul 2008 12:00:58 -0400
-From: Mike Edenfield <kutulu@kutulu.org>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6SGCFPu030780
+	for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 12:12:15 -0400
+Received: from mail.wrs.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6SGC3PO024951
+	for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 16:12:13 GMT
+Message-ID: <488DECEB.1090607@windriver.com>
+Date: Mon, 28 Jul 2008 11:59:39 -0400
+From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
 MIME-Version: 1.0
-To: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: [refpolicy patch, second try] samba policy updates
-Content-Type: multipart/mixed;
- boundary="------------040106080006070001060002"
+To: Stephen Smalley <stephen.smalley@gmail.com>
+CC: Chris PeBenito <pebenito@gentoo.org>,
+        Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: libsepol.context_from_record: MLS is disabled, but MLS	context"s0"
+ found
+References: <4888E754.9030504@windriver.com>	 <1216944435.4931.20.camel@defiant.pebenito.net>	 <6FE441CD9F0C0C479F2D88F959B015880246B40D@exchange.columbia.tresys.com>	 <1216997739.5392.14.camel@defiant.pebenito.net>	 <1216998548.4906.2.camel@defiant.pebenito.net> <1217032502.14295.1.camel@sulphur>
+In-Reply-To: <1217032502.14295.1.camel@sulphur>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040106080006070001060002
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Stephen Smalley wrote:
+> On Fri, 2008-07-25 at 11:09 -0400, Chris PeBenito wrote:
+>   
+>> On Fri, 2008-07-25 at 10:55 -0400, Chris PeBenito wrote:
+>>     
+>>> On Fri, 2008-07-25 at 10:30 -0400, Karl MacMillan wrote:
+>>>       
+>>>>> -----Original Message-----
+>>>>> From: Chris PeBenito [mailto:pebenito@gentoo.org]
+>>>>> Sent: Thursday, July 24, 2008 8:07 PM
+>>>>> To: Vikram Ambrose
+>>>>> Cc: selinux@tycho.nsa.gov; Karl MacMillan
+>>>>> Subject: Re: libsepol.context_from_record: MLS is disabled, but MLS
+>>>>> context"s0" found
+>>>>>
+>>>>> On Thu, 2008-07-24 at 16:34 -0400, Vikram Ambrose wrote:
+>>>>>           
+>>>>>> I keep getting this error with audit2why.
+>>>>>>
+>>>>>> root@localhost:/root> cat msg
+>>>>>> type=1400 audit(1216736766.147:35): avc:  denied  { read write }
+>>>>>>             
+>>>>> for
+>>>>>           
+>>>>>> pid=1829 comm="modprobe" name="console" dev=sda ino=344069
+>>>>>> scontext=system_u:system_r:insmod_t
+>>>>>> tcontext=unconfined_u:object_r:default_t tclass=chr_file
+>>>>>>
+>>>>>> root@localhost:/root> audit2allow < msg #============= insmod_t
+>>>>>> ============== allow insmod_t default_t:chr_file { read write };
+>>>>>>
+>>>>>> root@localhost:/root> audit2why < msg
+>>>>>> libsepol.context_from_record: MLS is disabled, but MLS context "s0"
+>>>>>> found
+>>>>>> libsepol.context_from_record: could not create context structure
+>>>>>> libsepol.context_from_string: could not create context structure
+>>>>>> libsepol.sepol_context_to_sid: could not convert
+>>>>>> system_u:system_r:insmod_t:s0 to sid Invalid Source Context
+>>>>>> system_u:system_r:insmod_t:s0
+>>>>>>             
+>>>>> I ran into this last week.  Sepolgen incorrectly adds the MLS portion
+>>>>> of the context regardless if MLS is enabled or not.  Then when the
+>>>>> tool uses the context, libsepol throws the above errors when MLS is
+>>>>> disabled.
+>>>>> I haven't had a chance to really look at what would be the right way
+>>>>> to fix it, since I'm no python expert.  Karl?
+>>>>>
+>>>>>           
+>>>> Maybe I'm missing something, but from above this looks like an audit2why
+>>>> bug not an sepolgen bug.
+>>>>         
+>>> Perhaps.  I didn't have a change to analyze the problem fully, so I
+>>> don't know if sepolgen is supposed to be informed if this is an MLS
+>>> policy or not, or if sepolgen itself is supposed to figure it out.  In
+>>> the end the offending function is in the SecurityContext class in
+>>> sepolgen:
+>>>
+>>> def to_string(self, default_level="s0"):
+>>>         fields = [self.user, self.role, self.type]
+>>>         if self.level == "":
+>>>             if default_level != "":
+>>>                 fields.append(default_level)
+>>>         else:
+>>>             fields.append(self.level)
+>>>         return ":".join(fields)
+>>>       
+>> To be clear, I couldn't find any example of default_level being set to
+>> anything when to_string() is called, so in the end it gets a level no
+>> matter what.
+>>     
+>
+> Right - it shouldn't do that if is_selinux_mls_enabled() <= 0.
+> I think this is a result of the audit2allow / audit2why integration;
+> previously, audit2why was directly consuming audit messages but now it
+> is leveraging sepolgen.
+>
+>   
+Is there a temporary work around for this? audit2* is basically the only 
+debug tools available for selinux n00bs.
 
 
-* Allow winbindd to manage its own sockets
-* Allow nbmd to rename log files
-* Add new interface to encapsulate home directory creation.
-* Provide tunable policy to allow samba to create home directories on 
-system without oddjobs PAM module.
+Vikram
 
-
-
---------------040106080006070001060002
-Content-Type: text/plain;
- name="samba.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="samba.patch"
-
-Index: modules/services/samba.if
-===================================================================
---- modules/services/samba.if	(revision 2767)
-+++ modules/services/samba.if	(working copy)
-@@ -484,17 +484,17 @@
- ## </param>
- #
- interface(`samba_stream_connect_winbind',`
--	ifdef(`distro_redhat',`
--		gen_require(`
--			type samba_var_t, winbind_t, winbind_var_run_t;
--		')
-+	gen_require(`
-+		type samba_var_t, winbind_t, winbind_var_run_t;
-+	')
- 
--		files_search_pids($1)
--		allow $1 samba_var_t:dir search_dir_perms;
--		stream_connect_pattern($1, winbind_var_run_t, winbind_var_run_t, winbind_t)
--	',`
-+	files_search_pids($1)
-+	allow $1 samba_var_t:dir search_dir_perms;
-+	stream_connect_pattern($1, winbind_var_run_t, winbind_var_run_t, winbind_t)
-+	
-+	ifndef(`distro_redhat', `
- 		gen_require(`
--			type winbind_t, winbind_tmp_t;
-+		    type winbind_tmp_t;
- 		')
- 
- 		# the default for the socket is (poorly named):
-Index: modules/services/samba.te
-===================================================================
---- modules/services/samba.te	(revision 2767)
-+++ modules/services/samba.te	(working copy)
-@@ -59,6 +59,13 @@
- ## </desc>
- gen_tunable(samba_share_nfs, false)
- 
-+## <desc>
-+## <p>
-+## Allow samba to create new home directories (e.g. via PAM) 
-+## </p>
-+## </desc>
-+gen_tunable(samba_create_home_dirs, false)
-+
- type nmbd_t;
- type nmbd_exec_t;
- init_daemon_domain(nmbd_t, nmbd_exec_t)
-@@ -379,6 +386,14 @@
- 	unprivuser_home_dir_filetrans_home_content(nmbd_t, { file dir })
- ')
- 
-+tunable_policy(`samba_create_home_dirs',`
-+	ifdef(`distro_redhat', `
-+		refpolicywarn(`Use of samba_create_home_dirs is discouraged.  Please use pam_oddjob_mkhomedir instead.')
-+	', `
-+		unprivuser_create_home_dirs(smbd_t)
-+		allow smbd_t self:capability chown;
-+	')
-+')
- ########################################
- #
- # nmbd Local policy
-@@ -404,8 +419,7 @@
- read_files_pattern(nmbd_t, samba_etc_t, samba_etc_t)
- 
- manage_dirs_pattern(nmbd_t, samba_log_t, samba_log_t)
--append_files_pattern(nmbd_t, samba_log_t, samba_log_t)
--allow nmbd_t samba_log_t:file unlink;
-+manage_files_pattern(nmbd_t, samba_log_t, samba_log_t)
- 
- read_files_pattern(nmbd_t, samba_log_t, samba_log_t)
- create_files_pattern(nmbd_t, samba_log_t, samba_log_t)
-@@ -675,6 +689,7 @@
- 
- manage_dirs_pattern(winbind_t, winbind_tmp_t, winbind_tmp_t)
- manage_files_pattern(winbind_t, winbind_tmp_t, winbind_tmp_t)
-+manage_sock_files_pattern(winbind_t, winbind_tmp_t, winbind_tmp_t)
- files_tmp_filetrans(winbind_t, winbind_tmp_t, { file dir })
- 
- manage_files_pattern(winbind_t, winbind_var_run_t, winbind_var_run_t)
-Index: modules/roles/unprivuser.if
-===================================================================
---- modules/roles/unprivuser.if	(revision 2767)
-+++ modules/roles/unprivuser.if	(working copy)
-@@ -146,6 +146,22 @@
- 
- ########################################
- ## <summary>
-+## Create new home directories with the proper
-+## home directory label.
-+## </summary>
-+## <param name="domain">
-+##  <summary>
-+##  Domain allowed access.
-+##  </summary>
-+## </param>
-+#
-+interface(`unprivuser_create_home_dirs',`
-+	unprivuser_home_filetrans_home_dir($1)
-+	unprivuser_manage_home_dirs($1)
-+')
-+
-+########################################
-+## <summary>
- ##	Create, read, write, and delete
- ##	subdirectories of generic user
- ##	home directories.
-
---------------040106080006070001060002--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
