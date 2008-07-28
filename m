@@ -1,78 +1,127 @@
-Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: Stephen Smalley <stephen.smalley@gmail.com>,
-        KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        KaiGai Kohei <kaigai@ak.jp.nec.com>, jmorris@namei.org,
-        paul.moore@hp.com, selinux@tycho.nsa.gov
-In-Reply-To: <488B6972.4020003@tresys.com>
-References: <487C7698.60503@ak.jp.nec.com>
-	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <487D5A3D.6090801@ak.jp.nec.com>
-	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
-	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
-	 <4889CC5F.3030500@ak.jp.nec.com>  <4889CF30.2060306@ak.jp.nec.com>
-	 <1216993463.11948.22.camel@sulphur>  <488AD868.9050507@kaigai.gr.jp>
-	 <1217093311.3223.1.camel@sulphur>  <488B6972.4020003@tresys.com>
-Content-Type: text/plain
-Date: Mon, 28 Jul 2008 13:31:56 -0400
-Message-Id: <1217266316.20373.53.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <488E06ED.8080003@windriver.com>
+Date: Mon, 28 Jul 2008 13:50:37 -0400
+From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Stephen Smalley <stephen.smalley@gmail.com>,
+        Chris PeBenito <pebenito@gentoo.org>,
+        Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: libsepol.context_from_record: MLS is disabled, but	MLS	context"s0"
+ found
+References: <4888E754.9030504@windriver.com>	 <1216944435.4931.20.camel@defiant.pebenito.net>	 <6FE441CD9F0C0C479F2D88F959B015880246B40D@exchange.columbia.tresys.com>	 <1216997739.5392.14.camel@defiant.pebenito.net>	 <1216998548.4906.2.camel@defiant.pebenito.net>	 <1217032502.14295.1.camel@sulphur>  <488DECEB.1090607@windriver.com> <1217263797.20373.22.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1217263797.20373.22.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Sat, 2008-07-26 at 14:14 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Sat, 2008-07-26 at 16:55 +0900, KaiGai Kohei wrote:
-> >> Stephen Smalley wrote:
-> >>> On Fri, 2008-07-25 at 22:03 +0900, KaiGai Kohei wrote:
-> >>>> [1/3] thread-context-kernel.1.patch
-> >>>>   This patch enables to assign a thread a "weaker" hierarchical domain,
-> >>>>   only if the destinated domain is a child of the current domain.
-> >>>>   Hierachy relationships are defined in the policy version 24.
-> >>>>   This patch also enables to read the new version of policy.
-> >>> If you are going to take type hierarchy support into the kernel, then it
-> >>> seems like it should be completely taken into the kernel, i.e. the
-> >>> hierarchy checking should be applied by the kernel rather than by the
-> >>> toolchain.  That is what the Flask security server did for its
-> >>> extensible policy mechanism.
-> >> When the checks are applied in the kernel?
-> >> One candidate is policy loading time, and the other is AVC entry creation
-> >> time. I prefers the later one, because checks in policy loading time will
-> >> require the expensive checks in kernel space.
-> >>
-> >> In my idea, violated permission bits on AVC entries are masked by ones of
-> >> its parent types, with/without printing logs.
-> >> Now hierarchy/neverallow constraint makes abort whole of policy loading.
-> >> It can be a significant difference.
-> > 
-> > Yes, it makes sense to apply the hierarchy restrictions at computation
-> > time.  Neverallows are a bit different though - we want those to flag
-> > bugs in policy.  Thus, we likely should leave neverallow checking in the
-> > userland toolchain.
-> > 
-> 
-> So you want to deny at runtime based on the hierarchy? Won't that
-> create another confusing way SELinux can deny something without any
-> clue why (aside from running the denial through audit2why)? Further,
-> this is something we can understand and reject ahead of time, I don't
-> know why it makes sense to wait until later when we can tell now that
-> something is wrong with the policy.
-
-True.  On the other hand, if we are going to make the hierarchy visible
-to the kernel so that it can directly leverage information from it, then
-it makes sense to let the kernel directly enforce the relationships,
-whether that happens at policy load time or at compute_av time.
-
-If we can make the checking happen entirely at policy load time in a
-manner that isn't too expensive, then that is cleaner, I agree.  If not,
-then lazy dynamic checking by the kernel and optional full static
-checking by the toolchain may be a compromise.
+Stephen Smalley wrote:
+> On Mon, 2008-07-28 at 11:59 -0400, Vikram Ambrose wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> On Fri, 2008-07-25 at 11:09 -0400, Chris PeBenito wrote:
+>>>   
+>>>       
+>>>> On Fri, 2008-07-25 at 10:55 -0400, Chris PeBenito wrote:
+>>>>     
+>>>>         
+>>>>> On Fri, 2008-07-25 at 10:30 -0400, Karl MacMillan wrote:
+>>>>>       
+>>>>>           
+>>>>>>> -----Original Message-----
+>>>>>>> From: Chris PeBenito [mailto:pebenito@gentoo.org]
+>>>>>>> Sent: Thursday, July 24, 2008 8:07 PM
+>>>>>>> To: Vikram Ambrose
+>>>>>>> Cc: selinux@tycho.nsa.gov; Karl MacMillan
+>>>>>>> Subject: Re: libsepol.context_from_record: MLS is disabled, but MLS
+>>>>>>> context"s0" found
+>>>>>>>
+>>>>>>> On Thu, 2008-07-24 at 16:34 -0400, Vikram Ambrose wrote:
+>>>>>>>           
+>>>>>>>               
+>>>>>>>> I keep getting this error with audit2why.
+>>>>>>>>
+>>>>>>>> root@localhost:/root> cat msg
+>>>>>>>> type=1400 audit(1216736766.147:35): avc:  denied  { read write }
+>>>>>>>>             
+>>>>>>>>                 
+>>>>>>> for
+>>>>>>>           
+>>>>>>>               
+>>>>>>>> pid=1829 comm="modprobe" name="console" dev=sda ino=344069
+>>>>>>>> scontext=system_u:system_r:insmod_t
+>>>>>>>> tcontext=unconfined_u:object_r:default_t tclass=chr_file
+>>>>>>>>
+>>>>>>>> root@localhost:/root> audit2allow < msg #============= insmod_t
+>>>>>>>> ============== allow insmod_t default_t:chr_file { read write };
+>>>>>>>>
+>>>>>>>> root@localhost:/root> audit2why < msg
+>>>>>>>> libsepol.context_from_record: MLS is disabled, but MLS context "s0"
+>>>>>>>> found
+>>>>>>>> libsepol.context_from_record: could not create context structure
+>>>>>>>> libsepol.context_from_string: could not create context structure
+>>>>>>>> libsepol.sepol_context_to_sid: could not convert
+>>>>>>>> system_u:system_r:insmod_t:s0 to sid Invalid Source Context
+>>>>>>>> system_u:system_r:insmod_t:s0
+>>>>>>>>             
+>>>>>>>>                 
+>>>>>>> I ran into this last week.  Sepolgen incorrectly adds the MLS portion
+>>>>>>> of the context regardless if MLS is enabled or not.  Then when the
+>>>>>>> tool uses the context, libsepol throws the above errors when MLS is
+>>>>>>> disabled.
+>>>>>>> I haven't had a chance to really look at what would be the right way
+>>>>>>> to fix it, since I'm no python expert.  Karl?
+>>>>>>>
+>>>>>>>           
+>>>>>>>               
+>>>>>> Maybe I'm missing something, but from above this looks like an audit2why
+>>>>>> bug not an sepolgen bug.
+>>>>>>         
+>>>>>>             
+>>>>> Perhaps.  I didn't have a change to analyze the problem fully, so I
+>>>>> don't know if sepolgen is supposed to be informed if this is an MLS
+>>>>> policy or not, or if sepolgen itself is supposed to figure it out.  In
+>>>>> the end the offending function is in the SecurityContext class in
+>>>>> sepolgen:
+>>>>>
+>>>>> def to_string(self, default_level="s0"):
+>>>>>         fields = [self.user, self.role, self.type]
+>>>>>         if self.level == "":
+>>>>>             if default_level != "":
+>>>>>                 fields.append(default_level)
+>>>>>         else:
+>>>>>             fields.append(self.level)
+>>>>>         return ":".join(fields)
+>>>>>       
+>>>>>           
+>>>> To be clear, I couldn't find any example of default_level being set to
+>>>> anything when to_string() is called, so in the end it gets a level no
+>>>> matter what.
+>>>>     
+>>>>         
+>>> Right - it shouldn't do that if is_selinux_mls_enabled() <= 0.
+>>> I think this is a result of the audit2allow / audit2why integration;
+>>> previously, audit2why was directly consuming audit messages but now it
+>>> is leveraging sepolgen.
+>>>
+>>>   
+>>>       
+>> Is there a temporary work around for this? audit2* is basically the only 
+>> debug tools available for selinux n00bs.
+>>     
+>
+> I would think that you could just change default_level="" in the
+> to_string definition in class SecurityContext in refpolicy.py.  Or make
+> it dynamically determine it based on is_selinux_mls_enabled().
+>
+>   
+You mean that in a non-MCS/MLS policy level=""?
+and its fine for that function to append "" to the context (without the 
+":" added on) ?
 
 -- 
-Stephen Smalley
-National Security Agency
+Vikram Ambrose | Linux Products Division | WindRiver Corporation
 
 
 --
