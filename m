@@ -1,42 +1,58 @@
-Message-ID: <488E22B2.4060805@windriver.com>
-Date: Mon, 28 Jul 2008 15:49:06 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6SNfolF020032
+	for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 19:41:50 -0400
+Received: from rv-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6SNfnKS028995
+	for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 23:41:49 GMT
+Received: by rv-out-0708.google.com with SMTP id f25so3931573rvb.54
+        for <selinux@tycho.nsa.gov>; Mon, 28 Jul 2008 16:41:48 -0700 (PDT)
+Message-ID: <10143820807281641j32da0c88v971ce52897de52e6@mail.gmail.com>
+Date: Mon, 28 Jul 2008 19:41:48 -0400
+From: "Karl MacMillan" <kmacmillan@mentalrootkit.com>
+To: "Stephen Smalley" <stephen.smalley@gmail.com>
+Subject: Re: Mapping Linux GROUP to an SELinux user ?...
+Cc: "Hasan Rezaul-CHR010" <CHR010@motorola.com>, selinux@tycho.nsa.gov
+In-Reply-To: <1216947967.5185.3.camel@sulphur>
 MIME-Version: 1.0
-To: Karl MacMillan <kmacmillan@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>,
-        Stephen Smalley <stephen.smalley@gmail.com>,
-        Chris PeBenito <pebenito@gentoo.org>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: libsepol.context_from_record: MLS is disabled, but	MLS	context"s0"
- found
-References: <4888E754.9030504@windriver.com>	 <1216944435.4931.20.camel@defiant.pebenito.net>	 <6FE441CD9F0C0C479F2D88F959B015880246B40D@exchange.columbia.tresys.com>	 <1216997739.5392.14.camel@defiant.pebenito.net>	 <1216998548.4906.2.camel@defiant.pebenito.net>	 <1217032502.14295.1.camel@sulphur>  <488DECEB.1090607@windriver.com> <1217263797.20373.22.camel@moss-spartans.epoch.ncsc.mil> <488E06ED.8080003@windriver.com> <06A6610D4F464D4EBEAFBF2C5F86911E7FA2@exchange2.columbia.tresys.com>
-In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E7FA2@exchange2.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+References: <48881546.6070903@ak.jp.nec.com> <1216898673.3881.4.camel@sulphur>
+	 <D06FE0A2807BC145B0D38744789D4F5D04BF337D@de01exm68.ds.mot.com>
+	 <1216947967.5185.3.camel@sulphur>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[snip]
-Karl MacMillan wrote:
+On Thu, Jul 24, 2008 at 9:05 PM, Stephen Smalley
+<stephen.smalley@gmail.com> wrote:
+> On Thu, 2008-07-24 at 14:22 -0400, Hasan Rezaul-CHR010 wrote:
+>> Hi All,
+>>
+>> Is there any way at all to map an entire Linux GROUP to an SELinux_user
+>> ??
+>>
+>> For example if Linux User accounts (Admin1, Admin2, and Admin3), all
+>> belong to the Linux group  "wadm".
+>>
+>> Is there a simple or tricky way to map the entire Linux group    wadm ->
+>> to staff_u ?
+>>
+>> This way, any Linux user account that happens to be part of the "wadm"
+>> group would automatically be mapped to staff_u  ? This way we don't have
+>> to execute several semanage commands to create all those individual
+>> mappings ?
 >
-> Here's a patch - I'd appreciate testing on a non-MLS system as I don't
-> have one handy right now.
+> Not presently, but one could certainly implement such support in the
+> userland (pam_selinux + libselinux getseuserbyname).
 >
-> Karl
->
-> ----
-> Karl MacMillan
-> Tresys Technology
-> (410) 290-1411 ext. 173
-> kmacmillan@tresys.com
->
->   
-Patch works. Applied and tested with selinux-svn2928. Thank you Karl.
 
-Vikram
+I know that we and others have done this in the past, though our
+implementation at least is not really a general solution but something
+specific for one situation.
 
--- 
-Vikram Ambrose | Linux Products Division | WindRiver Corporation
+A general solution would need to resolve what the semantics of the
+mapping would be including what to do when multiple groups match. Not
+really a problem, just requires some thought.
 
+Karl
 
 --
 This message was distributed to subscribers of the selinux mailing list.
