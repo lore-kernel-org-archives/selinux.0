@@ -1,127 +1,63 @@
-Message-ID: <488E06ED.8080003@windriver.com>
-Date: Mon, 28 Jul 2008 13:50:37 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Stephen Smalley <stephen.smalley@gmail.com>,
-        Chris PeBenito <pebenito@gentoo.org>,
-        Karl MacMillan <kmacmillan@tresys.com>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: libsepol.context_from_record: MLS is disabled, but	MLS	context"s0"
- found
-References: <4888E754.9030504@windriver.com>	 <1216944435.4931.20.camel@defiant.pebenito.net>	 <6FE441CD9F0C0C479F2D88F959B015880246B40D@exchange.columbia.tresys.com>	 <1216997739.5392.14.camel@defiant.pebenito.net>	 <1216998548.4906.2.camel@defiant.pebenito.net>	 <1217032502.14295.1.camel@sulphur>  <488DECEB.1090607@windriver.com> <1217263797.20373.22.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1217263797.20373.22.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [patch] SELinux: trivial, unify iterator variable naming, part
+	3
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Stephen Smalley <stephen.smalley@gmail.com>,
+        James Morris <jmorris@namei.org>,
+        Vesa-Matti J Kari <vmkari@cc.helsinki.fi>,
+        Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
+In-Reply-To: <200807261023.09091.paul.moore@hp.com>
+References: <Pine.LNX.4.64L.0807210220280.8567@ruuvi.it.helsinki.fi>
+	 <Xine.LNX.4.64.0807260046250.19915@us.intercode.com.au>
+	 <1217033137.14295.11.camel@sulphur>  <200807261023.09091.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Mon, 28 Jul 2008 14:13:48 -0400
+Message-Id: <1217268828.20373.89.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Mon, 2008-07-28 at 11:59 -0400, Vikram Ambrose wrote:
->   
->> Stephen Smalley wrote:
->>     
->>> On Fri, 2008-07-25 at 11:09 -0400, Chris PeBenito wrote:
->>>   
->>>       
->>>> On Fri, 2008-07-25 at 10:55 -0400, Chris PeBenito wrote:
->>>>     
->>>>         
->>>>> On Fri, 2008-07-25 at 10:30 -0400, Karl MacMillan wrote:
->>>>>       
->>>>>           
->>>>>>> -----Original Message-----
->>>>>>> From: Chris PeBenito [mailto:pebenito@gentoo.org]
->>>>>>> Sent: Thursday, July 24, 2008 8:07 PM
->>>>>>> To: Vikram Ambrose
->>>>>>> Cc: selinux@tycho.nsa.gov; Karl MacMillan
->>>>>>> Subject: Re: libsepol.context_from_record: MLS is disabled, but MLS
->>>>>>> context"s0" found
->>>>>>>
->>>>>>> On Thu, 2008-07-24 at 16:34 -0400, Vikram Ambrose wrote:
->>>>>>>           
->>>>>>>               
->>>>>>>> I keep getting this error with audit2why.
->>>>>>>>
->>>>>>>> root@localhost:/root> cat msg
->>>>>>>> type=1400 audit(1216736766.147:35): avc:  denied  { read write }
->>>>>>>>             
->>>>>>>>                 
->>>>>>> for
->>>>>>>           
->>>>>>>               
->>>>>>>> pid=1829 comm="modprobe" name="console" dev=sda ino=344069
->>>>>>>> scontext=system_u:system_r:insmod_t
->>>>>>>> tcontext=unconfined_u:object_r:default_t tclass=chr_file
->>>>>>>>
->>>>>>>> root@localhost:/root> audit2allow < msg #============= insmod_t
->>>>>>>> ============== allow insmod_t default_t:chr_file { read write };
->>>>>>>>
->>>>>>>> root@localhost:/root> audit2why < msg
->>>>>>>> libsepol.context_from_record: MLS is disabled, but MLS context "s0"
->>>>>>>> found
->>>>>>>> libsepol.context_from_record: could not create context structure
->>>>>>>> libsepol.context_from_string: could not create context structure
->>>>>>>> libsepol.sepol_context_to_sid: could not convert
->>>>>>>> system_u:system_r:insmod_t:s0 to sid Invalid Source Context
->>>>>>>> system_u:system_r:insmod_t:s0
->>>>>>>>             
->>>>>>>>                 
->>>>>>> I ran into this last week.  Sepolgen incorrectly adds the MLS portion
->>>>>>> of the context regardless if MLS is enabled or not.  Then when the
->>>>>>> tool uses the context, libsepol throws the above errors when MLS is
->>>>>>> disabled.
->>>>>>> I haven't had a chance to really look at what would be the right way
->>>>>>> to fix it, since I'm no python expert.  Karl?
->>>>>>>
->>>>>>>           
->>>>>>>               
->>>>>> Maybe I'm missing something, but from above this looks like an audit2why
->>>>>> bug not an sepolgen bug.
->>>>>>         
->>>>>>             
->>>>> Perhaps.  I didn't have a change to analyze the problem fully, so I
->>>>> don't know if sepolgen is supposed to be informed if this is an MLS
->>>>> policy or not, or if sepolgen itself is supposed to figure it out.  In
->>>>> the end the offending function is in the SecurityContext class in
->>>>> sepolgen:
->>>>>
->>>>> def to_string(self, default_level="s0"):
->>>>>         fields = [self.user, self.role, self.type]
->>>>>         if self.level == "":
->>>>>             if default_level != "":
->>>>>                 fields.append(default_level)
->>>>>         else:
->>>>>             fields.append(self.level)
->>>>>         return ":".join(fields)
->>>>>       
->>>>>           
->>>> To be clear, I couldn't find any example of default_level being set to
->>>> anything when to_string() is called, so in the end it gets a level no
->>>> matter what.
->>>>     
->>>>         
->>> Right - it shouldn't do that if is_selinux_mls_enabled() <= 0.
->>> I think this is a result of the audit2allow / audit2why integration;
->>> previously, audit2why was directly consuming audit messages but now it
->>> is leveraging sepolgen.
->>>
->>>   
->>>       
->> Is there a temporary work around for this? audit2* is basically the only 
->> debug tools available for selinux n00bs.
->>     
->
-> I would think that you could just change default_level="" in the
-> to_string definition in class SecurityContext in refpolicy.py.  Or make
-> it dynamically determine it based on is_selinux_mls_enabled().
->
->   
-You mean that in a non-MCS/MLS policy level=""?
-and its fine for that function to append "" to the context (without the 
-":" added on) ?
+
+On Sat, 2008-07-26 at 10:23 -0400, Paul Moore wrote:
+> On Friday 25 July 2008 8:45:26 pm Stephen Smalley wrote:
+> > On Sat, 2008-07-26 at 00:47 +1000, James Morris wrote:
+> > > On Fri, 25 Jul 2008, Stephen Smalley wrote:
+> > > > On Fri, 2008-07-25 at 23:03 +1000, James Morris wrote:
+> > > > > Turns out it was caused by
+> > > > > CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE being set to
+> > > > > the default of 19.
+> > > > >
+> > > > > After setting it to 22 (same as the Fedora kernel), the problem
+> > > > > went away.
+> > > >
+> > > > Makes sense - policy.19 predates the avtab memory optimization
+> > > > work I did, and requires the policy toolchain to fully expand all
+> > > > attribute-based rules into individual type pairs.  So that shows
+> > > > how much memory we are saving from that particular optimization
+> > > > today.
+> > >
+> > > Should we bump that value so that kernel developers don't hit the
+> > > same problem if they have SELinux enabled?  (Many would assume the
+> > > boot hung).
+> >
+> > No - the whole point of that config option is to avoid breakage on
+> > Fedora 3 and 4, as noted in the help text.  And the option on which
+> > it depends defaults to n and thus shouldn't be enabled for anyone by
+> > default.
+> >
+> > As to whether or not we need to care about Fedora 3 and 4 anymore is
+> > perhaps a reasonable question; if not, then the entire option could
+> > go away.
+> 
+> I'm thinking of Andrew Morton's crufty old Fedora Core 2 laptop right 
+> now ...
+
+The last selinux bug reports I got from Andrew were only for Fedora 5,
+so I'm hoping he has retired anything before F5.
 
 -- 
-Vikram Ambrose | Linux Products Division | WindRiver Corporation
+Stephen Smalley
+National Security Agency
 
 
 --
