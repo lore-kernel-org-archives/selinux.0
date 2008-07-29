@@ -1,63 +1,41 @@
-Subject: Re: Adding local nodecon's through semanage
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Christian Kuester <c.kuester@tarent.de>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, Paul Moore <paul.moore@hp.com>
-In-Reply-To: <1215520245.27975.231.camel@moss-spartans.epoch.ncsc.mil>
-References: <486CD88E.2000406@tarent.de>
-	 <1215450682.27975.108.camel@moss-spartans.epoch.ncsc.mil>
-	 <48733DCF.3000808@tarent.de>
-	 <1215520245.27975.231.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Tue, 29 Jul 2008 08:13:23 -0400
-Message-Id: <1217333603.20373.158.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: unconfined_t and user_home_dir_type
+Date: Tue, 29 Jul 2008 22:20:15 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <200807291850.30191.russell@coker.com.au> <1217331219.20373.139.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1217331219.20373.139.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200807292220.17592.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tuesday 29 July 2008 21:33, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Tue, 2008-07-29 at 18:50 +1000, Russell Coker wrote:
+> > Currently we have the attributes user_home_dir_type and user_home_type
+> > applied to the main types for the home directory of regular users in a
+> > strict policy configuration (this means user_t etc).
+> >
+> > While it is possible to have unconfined_t and user_t on the same system,
+> > I don't expect this to be a common configuration.  In fact I expect that
+> > in practice they will be mutually exclusive.
+>
+> Actually, it is a common situation in modern Fedora - they can map users
+> they wish to confine to user_u (and thus to user_t) while leaving e.g.
+> root as unconfined_u and thus unconfined_t.
 
-On Tue, 2008-07-08 at 08:30 -0400, Stephen Smalley wrote:
-> On Tue, 2008-07-08 at 12:13 +0200, Christian Kuester wrote:
-> > Stephen Smalley schrieb:
-> > >> [ netmask semantic in nodecon ]
-> > > Ok, this isn't actually a bug in the code at all.
-> > 
-> > I see. Thanks for clearing that up for me!
-> > 
-> > > Arguably semanage and checkpolicy should apply the mask to the address
-> > > as a precaution against misconfiguration by the user.  That's easy
-> > > enough to do.
-> > > 
-> > > Other tidbits on the semanage patch that I noticed:
-> > > - semanage node -l was broken, requires additional argument that has
-> > > been added to the list methods subsequently.  Also would be nice to
-> > > support locallist/-C option.
-> > > - semanage node -p option should take a string rather than an integer
-> > > and map it to the proper symbolic constant for ipv4/ipv6.
-> > > The ordering issue is a red herring at least for this example as the
-> > > sort is only applied to the local entries, and then they are merged to
-> > > the front of the policy-provided definitions.  Which may become an issue
-> > > down the road particularly if we move object contexts to modules. 
-> > 
-> > I think I could do the changes to at least the semanage code, if there
-> > is still interest in it.
-> > 
-> > But I must admit, that my understanding of the "ordering issue" is quiet
-> > limited and my list research on an explaination was unsuccessful so far.
-> > Is this a blocker for general semanage support of nodecons?
-> 
-> I think it is fine to proceed with merging the semanage support, and
-> then we can further investigate and seek to resolve the ordering issues.
-> 
-> Please be sure to test each of the nodeRecords methods.
+So what do they do for the "targeted" case where all users are unconfined_t 
+and they want to have POP/IMAP servers retrieve mail from the users' home 
+directories?
 
-Are you still pursuing getting this cleaned up and merged?
-
-> Dan and/or Joshua - it would help if you could look it over as well.
-> 
 -- 
-Stephen Smalley
-National Security Agency
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 
 --
