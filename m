@@ -1,108 +1,60 @@
-Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment
+Subject: Re: Adding local nodecon's through semanage
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Joshua Brindle <jbrindle@tresys.com>,
-        Stephen Smalley <stephen.smalley@gmail.com>,
-        KaiGai Kohei <kaigai@kaigai.gr.jp>, jmorris@namei.org,
-        paul.moore@hp.com, selinux@tycho.nsa.gov
-In-Reply-To: <488EBDE8.2050106@ak.jp.nec.com>
-References: <487C7698.60503@ak.jp.nec.com>
-	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <487D5A3D.6090801@ak.jp.nec.com>
-	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
-	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
-	 <4889CC5F.3030500@ak.jp.nec.com>  <4889CF30.2060306@ak.jp.nec.com>
-	 <1216993463.11948.22.camel@sulphur>  <488AD868.9050507@kaigai.gr.jp>
-	 <1217093311.3223.1.camel@sulphur>  <488B6972.4020003@tresys.com>
-	 <1217266316.20373.53.camel@moss-spartans.epoch.ncsc.mil>
-	 <488EBDE8.2050106@ak.jp.nec.com>
+To: Christian Kuester <c.kuester@tarent.de>
+Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, Paul Moore <paul.moore@hp.com>
+In-Reply-To: <1215520245.27975.231.camel@moss-spartans.epoch.ncsc.mil>
+References: <486CD88E.2000406@tarent.de>
+	 <1215450682.27975.108.camel@moss-spartans.epoch.ncsc.mil>
+	 <48733DCF.3000808@tarent.de>
+	 <1215520245.27975.231.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Tue, 29 Jul 2008 08:06:04 -0400
-Message-Id: <1217333164.20373.154.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 29 Jul 2008 08:13:23 -0400
+Message-Id: <1217333603.20373.158.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-07-29 at 15:51 +0900, KaiGai Kohei wrote:
-> Stephen Smalley wrote:
-> > On Sat, 2008-07-26 at 14:14 -0400, Joshua Brindle wrote:
-> >> Stephen Smalley wrote:
-> >>> On Sat, 2008-07-26 at 16:55 +0900, KaiGai Kohei wrote:
-> >>>> Stephen Smalley wrote:
-> >>>>> On Fri, 2008-07-25 at 22:03 +0900, KaiGai Kohei wrote:
-> >>>>>> [1/3] thread-context-kernel.1.patch
-> >>>>>>   This patch enables to assign a thread a "weaker" hierarchical domain,
-> >>>>>>   only if the destinated domain is a child of the current domain.
-> >>>>>>   Hierachy relationships are defined in the policy version 24.
-> >>>>>>   This patch also enables to read the new version of policy.
-> >>>>> If you are going to take type hierarchy support into the kernel, then it
-> >>>>> seems like it should be completely taken into the kernel, i.e. the
-> >>>>> hierarchy checking should be applied by the kernel rather than by the
-> >>>>> toolchain.  That is what the Flask security server did for its
-> >>>>> extensible policy mechanism.
-> >>>> When the checks are applied in the kernel?
-> >>>> One candidate is policy loading time, and the other is AVC entry creation
-> >>>> time. I prefers the later one, because checks in policy loading time will
-> >>>> require the expensive checks in kernel space.
-> >>>>
-> >>>> In my idea, violated permission bits on AVC entries are masked by ones of
-> >>>> its parent types, with/without printing logs.
-> >>>> Now hierarchy/neverallow constraint makes abort whole of policy loading.
-> >>>> It can be a significant difference.
-> >>> Yes, it makes sense to apply the hierarchy restrictions at computation
-> >>> time.  Neverallows are a bit different though - we want those to flag
-> >>> bugs in policy.  Thus, we likely should leave neverallow checking in the
-> >>> userland toolchain.
-> >>>
-> >> So you want to deny at runtime based on the hierarchy? Won't that
-> >> create another confusing way SELinux can deny something without any
-> >> clue why (aside from running the denial through audit2why)? Further,
-> >> this is something we can understand and reject ahead of time, I don't
-> >> know why it makes sense to wait until later when we can tell now that
-> >> something is wrong with the policy.
+On Tue, 2008-07-08 at 08:30 -0400, Stephen Smalley wrote:
+> On Tue, 2008-07-08 at 12:13 +0200, Christian Kuester wrote:
+> > Stephen Smalley schrieb:
+> > >> [ netmask semantic in nodecon ]
+> > > Ok, this isn't actually a bug in the code at all.
 > > 
-> > True.  On the other hand, if we are going to make the hierarchy visible
-> > to the kernel so that it can directly leverage information from it, then
-> > it makes sense to let the kernel directly enforce the relationships,
-> > whether that happens at policy load time or at compute_av time.
+> > I see. Thanks for clearing that up for me!
 > > 
-> > If we can make the checking happen entirely at policy load time in a
-> > manner that isn't too expensive, then that is cleaner, I agree.  If not,
-> > then lazy dynamic checking by the kernel and optional full static
-> > checking by the toolchain may be a compromise.
+> > > Arguably semanage and checkpolicy should apply the mask to the address
+> > > as a precaution against misconfiguration by the user.  That's easy
+> > > enough to do.
+> > > 
+> > > Other tidbits on the semanage patch that I noticed:
+> > > - semanage node -l was broken, requires additional argument that has
+> > > been added to the list methods subsequently.  Also would be nice to
+> > > support locallist/-C option.
+> > > - semanage node -p option should take a string rather than an integer
+> > > and map it to the proper symbolic constant for ipv4/ipv6.
+> > > The ordering issue is a red herring at least for this example as the
+> > > sort is only applied to the local entries, and then they are merged to
+> > > the front of the policy-provided definitions.  Which may become an issue
+> > > down the road particularly if we move object contexts to modules. 
+> > 
+> > I think I could do the changes to at least the semanage code, if there
+> > is still interest in it.
+> > 
+> > But I must admit, that my understanding of the "ordering issue" is quiet
+> > limited and my list research on an explaination was unsuccessful so far.
+> > Is this a blocker for general semanage support of nodecons?
 > 
-> I guess we can reduce cost to check hierarchy constraint, because all
-> we have to do is to scan/check avtabs of related types and ebitmaps
-> of type_attr_maps.
-> However, I don't have a good idea to boost neverallow constraint so
-> much due to its flexibility. :(
+> I think it is fine to proceed with merging the semanage support, and
+> then we can further investigate and seek to resolve the ordering issues.
 > 
-> I have measured a performance to check hierarchy/neverallow constraint
-> with patched libsepol as a trial. Unfortunatelly, about 80% of CPU time
-> is consumed by check_assertions() for neverallows.
-> 
-> [root@saba ~]# time -p semodule -r kaigai
-> hierarchy_check_constraints: 37.32 [s]
-> check_assertions: 139.05 [s]
-> real 205.32
-> user 198.06
-> sys 3.75
-> 
-> These checks at policy load time gives us negative effect in system
-> bootup time, unless remarkable improvements. So, I prefer lazy dynamic
-> checking approach.
-> 
-> (*) System bootup time is one of the major topics for embedded Linux folks.
+> Please be sure to test each of the nodeRecords methods.
 
-Ok.  I'd be interested in seeing that libsepol patch nonetheless, and we
-may want to retain full checking there as an option for validation at
-policy build time (via make validate) while introducing lazy dynamic
-checking in the kernel.
+Are you still pursuing getting this cleaned up and merged?
 
-BTW, we may need to revisit the policydb data structures in order to
-fully address concerns about policy load time.
-
+> Dan and/or Joshua - it would help if you could look it over as well.
+> 
 -- 
 Stephen Smalley
 National Security Agency
