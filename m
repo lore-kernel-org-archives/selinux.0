@@ -1,46 +1,115 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6TEcgYk006194
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 10:38:42 -0400
-Received: from mho-02-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6TEcfLa013595
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 14:38:42 GMT
-Received: from adsl-71-155-178-116.dsl.austtx.sbcglobal.net ([71.155.178.116] helo=[192.168.20.230])
-	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
-	(Exim 4.68)
-	(envelope-from <joe@nall.com>)
-	id 1KNqLZ-000H4h-1R
-	for selinux@tycho.nsa.gov; Tue, 29 Jul 2008 14:38:41 +0000
-Message-Id: <82459273-DA3E-4F80-B1D8-E3A168218B06@nall.com>
-From: Joe Nall <joe@nall.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v928.1)
-Subject: Should /dev/mem be SystemHigh?
-Date: Tue, 29 Jul 2008 09:38:39 -0500
+Message-ID: <488F2CF8.2010600@redhat.com>
+Date: Tue, 29 Jul 2008 10:45:12 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Ruby bindings patch for libselinux
+References: <4876284A.5070606@redhat.com> <1217336636.20373.175.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1217336636.20373.175.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ls -Z /dev/mem
-crw-r-----  root kmem system_u:object_r:memory_device_t:SystemHigh / 
-dev/mem
+Stephen Smalley wrote:
+> On Thu, 2008-07-10 at 11:18 -0400, Daniel J Walsh wrote:
+> I noticed that puppet is not SELinux aware.  We are using this in the
+> Fedora Infrastructure.  Puppet is written in Ruby.  In order to get the
+> packages to make Puppet SELinux aware we need at least matchpathcon,
+> is_selinux_enabled, setfscreatecon and setfilecon to have Ruby bindings.
+> 
+> 
+> So I try to learn as much Ruby in an afternoon as possible and converted
+> as much libselinux python bindings to Ruby as I could.   Enough to get
+> puppet going on working with selinux.
+> 
+> If some Ruby expert wants to fix the rest of the bindings that would be
+> great. :^)
+plain text document attachment (diff)
+diff --exclude-from=exclude -N -u -r nsalibselinux/src/Makefile
+libselinux-2.0.67/src/Makefile
+--- nsalibselinux/src/Makefile	2008-06-22 09:40:25.000000000 -0400
++++ libselinux-2.0.67/src/Makefile	2008-07-09 16:56:37.000000000 -0400
+@@ -44,11 +54,11 @@
 
-In our MLS X policy, we are giving the X server  
-mls_file_read_all_levels and mls_file_write_all_levels to be able to  
-access the SystemHigh /dev/mem. I would prefer not to give X general  
-file MLS override if possible.
+ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
 
-Is there a way to assign MLS read up/write up on just one type (i.e.  
-allow X to read up only on memory_device_t)?
+-GENERATED=$(SWIGCOUT)
++SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
 
-Is there a potential refactoring of the X server that eliminates the  
-need for /dev/mem access? Dan hinted at this at the developer summit  
-to allow X to run as the user.
+ all: $(LIBA) $(LIBSO)
 
-Would it be better to mls_file_write_within_range(memory_device_t)  
-(i.e. make it a trusted object) and pull the MLS override out of the X  
-policy?
+-pywrap: all $(SWIGSO) $(AUDIT2WHYSO)
++pywrap: all $(SWIGSO) $(AUDIT2WHYSO) $(SWIGRUBYSO)
 
-joe
+> Should there be a separate makefile target for the ruby bindings?
+
+Yes
+
+
+diff --exclude-from=exclude -N -u -r
+nsalibselinux/src/selinuxswig_ruby.i
+libselinux-2.0.67/src/selinuxswig_ruby.i
+--- nsalibselinux/src/selinuxswig_ruby.i	1969-12-31 19:00:00.000000000 -0500
++++ libselinux-2.0.67/src/selinuxswig_ruby.i	2008-07-09
+16:52:33.000000000 -0400
+@@ -0,0 +1,147 @@
++/* Author: Dan Walsh, Converted from James Athey python code
++ */
++
++%module selinux
++%{
++	#include "selinux/selinux.h"
++%}
++
++/* security_get_boolean_names() typemap */
++/*
++%typemap(argout) (char ***names, int *len) {
++	PyObject* list = PyList_New(*$2);
++	int i;
++	for (i = 0; i < *$2; i++) {
++		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
++	}
++	$result = SWIG_Python_AppendOutput($result, list);
++}
+
+> Rather than commenting out or #ifdef'ing python binding code, just
+> remove it from this file.
+
+I left it in t he hopes that someone who knew ruby would come in and fix it.
+
++%typemap(in,noblock=1,numinputs=0) security_context_t *
+(security_context_t temp = 0) {
++	$1 = &temp;
++}
++%typemap(freearg,match="in") security_context_t * "";
++%typemap(argout,noblock=1) security_context_t * {
++	if (*$1) {
++		%append_output(SWIG_FromCharPtr(*$1));
++		freecon(*$1);
++	}
++/*
++	else {
++		Py_INCREF(Py_None);
++		%append_output(Py_None);
++	}
++*/
++}
+
+> Don't you need to handle the else clause in some manner?
+
+I don't know.  This handling is just to make sure memory does not leak,
+I believe.  I do not know what the default for ruby would do.
+
+> What are the build dependencies?  Doesn't build for me on F8 or F9 with
+> ruby, ruby-libs and ruby-devel installed.
+
+Build fine for me on F9 and Rawhide.
+
+Spec file has:
+
+BuildRequires: python-devel ruby-devel ruby libsepol-static >=
+%{libsepolver} swig
 
 
 --
