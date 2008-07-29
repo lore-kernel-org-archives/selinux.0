@@ -1,81 +1,46 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6TDtnkL027487
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 09:55:49 -0400
-Received: from QMTA05.emeryville.ca.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6TDtmXf016040
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 13:55:49 GMT
-Subject: Re: unconfined_t and user_home_dir_type
-From: Chris PeBenito <pebenito@gentoo.org>
-To: russell@coker.com.au
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200807292220.17592.russell@coker.com.au>
-References: <200807291850.30191.russell@coker.com.au>
-	 <1217331219.20373.139.camel@moss-spartans.epoch.ncsc.mil>
-	 <200807292220.17592.russell@coker.com.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Jil0OnVZV6zyFn8e28JU"
-Date: Tue, 29 Jul 2008 09:55:31 -0400
-Message-Id: <1217339731.4934.26.camel@defiant.pebenito.net>
-Mime-Version: 1.0
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6TEcgYk006194
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 10:38:42 -0400
+Received: from mho-02-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6TEcfLa013595
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 14:38:42 GMT
+Received: from adsl-71-155-178-116.dsl.austtx.sbcglobal.net ([71.155.178.116] helo=[192.168.20.230])
+	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
+	(Exim 4.68)
+	(envelope-from <joe@nall.com>)
+	id 1KNqLZ-000H4h-1R
+	for selinux@tycho.nsa.gov; Tue, 29 Jul 2008 14:38:41 +0000
+Message-Id: <82459273-DA3E-4F80-B1D8-E3A168218B06@nall.com>
+From: Joe Nall <joe@nall.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v928.1)
+Subject: Should /dev/mem be SystemHigh?
+Date: Tue, 29 Jul 2008 09:38:39 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+ls -Z /dev/mem
+crw-r-----  root kmem system_u:object_r:memory_device_t:SystemHigh / 
+dev/mem
 
---=-Jil0OnVZV6zyFn8e28JU
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+In our MLS X policy, we are giving the X server  
+mls_file_read_all_levels and mls_file_write_all_levels to be able to  
+access the SystemHigh /dev/mem. I would prefer not to give X general  
+file MLS override if possible.
 
-On Tue, 2008-07-29 at 22:20 +1000, Russell Coker wrote:
-> On Tuesday 29 July 2008 21:33, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On Tue, 2008-07-29 at 18:50 +1000, Russell Coker wrote:
-> > > Currently we have the attributes user_home_dir_type and user_home_typ=
-e
-> > > applied to the main types for the home directory of regular users in =
-a
-> > > strict policy configuration (this means user_t etc).
-> > >
-> > > While it is possible to have unconfined_t and user_t on the same syst=
-em,
-> > > I don't expect this to be a common configuration.  In fact I expect t=
-hat
-> > > in practice they will be mutually exclusive.
-> >
-> > Actually, it is a common situation in modern Fedora - they can map user=
-s
-> > they wish to confine to user_u (and thus to user_t) while leaving e.g.
-> > root as unconfined_u and thus unconfined_t.
->=20
-> So what do they do for the "targeted" case where all users are unconfined=
-_t=20
-> and they want to have POP/IMAP servers retrieve mail from the users' home=
-=20
-> directories?
+Is there a way to assign MLS read up/write up on just one type (i.e.  
+allow X to read up only on memory_device_t)?
 
-Dan has no MAC-based home directory separations.  All home dirs are
-user_home_dir_t in the Fedora policy.
+Is there a potential refactoring of the X server that eliminates the  
+need for /dev/mem access? Dan hinted at this at the developer summit  
+to allow X to run as the user.
 
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+Would it be better to mls_file_write_within_range(memory_device_t)  
+(i.e. make it a trusted object) and pull the MLS override out of the X  
+policy?
 
---=-Jil0OnVZV6zyFn8e28JU
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-
-iEYEABECAAYFAkiPIVMACgkQvI7kLeavkkMNBwCfSTKXnJ7nsemZhVg2+/kfI3Xa
-n/cAnRunhSYk2Ynk0zrX7TeCqsjyXQYT
-=v05H
------END PGP SIGNATURE-----
-
---=-Jil0OnVZV6zyFn8e28JU--
+joe
 
 
 --
