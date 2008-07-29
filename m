@@ -1,69 +1,111 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6TCPSfm007572
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 08:25:28 -0400
-Received: from QMTA05.emeryville.ca.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6TCPQXf020289
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 12:25:27 GMT
-Date: Tue, 29 Jul 2008 08:25:23 -0400
-From: Scott Schmit <i.grok@comcast.net>
-To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 2/3] Thread/Child-Domain Assignment
-Message-ID: <20080729122523.GA27206@arithon.mars.sol>
-References: <487C7698.60503@ak.jp.nec.com> <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil> <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4889CF38.6010301@ak.jp.nec.com> <488EC3A0.5010000@ak.jp.nec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <488EC3A0.5010000@ak.jp.nec.com>
+Subject: Re: Ruby bindings patch for libselinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4876284A.5070606@redhat.com>
+References: <4876284A.5070606@redhat.com>
+Content-Type: text/plain
+Date: Tue, 29 Jul 2008 09:03:56 -0400
+Message-Id: <1217336636.20373.175.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Jul 29, 2008 at 04:15:44PM +0900, KaiGai Kohei wrote:
-> KaiGai Kohei wrote:
-> > [2/3] thread-context-checkpolicy.1.patch
-> >   This patch add a new statement of TYPEDOMINATE for policy language.
-> > 
-> >     TYPEDOMINATE <parent type>  <chile type> [, <child type> ...] ;
-> > 
-> >   It defines expilct hierarchical relationship between two types.
-> >   Existing name based hierarchy is dealt as TYPEDOMINATE is described
-> >   implicitly.
+
+On Thu, 2008-07-10 at 11:18 -0400, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> I reconsidered that the statement should be replaced as follows,
-> because "DOMINATE" is an associated term with MLS and roles/users
-> also have name based hierarchy ideas now.
+> I noticed that puppet is not SELinux aware.  We are using this in the
+> Fedora Infrastructure.  Puppet is written in Ruby.  In order to get the
+> packages to make Puppet SELinux aware we need at least matchpathcon,
+> is_selinux_enabled, setfscreatecon and setfilecon to have Ruby bindings.
 > 
->   HIERARCHY <parent type> TYPES <child type> [, <child type> ...];
->   HIERARCHY <parent role> ROLES <child role> [, <child role> ...];
->   HIERARCHY <parent user> USERS <child user> [, <child user> ...];
 > 
+> So I try to learn as much Ruby in an afternoon as possible and converted
+> as much libselinux python bindings to Ruby as I could.   Enough to get
+> puppet going on working with selinux.
+> 
+> If some Ruby expert wants to fix the rest of the bindings that would be
+> great. :^)
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.9 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iEYEARECAAYFAkh2KEoACgkQrlYvE4MpobND1ACffm5i1ie3FumEXBc+qcm8Fyio
+> K+4An0Cur4swzMMFoj9blybxBYhzxUMR
+> =ylTu
+> -----END PGP SIGNATURE-----
+> plain text document attachment (diff)
+> diff --exclude-from=exclude -N -u -r nsalibselinux/src/Makefile libselinux-2.0.67/src/Makefile
+> --- nsalibselinux/src/Makefile	2008-06-22 09:40:25.000000000 -0400
+> +++ libselinux-2.0.67/src/Makefile	2008-07-09 16:56:37.000000000 -0400
+> @@ -44,11 +54,11 @@
+>  
+>  SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
+>  
+> -GENERATED=$(SWIGCOUT)
+> +SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
+>  
+>  all: $(LIBA) $(LIBSO) 
+>  
+> -pywrap: all $(SWIGSO) $(AUDIT2WHYSO)
+> +pywrap: all $(SWIGSO) $(AUDIT2WHYSO) $(SWIGRUBYSO) 
 
-I agree that TYPEDOMINATE is not a good choice. In dominance, you're
-saying "whatever privileges x, y, & z have, give me those too."
+Should there be a separate makefile target for the ruby bindings?
 
-I like to think of it as the parent type "circumscribing" or limiting
-its children -- the parent draws a line in the sand and says "<child>,
-you can grant yourself whatever permissions you want (hopefully no more
-than you need), but whatever you do, don't cross this line!" The terms
-used to should make that obvious. "Circumscribe" is fun to say, but
-awkward to type, so how about:
+> diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_ruby.i libselinux-2.0.67/src/selinuxswig_ruby.i
+> --- nsalibselinux/src/selinuxswig_ruby.i	1969-12-31 19:00:00.000000000 -0500
+> +++ libselinux-2.0.67/src/selinuxswig_ruby.i	2008-07-09 16:52:33.000000000 -0400
+> @@ -0,0 +1,147 @@
+> +/* Author: Dan Walsh, Converted from James Athey python code
+> + */
+> +
+> +%module selinux
+> +%{
+> +	#include "selinux/selinux.h"
+> +%}
+> +
+> +/* security_get_boolean_names() typemap */
+> +/*
+> +%typemap(argout) (char ***names, int *len) {
+> +	PyObject* list = PyList_New(*$2);
+> +	int i;
+> +	for (i = 0; i < *$2; i++) {
+> +		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
+> +	}
+> +	$result = SWIG_Python_AppendOutput($result, list);
+> +}
 
-    TYPELIMIT <parent type> { <child type> [, <child type> ...] } ;
-    ROLELIMIT <parent role> { <child role> [, <child role> ...] } ;
+Rather than commenting out or #ifdef'ing python binding code, just
+remove it from this file.
 
-It would read better to say:
+> +%typemap(in,noblock=1,numinputs=0) security_context_t * (security_context_t temp = 0) {
+> +	$1 = &temp;
+> +}
+> +%typemap(freearg,match="in") security_context_t * "";
+> +%typemap(argout,noblock=1) security_context_t * {
+> +	if (*$1) {
+> +		%append_output(SWIG_FromCharPtr(*$1));
+> +		freecon(*$1);
+> +	}
+> +/*
+> +	else {
+> +		Py_INCREF(Py_None);
+> +		%append_output(Py_None);
+> +	}
+> +*/
+> +}
 
-    TYPE <parent type> LIMITS { <child type> [, <child type> ...] } ;
-    ROLE <parent role> LIMITS { <child role> [, <child role> ...] } ;
+Don't you need to handle the else clause in some manner?
 
-but that conflicts with existing syntax. Hence the patterning after
-attributes and aliasing.
+What are the build dependencies?  Doesn't build for me on F8 or F9 with
+ruby, ruby-libs and ruby-devel installed.
 
-I'm not sure what hierarchy for users implies, or why it's needed. If we
-have adequate support for hierarchy/dominance in roles, doesn't that
-suffice for users? After all, users can't do anything their roles don't
-permit them to. I guess I see users as a slightly different case because
-they are going to be more per-system than roles or types, so if you
-don't trust system administrators to set a user's roles correctly, you
-shouldn't make them a sysadmin. Or am I missing something?
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
