@@ -1,126 +1,279 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6TJsv7V007895
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 15:54:57 -0400
-Received: from QMTA02.emeryville.ca.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6TJsuuH016164
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 19:54:56 GMT
-Subject: Re: [refpolicy patch, second try] samba policy updates
-From: Chris PeBenito <pebenito@gentoo.org>
-To: Mike Edenfield <kutulu@kutulu.org>
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-In-Reply-To: <488F5590.6060908@kutulu.org>
-References: <488DED3A.1030005@kutulu.org>
-	 <1217342823.4934.42.camel@defiant.pebenito.net>
-	 <488F5590.6060908@kutulu.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-23eyVhzNZ/upL8Y25WNN"
-Date: Tue, 29 Jul 2008 15:54:53 -0400
-Message-Id: <1217361293.5525.13.camel@gorn.pebenito.net>
+Subject: [refpolicy] Patch: Create non_security_file_type attribute (v2)
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain
+Date: Tue, 29 Jul 2008 15:54:00 -0400
+Message-Id: <1217361240.2932.17.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This patch eliminates the expansion of the file_type attribute (due to
+the "-" set operation) for the *_non_security interfaces by creating a
+non_security_file_type attribute.
 
---=-23eyVhzNZ/upL8Y25WNN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It also creates a files_security_mountpoint interface that is used for
+auditd_log_t so that it does not get both the security_file_type and the
+non_security_file_type attributes.
 
-On Tue, 2008-07-29 at 13:38 -0400, Mike Edenfield wrote:
-> Chris PeBenito wrote:
-> > On Mon, 2008-07-28 at 12:00 -0400, Mike Edenfield wrote:
-> >> +tunable_policy(`samba_create_home_dirs',`
-> >> +	ifdef(`distro_redhat', `
-> >> +		refpolicywarn(`Use of samba_create_home_dirs is discouraged.  Pleas=
-e use pam_oddjob_mkhomedir instead.')
-> >> +	', `
-> >> +		unprivuser_create_home_dirs(smbd_t)
-> >> +		allow smbd_t self:capability chown;
-> >> +	')
-> >> +')
-> >=20
-> > I don't think this has the effect that you're trying to get.  The ifdef
-> > is resolved during build time, and the tunable is resolved at runtime.
-> > So the warning message won't do any good for most redhat users (and it
-> > leaves them with a noop samba_create_home_dirs tunable).
->=20
-> I wasn't sure if that would work; I know Dan has expressed a preference=20
-> for RH users to use oddjob for this, but I didn't know if there was any=20
-> way to enforce that.  I certainly didn't want it to silently do nothing.=20
->   Is there a correct place to document this preference?
+On my system the resulting binary policy is almost 20% smaller.  The
+difference is so large because there are over 1000 types labeled with
+the file_type attribute.
 
-I would like to just put
+Comparing the binary policies with sediff before and after applying this
+patch shows no differences.
 
-optional_policy(
-  tunable_policy(samba_
-    oddjob_domtrans_
-  )
-',`
-  tunable_policy(samba_
-    unprivuser_create_
-  ')
-')
+kernel/files.if   |   81 +++++++++++++++++++++++++++++++++---------------------
+kernel/files.te   |    2 +
+system/logging.te |    3 --
+3 files changed, 53 insertions(+), 33 deletions(-)
 
-but that doesn't work in the compiler; it doesn't allow require blocks
-in the else of an optional block.  So to work around it I guess we can
-just put an optional oddjob_domtrans_mkhomedir()
+Index: policy/modules/kernel/files.if
+===================================================================
+--- policy/modules/kernel/files.if	(revision 2767)
++++ policy/modules/kernel/files.if	(working copy)
+@@ -32,10 +32,10 @@
+ #
+ interface(`files_type',`
+ 	gen_require(`
+-		attribute file_type;
++		attribute file_type, non_security_file_type;
+ 	')
+ 
+-	typeattribute $1 file_type;
++	typeattribute $1 file_type, non_security_file_type;
+ ')
+ 
+ ########################################
+@@ -217,15 +217,34 @@
+ #
+ interface(`files_security_file',`
+ 	gen_require(`
+-		attribute security_file_type;
++		attribute file_type, security_file_type;
+ 	')
+ 
+-	files_type($1)
+-	typeattribute $1 security_file_type;
++	typeattribute $1 file_type, security_file_type;
+ ')
+ 
+ ########################################
+ ## <summary>
++##	Make the specified type usable for
++##	security file filesystem mount points.
++## </summary>
++## <param name="type">
++##	<summary>
++##	Type to be used for mount points.
++##	</summary>
++## </param>
++#
++interface(`files_security_mountpoint',`
++	gen_require(`
++		attribute mountpoint;
++	')
++
++	files_security_file($1)
++	typeattribute $1 mountpoint;
++')
++
++########################################
++## <summary>
+ ##	Make the specified type a file
+ ##	used for temporary files.
+ ## </summary>
+@@ -316,10 +335,10 @@
+ #
+ interface(`files_list_non_security',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	list_dirs_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
++	list_dirs_pattern($1, non_security_file_type, non_security_file_type)
+ ')
+ 
+ ########################################
+@@ -335,10 +354,10 @@
+ #
+ interface(`files_dontaudit_list_non_security',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:dir list_dir_perms;
++	dontaudit $1 non_security_file_type:dir list_dir_perms;
+ ')
+ 
+ ########################################
+@@ -354,11 +373,11 @@
+ #
+ interface(`files_mounton_non_security',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	allow $1 { file_type -security_file_type }:dir mounton;
+-	allow $1 { file_type -security_file_type }:file mounton;
++	allow $1 non_security_file_type:dir mounton;
++	allow $1 non_security_file_type:file mounton;
+ ')
+ 
+ ########################################
+@@ -373,10 +392,10 @@
+ #
+ interface(`files_write_non_security_dirs',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	allow $1 { file_type -security_file_type }:dir write;
++	allow $1 non_security_file_type:dir write;
+ ')
+ 
+ ########################################
+@@ -430,10 +449,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_files',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:file getattr;
++	dontaudit $1 non_security_file_type:file getattr;
+ ')
+ 
+ ########################################
+@@ -498,11 +517,11 @@
+ #
+ interface(`files_read_non_security_files',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	read_files_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
+-	read_lnk_files_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
++	read_files_pattern($1, non_security_file_type, non_security_file_type)
++	read_lnk_files_pattern($1, non_security_file_type, non_security_file_type)
+ ')
+ 
+ ########################################
+@@ -648,10 +667,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_symlinks',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:lnk_file getattr;
++	dontaudit $1 non_security_file_type:lnk_file getattr;
+ ')
+ 
+ ########################################
+@@ -667,10 +686,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_blk_files',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:blk_file getattr;
++	dontaudit $1 non_security_file_type:blk_file getattr;
+ ')
+ 
+ ########################################
+@@ -686,10 +705,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_chr_files',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:chr_file getattr;
++	dontaudit $1 non_security_file_type:chr_file getattr;
+ ')
+ 
+ ########################################
+@@ -763,10 +782,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_pipes',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:fifo_file getattr;
++	dontaudit $1 non_security_file_type:fifo_file getattr;
+ ')
+ 
+ ########################################
+@@ -820,10 +839,10 @@
+ #
+ interface(`files_dontaudit_getattr_non_security_sockets',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	dontaudit $1 { file_type -security_file_type }:sock_file getattr;
++	dontaudit $1 non_security_file_type:sock_file getattr;
+ ')
+ 
+ ########################################
+@@ -4763,8 +4782,8 @@
+ #
+ interface(`files_manage_non_security_dirs',`
+ 	gen_require(`
+-		attribute file_type, security_file_type;
++		attribute non_security_file_type;
+ 	')
+ 
+-	allow $1 { file_type -security_file_type }:dir manage_dir_perms;
++	allow $1 non_security_file_type:dir manage_dir_perms;
+ ')
+Index: policy/modules/kernel/files.te
+===================================================================
+--- policy/modules/kernel/files.te	(revision 2767)
++++ policy/modules/kernel/files.te	(working copy)
+@@ -26,6 +26,8 @@
+ # sensitive security files whose accesses should
+ # not be dontaudited for uses
+ attribute security_file_type;
++# and its opposite
++attribute non_security_file_type;
+ 
+ attribute tmpfile;
+ attribute tmpfsfile;
+Index: policy/modules/system/logging.te
+===================================================================
+--- policy/modules/system/logging.te	(revision 2767)
++++ policy/modules/system/logging.te	(working copy)
+@@ -17,8 +17,7 @@
+ files_security_file(auditd_etc_t)
+ 
+ type auditd_log_t;
+-files_security_file(auditd_log_t)
+-files_mountpoint(auditd_log_t)
++files_security_mountpoint(auditd_log_t)
+ 
+ type auditd_t;
+ type auditd_exec_t;
 
-ifdef(`distro_redhat
-  optional_policy(`
-    tunable_policy(`samba_
-      oddjob_domtrans_
-    ')
-  ')
-',`
-  tunable_policy(`samba_
-    unprivuser_create_
-    unprivuser_home_filetrans_
-  ')
-')
-
-Hopefully my pseudopolicy makes sense.
-
-> >> +interface(`unprivuser_create_home_dirs',`
-> >> +       unprivuser_home_filetrans_home_dir($1)
-> >> +       unprivuser_manage_home_dirs($1)
-> >> +')
-> >=20
-> > "Create" just means directory create, but you have the full manage
-> > permission set, in addition to a filetrans.
->=20
-> I think I did go a bit overboard with the manage permissions.  I'd=20
-> copied these from the oddjob's policy, but I notice that oddjobs also=20
-> permits deleting home directories, which probably isn't needed here.
->=20
-> The filetrans is needed, though, because without it, the created home=20
-> directories were getting labeled home_root_t instead of user_home_dir_t.=20
->   It also needs to copy the template files in and label them correctly,=20
-> like the user_home_ssh_t on .ssh, etc.  I'll narrow this down.
-
-Thats fine, but the filetrans shouldn't be included in the create
-interface itself.
-
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
-
---=-23eyVhzNZ/upL8Y25WNN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-
-iEYEABECAAYFAkiPdY0ACgkQvI7kLeavkkPk+QCeIVkderWOMQFvQvF7f1a7tHCT
-Z/oAoKgw3Qd+IkYUG3H3lyiKxT4vHET9
-=37db
------END PGP SIGNATURE-----
-
---=-23eyVhzNZ/upL8Y25WNN--
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
