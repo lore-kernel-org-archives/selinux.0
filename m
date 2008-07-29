@@ -1,29 +1,59 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6TDWg1X023308
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 09:32:42 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6TDWfXf010051
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 13:32:41 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m6TDWa1i005236
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 09:32:36 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m6TDWZsA000352
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 09:32:35 -0400
-Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m6TDWZB5008140
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 09:32:35 -0400
-Message-ID: <488F1BED.6070802@redhat.com>
-Date: Tue, 29 Jul 2008 09:32:29 -0400
+Message-ID: <488F1C44.6050308@redhat.com>
+Date: Tue, 29 Jul 2008 09:33:56 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: policycoreutils packages were updated without a bump in the version
- number???
+To: Stephen Smalley <stephen.smalley@gmail.com>
+CC: Hasan Rezaul-CHR010 <CHR010@motorola.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Setting login context for multiple Linux users using single	semanage
+ command...
+References: <487F93C3.1040701@redhat.com>  <4880B872.20202@manicmethod.com>	 <1216402217.17602.324.camel@moss-spartans.epoch.ncsc.mil>	 <D06FE0A2807BC145B0D38744789D4F5D04BF2AB9@de01exm68.ds.mot.com> <1216692539.17786.28.camel@sulphur>
+In-Reply-To: <1216692539.17786.28.camel@sulphur>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Stephen Smalley wrote:
+> On Mon, 2008-07-21 at 13:41 -0400, Hasan Rezaul-CHR010 wrote:
+>> Hi All,
+>>
+>> If I wanted to map multiple Linux users (Test1, Test2, and Test3), to a
+>> single SELinux user (staff_u),
+>>
+>> Can I use a single semanage command to do this, instead of executing
+>> multiple semanage commands?
+>>
+>> In other words,instead of executing:  
+>> semanage login -a -s staff_u Test1
+>> semanage login -a -s staff_u Test2
+>> semanage login -a -s staff_u Test3
+>>
+>> Can I do something like:   semanage login -a -s staff_u 'Test1 Test2
+>> Test3'
+>>
+>> Thanks as always for your help,
+> 
+> Abstractly, that would be possible to do, but I doubt the semanage
+> command today supports that syntax.  The underpinnings of it
+> (libsemanage) certainly would support applying several changes in the
+> same transaction, just as you can install multiple policy modules on the
+> same transaction using semodule.  So I'd call this a deficiency of the
+> semanage UI and patches of course are always welcome.  I think we'd want
+> something clearer though than just the quoted list.
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+A mere matter of coding.  I have begun doing some of this with booleans.
+
+I think the tool needs a way to set multiple and extract the custom
+settings so that they can be sent to other machines.
+
+IE Extract all customizations from this machine and make all other
+machines match.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
