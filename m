@@ -1,115 +1,74 @@
-Message-ID: <488F2CF8.2010600@redhat.com>
-Date: Tue, 29 Jul 2008 10:45:12 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Ruby bindings patch for libselinux
-References: <4876284A.5070606@redhat.com> <1217336636.20373.175.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1217336636.20373.175.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6TElJn8008698
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 10:47:19 -0400
+Received: from QMTA07.emeryville.ca.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6TElIXf002101
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 14:47:18 GMT
+Subject: Re: [refpolicy patch, second try] samba policy updates
+From: Chris PeBenito <pebenito@gentoo.org>
+To: Mike Edenfield <kutulu@kutulu.org>
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <488DED3A.1030005@kutulu.org>
+References: <488DED3A.1030005@kutulu.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-xCyGZtigaigV1BHuD6bG"
+Date: Tue, 29 Jul 2008 10:47:03 -0400
+Message-Id: <1217342823.4934.42.camel@defiant.pebenito.net>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2008-07-10 at 11:18 -0400, Daniel J Walsh wrote:
-> I noticed that puppet is not SELinux aware.  We are using this in the
-> Fedora Infrastructure.  Puppet is written in Ruby.  In order to get the
-> packages to make Puppet SELinux aware we need at least matchpathcon,
-> is_selinux_enabled, setfscreatecon and setfilecon to have Ruby bindings.
-> 
-> 
-> So I try to learn as much Ruby in an afternoon as possible and converted
-> as much libselinux python bindings to Ruby as I could.   Enough to get
-> puppet going on working with selinux.
-> 
-> If some Ruby expert wants to fix the rest of the bindings that would be
-> great. :^)
-plain text document attachment (diff)
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/Makefile
-libselinux-2.0.67/src/Makefile
---- nsalibselinux/src/Makefile	2008-06-22 09:40:25.000000000 -0400
-+++ libselinux-2.0.67/src/Makefile	2008-07-09 16:56:37.000000000 -0400
-@@ -44,11 +54,11 @@
 
- SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
+--=-xCyGZtigaigV1BHuD6bG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--GENERATED=$(SWIGCOUT)
-+SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
+On Mon, 2008-07-28 at 12:00 -0400, Mike Edenfield wrote:
+> +tunable_policy(`samba_create_home_dirs',`
+> +	ifdef(`distro_redhat', `
+> +		refpolicywarn(`Use of samba_create_home_dirs is discouraged.  Please u=
+se pam_oddjob_mkhomedir instead.')
+> +	', `
+> +		unprivuser_create_home_dirs(smbd_t)
+> +		allow smbd_t self:capability chown;
+> +	')
+> +')
 
- all: $(LIBA) $(LIBSO)
+I don't think this has the effect that you're trying to get.  The ifdef
+is resolved during build time, and the tunable is resolved at runtime.
+So the warning message won't do any good for most redhat users (and it
+leaves them with a noop samba_create_home_dirs tunable).
 
--pywrap: all $(SWIGSO) $(AUDIT2WHYSO)
-+pywrap: all $(SWIGSO) $(AUDIT2WHYSO) $(SWIGRUBYSO)
+> +interface(`unprivuser_create_home_dirs',`
+> +       unprivuser_home_filetrans_home_dir($1)
+> +       unprivuser_manage_home_dirs($1)
+> +')
 
-> Should there be a separate makefile target for the ruby bindings?
+"Create" just means directory create, but you have the full manage
+permission set, in addition to a filetrans.
 
-Yes
+--=20
+Chris PeBenito
+<pebenito@gentoo.org>
+Developer,
+Hardened Gentoo Linux
+=20
+Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
+3
+Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
 
+--=-xCyGZtigaigV1BHuD6bG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-diff --exclude-from=exclude -N -u -r
-nsalibselinux/src/selinuxswig_ruby.i
-libselinux-2.0.67/src/selinuxswig_ruby.i
---- nsalibselinux/src/selinuxswig_ruby.i	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-2.0.67/src/selinuxswig_ruby.i	2008-07-09
-16:52:33.000000000 -0400
-@@ -0,0 +1,147 @@
-+/* Author: Dan Walsh, Converted from James Athey python code
-+ */
-+
-+%module selinux
-+%{
-+	#include "selinux/selinux.h"
-+%}
-+
-+/* security_get_boolean_names() typemap */
-+/*
-+%typemap(argout) (char ***names, int *len) {
-+	PyObject* list = PyList_New(*$2);
-+	int i;
-+	for (i = 0; i < *$2; i++) {
-+		PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
-+	}
-+	$result = SWIG_Python_AppendOutput($result, list);
-+}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
 
-> Rather than commenting out or #ifdef'ing python binding code, just
-> remove it from this file.
+iEYEABECAAYFAkiPLWcACgkQvI7kLeavkkP9zgCdFs/9bwT/yEKlFWxsMNX9dioV
+jpAAnjBD9C/HAnye0+SpL0e3PmumzM2R
+=elzl
+-----END PGP SIGNATURE-----
 
-I left it in t he hopes that someone who knew ruby would come in and fix it.
-
-+%typemap(in,noblock=1,numinputs=0) security_context_t *
-(security_context_t temp = 0) {
-+	$1 = &temp;
-+}
-+%typemap(freearg,match="in") security_context_t * "";
-+%typemap(argout,noblock=1) security_context_t * {
-+	if (*$1) {
-+		%append_output(SWIG_FromCharPtr(*$1));
-+		freecon(*$1);
-+	}
-+/*
-+	else {
-+		Py_INCREF(Py_None);
-+		%append_output(Py_None);
-+	}
-+*/
-+}
-
-> Don't you need to handle the else clause in some manner?
-
-I don't know.  This handling is just to make sure memory does not leak,
-I believe.  I do not know what the default for ruby would do.
-
-> What are the build dependencies?  Doesn't build for me on F8 or F9 with
-> ruby, ruby-libs and ruby-devel installed.
-
-Build fine for me on F9 and Rawhide.
-
-Spec file has:
-
-BuildRequires: python-devel ruby-devel ruby libsepol-static >=
-%{libsepolver} swig
+--=-xCyGZtigaigV1BHuD6bG--
 
 
 --
