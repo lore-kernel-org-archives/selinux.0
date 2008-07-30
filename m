@@ -1,66 +1,76 @@
-Subject: Re: [PATCH -v3] SELinux: /proc/mounts should show what it can
+Subject: Re: Should /dev/mem be SystemHigh?
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, marc.c.dionne@gmail.com,
-        mszeredi@suse.cz
-In-Reply-To: <1217365646.2902.39.camel@localhost.localdomain>
-References: <1217365646.2902.39.camel@localhost.localdomain>
+To: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Cc: Joe Nall <joe@nall.com>, SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <488FA642.1030507@tycho.nsa.gov>
+References: <82459273-DA3E-4F80-B1D8-E3A168218B06@nall.com>
+	 <488FA642.1030507@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Wed, 30 Jul 2008 08:07:50 -0400
-Message-Id: <1217419670.20373.211.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 30 Jul 2008 08:13:15 -0400
+Message-Id: <1217419995.20373.217.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-07-29 at 17:07 -0400, Eric Paris wrote:
-> Given a hosed SELinux config in which a system never loads policy or
-> disables SELinux we currently just return -EINVAL for anyone trying to
-> read /proc/mounts.  This is a configuration problem but we can certainly
-> be more graceful.  This patch just ignores -EINVAL when displaying LSM
-> options and causes /proc/mounts display everything else it can.  If
-> policy isn't loaded the obviously there are no options, so we aren't
-> really loosing any information here.
+On Tue, 2008-07-29 at 19:22 -0400, Eamon Walsh wrote:
+> Joe Nall wrote:
+> > ls -Z /dev/mem
+> > crw-r-----  root kmem system_u:object_r:memory_device_t:SystemHigh / 
+> > dev/mem
+> >
+> > In our MLS X policy, we are giving the X server  
+> > mls_file_read_all_levels and mls_file_write_all_levels to be able to  
+> > access the SystemHigh /dev/mem. I would prefer not to give X general  
+> > file MLS override if possible.
+> >   
 > 
-> This is safe as the only other return of EINVAL comes from
-> security_sid_to_context_core() in the case of an invalid sid.  Even if a
-> FS was mounted with a now invalidated context that sid should have been
-> remapped to unlabeled and so we won't hit the EINVAL and will work like
-> we should.  (yes, I tested to make sure it worked like I thought)
+> The X server is trusted to manage MLS objects internally, so a general 
+> file MLS override doesn't seem to be inappropriate in this case.  But 
+> see below.
 > 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> Tested-by: Marc Dionne <marc.c.dionne@gmail.com>
+> > Is there a way to assign MLS read up/write up on just one type (i.e.  
+> > allow X to read up only on memory_device_t)?
+> >   
 > 
-> ---
+> You could add an exception to the MLS constraints for the "file read" 
+> ops.  This exception would be an "or" clause taking the form (t1 == 
+> xserver_type) and (t2 == memory_device_t).  Steve doesn't think these 
+> kinds of specific exemption are very maintainable, and I would tend to 
+> agree.
 > 
-> James you should probably push this to linus since it is a regression...
+> Another option could be to split up the "file read" constraint, taking 
+> the chr_file (character device file type) out and adding a separate 
+> override interface just for device files.
 > 
->  security/selinux/hooks.c |    6 +++++-
->  1 files changed, 5 insertions(+), 1 deletions(-)
+> > Is there a potential refactoring of the X server that eliminates the  
+> > need for /dev/mem access? Dan hinted at this at the developer summit  
+> > to allow X to run as the user.
+> >   
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 40d06c5..3ae9bec 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -998,8 +998,12 @@ static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
->  	int rc;
->  
->  	rc = selinux_get_mnt_opts(sb, &opts);
-> -	if (rc)
-> +	if (rc) {
-> +		/* before policy load we may get EINVAL, don't show anything */
-> +		if (rc == -EINVAL)
-> +			rc = 0;
+> My understanding of this is that the ability to run the X server as an 
+> unprivileged UID is a long-term goal but not something that's ready just 
+> yet.
+> 
+> > Would it be better to mls_file_write_within_range(memory_device_t)  
+> > (i.e. make it a trusted object) and pull the MLS override out of the X  
+> > policy?
+> >   
+> 
+> I think this may work.  You would be relying on type enforcement alone 
+> to protect /dev/mem in this case, if I understand correctly.
 
-You could test for for ss_initialized here if you wanted to make the
-test more explicit.
+I think Joe must have meant mls_trusted_object(memory_device_t), as that
+is the interface for marking a file type as being unconstrained by MLS
+restrictions, e.g. for /dev/null.  That would allow any domain to
+read/write /dev/mem without MLS restrictions (but still subject to TE
+policy), which may not be what you want.  mls_file_write_within_range()
+takes a domain as the argument, not a file type.
+mls_file_write_within_range() or mls_file_write_to_clearance() are
+possible options for making the X domains MLS trusted but bounded by
+their range/clearance.
 
->  		return rc;
-> +	}
->  
->  	selinux_write_opts(m, &opts);
->  
-> 
 -- 
 Stephen Smalley
 National Security Agency
