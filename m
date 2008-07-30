@@ -1,57 +1,67 @@
-Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6U2mPBx029329
-	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 22:48:26 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6U2mM5v012000
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 02:48:23 GMT
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: Paul Moore <paul.moore@hp.com>
-Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
-Date: Wed, 30 Jul 2008 12:47:59 +1000
-Cc: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>, selinux@tycho.nsa.gov
-References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi> <Pine.LNX.4.64L.0807211546530.23634@ruuvi.it.helsinki.fi> <200807210938.31144.paul.moore@hp.com>
-In-Reply-To: <200807210938.31144.paul.moore@hp.com>
+To: Chris PeBenito <pebenito@gentoo.org>
+Subject: Re: unconfined_t and user_home_dir_type
+Date: Wed, 30 Jul 2008 22:03:11 +1000
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>
+References: <200807291850.30191.russell@coker.com.au> <200807292220.17592.russell@coker.com.au> <1217339731.4934.26.camel@defiant.pebenito.net>
+In-Reply-To: <1217339731.4934.26.camel@defiant.pebenito.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200807301248.04810.russell@coker.com.au>
+  charset="utf-8"
+Message-Id: <200807302203.14043.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 21 July 2008 23:38, Paul Moore <paul.moore@hp.com> wrote:
-> A few thoughts: others did not object to those variable names when the
-> patches were proposed, or at any point prior to this thread, and no one
-> besides you and I has commented on this thread.  This is a sign to me
-> that the 'idx' variable name is not a significant distraction to the
-> community.
+On Tuesday 29 July 2008 23:55, Chris PeBenito <pebenito@gentoo.org> wrote:
+> > > > While it is possible to have unconfined_t and user_t on the same
+> > > > system, I don't expect this to be a common configuration.  In fact I
+> > > > expect that in practice they will be mutually exclusive.
+> > >
+> > > Actually, it is a common situation in modern Fedora - they can map
+> > > users they wish to confine to user_u (and thus to user_t) while leaving
+> > > e.g. root as unconfined_u and thus unconfined_t.
+> >
+> > So what do they do for the "targeted" case where all users are
+> > unconfined_t and they want to have POP/IMAP servers retrieve mail from
+> > the users' home directories?
+>
+> Dan has no MAC-based home directory separations.  All home dirs are
+> user_home_dir_t in the Fedora policy.
 
-One thing that is worth considering is the possibility that idx might be 
-better for searching.
+1) In a default configuration we want to have the users be unconfined 
+(otherwise they complain too much.
 
-Lots of words contain an 'i' character and therefore searching for a variable 
-named 'i' in a code base is going to be difficult (automated searching is 
-mostly useless, probably the best option is to have your editor highlight 
-every instance and visually scan for the ones with are not surrounded by 
-brackets, braces, parenthesis, spaces, commas, or whatever else is not 
-acceptable in a variable name in the language in question.
+2) For full functionality we need to have daemons such as a POP server, a mail 
+server (or it's local delivery agent), and a web server access the home 
+directories of all regular users.
 
-Of course if you have a syntax highlighting editor then it might parse enough 
-of the language to avoid this (but that isn't always available), and if you 
-have a language such as Perl a search for \$i should work reasonably well.
+3) Allowing daemons to mess with super-powerful domains is of course a bad 
+idea, which is why we never let daemons access sysadm_home_dir_t.  But 
+preventing them from messing with ~/.bashrc etc while fulfilling the above 
+two conditions and making the system easy to use is almost impossible (maybe 
+restorecond has some potential to alleviate this, but it's still going to be 
+hard).
 
-http://etbe.coker.com.au/2008/07/30/variable-names/
+So we can have a boolean to allow the compromise for item 3 and have it 
+enabled by default.  So by default users get domain unconfined_t, home 
+directory label unconfined_home_dir_t, and the POP server etc can access 
+that.
 
-But using idx, index, or even names such as "count" which refer to the meaning 
-of the program might be more efficient overall.  I've posted some more 
-thoughts on this issue at the above URL.
+To improve security we need to prevent the daemons messing with users who are 
+unconfined_t, that means unsetting the boolean in question and giving domain 
+user_t to users who have full interaction with daemons.
+
+The next step up after that is to assign root the roles staff_r and sysadm_r 
+and remove unconfined.pp.
+
+Am I missing anything?
 
 -- 
 russell@coker.com.au
 http://etbe.coker.com.au/          My Blog
 
 http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
