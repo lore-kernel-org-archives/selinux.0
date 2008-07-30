@@ -1,67 +1,56 @@
-Message-ID: <488FA642.1030507@tycho.nsa.gov>
-Date: Tue, 29 Jul 2008 19:22:42 -0400
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from zombie.ncsc.mil (zombie.ncsc.mil [144.51.88.131])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6U2mPBx029329
+	for <selinux@tycho.nsa.gov>; Tue, 29 Jul 2008 22:48:26 -0400
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6U2mM5v012000
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 02:48:23 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Paul Moore <paul.moore@hp.com>
+Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
+Date: Wed, 30 Jul 2008 12:47:59 +1000
+Cc: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>, selinux@tycho.nsa.gov
+References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi> <Pine.LNX.4.64L.0807211546530.23634@ruuvi.it.helsinki.fi> <200807210938.31144.paul.moore@hp.com>
+In-Reply-To: <200807210938.31144.paul.moore@hp.com>
 MIME-Version: 1.0
-To: Joe Nall <joe@nall.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Should /dev/mem be SystemHigh?
-References: <82459273-DA3E-4F80-B1D8-E3A168218B06@nall.com>
-In-Reply-To: <82459273-DA3E-4F80-B1D8-E3A168218B06@nall.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200807301248.04810.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joe Nall wrote:
-> ls -Z /dev/mem
-> crw-r-----  root kmem system_u:object_r:memory_device_t:SystemHigh / 
-> dev/mem
->
-> In our MLS X policy, we are giving the X server  
-> mls_file_read_all_levels and mls_file_write_all_levels to be able to  
-> access the SystemHigh /dev/mem. I would prefer not to give X general  
-> file MLS override if possible.
->   
+On Monday 21 July 2008 23:38, Paul Moore <paul.moore@hp.com> wrote:
+> A few thoughts: others did not object to those variable names when the
+> patches were proposed, or at any point prior to this thread, and no one
+> besides you and I has commented on this thread.  This is a sign to me
+> that the 'idx' variable name is not a significant distraction to the
+> community.
 
-The X server is trusted to manage MLS objects internally, so a general 
-file MLS override doesn't seem to be inappropriate in this case.  But 
-see below.
+One thing that is worth considering is the possibility that idx might be 
+better for searching.
 
-> Is there a way to assign MLS read up/write up on just one type (i.e.  
-> allow X to read up only on memory_device_t)?
->   
+Lots of words contain an 'i' character and therefore searching for a variable 
+named 'i' in a code base is going to be difficult (automated searching is 
+mostly useless, probably the best option is to have your editor highlight 
+every instance and visually scan for the ones with are not surrounded by 
+brackets, braces, parenthesis, spaces, commas, or whatever else is not 
+acceptable in a variable name in the language in question.
 
-You could add an exception to the MLS constraints for the "file read" 
-ops.  This exception would be an "or" clause taking the form (t1 == 
-xserver_type) and (t2 == memory_device_t).  Steve doesn't think these 
-kinds of specific exemption are very maintainable, and I would tend to 
-agree.
+Of course if you have a syntax highlighting editor then it might parse enough 
+of the language to avoid this (but that isn't always available), and if you 
+have a language such as Perl a search for \$i should work reasonably well.
 
-Another option could be to split up the "file read" constraint, taking 
-the chr_file (character device file type) out and adding a separate 
-override interface just for device files.
+http://etbe.coker.com.au/2008/07/30/variable-names/
 
-> Is there a potential refactoring of the X server that eliminates the  
-> need for /dev/mem access? Dan hinted at this at the developer summit  
-> to allow X to run as the user.
->   
-
-My understanding of this is that the ability to run the X server as an 
-unprivileged UID is a long-term goal but not something that's ready just 
-yet.
-
-> Would it be better to mls_file_write_within_range(memory_device_t)  
-> (i.e. make it a trusted object) and pull the MLS override out of the X  
-> policy?
->   
-
-I think this may work.  You would be relying on type enforcement alone 
-to protect /dev/mem in this case, if I understand correctly.
-
+But using idx, index, or even names such as "count" which refer to the meaning 
+of the program might be more efficient overall.  I've posted some more 
+thoughts on this issue at the above URL.
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 
 --
