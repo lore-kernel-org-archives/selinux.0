@@ -1,67 +1,70 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Chris PeBenito <pebenito@gentoo.org>
-Subject: Re: unconfined_t and user_home_dir_type
-Date: Wed, 30 Jul 2008 22:03:11 +1000
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>
-References: <200807291850.30191.russell@coker.com.au> <200807292220.17592.russell@coker.com.au> <1217339731.4934.26.camel@defiant.pebenito.net>
-In-Reply-To: <1217339731.4934.26.camel@defiant.pebenito.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200807302203.14043.russell@coker.com.au>
+Subject: Re: [PATCH -v3] SELinux: /proc/mounts should show what it can
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, marc.c.dionne@gmail.com,
+        mszeredi@suse.cz
+In-Reply-To: <1217365646.2902.39.camel@localhost.localdomain>
+References: <1217365646.2902.39.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 30 Jul 2008 08:07:50 -0400
+Message-Id: <1217419670.20373.211.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 29 July 2008 23:55, Chris PeBenito <pebenito@gentoo.org> wrote:
-> > > > While it is possible to have unconfined_t and user_t on the same
-> > > > system, I don't expect this to be a common configuration.  In fact I
-> > > > expect that in practice they will be mutually exclusive.
-> > >
-> > > Actually, it is a common situation in modern Fedora - they can map
-> > > users they wish to confine to user_u (and thus to user_t) while leaving
-> > > e.g. root as unconfined_u and thus unconfined_t.
-> >
-> > So what do they do for the "targeted" case where all users are
-> > unconfined_t and they want to have POP/IMAP servers retrieve mail from
-> > the users' home directories?
->
-> Dan has no MAC-based home directory separations.  All home dirs are
-> user_home_dir_t in the Fedora policy.
 
-1) In a default configuration we want to have the users be unconfined 
-(otherwise they complain too much.
+On Tue, 2008-07-29 at 17:07 -0400, Eric Paris wrote:
+> Given a hosed SELinux config in which a system never loads policy or
+> disables SELinux we currently just return -EINVAL for anyone trying to
+> read /proc/mounts.  This is a configuration problem but we can certainly
+> be more graceful.  This patch just ignores -EINVAL when displaying LSM
+> options and causes /proc/mounts display everything else it can.  If
+> policy isn't loaded the obviously there are no options, so we aren't
+> really loosing any information here.
+> 
+> This is safe as the only other return of EINVAL comes from
+> security_sid_to_context_core() in the case of an invalid sid.  Even if a
+> FS was mounted with a now invalidated context that sid should have been
+> remapped to unlabeled and so we won't hit the EINVAL and will work like
+> we should.  (yes, I tested to make sure it worked like I thought)
+> 
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> Tested-by: Marc Dionne <marc.c.dionne@gmail.com>
+> 
+> ---
+> 
+> James you should probably push this to linus since it is a regression...
+> 
+>  security/selinux/hooks.c |    6 +++++-
+>  1 files changed, 5 insertions(+), 1 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 40d06c5..3ae9bec 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -998,8 +998,12 @@ static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+>  	int rc;
+>  
+>  	rc = selinux_get_mnt_opts(sb, &opts);
+> -	if (rc)
+> +	if (rc) {
+> +		/* before policy load we may get EINVAL, don't show anything */
+> +		if (rc == -EINVAL)
+> +			rc = 0;
 
-2) For full functionality we need to have daemons such as a POP server, a mail 
-server (or it's local delivery agent), and a web server access the home 
-directories of all regular users.
+You could test for for ss_initialized here if you wanted to make the
+test more explicit.
 
-3) Allowing daemons to mess with super-powerful domains is of course a bad 
-idea, which is why we never let daemons access sysadm_home_dir_t.  But 
-preventing them from messing with ~/.bashrc etc while fulfilling the above 
-two conditions and making the system easy to use is almost impossible (maybe 
-restorecond has some potential to alleviate this, but it's still going to be 
-hard).
-
-So we can have a boolean to allow the compromise for item 3 and have it 
-enabled by default.  So by default users get domain unconfined_t, home 
-directory label unconfined_home_dir_t, and the POP server etc can access 
-that.
-
-To improve security we need to prevent the daemons messing with users who are 
-unconfined_t, that means unsetting the boolean in question and giving domain 
-user_t to users who have full interaction with daemons.
-
-The next step up after that is to assign root the roles staff_r and sysadm_r 
-and remove unconfined.pp.
-
-Am I missing anything?
-
+>  		return rc;
+> +	}
+>  
+>  	selinux_write_opts(m, &opts);
+>  
+> 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
