@@ -1,129 +1,60 @@
-Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>,
-        Stephen Smalley <stephen.smalley@gmail.com>,
-        KaiGai Kohei <kaigai@kaigai.gr.jp>, jmorris@namei.org,
-        paul.moore@hp.com, selinux@tycho.nsa.gov
-In-Reply-To: <48907666.3000909@tresys.com>
-References: <487C7698.60503@ak.jp.nec.com>
-	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <487D5A3D.6090801@ak.jp.nec.com>
-	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
-	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
-	 <4889CC5F.3030500@ak.jp.nec.com>  <4889CF30.2060306@ak.jp.nec.com>
-	 <1216993463.11948.22.camel@sulphur>  <488AD868.9050507@kaigai.gr.jp>
-	 <1217093311.3223.1.camel@sulphur>  <488B6972.4020003@tresys.com>
-	 <1217266316.20373.53.camel@moss-spartans.epoch.ncsc.mil>
-	 <488EBDE8.2050106@ak.jp.nec.com>
-	 <1217333164.20373.154.camel@moss-spartans.epoch.ncsc.mil>
-	 <48907666.3000909@tresys.com>
-Content-Type: text/plain
-Date: Wed, 30 Jul 2008 10:57:32 -0400
-Message-Id: <1217429852.20373.241.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6UFMh50032642
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 11:22:43 -0400
+Received: from g1t0028.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6UFMIjf013606
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 15:22:33 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: russell@coker.com.au
+Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
+Date: Wed, 30 Jul 2008 11:22:06 -0400
+Cc: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>, selinux@tycho.nsa.gov
+References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi> <200807210938.31144.paul.moore@hp.com> <200807301248.04810.russell@coker.com.au>
+In-Reply-To: <200807301248.04810.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200807301122.06990.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tuesday 29 July 2008 10:47:59 pm Russell Coker wrote:
+> On Monday 21 July 2008 23:38, Paul Moore <paul.moore@hp.com> wrote:
+> > A few thoughts: others did not object to those variable names when
+> > the patches were proposed, or at any point prior to this thread,
+> > and no one besides you and I has commented on this thread.  This is
+> > a sign to me that the 'idx' variable name is not a significant
+> > distraction to the community.
+>
+> One thing that is worth considering is the possibility that idx might
+> be better for searching.
+>
+> Lots of words contain an 'i' character and therefore searching for a
+> variable named 'i' in a code base is going to be difficult (automated
+> searching is mostly useless, probably the best option is to have your
+> editor highlight every instance and visually scan for the ones with
+> are not surrounded by brackets, braces, parenthesis, spaces, commas,
+> or whatever else is not acceptable in a variable name in the language
+> in question.
+>
+> Of course if you have a syntax highlighting editor then it might
+> parse enough of the language to avoid this (but that isn't always
+> available), and if you have a language such as Perl a search for \$i
+> should work reasonably well.
+>
+> http://etbe.coker.com.au/2008/07/30/variable-names/
+>
+> But using idx, index, or even names such as "count" which refer to
+> the meaning of the program might be more efficient overall.  I've
+> posted some more thoughts on this issue at the above URL.
 
-On Wed, 2008-07-30 at 10:10 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Tue, 2008-07-29 at 15:51 +0900, KaiGai Kohei wrote:
-> >> Stephen Smalley wrote:
-> >>> On Sat, 2008-07-26 at 14:14 -0400, Joshua Brindle wrote:
-> >>>> Stephen Smalley wrote:
-> >>>>> On Sat, 2008-07-26 at 16:55 +0900, KaiGai Kohei wrote:
-> >>>>>> Stephen Smalley wrote:
-> >>>>>>> On Fri, 2008-07-25 at 22:03 +0900, KaiGai Kohei wrote:
-> >>>>>>>> [1/3] thread-context-kernel.1.patch
-> >>>>>>>>   This patch enables to assign a thread a "weaker" hierarchical domain,
-> >>>>>>>>   only if the destinated domain is a child of the current domain.
-> >>>>>>>>   Hierachy relationships are defined in the policy version 24.
-> >>>>>>>>   This patch also enables to read the new version of policy.
-> >>>>>>> If you are going to take type hierarchy support into the kernel, then it
-> >>>>>>> seems like it should be completely taken into the kernel, i.e. the
-> >>>>>>> hierarchy checking should be applied by the kernel rather than by the
-> >>>>>>> toolchain.  That is what the Flask security server did for its
-> >>>>>>> extensible policy mechanism.
-> >>>>>> When the checks are applied in the kernel?
-> >>>>>> One candidate is policy loading time, and the other is AVC entry creation
-> >>>>>> time. I prefers the later one, because checks in policy loading time will
-> >>>>>> require the expensive checks in kernel space.
-> >>>>>>
-> >>>>>> In my idea, violated permission bits on AVC entries are masked by ones of
-> >>>>>> its parent types, with/without printing logs.
-> >>>>>> Now hierarchy/neverallow constraint makes abort whole of policy loading.
-> >>>>>> It can be a significant difference.
-> >>>>> Yes, it makes sense to apply the hierarchy restrictions at computation
-> >>>>> time.  Neverallows are a bit different though - we want those to flag
-> >>>>> bugs in policy.  Thus, we likely should leave neverallow checking in the
-> >>>>> userland toolchain.
-> >>>>>
-> >>>> So you want to deny at runtime based on the hierarchy? Won't that
-> >>>> create another confusing way SELinux can deny something without any
-> >>>> clue why (aside from running the denial through audit2why)? Further,
-> >>>> this is something we can understand and reject ahead of time, I don't
-> >>>> know why it makes sense to wait until later when we can tell now that
-> >>>> something is wrong with the policy.
-> >>> True.  On the other hand, if we are going to make the hierarchy visible
-> >>> to the kernel so that it can directly leverage information from it, then
-> >>> it makes sense to let the kernel directly enforce the relationships,
-> >>> whether that happens at policy load time or at compute_av time.
-> >>>
-> >>> If we can make the checking happen entirely at policy load time in a
-> >>> manner that isn't too expensive, then that is cleaner, I agree.  If not,
-> >>> then lazy dynamic checking by the kernel and optional full static
-> >>> checking by the toolchain may be a compromise.
-> >> I guess we can reduce cost to check hierarchy constraint, because all
-> >> we have to do is to scan/check avtabs of related types and ebitmaps
-> >> of type_attr_maps.
-> >> However, I don't have a good idea to boost neverallow constraint so
-> >> much due to its flexibility. :(
-> >>
-> >> I have measured a performance to check hierarchy/neverallow constraint
-> >> with patched libsepol as a trial. Unfortunatelly, about 80% of CPU time
-> >> is consumed by check_assertions() for neverallows.
-> >>
-> >> [root@saba ~]# time -p semodule -r kaigai
-> >> hierarchy_check_constraints: 37.32 [s]
-> >> check_assertions: 139.05 [s]
-> >> real 205.32
-> >> user 198.06
-> >> sys 3.75
-> >>
-> >> These checks at policy load time gives us negative effect in system
-> >> bootup time, unless remarkable improvements. So, I prefer lazy dynamic
-> >> checking approach.
-> >>
-> >> (*) System bootup time is one of the major topics for embedded Linux folks.
-> > 
-> > Ok.  I'd be interested in seeing that libsepol patch nonetheless, and we
-> > may want to retain full checking there as an option for validation at
-> > policy build time (via make validate) while introducing lazy dynamic
-> > checking in the kernel.
-> > 
-> 
-> This sounds reasonable.
-> 
-> > BTW, we may need to revisit the policydb data structures in order to
-> > fully address concerns about policy load time.
-> 
-> Do you have ideas here?
-
-I think it is mostly due to long hash chains, which costs us both in
-populating the new policydb during load and in tearing down the old one
-(measurable latency which led to cond_resched calls in the
-policydb_destroy code path) and of course on compute_av when walking the
-chains.
-
-So we either need to reduce policy size or store it more compactly or
-both.  For example, being able to store a single avtab entry for all
-file classes when they have identical permissions in common might be
-helpful.
+FWIW, you hit on my own selfish reasons for using "idx" instead of "i": 
+easier searching (my XEmacs config highlights search terms in red) and 
+greater "understandability".
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+linux @ hp
 
 
 --
