@@ -1,61 +1,96 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6UFMh50032642
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 11:22:43 -0400
-Received: from g1t0028.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6UFMIjf013606
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 15:22:33 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: russell@coker.com.au
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6UG53wN008067
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 12:05:03 -0400
+Received: from sender-03.it.helsinki.fi (jazzdrum.ncsc.mil [144.51.5.7])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6UG4w5J003903
+	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 16:05:03 GMT
+Date: Wed, 30 Jul 2008 19:04:09 +0300 (EEST)
+From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+To: Paul Moore <paul.moore@hp.com>
+cc: russell@coker.com.au, selinux@tycho.nsa.gov
 Subject: Re: [patch] SELinux: trivial, unify iterator variable naming
-Date: Wed, 30 Jul 2008 11:22:06 -0400
-Cc: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>, selinux@tycho.nsa.gov
-References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi> <200807210938.31144.paul.moore@hp.com> <200807301248.04810.russell@coker.com.au>
-In-Reply-To: <200807301248.04810.russell@coker.com.au>
+In-Reply-To: <200807301122.06990.paul.moore@hp.com>
+Message-ID: <Pine.LNX.4.64L.0807301827040.19703@ruuvi.it.helsinki.fi>
+References: <Pine.LNX.4.64L.0807210043160.7451@ruuvi.it.helsinki.fi>
+ <200807210938.31144.paul.moore@hp.com> <200807301248.04810.russell@coker.com.au>
+ <200807301122.06990.paul.moore@hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200807301122.06990.paul.moore@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 29 July 2008 10:47:59 pm Russell Coker wrote:
-> On Monday 21 July 2008 23:38, Paul Moore <paul.moore@hp.com> wrote:
-> > A few thoughts: others did not object to those variable names when
-> > the patches were proposed, or at any point prior to this thread,
-> > and no one besides you and I has commented on this thread.  This is
-> > a sign to me that the 'idx' variable name is not a significant
-> > distraction to the community.
->
-> One thing that is worth considering is the possibility that idx might
-> be better for searching.
->
-> Lots of words contain an 'i' character and therefore searching for a
-> variable named 'i' in a code base is going to be difficult (automated
-> searching is mostly useless, probably the best option is to have your
-> editor highlight every instance and visually scan for the ones with
-> are not surrounded by brackets, braces, parenthesis, spaces, commas,
-> or whatever else is not acceptable in a variable name in the language
-> in question.
->
-> Of course if you have a syntax highlighting editor then it might
-> parse enough of the language to avoid this (but that isn't always
-> available), and if you have a language such as Perl a search for \$i
-> should work reasonably well.
->
-> http://etbe.coker.com.au/2008/07/30/variable-names/
->
-> But using idx, index, or even names such as "count" which refer to
-> the meaning of the program might be more efficient overall.  I've
-> posted some more thoughts on this issue at the above URL.
 
-FWIW, you hit on my own selfish reasons for using "idx" instead of "i": 
-easier searching (my XEmacs config highlights search terms in red) and 
-greater "understandability".
+Hello,
 
+On Wed, 30 Jul 2008, Paul Moore wrote:
+
+> On Tuesday 29 July 2008 10:47:59 pm Russell Coker wrote:
+
+> >
+> > But using idx, index, or even names such as "count" which refer to
+> > the meaning of the program might be more efficient overall.  I've
+> > posted some more thoughts on this issue at the above URL.
+>
+> FWIW, you hit on my own selfish reasons for using "idx" instead of "i":
+> easier searching (my XEmacs config highlights search terms in red) and
+> greater "understandability".
+
+I wish to express my disagreement, but please do not take this as a
+request to alter the earlier patch rejection; I have no problem with it.
+
+When using local variables as loop indexes or something equally
+elementary, I always prefer "i" to "idx", "index" or "count". My rationale
+is the following:
+
+1) The existing convention; I've seen C-code like:
+
+  for (i = 0; i < MAX; i++)
+
+so many times that the "i" has almost become a part of the language
+syntax in my brain. I'd guess many C-programmers feel the same way.
+
+Granted, the "this is how it's always been" is a weak argument to
+support anything, but personally, I gain no more insight from the
+longer forms, so I prefer the more terse "i".
+
+2) Related to the first; the existing code base. If I see 999, 99, or even
+   9 functions in the same program/module consistenly using "int i", I
+   will under no circumstance use "idx" in my additional function, but
+   insist that all the functions use the same variable naming scheme.
+
+   If, for some reason, the dominant variable naming for a particular code
+   base happens to be "idx", "index", or "count", then I will adapt to
+   that style.
+
+   Further, I always to try extend the adaptation principle to the
+   positioning of braces, whitespace, etc. so that all the code looks
+   as if written by one person (I mean style-wise).
+
+3) As Russell says in his blog: "Of course for some uses (such as a loop
+   counter) there is little benefit in using grep." Yes. I also fail to
+   see the drawbacks of using "FILE *f" inside a single function. Granted,
+   if the functions are 3000-line monsters (yeah, unfortunately those do
+   exist), you might have to use a more descriptive naming, but for the
+   saner lengths, I am not so sure. For monster functions, refactoring
+   it to smaller chunnks is usually the correct solution anyway, not
+   changing "FILE *f" to "FILE *configFile".
+
+4) Related to the particular case I addressed in my original message,
+   the Linux Kernel Documentation/CodingStyle says:
+
+  "LOCAL variable names should be short, and to the point.  If you have
+  some random integer loop counter, it should probably be called "i".
+  Calling it "loop_counter" is non-productive, if there is no chance of it
+  being mis-understood.  Similarly, "tmp" can be just about any type of
+  variable that is used to hold a temporary value."
+
+Best regards,
+vmk
 -- 
-paul moore
-linux @ hp
-
+************************************************************************
+               Tietotekniikkaosasto / Helsingin yliopisto
+                 IT Department / University of Helsinki
+************************************************************************
 
 --
 This message was distributed to subscribers of the selinux mailing list.
