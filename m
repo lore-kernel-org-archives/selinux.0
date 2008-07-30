@@ -1,95 +1,101 @@
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Message-Id: <7386AFCF-68E1-426C-BF70-CD8F0A77AC33@nall.com>
-From: Joe Nall <joe@nall.com>
+Message-ID: <48907666.3000909@tresys.com>
+Date: Wed, 30 Jul 2008 10:10:46 -0400
+From: Joshua Brindle <jbrindle@tresys.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <1217419995.20373.217.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v928.1)
-Subject: Re: Should /dev/mem be SystemHigh?
-Date: Wed, 30 Jul 2008 09:12:13 -0500
-References: <82459273-DA3E-4F80-B1D8-E3A168218B06@nall.com> <488FA642.1030507@tycho.nsa.gov> <1217419995.20373.217.camel@moss-spartans.epoch.ncsc.mil>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>,
+        Stephen Smalley <stephen.smalley@gmail.com>,
+        KaiGai Kohei <kaigai@kaigai.gr.jp>, jmorris@namei.org,
+        paul.moore@hp.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com>	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>	 <4889CC5F.3030500@ak.jp.nec.com>  <4889CF30.2060306@ak.jp.nec.com>	 <1216993463.11948.22.camel@sulphur>  <488AD868.9050507@kaigai.gr.jp>	 <1217093311.3223.1.camel@sulphur>  <488B6972.4020003@tresys.com>	 <1217266316.20373.53.camel@moss-spartans.epoch.ncsc.mil>	 <488EBDE8.2050106@ak.jp.nec.com> <1217333164.20373.154.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1217333164.20373.154.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Jul 30, 2008, at 7:13 AM, Stephen Smalley wrote:
-
->
-> On Tue, 2008-07-29 at 19:22 -0400, Eamon Walsh wrote:
->> Joe Nall wrote:
->>> ls -Z /dev/mem
->>> crw-r-----  root kmem system_u:object_r:memory_device_t:SystemHigh /
->>> dev/mem
+Stephen Smalley wrote:
+> On Tue, 2008-07-29 at 15:51 +0900, KaiGai Kohei wrote:
+>> Stephen Smalley wrote:
+>>> On Sat, 2008-07-26 at 14:14 -0400, Joshua Brindle wrote:
+>>>> Stephen Smalley wrote:
+>>>>> On Sat, 2008-07-26 at 16:55 +0900, KaiGai Kohei wrote:
+>>>>>> Stephen Smalley wrote:
+>>>>>>> On Fri, 2008-07-25 at 22:03 +0900, KaiGai Kohei wrote:
+>>>>>>>> [1/3] thread-context-kernel.1.patch
+>>>>>>>>   This patch enables to assign a thread a "weaker" hierarchical domain,
+>>>>>>>>   only if the destinated domain is a child of the current domain.
+>>>>>>>>   Hierachy relationships are defined in the policy version 24.
+>>>>>>>>   This patch also enables to read the new version of policy.
+>>>>>>> If you are going to take type hierarchy support into the kernel, then it
+>>>>>>> seems like it should be completely taken into the kernel, i.e. the
+>>>>>>> hierarchy checking should be applied by the kernel rather than by the
+>>>>>>> toolchain.  That is what the Flask security server did for its
+>>>>>>> extensible policy mechanism.
+>>>>>> When the checks are applied in the kernel?
+>>>>>> One candidate is policy loading time, and the other is AVC entry creation
+>>>>>> time. I prefers the later one, because checks in policy loading time will
+>>>>>> require the expensive checks in kernel space.
+>>>>>>
+>>>>>> In my idea, violated permission bits on AVC entries are masked by ones of
+>>>>>> its parent types, with/without printing logs.
+>>>>>> Now hierarchy/neverallow constraint makes abort whole of policy loading.
+>>>>>> It can be a significant difference.
+>>>>> Yes, it makes sense to apply the hierarchy restrictions at computation
+>>>>> time.  Neverallows are a bit different though - we want those to flag
+>>>>> bugs in policy.  Thus, we likely should leave neverallow checking in the
+>>>>> userland toolchain.
+>>>>>
+>>>> So you want to deny at runtime based on the hierarchy? Won't that
+>>>> create another confusing way SELinux can deny something without any
+>>>> clue why (aside from running the denial through audit2why)? Further,
+>>>> this is something we can understand and reject ahead of time, I don't
+>>>> know why it makes sense to wait until later when we can tell now that
+>>>> something is wrong with the policy.
+>>> True.  On the other hand, if we are going to make the hierarchy visible
+>>> to the kernel so that it can directly leverage information from it, then
+>>> it makes sense to let the kernel directly enforce the relationships,
+>>> whether that happens at policy load time or at compute_av time.
 >>>
->>> In our MLS X policy, we are giving the X server
->>> mls_file_read_all_levels and mls_file_write_all_levels to be able to
->>> access the SystemHigh /dev/mem. I would prefer not to give X general
->>> file MLS override if possible.
->>>
+>>> If we can make the checking happen entirely at policy load time in a
+>>> manner that isn't too expensive, then that is cleaner, I agree.  If not,
+>>> then lazy dynamic checking by the kernel and optional full static
+>>> checking by the toolchain may be a compromise.
+>> I guess we can reduce cost to check hierarchy constraint, because all
+>> we have to do is to scan/check avtabs of related types and ebitmaps
+>> of type_attr_maps.
+>> However, I don't have a good idea to boost neverallow constraint so
+>> much due to its flexibility. :(
 >>
->> The X server is trusted to manage MLS objects internally, so a  
->> general
->> file MLS override doesn't seem to be inappropriate in this case.  But
->> see below.
+>> I have measured a performance to check hierarchy/neverallow constraint
+>> with patched libsepol as a trial. Unfortunatelly, about 80% of CPU time
+>> is consumed by check_assertions() for neverallows.
 >>
->>> Is there a way to assign MLS read up/write up on just one type (i.e.
->>> allow X to read up only on memory_device_t)?
->>>
+>> [root@saba ~]# time -p semodule -r kaigai
+>> hierarchy_check_constraints: 37.32 [s]
+>> check_assertions: 139.05 [s]
+>> real 205.32
+>> user 198.06
+>> sys 3.75
 >>
->> You could add an exception to the MLS constraints for the "file read"
->> ops.  This exception would be an "or" clause taking the form (t1 ==
->> xserver_type) and (t2 == memory_device_t).  Steve doesn't think these
->> kinds of specific exemption are very maintainable, and I would tend  
->> to
->> agree.
+>> These checks at policy load time gives us negative effect in system
+>> bootup time, unless remarkable improvements. So, I prefer lazy dynamic
+>> checking approach.
 >>
->> Another option could be to split up the "file read" constraint,  
->> taking
->> the chr_file (character device file type) out and adding a separate
->> override interface just for device files.
->>
->>> Is there a potential refactoring of the X server that eliminates the
->>> need for /dev/mem access? Dan hinted at this at the developer summit
->>> to allow X to run as the user.
->>>
->>
->> My understanding of this is that the ability to run the X server as  
->> an
->> unprivileged UID is a long-term goal but not something that's ready  
->> just
->> yet.
->>
->>> Would it be better to mls_file_write_within_range(memory_device_t)
->>> (i.e. make it a trusted object) and pull the MLS override out of  
->>> the X
->>> policy?
->>>
->>
->> I think this may work.  You would be relying on type enforcement  
->> alone
->> to protect /dev/mem in this case, if I understand correctly.
->
-> I think Joe must have meant mls_trusted_object(memory_device_t), as  
-> that
-> is the interface for marking a file type as being unconstrained by MLS
-> restrictions, e.g. for /dev/null.  That would allow any domain to
-> read/write /dev/mem without MLS restrictions (but still subject to TE
-> policy), which may not be what you want.   
-> mls_file_write_within_range()
-> takes a domain as the argument, not a file type.
-> mls_file_write_within_range() or mls_file_write_to_clearance() are
-> possible options for making the X domains MLS trusted but bounded by
-> their range/clearance.
+>> (*) System bootup time is one of the major topics for embedded Linux folks.
+> 
+> Ok.  I'd be interested in seeing that libsepol patch nonetheless, and we
+> may want to retain full checking there as an option for validation at
+> policy build time (via make validate) while introducing lazy dynamic
+> checking in the kernel.
+> 
 
-I was thinking about making /dev/mem SystemLow-SystemHigh and using  
-mls_file_write_within_range, but mls_trusted_object would match the  
-intent better.
+This sounds reasonable.
 
-I think I'll wait for the non-suid X server and revisit the policy  
-then. I do like the idea of separating the device file policy.
+> BTW, we may need to revisit the policydb data structures in order to
+> fully address concerns about policy load time.
 
-joe
+Do you have ideas here?
 
 
 --
