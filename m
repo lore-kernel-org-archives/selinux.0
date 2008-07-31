@@ -1,69 +1,282 @@
-Subject: Re: unconfined_t and user_home_dir_type
+Subject: Re: [refpolicy] Patch: Create non_security_file_type attribute (v2)
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: russell@coker.com.au
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200807302203.14043.russell@coker.com.au>
-References: <200807291850.30191.russell@coker.com.au>
-	 <200807292220.17592.russell@coker.com.au>
-	 <1217339731.4934.26.camel@defiant.pebenito.net>
-	 <200807302203.14043.russell@coker.com.au>
+To: jwcart2@tycho.nsa.gov
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <1217361240.2932.17.camel@moss-lions.epoch.ncsc.mil>
+References: <1217361240.2932.17.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain
-Date: Thu, 31 Jul 2008 09:36:48 -0400
-Message-Id: <1217511409.4114.48.camel@gorn.columbia.tresys.com>
+Date: Thu, 31 Jul 2008 10:11:34 -0400
+Message-Id: <1217513494.4114.50.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-07-30 at 22:03 +1000, Russell Coker wrote:
-> On Tuesday 29 July 2008 23:55, Chris PeBenito <pebenito@gentoo.org> wrote:
-> > > > > While it is possible to have unconfined_t and user_t on the same
-> > > > > system, I don't expect this to be a common configuration.  In fact I
-> > > > > expect that in practice they will be mutually exclusive.
-> > > >
-> > > > Actually, it is a common situation in modern Fedora - they can map
-> > > > users they wish to confine to user_u (and thus to user_t) while leaving
-> > > > e.g. root as unconfined_u and thus unconfined_t.
-> > >
-> > > So what do they do for the "targeted" case where all users are
-> > > unconfined_t and they want to have POP/IMAP servers retrieve mail from
-> > > the users' home directories?
-> >
-> > Dan has no MAC-based home directory separations.  All home dirs are
-> > user_home_dir_t in the Fedora policy.
+On Tue, 2008-07-29 at 15:54 -0400, James Carter wrote:
+> This patch eliminates the expansion of the file_type attribute (due to
+> the "-" set operation) for the *_non_security interfaces by creating a
+> non_security_file_type attribute.
 > 
-> 1) In a default configuration we want to have the users be unconfined 
-> (otherwise they complain too much.
+> It also creates a files_security_mountpoint interface that is used for
+> auditd_log_t so that it does not get both the security_file_type and the
+> non_security_file_type attributes.
 > 
-> 2) For full functionality we need to have daemons such as a POP server, a mail 
-> server (or it's local delivery agent), and a web server access the home 
-> directories of all regular users.
-> 
-> 3) Allowing daemons to mess with super-powerful domains is of course a bad 
-> idea, which is why we never let daemons access sysadm_home_dir_t.  But 
-> preventing them from messing with ~/.bashrc etc while fulfilling the above 
-> two conditions and making the system easy to use is almost impossible (maybe 
-> restorecond has some potential to alleviate this, but it's still going to be 
-> hard).
-> 
-> So we can have a boolean to allow the compromise for item 3 and have it 
-> enabled by default.  So by default users get domain unconfined_t, home 
-> directory label unconfined_home_dir_t, and the POP server etc can access 
-> that.
-> 
-> To improve security we need to prevent the daemons messing with users who are 
-> unconfined_t, that means unsetting the boolean in question and giving domain 
-> user_t to users who have full interaction with daemons.
-> 
-> The next step up after that is to assign root the roles staff_r and sysadm_r 
-> and remove unconfined.pp.
-> 
-> Am I missing anything?
+> On my system the resulting binary policy is almost 20% smaller.  The
+> difference is so large because there are over 1000 types labeled with
+> the file_type attribute.
 
-Sounds about right.  It boils down to: we want to treat unconfined_r
-like an unprivileged role for functionality reasons, but want to protect
-it for security reasons.  A tunable is the best solution for allowing
-the user to set which of the two above options is preferred.
+Merged, with one minor tweak.  I kept the
+files_security_file(auditd_log_t) line just to emphasize its a file too,
+in addition to a security mountpoint, despite it being redundant.
 
+> Comparing the binary policies with sediff before and after applying this
+> patch shows no differences.
+> 
+> kernel/files.if   |   81 +++++++++++++++++++++++++++++++++---------------------
+> kernel/files.te   |    2 +
+> system/logging.te |    3 --
+> 3 files changed, 53 insertions(+), 33 deletions(-)
+> 
+> Index: policy/modules/kernel/files.if
+> ===================================================================
+> --- policy/modules/kernel/files.if	(revision 2767)
+> +++ policy/modules/kernel/files.if	(working copy)
+> @@ -32,10 +32,10 @@
+>  #
+>  interface(`files_type',`
+>  	gen_require(`
+> -		attribute file_type;
+> +		attribute file_type, non_security_file_type;
+>  	')
+>  
+> -	typeattribute $1 file_type;
+> +	typeattribute $1 file_type, non_security_file_type;
+>  ')
+>  
+>  ########################################
+> @@ -217,15 +217,34 @@
+>  #
+>  interface(`files_security_file',`
+>  	gen_require(`
+> -		attribute security_file_type;
+> +		attribute file_type, security_file_type;
+>  	')
+>  
+> -	files_type($1)
+> -	typeattribute $1 security_file_type;
+> +	typeattribute $1 file_type, security_file_type;
+>  ')
+>  
+>  ########################################
+>  ## <summary>
+> +##	Make the specified type usable for
+> +##	security file filesystem mount points.
+> +## </summary>
+> +## <param name="type">
+> +##	<summary>
+> +##	Type to be used for mount points.
+> +##	</summary>
+> +## </param>
+> +#
+> +interface(`files_security_mountpoint',`
+> +	gen_require(`
+> +		attribute mountpoint;
+> +	')
+> +
+> +	files_security_file($1)
+> +	typeattribute $1 mountpoint;
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##	Make the specified type a file
+>  ##	used for temporary files.
+>  ## </summary>
+> @@ -316,10 +335,10 @@
+>  #
+>  interface(`files_list_non_security',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	list_dirs_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
+> +	list_dirs_pattern($1, non_security_file_type, non_security_file_type)
+>  ')
+>  
+>  ########################################
+> @@ -335,10 +354,10 @@
+>  #
+>  interface(`files_dontaudit_list_non_security',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	dontaudit $1 { file_type -security_file_type }:dir list_dir_perms;
+> +	dontaudit $1 non_security_file_type:dir list_dir_perms;
+>  ')
+>  
+>  ########################################
+> @@ -354,11 +373,11 @@
+>  #
+>  interface(`files_mounton_non_security',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	allow $1 { file_type -security_file_type }:dir mounton;
+> -	allow $1 { file_type -security_file_type }:file mounton;
+> +	allow $1 non_security_file_type:dir mounton;
+> +	allow $1 non_security_file_type:file mounton;
+>  ')
+>  
+>  ########################################
+> @@ -373,10 +392,10 @@
+>  #
+>  interface(`files_write_non_security_dirs',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	allow $1 { file_type -security_file_type }:dir write;
+> +	allow $1 non_security_file_type:dir write;
+>  ')
+>  
+>  ########################################
+> @@ -430,10 +449,10 @@
+>  #
+>  interface(`files_dontaudit_getattr_non_security_files',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	dontaudit $1 { file_type -security_file_type }:file getattr;
+> +	dontaudit $1 non_security_file_type:file getattr;
+>  ')
+>  
+>  ########################################
+> @@ -498,11 +517,11 @@
+>  #
+>  interface(`files_read_non_security_files',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	read_files_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
+> -	read_lnk_files_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
+> +	read_files_pattern($1, non_security_file_type, non_security_file_type)
+> +	read_lnk_files_pattern($1, non_security_file_type, non_security_file_type)
+>  ')
+>  
+>  ########################################
+> @@ -648,10 +667,10 @@
+>  #
+>  interface(`files_dontaudit_getattr_non_security_symlinks',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	dontaudit $1 { file_type -security_file_type }:lnk_file getattr;
+> +	dontaudit $1 non_security_file_type:lnk_file getattr;
+>  ')
+>  
+>  ########################################
+> @@ -667,10 +686,10 @@
+>  #
+>  interface(`files_dontaudit_getattr_non_security_blk_files',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	dontaudit $1 { file_type -security_file_type }:blk_file getattr;
+> +	dontaudit $1 non_security_file_type:blk_file getattr;
+>  ')
+>  
+>  ########################################
+> @@ -686,10 +705,10 @@
+>  #
+>  interface(`files_dontaudit_getattr_non_security_chr_files',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	dontaudit $1 { file_type -security_file_type }:chr_file getattr;
+> +	dontaudit $1 non_security_file_type:chr_file getattr;
+>  ')
+>  
+>  ########################################
+> @@ -763,10 +782,10 @@
+>  #
+>  interface(`files_dontaudit_getattr_non_security_pipes',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	dontaudit $1 { file_type -security_file_type }:fifo_file getattr;
+> +	dontaudit $1 non_security_file_type:fifo_file getattr;
+>  ')
+>  
+>  ########################################
+> @@ -820,10 +839,10 @@
+>  #
+>  interface(`files_dontaudit_getattr_non_security_sockets',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	dontaudit $1 { file_type -security_file_type }:sock_file getattr;
+> +	dontaudit $1 non_security_file_type:sock_file getattr;
+>  ')
+>  
+>  ########################################
+> @@ -4763,8 +4782,8 @@
+>  #
+>  interface(`files_manage_non_security_dirs',`
+>  	gen_require(`
+> -		attribute file_type, security_file_type;
+> +		attribute non_security_file_type;
+>  	')
+>  
+> -	allow $1 { file_type -security_file_type }:dir manage_dir_perms;
+> +	allow $1 non_security_file_type:dir manage_dir_perms;
+>  ')
+> Index: policy/modules/kernel/files.te
+> ===================================================================
+> --- policy/modules/kernel/files.te	(revision 2767)
+> +++ policy/modules/kernel/files.te	(working copy)
+> @@ -26,6 +26,8 @@
+>  # sensitive security files whose accesses should
+>  # not be dontaudited for uses
+>  attribute security_file_type;
+> +# and its opposite
+> +attribute non_security_file_type;
+>  
+>  attribute tmpfile;
+>  attribute tmpfsfile;
+> Index: policy/modules/system/logging.te
+> ===================================================================
+> --- policy/modules/system/logging.te	(revision 2767)
+> +++ policy/modules/system/logging.te	(working copy)
+> @@ -17,8 +17,7 @@
+>  files_security_file(auditd_etc_t)
+>  
+>  type auditd_log_t;
+> -files_security_file(auditd_log_t)
+> -files_mountpoint(auditd_log_t)
+> +files_security_mountpoint(auditd_log_t)
+>  
+>  type auditd_t;
+>  type auditd_exec_t;
+> 
 -- 
 Chris PeBenito
 Tresys Technology, LLC
