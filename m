@@ -1,59 +1,144 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6UIA1Zn000671
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 14:10:01 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6VCvG3T008844
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 08:57:17 -0400
 Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m6UI9ov4005713
-	for <selinux@tycho.nsa.gov>; Wed, 30 Jul 2008 18:10:01 GMT
-Subject: ANN: CDS Framework version 3.0
-From: Dave Sugar <dsugar@tresys.com>
-Reply-To: cdsframework@tresys.com
-To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
-Cc: cdsframework@tresys.com
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m6VCvGbh022871
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 12:57:16 GMT
+Subject: Re: [refpolicy patch, second try] samba policy updates
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Mike Edenfield <kutulu@kutulu.org>
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <488F8A31.8070301@kutulu.org>
+References: <488DED3A.1030005@kutulu.org>
+	 <1217342823.4934.42.camel@defiant.pebenito.net>
+	 <488F5590.6060908@kutulu.org> <1217361293.5525.13.camel@gorn.pebenito.net>
+	 <488F8A31.8070301@kutulu.org>
 Content-Type: text/plain
-Date: Wed, 30 Jul 2008 14:08:39 -0400
-Message-Id: <1217441319.3863.5.camel@localhost.localdomain>
+Date: Thu, 31 Jul 2008 08:56:57 -0400
+Message-Id: <1217509017.4114.40.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Version 3.0 of the CDS Framework Toolkit from Tresys Technology is now
-available for download from the Tresys Open Source website at
-http://oss.tresys.com  
+On Tue, 2008-07-29 at 17:22 -0400, Mike Edenfield wrote:
+> Chris PeBenito wrote:
+> 
+> > ifdef(`distro_redhat
+> >   optional_policy(`
+> >     tunable_policy(`samba_
+> >       oddjob_domtrans_
+> >     ')
+> >   ')
+> > ',`
+> >   tunable_policy(`samba_
+> >     unprivuser_create_
+> >     unprivuser_home_filetrans_
+> >   ')
+> > ')
+> > 
+> > Hopefully my pseudopolicy makes sense.
+> 
+> It does, but I wonder if it's making the policy more complex than it 
+> needs.  Right now, in the RedHat case, samba doesn't know nor care that 
+> oddjob is being used to make home directories, since the PAM module runs 
+> an external binary that transitions into its own domain, controlled by 
+> the oddjob module.  I'm not sure what actual policy rules could go into 
+> the samba_oddjob case that would do anything useful, and I don't yet 
+> have a RH or FC system up and running to test any changes on (thats in 
+> the works, tho).
+> 
+> IMHO I think the two best alternatives are: skip the distro-specific 
+> rules and do the same thing in all cases
 
-The CDS Framework Toolkit is an Eclipse plug-in that allows engineers to
-leverage the power of SELinux when designing and implementing cross
-domain solutions without requiring that they have in depth knowledge of
-the complex details of underlying SELinux security policies.  In
-particular the CDS Framework Toolkit provides the following benefits to
-CDS developers on SELinux systems:     
+I'd prefer this.
 
-* An integrated development environment for creating security policy
-* Graphical editing of information flow for developing security policy
-* SELinux policy generation
-* Integration with SLIDE and Reference Policy (also available on
-http://oss.tresys.com)
+> , or just do nothing at all in 
+> the RedHat case.  RedHat users really should never have to enable this 
+> option anyway, but if they do I don't think it opens any major new 
+> security risks: samba already needs to have full read/write permission 
+> to home directory *content* (based on the existing enable_home_dirs 
+> tunable) for this to make any sense, and I think I've fixed the policy 
+> so it can only create new home directories, not delete or rename them.
+> 
+> Would it be sufficient warning to add this to the .te file so it shows 
+> up in the booleans.conf file as such:
+> 
+> ## <desc>
+> ## <p>
+> ## Allow samba to create new home directories.  (Not recommended
+> ## for RedHat-based systems where oddjob is available.)
+> ## </p>
+> ## </desc>
+> gen_tunable(samba_create_home_dirs, false)
 
+I don't think its necessary.  Mentioning oddjob doesn't do anything
+since if they enable oddjob in samba, with the current policy, it will
+fail, regardless if this tunable is on or off.
 
-Version 3.0 highlights:
-* Support for Multi-Level Security (MLS), as well as the previously
-supported type enforcement and Role-Based Access Control (RBAC)
-mechanisms  
-* Support for labeled networking to allow for inter-system interactions 
-* Enhanced usability by providing better end user customization of
-generated SELinux policy and an increase in the granularity of what can
-be specified within the Framework  
-* Addition of form editors to edit linkage files
-* Display of custom additions (linkage and dictionary files) in the
-framework navigator 
-* Display of backflow information with ability to customize in
-dictionary
-* Ability to hide enters and entrypoints
-* Enhancements to the new resource wizard
-* Bug fixes including problems with nested control resources, accesses
-to base domains, dictionary problems 
+> >>>> +interface(`unprivuser_create_home_dirs',`
+> >>>> +       unprivuser_home_filetrans_home_dir($1)
+> >>>> +       unprivuser_manage_home_dirs($1)
+> >>>> +')
+> >>> "Create" just means directory create, but you have the full manage
+> >>> permission set, in addition to a filetrans.
+> >> I think I did go a bit overboard with the manage permissions.  I'd 
+> >> copied these from the oddjob's policy, but I notice that oddjobs also 
+> >> permits deleting home directories, which probably isn't needed here.
+> >>
+> >> The filetrans is needed, though, because without it, the created home 
+> >> directories were getting labeled home_root_t instead of user_home_dir_t. 
+> >>   It also needs to copy the template files in and label them correctly, 
+> >> like the user_home_ssh_t on .ssh, etc.  I'll narrow this down.
+> > 
+> > Thats fine, but the filetrans shouldn't be included in the create
+> > interface itself.
+> 
+> Ok, but I'm a little confused then... if I move the filetrans call out 
+> of the interface, then it becomes just a call into an existing 
+> interface.  Am I misunderstanding something?  I think I'm having trouble 
+> determining how granular I should make interfaces like this.
 
-Dave Sugar
+Interfaces should not have side effects.  If you have a create interface
+and it does something else like filetrans, filetrans is a side effect.
+The tunable should be:
+
+tunable_policy(
+  unprivuser_create_home_dirs()
+  unprivuser_home_filetrans_home_dir()
+)
+
+> After your previous response, I updated the interface to use more 
+> specific rules, but it still does the same basic stuff.  For this, I'm 
+> using "create" not in the low-level "make directory entry in /home" 
+> sense, but in the higher level "do what needs to be done to end up with 
+> a fully functional home directory" sense.  Is that where I'm getting 
+> confused?  Would it help to name the interface something different, like:
+> 
+> interface(`unprivuser_generate_full_home_dir',`
+>    gen_require(`
+>      type user_home_t, user_home_dir_t;
+>    ')
+> 
+>    # Create home directory itself, label as user_home_dir_t
+>    files_search_home($1)
+>    files_home_filetrans($1, user_home_dir_t, dir)
+> 
+>    # Copy /etc/skel tree into new home directory, label as
+>    # user_home_t
+>    filetrans_pattern($1, user_home_dir_t, user_home_t,
+>      notdevfile_class_set)
+>    rw_files_pattern($1, user_home_t, user_home_t)
+>    add_entry_dirs_pattern($1, user_home_t, user_home_t)
+> ')
+
+Perhaps.  But I think the name needs work.  You'd also want to provide
+rules for reading /etc/skel too.
+
+-- 
+Chris PeBenito
 Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
