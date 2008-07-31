@@ -1,75 +1,109 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6VIOxTr013868
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 14:24:59 -0400
-Received: from cdptpa-omtalb.mail.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6VIOv0w023575
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 18:24:57 GMT
-Message-ID: <48920374.50508@kutulu.org>
-Date: Thu, 31 Jul 2008 14:24:52 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6VIW1FI015353
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 14:32:01 -0400
+Received: from cdptpa-omtalb.mail.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6VIW0oQ005957
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 18:32:01 GMT
+Received: from basement.kutulu.org ([70.121.200.185])
+          by cdptpa-omta06.mail.rr.com with ESMTP
+          id <20080731183200.WPKX9085.cdptpa-omta06.mail.rr.com@basement.kutulu.org>
+          for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 18:32:00 +0000
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+	by basement.kutulu.org (Postfix) with ESMTPS id 8FB8C1144D
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 14:31:57 -0400 (EDT)
+Message-ID: <4892051A.3090203@kutulu.org>
+Date: Thu, 31 Jul 2008 14:31:54 -0400
 From: Mike Edenfield <kutulu@kutulu.org>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: [refpolicy patch, second try] samba policy updates
-References: <488DED3A.1030005@kutulu.org>	 <1217342823.4934.42.camel@defiant.pebenito.net>	 <488F5590.6060908@kutulu.org> <1217361293.5525.13.camel@gorn.pebenito.net>	 <488F8A31.8070301@kutulu.org>	 <1217509017.4114.40.camel@gorn.columbia.tresys.com>	 <4891E7FA.9040807@kutulu.org> <1217527566.4114.59.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1217527566.4114.59.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: [refpolicy, take 3] samba policy updates
+Content-Type: multipart/mixed;
+ boundary="------------090307020702030703010702"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Thu, 2008-07-31 at 12:27 -0400, Mike Edenfield wrote:
->> Christopher J. PeBenito wrote:
->>
->>> Interfaces should not have side effects.  If you have a create interface
->>> and it does something else like filetrans, filetrans is a side effect.
->>> The tunable should be:
->>>
->>> tunable_policy(
->>>   unprivuser_create_home_dirs()
->>>   unprivuser_home_filetrans_home_dir()
->>> )
->> Ok, I think I get it now.  Sorry for being kinda dense :)
->>
->> So, what I should have dome is something like this:
->>
->> tunable_policy (
->>    unprivuser_home_filetrans_home_dir()
->>    unprivuser_create_home_dir()
->>    unprivuser_add_entry_home_dir()
->> )
->>
->>
->> with two new interfaces:
->>
->> unprivuser_create_home_dir (
->>    allow user_home_dir_t:dir create_dir_perms
->> )
->>
->> unprivuser_add_entry_home_dir (
->>    allow user_home_dir_t:dir add_entry_dir_perms
->> )
-> 
-> Why do you need the add_entry?  You just want to create
-> the /home/foouser directory right?  Add_entry is for when you want to
-> create an object in that type of directory.
+This is a multi-part message in MIME format.
+--------------090307020702030703010702
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, I do actually want to create objects in the new home directory. 
-It needs to be populated from /etc/skel (which the PAM module does 
-automatically).
+With updates per cpebenito:
 
-But it turns out that the existing samba policy already takes care of 
-this, *if* you also turn on "enable_home_dirs", so its not needed here. 
-  It does mean that the "create" tunable, without the "enable" tunable, 
-creates an empty home directory, which I was trying to minimize.  But as 
-I think about it, it probably doesn't make sense to have Samba create 
-user home directories if you're not going to allow Samba to share them 
-out, so it's probably ok.
+* Adds tunable to allow samba to create a new home directory
+* Allow nmbd to rename log files
+* Allow winbind to remove its own sockets on shutdown
+* Update interface to allow connecting to both of winbinds sockets.
 
-New patch coming up.
 
---Mike
 
+--------------090307020702030703010702
+Content-Type: text/plain;
+ name="samba.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="samba.patch"
+
+SW5kZXg6IG1vZHVsZXMvc2VydmljZXMvc2FtYmEuaWYKPT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbW9k
+dWxlcy9zZXJ2aWNlcy9zYW1iYS5pZgkocmV2aXNpb24gMjc2NykKKysrIG1vZHVsZXMvc2Vy
+dmljZXMvc2FtYmEuaWYJKHdvcmtpbmcgY29weSkKQEAgLTQ4NCwxNyArNDg0LDE3IEBACiAj
+IyA8L3BhcmFtPgogIwogaW50ZXJmYWNlKGBzYW1iYV9zdHJlYW1fY29ubmVjdF93aW5iaW5k
+JyxgCi0JaWZkZWYoYGRpc3Ryb19yZWRoYXQnLGAKLQkJZ2VuX3JlcXVpcmUoYAotCQkJdHlw
+ZSBzYW1iYV92YXJfdCwgd2luYmluZF90LCB3aW5iaW5kX3Zhcl9ydW5fdDsKLQkJJykKKwln
+ZW5fcmVxdWlyZShgCisJCXR5cGUgc2FtYmFfdmFyX3QsIHdpbmJpbmRfdCwgd2luYmluZF92
+YXJfcnVuX3Q7CisJJykKIAotCQlmaWxlc19zZWFyY2hfcGlkcygkMSkKLQkJYWxsb3cgJDEg
+c2FtYmFfdmFyX3Q6ZGlyIHNlYXJjaF9kaXJfcGVybXM7Ci0JCXN0cmVhbV9jb25uZWN0X3Bh
+dHRlcm4oJDEsIHdpbmJpbmRfdmFyX3J1bl90LCB3aW5iaW5kX3Zhcl9ydW5fdCwgd2luYmlu
+ZF90KQotCScsYAorCWZpbGVzX3NlYXJjaF9waWRzKCQxKQorCWFsbG93ICQxIHNhbWJhX3Zh
+cl90OmRpciBzZWFyY2hfZGlyX3Blcm1zOworCXN0cmVhbV9jb25uZWN0X3BhdHRlcm4oJDEs
+IHdpbmJpbmRfdmFyX3J1bl90LCB3aW5iaW5kX3Zhcl9ydW5fdCwgd2luYmluZF90KQorCQor
+CWlmbmRlZihgZGlzdHJvX3JlZGhhdCcsIGAKIAkJZ2VuX3JlcXVpcmUoYAotCQkJdHlwZSB3
+aW5iaW5kX3QsIHdpbmJpbmRfdG1wX3Q7CisJCSAgICB0eXBlIHdpbmJpbmRfdG1wX3Q7CiAJ
+CScpCiAKIAkJIyB0aGUgZGVmYXVsdCBmb3IgdGhlIHNvY2tldCBpcyAocG9vcmx5IG5hbWVk
+KToKSW5kZXg6IG1vZHVsZXMvc2VydmljZXMvc2FtYmEudGUKPT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0g
+bW9kdWxlcy9zZXJ2aWNlcy9zYW1iYS50ZQkocmV2aXNpb24gMjc2NykKKysrIG1vZHVsZXMv
+c2VydmljZXMvc2FtYmEudGUJKHdvcmtpbmcgY29weSkKQEAgLTU5LDYgKzU5LDEzIEBACiAj
+IyA8L2Rlc2M+CiBnZW5fdHVuYWJsZShzYW1iYV9zaGFyZV9uZnMsIGZhbHNlKQogCisjIyA8
+ZGVzYz4KKyMjIDxwPgorIyMgQWxsb3cgc2FtYmEgdG8gY3JlYXRlIG5ldyBob21lIGRpcmVj
+dG9yaWVzIChlLmcuIHZpYSBQQU0pIAorIyMgPC9wPgorIyMgPC9kZXNjPgorZ2VuX3R1bmFi
+bGUoc2FtYmFfY3JlYXRlX2hvbWVfZGlycywgZmFsc2UpCisKIHR5cGUgbm1iZF90OwogdHlw
+ZSBubWJkX2V4ZWNfdDsKIGluaXRfZGFlbW9uX2RvbWFpbihubWJkX3QsIG5tYmRfZXhlY190
+KQpAQCAtMzc5LDYgKzM4NiwxNCBAQAogCXVucHJpdnVzZXJfaG9tZV9kaXJfZmlsZXRyYW5z
+X2hvbWVfY29udGVudChubWJkX3QsIHsgZmlsZSBkaXIgfSkKICcpCiAKK3R1bmFibGVfcG9s
+aWN5KGBzYW1iYV9jcmVhdGVfaG9tZV9kaXJzJyxgCisJdW5wcml2dXNlcl9ob21lX2ZpbGV0
+cmFuc19ob21lX2RpcihzbWJkX3QpCisJdW5wcml2dXNlcl9jcmVhdGVfaG9tZV9kaXIoc21i
+ZF90KQorCWFsbG93IHNtYmRfdCBzZWxmOmNhcGFiaWxpdHkgY2hvd247CisnKQogIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwogIwogIyBubWJkIExvY2FsIHBv
+bGljeQpAQCAtNDA0LDggKzQxOSw3IEBACiByZWFkX2ZpbGVzX3BhdHRlcm4obm1iZF90LCBz
+YW1iYV9ldGNfdCwgc2FtYmFfZXRjX3QpCiAKIG1hbmFnZV9kaXJzX3BhdHRlcm4obm1iZF90
+LCBzYW1iYV9sb2dfdCwgc2FtYmFfbG9nX3QpCi1hcHBlbmRfZmlsZXNfcGF0dGVybihubWJk
+X3QsIHNhbWJhX2xvZ190LCBzYW1iYV9sb2dfdCkKLWFsbG93IG5tYmRfdCBzYW1iYV9sb2df
+dDpmaWxlIHVubGluazsKK21hbmFnZV9maWxlc19wYXR0ZXJuKG5tYmRfdCwgc2FtYmFfbG9n
+X3QsIHNhbWJhX2xvZ190KQogCiByZWFkX2ZpbGVzX3BhdHRlcm4obm1iZF90LCBzYW1iYV9s
+b2dfdCwgc2FtYmFfbG9nX3QpCiBjcmVhdGVfZmlsZXNfcGF0dGVybihubWJkX3QsIHNhbWJh
+X2xvZ190LCBzYW1iYV9sb2dfdCkKQEAgLTY3NSw2ICs2ODksNyBAQAogCiBtYW5hZ2VfZGly
+c19wYXR0ZXJuKHdpbmJpbmRfdCwgd2luYmluZF90bXBfdCwgd2luYmluZF90bXBfdCkKIG1h
+bmFnZV9maWxlc19wYXR0ZXJuKHdpbmJpbmRfdCwgd2luYmluZF90bXBfdCwgd2luYmluZF90
+bXBfdCkKK21hbmFnZV9zb2NrX2ZpbGVzX3BhdHRlcm4od2luYmluZF90LCB3aW5iaW5kX3Rt
+cF90LCB3aW5iaW5kX3RtcF90KQogZmlsZXNfdG1wX2ZpbGV0cmFucyh3aW5iaW5kX3QsIHdp
+bmJpbmRfdG1wX3QsIHsgZmlsZSBkaXIgfSkKIAogbWFuYWdlX2ZpbGVzX3BhdHRlcm4od2lu
+YmluZF90LCB3aW5iaW5kX3Zhcl9ydW5fdCwgd2luYmluZF92YXJfcnVuX3QpCkluZGV4OiBt
+b2R1bGVzL3JvbGVzL3VucHJpdnVzZXIuaWYKPT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbW9kdWxlcy9y
+b2xlcy91bnByaXZ1c2VyLmlmCShyZXZpc2lvbiAyNzY3KQorKysgbW9kdWxlcy9yb2xlcy91
+bnByaXZ1c2VyLmlmCSh3b3JraW5nIGNvcHkpCkBAIC0xNDYsNiArMTQ2LDIyIEBACiAKICMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKICMjIDxzdW1tYXJ5Pgor
+IyMgQ3JlYXRlIGdlbmVyaWMgdXNlciBob21lIGRpcmVjdG9yaWVzLgorIyMgPC9zdW1tYXJ5
+PgorIyMgPHBhcmFtIG5hbWU9ImRvbWFpbiI+CisjIyAgPHN1bW1hcnk+CisjIyAgRG9tYWlu
+IGFsbG93ZWQgYWNjZXNzLgorIyMgIDwvc3VtbWFyeT4KKyMjIDwvcGFyYW0+CisjCitpbnRl
+cmZhY2UoYHVucHJpdnVzZXJfY3JlYXRlX2hvbWVfZGlyJyxgCisJZ2VuX3JlcXVpcmUoYAor
+CQl0eXBlIHVzZXJfaG9tZV9kaXJfdDsKKwknKQorCisJZmlsZXNfc2VhcmNoX2hvbWUoJDEp
+CisJYWxsb3cgJDEgdXNlcl9ob21lX2Rpcl90OmRpciBjcmVhdGVfZGlyX3Blcm1zCisnKQor
+CisKKyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKKyMjIDxzdW1t
+YXJ5PgogIyMJQ3JlYXRlLCByZWFkLCB3cml0ZSwgYW5kIGRlbGV0ZQogIyMJc3ViZGlyZWN0
+b3JpZXMgb2YgZ2VuZXJpYyB1c2VyCiAjIwlob21lIGRpcmVjdG9yaWVzLg==
+--------------090307020702030703010702--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
