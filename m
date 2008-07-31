@@ -1,287 +1,53 @@
-Subject: Re: [refpolicy] Patch: Create non_security_file_type attribute (v2)
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: jwcart2@tycho.nsa.gov
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <1217361240.2932.17.camel@moss-lions.epoch.ncsc.mil>
-References: <1217361240.2932.17.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Thu, 31 Jul 2008 10:11:34 -0400
-Message-Id: <1217513494.4114.50.camel@gorn.columbia.tresys.com>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6VGRkMc021717
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 12:27:46 -0400
+Received: from cdptpa-omtalb.mail.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6VGRhoQ029498
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 16:27:45 GMT
+Message-ID: <4891E7FA.9040807@kutulu.org>
+Date: Thu, 31 Jul 2008 12:27:38 -0400
+From: Mike Edenfield <kutulu@kutulu.org>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy patch, second try] samba policy updates
+References: <488DED3A.1030005@kutulu.org>	 <1217342823.4934.42.camel@defiant.pebenito.net>	 <488F5590.6060908@kutulu.org> <1217361293.5525.13.camel@gorn.pebenito.net>	 <488F8A31.8070301@kutulu.org> <1217509017.4114.40.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1217509017.4114.40.camel@gorn.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-07-29 at 15:54 -0400, James Carter wrote:
-> This patch eliminates the expansion of the file_type attribute (due to
-> the "-" set operation) for the *_non_security interfaces by creating a
-> non_security_file_type attribute.
-> 
-> It also creates a files_security_mountpoint interface that is used for
-> auditd_log_t so that it does not get both the security_file_type and the
-> non_security_file_type attributes.
-> 
-> On my system the resulting binary policy is almost 20% smaller.  The
-> difference is so large because there are over 1000 types labeled with
-> the file_type attribute.
+Christopher J. PeBenito wrote:
 
-Merged, with one minor tweak.  I kept the
-files_security_file(auditd_log_t) line just to emphasize its a file too,
-in addition to a security mountpoint, despite it being redundant.
+> Interfaces should not have side effects.  If you have a create interface
+> and it does something else like filetrans, filetrans is a side effect.
+> The tunable should be:
+> 
+> tunable_policy(
+>   unprivuser_create_home_dirs()
+>   unprivuser_home_filetrans_home_dir()
+> )
 
-> Comparing the binary policies with sediff before and after applying this
-> patch shows no differences.
-> 
-> kernel/files.if   |   81 +++++++++++++++++++++++++++++++++---------------------
-> kernel/files.te   |    2 +
-> system/logging.te |    3 --
-> 3 files changed, 53 insertions(+), 33 deletions(-)
-> 
-> Index: policy/modules/kernel/files.if
-> ===================================================================
-> --- policy/modules/kernel/files.if	(revision 2767)
-> +++ policy/modules/kernel/files.if	(working copy)
-> @@ -32,10 +32,10 @@
->  #
->  interface(`files_type',`
->  	gen_require(`
-> -		attribute file_type;
-> +		attribute file_type, non_security_file_type;
->  	')
->  
-> -	typeattribute $1 file_type;
-> +	typeattribute $1 file_type, non_security_file_type;
->  ')
->  
->  ########################################
-> @@ -217,15 +217,34 @@
->  #
->  interface(`files_security_file',`
->  	gen_require(`
-> -		attribute security_file_type;
-> +		attribute file_type, security_file_type;
->  	')
->  
-> -	files_type($1)
-> -	typeattribute $1 security_file_type;
-> +	typeattribute $1 file_type, security_file_type;
->  ')
->  
->  ########################################
->  ## <summary>
-> +##	Make the specified type usable for
-> +##	security file filesystem mount points.
-> +## </summary>
-> +## <param name="type">
-> +##	<summary>
-> +##	Type to be used for mount points.
-> +##	</summary>
-> +## </param>
-> +#
-> +interface(`files_security_mountpoint',`
-> +	gen_require(`
-> +		attribute mountpoint;
-> +	')
-> +
-> +	files_security_file($1)
-> +	typeattribute $1 mountpoint;
-> +')
-> +
-> +########################################
-> +## <summary>
->  ##	Make the specified type a file
->  ##	used for temporary files.
->  ## </summary>
-> @@ -316,10 +335,10 @@
->  #
->  interface(`files_list_non_security',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	list_dirs_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
-> +	list_dirs_pattern($1, non_security_file_type, non_security_file_type)
->  ')
->  
->  ########################################
-> @@ -335,10 +354,10 @@
->  #
->  interface(`files_dontaudit_list_non_security',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:dir list_dir_perms;
-> +	dontaudit $1 non_security_file_type:dir list_dir_perms;
->  ')
->  
->  ########################################
-> @@ -354,11 +373,11 @@
->  #
->  interface(`files_mounton_non_security',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	allow $1 { file_type -security_file_type }:dir mounton;
-> -	allow $1 { file_type -security_file_type }:file mounton;
-> +	allow $1 non_security_file_type:dir mounton;
-> +	allow $1 non_security_file_type:file mounton;
->  ')
->  
->  ########################################
-> @@ -373,10 +392,10 @@
->  #
->  interface(`files_write_non_security_dirs',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	allow $1 { file_type -security_file_type }:dir write;
-> +	allow $1 non_security_file_type:dir write;
->  ')
->  
->  ########################################
-> @@ -430,10 +449,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_files',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:file getattr;
-> +	dontaudit $1 non_security_file_type:file getattr;
->  ')
->  
->  ########################################
-> @@ -498,11 +517,11 @@
->  #
->  interface(`files_read_non_security_files',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	read_files_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
-> -	read_lnk_files_pattern($1, { file_type -security_file_type }, { file_type -security_file_type })
-> +	read_files_pattern($1, non_security_file_type, non_security_file_type)
-> +	read_lnk_files_pattern($1, non_security_file_type, non_security_file_type)
->  ')
->  
->  ########################################
-> @@ -648,10 +667,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_symlinks',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:lnk_file getattr;
-> +	dontaudit $1 non_security_file_type:lnk_file getattr;
->  ')
->  
->  ########################################
-> @@ -667,10 +686,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_blk_files',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:blk_file getattr;
-> +	dontaudit $1 non_security_file_type:blk_file getattr;
->  ')
->  
->  ########################################
-> @@ -686,10 +705,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_chr_files',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:chr_file getattr;
-> +	dontaudit $1 non_security_file_type:chr_file getattr;
->  ')
->  
->  ########################################
-> @@ -763,10 +782,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_pipes',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:fifo_file getattr;
-> +	dontaudit $1 non_security_file_type:fifo_file getattr;
->  ')
->  
->  ########################################
-> @@ -820,10 +839,10 @@
->  #
->  interface(`files_dontaudit_getattr_non_security_sockets',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	dontaudit $1 { file_type -security_file_type }:sock_file getattr;
-> +	dontaudit $1 non_security_file_type:sock_file getattr;
->  ')
->  
->  ########################################
-> @@ -4763,8 +4782,8 @@
->  #
->  interface(`files_manage_non_security_dirs',`
->  	gen_require(`
-> -		attribute file_type, security_file_type;
-> +		attribute non_security_file_type;
->  	')
->  
-> -	allow $1 { file_type -security_file_type }:dir manage_dir_perms;
-> +	allow $1 non_security_file_type:dir manage_dir_perms;
->  ')
-> Index: policy/modules/kernel/files.te
-> ===================================================================
-> --- policy/modules/kernel/files.te	(revision 2767)
-> +++ policy/modules/kernel/files.te	(working copy)
-> @@ -26,6 +26,8 @@
->  # sensitive security files whose accesses should
->  # not be dontaudited for uses
->  attribute security_file_type;
-> +# and its opposite
-> +attribute non_security_file_type;
->  
->  attribute tmpfile;
->  attribute tmpfsfile;
-> Index: policy/modules/system/logging.te
-> ===================================================================
-> --- policy/modules/system/logging.te	(revision 2767)
-> +++ policy/modules/system/logging.te	(working copy)
-> @@ -17,8 +17,7 @@
->  files_security_file(auditd_etc_t)
->  
->  type auditd_log_t;
-> -files_security_file(auditd_log_t)
-> -files_mountpoint(auditd_log_t)
-> +files_security_mountpoint(auditd_log_t)
->  
->  type auditd_t;
->  type auditd_exec_t;
-> 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Ok, I think I get it now.  Sorry for being kinda dense :)
 
+So, what I should have dome is something like this:
+
+tunable_policy (
+   unprivuser_home_filetrans_home_dir()
+   unprivuser_create_home_dir()
+   unprivuser_add_entry_home_dir()
+)
+
+
+with two new interfaces:
+
+unprivuser_create_home_dir (
+   allow user_home_dir_t:dir create_dir_perms
+)
+
+unprivuser_add_entry_home_dir (
+   allow user_home_dir_t:dir add_entry_dir_perms
+)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
