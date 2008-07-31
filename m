@@ -1,138 +1,68 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6VCvG3T008844
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 08:57:17 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m6VCvGbh022871
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 12:57:16 GMT
-Subject: Re: [refpolicy patch, second try] samba policy updates
+Subject: Re: unconfined_t and user_home_dir_type
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Mike Edenfield <kutulu@kutulu.org>
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-In-Reply-To: <488F8A31.8070301@kutulu.org>
-References: <488DED3A.1030005@kutulu.org>
-	 <1217342823.4934.42.camel@defiant.pebenito.net>
-	 <488F5590.6060908@kutulu.org> <1217361293.5525.13.camel@gorn.pebenito.net>
-	 <488F8A31.8070301@kutulu.org>
+To: russell@coker.com.au
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200807302203.14043.russell@coker.com.au>
+References: <200807291850.30191.russell@coker.com.au>
+	 <200807292220.17592.russell@coker.com.au>
+	 <1217339731.4934.26.camel@defiant.pebenito.net>
+	 <200807302203.14043.russell@coker.com.au>
 Content-Type: text/plain
-Date: Thu, 31 Jul 2008 08:56:57 -0400
-Message-Id: <1217509017.4114.40.camel@gorn.columbia.tresys.com>
+Date: Thu, 31 Jul 2008 09:36:48 -0400
+Message-Id: <1217511409.4114.48.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-07-29 at 17:22 -0400, Mike Edenfield wrote:
-> Chris PeBenito wrote:
+On Wed, 2008-07-30 at 22:03 +1000, Russell Coker wrote:
+> On Tuesday 29 July 2008 23:55, Chris PeBenito <pebenito@gentoo.org> wrote:
+> > > > > While it is possible to have unconfined_t and user_t on the same
+> > > > > system, I don't expect this to be a common configuration.  In fact I
+> > > > > expect that in practice they will be mutually exclusive.
+> > > >
+> > > > Actually, it is a common situation in modern Fedora - they can map
+> > > > users they wish to confine to user_u (and thus to user_t) while leaving
+> > > > e.g. root as unconfined_u and thus unconfined_t.
+> > >
+> > > So what do they do for the "targeted" case where all users are
+> > > unconfined_t and they want to have POP/IMAP servers retrieve mail from
+> > > the users' home directories?
+> >
+> > Dan has no MAC-based home directory separations.  All home dirs are
+> > user_home_dir_t in the Fedora policy.
 > 
-> > ifdef(`distro_redhat
-> >   optional_policy(`
-> >     tunable_policy(`samba_
-> >       oddjob_domtrans_
-> >     ')
-> >   ')
-> > ',`
-> >   tunable_policy(`samba_
-> >     unprivuser_create_
-> >     unprivuser_home_filetrans_
-> >   ')
-> > ')
-> > 
-> > Hopefully my pseudopolicy makes sense.
+> 1) In a default configuration we want to have the users be unconfined 
+> (otherwise they complain too much.
 > 
-> It does, but I wonder if it's making the policy more complex than it 
-> needs.  Right now, in the RedHat case, samba doesn't know nor care that 
-> oddjob is being used to make home directories, since the PAM module runs 
-> an external binary that transitions into its own domain, controlled by 
-> the oddjob module.  I'm not sure what actual policy rules could go into 
-> the samba_oddjob case that would do anything useful, and I don't yet 
-> have a RH or FC system up and running to test any changes on (thats in 
-> the works, tho).
+> 2) For full functionality we need to have daemons such as a POP server, a mail 
+> server (or it's local delivery agent), and a web server access the home 
+> directories of all regular users.
 > 
-> IMHO I think the two best alternatives are: skip the distro-specific 
-> rules and do the same thing in all cases
+> 3) Allowing daemons to mess with super-powerful domains is of course a bad 
+> idea, which is why we never let daemons access sysadm_home_dir_t.  But 
+> preventing them from messing with ~/.bashrc etc while fulfilling the above 
+> two conditions and making the system easy to use is almost impossible (maybe 
+> restorecond has some potential to alleviate this, but it's still going to be 
+> hard).
+> 
+> So we can have a boolean to allow the compromise for item 3 and have it 
+> enabled by default.  So by default users get domain unconfined_t, home 
+> directory label unconfined_home_dir_t, and the POP server etc can access 
+> that.
+> 
+> To improve security we need to prevent the daemons messing with users who are 
+> unconfined_t, that means unsetting the boolean in question and giving domain 
+> user_t to users who have full interaction with daemons.
+> 
+> The next step up after that is to assign root the roles staff_r and sysadm_r 
+> and remove unconfined.pp.
+> 
+> Am I missing anything?
 
-I'd prefer this.
-
-> , or just do nothing at all in 
-> the RedHat case.  RedHat users really should never have to enable this 
-> option anyway, but if they do I don't think it opens any major new 
-> security risks: samba already needs to have full read/write permission 
-> to home directory *content* (based on the existing enable_home_dirs 
-> tunable) for this to make any sense, and I think I've fixed the policy 
-> so it can only create new home directories, not delete or rename them.
-> 
-> Would it be sufficient warning to add this to the .te file so it shows 
-> up in the booleans.conf file as such:
-> 
-> ## <desc>
-> ## <p>
-> ## Allow samba to create new home directories.  (Not recommended
-> ## for RedHat-based systems where oddjob is available.)
-> ## </p>
-> ## </desc>
-> gen_tunable(samba_create_home_dirs, false)
-
-I don't think its necessary.  Mentioning oddjob doesn't do anything
-since if they enable oddjob in samba, with the current policy, it will
-fail, regardless if this tunable is on or off.
-
-> >>>> +interface(`unprivuser_create_home_dirs',`
-> >>>> +       unprivuser_home_filetrans_home_dir($1)
-> >>>> +       unprivuser_manage_home_dirs($1)
-> >>>> +')
-> >>> "Create" just means directory create, but you have the full manage
-> >>> permission set, in addition to a filetrans.
-> >> I think I did go a bit overboard with the manage permissions.  I'd 
-> >> copied these from the oddjob's policy, but I notice that oddjobs also 
-> >> permits deleting home directories, which probably isn't needed here.
-> >>
-> >> The filetrans is needed, though, because without it, the created home 
-> >> directories were getting labeled home_root_t instead of user_home_dir_t. 
-> >>   It also needs to copy the template files in and label them correctly, 
-> >> like the user_home_ssh_t on .ssh, etc.  I'll narrow this down.
-> > 
-> > Thats fine, but the filetrans shouldn't be included in the create
-> > interface itself.
-> 
-> Ok, but I'm a little confused then... if I move the filetrans call out 
-> of the interface, then it becomes just a call into an existing 
-> interface.  Am I misunderstanding something?  I think I'm having trouble 
-> determining how granular I should make interfaces like this.
-
-Interfaces should not have side effects.  If you have a create interface
-and it does something else like filetrans, filetrans is a side effect.
-The tunable should be:
-
-tunable_policy(
-  unprivuser_create_home_dirs()
-  unprivuser_home_filetrans_home_dir()
-)
-
-> After your previous response, I updated the interface to use more 
-> specific rules, but it still does the same basic stuff.  For this, I'm 
-> using "create" not in the low-level "make directory entry in /home" 
-> sense, but in the higher level "do what needs to be done to end up with 
-> a fully functional home directory" sense.  Is that where I'm getting 
-> confused?  Would it help to name the interface something different, like:
-> 
-> interface(`unprivuser_generate_full_home_dir',`
->    gen_require(`
->      type user_home_t, user_home_dir_t;
->    ')
-> 
->    # Create home directory itself, label as user_home_dir_t
->    files_search_home($1)
->    files_home_filetrans($1, user_home_dir_t, dir)
-> 
->    # Copy /etc/skel tree into new home directory, label as
->    # user_home_t
->    filetrans_pattern($1, user_home_dir_t, user_home_t,
->      notdevfile_class_set)
->    rw_files_pattern($1, user_home_t, user_home_t)
->    add_entry_dirs_pattern($1, user_home_t, user_home_t)
-> ')
-
-Perhaps.  But I think the name needs work.  You'd also want to provide
-rules for reading /etc/skel too.
+Sounds about right.  It boils down to: we want to treat unconfined_r
+like an unprivileged role for functionality reasons, but want to protect
+it for security reasons.  A tunable is the best solution for allowing
+the user to set which of the two above options is preferred.
 
 -- 
 Chris PeBenito
