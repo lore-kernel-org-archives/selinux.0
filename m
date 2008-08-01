@@ -1,109 +1,71 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m6VIW1FI015353
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 14:32:01 -0400
-Received: from cdptpa-omtalb.mail.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m6VIW0oQ005957
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 18:32:01 GMT
-Received: from basement.kutulu.org ([70.121.200.185])
-          by cdptpa-omta06.mail.rr.com with ESMTP
-          id <20080731183200.WPKX9085.cdptpa-omta06.mail.rr.com@basement.kutulu.org>
-          for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 18:32:00 +0000
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by basement.kutulu.org (Postfix) with ESMTPS id 8FB8C1144D
-	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 14:31:57 -0400 (EDT)
-Message-ID: <4892051A.3090203@kutulu.org>
-Date: Thu, 31 Jul 2008 14:31:54 -0400
-From: Mike Edenfield <kutulu@kutulu.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m711FYQb017578
+	for <selinux@tycho.nsa.gov>; Thu, 31 Jul 2008 21:15:34 -0400
+Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m711FVxs012111
+	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2008 01:15:32 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id A45BF18268
+	for <selinux@tycho.nsa.gov>; Fri,  1 Aug 2008 11:15:30 +1000 (EST)
+Received: from nospam.sws.net.au ([127.0.0.1])
+	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1WVECe+c4CPz for <selinux@tycho.nsa.gov>;
+	Fri,  1 Aug 2008 11:15:27 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 7E4F418267
+	for <selinux@tycho.nsa.gov>; Fri,  1 Aug 2008 11:15:27 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 9517F200DC
+	for <selinux@tycho.nsa.gov>; Fri,  1 Aug 2008 11:15:18 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: selinux-activate
+Date: Fri, 1 Aug 2008 11:15:16 +1000
 MIME-Version: 1.0
-To: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: [refpolicy, take 3] samba policy updates
-Content-Type: multipart/mixed;
- boundary="------------090307020702030703010702"
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_mOmkIOlYNOexVkJ"
+Message-Id: <200808011115.18202.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090307020702030703010702
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-With updates per cpebenito:
-
-* Adds tunable to allow samba to create a new home directory
-* Allow nmbd to rename log files
-* Allow winbind to remove its own sockets on shutdown
-* Update interface to allow connecting to both of winbinds sockets.
-
-
-
---------------090307020702030703010702
+--Boundary-00=_mOmkIOlYNOexVkJ
 Content-Type: text/plain;
- name="samba.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="samba.patch"
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-SW5kZXg6IG1vZHVsZXMvc2VydmljZXMvc2FtYmEuaWYKPT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbW9k
-dWxlcy9zZXJ2aWNlcy9zYW1iYS5pZgkocmV2aXNpb24gMjc2NykKKysrIG1vZHVsZXMvc2Vy
-dmljZXMvc2FtYmEuaWYJKHdvcmtpbmcgY29weSkKQEAgLTQ4NCwxNyArNDg0LDE3IEBACiAj
-IyA8L3BhcmFtPgogIwogaW50ZXJmYWNlKGBzYW1iYV9zdHJlYW1fY29ubmVjdF93aW5iaW5k
-JyxgCi0JaWZkZWYoYGRpc3Ryb19yZWRoYXQnLGAKLQkJZ2VuX3JlcXVpcmUoYAotCQkJdHlw
-ZSBzYW1iYV92YXJfdCwgd2luYmluZF90LCB3aW5iaW5kX3Zhcl9ydW5fdDsKLQkJJykKKwln
-ZW5fcmVxdWlyZShgCisJCXR5cGUgc2FtYmFfdmFyX3QsIHdpbmJpbmRfdCwgd2luYmluZF92
-YXJfcnVuX3Q7CisJJykKIAotCQlmaWxlc19zZWFyY2hfcGlkcygkMSkKLQkJYWxsb3cgJDEg
-c2FtYmFfdmFyX3Q6ZGlyIHNlYXJjaF9kaXJfcGVybXM7Ci0JCXN0cmVhbV9jb25uZWN0X3Bh
-dHRlcm4oJDEsIHdpbmJpbmRfdmFyX3J1bl90LCB3aW5iaW5kX3Zhcl9ydW5fdCwgd2luYmlu
-ZF90KQotCScsYAorCWZpbGVzX3NlYXJjaF9waWRzKCQxKQorCWFsbG93ICQxIHNhbWJhX3Zh
-cl90OmRpciBzZWFyY2hfZGlyX3Blcm1zOworCXN0cmVhbV9jb25uZWN0X3BhdHRlcm4oJDEs
-IHdpbmJpbmRfdmFyX3J1bl90LCB3aW5iaW5kX3Zhcl9ydW5fdCwgd2luYmluZF90KQorCQor
-CWlmbmRlZihgZGlzdHJvX3JlZGhhdCcsIGAKIAkJZ2VuX3JlcXVpcmUoYAotCQkJdHlwZSB3
-aW5iaW5kX3QsIHdpbmJpbmRfdG1wX3Q7CisJCSAgICB0eXBlIHdpbmJpbmRfdG1wX3Q7CiAJ
-CScpCiAKIAkJIyB0aGUgZGVmYXVsdCBmb3IgdGhlIHNvY2tldCBpcyAocG9vcmx5IG5hbWVk
-KToKSW5kZXg6IG1vZHVsZXMvc2VydmljZXMvc2FtYmEudGUKPT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0g
-bW9kdWxlcy9zZXJ2aWNlcy9zYW1iYS50ZQkocmV2aXNpb24gMjc2NykKKysrIG1vZHVsZXMv
-c2VydmljZXMvc2FtYmEudGUJKHdvcmtpbmcgY29weSkKQEAgLTU5LDYgKzU5LDEzIEBACiAj
-IyA8L2Rlc2M+CiBnZW5fdHVuYWJsZShzYW1iYV9zaGFyZV9uZnMsIGZhbHNlKQogCisjIyA8
-ZGVzYz4KKyMjIDxwPgorIyMgQWxsb3cgc2FtYmEgdG8gY3JlYXRlIG5ldyBob21lIGRpcmVj
-dG9yaWVzIChlLmcuIHZpYSBQQU0pIAorIyMgPC9wPgorIyMgPC9kZXNjPgorZ2VuX3R1bmFi
-bGUoc2FtYmFfY3JlYXRlX2hvbWVfZGlycywgZmFsc2UpCisKIHR5cGUgbm1iZF90OwogdHlw
-ZSBubWJkX2V4ZWNfdDsKIGluaXRfZGFlbW9uX2RvbWFpbihubWJkX3QsIG5tYmRfZXhlY190
-KQpAQCAtMzc5LDYgKzM4NiwxNCBAQAogCXVucHJpdnVzZXJfaG9tZV9kaXJfZmlsZXRyYW5z
-X2hvbWVfY29udGVudChubWJkX3QsIHsgZmlsZSBkaXIgfSkKICcpCiAKK3R1bmFibGVfcG9s
-aWN5KGBzYW1iYV9jcmVhdGVfaG9tZV9kaXJzJyxgCisJdW5wcml2dXNlcl9ob21lX2ZpbGV0
-cmFuc19ob21lX2RpcihzbWJkX3QpCisJdW5wcml2dXNlcl9jcmVhdGVfaG9tZV9kaXIoc21i
-ZF90KQorCWFsbG93IHNtYmRfdCBzZWxmOmNhcGFiaWxpdHkgY2hvd247CisnKQogIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwogIwogIyBubWJkIExvY2FsIHBv
-bGljeQpAQCAtNDA0LDggKzQxOSw3IEBACiByZWFkX2ZpbGVzX3BhdHRlcm4obm1iZF90LCBz
-YW1iYV9ldGNfdCwgc2FtYmFfZXRjX3QpCiAKIG1hbmFnZV9kaXJzX3BhdHRlcm4obm1iZF90
-LCBzYW1iYV9sb2dfdCwgc2FtYmFfbG9nX3QpCi1hcHBlbmRfZmlsZXNfcGF0dGVybihubWJk
-X3QsIHNhbWJhX2xvZ190LCBzYW1iYV9sb2dfdCkKLWFsbG93IG5tYmRfdCBzYW1iYV9sb2df
-dDpmaWxlIHVubGluazsKK21hbmFnZV9maWxlc19wYXR0ZXJuKG5tYmRfdCwgc2FtYmFfbG9n
-X3QsIHNhbWJhX2xvZ190KQogCiByZWFkX2ZpbGVzX3BhdHRlcm4obm1iZF90LCBzYW1iYV9s
-b2dfdCwgc2FtYmFfbG9nX3QpCiBjcmVhdGVfZmlsZXNfcGF0dGVybihubWJkX3QsIHNhbWJh
-X2xvZ190LCBzYW1iYV9sb2dfdCkKQEAgLTY3NSw2ICs2ODksNyBAQAogCiBtYW5hZ2VfZGly
-c19wYXR0ZXJuKHdpbmJpbmRfdCwgd2luYmluZF90bXBfdCwgd2luYmluZF90bXBfdCkKIG1h
-bmFnZV9maWxlc19wYXR0ZXJuKHdpbmJpbmRfdCwgd2luYmluZF90bXBfdCwgd2luYmluZF90
-bXBfdCkKK21hbmFnZV9zb2NrX2ZpbGVzX3BhdHRlcm4od2luYmluZF90LCB3aW5iaW5kX3Rt
-cF90LCB3aW5iaW5kX3RtcF90KQogZmlsZXNfdG1wX2ZpbGV0cmFucyh3aW5iaW5kX3QsIHdp
-bmJpbmRfdG1wX3QsIHsgZmlsZSBkaXIgfSkKIAogbWFuYWdlX2ZpbGVzX3BhdHRlcm4od2lu
-YmluZF90LCB3aW5iaW5kX3Zhcl9ydW5fdCwgd2luYmluZF92YXJfcnVuX3QpCkluZGV4OiBt
-b2R1bGVzL3JvbGVzL3VucHJpdnVzZXIuaWYKPT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbW9kdWxlcy9y
-b2xlcy91bnByaXZ1c2VyLmlmCShyZXZpc2lvbiAyNzY3KQorKysgbW9kdWxlcy9yb2xlcy91
-bnByaXZ1c2VyLmlmCSh3b3JraW5nIGNvcHkpCkBAIC0xNDYsNiArMTQ2LDIyIEBACiAKICMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKICMjIDxzdW1tYXJ5Pgor
-IyMgQ3JlYXRlIGdlbmVyaWMgdXNlciBob21lIGRpcmVjdG9yaWVzLgorIyMgPC9zdW1tYXJ5
-PgorIyMgPHBhcmFtIG5hbWU9ImRvbWFpbiI+CisjIyAgPHN1bW1hcnk+CisjIyAgRG9tYWlu
-IGFsbG93ZWQgYWNjZXNzLgorIyMgIDwvc3VtbWFyeT4KKyMjIDwvcGFyYW0+CisjCitpbnRl
-cmZhY2UoYHVucHJpdnVzZXJfY3JlYXRlX2hvbWVfZGlyJyxgCisJZ2VuX3JlcXVpcmUoYAor
-CQl0eXBlIHVzZXJfaG9tZV9kaXJfdDsKKwknKQorCisJZmlsZXNfc2VhcmNoX2hvbWUoJDEp
-CisJYWxsb3cgJDEgdXNlcl9ob21lX2Rpcl90OmRpciBjcmVhdGVfZGlyX3Blcm1zCisnKQor
-CisKKyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKKyMjIDxzdW1t
-YXJ5PgogIyMJQ3JlYXRlLCByZWFkLCB3cml0ZSwgYW5kIGRlbGV0ZQogIyMJc3ViZGlyZWN0
-b3JpZXMgb2YgZ2VuZXJpYyB1c2VyCiAjIwlob21lIGRpcmVjdG9yaWVzLg==
---------------090307020702030703010702--
+http://etbe.coker.com.au/2008/08/01/selinux-activate/
+
+I've attached the script described in the above post for anyone who is 
+interested.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+
+--Boundary-00=_mOmkIOlYNOexVkJ
+Content-Type: application/x-gzip;
+  name="selinux-activate.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="selinux-activate.gz"
+
+H4sICGNjkkgCA3NlbGludXgtYWN0aXZhdGUAxVTLbtswELzrKyaKD2kAi3WvqQ2krRMEyAsueiiq
+NqCsjU1EIh2RtOO/z+oJ2WlQ3ypAEPiamZ0d6vhIJEoLu8SQguBy9uPLw9e724uxSIxxYlH4ROSk
+fZRZF9yf3zxc311e3Y4FublYyTxKRWYWSgeBesQvhINRiKMxwlRZmWQU4vcZ3JJ0ANB8aRCez51a
+S6f0At+nuFbav4S8yKePsChoheEzLGXlPAadGnQo4NWUpSK0Ij75c4wns3Lj6HQQfxDxqD06HokQ
+n/sAk94g0rSpoPL13mxvWG3wq1Q6GpYu8PhRBX16Jo9PotOGspVQE3dOlcTdoCEuaXfmesOSxhTQ
+UBqLNMcTv2dITSXn4up62rd+UDtSWc+aBuV6z/HqqW23ZK0yGgU9e1VwCQzw0Cq3JsRkUh+vjlWF
+pkYTf5zx8yVEJL0zBWUyoaxrZttBKAtZN5bSCPhpPHK5hSZmcoZZyzBBm00UBpRZ6hC+kfx7II6x
+IUhrfU5cjnSY3k9nN+ASRCNbkGan5oScpLbVpuqczDJYn1iulLSDWVHB8Ia3LKiBqQPXxm30FvLT
+BCKltdCewXp+1qLL8uzS+CxFQmWjmCJXbPCaxZiUypKbC9DVFIU9gJnXiLknruX7GIdsemFdqWvL
+8AVxGVtsJFdQohnWoGwL8qIcRnUgdxLZi/8B+f9H+nfu2V7MOfn/Kehv/hFV5t/rF5r96739Tdi7
+H0EttZ165yYUOYaPB9yElA6+Cwz/CgGcEj6ABQAA
+
+--Boundary-00=_mOmkIOlYNOexVkJ--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
