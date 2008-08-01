@@ -1,141 +1,520 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m71BJYNo008534
-	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2008 07:19:34 -0400
-Received: from ik-out-1112.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m71BJU5l005716
-	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2008 11:19:31 GMT
-Received: by ik-out-1112.google.com with SMTP id c21so962047ika.2
-        for <selinux@tycho.nsa.gov>; Fri, 01 Aug 2008 04:19:32 -0700 (PDT)
-Subject: [refpolicy patch] Add Git daemon domain.
-From: Dominick Grift <domg472@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CDrpX1HqGL8WEk3HpY1d"
-Date: Fri, 01 Aug 2008 13:19:28 +0200
-Message-Id: <1217589568.5371.6.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m71Bi9t7012759
+	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2008 07:44:10 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m71Bi75l012984
+	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2008 11:44:07 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m71Bi4SO012491
+	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2008 07:44:04 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m71Bi4xe021754
+	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2008 07:44:04 -0400
+Received: from localhost.localdomain (vpn-12-61.rdu.redhat.com [10.11.12.61])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m71Bi32w008589
+	for <selinux@tycho.nsa.gov>; Fri, 1 Aug 2008 07:44:03 -0400
+Message-ID: <4892F6E0.10008@redhat.com>
+Date: Fri, 01 Aug 2008 07:43:28 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: policycoreutils patch
+Content-Type: multipart/mixed;
+ boundary="------------050502000507040207020006"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------050502000507040207020006
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
---=-CDrpX1HqGL8WEk3HpY1d
-Content-Type: multipart/mixed; boundary="=-27N7GTOtP3nuLm2KJEb2"
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Adds support for boolean files, name/value pairs as input and output.
+Allows you to set a large amount of booleans at once.
 
---=-27N7GTOtP3nuLm2KJEb2
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Add support from groupname in semanage login.  This will allow you to
+associate groups of Linux Users with an SELinux user.  Uses same syntax
+as sudo.  Requires patch to libselinux.
 
-Seems my previous patch somehow did not make it. So here is another try.
-This time it is a tar.gz in case 20 K exceeds the limit...
+Cleanup of semanage variables.  Change use of 1/0 to True/False.
 
-Please have a look at the Git daemon policy.
-
---=20
-Dominick Grift <domg472@gmail.com>
-
---=-27N7GTOtP3nuLm2KJEb2
-Content-Disposition: attachment; filename=0001-Add-git-daemon-domain.patch.tar.gz
-Content-Type: application/x-compressed-tar;
-	name=0001-Add-git-daemon-domain.patch.tar.gz
-Content-Transfer-Encoding: base64
-
-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
-B5vB9cIAeAAA
-
-
---=-27N7GTOtP3nuLm2KJEb2--
-
---=-CDrpX1HqGL8WEk3HpY1d
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
+Remove bad use of raise(out)
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEABECAAYFAkiS8T0ACgkQL00QnzrVtlx2IQCggdeP+JglYpPviQs1hCJfOCUp
-eLkAn1mtK8/aWBn+VBJuj4C1POQiY7oR
-=k0/I
+iEYEARECAAYFAkiS9t8ACgkQrlYvE4MpobN0/gCgsoXMR/oDibFEw3SNFxwQlhrY
+gZIAn1wMYnPg+o2ixNVQsWYBOw1NN4Pd
+=69RK
 -----END PGP SIGNATURE-----
 
---=-CDrpX1HqGL8WEk3HpY1d--
+--------------050502000507040207020006
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
+diff --exclude-from=exclude --exclude=sepolgen-1.0.13 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/Makefile policycoreutils-2.0.53/Makefile
+--- nsapolicycoreutils/Makefile	2008-06-12 23:25:24.000000000 -0400
++++ policycoreutils-2.0.53/Makefile	2008-07-29 16:25:16.000000000 -0400
+@@ -1,4 +1,4 @@
+-SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po
++SUBDIRS = setfiles semanage load_policy newrole run_init secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps setsebool po gui
+ 
+ INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
+ 
+diff --exclude-from=exclude --exclude=sepolgen-1.0.13 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/restorecond/restorecond.c policycoreutils-2.0.53/restorecond/restorecond.c
+--- nsapolicycoreutils/restorecond/restorecond.c	2008-06-12 23:25:21.000000000 -0400
++++ policycoreutils-2.0.53/restorecond/restorecond.c	2008-07-29 16:25:16.000000000 -0400
+@@ -210,9 +210,10 @@
+ 			}
+ 
+ 			if (fsetfilecon(fd, scontext) < 0) {
+-				syslog(LOG_ERR,
+-				       "set context %s->%s failed:'%s'\n",
+-				       filename, scontext, strerror(errno));
++				if (errno != EOPNOTSUPP) 
++					syslog(LOG_ERR,
++					       "set context %s->%s failed:'%s'\n",
++					       filename, scontext, strerror(errno));
+ 				if (retcontext >= 0)
+ 					free(prev_context);
+ 				free(scontext);
+@@ -225,8 +226,9 @@
+ 		if (retcontext >= 0)
+ 			free(prev_context);
+ 	} else {
+-		syslog(LOG_ERR, "get context on %s failed: '%s'\n",
+-		       filename, strerror(errno));
++		if (errno != EOPNOTSUPP) 
++			syslog(LOG_ERR, "get context on %s failed: '%s'\n",
++			       filename, strerror(errno));
+ 	}
+ 	free(scontext);
+ 	close(fd);
+diff --exclude-from=exclude --exclude=sepolgen-1.0.13 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/semanage policycoreutils-2.0.53/semanage/semanage
+--- nsapolicycoreutils/semanage/semanage	2008-07-02 17:19:15.000000000 -0400
++++ policycoreutils-2.0.53/semanage/semanage	2008-08-01 07:30:43.000000000 -0400
+@@ -45,13 +45,13 @@
+ 	def usage(message = ""):
+ 		print _("""
+ semanage {boolean|login|user|port|interface|fcontext|translation} -{l|D} [-n] 
+-semanage login -{a|d|m} [-sr] login_name
++semanage login -{a|d|m} [-sr] login_name | %groupname
+ semanage user -{a|d|m} [-LrRP] selinux_name
+ semanage port -{a|d|m} [-tr] [ -p proto ] port | port_range
+ semanage interface -{a|d|m} [-tr] interface_spec
+ semanage fcontext -{a|d|m} [-frst] file_spec
+ semanage translation -{a|d|m} [-T] level
+-semanage boolean -{d|m} boolean
++semanage boolean -{d|m} [--on|--off|-1|-0] -F boolean | boolean_file
+ semanage permissive -{d|a} type
+ 
+ Primary Options:
+@@ -79,6 +79,7 @@
+ 		-l (symbolic link) 
+ 		-p (named pipe) 
+ 
++        -F, --file       Treat target as an input file for command, change multiple settings
+ 	-p, --proto      Port protocol (tcp or udp)
+ 	-P, --prefix     Prefix for home directory labeling
+ 	-L, --level      Default SELinux Level (MLS/MCS Systems only)
+@@ -114,7 +115,7 @@
+ 		valid_option["translation"] = []
+ 		valid_option["translation"] += valid_everyone + [ '-T', '--trans' ] 
+ 		valid_option["boolean"] = []
+-		valid_option["boolean"] += valid_everyone + [ '--on', "--off", "-1", "-0" ] 
++		valid_option["boolean"] += valid_everyone + [ '--on', "--off", "-1", "-0", "-F", "--file"] 
+ 		valid_option["permissive"] = []
+ 		valid_option["permissive"] += [ '-a', '--add', '-d', '--delete', '-l', '--list', '-h', '--help', '-n', '--noheading', '-D', '--deleteall' ]
+ 		return valid_option
+@@ -134,15 +135,16 @@
+ 		setrans = ""
+ 		roles = ""
+ 		seuser = ""
+-		prefix = ""
+-		heading=1
+-                value=0
+-		add = 0
+-		modify = 0
+-		delete = 0
+-		deleteall = 0
+-		list = 0
+-		locallist = 0
++		prefix = "user"
++		heading = True
++		value = None
++		add = False
++		modify = False
++		delete = False
++		deleteall = False
++		list = False
++		locallist = False
++		use_file = False
+                 store = ""
+ 		if len(sys.argv) < 3:
+ 			usage(_("Requires 2 or more arguments"))
+@@ -155,11 +157,12 @@
+ 		args = sys.argv[2:]
+ 
+ 		gopts, cmds = getopt.getopt(args,
+-					    '01adf:lhmnp:s:CDR:L:r:t:T:P:S:',
++					    '01adf:lhmnp:s:FCDR:L:r:t:T:P:S:',
+ 					    ['add',
+ 					     'delete',
+ 					     'deleteall',
+ 					     'ftype=',
++					     'file',
+ 					     'help',
+ 					     'list', 
+ 					     'modify',
+@@ -185,31 +188,35 @@
+ 			if o == "-a" or o == "--add":
+ 				if modify or delete:
+ 					usage()
+-				add = 1
++				add = True
+ 				
+ 			if o == "-d"  or o == "--delete":
+ 				if modify or add:
+ 					usage()
+-				delete = 1
++				delete = True
+ 			if o == "-D"  or o == "--deleteall":
+ 				if modify:
+                                        usage()
+-				deleteall = 1
++				deleteall = True
+ 			if o == "-f"  or o == "--ftype":
+ 				ftype=a
++
++			if o == "-F"  or o == "--file":
++				use_file = True
++
+ 			if o == "-h" or o == "--help":
+ 				usage()
+ 
+ 			if o == "-n" or o == "--noheading":
+-				heading=0
++				heading = False
+ 
+ 			if o == "-C" or o == "--locallist":
+-				locallist=1
++				locallist = True
+ 
+ 			if o == "-m"or o == "--modify":
+ 				if delete or add:
+ 					usage()
+-				modify = 1
++				modify = True
+ 				
+ 			if o == "-S" or o == '--store':
+ 				store = a
+@@ -220,7 +227,7 @@
+ 				serange = a
+ 
+ 			if o == "-l" or o == "--list":
+-				list = 1
++				list = True
+ 
+ 			if o == "-L" or o == '--level':
+ 				if is_mls_enabled == 0:
+@@ -246,9 +253,9 @@
+ 				setrans = a
+ 
+                         if o == "--on" or o == "-1":
+-                               value = 1
+-                        if o == "-off" or o == "-0":
+-                               value = 0
++                               value = "on"
++                        if o == "--off" or o == "-0":
++                               value = "off"
+ 
+ 		if object == "login":
+ 			OBJECT = seobject.loginRecords(store)
+@@ -275,7 +282,10 @@
+ 			OBJECT = seobject.permissiveRecords(store)
+ 		
+ 		if list:
+-			OBJECT.list(heading, locallist)
++			if object == "boolean":
++                               OBJECT.list(heading, locallist, use_file)
++			else:
++                               OBJECT.list(heading, locallist)
+ 			sys.exit(0);
+ 			
+ 		if deleteall:
+@@ -295,12 +305,10 @@
+ 				OBJECT.add(target, setrans)
+ 
+ 			if object == "user":
+-				rlist = roles.split()
+-				if len(rlist) == 0:
+-					raise ValueError(_("You must specify a role"))
+-				if prefix == "":
+-					raise ValueError(_("You must specify a prefix"))
+-				OBJECT.add(target, rlist, selevel, serange, prefix)
++                               rlist = []
++                               if not use_file:
++                                      rlist = roles.split()
++                               OBJECT.add(target, rlist, selevel, serange, prefix)
+ 
+ 			if object == "port":
+ 				OBJECT.add(target, proto, serange, setype)
+@@ -317,7 +325,7 @@
+ 			
+ 		if modify:
+ 			if object == "boolean":
+-				OBJECT.modify(target, value)
++                               OBJECT.modify(target, value, use_file)
+ 
+ 			if object == "login":
+ 				OBJECT.modify(target, seuser, serange)
+diff --exclude-from=exclude --exclude=sepolgen-1.0.13 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/semanage.8 policycoreutils-2.0.53/semanage/semanage.8
+--- nsapolicycoreutils/semanage/semanage.8	2008-07-02 17:19:15.000000000 -0400
++++ policycoreutils-2.0.53/semanage/semanage.8	2008-08-01 07:05:54.000000000 -0400
+@@ -3,11 +3,11 @@
+ semanage \- SELinux Policy Management tool
+ 
+ .SH "SYNOPSIS"
+-.B semanage {boolean|login|user|port|interface|fcontext|translation} \-{l|lC|D} [\-n] 
++.B semanage {boolean|login|user|port|interface|fcontext|translation} \-{l|D} [\-n] [\-S store] 
+ .br
+-.B semanage boolean \-{d|m} [\-\-on|\-\-off|\-1|\-0] boolean
++.B semanage boolean \-{d|m} [\-\-on|\-\-off|\-1|\-0] -F boolean | boolean_file
+ .br
+-.B semanage login \-{a|d|m} [\-sr] login_name
++.B semanage login \-{a|d|m} [\-sr] login_name | %groupname
+ .br
+ .B semanage user \-{a|d|m} [\-LrRP] selinux_name
+ .br
+@@ -54,6 +54,11 @@
+ File Type.   This is used with fcontext.
+ Requires a file type as shown in the mode field by ls, e.g. use -d to match only directories or -- to match only regular files.
+ .TP
++.I                \-F, \-\-file
++Set multiple records from the input file.  When used with the \-l \-\-list, it will output the current settings to stdout in the proper format.
++
++Currently booleans only.
++.TP
+ .I                \-h, \-\-help       
+ display this message
+ .TP
+@@ -87,6 +92,9 @@
+ .I                \-s, \-\-seuser     
+ SELinux user name
+ .TP
++.I                \-S, \-\-store
++Select and alternate SELinux store to manage
++.TP
+ .I                \-t, \-\-type       
+ SELinux Type for the object
+ .TP
+@@ -99,6 +107,8 @@
+ $ semanage user -l
+ # Allow joe to login as staff_u
+ $ semanage login -a -s staff_u joe
++# Allow the group clerks to login as user_u
++$ semanage login -a -s user_u %clerks
+ # Add file-context for everything under /web (used by restorecon)
+ $ semanage fcontext -a -t httpd_sys_content_t "/web(/.*)?"
+ # Allow Apache to listen on port 81
+diff --exclude-from=exclude --exclude=sepolgen-1.0.13 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-2.0.53/semanage/seobject.py
+--- nsapolicycoreutils/semanage/seobject.py	2008-07-29 09:15:39.000000000 -0400
++++ policycoreutils-2.0.53/semanage/seobject.py	2008-08-01 07:24:34.000000000 -0400
+@@ -21,7 +21,7 @@
+ #
+ #  
+ 
+-import pwd, string, selinux, tempfile, os, re, sys
++import pwd, grp, string, selinux, tempfile, os, re, sys
+ from semanage import *;
+ PROGNAME="policycoreutils"
+ import sepolgen.module as module
+@@ -330,20 +330,15 @@
+                       for name in dirs:
+                              os.rmdir(os.path.join(root, name))
+ 
+-               if rc != 0:
+-                      raise ValueError(out)			
+-
+-
+ 	def delete(self, name):
+ 		for n in name.split():
+ 			rc = semanage_module_remove(self.sh, "permissive_%s" % n)
+ 			if rc < 0:
+ 	                        raise ValueError(_("Could not remove permissive domain %s (remove failed)") % name)
+-		rc = semanage_commit(self.sh)
+-		if rc < 0:
+-                       raise ValueError(_("Could not remove permissive domain %s (commit failed)") % name)
++			rc = semanage_commit(self.sh)
++			if rc < 0:
++                               raise ValueError(_("Could not remove permissive domain %s (commit failed)") % name)
+ 			
+-
+ 	def deleteall(self):
+                l = self.get_all()
+                if len(l) > 0:
+@@ -402,10 +397,16 @@
+ 				raise ValueError(_("Could not check if login mapping for %s is defined") % name)
+ 			if exists:
+ 				raise ValueError(_("Login mapping for %s is already defined") % name)
+-			try:
+-				pwd.getpwnam(name)
+-			except:
+-				raise ValueError(_("Linux User %s does not exist") % name)
++                        if name[0] == '%':
++                                try:
++                                       grp.getgrnam(name[1:])
++                                except:
++                                       raise ValueError(_("Linux Group %s does not exist") % name[1:])
++                        else:
++                                try:
++                                       pwd.getpwnam(name)
++                                except:
++                                       raise ValueError(_("Linux User %s does not exist") % name)
+ 
+ 			(rc,u) = semanage_seuser_create(self.sh)
+ 			if rc < 0:
+@@ -1447,54 +1448,72 @@
+ class booleanRecords(semanageRecords):
+ 	def __init__(self, store = ""):
+ 		semanageRecords.__init__(self, store)
++                self.dict={}
++                self.dict["TRUE"] = 1
++                self.dict["FALSE"] = 0
++                self.dict["ON"] = 1
++                self.dict["OFF"] = 0
++                self.dict["1"] = 1
++                self.dict["0"] = 0
+ 
+-	def modify(self, name, value = ""):
+-		if value == "":
+-			raise ValueError(_("Requires value"))
+-
+-		(rc,k) = semanage_bool_key_create(self.sh, name)
+-		if rc < 0:
+-			raise ValueError(_("Could not create a key for %s") % name)
+-
+-		(rc,exists) = semanage_bool_exists(self.sh, k)
+-		if rc < 0:
+-			raise ValueError(_("Could not check if boolean %s is defined") % name)
+-		if not exists:
+-			raise ValueError(_("Boolean %s is not defined") % name)	
+-
+-		(rc,b) = semanage_bool_query(self.sh, k)
+-		if rc < 0:
+-			raise ValueError(_("Could not query file context %s") % name)
++	def __mod(self, name, value):
++                (rc,k) = semanage_bool_key_create(self.sh, name)
++                if rc < 0:
++                       raise ValueError(_("Could not create a key for %s") % name)
++                (rc,exists) = semanage_bool_exists(self.sh, k)
++                if rc < 0:
++                       raise ValueError(_("Could not check if boolean %s is defined") % name)
++                if not exists:
++                       raise ValueError(_("Boolean %s is not defined") % name)	
++                
++                (rc,b) = semanage_bool_query(self.sh, k)
++                if rc < 0:
++                       raise ValueError(_("Could not query file context %s") % name)
+ 
+-		if value != "":
+-			nvalue = int(value)
+-			semanage_bool_set_value(b, nvalue)
++                if value.upper() in self.dict:
++                       semanage_bool_set_value(b, self.dict[value.upper()])
+                 else:
+-                       raise ValueError(_("You must specify a value"))
++                       raise ValueError(_("You must specify one of the following values: %s") % ", ".join(self.dict.keys()) )
++                
++                rc = semanage_bool_set_active(self.sh, k, b)
++                if rc < 0:
++                       raise ValueError(_("Could not set active value of boolean %s") % name)
++                rc = semanage_bool_modify_local(self.sh, k, b)
++                if rc < 0:
++                       raise ValueError(_("Could not modify boolean %s") % name)
++		semanage_bool_key_free(k)
++		semanage_bool_free(b)
+ 
++	def modify(self, name, value=None, use_file=False):
++                
+ 		rc = semanage_begin_transaction(self.sh)
+ 		if rc < 0:
+ 			raise ValueError(_("Could not start semanage transaction"))
+-
+-		rc = semanage_bool_set_active(self.sh, k, b)
+-		if rc < 0:
+-			raise ValueError(_("Could not set active value of boolean %s") % name)
+-		rc = semanage_bool_modify_local(self.sh, k, b)
+-		if rc < 0:
+-			raise ValueError(_("Could not modify boolean %s") % name)
++                if use_file:
++                       fd = open(name)
++                       for b in fd.read().split("\n"):
++                              b = b.strip()
++                              if len(b) == 0:
++                                     continue
++
++                              try:
++                                     boolname, val = b.split("=")
++                              except ValueError, e:
++                                     raise ValueError(_("Bad format %s: Record %s" % ( name, b) ))
++                              self.__mod(boolname.strip(), val.strip())
++                       fd.close()
++                else:
++                       self.__mod(name, value)
+ 
+ 		rc = semanage_commit(self.sh)
+ 		if rc < 0:
+ 			raise ValueError(_("Could not modify boolean %s") % name)
+ 		
+-		semanage_bool_key_free(k)
+-		semanage_bool_free(b)
+-
+ 	def delete(self, name):
+-		(rc,k) = semanage_bool_key_create(self.sh, name)
+-		if rc < 0:
+-			raise ValueError(_("Could not create a key for %s") % name)
+ 
++                (rc,k) = semanage_bool_key_create(self.sh, name)
++                if rc < 0:
++                      raise ValueError(_("Could not create a key for %s") % name)
+ 		(rc,exists) = semanage_bool_exists(self.sh, k)
+ 		if rc < 0:
+ 			raise ValueError(_("Could not check if boolean %s is defined") % name)
+@@ -1571,8 +1590,15 @@
+                else:
+                       return _("unknown")
+ 
+-	def list(self, heading = 1, locallist = 0):
++	def list(self, heading = True, locallist = False, use_file = False):
+                 on_off = (_("off"),_("on")) 
++		if use_file:
++                       ddict = self.get_all(locallist)
++                       keys = ddict.keys()
++                       for k in keys:
++                              if ddict[k]:
++                                     print "%s=%s" %  (k, ddict[k][2])
++                       return
+ 		if heading:
+ 			print "%-40s %s\n" % (_("SELinux boolean"), _("Description"))
+ 		ddict = self.get_all(locallist)
+
+--------------050502000507040207020006
+Content-Type: application/octet-stream;
+ name="diff.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="diff.sig"
+
+iEYEABECAAYFAkiS9uAACgkQrlYvE4MpobMVpwCbBVaPSCKKHQVUFSa4C/4SHtKuJrkAn37O
+IYRAbfo94snBFnYyawOQC5iM
+--------------050502000507040207020006--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
