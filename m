@@ -1,89 +1,116 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74DHO53020920
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 09:17:24 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m74DHO7E021636
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 13:17:24 GMT
-Subject: Re: Some questions regarding RedHat refpolicy patches
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-Cc: dwalsh@redhat.com, selinux@tycho.nsa.gov
-In-Reply-To: <20080803224448.GA22709@hardeman.nu>
-References: <20080803224448.GA22709@hardeman.nu>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 04 Aug 2008 09:16:59 -0400
-Message-Id: <1217855819.4114.79.camel@gorn>
-Mime-Version: 1.0
+Message-ID: <48971AFA.3070708@city-fan.org>
+Date: Mon, 04 Aug 2008 16:06:34 +0100
+From: Paul Howarth <paul@city-fan.org>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: Patch to make libselinux shut up when SELinux is disabled.
+References: <4880CFD1.1040102@redhat.com>	 <1216402063.17602.322.camel@moss-spartans.epoch.ncsc.mil>	 <4880D585.9000405@redhat.com> <1216403646.17602.339.camel@moss-spartans.epoch.ncsc.mil> <4880E5E1.8050303@redhat.com>
+In-Reply-To: <4880E5E1.8050303@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-08-04 at 00:44 +0200, David Härdeman wrote:
-> Going through the RedHat patches trying to find more stuff to send 
-> upstream for merge, I've come across a few things that I don't quite 
-> understand and I'd appreciate if someone could explain them to me :)
+Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+>> On Fri, 2008-07-18 at 13:40 -0400, Daniel J Walsh wrote:
+>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>> Hash: SHA1
+>>>
+>>> Stephen Smalley wrote:
+>>>> On Fri, 2008-07-18 at 13:16 -0400, Daniel J Walsh wrote:
+>>>> SELinux complains about things like restorecon or rpm when conflicts
+>>>> exist in file_context file even when SELinux is disabled.
+>>>>
+>>>> It should just shut up....
+>>>>
+>>>>> I think that's the wrong place to do it:
+>>>>> - the fact that the application called libselinux at all except to test
+>>>>> is_selinux_enabled() when SELinux is disabled is either a bug in the
+>>>>> application or an indication that the application wants SELinux behavior
+>>>>> regardless,
+>>>>> - silencing all log messages coming from libselinux is too broad.
+>>>>> And of course, file_contexts conflicts should be caught during policy
+>>>>> build time aside from local customizations; if not, then we need to
+>>>>> change the policy build process to do that even for modular policy
+>>>>> builds.
+>>> Well it could be argued that libraries should never write to the terminal...
+>> selinux_set_callback() lets the application control that behavior.
+>>
+>>> Try explaining this to the users we are telling selinux disabled does
+>>> not effect their machines.  They just come away with the opinion that
+>>> SELinux Sucks and is broken.  Besides we are even complaining when they
+>>> are warnings and SELinux is disabled.
+>> Which reflects a bug in the application - why is it calling matchpathcon
+>> if is_selinux_enabled() <= 0?
+>>
+>> As far as the warning goes, the log callback does get a type parameter
+>> so it can distinguish warnings vs. errors.  But we don't want to hide
+>> these kinds of duplications or conflicts - we just want them to be
+>> caught earlier.
+>>
+>>> The problem seems to be a broken genhomedircon, but we don't currently
+>>> prevent users (rpm post install scripts)  from adding conflicting file
+>>> context in file context.local
+>>> plain text document attachment (diff)
+>>>
+>>> The tools just complain about it after the fact.
+>>>
+>>> # semanage fcontext -a -t httpd_sys_content_t /tmp
+>> Ah, that's interesting.  So the setfiles -c execution by libsemanage
+>> only validates the base file contexts.  I'm trying to remember why we
+>> did that.  Seems like that could be changed easily enough.
+>>
+>>> # matchpathcon /etc
+>>> # matchpathcon /etc/
+>>> /etc/selinux/targeted/contexts/files/file_contexts: Multiple different
+>>> specifications for /tmp  (system_u:object_r:httpd_sys_content_t:s0 and
+>>> system_u:object_r:tmp_t:s0).
+>>> /etc/	system_u:object_r:etc_t:s0
+>>>
+>>> Nice.
+>> That's a real bug in the file_contexts file that shouldn't be hidden
+>> from the user.
+>>
+>> I do agree that a) the application shouldn't be calling matchpathcon if
+>> is_selinux_enabled() <= 0, and b) we ought to catch these kinds of
+>> errors at policy build time for the base policy, and c) we ought to
+>> catch these kinds of errors at semodule/semanage invocation time for
+>> local customizations.  That is what we should be fixing.  Not silencing
+>> the messenger.
+>>
+> setfiles works while selinux is disabled.  It could be the kerberos
+> libraries, or udev.  I still think warnings on a disabled system should
+> be quietly ignored or thrown in syslog at most.  Having the machine
+> scream at boot, is a mistake.
 > 
-> a)
+> kerberos libraries can not call selinux_set_callback() since they do not
+> know if the process has set it already.
 > 
-> There are quite a lot of changes like this:
-> 
-> --- ./upstream/refpolicy/policy/modules/apps/uml.fc     2008-08-03 12:31:17.000000000 +0200
-> +++ ./fedora/refpolicy/policy/modules/apps/uml.fc       2008-08-03 12:29:42.000000000 +0200
-> @@ -1,7 +1,7 @@
->   #
->   # HOME_DIR/
->   #
-> -HOME_DIR/\.uml(/.*)?           gen_context(system_u:object_r:ROLE_uml_rw_t,s0)
-> +HOME_DIR/\.uml(/.*)?           gen_context(system_u:object_r:user_uml_rw_t,s0)
-> 
-> What is the purpose of these changes and is it something that makes 
-> sense upstream? The upstream SVN version seems to contain quite a lot of 
-> "ROLE" contexts already
+> Yes I agree semanage should stop this from happening at compile time.
 
-No, it removes role separations on these uml files.  It is a
-Fedora-specific change that isn't upstreamable.
+This may present a problem for policy developers. For instance, I am 
+writing new policy for spamass-milter, which currently shares spamd_t 
+with spamassassin. I need spamass-milter to transition into a different 
+domain, so I need to specify a new context for /usr/bin/spamass-milter 
+in my policy module. This conflicts with the existing context for the 
+same file (spamd_exec_t) in the main selinux-policy-targeted package and 
+I get warnings like this on most rpm/selinux operations:
 
-> ...then again, other parts of the patch do the 
-> reverse:
-> 
-> --- ./upstream/refpolicy/policy/modules/apps/mplayer.fc 2008-08-03 12:31:17.000000000 +0200
-> +++ ./fedora/refpolicy/policy/modules/apps/mplayer.fc   2008-08-03 12:29:42.000000000 +0200
-> @@ -10,4 +10,4 @@
->   /usr/bin/mencoder      --      gen_context(system_u:object_r:mencoder_exec_t,s0)
->   /usr/bin/xine          --      gen_context(system_u:object_r:mplayer_exec_t,s0)
->   
-> -HOME_DIR/\.mplayer(/.*)?        gen_context(system_u:object_r:ROLE_mplayer_home_t,s0)
-> +HOME_DIR/\.mplayer(/.*)?        gen_context(system_u:object_r:user_mplayer_home_t,s0)
+/etc/selinux/targeted/contexts/files/file_contexts: Multiple different 
+specifications for /usr/sbin/spamass-milter 
+(system_u:object_r:milter_spamass_exec_t:s0 and 
+system_u:object_r:spamd_exec_t:s0).
 
-This isn't the reverse of the previous example, its also removing the
-separation.
+For whatever reason, the context from my local module "wins" and I get 
+the desired result. However, if semanage didn't allow this, I believe 
+I'd need to fork the selinux-policy package for the duration of my 
+development to prevent the unwanted context specification from being 
+used. Or is there some other way around this?
 
-> b)
-> 
-> There are also quite a lot of changes like this:
-> 
-> --- ./upstream/refpolicy/policy/modules/apps/awstats.if 2008-08-03 12:31:17.000000000 +0200
-> +++ ./fedora/refpolicy/policy/modules/apps/awstats.if   2008-05-15 15:10:34.000000000 +0200
-> @@ -33,7 +33,8 @@
->   #
->   interface(`awstats_cgi_exec',`
->          gen_require(`
-> -               type httpd_awstats_script_exec_t, httpd_awstats_content_t;
-> +               type httpd_awstats_script_exec_t;
-> +               type httpd_awstats_content_t;
-> 
-> Are these only noise (and in that case, would you (Dan) like a patch to 
-> remove that noise) or something which is actually wanted upstream?
-
-The types being required should match the types being used in the body
-of the interface.  If the change doesn't make them match up, then its
-wrong.
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
-
+Paul.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
