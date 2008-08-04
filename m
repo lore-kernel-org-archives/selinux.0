@@ -1,75 +1,48 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CkJ60014099
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:46:19 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CkKoI014108
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:46:20 -0400
 Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74CkI7E012646
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74CkJ7E012647
 	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:46:19 GMT
 Received: from basil.haag.hardeman.nu (nsabfw1.nsab.se [217.28.34.132])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(Client CN "basil.haag.hardeman.nu", Issuer "hardeman.nu CA" (verified OK))
-	by palpatine.hardeman.nu (Postfix) with ESMTP id 02D2D5E2
+	by palpatine.hardeman.nu (Postfix) with ESMTP id 290E341C
 	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:46:17 +0200 (CEST)
-Message-Id: <20080804123737.588838945@hardeman.nu>
+Message-Id: <20080804123736.576821217@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-Date: Mon, 04 Aug 2008 14:35:14 +0200
+Date: Mon, 04 Aug 2008 14:35:08 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
-Subject: [patch 18/35] fsadm policy update
+Subject: [patch 12/35] getty policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Mostly to allow xen/cifs/nfs file management
-Index: refpolicy/policy/modules/system/fstools.if
+Hopefully trivial changes
+Index: refpolicy/policy/modules/system/getty.fc
 ===================================================================
---- refpolicy.orig/policy/modules/system/fstools.if	2008-07-19 19:15:43.000000000 +0200
-+++ refpolicy/policy/modules/system/fstools.if	2008-08-03 18:06:57.000000000 +0200
-@@ -142,3 +142,21 @@
+--- refpolicy.orig/policy/modules/system/getty.fc	2008-07-19 19:15:43.000000000 +0200
++++ refpolicy/policy/modules/system/getty.fc	2008-08-03 18:01:20.000000000 +0200
+@@ -8,5 +8,5 @@
  
- 	allow $1 swapfile_t:file getattr;
- ')
-+
-+########################################
-+## <summary>
-+##	Send signal to fsadm process
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`fstools_signal',`
-+	gen_require(`
-+		type fsadm_t;
-+	')
-+
-+	allow $1 fsadm_t:process signal;
-+')
-Index: refpolicy/policy/modules/system/fstools.te
+ /var/run/mgetty\.pid.*	--	gen_context(system_u:object_r:getty_var_run_t,s0)
+ 
+-/var/spool/fax		--	gen_context(system_u:object_r:getty_var_run_t,s0)
+-/var/spool/voice	--	gen_context(system_u:object_r:getty_var_run_t,s0)
++/var/spool/fax(/.*)?		gen_context(system_u:object_r:getty_var_run_t,s0)
++/var/spool/voice(/.*)?		gen_context(system_u:object_r:getty_var_run_t,s0)
+Index: refpolicy/policy/modules/system/getty.te
 ===================================================================
---- refpolicy.orig/policy/modules/system/fstools.te	2008-07-19 19:15:43.000000000 +0200
-+++ refpolicy/policy/modules/system/fstools.te	2008-08-03 18:06:57.000000000 +0200
-@@ -97,6 +97,10 @@
- fs_getattr_tmpfs_dirs(fsadm_t)
- fs_read_tmpfs_symlinks(fsadm_t)
+--- refpolicy.orig/policy/modules/system/getty.te	2008-07-19 19:15:43.000000000 +0200
++++ refpolicy/policy/modules/system/getty.te	2008-08-03 18:01:20.000000000 +0200
+@@ -9,6 +9,7 @@
+ type getty_t;
+ type getty_exec_t;
+ init_domain(getty_t,getty_exec_t)
++init_system_domain(getty_t,getty_exec_t)
+ domain_interactive_fd(getty_t)
  
-+fs_manage_nfs_files(fsadm_t)
-+
-+fs_manage_cifs_files(fsadm_t)
-+
- mls_file_read_all_levels(fsadm_t)
- mls_file_write_all_levels(fsadm_t)
- 
-@@ -184,4 +188,9 @@
- 
- optional_policy(`
- 	xen_append_log(fsadm_t)
-+	xen_rw_image_files(fsadm_t)
-+')
-+
-+optional_policy(`
-+	unconfined_domain(fsadm_t)
- ')
+ type getty_etc_t;
 
 -- 
 David Härdeman
