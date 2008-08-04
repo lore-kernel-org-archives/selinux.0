@@ -1,75 +1,75 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CkOtW014146
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:46:24 -0400
-Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74CkIpq016425
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CkJ60014099
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:46:19 -0400
+Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74CkI7E012646
 	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:46:19 GMT
 Received: from basil.haag.hardeman.nu (nsabfw1.nsab.se [217.28.34.132])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(Client CN "basil.haag.hardeman.nu", Issuer "hardeman.nu CA" (verified OK))
-	by palpatine.hardeman.nu (Postfix) with ESMTP id C3AFE5E2
-	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:46:22 +0200 (CEST)
-Message-Id: <20080804123737.744813517@hardeman.nu>
+	by palpatine.hardeman.nu (Postfix) with ESMTP id 02D2D5E2
+	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:46:17 +0200 (CEST)
+Message-Id: <20080804123737.588838945@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-Date: Mon, 04 Aug 2008 14:35:15 +0200
+Date: Mon, 04 Aug 2008 14:35:14 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
-Subject: [patch 19/35] kernel storage module policy updates
+Subject: [patch 18/35] fsadm policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A few new paths and a new interface which is used by later patches
-Index: refpolicy/policy/modules/kernel/storage.fc
+Mostly to allow xen/cifs/nfs file management
+Index: refpolicy/policy/modules/system/fstools.if
 ===================================================================
---- refpolicy.orig/policy/modules/kernel/storage.fc	2008-07-19 19:15:34.000000000 +0200
-+++ refpolicy/policy/modules/kernel/storage.fc	2008-08-03 18:09:53.000000000 +0200
-@@ -13,6 +13,7 @@
- /dev/cm20.*		-b	gen_context(system_u:object_r:removable_device_t,s0)
- /dev/dasd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/dm-[0-9]+		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
-+/dev/drbd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/fd[^/]+		-b	gen_context(system_u:object_r:removable_device_t,s0)
- /dev/flash[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/gscd		-b	gen_context(system_u:object_r:removable_device_t,s0)
-@@ -48,6 +49,7 @@
- /dev/tw[a-z][^/]+	-c	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/ub[a-z][^/]+	-b	gen_context(system_u:object_r:removable_device_t,mls_systemhigh)
- /dev/ubd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
-+/dev/vd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
- /dev/xvd[^/]*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
+--- refpolicy.orig/policy/modules/system/fstools.if	2008-07-19 19:15:43.000000000 +0200
++++ refpolicy/policy/modules/system/fstools.if	2008-08-03 18:06:57.000000000 +0200
+@@ -142,3 +142,21 @@
  
- /dev/ataraid/.*		-b	gen_context(system_u:object_r:fixed_disk_device_t,mls_systemhigh)
-Index: refpolicy/policy/modules/kernel/storage.if
-===================================================================
---- refpolicy.orig/policy/modules/kernel/storage.if	2008-08-03 16:46:56.000000000 +0200
-+++ refpolicy/policy/modules/kernel/storage.if	2008-08-03 18:09:53.000000000 +0200
-@@ -81,6 +81,26 @@
- 
- ########################################
- ## <summary>
-+##	dontaudit the caller attempts to read from a fixed disk.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+#
-+interface(`storage_dontaudit_raw_read_fixed_disk',`
-+	gen_require(`
-+		attribute fixed_disk_raw_read;
-+		type fixed_disk_device_t;
-+	')
-+
-+	dontaudit $1 fixed_disk_device_t:blk_file read_blk_file_perms;
-+	dontaudit $1 fixed_disk_device_t:chr_file read_chr_file_perms;
-+')
+ 	allow $1 swapfile_t:file getattr;
+ ')
 +
 +########################################
 +## <summary>
- ##	Allow the caller to directly read from a fixed disk.
- ##	This is extremly dangerous as it can bypass the
- ##	SELinux protections for filesystem objects, and
++##	Send signal to fsadm process
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`fstools_signal',`
++	gen_require(`
++		type fsadm_t;
++	')
++
++	allow $1 fsadm_t:process signal;
++')
+Index: refpolicy/policy/modules/system/fstools.te
+===================================================================
+--- refpolicy.orig/policy/modules/system/fstools.te	2008-07-19 19:15:43.000000000 +0200
++++ refpolicy/policy/modules/system/fstools.te	2008-08-03 18:06:57.000000000 +0200
+@@ -97,6 +97,10 @@
+ fs_getattr_tmpfs_dirs(fsadm_t)
+ fs_read_tmpfs_symlinks(fsadm_t)
+ 
++fs_manage_nfs_files(fsadm_t)
++
++fs_manage_cifs_files(fsadm_t)
++
+ mls_file_read_all_levels(fsadm_t)
+ mls_file_write_all_levels(fsadm_t)
+ 
+@@ -184,4 +188,9 @@
+ 
+ optional_policy(`
+ 	xen_append_log(fsadm_t)
++	xen_rw_image_files(fsadm_t)
++')
++
++optional_policy(`
++	unconfined_domain(fsadm_t)
+ ')
 
 -- 
 David Härdeman
