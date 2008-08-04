@@ -1,120 +1,292 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74Cbx8F011990
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:37:59 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CeJa1012530
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:40:19 -0400
 Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74Cbrpq014349
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:37:53 GMT
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74CeDpq014748
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:40:13 GMT
 Received: from basil.haag.hardeman.nu (nsabfw1.nsab.se [217.28.34.132])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(Client CN "basil.haag.hardeman.nu", Issuer "hardeman.nu CA" (verified OK))
-	by palpatine.hardeman.nu (Postfix) with ESMTP id BDD5126E
-	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:37:56 +0200 (CEST)
-Message-Id: <20080804123735.158269348@hardeman.nu>
+	by palpatine.hardeman.nu (Postfix) with ESMTP id 3C67526E
+	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:40:16 +0200 (CEST)
+Message-Id: <20080804123736.226368715@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-Date: Mon, 04 Aug 2008 14:35:00 +0200
+Date: Mon, 04 Aug 2008 14:35:06 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
-Subject: [patch 04/35] corenetwork policy update
+Subject: [patch 10/35] qemu policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch should be a no-brainer, additional network port names only...
+None of these changes seem controversial, mostly a couple of new
+interfaces, note that this patch relies on the xen patch.
 
-Originally sent on Jul 19, changed to comment out auditd port per
-comments on the list.
+Originally submitted Jul 19
 
-Index: refpolicy/policy/modules/kernel/corenetwork.te.in
+Index: refpolicy/policy/modules/apps/qemu.if
 ===================================================================
---- refpolicy.orig/policy/modules/kernel/corenetwork.te.in	2008-08-03 13:09:47.000000000 +0200
-+++ refpolicy/policy/modules/kernel/corenetwork.te.in	2008-08-03 17:04:05.000000000 +0200
-@@ -75,6 +75,7 @@
- network_port(aol, udp,5190,s0, tcp,5190,s0, udp,5191,s0, tcp,5191,s0, udp,5192,s0, tcp,5192,s0, udp,5193,s0, tcp,5193,s0) 
- network_port(apcupsd, tcp,3551,s0, udp,3551,s0)
- network_port(asterisk, tcp,1720,s0, udp,2427,s0, udp,2727,s0, udp,4569,s0, udp,5060,s0)
-+#network_port(audit, tcp,60,s0) - not a registered port (yet?)
- network_port(auth, tcp,113,s0)
- network_port(bgp, tcp,179,s0, udp,179,s0, tcp,2605,s0, udp,2605,s0)
- type biff_port_t, port_type, reserved_port_type; dnl network_port(biff) # no defined portcon in current strict
-@@ -82,6 +83,7 @@
- network_port(clockspeed, udp,4041,s0)
- network_port(cluster, tcp,5149,s0, udp,5149,s0, tcp,40040,s0, tcp,50006,s0, udp,50006,s0, tcp,50007,s0, udp,50007,s0, tcp,50008,s0, udp,50008,s0)
- network_port(comsat, udp,512,s0)
-+network_port(cyphesis, udp,32771,s0, tcp,6767,s0, tcp,6769,s0)
- network_port(cvs, tcp,2401,s0, udp,2401,s0)
- network_port(dcc, udp,6276,s0, udp,6277,s0)
- network_port(dbskkd, tcp,1178,s0)
-@@ -91,6 +93,7 @@
- network_port(distccd, tcp,3632,s0)
- network_port(dns, udp,53,s0, tcp,53,s0)
- network_port(fingerd, tcp,79,s0)
-+network_port(flash, tcp,1935,s0, udp,1935,s0)
- network_port(ftp_data, tcp,20,s0)
- network_port(ftp, tcp,21,s0)
- network_port(gatekeeper, udp,1718,s0, udp,1719,s0, tcp,1721,s0, tcp,7000,s0)
-@@ -109,11 +112,13 @@
- network_port(ircd, tcp,6667,s0)
- network_port(isakmp, udp,500,s0)
- network_port(iscsi, tcp,3260,s0)
-+network_port(isns, tcp,3205,s0, udp,3205,s0)
- network_port(jabber_client, tcp,5222,s0, tcp,5223,s0)
- network_port(jabber_interserver, tcp,5269,s0)
- network_port(kerberos_admin, tcp,464,s0, udp,464,s0, tcp,749,s0)
- network_port(kerberos_master, tcp,4444,s0, udp,4444,s0)
- network_port(kerberos, tcp,88,s0, udp,88,s0, tcp,750,s0, udp,750,s0)
-+network_port(kprop, tcp,754,s0)
- network_port(ktalkd, udp,517,s0, udp,518,s0)
- network_port(ldap, tcp,389,s0, udp,389,s0, tcp,636,s0, udp,636,s0, tcp,3268,s0)
- type lrrd_port_t, port_type; dnl network_port(lrrd_port_t) # no defined portcon
-@@ -122,6 +127,8 @@
- network_port(mmcc, tcp,5050,s0, udp,5050,s0)
- network_port(monopd, tcp,1234,s0)
- network_port(msnp, tcp,1863,s0, udp,1863,s0)
-+network_port(munin, tcp,4949,s0, udp,4949,s0)
-+network_port(mythtv, tcp,6543,s0, udp,6543,s0)
- network_port(mysqld, tcp,1186,s0, tcp,3306,s0)
- portcon tcp 63132-63163 gen_context(system_u:object_r:mysqld_port_t, s0)
- network_port(nessus, tcp,1241,s0)
-@@ -133,10 +140,13 @@
- network_port(pegasus_http, tcp,5988,s0)
- network_port(pegasus_https, tcp,5989,s0)
- network_port(postfix_policyd, tcp,10031,s0)
-+network_port(pulseaudio, tcp,4713,s0)
-+network_port(pgpkeyserver, udp, 11371,s0, tcp,11371,s0)
- network_port(pop, tcp,106,s0, tcp,109,s0, tcp,110,s0, tcp,143,s0, tcp,220,s0, tcp,993,s0, tcp,995,s0, tcp,1109,s0)
- network_port(portmap, udp,111,s0, tcp,111,s0)
- network_port(postgresql, tcp,5432,s0)
- network_port(postgrey, tcp,60000,s0)
-+network_port(prelude, tcp,4690,s0, udp,4690,s0)
- network_port(printer, tcp,515,s0)
- network_port(ptal, tcp,5703,s0)
- network_port(pxe, udp,4011,s0)
-@@ -148,11 +158,11 @@
- network_port(ricci_modcluster, tcp,16851,s0, udp,16851,s0)
- network_port(rlogind, tcp,513,s0)
- network_port(rndc, tcp,953,s0)
--network_port(router, udp,520,s0)
-+network_port(router, udp,520,s0, udp,521,s0, tcp,521,s0)
- network_port(rsh, tcp,514,s0)
- network_port(rsync, tcp,873,s0, udp,873,s0)
- network_port(rwho, udp,513,s0)
--network_port(smbd, tcp,139,s0, tcp,445,s0)
-+network_port(smbd, tcp,137-139,s0, tcp,445,s0)
- network_port(smtp, tcp,25,s0, tcp,465,s0, tcp,587,s0)
- network_port(snmp, udp,161,s0, udp,162,s0, tcp,199,s0)
- network_port(spamd, tcp,783,s0)
-@@ -170,7 +180,12 @@
- network_port(transproxy, tcp,8081,s0)
- type utcpserver_port_t, port_type; dnl network_port(utcpserver) # no defined portcon
- network_port(uucpd, tcp,540,s0)
-+network_port(virt, tcp,16509,s0, udp,16509,s0, tcp,16514,s0, udp,16514,s0)
+--- refpolicy.orig/policy/modules/apps/qemu.if	2008-08-03 13:09:35.000000000 +0200
++++ refpolicy/policy/modules/apps/qemu.if	2008-08-03 17:17:33.000000000 +0200
+@@ -104,7 +104,71 @@
+ 
+ ########################################
+ ## <summary>
+-##	Execute a domain transition to run qemu unconfined.
++##	Execute qemu programs in the qemu domain.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <param name="role">
++##	<summary>
++##	The role to allow the PAM domain.
++##	</summary>
++## </param>
++## <param name="terminal">
++##	<summary>
++##	The type of the terminal allow the PAM domain to use.
++##	</summary>
++## </param>
++#
++interface(`qemu_runas',`
++	gen_require(`
++		type qemu_t;
++	')
 +
- network_port(vnc, tcp,5900,s0)
-+# Reserve 100 ports for vnc/virt machines
-+portcon tcp 5901-5999 gen_context(system_u:object_r:vnc_port_t, s0)
-+network_port(whois, tcp,43,s0, udp,43,s0)
- network_port(wccp, udp,2048,s0)
- network_port(xdmcp, udp,177,s0, tcp,177,s0)
- network_port(xen, tcp,8002,s0)
++	qemu_domtrans($1)
++	allow qemu_t $3:chr_file rw_file_perms;
++')
++
++########################################
++## <summary>
++##	Execute qemu programs in the role.
++## </summary>
++## <param name="role">
++##	<summary>
++##	The role to allow the PAM domain.
++##	</summary>
++## </param>
++#
++interface(`qemu_role',`
++	gen_require(`
++		type qemu_t;
++	')
++	role $1 types qemu_t;
++')
++
++########################################
++## <summary>
++##	Execute qemu unconfined programs in the role.
++## </summary>
++## <param name="role">
++##	<summary>
++##	The role to allow the PAM domain.
++##	</summary>
++## </param>
++#
++interface(`qemu_unconfined_role',`
++	gen_require(`
++		type qemu_unconfined_t;
++	')
++	role $1 types qemu_unconfined_t;
++')
++
++
++########################################
++## <summary>
++##	Execute a domain transition to run qemu.
+ ## </summary>
+ ## <param name="domain">
+ ## <summary>
+@@ -122,6 +186,36 @@
+ 
+ ########################################
+ ## <summary>
++##	Execute qemu programs in the qemu unconfined domain.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <param name="role">
++##	<summary>
++##	The role to allow the PAM domain.
++##	</summary>
++## </param>
++## <param name="terminal">
++##	<summary>
++##	The type of the terminal allow the PAM domain to use.
++##	</summary>
++## </param>
++#
++interface(`qemu_runas_unconfined',`
++	gen_require(`
++		type qemu_unconfined_t;
++	')
++
++	qemu_domtrans_unconfined($1)
++	allow qemu_unconfined_t $3:chr_file rw_file_perms;
++')
++
++
++########################################
++## <summary>
+ ##	Creates types and rules for a basic
+ ##	qemu process domain.
+ ## </summary>
+@@ -133,24 +227,23 @@
+ #
+ template(`qemu_domain_template',`
+ 
+-	##############################
+-	#
+-	# Local Policy
+-	#
+-
+ 	type $1_t;
+ 	domain_type($1_t)
+ 
+ 	type $1_tmp_t;
+ 	files_tmp_file($1_tmp_t)
+ 
++	type $1_tmpfs_t;
++	files_tmpfs_file($1_tmpfs_t)
++
+ 	##############################
+ 	#
+ 	# Local Policy
+ 	#
+ 
+ 	allow $1_t self:capability { dac_read_search dac_override };
+-	allow $1_t self:process { execstack execmem signal getsched };
++	allow $1_t self:process { execstack execmem signal getsched signull };
++
+ 	allow $1_t self:fifo_file rw_file_perms;
+ 	allow $1_t self:shm create_shm_perms;
+ 	allow $1_t self:unix_stream_socket create_stream_socket_perms;
+@@ -160,6 +253,11 @@
+ 	manage_files_pattern($1_t, $1_tmp_t, $1_tmp_t)
+ 	files_tmp_filetrans($1_t, $1_tmp_t, { file dir })
+ 
++	manage_dirs_pattern($1_t, $1_tmpfs_t, $1_tmpfs_t)
++	manage_files_pattern($1_t, $1_tmpfs_t, $1_tmpfs_t)
++	manage_lnk_files_pattern($1_t, $1_tmpfs_t, $1_tmpfs_t)
++	fs_tmpfs_filetrans($1_t, $1_tmpfs_t, { dir file lnk_file })
++
+ 	kernel_read_system_state($1_t)
+ 
+ 	corenet_all_recvfrom_unlabeled($1_t)
+@@ -171,7 +269,10 @@
+ 	corenet_tcp_bind_vnc_port($1_t)
+ 	corenet_rw_tun_tap_dev($1_t)
+ 
+-#	dev_rw_kvm($1_t)
++	dev_read_sound($1_t)
++	dev_write_sound($1_t)
++	dev_rw_kvm($1_t)
++	dev_rw_qemu($1_t)
+ 
+ 	domain_use_interactive_fds($1_t)
+ 
+@@ -191,6 +292,8 @@
+ 	term_getattr_pty_fs($1_t)
+ 	term_use_generic_ptys($1_t)
+ 
++	auth_use_nsswitch($1_t)
++
+ 	libs_use_ld_so($1_t)
+ 	libs_use_shared_libs($1_t)
+ 
+@@ -198,9 +301,9 @@
+ 
+ 	sysnet_read_config($1_t)
+ 
+-#	optional_policy(`
+-#		samba_domtrans_smb($1_t)
+-#	')
++	optional_policy(`
++		samba_domtrans_smb($1_t)
++	')
+ 
+ 	optional_policy(`
+ 		virt_manage_images($1_t)
+@@ -212,6 +315,24 @@
+ 		xserver_stream_connect_xdm_xserver($1_t)
+ 		xserver_read_xdm_tmp_files($1_t)
+ 		xserver_read_xdm_pid($1_t)
+-#		xserver_xdm_rw_shm($1_t)
++		xserver_xdm_rw_shm($1_t)
+ 	')
+ ')
++
++########################################
++## <summary>
++##	Set the schedule on qemu.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`qemu_setsched',`
++	gen_require(`
++		type qemu_t;
++	')
++
++	allow $1 qemu_t:process setsched;
++')
+Index: refpolicy/policy/modules/apps/qemu.te
+===================================================================
+--- refpolicy.orig/policy/modules/apps/qemu.te	2008-08-03 13:09:35.000000000 +0200
++++ refpolicy/policy/modules/apps/qemu.te	2008-08-03 17:17:33.000000000 +0200
+@@ -13,6 +13,20 @@
+ ## </desc>
+ gen_tunable(qemu_full_network, false)
+ 
++## <desc>
++## <p>
++## Allow qemu to use nfs file systems
++## </p>
++## </desc>
++gen_tunable(qemu_use_nfs, true)
++
++## <desc>
++## <p>
++## Allow qemu to use cifs/Samba file systems
++## </p>
++## </desc>
++gen_tunable(qemu_use_cifs, true)
++
+ type qemu_exec_t;
+ qemu_domain_template(qemu)
+ application_domain(qemu_t, qemu_exec_t)
+@@ -35,6 +49,22 @@
+ 	corenet_tcp_connect_all_ports(qemu_t)
+ ')
+ 
++tunable_policy(`qemu_use_nfs',`
++	fs_manage_nfs_files(qemu_t)
++')
++
++tunable_policy(`qemu_use_cifs',`
++	fs_manage_cifs_dirs(qemu_t)
++')
++
++optional_policy(`
++	xen_rw_image_files(qemu_t)
++')
++
++optional_policy(`
++	xen_rw_image_files(qemu_t)
++')
++
+ ########################################
+ #
+ # qemu_unconfined local policy
 
 -- 
 David Härdeman
