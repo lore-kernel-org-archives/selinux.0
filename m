@@ -1,159 +1,97 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74Cc03m012009
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:38:00 -0400
-Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74Cbw7E010541
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:37:59 GMT
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CeLkB012549
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:40:21 -0400
+Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74CeFpq014753
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:40:15 GMT
 Received: from basil.haag.hardeman.nu (nsabfw1.nsab.se [217.28.34.132])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(Client CN "basil.haag.hardeman.nu", Issuer "hardeman.nu CA" (verified OK))
-	by palpatine.hardeman.nu (Postfix) with ESMTP id 6BCD241C
-	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:37:57 +0200 (CEST)
-Message-Id: <20080804123735.341195390@hardeman.nu>
+	by palpatine.hardeman.nu (Postfix) with ESMTP id D8ECE1AB
+	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:40:17 +0200 (CEST)
+Message-Id: <20080804123739.041708374@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-Date: Mon, 04 Aug 2008 14:35:01 +0200
+Date: Mon, 04 Aug 2008 14:35:23 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
-Subject: [patch 05/35] courier policy update
+Subject: [patch 27/35] inetd policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Adds a separate context for courier spooling dirs/files and a few
-new interfaces.
-
-Originally sent on Jul 19, received no comments, refreshed patch only
-
-Index: refpolicy/policy/modules/services/courier.fc
+RH changes to the inetd module, most of these are related to the MLS/MCS
+override which is already present in the module...
+Index: refpolicy/policy/modules/services/inetd.if
 ===================================================================
---- refpolicy.orig/policy/modules/services/courier.fc	2008-08-03 13:09:39.000000000 +0200
-+++ refpolicy/policy/modules/services/courier.fc	2008-08-03 17:04:59.000000000 +0200
-@@ -19,3 +19,5 @@
- /var/lib/courier(/.*)?			--	gen_context(system_u:object_r:courier_var_lib_t,s0)
+--- refpolicy.orig/policy/modules/services/inetd.if	2008-08-03 16:47:00.000000000 +0200
++++ refpolicy/policy/modules/services/inetd.if	2008-08-03 21:25:12.000000000 +0200
+@@ -115,6 +115,10 @@
  
- /var/run/courier(/.*)?			--	gen_context(system_u:object_r:courier_var_run_t,s0)
+ 	allow $1 inetd_t:tcp_socket rw_stream_socket_perms;
+ 	allow $1 inetd_t:udp_socket rw_socket_perms;
 +
-+/var/spool/courier(/.*)?		gen_context(system_u:object_r:courier_spool_t,s0)
-Index: refpolicy/policy/modules/services/courier.if
-===================================================================
---- refpolicy.orig/policy/modules/services/courier.if	2008-08-03 16:47:00.000000000 +0200
-+++ refpolicy/policy/modules/services/courier.if	2008-08-03 17:05:41.000000000 +0200
-@@ -123,3 +123,77 @@
- 
- 	domtrans_pattern($1, courier_pop_exec_t, courier_pop_t)
++	optional_policy(`
++		stunnel_service_domain($1,$2)
++	')
  ')
-+
-+
-+########################################
-+## <summary>
-+##	Allow domain to read courier config files
-+## </summary>
-+## <param name="prefix">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`courier_read_config',`
-+	gen_require(`
-+		type courier_etc_t;
-+	')
-+
-+	read_files_pattern($1, courier_etc_t, courier_etc_t)
-+')
-+
-+########################################
-+## <summary>
-+##	Allow domain to manage courier spool directories
-+## </summary>
-+## <param name="prefix">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`courier_manage_spool_dirs',`
-+	gen_require(`
-+		type courier_spool_t;
-+	')
-+
-+	manage_dirs_pattern($1, courier_spool_t, courier_spool_t)
-+')
-+
-+########################################
-+## <summary>
-+##	Allow domain to manage courier spool files
-+## </summary>
-+## <param name="prefix">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`courier_manage_spool_files',`
-+	gen_require(`
-+		type courier_spool_t;
-+	')
-+
-+	manage_files_pattern($1, courier_spool_t, courier_spool_t)
-+')
-+
-+########################################
-+## <summary>
-+##	Allow attempts to read and write to
-+##	courier unnamed pipes.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain to not audit.
-+##	</summary>
-+## </param>
-+#
-+interface(`courier_rw_pipes',`
-+	gen_require(`
-+		type courier_spool_t;
-+	')
-+
-+	allow $1 courier_spool_t:fifo_file rw_fifo_file_perms;
-+')
-Index: refpolicy/policy/modules/services/courier.te
-===================================================================
---- refpolicy.orig/policy/modules/services/courier.te	2008-08-03 16:47:00.000000000 +0200
-+++ refpolicy/policy/modules/services/courier.te	2008-08-03 17:04:59.000000000 +0200
-@@ -9,7 +9,10 @@
- courier_domain_template(authdaemon)
- 
- type courier_etc_t;
--files_type(courier_etc_t)
-+files_config_file(courier_etc_t)
-+
-+type courier_spool_t;
-+files_type(courier_spool_t)
- 
- courier_domain_template(pcp)
- 
-@@ -25,6 +28,7 @@
- 
- type courier_exec_t;
- files_type(courier_exec_t)
-+mta_mailclient(courier_exec_t)
- 
- courier_domain_template(sqwebmail)
- typealias courier_sqwebmail_exec_t alias sqwebmail_cron_exec_t;
-@@ -97,12 +101,12 @@
- courier_domtrans_authdaemon(courier_pop_t)
- 
- # do the actual work (read the Maildir)
--userdom_manage_unpriv_users_home_content_files(courier_pop_t)
-+unprivuser_manage_home_content_files(courier_pop_t)
- # cjp: the fact that this is different for pop vs imap means that
- # there should probably be a courier_pop_t and courier_imap_t
- # this should also probably be a separate type too instead of
- # the regular home dir
--userdom_manage_unpriv_users_home_content_dirs(courier_pop_t)
-+unprivuser_manage_home_content_dirs(courier_pop_t)
  
  ########################################
+Index: refpolicy/policy/modules/services/inetd.te
+===================================================================
+--- refpolicy.orig/policy/modules/services/inetd.te	2008-08-03 16:47:00.000000000 +0200
++++ refpolicy/policy/modules/services/inetd.te	2008-08-03 21:25:12.000000000 +0200
+@@ -30,6 +30,10 @@
+ type inetd_child_var_run_t;
+ files_pid_file(inetd_child_var_run_t)
+ 
++ifdef(`enable_mcs',`
++	init_ranged_daemon_domain(inetd_t,inetd_exec_t,s0 - mcs_systemhigh)
++')
++
+ ########################################
  #
+ # Local policy
+@@ -84,6 +88,7 @@
+ corenet_udp_bind_ftp_port(inetd_t)
+ corenet_tcp_bind_inetd_child_port(inetd_t)
+ corenet_udp_bind_inetd_child_port(inetd_t)
++corenet_tcp_bind_ircd_port(inetd_t)
+ corenet_udp_bind_ktalkd_port(inetd_t)
+ corenet_tcp_bind_printer_port(inetd_t)
+ corenet_udp_bind_rlogind_port(inetd_t)
+@@ -137,6 +142,7 @@
+ miscfiles_read_localization(inetd_t)
+ 
+ # xinetd needs MLS override privileges to work
++mls_fd_use_all_levels(inetd_t)
+ mls_fd_share_all_levels(inetd_t)
+ mls_socket_read_to_clearance(inetd_t)
+ mls_socket_write_to_clearance(inetd_t)
+@@ -165,6 +171,7 @@
+ ')
+ 
+ optional_policy(`
++	unconfined_domain(inetd_t)
+ 	unconfined_domtrans(inetd_t)
+ ')
+ 
+@@ -181,6 +188,9 @@
+ # for identd
+ allow inetd_child_t self:netlink_tcpdiag_socket r_netlink_socket_perms;
+ allow inetd_child_t self:capability { setuid setgid };
++allow inetd_child_t self:dir search;
++allow inetd_child_t self:{ lnk_file file } { getattr read };
++
+ files_search_home(inetd_child_t)
+ 
+ manage_dirs_pattern(inetd_child_t, inetd_child_tmp_t, inetd_child_tmp_t)
+@@ -227,3 +237,7 @@
+ optional_policy(`
+ 	unconfined_domain(inetd_child_t)
+ ')
++
++optional_policy(`
++	inetd_service_domain(inetd_child_t,bin_t)
++')
 
 -- 
 David Härdeman
