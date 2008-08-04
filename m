@@ -1,59 +1,37 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CbqnU011941
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:37:52 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74Ce33g012416
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:40:03 -0400
 Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74Cbo7E010511
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:37:51 GMT
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74Ce27E010991
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:40:03 GMT
 Received: from basil.haag.hardeman.nu (nsabfw1.nsab.se [217.28.34.132])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(Client CN "basil.haag.hardeman.nu", Issuer "hardeman.nu CA" (verified OK))
-	by palpatine.hardeman.nu (Postfix) with ESMTP id 4129F1AB
-	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:37:50 +0200 (CEST)
-Message-Id: <20080804123734.692354545@hardeman.nu>
+	by palpatine.hardeman.nu (Postfix) with ESMTP id 71B371AB
+	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:40:01 +0200 (CEST)
+Message-Id: <20080804123739.512964567@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-Date: Mon, 04 Aug 2008 14:34:57 +0200
+Date: Mon, 04 Aug 2008 14:35:26 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
-Subject: [patch 01/35] anaconda policy update
+Subject: [patch 30/35] fetchmail policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Anaconda is a RH installation program, RH should know their own program and
-the changes are quite trivial
-
-Previously submitted Jul 19, refreshed to apply to current SVN
-
-Index: refpolicy/policy/modules/admin/anaconda.te
+Trivial change to the fetchmail module...
+Index: refpolicy/policy/modules/services/fetchmail.te
 ===================================================================
---- refpolicy.orig/policy/modules/admin/anaconda.te	2008-08-03 16:47:00.000000000 +0200
-+++ refpolicy/policy/modules/admin/anaconda.te	2008-08-03 16:52:56.000000000 +0200
-@@ -31,14 +31,9 @@
- modutils_domtrans_insmod(anaconda_t)
+--- refpolicy.orig/policy/modules/services/fetchmail.te	2008-08-03 21:45:04.000000000 +0200
++++ refpolicy/policy/modules/services/fetchmail.te	2008-08-03 21:45:45.000000000 +0200
+@@ -14,7 +14,7 @@
+ files_pid_file(fetchmail_var_run_t)
  
- seutil_domtrans_semanage(anaconda_t)
-+seutil_domtrans_setsebool(anaconda_t)
+ type fetchmail_etc_t;
+-files_type(fetchmail_etc_t)
++files_config_file(fetchmail_etc_t)
  
--unconfined_domain(anaconda_t)
--
--unprivuser_home_dir_filetrans_home_content(anaconda_t, { dir file lnk_file fifo_file sock_file })
--
--optional_policy(`
--	dmesg_domtrans(anaconda_t)
--')
-+unprivuser_home_dir_filetrans_home_content(anaconda_t,{ dir file lnk_file fifo_file sock_file })
- 
- optional_policy(`
- 	kudzu_domtrans(anaconda_t)
-@@ -58,5 +53,9 @@
- ')
- 
- optional_policy(`
-+	unconfined_domain(anaconda_t)
-+')
-+
-+optional_policy(`
- 	usermanage_domtrans_admin_passwd(anaconda_t)
- ')
+ type fetchmail_uidl_cache_t;
+ files_type(fetchmail_uidl_cache_t)
 
 -- 
 David Härdeman
