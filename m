@@ -1,64 +1,120 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CeHss012511
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:40:17 -0400
-Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74CeF7E011024
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:40:16 GMT
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74Cbx8F011990
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:37:59 -0400
+Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74Cbrpq014349
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:37:53 GMT
 Received: from basil.haag.hardeman.nu (nsabfw1.nsab.se [217.28.34.132])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(Client CN "basil.haag.hardeman.nu", Issuer "hardeman.nu CA" (verified OK))
-	by palpatine.hardeman.nu (Postfix) with ESMTP id 0C1871AB
-	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:40:15 +0200 (CEST)
-Message-Id: <20080804123737.235985370@hardeman.nu>
+	by palpatine.hardeman.nu (Postfix) with ESMTP id BDD5126E
+	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:37:56 +0200 (CEST)
+Message-Id: <20080804123735.158269348@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-Date: Mon, 04 Aug 2008 14:35:12 +0200
+Date: Mon, 04 Aug 2008 14:35:00 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
-Subject: [patch 16/35] usernet policy updates
+Subject: [patch 04/35] corenetwork policy update
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Only minor changes
-Index: refpolicy/policy/modules/apps/usernetctl.if
+This patch should be a no-brainer, additional network port names only...
+
+Originally sent on Jul 19, changed to comment out auditd port per
+comments on the list.
+
+Index: refpolicy/policy/modules/kernel/corenetwork.te.in
 ===================================================================
---- refpolicy.orig/policy/modules/apps/usernetctl.if	2008-08-03 16:46:56.000000000 +0200
-+++ refpolicy/policy/modules/apps/usernetctl.if	2008-08-03 18:01:40.000000000 +0200
-@@ -63,4 +63,9 @@
- 	optional_policy(`
- 		modutils_run_insmod(usernetctl_t, $2, $3)
- 	')
+--- refpolicy.orig/policy/modules/kernel/corenetwork.te.in	2008-08-03 13:09:47.000000000 +0200
++++ refpolicy/policy/modules/kernel/corenetwork.te.in	2008-08-03 17:04:05.000000000 +0200
+@@ -75,6 +75,7 @@
+ network_port(aol, udp,5190,s0, tcp,5190,s0, udp,5191,s0, tcp,5191,s0, udp,5192,s0, tcp,5192,s0, udp,5193,s0, tcp,5193,s0) 
+ network_port(apcupsd, tcp,3551,s0, udp,3551,s0)
+ network_port(asterisk, tcp,1720,s0, udp,2427,s0, udp,2727,s0, udp,4569,s0, udp,5060,s0)
++#network_port(audit, tcp,60,s0) - not a registered port (yet?)
+ network_port(auth, tcp,113,s0)
+ network_port(bgp, tcp,179,s0, udp,179,s0, tcp,2605,s0, udp,2605,s0)
+ type biff_port_t, port_type, reserved_port_type; dnl network_port(biff) # no defined portcon in current strict
+@@ -82,6 +83,7 @@
+ network_port(clockspeed, udp,4041,s0)
+ network_port(cluster, tcp,5149,s0, udp,5149,s0, tcp,40040,s0, tcp,50006,s0, udp,50006,s0, tcp,50007,s0, udp,50007,s0, tcp,50008,s0, udp,50008,s0)
+ network_port(comsat, udp,512,s0)
++network_port(cyphesis, udp,32771,s0, tcp,6767,s0, tcp,6769,s0)
+ network_port(cvs, tcp,2401,s0, udp,2401,s0)
+ network_port(dcc, udp,6276,s0, udp,6277,s0)
+ network_port(dbskkd, tcp,1178,s0)
+@@ -91,6 +93,7 @@
+ network_port(distccd, tcp,3632,s0)
+ network_port(dns, udp,53,s0, tcp,53,s0)
+ network_port(fingerd, tcp,79,s0)
++network_port(flash, tcp,1935,s0, udp,1935,s0)
+ network_port(ftp_data, tcp,20,s0)
+ network_port(ftp, tcp,21,s0)
+ network_port(gatekeeper, udp,1718,s0, udp,1719,s0, tcp,1721,s0, tcp,7000,s0)
+@@ -109,11 +112,13 @@
+ network_port(ircd, tcp,6667,s0)
+ network_port(isakmp, udp,500,s0)
+ network_port(iscsi, tcp,3260,s0)
++network_port(isns, tcp,3205,s0, udp,3205,s0)
+ network_port(jabber_client, tcp,5222,s0, tcp,5223,s0)
+ network_port(jabber_interserver, tcp,5269,s0)
+ network_port(kerberos_admin, tcp,464,s0, udp,464,s0, tcp,749,s0)
+ network_port(kerberos_master, tcp,4444,s0, udp,4444,s0)
+ network_port(kerberos, tcp,88,s0, udp,88,s0, tcp,750,s0, udp,750,s0)
++network_port(kprop, tcp,754,s0)
+ network_port(ktalkd, udp,517,s0, udp,518,s0)
+ network_port(ldap, tcp,389,s0, udp,389,s0, tcp,636,s0, udp,636,s0, tcp,3268,s0)
+ type lrrd_port_t, port_type; dnl network_port(lrrd_port_t) # no defined portcon
+@@ -122,6 +127,8 @@
+ network_port(mmcc, tcp,5050,s0, udp,5050,s0)
+ network_port(monopd, tcp,1234,s0)
+ network_port(msnp, tcp,1863,s0, udp,1863,s0)
++network_port(munin, tcp,4949,s0, udp,4949,s0)
++network_port(mythtv, tcp,6543,s0, udp,6543,s0)
+ network_port(mysqld, tcp,1186,s0, tcp,3306,s0)
+ portcon tcp 63132-63163 gen_context(system_u:object_r:mysqld_port_t, s0)
+ network_port(nessus, tcp,1241,s0)
+@@ -133,10 +140,13 @@
+ network_port(pegasus_http, tcp,5988,s0)
+ network_port(pegasus_https, tcp,5989,s0)
+ network_port(postfix_policyd, tcp,10031,s0)
++network_port(pulseaudio, tcp,4713,s0)
++network_port(pgpkeyserver, udp, 11371,s0, tcp,11371,s0)
+ network_port(pop, tcp,106,s0, tcp,109,s0, tcp,110,s0, tcp,143,s0, tcp,220,s0, tcp,993,s0, tcp,995,s0, tcp,1109,s0)
+ network_port(portmap, udp,111,s0, tcp,111,s0)
+ network_port(postgresql, tcp,5432,s0)
+ network_port(postgrey, tcp,60000,s0)
++network_port(prelude, tcp,4690,s0, udp,4690,s0)
+ network_port(printer, tcp,515,s0)
+ network_port(ptal, tcp,5703,s0)
+ network_port(pxe, udp,4011,s0)
+@@ -148,11 +158,11 @@
+ network_port(ricci_modcluster, tcp,16851,s0, udp,16851,s0)
+ network_port(rlogind, tcp,513,s0)
+ network_port(rndc, tcp,953,s0)
+-network_port(router, udp,520,s0)
++network_port(router, udp,520,s0, udp,521,s0, tcp,521,s0)
+ network_port(rsh, tcp,514,s0)
+ network_port(rsync, tcp,873,s0, udp,873,s0)
+ network_port(rwho, udp,513,s0)
+-network_port(smbd, tcp,139,s0, tcp,445,s0)
++network_port(smbd, tcp,137-139,s0, tcp,445,s0)
+ network_port(smtp, tcp,25,s0, tcp,465,s0, tcp,587,s0)
+ network_port(snmp, udp,161,s0, udp,162,s0, tcp,199,s0)
+ network_port(spamd, tcp,783,s0)
+@@ -170,7 +180,12 @@
+ network_port(transproxy, tcp,8081,s0)
+ type utcpserver_port_t, port_type; dnl network_port(utcpserver) # no defined portcon
+ network_port(uucpd, tcp,540,s0)
++network_port(virt, tcp,16509,s0, udp,16509,s0, tcp,16514,s0, udp,16514,s0)
 +
-+
-+	optional_policy(`
-+		ppp_run(usernetctl_t,$2,$3)
-+	')
- ')
-Index: refpolicy/policy/modules/apps/usernetctl.te
-===================================================================
---- refpolicy.orig/policy/modules/apps/usernetctl.te	2008-08-03 16:46:56.000000000 +0200
-+++ refpolicy/policy/modules/apps/usernetctl.te	2008-08-03 18:01:40.000000000 +0200
-@@ -49,15 +49,21 @@
- 
- fs_search_auto_mountpoints(usernetctl_t)
- 
-+auth_use_nsswitch(usernetctl_t)
-+
- libs_use_ld_so(usernetctl_t)
- libs_use_shared_libs(usernetctl_t)
- 
-+logging_send_syslog_msg(usernetctl_t)
-+
- miscfiles_read_localization(usernetctl_t)
- 
- seutil_read_config(usernetctl_t)
- 
- sysnet_read_config(usernetctl_t)
- 
-+term_search_ptys(usernetctl_t)
-+
- optional_policy(`
- 	hostname_exec(usernetctl_t)
- ')
+ network_port(vnc, tcp,5900,s0)
++# Reserve 100 ports for vnc/virt machines
++portcon tcp 5901-5999 gen_context(system_u:object_r:vnc_port_t, s0)
++network_port(whois, tcp,43,s0, udp,43,s0)
+ network_port(wccp, udp,2048,s0)
+ network_port(xdmcp, udp,177,s0, tcp,177,s0)
+ network_port(xen, tcp,8002,s0)
 
 -- 
 David Härdeman
