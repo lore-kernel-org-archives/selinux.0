@@ -1,83 +1,123 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74Cc3ZM012044
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:38:03 -0400
-Received: from palpatine.hardeman.nu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74Cc27E010559
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:38:02 GMT
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m74CeVTu012633
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 08:40:31 -0400
+Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m74CePpq014783
+	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 12:40:25 GMT
 Received: from basil.haag.hardeman.nu (nsabfw1.nsab.se [217.28.34.132])
 	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(Client CN "basil.haag.hardeman.nu", Issuer "hardeman.nu CA" (verified OK))
-	by palpatine.hardeman.nu (Postfix) with ESMTP id 3C5E01AB
-	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:38:01 +0200 (CEST)
-Message-Id: <20080804123735.658128129@hardeman.nu>
+	by palpatine.hardeman.nu (Postfix) with ESMTP id A9BD81AB
+	for <selinux@tycho.nsa.gov>; Mon,  4 Aug 2008 14:40:27 +0200 (CEST)
+Message-Id: <20080804123740.307036789@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-Date: Mon, 04 Aug 2008 14:35:03 +0200
+Date: Mon, 04 Aug 2008 14:35:31 +0200
 From: david@hardeman.nu
 To: selinux@tycho.nsa.gov
-Subject: [patch 07/35] w3c policy addition
+Subject: [patch 35/35] livecd policy addition
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a new module not present upstream, contains nothing that
-looks controversial.
-
-I've added one Debian path, perhaps it should be in a
-conditional block...(/usr/lib/cgi-bin/check)
-
-Originally submitted Jul 19, no comments so far
-
-Index: refpolicy/policy/modules/services/w3c.fc
+New policy module for livecd from the RH patchset.
+Index: refpolicy/policy/modules/apps/livecd.fc
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ refpolicy/policy/modules/services/w3c.fc	2008-08-03 17:13:33.000000000 +0200
-@@ -0,0 +1,3 @@
-+/usr/share/w3c-markup-validator(/.*)?		gen_context(system_u:object_r:httpd_w3c_validator_content_t,s0)
-+/usr/share/w3c-markup-validator/cgi-bin(/.*)?	gen_context(system_u:object_r:httpd_w3c_validator_script_exec_t,s0)
-+/usr/lib/cgi-bin/check				gen_context(system_u:object_r:httpd_w3c_validator_script_exec_t,s0)
-Index: refpolicy/policy/modules/services/w3c.if
++++ refpolicy/policy/modules/apps/livecd.fc	2008-08-03 23:42:07.000000000 +0200
+@@ -0,0 +1,2 @@
++
++/usr/bin/livecd-creator	--	gen_context(system_u:object_r:livecd_exec_t,s0)
+Index: refpolicy/policy/modules/apps/livecd.if
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ refpolicy/policy/modules/services/w3c.if	2008-08-03 17:13:33.000000000 +0200
-@@ -0,0 +1,20 @@
-+## <summary>W3C</summary>
++++ refpolicy/policy/modules/apps/livecd.if	2008-08-03 23:42:52.000000000 +0200
+@@ -0,0 +1,56 @@
++
++## <summary>policy for livecd</summary>
 +
 +########################################
 +## <summary>
-+##	Execute w3c server in the w3c domain.
++##	Execute a domain transition to run livecd.
++## </summary>
++## <param name="domain">
++## <summary>
++##	Domain allowed to transition.
++## </summary>
++## </param>
++#
++interface(`livecd_domtrans',`
++	gen_require(`
++		type livecd_t;
++                type livecd_exec_t;
++	')
++
++	domtrans_pattern($1,livecd_exec_t,livecd_t)
++')
++
++
++########################################
++## <summary>
++##	Execute livecd in the livecd domain, and
++##	allow the specified role the livecd domain.
 +## </summary>
 +## <param name="domain">
 +##	<summary>
-+##	The type of the process performing this action.
++##	Domain allowed access
++##	</summary>
++## </param>
++## <param name="role">
++##	<summary>
++##	The role to be allowed the livecd domain.
++##	</summary>
++## </param>
++## <param name="terminal">
++##	<summary>
++##	The type of the role's terminal.
 +##	</summary>
 +## </param>
 +#
-+#
-+interface(`w3c_script_domtrans',`
++interface(`livecd_run',`
 +	gen_require(`
-+		type w3c_script_exec_t;
++		type livecd_t;
 +	')
 +
-+	init_script_domtrans_spec($1,w3c_script_exec_t)
++	livecd_domtrans($1)
++	role $2 types livecd_t;
++	allow livecd_t $3:chr_file rw_term_perms;
++
++	seutil_run_setfiles_mac(livecd_t, $2, $3)
 +')
-Index: refpolicy/policy/modules/services/w3c.te
++
+Index: refpolicy/policy/modules/apps/livecd.te
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ refpolicy/policy/modules/services/w3c.te	2008-08-03 17:13:33.000000000 +0200
-@@ -0,0 +1,14 @@
-+policy_module(w3c,1.2.1)
++++ refpolicy/policy/modules/apps/livecd.te	2008-08-03 23:42:07.000000000 +0200
+@@ -0,0 +1,26 @@
++policy_module(livecd, 1.0.0)
 +
-+apache_content_template(w3c_validator)
++########################################
++#
++# Declarations
++#
 +
-+sysnet_dns_name_resolve(httpd_w3c_validator_script_t)
++type livecd_t;
++type livecd_exec_t;
++application_domain(livecd_t, livecd_exec_t)
++role system_r types livecd_t;
 +
-+corenet_tcp_connect_ftp_port(httpd_w3c_validator_script_t)
-+corenet_tcp_sendrecv_ftp_port(httpd_w3c_validator_script_t)
-+corenet_tcp_connect_http_port(httpd_w3c_validator_script_t)
-+corenet_tcp_sendrecv_http_port(httpd_w3c_validator_script_t)
-+corenet_tcp_connect_http_cache_port(httpd_w3c_validator_script_t)
-+corenet_tcp_sendrecv_http_cache_port(httpd_w3c_validator_script_t)
++########################################
++#
++# livecd local policy
++#
++dontaudit livecd_t self:capability2 mac_admin;
 +
-+miscfiles_read_certs(httpd_w3c_validator_script_t)
++unconfined_domain_noaudit(livecd_t)
++domain_ptrace_all_domains(livecd_t)
++
++optional_policy(`
++	hal_dbus_chat(livecd_t)
++')
++
++seutil_domtrans_setfiles_mac(livecd_t)
 
 -- 
 David Härdeman
