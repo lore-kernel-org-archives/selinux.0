@@ -1,56 +1,89 @@
-Message-ID: <489861A3.5010505@redhat.com>
-Date: Tue, 05 Aug 2008 10:20:19 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m75ERch5017836
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 10:27:38 -0400
+Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m75ERbSF021199
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 14:27:37 GMT
+From: Dennis Wronka <linuxweb@gmx.net>
+To: SELinux Mailing List <selinux@tycho.nsa.gov>
+Subject: Re: Question about newrole
+Date: Tue, 5 Aug 2008 22:27:31 +0800
+References: <200808052155.18105.linuxweb@gmx.net> <1217945614.2994.74.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1217945614.2994.74.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: policycoreutils patch
-References: <4892F6E0.10008@redhat.com> <1217943844.2994.65.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1217943844.2994.65.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed;
+  boundary="nextPart1271883.qeThMIpfX7";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <200808052227.31582.linuxweb@gmx.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2008-08-01 at 07:43 -0400, Daniel J Walsh wrote:
-> Adds support for boolean files, name/value pairs as input and output.
-> Allows you to set a large amount of booleans at once.
-> 
-> Add support from groupname in semanage login.  This will allow you to
-> associate groups of Linux Users with an SELinux user.  Uses same syntax
-> as sudo.  Requires patch to libselinux.
-> 
-> Cleanup of semanage variables.  Change use of 1/0 to True/False.
-> 
-> Remove bad use of raise(out)
-> 
->> Looks ok other than adding gui to the Makefile since we don't have that
->> one.  But upon trying "semanage login -a -s root %wheel", I get:
->> libsemanage.get_users: user %wheel not in password file
-> 
->> So it seems that we also need libsemanage to understand the %groupname
->> syntax?  That is coming from genhomedircon.c.
-> 
->> If actually supporting per-role file labeling, then we'd need
->> libsemanage to expand the group and add the individual users for
->> generating home directory entries.
-> 
-> 
-Yet another reason to remove the atrocity that is per role labeling.
-Changing the default role of a user or group of users should not involve
-the relabeling of a potentially huge amount of files, never mind that
-you can't fix /tmp files.  Stop the insanity...
+--nextPart1271883.qeThMIpfX7
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Then we have the problem of shared homedirs where you have different
-roles on different machines, and potentially can log in to the same
-machine with different roles depending on how you login.  guest_r if you
-login via ssh but staff_r via the console.
+Just for the record, sent the initial reply to Stephen only.
+Sorry for the glitch.
 
-Someday I will win this battle...
+Rest at the bottom.
 
+On Tuesday 05 August 2008 22:13:34 Stephen Smalley wrote:
+> On Tue, 2008-08-05 at 21:55 +0800, Dennis Wronka wrote:
+> > Hi folks,
+> >
+> > I'd like to ask about a problem I am experiencing with newrole.
+> > When I use newrole in permissive-mode I have no problems changing the
+> > role. Also I don't get any audit-messages.
+> > But when I switch to enforcing-mode I cannot use newrole, it keeps
+> > telling me "incorrect password for root", although it clearly is correc=
+t.
+> > I suspect a problem in interaction between newrole and unix_chkpwd, but
+> > am not entirely sure about it.
+> >
+> > Problem is that I don't get any audits from SELinux, only errors in
+> > auth.log from unix_chkpwd:
+> > check_pass; user unknown
+> > password check failer for user (root)
+> >
+> > I am working with the latest reference-policy, adjusted here and there =
+to
+> > fit the needs of my distro.
+> >
+> > Thanks for any suggestions.
+>
+> What version of pam are you using?  What distro?
+> There were changes made to pam_unix and unix_chkpwd for selinux.
+> Also, how are you building newrole?
 
+I am using PAM 1.0.1 on the current development-version of EasyLFS. I am=20
+currently working on the integration of SELinux and seem to be hanging on=20
+this point.
+I haven't set much focus towards newrole in the previous releases, but want=
+ to=20
+do so now.
+newrole is the one from the policycoreutils 2.0.49, built simply with make =
+&&=20
+make install.
 
---SNIP--
+Btw, I think the same problem applies to run_init, will have to check to=20
+confirm though.
+
+--nextPart1271883.qeThMIpfX7
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
+
+iEYEABECAAYFAkiYY1MACgkQ1sXw8/2VziSs8ACbBfdObWFxwoR9Im00kKnc1Ujr
+qWkAoLQH0TSZtBdGLUiXNa71SpK6sj3E
+=Lfys
+-----END PGP SIGNATURE-----
+
+--nextPart1271883.qeThMIpfX7--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
