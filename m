@@ -1,62 +1,70 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m750F2g0008840
-	for <selinux@tycho.nsa.gov>; Mon, 4 Aug 2008 20:15:03 -0400
-Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m750Exuw000078
-	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 00:15:01 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id E747B183C3
-	for <selinux@tycho.nsa.gov>; Tue,  5 Aug 2008 10:14:52 +1000 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uzwWyFrFJ9q1 for <selinux@tycho.nsa.gov>;
-	Tue,  5 Aug 2008 10:14:52 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 8A2B318359
-	for <selinux@tycho.nsa.gov>; Tue,  5 Aug 2008 10:14:52 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 6832C2170F
-	for <selinux@tycho.nsa.gov>; Tue,  5 Aug 2008 10:14:50 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: xdm_tmp_t
-Date: Tue, 5 Aug 2008 10:14:48 +1000
+Message-ID: <4897E974.2040003@ak.jp.nec.com>
+Date: Tue, 05 Aug 2008 14:47:32 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200808051014.49863.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov
+Subject: [PATCH 0/3] Thread/Child-Domain Assignment (rev.2)
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com>
+In-Reply-To: <4889CC5F.3030500@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently xdm_tmp_t is applied to /tmp/.ICE-unix/ which is writable by user_t 
-(EG for dcopserver in KDE which creates sockets there).
+The series of patches enables to assign a thread an indivisual
+"more bounded" domain, even if the process is multithreaded.
 
-xdm_tmp_t is defined in the xserver module which currently on Debian is only 
-loaded if you have packages like xdm installed.  But if for example you have 
-a blade server or Xen DomU that has no ability to have a local X server (and 
-therefore no need for xdm) then you can still run "ssh -X" and launch KDE 
-programs.
+We can apply this feature to set up a server application which
+handles user's request withing more restricted domain, to protect
+potential harms come from application bugs.
 
-With the current way the Debian policy works if you don't have the xserver 
-policy module loaded then the <<none>> labelling policy is used and you end 
-up with /tmp/.ICE-unix/ labelled as initrc_tmp_t which denies access to 
-user_t and prevents running KDE programs.
+It also adds a new binary policy format (version 24).
+This version allows each definitions of user/role/type to have
+its bounds. The bounds restrict capabilities of bounded one
+with similar rules compared to existing name based hierarchy
+support.
+The following rules are enhanced from existing hierarchy stuff.
+- A bounded type cannot have any attribute which does not assigned
+  to the upper type.
+- CONSTRAIN/MLSCONSTRAIN rules are enhanced to pay attention
+  the boundary relationships.
 
-It seems to me that there are three viable possibilities to deal with this:
-1)  Load xserver.pp unconditionally (or build it into the policy).
-2)  Move the xdm_tmp_t definition to something that's in base.
-3)  Just label the directory in question as tmp_t - it seems that there is 
-little protection if user_t can put whatever they want there.
+I adds a new statement of TYPEBOUNDS as follows:
 
-As an aside allowing user_t to create files of type xdm_tmp_t seems like it 
-might be a mistake.  Is this ever necessary?
+  TYPEBOUNDS <parent type>  <child type 1> [, <child type 2> ...] ;
 
+It defines boundary relationships between two types, and these
+are loaded to the kernelspace via policy version 24.
+(*) The existing hierarchy is implicitly expanded to bounds.
+
+I don't provide a statement to define boundary relationships
+between roles/users, although existing hierarchy supports them,
+because its purpose/worth is unclear now.
+The policy format version 24 has a field to represent boundary
+relationship between users/roles, but it is only used to ship
+existing hierarhies.
+
+[1/3] thread-context-kernel.1.patch
+  It allows a multithreaded process to assign an individual
+  "more bounded" security context, and it also enables to
+  handle binary policy format version 24 in kernel space.
+
+[2/3] thread-context-checkpolicy.2.patch
+  It enables to support TYPEBOUNDS statement and to expand
+  existing hierarchies implicitly.
+
+[3/3] thread-context-libsepol.2.patch
+  It enables to support binary policy format version 24.
+
+The series of patches does not contains facilities to support
+lazy NEVERALLOW support, due to enlarged policy size, as I noted
+before.
+
+Thanks,
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
