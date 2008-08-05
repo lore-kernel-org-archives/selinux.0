@@ -1,64 +1,41 @@
-Subject: Re: policycoreutils patch
+Subject: Re: Question about newrole
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1217943844.2994.65.camel@moss-spartans.epoch.ncsc.mil>
-References: <4892F6E0.10008@redhat.com>
-	 <1217943844.2994.65.camel@moss-spartans.epoch.ncsc.mil>
+To: Dennis Wronka <linuxweb@gmx.net>
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <200808052155.18105.linuxweb@gmx.net>
+References: <200808052155.18105.linuxweb@gmx.net>
 Content-Type: text/plain
-Date: Tue, 05 Aug 2008 09:57:07 -0400
-Message-Id: <1217944627.2994.68.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 05 Aug 2008 10:13:34 -0400
+Message-Id: <1217945614.2994.74.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-08-05 at 09:44 -0400, Stephen Smalley wrote:
-> On Fri, 2008-08-01 at 07:43 -0400, Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > Adds support for boolean files, name/value pairs as input and output.
-> > Allows you to set a large amount of booleans at once.
-> > 
-> > Add support from groupname in semanage login.  This will allow you to
-> > associate groups of Linux Users with an SELinux user.  Uses same syntax
-> > as sudo.  Requires patch to libselinux.
-> > 
-> > Cleanup of semanage variables.  Change use of 1/0 to True/False.
-> > 
-> > Remove bad use of raise(out)
+On Tue, 2008-08-05 at 21:55 +0800, Dennis Wronka wrote:
+> Hi folks,
 > 
-> Looks ok other than adding gui to the Makefile since we don't have that
-> one.  But upon trying "semanage login -a -s root %wheel", I get:
-> libsemanage.get_users: user %wheel not in password file
+> I'd like to ask about a problem I am experiencing with newrole.
+> When I use newrole in permissive-mode I have no problems changing the role. 
+> Also I don't get any audit-messages.
+> But when I switch to enforcing-mode I cannot use newrole, it keeps telling 
+> me "incorrect password for root", although it clearly is correct.
+> I suspect a problem in interaction between newrole and unix_chkpwd, but am not 
+> entirely sure about it.
 > 
-> So it seems that we also need libsemanage to understand the %groupname
-> syntax?  That is coming from genhomedircon.c.
+> Problem is that I don't get any audits from SELinux, only errors in auth.log 
+> from unix_chkpwd:
+> check_pass; user unknown
+> password check failer for user (root)
 > 
-> If actually supporting per-role file labeling, then we'd need
-> libsemanage to expand the group and add the individual users for
-> generating home directory entries.
+> I am working with the latest reference-policy, adjusted here and there to fit 
+> the needs of my distro.
+> 
+> Thanks for any suggestions.
 
-As a minimal fix, we can do this to avoid the noise from genhomedircon.
-But for the per-role file labeling, we'll ultimately need the group to
-be expanded I think.
-
-Index: libsemanage/src/genhomedircon.c
-===================================================================
---- libsemanage/src/genhomedircon.c	(revision 2943)
-+++ libsemanage/src/genhomedircon.c	(working copy)
-@@ -762,6 +762,10 @@
- 		if (strcmp(name, TEMPLATE_SEUSER) == 0)
- 			continue;
- 
-+		/* %groupname syntax */
-+		if (name[0] == '%')
-+			continue;
-+
- 		/* find the user structure given the name */
- 		u = bsearch(seuname, user_list, nusers, sizeof(semanage_user_t *),
- 			    (int (*)(const void *, const void *))
+What version of pam are you using?  What distro?
+There were changes made to pam_unix and unix_chkpwd for selinux.
+Also, how are you building newrole?
 
 -- 
 Stephen Smalley
