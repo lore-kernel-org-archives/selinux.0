@@ -1,47 +1,38 @@
-Subject: Re: Can we make libsemanage default to expand-check=0
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <489864B4.1090605@redhat.com>
-References: <489864B4.1090605@redhat.com>
-Content-Type: text/plain
-Date: Tue, 05 Aug 2008 10:53:32 -0400
-Message-Id: <1217948012.2994.93.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m75F0bSP024137
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:00:47 -0400
+Received: from e4.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m75F0V0u008107
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 15:00:31 GMT
+Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
+	by e4.ny.us.ibm.com (8.13.8/8.13.8) with ESMTP id m75F0ZKX019206
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:00:35 -0400
+Received: from d01av03.pok.ibm.com (d01av03.pok.ibm.com [9.56.224.217])
+	by d01relay02.pok.ibm.com (8.13.8/8.13.8/NCO v9.0) with ESMTP id m75F0ZgH156646
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:00:35 -0400
+Received: from d01av03.pok.ibm.com (loopback [127.0.0.1])
+	by d01av03.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id m75F0YXk022149
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:00:35 -0400
+Date: Tue, 5 Aug 2008 09:09:59 -0500
+From: Joy Latten <latten@austin.ibm.com>
+Message-Id: <200808051409.m75E9xag012618@faith.austin.ibm.com>
+To: paul.moore@hp.com
+Subject: Re: [RFC 2/2] labeled ipsec internet drafts
+Cc: gcwilson@us.ibm.com, selinux@tycho.nsa.gov, serue@us.ibm.com,
+        tjaeger@cse.psu.edu
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi Paul,
 
-On Tue, 2008-08-05 at 10:33 -0400, Daniel J Walsh wrote:
-> plain text document attachment (libsemanage-rhat.patch)
-> diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage.conf libsemanage-2.0.25/src/semanage.conf
-> --- nsalibsemanage/src/semanage.conf	2008-06-12 23:25:16.000000000 -0400
-> +++ libsemanage-2.0.25/src/semanage.conf	2008-07-17 13:58:44.000000000 -0400
-> @@ -35,4 +35,4 @@
->  # given in <sepol/policydb.h>.  Change this setting if a different
->  # version is necessary.
->  #policy-version = 19
-> -
-> +expand-check=0
+My apologies on the delay, some other work has grabbed my immediate attention,
+but I will respond to your comments as soon as possible. 
 
-I thought we were going to leave this unchanged upstream, and only make
-this change in Fedora.
+Thanks!!!
 
-We want the checking to be applied for policy developers.  If you were
-to incorporate 'make validate' into the policy spec file, then you would
-get it applied when you perform a policy build.  And ideally there would
-be similar support in the selinux-policy-devel Makefile for policy
-module writers to use.  All it does is run semodule_link followed by
-semodule_expand, which applies the checking.
+regards,
+Joy
 
-If we were to change the upstream default, we'd likely change it in the
-code (semanage_conf_init()) rather than just in the .conf file.  And
-then policy developers would need to add expand-check=1 to their .conf
-file to set it.  
-
--- 
-Stephen Smalley
-National Security Agency
 
 
 --
