@@ -1,39 +1,78 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m75F0bSP024137
-	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:00:47 -0400
-Received: from e4.ny.us.ibm.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m75F0V0u008107
-	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 15:00:31 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e4.ny.us.ibm.com (8.13.8/8.13.8) with ESMTP id m75F0ZKX019206
-	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:00:35 -0400
-Received: from d01av03.pok.ibm.com (d01av03.pok.ibm.com [9.56.224.217])
-	by d01relay02.pok.ibm.com (8.13.8/8.13.8/NCO v9.0) with ESMTP id m75F0ZgH156646
-	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:00:35 -0400
-Received: from d01av03.pok.ibm.com (loopback [127.0.0.1])
-	by d01av03.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id m75F0YXk022149
-	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:00:35 -0400
-Date: Tue, 5 Aug 2008 09:09:59 -0500
-From: Joy Latten <latten@austin.ibm.com>
-Message-Id: <200808051409.m75E9xag012618@faith.austin.ibm.com>
-To: paul.moore@hp.com
-Subject: Re: [RFC 2/2] labeled ipsec internet drafts
-Cc: gcwilson@us.ibm.com, selinux@tycho.nsa.gov, serue@us.ibm.com,
-        tjaeger@cse.psu.edu
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m75F4Za1025042
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 11:04:35 -0400
+Received: from an-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m75F4T0u009440
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 15:04:29 GMT
+Received: by an-out-0708.google.com with SMTP id d30so458792and.75
+        for <selinux@tycho.nsa.gov>; Tue, 05 Aug 2008 08:04:35 -0700 (PDT)
+Message-ID: <dd18b0c30808050804g3662f22cs8c7c3cba8669cb26@mail.gmail.com>
+Date: Tue, 5 Aug 2008 08:04:34 -0700
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: Question about newrole
+Cc: "Dennis Wronka" <linuxweb@gmx.net>, "Xavier Toth" <txtoth@gmail.com>,
+        "SELinux Mailing List" <selinux@tycho.nsa.gov>
+In-Reply-To: <1217947735.2994.88.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+References: <200808052155.18105.linuxweb@gmx.net>
+	 <cadfc0e40808050717j6a042fedle997df133400456@mail.gmail.com>
+	 <200808052232.03624.linuxweb@gmx.net>
+	 <1217947735.2994.88.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi Paul,
+On Tue, Aug 5, 2008 at 7:48 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> On Tue, 2008-08-05 at 22:32 +0800, Dennis Wronka wrote:
+>> Thanks.
+>> That seems to help quite a bit.
+>> I now get some messages. For example it seems that newrole wants to
+>> read /etc/shadow directly.
+>> Will check those messages and play around with the policy.
+>
+> The way it works is that pam_unix attempts to open /etc/shadow directly
+> for reading, and if it fails, it falls back to running unix_chkpwd to
+> perform the password check.  SELinux policy prohibits most programs from
+> directly reading /etc/shadow, including even ones that run as root, and
+> forces them to go through unix_chkpwd instead, in order to limit the set
+> of processes that have full read access to the shadow password file.
+>
+> The logic to try to open /etc/shadow and fall back to unix_chkpwd
+> already existed before SELinux in order to support non-root processes
+> re-authenticating the current user.  What changed with SELinux was that
+> it could also happen for root processes.
+>
+> The current policy dontaudit's the attempt to directly read /etc/shadow
+> to avoid noise.  When you did semodule -DB, you turned on that auditing.
+> But those denials are what is expected, and allowing them will mean
+> giving newrole direct read access to /etc/shadow (although that will
+> only work if running as root, of course, as otherwise it has to use a
+> suid helper like unix_chkpwd anyway).
+>
+> Does newrole work for you as a non-root user?
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-My apologies on the delay, some other work has grabbed my immediate attention,
-but I will respond to your comments as soon as possible. 
+I usually just type passwd in a terminal
+and update the database. then choose you're role
+and do the same for that role if need be.
+but depending on what you have, this might be a different case.
+hope this helps.
+regards;
 
-Thanks!!!
-
-regards,
-Joy
-
-
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
