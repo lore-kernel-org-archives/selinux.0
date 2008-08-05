@@ -1,932 +1,449 @@
-Message-ID: <4897EB5A.1040404@ak.jp.nec.com>
-Date: Tue, 05 Aug 2008 14:55:38 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m75A4iG3031571
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 06:04:47 -0400
+Received: from goalkeeper.city-fan.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m75A4bHq016512
+	for <selinux@tycho.nsa.gov>; Tue, 5 Aug 2008 10:04:38 GMT
+Message-ID: <48982587.30605@city-fan.org>
+Date: Tue, 05 Aug 2008 11:03:51 +0100
+From: Paul Howarth <paul@city-fan.org>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov
-Subject: [PATCH 1/3] Thread/Child-Domain Assignment (rev.2)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>
-In-Reply-To: <4897E974.2040003@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] Milter Mail Filters
+References: <484D4B53.5020006@city-fan.org> <1216385922.21191.125.camel@gorn>
+In-Reply-To: <1216385922.21191.125.camel@gorn>
+Content-Type: multipart/mixed;
+ boundary="------------030602050208040003010803"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[1/3] thread-context-kernel.2.patch
-  It allows a multithreaded process to assign an individual
-  "more bounded" security context, and it also enables to
-  handle binary policy format version 24 in kernel space.
+This is a multi-part message in MIME format.
+--------------030602050208040003010803
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
---
- security/selinux/avc.c              |    2 +-
- security/selinux/hooks.c            |   12 +-
- security/selinux/include/security.h |    6 +-
- security/selinux/ss/policydb.c      |  244 +++++++++++++++++++++++++--
- security/selinux/ss/policydb.h      |    4 +
- security/selinux/ss/services.c      |  324 +++++++++++++++++++++++++++++++----
- 6 files changed, 541 insertions(+), 51 deletions(-)
+Christopher J. PeBenito wrote:
+> On Mon, 2008-06-09 at 16:25 +0100, Paul Howarth wrote:
+>> Hi,
+>>
+>> attached is a patch based on local policy I'm using on Fedora 9 to 
+>> support two "milter" mail filter daemons in conjunction with
+>> sendmail, 
+>> namely spamass-milter and milter-regex (I maintain the packages for
+>> both 
+>> of these in Fedora).
+>>
+>> I've taken the view that most milter applications will have similar 
+>> requirements and so I've created a milter_template interface that 
+>> contains most of what's needed, and then added the specifics that are 
+>> needed on top of the generic stuff for each application.
+>>
+>> However, as I'm by no means an selinux expert, there are a number of 
+>> things I'm unsure about:
+>>
+>> 1. In a situation where sendmail is the running MTA on a system, what
+>> is 
+>> the difference between sendmail_t and system_mail_t?
+>>
+>> 2. MTAs other than sendmail (postfix comes to mind) can also use 
+>> milters, but as I don't have any boxes running postfix, I don't know 
+>> what I'd need to add to postfix policy to support milters.
+>>
+>> 3. Fedora 9 has an interface spamassassin_domtrans_spamc that I used
+>> in 
+>> my local policy. It doesn't appear to be present in refpolicy; what 
+>> would be the right thing to use for a daemon calling spamc?
+>>
+>> 4. I cribbed the milter_port_t stuff from the only example I could
+>> find, 
+>> and it's probably wrong. What would be the correct way of defining
+>> this?
+>>
+>> 5. Does the use of a template for these applications a sane way to do
+>> it?
+>>
+>> Paul.
+>>
+>>
+>>
+>>
+>>
+>>
+>>
+>> plain text
+>> document
+>> attachment
+>> (milters.patch)
+>>
+>> Index: policy/modules/services/milters.te
+>> ===================================================================
+>> --- policy/modules/services/milters.te  (revision 0)
+>> +++ policy/modules/services/milters.te  (revision 0)
+>> @@ -0,0 +1,44 @@
+>> +policy_module(milters,0.0.7)
+>> +
+>> +require {
+>> +       attribute port_type;
+>> +}
+>> +
+>> +type milter_port_t, port_type;
+> 
+> This declaration would move to corenetwork
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 114b4b4..cb30c7e 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -136,7 +136,7 @@ static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
-  * @tclass: target security class
-  * @av: access vector
-  */
--static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
-+void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
- {
- 	const char **common_pts = NULL;
- 	u32 common_base = 0;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index bc1c3ae..2c2fad3 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5180,8 +5180,12 @@ static int selinux_setprocattr(struct task_struct *p,
+Moved.
 
- 		if (sid == 0)
- 			return -EINVAL;
--
--		/* Only allow single threaded processes to change context */
-+		/*
-+		 * SELinux allows to change context in the following case only.
-+		 *  - Single threaded processes.
-+		 *  - Multi threaded processes intend to change its context into
-+		 *    more restricted domain (defined by TYPEBOUNDS statement).
-+		 */
- 		if (atomic_read(&p->mm->mm_users) != 1) {
- 			struct task_struct *g, *t;
- 			struct mm_struct *mm = p->mm;
-@@ -5189,11 +5193,15 @@ static int selinux_setprocattr(struct task_struct *p,
- 			do_each_thread(g, t) {
- 				if (t->mm == mm && t != p) {
- 					read_unlock(&tasklist_lock);
-+					if (!security_bounded_transition(tsec->sid, sid))
-+						goto boundary_ok;
-+
- 					return -EPERM;
- 				}
- 			} while_each_thread(g, t);
- 			read_unlock(&tasklist_lock);
- 		}
-+boundary_ok:
+>> +#============= milter-regex policy ==============
+>> +milter_template(regex)
+> 
+> As I mentioned before, it doesn't look like a template is needed, unless
+> you think there will be many more milter domains.  Then put all the
+> declarations in a section.
 
- 		/* Check permissions for the transition. */
- 		error = avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index ad30ac4..ef6b3db 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -27,13 +27,14 @@
- #define POLICYDB_VERSION_RANGETRANS	21
- #define POLICYDB_VERSION_POLCAP		22
- #define POLICYDB_VERSION_PERMISSIVE	23
-+#define POLICYDB_VERSION_BOUNDARY	24
+There are plenty of milters out there - see http://www.milter.org/milters
 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
- #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
- #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
- #else
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
- #endif
+Not sure what you mean by "put all the declarations in a section". The 
+current version has very few declarations anyway now.
 
- #define CONTEXT_MNT	0x01
-@@ -112,6 +113,9 @@ int security_node_sid(u16 domain, void *addr, u32 addrlen,
- int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
- 				 u16 tclass);
+>> +# Config is in /etc/mail/milter-regex.conf
+>> +mta_read_config(milter_regex_t)
+>> +
+>> +# The milter creates a socket in /var/spool/milter-regex/
+>> +# for communication with sendmail
+>> +files_search_spool(milter_regex_t)
+>> +manage_sock_files_pattern(milter_regex_t,milter_regex_spool_t,milter_regex_spool_t)
+> 
+> If the /var/sool/milter-regex directory can be created by the milter,
+> then there should be a files_spool_filetrans().  If you think templates
+> are warranted, then it would seem that this should go into the template
 
-+#define POLICYDB_BOUNDS_MAXDEPTH	4
-+int security_bounded_transition(u32 oldsid, u32 newsid);
-+
- int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+That directory would be part of the package for the milter and wouldn't 
+need to be created at runtime (it needs specific DAC 
+permissions/ownership anyway).
 
- int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 84f8cc7..f6eb676 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -30,6 +30,7 @@
- #include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/errno.h>
-+#include <linux/audit.h>
- #include "security.h"
+>> +# It removes any existing socket (not owned by root) whilst running
+>> as root
+>> +# and then calls setgid() and setuid() to drop privileges
+>> +allow milter_regex_t self:capability { setuid setgid dac_override };
+>> +
+>> +
+>> +#============= spamass-milter policy ==============
+>> +milter_template(spamass)
+>> +
+>> +# The milter creates a socket in /var/run/spamass-milter/
+>> +# for communication with sendmail
+>> +manage_files_pattern(milter_spamass_t,milter_spamass_var_run_t,milter_spamass_var_run_t)
+>> +manage_sock_files_pattern(milter_spamass_t,milter_spamass_var_run_t,milter_spamass_var_run_t)
+>> +
+>> +# The main job of the milter is to pipe spam through spamc and act on
+>> the result
+>> +#
+>> +# The spamassassin_domtrans_spamc interface in Fedora 9 ???
+>> +#spamassassin_domtrans_spamc(milter_spamass_t)
 
- #include "policydb.h"
-@@ -116,7 +117,12 @@ static struct policydb_compat_info policydb_compat[] = {
- 		.version	= POLICYDB_VERSION_PERMISSIVE,
- 		.sym_num	= SYM_NUM,
- 		.ocon_num	= OCON_NUM,
--	}
-+	},
-+	{
-+		.version	= POLICYDB_VERSION_BOUNDARY,
-+		.sym_num	= SYM_NUM,
-+		.ocon_num	= OCON_NUM,
-+	},
- };
+This interface is part of the big patch merge from Fedora. I could split 
+out the part needed by spamass-milter as a separate patch if that's helpful.
 
- static struct policydb_compat_info *policydb_lookup_compat(int version)
-@@ -254,7 +260,9 @@ static int role_index(void *key, void *datum, void *datap)
+>> +# When used with -b or -B options, the milter invokes sendmail to
+>> send mail
+>> +# to a spamtrap address, using popen()
+>> +corecmd_exec_shell(milter_spamass_t)
+>> +corecmd_read_bin_symlinks(milter_spamass_t)
+>> +corecmd_search_bin(milter_spamass_t)
+>> +kernel_read_system_state(milter_spamass_t)
+>> +mta_send_mail(milter_spamass_t)
+> 
+> Similar comments as the previous domain.
+> 
+>> --- policy/modules/services/sendmail.te (revision 2710)
+>> +++ policy/modules/services/sendmail.te (working copy)
+>> @@ -112,6 +112,14 @@
+>>  ')
+>>  
+>>  optional_policy(`
+>> +       milter_regex_stream_connect(sendmail_t)
+>> +')
+>> +
+>> +optional_policy(`
+>> +       milter_spamass_stream_connect(sendmail_t)
+>> +')
+> 
+> Perhaps this should be a single milter_stream_connect_all(), since it
+> seems like sendmail would want to connect to all milters.
 
- 	role = datum;
- 	p = datap;
--	if (!role->value || role->value > p->p_roles.nprim)
-+	if (!role->value
-+	    || role->value > p->p_roles.nprim
-+	    || role->bounds > p->p_roles.nprim)
- 		return -EINVAL;
- 	p->p_role_val_to_name[role->value - 1] = key;
- 	p->role_val_to_struct[role->value - 1] = role;
-@@ -270,9 +278,12 @@ static int type_index(void *key, void *datum, void *datap)
- 	p = datap;
+Indeed it does, and postfix too. I'm using typeattributes to achieve 
+this now.
 
- 	if (typdatum->primary) {
--		if (!typdatum->value || typdatum->value > p->p_types.nprim)
-+		if (!typdatum->value
-+		    || typdatum->value > p->p_types.nprim
-+		    || typdatum->bounds > p->p_types.nprim)
- 			return -EINVAL;
- 		p->p_type_val_to_name[typdatum->value - 1] = key;
-+		p->type_val_to_struct[typdatum->value - 1] = typdatum;
- 	}
+>> --- policy/modules/services/milters.fc  (revision 0)
+>> +++ policy/modules/services/milters.fc  (revision 0)
+>> @@ -0,0 +1,14 @@
+>> +#================= contexts for milter-regex =================
+>> +
+>> +/usr/sbin/milter-regex         --      gen_context(system_u:object_r:milter_regex_exec_t,s0)
+>> +
+>> +/var/spool/milter-regex(/.*)?          gen_context(system_u:object_r:milter_regex_spool_t,s0)
+>> +
+>> +#================= contexts for spamass-milter =================
+>> +
+>> +/usr/sbin/spamass-milter       --      gen_context(system_u:object_r:milter_spamass_exec_t,s0)
+>> +
+>> +/var/run/spamass-milter
+>> \.pid   --      gen_context(system_u:object_r:milter_spamass_var_run_t,s0)
+>> +/var/run/spamass-milter(/.*)?          gen_context(system_u:object_r:milter_spamass_var_run_t,s0)
+> 
+> The comments don't really add anything here IMO.
 
- 	return 0;
-@@ -285,7 +296,9 @@ static int user_index(void *key, void *datum, void *datap)
+OK, removed.
 
- 	usrdatum = datum;
- 	p = datap;
--	if (!usrdatum->value || usrdatum->value > p->p_users.nprim)
-+	if (!usrdatum->value
-+	    || usrdatum->value > p->p_users.nprim
-+	    || usrdatum->bounds > p->p_users.nprim)
- 		return -EINVAL;
- 	p->p_user_val_to_name[usrdatum->value - 1] = key;
- 	p->user_val_to_struct[usrdatum->value - 1] = usrdatum;
-@@ -423,7 +436,7 @@ static int policydb_index_others(struct policydb *p)
- #endif
+>> +template(`milter_template',`
+> [...]
+>> +       # This type is for pidfiles etc.
+>> +       type milter_$1_var_run_t;
+>> +       files_type(milter_$1_var_run_t);
+>> +
+>> +       # This type is for spool/cache data etc.
+>> +       type milter_$1_cache_t;
+>> +       files_type(milter_$1_cache_t);
+>> +
+>> +       # This type is for spool/cache data etc.
+>> +       type milter_$1_spool_t;
+>> +       files_type(milter_$1_spool_t);
+>> +
+>> +       # This type is for state data etc.
+>> +       type milter_$1_var_lib_t;
+>> +       files_type(milter_$1_var_lib_t);
+> 
+> Most of these types aren't used, so they should be dropped.
 
- 	p->role_val_to_struct =
--		kmalloc(p->p_roles.nprim * sizeof(*(p->role_val_to_struct)),
-+		kzalloc(p->p_roles.nprim * sizeof(*(p->role_val_to_struct)),
- 			GFP_KERNEL);
- 	if (!p->role_val_to_struct) {
- 		rc = -ENOMEM;
-@@ -431,13 +444,21 @@ static int policydb_index_others(struct policydb *p)
- 	}
+I've merged most of the types together now.
 
- 	p->user_val_to_struct =
--		kmalloc(p->p_users.nprim * sizeof(*(p->user_val_to_struct)),
-+		kzalloc(p->p_users.nprim * sizeof(*(p->user_val_to_struct)),
- 			GFP_KERNEL);
- 	if (!p->user_val_to_struct) {
- 		rc = -ENOMEM;
- 		goto out;
- 	}
+>> +interface(`milter_spamass_stream_connect',`
+>> +       gen_require(`
+>> +               type milter_spamass_var_run_t, milter_spamass_t;
+>> +       ')
+>> +       stream_connect_pattern($1,milter_spamass_var_run_t,milter_spamass_var_run_t,milter_spamass_t)
+>> +')
+>> +
+> 
+> Missing a files_search_spool().  Interface name needs to be fixed [1].
 
-+	p->type_val_to_struct =
-+		kzalloc(p->p_types.nprim * sizeof(*(p->type_val_to_struct)),
-+			GFP_KERNEL);
-+	if (!p->type_val_to_struct) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
-+
- 	if (cond_init_bool_indexes(p)) {
- 		rc = -ENOMEM;
- 		goto out;
-@@ -625,6 +646,7 @@ void policydb_destroy(struct policydb *p)
- 	kfree(p->class_val_to_struct);
- 	kfree(p->role_val_to_struct);
- 	kfree(p->user_val_to_struct);
-+	kfree(p->type_val_to_struct);
+I have two interfaces now, common to all milters:
 
- 	avtab_destroy(&p->te_avtab);
+milter_stream_connect
+milter_getattr_socket_dir
 
-@@ -1176,8 +1198,8 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
- {
- 	char *key = NULL;
- 	struct role_datum *role;
--	int rc;
--	__le32 buf[2];
-+	int rc, to_read = 2;
-+	__le32 buf[3];
- 	u32 len;
+I'll try claiming that "milter" is an abbreviation of "milters"; any 
+suggestions for better predicate names?
 
- 	role = kzalloc(sizeof(*role), GFP_KERNEL);
-@@ -1186,12 +1208,17 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
- 		goto out;
- 	}
+>> +interface(`milter_spamass_rw_stream_sockets',`
+>> +        gen_require(`
+>> +                type milter_spamass_t;
+>> +        ')
+>> +
+>> +       allow $1 milter_spamass_t:unix_stream_socket { read write };
+>> +')
+> 
+> Interface naming fix.
+> 
+> 
+>> +interface(`milter_regex_stream_connect',`
+>> +       gen_require(`
+>> +               type milter_regex_spool_t, milter_regex_t;
+>> +       ')
+>> +       stream_connect_pattern($1,milter_regex_spool_t,milter_regex_spool_t,milter_regex_t)
+>> +')
+> 
+> Also missing a files_search_spool() and interface naming fix.
 
-+	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
-+		to_read = 3;
-+
- 	rc = next_entry(buf, fp, sizeof buf);
- 	if (rc < 0)
- 		goto bad;
+I'm now using milter_$1_data_dir_t in the interface, where this 
+directory might live under /var/spool for some milters, /var/run for 
+others etc. So I added files_search_spool() in the te file for the 
+milter(s) that needed it (only).
 
- 	len = le32_to_cpu(buf[0]);
- 	role->value = le32_to_cpu(buf[1]);
-+	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
-+		role->bounds = le32_to_cpu(buf[2]);
+Heavily revised patch attached. The individual milter policies are quite 
+brief now (and there are plenty more that could be added), which I think 
+justifies the template approach. No further changes should need to be 
+made to the sendmail and postfix policies to support additional milters 
+either.
 
- 	key = kmalloc(len + 1, GFP_KERNEL);
- 	if (!key) {
-@@ -1236,8 +1263,8 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
- {
- 	char *key = NULL;
- 	struct type_datum *typdatum;
--	int rc;
--	__le32 buf[3];
-+	int rc, to_read = 3;
-+	__le32 buf[4];
- 	u32 len;
+Paul.
 
- 	typdatum = kzalloc(sizeof(*typdatum), GFP_KERNEL);
-@@ -1246,13 +1273,18 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
- 		return rc;
- 	}
+--------------030602050208040003010803
+Content-Type: text/plain;
+ name="milters.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="milters.patch"
 
--	rc = next_entry(buf, fp, sizeof buf);
-+	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
-+		to_read = 4;
-+
-+	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
- 	if (rc < 0)
- 		goto bad;
-
- 	len = le32_to_cpu(buf[0]);
- 	typdatum->value = le32_to_cpu(buf[1]);
- 	typdatum->primary = le32_to_cpu(buf[2]);
-+	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
-+		typdatum->bounds = le32_to_cpu(buf[3]);
-
- 	key = kmalloc(len + 1, GFP_KERNEL);
- 	if (!key) {
-@@ -1309,8 +1341,8 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
- {
- 	char *key = NULL;
- 	struct user_datum *usrdatum;
--	int rc;
--	__le32 buf[2];
-+	int rc, to_read = 2;
-+	__le32 buf[3];
- 	u32 len;
-
- 	usrdatum = kzalloc(sizeof(*usrdatum), GFP_KERNEL);
-@@ -1319,12 +1351,17 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
- 		goto out;
- 	}
-
--	rc = next_entry(buf, fp, sizeof buf);
-+	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
-+		to_read = 3;
-+
-+	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
- 	if (rc < 0)
- 		goto bad;
-
- 	len = le32_to_cpu(buf[0]);
- 	usrdatum->value = le32_to_cpu(buf[1]);
-+	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
-+		usrdatum->bounds = le32_to_cpu(buf[2]);
-
- 	key = kmalloc(len + 1, GFP_KERNEL);
- 	if (!key) {
-@@ -1465,6 +1502,181 @@ static int (*read_f[SYM_NUM]) (struct policydb *p, struct hashtab *h, void *fp)
- 	cat_read,
- };
-
-+static int user_bounds_sanity_check(void *key, void *datum, void *datap)
-+{
-+	struct user_datum *upper, *user;
-+	struct policydb *p = datap;
-+	int rc, depth = 0;
-+
-+	upper = user = datum;
-+	while (upper->bounds) {
-+		struct ebitmap_node *node;
-+		unsigned long bit;
-+
-+		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
-+			printk(KERN_ERR
-+			       "SELinux: user %s: too deep bounds\n",
-+			       (char *) key);
-+			return -EINVAL;
-+		}
-+
-+		upper = p->user_val_to_struct[upper->bounds - 1];
-+		if (!upper) {
-+			printk(KERN_ERR
-+			       "SELinux: user %s: broken boundary\n",
-+			       (char *) key);
-+			return -EINVAL;
-+		}
-+		/* drop bounded bit from user->roles */
-+retry:
-+		ebitmap_for_each_positive_bit(&user->roles, node, bit) {
-+			if (ebitmap_get_bit(&upper->roles, bit))
-+				continue;
-+
-+			audit_log(current->audit_context, GFP_KERNEL,
-+				  AUDIT_SELINUX_ERR,
-+				  "boundary violation: "
-+				  "user=%s role=%s bounds=%s",
-+				  p->p_user_val_to_name[user->value - 1],
-+				  p->p_role_val_to_name[bit],
-+				  p->p_user_val_to_name[upper->value - 1]);
-+
-+			rc = ebitmap_set_bit(&user->roles, bit, 0);
-+			if (rc)
-+				return rc;
-+			goto retry;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int role_bounds_sanity_check(void *key, void *datum, void *poldbp)
-+{
-+	struct role_datum *upper, *role;
-+	struct policydb *p = poldbp;
-+	int rc, depth = 0;
-+
-+	upper = role = datum;
-+	while (upper->bounds) {
-+		struct ebitmap_node *node;
-+		unsigned long bit;
-+
-+		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
-+			printk(KERN_ERR
-+			       "SELinux: role %s: too deep bounds\n",
-+			       (char *) key);
-+			return -EINVAL;
-+		}
-+
-+		upper = p->role_val_to_struct[upper->bounds - 1];
-+		if (!upper) {
-+			printk(KERN_ERR
-+			       "SELinux: role %s: broken boundary\n",
-+			       (char *) key);
-+			return -EINVAL;
-+		}
-+		/* drop bounded bit from user->roles */
-+retry:
-+		ebitmap_for_each_positive_bit(&role->types, node, bit) {
-+			if (ebitmap_get_bit(&upper->types, bit))
-+				continue;
-+
-+			audit_log(current->audit_context, GFP_KERNEL,
-+				  AUDIT_SELINUX_ERR,
-+				  "boundary violation: "
-+				  "role=%s type=%s bounds=%s",
-+				  p->p_role_val_to_name[role->value - 1],
-+				  p->p_type_val_to_name[bit],
-+				  p->p_role_val_to_name[upper->value - 1]);
-+
-+			rc = ebitmap_set_bit(&role->types, bit, 0);
-+			if (rc)
-+				return rc;
-+			goto retry;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int type_bounds_sanity_check(void *key, void *datum, void *poldbp)
-+{
-+	struct type_datum *upper, *type;
-+	struct policydb *p = poldbp;
-+	int rc, depth = 0;
-+
-+	upper = type = datum;
-+	while (upper->bounds) {
-+		struct ebitmap *type_attrs, *upper_attrs;
-+		struct ebitmap_node *node;
-+		unsigned long bit;
-+
-+		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
-+			printk(KERN_ERR
-+			       "SELinux: type %s: too deep boundary\n",
-+			       (char *) key);
-+			return -EINVAL;
-+		}
-+
-+		upper = p->type_val_to_struct[upper->bounds - 1];
-+		if (!upper) {
-+			printk(KERN_ERR
-+			       "SELinux: type %s: broken boundary\n",
-+			       (char *) key);
-+			return -EINVAL;
-+		}
-+		/* drop bounded bit from type_attr_map */
-+retry:
-+		type_attrs = &p->type_attr_map[type->value - 1];
-+		upper_attrs = &p->type_attr_map[upper->value - 1];
-+		ebitmap_for_each_positive_bit(type_attrs, node, bit) {
-+			if (type->value == bit + 1)
-+				continue;
-+
-+			if (ebitmap_get_bit(upper_attrs, bit))
-+				continue;
-+
-+			audit_log(current->audit_context, GFP_KERNEL,
-+				  AUDIT_SELINUX_ERR,
-+				  "boundary violation: "
-+				  "type=%s attribute=%lu bounds=%s",
-+				  p->p_type_val_to_name[type->value - 1],
-+				  bit + 1,
-+				  p->p_type_val_to_name[upper->value - 1]);
-+
-+			rc = ebitmap_set_bit(type_attrs, bit, 0);
-+			if (rc)
-+				return rc;
-+			goto retry;
-+		}
-+	}
-+	return 0;
-+}
-+
-+static int policydb_bounds_sanity_check(struct policydb *p)
-+{
-+	int rc;
-+
-+	if (p->policyvers < POLICYDB_VERSION_BOUNDARY)
-+		return 0;
-+
-+	rc = hashtab_map(p->p_users.table,
-+			 user_bounds_sanity_check, p);
-+	if (rc)
-+		return rc;
-+
-+	rc = hashtab_map(p->p_roles.table,
-+			 role_bounds_sanity_check, p);
-+	if (rc)
-+		return rc;
-+
-+	rc = hashtab_map(p->p_types.table,
-+			 type_bounds_sanity_check, p);
-+	if (rc)
-+		return rc;
-+
-+	return 0;
-+}
-+
- extern int ss_initialized;
-
- /*
-@@ -1960,6 +2172,10 @@ int policydb_read(struct policydb *p, void *fp)
- 				goto bad;
- 	}
-
-+	rc = policydb_bounds_sanity_check(p);
-+	if (rc)
-+		goto bad;
-+
- 	rc = 0;
- out:
- 	return rc;
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 4253370..320fa23 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -61,6 +61,7 @@ struct class_datum {
- /* Role attributes */
- struct role_datum {
- 	u32 value;			/* internal role value */
-+	u32 bounds;			/* boundary of role */
- 	struct ebitmap dominates;	/* set of roles dominated by this role */
- 	struct ebitmap types;		/* set of authorized types for role */
- };
-@@ -81,12 +82,14 @@ struct role_allow {
- /* Type attributes */
- struct type_datum {
- 	u32 value;		/* internal type value */
-+	u32 bounds;		/* boundary of type */
- 	unsigned char primary;	/* primary name? */
- };
-
- /* User attributes */
- struct user_datum {
- 	u32 value;			/* internal user value */
-+	u32 bounds;			/* bounds of user */
- 	struct ebitmap roles;		/* set of authorized roles for user */
- 	struct mls_range range;		/* MLS range (min - max) for user */
- 	struct mls_level dfltlevel;	/* default login MLS level for user */
-@@ -209,6 +212,7 @@ struct policydb {
- 	struct class_datum **class_val_to_struct;
- 	struct role_datum **role_val_to_struct;
- 	struct user_datum **user_val_to_struct;
-+	struct type_datum **type_val_to_struct;
-
- 	/* type enforcement access vectors and transitions */
- 	struct avtab te_avtab;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index dcc2e1c..a584c1d 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -95,6 +95,8 @@ static u32 latest_granting;
- /* Forward declaration. */
- static int context_struct_to_string(struct context *context, char **scontext,
- 				    u32 *scontext_len);
-+static void security_bounded_permission(u16 source_type, u16 target_type,
-+					u16 tclass, struct av_decision *avd);
-
- /*
-  * Return the boolean value of a constraint expression
-@@ -107,6 +109,81 @@ static int context_struct_to_string(struct context *context, char **scontext,
-  * of the process performing the transition.  All other callers of
-  * constraint_expr_eval should pass in NULL for xcontext.
-  */
-+static int cexpr_user_names_eval(struct ebitmap *names, u16 user_value)
-+{
-+	struct user_datum *user
-+		= policydb.user_val_to_struct[user_value - 1];
-+	int bit;
-+
-+	while (true) {
-+		bit = ebitmap_get_bit(names, user->value - 1);
-+		if (!bit) {
-+			if (user->value != user_value)
-+				audit_log(current->audit_context,
-+					  GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+					  "boundary violation: "
-+					  "user=%s bounds=%s",
-+					  policydb.p_user_val_to_name[user_value - 1],
-+					  policydb.p_user_val_to_name[user->value - 1]);
-+			break;
-+		}
-+		if (!user->bounds)
-+			break;
-+		user = policydb.user_val_to_struct[user->bounds - 1];
-+	}
-+	return bit;
-+}
-+
-+static int cexpr_role_names_eval(struct ebitmap *names, u16 role_value)
-+{
-+	struct role_datum *role
-+		= policydb.role_val_to_struct[role_value - 1];
-+	int bit;
-+
-+	while (true) {
-+		bit = ebitmap_get_bit(names, role->value - 1);
-+		if (!bit) {
-+			if (role->value != role_value)
-+				audit_log(current->audit_context,
-+					  GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+					  "boundary violation: "
-+					  "role=%s bounds=%s",
-+					  policydb.p_role_val_to_name[role_value - 1],
-+					  policydb.p_role_val_to_name[role->value - 1]);
-+			break;
-+		}
-+		if (!role->bounds)
-+			break;
-+		role = policydb.role_val_to_struct[role->bounds - 1];
-+	}
-+	return bit;
-+}
-+
-+static int cexpr_type_names_eval(struct ebitmap *names, u16 type_value)
-+{
-+	struct type_datum *type
-+		= policydb.type_val_to_struct[type_value - 1];
-+	int bit;
-+
-+	while (1) {
-+		bit = ebitmap_get_bit(names, type->value - 1);
-+		if (!bit) {
-+			if (type->value != type_value)
-+				audit_log(current->audit_context,
-+					  GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+					  "boundary violation: "
-+					  "type=%s bounded=%s",
-+					  policydb.p_type_val_to_name[type_value - 1],
-+					  policydb.p_type_val_to_name[type->value - 1]);
-+			break;
-+		}
-+		if (!type->bounds)
-+			break;
-+		type = policydb.type_val_to_struct[type->bounds - 1];
-+	}
-+	return bit;
-+}
-+
- static int constraint_expr_eval(struct context *scontext,
- 				struct context *tcontext,
- 				struct context *xcontext,
-@@ -118,6 +195,7 @@ static int constraint_expr_eval(struct context *scontext,
- 	struct mls_level *l1, *l2;
- 	struct constraint_expr *e;
- 	int s[CEXPR_MAXDEPTH];
-+	int bit;
- 	int sp = -1;
-
- 	for (e = cexpr; e; e = e->next) {
-@@ -249,11 +327,14 @@ mls_ops:
- 				}
- 			}
- 			if (e->attr & CEXPR_USER)
--				val1 = c->user;
-+				bit = cexpr_user_names_eval(&e->names,
-+							    c->user);
- 			else if (e->attr & CEXPR_ROLE)
--				val1 = c->role;
-+				bit = cexpr_role_names_eval(&e->names,
-+							    c->role);
- 			else if (e->attr & CEXPR_TYPE)
--				val1 = c->type;
-+				bit = cexpr_type_names_eval(&e->names,
-+							    c->type);
- 			else {
- 				BUG();
- 				return 0;
-@@ -261,10 +342,10 @@ mls_ops:
-
- 			switch (e->op) {
- 			case CEXPR_EQ:
--				s[++sp] = ebitmap_get_bit(&e->names, val1 - 1);
-+				s[++sp] = bit;
- 				break;
- 			case CEXPR_NEQ:
--				s[++sp] = !ebitmap_get_bit(&e->names, val1 - 1);
-+				s[++sp] = !bit;
- 				break;
- 			default:
- 				BUG();
-@@ -281,6 +362,44 @@ mls_ops:
- 	return s[0];
- }
-
-+static void type_attribute_compute_av(u16 source_type,
-+				      u16 target_type,
-+				      u16 tclass,
-+				      u16 specified,
-+				      struct av_decision *avd)
-+{
-+	struct avtab_key avkey;
-+	struct avtab_node *node;
-+	struct ebitmap *sattr, *tattr;
-+	struct ebitmap_node *snode, *tnode;
-+	unsigned int sbit, tbit;
-+
-+	avkey.target_class = tclass;
-+	avkey.specified = specified & AVTAB_AV;
-+	sattr = &policydb.type_attr_map[source_type - 1];
-+	tattr = &policydb.type_attr_map[target_type - 1];
-+
-+	ebitmap_for_each_positive_bit(sattr, snode, sbit) {
-+		ebitmap_for_each_positive_bit(tattr, tnode, tbit) {
-+			avkey.source_type = sbit + 1;
-+			avkey.target_type = tbit + 1;
-+
-+			for (node = avtab_search_node(&policydb.te_avtab, &avkey);
-+			     node != NULL;
-+			     node = avtab_search_node_next(node, avkey.specified)) {
-+				if (node->key.specified == AVTAB_ALLOWED)
-+					avd->allowed |= node->datum.data;
-+				else if (node->key.specified == AVTAB_AUDITALLOW)
-+					avd->auditallow |= node->datum.data;
-+				else if (node->key.specified == AVTAB_AUDITDENY)
-+					avd->auditdeny &= node->datum.data;
-+			}
-+			/* Check conditional av table for additional permissions */
-+			cond_compute_av(&policydb.te_cond_avtab, &avkey, avd);
-+		}
-+	}
-+}
-+
- /*
-  * Compute access vectors based on a context structure pair for
-  * the permissions in a particular class.
-@@ -293,13 +412,8 @@ static int context_struct_compute_av(struct context *scontext,
- {
- 	struct constraint_node *constraint;
- 	struct role_allow *ra;
--	struct avtab_key avkey;
--	struct avtab_node *node;
- 	struct class_datum *tclass_datum;
--	struct ebitmap *sattr, *tattr;
--	struct ebitmap_node *snode, *tnode;
- 	const struct selinux_class_perm *kdefs = &selinux_class_perm;
--	unsigned int i, j;
-
- 	/*
- 	 * Remap extended Netlink classes for old policy versions.
-@@ -355,30 +469,13 @@ static int context_struct_compute_av(struct context *scontext,
- 	 * If a specific type enforcement rule was defined for
- 	 * this permission check, then use it.
- 	 */
--	avkey.target_class = tclass;
--	avkey.specified = AVTAB_AV;
--	sattr = &policydb.type_attr_map[scontext->type - 1];
--	tattr = &policydb.type_attr_map[tcontext->type - 1];
--	ebitmap_for_each_positive_bit(sattr, snode, i) {
--		ebitmap_for_each_positive_bit(tattr, tnode, j) {
--			avkey.source_type = i + 1;
--			avkey.target_type = j + 1;
--			for (node = avtab_search_node(&policydb.te_avtab, &avkey);
--			     node != NULL;
--			     node = avtab_search_node_next(node, avkey.specified)) {
--				if (node->key.specified == AVTAB_ALLOWED)
--					avd->allowed |= node->datum.data;
--				else if (node->key.specified == AVTAB_AUDITALLOW)
--					avd->auditallow |= node->datum.data;
--				else if (node->key.specified == AVTAB_AUDITDENY)
--					avd->auditdeny &= node->datum.data;
--			}
-+	type_attribute_compute_av(scontext->type,
-+				  tcontext->type,
-+				  tclass, AVTAB_AV, avd);
-
--			/* Check conditional av table for additional permissions */
--			cond_compute_av(&policydb.te_cond_avtab, &avkey, avd);
--
--		}
--	}
-+	security_bounded_permission(scontext->type,
-+				    tcontext->type,
-+				    tclass, avd);
-
- 	/*
- 	 * Remove any permissions prohibited by a constraint (this includes
-@@ -547,6 +644,167 @@ out:
- 	return rc;
- }
-
-+extern void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av);
-+
-+/*
-+ * security_boundary_permission - drops violated permissions
-+ * on boundary constraint.
-+ */
-+static void security_bounded_permission(u16 source_type,
-+					u16 target_type,
-+					u16 tclass,
-+					struct av_decision *avd)
-+{
-+	struct type_datum *source
-+		= policydb.type_val_to_struct[source_type - 1];
-+	struct type_datum *target
-+		= policydb.type_val_to_struct[target_type - 1];
-+	struct av_decision lo_avd;
-+	u32 masked = 0;
-+
-+	if (source->bounds) {
-+		memset(&lo_avd, 0, sizeof(lo_avd));
-+
-+		type_attribute_compute_av(source->bounds,
-+					  target_type,
-+					  tclass,
-+					  AVTAB_ALLOWED,
-+					  &lo_avd);
-+
-+		security_bounded_permission(source->bounds,
-+					    target_type,
-+					    tclass, &lo_avd);
-+
-+		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
-+			return;		/* no masked permission */
-+		masked = ~lo_avd.allowed & avd->allowed;
-+	}
-+
-+	if (target->bounds) {
-+		memset(&lo_avd, 0, sizeof(lo_avd));
-+
-+		type_attribute_compute_av(source_type,
-+					  target->bounds,
-+					  tclass,
-+					  AVTAB_ALLOWED,
-+					  &lo_avd);
-+
-+		security_bounded_permission(source_type,
-+					    target->bounds,
-+					    tclass, &lo_avd);
-+
-+		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
-+			return;		/* no masked permission */
-+		masked = ~lo_avd.allowed & avd->allowed;
-+	}
-+
-+	if (source->bounds && target->bounds) {
-+		memset(&lo_avd, 0, sizeof(lo_avd));
-+
-+		type_attribute_compute_av(source->bounds,
-+					  target->bounds,
-+					  tclass,
-+					  AVTAB_ALLOWED,
-+					  &lo_avd);
-+
-+		security_bounded_permission(source->bounds,
-+					    target->bounds,
-+					    tclass, &lo_avd);
-+
-+		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
-+			return;		/* no masked permission */
-+		masked = ~lo_avd.allowed & avd->allowed;
-+	}
-+
-+	if (masked) {
-+		struct audit_buffer *ab;
-+
-+		/* mask violated permissions */
-+		avd->allowed &= ~masked;
-+
-+		/* notice to userspace via audit message */
-+		ab = audit_log_start(current->audit_context,
-+				     GFP_ATOMIC, AUDIT_SELINUX_ERR);
-+		if (!ab)
-+			return;
-+
-+		audit_log_format(ab, "boundary violation: "
-+				 "source=%s target=%s tclass=%s",
-+				 policydb.p_type_val_to_name[source_type - 1],
-+				 policydb.p_type_val_to_name[target_type - 1],
-+				 policydb.p_class_val_to_name[tclass - 1]);
-+		avc_dump_av(ab, tclass, masked);
-+		audit_log_end(ab);
-+	}
-+}
-+
-+/*
-+ * security_bounded_transition - check whether the given
-+ * transition is directed to bounded, or not.
-+ * It returns 0, if @newsid is bounded by @oldsid. Otherwise,
-+ * 1 or any other error code can be returned.
-+ *
-+ * @oldsid : current security identifier
-+ * @newsid : destinated security identifier
-+ */
-+int security_bounded_transition(u32 old_sid, u32 new_sid)
-+{
-+	struct context *old_context, *new_context;
-+	struct type_datum *type;
-+	int index;
-+	int rc = -EINVAL;
-+
-+	read_lock(&policy_rwlock);
-+
-+	old_context = sidtab_search(&sidtab, old_sid);
-+	if (!old_context) {
-+		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
-+		       __func__, old_sid);
-+		goto out;
-+	}
-+
-+	new_context = sidtab_search(&sidtab, new_sid);
-+	if (!new_context) {
-+		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
-+		       __func__, new_sid);
-+		goto out;
-+	}
-+
-+	/* type/domain unchaned */
-+	if (old_context->type == new_context->type) {
-+		rc = 0;
-+		goto out;
-+	}
-+
-+	index = new_context->type;
-+	while (true) {
-+		type = policydb.type_val_to_struct[index - 1];
-+		if (!type) {
-+			printk(KERN_ERR "SELinux: broken type boundary.\n");
-+			rc = -EINVAL;
-+			break;
-+		}
-+
-+		/* not bounded anymore */
-+		if (!type->bounds) {
-+			rc = 1;
-+			break;
-+		}
-+
-+		/* @newsid is bounded by @oldsid */
-+		if (type->bounds == old_context->type) {
-+			rc = 0;
-+			break;
-+		}
-+		index = type->bounds;
-+	}
-+out:
-+	read_unlock(&policy_rwlock);
-+
-+	return rc;
-+}
-+
-+
- /**
-  * security_compute_av - Compute access vector decisions.
-  * @ssid: source security identifier
-
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+SW5kZXg6IHBvbGljeS9tb2R1bGVzL2tlcm5lbC9jb3JlbmV0d29yay50ZS5pbgo9PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09Ci0tLSBwb2xpY3kvbW9kdWxlcy9rZXJuZWwvY29yZW5ldHdvcmsudGUuaW4JKHJl
+dmlzaW9uIDI3NzApCisrKyBwb2xpY3kvbW9kdWxlcy9rZXJuZWwvY29yZW5ldHdvcmsudGUu
+aW4JKHdvcmtpbmcgY29weSkKQEAgLTExOSw2ICsxMTksNyBAQAogdHlwZSBscnJkX3BvcnRf
+dCwgcG9ydF90eXBlOyBkbmwgbmV0d29ya19wb3J0KGxycmRfcG9ydF90KSAjIG5vIGRlZmlu
+ZWQgcG9ydGNvbgogbmV0d29ya19wb3J0KGxtdHAsIHRjcCwyNCxzMCwgdWRwLDI0LHMwKQog
+bmV0d29ya19wb3J0KG1haWwsIHRjcCwyMDAwLHMwKQordHlwZSBtaWx0ZXJfcG9ydF90LCBw
+b3J0X3R5cGU7IGRubCBuZXR3b3JrX3BvcnQobWlsdGVyKSAjIG5vIGRlZmluZWQgcG9ydGNv
+bgogbmV0d29ya19wb3J0KG1tY2MsIHRjcCw1MDUwLHMwLCB1ZHAsNTA1MCxzMCkKIG5ldHdv
+cmtfcG9ydChtb25vcGQsIHRjcCwxMjM0LHMwKQogbmV0d29ya19wb3J0KG1zbnAsIHRjcCwx
+ODYzLHMwLCB1ZHAsMTg2MyxzMCkKSW5kZXg6IHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL21p
+bHRlcnMudGUKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PQotLS0gcG9saWN5L21vZHVsZXMvc2VydmljZXMvbWls
+dGVycy50ZQkocmV2aXNpb24gMCkKKysrIHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL21pbHRl
+cnMudGUJKHJldmlzaW9uIDApCkBAIC0wLDAgKzEsNDIgQEAKK3BvbGljeV9tb2R1bGUobWls
+dGVycywwLjEuNCkKKworcmVxdWlyZSB7CisJYXR0cmlidXRlIHBvcnRfdHlwZTsKK30KKwor
+Iz09PT09PT09PT09PT0gZGVjbGFyYXRpb25zID09PT09PT09PT09PT09PT0KKworIyBhdHRy
+aWJ1dGVzIGNvbW1vbiB0byBhbGwgbWlsdGVycworYXR0cmlidXRlIG1pbHRlcl9kb21haW5z
+OworYXR0cmlidXRlIG1pbHRlcl9zb2NrZXRfZGlyZWN0b3JpZXM7CithdHRyaWJ1dGUgbWls
+dGVyX3NvY2tldF90eXBlOworCisKKyM9PT09PT09PT09PT09IG1pbHRlci1yZWdleCBwb2xp
+Y3kgPT09PT09PT09PT09PT0KK21pbHRlcl90ZW1wbGF0ZShyZWdleCkKKworIyBDb25maWcg
+aXMgaW4gL2V0Yy9tYWlsL21pbHRlci1yZWdleC5jb25mCittdGFfcmVhZF9jb25maWcobWls
+dGVyX3JlZ2V4X3QpCisKKyMgVGhlIG1pbHRlcidzIHNvY2tldCBkaXJlY3RvcnkgbGl2ZXMg
+dW5kZXIgL3Zhci9zcG9vbAorZmlsZXNfc2VhcmNoX3Nwb29sKG1pbHRlcl9yZWdleF90KQor
+CisjIEl0IHJlbW92ZXMgYW55IGV4aXN0aW5nIHNvY2tldCAobm90IG93bmVkIGJ5IHJvb3Qp
+IHdoaWxzdCBydW5uaW5nIGFzIHJvb3QKKyMgYW5kIHRoZW4gY2FsbHMgc2V0Z2lkKCkgYW5k
+IHNldHVpZCgpIHRvIGRyb3AgcHJpdmlsZWdlcworYWxsb3cgbWlsdGVyX3JlZ2V4X3Qgc2Vs
+ZjpjYXBhYmlsaXR5IHsgc2V0dWlkIHNldGdpZCBkYWNfb3ZlcnJpZGUgfTsKKworCisjPT09
+PT09PT09PT09PSBzcGFtYXNzLW1pbHRlciBwb2xpY3kgPT09PT09PT09PT09PT0KK21pbHRl
+cl90ZW1wbGF0ZShzcGFtYXNzKQorCisjIFRoZSBtYWluIGpvYiBvZiB0aGUgbWlsdGVyIGlz
+IHRvIHBpcGUgc3BhbSB0aHJvdWdoIHNwYW1jIGFuZCBhY3Qgb24gdGhlIHJlc3VsdAorc3Bh
+bWFzc2Fzc2luX2RvbXRyYW5zX3NwYW1jKG1pbHRlcl9zcGFtYXNzX3QpCisKKyMgV2hlbiB1
+c2VkIHdpdGggLWIgb3IgLUIgb3B0aW9ucywgdGhlIG1pbHRlciBpbnZva2VzIHNlbmRtYWls
+IHRvIHNlbmQgbWFpbAorIyB0byBhIHNwYW10cmFwIGFkZHJlc3MsIHVzaW5nIHBvcGVuKCkK
+K2NvcmVjbWRfZXhlY19zaGVsbChtaWx0ZXJfc3BhbWFzc190KQorY29yZWNtZF9yZWFkX2Jp
+bl9zeW1saW5rcyhtaWx0ZXJfc3BhbWFzc190KQorY29yZWNtZF9zZWFyY2hfYmluKG1pbHRl
+cl9zcGFtYXNzX3QpCitrZXJuZWxfcmVhZF9zeXN0ZW1fc3RhdGUobWlsdGVyX3NwYW1hc3Nf
+dCkKK210YV9zZW5kX21haWwobWlsdGVyX3NwYW1hc3NfdCkKKwpJbmRleDogcG9saWN5L21v
+ZHVsZXMvc2VydmljZXMvc2VuZG1haWwudGUKPT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gcG9saWN5L21v
+ZHVsZXMvc2VydmljZXMvc2VuZG1haWwudGUJKHJldmlzaW9uIDI3NzApCisrKyBwb2xpY3kv
+bW9kdWxlcy9zZXJ2aWNlcy9zZW5kbWFpbC50ZQkod29ya2luZyBjb3B5KQpAQCAtMTEyLDYg
+KzExMiwxMCBAQAogJykKIAogb3B0aW9uYWxfcG9saWN5KGAKKwltaWx0ZXJfc3RyZWFtX2Nv
+bm5lY3Qoc2VuZG1haWxfdCkKKycpCisKK29wdGlvbmFsX3BvbGljeShgCiAJcG9zdGZpeF9l
+eGVjX21hc3RlcihzZW5kbWFpbF90KQogCXBvc3RmaXhfcmVhZF9jb25maWcoc2VuZG1haWxf
+dCkKIAlwb3N0Zml4X3NlYXJjaF9zcG9vbChzZW5kbWFpbF90KQpJbmRleDogcG9saWN5L21v
+ZHVsZXMvc2VydmljZXMvbWlsdGVycy5mYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBwb2xpY3kvbW9k
+dWxlcy9zZXJ2aWNlcy9taWx0ZXJzLmZjCShyZXZpc2lvbiAwKQorKysgcG9saWN5L21vZHVs
+ZXMvc2VydmljZXMvbWlsdGVycy5mYwkocmV2aXNpb24gMCkKQEAgLTAsMCArMSwxMyBAQAor
+L3Vzci9zYmluL21pbHRlci1yZWdleAkJCQktLQlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmpl
+Y3RfcjptaWx0ZXJfcmVnZXhfZXhlY190LHMwKQorL3Zhci9zcG9vbC9taWx0ZXItcmVnZXgJ
+CQkJLWQJZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6bWlsdGVyX3JlZ2V4X2RhdGFf
+ZGlyX3QsczApCisvdmFyL3Nwb29sL21pbHRlci1yZWdleC9zb2NrCQkJLXMJZ2VuX2NvbnRl
+eHQoc3lzdGVtX3U6b2JqZWN0X3I6bWlsdGVyX3JlZ2V4X3NvY2tldF90LHMwKQorL3Zhci9z
+cG9vbC9taWx0ZXItcmVnZXgvLisJCQkJZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6
+bWlsdGVyX3JlZ2V4X2RhdGFfdCxzMCkKKworL3Vzci9zYmluL3NwYW1hc3MtbWlsdGVyCQkJ
+LS0JZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6bWlsdGVyX3NwYW1hc3NfZXhlY190
+LHMwKQorL3Zhci9ydW4vc3BhbWFzcy1taWx0ZXIJCQkJLWQJZ2VuX2NvbnRleHQoc3lzdGVt
+X3U6b2JqZWN0X3I6bWlsdGVyX3NwYW1hc3NfZGF0YV9kaXJfdCxzMCkKKy92YXIvcnVuL3Nw
+YW1hc3MtbWlsdGVyXC5waWQJCQktLQlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3Rfcjpt
+aWx0ZXJfc3BhbWFzc19kYXRhX3QsczApCisvdmFyL3J1bi9zcGFtYXNzLW1pbHRlci9zcGFt
+YXNzLW1pbHRlclwuc29jawktcwlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3RfcjptaWx0
+ZXJfc3BhbWFzc19zb2NrZXRfdCxzMCkKKy92YXIvcnVuL3NwYW1hc3MtbWlsdGVyLy4rCQkJ
+CWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOm1pbHRlcl9zcGFtYXNzX2RhdGFfdCxz
+MCkKKy92YXIvcnVuL3NwYW1hc3MtbWlsdGVyL3Bvc3RmaXgJCQktZAlnZW5fY29udGV4dChz
+eXN0ZW1fdTpvYmplY3RfcjptaWx0ZXJfc3BhbWFzc19kYXRhX2Rpcl90LHMwKQorL3Zhci9y
+dW4vc3BhbWFzcy1taWx0ZXIvcG9zdGZpeC9zb2NrCQktcwlnZW5fY29udGV4dChzeXN0ZW1f
+dTpvYmplY3RfcjptaWx0ZXJfc3BhbWFzc19zb2NrZXRfdCxzMCkKKwpJbmRleDogcG9saWN5
+L21vZHVsZXMvc2VydmljZXMvbXRhLnRlCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIHBvbGljeS9tb2R1
+bGVzL3NlcnZpY2VzL210YS50ZQkocmV2aXNpb24gMjc3MCkKKysrIHBvbGljeS9tb2R1bGVz
+L3NlcnZpY2VzL210YS50ZQkod29ya2luZyBjb3B5KQpAQCAtMTA1LDYgKzEwNSw5IEBACiAJ
+IyBwb3N0Zml4IG5lZWRzIHRoaXMgZm9yIG5ld2FsaWFzZXMKIAlmaWxlc19nZXRhdHRyX3Rt
+cF9kaXJzKHN5c3RlbV9tYWlsX3QpCiAKKwkjIG5ld2FsaWFzZXMgcnVucyBhcyBzeXN0ZW1f
+bWFpbF90IHdoZW4gdGhlIHNlbmRtYWlsIGluaXRzY3JpcHQgZG9lcyBhIHJlc3RhcnQKKwlt
+aWx0ZXJfZ2V0YXR0cl9zb2NrZXRfZGlyKHN5c3RlbV9tYWlsX3QpCisKIAlwb3N0Zml4X2V4
+ZWNfbWFzdGVyKHN5c3RlbV9tYWlsX3QpCiAJcG9zdGZpeF9yZWFkX2NvbmZpZyhzeXN0ZW1f
+bWFpbF90KQogCXBvc3RmaXhfc2VhcmNoX3Nwb29sKHN5c3RlbV9tYWlsX3QpCkluZGV4OiBw
+b2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9taWx0ZXJzLmlmCj09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIHBv
+bGljeS9tb2R1bGVzL3NlcnZpY2VzL21pbHRlcnMuaWYJKHJldmlzaW9uIDApCisrKyBwb2xp
+Y3kvbW9kdWxlcy9zZXJ2aWNlcy9taWx0ZXJzLmlmCShyZXZpc2lvbiAwKQpAQCAtMCwwICsx
+LDEwOCBAQAorIyMgPHN1bW1hcnk+TWlsdGVyIG1haWwgZmlsdGVyczwvc3VtbWFyeT4KKwor
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIworIyMgPHN1bW1hcnk+
+CisjIwlDcmVhdGUgYSBzZXQgb2YgZGVyaXZlZCB0eXBlcyBmb3IgdmFyaW91cworIyMJbWFp
+bCBmaWx0ZXIgYXBwbGljYXRpb25zIHVzaW5nIHRoZSBtaWx0ZXIgaW50ZXJmYWNlLgorIyMg
+PC9zdW1tYXJ5PgorIyMgPHBhcmFtIG5hbWU9Im1pbHRlcl9uYW1lIj4KKyMjCTxzdW1tYXJ5
+PgorIyMJVGhlIG5hbWUgdG8gYmUgdXNlZCBmb3IgZGVyaXZpbmcgdHlwZSBuYW1lcy4KKyMj
+CTwvc3VtbWFyeT4KKyMjIDwvcGFyYW0+CisjCit0ZW1wbGF0ZShgbWlsdGVyX3RlbXBsYXRl
+JyxgCisKKwkjIGF0dHJpYnV0ZXMgY29tbW9uIHRvIGFsbCBtaWx0ZXJzLCBwbHVzIHBvcnQg
+dHlwZSBmb3IgbWlsdGVyIFRDUCBzb2NrZXRzCisJZ2VuX3JlcXVpcmUoYAorCQlhdHRyaWJ1
+dGUgbWlsdGVyX3NvY2tldF9kaXJlY3RvcmllcywgbWlsdGVyX3NvY2tldF90eXBlLCBtaWx0
+ZXJfZG9tYWluczsKKwkJdHlwZSBtaWx0ZXJfcG9ydF90OworCScpCisKKwkjIFR5cGUgdGhh
+dCB0aGUgbWlsdGVyIGFwcGxpY2F0aW9uIHJ1bnMgYXMKKwl0eXBlIG1pbHRlcl8kMV90LCBt
+aWx0ZXJfZG9tYWluczsKKwlkb21haW5fdHlwZShtaWx0ZXJfJDFfdCkKKwlyb2xlIHN5c3Rl
+bV9yIHR5cGVzIG1pbHRlcl8kMV90OworCisJIyBUeXBlIGZvciB0aGUgZXhlY3V0YWJsZSBm
+aWxlCisJdHlwZSBtaWx0ZXJfJDFfZXhlY190OworCWluaXRfZGFlbW9uX2RvbWFpbihtaWx0
+ZXJfJDFfdCwgbWlsdGVyXyQxX2V4ZWNfdCkKKworCSMgVHlwZSBmb3IgdGhlIGRpcmVjdG9y
+eSB0aGF0IHRoZSB1bml4LWRvbWFpbiBzb2NrZXQgZm9yIE1UQQorCSMgY29tbXVuaWNhdGlv
+biB3aWxsIGxpdmUgaW4KKwl0eXBlIG1pbHRlcl8kMV9kYXRhX2Rpcl90LCBtaWx0ZXJfc29j
+a2V0X2RpcmVjdG9yaWVzOworCWZpbGVzX3R5cGUobWlsdGVyXyQxX2RhdGFfZGlyX3QpCisK
+KwkjIFR5cGUgZm9yIHRoZSB1bml4LWRvbWFpbiBzb2NrZXQgZm9yIE1UQSBjb21tdW5pY2F0
+aW9uCisJdHlwZSBtaWx0ZXJfJDFfc29ja2V0X3QsIG1pbHRlcl9zb2NrZXRfdHlwZTsKKwlm
+aWxlc190eXBlKG1pbHRlcl8kMV9zb2NrZXRfdCk7CisJZmlsZXRyYW5zX3BhdHRlcm4obWls
+dGVyXyQxX3QsbWlsdGVyXyQxX2RhdGFfZGlyX3QsbWlsdGVyXyQxX3NvY2tldF90LHNvY2tf
+ZmlsZSkKKworCSMgQW55IG90aGVyIGRhdGEgdGhlIG1pbHRlciBwdXRzIGluIGEgbWlsdGVy
+X2RhdGFfZGlyX3QgZGlyZWN0b3J5CisJdHlwZSBtaWx0ZXJfJDFfZGF0YV90OworCWZpbGVz
+X3R5cGUobWlsdGVyXyQxX2RhdGFfdCk7CisJZmlsZXRyYW5zX3BhdHRlcm4obWlsdGVyXyQx
+X3QsbWlsdGVyXyQxX2RhdGFfZGlyX3QsbWlsdGVyXyQxX2RhdGFfdCx7IGRpciBmaWxlIH0p
+CisKKwkjIEdlbmVyaWMgcnVsZXMgZnJvbSBwb2xpY3lnZW50b29sCisJZmlsZXNfcmVhZF9l
+dGNfZmlsZXMobWlsdGVyXyQxX3QpCisJbGlic191c2VfbGRfc28obWlsdGVyXyQxX3QpCisJ
+bGlic191c2Vfc2hhcmVkX2xpYnMobWlsdGVyXyQxX3QpCisJbWlzY2ZpbGVzX3JlYWRfbG9j
+YWxpemF0aW9uKG1pbHRlcl8kMV90KQorCXN5c25ldF9kbnNfbmFtZV9yZXNvbHZlKG1pbHRl
+cl8kMV90KQorCWluaXRfdXNlX2ZkcyhtaWx0ZXJfJDFfdCkKKwlpbml0X3VzZV9zY3JpcHRf
+cHR5cyhtaWx0ZXJfJDFfdCkKKwlkb21haW5fdXNlX2ludGVyYWN0aXZlX2ZkcyhtaWx0ZXJf
+JDFfdCkKKworCSMgQWxsb3cgY29tbXVuaWNhdGlvbiB3aXRoIE1UQSBvdmVyIGEgVENQIHNv
+Y2tldAorCWFsbG93IG1pbHRlcl8kMV90IG1pbHRlcl9wb3J0X3Q6dGNwX3NvY2tldCBuYW1l
+X2JpbmQ7CisJY29yZW5ldF90Y3BfYmluZF9nZW5lcmljX25vZGUobWlsdGVyXyQxX3QpCisJ
+YWxsb3cgbWlsdGVyXyQxX3Qgc2VsZjp0Y3Bfc29ja2V0IHsgbGlzdGVuIGFjY2VwdCB9Owor
+CisJIyBBbGxvdyBjb21tdW5pY2F0aW9uIHdpdGggTVRBIG92ZXIgYSB1bml4LWRvbWFpbiBz
+b2NrZXQKKwltYW5hZ2Vfc29ja19maWxlc19wYXR0ZXJuKG1pbHRlcl8kMV90LG1pbHRlcl8k
+MV9kYXRhX2Rpcl90LG1pbHRlcl8kMV9zb2NrZXRfdCkKKworCSMgQ3JlYXRlIG90aGVyIGRh
+dGEgZmlsZXMgYW5kIGRpcmVjdG9yaWVzIGluIHRoZSBzb2NrZXQgZGlyZWN0b3J5CisJbWFu
+YWdlX2ZpbGVzX3BhdHRlcm4obWlsdGVyXyQxX3QsbWlsdGVyXyQxX2RhdGFfZGlyX3QsbWls
+dGVyXyQxX2RhdGFfdCkKKwltYW5hZ2VfZmlsZXNfcGF0dGVybihtaWx0ZXJfJDFfdCxtaWx0
+ZXJfJDFfZGF0YV90LG1pbHRlcl8kMV9kYXRhX3QpCisKKwkjIFRoaW5ncyB0aGF0IG1vc3Qg
+bWlsdGVycyB3aWxsIG5lZWQgdG8gZG8KKwlhbGxvdyBtaWx0ZXJfJDFfdCBzZWxmOmZpZm9f
+ZmlsZSByd19maWZvX2ZpbGVfcGVybXM7CisJbG9nZ2luZ19zZW5kX3N5c2xvZ19tc2cobWls
+dGVyXyQxX3QpCisKKycpCisKKyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMKKyMjIDxzdW1tYXJ5PgorIyMJTVRBIGNvbW11bmljYXRpb24gd2l0aCBtaWx0ZXIg
+c29ja2V0cworIyMgPC9zdW1tYXJ5PgorIyMgPHBhcmFtIG5hbWU9ImRvbWFpbiI+CisjIwk8
+c3VtbWFyeT4KKyMjCURvbWFpbiBhbGxvd2VkIGFjY2Vzcy4KKyMjCTwvc3VtbWFyeT4KKyMj
+IDwvcGFyYW0+CisjCitpbnRlcmZhY2UoYG1pbHRlcl9zdHJlYW1fY29ubmVjdCcsYAorCWdl
+bl9yZXF1aXJlKGAKKwkJYXR0cmlidXRlIG1pbHRlcl9zb2NrZXRfZGlyZWN0b3JpZXMsIG1p
+bHRlcl9zb2NrZXRfdHlwZSwgbWlsdGVyX2RvbWFpbnM7CisJJykKKwlnZXRhdHRyX2RpcnNf
+cGF0dGVybigkMSxtaWx0ZXJfc29ja2V0X2RpcmVjdG9yaWVzLG1pbHRlcl9zb2NrZXRfZGly
+ZWN0b3JpZXMpCisJc3RyZWFtX2Nvbm5lY3RfcGF0dGVybigkMSxtaWx0ZXJfc29ja2V0X2Rp
+cmVjdG9yaWVzLG1pbHRlcl9zb2NrZXRfdHlwZSxtaWx0ZXJfZG9tYWlucykKKycpCisKKyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKKyMjIDxzdW1tYXJ5Pgor
+IyMJQWxsb3cgc2VhcmNoIG9mIG1pbHRlciBzb2NrZXQgZGlyZWN0b3J5CisjIyA8L3N1bW1h
+cnk+CisjIyA8cGFyYW0gbmFtZT0iZG9tYWluIj4KKyMjCTxzdW1tYXJ5PgorIyMJRG9tYWlu
+IGFsbG93ZWQgYWNjZXNzLgorIyMJPC9zdW1tYXJ5PgorIyMgPC9wYXJhbT4KKyMKK2ludGVy
+ZmFjZShgbWlsdGVyX2dldGF0dHJfc29ja2V0X2RpcicsYAorCWdlbl9yZXF1aXJlKGAKKwkJ
+YXR0cmlidXRlIG1pbHRlcl9zb2NrZXRfZGlyZWN0b3JpZXM7CisJJykKKwlnZXRhdHRyX2Rp
+cnNfcGF0dGVybigkMSxtaWx0ZXJfc29ja2V0X2RpcmVjdG9yaWVzLG1pbHRlcl9zb2NrZXRf
+ZGlyZWN0b3JpZXMpCisnKQorCkluZGV4OiBwb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9zcGFt
+YXNzYXNzaW4uZmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gcG9saWN5L21vZHVsZXMvc2VydmljZXMv
+c3BhbWFzc2Fzc2luLmZjCShyZXZpc2lvbiAyNzcwKQorKysgcG9saWN5L21vZHVsZXMvc2Vy
+dmljZXMvc3BhbWFzc2Fzc2luLmZjCSh3b3JraW5nIGNvcHkpCkBAIC0xMCw3ICsxMCw2IEBA
+CiAvdmFyL2xpYi9zcGFtYXNzYXNzaW4oLy4qKT8JZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2Jq
+ZWN0X3I6c3BhbWRfdmFyX2xpYl90LHMwKQogCiAvdmFyL3J1bi9zcGFtYXNzYXNzaW4oLy4q
+KT8JZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6c3BhbWRfdmFyX3J1bl90LHMwKQot
+L3Zhci9ydW4vc3BhbWFzcy1taWx0ZXIoLy4qKT8JZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2Jq
+ZWN0X3I6c3BhbWRfdmFyX3J1bl90LHMwKQogCiAvdmFyL3Nwb29sL3NwYW1hc3Nhc3Npbigv
+LiopPwlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3RfcjpzcGFtZF9zcG9vbF90LHMwKQog
+L3Zhci9zcG9vbC9zcGFtZCgvLiopPwkJZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6
+c3BhbWRfc3Bvb2xfdCxzMCkKSW5kZXg6IHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3Bvc3Rm
+aXgudGUKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PQotLS0gcG9saWN5L21vZHVsZXMvc2VydmljZXMvcG9zdGZp
+eC50ZQkocmV2aXNpb24gMjc3MCkKKysrIHBvbGljeS9tb2R1bGVzL3NlcnZpY2VzL3Bvc3Rm
+aXgudGUJKHdvcmtpbmcgY29weSkKQEAgLTUzMCw2ICs1MzAsMTAgQEAKIAljeXJ1c19zdHJl
+YW1fY29ubmVjdChwb3N0Zml4X3NtdHBfdCkKICcpCiAKK29wdGlvbmFsX3BvbGljeShgCisJ
+bWlsdGVyX3N0cmVhbV9jb25uZWN0KHBvc3RmaXhfc210cF90KQorJykKKwogIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIwogIwogIyBQb3N0Zml4IHNtdHBkIGxv
+Y2FsIHBvbGljeQo=
+--------------030602050208040003010803--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
