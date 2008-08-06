@@ -1,38 +1,54 @@
-Message-ID: <4899798A.6070500@ak.jp.nec.com>
-Date: Wed, 06 Aug 2008 19:14:34 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Message-ID: <48999F72.2040003@redhat.com>
+Date: Wed, 06 Aug 2008 08:56:18 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] Thread/Child-Domain Assignment (rev.3)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB68.5080309@ak.jp.nec.com>
-In-Reply-To: <4897EB68.5080309@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Can we make libsemanage default to expand-check=0
+References: <489864B4.1090605@redhat.com> <1217948012.2994.93.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1217948012.2994.93.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> [2/3] thread-context-checkpolicy.2.patch
->   It enables to support TYPEBOUNDS statement and to expand
->   existing hierarchies implicitly.
+Stephen Smalley wrote:
+> On Tue, 2008-08-05 at 10:33 -0400, Daniel J Walsh wrote:
+>> plain text document attachment (libsemanage-rhat.patch)
+>> diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage.conf libsemanage-2.0.25/src/semanage.conf
+>> --- nsalibsemanage/src/semanage.conf	2008-06-12 23:25:16.000000000 -0400
+>> +++ libsemanage-2.0.25/src/semanage.conf	2008-07-17 13:58:44.000000000 -0400
+>> @@ -35,4 +35,4 @@
+>>  # given in <sepol/policydb.h>.  Change this setting if a different
+>>  # version is necessary.
+>>  #policy-version = 19
+>> -
+>> +expand-check=0
 > 
-> Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
-> --
->  module_compiler.c |   86 +++++++++++++++++++++++++++++++++++++++++++++++++
->  policy_define.c   |   93 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
->  policy_define.h   |    1
->  policy_parse.y    |    5 ++
->  policy_scan.l     |    2 +
->  5 files changed, 186 insertions(+), 1 deletion(-)
+> I thought we were going to leave this unchanged upstream, and only make
+> this change in Fedora.
+>
+Ok.  I was just trying to get rid of my patch.
 
-The patch for checkpolicy is unchanged at revision 3.
-Please apply the previous version, as is.
-
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+> We want the checking to be applied for policy developers.  If you were
+> to incorporate 'make validate' into the policy spec file, then you would
+> get it applied when you perform a policy build.  And ideally there would
+> be similar support in the selinux-policy-devel Makefile for policy
+> module writers to use.  All it does is run semodule_link followed by
+> semodule_expand, which applies the checking.
+> 
+make validate is now in the Rawhide spec file.
+> If we were to change the upstream default, we'd likely change it in the
+> code (semanage_conf_init()) rather than just in the .conf file.  And
+> then policy developers would need to add expand-check=1 to their .conf
+> file to set it.  
+> 
+Putting this into the selinux-policy-devel package (which does not exist
+any longer, it is all part of selinux-policy) does not work.  Since the
+semodule_lnk and semodule_expand do not use the installed system.  So
+you would have hack up the Makefile to grab all of the pp files in
+/etc/selinux/TYPE/modules/active/*.pp and isolate the base.pp file, then
+add the new pp files that you are creating.  Or somehow add this as a
+parameter to semodule_link to make it happen automatically
 
 --
 This message was distributed to subscribers of the selinux mailing list.
