@@ -1,39 +1,41 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m76KeiKq017265
-	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2008 16:40:44 -0400
-Received: from mail.rowdy.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m76KeaiB025829
-	for <selinux@tycho.nsa.gov>; Wed, 6 Aug 2008 20:40:36 GMT
-Received: from spacetime.nextelcup.rowdy.com ([208.81.230.219])
-        by mail.helixsystems.com (HXS1 mail server) with ASMTP (SSL) id MCU45244
-        for <selinux@tycho.nsa.gov>; Wed, 06 Aug 2008 16:40:44 -0400
-Date: Wed, 6 Aug 2008 16:39:49 -0400 (EDT)
-From: Lucas Emery <lucas@rowdy.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <7478930.41218055185078.JavaMail.SYSTEM@Spacetime>
-In-Reply-To: <11565128.21218055038859.JavaMail.SYSTEM@Spacetime>
-Subject: Re: selinux freaking out about samba share
+Date: Thu, 7 Aug 2008 09:47:23 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: Vesa-Matti Kari <vmkari@cc.helsinki.fi>
+cc: sds@tycho.nsa.gov, eparis@parisplace.org, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinux: conditional expression type validation was
+ off-by-one
+In-Reply-To: <200808061546.m76Fkwq1005199@ruuvi.it.helsinki.fi>
+Message-ID: <alpine.LRH.1.10.0808070945400.15561@tundra.namei.org>
+References: <200808061546.m76Fkwq1005199@ruuvi.it.helsinki.fi>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->
->Looks like the same problem your having, have you seen this?
->
->http://www.nsa.gov/selinux/list-archive/0606/thread_body10.cfm#15927
->
->
->-Max
+On Wed, 6 Aug 2008, Vesa-Matti Kari wrote:
+
+> expr_isvalid() in conditional.c was off-by-one and allowed
+> invalid expression type COND_LAST. However, it is this header file
+> that needs to be fixed. That way the if-statement's disjunction's
+> second component reads more naturally, "if expr type is greater than
+> the last allowed value" ( rather than using ">=" in conditional.c):
+> 
+>   if (expr->expr_type <= 0 || expr->expr_type > COND_LAST)
+> 
+> Signed-off-by: Vesa-Matti Kari <vmkari@cc.helsinki.fi>
+
+Thanks, nice catch.
+
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
 
-Hm. Yup, that's exactly what I'm seeing.  And the bug report referenced in that post explains why ("SELinux sets up the inode security state upon d_instantiate, so it expects the
-inode mode to be set (so that it can set the inode security class).  cifs appears to call d_instantiate before fully setting up the inode state.").  Now I'm just wondering
-what I'm doing wrong because the report says this issue is fixed in kernels 2.6.18 and above, and I'm running a kernel > 2.6.18......
 
-Thanks,
-
-Lucas
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
