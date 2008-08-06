@@ -1,323 +1,614 @@
-Message-ID: <4899775C.8040000@ak.jp.nec.com>
-Date: Wed, 06 Aug 2008 19:05:16 +0900
+Message-ID: <48997945.9090900@ak.jp.nec.com>
+Date: Wed, 06 Aug 2008 19:13:25 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
 CC: jmorris@namei.org, paul.moore@hp.com, jbrindle@tresys.com,
         selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment (rev.2)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com>	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>	 <4897EB5A.1040404@ak.jp.nec.com> <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>
+Subject: [PATCH 3/3] Thread/Child-Domain Assignment (rev.3)
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com>
+In-Reply-To: <4897EB6F.6080709@ak.jp.nec.com>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks for your reviewing.
+The following patch is the revised one for the libsepol.
+It is reworked to deliver entries of attributes into kernelspace.
+It enables to show boundary violation at policy load time in human
+readable form.
 
-Stephen Smalley wrote:
-> On Tue, 2008-08-05 at 14:55 +0900, KaiGai Kohei wrote:
->> [1/3] thread-context-kernel.2.patch
->>   It allows a multithreaded process to assign an individual
->>   "more bounded" security context, and it also enables to
->>   handle binary policy format version 24 in kernel space.
->>
->> Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
->> --
->>  security/selinux/avc.c              |    2 +-
->>  security/selinux/hooks.c            |   12 +-
->>  security/selinux/include/security.h |    6 +-
->>  security/selinux/ss/policydb.c      |  244 +++++++++++++++++++++++++--
->>  security/selinux/ss/policydb.h      |    4 +
->>  security/selinux/ss/services.c      |  324 +++++++++++++++++++++++++++++++----
->>  6 files changed, 541 insertions(+), 51 deletions(-)
-> 
-> 
->> @@ -1176,8 +1198,8 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
->>  {
->>  	char *key = NULL;
->>  	struct role_datum *role;
->> -	int rc;
->> -	__le32 buf[2];
->> +	int rc, to_read = 2;
->> +	__le32 buf[3];
->>  	u32 len;
->>
->>  	role = kzalloc(sizeof(*role), GFP_KERNEL);
->> @@ -1186,12 +1208,17 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
->>  		goto out;
->>  	}
->>
->> +	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
->> +		to_read = 3;
->> +
->>  	rc = next_entry(buf, fp, sizeof buf);
-> 
-> Doesn't this also need to be changed to pass sizeof(buf[0]) * to_read
-> rather than sizeof buf?
-> Did you try loading an old policy on your new kernel?
+[3/3] thread-context-libsepol.3.patch
+  It enables to support binary policy format version 24.
 
-It was a bug, fixed at revision 3.
+Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
+--
+ include/sepol/policydb/policydb.h |   21 +++++-
+ src/expand.c                      |  132 ++++++++++++++++++++++++++++++--------
+ src/link.c                        |  108 ++++++++++++++++++++++++++++++-
+ src/policydb.c                    |   80 +++++++++++++++++------
+ src/write.c                       |   15 ++++
+ 5 files changed, 305 insertions(+), 51 deletions(-)
+Index: libsepol/include/sepol/policydb/policydb.h
+===================================================================
+--- libsepol/include/sepol/policydb/policydb.h	(revision 2938)
++++ libsepol/include/sepol/policydb/policydb.h	(working copy)
+@@ -119,6 +119,7 @@
+ 	ebitmap_t dominates;	/* set of roles dominated by this role */
+ 	type_set_t types;	/* set of authorized types for role */
+ 	ebitmap_t cache;	/* This is an expanded set used for context validation during parsing */
++	uint32_t bounds;	/* bounds role, if exist */
+ } role_datum_t;
 
->>  	if (rc < 0)
->>  		goto bad;
->>
->>  	len = le32_to_cpu(buf[0]);
->>  	role->value = le32_to_cpu(buf[1]);
->> +	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
->> +		role->bounds = le32_to_cpu(buf[2]);
->>
->>  	key = kmalloc(len + 1, GFP_KERNEL);
->>  	if (!key) {
-> 
->> @@ -1465,6 +1502,181 @@ static int (*read_f[SYM_NUM]) (struct policydb *p, struct hashtab *h, void *fp)
->>  	cat_read,
->>  };
->>
->> +static int user_bounds_sanity_check(void *key, void *datum, void *datap)
->> +{
->> +	struct user_datum *upper, *user;
->> +	struct policydb *p = datap;
->> +	int rc, depth = 0;
->> +
->> +	upper = user = datum;
->> +	while (upper->bounds) {
->> +		struct ebitmap_node *node;
->> +		unsigned long bit;
->> +
->> +		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
->> +			printk(KERN_ERR
->> +			       "SELinux: user %s: too deep bounds\n",
->> +			       (char *) key);
->> +			return -EINVAL;
->> +		}
->> +
->> +		upper = p->user_val_to_struct[upper->bounds - 1];
->> +		if (!upper) {
->> +			printk(KERN_ERR
->> +			       "SELinux: user %s: broken boundary\n",
->> +			       (char *) key);
->> +			return -EINVAL;
->> +		}
->> +		/* drop bounded bit from user->roles */
->> +retry:
->> +		ebitmap_for_each_positive_bit(&user->roles, node, bit) {
->> +			if (ebitmap_get_bit(&upper->roles, bit))
->> +				continue;
->> +
->> +			audit_log(current->audit_context, GFP_KERNEL,
->> +				  AUDIT_SELINUX_ERR,
->> +				  "boundary violation: "
->> +				  "user=%s role=%s bounds=%s",
->> +				  p->p_user_val_to_name[user->value - 1],
->> +				  p->p_role_val_to_name[bit],
->> +				  p->p_user_val_to_name[upper->value - 1]);
->> +
->> +			rc = ebitmap_set_bit(&user->roles, bit, 0);
->> +			if (rc)
->> +				return rc;
->> +			goto retry;
-> 
-> I would just return an error and abort the policy load on any boundary
-> violations detected at load time rather than mutating the policy.
+ typedef struct role_trans {
+@@ -145,6 +146,7 @@
+ 	ebitmap_t types;	/* types with this attribute */
+ #define TYPE_FLAGS_PERMISSIVE	0x01
+ 	uint32_t flags;
++	uint32_t bounds;	/* bounds type, if exist */
+ } type_datum_t;
 
-OK, XXXX_bounds_sanity_check() are reworked to return an error and
-to abort the policy load.
+ /* User attributes */
+@@ -156,6 +158,7 @@
+ 	ebitmap_t cache;	/* This is an expanded set used for context validation during parsing */
+ 	mls_range_t exp_range;     /* expanded range used for validation */
+ 	mls_level_t exp_dfltlevel; /* expanded range used for validation */
++	uint32_t bounds;	/* bounds user, if exist */
+ } user_datum_t;
 
-- snip -
+ /* Sensitivity attributes */
+@@ -595,10 +598,11 @@
+ #define POLICYDB_VERSION_RANGETRANS	21
+ #define POLICYDB_VERSION_POLCAP		22
+ #define POLICYDB_VERSION_PERMISSIVE	23
++#define POLICYDB_VERSION_BOUNDARY	24
 
->> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
->> index 4253370..320fa23 100644
->> --- a/security/selinux/ss/policydb.h
->> +++ b/security/selinux/ss/policydb.h
->> @@ -61,6 +61,7 @@ struct class_datum {
->> @@ -81,12 +82,14 @@ struct role_allow {
->>  /* Type attributes */
->>  struct type_datum {
->>  	u32 value;		/* internal type value */
->> +	u32 bounds;		/* boundary of type */
->>  	unsigned char primary;	/* primary name? */
->>  };
-> 
-> An aside:  Possibly we should add the attribute flag at the same time
-> and leave the type attributes in the type symtab in the kernel policy,
-> as previously discussed.  Then the kernel policy won't be lacking any
-> information needed for analysis.  Just need to make sure that
-> context_to_sid doesn't accept attributes in the type field.
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
 
-I updated the libsepol to deliver attribute entries into kernel space,
-and kernel type_datum got a new member to show it is an attribute.
-In the policy format, if bounds field of type equals 0xffffffff means
-this entry is an attribute.
-However, it might be an ad-hoc usage. An alternatice way to deliver
-this information is to utilize the "primary" field of type to put
-various kind of flags, because it consume 32bit width to represent
-1bit information, and rest of 31bit is free.
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_BASE	   4
+@@ -608,12 +612,25 @@
+ #define MOD_POLICYDB_VERSION_MLS_USERS	   6
+ #define MOD_POLICYDB_VERSION_POLCAP	   7
+ #define MOD_POLICYDB_VERSION_PERMISSIVE	   8
++#define MOD_POLICYDB_VERSION_BOUNDARY      9
 
-This reworking also enables to fill up the hole of type_val_to_struct
-array, so we don't need to allocate it with kzalloc(). I reverted it
-to kmalloc() from kzalloc().
-(In the previous revision, we can find NULL for attributes.)
+ #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
+-#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_PERMISSIVE
++#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_BOUNDARY
 
->> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
->> index dcc2e1c..a584c1d 100644
->> --- a/security/selinux/ss/services.c
->> +++ b/security/selinux/ss/services.c
-> <snip>
->> +static int cexpr_type_names_eval(struct ebitmap *names, u16 type_value)
->> +{
->> +	struct type_datum *type
->> +		= policydb.type_val_to_struct[type_value - 1];
->> +	int bit;
->> +
->> +	while (1) {
-> 
-> You were using while (true) in the prior functions.  We should be
-> consistent one way or the other.
+ #define POLICYDB_CONFIG_MLS    1
 
-Oops, I left it as integer value unawares.
-However, cexpr_XXXX_names_eval() were reverted on the next revision. :-)
++/* macros to check policy feature */
++
++/* TODO: add other features here */
++
++#define policydb_has_boundary_feature(p)			\
++	(((p)->policy_type == POLICY_KERN			\
++	  && p->policyvers >= POLICYDB_VERSION_BOUNDARY) ||	\
++	 ((p)->policy_type != POLICY_KERN			\
++	  && p->policyvers >= MOD_POLICYDB_VERSION_BOUNDARY))
++
++#define POLICYDB_BOUNDS_ATTRIBUTE_FLAG	0xffffffff
++
+ /* the config flags related to unknown classes/perms are bits 2 and 3 */
+ #define DENY_UNKNOWN	SEPOL_DENY_UNKNOWN
+ #define REJECT_UNKNOWN	SEPOL_REJECT_UNKNOWN
+Index: libsepol/src/policydb.c
+===================================================================
+--- libsepol/src/policydb.c	(revision 2938)
++++ libsepol/src/policydb.c	(working copy)
+@@ -110,6 +110,12 @@
+ 	 .sym_num = SYM_NUM,
+ 	 .ocon_num = OCON_NODE6 + 1,
+ 	 },
++        {
++	 .type = POLICY_KERN,
++	 .version = POLICYDB_VERSION_BOUNDARY,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	},
+ 	{
+ 	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+@@ -141,6 +147,12 @@
+ 	 .ocon_num = OCON_NODE6 + 1,
+ 	 },
+ 	{
++	 .type = POLICY_BASE,
++	 .version = MOD_POLICYDB_VERSION_BOUNDARY,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	},
++	{
+ 	 .type = POLICY_MOD,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+ 	 .sym_num = SYM_NUM,
+@@ -170,6 +182,12 @@
+ 	 .sym_num = SYM_NUM,
+ 	 .ocon_num = 0
+ 	 },
++	{
++	 .type = POLICY_MOD,
++	 .version = MOD_POLICYDB_VERSION_BOUNDARY,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = 0
++	},
+ };
 
->> +		bit = ebitmap_get_bit(names, type->value - 1);
->> +		if (!bit) {
->> +			if (type->value != type_value)
->> +				audit_log(current->audit_context,
->> +					  GFP_ATOMIC, AUDIT_SELINUX_ERR,
->> +					  "boundary violation: "
->> +					  "type=%s bounded=%s",
->> +					  policydb.p_type_val_to_name[type_value - 1],
->> +					  policydb.p_type_val_to_name[type->value - 1]);
->> +			break;
->> +		}
->> +		if (!type->bounds)
->> +			break;
->> +		type = policydb.type_val_to_struct[type->bounds - 1];
->> +	}
-> 
-> I don't think we ought to be doing this checking here, if at all.
-> Either we vet the constraints for internal consistency at load time, or
-> we view the bounds as purely a limit on the TE rules and not necessarily
-> on the constraints.
+ #if 0
+@@ -1855,20 +1873,25 @@
+ {
+ 	char *key = 0;
+ 	role_datum_t *role;
+-	uint32_t buf[2];
++	uint32_t buf[3];
+ 	size_t len;
+-	int rc;
++	int rc, to_read = 2;
 
-I think the boundary rules also should be applied on the constraints.
-For example, we can assume a case when a bounded type can have "mcssetcats"
-attribute, even if its bounds type does not have the attribute.
-It seems to me a bit strange behavior.
+ 	role = calloc(1, sizeof(role_datum_t));
+ 	if (!role)
+ 		return -1;
 
-I reverted it and put a code to check boundary consistency at the policy
-load time. (constraint_bounds_sanity_check())
+-	rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
++	if (policydb_has_boundary_feature(p))
++		to_read = 3;
++
++	rc = next_entry(buf, fp, sizeof(uint32_t) * to_read);
+ 	if (rc < 0)
+ 		goto bad;
 
->> @@ -547,6 +644,167 @@ out:
->>  	return rc;
->>  }
->>
->> +extern void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av);
-> 
-> Move to avc.h, please.
+ 	len = le32_to_cpu(buf[0]);
+ 	role->s.value = le32_to_cpu(buf[1]);
++	if (policydb_has_boundary_feature(p))
++		role->bounds = le32_to_cpu(buf[2]);
 
-OK, moved.
+ 	key = malloc(len + 1);
+ 	if (!key)
+@@ -1916,32 +1939,46 @@
+ {
+ 	char *key = 0;
+ 	type_datum_t *typdatum;
+-	uint32_t buf[5];
++	uint32_t buf[6];
+ 	size_t len;
+-	int rc, to_read;
++	int rc, to_read, items = 0;
 
->> +
->> +/*
->> + * security_boundary_permission - drops violated permissions
->> + * on boundary constraint.
->> + */
->> +static void security_bounded_permission(u16 source_type,
->> +					u16 target_type,
->> +					u16 tclass,
->> +					struct av_decision *avd)
->> +{
->> +	struct type_datum *source
->> +		= policydb.type_val_to_struct[source_type - 1];
->> +	struct type_datum *target
->> +		= policydb.type_val_to_struct[target_type - 1];
->> +	struct av_decision lo_avd;
->> +	u32 masked = 0;
->> +
->> +	if (source->bounds) {
->> +		memset(&lo_avd, 0, sizeof(lo_avd));
->> +
->> +		type_attribute_compute_av(source->bounds,
->> +					  target_type,
->> +					  tclass,
->> +					  AVTAB_ALLOWED,
->> +					  &lo_avd);
->> +
->> +		security_bounded_permission(source->bounds,
->> +					    target_type,
->> +					    tclass, &lo_avd);
-> 
-> Since you always call type_attribute_compute_av and
-> security_bounded_permission together, you might as well collapse them or
-> wrap them with a single interface, right?  Less chance then of the
-> (stype, ttype, tclass) arguments being inconsistent.
+ 	typdatum = calloc(1, sizeof(type_datum_t));
+ 	if (!typdatum)
+ 		return -1;
 
-I moved the boundary checks into type_attribute_compute_av().
+-	if (p->policy_type == POLICY_KERN)
+-		to_read = 3;
+-	else if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
+-		to_read = 5;
+-	else
+-		to_read = 4;
++	if (p->policy_type == POLICY_KERN) {
++		if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
++			to_read = 4;
++		else
++			to_read = 3;
++	} else {
++		if (p->policyvers >= MOD_POLICYDB_VERSION_BOUNDARY)
++			to_read = 6;
++		else if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
++			to_read = 5;
++		else
++			to_read = 4;
++	}
 
+ 	rc = next_entry(buf, fp, sizeof(uint32_t) * to_read);
+ 	if (rc < 0)
+ 		goto bad;
++	len = le32_to_cpu(buf[items++]);
++	typdatum->s.value = le32_to_cpu(buf[items++]);
++	typdatum->primary = le32_to_cpu(buf[items++]);
++	if (policydb_has_boundary_feature(p)) {
++		uint32_t bounds = le32_to_cpu(buf[items++]);
 
->> +
->> +/*
->> + * security_bounded_transition - check whether the given
->> + * transition is directed to bounded, or not.
->> + * It returns 0, if @newsid is bounded by @oldsid. Otherwise,
->> + * 1 or any other error code can be returned.
-> 
-> Seems somewhat confusing in its return code conventions.
-> Either return a simple bool (true/false) or return 0 on success and
-> -errno on failure.  
+-	len = le32_to_cpu(buf[0]);
+-	typdatum->s.value = le32_to_cpu(buf[1]);
+-	typdatum->primary = le32_to_cpu(buf[2]);
++		if (bounds == POLICYDB_BOUNDS_ATTRIBUTE_FLAG)
++			typdatum->flavor = TYPE_ATTRIB;
++		else
++			typdatum->bounds = bounds;
++	}
+ 	if (p->policy_type != POLICY_KERN) {
+-		typdatum->flavor = le32_to_cpu(buf[3]);
++		typdatum->flavor = le32_to_cpu(buf[items++]);
+ 		if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
+-			typdatum->flags = le32_to_cpu(buf[4]);
++			typdatum->flags = le32_to_cpu(buf[items++]);
+ 		if (ebitmap_read(&typdatum->types, fp))
+ 			goto bad;
+ 	}
+@@ -2293,20 +2330,25 @@
+ {
+ 	char *key = 0;
+ 	user_datum_t *usrdatum;
+-	uint32_t buf[2];
++	uint32_t buf[3];
+ 	size_t len;
+-	int rc;
++	int rc, to_read = 2;
 
-OK, it was reworked to return 0 (success) or negative error code.
+ 	usrdatum = calloc(1, sizeof(user_datum_t));
+ 	if (!usrdatum)
+ 		return -1;
 
->> + *
->> + * @oldsid : current security identifier
->> + * @newsid : destinated security identifier
->> + */
->> +int security_bounded_transition(u32 old_sid, u32 new_sid)
->> +{
->> +	struct context *old_context, *new_context;
->> +	struct type_datum *type;
->> +	int index;
->> +	int rc = -EINVAL;
->> +
->> +	read_lock(&policy_rwlock);
->> +
->> +	old_context = sidtab_search(&sidtab, old_sid);
->> +	if (!old_context) {
->> +		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
->> +		       __func__, old_sid);
->> +		goto out;
->> +	}
->> +
->> +	new_context = sidtab_search(&sidtab, new_sid);
->> +	if (!new_context) {
->> +		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
->> +		       __func__, new_sid);
->> +		goto out;
->> +	}
->> +
->> +	/* type/domain unchaned */
->> +	if (old_context->type == new_context->type) {
->> +		rc = 0;
->> +		goto out;
->> +	}
->> +
->> +	index = new_context->type;
->> +	while (true) {
->> +		type = policydb.type_val_to_struct[index - 1];
->> +		if (!type) {
->> +			printk(KERN_ERR "SELinux: broken type boundary.\n");
->> +			rc = -EINVAL;
->> +			break;
->> +		}
-> 
-> Are these legitimate runtime conditions or signs of kernel BUGs?
-> val_to_struct arrays ought to be without holes unless I'm forgetting
-> something.
+-	rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
++	if (policydb_has_boundary_feature(p))
++		to_read = 3;
++
++	rc = next_entry(buf, fp, sizeof(uint32_t) * to_read);
+ 	if (rc < 0)
+ 		goto bad;
 
-There was no guarantee the bounds does not indicate the hole of
-type_val_to_struct array due to attributes.
-However, delivering attribute into kernelspace kills the hole.
+ 	len = le32_to_cpu(buf[0]);
+ 	usrdatum->s.value = le32_to_cpu(buf[1]);
++	if (policydb_has_boundary_feature(p))
++		usrdatum->bounds = le32_to_cpu(buf[2]);
 
-Thanks,
+ 	key = malloc(len + 1);
+ 	if (!key)
+Index: libsepol/src/expand.c
+===================================================================
+--- libsepol/src/expand.c	(revision 2938)
++++ libsepol/src/expand.c	(working copy)
+@@ -466,6 +466,100 @@
+ 	return 0;
+ }
+
++/*
++ * The boundaries have to be copied after the types/roles/users are copied,
++ * because it refers hashtab to lookup destinated objects.
++ */
++static int type_bounds_copy_callback(hashtab_key_t key,
++				     hashtab_datum_t datum, void *data)
++{
++	expand_state_t *state = (expand_state_t *) data;
++	type_datum_t *type = (type_datum_t *) datum;
++	type_datum_t *dest;
++	uint32_t bounds_val;
++
++	if (!type->bounds)
++		return 0;
++
++	if (!is_id_enabled((char *)key, state->base, SYM_TYPES))
++		return 0;
++
++	bounds_val = state->typemap[type->bounds - 1];
++
++	dest = hashtab_search(state->out->p_types.table, (char *)key);
++	if (!dest) {
++		ERR(state->handle, "Type lookup failed for %s", (char *)key);
++		return -1;
++	}
++	if (dest->bounds != 0 && dest->bounds != bounds_val) {
++		ERR(state->handle, "Inconsistent boundary for %s", (char *)key);
++		return -1;
++	}
++	dest->bounds = bounds_val;
++
++	return 0;
++}
++
++static int role_bounds_copy_callback(hashtab_key_t key,
++				     hashtab_datum_t datum, void *data)
++{
++	expand_state_t *state = (expand_state_t *) data;
++	role_datum_t *role = (role_datum_t *) datum;
++	role_datum_t *dest;
++	uint32_t bounds_val;
++
++	if (!role->bounds)
++		return 0;
++
++	if (!is_id_enabled((char *)key, state->base, SYM_ROLES))
++		return 0;
++
++	bounds_val = state->rolemap[role->bounds - 1];
++
++	dest = hashtab_search(state->out->p_roles.table, (char *)key);
++	if (!dest) {
++		ERR(state->handle, "Role lookup failed for %s", (char *)key);
++		return -1;
++	}
++	if (dest->bounds != 0 && dest->bounds != bounds_val) {
++		ERR(state->handle, "Inconsistent boundary for %s", (char *)key);
++		return -1;
++	}
++	dest->bounds = bounds_val;
++
++	return 0;
++}
++
++static int user_bounds_copy_callback(hashtab_key_t key,
++				     hashtab_datum_t datum, void *data)
++{
++	expand_state_t *state = (expand_state_t *) data;
++	user_datum_t *user = (user_datum_t *) datum;
++	user_datum_t *dest;
++	uint32_t bounds_val;
++
++	if (!user->bounds)
++		return 0;
++
++	if (!is_id_enabled((char *)key, state->base, SYM_USERS))
++		return 0;
++
++	bounds_val = state->usermap[user->bounds - 1];
++
++	dest = hashtab_search(state->out->p_users.table, (char *)key);
++	if (!dest) {
++		ERR(state->handle, "User lookup failed for %s", (char *)key);
++		return -1;
++	}
++	if (dest->bounds != 0 && dest->bounds != bounds_val) {
++		ERR(state->handle, "Inconsistent boundary for %s", (char *)key);
++		return -1;
++	}
++	dest->bounds = bounds_val;
++
++	return 0;
++}
++
+ /* The aliases have to be copied after the types and attributes to be certain that
+  * the out symbol table will have the type that the alias refers. Otherwise, we
+  * won't be able to find the type value for the alias. We can't depend on the
+@@ -1865,31 +1959,6 @@
+ 	return 0;
+ }
+
+-static void type_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p
+-			 __attribute__ ((unused)))
+-{
+-	free(key);
+-	type_datum_destroy((type_datum_t *) datum);
+-	free(datum);
+-}
+-
+-static int type_attr_remove(hashtab_key_t key
+-			    __attribute__ ((unused)), hashtab_datum_t datum,
+-			    void *args)
+-{
+-	type_datum_t *typdatum;
+-	policydb_t *p;
+-
+-	typdatum = (type_datum_t *) datum;
+-	p = (policydb_t *) args;
+-	if (typdatum->flavor == TYPE_ATTRIB) {
+-		p->type_val_to_struct[typdatum->s.value - 1] = NULL;
+-		p->p_type_val_to_name[typdatum->s.value - 1] = NULL;
+-		return 1;
+-	}
+-	return 0;
+-}
+-
+ /* converts typeset using typemap and expands into ebitmap_t types using the attributes in the passed in policy.
+  * this should not be called until after all the blocks have been processed and the attributes in target policy
+  * are complete. */
+@@ -2393,6 +2462,11 @@
+ 		goto cleanup;
+ 	}
+
++	/* copy type bounds */
++	if (hashtab_map(state.base->p_types.table,
++			type_bounds_copy_callback, &state))
++		goto cleanup;
++
+ 	/* copy aliases */
+ 	if (hashtab_map(state.base->p_types.table, alias_copy_callback, &state))
+ 		goto cleanup;
+@@ -2406,6 +2480,9 @@
+ 	/* copy roles */
+ 	if (hashtab_map(state.base->p_roles.table, role_copy_callback, &state))
+ 		goto cleanup;
++	if (hashtab_map(state.base->p_roles.table,
++			role_bounds_copy_callback, &state))
++		goto cleanup;
+
+ 	/* copy MLS's sensitivity level and categories - this needs to be done
+ 	 * before expanding users (they need to be indexed too) */
+@@ -2421,6 +2498,9 @@
+ 	/* copy users */
+ 	if (hashtab_map(state.base->p_users.table, user_copy_callback, &state))
+ 		goto cleanup;
++	if (hashtab_map(state.base->p_users.table,
++			user_bounds_copy_callback, &state))
++		goto cleanup;
+
+ 	/* copy bools */
+ 	if (hashtab_map(state.base->p_bools.table, bool_copy_callback, &state))
+@@ -2510,8 +2590,6 @@
+ 	}
+ 	if (hashtab_map(state.out->p_types.table, type_attr_map, &state))
+ 		goto cleanup;
+-	hashtab_map_remove_on_error(state.out->p_types.table,
+-				    type_attr_remove, type_destroy, state.out);
+ 	if (check) {
+ 		if (hierarchy_check_constraints(handle, state.out))
+ 			goto cleanup;
+Index: libsepol/src/write.c
+===================================================================
+--- libsepol/src/write.c	(revision 2938)
++++ libsepol/src/write.c	(working copy)
+@@ -920,6 +920,8 @@
+ 	items = 0;
+ 	buf[items++] = cpu_to_le32(len);
+ 	buf[items++] = cpu_to_le32(role->s.value);
++	if (policydb_has_boundary_feature(p))
++		buf[items++] = cpu_to_le32(role->bounds);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+ 		return POLICYDB_ERROR;
+@@ -952,11 +954,22 @@
+
+ 	typdatum = (type_datum_t *) datum;
+
++	if (p->policy_type == POLICY_KERN
++	    && p->policyvers < POLICYDB_VERSION_BOUNDARY
++	    && typdatum->flavor == TYPE_ATTRIB)
++		return POLICYDB_SUCCESS;
++
+ 	len = strlen(key);
+ 	items = 0;
+ 	buf[items++] = cpu_to_le32(len);
+ 	buf[items++] = cpu_to_le32(typdatum->s.value);
+ 	buf[items++] = cpu_to_le32(typdatum->primary);
++	if (policydb_has_boundary_feature(p)) {
++		if (typdatum->flavor == TYPE_ATTRIB)
++			buf[items++] = cpu_to_le32(POLICYDB_BOUNDS_ATTRIBUTE_FLAG);
++		else
++			buf[items++] = cpu_to_le32(typdatum->bounds);
++	}
+ 	if (p->policy_type != POLICY_KERN) {
+ 		buf[items++] = cpu_to_le32(typdatum->flavor);
+ 		if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
+@@ -997,6 +1010,8 @@
+ 	items = 0;
+ 	buf[items++] = cpu_to_le32(len);
+ 	buf[items++] = cpu_to_le32(usrdatum->s.value);
++	if (policydb_has_boundary_feature(p))
++		buf[items++] = cpu_to_le32(usrdatum->bounds);
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+ 	if (items != items2)
+ 		return POLICYDB_ERROR;
+Index: libsepol/src/link.c
+===================================================================
+--- libsepol/src/link.c	(revision 2938)
++++ libsepol/src/link.c	(working copy)
+@@ -660,6 +660,97 @@
+ 	    user_copy_callback, bool_copy_callback, sens_copy_callback,
+ 	    cat_copy_callback};
+
++/*
++ * The boundaries have to be copied after the types/roles/users are copied,
++ * because it refers hashtab to lookup destinated objects.
++ */
++static int type_bounds_copy_callback(hashtab_key_t key,
++				     hashtab_datum_t datum, void *data)
++{
++	link_state_t *state = (link_state_t *) data;
++	type_datum_t *type = (type_datum_t *) datum;
++	type_datum_t *dest;
++	uint32_t bounds_val;
++
++	if (!type->bounds)
++		return 0;
++
++	bounds_val = state->cur->map[SYM_TYPES][type->bounds - 1];
++
++	dest = hashtab_search(state->base->p_types.table, key);
++	if (!dest) {
++		ERR(state->handle,
++		    "Type lookup failed for %s", (char *)key);
++		return -1;
++	}
++	if (dest->bounds != 0 && dest->bounds != bounds_val) {
++		ERR(state->handle,
++		    "Inconsistent boundary for %s", (char *)key);
++		return -1;
++	}
++	dest->bounds = bounds_val;
++
++	return 0;
++}
++
++static int role_bounds_copy_callback(hashtab_key_t key,
++				     hashtab_datum_t datum, void *data)
++{
++	link_state_t *state = (link_state_t *) data;
++	role_datum_t *role = (role_datum_t *) datum;
++	role_datum_t *dest;
++	uint32_t bounds_val;
++
++	if (!role->bounds)
++		return 0;
++
++	bounds_val = state->cur->map[SYM_ROLES][role->bounds - 1];
++
++	dest = hashtab_search(state->base->p_roles.table, key);
++	if (!dest) {
++		ERR(state->handle,
++		    "Role lookup failed for %s", (char *)key);
++		return -1;
++	}
++	if (dest->bounds != 0 && dest->bounds != bounds_val) {
++		ERR(state->handle,
++		    "Inconsistent boundary for %s", (char *)key);
++		return -1;
++	}
++	dest->bounds = bounds_val;
++
++	return 0;
++}
++
++static int user_bounds_copy_callback(hashtab_key_t key,
++				     hashtab_datum_t datum, void *data)
++{
++	link_state_t *state = (link_state_t *) data;
++	user_datum_t *user = (user_datum_t *) datum;
++	user_datum_t *dest;
++	uint32_t bounds_val;
++
++	if (!user->bounds)
++		return 0;
++
++	bounds_val = state->cur->map[SYM_USERS][user->bounds - 1];
++
++	dest = hashtab_search(state->base->p_users.table, key);
++	if (!dest) {
++		ERR(state->handle,
++		    "User lookup failed for %s", (char *)key);
++		return -1;
++	}
++	if (dest->bounds != 0 && dest->bounds != bounds_val) {
++		ERR(state->handle,
++		    "Inconsistent boundary for %s", (char *)key);
++		return -1;
++	}
++	dest->bounds = bounds_val;
++
++	return 0;
++}
++
+ /* The aliases have to be copied after the types and attributes to be
+  * certain that the base symbol table will have the type that the
+  * alias refers. Otherwise, we won't be able to find the type value
+@@ -1362,11 +1453,22 @@
+ 		}
+ 	}
+
+-	if (hashtab_map
+-	    (src_symtab[SYM_TYPES].table, alias_copy_callback, state)) {
++	if (hashtab_map(src_symtab[SYM_TYPES].table,
++			type_bounds_copy_callback, state))
+ 		return -1;
+-	}
+
++	if (hashtab_map(src_symtab[SYM_TYPES].table,
++			alias_copy_callback, state))
++		return -1;
++
++	if (hashtab_map(src_symtab[SYM_ROLES].table,
++			role_bounds_copy_callback, state))
++		return -1;
++
++	if (hashtab_map(src_symtab[SYM_USERS].table,
++			user_bounds_copy_callback, state))
++		return -1;
++
+ 	/* then fix bitmaps associated with those newly copied identifiers */
+ 	for (i = 0; i < SYM_NUM; i++) {
+ 		if (fix_callback_f[i] != NULL &&
+
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
