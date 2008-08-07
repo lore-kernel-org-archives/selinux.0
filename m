@@ -1,112 +1,69 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77FdsO4030392
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 11:39:54 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m77Fdrl6028955
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 15:39:53 GMT
-Message-ID: <489B1709.4030102@redhat.com>
-Date: Thu, 07 Aug 2008 11:38:49 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77GsDUd010299
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 12:54:15 -0400
+Received: from mail.wrs.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m77GsCbV017046
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 16:54:12 GMT
+Received: from ALA-MAIL03.corp.ad.wrs.com (ala-mail03 [147.11.57.144])
+	by mail.wrs.com (8.13.6/8.13.6) with ESMTP id m77Gs1kh027378
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 09:54:02 -0700 (PDT)
+Message-ID: <489B25B6.4080309@windriver.com>
+Date: Thu, 07 Aug 2008 12:41:26 -0400
+From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: ipsec patch
-Content-Type: multipart/mixed;
- boundary="------------070102020404090208010701"
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Request for multiple mailing lists
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------070102020404090208010701
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+The SE Linux <selinux@tycho.nsa.gov> mailing list is being cluttered 
+with non selinux related material.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Especially concerning refpolicy. And there is no set fast term used for 
+filtering such content, and needless to say a waste of bandwidth.
 
-Allow ifconfig_t to write to files in /var/run/ipsec
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+The SELinux list is not a place for non-SELinux maintainers, like Tresys 
+to discuss their policies within themselves. Would it be alright for me 
+and the other developers in my company to use the SELinux list to 
+discuss our policies? Or the next company that decides to adopt SELinux? 
+RedHat goes as far as to using the SELinux list as a communication 
+channel with Tresys. Unless there has been some agreement made between 
+the SELinux gatekeepers (NSA?) , Tresys and Redhat, I find this a misuse 
+of the mailing list.
 
-iEYEARECAAYFAkibFwkACgkQrlYvE4MpobPsNwCeIGWI+PsOndYFq5pBpey14Lyx
-2aAAoKADa/n/FNj15fs45vUgGSaTZJZQ
-=Ur2n
------END PGP SIGNATURE-----
+In the last 4 months, there have only been a handful of unique threads 
+concerning SELinux. A few by Stepehen, Eric, and myself. Everything else 
+is policy related.  With a total of 800 odd messages in this time frame, 
+its quite clear the policy discussion is cluttering the list. As more 
+and more people begin to adopt SELinux and face the battles of SELinux 
+integration, the userspace topic will become increasingly popular.
 
---------------070102020404090208010701
-Content-Type: text/plain;
- name="system_ipsec.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="system_ipsec.patch"
+As I see it, the current list should be split into 3.
 
---- nsaserefpolicy/policy/modules/system/ipsec.if	2008-08-07 11:15:12.000000000 -0400
-+++ serefpolicy-3.5.2/policy/modules/system/ipsec.if	2008-08-06 16:19:00.000000000 -0400
-@@ -150,6 +150,26 @@
- 	manage_files_pattern($1,ipsec_var_run_t,ipsec_var_run_t)
- ')
- 
-+
-+########################################
-+## <summary>
-+##	write the ipsec_var_run_t files.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	The type of the process performing this action.
-+##	</summary>
-+## </param>
-+#
-+interface(`ipsec_write_pid',`
-+	gen_require(`
-+		type ipsec_var_run_t;
-+	')
-+
-+	files_search_pids($1)
-+	write_files_pattern($1, ipsec_var_run_t, ipsec_var_run_t)
-+')
-+
- ########################################
- ## <summary>
- ##	Execute racoon in the racoon domain.
---- nsaserefpolicy/policy/modules/system/ipsec.te	2008-08-07 11:15:12.000000000 -0400
-+++ serefpolicy-3.5.2/policy/modules/system/ipsec.te	2008-08-06 16:19:00.000000000 -0400
-@@ -69,8 +69,8 @@
- read_files_pattern(ipsec_t,ipsec_key_file_t,ipsec_key_file_t)
- read_lnk_files_pattern(ipsec_t,ipsec_key_file_t,ipsec_key_file_t)
- 
--allow ipsec_t ipsec_var_run_t:file manage_file_perms;
--allow ipsec_t ipsec_var_run_t:sock_file manage_sock_file_perms;
-+manage_files_pattern(ipsec_t, ipsec_var_run_t,  ipsec_var_run_t)
-+manage_sock_files_pattern(ipsec_t, ipsec_var_run_t,  ipsec_var_run_t)
- files_pid_filetrans(ipsec_t,ipsec_var_run_t,{ file sock_file })
- 
- can_exec(ipsec_t, ipsec_mgmt_exec_t)
---- nsaserefpolicy/policy/modules/system/sysnetwork.te	2008-08-07 11:15:12.000000000 -0400
-+++ serefpolicy-3.5.2/policy/modules/system/sysnetwork.te	2008-08-06 16:19:00.000000000 -0400
-@@ -324,6 +337,10 @@
- ')
- 
- optional_policy(`
-+	ipsec_write_pid(ifconfig_t)
-+')
-+
-+optional_policy(`
- 	nis_use_ypbind(ifconfig_t)
- ')
- 
+1. selinux-kernel
+    This would be a very low volume list. .Perhaps even with special 
+clearance to address security holes and concerns.
+2. selinux-userspace
+    This list would deal with userspace tools, wrappers and other non 
+kernel related material. Whether it be NSA's userspace tools or support 
+for 3rd party applications being compiled to be selinux-aware using 
+libselinux. This list is very important, if not the most important of 
+the three.
+3. selinux-policy
+    This list will deal with policies. A good place for Administrators 
+and policy developers to discuss the creation, debugging and use of 
+various policies. This as it stands would have the highest volume. 
+Nevertheless as suggested by Grift Dominick on #selinux, a forum would 
+be an even better place to discuss policies. Repository of ideas, 
+designs and development dedicated to policies. A forum for the 
+Administrator and Policy Developer.
 
---------------070102020404090208010701
-Content-Type: application/octet-stream;
- name="system_ipsec.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="system_ipsec.patch.sig"
+Without this breakdown, the selinux list would be analogous to people 
+talking about GNU and C programming on lkml.
 
-iEYEABECAAYFAkibFwkACgkQrlYvE4MpobOXpACcCDFG8c0vHAdtAH+ddWPIT/ilEPMAoMA2
-Ufwmi7/Bt4q38ZZfcMUV/zcb
---------------070102020404090208010701--
+
+Vikram.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
