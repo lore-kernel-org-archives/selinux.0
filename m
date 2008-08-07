@@ -1,59 +1,42 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77DkkTx008435
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 09:46:46 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77DmWZI008877
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 09:48:32 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m77Dkcjg012437
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 13:46:38 GMT
-Subject: Re: [patch 15/35] kernel terminal policy update
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m77DmKjg012824
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 13:48:20 GMT
+Subject: Re: [patch 17/35] brctl policy update
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: david@hardeman.nu
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20080804123737.088141859@hardeman.nu>
+In-Reply-To: <20080804123737.432616785@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-	 <20080804123737.088141859@hardeman.nu>
+	 <20080804123737.432616785@hardeman.nu>
 Content-Type: text/plain
-Date: Thu, 07 Aug 2008 09:46:08 -0400
-Message-Id: <1218116768.5345.14.camel@gorn.columbia.tresys.com>
+Date: Thu, 07 Aug 2008 09:47:49 -0400
+Message-Id: <1218116869.5345.18.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Mon, 2008-08-04 at 14:35 +0200, david@hardeman.nu wrote:
-> plain text document attachment (policy_modules_kernel_terminal.patch)
-> Additional permissions for server ptynodes
+> plain text document attachment (policy_modules_admin_brctl.patch)
+> One minor change
 
-I have to reject this.  server_ptynode is not a generic pty.
+I need justification for this change.
 
-> Index: refpolicy/policy/modules/kernel/terminal.if
+> Index: refpolicy/policy/modules/admin/brctl.te
 > ===================================================================
-> --- refpolicy.orig/policy/modules/kernel/terminal.if	2008-08-03 16:46:56.000000000 +0200
-> +++ refpolicy/policy/modules/kernel/terminal.if	2008-08-03 18:01:38.000000000 +0200
-> @@ -525,11 +525,13 @@
->  interface(`term_use_generic_ptys',`
->  	gen_require(`
->  		type devpts_t;
-> +		attribute server_ptynode;
->  	')
+> --- refpolicy.orig/policy/modules/admin/brctl.te	2008-08-03 16:47:00.000000000 +0200
+> +++ refpolicy/policy/modules/admin/brctl.te	2008-08-03 18:01:42.000000000 +0200
+> @@ -33,6 +33,8 @@
 >  
->  	dev_list_all_dev_nodes($1)
->  	allow $1 devpts_t:dir list_dir_perms;
->  	allow $1 devpts_t:chr_file { rw_term_perms lock append };
-> +	allow $1 server_ptynode:chr_file { getattr read write ioctl };
->  ')
+>  files_read_etc_files(brctl_t)
 >  
->  ########################################
-> @@ -547,9 +549,11 @@
->  interface(`term_dontaudit_use_generic_ptys',`
->  	gen_require(`
->  		type devpts_t;
-> +		attribute server_ptynode;
->  	')
+> +term_use_console(brctl_t)
+> +
+>  libs_use_ld_so(brctl_t)
+>  libs_use_shared_libs(brctl_t)
 >  
->  	dontaudit $1 devpts_t:chr_file { getattr read write ioctl };
-> +	dontaudit $1 server_ptynode:chr_file { getattr read write ioctl };
->  ')
->  
->  ########################################
 > 
 -- 
 Chris PeBenito
