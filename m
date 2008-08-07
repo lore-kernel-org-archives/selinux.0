@@ -1,64 +1,51 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77ENV6r015779
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 10:23:31 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77ENa2k015823
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 10:23:36 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m77ENNjg022362
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 14:23:23 GMT
-Subject: Re: [patch 01/35] anaconda policy update
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m77ENSjg022389
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 14:23:28 GMT
+Subject: Re: [patch 22/35] oav policy updates
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: david@hardeman.nu
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20080804123734.692354545@hardeman.nu>
+In-Reply-To: <20080804123738.204515169@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-	 <20080804123734.692354545@hardeman.nu>
+	 <20080804123738.204515169@hardeman.nu>
 Content-Type: text/plain
-Date: Thu, 07 Aug 2008 10:22:53 -0400
-Message-Id: <1218118973.5345.29.camel@gorn.columbia.tresys.com>
+Date: Thu, 07 Aug 2008 10:22:57 -0400
+Message-Id: <1218118977.5345.34.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-08-04 at 14:34 +0200, david@hardeman.nu wrote:
-> plain text document attachment (policy_modules_admin_anaconda.patch)
-> Anaconda is a RH installation program, RH should know their own program and
-> the changes are quite trivial
-> 
-> Previously submitted Jul 19, refreshed to apply to current SVN
+On Mon, 2008-08-04 at 14:35 +0200, david@hardeman.nu wrote:
+> plain text document attachment (policy_modules_services_oav.patch)
+> Trivial changes...
 
-Merged except for the setsebool part which doesn't exist upstream at the
-moment.
+Merged.
 
-> Index: refpolicy/policy/modules/admin/anaconda.te
+> Index: refpolicy/policy/modules/services/oav.te
 > ===================================================================
-> --- refpolicy.orig/policy/modules/admin/anaconda.te	2008-08-03 16:47:00.000000000 +0200
-> +++ refpolicy/policy/modules/admin/anaconda.te	2008-08-03 16:52:56.000000000 +0200
-> @@ -31,14 +31,9 @@
->  modutils_domtrans_insmod(anaconda_t)
+> --- refpolicy.orig/policy/modules/services/oav.te	2008-08-03 16:47:00.000000000 +0200
+> +++ refpolicy/policy/modules/services/oav.te	2008-08-03 20:34:32.000000000 +0200
+> @@ -12,7 +12,7 @@
 >  
->  seutil_domtrans_semanage(anaconda_t)
-> +seutil_domtrans_setsebool(anaconda_t)
+>  # cjp: may be collapsable to etc_t
+>  type oav_update_etc_t;
+> -files_type(oav_update_etc_t)
+> +files_config_file(oav_update_etc_t)
 >  
-> -unconfined_domain(anaconda_t)
-> -
-> -unprivuser_home_dir_filetrans_home_content(anaconda_t, { dir file lnk_file fifo_file sock_file })
-> -
-> -optional_policy(`
-> -	dmesg_domtrans(anaconda_t)
-> -')
-> +unprivuser_home_dir_filetrans_home_content(anaconda_t,{ dir file lnk_file fifo_file sock_file })
+>  type oav_update_var_lib_t;
+>  files_type(oav_update_var_lib_t)
+> @@ -22,7 +22,7 @@
+>  init_daemon_domain(scannerdaemon_t, scannerdaemon_exec_t)
 >  
->  optional_policy(`
->  	kudzu_domtrans(anaconda_t)
-> @@ -58,5 +53,9 @@
->  ')
+>  type scannerdaemon_etc_t;
+> -files_type(scannerdaemon_etc_t)
+> +files_config_file(scannerdaemon_etc_t)
 >  
->  optional_policy(`
-> +	unconfined_domain(anaconda_t)
-> +')
-> +
-> +optional_policy(`
->  	usermanage_domtrans_admin_passwd(anaconda_t)
->  ')
+>  type scannerdaemon_log_t;
+>  logging_log_file(scannerdaemon_log_t)
 > 
 -- 
 Chris PeBenito
