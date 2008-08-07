@@ -1,69 +1,62 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77GsDUd010299
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 12:54:15 -0400
-Received: from mail.wrs.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m77GsCbV017046
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 16:54:12 GMT
-Received: from ALA-MAIL03.corp.ad.wrs.com (ala-mail03 [147.11.57.144])
-	by mail.wrs.com (8.13.6/8.13.6) with ESMTP id m77Gs1kh027378
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 09:54:02 -0700 (PDT)
-Message-ID: <489B25B6.4080309@windriver.com>
-Date: Thu, 07 Aug 2008 12:41:26 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77H1Wvd011707
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 13:01:32 -0400
+Received: from mtaout03-winn.ispmail.ntl.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m77H1NQx001293
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 17:01:23 GMT
+Received: from aamtaout01-winn.ispmail.ntl.com ([81.103.221.35])
+          by mtaout03-winn.ispmail.ntl.com with ESMTP
+          id <20080807170130.NVVM10791.mtaout03-winn.ispmail.ntl.com@aamtaout01-winn.ispmail.ntl.com>
+          for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 18:01:30 +0100
+Received: from [192.168.1.102] (really [82.16.120.156])
+          by aamtaout01-winn.ispmail.ntl.com with ESMTP
+          id <20080807170130.GYNJ5827.aamtaout01-winn.ispmail.ntl.com@[192.168.1.102]>
+          for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 18:01:30 +0100
+Message-ID: <489B2A60.4020204@martinorr.name>
+Date: Thu, 07 Aug 2008 18:01:20 +0100
+From: Martin Orr <martin@martinorr.name>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Request for multiple mailing lists
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] Let dhcp use init fds
+References: <486277AC.9080801@martinorr.name> <1216391538.21191.149.camel@gorn>
+In-Reply-To: <1216391538.21191.149.camel@gorn>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The SE Linux <selinux@tycho.nsa.gov> mailing list is being cluttered 
-with non selinux related material.
+On 18/07/08 15:32, Christopher J. PeBenito wrote:
+> On Wed, 2008-06-25 at 17:51 +0100, Martin Orr wrote:
+>> Without this patch, I see no output from dhclient when it is run during boot.
+>> There is no avc message because it is dontaudited in init_daemon_domain.
+>>
+>> Index: policy/modules/system/sysnetwork.te
+>> ===================================================================
+>> --- policy/modules/system/sysnetwork.te.orig
+>> +++ policy/modules/system/sysnetwork.te
+>> @@ -126,6 +126,7 @@
+>>  files_dontaudit_search_locks(dhcpc_t)
+>>
+>>  init_rw_utmp(dhcpc_t)
+>> +init_use_fds(dhcpc_t)
+>>
+>>  logging_send_syslog_msg(dhcpc_t)
+> 
+> I would think that allowing it to write to the console would be required
+> to make this work too.  If thats the case I'm not sure we want it; I
+> don't think we want daemons writing to the console.
 
-Especially concerning refpolicy. And there is no set fast term used for 
-filtering such content, and needless to say a waste of bandwidth.
+That puzzled me too, and I tracked it down to logging_send_syslog_msg:
+	# cjp: this should most likely be removed:
+	term_use_console($1)
 
-The SELinux list is not a place for non-SELinux maintainers, like Tresys 
-to discuss their policies within themselves. Would it be alright for me 
-and the other developers in my company to use the SELinux list to 
-discuss our policies? Or the next company that decides to adopt SELinux? 
-RedHat goes as far as to using the SELinux list as a communication 
-channel with Tresys. Unless there has been some agreement made between 
-the SELinux gatekeepers (NSA?) , Tresys and Redhat, I find this a misuse 
-of the mailing list.
+I want messages from dhcp specifically to appear on the console, because it
+takes a long time and can fail e.g. if I knocked the network cable loose,
+but I suppose that's not enough reason to put it in refpolicy, and I can
+keep it in my local policy quite happily.
 
-In the last 4 months, there have only been a handful of unique threads 
-concerning SELinux. A few by Stepehen, Eric, and myself. Everything else 
-is policy related.  With a total of 800 odd messages in this time frame, 
-its quite clear the policy discussion is cluttering the list. As more 
-and more people begin to adopt SELinux and face the battles of SELinux 
-integration, the userspace topic will become increasingly popular.
-
-As I see it, the current list should be split into 3.
-
-1. selinux-kernel
-    This would be a very low volume list. .Perhaps even with special 
-clearance to address security holes and concerns.
-2. selinux-userspace
-    This list would deal with userspace tools, wrappers and other non 
-kernel related material. Whether it be NSA's userspace tools or support 
-for 3rd party applications being compiled to be selinux-aware using 
-libselinux. This list is very important, if not the most important of 
-the three.
-3. selinux-policy
-    This list will deal with policies. A good place for Administrators 
-and policy developers to discuss the creation, debugging and use of 
-various policies. This as it stands would have the highest volume. 
-Nevertheless as suggested by Grift Dominick on #selinux, a forum would 
-be an even better place to discuss policies. Repository of ideas, 
-designs and development dedicated to policies. A forum for the 
-Administrator and Policy Developer.
-
-Without this breakdown, the selinux list would be analogous to people 
-talking about GNU and C programming on lkml.
-
-
-Vikram.
+-- 
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
