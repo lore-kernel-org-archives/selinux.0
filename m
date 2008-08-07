@@ -1,41 +1,64 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77ENbxn015841
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 10:23:37 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m77ENbl6009734
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 14:23:37 GMT
-Subject: Re: [patch 13/35] ricci policy update
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m77ENV6r015779
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 10:23:31 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m77ENNjg022362
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 14:23:23 GMT
+Subject: Re: [patch 01/35] anaconda policy update
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: david@hardeman.nu
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20080804123736.746197981@hardeman.nu>
+In-Reply-To: <20080804123734.692354545@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-	 <20080804123736.746197981@hardeman.nu>
+	 <20080804123734.692354545@hardeman.nu>
 Content-Type: text/plain
-Date: Thu, 07 Aug 2008 10:22:59 -0400
-Message-Id: <1218118979.5345.37.camel@gorn.columbia.tresys.com>
+Date: Thu, 07 Aug 2008 10:22:53 -0400
+Message-Id: <1218118973.5345.29.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-08-04 at 14:35 +0200, david@hardeman.nu wrote:
-> plain text document attachment (policy_modules_services_ricci.patch)
-> One trivial change
+On Mon, 2008-08-04 at 14:34 +0200, david@hardeman.nu wrote:
+> plain text document attachment (policy_modules_admin_anaconda.patch)
+> Anaconda is a RH installation program, RH should know their own program and
+> the changes are quite trivial
+> 
+> Previously submitted Jul 19, refreshed to apply to current SVN
 
-Merged.
+Merged except for the setsebool part which doesn't exist upstream at the
+moment.
 
-> Index: refpolicy/policy/modules/services/ricci.te
+> Index: refpolicy/policy/modules/admin/anaconda.te
 > ===================================================================
-> --- refpolicy.orig/policy/modules/services/ricci.te	2008-08-03 16:47:00.000000000 +0200
-> +++ refpolicy/policy/modules/services/ricci.te	2008-08-03 18:01:32.000000000 +0200
-> @@ -443,6 +443,7 @@
->  create_files_pattern(ricci_modstorage_t, ricci_modstorage_lock_t, ricci_modstorage_lock_t)
->  files_lock_filetrans(ricci_modstorage_t, ricci_modstorage_lock_t, file)
+> --- refpolicy.orig/policy/modules/admin/anaconda.te	2008-08-03 16:47:00.000000000 +0200
+> +++ refpolicy/policy/modules/admin/anaconda.te	2008-08-03 16:52:56.000000000 +0200
+> @@ -31,14 +31,9 @@
+>  modutils_domtrans_insmod(anaconda_t)
 >  
-> +corecmd_exec_shell(ricci_modstorage_t)
->  corecmd_exec_bin(ricci_modstorage_t)
+>  seutil_domtrans_semanage(anaconda_t)
+> +seutil_domtrans_setsebool(anaconda_t)
 >  
->  dev_read_sysfs(ricci_modstorage_t)
+> -unconfined_domain(anaconda_t)
+> -
+> -unprivuser_home_dir_filetrans_home_content(anaconda_t, { dir file lnk_file fifo_file sock_file })
+> -
+> -optional_policy(`
+> -	dmesg_domtrans(anaconda_t)
+> -')
+> +unprivuser_home_dir_filetrans_home_content(anaconda_t,{ dir file lnk_file fifo_file sock_file })
+>  
+>  optional_policy(`
+>  	kudzu_domtrans(anaconda_t)
+> @@ -58,5 +53,9 @@
+>  ')
+>  
+>  optional_policy(`
+> +	unconfined_domain(anaconda_t)
+> +')
+> +
+> +optional_policy(`
+>  	usermanage_domtrans_admin_passwd(anaconda_t)
+>  ')
 > 
 -- 
 Chris PeBenito
