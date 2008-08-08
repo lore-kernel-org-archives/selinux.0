@@ -1,20 +1,13 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78AXSaV020275
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 06:33:28 -0400
-Received: from sender-03.it.helsinki.fi (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78AXI9T017054
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:33:19 GMT
-Date: Fri, 8 Aug 2008 13:33:10 +0300 (EEST)
+Date: Fri, 8 Aug 2008 13:45:26 +0300 (EEST)
 From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-To: Andy Warner <warner@rubix.com>
-cc: russell@coker.com.au, Casey Schaufler <casey@schaufler-ca.com>,
-        SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Request for multiple mailing lists
-In-Reply-To: <489C1BB1.2060701@rubix.com>
-Message-ID: <Pine.LNX.4.64L.0808081319150.25440@ruuvi.it.helsinki.fi>
-References: <489B25B6.4080309@windriver.com> <489B3536.1060103@schaufler-ca.com>
- <200808081208.31741.russell@coker.com.au> <489C03E1.3060206@rubix.com>
- <Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi> <489C1BB1.2060701@rubix.com>
+To: Paul Moore <paul.moore@hp.com>
+cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinux: Unify for- and while-loop style
+In-Reply-To: <200808070815.25086.paul.moore@hp.com>
+Message-ID: <Pine.LNX.4.64L.0808081339060.25897@ruuvi.it.helsinki.fi>
+References: <200808070036.m770ajof012753@ruuvi.it.helsinki.fi>
+ <200808070815.25086.paul.moore@hp.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -23,33 +16,71 @@ List-Id: selinux@tycho.nsa.gov
 
 Hello,
 
-On Fri, 8 Aug 2008, Andy Warner wrote:
+On Thu, 7 Aug 2008, Paul Moore wrote:
 
-> Didn't realize the NSA was sponsoring a list for voicing religious bigotries.
+> On Wednesday 06 August 2008 8:18:20 pm Vesa-Matti Kari wrote:
+> > Replace "thing != NULL" comparisons with just "thing" to make
+> > the code look more uniform (mixed styles were used even in the
+> > same source file).
+> >
+> > Signed-off-by: Vesa-Matti Kari <vmkari@cc.helsinki.fi>
+> > ---
+> >  security/selinux/ss/avtab.c       |    2 +-
+> >  security/selinux/ss/conditional.c |   16 ++++++++--------
+> >  security/selinux/ss/ebitmap.c     |    4 ++--
+> >  security/selinux/ss/hashtab.c     |    6 +++---
+> >  security/selinux/ss/services.c    |    8 ++++----
+> >  security/selinux/ss/sidtab.c      |   12 ++++++------
+>
+> In my opinion this suffers from the same problems as the variable
+> renaming patches.  I vote "no".
 
-The mighty NSA has little or nothing to do with this issue.
+Hmmm. To avoid wasting my time, I asked beforehand whether such a trivial
+unifying patch was acceptable. I did this on the selinux mailing list and
+below you can see my original message followed by Stephen Smalley's
+response (it was the only reply that I got):
 
-The point that is sometimes missed is that not all people are religious,
-or if they are, they do not necessarily follow the same sect, and hence
-people should think twice before asking anyone to compare, e.g. a SELinux
-policy with the Old Testament. Or with the Quran. Or with the Vedas.
+==== begin quote ===
 
-Why promote your own ideology on a list that should focus on mutual
-technical co-operation and technical issues related to SELinux?
+On Mon, 2008-07-21 at 12:19 +0300, Vesa-Matti J Kari wrote:
+> Hello,
+>
+> I'm planning to do more trivial fixes to the SELinux kernel subsystem to
+> make the coding style look as unified as possible. Before continuing,
+> however, I would like to ask for an opinion, because I do not want to
+> waste my time.
+>
+> There currently exist mixed styles such as:
+>
+>   while (cur != NULL)
+>
+> vs
+>
+>   while (cur)
+>
+> and of course the related "if"- and "for"-variants.
+>
+> My questions:
+>
+> 1) Is there a general agreement that only one style should be used?
 
-The original writer later said that he did not want to start a religious
-argument, and I do believe he was honest when saying so. But next time,
-in my opinion, I think he would do well to leave out the religious
-comparisons on a technical list. I am saying this in a friendly spirit
-and do not mean to sound harsh.
+I'd agree with that, yes.
 
-> Or is that also an "SELinux issue?"
+> 2) If answer to the question 1 is "yes", which one is the preferred
+style?
 
-No, it is not a SELinux issue.
+I'm inclined to the latter as it is more concise and loses nothing in
+semantics, but I'm open to hearing the other side of it.
+
+A note however:  the core selinux developers are likely to be somewhat
+unresponsive to non-critical patches right now because we are at the
+SELinux mini-summit and Linux Symposium this week.
+
+==== end quote ===
 
 Best regards,
 vmk
---
+-- 
 ************************************************************************
                Tietotekniikkaosasto / Helsingin yliopisto
                  IT Department / University of Helsinki
