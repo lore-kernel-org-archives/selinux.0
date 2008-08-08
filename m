@@ -1,50 +1,138 @@
-Date: Fri, 8 Aug 2008 13:09:06 +0300 (EEST)
-From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-To: James Morris <jmorris@namei.org>
-cc: sds@tycho.nsa.gov, eparis@parisplace.org, linux-kernel@vger.kernel.org,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: conditional expression type validation was
- off-by-one
-In-Reply-To: <alpine.LRH.1.10.0808070945400.15561@tundra.namei.org>
-Message-ID: <Pine.LNX.4.64L.0808081307500.24884@ruuvi.it.helsinki.fi>
-References: <200808061546.m76Fkwq1005199@ruuvi.it.helsinki.fi>
- <alpine.LRH.1.10.0808070945400.15561@tundra.namei.org>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78ABLLP016320
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 06:11:21 -0400
+Received: from house.lunarmania.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78ABKlm029150
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:11:21 GMT
+Message-ID: <489C1BB1.2060701@rubix.com>
+Date: Fri, 08 Aug 2008 12:10:57 +0200
+From: Andy Warner <warner@rubix.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+CC: russell@coker.com.au, Casey Schaufler <casey@schaufler-ca.com>,
+        SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: Request for multiple mailing lists
+References: <489B25B6.4080309@windriver.com> <489B3536.1060103@schaufler-ca.com> <200808081208.31741.russell@coker.com.au> <489C03E1.3060206@rubix.com> <Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi>
+In-Reply-To: <Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi>
+Content-Type: multipart/alternative;
+ boundary="------------050004000407050009020607"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------050004000407050009020607
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello,
 
-On Thu, 7 Aug 2008, James Morris wrote:
 
-> On Wed, 6 Aug 2008, Vesa-Matti Kari wrote:
+Vesa-Matti J Kari wrote:
+> Hello,
 >
-> > expr_isvalid() in conditional.c was off-by-one and allowed
-> > invalid expression type COND_LAST. However, it is this header file
-> > that needs to be fixed. That way the if-statement's disjunction's
-> > second component reads more naturally, "if expr type is greater than
-> > the last allowed value" ( rather than using ">=" in conditional.c):
-> >
-> >   if (expr->expr_type <= 0 || expr->expr_type > COND_LAST)
-> >
-> > Signed-off-by: Vesa-Matti Kari <vmkari@cc.helsinki.fi>
+> On Fri, 8 Aug 2008, Andy Warner wrote:
 >
-> Thanks, nice catch.
+>   
+>> Russell Coker wrote:
+>>     
+>>> On Friday 08 August 2008 03:47, Casey Schaufler <casey@schaufler-ca.com>
+>>> wrote:
+>>>
+>>>       
+>>>> SELinux without policy is like a book without pages. Think of
+>>>> the reference policy as the pages of the Old Testament.
+>>>>
+>>>>         
+>>> http://en.wikipedia.org/wiki/Eisegesis
+>>>
+>>> The problem with such analogies is that SE Linux policy is designed to be
+>>> unambiguous.  See the above URL for details of the issue.
+>>>
+>>>
+>>>       
+>> Is that supposed to be funny or just an great example of someone posting way
+>> off topic demonstrating the need for multiple mailing lists?
+>>     
 >
-> Applied to
-> git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+> There is nothing inherently funny with being logical and demanding
+> precision. Russell Coker's comment was quite good and to the point. You
+> should not compare SELinux policies, which are clear and precise, with
+> ancient mythology, and expect that everyone buys it. This world is full
+> of so-called Holy Books, after all.
+>
+> This list should focus on SELinux issues.
+>
+> Best regards,
+> vmk
+>   
+Didn't realize the NSA was sponsoring a list for voicing religious 
+bigotries. Or is that also an "SELinux issue?"
 
-I also checked out the userspace and the same bug exists in libsepol.
+--------------050004000407050009020607
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<br>
+<br>
+Vesa-Matti J Kari wrote:
+<blockquote
+ cite="mid:Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi"
+ type="cite">
+  <pre wrap="">Hello,
+
+On Fri, 8 Aug 2008, Andy Warner wrote:
+
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">Russell Coker wrote:
+    </pre>
+    <blockquote type="cite">
+      <pre wrap="">On Friday 08 August 2008 03:47, Casey Schaufler <a class="moz-txt-link-rfc2396E" href="mailto:casey@schaufler-ca.com">&lt;casey@schaufler-ca.com&gt;</a>
+wrote:
+
+      </pre>
+      <blockquote type="cite">
+        <pre wrap="">SELinux without policy is like a book without pages. Think of
+the reference policy as the pages of the Old Testament.
+
+        </pre>
+      </blockquote>
+      <pre wrap=""><a class="moz-txt-link-freetext" href="http://en.wikipedia.org/wiki/Eisegesis">http://en.wikipedia.org/wiki/Eisegesis</a>
+
+The problem with such analogies is that SE Linux policy is designed to be
+unambiguous.  See the above URL for details of the issue.
+
+
+      </pre>
+    </blockquote>
+    <pre wrap="">Is that supposed to be funny or just an great example of someone posting way
+off topic demonstrating the need for multiple mailing lists?
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+There is nothing inherently funny with being logical and demanding
+precision. Russell Coker's comment was quite good and to the point. You
+should not compare SELinux policies, which are clear and precise, with
+ancient mythology, and expect that everyone buys it. This world is full
+of so-called Holy Books, after all.
+
+This list should focus on SELinux issues.
 
 Best regards,
 vmk
--- 
-************************************************************************
-               Tietotekniikkaosasto / Helsingin yliopisto
-                 IT Department / University of Helsinki
-************************************************************************
+  </pre>
+</blockquote>
+Didn't realize the NSA was sponsoring a list for voicing religious
+bigotries. Or is that also an "SELinux issue?"<br>
+</body>
+</html>
+
+--------------050004000407050009020607--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
