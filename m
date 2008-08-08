@@ -1,60 +1,50 @@
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78EFZNL009457
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:15:35 -0400
+Received: from g1t0029.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78EFPYV027274
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 14:15:26 GMT
 From: Paul Moore <paul.moore@hp.com>
-To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-Subject: Re: [PATCH] selinux: Unify for- and while-loop style
-Date: Fri, 8 Aug 2008 10:07:52 -0400
-Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
-        selinux@tycho.nsa.gov
-References: <200808070036.m770ajof012753@ruuvi.it.helsinki.fi> <200808070815.25086.paul.moore@hp.com> <Pine.LNX.4.64L.0808081339060.25897@ruuvi.it.helsinki.fi>
-In-Reply-To: <Pine.LNX.4.64L.0808081339060.25897@ruuvi.it.helsinki.fi>
+To: Matt Anderson <mra@hp.com>
+Subject: Re: SELinux policy and performance impacts
+Date: Fri, 8 Aug 2008 10:15:19 -0400
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+References: <489B81A4.9050007@hp.com> <alpine.LRH.1.10.0808080955290.22387@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0808080955290.22387@tundra.namei.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200808081007.53012.paul.moore@hp.com>
+Message-Id: <200808081015.19599.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 08 August 2008 6:45:26 am Vesa-Matti J Kari wrote:
-> Hello,
->
-> On Thu, 7 Aug 2008, Paul Moore wrote:
-> > On Wednesday 06 August 2008 8:18:20 pm Vesa-Matti Kari wrote:
-> > > Replace "thing != NULL" comparisons with just "thing" to make
-> > > the code look more uniform (mixed styles were used even in the
-> > > same source file).
-> > >
-> > > Signed-off-by: Vesa-Matti Kari <vmkari@cc.helsinki.fi>
-> > > ---
-> > >  security/selinux/ss/avtab.c       |    2 +-
-> > >  security/selinux/ss/conditional.c |   16 ++++++++--------
-> > >  security/selinux/ss/ebitmap.c     |    4 ++--
-> > >  security/selinux/ss/hashtab.c     |    6 +++---
-> > >  security/selinux/ss/services.c    |    8 ++++----
-> > >  security/selinux/ss/sidtab.c      |   12 ++++++------
+On Thursday 07 August 2008 8:03:02 pm James Morris wrote:
+> On Thu, 7 Aug 2008, Matt Anderson wrote:
+> > I'm currently looking into the performance impact of SELinux.  Most
+> > of what I have seen so far involve testing the system's performance
+> > with file creation, open, and exec, but I was hoping to gather some
+> > more data before finalizing any conclusions.
 > >
-> > In my opinion this suffers from the same problems as the variable
-> > renaming patches.  I vote "no".
+> > I was wondering if anyone knows of any types of policy rules that
+> > when loaded into the kernel are particularly detrimental to system
+> > performance.  My understanding is that all policy rules are treated
+> > equally once they've been compiled to binary, but I wanted to ask
+> > here first in order to confirm that.
 >
-> Hmmm. To avoid wasting my time, I asked beforehand whether such a
-> trivial unifying patch was acceptable. I did this on the selinux
-> mailing list and below you can see my original message followed by
-> Stephen Smalley's response (it was the only reply that I got):
+> Yes, all access rules are applied in a standard form with decisions
+> cached in the AVC.  There were some network permissions which had to
+> do a full policydb lookup on each packet to determine the label to
+> use, but these are also now cached (although will still incur some
+> overhead).
 
-I didn't respond to that other thread because I was responding to your 
-other thread at the same time regarding the variable renaming issue.  
-Perhaps I should have replied to that particular thread as well but 
-considering there was no code/patch attached I chose to spend my time 
-on other higher priority issues including your other thread.
+As an FYI, you'll want 2.6.26 to get the all of the cached network 
+permissions; 2.6.25 added interface and node caches, 2.6.26 added port 
+caches.  If you are looking at network performance as part of this you 
+will want to make sure compat_net is disabled, i.e. use Secmark.  
 
-Yes, I can see Stephen replied to your original email and indicated he 
-agreed on having one style.  It isn't clear to me that he necessarily 
-agrees with patches that do nothing more than change coding style, but 
-I don't want to speak for Stephen.  As far as I'm concerned patches 
-which do nothing but change coding style or rename variables do more 
-harm than good and for that reason I'm NACK'ing this patch.
-
-The good news for you is that I'm just one person, and while ultimately 
-it is the maintainer's call (James or Stephen probably, I'm actually 
-not sure these days) the entire community can voice their opinion.
+Ideally you would also enable the new network_peer_controls policy 
+capability but I don't think we have that enabled by default just yet, 
+needs more testing I believe.
 
 -- 
 paul moore
