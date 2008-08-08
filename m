@@ -1,58 +1,64 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78An2Pn024115
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 06:49:02 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78Amo9T022443
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:48:51 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
+From: Paul Moore <paul.moore@hp.com>
 To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-Subject: Re: Request for multiple mailing lists
-Date: Fri, 8 Aug 2008 20:48:50 +1000
-Cc: Andy Warner <warner@rubix.com>, Casey Schaufler <casey@schaufler-ca.com>,
-        SE-Linux <selinux@tycho.nsa.gov>
-References: <489B25B6.4080309@windriver.com> <489C1BB1.2060701@rubix.com> <Pine.LNX.4.64L.0808081319150.25440@ruuvi.it.helsinki.fi>
-In-Reply-To: <Pine.LNX.4.64L.0808081319150.25440@ruuvi.it.helsinki.fi>
+Subject: Re: [PATCH] selinux: Unify for- and while-loop style
+Date: Fri, 8 Aug 2008 10:07:52 -0400
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, eparis@parisplace.org,
+        selinux@tycho.nsa.gov
+References: <200808070036.m770ajof012753@ruuvi.it.helsinki.fi> <200808070815.25086.paul.moore@hp.com> <Pine.LNX.4.64L.0808081339060.25897@ruuvi.it.helsinki.fi>
+In-Reply-To: <Pine.LNX.4.64L.0808081339060.25897@ruuvi.it.helsinki.fi>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="ansi_x3.4-1968"
-Message-Id: <200808082048.53795.russell@coker.com.au>
+  charset="iso-8859-1"
+Message-Id: <200808081007.53012.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 08 August 2008 20:33, Vesa-Matti J Kari <vmkari@cc.helsinki.fi> 
-wrote:
-> On Fri, 8 Aug 2008, Andy Warner wrote:
-> > Didn't realize the NSA was sponsoring a list for voicing religious
-> > bigotries.
+On Friday 08 August 2008 6:45:26 am Vesa-Matti J Kari wrote:
+> Hello,
 >
-> The mighty NSA has little or nothing to do with this issue.
+> On Thu, 7 Aug 2008, Paul Moore wrote:
+> > On Wednesday 06 August 2008 8:18:20 pm Vesa-Matti Kari wrote:
+> > > Replace "thing != NULL" comparisons with just "thing" to make
+> > > the code look more uniform (mixed styles were used even in the
+> > > same source file).
+> > >
+> > > Signed-off-by: Vesa-Matti Kari <vmkari@cc.helsinki.fi>
+> > > ---
+> > >  security/selinux/ss/avtab.c       |    2 +-
+> > >  security/selinux/ss/conditional.c |   16 ++++++++--------
+> > >  security/selinux/ss/ebitmap.c     |    4 ++--
+> > >  security/selinux/ss/hashtab.c     |    6 +++---
+> > >  security/selinux/ss/services.c    |    8 ++++----
+> > >  security/selinux/ss/sidtab.c      |   12 ++++++------
+> >
+> > In my opinion this suffers from the same problems as the variable
+> > renaming patches.  I vote "no".
+>
+> Hmmm. To avoid wasting my time, I asked beforehand whether such a
+> trivial unifying patch was acceptable. I did this on the selinux
+> mailing list and below you can see my original message followed by
+> Stephen Smalley's response (it was the only reply that I got):
 
-Actually I believe that they have a policy against discussions of religion on 
-the list.  Which is why I didn't make any comment about religion in my 
-previous message.
+I didn't respond to that other thread because I was responding to your 
+other thread at the same time regarding the variable renaming issue.  
+Perhaps I should have replied to that particular thread as well but 
+considering there was no code/patch attached I chose to spend my time 
+on other higher priority issues including your other thread.
 
-> The point that is sometimes missed is that not all people are religious,
-> or if they are, they do not necessarily follow the same sect, and hence
-> people should think twice before asking anyone to compare, e.g. a SELinux
-> policy with the Old Testament. Or with the Quran. Or with the Vedas.
+Yes, I can see Stephen replied to your original email and indicated he 
+agreed on having one style.  It isn't clear to me that he necessarily 
+agrees with patches that do nothing more than change coding style, but 
+I don't want to speak for Stephen.  As far as I'm concerned patches 
+which do nothing but change coding style or rename variables do more 
+harm than good and for that reason I'm NACK'ing this patch.
 
-I think (based on off-list correspondence) that Casey might have been trying 
-to compare multiple translations and interpretations of religious documents 
-with multiple SE Linux policies.  But his last message to me on this topic 
-was not entirely clear.
-
-There is of course the issue that there are many possible ways of writing a 
-policy to constrain a given set of programs.  The recent discussions about 
-whether to have one domain for all Milters or to have one for each Milter, 
-and how to manage multiple user roles are merely the tip of the iceberg in 
-this regard.
+The good news for you is that I'm just one person, and while ultimately 
+it is the maintainer's call (James or Stephen probably, I'm actually 
+not sure these days) the entire community can voice their opinion.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
