@@ -1,53 +1,39 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78037aK015481
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 20:03:07 -0400
-Received: from tundra.namei.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m780355h027997
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 00:03:06 GMT
-Date: Fri, 8 Aug 2008 10:03:02 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Matt Anderson <mra@hp.com>
-cc: selinux@tycho.nsa.gov
-Subject: Re: SELinux policy and performance impacts
-In-Reply-To: <489B81A4.9050007@hp.com>
-Message-ID: <alpine.LRH.1.10.0808080955290.22387@tundra.namei.org>
-References: <489B81A4.9050007@hp.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7820rhK031612
+	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 22:00:53 -0400
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7820fri004296
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 02:00:43 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Dennis Wronka <linuxweb@gmx.net>
+Subject: Re: Problem with MLS because /dev is labeled tmpfs_t
+Date: Fri, 8 Aug 2008 12:00:39 +1000
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
+References: <20080804123456.679565839@hardeman.nu> <1218116958.5345.20.camel@gorn.columbia.tresys.com> <200808072211.00709.linuxweb@gmx.net>
+In-Reply-To: <200808072211.00709.linuxweb@gmx.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200808081200.41418.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 7 Aug 2008, Matt Anderson wrote:
+On Friday 08 August 2008 00:10, Dennis Wronka <linuxweb@gmx.net> wrote:
+> Does anybody know where this problem is? Is it udev? I already compiled it
+> with SELinux-support, but /dev is always tmpfs_t.
+> As said, I suspect udev here, but of course I might be wrong.
 
-> I'm currently looking into the performance impact of SELinux.  Most of what I
-> have seen so far involve testing the system's performance with file creation,
-> open, and exec, but I was hoping to gather some more data before finalizing
-> any conclusions.
-> 
-> I was wondering if anyone knows of any types of policy rules that when loaded
-> into the kernel are particularly detrimental to system performance.  My
-> understanding is that all policy rules are treated equally once they've been
-> compiled to binary, but I wanted to ask here first in order to confirm that.
+Your udev script which mounts the tmpfs (which might be /etc/init.d/udev or a 
+script called by it) needs to call restorecon.
 
-Yes, all access rules are applied in a standard form with decisions cached 
-in the AVC.  There were some network permissions which had to do a full 
-policydb lookup on each packet to determine the label to use, but these 
-are also now cached (although will still incur some overhead).
+See the scripts in Debian and Fedora for examples of how it's done.
 
-Auditing will introduce overhead (not all accesses are audited).
-
-Probably the best place to start to understand how this works is to look 
-at avc_has_perm() in the kernel code, and also look at /selinux/avc .
-
-I suspect the largest overhead will be in the hook logic for various
-operations (e.g. look at the size of inode_doinit_with_dentry()) rather 
-than the AVC lookup.
-
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
