@@ -1,19 +1,14 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78A23ir014721
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 06:02:03 -0400
-Received: from sender-01.it.helsinki.fi (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78A22lm026720
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:02:03 GMT
-Date: Fri, 8 Aug 2008 13:01:28 +0300 (EEST)
+Date: Fri, 8 Aug 2008 13:09:06 +0300 (EEST)
 From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-To: Andy Warner <warner@rubix.com>
-cc: russell@coker.com.au, Casey Schaufler <casey@schaufler-ca.com>,
-        SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Request for multiple mailing lists
-In-Reply-To: <489C03E1.3060206@rubix.com>
-Message-ID: <Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi>
-References: <489B25B6.4080309@windriver.com> <489B3536.1060103@schaufler-ca.com>
- <200808081208.31741.russell@coker.com.au> <489C03E1.3060206@rubix.com>
+To: James Morris <jmorris@namei.org>
+cc: sds@tycho.nsa.gov, eparis@parisplace.org, linux-kernel@vger.kernel.org,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH] selinux: conditional expression type validation was
+ off-by-one
+In-Reply-To: <alpine.LRH.1.10.0808070945400.15561@tundra.namei.org>
+Message-ID: <Pine.LNX.4.64L.0808081307500.24884@ruuvi.it.helsinki.fi>
+References: <200808061546.m76Fkwq1005199@ruuvi.it.helsinki.fi>
+ <alpine.LRH.1.10.0808070945400.15561@tundra.namei.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -22,32 +17,26 @@ List-Id: selinux@tycho.nsa.gov
 
 Hello,
 
-On Fri, 8 Aug 2008, Andy Warner wrote:
+On Thu, 7 Aug 2008, James Morris wrote:
 
-> Russell Coker wrote:
-> > On Friday 08 August 2008 03:47, Casey Schaufler <casey@schaufler-ca.com>
-> > wrote:
+> On Wed, 6 Aug 2008, Vesa-Matti Kari wrote:
+>
+> > expr_isvalid() in conditional.c was off-by-one and allowed
+> > invalid expression type COND_LAST. However, it is this header file
+> > that needs to be fixed. That way the if-statement's disjunction's
+> > second component reads more naturally, "if expr type is greater than
+> > the last allowed value" ( rather than using ">=" in conditional.c):
 > >
-> > > SELinux without policy is like a book without pages. Think of
-> > > the reference policy as the pages of the Old Testament.
-> > >
+> >   if (expr->expr_type <= 0 || expr->expr_type > COND_LAST)
 > >
-> > http://en.wikipedia.org/wiki/Eisegesis
-> >
-> > The problem with such analogies is that SE Linux policy is designed to be
-> > unambiguous.  See the above URL for details of the issue.
-> >
-> >
-> Is that supposed to be funny or just an great example of someone posting way
-> off topic demonstrating the need for multiple mailing lists?
+> > Signed-off-by: Vesa-Matti Kari <vmkari@cc.helsinki.fi>
+>
+> Thanks, nice catch.
+>
+> Applied to
+> git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
-There is nothing inherently funny with being logical and demanding
-precision. Russell Coker's comment was quite good and to the point. You
-should not compare SELinux policies, which are clear and precise, with
-ancient mythology, and expect that everyone buys it. This world is full
-of so-called Holy Books, after all.
-
-This list should focus on SELinux issues.
+I also checked out the userspace and the same bug exists in libsepol.
 
 Best regards,
 vmk
