@@ -1,105 +1,63 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78IDLY5028640
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 14:13:21 -0400
-Received: from rv-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78IDKd0029114
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 18:13:21 GMT
-Received: by rv-out-0708.google.com with SMTP id f25so1044153rvb.54
-        for <selinux@tycho.nsa.gov>; Fri, 08 Aug 2008 11:13:20 -0700 (PDT)
-Message-ID: <dd18b0c30808081113o3818f5d8reffc41fdce754efe@mail.gmail.com>
-Date: Fri, 8 Aug 2008 11:13:20 -0700
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: "Mike Edenfield" <kutulu@kutulu.org>
-Subject: Re: Help: SELinux causing(?) boot failures...
-Cc: "Paul Moore" <paul.moore@hp.com>,
-        "SELinux Mailing List" <selinux@tycho.nsa.gov>
-In-Reply-To: <489C801E.9040306@kutulu.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <489C6A4F.3020704@kutulu.org>
-	 <200808081251.45453.paul.moore@hp.com> <489C801E.9040306@kutulu.org>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78KF1Kw020517
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 16:15:01 -0400
+Subject: Re: Gconf application
+From: James Carter <jwcart2@epoch.ncsc.mil>
+Reply-To: jwcart2@epoch.ncsc.mil
+To: shaunak saha <reach.shaunak@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <d74d42a50808080715k5cc752acy3bad72465baaa5c0@mail.gmail.com>
+References: <d74d42a50808080715k5cc752acy3bad72465baaa5c0@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 08 Aug 2008 16:15:23 -0400
+Message-Id: <1218226523.22894.42.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Aug 8, 2008 at 10:19 AM, Mike Edenfield <kutulu@kutulu.org> wrote:
-> Paul Moore wrote:
->>
->> On Friday 08 August 2008 11:46:23 am Mike Edenfield wrote:
->>>
->>> The reason I strongly suspect SELinux is the problem (or at least a
->>> major factor), is that adding "selinux=0" to my boot command line
->>> corrects the problem, and the system boots fine.  Everything appears
->>> to be installed and configured correctly, except obviously SELinux is
->>> now disabled.  The filesystems are all labeled correctly, and even on
->>> the failing boot the AVC messages display the correct labels, like
->>> tty_device_t and urandom_device_t.
->>
->> Hi Mike,
->>
->> In general, you are better off using "enforcing=0", which keeps SELinux
->> enabled but puts it into permissive mode, on the kernel command line instead
->> of "selinux=0", which disables SELinux entirely.  Have you tried rebooting
->> with "enforcing=0" and capturing the AVC messages from the
->> console/audit/syslog output and seeing if anything looks awry?  If not go
->> ahead and do so and send them to the list, this will tell us what actions
->> are being denied and why.
->
-> I have SELinux configured for permissive mode to begin with, but I tried
-> adding "enforcing=0" to the boot command line to no effect. Here are the
-> denials I am getting:
->
-> (transcribed by hand since neither syslog nor auditd are starting)
->
-> avc: denied { execute_no_trans } for pid=1 comm="init" path="/sbin/init"
-> dev=sda3 ino=920038 scontext=system_u:system_r:kernel_t
-> tcontext=system_u:object_r:file_t tclass=file
-> avc: denied { read } for pid=1 comm="init" name="ld-linux.so.2" dev=sda3
-> ino=1785880 scontext=system_u:system_r:kernel_t
-> tcontext=system_u:object_r:file_t tclass=lnk_file
-> avc: denied { getattr } for pid=1 comm="init" path="/etc/ld.so.cache"
-> dev=sda3 ino=1090186 scontext=system_u:system_r:kernel_t
-> tcontext=system_t:object_r:file_t tclass=file
-> avc: denied { read } for pid=1 comm="init" name="udanrom" dev=sda3
-> ino=126002 scontext=system_u:system_r:kernel_t
-> tcontext=system_u:object_r:urandom_device_t tclass=chr_file
-> avc: denied { getattr } for pid=1 comm="init" name="/" dev=selinuxfs ino=1
-> scontext=system_u:system_r:kernel_t tcontext=system_t:object_r:security_t
-> tclass=filesystem
-> avc: denied { read write } for pid=1 comm="init" name="tty0" dev=sda3
-> ino=126327 scontext=system_u:system_r:kernel_t
-> tcontext=system_u:object_r:tty_device_t tclass=chr_file
->
->
-> There are apparently a lot of the latter since I usually get a message that
-> printk is supressing several dozen messages at this point, then I get no
-> more AVC's on the console.
->
->
-> Thanks,
->
-> --Mike
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
->
+On Fri, 2008-08-08 at 19:45 +0530, shaunak saha wrote:
+> Hi all,
+>  
+> I m new to selinux.I am not sure I am posing this question correctly,
+> so please view it
+> from the perspective of where I am trying to get to.
+>  
+> I need to protect Gconf applications.I have two client applications
+> running in different domains.From the policy file one applcation
+> should be allowed to do operations in GConf while other should only be
+> able to read from Gconf.
+> For this i m planning to follow the NSA whitepaper i found from
+> net(http://www.nsa.gov/seLinux/papers/gconf07-abs.cfm) and creating a
+> userspace
+> object manager.Is that the correct approach or there is any other way
+> to make selinux checks for gconf applications?
+> 
+> FYI:I m using gconf-dbus,not the orbit gconf.
+>  
 
-you can use
-echo 0 > /proc/sys/kernel/printk_ratelimit
-or
-add= kernel.printk_ratelimit=0
-to /etc/sysctl.conf
-this way you see all of the messages,
-just remember to put it back to 5 when
-finished, so you don't become vulnerable to
-a buffer attack.
+That work is old. I hope to update it someday, but it will take some
+work for you to update it to the latest GConf.  The patch is a little
+big to send to the list, but I can send it to you, or make it available
+somewhere if there is interest from others as well.
 
-regards;
+I think that you have to make gcond a userspace object manager to do
+what you want.  You want both applications to be able to send requests
+to gconfd and to receive replies, so they both must be able to send and
+receive messages to gconfd through D-Bus.  While D-Bus allows control
+over who can use a bus name, and it will control the sending and
+receiving of messages between the two processes, I don't think that you
+can use it to control access to specific methods. You would need it to
+prevent the one application from using the "set" method (or whatever it
+is called).  
+
+One good thing about using D-Bus though is that you can have gconfd use
+the "GetConnectionSELinuxSecurityContext" method to get the client's
+security context from D-Bus.
 
 -- 
-Justin P. Mattock
+James Carter <jwcart2@epoch.ncsc.mil>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
