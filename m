@@ -1,54 +1,72 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78EFZNL009457
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:15:35 -0400
-Received: from g1t0029.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78EFPYV027274
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 14:15:26 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: Matt Anderson <mra@hp.com>
-Subject: Re: SELinux policy and performance impacts
-Date: Fri, 8 Aug 2008 10:15:19 -0400
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-References: <489B81A4.9050007@hp.com> <alpine.LRH.1.10.0808080955290.22387@tundra.namei.org>
-In-Reply-To: <alpine.LRH.1.10.0808080955290.22387@tundra.namei.org>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78EFK6l009375
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:15:20 -0400
+Received: from yx-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78EFJ5c015708
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 14:15:19 GMT
+Received: by yx-out-1718.google.com with SMTP id 3so264589yxi.84
+        for <selinux@tycho.nsa.gov>; Fri, 08 Aug 2008 07:15:04 -0700 (PDT)
+Message-ID: <d74d42a50808080715k5cc752acy3bad72465baaa5c0@mail.gmail.com>
+Date: Fri, 8 Aug 2008 19:45:02 +0530
+From: "shaunak saha" <reach.shaunak@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: Gconf application
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200808081015.19599.paul.moore@hp.com>
+Content-Type: multipart/alternative;
+	boundary="----=_Part_69028_8544483.1218204903694"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 07 August 2008 8:03:02 pm James Morris wrote:
-> On Thu, 7 Aug 2008, Matt Anderson wrote:
-> > I'm currently looking into the performance impact of SELinux.  Most
-> > of what I have seen so far involve testing the system's performance
-> > with file creation, open, and exec, but I was hoping to gather some
-> > more data before finalizing any conclusions.
-> >
-> > I was wondering if anyone knows of any types of policy rules that
-> > when loaded into the kernel are particularly detrimental to system
-> > performance.  My understanding is that all policy rules are treated
-> > equally once they've been compiled to binary, but I wanted to ask
-> > here first in order to confirm that.
->
-> Yes, all access rules are applied in a standard form with decisions
-> cached in the AVC.  There were some network permissions which had to
-> do a full policydb lookup on each packet to determine the label to
-> use, but these are also now cached (although will still incur some
-> overhead).
+------=_Part_69028_8544483.1218204903694
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-As an FYI, you'll want 2.6.26 to get the all of the cached network 
-permissions; 2.6.25 added interface and node caches, 2.6.26 added port 
-caches.  If you are looking at network performance as part of this you 
-will want to make sure compat_net is disabled, i.e. use Secmark.  
+Hi all,
 
-Ideally you would also enable the new network_peer_controls policy 
-capability but I don't think we have that enabled by default just yet, 
-needs more testing I believe.
+I m new to selinux.I am not sure I am posing this question correctly, so
+please view it
+from the perspective of where I am trying to get to.
 
--- 
-paul moore
-linux @ hp
+I need to protect Gconf applications.I have two client applications running
+in different domains.From the policy file one applcation should be allowed
+to do operations in GConf while other should only be able to read from
+Gconf.
+For this i m planning to follow the NSA whitepaper i found from net(
+http://www.nsa.gov/seLinux/papers/gconf07-abs.cfm) and creating a userspace
+object manager.Is that the correct approach or there is any other way to
+make selinux checks for gconf applications?
+FYI:I m using gconf-dbus,not the orbit gconf.
+
+Thanks in advance,
+
+
+Thanks and Regards,
+Shaunak
+
+------=_Part_69028_8544483.1218204903694
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div dir="ltr"><div>Hi all,</div>
+<div>&nbsp;</div>
+<div>I m new to selinux.I am not sure I am posing this question correctly, so please view it<br>from the perspective of where I am trying to get to.</div>
+<div>&nbsp;</div>
+<div>I need to protect Gconf applications.I have two client applications running in different domains.From the policy file one applcation should be allowed to do operations in GConf while other should only be able to read from Gconf.</div>
+
+<div>For this i m planning to follow the NSA whitepaper i found from net(<a href="http://www.nsa.gov/seLinux/papers/gconf07-abs.cfm">http://www.nsa.gov/seLinux/papers/gconf07-abs.cfm</a>) and creating a userspace<br>object manager.Is that the correct approach or there is any other way to make selinux checks for gconf applications?<br>
+</div>
+<div>FYI:I m using gconf-dbus,not the orbit gconf.</div>
+<div>&nbsp;</div>
+<div>Thanks in advance,</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>Thanks and Regards,</div>
+<div>Shaunak</div>
+<div>&nbsp;</div></div>
+
+------=_Part_69028_8544483.1218204903694--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
