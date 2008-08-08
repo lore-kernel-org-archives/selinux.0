@@ -1,25 +1,35 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78Gktj2010055
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 12:46:55 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m78GkgvJ011890
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 16:46:46 GMT
-Message-ID: <489C7879.1030905@manicmethod.com>
-Date: Fri, 08 Aug 2008 12:46:49 -0400
+Message-ID: <489C797B.6000206@manicmethod.com>
+Date: Fri, 08 Aug 2008 12:51:07 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Can we make libsemanage default to expand-check=0
-References: <489864B4.1090605@redhat.com>
-In-Reply-To: <489864B4.1090605@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Why is customizing labeling and seusers so SLOOOOOOOWWWWW.
+References: <489C6852.7060501@redhat.com>
+In-Reply-To: <489C6852.7060501@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Daniel J Walsh wrote:
+> Is it time to move seuser and local file context labeling out of
+> libsemanage?  I have just heard from the virt team that they want to
+> modify the context of a virt machine at creation time, so they have
+> looked at chcon -t virt_image_t.  They understand that changing the
+> image will not survive a relabel but
+> 
+> "Unfortunately, semanage is rather slow application to run. It also
+> pulls in the entire python runtime, which isn't something we can do in
+> libvirt. We really need some light-weight way of adding new file
+> contexts to the policy persistently."
+> 
+> I explained they can call libsemanage via "C"  but the comment brings up
+> a point of why does semanage recompile policy when changing file context
+> or the seusers file.  All we really need to do is verify the contests
+> are correct and this should be a very fast operation.
 
-I'd rather we not do this. We are already losing the vast majority of testers for those codepaths by Fedora turning it off, if it becomes off by default I'm afraid that code will rot like crazy.
+This has been on the todo list for quite a while. Much of the infrastructure is already there, look at direct_api.c:492
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
