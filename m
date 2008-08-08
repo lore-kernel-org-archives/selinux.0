@@ -1,138 +1,59 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78ABLLP016320
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 06:11:21 -0400
-Received: from house.lunarmania.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78ABKlm029150
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:11:21 GMT
-Message-ID: <489C1BB1.2060701@rubix.com>
-Date: Fri, 08 Aug 2008 12:10:57 +0200
-From: Andy Warner <warner@rubix.com>
-MIME-Version: 1.0
-To: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
-CC: russell@coker.com.au, Casey Schaufler <casey@schaufler-ca.com>,
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m78AXSaV020275
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 06:33:28 -0400
+Received: from sender-03.it.helsinki.fi (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m78AXI9T017054
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 10:33:19 GMT
+Date: Fri, 8 Aug 2008 13:33:10 +0300 (EEST)
+From: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>
+To: Andy Warner <warner@rubix.com>
+cc: russell@coker.com.au, Casey Schaufler <casey@schaufler-ca.com>,
         SE-Linux <selinux@tycho.nsa.gov>
 Subject: Re: Request for multiple mailing lists
-References: <489B25B6.4080309@windriver.com> <489B3536.1060103@schaufler-ca.com> <200808081208.31741.russell@coker.com.au> <489C03E1.3060206@rubix.com> <Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi>
-In-Reply-To: <Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi>
-Content-Type: multipart/alternative;
- boundary="------------050004000407050009020607"
+In-Reply-To: <489C1BB1.2060701@rubix.com>
+Message-ID: <Pine.LNX.4.64L.0808081319150.25440@ruuvi.it.helsinki.fi>
+References: <489B25B6.4080309@windriver.com> <489B3536.1060103@schaufler-ca.com>
+ <200808081208.31741.russell@coker.com.au> <489C03E1.3060206@rubix.com>
+ <Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi> <489C1BB1.2060701@rubix.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050004000407050009020607
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-
-
-Vesa-Matti J Kari wrote:
-> Hello,
->
-> On Fri, 8 Aug 2008, Andy Warner wrote:
->
->   
->> Russell Coker wrote:
->>     
->>> On Friday 08 August 2008 03:47, Casey Schaufler <casey@schaufler-ca.com>
->>> wrote:
->>>
->>>       
->>>> SELinux without policy is like a book without pages. Think of
->>>> the reference policy as the pages of the Old Testament.
->>>>
->>>>         
->>> http://en.wikipedia.org/wiki/Eisegesis
->>>
->>> The problem with such analogies is that SE Linux policy is designed to be
->>> unambiguous.  See the above URL for details of the issue.
->>>
->>>
->>>       
->> Is that supposed to be funny or just an great example of someone posting way
->> off topic demonstrating the need for multiple mailing lists?
->>     
->
-> There is nothing inherently funny with being logical and demanding
-> precision. Russell Coker's comment was quite good and to the point. You
-> should not compare SELinux policies, which are clear and precise, with
-> ancient mythology, and expect that everyone buys it. This world is full
-> of so-called Holy Books, after all.
->
-> This list should focus on SELinux issues.
->
-> Best regards,
-> vmk
->   
-Didn't realize the NSA was sponsoring a list for voicing religious 
-bigotries. Or is that also an "SELinux issue?"
-
---------------050004000407050009020607
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<br>
-<br>
-Vesa-Matti J Kari wrote:
-<blockquote
- cite="mid:Pine.LNX.4.64L.0808081256260.24072@ruuvi.it.helsinki.fi"
- type="cite">
-  <pre wrap="">Hello,
+Hello,
 
 On Fri, 8 Aug 2008, Andy Warner wrote:
 
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">Russell Coker wrote:
-    </pre>
-    <blockquote type="cite">
-      <pre wrap="">On Friday 08 August 2008 03:47, Casey Schaufler <a class="moz-txt-link-rfc2396E" href="mailto:casey@schaufler-ca.com">&lt;casey@schaufler-ca.com&gt;</a>
-wrote:
+> Didn't realize the NSA was sponsoring a list for voicing religious bigotries.
 
-      </pre>
-      <blockquote type="cite">
-        <pre wrap="">SELinux without policy is like a book without pages. Think of
-the reference policy as the pages of the Old Testament.
+The mighty NSA has little or nothing to do with this issue.
 
-        </pre>
-      </blockquote>
-      <pre wrap=""><a class="moz-txt-link-freetext" href="http://en.wikipedia.org/wiki/Eisegesis">http://en.wikipedia.org/wiki/Eisegesis</a>
+The point that is sometimes missed is that not all people are religious,
+or if they are, they do not necessarily follow the same sect, and hence
+people should think twice before asking anyone to compare, e.g. a SELinux
+policy with the Old Testament. Or with the Quran. Or with the Vedas.
 
-The problem with such analogies is that SE Linux policy is designed to be
-unambiguous.  See the above URL for details of the issue.
+Why promote your own ideology on a list that should focus on mutual
+technical co-operation and technical issues related to SELinux?
 
+The original writer later said that he did not want to start a religious
+argument, and I do believe he was honest when saying so. But next time,
+in my opinion, I think he would do well to leave out the religious
+comparisons on a technical list. I am saying this in a friendly spirit
+and do not mean to sound harsh.
 
-      </pre>
-    </blockquote>
-    <pre wrap="">Is that supposed to be funny or just an great example of someone posting way
-off topic demonstrating the need for multiple mailing lists?
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-There is nothing inherently funny with being logical and demanding
-precision. Russell Coker's comment was quite good and to the point. You
-should not compare SELinux policies, which are clear and precise, with
-ancient mythology, and expect that everyone buys it. This world is full
-of so-called Holy Books, after all.
+> Or is that also an "SELinux issue?"
 
-This list should focus on SELinux issues.
+No, it is not a SELinux issue.
 
 Best regards,
 vmk
-  </pre>
-</blockquote>
-Didn't realize the NSA was sponsoring a list for voicing religious
-bigotries. Or is that also an "SELinux issue?"<br>
-</body>
-</html>
-
---------------050004000407050009020607--
+--
+************************************************************************
+               Tietotekniikkaosasto / Helsingin yliopisto
+                 IT Department / University of Helsinki
+************************************************************************
 
 --
 This message was distributed to subscribers of the selinux mailing list.
