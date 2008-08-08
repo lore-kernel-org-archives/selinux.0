@@ -1,45 +1,43 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m783IWBl008765
-	for <selinux@tycho.nsa.gov>; Thu, 7 Aug 2008 23:18:34 -0400
-Received: from smtp108.prem.mail.sp1.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m783IIri019599
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 03:18:23 GMT
-Message-ID: <489BBAFC.4020405@schaufler-ca.com>
-Date: Thu, 07 Aug 2008 20:18:20 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m785kNhO028106
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 01:46:24 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m785kEV2022358
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 05:46:15 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m785kGgm022733
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 01:46:17 -0400
+Received: from pobox.bne.redhat.com (pobox.bne.redhat.com [10.64.63.6])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m785kEc1008763
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 01:46:15 -0400
+Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
+	by pobox.bne.redhat.com (8.13.1/8.13.1) with ESMTP id m785kDKm022577
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 15:46:14 +1000
+Message-ID: <489BDDA0.1090000@redhat.com>
+Date: Fri, 08 Aug 2008 15:46:08 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Request for multiple mailing lists
-References: <489B25B6.4080309@windriver.com> <489B3536.1060103@schaufler-ca.com> <200808081208.31741.russell@coker.com.au>
-In-Reply-To: <200808081208.31741.russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Subject: SELinux User Guide: weekly report 2008-08-08
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Friday 08 August 2008 03:47, Casey Schaufler <casey@schaufler-ca.com> 
-> wrote:
->   
->> SELinux without policy is like a book without pages. Think of
->> the reference policy as the pages of the Old Testament.
->>     
->
-> http://en.wikipedia.org/wiki/Eisegesis
->
-> The problem with such analogies is that SE Linux policy is designed to be 
-> unambiguous.  See the above URL for details of the issue
+Hi,
 
-I did not mean to start a religious argument. Use any of these
-substitutions for "the Old Testament" that you prefer:
+This week:
 
-   "Webster's Unabridged Dictionary"
-   "the US Tax code"
-   "the NFL rule book"
+* Research: RHS429 and "SELinux by Example".
+* Continued Content Specification:
+<http://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Content_Specification>
 
-Any text that is definitive, large, and technically readable
-by a human being will do.
+Next week:
 
+Finish Content Specification (due 2008-08-14)
+
+Cheers,
+
+Murray.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
