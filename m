@@ -1,68 +1,59 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m792YoQW011221
-	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 22:34:50 -0400
-Received: from smtp102.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m792Yndh002500
-	for <selinux@tycho.nsa.gov>; Sat, 9 Aug 2008 02:34:49 GMT
-Message-ID: <489D00AC.30504@schaufler-ca.com>
-Date: Fri, 08 Aug 2008 19:27:56 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: Vesa-Matti J Kari <vmkari@cc.helsinki.fi>, Andy Warner <warner@rubix.com>,
-        SE-Linux <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m792jsrC012538
+	for <selinux@tycho.nsa.gov>; Fri, 8 Aug 2008 22:45:54 -0400
+Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m792jpdh004632
+	for <selinux@tycho.nsa.gov>; Sat, 9 Aug 2008 02:45:52 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "max bianco" <maximilianbianco@gmail.com>
 Subject: Re: Request for multiple mailing lists
-References: <489B25B6.4080309@windriver.com> <489C1BB1.2060701@rubix.com> <Pine.LNX.4.64L.0808081319150.25440@ruuvi.it.helsinki.fi> <200808082048.53795.russell@coker.com.au>
-In-Reply-To: <200808082048.53795.russell@coker.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Sat, 9 Aug 2008 12:45:44 +1000
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <489B25B6.4080309@windriver.com> <489C7DEE.7090006@manicmethod.com> <a040ffdc0808081920x11526c91u33d2e3b3d079c4dd@mail.gmail.com>
+In-Reply-To: <a040ffdc0808081920x11526c91u33d2e3b3d079c4dd@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200808091245.46223.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Friday 08 August 2008 20:33, Vesa-Matti J Kari <vmkari@cc.helsinki.fi> 
-> wrote:
->   
->> On Fri, 8 Aug 2008, Andy Warner wrote:
->>     
->>> Didn't realize the NSA was sponsoring a list for voicing religious
->>> bigotries.
->>>       
->> The mighty NSA has little or nothing to do with this issue.
->>     
->
-> Actually I believe that they have a policy against discussions of religion on 
-> the list.  Which is why I didn't make any comment about religion in my 
-> previous message.
->
->   
->> The point that is sometimes missed is that not all people are religious,
->> or if they are, they do not necessarily follow the same sect, and hence
->> people should think twice before asking anyone to compare, e.g. a SELinux
->> policy with the Old Testament. Or with the Quran. Or with the Vedas.
->>     
->
-> I think (based on off-list correspondence) that Casey might have been trying 
-> to compare multiple translations and interpretations of religious documents 
-> with multiple SE Linux policies.  But his last message to me on this topic 
-> was not entirely clear.
->   
+On Saturday 09 August 2008 12:20, "max bianco" <maximilianbianco@gmail.com> 
+wrote:
+> This list is hardly what I would call high traffic. It is about the
+> only source of current SELinux info that I have found.
 
-Maybe I should just put what I meant out on the table, then
-anyone who would like can argue with me of list and we can
-take any issue out of this context.
+http://selinuxnews.org/planet/
 
-First, the comparison was very off the cuff, so don't read too
-much into it. The comparison is apt because:
-- both are large
-- both are considered definitive in certain circles
-- both have multiple authors
-- both are concerned with proper behavior
-- individual sections sometimes seem peculiar out of context
+There is the SE Linux planet (see above).  At the moment 3/5 posts are by me.  
+I encourage everyone who has a blog and is interested in SE Linux to write 
+some suitable posts and get James to syndicate their entire blog or a 
+category related to SE Linux if they write many posts.
 
-There. You can discuss this comparison off line with me if you like,
-but I'm not going to say anything more about it here. Sorry if
-anyone got offended, directly or indirectly. Golly.
+http://selinuxnews.org/wp/
 
+The above URL has the SE Linux news blog run by James.
+
+The Fedora SE Linux list is good if you use Fedora.
+
+The SE Linux IRC channel is good if IRC suits your needs (but you do need some 
+patience, sometimes it takes 8+ hours to get an answer).
+
+> proper perspective on the big picture, if you forget to check you
+> policy list because you happen to be especially busy handling kernel
+
+The ability to keep track of things is important.  Having a single list that 
+is too busy can be as much of an obstacle as having multiple lists.
+
+Good choice of subject lines for messages can greatly alleviate this problem 
+allowing bulk deletion of messages that aren't relevant to your work.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
