@@ -1,96 +1,121 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m798oAJ5027483
-	for <selinux@tycho.nsa.gov>; Sat, 9 Aug 2008 04:50:10 -0400
-Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m798o8Yl021345
-	for <selinux@tycho.nsa.gov>; Sat, 9 Aug 2008 08:50:09 GMT
-From: Dennis Wronka <linuxweb@gmx.net>
-To: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: Problem with MLS because /dev is labeled tmpfs_t
-Date: Sat, 9 Aug 2008 16:49:58 +0800
-References: <20080804123456.679565839@hardeman.nu> <200808072211.00709.linuxweb@gmx.net> <200808081200.41418.russell@coker.com.au>
-In-Reply-To: <200808081200.41418.russell@coker.com.au>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m79EeNaB015822
+	for <selinux@tycho.nsa.gov>; Sat, 9 Aug 2008 10:40:23 -0400
+Received: from g5t0006.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m79EeN7T024286
+	for <selinux@tycho.nsa.gov>; Sat, 9 Aug 2008 14:40:23 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: paulmck@linux.vnet.ibm.com
+Subject: Re: [RFC PATCH v1 2/6] netlabel: Replace protocol/NetLabel linking with refrerence counts
+Date: Sat, 9 Aug 2008 10:40:18 -0400
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        netdev@vger.kernel.org
+References: <20080808203542.21077.37084.stgit@flek> <200808082211.32951.paul.moore@hp.com> <20080809132346.GC8125@linux.vnet.ibm.com>
+In-Reply-To: <20080809132346.GC8125@linux.vnet.ibm.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart12963761.Z3pv5MB8oo";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <200808091650.01774.linuxweb@gmx.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200808091040.18961.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---nextPart12963761.Z3pv5MB8oo
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Friday 08 August 2008 10:00:39 Russell Coker wrote:
-> On Friday 08 August 2008 00:10, Dennis Wronka <linuxweb@gmx.net> wrote:
-> > Does anybody know where this problem is? Is it udev? I already compiled
-> > it with SELinux-support, but /dev is always tmpfs_t.
-> > As said, I suspect udev here, but of course I might be wrong.
+On Saturday 09 August 2008 9:23:46 am Paul E. McKenney wrote:
+> On Fri, Aug 08, 2008 at 10:11:32PM -0400, Paul Moore wrote:
+> > On Friday 08 August 2008 6:37:16 pm Paul E. McKenney wrote:
+> > > On Fri, Aug 08, 2008 at 04:53:01PM -0400, Paul Moore wrote:
+> > > >  struct cipso_v4_doi *cipso_v4_doi_getdef(u32 doi)
+> > > >  {
+> > > > -	return cipso_v4_doi_search(doi);
+> > > > +	struct cipso_v4_doi *doi_def;
+> > > > +
+> > > > +	rcu_read_lock();
+> > > > +	doi_def = cipso_v4_doi_search(doi);
+> > > > +	if (doi_def)
+> > >
+> > > Suppose that the doi_def element is removed by some other CPU at
+> > > this point.  The reference-count check would pass (so that the
+> > > deletion function would decline to error out with -EBUSY), and
+> > > the removal would proceed normally.  (Right?)
+> > >
+> > > So we then acquire the reference count on an element that will be
+> > > freed after an RCU grace period, despite the fact that the
+> > > reference count might still be held at that point.
+> > >
+> > > Or am I missing something?  (Wouldn't be a surprise, as it is not
+> > > like I am familiar with this code.)
+> >
+> > Hi Paul,
+> >
+> > Thanks for taking a look, your point sounds reasonable to me.
+> >
+> > > If I am correct, the usual resolution is to combine the reference
+> > > count and the "valid" flag, so that a zero reference counter
+> > > implies "not valid", allowing the atomic_inc() below to become
+> > > atomic_inc_not_zero(), allowing you to simply return NULL should
+> > > the race with removal be detected.  There are other approaches as
+> > > well...
+> >
+> > Combining the valid and refcount fields seems reasonable to me.  I
+> > took your advice and made the following changes (as well as they
+> > other changes to replace the valid check with atomic_read(refcount)
+> > > 0) ...
+> >
+> > struct cipso_v4_doi *cipso_v4_doi_getdef(u32 doi)
+> > {
+> > 	struct cipso_v4_doi *doi_def;
+> >
+> > 	rcu_read_lock();
+> > 	doi_def = cipso_v4_doi_search(doi);
+> > 	if (doi_def == NULL)
+> > 		goto doi_getdef_return;
+> > 	if (!atomic_inc_not_zero(&doi_def->refcount))
+> > 		doi_def = NULL;
+> >
+> > doi_getdef_return:
+> > 	rcu_read_unlock();
+> > 	return doi_def;
+> > }
+> >
+> > int cipso_v4_doi_remove(u32 doi,
+> > 			struct netlbl_audit *audit_info,
+> > 			void (*callback) (struct rcu_head * head))
+> > {
+> > 	struct cipso_v4_doi *doi_def;
+> >
+> > 	spin_lock(&cipso_v4_doi_list_lock);
+> > 	doi_def = cipso_v4_doi_search(doi);
+> > 	if (doi_def == NULL) {
+> > 		spin_unlock(&cipso_v4_doi_list_lock);
+> > 		return -ENOENT;
+> > 	}
+> > 	if (!atomic_dec_and_test(&doi_def->refcount)) {
+> > 		spin_unlock(&cipso_v4_doi_list_lock);
+> > 		return -EBUSY;
+> > 	}
+> > 	list_del_rcu(&doi_def->list);
+> > 	spin_unlock(&cipso_v4_doi_list_lock);
+> >
+> > 	cipso_v4_cache_invalidate();
+> > 	call_rcu(&doi_def->rcu, callback);
+> >
+> > 	return 0;
+> > }
+> >
+> > Does that look better?
 >
-> Your udev script which mounts the tmpfs (which might be /etc/init.d/udev =
-or
-> a script called by it) needs to call restorecon.
+> Much better!!!
 >
-> See the scripts in Debian and Fedora for examples of how it's done.
+> Of course, any other places where you decrement ->refcount will also
+> need to deal with the possibility of a zero result, right?  Or is
+> the cipso_v4_doi_remove() case the only such decrement?
 
-Thansk, this already helped with the wrongly labeled /dev, but not with the=
-=20
-error, which I believe will still stop the boot if I'd switch to enforcing.
+Yep cipso_v4_doi_putdef() needs to be fixed up too.  It looks like 
+stacked-git can send mail with a specific refid so let me see if I can 
+reply to this thread with an updated patch ...
 
-Here's the message:
-type=3D1401 audit(1218261917.800:3): security_validate_transition: denied f=
-or=20
-oldcontext=3Dsystem_u:object_r:fixed_disk_device_t:s0=20
-newconext=3Dsystem_u:object_r:fixed_disk_device_t:s15:c0.c255=20
-taskcontext=3Dsystem_u:system_r:lvm_t:s0-s15:c0.c255 tclass=3Dblk_file
-
-As the message doesn't show anything I do not know for sure which file it=20
-exactly is. As this message is caused by the call of dmsetup mknodes (I use=
-=20
-an encrypted root-partition in this setup) it must be either /dev/hdaX (all=
-=20
-three hda-partitions have this context, hda3 is the actual root-fs)=20
-or /dev/mapper/cryptroot, which also has that context and is the file that'=
-s=20
-actually supposed to be created by dmsetup.
-
-I had a look around in the policy but couldn't find a way to get around thi=
-s.=20
-Also Google wasn't very helpful as it points to patches and sources of the=
-=20
-SELinux-libraries.
-
-Just for testing I removed the call of dmsetup mknodes, but the error still=
-=20
-happens, as lvm vgmknodes still is called and it causes the same problem.
-I also switched (disabled the lvm-call and re-enabled the dmsetup-call) and=
- I=20
-get the error. So, both calls give this error, as they both run in the same=
-=20
-domain lvm_t and want to do the same stuff with my files.
-
-Now the problem is, how do I get rid of this problem? Both LVM and DevMappe=
-r=20
-are compiled with SELinux-support, but somehow MLS doesn't allow them to=20
-perform this transition.
-
---nextPart12963761.Z3pv5MB8oo
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-
-iEYEABECAAYFAkidWjkACgkQ1sXw8/2VziThFACglXomLyDNGEqm4h8Y+sagiFow
-qqAAoMfR5BZ1fAz5g8ViRhtZAG6eEC+C
-=M38b
------END PGP SIGNATURE-----
-
---nextPart12963761.Z3pv5MB8oo--
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
