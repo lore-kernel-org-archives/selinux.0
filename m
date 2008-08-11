@@ -1,67 +1,183 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BFYcP4028122
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 11:34:38 -0400
-Received: from yx-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BFYQec008969
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 15:34:26 GMT
-Received: by yx-out-1718.google.com with SMTP id 3so1523003yxi.84
-        for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 08:34:38 -0700 (PDT)
-Message-ID: <7e0fb38c0808110834h5aba3191p5baafa20e7037eda@mail.gmail.com>
-Date: Mon, 11 Aug 2008 11:34:37 -0400
-From: "Eric Paris" <eparis@parisplace.org>
-To: "Vikram Ambrose" <Vikram.Ambrose@windriver.com>
-Subject: Re: Request for multiple mailing lists
-Cc: "SE Linux" <selinux@tycho.nsa.gov>
-In-Reply-To: <489B25B6.4080309@windriver.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BFm00j031018
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 11:48:00 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BFlxPn014557
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 15:47:59 GMT
+Message-ID: <48A05EEE.9090609@redhat.com>
+Date: Mon, 11 Aug 2008 11:46:54 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <489B25B6.4080309@windriver.com>
+To: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Cleaned up patch
+Content-Type: multipart/mixed;
+ boundary="------------090104000103000707010303"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Aug 7, 2008 at 12:41 PM, Vikram Ambrose
-<Vikram.Ambrose@windriver.com> wrote:
+This is a multi-part message in MIME format.
+--------------090104000103000707010303
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> The SELinux list is not a place for non-SELinux maintainers, like Tresys to
-> discuss their policies within themselves. Would it be alright for me and the
-> other developers in my company to use the SELinux list to discuss our
-> policies? Or the next company that decides to adopt SELinux? RedHat goes as
-> far as to using the SELinux list as a communication channel with Tresys.
-> Unless there has been some agreement made between the SELinux gatekeepers
-> (NSA?) , Tresys and Redhat, I find this a misuse of the mailing list.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Some misunderstanding.  Tresys is the refpolicy maintainer.  The
-intention of refpolicy is to be a single upstream policy on which
-others can build, extend, and make their own changes.  Hopefully all
-generically useful changes that people make to policy get sent back to
-refpolicy.  We don't hear tresys discuss their custom policies, they
-only talk about the general refpolicy, of which one of their employees
-spends a great deal of maintaining for the benefit of us all.
+seusers still does not seem to work correctly.
 
-> As I see it, the current list should be split into 3.
+semanage login -a -s staff_u username
+semanage login -m -s user_u username
 
-I'm willing to accept and think 2 lists is a good idea.  selinux-list
-and selinux-policy-list.  Where selinux-list deals with anything that
-comes along, be it userspace, kernel, my BLAH is broken, this tool
-sucks, etc etc.  selinux-policy-list is for policy PATCHES ONLY.
-There are some people who really follow both closely, but we do have
-enough specialists who care 99% about policy those of us who care only
-1% about policy.  Sure I'll subscribe to both, but I'm going to ignore
-policy list.  I figure if any discussion comes up on policy-list that
-needs userspace changes someone will poke me or they will mention it
-on the general list.  I think moving policy patches and only patches
-that need review to go into refpolicy onto its own list can help a
-number of people better focus on things.  Chris can find those patches
-without wading through crap and accept/reject them.  I can ignore
-them.
+seem to work.
 
-My suggestion would be
+semanage login -d username
 
-selinux-list @ nsa - general selinux discussion including userspace
-and kernel patches
-selinux-policy-list @ whoever - PATCHES intended for refpolicy
+leaves it in a wierd state.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
--Eric
+iEYEARECAAYFAkigXu4ACgkQrlYvE4MpobOc/wCeO26g+v1iaVTd6Ue60Yn2VmJy
+eZUAniVcFJHM0iahxmXp3m0FnXC4OZU5
+=0Jes
+-----END PGP SIGNATURE-----
+
+--------------090104000103000707010303
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+diff --exclude-from=exclude -N -u -r nsalibsemanage/src/direct_api.c libsemanage-2.0.27/src/direct_api.c
+--- nsalibsemanage/src/direct_api.c	2008-06-12 23:25:16.000000000 -0400
++++ libsemanage-2.0.27/src/direct_api.c	2008-08-11 11:39:20.000000000 -0400
+@@ -491,9 +491,9 @@
+ 
+ 	/* FIXME: get rid of these, once we support loading the existing policy,
+ 	 * instead of rebuilding it */
+-	modified |= seusers_modified;
+-	modified |= fcontexts_modified;
+-	modified |= users_extra_modified;
++	//      modified |= seusers_modified;
++	//	modified |= fcontexts_modified;
++	//	modified |= users_extra_modified;
+ 
+ 	/* If there were policy changes, or explicitly requested, rebuild the policy */
+ 	if (sh->do_rebuild || modified) {
+@@ -582,6 +582,7 @@
+ 				retval = -1;
+ 				goto cleanup;
+ 			}
++
+ 			retval = write_file(sh, ofilename,
+ 					    sepol_module_package_get_seusers(base),
+ 					    sepol_module_package_get_seusers_len(base));
+@@ -667,11 +668,25 @@
+ 		retval = semanage_verify_kernel(sh);
+ 		if (retval < 0)
+ 			goto cleanup;
+-	}
+-
+-	/* FIXME: else if !modified, but seusers_modified, 
+-	 * load the existing policy instead of rebuilding */
++	} else {
++		sepol_policydb_create(&out);
++		modified |= seusers_modified;
++		modified |= fcontexts_modified;
++		modified |= users_extra_modified;
++		
++		retval = semanage_read_policydb(sh, out);
++		if (retval < 0)
++			goto cleanup;
+ 
++		dbase_policydb_attach((dbase_policydb_t *) pusers_base->dbase,out);
++		dbase_policydb_attach((dbase_policydb_t *) pports->dbase, out);
++		dbase_policydb_attach((dbase_policydb_t *) pifaces->dbase, out);
++		dbase_policydb_attach((dbase_policydb_t *) pbools->dbase, out);
++		dbase_policydb_attach((dbase_policydb_t *) pnodes->dbase, out);
++		retval = semanage_base_merge_components(sh);
++		if (retval < 0)
++		  goto cleanup;
++	}
+ 	/* ======= Post-process: Validate non-policydb components ===== */
+ 
+ 	/* Validate local modifications to file contexts.
+diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage_store.c libsemanage-2.0.27/src/semanage_store.c
+--- nsalibsemanage/src/semanage_store.c	2008-06-12 23:25:16.000000000 -0400
++++ libsemanage-2.0.27/src/semanage_store.c	2008-08-08 15:23:20.000000000 -0400
+@@ -1648,6 +1648,47 @@
+ }
+ 
+ /**
++ * Read the policy from the sandbox (kernel)
++ */
++int semanage_read_policydb(semanage_handle_t * sh, sepol_policydb_t * in)
++{
++
++	int retval = STATUS_ERR;
++	const char *kernel_filename = NULL;
++	struct sepol_policy_file *pf = NULL;
++	FILE *infile = NULL;
++
++	if ((kernel_filename =
++	     semanage_path(SEMANAGE_ACTIVE, SEMANAGE_KERNEL)) == NULL) {
++		goto cleanup;
++	}
++	if ((infile = fopen(kernel_filename, "r")) == NULL) {
++		ERR(sh, "Could not open kernel policy %s for reading.",
++		    kernel_filename);
++		goto cleanup;
++	}
++	__fsetlocking(infile, FSETLOCKING_BYCALLER);
++	if (sepol_policy_file_create(&pf)) {
++		ERR(sh, "Out of memory!");
++		goto cleanup;
++	}
++	sepol_policy_file_set_fp(pf, infile);
++	sepol_policy_file_set_handle(pf, sh->sepolh);
++	if (sepol_policydb_read(in, pf) == -1) {
++		ERR(sh, "Error while reading kernel policy from %s.",
++		    kernel_filename);
++		goto cleanup;
++	}
++	retval = STATUS_SUCCESS;
++
++      cleanup:
++	if (infile != NULL) {
++		fclose(infile);
++	}
++	sepol_policy_file_free(pf);
++	return retval;
++}
++/**
+  * Writes the final policy to the sandbox (kernel)
+  */
+ int semanage_write_policydb(semanage_handle_t * sh, sepol_policydb_t * out)
+diff --exclude-from=exclude -N -u -r nsalibsemanage/src/semanage_store.h libsemanage-2.0.27/src/semanage_store.h
+--- nsalibsemanage/src/semanage_store.h	2008-06-12 23:25:16.000000000 -0400
++++ libsemanage-2.0.27/src/semanage_store.h	2008-08-11 09:05:16.000000000 -0400
+@@ -97,6 +97,9 @@
+ 			    sepol_module_package_t * base,
+ 			    sepol_policydb_t ** policydb);
+ 
++int semanage_read_policydb(semanage_handle_t * sh,
++			    sepol_policydb_t * policydb);
++
+ int semanage_write_policydb(semanage_handle_t * sh,
+ 			    sepol_policydb_t * policydb);
+ 
+
+--------------090104000103000707010303
+Content-Type: application/octet-stream;
+ name="diff.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="diff.sig"
+
+iEYEABECAAYFAkigXu4ACgkQrlYvE4MpobOR2ACgq/69gR1wRSC6ouVoSsFh18na53MAn1qo
+fO0PI5QyLVfJ+4HYnFcu/76l
+--------------090104000103000707010303--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
