@@ -1,138 +1,95 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BEMGIQ010028
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:22:16 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BEMFPn014784
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:22:15 GMT
-Message-ID: <48A04B14.8050909@redhat.com>
-Date: Mon, 11 Aug 2008 10:22:12 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BEXYBB013110
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:33:34 -0400
+Received: from mail.wrs.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BEXSPn018703
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:33:33 GMT
+Received: from ALA-MAIL03.corp.ad.wrs.com (ala-mail03 [147.11.57.144])
+	by mail.wrs.com (8.13.6/8.13.6) with ESMTP id m7BEXQZ3018876
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 07:33:26 -0700 (PDT)
+Message-ID: <48A04AB2.20902@windriver.com>
+Date: Mon, 11 Aug 2008 10:20:34 -0400
+From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: david@hardeman.nu, selinux@tycho.nsa.gov
-Subject: Re: [patch 06/35] soundserver policy update
-References: <20080804123456.679565839@hardeman.nu>	 <20080804123735.501182274@hardeman.nu>	 <1218115989.5345.8.camel@gorn.columbia.tresys.com>	 <489B1041.1060103@redhat.com> <1218460710.16773.7.camel@gorn>
-In-Reply-To: <1218460710.16773.7.camel@gorn>
-Content-Type: text/plain; charset=ISO-8859-1
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Request for multiple mailing lists
+References: <489B25B6.4080309@windriver.com>
+In-Reply-To: <489B25B6.4080309@windriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Christopher J. PeBenito wrote:
-> On Thu, 2008-08-07 at 11:09 -0400, Daniel J Walsh wrote:
->> Christopher J. PeBenito wrote:
->>> On Mon, 2008-08-04 at 14:35 +0200, david@hardeman.nu wrote:
->>>> plain text document attachment
->>>> (policy_modules_services_soundserver.patch)
->>>> This policy was written by Ken Yang and reviewed by Dan Walsh:
->>>> http://marc.info/?l=fedora-selinux-list&m=118561164825982&w=2
->>>> and here:
->>>> https://bugzilla.redhat.com/show_bug.cgi?id=250453
->>>>
->>>> I updated the .fc changes to also work with Debian paths.
->>>>
->>>> Originally submitted Jul 19, refreshed to apply cleanly
->>> Comments inline
->>>
->>>> +########################################
->>>> +## <summary>
->>>> +##	All of the rules required to administrate
->>>> +##	an soundd environment
->>>> +## </summary>
->>>> +## <param name="domain">
->>>> +##	<summary>
->>>> +##	Domain allowed access.
->>>> +##	</summary>
->>>> +## </param>
->>>> +## <param name="role">
->>>> +##	<summary>
->>>> +##	The role to be allowed to manage the soundd domain.
->>>> +##	</summary>
->>>> +## </param>
->>>> +## <param name="terminal">
->>>> +##	<summary>
->>>> +##	The type of the user terminal.
->>>> +##	</summary>
->>>> +## </param>
->>>> +## <rolecap/>
->>>> +#
->>>> +interface(`soundserver_admin',`
->>>> +	gen_require(`
->>>> +		type soundd_t;
->>>> +		type soundd_script_exec_t;
->>>> +		type soundd_etc_t;
->>>> +		type soundd_tmp_t;
->>>> +		type soundd_var_run_t;
->>>> +	')
->>>> +
->>>> +	allow $1 soundd_t:process { ptrace signal_perms getattr };
->>>> +	read_files_pattern($1, soundd_t, soundd_t)
->>>> +
->>>> +	# Allow soundd_t to restart the apache service
->>>> +	soundserver_script_domtrans($1)
->>>> +	domain_system_change_exemption($1)
->>>> +	role_transition $2 soundd_script_exec_t system_r;
->>>> +	allow $2 system_r;
->>>> +
->>>> +	files_list_tmp($1)
->>>> +        manage_all_pattern($1,soundd_tmp_t)
->>>> +
->>>> +	files_list_etc($1)
->>>> +        manage_all_pattern($1,soundd_etc_t)
->>>> +
->>>> +	files_list_pids($1)
->>>> +        manage_all_pattern($1,soundd_var_run_t)
->>>> +')
->>> This interface need several fixes.  The XML does not match.  There are
->>> whitespace issues (there should be tabs, not 8 spaces).  Also spaces
->>> after commas (other places in the patch too).  Manage_all_pattern
->>> doesn't exist upstream, and I don't plan on ever adding it.
->>>
->> Why not?  If I am an admin of a domain, I should be able to modify the
->> labeling on all types that are in that domain, on the entire class of
->> objects in that domain. Making me add all of the rules for each type is
->> just prone to errors.
->>
->> Without this rule you need to add
->>         manage_dirs_pattern($1,$2,$2)
->>         manage_files_pattern($1,$2,$2)
->>         manage_lnk_files_pattern($1,$2,$2)
->>         manage_fifo_files_pattern($1,$2,$2)
->>         manage_sock_files_pattern($1,$2,$2)
->>
->>         relabelto_dirs_pattern($1,$2,$2)
->>         relabelto_files_pattern($1,$2,$2)
->>         relabelto_lnk_files_pattern($1,$2,$2)
->>         relabelto_fifo_files_pattern($1,$2,$2)
->>         relabelto_sock_files_pattern($1,$2,$2)
->>
->>         relabelfrom_dirs_pattern($1,$2,$2)
->>         relabelfrom_files_pattern($1,$2,$2)
->>         relabelfrom_lnk_files_pattern($1,$2,$2)
->>         relabelfrom_fifo_files_pattern($1,$2,$2)
->>         relabelfrom_sock_files_pattern($1,$2,$2)
->>
->> For every type, which is nuts.
-> 
-> It is nuts because I don't think all that access should be provided.
-> Neglecting that, "manage" in refpolicy does not imply any relabeling
-> permissions.  Also the second and third blocks could be merged with
-> relabel_*_pattern().
-> 
+As usual, only the ones that wish to argue for no reason are the ones to 
+respond, when the culprits stay silent. Nevertheless I didn't expect 
+miracles to happen. Open Source is after all a socialist concept, and I 
+haven't earned my stripes yet.
 
-define(`admin_pattern',`
-        manage_dirs_pattern($1,$2,$2)
-        manage_files_pattern($1,$2,$2)
-        manage_lnk_files_pattern($1,$2,$2)
-        manage_fifo_files_pattern($1,$2,$2)
-        manage_sock_files_pattern($1,$2,$2)
+Oh and I almost forget, we also need a selinux-offtopic list for the 
+likes of Casey Schaufler, Russel Cooker and Vesa-Matti Kari to continue 
+their meaningless banters.
 
-        relabel_dirs_pattern($1,$2,$2)
-        relabel_files_pattern($1,$2,$2)
-        relabel_lnk_files_pattern($1,$2,$2)
-        relabel_fifo_files_pattern($1,$2,$2)
-        relabel_sock_files_pattern($1,$2,$2)
+/V
 
-')
+Vikram Ambrose wrote:
+> The SE Linux <selinux@tycho.nsa.gov> mailing list is being cluttered 
+> with non selinux related material.
+>
+> Especially concerning refpolicy. And there is no set fast term used 
+> for filtering such content, and needless to say a waste of bandwidth.
+>
+> The SELinux list is not a place for non-SELinux maintainers, like 
+> Tresys to discuss their policies within themselves. Would it be 
+> alright for me and the other developers in my company to use the 
+> SELinux list to discuss our policies? Or the next company that decides 
+> to adopt SELinux? RedHat goes as far as to using the SELinux list as a 
+> communication channel with Tresys. Unless there has been some 
+> agreement made between the SELinux gatekeepers (NSA?) , Tresys and 
+> Redhat, I find this a misuse of the mailing list.
+>
+> In the last 4 months, there have only been a handful of unique threads 
+> concerning SELinux. A few by Stepehen, Eric, and myself. Everything 
+> else is policy related.  With a total of 800 odd messages in this time 
+> frame, its quite clear the policy discussion is cluttering the list. 
+> As more and more people begin to adopt SELinux and face the battles of 
+> SELinux integration, the userspace topic will become increasingly 
+> popular.
+>
+> As I see it, the current list should be split into 3.
+>
+> 1. selinux-kernel
+>    This would be a very low volume list. .Perhaps even with special 
+> clearance to address security holes and concerns.
+> 2. selinux-userspace
+>    This list would deal with userspace tools, wrappers and other non 
+> kernel related material. Whether it be NSA's userspace tools or 
+> support for 3rd party applications being compiled to be selinux-aware 
+> using libselinux. This list is very important, if not the most 
+> important of the three.
+> 3. selinux-policy
+>    This list will deal with policies. A good place for Administrators 
+> and policy developers to discuss the creation, debugging and use of 
+> various policies. This as it stands would have the highest volume. 
+> Nevertheless as suggested by Grift Dominick on #selinux, a forum would 
+> be an even better place to discuss policies. Repository of ideas, 
+> designs and development dedicated to policies. A forum for the 
+> Administrator and Policy Developer.
+>
+> Without this breakdown, the selinux list would be analogous to people 
+> talking about GNU and C programming on lkml.
+>
+>
+> Vikram.
+>
+> -- 
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to 
+> majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+
+
+-- 
+Vikram Ambrose | Linux Products Division | WindRiver Corporation
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
