@@ -1,1450 +1,454 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BEdJxt014401
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:39:19 -0400
-Received: from e2.ny.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BEdHPn020413
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:39:18 GMT
-Received: from d01relay02.pok.ibm.com (d01relay02.pok.ibm.com [9.56.227.234])
-	by e2.ny.us.ibm.com (8.13.8/8.13.8) with ESMTP id m7BEdFXD013469
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:39:15 -0400
-Received: from d01av03.pok.ibm.com (d01av03.pok.ibm.com [9.56.224.217])
-	by d01relay02.pok.ibm.com (8.13.8/8.13.8/NCO v9.0) with ESMTP id m7BEdFbt194574
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:39:15 -0400
-Received: from d01av03.pok.ibm.com (loopback [127.0.0.1])
-	by d01av03.pok.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id m7BEdE0h000614
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:39:14 -0400
-Subject: Re: [LTP] [RFC] LTP IMA patch
-From: Subrata Modak <subrata@linux.vnet.ibm.com>
-Reply-To: subrata@linux.vnet.ibm.com
-To: Mimi Zohar <zohar@linux.vnet.ibm.com>
-Cc: ltp-list <ltp-list@lists.sourceforge.net>,
-        David Safford <safford@watson.ibm.com>,
-        Serge Hallyn <serue@linux.vnet.ibm.com>,
-        Reiner Sailer <sailer@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <1214938943.8715.5.camel@localhost.localdomain>
-References: <1214938943.8715.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 11 Aug 2008 20:09:08 +0530
-Message-Id: <1218465548.5010.115.camel@subratamodak.linux.ibm.com>
-Mime-Version: 1.0
+Message-ID: <48A04E61.3090506@windriver.com>
+Date: Mon, 11 Aug 2008 10:36:17 -0400
+From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+MIME-Version: 1.0
+To: ds@tycho.nsa.gov
+CC: SELinux@tycho.nsa.gov
+Subject: New SELinux toolchain build system
+Content-Type: multipart/mixed;
+ boundary="------------070205070006010306010303"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Thanks Mimi for writing these test cases for LTP. I apolozise for
-testing and provide comments late. Please see my comments embedded:
+This is a multi-part message in MIME format.
+--------------070205070006010306010303
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, 2008-07-01 at 15:02 -0400, Mimi Zohar wrote:
-> This LTP patch tests the LIM/IMA functionality.
-> 
-> Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
-> ---
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/README
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/README
-> @@ -0,0 +1,50 @@
-> +These testcases test the Integrity Measurement Architecture(IMA).
-> +
-> +Requirements
-> +------------
-> +In order for all of the tests in the testsuite to complete successfully:
-> +	- A kernel with Linux Integrity Module(LIM), IMA, KALLSYMS,
-> +	  TPM support and TPM driver builtin is required.
+Attached to this email is a tarball snapshot of a new build system
+for the SELinux toolchain that I have been working on for the last
+couple of months.
 
-Is it possible to make the README file more informative ? It would be
-nice if you can also include the portions of .config file which should
-be set to Y or M or N, in order for the kernel to have the above support
-during kernel build. I mean to say something like below should also
-accompany the README to better pinpoint things to be enabled:
-....
-CONFIG_SECURITY=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_SECURITY_FILE_CAPABILITIES=y
-CONFIG_SECURITY_ROOTPLUG=y
-CONFIG_SECURITY_DEFAULT_MMAP_MIN_ADDR=0
-CONFIG_SECURITY_SELINUX=y
-CONFIG_SECURITY_SELINUX_BOOTPARAM=y
-CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
-CONFIG_SECURITY_SELINUX_DISABLE=y
-CONFIG_SECURITY_SELINUX_DEVELOP=y
-CONFIG_SECURITY_SELINUX_AVC_STATS=y
-CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
-CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT=y
-CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX=y
-CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE=19
-CONFIG_SECURITY_SMACK=y
-......
+This autoconf/automake build system has many advantages over the
+current Makefiles.
 
-> +	- The testsuite must be executed with root priveleges so that it
-> +	  can access securityfs files, such as: security/ima/policy and
-> +	  security/ima/ascii_runtime_measurement.
-> +	- securityfs must be mounted.  The tests assume that it is mounted
-> +	  as /sys/kernel/security.
+1) It is capable of correctly cross compiling all libraries and
+  tools, including the python wrappers.
+2) It allows the distro maintainer to set sysconfdir, prefix,
+  pamdir, startupdir etc..
+3) It employs no "hacks", it is to-the-book, clean, GNU Automake,
+  Autoconf code, formatted to ~80 char line length.
+4) It lets RPM spec and .deb control take advantage of the autoconf
+  infrastructure already built into these package formats, allowing
+  distro maintainers to quickly and effortlessly build distro
+  packages.
+5) It is completely self dependent, ie. one can build the complete
+  toolchain now resolving dependencies within the build, without
+  needing to link against a system wide library.
 
-Also need to say, if this is not mounted, then how to mount them, as
-well as other procedures to follow before and after mounting to have a
-successful mounting.
+Due to an incompatibility with libtool, related to the current
+naming convention of the python wrappers and classes, a patch is
+supplied to rename:
+  *) _selinux.so to libpyselinux.so
+  *) _semanage.so to libpysemanage.so
+  *) _audit2why.so to libpyaudit2why.so
 
-> +	- For the re-measurement test, the filesystem, from where these
-> +	  testcases are run, must be mounted with i_version.
+Similarily, the update also renames:
+  *) selinux.py to __init__.py
+  *) semanage.py to __init__.py
+and installs these plugins into their own sub site-packages folder.
 
-This also needs more information like i mentioned above.
+For Example: libselinux/src/Makefile.am
+line 35 # When the upstream tree is patched this should be removed
+line 36 # and selinux.py must be renamed to __init__.py
+line 37 __init__.py : selinux.py
+line 38        cp selinux.py $@
 
-> +
-> +Dependency
-> +----------
-> +The testsuite is dependent on the default policy being enabled, which
-> +measures all executables, all files mmapped for execute and all files
-> +open for read. Once the default policy has been replaced, the IMA
-> +measurement and re-measurement tests will fail, as well as the test to
-> +load a new policy. (A measurement policy may only be loaded once per
-> +boot.)
-> +
-> +Running the Testsuite
-> +---------------------
-> +From the ../ltp-base-<version>/testcases/kernel/security/integrity/ima
-> +directory, as root compile the IMA testsuite tools, by executing make.  To
-> +run the testsuite, from the same directory, on the command line execute:
-> +	sh ./ima_test.sh.
-> +
+A similar measure is taken in libsemanage/src/Makefile.am for semanage.py.
 
-We also need to provide an option to users for running it with
-ltp/runltp script. Something like:
+On a similar note, the code currently uses a macro called SHARED,
+which is currently being wrapped with a forced -include libtool_compat.h
+using -DPIC (a libtool defined macro). This too can be removed if the code
+can be reformatted.
 
-./runltp -f test_ima
+This build system has been thoroughly tested to function correctly.
+Compiling natively for localhost, as well as cross compiling for
+the following platforms:
+  *) PPC32
+  *) PPC64
+  *) ARM (Versatile family)
+  *) Common PC X86_64
 
-test_ima should be a command file under ltp/runtest directory, and
-should typically contain the following entry:
+It has also been tested on mainstream Linux distributions such
+as Ubuntu 8.04 and Fedora 9.
 
-IMA_TEST ima_test.sh
+This new build system is a replacement for the existing build system.
+They cannot be used concurrently. I leave no guarantee on backward
+compatibility after applying this update.
 
-The 1st entry is a TAG name and the next is the script/binary to
-execute. Now all the scripts and binaries which ima_test.sh will invoke
-should be copied to ltp/testcases/bin (along with ima_test.sh) during:
+Recently a Ruby wrapper was added to the SELinux trunk, this build
+system does not build it. Though with the current infrastructure in
+place, it is a very simple procedure for anyone familiar with ruby
+to include it.
 
-make install.
+This contribution comes out of the integration efforts WindRiver has
+recently taken to add a SELinux feature to WindRiver Linux. It comes
+with no obligation or indemnity from WindRiver or myself. Distributed
+as not copyrighted, public domain software, in accordance with
+libselinux.
+
+I ask if this update can be merged into the main SELinux trunk.
+I will help coordinate the merge if necessary.
+
+Sincerely,
+
+Vikram Ambrose
+
+-- 
+Vikram Ambrose | Linux Products Division | WindRiver Corporation
 
 
-Building, installing and then running ima tests should be integrated
-with LTP by the following ways:
+--------------070205070006010306010303
+Content-Type: application/x-bzip;
+ name="selinux-trunk-autotools.tar.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="selinux-trunk-autotools.tar.bz2"
 
-1) make
-from LTPROOT directory(ltp/) should also be able to recursively go down
-and invoke:
-ltp/testcases/kernel/security/integrity/ima/Makefile,
-
-For that to happen you need also to include Makefiles at:
-ltp/testcases/kernel/security/integrity,
-
-and include an entry for integrity directory inside:
-ltp/testcases/kernel/security/Makefile
-
-However there are some build issues which i am conveying next.
-
-2) make install
-from LTPROOT directory(ltp/) should also be able to recursively go down
-and invoke:
-ltp/testcases/kernel/security/integrity/ima/Makefile,
-
-This should be able to copy all scripts/binaries from there and put
-inside ltp/testcases/bin
-
-3) Running IMA tests:
-Although we will not include these tests immediately to be run by
-default when ./runltp is invoked, but we would like to give users the
-options to run them through ./runltp if they want it. I mentioned them
-how it should be done in my above comments.
-
-ima_test.sh should automatically have the ability to find out:
-1) Binaries which were not built properly due to absence of some
-libraries on the system, or due to some other reason, and hence were not
-installed during <make install>. So, while running it should be able to
-display the error message,
-2) Even after building/installing the binaries were successful, they may
-not run as the requirements for running those tests were not satisfied.
-So, proper message should be displayed.
-
-Here are the error messages that i got while trying to build the
-ima_tests. My concern is that Makefile should be able to handle this if
-there are some missing env-variable(s)/file(s)/library(s) in the system,
-and should not throw build error(s).
-
-1) # uname -a
-Linux 2.6.25-gcov-nomodconfig-smp #1 SMP Thu Jun 12 06:29:27 EDT 2008
-i686 i686 i386 GNU/Linux
-
-cc   -o ima_measure ima_measure.c -lcrypto
-ima_measure.c:25:25: error: openssl/sha.h: No such file or directory
-ima_measure.c:39: error: ‘SHA_DIGEST_LENGTH’ undeclared here (not in a
-function)
-ima_measure.c: In function ‘verify_ima_tdigest’:
-ima_measure.c:80: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:80: error: (Each undeclared identifier is reported only
-once
-ima_measure.c:80: error: for each function it appears in.)
-ima_measure.c:80: error: expected ‘;’ before ‘tmp’
-ima_measure.c:84: error: ‘tmp’ undeclared (first use in this function)
-ima_measure.c: In function ‘simulate_extend_pcr’:
-ima_measure.c:164: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:164: error: expected ‘;’ before ‘c’
-ima_measure.c:167: error: ‘c’ undeclared (first use in this function)
-ima_measure.c: In function ‘main’:
-ima_measure.c:214: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:214: error: expected ‘;’ before ‘c’
-ima_measure.c:250: error: type of formal parameter 1 is incomplete
-make[1]: *** [ima_measure] Error 1
-
-
-
-2) # uname -a
-Linux 2.6.18-91.el5 #1 SMP Tue Apr 22 17:43:57 EDT 2008 x86_64 x86_64
-x86_64 GNU/Linux
-
-cc   -o ima_measure ima_measure.c -lcrypto
-ima_measure.c:25:25: error: openssl/sha.h: No such file or directory
-ima_measure.c:39: error: ‘SHA_DIGEST_LENGTH’ undeclared here (not in a
-function)
-ima_measure.c: In function ‘verify_ima_tdigest’:
-ima_measure.c:80: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:80: error: (Each undeclared identifier is reported only
-once
-ima_measure.c:80: error: for each function it appears in.)
-ima_measure.c:80: error: expected ‘;’ before ‘tmp’
-ima_measure.c:84: error: ‘tmp’ undeclared (first use in this function)
-ima_measure.c: In function ‘simulate_extend_pcr’:
-ima_measure.c:164: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:164: error: expected ‘;’ before ‘c’
-ima_measure.c:167: error: ‘c’ undeclared (first use in this function)
-ima_measure.c: In function ‘main’:
-ima_measure.c:214: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:214: error: expected ‘;’ before ‘c’
-ima_measure.c:250: error: type of formal parameter 1 is incomplete
-make[1]: *** [ima_measure] Error 1
-
-
-3) # uname -a
-Linux 2.6.9-22.EL #1 SMP Mon Sep 19 17:52:20 EDT 2005 ppc64 ppc64 ppc64
-GNU/Linux
-
-cc   -o ima_measure ima_measure.c -lcrypto
-ima_measure.c:25:25: openssl/sha.h: No such file or directory
-ima_measure.c:39: error: `SHA_DIGEST_LENGTH' undeclared here (not in a
-function)
-ima_measure.c: In function `verify_ima_tdigest':
-ima_measure.c:80: error: `SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:80: error: (Each undeclared identifier is reported only
-once
-ima_measure.c:80: error: for each function it appears in.)
-ima_measure.c:80: error: syntax error before "tmp"
-ima_measure.c:84: error: `tmp' undeclared (first use in this function)
-ima_measure.c: In function `simulate_extend_pcr':
-ima_measure.c:164: error: `SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:164: error: syntax error before "c"
-ima_measure.c:167: error: `c' undeclared (first use in this function)
-ima_measure.c: In function `main':
-ima_measure.c:214: error: `SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:214: error: syntax error before "c"
-ima_measure.c: At top level:
-ima_measure.c:39: error: storage size of `pcr' isn't known
-ima_measure.c:40: error: storage size of `zero' isn't known
-ima_measure.c:41: error: storage size of `fox' isn't known
-make[1]: *** [ima_measure] Error 1
-
-
-4) # uname -a
-Linux 2.6.23.13 #1 SMP Wed Jan 9 18:14:28 PST 2008 ia64 GNU/Linux
-
-cc   -o ima_measure ima_measure.c -lcrypto
-ima_measure.c:25:25: error: openssl/sha.h: No such file or directory
-ima_measure.c:39: error: 'SHA_DIGEST_LENGTH' undeclared here (not in a
-function)
-ima_measure.c: In function 'verify_ima_tdigest':
-ima_measure.c:80: error: 'SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:80: error: (Each undeclared identifier is reported only
-once
-ima_measure.c:80: error: for each function it appears in.)
-ima_measure.c:80: error: expected ';' before 'tmp'
-ima_measure.c:84: error: 'tmp' undeclared (first use in this function)
-ima_measure.c: In function 'simulate_extend_pcr':
-ima_measure.c:164: error: 'SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:164: error: expected ';' before 'c'
-ima_measure.c:167: error: 'c' undeclared (first use in this function)
-ima_measure.c: In function 'main':
-ima_measure.c:214: error: 'SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:214: error: expected ';' before 'c'
-ima_measure.c:250: error: type of formal parameter 1 is incomplete
-make[1]: *** [ima_measure] Error 1
-
-
-5) # uname -a
-Linux 2.6.9-22.ELsmp #1 SMP Mon Sep 19 18:32:14 EDT 2005 i686 i686 i386
-GNU/Linux
-
-cc   -o ima_measure ima_measure.c -lcrypto
-make[1]: Leaving directory
-`/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/tpm'
-make[1]: Entering directory
-`/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem'
-make -C /lib/modules/2.6.9-22.ELsmp/build
-M=/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem modules
-make[2]: Entering directory `/usr/src/kernels/2.6.9-22.EL-smp-i686'
-  CC
-[M]  /root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.o
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:22:31: linux/scatterlist.h: No such file or directory
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:25:27: linux/debugfs.h: No such file or directory
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:30:29: linux/integrity.h: No such file or directory
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:31:23: linux/ima.h: No such file or directory
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: In function `calc_hash':
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:52: error: storage size of 'desc' isn't known
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:53: error: storage size of 'sg' isn't known
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:56: warning: implicit declaration of function `crypto_alloc_hash'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:56: error: `CRYPTO_ALG_ASYNC' undeclared (first use in this function)
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:56: error: (Each undeclared identifier is reported only once
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:56: error: for each function it appears in.)
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:56: warning: assignment makes pointer from integer without a cast
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:64: warning: implicit declaration of function `crypto_hash_init'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:70: warning: implicit declaration of function `sg_set_buf'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:71: warning: implicit declaration of function `crypto_hash_update'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:73: warning: implicit declaration of function `crypto_hash_final'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:79: warning: implicit declaration of function `crypto_free_hash'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:52: warning: unused variable `desc'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:53: warning: unused variable `sg'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: In function `kmem_store_measurement':
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:96: error: storage size of 'idata' isn't known
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:99: error: `IMA_TEMPLATE' undeclared (first use in this function)
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:100: error: dereferencing pointer to incomplete type
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:101: error: dereferencing pointer to incomplete type
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:102: error: dereferencing pointer to incomplete type
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:103: error: dereferencing pointer to incomplete type
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:104: warning: implicit declaration of function `integrity_store_measurement'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:96: warning: unused variable `idata'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: At top level:
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:109: warning: "enum integrity_show_type" declared inside parameter list
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:109: warning: its scope is only this definition or declaration, which is probably not what you want
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:110: error: parameter `show' has incomplete type
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: In function `kmem_template_show':
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:118: error: `INTEGRITY_SHOW_ASCII' undeclared (first use in this function)
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:121: error: `INTEGRITY_SHOW_BINARY' undeclared (first use in this function)
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: At top level:
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:144: error: variable `kmem_ops' has initializer but incomplete type
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:145: error: unknown field `collect_measurement' specified in initializer
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:145: warning: excess elements in struct initializer
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:145: warning: (near initialization for `kmem_ops')
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:146: error: unknown field `store_measurement' specified in initializer
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:146: warning: excess elements in struct initializer
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:146: warning: (near initialization for `kmem_ops')
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:147: error: unknown field `display_template' specified in initializer
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:148: warning: excess elements in struct initializer
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:148: warning: (near initialization for `kmem_ops')
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: In function `kmem_add_measure':
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:158: warning: implicit declaration of function `integrity_collect_measurement'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:163: warning: implicit declaration of function `kzalloc'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:163: warning: assignment makes pointer from integer without a cast
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: In function `kmem_write_template':
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:182: warning: assignment makes pointer from integer without a cast
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: In function `kmem_read_template':
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:215: warning: assignment makes pointer from integer without a cast
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: In function `init_kmem_template':
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:235: warning: implicit declaration of function `integrity_register_template'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:237: warning: implicit declaration of function `securityfs_create_file'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:239: warning: assignment makes pointer from integer without a cast
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: In function `cleanup_kmem_template':
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:246: warning: implicit declaration of function `integrity_unregister_template'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:248: warning: implicit declaration of function `securityfs_remove'
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c: At top level:
-/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.c:144: error: storage size of `kmem_ops' isn't known
-make[3]: ***
-[/root/subrata/ltp/ltp-full-20080731/testcases/kernel/security/integrity/ima/kmem/kmem-template.o] Error 1
-
-
-6) # uname -a
-Linux 2.6.18-91.el5PAE #1 SMP Tue Apr 22 17:58:37 EDT 2008 i686 i686
-i386 GNU/Linux
-
-cc   -o ima_measure ima_measure.c -lcrypto
-ima_measure.c:25:25: error: openssl/sha.h: No such file or directory
-ima_measure.c:39: error: ‘SHA_DIGEST_LENGTH’ undeclared here (not in a
-function)
-ima_measure.c: In function ‘verify_ima_tdigest’:
-ima_measure.c:80: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:80: error: (Each undeclared identifier is reported only
-once
-ima_measure.c:80: error: for each function it appears in.)
-ima_measure.c:80: error: expected ‘;’ before ‘tmp’
-ima_measure.c:84: error: ‘tmp’ undeclared (first use in this function)
-ima_measure.c: In function ‘simulate_extend_pcr’:
-ima_measure.c:164: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:164: error: expected ‘;’ before ‘c’
-ima_measure.c:167: error: ‘c’ undeclared (first use in this function)
-ima_measure.c: In function ‘main’:
-ima_measure.c:214: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:214: error: expected ‘;’ before ‘c’
-ima_measure.c:250: error: type of formal parameter 1 is incomplete
-make[1]: *** [ima_measure] Error 1
-
-
-7) # uname -a
-Linux 2.6.18-91.el5 #1 SMP Tue Apr 22 17:48:59 EDT 2008 ppc64 ppc64
-ppc64 GNU/Linux
-
-cc   -o ima_measure ima_measure.c -lcrypto
-ima_measure.c:25:25: error: openssl/sha.h: No such file or directory
-ima_measure.c:39: error: ‘SHA_DIGEST_LENGTH’ undeclared here (not in a
-function)
-ima_measure.c: In function ‘verify_ima_tdigest’:
-ima_measure.c:80: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:80: error: (Each undeclared identifier is reported only
-once
-ima_measure.c:80: error: for each function it appears in.)
-ima_measure.c:80: error: expected ‘;’ before ‘tmp’
-ima_measure.c:84: error: ‘tmp’ undeclared (first use in this function)
-ima_measure.c: In function ‘simulate_extend_pcr’:
-ima_measure.c:164: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:164: error: expected ‘;’ before ‘c’
-ima_measure.c:167: error: ‘c’ undeclared (first use in this function)
-ima_measure.c: In function ‘main’:
-ima_measure.c:214: error: ‘SHA_CTX’ undeclared (first use in this
-function)
-ima_measure.c:214: error: expected ‘;’ before ‘c’
-ima_measure.c:250: error: type of formal parameter 1 is incomplete
-make[1]: *** [ima_measure] Error 1
-
-
-8) # uname -a
-Linux 2.6.9-67.ELsmp #1 SMP Wed Nov 7 13:56:44 EST 2007 x86_64 x86_64
-x86_64 GNU/Linux
-
-cc   -o ima_measure ima_measure.c -lcrypto
-ima_measure.c:25:25: openssl/sha.h: No such file or directory
-ima_measure.c:39: error: `SHA_DIGEST_LENGTH' undeclared here (not in a
-function)
-ima_measure.c: In function `verify_ima_tdigest':
-ima_measure.c:80: error: `SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:80: error: (Each undeclared identifier is reported only
-once
-ima_measure.c:80: error: for each function it appears in.)
-ima_measure.c:80: error: syntax error before "tmp"
-ima_measure.c:84: error: `tmp' undeclared (first use in this function)
-ima_measure.c: In function `simulate_extend_pcr':
-ima_measure.c:164: error: `SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:164: error: syntax error before "c"
-ima_measure.c:167: error: `c' undeclared (first use in this function)
-ima_measure.c: In function `main':
-ima_measure.c:214: error: `SHA_CTX' undeclared (first use in this
-function)
-ima_measure.c:214: error: syntax error before "c"
-ima_measure.c: At top level:
-ima_measure.c:39: error: storage size of `pcr' isn't known
-ima_measure.c:40: error: storage size of `zero' isn't known
-ima_measure.c:41: error: storage size of `fox' isn't known
-make[1]: *** [ima_measure] Error 1
-
-
-Please let me know if you need further information or assistance from me
-(for LTP stuff).
-
-Regards--
-Subrata
-
-> +The testsuite results are sent to standard output for viewing.
-> +
-> +Running Individual Testcases
-> +----------------------------
-> +Individual testcases may be run by executing shell scripts found in
-> +the ../ltp-base-<version>/testcases/kernel/security/integrity/ima subdirecties.
-> +However, understanding the results of the individual testcases is
-> +dependent on the execution context.  For example, executing
-> +load_policy.sh should return zero the first time it is executed, but
-> +subsequently, should return a non-zero value. Both are valid values,
-> +depending on the execution context. The same is true for measuring
-> +and re-measuring a file.  Before the test measure policy is loaded,
-> +the measure and re-measure scripts should return zero.
-> +
-> +System State after running the Testsuite
-> +----------------------------------------
-> +After running the testsuite, the system is running with the test
-> +measurement policy.  A reboot is required to install a different
-> +integrity measurement policy.
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/Makefile
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/Makefile
-> @@ -0,0 +1,13 @@
-> +SUBDIRS = tpm kmem tools
-> +
-> +all:
-> +	@set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i ; done
-> +
-> +install:
-> +	@set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i install ; done
-> +
-> +clean:
-> +	@set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i clean ; done
-> +	rm -rf tmp
-> +	rm -rf measure/tmp
-> +
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/ima_test.sh
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/ima_test.sh
-> @@ -0,0 +1,135 @@
-> +#!/bin/bash
-> +# Copyright (C) 2008 IBM Corporation
-> +# Author: Mimi Zohar <zohar@us.ibm.com>
-> +#
-> +# This program is free software; you can redistribute it and/or
-> +# modify it under the terms of the GNU General Public License as
-> +# published by the Free Software Foundation, version 2 of the
-> +# License.
-> +
-> +# The default policy on boot measures all executables, all
-> +# mmapped executable files, and all files open for read.
-> +#
-> +# test 0: verify running as root.
-> +# test 1: verify TPM is enabled.
-> +# test 2: verify creating and reading a new file causes a new
-> +# 	  measurement to be added to the IMA measurement list.
-> +# test 3: verify modifying and reading the new file causes a new
-> +# 	  measurement to be added to the IMA measurement list.
-> +# test 4: verify ability to load a new measurement policy
-> +# test 5: verify new policy does not add a measurement to the
-> +#	  IMA measurement list for files open for read.
-> +# test 6: verify inability to load subsequent measurement policy.
-> +# test 7: verify template hash value for ima entry is correct.
-> +# test 8: verify ima calculated aggregate pcr value or matches actual pcr value.
-> +# test 9: verify kmem-template hash
-> +
-> +# test 0:
-> +id=`id -u`
-> +if [ $id -eq 0 ]; then
-> +	echo "test 0: success - running as root "
-> +else
-> +	echo "test 0: failed - must be running as root"
-> +	exit 1
-> +fi
-> +
-> +# test 1:
-> +PCRS_PATH=`find /sys/devices/ | grep pcrs`
-> +if [ $? -eq 0 ]; then
-> +	if [ ! -f $PCRS_PATH ]; then
-> +		echo "test 1: failed - TPM not enabled"
-> +		echo "(Assuming securityfs is mounted as /sys.)"
-> +	else
-> +		echo "test 1: succeeded - TPM enabled"
-> +	fi
-> +else
-> +	echo "test 1: failed - TPM not enabled"
-> +	echo "(Assuming securityfs is mounted as /sys.)"
-> +fi
-> +
-> +# test 2:
-> +chmod a+x ./measure/read_measure.sh
-> +./measure/read_measure.sh
-> +if [ $? -eq 0 ]; then
-> +	echo "test 2: success - file measured"
-> +else
-> +	echo "test 2: failed - file not measured"
-> +fi
-> +
-> +# test 3:
-> +chmod a+x ./measure/re-measure.sh
-> +./measure/re-measure.sh
-> +if [ $? -eq 0 ]; then
-> +	echo "test 3: success - modified file measured"
-> +else
-> +	echo "test 3: failed - modified file not measured. "
-> +	echo "(Make sure filesystem is mounted with iversion.)"
-> +fi
-> +
-> +# test 4:
-> +cd loadpolicy
-> +chmod a+x ./load_policy.sh
-> +./load_policy.sh
-> +if [ $? -eq 0 ]; then
-> +	echo "test 4: success - loaded policy"
-> +else
-> +	echo "test 4: failed - loading policy(permitted once per boot)"
-> +	echo "(Assuming securityfs is mounted as /sys/kernel/security.)"
-> +fi
-> +
-> +# test 5:
-> +cd ../measure
-> +# make sure that date has changed for measurement test
-> +sleep 1
-> +./read_measure.sh
-> +if [ $? -eq 0 ]; then
-> +	echo "test 5: failed - shouldn't have measured the file"
-> +	echo "(Verify loaded correct ima measurement policy.)"
-> +else
-> +	echo "test 5: succeeded - didn't measure the file"
-> +fi
-> +
-> +# test 6:
-> +cd ../loadpolicy
-> +./load_policy.sh
-> +if [ $? -eq 0 ]; then
-> +	echo "test 6: failed - shouldn't have loaded a policy"
-> +else
-> +	echo "test 6: succeeded - didn't load a policy"
-> +fi
-> +
-> +# test 7:
-> +cd ../tpm
-> +chmod a+x ./ima_measure
-> +./ima_measure --validate > /dev/null
-> +if [ $? -eq 0 ]; then
-> +	echo "test 7: succeeded - verified ima template hash values."
-> +else
-> +	echo "test 7: failed - errors in verifying ima template hash values."
-> +fi
-> +
-> +# test 8:
-> +aggregate_pcr=`./ima_measure --validate` > /dev/null
-> +cat $PCRS_PATH | while read line ; do
-> +	if [ "${line:0:6}" == "PCR-10" ] ; then
-> +		if [ "${line:8:67}" == "${aggregate_pcr:0:59}" ] ; then
-> +			echo "test 8: succeeded - aggregate pcr value"\
-> +				"matches real pcr value."
-> +		else
-> +			echo "test 8: failed - aggregate pcr value does"\
-> +				"not match real pcr value."
-> +			echo 'aggregate_pcr: ' $aggregate_pcr
-> +			echo 'real pcr: ' $line
-> +		fi
-> +	fi
-> +done
-> +
-> +# test 9:
-> +cd ../kmem
-> +chmod a+x ./kmem-test.sh
-> +./kmem-test.sh
-> +if [ $? -eq 0 ]; then
-> +	echo "test 9: succeeded - verified kmem template measurement"
-> +else
-> +	echo "test 9: failed - kmem template measurement "
-> +fi
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/loadpolicy/load_policy.sh
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/loadpolicy/load_policy.sh
-> @@ -0,0 +1,44 @@
-> +#!/bin/bash
-> +
-> +# Copyright (C) 2008 IBM Corporation
-> +# Author: Mimi Zohar <zohar@us.ibm.com>
-> +#
-> +# This program is free software; you can redistribute it and/or
-> +# modify it under the terms of the GNU General Public License as
-> +# published by the Free Software Foundation, version 2 of the
-> +# License.
-> +
-> +# Load a policy into security/ima/policy by opening the file,
-> +# writing the rules one at a time and then closing the file.
-> +# The new policy takes effect after the security/ima/policy
-> +# is closed.
-> +
-> +# depends on where securityfs is mounted
-> +IMA_POLICY=/sys/kernel/security/ima/policy
-> +
-> +# LSM specific policy
-> +LSM_POLICY=./measure.selinux
-> +#LSM_POLICY=./measure.smack
-> +
-> +if [ ! -f $LSM_POLICY ]; then
-> +	echo "        LSM specific policy does not exist"
-> +	exit -1
-> +fi
-> +
-> +if [ ! -f $IMA_POLICY ]; then
-> +	echo "        security/ima/policy does not exist"
-> +	exit -1
-> +fi
-> +
-> +exec 4>$IMA_POLICY
-> +if [ $? != 0 ]; then
-> +	echo "        open failed: security/ima/policy"
-> +	exit -1
-> +else
-> +	cat $LSM_POLICY | while read line ; do
-> +		if [ "${line:0:1}" != "#" ] ; then
-> +			echo $line >&4
-> +		fi
-> +	done
-> +	echo "        security/ima/policy updated"
-> +fi
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/loadpolicy/measure.selinux
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/loadpolicy/measure.selinux
-> @@ -0,0 +1,18 @@
-> +#
-> +# Integrity measure policy
-> +#
-> +# PROC_SUPER_MAGIC
-> +dont_measure fsmagic=0x9fa0
-> +# SYSFS_MAGIC
-> +dont_measure fsmagic=0x62656572
-> +# DEBUGFS_MAGIC
-> +dont_measure fsmagic=0x64626720
-> +# TMPFS_MAGIC
-> +dont_measure fsmagic=0x01021994
-> +# SECURITYFS_MAGIC
-> +dont_measure fsmagic=0x73636673
-> +measure func=BPRM_CHECK
-> +measure func=FILE_MMAP mask=MAY_EXEC
-> +#measure subj=system_u func=INODE_PERMISSION mask=MAY_READ
-> +measure obj=user_u func=INODE_PERMISSION mask=MAY_READ
-> +#measure func=INODE_PERMISSION mask=MAY_READ
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/measure/re-measure.sh
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/measure/re-measure.sh
-> @@ -0,0 +1,29 @@
-> +#!/bin/bash
-> +
-> +# Copyright (C) 2008 IBM Corporation
-> +# Author: Mimi Zohar <zohar@us.ibm.com>
-> +#
-> +# This program is free software; you can redistribute it and/or
-> +# modify it under the terms of the GNU General Public License as
-> +# published by the Free Software Foundation, version 2 of the
-> +# License.
-> +
-> +# Create and read a file
-> +# Check if the file was measured (i.e. contained in the ascii measurement list.)
-> +
-> +mkdir -p tmp
-> +echo `date` '- modifying file causes hash to change' >> tmp/test.txt
-> +cat tmp/test.txt > /dev/null
-> +cat /sys/kernel/security/ima/ascii_runtime_measurements > tmp/imalog
-> +
-> +# calculate and search for sha1sum of tmp/test.txt in tmp/imalog
-> +hash=`cat tmp/test.txt | sha1sum | sed 's/  -//'`
-> +echo '        hash: ' $hash
-> +`grep $hash tmp/imalog > /dev/null`
-> +if [ $? == 0 ]; then
-> +	echo "        TPM ascii measurement list contains sha1sum"
-> +	exit 0
-> +else
-> +	echo "        TPM ascii measurement list does not contain sha1sum"
-> +	exit -1
-> +fi
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/measure/read_measure.sh
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/measure/read_measure.sh
-> @@ -0,0 +1,29 @@
-> +#!/bin/bash
-> +
-> +# Copyright (C) 2008 IBM Corporation
-> +# Author: Mimi Zohar <zohar@us.ibm.com>
-> +#
-> +# This program is free software; you can redistribute it and/or
-> +# modify it under the terms of the GNU General Public License as
-> +# published by the Free Software Foundation, version 2 of the
-> +# License.
-> +
-> +# Create and read a file
-> +# Check if the file was measured (i.e. contained in the ascii measurement list.)
-> +
-> +mkdir -p tmp
-> +echo `date` '- changing date causes changing hash value' > tmp/test.txt
-> +cat tmp/test.txt > /dev/null
-> +cat /sys/kernel/security/ima/ascii_runtime_measurements > tmp/imalog
-> +
-> +# calculate and search for sha1sum of tmp/test.txt in tmp/imalog
-> +hash=`cat tmp/test.txt | sha1sum | sed 's/  -//'`
-> +echo '        hash: ' $hash
-> +`grep $hash tmp/imalog > /dev/null`
-> +if [ $? == 0 ]; then
-> +	echo "        TPM ascii measurement list contains sha1sum"
-> +	exit 0
-> +else
-> +	echo "        TPM ascii measurement list does not contain sha1sum"
-> +	exit -1
-> +fi
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/tools/Makefile
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/tools/Makefile
-> @@ -0,0 +1,9 @@
-> +TARGETS := hex2bin
-> +
-> +all: $(TARGETS)
-> +
-> +hex2bin: hex2bin.c
-> +	$(CC) $(CFLAGS) $(LDFLAGS) -o hex2bin hex2bin.c
-> +
-> +clean:
-> +	rm -f hex2bin hex2bin.o
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/tools/hex2bin.c
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/tools/hex2bin.c
-> @@ -0,0 +1,27 @@
-> +/*
-> + * Copyright (C) 2008 IBM Corporation
-> + * Author: Mimi Zohar <zohar@us.ibm.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation, version 2 of the License.
-> + *
-> + * hex2bin.c
-> + *	- convert a hex string to binary
-> + */
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +
-> +main()
-> +{
-> +	char *line = NULL;
-> +	ssize_t len, line_len = 0;
-> +	int h, i = 0;
-> +
-> +	len = getline(&line, &line_len, stdin);
-> +	for (i = 0; i < len; i += 2)  {
-> +		sscanf(line + i, "%2x", &h);
-> +		putchar(h);
-> +	}
-> +	free(line);
-> +}
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/tpm/Makefile
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/tpm/Makefile
-> @@ -0,0 +1,9 @@
-> +TARGETS := ima_measure
-> +
-> +all: $(TARGETS)
-> +
-> +ima_measure: ima_measure.c
-> +	$(CC) $(CFLAGS) $(LDFLAGS) -o ima_measure ima_measure.c -lcrypto
-> +
-> +clean:
-> +	rm -f ima_measure ima_measure.o
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/tpm/ima_measure.c
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/tpm/ima_measure.c
-> @@ -0,0 +1,261 @@
-> +/*
-> + * Copyright (c) International Business Machines  Corp., 2008
-> + *
-> + * Authors:
-> + * Reiner Sailer <sailer@watson.ibm.com>
-> + * Mimi Zohar <zohar@us.ibm.com>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License as
-> + * published by the Free Software Foundation, version 2 of the
-> + * License.
-> + *
-> + * File: ima_measure.c
-> + *
-> + * Calculate the aggregate-pcr value based on the IMA runtime binary
-> + * measurements.
-> + */
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +#include <sys/types.h>
-> +#include <sys/stat.h>
-> +#include <fcntl.h>
-> +#include <string.h>
-> +#include <unistd.h>
-> +#include <openssl/sha.h>
-> +
-> +#define TCG_EVENT_NAME_LEN_MAX	255
-> +#define MAX_EVENT_SIZE 500
-> +
-> +static int failed_count = 0;	/* number of template verifications failed */
-> +static int verify_template_hash = 1;
-> +static int verbose = 0;
-> +static int validate = 0;
-> +
-> +#define print_info(format, arg...) \
-> +	if (verbose) \
-> +		printf(format, ##arg)
-> +
-> +static u_int8_t pcr[SHA_DIGEST_LENGTH];	/* simulates the PCR aggregate */
-> +static u_int8_t zero[SHA_DIGEST_LENGTH];
-> +static u_int8_t fox[SHA_DIGEST_LENGTH];
-> +struct template {
-> +	u_int32_t pcr;
-> +	u_int8_t tdigest[SHA_DIGEST_LENGTH];	/* template digest */
-> +	u_int32_t tlen;				/* template name size */
-> +};
-> +
-> +struct ima_inode_measure_entry {
-> +        u_int8_t digest[SHA_DIGEST_LENGTH];	/* sha1 measurement hash */
-> +       	char file_name[TCG_EVENT_NAME_LEN_MAX + 1];	/*name + \0*/
-> +};
-> +
-> +/* print sha1 aggregate over the template measurements */
-> +static int display_pcr()
-> +{
-> +	int i;
-> +
-> +	print_info("PCRAggr (re-calculated):");
-> +	for (i = 0; i < 20; i++)
-> +		printf("%02X ", pcr[i] & 0xff);
-> +	print_info(".\n");
-> +}
-> +
-> +static void print_digest(u_int8_t *digest)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < 20; i++)
-> +		print_info("%02X", (*(digest + i) & 0xff));
-> +}
-> +
-> +/*
-> + * Calculate the template hash of an ima entry
-> + * and compare it with the actual template hash value.
-> + */
-> +static int verify_ima_tdigest(struct template *tdata,
-> +			struct ima_inode_measure_entry *ima)
-> +{
-> +	int rc;
-> +	SHA_CTX tmp;
-> +	u_int8_t digest[SHA_DIGEST_LENGTH];
-> +
-> +	/* Calc template hash for an ima entry */
-> +	SHA1_Init(&tmp);
-> +	SHA1_Update(&tmp, ima, sizeof *ima);
-> +	SHA1_Final(digest, &tmp);
-> +
-> +	rc = memcmp(digest, tdata->tdigest, sizeof digest);
-> +	if (rc) {
-> +		int i;
-> +
-> +		print_info("%s: template hash not valid\n", ima->file_name);
-> +		print_info("\t should be:");
-> +		print_digest(digest);
-> +		print_info("\n\t        is:");
-> +		print_digest(tdata->tdigest);
-> +		print_info("\n");
-> +	}
-> +	return rc;
-> +}
-> +
-> +int process_event(int num, unsigned char *event, int len)
-> +{
-> +	int i;
-> +	char tname[TCG_EVENT_NAME_LEN_MAX + 1];	/* template_name */
-> +	u_int32_t tname_len;	/* template name length */
-> +	struct template *tdata;
-> +
-> +	tdata = (struct template *)event;
-> +
-> +	print_info("%3d %03u %d", num, tdata->pcr, tdata->tlen);
-> +	if (tdata->tlen > TCG_EVENT_NAME_LEN_MAX) {
-> +		printf("ERROR: event name too long!\n");
-> +		exit(1);
-> +	}
-> +	memset(tname, 0, TCG_EVENT_NAME_LEN_MAX);
-> +	memcpy(&tname, &tdata->tlen +1, tdata->tlen);
-> +	print_digest(tdata->tdigest);
-> +	print_info(" %s ", (char *)(tname));
-> +
-> +	if (strcmp(tname, "boot_aggregate") == 0) {
-> +		print_info("\n");
-> +		return (sizeof *tdata + tdata->tlen + 2) /* separator */ ;
-> +	} else if (strcmp(tname, "ima") == 0) {
-> +		struct event_data {
-> +			u_int8_t digest[SHA_DIGEST_LENGTH];
-> +			int len;		/* file_name length */
-> +        		char file_name[TCG_EVENT_NAME_LEN_MAX + 1];/*name + \0*/
-> +		} *data;
-> +
-> +		data = (struct event_data *)((void *)tdata
-> +				+ sizeof *tdata + tdata->tlen);
-> +		print_digest(data->digest);
-> +		data->file_name[data->len] = 0x00;
-> +		print_info(" %s\n", data->file_name);
-> +
-> +		if (validate && (memcmp(fox, tdata->tdigest, sizeof fox) != 0)){
-> +			struct ima_inode_measure_entry entry;
-> +
-> +			memset(&entry, 0, sizeof entry);
-> +			memcpy(&entry.digest, data->digest, 20);
-> +			strncpy(entry.file_name, data->file_name, data->len);
-> +			failed_count += verify_ima_tdigest(tdata, &entry);
-> +		}
-> +		return (sizeof *tdata  + tdata->tlen + sizeof data->digest
-> +				+ data->len + 4); /* null separator */
-> +	} else if (strcmp(tname, "kmem") == 0) {
-> +		struct event_data {
-> +			u_int8_t digest[SHA_DIGEST_LENGTH];
-> +			int len;		/* file_name length */
-> +        		char file_name[TCG_EVENT_NAME_LEN_MAX + 1];/*name + \0*/
-> +		} *data;
-> +
-> +		data = (struct event_data *)((void *)tdata
-> +				+ sizeof *tdata + tdata->tlen);
-> +		print_digest(data->digest);
-> +		return (sizeof *tdata  + tdata->tlen + sizeof data->digest
-> +				+ data->len + 4); /* null separator */
-> +	}
-> +}
-> +
-> +int simulate_extend_pcr(u_int8_t digest[SHA_DIGEST_LENGTH])
-> +{
-> +	SHA_CTX c;
-> +
-> +	/* Extend simulated PCR with new template digest */
-> +	SHA1_Init(&c);
-> +	SHA1_Update(&c, pcr, SHA_DIGEST_LENGTH);
-> +	if (validate) {
-> +		if (memcmp(digest, zero, 20) == 0)
-> +			memset(digest, 0xFF, 20);
-> +	}
-> +	SHA1_Update(&c, digest, 20);
-> +	SHA1_Final(pcr, &c);
-> +}
-> +
-> +/*
-> + * ima_measurements.c - calculate the aggregate-pcr value based on
-> + * the IMA runtime binary measurements.
-> + *
-> + * format: ima_measurement [--validate] [--verify] [--verbose]
-> + *
-> + * --validate: forces validation of the aggregrate pcr value
-> + * 	     for an invalidated PCR. Replace all entries in the
-> + * 	     runtime binary measurement list with 0x00 hash values,
-> + * 	     which indicate the PCR was invalidated, either for
-> + * 	     "a time of measure, time of use"(ToMToU) error, or a
-> + *	     file open for read was already open for write, with
-> + * 	     0xFF's hash value, when calculating the aggregate
-> + *	     pcr value.
-> + *
-> + * --verify: for all IMA template entries in the runtime binary
-> + * 	     measurement list, calculate the template hash value
-> + * 	     and compare it with the actual template hash value.
-> + *	     Return the number of incorrect hash measurements.
-> + *
-> + * --verbose: For all entries in the runtime binary measurement
-> + *	     list, display the generic template information. In
-> + * 	     addition, for IMA and KMEM templates, display template
-> + * 	     specific information.
-> + *
-> + * template info:  list #, PCR-register #, template hash, template name
-> + *	IMA info:  IMA hash, filename hint
-> + * 	KMEM info: memory hash, reference name
-> + *
-> + * Ouput: displays the aggregate-pcr value
-> + * Return code: if verification enabled, returns number of verification
-> + * 		errors.
-> + */
-> +int main(int argc, char *argv[])
-> +{
-> +	int i, fd, count = 0, len;
-> +	unsigned char event[MAX_EVENT_SIZE];
-> +	SHA_CTX c;
-> +	int remaining = 0;
-> +	struct template *tdata;
-> +
-> +	memset(pcr, 0, SHA_DIGEST_LENGTH);	/* initial PCR content 0..0 */
-> +	memset(zero, 0, SHA_DIGEST_LENGTH);
-> +	memset(fox, 0xff, SHA_DIGEST_LENGTH);
-> +
-> +	for (i = 1; i < argc; i++) {
-> +		if (strncmp(argv[i], "--validate", 5) == 0)
-> +			validate = 1;
-> +		if (strncmp(argv[i], "--verbose", 6) == 0)
-> +			verbose = 1;
-> +		if (strncmp(argv[i], "--verify", 6) == 0)
-> +			verify_template_hash = 1;
-> +	}
-> +
-> +
-> +	fd = open("/sys/kernel/security/ima/binary_runtime_measurements",
-> +		  O_RDONLY);
-> +	if (fd < 0) {
-> +		perror("Unable to open file\n");
-> +		return 1;
-> +	}
-> +	print_info( "### PCR HASH                                  " \
-> +		 	"TEMPLATE-NAME\n");
-> +
-> +	while ((len = read(fd, event + remaining, MAX_EVENT_SIZE - remaining))
-> +			|| remaining) {
-> +		if (len < 0) {
-> +			perror("Error reading from file.\n");
-> +			break;
-> +		}
-> +		len += remaining;
-> +		tdata = (struct template *)event;
-> +
-> +		simulate_extend_pcr(tdata->tdigest);
-> +		remaining = len - process_event(count++, event, len);
-> +
-> +		/* copy rest to buffer start */
-> +		memcpy(event, event + len - remaining, remaining);
-> +
-> +	}
-> +	close(fd);
-> +
-> +	display_pcr();
-> +	return failed_count;
-> +}
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/kmem/Makefile
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/kmem/Makefile
-> @@ -0,0 +1,25 @@
-> +#
-> +# Makefile for kernel module
-> +#
-> +ifneq ($(KERNELRELEASE),)
-> +obj-m	+= kmem-template.o
-> +EXTRA_CFLAGS += -I$(PWD) -O
-> +
-> +else
-> +KDIR		 := /lib/modules/$(shell uname -r)/build
-> +PWD		 := $(shell pwd)
-> +
-> +default:
-> +		 $(MAKE) -C $(KDIR) M=$(PWD) modules
-> +endif
-> +
-> +
-> +clean :
-> +	rm -rf .tmp_versions
-> +	@find $(KBUILD_EXTMOD) $(RCS_FIND_IGNORE) \
-> +		\( -name '*.[oas]' -o -name '*.ko' -o -name '.*.cmd' \
-> +		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \) \
-> +		-type f -print | xargs rm -f
-> +
-> +install:
-> +
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/kmem/kmem-template.c
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/kmem/kmem-template.c
-> @@ -0,0 +1,254 @@
-> +/*
-> + * Copyright (C) 2008 IBM Corporation
-> + * Author: Mimi Zohar <zohar@us.ibm.com>
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation, version 2 of the License.
-> + *
-> + * kmem-template.c
-> + * 	- defines a kernel memory template
-> + * 	- reads from security/kmem-template "name length address"
-> + * 	- collects and stores measurement from address for length bytes
-> + *	- security/kmem-template returns last memory read
-> + */
-> +
-> +#include <asm/uaccess.h>
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/kernel.h>
-> +#include <linux/fs.h>
-> +#include <linux/crypto.h>
-> +#include <linux/scatterlist.h>
-> +#include <linux/notifier.h>
-> +#include <linux/security.h>
-> +#include <linux/debugfs.h>
-> +#include <linux/seq_file.h>
-> +#include <linux/string.h>
-> +#include <linux/proc_fs.h>
-> +#include <linux/security.h>
-> +#include <linux/integrity.h>
-> +#include <linux/ima.h>
-> +
-> +#define MY_NAME THIS_MODULE->name
-> +#define IMA_DIGEST_SIZE		20
-> +
-> +static int __init init_kmem_template(void);
-> +static void __exit cleanup_kmem_template(void);
-> +
-> +static unsigned char *lastbuf;
-> +static int lastbuf_len;
-> +
-> +struct kmem_data {
-> +	char name[25];
-> +	char *buf;
-> +	int buflen;
-> +	u8 digest[IMA_DIGEST_SIZE];
-> +};
-> +
-> +int calc_hash(int buflen, char *buf, char *digest)
-> +{
-> +	struct crypto_hash *tfm;
-> +	struct hash_desc desc;
-> +	struct scatterlist sg[1];
-> +	int error, result = 0;
-> +
-> +	tfm = crypto_alloc_hash("sha1", 0, CRYPTO_ALG_ASYNC);
-> +	if (IS_ERR(tfm)) {
-> +		printk(KERN_INFO "%s: failed to load %s transform: %ld\n",
-> +		       __func__, "sha1", PTR_ERR(tfm));
-> +		return -ENOSYS;
-> +	}
-> +	desc.tfm = tfm;
-> +	desc.flags = 0;
-> +	error = crypto_hash_init(&desc);
-> +	if (error) {
-> +		result = -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	sg_set_buf(sg, buf, buflen);
-> +	result = crypto_hash_update(&desc, sg, buflen);
-> +	if (!result) {
-> +		error = crypto_hash_final(&desc, digest);
-> +		if (error)
-> +			result = -EINVAL;
-> +	}
-> +
-> +out:
-> +	crypto_free_hash(tfm);
-> +	return result;
-> +}
-> +
-> +static int kmem_collect_measurement(void *d)
-> +{
-> +	struct kmem_data *data = (struct kmem_data *)d;
-> +
-> +	memset(data->digest, 0, sizeof data->digest);
-> +	calc_hash(data->buflen, data->buf, data->digest);
-> +	return 0;
-> +}
-> +
-> +/* Transform local kmem data to store data */
-> +void kmem_store_measurement(void *d)
-> +{
-> +	struct kmem_data *data = (struct kmem_data *)d;
-> +	struct ima_data idata;
-> +	struct ima_store_data *template = &idata.data.template;
-> +
-> +	idata.type = IMA_TEMPLATE;
-> +	template->name = "kmem";
-> +	template->len = sizeof *data;
-> +	template->data = (char *)data;
-> +	template->violation = 0;
-> +	integrity_store_measurement("ima", (void *)&idata);
-> +	return;
-> +}
-> +
-> +static void kmem_template_show(struct seq_file *m, void *e,
-> +			       enum integrity_show_type show)
-> +{
-> +	struct kmem_data *data = (struct kmem_data *)e;
-> +	int filename_len;
-> +	char len[4];
-> +	int i;
-> +
-> +	for (i = 0; i < 20; i++) {
-> +		switch (show) {
-> +		case INTEGRITY_SHOW_ASCII:
-> +			seq_printf(m, "%02x", data->digest[i]);
-> +			break;
-> +		case INTEGRITY_SHOW_BINARY:
-> +			seq_putc(m, data->digest[i]);
-> +		default:
-> +			break;
-> +		}
-> +	}
-> +
-> +	switch (show) {
-> +	case INTEGRITY_SHOW_ASCII:
-> +		seq_printf(m, " %s %d \n", data->name, data->buflen);
-> +		break;
-> +	case INTEGRITY_SHOW_BINARY:
-> +		filename_len = strlen(data->name);
-> +		memcpy(len, &filename_len, 4);
-> +		for (i = 0; i < 4; i++)
-> +			seq_putc(m, len[i]);
-> +		for (i = 0; i < strlen(data->name); i++)
-> +			seq_putc(m, data->name[i]);
-> +	default:
-> +		break;
-> +	}
-> +}
-> +
-> +static struct template_operations kmem_ops = {
-> +	.collect_measurement = kmem_collect_measurement,
-> +	.store_measurement = kmem_store_measurement,
-> +	.display_template = kmem_template_show
-> +};
-> +
-> +static int kmem_add_measure(char *name, unsigned int buflen, unsigned int addr)
-> +{
-> +	struct kmem_data data;
-> +	int rc;
-> +
-> +	strncpy(data.name, name, sizeof data.name);
-> +	data.buflen = buflen;
-> +	data.buf = (char *)addr;
-> +	rc = integrity_collect_measurement("kmem", &data);
-> +	if (!rc) {
-> +		integrity_store_measurement("kmem", &data);
-> +		if (data.buflen > lastbuf_len)
-> +			kfree(lastbuf);
-> +		lastbuf = kzalloc(data.buflen, GFP_KERNEL);
-> +		if (lastbuf) {
-> +			lastbuf_len = data.buflen;
-> +			memcpy(lastbuf, data.buf, lastbuf_len);
-> +		}
-> +	}
-> +	return rc;
-> +}
-> +
-> +static ssize_t kmem_write_template(struct file *file, const char __user *buf,
-> +				   size_t buflen, loff_t *ppos)
-> +{
-> +	char *data;
-> +	char name[26];
-> +	size_t result = 0, datalen;
-> +	int rc;
-> +	unsigned int addr, len;
-> +
-> +	datalen = buflen > 256 ? 256 : buflen;
-> +	data = kzalloc(datalen + 1, GFP_KERNEL);
-> +	if (!data)
-> +		result = -ENOMEM;
-> +
-> +	if (copy_from_user(data, buf, datalen)) {
-> +		result = -EFAULT;
-> +		goto out;
-> +	}
-> +	result = datalen;
-> +
-> +	rc = sscanf(data, "%25s %d %x ", name, &len, &addr);
-> +	if (rc == 3)
-> +		kmem_add_measure(name, len, addr);
-> +	else {
-> +		printk(KERN_INFO "kmem: error parsing request."
-> +		       "(format: name length address)\n");
-> +		result = -EINVAL;
-> +	}
-> +out:
-> +	if (!data)
-> +		kfree(data);
-> +	return result;
-> +}
-> +
-> +static ssize_t kmem_read_template(struct file *filp, char __user *buf,
-> +				  size_t count, loff_t *ppos)
-> +{
-> +	unsigned char *tmp_buf;
-> +	int len;
-> +
-> +	if (!lastbuf)
-> +		return -EINVAL;
-> +
-> +	tmp_buf = kzalloc(2 * lastbuf_len, GFP_KERNEL);
-> +	if (!tmp_buf)
-> +		return -ENOMEM;
-> +
-> +	for (len = 0; len < lastbuf_len; len++)
-> +		sprintf((tmp_buf + len + len), "%02x", *(lastbuf + len));
-> +	return simple_read_from_buffer(buf, count, ppos, tmp_buf, len + len);
-> +}
-> +
-> +const static struct file_operations kmem_template_ops = {
-> +	.write = kmem_write_template,
-> +	.read = kmem_read_template
-> +};
-> +
-> +static struct dentry *kmem_template;
-> +
-> +static int __init init_kmem_template(void)
-> +{
-> +
-> +	printk(KERN_INFO "%s: \n", __func__);
-> +	integrity_register_template("kmem", &kmem_ops);
-> +
-> +	kmem_template = securityfs_create_file("kmem-template",
-> +					       S_IRUSR | S_IRGRP | S_IWUSR,
-> +					       NULL, NULL, &kmem_template_ops);
-> +	return 0;
-> +}
-> +
-> +static void __exit cleanup_kmem_template(void)
-> +{
-> +	printk(KERN_INFO "%s\n", __FUNCTION__);
-> +	integrity_unregister_template("kmem");
-> +
-> +	securityfs_remove(kmem_template);
-> +}
-> +
-> +module_init(init_kmem_template);
-> +module_exit(cleanup_kmem_template);
-> +
-> +MODULE_LICENSE("GPL");
-> Index: ltp-base-20080531/testcases/kernel/security/integrity/ima/kmem/kmem-test.sh
-> ===================================================================
-> --- /dev/null
-> +++ ltp-base-20080531/testcases/kernel/security/integrity/ima/kmem/kmem-test.sh
-> @@ -0,0 +1,29 @@
-> +#!/bin/bash
-> +# Copyright (C) 2008 IBM Corporation
-> +# Author: Mimi Zohar <zohar@us.ibm.com>
-> +#
-> +# This program is free software; you can redistribute it and/or
-> +# modify it under the terms of the GNU General Public License as
-> +# published by the Free Software Foundation, version 2 of the
-> +# License.
-> +
-> +# Load kmem-template, if not already loaded
-> +# Collect and store memory measurement
-> +# Verify the memory measurement contained in the ascii measurement list.
-> +
-> +lsmod | grep kmem_template > /dev/null
-> +if [ $? != 0 ]; then
-> +	insmod ./kmem-template.ko
-> +fi
-> +
-> +if [ ! -f /proc/kallsyms ]; then
-> +	echo 'kernel built without CONFIG_KALLSYMS'
-> +	exit 1
-> +fi
-> +proc_root=`cat /proc/kallsyms | grep 'D proc_root' | sed 's/ .*//'`
-> +echo 'proc_root 84' $proc_root > /sys/kernel/security/kmem-template
-> +
-> +# calculate and search for kmem hash in the ascii measurement list
-> +hash=`cat /sys/kernel/security/kmem-template | ../tools/hex2bin | sha1sum | sed 's/  -//'`
-> +`grep $hash /sys/kernel/security/ima/ascii_runtime_measurements > /dev/null`
-> +exit $?
-> 
-> 
-> 
-> -------------------------------------------------------------------------
-> Sponsored by: SourceForge.net Community Choice Awards: VOTE NOW!
-> Studies have shown that voting for your favorite open source project,
-> along with a healthy diet, reduces your potential for chronic lameness
-> and boredom. Vote Now at http://www.sourceforge.net/community/cca08
-> _______________________________________________
-> Ltp-list mailing list
-> Ltp-list@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/ltp-list
-
+QlpoOTFBWSZTWZ3tVh8AeSJ////+BYl///////////////oAgQEDFEUCSCBiABUIgAAIYG7+
+++8DOdyCU873u6dGjxTYZTYBV4L1yL1SEqkNpXi7jTiAGr2s7d3uw6CmqbqtmRbaF23TuY6W
+t04p27PbcnLi+2qEn2wSiqqUVQfYanLxcKgH282+AL2sjbD0gegtlD03V77wAd629lsM477z
+Pe3tpzKCIsz12ENIUSO889xa1ntEVXuFBRryqPWzubrpKpDO0AAQclBOGdzKVUIrZlHWm7dW
+IyjuDbhq7sVuytALZrCr20VSvWJ61RLiqWz63bl4AAmrAAgAABveYhlV9wNK+A0u9lEqpKrg
+duiVPDb1kEpogTQQTRo1MRo0NRpPU9TJhNpGaDUmynkJ5NRiA2iNqNPU0AAAASmIhERARPUG
+SPSaajwp+qB6g9QBoAAAAA0AaAAAABqpv/SqmqSfqmgeoDEAADQaaGQaAABoyABkABoAAAAE
+nqpEU0IEym0npBHqeo9CMAmJhPKYgDAIMAACYmmmAgYAESRBAJhBMTTQJoyTA0jJqek9FHpP
+T0noo8BT1Daag2oPUANGgabU9pQKiSIE0AmQI0aBT0NCap70o0gbTUbUAP1RoAYmgAAGIAAP
+4H61BIGsklVGRqqU8xGH6KP8lmipeNmrGbLjMmtNNMkN/4pE/KxKkpULK9V0EaivG1acYVt+
+w5VT1xVBVVn5Pr/GfkPrzwsPrU3k1pu0sNiyGZby49ZqVbvM1q9TU01mZmtXrT3m9xJs/PDv
+tI+yjsqqPFFAiqCjrkXXfjNTXje9rMliWtve1u8lxK71tXelu9LNbxGiEQt7Na2bid3N1D5c
+WtParb1L3kNiMpPXJSly81Kwt0tDrl5B5JWrTp5yVze5roOFVQhVRQUqK6FkWwk7Ky9SEWQi
+ohZZCLEiNshCsskyKkWApFEzEQpLIm0+U+bI/S/zXg5fNRIYK26KA6Sflg6Qb6ipKMlsT5/2
+JQWJISTBlap9BVNiSW9xRFxLvm/G3st3mwkTNfY85xsppIYhHr5a/uo/TlO0mzKS/UhCMZf9
+pA7aV+9uQ9l4f4MyxrvBw38BIpjBUFIU23prlVezz+44hzntvHnXvqQwn025wbS+U3fW4SZg
+mCntcXxc5KBFzm/F65q+m5yikIpZ8zl11cpXvU2xpTSerfS+j1dyG1IUYRlNLFQJTN8X/f5O
+/9F8PPXzcucPrU2/lMUR0RDEiOQdUlTSUSgyhpKqgmqlKoMhCKvirVBRXTYgVJGMfHE5z43C
+XTeXFviXQD1uDtxwNNJH+FV+mqov63hF95UQSqo9ttocoQkCIgiJ6OnbGjyqYiCpCtHhWk3t
+Sl+ha0k9Ycz+OXoe6+erK1zzv6SYcnxPKXwv+i/IcV2g77aGxQ33fzI/N4QJk/kRSD6TBsgV
+yQX+FBYQ1kVtDSEkzyON/AOGH+mwuhcFG44ZUVDQgaIzhLC1HDIyb6tR8+jD/Q5p/DS/q0fV
+sddZr4PZzbaxaU18S25iXkmgiO6SQDpIGKadGvg/IN+X5M+NAj0nHXpdTjQpFK/UGfG0lX5q
+LdsdRGxIQkJBygaJH/AP1rM0EhPs2xCypSNDhSvX4MhqzN3HaV+96eFa0KISxWNuaUHTfobI
+6DpyM55Dfz5cZAkcg7mhe3pB9Ot9P1g3IlSneVRSdPt+7xva3U2jVtkWWIDeIBsFbd5LbSYJ
+gcc8JzG40DdqK2FEqrxvzkEM2Xq9PJMLbHNhlzWLhY2V4+NpcaXdQkzBht3L0xvNtkxWuzAy
+9VuR5Utphqu3rN7reDgMiQ7HWgEjNXlB8nI6/J4w8nRXEEOZQIoEB7ujr8O4+VbxHhR20Py8
+Jfxv4vy51x1y+jDZiWt450K/wklbxzf3/zPx4eGH531+hwiaNfJDR63TSJRXBLyTV/U1ywpV
+JJJJJJQ79FemJUTpUv144V1PWle5V32Xia1PXxfVTUqK6eL2Mr003oxT3YrVJWq9/w9LvoXS
+4r6Z9Dko5JXa8pdNr+AsU9HERsYjz73xV5Vxk3uJXvS6V12tTuRRI10ebDrMXSsi3OSKJFj3
+fmPyziq3bc+6sZXVFIyJ4rlxpnWFCROuD2tTmUq0V1I2YPneeLiiRz2azPb7WvDrz01Eztbi
+aTSFWKk0njfzvUDUTSaVIvXM9PKSSSSSfvP9GgqygbjwDIySEjGMIyFKB7oOn1+4WPg7jpeL
+Ud9GKH8E5dnZ09k68nTLv5bcjtW7NKluwkstk79ndeefhd+mWzp6omjZvho7/TeJRa6XVNY9
+euWdKpJJJJJKHe54XecoSnfsx6q63rSvXV323ia1vXPspsXBYp4xsZ40xd6GtRtmqpkpJuLd
+qlK4rqylg50YyhjCcNivVLttforFPVxEbGI9Pi+KvarjJvcSvel0rrtanciiRro9LDrMXSsi
+3OSKJFj3fmPy5ZVbtudixldUUjIniuzGmdYUJE64Pa1OClWiurPh0+d54uKJHPZrM9vta8Ov
+PTUTO1uJpNIVYqTSeN/J6gaiaTSpF65np5SSSSST958DzHtBGEkPcQ8UTy/0PhsxsVsh78hB
+9Sbk85JFA2+1IjsmOQeFLEOgSGU/QeVHozOhDiMRskvAnQzzZUvFWkiaMAkcch0WQhaFxKqZ
+0whAbpk0wmSH5z1ZDeTbxQZW9iPFT7lejGXbrsubUk1IcmtNTuP4rYKc0Vo8kNJN3Tytn5ZE
+6Udxc97dS+zRGo275O2/fC9lPCZ2/OYkFTrNJ8RycvglqMd1MnlkdKbBpREutE4bZQ1tv6Ih
+Lo5f1BK+A6Qz/SdRwOG838b8MpKMZQ5Dv4tlHlLkfijd0dKi6rnFH+suNazCxZ4LCtNXg3Nj
+u134c+vF62KS0vjMNHIhbWE+gUSICr6De/BzrWy3u2w0NdWZTnTM4BQmDdGmnX5U3DMwlyrD
+p0ZveEcebjcK8PGDSZqJmxK5sDdmWvoxVADaoJEBTeaqRFHhFt8lfSrfeVgAAAAEgBIASAEg
+AAAAEgBIASAEgAAAAEgBIASAEvjr39rV6NrXdbutyBtkXvcKqkT7w5jR7R89gObVE7yc5vvb
+X0j+9o/6/g8oYU+Er2sbGpid7oqWndUBIpmb4GK70KAcRjtjpJtild33fB+3/NiHkRiMqoY2
+JCDMO31Vg1DPFFx5UaOmbbvOUbZdW6n9FuoGkWG+j8H4DyQDiPt+P0bpG3uDXNZ17Bz8Qzep
+Xg9L1pnH5IHvWnTLI2kYE9BXSebsNEHU5EHTkvxmt4W0joArd59VssU3p5Dv90VPiNQ973Hx
+g4htyRDrB3WNvEegeERpqt2U+9ZfDznhHKreHiE3l88opPzx5z34yPRQMufKACPS1v0+9yUJ
+S29FgWgSBfnTtcwMv9QK1iWvv+Em7tJJJJJJKTu9yISm5WWNfb8FVQGxi3SPdLMJyp92eaxe
+E1DNcu+BrXld71+Y2VvWXR7lXP3PCTG1vgPIRTGIYwe+KSSSSTm2Xa38r+7C97gKOZ44dnj8
+/wHFs3n2Nr8EtrumEoSTnM7poE2+bnM7jxKCr0i0nzbSixJnFmYWjetRbT2IatJmlZf0id3M
++yyJeGdZcXSfc62/x3mltJnavXOPnDrrkWJ77+1zvNLiTPC5NZiJ5GeJuLwnQlEmaUKy5Esb
+SH9KZFaTNIhmM340+sAzMMNI7Kj0vQpJid7vewE7ha0XqPS9Ckm6gbchmbvcA6BN0dco659M
+dB0R1HBAy1bIAI7ut+Ll5aEr+rosC0CQL7k7XMDL+IVrEtfb8JN3aSSSSSSUnd7kQlNyssa9
+fNVUBsYtzD3SzCcqdc/RYvCahmuXfA1ryu96+6bK3rLo9yrn0cJMbW7A8hFMYhjB74pJJJJO
+bZdrfyv1wuvgKOZ44dPX19ZxbN517X4JbXdMJQknOZ3TQJt83OZ3HiUFXqLSfNtKLEmcWZha
+N61FtPYhq0maVl/SJ3cz7LIl4Z1lxdJ9zrb/QvNLaTO1eucfOHXXIsT339rneaXEmeFyazET
+yM8TcXhOhKJM0oVlyJY2kP6UyK0maRDM+rgwr74OB5BChPYQ9QfAHrm3qr1z6+n535eJt+cf
+hH2puDRVU7sDcde/icn56MecuP6zyKYaugtzTzBqt5au1cG6Qy2Owdnw/Eb+BfJPipPZLA+/
+oPKa09c5y66UhvaRfYHcBE09HmPKcE78aIzHZKOP0+ixqJNUDHX6kXPMAxVDA3s/Anbsh4dq
+dXfseKTYZ9x5kndhtlUpPsUuBAnbpsOjGK/xJ0/aeyzXlBx8RKVK+DlW+qYiIiNEREREajYi
+IxGIqI1rRFtEbREasRVXFbVX0K0EEg+AD2l4cjvr1/i0js6TErj0Z6DkbefbRgR1Hu6KuH3/
+fKhGx+sJGNsbkJN/v6rVfHx6EIasNFbHIo1WbppqNj4o1SDYxj2sh+efLhI8O4EkkkmSSmaz
+uGZVit+lVze0+OMtsq8Y3G9G44uS3NdtYomEqxq3gRltHximqVTJM0kOxMbbqxtKiQWifBEO
+MGQd2GmDv2VJRVU7MOassPRcb5XoELUh9OO3KpyX6ym4PRwYxtulpXhKd7eRn5Ta0+L7dqa9
+sNFKHskPye65FM9Ujv/Nfu23RX2JNqGZpNwNCQZdNJHpyrfGxEREaIiIiI1GxERiMRURbWiL
+aI2iI1YiquK2quvFr17jlyUJ61KPi7OmTxduxGUCdWbYcxq4VkL0BmYb0TvsZ33rVfBtxQ7c
+fNFNRm1QYH5MO9UgodsVyRnA0xuewzkh+Jqa41d2VDdry32Ha5nI4vR33g7juW7Q9RozbICf
+XMKdqiqGmZtTHFlS0NSdVimpAzkuU5HcfoGZr7QGvnZEeDGfExiY430kSltyGxwdtSbmU0No
+pmT+lk7bNIno+VN6I3uaLj3E8JmBGOLWVvDURYamptwV2DheiggQSz3MJ5rhkQ1g1h6gIBIG
+15KkY4alux1dBPCkncw+NgDXxA0TGsVzwxOas2gS71R7SNhhBrGhpQuLWcDaxBRpn2V1Wbkb
+Ujrq+4G5G14a9g14m44HuNtoTMORmrXGL6SlHM4UCTxj6Po1AMmnmrAiJVqcCqSkHH62+G17
+viPVHr+nAekhyCWAQWvXd7+UpyUbu10o7ySbDZhxDiEWCpuesofAdh1WqhpQdpzD4PvcmPV5
+hu/Eer2NPBxMcHwcDg2RuuXHLlgCZcCxYguVByhcoFCQ3nOsD+Wg71ILmmhop7JSMk+R/8pU
+YRAsQWEVIHxn2CELNo3wsKefsKOo6ix9P+tMB+8kUtC8QvhQ8SQhJdj2a/zWKN7ra9eaXU5c
+nJNt59L1Lx1QASmHJjR4IxWSskbY0aVjfEsE4JkyZDQZGDjUGfj6rHr+3vJyOb0OgO1zvShS
+kgxxrHyftH9gv3CKb56YlMcNuB6UIPML2h85SJdBlFsbZqmBYiwZcon+QvRUqC2l0vBZwxM/
+TkVSnHba2F0Zi13R3eZx48eOGKeyoG9TisQ4yCeGkLqBzVkxqDiX+8DQJe59d0g9xkdP3Q8c
+WRdcUqLIpD5KKikJI3nC1R5bzjN/KjLZbl2iGIOkcQH00OUuoFwbUqWT7Yw1khJA6hoI5k7t
+Hp88O0iRxIarc1lQrVvrL3I9gnRQtvJDnwNz7/2vE5qnEHwQdgMdRRHrMPr8RXpnrCqDoiO4
+/kQ/KxTz8T3Eo8pV2wEU+IHEs+6XU7wGwvdiRQA+JYEWLZR2K+7EsgrUEETaCBY+ClDyzzV1
+g+K83ngC0LluN+vOh4aKROxQMEmRmJ053UCFtF8fYS3sVclSVHAaGOywN9puc8BynN9gBr+3
+987nw+d07nnOwthcKqx9NyYHUidzFD8Z4/H5higBB3rQeUfMNlbHzQKDAwO8bA+QB9Aa5hFk
+Yw8Aqf5xLDgn5J0kcU2hZVsVVsZGJT8YxVoUtHABt3RUksFgtSRplJPtrW8amjRX0kyGRKk+
+HzEwyA+35XGllpe7nZRBLQwEh9s03NShE3nsDqO88z5LbfcpBr7Poy93EvZ0F/h95PnT0ey+
+g+moRJcvJpq2Z7CJRtUk0Kc3qz63PrHx7jCiFPhZB9d70Wo/CYruQSC4O3cEgsbB8eZk59z0
+11p+jDSTSV9TsXDERJQlqVJTUpZ0leujRR7QkJJCu2G7du4K0wbd3IeFd3BIM5tFmtg1d/mg
+aUtKasZzfEe9ZlYpKROWD0lAzM0DDGH3zJ3HDSPawFyUTQDoREeaAuV74ZkseV/GdnrrH70q
+X5pxuSQ07b9qeGZe1mps+bqc5OLk2c2ZfXNpyQSfNZbl5NrxeuYt+lnp9XjPNLbsMN1dMNLC
+3vKt4o8asqWS1ZJYVZx8pyRd8qUSRpjljgyqY/SSthfWKVtk8hPQGGHahO+iHxfAWpNwz145
+hbjVaHbz48vNvYvYmZfdx6d0Oy5zrmotLmJPitWzk57fXPHyyuq8teU031S3k9kvLXXVhzSE
+PPPWz0PX3daQi16wvenrq788noSGuymiSxIcbYIaEDMLDOCEKE/mDW5RgYSpbbjnjp26qvlj
+BFGAorEAkOiGA40oUg9wFSpS9nj369tvrzrYkvAwb9jGxKkryr4mPSbQ6mMCl3T53xlm8QtE
++U9MJmA7yrXDq+n1s0JdDprqRtt5frNxrTPaHZA4I2fsKA/F89ddxOrmjBeM345pKcDLZSfj
+J7XddPa3XZGCVNFJb1lN+h7fqQTmNvwz7Z7jyGaH4NFHt6OeUkkm2lxLtsQkvyoka13y+FZc
+vSlHd4bSmwk+FbMpCLlPfrmqIQw1EmoAnTnrm328NJkR+dtXudvcc26TWNnTHFuIUxlHRKge
+LIbQxI1WBDPAGV7jXfw7ZCdEhBASCxavdxpgI10wklU3DMx49fr9a9aTL2b4J7LI3xuTARFO
+YGFiqUUS4uKUMMwx8H7Avm9r4fwz4n+f7FHd/JO2zLP1rY0+T+Z8fivnnRYV11/V94xf731P
+8vt/iSrtNqNe15vKXybY0MfgGYGNPwfHrh4+pbKCP1JLIj7PmH0fg2DVCfZSXf7dSXZevpsj
+f3dy8/SKqPRQUa2D/QzRVcvayxFV/PP0R66N9dd3hrvdSkqvevQOq2KtFKs11ldHTKBj6KKn
+wH341MwMYxfDPQlfI1fFKzAMS+hMQZOyRoiGWsZkNazsSEa6DgxdXneG0nkRmpCYEu8Kd9IE
+hjz7QPi00ntctkryJrJIK0mnnS/vi5wWZliOOBxfWT8I+5llr0WMfvi4a3cQx1Dtx4UWrfvo
+71ouQ44LyNpitQpKWGF/oiKzYBipgOYtbONDN8qMIwNGPKMzGMr4mKZJA8U7SEKg4nOqg7gd
+WvKG/GtmrSf4setMbmd9hcsY7YcWkd78+/Zm15U0vE7RJ111jbKr7nM1tdDs86oikFBLBBwx
+wtD1FNqJW9M/gJsNhRpu9xmygzvPTKc73vpPZOdKXeZleCZhRhmNcDVK5wUi0vswO29alskb
+VKrffg1y5xwUYBjN7LPNKh77bMNfMwwasVjYyfLMKCTJMJmGwSYqIVC7WKnGzs3AoSywNsD0
+B3nAZHurzpLNKtUQj9ORwErDKI3VUEVFBfMqirKw9FSXCAziGUvfp01313y9bna00NC1el8w
+QhCkYhpFewp2qlHHFCt6jwpgYkNloEZaMMxPkQ3He5BpiO1YnGFJUTyMmZDzZhJZvWmJIVLW
+gSax38g2IFRW9b6OG1jd8oCh63NGjpsvCZp30Q3VC0jQozLXYUEtaaLCaHaC6cQgBwB6B3Za
+DNNvdODmNsRUbMmOef3PbYb7h7LjQIG6PY7p0BKhdE3Jjz9z0V3DwKnumv1us/dD+WHYGr2O
+YVfuRD7mb/RDgDkP9+IM6T85E2IXNU9N5qhaCRf9r6QsFoPrIlop7RB6xSyVktpZvPm5tMiJ
+VtV4a2qlQjEvLIb3SSZYIWyQNrJGUorZJXxtFgyYBjhSV5ihtJECQwBshnoQhggYb2fnbttl
+69OoPP72z78tQ0uvYSxMQlE2dMfOZCCR+SMTMKmT8O3Ei2AZOFmlSmrKcTvfdw/lDqQ4PQ9j
+2HQ1SuCH40KR/L/TM9IJSsR+861rrwnUQhCSSSJD+dPjP0hB+6AGktvnzVTNqzbLNvhiSVSv
+2F+0i4nUu7f72tux2t+c8+fBXH0juXKFKPkDN0fKNhQ8B+e4fhHgCJ+AFP5j6B4tpVSWP7ZP
+e5qVoHZwimw9EcXUM709lIf61TLHIiOUshwWpzGFj9ZtEqdOwOCdpNHgd7I8pOhKO4RsBmuJ
+ADX2V+EINoHn+i0+6dPwUVVFVRVMMMMMMMdvdN07jbdOzp4PTfSulum+0+08wZ/S2t3NP4Rh
++b+wkYeHqeOXiSGQpHMbt4ErzySSWbF8A7QeSdg9+DO+d3WUVxjdrGThG8zTWqmV2m8KI7YR
+A2pH8RgpmJFC5cQIE7AbI6lzG6fUlCxSoUnhOLePkfPy3yZH49lvGQfIHxMFKKd/4rubSTgn
+ZHm7o7pJhCyRpQ3iw85Y0qQaMgyImTYYQ1FiUqRsqJk9r4X+PoVepsnUGoM+qqpqqqqpzXX2
+MW4G5DESrLrW4FLcUOtPAZCMuG5JpSCeNJGKjhCcXNJk+uawxO1Ohs1MjGBxdYxsPq75PGej
+79yu/xfbWxs202rUd58mGgseBqwsuwveywEjQZ7PiD1WG/uh9sUImb1o2RbBaNgjSUWNC3Cy
+IWklhJOpo9CbycZOhtNDTgZJRNEp10NJwPhUjSTIhuMDp5uuXLljFsWOd0lamcjsWI4nbRg2
+OoNTYTnFBz6Kwm04GzF2nRuGmkbu01/1OSybo0h3+M/c6zUep4g+B5yBQ7YF3W+HdzWDbBkk
+ixSJmBkQI9wRUOfca8NVVVVVVVykTsHaORc7B6ICJk05BTDRIs2psPVNFSNJpYoKVgkIrSwC
+yliwHBUxMhrcGQ+917SHfJaiMI+lJkDoFDNFzKVoLIkRgFQWkYncOljzqjybkCCUbSo7/HeX
+JyLarh+KdlkegVHCDEli54diaQwaA5w0q9w2B6sRpS6i6EqNQ0Q0diSdAsmDtN04wT2qnRKg
+WTYpQB3hdabjmh06Hx+N5w0HHTCSHNmVbsqdfYWKYmyyRM8LdrbhkwoqpOdKFti8gU2mIAbE
+XrQNYJpezStkblN2D2JYnunxF+FfGHpvN+ZPI0+KupDYieSjR9P0+KNHN754Gk8m6GlXW6gP
+NtoyDwqwYHJNCZBgA5ouXlmDy8ZPlZ73FOscCIpHsPxfH8cZmMzc73A5vZ6tHSRX9LskcjyO
+QbwHcyEn9k8KhbLbUh418bq6e/sMnzZN+0fXVokkQ8koI1AOFUJuB1giUeGC9mrsxXlGJDJN
+0mpOWBymhsWE5lkOChvcQ9VCWgeYzAdOIuA2NDSi0RWwCzkUh1U3G0Dc+RpqGinEn6bOk+4f
+d9SnOIttW34Tc0eEIqv4kdIcnwGKJ96fRI/QeNlWzsrKaZmrpQVJPE1DIhqbYLFIsYffwpVn
+9R3DtSOqdidzsPwJuFPCI7TlJBnhYYyAOduLnXdulm29knhLkbiA1HQeGbbAueIhQu8GH4Ei
+EGJoDzeBespR6lc3S/pzXwMAzFd6vMWHcovMPa2QA2jtA6RsBjD4XpLJ0PeE4HWrXEPdTKvR
+H5/bobkLpVHYFPtHQPheGrj1YXve9y973ve973uIRLEkWR7H3hSn3J74Tg9irIc4nthyMNAU
++odI9A3DwjFTFA2QdiuAIHaP6IxOrcmSI4JFDz+n9PWRO5VW0JyTkeRodTeMmWJj0zZK+38N
+HbtMhmlq20mPcaiaSeDkAlIUbKDDCLHI5kkiSSTbv2mIUMPo376vemk8For52fBri5mMYsqy
+31TblXtlnM59yN3WQ9p288/6zvd3nesMMMMc2qtVt6HuuNzum55rbee6dO8bnlhhhhhhhhhh
+hhhhhhhhhju9vN4nae0eZ1P0Gw+EB2zynNw90Q9zCo9ev2KLIOs2OrT1HZTRa173TFMRgUmg
+Ug8/l6DAzIsIA7/eShTQrwM4yM5+ewuA7zvIW6ojdNI6Nvbwta1umjoCgu5AWgN2wK41ja1r
+TmQxRpoaQpzMOke4zQuQcOknFMHjkGierqahuNr9OMzJmYzLdQZqBdupBTmRIi4KZFwDYOoe
+lwDE3YdJJhfrTkcjvOZ+r48kTDy4J3micmsKo5lOUYa85PZ9r07pE7jlHQk7TxSqkUbyTR9M
+kPq7Nz5nnEeph7Rt4puc0qcEh7p5JhwG8RN89Vqvkd+cnU7H2PO/ueji+v7juRNPgLPcObEn
+tkSyPEsVHa+sSzifTuuA+3EHxNjy82Xo95JmHviPcPj4HwhzPTvjsJBr0/yhjGRiYlkb2G7W
+j/Pqe6lqoiiQtHiu5bl483F1uU1E1CrlWbWbRhceiNK3wfllRg5LELuEKEhChHVJUUi0Ocg0
+KDFVGLEVG6qkIi4IlIolMqEaiLMSCU1QhVsRG2jZiUltrGQktBISKySDAiB9tzYeI9wgfofm
+w5vfpPNP4o3rplX8Meaqb7UeZpvFn82TwjWxrjDE+I1jX1Mfjo5dN+MXrqQJ2QG1DT9p4wAH
+1xPCQe/UlH5KSIy8tIjE8tZ5MM0trJMIQEQOHT86U4CIw76USJg9AZgPlxyP4HGrjDBnnrkn
+cRKX7yUygqMbn5U3HzSrFCyKF3a4YsZY85VFSrGeT2RP8iV+i3kIaMFh2thWkRzwFDE+acYd
+qe9WkG6KtGEGXc14FJ65m3yuc8G/DO3VkxBidObDk6TXG+lqNCSSVWxxnKd3rDFQFG/Si6d2
+qmmrzRlYDTZI2PjIxmawO8k2cZbccm0yk3774mw4QX12d794gQ5yp4Ty52wSSPF7X1lQff+F
+PtK+s+ww/kAPr4D5A+wA7XxBcDQEOY4E/qj57mJvJHOtkliOAZ5339PdyyabFQa3nOlLtPoE
+2tXuoxy1Bjo2sOpoIF5vdSW3qzLbbfMdxUOAKn850cXLPWNQBgYFgy03SzsYpiq6daZYySSX
+HkMDqsOzEP4wOY6eVbNKnEIsnKtJ9YvzBfWd6OLyFP6D6DTyPhP4lyO0ijmqUqFLCUpZyR5m
+posksf1hO6MnM3G6fDjvczkG0cZRajQaO2M4m0cjtO8LszLlSSSoHp3YsM3NfcesZBA3AcPc
+LnIVV5XVa2rz113d6ag2sHwodCthTuKvc/KX+SrkrUqf2Lma/P7Di5veVE0ckdS/X7LVtruW
+cnGerYe4sjc5dzT5vl/ESD3E/jJ+RKhhPah98hSQf7In7A/ol/bpD9olJUgqVIPqPmcj58+m
+tq2221tW1207Vq7dp27Vp1f4aPIWAfjAhVbAn5JQGUNBrhD8H+HHSNHCMjIbKqqqqqq8Tsdm
+x0P5IyIhkJ2222rqNvzJJJJJJJdlVQL5/G9Xd3ewrMzMu7u7u7sclqSWrkvLwDMSSSSSQiAY
+FgIEBdpJJJJJJQCAWBAHd3d3d3d3d3d3d3d2wOgA0CBh2qLqj1B1VB1RmaPAvBGQUIyChGQU
+IwgaokgrI4KEcFCOChHBQjgoRwUI4KXWrq7teQBoAi2vFW9O9eqr2emrmeevTnOc5znOc5zZ
+ve9c5znDnOc5y73nOGZbnLQVyhBVeaOCoYdo0K/1VwsV2mSJ3bJad27R30+pJI5JJGAeaBAa
+qq5xISSV/XrNCwjgoRwUI4KEhIm4VIKEcFCOChHBQjkTfVV7VBplmeljqHHkdXfO51DjsdXf
+O51DjsdW2bLpbcu1t1DRySdRkdvYbHad4/khRSDVGUKihB118grzkF5I4KEcFCOCg245KFVU
+dnq2NDbG37wK4GgRVbpP5P6aqqqq9/W1bb0jAc0TpHZ05lojgoRwUI4KEciG4U4KEcFCOChH
+BQkkTaqmB7A3fgKrqjVBVVtZSR7lLoo9gUdBu20tpJriSuNK0k1aVuCtJNWkvBjsWJJrElgS
+Mqhh8AKGoU27rYhjJwrYisGwu8pNSmkBK96BeThaxG4dnbu61ruUX3270Bmw31Otj13o1dGd
+9vvgGdhzk72PXejVh5RR3VVgWGWhISEqYUw2OVimxUmxsKcCYdaxnLlzly5y5adAAGuVKrqu
+q8E8icY5RpCKbDkjkcjz421VVQAB5rqua2861typvfpZ6gdoSpI9FUjqUMxocldhmBvMqA24
+UTZpbi0txaW4twyVbotxaW4tLKEcFBtxyLV3BWRwUI4KEcFCOChHBQjgoRwUI4KEcFCOChHB
+Q5d+Y22hDikUk95R+U2hISEhhAuuigdBw1447Ssd27SUjlKxXbulYopENohSgoRwUI4KEcFC
+SRNoHQtUMVJJI7Y5jux2ruyWruyWruyWruyWruyWruyXbux2ruyWruyWruyWruyWruyWrSuS
+xXdyxXdyxXdyxXdyxXdyxXdyxXdyxXdyxXdyxXdyxXdyxXdyxXdy6UTSLl2WXd3JIXcbuWWX
+d2WJF3dsqkG4000xDEMQxDKqhNNcccccccccVznOcatu/f8iSQFttttux2G6TJxPZWFkSxHF
+vHIXnW3nenoJJAAB4r1VKVVrbYuiOChHBQjgoJuOT3EAQgqmhzqHiVDrvbbbbatqdnM2+KQa
+TNAQsB84hoDVbJFgnDFHebS3OF9+WTWl7Z1GhfFsW3uNbW5uNC22LHT2taYbWBt7lPa3thtY
+G3tBBI9lC96SSSSoQ7wL84JdZFi4pmmq5IYaTBKC6ACk580OaQaRPfz4WnetWUqqqmkmVR1k
+F6EcFCOChHBQkijbhUgoRwUI4KEcFKjgoiukqKXWZlpYV5bClrWtWlhWhuikazNK8K03RSNa
+zSvCvsB0HZYYbNQ+e7iLYySEbGoehVHgC6nAXAKDQkDaDwBwTdiZc269y973uXte9y973uRO
+VEhISGpNI6ftd/shMcToXcnJvXfNklefk+i2181RjGMYsYxjGMYtFRjGKMUY1GLa0Y20YrGM
+WsYqOtbuDwhjHGNuPawkCnbLJdhweoFxW1XDSThqsRWDWbnlJqU2QEr3oF5OFrEVh2du7rWu
+4Cjy3lyVl94GRhrhOQzg7k0uu3WdYDVdHXVX1vrp0fP81DAlBfSSSS1tVq1bRSmFGHAmHC4z
+MZmMzGaMNZbbbFFMFJo3T1TjGBQ3GSouG2QkkTWr0h8CnU4kEIde6A5bjnpzWq9Vt7vAN64i
+LyvkcMrLlZcuV0TuE9SVCKJFJD0N3a4w26nzoUpIKUelClJBSj0oUpIKUelClJB5888+7vlC
+SXv625wAMvOvOr0rmuEMvfmYzMzLnqZI7z1O0pwI50jfr8vshNdxEStct41zbXxaW3bbaitd
+VL3rbqr0AAHpStvcjOOZmHnDrDvUEv5Ih90oDoGKcRWikPsnOWWwGIpdO0ENqJZUxDd+qQkm
+82w1c0k+MVNFSbRTJRSlv1yOifaeyfQfhR9LrUB7kkPtkiRqT8yiuA+J4oBuDQqHY9z4QkBi
+REICwHltCcDi2J8/6r7zgOkfCc0+dLYtkEFsqxItIiDvwtGT4JJ5/BU8J3u+fokQ39IJbBPP
+MglsE5qJKstKw1I0U/uRk0k2Mh9KKJI4o8ElPzbKpZKPN5m48unpmdgTukCdoIRQScjbDIhd
+ivEVgF1ACw3XbvjQHMlKKtApakFRHcGvOSIxegHMUgZnuskQ0IF0ikBycxtHLI2hVbnf2k2Q
+ZtGzjIRzjTSTOhJyyYSYw3P5iHA/JwhtDm2kncwscn4yfcJ0SfSd9hUlnbJo1yHkoghrIqjo
+idyWDszTbJZO6BPMNO3SA7218DGIiIoxiIiMYxERHibjGIiIOU5VpXLI0WQaMKQePFEjssi2
+SR0SHCOvLLhy2hI3VDaoaKPPrmN+3Yqu7dDfsJQS/zv4R+lobVblT73yX0dvWti3cay6m02j
+x6HEZR8nMwYwweqE8CtAxSeeGwRPB/LbERMRNtC0LYhJuvVeVucHyQklhvpE0UAa1cJLhJIS
+SEkhIxuaDNI0BaNau7LtjchJISS9AjS0UBrUwEYsKDMmAjFhQZklSMb1CSQkkJL0CNLCgzIa
++0UV0xL5wVe7yJ0ge2MhCEqqqoxpXMbLQVBoJEgdQCptDBnU0VJgh2isU8g5o3DBUwAMRb2D
+Hr+j0VVNVI0ZhIl/EZ/YIiSZiXIqhqhi4hCEIMZ01z2oRB/Op24mIoqPY9jUTSM2Xa2XUZl+
+3hPtuJsRBE1qRUA2ER1AXXrQiFiX6UmsAyHruxAZEnoqRHkQA4mikVVJN6MlSN8YaWauxrGx
+Nrpn0ZB9lDU2bm7jtO1L3pLKWi0LIiaxJ0NbW222SKaJOhqMSUOSGkyJFGiZElSSoKksYWSY
+WIsF1CoWEQC6FKim/NNrYLQw8WyTj2xf94+lz6fVe183zO0YwwYwwYwweB62rbVhvCdYlUpZ
+HonbtNLSiSYZH7kmuqj2DqlkevYOK4CoUH09V+o7PL2ZDhFCHe6aP5/H/Za/jxaAtnJZsPQh
+EU5CUrxqkR3oyMhJxBWWsDAWYliRZGCJgZIoYSKRkkjO05yF/SkFQYc8TFgesDg+WjIz6EOm
+0P2LAcZLIFYnvcrcXzluNxUFelvf+Tm9PofP67HVssZZicL1qM7u173iSL3sYXE4XrUPrpoh
+2xxxhr40qpBgY4pOEE5u173hr3pVSCxe6ThO13vk4s6hMRrt7Vo8TjlDRy7lCpgwVAFs0uI3
+x4iWysTRMdOMpt1l5KzKGqpwwws4YUCbNp2PIGw71Jt6E5WAyGafPkg113zW18LV18XO87AU
+tQA02wBzlcqagGlS2gATTU1zmtXLXLlV1133xlXaEkkkiBQRQpgkLUalX0opawNBqlVV+IVU
+BXM+DbbbbbbbbbbYk0mVUlVVVVVVVVV8sR53wHoNJzG8LpF6Oc3GcWCyJslmqmr5LTbV46t8
+/X0D2A3gXBUfF5bC61DTHSwUQrFklGk+9LLpH0I927haLtmL8IqDYhIo2I2je2IQixlou+HL
+FYxCToYqdKkUxap6ipZTcpTU0Sz6WY22aM1jLPGSSqokiPalLiTxpo0uTcXA0FWZiFkcIo2R
+zFYqqqqkmE0aaVZVVdSH5JJ9CYk13nxnBY60G6Nz8ZY2mu+Gg9e/LcRmW4qzZpkkpEOj6nSd
+IbEV2CmZCBIBmeJ+RHe4h25ngD4i6gb/Ji+0Den75tTOxfhFB6wHRrgthTn51idglJkhdBM+
+wMROSa0bCmKCQbC8x933tOD6vv37pwpYqycLbwp8nuUTPImIQq9VbCMbYidu3Idwd4XoLsEJ
+43wsfREDsn2qTxjHz5Ks6ayPT0ji8w9XRvoNpIqoQDFod0FFtlAmL6LZ+dLghMBIcdgQ5ya5
+Q/JHfffas6aXtuWWD0FRROU85wV8yYrGjmZzMEzrXmZve4JSebsVjbl4YZcJM71rUNGrvu8X
+l9vPGs1zvnleOnoWlMvM5wV8yYrGjmZzMEzrXmZve4JSebsVjbl4YZcJM71rUNGru+lGcI4x
+WC8/CsGQ06HhYyLyzu8KWBhTLOdVnhpKSk7SlSc72SlbMtjbu3e2Nnnrub3vaFJIhesLV3eE
+JId61qa1qWXdnj33M85FmTMx7luLx6HnXnzm1313dq3V3rM74lfMy2Nu7d7Y2enXc3ve0KSR
+C9IWru8ISQ71rU1rUsu7s8qeo+UxBU6MqsOfIZsVR9qeNzW6mHgshu1n2jeUr0EnGfOq9VZt
+Da1YknYKaDo1FDYaEGs2EyBGGEMMMNlhTK9OXVhSpaAZaantPdZ7kd6d+uMirTrOkoIoo6Kl
+VQb7e1aA3v2eeXkWInTEuI1p+cpqkgCqqrpDPHaIWJRCii0tVUIxiNCuAOodQNzSRyEjFRil
+vzHRylYiA6OlRUqkFQGUlLWq9zwByucAAOrrXwaVylbLX1CSKdV1Wuq8eAOucAkhaLchJISS
+EklBciSSSVlFQEa66AuuXADrbrVtvVd9ge/6/V7b3vcMzMMwazJmZFmTMzrucCugQCoiSSTq
+V3rbb2bltyrvsDjkAO+cAAADrb368bdTsnOc5c7cAOq8em1Xs4JJAAJcqvPnyttq5EE4ScU5
+HFtIDZtCsb8LbRznAE9VOeXIdbXdeLXK5SvN7ep4O/BmZhmVmZI5MSxC5x9BTA7BgIKZEkmx
+4pIczXA7Gkm8Km1oClI6vAmlkkcSWbyIn35EQ9c4F0hcPbNQPIpV8PYf0jhkoBrQE0AaHW+7
+mZmZuubmZmZmXHxdcjtum73Tlu4ZkhmZmZmZu7vW1+/9PVU3yIy60aNeRtxJInM04PLnjM2S
+SuUwZL/DaVl3JsucrvwfMPXRoQq5WzgJG21ttttq29jjCdsc4m7liNuIJ1C55CWMgD7NDTBY
+IMF7FEKVswaRKPtPKuybPQpJPa7pq9bGXKyy5iZmS8mTWWWJZZBRSzeTwilVGJYBySlROc+m
+9hUADjiBninoMiBiiKI8QDrQpEaRclIOYAcDoKp07NbemMb0ljwfYeeMMzDMVcM/qGB2SXsG
+wDYZmjQjuH2WBIBSatGPWie1Sdjy+94R1/J+o0MYYMYYMYYknx3cmnnF4HAiAJAGhTu6hbi/
+PiD4YhLUwojjZtBlqYRqDKpht8KXwG87MLUOITr6uO61yzOOs4cUOUWNRJpVttqlEicLbbaI
+5NEndQmo+KOfJG0jkWOkRahe37O+N3BVvO2WsWDFixLxSCvtQju/RLs7PXqbTWtGo3edZvvu
+JXPchLMwMo2Cr3Bo2IEInpQy6lC2wfw9Y15cThPpuV6VQeNyQQUqQKlQy9de1ER10evU5J12
+iI8Xt17eVvGk6ojcVvIcYRek8d5Bkgtsgu1Qg2tTVqAk58QXWugEIWaUtCCMoACAAlLWaEFQ
+Qa1KAIQ2EIQgEAhCEAQQQBBbLCEAgCprCEIWEIBAFBCEGgDQSyt8LgBCDpeurOhhBLAAhASE
+hITJpmiEhEhLbqucAIQ9lfcUttq7u+wIQlZYAAAAAAAAAAAAAAAAAAAAAAAWqWDTYBCD0rc3
+Pc+Hraqu9aPU5mQsideUkSUxPi/uE8nhyq1atWwwYSGWbd+E0iS1bVREPkPtawYsuZMsXCTU
+k8iE9OtlqPeoz9Mip2k0H8NwxILSfk8sEzgnDTcyEqiaTnmpROWxqFLHk4QKxDca0lxBvBfI
+2sBdFH2N9A0VJZzfSle4avi0WLW5I6IBH2oSb9ILtADQjsyIVHbiZEeKB9d9tvCNaGxKaTdI
+0UTt08X1p8BTgtbY0rpO3bheB1gUDeKXGD9JFuhIjagTSYiKZZS80bSfa6oebt8+XLZtt2cv
+wfgdgwwYGMMGMMMYYTGGDDBgYwwYwwYwwYwwcoeqE4BbOEWT2FRikwUn1bXKrSzUW3IGCUfE
+mIJoLIRoaMQjUkq4PgYXAobiQIJBBRZBAVkVUD3e0PBFNWp5W4F75IFKB1RQI9rQlA1VFF58
+T4/GQkkJJCSQku8KoaKCjDMyEksAosu7hJ2a5sarbdGze8hJ5nhtu27e9W4ajbNR6dlzUJGN
+sb2UFHVl3nLLtjcuy70EJLhJlqy7uEjMzZ4vE8QNfY+p8ThDgSTz8hPESpSY9l2I7Z99g96R
+2VIuAxIypFy225tKZaKzTZrZRWmtqx4bN5wAzQwAoW5cg9nqIwcqktHIzFH7hAKFQuDBB+aJ
+EGGm4gfSYU3qFdOw22oTkqLUqiaJNJGJCMHexETkraIlhJh+QaUj4IYEGGjnqw9iOOavYKmi
+UREET5YiyEWgnq1ssGqRyhfm5/qajckR3cbZPrmHxVqilFixYbJO5H5dHcjgjMGrmgNgQ3Cn
+N0OTH1h7J84oEBOuT9GYji8IRNZ72idKP3T7+42juSyD2h1ighvCArQJyFBPJikOpFugq9sl
+gfsN14mThYiWODc9drHV+DxeX/IlLt7DkbUTzBEwsGgYUx/aRzj0NzaNBBSxtMm48DnOeNQq
+NdpjZvekqqOEMLgc9/DiOLhiWsnC1kSwusPPqQJHbNpBE7TdSvRY2oYBc6mAZZlFFjaGoLOP
+ZxKkmWHpw9nZE+YsAHQ5+Te2lttRZFsSKFp+7mk3hI+NT0CdCkqqtUsq0TqeDz8+vDc3b776
+a1xD847DJDw9SI2ADmUW4RQIwIRPKnaCvMn7SQ04cGLlYq2LFVmSYzNXGstUCwUttKINa5rm
+1yxVBSQXiBhuBQ7REfURxV0jkynpOQOlIAcsE0gCPQqG3tUchLYIZiPbtOfZ4pPBSswxSVUJ
+lrMtyVL9U0NEJLZDukodn0pIcWjkRHUPkxC4pzekUEoR1IvbDs6DXCInCigGUstWIzGCWl2t
+mUyZbEaxglpS2xGYwS0utLmbaMqrNms3u6x+InLhtRLNsmWIyIWNVa0vWiSQS3KueUPHVBRv
+TqJgqPnPmGVoK8GRlg3kWSGLIkqQsXDIMCC0FRIahNwpS83hoqHii1qNIrQrZ4RA7PYfJgkj
+tmOKd6lSo0nVGQygvuVKsbS1cVKsYVjPyXavanlMrKg6YODkVUUJV7rt3bYnmWIROreOq6Rz
+Zmy6rcEBXiuqRTSMk2pIwpUywwySI7I/m7y5AARMVc9zkmCEGMG7UgGctRKJ8VJxE3OrL3qy
+4uVi5WLl+zm/ZW0UTQAc5v8mFi1s283p0LYht1PwXxfTLl/cUw9vvfUdZedOdNteVGMYxixj
+GMYxi0VGMYoxRjUY21oxtoxWMYtYxVXxXowCqwgKAUSwRQzJNTV/v/8f3/J739X7q/ZpKgw4
+bHm2Yf1/w/h5tH0w/qmQaXkOlbDHWUtHIpa1/4fq/u6dCH/f5bfmj5AdmLtdYbEPY8wKJ7Qv
+qfQGP7FvBzmuWG6SAUR+dh7v05IT9Ue69S1JxwyJJH798iDr+LgbD+tmZnbprWMrC1zZaabm
+/3zaC2VAC+XjsA72IKcxEkeQLEnJ+t27dG8q0h6nj5/vLSnqtzEJYscom8exf2+fj2G7ffkO
+lD+NOixqyQwvbA0E69vu1IhP3n54/g0c+N1jYP56dYRiQkISEFnYSi7BUQLrmvgq+C2V8rfJ
+/p5nW6RCREREMJCCIABICAAEAAAIAAAAIAAAAAAAAGYIJSI+bteJZ6ISIlLPR6enPjw8pw+D
+ROliPVKHxOujx48eLLuWKy7Y2xtjbG9hCRjbG5vFdgBDdAQeUVbr8Y8BKRTcap3HPkOkOAqh
+qzcYC5tuAQia01CasQZA5oA843Q+yGtNepMQQyuFFcrl60XOV0u322RchSLAIsAtiZXRaimn
+rWRNMqQNUdqKgbd6eCWG8dIT+V2dh3e+6ckS9OiWUsWtaK1FCorURPlC1EOlO2aMH0baDhUM
+oZZEtjFi1jxxLm6+O6667l1b9/VsqZrdgjcunBNFCVA0VaaTYUhDqflUlNNNp0rjErEkiVG5
+ZpVpojcMLFyKB7aqrJKbNJGRIUottttt2MH62yEuIkiJs8qOfj5R8+WLSKiRiRUVEUSR++C3
+RatJH7MD3gV7tMnduHBU6O6NNkiR1Z2m0DZGt5s13NJLqt3rrvm5yCSOVl3Xew0rcGjAsAF1
+CA96NOZpVJJYMMOHA9ehXEyvrCqMSDWofDL7/c5kk5Q5pGZIJ2pFNKXUO6NQP6FWKrYsxHBT
+5DU/1nc8goLiwDcnpYgyeDwYJmVbb3/X2Q9jrSy2HWd6eLcd9lisAVXW3ymrrJf4vh2Njb51
+mScTRxmhrgZXGUyNyyCnE3jYmJEkXvNa22suoI4pm5kaaSIC7grVJ2Pxk9Bk9s+6Hxm0mymy
+oyX4LE4K3Zi3YnzZn9fZMhpJudTRqFLIOEkMHJJ07UL5vTgkIfz8JMETsI5k/TI7O+PQ7bSI
+W+dkyEXUCOaaH9eqqNqyWEjtm3YkpYkdGQ/B/hN56xJvX3WKzJlpmMKVICaqjU3HLCaVVJtU
+ykhAGQI8hyUSyokULKB87FGWEtBNS6bqdqMR3EkO9QqgqwatZMSLUtRLUtMMjMVXOJnMa1+B
+c1yW61Y1cmUarUqlwSlFgkskUMJZ2gfkBzsAn94YrwQnriOal2jkEAVTQKzQi/AusIixCAgH
+54oJY2gXEexLE4lxQLeu6LfhhiE5XIqXiFmDCKmkVxEmIHTASkUvwEUNTALmESeHXoefnJZQ
+w5MTqJ+pzni7fOO4jAhsgCXObt34KaTcryiLSCWDv8dSVWkura8dmtbYZF0xR9Vaq63hODY+
+XST5gZmIiDwCDr1EPMU/EUr7zzPTYNQDNMkL0CufR02DFDTcsCJNUChNfQimJ8BM+Q+BRPKJ
+Y0j0R6/InZFVHWyK/a/ac9hxKBoRyV0h1ahNa3EDL61daujS7UBDu3cLAGgD60QJBOiVCJJG
+PS42ElTl8v/j/dzaj+5X7v31/8n9sfxz98+qdE0T6p/HP3z90+qfVPM9Q9PEFqiH6/sMNX4f
+L7NPslYi4UJNt+TQZmltvlBwPcVpQPOsPbPMDBgOgHQ+4hsQ9s/X7eEk4ClhUkjjOhZ0lwXF
+SYh11PS0fDUsMGwMsWFP1tkyPanvhtkOdQCj6uO9SRU6j1etHQFHwheroACXeIED4cKLhj1m
+DSnH/Txye43NSHCrLg5xaBQ1F+rTq7MuSfD0lkZO2Kzo55JQNr0wUtJGj7dUFGFGkBrFppSg
+tAXFbUbY5GJYYRYMiSI2qgJLEIXpb3A0hWSJUZZbbhf3ZEwbKZbVWWLF3rLTfEcSYhqOIsg2
+tttqEashJhZAwDlHmY96QjEN+oJAkCQIXQPzI/mczqUIih3DiCrSZIcCIBmkQOYUpPW7C1Yh
+tkmvHdWvFirmluTZNk2S9Zxt3BqyAbwdJEU45HYiIXDFQgrfQ5HNH5pJOSg4JH733GD1E+T3
+dnqSTcRKCttgHSnMlJgGWVJp42l8sKmQPMiuyHdI7xHFTDCRqOqTUevEInHSJnATIJimSvzD
+ATPaDIDBkAihlr3jYLMwFA5LAHI0oJsMMZI+GdvhJ4debuH+Q6koCRANSERu8BCoogSmYNQ0
+kHRtHX+aXVW87fW9204X1xyDp0af4zZJoKLpJTbUWJNEmSCkbJBSh6B+z3HYgYX6Utj0wcP7
+T00d98b2yva2B2KrBCSPmCnc3qbt4bFUBCSL6+hTwvs71K7+466O35CvLW72tcFWgVKl4Z96
+SfgkhckuGp2Fdtd32tdirQKlWwq7Xj18517jU4yjOpWwuZRT8GIecE2RL5TCZY1os00P6qbm
+JXiUesK+OHtRlHXw2MsPUhCHvIQgWQhYuWdMyB3COEDPTQOg5sEyOCbgGxhHPZQ6YI8lLzz1
+mrsO0RUZfr79b2vYFKc5lnG371pKdbddKIPZ7OtBZxMmZ82Z49J1288A3LJa10fUMJAWDpzF
+Aw3GaTmybg3jeLLz55CdzbTTdVurV4pJDaO6cGA5hPaCBFdhYAZbNxPjOST0khckuSFyS5IX
+JL9DWBQLeRRxuD6DuiqmYk+eK44VWIsRcdvdMaddcNUtdcaoH1Z3JO5IXJLSdy1E7l3ajK2H
+VHvkdcOcRsaj3T9a/DcvutYk73gUsw9BCdy4d3dJu1qciHQURnVNaRBhyxSRbVXOzpq/UK+n
+6j0+rUJJCRjbG5CTKDn4UZum3PNau1aq1VqYrUxWpitTFamGK1VqrVWpi7W3PaRooNakJNQk
+kJJCSQkY3PWlVd8DZb2evVuWpZq3wzuXm+DfM8eO+cAAAAAAAJAJDxzkgSBIEgSABIEgSBIE
+gSBIEgAAEgABIEgSBIBIEgEgSAABIEgAAAAAAAAAAAAAAHVc4He4cO+cAAAAAAAAO7quugAA
+kCQAAAAAAAkCQAAAJAkCQAAAAAAAAkCQAAAAAAAAABUi2NJk43TYlT/4+pApC9T19e4SToOH
+laKK1qQkkJNd5hmZCRjchJuiElwkwwxWphitTDHZuzuenG453OMb1CTYQkgcO1hmSFBIxvXz
+BZdsOtqrVWphhitTDHPXuNjL289d3d9e77fHjc8ddAAAAAABzx13currsAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJdd+ec
+5RskzaWbuve93z7b2+1jstTDDFaq1VqYrVWqtVamGGK1VqrUwwxWqtVaq1VqrVWqtTDDHNqY
+YYYYYYYYYYY661WtTDDFaq1MVqrVWphhhhitVamGGK1VqrVWqtTDDDFamGGK1VqYrVWqtTDD
+DFaq1MMMVqrVWqtVamGGGLns44444bnc8sMMMMMMMMMMMVqYYYrVWpitVaq1MMMMMMMMVqrU
+wwxWqtVaq1VqYYYYYrUwwxWqtTFaq1VqYYYYYYrVWphhitVaq1VqrUwwx5Tbr13XqwwwwxWp
+hhitVamK1VqrUwwwxWqtTDDFaq1VqrVWphjyfXruvVhhhitVamK1MVqrUwwwwwwwxWqtTDDF
+aq1VqrVWphhhi3c9PCHpeLsXgbV4oVlvoeLGscI1JFGpgbL166WEbqcFqVaSmrIcqLpREakJ
+jHBjZwtsqv3w6f4foo/JNvqPbDYB0IHgkioCd2zXQrW+FqnHJQOuKBPHCYxsVQEVUUHyPl8u
+XQUFl3AAhJcJLDaxmGZcJPp+zbbbtu9SakhS0209N68ao2149x0dbyEjG2N67CqDgJGouXs3
+tje6wwQRyyoGyXuXkx1oN7BDE3Udod3MYKOs0a9Fi1rXzrP9rm6DSsCQgRFKwAwUO8OYDzeI
+2oWi7wDfm8kdurzbcujSAb3QZtUOn8RS98AwlpUK78UkH3w28YSMhBSLIqQUqCl9hKoVSopG
+Qn2LEwjtZmZfTFakgsGpCOz4OfvrbxMEuhZuijoA0JzDjCEkhpL3BXXIzsJxkjJDjiedTZlO
+LbkWlVb97KDFUpOg19fKxa1scISE1IJVQkkYQZepIcHJPVw3P4HuhukSaKhH76hCbiQnBmaL
+rwHEZBCFM4w3tEraXSx2cnAcoVQGsrTnzMhaH8zqfgfOsWJNpakiX2HI29dVVAasT6ZZaHp1
+Onu1aTaWSRLjkbec1XaSEmgygr5AjlTZKKdZsiiBrx2zvXh83xkUbY2231d3bbkQkGtlqIGu
+uma10+b4yKNsbbb6u7tt+DejoLFVc5IVzbKL8WsGjZp7OfiFhyvPdOB4w750cHGbKVXS0yXg
+kHFCpDjZBqTi8kBNaabaQthLoQd5gu2POeTmcWmJU5uOspoS22DzVWoXIImHa4qgqqqPHYT/
+RiRcNNJylxYVRxVDOwybtaxMGqoNUb8Ntpttt0BfUCAVlCoL2XsREaAAHKt69JWuugJADvcu
+Iid1zS1nAJynAAAnKy4iI11eiCOdAKVKVK13Sm2nAAAkAAADlc4jERgEt1bvyAAAAAAAAABA
+nVeLVzWEmb22224SM0Yb1GohrI1Voi1l12BIAdVy1KXBlytyVd98oqXhCbvwAqVkORzjInLi
+WlpaVo1hhmiVQOA4OFnSEkkhj1O0vF3vI8olKUiNY1RjMWCKd72/57KSIq6wQgG8OOUb50RS
+TB4WRwi2VukyJsSJgqLXmuyxkmKUlgySFClkYMSMkLlCDwCr8WClIroTMMwUKUxToryh9HvR
+VixYtkfhZ0Q68JIkjEEyIyxFsRbEW8x71mJUKSxIWJG8hO7Uwn9sT0JgewmE5pCGsRHE7kFi
+ugBNW9LDrHWqvfoMMd4ZpI9vKGllwvEgRULZAGNoFuckkTTd9KkkN9m3YPCUUTjTr2g2FQYg
+3vrDYD5kenJSwuoICzbi7LxANLQfZIWVC/ICtuQYh1WO/gwjURES0ORgfrB3iocdoYrCLCLx
+CipOuhqTRZTfvbR8OJs3jgBw7+I2kGtWyLVaG0deZLqwySNSQ/cySYGCG/glgLlC6s0xFAqp
+ARd6xRSJqOHREkSQPUSoHqCInFYp1HAezMeyur60sekDxQjzqEwm1SeVTnQ/IoJ1hwYqfgCB
+bapmpqiJGCiadcgnI6GvjHBD6/ASR/2qnQjz2q/fNRENBrhqqRK9dl5w2OwLguk9xcYjE7AX
+WVdb4JvTW+WjXvc4AAAFYAACQAALQBIAc5wCwAAaylAEgAAAAAASAABIAAEU5187p3rgAA1N
+XufH4668ed0lzzXXXToLRrPl+X9LMDGYN4TxpugO1vE4IQwBtz2Z+O2y7vccal5U9+hxIIGL
+4h0DreznFEALBLLRJPAqTaK4jqR9hXzHQmBuIgmCEPKuUWUUtRZVIRUuFixcFmgVuHlXxlGb
+Ce8GG8wNB+JQT+CgmXkD1G1MSbSClQFkBCMRYtEkhCUMMMRTDeT3bJBwhuk+rZ/ynCySboJG
+G9kdyHej2/yQqwfBhmkJUUMHRcDiWdYB6UnO1VNDVO0qmwyRo9ZOOgkLZBG9SAssjdbCKH9h
+Y9+zGKLgEQHIIojAggXVSGLSKFBECJBFRzXSnvSR+Dtk99I+j7VREQ6ZJUREYPF4hEbWWir+
+xZs3xGiJIaPuEJaLIkhoWAGx/n30H4HR0sK2X0FgcNBsqgHXkXeFdLaNSsECR8W3aYRVgMaD
+dfVIhJINrZQaP3RlJNsW7ZvTZXMTaNkWJLEk1SJ4C1QWFsAuoLIthYi5JsaE0XkkkAAAAAAA
+AySRkkiLksSyQUpcQsoWHbq1maPGJHQKI/Gek3fuuVC5lyZi5jJkcCb9H0ukcGog7E2SOEgk
+b1JIMYAU8wQYxUhEAMlN5yew8K9QJrRPmEJ5EUT/+LuSKcKEhO9qsPg=
+--------------070205070006010306010303--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
