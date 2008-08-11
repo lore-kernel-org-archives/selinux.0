@@ -1,11 +1,11 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BEJqaN009415
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:19:52 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BEMGIQ010028
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:22:16 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BEJpPn013687
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:19:52 GMT
-Message-ID: <48A04A84.6000107@redhat.com>
-Date: Mon, 11 Aug 2008 10:19:48 -0400
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BEMFPn014784
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:22:15 GMT
+Message-ID: <48A04B14.8050909@redhat.com>
+Date: Mon, 11 Aug 2008 10:22:12 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
@@ -114,14 +114,25 @@ Christopher J. PeBenito wrote:
 >> For every type, which is nuts.
 > 
 > It is nuts because I don't think all that access should be provided.
-Then fine pick another name. The idea is an admin controls this type
-label.  admin_pattern($1, http_sys_content_t)
-
 > Neglecting that, "manage" in refpolicy does not imply any relabeling
 > permissions.  Also the second and third blocks could be merged with
 > relabel_*_pattern().
 > 
 
+define(`admin_pattern',`
+        manage_dirs_pattern($1,$2,$2)
+        manage_files_pattern($1,$2,$2)
+        manage_lnk_files_pattern($1,$2,$2)
+        manage_fifo_files_pattern($1,$2,$2)
+        manage_sock_files_pattern($1,$2,$2)
+
+        relabel_dirs_pattern($1,$2,$2)
+        relabel_files_pattern($1,$2,$2)
+        relabel_lnk_files_pattern($1,$2,$2)
+        relabel_fifo_files_pattern($1,$2,$2)
+        relabel_sock_files_pattern($1,$2,$2)
+
+')
 
 --
 This message was distributed to subscribers of the selinux mailing list.
