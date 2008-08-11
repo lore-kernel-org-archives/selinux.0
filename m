@@ -1,11 +1,11 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BEFEex008379
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:15:14 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BEJqaN009415
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:19:52 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BEFDPn012477
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:15:13 GMT
-Message-ID: <48A04969.5020903@redhat.com>
-Date: Mon, 11 Aug 2008 10:15:05 -0400
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BEJpPn013687
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:19:52 GMT
+Message-ID: <48A04A84.6000107@redhat.com>
+Date: Mon, 11 Aug 2008 10:19:48 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>
@@ -114,18 +114,13 @@ Christopher J. PeBenito wrote:
 >> For every type, which is nuts.
 > 
 > It is nuts because I don't think all that access should be provided.
+Then fine pick another name. The idea is an admin controls this type
+label.  admin_pattern($1, http_sys_content_t)
+
 > Neglecting that, "manage" in refpolicy does not imply any relabeling
 > permissions.  Also the second and third blocks could be merged with
 > relabel_*_pattern().
 > 
-If I am the admin of the httpd domain, I should be able to change the
-context of any file I control to any label that I control.  I need to be
-able to change httpd_sys_content_t to httpd_sys_script_exec_t for example.
-
-Without the relabel, there is no way for the admin to even create a lot
-of the files with the correct context in the first place unless there is
-a directory with that context.
-
 
 
 --
