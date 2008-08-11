@@ -1,53 +1,69 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BMKNT1016923
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 18:20:23 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BMKNKW005680
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 22:20:23 GMT
-Message-ID: <48A0BAE4.3080001@redhat.com>
-Date: Mon, 11 Aug 2008 18:19:16 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BMO0mr017509
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 18:24:00 -0400
+Received: from g5t0006.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BMNlUN004911
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 22:23:47 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v2 1/7] selinux: Fix a problem in
+	security_netlbl_sid_to_secattr()
+To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Date: Mon, 11 Aug 2008 18:23:56 -0400
+Message-ID: <20080811222356.22551.77379.stgit@flek.lan>
+In-Reply-To: <20080811212640.22551.17728.stgit@flek.lan>
+References: <20080811212640.22551.17728.stgit@flek.lan>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Kerberos Patch
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Currently when SELinux fails to allocate memory in
+security_netlbl_sid_to_secattr() the NetLabel LSM domain field is set to
+NULL which triggers the default NetLabel LSM domain mapping which may not
+always be the desired mapping.  This patch fixes this by returning an error
+when the kernel is unable to allocate memory.  This could result in more
+failures on a system with heavy memory pressure but it is the "correct"
+thing to do.
 
-http://people.fedoraproject.org/~dwalsh/SELinux/F10/services_kerberos.patch
+Signed-off-by: XXX
+---
 
+ security/selinux/ss/services.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
-kpropd policy
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index b52f923..5b7ecc1 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2788,7 +2788,7 @@ netlbl_secattr_to_sid_return_cleanup:
+  */
+ int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
+ {
+-	int rc = -ENOENT;
++	int rc;
+ 	struct context *ctx;
+ 
+ 	if (!ss_initialized)
+@@ -2796,10 +2796,16 @@ int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
+ 
+ 	read_lock(&policy_rwlock);
+ 	ctx = sidtab_search(&sidtab, sid);
+-	if (ctx == NULL)
++	if (ctx == NULL) {
++		rc = -ENOENT;
+ 		goto netlbl_sid_to_secattr_failure;
++	}
+ 	secattr->domain = kstrdup(policydb.p_type_val_to_name[ctx->type - 1],
+ 				  GFP_ATOMIC);
++	if (secattr->domain == NULL) {
++		rc = -ENOMEM;
++		goto netlbl_sid_to_secattr_failure;
++	}
+ 	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY;
+ 	mls_export_netlbl_lvl(ctx, secattr);
+ 	rc = mls_export_netlbl_cat(ctx, secattr);
 
-Had to add a lot of policy to handle host_rcache_t files.
-
-
-Kerberos library, has builtin SELinux awareness that causes it to change
-the context of files it creates to the system default labeling.
-
-In general case we need to dontaudit calls of setfscreate and validation
-of the file context
-
-dns is done outside of kerberos and should not be allowed within the domain.
-
-For domains that create keytabs we need a template to allow them to
-label them properly.
-
-Allow userdomain and login programs to connect to kerberos master ports
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkiguuQACgkQrlYvE4MpobOcXwCfRI116zquF4YFWpkNr0Mr9ikp
-X74AnijDJIgAvPMuwDWpO9f9TMDYCbI/
-=YjwO
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
