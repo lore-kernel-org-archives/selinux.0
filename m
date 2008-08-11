@@ -1,69 +1,107 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BMO0mr017509
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 18:24:00 -0400
-Received: from g5t0006.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BMNlUN004911
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 22:23:47 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BMO1cc017512
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 18:24:01 -0400
+Received: from g5t0009.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7BMNmUN004915
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 22:23:48 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v2 1/7] selinux: Fix a problem in
-	security_netlbl_sid_to_secattr()
+Subject: [RFC PATCH v2 0/7] Labeled networking patches for 2.6.28
 To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
         linux-security-module@vger.kernel.org
-Date: Mon, 11 Aug 2008 18:23:56 -0400
-Message-ID: <20080811222356.22551.77379.stgit@flek.lan>
-In-Reply-To: <20080811212640.22551.17728.stgit@flek.lan>
-References: <20080811212640.22551.17728.stgit@flek.lan>
+Date: Mon, 11 Aug 2008 18:23:49 -0400
+Message-ID: <20080811212640.22551.17728.stgit@flek.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Currently when SELinux fails to allocate memory in
-security_netlbl_sid_to_secattr() the NetLabel LSM domain field is set to
-NULL which triggers the default NetLabel LSM domain mapping which may not
-always be the desired mapping.  This patch fixes this by returning an error
-when the kernel is unable to allocate memory.  This could result in more
-failures on a system with heavy memory pressure but it is the "correct"
-thing to do.
+An updated patchset that includes some RCU/locking fixes from Paul McKenney,
+a tweak to the SELinux socket security structure to cache the NetLabel
+security attribute structure (last patch, not present in previous version),
+as well as some small other fixes I found over the weekend.  The patches
+are still pretty rough around the edges but they are getting there, once 
+again, any comments or feedback you have are greatly appreciated.
 
-Signed-off-by: XXX
----
+I've updated the git tree, no changes have been made to the userspace tools
+since last posting.
 
- security/selinux/ss/services.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ * git://git.infradead.org/users/pcmoore/lblnet-2.6_testing
+ * http://netlabel.svn.sf.net/viewvc/netlabel/netlabel_tools/branches/addrsel
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index b52f923..5b7ecc1 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2788,7 +2788,7 @@ netlbl_secattr_to_sid_return_cleanup:
-  */
- int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
- {
--	int rc = -ENOENT;
-+	int rc;
- 	struct context *ctx;
- 
- 	if (!ss_initialized)
-@@ -2796,10 +2796,16 @@ int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
- 
- 	read_lock(&policy_rwlock);
- 	ctx = sidtab_search(&sidtab, sid);
--	if (ctx == NULL)
-+	if (ctx == NULL) {
-+		rc = -ENOENT;
- 		goto netlbl_sid_to_secattr_failure;
-+	}
- 	secattr->domain = kstrdup(policydb.p_type_val_to_name[ctx->type - 1],
- 				  GFP_ATOMIC);
-+	if (secattr->domain == NULL) {
-+		rc = -ENOMEM;
-+		goto netlbl_sid_to_secattr_failure;
-+	}
- 	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY;
- 	mls_export_netlbl_lvl(ctx, secattr);
- 	rc = mls_export_netlbl_cat(ctx, secattr);
+As promised, I'm also including some instructions on how to configure the
+new functionality as well.  The first step is to download and build the
+"addrsel" branch of the netlabel_tools package, you can do that with the
+following commands:
 
+ # svn co https://netlabel.svn.sourceforge.net/svnroot/netlabel netlabel
+ # cd netlabel/netlabel_tools/branches/addrsel
+ # make
+
+Then you need to use the netlabelctl tool you just built to configure the
+NetLabel subsystem.  The following commands create a CIPSO DOI and use it to
+label traffic sent to 127.0.0.1 by ping, aka the ping_t domain, all other
+ping traffic is unlabeled.  Remember you _must_ have a catch-all address,
+i.e. 0.0.0.0/0, configured for each domain that you configure to use the new
+address selectors; failure to do so will cause unmatched traffic to be
+dropped, similar to what would happen if you didn't have a domain mapping
+configured under the original configuration scheme.  In general, think of the
+catch-all addresses, 0.0.0.0/0 and ::/0, as the "DEFAULT" domain mapping.
+
+[NOTE: in the process of writing the examples below I found a bug in the
+       'netlabelctl cipsov4 del ...' operation, I'm looking into it right now
+       but in the meantime only add :) ]
+
+ # ./netlabelctl cipsov4 add pass doi:1 tags:1,2,5
+ # ./netlabelctl -p cipsov4 list doi:1
+ Configured CIPSOv4 mapping (DOI = 1)
+  tags (3):
+    RESTRICTED BITMAP
+    ENUMERATED
+    RANGED
+ # ./netlabelctl -p map list
+ Configured NetLabel domain mappings (1)
+  domain: DEFAULT
+    protocol: UNLABELED
+ # ./netlabelctl map add domain:ping_t protocol:unlbl address:0.0.0.0/0
+ # ./netlabelctl map add domain:ping_t protocol:cipsov4,1 address:127.0.0.1
+ # ./netlabelctl -p map list
+ Configured NetLabel domain mappings (2)
+  domain: "ping_t"
+    address: 127.0.0.1/32
+     protocol: CIPSOv4, DOI = 1
+    address: 0.0.0.0/0
+     protocol: UNLABELED
+  domain: DEFAULT
+    protocol: UNLABELED
+
+We can test this by pinging the host's address where we don't see any
+additional IP options, in other words an unlabeled packet ...
+
+ # ping -c 1 bob.lan
+ PING bob.lan (192.168.0.169) 56(84) bytes of data.
+ 64 bytes from bob.lan (192.168.0.169): icmp_seq=1 ttl=64 time=0.061 ms
+
+ --- bob.lan ping statistics ---
+ 1 packets transmitted, 1 received, 0% packet loss, time 0ms
+ rtt min/avg/max/mdev = 0.061/0.061/0.061/0.000 ms
+
+... however, if we ping localhost we can see the telltale "unknown option 86"
+that tells us a CIPSO option is present on the packet.
+
+ # ping -c 1 localhost
+ PING localhost.localdomain (127.0.0.1) 56(84) bytes of data.
+ 64 bytes from localhost.localdomain (127.0.0.1): icmp_seq=1 ttl=64 time=0.056 ms
+ unknown option 86
+
+ --- localhost.localdomain ping statistics ---
+ 1 packets transmitted, 1 received, 0% packet loss, time 0ms
+ rtt min/avg/max/mdev = 0.056/0.056/0.056/0.000 ms
+
+Tada!
+
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
