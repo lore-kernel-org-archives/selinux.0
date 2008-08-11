@@ -1,62 +1,81 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BE9wk7007228
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:09:59 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m7BE9lec011022
-	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:09:47 GMT
-Subject: Re: [patch 28/35] iscsi policy update
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7BE9oWO007180
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 10:09:50 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m7BE9nPn010601
+	for <selinux@tycho.nsa.gov>; Mon, 11 Aug 2008 14:09:49 GMT
+Subject: Re: [patch 34/35] qmail policy update
 From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: david@hardeman.nu
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20080804123739.200605175@hardeman.nu>
+In-Reply-To: <20080804123740.137182729@hardeman.nu>
 References: <20080804123456.679565839@hardeman.nu>
-	 <20080804123739.200605175@hardeman.nu>
+	 <20080804123740.137182729@hardeman.nu>
 Content-Type: text/plain
-Date: Mon, 11 Aug 2008 10:09:02 -0400
-Message-Id: <1218463742.16773.24.camel@gorn>
+Date: Mon, 11 Aug 2008 10:08:52 -0400
+Message-Id: <1218463732.16773.22.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Mon, 2008-08-04 at 14:35 +0200, david@hardeman.nu wrote:
-> plain text document attachment (policy_modules_system_iscsi.patch)
-> RH updates to the iscsi module, none of which seem controversial...
+> plain text document attachment (policy_modules_services_qmail.patch)
+> Parts of the RH changes to the qmail module, mostly related to script
+> execution and logging...
 
 Merged.
 
-> Index: refpolicy/policy/modules/system/iscsi.fc
+> Index: refpolicy/policy/modules/services/qmail.te
 > ===================================================================
-> --- refpolicy.orig/policy/modules/system/iscsi.fc	2008-07-19 19:15:43.000000000 +0200
-> +++ refpolicy/policy/modules/system/iscsi.fc	2008-08-03 21:29:52.000000000 +0200
-> @@ -1,5 +1,5 @@
->  /sbin/iscsid		--	gen_context(system_u:object_r:iscsid_exec_t,s0)
+> --- refpolicy.orig/policy/modules/services/qmail.te	2008-08-03 16:47:00.000000000 +0200
+> +++ refpolicy/policy/modules/services/qmail.te	2008-08-03 22:57:55.000000000 +0200
+> @@ -14,7 +14,7 @@
+>  qmail_child_domain_template(qmail_clean, qmail_start_t)
 >  
-> -/var/lib/iscsi(/.*)?	--	gen_context(system_u:object_r:iscsi_var_lib_t,s0)
-> -/var/lock/iscsi(/.*)?	--	gen_context(system_u:object_r:iscsi_lock_t,s0)
-> +/var/lib/iscsi(/.*)?		gen_context(system_u:object_r:iscsi_var_lib_t,s0)
-> +/var/lock/iscsi(/.*)?		gen_context(system_u:object_r:iscsi_lock_t,s0)
->  /var/run/iscsid\.pid	--	gen_context(system_u:object_r:iscsi_var_run_t,s0)
-> Index: refpolicy/policy/modules/system/iscsi.te
-> ===================================================================
-> --- refpolicy.orig/policy/modules/system/iscsi.te	2008-07-19 19:15:43.000000000 +0200
-> +++ refpolicy/policy/modules/system/iscsi.te	2008-08-03 21:29:52.000000000 +0200
-> @@ -29,7 +29,7 @@
->  #
+>  type qmail_etc_t;
+> -files_type(qmail_etc_t)
+> +files_config_file(qmail_etc_t)
 >  
->  allow iscsid_t self:capability { dac_override ipc_lock net_admin sys_nice sys_resource };
-> -allow iscsid_t self:process { setrlimit setsched };
-> +allow iscsid_t self:process { setrlimit setsched signal };
->  allow iscsid_t self:fifo_file { read write };
->  allow iscsid_t self:unix_stream_socket { create_stream_socket_perms connectto };
->  allow iscsid_t self:unix_dgram_socket create_socket_perms;
-> @@ -63,6 +63,7 @@
->  corenet_tcp_sendrecv_all_ports(iscsid_t)
->  corenet_tcp_connect_http_port(iscsid_t)
->  corenet_tcp_connect_iscsi_port(iscsid_t)
-> +corenet_tcp_connect_isns_port(iscsid_t)
+>  type qmail_exec_t;
+>  files_type(qmail_exec_t)
+> @@ -85,6 +85,8 @@
+>  libs_use_ld_so(qmail_inject_t)
+>  libs_use_shared_libs(qmail_inject_t)
 >  
->  dev_rw_sysfs(iscsid_t)
+> +miscfiles_read_localization(qmail_inject_t)
+> +
+>  qmail_read_config(qmail_inject_t)
 >  
+>  ########################################
+> @@ -106,11 +108,17 @@
+>  
+>  kernel_read_system_state(qmail_local_t)
+>  
+> +corecmd_exec_bin(qmail_local_t)
+>  corecmd_exec_shell(qmail_local_t)
+> +can_exec(qmail_local_t, qmail_local_exec_t)
+>  
+>  files_read_etc_files(qmail_local_t)
+>  files_read_etc_runtime_files(qmail_local_t)
+>  
+> +auth_use_nsswitch(qmail_local_t)
+> +
+> +logging_send_syslog_msg(qmail_local_t)
+> +
+>  mta_append_spool(qmail_local_t)
+>  
+>  qmail_domtrans_queue(qmail_local_t)
+> @@ -155,6 +163,10 @@
+>  manage_files_pattern(qmail_queue_t, qmail_spool_t, qmail_spool_t)
+>  rw_fifo_files_pattern(qmail_queue_t, qmail_spool_t, qmail_spool_t)
+>  
+> +corecmd_exec_bin(qmail_queue_t)
+> +
+> +logging_send_syslog_msg(qmail_queue_t)
+> +
+>  optional_policy(`
+>  	daemontools_ipc_domain(qmail_queue_t)
+>  ')
 > 
 -- 
 Chris PeBenito
