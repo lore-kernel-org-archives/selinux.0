@@ -1,55 +1,125 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7DGM5wC013243
-	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 12:22:05 -0400
-Received: from g4t0017.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7DGM4aC023962
-	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 16:22:05 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [ANNOUNCE][RFC] sVirt: Integrating SELinux and Linux-based virtualization
-Date: Wed, 13 Aug 2008 12:21:44 -0400
-Cc: Russell Coker <russell@coker.com.au>,
-        Casey Schaufler <casey@schaufler-ca.com>, libvir-list@redhat.com,
-        selinux@tycho.nsa.gov
-References: <alpine.LRH.1.10.0808111201430.4083@tundra.namei.org> <200808121557.50355.russell@coker.com.au> <alpine.LRH.1.10.0808121906120.13656@tundra.namei.org>
-In-Reply-To: <alpine.LRH.1.10.0808121906120.13656@tundra.namei.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200808131221.44201.paul.moore@hp.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7DGkhRX018781
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 12:46:43 -0400
+Received: from fk-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7DGkOW3024990
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 16:46:25 GMT
+Received: by fk-out-0910.google.com with SMTP id 18so40931fks.2
+        for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 09:46:37 -0700 (PDT)
+Subject: Re: [REFPOLICY PATCH] Added policy module for the oident daemon.
+From: Dominick Grift <domg472@gmail.com>
+To: Chris PeBenito <pebenito@gentoo.org>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <1218632939.5144.10.camel@defiant.pebenito.net>
+References: <1217077669.8496.2.camel@sulphur.notebook.internal>
+	 <1218632939.5144.10.camel@defiant.pebenito.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-S3WKdx7pNfrXnuyYPfLZ"
+Date: Wed, 13 Aug 2008 18:46:35 +0200
+Message-Id: <1218645995.17454.2.camel@sulphur.notebook.internal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 12 August 2008 5:57:19 am James Morris wrote:
-> On Tue, 12 Aug 2008, Russell Coker wrote:
-> > One thing that should be noted is the labelled network benefits. 
-> > If you had several groups of virtual servers running at different
-> > levels and wanted to prevent information leaks then having SE Linux
-> > contexts and labelled networking could make things a little easier.
-> >
-> > I have had some real challenges in managing firewall rules for Xen
-> > servers. My general practice is to try and make sure that there is
-> > no real need for firewalls between hosts on the same hardware (not
-> > that I want it this way - it's what technical and management issues
-> > force me to).
-> >
-> > So for example if I have an ISP Xen server running virtual machines
-> > for a number of organisations I make sure that they are either all
-> > within a similar trust boundary (IE affiliated groups) or all
-> > mutually untrusting (IE other IP addresses in the same net-block
-> > are treated the same as random hosts on the net).
->
-> Thanks for the insights -- we expect to address the virtual
-> networking aspect in some way.
 
-I think we could do some pretty cool things here with the new, well 
-2.6.25 new, network ingress/egress controls and restricting VM 
-instances to specific interfaces and/or networks.  However, we would 
-need to settle the basic VM label management issues first.
+--=-S3WKdx7pNfrXnuyYPfLZ
+Content-Type: multipart/mixed; boundary="=-WbA2IWPT/3se7vD8I4lw"
 
--- 
-paul moore
-linux @ hp
+
+--=-WbA2IWPT/3se7vD8I4lw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, 2008-08-13 at 09:08 -0400, Chris PeBenito wrote:
+> On Sat, 2008-07-26 at 15:07 +0200, Dominick Grift wrote:
+> > Signed-off-by: Dominick Grift <domg472@gmail.com>
+>=20
+> The patch looks line-wrapped.  Also a couple comments inline.
+
+Attached are the modifications.
+
+--=20
+Dominick Grift <domg472@gmail.com>
+
+--=-WbA2IWPT/3se7vD8I4lw
+Content-Disposition: attachment; filename=oidentd.patch.txt
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=oidentd.patch.txt; charset=utf-8
+
+ZGlmZiAtLWdpdCBhL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL29pZGVudGQuZmMgYi9wb2xpY3kv
+bW9kdWxlcy9zZXJ2aWNlcy9vaWRlbnRkLmZjDQpuZXcgZmlsZSBtb2RlIDEwMDY0NA0KaW5kZXgg
+MDAwMDAwMC4uMzI3Yjg5Ng0KLS0tIC9kZXYvbnVsbA0KKysrIGIvcG9saWN5L21vZHVsZXMvc2Vy
+dmljZXMvb2lkZW50ZC5mYw0KQEAgLTAsMCArMSw3IEBADQorDQorL2V0Yy9vaWRlbnRkXC5jb25m
+CQktLQlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3RfcjpvaWRlbnRkX2NvbmZpZ190LCBzMCkN
+CisvZXRjL29pZGVudGRfbWFzcVwuY29uZgktLQlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3Rf
+cjpvaWRlbnRkX2NvbmZpZ190LCBzMCkNCisNCisvdXNyL3NiaW4vb2lkZW50ZAkJLS0JZ2VuX2Nv
+bnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6b2lkZW50ZF9leGVjX3QsIHMwKQ0KKw0KK0hPTUVfRElS
+L1wub2lkZW50ZC5jb25mCQlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3RfcjpvaWRlbnRkX2hv
+bWVfdCwgczApDQpkaWZmIC0tZ2l0IGEvcG9saWN5L21vZHVsZXMvc2VydmljZXMvb2lkZW50ZC5p
+ZiBiL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL29pZGVudGQuaWYNCm5ldyBmaWxlIG1vZGUgMTAw
+NjQ0DQppbmRleCAwMDAwMDAwLi5lMGFkMzRjDQotLS0gL2Rldi9udWxsDQorKysgYi9wb2xpY3kv
+bW9kdWxlcy9zZXJ2aWNlcy9vaWRlbnRkLmlmDQpAQCAtMCwwICsxLDExIEBADQorIyMgPHN1bW1h
+cnk+U0VMaW51eCBwb2xpY3kgZm9yIE9pZGVudCBkYWVtb24uPC9zdW1tYXJ5Pg0KKyMjIDxkZXNj
+Pg0KKyMjCTxwPg0KKyMjCU9pZGVudCBkYWVtb24gaXMgYSBzZXJ2ZXIgdGhhdCBpbXBsZW1lbnRz
+IHRoZSBUQ1AvSVANCisjIwlzdGFuZGFyZCBJREVOVCB1c2VyIGlkZW50aWZpY2F0aW9uIHByb3Rv
+Y29sIGFzDQorIyMJc3BlY2lmaWVkIGluIHRoZSBSRkMgMTQxMyBkb2N1bWVudC4NCisjIwk8L3A+
+DQorIyMgPC9kZXNjPg0KKw0KKw0KKw0KZGlmZiAtLWdpdCBhL3BvbGljeS9tb2R1bGVzL3NlcnZp
+Y2VzL29pZGVudGQudGUgYi9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9vaWRlbnRkLnRlDQpuZXcg
+ZmlsZSBtb2RlIDEwMDY0NA0KaW5kZXggMDAwMDAwMC4uMDRkOGVlMg0KLS0tIC9kZXYvbnVsbA0K
+KysrIGIvcG9saWN5L21vZHVsZXMvc2VydmljZXMvb2lkZW50ZC50ZQ0KQEAgLTAsMCArMSw3MSBA
+QA0KKw0KK3BvbGljeV9tb2R1bGUob2lkZW50ZCwgMC4wLjEpIA0KKw0KKyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCisjDQorIyBEZWNsYXJhdGlvbnMNCisjDQorDQor
+IyMgPGRlc2M+DQorIyMgPHA+DQorIyMgQWxsb3cgT2lkZW50IGRhZW1vbiB0byByZWFkDQorIyMg
+dW5wcml2aWxlZ2VkIHVzZXIgaG9tZSBjb250ZW50IGZpbGVzLg0KKyMjIDwvcD4NCisjIyA8L2Rl
+c2M+DQorDQorZ2VuX3R1bmFibGUob2lkZW50ZF9yZWFkX3VucHJpdmlsZWdlZF91c2VyX2hvbWVf
+Y29udGVudF9maWxlcywgZmFsc2UpDQorDQordHlwZSBvaWRlbnRkX3Q7DQordHlwZSBvaWRlbnRk
+X2V4ZWNfdDsNCitpbml0X2RhZW1vbl9kb21haW4ob2lkZW50ZF90LCBvaWRlbnRkX2V4ZWNfdCkN
+CisNCit0eXBlIG9pZGVudGRfY29uZmlnX3Q7DQorZmlsZXNfY29uZmlnX2ZpbGUob2lkZW50ZF9j
+b25maWdfdCkNCisNCit0eXBlIG9pZGVudGRfaG9tZV90Ow0KK2ZpbGVzX3BvbHlfbWVtYmVyKG9p
+ZGVudGRfaG9tZV90KQ0KK3VzZXJkb21fdXNlcl9ob21lX2NvbnRlbnQodXNlciwgb2lkZW50ZF9o
+b21lX3QpDQorDQorIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0KKyMN
+CisjIFBvbGljeQ0KKyMNCithbGxvdyBvaWRlbnRkX3Qgc2VsZjpjYXBhYmlsaXR5IHsgc2V0dWlk
+IHNldGdpZCB9Ow0KK2FsbG93IG9pZGVudGRfdCBzZWxmOm5ldGxpbmtfcm91dGVfc29ja2V0IHsg
+d3JpdGUgZ2V0YXR0ciByZWFkIGJpbmQgY3JlYXRlIG5sbXNnX3JlYWQgfTsNCithbGxvdyBvaWRl
+bnRkX3Qgc2VsZjpuZXRsaW5rX3RjcGRpYWdfc29ja2V0IHsgd3JpdGUgcmVhZCBjcmVhdGUgbmxt
+c2dfcmVhZCB9Ow0KK2FsbG93IG9pZGVudGRfdCBzZWxmOnRjcF9zb2NrZXQgeyBzZXRvcHQgcmVh
+ZCBiaW5kIGNyZWF0ZSBhY2NlcHQgd3JpdGUgZ2V0YXR0ciBsaXN0ZW4gfTsNCithbGxvdyBvaWRl
+bnRkX3Qgc2VsZjp1ZHBfc29ja2V0IHsgd3JpdGUgcmVhZCBjcmVhdGUgY29ubmVjdCBnZXRhdHRy
+IH07DQorYWxsb3cgb2lkZW50ZF90IHNlbGY6dW5peF9kZ3JhbV9zb2NrZXQgeyBjcmVhdGUgY29u
+bmVjdCB9Ow0KKw0KK2FsbG93IG9pZGVudGRfdCBvaWRlbnRkX2NvbmZpZ190OmZpbGUgcmVhZF9m
+aWxlX3Blcm1zOw0KKw0KK2FsbG93IG9pZGVudGRfdCBvaWRlbnRkX2hvbWVfdDpmaWxlIHJlYWRf
+ZmlsZV9wZXJtczsNCisNCitjb3JlbmV0X2FsbF9yZWN2ZnJvbV91bmxhYmVsZWQob2lkZW50ZF90
+KQ0KK2NvcmVuZXRfYWxsX3JlY3Zmcm9tX25ldGxhYmVsKG9pZGVudGRfdCkNCitjb3JlbmV0X3Rj
+cF9zZW5kcmVjdl9hbGxfaWYob2lkZW50ZF90KQ0KK2NvcmVuZXRfdGNwX3NlbmRyZWN2X2FsbF9u
+b2RlcyhvaWRlbnRkX3QpDQorY29yZW5ldF90Y3BfYmluZF9hbGxfbm9kZXMob2lkZW50ZF90KQ0K
+K2NvcmVuZXRfdGNwX2JpbmRfYXV0aF9wb3J0KG9pZGVudGRfdCkNCisNCitmaWxlc19yZWFkX2V0
+Y19maWxlcyhvaWRlbnRkX3QpDQorDQora2VybmVsX3JlYWRfa2VybmVsX3N5c2N0bHMob2lkZW50
+ZF90KQ0KK2tlcm5lbF9yZWFkX25ldHdvcmtfc3RhdGUob2lkZW50ZF90KQ0KK2tlcm5lbF9yZWFk
+X25ldHdvcmtfc3RhdGVfc3ltbGlua3Mob2lkZW50ZF90KQ0KK2tlcm5lbF9yZWFkX3N5c2N0bChv
+aWRlbnRkX3QpDQorDQorbGlic191c2VfbGRfc28ob2lkZW50ZF90KQ0KK2xpYnNfdXNlX3NoYXJl
+ZF9saWJzKG9pZGVudGRfdCkNCisNCitsb2dnaW5nX3NlbmRfc3lzbG9nX21zZyhvaWRlbnRkX3Qp
+DQorDQorbWlzY2ZpbGVzX3JlYWRfbG9jYWxpemF0aW9uKG9pZGVudGRfdCkNCisNCitzeXNuZXRf
+cmVhZF9jb25maWcob2lkZW50ZF90KQ0KKw0KK3VzZXJkb21fc2VhcmNoX3VzZXJfaG9tZV9kaXJz
+KHVzZXIsIG9pZGVudGRfaG9tZV90KQ0KKw0KK3R1bmFibGVfcG9saWN5KGBvaWRlbnRkX3JlYWRf
+dW5wcml2aWxlZ2VkX3VzZXJfaG9tZV9jb250ZW50X2ZpbGVzJywgYA0KKwl1c2VyZG9tX3JlYWRf
+dW5wcml2X3VzZXJzX2hvbWVfY29udGVudF9maWxlcyhvaWRlbnRkX3QpDQorJykNCg==
+
+
+--=-WbA2IWPT/3se7vD8I4lw--
+
+--=-S3WKdx7pNfrXnuyYPfLZ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkijD+EACgkQL00QnzrVtlzy2QCfcGlkvmT+17ucrXAkj/+rT9w9
+S1cAn12ZLseRMxHdWd/O3p+H29yOrIkL
+=sdc3
+-----END PGP SIGNATURE-----
+
+--=-S3WKdx7pNfrXnuyYPfLZ--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
