@@ -1,97 +1,59 @@
-Message-ID: <48A276D2.1050303@ak.jp.nec.com>
-Date: Wed, 13 Aug 2008 14:53:22 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
-MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org, paul.moore@hp.com,
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7D7Cxmk024835
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 03:12:59 -0400
+Received: from palpatine.hardeman.nu (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7D7Cjt8006831
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 07:12:45 GMT
+Message-ID: <37933.145.64.134.222.1218611576.squirrel@www.hardeman.nu>
+In-Reply-To: <660E036C-3778-4D06-B32F-26CFC8D36603@redhat.com>
+References: <C1DF76B68C82E64590F9448D012FB21884F567@exchange.afccc.mil>
+    <660E036C-3778-4D06-B32F-26CFC8D36603@redhat.com>
+Date: Wed, 13 Aug 2008 09:12:56 +0200 (CEST)
+Subject: Re: Nagios and RHEL 5
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+To: "Gunnar Hellekson" <gunnar.hellekson@redhat.com>
+Cc: "Cooper David Ctr 14WS/P3I" <david.cooper.ctr@afccc.af.mil>,
         selinux@tycho.nsa.gov
-Subject: Re: [PATCH 0/3] Thread/Child-Domain Assignment (rev.2)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E1CB38D@exchange2.columbia.tresys.com>
-In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E1CB38D@exchange2.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> KaiGai Kohei wrote:
->> The series of patches enables to assign a thread an
->> indivisual "more bounded" domain, even if the process is
->> multithreaded. 
->>
->> We can apply this feature to set up a server application
->> which handles user's request withing more restricted domain,
->> to protect potential harms come from application bugs.
->>
->> It also adds a new binary policy format (version 24).
->> This version allows each definitions of user/role/type to
->> have its bounds. The bounds restrict capabilities of bounded
->> one with similar rules compared to existing name based
->> hierarchy support.
->> The following rules are enhanced from existing hierarchy stuff.
->> - A bounded type cannot have any attribute which does not assigned  
->> to the upper type. 
-> 
-> I don't think this is necessary. The original hierarchy implementation
-> only cared about the net effect of the rules, not how they were granted.
-> For example, if I have 2 attributes, one that is given more privilege
-> and one that is given a subset of the first why should I have to assign
-> both to the 'parent' type? I don't agree with this constraint.
+On Tue, August 12, 2008 20:34, Gunnar Hellekson wrote:
+>> type=AVC msg=audit(1218215558.890:3854): avc:  denied  { read write }
+>> for  pid=1403 comm="ping"
+>> path="/usr/local/nagios/var/spool/checkresults/checkcDARIP" dev=dm-0
+>> ino=394381 scontext=user_u:system_r:ping_t:s0
+>> tcontext=user_u:object_r:usr_t:s0 tclass=file type=SYSCALL
+>> msg=audit(1218215558.890:3854): arch=40000003 syscall=11 success=yes
+>> exit=0 a0=932fa70 a1=932fb08 a2=bf99b804 a3=932fb08 items=0 ppid=1402
+>> pid=1403 auid=502 uid=501 gid=501 euid=0 suid=0 fsuid=0 egid=501
+>> sgid=501 fsgid=501 tty=(none) ses=86 comm="ping" exe="/bin/ping"
+>> subj=user_u:system_r:ping_t:s0 key=(null)
+...
+> I'm not smart enough to give you the exact policy change required, but
+> I do know that cmd.cgi writes to the nagios.cmd fifo to push commands
+> onto the Nagios server queue. This is exactly the kind of thing you
+> don't want a CGI doing, usually, so you'll likely have to alter the
+> standard CGI policies to allow this. This is required only if you want
+> to use the web interface to manipulate the server.
 
-The major purpose of attribute bounds was a restriction for CONSTRAIN
-or MLSCONSTRAINT rules. However, I reconsidered it can be implemented
-by sanity checks at policy load time, without any attribute bounds.
+Since nagios is installed in a different location than usual (/usr/local
+rather than /usr), the file contexts will not be applied correctly to the
+nagios files.
 
-I agree what you pointed out.
-In the next patch, I'll remove the code to check attribute bounds.
+Either use standard paths or add local file contexts which match the ones
+from the nagios policy
+(http://oss.tresys.com/projects/refpolicy/browser/trunk/policy/modules/services/nagios.fc)
+but with the /usr/local prefix and then relabel everything under
+/usr/local/nagios.
 
->> - CONSTRAIN/MLSCONSTRAIN rules are enhanced to pay attention   the
->> boundary relationships. 
->>
->> I adds a new statement of TYPEBOUNDS as follows:
->>
->>   TYPEBOUNDS <parent type>  <child type 1> [, <child type 2> ...] ;
->>
->> It defines boundary relationships between two types, and
->> these are loaded to the kernelspace via policy version 24.
->> (*) The existing hierarchy is implicitly expanded to bounds.
->>
->> I don't provide a statement to define boundary relationships
->> between roles/users, although existing hierarchy supports
->> them, because its purpose/worth is unclear now.
-> 
-> Its purpose was the same as the original purpose for the hierarchy. The
-> hierarchy was developed for policy access control using the policy
-> management server. One would 'label' policy objects using the hierarchy
-> and could constrain the permissions (or roles or types) using the
-> hierarchical constraints. I request that you not remove this support in
-> your version.
+The nagios policy should already have the necessary magic to allow it to
+run ping.
 
-Sorry, my explanation might be misleadable. :(
-
-The new facilities can have a data structure to represent boundary
-relationships between two types/roles/users. However, I didn't add
-a new syntax in policy language statement, like USERBOUNDS/ROLEBOUNDS.
-If the checkmodule founds existing name based hierarhies, implicit
-boundary relationships are assigned to them, and these are shipped
-into kernelspace later.
-
-For example, a definition of "staff_u.kaigai" does not define a SElinux
-user only, but a boundary relationship between "staff_u" and
-"staff_u.kaigai" is also defined automatically.
-
-I consider this behavior can follows existing name based hierarchies.
-
-> Additionally, if you are enforcing hierarchy on types in constrain
-> statements you should also do this for roles and users, for consistency.
-
-The latest kernel patch enables to check (MLS)CONSTRAINT statement for
-users, roles and types. Please show constraint_bounds_sanity_check()
-which is invoked at policy load time.
-
-Thanks,
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+David Härdeman
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
