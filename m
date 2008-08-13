@@ -1,148 +1,39 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7DHr3h3002375
-	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 13:53:03 -0400
-Received: from fk-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7DHr2aC021798
-	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 17:53:02 GMT
-Received: by fk-out-0910.google.com with SMTP id 18so74505fks.2
-        for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 10:53:01 -0700 (PDT)
-Subject: Re: [REFPOLICY PATCH] Added policy module for the oident daemon.
-From: Dominick Grift <domg472@gmail.com>
-To: Chris PeBenito <pebenito@gentoo.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1218632939.5144.10.camel@defiant.pebenito.net>
-References: <1217077669.8496.2.camel@sulphur.notebook.internal>
-	 <1218632939.5144.10.camel@defiant.pebenito.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c4kFANEO1cAWCU0LBzOD"
-Date: Wed, 13 Aug 2008 19:52:59 +0200
-Message-Id: <1218649979.17454.16.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7DJcUTM025554
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 15:38:30 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7DJcTaC021918
+	for <selinux@tycho.nsa.gov>; Wed, 13 Aug 2008 19:38:29 GMT
+Message-ID: <48A337D3.40006@redhat.com>
+Date: Wed, 13 Aug 2008 15:36:51 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: system_libraries.patch
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-c4kFANEO1cAWCU0LBzOD
-Content-Type: multipart/mixed; boundary="=-eCmt1L4yG5XCYtBtDvys"
+Lots of fixes for textrel_shlib_t
 
+Fixes for running ldconfig in post install scripts, kernel builds and
+other random locations.
 
---=-eCmt1L4yG5XCYtBtDvys
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+http://people.fedoraproject.org/~dwalsh/SELinux/F10/system_libraries.patch
 
-On Wed, 2008-08-13 at 09:08 -0400, Chris PeBenito wrote:
-> On Sat, 2008-07-26 at 15:07 +0200, Dominick Grift wrote:
-> > Signed-off-by: Dominick Grift <domg472@gmail.com>
->=20
-> The patch looks line-wrapped.  Also a couple comments inline.
-My previous commit did something not so smart. I had to revert it.
-Also i replace the manage_file_pattern($2, ...) because it is too
-coarse.
-
-
---=20
-Dominick Grift <domg472@gmail.com>
-
---=-eCmt1L4yG5XCYtBtDvys
-Content-Disposition: attachment; filename=oidentd.patch.txt
-Content-Transfer-Encoding: base64
-Content-Type: text/x-patch; name=oidentd.patch.txt; charset=utf-8
-
-ZGlmZiAtLWdpdCBhL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL29pZGVudGQuZmMgYi9wb2xpY3kv
-bW9kdWxlcy9zZXJ2aWNlcy9vaWRlbnRkLmZjDQpuZXcgZmlsZSBtb2RlIDEwMDY0NA0KaW5kZXgg
-MDAwMDAwMC4uZWU3ZmNjNA0KLS0tIC9kZXYvbnVsbA0KKysrIGIvcG9saWN5L21vZHVsZXMvc2Vy
-dmljZXMvb2lkZW50ZC5mYw0KQEAgLTAsMCArMSw3IEBADQorDQorL2V0Yy9vaWRlbnRkXC5jb25m
-CQktLQlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3RfcjpvaWRlbnRkX2NvbmZpZ190LCBzMCkN
-CisvZXRjL29pZGVudGRfbWFzcVwuY29uZgktLQlnZW5fY29udGV4dChzeXN0ZW1fdTpvYmplY3Rf
-cjpvaWRlbnRkX2NvbmZpZ190LCBzMCkNCisNCisvdXNyL3NiaW4vb2lkZW50ZAkJLS0JZ2VuX2Nv
-bnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6b2lkZW50ZF9leGVjX3QsIHMwKQ0KKw0KK0hPTUVfRElS
-L1wub2lkZW50ZC5jb25mCS0tCWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOm9pZGVudGRf
-aG9tZV90LCBzMCkNCmRpZmYgLS1naXQgYS9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9vaWRlbnRk
-LmlmIGIvcG9saWN5L21vZHVsZXMvc2VydmljZXMvb2lkZW50ZC5pZg0KbmV3IGZpbGUgbW9kZSAx
-MDA2NDQNCmluZGV4IDAwMDAwMDAuLjkzZjlhZDANCi0tLSAvZGV2L251bGwNCisrKyBiL3BvbGlj
-eS9tb2R1bGVzL3NlcnZpY2VzL29pZGVudGQuaWYNCkBAIC0wLDAgKzEsNjEgQEANCisjIyA8c3Vt
-bWFyeT5TRUxpbnV4IHBvbGljeSBmb3IgT2lkZW50IGRhZW1vbi48L3N1bW1hcnk+DQorIyMgPGRl
-c2M+DQorIyMJPHA+DQorIyMJT2lkZW50IGRhZW1vbiBpcyBhIHNlcnZlciB0aGF0IGltcGxlbWVu
-dHMgdGhlIFRDUC9JUA0KKyMjCXN0YW5kYXJkIElERU5UIHVzZXIgaWRlbnRpZmljYXRpb24gcHJv
-dG9jb2wgYXMNCisjIwlzcGVjaWZpZWQgaW4gdGhlIFJGQyAxNDEzIGRvY3VtZW50Lg0KKyMjCTwv
-cD4NCisjIyA8L2Rlc2M+DQorDQorIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjDQorIyMgPHN1bW1hcnk+DQorIyMgIFRoZSBwZXIgcm9sZSB0ZW1wbGF0ZSBmb3IgdGhlIE9p
-ZGVudGQgbW9kdWxlLg0KKyMjIDwvc3VtbWFyeT4NCisjIyA8ZGVzYz4NCisjIyAJPHA+DQorIyMg
-CVRoaXMgdGVtcGxhdGUgY3JlYXRlcyBkZXJpdmVkIGRvbWFpbnMgd2hpY2ggYXJlIHVzZWQNCisj
-IyAJZm9yIE9pZGVudCBkYWVtb24uDQorIyMgCTwvcD4NCisjIyAJPHA+DQorIyMgCVRoaXMgdGVt
-cGxhdGUgaXMgaW52b2tlZCBhdXRvbWF0aWNhbGx5IGZvciBlYWNoIHVzZXIsIGFuZA0KKyMjIAln
-ZW5lcmFsbHkgZG9lcyBub3QgbmVlZCB0byBiZSBpbnZva2VkIGRpcmVjdGx5DQorIyMgCWJ5IHBv
-bGljeSB3cml0ZXJzLg0KKyMjIAk8L3A+DQorIyMgPC9kZXNjPg0KKyMjIDxwYXJhbSBuYW1lPSJ1
-c2VyZG9tYWluX3ByZWZpeCI+DQorIyMgCTxzdW1tYXJ5Pg0KKyMjIAlUaGUgcHJlZml4IG9mIHRo
-ZSB1c2VyIGRvbWFpbiAoZS5nLiwgdXNlcg0KKyMjIAlpcyB0aGUgcHJlZml4IGZvciB1c2VyX3Qp
-Lg0KKyMjIAk8L3N1bW1hcnk+DQorIyMgPC9wYXJhbT4NCisjIyA8cGFyYW0gbmFtZT0idXNlcl9k
-b21haW4iPg0KKyMjIAk8c3VtbWFyeT4NCisjIyAJVGhlIHR5cGUgb2YgdGhlIHVzZXIgZG9tYWlu
-Lg0KKyMjIAk8L3N1bW1hcnk+DQorIyMgCTwvcGFyYW0+DQorIyMgCTxwYXJhbSBuYW1lPSJ1c2Vy
-X3JvbGUiPg0KKyMjIAk8c3VtbWFyeT4NCisjIyAJVGhlIHJvbGUgYXNzb2NpYXRlZCB3aXRoIHRo
-ZSB1c2VyIGRvbWFpbi4NCisjIyAJPC9zdW1tYXJ5Pg0KKyMjIDwvcGFyYW0+DQorIw0KK3RlbXBs
-YXRlKGBvaWRlbnRkX3Blcl9yb2xlX3RlbXBsYXRlJywgYA0KKwlnZW5fcmVxdWlyZShgDQorCQl0
-eXBlIG9pZGVudGRfaG9tZV90Ow0KKwknKQ0KKw0KKwkjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjDQorCSMNCisJIyAgRGVjbGFyYXRpb25zDQorCSMNCisNCisJdXNlcmRv
-bV91c2VyX2hvbWVfY29udGVudCgkMSwgb2lkZW50ZF9ob21lX3QpDQorCQ0KKwkjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorCSMNCisJIyAgUG9saWN5DQorCSMNCisN
-CisJYWxsb3cgJDIgb2lkZW50ZF9ob21lX3Q6ZmlsZSBtYW5hZ2VfZmlsZV9wZXJtczsNCisJYWxs
-b3cgJDIgb2lkZW50ZF9ob21lX3Q6ZmlsZSByZWxhYmVsX2ZpbGVfcGVybXM7DQorJykNCmRpZmYg
-LS1naXQgYS9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9vaWRlbnRkLnRlIGIvcG9saWN5L21vZHVs
-ZXMvc2VydmljZXMvb2lkZW50ZC50ZQ0KbmV3IGZpbGUgbW9kZSAxMDA2NDQNCmluZGV4IDAwMDAw
-MDAuLmE2NWU0MDYNCi0tLSAvZGV2L251bGwNCisrKyBiL3BvbGljeS9tb2R1bGVzL3NlcnZpY2Vz
-L29pZGVudGQudGUNCkBAIC0wLDAgKzEsNzEgQEANCisNCitwb2xpY3lfbW9kdWxlKG9pZGVudGQs
-IDAuMC4xKSANCisNCisjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQor
-Iw0KKyMgRGVjbGFyYXRpb25zDQorIw0KKw0KKyMjIDxkZXNjPg0KKyMjIDxwPg0KKyMjIEFsbG93
-IE9pZGVudCBkYWVtb24gdG8gcmVhZA0KKyMjIHVucHJpdmlsZWdlZCB1c2VyIGhvbWUgY29udGVu
-dCBmaWxlcy4NCisjIyA8L3A+DQorIyMgPC9kZXNjPg0KKw0KK2dlbl90dW5hYmxlKG9pZGVudGRf
-cmVhZF91bnByaXZpbGVnZWRfdXNlcl9ob21lX2NvbnRlbnRfZmlsZXMsIGZhbHNlKQ0KKw0KK3R5
-cGUgb2lkZW50ZF90Ow0KK3R5cGUgb2lkZW50ZF9leGVjX3Q7DQoraW5pdF9kYWVtb25fZG9tYWlu
-KG9pZGVudGRfdCwgb2lkZW50ZF9leGVjX3QpDQorDQordHlwZSBvaWRlbnRkX2NvbmZpZ190Ow0K
-K2ZpbGVzX2NvbmZpZ19maWxlKG9pZGVudGRfY29uZmlnX3QpDQorDQordHlwZSBvaWRlbnRkX2hv
-bWVfdDsNCitmaWxlc19wb2x5X21lbWJlcihvaWRlbnRkX2hvbWVfdCkNCisNCisjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorIw0KKyMgUG9saWN5DQorIw0KKw0KK2Fs
-bG93IG9pZGVudGRfdCBzZWxmOmNhcGFiaWxpdHkgeyBzZXR1aWQgc2V0Z2lkIH07DQorYWxsb3cg
-b2lkZW50ZF90IHNlbGY6bmV0bGlua19yb3V0ZV9zb2NrZXQgeyB3cml0ZSBnZXRhdHRyIHJlYWQg
-YmluZCBjcmVhdGUgbmxtc2dfcmVhZCB9Ow0KK2FsbG93IG9pZGVudGRfdCBzZWxmOm5ldGxpbmtf
-dGNwZGlhZ19zb2NrZXQgeyB3cml0ZSByZWFkIGNyZWF0ZSBubG1zZ19yZWFkIH07DQorYWxsb3cg
-b2lkZW50ZF90IHNlbGY6dGNwX3NvY2tldCB7IHNldG9wdCByZWFkIGJpbmQgY3JlYXRlIGFjY2Vw
-dCB3cml0ZSBnZXRhdHRyIGxpc3RlbiB9Ow0KK2FsbG93IG9pZGVudGRfdCBzZWxmOnVkcF9zb2Nr
-ZXQgeyB3cml0ZSByZWFkIGNyZWF0ZSBjb25uZWN0IGdldGF0dHIgfTsNCithbGxvdyBvaWRlbnRk
-X3Qgc2VsZjp1bml4X2RncmFtX3NvY2tldCB7IGNyZWF0ZSBjb25uZWN0IH07DQorDQorYWxsb3cg
-b2lkZW50ZF90IG9pZGVudGRfY29uZmlnX3Q6ZmlsZSByZWFkX2ZpbGVfcGVybXM7DQorDQorYWxs
-b3cgb2lkZW50ZF90IG9pZGVudGRfaG9tZV90OmZpbGUgcmVhZF9maWxlX3Blcm1zOw0KKw0KK2Nv
-cmVuZXRfYWxsX3JlY3Zmcm9tX3VubGFiZWxlZChvaWRlbnRkX3QpDQorY29yZW5ldF9hbGxfcmVj
-dmZyb21fbmV0bGFiZWwob2lkZW50ZF90KQ0KK2NvcmVuZXRfdGNwX3NlbmRyZWN2X2FsbF9pZihv
-aWRlbnRkX3QpDQorY29yZW5ldF90Y3Bfc2VuZHJlY3ZfYWxsX25vZGVzKG9pZGVudGRfdCkNCitj
-b3JlbmV0X3RjcF9iaW5kX2FsbF9ub2RlcyhvaWRlbnRkX3QpDQorY29yZW5ldF90Y3BfYmluZF9h
-dXRoX3BvcnQob2lkZW50ZF90KQ0KKw0KK2ZpbGVzX3JlYWRfZXRjX2ZpbGVzKG9pZGVudGRfdCkN
-CisNCitrZXJuZWxfcmVhZF9rZXJuZWxfc3lzY3RscyhvaWRlbnRkX3QpDQora2VybmVsX3JlYWRf
-bmV0d29ya19zdGF0ZShvaWRlbnRkX3QpDQora2VybmVsX3JlYWRfbmV0d29ya19zdGF0ZV9zeW1s
-aW5rcyhvaWRlbnRkX3QpDQora2VybmVsX3JlYWRfc3lzY3RsKG9pZGVudGRfdCkNCisNCitsaWJz
-X3VzZV9sZF9zbyhvaWRlbnRkX3QpDQorbGlic191c2Vfc2hhcmVkX2xpYnMob2lkZW50ZF90KQ0K
-Kw0KK2xvZ2dpbmdfc2VuZF9zeXNsb2dfbXNnKG9pZGVudGRfdCkNCisNCittaXNjZmlsZXNfcmVh
-ZF9sb2NhbGl6YXRpb24ob2lkZW50ZF90KQ0KKw0KK3N5c25ldF9yZWFkX2NvbmZpZyhvaWRlbnRk
-X3QpDQorDQordXNlcmRvbV9zZWFyY2hfdXNlcl9ob21lX2RpcnModXNlciwgb2lkZW50ZF9ob21l
-X3QpDQorDQordHVuYWJsZV9wb2xpY3koYG9pZGVudGRfcmVhZF91bnByaXZpbGVnZWRfdXNlcl9o
-b21lX2NvbnRlbnRfZmlsZXMnLCBgDQorCXVzZXJkb21fcmVhZF91bnByaXZfdXNlcnNfaG9tZV9j
-b250ZW50X2ZpbGVzKG9pZGVudGRfdCkNCisnKQ0K
-
-
---=-eCmt1L4yG5XCYtBtDvys--
-
---=-c4kFANEO1cAWCU0LBzOD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEABECAAYFAkijH3kACgkQL00QnzrVtlyCzACfZOxCEGqx7krP1WhtHZnOm/X0
-1z8AnRUTIPDSK7kD5M07CrpaGO5TB0Ts
-=QQkN
+iEYEARECAAYFAkijN9MACgkQrlYvE4MpobM4BwCfd93/0YnNDY1ht3RbmH2LD22C
+hVgAoNMJWVbW3wkqxk4F7niqpsvqThUM
+=De7X
 -----END PGP SIGNATURE-----
-
---=-c4kFANEO1cAWCU0LBzOD--
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
