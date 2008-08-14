@@ -1,44 +1,62 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EKGLNT026886
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 16:16:21 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7EKGLkh016268
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 20:16:21 GMT
-Message-ID: <48A49244.4040909@redhat.com>
-Date: Thu, 14 Aug 2008 16:15:00 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Fixes to services_ppp
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Help: SELinux causing(?) boot failures...
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Mike Edenfield <kutulu@kutulu.org>
+Cc: Paul Moore <paul.moore@hp.com>,
+        SELinux Mailing List <selinux@tycho.nsa.gov>
+In-Reply-To: <48A485B4.4060403@kutulu.org>
+References: <489C6A4F.3020704@kutulu.org>
+	 <200808081251.45453.paul.moore@hp.com>  <489C801E.9040306@kutulu.org>
+	 <1218733093.29535.46.camel@moss-spartans.epoch.ncsc.mil>
+	 <48A485B4.4060403@kutulu.org>
+Content-Type: text/plain
+Date: Thu, 14 Aug 2008 16:24:22 -0400
+Message-Id: <1218745462.29535.199.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-http://people.fedoraproject.org/~dwalsh/SELinux/F10/services_ppp.patch
+On Thu, 2008-08-14 at 15:21 -0400, Mike Edenfield wrote:
+> Stephen Smalley wrote:
+> 
+> > Hmmm...do you have CONFIG_SECURITY_SELINUX_DEVELOP=y in your
+> > kernel .config file?  If not, your kernel won't support permissive mode
+> > at all and will always be in enforcing mode.
+> 
+> Yes, I have both that and the boot option enabled in the kernel.
 
+In that case, you shouldn't actually encounter denials from SELinux - it
+will let the operation proceed and just log the denial.
 
-ppp now uses dbus
+> >> (transcribed by hand since neither syslog nor auditd are starting)
+> >>
+> >> avc: denied { execute_no_trans } for pid=1 comm="init" path="/sbin/init" 
+> >> dev=sda3 ino=920038 scontext=system_u:system_r:kernel_t 
+> >> tcontext=system_u:object_r:file_t tclass=file
+> 
+> > So your filesystem is not labeled at all.
+> 
+> This is what I thought, but when I boot with "selinux=0" I am able to 
+> run setfiles on all the file systems and it claims it's doing the 
+> labelling properly, so I'm not sure what else to do.
 
+You can always run getfattr -n security.selinux /sbin/init to see the
+file context even while SELinux is disabled.  Is setfiles being given a
+valid and complete file_contexts configuration?  Running it with -v
+and/or -d might be illuminating.
 
-Needs to rw net sysctls
+> > Are you sure you followed the steps in the Hardened Gentoo SELinux
+> > guide?  And have you sent any email to the gentoo-hardened list about
+> > this, as you'll get Gentoo-specific help there?
+> 
+> I wasn't sure it was a Gentoo-specific problem, but I'm rebuilding the 
+> system from scratch again to make sure I didn't miss anything, then I'll 
+>   move to the Gentoo list from there.
 
-Calls kill
+-- 
+Stephen Smalley
+National Security Agency
 
-
-Emails ppp_etc_t and ppp_etc_rw_t
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkikkkQACgkQrlYvE4MpobP/ygCfWv+bMopKRNh6vMMs5pGbo5OD
-FKkAoMqZi8OEU+FcX8BbukeLFG0UwxRW
-=ROPh
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
