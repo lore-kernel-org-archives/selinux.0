@@ -1,58 +1,33 @@
-Subject: Re: Request for multiple mailing lists
+Subject: Re: SELinux policy and performance impacts
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: russell@coker.com.au, Vesa-Matti J Kari <vmkari@cc.helsinki.fi>,
-        Andy Warner <warner@rubix.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        SE-Linux <selinux@tycho.nsa.gov>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <489C7DEE.7090006@manicmethod.com>
-References: <489B25B6.4080309@windriver.com> <489C1BB1.2060701@rubix.com>
-	 <Pine.LNX.4.64L.0808081319150.25440@ruuvi.it.helsinki.fi>
-	 <200808082048.53795.russell@coker.com.au>
-	 <489C7DEE.7090006@manicmethod.com>
+To: Matt Anderson <mra@hp.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <489B81A4.9050007@hp.com>
+References: <489B81A4.9050007@hp.com>
 Content-Type: text/plain
-Date: Thu, 14 Aug 2008 12:16:16 -0400
-Message-Id: <1218730576.29535.20.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 14 Aug 2008 12:30:19 -0400
+Message-Id: <1218731419.29535.28.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 2008-08-08 at 13:10 -0400, Joshua Brindle wrote:
-> Russell Coker wrote:
-> > On Friday 08 August 2008 20:33, Vesa-Matti J Kari <vmkari@cc.helsinki.fi> 
+On Thu, 2008-08-07 at 19:13 -0400, Matt Anderson wrote:
+> I'm currently looking into the performance impact of SELinux.  Most of 
+> what I have seen so far involve testing the system's performance with 
+> file creation, open, and exec, but I was hoping to gather some more data 
+> before finalizing any conclusions.
 > 
-> <snip>
-> 
-> Back on topic:
-> 
-> I've multiple times in the past that I'd like to have a policy list that was separate. The main problem here is that all the core developers would almost certainly be subscribed to both (all) of them so there is little motivation on this end to split the lists out.
-> 
-> I completely disagree with splitting kernel and userland out as kernel changes almost always require userland changes, and userland changes are often created to address format changes, etc that are of interest to the kernel.
-> 
-> That said, even if we had to be subscribed to both it would be easier to disregard the parts less interesting to us (for me, that is policy, for Chris that is the other). 
-> 
-> So I'll +1 the request but believe only 2 lists are necessary.
+> I was wondering if anyone knows of any types of policy rules that when 
+> loaded into the kernel are particularly detrimental to system 
+> performance.  My understanding is that all policy rules are treated 
+> equally once they've been compiled to binary, but I wanted to ask here 
+> first in order to confirm that.
 
-I'm fine with moving refpolicy patches and discussion to another list
-with the exception of changes that touch the core Flask definitions,
-which should be copied to both lists as they will affect the kernel or
-userspace object managers.
-
-refpolicy certainly doesn't have to be the only policy for SELinux,
-although it is a useful source pool that embodies a lot of knowledge
-derived over time from the community, and most existing policies are
-built from that common source pool.  Prior to refpolicy, the NSA example
-policy served the same purpose, and that knowledge and community effort
-transitioned from the example policy to refpolicy when refpolicy was
-deployed in modern distributions that support SELinux.
-
-While refpolicy is not limited to Tresys (they are just the upstream
-maintainers), it seems to make sense to host such a refpolicy list on
-the same site that hosts the refpolicy project, so hosting it on
-oss.tresys.com would make sense to me.
+In addition to other points raised in this thread, note that using
+larger inodes (as done by default in F9) should yield a significant
+improvement in file benchmarks by keeping the SELinux security context
+inline within the inodes rather than in separate data blocks.
 
 -- 
 Stephen Smalley
