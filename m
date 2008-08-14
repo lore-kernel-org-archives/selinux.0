@@ -1,59 +1,32 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7ECoYo6014594
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 08:50:34 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7ECoYqV018166
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 12:50:34 GMT
-Message-ID: <48A42A16.1070209@redhat.com>
-Date: Thu, 14 Aug 2008 08:50:30 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: postgresql patch
-Content-Type: multipart/mixed;
- boundary="------------030804070000090805070407"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EDK3SQ020407
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 09:20:03 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m7EDK2qV027205
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 13:20:02 GMT
+Subject: Re: Made it dontaudit like you asked.
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <48A0B76A.1050106@redhat.com>
+References: <48A0B76A.1050106@redhat.com>
+Content-Type: text/plain
+Date: Thu, 14 Aug 2008 09:18:52 -0400
+Message-Id: <1218719932.8095.60.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030804070000090805070407
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Mon, 2008-08-11 at 18:04 -0400, Daniel J Walsh wrote:
+> http://people.fedoraproject.org/~dwalsh/SELinux/F10/admin_brctl.patch
 
-New location for log files
+Merged.
 
-Uses hugetblfs.
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
---------------030804070000090805070407
-Content-Type: text/plain;
- name="services_postgresql.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="services_postgresql.patch"
-
---- nsaserefpolicy/policy/modules/services/postgresql.fc	2008-08-07 11:15:11.000000000 -0400
-+++ serefpolicy-3.5.4/policy/modules/services/postgresql.fc	2008-08-11 16:39:48.000000000 -0400
-@@ -34,6 +34,7 @@
- /var/lib/sepgsql/pgstartup\.log	--	gen_context(system_u:object_r:postgresql_log_t,s0)
- 
- /var/log/postgres\.log.* 	--	gen_context(system_u:object_r:postgresql_log_t,s0)
-+/var/lib/pgsql/logfile(/.*)?		gen_context(system_u:object_r:postgresql_log_t,s0)
- /var/log/postgresql(/.*)?		gen_context(system_u:object_r:postgresql_log_t,s0)
- /var/log/sepostgresql\.log.*	--	gen_context(system_u:object_r:postgresql_log_t,s0)
- 
---- nsaserefpolicy/policy/modules/services/postgresql.te	2008-08-07 11:15:11.000000000 -0400
-+++ serefpolicy-3.5.4/policy/modules/services/postgresql.te	2008-08-11 16:39:48.000000000 -0400
-@@ -186,6 +189,7 @@
- 
- fs_getattr_all_fs(postgresql_t)
- fs_search_auto_mountpoints(postgresql_t)
-+fs_rw_hugetlbfs_files(postgresql_t)
- 
- selinux_get_enforce_mode(postgresql_t)
- selinux_validate_context(postgresql_t)
-
---------------030804070000090805070407--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
