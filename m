@@ -1,74 +1,188 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EDRsLP022348
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 09:27:54 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m7EDRrqV000031
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 13:27:54 GMT
-Subject: Re: [patch 03/35] logrotate policy update
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: david@hardeman.nu
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EDSqPm022578
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 09:28:52 -0400
+Received: from yx-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7EDSbaK019210
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 13:28:37 GMT
+Received: by yx-out-1718.google.com with SMTP id 3so465403yxi.84
+        for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 06:28:51 -0700 (PDT)
+Subject: Re: [REFPOLICY PATCH] Added policy module for the oident daemon.
+From: Dominick Grift <domg472@gmail.com>
+To: Chris PeBenito <pebenito@gentoo.org>
 Cc: selinux@tycho.nsa.gov
-In-Reply-To: <20080804123734.999572013@hardeman.nu>
-References: <20080804123456.679565839@hardeman.nu>
-	 <20080804123734.999572013@hardeman.nu>
-Content-Type: text/plain
-Date: Thu, 14 Aug 2008 09:26:43 -0400
-Message-Id: <1218720403.8095.65.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1218632939.5144.10.camel@defiant.pebenito.net>
+References: <1217077669.8496.2.camel@sulphur.notebook.internal>
+	 <1218632939.5144.10.camel@defiant.pebenito.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jy3NYKMThl9JF/8qVZnr"
+Date: Thu, 14 Aug 2008 15:28:45 +0200
+Message-Id: <1218720525.28416.12.camel@sulphur.notebook.internal>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-08-04 at 14:34 +0200, david@hardeman.nu wrote:
-> plain text document attachment (policy_modules_admin_logrotate.patch)
-> Perhaps controversial changes
-> 
-> First sent on Jul 19, dwalsh described the need for the patch here:
-> http://marc.info/?l=selinux&m=121726318902852&w=2
-> 
-> Refreshed to apply cleanly to SVN repo
-> 
-> Index: refpolicy/policy/modules/admin/logrotate.te
-> ===================================================================
-> --- refpolicy.orig/policy/modules/admin/logrotate.te	2008-08-03 16:47:00.000000000 +0200
-> +++ refpolicy/policy/modules/admin/logrotate.te	2008-08-03 16:59:10.000000000 +0200
-> @@ -97,6 +97,7 @@
->  files_read_etc_files(logrotate_t)
->  files_read_etc_runtime_files(logrotate_t)
->  files_read_all_pids(logrotate_t)
-> +files_search_all(logrotate_t)
->  # Write to /var/spool/slrnpull - should be moved into its own type.
->  files_manage_generic_spool(logrotate_t)
->  files_manage_generic_spool_dirs(logrotate_t)
 
-Still don't like this.
+--=-jy3NYKMThl9JF/8qVZnr
+Content-Type: multipart/mixed; boundary="=-f1hqGhO2RT2+YZRcNrfd"
 
-> @@ -142,9 +143,8 @@
->  ')
->  
->  optional_policy(`
-> -	apache_read_config(logrotate_t)
-> -	apache_domtrans(logrotate_t)
->  	apache_signull(logrotate_t)
-> +	apache_manage_all_content(logrotate_t)
->  ')
->  
->  optional_policy(`
 
-Definitely need justification for this; these aren't even logs.
+--=-f1hqGhO2RT2+YZRcNrfd
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> @@ -186,6 +186,5 @@
->  ')
->  
->  optional_policy(`
-> -	# cjp: why?
-> -	squid_domtrans(logrotate_t)
-> +	squid_signal(logrotate_t)
->  ')
-> 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+On Wed, 2008-08-13 at 09:08 -0400, Chris PeBenito wrote:
+> On Sat, 2008-07-26 at 15:07 +0200, Dominick Grift wrote:
+> > Signed-off-by: Dominick Grift <domg472@gmail.com>
+>=20
+> The patch looks line-wrapped.  Also a couple comments inline.
+
+This modification adds CIFS, NIS, NFS support.
+
+--=20
+Dominick Grift <domg472@gmail.com>
+
+--=-f1hqGhO2RT2+YZRcNrfd
+Content-Disposition: attachment; filename=oidentd.patch.txt
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=oidentd.patch.txt; charset=utf-8
+
+ZGlmZiAtLWdpdCBhL21hbi9tYW44L29pZGVudGRfc2VsaW51eC44IGIvbWFuL21hbjgvb2lkZW50
+ZF9zZWxpbnV4LjgNCm5ldyBmaWxlIG1vZGUgMTAwNjQ0DQppbmRleCAwMDAwMDAwLi5hODgwNDM3
+DQotLS0gL2Rldi9udWxsDQorKysgYi9tYW4vbWFuOC9vaWRlbnRkX3NlbGludXguOA0KQEAgLTAs
+MCArMSw0OCBAQA0KKy5USCAgIm9pZGVudGRfc2VsaW51eCIgICI4IiAgIjE0IEF1ZyAyMDA4IiAi
+ZG9tZzQ3MkBnbWFpbC5jb20iICJPaWRlbnQgZGVhbW9uIFNFTGludXggcG9saWN5IGRvY3VtZW50
+YXRpb24iDQorLmRlIEVYDQorLm5mDQorLmZ0IENXDQorLi4NCisuZGUgRUUNCisuZnQgUg0KKy5m
+aQ0KKy4uDQorLlNIICJOQU1FIg0KK29pZGVudGRfc2VsaW51eCBcLSBTZWN1cml0eS1FbmhhbmNl
+ZCBMaW51eCBwb2xpY3kgZm9yIE9pZGVudCBkYWVtb24uDQorLlNIICJERVNDUklQVElPTiINCisu
+UFANCitTZWN1cml0eS1FbmhhbmNlZCBMaW51eCBwcm92aWRlcyBzZWN1cml0eSBmb3IgT2lkZW50
+IGRhZW1vbiB2aWEgZmxleGlibGUgbWFuZGF0b3J5IGFjY2VzcyBjb250cm9sLg0KKy5TSCBGSUxF
+X0NPTlRFWFRTDQorLlBQDQorU0VMaW51eCByZXF1aXJlcyBmaWxlcyB0byBoYXZlIGEgZmlsZXMg
+dHlwZS4gVXNlcnMgY2FuIHVzZSB0aGUgY2hjb24gY29tbWFuZCB0byBjaGFuZ2UgY2VydGFpbiBm
+aWxlcyB0eXBlcy4gIFBvbGljeSBnb3Zlcm5zIHRoZSBhY2Nlc3MgdGhhdCBkYWVtb25zIGhhdmUg
+dG8gZmlsZXMuDQorLlRQDQorQWxsb3cgT2lkZW50IGRhZW1vbiB0byByZWFkIH4vLm9pZGVudGQu
+Y29uZiBieSBhZGRpbmcgdGhlIG9pZGVudGRfaG9tZV90IGZpbGVzIHR5cGUgdG8gdGhlIGZpbGUg
+YW5kIGJ5IHJlc3RvcmluZyB0aGUgZmlsZXMgdHlwZS4gIFRoaXMgYWxzbyByZXF1aXJlcyB0aGUg
+YWxsb3dfb2lkZW50ZF9yZWFkX29pZGVudGRfaG9tZV9jb250ZW50IGJvb2xlYW4gdG8gYmUgc2V0
+Lg0KKy5QUA0KKy5CDQorY2hjb24gLXQgb2lkZW50ZF9ob21lX3Qgfi8ub2lkZW50ZC5jb25mDQor
+LlNIIEJPT0xFQU5TDQorLlBQDQorU0VMaW51eCBwb2xpY3kgaXMgYmFzZWQgb24gbGVhc3QgcHJp
+dmlsZWdlIHJlcXVpcmVkIGFuZCBtYXkgYWxzbyBiZSBjdXN0b21pemFibGUgYnkgc2V0dGluZyBh
+IGJvb2xlYW4gd2l0aCB0aGUgc2V0c2Vib29sIGNvbW1hbmQuDQorLlRQDQorQWxsb3cgT2lkZW50
+IGRhZW1vbiB0byByZWFkIE9pZGVudCBkYWVtb24gaG9tZSBjb250ZW50IHdpdGggdGhlIG9pZGVu
+dGRfaG9tZV90IGZpbGVzIHR5cGUuDQorLlBQDQorLkINCitzZXRzZWJvb2wgLVAgYWxsb3dfb2lk
+ZW50ZF9yZWFkX29pZGVudGRfaG9tZV9jb250ZW50IG9uDQorLlRQDQorQWxsb3cgT2lkZW50IGRh
+ZW1vbiB0byB1c2UgQ0lGUyBmb3IgcHVibGljIGZpbGUgdHJhbnNmZXIgc2VydmljZXMuDQorLlBQ
+DQorLkINCitzZXRzZWJvb2wgLVAgYWxsb3dfb2lkZW50ZF91c2VfY2lmcyBvbg0KKy5UUA0KK0Fs
+bG93IE9pZGVudCBkYWVtb24gdG8gdXNlIE5GUyBmb3IgcHVibGljIGZpbGUgdHJhbnNmZXIgc2Vy
+dmljZXMuDQorLlBQDQorLkINCitzZXRzZWJvb2wgLVAgYWxsb3dfb2lkZW50ZF91c2VfbmZzIG9u
+DQorLlRQDQorc3lzdGVtLWNvbmZpZy1zZWxpbnV4IGlzIGEgR1VJIHRvb2wgYXZhaWxhYmxlIHRv
+IGN1c3RvbWl6ZSBTRUxpbnV4IHBvbGljeSBzZXR0aW5ncy4NCisuU0ggQVVUSE9SDQorLlBQDQor
+VGhpcyBtYW51YWwgcGFnZSB3YXMgd3JpdHRlbiBieSBEb21pbmljayBHcmlmdCA8ZG9tZzQ3MkBn
+bWFpbC5jb20+Lg0KKy5TSCAiU0VFIEFMU08iDQorLlBQDQorc2VsaW51eCg4KSwgb2lkZW50ZCg4
+KSwgb2lkZW50ZC5jb25mKDgpLCBzZXRzZWJvb2woOCksIGNoY29uKDgpDQpkaWZmIC0tZ2l0IGEv
+cG9saWN5L21vZHVsZXMvc2VydmljZXMvb2lkZW50ZC5mYyBiL3BvbGljeS9tb2R1bGVzL3NlcnZp
+Y2VzL29pZGVudGQuZmMNCm5ldyBmaWxlIG1vZGUgMTAwNjQ0DQppbmRleCAwMDAwMDAwLi5lZTdm
+Y2M0DQotLS0gL2Rldi9udWxsDQorKysgYi9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9vaWRlbnRk
+LmZjDQpAQCAtMCwwICsxLDcgQEANCisNCisvZXRjL29pZGVudGRcLmNvbmYJCS0tCWdlbl9jb250
+ZXh0KHN5c3RlbV91Om9iamVjdF9yOm9pZGVudGRfY29uZmlnX3QsIHMwKQ0KKy9ldGMvb2lkZW50
+ZF9tYXNxXC5jb25mCS0tCWdlbl9jb250ZXh0KHN5c3RlbV91Om9iamVjdF9yOm9pZGVudGRfY29u
+ZmlnX3QsIHMwKQ0KKw0KKy91c3Ivc2Jpbi9vaWRlbnRkCQktLQlnZW5fY29udGV4dChzeXN0ZW1f
+dTpvYmplY3RfcjpvaWRlbnRkX2V4ZWNfdCwgczApDQorDQorSE9NRV9ESVIvXC5vaWRlbnRkLmNv
+bmYJLS0JZ2VuX2NvbnRleHQoc3lzdGVtX3U6b2JqZWN0X3I6b2lkZW50ZF9ob21lX3QsIHMwKQ0K
+ZGlmZiAtLWdpdCBhL3BvbGljeS9tb2R1bGVzL3NlcnZpY2VzL29pZGVudGQuaWYgYi9wb2xpY3kv
+bW9kdWxlcy9zZXJ2aWNlcy9vaWRlbnRkLmlmDQpuZXcgZmlsZSBtb2RlIDEwMDY0NA0KaW5kZXgg
+MDAwMDAwMC4uOTNmOWFkMA0KLS0tIC9kZXYvbnVsbA0KKysrIGIvcG9saWN5L21vZHVsZXMvc2Vy
+dmljZXMvb2lkZW50ZC5pZg0KQEAgLTAsMCArMSw2MSBAQA0KKyMjIDxzdW1tYXJ5PlNFTGludXgg
+cG9saWN5IGZvciBPaWRlbnQgZGFlbW9uLjwvc3VtbWFyeT4NCisjIyA8ZGVzYz4NCisjIwk8cD4N
+CisjIwlPaWRlbnQgZGFlbW9uIGlzIGEgc2VydmVyIHRoYXQgaW1wbGVtZW50cyB0aGUgVENQL0lQ
+DQorIyMJc3RhbmRhcmQgSURFTlQgdXNlciBpZGVudGlmaWNhdGlvbiBwcm90b2NvbCBhcw0KKyMj
+CXNwZWNpZmllZCBpbiB0aGUgUkZDIDE0MTMgZG9jdW1lbnQuDQorIyMJPC9wPg0KKyMjIDwvZGVz
+Yz4NCisNCisjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNCisjIyA8c3Vt
+bWFyeT4NCisjIyAgVGhlIHBlciByb2xlIHRlbXBsYXRlIGZvciB0aGUgT2lkZW50ZCBtb2R1bGUu
+DQorIyMgPC9zdW1tYXJ5Pg0KKyMjIDxkZXNjPg0KKyMjIAk8cD4NCisjIyAJVGhpcyB0ZW1wbGF0
+ZSBjcmVhdGVzIGRlcml2ZWQgZG9tYWlucyB3aGljaCBhcmUgdXNlZA0KKyMjIAlmb3IgT2lkZW50
+IGRhZW1vbi4NCisjIyAJPC9wPg0KKyMjIAk8cD4NCisjIyAJVGhpcyB0ZW1wbGF0ZSBpcyBpbnZv
+a2VkIGF1dG9tYXRpY2FsbHkgZm9yIGVhY2ggdXNlciwgYW5kDQorIyMgCWdlbmVyYWxseSBkb2Vz
+IG5vdCBuZWVkIHRvIGJlIGludm9rZWQgZGlyZWN0bHkNCisjIyAJYnkgcG9saWN5IHdyaXRlcnMu
+DQorIyMgCTwvcD4NCisjIyA8L2Rlc2M+DQorIyMgPHBhcmFtIG5hbWU9InVzZXJkb21haW5fcHJl
+Zml4Ij4NCisjIyAJPHN1bW1hcnk+DQorIyMgCVRoZSBwcmVmaXggb2YgdGhlIHVzZXIgZG9tYWlu
+IChlLmcuLCB1c2VyDQorIyMgCWlzIHRoZSBwcmVmaXggZm9yIHVzZXJfdCkuDQorIyMgCTwvc3Vt
+bWFyeT4NCisjIyA8L3BhcmFtPg0KKyMjIDxwYXJhbSBuYW1lPSJ1c2VyX2RvbWFpbiI+DQorIyMg
+CTxzdW1tYXJ5Pg0KKyMjIAlUaGUgdHlwZSBvZiB0aGUgdXNlciBkb21haW4uDQorIyMgCTwvc3Vt
+bWFyeT4NCisjIyAJPC9wYXJhbT4NCisjIyAJPHBhcmFtIG5hbWU9InVzZXJfcm9sZSI+DQorIyMg
+CTxzdW1tYXJ5Pg0KKyMjIAlUaGUgcm9sZSBhc3NvY2lhdGVkIHdpdGggdGhlIHVzZXIgZG9tYWlu
+Lg0KKyMjIAk8L3N1bW1hcnk+DQorIyMgPC9wYXJhbT4NCisjDQordGVtcGxhdGUoYG9pZGVudGRf
+cGVyX3JvbGVfdGVtcGxhdGUnLCBgDQorCWdlbl9yZXF1aXJlKGANCisJCXR5cGUgb2lkZW50ZF9o
+b21lX3Q7DQorCScpDQorDQorCSMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMNCisJIw0KKwkjICBEZWNsYXJhdGlvbnMNCisJIw0KKw0KKwl1c2VyZG9tX3VzZXJfaG9tZV9j
+b250ZW50KCQxLCBvaWRlbnRkX2hvbWVfdCkNCisJDQorCSMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIyMjIyMjIyMjIyMNCisJIw0KKwkjICBQb2xpY3kNCisJIw0KKw0KKwlhbGxvdyAkMiBv
+aWRlbnRkX2hvbWVfdDpmaWxlIG1hbmFnZV9maWxlX3Blcm1zOw0KKwlhbGxvdyAkMiBvaWRlbnRk
+X2hvbWVfdDpmaWxlIHJlbGFiZWxfZmlsZV9wZXJtczsNCisnKQ0KZGlmZiAtLWdpdCBhL3BvbGlj
+eS9tb2R1bGVzL3NlcnZpY2VzL29pZGVudGQudGUgYi9wb2xpY3kvbW9kdWxlcy9zZXJ2aWNlcy9v
+aWRlbnRkLnRlDQpuZXcgZmlsZSBtb2RlIDEwMDY0NA0KaW5kZXggMDAwMDAwMC4uYzhiY2ZjMw0K
+LS0tIC9kZXYvbnVsbA0KKysrIGIvcG9saWN5L21vZHVsZXMvc2VydmljZXMvb2lkZW50ZC50ZQ0K
+QEAgLTAsMCArMSwxMDIgQEANCisNCitwb2xpY3lfbW9kdWxlKG9pZGVudGQsIDAuMC4xKSANCisN
+CisjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDQorIw0KKyMgRGVjbGFy
+YXRpb25zDQorIw0KKw0KKyMjIDxkZXNjPg0KKyMjIDxwPg0KKyMjIEFsbG93IE9pZGVudCBkYWVt
+b24gdG8gcmVhZA0KKyMjIG9pZGVudGQgZGFlbW9uIGhvbWUgZmlsZXMuDQorIyMgPC9wPg0KKyMj
+IDwvZGVzYz4NCisNCitnZW5fdHVuYWJsZShhbGxvd19vaWRlbnRkX3JlYWRfb2lkZW50ZF9ob21l
+X2NvbnRlbnQsIGZhbHNlKQ0KKw0KKyMjIDxkZXNjPg0KKyMjIDxwPg0KKyMjIEFsbG93IE9pZGVu
+dCBkYWVtb24gdG8gdXNlIGNpZnMNCisjIyB1c2VkIGZvciBwdWJsaWMgZmlsZSB0cmFuc2ZlciBz
+ZXJ2aWNlcy4NCisjIyA8L3A+DQorIyMgPC9kZXNjPg0KKw0KK2dlbl90dW5hYmxlKGFsbG93X29p
+ZGVudGRfdXNlX2NpZnMsIGZhbHNlKQ0KKw0KKyMjIDxkZXNjPg0KKyMjIDxwPg0KKyMjIEFsbG93
+IE9pZGVudCBkYWVtb24gdG8gdXNlIG5mcw0KKyMjIHVzZWQgZm9yIHB1YmxpYyBmaWxlIHRyYW5z
+ZmVyIHNlcnZpY2VzLg0KKyMjIDwvcD4NCisjIyA8L2Rlc2M+DQorDQorZ2VuX3R1bmFibGUoYWxs
+b3dfb2lkZW50ZF91c2VfbmZzLCBmYWxzZSkNCisNCit0eXBlIG9pZGVudGRfdDsNCit0eXBlIG9p
+ZGVudGRfZXhlY190Ow0KK2luaXRfZGFlbW9uX2RvbWFpbihvaWRlbnRkX3QsIG9pZGVudGRfZXhl
+Y190KQ0KKw0KK3R5cGUgb2lkZW50ZF9jb25maWdfdDsNCitmaWxlc19jb25maWdfZmlsZShvaWRl
+bnRkX2NvbmZpZ190KQ0KKw0KK3R5cGUgb2lkZW50ZF9ob21lX3Q7DQorZmlsZXNfcG9seV9tZW1i
+ZXIob2lkZW50ZF9ob21lX3QpDQorDQorIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
+IyMjIyMjIw0KKyMNCisjIFBvbGljeQ0KKyMNCisNCithbGxvdyBvaWRlbnRkX3Qgc2VsZjpjYXBh
+YmlsaXR5IHsgc2V0dWlkIHNldGdpZCB9Ow0KK2FsbG93IG9pZGVudGRfdCBzZWxmOm5ldGxpbmtf
+cm91dGVfc29ja2V0IHsgd3JpdGUgZ2V0YXR0ciByZWFkIGJpbmQgY3JlYXRlIG5sbXNnX3JlYWQg
+fTsNCithbGxvdyBvaWRlbnRkX3Qgc2VsZjpuZXRsaW5rX3RjcGRpYWdfc29ja2V0IHsgd3JpdGUg
+cmVhZCBjcmVhdGUgbmxtc2dfcmVhZCB9Ow0KK2FsbG93IG9pZGVudGRfdCBzZWxmOnRjcF9zb2Nr
+ZXQgeyBzZXRvcHQgcmVhZCBiaW5kIGNyZWF0ZSBhY2NlcHQgd3JpdGUgZ2V0YXR0ciBsaXN0ZW4g
+fTsNCithbGxvdyBvaWRlbnRkX3Qgc2VsZjp1ZHBfc29ja2V0IHsgd3JpdGUgcmVhZCBjcmVhdGUg
+Y29ubmVjdCBnZXRhdHRyIH07DQorYWxsb3cgb2lkZW50ZF90IHNlbGY6dW5peF9kZ3JhbV9zb2Nr
+ZXQgeyBjcmVhdGUgY29ubmVjdCB9Ow0KKw0KK2FsbG93IG9pZGVudGRfdCBvaWRlbnRkX2NvbmZp
+Z190OmZpbGUgcmVhZF9maWxlX3Blcm1zOw0KKw0KK2NvcmVuZXRfYWxsX3JlY3Zmcm9tX3VubGFi
+ZWxlZChvaWRlbnRkX3QpDQorY29yZW5ldF9hbGxfcmVjdmZyb21fbmV0bGFiZWwob2lkZW50ZF90
+KQ0KK2NvcmVuZXRfdGNwX3NlbmRyZWN2X2FsbF9pZihvaWRlbnRkX3QpDQorY29yZW5ldF90Y3Bf
+c2VuZHJlY3ZfYWxsX25vZGVzKG9pZGVudGRfdCkNCitjb3JlbmV0X3RjcF9iaW5kX2FsbF9ub2Rl
+cyhvaWRlbnRkX3QpDQorY29yZW5ldF90Y3BfYmluZF9hdXRoX3BvcnQob2lkZW50ZF90KQ0KKw0K
+K2ZpbGVzX3JlYWRfZXRjX2ZpbGVzKG9pZGVudGRfdCkNCisNCitmc19zZWFyY2hfYXV0b19tb3Vu
+dHBvaW50cyhvaWRlbnRkX3QpDQorDQora2VybmVsX3JlYWRfa2VybmVsX3N5c2N0bHMob2lkZW50
+ZF90KQ0KK2tlcm5lbF9yZWFkX25ldHdvcmtfc3RhdGUob2lkZW50ZF90KQ0KK2tlcm5lbF9yZWFk
+X25ldHdvcmtfc3RhdGVfc3ltbGlua3Mob2lkZW50ZF90KQ0KK2tlcm5lbF9yZWFkX3N5c2N0bChv
+aWRlbnRkX3QpDQorDQorbGlic191c2VfbGRfc28ob2lkZW50ZF90KQ0KK2xpYnNfdXNlX3NoYXJl
+ZF9saWJzKG9pZGVudGRfdCkNCisNCitsb2dnaW5nX3NlbmRfc3lzbG9nX21zZyhvaWRlbnRkX3Qp
+DQorDQorbWlzY2ZpbGVzX3JlYWRfbG9jYWxpemF0aW9uKG9pZGVudGRfdCkNCisNCitzeXNuZXRf
+cmVhZF9jb25maWcob2lkZW50ZF90KQ0KKw0KK29wdGlvbmFsX3BvbGljeShgDQorCW5pc191c2Vf
+eXBiaW5kKG9pZGVudGRfdCkNCisnKQ0KKw0KK3R1bmFibGVfcG9saWN5KGBhbGxvd19vaWRlbnRk
+X3JlYWRfb2lkZW50ZF9ob21lX2NvbnRlbnQnLCBgDQorCWFsbG93IG9pZGVudGRfdCBvaWRlbnRk
+X2hvbWVfdDpmaWxlIHJlYWRfZmlsZV9wZXJtczsNCisJdXNlcmRvbV9zZWFyY2hfdXNlcl9ob21l
+X2RpcnModXNlciwgb2lkZW50ZF90KQ0KKycpDQorDQordHVuYWJsZV9wb2xpY3koYGFsbG93X29p
+ZGVudGRfdXNlX2NpZnMnLCBgDQorCWZzX2xpc3RfY2lmcyhvaWRlbnRkX3QpDQorIAlmc19yZWFk
+X2NpZnNfZmlsZXMob2lkZW50ZF90KQ0KKycpDQorDQordHVuYWJsZV9wb2xpY3koYGFsbG93X29p
+ZGVudGRfdXNlX25mcycsIGANCisJZnNfbGlzdF9uZnMob2lkZW50ZF90KQ0KKyAJZnNfcmVhZF9u
+ZnNfZmlsZXMob2lkZW50ZF90KQ0KKycpDQo=
+
+
+--=-f1hqGhO2RT2+YZRcNrfd--
+
+--=-jy3NYKMThl9JF/8qVZnr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkikMwsACgkQL00QnzrVtlzpPgCguPpNN24CFeX0plxItdzI8znP
+g74An0NefGvATy4JuPOCPc+J63o0LNbu
+=ELTg
+-----END PGP SIGNATURE-----
+
+--=-jy3NYKMThl9JF/8qVZnr--
 
 
 --
