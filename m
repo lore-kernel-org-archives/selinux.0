@@ -1,16 +1,16 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EIMV3O029957
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 14:22:31 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7EIMF3C025358
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 18:22:16 GMT
-Message-ID: <48A47791.1060307@redhat.com>
-Date: Thu, 14 Aug 2008 14:21:05 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EIO7WD030409
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 14:24:07 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7EIO6BU007456
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 18:24:06 GMT
+Message-ID: <48A477F6.9070406@redhat.com>
+Date: Thu, 14 Aug 2008 14:22:46 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Minor fixes to first boot policy
+Subject: Missing interfaces for kudzu
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -18,26 +18,17 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-http://people.fedoraproject.org/~dwalsh/SELinux/F10/admin_firstboot.patch
+http://people.fedoraproject.org/~dwalsh/SELinux/F10/admin_kudzu.patch
 
-firstboot tends to leak file descritors and since it it thousands of
-lines of code not likely to be fixed.  So dontaudit leaked descriptors
-to unix_stream_socket
-
-Move unconfined_domain to optional block.
-
-- -files_etc_filetrans_etc_runtime(firstboot_t, { file dir })
-We dont want to do this.  Firstboot should just edit etc files rather
-then mislabeling them
-
-Remove ancient cruft
+Also included a change to modutils updatete_modules_run need to call
+modutils_run_insmod
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkikd5EACgkQrlYvE4MpobMTJgCg35zLOzqNGNL3Ca2MUxDlhHRl
-ElwAoKwqvZIX5PmK9BXNe1hFepfMAsTK
-=8DHt
+iEYEARECAAYFAkikd/YACgkQrlYvE4MpobMAyACgt78FJXHbDAA6h3ykQxfv/GSq
+0JsAoKhwU1kYupZconozYzJbGYNosQuM
+=V6Cb
 -----END PGP SIGNATURE-----
 
 --
