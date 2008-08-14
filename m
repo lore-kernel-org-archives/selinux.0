@@ -1,16 +1,16 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EIO7WD030409
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 14:24:07 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EIQkbk031016
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 14:26:46 -0400
 Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7EIO6BU007456
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 18:24:06 GMT
-Message-ID: <48A477F6.9070406@redhat.com>
-Date: Thu, 14 Aug 2008 14:22:46 -0400
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7EIQkBU008200
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 18:26:46 GMT
+Message-ID: <48A47896.3080109@redhat.com>
+Date: Thu, 14 Aug 2008 14:25:26 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Missing interfaces for kudzu
+Subject: Missing interface for courier
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -18,17 +18,20 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-http://people.fedoraproject.org/~dwalsh/SELinux/F10/admin_kudzu.patch
+http://people.fedoraproject.org/~dwalsh/SELinux/F10/services_courier.patch
 
-Also included a change to modutils updatete_modules_run need to call
-modutils_run_insmod
+New interface defines executables that are mailers and then
+mta_send_mail will transition execs to system_mail_t
+
+Snuck in changing mqueue_spool_t and mail_spool_t to mountpoints since
+people tend to mount large disks on these mountpoints.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkikd/YACgkQrlYvE4MpobMAyACgt78FJXHbDAA6h3ykQxfv/GSq
-0JsAoKhwU1kYupZconozYzJbGYNosQuM
-=V6Cb
+iEYEARECAAYFAkikeJYACgkQrlYvE4MpobNqKwCfckhtF89FlI1en8dp7nmQtDw+
+wdgAnRG8YixvIPuzKOikfsgCU6iW0W1M
+=6CN9
 -----END PGP SIGNATURE-----
 
 --
