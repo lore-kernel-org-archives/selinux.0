@@ -1,54 +1,62 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7EFIGhu017835
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 11:18:16 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m7EFIGqV008266
-	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 15:18:16 GMT
-Subject: Re: postgresql patch
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <48A42A16.1070209@redhat.com>
-References: <48A42A16.1070209@redhat.com>
+Subject: Re: Request for multiple mailing lists
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <method@manicmethod.com>
+Cc: russell@coker.com.au, Vesa-Matti J Kari <vmkari@cc.helsinki.fi>,
+        Andy Warner <warner@rubix.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        SE-Linux <selinux@tycho.nsa.gov>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <489C7DEE.7090006@manicmethod.com>
+References: <489B25B6.4080309@windriver.com> <489C1BB1.2060701@rubix.com>
+	 <Pine.LNX.4.64L.0808081319150.25440@ruuvi.it.helsinki.fi>
+	 <200808082048.53795.russell@coker.com.au>
+	 <489C7DEE.7090006@manicmethod.com>
 Content-Type: text/plain
-Date: Thu, 14 Aug 2008 11:16:10 -0400
-Message-Id: <1218726970.8095.81.camel@gorn.columbia.tresys.com>
+Date: Thu, 14 Aug 2008 12:16:16 -0400
+Message-Id: <1218730576.29535.20.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-08-14 at 08:50 -0400, Daniel J Walsh wrote:
-> New location for log files
+
+On Fri, 2008-08-08 at 13:10 -0400, Joshua Brindle wrote:
+> Russell Coker wrote:
+> > On Friday 08 August 2008 20:33, Vesa-Matti J Kari <vmkari@cc.helsinki.fi> 
 > 
-> Uses hugetblfs.
+> <snip>
+> 
+> Back on topic:
+> 
+> I've multiple times in the past that I'd like to have a policy list that was separate. The main problem here is that all the core developers would almost certainly be subscribed to both (all) of them so there is little motivation on this end to split the lists out.
+> 
+> I completely disagree with splitting kernel and userland out as kernel changes almost always require userland changes, and userland changes are often created to address format changes, etc that are of interest to the kernel.
+> 
+> That said, even if we had to be subscribed to both it would be easier to disregard the parts less interesting to us (for me, that is policy, for Chris that is the other). 
+> 
+> So I'll +1 the request but believe only 2 lists are necessary.
 
-Merged.
+I'm fine with moving refpolicy patches and discussion to another list
+with the exception of changes that touch the core Flask definitions,
+which should be copied to both lists as they will affect the kernel or
+userspace object managers.
 
-> plain text document attachment (services_postgresql.patch)
-> --- nsaserefpolicy/policy/modules/services/postgresql.fc	2008-08-07 11:15:11.000000000 -0400
-> +++ serefpolicy-3.5.4/policy/modules/services/postgresql.fc	2008-08-11 16:39:48.000000000 -0400
-> @@ -34,6 +34,7 @@
->  /var/lib/sepgsql/pgstartup\.log	--	gen_context(system_u:object_r:postgresql_log_t,s0)
->  
->  /var/log/postgres\.log.* 	--	gen_context(system_u:object_r:postgresql_log_t,s0)
-> +/var/lib/pgsql/logfile(/.*)?		gen_context(system_u:object_r:postgresql_log_t,s0)
->  /var/log/postgresql(/.*)?		gen_context(system_u:object_r:postgresql_log_t,s0)
->  /var/log/sepostgresql\.log.*	--	gen_context(system_u:object_r:postgresql_log_t,s0)
->  
-> --- nsaserefpolicy/policy/modules/services/postgresql.te	2008-08-07 11:15:11.000000000 -0400
-> +++ serefpolicy-3.5.4/policy/modules/services/postgresql.te	2008-08-11 16:39:48.000000000 -0400
-> @@ -186,6 +189,7 @@
->  
->  fs_getattr_all_fs(postgresql_t)
->  fs_search_auto_mountpoints(postgresql_t)
-> +fs_rw_hugetlbfs_files(postgresql_t)
->  
->  selinux_get_enforce_mode(postgresql_t)
->  selinux_validate_context(postgresql_t)
+refpolicy certainly doesn't have to be the only policy for SELinux,
+although it is a useful source pool that embodies a lot of knowledge
+derived over time from the community, and most existing policies are
+built from that common source pool.  Prior to refpolicy, the NSA example
+policy served the same purpose, and that knowledge and community effort
+transitioned from the example policy to refpolicy when refpolicy was
+deployed in modern distributions that support SELinux.
+
+While refpolicy is not limited to Tresys (they are just the upstream
+maintainers), it seems to make sense to host such a refpolicy list on
+the same site that hosts the refpolicy project, so hosting it on
+oss.tresys.com would make sense to me.
+
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+Stephen Smalley
+National Security Agency
 
 
 --
