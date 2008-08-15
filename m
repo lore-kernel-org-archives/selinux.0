@@ -1,49 +1,53 @@
-Date: Fri, 15 Aug 2008 09:05:44 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Vesa-Matti Kari <vmkari@cc.helsinki.fi>, eparis@parisplace.org,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: Unify for- and while-loop style
-In-Reply-To: <1218732169.29535.35.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <alpine.LRH.1.10.0808150859500.1371@tundra.namei.org>
-References: <200808070036.m770ajof012753@ruuvi.it.helsinki.fi> <1218732169.29535.35.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7F1ddta016235
+	for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 21:39:39 -0400
+Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7F1ddfd001117
+	for <selinux@tycho.nsa.gov>; Fri, 15 Aug 2008 01:39:39 GMT
+Received: by py-out-1112.google.com with SMTP id a78so1095749pyh.32
+        for <selinux@tycho.nsa.gov>; Thu, 14 Aug 2008 18:39:38 -0700 (PDT)
+Message-ID: <48A4DE2A.3090002@gmail.com>
+Date: Thu, 14 Aug 2008 21:38:50 -0400
+From: Ivan Gyurdiev <ivg231@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: libsemage patch to not compile modules for seusers and fcontext
+References: <48A48B8C.3070908@redhat.com>
+In-Reply-To: <48A48B8C.3070908@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 14 Aug 2008, Stephen Smalley wrote:
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Patch speeds up semanage command from 17-20 seconds to 3-4 seconds.
+>   
+Hi Dan!
+Some suggestions below,  if I can still remember correctly how this was
+supposed to work:
 
-> 
-> On Thu, 2008-08-07 at 03:18 +0300, Vesa-Matti Kari wrote:
-> > Replace "thing != NULL" comparisons with just "thing" to make
-> > the code look more uniform (mixed styles were used even in the
-> > same source file).
-> 
-> Looks fine to me.
-> 
-> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+One issue with the patch is that it makes an already large and hard to
+maintain function even larger - it would be better to split it up and
+make it modular instead.  Likely "merge_components" and
+"commit_components" should be changed to pass the components to merge or
+commit as arguments - so you can operate on file and policydb components
+separately.
 
-Applied to:
+The "attach" calls shouldn't really be needed, since you're not
+re-writing the policydb, or changing ports/bools/etc. It would be better
+to change the rest of the code, so that the attach calls become
+unnecessary in this code path.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+On the other hand the code that parses out seusers/fcontexts/users_extra
+info from the module package may be necessary, so that your local
+seusers/fcontexts/users_extra changes are properly merged with the
+shipped policy files - these are the "write_file" sections above.
 
-FWIW, thes kinds of cleanups are not a problem per se, but do require time 
-upstream to review, integrate and test them, where such time is often in 
-short supply.  I think there's better value in working on finding/fixing 
-functional bugs, picking items off the todo list [1] and generally looking 
-for ways to make the code better for end users.  One example of the latter 
-would be to look for ways to improve performance. There are also several 
-works in progress with patches posted asking for review and feedback.
+- Ivan
 
-
-[1]
-http://selinuxproject.org/page/Kernel_Development
-
-
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
