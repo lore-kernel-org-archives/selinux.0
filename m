@@ -1,76 +1,128 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7LEIRb4003677
-	for <selinux@tycho.nsa.gov>; Thu, 21 Aug 2008 10:18:27 -0400
-Subject: Re: Make Dummy Policy
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: selinux@tycho.nsa.gov, "Serge E. Hallyn" <serue@us.ibm.com>
-In-Reply-To: <1219268728.13542.5.camel@moss-terrapins.epoch.ncsc.mil>
-References: <1219262296.2609.148.camel@moss-terrapins.epoch.ncsc.mil>
-	 <48AC9124.1000109@schaufler-ca.com>
-	 <1219268728.13542.5.camel@moss-terrapins.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7LEeW73009970
+	for <selinux@tycho.nsa.gov>; Thu, 21 Aug 2008 10:40:32 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m7LEeVj2008163
+	for <selinux@tycho.nsa.gov>; Thu, 21 Aug 2008 14:40:32 GMT
+Subject: Re: [patch 04/35] corenetwork policy update
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: david@hardeman.nu
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20080804123735.158269348@hardeman.nu>
+References: <20080804123456.679565839@hardeman.nu>
+	 <20080804123735.158269348@hardeman.nu>
 Content-Type: text/plain
-Date: Thu, 21 Aug 2008 10:00:26 -0400
-Message-Id: <1219327226.13542.45.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Thu, 21 Aug 2008 10:40:22 -0400
+Message-Id: <1219329622.16398.66.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-08-20 at 17:45 -0400, David P. Quigley wrote:
-> On Wed, 2008-08-20 at 14:48 -0700, Casey Schaufler wrote:
-> > David P. Quigley wrote:
-> > > Back in August of 2006 Serge posted a patch to this list which generates
-> > > a bare minimum policy based on the flask definition headers in the Linux
-> > > kernel tree. While I was at OLS someone had mentioned that they wanted
-> > > an easy way to generate a bare minimum policy that they could then carve
-> > > up as they wanted. I have taken Serge's patch and have updated it to
-> > > work with the latest Linux Kernel. 
-> > >
-> > > For those interested in the changes there were only two significant
-> > > changes. The first is that the iteration through the list of classes
-> > > used NULL as a sentinel value. The problem with this is that the
-> > > class_to_string array actually has NULL entries in its table as place
-> > > holders for the user space object classes.
-> > >
-> > > The second change was that it would seem at some point the initial sids
-> > > table was NULL terminated. This is no longer the case so that iteration
-> > > has to be done on array length instead of looking for NULL.
-> > >
-> > > Some statistics on the policy that it generates:
-> > >
-> > > The policy consists of 523 lines which contain no blank lines. Of those
-> > > 523 lines 453 of them are class, permission, and initial sid
-> > > definitions. These lines are usually little to no concern to the policy
-> > > developer since they will not be adding object classes or permissions.
-> > > Of the remaining 70 lines there is one type, one role, and one user
-> > > statement. The remaining lines are broken into three portions. The first
-> > > group are TE allow rules which make up 29 of the remaining lines, the
-> > > second is assignment of labels to the initial sids which consist of 27
-> > > lines, and file system labeling statements which are the remaining 11.
-> > >
-> > > In addition to the policy.conf generated there is a single file_contexts
-> > > file containing two lines which labels the entire system with base_t.
-> > >
-> > > This policy generates a policy.23 binary that is 7920 bytes.
-> > >
-> > > Dave
-> > >   
-> > 
-> > Thank you. I noticed that class "capability2" is defined but
-> > never used. Is this intentional?
-> 
-> Ok here is a fixed version of the program. It increases the TE allow
-> rules to 47 from 29 so it isn't much larger and increases the policy.23
-> file to 8136 bytes.
-> 
-> Dave
+On Mon, 2008-08-04 at 14:35 +0200, david@hardeman.nu wrote:
+> plain text document attachment
+> (policy_modules_kernel_corenetwork.te.in.patch)
+> This patch should be a no-brainer, additional network port names only...
 
-OK, so in testing this policy I ran into a small idiocincracy of policy
-creation. I was under the false assumption that I could strip out the
-user space object classes. This is not the case so I will fix up the
-program once again to emit fake names for the user space object classes.
+I'd prefer to add the ports as needed, as part of appropriate the
+services' patch.
 
-Dave
+> Index: refpolicy/policy/modules/kernel/corenetwork.te.in
+> ===================================================================
+> --- refpolicy.orig/policy/modules/kernel/corenetwork.te.in	2008-08-03 13:09:47.000000000 +0200
+> +++ refpolicy/policy/modules/kernel/corenetwork.te.in	2008-08-03 17:04:05.000000000 +0200
+> @@ -75,6 +75,7 @@
+>  network_port(aol, udp,5190,s0, tcp,5190,s0, udp,5191,s0, tcp,5191,s0, udp,5192,s0, tcp,5192,s0, udp,5193,s0, tcp,5193,s0) 
+>  network_port(apcupsd, tcp,3551,s0, udp,3551,s0)
+>  network_port(asterisk, tcp,1720,s0, udp,2427,s0, udp,2727,s0, udp,4569,s0, udp,5060,s0)
+> +#network_port(audit, tcp,60,s0) - not a registered port (yet?)
+>  network_port(auth, tcp,113,s0)
+>  network_port(bgp, tcp,179,s0, udp,179,s0, tcp,2605,s0, udp,2605,s0)
+>  type biff_port_t, port_type, reserved_port_type; dnl network_port(biff) # no defined portcon in current strict
+> @@ -82,6 +83,7 @@
+>  network_port(clockspeed, udp,4041,s0)
+>  network_port(cluster, tcp,5149,s0, udp,5149,s0, tcp,40040,s0, tcp,50006,s0, udp,50006,s0, tcp,50007,s0, udp,50007,s0, tcp,50008,s0, udp,50008,s0)
+>  network_port(comsat, udp,512,s0)
+> +network_port(cyphesis, udp,32771,s0, tcp,6767,s0, tcp,6769,s0)
+>  network_port(cvs, tcp,2401,s0, udp,2401,s0)
+>  network_port(dcc, udp,6276,s0, udp,6277,s0)
+>  network_port(dbskkd, tcp,1178,s0)
+> @@ -91,6 +93,7 @@
+>  network_port(distccd, tcp,3632,s0)
+>  network_port(dns, udp,53,s0, tcp,53,s0)
+>  network_port(fingerd, tcp,79,s0)
+> +network_port(flash, tcp,1935,s0, udp,1935,s0)
+>  network_port(ftp_data, tcp,20,s0)
+>  network_port(ftp, tcp,21,s0)
+>  network_port(gatekeeper, udp,1718,s0, udp,1719,s0, tcp,1721,s0, tcp,7000,s0)
+> @@ -109,11 +112,13 @@
+>  network_port(ircd, tcp,6667,s0)
+>  network_port(isakmp, udp,500,s0)
+>  network_port(iscsi, tcp,3260,s0)
+> +network_port(isns, tcp,3205,s0, udp,3205,s0)
+>  network_port(jabber_client, tcp,5222,s0, tcp,5223,s0)
+>  network_port(jabber_interserver, tcp,5269,s0)
+>  network_port(kerberos_admin, tcp,464,s0, udp,464,s0, tcp,749,s0)
+>  network_port(kerberos_master, tcp,4444,s0, udp,4444,s0)
+>  network_port(kerberos, tcp,88,s0, udp,88,s0, tcp,750,s0, udp,750,s0)
+> +network_port(kprop, tcp,754,s0)
+>  network_port(ktalkd, udp,517,s0, udp,518,s0)
+>  network_port(ldap, tcp,389,s0, udp,389,s0, tcp,636,s0, udp,636,s0, tcp,3268,s0)
+>  type lrrd_port_t, port_type; dnl network_port(lrrd_port_t) # no defined portcon
+> @@ -122,6 +127,8 @@
+>  network_port(mmcc, tcp,5050,s0, udp,5050,s0)
+>  network_port(monopd, tcp,1234,s0)
+>  network_port(msnp, tcp,1863,s0, udp,1863,s0)
+> +network_port(munin, tcp,4949,s0, udp,4949,s0)
+> +network_port(mythtv, tcp,6543,s0, udp,6543,s0)
+>  network_port(mysqld, tcp,1186,s0, tcp,3306,s0)
+>  portcon tcp 63132-63163 gen_context(system_u:object_r:mysqld_port_t, s0)
+>  network_port(nessus, tcp,1241,s0)
+> @@ -133,10 +140,13 @@
+>  network_port(pegasus_http, tcp,5988,s0)
+>  network_port(pegasus_https, tcp,5989,s0)
+>  network_port(postfix_policyd, tcp,10031,s0)
+> +network_port(pulseaudio, tcp,4713,s0)
+> +network_port(pgpkeyserver, udp, 11371,s0, tcp,11371,s0)
+>  network_port(pop, tcp,106,s0, tcp,109,s0, tcp,110,s0, tcp,143,s0, tcp,220,s0, tcp,993,s0, tcp,995,s0, tcp,1109,s0)
+>  network_port(portmap, udp,111,s0, tcp,111,s0)
+>  network_port(postgresql, tcp,5432,s0)
+>  network_port(postgrey, tcp,60000,s0)
+> +network_port(prelude, tcp,4690,s0, udp,4690,s0)
+>  network_port(printer, tcp,515,s0)
+>  network_port(ptal, tcp,5703,s0)
+>  network_port(pxe, udp,4011,s0)
+> @@ -148,11 +158,11 @@
+>  network_port(ricci_modcluster, tcp,16851,s0, udp,16851,s0)
+>  network_port(rlogind, tcp,513,s0)
+>  network_port(rndc, tcp,953,s0)
+> -network_port(router, udp,520,s0)
+> +network_port(router, udp,520,s0, udp,521,s0, tcp,521,s0)
+>  network_port(rsh, tcp,514,s0)
+>  network_port(rsync, tcp,873,s0, udp,873,s0)
+>  network_port(rwho, udp,513,s0)
+> -network_port(smbd, tcp,139,s0, tcp,445,s0)
+> +network_port(smbd, tcp,137-139,s0, tcp,445,s0)
+>  network_port(smtp, tcp,25,s0, tcp,465,s0, tcp,587,s0)
+>  network_port(snmp, udp,161,s0, udp,162,s0, tcp,199,s0)
+>  network_port(spamd, tcp,783,s0)
+> @@ -170,7 +180,12 @@
+>  network_port(transproxy, tcp,8081,s0)
+>  type utcpserver_port_t, port_type; dnl network_port(utcpserver) # no defined portcon
+>  network_port(uucpd, tcp,540,s0)
+> +network_port(virt, tcp,16509,s0, udp,16509,s0, tcp,16514,s0, udp,16514,s0)
+> +
+>  network_port(vnc, tcp,5900,s0)
+> +# Reserve 100 ports for vnc/virt machines
+> +portcon tcp 5901-5999 gen_context(system_u:object_r:vnc_port_t, s0)
+> +network_port(whois, tcp,43,s0, udp,43,s0)
+>  network_port(wccp, udp,2048,s0)
+>  network_port(xdmcp, udp,177,s0, tcp,177,s0)
+>  network_port(xen, tcp,8002,s0)
+> 
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
