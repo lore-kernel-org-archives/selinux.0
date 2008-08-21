@@ -1,59 +1,205 @@
-Subject: Re: [PATCH] Revised Patch for local nodecon support in semanage
-	(was: Adding local nodecon's through semanage)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Christian Kuester <c.kuester@tarent.de>
-Cc: selinux@tycho.nsa.gov, Joshua Brindle <method@manicmethod.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, Paul Moore <paul.moore@hp.com>
-In-Reply-To: <48A3DF80.4060905@tarent.de>
-References: <486CD88E.2000406@tarent.de>
-	 <1215450682.27975.108.camel@moss-spartans.epoch.ncsc.mil>
-	 <48733DCF.3000808@tarent.de>
-	 <1215520245.27975.231.camel@moss-spartans.epoch.ncsc.mil>
-	 <1217333603.20373.158.camel@moss-spartans.epoch.ncsc.mil>
-	 <48A3DF80.4060905@tarent.de>
-Content-Type: text/plain
-Date: Thu, 21 Aug 2008 16:59:36 -0400
-Message-Id: <1219352376.4200.91.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7LLQAH9015418
+	for <selinux@tycho.nsa.gov>; Thu, 21 Aug 2008 17:26:10 -0400
+Received: from g1t0027.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7LLPmBg022288
+	for <selinux@tycho.nsa.gov>; Thu, 21 Aug 2008 21:25:48 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v3 03/13] selinux: Fix missing calls to netlbl_skbuff_err()
+To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Date: Thu, 21 Aug 2008 17:26:01 -0400
+Message-ID: <20080821212601.7951.56170.stgit@flek.lan>
+In-Reply-To: <20080821210239.7951.59652.stgit@flek.lan>
+References: <20080821210239.7951.59652.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+At some point I think I messed up and dropped the calls to netlbl_skbuff_err()
+which are necessary for CIPSO to send error notifications to remote systems.
+This patch re-introduces the error handling calls into the SELinux code.
 
-On Thu, 2008-08-14 at 09:32 +0200, Christian Kuester wrote:
-> Stephen Smalley schrieb:
-> 
-> Hi List,
-> 
-> > On Tue, 2008-07-08 at 08:30 -0400, Stephen Smalley wrote:
-> >> On Tue, 2008-07-08 at 12:13 +0200, Christian Kuester wrote:
-> >>>> Other tidbits on the semanage patch that I noticed:
-> >>>> - semanage node -l was broken, requires additional argument that has
-> >>>> been added to the list methods subsequently.  Also would be nice to
-> >>>> support locallist/-C option.
-> >>>> - semanage node -p option should take a string rather than an integer
-> >>>> and map it to the proper symbolic constant for ipv4/ipv6.
-> >> Please be sure to test each of the nodeRecords methods.
-> > Are you still pursuing getting this cleaned up and merged?
-> 
-> Sorry, it took some time. The revised patch for nodecon support in
-> the semanage tool is attached.
-> 
-> It now takes strings as arguments for the ip protocol. list/locallist
-> work as expected and output is more readable. I also made changes for
-> the semanage.8 man page.
+Signed-off-by: XXX
+---
 
-semanage node -lC appears to list all of the entries rather than only
-the local modifications (i.e. the ones in the nodes.local file).
-Compare with semanage fcontext -lC or port -lC.
+ include/net/netlabel.h              |    6 ++++--
+ net/netlabel/netlabel_kapi.c        |    5 +++--
+ security/selinux/hooks.c            |   19 +++++++++++++++----
+ security/selinux/include/netlabel.h |    9 +++++++++
+ security/selinux/netlabel.c         |   20 +++++++++++++++++++-
+ 5 files changed, 50 insertions(+), 9 deletions(-)
 
-Also the patch should be from the top of the tree, preferably appliable
-by git-apply.
-
-Thanks.
-
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+index 5303749..e16db09 100644
+--- a/include/net/netlabel.h
++++ b/include/net/netlabel.h
+@@ -382,7 +382,7 @@ int netlbl_sock_getattr(struct sock *sk,
+ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+ 			  u16 family,
+ 			  struct netlbl_lsm_secattr *secattr);
+-void netlbl_skbuff_err(struct sk_buff *skb, int error);
++void netlbl_skbuff_err(struct sk_buff *skb, int error, int gateway);
+ 
+ /*
+  * LSM label mapping cache operations
+@@ -454,7 +454,9 @@ static inline int netlbl_skbuff_getattr(const struct sk_buff *skb,
+ {
+ 	return -ENOSYS;
+ }
+-static inline void netlbl_skbuff_err(struct sk_buff *skb, int error)
++static inline void netlbl_skbuff_err(struct sk_buff *skb,
++				     int error,
++				     int gateway)
+ {
+ 	return;
+ }
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index 2a2b8fa..38ee891 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -490,6 +490,7 @@ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+  * netlbl_skbuff_err - Handle a LSM error on a sk_buff
+  * @skb: the packet
+  * @error: the error code
++ * @gateway: true if host is acting as a gateway, false otherwise
+  *
+  * Description:
+  * Deal with a LSM problem when handling the packet in @skb, typically this is
+@@ -497,10 +498,10 @@ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+  * according to the packet's labeling protocol.
+  *
+  */
+-void netlbl_skbuff_err(struct sk_buff *skb, int error)
++void netlbl_skbuff_err(struct sk_buff *skb, int error, int gateway)
+ {
+ 	if (CIPSO_V4_OPTEXIST(skb))
+-		cipso_v4_error(skb, error, 0);
++		cipso_v4_error(skb, error, gateway);
+ }
+ 
+ /**
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 03fc6a8..b41df63 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4093,6 +4093,8 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 			return err;
+ 		err = avc_has_perm(sk_sid, peer_sid,
+ 				   SECCLASS_PEER, PEER__RECV, ad);
++		if (err)
++			selinux_netlbl_err(skb, err, 0);
+ 	} else {
+ 		err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, ad);
+ 		if (err)
+@@ -4142,10 +4144,14 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 			return err;
+ 		err = selinux_inet_sys_rcv_skb(skb->iif, addrp, family,
+ 					       peer_sid, &ad);
+-		if (err)
++		if (err) {
++			selinux_netlbl_err(skb, err, 0);
+ 			return err;
++		}
+ 		err = avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER,
+ 				   PEER__RECV, &ad);
++		if (err)
++			selinux_netlbl_err(skb, err, 0);
+ 	}
+ 
+ 	if (selinux_secmark_enabled()) {
+@@ -4370,6 +4376,7 @@ out:
+ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
+ 				       u16 family)
+ {
++	int err;
+ 	char *addrp;
+ 	u32 peer_sid;
+ 	struct avc_audit_data ad;
+@@ -4393,10 +4400,14 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
+ 	if (selinux_skb_peerlbl_sid(skb, family, &peer_sid) != 0)
+ 		return NF_DROP;
+ 
+-	if (peerlbl_active)
+-		if (selinux_inet_sys_rcv_skb(ifindex, addrp, family,
+-					     peer_sid, &ad) != 0)
++	if (peerlbl_active) {
++		err = selinux_inet_sys_rcv_skb(ifindex, addrp, family,
++					       peer_sid, &ad);
++		if (err) {
++			selinux_netlbl_err(skb, err, 1);
+ 			return NF_DROP;
++		}
++	}
+ 
+ 	if (secmark_active)
+ 		if (avc_has_perm(peer_sid, skb->secmark,
+diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+index 487a7d8..e034d25 100644
+--- a/security/selinux/include/netlabel.h
++++ b/security/selinux/include/netlabel.h
+@@ -39,6 +39,8 @@
+ #ifdef CONFIG_NETLABEL
+ void selinux_netlbl_cache_invalidate(void);
+ 
++void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway);
++
+ void selinux_netlbl_sk_security_reset(struct sk_security_struct *ssec,
+ 				      int family);
+ 
+@@ -63,6 +65,13 @@ static inline void selinux_netlbl_cache_invalidate(void)
+ 	return;
+ }
+ 
++static inline void void selinux_netlbl_err(struct sk_buff *skb,
++					   int error,
++					   int gateway)
++{
++	return;
++}
++
+ static inline void selinux_netlbl_sk_security_reset(
+ 					       struct sk_security_struct *ssec,
+ 					       int family)
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 89b4183..0207bd2 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -106,6 +106,24 @@ void selinux_netlbl_cache_invalidate(void)
+ }
+ 
+ /**
++ * selinux_netlbl_err - Handle a NetLabel packet error
++ * @skb: the packet
++ * @error: the error code
++ * @gateway: true if host is acting as a gateway, false otherwise
++ *
++ * Description:
++ * When a packet is dropped due to a call to avc_has_perm() pass the error
++ * code to the NetLabel subsystem so any protocol specific processing can be
++ * done.  This is safe to call even if you are unsure if NetLabel labeling is
++ * present on the packet, NetLabel is smart enough to only act when it should.
++ *
++ */
++void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway)
++{
++	netlbl_skbuff_err(skb, error, gateway);
++}
++
++/**
+  * selinux_netlbl_sk_security_reset - Reset the NetLabel fields
+  * @ssec: the sk_security_struct
+  * @family: the socket family
+@@ -307,7 +325,7 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 		return 0;
+ 
+ 	if (nlbl_sid != SECINITSID_UNLABELED)
+-		netlbl_skbuff_err(skb, rc);
++		netlbl_skbuff_err(skb, rc, 0);
+ 	return rc;
+ }
+ 
 
 
 --
