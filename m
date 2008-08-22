@@ -1,36 +1,59 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7MKUf3E008414
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2008 16:30:41 -0400
-Received: from mail.wrs.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7MKUFjf001430
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2008 20:30:16 GMT
-Received: from ALA-MAIL03.corp.ad.wrs.com (ala-mail03 [147.11.57.144])
-	by mail.wrs.com (8.13.6/8.13.6) with ESMTP id m7MKUevT000901
-	for <selinux@tycho.nsa.gov>; Fri, 22 Aug 2008 13:30:40 -0700 (PDT)
-Message-ID: <48AF21C3.9020506@windriver.com>
-Date: Fri, 22 Aug 2008 16:29:55 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+Date: Sat, 23 Aug 2008 08:56:35 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, SELinux <selinux@tycho.nsa.gov>,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Subject: Re: [PATCH 1/1] selinux: add support for installing a dummy policy
+In-Reply-To: <20080822193413.GA8401@us.ibm.com>
+Message-ID: <alpine.LRH.1.10.0808230852320.24779@tundra.namei.org>
+References: <20080822193413.GA8401@us.ibm.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: PAM security transitions
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I've been messing around with various modules and installations and I've 
-come across a strange PAM problem. Without any SELinux support in 
-pam.d/login, root's shell gets system_r:local_login_t
+On Fri, 22 Aug 2008, Serge E. Hallyn wrote:
 
-But then using: pam_selinux.so close/open, root's shell gets 
-root:staff_r:system_chkpwd_t
+> In August 2006 I posted a patch to the selinux list generating a minimal
+> SELinux policy.  This week, David P. Quigley posted an updated version
+> of that as a patch against the kernel.  In addition to some fixes, also
+> had nice logic for auto-installing the policy.
+> 
+> I've gone ahead and hooked it into the kernel Makefile logic.  The way I
+> have it here, doing 'make scripts' ends up compiling 'mdp', after which
+> you must
+> 	cd scripts/selinux
+> 	sh install_policy.sh
+> 
+> That isn't as nice as being able to do
+> 	make selinux_install
+> the way David had it, but it avoids mucking with the top-level
+> Makefile.  Which is preferred?
 
-I have another installation with the same pam config, but it gets the 
-correct root:sysadm_r:sysadm_t context. This system uses a different policy.
+I think leaving out of the top level makefile is preferred, as there are 
+no other subsystem targets there.
 
-Trying to debug this. Any ideas why one of my boxes gets the wrong 
-domain after login?
+Please make sure 'make distclean' cleans up properly.  These are 
+currently left behind:
 
-Vikram
+#       scripts/selinux/mdp/file_contexts
+#       scripts/selinux/mdp/policy.23
+#       scripts/selinux/mdp/policy.conf
+
+Please also provide documentation on how to boot the system up with this 
+policy.
+
+
+> +	echo "no file contests file.  Please run"
+
+ITYM contexts :-)
+
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
