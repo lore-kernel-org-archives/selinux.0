@@ -1,71 +1,49 @@
-Subject: [patch] libselinux:  fix EMBEDDED=y build
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>,
-        Joshua Brindle <method@manicmethod.com>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 25 Aug 2008 09:43:04 -0400
-Message-Id: <1219671784.2721.83.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <48B2B765.6050702@kaigai.gr.jp>
+Date: Mon, 25 Aug 2008 22:45:09 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, jmorris@namei.org, paul.moore@hp.com,
+        jbrindle@tresys.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment (rev.6)
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com>	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>	 <4897EB5A.1040404@ak.jp.nec.com>	 <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>	 <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com>	 <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil>	 <48B2A669.7040800@ak.jp.nec.com> <1219669066.2721.68.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1219669066.2721.68.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix EMBEDDED=y build for libselinux.
+Stephen Smalley wrote:
+> On Mon, 2008-08-25 at 21:32 +0900, KaiGai Kohei wrote:
+>> The following patch is revised one for kernel.
+>>
+>> Updates:
+>>  - This patch is rebased on James's security-testing-2.6 tree.
+>>  - security_bounded_transition() is deployed just after read_unlock()
+>>    within do_each_thread() { ... } while_each_thread() loop again.
+>>  - The properties of type_datum are packed within the third word of
+>>    type entries in the kernel policy.
+>>  - Bounds checks on constraints are integrated within avc creation.
+>>    Lazy bounds checks are invoked at the tail of context_struct_compute_av(),
+>>    and it drops all of boundary violated permissions. It compares permissions
+>>    of a bounded type based on both of TE and constraints by a bounds type in
+>>    same time, so the bounded type always cannot have any wider permission than
+>>    its parent.
+>>    e.g)
+>>      When a type of child_t is bounded by parent_t and has mcssetcats attribute,
+>>      we cannot assign undominated categories because parent_t is not allowed to
+>>      assign them and it bounds permissions of child_t.
+>>  - Sanity checks for constraints are removed by the above reason.
+> 
+> This looks good to me in terms of the functionality.
+> Have you run any benchmarks to assess the performance impact on AVC
+> misses?
 
-Before:
-$ make EMBEDDED=y > out
-cc1: warnings being treated as errors
-load_policy.c: In function ‘selinux_mkload_policy’:
-load_policy.c:59: warning: unused variable ‘i’
-load_policy.c:59: warning: unused variable ‘len’
-load_policy.c:59: warning: unused variable ‘values’
-load_policy.c:54: warning: unused variable ‘names’
-make[1]: *** [load_policy.o] Error 1
+Not yet.
+I'll measure it tomorrow, please wait for a while.
 
-After:
-$ make EMBEDDED=y > out
-$ make clean all > out
-
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-
----
-
- libselinux/src/load_policy.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index 63f6609..affe37b 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -51,12 +51,12 @@ int selinux_mkload_policy(int preservebools)
- 	int kernvers = security_policyvers();
- 	int maxvers = kernvers, minvers = DEFAULT_POLICY_VERSION, vers;
- 	int setlocaldefs = load_setlocaldefs;
--	char path[PATH_MAX], **names;
-+	char path[PATH_MAX];
- 	struct stat sb;
- 	struct utsname uts;
- 	size_t size;
- 	void *map, *data;
--	int fd, rc = -1, *values, len, i, prot;
-+	int fd, rc = -1, prot;
- 	sepol_policydb_t *policydb;
- 	sepol_policy_file_t *pf;
- 	int usesepol = 0;
-@@ -251,6 +251,8 @@ checkbool:
- 		
- #ifndef DISABLE_BOOL
- 		if (preservebools) {
-+			int *values, len, i;
-+			char **names;
- 			rc = security_get_boolean_names(&names, &len);
- 			if (!rc) {
- 				values = malloc(sizeof(int) * len);
-
+Thanks,
 -- 
-Stephen Smalley
-National Security Agency
-
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
