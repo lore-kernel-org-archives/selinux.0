@@ -1,63 +1,193 @@
-Date: Fri, 22 Aug 2008 21:38:12 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: James Morris <jmorris@namei.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, SELinux <selinux@tycho.nsa.gov>,
-        "David P. Quigley" <dpquigl@tycho.nsa.gov>
-Subject: Re: [PATCH 1/1] selinux: add support for installing a dummy policy
-Message-ID: <20080823023812.GA30915@us.ibm.com>
-References: <20080822193413.GA8401@us.ibm.com> <alpine.LRH.1.10.0808230852320.24779@tundra.namei.org>
+Message-ID: <48B20816.8030502@manicmethod.com>
+Date: Sun, 24 Aug 2008 21:17:10 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LRH.1.10.0808230852320.24779@tundra.namei.org>
+To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        Manoj Srivastava <srivasta@debian.org>, Caleb Case <ccase@tresys.com>
+Subject: Re: New SELinux toolchain build system
+References: <48A04E61.3090506@windriver.com> <48A1F6D4.7000909@manicmethod.com> <48A47719.3020007@windriver.com>
+In-Reply-To: <48A47719.3020007@windriver.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting James Morris (jmorris@namei.org):
-> On Fri, 22 Aug 2008, Serge E. Hallyn wrote:
+Vikram Ambrose wrote:
+> Joshua Brindle wrote:
+>> Vikram Ambrose wrote:
+>>  
+>>> Attached to this email is a tarball snapshot of a new build system
+>>> for the SELinux toolchain that I have been working on for the last
+>>> couple of months.
+>>>
+>>> This autoconf/automake build system has many advantages over the
+>>> current Makefiles.
+>>>
+>>> 1) It is capable of correctly cross compiling all libraries and
+>>>  tools, including the python wrappers.
+>>> 2) It allows the distro maintainer to set sysconfdir, prefix,
+>>>  pamdir, startupdir etc..
+>>> 3) It employs no "hacks", it is to-the-book, clean, GNU Automake,
+>>>  Autoconf code, formatted to ~80 char line length.
+>>> 4) It lets RPM spec and .deb control take advantage of the autoconf
+>>>  infrastructure already built into these package formats, allowing
+>>>  distro maintainers to quickly and effortlessly build distro
+>>>  packages.
+>>> 5) It is completely self dependent, ie. one can build the complete
+>>>  toolchain now resolving dependencies within the build, without
+>>>  needing to link against a system wide library.
+>>>
+>>> Due to an incompatibility with libtool, related to the current
+>>> naming convention of the python wrappers and classes, a patch is
+>>> supplied to rename:
+>>>  *) _selinux.so to libpyselinux.so
+>>>  *) _semanage.so to libpysemanage.so
+>>>  *) _audit2why.so to libpyaudit2why.so
+>>>
+>>> Similarily, the update also renames:
+>>>  *) selinux.py to __init__.py
+>>>  *) semanage.py to __init__.py
+>>> and installs these plugins into their own sub site-packages folder.
+>>>
+>>> For Example: libselinux/src/Makefile.am
+>>> line 35 # When the upstream tree is patched this should be removed
+>>> line 36 # and selinux.py must be renamed to __init__.py
+>>> line 37 __init__.py : selinux.py
+>>> line 38        cp selinux.py $@
+>>>
+>>> A similar measure is taken in libsemanage/src/Makefile.am for
+>>> semanage.py.
+>>>
+>>> On a similar note, the code currently uses a macro called SHARED,
+>>> which is currently being wrapped with a forced -include libtool_compat.h
+>>> using -DPIC (a libtool defined macro). This too can be removed if the
+>>> code
+>>> can be reformatted.
+>>>
+>>> This build system has been thoroughly tested to function correctly.
+>>> Compiling natively for localhost, as well as cross compiling for
+>>> the following platforms:
+>>>  *) PPC32
+>>>  *) PPC64
+>>>  *) ARM (Versatile family)
+>>>  *) Common PC X86_64
+>>>
+>>> It has also been tested on mainstream Linux distributions such
+>>> as Ubuntu 8.04 and Fedora 9.
+>>>
+>>> This new build system is a replacement for the existing build system.
+>>> They cannot be used concurrently. I leave no guarantee on backward
+>>> compatibility after applying this update.
+>>>
+>>> Recently a Ruby wrapper was added to the SELinux trunk, this build
+>>> system does not build it. Though with the current infrastructure in
+>>> place, it is a very simple procedure for anyone familiar with ruby
+>>> to include it.
+>>>
+>>> This contribution comes out of the integration efforts WindRiver has
+>>> recently taken to add a SELinux feature to WindRiver Linux. It comes
+>>> with no obligation or indemnity from WindRiver or myself. Distributed
+>>> as not copyrighted, public domain software, in accordance with
+>>> libselinux.
+>>>
+>>> I ask if this update can be merged into the main SELinux trunk.
+>>> I will help coordinate the merge if necessary.
+>>>
+>>>     
+>>
+>> I've just started looking at this. We need to be sure that it covers
+>> current make targets like make swigify which generate the c wrappers
+>> from swig interface files (we run this before checkins). Also make
+>> test needs to work.
+>>
+>> Also there is no top level ./configure so this won't let you build the
+>> entire repo. I'd like something (even if it was just the makefile that
+>> ran ./configure in each dir.
+>>
+>> I also get a failure:
+>> [root@misterfreeze libsepol]# autoreconf -iv
+>> autoreconf: Entering directory `.'
+>> autoreconf: configure.ac: not using Gettext
+>> autoreconf: running: aclocal autoreconf: configure.ac: tracing
+>> autoreconf: configure.ac: not using Libtool
+>> autoreconf: running: /usr/bin/autoconf
+>> autoreconf: running: /usr/bin/autoheader
+>> autoreconf: running: automake --add-missing --copy --no-force
+>> configure.ac:17: installing `./compile'
+>> configure.ac:6: installing `./install-sh'
+>> configure.ac:6: installing `./missing'
+>> include/Makefile.am:2: whitespace following trailing backslash
+>> include/Makefile.am:5: whitespace following trailing backslash
+>> include/Makefile.am:8: whitespace following trailing backslash
+>> include/Makefile.am:9: whitespace following trailing backslash
+>> include/Makefile.am:11: whitespace following trailing backslash
+>> include/Makefile.am:14: whitespace following trailing backslash
+>> include/Makefile.am:20: whitespace following trailing backslash
+>> src/Makefile.am:10: Libtool library used but `LIBTOOL' is undefined
+>> src/Makefile.am:10:   The usual way to define `LIBTOOL' is to add
+>> `AC_PROG_LIBTOOL'
+>> src/Makefile.am:10:   to `configure.ac' and run `aclocal' and
+>> `autoconf' again.
+>> src/Makefile.am:10:   If `AC_PROG_LIBTOOL' is in `configure.ac', make
+>> sure
+>> src/Makefile.am:10:   its definition is in aclocal's search path.
+>> src/Makefile.am: installing `./depcomp'
+>> Makefile.am: installing `./INSTALL'
+>> Makefile.am: required file `./NEWS' not found
+>> Makefile.am: required file `./README' not found
+>> Makefile.am: required file `./AUTHORS' not found
+>> autoreconf: automake failed with exit status: 1
+>>
+>>
+>>   
+> Formatting error caused by the sanitation process. An updated tarball is
+> attached to this email, with the following changes from the previous:
 > 
-> > In August 2006 I posted a patch to the selinux list generating a minimal
-> > SELinux policy.  This week, David P. Quigley posted an updated version
-> > of that as a patch against the kernel.  In addition to some fixes, also
-> > had nice logic for auto-installing the policy.
-> > 
-> > I've gone ahead and hooked it into the kernel Makefile logic.  The way I
-> > have it here, doing 'make scripts' ends up compiling 'mdp', after which
-> > you must
-> > 	cd scripts/selinux
-> > 	sh install_policy.sh
-> > 
-> > That isn't as nice as being able to do
-> > 	make selinux_install
-> > the way David had it, but it avoids mucking with the top-level
-> > Makefile.  Which is preferred?
+> 1) Fixed trailing white space in libsepol/src/Makefile.am
+> 2) Added --enable-swig option to libselinux and libsemanage to regenerate
+>   c-wrapper
+> 3) Added very very basic top level makefile, proof-of-concept to build
+> entire
+>   trunk. make -f Makefile.toolchain PREFIX=/some/where (Requested by
+> Joshua.B)
+> 4) Minor python related cleanups in configure.ac for libselinux and
+>   libsemanage
 > 
-> I think leaving out of the top level makefile is preferred, as there are 
-> no other subsystem targets there.
-> 
-> Please make sure 'make distclean' cleans up properly.  These are 
-> currently left behind:
 
-Oops, thanks.  Updated patched appended.
+Dan, Manoj, Caleb, you can skip to the bottom of this email
 
-> #       scripts/selinux/mdp/file_contexts
-> #       scripts/selinux/mdp/policy.23
-> #       scripts/selinux/mdp/policy.conf
-> 
-> Please also provide documentation on how to boot the system up with this 
-> policy.
+I have a branch with the latest patch, my current observations:
+* checkpolicy/test isn't built (this is included on fedora and must be built)
+* when I generated the configure scripts in a fresh repo apparently it felt the need to relicense libselinux as gplv3 (added a COPYING file)
+* the CFLAGS we previously had have been completely removed, we need those back, particularly the warning ones and they aren't necessarily consistent:
+libsepol/src/Makefile:CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
+libsemanage/src/Makefile:CFLAGS ?= -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute -Wno-unused-parameter
+checkpolicy/Makefile:CFLAGS ?= -g -Wall -Werror -Wshadow -O2 -pipe -fno-strict-aliasing
+libselinux/src/Makefile:CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-noreturn -Wmissing-format-attribute
 
-Good point.  Where would people who'd want to use this be most
-likely to look, in a scripts/selinux/README, or in
-Documentation/selinux or Documentation/security/selinux or
-somesuch?
+Also, we filter out Werror from generated files (parser and lexer files, swig generated files) because they often cause warnings and we can't help it
 
-> > +	echo "no file contests file.  Please run"
-> 
-> ITYM contexts :-)
+* make clean from the top doesn't actually clean anything, it just removes the makefiles
 
-Oops again - that whole block should be removed as it was there
-because the contexts file was created in a different step, which
-it isn't any more.
+* there is no way to distclean from the top level, eg., make the repository look like it will when we package up a release
 
-thanks,
--serge
+* Why doesn't configure automatically find python? the vast majority of selinux installations are going to require the python bits so it should default to on and I'm not sure what the use of the autotools infrastructure is if it can't find the resources we need automatically
+
+* configure is currently doing alot of tests for unnecessary things, such as a fortran compiler. This is one of the problems I have using autotools, it takes time and adds complexity for no reason
+
+* building an embedded libselinux (--disable-rpm --disable-avc --disable-bool) fails:
+	/usr/bin/ld: .libs/libselinux_la-load_policy.o: relocation R_X86_64_PC32 against undefined symbol `security_get_boolean_names_internal' can not be used when making a shared object; recompile with -fPIC
+
+I think that is probably enough for now..
+
+--
+
+I created an autotools branch on the upstream git repo so all new patches should be based on that instead of a tarball. 
+
+Also, I'd like distributions to start testing this branch as they are less likely to be affected by the issues raised above. Distributions will likely be mostly affected by the change of python bindings from _*.so to libpy*.so, and also will need to run configure with --with-python=/usr/include/python2.5 to have a useful build
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
