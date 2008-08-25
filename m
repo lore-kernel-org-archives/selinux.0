@@ -1,53 +1,70 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7PDM4ub026697
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2008 09:22:04 -0400
-Received: from mail.wrs.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7PDLaGa006991
-	for <selinux@tycho.nsa.gov>; Mon, 25 Aug 2008 13:21:36 GMT
-Message-ID: <48B2B1BA.5040907@windriver.com>
-Date: Mon, 25 Aug 2008 09:20:58 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: PAM security transitions
-References: <48AF21C3.9020506@windriver.com> <200808231150.37055.russell@coker.com.au>
-In-Reply-To: <200808231150.37055.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [patch] libselinux:  fix EMBEDDED=y build
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: Yuichi Nakamura <ynakam@hitachisoft.jp>,
+        Joshua Brindle <method@manicmethod.com>
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 25 Aug 2008 09:43:04 -0400
+Message-Id: <1219671784.2721.83.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Saturday 23 August 2008 06:29, Vikram Ambrose 
-> <Vikram.Ambrose@windriver.com> wrote:
->   
->> I've been messing around with various modules and installations and I've
->> come across a strange PAM problem. Without any SELinux support in
->> pam.d/login, root's shell gets system_r:local_login_t
->>     
->
-> Yes, ages ago it was decided not to maintain patches for the various terminal 
-> login programs and to instead use a PAM module.
->
->   
->> But then using: pam_selinux.so close/open, root's shell gets
->> root:staff_r:system_chkpwd_t
->>     
->
-> I think that was a policy bug, it's fixed if you use all the latest versions.
->
-> What version of the policy is running on the machines in question?
->
->   
-Strange, that box is running the latest. Refpolicy svn-2787 and Selinux 
-svn-2950
+Fix EMBEDDED=y build for libselinux.
 
-Could you tell me a little more about that bug, and how it came about?
+Before:
+$ make EMBEDDED=y > out
+cc1: warnings being treated as errors
+load_policy.c: In function ‘selinux_mkload_policy’:
+load_policy.c:59: warning: unused variable ‘i’
+load_policy.c:59: warning: unused variable ‘len’
+load_policy.c:59: warning: unused variable ‘values’
+load_policy.c:54: warning: unused variable ‘names’
+make[1]: *** [load_policy.o] Error 1
 
-Vikram
+After:
+$ make EMBEDDED=y > out
+$ make clean all > out
+
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+---
+
+ libselinux/src/load_policy.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+index 63f6609..affe37b 100644
+--- a/libselinux/src/load_policy.c
++++ b/libselinux/src/load_policy.c
+@@ -51,12 +51,12 @@ int selinux_mkload_policy(int preservebools)
+ 	int kernvers = security_policyvers();
+ 	int maxvers = kernvers, minvers = DEFAULT_POLICY_VERSION, vers;
+ 	int setlocaldefs = load_setlocaldefs;
+-	char path[PATH_MAX], **names;
++	char path[PATH_MAX];
+ 	struct stat sb;
+ 	struct utsname uts;
+ 	size_t size;
+ 	void *map, *data;
+-	int fd, rc = -1, *values, len, i, prot;
++	int fd, rc = -1, prot;
+ 	sepol_policydb_t *policydb;
+ 	sepol_policy_file_t *pf;
+ 	int usesepol = 0;
+@@ -251,6 +251,8 @@ checkbool:
+ 		
+ #ifndef DISABLE_BOOL
+ 		if (preservebools) {
++			int *values, len, i;
++			char **names;
+ 			rc = security_get_boolean_names(&names, &len);
+ 			if (!rc) {
+ 				values = malloc(sizeof(int) * len);
 
 -- 
-Vikram Ambrose | Linux Products Division | WindRiver Corporation
+Stephen Smalley
+National Security Agency
 
 
 --
