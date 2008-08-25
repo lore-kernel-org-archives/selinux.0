@@ -1,44 +1,102 @@
-Subject: Re: PAM security transitions
+Subject: Re: [PATCH 1/1] selinux: add support for installing a dummy policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <48AF21C3.9020506@windriver.com>
-References: <48AF21C3.9020506@windriver.com>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: James Morris <jmorris@namei.org>, lkml <linux-kernel@vger.kernel.org>,
+        SELinux <selinux@tycho.nsa.gov>,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>
+In-Reply-To: <20080823023812.GA30915@us.ibm.com>
+References: <20080822193413.GA8401@us.ibm.com>
+	 <alpine.LRH.1.10.0808230852320.24779@tundra.namei.org>
+	 <20080823023812.GA30915@us.ibm.com>
 Content-Type: text/plain
-Date: Mon, 25 Aug 2008 07:45:25 -0400
-Message-Id: <1219664725.2721.4.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 25 Aug 2008 08:10:01 -0400
+Message-Id: <1219666201.2721.29.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Fri, 2008-08-22 at 16:29 -0400, Vikram Ambrose wrote:
-> I've been messing around with various modules and installations and I've 
-> come across a strange PAM problem. Without any SELinux support in 
-> pam.d/login, root's shell gets system_r:local_login_t
+On Fri, 2008-08-22 at 21:38 -0500, Serge E. Hallyn wrote:
+> --- /dev/null
+> +++ b/scripts/selinux/install_policy.sh
+> @@ -0,0 +1,44 @@
+> +#!/bin/sh
+> +if [ `id -u` -ne 0 ]; then
+> +	echo "$0: must be root to install the selinux policy"
+> +	exit 1
+> +fi
+> +SF=`which setfiles`
+> +if [ $? -eq 1 ]; then
+> +	if [ -f /usr/sbin/setfiles ]; then
+> +		SF="/usr/sbin/setfiles"
 
-Yes, we stopped patching login directly a long time ago, and thus use of
-pam_selinux is required to get login session contexts set properly.
+/sbin/setfiles on modern Fedora releases.
 
-> But then using: pam_selinux.so close/open, root's shell gets 
-> root:staff_r:system_chkpwd_t
-> 
-> I have another installation with the same pam config, but it gets the 
-> correct root:sysadm_r:sysadm_t context. This system uses a different policy.
-> 
-> Trying to debug this. Any ideas why one of my boxes gets the wrong 
-> domain after login?
+> +	else
+> +		echo "no selinux tools installed: setfiles"
+> +		exit 1
+> +	fi
+> +fi
+> +
+> +cd mdp
+> +
+> +CP=`which checkpolicy`
+> +./mdp policy.conf file_contexts
+> +$CP -o policy.`checkpolicy -V | awk '{print $1}'` policy.conf
 
-Based on your own description, it is presumably a bug in the policy on
-that system.  pam_selinux should map the Linux user to a SELinux user
-via the seusers mapping, then ask the kernel for a list of reachable
-security contexts for that SELinux user from the calling context (e.g.
-system_u:system_r:local_login_t), then order that list based on the
-default_contexts file's entry for the calling context.
+Save version to a variable and reuse below.
 
-libselinux/utils/getdefaultcon will let you exercise much the same
-logic, e.g.
-	getdefaultcon vikram system_u:system_r:local_login_t
+> +
+> +mkdir -p /etc/selinux/dummy/policy
+> +mkdir -p /etc/selinux/dummy/contexts/files
+> +
+> +cp file_contexts /etc/selinux/dummy/contexts/files
+> +cp dbus_contexts /etc/selinux/dummy/contexts
+> +cp policy.`checkpolicy -V | awk '{print $1}'` /etc/selinux/dummy/policy
+> +FC_FILE=/etc/selinux/dummy/contexts/files/file_contexts
+> +
+> +cd /etc/selinux/dummy/contexts/files
+> +$SF file_contexts /
+> +
+> +mounts=`cat /proc/$$/mounts | egrep "ext2|ext3|xfs|jfs" | awk '{ print $2 '}`
+
+ext4, ext4dev, gfs2 too.
+See /sbin/fixfiles for an example.  Or run it.
+
+> +for line in $mounts; do
+> +	$SF file_contexts $line
+> +done
+
+You can pass them all to setfiles at once; it takes a list of mount
+points after the file_contexts file. Or run fixfiles instead as it does
+much the same.
+
+However, I don't believe this step will work if you are doing this on an
+existing SELinux-enabled system - the kernel will check the contexts
+upon setxattr against the active policy and reject them, and you haven't
+loaded the new policy yet.  Also, this is a "destructive" operation,
+i.e. if they were running SELinux before, they are hereby clobbering all
+their file labels.  Possibly you should bail out if selinuxenabled
+(utility that can be used as a boolean in shell conditionals).
+if /usr/sbin/selinuxenabled; then
+	echo"SELinux already enabled with a policy loaded; exiting."
+	exit 1
+fi
+
+> +
+> +dodev=`cat /proc/$$/mounts | grep "/dev "`
+> +if [ "eq$dodev" != "eq" ]; then
+> +	mount --move /dev /mnt
+> +	$SF file_contexts /dev
+> +	mount --move /mnt /dev
+> +fi
+
+Not sure what you are doing here.  If /dev is udev-managed, then it will
+handle labeling at boot.  But it still shows up as a tmpfs mount
+in /proc/self/mounts.
+
+Where do you set up /etc/selinux/config to refer to this dummy policy so
+it will get loaded at boot?
 
 -- 
 Stephen Smalley
