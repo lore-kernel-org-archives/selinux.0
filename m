@@ -1,51 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7Q9q0YQ012949
-	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 05:52:00 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7Q9px8L012221
-	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 09:51:59 GMT
-Received: by py-out-1112.google.com with SMTP id a78so1867556pyh.32
-        for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 02:51:59 -0700 (PDT)
-Message-ID: <7b740b700808260251l55f56127n8668e777dacbe26f@mail.gmail.com>
-Date: Tue, 26 Aug 2008 14:51:58 +0500
-From: Shaz <shazalive@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: semodule -i not working
+Date: Tue, 26 Aug 2008 20:29:39 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, paul.moore@hp.com,
+        jbrindle@tresys.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment (rev.6)
+In-Reply-To: <48B2A669.7040800@ak.jp.nec.com>
+Message-ID: <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
+References: <487C7698.60503@ak.jp.nec.com>  <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>  <487D5A3D.6090801@ak.jp.nec.com>  <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>  <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
+  <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>  <4897EB5A.1040404@ak.jp.nec.com>  <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>  <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com> <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil>
+ <48B2A669.7040800@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I was trying to load the following module:
----------------------------------
-     module spamd 1.0;
+On Mon, 25 Aug 2008, KaiGai Kohei wrote:
 
-     require {
-     role object_r;
-     role system_r;
+> @@ -5228,11 +5232,14 @@ static int selinux_setprocattr(struct task_struct *p,
+>  			do_each_thread(g, t) {
+>  				if (t->mm == mm && t != p) {
+>  					read_unlock(&tasklist_lock);
+> +					if (!security_bounded_transition(tsec->sid, sid))
+> +						goto boundary_ok;
+>  					return -EPERM;
 
-     class tcp_socket name_connect;
+Propagate the return value of security_bounded_transition().
 
-     type ldap_port_t;
-     type spamd_t;
-     };
+Also, if the user/role bounds are not being used, should they be included 
+in this?  From the kernel point of view, unused code should never be 
+added.
 
-     allow spamd_t ldap_port_t:tcp_socket name_connect;
---------------------------------
 
-and I got the following error:
-
-     [root@develap lpm]# semodule -i spamd.pp
-     libsepol.module_package_read_offsets: wrong magic number for
-module package:  expected 4185718671, got 1969516397
-     libsemanage.parse_module_headers: Could not parse module data.
-     semodule:  Failed on spamd.pp!
-
-How do I understand the problem and what can be the possible solution?
-
-Thanks.
+- James
 -- 
-Shaz
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
