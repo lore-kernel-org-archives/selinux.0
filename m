@@ -1,58 +1,132 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7QFmMKb000584
-	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 11:48:22 -0400
-Received: from mho-01-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7QFlsFw005531
-	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 15:47:54 GMT
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Paul Moore <paul.moore@hp.com>
-Message-Id: <374F28B6-E756-4E7C-BC5E-66757D689955@nall.com>
-From: Joe Nall <joe@nall.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <20080821210239.7951.59652.stgit@flek.lan>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v928.1)
-Subject: Re: [RFC PATCH v3 00/13] Labeled networking patches for 2.6.28
-Date: Tue, 26 Aug 2008 10:47:37 -0500
-References: <20080821210239.7951.59652.stgit@flek.lan>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7QGBpqi005371
+	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 12:11:51 -0400
+Subject: Re: [PATCH 1/1] selinux: add support for installing a dummy policy
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+        SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <48B41B92.50608@redhat.com>
+References: <20080822193413.GA8401@us.ibm.com>
+	 <1219676185.2627.1.camel@moss-terrapins.epoch.ncsc.mil>
+	 <48B41B92.50608@redhat.com>
+Content-Type: text/plain
+Date: Tue, 26 Aug 2008 11:54:05 -0400
+Message-Id: <1219766045.2627.37.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2008-08-26 at 11:04 -0400, Daniel J Walsh wrote:
+> David P. Quigley wrote:
+> > On Fri, 2008-08-22 at 14:34 -0500, Serge E. Hallyn wrote:
+> >> In August 2006 I posted a patch to the selinux list generating a minimal
+> >> SELinux policy.  This week, David P. Quigley posted an updated version
+> >> of that as a patch against the kernel.  In addition to some fixes, also
+> >> had nice logic for auto-installing the policy.
+> >>
+> >> I've gone ahead and hooked it into the kernel Makefile logic.  The way I
+> >> have it here, doing 'make scripts' ends up compiling 'mdp', after which
+> >> you must
+> >> 	cd scripts/selinux
+> >> 	sh install_policy.sh
+> >>
+> >> That isn't as nice as being able to do
+> >> 	make selinux_install
+> >> the way David had it, but it avoids mucking with the top-level
+> >> Makefile.  Which is preferred?
+> >>
+> >> In any case, this seems like a good thing to have in the kernel
+> >> tree, to facilitate simple selinux boot tests.
+> >>
+> >> Following is David's original patch intro (preserved especially
+> >> bc it has stats on the generated policies):
+> >>
+> >> ======================================================================
+> >> For those interested in the changes there were only two significant
+> >> changes. The first is that the iteration through the list of classes
+> >> used NULL as a sentinel value. The problem with this is that the
+> >> class_to_string array actually has NULL entries in its table as place
+> >> holders for the user space object classes.
+> >>
+> >> The second change was that it would seem at some point the initial sids
+> >> table was NULL terminated. This is no longer the case so that iteration
+> >> has to be done on array length instead of looking for NULL.
+> >>
+> >> Some statistics on the policy that it generates:
+> >>
+> >> The policy consists of 523 lines which contain no blank lines. Of those
+> >> 523 lines 453 of them are class, permission, and initial sid
+> >> definitions. These lines are usually little to no concern to the policy
+> >> developer since they will not be adding object classes or permissions.
+> >> Of the remaining 70 lines there is one type, one role, and one user
+> >> statement. The remaining lines are broken into three portions. The first
+> >> group are TE allow rules which make up 29 of the remaining lines, the
+> >> second is assignment of labels to the initial sids which consist of 27
+> >> lines, and file system labeling statements which are the remaining 11.
+> >>
+> >> In addition to the policy.conf generated there is a single file_contexts
+> >> file containing two lines which labels the entire system with base_t.
+> >>
+> >> This policy generates a policy.23 binary that is 7920 bytes.
+> >> ======================================================================
+> >> (then a few versions later...):
+> >> ======================================================================
+> >> The new policy is 587 lines (stripped of blank lines) with 476 of those
+> >> lines being the boilerplate that I mentioned last time. The remaining
+> >> 111 lines have the 3 lines for type, user, and role, 70 lines for the
+> >> allow rules (one for each object class including user space object
+> >> classes), 27 lines to assign types to the initial sids, and 11 lines for
+> >> file system labeling. The policy binary is 9194 bytes.
+> >> ======================================================================
+> >>
+> >> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+> > 
+> > [Snip...]
+> > 
+> > I'm not sure if I have to sign off on this but just in case.
+> > 
+> > Signed-off-by: David Quigley <dpquigl@tycho.nsa.gov>
+> > 
+> > Dave
+> > 
+> > 
+> > --
+> > This message was distributed to subscribers of the selinux mailing list.
+> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> > the words "unsubscribe selinux" without quotes as the message.
+> How easy would it be to go from this dummy policy to a policy that
+> confined only one application?  IE If I wanted to pull in the bind
+> policy, what would be needed.
+> 
+> This is a question that often comes up.  I don't want anything confined
+> except this one app?
+> 
+> I would figure syslog would be a problem right off, others?
 
-On Aug 21, 2008, at 4:25 PM, Paul Moore wrote:
+I think the answer to this is not very easy at all. If the reason for
+having something like this is to use it as a starting point for very
+tiny policies I'm not sure how useful it is. For example lets say you
+have an application that uses tmp files and they want to have them
+labeled in a way that isolates them from base_t. You now need to
+label /tmp so you can have your transition rule on your process type and
+tmp_t. This means you now need to grant a bunch of permissions on temp_t
+for base_t just to maintain the idea that base_t is completely
+unconstrained.
 
-> Another update to the labeled networking patches for 2.6.28.  This  
-> revision
-> adds some small fixes, the dead-code removal patch posted earlier,  
-> and the big
-> addition ... wait for it ... full LSM label/context support for local
-> connections.  This is accomplished by creating a new, private CIPSO  
-> tag type
-> (allowed by the spec with a tag number > 127) which carries the  
-> LSM's secid
-> value, allowing full LSM contexts to be carried across local  
-> connections
-> without the headaches of labeled IPsec.
->
-> For those of you interested in testing this out, you will need the  
-> latest
-> from the netlabel_tools addrsel branch, revision 74 or higher should  
-> work.
-> If you enable the new local labeling you will almost certainly need  
-> to run
-> SELinux in permissive mode since I'm fairly certain the current  
-> policies don't
-> have the necessary allow rules.  With that said, enabling the new  
-> local
-> labeling is pretty easy ...
+This may seem good enough for some people which is why I resurrected
+Serge's patch. I think the better idea would be to look at the way
+reference policy is structured and see if it is organized properly. It
+might be useful for us to be able to say here is an absolute minimum
+policy for things we think are key to a Linux system and allow people to
+build their application policies on top of that. This would give the
+embedded people a much smaller initial footprint for what they need and
+reference or fedora policy can be a set of modules on top of this base.
+I know we already have this in the form of the base.pp module and a
+bunch of other modules on top of it but I don't see how base.pp is
+usable without a whole slew of modules.
 
-Paul created a 2.6.26 patch which I've been testing with excellent  
-results in Fedora 9. Local (lo and ethN) labeled networking is more  
-reliable than the IPSec equivalent and does not have the IPSec SA  
-creation latency. I'll push this to a larger set of developers and  
-testers next week and report any issues.
-
-joe
+Dave
 
 
 --
