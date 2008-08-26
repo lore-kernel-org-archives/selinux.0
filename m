@@ -1,27 +1,52 @@
-Date: Tue, 26 Aug 2008 20:47:05 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, paul.moore@hp.com,
-        jbrindle@tresys.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment (rev.6)
-In-Reply-To: <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
-Message-ID: <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>
-References: <487C7698.60503@ak.jp.nec.com>  <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>  <487D5A3D.6090801@ak.jp.nec.com>  <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>  <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
-  <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>  <4897EB5A.1040404@ak.jp.nec.com>  <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>  <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com> <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil>
- <48B2A669.7040800@ak.jp.nec.com> <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: semodule -i not working
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Shaz <shazalive@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <7b740b700808260251l55f56127n8668e777dacbe26f@mail.gmail.com>
+References: <7b740b700808260251l55f56127n8668e777dacbe26f@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 26 Aug 2008 07:10:47 -0400
+Message-Id: <1219749047.2721.197.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Could you also please add tests for this (at least one which should fail 
-and one which should succeed) to the Linux Test Project?
 
+On Tue, 2008-08-26 at 14:51 +0500, Shaz wrote:
+> I was trying to load the following module:
+> ---------------------------------
+>      module spamd 1.0;
+> 
+>      require {
+>      role object_r;
+>      role system_r;
+> 
+>      class tcp_socket name_connect;
+> 
+>      type ldap_port_t;
+>      type spamd_t;
+>      };
+> 
+>      allow spamd_t ldap_port_t:tcp_socket name_connect;
+> --------------------------------
+> 
+> and I got the following error:
+> 
+>      [root@develap lpm]# semodule -i spamd.pp
+>      libsepol.module_package_read_offsets: wrong magic number for
+> module package:  expected 4185718671, got 1969516397
+>      libsemanage.parse_module_headers: Could not parse module data.
+>      semodule:  Failed on spamd.pp!
+> 
+> How do I understand the problem and what can be the possible solution?
 
-- James
+How did you build spamd.pp?  And what versions of libsepol, libsemanage,
+and policycoreutils are you using?
+
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
