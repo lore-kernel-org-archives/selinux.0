@@ -1,91 +1,219 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7RG8wYN019462
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 12:08:58 -0400
-Received: from mail-gx0-f12.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7RG8vJV021200
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 16:08:57 GMT
-Received: by gxk5 with SMTP id 5so3913010gxk.18
-        for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 09:08:57 -0700 (PDT)
-Message-ID: <80d7e4090808270908p1453e001g2c26f8f7b06709f4@mail.gmail.com>
-Date: Wed, 27 Aug 2008 10:08:56 -0600
-From: "Stephen John Smoogen" <smooge@gmail.com>
-To: "Murray McAllister" <mmcallis@redhat.com>
-Subject: Re: user guide draft: "Introduction" review
-Cc: "SE Linux" <selinux@tycho.nsa.gov>
-In-Reply-To: <48B4EAE2.302@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <48B4EAE2.302@redhat.com>
+Subject: Re: [RFC 1/2] labeled ipsec internet drafts
+From: Joy Latten <latten@austin.ibm.com>
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Cc: paul.moore@hp.com, gcwilson@us.ibm.com, selinux@tycho.nsa.gov,
+        serue@us.ibm.com, tjaeger@cse.psu.edu
+In-Reply-To: <1219782262.2627.50.camel@moss-terrapins.epoch.ncsc.mil>
+References: <200808252046.m7PKkdQu019720@faith.austin.ibm.com>
+	 <1219700549.2627.27.camel@moss-terrapins.epoch.ncsc.mil>
+	 <1219771040.2883.79.camel@faith.austin.ibm.com>
+	 <1219782262.2627.50.camel@moss-terrapins.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 27 Aug 2008 11:17:54 -0500
+Message-Id: <1219853874.2883.133.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Aug 26, 2008 at 11:49 PM, Murray McAllister <mmcallis@redhat.com> wrote:
-> Hi,
->
 
-Hi, I have only a couple of things that came up in reading.
+On Tue, 2008-08-26 at 16:24 -0400, David P. Quigley wrote:
+> On Tue, 2008-08-26 at 12:17 -0500, Joy Latten wrote:
+> > On Mon, 2008-08-25 at 17:42 -0400, David P. Quigley wrote:
+> > > On Mon, 2008-08-25 at 15:46 -0500, Joy Latten wrote:
+> > > [Snip...]
+> > > > 
+> > > > >>
+> > > > >>        - doi (1 octet) - The first octet contains the security
+> > > > >> label's domain of interpretation.
+> > > > >>
+> > > > >>          The domain of interpretation can be viewed as a group of
+> > > > >>          systems that agree on the meaning of particular values
+> > > > >> within the security label of a security mechanism.
+> > > > >>
+> > > > >>          The value of 1 is reserved as the default.
+> > > > >>
+> > > > >>          Reserved       0
+> > > > >>          Default        1
+> > > > >>
+> > > > >>        - algorithm (1 octet) - The second octet contains the security
+> > > > >>          label's algorithm.
+> > > > >>
+> > > > >>
+> > > > >>
+> > > > >>
+> > > > >> Latten, et al.               Expires ?                          [Page
+> > > > >> 3] 
+> > > > >> Internet-Draft               IKEv1SecurityLabel                June
+> > > > >> 2008
+> > > > >>
+> > > > >>
+> > > > >>          The security label's algorithm specifies the security
+> > > > >>          mechanism or context in which the label is applicable. For
+> > > > >>          example, the security label is interpreted within the
+> > > > >> SELinux context.
+> > > > >>
+> > > > >>          Requests for assignment of additional algorithms should be
+> > > > >>          addressed to the Internet Assigned Numbers Authority (IANA).
+> > > > >>
+> > > > >>          Reserved       0
+> > > > >>          SELinux        1
+> > > > >>          Smack          2
+> > > > >>          Private Use    120-128
+> > > > >
+> > > > >Is one octet enough here?  I honestly don't have a good idea as to how 
+> > > > >much is enough, so a little justification of your choice (even if it 
+> > > > >only lives in email, not in the spec) would be welcome.
+> > > > 
+> > > > I used one octet here because it is defined as one octet in the kernel's
+> > > > sec_ctx structure. Originally, I think we used one octect for each
+> > > > to keep within a 64-bit alignment requirement for pfkey. We thought
+> > > > one octet would be enough...
+> > > > 
+> > > 
+> > > There are several documents being submitted as drafts to the IETF at the
+> > > moment and all of them have different definitions of a DOI.
+> > > 
+> > > In your method you pair a mechanism with the DOI to form something along
+> > > the lines of a (mechanism,policyversion) tuple. The question of if one
+> > > octet is enough to identify all potential policies in a mechanism is
+> > > unclear but I have a feeling the answer will be no.
+> > > 
+> > > The second method is in the SIPSO for IPv6 draft. In this the DOI is a
+> > > 32 bit value existing as 4 octets. They partition off what are
+> > > essentially address spaces to be used privately, by certain
+> > > organizations, and they also keep a block for IETF considerations in
+> > > later revisions of the specification. There is a lot of information in
+> > > the document and most of it pertains to MLS labels.
+> > > 
+> > > The third method is in the label support for NFSv4 draft. In this we
+> > > just define the DOI as a 32 big value. It is up to a translation daemon
+> > > to decide if the endpoint has the knowledge and desire to translate
+> > > labels from the foreign DOI to its own.
+> > > 
+> > > Regardless of which method is used we need to come to a consensus on
+> > > what a DOI is and how we are going to represent it. We can't go to the
+> > > IETF with 3 different definitions of a DOI.
+> > > 
+> > 
+> > I just now quickly glanced at the CALIPSO draft as I had not read 
+> > it before. I did read the labeled nfs draft a while back. 
+> > 
+> > I see what you mean. However, I guess I am feeling a bit wary since
+> > the CALIPSO draft's description of the DOI and it's format seem to be
+> > tailored specifically for MLS labels. The labeled ipsec's doi field had
+> > a broader purpose in mind. 
+> 
+> Yea, it is unfortunate that CALIPSO is only for MLS labels. IPv6 is
+> still growing in its deployment so it would be nice to have a robust and
+> flexible method for conveying security labels from the start. For now it
+> seems as if CALIPSO will try to go through just as MLS labels and then
+> DTE or other security labels will have to create their own IP security
+> option.
+> 
+> > 
+> > > > >I'm also concerned with the implied convention of assigning one value to 
+> > > > >a particular implementation.  In the SELinux case, how do you deal with 
+> > > > >a non-MLS/MCS policy such as Gentoo/Ubuntu talking to a MLS/MCS policy 
+> > > > >such as Fedora/RHEL?  What about policies with different types?  
+> > > > >Differing numbers of MLS sensitivity levels or categories?
+> > > > >
+> > > > 
+> > > > Hmm... not sure I understand so I may not answer this correctly...
+> > > > 
+> > > > The algorithm indicates the security mechanism.
+> > > > In a way, it identifies the syntax/semantics of the 
+> > > > security context to security mechanism, since security mechanisms 
+> > > > may use different syntax/semantics for the security contexts. 
+> > > > i.e. SELinux and SMACK.
+> > > > The algorithm field in SELinux is used to "authorize" the security
+> > > > context. In other words, SELinux only wants and understands
+> > > > SELinux's security context syntax/semantics.
+> > > > The "doi"  would be used for further differentiation within SELinux
+> > > > domain. Far example, a sysadm wants to differentiate between SELinux
+> > > > policy versions in his domain. He could used "doi" field to do this.
+> > > > 
+> > > > I suppose if you wanted two different security mechanisms to 
+> > > > interoperate, a mapping of some sort would have to be created
+> > > > between them. The security mechanisms would need
+> > > > to indicate they accept (via the mapping) the other's
+> > > > security context syntax/semantics. In other words, they would "authorize" 
+> > > > the two different security contexts. It would do this via the 
+> > > > "algorithm" and/or "doi" fields. I am thinking in this case, "doi" could
+> > > > even indicate the mapping such as CIPSO's DOI does. 
+> > > > 
+> > > > I considered the information contained in the "algorithm" and 
+> > > > "doi" fields required for interoperability, and the use
+> > > > implementation specific.
+> > > > 
+> > > > If this doesn't answer your question, let me know. 
+> > > 
+> > > I think what Paul might be asking is why is it better to have two
+> > > fields, one for Security Mechanism and one for the DOI when that can be
+> > > one field. If we go with a method similar to the second described above
+> > > for DOIs you could have IANA allocate a range of DOIs for SELinux
+> > > partitioning it off into a range for publicly assigned DOIs and
+> > > privately managed DOIs. It is acceptable to have IANA create and
+> > > populate a registry with values in the document.
+> > > 
+> > 
+> > Ok, I understand now. Yes, that seems reasonable, fair, and flexible.
+> > I can still keep semantics (a mechanism and ability to group or
+> > differentiate).
+> > 
+> > So, a doi field that is 32 bits, with perhaps so much for SELinux,
+> > further partitioned for public and private use. The same for Smack.
+> > Right? And remaining for future use.
+> 
+> The standards people don't particularly care about specific security
+> models in this case. I initially mentioned implementation specific
+> details in my early labeled NFS drafts and was told that those aren't
+> really a concern of the protocol. Since the label is a (DOI,<OPAQUE>)
+> tuple it is up to whomever obtains a number from IANA to define the
+> meaning of that DOI. However it should be written into the standard what
+> information is recorded by IANA to bind to these numbers. Also do we see
+> several registries? I really only see one registry that can be shared by
+> all three of these drafts. I just hope they don't want us to write up an
+> RFC for the definition and management of DOIs (it might happen that way
+> though).
+> 
 
-> The following is a draft of the Introduction sections for the SELinux User
-> Guide. Any comments and corrections are appreciated.
->
-> Thanks.
->
->  On Linux(R) operating systems, files, directories, sockets, devices, and so
-> on, are called objects, and processes, such as a user running a command, the
-> Mozilla(R) Firefox(R) application, and the Apache HTTP Server, are called
-> subjects. Linux operating systems use a Discretionary Access Control (DAC)
-> system that controls how subjects interact and access objects, and how
-> subjects interact with each other. On systems using DAC, users control the
-> permissions of objects (files and directories) that they own. They could,
-> for example, make their home directories world-readable, giving users and
-> subjects (processes) access to potentially sensitive information.
->
+Ok, gotta admit, I am a little confused as to how we could share the
+same DOI registry with CALIPSO since they are using a dotted-quad format
+right now? And it doesn't seem to accomodate but one DOI from IANA which
+leaves me confused as to how I would get one and then partition it for
+private and non-private uses.
 
-Should all (R) be listed at the bottom of the chapter with who owns
-the registered trademark? I only ask because I am trying to figure out
-who has a trademark for the word Enforcement later on.
+Because there is already a working prototype of labeled ipsec in
+Linux, I would have very much like to get assignments from IANA
+now for SELinux. I would like to make necessary modifications to Linux
+kernel and userspace soon as possible because it would seem odd to me to
+have an internet draft and a prototype that does not comply to it. It
+would also help to set a precedent of what would be required when asking
+for DOI assignments ( I hope I said that correctly).
+ 
+> > 
+> > Would this be a consensus in regards to DOI for labeled nfs, labeled
+> > ipsec, and CALIPSO drafts?
+> > 
+> 
+> I would like to think that we could establish one definition of a DOI
+> for IETF documents. I spoke with several people at the last IETF meeting
+> and they said that we need to stay consistent here. I will be trying to
+> organize a security label BOF at the next IETF meeting so we can sit
+> down and discuss the way things should work. I doubt this will spawn a
+> working group for security labels but we could come to a consensus on
+> certain things.
+> 
 
+Ahh, ok. Please let me know if you schedule this BOF.
+I guess my concern is I want to get my drafts submitted now.
+Because there is a working prototype, I felt it best
+to go ahead and ask for the IANA assignments now.
+But I do agree with what you are saying... just need to figure
+out how I should proceed...
 
-
-
-> * Prevention against privilege escalation. Since subjects run in domains,
-> and are therefore separated from each other, and rules determine how
-> subjects access objects and other subjects, if a service is compromised, the
-> attacker only has access to the normal functions of that service, and to
-> files that the service has been configured to have access to. For example,
-> if the Apache HTTP Server is compromised, an attacker is unable to read
-> files in user home directories, unless a specific rule was added or
-> configured to allow such access.
->
-
-I worry about the word prevention.. it implies impossibility. Selinux
-discourages privilege escalation but a hole in a policy could still
-allow for privilege escalation.
-
-
-> [1] "Integrating Flexible Support for Security Policies into the Linux
-> Operating System", by Peter Loscocco and Stephen Smalley. This paper was
-> originally prepared for the National Security Agency and is, consequently,
-> in the public domain. Refer to the
-> [http://www.nsa.gov/selinux/papers/freenix01/freenix01.html original paper]
-> for details and the document as it was first released. Any edits and changes
-> were done by Murray McAllister.
->
-> [2] "Meeting Critical Security Objectives with Security-Enhanced Linux", by
-> Peter Loscocco and Stephen Smalley. This paper was originally prepared for
-> the National Security Agency and is, consequently, in the public domain.
-> Refer to the [http://www.nsa.gov/selinux/papers/ottawa01/index.html original
-> paper] for details and the document as it was first released. Any edits and
-> changes were done by Murray McAllister.
->
-
-
-
-
--- 
-Stephen J Smoogen. -- BSD/GNU/Linux
-How far that little candle throws his beams! So shines a good deed
-in a naughty world. = Shakespeare. "The Merchant of Venice"
+regards,
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
