@@ -1,48 +1,55 @@
-Subject: Re: libsemage patch to not compile modules for seusers and fcontext
+Subject: Re: [LTP][PATCH 1/2] Replacement of deprecated interfaces
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ivan Gyurdiev <ivg231@gmail.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <48B4B348.2080801@gmail.com>
-References: <48A48B8C.3070908@redhat.com>
-	 <1219412317.18600.60.camel@moss-spartans.epoch.ncsc.mil>
-	 <48B41D0E.6060509@redhat.com>  <48B4B348.2080801@gmail.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: James Morris <jmorris@namei.org>, paul.moore@hp.com, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov
+In-Reply-To: <48B50A97.8050404@ak.jp.nec.com>
+References: <487C7698.60503@ak.jp.nec.com>
+	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
+	 <487D5A3D.6090801@ak.jp.nec.com>
+	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
+	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
+	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>
+	 <4897EB5A.1040404@ak.jp.nec.com>
+	 <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com>
+	 <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil>
+	 <48B2A669.7040800@ak.jp.nec.com>
+	 <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
+	 <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>
+	 <48B50A97.8050404@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Wed, 27 Aug 2008 08:04:08 -0400
-Message-Id: <1219838648.5708.10.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 27 Aug 2008 08:14:16 -0400
+Message-Id: <1219839256.5708.15.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-08-26 at 21:52 -0400, Ivan Gyurdiev wrote:
-> >> I'm a little unclear on what this is doing - can you clarify?
-> >>     
-> > This is clearing the existing seusers.final file, otherwise delete was
-> > not working.
-> >   
-> I think the previous code was doing more - it was merging the local file 
-> with the shipped base package file, like this:
+On Wed, 2008-08-27 at 17:04 +0900, KaiGai Kohei wrote:
+> James Morris wrote:
+> > Could you also please add tests for this (at least one which should fail 
+> > and one which should succeed) to the Linux Test Project?
+> > 
+> > 
+> > - James
 > 
->     data = extract_file_from_policy_package( )
->     write_file ( "seusers.final", data )
->     if ( data != null ) {
->         seusers.clear_cache()  // thereby forcing reload from 
-> seusers.final when cache() is called again (in merge_components)
->     } else {
->         seusers.clear()
->     }
+> Policies stored in ltp/testcases/kernel/security/selinux-testsuite/refpolicy/
+> invokes massive deprecated interfaces on selinux-policy-3.5.4.
 > 
-> It's also doing this three times (once for fcontexts, once for seusers, 
-> once for seusers_extra).
-> The problem is that you're skipping the link_sandbox call, which builds 
-> the base package, containing this information.
+> This patch fixes them according to the warning messages which encourage to
+> replace older ones.
+> 
+> BTW, I'm not happy with the test_policy.pp does not allow to invoke test
+> scripts from unconfined_t domain. Is it to be fixed?
 
-We're trying to avoid the overhead of re-linking the policy when we are
-only modifying non-policy components like seusers and fcontexts.
-fcontexts.local is split out to a separate file for precedence reasons
-so it doesn't get merged anymore.  I don't think Dan actually uses
-seusers in the base policy for anything at present, but others may be.
+I don't quite follow.  Did you follow the instructions in the
+selinux-testsuite README?  I can run the test scripts either using the
+test_selinux.sh script or by manually loading the policy and then
+individually running them as described in the README.  Watch out that
+your patch doesn't disturb the existing misc/sbin_deprecated.patch that
+gets applied by test_selinux.sh.  Keep in mind that this testsuite gets
+run on everything from RHEL4 to F9.
 
 -- 
 Stephen Smalley
