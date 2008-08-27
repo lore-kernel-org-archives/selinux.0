@@ -1,51 +1,86 @@
-Message-ID: <48B5D8D4.8010502@tresys.com>
-Date: Wed, 27 Aug 2008 18:44:36 -0400
-From: Joshua Brindle <jbrindle@tresys.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7RMrRe6012124
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 18:53:27 -0400
+Received: from smtp108.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m7RMrP57018443
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 22:53:25 GMT
+Message-ID: <48B5DADF.9060005@schaufler-ca.com>
+Date: Wed, 27 Aug 2008 15:53:19 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Ivan Gyurdiev <ivg231@gmail.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: libsemage patch to not compile modules for seusers and fcontext
-References: <48A48B8C.3070908@redhat.com>	 <1219412317.18600.60.camel@moss-spartans.epoch.ncsc.mil>	 <48B41D0E.6060509@redhat.com>  <48B4B348.2080801@gmail.com> <1219838648.5708.10.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1219838648.5708.10.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Trent Jaeger <tjaeger@cse.psu.edu>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>,
+        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+Subject: Re: Socket and inode label consistency
+References: <1D98C7BF-3D76-4A9C-B43C-31BE0C57227B@cse.psu.edu>	 <1219838254.5708.4.camel@moss-spartans.epoch.ncsc.mil>	 <200808271149.38256.paul.moore@hp.com>	 <E0F1193F-FE77-4B1D-87BA-3289AD37C385@cse.psu.edu> <1219861005.5708.137.camel@moss-spartans.epoch.ncsc.mil> <48B5B3DF.4080404@schaufler-ca.com> <4A385C00-E89F-43D3-8ACA-E7B27AC97B5E@cse.psu.edu>
+In-Reply-To: <4A385C00-E89F-43D3-8ACA-E7B27AC97B5E@cse.psu.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2008-08-26 at 21:52 -0400, Ivan Gyurdiev wrote:
->>>> I'm a little unclear on what this is doing - can you clarify?
->>>>     
->>> This is clearing the existing seusers.final file, otherwise delete was
->>> not working.
->>>   
->> I think the previous code was doing more - it was merging the local file 
->> with the shipped base package file, like this:
+Trent Jaeger wrote:
+>
+> On Aug 27, 2008, at 4:06 PM, Casey Schaufler wrote:
+>
+>> Stephen Smalley wrote:
+>>> ...
+>>>
+>>> You may be right about setxattr not being viable due to it being an
+>>> inode op.  setsockopt may be the right approach there if we need to
+>>> support relabeling of sockets at all.
+>>>
+>>>
 >>
->>     data = extract_file_from_policy_package( )
->>     write_file ( "seusers.final", data )
->>     if ( data != null ) {
->>         seusers.clear_cache()  // thereby forcing reload from 
->> seusers.final when cache() is called again (in merge_components)
->>     } else {
->>         seusers.clear()
->>     }
+>> Hum. fsetxattr() works for Smack. The only thing that I can't do
+>> is switch from labeled domains to unlabeled ones. So long as I'm
+>> living "within CIPSO" it works great. Paul did a very good job on
+>> that. If the intent is to change the MLS value, which is very useful
+>> for label-aware service providers like CMW style X11 server or a
+>> mail server, there oughtn't be a problem.
 >>
->> It's also doing this three times (once for fcontexts, once for seusers, 
->> once for seusers_extra).
->> The problem is that you're skipping the link_sandbox call, which builds 
->> the base package, containing this information.
-> 
-> We're trying to avoid the overhead of re-linking the policy when we are
-> only modifying non-policy components like seusers and fcontexts.
-> fcontexts.local is split out to a separate file for precedence reasons
-> so it doesn't get merged anymore.  I don't think Dan actually uses
-> seusers in the base policy for anything at present, but others may be.
-> 
+>> Yes, it would be weird to change the label on a TCP connection
+>> midstream, but not unheard of. If you need an example think of
+>> what you might want to do with a diskless boot, or some of the
+>> less sophisticated clustering schemes. For UDP examples should
+>> be obvious to the casual observer, and a couple are cited above.
+>>
+>> Or am I missing something (again)?
+>
+> It sets the socket's inode's security context, but not the sock's context.
 
-Verified. The seusers coming from the policy are not merged into the seusers.final with this patchset. 
+Would I be going too far out on a limb to suggest you change the code
+so that it changes both? I know that SELinux would require work
+to figure out what context to put on the sock based on the context
+of the task, socket inode, sock, port and address family, still
+that shouldn't be an insurmountable obstacle. Especially if you
+limit changes to the MLS portion of the label.
 
-It appears that at present in sepol_link_packages() there is no merging of seusers from each module so we only support seusers in base presently. Therefore we don't have to worry about getting the seusers from all the modules but we do need to grab them out of the base module and combine them in.
+Paul points out some edge case conditions for TCP that might make
+really supporting that protocol iffy. True enough. I wouldn't see
+changing labels on a TCP connection showing up in any but very low
+level system sort of uses where you need to be extraordinarily
+careful in any case. I don't see those dangers as a real stopper.
+
+> The former is used to authorize access to the socket api.  The latter 
+> is what is used to authorize packet access (e.g., labeled ipsec and 
+> seclabel).  So, you end up with the two being different which is a 
+> potential problem.
+>
+> Regards,
+> Trent.
+> ----------------------------------------------
+> Trent Jaeger, Associate Professor
+> Pennsylvania State University, CSE Dept
+> 346A IST Bldg, University Park, PA 16802
+> Email: tjaeger@cse.psu.edu
+> Ph: (814) 865-1042, Fax: (814) 865-3176
+>
+>
+>
+>
+>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
