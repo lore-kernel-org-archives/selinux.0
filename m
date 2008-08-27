@@ -1,27 +1,51 @@
-Message-ID: <48B4AABD.7090109@ak.jp.nec.com>
-Date: Wed, 27 Aug 2008 10:15:41 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7R1qDre032175
+	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 21:52:13 -0400
+Received: from mail-gx0-f12.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7R1qDXp006016
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 01:52:13 GMT
+Received: by gxk5 with SMTP id 5so3641200gxk.18
+        for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 18:52:13 -0700 (PDT)
+Message-ID: <48B4B348.2080801@gmail.com>
+Date: Tue, 26 Aug 2008 21:52:08 -0400
+From: Ivan Gyurdiev <ivg231@gmail.com>
 MIME-Version: 1.0
-To: James Morris <jmorris@namei.org>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, paul.moore@hp.com,
-        jbrindle@tresys.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment (rev.6)
-References: <487C7698.60503@ak.jp.nec.com>  <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>  <487D5A3D.6090801@ak.jp.nec.com>  <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>  <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>  <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>  <4897EB5A.1040404@ak.jp.nec.com>  <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>  <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com> <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil> <48B2A669.7040800@ak.jp.nec.com> <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org> <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>
-In-Reply-To: <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: libsemage patch to not compile modules for seusers and fcontext
+References: <48A48B8C.3070908@redhat.com> <1219412317.18600.60.camel@moss-spartans.epoch.ncsc.mil> <48B41D0E.6060509@redhat.com>
+In-Reply-To: <48B41D0E.6060509@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Morris wrote:
-> Could you also please add tests for this (at least one which should fail 
-> and one which should succeed) to the Linux Test Project?
 
-I checked out LTP CVS tree just now, and seeing it.
+>> I'm a little unclear on what this is doing - can you clarify?
+>>     
+> This is clearing the existing seusers.final file, otherwise delete was
+> not working.
+>   
+I think the previous code was doing more - it was merging the local file 
+with the shipped base package file, like this:
 
-Please wait for a few days...
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+    data = extract_file_from_policy_package( )
+    write_file ( "seusers.final", data )
+    if ( data != null ) {
+        seusers.clear_cache()  // thereby forcing reload from 
+seusers.final when cache() is called again (in merge_components)
+    } else {
+        seusers.clear()
+    }
+
+It's also doing this three times (once for fcontexts, once for seusers, 
+once for seusers_extra).
+The problem is that you're skipping the link_sandbox call, which builds 
+the base package, containing this information.
+
+Ivan
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
