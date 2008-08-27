@@ -1,50 +1,47 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7R0mhKS022285
-	for <selinux@tycho.nsa.gov>; Tue, 26 Aug 2008 20:48:43 -0400
-Received: from arlo.cse.psu.edu (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7R0mgXp020487
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 00:48:43 GMT
-Received: from c-71-58-96-116.hsd1.pa.comcast.net ([71.58.96.116] helo=[192.168.11.5])
-	by arlo.cse.psu.edu with esmtpsa (TLSv1:AES128-SHA:128)
-	(Exim 4.63)
-	(envelope-from <tjaeger@cse.psu.edu>)
-	id 1KY9DG-0001Fv-8k
-	for selinux@tycho.nsa.gov; Tue, 26 Aug 2008 20:48:42 -0400
-Mime-Version: 1.0 (Apple Message framework v753.1)
-Message-Id: <1D98C7BF-3D76-4A9C-B43C-31BE0C57227B@cse.psu.edu>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: selinux@tycho.nsa.gov
-From: Trent Jaeger <tjaeger@cse.psu.edu>
-Subject: Socket and inode label consistency
-Date: Tue, 26 Aug 2008 20:50:53 -0400
+Message-ID: <48B4A9AA.5000705@ak.jp.nec.com>
+Date: Wed, 27 Aug 2008 10:11:06 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: James Morris <jmorris@namei.org>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, paul.moore@hp.com,
+        jbrindle@tresys.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 1/3] Thread/Child-Domain Assignment (rev.6)
+References: <487C7698.60503@ak.jp.nec.com>  <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>  <487D5A3D.6090801@ak.jp.nec.com>  <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>  <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>  <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>  <4897EB5A.1040404@ak.jp.nec.com>  <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>  <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com> <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil> <48B2A669.7040800@ak.jp.nec.com> <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+James Morris wrote:
+> On Mon, 25 Aug 2008, KaiGai Kohei wrote:
+> 
+>> @@ -5228,11 +5232,14 @@ static int selinux_setprocattr(struct task_struct *p,
+>>  			do_each_thread(g, t) {
+>>  				if (t->mm == mm && t != p) {
+>>  					read_unlock(&tasklist_lock);
+>> +					if (!security_bounded_transition(tsec->sid, sid))
+>> +						goto boundary_ok;
+>>  					return -EPERM;
+> 
+> Propagate the return value of security_bounded_transition().
 
-I see on the Kernel Development To Do list at http:// 
-selinuxproject.org/page/Kernel_Development that the following task is  
-identified:
+OK, I'll fix it on the next.
 
-"Full APIs for getting and setting security contexts of sockets and  
-IPC objects. Ensure that socket context is kept consistent on socket  
-inode and sock structures when changed."
+> Also, if the user/role bounds are not being used, should they be included 
+> in this?  From the kernel point of view, unused code should never be 
+> added.
 
-We are being bitten by this now, so I am wondering if anyone is  
-working on it or wishes to discuss how to proceed.  We would be  
-interested in addressing this issue.
+Existing named based hierarchy on users/roles are implemented using bounds
+feature. If a user "staff_u.foo" is defined, the toolchain implicitly defines
+bounds relationship with "staff_u", for example.
 
-Regards,
-Trent.
-----------------------------------------------
-Trent Jaeger, Associate Professor
-Pennsylvania State University, CSE Dept
-346A IST Bldg, University Park, PA 16802
-Email: tjaeger@cse.psu.edu
-Ph: (814) 865-1042, Fax: (814) 865-3176
+I don't provide an explicit way to define bounds (like TYPEBOUNDS) between
+users/roles, but we can define it with existing grammar.
 
-
-
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
