@@ -1,236 +1,197 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7R5ncL1000320
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 01:49:38 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7R6tAYV011868
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 02:55:10 -0400
 Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7R5n8Uc021203
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 05:49:08 GMT
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7R6sbUc009682
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 06:54:41 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m7R5nXSb017969
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 01:49:33 -0400
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m7R6t2D4009880
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 02:55:02 -0400
 Received: from pobox.bne.redhat.com (pobox.bne.redhat.com [10.64.63.6])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m7R5nVDG007682
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 01:49:32 -0400
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m7R6sxKn028022
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 02:55:00 -0400
 Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
-	by pobox.bne.redhat.com (8.13.1/8.13.1) with ESMTP id m7R5nRXC008759
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 15:49:31 +1000
-Message-ID: <48B4EAE2.302@redhat.com>
-Date: Wed, 27 Aug 2008 15:49:22 +1000
+	by pobox.bne.redhat.com (8.13.1/8.13.1) with ESMTP id m7R6sx7D018127
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 16:54:59 +1000
+Message-ID: <48B4FA3E.3000602@redhat.com>
+Date: Wed, 27 Aug 2008 16:54:54 +1000
 From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: user guide draft: "Introduction" review
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: user guide draft: "SELinux Contexts and Attributes" review
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Hi,
 
-The following is a draft of the Introduction sections for the SELinux 
-User Guide. Any comments and corrections are appreciated.
+The following is a draft of the SELinux Contexts and Attributes sections 
+for the SELinux User Guide. Any comments and corrections are appreciated.
 
 Thanks.
 
-  On Linux� operating systems, files, directories, sockets, devices, and 
-so on, are called objects, and processes, such as a user running a 
-command, the Mozilla� Firefox� application, and the Apache HTTP Server, 
-are called subjects. Linux operating systems use a Discretionary Access 
-Control (DAC) system that controls how subjects interact and access 
-objects, and how subjects interact with each other. On systems using 
-DAC, users control the permissions of objects (files and directories) 
-that they own. They could, for example, make their home directories 
-world-readable, giving users and subjects (processes) access to 
-potentially sensitive information.
+As previously mentioned, on Linux operating systems, files, directories, 
+sockets, devices, and so on, are called objects, and processes, such as 
+a user running a command, the Firefox application, and the Apache HTTP 
+Server, are called subjects. SELinux provides the Type Enforcement 
+security model. To enforce this, subjects and objects are labeled with 
+an SELinux context that contains additional information, such as an 
+SELinux user, role, and type. When running SELinux, all of this 
+information is used to make access control decisions.
 
-DAC mechanisms are fundamentally inadequate for strong system security. 
-DAC access decisions are only based on user identity and ownership, 
-ignoring other security-relevant information such as the role of the 
-user, the function and trustworthiness of the program, and the 
-sensitivity and integrity of the data. Each user has complete discretion 
-over his objects, making it impossible to enforce a system-wide security 
-policy. Furthermore, every program run by a user inherits all of the 
-permissions granted to the user and is free to change access to the 
-user's objects, so no protection is provided against malicious software. 
-Typically, only two major categories of users are supported by DAC 
-mechanisms: completely trusted administrators and completely untrusted 
-ordinary users. Many system services and privileged programs must run 
-with coarse-grained privileges that far exceed their requirements, so 
-that a flaw in any one of these programs can be exploited to obtain 
-complete system access[1].
-
-The following is an example of permissions used on Linux operating 
-systems that do not run Security-Enhanced Linux (SELinux). Use the ls -l 
-command to view object (such as a file) permissions:
-
--rwxrw-r-- 1 user1 group1 0 Aug 18 10:08 file1
-
-  The first three permission bits, rwx, control the access the Linux 
-user1 user (in this case, the owner) has to the file1 object. The next 
-three permission bits, rw-, control the access the Linux group1 group 
-has to the file1 object. The last three permission bits, r--, control 
-the access everyone else has to the file1 object. This includes all 
-subjects (such as users and processes). By default, when a new object 
-(such as a file) is created, everyone has read permissions. If objects 
-have read permissions, and their parent folder allows everyone read and 
-execute permissions, all subjects (users and processes) have read and 
-execute access to these objects. This is not desirable. Note: on Fedora 
-10, by default, home directories only allow read, write, and execute 
-permissions to the owner. Other subjects, excluding the Linux root user, 
-do not have access. Also, the permissions in these examples may differ 
-from your system. These examples purposely change the permissions to 
-differentiate between the permissions of the owner, group, and everyone 
-else.
-
-Security-Enhanced Linux (SELinux) adds Mandatory Access Control (MAC) to 
-the Linux kernel, and is enabled by default in Fedora. A general purpose 
-MAC architecture needs the ability to enforce an administratively-set 
-security policy over all subjects and objects in the system, basing 
-decisions on labels containing a variety of security-relevant 
-information. When properly implemented, it enables a system to 
-adequately defend itself and offers critical support for application 
-security by protecting against the tampering with, and bypassing of, 
-secured applications. It allows critical processing pipelines to be 
-established and guaranteed. MAC provides strong separation of 
-applications that permits the safe execution of untrustworthy 
-applications. Its ability to limit the privileges associated with 
-executing processes limits the scope of potential damage that can result 
-from the exploitation of vulnerabilities in applications and system 
-services. MAC enables information to be protected from legitimate users 
-with limited authorization as well as from authorized users who have 
-unwittingly executed malicious applications. The ability for the system 
-to do these types of things is necessary before the construction of 
-secure systems will be possible[2].
-
-The following is an example of the labels containing security-relevant 
-information that are used on subjects and objects on Linux operating 
-systems that run SELinux. This information is called the SELinux 
-context, and is viewed using the ls -Z command:
+The following is an example of the additional SELinux information used 
+on Linux operating systems that use SELinux. This information is called 
+the SELinux context, and is viewed using the ls -Z command:
 
 -rwxrw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0      file1
 
-In this example, SELinux provides a user (unconfined_u), a role 
-(object_r), a type (user_home_t), and a category (s0). This information 
-is used to make access control decisions. On DAC systems, access is 
-controlled based on Linux user and group IDs. SELinux allow rules are 
-checked after DAC rules. SELinux allow rules are not used if DAC rules 
-deny access first.
+SELinux contexts follow the SELinux user:role:type:category syntax:
 
-Linux and SELinux users
+SELinux user: The SELinux user identity is an identity known to the 
+policy that is authorized for a specific set of roles and for a specific 
+MLS range. Each Linux user account is mapped to an SELinux user identity 
+when a user login session is created, and the mapped SELinux user 
+identity is used in the security context for processes in that session 
+in order to bound what roles and levels they can enter[1]. Run the 
+/usr/sbin/semanage login -l command to view a list of mappings between 
+SELinux and Linux user accounts:
 
-On Linux operating systems that run SELinux, there are Linux users as 
-well as SELinux users. SELinux users are part of SELinux policy. Linux 
-users are mapped to SElinux users. To avoid confusion, this guide uses 
-"Linux user" and "SELinux user" to differentiate between the two.
+Login Name                SELinux User              MLS/MCS Range
 
-Benefits of running SELinux
+__default__               unconfined_u              s0-s0:c0.c1023
+root                      unconfined_u              s0-s0:c0.c1023
+system_u                  system_u                  s0-s0:c0.c1023
+test2user                 user_u                    s0
+xguest                    xguest_u                  s0
 
-SELinux provides:
+Output may differ from system to system. The Login Name column lists 
+Linux users, and the the SELinux User column lists which SELinux user is 
+mapped to which Linux user. The SELinux user does not restrict the 
+access subjects have to objects. The last column, MLS/MCS Range, are 
+categories that are used by Multi-Level Security (MLS) and 
+Mutli-Category Security (MCS). MLS and MCS categories are discussed 
+briefly later.
 
-* An additional layer of security: a system where subjects (processes) 
-are separated from each other by running in their own domains, and rules 
-define how subjects interact and access objects (such as files), as well 
-as how subjects interact with each other. Actions, such as a subject 
-opening an object, are only allowed if a rule exists that specifically 
-allows it.
+role: Part of SELinux is the Role Based Access Control (RBAC) security 
+model. The role is an attribute of RBAC. Roles are associated with 
+domain types, and domain types are associated with SELinux users. Roles 
+are important when writing policies, as they restrict domain 
+transitions, but they do not restrict the access subjects have to 
+objects, and as such, they are not discussed in detail in this guide.
 
-* Fine-grained access control. Stepping beyond traditional UNIX� 
-permissions that are controlled at user discretion and based on Linux 
-user and group IDs, SELinux access decisions are based on all available 
-information, such as an SELinux user, role, and type. SELinux policy is 
-administratively-defined, and is not set at user discretion. SELinux 
-allow rules (the default action is deny) are not used if DAC rules deny 
-access first.
+type: The type is an attribute of Type Enforcement. The type defines a 
+domain type for subjects, and a type for objects. SELinux policy rules 
+define how types access each other, whether it be a domain accessing a 
+type, or a domain accessing another domain. Access is only allowed if a 
+specific rule exists that allows it.
 
-* Type Enforcement�. All subjects and objects are labeled with a type. 
-Rules define how types interact and access each other. Access is only 
-allowed if a rule exists that specifically allows it.
+category: The category is an attribute of Multi-Level Security (MLS) and 
+Multi-Category Security (MCS). Categories are used to categorize data, 
+and identify its sensitivity or security level. Standard SELinux policy 
+supports MCS; however, it is not heavily used. MCS allows users, at 
+their own discretion, to add a category to a piece of data, for example, 
+PatientRecord or CompanyConfidential. There is only a single security 
+level, s0. MLS labels data with both categories (CompanyConfidential) 
+and a sensitivity level. MLS enforces the Bell-LaPadula Mandatory Access 
+Model, and is used in Labeled Security Protection Profile (LSPP) 
+environments.
 
-* Prevention against privilege escalation. Since subjects run in 
-domains, and are therefore separated from each other, and rules 
-determine how subjects access objects and other subjects, if a service 
-is compromised, the attacker only has access to the normal functions of 
-that service, and to files that the service has been configured to have 
-access to. For example, if the Apache HTTP Server is compromised, an 
-attacker is unable to read files in user home directories, unless a 
-specific rule was added or configured to allow such access.
+Domain Transitions
 
-SELinux is not:
+On Linux operating systems that run SELinux, processes, such as a user 
+running the less command, or an Apache HTTP server, are called subjects. 
+An executable object transitions to a subject, and a subject runs in a 
+domain. This transition is called a domain transition. The following 
+example demonstrates a domain transition:
 
-* Antivirus software.
+1. A users wants to change their password. To change their password, 
+they run the /usr/bin/passwd command. The /usr/bin/passwd file object is 
+labeled with the passwd_exec_t file type:
 
-* A replacement for passwords, firewalls, or other security systems.
+$ ls -Z /usr/bin/passwd
+-rwsr-xr-x  root root system_u:object_r:passwd_exec_t:s0 /usr/bin/passwd
 
-* An all-in-one security solution.
+The passwd application needs to access the /etc/shadow object, which is 
+labeled with the shadow_t file type:
 
-SELinux is an addition to DAC rules. It is designed to enhance existing 
-security solutions, not replace them. Even when running SELinux, 
-continue to follow good security practices, such as keeping software 
-up-to-date, using hard-to-guess passwords, firewalls, and so on.
+$ ls -Z /etc/shadow
+-r--------  root root system_u:object_r:shadow_t:s0    /etc/shadow
 
-Examples
+2. An SELinux policy rule states that subjects running in the passwd_t 
+domain type are allowed to read and write to objects that are labeled 
+with the shadow_t file type. The /etc/shadow object is the only object 
+that is labeled with the shadow_t file type.
 
-The following examples demonstrate how SELinux increases security:
+3. When a user runs the /usr/bin/passwd command, the application 
+transitions to a subject (a process), which is running in the passwd_t 
+domain type. With SELinux, since the default action is to deny, and a 
+rule exists that allows (among other things) applications running in the 
+passwd_t domain type to access objects labeled with the shadow_t file 
+type, the passwd application is allowed to access /etc/shadow, and 
+update the user's password.
 
-* The default action is deny. If a rule does not exist to allow a 
-subject access to an object, or a subject access to another subject, 
-access is denied.
+This example is not exhaustive, and is used as a basic example to 
+explain domain transition. Although there is an actual rule that allows 
+subjects running in the passwd_t domain type to access objects labeled 
+with the shadow_t file type, other rules must be met before the object 
+can successfully transition.
 
-* Confining users: SELinux can confine Linux users. A number of 
-restricted SELinux users exist. Linux users can be mapped to restricted 
-SELinux users to take advantage of confined SELinux users. For example, 
-mapping a Linux user account to the SELinux user_u user, results in a 
-Linux user that is not able to run (unless configured otherwise) set 
-user ID (setuid) applications, such as /usr/bin/sudo and su. Also, you 
-can disable the execution of objects in user home directories for Linux 
-users that are mapped to the SELinux user_u user. If configured, this 
-prevents users from executing malicious files, that they may have 
-downloaded from the Internet, from their home directories.
+SELinux Contexts for Subjects
 
-* Subject (process) separation. Subjects run in their own domains. This 
-prevents other subjects from accessing objects used by other subjects, 
-as well as subjects accessing other subjects. For example, when running 
-SELinux, unless otherwise configured, an attacker can not compromise a 
-Samba server, and then use that Samba server to read and write to 
-objects used by other subjects, such as files comprising a website that 
-is read by the Apache HTTP server.
+On Linux operating systems the run SELinux, when an application is 
+executed, that application transitions to a subject and runs in a 
+domain. The SELinux context for subjects is viewed using the pstree -Z 
+command. For example:
 
-* Help limit the damage done by configuration mistakes. An administrator 
-may forget to limit zone transfers when running ISC BIND; however, the 
-default SELinux context for zone files does not allow them to be updated 
-by zone transfers, or written to by named, the ISC BIND daemon, and 
-other subjects.
+1. Open a terminal, such as Applications → System Tools → Terminal.
 
-SELinux Architecture and Performance
+2. Run the /usr/bin/passwd command. Do not enter a new password.
 
-SELinux is a Linux kernel module. Part of this module is the SELinux 
-security server. The security server contains policy rules that define 
-what access is allowed. When a subject attempts to interact with an 
-object, for example, a process opening a file, a hook in the Linux 
-kernel intercepts the system call the process makes to open the file. 
-The hook communicates with the security server to check if access should 
-be allowed or denied. Decisions made by the security server are cached 
-by an Access Vector Cache (AVC). This decreases how often SELinux rules 
-in the security server need to be checked, which increases performance. 
-SELinux has no effect if DAC rules deny access first.
+3. Open a new tab, or another terminal, and run the pstree -Z | grep 
+passwd command. The output is similar to the following:
 
-[performance details to be added later]
+|  |        `-passwd(`unconfined_u:unconfined_r:passwd_t:s0-s0:c0.c1023')
+
+4. In the first tab, cancel passwd application.
+
+In this example, when the /usr/bin/passwd object, which is labeled with 
+the passwd_exec_t file type, is executed, it transitions to a subject 
+that runs in the passwd_t domain type. Remember: the type defines a 
+domain type for subjects, and a type for objects.
+
+To view the SELinux contexts for all subjects, run the pstree -Z 
+command. The following is an example of the pstree -Z output, and may 
+differ on your system:
+
+├─NetworkManager(`system_u:system_r:NetworkManager_t:s0')
+│  └─{NetworkManager}(`system_u:system_r:NetworkManager_t:s0')
+├─acpid(`system_u:system_r:apmd_t:s0')
+├─anacron(`system_u:system_r:system_crond_t:s0')
+├─atd(`system_u:system_r:crond_t:s0-s0:c0.c1023')
+├─auditd(`system_u:system_r:auditd_t:s0')
 
 
+By default, the SELinux targeted policy is used. When using targeted 
+policy, most subjects (processes) use the system_r role. Type 
+enforcement then separates each domain.
 
-[1] "Integrating Flexible Support for Security Policies into the Linux 
-Operating System", by Peter Loscocco and Stephen Smalley. This paper was 
-originally prepared for the National Security Agency and is, 
-consequently, in the public domain. Refer to the 
-[http://www.nsa.gov/selinux/papers/freenix01/freenix01.html original 
-paper] for details and the document as it was first released. Any edits 
-and changes were done by Murray McAllister.
+Run the id command to view the SELinux context associated with your 
+Linux user:
 
-[2] "Meeting Critical Security Objectives with Security-Enhanced Linux", 
-by Peter Loscocco and Stephen Smalley. This paper was originally 
-prepared for the National Security Agency and is, consequently, in the 
-public domain. Refer to the 
-[http://www.nsa.gov/selinux/papers/ottawa01/index.html original paper] 
-for details and the document as it was first released. Any edits and 
-changes were done by Murray McAllister.
+uid=500(user) gid=500(group) groups=500(group) 
+context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+
+On Fedora 10, Linux users run unconfined by default. This SELinux 
+context shows that the Linux user is mapped to the SELinux unconfined_u 
+user, running as the unconfined_r role, and is running in the 
+unconfined_t domain type. SELinux rules do not affect Linux users that 
+are running in the unconfined_t domain type; however, UNIX permissions 
+still apply.
+
+
+[1] Smalley, Stephen. "Re: SELinux User Guide: weekly report 20080822". 
+Email to Murray McAllister, 25 August 2008. Any edits were done by 
+Murray McAllister.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
