@@ -1,197 +1,413 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7R6tAYV011868
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 02:55:10 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7R6sbUc009682
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 06:54:41 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m7R6t2D4009880
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 02:55:02 -0400
-Received: from pobox.bne.redhat.com (pobox.bne.redhat.com [10.64.63.6])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m7R6sxKn028022
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 02:55:00 -0400
-Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
-	by pobox.bne.redhat.com (8.13.1/8.13.1) with ESMTP id m7R6sx7D018127
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 16:54:59 +1000
-Message-ID: <48B4FA3E.3000602@redhat.com>
-Date: Wed, 27 Aug 2008 16:54:54 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+Message-ID: <48B50AB5.4030502@ak.jp.nec.com>
+Date: Wed, 27 Aug 2008 17:05:09 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: user guide draft: "SELinux Contexts and Attributes" review
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: James Morris <jmorris@namei.org>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, paul.moore@hp.com,
+        jbrindle@tresys.com, selinux@tycho.nsa.gov
+Subject: [LTP][PATCH 2/2]  Add a new test case for bounds types
+References: <487C7698.60503@ak.jp.nec.com>  <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>  <487D5A3D.6090801@ak.jp.nec.com>  <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>  <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>  <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>  <4897EB5A.1040404@ak.jp.nec.com>  <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>  <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com> <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil> <48B2A669.7040800@ak.jp.nec.com> <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org> <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>
+Content-Type: multipart/mixed;
+ boundary="------------060605000504000707000603"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+This is a multi-part message in MIME format.
+--------------060605000504000707000603
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The following is a draft of the SELinux Contexts and Attributes sections 
-for the SELinux User Guide. Any comments and corrections are appreciated.
+James Morris wrote:
+> Could you also please add tests for this (at least one which should fail 
+> and one which should succeed) to the Linux Test Project?
+> 
+> 
+> - James
 
-Thanks.
+The attached patch adds a new test case to check correctness of boundary
+feature. It contains four sub tests, as follows:
 
-As previously mentioned, on Linux operating systems, files, directories, 
-sockets, devices, and so on, are called objects, and processes, such as 
-a user running a command, the Firefox application, and the Apache HTTP 
-Server, are called subjects. SELinux provides the Type Enforcement 
-security model. To enforce this, subjects and objects are labeled with 
-an SELinux context that contains additional information, such as an 
-SELinux user, role, and type. When running SELinux, all of this 
-information is used to make access control decisions.
+test01: It tries to invoke setcon() with bounded domain in a multi-threaded
+         process. The expected result is success.
+test02: It tries to invoke setcon() with unrelated domain in a multi-threaded
+         process. The expected result is fail.
+test03: It makes a bounded domain try to read a file, when its bounds domain
+         can read the file. The expected result is success.
+test04: It makes a bounded domain try to write a file, when its bounds domain
+         cannot write the file. The expected result is fail, even if the bounded
+         domain is allowed to write the file.
 
-The following is an example of the additional SELinux information used 
-on Linux operating systems that use SELinux. This information is called 
-the SELinux context, and is viewed using the ls -Z command:
+---- The result of execution
+[root@saba tests]# ./runtest.sh bounds
+/home/kaigai/develop/ltp/testcases/kernel/security/selinux-testsuite/tests
+Running with security context=unconfined_u:unconfined_r:unconfined_t:SystemLow-SystemHigh
+1+0 records in
+1+0 records out
+1024 bytes (1.0 kB) copied, 8.6321e-05 s, 11.9 MB/s
+All systems go
+test01   PASS : thread dyntrans passed.
+setcon() on multithread process failed: Operation not permitted
+All systems go
+test02   PASS : thread dyntrans to unbound domain failed.
+2+0 records in
+2+0 records out
+1024 bytes (1.0 kB) copied, 4.2932e-05 s, 23.9 MB/s
+test03   PASS : unbounded action to be allowed.
+dd: opening `/tmp/selinux/test_file': Permission denied
+test04   PASS : bounded action to be denied.
+Done.
+[root@saba tests]#
 
--rwxrw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0      file1
+(*) I added a bit ad-hoc policy to invoke the script from the shell.
 
-SELinux contexts follow the SELinux user:role:type:category syntax:
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-SELinux user: The SELinux user identity is an identity known to the 
-policy that is authorized for a specific set of roles and for a specific 
-MLS range. Each Linux user account is mapped to an SELinux user identity 
-when a user login session is created, and the mapped SELinux user 
-identity is used in the security context for processes in that session 
-in order to bound what roles and levels they can enter[1]. Run the 
-/usr/sbin/semanage login -l command to view a list of mappings between 
-SELinux and Linux user accounts:
+--------------060605000504000707000603
+Content-Type: text/x-patch;
+ name="ltp-selinux-bounds-tests.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ltp-selinux-bounds-tests.patch"
 
-Login Name                SELinux User              MLS/MCS Range
+Index: ltp/testcases/kernel/security/selinux-testsuite/tests/Makefile
+===================================================================
+--- ltp/testcases/kernel/security/selinux-testsuite/tests/Makefile	(revision 2)
++++ ltp/testcases/kernel/security/selinux-testsuite/tests/Makefile	(revision 3)
+@@ -3,7 +3,7 @@
+ ifeq (redhat-release-4, $(findstring redhat-release-4, $(REDHAT_RELEASE)))
+     SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
+ else
+-    SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrace dyntrans
++    SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrace dyntrans bounds
+ endif
+ 
+ all: 
+Index: ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds_thread.c
+===================================================================
+--- ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds_thread.c	(revision 0)
++++ ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds_thread.c	(revision 3)
+@@ -0,0 +1,82 @@
++/*
++ * Copyright (c) 2008 NEC Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <pthread.h>
++#include <selinux/selinux.h>
++#include <selinux/context.h>
++
++static int thread_status = 0;
++
++static void *worker(void *datap)
++{
++	security_context_t security_context = datap;
++	int rc;
++
++	rc = setcon(security_context);
++	if (rc < 0) {
++		perror("setcon() on multithread process failed");
++		thread_status = 1;
++	}
++
++	return NULL;
++}
++
++int main(int argc, char *argv[])
++{
++	security_context_t security_context;
++	context_t context;
++	pthread_t thread;
++	int rc;
++
++	if (argc != 2) {
++		fprintf(stderr, "usage: %s <new domain>\n", argv[0]);
++		return 1;
++	}
++
++	rc = getcon(&security_context);
++	if (rc < 0) {
++		fprintf(stderr, "%s: unable to get my context\n", argv[0]);
++		return 1;
++	}
++
++	context = context_new(security_context);
++	if (!context) {
++		fprintf(stderr, "%s: unable to create context structure\n", argv[0]);
++		return 1;
++	}
++
++	if (context_type_set(context, argv[1])) {
++		fprintf(stderr, "%s: unable to set new type\n", argv[0]);
++		return 1;
++        }
++
++	freecon(security_context);
++	security_context = context_str(context);
++	if (!security_context) {
++		fprintf(stderr, "%s: unable to obtain new context string\n", argv[0]);
++		return 1;
++	}
++
++	rc = pthread_create(&thread, NULL, worker, security_context);
++	if (rc) {
++		fprintf(stderr, "%s: unable to kick a new thread\n", argv[0]);
++		return 1;
++	}
++
++	rc = pthread_join(thread, NULL);
++	if (rc) {
++		fprintf(stderr, "%s: unable to join its thread\n", argv[0]);
++		return 1;
++	}
++
++	printf("All systems go\n");
++	return thread_status;
++}
+Index: ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh
+===================================================================
+--- ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh	(revision 0)
++++ ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh	(revision 3)
+@@ -0,0 +1,123 @@
++#!/bin/sh
++#
++# Copyright (c) 2008 NEC Corporation
++#
++# This program is free software; you can redistribute it and/or modify it
++# under the terms of the GNU General Public License as published by the Free
++# Software Foundation; either version 2 of the License, or (at your option)
++# any later version.
++#
++
++setup()
++{
++	export TCID="setup"
++	export TST_COUNT=0
++	export TST_TOTAL=4
++
++	# Remove any leftover test directories from prior failed runs.
++	rm -rf $SELINUXTMPDIR/test_file
++
++	# Create a test files
++	dd if=/dev/zero of=$SELINUXTMPDIR/test_file count=1 bs=1024
++	chcon -t test_bounds_file_t $SELINUXTMPDIR/test_file
++}
++
++test01()
++{
++	TCID="test01"
++	TST_COUNT=1
++	RC=0
++
++	runcon -t test_bounds_parent_t \
++	       -- selinux_bounds_thread test_bounds_child_t 2>&1
++	RC=$?
++	if [ $RC -eq 0 ];
++	then
++		echo "$TCID   PASS : thread dyntrans passed."
++	else
++		echo "$TCID   FAIL : thread dynstrans failed."
++	fi
++	return $RC
++}
++
++test02()
++{
++	TCID="test02"
++	TST_COUND=2
++	RC=0
++
++	runcon -t test_bounds_parent_t \
++	       -- selinux_bounds_thread test_bounds_unbound_t 2>&1
++	RC=$?
++	if [ $RC -ne 0 ];	# we expect this to fail
++	then
++		echo "$TCID   PASS : thread dyntrans to unbound domain failed."
++		RC=0
++	else
++		echo "$TCID   FAIL : thread dyntrans to unbound domain succeeded."
++		RC=1
++	fi
++	return $RC
++}
++
++test03()
++{
++	TCID="test03"
++	TST_COUND=3
++	RC=0
++
++	runcon -t test_bounds_child_t \
++	       -- dd if=$SELINUXTMPDIR/test_file of=/dev/null
++	RC=$?
++	if [ $RC -eq 0 ];
++	then
++		echo "$TCID   PASS : unbounded action to be allowed."
++	else
++		echo "$TCID   FAIL : unbounded action to be allowed."
++	fi
++	return $RC
++}
++
++test04()
++{
++	TCID="test04"
++	TST_COUNT=4
++	RC=0
++
++	runcon -t test_bounds_child_t \
++		-- dd if=/dev/zero of=$SELINUXTMPDIR/test_file count=1 bs=1024
++	RC=$?
++	if [ $RC -ne 0 ];	# we expect this to fail
++	then
++		echo "$TCID   PASS : bounded action to be denied."
++		RC=0
++	else
++		echo "$TCID   FAIL : bounded action to be denied."
++		RC=1
++	fi
++	return $RC
++}
++
++cleanup()
++{
++	# Cleanup
++	rm -rf $SELINUXTMPDIR/test_file
++}
++
++# Function:	main
++#
++# Description:	- Execute all tests, exit with test status.
++#
++# Exit:		- zero on success
++#		- non-zero on failure.
++#
++RC=0	# Return value from setup, and test functions.
++EXIT_VAL=0
++
++setup
++test01 || EXIT_VAL=$RC
++test02 || EXIT_VAL=$RC
++test03 || EXIT_VAL=$RC
++test04 || EXIT_VAL=$RC
++cleanup
++exit $EXIT_VAL
 
-__default__               unconfined_u              s0-s0:c0.c1023
-root                      unconfined_u              s0-s0:c0.c1023
-system_u                  system_u                  s0-s0:c0.c1023
-test2user                 user_u                    s0
-xguest                    xguest_u                  s0
+Property changes on: ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh
+___________________________________________________________________
+Added: svn:executable
+   + *
 
-Output may differ from system to system. The Login Name column lists 
-Linux users, and the the SELinux User column lists which SELinux user is 
-mapped to which Linux user. The SELinux user does not restrict the 
-access subjects have to objects. The last column, MLS/MCS Range, are 
-categories that are used by Multi-Level Security (MLS) and 
-Mutli-Category Security (MCS). MLS and MCS categories are discussed 
-briefly later.
+Index: ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/Makefile
+===================================================================
+--- ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/Makefile	(revision 0)
++++ ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/Makefile	(revision 3)
+@@ -0,0 +1,11 @@
++TARGETS=$(patsubst %.c,%,$(wildcard *.c))
++LDLIBS += -lselinux -lpthread
++
++all: $(TARGETS)
++
++install:
++	@set -e; for i in $(TARGETS); do ln -f $$i ../../../../../bin/$$i; done
++	ln -f selinux_bounds.sh ../../../../../bin/
++
++clean:
++	rm -f $(TARGETS)
+\ No newline at end of file
+Index: ltp/testcases/kernel/security/selinux-testsuite/refpolicy/Makefile
+===================================================================
+--- ltp/testcases/kernel/security/selinux-testsuite/refpolicy/Makefile	(revision 2)
++++ ltp/testcases/kernel/security/selinux-testsuite/refpolicy/Makefile	(revision 3)
+@@ -1,7 +1,7 @@
+ POLICYDEVEL = /usr/share/selinux/devel
+ SEMODULE = /usr/sbin/semodule
+ 
+-TARGETS=test_global.te test_capable_file.te test_capable_net.te \
++TARGETS=test_global.te test_bounds.te test_capable_file.te test_capable_net.te \
+ test_capable_sys.te test_dyntrace.te test_dyntrans.te test_entrypoint.te \
+ test_execshare.te test_exectrace.te test_execute_no_trans.te \
+ test_fdreceive.te test_file.te test_inherit.te test_ioctl.te test_ipc.te \
+Index: ltp/testcases/kernel/security/selinux-testsuite/refpolicy/test_bounds.te
+===================================================================
+--- ltp/testcases/kernel/security/selinux-testsuite/refpolicy/test_bounds.te	(revision 0)
++++ ltp/testcases/kernel/security/selinux-testsuite/refpolicy/test_bounds.te	(revision 3)
+@@ -0,0 +1,65 @@
++#################################
++#
++# Policy for testing boundary features
++#
++
++attribute test_bounds_domain;
++
++# Domain for process that allows to other domains
++type test_bounds_parent_t;
++domain_type(test_bounds_parent_t)
++typeattribute test_bounds_parent_t test_bounds_domain;
++typeattribute test_bounds_parent_t testdomain;
++
++# Domain for process that has a bounds type
++type test_bounds_child_t;
++domain_type(test_bounds_child_t)
++typeattribute test_bounds_child_t test_bounds_domain;
++typeattribute test_bounds_child_t testdomain;
++
++# Domain for process that does not have any bounds type
++type test_bounds_unbound_t;
++domain_type(test_bounds_unbound_t)
++typeattribute test_bounds_unbound_t test_bounds_domain;
++typeattribute test_bounds_unbound_t testdomain;
++
++# Types for test files
++type test_bounds_file_t;
++files_type(test_bounds_file_t)
++
++# Definition of boundary relationship
++typebounds test_bounds_parent_t test_bounds_child_t;
++
++# Allow the test_bounds_parent_t to dyntrans
++allow test_bounds_parent_t test_bounds_child_t   : process { dyntransition };
++allow test_bounds_parent_t test_bounds_unbound_t : process { dyntransition };
++
++# Allow domains to access test_bounds_file_t
++allow test_bounds_parent_t  test_bounds_file_t : file { read_file_perms };
++allow test_bounds_child_t   test_bounds_file_t : file { rw_file_perms };
++allow test_bounds_unbound_t test_bounds_file_t : file { rw_file_perms };
++
++# Allow execution of helper programs.
++corecmd_exec_bin(test_bounds_domain)
++allow test_bounds_domain bin_t : file { entrypoint };
++libs_use_ld_so(test_bounds_domain)
++libs_use_shared_libs(test_bounds_domain)
++libs_exec_ld_so(test_bounds_domain)
++libs_exec_lib_files(test_bounds_domain)
++
++# Allow all of these domains to be entered from sysadm domain
++miscfiles_domain_entry_test_files(test_bounds_domain)
++sysadm_entry_spec_domtrans(test_bounds_domain)
++
++# Allow to invoke script on targeted policy
++optional_policy(`
++	gen_require(`
++		role unconfined_r;
++		type unconfined_t;
++	')
++
++	role unconfined_r types test_bounds_domain;
++	allow unconfined_t test_bounds_domain : process { transition };
++
++	userdom_use_user_terminals(unconfined, test_bounds_domain)
++')
 
-role: Part of SELinux is the Role Based Access Control (RBAC) security 
-model. The role is an attribute of RBAC. Roles are associated with 
-domain types, and domain types are associated with SELinux users. Roles 
-are important when writing policies, as they restrict domain 
-transitions, but they do not restrict the access subjects have to 
-objects, and as such, they are not discussed in detail in this guide.
-
-type: The type is an attribute of Type Enforcement. The type defines a 
-domain type for subjects, and a type for objects. SELinux policy rules 
-define how types access each other, whether it be a domain accessing a 
-type, or a domain accessing another domain. Access is only allowed if a 
-specific rule exists that allows it.
-
-category: The category is an attribute of Multi-Level Security (MLS) and 
-Multi-Category Security (MCS). Categories are used to categorize data, 
-and identify its sensitivity or security level. Standard SELinux policy 
-supports MCS; however, it is not heavily used. MCS allows users, at 
-their own discretion, to add a category to a piece of data, for example, 
-PatientRecord or CompanyConfidential. There is only a single security 
-level, s0. MLS labels data with both categories (CompanyConfidential) 
-and a sensitivity level. MLS enforces the Bell-LaPadula Mandatory Access 
-Model, and is used in Labeled Security Protection Profile (LSPP) 
-environments.
-
-Domain Transitions
-
-On Linux operating systems that run SELinux, processes, such as a user 
-running the less command, or an Apache HTTP server, are called subjects. 
-An executable object transitions to a subject, and a subject runs in a 
-domain. This transition is called a domain transition. The following 
-example demonstrates a domain transition:
-
-1. A users wants to change their password. To change their password, 
-they run the /usr/bin/passwd command. The /usr/bin/passwd file object is 
-labeled with the passwd_exec_t file type:
-
-$ ls -Z /usr/bin/passwd
--rwsr-xr-x  root root system_u:object_r:passwd_exec_t:s0 /usr/bin/passwd
-
-The passwd application needs to access the /etc/shadow object, which is 
-labeled with the shadow_t file type:
-
-$ ls -Z /etc/shadow
--r--------  root root system_u:object_r:shadow_t:s0    /etc/shadow
-
-2. An SELinux policy rule states that subjects running in the passwd_t 
-domain type are allowed to read and write to objects that are labeled 
-with the shadow_t file type. The /etc/shadow object is the only object 
-that is labeled with the shadow_t file type.
-
-3. When a user runs the /usr/bin/passwd command, the application 
-transitions to a subject (a process), which is running in the passwd_t 
-domain type. With SELinux, since the default action is to deny, and a 
-rule exists that allows (among other things) applications running in the 
-passwd_t domain type to access objects labeled with the shadow_t file 
-type, the passwd application is allowed to access /etc/shadow, and 
-update the user's password.
-
-This example is not exhaustive, and is used as a basic example to 
-explain domain transition. Although there is an actual rule that allows 
-subjects running in the passwd_t domain type to access objects labeled 
-with the shadow_t file type, other rules must be met before the object 
-can successfully transition.
-
-SELinux Contexts for Subjects
-
-On Linux operating systems the run SELinux, when an application is 
-executed, that application transitions to a subject and runs in a 
-domain. The SELinux context for subjects is viewed using the pstree -Z 
-command. For example:
-
-1. Open a terminal, such as Applications → System Tools → Terminal.
-
-2. Run the /usr/bin/passwd command. Do not enter a new password.
-
-3. Open a new tab, or another terminal, and run the pstree -Z | grep 
-passwd command. The output is similar to the following:
-
-|  |        `-passwd(`unconfined_u:unconfined_r:passwd_t:s0-s0:c0.c1023')
-
-4. In the first tab, cancel passwd application.
-
-In this example, when the /usr/bin/passwd object, which is labeled with 
-the passwd_exec_t file type, is executed, it transitions to a subject 
-that runs in the passwd_t domain type. Remember: the type defines a 
-domain type for subjects, and a type for objects.
-
-To view the SELinux contexts for all subjects, run the pstree -Z 
-command. The following is an example of the pstree -Z output, and may 
-differ on your system:
-
-├─NetworkManager(`system_u:system_r:NetworkManager_t:s0')
-│  └─{NetworkManager}(`system_u:system_r:NetworkManager_t:s0')
-├─acpid(`system_u:system_r:apmd_t:s0')
-├─anacron(`system_u:system_r:system_crond_t:s0')
-├─atd(`system_u:system_r:crond_t:s0-s0:c0.c1023')
-├─auditd(`system_u:system_r:auditd_t:s0')
-
-
-By default, the SELinux targeted policy is used. When using targeted 
-policy, most subjects (processes) use the system_r role. Type 
-enforcement then separates each domain.
-
-Run the id command to view the SELinux context associated with your 
-Linux user:
-
-uid=500(user) gid=500(group) groups=500(group) 
-context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-
-On Fedora 10, Linux users run unconfined by default. This SELinux 
-context shows that the Linux user is mapped to the SELinux unconfined_u 
-user, running as the unconfined_r role, and is running in the 
-unconfined_t domain type. SELinux rules do not affect Linux users that 
-are running in the unconfined_t domain type; however, UNIX permissions 
-still apply.
-
-
-[1] Smalley, Stephen. "Re: SELinux User Guide: weekly report 20080822". 
-Email to Murray McAllister, 25 August 2008. Any edits were done by 
-Murray McAllister.
+--------------060605000504000707000603--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
