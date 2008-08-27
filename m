@@ -1,79 +1,108 @@
-Message-ID: <48B597A5.40809@windriver.com>
-Date: Wed, 27 Aug 2008 14:06:29 -0400
-From: Vikram Ambrose <Vikram.Ambrose@windriver.com>
-MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Manoj Srivastava <srivasta@debian.org>, Caleb Case <ccase@tresys.com>
-Subject: Re: New SELinux toolchain build system
-References: <48A04E61.3090506@windriver.com> <48A1F6D4.7000909@manicmethod.com> <48A47719.3020007@windriver.com> <48B20816.8030502@manicmethod.com> <48B2BC4D.7010901@windriver.com> <48B34EA0.8040302@manicmethod.com>
-In-Reply-To: <48B34EA0.8040302@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Socket and inode label consistency
+From: Eric Paris <eparis@redhat.com>
+To: Trent Jaeger <tjaeger@cse.psu.edu>
+Cc: Paul Moore <paul.moore@hp.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <E0F1193F-FE77-4B1D-87BA-3289AD37C385@cse.psu.edu>
+References: <1D98C7BF-3D76-4A9C-B43C-31BE0C57227B@cse.psu.edu>
+	 <1219838254.5708.4.camel@moss-spartans.epoch.ncsc.mil>
+	 <200808271149.38256.paul.moore@hp.com>
+	 <E0F1193F-FE77-4B1D-87BA-3289AD37C385@cse.psu.edu>
+Content-Type: text/plain
+Date: Wed, 27 Aug 2008 14:05:39 -0400
+Message-Id: <1219860339.2910.22.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Vikram Ambrose wrote:
->   
->> Joshua Brindle wrote:
->>     
->  
->   
->>> * make clean from the top doesn't actually clean anything, it just
->>> removes the makefiles
->>>
->>> * there is no way to distclean from the top level, eg., make the
->>> repository look like it will when we package up a release
->>>   
->>>       
->> The top level makefile was just a proof-of-concept. If you need a top
->> level makefile, then write one. The one i supplied was only intended to
->> show that the tree builds.
->>     
->
-> So, the things you expect others to do include:
-> make the top level makefile useful (clean, distclean, debug build, etc)
->   
+On Wed, 2008-08-27 at 14:08 -0400, Trent Jaeger wrote:
+> 
+> On Aug 27, 2008, at 11:49 AM, Paul Moore wrote:
+> > On Wednesday 27 August 2008 7:57:34 am Stephen Smalley wrote:
+> > > On Tue, 2008-08-26 at 20:50 -0400, Trent Jaeger wrote:
+> > > > Hi,
+> > > > 
+> > > > 
+> > > > I see on the Kernel Development To Do list at http://
+> > > > selinuxproject.org/page/Kernel_Development that the following
+> > > > task
+> > > > is identified:
+> > > > 
+> > > > 
+> > > > "Full APIs for getting and setting security contexts of sockets
+> > > > and
+> > > > IPC objects. Ensure that socket context is kept consistent on
+> > > > socket inode and sock structures when changed."
+> > > > 
+> > > > 
+> > > > We are being bitten by this now, so I am wondering if anyone is
+> > > > working on it or wishes to discuss how to proceed.  We would be
+> > > > interested in addressing this issue.
+> > > 
+> > > 
+> > > I don't know of anyone working on it, but we are interested in it.
+> > 
+> > 
+> > It is something that has been on my todo list for some time but it
+> > is 
+> > stuck with such a low priority that I haven't been able to make any 
+> > progress on it.  If you've got time to work on it, I would be very 
+> > happy :)
+> > 
+> > 
+> > > As I recall, you can get and set the socket inode label via
+> > > fgetxattr
+> > > and fsetxattr but the struct sock label isn't accessible from
+> > > userspace (except via getpeercon, and then only for the peer).  I
+> > > think you'd need to add a .setxattr method to the socket_file_ops
+> > > and
+> > > have them call into the LSM interface to update the sock
+> > > information
+> > > (as well as continuing to update the socket inode info).
+> > 
+> > 
+> > There would also need to be some work done to ensure that all the 
+> > outbound labeled networking stuff is updated when the socket's label
+> > is 
+> > changed via the xattr operations.  Right now there is no way (at
+> > least 
+> > not that I know of) to change the label of an existing socket so we 
+> > don't have to worry about that problem.
+> > 
+> > 
+> > I also wonder about changing the label of a socket while it is 
+> > connected, probably not a big issue for dgram sockets but I think
+> > it 
+> > could get pretty strange for stream sockets.
+> 
+> 
+> Hi,
+> 
+> 
+> What we want is to create a socket within the context of a multilevel
+> secure process.  For example, if the process has an MLS range of
+> s0-s1, we may want an s0 or s1 socket.  
+> 
+> 
+> Thus, in theory, we should be able to avoid dealing with context
+> changes on connected sockets and such.  Once the socket goes into any
+> use, it cannot be relabeled.
+> 
+> 
+> I am not sure that setxattr will work as this is an inode operation,
+> and I do not see a reference from an inode to an associated socket.  
+> 
+> 
+> Originally, I was thinking of setsockopt, but I agree that it would be
+> nice to deal with it via the file interface, like fsetfilecon.
 
-I'll do that one if i get time this week.
+/proc/self/attr/sockcreate and I know I wrote some libselinux stuff
+around it too....
 
-> fix the CFLAGS in all the app/lib makefiles
->   
-
-Like i said previously, do not force unnecessary CFLAGS onto the package 
-builder. If you need special flags add it to your configure line, 
-./configure CFLAGS="-Wall -I/blah -fPIC" --prefix=/usr --bindir=/bin 
-etc...  A good place for these would be in the top level Makefile, which 
-would be a hard coded makefile.
-
-> add the dispol/dismod makefile
->   
-
-I'm doing this one
-
-> add the ruby swig support
-> add make test targets to all lib Makefiles
->
->   
-
-I'll try to do these this week, but I cannot test it, so be warned.
-
-> Anything else?
->   
-
-Nope.
-
-> I'm not adverse to the patch set, and when/if we ack and merge it, it will be our responsibility to maintain but I'm worried about it not being completed before that. I'm not an autotools expert (or even a beginner) and neither are the other maintainers. As such I don't see much motivation to finish up the patch set for you in order to get it in a mergeable state (and this isn't abnormal for opensource projects, try dropping an incomplete patch on lkml and see where it gets you).
->   
-
-Surprised, a little, so I'll try my best to help with anything I can, 
-but time is not on my side.
-
-Updates are in the mix, coming to a mailing list near you! :)
+-Eric
 
 
-Vikram
 
 --
 This message was distributed to subscribers of the selinux mailing list.
