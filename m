@@ -1,61 +1,91 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Trent Jaeger <tjaeger@cse.psu.edu>
-Subject: Re: Socket and inode label consistency
-Date: Wed, 27 Aug 2008 11:49:38 -0400
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-References: <1D98C7BF-3D76-4A9C-B43C-31BE0C57227B@cse.psu.edu> <1219838254.5708.4.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1219838254.5708.4.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7RG8wYN019462
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 12:08:58 -0400
+Received: from mail-gx0-f12.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7RG8vJV021200
+	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 16:08:57 GMT
+Received: by gxk5 with SMTP id 5so3913010gxk.18
+        for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 09:08:57 -0700 (PDT)
+Message-ID: <80d7e4090808270908p1453e001g2c26f8f7b06709f4@mail.gmail.com>
+Date: Wed, 27 Aug 2008 10:08:56 -0600
+From: "Stephen John Smoogen" <smooge@gmail.com>
+To: "Murray McAllister" <mmcallis@redhat.com>
+Subject: Re: user guide draft: "Introduction" review
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
+In-Reply-To: <48B4EAE2.302@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200808271149.38256.paul.moore@hp.com>
+Content-Type: text/plain; charset=ISO-8859-1
+References: <48B4EAE2.302@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 27 August 2008 7:57:34 am Stephen Smalley wrote:
-> On Tue, 2008-08-26 at 20:50 -0400, Trent Jaeger wrote:
-> > Hi,
-> >
-> > I see on the Kernel Development To Do list at http://
-> > selinuxproject.org/page/Kernel_Development that the following task
-> > is identified:
-> >
-> > "Full APIs for getting and setting security contexts of sockets and
-> > IPC objects. Ensure that socket context is kept consistent on
-> > socket inode and sock structures when changed."
-> >
-> > We are being bitten by this now, so I am wondering if anyone is
-> > working on it or wishes to discuss how to proceed.  We would be
-> > interested in addressing this issue.
+On Tue, Aug 26, 2008 at 11:49 PM, Murray McAllister <mmcallis@redhat.com> wrote:
+> Hi,
 >
-> I don't know of anyone working on it, but we are interested in it.
 
-It is something that has been on my todo list for some time but it is 
-stuck with such a low priority that I haven't been able to make any 
-progress on it.  If you've got time to work on it, I would be very 
-happy :)
+Hi, I have only a couple of things that came up in reading.
 
-> As I recall, you can get and set the socket inode label via fgetxattr
-> and fsetxattr but the struct sock label isn't accessible from
-> userspace (except via getpeercon, and then only for the peer).  I
-> think you'd need to add a .setxattr method to the socket_file_ops and
-> have them call into the LSM interface to update the sock information
-> (as well as continuing to update the socket inode info).
+> The following is a draft of the Introduction sections for the SELinux User
+> Guide. Any comments and corrections are appreciated.
+>
+> Thanks.
+>
+>  On Linux(R) operating systems, files, directories, sockets, devices, and so
+> on, are called objects, and processes, such as a user running a command, the
+> Mozilla(R) Firefox(R) application, and the Apache HTTP Server, are called
+> subjects. Linux operating systems use a Discretionary Access Control (DAC)
+> system that controls how subjects interact and access objects, and how
+> subjects interact with each other. On systems using DAC, users control the
+> permissions of objects (files and directories) that they own. They could,
+> for example, make their home directories world-readable, giving users and
+> subjects (processes) access to potentially sensitive information.
+>
 
-There would also need to be some work done to ensure that all the 
-outbound labeled networking stuff is updated when the socket's label is 
-changed via the xattr operations.  Right now there is no way (at least 
-not that I know of) to change the label of an existing socket so we 
-don't have to worry about that problem.
+Should all (R) be listed at the bottom of the chapter with who owns
+the registered trademark? I only ask because I am trying to figure out
+who has a trademark for the word Enforcement later on.
 
-I also wonder about changing the label of a socket while it is 
-connected, probably not a big issue for dgram sockets but I think it 
-could get pretty strange for stream sockets.
+
+
+
+> * Prevention against privilege escalation. Since subjects run in domains,
+> and are therefore separated from each other, and rules determine how
+> subjects access objects and other subjects, if a service is compromised, the
+> attacker only has access to the normal functions of that service, and to
+> files that the service has been configured to have access to. For example,
+> if the Apache HTTP Server is compromised, an attacker is unable to read
+> files in user home directories, unless a specific rule was added or
+> configured to allow such access.
+>
+
+I worry about the word prevention.. it implies impossibility. Selinux
+discourages privilege escalation but a hole in a policy could still
+allow for privilege escalation.
+
+
+> [1] "Integrating Flexible Support for Security Policies into the Linux
+> Operating System", by Peter Loscocco and Stephen Smalley. This paper was
+> originally prepared for the National Security Agency and is, consequently,
+> in the public domain. Refer to the
+> [http://www.nsa.gov/selinux/papers/freenix01/freenix01.html original paper]
+> for details and the document as it was first released. Any edits and changes
+> were done by Murray McAllister.
+>
+> [2] "Meeting Critical Security Objectives with Security-Enhanced Linux", by
+> Peter Loscocco and Stephen Smalley. This paper was originally prepared for
+> the National Security Agency and is, consequently, in the public domain.
+> Refer to the [http://www.nsa.gov/selinux/papers/ottawa01/index.html original
+> paper] for details and the document as it was first released. Any edits and
+> changes were done by Murray McAllister.
+>
+
+
+
 
 -- 
-paul moore
-linux @ hp
+Stephen J Smoogen. -- BSD/GNU/Linux
+How far that little candle throws his beams! So shines a good deed
+in a naughty world. = Shakespeare. "The Merchant of Venice"
 
 --
 This message was distributed to subscribers of the selinux mailing list.
