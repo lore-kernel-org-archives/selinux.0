@@ -1,102 +1,248 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7S1V67w001084
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 21:31:06 -0400
-Received: from smtp108.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m7S1V6iB017980
-	for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2008 01:31:06 GMT
-Message-ID: <48B5FFD3.4050901@schaufler-ca.com>
-Date: Wed, 27 Aug 2008 18:30:59 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <48B63BAE.6030806@redhat.com>
+Date: Thu, 28 Aug 2008 15:46:22 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: Joy Latten <latten@austin.ibm.com>
-CC: Paul Moore <paul.moore@hp.com>, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        gcwilson@us.ibm.com, selinux@tycho.nsa.gov, serue@us.ibm.com,
-        tjaeger@cse.psu.edu
-Subject: Re: [RFC 1/2] labeled ipsec internet drafts
-References: <200808252046.m7PKkdQu019720@faith.austin.ibm.com>	 <1219862508.2883.146.camel@faith.austin.ibm.com>	 <1219872077.2627.95.camel@moss-terrapins.epoch.ncsc.mil>	 <200808271756.22660.paul.moore@hp.com> <1219882937.2883.256.camel@faith.austin.ibm.com>
-In-Reply-To: <1219882937.2883.256.camel@faith.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide draft: "Introduction" review
+References: <48B4EAE2.302@redhat.com> <1219842715.5708.63.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1219842715.5708.63.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joy Latten wrote:
-> On Wed, 2008-08-27 at 17:56 -0400, Paul Moore wrote:
->   
->> On Wednesday 27 August 2008 5:21:17 pm David P. Quigley wrote:
->>     
->>> I would like Paul to give his opinion on this as well but I think the
->>> best thing at the moment would be go submit your draft where the DOI
->>> is a tuple of (mechanism,doi). I personally like the idea of
->>> representing the 32 bit value as a series of four octets for human
->>> readable purposes but your idea does have some merit with regards to
->>> what information should be stored with these numbers by IANA. By
->>> having your draft out there recommending your method of handling DOIs
->>> it gives people one more thing to consider for discussion during the
->>> BOF.
->>>       
->> Our emails may have crossed in flight, but just in case it isn't clear 
->> from the response I sent earlier this afternoon I think we are best 
->> served with the DOI as a unified 32 bit value (the dotted notation is 
->> just for display/readability purposes).
->>     
->
-> Ok, just for my clarification, the consensus is that I change this to a
-> 32 bit value field and keep it generic for now as in labeled nfs doc? 
->
->   
->> I would encourage us to stop thinking about specific DOI values 
->> as "SELinux", "Smack", or whatever.  There is no reason we can't get 
->> the different labeled security implementation to work together but if 
->> we continue to propagate the notion of implementation specific DOIs 
->> then it becomes that much harder.  I think we need to think of DOIs as 
->> defining a mapping between an on-the-wire label format to a semantic 
->> meaning; the actual format of the wire label isn't important, the 
->> meaning of the label is what really counts.  Once we understand what a 
->> wire formatted label means we can internalize it however we need to so 
->> that the implementation can do the necessary access control.
+Hi,
+
+Thank you for your feedback. I know it is frustrating having to deal 
+with people on my level :) Changes inline:
+
+Stephen Smalley wrote:
+> On Wed, 2008-08-27 at 15:49 +1000, Murray McAllister wrote:
+>> Hi,
 >>
->>     
-> Ok, yep. The label should be an "opaque" (I might be over-using that
-> word by now) blob to the IPsec protocol. I guess in my thinking, it just
-> acts as label storage for the packet and the security mechanism.
->  
-> I guess my concern is this, and it may be because I am not understanding
-> something. My concern is defining DOI as a mapping between an
-> on-the-wire label format to a semantic meaning. Could the mapping be
-> NULL or bypassed sometimes? What I mean is that IPsec could sometimes
-> store things just as they are represented by the security mechanism
-> since it doesn't put anything on the wire. So if both endpoints are
-> using SELinux, it would not need a mapping. 
+>> The following is a draft of the Introduction sections for the SELinux 
+>> User Guide. Any comments and corrections are appreciated.
+>>
+>> Thanks.
+>>
+>>   On Linux® operating systems, files, directories, sockets, devices, and 
+>> so on, are called objects, and processes, such as a user running a 
+>> command, the Mozilla® Firefox® application, and the Apache HTTP Server, 
+>> are called subjects. Linux operating systems use a Discretionary Access 
+>> Control (DAC) system that controls how subjects interact and access 
+>> objects, and how subjects interact with each other.
+> 
+> The first two statements are actually true of most operating systems.
 
-Well ...
+On most operating systems, files, directories, sockets...
 
-> It would need a mapping when
-> the endpoints' security mechanisms are different.
+Also, most operating systems use a Discretionary Access Control (DAC) 
+system that...
 
-Which it may be if the policies on the two systems don't mesh.
-For example, if one system has no apache it needs no apache_t,
-hence a mapping is required to deal with that. In fact, two
-SELinux systems will obviously require mapping if you're sending
-sids in your opaque label and most likely require mapping even
-if the label is the context unless the machines have identical
-installations and policies.
- 
-> Thus why labeled ipsec
-> was bent on a (securitymechanism,doi) tuple. Would it be possible for
-> the new DOI scheme to also take this into consideration?   
->   
-For the cases where securitymechanism is sufficient to describe
-the structure to which a DOI is applied its specification is
-useful. A securitymechanism of SELinux would need to discriminate
-between MLS, MCS, and none of the above. This is a problem with
-any flexible scheme, Smack has it worse than SELinux because there
-is no way to even hint at a structure to the label.
+[snip]
 
-Does even a DOI make sense in a case where the two ends have
-irreconcilable policies? Can you get away with anything less
-than label mappings maintained on each host?
+>> The following is an example of permissions used on Linux operating 
+>> systems that do not run Security-Enhanced Linux (SELinux). Use the ls -l 
+>> command to view object (such as a file) permissions:
+>>
+>> -rwxrw-r-- 1 user1 group1 0 Aug 18 10:08 file1
+>>
+>>   The first three permission bits, rwx, control the access the Linux 
+>> user1 user (in this case, the owner) has to the file1 object. The next 
+>> three permission bits, rw-, control the access the Linux group1 group 
+>> has to the file1 object. The last three permission bits, r--, control 
+>> the access everyone else has to the file1 object. This includes all 
+>> subjects (such as users and processes). By default, when a new object 
+>> (such as a file) is created, everyone has read permissions.
+> 
+> Depends on the umask, and can be customized in /etc/profile or ~/.bashrc
+> or similar files.  It isn't really the permissiveness of the default
+> umask that is the key issue here, btw.
 
+Is this correct:
 
+On Fedora 10, if the default umask (0002) is used, when a new object 
+(such as a file) is created, everyone has read permissions.
+
+Or remove it?
+
+[snip]
+
+>> Benefits of running SELinux
+>>
+>> SELinux provides:
+>>
+>> * An additional layer of security: a system where subjects (processes) 
+>> are separated from each other by running in their own domains, and rules 
+>> define how subjects interact and access objects (such as files), as well 
+>> as how subjects interact with each other. Actions, such as a subject 
+>> opening an object, are only allowed if a rule exists that specifically 
+>> allows it.
+>>
+>> * Fine-grained access control. Stepping beyond traditional UNIX® 
+>> permissions that are controlled at user discretion and based on Linux 
+>> user and group IDs, SELinux access decisions are based on all available 
+>> information, such as an SELinux user, role, and type. SELinux policy is 
+>> administratively-defined, and is not set at user discretion. SELinux 
+>> allow rules (the default action is deny) are not used if DAC rules deny 
+>> access first.
+> 
+> This bullet mixes two different concepts:  fine-grained access control
+> and administratively-defined policy.  Both are important, but they are
+> distinct.
+>> * Type Enforcement®. All subjects and objects are labeled with a type. 
+>> Rules define how types interact and access each other. Access is only 
+>> allowed if a rule exists that specifically allows it.
+> 
+> This bullet seems redundant with the first one - it merely refines the
+> general notions of subject and object to types.
+
+* All subjects and objects are labeled with a type. Subjects (processes) 
+are separated from each other by running in their own domains, and rules 
+define how subjects interact and access objects (such as files), as well 
+as how subjects interact with each other. Access is only allowed if a 
+rule exists that specifically allows it.
+
+* Fine-grained access control. Stepping beyond traditional UNIX® 
+permissions that are controlled at user discretion and based on Linux 
+user and group IDs, SELinux access decisions are based on all available 
+information, such as an SELinux user, role, and type.
+
+* SELinux policy is administratively-defined, enforced system-wide, and 
+is not set at user discretion.
+
+>> * Prevention against privilege escalation. Since subjects run in 
+>> domains, and are therefore separated from each other, and rules 
+>> determine how subjects access objects and other subjects, if a service 
+>> is compromised, the attacker only has access to the normal functions of 
+>> that service, and to files that the service has been configured to have 
+>> access to. For example, if the Apache HTTP Server is compromised, an 
+>> attacker is unable to read files in user home directories, unless a 
+>> specific rule was added or configured to allow such access.
+
+Reduced vulnerability to privilege escalation attacks. One example: 
+since subjects run in domains...
+
+> This is one way in which SELinux can be applied.  Other goals to which
+> SELinux can be applied include enforcing data confidentiality and
+> integrity, protecting privileged subjects from untrustworthy inputs, and
+> ensuring the invocation of critical processing. 
+
+Added to the end of the list:
+
+Other goals to which SELinux can be applied include enforcing data 
+confidentiality and integrity, protecting privileged subjects from 
+untrustworthy inputs, and ensuring the invocation of critical processing.[1]
+
+>> SELinux is not:
+>>
+>> * Antivirus software.
+>>
+>> * A replacement for passwords, firewalls, or other security systems.
+>>
+>> * An all-in-one security solution.
+>>
+>> SELinux is an addition to DAC rules.
+> 
+> This doesn't quite sound right, as it makes it sound as though SELinux
+> is an extension to DAC vs. an orthogonal access control scheme (MAC).
+> 
+>>  It is designed to enhance existing 
+>> security solutions, not replace them. Even when running SELinux, 
+>> continue to follow good security practices, such as keeping software 
+>> up-to-date, using hard-to-guess passwords, firewalls, and so on.
+
+SELinux is designed to enhance existing security solutions, not replace 
+them...
+
+>>
+>> Examples
+>>
+>> The following examples demonstrate how SELinux increases security:
+>>
+>> * The default action is deny. If a rule does not exist to allow a 
+>> subject access to an object, or a subject access to another subject, 
+>> access is denied.
+>>
+>> * Confining users: SELinux can confine Linux users. A number of 
+>> restricted SELinux users exist. Linux users can be mapped to restricted 
+>> SELinux users to take advantage of confined SELinux users. For example, 
+>> mapping a Linux user account to the SELinux user_u user, results in a 
+>> Linux user that is not able to run (unless configured otherwise) set 
+>> user ID (setuid) applications, such as /usr/bin/sudo and su. Also, you 
+>> can disable the execution of objects in user home directories for Linux 
+>> users that are mapped to the SELinux user_u user. If configured, this 
+>> prevents users from executing malicious files, that they may have 
+>> downloaded from the Internet, from their home directories.
+>>
+>> * Subject (process) separation. Subjects run in their own domains. This 
+>> prevents other subjects from accessing objects used by other subjects, 
+>> as well as subjects accessing other subjects. For example, when running 
+>> SELinux, unless otherwise configured, an attacker can not compromise a 
+>> Samba server, and then use that Samba server to read and write to 
+>> objects used by other subjects, such as files comprising a website that 
+>> is read by the Apache HTTP server.
+> 
+> Here you can point specifically to past examples of flaws that would be
+> mitigated by SELinux.  See for example:
+> http://www.tresys.com/innovation.php (SELinux Mitigation News, on the right)
+> http://www.redhatmagazine.com/2008/02/26/risk-report-three-years-of-red-hat-enterprise-linux-4/
+> http://www.linuxworld.com/news/2008/022408-selinux.html?page=1
+> http://james-morris.livejournal.com/25421.html
+
+Thank you. I am adding links for these.
+
+> 
+>> * Help limit the damage done by configuration mistakes. An administrator 
+>> may forget to limit zone transfers when running ISC BIND; however, the 
+>> default SELinux context for zone files does not allow them to be updated 
+>> by zone transfers, or written to by named, the ISC BIND daemon, and 
+>> other subjects.
+
+Someone mentioned "What is ISC BIND". I need to change this to a more 
+simple example.
+
+> 
+>> SELinux Architecture and Performance
+>>
+>> SELinux is a Linux kernel module.
+> 
+> Actually, to be precise, SELinux is a Linux kernel subsystem or a Linux
+> security module.  It has to be built-in; you cannot build and load it as
+> a loadable kernel module due to its tight integration with core kernel
+> structures and interfaces and its need to start handling kernel objects
+> and operations from the beginning.
+> 
+>>  Part of this module is the SELinux 
+>> security server. The security server contains policy rules that define 
+>> what access is allowed.
+> 
+> I'd tend to say "is driven by loadable policy rules" or "is driven by a
+> loadable policy configuration" rather than "contains policy rules" as
+> the latter suggests that the rules are fixed/hardcoded.
+> 
+>>  When a subject attempts to interact with an 
+>> object, for example, a process opening a file, a hook in the Linux 
+>> kernel intercepts the system call the process makes to open the file. 
+>> The hook communicates with the security server to check if access should 
+>> be allowed or denied.
+> 
+> I'd change "communicates" to "calls" since it is a function call rather
+> than an IPC in Linux.
+
+SELinux is a Linux security module that is built into the Linux kernel. 
+Part of this module is the SELinux security server. The security server 
+is driven by loadable policy rules that define what access is allowed. 
+When a subject attempts to interact with an object, for example, a 
+process opening a file, a hook in the Linux kernel intercepts the system 
+call the process makes to open the file. The hook calls the security 
+server to check if access...
+
+[snip]
+
+[1] Smalley, Stephen. 'Re: user guide draft: "Introduction" review'. 
+Email to Murray McAllister, 27 August 2008. Any edits were done by 
+Murray McAllister.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
