@@ -1,463 +1,782 @@
-Message-ID: <48B64526.2070003@ak.jp.nec.com>
-Date: Thu, 28 Aug 2008 15:26:46 +0900
+Message-ID: <48B6555D.3000206@ak.jp.nec.com>
+Date: Thu, 28 Aug 2008 16:35:57 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: James Morris <jmorris@namei.org>, paul.moore@hp.com, jbrindle@tresys.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [LTP][PATCH 1/2] Replacement of deprecated interfaces
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com>	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>	 <4897EB5A.1040404@ak.jp.nec.com>	 <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>	 <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com>	 <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil>	 <48B2A669.7040800@ak.jp.nec.com>	 <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>	 <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>	 <48B50A97.8050404@ak.jp.nec.com> <1219839256.5708.15.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1219839256.5708.15.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/mixed;
- boundary="------------040405030606030408080105"
+To: James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>
+CC: paul.moore@hp.com, jbrindle@tresys.com, selinux@tycho.nsa.gov
+Subject: [PATCH] SELinux: add boundary support and thread context assignment
+References: <487C7698.60503@ak.jp.nec.com>  <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>  <487D5A3D.6090801@ak.jp.nec.com>  <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>  <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>  <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>  <4897EB5A.1040404@ak.jp.nec.com>  <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>  <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com> <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil> <48B2A669.7040800@ak.jp.nec.com> <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040405030606030408080105
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+The purpose of this patch is to assign per-thread security context
+under a constraint. It enables multi-threaded server application
+to kick a request handler with its fair security context, and
+helps some of userspace object managers to handle user's request.
 
-Stephen Smalley wrote:
-> On Wed, 2008-08-27 at 17:04 +0900, KaiGai Kohei wrote:
->> James Morris wrote:
->>> Could you also please add tests for this (at least one which should fail 
->>> and one which should succeed) to the Linux Test Project?
->>>
->>>
->>> - James
->> Policies stored in ltp/testcases/kernel/security/selinux-testsuite/refpolicy/
->> invokes massive deprecated interfaces on selinux-policy-3.5.4.
->>
->> This patch fixes them according to the warning messages which encourage to
->> replace older ones.
->>
->> BTW, I'm not happy with the test_policy.pp does not allow to invoke test
->> scripts from unconfined_t domain. Is it to be fixed?
-> 
-> I don't quite follow.  Did you follow the instructions in the
-> selinux-testsuite README?
+When we assign a per-thread security context, it must not have wider
+permissions than the original one. Because a multi-threaded process
+shares a single local memory, an arbitary per-thread security context
+also means another thread can easily refer violated information.
 
-I didn't read the README file carefully, Oops.
+The constraint on a per-thread security context requires a new domain
+has to be equal or weaker than its original one, when it tries to assign
+a per-thread security context.
 
-The update_refpolicy.sh fixes some of deprecated interfaces and
-inject an interface to kick test script from unconfined domain.
-So, I can run the testsuite which includs bounds test without
-any problems on Rawhide.
+Bounds relationship between two types is a way to ensure a domain can
+never have wider permission than its bounds. We can define it in two
+explicit or implicit ways.
 
-# However, I got some warnings for deprecated interfaces/macros
-# like r_dir_perms, userdom_sysadm_bin_spec_domtrans_to or
-# userdom_use_sysadm_ptys.
+The first way is using new TYPEBOUNDS statement. It enables to define
+a boundary of types explicitly. The other one expand the concept of
+existing named based hierarchy. If we defines a type with "." separated
+name like "httpd_t.php", toolchain implicitly set its bounds on "httpd_t".
 
-The attached patch is a new test case of the boundary feature,
-which contains six tests, as follows:
+This feature requires a new policy version.
+The 24th version (POLICYDB_VERSION_BOUNDARY) enables to ship them into
+kernel space, and the following patch enables to handle it.
 
-test01: It tries to invoke setcon() with bounded domain in a multi-threaded
-        process. The expected result is success.
-test02: It tries to invoke setcon() with unrelated domain in a multi-threaded
-        process. The expected result is fail.
-test03: It makes a bounded domain try to read a file, when its bounds domain
-        can read the file. The expected result is success.
-test04: It makes a bounded domain try to write a file, when its bounds domain
-        cannot write the file. The expected result is fail, because write
-        permission is boundary violated.
-test05: It tries to write a bounded type, even if the domain cannot write to
-        its bounds type. The expected result is fail.
-test06: It makes a bounded domain try to set an attribute of bounded type.
+Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-Thanks,
+---
+Updates:
 
-> I can run the test scripts either using the
-> test_selinux.sh script or by manually loading the policy and then
-> individually running them as described in the README.  Watch out that
-> your patch doesn't disturb the existing misc/sbin_deprecated.patch that
-> gets applied by test_selinux.sh.  Keep in mind that this testsuite gets
-> run on everything from RHEL4 to F9.
+* rev.7
+  - The return code of security_bounded_transition() is returned to
+    userspace, if it makes an error.
+* rev.6
+  - It reverrs the place of bounds checks for dyntrans on multithreaded.
+  - Kernel policy version.24 utilize the third word of type entries as
+    a property fields.
+  - Check on type bounds are integrated with creation of avc entries.
+    violated permissions are masked and reported via audit.
+* rev.5
+  - A missing number
+* rev.4
+  - It removes checks on the set relation of attributes at policy load time.
+  - Several cosmetic changes
+* rev.3
+  - Kenel policy version.24 got support to load attributes into kernel space.
+  - Boundary checks on constraints are moved to policy load time.
+* rev.2
+  - A new policy statement: TYPEBOUNDS
+  - Existing hierarchy checks are moved to kernel space from toolchain
+* rev.1
+  - The initial version
+
+---
+ security/selinux/avc.c              |    2 +-
+ security/selinux/hooks.c            |   15 ++-
+ security/selinux/include/avc.h      |    4 +
+ security/selinux/include/security.h |   15 +++-
+ security/selinux/ss/policydb.c      |  205 ++++++++++++++++++++++++++++++++---
+ security/selinux/ss/policydb.h      |    5 +
+ security/selinux/ss/services.c      |  172 +++++++++++++++++++++++++++++-
+ 7 files changed, 398 insertions(+), 20 deletions(-)
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 114b4b4..cb30c7e 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -136,7 +136,7 @@ static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
+  * @tclass: target security class
+  * @av: access vector
+  */
+-static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
++void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+ {
+ 	const char **common_pts = NULL;
+ 	u32 common_base = 0;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 03fc6a8..38dfca7 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5219,8 +5219,12 @@ static int selinux_setprocattr(struct task_struct *p,
+
+ 		if (sid == 0)
+ 			return -EINVAL;
+-
+-		/* Only allow single threaded processes to change context */
++		/*
++		 * SELinux allows to change context in the following case only.
++		 *  - Single threaded processes.
++		 *  - Multi threaded processes intend to change its context into
++		 *    more restricted domain (defined by TYPEBOUNDS statement).
++		 */
+ 		if (atomic_read(&p->mm->mm_users) != 1) {
+ 			struct task_struct *g, *t;
+ 			struct mm_struct *mm = p->mm;
+@@ -5228,11 +5232,16 @@ static int selinux_setprocattr(struct task_struct *p,
+ 			do_each_thread(g, t) {
+ 				if (t->mm == mm && t != p) {
+ 					read_unlock(&tasklist_lock);
+-					return -EPERM;
++					error = security_bounded_transition(tsec->sid, sid);
++					if (!error)
++						goto boundary_ok;
++
++					return error;
+ 				}
+ 			} while_each_thread(g, t);
+ 			read_unlock(&tasklist_lock);
+ 		}
++boundary_ok:
+
+ 		/* Check permissions for the transition. */
+ 		error = avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 7b9769f..d12ff1a 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -12,6 +12,7 @@
+ #include <linux/kdev_t.h>
+ #include <linux/spinlock.h>
+ #include <linux/init.h>
++#include <linux/audit.h>
+ #include <linux/in6.h>
+ #include <linux/path.h>
+ #include <asm/system.h>
+@@ -126,6 +127,9 @@ int avc_add_callback(int (*callback)(u32 event, u32 ssid, u32 tsid,
+ 		     u32 events, u32 ssid, u32 tsid,
+ 		     u16 tclass, u32 perms);
+
++/* Shows permission in human readable form */
++void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av);
++
+ /* Exported to selinuxfs */
+ int avc_get_hash_stats(char *page);
+ extern unsigned int avc_cache_threshold;
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 7c54300..7244737 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -27,13 +27,14 @@
+ #define POLICYDB_VERSION_RANGETRANS	21
+ #define POLICYDB_VERSION_POLCAP		22
+ #define POLICYDB_VERSION_PERMISSIVE	23
++#define POLICYDB_VERSION_BOUNDARY	24
+
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+ #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+ #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+ #else
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
+ #endif
+
+ #define CONTEXT_MNT	0x01
+@@ -62,6 +63,16 @@ enum {
+ extern int selinux_policycap_netpeer;
+ extern int selinux_policycap_openperm;
+
++/*
++ * type_datum properties
++ * available at the kernel policy version >= POLICYDB_VERSION_BOUNDARY
++ */
++#define TYPEDATUM_PROPERTY_PRIMARY	0x0001
++#define TYPEDATUM_PROPERTY_ATTRIBUTE	0x0002
++
++/* limitation of boundary depth  */
++#define POLICYDB_BOUNDS_MAXDEPTH	4
++
+ int security_load_policy(void *data, size_t len);
+
+ int security_policycap_supported(unsigned int req_cap);
+@@ -117,6 +128,8 @@ int security_node_sid(u16 domain, void *addr, u32 addrlen,
+ int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+ 				 u16 tclass);
+
++int security_bounded_transition(u32 oldsid, u32 newsid);
++
+ int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+
+ int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 2391761..7dbe756 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -30,6 +30,7 @@
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/errno.h>
++#include <linux/audit.h>
+ #include "security.h"
+
+ #include "policydb.h"
+@@ -116,7 +117,12 @@ static struct policydb_compat_info policydb_compat[] = {
+ 		.version	= POLICYDB_VERSION_PERMISSIVE,
+ 		.sym_num	= SYM_NUM,
+ 		.ocon_num	= OCON_NUM,
+-	}
++	},
++	{
++		.version	= POLICYDB_VERSION_BOUNDARY,
++		.sym_num	= SYM_NUM,
++		.ocon_num	= OCON_NUM,
++	},
+ };
+
+ static struct policydb_compat_info *policydb_lookup_compat(int version)
+@@ -254,7 +260,9 @@ static int role_index(void *key, void *datum, void *datap)
+
+ 	role = datum;
+ 	p = datap;
+-	if (!role->value || role->value > p->p_roles.nprim)
++	if (!role->value
++	    || role->value > p->p_roles.nprim
++	    || role->bounds > p->p_roles.nprim)
+ 		return -EINVAL;
+ 	p->p_role_val_to_name[role->value - 1] = key;
+ 	p->role_val_to_struct[role->value - 1] = role;
+@@ -270,9 +278,12 @@ static int type_index(void *key, void *datum, void *datap)
+ 	p = datap;
+
+ 	if (typdatum->primary) {
+-		if (!typdatum->value || typdatum->value > p->p_types.nprim)
++		if (!typdatum->value
++		    || typdatum->value > p->p_types.nprim
++		    || typdatum->bounds > p->p_types.nprim)
+ 			return -EINVAL;
+ 		p->p_type_val_to_name[typdatum->value - 1] = key;
++		p->type_val_to_struct[typdatum->value - 1] = typdatum;
+ 	}
+
+ 	return 0;
+@@ -285,7 +296,9 @@ static int user_index(void *key, void *datum, void *datap)
+
+ 	usrdatum = datum;
+ 	p = datap;
+-	if (!usrdatum->value || usrdatum->value > p->p_users.nprim)
++	if (!usrdatum->value
++	    || usrdatum->value > p->p_users.nprim
++	    || usrdatum->bounds > p->p_users.nprim)
+ 		return -EINVAL;
+ 	p->p_user_val_to_name[usrdatum->value - 1] = key;
+ 	p->user_val_to_struct[usrdatum->value - 1] = usrdatum;
+@@ -438,6 +451,14 @@ static int policydb_index_others(struct policydb *p)
+ 		goto out;
+ 	}
+
++	p->type_val_to_struct =
++		kmalloc(p->p_types.nprim * sizeof(*(p->type_val_to_struct)),
++			GFP_KERNEL);
++	if (!p->type_val_to_struct) {
++		rc = -ENOMEM;
++		goto out;
++	}
++
+ 	if (cond_init_bool_indexes(p)) {
+ 		rc = -ENOMEM;
+ 		goto out;
+@@ -625,6 +646,7 @@ void policydb_destroy(struct policydb *p)
+ 	kfree(p->class_val_to_struct);
+ 	kfree(p->role_val_to_struct);
+ 	kfree(p->user_val_to_struct);
++	kfree(p->type_val_to_struct);
+
+ 	avtab_destroy(&p->te_avtab);
+
+@@ -1176,8 +1198,8 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+ {
+ 	char *key = NULL;
+ 	struct role_datum *role;
+-	int rc;
+-	__le32 buf[2];
++	int rc, to_read = 2;
++	__le32 buf[3];
+ 	u32 len;
+
+ 	role = kzalloc(sizeof(*role), GFP_KERNEL);
+@@ -1186,12 +1208,17 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+ 		goto out;
+ 	}
+
+-	rc = next_entry(buf, fp, sizeof buf);
++	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
++		to_read = 3;
++
++	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+ 	if (rc < 0)
+ 		goto bad;
+
+ 	len = le32_to_cpu(buf[0]);
+ 	role->value = le32_to_cpu(buf[1]);
++	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
++		role->bounds = le32_to_cpu(buf[2]);
+
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+ 	if (!key) {
+@@ -1236,8 +1263,8 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
+ {
+ 	char *key = NULL;
+ 	struct type_datum *typdatum;
+-	int rc;
+-	__le32 buf[3];
++	int rc, to_read = 3;
++	__le32 buf[4];
+ 	u32 len;
+
+ 	typdatum = kzalloc(sizeof(*typdatum), GFP_KERNEL);
+@@ -1246,13 +1273,27 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
+ 		return rc;
+ 	}
+
+-	rc = next_entry(buf, fp, sizeof buf);
++	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
++		to_read = 4;
++
++	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+ 	if (rc < 0)
+ 		goto bad;
+
+ 	len = le32_to_cpu(buf[0]);
+ 	typdatum->value = le32_to_cpu(buf[1]);
+-	typdatum->primary = le32_to_cpu(buf[2]);
++	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY) {
++		u32 prop = le32_to_cpu(buf[2]);
++
++		if (prop & TYPEDATUM_PROPERTY_PRIMARY)
++			typdatum->primary = 1;
++		if (prop & TYPEDATUM_PROPERTY_ATTRIBUTE)
++			typdatum->attribute = 1;
++
++		typdatum->bounds = le32_to_cpu(buf[3]);
++	} else {
++		typdatum->primary = le32_to_cpu(buf[2]);
++	}
+
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+ 	if (!key) {
+@@ -1309,8 +1350,8 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+ {
+ 	char *key = NULL;
+ 	struct user_datum *usrdatum;
+-	int rc;
+-	__le32 buf[2];
++	int rc, to_read = 2;
++	__le32 buf[3];
+ 	u32 len;
+
+ 	usrdatum = kzalloc(sizeof(*usrdatum), GFP_KERNEL);
+@@ -1319,12 +1360,17 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+ 		goto out;
+ 	}
+
+-	rc = next_entry(buf, fp, sizeof buf);
++	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
++		to_read = 3;
++
++	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+ 	if (rc < 0)
+ 		goto bad;
+
+ 	len = le32_to_cpu(buf[0]);
+ 	usrdatum->value = le32_to_cpu(buf[1]);
++	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
++		usrdatum->bounds = le32_to_cpu(buf[2]);
+
+ 	key = kmalloc(len + 1, GFP_KERNEL);
+ 	if (!key) {
+@@ -1465,6 +1511,133 @@ static int (*read_f[SYM_NUM]) (struct policydb *p, struct hashtab *h, void *fp)
+ 	cat_read,
+ };
+
++static int user_bounds_sanity_check(void *key, void *datum, void *datap)
++{
++	struct user_datum *upper, *user;
++	struct policydb *p = datap;
++	int depth = 0;
++
++	upper = user = datum;
++	while (upper->bounds) {
++		struct ebitmap_node *node;
++		unsigned long bit;
++
++		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
++			printk(KERN_ERR "SELinux: user %s: "
++			       "too deep or looped boundary",
++			       (char *) key);
++			return -EINVAL;
++		}
++
++		upper = p->user_val_to_struct[upper->bounds - 1];
++		ebitmap_for_each_positive_bit(&user->roles, node, bit) {
++			if (ebitmap_get_bit(&upper->roles, bit))
++				continue;
++
++			printk(KERN_ERR
++			       "SELinux: boundary violated policy: "
++			       "user=%s role=%s bounds=%s\n",
++			       p->p_user_val_to_name[user->value - 1],
++			       p->p_role_val_to_name[bit],
++			       p->p_user_val_to_name[upper->value - 1]);
++
++			return -EINVAL;
++		}
++	}
++
++	return 0;
++}
++
++static int role_bounds_sanity_check(void *key, void *datum, void *datap)
++{
++	struct role_datum *upper, *role;
++	struct policydb *p = datap;
++	int depth = 0;
++
++	upper = role = datum;
++	while (upper->bounds) {
++		struct ebitmap_node *node;
++		unsigned long bit;
++
++		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
++			printk(KERN_ERR "SELinux: role %s: "
++			       "too deep or looped bounds\n",
++			       (char *) key);
++			return -EINVAL;
++		}
++
++		upper = p->role_val_to_struct[upper->bounds - 1];
++		ebitmap_for_each_positive_bit(&role->types, node, bit) {
++			if (ebitmap_get_bit(&upper->types, bit))
++				continue;
++
++			printk(KERN_ERR
++			       "SELinux: boundary violated policy: "
++			       "role=%s type=%s bounds=%s\n",
++			       p->p_role_val_to_name[role->value - 1],
++			       p->p_type_val_to_name[bit],
++			       p->p_role_val_to_name[upper->value - 1]);
++
++			return -EINVAL;
++		}
++	}
++
++	return 0;
++}
++
++static int type_bounds_sanity_check(void *key, void *datum, void *datap)
++{
++	struct type_datum *upper, *type;
++	struct policydb *p = datap;
++	int depth = 0;
++
++	upper = type = datum;
++	while (upper->bounds) {
++		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
++			printk(KERN_ERR "SELinux: type %s: "
++			       "too deep or looped boundary\n",
++			       (char *) key);
++			return -EINVAL;
++		}
++
++		upper = p->type_val_to_struct[upper->bounds - 1];
++		if (upper->attribute) {
++			printk(KERN_ERR "SELinux: type %s: "
++			       "bounded by attribute %s",
++			       (char *) key,
++			       p->p_type_val_to_name[upper->value - 1]);
++			return -EINVAL;
++		}
++	}
++
++	return 0;
++}
++
++static int policydb_bounds_sanity_check(struct policydb *p)
++{
++	int rc;
++
++	if (p->policyvers < POLICYDB_VERSION_BOUNDARY)
++		return 0;
++
++	rc = hashtab_map(p->p_users.table,
++			 user_bounds_sanity_check, p);
++	if (rc)
++		return rc;
++
++	rc = hashtab_map(p->p_roles.table,
++			 role_bounds_sanity_check, p);
++	if (rc)
++		return rc;
++
++	rc = hashtab_map(p->p_types.table,
++			 type_bounds_sanity_check, p);
++	if (rc)
++		return rc;
++
++	return 0;
++}
++
+ extern int ss_initialized;
+
+ /*
+@@ -1961,6 +2134,10 @@ int policydb_read(struct policydb *p, void *fp)
+ 				goto bad;
+ 	}
+
++	rc = policydb_bounds_sanity_check(p);
++	if (rc)
++		goto bad;
++
+ 	rc = 0;
+ out:
+ 	return rc;
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 4253370..55152d4 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -61,6 +61,7 @@ struct class_datum {
+ /* Role attributes */
+ struct role_datum {
+ 	u32 value;			/* internal role value */
++	u32 bounds;			/* boundary of role */
+ 	struct ebitmap dominates;	/* set of roles dominated by this role */
+ 	struct ebitmap types;		/* set of authorized types for role */
+ };
+@@ -81,12 +82,15 @@ struct role_allow {
+ /* Type attributes */
+ struct type_datum {
+ 	u32 value;		/* internal type value */
++	u32 bounds;		/* boundary of type */
+ 	unsigned char primary;	/* primary name? */
++	unsigned char attribute;/* attribute ?*/
+ };
+
+ /* User attributes */
+ struct user_datum {
+ 	u32 value;			/* internal user value */
++	u32 bounds;			/* bounds of user */
+ 	struct ebitmap roles;		/* set of authorized roles for user */
+ 	struct mls_range range;		/* MLS range (min - max) for user */
+ 	struct mls_level dfltlevel;	/* default login MLS level for user */
+@@ -209,6 +213,7 @@ struct policydb {
+ 	struct class_datum **class_val_to_struct;
+ 	struct role_datum **role_val_to_struct;
+ 	struct user_datum **user_val_to_struct;
++	struct type_datum **type_val_to_struct;
+
+ 	/* type enforcement access vectors and transitions */
+ 	struct avtab te_avtab;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index b52f923..1ed94a3 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -88,6 +88,11 @@ static u32 latest_granting;
+ static int context_struct_to_string(struct context *context, char **scontext,
+ 				    u32 *scontext_len);
+
++static int context_struct_compute_av(struct context *scontext,
++				     struct context *tcontext,
++				     u16 tclass,
++				     u32 requested,
++				     struct av_decision *avd);
+ /*
+  * Return the boolean value of a constraint expression
+  * when it is applied to the specified source and target
+@@ -274,6 +279,100 @@ mls_ops:
+ }
+
+ /*
++ * security_boundary_permission - drops violated permissions
++ * on boundary constraint.
++ */
++static void type_attribute_bounds_av(struct context *scontext,
++				     struct context *tcontext,
++				     u16 tclass,
++				     u32 requested,
++				     struct av_decision *avd)
++{
++	struct context lo_scontext;
++	struct context lo_tcontext;
++	struct av_decision lo_avd;
++	struct type_datum *source
++		= policydb.type_val_to_struct[scontext->type - 1];
++	struct type_datum *target
++		= policydb.type_val_to_struct[tcontext->type - 1];
++	u32 masked = 0;
++
++	if (source->bounds) {
++		memset(&lo_avd, 0, sizeof(lo_avd));
++
++		memcpy(&lo_scontext, scontext, sizeof(lo_scontext));
++		lo_scontext.type = source->bounds;
++
++		context_struct_compute_av(&lo_scontext,
++					  tcontext,
++					  tclass,
++					  requested,
++					  &lo_avd);
++		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
++			return;		/* no masked permission */
++		masked = ~lo_avd.allowed & avd->allowed;
++	}
++
++	if (target->bounds) {
++		memset(&lo_avd, 0, sizeof(lo_avd));
++
++		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
++		lo_tcontext.type = target->bounds;
++
++		context_struct_compute_av(scontext,
++					  &lo_tcontext,
++					  tclass,
++					  requested,
++					  &lo_avd);
++		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
++			return;		/* no masked permission */
++		masked = ~lo_avd.allowed & avd->allowed;
++	}
++
++	if (source->bounds && target->bounds) {
++		memset(&lo_avd, 0, sizeof(lo_avd));
++		/*
++		 * lo_scontext and lo_tcontext are already
++		 * set up.
++		 */
++
++		context_struct_compute_av(&lo_scontext,
++					  &lo_tcontext,
++					  tclass,
++					  requested,
++					  &lo_avd);
++		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
++			return;		/* no masked permission */
++		masked = ~lo_avd.allowed & avd->allowed;
++	}
++
++	if (masked) {
++		struct audit_buffer *ab;
++		char *stype_name
++			= policydb.p_type_val_to_name[source->value - 1];
++		char *ttype_name
++			= policydb.p_type_val_to_name[target->value - 1];
++		char *tclass_name
++			= policydb.p_class_val_to_name[tclass - 1];
++
++		/* mask violated permissions */
++		avd->allowed &= ~masked;
++
++		/* notice to userspace via audit message */
++		ab = audit_log_start(current->audit_context,
++				     GFP_ATOMIC, AUDIT_SELINUX_ERR);
++		if (!ab)
++			return;
++
++		audit_log_format(ab, "av boundary violation: "
++				 "source=%s target=%s tclass=%s",
++				 stype_name, ttype_name, tclass_name);
++		avc_dump_av(ab, tclass, masked);
++		audit_log_end(ab);
++	}
++}
++
++/*
+  * Compute access vectors based on a context structure pair for
+  * the permissions in a particular class.
+  */
+@@ -404,6 +503,14 @@ static int context_struct_compute_av(struct context *scontext,
+ 							PROCESS__DYNTRANSITION);
+ 	}
+
++	/*
++	 * If the given source and target types have boundary
++	 * constraint, lazy checks have to mask any violated
++	 * permission and notice it to userspace via audit.
++	 */
++	type_attribute_bounds_av(scontext, tcontext,
++				 tclass, requested, avd);
++
+ 	return 0;
+
+ inval_class:
+@@ -549,6 +656,69 @@ out:
+ 	return rc;
+ }
+
++/*
++ * security_bounded_transition - check whether the given
++ * transition is directed to bounded, or not.
++ * It returns 0, if @newsid is bounded by @oldsid.
++ * Otherwise, it returns error code.
++ *
++ * @oldsid : current security identifier
++ * @newsid : destinated security identifier
++ */
++int security_bounded_transition(u32 old_sid, u32 new_sid)
++{
++	struct context *old_context, *new_context;
++	struct type_datum *type;
++	int index;
++	int rc = -EINVAL;
++
++	read_lock(&policy_rwlock);
++
++	old_context = sidtab_search(&sidtab, old_sid);
++	if (!old_context) {
++		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
++		       __func__, old_sid);
++		goto out;
++	}
++
++	new_context = sidtab_search(&sidtab, new_sid);
++	if (!new_context) {
++		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
++		       __func__, new_sid);
++		goto out;
++	}
++
++	/* type/domain unchaned */
++	if (old_context->type == new_context->type) {
++		rc = 0;
++		goto out;
++	}
++
++	index = new_context->type;
++	while (true) {
++		type = policydb.type_val_to_struct[index - 1];
++		BUG_ON(!type);
++
++		/* not bounded anymore */
++		if (!type->bounds) {
++			rc = -EPERM;
++			break;
++		}
++
++		/* @newsid is bounded by @oldsid */
++		if (type->bounds == old_context->type) {
++			rc = 0;
++			break;
++		}
++		index = type->bounds;
++	}
++out:
++	read_unlock(&policy_rwlock);
++
++	return rc;
++}
++
++
+ /**
+  * security_compute_av - Compute access vector decisions.
+  * @ssid: source security identifier
+@@ -794,7 +964,7 @@ static int string_to_context_struct(struct policydb *pol,
+ 	*p++ = 0;
+
+ 	typdatum = hashtab_search(pol->p_types.table, scontextp);
+-	if (!typdatum)
++	if (!typdatum || typdatum->attribute)
+ 		goto out;
+
+ 	ctx->type = typdatum->value;
+
 
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
-
---------------040405030606030408080105
-Content-Type: text/x-patch;
- name="ltp-selinux-bounds-tests.2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ltp-selinux-bounds-tests.2.patch"
-
-Index: ltp/testcases/kernel/security/selinux-testsuite/tests/Makefile
-===================================================================
---- ltp/testcases/kernel/security/selinux-testsuite/tests/Makefile	(revision 1)
-+++ ltp/testcases/kernel/security/selinux-testsuite/tests/Makefile	(working copy)
-@@ -3,7 +3,7 @@
- ifeq (redhat-release-4, $(findstring redhat-release-4, $(REDHAT_RELEASE)))
-     SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys
- else
--    SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrace dyntrans
-+    SUBDIRS=domain_trans entrypoint execshare exectrace execute_no_trans fdreceive inherit link mkdir msg open ptrace readlink relabel rename rxdir sem setattr setnice shm sigkill stat sysctl task_create task_setnice task_setscheduler task_getscheduler task_getsid task_getpgid task_setpgid wait file ioctl capable_file capable_net capable_sys dyntrace dyntrans bounds
- endif
- 
- all: 
-Index: ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds_thread.c
-===================================================================
---- ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds_thread.c	(revision 0)
-+++ ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds_thread.c	(revision 0)
-@@ -0,0 +1,84 @@
-+/*
-+ * Copyright (c) 2008 NEC Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <pthread.h>
-+#include <selinux/selinux.h>
-+#include <selinux/context.h>
-+
-+static int thread_status = 0;
-+
-+static void *worker(void *datap)
-+{
-+	security_context_t security_context = datap;
-+	int rc;
-+
-+	rc = setcon(security_context);
-+	if (rc < 0)
-+		thread_status = errno;
-+
-+	return NULL;
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	security_context_t security_context;
-+	context_t context;
-+	pthread_t thread;
-+	int rc;
-+
-+	if (argc != 2) {
-+		fprintf(stderr, "usage: %s <new domain>\n", argv[0]);
-+		return 1;
-+	}
-+
-+	rc = getcon(&security_context);
-+	if (rc < 0) {
-+		fprintf(stderr, "%s: unable to get my context\n", argv[0]);
-+		return 1;
-+	}
-+
-+	context = context_new(security_context);
-+	if (!context) {
-+		fprintf(stderr, "%s: unable to create context structure\n", argv[0]);
-+		return 1;
-+	}
-+
-+	if (context_type_set(context, argv[1])) {
-+		fprintf(stderr, "%s: unable to set new type\n", argv[0]);
-+		return 1;
-+        }
-+
-+	freecon(security_context);
-+	security_context = context_str(context);
-+	if (!security_context) {
-+		fprintf(stderr, "%s: unable to obtain new context string\n", argv[0]);
-+		return 1;
-+	}
-+
-+	rc = pthread_create(&thread, NULL, worker, security_context);
-+	if (rc) {
-+		fprintf(stderr, "%s: unable to kick a new thread\n", argv[0]);
-+		return 1;
-+	}
-+
-+	rc = pthread_join(thread, NULL);
-+	if (rc) {
-+		fprintf(stderr, "%s: unable to join its thread\n", argv[0]);
-+		return 1;
-+	}
-+
-+	fprintf(stderr, "%s: setcon('%s') : %s\n",
-+		argv[0], argv[1], strerror(thread_status));
-+
-+	return thread_status;
-+}
-Index: ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh
-===================================================================
---- ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh	(revision 0)
-+++ ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh	(revision 0)
-@@ -0,0 +1,166 @@
-+#!/bin/sh
-+#
-+# Copyright (c) 2008 NEC Corporation
-+#
-+# This program is free software; you can redistribute it and/or modify it
-+# under the terms of the GNU General Public License as published by the Free
-+# Software Foundation; either version 2 of the License, or (at your option)
-+# any later version.
-+#
-+
-+setup()
-+{
-+	export TCID="setup"
-+	export TST_COUNT=0
-+	export TST_TOTAL=4
-+
-+	# Remove any leftover test directories from prior failed runs.
-+	rm -rf $SELINUXTMPDIR/bounds_file*
-+
-+	# Create test files
-+	dd if=/dev/zero of=$SELINUXTMPDIR/bounds_file      count=1
-+	dd if=/dev/zero of=$SELINUXTMPDIR/bounds_file_red  count=1
-+        dd if=/dev/zero of=$SELINUXTMPDIR/bounds_file_blue count=1
-+	chcon -t test_bounds_file_t      $SELINUXTMPDIR/bounds_file
-+	chcon -t test_bounds_file_red_t  $SELINUXTMPDIR/bounds_file_red
-+	chcon -t test_bounds_file_blue_t $SELINUXTMPDIR/bounds_file_blue
-+}
-+
-+test01()
-+{
-+	TCID="test01"
-+	TST_COUNT=1
-+	RC=0
-+
-+	runcon -t test_bounds_parent_t \
-+	       -- selinux_bounds_thread test_bounds_child_t 2>&1
-+	RC=$?
-+	if [ $RC -eq 0 ];
-+	then
-+		echo "$TCID   PASS : thread dyntrans passed."
-+	else
-+		echo "$TCID   FAIL : thread dynstrans failed."
-+	fi
-+	return $RC
-+}
-+
-+test02()
-+{
-+	TCID="test02"
-+	TST_COUND=2
-+	RC=0
-+
-+	runcon -t test_bounds_parent_t \
-+	       -- selinux_bounds_thread test_bounds_unbound_t 2>&1
-+	RC=$?
-+	if [ $RC -ne 0 ];	# we expect this to fail
-+	then
-+		echo "$TCID   PASS : thread dyntrans to unbound domain failed."
-+		RC=0
-+	else
-+		echo "$TCID   FAIL : thread dyntrans to unbound domain succeeded."
-+		RC=1
-+	fi
-+	return $RC
-+}
-+
-+test03()
-+{
-+	TCID="test03"
-+	TST_COUND=3
-+	RC=0
-+
-+	runcon -t test_bounds_child_t \
-+		-- dd if=$SELINUXTMPDIR/bounds_file of=/dev/null count=1
-+	RC=$?
-+	if [ $RC -eq 0 ];
-+	then
-+		echo "$TCID   PASS : unbounded action to be allowed."
-+	else
-+		echo "$TCID   FAIL : unbounded action to be allowed."
-+	fi
-+	return $RC
-+}
-+
-+test04()
-+{
-+	TCID="test04"
-+	TST_COUNT=4
-+	RC=0
-+
-+	runcon -t test_bounds_child_t \
-+		-- dd if=/dev/zero of=$SELINUXTMPDIR/bounds_file count=1
-+	RC=$?
-+	if [ $RC -ne 0 ];	# we expect this to fail
-+	then
-+		echo "$TCID   PASS : bounded action to be denied."
-+		RC=0
-+	else
-+		echo "$TCID   FAIL : bounded action to be denied."
-+		RC=1
-+	fi
-+	return $RC
-+}
-+
-+test05()
-+{
-+	TCID="test05"
-+	TST_COUNT=5
-+	RC=0
-+
-+	runcon -t test_bounds_parent_t \
-+	       -- dd if=/dev/zero of=$SELINUXTMPDIR/bounds_file_red count=1
-+	RC=$?
-+	if [ $RC -ne 0 ];	# we expect this to fail
-+	then
-+		echo "$TCID   PASS : actions to bounded type to be denied."
-+		RC=0
-+	else
-+		echo "$TCID   FAIL : actions to bounded type to be denied."
-+		RC=1
-+	fi
-+	return $RC
-+}
-+
-+test06()
-+{
-+	TCID="test06"
-+	TST_COUNT=6
-+	RC=0
-+
-+	runcon -t test_bounds_child_t -- chmod 0777 $SELINUXTMPDIR/bounds_file_blue
-+	RC=$?
-+	if [ $RC -eq 0 ];
-+	then
-+		echo "$TCID   PASS : bounds of subject can setattr bounds of target"
-+	else
-+		echo "$TCID   FAIL : bounds of subject can setattr bounds of target"
-+	fi
-+	return $RC
-+}
-+
-+cleanup()
-+{
-+	# Cleanup
-+	rm -rf $SELINUXTMPDIR/bounds_file*
-+}
-+
-+# Function:	main
-+#
-+# Description:	- Execute all tests, exit with test status.
-+#
-+# Exit:		- zero on success
-+#		- non-zero on failure.
-+#
-+RC=0	# Return value from setup, and test functions.
-+EXIT_VAL=0
-+
-+setup
-+test01 || EXIT_VAL=$RC
-+test02 || EXIT_VAL=$RC
-+test03 || EXIT_VAL=$RC
-+test04 || EXIT_VAL=$RC
-+test05 || EXIT_VAL=$RC
-+test06 || EXIT_VAL=$RC
-+cleanup
-+exit $EXIT_VAL
-
-Property changes on: ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/selinux_bounds.sh
-___________________________________________________________________
-Added: svn:executable
-   + *
-
-Index: ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/Makefile
-===================================================================
---- ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/Makefile	(revision 0)
-+++ ltp/testcases/kernel/security/selinux-testsuite/tests/bounds/Makefile	(revision 0)
-@@ -0,0 +1,11 @@
-+TARGETS=$(patsubst %.c,%,$(wildcard *.c))
-+LDLIBS += -lselinux -lpthread
-+
-+all: $(TARGETS)
-+
-+install:
-+	@set -e; for i in $(TARGETS); do ln -f $$i ../../../../../bin/$$i; done
-+	ln -f selinux_bounds.sh ../../../../../bin/
-+
-+clean:
-+	rm -f $(TARGETS)
-\ No newline at end of file
-Index: ltp/testcases/kernel/security/selinux-testsuite/refpolicy/Makefile
-===================================================================
---- ltp/testcases/kernel/security/selinux-testsuite/refpolicy/Makefile	(revision 1)
-+++ ltp/testcases/kernel/security/selinux-testsuite/refpolicy/Makefile	(working copy)
-@@ -1,7 +1,7 @@
- POLICYDEVEL = /usr/share/selinux/devel
- SEMODULE = /usr/sbin/semodule
- 
--TARGETS=test_global.te test_capable_file.te test_capable_net.te \
-+TARGETS=test_global.te test_bounds.te test_capable_file.te test_capable_net.te \
- test_capable_sys.te test_dyntrace.te test_dyntrans.te test_entrypoint.te \
- test_execshare.te test_exectrace.te test_execute_no_trans.te \
- test_fdreceive.te test_file.te test_inherit.te test_ioctl.te test_ipc.te \
-Index: ltp/testcases/kernel/security/selinux-testsuite/refpolicy/test_bounds.te
-===================================================================
---- ltp/testcases/kernel/security/selinux-testsuite/refpolicy/test_bounds.te	(revision 0)
-+++ ltp/testcases/kernel/security/selinux-testsuite/refpolicy/test_bounds.te	(revision 0)
-@@ -0,0 +1,57 @@
-+#################################
-+#
-+# Policy for testing boundary features
-+#
-+
-+attribute test_bounds_domain;
-+unconfined_runs_test(test_bounds_domain)
-+corecmd_bin_entry_type(test_bounds_domain)
-+
-+# Type for test files
-+type test_bounds_file_t;
-+files_type(test_bounds_file_t)
-+
-+# Bounded type for files
-+type test_bounds_file_red_t;
-+files_type(test_bounds_file_red_t)
-+
-+type test_bounds_file_blue_t;
-+files_type(test_bounds_file_blue_t)
-+
-+# Domain for process that allows to other domains
-+type test_bounds_parent_t;
-+domain_type(test_bounds_parent_t)
-+typeattribute test_bounds_parent_t test_bounds_domain;
-+typeattribute test_bounds_parent_t testdomain;
-+
-+allow test_bounds_parent_t test_bounds_file_t : file { read_file_perms setattr };
-+allow test_bounds_parent_t test_bounds_file_red_t : file { rw_file_perms };
-+
-+# Domain for process that has a bounds type
-+type test_bounds_child_t;
-+domain_type(test_bounds_child_t)
-+typeattribute test_bounds_child_t test_bounds_domain;
-+typeattribute test_bounds_child_t testdomain;
-+
-+allow test_bounds_child_t test_bounds_file_t : file { rw_file_perms };
-+allow test_bounds_child_t test_bounds_file_blue_t : file { getattr setattr };
-+
-+# Domain for process that does not have any bounds type
-+type test_bounds_unbound_t;
-+domain_type(test_bounds_unbound_t)
-+typeattribute test_bounds_unbound_t test_bounds_domain;
-+typeattribute test_bounds_unbound_t testdomain;
-+
-+allow test_bounds_unbound_t test_bounds_file_t : file { rw_file_perms };
-+
-+# Definition of boundary relationship
-+typebounds test_bounds_parent_t test_bounds_child_t;
-+typebounds test_bounds_file_t test_bounds_file_red_t, test_bounds_file_blue_t;
-+
-+# Allow the test_bounds_parent_t to dyntrans
-+allow test_bounds_parent_t test_bounds_child_t   : process { dyntransition };
-+allow test_bounds_parent_t test_bounds_unbound_t : process { dyntransition };
-+
-+# Allow all of these domains to be entered from sysadm domain
-+miscfiles_domain_entry_test_files(test_bounds_domain)
-+sysadm_entry_spec_domtrans(test_bounds_domain)
-
---------------040405030606030408080105--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
