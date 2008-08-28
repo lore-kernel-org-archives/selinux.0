@@ -1,54 +1,70 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7RNWQBH018463
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 19:32:26 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7RNVuni016514
-	for <selinux@tycho.nsa.gov>; Wed, 27 Aug 2008 23:31:56 GMT
-Message-ID: <48B5E3FF.1090102@redhat.com>
-Date: Thu, 28 Aug 2008 09:32:15 +1000
-From: Murray McAllister <mmcallis@redhat.com>
-MIME-Version: 1.0
-To: Stephen John Smoogen <smooge@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: user guide draft: "Introduction" review
-References: <48B4EAE2.302@redhat.com> <80d7e4090808270908p1453e001g2c26f8f7b06709f4@mail.gmail.com>
-In-Reply-To: <80d7e4090808270908p1453e001g2c26f8f7b06709f4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [RFC 1/2] labeled ipsec internet drafts
+From: Joy Latten <latten@austin.ibm.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, gcwilson@us.ibm.com,
+        selinux@tycho.nsa.gov, serue@us.ibm.com, tjaeger@cse.psu.edu
+In-Reply-To: <200808271756.22660.paul.moore@hp.com>
+References: <200808252046.m7PKkdQu019720@faith.austin.ibm.com>
+	 <1219862508.2883.146.camel@faith.austin.ibm.com>
+	 <1219872077.2627.95.camel@moss-terrapins.epoch.ncsc.mil>
+	 <200808271756.22660.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Wed, 27 Aug 2008 19:22:17 -0500
+Message-Id: <1219882937.2883.256.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen John Smoogen wrote:
 
-> Should all (R) be listed at the bottom of the chapter with who owns
-> the registered trademark? I only ask because I am trying to figure out
-> who has a trademark for the word Enforcement later on.
+On Wed, 2008-08-27 at 17:56 -0400, Paul Moore wrote:
+> On Wednesday 27 August 2008 5:21:17 pm David P. Quigley wrote:
+> > I would like Paul to give his opinion on this as well but I think the
+> > best thing at the moment would be go submit your draft where the DOI
+> > is a tuple of (mechanism,doi). I personally like the idea of
+> > representing the 32 bit value as a series of four octets for human
+> > readable purposes but your idea does have some merit with regards to
+> > what information should be stored with these numbers by IANA. By
+> > having your draft out there recommending your method of handling DOIs
+> > it gives people one more thing to consider for discussion during the
+> > BOF.
+> 
+> Our emails may have crossed in flight, but just in case it isn't clear 
+> from the response I sent earlier this afternoon I think we are best 
+> served with the DOI as a unified 32 bit value (the dotted notation is 
+> just for display/readability purposes).
 
-In the HTML build and on the wiki, there are the following pages:
-
-<http://mdious.fedorapeople.org/drafts/html/chap-SELinux_User_Guide-Important_Trademark_Information.html>
-<http://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Implementation_Phase/Trademarks>
-
-The page was copied from a previous guide, and was first created from 
-advice from the legal team here...
+Ok, just for my clarification, the consensus is that I change this to a
+32 bit value field and keep it generic for now as in labeled nfs doc? 
 
 > 
->> * Prevention against privilege escalation. Since subjects run in domains,
->> and are therefore separated from each other, and rules determine how
->> subjects access objects and other subjects, if a service is compromised, the
->> attacker only has access to the normal functions of that service, and to
->> files that the service has been configured to have access to. For example,
->> if the Apache HTTP Server is compromised, an attacker is unable to read
->> files in user home directories, unless a specific rule was added or
->> configured to allow such access.
->>
+> I would encourage us to stop thinking about specific DOI values 
+> as "SELinux", "Smack", or whatever.  There is no reason we can't get 
+> the different labeled security implementation to work together but if 
+> we continue to propagate the notion of implementation specific DOIs 
+> then it becomes that much harder.  I think we need to think of DOIs as 
+> defining a mapping between an on-the-wire label format to a semantic 
+> meaning; the actual format of the wire label isn't important, the 
+> meaning of the label is what really counts.  Once we understand what a 
+> wire formatted label means we can internalize it however we need to so 
+> that the implementation can do the necessary access control.
 > 
-> I worry about the word prevention.. it implies impossibility. Selinux
-> discourages privilege escalation but a hole in a policy could still
-> allow for privilege escalation.
-
-Great point! I'll work on changing it to something more suitable.
-
-Thanks again.
+Ok, yep. The label should be an "opaque" (I might be over-using that
+word by now) blob to the IPsec protocol. I guess in my thinking, it just
+acts as label storage for the packet and the security mechanism.
+ 
+I guess my concern is this, and it may be because I am not understanding
+something. My concern is defining DOI as a mapping between an
+on-the-wire label format to a semantic meaning. Could the mapping be
+NULL or bypassed sometimes? What I mean is that IPsec could sometimes
+store things just as they are represented by the security mechanism
+since it doesn't put anything on the wire. So if both endpoints are
+using SELinux, it would not need a mapping. It would need a mapping when
+the endpoints' security mechanisms are different. Thus why labeled ipsec
+was bent on a (securitymechanism,doi) tuple. Would it be possible for
+the new DOI scheme to also take this into consideration?   
+ 
+regards,
+Joy
 
 --
 This message was distributed to subscribers of the selinux mailing list.
