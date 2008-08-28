@@ -1,84 +1,802 @@
-Subject: Re: Socket and inode label consistency
+Subject: Re: [PATCH] SELinux: add boundary support and thread context
+	assignment
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Trent Jaeger <tjaeger@cse.psu.edu>, Paul Moore <paul.moore@hp.com>,
-        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <48B5DADF.9060005@schaufler-ca.com>
-References: <1D98C7BF-3D76-4A9C-B43C-31BE0C57227B@cse.psu.edu>
-	 <1219838254.5708.4.camel@moss-spartans.epoch.ncsc.mil>
-	 <200808271149.38256.paul.moore@hp.com>
-	 <E0F1193F-FE77-4B1D-87BA-3289AD37C385@cse.psu.edu>
-	 <1219861005.5708.137.camel@moss-spartans.epoch.ncsc.mil>
-	 <48B5B3DF.4080404@schaufler-ca.com>
-	 <4A385C00-E89F-43D3-8ACA-E7B27AC97B5E@cse.psu.edu>
-	 <48B5DADF.9060005@schaufler-ca.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: James Morris <jmorris@namei.org>, paul.moore@hp.com, jbrindle@tresys.com,
+        selinux@tycho.nsa.gov
+In-Reply-To: <48B6555D.3000206@ak.jp.nec.com>
+References: <487C7698.60503@ak.jp.nec.com>
+	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
+	 <487D5A3D.6090801@ak.jp.nec.com>
+	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
+	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
+	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>
+	 <4897EB5A.1040404@ak.jp.nec.com>
+	 <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com>
+	 <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil>
+	 <48B2A669.7040800@ak.jp.nec.com>
+	 <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
+	 <48B6555D.3000206@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Thu, 28 Aug 2008 08:13:03 -0400
-Message-Id: <1219925583.5708.149.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 28 Aug 2008 08:43:38 -0400
+Message-Id: <1219927418.5708.175.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-08-27 at 15:53 -0700, Casey Schaufler wrote:
-> Trent Jaeger wrote:
-> >
-> > On Aug 27, 2008, at 4:06 PM, Casey Schaufler wrote:
-> >
-> >> Stephen Smalley wrote:
-> >>> ...
-> >>>
-> >>> You may be right about setxattr not being viable due to it being an
-> >>> inode op.  setsockopt may be the right approach there if we need to
-> >>> support relabeling of sockets at all.
-> >>>
-> >>>
-> >>
-> >> Hum. fsetxattr() works for Smack. The only thing that I can't do
-> >> is switch from labeled domains to unlabeled ones. So long as I'm
-> >> living "within CIPSO" it works great. Paul did a very good job on
-> >> that. If the intent is to change the MLS value, which is very useful
-> >> for label-aware service providers like CMW style X11 server or a
-> >> mail server, there oughtn't be a problem.
-> >>
-> >> Yes, it would be weird to change the label on a TCP connection
-> >> midstream, but not unheard of. If you need an example think of
-> >> what you might want to do with a diskless boot, or some of the
-> >> less sophisticated clustering schemes. For UDP examples should
-> >> be obvious to the casual observer, and a couple are cited above.
-> >>
-> >> Or am I missing something (again)?
-> >
-> > It sets the socket's inode's security context, but not the sock's context.
+On Thu, 2008-08-28 at 16:35 +0900, KaiGai Kohei wrote:
+> The purpose of this patch is to assign per-thread security context
+> under a constraint. It enables multi-threaded server application
+> to kick a request handler with its fair security context, and
+> helps some of userspace object managers to handle user's request.
 > 
-> Would I be going too far out on a limb to suggest you change the code
-> so that it changes both? I know that SELinux would require work
-> to figure out what context to put on the sock based on the context
-> of the task, socket inode, sock, port and address family, still
-> that shouldn't be an insurmountable obstacle. Especially if you
-> limit changes to the MLS portion of the label.
+> When we assign a per-thread security context, it must not have wider
+> permissions than the original one. Because a multi-threaded process
+> shares a single local memory, an arbitary per-thread security context
+> also means another thread can easily refer violated information.
+> 
+> The constraint on a per-thread security context requires a new domain
+> has to be equal or weaker than its original one, when it tries to assign
+> a per-thread security context.
+> 
+> Bounds relationship between two types is a way to ensure a domain can
+> never have wider permission than its bounds. We can define it in two
+> explicit or implicit ways.
+> 
+> The first way is using new TYPEBOUNDS statement. It enables to define
+> a boundary of types explicitly. The other one expand the concept of
+> existing named based hierarchy. If we defines a type with "." separated
+> name like "httpd_t.php", toolchain implicitly set its bounds on "httpd_t".
+> 
+> This feature requires a new policy version.
+> The 24th version (POLICYDB_VERSION_BOUNDARY) enables to ship them into
+> kernel space, and the following patch enables to handle it.
+> 
+> Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-Ok, Trent - have a look at smack_inode_setsecurity() for an example.
-There Casey specifically tests for a socket (via inode->i_sb->s_magic)
-and if it is a socket, he extracts the struct socket via
-SOCKET_I(inode), using the magic of containerof (i.e. embedded data
-structure).
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-We could do likewise to support updating the secid in both the inode and
-the sock simultaneously upon fsetxattr of security.selinux.  This would
-still be subject to policy, of course.
+BTW, it seems like you should replace the hierarchy checking code in
+libsepol with one based on the new construct for static checking of
+hierarchies in userspace (only applied if expand-check=1 of course).
 
-However it sounded like you could just use setsockcreatecon(3) to
-achieve your goal, which would be cleaner than relabeling an existing
-socket.
-
-> Paul points out some edge case conditions for TCP that might make
-> really supporting that protocol iffy. True enough. I wouldn't see
-> changing labels on a TCP connection showing up in any but very low
-> level system sort of uses where you need to be extraordinarily
-> careful in any case. I don't see those dangers as a real stopper.
-
+> 
+> ---
+> Updates:
+> 
+> * rev.7
+>   - The return code of security_bounded_transition() is returned to
+>     userspace, if it makes an error.
+> * rev.6
+>   - It reverrs the place of bounds checks for dyntrans on multithreaded.
+>   - Kernel policy version.24 utilize the third word of type entries as
+>     a property fields.
+>   - Check on type bounds are integrated with creation of avc entries.
+>     violated permissions are masked and reported via audit.
+> * rev.5
+>   - A missing number
+> * rev.4
+>   - It removes checks on the set relation of attributes at policy load time.
+>   - Several cosmetic changes
+> * rev.3
+>   - Kenel policy version.24 got support to load attributes into kernel space.
+>   - Boundary checks on constraints are moved to policy load time.
+> * rev.2
+>   - A new policy statement: TYPEBOUNDS
+>   - Existing hierarchy checks are moved to kernel space from toolchain
+> * rev.1
+>   - The initial version
+> 
+> ---
+>  security/selinux/avc.c              |    2 +-
+>  security/selinux/hooks.c            |   15 ++-
+>  security/selinux/include/avc.h      |    4 +
+>  security/selinux/include/security.h |   15 +++-
+>  security/selinux/ss/policydb.c      |  205 ++++++++++++++++++++++++++++++++---
+>  security/selinux/ss/policydb.h      |    5 +
+>  security/selinux/ss/services.c      |  172 +++++++++++++++++++++++++++++-
+>  7 files changed, 398 insertions(+), 20 deletions(-)
+> 
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 114b4b4..cb30c7e 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -136,7 +136,7 @@ static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
+>   * @tclass: target security class
+>   * @av: access vector
+>   */
+> -static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+> +void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+>  {
+>  	const char **common_pts = NULL;
+>  	u32 common_base = 0;
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 03fc6a8..38dfca7 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5219,8 +5219,12 @@ static int selinux_setprocattr(struct task_struct *p,
+> 
+>  		if (sid == 0)
+>  			return -EINVAL;
+> -
+> -		/* Only allow single threaded processes to change context */
+> +		/*
+> +		 * SELinux allows to change context in the following case only.
+> +		 *  - Single threaded processes.
+> +		 *  - Multi threaded processes intend to change its context into
+> +		 *    more restricted domain (defined by TYPEBOUNDS statement).
+> +		 */
+>  		if (atomic_read(&p->mm->mm_users) != 1) {
+>  			struct task_struct *g, *t;
+>  			struct mm_struct *mm = p->mm;
+> @@ -5228,11 +5232,16 @@ static int selinux_setprocattr(struct task_struct *p,
+>  			do_each_thread(g, t) {
+>  				if (t->mm == mm && t != p) {
+>  					read_unlock(&tasklist_lock);
+> -					return -EPERM;
+> +					error = security_bounded_transition(tsec->sid, sid);
+> +					if (!error)
+> +						goto boundary_ok;
+> +
+> +					return error;
+>  				}
+>  			} while_each_thread(g, t);
+>  			read_unlock(&tasklist_lock);
+>  		}
+> +boundary_ok:
+> 
+>  		/* Check permissions for the transition. */
+>  		error = avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
+> diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+> index 7b9769f..d12ff1a 100644
+> --- a/security/selinux/include/avc.h
+> +++ b/security/selinux/include/avc.h
+> @@ -12,6 +12,7 @@
+>  #include <linux/kdev_t.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/init.h>
+> +#include <linux/audit.h>
+>  #include <linux/in6.h>
+>  #include <linux/path.h>
+>  #include <asm/system.h>
+> @@ -126,6 +127,9 @@ int avc_add_callback(int (*callback)(u32 event, u32 ssid, u32 tsid,
+>  		     u32 events, u32 ssid, u32 tsid,
+>  		     u16 tclass, u32 perms);
+> 
+> +/* Shows permission in human readable form */
+> +void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av);
+> +
+>  /* Exported to selinuxfs */
+>  int avc_get_hash_stats(char *page);
+>  extern unsigned int avc_cache_threshold;
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index 7c54300..7244737 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -27,13 +27,14 @@
+>  #define POLICYDB_VERSION_RANGETRANS	21
+>  #define POLICYDB_VERSION_POLCAP		22
+>  #define POLICYDB_VERSION_PERMISSIVE	23
+> +#define POLICYDB_VERSION_BOUNDARY	24
+> 
+>  /* Range of policy versions we understand*/
+>  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+>  #ifdef CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX
+>  #define POLICYDB_VERSION_MAX	CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE
+>  #else
+> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_PERMISSIVE
+> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
+>  #endif
+> 
+>  #define CONTEXT_MNT	0x01
+> @@ -62,6 +63,16 @@ enum {
+>  extern int selinux_policycap_netpeer;
+>  extern int selinux_policycap_openperm;
+> 
+> +/*
+> + * type_datum properties
+> + * available at the kernel policy version >= POLICYDB_VERSION_BOUNDARY
+> + */
+> +#define TYPEDATUM_PROPERTY_PRIMARY	0x0001
+> +#define TYPEDATUM_PROPERTY_ATTRIBUTE	0x0002
+> +
+> +/* limitation of boundary depth  */
+> +#define POLICYDB_BOUNDS_MAXDEPTH	4
+> +
+>  int security_load_policy(void *data, size_t len);
+> 
+>  int security_policycap_supported(unsigned int req_cap);
+> @@ -117,6 +128,8 @@ int security_node_sid(u16 domain, void *addr, u32 addrlen,
+>  int security_validate_transition(u32 oldsid, u32 newsid, u32 tasksid,
+>  				 u16 tclass);
+> 
+> +int security_bounded_transition(u32 oldsid, u32 newsid);
+> +
+>  int security_sid_mls_copy(u32 sid, u32 mls_sid, u32 *new_sid);
+> 
+>  int security_net_peersid_resolve(u32 nlbl_sid, u32 nlbl_type,
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index 2391761..7dbe756 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -30,6 +30,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/string.h>
+>  #include <linux/errno.h>
+> +#include <linux/audit.h>
+>  #include "security.h"
+> 
+>  #include "policydb.h"
+> @@ -116,7 +117,12 @@ static struct policydb_compat_info policydb_compat[] = {
+>  		.version	= POLICYDB_VERSION_PERMISSIVE,
+>  		.sym_num	= SYM_NUM,
+>  		.ocon_num	= OCON_NUM,
+> -	}
+> +	},
+> +	{
+> +		.version	= POLICYDB_VERSION_BOUNDARY,
+> +		.sym_num	= SYM_NUM,
+> +		.ocon_num	= OCON_NUM,
+> +	},
+>  };
+> 
+>  static struct policydb_compat_info *policydb_lookup_compat(int version)
+> @@ -254,7 +260,9 @@ static int role_index(void *key, void *datum, void *datap)
+> 
+>  	role = datum;
+>  	p = datap;
+> -	if (!role->value || role->value > p->p_roles.nprim)
+> +	if (!role->value
+> +	    || role->value > p->p_roles.nprim
+> +	    || role->bounds > p->p_roles.nprim)
+>  		return -EINVAL;
+>  	p->p_role_val_to_name[role->value - 1] = key;
+>  	p->role_val_to_struct[role->value - 1] = role;
+> @@ -270,9 +278,12 @@ static int type_index(void *key, void *datum, void *datap)
+>  	p = datap;
+> 
+>  	if (typdatum->primary) {
+> -		if (!typdatum->value || typdatum->value > p->p_types.nprim)
+> +		if (!typdatum->value
+> +		    || typdatum->value > p->p_types.nprim
+> +		    || typdatum->bounds > p->p_types.nprim)
+>  			return -EINVAL;
+>  		p->p_type_val_to_name[typdatum->value - 1] = key;
+> +		p->type_val_to_struct[typdatum->value - 1] = typdatum;
+>  	}
+> 
+>  	return 0;
+> @@ -285,7 +296,9 @@ static int user_index(void *key, void *datum, void *datap)
+> 
+>  	usrdatum = datum;
+>  	p = datap;
+> -	if (!usrdatum->value || usrdatum->value > p->p_users.nprim)
+> +	if (!usrdatum->value
+> +	    || usrdatum->value > p->p_users.nprim
+> +	    || usrdatum->bounds > p->p_users.nprim)
+>  		return -EINVAL;
+>  	p->p_user_val_to_name[usrdatum->value - 1] = key;
+>  	p->user_val_to_struct[usrdatum->value - 1] = usrdatum;
+> @@ -438,6 +451,14 @@ static int policydb_index_others(struct policydb *p)
+>  		goto out;
+>  	}
+> 
+> +	p->type_val_to_struct =
+> +		kmalloc(p->p_types.nprim * sizeof(*(p->type_val_to_struct)),
+> +			GFP_KERNEL);
+> +	if (!p->type_val_to_struct) {
+> +		rc = -ENOMEM;
+> +		goto out;
+> +	}
+> +
+>  	if (cond_init_bool_indexes(p)) {
+>  		rc = -ENOMEM;
+>  		goto out;
+> @@ -625,6 +646,7 @@ void policydb_destroy(struct policydb *p)
+>  	kfree(p->class_val_to_struct);
+>  	kfree(p->role_val_to_struct);
+>  	kfree(p->user_val_to_struct);
+> +	kfree(p->type_val_to_struct);
+> 
+>  	avtab_destroy(&p->te_avtab);
+> 
+> @@ -1176,8 +1198,8 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+>  {
+>  	char *key = NULL;
+>  	struct role_datum *role;
+> -	int rc;
+> -	__le32 buf[2];
+> +	int rc, to_read = 2;
+> +	__le32 buf[3];
+>  	u32 len;
+> 
+>  	role = kzalloc(sizeof(*role), GFP_KERNEL);
+> @@ -1186,12 +1208,17 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
+>  		goto out;
+>  	}
+> 
+> -	rc = next_entry(buf, fp, sizeof buf);
+> +	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+> +		to_read = 3;
+> +
+> +	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+>  	if (rc < 0)
+>  		goto bad;
+> 
+>  	len = le32_to_cpu(buf[0]);
+>  	role->value = le32_to_cpu(buf[1]);
+> +	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+> +		role->bounds = le32_to_cpu(buf[2]);
+> 
+>  	key = kmalloc(len + 1, GFP_KERNEL);
+>  	if (!key) {
+> @@ -1236,8 +1263,8 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
+>  {
+>  	char *key = NULL;
+>  	struct type_datum *typdatum;
+> -	int rc;
+> -	__le32 buf[3];
+> +	int rc, to_read = 3;
+> +	__le32 buf[4];
+>  	u32 len;
+> 
+>  	typdatum = kzalloc(sizeof(*typdatum), GFP_KERNEL);
+> @@ -1246,13 +1273,27 @@ static int type_read(struct policydb *p, struct hashtab *h, void *fp)
+>  		return rc;
+>  	}
+> 
+> -	rc = next_entry(buf, fp, sizeof buf);
+> +	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+> +		to_read = 4;
+> +
+> +	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+>  	if (rc < 0)
+>  		goto bad;
+> 
+>  	len = le32_to_cpu(buf[0]);
+>  	typdatum->value = le32_to_cpu(buf[1]);
+> -	typdatum->primary = le32_to_cpu(buf[2]);
+> +	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY) {
+> +		u32 prop = le32_to_cpu(buf[2]);
+> +
+> +		if (prop & TYPEDATUM_PROPERTY_PRIMARY)
+> +			typdatum->primary = 1;
+> +		if (prop & TYPEDATUM_PROPERTY_ATTRIBUTE)
+> +			typdatum->attribute = 1;
+> +
+> +		typdatum->bounds = le32_to_cpu(buf[3]);
+> +	} else {
+> +		typdatum->primary = le32_to_cpu(buf[2]);
+> +	}
+> 
+>  	key = kmalloc(len + 1, GFP_KERNEL);
+>  	if (!key) {
+> @@ -1309,8 +1350,8 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+>  {
+>  	char *key = NULL;
+>  	struct user_datum *usrdatum;
+> -	int rc;
+> -	__le32 buf[2];
+> +	int rc, to_read = 2;
+> +	__le32 buf[3];
+>  	u32 len;
+> 
+>  	usrdatum = kzalloc(sizeof(*usrdatum), GFP_KERNEL);
+> @@ -1319,12 +1360,17 @@ static int user_read(struct policydb *p, struct hashtab *h, void *fp)
+>  		goto out;
+>  	}
+> 
+> -	rc = next_entry(buf, fp, sizeof buf);
+> +	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+> +		to_read = 3;
+> +
+> +	rc = next_entry(buf, fp, sizeof(buf[0]) * to_read);
+>  	if (rc < 0)
+>  		goto bad;
+> 
+>  	len = le32_to_cpu(buf[0]);
+>  	usrdatum->value = le32_to_cpu(buf[1]);
+> +	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+> +		usrdatum->bounds = le32_to_cpu(buf[2]);
+> 
+>  	key = kmalloc(len + 1, GFP_KERNEL);
+>  	if (!key) {
+> @@ -1465,6 +1511,133 @@ static int (*read_f[SYM_NUM]) (struct policydb *p, struct hashtab *h, void *fp)
+>  	cat_read,
+>  };
+> 
+> +static int user_bounds_sanity_check(void *key, void *datum, void *datap)
+> +{
+> +	struct user_datum *upper, *user;
+> +	struct policydb *p = datap;
+> +	int depth = 0;
+> +
+> +	upper = user = datum;
+> +	while (upper->bounds) {
+> +		struct ebitmap_node *node;
+> +		unsigned long bit;
+> +
+> +		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
+> +			printk(KERN_ERR "SELinux: user %s: "
+> +			       "too deep or looped boundary",
+> +			       (char *) key);
+> +			return -EINVAL;
+> +		}
+> +
+> +		upper = p->user_val_to_struct[upper->bounds - 1];
+> +		ebitmap_for_each_positive_bit(&user->roles, node, bit) {
+> +			if (ebitmap_get_bit(&upper->roles, bit))
+> +				continue;
+> +
+> +			printk(KERN_ERR
+> +			       "SELinux: boundary violated policy: "
+> +			       "user=%s role=%s bounds=%s\n",
+> +			       p->p_user_val_to_name[user->value - 1],
+> +			       p->p_role_val_to_name[bit],
+> +			       p->p_user_val_to_name[upper->value - 1]);
+> +
+> +			return -EINVAL;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int role_bounds_sanity_check(void *key, void *datum, void *datap)
+> +{
+> +	struct role_datum *upper, *role;
+> +	struct policydb *p = datap;
+> +	int depth = 0;
+> +
+> +	upper = role = datum;
+> +	while (upper->bounds) {
+> +		struct ebitmap_node *node;
+> +		unsigned long bit;
+> +
+> +		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
+> +			printk(KERN_ERR "SELinux: role %s: "
+> +			       "too deep or looped bounds\n",
+> +			       (char *) key);
+> +			return -EINVAL;
+> +		}
+> +
+> +		upper = p->role_val_to_struct[upper->bounds - 1];
+> +		ebitmap_for_each_positive_bit(&role->types, node, bit) {
+> +			if (ebitmap_get_bit(&upper->types, bit))
+> +				continue;
+> +
+> +			printk(KERN_ERR
+> +			       "SELinux: boundary violated policy: "
+> +			       "role=%s type=%s bounds=%s\n",
+> +			       p->p_role_val_to_name[role->value - 1],
+> +			       p->p_type_val_to_name[bit],
+> +			       p->p_role_val_to_name[upper->value - 1]);
+> +
+> +			return -EINVAL;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int type_bounds_sanity_check(void *key, void *datum, void *datap)
+> +{
+> +	struct type_datum *upper, *type;
+> +	struct policydb *p = datap;
+> +	int depth = 0;
+> +
+> +	upper = type = datum;
+> +	while (upper->bounds) {
+> +		if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
+> +			printk(KERN_ERR "SELinux: type %s: "
+> +			       "too deep or looped boundary\n",
+> +			       (char *) key);
+> +			return -EINVAL;
+> +		}
+> +
+> +		upper = p->type_val_to_struct[upper->bounds - 1];
+> +		if (upper->attribute) {
+> +			printk(KERN_ERR "SELinux: type %s: "
+> +			       "bounded by attribute %s",
+> +			       (char *) key,
+> +			       p->p_type_val_to_name[upper->value - 1]);
+> +			return -EINVAL;
+> +		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int policydb_bounds_sanity_check(struct policydb *p)
+> +{
+> +	int rc;
+> +
+> +	if (p->policyvers < POLICYDB_VERSION_BOUNDARY)
+> +		return 0;
+> +
+> +	rc = hashtab_map(p->p_users.table,
+> +			 user_bounds_sanity_check, p);
+> +	if (rc)
+> +		return rc;
+> +
+> +	rc = hashtab_map(p->p_roles.table,
+> +			 role_bounds_sanity_check, p);
+> +	if (rc)
+> +		return rc;
+> +
+> +	rc = hashtab_map(p->p_types.table,
+> +			 type_bounds_sanity_check, p);
+> +	if (rc)
+> +		return rc;
+> +
+> +	return 0;
+> +}
+> +
+>  extern int ss_initialized;
+> 
+>  /*
+> @@ -1961,6 +2134,10 @@ int policydb_read(struct policydb *p, void *fp)
+>  				goto bad;
+>  	}
+> 
+> +	rc = policydb_bounds_sanity_check(p);
+> +	if (rc)
+> +		goto bad;
+> +
+>  	rc = 0;
+>  out:
+>  	return rc;
+> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+> index 4253370..55152d4 100644
+> --- a/security/selinux/ss/policydb.h
+> +++ b/security/selinux/ss/policydb.h
+> @@ -61,6 +61,7 @@ struct class_datum {
+>  /* Role attributes */
+>  struct role_datum {
+>  	u32 value;			/* internal role value */
+> +	u32 bounds;			/* boundary of role */
+>  	struct ebitmap dominates;	/* set of roles dominated by this role */
+>  	struct ebitmap types;		/* set of authorized types for role */
+>  };
+> @@ -81,12 +82,15 @@ struct role_allow {
+>  /* Type attributes */
+>  struct type_datum {
+>  	u32 value;		/* internal type value */
+> +	u32 bounds;		/* boundary of type */
+>  	unsigned char primary;	/* primary name? */
+> +	unsigned char attribute;/* attribute ?*/
+>  };
+> 
+>  /* User attributes */
+>  struct user_datum {
+>  	u32 value;			/* internal user value */
+> +	u32 bounds;			/* bounds of user */
+>  	struct ebitmap roles;		/* set of authorized roles for user */
+>  	struct mls_range range;		/* MLS range (min - max) for user */
+>  	struct mls_level dfltlevel;	/* default login MLS level for user */
+> @@ -209,6 +213,7 @@ struct policydb {
+>  	struct class_datum **class_val_to_struct;
+>  	struct role_datum **role_val_to_struct;
+>  	struct user_datum **user_val_to_struct;
+> +	struct type_datum **type_val_to_struct;
+> 
+>  	/* type enforcement access vectors and transitions */
+>  	struct avtab te_avtab;
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index b52f923..1ed94a3 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -88,6 +88,11 @@ static u32 latest_granting;
+>  static int context_struct_to_string(struct context *context, char **scontext,
+>  				    u32 *scontext_len);
+> 
+> +static int context_struct_compute_av(struct context *scontext,
+> +				     struct context *tcontext,
+> +				     u16 tclass,
+> +				     u32 requested,
+> +				     struct av_decision *avd);
+>  /*
+>   * Return the boolean value of a constraint expression
+>   * when it is applied to the specified source and target
+> @@ -274,6 +279,100 @@ mls_ops:
+>  }
+> 
+>  /*
+> + * security_boundary_permission - drops violated permissions
+> + * on boundary constraint.
+> + */
+> +static void type_attribute_bounds_av(struct context *scontext,
+> +				     struct context *tcontext,
+> +				     u16 tclass,
+> +				     u32 requested,
+> +				     struct av_decision *avd)
+> +{
+> +	struct context lo_scontext;
+> +	struct context lo_tcontext;
+> +	struct av_decision lo_avd;
+> +	struct type_datum *source
+> +		= policydb.type_val_to_struct[scontext->type - 1];
+> +	struct type_datum *target
+> +		= policydb.type_val_to_struct[tcontext->type - 1];
+> +	u32 masked = 0;
+> +
+> +	if (source->bounds) {
+> +		memset(&lo_avd, 0, sizeof(lo_avd));
+> +
+> +		memcpy(&lo_scontext, scontext, sizeof(lo_scontext));
+> +		lo_scontext.type = source->bounds;
+> +
+> +		context_struct_compute_av(&lo_scontext,
+> +					  tcontext,
+> +					  tclass,
+> +					  requested,
+> +					  &lo_avd);
+> +		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+> +			return;		/* no masked permission */
+> +		masked = ~lo_avd.allowed & avd->allowed;
+> +	}
+> +
+> +	if (target->bounds) {
+> +		memset(&lo_avd, 0, sizeof(lo_avd));
+> +
+> +		memcpy(&lo_tcontext, tcontext, sizeof(lo_tcontext));
+> +		lo_tcontext.type = target->bounds;
+> +
+> +		context_struct_compute_av(scontext,
+> +					  &lo_tcontext,
+> +					  tclass,
+> +					  requested,
+> +					  &lo_avd);
+> +		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+> +			return;		/* no masked permission */
+> +		masked = ~lo_avd.allowed & avd->allowed;
+> +	}
+> +
+> +	if (source->bounds && target->bounds) {
+> +		memset(&lo_avd, 0, sizeof(lo_avd));
+> +		/*
+> +		 * lo_scontext and lo_tcontext are already
+> +		 * set up.
+> +		 */
+> +
+> +		context_struct_compute_av(&lo_scontext,
+> +					  &lo_tcontext,
+> +					  tclass,
+> +					  requested,
+> +					  &lo_avd);
+> +		if ((lo_avd.allowed & avd->allowed) == avd->allowed)
+> +			return;		/* no masked permission */
+> +		masked = ~lo_avd.allowed & avd->allowed;
+> +	}
+> +
+> +	if (masked) {
+> +		struct audit_buffer *ab;
+> +		char *stype_name
+> +			= policydb.p_type_val_to_name[source->value - 1];
+> +		char *ttype_name
+> +			= policydb.p_type_val_to_name[target->value - 1];
+> +		char *tclass_name
+> +			= policydb.p_class_val_to_name[tclass - 1];
+> +
+> +		/* mask violated permissions */
+> +		avd->allowed &= ~masked;
+> +
+> +		/* notice to userspace via audit message */
+> +		ab = audit_log_start(current->audit_context,
+> +				     GFP_ATOMIC, AUDIT_SELINUX_ERR);
+> +		if (!ab)
+> +			return;
+> +
+> +		audit_log_format(ab, "av boundary violation: "
+> +				 "source=%s target=%s tclass=%s",
+> +				 stype_name, ttype_name, tclass_name);
+> +		avc_dump_av(ab, tclass, masked);
+> +		audit_log_end(ab);
+> +	}
+> +}
+> +
+> +/*
+>   * Compute access vectors based on a context structure pair for
+>   * the permissions in a particular class.
+>   */
+> @@ -404,6 +503,14 @@ static int context_struct_compute_av(struct context *scontext,
+>  							PROCESS__DYNTRANSITION);
+>  	}
+> 
+> +	/*
+> +	 * If the given source and target types have boundary
+> +	 * constraint, lazy checks have to mask any violated
+> +	 * permission and notice it to userspace via audit.
+> +	 */
+> +	type_attribute_bounds_av(scontext, tcontext,
+> +				 tclass, requested, avd);
+> +
+>  	return 0;
+> 
+>  inval_class:
+> @@ -549,6 +656,69 @@ out:
+>  	return rc;
+>  }
+> 
+> +/*
+> + * security_bounded_transition - check whether the given
+> + * transition is directed to bounded, or not.
+> + * It returns 0, if @newsid is bounded by @oldsid.
+> + * Otherwise, it returns error code.
+> + *
+> + * @oldsid : current security identifier
+> + * @newsid : destinated security identifier
+> + */
+> +int security_bounded_transition(u32 old_sid, u32 new_sid)
+> +{
+> +	struct context *old_context, *new_context;
+> +	struct type_datum *type;
+> +	int index;
+> +	int rc = -EINVAL;
+> +
+> +	read_lock(&policy_rwlock);
+> +
+> +	old_context = sidtab_search(&sidtab, old_sid);
+> +	if (!old_context) {
+> +		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
+> +		       __func__, old_sid);
+> +		goto out;
+> +	}
+> +
+> +	new_context = sidtab_search(&sidtab, new_sid);
+> +	if (!new_context) {
+> +		printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
+> +		       __func__, new_sid);
+> +		goto out;
+> +	}
+> +
+> +	/* type/domain unchaned */
+> +	if (old_context->type == new_context->type) {
+> +		rc = 0;
+> +		goto out;
+> +	}
+> +
+> +	index = new_context->type;
+> +	while (true) {
+> +		type = policydb.type_val_to_struct[index - 1];
+> +		BUG_ON(!type);
+> +
+> +		/* not bounded anymore */
+> +		if (!type->bounds) {
+> +			rc = -EPERM;
+> +			break;
+> +		}
+> +
+> +		/* @newsid is bounded by @oldsid */
+> +		if (type->bounds == old_context->type) {
+> +			rc = 0;
+> +			break;
+> +		}
+> +		index = type->bounds;
+> +	}
+> +out:
+> +	read_unlock(&policy_rwlock);
+> +
+> +	return rc;
+> +}
+> +
+> +
+>  /**
+>   * security_compute_av - Compute access vector decisions.
+>   * @ssid: source security identifier
+> @@ -794,7 +964,7 @@ static int string_to_context_struct(struct policydb *pol,
+>  	*p++ = 0;
+> 
+>  	typdatum = hashtab_search(pol->p_types.table, scontextp);
+> -	if (!typdatum)
+> +	if (!typdatum || typdatum->attribute)
+>  		goto out;
+> 
+>  	ctx->type = typdatum->value;
+> 
+> 
 -- 
 Stephen Smalley
 National Security Agency
