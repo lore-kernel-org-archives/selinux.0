@@ -1,61 +1,104 @@
-Date: Thu, 28 Aug 2008 19:16:31 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Murray McAllister <mmcallis@redhat.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: user guide draft: "Introduction" review
-In-Reply-To: <48B63BAE.6030806@redhat.com>
-Message-ID: <alpine.LRH.1.10.0808281906300.22283@tundra.namei.org>
-References: <48B4EAE2.302@redhat.com> <1219842715.5708.63.camel@moss-spartans.epoch.ncsc.mil> <48B63BAE.6030806@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [LTP][PATCH 1/2] Replacement of deprecated interfaces
+From: Subrata Modak <subrata@linux.vnet.ibm.com>
+Reply-To: subrata@linux.vnet.ibm.com
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
+        paul.moore@hp.com, jbrindle@tresys.com, selinux@tycho.nsa.gov,
+        ltp-list <ltp-list@lists.sourceforge.net>
+In-Reply-To: <48B64526.2070003@ak.jp.nec.com>
+References: <487C7698.60503@ak.jp.nec.com>
+	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
+	 <487D5A3D.6090801@ak.jp.nec.com>
+	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
+	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
+	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>
+	 <4897EB5A.1040404@ak.jp.nec.com>
+	 <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>
+	 <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com>
+	 <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil>
+	 <48B2A669.7040800@ak.jp.nec.com>
+	 <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
+	 <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>
+	 <48B50A97.8050404@ak.jp.nec.com>
+	 <1219839256.5708.15.camel@moss-spartans.epoch.ncsc.mil>
+	 <48B64526.2070003@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Thu, 28 Aug 2008 17:40:12 +0530
+Message-Id: <1219925412.4804.17.camel@subratamodak.linux.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 28 Aug 2008, Murray McAllister wrote:
+Thanks KaiGai.
 
-> > > * Help limit the damage done by configuration mistakes. An administrator
-> > > may forget to limit zone transfers when running ISC BIND; however, the
-> > > default SELinux context for zone files does not allow them to be updated
-> > > by zone transfers, or written to by named, the ISC BIND daemon, and other
-> > > subjects.
+Stephen/James,
+
+Would be ACK-ing these 2 patches ?
+
+1) [LTP][PATCH 1/2] Replacement of deprecated interfaces, &
+2) [LTP][PATCH 2/2]  Add a new test case for bounds types,
+
+Regards--
+Subrata
+
+On Thu, 2008-08-28 at 15:26 +0900, KaiGai Kohei wrote:
+> Stephen Smalley wrote:
+> > On Wed, 2008-08-27 at 17:04 +0900, KaiGai Kohei wrote:
+> >> James Morris wrote:
+> >>> Could you also please add tests for this (at least one which should fail 
+> >>> and one which should succeed) to the Linux Test Project?
+> >>>
+> >>>
+> >>> - James
+> >> Policies stored in ltp/testcases/kernel/security/selinux-testsuite/refpolicy/
+> >> invokes massive deprecated interfaces on selinux-policy-3.5.4.
+> >>
+> >> This patch fixes them according to the warning messages which encourage to
+> >> replace older ones.
+> >>
+> >> BTW, I'm not happy with the test_policy.pp does not allow to invoke test
+> >> scripts from unconfined_t domain. Is it to be fixed?
+> > 
+> > I don't quite follow.  Did you follow the instructions in the
+> > selinux-testsuite README?
 > 
-> Someone mentioned "What is ISC BIND". I need to change this to a more simple
-> example.
+> I didn't read the README file carefully, Oops.
+> 
+> The update_refpolicy.sh fixes some of deprecated interfaces and
+> inject an interface to kick test script from unconfined domain.
+> So, I can run the testsuite which includs bounds test without
+> any problems on Rawhide.
+> 
+> # However, I got some warnings for deprecated interfaces/macros
+> # like r_dir_perms, userdom_sysadm_bin_spec_domtrans_to or
+> # userdom_use_sysadm_ptys.
+> 
+> The attached patch is a new test case of the boundary feature,
+> which contains six tests, as follows:
+> 
+> test01: It tries to invoke setcon() with bounded domain in a multi-threaded
+>         process. The expected result is success.
+> test02: It tries to invoke setcon() with unrelated domain in a multi-threaded
+>         process. The expected result is fail.
+> test03: It makes a bounded domain try to read a file, when its bounds domain
+>         can read the file. The expected result is success.
+> test04: It makes a bounded domain try to write a file, when its bounds domain
+>         cannot write the file. The expected result is fail, because write
+>         permission is boundary violated.
+> test05: It tries to write a bounded type, even if the domain cannot write to
+>         its bounds type. The expected result is fail.
+> test06: It makes a bounded domain try to set an attribute of bounded type.
+> 
+> Thanks,
+> 
+> > I can run the test scripts either using the
+> > test_selinux.sh script or by manually loading the policy and then
+> > individually running them as described in the README.  Watch out that
+> > your patch doesn't disturb the existing misc/sbin_deprecated.patch that
+> > gets applied by test_selinux.sh.  Keep in mind that this testsuite gets
+> > run on everything from RHEL4 to F9.
+> 
 
-You could use "DNS server", perhaps with a reference/link to an 
-explanation of what it is.
-
-> SELinux is a Linux security module that is built into the Linux kernel. Part
-> of this module is the SELinux security server. The security server is driven
-
-IMHO, "security server" is unnecessary jargon in a general explanation 
-context.  (The server part will likely confuse all who are not also 
-familiar microkernel design and related Flask/Flux history).
-
-I tend to explain it along the lines of: security policy is loaded into 
-the kernel, and consulted when a security-relevant access is taking place.  
-SELinux will veto the access if it is not allowed by policy.
-
-
-> by loadable policy rules that define what access is allowed. When a subject
-> attempts to interact with an object, for example, a process opening a file, a
-> hook in the Linux kernel intercepts the system call the process makes to open
-> the file. The hook calls the security server to check if access...
-
-Make it more concrete, e.g. when a process attempts to open a file, this 
-operation is intercepted in the kernel by SELinux.  If the operation is 
-allowed by policy, it is allowed to proceed, otherwise, it is blocked and 
-the application receives an error.
-
-Generally, removing jargon and uncessary abstractions is the way to go.  
-There is already plenty of detailed technical documentation for those that 
-need to understand the internals.
-
-
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
