@@ -1,85 +1,89 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7SLBtGO014853
-	for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2008 17:11:55 -0400
-Received: from ey-out-1920.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7SLBsxJ020678
-	for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2008 21:11:55 GMT
-Received: by ey-out-1920.google.com with SMTP id 4so168399eyg.30
-        for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2008 14:11:54 -0700 (PDT)
-Subject: Re: About Domain Transition
-From: Dominick Grift <domg472@gmail.com>
-To: Hong <kindloaf@gmail.com>
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-In-Reply-To: <f00ed96d0808281333i6fb890a9j85949806cbbf2179@mail.gmail.com>
-References: <f00ed96d0808281333i6fb890a9j85949806cbbf2179@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jJ1Hl1kV+YbkRKp9Evvj"
-Date: Thu, 28 Aug 2008 23:11:52 +0200
-Message-Id: <1219957912.11166.14.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+Message-ID: <48B756C4.2090909@ak.jp.nec.com>
+Date: Fri, 29 Aug 2008 10:54:12 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org, paul.moore@hp.com,
+        selinux@tycho.nsa.gov
+Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.4)
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com>
+In-Reply-To: <48B6C966.7040006@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Joshua Brindle wrote:
+> KaiGai Kohei wrote:
+>> The following patch is revised one for libsepol.
+>>
+>> Updates:
+>>  - The properties of type_datum are packed within the third word of
+>>    type entries in the kernel policy.
+>>    The first bit (TYPEDATUM_PROPERTY_PRIMARY) means the entry is a
+>>    primary type, and the second bit (TYPEDATUM_PROPERTY_ATTRIBUTE)
+>>    means the entry is an attribute.
+>>
+> 
+> I didn't see an answer in the current threads, and this looks like
+ > the latest userland patch series so I'll ask here: What is the purpose
+ > of the properties? We can infer what it knows from the other fields
+> in the datum, right?
 
---=-jJ1Hl1kV+YbkRKp9Evvj
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Stephen said as follows:
+http://marc.info/?l=selinux&m=121882413424973&w=2
 
-On Thu, 2008-08-28 at 16:33 -0400, Hong wrote:
+| Keeping the type attribute names in the types symtab in the kernel
+| policy allows tools like audit2why and apol to extract the original
+| attribute names and display them.  I originally shed them because the
+| kernel didn't need to use that information and we don't want attribute
+| names to be used in security contexts, but it costs us little to save
+| them and check for them, and it benefits the tools.
 
-> Is there any documentation I can refer to so I can see how the access
-> decision is made? Or where in the kernel source code above logic is
-> implement?
->=20
-> Thanks!
->=20
+The purpose of property bits is to identify the sort of type_datum.
+The kernel policy version >= 24 allows to load attribute entries,
+so we have to distinguish them from existing type entries.
 
-Hello and welcome, There is a separate mailing list for (ref)policy.
-You can subscribe here: http://oss.tresys.com/mailman/listinfo/refpolicy
+Any type_datum entries of attributes were removed at the tail of
+expand_module in the older version, so we can assume any entries loaded
+to kernel space are primary or alias type.
+Because existing format of type_datum does not have any information to
+identify it to be an attribute, we had to add a flag bit to mark.
 
-You can browse policy source code here:
-http://oss.tresys.com/projects/refpolicy/browser/trunk
+> One thing that bothers me is that we read prop out of the binary but
+ > it is nowhere in the type datum, I can see this leading to errors in
+ > the reader where a developer can't figure out where the extra data is
+ > coming from.
 
-I Think your explanation looks good.=20
+(?_?) I'm not sure about your concern.
 
-1. cannot execute (access is denied by default)
+The type_datum has the following format in the newer kernel policy:
 
-2. can execute but not transition to new domain (run executable file in
-the caller domain) for example: if domain_type_6_t tries to execute
-application_executable_files_type_1_t then run that process in the
-domain_type_6_t domain
+  +0 +-------------------------+
+     | length of name          |
+  +4 +-------------------------+
+     | type identifier value   |
+  +8 +-------------------------+
+     | property bits           | <--- TYPEDATUM_PROPERTY_PRIMARY
++12 +-------------------------+      TYPEDATUM_PROPERTY_ATTRIBUTE
+     | bounds type identifier  |
++16 +-------------------------+
+     | text representation of  |
+     | name (variable length)  |
+     +-------------------------+
 
-3. can execute and and transition to a predefined domain ( for example:
-if domain_type_1_t tries to executes
-application_executable_files_type_1_t then transition to domain_type_2_t
-
-You can easily test these with policy like can_exec() and
-domain_auto_trans()
-
-Another good resource for knowledge is the #selinux and #fedora-selinux
-irc channel on irc.freenode.org.
+Any property bits are packed within the third field.
 
 
+> I will echo Steve's request to remove the old hierarchy stuff from here
+ > and add in the implementation necessary to do validation of the bounds
+ > in libsepol.
 
-if domain_type_3_t tries to execute
-application_executable_files_type_1_t then transition to domain_type_3_t
-=20
---=20
-Dominick Grift <domg472@gmail.com>
+OK, please wait for a few days.
 
---=-jJ1Hl1kV+YbkRKp9Evvj
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAki3FJEACgkQL00QnzrVtlzGfwCgzlY/2NaDjElofoJLi8m/O+uL
-ThgAoJkerubhaDCWiw6JUmmOyarWWR7Q
-=rvI4
------END PGP SIGNATURE-----
-
---=-jJ1Hl1kV+YbkRKp9Evvj--
-
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
