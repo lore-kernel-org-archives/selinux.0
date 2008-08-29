@@ -1,88 +1,56 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7TAXGrq011562
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 06:33:16 -0400
-Received: from rv-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7TAXFnt023348
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 10:33:16 GMT
-Received: by rv-out-0708.google.com with SMTP id f25so838921rvb.54
-        for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 03:33:15 -0700 (PDT)
-Message-ID: <d74d42a50808290333u4e73b7abo1a24762b74e47659@mail.gmail.com>
-Date: Fri, 29 Aug 2008 16:03:15 +0530
-From: "shaunak saha" <reach.shaunak@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: semodule -i error
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_6490_16932661.1220005995273"
+Subject: Re: Socket and inode label consistency
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Trent Jaeger <tjaeger@cse.psu.edu>, Paul Moore <paul.moore@hp.com>,
+        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+        Eric Paris <eparis@parisplace.org>
+In-Reply-To: <48B77988.9080504@schaufler-ca.com>
+References: <1D98C7BF-3D76-4A9C-B43C-31BE0C57227B@cse.psu.edu>
+	 <1219838254.5708.4.camel@moss-spartans.epoch.ncsc.mil>
+	 <200808271149.38256.paul.moore@hp.com>
+	 <E0F1193F-FE77-4B1D-87BA-3289AD37C385@cse.psu.edu>
+	 <1219861005.5708.137.camel@moss-spartans.epoch.ncsc.mil>
+	 <48B5B3DF.4080404@schaufler-ca.com>
+	 <4A385C00-E89F-43D3-8ACA-E7B27AC97B5E@cse.psu.edu>
+	 <48B5DADF.9060005@schaufler-ca.com>
+	 <1219925583.5708.149.camel@moss-spartans.epoch.ncsc.mil>
+	 <495E0F32-F676-4FC7-8931-6A67FAFB47DC@cse.psu.edu>
+	 <48B77988.9080504@schaufler-ca.com>
+Content-Type: text/plain
+Date: Fri, 29 Aug 2008 08:13:19 -0400
+Message-Id: <1220011999.5708.268.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_6490_16932661.1220005995273
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hi all,
+On Thu, 2008-08-28 at 21:22 -0700, Casey Schaufler wrote:
+> Trent Jaeger wrote:
+> > ...
+> >>
+> >> However it sounded like you could just use setsockcreatecon(3) to
+> >> achieve your goal, which would be cleaner than relabeling an existing
+> >> socket.
+> >
+> > Yes, that works for what we are doing now.  I'd be curious if someone 
+> > has a need beyond setting a label on creation.
+> >
+> 
+> Sure, any service that wants to serve clients with a variety of labels.
+> The X server is an obvious candidate. A multi-label message bus. Label
+> aware sendmail. xinetd. Name services (the YP/NIS of the day). Anywhere
+> you want the label of the response to depend on the label of the request.
+> Yes, we're talking about Trusted Applications here, and specially coded
+> ones at that. Sometimes that's the best way.
 
-When i m trying to install a module using semodule -i <name of the module> i
-m geting the following error:
+The application doesn't have to relabel the socket to achieve that - we
+handle that when we compute the label for the new connection socket
+based in part on the label of the connecting request.
 
-*libsepol.print_missing_requirements: dbus_rpc_example_server's global
-requirements were not met: type/attribute resmgrd_var_run_t
-libsemanage.semanage_link_sandbox: Link packages failed
-semodule:  Failed!*
+-- 
+Stephen Smalley
+National Security Agency
 
-Also when i do "semodule -l" i could not see any module *resmgr*.
-
-I m actually trying to insert a new class gconf (making gconf-daemon an
-userspace object manager).
-For this i have downloaded the refpolicy
-
-*refpolicy-20080702.tar.bz2* from  *
-http://oss.tresys.com/projects/refpolicy/wiki/DownloadRelease* and installed
-it.
-
-Then from  /etc/selinux/refpolicy/src/policy/policy/flask directory i
-m editing the security_classes and access_vectors files to add my new gconf
-class and permissions, then rebuilding and installing the policy.
-The whenever i m giving the class gconf in my module .te file and trying to
-install it i m getting this error.I guess i m missing something.PLease help.
-
-
-Regards,
-Shaunak
-
-------=_Part_6490_16932661.1220005995273
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<div dir="ltr"><div>Hi all,</div>
-<div>&nbsp;</div>
-<div>When i m trying to install a module using semodule -i &lt;name of the module&gt; i m geting the following error:</div>
-<div>&nbsp;</div>
-<div><strong>libsepol.print_missing_requirements: dbus_rpc_example_server&#39;s global requirements were not met: type/attribute resmgrd_var_run_t<br>libsemanage.semanage_link_sandbox: Link packages failed<br>semodule:&nbsp; Failed!</strong></div>
-
-<div>&nbsp;</div>
-<div>Also when i do &quot;semodule -l&quot; i could not see any module <strong>resmgr</strong>.</div>
-<div>&nbsp;</div>
-<div>I m actually trying to insert a new class gconf (making gconf-daemon an userspace object manager).</div>
-<div>For this i have downloaded the refpolicy</div>
-<div>&nbsp; </div>
-<div><strong>refpolicy-20080702.tar.bz2</strong> from&nbsp; <strong><a href="http://oss.tresys.com/projects/refpolicy/wiki/DownloadRelease">http://oss.tresys.com/projects/refpolicy/wiki/DownloadRelease</a></strong> and installed it. </div>
-
-<div>&nbsp;</div>
-<div>Then from &nbsp;/etc/selinux/refpolicy/src/policy/policy/flask directory&nbsp;i m&nbsp;editing the security_classes and access_vectors files to add&nbsp;my new gconf class and permissions, then rebuilding and installing the policy.</div>
-
-<div>The whenever i m giving the class gconf in my module .te file and trying to install it i m getting this error.I guess i m missing something.PLease help.</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>Regards,</div>
-<div>Shaunak</div>
-<p>&nbsp;</p>
-<div>&nbsp;</div></div>
-
-------=_Part_6490_16932661.1220005995273--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
