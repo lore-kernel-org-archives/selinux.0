@@ -1,73 +1,88 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7TA7vpW006661
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 06:07:57 -0400
-Received: from ey-out-1920.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7TA7unt016379
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 10:07:56 GMT
-Received: by ey-out-1920.google.com with SMTP id 4so245761eyg.30
-        for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 03:07:55 -0700 (PDT)
-Subject: Re: About Domain Transition
-From: Dominick Grift <domg472@gmail.com>
-To: Hong <kindloaf@gmail.com>
-Cc: SELinux Mailing List <selinux@tycho.nsa.gov>
-In-Reply-To: <f00ed96d0808282045v633a018fsf06aa8a70b55474e@mail.gmail.com>
-References: <f00ed96d0808281333i6fb890a9j85949806cbbf2179@mail.gmail.com>
-	 <1219957912.11166.14.camel@sulphur.notebook.internal>
-	 <f00ed96d0808282045v633a018fsf06aa8a70b55474e@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+0IWYgEVTHzOy90nQ320"
-Date: Fri, 29 Aug 2008 12:07:53 +0200
-Message-Id: <1220004473.12040.10.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7TAXGrq011562
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 06:33:16 -0400
+Received: from rv-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7TAXFnt023348
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 10:33:16 GMT
+Received: by rv-out-0708.google.com with SMTP id f25so838921rvb.54
+        for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 03:33:15 -0700 (PDT)
+Message-ID: <d74d42a50808290333u4e73b7abo1a24762b74e47659@mail.gmail.com>
+Date: Fri, 29 Aug 2008 16:03:15 +0530
+From: "shaunak saha" <reach.shaunak@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: semodule -i error
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_6490_16932661.1220005995273"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+------=_Part_6490_16932661.1220005995273
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
---=-+0IWYgEVTHzOy90nQ320
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi all,
 
-On Thu, 2008-08-28 at 23:45 -0400, Hong wrote:
-> Thanks Dominick, your comments are very helpful.
->=20
-> I have another question.  Suppose there is a rule:
-> type_transition  domain1_type  app_exec_t: process domain2_type;
->=20
-> but domain1_type only has execute_no_trans over over app_exec_t:
-> allow domain1_type app_exec_t: file execute_no_trans;
->=20
-> Then what'll happen when a process within domain1_type executes a
-> program with type app_exec_t?  Will it stay in domain1_type or the
-> access is denied?
+When i m trying to install a module using semodule -i <name of the module> i
+m geting the following error:
 
-Good question. My bet is that it will be able to execute it but not
-transition.
+*libsepol.print_missing_requirements: dbus_rpc_example_server's global
+requirements were not met: type/attribute resmgrd_var_run_t
+libsemanage.semanage_link_sandbox: Link packages failed
+semodule:  Failed!*
 
-These things can be reproduced and referenced easily. Try it :)
+Also when i do "semodule -l" i could not see any module *resmgr*.
 
-define(`domain_transition_pattern',`
-	allow $1 $2:file { getattr read execute };
-	allow $1 $3:process transition;
-	dontaudit $1 $3:process { noatsecure siginh rlimitinh };
-type_transition $1 $2:process $3;
-')
+I m actually trying to insert a new class gconf (making gconf-daemon an
+userspace object manager).
+For this i have downloaded the refpolicy
 
---=20
-Dominick Grift <domg472@gmail.com>
+*refpolicy-20080702.tar.bz2* from  *
+http://oss.tresys.com/projects/refpolicy/wiki/DownloadRelease* and installed
+it.
 
---=-+0IWYgEVTHzOy90nQ320
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Then from  /etc/selinux/refpolicy/src/policy/policy/flask directory i
+m editing the security_classes and access_vectors files to add my new gconf
+class and permissions, then rebuilding and installing the policy.
+The whenever i m giving the class gconf in my module .te file and trying to
+install it i m getting this error.I guess i m missing something.PLease help.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
 
-iEYEABECAAYFAki3ynEACgkQL00QnzrVtlwvPACeLS9hWTMUIwJ5eKH+AhoiQcxf
-Er4AoJmRt8QZIEYsPpbaJS1BUWEoLa5a
-=2I/f
------END PGP SIGNATURE-----
+Regards,
+Shaunak
 
---=-+0IWYgEVTHzOy90nQ320--
+------=_Part_6490_16932661.1220005995273
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+<div dir="ltr"><div>Hi all,</div>
+<div>&nbsp;</div>
+<div>When i m trying to install a module using semodule -i &lt;name of the module&gt; i m geting the following error:</div>
+<div>&nbsp;</div>
+<div><strong>libsepol.print_missing_requirements: dbus_rpc_example_server&#39;s global requirements were not met: type/attribute resmgrd_var_run_t<br>libsemanage.semanage_link_sandbox: Link packages failed<br>semodule:&nbsp; Failed!</strong></div>
+
+<div>&nbsp;</div>
+<div>Also when i do &quot;semodule -l&quot; i could not see any module <strong>resmgr</strong>.</div>
+<div>&nbsp;</div>
+<div>I m actually trying to insert a new class gconf (making gconf-daemon an userspace object manager).</div>
+<div>For this i have downloaded the refpolicy</div>
+<div>&nbsp; </div>
+<div><strong>refpolicy-20080702.tar.bz2</strong> from&nbsp; <strong><a href="http://oss.tresys.com/projects/refpolicy/wiki/DownloadRelease">http://oss.tresys.com/projects/refpolicy/wiki/DownloadRelease</a></strong> and installed it. </div>
+
+<div>&nbsp;</div>
+<div>Then from &nbsp;/etc/selinux/refpolicy/src/policy/policy/flask directory&nbsp;i m&nbsp;editing the security_classes and access_vectors files to add&nbsp;my new gconf class and permissions, then rebuilding and installing the policy.</div>
+
+<div>The whenever i m giving the class gconf in my module .te file and trying to install it i m getting this error.I guess i m missing something.PLease help.</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>Regards,</div>
+<div>Shaunak</div>
+<p>&nbsp;</p>
+<div>&nbsp;</div></div>
+
+------=_Part_6490_16932661.1220005995273--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
