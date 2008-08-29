@@ -1,43 +1,37 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7T4MiUn007294
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 00:22:44 -0400
-Received: from smtp104.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m7T4MiGi015863
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 04:22:44 GMT
-Message-ID: <48B77988.9080504@schaufler-ca.com>
-Date: Thu, 28 Aug 2008 21:22:32 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7T92Tnb024777
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 05:02:29 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7T91wjW016785
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 09:01:58 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m7T92Sfi008171
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 05:02:28 -0400
+Received: from pobox.bne.redhat.com (pobox.bne.redhat.com [10.64.63.6])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m7T92RqS024022
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 05:02:27 -0400
+Received: from mmcallis.csb (vpn6-6-17.bne.redhat.com [10.64.6.17])
+	by pobox.bne.redhat.com (8.13.1/8.13.1) with ESMTP id m7T92Q0h032050
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 19:02:26 +1000
+Message-ID: <48B7BB1C.8060808@redhat.com>
+Date: Fri, 29 Aug 2008 19:02:20 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: Trent Jaeger <tjaeger@cse.psu.edu>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul.moore@hp.com>,
-        selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: Socket and inode label consistency
-References: <1D98C7BF-3D76-4A9C-B43C-31BE0C57227B@cse.psu.edu> <1219838254.5708.4.camel@moss-spartans.epoch.ncsc.mil> <200808271149.38256.paul.moore@hp.com> <E0F1193F-FE77-4B1D-87BA-3289AD37C385@cse.psu.edu> <1219861005.5708.137.camel@moss-spartans.epoch.ncsc.mil> <48B5B3DF.4080404@schaufler-ca.com> <4A385C00-E89F-43D3-8ACA-E7B27AC97B5E@cse.psu.edu> <48B5DADF.9060005@schaufler-ca.com> <1219925583.5708.149.camel@moss-spartans.epoch.ncsc.mil> <495E0F32-F676-4FC7-8931-6A67FAFB47DC@cse.psu.edu>
-In-Reply-To: <495E0F32-F676-4FC7-8931-6A67FAFB47DC@cse.psu.edu>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SELinux User Guide: weekly report 20080829
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Trent Jaeger wrote:
-> ...
->>
->> However it sounded like you could just use setsockcreatecon(3) to
->> achieve your goal, which would be cleaner than relabeling an existing
->> socket.
->
-> Yes, that works for what we are doing now.  I'd be curious if someone 
-> has a need beyond setting a label on creation.
->
+This week:
 
-Sure, any service that wants to serve clients with a variety of labels.
-The X server is an obvious candidate. A multi-label message bus. Label
-aware sendmail. xinetd. Name services (the YP/NIS of the day). Anywhere
-you want the label of the response to depend on the label of the request.
-Yes, we're talking about Trusted Applications here, and specially coded
-ones at that. Sometimes that's the best way.
+* sent selinux introductions to the list for review.
+* started implementing corrections and suggestions. Thank you to every 
+one who responded.
 
+Next week:
 
+* continue corrections.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
