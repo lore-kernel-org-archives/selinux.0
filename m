@@ -1,108 +1,146 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7T3jexA002819
+	for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2008 23:45:40 -0400
+Received: from rv-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7T3jdXZ008785
+	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 03:45:40 GMT
+Received: by rv-out-0708.google.com with SMTP id f25so715264rvb.54
+        for <selinux@tycho.nsa.gov>; Thu, 28 Aug 2008 20:45:39 -0700 (PDT)
+Message-ID: <f00ed96d0808282045v633a018fsf06aa8a70b55474e@mail.gmail.com>
+Date: Thu, 28 Aug 2008 23:45:39 -0400
+From: Hong <kindloaf@gmail.com>
+To: "Dominick Grift" <domg472@gmail.com>
+Subject: Re: About Domain Transition
+Cc: "SELinux Mailing List" <selinux@tycho.nsa.gov>
+In-Reply-To: <1219957912.11166.14.camel@sulphur.notebook.internal>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: [PATCH 3/3] Thread/Child-Domain Assignment (rev.4)
-Date: Thu, 28 Aug 2008 23:01:10 -0400
-Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com>
-In-Reply-To: <48B756C4.2090909@ak.jp.nec.com>
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com>
-From: "Joshua Brindle" <jbrindle@tresys.com>
-To: "KaiGai Kohei" <kaigai@ak.jp.nec.com>
-Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, <jmorris@namei.org>,
-        <paul.moore@hp.com>, <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative;
+	boundary="----=_Part_11133_1259000.1219981539127"
+References: <f00ed96d0808281333i6fb890a9j85949806cbbf2179@mail.gmail.com>
+	 <1219957912.11166.14.camel@sulphur.notebook.internal>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Joshua Brindle wrote:
->> KaiGai Kohei wrote:
->>> The following patch is revised one for libsepol.
->>> 
->>> Updates:
->>>  - The properties of type_datum are packed within the third word of
->>>    type entries in the kernel policy.
->>>    The first bit (TYPEDATUM_PROPERTY_PRIMARY) means the entry is a
->>>    primary type, and the second bit (TYPEDATUM_PROPERTY_ATTRIBUTE)
->>>    means the entry is an attribute.
->>> 
->> 
->> I didn't see an answer in the current threads, and this looks like
->  > the latest userland patch series so I'll ask here: What is
-> the purpose  > of the properties? We can infer what it knows
-> from the other fields
->> in the datum, right?
-> 
-> Stephen said as follows:
-> http://marc.info/?l=selinux&m=121882413424973&w=2
-> 
->> Keeping the type attribute names in the types symtab in the kernel
->> policy allows tools like audit2why and apol to extract the original
->> attribute names and display them.  I originally shed them because the
->> kernel didn't need to use that information and we don't want
->> attribute names to be used in security contexts, but it costs us
->> little to save them and check for them, and it benefits the tools.
-> 
+------=_Part_11133_1259000.1219981539127
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-No, I got that part. What I was missing was that we identified
-attributes differently in modules and kernel policy now, kind of
-confusing.
+Thanks Dominick, your comments are very helpful.
 
-> The purpose of property bits is to identify the sort of type_datum.
-> The kernel policy version >= 24 allows to load attribute
-> entries, so we have to distinguish them from existing type entries.
-> 
-> Any type_datum entries of attributes were removed at the tail
-> of expand_module in the older version, so we can assume any
-> entries loaded to kernel space are primary or alias type.
-> Because existing format of type_datum does not have any
-> information to identify it to be an attribute, we had to add
-> a flag bit to mark.
-> 
->> One thing that bothers me is that we read prop out of the binary but
->  > it is nowhere in the type datum, I can see this leading to
-> errors in  > the reader where a developer can't figure out
-> where the extra data is  > coming from.
-> 
-> (?_?) I'm not sure about your concern.
-> 
-> The type_datum has the following format in the newer kernel policy:
-> 
->   +0 +-------------------------+
->      | length of name          |
->   +4 +-------------------------+
->      | type identifier value   |
->   +8 +-------------------------+
->      | property bits           | <--- TYPEDATUM_PROPERTY_PRIMARY
-> +12 +-------------------------+      TYPEDATUM_PROPERTY_ATTRIBUTE
->      | bounds type identifier  |
-> +16 +-------------------------+
->      | text representation of  |
->      | name (variable length)  |
->      +-------------------------+
-> 
-> Any property bits are packed within the third field.
-> 
+I have another question.  Suppose there is a rule:
+type_transition  domain1_type  app_exec_t: process domain2_type;
 
-I don't see that in the libsepol patch:
+but domain1_type only has execute_no_trans over over app_exec_t:
+allow domain1_type app_exec_t: file execute_no_trans;
 
-@@ -145,8 +146,16 @@
- 	ebitmap_t types;	/* types with this attribute */
- #define TYPE_FLAGS_PERMISSIVE	0x01
- 	uint32_t flags;
-+	uint32_t bounds;	/* bounds type, if exist */
- } type_datum_t;
-
-> 
->> I will echo Steve's request to remove the old hierarchy stuff from
->> here
->  > and add in the implementation necessary to do validation
-> of the bounds  > in libsepol.
-> 
-> OK, please wait for a few days.
-> 
-> Thanks,
+Then what'll happen when a process within domain1_type executes a program
+with type app_exec_t?  Will it stay in domain1_type or the access is denied?
 
 
+Hong
+
+
+
+
+
+On Thu, Aug 28, 2008 at 5:11 PM, Dominick Grift <domg472@gmail.com> wrote:
+
+> On Thu, 2008-08-28 at 16:33 -0400, Hong wrote:
+>
+> > Is there any documentation I can refer to so I can see how the access
+> > decision is made? Or where in the kernel source code above logic is
+> > implement?
+> >
+> > Thanks!
+> >
+>
+> Hello and welcome, There is a separate mailing list for (ref)policy.
+> You can subscribe here: http://oss.tresys.com/mailman/listinfo/refpolicy
+>
+> You can browse policy source code here:
+> http://oss.tresys.com/projects/refpolicy/browser/trunk
+>
+> I Think your explanation looks good.
+>
+> 1. cannot execute (access is denied by default)
+>
+> 2. can execute but not transition to new domain (run executable file in
+> the caller domain) for example: if domain_type_6_t tries to execute
+> application_executable_files_type_1_t then run that process in the
+> domain_type_6_t domain
+>
+> 3. can execute and and transition to a predefined domain ( for example:
+> if domain_type_1_t tries to executes
+> application_executable_files_type_1_t then transition to domain_type_2_t
+>
+> You can easily test these with policy like can_exec() and
+> domain_auto_trans()
+>
+> Another good resource for knowledge is the #selinux and #fedora-selinux
+> irc channel on irc.freenode.org.
+>
+>
+>
+> if domain_type_3_t tries to execute
+> application_executable_files_type_1_t then transition to domain_type_3_t
+>
+> --
+> Dominick Grift <domg472@gmail.com>
+>
+
+------=_Part_11133_1259000.1219981539127
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div dir="ltr">Thanks Dominick, your comments are very helpful.<br><br>I have another question.&nbsp; Suppose there is a rule:<br>type_transition&nbsp; domain1_type&nbsp; app_exec_t: process domain2_type;<br><br>but domain1_type only has execute_no_trans over over app_exec_t:<br>
+allow domain1_type app_exec_t: file execute_no_trans;<br><br>Then what&#39;ll happen when a process within domain1_type executes a program with type app_exec_t?&nbsp; Will it stay in domain1_type or the access is denied?<br><br>
+<br>Hong<br><br><font color="#888888"><br><br><br></font><br><div class="gmail_quote">On Thu, Aug 28, 2008 at 5:11 PM, Dominick Grift <span dir="ltr">&lt;<a href="mailto:domg472@gmail.com">domg472@gmail.com</a>&gt;</span> wrote:<br>
+<blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;"><div class="Ih2E3d">On Thu, 2008-08-28 at 16:33 -0400, Hong wrote:<br>
+<br>
+&gt; Is there any documentation I can refer to so I can see how the access<br>
+&gt; decision is made? Or where in the kernel source code above logic is<br>
+&gt; implement?<br>
+&gt;<br>
+&gt; Thanks!<br>
+&gt;<br>
+<br>
+</div>Hello and welcome, There is a separate mailing list for (ref)policy.<br>
+You can subscribe here: <a href="http://oss.tresys.com/mailman/listinfo/refpolicy" target="_blank">http://oss.tresys.com/mailman/listinfo/refpolicy</a><br>
+<br>
+You can browse policy source code here:<br>
+<a href="http://oss.tresys.com/projects/refpolicy/browser/trunk" target="_blank">http://oss.tresys.com/projects/refpolicy/browser/trunk</a><br>
+<br>
+I Think your explanation looks good.<br>
+<br>
+1. cannot execute (access is denied by default)<br>
+<br>
+2. can execute but not transition to new domain (run executable file in<br>
+the caller domain) for example: if domain_type_6_t tries to execute<br>
+application_executable_files_type_1_t then run that process in the<br>
+domain_type_6_t domain<br>
+<br>
+3. can execute and and transition to a predefined domain ( for example:<br>
+if domain_type_1_t tries to executes<br>
+application_executable_files_type_1_t then transition to domain_type_2_t<br>
+<br>
+You can easily test these with policy like can_exec() and<br>
+domain_auto_trans()<br>
+<br>
+Another good resource for knowledge is the #selinux and #fedora-selinux<br>
+irc channel on <a href="http://irc.freenode.org" target="_blank">irc.freenode.org</a>.<br>
+<br>
+<br>
+<br>
+if domain_type_3_t tries to execute<br>
+application_executable_files_type_1_t then transition to domain_type_3_t<br>
+<font color="#888888"><br>
+--<br>
+Dominick Grift &lt;<a href="mailto:domg472@gmail.com">domg472@gmail.com</a>&gt;<br>
+</font></blockquote></div><br></div>
+
+------=_Part_11133_1259000.1219981539127--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
