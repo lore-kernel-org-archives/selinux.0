@@ -1,39 +1,70 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7TNNOim031697
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 19:23:24 -0400
-Received: from nospam.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7TNNLds025169
-	for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 23:23:23 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Hong <kindloaf@gmail.com>
-Subject: Re: About SELinux in Ubuntu
-Date: Sat, 30 Aug 2008 09:23:09 +1000
-Cc: "SELinux Mailing List" <selinux@tycho.nsa.gov>
-References: <f00ed96d0808281244x34aa8999y7add418d78687e7@mail.gmail.com> <1220015196.5708.276.camel@moss-spartans.epoch.ncsc.mil> <f00ed96d0808291359n2e3a81eo5391ec2e4bb45c68@mail.gmail.com>
-In-Reply-To: <f00ed96d0808291359n2e3a81eo5391ec2e4bb45c68@mail.gmail.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7U6lwW8016464
+	for <selinux@tycho.nsa.gov>; Sat, 30 Aug 2008 02:47:58 -0400
+Received: from wf-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7U6lQrB022102
+	for <selinux@tycho.nsa.gov>; Sat, 30 Aug 2008 06:47:26 GMT
+Received: by wf-out-1314.google.com with SMTP id 28so1175943wff.30
+        for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 23:47:57 -0700 (PDT)
+Message-ID: <d74d42a50808292347s12562f01qf6da85f50b138b46@mail.gmail.com>
+Date: Sat, 30 Aug 2008 12:17:57 +0530
+From: "shaunak saha" <reach.shaunak@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: semodule -i error
+Cc: selinux@tycho.nsa.gov, "Joshua Brindle" <jbrindle@tresys.com>
+In-Reply-To: <1220021584.5708.307.camel@moss-spartans.epoch.ncsc.mil>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200808300923.11405.russell@coker.com.au>
+Content-Type: multipart/alternative;
+	boundary="----=_Part_19531_17643029.1220078877548"
+References: <d74d42a50808290333u4e73b7abo1a24762b74e47659@mail.gmail.com>
+	 <1220016138.5708.289.camel@moss-spartans.epoch.ncsc.mil>
+	 <d74d42a50808290648m6a5ff5fch67e9b374ed57ecd3@mail.gmail.com>
+	 <1220018351.5708.297.camel@moss-spartans.epoch.ncsc.mil>
+	 <d74d42a50808290714l53ed8c4et2f51ddde98681124@mail.gmail.com>
+	 <1220019856.5708.304.camel@moss-spartans.epoch.ncsc.mil>
+	 <d74d42a50808290743y15209c53jda0f3cf1b2805d23@mail.gmail.com>
+	 <1220021584.5708.307.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 30 August 2008 06:59, Hong <kindloaf@gmail.com> wrote:
-> I used ubuntu live CD and found nothing in /var/log/message.  (there is no
-> single entry since last boot) And if I disable SELinux by turning off the
-> kernel option, it can boot.
-> Is there any clue how to solve this problem?
+------=_Part_19531_17643029.1220078877548
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Put "enforcing=0" on the kernel command line and then review the kernel 
-message logs (or /var/log/audit/audit.log if you have auditd installed).
+  >And did you then set SELINUXTYPE=refpolicy in /etc/selinux/config,
+> >touch /.autorelabel and reboot the system to bring it up under your
+> >newly built policy rather than the targeted one?
+>
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+I did that.But with this my system is not booting up.I can send you
+the bootup logs.
+If i go back to the targeterd policy it comes up properly.
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+one more question i have.If instead of refpolicy i want to use targeted
+policy only then from where can i  get the source packages for that.
 
+------=_Part_19531_17643029.1220078877548
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+<div dir="ltr"><br><br>
+<div class="gmail_quote">
+<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
+<div>
+<div class="Wj3C7c">&gt;And did you then set SELINUXTYPE=refpolicy in /etc/selinux/config,<br>&gt;touch /.autorelabel and reboot the system to bring it up under your<br>&gt;newly built policy rather than the targeted one?</div>
+</div></blockquote>
+<div>&nbsp;</div>
+<div>I did that.But with this my system is not booting up.I can send you the&nbsp;bootup logs.&nbsp;</div>
+<div>If i go back to the targeterd policy it comes up properly.</div>
+<div>&nbsp;</div>
+<div>one more question i have.If instead of refpolicy i want to use targeted policy only then from where can i&nbsp; get the source packages for that.</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div>
+<div>&nbsp;</div></div><br></div>
+
+------=_Part_19531_17643029.1220078877548--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
