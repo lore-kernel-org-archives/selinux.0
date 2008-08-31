@@ -1,70 +1,88 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m7U6lwW8016464
-	for <selinux@tycho.nsa.gov>; Sat, 30 Aug 2008 02:47:58 -0400
-Received: from wf-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m7U6lQrB022102
-	for <selinux@tycho.nsa.gov>; Sat, 30 Aug 2008 06:47:26 GMT
-Received: by wf-out-1314.google.com with SMTP id 28so1175943wff.30
-        for <selinux@tycho.nsa.gov>; Fri, 29 Aug 2008 23:47:57 -0700 (PDT)
-Message-ID: <d74d42a50808292347s12562f01qf6da85f50b138b46@mail.gmail.com>
-Date: Sat, 30 Aug 2008 12:17:57 +0530
-From: "shaunak saha" <reach.shaunak@gmail.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: Re: semodule -i error
-Cc: selinux@tycho.nsa.gov, "Joshua Brindle" <jbrindle@tresys.com>
-In-Reply-To: <1220021584.5708.307.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <48BA1943.4090508@redhat.com>
+Date: Sun, 31 Aug 2008 14:08:35 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_19531_17643029.1220078877548"
-References: <d74d42a50808290333u4e73b7abo1a24762b74e47659@mail.gmail.com>
-	 <1220016138.5708.289.camel@moss-spartans.epoch.ncsc.mil>
-	 <d74d42a50808290648m6a5ff5fch67e9b374ed57ecd3@mail.gmail.com>
-	 <1220018351.5708.297.camel@moss-spartans.epoch.ncsc.mil>
-	 <d74d42a50808290714l53ed8c4et2f51ddde98681124@mail.gmail.com>
-	 <1220019856.5708.304.camel@moss-spartans.epoch.ncsc.mil>
-	 <d74d42a50808290743y15209c53jda0f3cf1b2805d23@mail.gmail.com>
-	 <1220021584.5708.307.camel@moss-spartans.epoch.ncsc.mil>
+To: James Morris <jmorris@namei.org>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide draft: "Introduction" review
+References: <48B4EAE2.302@redhat.com> <1219842715.5708.63.camel@moss-spartans.epoch.ncsc.mil> <48B63BAE.6030806@redhat.com> <alpine.LRH.1.10.0808281906300.22283@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0808281906300.22283@tundra.namei.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_19531_17643029.1220078877548
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+James Morris wrote:
+> On Thu, 28 Aug 2008, Murray McAllister wrote:
+> 
+>>>> * Help limit the damage done by configuration mistakes. An administrator
+>>>> may forget to limit zone transfers when running ISC BIND; however, the
+>>>> default SELinux context for zone files does not allow them to be updated
+>>>> by zone transfers, or written to by named, the ISC BIND daemon, and other
+>>>> subjects.
+>> Someone mentioned "What is ISC BIND". I need to change this to a more simple
+>> example.
+> 
+> You could use "DNS server", perhaps with a reference/link to an 
+> explanation of what it is.
 
-  >And did you then set SELINUXTYPE=refpolicy in /etc/selinux/config,
-> >touch /.autorelabel and reboot the system to bring it up under your
-> >newly built policy rather than the targeted one?
->
+How about:
 
-I did that.But with this my system is not booting up.I can send you
-the bootup logs.
-If i go back to the targeterd policy it comes up properly.
+Help limit the damage done by configuration mistakes. Domain Name System 
+(DNS)[1] servers can replicate information between each other. This is 
+known as a zone transfer. Attackers can use zone transfers to update DNS 
+servers with false information. When running the Berkeley Internet Name 
+Domain (BIND)[2] DNS server on Fedora 10, even if an administrator 
+forgets to limit which servers can perform a zone transfer, the default 
+SELinux policy prevents zone files[3] from being updated by zone 
+transfers, the BIND named daemon, and any other subjects.
 
-one more question i have.If instead of refpolicy i want to use targeted
-policy only then from where can i  get the source packages for that.
+>> SELinux is a Linux security module that is built into the Linux kernel. Part
+>> of this module is the SELinux security server. The security server is driven
+> 
+> IMHO, "security server" is unnecessary jargon in a general explanation 
+> context.  (The server part will likely confuse all who are not also 
+> familiar microkernel design and related Flask/Flux history).
+> 
+> I tend to explain it along the lines of: security policy is loaded into 
+> the kernel, and consulted when a security-relevant access is taking place.  
+> SELinux will veto the access if it is not allowed by policy.
+> 
+> 
+>> by loadable policy rules that define what access is allowed. When a subject
+>> attempts to interact with an object, for example, a process opening a file, a
+>> hook in the Linux kernel intercepts the system call the process makes to open
+>> the file. The hook calls the security server to check if access...
+> 
+> Make it more concrete, e.g. when a process attempts to open a file, this 
+> operation is intercepted in the kernel by SELinux.  If the operation is 
+> allowed by policy, it is allowed to proceed, otherwise, it is blocked and 
+> the application receives an error.
+> 
+> Generally, removing jargon and uncessary abstractions is the way to go.  
+> There is already plenty of detailed technical documentation for those that 
+> need to understand the internals.
 
-------=_Part_19531_17643029.1220078877548
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+How about:
 
-<div dir="ltr"><br><br>
-<div class="gmail_quote">
-<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">
-<div>
-<div class="Wj3C7c">&gt;And did you then set SELINUXTYPE=refpolicy in /etc/selinux/config,<br>&gt;touch /.autorelabel and reboot the system to bring it up under your<br>&gt;newly built policy rather than the targeted one?</div>
-</div></blockquote>
-<div>&nbsp;</div>
-<div>I did that.But with this my system is not booting up.I can send you the&nbsp;bootup logs.&nbsp;</div>
-<div>If i go back to the targeterd policy it comes up properly.</div>
-<div>&nbsp;</div>
-<div>one more question i have.If instead of refpolicy i want to use targeted policy only then from where can i&nbsp; get the source packages for that.</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div>
-<div>&nbsp;</div></div><br></div>
+SELinux is a Linux security module that is built into the Linux kernel. 
+SELinux is driven by loadable policy rules. When security-relevant 
+access is taking place, such as when a subject attempts to open an 
+object, the operation is intercepted in the kernel by SELinux. If an 
+SELinux policy rule allows the operation, it continues, otherwise, the 
+operation is blocked and the subject receives an error.
 
-------=_Part_19531_17643029.1220078877548--
+SELinux decisions, such as allowing or disallowing access, are cached. 
+This cache is known as the Access Vector Cache (AVC). This decreases how 
+often SELinux policy rules need to be checked, which increases 
+performance. SELinux policy rules have no affect if DAC rules deny 
+access first.
+
+Thanks for your help.
+
+[1] http://en.wikipedia.org/wiki/Domain_Name_System
+[2] http://www.isc.org/index.pl?/sw/bind/index.php
+[3] Text files that include information, such as hostname to IP address 
+mappings, that are used by DNS servers.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
