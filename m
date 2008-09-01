@@ -1,69 +1,117 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8196U5J025771
-	for <selinux@tycho.nsa.gov>; Mon, 1 Sep 2008 05:06:30 -0400
-Received: from wr-out-0506.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8195ut8023077
-	for <selinux@tycho.nsa.gov>; Mon, 1 Sep 2008 09:05:56 GMT
-Received: by wr-out-0506.google.com with SMTP id c37so1502716wra.26
-        for <selinux@tycho.nsa.gov>; Mon, 01 Sep 2008 02:06:30 -0700 (PDT)
-Message-ID: <f71a82820809010206w21a07f7fya77e4ac89d6f938f@mail.gmail.com>
-Date: Mon, 1 Sep 2008 18:06:29 +0900
-From: "Shintaro Fujiwara" <shintaro.fujiwara@gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Subject: How can I know violations in denied timing ?
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_55670_13801121.1220259989419"
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: [PATCH 3/3] Thread/Child-Domain Assignment (rev.4)
+Date: Mon, 1 Sep 2008 10:47:24 -0400
+Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com>
+In-Reply-To: <48BB8B1E.7010208@ak.jp.nec.com>
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com>
+From: "Joshua Brindle" <jbrindle@tresys.com>
+To: "KaiGai Kohei" <kaigai@ak.jp.nec.com>
+Cc: "Stephen Smalley" <sds@tycho.nsa.gov>, <jmorris@namei.org>,
+        <paul.moore@hp.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_55670_13801121.1220259989419
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+KaiGai Kohei wrote:
+> Joshua Brindle wrote:
+>> KaiGai Kohei wrote:
+>>> Joshua Brindle wrote:
+>>>> KaiGai Kohei wrote:
+>>>>> The following patch is revised one for libsepol.
+>>>>> 
+>>>>> Updates:
+>>>>>  - The properties of type_datum are packed within the third word
+>>>>>    of type entries in the kernel policy.
+>>>>>    The first bit (TYPEDATUM_PROPERTY_PRIMARY) means the entry is a
+>>>>>    primary type, and the second bit (TYPEDATUM_PROPERTY_ATTRIBUTE)
+>>>>>    means the entry is an attribute.
+>>>>> 
+>>>> I didn't see an answer in the current threads, and this looks like
+>>>  > the latest userland patch series so I'll ask here: What is the
+>>> purpose  > of the properties? We can infer what it knows from the
+>>> other fields
+>>>> in the datum, right?
+>>> Stephen said as follows:
+>>> http://marc.info/?l=selinux&m=121882413424973&w=2
+>>> 
+>>>> Keeping the type attribute names in the types symtab in the kernel
+>>>> policy allows tools like audit2why and apol to extract the original
+>>>> attribute names and display them.  I originally shed them because
+>>>> the kernel didn't need to use that information and we don't want
+>>>> attribute names to be used in security contexts, but it costs us
+>>>> little to save them and check for them, and it benefits the tools.
+>> 
+>> No, I got that part. What I was missing was that we identified
+>> attributes differently in modules and kernel policy now, kind of
+>> confusing.
+> 
+> I see, modular policy format now has "primary", "flavor" and "flags"
+> members to identify its properties. It is different from
+> newer kernel policy format.
+> 
+>>> The type_datum has the following format in the newer kernel policy:
+>>> 
+>>>   +0 +-------------------------+
+>>>      | length of name          |
+>>>   +4 +-------------------------+
+>>>      | type identifier value   |
+>>>   +8 +-------------------------+
+>>>      | property bits           | <--- TYPEDATUM_PROPERTY_PRIMARY
+>>> +12 +-------------------------+      TYPEDATUM_PROPERTY_ATTRIBUTE
+>>>      | bounds type identifier  |
+>>> +16 +-------------------------+
+>>>      | text representation of  |
+>>>      | name (variable length)  |
+>>>      +-------------------------+
+>>> 
+>>> Any property bits are packed within the third field.
+>>> 
+>> 
+>> I don't see that in the libsepol patch:
+>> 
+>> @@ -145,8 +146,16 @@
+>>  	ebitmap_t types;	/* types with this attribute */
+>>  #define TYPE_FLAGS_PERMISSIVE	0x01
+>>  	uint32_t flags;
+>> +	uint32_t bounds;	/* bounds type, if exist */
+>>  } type_datum_t;
+> 
+> Are you saying members within type_datum_t should have
+> one-to-one mapping with its disk format? If so, it is the
+> most straightforward approach to add a "flavor" member for
+> the disk format of kernel policy.
+> 
 
-Hello, I'm Shintaro, Fujiwara writer of segatex.
+No, don't add flavor to the kernel format. Add the property to the
+libsepol type_datum
 
-I wrote a small c program in latest segatex which pops up a widget when
-violation occurs but,
-it only reads audit.log and make another file and periodically compare old
-one and new one.
-If new one differs from old one, it pops up a widget.
+> I guess your opinion is that smaller differences between
+> kernel and modular policy format is better. If so, what do
 
-But what I really want to do is that something like setroubleshoot, which I
-imagine reads kernel directly.
+No, I'm fine with differences in those 2 formats. I just don't want to
+get confused later when the on-disk format has extra fields that the
+structs in libsepol don't have.
 
-I'm making segatex not to alternate Redhat's one, but for my own pleasure
-and my study.
+> you think about an idea which packs all properties of a type
+> into a property bits members.
+> We need 1 bit for "primary" property, 2 bits for "flavor" and
+> 1 bit for "permissive", so it is enough to store them into a 32bits
+> variable. 
+> 
+> In this case, the format of type_datum is changed as follows:
+> 
+>   + 0 : length of name (unchanged)
+>   + 4 : type identifier value (unchanged)
+>   + 8 : property bits which can have following bits
+>   +12 : bounds type identifier (newly added)
+>   +16 : ebitmap of attributes (modular only/unchanged)
+>   +XX : text representation of type name
+>   (*) flavor in modular policy format is deprecated.
+> 
+> Thanks,
 
-I have no experiences reading kernel and don't know how to read kernel files
-at all.
 
-So, if you have time to spare for me, please let me know how to read kernel
-files.
-
-This time, I want to make a small program like setroubleshoot.
-
-Thank you very much in advance.
-
--- 
-http://intrajp.no-ip.com/ Home Page
-
-------=_Part_55670_13801121.1220259989419
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<div dir="ltr">Hello, I&#39;m Shintaro, Fujiwara writer of segatex.<br><br>I wrote a small c program in latest segatex which pops up a widget when violation occurs but, <br>it only reads audit.log and make another file and periodically compare old one and new one.<br>
-
-If new one differs from old one, it pops up a widget.<br><br>But what I really want to do is that something like setroubleshoot, which I imagine reads kernel directly.<br><br>I&#39;m making segatex not to alternate Redhat&#39;s one, but for my own pleasure and my study.<br>
-
-<br>I have no experiences reading kernel and don&#39;t know how to read kernel files at all.<br><br>So, if you have time to spare for me, please let me know how to read kernel files.<br><br>This time, I want to make a small program like setroubleshoot.<br>
-
-<br>Thank you very much in advance.<br clear="all"><br>-- <br><a href="http://intrajp.no-ip.com/">http://intrajp.no-ip.com/</a> Home Page<br>
-</div>
-
-------=_Part_55670_13801121.1220259989419--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
