@@ -1,104 +1,381 @@
-Message-ID: <48BB8B1E.7010208@ak.jp.nec.com>
-Date: Mon, 01 Sep 2008 15:26:38 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Message-ID: <48BB93D2.8090909@redhat.com>
+Date: Mon, 01 Sep 2008 17:03:46 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org, paul.moore@hp.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.4)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com>
-In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide draft: "SELinux Contexts and Attributes" review
+References: <48B4FA3E.3000602@redhat.com> <1219844836.5708.92.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1219844836.5708.92.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> KaiGai Kohei wrote:
->> Joshua Brindle wrote:
->>> KaiGai Kohei wrote:
->>>> The following patch is revised one for libsepol.
->>>>
->>>> Updates:
->>>>  - The properties of type_datum are packed within the third word of
->>>>    type entries in the kernel policy.
->>>>    The first bit (TYPEDATUM_PROPERTY_PRIMARY) means the entry is a
->>>>    primary type, and the second bit (TYPEDATUM_PROPERTY_ATTRIBUTE)
->>>>    means the entry is an attribute.
->>>>
->>> I didn't see an answer in the current threads, and this looks like
->>  > the latest userland patch series so I'll ask here: What is
->> the purpose  > of the properties? We can infer what it knows
->> from the other fields
->>> in the datum, right?
->> Stephen said as follows:
->> http://marc.info/?l=selinux&m=121882413424973&w=2
+Cheers. Comments inline:
+
+Stephen Smalley wrote:
+> On Wed, 2008-08-27 at 16:54 +1000, Murray McAllister wrote:
+>> Hi,
 >>
->>> Keeping the type attribute names in the types symtab in the kernel
->>> policy allows tools like audit2why and apol to extract the original
->>> attribute names and display them.  I originally shed them because the
->>> kernel didn't need to use that information and we don't want
->>> attribute names to be used in security contexts, but it costs us
->>> little to save them and check for them, and it benefits the tools.
+>> The following is a draft of the SELinux Contexts and Attributes sections 
+>> for the SELinux User Guide. Any comments and corrections are appreciated.
+>>
+>> Thanks.
+>>
+>> As previously mentioned, on Linux operating systems, files, directories, 
+>> sockets, devices, and so on, are called objects, and processes, such as 
+>> a user running a command, the Firefox application, and the Apache HTTP 
+>> Server, are called subjects.
 > 
-> No, I got that part. What I was missing was that we identified
-> attributes differently in modules and kernel policy now, kind of
-> confusing.
-
-I see, modular policy format now has "primary", "flavor" and "flags"
-members to identify its properties. It is different from newer kernel
-policy format.
-
->> The type_datum has the following format in the newer kernel policy:
->>
->>   +0 +-------------------------+
->>      | length of name          |
->>   +4 +-------------------------+
->>      | type identifier value   |
->>   +8 +-------------------------+
->>      | property bits           | <--- TYPEDATUM_PROPERTY_PRIMARY
->> +12 +-------------------------+      TYPEDATUM_PROPERTY_ATTRIBUTE
->>      | bounds type identifier  |
->> +16 +-------------------------+
->>      | text representation of  |
->>      | name (variable length)  |
->>      +-------------------------+
->>
->> Any property bits are packed within the third field.
->>
+> As before, this is generally true of operating systems not just Linux.
 > 
-> I don't see that in the libsepol patch:
+>>  SELinux provides the Type Enforcement 
+>> security model.
 > 
-> @@ -145,8 +146,16 @@
->  	ebitmap_t types;	/* types with this attribute */
->  #define TYPE_FLAGS_PERMISSIVE	0x01
->  	uint32_t flags;
-> +	uint32_t bounds;	/* bounds type, if exist */
->  } type_datum_t;
+> SELinux provides flexible MAC that can support many different security
+> models, and the example security server included in SELinux provides a
+> combination of role-based access control (RBAC), Type Enforcement (TE),
+> and optionally Multi-Level Security (MLS).
 
-Are you saying members within type_datum_t should have one-to-one mapping
-with its disk format? If so, it is the most straightforward approach to
-add a "flavor" member for the disk format of kernel policy.
+How about:
 
-I guess your opinion is that smaller differences between kernel and
-modular policy format is better. If so, what do you think about an idea
-which packs all properties of a type into a property bits members.
-We need 1 bit for "primary" property, 2 bits for "flavor" and 1 bit for
-"permissive", so it is enough to store them into a 32bits variable.
+...SELinux provides flexible MAC that supports a variety of different 
+security models. On Fedora 10, SELinux provides a combination of 
+role-based access control (RBAC), Type Enforcement® (TE), and 
+optionally, Multi-Level Security (MLS). Subjects and objects are labeled 
+with an SELinux context that contains additional information, such as an 
+SELinux user, role, and a type. When running SELinux, all of this 
+information is used to make access control decisions.
 
-In this case, the format of type_datum is changed as follows:
+> 
+>>  To enforce this, subjects and objects are labeled with 
+>> an SELinux context that contains additional information, such as an 
+>> SELinux user, role, and type. When running SELinux, all of this 
+>> information is used to make access control decisions.
+>>
+>> The following is an example of the additional SELinux information used 
+>> on Linux operating systems that use SELinux. This information is called 
+>> the SELinux context, and is viewed using the ls -Z command:
+>>
+>> -rwxrw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0      file1
+>>
+>> SELinux contexts follow the SELinux user:role:type:category syntax:
+> 
+> That should be :level or :range rather than just :category, where a
+> level is a sensitivity followed by an optional list of categories.
 
-  + 0 : length of name (unchanged)
-  + 4 : type identifier value (unchanged)
-  + 8 : property bits which can have following bits
-  +12 : bounds type identifier (newly added)
-  +16 : ebitmap of attributes (modular only/unchanged)
-  +XX : text representation of type name
-  (*) flavor in modular policy format is deprecated.
+How about "...role:type:sensitivity"?
 
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+> 
+>> SELinux user: The SELinux user identity is an identity known to the 
+>> policy that is authorized for a specific set of roles and for a specific 
+>> MLS range. Each Linux user account is mapped to an SELinux user identity 
+>> when a user login session is created, and the mapped SELinux user 
+>> identity is used in the security context for processes in that session 
+>> in order to bound what roles and levels they can enter[1]. Run the 
+>> /usr/sbin/semanage login -l command to view a list of mappings between 
+>> SELinux and Linux user accounts:
+>>
+>> Login Name                SELinux User              MLS/MCS Range
+>>
+>> __default__               unconfined_u              s0-s0:c0.c1023
+>> root                      unconfined_u              s0-s0:c0.c1023
+>> system_u                  system_u                  s0-s0:c0.c1023
+>> test2user                 user_u                    s0
+>> xguest                    xguest_u                  s0
+>>
+>> Output may differ from system to system. The Login Name column lists 
+>> Linux users, and the the SELinux User column lists which SELinux user is 
+>> mapped to which Linux user. The SELinux user does not restrict the 
+>> access subjects have to objects.
+> 
+> Well, it does indirectly, by limiting what roles and levels are
+> accessible to the subject.  It also can play a role in the constraints
+> portion of the policy configuration, e.g. refpolicy doesn't allow a
+> process to relabel a file with a different SELinux user identity unless
+> its domain has the can_change_object_identity attribute.
+
+Output may differ from system to system. The Login Name column lists 
+Linux users, and the the SELinux User column lists which SELinux user is 
+mapped to which Linux user. For subjects, the SELinux user limits which 
+roles and levels are accessible. The last column, MLS/MCS Range, are 
+levels and categories that are used by Multi-Level Security (MLS) and 
+Mutli-Category Security (MCS). MLS and MCS levels and categories are 
+discussed briefly later.
+
+Would removing "For subjects" from the 3rd sentence make it accurate?
+
+> 
+>>  The last column, MLS/MCS Range, are 
+>> categories that are used by Multi-Level Security (MLS) and 
+>> Mutli-Category Security (MCS). MLS and MCS categories are discussed 
+>> briefly later.
+>>
+>> role: Part of SELinux is the Role Based Access Control (RBAC) security 
+>> model. The role is an attribute of RBAC. Roles are associated with 
+>> domain types, and domain types are associated with SELinux users.
+> 
+> SELinux users are authorized for roles, and roles are authorized for
+> domain types.  Domain types are not directly associated with SELinux
+> users - the role serves as an intermediary.
+> 
+>>  Roles 
+>> are important when writing policies, as they restrict domain 
+>> transitions, but they do not restrict the access subjects have to 
+>> objects, and as such, they are not discussed in detail in this guide.
+> 
+> Not directly, but indirectly since what roles you can enter determines
+> what domain types you can enter and thus ultimately what object types
+> you can access.  The role is a coarse-grained boundary on privilege
+> escalation.
+
+role:
+Part of SELinux is the Role Based Access Control (RBAC) security model. 
+The role is an attribute of RBAC. SELinux users are authorized for 
+roles, and roles are authorized for domain types. The role serves as an 
+intermediary between domains types and SELinux users. The roles that can 
+be entered determine which domain types can be entered - ultimately, 
+this controls which object types can be accessed. This helps reduce 
+vulnerability to privileged escalation attacks.
+
+> 
+>> type: The type is an attribute of Type Enforcement. The type defines a 
+>> domain type for subjects, and a type for objects. SELinux policy rules 
+>> define how types access each other, whether it be a domain accessing a 
+>> type, or a domain accessing another domain. Access is only allowed if a 
+>> specific rule exists that allows it.
+>>
+>> category: The category is an attribute of Multi-Level Security (MLS) and 
+>> Multi-Category Security (MCS). Categories are used to categorize data, 
+>> and identify its sensitivity or security level. Standard SELinux policy 
+>> supports MCS; however, it is not heavily used. MCS allows users, at 
+>> their own discretion, to add a category to a piece of data, for example, 
+>> PatientRecord or CompanyConfidential. There is only a single security 
+>> level, s0. MLS labels data with both categories (CompanyConfidential) 
+>> and a sensitivity level. MLS enforces the Bell-LaPadula Mandatory Access 
+>> Model, and is used in Labeled Security Protection Profile (LSPP) 
+>> environments.
+> 
+> Again, this should be level or range rather than just category, where a
+> level is a sensitivity and an optional list of categories and a range is
+> a current/low level and a clearance/high level.  You may wish to note
+> that people who wish to use the MLS restrictions need to install a
+> separate -mls policy package and make it the default.
+
+This part is in progress. I do not understand the difference between 
+levels/categories and ranges. Can you recommend any papers or books on 
+this? This is what is there now, keeping in mind I don't understand:
+
+The level is an attribute of MLS and Multi-Category Security (MCS). 
+There is a single sensitivity level, s0, which is the only sensitivity 
+level used. This level is used when running the SELinux MLS policy, but 
+not when running the SELinux targeted policy. An optional list of 
+categories can be used to categorize data. Standard SELinux policy 
+supports MCS; however, it is not heavily used. MCS allows users, at 
+their own discretion, to add a category to a piece of data, for example, 
+CompanyConfidential or PatientRecord. MLS labels data with both a 
+sensitivity level and categories (such as CompanyConfidential). MLS 
+enforces the Bell-LaPadula Mandatory Access Model, and is used in 
+Labeled Security Protection Profile (LSPP) environments. To use MLS 
+restrictions, install the selinux-policy-mls package, and configure MLS 
+to be the default SELinux policy.
+
+> 
+>> Domain Transitions
+>>
+>> On Linux operating systems that run SELinux, processes, such as a user 
+>> running the less command, or an Apache HTTP server, are called subjects. 
+> 
+> Not sure you need to keep repeating this.
+
+Removed.
+
+> 
+>> An executable object transitions to a subject, and a subject runs in a 
+>> domain. This transition is called a domain transition.
+> 
+> A process in one domain transitions to another domain by executing a new
+> program with the entrypoint type for the new domain.
+
+How about:
+
+A subject in one domain transitions to another domain by executing an 
+object that is labeled with a file type that has entrypoint permission 
+for the new domain. The entrypoint permission is used in SELinux policy, 
+and controls which domains an object can enter. The following example...
+
+> 
+>>  The following 
+>> example demonstrates a domain transition:
+>>
+>> 1. A users wants to change their password. To change their password, 
+>> they run the /usr/bin/passwd command. The /usr/bin/passwd file object is 
+>> labeled with the passwd_exec_t file type:
+>>
+>> $ ls -Z /usr/bin/passwd
+>> -rwsr-xr-x  root root system_u:object_r:passwd_exec_t:s0 /usr/bin/passwd
+>>
+>> The passwd application needs to access the /etc/shadow object, which is 
+>> labeled with the shadow_t file type:
+>>
+>> $ ls -Z /etc/shadow
+>> -r--------  root root system_u:object_r:shadow_t:s0    /etc/shadow
+>>
+>> 2. An SELinux policy rule states that subjects running in the passwd_t 
+>> domain type are allowed to read and write to objects that are labeled 
+>> with the shadow_t file type. The /etc/shadow object is the only object 
+>> that is labeled with the shadow_t file type.
+> 
+> Also /etc/gshadow.  And the backup copies of both files created whenever
+> they are updated (e.g. /etc/shadow-).  And any intermediate files
+> created during the update transaction that contain any shadow password
+> data - the point is that any file containing such data ought to be
+> labeled with the shadow_t type so that it can be consistently protected
+> throughout.
+
+An SELinux policy rule states that subjects running in the passwd_t 
+domain type are allowed to read and write to objects that are labeled 
+with the shadow_t file type. Only objects and their back up copies that 
+are required for a password change, such as /etc/gshadow, /etc/gshadow- 
+and /etc/shadow, are labeled with the shadow_t file type.
+
+> 
+>> 3. When a user runs the /usr/bin/passwd command, the application 
+>> transitions to a subject (a process), which is running in the passwd_t 
+>> domain type.
+> 
+> The user shell process transitions to the passwd_t domain upon executing
+> the /usr/bin/passwd command.
+
+When a user runs the /usr/bin/passwd command, the user's shell process 
+transitions to the passwd_t domain type.
+
+> 
+>>  With SELinux, since the default action is to deny, and a 
+>> rule exists that allows (among other things) applications running in the 
+>> passwd_t domain type to access objects labeled with the shadow_t file 
+>> type, the passwd application is allowed to access /etc/shadow, and 
+>> update the user's password.
+>>
+>> This example is not exhaustive, and is used as a basic example to 
+>> explain domain transition. Although there is an actual rule that allows 
+>> subjects running in the passwd_t domain type to access objects labeled 
+>> with the shadow_t file type, other rules must be met before the object 
+>> can successfully transition.
+> 
+> Not sure what you mean by "the object can successfully transition" -
+> processes transition from one domain to another upon executing a new
+> program.
+
+...other SELinux policy rules must be met before the subject can 
+transition to a new domain.
+
+> 
+> In the passwd example, the guarantees we are getting from Type
+> Enforcement are:
+> - Only authorized domains (e.g. passwd_t) can write to shadow password
+> data (shadow_t).  Other processes, even superuser ones, cannot do so.
+> - The passwd_t domain can only be entered by executing a program labeled
+> with passwd_exec_t, can only execute from authorized shared libraries
+> (e.g. lib_t) and cannot execute any other programs.  Thus, we can have
+> some confidence that only authorized code is ever executed in passwd_t.
+> - Only authorized domains (e.g. user_t) can transition to passwd_t.
+> Thus, a daemon like sendmail_t that has no legitimate reason to ever run
+> passwd cannot ever reach passwd_t.
+> - passwd_t can only read and write authorized types (e.g. etc_t,
+> shadow_t).  Thus, it cannot be tricked into reading or writing arbitrary
+> files.
+
+In this example, Type Enforcement ensures:
+
+* The passwd_t domain can only be entered by executing an object labeled 
+with the passwd_exec_t file type; can only execute from authorized 
+shared libraries, such as the lib_t file type; and can not execute any 
+other objects.
+
+* Only authorized domains, such as passwd_t, can write to objects 
+labeled with the shadow_t file type. Even if other subjects are running 
+with superuser privileges, those subject can not write to objects 
+labeled with the shadow_t file type, as they are not running in the 
+passwd_t domain.
+
+* Only authorized domains can transition to the passwd_t domain. For 
+example, the sendmail subject running in the sendmail_t domain does not 
+have a legitimate reason to run /usr/bin/passwd; therefore, it can never 
+transition to the passwd_t domain.
+
+* Subjects running in the passwd_t domain type can only read and write 
+authorized types, such as objects labeled with the etc_t or shadow_t 
+file types. This prevents the passwd application from being tricked into 
+reading or writing arbitrary files.
+
+> 
+>> SELinux Contexts for Subjects
+>>
+>> On Linux operating systems the run SELinux, when an application is 
+>> executed, that application transitions to a subject and runs in a 
+>> domain.
+> 
+> Again, not sure you need to keep repeating this, and technically it is
+> "the process transitions to a new domain upon executing a program with
+> the entrypoint type for that domain".
+
+Removed.
+
+> 
+>>  The SELinux context for subjects is viewed using the pstree -Z 
+>> command.
+> 
+> Or just ps -eZ.
+
+Changed examples to use ps -eZ.
+
+> 
+>>  For example:
+>>
+>> 1. Open a terminal, such as Applications → System Tools → Terminal.
+>>
+>> 2. Run the /usr/bin/passwd command. Do not enter a new password.
+>>
+>> 3. Open a new tab, or another terminal, and run the pstree -Z | grep 
+>> passwd command. The output is similar to the following:
+>>
+>> |  |        `-passwd(`unconfined_u:unconfined_r:passwd_t:s0-s0:c0.c1023')
+>>
+>> 4. In the first tab, cancel passwd application.
+>>
+>> In this example, when the /usr/bin/passwd object, which is labeled with 
+>> the passwd_exec_t file type, is executed, it transitions to a subject 
+>> that runs in the passwd_t domain type. Remember: the type defines a 
+>> domain type for subjects, and a type for objects.
+>>
+>> To view the SELinux contexts for all subjects, run the pstree -Z 
+>> command. The following is an example of the pstree -Z output, and may 
+>> differ on your system:
+>>
+>> ├─NetworkManager(`system_u:system_r:NetworkManager_t:s0')
+>> │  └─{NetworkManager}(`system_u:system_r:NetworkManager_t:s0')
+>> ├─acpid(`system_u:system_r:apmd_t:s0')
+>> ├─anacron(`system_u:system_r:system_crond_t:s0')
+>> ├─atd(`system_u:system_r:crond_t:s0-s0:c0.c1023')
+>> ├─auditd(`system_u:system_r:auditd_t:s0')
+>>
+>>
+>> By default, the SELinux targeted policy is used. When using targeted 
+>> policy, most subjects (processes) use the system_r role. Type 
+>> enforcement then separates each domain.
+> 
+> system_r is for system processes like daemons.  Targeted policy used to
+> use system_r for everything and not use any user roles.  In F9, it uses
+> unconfined_r for unconfined users.
+
+The system_r role is used for system processes, such as daemons. Type 
+enforcement then separates each domain.
+
+I left user roles (unconfined_r, user_r) out, as they explained later.
+
+Thanks again :)
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
