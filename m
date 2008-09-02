@@ -2,60 +2,71 @@ Subject: Re: user guide draft: "SELinux Contexts and Attributes" review
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Murray McAllister <mmcallis@redhat.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <48BCB564.4010404@redhat.com>
+In-Reply-To: <48BCC591.3000101@redhat.com>
 References: <48B4FA3E.3000602@redhat.com>
 	 <1219844836.5708.92.camel@moss-spartans.epoch.ncsc.mil>
-	 <48BB93D2.8090909@redhat.com>  <48BCB564.4010404@redhat.com>
+	 <48BB93D2.8090909@redhat.com> <48BCB564.4010404@redhat.com>
+	 <48BCC591.3000101@redhat.com>
 Content-Type: text/plain
-Date: Tue, 02 Sep 2008 09:09:45 -0400
-Message-Id: <1220360985.26711.43.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 02 Sep 2008 09:19:19 -0400
+Message-Id: <1220361559.26711.54.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Tue, 2008-09-02 at 13:39 +1000, Murray McAllister wrote:
-> How about:
+On Tue, 2008-09-02 at 14:48 +1000, Murray McAllister wrote:
+> Murray McAllister wrote:
+> > Murray McAllister wrote:
+> > 
+> >>>> type: The type is an attribute of Type Enforcement. The type defines 
+> >>>> a domain type for subjects, and a type for objects. SELinux policy 
+> >>>> rules define how types access each other, whether it be a domain 
+> >>>> accessing a type, or a domain accessing another domain. Access is 
+> >>>> only allowed if a specific rule exists that allows it.
+> >>>>
+> >>>> category: The category is an attribute of Multi-Level Security (MLS) 
+> >>>> and Multi-Category Security (MCS). Categories are used to categorize 
+> >>>> data, and identify its sensitivity or security level. Standard 
+> >>>> SELinux policy supports MCS; however, it is not heavily used. MCS 
+> >>>> allows users, at their own discretion, to add a category to a piece 
+> >>>> of data, for example, PatientRecord or CompanyConfidential. There is 
+> >>>> only a single security level, s0. MLS labels data with both 
+> >>>> categories (CompanyConfidential) and a sensitivity level. MLS 
+> >>>> enforces the Bell-LaPadula Mandatory Access Model, and is used in 
+> >>>> Labeled Security Protection Profile (LSPP) environments.
+> >>>
+> >>> Again, this should be level or range rather than just category, where a
+> >>> level is a sensitivity and an optional list of categories and a range is
+> >>> a current/low level and a clearance/high level.  You may wish to note
+> >>> that people who wish to use the MLS restrictions need to install a
+> >>> separate -mls policy package and make it the default.
+> >>
+> > 
+> > How about:
+> > 
+> > The security level is an attribute of MLS and Multi-Category Security 
+> > (MCS). The first part of the security level is the sensitivity, for 
+> > example, s0 is a sensitivity. The s0 sensitivity is the only sensitivity 
+> > used when running the SELinux targeted policy. Optionally, the security 
+> > level can have a list of categories. Categories are used to categorize 
+> > data and add an extra level of security. If a user does not have access 
+> > to the same or higher categories than an object, and DAC and SELinux 
+> > rules allow access, access to that object is denied. 
 > 
-> The security level is an attribute of MLS and Multi-Category Security 
-> (MCS). The first part of the security level is the sensitivity, for 
-> example, s0 is a sensitivity. The s0 sensitivity is the only sensitivity 
-> used when running the SELinux targeted policy. Optionally, the security 
-> level can have a list of categories. Categories are used to categorize 
-> data and add an extra level of security. If a user does not have access 
-> to the same or higher categories than an object, and DAC and SELinux 
-> rules allow access, access to that object is denied. For example, if a 
-> user only has access to the c0 category, and an object is labeled with 
-> the c1 category, access is denied. Security levels can be translated to 
-> an easier-to-read form, such as CompanyConfidential. For an example list 
-> of security levels and their translations, refer to the 
-> /etc/selinux/targeted/setrans.conf file.
-> 
-> When running the SELinux MLS policy, a sensitivity and categories are 
-> compulsory. MLS allows sensitivities s0 through to s9.
+> I keep getting MLS and MCS mixed up. Should this be "If a user does not 
+> have access to same categories as the object is labeled with"?
 
-I think they go up to s15 in the -mls policy configuration, although it
-is all defined as part of the policy configuration and there is no
-implementation-defined hard limit.
+For MCS, as I recall, the subject's high level/clearance must dominate
+the object's level in order to read or write to it.  Thus, it must be
+authorized for all categories in the object's level.
 
->  MLS enforces the 
-> Bell-LaPadula Mandatory Access Model[1], and is used in Labeled Security 
-> Protection Profile (LSPP) environments. To use MLS restrictions, install 
-> the selinux-policy-mls package, and configure MLS to be the default 
-> SELinux policy.
-
-Caveat:  the -mls policy as shipped by Fedora/RH intentionally omits
-many program domains that were not part of the evaluated configuration,
-and thus is not usable on a desktop workstation (no X support).  However
-you can build a mls policy from the upstream refpolicy that includes all
-program domains.
-
-> from semanage login -l, is the range the "s0-s0" part of the MLS/MCS 
-> label? And in MLS, this could be something like "s0-s3"?
-
-Yes, s0-s0 is a MLS/MCS range where the low level and the high level are
-identical.  It could just as easily be written as just "s0" since that
-implies s0-s0.
+For MLS, the subject's low level must dominate the object's level in
+order to read from it (read down), and the subject's low level must
+equal the object's level in order to write to it (write equal).
+Technically, the latter restriction can be relaxed to allow a subject to
+write up, but in the current mls policy this requires a particular type
+attribute.
 
 -- 
 Stephen Smalley
