@@ -1,37 +1,89 @@
-Message-ID: <48BC141F.2060802@kaigai.gr.jp>
-Date: Tue, 02 Sep 2008 01:11:11 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Message-ID: <48BCB564.4010404@redhat.com>
+Date: Tue, 02 Sep 2008 13:39:16 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.4)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com>
-In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide draft: "SELinux Contexts and Attributes" review
+References: <48B4FA3E.3000602@redhat.com> <1219844836.5708.92.camel@moss-spartans.epoch.ncsc.mil> <48BB93D2.8090909@redhat.com>
+In-Reply-To: <48BB93D2.8090909@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
->> I guess your opinion is that smaller differences between
->> kernel and modular policy format is better. If so, what do
+Murray McAllister wrote:
+
+>>> type: The type is an attribute of Type Enforcement. The type defines 
+>>> a domain type for subjects, and a type for objects. SELinux policy 
+>>> rules define how types access each other, whether it be a domain 
+>>> accessing a type, or a domain accessing another domain. Access is 
+>>> only allowed if a specific rule exists that allows it.
+>>>
+>>> category: The category is an attribute of Multi-Level Security (MLS) 
+>>> and Multi-Category Security (MCS). Categories are used to categorize 
+>>> data, and identify its sensitivity or security level. Standard 
+>>> SELinux policy supports MCS; however, it is not heavily used. MCS 
+>>> allows users, at their own discretion, to add a category to a piece 
+>>> of data, for example, PatientRecord or CompanyConfidential. There is 
+>>> only a single security level, s0. MLS labels data with both 
+>>> categories (CompanyConfidential) and a sensitivity level. MLS 
+>>> enforces the Bell-LaPadula Mandatory Access Model, and is used in 
+>>> Labeled Security Protection Profile (LSPP) environments.
+>>
+>> Again, this should be level or range rather than just category, where a
+>> level is a sensitivity and an optional list of categories and a range is
+>> a current/low level and a clearance/high level.  You may wish to note
+>> that people who wish to use the MLS restrictions need to install a
+>> separate -mls policy package and make it the default.
 > 
-> No, I'm fine with differences in those 2 formats. I just don't want to
-> get confused later when the on-disk format has extra fields that the
-> structs in libsepol don't have.
 
-How do you think the approach on the latest libsepol patch?
+How about:
 
-It integrates all fields to represent its properties ("flavor", "primary"
-and "flags") into a single field deployed on the third word of type_datum
-entry. These are encoded/decoded by type_read/type_write.
+The security level is an attribute of MLS and Multi-Category Security 
+(MCS). The first part of the security level is the sensitivity, for 
+example, s0 is a sensitivity. The s0 sensitivity is the only sensitivity 
+used when running the SELinux targeted policy. Optionally, the security 
+level can have a list of categories. Categories are used to categorize 
+data and add an extra level of security. If a user does not have access 
+to the same or higher categories than an object, and DAC and SELinux 
+rules allow access, access to that object is denied. For example, if a 
+user only has access to the c0 category, and an object is labeled with 
+the c1 category, access is denied. Security levels can be translated to 
+an easier-to-read form, such as CompanyConfidential. For an example list 
+of security levels and their translations, refer to the 
+/etc/selinux/targeted/setrans.conf file.
 
-I think an extra field like a new "properties" is unavoidable, because
-existing fields of properties are external specification of libsepol.
-So we cannot re-organize them arbitrarily.
+When running the SELinux MLS policy, a sensitivity and categories are 
+compulsory. MLS allows sensitivities s0 through to s9. MLS enforces the 
+Bell-LaPadula Mandatory Access Model[1], and is used in Labeled Security 
+Protection Profile (LSPP) environments. To use MLS restrictions, install 
+the selinux-policy-mls package, and configure MLS to be the default 
+SELinux policy.
 
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+
+from semanage login -l, is the range the "s0-s0" part of the MLS/MCS 
+label? And in MLS, this could be something like "s0-s3"?
+
+
+[1] http://en.wikipedia.org/wiki/Bell-LaPadula_model
+
+> This part is in progress. I do not understand the difference between 
+> levels/categories and ranges. Can you recommend any papers or books on 
+> this? This is what is there now, keeping in mind I don't understand:
+> 
+> The level is an attribute of MLS and Multi-Category Security (MCS). 
+> There is a single sensitivity level, s0, which is the only sensitivity 
+> level used. This level is used when running the SELinux MLS policy, but 
+> not when running the SELinux targeted policy. An optional list of 
+> categories can be used to categorize data. Standard SELinux policy 
+> supports MCS; however, it is not heavily used. MCS allows users, at 
+> their own discretion, to add a category to a piece of data, for example, 
+> CompanyConfidential or PatientRecord. MLS labels data with both a 
+> sensitivity level and categories (such as CompanyConfidential). MLS 
+> enforces the Bell-LaPadula Mandatory Access Model, and is used in 
+> Labeled Security Protection Profile (LSPP) environments. To use MLS 
+> restrictions, install the selinux-policy-mls package, and configure MLS 
+> to be the default SELinux policy.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
