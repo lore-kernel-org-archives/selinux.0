@@ -1,87 +1,42 @@
-Subject: Re: user guide draft: "SELinux Contexts and Attributes" review
+Subject: Re: [PATCH] SELinux: memory leak in security_context_to_sid_core
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Murray McAllister <mmcallis@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <48BE28D5.1080902@redhat.com>
-References: <48B4FA3E.3000602@redhat.com>
-	 <1219844836.5708.92.camel@moss-spartans.epoch.ncsc.mil>
-	 <48BB93D2.8090909@redhat.com>  <48BCB564.4010404@redhat.com>
-	 <1220360985.26711.43.camel@moss-spartans.epoch.ncsc.mil>
-	 <48BE28D5.1080902@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+In-Reply-To: <alpine.LRH.1.10.0809032245380.21379@tundra.namei.org>
+References: <1220390111.2962.19.camel@localhost.localdomain>
+	 <1220444041.6034.1.camel@moss-spartans.epoch.ncsc.mil>
+	 <alpine.LRH.1.10.0809032245380.21379@tundra.namei.org>
 Content-Type: text/plain
-Date: Wed, 03 Sep 2008 09:01:26 -0400
-Message-Id: <1220446886.6034.33.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 03 Sep 2008 09:04:55 -0400
+Message-Id: <1220447095.6034.38.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-09-03 at 16:04 +1000, Murray McAllister wrote:
-> How about:
+On Wed, 2008-09-03 at 22:50 +1000, James Morris wrote:
+> On Wed, 3 Sep 2008, Stephen Smalley wrote:
 > 
-> The level is an attribute of MLS and Multi-Category Security (MCS). The 
-> first part of the level, s0-s0, is the sensitivity.
-
-Actually, s0-s0 is a MLS range where the low level has sensitivity s0
-and no categories and the high level has sensitivity s0 and no
-categories.
-
->  The s0 sensitivity 
-> is the only sensitivity used for MCS. Since the format of the level is 
-> the same for MLS and MCS, and MLS supports ranges of sensitivities, a 
-> sensitivity such as s0-s0 is the same as s0 when using MCS.
-
-No, s0-s0 is always the same as just s0, regardless of MCS or MLS.  Just
-like s1-s1 is the same as just s1.  Versus a non-trivial range like
-s0-s1 or s0-s3.
-
->  Optionally, 
-> the level can have a list of categories.
-
-Each level in the range can have a list of categories, so you can have:
-	s0:c0,c2-s3:c0,c1,c2
-The only requirement is that the high level (s3:c0,c1,c2) must dominate
-the low level (s0:c0,c2), i.e. s3 >= s0 and {c0, c1, c2} is a superset
-of {c0, c2}.
-
-Somewhere you should likely explain the notation:
-sN represents a sensitivity with value N, where sN dominates sM if N >=
-M.
-cN represents category N, where a category set dominates another if it
-is a superset of it.
-The sN and cN values can then be mapped to human-readable labels using
-setrans.conf.
-
->  Categories are used to 
-> categorize data and add an extra level of security. Fedora 10 supports 
-> 1024 different categories: c0 through to c1023. If a user is not 
-> authorized for all of the categories of an object, and DAC and SELinux 
-> rules allow access, access is denied.
-
-That would be DAC and type enforcement rules.  SELinux rules include TE
-rules, RBAC rules, and constraints (including MLS/MCS).
-
->  For example, if a user is only 
-> authorized for the c0 category, and an object is labeled with the c0 and 
-> c1 categories, access is denied. If a user is authorized for the c0 and 
-> c1 categories, and an object is only labeled with the c0 category, 
-> access is allowed. Levels can be translated to an easier-to-read form, 
-> such as CompanyConfidential.  For an example list of levels and their 
-> translations, refer to the /etc/selinux/targeted/setrans.conf file.
+> > > +	context_destroy(ctx);
+> > 
+> > Doesn't this introduce a double free on that code path (caller will also
+> > call context_destroy on the same context, which it passed in).
 > 
-> MLS allows ranges of sensitivities, not just s0. MLS enforces the 
-> Bell-LaPadula Mandatory Access Model, and is used in Labeled Security 
-> Protection Profile (LSPP) environments. To use MLS restrictions, install 
-> the selinux-policy-mls package, and configure MLS to be the default 
-> SELinux policy. The MLS policy shipped with Fedora omits many program 
-> domains that were not part of the evaluated configuration, and 
-> therefore, MLS on a desktop workstation is unusable (no support for the 
-> X Window System); however, an MLS policy from the upstream SELinux 
-> reference policy[1] can be built that includes all program domains.
+> Indeed, context_destroy will be called twice and it's a bug, although 
+> kfree() will not be called twice on the same pointer (e.g. c->str is set 
+> to NULL, as is e->node).
 > 
-> I left out details to try to limit mistakes...
-> 
-> [1] http://oss.tresys.com/projects/refpolicy
+> It needs to be fixed, but it's not a double free, unless I'm missing 
+> something.
+
+Ok, makes sense.
+
+We need to decide who is responsible for freeing ctx under what
+conditions.  It seems reasonable that if the function encounters an
+error, it would free any transient storage and the caller would not try
+to free the context; whereas, if the function succeeds and returns the
+result via ctx, then the caller will free when done using it.
+
 -- 
 Stephen Smalley
 National Security Agency
