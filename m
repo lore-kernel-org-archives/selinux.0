@@ -1,16 +1,15 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m830mxn3014838
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2008 20:48:59 -0400
-Received: from g1t0026.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m830mwXu015770
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 00:48:59 GMT
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m830nCCj014907
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2008 20:49:12 -0400
+Received: from g1t0028.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m830mawt024564
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 00:48:36 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v4 02/14] selinux: Better local/forward check in
-	selinux_ip_postroute()
+Subject: [RFC PATCH v4 04/14] selinux: Fix missing calls to netlbl_skbuff_err()
 To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
         linux-security-module@vger.kernel.org
-Date: Tue, 02 Sep 2008 20:48:54 -0400
-Message-ID: <20080903004854.15669.95990.stgit@flek.lan>
+Date: Tue, 02 Sep 2008 20:49:08 -0400
+Message-ID: <20080903004908.15669.36176.stgit@flek.lan>
 In-Reply-To: <20080903003647.15669.45349.stgit@flek.lan>
 References: <20080903003647.15669.45349.stgit@flek.lan>
 MIME-Version: 1.0
@@ -18,68 +17,189 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It turns out that checking to see if skb->sk is NULL is not a very good
-indicator of a forwarded packet as some locally generated packets also have
-skb->sk set to NULL.  Fix this by not only checking the skb->sk field but also
-the IP[6]CB(skb)->flags field for the IP[6]SKB_FORWARDED flag.
+At some point I think I messed up and dropped the calls to netlbl_skbuff_err()
+which are necessary for CIPSO to send error notifications to remote systems.
+This patch re-introduces the error handling calls into the SELinux code.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
 
- security/selinux/hooks.c |   36 +++++++++++++++++++++++++++---------
- 1 files changed, 27 insertions(+), 9 deletions(-)
+ include/net/netlabel.h              |    6 ++++--
+ net/netlabel/netlabel_kapi.c        |    5 +++--
+ security/selinux/hooks.c            |   19 +++++++++++++++----
+ security/selinux/include/netlabel.h |    9 +++++++++
+ security/selinux/netlabel.c         |   20 +++++++++++++++++++-
+ 5 files changed, 50 insertions(+), 9 deletions(-)
 
+diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+index 5303749..e16db09 100644
+--- a/include/net/netlabel.h
++++ b/include/net/netlabel.h
+@@ -382,7 +382,7 @@ int netlbl_sock_getattr(struct sock *sk,
+ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+ 			  u16 family,
+ 			  struct netlbl_lsm_secattr *secattr);
+-void netlbl_skbuff_err(struct sk_buff *skb, int error);
++void netlbl_skbuff_err(struct sk_buff *skb, int error, int gateway);
+ 
+ /*
+  * LSM label mapping cache operations
+@@ -454,7 +454,9 @@ static inline int netlbl_skbuff_getattr(const struct sk_buff *skb,
+ {
+ 	return -ENOSYS;
+ }
+-static inline void netlbl_skbuff_err(struct sk_buff *skb, int error)
++static inline void netlbl_skbuff_err(struct sk_buff *skb,
++				     int error,
++				     int gateway)
+ {
+ 	return;
+ }
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index 2a2b8fa..38ee891 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -490,6 +490,7 @@ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+  * netlbl_skbuff_err - Handle a LSM error on a sk_buff
+  * @skb: the packet
+  * @error: the error code
++ * @gateway: true if host is acting as a gateway, false otherwise
+  *
+  * Description:
+  * Deal with a LSM problem when handling the packet in @skb, typically this is
+@@ -497,10 +498,10 @@ int netlbl_skbuff_getattr(const struct sk_buff *skb,
+  * according to the packet's labeling protocol.
+  *
+  */
+-void netlbl_skbuff_err(struct sk_buff *skb, int error)
++void netlbl_skbuff_err(struct sk_buff *skb, int error, int gateway)
+ {
+ 	if (CIPSO_V4_OPTEXIST(skb))
+-		cipso_v4_error(skb, error, 0);
++		cipso_v4_error(skb, error, gateway);
+ }
+ 
+ /**
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 03fc6a8..995488d 100644
+index 995488d..35a577c 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -4562,19 +4562,37 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
- 	if (!secmark_active && !peerlbl_active)
- 		return NF_ACCEPT;
- 
--	/* if the packet is locally generated (skb->sk != NULL) then use the
--	 * socket's label as the peer label, otherwise the packet is being
--	 * forwarded through this system and we need to fetch the peer label
--	 * directly from the packet */
-+	/* if the packet is being forwarded then get the peer label from the
-+	 * packet itself; otherwise check to see if it is from a local
-+	 * application or the kernel, if from an application get the peer label
-+	 * from the sending socket, otherwise use the kernel's sid */
- 	sk = skb->sk;
--	if (sk) {
-+	if (sk == NULL) {
-+		switch (family) {
-+		case PF_INET:
-+			if (IPCB(skb)->flags & IPSKB_FORWARDED)
-+				secmark_perm = PACKET__FORWARD_OUT;
-+			else
-+				secmark_perm = PACKET__SEND;
-+			break;
-+		case PF_INET6:
-+			if (IP6CB(skb)->flags & IP6SKB_FORWARDED)
-+				secmark_perm = PACKET__FORWARD_OUT;
-+			else
-+				secmark_perm = PACKET__SEND;
-+			break;
-+		default:
-+			return NF_DROP;
+@@ -4093,6 +4093,8 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 			return err;
+ 		err = avc_has_perm(sk_sid, peer_sid,
+ 				   SECCLASS_PEER, PEER__RECV, ad);
++		if (err)
++			selinux_netlbl_err(skb, err, 0);
+ 	} else {
+ 		err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, ad);
+ 		if (err)
+@@ -4142,10 +4144,14 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 			return err;
+ 		err = selinux_inet_sys_rcv_skb(skb->iif, addrp, family,
+ 					       peer_sid, &ad);
+-		if (err)
++		if (err) {
++			selinux_netlbl_err(skb, err, 0);
+ 			return err;
 +		}
-+		if (secmark_perm == PACKET__FORWARD_OUT) {
-+			if (selinux_skb_peerlbl_sid(skb, family, &peer_sid))
-+				return NF_DROP;
-+		} else
-+			peer_sid = SECINITSID_KERNEL;
-+	} else {
- 		struct sk_security_struct *sksec = sk->sk_security;
- 		peer_sid = sksec->sid;
- 		secmark_perm = PACKET__SEND;
--	} else {
--		if (selinux_skb_peerlbl_sid(skb, family, &peer_sid))
--				return NF_DROP;
--		secmark_perm = PACKET__FORWARD_OUT;
+ 		err = avc_has_perm(sk_sid, peer_sid, SECCLASS_PEER,
+ 				   PEER__RECV, &ad);
++		if (err)
++			selinux_netlbl_err(skb, err, 0);
  	}
  
+ 	if (selinux_secmark_enabled()) {
+@@ -4370,6 +4376,7 @@ out:
+ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
+ 				       u16 family)
+ {
++	int err;
+ 	char *addrp;
+ 	u32 peer_sid;
+ 	struct avc_audit_data ad;
+@@ -4393,10 +4400,14 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
+ 	if (selinux_skb_peerlbl_sid(skb, family, &peer_sid) != 0)
+ 		return NF_DROP;
+ 
+-	if (peerlbl_active)
+-		if (selinux_inet_sys_rcv_skb(ifindex, addrp, family,
+-					     peer_sid, &ad) != 0)
++	if (peerlbl_active) {
++		err = selinux_inet_sys_rcv_skb(ifindex, addrp, family,
++					       peer_sid, &ad);
++		if (err) {
++			selinux_netlbl_err(skb, err, 1);
+ 			return NF_DROP;
++		}
++	}
+ 
  	if (secmark_active)
+ 		if (avc_has_perm(peer_sid, skb->secmark,
+diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+index 487a7d8..e034d25 100644
+--- a/security/selinux/include/netlabel.h
++++ b/security/selinux/include/netlabel.h
+@@ -39,6 +39,8 @@
+ #ifdef CONFIG_NETLABEL
+ void selinux_netlbl_cache_invalidate(void);
+ 
++void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway);
++
+ void selinux_netlbl_sk_security_reset(struct sk_security_struct *ssec,
+ 				      int family);
+ 
+@@ -63,6 +65,13 @@ static inline void selinux_netlbl_cache_invalidate(void)
+ 	return;
+ }
+ 
++static inline void void selinux_netlbl_err(struct sk_buff *skb,
++					   int error,
++					   int gateway)
++{
++	return;
++}
++
+ static inline void selinux_netlbl_sk_security_reset(
+ 					       struct sk_security_struct *ssec,
+ 					       int family)
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 89b4183..0207bd2 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -106,6 +106,24 @@ void selinux_netlbl_cache_invalidate(void)
+ }
+ 
+ /**
++ * selinux_netlbl_err - Handle a NetLabel packet error
++ * @skb: the packet
++ * @error: the error code
++ * @gateway: true if host is acting as a gateway, false otherwise
++ *
++ * Description:
++ * When a packet is dropped due to a call to avc_has_perm() pass the error
++ * code to the NetLabel subsystem so any protocol specific processing can be
++ * done.  This is safe to call even if you are unsure if NetLabel labeling is
++ * present on the packet, NetLabel is smart enough to only act when it should.
++ *
++ */
++void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway)
++{
++	netlbl_skbuff_err(skb, error, gateway);
++}
++
++/**
+  * selinux_netlbl_sk_security_reset - Reset the NetLabel fields
+  * @ssec: the sk_security_struct
+  * @family: the socket family
+@@ -307,7 +325,7 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 		return 0;
+ 
+ 	if (nlbl_sid != SECINITSID_UNLABELED)
+-		netlbl_skbuff_err(skb, rc);
++		netlbl_skbuff_err(skb, rc, 0);
+ 	return rc;
+ }
+ 
 
 
 --
