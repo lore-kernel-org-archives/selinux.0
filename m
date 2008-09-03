@@ -1,75 +1,52 @@
-Subject: Re: [PATCH -v3] SELinux: memory leak in
-	security_context_to_sid_core
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-In-Reply-To: <1220456987.2962.66.camel@localhost.localdomain>
-References: <1220390111.2962.19.camel@localhost.localdomain>
-	 <1220444041.6034.1.camel@moss-spartans.epoch.ncsc.mil>
-	 <alpine.LRH.1.10.0809032245380.21379@tundra.namei.org>
-	 <1220447095.6034.38.camel@moss-spartans.epoch.ncsc.mil>
-	 <1220456987.2962.66.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 03 Sep 2008 11:55:19 -0400
-Message-Id: <1220457319.6034.82.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m83G0pBK015738
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 12:00:51 -0400
+Received: from dmzms99801.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m83G0EFh010247
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 16:00:15 GMT
+Message-Id: <738lm5$9i47n@dmzms99801.na.baesystems.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: user guide draft: "Targeted Policy" review
+Date: Wed, 3 Sep 2008 09:00:43 -0700
+From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
+To: "Dominick Grift" <domg472@gmail.com>,
+        "Murray McAllister" <mmcallis@redhat.com>
+Cc: "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-09-03 at 11:49 -0400, Eric Paris wrote:
-> Fix a bug and a philosophical decision about who handles errors.
-> 
-> security_context_to_sid_core() was leaking a context in the common case.
-> This was causing problems on fedora systems which recently have started
-> making extensive use of this function.
-> 
-> In discussion it was decided that if string_to_context_struct() had an
-> error it was its own responsibility to clean up any mess it created
-> along the way.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> -----Original Message-----
+> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+On
+> Behalf Of Dominick Grift
+> Sent: Wednesday, September 03, 2008 2:25 AM
+> To: Murray McAllister
+> Cc: SE Linux
+> Subject: Re: user guide draft: "Targeted Policy" review
+> 
+> On Wed, 2008-09-03 at 17:41 +1000, Murray McAllister wrote:
+> > Hi,
+> 
+> > Are there any SELinux restrictions on what users can do when they
+run
+> > unconfined?
+> 
+> Yes i think unconfined users cannot do execmem, execstack, execheap by
+> default.
+> Otherwise they're exempted from policy enforcement i think.
+
+In RHEL5, constraints still apply to applications running in the
+unconfined_t domain, so all the MLS constraints apply. I'm not familiar
+with Fedora 10, so it may be different.
 
 > 
-> ---
-> 
->  security/selinux/ss/services.c |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index b52f923..d11a815 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -811,11 +811,12 @@ static int string_to_context_struct(struct policydb *pol,
->  	/* Check the validity of the new context. */
->  	if (!policydb_context_isvalid(pol, ctx)) {
->  		rc = -EINVAL;
-> -		context_destroy(ctx);
->  		goto out;
->  	}
->  	rc = 0;
->  out:
-> +	if (rc)
-> +		context_destroy(ctx);
->  	return rc;
->  }
->  
-> @@ -868,8 +869,7 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
->  	} else if (rc)
->  		goto out;
->  	rc = sidtab_context_to_sid(&sidtab, &context, sid);
-> -	if (rc)
-> -		context_destroy(&context);
-> +	context_destroy(&context);
->  out:
->  	read_unlock(&policy_rwlock);
->  	kfree(scontext2);
-> 
--- 
-Stephen Smalley
-National Security Agency
+> --
+> Dominick Grift <domg472@gmail.com>
+
 
 
 --
