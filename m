@@ -1,79 +1,79 @@
-Subject: Re: [PATCH] SELinux: memory leak in security_context_to_sid_core
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org
-In-Reply-To: <1220390111.2962.19.camel@localhost.localdomain>
-References: <1220390111.2962.19.camel@localhost.localdomain>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m83Cgr05003573
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 08:42:53 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m83Cgrkh011548
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 12:42:53 GMT
+Subject: Re: [refpolicy] checkpolicy: error(s) encountered while parsing
+	configuration
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+In-Reply-To: <dd18b0c30809020802y3183a670n972e7e75eb09caa@mail.gmail.com>
+References: <dd18b0c30808311634k683b139fm9f17810a66a81074@mail.gmail.com>
+	 <1220359558.28287.0.camel@gorn>
+	 <dd18b0c30809020802y3183a670n972e7e75eb09caa@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 03 Sep 2008 08:14:01 -0400
-Message-Id: <1220444041.6034.1.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 03 Sep 2008 08:41:44 -0400
+Message-Id: <1220445704.28287.16.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, 2008-09-02 at 11:02 -0400, Justin Mattock wrote:
+> On Tue, Sep 2, 2008 at 8:45 AM, Christopher J. PeBenito
+> <cpebenito@tresys.com> wrote:
+> > On Sun, 2008-08-31 at 19:34 -0400, Justin Mattock wrote:
+> >> when loading the latest refpolicy I'm seing a
+> >> policy/modules/kernel/kernel.te":237:ERROR 'syntax error' at token 'corenet_raw_
+> >> corenet_raw_send_multicast_node(kernel_t)
+> >>
+> >> not sure if this is checkpolicy or refpolicy
+> >
+> > I can't reproduce this.  Can you send a modules.conf along with build
+> > settings?
+> >
+> > --
+> > Chris PeBenito
+> > Tresys Technology, LLC
+> > (410) 290-1411 x150
+> >
+> >
+> 
+> O.K.
+> Attached is build.conf of the refpolicy
+> that worked. The policy that was giving me this message
+> was from svn.
+> here is a list of the packages I was using:
+> checkpolicy 2.0.16-2 then downgraded to 2.0.16-1
+> libselinux1 2.0.65-4
+> libselinux1-dev 2.0.65-4
+> libsemanage1 2.0.25-1
+> libsemanage1-dev 2.0.25-1
+> libsepol1-dev 2.0.30-2
+> lsb-base  3.2-20
+> lsb-release 3.2-20
+> polgen 1.3-5
+> policycoreutils 2.0.49-5 was also using this package from feisty
+> but upgraded to the package with the -U deny option.
+> python-selinux 2.0.65-4
+> python-semanage 2.0.25-1
+> python-sepolgen 1.0.11-4
+> 
+> From what I remember I was using the debian SID repository
+> for some of the packages, and then moving to feisty
+> for some of the other packages as well. I'll try
+> and load the svn policy again to see if this happens. my guess
+> is either policycorutils, or checkpolicy was outdated
+> at the time of building(but could be wrong);
+> Also attached is the kernel config that I am using for this machine.
 
-On Tue, 2008-09-02 at 17:15 -0400, Eric Paris wrote:
-> Memory leak in security_context_to_sid_core() as a result of the
-> deferred context patches.  Code audit found another possible leak in
-> string_to_context_struct() so I fixed that error path as well.
-> 
-> This is a regression since 2.6.26.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> 
-> ---
-> 
->  security/selinux/ss/services.c |   11 ++++++-----
->  1 files changed, 6 insertions(+), 5 deletions(-)
-> 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index b52f923..e1090c1 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -805,18 +805,20 @@ static int string_to_context_struct(struct policydb *pol,
->  
->  	if ((p - scontext) < scontext_len) {
->  		rc = -EINVAL;
-> -		goto out;
-> +		goto out_destroy;
->  	}
->  
->  	/* Check the validity of the new context. */
->  	if (!policydb_context_isvalid(pol, ctx)) {
->  		rc = -EINVAL;
-> -		context_destroy(ctx);
-> -		goto out;
-> +		goto out_destroy;
->  	}
->  	rc = 0;
->  out:
->  	return rc;
-> +out_destroy:
-> +	context_destroy(ctx);
+I need the modules.conf for the policy, not the kernel config.
 
-Doesn't this introduce a double free on that code path (caller will also
-call context_destroy on the same context, which it passed in).
-
-> +	goto out;
->  }
->  
->  static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
-> @@ -868,10 +870,9 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
->  	} else if (rc)
->  		goto out;
->  	rc = sidtab_context_to_sid(&sidtab, &context, sid);
-> -	if (rc)
-> -		context_destroy(&context);
->  out:
->  	read_unlock(&policy_rwlock);
-> +	context_destroy(&context);
->  	kfree(scontext2);
->  	kfree(str);
->  	return rc;
-> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
