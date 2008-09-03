@@ -1,16 +1,16 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m830oB0j015224
-	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2008 20:50:11 -0400
-Received: from g4t0014.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m830oAXu015959
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 00:50:11 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m830n5E2014874
+	for <selinux@tycho.nsa.gov>; Tue, 2 Sep 2008 20:49:05 -0400
+Received: from g1t0028.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m830n4Xu015779
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 00:49:04 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v4 11/14] selinux: Cache NetLabel secattrs in the socket's
-	security struct
+Subject: [RFC PATCH v4 03/14] selinux: Fix a problem in
+	security_netlbl_sid_to_secattr()
 To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
         linux-security-module@vger.kernel.org
-Date: Tue, 02 Sep 2008 20:50:05 -0400
-Message-ID: <20080903005005.15669.66676.stgit@flek.lan>
+Date: Tue, 02 Sep 2008 20:49:01 -0400
+Message-ID: <20080903004901.15669.37418.stgit@flek.lan>
 In-Reply-To: <20080903003647.15669.45349.stgit@flek.lan>
 References: <20080903003647.15669.45349.stgit@flek.lan>
 MIME-Version: 1.0
@@ -18,252 +18,51 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Previous work enabled the use of address based NetLabel selectors, which
-while highly useful, brought the potential for additional per-packet overhead
-when used.  This patch attempts to mitigate some of that overhead by caching
-the NetLabel security attribute struct within the SELinux socket security
-structure.  This should help eliminate the need to recreate the NetLabel
-secattr structure for each packet resulting in less overhead.
+Currently when SELinux fails to allocate memory in
+security_netlbl_sid_to_secattr() the NetLabel LSM domain field is set to
+NULL which triggers the default NetLabel LSM domain mapping which may not
+always be the desired mapping.  This patch fixes this by returning an error
+when the kernel is unable to allocate memory.  This could result in more
+failures on a system with heavy memory pressure but it is the "correct"
+thing to do.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
 
- security/selinux/hooks.c            |    1 
- security/selinux/include/netlabel.h |    7 ++
- security/selinux/include/objsec.h   |    7 +-
- security/selinux/netlabel.c         |   99 ++++++++++++++++++++++++++---------
- 4 files changed, 85 insertions(+), 29 deletions(-)
+ security/selinux/ss/services.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 11f1983..c652323 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -291,6 +291,7 @@ static void sk_free_security(struct sock *sk)
- 	struct sk_security_struct *ssec = sk->sk_security;
- 
- 	sk->sk_security = NULL;
-+	selinux_netlbl_sk_security_free(ssec);
- 	kfree(ssec);
- }
- 
-diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
-index 1f7cf39..ddec333 100644
---- a/security/selinux/include/netlabel.h
-+++ b/security/selinux/include/netlabel.h
-@@ -41,6 +41,7 @@ void selinux_netlbl_cache_invalidate(void);
- 
- void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway);
- 
-+void selinux_netlbl_sk_security_free(struct sk_security_struct *ssec);
- void selinux_netlbl_sk_security_reset(struct sk_security_struct *ssec,
- 				      int family);
- 
-@@ -77,6 +78,12 @@ static inline void void selinux_netlbl_err(struct sk_buff *skb,
- 	return;
- }
- 
-+static inline void selinux_netlbl_sk_security_free(
-+					       struct sk_security_struct *ssec)
-+{
-+	return;
-+}
-+
- static inline void selinux_netlbl_sk_security_reset(
- 					       struct sk_security_struct *ssec,
- 					       int family)
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 46fd1a4..5c9271a 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -109,9 +109,6 @@ struct netport_security_struct {
- };
- 
- struct sk_security_struct {
--	u32 sid;			/* SID of this object */
--	u32 peer_sid;			/* SID of peer */
--	u16 sclass;			/* sock security class */
- #ifdef CONFIG_NETLABEL
- 	enum {				/* NetLabel state */
- 		NLBL_UNSET = 0,
-@@ -120,7 +117,11 @@ struct sk_security_struct {
- 		NLBL_REQSKB,
- 		NLBL_CONNLABELED
- 	} nlbl_state;
-+	struct netlbl_lsm_secattr *nlbl_secattr; /* NetLabel sec attributes */
- #endif
-+	u32 sid;			/* SID of this object */
-+	u32 peer_sid;			/* SID of peer */
-+	u16 sclass;			/* sock security class */
- };
- 
- struct key_security_struct {
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 36c0e1a..0ea03b0 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -64,6 +64,40 @@ static int selinux_netlbl_sidlookup_cached(struct sk_buff *skb,
- }
- 
- /**
-+ * selinux_netlbl_sock_genattr - Generate the NetLabel socket secattr
-+ * @sk: the socket
-+ * @sid: the socket's SID
-+ *
-+ * Description:
-+ * Generate the NetLabel security attributes for a socket, making full use of
-+ * the socket's attribute cache.  Returns a pointer to the security attributes
-+ * on success, negative values on failure.
-+ *
-+ */
-+static struct netlbl_lsm_secattr *selinux_netlbl_sock_genattr(struct sock *sk,
-+							      u32 sid)
-+{
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index b52f923..5b7ecc1 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2788,7 +2788,7 @@ netlbl_secattr_to_sid_return_cleanup:
+  */
+ int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
+ {
+-	int rc = -ENOENT;
 +	int rc;
-+	struct sk_security_struct *sksec = sk->sk_security;
-+	struct netlbl_lsm_secattr *secattr;
-+
-+	if (sksec->nlbl_secattr != NULL)
-+		return sksec->nlbl_secattr;
-+
-+	secattr = netlbl_secattr_alloc(GFP_ATOMIC);
-+	if (secattr == NULL)
-+		return NULL;
-+	rc = security_netlbl_sid_to_secattr(sid, secattr);
-+	if (rc != 0) {
-+		netlbl_secattr_free(secattr);
-+		return NULL;
+ 	struct context *ctx;
+ 
+ 	if (!ss_initialized)
+@@ -2796,10 +2796,16 @@ int security_netlbl_sid_to_secattr(u32 sid, struct netlbl_lsm_secattr *secattr)
+ 
+ 	read_lock(&policy_rwlock);
+ 	ctx = sidtab_search(&sidtab, sid);
+-	if (ctx == NULL)
++	if (ctx == NULL) {
++		rc = -ENOENT;
+ 		goto netlbl_sid_to_secattr_failure;
 +	}
-+	sksec->nlbl_secattr = secattr;
-+
-+	return secattr;
-+}
-+
-+/**
-  * selinux_netlbl_sock_setsid - Label a socket using the NetLabel mechanism
-  * @sk: the socket to label
-  * @sid: the SID to use
-@@ -77,14 +111,13 @@ static int selinux_netlbl_sock_setsid(struct sock *sk, u32 sid)
- {
- 	int rc;
- 	struct sk_security_struct *sksec = sk->sk_security;
--	struct netlbl_lsm_secattr secattr;
-+	struct netlbl_lsm_secattr *secattr;
- 
--	netlbl_secattr_init(&secattr);
-+	secattr = selinux_netlbl_sock_genattr(sk, sid);
-+	if (secattr == NULL)
-+		return -ENOMEM;
- 
--	rc = security_netlbl_sid_to_secattr(sid, &secattr);
--	if (rc != 0)
--		goto sock_setsid_return;
--	rc = netlbl_sock_setattr(sk, &secattr);
-+	rc = netlbl_sock_setattr(sk, secattr);
- 	switch (rc) {
- 	case 0:
- 		sksec->nlbl_state = NLBL_LABELED;
-@@ -95,8 +128,6 @@ static int selinux_netlbl_sock_setsid(struct sock *sk, u32 sid)
- 		break;
- 	}
- 
--sock_setsid_return:
--	netlbl_secattr_destroy(&secattr);
- 	return rc;
- }
- 
-@@ -115,7 +146,7 @@ int selinux_netlbl_conn_setsid(struct sock *sk,
- {
- 	int rc;
- 	struct sk_security_struct *sksec = sk->sk_security;
--	struct netlbl_lsm_secattr secattr;
-+	struct netlbl_lsm_secattr *secattr;
- 
- 	if (sksec->nlbl_state != NLBL_REQSKB ||
- 	    sksec->nlbl_state != NLBL_CONNLABELED)
-@@ -130,18 +161,14 @@ int selinux_netlbl_conn_setsid(struct sock *sk,
- 		return 0;
- 	}
- 
--	netlbl_secattr_init(&secattr);
-+	secattr = selinux_netlbl_sock_genattr(sk, sksec->sid);
-+	if (secattr == NULL)
-+		return -ENOMEM;
- 
--	rc = security_netlbl_sid_to_secattr(sksec->sid, &secattr);
--	if (rc != 0)
--		goto conn_setsid_return;
--	rc = netlbl_conn_setattr(sk, addr, &secattr);
--	if (rc != 0)
--		goto conn_setsid_return;
--	sksec->nlbl_state = NLBL_CONNLABELED;
-+	rc = netlbl_conn_setattr(sk, addr, secattr);
-+	if (rc == 0)
-+		sksec->nlbl_state = NLBL_CONNLABELED;
- 
--conn_setsid_return:
--	netlbl_secattr_destroy(&secattr);
- 	return rc;
- }
- 
-@@ -176,6 +203,20 @@ void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway)
- }
- 
- /**
-+ * selinux_netlbl_sk_security_free - Free the NetLabel fields
-+ * @sssec: the sk_security_struct
-+ *
-+ * Description:
-+ * Free all of the memory in the NetLabel fields of a sk_security_struct.
-+ *
-+ */
-+void selinux_netlbl_sk_security_free(struct sk_security_struct *ssec)
-+{
-+	if (ssec->nlbl_secattr != NULL)
-+		netlbl_secattr_free(ssec->nlbl_secattr);
-+}
-+
-+/**
-  * selinux_netlbl_sk_security_reset - Reset the NetLabel fields
-  * @ssec: the sk_security_struct
-  * @family: the socket family
-@@ -248,7 +289,8 @@ int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
- 				 u32 sid)
- {
- 	int rc;
--	struct netlbl_lsm_secattr secattr;
-+	struct netlbl_lsm_secattr secattr_storage;
-+	struct netlbl_lsm_secattr *secattr = NULL;
- 	struct sock *sk;
- 
- 	/* if this is a locally generated packet check to see if it is already
-@@ -258,16 +300,21 @@ int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
- 		struct sk_security_struct *sksec = sk->sk_security;
- 		if (sksec->nlbl_state != NLBL_REQSKB)
- 			return 0;
-+		secattr = sksec->nlbl_secattr;
+ 	secattr->domain = kstrdup(policydb.p_type_val_to_name[ctx->type - 1],
+ 				  GFP_ATOMIC);
++	if (secattr->domain == NULL) {
++		rc = -ENOMEM;
++		goto netlbl_sid_to_secattr_failure;
 +	}
-+	if (secattr == NULL) {
-+		secattr = &secattr_storage;
-+		netlbl_secattr_init(secattr);
-+		rc = security_netlbl_sid_to_secattr(sid, secattr);
-+		if (rc != 0)
-+			goto skbuff_setsid_return;
- 	}
- 
--	netlbl_secattr_init(&secattr);
--	rc = security_netlbl_sid_to_secattr(sid, &secattr);
--	if (rc != 0)
--		goto skbuff_setsid_return;
--	rc = netlbl_skbuff_setattr(skb, family, &secattr);
-+	rc = netlbl_skbuff_setattr(skb, family, secattr);
- 
- skbuff_setsid_return:
--	netlbl_secattr_destroy(&secattr);
-+	if (secattr == &secattr_storage)
-+		netlbl_secattr_destroy(secattr);
- 	return rc;
- }
- 
+ 	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY;
+ 	mls_export_netlbl_lvl(ctx, secattr);
+ 	rc = mls_export_netlbl_cat(ctx, secattr);
 
 
 --
