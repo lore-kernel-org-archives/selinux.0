@@ -1,74 +1,41 @@
-Subject: [PATCH -v2] SELinux: memory leak in security_context_to_sid_core
-From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
-In-Reply-To: <1220447095.6034.38.camel@moss-spartans.epoch.ncsc.mil>
-References: <1220390111.2962.19.camel@localhost.localdomain>
-	 <1220444041.6034.1.camel@moss-spartans.epoch.ncsc.mil>
-	 <alpine.LRH.1.10.0809032245380.21379@tundra.namei.org>
-	 <1220447095.6034.38.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 03 Sep 2008 09:58:16 -0400
-Message-Id: <1220450296.2962.43.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m83E6BjN019223
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 10:06:12 -0400
+Received: from g5t0008.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m83E5ZFh003228
+	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 14:05:35 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [RFC PATCH v4 00/14] Labeled networking patches for 2.6.28
+Date: Wed, 3 Sep 2008 10:05:59 -0400
+References: <20080903003647.15669.45349.stgit@flek.lan>
+In-Reply-To: <20080903003647.15669.45349.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200809031005.59102.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fix a bug and a philosophical decision about who handles errors.
+On Tuesday 02 September 2008 8:48:41 pm Paul Moore wrote:
+> Since I'm reasonable certain there are no really nasty regressions,
+> I've added sign-offs to all the patches now.  I expect there will
+> probably be another spin or two to take care of bugs yet to be found
+> and fix other various things that pop-up (maybe even the Smack stuff
+> if I can find the time) but the patches are in reasonably good shape
+> right now.  I also did a test merge/compile with the September 2nd
+> linux-next tree and there were no nasty surprises so I'm also pushing
+> these patches to my lblnet-2.6_next tree which means you should see
+> them in tomorrow's linux-next tree if all goes well.
 
-security_context_to_sid_core() was leaking a context in the common case.
-This was causing problems on fedora systems which recently have started
-making extensive use of this function.
+Just an FYI, it looks like I may have missed the cut for the September 
+3rd linux-next tree.  The patches should be in there for tomorrow's 
+tree.
 
-In discussion it was decided that if string_to_context_struct() had an
-error it was its own responsibility to clean up any mess it created
-along the way.  Remember that it is perfectly safe to call
-context_destroy() on the same context twice and so this will not
-introduce any double frees or cause issues with the other change.
-
-Signed-off-by: Eric Paris <eparis@redhat.com>
-
----
-
-Note that the last version was safe, didn't break anything, and fixed
-the problem.  This one is just cleaner and makes the choice to not force
-callers to handle errors.
-
- security/selinux/ss/services.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index b52f923..736a066 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -811,11 +811,12 @@ static int string_to_context_struct(struct policydb *pol,
- 	/* Check the validity of the new context. */
- 	if (!policydb_context_isvalid(pol, ctx)) {
- 		rc = -EINVAL;
--		context_destroy(ctx);
- 		goto out;
- 	}
- 	rc = 0;
- out:
-+	if (rc)
-+		context_destroy(ctx);
- 	return rc;
- }
- 
-@@ -868,10 +869,9 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
- 	} else if (rc)
- 		goto out;
- 	rc = sidtab_context_to_sid(&sidtab, &context, sid);
--	if (rc)
--		context_destroy(&context);
- out:
- 	read_unlock(&policy_rwlock);
-+	context_destroy(&context);
- 	kfree(scontext2);
- 	kfree(str);
- 	return rc;
-
-
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
