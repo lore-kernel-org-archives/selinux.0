@@ -1,49 +1,57 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m84BiS0p010109
-	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 07:44:28 -0400
-Received: from g1t0027.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m84BiSPx026971
-	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 11:44:28 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [RFC PATCH v4 00/14] Labeled networking patches for 2.6.28
-Date: Thu, 4 Sep 2008 07:44:24 -0400
-References: <20080903003647.15669.45349.stgit@flek.lan> <200809031005.59102.paul.moore@hp.com>
-In-Reply-To: <200809031005.59102.paul.moore@hp.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m84D78Cj029342
+	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 09:07:08 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m84D77k3021475
+	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 13:07:08 GMT
+Message-ID: <48BFDD4C.50105@redhat.com>
+Date: Thu, 04 Sep 2008 09:06:20 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200809040744.24717.paul.moore@hp.com>
+To: Robert Story <rstory@sparta.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: setroubleshoot problems with MLS policy in enforcing mode
+References: <20080827155839.08c93565@sparta.com>
+In-Reply-To: <20080827155839.08c93565@sparta.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 03 September 2008 10:05:59 am Paul Moore wrote:
-> On Tuesday 02 September 2008 8:48:41 pm Paul Moore wrote:
-> > Since I'm reasonable certain there are no really nasty regressions,
-> > I've added sign-offs to all the patches now.  I expect there will
-> > probably be another spin or two to take care of bugs yet to be
-> > found and fix other various things that pop-up (maybe even the
-> > Smack stuff if I can find the time) but the patches are in
-> > reasonably good shape right now.  I also did a test merge/compile
-> > with the September 2nd linux-next tree and there were no nasty
-> > surprises so I'm also pushing these patches to my lblnet-2.6_next
-> > tree which means you should see them in tomorrow's linux-next tree
-> > if all goes well.
->
-> Just an FYI, it looks like I may have missed the cut for the
-> September 3rd linux-next tree.  The patches should be in there for
-> tomorrow's tree.
+Robert Story wrote:
+> Hi,
+> 
+> I'm having some issues with enforcing mode for the MLS policy. I've
+> been able to get around a few issues by simply feeding avcs through
+> audit2allow, but this is and MLS range issue, so I think something else
+> is needed...  Here is the AVC
+> 
+> type=AVC msg=audit(1219865658.259:224923): avc:  denied  { write } for  pid=1332 comm="audispd" path="socket:[7463]" dev=sockfs ino=7463 scontext=system_u:system_r:audisp_t:s15:c0.c1023 tcontext=system_u:system_r:audisp_t:s0-s15:c0.c1023 tclass=unix_stream_socket
+> 
+> This message is repeated quite frequently, driving the load up and
+> filling the log file. The audispd processing is running at SystemHigh,
+> and I haven't found a way to kill it without dropping to permissive
+> mode. (Any suggestions on that appreciated as well.. "newrole -r
+> sysadm_t; newrole -l s15; kill 1332" didn't work..)
+> 
+> I'm wondering if audisp/setroubleshoot are needed for auditing to work,
+> or if they are helps for X applications, in which case they aren't
+> needed at all, since X doesn't run in MLS enforcing.
+> 
+> 
+They are not needed for auditing to work.  I am not sure setroubleshoot
+would even be legal in an MLS environment since it could leak sensitive
+information.
 
-... another quick update, I just verified that the patches are included 
-in the September 4th linux-next tree so if you are feeling particularly 
-adventurous you can try testing that tree as well (be warned, it will 
-likely be much less stable than the lblnet-2.6_testing tree due to the 
-high degree of flux).
+If you add a module with
 
--- 
-paul moore
-linux @ hp
+policy_module(myaudit, 1.0)
+gen_require(`
+	type audisp_t;
+')
+
+mls_socket_write_all_levels(audisp_t)
+
+Does this solve the problem?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
