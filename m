@@ -1,74 +1,109 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m84IrlvJ019349
-	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 14:53:47 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m84Irk7d012974
-	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 18:53:47 GMT
-Message-ID: <48C02EB4.2080004@redhat.com>
-Date: Thu, 04 Sep 2008 14:53:40 -0400
+Message-ID: <48C03421.2040406@redhat.com>
+Date: Thu, 04 Sep 2008 15:16:49 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: SELinux Mailing List <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH][gnome.if]: bad gen_require type
-References: <cadfc0e40809040809v43b12641n4a3556f1a53c384e@mail.gmail.com>	 <48C01A74.3070204@redhat.com> <cadfc0e40809041129r7f5e084cme61ad2ad3c38a689@mail.gmail.com>
-In-Reply-To: <cadfc0e40809041129r7f5e084cme61ad2ad3c38a689@mail.gmail.com>
+To: Joshua Brindle <method@manicmethod.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Ivan Gyurdiev <ivg231@gmail.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: libsemage patch to not compile modules for seusers and fcontext
+References: <48A48B8C.3070908@redhat.com>	 <1219412317.18600.60.camel@moss-spartans.epoch.ncsc.mil>	 <48B41D0E.6060509@redhat.com>  <48B4B348.2080801@gmail.com> <1219838648.5708.10.camel@moss-spartans.epoch.ncsc.mil> <48B5D8D4.8010502@tresys.com> <48BFFBD7.9070806@manicmethod.com>
+In-Reply-To: <48BFFBD7.9070806@manicmethod.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Xavier Toth wrote:
-> On Thu, Sep 4, 2008 at 12:27 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
->> Xavier Toth wrote:
->>> When I attempted to use this interface I got the follow error:
->>> /usr/bin/checkmodule:  loading policy configuration from tmp/ml-launch.tmp
->>> ml-launch.te":72:ERROR 'unknown type user_gconf_tmp_t' at token ';' on
->>> line 5970:
->>>       allow ml_launch_t user_gconf_tmp_t:dir { getattr search };
+Joshua Brindle wrote:
+> Joshua Brindle wrote:
+>> Stephen Smalley wrote:
+>>> On Tue, 2008-08-26 at 21:52 -0400, Ivan Gyurdiev wrote:
+>>>>>> I'm a little unclear on what this is doing - can you clarify?
+>>>>>>     
+>>>>> This is clearing the existing seusers.final file, otherwise delete was
+>>>>> not working.
+>>>>>   
+>>>> I think the previous code was doing more - it was merging the local file 
+>>>> with the shipped base package file, like this:
+>>>>
+>>>>     data = extract_file_from_policy_package( )
+>>>>     write_file ( "seusers.final", data )
+>>>>     if ( data != null ) {
+>>>>         seusers.clear_cache()  // thereby forcing reload from 
+>>>> seusers.final when cache() is called again (in merge_components)
+>>>>     } else {
+>>>>         seusers.clear()
+>>>>     }
+>>>>
+>>>> It's also doing this three times (once for fcontexts, once for seusers, 
+>>>> once for seusers_extra).
+>>>> The problem is that you're skipping the link_sandbox call, which builds 
+>>>> the base package, containing this information.
+>>> We're trying to avoid the overhead of re-linking the policy when we are
+>>> only modifying non-policy components like seusers and fcontexts.
+>>> fcontexts.local is split out to a separate file for precedence reasons
+>>> so it doesn't get merged anymore.  I don't think Dan actually uses
+>>> seusers in the base policy for anything at present, but others may be.
 >>>
->>> --- serefpolicy-3.5.4/policy/modules/apps/gnome.if    2008-08-28
->>> 17:36:53.000000000 -0500
->>> +++ serefpolicy-3.5.4.new/policy/modules/apps/gnome.if        2008-08-28
->>> 17:35:59.000000000 -0500
->>> @@ -125,7 +125,7 @@
->>>  #
->>>  template(`gnome_stream_connect_gconf_template',`
->>>       gen_require(`
->>> -             type $1_gconfd_t, gconf_tmp_t;
->>> +             type $1_gconfd_t, $1_gconf_tmp_t;
->>>       ')
->>>
->>>       read_files_pattern($2, $1_gconf_tmp_t, $1_gconf_tmp_t)
->>>
->>> --
->>> This message was distributed to subscribers of the selinux mailing list.
->>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->>> the words "unsubscribe selinux" without quotes as the message.
->> In Rawhide it should be, since we don't types based on role.
+>> Verified. The seusers coming from the policy are not merged into the seusers.final with this patchset. 
 >>
->>  #
->>  template(`gnome_stream_connect_gconf_template',`
->>        gen_require(`
->>                type $1_gconfd_t, gconf_tmp_t;
->>        ')
->>        read_files_pattern($2, gconf_tmp_t, gconf_tmp_t)
+>> It appears that at present in sepol_link_packages() there is no merging of seusers from each module so we only support seusers in base presently. Therefore we don't have to worry about getting the seusers from all the modules but we do need to grab them out of the base module and combine them in.
 >>
 > 
-> I just got 3.5.6 from koji and which contains:
-> 
-> template(`gnome_stream_connect_gconf_template',`
->         gen_require(`
->                 type $1_gconfd_t, gconf_tmp_t;
->         ')
-> 
->         read_files_pattern($2, $1_gconf_tmp_t, $1_gconf_tmp_t)
->         allow $2 $1_gconfd_t:unix_stream_socket connectto;
-> ')
-> 
-> and not what your email indicated it should be for the read_files_pattern.
-> 
-> Ted
-Patience 3.5.6-2 will have tonight.
+> Ping on this, were you able to reproduce this Dan? I'd like to get this patch in before we do a toolchain release (which is soonish).
+
+Testing results. On my rawhide system.
+
+
+NOTE: Rebuild policy old fashioned way
+# rpm -Uhv --force
+/home/dwalsh/sources/RPMS/noarch/selinux-policy*3.5.6-2.fc10.noarch.rpm
+Preparing...                ###########################################
+[100%]
+   1:selinux-policy         ###########################################
+[ 50%]
+   2:selinux-policy-targeted###########################################
+[100%]
+
+
+# grep root /etc/selinux/targeted/seusers
+/etc/selinux/targeted/modules/active/seusers
+/etc/selinux/targeted/modules/active/seusers.final
+/etc/selinux/targeted/seusers:root:unconfined_u:s0-s0:c0.c1023
+/etc/selinux/targeted/modules/active/seusers:root:unconfined_u:s0-s0:c0.c1023
+/etc/selinux/targeted/modules/active/seusers.final:root:unconfined_u:s0-s0:c0.c1023
+
+Note all three seusers files reference root.
+
+# semanage login -d root
+NOTE: Command did not fail.  This command is actually deleting the
+customization of root to use unconfined_u.
+
+# grep root /etc/selinux/targeted/seusers \
+/etc/selinux/targeted/modules/active/seusers \
+/etc/selinux/targeted/modules/active/seusers.final
+/etc/selinux/targeted/seusers:root:root:s0-s0:c0.c1023
+/etc/selinux/targeted/modules/active/seusers.final:root:root:s0-s0:c0.c1023
+
+NOTE root entry is still in
+/etc/selinux/targeted/modules/active/seusers.final and
+/etc/selinux/targeted/seusers
+But it is using SELinux User "root" now which is the default in the base
+package.
+
+# semanage login -l | grep root
+root                      root                      s0-s0:c0.c1023
+
+NOTE semanage and getseuserbyname still have root entry
+
+# semanage login -d root
+/usr/sbin/semanage: Login mapping for root is defined in policy, cannot
+be deleted
+
+NOTE If I try to delete root a second time, it gives me an error because
+now there is no local customization.
+
+So the patch does not leave us in a bad state even if the user tries to
+do something evil.  But it is not perfect, the same command acts
+differently depending on local customization.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
