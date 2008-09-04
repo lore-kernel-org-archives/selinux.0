@@ -1,65 +1,77 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m84I9Dgc006888
-	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 14:09:13 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m84I8Zmp009451
-	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 18:08:36 GMT
-Message-ID: <48C02447.9030507@manicmethod.com>
-Date: Thu, 04 Sep 2008 14:09:11 -0400
-From: Joshua Brindle <method@manicmethod.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m84ITUCW011055
+	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 14:29:30 -0400
+Received: from yx-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m84ISrmp015729
+	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 18:28:53 GMT
+Received: by yx-out-1718.google.com with SMTP id 3so46541yxi.84
+        for <selinux@tycho.nsa.gov>; Thu, 04 Sep 2008 11:29:30 -0700 (PDT)
+Message-ID: <cadfc0e40809041129r7f5e084cme61ad2ad3c38a689@mail.gmail.com>
+Date: Thu, 4 Sep 2008 13:29:30 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>
+Subject: Re: [PATCH][gnome.if]: bad gen_require type
+Cc: "SELinux Mailing List" <selinux@tycho.nsa.gov>
+In-Reply-To: <48C01A74.3070204@redhat.com>
 MIME-Version: 1.0
-To: Vikram Noel Ambrose <noel.ambrose@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH][autotools] libselinux/load_policy.o compile error
-References: <48BF58E7.4030806@gmail.com> <48BFFFC6.6090100@manicmethod.com> <48C011FD.8080603@gmail.com>
-In-Reply-To: <48C011FD.8080603@gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
+References: <cadfc0e40809040809v43b12641n4a3556f1a53c384e@mail.gmail.com>
+	 <48C01A74.3070204@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Vikram Noel Ambrose wrote:
-> Joshua Brindle wrote:
->> Vikram Noel Ambrose wrote:
->>  
->>> Here's the fix to that libselinux ld error you were getting.
->>>
->>>     
+On Thu, Sep 4, 2008 at 12:27 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> Xavier Toth wrote:
+>> When I attempted to use this interface I got the follow error:
+>> /usr/bin/checkmodule:  loading policy configuration from tmp/ml-launch.tmp
+>> ml-launch.te":72:ERROR 'unknown type user_gconf_tmp_t' at token ';' on
+>> line 5970:
+>>       allow ml_launch_t user_gconf_tmp_t:dir { getattr search };
 >>
->> Ok, applied and built fine. One interesting thing is that even without
->> building the swig wrappers (--disable-swig) it still installs
->> lib/python2.5/site-packages/selinux, which obviously wouldn't work
->> without the accompanying .so file.
+>> --- serefpolicy-3.5.4/policy/modules/apps/gnome.if    2008-08-28
+>> 17:36:53.000000000 -0500
+>> +++ serefpolicy-3.5.4.new/policy/modules/apps/gnome.if        2008-08-28
+>> 17:35:59.000000000 -0500
+>> @@ -125,7 +125,7 @@
+>>  #
+>>  template(`gnome_stream_connect_gconf_template',`
+>>       gen_require(`
+>> -             type $1_gconfd_t, gconf_tmp_t;
+>> +             type $1_gconfd_t, $1_gconf_tmp_t;
+>>       ')
 >>
->>   
-> 
-> I'll have a look at that, thanks.
-> 
->> Also, it looks like any library that installs to /lib will also put
->> their python stuff in /lib/python2.5. I don't know if python even
->> knows to look there, and even if it does there is really no reason to
->> put them there. libselinux.so and libsepol.so will need to go to /lib
->> but the python stuff should go to /usr/lib and I don't see a different
->> argument for the python stuff (only --libdir).
+>>       read_files_pattern($2, $1_gconf_tmp_t, $1_gconf_tmp_t)
 >>
+>> --
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
+>
+> In Rawhide it should be, since we don't types based on role.
+>
+>  #
+>  template(`gnome_stream_connect_gconf_template',`
+>        gen_require(`
+>                type $1_gconfd_t, gconf_tmp_t;
+>        ')
 >>
->>   
-> Here you are referring to libpy*.so? if so then, Yes, python does know
-> to look for it in its site-packages/$pkg/ folder.
-> 
+>        read_files_pattern($2, gconf_tmp_t, gconf_tmp_t)
+>
 
-I know that, I mean no python .so files or .py files are put in /lib/python2.5, they are all put in /usr/lib/python2.5. However, since libselinux.so and libsepol.so (the real libs) have to be in /lib/ there is no way to tell configure to split those up (since they both use libdir)
+I just got 3.5.6 from koji and which contains:
 
-> 
-> And in regards to the AUTHORS file, it obviously would be in source
-> control and as the persons in question patch the tree, they could
-> obviously patch the file with their names as well, its not set in stone
-> or anything.
-> 
-> 
-> Vikram
-> 
-> 
+template(`gnome_stream_connect_gconf_template',`
+        gen_require(`
+                type $1_gconfd_t, gconf_tmp_t;
+        ')
 
+        read_files_pattern($2, $1_gconf_tmp_t, $1_gconf_tmp_t)
+        allow $2 $1_gconfd_t:unix_stream_socket connectto;
+')
+
+and not what your email indicated it should be for the read_files_pattern.
+
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
