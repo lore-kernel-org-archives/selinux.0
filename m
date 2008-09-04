@@ -1,37 +1,51 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m843bBRv011005
-	for <selinux@tycho.nsa.gov>; Wed, 3 Sep 2008 23:37:11 -0400
-Received: from py-out-1112.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m843aYNY001570
-	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 03:36:34 GMT
-Received: by py-out-1112.google.com with SMTP id a78so1816253pyh.32
-        for <selinux@tycho.nsa.gov>; Wed, 03 Sep 2008 20:37:10 -0700 (PDT)
-Message-ID: <48BF58E7.4030806@gmail.com>
-Date: Wed, 03 Sep 2008 23:41:27 -0400
-From: Vikram Noel Ambrose <noel.ambrose@gmail.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m84BiS0p010109
+	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 07:44:28 -0400
+Received: from g1t0027.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m84BiSPx026971
+	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 11:44:28 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: Re: [RFC PATCH v4 00/14] Labeled networking patches for 2.6.28
+Date: Thu, 4 Sep 2008 07:44:24 -0400
+References: <20080903003647.15669.45349.stgit@flek.lan> <200809031005.59102.paul.moore@hp.com>
+In-Reply-To: <200809031005.59102.paul.moore@hp.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <method@manicmethod.com>
-Subject: [PATCH][autotools] libselinux/load_policy.o compile error
-Content-Type: multipart/mixed;
- boundary="------------040601070000060708060608"
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200809040744.24717.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------040601070000060708060608
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wednesday 03 September 2008 10:05:59 am Paul Moore wrote:
+> On Tuesday 02 September 2008 8:48:41 pm Paul Moore wrote:
+> > Since I'm reasonable certain there are no really nasty regressions,
+> > I've added sign-offs to all the patches now.  I expect there will
+> > probably be another spin or two to take care of bugs yet to be
+> > found and fix other various things that pop-up (maybe even the
+> > Smack stuff if I can find the time) but the patches are in
+> > reasonably good shape right now.  I also did a test merge/compile
+> > with the September 2nd linux-next tree and there were no nasty
+> > surprises so I'm also pushing these patches to my lblnet-2.6_next
+> > tree which means you should see them in tomorrow's linux-next tree
+> > if all goes well.
+>
+> Just an FYI, it looks like I may have missed the cut for the
+> September 3rd linux-next tree.  The patches should be in there for
+> tomorrow's tree.
 
-Here's the fix to that libselinux ld error you were getting.
+... another quick update, I just verified that the patches are included 
+in the September 4th linux-next tree so if you are feeling particularly 
+adventurous you can try testing that tree as well (be warned, it will 
+likely be much less stable than the lblnet-2.6_testing tree due to the 
+high degree of flux).
 
-Vikram
+-- 
+paul moore
+linux @ hp
 
---------------040601070000060708060608
-Content-Type: text/plain;
- name="0001-Fixes-build-error-reported-by-Joshua-Brindle.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename*0="0001-Fixes-build-error-reported-by-Joshua-Brindle.patch"
-
-
---------------040601070000060708060608--
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
