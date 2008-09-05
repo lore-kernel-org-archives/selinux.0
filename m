@@ -1,42 +1,40 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m859CnsD025091
-	for <selinux@tycho.nsa.gov>; Fri, 5 Sep 2008 05:12:49 -0400
-Received: from tundra.namei.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m859Cmfb004307
-	for <selinux@tycho.nsa.gov>; Fri, 5 Sep 2008 09:12:49 GMT
-Date: Fri, 5 Sep 2008 19:12:47 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: Re: [RFC PATCH v4 12/14] netlabel: Changes to the NetLabel security
- attributes to allow LSMs to pass full contexts
-In-Reply-To: <20080903005013.15669.42041.stgit@flek.lan>
-Message-ID: <alpine.LRH.1.10.0809051912350.2526@tundra.namei.org>
-References: <20080903003647.15669.45349.stgit@flek.lan> <20080903005013.15669.42041.stgit@flek.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: user guide draft: "Targeted Policy" review
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Murray McAllister <mmcallis@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <48C0CBF9.4090008@redhat.com>
+References: <48BE3FB4.8020003@redhat.com>
+	 <1220447961.6034.54.camel@moss-spartans.epoch.ncsc.mil>
+	 <48C0CBF9.4090008@redhat.com>
+Content-Type: text/plain
+Date: Fri, 05 Sep 2008 07:28:55 -0400
+Message-Id: <1220614135.17197.280.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2 Sep 2008, Paul Moore wrote:
 
-> This patch provides support for including the LSM's secid in addition to
-> the LSM's MLS information in the NetLabel security attributes structure.
+On Fri, 2008-09-05 at 16:04 +1000, Murray McAllister wrote:
 > 
-> Signed-off-by: Paul Moore <paul.moore@hp.com>
-> ---
+> I have moved this part to the "Unconfined Subjects" section. How about:
 > 
->  include/net/netlabel.h         |    2 +-
->  security/selinux/ss/services.c |    3 ++-
->  2 files changed, 3 insertions(+), 2 deletions(-)
+> Unconfined subjects run in the unconfined_t domain. For subjects running 
+> in this domain, SELinux policy rules are applied, but policy rules exist 
+> that allow subjects running in this domain almost all access. Subjects 
+> running in this domain almost always fall back to using DAC rules 
+> exclusively. When an unconfined subject is comprised, SELinux does not 
 
-Acked-by: James Morris <jmorris@namei.org>
+s/comprised/compromised/
 
+> prevent the attacker from gaining access to system resources and data, 
+> and only DAC rules are used.
+
+Otherwise, sounds fine.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
