@@ -1,82 +1,115 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m852qbL2026178
-	for <selinux@tycho.nsa.gov>; Thu, 4 Sep 2008 22:52:37 -0400
-Received: from py-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m852qaK8026622
-	for <selinux@tycho.nsa.gov>; Fri, 5 Sep 2008 02:52:37 GMT
-Received: by py-out-1112.google.com with SMTP id a78so186635pyh.32
-        for <selinux@tycho.nsa.gov>; Thu, 04 Sep 2008 19:52:36 -0700 (PDT)
-Message-ID: <48C09EF0.10109@gmail.com>
-Date: Thu, 04 Sep 2008 22:52:32 -0400
-From: Ivan Gyurdiev <ivg231@gmail.com>
+Message-ID: <48C0C7C3.3050304@redhat.com>
+Date: Fri, 05 Sep 2008 15:46:43 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Joshua Brindle <method@manicmethod.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: libsemage patch to not compile modules for seusers and fcontext
-References: <48A48B8C.3070908@redhat.com>	 <1219412317.18600.60.camel@moss-spartans.epoch.ncsc.mil>	 <48B41D0E.6060509@redhat.com>  <48B4B348.2080801@gmail.com> <1219838648.5708.10.camel@moss-spartans.epoch.ncsc.mil> <48B5D8D4.8010502@tresys.com> <48BFFBD7.9070806@manicmethod.com> <48C03421.2040406@redhat.com>
-In-Reply-To: <48C03421.2040406@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide draft: "SELinux Contexts and Attributes" review
+References: <48B4FA3E.3000602@redhat.com>	 <1219844836.5708.92.camel@moss-spartans.epoch.ncsc.mil>	 <48BB93D2.8090909@redhat.com>  <48BCB564.4010404@redhat.com>	 <1220360985.26711.43.camel@moss-spartans.epoch.ncsc.mil>	 <48BE28D5.1080902@redhat.com> <1220446886.6034.33.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1220446886.6034.33.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Testing results. On my rawhide system.
->
->
-> NOTE: Rebuild policy old fashioned way
-> # rpm -Uhv --force
-> /home/dwalsh/sources/RPMS/noarch/selinux-policy*3.5.6-2.fc10.noarch.rpm
-> Preparing...                ###########################################
-> [100%]
->    1:selinux-policy         ###########################################
-> [ 50%]
->    2:selinux-policy-targeted###########################################
-> [100%]
->
->
-> # grep root /etc/selinux/targeted/seusers
-> /etc/selinux/targeted/modules/active/seusers
-> /etc/selinux/targeted/modules/active/seusers.final
-> /etc/selinux/targeted/seusers:root:unconfined_u:s0-s0:c0.c1023
-> /etc/selinux/targeted/modules/active/seusers:root:unconfined_u:s0-s0:c0.c1023
-> /etc/selinux/targeted/modules/active/seusers.final:root:unconfined_u:s0-s0:c0.c1023
->
-> Note all three seusers files reference root.
->
-> # semanage login -d root
-> NOTE: Command did not fail.  This command is actually deleting the
-> customization of root to use unconfined_u.
->
-> # grep root /etc/selinux/targeted/seusers \
-> /etc/selinux/targeted/modules/active/seusers \
-> /etc/selinux/targeted/modules/active/seusers.final
-> /etc/selinux/targeted/seusers:root:root:s0-s0:c0.c1023
-> /etc/selinux/targeted/modules/active/seusers.final:root:root:s0-s0:c0.c1023
->
-> NOTE root entry is still in
-> /etc/selinux/targeted/modules/active/seusers.final and
-> /etc/selinux/targeted/seusers
-> But it is using SELinux User "root" now which is the default in the base
-> package.
->   
-This is very strange, since it is really not supposed to do that - how 
-does it get the "root:root:s0-s0:c0.c1023" out of the base package 
-without going through here ?
-Is it still going through the old code path somehow ?
+Stephen Smalley wrote:
+> On Wed, 2008-09-03 at 16:04 +1000, Murray McAllister wrote:
+>> How about:
+>>
+>> The level is an attribute of MLS and Multi-Category Security (MCS). The 
+>> first part of the level, s0-s0, is the sensitivity.
+> 
+> Actually, s0-s0 is a MLS range where the low level has sensitivity s0
+> and no categories and the high level has sensitivity s0 and no
+> categories.
+> 
+>>  The s0 sensitivity 
+>> is the only sensitivity used for MCS. Since the format of the level is 
+>> the same for MLS and MCS, and MLS supports ranges of sensitivities, a 
+>> sensitivity such as s0-s0 is the same as s0 when using MCS.
+> 
+> No, s0-s0 is always the same as just s0, regardless of MCS or MLS.  Just
+> like s1-s1 is the same as just s1.  Versus a non-trivial range like
+> s0-s1 or s0-s3.
+> 
+>>  Optionally, 
+>> the level can have a list of categories.
 
-                if (sepol_module_package_get_seusers_len(base)) {
-                        ofilename = semanage_path(SEMANAGE_TMP, 
-SEMANAGE_SEUSERS);
+I hope this is correct soon ;)
 
-There are other things to worry about, such as whether prefix 
-information (users_extra file) is correctly merged from the base package.
+The level is an attribute of MLS and Multi-Category Security (MCS). The 
+first part of the level, s0-s0, is an MLS range. This range has an 
+identical low-level and high-level sensitivity, s0, and no categories. A 
+range of s0-s0 is the same as s0. The s0 sensitivity is the only 
+sensitivity used by MCS, as MCS only enforces categories. Optionally, 
+each level in a range can have a list of categories. MCS in Fedora 10 
+supports 1024 different categories: c0 through to c1023. If a user is 
+not authorized for all of the categories of an object, and DAC and Type 
+Enforcement rules allow access, access is denied. For example, if a user 
+is only authorized for the c0 category, and an object is labeled with 
+the c0 and c1 categories, access is denied. If a user is authorized for 
+the c0 and c1 categories, and an object is only labeled with the c0 
+category, access is allowed. The /etc/selinux/targeted/setrans.conf file 
+is used to map levels (s0:c0) to human-readable form (CompanyConfidential).
 
-Ivan
+MLS allows ranges of sensitivities, not just s0. Both sensitivities and 
+categories are required when using MLS. MLS enforces the Bell-LaPadula 
+Mandatory Access Model, and is used in Labeled Security Protection 
+Profile (LSPP) environments. To use MLS restrictions, install the 
+selinux-policy-mls package, and configure MLS to be the default SELinux 
+policy. The MLS policy shipped with Fedora omits many program domains 
+that were not part of the evaluated configuration, and therefore, MLS on 
+a desktop workstation is unusable (no support for the X Window System); 
+however, an MLS policy from the upstream SELinux reference policy can be 
+built that includes all program domains.
 
+> 
+> Each level in the range can have a list of categories, so you can have:
+> 	s0:c0,c2-s3:c0,c1,c2
+> The only requirement is that the high level (s3:c0,c1,c2) must dominate
+> the low level (s0:c0,c2), i.e. s3 >= s0 and {c0, c1, c2} is a superset
+> of {c0, c2}.
+> 
+> Somewhere you should likely explain the notation:
+> sN represents a sensitivity with value N, where sN dominates sM if N >=
+> M.
+> cN represents category N, where a category set dominates another if it
+> is a superset of it.
+> The sN and cN values can then be mapped to human-readable labels using
+> setrans.conf.
+> 
+>>  Categories are used to 
+>> categorize data and add an extra level of security. Fedora 10 supports 
+>> 1024 different categories: c0 through to c1023. If a user is not 
+>> authorized for all of the categories of an object, and DAC and SELinux 
+>> rules allow access, access is denied.
+> 
+> That would be DAC and type enforcement rules.  SELinux rules include TE
+> rules, RBAC rules, and constraints (including MLS/MCS).
 
+changed.
 
-
+> 
+>>  For example, if a user is only 
+>> authorized for the c0 category, and an object is labeled with the c0 and 
+>> c1 categories, access is denied. If a user is authorized for the c0 and 
+>> c1 categories, and an object is only labeled with the c0 category, 
+>> access is allowed. Levels can be translated to an easier-to-read form, 
+>> such as CompanyConfidential.  For an example list of levels and their 
+>> translations, refer to the /etc/selinux/targeted/setrans.conf file.
+>>
+>> MLS allows ranges of sensitivities, not just s0. MLS enforces the 
+>> Bell-LaPadula Mandatory Access Model, and is used in Labeled Security 
+>> Protection Profile (LSPP) environments. To use MLS restrictions, install 
+>> the selinux-policy-mls package, and configure MLS to be the default 
+>> SELinux policy. The MLS policy shipped with Fedora omits many program 
+>> domains that were not part of the evaluated configuration, and 
+>> therefore, MLS on a desktop workstation is unusable (no support for the 
+>> X Window System); however, an MLS policy from the upstream SELinux 
+>> reference policy[1] can be built that includes all program domains.
+>>
+>> I left out details to try to limit mistakes...
+>>
+>> [1] http://oss.tresys.com/projects/refpolicy
 
 
 --
