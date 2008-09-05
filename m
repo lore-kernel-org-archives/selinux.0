@@ -1,269 +1,58 @@
-Message-ID: <48C140CB.7090108@redhat.com>
-Date: Fri, 05 Sep 2008 10:23:07 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m85Lwcuw022179
+	for <selinux@tycho.nsa.gov>; Fri, 5 Sep 2008 17:58:38 -0400
+Received: from g1t0029.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m85Lvxn6008880
+	for <selinux@tycho.nsa.gov>; Fri, 5 Sep 2008 21:58:00 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [RFC PATCH v4 02/14] selinux: Better local/forward check in selinux_ip_postroute()
+Date: Fri, 5 Sep 2008 17:58:35 -0400
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+References: <20080903003647.15669.45349.stgit@flek.lan> <20080903004854.15669.95990.stgit@flek.lan> <alpine.LRH.1.10.0809051851230.2526@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0809051851230.2526@tundra.namei.org>
 MIME-Version: 1.0
-To: Murray McAllister <mmcallis@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: user guide draft: "Targeted Policy" review
-References: <48BE3FB4.8020003@redhat.com> <1220447961.6034.54.camel@moss-spartans.epoch.ncsc.mil> <48C0CBF9.4090008@redhat.com>
-In-Reply-To: <48C0CBF9.4090008@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200809051758.35242.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Murray McAllister wrote:
-> Stephen Smalley wrote:
->> On Wed, 2008-09-03 at 17:41 +1000, Murray McAllister wrote:
->>> Hi,
->>>
->>> The following is a draft of the "Targeted Policy" sections for the
->>> SELinux User Guide. Any comments and corrections are appreciated.
->>>
->>> Thanks.
->>>
->>> Targeted Policy
->>>
->>> Targeted policy is the default SELinux policy used in Fedora 10. When
->>> using targeted policy, subjects that are targeted run in their own
->>> domain type, and subjects that are not targeted run in the
->>> unconfined_t domain type. When a subject runs in the unconfined_t
->>> domain type, SELinux rules do not apply, and only DAC rules are used.
->>
->> Not exactly true.  SELinux rules are always applied, but the
->> unconfined_t domain is allowed (almost) all permissions in the SELinux
->> policy/rules.
-> 
-> I have moved this part to the "Unconfined Subjects" section. How about:
-> 
-> Unconfined subjects run in the unconfined_t domain. For subjects running
-> in this domain, SELinux policy rules are applied, but policy rules exist
-> that allow subjects running in this domain almost all access. Subjects
-> running in this domain almost always fall back to using DAC rules
-> exclusively. When an unconfined subject is comprised, SELinux does not
-> prevent the attacker from gaining access to system resources and data,
-> and only DAC rules are used.
-> 
->>
->>> Confined Subjects
->>>
->>> A large number of subjects are protected, and are therefore confined
->>> by the SELinux targeted policy, including the Apache HTTP Server
->>> (httpd), Samba (samba), FTP (vsftpd), Kerberos (krb5-server), ISC
->>> BIND (bind and bind-chroot), NFS (nfs-utils), and NIS (ypserv). When
->>> a subject is confined, it runs in its own domain type, such as the
->>> httpd subject running in the httpd_t domain type. When a confined
->>> subject is compromised by an attacker, the damage an attacker can do
->>> and the data they can access is greatly limited.
->>
->> Greatly limited might be too strong as a general statement - it is
->> limited in accordance with the policy, and thus depends on how the
->> policy is configured.
-> 
-> How about:
-> 
-> When a confined subject is compromised by an attacker, depending on
-> SELinux policy configuration, the attacker's access is to resources and
-> the possible damage they can do is limited.
-> 
-If a confined ...
+On Friday 05 September 2008 4:51:46 am James Morris wrote:
+> On Tue, 2 Sep 2008, Paul Moore wrote:
+> > It turns out that checking to see if skb->sk is NULL is not a very
+> > good indicator of a forwarded packet as some locally generated
+> > packets also have skb->sk set to NULL.  Fix this by not only
+> > checking the skb->sk field but also the IP[6]CB(skb)->flags field
+> > for the IP[6]SKB_FORWARDED flag.
+> >
+> > Signed-off-by: Paul Moore <paul.moore@hp.com>
+> > ---
+> >
+> >  security/selinux/hooks.c |   36
+> > +++++++++++++++++++++++++++--------- 1 files changed, 27
+> > insertions(+), 9 deletions(-)
+>
+> Acked-by: James Morris <jmorris@namei.org>
 
->>
->>> The following example demonstrates how SELinux prevents the Apache
->>> HTTP Server (httpd) from reading files that are not correctly
->>> labeled, such as files intended for use by another subject. This is
->>> an example, and should not be used in production. It assumes that the
->>> httpd and wget packages are installed, that the SELinux targeted
->>> policy is used, and that SELinux is running in enforcing mode:
->>>
->>> 1. As the Linux root user, run the touch /var/www/html/testfile command.
->>>
->>> 2. Run the ls -Z /var/www/html/testfile command to view the SELinux
->>> context:
->>>
->>> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0
->>> /var/www/html/testfile
->>>
->>> By default, Linux users run unconfined on Fedora 10, which is why the
->>> testfile file object is labeled with the SELinux unconfined_u user.
->>> The object_r role is a standard role, and does not affect access
->>> control. The httpd_sys_content_t file type allows the httpd subject
->>> to access this object.
->>>
->>> [ What is object_r really for? ]
->>
->> The default role value for objects, and one that avoids any restrictions
->> on the user, type, and level combination in the object context.
-> 
-> RBAC is used for subjects, not objects. Roles do not have a meaning for
-> objects, and the object_r role is a generic role that is used for objects.
-> 
->>
->>> 3. As the Linux root user, start the Apache HTTP Server:
->>> /sbin/service httpd start. When the server has started, change into a
->>> directory where your Linux user has write access to, and run the wget
->>> http://localhost/testfile command. Unless there are any changes to
->>> the default configuration, this command succeeds.
->>>
->>> 4. The /usr/bin/chcon command relabels files; however, such label
->>> changes do not survive when the file system is relabeled. For
->>> permanent changes that survive a file system relabel, use the
->>> /usr/sbin/semanage command, which is discussed later. As the Linux
->>> root user, run the /usr/bin/chcon -t samba_share_t
->>> /var/www/html/testfile command to change the file type, to a file
->>> type that is used by Samba. Run the ls -Z /var/www/html/testfile
->>> command to verify the changes:
->>>
->>> [ If a file has an entry in file_contexts, and is relabeled with
->>> semanage fcontext, does that update
->>> /etc/selinux/targeted/contexts/files/file_contexts with the change? I
->>> was going to try, but forgot how to change the file type with semanage]
->>
->> See the EXAMPLES section of the semanage man page.
->> semanage fcontext -a -t samba_share_t /var/www/html/testfile
->> The semanage command will update the file_contexts file with the change,
->> but does not immediately apply the label to any affected files - you
->> need to run restorecon on the files in order to apply it.
->>
->>> -rw-r--r--  root root unconfined_u:object_r:samba_share_t:s0
->>> /var/www/html/testfile
->>>
->>> 5. Note: the current DAC permissions allow the httpd subject access
->>> to this file. Change into a directory where your Linux user has write
->>> access to, and run the wget http://localhost/testfile command. Unless
->>> there are any changes to the default configuration, this command fails:
->>>
->>> HTTP request sent, awaiting response... 403 Forbidden
->>> 2008-08-22 03:48:40 ERROR 403: Forbidden.
->>>
->>> This example demonstrates the additional security added by SELinux.
->>> Although the httpd subject had access to the object in step 5,
->>> because the object was labeled with a file type that httpd subject
->>> does not have access to, SELinux denied access. After step 5, an
->>> error such as the following is logged to /var/log/messages:
->>>
->>> Aug 22 03:48:40 localhost setroubleshoot: SELinux is preventing httpd
->>> (httpd_t) "getattr"
->>> to /var/www/html/testfile (samba_share_t). For complete SELinux
->>> messages.
->>> run sealert -l c05911d3-e680-4e42-8e36-fe2ab9f8e654
->>>
->>> Also, if the audit package is installed and the auditd subject is
->>> running, a more detailed denial is logged to
->>> /var/log/audit/audit.log. These denials are discussed later.
->>>
->>> Unconfined Subjects
->>>
->>> Unconfined subjects run in the unconfined_t domain type. This means
->>> that SELinux policy rules do not apply, and only DAC permissions are
->>> used.
->>
-Only unconfined login users run as unconfined_t, init programs run in
-the unconfined domain initrc_t, unconfined inetd processes run in the
-inetd_child_t domain.  Unconfined kernel processes run in kernel_t.
-There are about 20 unconfined domains in Fedora 10.
->> To be precise, the SELinux policy rules grant most permissions to the
->> unconfined_t domain, making it _effectively_ unconstrained by SELinux
->> even though the rules _are_ still applied.
-> 
-> See above.
-> 
->>
->>> When an unconfined subject is comprised, an attacker may gain access
->>> to a large number of system resources and data.
->>>
->>> The following example demonstrates how the Apache HTTP Server (httpd)
->>> can access data intended for use by another subject, when running
->>> unconfined. Note: on Fedora 10, the httpd subject runs in the
->>> confined httpd_t domain type by default. This is an example, and
->>> should not be used in production. It assumes that the httpd and wget
->>> packages are installed, that the SELinux targeted policy is used, and
->>> that SELinux is running in enforcing mode:
->>>
->>> 1. As the Linux root user, run the touch /var/www/html/test2file
->>> command.
->>>
->>> 2. Run the ls -Z /var/www/html/test2file command to view the SELinux
->>> context:
->>>
->>> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0
->>> /var/www/html/test2file
->>>
->>> By default, Linux users run unconfined on Fedora 10, which is why the
->>> test2file file object is labeled with the SELinux unconfined_u user.
->>> The object_r role is a standard role, and does not affect access
->>> control. The httpd_sys_content_t file type allows the httpd subject
->>> to access this object.
->>>
->>> 3. The /usr/bin/chcon command relabels files; however, such label
->>> changes do not survive when the file system is relabeled. For
->>> permanent changes that survive a file system relabel, use the
->>> /usr/sbin/semanage command, which is discussed later. As the Linux
->>> root user, run the /usr/bin/chcon -t samba_share_t
->>> /var/www/html/test2file command to change the file type, to a file
->>> type that is used by Samba. Run the ls -Z /var/www/html/test2file
->>> command to verify the changes:
->>>
->>> -rw-r--r--  root root unconfined_u:object_r:samba_share_t:s0
->>> /var/www/html/test2file
->>>
->>> 4. To simulate the httpd subject running unconfined, run the
->>> /usr/sbin/setenforce 0 command as the Linux root user to temporarily
->>> disable SELinux. Confirm SELinux is disabled by running the
->>> /usr/sbin/getenforce command. When SELinux is disabled,
->>> /usr/sbin/getenforce returns Permissive:
->>>
->>> $ getenforce
->>> Permissive
->>
->> There are more precise ways to make httpd unconfined w/o making the
->> entire system permissive, e.g.:
->> 1) Label the httpd binary with unconfined_exec_t and re-start it, or
->> 2) Making the httpd_t domain permissive (in F10 and later):
->> semanage permissive -a httpd_t
-> 
-> I'll update the example (probably with semanage permissive -a httpd_t)
-> 
->>
->>> 5. As the Linux root user, start the Apache HTTP Server:
->>> /sbin/service httpd start. Change into a directory where your Linux
->>> user has write access to, and run the wget http://localhost/test2file
->>> command. Unless there are any changes to the default configuration,
->>> this command succeeds.
->>>
->>> 6. Enable SELinux by running /usr/sbin/setenforce 1 command. When
->>> SELinux is enabled, /usr/sbin/getenforce returns Enforcing:
->>>
->>> $ getenforce
->>> Enforcing
->>>
->>> The examples in these sections demonstrate how data can be protected
->>> from a compromised confined-subject (protected by SELinux), as well
->>> as how data is more accessible to an attacker from a compromised
->>> unconfined-subject (not protected by SELinux).
->>>
->>> Confined and Unconfined User Domains
->>>
->>> In progress. Introduction to restrictions on certain domains (user_t,
->>> guest_t etc).
->>>
->>> Are there any SELinux restrictions on what users can do when they run
->>> unconfined?
->>
->> Yes.  They are still restricted by MCS.  There are certain booleans that
->> can apply certain restrictions like execmem, execstack.  And if they run
->> any program with its own domain and a domain transition is defined from
->> unconfined_t to the program's domain then they are still subject to the
->> restrictions on that domain.
-> 
-> Thanks for your feedback.
-> 
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+Thanks for taking the time to review the patches and send feedback, I 
+know they weren't small.  I've made all the corrections you've 
+suggested as well as the ones that Andrew and Randy pointed out.  I'm 
+building a new kernel to test right now, if all goes well I'll push the 
+new bits tonight or tomorrow.
 
+I've also added all your ACKs to their respective patches except for 
+this one because I made some non-trivial changes and didn't think it 
+was fair to use your ACK.  While I was looking at the code I realized 
+that we are calling selinux_parse_skb() in the per-packet processing 
+functions a bit too early (my fault) resulting in potentially wasted 
+cycles.  I've fixed it in this patch and you'll see the change 
+shortly ...
+
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
