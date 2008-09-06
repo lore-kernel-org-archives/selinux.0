@@ -1,141 +1,61 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m864YhGQ006209
-	for <selinux@tycho.nsa.gov>; Sat, 6 Sep 2008 00:34:43 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m864Y460019006
-	for <selinux@tycho.nsa.gov>; Sat, 6 Sep 2008 04:34:04 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m864fQa7006956
+	for <selinux@tycho.nsa.gov>; Sat, 6 Sep 2008 00:41:26 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m864fQnl003853
+	for <selinux@tycho.nsa.gov>; Sat, 6 Sep 2008 04:41:26 GMT
 Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m864YhBn001382
-	for <selinux@tycho.nsa.gov>; Sat, 6 Sep 2008 00:34:43 -0400
-Message-ID: <48C2085C.6020008@redhat.com>
-Date: Sat, 06 Sep 2008 14:34:36 +1000
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m864f5HP003331
+	for <selinux@tycho.nsa.gov>; Sat, 6 Sep 2008 00:41:05 -0400
+Message-ID: <48C209DA.4040901@redhat.com>
+Date: Sat, 06 Sep 2008 14:40:58 +1000
 From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
 CC: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: user guide draft: "Targeted Policy" review
-References: <48BE3FB4.8020003@redhat.com> <48BE9106.6050703@redhat.com> <48C0D4CD.5090908@redhat.com> <48C13900.8050401@redhat.com>
-In-Reply-To: <48C13900.8050401@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+References: <48BE3FB4.8020003@redhat.com> <1220447961.6034.54.camel@moss-spartans.epoch.ncsc.mil> <48C0CBF9.4090008@redhat.com> <48C140CB.7090108@redhat.com>
+In-Reply-To: <48C140CB.7090108@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Daniel J Walsh wrote:
 > Murray McAllister wrote:
->> Daniel J Walsh wrote:
->> Murray McAllister wrote:
->>>>> Hi,
->>>>>
->>>>> The following is a draft of the "Targeted Policy" sections for the
->>>>> SELinux User Guide. Any comments and corrections are appreciated.
->>>>>
->>>>> Thanks.
->>>>>
->>>>> Targeted Policy
->>>>>
->>>>> Targeted policy is the default SELinux policy used in Fedora 10. When
->>>>> using targeted policy, subjects that are targeted run in their own
->>>>> domain type, and subjects that are not targeted run in the unconfined_t
->> confined domain, and subjects that are not targeted run in an unconfined
->> domain,  For example logged in users by default log in as unconfined_t
->> while system processes started by init run in initrc_t.  Both of these
->> domains are unconfined.
->>
->> NOTE:
->>
->> Even unconfined domains are subject to executable/writable memory
->> checks.  execmem, execstack, execheap.  By default processes run as an
->> unconfined domain can not allocate writeable memory and execute it.
->> This is a common attack vector call buffer overflow attacks.  Some
->> applications require this type of access (java, wine, mono and a few
->> others). 
->>
->>> Does this mean applications running in a Java Virtual Machine, and in Wine?
->>> I'll change my response below based on the answer to this.
-> Yes
->>> These applications need to be labeled correctly to allow the
->> access.  There are booleans that can turn off this protection for the
->> unconfined user unconfined_t.  allow_execmem, allow_execstack,
->> allow_execheap.
->>
->> You can turn the booleans on using setsebool
->>
->> setsebool -P allow_execmem 1
->>
->>> I will use these examples later on.
->>
->>> How about:
->>> Targeted policy is the default SELinux policy used in Fedora 10. When
->>> using targeted policy, subjects that are targeted run in a confined
->>> domain, and subjects that are not targeted run in an unconfined domain.
->>> For example, by default, logged in users run in the unconfined_t domain,
->>> and system processes started by init run in the initrc_t domain - both
->>> of these domains are unconfined.
->>> Unconfined domains (as well as confined domains) are subject to
->>> executable and writeable memory checks. By default, subjects running in
->>> an unconfined domain can not allocate writeable memory and execute it.
->>> [I think I changed the meaning. Is it still correct? ]
-> Looks good
->>> This reduces vulnerability to buffer overflow attacks. Some subjects
->>> require this access, including but not limited to Java", Wine and Mono.
->>> To allow this access, these subjects must be labeled correctly.
-> 
-> For example, if you had a java application /usr/local/bin/myjavaapp,
-> that was not working because it needed the execmem access, you could
-> change the system labeling.
-> # semanage fcontext -a -t java_exec_t /usr/local/bin/myjavaapp
-> Then you fix the context on the actual file
-> # restorecon /usr/local/bin/myjavaapp
-> 
-> myjavaapp will now be allowed to run with execmem and execstack.
-> 
-> If you do not want to deal with any of the memory checks for users, you
-> can disable them with by setting the allow_exec* booleans.
-> 
-> # setsebool -P allow_execmem=1 allow_execstack=1 allow_execheap=1
-> You can check if the booleans current state by executing
-> 
-> getsebool -a | grep allow_exec
-> 
-> You system is most protected if these booleans are turned off.
-> 
-> # setsebool -P allow_execmem=0 allow_execstack=0 allow_execheap=0
-> 
->>> memory checks need to be disabled for the users running in the
->>> unconfined_t domain. 
-> No this sentence is wrong.
-> These memory checks are disable by setting
->>> booleans, which allow the SELinux policy to be modified during runtime.
->>> Configuring booleans is discussed later.
->>
+>> Stephen Smalley wrote:
+>>> On Wed, 2008-09-03 at 17:41 +1000, Murray McAllister wrote:
 
-I removed some bits to avoid too much theory:
+>> When a confined subject is compromised by an attacker, depending on
+>> SELinux policy configuration, the attacker's access is to resources and
+>> the possible damage they can do is limited.
+>>
+> If a confined ...
 
-Unconfined domains (as well as confined domains) are subject to 
-executable and writeable memory checks. By default, subjects running in 
-an unconfined domain can not allocate writeable memory and execute it. 
-This reduces vulnerability to buffer overflow attacks. These memory 
-checks are disable by setting booleans, which allow the SELinux policy 
-to be modified during runtime. Configuring booleans is discussed later.
+Changed.
 
->>> How about:
->>> When an unconfined subject is comprised, SELinux does not prevent the
->>> attacker from gaining access to system resources and data, and DAC rules
->>> are used.
->>> (I should probably change these to "If an...")
-> If an unconfined subject is comprised, SELinux does not prevent the
-> attacker from gaining access to system resources and data, of course DAC
-> rules are used.
-> 
-> Note: A common misconception about SELinux is that it replaces DAC
-> Controls, when it really just augments them.
+>>>> Unconfined Subjects
+>>>>
+>>>> Unconfined subjects run in the unconfined_t domain type. This means
+>>>> that SELinux policy rules do not apply, and only DAC permissions are
+>>>> used.
+> Only unconfined login users run as unconfined_t, init programs run in
+> the unconfined domain initrc_t, unconfined inetd processes run in the
+> inetd_child_t domain.  Unconfined kernel processes run in kernel_t.
+> There are about 20 unconfined domains in Fedora 10.
 
 How about:
 
-If an unconfined subject is compromised, SELinux does not prevent the 
-attacker from gaining access to system resources and data, but of 
-course, DAC rules are still used. SELinux is a security enhancement on 
-top of DAC rules - it does not replace them.
+Unconfined subjects run in unconfined domains, for example, init 
+programs run in the unconfined initrc_t domain, unconfined kernel 
+subjects run in the kernel_t domain, and unconfined Linux users run in 
+the unconfined_t domain. For unconfined subjects, SELinux policy rules 
+are applied, but policy rules exist that allow subjects running in 
+unconfined domains almost all access. Subjects running in unconfined 
+domains almost always fall back to using DAC rules exclusively. If an 
+unconfined subject is compromised, SELinux does not prevent the attacker 
+from gaining access to system resources and data, but of course, DAC 
+rules are still used. SELinux is a security enhancement above DAC rules 
+- it does not replace them.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
