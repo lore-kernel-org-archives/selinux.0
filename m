@@ -1,103 +1,119 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m88Engqp020774
-	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 10:49:42 -0400
-Received: from rn-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m88EneGU013202
-	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 14:49:41 GMT
-Received: by rn-out-0910.google.com with SMTP id k40so92696rnd.17
-        for <selinux@tycho.nsa.gov>; Mon, 08 Sep 2008 07:49:40 -0700 (PDT)
-Message-ID: <4c4ba1530809080749g6c57dcces64a5439305bed06a@mail.gmail.com>
-Date: Mon, 8 Sep 2008 07:49:38 -0700
-From: "Tom London" <selinux@gmail.com>
-To: "SELinux List" <selinux@tycho.nsa.gov>
-Subject: rsync issues with 'security.selinux': copying unlabelled files to a 'labelled' file system ... ?
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m88GxNaj020587
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 12:59:23 -0400
+Received: from g5t0008.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m88GxNg7025550
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 16:59:23 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: Joe Nall <joe@nall.com>
+Subject: Re: Why are the socket mls constraints are different between ipsec and netlabel?
+Date: Mon, 8 Sep 2008 12:59:17 -0400
+Cc: selinux@tycho.nsa.gov, refpolicy@oss.tresys.com
+References: <CE80DD8E-3D41-45C7-9F4B-04CD31F43767@nall.com>
+In-Reply-To: <CE80DD8E-3D41-45C7-9F4B-04CD31F43767@nall.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200809081259.17737.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I run rsync to backup my Fedora rawhide system onto a USB hard drive:
+On Monday 08 September 2008 10:14:08 am Joe Nall wrote:
+> IPSec and netlabel sockets behave differently if the ranges of the
+> two sides of the connection are not identical. In the netlabel denial
+> below, InputLog is single level and has no mls attributes, icm is
+> ranged and has mlsnetread. This works with labeled IPSec.
+>
+> type=AVC msg=audit(1220880975.110:308): avc:  denied  { recvfrom }
+> for  pid=2341 comm="InputLog" saddr=192.168.20.247 src=10308
+> daddr=192.168.20.247 dest=60897 netif=lo
+> scontext=system_u:system_r:jcdx_ilog_t:s5:c0.c511
+> tcontext=system_u:system_r:jcdx_icm_t:s0-s15:c0.c1023
+> tclass=tcp_socket
+>
+> The source of the difference is in the recvfrom constraint. From
+> policy/mls:
+> ...
+> mlsconstrain association { recvfrom }
+>          ((( l1 dom l2 ) and ( l1 domby h2 )) or
+>           (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+>           ( t1 == mlsnetread ) or
+>           ( t2 == unlabeled_t ));
+>
+> ...
+> # used by netlabel to restrict normal domains to same level
+> connections mlsconstrain { tcp_socket udp_socket rawip_socket }
+> recvfrom (( l1 eq l2 ) or
+>           (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+>           ( t1 == mlsnetread ));
+> ...
 
-rsync --archive --recursive --acls --xattrs --delete
---exclude='/selinux' --exclude='/lost+found/*' --exclude='/dev/*'
---exclude='/media/*' --exclude='/proc/*' --exclude='/sys/*'
---exclude='*/.gvfs' --exclude='/mnt/disk*/*' --stats / /media/Backup1
+If I remember correctly we set the NetLabel constraints to only allow 
+connections at the same effective MLS label.  For example, s0 to 
+s0-s15:c0.c1023 should work but s5:c0.c511 to s0-s15:c0.c1023 wouldn't 
+because s5:c0.c511 is not the same as s0.  We did this to make the CC 
+certification a bit easier but I can't remember why at this particular 
+moment.  It is especially confusing because Labeled IPsec doesn't have 
+the same restrictions.
 
-'/media/Backup1' is mounted on an ext4 file system.  Two (fuse)
-mounted ntfs-3g file systems (/mnt/windows and /mnt/music) are backed
-up with this as well.
+Looking at your denial message it appears that you are using the new 
+NetLabel loopback labeling and you have an application labeled:
 
-The ntfs-3g files systems project SELinux labels of fuse_t:
+ system_u:system_r:jcdx_ilog_t:s5:c0.c511
 
-[root@tlondon temp]# ls -lZ /mnt/windows/temp
--rwxrwxrwx  root root system_u:object_r:fusefs_t:s0    setup.log
-[root@tlondon temp]#
+... trying to receive a packet from an application labeled:
 
-But they "really" have no attributes:
+ system_u:system_r:jcdx_icm_t:s0-s15:c0.c1023
 
-[root@tlondon temp]# getfattr /mnt/windows/temp/*
-getfattr: /mnt/windows/temp/setup.log: Operation not supported
-[root@tlondon temp]#
+... which means a s5:c0.c511 process is trying to read from a (using the 
+effective MLS label) s0 process.  As far as I'm concerned that 
+shouldn't violate the BLP constraints.
 
-When I run the above rsync command, I get error spew from rsync
-complaining about failures trying to remove 'security.selinux'
-attributes from the destination copies of files from the ntfs-3g file
-systems:
+> If I use
+> # used by netlabel to restrict normal domains to same level
+> connections mlsconstrain { tcp_socket udp_socket rawip_socket }
+> recvfrom ((( l1 dom l2 ) and ( l1 domby h2 )) or
+>           (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+>           ( t1 == mlsnetread ));
+> ...
+> then netlabel sockets behave like their IPSec brethren.
+>
+> Is the difference intentional?
 
-rsync: rsync_xal_clear:
-lremovexattr("mnt/windows/WINDOWS/twain_32/wiatwain.ds","security.selinux")
-failed: Permission denied (13)
-rsync: rsync_xal_clear:
-lremovexattr("mnt/windows/temp","security.selinux") failed: Permission
-denied (13)
-rsync: rsync_xal_clear:
-lremovexattr("mnt/windows/temp/setup.log","security.selinux") failed:
-Permission denied (13)
+See my comments above.  It was intentional at one point, although it is 
+probably being overly picky and should be changed.  I'm CC'ing the 
+reference policy list as they might have some comments.
 
-Seems that rsync is trying to 'match' the attributes on the
-destination to 'match' those from the source.  In this case, the
-source files have no attributes.
+> What purpose does the ( l1 domby h2 ) serve?
 
-So, what should the behavior be (in this case) when rsync-ing files
-from a file system not supporting attributes to one that does?
+Well, it basically means the receiving application's effective MLS label 
+is dominated by the sending application's cleared MLS label.  No idea 
+what purpose it actually serves ... If anything I would think you would 
+want the receiving application's cleared MLS label to dominate the 
+sender's cleared MLS label which I think is actually implied by "(l1 
+dom l2)".
 
-Seems wrong to me to allow rsync to remove the 'security.selinux'
-attributes (as it is attempting but failing now), leaving unlabelled
-files on the destination file system.
+I'm thinking out loud here but what about the following?
 
-This could be the code at issue:
+connections mlsconstrain { tcp_socket udp_socket rawip_socket }
+recvfrom (( l1 eq l2 ) or (l1 dom l2)
+          (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+           ( t1 == mlsnetread ));
 
-static int rsync_xal_set(const char *fname, item_list *xalp,
-                        const char *fnamecmp, stat_x *sxp)
-{
-<<<<<SNIP>>>>>
-       /* Remove any extraneous names. */
-       for (name = namebuf; list_len > 0; name += name_len) {
-               name_len = strlen(name) + 1;
-               list_len -= name_len;
+> Should there be a netlabel constraint on sendto to match the IPSec
+> sendto constraint?
 
-#ifdef HAVE_LINUX_XATTRS
-               /* We always ignore the system namespace, and non-root
-                * ignores everything but the user namespace. */
-               if (am_root ? HAS_PREFIX(name, SYSTEM_PREFIX)
-                           : !HAS_PREFIX(name, USER_PREFIX))
-                       continue;
-#endif
+Nope, there is no sendto access check for NetLabel using the old 
+permission checks, old being defined by anything predating the network 
+peer controls.  If you start using the network peer controls that we 
+introduced in 2.6.25 you can do all sorts of cool ingress/egress 
+control regardless of the labeling method being used.  It even works 
+with locally generated unlabeled traffic since we can get the traffic's 
+label from the sending socket.
 
-A simple patch could include checking for "SECURITY_PREFIX" in the
-'am_root' leg, but is that correct?
-
-What about other kinds of attributes (e.g., "Trusted extended
-attributes")?  Should they be handled this way?
-
-I've BZ'd this here: https://bugzilla.redhat.com/show_bug.cgi?id=461486
-
-Thoughts/wisdom?
-
-thanks,
-   tom
 -- 
-Tom London
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
