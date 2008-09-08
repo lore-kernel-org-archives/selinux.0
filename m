@@ -1,109 +1,70 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m88DUrgY001445
-	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 09:30:53 -0400
-Received: from nf-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m88DUqGU016845
-	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 13:30:53 GMT
-Received: by nf-out-0910.google.com with SMTP id b21so420674nfd.4
-        for <selinux@tycho.nsa.gov>; Mon, 08 Sep 2008 06:30:52 -0700 (PDT)
-Subject: Re: I hope the user guide will explain what to do with a message
-	such as this one
-From: Dominick Grift <domg472@gmail.com>
-To: "Stanley A. Klein" <sklein@cpcug.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <1220819121.7524.13.camel@localhost.localdomain>
-References: <1220819121.7524.13.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0G6eBLq5jcHXe32k0j0x"
-Date: Mon, 08 Sep 2008 15:30:50 +0200
-Message-Id: <1220880650.18357.35.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m88EECuv010737
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 10:14:12 -0400
+Received: from mho-02-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m88EECGU000254
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 14:14:12 GMT
+Received: from cpe-66-68-165-162.austin.res.rr.com ([66.68.165.162] helo=[192.168.20.230])
+	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
+	(Exim 4.68)
+	(envelope-from <joe@nall.com>)
+	id 1KchVL-000A98-3k
+	for selinux@tycho.nsa.gov; Mon, 08 Sep 2008 14:14:11 +0000
+Message-Id: <CE80DD8E-3D41-45C7-9F4B-04CD31F43767@nall.com>
+From: Joe Nall <joe@nall.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v928.1)
+Subject: Why are the socket mls constraints are different between ipsec and netlabel?
+Date: Mon, 8 Sep 2008 09:14:08 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+IPSec and netlabel sockets behave differently if the ranges of the two  
+sides of the connection are not identical. In the netlabel denial  
+below, InputLog is single level and has no mls attributes, icm is  
+ranged and has mlsnetread. This works with labeled IPSec.
 
---=-0G6eBLq5jcHXe32k0j0x
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+type=AVC msg=audit(1220880975.110:308): avc:  denied  { recvfrom }  
+for  pid=2341 comm="InputLog" saddr=192.168.20.247 src=10308  
+daddr=192.168.20.247 dest=60897 netif=lo  
+scontext=system_u:system_r:jcdx_ilog_t:s5:c0.c511  
+tcontext=system_u:system_r:jcdx_icm_t:s0-s15:c0.c1023 tclass=tcp_socket
 
-On Sun, 2008-09-07 at 16:25 -0400, Stanley A. Klein wrote:
-> /root
+The source of the difference is in the recvfrom constraint. From  
+policy/mls:
+...
+mlsconstrain association { recvfrom }
+         ((( l1 dom l2 ) and ( l1 domby h2 )) or
+          (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+          ( t1 == mlsnetread ) or
+          ( t2 == unlabeled_t ));
 
-Issues are often:
+...
+# used by netlabel to restrict normal domains to same level connections
+mlsconstrain { tcp_socket udp_socket rawip_socket } recvfrom
+         (( l1 eq l2 ) or
+          (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+          ( t1 == mlsnetread ));
+...
 
-files in wrong places.
-files miss or unlabeled.
-booleans.
-missing policy.
+If I use
+# used by netlabel to restrict normal domains to same level connections
+mlsconstrain { tcp_socket udp_socket rawip_socket } recvfrom
+         ((( l1 dom l2 ) and ( l1 domby h2 )) or
+          (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+          ( t1 == mlsnetread ));
+...
+then netlabel sockets behave like their IPSec brethren.
 
-Best thing in my view would be to learn how to translate AVC denials
-into something you can understand. audit2allow can help you with this.
+Is the difference intentional?
 
-Audit2allow takes a AVC denial as input and translates it into policy
-language. /sbin/ausearch -m avc -ts today | audit2allow -R
+What purpose does the ( l1 domby h2 ) serve?
 
-Audit2why tries to find an explanation for the denials. /sbin/ausearch
--m avc -ts today.
+Should there be a netlabel constraint on sendto to match the IPSec  
+sendto constraint?
 
-If you translate AVC messages without using audit2allow then you can
-also quickly search if any such rule is in policy but maybe not
-activated (boolean/tunable policy) seearch --allow -s logwatch_t -t
-user_home_dir_t -c dir /etc/selinux/targeted/policy/policy.23
-
-Also make sure that the context of both the source and target are valid.
-It looks like logwatch_t is a valid type for this source but the type
-for the targeted does not look right to me (/root with context type
-user_home_dir_t). Here in Fedora this context is admin_home_t =20
-
-It may be that this location is miss labeled:
-
-/sbin/restorecon -R -v /root
-
-Als you can see if there is a rule for admin_home_t. sesearch --allow -s
-logwatch_t -t admin_home_t -c dir /etc/selinux/targeted/policy/policy.23
-
-if you are sure that 1. contexts are correct, 2. there is no tunable
-policy to be set for this source, then this is a case of missing policy.
-
-missing policy may or may not signal an intrusion and should be examined
-with care. You can try to reproduce the violation. This way you can send
-a bug report upstream. if it is reproducible then it may not be a
-intrusion but just a bug.
-
-If it is a bug then you can decide to implement a temporary patch to
-manage this access. Audit2allow supports a -M function which compiles
-policy module for inputted avc denails. One can install,list , update
-and remove these and other policy modules with the semodule command.
-
-If you are familiar with SELinux you can also manually write the source
-for your custom policy module and compile that with make
--f /usr/share/selinux/devel/Makefile and install the compiled binary
-policy module with semdule. Remember to save the sources for your own
-modules as you may want to modify these modules later.
-
-I think your issue may or may not be a bug. My quick examination shows
-that logwatch_t can get attributes of both directories with context type
-admin_home_t as well as user_home_dir_t.
-
-My money say's it is either a miss labeled directory or missing policy.
-
-
-
-
-Dominick Grift <domg472@gmail.com>
-
---=-0G6eBLq5jcHXe32k0j0x
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkjFKQIACgkQL00QnzrVtlzrhQCeLaVKePruvmOMQlYdZwoNfhz9
-1B4AnRpaX3oFB7zVyrdKbzrWcQLmvk+C
-=Ayai
------END PGP SIGNATURE-----
-
---=-0G6eBLq5jcHXe32k0j0x--
+joe
 
 
 --
