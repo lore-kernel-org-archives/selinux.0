@@ -1,94 +1,86 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m87KPVLH010385
-	for <selinux@tycho.nsa.gov>; Sun, 7 Sep 2008 16:25:31 -0400
-Received: from mail.cpcug.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m87KOplB003822
-	for <selinux@tycho.nsa.gov>; Sun, 7 Sep 2008 20:24:51 GMT
-Subject: I hope the user guide will explain what to do with a message such
-	as this one
-From: "Stanley A. Klein" <sklein@cpcug.org>
-To: Murray McAllister <mmcallis@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Sun, 07 Sep 2008 16:25:21 -0400
-Message-Id: <1220819121.7524.13.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <48C47579.7040602@redhat.com>
+Date: Mon, 08 Sep 2008 10:44:41 +1000
+From: Murray McAllister <mmcallis@redhat.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide draft: "SELinux Contexts and Attributes" review
+References: <48B4FA3E.3000602@redhat.com>	 <1219844836.5708.92.camel@moss-spartans.epoch.ncsc.mil>	 <48BB93D2.8090909@redhat.com>  <48BCB564.4010404@redhat.com>	 <1220360985.26711.43.camel@moss-spartans.epoch.ncsc.mil>	 <48BE28D5.1080902@redhat.com>	 <1220446886.6034.33.camel@moss-spartans.epoch.ncsc.mil>	 <48C0C7C3.3050304@redhat.com> <1220614047.17197.277.camel@moss-spartans.epoch.ncsc.mil> <48C205F1.1030901@redhat.com>
+In-Reply-To: <48C205F1.1030901@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm running Centos 5.2 and since a recent upgrade have been getting a
-screen containing the information I've copied below.  The suggestions on
-the screen for fixing the problem are unhelpful.  (I've found this to
-generally be the case with other similar screens I occasionally get when
-running applications.)
+Murray McAllister wrote:
+> Stephen Smalley wrote:
+>> On Fri, 2008-09-05 at 15:46 +1000, Murray McAllister wrote:
+>>> Stephen Smalley wrote:
+>>>> On Wed, 2008-09-03 at 16:04 +1000, Murray McAllister wrote:
+>>>>> How about:
+>>>>>
+>>>>> The level is an attribute of MLS and Multi-Category Security (MCS). 
+>>>>> The first part of the level, s0-s0, is the sensitivity.
+>>>> Actually, s0-s0 is a MLS range where the low level has sensitivity s0
+>>>> and no categories and the high level has sensitivity s0 and no
+>>>> categories.
+>>>>
+>>>>>  The s0 sensitivity is the only sensitivity used for MCS. Since the 
+>>>>> format of the level is the same for MLS and MCS, and MLS supports 
+>>>>> ranges of sensitivities, a sensitivity such as s0-s0 is the same as 
+>>>>> s0 when using MCS.
+>>>> No, s0-s0 is always the same as just s0, regardless of MCS or MLS.  
+>>>> Just
+>>>> like s1-s1 is the same as just s1.  Versus a non-trivial range like
+>>>> s0-s1 or s0-s3.
+>>>>
+>>>>>  Optionally, the level can have a list of categories.
+>>> I hope this is correct soon ;)
+>>>
+>>> The level is an attribute of MLS and Multi-Category Security (MCS). 
+>>> The first part of the level, s0-s0, is an MLS range.
+>>
+>> s0-s0 is a range.  It is not a level.  A MLS range is a pair of levels
+>> (lowlevel, highlevel) written as "lowlevel-highlevel" if they differ or
+>> as just "lowlevel" if they are the identical.  Each level is a
+>> (sensitivity, categoryset) pair written as "sensitivity:categoryset" or
+>> just "sensitivity" if the category set is empty.  A categoryset is a
+>> list of categories written as "category1,category2,...".  If a category
+>> set contains a contiguous series of categories (e.g.
+>> "c1,c2,c3,c4,c5,c6,c7,c8,c9,c10") this can be abbreviated as the first
+>> category in the series followed by a dot (".") followed by the last
+>> category in the series, e.g. "c1.c10".
+>>
+>> s0-s0 is a range where the lowlevel == highlevel == (sensitivity s0,
+>> emptycategoryset).
+>>
+> 
+> If it is not right this time, it's being deleted ;)
+> 
+> level: The level[1] is an attribute of MLS and Multi-Category Security 
+> (MCS). An MLS range is a pair of levels, written as lowlevel-highlevel 
+> if the levels differ, or lowlevel if the levels are identical (s0-s0 is 
+> the same as s0). Each level is a sensitivity-category pair, with 
+> categories being optional. If there are categories, the level is written 
+> as sensitivity:category-set. If there are no categories, it is written 
+> as sensitivity. If the category set is a contiguous series, it can be 
+> abbreviated. For example, c0.c3 is the same as c0,c1,c2,c3. The 
+> /etc/selinux/targeted/setrans.conf file is used to map levels (s0:c0) to 
+> human-readable form (CompanyConfidential). 
+In Fedora 10, targeted policy enforces MCS, and in MCS, there is only 
+one sensitivity, s0. MCS in Fedora 10 supports 1024 different 
+categories: c0 through to c1023. s0-s0:c0.c1023 is sensitivity s0, and 
+authorized for all categories.
 
-This is all happening down in the system.  I have no idea what is going
-on there, what the relevant applications are trying to do, or why they
-are being blocked from doing it.
-
-I hope the user guide will provide clear information on what to do when
-these kinds of messages occur.
-
-
-Stan Klein
-
------------------------------------------------------------------------------
-
-SELinux is preventing perl (logwatch_t) "getattr" to /root
-(user_home_dir_t). 
-
-Detailed Description:
-SELinux denied access requested by perl. It is not expected that this
-access is required by perl and this access may signal an intrusion
-attempt. It is also possible that the specific version or configuration
-of the application is causing it to require additional access. 
-
-Allowing Access
-
-Sometimes labeling problems can cause SELinux denials. You could try to
-restore the default system file context for /root, restorecon -v '/root'
-If this does not work, there is currently no automatic way to allow this
-access. Instead, you can generate a local policy module to allow this
-access - see FAQ Or you can disable SELinux protection altogether.
-Disabling SELinux protection is not recommended. Please file a bug
-report against this package. 
-
-Additional Information
-Source Context:  system_u:system_r:logwatch_t:SystemLow-SystemHigh
-Target Context:  root:object_r:user_home_dir_t
-Target Objects:  /root [ dir ]
-Source:  0logwatch
-Source Path:  /usr/bin/perl
-Port:  <Unknown>
-Host:  localhost.localdomain
-Source RPM Packages:  perl-5.8.8-10.el5_2.3
-Target RPM Packages:  filesystem-2.4.0-1.el5.centos
-Policy RPM:  selinux-policy-2.4.6-137.1.el5
-Selinux Enabled:  True
-Policy Type:  targeted
-MLS Enabled:  True
-Enforcing Mode:  Enforcing
-Plugin Name:  catchall_file
-Host Name:  localhost.localdomain
-Platform:  Linux localhost.localdomain 2.6.18-92.1.6.el5 #1 SMP Wed Jun
-25 13:49:24 EDT 2008 i686 i686
-Alert Count:  281
-First Seen:  Sun 29 Jun 2008 11:32:46 AM EDT
-Last Seen:  Sun 07 Sep 2008 11:57:17 AM EDT
-Local ID:  404a8dd6-c7da-4ad0-bd2e-af87ab7fd144
-Line Numbers:  
-Raw Audit Messages :
-host=localhost.localdomain type=AVC msg=audit(1220803037.282:24): avc:
-denied { getattr } for pid=3570 comm="perl" path="/root" dev=hdb1
-ino=2875137 scontext=system_u:system_r:logwatch_t:s0-s0:c0.c1023
-tcontext=root:object_r:user_home_dir_t:s0 tclass=dir 
-
-host=localhost.localdomain type=SYSCALL msg=audit(1220803037.282:24):
-arch=40000003 syscall=195 success=no exit=-13 a0=81e8be0 a1=819b0c8
-a2=a70ff4 a3=81e8be0 items=0 ppid=3568 pid=3570 auid=4294967295 uid=0
-gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none)
-ses=4294967295 comm="perl" exe="/usr/bin/perl"
-subj=system_u:system_r:logwatch_t:s0-s0:c0.c1023 key=(null) 
+> 
+> 
+> [1] talking about all of the output (s0-s0:c0.c1023
+> ) from semanage login -l
+> 
+> -- 
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+> with
+> the words "unsubscribe selinux" without quotes as the message.
 
 
 --
