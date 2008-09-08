@@ -1,29 +1,29 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m88JfqUN023557
-	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 15:41:52 -0400
-Received: from mho-01-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m88Jfqg7014700
-	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 19:41:52 GMT
-Received: from [71.155.178.116] (helo=[192.168.20.230])
-	by mho-01-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
-	(Exim 4.68)
-	(envelope-from <joe@nall.com>)
-	id 1KcmcS-000ImN-6V
-	for selinux@tycho.nsa.gov; Mon, 08 Sep 2008 19:41:52 +0000
-Message-Id: <07D6FCA8-84E7-40B4-A1FB-38DBA6C18DBC@nall.com>
-From: Joe Nall <joe@nall.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v928.1)
-Subject: X11 abstract unix domain socket context question
-Date: Mon, 8 Sep 2008 14:41:48 -0500
+Subject: Re: X11 abstract unix domain socket context question
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joe Nall <joe@nall.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <07D6FCA8-84E7-40B4-A1FB-38DBA6C18DBC@nall.com>
+References: <07D6FCA8-84E7-40B4-A1FB-38DBA6C18DBC@nall.com>
+Content-Type: text/plain
+Date: Mon, 08 Sep 2008 15:49:22 -0400
+Message-Id: <1220903362.19241.186.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-How is the file context/socket context of the X11 unix domain socket  
-computed now that it is an abstract socket?
 
-joe
+On Mon, 2008-09-08 at 14:41 -0500, Joe Nall wrote:
+> How is the file context/socket context of the X11 unix domain socket  
+> computed now that it is an abstract socket?
+
+The socket context is computed the same way regardless - that is
+generic, i.e. the sid of the creating task or the one specified using
+setsockcreatecon().  There is no file context when you are dealing a
+socket in the abstract namespace, nor any file permission checks on it.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
