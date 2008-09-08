@@ -1,87 +1,146 @@
-Message-ID: <48C47579.7040602@redhat.com>
-Date: Mon, 08 Sep 2008 10:44:41 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m88CpLfv024766
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 08:51:21 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m88CpLGU004852
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 12:51:21 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m88CpJKV007997
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 08:51:19 -0400
+Message-ID: <48C51FB1.1040307@redhat.com>
+Date: Mon, 08 Sep 2008 08:50:57 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
+To: Murray McAllister <mmcallis@redhat.com>
 CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: user guide draft: "SELinux Contexts and Attributes" review
-References: <48B4FA3E.3000602@redhat.com>	 <1219844836.5708.92.camel@moss-spartans.epoch.ncsc.mil>	 <48BB93D2.8090909@redhat.com>  <48BCB564.4010404@redhat.com>	 <1220360985.26711.43.camel@moss-spartans.epoch.ncsc.mil>	 <48BE28D5.1080902@redhat.com>	 <1220446886.6034.33.camel@moss-spartans.epoch.ncsc.mil>	 <48C0C7C3.3050304@redhat.com> <1220614047.17197.277.camel@moss-spartans.epoch.ncsc.mil> <48C205F1.1030901@redhat.com>
-In-Reply-To: <48C205F1.1030901@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: user guide draft: "Targeted Policy" review
+References: <48BE3FB4.8020003@redhat.com> <48BE9106.6050703@redhat.com> <48C0D4CD.5090908@redhat.com> <48C13900.8050401@redhat.com> <48C2085C.6020008@redhat.com>
+In-Reply-To: <48C2085C.6020008@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Murray McAllister wrote:
-> Stephen Smalley wrote:
->> On Fri, 2008-09-05 at 15:46 +1000, Murray McAllister wrote:
->>> Stephen Smalley wrote:
->>>> On Wed, 2008-09-03 at 16:04 +1000, Murray McAllister wrote:
->>>>> How about:
->>>>>
->>>>> The level is an attribute of MLS and Multi-Category Security (MCS). 
->>>>> The first part of the level, s0-s0, is the sensitivity.
->>>> Actually, s0-s0 is a MLS range where the low level has sensitivity s0
->>>> and no categories and the high level has sensitivity s0 and no
->>>> categories.
->>>>
->>>>>  The s0 sensitivity is the only sensitivity used for MCS. Since the 
->>>>> format of the level is the same for MLS and MCS, and MLS supports 
->>>>> ranges of sensitivities, a sensitivity such as s0-s0 is the same as 
->>>>> s0 when using MCS.
->>>> No, s0-s0 is always the same as just s0, regardless of MCS or MLS.  
->>>> Just
->>>> like s1-s1 is the same as just s1.  Versus a non-trivial range like
->>>> s0-s1 or s0-s3.
->>>>
->>>>>  Optionally, the level can have a list of categories.
->>> I hope this is correct soon ;)
+> Daniel J Walsh wrote:
+>> Murray McAllister wrote:
+>>> Daniel J Walsh wrote:
+>>> Murray McAllister wrote:
+>>>>>> Hi,
+>>>>>>
+>>>>>> The following is a draft of the "Targeted Policy" sections for the
+>>>>>> SELinux User Guide. Any comments and corrections are appreciated.
+>>>>>>
+>>>>>> Thanks.
+>>>>>>
+>>>>>> Targeted Policy
+>>>>>>
+>>>>>> Targeted policy is the default SELinux policy used in Fedora 10. When
+>>>>>> using targeted policy, subjects that are targeted run in their own
+>>>>>> domain type, and subjects that are not targeted run in the
+>>>>>> unconfined_t
+>>> confined domain, and subjects that are not targeted run in an unconfined
+>>> domain,  For example logged in users by default log in as unconfined_t
+>>> while system processes started by init run in initrc_t.  Both of these
+>>> domains are unconfined.
 >>>
->>> The level is an attribute of MLS and Multi-Category Security (MCS). 
->>> The first part of the level, s0-s0, is an MLS range.
+>>> NOTE:
+>>>
+>>> Even unconfined domains are subject to executable/writable memory
+>>> checks.  execmem, execstack, execheap.  By default processes run as an
+>>> unconfined domain can not allocate writeable memory and execute it.
+>>> This is a common attack vector call buffer overflow attacks.  Some
+>>> applications require this type of access (java, wine, mono and a few
+>>> others).
+>>>> Does this mean applications running in a Java Virtual Machine, and
+>>>> in Wine?
+>>>> I'll change my response below based on the answer to this.
+>> Yes
+>>>> These applications need to be labeled correctly to allow the
+>>> access.  There are booleans that can turn off this protection for the
+>>> unconfined user unconfined_t.  allow_execmem, allow_execstack,
+>>> allow_execheap.
+>>>
+>>> You can turn the booleans on using setsebool
+>>>
+>>> setsebool -P allow_execmem 1
+>>>
+>>>> I will use these examples later on.
+>>>
+>>>> How about:
+>>>> Targeted policy is the default SELinux policy used in Fedora 10. When
+>>>> using targeted policy, subjects that are targeted run in a confined
+>>>> domain, and subjects that are not targeted run in an unconfined domain.
+>>>> For example, by default, logged in users run in the unconfined_t
+>>>> domain,
+>>>> and system processes started by init run in the initrc_t domain - both
+>>>> of these domains are unconfined.
+>>>> Unconfined domains (as well as confined domains) are subject to
+>>>> executable and writeable memory checks. By default, subjects running in
+>>>> an unconfined domain can not allocate writeable memory and execute it.
+>>>> [I think I changed the meaning. Is it still correct? ]
+>> Looks good
+>>>> This reduces vulnerability to buffer overflow attacks. Some subjects
+>>>> require this access, including but not limited to Java", Wine and Mono.
+>>>> To allow this access, these subjects must be labeled correctly.
 >>
->> s0-s0 is a range.  It is not a level.  A MLS range is a pair of levels
->> (lowlevel, highlevel) written as "lowlevel-highlevel" if they differ or
->> as just "lowlevel" if they are the identical.  Each level is a
->> (sensitivity, categoryset) pair written as "sensitivity:categoryset" or
->> just "sensitivity" if the category set is empty.  A categoryset is a
->> list of categories written as "category1,category2,...".  If a category
->> set contains a contiguous series of categories (e.g.
->> "c1,c2,c3,c4,c5,c6,c7,c8,c9,c10") this can be abbreviated as the first
->> category in the series followed by a dot (".") followed by the last
->> category in the series, e.g. "c1.c10".
+>> For example, if you had a java application /usr/local/bin/myjavaapp,
+>> that was not working because it needed the execmem access, you could
+>> change the system labeling.
+>> # semanage fcontext -a -t java_exec_t /usr/local/bin/myjavaapp
+>> Then you fix the context on the actual file
+>> # restorecon /usr/local/bin/myjavaapp
 >>
->> s0-s0 is a range where the lowlevel == highlevel == (sensitivity s0,
->> emptycategoryset).
+>> myjavaapp will now be allowed to run with execmem and execstack.
 >>
+>> If you do not want to deal with any of the memory checks for users, you
+>> can disable them with by setting the allow_exec* booleans.
+>>
+>> # setsebool -P allow_execmem=1 allow_execstack=1 allow_execheap=1
+>> You can check if the booleans current state by executing
+>>
+>> getsebool -a | grep allow_exec
+>>
+>> You system is most protected if these booleans are turned off.
+>>
+>> # setsebool -P allow_execmem=0 allow_execstack=0 allow_execheap=0
+>>
+>>>> memory checks need to be disabled for the users running in the
+>>>> unconfined_t domain. 
+>> No this sentence is wrong.
+>> These memory checks are disable by setting
+>>>> booleans, which allow the SELinux policy to be modified during runtime.
+>>>> Configuring booleans is discussed later.
+>>>
 > 
-> If it is not right this time, it's being deleted ;)
+> I removed some bits to avoid too much theory:
 > 
-> level: The level[1] is an attribute of MLS and Multi-Category Security 
-> (MCS). An MLS range is a pair of levels, written as lowlevel-highlevel 
-> if the levels differ, or lowlevel if the levels are identical (s0-s0 is 
-> the same as s0). Each level is a sensitivity-category pair, with 
-> categories being optional. If there are categories, the level is written 
-> as sensitivity:category-set. If there are no categories, it is written 
-> as sensitivity. If the category set is a contiguous series, it can be 
-> abbreviated. For example, c0.c3 is the same as c0,c1,c2,c3. The 
-> /etc/selinux/targeted/setrans.conf file is used to map levels (s0:c0) to 
-> human-readable form (CompanyConfidential). 
-In Fedora 10, targeted policy enforces MCS, and in MCS, there is only 
-one sensitivity, s0. MCS in Fedora 10 supports 1024 different 
-categories: c0 through to c1023. s0-s0:c0.c1023 is sensitivity s0, and 
-authorized for all categories.
-
+> Unconfined domains (as well as confined domains) are subject to
+> executable and writeable memory checks. By default, subjects running in
+> an unconfined domain can not allocate writeable memory and execute it.
+> This reduces vulnerability to buffer overflow attacks. These memory
+> checks are disable by setting booleans, which allow the SELinux policy
+> to be modified during runtime. Configuring booleans is discussed later.
 > 
+>>>> How about:
+>>>> When an unconfined subject is comprised, SELinux does not prevent the
+>>>> attacker from gaining access to system resources and data, and DAC
+>>>> rules
+>>>> are used.
+>>>> (I should probably change these to "If an...")
+>> If an unconfined subject is comprised, SELinux does not prevent the
+>> attacker from gaining access to system resources and data, of course DAC
+>> rules are used.
+>>
+>> Note: A common misconception about SELinux is that it replaces DAC
+>> Controls, when it really just augments them.
 > 
-> [1] talking about all of the output (s0-s0:c0.c1023
-> ) from semanage login -l
+> How about:
 > 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
-> with
-> the words "unsubscribe selinux" without quotes as the message.
-
+> If an unconfined subject is compromised, SELinux does not prevent the
+> attacker from gaining access to system resources and data, but of
+> course, DAC rules are still used. SELinux is a security enhancement on
+> top of DAC rules - it does not replace them.
+Looks good.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
