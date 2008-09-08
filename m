@@ -1,71 +1,103 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m88EECuv010737
-	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 10:14:12 -0400
-Received: from mho-02-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m88EECGU000254
-	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 14:14:12 GMT
-Received: from cpe-66-68-165-162.austin.res.rr.com ([66.68.165.162] helo=[192.168.20.230])
-	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
-	(Exim 4.68)
-	(envelope-from <joe@nall.com>)
-	id 1KchVL-000A98-3k
-	for selinux@tycho.nsa.gov; Mon, 08 Sep 2008 14:14:11 +0000
-Message-Id: <CE80DD8E-3D41-45C7-9F4B-04CD31F43767@nall.com>
-From: Joe Nall <joe@nall.com>
-To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v928.1)
-Subject: Why are the socket mls constraints are different between ipsec and netlabel?
-Date: Mon, 8 Sep 2008 09:14:08 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m88Engqp020774
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 10:49:42 -0400
+Received: from rn-out-0910.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m88EneGU013202
+	for <selinux@tycho.nsa.gov>; Mon, 8 Sep 2008 14:49:41 GMT
+Received: by rn-out-0910.google.com with SMTP id k40so92696rnd.17
+        for <selinux@tycho.nsa.gov>; Mon, 08 Sep 2008 07:49:40 -0700 (PDT)
+Message-ID: <4c4ba1530809080749g6c57dcces64a5439305bed06a@mail.gmail.com>
+Date: Mon, 8 Sep 2008 07:49:38 -0700
+From: "Tom London" <selinux@gmail.com>
+To: "SELinux List" <selinux@tycho.nsa.gov>
+Subject: rsync issues with 'security.selinux': copying unlabelled files to a 'labelled' file system ... ?
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-IPSec and netlabel sockets behave differently if the ranges of the two  
-sides of the connection are not identical. In the netlabel denial  
-below, InputLog is single level and has no mls attributes, icm is  
-ranged and has mlsnetread. This works with labeled IPSec.
+I run rsync to backup my Fedora rawhide system onto a USB hard drive:
 
-type=AVC msg=audit(1220880975.110:308): avc:  denied  { recvfrom }  
-for  pid=2341 comm="InputLog" saddr=192.168.20.247 src=10308  
-daddr=192.168.20.247 dest=60897 netif=lo  
-scontext=system_u:system_r:jcdx_ilog_t:s5:c0.c511  
-tcontext=system_u:system_r:jcdx_icm_t:s0-s15:c0.c1023 tclass=tcp_socket
+rsync --archive --recursive --acls --xattrs --delete
+--exclude='/selinux' --exclude='/lost+found/*' --exclude='/dev/*'
+--exclude='/media/*' --exclude='/proc/*' --exclude='/sys/*'
+--exclude='*/.gvfs' --exclude='/mnt/disk*/*' --stats / /media/Backup1
 
-The source of the difference is in the recvfrom constraint. From  
-policy/mls:
-...
-mlsconstrain association { recvfrom }
-         ((( l1 dom l2 ) and ( l1 domby h2 )) or
-          (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-          ( t1 == mlsnetread ) or
-          ( t2 == unlabeled_t ));
+'/media/Backup1' is mounted on an ext4 file system.  Two (fuse)
+mounted ntfs-3g file systems (/mnt/windows and /mnt/music) are backed
+up with this as well.
 
-...
-# used by netlabel to restrict normal domains to same level connections
-mlsconstrain { tcp_socket udp_socket rawip_socket } recvfrom
-         (( l1 eq l2 ) or
-          (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-          ( t1 == mlsnetread ));
-...
+The ntfs-3g files systems project SELinux labels of fuse_t:
 
-If I use
-# used by netlabel to restrict normal domains to same level connections
-mlsconstrain { tcp_socket udp_socket rawip_socket } recvfrom
-         ((( l1 dom l2 ) and ( l1 domby h2 )) or
-          (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-          ( t1 == mlsnetread ));
-...
-then netlabel sockets behave like their IPSec brethren.
+[root@tlondon temp]# ls -lZ /mnt/windows/temp
+-rwxrwxrwx  root root system_u:object_r:fusefs_t:s0    setup.log
+[root@tlondon temp]#
 
-Is the difference intentional?
+But they "really" have no attributes:
 
-What purpose does the ( l1 domby h2 ) serve?
+[root@tlondon temp]# getfattr /mnt/windows/temp/*
+getfattr: /mnt/windows/temp/setup.log: Operation not supported
+[root@tlondon temp]#
 
-Should there be a netlabel constraint on sendto to match the IPSec  
-sendto constraint?
+When I run the above rsync command, I get error spew from rsync
+complaining about failures trying to remove 'security.selinux'
+attributes from the destination copies of files from the ntfs-3g file
+systems:
 
-joe
+rsync: rsync_xal_clear:
+lremovexattr("mnt/windows/WINDOWS/twain_32/wiatwain.ds","security.selinux")
+failed: Permission denied (13)
+rsync: rsync_xal_clear:
+lremovexattr("mnt/windows/temp","security.selinux") failed: Permission
+denied (13)
+rsync: rsync_xal_clear:
+lremovexattr("mnt/windows/temp/setup.log","security.selinux") failed:
+Permission denied (13)
 
+Seems that rsync is trying to 'match' the attributes on the
+destination to 'match' those from the source.  In this case, the
+source files have no attributes.
+
+So, what should the behavior be (in this case) when rsync-ing files
+from a file system not supporting attributes to one that does?
+
+Seems wrong to me to allow rsync to remove the 'security.selinux'
+attributes (as it is attempting but failing now), leaving unlabelled
+files on the destination file system.
+
+This could be the code at issue:
+
+static int rsync_xal_set(const char *fname, item_list *xalp,
+                        const char *fnamecmp, stat_x *sxp)
+{
+<<<<<SNIP>>>>>
+       /* Remove any extraneous names. */
+       for (name = namebuf; list_len > 0; name += name_len) {
+               name_len = strlen(name) + 1;
+               list_len -= name_len;
+
+#ifdef HAVE_LINUX_XATTRS
+               /* We always ignore the system namespace, and non-root
+                * ignores everything but the user namespace. */
+               if (am_root ? HAS_PREFIX(name, SYSTEM_PREFIX)
+                           : !HAS_PREFIX(name, USER_PREFIX))
+                       continue;
+#endif
+
+A simple patch could include checking for "SECURITY_PREFIX" in the
+'am_root' leg, but is that correct?
+
+What about other kinds of attributes (e.g., "Trusted extended
+attributes")?  Should they be handled this way?
+
+I've BZ'd this here: https://bugzilla.redhat.com/show_bug.cgi?id=461486
+
+Thoughts/wisdom?
+
+thanks,
+   tom
+-- 
+Tom London
 
 --
 This message was distributed to subscribers of the selinux mailing list.
