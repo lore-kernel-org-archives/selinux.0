@@ -1,93 +1,60 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m89ATutm008487
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2008 06:29:56 -0400
-Received: from tundra.namei.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m89ATuCw026586
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2008 10:29:56 GMT
-Date: Tue, 9 Sep 2008 20:29:51 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Murray McAllister <mmcallis@redhat.com>
-cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: user guide draft: "Confined and Unconfined User Domains"
- review
-In-Reply-To: <48C6236D.4020408@redhat.com>
-Message-ID: <alpine.LRH.1.10.0809092001230.21555@tundra.namei.org>
-References: <48C6236D.4020408@redhat.com>
+Message-ID: <48C66197.7050102@ak.jp.nec.com>
+Date: Tue, 09 Sep 2008 20:44:23 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: sds@tycho.nsa.gov
+CC: selinux@tycho.nsa.gov
+Subject: BUGREPORT: A type alias of invisible primary one
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 9 Sep 2008, Murray McAllister wrote:
+I found a strange type_datum_t object which has 0 for its s.value
+during development of new type hierarchy checks.
 
-> Each Linux user account is mapped to an SELinux user identity when a user
-> login session is created, and the mapped SELinux user identity is used in the
-> security context for processes in that session.
+The strange one is "xguest_javaplugin_default_xproperty_t" which
+is an alias type of "xguest_javaplugin_xproperty_t".
 
-This is a long sentence which I suspect general users would not easily 
-understand.  Perhaps break it into two sentences, with the second as:
+I doubted my patch at first, but it can be reproduced on the normal
+libsepol. It seems to me an original matter which is not exposed yet,
+and I am innocence. :-)
 
-"The SELinux user identity is indicated in the user's process security 
-context for that session."
+During tracing the matter, I noticed the primary type is invisible
+at expand_module(), but the aliased one is visible. It can make the
+strange type_datum_t object.
 
-Do you have a diagram breaking down the security context?  You could refer 
-to it here.
+* at the expand_module()
+1. The expand_state_t which includes typemap is initialized.
 
-> By default, on Fedora 10,
-> Linux users are mapped to the SELinux unconfined_u user. This is seen by
-> running the id -Z and /usr/sbin/semanage login -l commands:
-> 
-> # id -Z
-> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+2. The type_copy_callback is invoked for any types via hashtab_map.
+   It only copies primary and visible types into newer hashtab,
+   and set up typemap to translate between old and new s.value.
+   Thus, the given primary type is invisible, its slot of typemap
+   is kept to zero.
+   (*) is_id_enabled() for "xguest_javaplugin_xproperty_t" returned false.
 
-This command will have different outputs depending on how the user is 
-logged in, and there are seemingly (to the reader) two different ways to 
-see the SELinux user mapping (a new concept to them at this point).
+3. The alias_copy_callback is invoked for any types via hashtab_map.
+   It only copies alias and visible types into newer hashtab.
+   Here is no check whether the primary side is visible, or not.
+   A copied type_datum_t object for the given alias has new s.value
+   which is picked up from state->typemap.
 
-I suggest breaking it up so you first show the mapping via semanage, then 
-show the output of 'id -Z' for one of the Unix logins, also perhaps 
-explaining the flow:
+4. However, the target slot of state->typemap was zero, because
+   its primary one is invisible. The aliased type has a strange
+   s.value.
 
-- Linux users are mapped to SELinux users via policy
+5. Type hierarchy checks got a segmentation fault, due to
+   "p->type_val_to_name[datum->s.value - 1]".
+                        ^^^^^^^^^^^^^^^^^^ == -1
+Yes, we can identify cause of the matter.
 
-- user commences login
-- pam_selinux maps the user and sets up the resulting security context
-- user shell is launched in that context
+How should it be fixed on the next?
+Please give me a suggestion.
 
-> # /usr/sbin/semanage login -l
-> 
-> Login Name                SELinux User              MLS/MCS Range
-> 
-> __default__               unconfined_u              s0-s0:c0.c1023
-> root                      unconfined_u              s0-s0:c0.c1023
-> system_u                  system_u                  s0-s0:c0.c1023
-> 
-> The first row, __default__, defines that any new Linux users created that are
-> not specifically mapped to an SELinux user, are mapped to the SELinux
-> unconfined_u user. For a description of each column, refer to Chapter 3,
-> SELinux Contexts.
-
-I think you need to refer to a concrete example with the current text.
-
-> Unconfined Linux users are subject to executable and
-> writeable memory checks, and are also restricted by MCS (and MLS, if the MLS
-> policy is used). If they execute an object that the SELinux policy defines can
-
-Why introduce unfamiliar terminology like "execute an object" ?  People 
-execute applications.
-
-> transition from the unconfined_t domain to its own confined domain, the
-> unconfined Linux users are still subject to the restrictions of that confined
-> domain.
-
-Perhaps important to (re)state the security benefit of this, in that 
-an unconfined user cannot override the security policy for a confined 
-application just because they themselves are unconfined.
-
-
+Thanks,
 -- 
-James Morris
-<jmorris@namei.org>
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
