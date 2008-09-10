@@ -1,44 +1,42 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8AA3WYj022911
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 06:03:32 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8AA2k6s014116
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 10:02:48 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 60E1E180EC
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 20:03:26 +1000 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3219ynTtOQ5z for <selinux@tycho.nsa.gov>;
-	Wed, 10 Sep 2008 20:03:25 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 6CA3B180E8
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 20:03:25 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 3E4F220E78
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 20:03:18 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: semanage fcontext - policy loading
-Date: Wed, 10 Sep 2008 20:03:15 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200809102003.17804.russell@coker.com.au>
+Subject: Re: semodule memory use
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <200809101150.15440.russell@coker.com.au>
+References: <200809101150.15440.russell@coker.com.au>
+Content-Type: text/plain
+Date: Wed, 10 Sep 2008 08:05:26 -0400
+Message-Id: <1221048326.8658.10.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is there some good reason for rebuilding and loading the policy as part of the 
-process of running "semanage fcontext"?
 
-It makes the process take a long time and doesn't seem to serve any purpose.
+On Wed, 2008-09-10 at 11:50 +1000, Russell Coker wrote:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495786
+> 
+> I've received the above bug report against the Debian policy packages.  The 
+> operation in question is "semodule -b" followed by "semodule -i".
+> 
+> I haven't had time to work on this (and won't until well after Lenny is 
+> released).  But if anyone has any quick ideas of how to reduce memory use by 
+> semodule then I would be interested to hear them.
+
+Set expand-check = 0 in /etc/selinux/semanage.conf.
+The downside is you'll lose neverallow and hierarchy checking at module
+insertion time (but you can get them back at policy build time for the
+modules you provide by doing a make validate in refpolicy).  The upside
+is that it doesn't have to expand the attributes in rules nor walk them
+for neverallow checking or hierarchy checking.
+
+BTW, hierarchy checking really ought to be conditional on whether there
+is any hierarchy at all, the way that neverallow checking immediately
+returns if there were no neverallow rules.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
