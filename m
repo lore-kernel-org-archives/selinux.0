@@ -1,40 +1,27 @@
-Message-ID: <48C82587.7040708@redhat.com>
-Date: Wed, 10 Sep 2008 15:52:39 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8ALVBpL018057
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 17:31:11 -0400
+Received: from mail-gx0-f12.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8ALURIE021198
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 21:30:28 GMT
+Received: by gxk5 with SMTP id 5so14745282gxk.18
+        for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 14:31:11 -0700 (PDT)
+Message-ID: <cadfc0e40809101431n17dd44b6q2e08fb339da09815@mail.gmail.com>
+Date: Wed, 10 Sep 2008 16:31:10 -0500
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "SELinux Mailing List" <selinux@tycho.nsa.gov>,
+        "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: xpyb Fedora package?
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Manoj Srivastava <srivasta@debian.org>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: Userspace versioning and releases
-References: <48C8249A.50404@manicmethod.com>
-In-Reply-To: <48C8249A.50404@manicmethod.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Eamon,
+I know you wrote python bindings for xcb SELinux functions are you
+going to package these for distribution with Fedora?
 
-Joshua Brindle wrote:
-> We have discussed a little lately about changing the way we do releases and versioning of the userspace components. One idea is to no longer version per-commit like we do now but instead only bump the version at release time.
-> 
-> This would be a problem for distros using Git as their upstream. One question is, who does this (I know Dan does) and what can we do to move you to using releases? First we want to do releases more often and time based (eg., every 2 or 3 months).
-> 
-> We also would like some way of relating versions of the components with each other, so that it is very easy to tell which libsepol you need for which checkpolicy and libselinux, for example. We'd also need to do this in a way that doesn't interfere with the current versions (no new version scheme should ever be seen as a downgrade to package managers, etc)
-> 
-> Are there any comments or suggestions on this? Does anyone completely object to this kind of change and why?
-
-My concern would be release early/release often.  You will loose the
-ability for rawhide to check your changes.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkjIJYcACgkQrlYvE4MpobNfrgCfSlsB6SX6B1qlobVdJ0eAXHNS
-fqgAnjxtYUeAXYJ3Uo08W0xXepaLXuJJ
-=EcvM
------END PGP SIGNATURE-----
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
