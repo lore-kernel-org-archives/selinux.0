@@ -1,37 +1,23 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8AJWW6X028682
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 15:32:32 -0400
-Received: from mail-gx0-f12.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8AJWW24020080
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 19:32:32 GMT
-Received: by gxk5 with SMTP id 5so14435111gxk.18
-        for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 12:32:32 -0700 (PDT)
-Message-ID: <dd18b0c30809101232la13c43mee3d9ab0bfe2f509@mail.gmail.com>
-Date: Wed, 10 Sep 2008 12:32:31 -0700
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: "SE Linux" <selinux@tycho.nsa.gov>
-Subject: ssh issue with latest policy
-Cc: Hong <kindloaf@gmail.com>, tresys <refpolicy@oss.tresys.com>
+Message-ID: <48C8249A.50404@manicmethod.com>
+Date: Wed, 10 Sep 2008 15:48:42 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+        Manoj Srivastava <srivasta@debian.org>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Userspace versioning and releases
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hong,
-I cant seem to locate the post you sent a few days ago
-about logging into ssh. anyways I finally got around to logging into
-my machines with both the latest kernel and refpolicy;
-there was difficulty due to having /etc/host and /etc/sysctl.conf
-variables in these files preventing me from logging in.
-So with that in mind check and make sure those files
-are cleared of anything that might cause an error.
-As for the policy itself they were both in permissive mode
-via boot param, so having /etc/selinux/config in enforcing
-didnt cause an ubstruction for me.
-hope this helps.
+We have discussed a little lately about changing the way we do releases and versioning of the userspace components. One idea is to no longer version per-commit like we do now but instead only bump the version at release time.
 
--- 
-Justin P. Mattock
+This would be a problem for distros using Git as their upstream. One question is, who does this (I know Dan does) and what can we do to move you to using releases? First we want to do releases more often and time based (eg., every 2 or 3 months).
+
+We also would like some way of relating versions of the components with each other, so that it is very easy to tell which libsepol you need for which checkpolicy and libselinux, for example. We'd also need to do this in a way that doesn't interfere with the current versions (no new version scheme should ever be seen as a downgrade to package managers, etc)
+
+Are there any comments or suggestions on this? Does anyone completely object to this kind of change and why?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
