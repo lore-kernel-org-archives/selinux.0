@@ -1,37 +1,28 @@
-Subject: Re: semodule memory use
+Subject: Re: semanage fcontext - policy loading
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: russell@coker.com.au
-Cc: SE-Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <200809101150.15440.russell@coker.com.au>
-References: <200809101150.15440.russell@coker.com.au>
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <200809102003.17804.russell@coker.com.au>
+References: <200809102003.17804.russell@coker.com.au>
 Content-Type: text/plain
-Date: Wed, 10 Sep 2008 08:05:26 -0400
-Message-Id: <1221048326.8658.10.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 10 Sep 2008 08:12:28 -0400
+Message-Id: <1221048748.8658.14.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Wed, 2008-09-10 at 11:50 +1000, Russell Coker wrote:
-> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495786
+On Wed, 2008-09-10 at 20:03 +1000, Russell Coker wrote:
+> Is there some good reason for rebuilding and loading the policy as part of the 
+> process of running "semanage fcontext"?
 > 
-> I've received the above bug report against the Debian policy packages.  The 
-> operation in question is "semodule -b" followed by "semodule -i".
-> 
-> I haven't had time to work on this (and won't until well after Lenny is 
-> released).  But if anyone has any quick ideas of how to reduce memory use by 
-> semodule then I would be interested to hear them.
+> It makes the process take a long time and doesn't seem to serve any purpose.
 
-Set expand-check = 0 in /etc/selinux/semanage.conf.
-The downside is you'll lose neverallow and hierarchy checking at module
-insertion time (but you can get them back at policy build time for the
-modules you provide by doing a make validate in refpolicy).  The upside
-is that it doesn't have to expand the attributes in rules nor walk them
-for neverallow checking or hierarchy checking.
+See the FIXME comment in libsemanage/src/direct_api.c, and Dan's patch
+and subsequent discussion:
+http://marc.info/?l=selinux&m=121874340121830&w=2
 
-BTW, hierarchy checking really ought to be conditional on whether there
-is any hierarchy at all, the way that neverallow checking immediately
-returns if there were no neverallow rules.
+Unfortunately there remain some problems with the patch, as discussed there.
 
 -- 
 Stephen Smalley
