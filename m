@@ -1,140 +1,48 @@
-Message-ID: <48C71A96.2030408@ak.jp.nec.com>
-Date: Wed, 10 Sep 2008 09:53:42 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8A1oVSQ002398
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2008 21:50:31 -0400
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8A1niHH010984
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 01:49:46 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 84648180EA
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 11:50:20 +1000 (EST)
+Received: from nospam.sws.net.au ([127.0.0.1])
+	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4XwOpvMqf0nI for <selinux@tycho.nsa.gov>;
+	Wed, 10 Sep 2008 11:50:20 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 33614180DC
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 11:50:20 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id E1D7520F93
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 11:50:15 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: semodule memory use
+Date: Wed, 10 Sep 2008 11:50:13 +1000
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Subject: Re: BUGREPORT: A type alias of invisible primary one
-References: <48C66197.7050102@ak.jp.nec.com> <48C6B3E1.5030900@manicmethod.com>
-In-Reply-To: <48C6B3E1.5030900@manicmethod.com>
-Content-Type: multipart/mixed;
- boundary="------------030609080007000404040106"
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200809101150.15440.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030609080007000404040106
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495786
 
-Joshua Brindle wrote:
-> KaiGai Kohei wrote:
->> I found a strange type_datum_t object which has 0 for its s.value
->> during development of new type hierarchy checks.
->>
->> The strange one is "xguest_javaplugin_default_xproperty_t" which
->> is an alias type of "xguest_javaplugin_xproperty_t".
->>
->> I doubted my patch at first, but it can be reproduced on the normal
->> libsepol. It seems to me an original matter which is not exposed yet,
->> and I am innocence. :-)
->>
->> During tracing the matter, I noticed the primary type is invisible
->> at expand_module(), but the aliased one is visible. It can make the
->> strange type_datum_t object.
->>
->> * at the expand_module()
->> 1. The expand_state_t which includes typemap is initialized.
->>
->> 2. The type_copy_callback is invoked for any types via hashtab_map.
->>    It only copies primary and visible types into newer hashtab,
->>    and set up typemap to translate between old and new s.value.
->>    Thus, the given primary type is invisible, its slot of typemap
->>    is kept to zero.
->>    (*) is_id_enabled() for "xguest_javaplugin_xproperty_t" returned false.
->>
->> 3. The alias_copy_callback is invoked for any types via hashtab_map.
->>    It only copies alias and visible types into newer hashtab.
->>    Here is no check whether the primary side is visible, or not.
->>    A copied type_datum_t object for the given alias has new s.value
->>    which is picked up from state->typemap.
->>
->> 4. However, the target slot of state->typemap was zero, because
->>    its primary one is invisible. The aliased type has a strange
->>    s.value.
->>
->> 5. Type hierarchy checks got a segmentation fault, due to
->>    "p->type_val_to_name[datum->s.value - 1]".
->>                         ^^^^^^^^^^^^^^^^^^ == -1
->> Yes, we can identify cause of the matter.
-> 
-> Do you have a policy that can be used to reproduce this?
+I've received the above bug report against the Debian policy packages.  The 
+operation in question is "semodule -b" followed by "semodule -i".
 
-Yes, the following policy can reproduce the matter.
-- - - - [ cut here ] - - - -
-policy_module(baz, 1.0)
+I haven't had time to work on this (and won't until well after Lenny is 
+released).  But if anyone has any quick ideas of how to reduce memory use by 
+semodule then I would be interested to hear them.
 
-optional_policy(`
-        gen_require(`
-                type invisible_primary_t;
-        ')
-        typealias invisible_primary_t alias visible_alias_t;
-')
-- - - - - - - - - - - - - - -
-
-The attached patch can inject some of printf()'s.
-You can see that invisible_primary_t is skipped at type_copy_callback()
-and an incorrect s.value is assigned at alias_copy_callback().
-
-Thanks,
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
 
---------------030609080007000404040106
-Content-Type: text/x-patch;
- name="libsepol-debugging.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libsepol-debugging.patch"
-
-Index: libsepol/src/expand.c
-===================================================================
---- libsepol/src/expand.c	(revision 2950)
-+++ libsepol/src/expand.c	(working copy)
-@@ -90,6 +90,8 @@
- 	}
- 	if (!is_id_enabled(id, state->base, SYM_TYPES)) {
- 		/* identifier's scope is not enabled */
-+		INFO(state->handle, "type %s is skipped (s.value=%u primary=%u)",
-+		     (char *)key, type->s.value, type->primary);
- 		return 0;
- 	}
- 
-@@ -516,6 +518,14 @@
- 
- 	new_alias->flags = alias->flags;
- 
-+	if (!new_alias->s.value) {
-+		INFO(state->handle, "strange alias type : "
-+		     "%s (a.value=%u, primary=%u, flavor=%u)"
-+		     " => (a.value=%u, primary=%u, flavor=%u)",
-+		     (char *) key, alias->s.value, alias->primary, alias->flavor,
-+		     new_alias->s.value, new_alias->primary, new_alias->flavor);
-+	}
-+
- 	ret = hashtab_insert(state->out->p_types.table,
- 			     (hashtab_key_t) new_id,
- 			     (hashtab_datum_t) new_alias);
-Index: libsepol/src/write.c
-===================================================================
---- libsepol/src/write.c	(revision 2950)
-+++ libsepol/src/write.c	(working copy)
-@@ -952,6 +952,12 @@
- 
- 	typdatum = (type_datum_t *) datum;
- 
-+	if (!typdatum->s.value) {
-+		printf("%s: strange type %s (s.value=%u, primary=%u, flavor=%u)\n",
-+		       __FUNCTION__, (char *)key, typdatum->s.value,
-+		       typdatum->primary, typdatum->flavor);
-+	}
-+
- 	len = strlen(key);
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
-
---------------030609080007000404040106--
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
