@@ -1,47 +1,38 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8A1sIg1002916
-	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2008 21:54:18 -0400
-Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8A1rXHH011605
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 01:53:34 GMT
-Received: from localhost (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id B4110180EA
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 11:54:15 +1000 (EST)
-Received: from nospam.sws.net.au ([127.0.0.1])
-	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J2cePcvq6Tc6 for <selinux@tycho.nsa.gov>;
-	Wed, 10 Sep 2008 11:54:15 +1000 (EST)
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by nospam.sws.net.au (Postfix) with ESMTP id 6833B180DC
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 11:54:15 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 3336220F93
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 11:54:13 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: dpkg bug related to SE Linux
-Date: Wed, 10 Sep 2008 11:54:07 +1000
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8A22J27004300
+	for <selinux@tycho.nsa.gov>; Tue, 9 Sep 2008 22:02:19 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m8A22JZh027290
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 02:02:19 GMT
+Message-ID: <48C72A87.9030009@manicmethod.com>
+Date: Tue, 09 Sep 2008 22:01:43 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200809101154.12520.russell@coker.com.au>
+To: russell@coker.com.au
+CC: SE-Linux <selinux@tycho.nsa.gov>
+Subject: Re: semodule memory use
+References: <200809101150.15440.russell@coker.com.au>
+In-Reply-To: <200809101150.15440.russell@coker.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=498438
+Russell Coker wrote:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=495786
+> 
+> I've received the above bug report against the Debian policy packages.  The 
+> operation in question is "semodule -b" followed by "semodule -i".
+> 
+> I haven't had time to work on this (and won't until well after Lenny is 
+> released).  But if anyone has any quick ideas of how to reduce memory use by 
+> semodule then I would be interested to hear them.
+> 
 
-This may interest someone here.
+how big is the policy in terms of rules? if it is even close to the size of fedora's there is no chance of it running in under 32 meg.
 
-dpkg can in some situations fail to reset the default file create context and 
-create files with the wrong context.  It doesn't appear to be a security 
-issue though.
+You'll need a significantly smaller policy to reduce the memory usage. There is no quick answer, we've already picked most of the low hanging fruit (releasing modules earlier, consuming the linked policy while expanding, reducing the size of the type datum, etc).
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
