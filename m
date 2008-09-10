@@ -1,23 +1,40 @@
-Message-ID: <48C8249A.50404@manicmethod.com>
-Date: Wed, 10 Sep 2008 15:48:42 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <48C82587.7040708@redhat.com>
+Date: Wed, 10 Sep 2008 15:52:39 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>,
+To: Joshua Brindle <method@manicmethod.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
         Manoj Srivastava <srivasta@debian.org>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Userspace versioning and releases
+Subject: Re: Userspace versioning and releases
+References: <48C8249A.50404@manicmethod.com>
+In-Reply-To: <48C8249A.50404@manicmethod.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-We have discussed a little lately about changing the way we do releases and versioning of the userspace components. One idea is to no longer version per-commit like we do now but instead only bump the version at release time.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This would be a problem for distros using Git as their upstream. One question is, who does this (I know Dan does) and what can we do to move you to using releases? First we want to do releases more often and time based (eg., every 2 or 3 months).
+Joshua Brindle wrote:
+> We have discussed a little lately about changing the way we do releases and versioning of the userspace components. One idea is to no longer version per-commit like we do now but instead only bump the version at release time.
+> 
+> This would be a problem for distros using Git as their upstream. One question is, who does this (I know Dan does) and what can we do to move you to using releases? First we want to do releases more often and time based (eg., every 2 or 3 months).
+> 
+> We also would like some way of relating versions of the components with each other, so that it is very easy to tell which libsepol you need for which checkpolicy and libselinux, for example. We'd also need to do this in a way that doesn't interfere with the current versions (no new version scheme should ever be seen as a downgrade to package managers, etc)
+> 
+> Are there any comments or suggestions on this? Does anyone completely object to this kind of change and why?
 
-We also would like some way of relating versions of the components with each other, so that it is very easy to tell which libsepol you need for which checkpolicy and libselinux, for example. We'd also need to do this in a way that doesn't interfere with the current versions (no new version scheme should ever be seen as a downgrade to package managers, etc)
+My concern would be release early/release often.  You will loose the
+ability for rawhide to check your changes.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Are there any comments or suggestions on this? Does anyone completely object to this kind of change and why?
+iEYEARECAAYFAkjIJYcACgkQrlYvE4MpobNfrgCfSlsB6SX6B1qlobVdJ0eAXHNS
+fqgAnjxtYUeAXYJ3Uo08W0xXepaLXuJJ
+=EcvM
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
