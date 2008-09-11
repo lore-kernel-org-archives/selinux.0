@@ -1,98 +1,80 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8BL19vx015968
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 17:01:09 -0400
-Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8BL198L018189
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 21:01:09 GMT
-Received: by yw-out-1718.google.com with SMTP id 6so207901ywa.84
-        for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 14:01:08 -0700 (PDT)
-Message-ID: <dd18b0c30809111401h4575b1dcub226f6c4ab40a5bc@mail.gmail.com>
-Date: Thu, 11 Sep 2008 14:01:08 -0700
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8BLlSxu025099
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 17:47:28 -0400
+Received: from hs-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8BLkiKk015017
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 21:46:44 GMT
+Received: by hs-out-0708.google.com with SMTP id k27so226772hsc.2
+        for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 14:47:28 -0700 (PDT)
+Message-ID: <dd18b0c30809111447yb1e1d59n30570e0773ae2cb7@mail.gmail.com>
+Date: Thu, 11 Sep 2008 14:47:27 -0700
 From: "Justin Mattock" <justinmattock@gmail.com>
-To: "=?ISO-8859-1?Q?V=E1clav_Ovs=EDk?=" <vaclav.ovsik@i.cz>
-Subject: Re: [refpolicy] ssh issue with latest policy
-Cc: "SE Linux" <selinux@tycho.nsa.gov>, Hong <kindloaf@gmail.com>,
-        tresys <refpolicy@oss.tresys.com>
-In-Reply-To: <20080911125025.GA5448@bobek.pm.i.cz>
+To: "SE Linux" <selinux@tycho.nsa.gov>
+Subject: setkey ipsec no avc's message
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-References: <dd18b0c30809101232la13c43mee3d9ab0bfe2f509@mail.gmail.com>
-	 <20080911125025.GA5448@bobek.pm.i.cz>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Sep 11, 2008 at 5:50 AM, Václav Ovsík <vaclav.ovsik@i.cz> wrote:
-> On Wed, Sep 10, 2008 at 12:32:31PM -0700, Justin Mattock wrote:
->> Hong,
->> I cant seem to locate the post you sent a few days ago
->> about logging into ssh. anyways I finally got around to logging into
->> my machines with both the latest kernel and refpolicy;
->> there was difficulty due to having /etc/host and /etc/sysctl.conf
->> variables in these files preventing me from logging in.
->> So with that in mind check and make sure those files
->> are cleared of anything that might cause an error.
->> As for the policy itself they were both in permissive mode
->> via boot param, so having /etc/selinux/config in enforcing
->> didnt cause an ubstruction for me.
->> hope this helps.
->
-> May be. And Hong not replied yet if he did relabel the file system. :)
->
-> I have tried to restart sshd with nonsense context to show the problem
-> even with PERMISSIVE mode of SE Linux!
->
-> sid:~# sestatus
-> SELinux status:                 enabled
-> SELinuxfs mount:                /selinux
-> Current mode:                   permissive
-> Mode from config file:          enforcing
-> Policy version:                 23
-> Policy from config file:        default
->
-> sid:~# runcon sysadm_u:sysadm_r:sysadm_t:s0 /etc/init.d/ssh restart
->
-> sid:~# ps -H -Z -C sshd
-> LABEL                             PID TTY          TIME CMD
-> sysadm_u:sysadm_r:sysadm_t:s0    1944 ?        00:00:00 sshd
-> system_u:system_r:sshd_t:s0-s0:c0.c1023 1808 ? 00:00:00 sshd
-> system_u:system_r:sshd_t:s0-s0:c0.c1023 1810 ? 00:00:00   sshd
->
-> That is the new parent process sshd running with sysadm_u:sysadm_r:sysadm_t:s0.
->
-> zito@bobek:~$ ssh sid
-> Read from remote host sid: Connection reset by peer
-> Connection to sid closed.
->
-> sid:~# tail -2 /var/log/syslog
-> Sep 11 14:32:18 sid kernel: [  649.880210] sshd[1954]: segfault at 2 ip b7ad5cea sp bfc2b04c error 4 in libc-2.7.so[b7a60000+155000]
-> Sep 11 14:32:18 sid kernel: [  649.883080] type=1701 audit(1221136338.451:27): auid=4294967295 uid=1000 gid=1000 ses=4294967295 subj=sysadm_u:sysadm_r:sysadm_t:s0 pid=1954 comm="sshd" sig=11
->
->
-> This is mature for bug report on openssh.
-> Conclusion: Running SE Linux in permissive mode can't prevent you from
-> all SE Linux problems every time! (in most cases yes of course :)
->
-> --
-> Zito
->
+when starting ipsec, there is a daemon
+or I can run /usr/sbin/setkey. at the moment I've disabled
+setkey daemon at boot up, and am using the manual
+approach. when issuing setkey -f /etc/ipsec-tools.conf
+the file does go into the SDP entry without any issues,
+ but also leaves avc's in dmesg. (below);
 
-appologize for the latency with getting back to you;
-you might have the ssh version from sid, if so
-do /etc/init.d/ssh stop and start if you notice [fail] then thats the issue,
-esspecially if people are booting up and not even manually starting the daemon.
-As for the policy and ssh I'm in the process of
-having two machines in full enforcing mode, having the ability
-to do a ssh transaction(need to configure some things); As well
-as vncviewer, and shoutcast; all with ipsec. (AH and ESP)
-right now I've been able to run all three applications on the machine
-that is in full enforcement, but it seems im having issues with ipsec
-and shoutcast.
-on the server side.
-I'll get back to you on this.
+[  157.919674] type=1415 audit(1221168887.813:5): op=SAD-add
+auid=4294967295 ses=4294967295 subj=a-12:sysadm_r:sysadm_t
+src=10.0.0.8 dst=10.0.0.5 spi=512(0x200) res=1
+[  157.919714] type=1300 audit(1221168887.813:5): arch=40000003
+syscall=102 success=yes exit=120 a0=9 a1=bfee55b0 a2=805a6d0 a3=20
+items=0 ppid=3830 pid=3916 auid=4294967295 uid=0 gid=0 euid=0 suid=0
+fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=4294967295 comm="setkey"
+exe="/usr/sbin/setkey" subj=a-12:sysadm_r:sysadm_t key=(null)
+[  157.919907] type=1415 audit(1221168887.873:6): op=SAD-add
+auid=4294967295 ses=4294967295 subj=a-12:sysadm_r:sysadm_t
+src=10.0.0.5 dst=10.0.0.8 spi=768(0x300) res=1
+[  157.919936] type=1300 audit(1221168887.873:6): arch=40000003
+syscall=102 success=yes exit=120 a0=9 a1=bfee55b0 a2=805a7a0 a3=20
+items=0 ppid=3830 pid=3916 auid=4294967295 uid=0 gid=0 euid=0 suid=0
+fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=4294967295 comm="setkey"
+exe="/usr/sbin/setkey" subj=a-12:sysadm_r:sysadm_t key=(null)
+[  157.997476] type=1415 audit(1221168887.873:7): op=SAD-add
+auid=4294967295 ses=4294967295 subj=a-12:sysadm_r:sysadm_t
+src=10.0.0.8 dst=10.0.0.5 spi=513(0x201) res=1
+[  157.997518] type=1300 audit(1221168887.873:7): arch=40000003
+syscall=102 success=yes exit=128 a0=9 a1=bfee55b0 a2=805a880 a3=20
+items=0 ppid=3830 pid=3916 auid=4294967295 uid=0 gid=0 euid=0 suid=0
+fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=4294967295 comm="setkey"
+exe="/usr/sbin/setkey" subj=a-12:sysadm_r:sysadm_t key=(null)
+[  157.997717] type=1415 audit(1221168887.953:8): op=SAD-add
+auid=4294967295 ses=4294967295 subj=a-12:sysadm_r:sysadm_t
+src=10.0.0.5 dst=10.0.0.8 spi=769(0x301) res=1
+[  157.997745] type=1300 audit(1221168887.953:8): arch=40000003
+syscall=102 success=yes exit=128 a0=9 a1=bfee55b0 a2=805a978 a3=20
+items=0 ppid=3830 pid=3916 auid=4294967295 uid=0 gid=0 euid=0 suid=0
+fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=4294967295 comm="setkey"
+exe="/usr/sbin/setkey" subj=a-12:sysadm_r:sysadm_t key=(null)
+[  157.997940] type=1415 audit(1221168887.953:9): op=SPD-add
+auid=4294967295 ses=4294967295 subj=a-12:sysadm_r:sysadm_t res=1
+src=10.0.0.8 dst=10.0.0.5
+[  157.997968] type=1300 audit(1221168887.953:9): arch=40000003
+syscall=102 success=yes exit=112 a0=9 a1=bfee3550 a2=ffffffff
+a3=805ab70 items=0 ppid=3830 pid=3916 auid=4294967295 uid=0 gid=0
+euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=4294967295
+comm="setkey" exe="/usr/sbin/setkey" subj=a-12:sysadm_r:sysadm_t
+key=(null)
+
+When using audit2allow -d
+there is a message of: No AVC's found.
+Anyways not sure if this is good or bad...
+thaught it would be better to post than to not at all.
+Besides that ipsec seems to be running nicely, with the policy
+in enforcing mode.
+regards;
 
 -- 
 Justin P. Mattock
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
