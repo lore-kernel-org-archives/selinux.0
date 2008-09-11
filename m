@@ -1,31 +1,45 @@
-Date: Fri, 12 Sep 2008 00:47:25 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
-Subject: Re: [patch] Update selinux info in MAINTAINERS and Kconfig help
- text
-In-Reply-To: <1221139226.18396.24.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <alpine.LRH.1.10.0809120046470.4116@tundra.namei.org>
-References: <1221139226.18396.24.camel@moss-spartans.epoch.ncsc.mil>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8BIevFW019258
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 14:40:57 -0400
+Message-ID: <48C96638.2040901@tycho.nsa.gov>
+Date: Thu, 11 Sep 2008 14:40:56 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Xavier Toth <txtoth@gmail.com>
+CC: SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: xpyb Fedora package?
+References: <cadfc0e40809101431n17dd44b6q2e08fb339da09815@mail.gmail.com> <cadfc0e40809110715i44e04545t69880e81f4055c81@mail.gmail.com>
+In-Reply-To: <cadfc0e40809110715i44e04545t69880e81f4055c81@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 11 Sep 2008, Stephen Smalley wrote:
+Xavier Toth wrote:
+> On Wed, Sep 10, 2008 at 4:31 PM, Xavier Toth <txtoth@gmail.com> wrote:
+>   
+>> Eamon,
+>> I know you wrote python bindings for xcb SELinux functions are you
+>> going to package these for distribution with Fedora?
+>>
+>> Ted
+>>
+>>     
+>
+> maybe this will help
+>   
 
-> Update the SELinux entry in MAINTAINERS and drop the obsolete information
-> from the selinux Kconfig help text.
-> 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+To get this package into Fedora, you'll need to follow the procedure
+described at http://fedoraproject.org/wiki/PackageMaintainers/Join   for
+getting the package set up and sponsored.
 
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+Perhaps someone who's already a Fedora package maintainer could help
+with this.
 
 
 -- 
-James Morris
-<jmorris@namei.org>
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
