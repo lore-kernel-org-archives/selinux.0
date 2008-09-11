@@ -1,38 +1,44 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8B389Ri000997
-	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 23:08:09 -0400
-Received: from yx-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8B37Pbv002292
-	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 03:07:25 GMT
-Received: by yx-out-1718.google.com with SMTP id 3so57456yxi.84
-        for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 20:08:09 -0700 (PDT)
-Message-ID: <48C88B93.7000006@gmail.com>
-Date: Wed, 10 Sep 2008 23:08:03 -0400
-From: Ivan Gyurdiev <ivg231@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8B3r1eF008724
+	for <selinux@tycho.nsa.gov>; Wed, 10 Sep 2008 23:53:01 -0400
+Received: from nospam.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8B3qFbv013448
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 03:52:17 GMT
+Received: from localhost (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 841CA18064
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 13:52:53 +1000 (EST)
+Received: from nospam.sws.net.au ([127.0.0.1])
+	by localhost (etbe.coker.com.au [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3m0JnqcW0y4Y for <selinux@tycho.nsa.gov>;
+	Thu, 11 Sep 2008 13:52:53 +1000 (EST)
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by nospam.sws.net.au (Postfix) with ESMTP id 0A20218032
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 13:52:53 +1000 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id A4B3321E3E
+	for <selinux@tycho.nsa.gov>; Thu, 11 Sep 2008 13:52:51 +1000 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: strange memory use of mcstransd
+Date: Thu, 11 Sep 2008 13:52:50 +1000
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: libsemage patch to not compile modules for seusers and fcontext
-References: <48A48B8C.3070908@redhat.com> <1219412317.18600.60.camel@moss-spartans.epoch.ncsc.mil> <48B41D0E.6060509@redhat.com> <48B4B348.2080801@gmail.com> <48C7D9F0.4000405@redhat.com>
-In-Reply-To: <48C7D9F0.4000405@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200809111352.51371.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Ok I found some problems with the previous patch and did some code
-> reuse.  I added a function that only read base.pp in order to handle the
->  base user_extra and seusers problem.
->   
+root      2307  0.2 21.5 408364 54784 ?        Ss   Aug21  90:08 mcstransd
 
-This is starting to look better - I see no obvious correctness issues.
-The function still seems much too large to maintain - maybe fcontext and 
-module stuff can also be broken out into sub-functions ?
+408M of RAM for mcstransd, over the course of 20 days.  The package is 
+mcstrans-0.2.7-1.el5 from CentOS 5.
 
-ivan
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
 
-
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
