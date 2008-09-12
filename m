@@ -1,18 +1,18 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8CDxN1F023866
-	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2008 09:59:23 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8CEiu4v003742
+	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2008 10:44:56 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m8CDwYi3007428
-	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2008 13:58:38 GMT
-Message-ID: <48CA75A8.4070204@manicmethod.com>
-Date: Fri, 12 Sep 2008 09:59:04 -0400
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m8CEiBi3022970
+	for <selinux@tycho.nsa.gov>; Fri, 12 Sep 2008 14:44:11 GMT
+Message-ID: <48CA8062.7000808@manicmethod.com>
+Date: Fri, 12 Sep 2008 10:44:50 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Daniel J Walsh <dwalsh@redhat.com>
 CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: fixfiles fixes
-References: <48C57707.3090906@redhat.com>
-In-Reply-To: <48C57707.3090906@redhat.com>
+Subject: Re: Changes to semanage to allow it to handle transactions.
+References: <48C57780.6090408@redhat.com>
+In-Reply-To: <48C57780.6090408@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -21,22 +21,39 @@ Daniel J Walsh wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
 > 
-> Removes all files from /tmp, previous one would leave /tmp/.a and /tmp/.b
+> semanage -S targeted -i - << __eof
+> user -a -P user -R "unconfined_r system_r" -r s0-s0:c0.c1023 unconfined_u
+> user -a -P user -R guest_r guest_u
+> user -a -P user -R xguest_r xguest_u
+> __eof
+> semanage -S targeted -i - << __eof
+> login -m  -s unconfined_u -r s0-s0:c0.c1023 __default__
+> login -m  -s unconfined_u -r s0-s0:c0.c1023 root
+> __eof
 > 
-> Fixed context on unlabeled_t and file_t files in /tmp and /var/tmp.
-> 
-> 
+> So you can add multiple records in a single pass.
 > -----BEGIN PGP SIGNATURE-----
 > Version: GnuPG v1.4.9 (GNU/Linux)
 > Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 > 
-> iEYEARECAAYFAkjFdwYACgkQrlYvE4MpobMZJACfRsCuVFja3fvYZYtptyW2h3lH
-> yAQAn0xmDAYELt+res60OIcL3UDrUFRv
-> =09W1
+> iEYEARECAAYFAkjFd4AACgkQrlYvE4MpobMaoQCgxeqYTX2mpRIiIr0461/fvblU
+> 3fQAoIbM8x9rWL0f8iPz0UeoM2mf60XW
+> =hxC3
 > -----END PGP SIGNATURE-----
 > 
 
-Merged in policycoreutils 2.0.56
+This patch seems to cause some issues:
+
+[root@misterfreeze selinux-pristine]# semanage --help
+Traceback (most recent call last):
+  File "/usr/sbin/semanage", line 433, in <module>
+    usage(_("Requires 2 or more arguments"))
+  File "/usr/sbin/semanage", line 98, in usage
+    """) % message)
+TypeError: float argument required
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
