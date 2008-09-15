@@ -1,64 +1,58 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8FBHXhx008155
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 07:17:33 -0400
-Received: from ug-out-1314.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8FBGja0029179
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 11:16:45 GMT
-Received: by ug-out-1314.google.com with SMTP id z36so1002957uge.17
-        for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 04:17:32 -0700 (PDT)
-Subject: Re: user guide draft: "Confined and Unconfined User Domains" review
-From: Dominick Grift <domg472@gmail.com>
-To: Murray McAllister <mmcallis@redhat.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@namei.org>,
+Message-ID: <48CE5AC9.6000408@redhat.com>
+Date: Mon, 15 Sep 2008 08:53:29 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: Ivan Gyurdiev <ivg231@gmail.com>, Stephen Smalley <sds@tycho.nsa.gov>,
         SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <48CDC478.3050101@redhat.com>
-References: <48C6236D.4020408@redhat.com> <48C67DCD.2030104@redhat.com>
-	 <48CDBA0A.3000801@redhat.com>  <48CDC478.3050101@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wJjVRbbHckUPDA2IHdKN"
-Date: Mon, 15 Sep 2008 13:17:31 +0200
-Message-Id: <1221477451.13007.20.camel@sulphur.notebook.internal>
-Mime-Version: 1.0
+Subject: Re: libsemage patch to not compile modules for seusers and fcontext
+References: <48A48B8C.3070908@redhat.com> <1219412317.18600.60.camel@moss-spartans.epoch.ncsc.mil> <48B41D0E.6060509@redhat.com> <48B4B348.2080801@gmail.com> <48C7D9F0.4000405@redhat.com> <48CABAA8.5020302@tresys.com>
+In-Reply-To: <48CABAA8.5020302@tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+> Ivan Gyurdiev wrote:
+>>>>>> I'm a little unclear on what this is doing - can you clarify?
+>>>>>>     
+>>>>> This is clearing the existing seusers.final file, otherwise delete was
+>>>>> not working.
+>>>>>   
+>>>> I think the previous code was doing more - it was merging the local file
+>>>> with the shipped base package file, like this:
+>>>>
+>>>>    data = extract_file_from_policy_package( )
+>>>>    write_file ( "seusers.final", data )
+>>>>    if ( data != null ) {
+>>>>        seusers.clear_cache()  // thereby forcing reload from
+>>>> seusers.final when cache() is called again (in merge_components)
+>>>>    } else {
+>>>>        seusers.clear()
+>>>>    }
+>>>>
+>>>> It's also doing this three times (once for fcontexts, once for seusers,
+>>>> once for seusers_extra).
+>>>> The problem is that you're skipping the link_sandbox call, which builds
+>>>> the base package, containing this information.
+>>>>
+>>>> Ivan
+>>>>
+>>>>
+> Ok I found some problems with the previous patch and did some code
+> reuse.  I added a function that only read base.pp in order to handle the
+>  base user_extra and seusers problem.
+> 
+> 
+>>
 
---=-wJjVRbbHckUPDA2IHdKN
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> The patch looks good but the test looks like it was written to be standalone and make test under libsemanage won't compile anymore (duplicate definition of main()). Please use the CUnit test infrastructure we have in place.
 
-On Mon, 2008-09-15 at 12:12 +1000, Murray McAllister wrote:
+How about we create a new directory called examples and throw it there.
 
-> What sudo access does staff_t have?
-
-I think staff can transition to all privileged user domains
-
-secadm,logadm,webadm,auditadm,unconfined,sysadm etc. You can verify this
-in the staff role module in the source policy. staff_t may also be root
-however this root as staff_t will have the same permission as staff_t as
-unprivileged user.
-
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov =
-with
-> the words "unsubscribe selinux" without quotes as the message.
---=20
-Dominick Grift <domg472@gmail.com>
-
---=-wJjVRbbHckUPDA2IHdKN
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkjOREgACgkQL00QnzrVtlzlWQCeJhI+vnHIpon/BZ8NVeYkQ80p
-7m4AoKxgmm369EL1s8d0DVF8iWHAZ1aT
-=6xUs
------END PGP SIGNATURE-----
-
---=-wJjVRbbHckUPDA2IHdKN--
-
+I wrote this up as an example to be used by libvirt guys to assign a
+context on the fly.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
