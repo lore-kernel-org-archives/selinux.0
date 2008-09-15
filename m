@@ -1,210 +1,178 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8F2CvQQ015759
-	for <selinux@tycho.nsa.gov>; Sun, 14 Sep 2008 22:12:57 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8F2Cv05029954
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 02:12:57 GMT
-Message-ID: <48CDC478.3050101@redhat.com>
-Date: Mon, 15 Sep 2008 12:12:08 +1000
-From: Murray McAllister <mmcallis@redhat.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8FBABXk006365
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 07:10:11 -0400
+Received: from ey-out-1920.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8FB9Ma0026408
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 11:09:23 GMT
+Received: by ey-out-1920.google.com with SMTP id 4so898597eyg.30
+        for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 04:10:09 -0700 (PDT)
 Subject: Re: user guide draft: "Confined and Unconfined User Domains" review
-References: <48C6236D.4020408@redhat.com> <48C67DCD.2030104@redhat.com> <48CDBA0A.3000801@redhat.com>
+From: Dominick Grift <domg472@gmail.com>
+To: Murray McAllister <mmcallis@redhat.com>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, James Morris <jmorris@namei.org>,
+        SE Linux <selinux@tycho.nsa.gov>
 In-Reply-To: <48CDBA0A.3000801@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <48C6236D.4020408@redhat.com> <48C67DCD.2030104@redhat.com>
+	 <48CDBA0A.3000801@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NEQhiDL0Hh51Z9auMvri"
+Date: Mon, 15 Sep 2008 13:10:07 +0200
+Message-Id: <1221477007.13007.13.camel@sulphur.notebook.internal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Murray McAllister wrote:
-> Daniel J Walsh wrote:
->> Murray McAllister wrote:
->>> Hi,
->>>
->>> The following is a draft of the "Confined and Unconfined User Domains"
->>> section for the SELinux User Guide. Any comments and corrections are
->>> appreciated.
->>>
->>> This is the last part of intro text.
->>>
->>> Thanks.
->>>
->>>
->>> Confined and Unconfined User Domains
->>>
->>> Each Linux user account is mapped to an SELinux user identity when a
->>> user login session is created, and the mapped SELinux user identity is
->>> used in the security context for processes in that session. By default,
->>> on Fedora 10, Linux users are mapped to the SELinux unconfined_u user.
->>> This is seen by running the id -Z and /usr/sbin/semanage login -l 
->>> commands:
->>>
->>> # id -Z
->>> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
->>> # /usr/sbin/semanage login -l
->>>
->>> Login Name                SELinux User              MLS/MCS Range
->>>
->>> __default__               unconfined_u              s0-s0:c0.c1023
->>> root                      unconfined_u              s0-s0:c0.c1023
->>> system_u                  system_u                  s0-s0:c0.c1023
->>>
->>> The first row, __default__, defines that any new Linux users created
->>> that are not specifically mapped to an SELinux user, are mapped to the
->>> SELinux unconfined_u user. For a description of each column, refer to
->>> Chapter 3, SELinux Contexts. Unconfined Linux users are subject to
->>> executable and writeable memory checks, and are also restricted by MCS
->>> (and MLS, if the MLS policy is used). If they execute an object that the
->>> SELinux policy defines can transition from the unconfined_t domain to
->>> its own confined domain, the unconfined Linux users are still subject to
->>> the restrictions of that confined domain.
->>>
->>> The following confined user domains are available in Fedora 10:
->>>
->>> guest_t: The guest_t domain is used for minimal-privileged Linux users.
->> guest_u:  The guest_u SELinux user will default to the guest_t type when
->> logging in. The guest_t domain ...
->>> Linux users in this domain are not allowed to use the X Window System,
->>> run set user ID (setuid) applications, and do not have network access.
->>> For example, Permission denied errors are returned when using the ping
->>> and ssh commands. These users are allowed a log in via a terminal
->>> (including ssh).
->>>
->> Examples of setuid applications su, sudo.  I think you should say that
->> the power of this is that they can never become root.
->>
->> guest_t, xguest_t, user_t are also prevented by default from executing
->> code in their home directory or tmp directories, preventing them from
->> execuing programs in directories they can write to.
->>
->>> xguest_t: The xguest_t domain is also for minimal-privileged Linux
->>> users, but lets them use the X Window System. Linux users in this domain
->>> are not allowed to run setuid applications, and the only network access
->>> allowed is Firefox connecting to web pages. These users are allowed to
->>> log in via the X Window System and a terminal.
->>>
->>> user_t: The user_t domain is for standard Linux users. Linux users in
->>> this domain are not allowed to run setuid applications. These users are
->>> allowed to log in via the X Window System and a terminal, and have full
->>> network access.
->>>
->>> [I think I got this wrong. I got permission denied when trying to use
->>> ping as a user_u user (useradd -Z user_u test)]
->>>
->> ping is a setuid application.
->>> staff_t: The staff_t domain is similar to user_t, except that Linux
->>> users in this domain are allowed to run the setuid sudo application.
->>>
->> These should all be guest_u, xguest_u, staff_u, user_u.
->>
->> Finally saying they can not run setuid applications is somewhat
->> incorrect.   The real prevention is they can not run setuid apps without
->> a defined transition.  So all of the users can run passwd as an example,
->> which is a setuid app.  But they can not run any application that does
->> not allow a transition.
->>> -- 
->>> This message was distributed to subscribers of the selinux mailing list.
->>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
->>> with
->>> the words "unsubscribe selinux" without quotes as the message.
->>
-> 
+
+--=-NEQhiDL0Hh51Z9auMvri
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, 2008-09-15 at 11:27 +1000, Murray McAllister wrote:
+
 > Hi,
-> 
+>=20
 > I have made some changes:
-> 
+>=20
 > Confined and Unconfined Users
-> 
-> Each Linux user is mapped to an SELinux user via SELinux policy. This 
-> allows Linux users to inherit the restrictions on SELinux users. By 
-> default, on Fedora 10, Linux users are mapped to the SELinux 
-> unconfined_u user. This Linux user mapping is seen by running the 
+>=20
+> Each Linux user is mapped to an SELinux user via SELinux policy. This
+
+I would call it SEinux user group because you can map several users to
+the same SELinux user group.
+> =20
+> allows Linux users to inherit the restrictions on SELinux users. By=20
+> default, on Fedora 10, Linux users are mapped to the SELinux
+
+I would say the Linux users are by default mapped to the __default__
+login, which (usually) in Fedora is mapped to unconfined_u SELinux user
+group.
+
+Please note though that currently __default__ login is mapped to user_u
+SELinux usr group in rawhide. You can verify this in rawhide by semanage
+login -a. I do not now if this can be considered a bug.
+
+> =20
+> unconfined_u user. This Linux user mapping is seen by running the=20
 > /usr/sbin/semanage login -l command as the Linux root user:
-> 
+>=20
 > # /usr/sbin/semanage login -l
-> 
+>=20
 > Login Name                SELinux User              MLS/MCS Range
-> 
+>=20
 > __default__               unconfined_u              s0-s0:c0.c1023
 > root                      unconfined_u              s0-s0:c0.c1023
 > system_u                  system_u                  s0-s0:c0.c1023
-> 
+>=20
 > The following defines the default-mapping:
-> 
+>=20
 > __default__               unconfined_u              s0-s0:c0.c1023
-> 
-> The following example demonstates adding a new Linux user, and that 
+>=20
+> The following example demonstates adding a new Linux user, and that=20
 > Linux user being mapped to the SELinux unconfined_u user:
-> 
+>=20
 > 1. As the Linux root user, create a new Linux user named newuser:
-> 
+>=20
 > # /usr/sbin/useradd newuser
-> 
+
+This may in many cases be right however in SELinux world root is not all
+powerfull by itself. in this example you assume that root runs in the
+unconfined_t domain, which it does by default however one can run root
+in other domains as well.
+
 > 2. As the Linux root user, assign a password to the Linux newuser user:
-> 
+>=20
 > # passwd newuser
 > Changing password for user newuser.
 > New UNIX password: Enter a password
 > BAD PASSWORD: it is based on a dictionary word
 > Retype new UNIX password: Enter the same password again
 > passwd: all authentication tokens updated successfully.
-> 
+>=20
 > 3. Log out of your current session, and log in as the Linux newuser user.
-> 
-> 4. When you log in, pam_selinux maps the Linux user to an SELinux user 
-> (in this case, unconfined_u), and sets up the resulting SELinux context. 
-> The Linux user's shell is then launched with this SELinux context. To 
+>=20
+> 4. When you log in, pam_selinux maps the Linux user to an SELinux user=20
+> (in this case, unconfined_u), and sets up the resulting SELinux context.=20
+> The Linux user's shell is then launched with this SELinux context. To=20
 > view the SELinux context for a Linux user, run the id -Z command:
-> 
+>=20
+
+That is if __default__ login is mapped to unconfined SELinux user group.
+
 > [newuser@localhost ~]$ id -Z
 > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> 
-> If mcstrans is running, s0-s0:c0.c1023 is translated to 
+>=20
+> If mcstrans is running, s0-s0:c0.c1023 is translated to=20
 > SystemLow-SystemHigh:
-> 
+
+I am not sure if by default that user is assigned all categories.
+
 > [newuser@localhost ~]$ id -Z
 > unconfined_u:unconfined_r:unconfined_t:SystemLow-SystemHigh
-> 
-> Confined and unconfined Linux users are subject to executable and 
-> writeable memory checks, and are also restricted by MCS (and MLS, if the 
-> MLS policy is used). If unconfined Linux users execute an application 
-> that SELinux policy defines can transition from the unconfined_t domain 
-> to its own confined domain, unconfined Linux users are still subject to 
-> the restrictions of that confined domain. The security benefit of this 
-> is that, even though a Linux user is running unconfined, they can not 
-> override the SELinux policy for a confined application, just because 
+>=20
+> Confined and unconfined Linux users are subject to executable and=20
+> writeable memory checks, and are also restricted by MCS (and MLS, if the=20
+> MLS policy is used). If unconfined Linux users execute an application=20
+> that SELinux policy defines can transition from the unconfined_t domain=20
+> to its own confined domain, unconfined Linux users are still subject to=20
+> the restrictions of that confined domain. The security benefit of this=20
+> is that, even though a Linux user is running unconfined, they can not=20
+> override the SELinux policy for a confined application, just because=20
 > they (the user) are unconfined.
-> 
+>=20
 > The following confined SELinux users are available in Fedora 10:
-> 
-> [ I have put most of this into a table, with with colums: User, Domain, 
-> X Window System, su and sudo, Execute in home directory and /tmp, 
+>=20
+> [ I have put most of this into a table, with with colums: User, Domain,=20
+> X Window System, su and sudo, Execute in home directory and /tmp,=20
 > Networking, and used ticks+crosses to minimize too much text]
-> 
-> * Linux users in the guest_t, xguest_t, and user_t domains can only run 
-> set user ID (setuid) applications if SELinux policy permits it (such as 
-> passwd). They can not run the su and /usr/bin/sudo setuid applications, 
-> and therefore, can not become the Linux root user with these applications.
-> 
+>=20
+> * Linux users in the guest_t, xguest_t, and user_t domains can only run=20
+> set user ID (setuid) applications if SELinux policy permits it (such as=20
+> passwd). They can not run the su and /usr/bin/sudo setuid applications,=20
+> and therefore, can not become the Linux root user with these applications=
+.
+>=20
 > * Linux users in the guest_t domain have no network access.
-> 
-> * The only network access Linux users in the xguest_t domain have is 
+>=20
+> * The only network access Linux users in the xguest_t domain have is=20
 > Firefox connecting to web pages.
-> 
-> * By default, Linux users in the guest_t, xguest_t, and user_t domains 
-> can not execute applications in their home directories or /tmp/, 
-> preventing them from executing applications (which inherit users' 
-> permissions) in directories that they have write access to. This 
-> prevents flawed or malicious applications from modifying files users' own.
-> 
-> * Linux users in the guest_t can only log in via a terminal (including 
+>=20
+> * By default, Linux users in the guest_t, xguest_t, and user_t domains=20
+> can not execute applications in their home directories or /tmp/,=20
+> preventing them from executing applications (which inherit users'=20
+> permissions) in directories that they have write access to. This=20
+> prevents flawed or malicious applications from modifying files users' own=
+.
+>=20
+> * Linux users in the guest_t can only log in via a terminal (including=20
 > ssh).
-> 
-> * Linux users in the xguest_t, user_t and staff_t domains can log in via 
+>=20
+> * Linux users in the xguest_t, user_t and staff_t domains can log in via=20
 > the X Window System and a terminal.
+>=20
+>=20
+> Thanks for your help.
+>=20
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov =
+with
+> the words "unsubscribe selinux" without quotes as the message.
+--=20
+Dominick Grift <domg472@gmail.com>
 
-What sudo access does staff_t have?
+--=-NEQhiDL0Hh51Z9auMvri
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkjOQokACgkQL00QnzrVtlxCXwCfbOd2sBP7P/AVlqIAaBUDwuvG
+f+oAnjsp3Bka+uQ13ii6MKjo5TB6govz
+=y04C
+-----END PGP SIGNATURE-----
+
+--=-NEQhiDL0Hh51Z9auMvri--
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
