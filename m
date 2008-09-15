@@ -1,91 +1,209 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8E4TWs4003492
-	for <selinux@tycho.nsa.gov>; Sun, 14 Sep 2008 00:29:32 -0400
-Received: from mail.asahi-net.or.jp (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8E4SiMd013832
-	for <selinux@tycho.nsa.gov>; Sun, 14 Sep 2008 04:28:45 GMT
-Message-ID: <48CC931C.5000309@kaigai.gr.jp>
-Date: Sun, 14 Sep 2008 13:29:16 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8F1UN8r011629
+	for <selinux@tycho.nsa.gov>; Sun, 14 Sep 2008 21:32:08 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8F1TZZo011609
+	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 01:29:36 GMT
+Message-ID: <48CDBA0A.3000801@redhat.com>
+Date: Mon, 15 Sep 2008 11:27:38 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Toshiharu Harada <haradats@nttdata.co.jp>
-Subject: [OT] voice at SecureOS BoF : Japan Linux Conference 2008
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide draft: "Confined and Unconfined User Domains" review
+References: <48C6236D.4020408@redhat.com> <48C67DCD.2030104@redhat.com>
+In-Reply-To: <48C67DCD.2030104@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-At the last Thursday, we had a BoF session titled as "Let's talk about secure
-operating system" with TOMOYO Linux folks (Harada-san) at the Japan Linux
-Conference 2008.
+Daniel J Walsh wrote:
+> Murray McAllister wrote:
+>> Hi,
+>>
+>> The following is a draft of the "Confined and Unconfined User Domains"
+>> section for the SELinux User Guide. Any comments and corrections are
+>> appreciated.
+>>
+>> This is the last part of intro text.
+>>
+>> Thanks.
+>>
+>>
+>> Confined and Unconfined User Domains
+>>
+>> Each Linux user account is mapped to an SELinux user identity when a
+>> user login session is created, and the mapped SELinux user identity is
+>> used in the security context for processes in that session. By default,
+>> on Fedora 10, Linux users are mapped to the SELinux unconfined_u user.
+>> This is seen by running the id -Z and /usr/sbin/semanage login -l commands:
+>>
+>> # id -Z
+>> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+>> # /usr/sbin/semanage login -l
+>>
+>> Login Name                SELinux User              MLS/MCS Range
+>>
+>> __default__               unconfined_u              s0-s0:c0.c1023
+>> root                      unconfined_u              s0-s0:c0.c1023
+>> system_u                  system_u                  s0-s0:c0.c1023
+>>
+>> The first row, __default__, defines that any new Linux users created
+>> that are not specifically mapped to an SELinux user, are mapped to the
+>> SELinux unconfined_u user. For a description of each column, refer to
+>> Chapter 3, SELinux Contexts. Unconfined Linux users are subject to
+>> executable and writeable memory checks, and are also restricted by MCS
+>> (and MLS, if the MLS policy is used). If they execute an object that the
+>> SELinux policy defines can transition from the unconfined_t domain to
+>> its own confined domain, the unconfined Linux users are still subject to
+>> the restrictions of that confined domain.
+>>
+>> The following confined user domains are available in Fedora 10:
+>>
+>> guest_t: The guest_t domain is used for minimal-privileged Linux users.
+> guest_u:  The guest_u SELinux user will default to the guest_t type when
+> logging in. The guest_t domain ...
+>> Linux users in this domain are not allowed to use the X Window System,
+>> run set user ID (setuid) applications, and do not have network access.
+>> For example, Permission denied errors are returned when using the ping
+>> and ssh commands. These users are allowed a log in via a terminal
+>> (including ssh).
+>>
+> Examples of setuid applications su, sudo.  I think you should say that
+> the power of this is that they can never become root.
+> 
+> guest_t, xguest_t, user_t are also prevented by default from executing
+> code in their home directory or tmp directories, preventing them from
+> execuing programs in directories they can write to.
+> 
+>> xguest_t: The xguest_t domain is also for minimal-privileged Linux
+>> users, but lets them use the X Window System. Linux users in this domain
+>> are not allowed to run setuid applications, and the only network access
+>> allowed is Firefox connecting to web pages. These users are allowed to
+>> log in via the X Window System and a terminal.
+>>
+>> user_t: The user_t domain is for standard Linux users. Linux users in
+>> this domain are not allowed to run setuid applications. These users are
+>> allowed to log in via the X Window System and a terminal, and have full
+>> network access.
+>>
+>> [I think I got this wrong. I got permission denied when trying to use
+>> ping as a user_u user (useradd -Z user_u test)]
+>>
+> ping is a setuid application.
+>> staff_t: The staff_t domain is similar to user_t, except that Linux
+>> users in this domain are allowed to run the setuid sudo application.
+>>
+> These should all be guest_u, xguest_u, staff_u, user_u.
+> 
+> Finally saying they can not run setuid applications is somewhat
+> incorrect.   The real prevention is they can not run setuid apps without
+> a defined transition.  So all of the users can run passwd as an example,
+> which is a setuid app.  But they can not run any application that does
+> not allow a transition.
+>> -- 
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+>> with
+>> the words "unsubscribe selinux" without quotes as the message.
+> 
 
-About 30-40 audiences were here, and most of them were "geek" of Linux but
-not specialists for secure operating system. The purpose of this session is
-to collect their opinion or complaint, and to feedback it to the upstreamed
-community.
+Hi,
 
-Fortunately, we could have an active discussion, and get well suggestive
-opinions. I like to introduce them to share.
+I have made some changes:
 
-* Is SELinux hard to understand now?
-- Selectable options are too many, we have to learn many things.
-  - Existing "rwx" policy is not fine-grained, but so simple
-    and small number of options enough to remind.
-  - I want several grade of policy, like "gold policy", "silver policy", ...
-    - For example, "silver policy" protect Web server only, "gold policy"
-      protect Web and DNS/DBMS server, and so on.
-- Information/documents are legacy and not enough.
-  - Even if we have enough information/documents, too much things to be
-    learned will prevent our motivation to utilize SELinux.
-  - Documentations are written from the viewpoint of SELinux.
-    It is a long way round to solve a trouble to set up administrators
-    who tries to set up their application.
-- No one mentioned about complexity of raw security policy.
+Confined and Unconfined Users
 
-* Now do we have a "killer application"?
-- We cannot justify worker-hours to config SELinux without something
-  attractive bigger than its cost.
-  - There is no "killer application".
-  - I had heard similar ones. "It is a secure platform, it is thought as
-    complex one, it has no killer application". It looks like IPv6.
-    - In other conference, most of people answered "Yes" for a question of
-      "I'll move to IPv6, if YouTube is provided only IPv6.".
-      Thus, something attractive helps people learn and use SELinux.
-- Horses need carrots to run. SELinux does not provide us carrot yet.
+Each Linux user is mapped to an SELinux user via SELinux policy. This 
+allows Linux users to inherit the restrictions on SELinux users. By 
+default, on Fedora 10, Linux users are mapped to the SELinux 
+unconfined_u user. This Linux user mapping is seen by running the 
+/usr/sbin/semanage login -l command as the Linux root user:
 
-* Misc topics
-- Security is wide concept. Could you make it clear what SELinux can achieve
-  and cannot?
-  - Indeed, access controls are a part of security.
-  - ISO/IEC15408 is a well organized list of security functionalities.
-  - Naming is bad. "secure os" is confusable.
-    - "mandatory access control os (Mac OS)" is more confusable. :)
-- Are you need secure operating system? I asked at the last.
-  -> Most of audience agreed.
+# /usr/sbin/semanage login -l
 
-----
-* Moderator's impression
+Login Name                SELinux User              MLS/MCS Range
 
-- The default configuration of SELinux got progressed for a few year's.
-  Not negligible number of audiences answered that I'm using SELinux,
-  because it is the default configuration.
-  However, they are hard to find where to be customized, when he tries
-  to start changing the default configuration.
-  It might be necessary to limit user's selectable options in same time.
-  For example, system-config-selinux shows list of all booleans. But it
-  is too many to choice. Here was an opinion that per-application grouping
-  and hierarchization of interface can help the situation.
+__default__               unconfined_u              s0-s0:c0.c1023
+root                      unconfined_u              s0-s0:c0.c1023
+system_u                  system_u                  s0-s0:c0.c1023
 
-- For documentations, I introduced Justin Mattock's efforts, and should
-  be translated to Japanese or other languages.
-  In addition, I thought per-application guidance is necessary,
-  like "(Samba|Apache|xxxx) set up guide with SELinux".
+The following defines the default-mapping:
 
-- A killer application in SELinux is really really really necessary.
+__default__               unconfined_u              s0-s0:c0.c1023
 
-Thanks,
--- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+The following example demonstates adding a new Linux user, and that 
+Linux user being mapped to the SELinux unconfined_u user:
+
+1. As the Linux root user, create a new Linux user named newuser:
+
+# /usr/sbin/useradd newuser
+
+2. As the Linux root user, assign a password to the Linux newuser user:
+
+# passwd newuser
+Changing password for user newuser.
+New UNIX password: Enter a password
+BAD PASSWORD: it is based on a dictionary word
+Retype new UNIX password: Enter the same password again
+passwd: all authentication tokens updated successfully.
+
+3. Log out of your current session, and log in as the Linux newuser user.
+
+4. When you log in, pam_selinux maps the Linux user to an SELinux user 
+(in this case, unconfined_u), and sets up the resulting SELinux context. 
+The Linux user's shell is then launched with this SELinux context. To 
+view the SELinux context for a Linux user, run the id -Z command:
+
+[newuser@localhost ~]$ id -Z
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+
+If mcstrans is running, s0-s0:c0.c1023 is translated to 
+SystemLow-SystemHigh:
+
+[newuser@localhost ~]$ id -Z
+unconfined_u:unconfined_r:unconfined_t:SystemLow-SystemHigh
+
+Confined and unconfined Linux users are subject to executable and 
+writeable memory checks, and are also restricted by MCS (and MLS, if the 
+MLS policy is used). If unconfined Linux users execute an application 
+that SELinux policy defines can transition from the unconfined_t domain 
+to its own confined domain, unconfined Linux users are still subject to 
+the restrictions of that confined domain. The security benefit of this 
+is that, even though a Linux user is running unconfined, they can not 
+override the SELinux policy for a confined application, just because 
+they (the user) are unconfined.
+
+The following confined SELinux users are available in Fedora 10:
+
+[ I have put most of this into a table, with with colums: User, Domain, 
+X Window System, su and sudo, Execute in home directory and /tmp, 
+Networking, and used ticks+crosses to minimize too much text]
+
+* Linux users in the guest_t, xguest_t, and user_t domains can only run 
+set user ID (setuid) applications if SELinux policy permits it (such as 
+passwd). They can not run the su and /usr/bin/sudo setuid applications, 
+and therefore, can not become the Linux root user with these applications.
+
+* Linux users in the guest_t domain have no network access.
+
+* The only network access Linux users in the xguest_t domain have is 
+Firefox connecting to web pages.
+
+* By default, Linux users in the guest_t, xguest_t, and user_t domains 
+can not execute applications in their home directories or /tmp/, 
+preventing them from executing applications (which inherit users' 
+permissions) in directories that they have write access to. This 
+prevents flawed or malicious applications from modifying files users' own.
+
+* Linux users in the guest_t can only log in via a terminal (including 
+ssh).
+
+* Linux users in the xguest_t, user_t and staff_t domains can log in via 
+the X Window System and a terminal.
+
+
+Thanks for your help.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
