@@ -1,16 +1,16 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8GCvYqZ028582
-	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 08:57:34 -0400
-Received: from g5t0007.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8GCujqH018242
-	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 12:56:45 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8GCuI1w027776
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 08:56:18 -0400
+Received: from g1t0027.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8GCtTqH017257
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 12:55:29 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v6 13/16] selinux: Cache NetLabel secattrs in the socket's
-	security struct
+Subject: [RFC PATCH v6 04/16] selinux: Better local/forward check in
+	selinux_ip_postroute()
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
         netdev@vger.kernel.org
-Date: Tue, 16 Sep 2008 08:57:17 -0400
-Message-ID: <20080916125716.17132.78897.stgit@flek.lan>
+Date: Tue, 16 Sep 2008 08:56:13 -0400
+Message-ID: <20080916125613.17132.70639.stgit@flek.lan>
 In-Reply-To: <20080916124722.17132.38741.stgit@flek.lan>
 References: <20080916124722.17132.38741.stgit@flek.lan>
 MIME-Version: 1.0
@@ -18,311 +18,270 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Previous work enabled the use of address based NetLabel selectors, which
-while highly useful, brought the potential for additional per-packet overhead
-when used.  This patch attempts to mitigate some of that overhead by caching
-the NetLabel security attribute struct within the SELinux socket security
-structure.  This should help eliminate the need to recreate the NetLabel
-secattr structure for each packet resulting in less overhead.
+It turns out that checking to see if skb->sk is NULL is not a very good
+indicator of a forwarded packet as some locally generated packets also have
+skb->sk set to NULL.  Fix this by not only checking the skb->sk field but also
+the IP[6]CB(skb)->flags field for the IP[6]SKB_FORWARDED flag.  While we are
+at it, we are calling selinux_parse_skb() much earlier than we really should
+resulting in potentially wasted cycles parsing packets for information we
+might no use; so shuffle the code around a bit to fix this.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
-Acked-by: James Morris <jmorris@namei.org>
 ---
 
- security/selinux/hooks.c            |    1 
- security/selinux/include/netlabel.h |    7 ++
- security/selinux/include/objsec.h   |    7 +-
- security/selinux/netlabel.c         |  115 ++++++++++++++++++++++++-----------
- 4 files changed, 91 insertions(+), 39 deletions(-)
+ security/selinux/hooks.c |  126 ++++++++++++++++++++++++++++++----------------
+ 1 files changed, 81 insertions(+), 45 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 632ac3e..3aa811e 100644
+index 223f474..b520667 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -291,6 +291,7 @@ static void sk_free_security(struct sock *sk)
- 	struct sk_security_struct *ssec = sk->sk_security;
- 
- 	sk->sk_security = NULL;
-+	selinux_netlbl_sk_security_free(ssec);
- 	kfree(ssec);
+@@ -4070,20 +4070,28 @@ static int selinux_sock_rcv_skb_iptables_compat(struct sock *sk,
  }
  
-diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
-index 982bac0..b913c8d 100644
---- a/security/selinux/include/netlabel.h
-+++ b/security/selinux/include/netlabel.h
-@@ -41,6 +41,7 @@ void selinux_netlbl_cache_invalidate(void);
- 
- void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway);
- 
-+void selinux_netlbl_sk_security_free(struct sk_security_struct *ssec);
- void selinux_netlbl_sk_security_reset(struct sk_security_struct *ssec,
- 				      int family);
- 
-@@ -77,6 +78,12 @@ static inline void selinux_netlbl_err(struct sk_buff *skb,
- 	return;
- }
- 
-+static inline void selinux_netlbl_sk_security_free(
-+					       struct sk_security_struct *ssec)
-+{
-+	return;
-+}
-+
- static inline void selinux_netlbl_sk_security_reset(
- 					       struct sk_security_struct *ssec,
- 					       int family)
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index ad34787..f8be8d7 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -109,9 +109,6 @@ struct netport_security_struct {
- };
- 
- struct sk_security_struct {
--	u32 sid;			/* SID of this object */
--	u32 peer_sid;			/* SID of peer */
--	u16 sclass;			/* sock security class */
- #ifdef CONFIG_NETLABEL
- 	enum {				/* NetLabel state */
- 		NLBL_UNSET = 0,
-@@ -120,7 +117,11 @@ struct sk_security_struct {
- 		NLBL_REQSKB,
- 		NLBL_CONNLABELED,
- 	} nlbl_state;
-+	struct netlbl_lsm_secattr *nlbl_secattr; /* NetLabel sec attributes */
- #endif
-+	u32 sid;			/* SID of this object */
-+	u32 peer_sid;			/* SID of peer */
-+	u16 sclass;			/* sock security class */
- };
- 
- struct key_security_struct {
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index b22b7da..f58701a 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -68,6 +68,38 @@ static int selinux_netlbl_sidlookup_cached(struct sk_buff *skb,
- }
- 
- /**
-+ * selinux_netlbl_sock_genattr - Generate the NetLabel socket secattr
-+ * @sk: the socket
-+ *
-+ * Description:
-+ * Generate the NetLabel security attributes for a socket, making full use of
-+ * the socket's attribute cache.  Returns a pointer to the security attributes
-+ * on success, NULL on failure.
-+ *
-+ */
-+static struct netlbl_lsm_secattr *selinux_netlbl_sock_genattr(struct sock *sk)
-+{
-+	int rc;
-+	struct sk_security_struct *sksec = sk->sk_security;
-+	struct netlbl_lsm_secattr *secattr;
-+
-+	if (sksec->nlbl_secattr != NULL)
-+		return sksec->nlbl_secattr;
-+
-+	secattr = netlbl_secattr_alloc(GFP_ATOMIC);
-+	if (secattr == NULL)
-+		return NULL;
-+	rc = security_netlbl_sid_to_secattr(sksec->sid, secattr);
-+	if (rc != 0) {
-+		netlbl_secattr_free(secattr);
-+		return NULL;
-+	}
-+	sksec->nlbl_secattr = secattr;
-+
-+	return secattr;
-+}
-+
-+/**
-  * selinux_netlbl_sock_setsid - Label a socket using the NetLabel mechanism
-  * @sk: the socket to label
-  *
-@@ -80,17 +112,15 @@ static int selinux_netlbl_sock_setsid(struct sock *sk)
+ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+-				       struct avc_audit_data *ad,
+-				       u16 family, char *addrp)
++				       u16 family)
  {
- 	int rc;
+ 	int err;
  	struct sk_security_struct *sksec = sk->sk_security;
--	struct netlbl_lsm_secattr secattr;
-+	struct netlbl_lsm_secattr *secattr;
+ 	u32 peer_sid;
+ 	u32 sk_sid = sksec->sid;
++	struct avc_audit_data ad;
++	char *addrp;
++
++	AVC_AUDIT_DATA_INIT(&ad, NET);
++	ad.u.net.netif = skb->iif;
++	ad.u.net.family = family;
++	err = selinux_parse_skb(skb, &ad, &addrp, 1, NULL);
++	if (err)
++		return err;
  
- 	if (sksec->nlbl_state != NLBL_REQUIRE)
- 		return 0;
+ 	if (selinux_compat_net)
+-		err = selinux_sock_rcv_skb_iptables_compat(sk, skb, ad,
++		err = selinux_sock_rcv_skb_iptables_compat(sk, skb, &ad,
+ 							   family, addrp);
+ 	else
+ 		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
+-				   PACKET__RECV, ad);
++				   PACKET__RECV, &ad);
+ 	if (err)
+ 		return err;
  
--	netlbl_secattr_init(&secattr);
--
--	rc = security_netlbl_sid_to_secattr(sksec->sid, &secattr);
--	if (rc != 0)
--		goto sock_setsid_return;
--	rc = netlbl_sock_setattr(sk, &secattr);
-+	secattr = selinux_netlbl_sock_genattr(sk);
-+	if (secattr == NULL)
-+		return -ENOMEM;
-+	rc = netlbl_sock_setattr(sk, secattr);
- 	switch (rc) {
- 	case 0:
- 		sksec->nlbl_state = NLBL_LABELED;
-@@ -101,8 +131,6 @@ static int selinux_netlbl_sock_setsid(struct sock *sk)
- 		break;
+@@ -4092,12 +4100,12 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 		if (err)
+ 			return err;
+ 		err = avc_has_perm(sk_sid, peer_sid,
+-				   SECCLASS_PEER, PEER__RECV, ad);
++				   SECCLASS_PEER, PEER__RECV, &ad);
+ 	} else {
+-		err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, ad);
++		err = selinux_netlbl_sock_rcv_skb(sksec, skb, family, &ad);
+ 		if (err)
+ 			return err;
+-		err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, ad);
++		err = selinux_xfrm_sock_rcv_skb(sksec->sid, skb, &ad);
  	}
  
--sock_setsid_return:
--	netlbl_secattr_destroy(&secattr);
- 	return rc;
- }
+ 	return err;
+@@ -4111,6 +4119,8 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	u32 sk_sid = sksec->sid;
+ 	struct avc_audit_data ad;
+ 	char *addrp;
++	u8 secmark_active;
++	u8 peerlbl_active;
  
-@@ -137,6 +165,20 @@ void selinux_netlbl_err(struct sk_buff *skb, int error, int gateway)
- }
+ 	if (family != PF_INET && family != PF_INET6)
+ 		return 0;
+@@ -4119,6 +4129,18 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	if (family == PF_INET6 && skb->protocol == htons(ETH_P_IP))
+ 		family = PF_INET;
  
- /**
-+ * selinux_netlbl_sk_security_free - Free the NetLabel fields
-+ * @sssec: the sk_security_struct
-+ *
-+ * Description:
-+ * Free all of the memory in the NetLabel fields of a sk_security_struct.
-+ *
-+ */
-+void selinux_netlbl_sk_security_free(struct sk_security_struct *ssec)
-+{
-+	if (ssec->nlbl_secattr != NULL)
-+		netlbl_secattr_free(ssec->nlbl_secattr);
-+}
++	/* If any sort of compatibility mode is enabled then handoff processing
++	 * to the selinux_sock_rcv_skb_compat() function to deal with the
++	 * special handling.  We do this in an attempt to keep this function
++	 * as fast and as clean as possible. */
++	if (selinux_compat_net || !selinux_policycap_netpeer)
++		return selinux_sock_rcv_skb_compat(sk, skb, family);
 +
-+/**
-  * selinux_netlbl_sk_security_reset - Reset the NetLabel fields
-  * @ssec: the sk_security_struct
-  * @family: the socket family
-@@ -209,7 +251,8 @@ int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
- 				 u32 sid)
++	secmark_active = selinux_secmark_enabled();
++	peerlbl_active = netlbl_enabled() || selinux_xfrm_enabled();
++	if (!secmark_active && !peerlbl_active)
++		return 0;
++
+ 	AVC_AUDIT_DATA_INIT(&ad, NET);
+ 	ad.u.net.netif = skb->iif;
+ 	ad.u.net.family = family;
+@@ -4126,15 +4148,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	if (err)
+ 		return err;
+ 
+-	/* If any sort of compatibility mode is enabled then handoff processing
+-	 * to the selinux_sock_rcv_skb_compat() function to deal with the
+-	 * special handling.  We do this in an attempt to keep this function
+-	 * as fast and as clean as possible. */
+-	if (selinux_compat_net || !selinux_policycap_netpeer)
+-		return selinux_sock_rcv_skb_compat(sk, skb, &ad,
+-						   family, addrp);
+-
+-	if (netlbl_enabled() || selinux_xfrm_enabled()) {
++	if (peerlbl_active) {
+ 		u32 peer_sid;
+ 
+ 		err = selinux_skb_peerlbl_sid(skb, family, &peer_sid);
+@@ -4148,7 +4162,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 				   PEER__RECV, &ad);
+ 	}
+ 
+-	if (selinux_secmark_enabled()) {
++	if (secmark_active) {
+ 		err = avc_has_perm(sk_sid, skb->secmark, SECCLASS_PACKET,
+ 				   PACKET__RECV, &ad);
+ 		if (err)
+@@ -4396,15 +4410,15 @@ static unsigned int selinux_ip_forward(struct sk_buff *skb, int ifindex,
+ 	if (!secmark_active && !peerlbl_active)
+ 		return NF_ACCEPT;
+ 
++	if (selinux_skb_peerlbl_sid(skb, family, &peer_sid) != 0)
++		return NF_DROP;
++
+ 	AVC_AUDIT_DATA_INIT(&ad, NET);
+ 	ad.u.net.netif = ifindex;
+ 	ad.u.net.family = family;
+ 	if (selinux_parse_skb(skb, &ad, &addrp, 1, NULL) != 0)
+ 		return NF_DROP;
+ 
+-	if (selinux_skb_peerlbl_sid(skb, family, &peer_sid) != 0)
+-		return NF_DROP;
+-
+ 	if (peerlbl_active)
+ 		if (selinux_inet_sys_rcv_skb(ifindex, addrp, family,
+ 					     peer_sid, &ad) != 0)
+@@ -4505,30 +4519,36 @@ static int selinux_ip_postroute_iptables_compat(struct sock *sk,
+ 
+ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 						int ifindex,
+-						struct avc_audit_data *ad,
+-						u16 family,
+-						char *addrp,
+-						u8 proto)
++						u16 family)
  {
- 	int rc;
--	struct netlbl_lsm_secattr secattr;
-+	struct netlbl_lsm_secattr secattr_storage;
-+	struct netlbl_lsm_secattr *secattr = NULL;
+ 	struct sock *sk = skb->sk;
+ 	struct sk_security_struct *sksec;
++	struct avc_audit_data ad;
++	char *addrp;
++	u8 proto;
+ 
+ 	if (sk == NULL)
+ 		return NF_ACCEPT;
+ 	sksec = sk->sk_security;
+ 
++	AVC_AUDIT_DATA_INIT(&ad, NET);
++	ad.u.net.netif = ifindex;
++	ad.u.net.family = family;
++	if (selinux_parse_skb(skb, &ad, &addrp, 0, &proto))
++		return NF_DROP;
++
+ 	if (selinux_compat_net) {
+ 		if (selinux_ip_postroute_iptables_compat(skb->sk, ifindex,
+-							 ad, family, addrp))
++							 &ad, family, addrp))
+ 			return NF_DROP;
+ 	} else {
+ 		if (avc_has_perm(sksec->sid, skb->secmark,
+-				 SECCLASS_PACKET, PACKET__SEND, ad))
++				 SECCLASS_PACKET, PACKET__SEND, &ad))
+ 			return NF_DROP;
+ 	}
+ 
+ 	if (selinux_policycap_netpeer)
+-		if (selinux_xfrm_postroute_last(sksec->sid, skb, ad, proto))
++		if (selinux_xfrm_postroute_last(sksec->sid, skb, &ad, proto))
+ 			return NF_DROP;
+ 
+ 	return NF_ACCEPT;
+@@ -4542,23 +4562,15 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
  	struct sock *sk;
+ 	struct avc_audit_data ad;
+ 	char *addrp;
+-	u8 proto;
+ 	u8 secmark_active;
+ 	u8 peerlbl_active;
  
- 	/* if this is a locally generated packet check to see if it is already
-@@ -219,16 +262,21 @@ int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
- 		struct sk_security_struct *sksec = sk->sk_security;
- 		if (sksec->nlbl_state != NLBL_REQSKB)
- 			return 0;
-+		secattr = sksec->nlbl_secattr;
-+	}
-+	if (secattr == NULL) {
-+		secattr = &secattr_storage;
-+		netlbl_secattr_init(secattr);
-+		rc = security_netlbl_sid_to_secattr(sid, secattr);
-+		if (rc != 0)
-+			goto skbuff_setsid_return;
- 	}
- 
--	netlbl_secattr_init(&secattr);
--	rc = security_netlbl_sid_to_secattr(sid, &secattr);
--	if (rc != 0)
--		goto skbuff_setsid_return;
--	rc = netlbl_skbuff_setattr(skb, family, &secattr);
-+	rc = netlbl_skbuff_setattr(skb, family, secattr);
- 
- skbuff_setsid_return:
--	netlbl_secattr_destroy(&secattr);
-+	if (secattr == &secattr_storage)
-+		netlbl_secattr_destroy(secattr);
- 	return rc;
- }
- 
-@@ -245,18 +293,18 @@ void selinux_netlbl_inet_conn_established(struct sock *sk, u16 family)
- {
- 	int rc;
- 	struct sk_security_struct *sksec = sk->sk_security;
--	struct netlbl_lsm_secattr secattr;
-+	struct netlbl_lsm_secattr *secattr;
- 	struct inet_sock *sk_inet = inet_sk(sk);
- 	struct sockaddr_in addr;
- 
- 	if (sksec->nlbl_state != NLBL_REQUIRE)
- 		return;
- 
--	netlbl_secattr_init(&secattr);
--	if (security_netlbl_sid_to_secattr(sksec->sid, &secattr) != 0)
--		goto inet_conn_established_return;
-+	secattr = selinux_netlbl_sock_genattr(sk);
-+	if (secattr == NULL)
-+		return;
- 
--	rc = netlbl_sock_setattr(sk, &secattr);
-+	rc = netlbl_sock_setattr(sk, secattr);
- 	switch (rc) {
- 	case 0:
- 		sksec->nlbl_state = NLBL_LABELED;
-@@ -266,13 +314,13 @@ void selinux_netlbl_inet_conn_established(struct sock *sk, u16 family)
- 		 * labeling protocols */
- 		if (family != PF_INET) {
- 			sksec->nlbl_state = NLBL_UNSET;
--			goto inet_conn_established_return;
-+			return;
- 		}
- 
- 		addr.sin_family = family;
- 		addr.sin_addr.s_addr = sk_inet->daddr;
- 		if (netlbl_conn_setattr(sk, (struct sockaddr *)&addr,
--					&secattr) != 0) {
-+					secattr) != 0) {
- 			/* we failed to label the connected socket (could be
- 			 * for a variety of reasons, the actual "why" isn't
- 			 * important here) so we have to go to our backup plan,
-@@ -300,10 +348,6 @@ void selinux_netlbl_inet_conn_established(struct sock *sk, u16 family)
- 		 * return an error code */
- 		break;
- 	}
+-	AVC_AUDIT_DATA_INIT(&ad, NET);
+-	ad.u.net.netif = ifindex;
+-	ad.u.net.family = family;
+-	if (selinux_parse_skb(skb, &ad, &addrp, 0, &proto))
+-		return NF_DROP;
 -
--inet_conn_established_return:
--	netlbl_secattr_destroy(&secattr);
--	return;
- }
+ 	/* If any sort of compatibility mode is enabled then handoff processing
+ 	 * to the selinux_ip_postroute_compat() function to deal with the
+ 	 * special handling.  We do this in an attempt to keep this function
+ 	 * as fast and as clean as possible. */
+ 	if (selinux_compat_net || !selinux_policycap_netpeer)
+-		return selinux_ip_postroute_compat(skb, ifindex, &ad,
+-						   family, addrp, proto);
++		return selinux_ip_postroute_compat(skb, ifindex, family);
  
- /**
-@@ -468,13 +512,12 @@ int selinux_netlbl_socket_connect(struct sock *sk, struct sockaddr *addr)
- {
- 	int rc;
- 	struct sk_security_struct *sksec = sk->sk_security;
--	struct netlbl_lsm_secattr secattr;
-+	struct netlbl_lsm_secattr *secattr;
+ 	/* If skb->dst->xfrm is non-NULL then the packet is undergoing an IPsec
+ 	 * packet transformation so allow the packet to pass without any checks
+@@ -4574,21 +4586,45 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb, int ifindex,
+ 	if (!secmark_active && !peerlbl_active)
+ 		return NF_ACCEPT;
  
- 	if (sksec->nlbl_state != NLBL_REQSKB &&
- 	    sksec->nlbl_state != NLBL_CONNLABELED)
- 		return 0;
- 
--	netlbl_secattr_init(&secattr);
- 	local_bh_disable();
- 	bh_lock_sock_nested(sk);
- 
-@@ -487,17 +530,17 @@ int selinux_netlbl_socket_connect(struct sock *sk, struct sockaddr *addr)
- 		rc = 0;
- 		goto socket_connect_return;
+-	/* if the packet is locally generated (skb->sk != NULL) then use the
+-	 * socket's label as the peer label, otherwise the packet is being
+-	 * forwarded through this system and we need to fetch the peer label
+-	 * directly from the packet */
++	/* if the packet is being forwarded then get the peer label from the
++	 * packet itself; otherwise check to see if it is from a local
++	 * application or the kernel, if from an application get the peer label
++	 * from the sending socket, otherwise use the kernel's sid */
+ 	sk = skb->sk;
+-	if (sk) {
++	if (sk == NULL) {
++		switch (family) {
++		case PF_INET:
++			if (IPCB(skb)->flags & IPSKB_FORWARDED)
++				secmark_perm = PACKET__FORWARD_OUT;
++			else
++				secmark_perm = PACKET__SEND;
++			break;
++		case PF_INET6:
++			if (IP6CB(skb)->flags & IP6SKB_FORWARDED)
++				secmark_perm = PACKET__FORWARD_OUT;
++			else
++				secmark_perm = PACKET__SEND;
++			break;
++		default:
++			return NF_DROP;
++		}
++		if (secmark_perm == PACKET__FORWARD_OUT) {
++			if (selinux_skb_peerlbl_sid(skb, family, &peer_sid))
++				return NF_DROP;
++		} else
++			peer_sid = SECINITSID_KERNEL;
++	} else {
+ 		struct sk_security_struct *sksec = sk->sk_security;
+ 		peer_sid = sksec->sid;
+ 		secmark_perm = PACKET__SEND;
+-	} else {
+-		if (selinux_skb_peerlbl_sid(skb, family, &peer_sid))
+-				return NF_DROP;
+-		secmark_perm = PACKET__FORWARD_OUT;
  	}
--	rc = security_netlbl_sid_to_secattr(sksec->sid, &secattr);
--	if (rc != 0)
-+	secattr = selinux_netlbl_sock_genattr(sk);
-+	if (secattr == NULL) {
-+		rc = -ENOMEM;
- 		goto socket_connect_return;
--	rc = netlbl_conn_setattr(sk, addr, &secattr);
--	if (rc != 0)
--		goto socket_connect_return;
--	sksec->nlbl_state = NLBL_CONNLABELED;
-+	}
-+	rc = netlbl_conn_setattr(sk, addr, secattr);
-+	if (rc == 0)
-+		sksec->nlbl_state = NLBL_CONNLABELED;
  
- socket_connect_return:
- 	bh_unlock_sock(sk);
- 	local_bh_enable();
--	netlbl_secattr_destroy(&secattr);
- 	return rc;
- }
++	AVC_AUDIT_DATA_INIT(&ad, NET);
++	ad.u.net.netif = ifindex;
++	ad.u.net.family = family;
++	if (selinux_parse_skb(skb, &ad, &addrp, 0, NULL))
++		return NF_DROP;
++
+ 	if (secmark_active)
+ 		if (avc_has_perm(peer_sid, skb->secmark,
+ 				 SECCLASS_PACKET, secmark_perm, &ad))
 
 
 --
