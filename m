@@ -1,55 +1,96 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8FLFVDK011927
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 17:15:31 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m8FLEgrV019313
-	for <selinux@tycho.nsa.gov>; Mon, 15 Sep 2008 21:14:43 GMT
-Message-ID: <48CED064.8000002@manicmethod.com>
-Date: Mon, 15 Sep 2008 17:15:16 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <48CF10DB.5030702@ak.jp.nec.com>
+Date: Tue, 16 Sep 2008 10:50:19 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Vikram Noel Ambrose <noel.ambrose@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH][autotools] libselinux/load_policy.o compile error
-References: <48BF58E7.4030806@gmail.com> <48BFFFC6.6090100@manicmethod.com> <48C011FD.8080603@gmail.com> <48C02447.9030507@manicmethod.com>
-In-Reply-To: <48C02447.9030507@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Joshua Brindle <jbrindle@tresys.com>
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
+        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com> <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com> <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp> <48CE66B1.7080108@tresys.com>
+In-Reply-To: <48CE66B1.7080108@tresys.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Joshua Brindle wrote:
-> Vikram Noel Ambrose wrote:
+> KaiGai Kohei wrote:
 >> Joshua Brindle wrote:
->>> Vikram Noel Ambrose wrote:
->>>  
->>>> Here's the fix to that libselinux ld error you were getting.
+>>> KaiGai Kohei wrote:
+>>>> The attached patch for libsepol add suport for a new policy version
+>>>> named as (MOD_)POLICYDB_VERSION_BOUNDARY.
+>>>> Userspace hierarchy checks are reworked in this revision.
 >>>>
->>>>     
->>> Ok, applied and built fine. One interesting thing is that even without
->>> building the swig wrappers (--disable-swig) it still installs
->>> lib/python2.5/site-packages/selinux, which obviously wouldn't work
->>> without the accompanying .so file.
->>>
->>>   
->> I'll have a look at that, thanks.
->>
->>> Also, it looks like any library that installs to /lib will also put
->>> their python stuff in /lib/python2.5. I don't know if python even
->>> knows to look there, and even if it does there is really no reason to
->>> put them there. libselinux.so and libsepol.so will need to go to /lib
->>> but the python stuff should go to /usr/lib and I don't see a different
->>> argument for the python stuff (only --libdir).
->>>
->>>
->>>   
->> Here you are referring to libpy*.so? if so then, Yes, python does know
->> to look for it in its site-packages/$pkg/ folder.
+>>>> FEATURES:
+>>>>
+>>>> - Boundary feature support:
+>>>>  The upcoming kernel has a feature to define boundary relationship
+>>>>  between two users, roles and types. It enables to restrict a bounded
+>>>>  one can never have wider permissions than its bounds one.
+>>>>  Any XXXX_datum_t structure have "u32 bounds" member to indicate its
+>>>>  bounds, and we can handle it with the latest version of policy format
+>>>>  provided by this patch.
+>>>>
+>>>> - Loading attributes into kernel space:
+>>>>  The upcoming kernel also allows to load entries of attribute.
+>>>>  The attached patch turn off to drop them, when it tries to write
+>>>>  kernel policy with its version is equal or greater than
+>>>>  POLICYDB_VERSION_BOUNDARY.
+>>>>  Any entries of attribute has a property of TYPEDATUM_PROPERTY_ATTRIBUTE.
+>>>>
+>>>> - Improvement of type_datum format on kernel/modular policy.
+>>>>  The type_datum entry has several its attribute fields like "primary",
+>>>>  "flavor" and "flags", and these are stored within separated fields
+>>>>  on-disk format. This patch enables to pack them into a single field.
+>>>>  Currently four bits are defined, and rest of them are reserved.
+>>>>    #define TYPEDATUM_PROPERTY_PRIMARY      0x0001
+>>>>    #define TYPEDATUM_PROPERTY_ATTRIBUTE    0x0002
+>>>>    #define TYPEDATUM_PROPERTY_ALIAS        0x0004  /* userspace only */
+>>>>    #define TYPEDATUM_PROPERTY_PERMISSIVE   0x0008  /* userspace only */
+>>>>
+>>>> - Hierarchy checks are reworked
+>>>>  The existing userspace hierarchy checks are reworked for the upcoming
+>>>>  boundary feature. It can handle parent one based on both newer bounds
+>>>>  relationship and existing name-based hierarchy.
+>>>>
+>>>>  In addition, I put a trick to evaluate conditional rules correctly.
+>>>>  The following example shows a confusable case. A_t is the bounds of B_t,
+>>>>  so B_t can never has wider permission than A_t.
+>>>>
+>>>>  Example)
+>>>>    allow B_t X_t : file { read_file_perms };
+>>>>    if (A_can_write_X) {
+>>>>        allow A_t X_t : file { write_file_perms };
+>>>>    } else {
+>>>>        allow A_t X_t : file { read_file_perms };
+>>>>    }
+>>>>
+>>>>  A_t's permissions on X_t is depend on the 'A_can_write_X', however,
+>>>>  a part of them, like 'read', are unconditionally allowed.
+>>>>  If we can find common permission on both of true/false lists, these
+>>>>  are pulled up to unconditional rules.
+>>>>  Thus, B_t's read permission on X_t is not hierarchy violated in the
+>>>>  above example. It also matches the upcoming kernel behavior no need
+>>>>  to say.
+>>>>
+>>> Was this the latest patch? I can't seem to apply it either to the latest
+>>> git HEAD or to the last svn revision:
+>> Sorry, my Thunderbird translated any tabs into spaces.
+>> The patch is made based on the latest subversion repository.
+>> Can you apply the attached one correctly?
 >>
 > 
-> I know that, I mean no python .so files or .py files are put in /lib/python2.5, they are all put in /usr/lib/python2.5. However, since libselinux.so and libsepol.so (the real libs) have to be in /lib/ there is no way to tell configure to split those up (since they both use libdir)
-> 
+> Yes it applies. I'm going to have to track down that bug you reported
+> before merging this because it prevents policy compilation.
 
-Ping?
+Note that the patch does not contain fixes for a bug I reported.
+
+IMO, alias types of invisible primay should be simply filtered
+at the expand_module(), or should generate an error.
+
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
