@@ -1,91 +1,84 @@
-Message-ID: <48CF10DB.5030702@ak.jp.nec.com>
-Date: Tue, 16 Sep 2008 10:50:19 +0900
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8G5bpc2010764
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 01:37:51 -0400
+Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8G5b099026549
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 05:37:02 GMT
+Received: from mailgate3.nec.co.jp ([10.7.69.193])
+	by tyo201.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id m8G5bc2R006450
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 14:37:38 +0900 (JST)
+Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
+	id m8G5bcw26506 for selinux@tycho.nsa.gov; Tue, 16 Sep 2008 14:37:38 +0900 (JST)
+Received: from mailsv.linux.bs1.fc.nec.co.jp (mailsv.linux.bs1.fc.nec.co.jp [10.34.125.2])
+	by mailsv.nec.co.jp (8.13.8/8.13.4) with ESMTP id m8G5bbxm024631
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 14:37:37 +0900 (JST)
+Received: from [10.19.71.82] (unknown [10.19.71.82])
+	by mailsv.linux.bs1.fc.nec.co.jp (Postfix) with ESMTP id A4AFEE48276
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 14:37:37 +0900 (JST)
+Message-ID: <48CF4621.20808@ak.jp.nec.com>
+Date: Tue, 16 Sep 2008 14:37:37 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Joshua Brindle <jbrindle@tresys.com>
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
-        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com> <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com> <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp> <48CE66B1.7080108@tresys.com>
-In-Reply-To: <48CE66B1.7080108@tresys.com>
+To: selinux@tycho.nsa.gov
+Subject: [RFC] Apache/SELinux : Enables to prevent web application flaws.
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> KaiGai Kohei wrote:
->> Joshua Brindle wrote:
->>> KaiGai Kohei wrote:
->>>> The attached patch for libsepol add suport for a new policy version
->>>> named as (MOD_)POLICYDB_VERSION_BOUNDARY.
->>>> Userspace hierarchy checks are reworked in this revision.
->>>>
->>>> FEATURES:
->>>>
->>>> - Boundary feature support:
->>>>  The upcoming kernel has a feature to define boundary relationship
->>>>  between two users, roles and types. It enables to restrict a bounded
->>>>  one can never have wider permissions than its bounds one.
->>>>  Any XXXX_datum_t structure have "u32 bounds" member to indicate its
->>>>  bounds, and we can handle it with the latest version of policy format
->>>>  provided by this patch.
->>>>
->>>> - Loading attributes into kernel space:
->>>>  The upcoming kernel also allows to load entries of attribute.
->>>>  The attached patch turn off to drop them, when it tries to write
->>>>  kernel policy with its version is equal or greater than
->>>>  POLICYDB_VERSION_BOUNDARY.
->>>>  Any entries of attribute has a property of TYPEDATUM_PROPERTY_ATTRIBUTE.
->>>>
->>>> - Improvement of type_datum format on kernel/modular policy.
->>>>  The type_datum entry has several its attribute fields like "primary",
->>>>  "flavor" and "flags", and these are stored within separated fields
->>>>  on-disk format. This patch enables to pack them into a single field.
->>>>  Currently four bits are defined, and rest of them are reserved.
->>>>    #define TYPEDATUM_PROPERTY_PRIMARY      0x0001
->>>>    #define TYPEDATUM_PROPERTY_ATTRIBUTE    0x0002
->>>>    #define TYPEDATUM_PROPERTY_ALIAS        0x0004  /* userspace only */
->>>>    #define TYPEDATUM_PROPERTY_PERMISSIVE   0x0008  /* userspace only */
->>>>
->>>> - Hierarchy checks are reworked
->>>>  The existing userspace hierarchy checks are reworked for the upcoming
->>>>  boundary feature. It can handle parent one based on both newer bounds
->>>>  relationship and existing name-based hierarchy.
->>>>
->>>>  In addition, I put a trick to evaluate conditional rules correctly.
->>>>  The following example shows a confusable case. A_t is the bounds of B_t,
->>>>  so B_t can never has wider permission than A_t.
->>>>
->>>>  Example)
->>>>    allow B_t X_t : file { read_file_perms };
->>>>    if (A_can_write_X) {
->>>>        allow A_t X_t : file { write_file_perms };
->>>>    } else {
->>>>        allow A_t X_t : file { read_file_perms };
->>>>    }
->>>>
->>>>  A_t's permissions on X_t is depend on the 'A_can_write_X', however,
->>>>  a part of them, like 'read', are unconditionally allowed.
->>>>  If we can find common permission on both of true/false lists, these
->>>>  are pulled up to unconditional rules.
->>>>  Thus, B_t's read permission on X_t is not hierarchy violated in the
->>>>  above example. It also matches the upcoming kernel behavior no need
->>>>  to say.
->>>>
->>> Was this the latest patch? I can't seem to apply it either to the latest
->>> git HEAD or to the last svn revision:
->> Sorry, my Thunderbird translated any tabs into spaces.
->> The patch is made based on the latest subversion repository.
->> Can you apply the attached one correctly?
->>
-> 
-> Yes it applies. I'm going to have to track down that bug you reported
-> before merging this because it prevents policy compilation.
+It is a RFC for httpd-selinux package.
 
-Note that the patch does not contain fixes for a bug I reported.
+It enables to invoke its contents handler with an individual security
+context based on HTTP authentication.
+Apache has a feature to handle various kind of file format like *.html,
+*.php, *.cgi and so on. These are well moduled and we call it as contents
+handler.
 
-IMO, alias types of invisible primay should be simply filtered
-at the expand_module(), or should generate an error.
+The idea is simple. The httpd-selinux assignes a proper security context
+using setcon() API just before contents handler invocation. The context
+is identified based on HTTP authentication.
+When the httpd-selinux accepts a HTTP request from a client, it creates
+a one-time thread and wait for its exit. The child thread invokes setcon()
+as I noted above, and execute contents handler to generate HTTP response.
+
+In the result, it enables to kick web application under restricted domain
+and prevent web application flaws.
+
+Steps to build/install
+----------------------
+ $ vi ~/.rpmmacros	# set a proper '%_topdir' macro
+ $ wget http://<somewhere Fedora mirrors>/path/to/httpd-2.2.9-4.src.rpm
+ $ svn checkout http://sepgsql.googlecode.com/svn/misc/httpd-selinux
+ $ ./httpd-selinux/build-httpd-selinux.sh ./httpd-2.2.9-4.src.rpm
+ $ su -
+ # rpm -ivh /path/to/rpms/i386/httpd-selinux-2.2.9-4.i386.rpm
+ Preparing...                ########################################### [100%]
+    1:httpd-selinux          ########################################### [100%]
+ # vi /etc/sysconfig/httpd      # add a line: "HTTPD=/usr/sbin/httpd.selinux"
+ # /etc/init.d/httpd restart
+
+ (NOTE) The kernel has to support type boundary feature.
+ (NOTE) If you feel the source code is complex, get a diff between prefork.c
+        and selinux.c. :)
+
+Configuration
+-------------
+The "/etc/httpd/conf.d/httpd-selinux.conf" is a template of configuration.
+It defined three directives which can be enclosed by <Directory> tag.
+ - selinuxAuthConfigFile
+   It specifies a path to configuration file which describes pairs of
+   authenticated user and its domain/range.
+ - selinuxAuthDefaultDomain
+   It specifies the default domain.
+ - selinuxAuthDefaultRange
+   It specifies the default range.
+
+Future plans
+------------
+* Proposing it to the upstream Apache developers and Fedora community
+* Proposing PHP/SELinux binding to PHP developers
+* Similar enhancement on application server, like Tomcat
+* Full SELinux coverage on LAPP software stack:
+  http://kaigai.sakura.ne.jp/sblo_files/kaigai/image/080719_lapp.png
 
 Thanks,
 -- 
