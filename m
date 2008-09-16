@@ -1,15 +1,16 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8GCulxo028132
-	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 08:56:47 -0400
-Received: from g5t0007.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8GCulmS023969
-	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 12:56:47 GMT
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8GCuHgV027741
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 08:56:17 -0400
+Received: from g5t0009.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8GCtRqH017242
+	for <selinux@tycho.nsa.gov>; Tue, 16 Sep 2008 12:55:28 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [RFC PATCH v6 07/16] smack: Fix missing calls to netlbl_skbuff_err()
+Subject: [RFC PATCH v6 02/16] selinux: Correctly handle IPv4 packets on IPv6
+	sockets in all cases
 To: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
         netdev@vger.kernel.org
-Date: Tue, 16 Sep 2008 08:56:32 -0400
-Message-ID: <20080916125632.17132.61097.stgit@flek.lan>
+Date: Tue, 16 Sep 2008 08:56:01 -0400
+Message-ID: <20080916125601.17132.61002.stgit@flek.lan>
 In-Reply-To: <20080916124722.17132.38741.stgit@flek.lan>
 References: <20080916124722.17132.38741.stgit@flek.lan>
 MIME-Version: 1.0
@@ -17,32 +18,71 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Smack needs to call netlbl_skbuff_err() to let NetLabel do the necessary
-protocol specific error handling.
+We did the right thing in a few cases but there were several areas where we
+determined a packet's address family based on the socket's address family which
+is not the right thing to do since we can get IPv4 packets on IPv6 sockets.
+This patch fixes these problems by either taking the address family directly
+from the packet.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
 
- security/smack/smack_lsm.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ security/selinux/hooks.c |   22 +++++++++++++++++-----
+ 1 files changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 87d7541..6e2dc0b 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -2179,7 +2179,10 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	 * This is the simplist possible security model
- 	 * for networking.
- 	 */
--	return smk_access(smack, ssp->smk_in, MAY_WRITE);
-+	rc = smk_access(smack, ssp->smk_in, MAY_WRITE);
-+	if (rc != 0)
-+		netlbl_skbuff_err(skb, rc, 0);
-+	return rc;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 03fc6a8..223f474 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4207,10 +4207,12 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
+ 	u32 peer_secid = SECSID_NULL;
+ 	u16 family;
+ 
+-	if (sock)
++	if (skb && skb->protocol == htons(ETH_P_IP))
++		family = PF_INET;
++	else if (skb && skb->protocol == htons(ETH_P_IPV6))
++		family = PF_INET6;
++	else if (sock)
+ 		family = sock->sk->sk_family;
+-	else if (skb && skb->sk)
+-		family = skb->sk->sk_family;
+ 	else
+ 		goto out;
+ 
+@@ -4277,10 +4279,15 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ {
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 	int err;
++	u16 family = sk->sk_family;
+ 	u32 newsid;
+ 	u32 peersid;
+ 
+-	err = selinux_skb_peerlbl_sid(skb, sk->sk_family, &peersid);
++	/* handle mapped IPv4 packets arriving via IPv6 sockets */
++	if (family == PF_INET6 && skb->protocol == htons(ETH_P_IP))
++		family = PF_INET;
++
++	err = selinux_skb_peerlbl_sid(skb, family, &peersid);
+ 	if (err)
+ 		return err;
+ 	if (peersid == SECSID_NULL) {
+@@ -4318,9 +4325,14 @@ static void selinux_inet_csk_clone(struct sock *newsk,
+ static void selinux_inet_conn_established(struct sock *sk,
+ 				struct sk_buff *skb)
+ {
++	u16 family = sk->sk_family;
+ 	struct sk_security_struct *sksec = sk->sk_security;
+ 
+-	selinux_skb_peerlbl_sid(skb, sk->sk_family, &sksec->peer_sid);
++	/* handle mapped IPv4 packets arriving via IPv6 sockets */
++	if (family == PF_INET6 && skb->protocol == htons(ETH_P_IP))
++		family = PF_INET;
++
++	selinux_skb_peerlbl_sid(skb, family, &sksec->peer_sid);
  }
  
- /**
+ static void selinux_req_classify_flow(const struct request_sock *req,
 
 
 --
