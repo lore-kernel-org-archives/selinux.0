@@ -1,5 +1,5 @@
-Message-ID: <48D3CBD7.70106@manicmethod.com>
-Date: Fri, 19 Sep 2008 11:57:11 -0400
+Message-ID: <48D3F1B9.3070707@manicmethod.com>
+Date: Fri, 19 Sep 2008 14:38:49 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -61,7 +61,9 @@ Stephen Smalley wrote:
 > those pseudo inodes, most of which will never be used by userspace.
 > 
 
-So I guess an alternative is a query interface like the others. open /selinux/bounds, write a type and get back the bounds? 
+Ok, after thinking about this we really need the entire picture as far as typebounds goes in order to do access control because the modules being added and removed may also have typebounds that we need to incorporate into the labeling process, so that a user can declare a type and bound it to another type. 
+
+So the options are keep a typebounds cache in the libsemanage store or have a node in selinuxfs that exports all the typebounds at once. Do you have a preference of which way to do it?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
