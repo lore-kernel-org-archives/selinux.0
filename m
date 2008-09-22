@@ -1,69 +1,281 @@
-Message-ID: <48D3F1B9.3070707@manicmethod.com>
-Date: Fri, 19 Sep 2008 14:38:49 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8MCRjBp016530
+	for <selinux@tycho.nsa.gov>; Mon, 22 Sep 2008 08:27:45 -0400
+Received: from goalkeeper.city-fan.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8MCRgWk026969
+	for <selinux@tycho.nsa.gov>; Mon, 22 Sep 2008 12:27:45 GMT
+Message-ID: <48D78F39.3040801@city-fan.org>
+Date: Mon, 22 Sep 2008 13:27:37 +0100
+From: Paul Howarth <paul@city-fan.org>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
-Subject: Re: typebounds lookup from userspace
-References: <48D3B220.1060903@manicmethod.com>	 <1221834373.25857.25.camel@moss-spartans.epoch.ncsc.mil>	 <48D3B802.1000505@manicmethod.com>	 <1221836842.25857.40.camel@moss-spartans.epoch.ncsc.mil>	 <48D3C995.4030808@manicmethod.com> <1221839645.25857.67.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1221839645.25857.67.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] Milter Mail Filters
+References: <484D4B53.5020006@city-fan.org>	 <1216385922.21191.125.camel@gorn>  <48982587.30605@city-fan.org> <1220621188.28287.79.camel@gorn.columbia.tresys.com> <48C6A124.7090707@city-fan.org>
+In-Reply-To: <48C6A124.7090707@city-fan.org>
+Content-Type: multipart/mixed;
+ boundary="------------070708040107030005000802"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2008-09-19 at 11:47 -0400, Joshua Brindle wrote:
->> Stephen Smalley wrote:
->>> On Fri, 2008-09-19 at 10:32 -0400, Joshua Brindle wrote:
->>>> Stephen Smalley wrote:
->>>>> On Fri, 2008-09-19 at 10:07 -0400, Joshua Brindle wrote:
->>>>>> For symbol labeling purposes for policy access control we need to be
->>>>>> able to look up symbol hierarchy relationships. I expect we'll do this
->>>>>> by exporting the symbol hierarchy via selinuxfs. Does anyone have
->>>>>> suggestions on what that should look like? Do we want to export
->>>>>> additional information on the symbols at the same time?
->>>>> I would have thought that the policy server would have its own internal
->>>>> policydb that it could consult to check hierarchy relationships?
->>>>>
->>>> We want to avoid loading more policydb's since RAM usage and
->>>> performance were issues with the expand-based access control.
->>> libsemanage already has to load the policydb into memory for its
->>> transactions.  Will this change in the future?  If not, then it seems
->>> that you could simply leverage that.
->>>
->> True, though that is currently only done when not building a policy.
-> 
-> What?  It constructs a policydb in memory when building a policy and
-> then writes it out.  There is always an in-memory policydb, whether it
-> is just loaded from the existing policy file (via Dan's enhancement) or
-> generated via expand/link + merge local components.
-> 
->>  For access control we will be building a policy but hope to do access
->> control far before that happens (thus saving time if it is going to
->> fail anyway). The rebuild code path doesn't currently open the old
->> policy so adding that would double the ram usage.
-> 
-> Ok.
-> 
->>> I know that at one point the trend was toward one value per file, but
->>> that carries a cost of course, and I'm not sure the /selinux/class
->>> interface turned out to be ideal.  Maybe others have opinions.
->>>
->> was there anything specific about the class interface you didn't like?
->> I like it in the sense that once the tree is built the policydb never
->> has to be consulted. I don't think that is an option for this case
->> though.
->>
->> I like one value per file but we are talking about a large namespace for types.
-> 
-> Yes, I'm a little concerned about eating up kernel memory for all of
-> those pseudo inodes, most of which will never be used by userspace.
-> 
+This is a multi-part message in MIME format.
+--------------070708040107030005000802
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ok, after thinking about this we really need the entire picture as far as typebounds goes in order to do access control because the modules being added and removed may also have typebounds that we need to incorporate into the labeling process, so that a user can declare a type and bound it to another type. 
+Updated patch: sendmail, when run as "newaliases", tries to getattr() 
+milter sockets as well as the directories they live in, so I changed the 
+milter_getattr_all_data_dirs interface to milter_getattr_all_sockets.
 
-So the options are keep a typebounds cache in the libsemanage store or have a node in selinuxfs that exports all the typebounds at once. Do you have a preference of which way to do it?
+I also moved the call to this interface in mta.te out from the middle of 
+a bunch of postfix-related lines.
+
+Paul.
+
+--------------070708040107030005000802
+Content-Type: text/x-patch;
+ name="milters.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="milters.patch"
+
+Index: refpolicy/policy/modules/kernel/corenetwork.te.in
+===================================================================
+--- refpolicy/policy/modules/kernel/corenetwork.te.in	(revision 2800)
++++ refpolicy/policy/modules/kernel/corenetwork.te.in	(working copy)
+@@ -121,6 +121,7 @@
+ type lrrd_port_t, port_type; dnl network_port(lrrd_port_t) # no defined portcon
+ network_port(lmtp, tcp,24,s0, udp,24,s0)
+ network_port(mail, tcp,2000,s0)
++type milter_port_t, port_type; dnl network_port(milter) # no defined portcon
+ network_port(mmcc, tcp,5050,s0, udp,5050,s0)
+ network_port(monopd, tcp,1234,s0)
+ network_port(msnp, tcp,1863,s0, udp,1863,s0)
+Index: refpolicy/policy/modules/services/milters.te
+===================================================================
+--- refpolicy/policy/modules/services/milters.te	(revision 0)
++++ refpolicy/policy/modules/services/milters.te	(revision 0)
+@@ -0,0 +1,54 @@
++policy_module(milters,0.2.0)
++
++########################################
++#
++# Declarations
++#
++
++# attributes common to all milters
++attribute milter_domains;
++attribute milter_data_type;
++
++# currently-supported milters are milter-regex and spamass-milter
++milter_template(regex)
++milter_template(spamass)
++
++########################################
++#
++# milter-regex local policy
++#   filter emails using regular expressions
++#   http://www.benzedrine.cx/milter-regex.html
++#
++
++# Look up username for dropping privs
++auth_use_nsswitch(milter_regex_t)
++
++# Config is in /etc/mail/milter-regex.conf
++mta_read_config(milter_regex_t)
++
++# The milter's socket directory lives under /var/spool
++files_search_spool(milter_regex_t)
++
++# It removes any existing socket (not owned by root) whilst running as root
++# and then calls setgid() and setuid() to drop privileges
++allow milter_regex_t self:capability { setuid setgid dac_override };
++
++
++########################################
++#
++# spamass-milter local policy
++#   pipe emails through SpamAssassin
++#   http://savannah.nongnu.org/projects/spamass-milt/
++#
++
++# The main job of the milter is to pipe spam through spamc and act on the result
++spamassassin_domtrans_spamc(milter_spamass_t)
++
++# When used with -b or -B options, the milter invokes sendmail to send mail
++# to a spamtrap address, using popen()
++corecmd_exec_shell(milter_spamass_t)
++corecmd_read_bin_symlinks(milter_spamass_t)
++corecmd_search_bin(milter_spamass_t)
++kernel_read_system_state(milter_spamass_t)
++mta_send_mail(milter_spamass_t)
++
+Index: refpolicy/policy/modules/services/sendmail.te
+===================================================================
+--- refpolicy/policy/modules/services/sendmail.te	(revision 2800)
++++ refpolicy/policy/modules/services/sendmail.te	(working copy)
+@@ -112,6 +112,10 @@
+ ')
+ 
+ optional_policy(`
++	milter_stream_connect_all(sendmail_t)
++')
++
++optional_policy(`
+ 	postfix_exec_master(sendmail_t)
+ 	postfix_read_config(sendmail_t)
+ 	postfix_search_spool(sendmail_t)
+Index: refpolicy/policy/modules/services/milters.fc
+===================================================================
+--- refpolicy/policy/modules/services/milters.fc	(revision 0)
++++ refpolicy/policy/modules/services/milters.fc	(revision 0)
+@@ -0,0 +1,7 @@
++/usr/sbin/milter-regex				--	gen_context(system_u:object_r:milter_regex_exec_t,s0)
++/var/spool/milter-regex(/.*)?				gen_context(system_u:object_r:milter_regex_data_t,s0)
++
++/usr/sbin/spamass-milter			--	gen_context(system_u:object_r:milter_spamass_exec_t,s0)
++/var/run/spamass-milter(/.*)?				gen_context(system_u:object_r:milter_spamass_data_t,s0)
++/var/run/spamass-milter\.pid			--	gen_context(system_u:object_r:milter_spamass_data_t,s0)
++
+Index: refpolicy/policy/modules/services/mta.te
+===================================================================
+--- refpolicy/policy/modules/services/mta.te	(revision 2800)
++++ refpolicy/policy/modules/services/mta.te	(working copy)
+@@ -102,6 +102,9 @@
+ 
+ 	domain_use_interactive_fds(system_mail_t)
+ 
++	# newaliases runs as system_mail_t when the sendmail initscript does a restart
++	milter_getattr_all_sockets(system_mail_t)
++
+ 	# postfix needs this for newaliases
+ 	files_getattr_tmp_dirs(system_mail_t)
+ 
+Index: refpolicy/policy/modules/services/milters.if
+===================================================================
+--- refpolicy/policy/modules/services/milters.if	(revision 0)
++++ refpolicy/policy/modules/services/milters.if	(revision 0)
+@@ -0,0 +1,91 @@
++## <summary>Milter mail filters</summary>
++
++########################################
++## <summary>
++##	Create a set of derived types for various
++##	mail filter applications using the milter interface.
++## </summary>
++## <param name="milter_name">
++##	<summary>
++##	The name to be used for deriving type names.
++##	</summary>
++## </param>
++#
++template(`milter_template',`
++
++	# attributes common to all milters, plus port type for milter TCP sockets
++	gen_require(`
++		attribute milter_data_type, milter_domains;
++		type milter_port_t;
++	')
++
++	# Type that the milter application runs as
++	type milter_$1_t, milter_domains;
++	domain_type(milter_$1_t)
++	role system_r types milter_$1_t;
++
++	# Type for the executable file
++	type milter_$1_exec_t;
++	init_daemon_domain(milter_$1_t, milter_$1_exec_t)
++
++	# Type for the milter data (e.g. the socket used to communicate with the MTA)
++	type milter_$1_data_t, milter_data_type;
++	files_type(milter_$1_data_t);
++
++	# Allow communication with MTA over a TCP socket
++	allow milter_$1_t milter_port_t:tcp_socket name_bind;
++	corenet_tcp_bind_generic_node(milter_$1_t)
++	allow milter_$1_t self:tcp_socket { listen accept };
++
++	# Allow communication with MTA over a unix-domain socket
++	manage_sock_files_pattern(milter_$1_t,milter_$1_data_t,milter_$1_data_t)
++
++	# Create other data files and directories in the data directory
++	manage_files_pattern(milter_$1_t,milter_$1_data_t,milter_$1_data_t)
++
++	# Things that all(?) milters will need to do
++	libs_use_ld_so(milter_$1_t)
++	libs_use_shared_libs(milter_$1_t)
++	miscfiles_read_localization(milter_$1_t)
++	init_use_fds(milter_$1_t)
++	allow milter_$1_t self:fifo_file rw_fifo_file_perms;
++	logging_send_syslog_msg(milter_$1_t)
++
++')
++
++########################################
++## <summary>
++##	MTA communication with milter sockets
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`milter_stream_connect_all',`
++	gen_require(`
++		attribute milter_data_type, milter_domains;
++	')
++	getattr_dirs_pattern($1,milter_data_type,milter_data_type)
++	stream_connect_pattern($1,milter_data_type,milter_data_type,milter_domains)
++')
++
++########################################
++## <summary>
++##	Allow getattr of milter sockets
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`milter_getattr_all_sockets',`
++	gen_require(`
++		attribute milter_data_type;
++	')
++	getattr_dirs_pattern($1,milter_data_type,milter_data_type)
++	getattr_sock_files_pattern($1,milter_data_type,milter_data_type)
++')
++
+Index: refpolicy/policy/modules/services/spamassassin.fc
+===================================================================
+--- refpolicy/policy/modules/services/spamassassin.fc	(revision 2800)
++++ refpolicy/policy/modules/services/spamassassin.fc	(working copy)
+@@ -10,7 +10,6 @@
+ /var/lib/spamassassin(/.*)?	gen_context(system_u:object_r:spamd_var_lib_t,s0)
+ 
+ /var/run/spamassassin(/.*)?	gen_context(system_u:object_r:spamd_var_run_t,s0)
+-/var/run/spamass-milter(/.*)?	gen_context(system_u:object_r:spamd_var_run_t,s0)
+ 
+ /var/spool/spamassassin(/.*)?	gen_context(system_u:object_r:spamd_spool_t,s0)
+ /var/spool/spamd(/.*)?		gen_context(system_u:object_r:spamd_spool_t,s0)
+Index: refpolicy/policy/modules/services/postfix.te
+===================================================================
+--- refpolicy/policy/modules/services/postfix.te	(revision 2800)
++++ refpolicy/policy/modules/services/postfix.te	(working copy)
+@@ -530,6 +530,10 @@
+ 	cyrus_stream_connect(postfix_smtp_t)
+ ')
+ 
++optional_policy(`
++	milter_stream_connect_all(postfix_smtp_t)
++')
++
+ ########################################
+ #
+ # Postfix smtpd local policy
+
+--------------070708040107030005000802--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
