@@ -1,236 +1,108 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8Q19OAg009700
-	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2008 21:09:24 -0400
-Received: from el-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8Q19OWa019010
-	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2008 01:09:24 GMT
-Received: by el-out-1112.google.com with SMTP id j27so165718elf.21
-        for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2008 18:09:23 -0700 (PDT)
-Message-ID: <48DC363B.4020304@gmail.com>
-Date: Thu, 25 Sep 2008 21:09:15 -0400
-From: Vikram Noel Ambrose <noel.ambrose@gmail.com>
-MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH][autotools] libselinux/load_policy.o compile error
-References: <48BF58E7.4030806@gmail.com> <48BFFFC6.6090100@manicmethod.com> <48C011FD.8080603@gmail.com> <48C02447.9030507@manicmethod.com> <48CED064.8000002@manicmethod.com>
-In-Reply-To: <48CED064.8000002@manicmethod.com>
-Content-Type: multipart/mixed;
- boundary="------------020506060101050605000707"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8Q3UW4n025332
+	for <selinux@tycho.nsa.gov>; Thu, 25 Sep 2008 23:30:32 -0400
+Received: from turing-police.cc.vt.edu (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8Q3UVWa014766
+	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2008 03:30:32 GMT
+To: Murray McAllister <mmcallis@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide drafts: "Working with SELinux" sections
+In-Reply-To: Your message of "Tue, 23 Sep 2008 16:16:00 +1000."
+             <48D889A0.1010604@redhat.com>
+From: Valdis.Kletnieks@vt.edu
+References: <48D889A0.1010604@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1222399818_7097P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Date: Thu, 25 Sep 2008 23:30:18 -0400
+Message-ID: <9405.1222399818@turing-police.cc.vt.edu>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020506060101050605000707
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+--==_Exmh_1222399818_7097P
+Content-Type: text/plain; charset=us-ascii
 
-Joshua Brindle wrote:
-> Joshua Brindle wrote:
->   
->> Vikram Noel Ambrose wrote:
->>     
->>> Joshua Brindle wrote:
->>>       
->>>> Vikram Noel Ambrose wrote:
->>>>  
->>>>         
->>>>> Here's the fix to that libselinux ld error you were getting.
->>>>>
->>>>>     
->>>>>           
->>>> Ok, applied and built fine. One interesting thing is that even without
->>>> building the swig wrappers (--disable-swig) it still installs
->>>> lib/python2.5/site-packages/selinux, which obviously wouldn't work
->>>> without the accompanying .so file.
->>>>
->>>>   
->>>>         
->>> I'll have a look at that, thanks.
->>>
->>>       
->>>> Also, it looks like any library that installs to /lib will also put
->>>> their python stuff in /lib/python2.5. I don't know if python even
->>>> knows to look there, and even if it does there is really no reason to
->>>> put them there. libselinux.so and libsepol.so will need to go to /lib
->>>> but the python stuff should go to /usr/lib and I don't see a different
->>>> argument for the python stuff (only --libdir).
->>>>
->>>>
->>>>   
->>>>         
->>> Here you are referring to libpy*.so? if so then, Yes, python does know
->>> to look for it in its site-packages/$pkg/ folder.
->>>
->>>       
->> I know that, I mean no python .so files or .py files are put in /lib/python2.5, they are all put in /usr/lib/python2.5. However, since libselinux.so and libsepol.so (the real libs) have to be in /lib/ there is no way to tell configure to split those up (since they both use libdir)
->>
->>     
->
-> Ping?
->
->   
-Sorry for the radio silence, been tied up of late.
+On Tue, 23 Sep 2008 16:16:00 +1000, Murray McAllister said:
 
-I *think* I understand the problem,
+> * selinux-policy-[policy]: provides SELinux policies. For targeted 
+> policy, install selinux-policy-targeted. For MLS, install 
+> selinux-policy-mls. The strict policy was merged in Fedora 9, allowing 
+> confined and unconfined users to co-exist on the same system.
 
-Using the attached patch, python site packages folder resolution
-is done as follows:
+Strict was merged with what, exactly? (This threw me for a loop when
+strict evaporated out of rawhide, before I figured out that MLS was what
+I needed as the replacement - for most of my boxes, I don't actually *need*
+the MLS/MCS stuff, I just need to not have an 'unconfined' on the box.  For
+a *few* others, the MCS stuff is handy.  And actual MLS is barely on the
+radar here...)
 
-1. Try get python-site folder by asking "python"
---- This only really works if HOST machine = BUILD machine, and
-    if the host's python was not relocated at installation.
+> denied if running in enforcing mode. When using disabled mode, SELinux 
+> is disabled (the SELinux module is not registered with the Linux 
+> kernel), and only DAC rules are used.
 
-2. User supplies --with-python-site=/some/where/python2.4/site-packages
+Might want to note that operating in disabled mode probably means you want
+to do a relabel if you re-enable SELinux, because any files created/modified
+while running disabled are probably unlabeled.
 
-So either way, the site-packages folder can be specified.
+> SELINUXTYPE=targeted: The SELINUXTYPE option sets the SELinux policy to 
+> use. Targeted policy is the default policy used. Only change this option 
+> if you want to use the MLS policy. To use the MLS policy, install the 
+> selinux-policy-mls package; configure SELINUXTYPE=mls in 
+> /etc/selinux/config; and reboot your system.
 
+Someplace, you want to discuss why one might want to use MLS (whether as the
+replacement for the old 'strict' policy where everything ran confined as
+opposed to 'targeted', or if you have an actual use case for the MLS/MCS
+features).
 
-This patch also:
+> 4. In permissive mode, SELinux policy is not enforced, but denials are 
+> still logged for actions that would have been denied if running in 
+> enforcing mode. Before changing to enforcing mode, as the Linux root 
+> user, run the grep "SELinux is preventing" /var/log/messages command to 
 
-1. Stops the swig interface from being rebuilt when python
-headers are not found, even if swig is found. This is done
-because the interface is not going to be built without the
-headers, so no point on rebuilding it's source.
+Erm. What *exactly* produces that entry in /var/log/messages?  All my
+AVC stuff ends up in auditd.  Or is this just because the setroubleshoot
+RPMs aren't *quite* as mandatory as you noted above, and I don't see those
+messages because I don't have them installed *and enabled*? (Gotta watch
+out for those pesky 'chkconfig off' ;)
 
-2. Prevents selinux/__init__.py from being installed, if the
-libpyselinux.so wrapper cannot be built. Done because the python
-module is useless without the wrapper.
+> # should users run something like "> /var/log/messages" before rebooting?
 
-3. A little bit of white space clean up and formatting.
+This is a good way to lose potentially important log entries.  Also,
+note that if the box is running syslog-ng, the file might be called
+/var/log/messages.YYMMDD or similar (very handy, that - no need to worry
+about cronjobs rolling the files).
 
+> 5. If there were no denial messages in /var/log/messages, configure 
+> SELINUX=enforcing in /etc/selinux/config:
 
-If i've understood the problem correctly, then i'll patch the
-others (libsemanage etc..)
+You need to discuss the very possible case that there *were* denial messages.
+How do you fix them?  audit2allow is *one* option, as is correctly labelling
+files (if you have them in a non-standard place, you probably want to be doing
+an 'semanage fcontext -a').  But blindly doing either of those is a good way to
+hose yourself gloriously.
 
-thanks josh,
+> 7. As the Linux root user, run the semanage login -l command to confirm 
+> that the mapping between SELinux and Linux users is correct. The output 
+> should be as follows:
 
+Also handy at this point - explain how to add additional SELinux userids
+and map login IDs to them (you can't really do anything with the MLS/MCS
+support if everybody is either user_u or staff_u).
 
-Vikram
+--==_Exmh_1222399818_7097P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFI3FdKcC3lWbTT17ARAmXNAKCLqL3WNzk/4jQ78DUKAQ7b3gIWRQCcDJZ5
+iB6k7Qmdj1qbhwAKGjC61lc=
+=QM25
+-----END PGP SIGNATURE-----
 
-
---------------020506060101050605000707
-Content-Type: text/plain;
- name="better-handle-python-site-folder.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="better-handle-python-site-folder.patch"
-
-diff --git a/libselinux/configure.ac b/libselinux/configure.ac
-index 5d97078..a437404 100644
---- a/libselinux/configure.ac
-+++ b/libselinux/configure.ac
-@@ -92,15 +92,18 @@ AM_CONDITIONAL([enable_avc], [ test "$_enable_avc" = yes])
- AM_CONDITIONAL([enable_bool], [ test "$_enable_bool" = yes])
- AM_CONDITIONAL([enable_docs], [ test "$_enable_docs" = yes])
- 
--AC_ARG_WITH([pythonver],
--	[AC_HELP_STRING([--with-pythonver=x],[Python version (eg 2.4) ])],
--        [],
--        [with_pythonver=$PYTHON_VERSION]
-+AC_ARG_WITH([python-site],
-+	[AC_HELP_STRING([--with-python-site=PATH],
-+			[Optional path to python site-packages folder,
-+			eg /usr/lib/python2.4/site-packages])],
-+	[]
- )
- 
--if test -n "$with_pythonver" ; then
--        AC_SUBST([pythondir],[$libdir/python$with_pythonver/site-packages])
--        AC_SUBST([pyexecdir],[$libdir/python$with_pythonver/site-packages])
-+if test -n "$with_python_site" ; then
-+	AC_SUBST([pythondir],[$with_python_site])
-+	AC_SUBST([pyexecdir],[$with_python_site])
-+else
-+	AC_MSG_WARN([Python site folder not specified, guessing...])
- fi
- 
- AC_ARG_WITH([python],
-@@ -138,7 +141,7 @@ AC_ARG_WITH([static-libsepol],
-         else
-                 AC_MSG_RESULT([no found])
-                 AC_MSG_WARN([[Cannot build libpyaudit2why.so python wrappper. 
--			Try --with-static-libsepol=PATH]])
-+		Try --with-static-libsepol=PATH]])
- 
-         fi],
-         [AC_MSG_CHECKING([for libsepol.a in $prefix/lib])]
-@@ -148,7 +151,7 @@ AC_ARG_WITH([static-libsepol],
-         else
-                 AC_MSG_RESULT([not found])
-                 AC_MSG_WARN([[Cannot build libpyaudit2why.so python wrappper. 
--			Try --with-static-libsepol=PATH]])
-+		Try --with-static-libsepol=PATH]])
-         fi]
- )
- 
-@@ -177,6 +180,14 @@ if test "$_enable_swig" = "yes" -a -z "$SWIG" ; then
- 		or install swig])
- fi
- 
-+# If libpy*.so wrapper cannot be built, then do not rebuild swig interface
-+# even if swig is available, and do not install selinux/__init__.py
-+if test "$have_python" != "yes" ; then
-+	_enable_swig=no
-+	AC_MSG_NOTICE([Swig interface does not need to be regenerated 
-+		because libpyselinux.so wrapper cannot be built])
-+fi
-+
- # slip in fake swig if needed
- if test "$_enable_swig" != "yes" ; then
- 	AC_SUBST([SWIG],[/bin/true])
-@@ -201,10 +212,12 @@ $PRINT "\n*** Libselinux Configuration summary ***\n"
- if test "$have_python" != yes ; then
-  $PRINT "\taudit2why\t\t= no "
-  $PRINT "(try --with-python=/usr/include/python$PYTHON_VERSION) \n"
-- $PRINT "\tlibpyselinux.so\t\t= no\n"
-+ $PRINT "\tlibpyselinux.so\t\t= no "
-+ $PRINT "(try --with-python=/usr/include/python$PYTHON_VERSION) \n"
- else
-  $PRINT "\taudit2why\t\t= yes (Using python headers $with_python) \n"
-  $PRINT "\tlibpyselinux.so\t\t= yes\n"
-+ $PRINT "\tPython site folder\t= $pythondir\n"
- fi
- 
- if test -n "$LIBSEPOL_A_PATH" ; then
-@@ -221,5 +234,4 @@ $PRINT "\tSELinux utlities\t= yes\n"
- $PRINT "\tInstall Man pages\t= $_enable_docs\n"
- $PRINT "\tSELinux Type\t\t= $with_policyname\n"
- $PRINT "\tRegenerate py wrapper\t= $_enable_swig\n"
--$PRINT "\tPython Packages folder\t= $pythondir\n"
- $PRINT "------------------------------------------------------------\n" 
-diff --git a/libselinux/src/Makefile.am b/libselinux/src/Makefile.am
-index fd22726..a32f4a9 100644
---- a/libselinux/src/Makefile.am
-+++ b/libselinux/src/Makefile.am
-@@ -30,7 +30,7 @@ lib_LTLIBRARIES			= libselinux.la
- selinux_pyexecdir		= $(pyexecdir)/selinux
- selinux_pythondir		= $(pythondir)/selinux
- selinux_pyexec_LTLIBRARIES	= $(extra_lib)
--selinux_python_PYTHON		= __init__.py
-+selinux_python_PYTHON		= $(extra_py) 
- 
- sysconf_DATA			= config
- config:Makefile
-@@ -38,12 +38,14 @@ config:Makefile
- 		
- PACKAGE				= selinux
- extra_lib			=
-+extra_py			=
- libselinux_la_SOURCES		= $(BUILDSRC)
- libselinux_la_LDFLAGS		= -Wl,--as-needed -version-info 1
- if enable_python
- selinuxswig_wrap.c: Makefile selinuxswig.i selinuxswig_python.i
- 	$(SWIG) -o $@ $(SWIG_FLAGS) -interface libpyselinux $(srcdir)/selinuxswig_python.i 
- extra_lib			+= libpyselinux.la
-+extra_py			+= __init__.py
- libpyselinux_la_SOURCES		= selinuxswig_wrap.c
- libpyselinux_la_CPPFLAGS	= \
- 	-I@PYTHON_INCLUDE_DIR@
-
---------------020506060101050605000707--
+--==_Exmh_1222399818_7097P--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
