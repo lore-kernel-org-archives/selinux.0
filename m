@@ -1,104 +1,108 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8QJfbZN021254
-	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2008 15:41:37 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m8QJfb33018797
-	for <selinux@tycho.nsa.gov>; Fri, 26 Sep 2008 19:41:37 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8RFuNVu005477
+	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2008 11:56:23 -0400
+Received: from mail.asahi-net.or.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8RFuD1t010870
+	for <selinux@tycho.nsa.gov>; Sat, 27 Sep 2008 15:56:22 GMT
+Message-ID: <48DE5718.2050404@kaigai.gr.jp>
+Date: Sun, 28 Sep 2008 00:54:00 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Dominick Grift <domg472@gmail.com>, KaiGai Kohei <kaigai@ak.jp.nec.com>,
+        selinux@tycho.nsa.gov
+Subject: Re: How to find SELinux policy type?
+References: <alpine.LRH.1.10.0809240910240.32319@tundra.namei.org>	 <48D98748.6090408@ak.jp.nec.com> <9546.1222400049@turing-police.cc.vt.edu>	 <48DC5C16.9040607@ak.jp.nec.com>	 <1222421896.24783.7.camel@sulphur.notebook.internal>	 <48DCB88E.3080503@kaigai.gr.jp> <1222425714.24783.13.camel@sulphur.notebook.internal> <48DCE45B.3040900@kaigai.gr.jp>
+In-Reply-To: <48DCE45B.3040900@kaigai.gr.jp>
 Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C9200F.E3AA7A5F"
-Subject: [autotools][patch] libsepol build system comments
-Date: Fri, 26 Sep 2008 15:41:37 -0400
-Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E669853@exchange2.columbia.tresys.com>
-From: "Jason Tang" <jtang@tresys.com>
-To: <selinux@tycho.nsa.gov>
-Cc: <noel.ambrose@gmail.com>, "Joshua Brindle" <jbrindle@tresys.com>
+ boundary="------------040502060208040907080506"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
+--------------040502060208040907080506
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 
-------_=_NextPart_001_01C9200F.E3AA7A5F
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+> Dan,
+> 
+> Could you add the following policy into F9 updates?
+> It is already merged into upstream policy, but I cannot find it
+> at selinux-policy-3.3.1-91.
+> 
+> --- at modules/system/libraries.te ---
+> optional_policy(`
+>         postgresql_loadable_module(lib_t)
+>         postgresql_loadable_module(textrel_shlib_t)
+> ')
+> --------------------------------------
 
-Josh asked me to look through the autotools work.  Here are the issues I =
-have found with the libsepol package:
+Thanks, I confirmed it is fixed at selinux-policy-3.3.1-95.fc9.
 
-1. In configure.ac, the AC_INIT macro is not filled out;
+But what I pointed out is incomplete. :(
+Could you apply the attached patch towards the 3.3.1 series policy?
+It allows userdomains and httpd_t to connect SE-PostgreSQL.
+(No need to say, it compatible to upstream refpolicy.)
 
-2. Within libsepol/src/Makefile.am, the internal header files are not =
-assigned to COMMONSRC;
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
-3. Within utils/Makefile.am, the builddir for utils is not necessarily =
-sibling to src;
-
-4. libsepol is being installed to $(LIBDIR).  In this case, it should =
-default to the system library.
-
-5. Most importantly, the unit tests are not built nor run.
-
-
-I resolved the first three issues with the patch below.  After applying =
-the changes, 'make distcheck' succeeded for me.  For the fourth issue, =
-consider adding to configure.ac an AC_ARG_WITH, "--with-libsepol-dir", =
-that sets the location to install libsepol.so.  This would default to =
-/lib or /lib64, depending upon the target architecture.  For the fifth =
-issue, the enable_tests variable ought to default to yes, and then =
-conditional compiliation be used to actually compile and run those =
-tests.
-
---=20
-Jason Tang / jtang@tresys.com
-
-
-
-
-
-
-------_=_NextPart_001_01C9200F.E3AA7A5F
-Content-Type: text/x-patch;
-	name="libsepol-autotools.patch"
+--------------040502060208040907080506
+Content-Type: application/octect-stream;
+ name="serefpolicy-sepostgresql-fix-3.3.1.patch"
 Content-Transfer-Encoding: base64
-Content-Description: libsepol-autotools.patch
-Content-Disposition: attachment;
-	filename="libsepol-autotools.patch"
+Content-Disposition: inline;
+ filename="serefpolicy-sepostgresql-fix-3.3.1.patch"
 
-ZGlmZiAtLWdpdCBhL2xpYnNlcG9sL2NvbmZpZ3VyZS5hYyBiL2xpYnNlcG9sL2NvbmZpZ3VyZS5h
-YwppbmRleCA2Njc4Zjc3Li4wYTBhN2Y4IDEwMDY0NAotLS0gYS9saWJzZXBvbC9jb25maWd1cmUu
-YWMKKysrIGIvbGlic2Vwb2wvY29uZmlndXJlLmFjCkBAIC0yLDcgKzIsNyBAQAogIyBQcm9jZXNz
-IHRoaXMgZmlsZSB3aXRoIGF1dG9jb25mIHRvIHByb2R1Y2UgYSBjb25maWd1cmUgc2NyaXB0Lgog
-CiBBQ19QUkVSRVEoMi42MSkKLUFDX0lOSVQoW2xpYnNlcG9sXSwgWzFdIEJVRy1SRVBPUlQtQURE
-UkVTUykKK0FDX0lOSVQoW2xpYnNlcG9sXSwgMi4wLjMyLCBzZWxpbnV4QHR5Y2hvLm5zYS5nb3Yp
-CiBBTV9JTklUX0FVVE9NQUtFCiBBQ19DT05GSUdfU1JDRElSKFt1dGlscy9jaGtjb24uY10pCiBB
-Q19DT05GSUdfSEVBREVSKFtjb25maWcuaF0pCmRpZmYgLS1naXQgYS9saWJzZXBvbC9zcmMvTWFr
-ZWZpbGUuYW0gYi9saWJzZXBvbC9zcmMvTWFrZWZpbGUuYW0KaW5kZXggMzQ4YTQ2NS4uNTVjOGQ4
-ZSAxMDA2NDQKLS0tIGEvbGlic2Vwb2wvc3JjL01ha2VmaWxlLmFtCisrKyBiL2xpYnNlcG9sL3Ny
-Yy9NYWtlZmlsZS5hbQpAQCAtNiw3ICs2LDIyIEBAIENPTU1PTlNSQwkJPSBhc3NlcnRpb24uYyBj
-b25kaXRpb25hbC5jIGViaXRtYXAuYyBoYXNodGFiLmMgXAogCQkJbm9kZV9yZWNvcmQuYyAgcG9s
-aWN5ZGJfcHVibGljLmMgc2lkdGFiLmMgd3JpdGUuYyBcCiAJCQlib29sZWFuX3JlY29yZC5jIGNv
-bnRleHRfcmVjb3JkLmMgZ2VudXNlcnMuYyBpbnRlcmZhY2VzLmMgXAogCQkJbm9kZXMuYyBwb3J0
-X3JlY29yZC5jIHN5bXRhYi5jIGJvb2xlYW5zLmMgXAotCQkJZGVidWcuYyBoYW5kbGUuYyBsaW5r
-LmMgcG9sY2Fwcy5jIHBvcnRzLmMgdXNlcl9yZWNvcmQuYworCQkJZGVidWcuYyBoYW5kbGUuYyBs
-aW5rLmMgcG9sY2Fwcy5jIHBvcnRzLmMgdXNlcl9yZWNvcmQuYyBcCisJYXZfcGVybWlzc2lvbnMu
-aCBcCisJYm9vbGVhbl9pbnRlcm5hbC5oIFwKKwljb250ZXh0LmggXAorCWNvbnRleHRfaW50ZXJu
-YWwuaCBcCisJZGVidWcuaCBcCisJZHNvLmggXAorCWhhbmRsZS5oIFwKKwlpZmFjZV9pbnRlcm5h
-bC5oIFwKKwltbHMuaCBcCisJbW9kdWxlX2ludGVybmFsLmggXAorCW5vZGVfaW50ZXJuYWwuaCBc
-CisJcG9saWN5ZGJfaW50ZXJuYWwuaCBcCisJcG9ydF9pbnRlcm5hbC5oIFwKKwlwcml2YXRlLmgg
-XAorCXVzZXJfaW50ZXJuYWwuaAogbGliX0xUTElCUkFSSUVTCQk9IGxpYnNlcG9sLmxhCiBsaWJz
-ZXBvbF9sYV9TT1VSQ0VTCT0gJChDT01NT05TUkMpCiBsaWJzZXBvbF9sYV9DUFBGTEFHUwk9IFwK
-ZGlmZiAtLWdpdCBhL2xpYnNlcG9sL3V0aWxzL01ha2VmaWxlLmFtIGIvbGlic2Vwb2wvdXRpbHMv
-TWFrZWZpbGUuYW0KaW5kZXggMGM0MWFlYy4uZmU4ODdkYSAxMDA2NDQKLS0tIGEvbGlic2Vwb2wv
-dXRpbHMvTWFrZWZpbGUuYW0KKysrIGIvbGlic2Vwb2wvdXRpbHMvTWFrZWZpbGUuYW0KQEAgLTIs
-NSArMiw1IEBAIGJpbl9QUk9HUkFNUwk9IGNoa2NvbgogQU1fTERGTEFHUwk9IC1XbCwtLWFzLW5l
-ZWRlZAogQU1fQ1BQRkxBR1MJPSAtSSQoYWJzX3RvcF9zcmNkaXIpL2luY2x1ZGUKIGNoa2Nvbl9T
-T1VSQ0VTCT0gY2hrY29uLmMKLWNoa2Nvbl9ERVBFTkRFTkNJRVMJPSAkKGJ1aWxkZGlyKS8uLi9z
-cmMvbGlic2Vwb2wubGEKLWNoa2Nvbl9MREZMQUdTCT0gLWxzZXBvbCAtTCQoYnVpbGRkaXIpLy4u
-L3NyYworY2hrY29uX0RFUEVOREVOQ0lFUwk9ICQodG9wX2J1aWxkZGlyKS9zcmMvbGlic2Vwb2wu
-bGEKK2Noa2Nvbl9MREZMQUdTCT0gLWxzZXBvbCAtTCQodG9wX2J1aWxkZGlyKS9zcmMK
-
-------_=_NextPart_001_01C9200F.E3AA7A5F--
+ZGlmZiAtcHJOVTMgc2VyZWZwb2xpY3ktMy4zLjEub3JpZy9wb2xpY3kvbW9kdWxlcy9zZXJ2
+aWNlcy9hcGFjaGUuaWYgc2VyZWZwb2xpY3ktMy4zLjEuZml4ZWQvcG9saWN5L21vZHVsZXMv
+c2VydmljZXMvYXBhY2hlLmlmCi0tLSBzZXJlZnBvbGljeS0zLjMuMS5vcmlnL3BvbGljeS9t
+b2R1bGVzL3NlcnZpY2VzL2FwYWNoZS5pZgkyMDA4LTA5LTI4IDAwOjI3OjMyLjAwMDAwMDAw
+MCArMDkwMAorKysgc2VyZWZwb2xpY3ktMy4zLjEuZml4ZWQvcG9saWN5L21vZHVsZXMvc2Vy
+dmljZXMvYXBhY2hlLmlmCTIwMDgtMDktMjggMDA6NDM6MzAuMDAwMDAwMDAwICswOTAwCkBA
+IC0xNzAsNiArMTcwLDE0IEBAIHRlbXBsYXRlKGBhcGFjaGVfY29udGVudF90ZW1wbGF0ZScs
+YAogCScpCiAKIAlvcHRpb25hbF9wb2xpY3koYAorCQlwb3N0Z3Jlc3FsX3VucHJpdl9jbGll
+bnQoaHR0cGRfJDFfc2NyaXB0X3QpCisKKwkJdHVuYWJsZV9wb2xpY3koYGh0dHBkX2VuYWJs
+ZV9jZ2kgJiYgaHR0cGRfY2FuX25ldHdvcmtfY29ubmVjdF9kYicsYAorCQkJcG9zdGdyZXNx
+bF90Y3BfY29ubmVjdChodHRwZF8kMV9zY3JpcHRfdCkKKwkJJykKKwknKQorCisJb3B0aW9u
+YWxfcG9saWN5KGAKIAkJbnNjZF9zb2NrZXRfdXNlKGh0dHBkXyQxX3NjcmlwdF90KQogCScp
+CiAnKQpkaWZmIC1wck5VMyBzZXJlZnBvbGljeS0zLjMuMS5vcmlnL3BvbGljeS9tb2R1bGVz
+L3NlcnZpY2VzL2FwYWNoZS50ZSBzZXJlZnBvbGljeS0zLjMuMS5maXhlZC9wb2xpY3kvbW9k
+dWxlcy9zZXJ2aWNlcy9hcGFjaGUudGUKLS0tIHNlcmVmcG9saWN5LTMuMy4xLm9yaWcvcG9s
+aWN5L21vZHVsZXMvc2VydmljZXMvYXBhY2hlLnRlCTIwMDgtMDktMjggMDA6Mjc6MzIuMDAw
+MDAwMDAwICswOTAwCisrKyBzZXJlZnBvbGljeS0zLjMuMS5maXhlZC9wb2xpY3kvbW9kdWxl
+cy9zZXJ2aWNlcy9hcGFjaGUudGUJMjAwOC0wOS0yOCAwMDo0NToyMy4wMDAwMDAwMDAgKzA5
+MDAKQEAgLTU4OCw2ICs1ODgsNyBAQCB0dW5hYmxlX3BvbGljeShgaHR0cGRfY2FuX25ldHdv
+cmtfY29ubmVjCiBvcHRpb25hbF9wb2xpY3koYAogCSMgQWxsb3cgaHR0cGQgdG8gd29yayB3
+aXRoIHBvc3RncmVzcWwKIAlwb3N0Z3Jlc3FsX3N0cmVhbV9jb25uZWN0KGh0dHBkX3QpCisJ
+cG9zdGdyZXNxbF91bnByaXZfY2xpZW50KGh0dHBkX3QpCiAnKQogCiBvcHRpb25hbF9wb2xp
+Y3koYApkaWZmIC1wck5VMyBzZXJlZnBvbGljeS0zLjMuMS5vcmlnL3BvbGljeS9tb2R1bGVz
+L3N5c3RlbS91bmNvbmZpbmVkLmlmIHNlcmVmcG9saWN5LTMuMy4xLmZpeGVkL3BvbGljeS9t
+b2R1bGVzL3N5c3RlbS91bmNvbmZpbmVkLmlmCi0tLSBzZXJlZnBvbGljeS0zLjMuMS5vcmln
+L3BvbGljeS9tb2R1bGVzL3N5c3RlbS91bmNvbmZpbmVkLmlmCTIwMDgtMDktMjggMDA6Mjc6
+MzIuMDAwMDAwMDAwICswOTAwCisrKyBzZXJlZnBvbGljeS0zLjMuMS5maXhlZC9wb2xpY3kv
+bW9kdWxlcy9zeXN0ZW0vdW5jb25maW5lZC5pZgkyMDA4LTA5LTI4IDAwOjQxOjQzLjAwMDAw
+MDAwMCArMDkwMApAQCAtOTUsNiArOTUsMTAgQEAgaW50ZXJmYWNlKGB1bmNvbmZpbmVkX2Rv
+bWFpbl9ub2F1ZGl0JyxgCiAJJykKIAogCW9wdGlvbmFsX3BvbGljeShgCisJCXBvc3RncmVz
+cWxfdW5jb25maW5lZCgkMSkKKwknKQorCisJb3B0aW9uYWxfcG9saWN5KGAKIAkJc2V1dGls
+X2NyZWF0ZV9iaW5fcG9saWN5KCQxKQogCQlzZXV0aWxfcmVsYWJlbHRvX2Jpbl9wb2xpY3ko
+JDEpCiAJJykKZGlmZiAtcHJOVTMgc2VyZWZwb2xpY3ktMy4zLjEub3JpZy9wb2xpY3kvbW9k
+dWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5pZiBzZXJlZnBvbGljeS0zLjMuMS5maXhlZC9wb2xp
+Y3kvbW9kdWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5pZgotLS0gc2VyZWZwb2xpY3ktMy4zLjEu
+b3JpZy9wb2xpY3kvbW9kdWxlcy9zeXN0ZW0vdXNlcmRvbWFpbi5pZgkyMDA4LTA5LTI4IDAw
+OjI3OjMyLjAwMDAwMDAwMCArMDkwMAorKysgc2VyZWZwb2xpY3ktMy4zLjEuZml4ZWQvcG9s
+aWN5L21vZHVsZXMvc3lzdGVtL3VzZXJkb21haW4uaWYJMjAwOC0wOS0yOCAwMDo0MDo1NS4w
+MDAwMDAwMDAgKzA5MDAKQEAgLTEyMjgsNiArMTIyOCwxMCBAQCB0ZW1wbGF0ZShgdXNlcmRv
+bV91bnByaXZfdXNlcl90ZW1wbGF0ZScsCiAJJykKIAogCW9wdGlvbmFsX3BvbGljeShgCisJ
+CXBvc3RncmVzcWxfdXNlcmRvbV90ZW1wbGF0ZSgkMSwkMV90LCQxX3IpCisJJykKKworCW9w
+dGlvbmFsX3BvbGljeShgCiAJCWphdmFfcGVyX3JvbGVfdGVtcGxhdGUoJDEsICQxX3QsICQx
+X3IpCiAJJykKIApAQCAtMTM4OSw2ICsxMzkzLDEwIEBAIHRlbXBsYXRlKGB1c2VyZG9tX2Fk
+bWluX3VzZXJfdGVtcGxhdGUnLGAKIAlzZXV0aWxfbWFuYWdlX2Jpbl9wb2xpY3koJDFfdCkK
+IAogCW9wdGlvbmFsX3BvbGljeShgCisJCXBvc3RncmVzcWxfdW5jb25maW5lZCgkMV90KQor
+CScpCisKKwlvcHRpb25hbF9wb2xpY3koYAogCQl1c2VyaGVscGVyX2V4ZWMoJDFfdCkKIAkn
+KQogJykK
+--------------040502060208040907080506--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
