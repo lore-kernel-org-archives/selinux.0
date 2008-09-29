@@ -6,99 +6,137 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
         "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
-Subject: [PATCH 10/14] NFSv4: Introduce new label structure
-Date: Mon, 29 Sep 2008 13:06:22 -0400
-Message-Id: <1222707986-26606-11-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: [PATCH 03/14] Security: Add hook to calculate context based on a negative dentry.
+Date: Mon, 29 Sep 2008 13:06:15 -0400
+Message-Id: <1222707986-26606-4-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In order to mimic the way that NFSv4 ACLs are implemented we have created a
-structure to be used to pass label data up and down the call chain. This patch
-adds the new structure and new members to the required NFSv4 call structures.
+There is a time where we need to calculate a context without the
+inode having been created yet. To do this we take the negative dentry and
+calculate a context based on the process and the parent directory contexts.
 
 Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- include/linux/nfs4.h      |    6 ++++++
- include/linux/nfs_xdr.h   |    3 +++
- include/linux/nfsd/xdr4.h |    3 +++
- 3 files changed, 12 insertions(+), 0 deletions(-)
+ include/linux/security.h |   14 ++++++++++++++
+ security/security.c      |    7 +++++++
+ security/selinux/hooks.c |   36 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 57 insertions(+), 0 deletions(-)
 
-diff --git a/include/linux/nfs4.h b/include/linux/nfs4.h
-index 144eacf..dd99b27 100644
---- a/include/linux/nfs4.h
-+++ b/include/linux/nfs4.h
-@@ -112,6 +112,12 @@ struct nfs4_acl {
- 	struct nfs4_ace	aces[0];
- };
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 8b5b041..42b9128 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1379,6 +1379,9 @@ struct security_operations {
+ 	void (*sb_clone_mnt_opts) (const struct super_block *oldsb,
+ 				   struct super_block *newsb);
+ 	int (*sb_parse_opts_str) (char *options, struct security_mnt_opts *opts);
++	int (*dentry_init_security) (struct dentry *dentry, int mode,
++				     void **ctx, u32 *ctxlen);
++
  
-+struct nfs4_label {
-+	void		*label;
-+	u32		len;
-+};
+ 	int (*inode_alloc_security) (struct inode *inode);
+ 	void (*inode_free_security) (struct inode *inode);
+@@ -1651,6 +1654,8 @@ int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *o
+ void security_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 				struct super_block *newsb);
+ int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
++int security_dentry_init_security (struct dentry *dentry, int mode,
++				   void **ctx, u32 *ctxlen);
+ 
+ int security_inode_alloc(struct inode *inode);
+ void security_inode_free(struct inode *inode);
+@@ -1994,6 +1999,15 @@ static inline int security_inode_alloc(struct inode *inode)
+ static inline void security_inode_free(struct inode *inode)
+ { }
+ 
++static inline int security_dentry_init_security (struct dentry *dentry,
++						 int mode,
++						 void **ctx,
++						 u32 *ctxlen)
++{
++	return -EOPNOTSUPP;
++}
 +
 +
- typedef struct { char data[NFS4_VERIFIER_SIZE]; } nfs4_verifier;
- typedef struct { char data[NFS4_STATEID_SIZE]; } nfs4_stateid;
+ static inline int security_inode_init_security(struct inode *inode,
+ 						struct inode *dir,
+ 						char **name,
+diff --git a/security/security.c b/security/security.c
+index d0fd42a..b22a110 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -349,6 +349,13 @@ void security_inode_free(struct inode *inode)
+ 	security_ops->inode_free_security(inode);
+ }
  
-diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
-index 0d77568..c4fa2df 100644
---- a/include/linux/nfs_xdr.h
-+++ b/include/linux/nfs_xdr.h
-@@ -135,6 +135,7 @@ struct nfs_openargs {
- 	const struct nfs_server *server;	 /* Needed for ID mapping */
- 	const u32 *		bitmask;
- 	__u32			claim;
-+	const struct nfs4_label *label;
- };
++int security_dentry_init_security (struct dentry *dentry, int mode,
++				   void **ctx, u32 *ctxlen)
++{
++	return security_ops->dentry_init_security (dentry, mode, ctx, ctxlen);
++}
++EXPORT_SYMBOL(security_dentry_init_security);
++
+ int security_inode_init_security(struct inode *inode, struct inode *dir,
+ 				  char **name, void **value, size_t *len)
+ {
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b07871b..680db1d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2504,6 +2504,41 @@ static void selinux_inode_free_security(struct inode *inode)
+ 	inode_free_security(inode);
+ }
  
- struct nfs_openres {
-@@ -353,6 +354,7 @@ struct nfs_setattrargs {
- 	struct iattr *                  iap;
- 	const struct nfs_server *	server; /* Needed for name mapping */
- 	const u32 *			bitmask;
-+	const struct nfs4_label *	label;
- };
++/*
++ * For now, we need a way to compute a SID for
++ * a dentry as the inode is not yet available
++ * (and under NFSv4 has no label backed by an EA anyway.
++ */
++static int selinux_dentry_init_security(struct dentry *dentry, int mode, void **ctx, u32 *ctxlen)
++{
++	struct task_security_struct *tsec;
++	struct inode_security_struct *dsec;
++	struct superblock_security_struct *sbsec;
++	struct inode *dir = dentry->d_parent->d_inode;
++	u32 newsid;
++	int rc;
++
++	tsec = current->security;
++	dsec = dir->i_security;
++	sbsec = dir->i_sb->s_security;
++
++	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
++		newsid = tsec->create_sid;
++	} else {
++		rc = security_transition_sid(tsec->sid, dsec->sid,
++					     inode_mode_to_security_class(mode),
++					     &newsid);
++		if (rc) {
++			printk(KERN_WARNING "%s:  "
++			       "security_transition_sid failed, rc=%d\n",
++			       __FUNCTION__, -rc);
++			return rc;
++		}
++	}
++
++	return security_sid_to_context(newsid, (char **)ctx, ctxlen);
++}
++
+ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 				       char **name, void **value,
+ 				       size_t *len)
+@@ -5413,6 +5448,7 @@ static struct security_operations selinux_ops = {
+ 	.sb_clone_mnt_opts =		selinux_sb_clone_mnt_opts,
+ 	.sb_parse_opts_str = 		selinux_parse_opts_str,
  
- struct nfs_setaclargs {
-@@ -577,6 +579,7 @@ struct nfs4_create_arg {
- 	const struct iattr *		attrs;
- 	const struct nfs_fh *		dir_fh;
- 	const u32 *			bitmask;
-+	const struct nfs4_label *	label;
- };
++	.dentry_init_security =		selinux_dentry_init_security,
  
- struct nfs4_create_res {
-diff --git a/include/linux/nfsd/xdr4.h b/include/linux/nfsd/xdr4.h
-index 27bd3e3..a0f3d79 100644
---- a/include/linux/nfsd/xdr4.h
-+++ b/include/linux/nfsd/xdr4.h
-@@ -94,6 +94,7 @@ struct nfsd4_create {
- 	struct iattr	cr_iattr;           /* request */
- 	struct nfsd4_change_info  cr_cinfo; /* response */
- 	struct nfs4_acl *cr_acl;
-+	struct nfs4_label *cr_label;
- };
- #define cr_linklen	u.link.namelen
- #define cr_linkname	u.link.name
-@@ -223,6 +224,7 @@ struct nfsd4_open {
- 	int		op_truncate;        /* used during processing */
- 	struct nfs4_stateowner *op_stateowner; /* used during processing */
- 	struct nfs4_acl *op_acl;
-+	struct nfs4_label *op_label;
- };
- #define op_iattr	u.iattr
- #define op_verf		u.verf
-@@ -304,6 +306,7 @@ struct nfsd4_setattr {
- 	u32		sa_bmval[2];        /* request */
- 	struct iattr	sa_iattr;           /* request */
- 	struct nfs4_acl *sa_acl;
-+	struct nfs4_label *sa_label;
- };
- 
- struct nfsd4_setclientid {
+ 	.inode_alloc_security =		selinux_inode_alloc_security,
+ 	.inode_free_security =		selinux_inode_free_security,
 -- 
 1.5.5.1
 
