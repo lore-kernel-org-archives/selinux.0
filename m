@@ -1,35 +1,66 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8T3Dqvj004421
-	for <selinux@tycho.nsa.gov>; Sun, 28 Sep 2008 23:13:52 -0400
-Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8T3CnqR012053
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 03:12:50 GMT
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by etbe.coker.com.au (Postfix) with ESMTP id BDE0E180AA
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 13:13:41 +1000 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 6CC84217B4
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 13:13:35 +1000 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: ipcs
-Date: Mon, 29 Sep 2008 13:13:33 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200809291313.34827.russell@coker.com.au>
+Subject: Re: [RFC][PATCH] selinux:  use default proc sid on symlinks
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
+        Paul Moore <paul.moore@hp.com>
+In-Reply-To: <alpine.LRH.1.10.0809240703300.31367@tundra.namei.org>
+References: <1222112479.18735.85.camel@moss-spartans.epoch.ncsc.mil>
+	 <alpine.LRH.1.10.0809232321390.28321@tundra.namei.org>
+	 <1222181917.28396.8.camel@moss-spartans.epoch.ncsc.mil>
+	 <alpine.LRH.1.10.0809240703300.31367@tundra.namei.org>
+Content-Type: text/plain
+Date: Mon, 29 Sep 2008 08:45:49 -0400
+Message-Id: <1222692349.5429.2.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It would be good if the ipcs command could be extended to include the SE Linux 
-context of the resources in question.
+
+On Wed, 2008-09-24 at 07:05 +1000, James Morris wrote:
+> On Tue, 23 Sep 2008, Stephen Smalley wrote:
+> 
+> > On Tue, 2008-09-23 at 23:21 +1000, James Morris wrote:
+> > > On Mon, 22 Sep 2008, Stephen Smalley wrote:
+> > > 
+> > > > Patch below for the recent /proc/net bug related to selinux thread on linux-kernel.
+> > > > If this looks sane, then possibly it should be re-sent on that thread.
+> > > > 
+> > > > As we are not concerned with fine-grained control over reading of
+> > > > symlinks in proc, always use the default proc SID for all proc symlinks.
+> > > > This should help avoid permission issues upon changes to the proc tree
+> > > > as in the /proc/net -> /proc/self/net example.
+> > > > This does not alter labeling of symlinks within /proc/pid directories.
+> > > > ls -Zd /proc/net output before and after the patch should show the difference.
+> > > 
+> > > I'm not seeing any difference.
+> > 
+> > Before the patch:
+> > $ ls -Zd /proc/net
+> > lrwxrwxrwx  root root system_u:object_r:proc_net_t:s0  /proc/net -> self/net
+> > 
+> > (/proc/net symlink has proc_net_t type due to matching net in
+> > genfs_contexts, and as legacy policy didn't expect any symbolic links to
+> > have proc_net_t, applications are denied access to read the symlink)
+> > 
+> > After the patch:
+> > $ ls -Zd /proc/net
+> > lrwxrwxrwx  root root system_u:object_r:proc_t:s0      /proc/net -> self/net
+> > 
+> > (/proc/net symlink has proc_t type due to always using default proc sid,
+> > and as legacy policy already allows domains to read proc_t:lnk_file to
+> > follow /proc/self, applications previously allowed to access /proc/net
+> > before it was changed to a symlink will just work)
+> 
+> Ok, it wasn't easy to spot after a flight across the Pacific :-)
+> 
+> Do you see any reaosn not to apply this to security-testing-2.6#next  ?
+
+No, fine with me.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Stephen Smalley
+National Security Agency
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
