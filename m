@@ -1,99 +1,44 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8TItvje018825
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 14:55:58 -0400
-Received: from manicmethod.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8TIspjG023518
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 18:54:55 GMT
-Message-ID: <48E124B7.3020304@manicmethod.com>
-Date: Mon, 29 Sep 2008 14:55:51 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8TJZu1P026728
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 15:35:56 -0400
+Received: from yx-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8TJZuix013700
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 19:35:56 GMT
+Received: by yx-out-1718.google.com with SMTP id 3so360822yxi.84
+        for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 12:35:56 -0700 (PDT)
+Message-ID: <48E12E0A.3000604@gmail.com>
+Date: Mon, 29 Sep 2008 15:35:38 -0400
+From: Vikram Noel Ambrose <noel.ambrose@gmail.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Patch to make libsemanage/selinux policy require less space.
-References: <48E0F0F8.40005@manicmethod.com> <48E0FB3B.8000701@redhat.com>
-In-Reply-To: <48E0FB3B.8000701@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Jason Tang <jtang@tresys.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: [autotools] libselinux build system comments
+References: <06A6610D4F464D4EBEAFBF2C5F86911E669854@exchange2.columbia.tresys.com> <48DE640B.10104@gmail.com> <06A6610D4F464D4EBEAFBF2C5F86911E669856@exchange2.columbia.tresys.com> <48DEEBDA.2050103@gmail.com> <06A6610D4F464D4EBEAFBF2C5F86911E669857@exchange2.columbia.tresys.com>
+In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E669857@exchange2.columbia.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> Joshua Brindle wrote:
->> Daniel J Walsh wrote:
->>> -----BEGIN PGP SIGNED MESSAGE-----
->>> Hash: SHA1
->>>
->>> Currently selinux-policy*rpm install the pp files in
->>> /usr/share/selinux/POLICYTYPE/*.pp
->>>
->>> Then it calls semodule on them to load the policy.  libsemanage copies
->>> the policy package files to /etc/selinux/targeted/modules/active,  Then
->>> it recopies the files to /etc/selinux/targeted/modules/previous, where
->>> it finishes the assembly of the files.
->>>
->>> So we end up requiring three times as much space as necessary if the
->>> modules are not changing.
->>>
->>> Policy in Rawhide is 36 megabytes.
->>>
->>> So on small devices or even usb sticks and cd's this is a large waste of
->>> space.  This patch is an attempt to use hard links when we can.
->>>
->>> I have not put it in production, since I wanted people who know the
->>> library better then me to tell me whether it is a cracked idea.
->>>
->>> There is really two ideas in the patch.  One is to add interfaces
->>> semanage_modules_*_file which take a file instead of a block of memory.
->>>  semodule would then be changed to use these interfaces.
->>>
->>> The library then calls semanage_link,  This function checks to make sure
->>> the file countext of the source matches the file context of the
->>> destination, if they match, the tool will attempt a link, if either
->>> fails the tool will fall back to copy them.
->> I'm open to the idea, I'll take a look at the patch closer as soon as I can.
->>
->>> I changed the write_file to unlink the destination file which would
->>> remove the linked file if it exists.
->>>
->> Why would write_file unlink the destination?
-> Because the open command will truncate the real file,
-> 
-> Remember with lnk_file.  Active and Previous point at the same file.  So
-> if you open write/truncate will modify both.  If you unlink you will
-> break the link and create a new file.  At least that is my understanding.
->>> semanage_store has been changed, so that the creation of the sandbox is
->>> via link, if possible.
->>>
->> Not sure what this means, you are using a link for the store itself?
-> Yes previous and active initially point at the same files.  Wny writes
-> will create a new file.
->>> Is this a good idea or bad?
->>>
->>> Also want to reinvestigate using some form of compression.
->> We've talked about this before but noone has gone off and implemented it. I don't want to slow down semodule and friends for the vast majority of people who don't care about space but for installations on small devices bzip2 can provide quite a bit of savings:
->>
->> 33M     targeted
->> 1.6M    targeted.compressed
->>
->>
->>
->>
-> I believe when I talked to Karl about this, he had implemented something
-> but the increased memory use caused low memory machine > 512 M to crash.
-> 
-> But perhaps we could just use the extra memory when you are running semodule
-> 
-> active Stores bziped files.  When you create the sandbox. BUNZIP pp
-> files. Then when done shrink them again.    This would save space for
-> most of the time when you are not running gzip, but would require there
-> to be at least 30 M of free space in order to run the command.
-> 
-> One other thing I would like to eliminate is policy.kern.  Which seems
-> to be a duplicate of policy.23  It looks like policy.kern is used for
-> verification, and I was wondering if we could use policy.23 in it's place.
-> 
-
-Much of the original design decisions for libsemanage were based around the idea that anything in the store (/etc/selinux/<name>/modules/*) was wholly owned and managed by libsemanage, once files were copied out of that store I don't think we wanted to rely on them within the library.
+Jason Tang wrote:
+> From: owner-selinux@tycho.nsa.gov on behalf of Vikram Noel Ambrose
+> Sent: Sat 2008-09-27 22:28
+> To: SE Linux
+> Subject: Re: [autotools] libselinux build system comments
+>  
+>   
+>>> libselinux and libsepol should be installed to /lib (or /lib64).  The reason is because /usr/lib may be on a different 
+>>> filesystem, but /lib (and /lib64) is nearly guaranteed to be available by the time the system will load the SELinux policy.
+>>>       
+>
+>   
+>> And ./configure --libdir=/lib64. doesnt solve this?
+>>     
+>
+> No, because then libsemanage would be installed to the wrong location.
+>
+>   
+Sorry I don't follow, do you mean all the sub-packages need to be 
+compiled with the same configure parameters?
 
 --
 This message was distributed to subscribers of the selinux mailing list.
