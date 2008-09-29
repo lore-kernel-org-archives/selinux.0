@@ -1,44 +1,68 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8TJZu1P026728
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 15:35:56 -0400
-Received: from yx-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8TJZuix013700
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 19:35:56 GMT
-Received: by yx-out-1718.google.com with SMTP id 3so360822yxi.84
-        for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 12:35:56 -0700 (PDT)
-Message-ID: <48E12E0A.3000604@gmail.com>
-Date: Mon, 29 Sep 2008 15:35:38 -0400
-From: Vikram Noel Ambrose <noel.ambrose@gmail.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8TNJ4xH032208
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 19:19:05 -0400
+Received: from manicmethod.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8TNJ4RD008892
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 23:19:05 GMT
+Message-ID: <48E1625E.3050003@manicmethod.com>
+Date: Mon, 29 Sep 2008 19:18:54 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Jason Tang <jtang@tresys.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: [autotools] libselinux build system comments
-References: <06A6610D4F464D4EBEAFBF2C5F86911E669854@exchange2.columbia.tresys.com> <48DE640B.10104@gmail.com> <06A6610D4F464D4EBEAFBF2C5F86911E669856@exchange2.columbia.tresys.com> <48DEEBDA.2050103@gmail.com> <06A6610D4F464D4EBEAFBF2C5F86911E669857@exchange2.columbia.tresys.com>
-In-Reply-To: <06A6610D4F464D4EBEAFBF2C5F86911E669857@exchange2.columbia.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Some missing man pages from libselinux
+References: <48DA3948.9060003@redhat.com>
+In-Reply-To: <48DA3948.9060003@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jason Tang wrote:
-> From: owner-selinux@tycho.nsa.gov on behalf of Vikram Noel Ambrose
-> Sent: Sat 2008-09-27 22:28
-> To: SE Linux
-> Subject: Re: [autotools] libselinux build system comments
->  
->   
->>> libselinux and libsepol should be installed to /lib (or /lib64).  The reason is because /usr/lib may be on a different 
->>> filesystem, but /lib (and /lib64) is nearly guaranteed to be available by the time the system will load the SELinux policy.
->>>       
->
->   
->> And ./configure --libdir=/lib64. doesnt solve this?
->>     
->
-> No, because then libsemanage would be installed to the wrong location.
->
->   
-Sorry I don't follow, do you mean all the sub-packages need to be 
-compiled with the same configure parameters?
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> We are still missing the following man pages.
+> Perhaps some of these functions should be removed?
+> selinux_users_path seems to return a bogus directory?
+> Also do not have _raw functions defined in man pages.
+
+This and the other 2 patches were merged in libselinux 2.0.73. I added a Todo page to the wiki (http://userspace.selinuxproject.org/trac/wiki/Todo) and added the man pages below.
+
+> 
+> matchpathcon_checkmatches
+> matchpathcon_filespec_add
+> matchpathcon_filespec_destroy
+> matchpathcon_filespec_eval
+> matchpathcon_index
+> matchpathcon_init_prefix
+> print_access_vector
+> security_canonicalize_context
+> security_disable
+> security_set_boolean_list
+> selinux_check_passwd_access
+> selinux_customizable_types_path
+> selinux_file_context_cmp
+> selinux_file_context_verify
+> selinux_get_callback
+> selinux_init_load_policy
+> selinux_lsetfilecon_default
+> selinux_mkload_policy
+> selinux_raw_to_trans_context
+> selinux_trans_to_raw_context
+> selinux_translations_path
+> selinux_users_path
+> set_selinuxmnt
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.9 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iEYEARECAAYFAkjaOUgACgkQrlYvE4MpobOiewCeJmyth4NPBeNu4rvnvc8fcsMd
+> UxEAn0mDTAiDHVzyhvG2QNaBUKBzemE9
+> =dElU
+> -----END PGP SIGNATURE-----
+> 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
