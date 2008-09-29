@@ -1,32 +1,39 @@
-Date: Tue, 30 Sep 2008 00:40:37 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
-        Paul Moore <paul.moore@hp.com>
-Subject: Re: [RFC][PATCH] selinux:  use default proc sid on symlinks
-In-Reply-To: <1222692349.5429.2.camel@moss-spartans.epoch.ncsc.mil>
-Message-ID: <alpine.LRH.1.10.0809300040190.27815@tundra.namei.org>
-References: <1222112479.18735.85.camel@moss-spartans.epoch.ncsc.mil>  <alpine.LRH.1.10.0809232321390.28321@tundra.namei.org>  <1222181917.28396.8.camel@moss-spartans.epoch.ncsc.mil>  <alpine.LRH.1.10.0809240703300.31367@tundra.namei.org>
- <1222692349.5429.2.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8TF6OHY003234
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 11:06:24 -0400
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id m8TF6OK6001720
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 15:06:24 GMT
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Subject: RE: [autotools] libselinux build system comments
+Date: Mon, 29 Sep 2008 11:06:23 -0400
+Message-ID: <06A6610D4F464D4EBEAFBF2C5F86911E669857@exchange2.columbia.tresys.com>
+References: <06A6610D4F464D4EBEAFBF2C5F86911E669854@exchange2.columbia.tresys.com> <48DE640B.10104@gmail.com> <06A6610D4F464D4EBEAFBF2C5F86911E669856@exchange2.columbia.tresys.com> <48DEEBDA.2050103@gmail.com>
+From: "Jason Tang" <jtang@tresys.com>
+To: "Vikram Noel Ambrose" <noel.ambrose@gmail.com>,
+        "SE Linux" <selinux@tycho.nsa.gov>
+Cc: "Joshua Brindle" <jbrindle@tresys.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 29 Sep 2008, Stephen Smalley wrote:
+From: owner-selinux@tycho.nsa.gov on behalf of Vikram Noel Ambrose
+Sent: Sat 2008-09-27 22:28
+To: SE Linux
+Subject: Re: [autotools] libselinux build system comments
+ 
+>> libselinux and libsepol should be installed to /lib (or /lib64).  The reason is because /usr/lib may be on a different 
+>>filesystem, but /lib (and /lib64) is nearly guaranteed to be available by the time the system will load the SELinux policy.
 
-> > Do you see any reaosn not to apply this to security-testing-2.6#next  ?
-> 
-> No, fine with me.
+>And ./configure --libdir=/lib64. doesnt solve this?
 
-Applied to:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
-
+No, because then libsemanage would be installed to the wrong location.
 
 -- 
-James Morris
-<jmorris@namei.org>
+Jason Tang / jtang@tresys.com
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
