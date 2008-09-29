@@ -1,101 +1,131 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8TFwsXq014810
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 11:58:54 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8TFwsK6016445
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 15:58:55 GMT
-Message-ID: <48E0FB3B.8000701@redhat.com>
-Date: Mon, 29 Sep 2008 11:58:51 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Patch to make libsemanage/selinux policy require less space.
-References: <48E0F0F8.40005@manicmethod.com>
-In-Reply-To: <48E0F0F8.40005@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
+        sds@tycho.nsa.gov, matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
+        bfields@fieldses.org
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
+Subject: [PATCH 07/14] NFSv4: Add label recommended attribute and NFSv4 flags
+Date: Mon, 29 Sep 2008 13:06:19 -0400
+Message-Id: <1222707986-26606-8-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
+References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Currently selinux-policy*rpm install the pp files in
->> /usr/share/selinux/POLICYTYPE/*.pp
->>
->> Then it calls semodule on them to load the policy.  libsemanage copies
->> the policy package files to /etc/selinux/targeted/modules/active,  Then
->> it recopies the files to /etc/selinux/targeted/modules/previous, where
->> it finishes the assembly of the files.
->>
->> So we end up requiring three times as much space as necessary if the
->> modules are not changing.
->>
->> Policy in Rawhide is 36 megabytes.
->>
->> So on small devices or even usb sticks and cd's this is a large waste of
->> space.  This patch is an attempt to use hard links when we can.
->>
->> I have not put it in production, since I wanted people who know the
->> library better then me to tell me whether it is a cracked idea.
->>
->> There is really two ideas in the patch.  One is to add interfaces
->> semanage_modules_*_file which take a file instead of a block of memory.
->>  semodule would then be changed to use these interfaces.
->>
->> The library then calls semanage_link,  This function checks to make sure
->> the file countext of the source matches the file context of the
->> destination, if they match, the tool will attempt a link, if either
->> fails the tool will fall back to copy them.
-> 
-> I'm open to the idea, I'll take a look at the patch closer as soon as I can.
-> 
->> I changed the write_file to unlink the destination file which would
->> remove the linked file if it exists.
->>
-> 
-> Why would write_file unlink the destination?
-Because the open command will truncate the real file,
+This patch adds a new recommended attribute named label into the NFSv4 file
+attribute structure. It also adds several new flags to allow the NFS client and
+server to determine if this attribute is supported and if it is being sent over
+the wire.
 
-Remember with lnk_file.  Active and Previous point at the same file.  So
-if you open write/truncate will modify both.  If you unlink you will
-break the link and create a new file.  At least that is my understanding.
-> 
->> semanage_store has been changed, so that the creation of the sandbox is
->> via link, if possible.
->>
-> 
-> Not sure what this means, you are using a link for the store itself?
-Yes previous and active initially point at the same files.  Wny writes
-will create a new file.
-> 
->> Is this a good idea or bad?
->>
->> Also want to reinvestigate using some form of compression.
-> 
-> We've talked about this before but noone has gone off and implemented it. I don't want to slow down semodule and friends for the vast majority of people who don't care about space but for installations on small devices bzip2 can provide quite a bit of savings:
-> 
-> 33M     targeted
-> 1.6M    targeted.compressed
-> 
-> 
-> 
-> 
-I believe when I talked to Karl about this, he had implemented something
-but the increased memory use caused low memory machine > 512 M to crash.
+Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+---
+ include/linux/nfs4.h        |    2 ++
+ include/linux/nfs_fs_sb.h   |    2 +-
+ include/linux/nfs_xdr.h     |    4 ++++
+ include/linux/nfsd/export.h |    5 +++--
+ include/linux/nfsd/nfsd.h   |    7 ++++---
+ 5 files changed, 14 insertions(+), 6 deletions(-)
 
-But perhaps we could just use the extra memory when you are running semodule
+diff --git a/include/linux/nfs4.h b/include/linux/nfs4.h
+index ea03667..144eacf 100644
+--- a/include/linux/nfs4.h
++++ b/include/linux/nfs4.h
+@@ -21,6 +21,7 @@
+ #define NFS4_FHSIZE		128
+ #define NFS4_MAXPATHLEN		PATH_MAX
+ #define NFS4_MAXNAMLEN		NAME_MAX
++#define NFS4_MAXLABELLEN	4096
+ 
+ #define NFS4_ACCESS_READ        0x0001
+ #define NFS4_ACCESS_LOOKUP      0x0002
+@@ -345,6 +346,7 @@ enum lock_type4 {
+ #define FATTR4_WORD1_TIME_MODIFY        (1UL << 21)
+ #define FATTR4_WORD1_TIME_MODIFY_SET    (1UL << 22)
+ #define FATTR4_WORD1_MOUNTED_ON_FILEID  (1UL << 23)
++#define FATTR4_WORD1_SECURITY_LABEL     (1UL << 31)
+ 
+ #define NFSPROC4_NULL 0
+ #define NFSPROC4_COMPOUND 1
+diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
+index c9beacd..9475bb0 100644
+--- a/include/linux/nfs_fs_sb.h
++++ b/include/linux/nfs_fs_sb.h
+@@ -135,5 +135,5 @@ struct nfs_server {
+ #define NFS_CAP_SYMLINKS	(1U << 2)
+ #define NFS_CAP_ACLS		(1U << 3)
+ #define NFS_CAP_ATOMIC_OPEN	(1U << 4)
+-
++#define NFS_CAP_SECURITY_LABEL (1U << 5)
+ #endif
+diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
+index 8c77c11..0d77568 100644
+--- a/include/linux/nfs_xdr.h
++++ b/include/linux/nfs_xdr.h
+@@ -56,6 +56,10 @@ struct nfs_fattr {
+ 	__u64			change_attr;	/* NFSv4 change attribute */
+ 	__u64			pre_change_attr;/* pre-op NFSv4 change attribute */
+ 	unsigned long		time_start;
++#ifdef CONFIG_SECURITY
++	void			*label;
++	__u32			 label_len;
++#endif
+ };
+ 
+ #define NFS_ATTR_WCC		0x0001		/* pre-op WCC data    */
+diff --git a/include/linux/nfsd/export.h b/include/linux/nfsd/export.h
+index 5431512..bb831fc 100644
+--- a/include/linux/nfsd/export.h
++++ b/include/linux/nfsd/export.h
+@@ -32,7 +32,8 @@
+ #define NFSEXP_ALLSQUASH	0x0008
+ #define NFSEXP_ASYNC		0x0010
+ #define NFSEXP_GATHERED_WRITES	0x0020
+-/* 40 80 100 currently unused */
++#define NFSEXP_SECURITY_LABEL	0x0040  /* Support security label fattr4 */
++/* 80 100 currently unused */
+ #define NFSEXP_NOHIDE		0x0200
+ #define NFSEXP_NOSUBTREECHECK	0x0400
+ #define	NFSEXP_NOAUTHNLM	0x0800		/* Don't authenticate NLM requests - just trust */
+@@ -40,7 +41,7 @@
+ #define NFSEXP_FSID		0x2000
+ #define	NFSEXP_CROSSMOUNT	0x4000
+ #define	NFSEXP_NOACL		0x8000	/* reserved for possible ACL related use */
+-#define NFSEXP_ALLFLAGS		0xFE3F
++#define NFSEXP_ALLFLAGS		0xFE7F
+ 
+ /* The flags that may vary depending on security flavor: */
+ #define NFSEXP_SECINFO_FLAGS	(NFSEXP_READONLY | NFSEXP_ROOTSQUASH \
+diff --git a/include/linux/nfsd/nfsd.h b/include/linux/nfsd/nfsd.h
+index 108f47e..f329b96 100644
+--- a/include/linux/nfsd/nfsd.h
++++ b/include/linux/nfsd/nfsd.h
+@@ -317,8 +317,8 @@ extern struct timeval	nfssvc_boot;
+  | FATTR4_WORD1_OWNER	        | FATTR4_WORD1_OWNER_GROUP  | FATTR4_WORD1_RAWDEV           \
+  | FATTR4_WORD1_SPACE_AVAIL     | FATTR4_WORD1_SPACE_FREE   | FATTR4_WORD1_SPACE_TOTAL      \
+  | FATTR4_WORD1_SPACE_USED      | FATTR4_WORD1_TIME_ACCESS  | FATTR4_WORD1_TIME_ACCESS_SET  \
+- | FATTR4_WORD1_TIME_DELTA   | FATTR4_WORD1_TIME_METADATA    \
+- | FATTR4_WORD1_TIME_MODIFY     | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_MOUNTED_ON_FILEID)
++ | FATTR4_WORD1_TIME_DELTA   	| FATTR4_WORD1_TIME_METADATA | FATTR4_WORD1_TIME_MODIFY     \
++ | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_MOUNTED_ON_FILEID | FATTR4_WORD1_SECURITY_LABEL)
+ 
+ /* These will return ERR_INVAL if specified in GETATTR or READDIR. */
+ #define NFSD_WRITEONLY_ATTRS_WORD1							    \
+@@ -329,7 +329,8 @@ extern struct timeval	nfssvc_boot;
+ (FATTR4_WORD0_SIZE              | FATTR4_WORD0_ACL                                         )
+ #define NFSD_WRITEABLE_ATTRS_WORD1                                                          \
+ (FATTR4_WORD1_MODE              | FATTR4_WORD1_OWNER         | FATTR4_WORD1_OWNER_GROUP     \
+- | FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_MODIFY_SET)
++ | FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_METADATA | FATTR4_WORD1_TIME_MODIFY_SET \
++ | FATTR4_WORD1_SECURITY_LABEL)
+ 
+ #endif /* CONFIG_NFSD_V4 */
+ 
+-- 
+1.5.5.1
 
-active Stores bziped files.  When you create the sandbox. BUNZIP pp
-files. Then when done shrink them again.    This would save space for
-most of the time when you are not running gzip, but would require there
-to be at least 30 M of free space in order to run the command.
-
-One other thing I would like to eliminate is policy.kern.  Which seems
-to be a duplicate of policy.23  It looks like policy.kern is used for
-verification, and I was wondering if we could use policy.23 in it's place.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
