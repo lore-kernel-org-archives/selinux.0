@@ -1,123 +1,44 @@
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
-        sds@tycho.nsa.gov, matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
-        bfields@fieldses.org
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
-        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
-Subject: [PATCH 13/14] NFS: Extend NFS xattr handlers to accept the security namespace
-Date: Mon, 29 Sep 2008 13:06:25 -0400
-Message-Id: <1222707986-26606-14-git-send-email-dpquigl@tycho.nsa.gov>
-In-Reply-To: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
-References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: Re: user guide drafts: "Working with SELinux" sections
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Valdis.Kletnieks@vt.edu
+Cc: Murray McAllister <mmcallis@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <9405.1222399818@turing-police.cc.vt.edu>
+References: <48D889A0.1010604@redhat.com>
+	 <9405.1222399818@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Date: Mon, 29 Sep 2008 14:31:16 -0400
+Message-Id: <1222713076.5429.73.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The existing NFSv4 xattr handlers do not accept xattr calls to the security
-namespace. This patch extends these handlers to accept xattrs from the security
-namespace in addition to the default NFSv4 ACL namespace.
 
-Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
-Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
----
- fs/nfs/nfs4proc.c   |   52 ++++++++++++++++++++++++++++++++++++++++----------
- security/security.c |    1 +
- 2 files changed, 42 insertions(+), 11 deletions(-)
+On Thu, 2008-09-25 at 23:30 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 23 Sep 2008 16:16:00 +1000, Murray McAllister said:
+> 
+> > * selinux-policy-[policy]: provides SELinux policies. For targeted 
+> > policy, install selinux-policy-targeted. For MLS, install 
+> > selinux-policy-mls. The strict policy was merged in Fedora 9, allowing 
+> > confined and unconfined users to co-exist on the same system.
+> 
+> Strict was merged with what, exactly? (This threw me for a loop when
+> strict evaporated out of rawhide, before I figured out that MLS was what
+> I needed as the replacement - for most of my boxes, I don't actually *need*
+> the MLS/MCS stuff, I just need to not have an 'unconfined' on the box.  For
+> a *few* others, the MCS stuff is handy.  And actual MLS is barely on the
+> radar here...)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 622bf71..845e1da 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -3934,10 +3934,17 @@ int nfs4_setxattr(struct dentry *dentry, const char *key, const void *buf,
- {
- 	struct inode *inode = dentry->d_inode;
- 
--	if (strcmp(key, XATTR_NAME_NFSV4_ACL) != 0)
--		return -EOPNOTSUPP;
--
--	return nfs4_proc_set_acl(inode, buf, buflen);
-+	if (strcmp(key, XATTR_NAME_NFSV4_ACL) == 0) {
-+		if (!S_ISREG(inode->i_mode) &&
-+		   (!S_ISDIR(inode->i_mode) || inode->i_mode & S_ISVTX))
-+			return -EPERM;
-+		return nfs4_proc_set_acl(inode, buf, buflen);
-+	}
-+#ifdef CONFIG_NFS_V4_SECURITY_LABEL
-+	if (security_ismaclabel(key))
-+		return nfs4_set_security_label(dentry, buf, buflen);
-+#endif
-+	return -EOPNOTSUPP;
- }
- 
- /* The getxattr man page suggests returning -ENODATA for unknown attributes,
-@@ -3949,22 +3956,45 @@ ssize_t nfs4_getxattr(struct dentry *dentry, const char *key, void *buf,
- {
- 	struct inode *inode = dentry->d_inode;
- 
--	if (strcmp(key, XATTR_NAME_NFSV4_ACL) != 0)
--		return -EOPNOTSUPP;
-+	if (strcmp(key, XATTR_NAME_NFSV4_ACL) == 0)
-+		return nfs4_proc_get_acl(inode, buf, buflen);
- 
--	return nfs4_proc_get_acl(inode, buf, buflen);
-+#ifdef CONFIG_NFS_V4_SECURITY_LABEL
-+	if (security_ismaclabel(key))
-+		return nfs4_get_security_label(inode, buf, buflen);
-+#endif
-+	return -EOPNOTSUPP;
- }
- 
- ssize_t nfs4_listxattr(struct dentry *dentry, char *buf, size_t buflen)
- {
--	size_t len = strlen(XATTR_NAME_NFSV4_ACL) + 1;
-+	size_t len = 0, l;
-+	char *p;
- 
--	if (!nfs4_server_supports_acls(NFS_SERVER(dentry->d_inode)))
-+	if (nfs4_server_supports_acls(NFS_SERVER(dentry->d_inode)))
-+		len += strlen(XATTR_NAME_NFSV4_ACL) + 1;
-+#ifdef CONFIG_NFS_V4_SECURITY_LABEL
-+	if (nfs_server_capable(dentry->d_inode, NFS_CAP_SECURITY_LABEL))
-+		len += security_inode_listsecurity(dentry->d_inode, NULL, 0);
-+#endif
-+	if (!len)
- 		return 0;
- 	if (buf && buflen < len)
- 		return -ERANGE;
--	if (buf)
--		memcpy(buf, XATTR_NAME_NFSV4_ACL, len);
-+	if (!buf)
-+		return len;
-+
-+	p = buf;
-+	if (nfs4_server_supports_acls(NFS_SERVER(dentry->d_inode))) {
-+		l = strlen(XATTR_NAME_NFSV4_ACL) + 1;
-+		memcpy(p, XATTR_NAME_NFSV4_ACL, l);
-+		p += l;
-+	}
-+#ifdef CONFIG_NFS_V4_SECURITY_LABEL
-+	if (nfs_server_capable(dentry->d_inode, NFS_CAP_SECURITY_LABEL))
-+		p += security_inode_listsecurity(dentry->d_inode, p,
-+			buflen - (p - buf));
-+#endif
- 	return len;
- }
- 
-diff --git a/security/security.c b/security/security.c
-index 2337d7f..44d6e37 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -536,6 +536,7 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
- 		return 0;
- 	return security_ops->inode_listsecurity(inode, buffer, buffer_size);
- }
-+EXPORT_SYMBOL(security_inode_listsecurity);
- 
- void security_inode_getsecid(const struct inode *inode, u32 *secid)
- {
+strict policy was merged into targeted policy in F8, which paved the way
+for actual user roles in F9.  You can get 95% of the behavior of strict
+policy these days just by mapping Linux users to confined SELinux users
+using semanage or system-config-selinux, or 100% of its behavior by
+removing the unconfined module using semodule (but that's a destructive
+operation that requires doing it in permissive and rebooting your system
+since you'll invalidate all running processes in unconfined_t).
+
 -- 
-1.5.5.1
+Stephen Smalley
+National Security Agency
 
 
 --
