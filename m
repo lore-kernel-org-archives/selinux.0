@@ -6,113 +6,66 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
         "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
-Subject: [PATCH 01/14] VFS: Factor out part of vfs_setxattr so it can be called from the SELinux hook for inode_setsecctx.
-Date: Mon, 29 Sep 2008 13:06:13 -0400
-Message-Id: <1222707986-26606-2-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: [PATCH 06/14] KConfig: Add KConfig entries for Labeled NFS
+Date: Mon, 29 Sep 2008 13:06:18 -0400
+Message-Id: <1222707986-26606-7-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This factors out the part of the vfs_setxattr function that performs the
-setting of the xattr and its notification. This is needed so the SELinux
-implementation of inode_setsecctx can handle the setting of it's xattr while
-maintaining the proper separation of layers.
+This patch adds two entries into the fs/KConfig file. The first entry
+NFS_V4_SECURITY_LABEL enables security label support for the NFSv4 client while
+the second entry NFSD_V4_SECURITY_LABEL enables security labeling support on
+the server side.
 
 Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- fs/xattr.c            |   55 +++++++++++++++++++++++++++++++++++++-----------
- include/linux/xattr.h |    1 +
- 2 files changed, 43 insertions(+), 13 deletions(-)
+ fs/Kconfig |   17 +++++++++++++++++
+ 1 files changed, 17 insertions(+), 0 deletions(-)
 
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 468377e..2f93006 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -66,22 +66,28 @@ xattr_permission(struct inode *inode, const char *name, int mask)
- 	return inode_permission(inode, mask);
- }
+diff --git a/fs/Kconfig b/fs/Kconfig
+index abccb5d..47ffb42 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1633,6 +1633,7 @@ config NFS_V4
  
--int
--vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
--		size_t size, int flags)
-+/**
-+ *  __vfs_setxattr_noperm - perform setxattr operation without performing
-+ *  permission checks.
-+ *
-+ *  @dentry - object to perform setxattr on
-+ *  @name - xattr name to set
-+ *  @value - value to set @name to
-+ *  @size - size of @value
-+ *  @flags - flags to pass into filesystem operations
-+ *
-+ *  returns the result of the internal setxattr or setsecurity operations.
-+ *
-+ *  This function requires the caller to lock the inode's i_mutex before it
-+ *  is executed. It also assumes that the caller will make the appropriate
-+ *  permission checks.
-+ */
-+int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
-+		const void *value, size_t size, int flags)
- {
- 	struct inode *inode = dentry->d_inode;
--	int error;
--
--	error = xattr_permission(inode, name, MAY_WRITE);
--	if (error)
--		return error;
-+	int error = -EOPNOTSUPP;
+ 	  If unsure, say N.
  
--	mutex_lock(&inode->i_mutex);
--	error = security_inode_setxattr(dentry, name, value, size, flags);
--	if (error)
--		goto out;
--	error = -EOPNOTSUPP;
- 	if (inode->i_op->setxattr) {
- 		error = inode->i_op->setxattr(dentry, name, value, size, flags);
- 		if (!error) {
-@@ -97,6 +103,29 @@ vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
- 		if (!error)
- 			fsnotify_xattr(dentry);
- 	}
 +
-+	return error;
-+}
+ config ROOT_NFS
+ 	bool "Root file system on NFS"
+ 	depends on NFS_FS=y && IP_PNP
+@@ -1644,6 +1645,15 @@ config ROOT_NFS
+ 
+ 	  Most people say N here.
+ 
++config NFS_V4_SECURITY_LABEL
++	bool "Provide Security Label support for NFSv4 client"
++	depends on NFS_V4 && SECURITY
++	help
++	  Say Y here if you want label attribute support for NFS version 4.
 +
 +
-+int
-+vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
-+		size_t size, int flags)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	int error;
++	  If unsure, say N.
 +
-+	error = xattr_permission(inode, name, MAY_WRITE);
-+	if (error)
-+		return error;
+ config NFSD
+ 	tristate "NFS server support"
+ 	depends on INET
+@@ -1725,6 +1735,13 @@ config NFSD_V4
+ 
+ 	  If unsure, say N.
+ 
++config NFSD_V4_SECURITY_LABEL
++	bool "Provide Security Label support for NFSv4 server"
++	depends on NFSD_V4 && SECURITY
++	help
++	  If you would like to include support for label file attributes
++	  over NFSv4, say Y here.
 +
-+	mutex_lock(&inode->i_mutex);
-+	error = security_inode_setxattr(dentry, name, value, size, flags);
-+	if (error)
-+		goto out;
-+
-+	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
-+
- out:
- 	mutex_unlock(&inode->i_mutex);
- 	return error;
-diff --git a/include/linux/xattr.h b/include/linux/xattr.h
-index d131e35..5c84af8 100644
---- a/include/linux/xattr.h
-+++ b/include/linux/xattr.h
-@@ -49,6 +49,7 @@ struct xattr_handler {
- ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
- ssize_t vfs_getxattr(struct dentry *, const char *, void *, size_t);
- ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
-+int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
- int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
- int vfs_removexattr(struct dentry *, const char *);
+ config LOCKD
+ 	tristate
  
 -- 
 1.5.5.1
