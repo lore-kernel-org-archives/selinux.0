@@ -6,103 +6,99 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
         "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
-Subject: [PATCH 08/14] NFS: Add security_label text mount option and handling code to NFS
-Date: Mon, 29 Sep 2008 13:06:20 -0400
-Message-Id: <1222707986-26606-9-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: [PATCH 10/14] NFSv4: Introduce new label structure
+Date: Mon, 29 Sep 2008 13:06:22 -0400
+Message-Id: <1222707986-26606-11-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds two new text options to to the NFS mount options to specify
-security labeling. It also sends certain LSM related mount options into the
-module for handling.
+In order to mimic the way that NFSv4 ACLs are implemented we have created a
+structure to be used to pass label data up and down the call chain. This patch
+adds the new structure and new members to the required NFSv4 call structures.
 
 Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- fs/nfs/super.c             |    9 +++++++++
- include/linux/nfs4_mount.h |    6 +++++-
- security/selinux/hooks.c   |    2 +-
- 3 files changed, 15 insertions(+), 2 deletions(-)
+ include/linux/nfs4.h      |    6 ++++++
+ include/linux/nfs_xdr.h   |    3 +++
+ include/linux/nfsd/xdr4.h |    3 +++
+ 3 files changed, 12 insertions(+), 0 deletions(-)
 
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index 9abcd2b..256ce27 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -75,6 +75,7 @@ enum {
- 	Opt_acl, Opt_noacl,
- 	Opt_rdirplus, Opt_nordirplus,
- 	Opt_sharecache, Opt_nosharecache,
-+	Opt_security_label, Opt_nosecurity_label,
- 
- 	/* Mount options that take integer arguments */
- 	Opt_port,
-@@ -128,6 +129,8 @@ static match_table_t nfs_mount_option_tokens = {
- 	{ Opt_nordirplus, "nordirplus" },
- 	{ Opt_sharecache, "sharecache" },
- 	{ Opt_nosharecache, "nosharecache" },
-+	{ Opt_security_label, "security_label" },
-+	{ Opt_nosecurity_label, "nosecurity_label" },
- 
- 	{ Opt_port, "port=%u" },
- 	{ Opt_rsize, "rsize=%u" },
-@@ -1033,6 +1036,12 @@ static int nfs_parse_mount_options(char *raw,
- 		case Opt_nosharecache:
- 			mnt->flags |= NFS_MOUNT_UNSHARED;
- 			break;
-+		case Opt_nosecurity_label:
-+			mnt->flags &= ~NFS4_MOUNT_SECURITY_LABEL;
-+			break;
-+		case Opt_security_label:
-+			mnt->flags |= NFS4_MOUNT_SECURITY_LABEL;
-+			break;
- 
- 		/*
- 		 * options that take numeric values
-diff --git a/include/linux/nfs4_mount.h b/include/linux/nfs4_mount.h
-index a0dcf66..e65067b 100644
---- a/include/linux/nfs4_mount.h
-+++ b/include/linux/nfs4_mount.h
-@@ -17,6 +17,7 @@
-  * but here they are anyway.
-  */
- #define NFS4_MOUNT_VERSION	1
-+#define NFS4_MAX_CONTEXT_LEN	4096
- 
- struct nfs_string {
- 	unsigned int len;
-@@ -53,6 +54,8 @@ struct nfs4_mount_data {
- 	/* Pseudo-flavours to use for authentication. See RFC2623 */
- 	int auth_flavourlen;			/* 1 */
- 	int __user *auth_flavours;		/* 1 */
-+
-+	char context[NFS4_MAX_CONTEXT_LEN + 1];  /* 2 */
+diff --git a/include/linux/nfs4.h b/include/linux/nfs4.h
+index 144eacf..dd99b27 100644
+--- a/include/linux/nfs4.h
++++ b/include/linux/nfs4.h
+@@ -112,6 +112,12 @@ struct nfs4_acl {
+ 	struct nfs4_ace	aces[0];
  };
  
- /* bits in the flags field */
-@@ -66,6 +69,7 @@ struct nfs4_mount_data {
- #define NFS4_MOUNT_NOAC		0x0020	/* 1 */
- #define NFS4_MOUNT_STRICTLOCK	0x1000	/* 1 */
- #define NFS4_MOUNT_UNSHARED	0x8000	/* 1 */
--#define NFS4_MOUNT_FLAGMASK	0x9033
-+#define NFS4_MOUNT_SECURITY_LABEL 0x10000 /* 2 */
-+#define NFS4_MOUNT_FLAGMASK	0x19033
++struct nfs4_label {
++	void		*label;
++	u32		len;
++};
++
++
+ typedef struct { char data[NFS4_VERIFIER_SIZE]; } nfs4_verifier;
+ typedef struct { char data[NFS4_STATEID_SIZE]; } nfs4_stateid;
  
- #endif
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 78e79d3..6919766 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -612,7 +612,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	for (i = 0; i < num_opts; i++) {
- 		u32 sid;
- 		if (flags[i] == NATIVE_LABELS_MNT) {
--			sbsec->flags | = NATIVE_LABELS_MNT;
-+			sbsec->flags |= NATIVE_LABELS_MNT;
- 			continue;
- 		}
- 		rc = security_context_to_sid(mount_options[i],
+diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
+index 0d77568..c4fa2df 100644
+--- a/include/linux/nfs_xdr.h
++++ b/include/linux/nfs_xdr.h
+@@ -135,6 +135,7 @@ struct nfs_openargs {
+ 	const struct nfs_server *server;	 /* Needed for ID mapping */
+ 	const u32 *		bitmask;
+ 	__u32			claim;
++	const struct nfs4_label *label;
+ };
+ 
+ struct nfs_openres {
+@@ -353,6 +354,7 @@ struct nfs_setattrargs {
+ 	struct iattr *                  iap;
+ 	const struct nfs_server *	server; /* Needed for name mapping */
+ 	const u32 *			bitmask;
++	const struct nfs4_label *	label;
+ };
+ 
+ struct nfs_setaclargs {
+@@ -577,6 +579,7 @@ struct nfs4_create_arg {
+ 	const struct iattr *		attrs;
+ 	const struct nfs_fh *		dir_fh;
+ 	const u32 *			bitmask;
++	const struct nfs4_label *	label;
+ };
+ 
+ struct nfs4_create_res {
+diff --git a/include/linux/nfsd/xdr4.h b/include/linux/nfsd/xdr4.h
+index 27bd3e3..a0f3d79 100644
+--- a/include/linux/nfsd/xdr4.h
++++ b/include/linux/nfsd/xdr4.h
+@@ -94,6 +94,7 @@ struct nfsd4_create {
+ 	struct iattr	cr_iattr;           /* request */
+ 	struct nfsd4_change_info  cr_cinfo; /* response */
+ 	struct nfs4_acl *cr_acl;
++	struct nfs4_label *cr_label;
+ };
+ #define cr_linklen	u.link.namelen
+ #define cr_linkname	u.link.name
+@@ -223,6 +224,7 @@ struct nfsd4_open {
+ 	int		op_truncate;        /* used during processing */
+ 	struct nfs4_stateowner *op_stateowner; /* used during processing */
+ 	struct nfs4_acl *op_acl;
++	struct nfs4_label *op_label;
+ };
+ #define op_iattr	u.iattr
+ #define op_verf		u.verf
+@@ -304,6 +306,7 @@ struct nfsd4_setattr {
+ 	u32		sa_bmval[2];        /* request */
+ 	struct iattr	sa_iattr;           /* request */
+ 	struct nfs4_acl *sa_acl;
++	struct nfs4_label *sa_label;
+ };
+ 
+ struct nfsd4_setclientid {
 -- 
 1.5.5.1
 
