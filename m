@@ -1,65 +1,80 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8TFDTWR005340
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 11:13:29 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8TFF5Kk005702
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 11:15:05 -0400
 Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m8TFCRdp025106
-	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 15:12:27 GMT
-Message-ID: <48E0F098.9060008@manicmethod.com>
-Date: Mon, 29 Sep 2008 11:13:28 -0400
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m8TFE2dp025597
+	for <selinux@tycho.nsa.gov>; Mon, 29 Sep 2008 15:14:03 GMT
+Message-ID: <48E0F0F8.40005@manicmethod.com>
+Date: Mon, 29 Sep 2008 11:15:04 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Vikram Noel Ambrose <noel.ambrose@gmail.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
 CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [autotools] libselinux build system comments
-References: <06A6610D4F464D4EBEAFBF2C5F86911E669854@exchange2.columbia.tresys.com> <48DE640B.10104@gmail.com> <06A6610D4F464D4EBEAFBF2C5F86911E669856@exchange2.columbia.tresys.com> <48DEEBDA.2050103@gmail.com>
-In-Reply-To: <48DEEBDA.2050103@gmail.com>
+Subject: Re: Patch to make libsemanage/selinux policy require less space.
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Vikram Noel Ambrose wrote:
-> Jason Tang wrote:
->> From: Vikram Noel Ambrose [mailto:noel.ambrose@gmail.com]
->>  
->>>> 4. libselinux is being installed to $(LIBDIR).  In this case, it
->>>> should default to the system library.
->>>>       
->>> What does that mean?
->>>     
->>
->> libselinux and libsepol should be installed to /lib (or /lib64).  The
->> reason is because /usr/lib may be on a different filesystem, but /lib
->> (and /lib64) is nearly guaranteed to be available by the time the
->> system will load the SELinux policy.
->>
->>  
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> And ./configure --libdir=/lib64. doesnt solve this?
+> Currently selinux-policy*rpm install the pp files in
+> /usr/share/selinux/POLICYTYPE/*.pp
+> 
+> Then it calls semodule on them to load the policy.  libsemanage copies
+> the policy package files to /etc/selinux/targeted/modules/active,  Then
+> it recopies the files to /etc/selinux/targeted/modules/previous, where
+> it finishes the assembly of the files.
+> 
+> So we end up requiring three times as much space as necessary if the
+> modules are not changing.
+> 
+> Policy in Rawhide is 36 megabytes.
+> 
+> So on small devices or even usb sticks and cd's this is a large waste of
+> space.  This patch is an attempt to use hard links when we can.
+> 
+> I have not put it in production, since I wanted people who know the
+> library better then me to tell me whether it is a cracked idea.
+> 
+> There is really two ideas in the patch.  One is to add interfaces
+> semanage_modules_*_file which take a file instead of a block of memory.
+>  semodule would then be changed to use these interfaces.
+> 
+> The library then calls semanage_link,  This function checks to make sure
+> the file countext of the source matches the file context of the
+> destination, if they match, the tool will attempt a link, if either
+> fails the tool will fall back to copy them.
+
+I'm open to the idea, I'll take a look at the patch closer as soon as I can.
+
+> 
+> I changed the write_file to unlink the destination file which would
+> remove the linked file if it exists.
 > 
 
-./configure (with no flags) must default to:
+Why would write_file unlink the destination?
 
-/lib/libsepol.so.1
-/lib/libselinux.so.1
-/lib/libsemanage.so.1
+> 
+> semanage_store has been changed, so that the creation of the sandbox is
+> via link, if possible.
+> 
 
-/usr/lib/libselinux.a
-/usr/lib/libsepol.a
-/usr/lib/libsemanage.a
+Not sure what this means, you are using a link for the store itself?
 
-/sbin/fixfiles
-/sbin/setfiles
+> Is this a good idea or bad?
+> 
+> Also want to reinvestigate using some form of compression.
 
-/etc/selinux for conf dir
-/etc/pam.d for pam files
+We've talked about this before but noone has gone off and implemented it. I don't want to slow down semodule and friends for the vast majority of people who don't care about space but for installations on small devices bzip2 can provide quite a bit of savings:
 
-/usr/lib/python2.5/site-packages/ for all python wrappers and files
+33M     targeted
+1.6M    targeted.compressed
 
-/usr/(s)?bin for utilities
 
-...etc...
 
-This is not optional. I'm not going to switch to a build system under everyone that requires flags to work the way it has always worked. Those who want non-standard configurations are those required to set flags. lib64 should probably be substituted for lib on 64 bit builds.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
