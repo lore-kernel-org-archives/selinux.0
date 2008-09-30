@@ -1,4 +1,4 @@
-Date: Tue, 30 Sep 2008 15:22:11 -0500
+Date: Tue, 30 Sep 2008 15:40:26 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
@@ -6,220 +6,89 @@ Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         bfields@fieldses.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
-Subject: Re: [PATCH 02/14] LSM/SELinux: inode_{get,set,notify}secctx hooks
-	to access LSM security context information.
-Message-ID: <20080930202211.GD21039@us.ibm.com>
-References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov> <1222707986-26606-3-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: Re: [PATCH 06/14] KConfig: Add KConfig entries for Labeled NFS
+Message-ID: <20080930204026.GE21039@us.ibm.com>
+References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov> <1222707986-26606-7-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1222707986-26606-3-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1222707986-26606-7-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Quoting David P. Quigley (dpquigl@tycho.nsa.gov):
-> This patch introduces three new hooks. The inode_getsecctx hook is used to get
-> all relevant information from an LSM about an inode. The inode_setsecctx is
-> used to set both the in-core and on-disk state for the inode based on a context
-> derived from inode_getsecctx.The final hook inode_notifysecctx will notify the
-> LSM of a change for the in-core state of the inode in question. These hooks are
-> for use in the labeled NFS code and addresses concerns of how to set security
-> on an inode in a multi-xattr LSM. For historical reasons Stephen Smalley's
-> explanation of the reason for these hooks is pasted below.
-> 
-> Quote Stephen Smalley
-> 
-> inode_setsecctx:  Change the security context of an inode.  Updates the
-> in core security context managed by the security module and invokes the
-> fs code as needed (via __vfs_setxattr_noperm) to update any backing
-> xattrs that represent the context.  Example usage:  NFS server invokes
-> this hook to change the security context in its incore inode and on the
-> backing file system to a value provided by the client on a SETATTR
-> operation.
-> 
-> inode_notifysecctx:  Notify the security module of what the security
-> context of an inode should be.  Initializes the incore security context
-> managed by the security module for this inode.  Example usage:  NFS
-> client invokes this hook to initialize the security context in its
-> incore inode to the value provided by the server for the file when the
-> server returned the file's attributes to the client.
+> This patch adds two entries into the fs/KConfig file. The first entry
+> NFS_V4_SECURITY_LABEL enables security label support for the NFSv4 client while
+> the second entry NFSD_V4_SECURITY_LABEL enables security labeling support on
+> the server side.
 > 
 > Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 > Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
-
-Hmm, sorry, for all of these new hooks which you introduce, you do not
-define empty cap_* versions and assign them when need in
-security_fixup_ops().  But you unconditionally call them if
-CONFIG_SECURITY=y.  So if you compile a kernel with CONFIG_SECURITY=y
-but CONFIG_SECURITY_SELINUX=n, don't you hose your box?
-
 > ---
->  include/linux/security.h |   50 ++++++++++++++++++++++++++++++++++++++++++++++
->  security/security.c      |   18 ++++++++++++++++
->  security/selinux/hooks.c |   25 +++++++++++++++++++++++
->  3 files changed, 93 insertions(+), 0 deletions(-)
+>  fs/Kconfig |   17 +++++++++++++++++
+>  1 files changed, 17 insertions(+), 0 deletions(-)
 > 
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 80c4d00..8b5b041 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -1289,6 +1289,36 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
->   *	audit_rule_init.
->   *	@rule contains the allocated rule
->   *
-> + * @inode_notifysecctx:
-> + *	Notify the security module of what the security context of an inode
-> + *	should be.  Initializes the incore security context managed by the
-> + *	security module for this inode.  Example usage:  NFS client invokes
-> + *	this hook to initialize the security context in its incore inode to the
-> + *	value provided by the server for the file when the server returned the
-> + *	file's attributes to the client.
-> + *
-> + * 	@inode we wish to set the security context of.
-> + * 	@ctx contains the string which we wish to set in the inode.
-> + * 	@ctxlen contains the length of @ctx.
-> + *
-> + * @inode_setsecctx:
-> + * 	Change the security context of an inode.  Updates the
-> + * 	incore security context managed by the security module and invokes the
-> + * 	fs code as needed (via __vfs_setxattr_noperm) to update any backing
-> + * 	xattrs that represent the context.  Example usage:  NFS server invokes
-> + * 	this hook to change the security context in its incore inode and on the
-> + * 	backing filesystem to a value provided by the client on a SETATTR
-> + * 	operation.
-> + *
-> + * 	@dentry contains the inode we wish to set the security context of.
-> + * 	@ctx contains the string which we wish to set in the inode.
-> + * 	@ctxlen contains the length of @ctx.
-> + *
-> + * @inode_getsecctx:
-> + * 	Returns a string containing all relavent security context information
-> + * 	@inode we wish to set the security context of.
-> + *	@ctx is a pointer to place the allocated security context should be placed.
-> + *	@ctxlen points to the place to put the length of @ctx.
->   * This is the main security structure.
->   */
->  struct security_operations {
-> @@ -1479,6 +1509,10 @@ struct security_operations {
->  	int (*secctx_to_secid) (const char *secdata, u32 seclen, u32 *secid);
->  	void (*release_secctx) (char *secdata, u32 seclen);
+> diff --git a/fs/Kconfig b/fs/Kconfig
+> index abccb5d..47ffb42 100644
+> --- a/fs/Kconfig
+> +++ b/fs/Kconfig
+> @@ -1633,6 +1633,7 @@ config NFS_V4
 > 
-> +	int (*inode_notifysecctx)(struct inode *inode, void *ctx, u32 ctxlen);
-> +	int (*inode_setsecctx)(struct dentry *dentry, void *ctx, u32 ctxlen);
-> +	int (*inode_getsecctx)(struct inode *inode, void **ctx, u32 *ctxlen);
+>  	  If unsure, say N.
+> 
 > +
->  #ifdef CONFIG_SECURITY_NETWORK
->  	int (*unix_stream_connect) (struct socket *sock,
->  				    struct socket *other, struct sock *newsk);
-> @@ -1727,6 +1761,9 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
->  int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
->  void security_release_secctx(char *secdata, u32 seclen);
+>  config ROOT_NFS
+>  	bool "Root file system on NFS"
+>  	depends on NFS_FS=y && IP_PNP
+> @@ -1644,6 +1645,15 @@ config ROOT_NFS
 > 
-> +int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
-> +int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
-> +int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
->  #else /* CONFIG_SECURITY */
->  struct security_mnt_opts {
->  };
-> @@ -2458,6 +2495,19 @@ static inline int security_secctx_to_secid(const char *secdata,
->  static inline void security_release_secctx(char *secdata, u32 seclen)
->  {
->  }
+>  	  Most people say N here.
+> 
+> +config NFS_V4_SECURITY_LABEL
+> +	bool "Provide Security Label support for NFSv4 client"
+> +	depends on NFS_V4 && SECURITY
+> +	help
+> +	  Say Y here if you want label attribute support for NFS version 4.
+
+A little more here :)
+
+"Say Y here if you want security label attribute support for NFS version
+4.  Security labels allow security modules like SELinux and Smack to
+label files to facilitate enforcement of their policies.
+
+If you do not wish to enforce SELinux or Smack policies on NFSv4 files,
+say N."
+
+Or something...  the idea being to make it clear to anyone configuring
+a new kernel whether they should say n or y.
+
 > +
-> +static inline int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +static inline int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +static inline int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
->  #endif	/* CONFIG_SECURITY */
-> 
->  #ifdef CONFIG_SECURITY_NETWORK
-> diff --git a/security/security.c b/security/security.c
-> index 3a4b4f5..d0fd42a 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -869,6 +869,24 @@ void security_release_secctx(char *secdata, u32 seclen)
->  }
->  EXPORT_SYMBOL(security_release_secctx);
-> 
-> +int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
-> +{
-> +	return security_ops->inode_notifysecctx(inode, ctx, ctxlen);
-> +}
-> +EXPORT_SYMBOL(security_inode_notifysecctx);
 > +
-> +int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
-> +{
-> +	return security_ops->inode_setsecctx(dentry, ctx, ctxlen);
-> +}
-> +EXPORT_SYMBOL(security_inode_setsecctx);
+> +	  If unsure, say N.
 > +
-> +int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-> +{
-> +	return security_ops->inode_getsecctx(inode, ctx, ctxlen);
-> +}
-> +EXPORT_SYMBOL(security_inode_getsecctx);
+>  config NFSD
+>  	tristate "NFS server support"
+>  	depends on INET
+> @@ -1725,6 +1735,13 @@ config NFSD_V4
+> 
+>  	  If unsure, say N.
+> 
+> +config NFSD_V4_SECURITY_LABEL
+> +	bool "Provide Security Label support for NFSv4 server"
+> +	depends on NFSD_V4 && SECURITY
+> +	help
+> +	  If you would like to include support for label file attributes
+> +	  over NFSv4, say Y here.
 > +
->  #ifdef CONFIG_SECURITY_NETWORK
+>  config LOCKD
+>  	tristate
 > 
->  int security_unix_stream_connect(struct socket *sock, struct socket *other,
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 03fc6a8..b07871b 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -5285,6 +5285,28 @@ static void selinux_release_secctx(char *secdata, u32 seclen)
->  	kfree(secdata);
->  }
-> 
-> +/*
-> + *	This hook requires that the inode i_mutex be locked
-> + */
-> +static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
-> +{
-> +	return selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX, ctx, ctxlen, 0);
-> +}
-> +
-> +/*
-> + *	This hook requires that the inode i_mutex be locked
-> + */
-> +static int selinux_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
-> +{
-> +	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SELINUX, ctx, ctxlen, 0);
-> +}
-> +
-> +static int selinux_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-> +{
-> +	*ctxlen = selinux_inode_getsecurity(inode, XATTR_SELINUX_SUFFIX,
-> +						ctx, true);
-> +	return *ctxlen;
-> +}
->  #ifdef CONFIG_KEYS
-> 
->  static int selinux_key_alloc(struct key *k, struct task_struct *tsk,
-> @@ -5491,6 +5513,9 @@ static struct security_operations selinux_ops = {
->  	.secid_to_secctx =		selinux_secid_to_secctx,
->  	.secctx_to_secid =		selinux_secctx_to_secid,
->  	.release_secctx =		selinux_release_secctx,
-> +	.inode_notifysecctx =		selinux_inode_notifysecctx,
-> +	.inode_setsecctx =		selinux_inode_setsecctx,
-> +	.inode_getsecctx =		selinux_inode_getsecctx,
-> 
->  	.unix_stream_connect =		selinux_socket_unix_stream_connect,
->  	.unix_may_send =		selinux_socket_unix_may_send,
 > -- 
 > 1.5.5.1
 > 
-> 
 > --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
