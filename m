@@ -1,4 +1,4 @@
-Date: Tue, 30 Sep 2008 15:01:08 -0500
+Date: Tue, 30 Sep 2008 15:15:24 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
@@ -6,219 +6,146 @@ Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         bfields@fieldses.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
-Subject: Re: [PATCH 02/14] LSM/SELinux: inode_{get,set,notify}secctx hooks
-	to access LSM security context information.
-Message-ID: <20080930200108.GB21039@us.ibm.com>
-References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov> <1222707986-26606-3-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: Re: [PATCH 03/14] Security: Add hook to calculate context based on
+	a negative dentry.
+Message-ID: <20080930201524.GC21039@us.ibm.com>
+References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov> <1222707986-26606-4-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1222707986-26606-3-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1222707986-26606-4-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Quoting David P. Quigley (dpquigl@tycho.nsa.gov):
-> This patch introduces three new hooks. The inode_getsecctx hook is used to get
-> all relevant information from an LSM about an inode. The inode_setsecctx is
-> used to set both the in-core and on-disk state for the inode based on a context
-> derived from inode_getsecctx.The final hook inode_notifysecctx will notify the
-> LSM of a change for the in-core state of the inode in question. These hooks are
-> for use in the labeled NFS code and addresses concerns of how to set security
-> on an inode in a multi-xattr LSM. For historical reasons Stephen Smalley's
-> explanation of the reason for these hooks is pasted below.
-> 
-> Quote Stephen Smalley
-> 
-> inode_setsecctx:  Change the security context of an inode.  Updates the
-> in core security context managed by the security module and invokes the
-> fs code as needed (via __vfs_setxattr_noperm) to update any backing
-> xattrs that represent the context.  Example usage:  NFS server invokes
-> this hook to change the security context in its incore inode and on the
-> backing file system to a value provided by the client on a SETATTR
-> operation.
-> 
-> inode_notifysecctx:  Notify the security module of what the security
-> context of an inode should be.  Initializes the incore security context
-> managed by the security module for this inode.  Example usage:  NFS
-> client invokes this hook to initialize the security context in its
-> incore inode to the value provided by the server for the file when the
-> server returned the file's attributes to the client.
+> There is a time where we need to calculate a context without the
+> inode having been created yet. To do this we take the negative dentry and
+> calculate a context based on the process and the parent directory contexts.
 > 
 > Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 > Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 > ---
->  include/linux/security.h |   50 ++++++++++++++++++++++++++++++++++++++++++++++
->  security/security.c      |   18 ++++++++++++++++
->  security/selinux/hooks.c |   25 +++++++++++++++++++++++
->  3 files changed, 93 insertions(+), 0 deletions(-)
+>  include/linux/security.h |   14 ++++++++++++++
+>  security/security.c      |    7 +++++++
+>  security/selinux/hooks.c |   36 ++++++++++++++++++++++++++++++++++++
+>  3 files changed, 57 insertions(+), 0 deletions(-)
 > 
 > diff --git a/include/linux/security.h b/include/linux/security.h
-> index 80c4d00..8b5b041 100644
+> index 8b5b041..42b9128 100644
 > --- a/include/linux/security.h
 > +++ b/include/linux/security.h
-> @@ -1289,6 +1289,36 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
->   *	audit_rule_init.
->   *	@rule contains the allocated rule
->   *
-> + * @inode_notifysecctx:
-> + *	Notify the security module of what the security context of an inode
-> + *	should be.  Initializes the incore security context managed by the
-> + *	security module for this inode.  Example usage:  NFS client invokes
-> + *	this hook to initialize the security context in its incore inode to the
-> + *	value provided by the server for the file when the server returned the
-> + *	file's attributes to the client.
-> + *
-> + * 	@inode we wish to set the security context of.
-> + * 	@ctx contains the string which we wish to set in the inode.
-> + * 	@ctxlen contains the length of @ctx.
-> + *
-> + * @inode_setsecctx:
-> + * 	Change the security context of an inode.  Updates the
-> + * 	incore security context managed by the security module and invokes the
-> + * 	fs code as needed (via __vfs_setxattr_noperm) to update any backing
-> + * 	xattrs that represent the context.  Example usage:  NFS server invokes
-> + * 	this hook to change the security context in its incore inode and on the
-> + * 	backing filesystem to a value provided by the client on a SETATTR
-> + * 	operation.
-> + *
-> + * 	@dentry contains the inode we wish to set the security context of.
-> + * 	@ctx contains the string which we wish to set in the inode.
-> + * 	@ctxlen contains the length of @ctx.
-> + *
-> + * @inode_getsecctx:
-> + * 	Returns a string containing all relavent security context information
-> + * 	@inode we wish to set the security context of.
-> + *	@ctx is a pointer to place the allocated security context should be placed.
+> @@ -1379,6 +1379,9 @@ struct security_operations {
+>  	void (*sb_clone_mnt_opts) (const struct super_block *oldsb,
+>  				   struct super_block *newsb);
+>  	int (*sb_parse_opts_str) (char *options, struct security_mnt_opts *opts);
+> +	int (*dentry_init_security) (struct dentry *dentry, int mode,
+> +				     void **ctx, u32 *ctxlen);
 
-sentence above is odd.  How about
+This of course needs a description at top of include/linux/security.h.
 
-	@ctx is a pointer in which to place the allocated security context
-
-> + *	@ctxlen points to the place to put the length of @ctx.
->   * This is the main security structure.
->   */
->  struct security_operations {
-> @@ -1479,6 +1509,10 @@ struct security_operations {
->  	int (*secctx_to_secid) (const char *secdata, u32 seclen, u32 *secid);
->  	void (*release_secctx) (char *secdata, u32 seclen);
-> 
-> +	int (*inode_notifysecctx)(struct inode *inode, void *ctx, u32 ctxlen);
-> +	int (*inode_setsecctx)(struct dentry *dentry, void *ctx, u32 ctxlen);
-> +	int (*inode_getsecctx)(struct inode *inode, void **ctx, u32 *ctxlen);
 > +
->  #ifdef CONFIG_SECURITY_NETWORK
->  	int (*unix_stream_connect) (struct socket *sock,
->  				    struct socket *other, struct sock *newsk);
-> @@ -1727,6 +1761,9 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
->  int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
->  void security_release_secctx(char *secdata, u32 seclen);
 > 
-> +int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
-> +int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
-> +int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
->  #else /* CONFIG_SECURITY */
->  struct security_mnt_opts {
->  };
-> @@ -2458,6 +2495,19 @@ static inline int security_secctx_to_secid(const char *secdata,
->  static inline void security_release_secctx(char *secdata, u32 seclen)
->  {
->  }
+>  	int (*inode_alloc_security) (struct inode *inode);
+>  	void (*inode_free_security) (struct inode *inode);
+> @@ -1651,6 +1654,8 @@ int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *o
+>  void security_sb_clone_mnt_opts(const struct super_block *oldsb,
+>  				struct super_block *newsb);
+>  int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
+> +int security_dentry_init_security (struct dentry *dentry, int mode,
+> +				   void **ctx, u32 *ctxlen);
+> 
+>  int security_inode_alloc(struct inode *inode);
+>  void security_inode_free(struct inode *inode);
+> @@ -1994,6 +1999,15 @@ static inline int security_inode_alloc(struct inode *inode)
+>  static inline void security_inode_free(struct inode *inode)
+>  { }
+> 
+> +static inline int security_dentry_init_security (struct dentry *dentry,
+> +						 int mode,
+> +						 void **ctx,
+> +						 u32 *ctxlen)
+> +{
+> +	return -EOPNOTSUPP;
+> +}
 > +
-> +static inline int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +static inline int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
-> +static inline int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-> +{
-> +	return -EOPNOTSUPP;
-> +}
->  #endif	/* CONFIG_SECURITY */
-> 
->  #ifdef CONFIG_SECURITY_NETWORK
+> +
+>  static inline int security_inode_init_security(struct inode *inode,
+>  						struct inode *dir,
+>  						char **name,
 > diff --git a/security/security.c b/security/security.c
-> index 3a4b4f5..d0fd42a 100644
+> index d0fd42a..b22a110 100644
 > --- a/security/security.c
 > +++ b/security/security.c
-> @@ -869,6 +869,24 @@ void security_release_secctx(char *secdata, u32 seclen)
+> @@ -349,6 +349,13 @@ void security_inode_free(struct inode *inode)
+>  	security_ops->inode_free_security(inode);
 >  }
->  EXPORT_SYMBOL(security_release_secctx);
 > 
-> +int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
+> +int security_dentry_init_security (struct dentry *dentry, int mode,
+> +				   void **ctx, u32 *ctxlen)
 > +{
-> +	return security_ops->inode_notifysecctx(inode, ctx, ctxlen);
+> +	return security_ops->dentry_init_security (dentry, mode, ctx, ctxlen);
 > +}
-> +EXPORT_SYMBOL(security_inode_notifysecctx);
+> +EXPORT_SYMBOL(security_dentry_init_security);
 > +
-> +int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
-> +{
-> +	return security_ops->inode_setsecctx(dentry, ctx, ctxlen);
-> +}
-> +EXPORT_SYMBOL(security_inode_setsecctx);
-> +
-> +int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-> +{
-> +	return security_ops->inode_getsecctx(inode, ctx, ctxlen);
-> +}
-> +EXPORT_SYMBOL(security_inode_getsecctx);
-> +
->  #ifdef CONFIG_SECURITY_NETWORK
-> 
->  int security_unix_stream_connect(struct socket *sock, struct socket *other,
+>  int security_inode_init_security(struct inode *inode, struct inode *dir,
+>  				  char **name, void **value, size_t *len)
+>  {
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 03fc6a8..b07871b 100644
+> index b07871b..680db1d 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
-> @@ -5285,6 +5285,28 @@ static void selinux_release_secctx(char *secdata, u32 seclen)
->  	kfree(secdata);
+> @@ -2504,6 +2504,41 @@ static void selinux_inode_free_security(struct inode *inode)
+>  	inode_free_security(inode);
 >  }
 > 
 > +/*
-> + *	This hook requires that the inode i_mutex be locked
+> + * For now, we need a way to compute a SID for
 
-'called with inode->i_mutex locked' would make more sense here.
-Requirements on the callers would make more sense in the comments
-in include/linux/security.h, right?
+Just 'Compute a SID for...' ?
 
-No code objections, though.
-
-Acked-by: Serge Hallyn <serue@us.ibm.com>
-
+> + * a dentry as the inode is not yet available
+> + * (and under NFSv4 has no label backed by an EA anyway.
 > + */
-> +static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
+> +static int selinux_dentry_init_security(struct dentry *dentry, int mode, void **ctx, u32 *ctxlen)
 > +{
-> +	return selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX, ctx, ctxlen, 0);
+> +	struct task_security_struct *tsec;
+> +	struct inode_security_struct *dsec;
+> +	struct superblock_security_struct *sbsec;
+> +	struct inode *dir = dentry->d_parent->d_inode;
+> +	u32 newsid;
+> +	int rc;
+> +
+> +	tsec = current->security;
+> +	dsec = dir->i_security;
+> +	sbsec = dir->i_sb->s_security;
+> +
+> +	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
+> +		newsid = tsec->create_sid;
+> +	} else {
+> +		rc = security_transition_sid(tsec->sid, dsec->sid,
+> +					     inode_mode_to_security_class(mode),
+> +					     &newsid);
+> +		if (rc) {
+> +			printk(KERN_WARNING "%s:  "
+> +			       "security_transition_sid failed, rc=%d\n",
+> +			       __FUNCTION__, -rc);
+> +			return rc;
+> +		}
+> +	}
+> +
+> +	return security_sid_to_context(newsid, (char **)ctx, ctxlen);
 > +}
 > +
-> +/*
-> + *	This hook requires that the inode i_mutex be locked
-> + */
-> +static int selinux_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
-> +{
-> +	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SELINUX, ctx, ctxlen, 0);
-> +}
-> +
-> +static int selinux_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-> +{
-> +	*ctxlen = selinux_inode_getsecurity(inode, XATTR_SELINUX_SUFFIX,
-> +						ctx, true);
-> +	return *ctxlen;
-> +}
->  #ifdef CONFIG_KEYS
+>  static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+>  				       char **name, void **value,
+>  				       size_t *len)
+> @@ -5413,6 +5448,7 @@ static struct security_operations selinux_ops = {
+>  	.sb_clone_mnt_opts =		selinux_sb_clone_mnt_opts,
+>  	.sb_parse_opts_str = 		selinux_parse_opts_str,
 > 
->  static int selinux_key_alloc(struct key *k, struct task_struct *tsk,
-> @@ -5491,6 +5513,9 @@ static struct security_operations selinux_ops = {
->  	.secid_to_secctx =		selinux_secid_to_secctx,
->  	.secctx_to_secid =		selinux_secctx_to_secid,
->  	.release_secctx =		selinux_release_secctx,
-> +	.inode_notifysecctx =		selinux_inode_notifysecctx,
-> +	.inode_setsecctx =		selinux_inode_setsecctx,
-> +	.inode_getsecctx =		selinux_inode_getsecctx,
+> +	.dentry_init_security =		selinux_dentry_init_security,
 > 
->  	.unix_stream_connect =		selinux_socket_unix_stream_connect,
->  	.unix_may_send =		selinux_socket_unix_may_send,
+>  	.inode_alloc_security =		selinux_inode_alloc_security,
+>  	.inode_free_security =		selinux_inode_free_security,
 > -- 
 > 1.5.5.1
 > 
