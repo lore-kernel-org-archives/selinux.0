@@ -1,54 +1,133 @@
-Subject: Re: [PATCH] capability: WARN when invalid capability is requested
-	rather than BUG/panic
-From: Eric Paris <eparis@redhat.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
-        sds@tycho.nsa.gov, morgan@kernel.org, selinux@tycho.nsa.gov
-In-Reply-To: <20080930162830.GB31779@us.ibm.com>
-References: <1222782946.28251.63.camel@localhost.localdomain>
-	 <alpine.LRH.1.10.0810010008130.2068@tundra.namei.org>
-	 <1222785389.28251.83.camel@localhost.localdomain>
-	 <20080930153820.GA28616@us.ibm.com>
-	 <1222790843.28251.92.camel@localhost.localdomain>
-	 <20080930162830.GB31779@us.ibm.com>
-Content-Type: text/plain
-Date: Tue, 30 Sep 2008 13:22:30 -0400
-Message-Id: <1222795350.28251.98.camel@localhost.localdomain>
-Mime-Version: 1.0
+Date: Tue, 30 Sep 2008 14:51:08 -0500
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
+        sds@tycho.nsa.gov, matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
+        bfields@fieldses.org, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
+Subject: Re: [PATCH 01/14] VFS: Factor out part of vfs_setxattr so it can
+	be called from the SELinux hook for inode_setsecctx.
+Message-ID: <20080930195108.GA21039@us.ibm.com>
+References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov> <1222707986-26606-2-git-send-email-dpquigl@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1222707986-26606-2-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-09-30 at 11:28 -0500, Serge E. Hallyn wrote:
-> Quoting Eric Paris (eparis@redhat.com):
-
-> > > Perhaps we should have CAP_TO_INDEX mask itself?
-> > > 
-> > > #define CAP_TO_INDEX(x)		(((x) >> 5) & _KERNEL_CAPABILITY_U32S)
-> > 
-> > Well, you save a branch and won't get the pagefault so it does 'fix' the
-> > pagefault/panic from cap code.  It doesn't tell us when others screw up
-> > and SELinux is still possibly going to BUG().  We are also going to
-> > actually be returning a permission decision not on what was requested
-> > but on something wholely different.
+Quoting David P. Quigley (dpquigl@tycho.nsa.gov):
+> This factors out the part of the vfs_setxattr function that performs the
+> setting of the xattr and its notification. This is needed so the SELinux
+> implementation of inode_setsecctx can handle the setting of it's xattr while
+> maintaining the proper separation of layers.
 > 
-> So exactly what was requested?
+> Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+> Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 
-A capability that they cannot possibly have since it doesn't exist  :)
+This part surely looks reasonable.
 
-> > I like mine better, but I'm ok with yours and can just do my changes in
-> > SELinux if this is how cap wants to handle it.  I don't really like the
+Acked-by: Serge Hallyn <serue@us.ibm.com>
+> ---
+>  fs/xattr.c            |   55 +++++++++++++++++++++++++++++++++++++-----------
+>  include/linux/xattr.h |    1 +
+>  2 files changed, 43 insertions(+), 13 deletions(-)
 > 
-> Heh I don't like either one, just thought this would reduce the overhead
-> a bit :)
-
-No argument from me that patching up for buggy drivers sucks.  Yours
-would be less overhead, and it would return the cap system back to
-pre-2.6.25 operation (garbage in garbage out but no panic).  Since we
-already have the branch in SELinux its no 'extra' overhead to EPERM
-there instead of here (garbage in EPERM out).
-
--Eric
-
+> diff --git a/fs/xattr.c b/fs/xattr.c
+> index 468377e..2f93006 100644
+> --- a/fs/xattr.c
+> +++ b/fs/xattr.c
+> @@ -66,22 +66,28 @@ xattr_permission(struct inode *inode, const char *name, int mask)
+>  	return inode_permission(inode, mask);
+>  }
+> 
+> -int
+> -vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+> -		size_t size, int flags)
+> +/**
+> + *  __vfs_setxattr_noperm - perform setxattr operation without performing
+> + *  permission checks.
+> + *
+> + *  @dentry - object to perform setxattr on
+> + *  @name - xattr name to set
+> + *  @value - value to set @name to
+> + *  @size - size of @value
+> + *  @flags - flags to pass into filesystem operations
+> + *
+> + *  returns the result of the internal setxattr or setsecurity operations.
+> + *
+> + *  This function requires the caller to lock the inode's i_mutex before it
+> + *  is executed. It also assumes that the caller will make the appropriate
+> + *  permission checks.
+> + */
+> +int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
+> +		const void *value, size_t size, int flags)
+>  {
+>  	struct inode *inode = dentry->d_inode;
+> -	int error;
+> -
+> -	error = xattr_permission(inode, name, MAY_WRITE);
+> -	if (error)
+> -		return error;
+> +	int error = -EOPNOTSUPP;
+> 
+> -	mutex_lock(&inode->i_mutex);
+> -	error = security_inode_setxattr(dentry, name, value, size, flags);
+> -	if (error)
+> -		goto out;
+> -	error = -EOPNOTSUPP;
+>  	if (inode->i_op->setxattr) {
+>  		error = inode->i_op->setxattr(dentry, name, value, size, flags);
+>  		if (!error) {
+> @@ -97,6 +103,29 @@ vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+>  		if (!error)
+>  			fsnotify_xattr(dentry);
+>  	}
+> +
+> +	return error;
+> +}
+> +
+> +
+> +int
+> +vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+> +		size_t size, int flags)
+> +{
+> +	struct inode *inode = dentry->d_inode;
+> +	int error;
+> +
+> +	error = xattr_permission(inode, name, MAY_WRITE);
+> +	if (error)
+> +		return error;
+> +
+> +	mutex_lock(&inode->i_mutex);
+> +	error = security_inode_setxattr(dentry, name, value, size, flags);
+> +	if (error)
+> +		goto out;
+> +
+> +	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
+> +
+>  out:
+>  	mutex_unlock(&inode->i_mutex);
+>  	return error;
+> diff --git a/include/linux/xattr.h b/include/linux/xattr.h
+> index d131e35..5c84af8 100644
+> --- a/include/linux/xattr.h
+> +++ b/include/linux/xattr.h
+> @@ -49,6 +49,7 @@ struct xattr_handler {
+>  ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
+>  ssize_t vfs_getxattr(struct dentry *, const char *, void *, size_t);
+>  ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
+> +int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
+>  int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
+>  int vfs_removexattr(struct dentry *, const char *);
+> 
+> -- 
+> 1.5.5.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 --
 This message was distributed to subscribers of the selinux mailing list.
