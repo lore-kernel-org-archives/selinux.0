@@ -1,106 +1,70 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m8UCr1eI028901
-	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2008 08:53:01 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m8UCpwP9015942
-	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2008 12:51:58 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m8UCr0FU019545
-	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2008 08:53:00 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m8UCr0T2002498
-	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2008 08:53:00 -0400
-Received: from localhost.localdomain (vpn-10-13.bos.redhat.com [10.16.10.13])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m8UCr0gi017624
-	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2008 08:53:00 -0400
-Message-ID: <48E2212A.3020004@redhat.com>
-Date: Tue, 30 Sep 2008 08:52:58 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Yet another man page patch
-Content-Type: multipart/mixed;
- boundary="------------050402030903010107070405"
+Subject: [PATCH] capability: WARN when invalid capability is requested
+	rather than BUG/panic
+From: Eric Paris <eparis@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, morgan@kernel.org, serue@us.ibm.com,
+        selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Tue, 30 Sep 2008 09:55:46 -0400
+Message-Id: <1222782946.28251.63.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------050402030903010107070405
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+The firegl ATI/AMD closed source proprietary driver has some 2,733
+panics registered on kerneloops.org and recently SELinux was blamed for
+BUGing because of this driver.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+http://www.kerneloops.org/search.php?search=firegl_ioctl&btnG=Function+Search
 
-int selinux_file_context_cmp(const security_context_t a,
-+                                    const security_context_t b);"
+Basically it looks like the firegl_ioctl() function is calling capable()
+with a huge value.  cap_capable dereferences an array (64 bits long) WAY
+off the end.  I know a specific example would be referencing the array
+c.cap[0x7B4BB01].  As dumb luck would have it occasionally this doesn't
+pagefault / panic and so we get to selinux code which has a clean check
+for values which are obviously too large and BUG().
+
+This patch adds a WARN_ONCE() to cap_capable() so we will stop
+dereferencing random spots of memory and will cleanly tell the obviously
+broken driver that it doesn't have that ridiculous permissions.  No idea
+if the driver is going to handle EPERM but anything that calls capable
+and doesn't expect a denial has got to be the worst piece of code ever
+written.....  I could return EINVAL, but I think its clear that noone
+has capabilities over 64 so clearly they don't have that permission.
+
+This 'could' be considered a regression since 2.6.24.  Neither SELinux
+nor the capabilities system had a problem with ginormous request values
+until we got 64 bit support, although this is OBVIOUSLY a bug with the
+out of tree closed source driver....
+
+Oh yeah, and if anyone knows people at ATI/AMD tell them to fix their
+broken driver....
+
+Signed-off-by: Eric Paris <eparis@redhat.com>
+
+---
+
+ security/commoncap.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/security/commoncap.c b/security/commoncap.c
+index e4c4b3f..92715e7 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -50,6 +50,11 @@ EXPORT_SYMBOL(cap_netlink_recv);
+  */
+ int cap_capable (struct task_struct *tsk, int cap)
+ {
++	if (unlikely(!cap_valid(cap))) {
++		WARN_ONCE(1, "Invalid capability:%d\n", cap);
++		return -EPERM;
++	}
 +
-+.BI "int selinux_file_context_verify(const char *path, mode_t mode);"
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+ 	/* Derived from include/linux/sched.h:capable. */
+ 	if (cap_raised(tsk->cap_effective, cap))
+ 		return 0;
 
-iEYEARECAAYFAkjiISoACgkQrlYvE4MpobPV9gCg0KZ+rsxGsIalBS1qvbObK7bA
-0H8Anj8FnGzOnSjnOfbk+5R4Bf2OyxW+
-=nJ7k
------END PGP SIGNATURE-----
 
---------------050402030903010107070405
-Content-Type: text/plain;
- name="libselinux_man.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux_man.patch"
-
-diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/matchpathcon.3 libselinux-2.0.71/man/man3/matchpathcon.3
---- nsalibselinux/man/man3/matchpathcon.3	2008-08-28 09:34:24.000000000 -0400
-+++ libselinux-2.0.71/man/man3/matchpathcon.3	2008-09-26 10:21:43.000000000 -0400
-@@ -18,6 +18,11 @@
- 
- .BI "void set_matchpathcon_flags(unsigned int " flags ");"
- 
-+.BI "int selinux_file_context_cmp(const security_context_t a,
-+				     const security_context_t b);"
-+
-+.BI "int selinux_file_context_verify(const char *path, mode_t mode);"
-+
- .SH "DESCRIPTION"
- .B matchpathcon_init
- loads the file contexts configuration specified by
-@@ -111,6 +116,12 @@
- .B MATCHPATHCON_BASEONLY
- flag is set, then only the base file contexts configuration file
- will be processed, not any dynamically generated entries or local customizations.
-+.sp
-+.B selinux_file_context_cmp
-+compares two file contexts to see if their differences are "significant", the function runs the strcmp function ignoring the user componant of the file context.  
-+.sp
-+.B selinux_file_context_verify
-+compares the file context on disk to the system default.
- 
- .sp
- .SH "RETURN VALUE"
-diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/selinux_file_context_cmp.3 libselinux-2.0.71/man/man3/selinux_file_context_cmp.3
---- nsalibselinux/man/man3/selinux_file_context_cmp.3	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-2.0.71/man/man3/selinux_file_context_cmp.3	2008-09-26 10:21:43.000000000 -0400
-@@ -0,0 +1 @@
-+.so man3/matchpathcon.3
-diff --exclude-from=exclude -N -u -r nsalibselinux/man/man3/selinux_file_context_verify.3 libselinux-2.0.71/man/man3/selinux_file_context_verify.3
---- nsalibselinux/man/man3/selinux_file_context_verify.3	1969-12-31 19:00:00.000000000 -0500
-+++ libselinux-2.0.71/man/man3/selinux_file_context_verify.3	2008-09-26 10:21:43.000000000 -0400
-@@ -0,0 +1 @@
-+.so man3/matchpathcon.3
-
---------------050402030903010107070405
-Content-Type: application/octet-stream;
- name="libselinux_man.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="libselinux_man.patch.sig"
-
-iEYEABECAAYFAkjiISoACgkQrlYvE4MpobOvsQCffcb7a4agTVVB5Mx8TVMTcAjfBBQAn3Qv
-fMaJbaPmimHDMmukTLH/LXae
---------------050402030903010107070405--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
