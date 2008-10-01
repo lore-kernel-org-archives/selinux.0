@@ -1,73 +1,100 @@
-Date: Wed, 1 Oct 2008 10:44:58 -0500
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, James Morris <jmorris@namei.org>,
-        linux-kernel@vger.kernel.org, sds@tycho.nsa.gov, morgan@kernel.org,
-        selinux@tycho.nsa.gov
-Subject: Re: [PATCH] capability: WARN when invalid capability is requested
-	rather than BUG/panic
-Message-ID: <20081001154458.GA13889@us.ibm.com>
-References: <1222782946.28251.63.camel@localhost.localdomain> <alpine.LRH.1.10.0810010008130.2068@tundra.namei.org> <1222785389.28251.83.camel@localhost.localdomain> <20080930153820.GA28616@us.ibm.com> <1222790843.28251.92.camel@localhost.localdomain> <20080930162830.GB31779@us.ibm.com> <1222795350.28251.98.camel@localhost.localdomain> <20080930102840.1dbd0c48@infradead.org> <1222875160.28251.133.camel@localhost.localdomain>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m91GOU7b008063
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 12:24:30 -0400
+Received: from g4t0017.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m91GOTOR018191
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 16:24:30 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [RFC PATCH v6 00/16] Labeled networking patches for 2.6.28
+Date: Wed, 1 Oct 2008 12:24:26 -0400
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        netdev@vger.kernel.org
+References: <20080916124722.17132.38741.stgit@flek.lan> <alpine.LRH.1.10.0810011128240.5277@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0810011128240.5277@tundra.namei.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1222875160.28251.133.camel@localhost.localdomain>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200810011224.26106.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Eric Paris (eparis@redhat.com):
-> On Tue, 2008-09-30 at 10:28 -0700, Arjan van de Ven wrote:
-> > On Tue, 30 Sep 2008 13:22:30 -0400
-> > Eric Paris <eparis@redhat.com> wrote:
-> > > 
-> > > No argument from me that patching up for buggy drivers sucks.  Yours
-> > > would be less overhead, and it would return the cap system back to
-> > > pre-2.6.25 operation (garbage in garbage out but no panic).  Since we
-> > > already have the branch in SELinux its no 'extra' overhead to EPERM
-> > > there instead of here (garbage in EPERM out).
-> > 
-> > to be honest, this is really a case of 
-> > panic("This stuff is really borken")
-> > 
-> > if it passes some random value, what other api's does it pass a random
-> > value to ?
-> > 
-> > (and in addition, random values to security critical APIs deserve a
-> > process kill, because it could well be an exploit attempt at guessing
-> > something. At least by not letting it live it's harder to get such type
-> > of exploits to be able to guess things. So imo, BUG() is the right
-> > answer)
-> 
-> Do we have any concern of a module being compiled against a new kernel
-> say with cap number 35 defined and then loaded into a kernel with only
-> 34 capabilities?  Do we care about that forward compatibility?  If we
-> care BUG is scary.  EPERM would be the right thing since clearly on this
-> kernel the process can't possibly have cap #35.
-> 
-> We really have 4 options (in the order I like them).
-> 
-> 1) do nothing (garbage in garbage out, sometimes panic sometimes not)
-> 2) mask CAP_TO_INDEX (garbage in garbage out, no panic)
-> 3) BUG_ON(!cap_valid(flag)) (garbage in BUG out, no panic)
-> 4) WARN_ON/EPERM (garbage in EPERM out, no panic)
-> 
-> SELinux already sorta does #3 and #4 (we will panic if cap > 64 and will
-> EPERM between the max cap and 64) but I really don't like being blamed
-> when it's not my fault.  SELinux takes enough crap when people's systems
-> don't work and this time its clearly not my fault, which is why I'm
-> pushing this.
+On Tuesday 30 September 2008 9:34:24 pm James Morris wrote:
+> I found some sparse warnings -- the last couple at least may need
+> attention:
+>
+> $ make C=2 CF="-D__cold__=" SUBDIRS=net/netlabel
 
- :)
+Ah ha!
 
-> If we believe the capability system should take path's 1, 2, or 4 I'm
-> going to take path 4 in SELinux.  If capabilities wants to take path 3,
-> I'm ok with that too.  Its going to break a lot of people's machines I'm
-> afraid, but it would force ATI to fix their crap....
+At this point I have to admit a dirty little secret, I've never run 
+sparse on any of my code before.  It isn't for a lack of trying it is 
+just that I had no idea how to do so and googling for "sparse" and all 
+the relevant Linux modifiers didn't result in much.  That command line 
+helped quite a bit.
 
-Assuming you have a kernel with your patch for 4, could you just run
-some perf tests vs the unpatched kernel to show there's really no
-meaningful performance impact?
+For others who may be interested you can find the sparse tool here:
 
--serge
+ * http://www.kernel.org/pub/software/devel/sparse
+
+... and it looks like the magic incantation is "make C={1,2}".  I have 
+no idea what the "CF=..." bits do, James?
+
+>   CHECK   net/netlabel/netlabel_user.c
+>   CC      net/netlabel/netlabel_user.o
+>   CHECK   net/netlabel/netlabel_kapi.c
+>   CC      net/netlabel/netlabel_kapi.o
+>   CHECK   net/netlabel/netlabel_domainhash.c
+> net/netlabel/netlabel_domainhash.c:143:3: warning: symbol
+> '_________p1' shadows an earlier one
+> net/netlabel/netlabel_domainhash.c:143:3: originally declared here
+> net/netlabel/netlabel_domainhash.c:143:3: warning: symbol
+> '_________p1' shadows an earlier one
+> net/netlabel/netlabel_domainhash.c:143:3: originally declared here
+> net/netlabel/netlabel_domainhash.c:635:3: warning: symbol
+> '_________p1' shadows an earlier one
+> net/netlabel/netlabel_domainhash.c:635:3: originally declared here
+> net/netlabel/netlabel_domainhash.c:635:3: warning: symbol
+> '_________p1' shadows an earlier one
+> net/netlabel/netlabel_domainhash.c:635:3: originally declared here CC
+>      net/netlabel/netlabel_domainhash.o
+>   CHECK   net/netlabel/netlabel_addrlist.c
+>   CC      net/netlabel/netlabel_addrlist.o
+>   CHECK   net/netlabel/netlabel_mgmt.c
+>   CC      net/netlabel/netlabel_mgmt.o
+>   CHECK   net/netlabel/netlabel_unlabeled.c
+> net/netlabel/netlabel_unlabeled.c:265:2: warning: symbol
+> '_________p1' shadows an earlier one
+> net/netlabel/netlabel_unlabeled.c:265:2: originally declared here
+> net/netlabel/netlabel_unlabeled.c:265:2: warning: symbol
+> '_________p1' shadows an earlier one
+> net/netlabel/netlabel_unlabeled.c:265:2: originally declared here
+> net/netlabel/netlabel_unlabeled.c:1282:3: warning: symbol
+> '_________p1' shadows an earlier one
+> net/netlabel/netlabel_unlabeled.c:1282:3: originally declared here
+> net/netlabel/netlabel_unlabeled.c:1282:3: warning: symbol
+> '_________p1' shadows an earlier one
+> net/netlabel/netlabel_unlabeled.c:1282:3: originally declared here CC
+>      net/netlabel/netlabel_unlabeled.o
+>   CHECK   net/netlabel/netlabel_cipso_v4.c
+> net/netlabel/netlabel_cipso_v4.c:686:21: warning: incorrect type in
+> argument 1 (different signedness)
+> net/netlabel/netlabel_cipso_v4.c:686:21:    expected unsigned int
+> [usertype] *skip_cnt
+> net/netlabel/netlabel_cipso_v4.c:686:21:    got int *<noident>
+> net/netlabel/netlabel_cipso_v4.c:622:2: warning: context imbalance in
+> 'netlbl_cipsov4_list' - different lock contexts for basic block CC   
+>   net/netlabel/netlabel_cipso_v4.o
+>   LD      net/netlabel/built-in.o
+>   Building modules, stage 2.
+>   MODPOST 0 modules
+
+Thanks, I went ahead and fixed all of the problems.  I'll send an 
+updated patchset later after I can do a quick sanity test.
+
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
