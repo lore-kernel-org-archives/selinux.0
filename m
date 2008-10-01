@@ -1,19 +1,19 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m911awhc004850
-	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2008 21:36:58 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m911cb02005111
+	for <selinux@tycho.nsa.gov>; Tue, 30 Sep 2008 21:38:37 -0400
 Received: from tundra.namei.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m911Zs04029766
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 01:35:55 GMT
-Date: Wed, 1 Oct 2008 11:36:57 +1000 (EST)
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m911bX04029965
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 01:37:34 GMT
+Date: Wed, 1 Oct 2008 11:38:36 +1000 (EST)
 From: James Morris <jmorris@namei.org>
 To: Paul Moore <paul.moore@hp.com>
 cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
         netdev@vger.kernel.org
-Subject: Re: [RFC PATCH v6 02/16] selinux: Correctly handle IPv4 packets on
- IPv6 sockets in all cases
-In-Reply-To: <20080916125601.17132.61002.stgit@flek.lan>
-Message-ID: <alpine.LRH.1.10.0810011136230.5277@tundra.namei.org>
-References: <20080916124722.17132.38741.stgit@flek.lan> <20080916125601.17132.61002.stgit@flek.lan>
+Subject: Re: [RFC PATCH v6 03/16] netlabel: Remove unneeded in-kernel API
+ functions
+In-Reply-To: <20080916125607.17132.84448.stgit@flek.lan>
+Message-ID: <alpine.LRH.1.10.0810011138150.5277@tundra.namei.org>
+References: <20080916124722.17132.38741.stgit@flek.lan> <20080916125607.17132.84448.stgit@flek.lan>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -21,15 +21,19 @@ List-Id: selinux@tycho.nsa.gov
 
 On Tue, 16 Sep 2008, Paul Moore wrote:
 
-> We did the right thing in a few cases but there were several areas where we
-> determined a packet's address family based on the socket's address family which
-> is not the right thing to do since we can get IPv4 packets on IPv6 sockets.
-> This patch fixes these problems by either taking the address family directly
-> from the packet.
+> After some discussions with the Smack folks, well just Casey, I now have a
+> better idea of what Smack wants out of NetLabel in the future so I think it
+> is now safe to do some API "pruning".  If another LSM comes along that
+> needs this functionality we can always add it back in, but I don't see any
+> LSMs on the horizon which might make use of these functions.
+> 
+> Thanks to Rami Rosen who suggested removing netlbl_cfg_cipsov4_del() back
+> in February 2008.
 > 
 > Signed-off-by: Paul Moore <paul.moore@hp.com>
 
-Acked-by: James Morris <jmorris@namei.org>
+Reviewed-by: James Morris <jmorris@namei.org>
+
 
 
 -- 
