@@ -1,27 +1,32 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m91DeXUc031016
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 09:40:33 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m91DdTZL006466
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 13:39:29 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m91DeV0N028620
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 09:40:31 -0400
-Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
-	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m91DeUMV008088
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 09:40:31 -0400
-Received: from localhost.localdomain (vpn-10-65.bos.redhat.com [10.16.10.65])
-	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m91DeUsf004404
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 09:40:30 -0400
-Message-ID: <48E37DCD.1010800@redhat.com>
-Date: Wed, 01 Oct 2008 09:40:29 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m91EGWkC005585
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 10:16:32 -0400
+Received: from mailhub4.stratus.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m91EFSZL017074
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 14:15:28 GMT
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: genhomedircon problems
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: genhomedircon problems
+Date: Wed, 1 Oct 2008 10:16:26 -0400
+Message-ID: <DA0E7D869C862D4095C265233CD1D41E01274FA1@EXNA.corp.stratus.com>
+In-Reply-To: 48E37DCD.1010800@redhat.com
+References: 48E37DCD.1010800@redhat.com
+From: "Johnson, Richard" <Richard.Johnson@stratus.com>
+To: "Daniel J Walsh" <dwalsh@redhat.com>, "SE Linux" <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
+
+Sounds like you want a .conf file to declare and/or parameterize the
+inclusions and exclusions for the various operations.  
+
+
+-----Original Message-----
+From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
+On Behalf Of Daniel J Walsh
+Sent: Wednesday, October 01, 2008 9:40 AM
+To: SE Linux
+Subject: genhomedircon problems
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
@@ -77,6 +82,13 @@ iEYEARECAAYFAkjjfc0ACgkQrlYvE4MpobNVdQCfS4y0DbwiOLMP315nC6mcRQOK
 SmEAn2Fp5MzTAyH11QfvNJdE13m3OGqq
 =1AM8
 -----END PGP SIGNATURE-----
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with
+the words "unsubscribe selinux" without quotes as the message.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
