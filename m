@@ -1,93 +1,51 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m91EGWkC005585
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 10:16:32 -0400
-Received: from mailhub4.stratus.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m91EFSZL017074
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 14:15:28 GMT
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: genhomedircon problems
-Date: Wed, 1 Oct 2008 10:16:26 -0400
-Message-ID: <DA0E7D869C862D4095C265233CD1D41E01274FA1@EXNA.corp.stratus.com>
-In-Reply-To: 48E37DCD.1010800@redhat.com
-References: 48E37DCD.1010800@redhat.com
-From: "Johnson, Richard" <Richard.Johnson@stratus.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>, "SE Linux" <selinux@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m91EpnTH015666
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 10:51:49 -0400
+Received: from mho-01-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m91EpnN0016752
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 14:51:49 GMT
+Cc: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org, netdev@vger.kernel.org
+Message-Id: <7DC4373B-194C-43FC-B4FB-B867999CAE76@nall.com>
+From: Joe Nall <joe@nall.com>
+To: James Morris <jmorris@namei.org>
+In-Reply-To: <alpine.LRH.1.10.0810011958380.6732@tundra.namei.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v929.2)
+Subject: Re: [RFC PATCH v6 12/16] selinux: Set socket NetLabel based on connection endpoint
+Date: Wed, 1 Oct 2008 09:51:31 -0500
+References: <20080916124722.17132.38741.stgit@flek.lan> <20080916125709.17132.47022.stgit@flek.lan> <alpine.LRH.1.10.0810011958380.6732@tundra.namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Sounds like you want a .conf file to declare and/or parameterize the
-inclusions and exclusions for the various operations.  
 
+On Oct 1, 2008, at 5:00 AM, James Morris wrote:
 
------Original Message-----
-From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-On Behalf Of Daniel J Walsh
-Sent: Wednesday, October 01, 2008 9:40 AM
-To: SE Linux
-Subject: genhomedircon problems
+> On Tue, 16 Sep 2008, Paul Moore wrote:
+>
+>> /**
+>> + * cipso_v4_sock_delattr - Delete the CIPSO option from a socket
+>> + * @sk: the socket
+>> + *
+>> + * Description:
+>> + * Removes the CIPSO option from a socket, if present.
+>> + *
+>> + */
+>> +void cipso_v4_sock_delattr(struct sock *sk)
+>
+> Reviewed-by: James Morris <jmorris@namei.org>
+>
+>
+> Btw, what kind of testing has this patch had?
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Paul generated a patch for us against 2.6.26-5 that we have on about  
+20 developer and test boxes with good results in MLS enforcing. We are  
+adding IPSec between machines and static fallback labels  to the test  
+mix and will report any issues. We have a couple of 8 core machines  
+I'll stress test on to look for SMP issues.
 
-I want to open up a discussion about genhomedircon and see if we can get
-some good ideas on how to fix it.
+joe
 
-genhomedircon searches the passwd database for users homedirs, it looks
-for unigue home directory roots and attempts to setup the labeling
-correctly.  So if it find home directories in /home and /var/home it
-would setup the file_context.homedirs to label the contents correctly.
-
-Over the years several problems have arisen.  What is a real users home
-directory?  Currently Linux does not provide a way to guarantee an entry
-in the /etc/passwd file is for a "real" user or just an account setup to
-run as service under.  genhomedir looks in /etc/login.defs for the
-UID_MIN and decides that all UIDs < UID_MIN are not login users.  It
-also eliminates all acconts which have shells not in /etc/shells or
-shells labeled /bin/false or /sbin/nologin.  In certain situations we
-have directories which serve as both a login directory and a service
-directory, but have no good solution.  Oracle requires an account like
-the following, but this causes random AVCs and complains about the
-parent directory,  We can't set the shell to nologin since dbadmins
-actually do login to the account.
-
- /usr/sbin/useradd -M -g dba -d /usr/lib/oracle/xe -s /bin/bash oracle
-
-I think we need a way for an admin to tell genhomedircon to ignore this
-account.
-
-Another problem with genhomedircon is it attempts to dump the entire
-passwd database even in a network environment, we have seen bug reports
-where genhomedircon has taken a ton of time to run, because the users
-had over a hundred thousand users and LDAP was choking.  I don't know if
-there is a good way around this other then to tell genhomedircon not to
-run, which we need to make easier for an admin to setup.  I am not sure
-we even document how to turn off genhomedircon.  Or we allow
-genhomedircon to run but not dump the passwd database.
-
-Finally we need a way to specify an admin to specify a directory as a
-root homedir directory.  Sometimes admin set up directories like
-/export/home/ as a root directory and then bind mount or symbolicly link
-this directory to /home, The entries in the /etc/passwd file all point
-to the /home directory, but we get labeling wrong, and the admin can not
-fix the problem.
-
-Thoughts?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkjjfc0ACgkQrlYvE4MpobNVdQCfS4y0DbwiOLMP315nC6mcRQOK
-SmEAn2Fp5MzTAyH11QfvNJdE13m3OGqq
-=1AM8
------END PGP SIGNATURE-----
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with
-the words "unsubscribe selinux" without quotes as the message.
 
 
 --
