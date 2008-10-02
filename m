@@ -1,54 +1,50 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m91ME2A6012768
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 18:14:02 -0400
-Received: from tundra.namei.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m91MCwtA011040
-	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 22:12:58 GMT
-Date: Thu, 2 Oct 2008 08:14:01 +1000 (EST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul.moore@hp.com>
-cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m922DUF9006055
+	for <selinux@tycho.nsa.gov>; Wed, 1 Oct 2008 22:13:30 -0400
+Received: from g4t0016.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m922CPMP023022
+	for <selinux@tycho.nsa.gov>; Thu, 2 Oct 2008 02:12:25 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [RFC PATCH v6 15/16] cipso: Add support for native local labeling and fixup mapping names
+Date: Wed, 1 Oct 2008 22:13:26 -0400
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
         netdev@vger.kernel.org
-Subject: Re: [RFC PATCH v6 00/16] Labeled networking patches for 2.6.28
-In-Reply-To: <200810011224.26106.paul.moore@hp.com>
-Message-ID: <alpine.LRH.1.10.0810020812400.12028@tundra.namei.org>
-References: <20080916124722.17132.38741.stgit@flek.lan> <alpine.LRH.1.10.0810011128240.5277@tundra.namei.org> <200810011224.26106.paul.moore@hp.com>
+References: <20080916124722.17132.38741.stgit@flek.lan> <200810011305.04872.paul.moore@hp.com> <alpine.LRH.1.10.0810020810570.12028@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0810020810570.12028@tundra.namei.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200810012213.26916.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 1 Oct 2008, Paul Moore wrote:
-
-> On Tuesday 30 September 2008 9:34:24 pm James Morris wrote:
-> > I found some sparse warnings -- the last couple at least may need
-> > attention:
+On Wednesday 01 October 2008 6:12:16 pm James Morris wrote:
+> On Wed, 1 Oct 2008, Paul Moore wrote:
+> > > ... and why specify zero filling?  (Setting and testing that
+> > > would be wasted cycles, if you enforced it).
 > >
-> > $ make C=2 CF="-D__cold__=" SUBDIRS=net/netlabel
-> 
-> Ah ha!
-> 
-> At this point I have to admit a dirty little secret, I've never run 
-> sparse on any of my code before.  It isn't for a lack of trying it is 
-> just that I had no idea how to do so and googling for "sparse" and all 
-> the relevant Linux modifiers didn't result in much.  That command line 
-> helped quite a bit.
-> 
-> For others who may be interested you can find the sparse tool here:
-> 
->  * http://www.kernel.org/pub/software/devel/sparse
-> 
-> ... and it looks like the magic incantation is "make C={1,2}".  I have 
-> no idea what the "CF=..." bits do, James?
+> > Better alignment within the IP option field, the goal being to try
+> > and get the secid aligned on a 32bit boundary.  However, it just
+> > occurred to me that by adding the two octets of padding I've
+> > actually pushed it out of alignment (I forgot about the obligatory
+> > IP option type and length octets).
+>
+> I mean, why specify zero-filled rather than simply "unused" ?
 
-This creates CFLAGS, which are needed to make the __cold__ thing go away 
-(no idea what that is), which you'll see if you don't inlcude the -CF 
-thing.
+Gotcha.  Yes, "unused" or "reserved" would be much better but it is 
+kinda moot right now anyway since the Right Thing is to just remove the 
+padding entirely.
 
+> > Man I hate IPv4 options, what a parsing nightmare ...
+>
+> It was all fixed with IPv6, right? :-)
+
+That is what the brochure says :)
 
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
