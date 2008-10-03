@@ -1,40 +1,68 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m934xVxv013997
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2008 00:59:31 -0400
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m934xVDg005571
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2008 04:59:31 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id m934xQCX004095
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2008 00:59:26 -0400
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m934xPIH029091
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2008 00:59:26 -0400
-Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id m934xN5F007412
-	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2008 00:59:24 -0400
-Message-ID: <48E5A6AB.2070608@redhat.com>
-Date: Fri, 03 Oct 2008 14:59:23 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m93EpcNk004316
+	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2008 10:51:38 -0400
+Received: from g5t0009.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m93Epc8A029194
+	for <selinux@tycho.nsa.gov>; Fri, 3 Oct 2008 14:51:38 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [PATCH] selinux: Fix an uninitialized variable BUG/panic in
+	selinux_secattr_to_sid()
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org
+Date: Fri, 03 Oct 2008 10:51:15 -0400
+Message-ID: <20081003145114.22380.57711.stgit@flek>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: SELinux User Guide: weekly report 20081003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This week:
+At some point during the 2.6.27 development cycle two new fields were added
+to the SELinux context structure, a string pointer and a length field.  The
+code in selinux_secattr_to_sid() was not modified and as a result these two
+fields were left uninitialized which could result in erratic behavior,
+including kernel panics, when NetLabel is used.  This patch fixes the
+problem by fully initializing the context in selinux_secattr_to_sid() before
+use and reducing the level of direct context manipulation done to help
+prevent future problems.
 
-* continued drafts and revisions (Enabling and Disabling SELinux, 
-SELinux Modes, Booleans, SELinux Contexts - Labeling Files).
+Please apply this to the 2.6.27-rcX release stream.
 
-Next week:
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
 
-* drafts for Mounting File Systems, Maintaining SELinux Labels, and 
-Managing Users 
-(<https://fedoraproject.org/wiki/Docs/Drafts/SELinux_User_Guide/SELinux_Information_Plan>)
+ security/selinux/ss/services.c |   11 ++++-------
+ 1 files changed, 4 insertions(+), 7 deletions(-)
 
-Thanks.
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index d11a815..8551952 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2737,6 +2737,7 @@ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
+ 		if (ctx == NULL)
+ 			goto netlbl_secattr_to_sid_return;
+ 
++		context_init(&ctx_new);
+ 		ctx_new.user = ctx->user;
+ 		ctx_new.role = ctx->role;
+ 		ctx_new.type = ctx->type;
+@@ -2745,13 +2746,9 @@ int security_netlbl_secattr_to_sid(struct netlbl_lsm_secattr *secattr,
+ 			if (ebitmap_netlbl_import(&ctx_new.range.level[0].cat,
+ 						  secattr->attr.mls.cat) != 0)
+ 				goto netlbl_secattr_to_sid_return;
+-			ctx_new.range.level[1].cat.highbit =
+-				ctx_new.range.level[0].cat.highbit;
+-			ctx_new.range.level[1].cat.node =
+-				ctx_new.range.level[0].cat.node;
+-		} else {
+-			ebitmap_init(&ctx_new.range.level[0].cat);
+-			ebitmap_init(&ctx_new.range.level[1].cat);
++			memcpy(&ctx_new.range.level[1].cat,
++			       &ctx_new.range.level[0].cat,
++			       sizeof(ctx_new.range.level[0].cat));
+ 		}
+ 		if (mls_context_isvalid(&policydb, &ctx_new) != 1)
+ 			goto netlbl_secattr_to_sid_return_cleanup;
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
