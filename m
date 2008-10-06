@@ -1,118 +1,60 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m96H1mT0030550
-	for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2008 13:01:48 -0400
-Received: from dmzms99802.na.baesystems.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m96H0ccv024574
-	for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2008 17:00:39 GMT
-Message-Id: <738m08$luidl@dmzms99802.na.baesystems.com>
+Message-ID: <48EA6357.1010300@manicmethod.com>
+Date: Mon, 06 Oct 2008 15:13:27 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Subject: RE: user guide drafts: "Working with SELinux" sections
-Date: Mon, 6 Oct 2008 10:01:45 -0700
-From: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-To: <Valdis.Kletnieks@vt.edu>, "Murray McAllister" <mmcallis@redhat.com>
-Cc: "SE Linux" <selinux@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
+        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com> <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com> <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp> <48E2310D.1080101@manicmethod.com> <48E32C7E.7020800@ak.jp.nec.com> <48E7FCA4.2070803@manicmethod.com> <48E9D816.8080405@ak.jp.nec.com>
+In-Reply-To: <48E9D816.8080405@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+KaiGai Kohei wrote:
+> Joshua Brindle wrote:
+>> KaiGai Kohei wrote:
+>>> Joshua Brindle wrote:
+>>>> KaiGai Kohei wrote:
+>>>>> Joshua Brindle wrote:
+>>>>>> KaiGai Kohei wrote:
+>>>>>>> The attached patch for libsepol add suport for a new policy version
+>>>>>>> named as (MOD_)POLICYDB_VERSION_BOUNDARY.
+>>>>>>> Userspace hierarchy checks are reworked in this revision.
+>>>>>>>
+>>>> I'm seeing a couple problems. First when writing out the policy
+>>>> it doesn't seem to respect policyvers, I told it to generate
+>>>> a version 23 and it still made a 24.
+>>> Are you saying a configuration of "policy-version = 23" at semanage.conf
+>>> is ignored? I could not reproduce it in my environment.
+>>> Could you tell me the steps to reproduce it?
+>>>
+>>> I injected several printf()'s, but it shows a proper policyvers
+>>> which reflects semanage.conf correctly.
+>>>
+>>>> Second it is failing to downgrade the 24 to 23 since my kernel doesn't support 24.
+>> I'm not sure why this wasn't happening to you but from what I can tell the new patch
+>> was returning from type_write when an attribute was passed in, however the length of
+>> the table was not updated. This caused policydb_read to read over the edge of the type
+>> symbol table, resulting in badness.
+> 
+> Hmm....
+> It seems to me what you pointed out is a bug of my patch. It prevents to deliver
+> actual number of type/attribute symbols to policy file, but it is unclear why does
+> it makes libsepol ignore the policyvers.
+> (I guess it may be a separated matter.)
+> 
+>> Rather than trying to calculate the length without attributes I just removed
+>> the attribute check. This causes attributes to be written for all versions,
+>> but this should not cause any problems at all.
+> 
+> The reason why I injected such an ad-hoc code is that we cannot decide the policy
+> version written when type_attr_remove() is invoked.
+> Is it impossible to move it to policydb_write()?
+> It is invoked after the policyvers is fixed by caller.
 
-
-> -----Original Message-----
-> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
-On
-> Behalf Of Valdis.Kletnieks@vt.edu
-> Sent: Tuesday, September 30, 2008 9:00 PM
-> To: Murray McAllister
-> Cc: SE Linux
-> Subject: Re: user guide drafts: "Working with SELinux" sections
-> 
-> On Wed, 01 Oct 2008 10:19:15 +1000, Murray McAllister said:
-> 
-> > > Erm. What *exactly* produces that entry in /var/log/messages?
-> > Are you referring to SELinux denying access or
-setroubelshoot-server?
-> > > AVC stuff ends up in auditd.  Or is this just because the
-> setroubleshoot
-> > > RPMs aren't *quite* as mandatory as you noted above, and I don't
-see
-> those
-> > > messages because I don't have them installed *and enabled*? (Gotta
-> watch
-> > > out for those pesky 'chkconfig off' ;)
-> > I thought I tried this before writing (thinking it only went into
-> > audit.log if setroubleshoot-server was installed, otherwise it would
-go
-> > to /var/log/messages). I will fix the text up to reflect this...
-> 
-> AVC's go into dmesg (and wherever your syslog dumps that) if auditd
-isn't
-> running.
-> 
-> AVC's goes into audit.log if auditd *is* running.
-> 
-> If setroubleshoot is running, it reads audit.log and pretty-prints
-them
-> into the syslog.
-> 
-> > This is coming next in a separate chapter. Why can't you do much
-with
-> > MCS if everyone is user_u? Doesn't it use the level, not the
-> user/role/type?
-> 
-> Whether you're using either the level or the classification, you need
-to
-> be
-> able to run users at different levels/classes for it to do any real
-good:
-> 
-> Consider:
-> 
-> User1 can read classes A, B, C.
-> User2 can read classes B, D, E.
-> User3 can read classes A, B, and E.
-> 
-> Wow.  That works pretty nice.
-> 
-> Now consider if you only have 1 defined user for people to run as:
-> 
-> User_u can read classes A, B, C.
-> User_u can read classes B, D, E.
-> User_u can read.. oh nevermind. ;)
-> 
-> So you need to be able to say "userid fred runs as user1, userid joe
-runs
-> as user2, userid dept-paperwork runs as user3/levelA, userid
-dept-admin
-> runs
-> as user3/levelB", and so on....
-> 
-> The stock MCS policy provides enough user classes and levels to
-protect
-> the
-> *system* from users - but you need to roll-your-own to protect user
-data
-> to
-> a similar level.
-
-Even with all users mapped to selinux user user_u, mcs should still be
-able to be used effectively. While it is true that in the case above,
-user_u would need to be given access to all the compartments (A - E),
-that does not mean that individual linux users (as opposed to the
-selinux user user_u) must have access to all the compartments.
-Individual linux users can be given access to only a subset of the
-compartments through the "semanange login ..." command. The compartments
-that individual linux users have access to can be seen using "semanage
-login -l", and can be set by either adding or modifying a user with
-"semanage login ...". For example:
-
-semanage login -a -s user_u -r A joe
-
-gives the linux user joe, access only to compartment A, even though his
-linux user maps to the selinux user user_u, which has access to
-compartments A-E
-
-
+It isn't impossible. You are going to have to make it walk to type symbol table to calculate the length without attributes, then write that length instead of the total symtab length.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
