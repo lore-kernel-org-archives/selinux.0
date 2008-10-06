@@ -1,50 +1,35 @@
-Message-ID: <48EA636E.20400@manicmethod.com>
-Date: Mon, 06 Oct 2008 15:13:50 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m96JJiYm029520
+	for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2008 15:19:44 -0400
+Received: from g5t0007.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m96JJiHA021744
+	for <selinux@tycho.nsa.gov>; Mon, 6 Oct 2008 19:19:45 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [PATCH v7 00/17] Labeled networking patches for 2.6.28
+To: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Date: Mon, 06 Oct 2008 15:19:41 -0400
+Message-ID: <20081006191516.15686.80823.stgit@flek.lan>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com>	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>	 <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com>	 <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com>	 <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com>	 <48BB8B1E.7010208@ak.jp.nec.com>	 <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com>	 <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com>	 <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp>	 <48E2310D.1080101@manicmethod.com> <48E32C7E.7020800@ak.jp.nec.com>	 <48E7FCA4.2070803@manicmethod.com> <1223296239.7712.5.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1223296239.7712.5.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Sat, 2008-10-04 at 19:30 -0400, Joshua Brindle wrote:
->> KaiGai Kohei wrote:
->>> Joshua Brindle wrote:
->>>> KaiGai Kohei wrote:
->>>>> Joshua Brindle wrote:
->>>>>> KaiGai Kohei wrote:
->>>>>>> The attached patch for libsepol add suport for a new policy version
->>>>>>> named as (MOD_)POLICYDB_VERSION_BOUNDARY.
->>>>>>> Userspace hierarchy checks are reworked in this revision.
->>>>>>>
->>>> I'm seeing a couple problems. First when writing out the policy
->>>> it doesn't seem to respect policyvers, I told it to generate
->>>> a version 23 and it still made a 24.
->>> Are you saying a configuration of "policy-version = 23" at semanage.conf
->>> is ignored? I could not reproduce it in my environment.
->>> Could you tell me the steps to reproduce it?
->>>
->>> I injected several printf()'s, but it shows a proper policyvers
->>> which reflects semanage.conf correctly.
->>>
->>>> Second it is failing to downgrade the 24 to 23 since my kernel doesn't support 24.
->> I'm not sure why this wasn't happening to you but from what I can tell the new patch was returning from type_write when an attribute was passed in, however the length of the table was not updated. This caused policydb_read to read over the edge of the type symbol table, resulting in badness.
->>
->> Rather than trying to calculate the length without attributes I just removed the attribute check. This causes attributes to be written for all versions, but this should not cause any problems at all.
->>
->> Do you have a problem with this Stephen?
-> 
-> The problem with writing attributes to older policy versions is that
-> older kernels will then treat the attribute like any other type and
-> allow its use in a security context.
+You will notice the lack of a "RFC" prefix to this patchset, that is because
+this should be the last revision prior to the 2.6.28 merge window opening.
+The changes between v6 and v7 are very minor and mostly involve sparse
+fixes and the conversion of some "magic" numbers in net/ipv4/cipso_ipv4.c
+to constants defined in the CIPSO header file.  I just updated both the
+lblnet-2.6_{testing,next} git trees so anyone interested should feel free
+to grab the latest bits from here:
 
-Yes, I remembered that after I sent the first email.. doh
+ * git://git.infradead.org/users/pcmoore/lblnet-2.6_testing
+
+Thanks to everyone who has helped review and test these patches.
+
+--
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
