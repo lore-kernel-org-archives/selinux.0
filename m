@@ -1,19 +1,19 @@
-Message-ID: <48EA6357.1010300@manicmethod.com>
-Date: Mon, 06 Oct 2008 15:13:27 -0400
+Message-ID: <48EA636E.20400@manicmethod.com>
+Date: Mon, 06 Oct 2008 15:13:50 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
         jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
 Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com> <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com> <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp> <48E2310D.1080101@manicmethod.com> <48E32C7E.7020800@ak.jp.nec.com> <48E7FCA4.2070803@manicmethod.com> <48E9D816.8080405@ak.jp.nec.com>
-In-Reply-To: <48E9D816.8080405@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com>	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>	 <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com>	 <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com>	 <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com>	 <48BB8B1E.7010208@ak.jp.nec.com>	 <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com>	 <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com>	 <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp>	 <48E2310D.1080101@manicmethod.com> <48E32C7E.7020800@ak.jp.nec.com>	 <48E7FCA4.2070803@manicmethod.com> <1223296239.7712.5.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1223296239.7712.5.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Joshua Brindle wrote:
+Stephen Smalley wrote:
+> On Sat, 2008-10-04 at 19:30 -0400, Joshua Brindle wrote:
 >> KaiGai Kohei wrote:
 >>> Joshua Brindle wrote:
 >>>> KaiGai Kohei wrote:
@@ -34,27 +34,17 @@ KaiGai Kohei wrote:
 >>> which reflects semanage.conf correctly.
 >>>
 >>>> Second it is failing to downgrade the 24 to 23 since my kernel doesn't support 24.
->> I'm not sure why this wasn't happening to you but from what I can tell the new patch
->> was returning from type_write when an attribute was passed in, however the length of
->> the table was not updated. This caused policydb_read to read over the edge of the type
->> symbol table, resulting in badness.
+>> I'm not sure why this wasn't happening to you but from what I can tell the new patch was returning from type_write when an attribute was passed in, however the length of the table was not updated. This caused policydb_read to read over the edge of the type symbol table, resulting in badness.
+>>
+>> Rather than trying to calculate the length without attributes I just removed the attribute check. This causes attributes to be written for all versions, but this should not cause any problems at all.
+>>
+>> Do you have a problem with this Stephen?
 > 
-> Hmm....
-> It seems to me what you pointed out is a bug of my patch. It prevents to deliver
-> actual number of type/attribute symbols to policy file, but it is unclear why does
-> it makes libsepol ignore the policyvers.
-> (I guess it may be a separated matter.)
-> 
->> Rather than trying to calculate the length without attributes I just removed
->> the attribute check. This causes attributes to be written for all versions,
->> but this should not cause any problems at all.
-> 
-> The reason why I injected such an ad-hoc code is that we cannot decide the policy
-> version written when type_attr_remove() is invoked.
-> Is it impossible to move it to policydb_write()?
-> It is invoked after the policyvers is fixed by caller.
+> The problem with writing attributes to older policy versions is that
+> older kernels will then treat the attribute like any other type and
+> allow its use in a security context.
 
-It isn't impossible. You are going to have to make it walk to type symbol table to calculate the length without attributes, then write that length instead of the total symtab length.
+Yes, I remembered that after I sent the first email.. doh
 
 --
 This message was distributed to subscribers of the selinux mailing list.
