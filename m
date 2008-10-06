@@ -7,20 +7,20 @@ Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         bfields@fieldses.org, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
-In-Reply-To: <20080930202211.GD21039@us.ibm.com>
+In-Reply-To: <20080930200108.GB21039@us.ibm.com>
 References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
 	 <1222707986-26606-3-git-send-email-dpquigl@tycho.nsa.gov>
-	 <20080930202211.GD21039@us.ibm.com>
+	 <20080930200108.GB21039@us.ibm.com>
 Content-Type: text/plain
-Date: Mon, 06 Oct 2008 16:52:13 -0400
-Message-Id: <1223326333.31539.116.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Mon, 06 Oct 2008 16:52:06 -0400
+Message-Id: <1223326326.31539.114.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Fixed
+Fixed.
 
-On Tue, 2008-09-30 at 15:22 -0500, Serge E. Hallyn wrote:
+On Tue, 2008-09-30 at 15:01 -0500, Serge E. Hallyn wrote:
 > Quoting David P. Quigley (dpquigl@tycho.nsa.gov):
 > > This patch introduces three new hooks. The inode_getsecctx hook is used to get
 > > all relevant information from an LSM about an inode. The inode_setsecctx is
@@ -50,13 +50,6 @@ On Tue, 2008-09-30 at 15:22 -0500, Serge E. Hallyn wrote:
 > > 
 > > Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 > > Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
-> 
-> Hmm, sorry, for all of these new hooks which you introduce, you do not
-> define empty cap_* versions and assign them when need in
-> security_fixup_ops().  But you unconditionally call them if
-> CONFIG_SECURITY=y.  So if you compile a kernel with CONFIG_SECURITY=y
-> but CONFIG_SECURITY_SELINUX=n, don't you hose your box?
-> 
 > > ---
 > >  include/linux/security.h |   50 ++++++++++++++++++++++++++++++++++++++++++++++
 > >  security/security.c      |   18 ++++++++++++++++
@@ -100,6 +93,11 @@ On Tue, 2008-09-30 at 15:22 -0500, Serge E. Hallyn wrote:
 > > + * 	Returns a string containing all relavent security context information
 > > + * 	@inode we wish to set the security context of.
 > > + *	@ctx is a pointer to place the allocated security context should be placed.
+> 
+> sentence above is odd.  How about
+> 
+> 	@ctx is a pointer in which to place the allocated security context
+> 
 > > + *	@ctxlen points to the place to put the length of @ctx.
 > >   * This is the main security structure.
 > >   */
@@ -184,6 +182,15 @@ On Tue, 2008-09-30 at 15:22 -0500, Serge E. Hallyn wrote:
 > > 
 > > +/*
 > > + *	This hook requires that the inode i_mutex be locked
+> 
+> 'called with inode->i_mutex locked' would make more sense here.
+> Requirements on the callers would make more sense in the comments
+> in include/linux/security.h, right?
+> 
+> No code objections, though.
+> 
+> Acked-by: Serge Hallyn <serue@us.ibm.com>
+> 
 > > + */
 > > +static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
 > > +{
