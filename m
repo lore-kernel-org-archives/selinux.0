@@ -1,90 +1,81 @@
-Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
-        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
-In-Reply-To: <48E7FCA4.2070803@manicmethod.com>
-References: <487C7698.60503@ak.jp.nec.com>
-	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <487D5A3D.6090801@ak.jp.nec.com>
-	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
-	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
-	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>
-	 <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com>
-	 <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com>
-	 <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com>
-	 <48BB8B1E.7010208@ak.jp.nec.com>
-	 <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com>
-	 <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com>
-	 <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp>
-	 <48E2310D.1080101@manicmethod.com> <48E32C7E.7020800@ak.jp.nec.com>
-	 <48E7FCA4.2070803@manicmethod.com>
-Content-Type: text/plain
-Date: Mon, 06 Oct 2008 08:30:39 -0400
-Message-Id: <1223296239.7712.5.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4c7a4b910810060614p3511ea1bv21a601069a6cf01c@mail.gmail.com>
+Date: Mon, 6 Oct 2008 08:14:31 -0500
+From: "Alain Reguera Delgado" <alain.reguera@gmail.com>
+To: SELinux@tycho.nsa.gov
+Subject: Customizing SELinux Policy
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Hi,
 
-On Sat, 2008-10-04 at 19:30 -0400, Joshua Brindle wrote:
-> KaiGai Kohei wrote:
-> > Joshua Brindle wrote:
-> >> KaiGai Kohei wrote:
-> >>> Joshua Brindle wrote:
-> >>>> KaiGai Kohei wrote:
-> >>>>> The attached patch for libsepol add suport for a new policy version
-> >>>>> named as (MOD_)POLICYDB_VERSION_BOUNDARY.
-> >>>>> Userspace hierarchy checks are reworked in this revision.
-> >>>>>
-> >> I'm seeing a couple problems. First when writing out the policy
-> >> it doesn't seem to respect policyvers, I told it to generate
-> >> a version 23 and it still made a 24.
-> > 
-> > Are you saying a configuration of "policy-version = 23" at semanage.conf
-> > is ignored? I could not reproduce it in my environment.
-> > Could you tell me the steps to reproduce it?
-> > 
-> > I injected several printf()'s, but it shows a proper policyvers
-> > which reflects semanage.conf correctly.
-> > 
-> >> Second it is failing to downgrade the 24 to 23 since my kernel doesn't support 24.
-> > 
-> 
-> I'm not sure why this wasn't happening to you but from what I can tell the new patch was returning from type_write when an attribute was passed in, however the length of the table was not updated. This caused policydb_read to read over the edge of the type symbol table, resulting in badness.
-> 
-> Rather than trying to calculate the length without attributes I just removed the attribute check. This causes attributes to be written for all versions, but this should not cause any problems at all.
-> 
-> Do you have a problem with this Stephen?
+After some months with SELinux in Permesive mode
+... Some avc:  denied messages were recorded ... I thought it was
+time for SELinux Enforcing mode in a CentOS-5.2 server with
+mail(postfix+cyrus+sasl), web, snmp with mrtg, squid ... it also has a
+local TLS configured for webmail access ...
 
-The problem with writing attributes to older policy versions is that
-older kernels will then treat the attribute like any other type and
-allow its use in a security context.
+I took a look to the RedHat Deployment Guide about how to do it ...
+and tried to build modules with audit2allow from the /var/log/message
+to allow some denied messages so the applications could work on a
+SELinux Enforcing mode (is that ok ?).
 
-> 
-> index 6f1f655..d2c2c32 100644
-> --- a/libsepol/src/write.c
-> +++ b/libsepol/src/write.c
-> @@ -954,15 +954,6 @@ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
->  
->         typdatum = (type_datum_t *) datum;
->  
-> -       /*
-> -        * The kernel policy version less than 24 (= POLICYDB_VERSION_BOUNDARY)
-> -        * does not support to load entries of attribute, so we skip to write it.
-> -        */
-> -       if (p->policy_type == POLICY_KERN
-> -           && p->policyvers < POLICYDB_VERSION_BOUNDARY
-> -           && typdatum->flavor == TYPE_ATTRIB)
-> -               return POLICYDB_SUCCESS;
-> -
->         len = strlen(key);
->         items = 0;
->         buf[items++] = cpu_to_le32(len);
--- 
-Stephen Smalley
-National Security Agency
+The created modules seem to work fine, because old avc denied messages
+desappeard ... but some messages like the following appear at
+/var/log/messages when I do use a semodule -i modulename.pp or
+semodule -r modulename :
 
+Oct  5 20:16:11 orion kernel: : exe="?" (sauid=81, hostname=?, addr=?,
+terminal=?)'
+Oct  5 20:16:11 orion kernel: audit(1223252171.572:8): policy loaded
+auid=4294967295 ses=4294967295
+Oct  5 20:16:41 orion kernel: audit(1223252201.673:9): user pid=2172
+uid=81 auid=4294967295 subj=system_u:system_r:system_dbus d_t:s0
+msg='avc:  received policyload notice (seqno=3)
+Oct  5 20:16:41 orion kernel: : exe="?" (sauid=81, hostname=?, addr=?,
+terminal=?)' Oct  5 20:16:41 orion kernel: audit(1223252201.676:10):
+policy loaded auid=4294967295 ses=4294967295
+Oct  5 20:17:51 orion kernel: audit(1223252271.462:11): user pid=2172
+uid=81 auid=4294967295 subj=system_u:system_r:system_dbu sd_t:s0
+msg='avc:  received policyload notice (seqno=4)
+Oct  5 20:17:51 orion kernel: : exe="?" (sauid=81, hostname=?, addr=?,
+terminal=?)' Oct  5 20:17:51 orion kernel: audit(1223252271.464:12):
+policy loaded auid=4294967295 ses=4294967295
+Oct  5 20:19:06 orion kernel: audit(1223252346.208:13): user pid=2172
+uid=81 auid=4294967295 subj=system_u:system_r:system_dbu sd_t:s0
+msg='avc:  received policyload notice (seqno=5)
+Oct  5 20:19:06 orion kernel: : exe="?" (sauid=81, hostname=?, addr=?,
+terminal=?)' Oct  5 20:19:06 orion kernel: audit(1223252346.211:14):
+policy loaded auid=4294967295 ses=4294967295
+Oct  5 20:19:11 orion kernel: audit(1223252351.331:15): user pid=2172
+uid=81 auid=4294967295 subj=system_u:system_r:system_dbu sd_t:s0
+msg='avc:  received policyload notice (seqno=6)
+
+What does it means ?
+
+Also, in the /var/log/httpd/ssl_error_log the following messages begin
+to appear :
+
+[Sun Oct 05 19:58:19 2008] [warn] RSA server certificate is a CA
+certificate (BasicConstraints: CA == TRUE !?)
+[Sun Oct 05 19:58:19 2008] [warn] RSA server certificate CommonName
+(CN) `example.com' does NOT match server name!?
+
+Really rare because that name `example.com' is the
+actual server hostname. When try to connect to the webmail through
+https:// can't connect to it, the browser reports connection failed
+after a waiting of a few seconds. http:// works as expected.
+
+This machine is CentOS-5.2:
+
+Linux example.com 2.6.18-92.1.13.el5 #1 SMP Wed Sep 24
+19:33:52 EDT 2008 i686 i686 i386 GNU/Linux
+
+Could you help me understand what's going on here ?
+
+Thank you very much,
+al.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
