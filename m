@@ -1,12 +1,21 @@
-Message-ID: <48ECC291.7050305@redhat.com>
-Date: Wed, 08 Oct 2008 10:24:17 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m98Esc22021100
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 10:54:38 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m98Escrv001005
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 14:54:38 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m98EsSRg028845
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 10:54:28 -0400
+Message-ID: <48ECC9A3.5060407@redhat.com>
+Date: Wed, 08 Oct 2008 10:54:27 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Alain Reguera Delgado <alain.reguera@gmail.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: Customizing SELinux Policy
-References: <4c7a4b910810060614p3511ea1bv21a601069a6cf01c@mail.gmail.com>
-In-Reply-To: <4c7a4b910810060614p3511ea1bv21a601069a6cf01c@mail.gmail.com>
+To: Murray McAllister <mmcallis@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide drafts: Maintaining SELinux Labels
+References: <48EC1ED7.8040308@redhat.com>
+In-Reply-To: <48EC1ED7.8040308@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -14,97 +23,181 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Alain Reguera Delgado wrote:
+Murray McAllister wrote:
 > Hi,
 > 
-> After some months with SELinux in Permesive mode
-> ... Some avc:  denied messages were recorded ... I thought it was
-> time for SELinux Enforcing mode in a CentOS-5.2 server with
-> mail(postfix+cyrus+sasl), web, snmp with mrtg, squid ... it also has a
-> local TLS configured for webmail access ...
+> The following are the first few drafts of the "Maintaining SELinux
+> Labels" sections. Any comments and corrections are appreciated.
 > 
-> I took a look to the RedHat Deployment Guide about how to do it ...
-> and tried to build modules with audit2allow from the /var/log/message
-> to allow some denied messages so the applications could work on a
-> SELinux Enforcing mode (is that ok ?).
->
-Yes although I would examine the generated rules to see if they don't
-open a security hole.  You can always ask others to examine your
-generated policy.
+> Cheers.
+> 
+> Copying Files and Directories
+> 
+> When files and directories are copied, they inherit the SELinux context
+> of the parent directory they are copied to. This helps ensure files and
+> directories are labeled with the correct SELinux context after being
+> moved. The following example demonstrates copying a file from a user's
+> home directory to /var/www/html/, which is used by the Apache HTTP
+> Server. Since the file is copied, it inherits the correct SELinux context:
+> 
+> 1. Run the cd command without any arguments to change into your home
+> directory. Once in your home directory, run the touch file1 command to
+> create a file. This file is labeled with the user_home_t type:
+> 
+> $ ls -Z file1
+> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0 file1
+> 
+> 2. Run the ls -dZ /var/www/html/ command to view the SELinux context of
+> the /var/www/html/ directory:
+> 
+> $ ls -dZ /var/www/html/
+> drwxr-xr-x  root root system_u:object_r:httpd_sys_content_t:s0
+> /var/www/html/
+> 
+> By default, the /var/www/html/ directory is labeled with the
+> httpd_sys_content_t type. Files and directories created under the
+> /var/www/html/ directory inherit this type, and as such, they are
+> labeled with this type.
+> 
+> 3. As the Linux root user, run the cp file1 /var/www/html command to
+> copy file1 to the /var/www/html/ directory. Since this file is copied,
+> it inherits the httpd_sys_content_t type from the /var/www/html/ directory:
+> 
+> # cp file1 /var/www/html/
+> # ls -Z /var/www/html/file1
+> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0
+> /var/www/html/file1
+> 
+> <important note>
+> Copy files and directories, rather than moving them. This helps ensure
+> they are labeled with the correct SELinux contexts. Incorrect SELinux
+> contexts can prevent processes from accessing such files and directories.
+> </important note>
+> 
+Also note that if you copy a file over an existing file the existing
+files context will be maintained.
 
-> The created modules seem to work fine, because old avc denied messages
-> desappeard ... but some messages like the following appear at
-> /var/log/messages when I do use a semodule -i modulename.pp or
-> semodule -r modulename :
+So if I have a file /etc/abc labeled /etc/abc_t and I cp a file /tmp/xyz
+labeled /tmp/xyz_t to /etc/abc, it will end up labeled abc_t
+> Moving Files and Directories
 > 
-> Oct  5 20:16:11 orion kernel: : exe="?" (sauid=81, hostname=?, addr=?,
-> terminal=?)'
-> Oct  5 20:16:11 orion kernel: audit(1223252171.572:8): policy loaded
-> auid=4294967295 ses=4294967295
-> Oct  5 20:16:41 orion kernel: audit(1223252201.673:9): user pid=2172
-> uid=81 auid=4294967295 subj=system_u:system_r:system_dbus d_t:s0
-> msg='avc:  received policyload notice (seqno=3)
-> Oct  5 20:16:41 orion kernel: : exe="?" (sauid=81, hostname=?, addr=?,
-> terminal=?)' Oct  5 20:16:41 orion kernel: audit(1223252201.676:10):
-> policy loaded auid=4294967295 ses=4294967295
-> Oct  5 20:17:51 orion kernel: audit(1223252271.462:11): user pid=2172
-> uid=81 auid=4294967295 subj=system_u:system_r:system_dbu sd_t:s0
-> msg='avc:  received policyload notice (seqno=4)
-> Oct  5 20:17:51 orion kernel: : exe="?" (sauid=81, hostname=?, addr=?,
-> terminal=?)' Oct  5 20:17:51 orion kernel: audit(1223252271.464:12):
-> policy loaded auid=4294967295 ses=4294967295
-> Oct  5 20:19:06 orion kernel: audit(1223252346.208:13): user pid=2172
-> uid=81 auid=4294967295 subj=system_u:system_r:system_dbu sd_t:s0
-> msg='avc:  received policyload notice (seqno=5)
-> Oct  5 20:19:06 orion kernel: : exe="?" (sauid=81, hostname=?, addr=?,
-> terminal=?)' Oct  5 20:19:06 orion kernel: audit(1223252346.211:14):
-> policy loaded auid=4294967295 ses=4294967295
-> Oct  5 20:19:11 orion kernel: audit(1223252351.331:15): user pid=2172
-> uid=81 auid=4294967295 subj=system_u:system_r:system_dbu sd_t:s0
-> msg='avc:  received policyload notice (seqno=6)
+> File and directories keep their current SELinux context when they are
+> moved. In many cases, this is incorrect for the location they are being
+> moved to. The following example demonstrates moving a file from a user's
+> home directory to /var/www/html/, which is used by the Apache HTTP
+> Server. Since the file is moved, it does not inherit the correct SELinux
+> context:
 > 
-> What does it means ?
+> 1. Run the cd command without any arguments to change into your home
+> directory. Once in your home directory, run the touch file1 command to
+> create a file. This file is labeled with the user_home_t type:
 > 
-These are not denial messages.  Any time a policy is updated the audit
-system gets notified that there has been a change.  In this case the
-kernel is reporting that policy was updated and dbus is acknowledging
-that it got the policy reload message.
-> Also, in the /var/log/httpd/ssl_error_log the following messages begin
-> to appear :
+> $ ls -Z file1
+> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0 file1
 > 
-> [Sun Oct 05 19:58:19 2008] [warn] RSA server certificate is a CA
-> certificate (BasicConstraints: CA == TRUE !?)
-> [Sun Oct 05 19:58:19 2008] [warn] RSA server certificate CommonName
-> (CN) `example.com' does NOT match server name!?
+> 2. Run the ls -dZ /var/www/html/ command to view the SELinux context of
+> the /var/www/html/ directory:
 > 
-> Really rare because that name `example.com' is the
-> actual server hostname. When try to connect to the webmail through
-> https:// can't connect to it, the browser reports connection failed
-> after a waiting of a few seconds. http:// works as expected.
+> $ ls -dZ /var/www/html/
+> drwxr-xr-x  root root system_u:object_r:httpd_sys_content_t:s0
+> /var/www/html/
 > 
-Nothing to do with SELinux I believe
-> This machine is CentOS-5.2:
+> By default, the /var/www/html/ directory is labeled with the
+> httpd_sys_content_t type. Files and directories created under the
+> /var/www/html/ directory inherit this type, and as such, they are
+> labeled with this type.
 > 
-> Linux example.com 2.6.18-92.1.13.el5 #1 SMP Wed Sep 24
-> 19:33:52 EDT 2008 i686 i686 i386 GNU/Linux
+> 3. As the Linux root user, run the mv file1 /var/www/html command to
+> move file1 to the /var/www/html directory. Since this file is moved, it
+> keeps its current user_home_t type:
 > 
-> Could you help me understand what's going on here ?
+> # mv file1 /var/www/html
+> # ls -Z /var/www/html/file1
+> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0
+> /var/www/html/file1
 > 
-> Thank you very much,
-> al.
+> By default, the Apache HTTP Server can not read files that are labeled
+> with the user_home_t type. If all files comprising a web page are
+> labeled with the user_home_t type, or another type that the Apache HTTP
+> Server can not read, permission is denied when attempting to access them
+> via Firefox or text-based Web browsers.
 > 
-> --
+> <important note>
+> Moving files and directories with the mv command may result in the wrong
+> SELinux context, preventing processes, such as the Apache HTTP Server
+> and Samba, from accessing such files and directories.
+> </important note>
+> 
+> Checking the Default SELinux Context
+> 
+> Use the /usr/sbin/matchpathcon command to check if files and directories
+> have the correct SELinux context. From the matchpathcon(8) manual page:
+> "matchpathcon queries the system policy and outputs the default security
+> context associated with the file path."[1]. The following example
+> demonstrates using the /usr/sbin/matchpathcon command to verify that
+> files in /var/www/html/ directory are labeled correctly:
+> 
+> 1. As the Linux root user, run the touch /var/www/html/file{1,2,3}
+> command to create three files (file1, file2, and file3). These files
+> inherit the httpd_sys_content_t type from the /var/www/html/ directory:
+> 
+> # touch /var/www/html/file{1,2,3}
+> # ls -Z /var/www/html/
+> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0 file1
+> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0 file2
+> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0 file3
+> 
+> 2. As the Linux root user, run the chcon -t samba_share_t
+> /var/www/html/file1 command to change the file1 type to samba_share_t.
+> Note: the Apache HTTP Server can not read files or directories labeled
+> with the samba_share_t type.
+> 
+> 3. The /usr/sbin/matchpathcon -V option compares the current SELinux
+> context to the correct, default context in SELinux policy. Run the
+> /usr/sbin/matchpathcon -V /var/www/html/* command to check all files in
+> the /var/www/html/ directory:
+> 
+> $ /usr/sbin/matchpathcon -V /var/www/html/*
+> /var/www/html/file1 has context unconfined_u:object_r:samba_share_t:s0,
+> should be system_u:object_r:httpd_sys_content_t:s0
+> /var/www/html/file2 verified.
+> /var/www/html/file3 verified.
+> 
+> The following output from the /usr/sbin/matchpathcon command explains
+> that file1 is labeled with the samba_share_t type, but should be labeled
+> with the httpd_sys_content_t type:
+> 
+> /var/www/html/file1 has context unconfined_u:object_r:samba_share_t:s0,
+> should be system_u:object_r:httpd_sys_content_t:s0
+> 
+> To resolve the label problem and allow the Apache HTTP Server access to
+> file1, as the Linux root user, run the /sbin/restorecon -v
+> /var/www/html/file1 command:
+> 
+> # /sbin/restorecon -v /var/www/html/file1
+> restorecon reset /var/www/html/file1 context
+> unconfined_u:object_r:samba_share_t:s0->system_u:object_r:httpd_sys_content_t:s0
+> 
+> 
+> 
+> [1] The matchpathcon(8) manual page, as shipped with the
+> libselinux-utils package in Fedora, is written by Daniel Walsh. Any
+> edits or changes in this version were done by Murray McAllister.
+> 
+> -- 
 > This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
 > the words "unsubscribe selinux" without quotes as the message.
 
+Everything else looks good.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkjswpEACgkQrlYvE4MpobO/TACgoG5jmFIAfjK/qYpuK1CJtkzY
-/sEAnAwXnl/A9hcCMZzGQSDilULDf2kt
-=C3L2
+iEYEARECAAYFAkjsyaIACgkQrlYvE4MpobMw2gCgpk7w8adyI6rMWDaPXxqyEnM+
+rc4AnRmXwiCbP1GV1H1zffCu6g3VjYIc
+=oiQh
 -----END PGP SIGNATURE-----
 
 --
