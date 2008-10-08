@@ -1,204 +1,59 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m98Esc22021100
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 10:54:38 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m98Escrv001005
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 14:54:38 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m98EsSRg028845
-	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 10:54:28 -0400
-Message-ID: <48ECC9A3.5060407@redhat.com>
-Date: Wed, 08 Oct 2008 10:54:27 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Murray McAllister <mmcallis@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m98Fkj4l032195
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 11:46:45 -0400
+Received: from sca-es-mail-1.sun.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m98Fkhrv015743
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 15:46:43 GMT
+Received: from fe-sfbay-09.sun.com ([192.18.43.129])
+	by sca-es-mail-1.sun.com (8.13.7+Sun/8.12.9) with ESMTP id m98Fkg9W009582
+	for <selinux@tycho.nsa.gov>; Wed, 8 Oct 2008 08:46:42 -0700 (PDT)
+Received: from conversion-daemon.fe-sfbay-09.sun.com by fe-sfbay-09.sun.com
+ (Sun Java System Messaging Server 6.2-8.04 (built Feb 28 2007))
+ id <0K8F00K01FGO9O00@fe-sfbay-09.sun.com>
+ (original mail from Glenn.Faden@Sun.COM) for selinux@tycho.nsa.gov; Wed,
+ 08 Oct 2008 08:46:42 -0700 (PDT)
+Date: Wed, 08 Oct 2008 08:46:28 -0700
+From: Glenn Faden <Glenn.Faden@sun.com>
 Subject: Re: user guide drafts: Maintaining SELinux Labels
-References: <48EC1ED7.8040308@redhat.com>
-In-Reply-To: <48EC1ED7.8040308@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+In-reply-to: <48ECC9A3.5060407@redhat.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: Murray McAllister <mmcallis@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Message-id: <48ECD5D4.3010302@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+References: <48EC1ED7.8040308@redhat.com> <48ECC9A3.5060407@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Murray McAllister wrote:
+>   
+>> Hi,
+>>
+>> The following are the first few drafts of the "Maintaining SELinux
+>> Labels" sections. Any comments and corrections are appreciated.
+>>
+>> Cheers.
+>>
+>> Copying Files and Directories
+>>
+>> When files and directories are copied, they inherit the SELinux context
+>> of the parent directory they are copied to. This helps ensure files and
+>> directories are labeled with the correct SELinux context after being
+>> moved. The following example demonstrates copying a file from a user's
+>> home directory to /var/www/html/, which is used by the Apache HTTP
+>> Server. Since the file is copied, it inherits the correct SELinux context:
+>>     
+Is this true when using MLS policy? Assuming the policy allows a subject 
+to create a file in a directory, shouldn't the newly created file's 
+SELinux context have the same sensitivity as the subject who wrote it? 
+Or is the new file's type copied from the directory and the sensitivity 
+copied from the subject?
 
-Murray McAllister wrote:
-> Hi,
-> 
-> The following are the first few drafts of the "Maintaining SELinux
-> Labels" sections. Any comments and corrections are appreciated.
-> 
-> Cheers.
-> 
-> Copying Files and Directories
-> 
-> When files and directories are copied, they inherit the SELinux context
-> of the parent directory they are copied to. This helps ensure files and
-> directories are labeled with the correct SELinux context after being
-> moved. The following example demonstrates copying a file from a user's
-> home directory to /var/www/html/, which is used by the Apache HTTP
-> Server. Since the file is copied, it inherits the correct SELinux context:
-> 
-> 1. Run the cd command without any arguments to change into your home
-> directory. Once in your home directory, run the touch file1 command to
-> create a file. This file is labeled with the user_home_t type:
-> 
-> $ ls -Z file1
-> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0 file1
-> 
-> 2. Run the ls -dZ /var/www/html/ command to view the SELinux context of
-> the /var/www/html/ directory:
-> 
-> $ ls -dZ /var/www/html/
-> drwxr-xr-x  root root system_u:object_r:httpd_sys_content_t:s0
-> /var/www/html/
-> 
-> By default, the /var/www/html/ directory is labeled with the
-> httpd_sys_content_t type. Files and directories created under the
-> /var/www/html/ directory inherit this type, and as such, they are
-> labeled with this type.
-> 
-> 3. As the Linux root user, run the cp file1 /var/www/html command to
-> copy file1 to the /var/www/html/ directory. Since this file is copied,
-> it inherits the httpd_sys_content_t type from the /var/www/html/ directory:
-> 
-> # cp file1 /var/www/html/
-> # ls -Z /var/www/html/file1
-> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0
-> /var/www/html/file1
-> 
-> <important note>
-> Copy files and directories, rather than moving them. This helps ensure
-> they are labeled with the correct SELinux contexts. Incorrect SELinux
-> contexts can prevent processes from accessing such files and directories.
-> </important note>
-> 
-Also note that if you copy a file over an existing file the existing
-files context will be maintained.
-
-So if I have a file /etc/abc labeled /etc/abc_t and I cp a file /tmp/xyz
-labeled /tmp/xyz_t to /etc/abc, it will end up labeled abc_t
-> Moving Files and Directories
-> 
-> File and directories keep their current SELinux context when they are
-> moved. In many cases, this is incorrect for the location they are being
-> moved to. The following example demonstrates moving a file from a user's
-> home directory to /var/www/html/, which is used by the Apache HTTP
-> Server. Since the file is moved, it does not inherit the correct SELinux
-> context:
-> 
-> 1. Run the cd command without any arguments to change into your home
-> directory. Once in your home directory, run the touch file1 command to
-> create a file. This file is labeled with the user_home_t type:
-> 
-> $ ls -Z file1
-> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0 file1
-> 
-> 2. Run the ls -dZ /var/www/html/ command to view the SELinux context of
-> the /var/www/html/ directory:
-> 
-> $ ls -dZ /var/www/html/
-> drwxr-xr-x  root root system_u:object_r:httpd_sys_content_t:s0
-> /var/www/html/
-> 
-> By default, the /var/www/html/ directory is labeled with the
-> httpd_sys_content_t type. Files and directories created under the
-> /var/www/html/ directory inherit this type, and as such, they are
-> labeled with this type.
-> 
-> 3. As the Linux root user, run the mv file1 /var/www/html command to
-> move file1 to the /var/www/html directory. Since this file is moved, it
-> keeps its current user_home_t type:
-> 
-> # mv file1 /var/www/html
-> # ls -Z /var/www/html/file1
-> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0
-> /var/www/html/file1
-> 
-> By default, the Apache HTTP Server can not read files that are labeled
-> with the user_home_t type. If all files comprising a web page are
-> labeled with the user_home_t type, or another type that the Apache HTTP
-> Server can not read, permission is denied when attempting to access them
-> via Firefox or text-based Web browsers.
-> 
-> <important note>
-> Moving files and directories with the mv command may result in the wrong
-> SELinux context, preventing processes, such as the Apache HTTP Server
-> and Samba, from accessing such files and directories.
-> </important note>
-> 
-> Checking the Default SELinux Context
-> 
-> Use the /usr/sbin/matchpathcon command to check if files and directories
-> have the correct SELinux context. From the matchpathcon(8) manual page:
-> "matchpathcon queries the system policy and outputs the default security
-> context associated with the file path."[1]. The following example
-> demonstrates using the /usr/sbin/matchpathcon command to verify that
-> files in /var/www/html/ directory are labeled correctly:
-> 
-> 1. As the Linux root user, run the touch /var/www/html/file{1,2,3}
-> command to create three files (file1, file2, and file3). These files
-> inherit the httpd_sys_content_t type from the /var/www/html/ directory:
-> 
-> # touch /var/www/html/file{1,2,3}
-> # ls -Z /var/www/html/
-> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0 file1
-> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0 file2
-> -rw-r--r--  root root unconfined_u:object_r:httpd_sys_content_t:s0 file3
-> 
-> 2. As the Linux root user, run the chcon -t samba_share_t
-> /var/www/html/file1 command to change the file1 type to samba_share_t.
-> Note: the Apache HTTP Server can not read files or directories labeled
-> with the samba_share_t type.
-> 
-> 3. The /usr/sbin/matchpathcon -V option compares the current SELinux
-> context to the correct, default context in SELinux policy. Run the
-> /usr/sbin/matchpathcon -V /var/www/html/* command to check all files in
-> the /var/www/html/ directory:
-> 
-> $ /usr/sbin/matchpathcon -V /var/www/html/*
-> /var/www/html/file1 has context unconfined_u:object_r:samba_share_t:s0,
-> should be system_u:object_r:httpd_sys_content_t:s0
-> /var/www/html/file2 verified.
-> /var/www/html/file3 verified.
-> 
-> The following output from the /usr/sbin/matchpathcon command explains
-> that file1 is labeled with the samba_share_t type, but should be labeled
-> with the httpd_sys_content_t type:
-> 
-> /var/www/html/file1 has context unconfined_u:object_r:samba_share_t:s0,
-> should be system_u:object_r:httpd_sys_content_t:s0
-> 
-> To resolve the label problem and allow the Apache HTTP Server access to
-> file1, as the Linux root user, run the /sbin/restorecon -v
-> /var/www/html/file1 command:
-> 
-> # /sbin/restorecon -v /var/www/html/file1
-> restorecon reset /var/www/html/file1 context
-> unconfined_u:object_r:samba_share_t:s0->system_u:object_r:httpd_sys_content_t:s0
-> 
-> 
-> 
-> [1] The matchpathcon(8) manual page, as shipped with the
-> libselinux-utils package in Fedora, is written by Daniel Walsh. Any
-> edits or changes in this version were done by Murray McAllister.
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
-
-Everything else looks good.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkjsyaIACgkQrlYvE4MpobMw2gCgpk7w8adyI6rMWDaPXxqyEnM+
-rc4AnRmXwiCbP1GV1H1zffCu6g3VjYIc
-=oiQh
------END PGP SIGNATURE-----
+--Glenn
 
 --
 This message was distributed to subscribers of the selinux mailing list.
