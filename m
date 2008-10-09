@@ -1,85 +1,46 @@
-Message-ID: <48EE3B4A.5060206@manicmethod.com>
-Date: Thu, 09 Oct 2008 13:11:38 -0400
+Message-ID: <48EE3B2F.5050706@manicmethod.com>
+Date: Thu, 09 Oct 2008 13:11:11 -0400
 From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
 To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
-Subject: Re: BUGREPORT: A type alias of invisible primary one
-References: <48C66197.7050102@ak.jp.nec.com> <48C6B3E1.5030900@manicmethod.com> <48C71A96.2030408@ak.jp.nec.com> <48D80358.9090207@manicmethod.com>
-In-Reply-To: <48D80358.9090207@manicmethod.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
+        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com> <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com> <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp> <48E2310D.1080101@manicmethod.com> <48E32C7E.7020800@ak.jp.nec.com> <48E7FCA4.2070803@manicmethod.com> <48E9D816.8080405@ak.jp.nec.com> <48EA6357.1010300@manicmethod.com> <48EB0431.5090909@ak.jp.nec.com>
+In-Reply-To: <48EB0431.5090909@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> KaiGai Kohei wrote:
->   
->> Joshua Brindle wrote:
->>     
->>> KaiGai Kohei wrote:
+KaiGai Kohei wrote:
+>>> Hmm....
+>>> It seems to me what you pointed out is a bug of my patch. It prevents to deliver
+>>> actual number of type/attribute symbols to policy file, but it is unclear why does
+>>> it makes libsepol ignore the policyvers.
+>>> (I guess it may be a separated matter.)
+>>>
 >>>       
->>>> I found a strange type_datum_t object which has 0 for its s.value
->>>> during development of new type hierarchy checks.
->>>>
->>>> The strange one is "xguest_javaplugin_default_xproperty_t" which
->>>> is an alias type of "xguest_javaplugin_xproperty_t".
->>>>
->>>> I doubted my patch at first, but it can be reproduced on the normal
->>>> libsepol. It seems to me an original matter which is not exposed yet,
->>>> and I am innocence. :-)
->>>>
->>>> During tracing the matter, I noticed the primary type is invisible
->>>> at expand_module(), but the aliased one is visible. It can make the
->>>> strange type_datum_t object.
->>>>
->>>> * at the expand_module()
->>>> 1. The expand_state_t which includes typemap is initialized.
->>>>
->>>> 2. The type_copy_callback is invoked for any types via hashtab_map.
->>>>    It only copies primary and visible types into newer hashtab,
->>>>    and set up typemap to translate between old and new s.value.
->>>>    Thus, the given primary type is invisible, its slot of typemap
->>>>    is kept to zero.
->>>>    (*) is_id_enabled() for "xguest_javaplugin_xproperty_t" returned false.
->>>>
->>>> 3. The alias_copy_callback is invoked for any types via hashtab_map.
->>>>    It only copies alias and visible types into newer hashtab.
->>>>    Here is no check whether the primary side is visible, or not.
->>>>    A copied type_datum_t object for the given alias has new s.value
->>>>    which is picked up from state->typemap.
->>>>
->>>> 4. However, the target slot of state->typemap was zero, because
->>>>    its primary one is invisible. The aliased type has a strange
->>>>    s.value.
->>>>
->>>> 5. Type hierarchy checks got a segmentation fault, due to
->>>>    "p->type_val_to_name[datum->s.value - 1]".
->>>>                         ^^^^^^^^^^^^^^^^^^ == -1
->>>> Yes, we can identify cause of the matter.
+>>>> Rather than trying to calculate the length without attributes I just removed
+>>>> the attribute check. This causes attributes to be written for all versions,
+>>>> but this should not cause any problems at all.
 >>>>         
->>> Do you have a policy that can be used to reproduce this?
+>>> The reason why I injected such an ad-hoc code is that we cannot decide the policy
+>>> version written when type_attr_remove() is invoked.
+>>> Is it impossible to move it to policydb_write()?
+>>> It is invoked after the policyvers is fixed by caller.
 >>>       
->> Yes, the following policy can reproduce the matter.
->> - - - - [ cut here ] - - - -
->> policy_module(baz, 1.0)
->>
->> optional_policy(`
->>         gen_require(`
->>                 type invisible_primary_t;
->>         ')
->>         typealias invisible_primary_t alias visible_alias_t;
->> ')
->> - - - - - - - - - - - - - - -
->>
->> The attached patch can inject some of printf()'s.
->> You can see that invisible_primary_t is skipped at type_copy_callback()
->> and an incorrect s.value is assigned at alias_copy_callback().
->>
->> Thanks,
->>
+>> It isn't impossible. You are going to have to make it walk to type
+>> symbol table to calculate the length without attributes, then write
+>> that length instead of the total symtab length.
 >>     
 >
-> This should fix it. I tested with and without your patchset on a few policies. Let me know if it doesn't work for you:
+> The attached patch enables to fixup the number of type/attribute entries
+> to be written. The type_attr_uncount() decrements the number of attribute
+> entries skipped at type_write().
+>
+> At first, I had a plan to invoke type_attr_remove() with
+> hashtab_map_remove_on_error(), but it means the given policydb structure
+> is modified at policydb_write() and implicit changes to external interface.
 >
 >   
 
