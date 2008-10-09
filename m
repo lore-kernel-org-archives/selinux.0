@@ -1,50 +1,33 @@
-Message-ID: <48EE3B2F.5050706@manicmethod.com>
-Date: Thu, 09 Oct 2008 13:11:11 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
-        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com> <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com> <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp> <48E2310D.1080101@manicmethod.com> <48E32C7E.7020800@ak.jp.nec.com> <48E7FCA4.2070803@manicmethod.com> <48E9D816.8080405@ak.jp.nec.com> <48EA6357.1010300@manicmethod.com> <48EB0431.5090909@ak.jp.nec.com>
-In-Reply-To: <48EB0431.5090909@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m99IaiCK008373
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2008 14:36:44 -0400
+Received: from mho-01-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m99IZWcD020164
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2008 18:35:32 GMT
+Received: from cpe-66-68-165-162.austin.res.rr.com ([66.68.165.162] helo=[192.168.20.230])
+	by mho-01-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
+	(Exim 4.68)
+	(envelope-from <joe@nall.com>)
+	id 1Ko0NN-000EkF-E3
+	for selinux@tycho.nsa.gov; Thu, 09 Oct 2008 18:36:41 +0000
+Message-Id: <00473A36-B9E3-4481-A2AC-7D5623741AB5@nall.com>
+From: Joe Nall <joe@nall.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v929.2)
+Subject: per role template confusion
+Date: Thu, 9 Oct 2008 13:36:38 -0500
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
->>> Hmm....
->>> It seems to me what you pointed out is a bug of my patch. It prevents to deliver
->>> actual number of type/attribute symbols to policy file, but it is unclear why does
->>> it makes libsepol ignore the policyvers.
->>> (I guess it may be a separated matter.)
->>>
->>>       
->>>> Rather than trying to calculate the length without attributes I just removed
->>>> the attribute check. This causes attributes to be written for all versions,
->>>> but this should not cause any problems at all.
->>>>         
->>> The reason why I injected such an ad-hoc code is that we cannot decide the policy
->>> version written when type_attr_remove() is invoked.
->>> Is it impossible to move it to policydb_write()?
->>> It is invoked after the policyvers is fixed by caller.
->>>       
->> It isn't impossible. You are going to have to make it walk to type
->> symbol table to calculate the length without attributes, then write
->> that length instead of the total symtab length.
->>     
->
-> The attached patch enables to fixup the number of type/attribute entries
-> to be written. The type_attr_uncount() decrements the number of attribute
-> entries skipped at type_write().
->
-> At first, I had a plan to invoke type_attr_remove() with
-> hashtab_map_remove_on_error(), but it means the given policydb structure
-> is modified at policydb_write() and implicit changes to external interface.
->
->   
+Can someone explain the per role template implementation? I am confused.
 
-Merged in to libsepol-2.0.34
+During policy compilation, a .mod.role file is created that just  
+references the roles in /usr/share/selinux/devel/include/rolemap  
+regardless of the roles defined via semanage. Should semanage add  
+roles to rolemap? Is there additional magic in semodule?
+
+joe
 
 
 --
