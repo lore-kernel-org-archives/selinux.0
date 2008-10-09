@@ -1,109 +1,57 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m99BnREv021376
-	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2008 07:49:27 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m99BnN1h002810
-	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2008 11:49:27 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m99BnF1t024153
-	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2008 07:49:15 -0400
-Message-ID: <48EDEFB9.9090702@redhat.com>
-Date: Thu, 09 Oct 2008 07:49:13 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <48EE2388.4020209@manicmethod.com>
+Date: Thu, 09 Oct 2008 11:30:16 -0400
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Murray McAllister <mmcallis@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: user guide drafts: Archiving Files with tar/star
-References: <48EDAE09.8070903@redhat.com>
-In-Reply-To: <48EDAE09.8070903@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: KaiGai Kohei <kaigai@kaigai.gr.jp>, Stephen Smalley <sds@tycho.nsa.gov>,
+        jmorris@namei.org, paul.moore@hp.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH 3/3] Thread/Child-Domain Assignment (rev.6)
+References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB6F.6080709@ak.jp.nec.com> <48B2A66D.7030608@ak.jp.nec.com> <48B6C966.7040006@tresys.com> <48B756C4.2090909@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3510@exchange2.columbia.tresys.com> <48BB8B1E.7010208@ak.jp.nec.com> <06A6610D4F464D4EBEAFBF2C5F86911E3A3609@exchange2.columbia.tresys.com> <48BC141F.2060802@kaigai.gr.jp> <48C5D9A7.7090909@ak.jp.nec.com> <48CAB248.6060701@tresys.com> <48CAF936.1090009@kaigai.gr.jp> <48E2310D.1080101@manicmethod.com> <48E32C7E.7020800@ak.jp.nec.com> <48E7FCA4.2070803@manicmethod.com> <48E9D816.8080405@ak.jp.nec.com> <48EA6357.1010300@manicmethod.com> <48EB0431.5090909@ak.jp.nec.com>
+In-Reply-To: <48EB0431.5090909@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+KaiGai Kohei wrote:
+>>> Hmm....
+>>> It seems to me what you pointed out is a bug of my patch. It prevents to deliver
+>>> actual number of type/attribute symbols to policy file, but it is unclear why does
+>>> it makes libsepol ignore the policyvers.
+>>> (I guess it may be a separated matter.)
+>>>
+>>>       
+>>>> Rather than trying to calculate the length without attributes I just removed
+>>>> the attribute check. This causes attributes to be written for all versions,
+>>>> but this should not cause any problems at all.
+>>>>         
+>>> The reason why I injected such an ad-hoc code is that we cannot decide the policy
+>>> version written when type_attr_remove() is invoked.
+>>> Is it impossible to move it to policydb_write()?
+>>> It is invoked after the policyvers is fixed by caller.
+>>>       
+>> It isn't impossible. You are going to have to make it walk to type
+>> symbol table to calculate the length without attributes, then write
+>> that length instead of the total symtab length.
+>>     
+>
+> The attached patch enables to fixup the number of type/attribute entries
+> to be written. The type_attr_uncount() decrements the number of attribute
+> entries skipped at type_write().
+>
+> At first, I had a plan to invoke type_attr_remove() with
+> hashtab_map_remove_on_error(), but it means the given policydb structure
+> is modified at policydb_write() and implicit changes to external interface.
+>
+>   
 
-Murray McAllister wrote:
-> Hi,
-> 
-> The following are the first few drafts of the "Archiving Files with
-> tar/star" sections. Any comments and corrections are appreciated.
-> 
-> Thanks.
-> 
-> Archiving Files with tar
-> 
-> tar does not retain extended attributes by default. Since SELinux
-> contexts are stored in extended attributes, contexts can be lost when
-> archiving files. Use tar --selinux to create archives that retain contexts.
-> 
-> The following example demonstrates creating a Tar archive that retains
-> SELinux contexts:
-> 
-> 1. As the Linux root user, run the touch /var/www/html/file{1,2,3}
-> command to create three files (file1, file2, and file3). These files
-> inherit the httpd_sys_content_t type from the /var/www/html/ directory:
-> 
-> [example output from ls -Z /var/www/html/]
-> 
-> 2. Run the cd /var/www/html/ command to change into the /var/www/html/
-> directory. Once in this directory, as the Linux root user, run the tar
-> --selinux -cf test.tar file{1,2,3} command to create a Tar archive named
-> test.tar.
-> 
-> 3. As the Linux root user, run the mkdir /test command to create a new
-> directory, and then, run the chmod 777 /test/ command to allow all users
-> full-access to the /test/ directory.
-> 
-> # I don't know if this is a bad idea. I thought it would prevent running
-> all steps as root (I used /var/www/html/ to 'simulate' real world,
-> instead of using home directory).
-> 
-> 4. Run the cp /var/www/html/test.tar /test/ command to copy the test.tar
-> file in to the /test/ directory.
-> 
-> 5. Run the cd /test/ command to change into the /test/ directory. Once
-> in this directory, run the tar -xf test.tar command to extract the Tar
-> archive.
-> 
-> 6. Run the ls -lZ /test/ command to view the SELinux contexts. The
-> httpd_sys_content_t type has been retained, rather than being changed to
-> default_t, which would have happened had the --selinux not been used:
-> 
-> [example output from ls -Z /test/]
-> 
-> 7. If the /test/ directory is no longer required, as the Linux root
-> user, run the  rm -ri /test/ command to remove it, as well as all files
-> in it.
-> 
-> Refer to the tar(1) manual page for further information about tar, such
-> as the --xattrs option that retains all extended attributes.
-> 
-> The following section is the same example, but uses "star -xattr
-> -H=exustar" instead of tar --selinux.
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
-The only point I often bring up is if you have a tar file without
-extended attributes, or want the extended attributes to match the policy
-of the destination machine, you should run it through restorecon.
+This does not cause a hierarchy error, is this an expected limitation?
 
+typebounds goodbye_world_t hello_world_t;
 
-tar xvf file.tgz | restorecon -f -
+allow hello_world_t self: file ~{read };
 
-Would reset the file context on disk after the extraction.
+allow goodbye_world_t self: file *;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkjt77kACgkQrlYvE4MpobP9FQCffl1FbiIlxnnkPhQ9i5tqdHVQ
-2xcAmQHjfItzd0pmno9j74wqmVRDHXMy
-=p+Qj
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
