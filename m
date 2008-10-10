@@ -1,13 +1,12 @@
 Subject: Re: user guide drafts: "Mounting File Systems"
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Murray McAllister <mmcallis@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>
+Cc: SE Linux <selinux@tycho.nsa.gov>
 In-Reply-To: <48EF03BA.90901@redhat.com>
 References: <48EF03BA.90901@redhat.com>
 Content-Type: text/plain
-Date: Fri, 10 Oct 2008 09:11:40 -0400
-Message-Id: <1223644300.25569.41.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 10 Oct 2008 09:30:41 -0400
+Message-Id: <1223645441.25569.50.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -17,61 +16,37 @@ On Fri, 2008-10-10 at 17:26 +1000, Murray McAllister wrote:
 > 
 > The following is a rough draft for the "Mounting File Systems" sections. 
 > Any comments and corrections are appreciated.
-> 
+
+I'd have to say that this entire section is confusing - it is written in
+terms of low level mechanism and corner cases and not in terms of how
+users actually interact with SELinux and their common experience.
+
+For example, file_t is something users should never see in practice.  As
+setroubleshoot says, it indicates that they should relabel their
+filesystems - they likely have been running with SELinux disabled at
+some prior point in time and have re-enabled it without relabeling.
+
+Likewise, default_t is the unusual case where a file falls completely
+outside of the file tree specifications in file_contexts.
+
+It also doesn't describe context mounts in terms of why and how they are
+used.  See for example the original explanation of mountpoint labeling
+(i.e. context mounts) in:
+http://www.linuxjournal.com/article/7426
+
 > Thanks!
 > 
 > Mounting File Systems
 > 
 > By default, when a third extended file system (ext3) is mounted, the 
-
-You should generalize this to "a filesystem that supports extended
-attributes, such as ext[234], jfs, xfs, or jffs2".
-
 > files and directories on the file system are labeled with the file_t 
-> type.
-
-Not exactly.  The correct statement is that a file that does not have a
-security context set on disk (due to being created on a non-selinux
-kernel) on a filesystem that supports extended attributes will be
-treated as having the file_t type (or more precisely, the security
-context associated with the file initial SID).  On a properly labeled
-filesystem, there should be no files with file_t.
-
->  The mount command can override SELinux contexts when mounting file 
+> type. The mount command can override SELinux contexts when mounting file 
 > systems. SELinux context changes with the mount command can be 
 > per-session only (until the file system is unmounted), or persistent 
 > (context changes are written to disk).
-
-This doesn't sound right either.  The context= mount option can be used
-to treat all files on a given filesystem as having the specified
-security context.  That context is never stored in the filesystem
-itself, although obviously you can put context= mount options into your
-fstab in order to make them happen whenever the filesystem is mounted.
-The purpose of the context= mount option is twofold:
-- to support coarse-grained labeling of filesystems that do not support
-extended attributes, and
-- to support overriding/ignoring the extended attributes on a filesystem
-when you do not want to trust it to supply them (similar to the nosuid
-option, useful for e.g. removable media).
-
+> 
 > # what are default_t and file_t?
-
-default_t is a type specified in file_contexts as the default type for
-any file that does not match any other pattern in the file_contexts
-configuration.  So for example if you have a /foobar on your disk, it
-will likely end up getting labeled with default_t.  default_t files may
-exist on a properly labeled filesystem but should generally be
-inaccessible to confined domains - they indicate that you need to update
-your file_contexts configuration to include patterns for that part of
-the file tree.
-
-file_t is the type used in the context associated with the initial file
-SID that gets assigned to files by the kernel when there is no extended
-attribute for the security context on the file yet the filesystem type
-supports such attributes.  file_t files should not exist on a properly
-labeled filesystem; they indicate that files were created while running
-a non-selinux kernel.
-
+> 
 > Temporary Mount Context Changes
 > 
 > As the Linux root user, use the mount -o 
@@ -84,29 +59,56 @@ a non-selinux kernel.
 > * SELinux context changes only occur in kernel memory, and as such, 
 > context changes are not written to disk. Any context changes made while 
 > such a file system is mounted are lost when the file system is unmounted.
-
-There shouldn't be any context changes when you use a context mount; it
-prohibits setting of the context by applications.
-
+> 
 > * If a file system is already labeled, and the contexts are overridden 
 > with the -o context option, the original contexts return when the file 
 > system is un-mounted.
-
-The extended attributes are not modified, but they will only be visible
-if you mount without the context option.
-
+> 
+> * Newly-created files and directories appear to have the SELinux context 
+> specified with -o context; however, since context changes are not 
+> written to disk for these situations, context changes are lost when the 
+> file system is un-mounted.
+> 
+> * The -o context option works even if the file system to be mounted does 
+> not support extended attributes, although, any context changes made to 
+> such a file system are lost when the file system is unmounted.
+> 
+> The following example labels all files on the file system to be mounted 
+> with the httpd_sys_content_t type:
+> 
+> # mount -t ext3 -o context="system_u:object_r:httpd_sys_content_t:s0" 
+> /dev/sdax /mount/point
+> 
+> -t ext3: The -t ext3 option specifies that an ext3 file system is to be 
+> mounted. Use the -t option to specify the correct file system. Refer to 
+> the mount(8) manual page for a list of file systems.
+> 
+> -o context="system_u:object_r:httpd_sys_content_t:s0": The -o 
+> context="system_u:object_r:httpd_sys_content_t:s0" option specifies the 
+> SELinux context for all files on the file system to be mounted, as well 
+> as the mount point. This option overrides existing contexts.
+> 
+> Type Enforcement is the main permission control used in SELinux targeted 
+> policy. For the most part, SELinux users and roles can be ignored, so, 
+> when overriding the SELinux context with mount, use the SELinux system_u 
+> user and object_r role, and concentrate on the type. In this example, 
+> all files on the /dev/sdax file system will be labeled with the 
+> httpd_sys_content_t type.
+> 
+> /dev/sdax /mount/point: Specifies that the /dev/sdax device will be 
+> mounted to the /mount/point/ directory.
+> 
+> <note>
+> When a file system is mounted with the -o context option, it is not 
+> possible to use the chcon command to change the SELinux context. Using 
+> chcon on such a file system results in a Operation not supported error.
+> </note>
+> 
 > Persistent Mount Context Changes
 > 
 > As the Linux root user, use the mount -o 
 > defcontext=SELinux_user:role:type:level option to persistently change 
-> the default SELinux context for a file system.
-
-No.  This just changes the default context used by the kernel for files
-that lack an extended attribute on disk, from the context associated
-with the initial file SID to the specified context.  IOW, this just
-changes from using file_t to using some other label.
-
->  The -o defcontext option 
+> the default SELinux context for a file system. The -o defcontext option 
 > requires a file system that supports extended attributes, since changes 
 > are written to disk. When a file system is mounted with the -o 
 > defcontext option:
@@ -132,22 +134,16 @@ changes from using file_t to using some other label.
 > [fill in similar to the previous section]
 > 
 > # I do not understand the fscontext option. Should that be included?
-
-I'm pretty sure that James and/or Eric have written description of all
-of the context mount options before.
-fscontext= sets the filesystem security context, a context that is
-applied for certain permission checks on the entire filesystem like
-mounting as well as used to control what file security contexts can
-exist within the filesystem.
-
-rootcontext= sets the security context for the root directory of the
-filesystem, useful for e.g. tmpfs mounts where you want the root to take
-on a specific context but allow other files within it to have individual
-contexts.
-
+> 
 > # Is there any common use cases that should have examples here, such as 
 > mounting a cd and sharing it via http or nfs?
-
+> 
+> Apologies for any typos :(
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 -- 
 Stephen Smalley
 National Security Agency
