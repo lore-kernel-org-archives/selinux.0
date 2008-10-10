@@ -1,45 +1,47 @@
-Message-ID: <48EEAE64.1030603@manicmethod.com>
-Date: Thu, 09 Oct 2008 21:22:44 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9A1pexA018935
+	for <selinux@tycho.nsa.gov>; Thu, 9 Oct 2008 21:51:40 -0400
+Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9A1oPYU029404
+	for <selinux@tycho.nsa.gov>; Fri, 10 Oct 2008 01:50:26 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Murray McAllister <mmcallis@redhat.com>
+Subject: Re: user guide drafts: Archiving Files with tar/star
+Date: Fri, 10 Oct 2008 11:51:27 +1000
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <48EDAE09.8070903@redhat.com> <48EDEFB9.9090702@redhat.com> <48EE9415.6050902@redhat.com>
+In-Reply-To: <48EE9415.6050902@redhat.com>
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, jmorris@namei.org, paul.moore@hp.com,
-        jbrindle@tresys.com, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 2/3] Thread/Child-Domain Assignment (rev.2)
-References: <487C7698.60503@ak.jp.nec.com>	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>	 <487D5A3D.6090801@ak.jp.nec.com> <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil> <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com> <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com> <4897EB68.5080309@ak.jp.nec.com> <48EE3B12.3010204@manicmethod.com> <48EEAD85.7020607@ak.jp.nec.com>
-In-Reply-To: <48EEAD85.7020607@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200810101251.30094.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Joshua Brindle wrote:
->   
->> KaiGai Kohei wrote:
->>     
->>> [2/3] thread-context-checkpolicy.2.patch
->>>   It enables to support TYPEBOUNDS statement and to expand
->>>   existing hierarchies implicitly.
->>>
->>> Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
->>>   
->>>       
->> Merged into checkpolicy-2.0.17
->>     
+On Friday 10 October 2008 10:30, Murray McAllister <mmcallis@redhat.com> 
+wrote:
+> > tar xvf file.tgz | restorecon -f -
+> >
+> > Would reset the file context on disk after the extraction.
 >
-> Has the repository completely moved to git now?
->
->   
+> Does this only apply to the tar file itself, not the files in it? On
+> rawhide the extracted files (that have extended attributes) inherit the
+> type of the directory they are being extracted in.
 
-Yes
+The "v" option of tar causes it to list on stdout all the files it extracts.
 
-> If so, is it possible to provide "git://..." connection?
->   
-git clone http://oss.tresys.com/git/selinux.git
+The -f- option of restorecon makes it take a list of files to relabel on 
+stdin.  So it relabels all files extracted from the tar file.
 
-http://userspace.selinuxproject.org/trac/wiki/Contributing
-<http://userspace.selinuxproject.org/trac/wiki/Contributing>
+The inheriting of file contexts from a directory (in the absence of policy 
+rules specifying otherwise) has AFAIK always been the design of SE Linux.
 
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
