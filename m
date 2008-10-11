@@ -1,60 +1,61 @@
-Message-ID: <48F04409.10903@redhat.com>
-Date: Sat, 11 Oct 2008 16:13:29 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9BBHVPg006709
+	for <selinux@tycho.nsa.gov>; Sat, 11 Oct 2008 07:17:31 -0400
+Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9BBGFOd019631
+	for <selinux@tycho.nsa.gov>; Sat, 11 Oct 2008 11:16:16 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Murray McAllister <mmcallis@redhat.com>
+Subject: Re: user guide drafts: Maintaining SELinux Labels
+Date: Sat, 11 Oct 2008 21:17:13 +1000
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <737og9$5vh3i@dmzms99902.na.baesystems.com> <1223643319.25569.23.camel@moss-spartans.epoch.ncsc.mil> <48F02876.3020203@redhat.com>
+In-Reply-To: <48F02876.3020203@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: russell@coker.com.au, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: user guide drafts: Archiving Files with tar/star
-References: <48EDAE09.8070903@redhat.com> <48EDEFB9.9090702@redhat.com>	 <48EE9415.6050902@redhat.com> <200810101251.30094.russell@coker.com.au>	 <48EEB91C.4080205@redhat.com> <1223643459.25569.27.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1223643459.25569.27.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200810112217.15754.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Fri, 2008-10-10 at 12:08 +1000, Murray McAllister wrote:
->> Russell Coker wrote:
->>> On Friday 10 October 2008 10:30, Murray McAllister <mmcallis@redhat.com> 
->>> wrote:
->>>>> tar xvf file.tgz | restorecon -f -
->>>>>
->>>>> Would reset the file context on disk after the extraction.
->>>> Does this only apply to the tar file itself, not the files in it? On
->>>> rawhide the extracted files (that have extended attributes) inherit the
->>>> type of the directory they are being extracted in.
->>> The "v" option of tar causes it to list on stdout all the files it extracts.
->>>
->>> The -f- option of restorecon makes it take a list of files to relabel on 
->>> stdin.  So it relabels all files extracted from the tar file.
->>>
->>> The inheriting of file contexts from a directory (in the absence of policy 
->>> rules specifying otherwise) has AFAIK always been the design of SE Linux.
->> When would "tar | restorecon -f -" be used if files inherit contexts 
->> from parent directories (if policy has not be changed)? Sorry, I am a 
->> bit slow :)
-> 
-> restorecon consults the file_contexts configuration, which maps pathname
-> regular expressions to the appropriate security context to assign to a
-> file when it is installed.  tar xf foo.tar by itself will merely apply
-> the usual runtime creation logic for file labeling, i.e. compute the
-> context of the new files from the combination of the creating process
-> context (user, level) and the parent directory (type) or type_transition
-> rule.  tar xvf foo.tar | restorecon -f - should reset the file contexts
-> to the original install-time file contexts defined by the file contexts
-> configuration.
-> 
-How about:
+On Saturday 11 October 2008 15:15, Murray McAllister <mmcallis@redhat.com> 
+wrote:
+> When files and directories are copied, the SELinux context of the new
+> file or directory depends on the context of the creating process, and
+> the context of the target, parent directory: the type is inherited from
+> the target, parent directory (unless a type transition rule exists[1]);
+> the SELinux user identity and level are inherited from the creating
+> process; and the role is always object_r, which is a generic role for
+> files. This helps ensure files and directories are labeled with the
+> correct SELinux context after being copied.
 
-If a Tar archive contains files without extended attributes, or if you 
-want the extended attributes to match the original, install-time file 
-contexts defined by SELinux policy, run the archive through restorecon:
+I'm not sure how the last sentence is supposed to link with the rest - it 
+certainly doesn't correspond to the second-last sentence.
 
-tar xvf file.tgz | restorecon -f -
+object_r is for future support and also to give a regular format of the 
+context for all operations.  Note that files under /proc that relate to 
+processes have different roles.
 
-Would it be better to always recommend using tar with restorecon?
+> Also, when a file is copied over an existing file, the existing file's
+> context is maintained, unless the user specified cp options to preserve
+> the context of the original file, such as --preserve=context.
 
-Cheers.
+Also the -Z option to cp deserves a mention.
+
+> #Is the following required, or is it covered by the above:
+>
+> On systems running the MLS policy, when files and directories are
+> copied, they inherit the type from the parent directory they are being
+> copied to, and the level from the process that copied them.
+
+Probably.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
+
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
