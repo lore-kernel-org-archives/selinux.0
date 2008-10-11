@@ -1,40 +1,72 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: user guide drafts: "Mounting File Systems"
-Date: Sat, 11 Oct 2008 21:18:41 +1000
-Cc: Eric Paris <eparis@redhat.com>, Murray McAllister <mmcallis@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, dwalsh@redhat.com
-References: <48EF03BA.90901@redhat.com> <1223646314.8664.34.camel@localhost.localdomain> <1223646663.25569.65.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1223646663.25569.65.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9BNiWfu019818
+	for <selinux@tycho.nsa.gov>; Sat, 11 Oct 2008 19:44:32 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9BNiWEx001940
+	for <selinux@tycho.nsa.gov>; Sat, 11 Oct 2008 23:44:32 GMT
+Message-ID: <48F13A4D.3040706@redhat.com>
+Date: Sun, 12 Oct 2008 09:44:13 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200810112218.47136.russell@coker.com.au>
+To: russell@coker.com.au
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: user guide drafts: Maintaining SELinux Labels
+References: <737og9$5vh3i@dmzms99902.na.baesystems.com> <1223643319.25569.23.camel@moss-spartans.epoch.ncsc.mil> <48F02876.3020203@redhat.com> <200810112217.15754.russell@coker.com.au>
+In-Reply-To: <200810112217.15754.russell@coker.com.au>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Saturday 11 October 2008 00:51, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> BTW, one interesting tidbit from OpenSolaris FMAC - in Solaris, the
-> uid/gid/mode information for the root directory of a tmpfs mount
-> defaults to the attributes of the underlying mount point directory, so I
-> did likewise for the security context.  Which means that I can set the
-> security context on the mount point directory as desired (tmp_t
-> for /tmp, var_run_t for /var/run, ...) and then the tmpfs mount will
-> pick up the right label automatically from the mount point.  I don't
-> know if that makes sense in Linux, as they infer the default uid/gid
-> from the mounting process instead.
+Russell Coker wrote:
+> On Saturday 11 October 2008 15:15, Murray McAllister <mmcallis@redhat.com> 
+> wrote:
+>> When files and directories are copied, the SELinux context of the new
+>> file or directory depends on the context of the creating process, and
+>> the context of the target, parent directory: the type is inherited from
+>> the target, parent directory (unless a type transition rule exists[1]);
+>> the SELinux user identity and level are inherited from the creating
+>> process; and the role is always object_r, which is a generic role for
+>> files. This helps ensure files and directories are labeled with the
+>> correct SELinux context after being copied.
+> 
+> I'm not sure how the last sentence is supposed to link with the rest - it 
+> certainly doesn't correspond to the second-last sentence.
+That was from the old, wrong text. I moved it around a little:
 
-If we are considering that then maybe we also should consider the reverse.  
-Having a chcon on the root of a tmpfs filesystem change the mount point.
+When files and directories are copied, the SELinux context of the new 
+file or directory depends on the context of the creating process, and 
+the context of the target, parent directory. This helps ensure files and 
+directories are labeled with the correct SELinux context after being 
+copied. When files and directories are copied, the type is inherited...
+> 
+> object_r is for future support and also to give a regular format of the 
+> context for all operations.  Note that files under /proc that relate to 
+> processes have different roles.
+I could only find the system_r and object_r roles in /proc/. Are there 
+any others? /proc/pid/* seem to only use system_r (I did not check 
+everything).
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+How about:
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+object_r is a generic role for used most files. Under the /proc/ 
+directory, files relating to processes may use the system_r role.
 
+Thanks again for your help.
+> 
+>> Also, when a file is copied over an existing file, the existing file's
+>> context is maintained, unless the user specified cp options to preserve
+>> the context of the original file, such as --preserve=context.
+> 
+> Also the -Z option to cp deserves a mention.
+> 
+>> #Is the following required, or is it covered by the above:
+>>
+>> On systems running the MLS policy, when files and directories are
+>> copied, they inherit the type from the parent directory they are being
+>> copied to, and the level from the process that copied them.
+> 
+> Probably.
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
