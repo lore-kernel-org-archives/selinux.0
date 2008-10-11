@@ -1,141 +1,60 @@
-Message-ID: <48F02876.3020203@redhat.com>
-Date: Sat, 11 Oct 2008 14:15:50 +1000
+Message-ID: <48F04409.10903@redhat.com>
+Date: Sat, 11 Oct 2008 16:13:29 +1000
 From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>,
-        Glenn Faden <Glenn.Faden@sun.com>, Daniel J Walsh <dwalsh@redhat.com>,
+CC: russell@coker.com.au, Daniel J Walsh <dwalsh@redhat.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: user guide drafts: Maintaining SELinux Labels
-References: <737og9$5vh3i@dmzms99902.na.baesystems.com>	 <48ED4FBC.4020303@redhat.com> <1223643319.25569.23.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1223643319.25569.23.camel@moss-spartans.epoch.ncsc.mil>
+Subject: Re: user guide drafts: Archiving Files with tar/star
+References: <48EDAE09.8070903@redhat.com> <48EDEFB9.9090702@redhat.com>	 <48EE9415.6050902@redhat.com> <200810101251.30094.russell@coker.com.au>	 <48EEB91C.4080205@redhat.com> <1223643459.25569.27.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1223643459.25569.27.camel@moss-spartans.epoch.ncsc.mil>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-> On Thu, 2008-10-09 at 10:26 +1000, Murray McAllister wrote:
->> Clarkson, Mike R (US SSA) wrote:
->>>> -----Original Message-----
->>>> From: owner-selinux@tycho.nsa.gov [mailto:owner-selinux@tycho.nsa.gov]
->>> On
->>>> Behalf Of Glenn Faden
->>>> Sent: Wednesday, October 08, 2008 8:46 AM
->>>> To: Daniel J Walsh
->>>> Cc: Murray McAllister; SE Linux
->>>> Subject: Re: user guide drafts: Maintaining SELinux Labels
->>>>
->>>> Daniel J Walsh wrote:
->>>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>>> Hash: SHA1
+> On Fri, 2008-10-10 at 12:08 +1000, Murray McAllister wrote:
+>> Russell Coker wrote:
+>>> On Friday 10 October 2008 10:30, Murray McAllister <mmcallis@redhat.com> 
+>>> wrote:
+>>>>> tar xvf file.tgz | restorecon -f -
 >>>>>
->>>>> Murray McAllister wrote:
->>>>>
->>>>>> Hi,
->>>>>>
->>>>>> The following are the first few drafts of the "Maintaining SELinux
->>>>>> Labels" sections. Any comments and corrections are appreciated.
->>>>>>
->>>>>> Cheers.
->>>>>>
->>>>>> Copying Files and Directories
->>>>>>
->>>>>> When files and directories are copied, they inherit the SELinux
->>> context
->>>>>> of the parent directory they are copied to. This helps ensure files
->>> and
->>>>>> directories are labeled with the correct SELinux context after
->>> being
->>>>>> moved. The following example demonstrates copying a file from a
->>> user's
->>>>>> home directory to /var/www/html/, which is used by the Apache HTTP
->>>>>> Server. Since the file is copied, it inherits the correct SELinux
->>>> context:
->>>> Is this true when using MLS policy? Assuming the policy allows a
->>> subject
->>>> to create a file in a directory, shouldn't the newly created file's
->>>> SELinux context have the same sensitivity as the subject who wrote it?
->>>> Or is the new file's type copied from the directory and the
->>> sensitivity
->>>> copied from the subject?
->>> You are correct, the type is copied from the directory and the level is
->>> copied from the subject. It might also be worth mentioning that the type
->>> is copied from the directory as default behavior, which can be
->>> overridden with type_transition statements.
+>>>>> Would reset the file context on disk after the extraction.
+>>>> Does this only apply to the tar file itself, not the files in it? On
+>>>> rawhide the extracted files (that have extended attributes) inherit the
+>>>> type of the directory they are being extracted in.
+>>> The "v" option of tar causes it to list on stdout all the files it extracts.
 >>>
->>>> --Glenn
->> I've changed the first paragraph. How about:
->>
->> When files and directories are copied, they inherit the SELinux context 
->> of the parent directory they are copied to[1].
+>>> The -f- option of restorecon makes it take a list of files to relabel on 
+>>> stdin.  So it relabels all files extracted from the tar file.
+>>>
+>>> The inheriting of file contexts from a directory (in the absence of policy 
+>>> rules specifying otherwise) has AFAIK always been the design of SE Linux.
+>> When would "tar | restorecon -f -" be used if files inherit contexts 
+>> from parent directories (if policy has not be changed)? Sorry, I am a 
+>> bit slow :)
 > 
-> Not exactly, no.  The security context of a new file is computed from a
-> combination of the security context of the creating process and the
-> security context of the parent directory, and may further be adjusted by
-> policy rules.  The user identity and level are inherited from the
-> creating process.  The role is always object_r presently.  The type is
-> inherited from the parent directory unless there is a type transition
-> rule in the policy for the (creating process domain, parent directory
-> type, file object class) triple.  For example, when a process creates a
-> file in /tmp, there is usually a type transition rule defined such that
-> each domain gets its own private temporary file type.
+> restorecon consults the file_contexts configuration, which maps pathname
+> regular expressions to the appropriate security context to assign to a
+> file when it is installed.  tar xf foo.tar by itself will merely apply
+> the usual runtime creation logic for file labeling, i.e. compute the
+> context of the new files from the combination of the creating process
+> context (user, level) and the parent directory (type) or type_transition
+> rule.  tar xvf foo.tar | restorecon -f - should reset the file contexts
+> to the original install-time file contexts defined by the file contexts
+> configuration.
 > 
->>  This helps ensure files 
->> and directories are labeled with the correct SELinux context after being 
->> copied. Also, when a file is copied over an existing file, the existing 
->> file's context is maintained.
-> 
-> Unless the user specified options to cp to preserve the context of the
-> original on the copy.
-Thanks. How about:
+How about:
 
-When files and directories are copied, the SELinux context of the new 
-file or directory depends on the context of the creating process, and 
-the context of the target, parent directory: the type is inherited from 
-the target, parent directory (unless a type transition rule exists[1]); 
-the SELinux user identity and level are inherited from the creating 
-process; and the role is always object_r, which is a generic role for 
-files. This helps ensure files and directories are labeled with the 
-correct SELinux context after being copied.
+If a Tar archive contains files without extended attributes, or if you 
+want the extended attributes to match the original, install-time file 
+contexts defined by SELinux policy, run the archive through restorecon:
 
-Also, when a file is copied over an existing file, the existing file's 
-context is maintained, unless the user specified cp options to preserve 
-the context of the original file, such as --preserve=context.
+tar xvf file.tgz | restorecon -f -
 
-#Is the following required, or is it covered by the above:
+Would it be better to always recommend using tar with restorecon?
 
-On systems running the MLS policy, when files and directories are 
-copied, they inherit the type from the parent directory they are being 
-copied to, and the level from the process that copied them.
-
-[1] By default, the type is copied from the parent directory. This 
-behavior can be overridden by using type_transition statements in custom 
-SELinux policies. Type transition rules are for a creating process 
-domain, parent directory type, and file object class triple. For 
-example, when a process creates a file in /tmp/, a type transition rule 
-is usually defined so that each domain gets its own private, temporary 
-file type.
->>  On systems running the MLS policy, when 
->> files are copied, they inherit the type from the parent directory they 
->> are being copied to, and the level from the process that copied them.
->>
->> Is the last sentence, is "the level from the process that copied them" 
->> correct? Should it be "from the process or user that..."?
->>
->> [1] By default, the type is copied from the parent directory. This 
->> behavior can be overridden by using type_transition statements in custom 
->> SELinux policies.
->>
->> I've included an example at the end of the section to show copying a 
->> file over an existing one.
->>
->> Thanks for your feedback.
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
-
+Cheers.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
