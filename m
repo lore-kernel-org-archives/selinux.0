@@ -1,54 +1,42 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9C9suK7030950
-	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2008 05:54:56 -0400
-Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9C9reW7009019
-	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2008 09:53:40 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Justin Mattock" <justinmattock@gmail.com>
-Subject: Re: gdm ubuntu 8.10
-Date: Sun, 12 Oct 2008 19:54:48 +1000
-Cc: "SE Linux" <selinux@tycho.nsa.gov>
-References: <dd18b0c30810112056r5c107307jbcab88d07a382233@mail.gmail.com>
-In-Reply-To: <dd18b0c30810112056r5c107307jbcab88d07a382233@mail.gmail.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9CD779V025068
+	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2008 09:07:07 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9CD76uZ020907
+	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2008 13:07:07 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id m9CD76aT006984
+	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2008 09:07:06 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m9CD75C6015583
+	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2008 09:07:06 -0400
+Received: from vpn-12-132.rdu.redhat.com (vpn-12-132.rdu.redhat.com [10.11.12.132])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id m9CD74Js005004
+	for <selinux@tycho.nsa.gov>; Sun, 12 Oct 2008 09:07:05 -0400
+From: Steve Grubb <sgrubb@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: Capabilities audit field
+Date: Sun, 12 Oct 2008 09:07:07 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200810122054.50829.russell@coker.com.au>
+  charset="us-ascii"
+Message-Id: <200810120907.07511.sgrubb@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 12 October 2008 14:56, "Justin Mattock" <justinmattock@gmail.com> 
-wrote:
-> Hello; for a while I've been using nubuntu,but now have decided
-> to try a full loaded O.S. when using nubuntu  there is no automatic
-> gnome-desktop-manager, normally just a login then choosing a context,
-> then startx.
-> Now with ubuntu there's an automatic login screen with bells and whistles,
->  what is the best way to add pam_selinux.so so I can choose my context,
-> or should I adjust the policy to start in sysadm_r as the default
-> instead of user_r?
+Hi,
 
-Some of the *dm programs have SE Linux support merged (like sshd) so you don't 
-need pam_selinux.so (it may cause problems).  Some of them don't have SE 
-Linux code and therefore do need pam_selinux.so.  Some of them might have the 
-old version of the code in which case the login->user mapping isn't done and 
-things will go wrong (best not to use it in that case).
+I recenetly found out that the kernel now allows more than 32 capabilities. 
+This means I need to update the audit code that inteprets this value given 
+from SE Linux. When I looked over the 2.6.27 kernel code, I found that SE 
+Linux has not updated the capabilities code. Its still being kept as a simple 
+integer in avc.h, but everywhere else I look in the kernel has moved to 
+kernel_cap_t, which is an array. Are patches for moving to kernel_cap_t 
+scheduled for 2.6.28? Are there security implications for not being able to 
+access or control capabilities > 32?
 
-Run ldd and check for libselinux.so, if it's there then you don't want 
-pam_selinux.so - so it's a matter of testing whether the code in question is 
-new enough.  If there is no libselinux.so then you can safely use 
-pam_selinux.so.
-
-Some of the daemons have only recently been fixed in Lenny, so the broken 
-versions may still be in Ubuntu.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
-
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+Thanks,
+-Steve
 
 --
 This message was distributed to subscribers of the selinux mailing list.
