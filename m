@@ -1,36 +1,60 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9ECJj1n028033
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2008 08:19:45 -0400
-Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9ECJjep029220
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2008 12:19:45 GMT
-Message-ID: <48F48E51.7080109@redhat.com>
-Date: Tue, 14 Oct 2008 08:19:29 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Justin Mattock <justinmattock@gmail.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
-Subject: Re: [refpolicy] newrole without even knowing
-References: <dd18b0c30810131504h67a496e7h2247b3bf487d04ec@mail.gmail.com>
-In-Reply-To: <dd18b0c30810131504h67a496e7h2247b3bf487d04ec@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Capabilities audit field
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Steve Grubb <sgrubb@redhat.com>
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov
+In-Reply-To: <200810130635.58500.sgrubb@redhat.com>
+References: <200810120907.07511.sgrubb@redhat.com>
+	 <alpine.LRH.1.10.0810131009520.16356@tundra.namei.org>
+	 <200810130635.58500.sgrubb@redhat.com>
+Content-Type: text/plain
+Date: Tue, 14 Oct 2008 09:35:30 -0400
+Message-Id: <1223991330.5193.16.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Justin Mattock wrote:
-> Hello; is there an application that I can use for
-> newrole, so I dont have to open a terminal?
-> i.g. running firefox I have to open a terminal
-> type newrole -r *_r  <passwd> and then firefox
-> to run. Idealistically I would like to just click on any icon
-> and have them already configured with its role.
-> I've tried in the menu configuration newrole -r *_r && firefox
-> but I receive nothing.
-> Any ideas would be appreciated.
-> regards;
+On Mon, 2008-10-13 at 06:35 -0400, Steve Grubb wrote:
+> On Sunday 12 October 2008 19:12:47 James Morris wrote:
+> > On Sun, 12 Oct 2008, Steve Grubb wrote:
+> > > I recently found out that the kernel now allows more than 32
+> > > capabilities. This means I need to update the audit code that inteprets
+> > > this value given from SE Linux. When I looked over the 2.6.27 kernel
+> > > code, I found that SE Linux has not updated the capabilities code. Its
+> > > still being kept as a simple integer in avc.h, but everywhere else I look
+> > > in the kernel has moved to kernel_cap_t, which is an array. Are patches
+> > > for moving to kernel_cap_t scheduled for 2.6.28? Are there security
+> > > implications for not being able to access or control capabilities > 32?
+> >
+> > The AVC can opnly handle 32-bit vectors, so a capability2 class was added
+> > to handle capabilities over 32-bits.
+> >
+> > See
+> >
+> > http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h
+> >=b68e418c445e8a468634d0a7ca2fb63bbaa74028
 > 
-runcon?  Or write policy to transition automatically.  You can also do
-stuff with sudo.
+> Then does this need some updating in avc.c ?
+> 
+>  570                case AVC_AUDIT_DATA_CAP:
+>  571                        audit_log_format(ab, " capability=%d", a->u.cap);
+>  572                        break;
+
+Just to clarify:  this is reporting the simple integer value of the
+capability (which is not a permission bitmask).  So it doesn't require
+any changes.  For example, for capability 33, this will report
+capability=33.  
+
+That simple integer value is mapped to an index via CAP_TO_INDEX() and
+to a bitmask via CAP_TO_MASK() in order to determine the right class and
+permission bit to check for SELinux (see task_has_capability in
+security/selinux/hooks.c), or to select the right word and bit within
+the cap bitmap to check for capabilities (see cap_raised in
+include/linux/capability.h).
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
