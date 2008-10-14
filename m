@@ -1,55 +1,65 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9EIZQZA007646
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2008 14:35:27 -0400
-Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m9EIYA89015972
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2008 18:34:10 GMT
-Subject: ANN: Reference Policy Release
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Tue, 14 Oct 2008 14:34:20 -0400
-Message-Id: <1224009260.21012.30.camel@gorn>
-Mime-Version: 1.0
+Message-ID: <48F4EE77.3070602@manicmethod.com>
+Date: Tue, 14 Oct 2008 15:09:43 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: k.tymur@samsung.com, "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: Genfscon 'dash' issue
+References: <18936577.156001223949655112.JavaMail.weblogic@epml17> <1223996244.5193.50.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1223996244.5193.50.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-A new release of the SELinux Reference Policy is now available on the
-Tresys OSS site, http://oss.tresys.com.  In this release, support for
-init scripts with different labels was added.  For example, this enables
-an Apache admin to restart only the Apache service, not all services.
-The complete change log for this release follows at the end of the
-email.
+Stephen Smalley wrote:
+> On Tue, 2008-10-14 at 02:00 +0000, korkishko Tymur wrote:
+>   
+>> I have checked policy_parse.y. It has following rule for genfscon:
+>>  
+>> genfs_context_def	: GENFSCON identifier path '-' identifier security_context_def
+>> 	{if (define_genfs_context(1)) return -1;}
+>> 	| GENFSCON identifier path '-' '-' {insert_id("-", 0);} security_context_def
+>> 	{if (define_genfs_context(1)) return -1;}
+>> 	 | GENFSCON identifier path security_context_def
+>> 	{if (define_genfs_context(0)) return -1;} 
+>>
+>> The rule for path definition (in policy_scan.l) has already included '-' (dash):
+>>
+>> "/"({alnum}|[_.-/])*	        { return(PATH); } 
+>>
+>> In my understanding (maybe wrong), path is parsed first (and path might include '-') and only then separate '-' is parsed. 
+>> But it still produces an error if path definition is correct and includes '-'.
+>>
+>> Any ideas/patches how to fix grammar rules are welcomed.
+>>     
+>
+> This looks like a bug in policy_scan.l - we are not escaping (via
+> backslash) special characters in the pattern and thus the "-" (dash) is
+> being interpreted rather than taken literally.  The same would seemingly
+> apply for "." (dot), and would seem relevant not only to PATH but also
+> for IDENTIFIER.  The patch below seems to fix this issue for me:
+>
+> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> index 9bc6e10..b55c659 100644
+> --- a/checkpolicy/policy_scan.l
+> +++ b/checkpolicy/policy_scan.l
+> @@ -207,8 +207,8 @@ policycap |
+>  POLICYCAP			{ return(POLICYCAP); }
+>  permissive |
+>  PERMISSIVE			{ return(PERMISSIVE); }
+> -"/"({alnum}|[_.-/])*	        { return(PATH); }
+> -{letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
+> +"/"({alnum}|[_\.\-/])*	        { return(PATH); }
+> +{letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
+>  {digit}+                        { return(NUMBER); }
+>  {digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
+>  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
+>
+>   
 
-For people interested in helping Reference Policy development, the X
-desktop and user-based role separation areas need attention.
 
-* Tue Oct 14 2008 Chris PeBenito <selinux@tresys.com> - 20081014
-- Debian update for NetworkManager/wpa_supplicant from Martin Orr.
-- Logrotate and Bind updates from Vaclav Ovsik.
-- Init script file and domain support.
-- Glibc 2.7 fix from Vaclav Ovsik.
-- Samba/winbind update from Mike Edenfield.
-- Policy size optimization with a non-security file attribute from James
-  Carter.
-- Database labeled networking update from KaiGai Kohei.
-- Several misc changes from the Fedora policy, cherry picked by David
-  Hardeman.
-- Large whitespace fix from Dominick Grift.
-- Pam_mount fix for local login from Stefan Schulze Frielinghaus.
-- Issuing commands to upstart is over a datagram socket, not the initctl
-  named pipe.  Updated init_telinit() to match.
-- Added modules:
-        cyphesis (Dan Walsh)
-        memcached (Dan Walsh)
-        oident (Dominick Grift)
-        w3c (Dan Walsh)
-
-
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+merged in checkpolicy-2.0.18
 
 
 --
