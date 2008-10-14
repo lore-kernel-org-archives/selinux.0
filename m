@@ -1,62 +1,61 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9EEm6CA027764
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2008 10:48:06 -0400
-Subject: Re: [Labeled-nfs] [RFC v3] Security Label Support for NFSv4
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: "Matthew N. Dodd" <Matthew.Dodd@sparta.com>,
-        James Morris <jmorris@namei.org>, labeled-nfs@linux-nfs.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, viro@zeniv.linux.org.uk,
-        selinux@tycho.nsa.gov
-In-Reply-To: <1223990448.8907.1.camel@localhost>
-References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <alpine.LRH.1.10.0810141014580.26030@tundra.namei.org>
-	 <48F400DD.50905@sparta.com>  <1223990448.8907.1.camel@localhost>
+Subject: Re: Re: Genfscon 'dash' issue
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: k.tymur@samsung.com
+Cc: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+In-Reply-To: <18936577.156001223949655112.JavaMail.weblogic@epml17>
+References: <18936577.156001223949655112.JavaMail.weblogic@epml17>
 Content-Type: text/plain
-Date: Tue, 14 Oct 2008 10:28:44 -0400
-Message-Id: <1223994524.3791.57.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Tue, 14 Oct 2008 10:57:24 -0400
+Message-Id: <1223996244.5193.50.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-10-14 at 09:20 -0400, Trond Myklebust wrote:
-> On Mon, 2008-10-13 at 22:15 -0400, Matthew N. Dodd wrote:
-> > James Morris wrote:
-> > > On Mon, 29 Sep 2008, David P. Quigley wrote:
-> > > 
-> > >> 	* New security flavor (auth_seclabel) to transport process label to
-> > >> 	  server. This is a derivative of auth_unix so it does not support
-> > >> 	  kerberos which has its own issues that need to be dealt with.
-> > > 
-> > > This is a problem, as discussed last year:
-> > > 
-> > > http://linux-nfs.org/pipermail/labeled-nfs/2007-November/000110.html
-> > > 
-> > > We can't require the use of a new auth flavor which is incompatible with 
-> > > auth_gss.
-> > 
-> > auth_seclabel demonstrates the flavor independent changes required for 
-> > any RPC layer process label transport.  A GSS solution is currently 
-> > under discussion.
+On Tue, 2008-10-14 at 02:00 +0000, korkishko Tymur wrote:
+> I have checked policy_parse.y. It has following rule for genfscon:
+>  
+> genfs_context_def	: GENFSCON identifier path '-' identifier security_context_def
+> 	{if (define_genfs_context(1)) return -1;}
+> 	| GENFSCON identifier path '-' '-' {insert_id("-", 0);} security_context_def
+> 	{if (define_genfs_context(1)) return -1;}
+> 	 | GENFSCON identifier path security_context_def
+> 	{if (define_genfs_context(0)) return -1;} 
 > 
-> Right, but I'm not particularly interested in merging "demonstration"
-> code that might end up requiring permanent support. I'd very much like
-> to see all of this get further through the IETF process before we talk
-> about merging into mainline.
+> The rule for path definition (in policy_scan.l) has already included '-' (dash):
 > 
-> Cheers
->   Trond
+> "/"({alnum}|[_.-/])*	        { return(PATH); } 
+> 
+> In my understanding (maybe wrong), path is parsed first (and path might include '-') and only then separate '-' is parsed. 
+> But it still produces an error if path definition is correct and includes '-'.
+> 
+> Any ideas/patches how to fix grammar rules are welcomed.
 
-Hello,
-    Nico seems to have come up with a reasonable solution for this
-problem we just need to sit down and draw up a document for it.
-Apparently he already created a mechanism in rpcsec_gss for allowing you
-to bind the rpc session to more than just the normal credentials. Once
-we finalize this and get it into a draft we will work on implementing it
-in the rpcsec_gss auth flavor.
+This looks like a bug in policy_scan.l - we are not escaping (via
+backslash) special characters in the pattern and thus the "-" (dash) is
+being interpreted rather than taken literally.  The same would seemingly
+apply for "." (dot), and would seem relevant not only to PATH but also
+for IDENTIFIER.  The patch below seems to fix this issue for me:
 
-Dave
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index 9bc6e10..b55c659 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -207,8 +207,8 @@ policycap |
+ POLICYCAP			{ return(POLICYCAP); }
+ permissive |
+ PERMISSIVE			{ return(PERMISSIVE); }
+-"/"({alnum}|[_.-/])*	        { return(PATH); }
+-{letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
++"/"({alnum}|[_\.\-/])*	        { return(PATH); }
++{letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
+ {digit}+                        { return(NUMBER); }
+ {digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
+ {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
