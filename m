@@ -1,38 +1,85 @@
-Date: Tue, 14 Oct 2008 10:31:50 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
-        sds@tycho.nsa.gov, matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
-        bfields@fieldses.org, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org
-Subject: Re: [RFC v3] Security Label Support for NFSv4
-In-Reply-To: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
-Message-ID: <alpine.LRH.1.10.0810141014580.26030@tundra.namei.org>
-References: <1222707986-26606-1-git-send-email-dpquigl@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Tue, 14 Oct 2008 02:00:55 +0000 (GMT)
+From: korkishko Tymur <k.tymur@samsung.com>
+Subject: Re: Re: Genfscon 'dash' issue
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: korkishko Tymur <k.tymur@samsung.com>,
+        "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
+Reply-to: k.tymur@samsung.com
+Message-id: <18936577.156001223949655112.JavaMail.weblogic@epml17>
+MIME-version: 1.0
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 29 Sep 2008, David P. Quigley wrote:
+I have checked policy_parse.y. It has following rule for genfscon:
+ 
+genfs_context_def	: GENFSCON identifier path '-' identifier security_context_def
+	{if (define_genfs_context(1)) return -1;}
+	| GENFSCON identifier path '-' '-' {insert_id("-", 0);} security_context_def
+	{if (define_genfs_context(1)) return -1;}
+	 | GENFSCON identifier path security_context_def
+	{if (define_genfs_context(0)) return -1;} 
 
-> 	* New security flavor (auth_seclabel) to transport process label to
-> 	  server. This is a derivative of auth_unix so it does not support
-> 	  kerberos which has its own issues that need to be dealt with.
+The rule for path definition (in policy_scan.l) has already included '-' (dash):
 
-This is a problem, as discussed last year:
+"/"({alnum}|[_.-/])*	        { return(PATH); } 
 
-http://linux-nfs.org/pipermail/labeled-nfs/2007-November/000110.html
+In my understanding (maybe wrong), path is parsed first (and path might include '-') and only then separate '-' is parsed. 
+But it still produces an error if path definition is correct and includes '-'.
 
-We can't require the use of a new auth flavor which is incompatible with 
-auth_gss.
+Any ideas/patches how to fix grammar rules are welcomed.
+
+Tymur Korkishko
+
+P.S.
+Also if '--' or '-d' are available in genfscon with '-' in path name, policy compiler fails: 
+genfscon          cramfs /usr/sbin/an-app    --       user_u:system_r:my_app_t
+genfscon          cramfs /usr/sbin/an-app    -d       user_u:system_r:my_app_t
 
 
-- James
+
+------- Original Message -------
+Sender : Stephen Smalley<sds@tycho.nsa.gov>
+Date   : Oct 10, 2008 21:45 (GMT+09:00)
+Title  : Re: Genfscon &#39;dash&#39; issue
+
+On Fri, 2008-10-10 at 05:07 +0000, korkishko Tymur wrote:
+> Hello! 
+> 
+> I have Linux kernel 2.6.26 with a patch from NSA that allows genfscon support of security contexts for directories/files (others than / ). 
+> I use genfscon to label files/directories on cramfs filesystem(read-only filesystem) that does not support xattr. 
+> 
+> It seems that current genfscon implementation does not support “–“(dash) in path names. If I try to compile policy containing this line: 
+> genfscon          cramfs /usr/sbin/an-app           user_u:system_r:my_app_t 
+> 
+> I will get an syntax error from checkpolicy aboutusing “– “ (dash) in the path:
+> ERROR ‘invalid type app’ at token ‘genfscon’ on line... 
+> 
+> So, could you please suggest a way to fix theissue with “– “ (dash) and genfscon? 
+> 
+> Unfortunately, it is not possible to change “–“(dash) to “_” (underbar) in path names.  
+
+You&#39;d have to change policy_parse.y in checkpolicy; at present, it
+treats a "-" followed by an identifier as a file type flag (e.g. -d to
+only match directories, -b to only match block device files, ...)
+similar to the file_contexts specification.
+
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+the words "unsubscribe selinux" without quotes as the message.
+
+ 
+ 
+ 
+ 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
