@@ -1,48 +1,77 @@
-Subject: Re: Genfscon and cramfs issue
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: k.tymur@samsung.com
-Cc: SELinux@tycho.nsa.gov
-In-Reply-To: <1224074989.15903.11.camel@moss-spartans.epoch.ncsc.mil>
-References: <26901264.215431224035436346.JavaMail.weblogic@epml03>
-	 <1224074989.15903.11.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 15 Oct 2008 08:58:50 -0400
-Message-Id: <1224075530.15903.18.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <48F60777.8060707@manicmethod.com>
+Date: Wed, 15 Oct 2008 11:08:39 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: k.tymur@samsung.com, "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>,
+        Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: Genfscon 'dash' issue
+References: <18936577.156001223949655112.JavaMail.weblogic@epml17> <1223996244.5193.50.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1223996244.5193.50.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-10-15 at 08:49 -0400, Stephen Smalley wrote:
-> On Wed, 2008-10-15 at 01:50 +0000, korkishko Tymur wrote:
-> > I have discovered an issue with using genfscon for labeling cramfs filesystem.
-> > 
-> > I have Linux kernel 2.6.26 with a patch from NSA that allows genfscon support of security contexts for directories/files (others than/ ). 
-> > I use genfscon to label files/directories on cramfsfilesystem(read-only filesystem) that does not support xattr.  
-> > 
-> > Cramfs filesystem has following behavior: for two files with different names but with the same file content it assigns single inode.  
-> > Example:
-> > genfscon cramfs /usr/file_one       user_u:system_r:file_one_t
-> > genfscon cramfs /usr/file_two       user_u:system_r:file_two_t 
-> > 
-> > file-one and file-two have the same content (e.g. Hello world).
-> > file-one and file-two share the same inode on cramfs. 
-> > 
-> > As a result, two files might have the _same_ security context  - either ...:file_one_t or ...:file_two_t.
-> > If file  /usr/file_one is accessed first, user_u:system_r:file_one_t is used for both files.
-> > If file  /usr/file_two is accessed first, user_u:system_r:file_two_t is used for both files. 
-> > 
-> > Any ideas how to fix/deal with that issue are welcomed. 
-> 
-> Why use two different security context for files that have the same
-> content?
+Stephen Smalley wrote:
+> On Tue, 2008-10-14 at 02:00 +0000, korkishko Tymur wrote:
+>   
+>> I have checked policy_parse.y. It has following rule for genfscon:
+>>  
+>> genfs_context_def	: GENFSCON identifier path '-' identifier security_context_def
+>> 	{if (define_genfs_context(1)) return -1;}
+>> 	| GENFSCON identifier path '-' '-' {insert_id("-", 0);} security_context_def
+>> 	{if (define_genfs_context(1)) return -1;}
+>> 	 | GENFSCON identifier path security_context_def
+>> 	{if (define_genfs_context(0)) return -1;} 
+>>
+>> The rule for path definition (in policy_scan.l) has already included '-' (dash):
+>>
+>> "/"({alnum}|[_.-/])*	        { return(PATH); } 
+>>
+>> In my understanding (maybe wrong), path is parsed first (and path might include '-') and only then separate '-' is parsed. 
+>> But it still produces an error if path definition is correct and includes '-'.
+>>
+>> Any ideas/patches how to fix grammar rules are welcomed.
+>>     
+>
+> This looks like a bug in policy_scan.l - we are not escaping (via
+> backslash) special characters in the pattern and thus the "-" (dash) is
+> being interpreted rather than taken literally.  The same would seemingly
+> apply for "." (dot), and would seem relevant not only to PATH but also
+> for IDENTIFIER.  The patch below seems to fix this issue for me:
+>
+> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> index 9bc6e10..b55c659 100644
+> --- a/checkpolicy/policy_scan.l
+> +++ b/checkpolicy/policy_scan.l
+> @@ -207,8 +207,8 @@ policycap |
+>  POLICYCAP			{ return(POLICYCAP); }
+>  permissive |
+>  PERMISSIVE			{ return(PERMISSIVE); }
+> -"/"({alnum}|[_.-/])*	        { return(PATH); }
+> -{letter}({alnum}|[_-])*([.]?({alnum}|[_-]))*	{ return(IDENTIFIER); }
+> +"/"({alnum}|[_\.\-/])*	        { return(PATH); }
+> +{letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
+>  {digit}+                        { return(NUMBER); }
+>  {digit}{1,3}(\.{digit}{1,3}){3}    { return(IPV4_ADDR); }
+>  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
+>
+>   
+It looks like I merged this a little hastily. According to the regex manual:
 
-Oh, and what is responsible for the aliasing of the files here - the
-program that creates the cramfs image originally or the kernel's cramfs
-filesystem implementation itself?
+Character ranges can also be included in a character set, by writing two 
+characters with a - between them. Thus, [a-z] matches any lower-case 
+letter. Ranges may be intermixed freely with individual characters, as 
+in [a-z$%.], which matches any lower case letter or $, % or period.
 
--- 
-Stephen Smalley
-National Security Agency
+Note that the usual special characters are not special any more inside a 
+character set. A completely different set of special characters exists 
+inside character sets: ], - and ^
+
+
+Therefore \. in a character set means both '\' and '.' are allowed. The 
+standard way to add a dash to the character set is to put it last. I'll 
+update the patch when I have a chance.
 
 
 --
