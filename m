@@ -1,98 +1,86 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9F3wj6V013357
-	for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2008 23:58:45 -0400
-Received: from wf-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9F3wiH6016775
-	for <selinux@tycho.nsa.gov>; Wed, 15 Oct 2008 03:58:45 GMT
-Received: by wf-out-1314.google.com with SMTP id 28so3729532wff.30
-        for <selinux@tycho.nsa.gov>; Tue, 14 Oct 2008 20:58:44 -0700 (PDT)
-Message-ID: <dd18b0c30810142058v76b83aacw2adbbd7a74aa14fc@mail.gmail.com>
-Date: Tue, 14 Oct 2008 20:58:44 -0700
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: tresys <refpolicy@oss.tresys.com>
-Subject: keep getting the same avc denial: tmpfs_t:dir search;
-Cc: "SE Linux" <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: user guide drafts: Maintaining SELinux Labels
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Murray McAllister <mmcallis@redhat.com>
+Cc: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>,
+        Glenn Faden <Glenn.Faden@sun.com>, Daniel J Walsh <dwalsh@redhat.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <48F547BE.7070201@redhat.com>
+References: <737og9$5vh3i@dmzms99902.na.baesystems.com>
+	 <48ED4FBC.4020303@redhat.com>
+	 <1223643319.25569.23.camel@moss-spartans.epoch.ncsc.mil>
+	 <48F02876.3020203@redhat.com>
+	 <1223993726.5193.41.camel@moss-spartans.epoch.ncsc.mil>
+	 <48F547BE.7070201@redhat.com>
+Content-Type: text/plain
+Date: Wed, 15 Oct 2008 08:45:52 -0400
+Message-Id: <1224074752.15903.6.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-With the latest refpolicy I keep receiving these avc's:
+On Wed, 2008-10-15 at 11:30 +1000, Murray McAllister wrote:
+> Stephen Smalley wrote:
+> > 2) the file security context may not be allowed to exist within the
+> > target file system (e.g. top secret file may not be created within a
+> > filesystem capped at secret, passwd_exec_t file may not be created on
+> > removable media).
+> Is that because of the file systems on most removable media, or 
+> something else?
+> 
+> I made an ext3 file system on an USB drive, and "cp --preserve=context 
+> /usr/bin/passwd /removable/media" preserved the passwd_exect_t type. I 
+> tested this on Red Hat Enterprise Linux 5.2 and Fedora Rawhide.
 
-[   14.555115] type=1400 audit(1224041938.550:3): avc:  denied  {
-getattr } for  pid=1392 comm="alsa-utils" path="/var/lib/alsa"
-dev=sda1 ino=2146537 scontext=system_u:system_r:udev_t
-tcontext=system_u:object_r:alsa_var_lib_t tclass=dir
-[   14.575795] type=1300 audit(1224041938.550:3): arch=40000003
-syscall=195 success=yes exit=0 a0=806082c a1=bfd2d50c a2=b7efcff4
-a3=806082c items=0 ppid=1 pid=1392 auid=4294967295 uid=0 gid=0 euid=0
-suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295
-comm="alsa-utils" exe="/bin/dash" subj=system_u:system_r:udev_t
-key=(null)
-[   14.642388] type=1400 audit(1224041938.640:4): avc:  denied  {
-search } for  pid=1392 comm="alsa-utils" name="alsa" dev=sda1
-ino=2146537 scontext=system_u:system_r:udev_t
-tcontext=system_u:object_r:alsa_var_lib_t tclass=dir
-[   14.665440] type=1400 audit(1224041938.640:4): avc:  denied  {
-getattr } for  pid=1392 comm="alsa-utils"
-path="/var/lib/alsa/asound.state" dev=sda1 ino=2146748
-scontext=system_u:system_r:udev_t
-tcontext=system_u:object_r:alsa_var_lib_t tclass=file
-[   14.689253] type=1300 audit(1224041938.640:4): arch=40000003
-syscall=195 success=yes exit=0 a0=8062d4c a1=bfd2d39c a2=b7efcff4
-a3=8062d4c items=0 ppid=1 pid=1392 auid=4294967295 uid=0 gid=0 euid=0
-suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295
-comm="alsa-utils" exe="/bin/dash" subj=system_u:system_r:udev_t
-key=(null)
-[   14.728721] type=1400 audit(1224041938.725:5): avc:  denied  {
-search } for  pid=1407 comm="alsactl" name="/" dev=tmpfs ino=1721
-scontext=system_u:system_r:alsa_t tcontext=system_u:object_r:tmpfs_t
-tclass=dir
-[   14.753962] type=1300 audit(1224041938.725:5): arch=40000003
-syscall=5 success=yes exit=3 a0=bf93db82 a1=0 a2=1e a3=bf93db82
-items=0 ppid=1392 pid=1407 auid=4294967295 uid=0 gid=0 euid=0 suid=0
-fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="alsactl"
-exe="/sbin/alsactl" subj=system_u:system_r:alsa_t key=(null)
-[   14.800199] usb 1-2: USB disconnect, address 2
-[   14.800324] usbcore: registered new interface driver appletouch
-[   14.827628] usbcore: registered new interface driver uvcvideo
-[   14.841746] USB Video Class driver (v0.1.0)
-[   14.948734] type=1400 audit(1224041938.942:6): avc:  denied  {
-search } for  pid=1454 comm="hwclock" name="/" dev=tmpfs ino=1721
-scontext=system_u:system_r:hwclock_t
-tcontext=system_u:object_r:tmpfs_t tclass=dir
-[   14.976585] type=1300 audit(1224041938.942:6): arch=40000003
-syscall=5 success=no exit=-2 a0=804db7e a1=8000 a2=0 a3=8000 items=0
-ppid=1451 pid=1454 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0
-egid=0 sgid=0 fsgid=0 tty=tty1 ses=4294967295 comm="hwclock"
-exe="/sbin/hwclock" subj=system_u:system_r:hwclock_t key=(null)
-[   15.085240] SELinux: initialized (dev tmpfs, type tmpfs), uses
-transition SIDs
-[   15.110068] usb 3-2: USB disconnect, address 2
-[   15.163081] type=1400 audit(1224041939.162:7): avc:  denied  { read
-write } for  pid=1506 comm="modprobe" name="console" dev=sda1
-ino=32780 scontext=system_u:system_r:insmod_t
-tcontext=system_u:object_r:file_t tclass=chr_file
+That's because you didn't mount that filesystem with a context= mount
+option.  Which hald and friends ought to do for removable media by
+default.  There are two situations:
+- the filesystem on the removable media may not support extended
+attributes at all, or
+- the filesystem on the removable media may support them but we may not
+want to trust removable media in the same way we apply nosuid nodev
+typically when mounting it.
 
-audit2allow -d reports:
+> I started the section again. Hopefully it is almost right now :(
+> 
+> Copying Files and Directories
+> 
+> When a file or directory is copied, a new file or directory is created 
+> if it does not exist. That new file or directory's context is based on 
+> default-labeling rules, not the original file or directory's context 
+> (unless options were used to preserve the original context). For 
+> example, files created in user home directories are labeled with the 
+> user_home_t type:
+> 
+> $ touch file1
+> $ ls -Z file1
+> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0 file1
+> 
+> If such a file is copied to another directory, such as /etc/, the new 
+> file is created in accordance to default-labeling rules for the /etc/ 
+> directory. Copying a file (without additional options) may not preserve 
+> the original context:
+> 
+> $ ls -Z file1
+> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0 file1
+> # cp file1 /etc/
+> $ ls -Z /etc/file1
+> -rw-r--r--  root root unconfined_u:object_r:etc_t:s0   /etc/file1
+> 
+> When file1 is copied to /etc/, if /etc/file1 does not exist, /etc/file1 
+> is created as a new file. As shown in the example above, /etc/file1 is 
+> labeled with the etc_t type, in accordance to default-labeling rules.
+> 
+> When a file is copied over an existing file, the existing file's context 
+> is preserved, unless the user specified cp options to preserve the 
+> context of the original file, such as --preserve=context. SELinux policy 
+> may prevent contexts from being preserved during copies.
 
-allow hwclock_t tmpfs_t:dir search;
-allow alsa_t tmpfs_t:dir search;
-allow udev_t alsa_var_lib_t:dir { getattr search };
-allow udev_t alsa_var_lib_t:file getattr;
-
-With the previous refpolicy I do remember these showing up but never
-had an issue of reappearing
-after defining.
-At first I thought it might be a boolean rejecting something, but
-after setting true to all of them this still appears. could gvfs be
-causing this?
-Any ideas would be appreciated.
-regards;
-
+Sounds better.
 
 -- 
-Justin P. Mattock
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
