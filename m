@@ -1,81 +1,38 @@
-Subject: Re: user guide drafts: Maintaining SELinux Labels
+Subject: Re: Genfscon and cramfs issue
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Murray McAllister <mmcallis@redhat.com>
-Cc: "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>,
-        Glenn Faden <Glenn.Faden@sun.com>, Daniel J Walsh <dwalsh@redhat.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <48F547BE.7070201@redhat.com>
-References: <737og9$5vh3i@dmzms99902.na.baesystems.com>
-	 <48ED4FBC.4020303@redhat.com>
-	 <1223643319.25569.23.camel@moss-spartans.epoch.ncsc.mil>
-	 <48F02876.3020203@redhat.com>
-	 <1223993726.5193.41.camel@moss-spartans.epoch.ncsc.mil>
-	 <48F547BE.7070201@redhat.com>
+To: k.tymur@samsung.com
+Cc: SELinux@tycho.nsa.gov
+In-Reply-To: <26901264.215431224035436346.JavaMail.weblogic@epml03>
+References: <26901264.215431224035436346.JavaMail.weblogic@epml03>
 Content-Type: text/plain
-Date: Wed, 15 Oct 2008 08:45:52 -0400
-Message-Id: <1224074752.15903.6.camel@moss-spartans.epoch.ncsc.mil>
+Date: Wed, 15 Oct 2008 08:49:49 -0400
+Message-Id: <1224074989.15903.11.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-10-15 at 11:30 +1000, Murray McAllister wrote:
-> Stephen Smalley wrote:
-> > 2) the file security context may not be allowed to exist within the
-> > target file system (e.g. top secret file may not be created within a
-> > filesystem capped at secret, passwd_exec_t file may not be created on
-> > removable media).
-> Is that because of the file systems on most removable media, or 
-> something else?
+On Wed, 2008-10-15 at 01:50 +0000, korkishko Tymur wrote:
+> I have discovered an issue with using genfscon for labeling cramfs filesystem.
 > 
-> I made an ext3 file system on an USB drive, and "cp --preserve=context 
-> /usr/bin/passwd /removable/media" preserved the passwd_exect_t type. I 
-> tested this on Red Hat Enterprise Linux 5.2 and Fedora Rawhide.
+> I have Linux kernel 2.6.26 with a patch from NSA that allows genfscon support of security contexts for directories/files (others than/ ). 
+> I use genfscon to label files/directories on cramfsfilesystem(read-only filesystem) that does not support xattr.  
+> 
+> Cramfs filesystem has following behavior: for two files with different names but with the same file content it assigns single inode.  
+> Example:
+> genfscon cramfs /usr/file_one       user_u:system_r:file_one_t
+> genfscon cramfs /usr/file_two       user_u:system_r:file_two_t 
+> 
+> file-one and file-two have the same content (e.g. Hello world).
+> file-one and file-two share the same inode on cramfs. 
+> 
+> As a result, two files might have the _same_ security context  - either ...:file_one_t or ...:file_two_t.
+> If file  /usr/file_one is accessed first, user_u:system_r:file_one_t is used for both files.
+> If file  /usr/file_two is accessed first, user_u:system_r:file_two_t is used for both files. 
+> 
+> Any ideas how to fix/deal with that issue are welcomed. 
 
-That's because you didn't mount that filesystem with a context= mount
-option.  Which hald and friends ought to do for removable media by
-default.  There are two situations:
-- the filesystem on the removable media may not support extended
-attributes at all, or
-- the filesystem on the removable media may support them but we may not
-want to trust removable media in the same way we apply nosuid nodev
-typically when mounting it.
-
-> I started the section again. Hopefully it is almost right now :(
-> 
-> Copying Files and Directories
-> 
-> When a file or directory is copied, a new file or directory is created 
-> if it does not exist. That new file or directory's context is based on 
-> default-labeling rules, not the original file or directory's context 
-> (unless options were used to preserve the original context). For 
-> example, files created in user home directories are labeled with the 
-> user_home_t type:
-> 
-> $ touch file1
-> $ ls -Z file1
-> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0 file1
-> 
-> If such a file is copied to another directory, such as /etc/, the new 
-> file is created in accordance to default-labeling rules for the /etc/ 
-> directory. Copying a file (without additional options) may not preserve 
-> the original context:
-> 
-> $ ls -Z file1
-> -rw-rw-r--  user1 group1 unconfined_u:object_r:user_home_t:s0 file1
-> # cp file1 /etc/
-> $ ls -Z /etc/file1
-> -rw-r--r--  root root unconfined_u:object_r:etc_t:s0   /etc/file1
-> 
-> When file1 is copied to /etc/, if /etc/file1 does not exist, /etc/file1 
-> is created as a new file. As shown in the example above, /etc/file1 is 
-> labeled with the etc_t type, in accordance to default-labeling rules.
-> 
-> When a file is copied over an existing file, the existing file's context 
-> is preserved, unless the user specified cp options to preserve the 
-> context of the original file, such as --preserve=context. SELinux policy 
-> may prevent contexts from being preserved during copies.
-
-Sounds better.
+Why use two different security context for files that have the same
+content?
 
 -- 
 Stephen Smalley
