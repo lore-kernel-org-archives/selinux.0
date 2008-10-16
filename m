@@ -1,44 +1,78 @@
-Subject: Re: Re: Genfscon and cramfs issue
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: k.tymur@samsung.com
-Cc: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
-In-Reply-To: <32740110.270851224113217282.JavaMail.weblogic@epml11>
-References: <32740110.270851224113217282.JavaMail.weblogic@epml11>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9GCohCW032178
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2008 08:50:43 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m9GCnKlp027138
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2008 12:49:24 GMT
+Subject: Re: Use of optional_policy in templates (compiler bug or feature?)
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Joe Nall <joe@nall.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <842B0735-FCD6-4BAF-B8D3-A462B1D5C9E4@nall.com>
+References: <CDFE55B0-379E-4CC5-AA3F-03FC6B622DF1@nall.com>
+	 <1224096411.21012.46.camel@gorn.columbia.tresys.com>
+	 <842B0735-FCD6-4BAF-B8D3-A462B1D5C9E4@nall.com>
 Content-Type: text/plain
-Date: Thu, 16 Oct 2008 08:50:04 -0400
-Message-Id: <1224161404.9247.2.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 16 Oct 2008 08:49:27 -0400
+Message-Id: <1224161367.21012.57.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-10-15 at 23:26 +0000, korkishko Tymur wrote:
-> According to my understanding, on the step of creating cramfs image, all files that will go into that image are analyzed by mkcramfs software. 
-> If identical files are found, only single copy of the file is
-> compressed and preserved in the image.
-
-I suspect that mkcramfs is responsible for creating the two links as
-hard links to the same inode when it creates the image.  So I would
-suggest looking into mkcramfs and see if you can modify it or invoke it
-with options to not hard link the files you want to keep separate.
-
->  Filesystem entry point (inode) on cramfs image has information about
-> path names of the same files. I suspect that cramfs implementation in
-> kernel dynamically searches for file names and provides them from the
-> single inode.
+On Wed, 2008-10-15 at 14:59 -0500, Joe Nall wrote:
+> On Oct 15, 2008, at 1:46 PM, Christopher J. PeBenito wrote:
 > 
-> If I type ls -i command in Linux (to list inodes for files) for cramfs filesystem that contains identical files file_one and file_two located in different directories (dir_one and dir_two) I will get output like that:
-> #ls -li dir_one
-> 756 -r--r--r-- 1 user user 1234 date time file_one
-> #ls -li dir_two
-> 756 -r--r--r-- 1 user user 1234 date time file_two
-> So, inode number is the same for the two files. Same is applied to the case if two files are within the same directory.
+> > On Wed, 2008-10-15 at 11:02 -0500, Joe Nall wrote:
+> >> Is it legitimate to define a type within an optional_policy within a
+> >> template?
+> >
+> > Yes.
+> >
+> >> I ask because there are a number of compile issues with policy that
+> >> look like:
+> >>
+> >> template(`wm_domain_template',`
+> >> ...
+> >>         optional_policy(`
+> >>                 dbus_system_bus_client_template($1_wm,$1_wm_t)
+> >> # does not compile
+> >> #               dbus_user_bus_client_template($1,$1_wm,$1_wm_t)
+> >>         ')
+> >> ...
+> >> ')
+> >
+> > I can't reproduce this by just adding it to a random module; there are
+> > likely more factors that just the above template calls.
 > 
-> Tymur Korkishko
-> Samsung Electronics
+> Using stock Fedora targeted policy:
+> 
+> policy_module(swo,1.0.0)
+> 
+> userdom_unpriv_user_template(swo)
+> dbus_chat_user_bus(swo,swo_t)
+
+Well this is a weird case, because you have this situation:
+
+optional {
+	# optionally declare the type
+	# from userdom_unpriv_user_template(swo)
+	type swo_dbusd_t;
+}
+
+# unconditionally require the type for this module
+# from dbus_chat_user_bus(swo,swo_t)
+require {
+	type swo_dbusd_t;
+}
+
+
+but even if you make the second interface call optional too, you'll
+still get the compile error.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
