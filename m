@@ -1,53 +1,60 @@
-Subject: Re: Re: Genfscon and cramfs issue
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: k.tymur@samsung.com
-Cc: "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
-In-Reply-To: <1224161404.9247.2.camel@moss-spartans.epoch.ncsc.mil>
-References: <32740110.270851224113217282.JavaMail.weblogic@epml11>
-	 <1224161404.9247.2.camel@moss-spartans.epoch.ncsc.mil>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9GJ2aJX007486
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2008 15:02:36 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id m9GJ1DDM016647
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2008 19:01:17 GMT
+Subject: Re: (u|r)bacsep: initial testing
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov
+In-Reply-To: <1216224735.21191.50.camel@gorn>
+References: <1216224735.21191.50.camel@gorn>
 Content-Type: text/plain
-Date: Thu, 16 Oct 2008 13:18:24 -0400
-Message-Id: <1224177504.9247.96.camel@moss-spartans.epoch.ncsc.mil>
+Date: Thu, 16 Oct 2008 15:01:13 -0400
+Message-Id: <1224183673.21012.64.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-10-16 at 08:50 -0400, Stephen Smalley wrote:
-> On Wed, 2008-10-15 at 23:26 +0000, korkishko Tymur wrote:
-> > According to my understanding, on the step of creating cramfs image, all files that will go into that image are analyzed by mkcramfs software. 
-> > If identical files are found, only single copy of the file is
-> > compressed and preserved in the image.
+On Wed, 2008-07-16 at 12:12 -0400, Christopher J. PeBenito wrote:
+> For those that are interested, the SELinux user-based separation policy
+> is ready for some initial testing.  It can be checked out from the
+> rbacsep branch of the refpolicy SVN repo.  Not all of the type aliases
+> are in place for compatibility yet, so switching from an existing policy
+> should be done in permissive.
 > 
-> I suspect that mkcramfs is responsible for creating the two links as
-> hard links to the same inode when it creates the image.  So I would
-> suggest looking into mkcramfs and see if you can modify it or invoke it
-> with options to not hard link the files you want to keep separate.
-
-I looked at the mkfs.cramfs.c source code in util-linux-ng
-(disk-utils/mkfs.cramfs.c) and it has an eliminate_doubles() function
-that scans for duplicate files and coalesces them to save space in the
-image.  So you could change or skip that function to avoid coalescing
-files that you need to keep separate.  It appears to entirely be a
-userland issue for saving space in the image, not a kernel issue.
-
-> >  Filesystem entry point (inode) on cramfs image has information about
-> > path names of the same files. I suspect that cramfs implementation in
-> > kernel dynamically searches for file names and provides them from the
-> > single inode.
-> > 
-> > If I type ls -i command in Linux (to list inodes for files) for cramfs filesystem that contains identical files file_one and file_two located in different directories (dir_one and dir_two) I will get output like that:
-> > #ls -li dir_one
-> > 756 -r--r--r-- 1 user user 1234 date time file_one
-> > #ls -li dir_two
-> > 756 -r--r--r-- 1 user user 1234 date time file_two
-> > So, inode number is the same for the two files. Same is applied to the case if two files are within the same directory.
-> > 
-> > Tymur Korkishko
-> > Samsung Electronics
+> A question that comes up is how exactly to to determine which types
+> should be constrained by ubac.  The obvious answer would seem to be that
+> if the user isn't system_u, then there should be ubac constraints on the
+> access check.  But the problem is that creating new files gets your
+> selinux user on files.  So if you look in /etc, you're likely to see non
+> system_u files, such as ld.so.cache.  The problem is that we don't want
+> ubac constraints on these files.  In addition, since there is no
+> run_init on redhat (and possibly other distros) machines, restarted
+> services would get non system_u users, which would also cause problems.
 > 
+> My current implementation is actually more of an allow by default setup,
+> where types are explicitly marked as being ubac constrained.  Obviously
+> deny by default would be preferred, but that would require all exempted
+> types to be marked instead.  The problem is the number of exempted types
+> far outnumbers the constrained types.  I'm open to suggestions on
+> tweaking this design, especially if it gets us a deny by default without
+> the pain of marking most types in the policy as exempted.
+
+ping
+
+This is the last call.  I have not heard any comments from the
+community.  User-based separations have finished going through vetting
+interally at Tresys; I plan to finalize this and then merge it into
+trunk in the next week or so unless there are any objections raised.
+
+This really needs to be tested by people whose projects depend on proper
+role separations.
+
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
