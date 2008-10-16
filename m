@@ -1,75 +1,77 @@
-Date: Wed, 15 Oct 2008 23:26:57 +0000 (GMT)
-From: korkishko Tymur <k.tymur@samsung.com>
-Subject: Re: Re: Genfscon and cramfs issue
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: korkishko Tymur <k.tymur@samsung.com>,
-        "SELinux@tycho.nsa.gov" <SELinux@tycho.nsa.gov>
-Reply-to: k.tymur@samsung.com
-Message-id: <32740110.270851224113217282.JavaMail.weblogic@epml11>
-MIME-version: 1.0
-MIME-version: 1.0
-Content-type: text/plain; charset=windows-1252
+Message-ID: <48F68A5A.1070108@redhat.com>
+Date: Thu, 16 Oct 2008 10:27:06 +1000
+From: Murray McAllister <mmcallis@redhat.com>
+MIME-Version: 1.0
+To: Eric Paris <eparis@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+        dwalsh@redhat.com
+Subject: Re: user guide drafts: "Mounting File Systems"
+References: <48EF03BA.90901@redhat.com>	 <1223644300.25569.41.camel@moss-spartans.epoch.ncsc.mil> <1223646314.8664.34.camel@localhost.localdomain>
+In-Reply-To: <1223646314.8664.34.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-According to my understanding, on the step of creating cramfs image, all files that will go into that image are analyzed by mkcramfs software. 
-If identical files are found, only single copy of the file is compressed and preserved in the image. Filesystem entry point (inode) on cramfs image has information about path names of the same files. I suspect that cramfs implementation in kernel dynamically searches for file names and provides them from the single inode.
+Eric Paris wrote:
+> On Fri, 2008-10-10 at 09:11 -0400, Stephen Smalley wrote:
+>> On Fri, 2008-10-10 at 17:26 +1000, Murray McAllister wrote:
 
-If I type ls -i command in Linux (to list inodes for files) for cramfs filesystem that contains identical files file_one and file_two located in different directories (dir_one and dir_two) I will get output like that:
-#ls -li dir_one
-756 -r--r--r-- 1 user user 1234 date time file_one
-#ls -li dir_two
-756 -r--r--r-- 1 user user 1234 date time file_two
-So, inode number is the same for the two files. Same is applied to the case if two files are within the same directory.
-
-Tymur Korkishko
-Samsung Electronics
- 
- 
-
-------- Original Message -------
-Sender : Stephen Smalley<sds@tycho.nsa.gov>
-Date   : Oct 15, 2008 21:58 (GMT+09:00)
-Title  : Re: Genfscon and cramfs issue
-
-On Wed, 2008-10-15 at 08:49 -0400, Stephen Smalley wrote:
-> On Wed, 2008-10-15 at 01:50 +0000, korkishko Tymur wrote:
-> > I have discovered an issue with using genfscon for labeling cramfs filesystem.
-> > 
-> > I have Linux kernel 2.6.26 with a patch from NSA that allows genfscon support of security contexts for directories/files (others than/ ). 
-> > I use genfscon to label files/directories on cramfsfilesystem(read-only filesystem) that does not support xattr.  
-> > 
-> > Cramfs filesystem has following behavior: for two files with different names but with the same file content it assigns single inode.  
-> > Example:
-> > genfscon cramfs /usr/file_one       user_u:system_r:file_one_t
-> > genfscon cramfs /usr/file_two       user_u:system_r:file_two_t 
-> > 
-> > file-one and file-two have the same content (e.g. Hello world).
-> > file-one and file-two share the same inode on cramfs. 
-> > 
-> > As a result, two files might have the _same_ security context  - either ...:file_one_t or ...:file_two_t.
-> > If file  /usr/file_one is accessed first, user_u:system_r:file_one_t is used for both files.
-> > If file  /usr/file_two is accessed first, user_u:system_r:file_two_t is used for both files. 
-> > 
-> > Any ideas how to fix/deal with that issue are welcomed. 
+>>> * Context changes are written to disk, and are not lost if the file 
+>>> system is unmounted. Newly-created files and files copied to such a file 
+>>> system inherit the SELinux context specified with the -o defcontext 
+>>> option. For example, if a file system is mounted with the -o 
+>>> defcontext="system_u:object_r:httpd_sys_content_t:s0" option, and a new 
+>>> file is created on the mounted file system, that file is labeled with 
+>>> the httpd_sys_content_t type. If the file system is unmounted and then 
+>>> mounted without a context option, that file is still labeled with the 
+>>> httpd_sys_content_t type.
 > 
-> Why use two different security context for files that have the same
-> content?
+> I didn't know this 
+You're not supposed to. It is wrong. Don't believe what I say :)
 
-Oh, and what is responsible for the aliasing of the files here - the
-program that creates the cramfs image originally or the kernel&#39;s cramfs
-filesystem implementation itself?
+(am I supposed to admit that?)  I always thought
+> normal label inheritance still took place even with defcontext=.
+> Anyway, if you can double check that would be great...
+> 
+> mount -o httpd_sys_context_t
+> mkdir testdir/
+> chcon tmp_t testdir/
+> touch testdir/file
+> ls -lZ testdir/
+> 
+> if file is httpd_sys_context_t you are right.  if file is tmp_t normal
+> inheritance took place....
+Inheritance took place. I don't remember what I did last time to think 
+otherwise.
+> 
+> Its not relevant to 99% of people at this time (same for defcontext and
+> rootcontext), but that might change if we start making better policies
+> to protect against accidental information leakage. All three should get
+> a short blurb, context= needs the most description.  The most
+> interesting use of fscontext is the 'associate' permission check.  It
+> allows you to say that things labeled company_confidential_t are not
+> allowed to be saved on a filesystem with fscontext=removable_media_t.
+> We don't make much (any?) use of this feature, but fscontext is a very
+> general label controlling the entire fs, can it be mounted, can certain
+> data be written to it, etc, etc...
+I have examples (will post soon) for mounting fat so that it can be 
+shared via http, and a single nfs export mounted multiple times with 
+different contexts. Please let me know if you want anything else.
 
--- 
-Stephen Smalley
-National Security Agency
-
-
- 
- 
- 
- 
-
+Cheers.
+> 
+>>> # Is there any common use cases that should have examples here, such as 
+>>> mounting a cd and sharing it via http or nfs?
+> 
+> exporting a FAT fs using http is common enough and uses context=
+> 
+> a discussion of multiple nfs mounts using context= could be useful.  If
+> you don't know why it would be usefull context me off list and I'll
+> explain all the nfs mount magic   :)
+> 
+> -Eric
+> 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
