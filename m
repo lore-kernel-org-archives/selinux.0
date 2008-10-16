@@ -1,39 +1,37 @@
-Subject: Re: adding objects classes and permissions to policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Andy Warner <warner@rubix.com>, selinux@tycho.nsa.gov
-In-Reply-To: <cadfc0e40810161302m18dd3c0er54ee77c598cdc902@mail.gmail.com>
-References: <48F798BB.6070602@rubix.com>
-	 <cadfc0e40810161302m18dd3c0er54ee77c598cdc902@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 16 Oct 2008 16:06:12 -0400
-Message-Id: <1224187572.9247.144.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9GLtJZ4005665
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2008 17:55:19 -0400
+Received: from etbe.coker.com.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9GLtIab026718
+	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2008 21:55:19 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Subject: Re: (u|r)bacsep: initial testing
+Date: Fri, 17 Oct 2008 08:55:11 +1100
+Cc: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov
+References: <1216224735.21191.50.camel@gorn> <1224183673.21012.64.camel@gorn.columbia.tresys.com>
+In-Reply-To: <1224183673.21012.64.camel@gorn.columbia.tresys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200810170855.13840.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-10-16 at 15:02 -0500, Xavier Toth wrote:
-> On Thu, Oct 16, 2008 at 2:40 PM, Andy Warner <warner@rubix.com> wrote:
-> >
-> > When adding new object classes and permissions to SELinux policy is it
-> > necessary to re-create flask.h and av_permissions.h header files so that a
-> > user-space object manager can access the associated defines? If so, would
-> > someone give me some pointers as to how these are generated?
-> >
-> > Thanks,
-> >
-> > Andy
-> >
-> This might help:
-> http://selinuxproject.org/page/Adding_New_Permissions
+On Friday 17 October 2008 06:01, "Christopher J. PeBenito" 
+<cpebenito@tresys.com> wrote:
+> This really needs to be tested by people whose projects depend on proper
+> role separations.
 
-Deprecated for userspace object managers, should only be followed for
-kernel classes/permissions.
+This is something that interests me, but I will have no time to look at it 
+until after Lenny is released.
 
 -- 
-Stephen Smalley
-National Security Agency
+russell@coker.com.au
+http://etbe.coker.com.au/          My Blog
 
+http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
 
 --
 This message was distributed to subscribers of the selinux mailing list.
