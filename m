@@ -1,37 +1,40 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9GLtJZ4005665
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2008 17:55:19 -0400
-Received: from etbe.coker.com.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9GLtIab026718
-	for <selinux@tycho.nsa.gov>; Thu, 16 Oct 2008 21:55:19 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: (u|r)bacsep: initial testing
-Date: Fri, 17 Oct 2008 08:55:11 +1100
-Cc: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov
-References: <1216224735.21191.50.camel@gorn> <1224183673.21012.64.camel@gorn.columbia.tresys.com>
-In-Reply-To: <1224183673.21012.64.camel@gorn.columbia.tresys.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9H4Ujpk013396
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2008 00:30:45 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9H4Uj1h020640
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2008 04:30:45 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id m9H4Ug5q026286
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2008 00:30:42 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m9H4UfkB019222
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2008 00:30:42 -0400
+Received: from mmcallis.csb (vpn6-6-30.bne.redhat.com [10.64.6.30])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id m9H4Uden006313
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2008 00:30:40 -0400
+Message-ID: <48F814EE.1020104@redhat.com>
+Date: Fri, 17 Oct 2008 14:30:38 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200810170855.13840.russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SELinux User Guide: weekly report 20081017
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 17 October 2008 06:01, "Christopher J. PeBenito" 
-<cpebenito@tresys.com> wrote:
-> This really needs to be tested by people whose projects depend on proper
-> role separations.
+This week:
 
-This is something that interests me, but I will have no time to look at it 
-until after Lenny is released.
+* revisions for "Mounting File Systems" and "Maintaining SELinux Labels".
+* started drafts for the "Managing Users" sections.
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Blog
+Next week:
 
-http://www.coker.com.au/sponsorship.html Sponsoring Free Software development
+* continue revisions (sick today so did not get much done...)
+* continue drafts: "Managing Users", "System Services" (Apache, Samba, 
+BIND, NFS...)
+
+Cheers.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
