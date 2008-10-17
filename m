@@ -1,52 +1,177 @@
-Subject: Re: Creating new types
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Cocker <paul.cocker@tntpost.co.uk>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <DAE2574A7F44F44ABE07381C36213DFA05BC3349@exch.cdltd.co.uk>
-References: <DAE2574A7F44F44ABE07381C36213DFA05BC3349@exch.cdltd.co.uk>
+Subject: [PATCH] selinux: new permission for chmod on suid or sgid files
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, dwalsh@redhat.com, sgrubb@redhat.com
 Content-Type: text/plain
-Date: Fri, 17 Oct 2008 11:26:51 -0400
-Message-Id: <1224257211.19562.61.camel@moss-spartans.epoch.ncsc.mil>
+Date: Fri, 17 Oct 2008 11:40:34 -0400
+Message-Id: <1224258034.3189.25.camel@paris-laptop>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-10-17 at 15:34 +0100, Paul Cocker wrote:
-> Today is my first day of working with SELinux (so forgive any
-> terminology mixups), newly discovered after it blocked a disclaimer
-> script I was using in conjunction with altermime to attach text to
-> e-mail being processed by postfix.
-> 
-> Anyway, having been pointed at a very helpful HOWTO on the CentOS pages
-> I was able to work through the first few flagged issues. But now I've
-> run into one I want a different solution for than "add more permissions
-> to existing type".
-> 
-> One of the elements of the script is writing to /var/spool/filter, a
-> directory used for no other purpose. I believe it wishes to create
-> subfolders, something SELinux is not allowing under the CentOS 5.2 type
-> var_spool_t. I tried changing the type to postfix_spool_t, but this had
-> the same problem.
-> 
-> Rather than setup a module which grants permissions that postfix_spool_t
-> doesn't need, I'd like to setup a new type and assign it to this
-> directory. Problem is, I haven't been able to find documentation on how
-> to do this, so I'm hoping someone can point me in the right direction.
+This patch adds a new permission, setsuid, to the file class.  This
+permission is checked any time a file has its attributes modified
+(setattr) and the setuid or setgid bits are involved.  The purpose for
+this change is to further allow selinux to confine administrative
+duties.  The example explains when the permission is needed and when it
+is not:
 
-What avc messages are you getting?
+Start with a file with chmod 0644.
+chmod u+s  (0644 -> 4644) { setattr setsuid }
+chmod u-r  (4644 -> 4244) { setattr setsuid }
+chmod u-s  (4244 -> 0244) { setattr setsuid }
+chmod u+r  (0244 -> 0644) { setattr }
 
-Adding a type is easy enough,
-policy_module(filtertype, 1.0)
+If either the starting or the final attributes will have the setuid or
+setgid bits set you need this permission.
 
-type filter_spool_t;
-files_type(filter_spool_t)
+Signed-off-by: Eric Paris <eparis@redhat.com>
 
-but making sure it is accessible to all the right domains may be another
-matter.
+---
 
--- 
-Stephen Smalley
-National Security Agency
+ security/selinux/hooks.c                     |   22 ++++++++++++++++++++--
+ security/selinux/include/av_perm_to_string.h |    1 +
+ security/selinux/include/av_permissions.h    |    1 +
+ security/selinux/include/class_to_string.h   |    4 ++++
+ security/selinux/include/security.h          |    2 ++
+ security/selinux/selinuxfs.c                 |    3 ++-
+ security/selinux/ss/services.c               |    3 +++
+ 7 files changed, 33 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 576e511..58af86a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2659,6 +2659,8 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ {
+ 	int rc;
++	unsigned int mode = dentry->d_inode->i_mode;
++	u32 av = 0;
+ 
+ 	rc = secondary_ops->inode_setattr(dentry, iattr);
+ 	if (rc)
+@@ -2667,11 +2669,27 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ 	if (iattr->ia_valid & ATTR_FORCE)
+ 		return 0;
+ 
++	/*
++	 * are we changing mode?
++	 * does policy support seperate suid/sgid checks?
++	 * is this a regular file?
++	 * do either the old inode->i_mode or the new iattr->i_mode have the
++	 * suid/sgid bits set?
++	 */
++	if ((iattr->ia_valid & ATTR_MODE) &&
++	    selinux_policycap_setsuidperm &&
++	    (S_ISREG(mode)) &&
++	    ((iattr->ia_mode & (S_ISUID | S_ISGID)) ||
++	     (mode & (S_ISUID | S_ISGID))))
++			av |= FILE__SETSUID;
++
+ 	if (iattr->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID |
+ 			       ATTR_ATIME_SET | ATTR_MTIME_SET))
+-		return dentry_has_perm(current, NULL, dentry, FILE__SETATTR);
++		av |= FILE__SETATTR;
++	else
++		av = FILE__WRITE;
+ 
+-	return dentry_has_perm(current, NULL, dentry, FILE__WRITE);
++	return dentry_has_perm(current, NULL, dentry, av);
+ }
+ 
+ static int selinux_inode_getattr(struct vfsmount *mnt, struct dentry *dentry)
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index 1223b4f..c6c5c0e 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -19,6 +19,7 @@
+    S_(SECCLASS_FILE, FILE__ENTRYPOINT, "entrypoint")
+    S_(SECCLASS_FILE, FILE__EXECMOD, "execmod")
+    S_(SECCLASS_FILE, FILE__OPEN, "open")
++   S_(SECCLASS_FILE, FILE__SETSUID, "setsuid")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECUTE_NO_TRANS, "execute_no_trans")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__ENTRYPOINT, "entrypoint")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index c4c5116..cd6d566 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -101,6 +101,7 @@
+ #define FILE__ENTRYPOINT                          0x00040000UL
+ #define FILE__EXECMOD                             0x00080000UL
+ #define FILE__OPEN                                0x00100000UL
++#define FILE__SETSUID                             0x00200000UL
+ #define LNK_FILE__IOCTL                           0x00000001UL
+ #define LNK_FILE__READ                            0x00000002UL
+ #define LNK_FILE__WRITE                           0x00000004UL
+diff --git a/security/selinux/include/class_to_string.h b/security/selinux/include/class_to_string.h
+index bd813c3..0d11270 100644
+--- a/security/selinux/include/class_to_string.h
++++ b/security/selinux/include/class_to_string.h
+@@ -72,3 +72,7 @@
+     S_(NULL)
+     S_("peer")
+     S_("capability2")
++    S_(NULL)
++    S_(NULL)
++    S_(NULL)
++    S_(NULL)
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 7244737..a604f05 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -56,12 +56,14 @@ extern int selinux_mls_enabled;
+ enum {
+ 	POLICYDB_CAPABILITY_NETPEER,
+ 	POLICYDB_CAPABILITY_OPENPERM,
++	POLICYDB_CAPABILITY_SETSUIDPERM,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+ 
+ extern int selinux_policycap_netpeer;
+ extern int selinux_policycap_openperm;
++extern int selinux_policycap_setsuidperm;
+ 
+ /*
+  * type_datum properties
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 69c9dcc..26ef62f 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -42,7 +42,8 @@
+ /* Policy capability filenames */
+ static char *policycap_names[] = {
+ 	"network_peer_controls",
+-	"open_perms"
++	"open_perms",
++	"setsuid_perms",
+ };
+ 
+ unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 343c8ab..9ecd8e7 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -64,6 +64,7 @@ unsigned int policydb_loaded_version;
+ 
+ int selinux_policycap_netpeer;
+ int selinux_policycap_openperm;
++int selinux_policycap_setsuidperm;
+ 
+ /*
+  * This is declared in avc.c
+@@ -1615,6 +1616,8 @@ static void security_load_policycaps(void)
+ 						  POLICYDB_CAPABILITY_NETPEER);
+ 	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
+ 						  POLICYDB_CAPABILITY_OPENPERM);
++	selinux_policycap_setsuidperm = ebitmap_get_bit(&policydb.policycaps,
++						  POLICYDB_CAPABILITY_SETSUIDPERM);
+ }
+ 
+ extern void selinux_complete_init(void);
+
 
 
 --
