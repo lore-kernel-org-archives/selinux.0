@@ -1,43 +1,36 @@
-Subject: [PATCH] libsepol: add new file setsuid_perms policy capability
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, method@manicmethod.com
-Content-Type: text/plain
-Date: Fri, 17 Oct 2008 11:46:17 -0400
-Message-Id: <1224258377.3189.32.camel@paris-laptop>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9HFu1Gu000590
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2008 11:56:01 -0400
+Received: from flower.research.telcordia.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9HFsfpC009542
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2008 15:54:41 GMT
+Received: from [127.0.0.1] (ar12-209.research.telcordia.com [192.4.12.209])
+	by flower.research.telcordia.com (8.14.2/8.14.2) with ESMTP id m9HFuE94023168
+	for <selinux@tycho.nsa.gov>; Fri, 17 Oct 2008 11:56:14 -0400 (EDT)
+Message-ID: <48F8B58C.9040609@research.telcordia.com>
+Date: Fri, 17 Oct 2008 11:55:56 -0400
+From: Sanjai Narain <narain@research.telcordia.com>
+MIME-Version: 1.0
+CC: selinux@tycho.nsa.gov
+Subject: Protecting against inadvertent file copy
+References: <48F798BB.6070602@rubix.com>	 <1224186793.9247.139.camel@moss-spartans.epoch.ncsc.mil>	 <1224186905.9247.141.camel@moss-spartans.epoch.ncsc.mil>	 <48F85ECC.108@rubix.com>	 <1224245613.18694.26.camel@moss-spartans.epoch.ncsc.mil>	 <48F89EBE.6020800@rubix.com>	 <1224253435.19562.23.camel@moss-spartans.epoch.ncsc.mil>	 <48F8ABBC.9060808@rubix.com> <1224256522.19562.54.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1224256522.19562.54.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds the new policy capability called setsuid to libsepol.
-This is needed to support the file permission setsuid.
+Hello: I am just getting started with SELinux, and would very much 
+appreciate an answer to the following question:
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
+Suppose there is a directory ftp_dir. If one wants to allow ftp of one's 
+file to the outside world, one places it in ftp_dir. Suppose there is 
+also a directory private_dir. One wants to prevent copying of any file 
+in that directory into ftp_dir. In particular, one wants to say "do not 
+allow cp from private_dir to ftp_dir". How would one go about expressing 
+this in SELinux?
 
----
+Thanks. -- Sanjai
 
-diff -Naupr libsepol-2.0.32/include/sepol/policydb/polcaps.h libsepol-2.0.32.new/include/sepol/policydb/polcaps.h
---- libsepol-2.0.32/include/sepol/policydb/polcaps.h	2008-07-07 13:50:29.000000000 -0400
-+++ libsepol-2.0.32.new/include/sepol/policydb/polcaps.h	2008-10-16 15:42:07.476360377 -0400
-@@ -5,6 +5,7 @@
- enum {
- 	POLICYDB_CAPABILITY_NETPEER,
- 	POLICYDB_CAPABILITY_OPENPERM,
-+	POLICYDB_CAPABILITY_SETSUIDPERM,
- 	__POLICYDB_CAPABILITY_MAX
- };
- #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-diff -Naupr libsepol-2.0.32/src/polcaps.c libsepol-2.0.32.new/src/polcaps.c
---- libsepol-2.0.32/src/polcaps.c	2008-07-07 13:50:29.000000000 -0400
-+++ libsepol-2.0.32.new/src/polcaps.c	2008-10-16 15:41:23.367264184 -0400
-@@ -8,6 +8,7 @@
- static const char *polcap_names[] = {
- 	"network_peer_controls",	/* POLICYDB_CAPABILITY_NETPEER */
- 	"open_perms",			/* POLICYDB_CAPABILITY_OPENPERM */
-+	"setsuid_perms",		/* POLICYDB_CAPABILITY_SUIDPERM */
- 	NULL
- };
- 
 
 
 
