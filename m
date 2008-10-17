@@ -1,200 +1,105 @@
-Message-ID: <48F89EBE.6020800@rubix.com>
-Date: Fri, 17 Oct 2008 16:18:38 +0200
-From: Andy Warner <warner@rubix.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
 Subject: Re: adding objects classes and permissions to policy
-References: <48F798BB.6070602@rubix.com>	 <1224186793.9247.139.camel@moss-spartans.epoch.ncsc.mil>	 <1224186905.9247.141.camel@moss-spartans.epoch.ncsc.mil>	 <48F85ECC.108@rubix.com> <1224245613.18694.26.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1224245613.18694.26.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: multipart/alternative;
- boundary="------------080509050104040709000508"
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Andy Warner <warner@rubix.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <48F89EBE.6020800@rubix.com>
+References: <48F798BB.6070602@rubix.com>
+	 <1224186793.9247.139.camel@moss-spartans.epoch.ncsc.mil>
+	 <1224186905.9247.141.camel@moss-spartans.epoch.ncsc.mil>
+	 <48F85ECC.108@rubix.com>
+	 <1224245613.18694.26.camel@moss-spartans.epoch.ncsc.mil>
+	 <48F89EBE.6020800@rubix.com>
+Content-Type: text/plain
+Date: Fri, 17 Oct 2008 10:23:55 -0400
+Message-Id: <1224253435.19562.23.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080509050104040709000508
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2008-10-17 at 16:18 +0200, Andy Warner wrote:
+> 
+> 
+> Stephen Smalley wrote: 
+> > On Fri, 2008-10-17 at 11:45 +0200, Andy Warner wrote:
+> >   
+> > > Stephen Smalley wrote: 
+> > >     
+> > > > On Thu, 2008-10-16 at 15:53 -0400, Stephen Smalley wrote:
+> > > >   
+> > > >       
+> > > > > On Thu, 2008-10-16 at 21:40 +0200, Andy Warner wrote:
+> > > > >     
+> > > > >         
+> > > > > > When adding new object classes and permissions to SELinux policy is it
+> > > > > > necessary to re-create flask.h and av_permissions.h header files so
+> > > > > > that a user-space object manager can access the associated defines? If
+> > > > > > so, would someone give me some pointers as to how these are
+> > > > > > generated? 
+> > > > > >       
+> > > > > >           
+> > > > > You should use the dynamic class/permission lookup facilities for any
+> > > > > new code.  man selinux_set_mapping
+> > > > > 
+> > > > > XSELinux and SE-PostgreSQL are already using it I believe.
+> > > > >     
+> > > > >         
+> > > I can't find any evidence that my version of libselinux contains the
+> > > selinux_set_mapping function. I am using CentOS 5.1 with libselinux
+> > > version 1.33.4. I have been learning RHEL 5 tends to be a bit behind
+> > > the times with regards to SELinux functionality. Does libselinux
+> > > 1.33.4 not have the dynamic class/permission lookup facilities? If it
+> > > does not, any advice on how to add object classes / permissions to
+> > > policy ? Moving to Fedora is a possibility, maybe it's worth
+> > > considering as this would not be the first issue we have had with an
+> > > outdated SELinux mechanism on RHEL 5 (?). We are integrating SELinux
+> > > TE / MLS with our commercial DBMS, and I have learned that RHEL 5 does
+> > > not have the database related object classes /permissions in the base
+> > > policy where the most recent Fedora does, hence my need to add the
+> > > object classes /permissions in RHEL 5.
+> > >     
+> > 
+> > To use the object class/perm discovery support, you'd need to use a
+> > modern libselinux (>= 2.0.21) and a modern kernel (>= 2.6.23).
+> > 
+> > Note that regardless of whether you use object class/permission
+> > discovery support, you have to add the classes and permissions to the
+> > policy flask definitions and rebuild your policy.  The object class/perm
+> > discovery support just changes how the object manager obtains the values
+> > - whether they are hardcoded into it or dynamically looked up at object
+> > manager startup.  But the policy itself still needs to be taught about
+> > them.
+> > 
+> > As Ted said, the old way to teach libselinux about new classes/perms is
+> > described in:
+> > http://selinuxproject.org/page/Adding_New_Permissions
+> > 
+> > After updating the policy/flask files, you run make in the flask
+> > subdirectory (different Makefile than the policy build one) and it will
+> > regenerate the header files that are used by libselinux and by the
+> > kernel.  Then you can install the libselinux ones into a libselinux
+> > source tree via make LIBSELINUX_D=/path/to/libselinux tolib, and then
+> > rebuild your libselinux.
+> > 
+> >   
+> When I install our product on a fresh machine in addition to the
+> actual product and the new policy files, will I also need to install a
+> new version of the libselinux libraries?
 
+Yes (when using the old way).
 
+>  I assume that the linux kernel needs to somehow access the new object
+> class / permissions defines (I'm guessing there is a potential for
+> pre-existing defines to change through my policy rebuild), would that
+> be through the shared libselinux libraries? Kernel rebuild? (Mucking
+> with Linux itself is way out of my area of knowledge.)
 
-Stephen Smalley wrote:
-> On Fri, 2008-10-17 at 11:45 +0200, Andy Warner wrote:
->   
->> Stephen Smalley wrote: 
->>     
->>> On Thu, 2008-10-16 at 15:53 -0400, Stephen Smalley wrote:
->>>   
->>>       
->>>> On Thu, 2008-10-16 at 21:40 +0200, Andy Warner wrote:
->>>>     
->>>>         
->>>>> When adding new object classes and permissions to SELinux policy is it
->>>>> necessary to re-create flask.h and av_permissions.h header files so
->>>>> that a user-space object manager can access the associated defines? If
->>>>> so, would someone give me some pointers as to how these are
->>>>> generated? 
->>>>>       
->>>>>           
->>>> You should use the dynamic class/permission lookup facilities for any
->>>> new code.  man selinux_set_mapping
->>>>
->>>> XSELinux and SE-PostgreSQL are already using it I believe.
->>>>     
->>>>         
->>>   
->>>       
->> I can't find any evidence that my version of libselinux contains the
->> selinux_set_mapping function. I am using CentOS 5.1 with libselinux
->> version 1.33.4. I have been learning RHEL 5 tends to be a bit behind
->> the times with regards to SELinux functionality. Does libselinux
->> 1.33.4 not have the dynamic class/permission lookup facilities? If it
->> does not, any advice on how to add object classes / permissions to
->> policy ? Moving to Fedora is a possibility, maybe it's worth
->> considering as this would not be the first issue we have had with an
->> outdated SELinux mechanism on RHEL 5 (?). We are integrating SELinux
->> TE / MLS with our commercial DBMS, and I have learned that RHEL 5 does
->> not have the database related object classes /permissions in the base
->> policy where the most recent Fedora does, hence my need to add the
->> object classes /permissions in RHEL 5.
->>     
->
-> To use the object class/perm discovery support, you'd need to use a
-> modern libselinux (>= 2.0.21) and a modern kernel (>= 2.6.23).
->
-> Note that regardless of whether you use object class/permission
-> discovery support, you have to add the classes and permissions to the
-> policy flask definitions and rebuild your policy.  The object class/perm
-> discovery support just changes how the object manager obtains the values
-> - whether they are hardcoded into it or dynamically looked up at object
-> manager startup.  But the policy itself still needs to be taught about
-> them.
->
-> As Ted said, the old way to teach libselinux about new classes/perms is
-> described in:
-> http://selinuxproject.org/page/Adding_New_Permissions
->
-> After updating the policy/flask files, you run make in the flask
-> subdirectory (different Makefile than the policy build one) and it will
-> regenerate the header files that are used by libselinux and by the
-> kernel.  Then you can install the libselinux ones into a libselinux
-> source tree via make LIBSELINUX_D=/path/to/libselinux tolib, and then
-> rebuild your libselinux.
->
->   
-When I install our product on a fresh machine in addition to the actual 
-product and the new policy files, will I also need to install a new 
-version of the libselinux libraries? I assume that the linux kernel 
-needs to somehow access the new object class / permissions defines (I'm 
-guessing there is a potential for pre-existing defines to change through 
-my policy rebuild), would that be through the shared libselinux 
-libraries? Kernel rebuild? (Mucking with Linux itself is way out of my 
-area of knowledge.)
+No, the kernel doesn't need userspace object class/perm definitions,
+because it never references them itself.
 
+-- 
+Stephen Smalley
+National Security Agency
 
---------------080509050104040709000508
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<br>
-<br>
-Stephen Smalley wrote:
-<blockquote
- cite="mid:1224245613.18694.26.camel@moss-spartans.epoch.ncsc.mil"
- type="cite">
-  <pre wrap="">On Fri, 2008-10-17 at 11:45 +0200, Andy Warner wrote:
-  </pre>
-  <blockquote type="cite">
-    <pre wrap="">
-Stephen Smalley wrote: 
-    </pre>
-    <blockquote type="cite">
-      <pre wrap="">On Thu, 2008-10-16 at 15:53 -0400, Stephen Smalley wrote:
-  
-      </pre>
-      <blockquote type="cite">
-        <pre wrap="">On Thu, 2008-10-16 at 21:40 +0200, Andy Warner wrote:
-    
-        </pre>
-        <blockquote type="cite">
-          <pre wrap="">When adding new object classes and permissions to SELinux policy is it
-necessary to re-create flask.h and av_permissions.h header files so
-that a user-space object manager can access the associated defines? If
-so, would someone give me some pointers as to how these are
-generated? 
-      
-          </pre>
-        </blockquote>
-        <pre wrap="">You should use the dynamic class/permission lookup facilities for any
-new code.  man selinux_set_mapping
-
-XSELinux and SE-PostgreSQL are already using it I believe.
-    
-        </pre>
-      </blockquote>
-      <pre wrap="">  
-      </pre>
-    </blockquote>
-    <pre wrap="">I can't find any evidence that my version of libselinux contains the
-selinux_set_mapping function. I am using CentOS 5.1 with libselinux
-version 1.33.4. I have been learning RHEL 5 tends to be a bit behind
-the times with regards to SELinux functionality. Does libselinux
-1.33.4 not have the dynamic class/permission lookup facilities? If it
-does not, any advice on how to add object classes / permissions to
-policy ? Moving to Fedora is a possibility, maybe it's worth
-considering as this would not be the first issue we have had with an
-outdated SELinux mechanism on RHEL 5 (?). We are integrating SELinux
-TE / MLS with our commercial DBMS, and I have learned that RHEL 5 does
-not have the database related object classes /permissions in the base
-policy where the most recent Fedora does, hence my need to add the
-object classes /permissions in RHEL 5.
-    </pre>
-  </blockquote>
-  <pre wrap=""><!---->
-To use the object class/perm discovery support, you'd need to use a
-modern libselinux (&gt;= 2.0.21) and a modern kernel (&gt;= 2.6.23).
-
-Note that regardless of whether you use object class/permission
-discovery support, you have to add the classes and permissions to the
-policy flask definitions and rebuild your policy.  The object class/perm
-discovery support just changes how the object manager obtains the values
-- whether they are hardcoded into it or dynamically looked up at object
-manager startup.  But the policy itself still needs to be taught about
-them.
-
-As Ted said, the old way to teach libselinux about new classes/perms is
-described in:
-<a class="moz-txt-link-freetext" href="http://selinuxproject.org/page/Adding_New_Permissions">http://selinuxproject.org/page/Adding_New_Permissions</a>
-
-After updating the policy/flask files, you run make in the flask
-subdirectory (different Makefile than the policy build one) and it will
-regenerate the header files that are used by libselinux and by the
-kernel.  Then you can install the libselinux ones into a libselinux
-source tree via make LIBSELINUX_D=/path/to/libselinux tolib, and then
-rebuild your libselinux.
-
-  </pre>
-</blockquote>
-When I install our product on a fresh machine in addition to the actual
-product and the new policy files, will I also need to install a new
-version of the libselinux libraries? I assume that the linux kernel
-needs to somehow access the new object class / permissions defines (I'm
-guessing there is a potential for pre-existing defines to change
-through my policy rebuild), would that be through the shared libselinux
-libraries? Kernel rebuild? (Mucking with Linux itself is way out of my
-area of knowledge.)<br>
-<br>
-</body>
-</html>
-
---------------080509050104040709000508--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
