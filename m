@@ -1,122 +1,207 @@
-Message-ID: <48F90109.1030005@redhat.com>
-Date: Fri, 17 Oct 2008 17:18:01 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Message-ID: <48FBCBC3.2070507@redhat.com>
+Date: Mon, 20 Oct 2008 10:07:31 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov, jmorris@namei.org,
-        sgrubb@redhat.com
-Subject: Re: [PATCH] selinux: new permission for chmod on suid or sgid files
-References: <1224258034.3189.25.camel@paris-laptop>	 <1224262355.19562.78.camel@moss-spartans.epoch.ncsc.mil>	 <1224264294.19562.92.camel@moss-spartans.epoch.ncsc.mil>	 <48F8DCE3.3000805@redhat.com>	 <1224269637.19562.115.camel@moss-spartans.epoch.ncsc.mil>	 <48F8E333.3060905@redhat.com>	 <1224272365.19562.144.camel@moss-spartans.epoch.ncsc.mil>	 <1224273875.3189.46.camel@paris-laptop> <1224274196.19562.165.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1224274196.19562.165.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        Eric Paris <eparis@parisplace.org>, Daniel Walsh <dwalsh@redhat.com>
+Subject: Re: user guide drafts: "Mounting File Systems"
+References: <48EF03BA.90901@redhat.com>	 <1223645441.25569.50.camel@moss-spartans.epoch.ncsc.mil>	 <48F69C5D.8050504@redhat.com> <1224166050.9247.48.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1224166050.9247.48.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
 Stephen Smalley wrote:
-> On Fri, 2008-10-17 at 16:04 -0400, Eric Paris wrote:
->> On Fri, 2008-10-17 at 15:39 -0400, Stephen Smalley wrote:
+> On Thu, 2008-10-16 at 11:43 +1000, Murray McAllister wrote:
+>> Mounting File Systems
+> 
+> I'd start first by describing the common behavior, e.g.:
+> 
+> By default, when a filesystem that supports extended attributes is
+> mounted, the security context for each file is obtained from the
+> "security.selinux" extended attribute of the file.  Files in filesystems
+> that do not support extended attributes are assigned a single default
+> security context from the policy configuration based on filesystem type.
+> 
+> Then you can continue with:
+> 
+>> Use the mount -o context command to override existing extended 
+>> attributes.
+> 
+> or to specify a different default security context for filesystems that
+> do not support extended attributes.
+> 
+>>  This is useful if you do not trust a file system to supply 
+>> the correct attributes, for example, removable media used in multiple 
+>> systems. The mount -o context command can also be used to support 
+>> labeling for file systems that do not support extended attributes, such 
+>> as File Allocation Table (FAT) file systems.
+> 
+> Or NFS filesystems.
+> 
+>>  The context specified with 
+>> mount -o context is not written to disk: the original contexts are 
+>> preserved, and are seen when mounting without a context option.
+> 
+> if there were any extended attributes on the disk in the first place.
+> Which typically won't be the case when using context mounts.
+All of the above sounds good.
+> 
+>> Temporary Mount Context Changes
+> 
+> I wouldn't call them "temporary".  We have called it mountpoint labeling
+> or context mounts in the past, and they can be "persistent" in the sense
+> of putting it in your fstab and having it always applied on every mount.
+> They just aren't stored on the media.
+Changed to "Context Mounts".
+> 
+>> As the Linux root user, use the mount -o 
+>> context=SELinux_user:role:type:level command to mount file systems with 
+>> the specified context, overriding existing contexts if they exist. 
+>> Context changes are not written to disk. In the following example, when 
+>> /dev/sda1 is mounted, all files on that file system are labeled with the 
+>> system_u:object_r:httpd_sys_content_t:s0 context. This example can be 
+>> used to share FAT file systems (or other file systems) via the Apache 
+>> HTTP server:
 >>
->>> I don't follow the above.  First, the CAP_SETUID capability controls the
->>> ability to use set*uid() system calls, not to execute setuid binaries
->>> (aside from a special case for shared state).  Second, if some other
->>> confined domain executes a setuid binary created by this user, it is
->>> still limited by the permissions granted to that original confined
->>> domain as far as SELinux is concerned.
->> He's saying there are almost 200 domains that can run setuid apps.
+>> # mount -o context="system_u:object_r:httpd_sys_content_t:s0" /dev/sda1 
+>> /mount/point
 > 
-> As I said, CAP_SETUID isn't about whether or not you can run a setuid
-> app.  You can do that without CAP_SETUID.  Obviously since a normal
-> unprivileged user shell can run a setuid program in the first place.
-> 
->> Limiting the number of domains that can create new setuid apps limits
->> the number of places that these domains can go.  Clearly they are all
->> still confined to their domain and whatever it allows, but allowing them
->> to gain root priveledges may give them the ability to attack other parts
-> 
-> Wait - how did they gain root privileges?  root privileges are
-> capabilities, and we control capabilities based on domain.
-> 
->> of the system normally controlled by dac.  This certainly doesn't lessen
->> the MAC confinement.  Lets assume an audited system in which we are
->> certain the only suid app untrusted users are allowed to run is ping.
->> So the users have the right to run suid apps.  They are protected from
->> each other by DAC.
+> I'd tend to give example of mounting removable devices (floppies,
+> CD/DVDs, USB drives) or NFS filesystems, as that is generally when one
+> would use a context mount.
+I have used an NFS example.
+>> Newly-created files and directories on this file system appear to have 
+>> the SELinux context specified with -o context; however, since context 
+>> changes are not written to disk for these situations, context changes 
+>> are lost when the file system is unmounted. If such a file system is not 
+>> labeled, or does support extended attributes, it stays in that state 
+>> after being unmounted.
 >>
->> Confined webadmin writes a program which is clears out other users
->> public_html when they get a spurious DMCA takedown notice.  He then
->> (because he is a lazy bumbling idiot) makes his script suid so he does
->> not have to go into his confined webadmin account constantly to delete
->> users webpages.
-> 
-> He could also make a daemon that runs under his uid and accepts commands
-> via local socket.
-> 
->> Normal DAC protects user2 from being attacked by user1.  Because of the
->> bumbling incompetance of confined webadmin user1 can now use this setuid
->> app to do things which he is allow by selinux policy but denied by
->> normal DAC permissions.
+>> Type Enforcement is the main permission control used in SELinux targeted 
+>> policy. For the most part, SELinux users and roles can be ignored, so, 
+>> when overriding the SELinux context with -o context, use the SELinux 
+>> system_u user and object_r role, and concentrate on the type. If you are 
+>> not using the MLS policy or multi-category security, use the s0 level.
 >>
->> Why did webadmin need to make a setuid app to begin with?  file caps are
->> already protected by CAP_SETFCAP.  Lets assume system policy says that
->> su should not be setuid.  Should the webadmin really be allowed to
->> easily override that system policy because he wants to use su - to get
->> to his confined domain instead of sudo?
-> 
-> He can't get to his confined domain via some other program unless policy
-> says he can.  He can only get to some other uid that way.
-> 
->>   She bumbling idiot really be
->> allowed to say add o+x to su - when the system policy only really wanted
->> group wheel to be able to run su?  Should the bumbling idiot be able to
->> remove the suid flag from a program and not be able to fix it?
+>> <note>
+>> When a file system is mounted with a context option, context changes (by 
+>> users and processes) are prohibited. For example, running chcon on a 
+>> file system mounted with a context option results in a Operation not 
+>> supported error.
+>> </note>
 >>
->> I think there are some real gains that can be made by limiting how
->> confined admins or untrusted users can deal with suid apps.
+>> Changing the Default Context
 >>
->> I'd probably be inclined to add changing the uid/gid/other things that
->> clear setuid to be things which require this permission.  I don't see a
->> reason to allow my webadmin to chown su to himself...
+>> As the Linux root user, use the mount -o 
+>> defcontext=SELinux_user:role:type:level command to change "the default 
+>> security context for unlabeled files"[1]. The defcontext option requires 
+>> a file system that supports extended attributes, since context context
 > 
-> He can't do that unless he owns su (or that itself is subject to
-> fowner).  And chown'ing or writing to a suid app clears the suid bit
-> forcibly. 
+> double word
 > 
-> Come on, guys, you can do better.
+>> changes for newly-created files that would otherwise be labeled with the 
+>> file_t type are written to disk.
 > 
-This hole discussion has actually opened me up to a new understanding.
-SELinux right now does not prevent the execution of setuid applications
-if you do not have setuid capability, it only prevents you from running
-apps that actually execute the setuid() call.
+> What?  The point is that defcontext= is meaningless if the filesystem
+> doesn't support extended attributes because it means "treat files that
+> lack an extended attribute as if they had this context".  But the
+> defcontext itself is not stored on disk.
+I was trying to explain (tested on Fedora Rawhide):
 
-I think this is a problem.  One of the things I have been saying in my
-presentations is that running as staff_t will prevent you from running
-any setuid application unless a transition is defined.  Turns out this
-is wrong and I was lying.
+1. create a logical volume. mkfs.ext3 [new logical volume].
+3. create a /test/ directory. mount the logical volume to /test/
+5. create /test/file. This file uses the file_t type.
+6. unmount.
+7. mount with defcontext option. create /test/file2. File2 uses type 
+specified with defcontext. "file" is still labeled with the file_t type.
+9. remount with no context option. file2 still has the type specified 
+with previous defcontext option.
 
-# cp /usr/bin/id /usr/bin/myid
-# chmod 4755 /usr/bin/myid
+Is this the expected behavior?
+> 
+>>  The file_t type is used for files 
+>> (stored on a file system that supports extended attributes) that do not 
+>> have an SELinux context. This type should not exist on correctly-labeled 
+>> file systems.
+>>
+>> The following example changes the default context to 
+>> system_u:object_r:httpd_sys_content_t:s0:
+>>
+>> # mount -o defcontext="system_u:object_r:httpd_sys_content_t:s0" 
+>> /dev/sda1 /mount/point
+> 
+> Again, I would tend to use an example that is more realistic, like a
+> removable device or NFS filesystem.
+> 
+>> In this example, if the file system on /dev/sda1 isn't labeled 
+>> correctly, or isn't labeled at all, newly-created files are labeled with 
+>> httpd_sys_content_t type, rather than the file_t type. If a file that 
+>> would otherwise be labeled with the file_t type is created on this file 
+>> system, it keeps the httpd_sys_content_t type, even when the file system 
+>> is mounted without a context option.
+>>
+>> [1] Morris, James. "Filesystem Labeling in SELinux". Published 1 October 
+>> 2004. Accessed 14 October 2008: http://www.linuxjournal.com/article/7426.
+>>
+>> Multiple NFS Mounts from the same Export
+>>
+>> To mount a single NFS export multiple times using a different SELinux 
+>> context for each mount, use the mount -o nosharecache,context options. 
+>> The context specified with with context option is not written to disk:
+>>
+>> # mount hostname:/export /local/mount/web -o 
+>> nosharecache,context="system_u:object_r:httpd_sys_content_t:s0"
+>> # mount hostname:/export /local/mount/database -o 
+>> nosharecache,context="system_u:object_r:mysqld_db_t:s0"
+> 
+> Caveat:  Do not ever do this for overlapping mounts or you'll create a
+> situation where the same file is accessible under two different security
+> contexts.
+Is overlapping what I have done above, or do you mean manually mounting 
+an NFS export to the same directory that mounts the NFS export via 
+autofs? I tried mounting via autofs, and then manually mounting with a 
+context option in Rawhide. I had no errors or denials. mount showed:
 
-$ myid
-uid=3267(dwalsh) gid=3267(dwalsh) euid=0(root) groups=3267(dwalsh)
-context=staff_u:staff_r:staff_t:s0
+localhost:/export on /misc/test type nfs 
+(rw,soft,initr,sloppy,addr=127.0.0.1)
 
-So running a chmod o+s file as staff_t will run as EUID 0.  I think this
-is something SELinux should block.  At least treat this the same way a
-file system mounted nosetuid would.
+localhost:/export on /misc/test type nfs 
+(rw,context="system_u:object_r:samba_share_t:s0",addr=127.0.0.1)
 
+With both mounted, "ls -Z /misc/test" showed files using the 
+samba_share_t type.
+> 
+>> In this example, the hostname:/export NFS export is mounted to two 
+>> different directories, /local/mount/web and /local/mount/database. Files 
+>> mounted on /local/mount/web are labeled with the httpd_sys_content_t 
+>> type. Files mounted on /local/mount/database are labeled with the 
+>> mysqld_db_t type.
+>>
+>> If a single system runs a MySQL® server as well as an Apache HTTP 
+>> Server, and data files for both of those services are on a single NFS 
+>> export, this example can be used to allow both the MySQL server and the 
+>> Apache HTTP Server access to the required files, without exposing the 
+>> files to other local services.
+>>
+>> # This is probably incorrect. I do not know a proper use cases for this.
+>>
+>> Note: if you attempt to mount a single NFS export multiple times with 
+>> different contexts, but do not use the nosharecache option, mount fails 
+>> with a mount.nfs: an incorrect mount option was specified error, and the 
+>> following is logged to /var/log/messages:
+>>
+>> kernel: SELinux: mount invalid.  Same superblock, different security 
+>> settings for (dev 0:14, type nfs)
+>>
+>> Further Information
+>>
+>> For further information about file system labeling, refer to James 
+>> Morris's "Filesystem Labeling in SELinux" article: 
+>> http://www.linuxjournal.com/article/7426.
+> 
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkj5AQkACgkQrlYvE4MpobPUJQCg5qRoFCBYh/bj1XU509v63F0H
-UawAmwX5xiCLM85U8ZxupBzj5XEd68Jp
-=paj/
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
