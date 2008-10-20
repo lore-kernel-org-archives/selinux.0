@@ -1,87 +1,247 @@
-Subject: Re: user guide drafts: "Managing Users"
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Murray McAllister <mmcallis@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1224513580.7428.59.camel@moss-spartans.epoch.ncsc.mil>
-References: <48FC30AD.5040802@redhat.com>
-	 <1224513580.7428.59.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 20 Oct 2008 10:40:10 -0400
-Message-Id: <1224513610.7428.61.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9KFXYw5020806
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2008 11:33:34 -0400
+Received: from mailhost.cdltd.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9KFXUIT027128
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2008 15:33:31 GMT
+Received: from exch.cdltd.co.uk (fw.cdltd.co.uk [193.132.127.247])
+	by mailhost.cdltd.co.uk (8.14.1/8.12.11) with ESMTP id m9KFQljg026735
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2008 16:28:20 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: RE: [SPAM?]  Re: SELinux blocking disclaimer - help diagnosing
+Date: Mon, 20 Oct 2008 16:28:35 +0100
+Message-ID: <DAE2574A7F44F44ABE07381C36213DFA05C05C88@exch.cdltd.co.uk>
+In-Reply-To: <1224508761.7428.30.camel@moss-spartans.epoch.ncsc.mil>
+References: <DAE2574A7F44F44ABE07381C36213DFA05C05720@exch.cdltd.co.uk> <1224508761.7428.30.camel@moss-spartans.epoch.ncsc.mil>
+From: "Paul Cocker" <paul.cocker@tntpost.co.uk>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-10-20 at 10:39 -0400, Stephen Smalley wrote:
-> On Mon, 2008-10-20 at 17:18 +1000, Murray McAllister wrote:
-> > Hi,
-> > 
-> > The following are drafts for the "Managing Users" sections. Any comments 
-> > and corrections are appreciated.
-> > 
-> > Thanks.
-> > 
-> > Managing Users
-> > 
-> > A number of confined SELinux users are available in Fedora 10. Each 
-> > Linux user is mapped to an SELinux user via SELinux policy, allowing 
-> > Linux users to inherit the restrictions on SELinux users, such as 
-> > (depending on the user) not being able to: run the X Window System, use 
-> > networking, run setuid applications unless SELinux policy permits it, or 
-> > run the su and sudo commands to become the Linux root user. Refer to 
-> > Section 4.3, “Confined and Unconfined Users” for further information 
-> > about confined users in Fedora 10.
-> > 
-> > Linux and SELinux User Mappings
-> > 
-> > As the Linux root user, run the /usr/sbin/semanage login -l command to 
-> > view the mapping between Linux users and SELinux users:
-> > 
-> > [example output]
-> > 
-> > In Fedora 10, Linux users are mapped to the SELinux __default__ login by 
-> > default (which is mapped to the SELinux unconfined_u user). When a Linux 
-> > user is created using the /usr/sbin/useradd command, if no options are 
-> > specified, they are mapped to the SELinux unconfined_u user. The 
-> > following defines the default-mapping:
-> > 
-> > __default__               unconfined_u              s0-s0:c0.c1023
-> > 
-> > 
-> > Mapping new Linux Users to SELinux Users: useradd
-> > 
-> > Linux users mapped to the SELinux unconfined_u user run in the 
-> > unconfined_t domain. This is seen by running the id -Z command while 
-> > logged-in as a Linux users mapped to unconfined_u:
-> > 
-> > $ id -Z
-> > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> > 
-> > When Linux users run in the unconfined_t domain, SELinux policy rules 
-> > are applied, but policy rules exist that allow Linux users running in 
-> > the unconfined_t domain almost all access. If unconfined Linux users 
-> > execute an application that SELinux policy defines can transition from 
-> > the unconfined_t domain to its own confined domain, unconfined Linux 
-> > users are still subject to the restrictions of that confined domain. The 
-> > security benefit of this is that, even though a Linux user is running 
-> > unconfined, they can not override the SELinux policy for a confined 
-> > application, just because they (the user) are unconfined.
+> -----Original Message-----
+> From: Stephen Smalley [mailto:sds@tycho.nsa.gov] 
+> Sent: 20 October 2008 14:19
+> To: Paul Cocker
+> Cc: selinux@tycho.nsa.gov
+> Subject: [SPAM?] Re: SELinux blocking disclaimer - help diagnosing
+> Importance: Low
 > 
-> No.  The security benefit is that the application is confined and thus
-> exploitation of a flaw in that application can be limited by policy,
-> even though the user remains unconfined.  We are not protecting the
-> system from the user in this situation (when the user is mapped to
-> unconfined_u), and the user can actually run the application in his own
-> unconfined_t domain via runcon if he wishes.  We are only protecting the
-> user and the system from harm caused via a flaw in the application.
+> On Mon, 2008-10-20 at 09:56 +0100, Paul Cocker wrote:
+> > I'm attaching a footer to e-mail in postfix using 
+> altermime. SELinux 
+> > is preventing this from happening.
+> >  
+> > I did some reading and have thus been using the method of switching 
+> > SELinux into permissible mode, sending an e-mail through 
+> the system, 
+> > then using audit2allow to generate a policy from the audit log 
+> > generated by the e-mail.
+> > 
+> > grep AVC /var/log/audit/audit.log | audit2allow -m altermime > 
+> > altermime.te checkmodule -mM -o altermime.mod altermime.te 
+> > semodule_package -o altermime.pp -m altermime.mod semodule -i 
+> > altermime.pp
+> > 
+> > I use semodule -l to verify the policy was loaded.
+> >  
+> > Once I enable SELinux and send another e-mail I find the e-mail is 
+> > still stopped, so I run audit2allow again and it picks up a 
+> type that 
+> > wasn't in the previous policy (I remove the > altermime.te bit and 
+> > manually move over the missing bits), so I update the 
+> module and add 
+> > it to SELinux. I repeat this process a couple of times as 
+> the e-mail 
+> > is blocked by new things.
+> >  
+> > However, the e-mail is still blocked and running audit2allow on the 
+> > log shows no changes over the existing policy.
+> > 
+> > Postfix is sending the following error to the sender:
+> > 
+> > user@domain2.com: service unavailable.
+> > Command output: mime_alter.c:2192:AM_insert_Xheader:NOTICE: 
+> Adjusting 
+> > temp file name for header insert sendmail: fatal: execvp
+> > /usr/sbin/postdrop: Permission denied
+> > sendmail: warning: premature end-of-input on /usr/sbin/postdrop -r 
+> > while reading input attribute name sendmail: warning: command 
+> > "/usr/sbin/postdrop -r" exited with status 1 sendmail: fatal:
+> > user@domain.com(100): unable to execute /usr/sbin/postdrop 
+> -r: Success
+> >  
+> > Contents of the maillog for this message:
+> > 
+> > Oct 20 09:26:21 merlin postfix/smtpd[16322]: C95801F80042:
+> > client=computer.domain.com[10.100.100.100]
+> > Oct 20 09:26:21 merlin postfix/cleanup[16324]: C95801F80042:
+> > 
+> message-id=<01c9328d$Blat.v2.6.2$88778715$6f8d393e538@10.100.100.200>
+> > Oct 20 09:26:21 merlin postfix/qmgr[16156]: C95801F80042:
+> > from=<user@domain2.com>, size=562, nrcpt=1 (queue active) Oct 20 
+> > 09:26:21 merlin postfix/smtpd[16322]: disconnect from 
+> > computer.domain.com[10.100.100.100]
+> > Oct 20 09:26:21 merlin sendmail[16330]: fatal: execvp
+> > /usr/sbin/postdrop: Permission denied
+> > Oct 20 09:26:22 merlin postfix/sendmail[16329]: warning: premature 
+> > end-of-input on /usr/sbin/postdrop -r while reading input attribute 
+> > name Oct 20 09:26:22 merlin postfix/sendmail[16329]: 
+> warning: command 
+> > "/usr/sbin/postdrop -r" exited with status 1 Oct 20 09:26:22 merlin 
+> > postfix/sendmail[16329]: fatal:
+> > user@domain2.com(100): unable to execute /usr/sbin/postdrop -r: 
+> > Success Oct 20 09:26:23 merlin postfix/pipe[16325]: C95801F80042:
+> > to=<user@domain.com>, relay=dfilt, delay=2, delays=0.01/0/0/2, 
+> > dsn=5.3.0, status=bounced (service unavailable. Command output:
+> > mime_alter.c:2192:AM_insert_Xheader:NOTICE: Adjusting temp 
+> file name 
+> > for header insert sendmail: fatal: execvp /usr/sbin/postdrop: 
+> > Permission denied sendmail: warning: premature end-of-input on 
+> > /usr/sbin/postdrop -r while reading input attribute name sendmail: 
+> > warning: command "/usr/sbin/postdrop -r" exited with status 
+> 1 sendmail: fatal:
+> > user@domain2.com(100): unable to execute /usr/sbin/postdrop -r: 
+> > Success
+> > )
+> > Oct 20 09:26:23 merlin postfix/cleanup[16324]: D027D1F8007B:
+> > message-id=<20081020082623.D027D1F8007B@mailserver.domain.com>
+> > Oct 20 09:26:23 merlin postfix/bounce[16332]: C95801F80042: sender 
+> > non-delivery notification: D027D1F8007B Oct 20 09:26:23 merlin 
+> > postfix/qmgr[16156]: D027D1F8007B: from=<>, size=3216, 
+> nrcpt=1 (queue 
+> > active) Oct 20 09:26:23 merlin postfix/qmgr[16156]: C95801F80042: 
+> > removed Oct 20 09:26:23 merlin postfix/smtp[16333]: D027D1F8007B:
+> > to=<user@domain2.com>, relay=relay.domain.com[10.100.100.1]:25,
+> > delay=0.11, delays=0/0/0/0.1, dsn=2.6.0, status=sent (250 2.6.0 
+> > <20081020082623.D027D1F8007B@mailserver.domain.com> Queued mail for
+> > delivery)
+> > Oct 20 09:26:23 merlin postfix/qmgr[16156]: D027D1F8007B: removed
+> > 
+> > The policy generated looks as follows:
+> >  
+> > module altermime 1.0;
+> >  
+> > require {
+> >         type postfix_etc_t;
+> >         type postfix_public_t;
+> >         type postfix_spool_t;
+> >         type sendmail_exec_t;
+> >         type postfix_pipe_t;
+> >         type postfix_spool_maildrop_t;
+> >         class sock_file write;
+> >         class dir { write search remove_name add_name };
+> >         class file { rename execute read create execute_no_trans 
+> > unlink };
+> >         class process setrlimit;
+> > }
+> >  
+> > #============= postfix_pipe_t ============== allow postfix_pipe_t 
+> > postfix_etc_t:file { execute execute_no_trans }; allow 
+> postfix_pipe_t 
+> > postfix_public_t:sock_file write; allow postfix_pipe_t 
+> > postfix_spool_maildrop_t:dir { write remove_name search add_name }; 
+> > allow postfix_pipe_t postfix_spool_t:dir { write 
+> remove_name add_name 
+> > }; allow postfix_pipe_t postfix_spool_t:file { create 
+> rename unlink }; 
+> > allow postfix_pipe_t sendmail_exec_t:file { read execute 
+> > execute_no_trans }; allow postfix_pipe_t self:process setrlimit;
+> > 
+> > Being new to SELinux I'm stumbling around in the dark 
+> somewhat (and if 
+> > someone can tell me what the self:process line is I'd be grateful). 
+> > I'm guessing that the following line is the problem:
+> 
+> It means that postfix_pipe_t is changing the hard resource 
+> limits on either itself or another process in the same 
+> domain.  Likely fine - it is probably lowering them to avoid 
+> a DOS attack.
+> 
 
-If you actually want to protect the system from the user, you need to
-map the user to user_u or staff_u instead.
+Thanks.
 
--- 
-Stephen Smalley
-National Security Agency
+> > fatal: execvp /usr/sbin/postdrop: Permission denied
+> 
+> Looks that way, and that message was prefixed with sendmail:, 
+> which suggests that it was an attempt by sendmail to exec 
+> postdrop that failed.  If sendmail were running in 
+> system_mail_t, it should have transitioned to postfix_drop_t 
+> upon executing /usr/sbin/postdrop.
+> 
+
+Can you explain that for me?
+
+Where it says sendmail, I assume it's a reference to /usr/sbin/sendmail,
+which is a symlink to /etc/alternatives/mta, which is a symlink to
+/usr/sbin/sendmail.postfix. Would that mean sendmail (assuming I am
+correct about what this is referring to) would be running under
+sendmail_exec_t, the context of the third item in the chain?
+
+> > The security context of this file is
+> > system_u:object_r:postfix_postdrop_exec_t
+> > 
+> > I'm thinking that perhaps I need to add:
+> > 
+> > type postfix_postdrop_exec_t
+> > allow postfix_pipe_t postfix_postdrop_exec_t:file execute
+> 
+> If you actually want postfix_pipe_t to run postdrop, then 
+> you'd want a domain transition there.  Looks like there is a 
+> postfix_user_domtrans attribute defined in the postfix policy 
+> for all domains that transition into the postfix domains.  So 
+> something like:
+> 
+> require {
+> 	attribute postfix_user_domtrans;
+> }
+> typeattribute postfix_pipe_t postfix_user_domtrans;
+> 
+> might help there.
+> 
+
+And indeed it did! Adding that gave it a kick up the backside and it
+generated some new errors, and voila! I have working e-mail with
+footers.
+
+Many, many thanks for your help. I'm going to run through the policy and
+see if there are any extraneous references which I can drop.
+
+> 
+> > However, can anyone tell me why this error isn't generating new 
+> > content in audit.log? Is my next step the right one?
+> 
+> Some denials may be silenced by dontaudit rules.
+> Try running semodule -DB or semodule
+> -b /usr/share/selinux/targeted/enableaudit.pp and try 
+> exercising it again to see if you get further denials that 
+> look relevant.  That will produce a lot of noise however.  
+> Use semodule -B or semodule -b 
+> /usr/share/selinux/targeted/base.pp to revert afterwards.
+> 
+> > I think the above policy is swiss-cheesing my postfix security :/ 
+> > Alas, I don't have much of a choice on this one, this is 
+> the only way 
+> > to add footers to postfix that I have found, plus the box 
+> runs other 
+> > services too so I don't want to disable SELinux. Anyway, disabling 
+> > security systems is always a step in the wrong direction 
+> IMO, better 
+> > to have the short-term pain.
+> > 
+> > Paul Cocker
+> 
+> --
+> Stephen Smalley
+> National Security Agency
+> 
+> 
+
+
+
+TNT Post is the trading name for TNT Post UK Ltd (company number: 04417047), TNT Post (Doordrop Media) Ltd (00613278), TNT Post Scotland Ltd (05695897), TNT Post North Ltd (05701709), TNT Post South West Ltd (05983401), TNT Post Midlands Limited (6458167)and TNT Post London Limited (6493826). Emma's Diary and Lifecycle are trading names for Lifecycle Marketing (Mother and Baby) Ltd (02556692). All companies are registered in England and Wales; registered address: 1 Globeside Business Park, Fieldhouse Lane, Marlow, Buckinghamshire, SL7 1HY.
+
 
 
 --
