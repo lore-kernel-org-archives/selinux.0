@@ -1,124 +1,162 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9K7ICqi032468
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2008 03:18:12 -0400
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9K7GnYY021277
-	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2008 07:16:50 GMT
-Message-ID: <48FC30AD.5040802@redhat.com>
-Date: Mon, 20 Oct 2008 17:18:05 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9K8ws43014473
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2008 04:58:54 -0400
+Received: from mailhost.cdltd.co.uk (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9K8wl80029820
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2008 08:58:54 GMT
+Received: from exch.cdltd.co.uk (fw.cdltd.co.uk [193.132.127.247])
+	by mailhost.cdltd.co.uk (8.14.1/8.12.11) with ESMTP id m9K8rb3A031334
+	for <selinux@tycho.nsa.gov>; Mon, 20 Oct 2008 09:56:45 +0100
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>, Eric Paris <eparis@parisplace.org>
-Subject: user guide drafts: "Managing Users"
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: SELinux blocking disclaimer - help diagnosing
+Date: Mon, 20 Oct 2008 09:56:17 +0100
+Message-ID: <DAE2574A7F44F44ABE07381C36213DFA05C05720@exch.cdltd.co.uk>
+From: "Paul Cocker" <paul.cocker@tntpost.co.uk>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+I'm attaching a footer to e-mail in postfix using altermime. SELinux is
+preventing this from happening.
+ 
+I did some reading and have thus been using the method of switching
+SELinux into permissible mode, sending an e-mail through the system,
+then using audit2allow to generate a policy from the audit log generated
+by the e-mail.
 
-The following are drafts for the "Managing Users" sections. Any comments 
-and corrections are appreciated.
+grep AVC /var/log/audit/audit.log | audit2allow -m altermime >
+altermime.te
+checkmodule -mM -o altermime.mod altermime.te
+semodule_package -o altermime.pp -m altermime.mod
+semodule -i altermime.pp
 
-Thanks.
+I use semodule -l to verify the policy was loaded.
+ 
+Once I enable SELinux and send another e-mail I find the e-mail is still
+stopped, so I run audit2allow again and it picks up a type that wasn't
+in the previous policy (I remove the > altermime.te bit and manually
+move over the missing bits), so I update the module and add it to
+SELinux. I repeat this process a couple of times as the e-mail is
+blocked by new things.
+ 
+However, the e-mail is still blocked and running audit2allow on the log
+shows no changes over the existing policy.
 
-Managing Users
+Postfix is sending the following error to the sender:
 
-A number of confined SELinux users are available in Fedora 10. Each 
-Linux user is mapped to an SELinux user via SELinux policy, allowing 
-Linux users to inherit the restrictions on SELinux users, such as 
-(depending on the user) not being able to: run the X Window System, use 
-networking, run setuid applications unless SELinux policy permits it, or 
-run the su and sudo commands to become the Linux root user. Refer to 
-Section 4.3, “Confined and Unconfined Users” for further information 
-about confined users in Fedora 10.
+user@domain2.com: service unavailable.
+Command output: mime_alter.c:2192:AM_insert_Xheader:NOTICE: Adjusting
+temp file name for header insert sendmail: fatal: execvp
+/usr/sbin/postdrop: Permission denied
+sendmail: warning: premature end-of-input on /usr/sbin/postdrop -r while
+reading input attribute name sendmail: warning: command
+"/usr/sbin/postdrop -r" exited with status 1 sendmail: fatal:
+user@domain.com(100): unable to execute /usr/sbin/postdrop -r: Success
+ 
+Contents of the maillog for this message:
 
-Linux and SELinux User Mappings
+Oct 20 09:26:21 merlin postfix/smtpd[16322]: C95801F80042:
+client=computer.domain.com[10.100.100.100]
+Oct 20 09:26:21 merlin postfix/cleanup[16324]: C95801F80042:
+message-id=<01c9328d$Blat.v2.6.2$88778715$6f8d393e538@10.100.100.200>
+Oct 20 09:26:21 merlin postfix/qmgr[16156]: C95801F80042:
+from=<user@domain2.com>, size=562, nrcpt=1 (queue active)
+Oct 20 09:26:21 merlin postfix/smtpd[16322]: disconnect from
+computer.domain.com[10.100.100.100]
+Oct 20 09:26:21 merlin sendmail[16330]: fatal: execvp
+/usr/sbin/postdrop: Permission denied
+Oct 20 09:26:22 merlin postfix/sendmail[16329]: warning: premature
+end-of-input on /usr/sbin/postdrop -r while reading input attribute name
+Oct 20 09:26:22 merlin postfix/sendmail[16329]: warning: command
+"/usr/sbin/postdrop -r" exited with status 1
+Oct 20 09:26:22 merlin postfix/sendmail[16329]: fatal:
+user@domain2.com(100): unable to execute /usr/sbin/postdrop -r: Success
+Oct 20 09:26:23 merlin postfix/pipe[16325]: C95801F80042:
+to=<user@domain.com>, relay=dfilt, delay=2, delays=0.01/0/0/2,
+dsn=5.3.0, status=bounced (service unavailable. Command output:
+mime_alter.c:2192:AM_insert_Xheader:NOTICE: Adjusting temp file name for
+header insert sendmail: fatal: execvp /usr/sbin/postdrop: Permission
+denied sendmail: warning: premature end-of-input on /usr/sbin/postdrop
+-r while reading input attribute name sendmail: warning: command
+"/usr/sbin/postdrop -r" exited with status 1 sendmail: fatal:
+user@domain2.com(100): unable to execute /usr/sbin/postdrop -r: Success
+)
+Oct 20 09:26:23 merlin postfix/cleanup[16324]: D027D1F8007B:
+message-id=<20081020082623.D027D1F8007B@mailserver.domain.com>
+Oct 20 09:26:23 merlin postfix/bounce[16332]: C95801F80042: sender
+non-delivery notification: D027D1F8007B
+Oct 20 09:26:23 merlin postfix/qmgr[16156]: D027D1F8007B: from=<>,
+size=3216, nrcpt=1 (queue active)
+Oct 20 09:26:23 merlin postfix/qmgr[16156]: C95801F80042: removed
+Oct 20 09:26:23 merlin postfix/smtp[16333]: D027D1F8007B:
+to=<user@domain2.com>, relay=relay.domain.com[10.100.100.1]:25,
+delay=0.11, delays=0/0/0/0.1, dsn=2.6.0, status=sent (250 2.6.0
+<20081020082623.D027D1F8007B@mailserver.domain.com> Queued mail for
+delivery)
+Oct 20 09:26:23 merlin postfix/qmgr[16156]: D027D1F8007B: removed
 
-As the Linux root user, run the /usr/sbin/semanage login -l command to 
-view the mapping between Linux users and SELinux users:
+The policy generated looks as follows:
+ 
+module altermime 1.0;
+ 
+require {
+        type postfix_etc_t;
+        type postfix_public_t;
+        type postfix_spool_t;
+        type sendmail_exec_t;
+        type postfix_pipe_t;
+        type postfix_spool_maildrop_t;
+        class sock_file write;
+        class dir { write search remove_name add_name };
+        class file { rename execute read create execute_no_trans unlink
+};
+        class process setrlimit;
+}
+ 
+#============= postfix_pipe_t ==============
+allow postfix_pipe_t postfix_etc_t:file { execute execute_no_trans };
+allow postfix_pipe_t postfix_public_t:sock_file write;
+allow postfix_pipe_t postfix_spool_maildrop_t:dir { write remove_name
+search add_name };
+allow postfix_pipe_t postfix_spool_t:dir { write remove_name add_name };
+allow postfix_pipe_t postfix_spool_t:file { create rename unlink };
+allow postfix_pipe_t sendmail_exec_t:file { read execute
+execute_no_trans };
+allow postfix_pipe_t self:process setrlimit;
 
-[example output]
+Being new to SELinux I'm stumbling around in the dark somewhat (and if
+someone can tell me what the self:process line is I'd be grateful). I'm
+guessing that the following line is the problem:
 
-In Fedora 10, Linux users are mapped to the SELinux __default__ login by 
-default (which is mapped to the SELinux unconfined_u user). When a Linux 
-user is created using the /usr/sbin/useradd command, if no options are 
-specified, they are mapped to the SELinux unconfined_u user. The 
-following defines the default-mapping:
+fatal: execvp /usr/sbin/postdrop: Permission denied
 
-__default__               unconfined_u              s0-s0:c0.c1023
+The security context of this file is
+system_u:object_r:postfix_postdrop_exec_t
+
+I'm thinking that perhaps I need to add:
+
+type postfix_postdrop_exec_t
+allow postfix_pipe_t postfix_postdrop_exec_t:file execute
+
+However, can anyone tell me why this error isn't generating new content
+in audit.log? Is my next step the right one?
+
+I think the above policy is swiss-cheesing my postfix security :/ Alas,
+I don't have much of a choice on this one, this is the only way to add
+footers to postfix that I have found, plus the box runs other services
+too so I don't want to disable SELinux. Anyway, disabling security
+systems is always a step in the wrong direction IMO, better to have the
+short-term pain.
+
+Paul Cocker
 
 
-Mapping new Linux Users to SELinux Users: useradd
 
-Linux users mapped to the SELinux unconfined_u user run in the 
-unconfined_t domain. This is seen by running the id -Z command while 
-logged-in as a Linux users mapped to unconfined_u:
+TNT Post is the trading name for TNT Post UK Ltd (company number: 04417047), TNT Post (Doordrop Media) Ltd (00613278), TNT Post Scotland Ltd (05695897), TNT Post North Ltd (05701709), TNT Post South West Ltd (05983401), TNT Post Midlands Limited (6458167)and TNT Post London Limited (6493826). Emma's Diary and Lifecycle are trading names for Lifecycle Marketing (Mother and Baby) Ltd (02556692). All companies are registered in England and Wales; registered address: 1 Globeside Business Park, Fieldhouse Lane, Marlow, Buckinghamshire, SL7 1HY.
 
-$ id -Z
-unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
 
-When Linux users run in the unconfined_t domain, SELinux policy rules 
-are applied, but policy rules exist that allow Linux users running in 
-the unconfined_t domain almost all access. If unconfined Linux users 
-execute an application that SELinux policy defines can transition from 
-the unconfined_t domain to its own confined domain, unconfined Linux 
-users are still subject to the restrictions of that confined domain. The 
-security benefit of this is that, even though a Linux user is running 
-unconfined, they can not override the SELinux policy for a confined 
-application, just because they (the user) are unconfined.
-
-When creating Linux users with /usr/sbin/useradd, use the -Z 
-SELinux-user option to specify which SELinux user they are mapped to.
-
-# A later section will show how to change the default mapping from 
-unconfined_u.
-
-The following example creates a new Linux user, xguestuser, and maps 
-that user to the SELinux xguest_u user. Linux users mapped to the 
-SELinux xguest_u user run in the xguest_t domain. In this domain, Linux 
-users are unable to run setuid applications unless SELinux policy 
-permits it (such as passwd), can not run su or sudo, preventing them 
-from becoming the Linux root user with these commands, and, the only 
-network access allowed is the Firefox application connecting to web pages.
-
-1. As the Linux root, run the /usr/sbin/useradd -Z xguest_u xguestuser 
-command to create a new Linux user named xguestuser, that is mapped to 
-the SELinux xguest_u user.
-
-2. As the Linux root user, run the /usr/sbin/semanage login -l command 
-to view the mapping between the Linux xguestuser user and xguest_u:
-
-[example output]
-
-3. As the Linux root user, run the passwd xguestuser command to assign a 
-password to the Linux xguestuser user:
-
-[example passwd command and output]
-
-4. Log out of your current session, and log in as the Linux xguestuser 
-user. When you log in, pam_selinux maps the Linux user to an SELinux 
-user (in this case, xguest_u), and sets up the resulting SELinux 
-context. The Linux user's shell is then launched with this SELinux 
-context. To view the SELinux context for a Linux user, run the id -Z 
-command:
-
-[xguestuser@localhost ~]$ id -Z
-xguest_u:xguest_r:xguest_t:s0
-
-5. Log out of the Linux xguestuser's session, and log back in with your 
-account. If you do not want the Linux xguestuser user, as the Linux root 
-user, run the /usr/sbin/userdel -r xguestuser command to remove it, 
-along with its home directory.
-
-The next section, "Mapping Existing Linux Users to SELinux Users: 
-semanage login", is incomplete. It demonstrates using "semanage login -a 
--s" on an Linux user mapped to unconfined_u.
-
-I was also going to include how to change the default mapping to 
-unconfined_u.
-
-Cheers.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
