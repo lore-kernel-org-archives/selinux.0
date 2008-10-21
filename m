@@ -1,122 +1,200 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9UCZlYi012007
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 08:35:47 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9UCYFhH027518
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 12:34:15 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9UCZmth012015
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 08:35:48 -0400
+Received: from moss-lions.epoch.ncsc.mil (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9UCZmXV000653
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 12:35:48 GMT
 Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.2/8.14.2) with ESMTP id m9UCZjut021179
+	by moss-lions.epoch.ncsc.mil (8.14.2/8.14.2) with ESMTP id m9UCZjn7021175
 	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 08:35:45 -0400
 Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.2/8.14.2/Submit) id m9UCZjIB021178
+	by moss-lions.epoch.ncsc.mil (8.14.2/8.14.2/Submit) id m9UCZj9H021173
 	for selinux@tycho.nsa.gov; Thu, 30 Oct 2008 08:35:45 -0400
-Date: Wed, 22 Oct 2008 10:51:46 +0100
+Date: Tue, 21 Oct 2008 18:17:22 +0100
 From: "Daniel P. Berrange" <berrange@redhat.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: James Morris <jmorris@namei.org>, libvir-list@redhat.com,
-        Daniel Veillard <veillard@redhat.com>,
+To: James Morris <jmorris@namei.org>
+Cc: libvir-list@redhat.com, Daniel Veillard <veillard@redhat.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
         Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 Subject: Re: [RFC] sVirt v0.10 - initial prototype
-Message-ID: <20081022095146.GA24340@redhat.com>
+Message-ID: <20081021171722.GP16442@redhat.com>
 Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
-References: <alpine.LRH.1.10.0810211144030.10613@tundra.namei.org> <48FDDFBB.8020005@redhat.com> <20081021162217.GN16442@redhat.com> <48FE165C.3040303@redhat.com>
+References: <alpine.LRH.1.10.0810211144030.10613@tundra.namei.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <48FE165C.3040303@redhat.com>
+In-Reply-To: <alpine.LRH.1.10.0810211144030.10613@tundra.namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Oct 21, 2008 at 01:50:20PM -0400, Daniel J Walsh wrote:
-> Daniel P. Berrange wrote:
-> > On Tue, Oct 21, 2008 at 09:57:15AM -0400, Daniel J Walsh wrote:
-> >> James Morris wrote:
-> > I think the 'policytype' bit of the label may thus better live in the
-> > host capabilities XML document, so you can query it independantly of
-> > any virtual machine
-> > 
-> > eg perhaps something like
-> > 
-> > # virsh capabilities 
-> > <capabilities>
-> > 
-> >   <host>
-> >     <cpu>
-> >       <arch>i686</arch>
-> >     </cpu>
-> >     <secpolicy model='selinux'>
-> >        <type>targetted</type>
-> >        <state>enforcing</state>
-> >     </secpolicy>
-> >   </host>
-> > 
-> >   .... snip rest of XML...
-> > 
-> > Is there any meaningful / useful policy version information that can
-> > be included here ? Or policy feature bits
-> > 
-> > The VM config would thus only need
-> > 
-> >    <domain>
-> >      ....
-> >      <seclabel model='selinux'>
-> >        <label>system_u:system_r:virtd_t:s0</label>
-> >      </seclabel>
-> >      ...
-> >    </domain>
-> > 
-> > 
-> > I should note that the domain XML format is representative of the config
-> > for a particular deployment of a virtual machine onto a host. 
-> > 
-> > It is not a generic interchange format for 'appliances'. If you were
-> > distributing an appliance, then the virt-image XML format would be used,
-> > and this encodes information on pre-requisites for host capabilities. 
-> > 
-> > When an appliance is deployed as a virtual domain, the virt-image tool,
-> > validate the virt-image XML pre-requisites, against the host capabilites
-> > XML to determine if the host is suitable.
-> > 
-> > Daniel
-> Again targeted means nothing.  It is just an arbitrary name given to a
-> policy package. So I don't see why it should be mentioned anywhere.
+On Tue, Oct 21, 2008 at 01:06:17PM +1100, James Morris wrote:
+> With this release, it is possible to define a security label for a 
+> kvm/qemu domain in its XML configuration ('virsh edit'), launch the domain 
+> and have it transition to the specified security label ('virsh start'), 
+> then query the security label of the running domain ('virsh dominfo').
 > 
-> I think the existance of the kernel policy which understands what a
-> system_u:system_r:virtd_t:s0 is what is important.
+> The following changes were made to libvirt:
 > 
-> Again, I could have a three host machines each one with a different
-> policy package say targeted, mls and overt policy package.  If all three
-> understand what a system_u:system_r:virtd_t:s0 type is, then all three
-> could run the image.
+> 1. Implementing a pluggable security label driver framework;
+> 
+> 2. Implementing an SELinux security label driver for (1);
+> 
+> 3. Wiring the security label framework into the Qemu driver;
+> 
+> 4. Implementing basic libvirt API calls for initializing the driver, 
+>    and getting/setting domain security labels;
+> 
+> 5. Extending the domain XML configuration to include security labels;
+> 
+> 6. Adding domain security label display/edit/dump support to virsh.
+> 
+> One of the design principles I've followed with this is to reduce or 
+> eliminate configuration wherever possible.  If a variety of security 
+> labeling drivers are present, libvirtd automatically detects which one to 
+> enable and enables it.  e.g. if SELinux is enabled on the system, the 
+> SELinux labeling driver is enabled automatically when livbirtd starts.
+> 
+> Another is to treat security labels as opaque unless they're actually 
+> being used for security purposes (e.g. to launch the domain).  So, virsh 
+> and the domain configuration code currently do not need to semantically 
+> interpet security labels, just understand their format.  This should suit 
+> the initial simple goal of isolated domains, which only requires security 
+> labels to be distinct.
+> 
+> The domain security label configuration format is as follows:
+> 
+> # virsh dumpxml sys1
+> <domain>
+>     ....
+>   <seclabel model='selinux'>
+>     <label>system_u:system_r:virtd_t:s0</label>
+>     <policytype>targeted</policytype>
+>   </seclabel>
+> </domain> 
 
-I guess my point was that we need a way to determine whether the policy 
-on any machine is suitable for running a VM, before placing the VM on 
-that host. In the context of a data center mgmt app we can have 100's or
-1000's of possible virtualization enabled hosts. Not all of these
-hosts will be providing the same level of functionality / same versions
-of software, including selinux policy. 
+As I mentioned in my reply to Dan Walsh's comments, I thing that the
+policy type & its state (disabled, permissive, enforcing) is really a
+property of the host, rather than the VM, and so should live in the
+host capabilities XML document.
 
-So before starting a VM, the mgmt app needs to be able to make a reasonably
-accurate decision about what host will support the VM's requirements
-for SELinux policy capabilities. We can't just pick one at random, try to
-start if and see if the kernel complains that 'system_u:system_r:virtd_t:s0'
-doesn't exist in its policy.
+> Currently, the idea is to attach the security labeling driver to the virt 
+> driver, rather than implement it independently as a top-level component as 
+> in the case of other types of drivers (e.g. storage).  This is because 
+> process-based security labeling is highly dependent on the kind of 
+> virtualization in use, and may not make sense at all in some cases (e.g. 
+> when using a non-Linux hypervisor, or containers).
 
-> Having two machine with a "targeted" policy on them does nothing to
-> assure that a processs labeled system_u:system_r:virtd_t:s0
-> can run.
+Makes sense - the choice of hypervisor driver in libvirt determines
+what security model has to be applied to the storage/network sub-drivers
+in libvirt. So, eg if we activate Xen backend, we need to have an XSM
+based implementation for the security model of both the Xen driver
+and the storage backend.
 
-It wasn't intended to be a guarentee - its basically metadata to help the
-admin / mgmt app pick a suitable virtualization host from amongst their
-data center of 100's of machine. 
+> 
+> In the case of qemu, a security labeling driver is added to qemud:
+> 
+> @@ -63,6 +64,7 @@ struct qemud_driver {
+>      char *vncListen;
+>  
+>      virCapsPtr caps;
+> +    virSecLabelDriverPtr secLabelDriver;
+>  };
+> 
+> and then initialized during qemud startup from qemudSecLabelInit().  
+> 
+> During initialization, any available security labeling drivers are probed, 
+> and the first one which thinks it should be used is installed. Top-level 
+> libvirt API calls are then dispatched to the active security labeling 
+> driver via the backend virt driver, as necessary.
 
-Maybe exposing the policytype 'targetted' is the wrong thing to be
-considering for this purpose. Perhaps we should instead provide an API
-to let you query the full list of all defined security domains, roles
-and users. Basically enough info to let you validate whether the label
-'system_u:system_r:virtd_t:s0' is likely to be supported. NB I use the
-word 'likely' here - we don't need an absolute guarentee - we just need
-to be able to make a reasonable choice of hosts & if it fails it can be
-re-placed elsewhere.
+That all makes sense to me - you'll also likely need to expose the
+hypervisor driver's active security driver, to the storage & network
+drivers. For that I reckon extending the 'virDriverPtr' struct to
+add a internal only method
+
+   virSecLabelDriverPtr (*getSecLabelDriver)(void);
+
+would be a suitable approach. This would avoid the storage/network
+drivers needing to know about the internal state of the HV driver.
+
+> Note that the security labeling framework in this release is always 
+> built-in -- it can be made a compile-time option later if desired.
+
+As long as we can turn off the specific security model backends
+that is sufficient - no need to be able to turn off the entire
+security framework within libvirt - assuming of course everything
+handles a 'NULL' secLabelDriver.
+
+> Requirements not yet addressed include:
+> - Labeling of resources and generally comprehensive labeling management
+> - Automatic labeling (e.g. for the simple isolation use-case)
+> - Integration of labeling support into higher-level management tools such 
+>   as virt-manager
+> - Integration with the audit subsystem to help with administration and 
+>   debugging
+> - Domain of interpretation (DOI) checking/translation
+> - Python bindings
+> 
+> As mentioned, the goal at this stage is to get feedback on the underlying 
+> design: comments welcome!
+
+Looking at it from a libvirt architecture POV, i think its all basically
+a sane approach. It appears, so far, to be generic enough that we could 
+plug into an alternate XSM based impl for the Xen world, or delegate
+to whatever APIs something like VMWare / Hyper-V might provide.
+
+> diff --git a/include/libvirt/libvirt.h b/include/libvirt/libvirt.h
+> index 35b80d0..58ded58 100644
+> --- a/include/libvirt/libvirt.h
+> +++ b/include/libvirt/libvirt.h
+> @@ -111,6 +111,53 @@ typedef enum {
+>  } virDomainCreateFlags;
+>  
+>  /**
+> + * VIR_SECLABEL_LABEL_BUFLEN:
+> + *
+> + * Macro providing the maximum length of the virDomainSecLabel
+> + * label string.  Note that this value is based on that used
+> + * by Labeled NFS.
+> + */
+> +#define VIR_SECLABEL_LABEL_BUFLEN (4096 + 1)
+> +
+> +/**
+> + * VIR_SECLABEL_MODEL_BUFLEN:
+> + *
+> + * Macro providing the maximum length of the virDomainSecLabel
+> + * model string.
+> + */
+> +#define VIR_SECLABEL_MODEL_BUFLEN (256 + 1)
+> +
+> +/**
+> + * VIR_SECLABEL_POLICYTYPE_BUFLEN:
+> + *
+> + * Macro providing the maximum length of the virDomainSecLabel
+> + * policy string.
+> + */
+> +#define VIR_SECLABEL_POLICYTYPE_BUFLEN (256 + 1)
+> +
+> +/**
+> + * virDomainSecLabel:
+> + *
+> + * a virDomainSecLabel is a structure filled by virDomainGetSecLabel(),
+> + * providing the security label and associated attributes for the specified
+> + * domain.
+> + *
+> + */
+> +typedef struct _virDomainSecLabel {
+> +    char model[VIR_SECLABEL_MODEL_BUFLEN];              /* name of security labeling model */
+> +    char label[VIR_SECLABEL_LABEL_BUFLEN];              /* security label string */
+> +    char policytype[VIR_SECLABEL_POLICYTYPE_BUFLEN];    /* policy type */
+> +    int enforcing;                                      /* 1 if security policy is being enforced for domain */
+> +} virDomainSecLabel;
+
+The policytype/model would seem redundant here as per-host attributes ?
+
+I guess since SELinux gained ability to specify that individual security 
+domains are permissive, we do arguably still need an explicit flag 
+'enforcing' flag here, independantly of the global per-host 'enforcing' 
+vs 'permissive' flag.
 
 Daniel
 -- 
