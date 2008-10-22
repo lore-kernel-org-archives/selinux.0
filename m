@@ -1,58 +1,191 @@
-Message-ID: <48FF660E.2080708@manicmethod.com>
-Date: Wed, 22 Oct 2008 13:42:38 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <48FF7E28.5030406@redhat.com>
+Date: Wed, 22 Oct 2008 15:25:28 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joe Nall <joe@nall.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Use of optional_policy in templates (compiler bug or feature?)
-References: <CDFE55B0-379E-4CC5-AA3F-03FC6B622DF1@nall.com>	 <1224096411.21012.46.camel@gorn.columbia.tresys.com>	 <842B0735-FCD6-4BAF-B8D3-A462B1D5C9E4@nall.com>	 <1224161367.21012.57.camel@gorn.columbia.tresys.com>	 <B644A871-625C-477E-A9EA-6FF003227C8B@nall.com>	 <48F754B5.8020302@manicmethod.com> <48FCCBB1.1010004@redhat.com>	 <9E8A5545-7705-4CD3-9015-30AD17FA0AFE@nall.com>	 <48FD19BB.1090503@tycho.nsa.gov>	 <1224684070.29917.13.camel@moss-spartans.epoch.ncsc.mil>	 <A69BC137-D93E-495F-80B2-8D636620195A@nall.com>	 <1224685723.29917.20.camel@moss-spartans.epoch.ncsc.mil> <1224685922.29917.22.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1224685922.29917.22.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+CC: Murray McAllister <mmcallis@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>
+Subject: Re: user guide drafts: "Mounting File Systems"
+References: <48EF03BA.90901@redhat.com>	 <1223645441.25569.50.camel@moss-spartans.epoch.ncsc.mil>	 <48F69C5D.8050504@redhat.com>	 <1224166050.9247.48.camel@moss-spartans.epoch.ncsc.mil>	 <48FBCBC3.2070507@redhat.com>	 <1224509852.7428.43.camel@moss-spartans.epoch.ncsc.mil>	 <48FEB8D4.8040401@redhat.com> <1224688024.29917.42.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1224688024.29917.42.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 Stephen Smalley wrote:
-> On Wed, 2008-10-22 at 10:28 -0400, Stephen Smalley wrote:
->   
->> On Wed, 2008-10-22 at 09:26 -0500, Joe Nall wrote:
->>     
->>> On Oct 22, 2008, at 9:01 AM, Stephen Smalley wrote:
->>>
->>>       
->>>>   I did notice however that I could also get it to build w/o
->>>> changing checkmodule by reversing the order of the interface calls  
->>>> there
->>>> - not sure if that workaround is usable in the original case that
->>>> triggered this bug report.
->>>>         
->>> Arranging modules in the proper order becomes increasingly difficult  
->>> as module interaction grows. I finally de-optioned the X policy in  
->>> fedora since it is in base so get our additions to compile. Patch  
->>> included for reference.
->>>
->>> Making the compiler gracefully deal with options would really be  
->>> appreciated. I could see the issue in the compiler code, but the right  
->>> fix wasn't obvious.
->>>       
->> Does the patch I posted fix your problem?
->>     
->
-> And by fix, I mean not only does it allow you to build the policy but
-> does it yield the expected final kernel policy (i.e. look at the
-> policy.N file via apol and check that you are getting the expected types
-> and rules in the final policy).
->   
+> On Wed, 2008-10-22 at 15:23 +1000, Murray McAllister wrote:
+>> I have tried to make this clearer. How about:
+>>
+>> Changing the Default Context
+>>
+>> The file_t type is the default type used for files (stored on file 
+>> systems that support extended attributes) that do not have an SELinux 
+>> context.
+> 
+> Generalize:  When a file that lacks a SELinux extended attribute on disk
+> is accessed, the kernel treats it internally as if it had a default
+> context value defined by the policy.  In common policies, this default
+> context value has the file_t type, and this should be the only use of
+> this type so that such files can be distinguished in policy and
+> generally kept inaccessible to confined domains.
+> 
+>>  This type should not exist on correctly-labeled file systems.
+> 
+> because all files in such filesystems should have a SELinux extended
+> attribute set on disk, and the file_t type is never used in the
+> file_contexts configuration.  Instead, a default_t type is set on files
+> that do not match any other pattern in the file_contexts configuration
+> in order to distinguish them from files that have no security context on
+> disk.
+> 
+>> If a new file system is created and not labeled before use, files and 
+>> directories created on it may be labled with the file_t type. If it is 
+>> desirable that this default type for unlabeled files be changed, use the 
+>> the defcontext option when mounting the file system.
+>>
+>> The following example mounts a newly-created file system (on /dev/sda2) 
+>> to the newly-created /test/ directory. It assumes that there are no 
+>> rules in /etc/selinux/targeted/contexts/files/ that define a context for 
+>> the /test/ directory:
+>>
+>> # mount /dev/sda2 /test/ -o defcontext="system_u:object_r:samba_share_t:s0"
+>>
+>> In this example:
+>>
+>> * the defcontext option defines that system_u:object_r:samba_share_t:s0 
+>> is "the default security context for unlabeled files"[1].
+>>
+>> * when mounted, the root directory (/test/) of the file system is 
+>> labeled
+> 
+> s/labeled/treated as if it were labeled/
+> (the label is not set on disk)
+> 
+>>  with the context specified by defcontext (this label is not 
+>> stored on disk). This affects the labelling for files created under 
+>> /test/: new files inherit the samba_share_t type, and these labels are 
+>> stored on disk.
+>>
+>> * the context specified with defcontext is lost when the file system is 
+>> unmounted: the /test/ directory returns to being labeled with the file_t 
+>> type.
+> 
+> Not "lost", but not stored on disk.  It will be preserved on each mount
+> if it is added as a mount option to /etc/fstab or automounter maps.  It
+> doesn't change to file_t at unmount; it will be treated as file_t (or
+> more generally, the default context value defined by policy) if it is
+> later mounted without the defcontext= option.
+> 
+>> Different subdirectories is the example Eric gave me, but I messed it 
+>> up. How about:
+>>
+>> Mounting an NFS File System
+>>
+>> By default, NFS mounts on the client side are labeled with the nfs_t 
+>> type.
+> 
+> Generalize:  "labeled with a default context defined by policy for NFS
+> filesystems.  In common policies, this default context has the nfs_t
+> type.
+> 
+>>  Depending on policy configuration, services, such as Apache HTTP 
+>> Server and MySQL, may not be able to read files labeled with the nfs_t 
+>> type. This prevents an NFS file system being mounted and then read or 
+>> exported by another service.
+> 
+> Might be booleans that control this area as well; I don't know offhand.
+> 
+/usr/sbin/getsebool -a shows the following booleans available to use
+nfs,   "use_nfs_home_dirs"  allows all domains that need access to
+homedirs, access to nfs_t.  (cifs_t samba filesystems) have similar
+booleans.
+allow_ftpd_use_nfs --> off
+httpd_use_nfs --> off
+qemu_use_nfs --> on
+samba_share_nfs --> off
+use_nfs_home_dirs --> on
+virt_use_nfs --> off
+xen_use_nfs --> off
 
-I just worry that allowing situations like this will cause the linker to 
-not properly (or deterministically) enable optional blocks. That is why 
-we require everything be scoped locally to be used. We have, however, 
-made changes to the linker algorithm since the original module codebase 
-so it might have gotten better, but I don't think anyone has sat down 
-and figured out exactly which cases can be required and which ones may 
-be prevented.
+>> If you would like to mount an NFS file system and read or export that 
+>> file system with another service, use the context option when mounting 
+>> to override the nfs_t type. Use the following context option to mount 
+>> NFS file systems so that they can be shared via the Apache HTTP Server:
+>>
+>> mount localhost:/export /local/mount/point -o\
+>> context="system_u:object_r:httpd_sys_content_t:s0"
+> 
+> The options really ought to go into their fstab or automounter maps so
+> that they are preserved on each mount.
+> 
+> You should also note the types defined to allow multiple services to
+> access the same content.  Ask Dan.
+> 
+
+public_content_t
+public_content_rw_t
+
+>> Since context changes are not written to disk for these situations, 
+>> context changes are lost when the file system is unmounted.
+> 
+> Not "lost"; just not stored on disk.  Whether or not it keeps that label
+> on the next mount depends on whether you mount it with the context
+> option consistently.  Best way to do that is to put it in your fstab or
+> automounter configs.
+> 
+>>  If such a 
+>> file system is not labeled, or does support extended attributes, it 
+>> stays in that state after being unmounted.
+>>
+>> Multiple NFS Mounts
+>>
+>> When mounting multiple mounts from the same NFS export, attempting to 
+>> override the SELinux context of each mount with a different context, 
+>> results in subsequent mount commands failing. In the following example, 
+>> the NFS server has a single export, /export, which has two 
+>> subdirectories, web/ and database/. The following commands attempt two 
+>> mounts from the single NFS export, and try to override the context for 
+>> each one:
+>>
+>> # mount localhost:/export/web /local/web -o\
+>> context="system_u:object_r:httpd_sys_content_t:s0"
+>>
+>> # mount localhost:/export/database /local/database -o\
+>> context="system_u:object_r:mysqld_db_t:s0"
+>>
+>> The second mount command fails, and the following is logged to 
+>> /var/log/messages:
+>>
+>> kernel: SELinux: mount invalid.  Same superblock, different security 
+>> settings for (dev 0:15, type nfs)
+>>
+>> To mount multiple mounts from a single NFS export, with each mount 
+>> having a different context, use the -o nosharecache,context options. The 
+>> following example mounts multiple mounts from a single NFS export, with 
+>> a different context for each mount (allowing different services access):
+>>
+>> # mount localhost:/export/web /local/web -o\
+>> nosharecache,context="system_u:object_r:httpd_sys_content_t:s0"
+>>
+>> # mount localhost:/export/database /local/database -o\
+>> nosharecache,context="system_u:object_r:mysqld_db_t:s0"
+>>
+>> In this example, localhost:/export/web is mounted locally to 
+>> /local/web/, with all files being labeled with the httpd_sys_content_t 
+>> type, allowing Apache HTTP Server access. localhost:/export/database is 
+>> mounted locally to /local/database, with all files being labeled with 
+>> the mysqld_db_t type, allowing MySQL access. These type changes are not 
+>> written to disk.
+>>
+>> <important note>
+>> The nosharecache options allows you to mount the same subdirectory of an 
+>> export multiple times with different contexts (for example, mounting 
+>> /export/web multiple times). Do not mount the same subdirectory from an 
+>> export multiple times with different contexts, as this creates an 
+>> overlapping mount, where files are accessible under two different contexts.
+>> </important note>
+>>
+>> Thanks for your help.
 
 
 --
