@@ -1,102 +1,100 @@
-Subject: Re: Use of optional_policy in templates (compiler bug or feature?)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <method@manicmethod.com>
-Cc: Joe Nall <joe@nall.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
+Message-ID: <49008714.1020306@manicmethod.com>
+Date: Thu, 23 Oct 2008 10:15:48 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Joe Nall <joe@nall.com>, Eamon Walsh <ewalsh@tycho.nsa.gov>,
         Daniel J Walsh <dwalsh@redhat.com>,
         "Christopher J. PeBenito" <cpebenito@tresys.com>,
         SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <48FF660E.2080708@manicmethod.com>
-References: <CDFE55B0-379E-4CC5-AA3F-03FC6B622DF1@nall.com>
-	 <1224096411.21012.46.camel@gorn.columbia.tresys.com>
-	 <842B0735-FCD6-4BAF-B8D3-A462B1D5C9E4@nall.com>
-	 <1224161367.21012.57.camel@gorn.columbia.tresys.com>
-	 <B644A871-625C-477E-A9EA-6FF003227C8B@nall.com>
-	 <48F754B5.8020302@manicmethod.com> <48FCCBB1.1010004@redhat.com>
-	 <9E8A5545-7705-4CD3-9015-30AD17FA0AFE@nall.com>
-	 <48FD19BB.1090503@tycho.nsa.gov>
-	 <1224684070.29917.13.camel@moss-spartans.epoch.ncsc.mil>
-	 <A69BC137-D93E-495F-80B2-8D636620195A@nall.com>
-	 <1224685723.29917.20.camel@moss-spartans.epoch.ncsc.mil>
-	 <1224685922.29917.22.camel@moss-spartans.epoch.ncsc.mil>
-	 <48FF660E.2080708@manicmethod.com>
-Content-Type: text/plain
-Date: Thu, 23 Oct 2008 10:10:40 -0400
-Message-Id: <1224771040.28867.33.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Subject: Re: Use of optional_policy in templates (compiler bug or feature?)
+References: <CDFE55B0-379E-4CC5-AA3F-03FC6B622DF1@nall.com>	 <1224096411.21012.46.camel@gorn.columbia.tresys.com>	 <842B0735-FCD6-4BAF-B8D3-A462B1D5C9E4@nall.com>	 <1224161367.21012.57.camel@gorn.columbia.tresys.com>	 <B644A871-625C-477E-A9EA-6FF003227C8B@nall.com>	 <48F754B5.8020302@manicmethod.com> <48FCCBB1.1010004@redhat.com>	 <9E8A5545-7705-4CD3-9015-30AD17FA0AFE@nall.com>	 <48FD19BB.1090503@tycho.nsa.gov>	 <1224684070.29917.13.camel@moss-spartans.epoch.ncsc.mil>	 <A69BC137-D93E-495F-80B2-8D636620195A@nall.com>	 <1224685723.29917.20.camel@moss-spartans.epoch.ncsc.mil>	 <1224685922.29917.22.camel@moss-spartans.epoch.ncsc.mil>	 <48FF660E.2080708@manicmethod.com> <1224771040.28867.33.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1224771040.28867.33.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-10-22 at 13:42 -0400, Joshua Brindle wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2008-10-22 at 10:28 -0400, Stephen Smalley wrote:
-> >   
-> >> On Wed, 2008-10-22 at 09:26 -0500, Joe Nall wrote:
-> >>     
-> >>> On Oct 22, 2008, at 9:01 AM, Stephen Smalley wrote:
-> >>>
-> >>>       
-> >>>>   I did notice however that I could also get it to build w/o
-> >>>> changing checkmodule by reversing the order of the interface calls  
-> >>>> there
-> >>>> - not sure if that workaround is usable in the original case that
-> >>>> triggered this bug report.
-> >>>>         
-> >>> Arranging modules in the proper order becomes increasingly difficult  
-> >>> as module interaction grows. I finally de-optioned the X policy in  
-> >>> fedora since it is in base so get our additions to compile. Patch  
-> >>> included for reference.
-> >>>
-> >>> Making the compiler gracefully deal with options would really be  
-> >>> appreciated. I could see the issue in the compiler code, but the right  
-> >>> fix wasn't obvious.
-> >>>       
-> >> Does the patch I posted fix your problem?
-> >>     
-> >
-> > And by fix, I mean not only does it allow you to build the policy but
-> > does it yield the expected final kernel policy (i.e. look at the
-> > policy.N file via apol and check that you are getting the expected types
-> > and rules in the final policy).
-> >   
-> 
-> I just worry that allowing situations like this will cause the linker to 
-> not properly (or deterministically) enable optional blocks. That is why 
-> we require everything be scoped locally to be used. We have, however, 
-> made changes to the linker algorithm since the original module codebase 
-> so it might have gotten better, but I don't think anyone has sat down 
-> and figured out exactly which cases can be required and which ones may 
-> be prevented.
+Stephen Smalley wrote:
+> On Wed, 2008-10-22 at 13:42 -0400, Joshua Brindle wrote:
+>   
+>> Stephen Smalley wrote:
+>>     
+>>> On Wed, 2008-10-22 at 10:28 -0400, Stephen Smalley wrote:
+>>>   
+>>>       
+>>>> On Wed, 2008-10-22 at 09:26 -0500, Joe Nall wrote:
+>>>>     
+>>>>         
+>>>>> On Oct 22, 2008, at 9:01 AM, Stephen Smalley wrote:
+>>>>>
+>>>>>       
+>>>>>           
+>>>>>>   I did notice however that I could also get it to build w/o
+>>>>>> changing checkmodule by reversing the order of the interface calls  
+>>>>>> there
+>>>>>> - not sure if that workaround is usable in the original case that
+>>>>>> triggered this bug report.
+>>>>>>         
+>>>>>>             
+>>>>> Arranging modules in the proper order becomes increasingly difficult  
+>>>>> as module interaction grows. I finally de-optioned the X policy in  
+>>>>> fedora since it is in base so get our additions to compile. Patch  
+>>>>> included for reference.
+>>>>>
+>>>>> Making the compiler gracefully deal with options would really be  
+>>>>> appreciated. I could see the issue in the compiler code, but the right  
+>>>>> fix wasn't obvious.
+>>>>>       
+>>>>>           
+>>>> Does the patch I posted fix your problem?
+>>>>     
+>>>>         
+>>> And by fix, I mean not only does it allow you to build the policy but
+>>> does it yield the expected final kernel policy (i.e. look at the
+>>> policy.N file via apol and check that you are getting the expected types
+>>> and rules in the final policy).
+>>>   
+>>>       
+>> I just worry that allowing situations like this will cause the linker to 
+>> not properly (or deterministically) enable optional blocks. That is why 
+>> we require everything be scoped locally to be used. We have, however, 
+>> made changes to the linker algorithm since the original module codebase 
+>> so it might have gotten better, but I don't think anyone has sat down 
+>> and figured out exactly which cases can be required and which ones may 
+>> be prevented.
+>>     
+>
+> The particular case is:
+> optional {
+> 	require {
+> 		type system_dbusd_t, system_dbusd_t, dbusd_etc_t;
+> 		class dbus { send_msg acquire_svc };
+> 		attribute dbusd_unconfined;
+> 	}
+> 	type swo_dbusd_t;
+> 	...
+> }
+>
+> require {
+> 	type swo_t;
+> 	type swo_dbusd_t;
+> 	class dbus send_msg;
+> }
+> ...
+>
+> So the require that is triggering a misleading "duplicate
+> type/attribute" error under the current toolchain is not within an
+> optional block at all.  And if you switch the order, it compiles fine
+> (because we already allow decl-follows-require).  It shouldn't be order
+> dependent obviously.
+>
+> In any event, the compiler breakage is preventing people from doing real
+> work, and doesn't seem to be a bug in policy.  It needs to be fixed.
+> 		
+>   
 
-The particular case is:
-optional {
-	require {
-		type system_dbusd_t, system_dbusd_t, dbusd_etc_t;
-		class dbus { send_msg acquire_svc };
-		attribute dbusd_unconfined;
-	}
-	type swo_dbusd_t;
-	...
-}
-
-require {
-	type swo_t;
-	type swo_dbusd_t;
-	class dbus send_msg;
-}
-...
-
-So the require that is triggering a misleading "duplicate
-type/attribute" error under the current toolchain is not within an
-optional block at all.  And if you switch the order, it compiles fine
-(because we already allow decl-follows-require).  It shouldn't be order
-dependent obviously.
-
-In any event, the compiler breakage is preventing people from doing real
-work, and doesn't seem to be a bug in policy.  It needs to be fixed.
-		
--- 
-Stephen Smalley
-National Security Agency
+Ok, waiting on Joe to respond with whether your last patch fixed his 
+problems then I'll apply it here and see if it blows anything up.
 
 
 --
