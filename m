@@ -1,81 +1,101 @@
-Message-ID: <4900B01C.4070206@redhat.com>
-Date: Thu, 23 Oct 2008 13:10:52 -0400
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9NHFFhj003007
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 13:15:15 -0400
+Received: from mx1.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9NHFFIH020189
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 17:15:15 GMT
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m9NHFFNT023665
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 13:15:15 -0400
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [10.16.255.12])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m9NHFDnb007916
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 13:15:13 -0400
+Received: from localhost.localdomain (dhcp-100-2-12.bos.redhat.com [10.16.2.12])
+	by mail.boston.redhat.com (8.13.1/8.13.1) with ESMTP id m9NHFCGv006305
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 13:15:13 -0400
+Message-ID: <4900B11F.2050101@redhat.com>
+Date: Thu, 23 Oct 2008 13:15:11 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: LC Bruzenak <lenny@MagitekLtd.com>, SE-Linux <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: semanage help
-References: <1224727612.14755.244.camel@homeserver>	 <1224766402.28867.4.camel@moss-spartans.epoch.ncsc.mil>	 <4900A0C8.9050200@redhat.com> <1224779343.28867.60.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1224779343.28867.60.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: policycoreutils patch
+Content-Type: multipart/mixed;
+ boundary="------------090801050502040109080608"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Thu, 2008-10-23 at 12:05 -0400, Daniel J Walsh wrote:
->> Stephen Smalley wrote:
->>> On Wed, 2008-10-22 at 21:06 -0500, LC Bruzenak wrote:
->>>> - get the file context -
->>>> [root@v1 ~]# semanage fcontext -l | grep prelude_spool
->>>> /var/spool/prelude(/.*)?                           all files          system_u:object_r:prelude_spool_t:s0 
->>>> /var/spool/prelude-manager(/.*)?                   all files          system_u:object_r:prelude_spool_t:s0 
->>>>
->>>> So it seems that it knows about this path match.
->>>>
->>>> - set the file range -
->>>> [root@v1 ~]# semanage fcontext -m -r s15:c0.c1023  "/var/spool/prelude(/.*)?"
->>>> /usr/sbin/semanage: File context for /var/spool/prelude(/.*)? is not defined
->>>>
->>>> [root@v1 ~]# semanage fcontext -m -r s15:c0.c1023 -t prelude_spool_t '/var/spool/prelude(/.*)?'
->>>> /usr/sbin/semanage: File context for /var/spool/prelude(/.*)? is not defined
->>>>
->>>> Can someone tell me what I'm doing wrong/how to fix?
->>> Looks like it is defined by a policy module, and semanage fcontext -m
->>> can only modify local definitions.
->>>
->>> I'd think that you could add a local definition to override it, ala:
->>> /usr/sbin/semanage fcontext -a -t prelude_spool_t -r s15:c0.c1023 '/var/spool/prelude(/.*)?'
->>>
->>> but that complains that it already exists.  Maybe it ought to be using
->>> semanage_fcontext_exists_local() instead?
->>>
->> Making that change ends up with and using postgrey instead of prelude.
->>
->>
->> # /usr/sbin/semanage fcontext -a -t postgrey_spool_t -r s0:c0.c1023
->> '/var/spool/postfix/postgrey(/.*)?'
-> 
-> Not sure I understand - the command I ran above was for prelude_spool_t
-> and /var/spool/prelude, not postgrey.  Anyway, I thought we moved the
-> nodups_specs() check before reading of file_contexts.local so that local
-> specs could in fact override/duplicate base file_contexts.  In
-> libselinux 2.0.71.
->> /sbin/restorecon -r -v /var/spool/posfix/postgrey
->> /etc/selinux/targeted/contexts/files/file_contexts: Multiple different
->> specifications for /var/spool/postfix/postgrey(/.*)?
->> (system_u:object_r:postgrey_spool_t:s0:c0.c1023 and
->> system_u:object_r:postgrey_spool_t:s0).
->>
->>
-Did testing on Fedora 9 which did not have prelude installed, so I
-changed, it for the test
+This is a multi-part message in MIME format.
+--------------090801050502040109080608
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-# rpm -q libselinux
-libselinux-2.0.67-4.fc9.x86_64
-libselinux-2.0.67-4.fc9.i386
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Rawhide it seems to work
+Fix error message in newrole.
 
-# /usr/sbin/semanage fcontext -a -t prelude_spool_t -r s0:c0.c1023
-'/var/spool/prelude(/.*)?'
-# restorecon -R -v /var/spool/prelude/
-restorecon reset /var/spool/prelude context
-system_u:object_r:prelude_spool_t:s0->system_u:object_r:prelude_spool_t:s0:c0.c1023
+Change semange fcontext -a to check for local customizations rather then
+ global, so you can modify a file context.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
+iEYEARECAAYFAkkAsR4ACgkQrlYvE4MpobPkRgCfQQNFw9DE8oGt7ecsl7ikXJhM
+vGIAoKRp+37SMzpfgIoOC9VY0S7bmR+V
+=pwc5
+-----END PGP SIGNATURE-----
 
-So I will patch policycoreutils.
+--------------090801050502040109080608
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
+diff --exclude-from=exclude --exclude=sepolgen-1.0.13 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/newrole/newrole.c policycoreutils-2.0.57/newrole/newrole.c
+--- nsapolicycoreutils/newrole/newrole.c	2008-08-28 09:34:24.000000000 -0400
++++ policycoreutils-2.0.57/newrole/newrole.c	2008-10-17 16:43:52.000000000 -0400
+@@ -553,7 +553,7 @@
+ 	new_caps = cap_init();
+ 	tmp_caps = cap_init();
+ 	if (!new_caps || !tmp_caps) {
+-		fprintf(stderr, _("Error initing capabilities, aborting.\n"));
++		fprintf(stderr, _("Error initializing capabilities, aborting.\n"));
+ 		return -1;
+ 	}
+ 	rc |= cap_set_flag(new_caps, CAP_PERMITTED, 1, cap_list, CAP_SET);
+@@ -631,7 +631,7 @@
+ 	/* Non-root caller, suid root path */
+ 	new_caps = cap_init();
+ 	if (!new_caps) {
+-		fprintf(stderr, _("Error initing capabilities, aborting.\n"));
++		fprintf(stderr, _("Error initializing capabilities, aborting.\n"));
+ 		return -1;
+ 	}
+ 	rc |= cap_set_flag(new_caps, CAP_PERMITTED, 6, cap_list, CAP_SET);
+diff --exclude-from=exclude --exclude=sepolgen-1.0.13 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-2.0.57/semanage/seobject.py
+--- nsapolicycoreutils/semanage/seobject.py	2008-09-12 11:48:15.000000000 -0400
++++ policycoreutils-2.0.57/semanage/seobject.py	2008-10-23 11:04:33.000000000 -0400
+@@ -1430,7 +1430,7 @@
+ 		if rc < 0:
+ 			raise ValueError(_("Could not create key for %s") % target)
+ 
+-		(rc,exists) = semanage_fcontext_exists(self.sh, k)
++		(rc,exists) = semanage_fcontext_exists_local(self.sh, k)
+ 		if rc < 0:
+ 			raise ValueError(_("Could not check if file context for %s is defined") % target)
+ 		if exists:
+
+--------------090801050502040109080608
+Content-Type: application/octet-stream;
+ name="diff.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="diff.sig"
+
+iEYEABECAAYFAkkAsR8ACgkQrlYvE4MpobObJQCggrAxUZCn3FioLNgKtt8zXXzb2ygAni+m
+EdW6xkcBKL2G0bn8nt7DcpdV
+--------------090801050502040109080608--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
