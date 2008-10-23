@@ -1,98 +1,69 @@
-Subject: Re: [LTP][PATCH 1/2] Replacement of deprecated interfaces
-From: Subrata Modak <subrata@linux.vnet.ibm.com>
-Reply-To: subrata@linux.vnet.ibm.com
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        paul.moore@hp.com, jbrindle@tresys.com, selinux@tycho.nsa.gov
-In-Reply-To: <48B64526.2070003@ak.jp.nec.com>
-References: <487C7698.60503@ak.jp.nec.com>
-	 <1216129084.9348.27.camel@moss-spartans.epoch.ncsc.mil>
-	 <487D5A3D.6090801@ak.jp.nec.com>
-	 <1216210685.17602.98.camel@moss-spartans.epoch.ncsc.mil>
-	 <48803685.1000505@ak.jp.nec.com> <4886AC81.9030202@ak.jp.nec.com>
-	 <4889CC5F.3030500@ak.jp.nec.com> <4897E974.2040003@ak.jp.nec.com>
-	 <4897EB5A.1040404@ak.jp.nec.com>
-	 <1217940793.2994.52.camel@moss-spartans.epoch.ncsc.mil>
-	 <48997937.8050105@ak.jp.nec.com>  <48A3E0E8.4000902@ak.jp.nec.com>
-	 <1218824000.29535.315.camel@moss-spartans.epoch.ncsc.mil>
-	 <48B2A669.7040800@ak.jp.nec.com>
-	 <alpine.LRH.1.10.0808262015360.6838@tundra.namei.org>
-	 <alpine.LRH.1.10.0808262046000.6838@tundra.namei.org>
-	 <48B50A97.8050404@ak.jp.nec.com>
-	 <1219839256.5708.15.camel@moss-spartans.epoch.ncsc.mil>
-	 <48B64526.2070003@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Thu, 23 Oct 2008 15:18:13 +0530
-Message-Id: <1224755293.4943.32.camel@subratamodak.linux.ibm.com>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: James Morris <jmorris@namei.org>
+Subject: Re: [RFC] sVirt v0.10 - initial prototype
+Date: Thu, 23 Oct 2008 08:05:39 -0400
+Cc: Daniel J Walsh <dwalsh@redhat.com>, libvir-list@redhat.com,
+        "Daniel P. Berrange" <berrange@redhat.com>,
+        Daniel Veillard <veillard@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <alpine.LRH.1.10.0810211144030.10613@tundra.namei.org> <48FDDFBB.8020005@redhat.com> <alpine.LRH.1.10.0810221858300.19361@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0810221858300.19361@tundra.namei.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200810230805.39558.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Wednesday 22 October 2008 5:23:45 am James Morris wrote:
+> On Tue, 21 Oct 2008, Daniel J Walsh wrote:
+> > Why do we care about the policy type?  Policy type is a fairly
+> > meaningless object.  If you are trying to figure out if the host
+> > machine is valid to run a virtual machine you should just check
+> > whether the type is valid on the machine,  That way if I define
+> > minimum policy with virt support on one host and targeted policy
+> > with virt support on another machine, both would work.
+>
+> We need a way to indicate how to interpret the meaning of labels,
+> which may vary depending on how policy has been implemented and
+> deployed within a specific administrative boundary.  Keep in mind
+> also that this API needs to be useable with non-SELinux security
+> schemes, although, in any case, just because a label is technically
+> valid on a system, doesn't mean that the meaning is understood.  e.g.
+> "virt_image_t:s0" on a targeted system could mean something radically
+> different to "virt_image_t:s0" on an MLS system, where, say, "s0"
+> might mean "top secret" instead of "nothing".
+>
+> Perhaps we should call this element "doi" (Domain of Interpretation)
+> instead of "policytype", in keeping with existing similar security
+> labeling, and not tied in name to the SELinux polictype configuration
+> variable.
+>
+> I thought the SELinux policytype in this case would be a useful
+> starting point for the DOI, although the truth is that this needs to
+> be entirely administratively managed.  We can't predict where
+> administrative security boundaries will be or how the user will
+> represent them.  Possibile DOI schemes include domain name, policy
+> package+version names, existing kerberos realms etc.
 
-On Thu, 2008-08-28 at 15:26 +0900, KaiGai Kohei wrote:
-> Stephen Smalley wrote:
-> > On Wed, 2008-08-27 at 17:04 +0900, KaiGai Kohei wrote:
-> >> James Morris wrote:
-> >>> Could you also please add tests for this (at least one which should fail 
-> >>> and one which should succeed) to the Linux Test Project?
-> >>>
-> >>>
-> >>> - James
-> >> Policies stored in ltp/testcases/kernel/security/selinux-testsuite/refpolicy/
-> >> invokes massive deprecated interfaces on selinux-policy-3.5.4.
-> >>
-> >> This patch fixes them according to the warning messages which encourage to
-> >> replace older ones.
-> >>
-> >> BTW, I'm not happy with the test_policy.pp does not allow to invoke test
-> >> scripts from unconfined_t domain. Is it to be fixed?
-> > 
-> > I don't quite follow.  Did you follow the instructions in the
-> > selinux-testsuite README?
-> 
-> I didn't read the README file carefully, Oops.
-> 
-> The update_refpolicy.sh fixes some of deprecated interfaces and
-> inject an interface to kick test script from unconfined domain.
-> So, I can run the testsuite which includs bounds test without
-> any problems on Rawhide.
-> 
-> # However, I got some warnings for deprecated interfaces/macros
-> # like r_dir_perms, userdom_sysadm_bin_spec_domtrans_to or
-> # userdom_use_sysadm_ptys.
-> 
-> The attached patch is a new test case of the boundary feature,
-> which contains six tests, as follows:
-> 
-> test01: It tries to invoke setcon() with bounded domain in a multi-threaded
->         process. The expected result is success.
-> test02: It tries to invoke setcon() with unrelated domain in a multi-threaded
->         process. The expected result is fail.
-> test03: It makes a bounded domain try to read a file, when its bounds domain
->         can read the file. The expected result is success.
-> test04: It makes a bounded domain try to write a file, when its bounds domain
->         cannot write the file. The expected result is fail, because write
->         permission is boundary violated.
-> test05: It tries to write a bounded type, even if the domain cannot write to
->         its bounds type. The expected result is fail.
-> test06: It makes a bounded domain try to set an attribute of bounded type.
-> 
-> Thanks,
-> 
+I like the concept of a DOI field instead of policy type; considering 
+the portability of guest images this seems like a good solution based 
+on the relative success of DOIs in other distributed applications.
 
-Thanks too. Added.
+However, may I suggest that instead of representing the DOI as a string 
+we use a 32bit integer?  I know that may sound a bit odd, but in the 
+networking world most DOI values are represented as integers and when 
+security labels are involved they tend to be 32bits.  I understand that 
+using a plain integer is much more abstract than a human readable 
+string but it should make it easier to leverage existing and future* 
+DOI frameworks.
 
-Regards--
-Subrata
+*An informal group/list just formed to start discussing DOI management 
+issues such as DOI formats, negotiation and translation.
 
-> > I can run the test scripts either using the
-> > test_selinux.sh script or by manually loading the policy and then
-> > individually running them as described in the README.  Watch out that
-> > your patch doesn't disturb the existing misc/sbin_deprecated.patch that
-> > gets applied by test_selinux.sh.  Keep in mind that this testsuite gets
-> > run on everything from RHEL4 to F9.
-> 
-
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
