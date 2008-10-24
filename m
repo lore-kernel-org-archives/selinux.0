@@ -1,101 +1,98 @@
-Subject: Re: semanage help
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: LC Bruzenak <lenny@MagitekLtd.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SE-Linux <selinux@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <1224787273.14755.282.camel@homeserver>
-References: <1224727612.14755.244.camel@homeserver>
-	 <1224766402.28867.4.camel@moss-spartans.epoch.ncsc.mil>
-	 <4900A0C8.9050200@redhat.com>
-	 <1224779343.28867.60.camel@moss-spartans.epoch.ncsc.mil>
-	 <4900B01C.4070206@redhat.com> <1224782298.14755.267.camel@homeserver>
-	 <4900B461.7090509@redhat.com>
-	 <1224784833.2879.2.camel@moss-spartans.epoch.ncsc.mil>
-	 <1224787273.14755.282.camel@homeserver>
-Content-Type: text/plain
-Date: Thu, 23 Oct 2008 14:48:20 -0400
-Message-Id: <1224787700.3974.163.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9O3IFQX004824
+	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 23:18:15 -0400
+Received: from rv-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9O3IEwf000551
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2008 03:18:14 GMT
+Received: by rv-out-0708.google.com with SMTP id f25so671331rvb.54
+        for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 20:18:13 -0700 (PDT)
+Message-ID: <49013EA2.8070301@gmail.com>
+Date: Thu, 23 Oct 2008 23:18:58 -0400
+From: Vikram Noel Ambrose <noel.ambrose@gmail.com>
+MIME-Version: 1.0
+To: Jim Meyering <jim@meyering.net>
+CC: bug-coreutils@gnu.org, selinux@tycho.nsa.gov, 472590@bugs.debian.org,
+        =?UTF-8?B?T25kxZllaiBWYcWhw61r?= <ovasik@redhat.com>
+Subject: Re: RFC: changing the "+" in ls -l output to be "." or "+"
+References: <200803251523.34329.russell@coker.com.au>	<87tziu96yz.fsf@rho.meyering.net> <20080325173116.GQ2626@mathom.us>	<200803260824.17731.russell@coker.com.au>	<877ifj9sgs.fsf@rho.meyering.net> <87prt8uhci.fsf_-_@rho.meyering.net> <8763njqz9a.fsf@rho.meyering.net>
+In-Reply-To: <8763njqz9a.fsf@rho.meyering.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-10-23 at 13:41 -0500, LC Bruzenak wrote:
-> On Thu, 2008-10-23 at 14:00 -0400, Stephen Smalley wrote:
-> > On Thu, 2008-10-23 at 13:29 -0400, Daniel J Walsh wrote:
-> > > LC Bruzenak wrote:
-> > > > On Thu, 2008-10-23 at 13:10 -0400, Daniel J Walsh wrote:
-> > > > ...
-> > > >> On Rawhide it seems to work
-> > > >>
-> > > >> # /usr/sbin/semanage fcontext -a -t prelude_spool_t -r s0:c0.c1023
-> > > >> '/var/spool/prelude(/.*)?'
-> > > >> # restorecon -R -v /var/spool/prelude/
-> > > >> restorecon reset /var/spool/prelude context
-> > > >> system_u:object_r:prelude_spool_t:s0->system_u:object_r:prelude_spool_t:s0:c0.c1023
-> > > >>
-> > > >>
-> > > >> So I will patch policycoreutils.
-> > > >>
-> > > > 
-> > > > Thanks Dan!
-> > > > 
-> > > > LCB.
-> > > > 
-> > > Of course this is totally not intuitive to the user.
-> > > 
-> > > He really wants to modify and existing fcontext so he needs to add a new
-> > > conflicting one.
-> > > 
-> > > This command should really be fixed to check if an exising global or
-> > > local exist,
-> > > 
-> > > if a local exists it should modify if a global exists it should add.
-> > 
-> > I think semanage port handles that situation correctly.  __modify uses
-> > the _exists interface to check existence (whether in policy or local),
-> > and uses the modify_local interface to update (which internally will
-> > fall back to an add if not already locally defined).
-> > 
-> 
-> It didn't seem to work this way with the patch - I could only add it
-> (then modify):
+Jim Meyering <jim@meyering.net> wrote:
+>>> [ I'm Cc'ing bug-coreutils@gnu.org.
+>>>   FYI, this is a continuation of discussion from the SELinux list:
+>>>   http://marc.info/?t=120645074000003&r=1&w=2
+>>>   and the debian bug tracking system: http://bugs.debian.org/472590
+>>>
+>>>   The problem is that on an SELinux-enabled system, 'ls -l's "+",
+>>>   the "alternate access method" indicator, is useless, because it
+>>>   appears on every file:
+>>>
+>>>       $ ls -glo /var
+>>>       total 164
+>>>       drwxr-xr-x+  3 4096 2008-03-29 08:43 kerberos
+>>>       drwxr-xr-x+ 39 4096 2008-03-29 08:43 lib
+>>>       drwxr-xr-x+  2 4096 2008-03-27 17:33 local
+>>>       drwxrwxr-x+  8 4096 2008-03-31 04:15 lock
+>>>       drwxr-xr-x+ 20 4096 2008-03-31 09:55 log
+>>>       lrwxrwxrwx+  1   10 2008-03-28 23:33 mail -> spool/mail
+>>>       ...
+>>>
+>>>   Newer POSIX allows any non-space character as the indicator, and
+>>>   that's what we're discussing now.
+>>>   ]
+>>>
+>>> Russell Coker <russell@coker.com.au> wrote:
+>>>       
+>>>> On Wednesday 26 March 2008 04:31, Michael Stone <mstone@debian.org> wrote:
+>>>>         
+>>>>> if (acl) then '+'
+>>>>> else if (selinux) then '.'
+>>>>>           
+>>>> Should there be some special marking of files with both a SE Linux context and
+>>>> an ACL?
+>>>>
+>>>> Pity that they didn't choose an "a" to mark an ACL which would then permit
+>>>> using "A" for ACL + MAC.
+>>>>         
+>>> This is probably as good a time as any to make such a change, though
+>>> I doubt it will make the cut for the upcoming release.  I'd like to keep
+>>> it simple (i.e., not try to encode all possible combinations).  If you
+>>> want to get full details, stat(1) is probably the program to change.
+>>>
+>>> I like Michael's suggestion.  Rephrasing it,
+>>>
+>>>     if (SELinux, with no other MAC or ACL)
+>>>       use '.'
+>>>     else if (any other combination of alternate access methods)
+>>>       use '+'
+>>>
+>>> If someone who already has a copyright assignment on file for coreutils
+>>> wants to write the patch (including doc update, tests, NEWS, ChangeLog,
+>>> etc.), please speak up ASAP.  Otherwise I'll do it.
+>>>       
+>> No one spoke up, so here's code, for discussion's sake.
+>> I've tested it only lightly.
+>> This change is not slated for the upcoming release.
+>>
+>> Here's sample output, running on an SELinux system:
+>>
+>>   $ src/ls -ldgo [ac]*
+>>   -rw-r--r--.  1   42625 2008-04-02 19:31 aclocal.m4
+>>   drwxr-xr-x.  2    4096 2008-04-02 19:31 autom4te.cache
+>>   -rw-r--r--.  1    1597 2008-03-21 16:35 cfg.mk
+>>   -rw-r--r--.  1 1417195 2008-04-02 19:33 config.log
+>>   -rwxr-xr-x.  1   71225 2008-04-02 19:33 config.status
+>>   -rwxr-xr-x.  1 1846424 2008-04-02 19:31 configure
+>>   -rw-r--r--.  1   12014 2008-03-25 23:55 configure.ac
+>>     
 
-I was saying that it works that way for semanage port already (not
-fcontext), so Dan can use that as an example of how to make it work for
-fcontext.
+This is so confusing. What is so horribly wrong with a capital S for 
+SELinux or A for ACL?
 
-> 
-> [root@v1 ~]# /usr/sbin/semanage fcontext -m -t prelude_spool_t -r s0:c0.c1023 '/var/spool/prelude(/.*)?'
-> /usr/sbin/semanage: File context for /var/spool/prelude(/.*)? is not defined
-> 
-> [root@v1 ~]# rpm -qv policycoreutils
-> policycoreutils-2.0.57-5.fc10.i386
-> 
-> [root@v1 ~]# /usr/sbin/semanage fcontext -a -t prelude_spool_t -r s0:c0.c1023 '/var/spool/prelude(/.*)?'
-> [root@v1 ~]# /usr/sbin/semanage fcontext -m -r s0:c0.c1022 '/var/spool/prelude(/.*)?'
-> 
-> - and so far restorecon works as expected.
-> 
-> So to me it seems like the man page needs updating if this behavior is
-> desired (only local fcontext changes allowed). Seems fine to me; only
-> thing is the last one in the list wins I guess, vice only last-occurring
-> duplicates displayed.:
-> 
-> [root@v1 ~]# /usr/sbin/semanage fcontext -l | grep prelude
-> ...
-> /var/spool/prelude(/.*)?                           all files          system_u:object_r:prelude_spool_t:s0 
-> ...
-> /var/spool/prelude(/.*)?                           all files          system_u:object_r:prelude_spool_t:s0:c0.c1022 
-> 
-> Main thing for me is that it works so I can resume testing.
-> Thanks again!
-> 
-> LCB.
-> 
--- 
-Stephen Smalley
-National Security Agency
-
+Vikram
 
 --
 This message was distributed to subscribers of the selinux mailing list.
