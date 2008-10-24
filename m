@@ -1,50 +1,60 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9ODJahl012302
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2008 09:19:37 -0400
-Received: from cdptpa-omtalb.mail.rr.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9ODIApQ027241
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2008 13:18:10 GMT
-Message-ID: <4901CB4B.3030306@kutulu.org>
-Date: Fri, 24 Oct 2008 09:19:07 -0400
-From: Mike Edenfield <kutulu@kutulu.org>
-MIME-Version: 1.0
-To: Jim Meyering <jim@meyering.net>
-CC: Vikram Noel Ambrose <noel.ambrose@gmail.com>, bug-coreutils@gnu.org,
-        selinux@tycho.nsa.gov, 472590@bugs.debian.org,
-        =?UTF-8?B?T25kxZllaiBWYcWh?=
- =?UTF-8?B?w61r?= <ovasik@redhat.com>
-Subject: Re: RFC: changing the "+" in ls -l output to be "." or "+"
-References: <200803251523.34329.russell@coker.com.au>	<87tziu96yz.fsf@rho.meyering.net> <20080325173116.GQ2626@mathom.us>	<200803260824.17731.russell@coker.com.au>	<877ifj9sgs.fsf@rho.meyering.net> <87prt8uhci.fsf_-_@rho.meyering.net>	<8763njqz9a.fsf@rho.meyering.net> <49013EA2.8070301@gmail.com> <87mygumq37.fsf@rho.meyering.net>
-In-Reply-To: <87mygumq37.fsf@rho.meyering.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: ext4_has_free_blocks always checks cap_sys_resource and makes
+ SELinux unhappy
+From: Eric Paris <eparis@redhat.com>
+To: linux-ext4@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, esandeen@redhat.com, tytso@mit.edu, dwalsh@redhat.com,
+        linux-security-module@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 24 Oct 2008 11:05:35 -0400
+Message-Id: <1224860735.3404.74.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jim Meyering wrote:
+I'm running an ext4 root filesystem and regularly get SELinux denials
+like:
 
-> A desire for compatibility makes "+" look good.
-> "." is appealing for SELinux-only because it's inconspicuous.
+Oct 16 08:32:55 localhost kernel: type=1400 audit(1224160369.076:5):
+avc: denied  { sys_resource } for  pid=1624 comm="dbus-daemon"
+capability=24 scontext=system_u:system_r:system_dbusd_t:s0
+tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
 
-Speaking as a fairly new SELinux user/admin, having a "." 
-next to every file in my ls output is just as useful or 
-non-useful as having a "+" next to them, so does it really 
-buy anything?  I end up needing -Z either way.
+https://bugzilla.redhat.com/show_bug.cgi?id=467216
 
-Based on the kind of real-world problems I've had, the most 
-useful thing ls could tell me about a file on my SELinux 
-system would be that it *should* have a label and *doesn't*, 
-something like:
+Since this doesn't happen with people who have ext3 filesystems but
+everything else the same it lead me to look at ext4.  I see that
+ext?_has_free_blocks() has changed since ext3 and now we always check
+for capable(CAP_SYS_RESOUCE).  If a process actually has the capability
+in pE (as many root processes would) but doesn't have the capability in
+SELinux policy we will get a denial.
 
-if ( selinux_enabled )
-   if ( label == NULL || label == fs.defaultlabel )
-     use "!"
-   else
-     use " "
-else if ( anything else )
-   use "+"
+I can think of a couple ways to fix this:
 
+the first (and one I like) is to change ext4 to stop checking
+CAP_SYS_RESOURCE all the time.  It's not really 'pretty' but I think you
+would actually get a better performing function.  Just always calculate
+root_blocks and if we don't have enough room then then do the whole
+check to see if are root and recalculate without root_blocks.  I'd guess
+that a great majority of the time operations will succeed even with a
+non-zero root_blocks and I would guess that most process aren't going to
+be root processes and so we would be calculating root_blocks anyway.
+This would (like ext3) only cause these denials when it was filled up.
+We've been living with that forever, so I don't see a problem there...
 
+The second way would be a new lsm hook.  Instead of calling capable(),
+ext4 could call something like a new capable_noaudit() which would
+return the same result but would tell the lsm that this isn't a security
+decision and shouldn't be audited.  The LSM doesn't currently have any
+kind of syntax or representation like this exposed to the main kernel,
+so I'm a little skeptical how the LSM community at large would respond
+to exposing such a thing...
 
+Another would be a new specific LSM call to just check cap_sys_resource
+which also doesn't get audited.
+
+Do others have thoughts?
+
+-Eric
 
 
 --
