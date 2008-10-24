@@ -1,98 +1,53 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9O3IFQX004824
-	for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 23:18:15 -0400
-Received: from rv-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9O3IEwf000551
-	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2008 03:18:14 GMT
-Received: by rv-out-0708.google.com with SMTP id f25so671331rvb.54
-        for <selinux@tycho.nsa.gov>; Thu, 23 Oct 2008 20:18:13 -0700 (PDT)
-Message-ID: <49013EA2.8070301@gmail.com>
-Date: Thu, 23 Oct 2008 23:18:58 -0400
-From: Vikram Noel Ambrose <noel.ambrose@gmail.com>
-MIME-Version: 1.0
-To: Jim Meyering <jim@meyering.net>
-CC: bug-coreutils@gnu.org, selinux@tycho.nsa.gov, 472590@bugs.debian.org,
-        =?UTF-8?B?T25kxZllaiBWYcWhw61r?= <ovasik@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9O74EE2026957
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2008 03:04:14 -0400
+Received: from mx.meyering.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9O72laq016127
+	for <selinux@tycho.nsa.gov>; Fri, 24 Oct 2008 07:02:48 GMT
+From: Jim Meyering <jim@meyering.net>
+To: Vikram Noel Ambrose <noel.ambrose@gmail.com>
+Cc: bug-coreutils@gnu.org, selinux@tycho.nsa.gov, 472590@bugs.debian.org,
+        =?utf-8?B?T25kxZllaiBWYcWhw61r?= <ovasik@redhat.com>
 Subject: Re: RFC: changing the "+" in ls -l output to be "." or "+"
-References: <200803251523.34329.russell@coker.com.au>	<87tziu96yz.fsf@rho.meyering.net> <20080325173116.GQ2626@mathom.us>	<200803260824.17731.russell@coker.com.au>	<877ifj9sgs.fsf@rho.meyering.net> <87prt8uhci.fsf_-_@rho.meyering.net> <8763njqz9a.fsf@rho.meyering.net>
-In-Reply-To: <8763njqz9a.fsf@rho.meyering.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <49013EA2.8070301@gmail.com> (Vikram Noel Ambrose's message of
+	"Thu, 23 Oct 2008 23:18:58 -0400")
+References: <200803251523.34329.russell@coker.com.au>
+	<87tziu96yz.fsf@rho.meyering.net> <20080325173116.GQ2626@mathom.us>
+	<200803260824.17731.russell@coker.com.au>
+	<877ifj9sgs.fsf@rho.meyering.net> <87prt8uhci.fsf_-_@rho.meyering.net>
+	<8763njqz9a.fsf@rho.meyering.net> <49013EA2.8070301@gmail.com>
+Date: Fri, 24 Oct 2008 09:04:12 +0200
+Message-ID: <87mygumq37.fsf@rho.meyering.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Jim Meyering <jim@meyering.net> wrote:
->>> [ I'm Cc'ing bug-coreutils@gnu.org.
->>>   FYI, this is a continuation of discussion from the SELinux list:
->>>   http://marc.info/?t=120645074000003&r=1&w=2
->>>   and the debian bug tracking system: http://bugs.debian.org/472590
+Vikram Noel Ambrose <noel.ambrose@gmail.com> wrote:
+> Jim Meyering <jim@meyering.net> wrote:
+...
+>>>>     if (SELinux, with no other MAC or ACL)
+>>>>       use '.'
+>>>>     else if (any other combination of alternate access methods)
+>>>>       use '+'
+...
+>>> Here's sample output, running on an SELinux system:
 >>>
->>>   The problem is that on an SELinux-enabled system, 'ls -l's "+",
->>>   the "alternate access method" indicator, is useless, because it
->>>   appears on every file:
+>>>   $ src/ls -ldgo [ac]*
+>>>   -rw-r--r--.  1   42625 2008-04-02 19:31 aclocal.m4
+>>>   drwxr-xr-x.  2    4096 2008-04-02 19:31 autom4te.cache
+>>>   -rw-r--r--.  1    1597 2008-03-21 16:35 cfg.mk
+>>>   -rw-r--r--.  1 1417195 2008-04-02 19:33 config.log
+>>>   -rwxr-xr-x.  1   71225 2008-04-02 19:33 config.status
+>>>   -rwxr-xr-x.  1 1846424 2008-04-02 19:31 configure
+>>>   -rw-r--r--.  1   12014 2008-03-25 23:55 configure.ac
 >>>
->>>       $ ls -glo /var
->>>       total 164
->>>       drwxr-xr-x+  3 4096 2008-03-29 08:43 kerberos
->>>       drwxr-xr-x+ 39 4096 2008-03-29 08:43 lib
->>>       drwxr-xr-x+  2 4096 2008-03-27 17:33 local
->>>       drwxrwxr-x+  8 4096 2008-03-31 04:15 lock
->>>       drwxr-xr-x+ 20 4096 2008-03-31 09:55 log
->>>       lrwxrwxrwx+  1   10 2008-03-28 23:33 mail -> spool/mail
->>>       ...
->>>
->>>   Newer POSIX allows any non-space character as the indicator, and
->>>   that's what we're discussing now.
->>>   ]
->>>
->>> Russell Coker <russell@coker.com.au> wrote:
->>>       
->>>> On Wednesday 26 March 2008 04:31, Michael Stone <mstone@debian.org> wrote:
->>>>         
->>>>> if (acl) then '+'
->>>>> else if (selinux) then '.'
->>>>>           
->>>> Should there be some special marking of files with both a SE Linux context and
->>>> an ACL?
->>>>
->>>> Pity that they didn't choose an "a" to mark an ACL which would then permit
->>>> using "A" for ACL + MAC.
->>>>         
->>> This is probably as good a time as any to make such a change, though
->>> I doubt it will make the cut for the upcoming release.  I'd like to keep
->>> it simple (i.e., not try to encode all possible combinations).  If you
->>> want to get full details, stat(1) is probably the program to change.
->>>
->>> I like Michael's suggestion.  Rephrasing it,
->>>
->>>     if (SELinux, with no other MAC or ACL)
->>>       use '.'
->>>     else if (any other combination of alternate access methods)
->>>       use '+'
->>>
->>> If someone who already has a copyright assignment on file for coreutils
->>> wants to write the patch (including doc update, tests, NEWS, ChangeLog,
->>> etc.), please speak up ASAP.  Otherwise I'll do it.
->>>       
->> No one spoke up, so here's code, for discussion's sake.
->> I've tested it only lightly.
->> This change is not slated for the upcoming release.
->>
->> Here's sample output, running on an SELinux system:
->>
->>   $ src/ls -ldgo [ac]*
->>   -rw-r--r--.  1   42625 2008-04-02 19:31 aclocal.m4
->>   drwxr-xr-x.  2    4096 2008-04-02 19:31 autom4te.cache
->>   -rw-r--r--.  1    1597 2008-03-21 16:35 cfg.mk
->>   -rw-r--r--.  1 1417195 2008-04-02 19:33 config.log
->>   -rwxr-xr-x.  1   71225 2008-04-02 19:33 config.status
->>   -rwxr-xr-x.  1 1846424 2008-04-02 19:31 configure
->>   -rw-r--r--.  1   12014 2008-03-25 23:55 configure.ac
->>     
+>
+> This is so confusing. What is so horribly wrong with a capital S for
+> SELinux or A for ACL?
 
-This is so confusing. What is so horribly wrong with a capital S for 
-SELinux or A for ACL?
-
-Vikram
+A desire for compatibility makes "+" look good.
+"." is appealing for SELinux-only because it's inconspicuous.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
