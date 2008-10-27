@@ -1,74 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9Q89EJ0005383
-	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2008 04:09:14 -0400
-Received: from mx.meyering.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9Q89DFO021654
-	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2008 08:09:14 GMT
-From: Jim Meyering <jim@meyering.net>
-To: russell@coker.com.au
-Cc: Mike Edenfield <kutulu@kutulu.org>, 472590@bugs.debian.org,
-        bug-coreutils@gnu.org, Vikram Noel Ambrose <noel.ambrose@gmail.com>,
-        selinux@tycho.nsa.gov,
-        =?utf-8?B?T25kxZllaiBWYcWhw61r?=
- <ovasik@redhat.com>
-Subject: Re: RFC: changing the "+" in ls -l output to be "." or "+"
-In-Reply-To: <200810261846.58879.russell@coker.com.au> (Russell Coker's
-	message of "Sun, 26 Oct 2008 18:46:54 +1100")
-References: <200803251523.34329.russell@coker.com.au>
-	<87mygumq37.fsf@rho.meyering.net> <4901CB4B.3030306@kutulu.org>
-	<200810261846.58879.russell@coker.com.au>
-Date: Sun, 26 Oct 2008 09:09:10 +0100
-Message-ID: <87y70bu6ah.fsf@rho.meyering.net>
+Message-ID: <49052E33.9080106@redhat.com>
+Date: Mon, 27 Oct 2008 12:57:55 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>
+Subject: Re: user guide drafts: "Mounting File Systems"
+References: <48EF03BA.90901@redhat.com>	 <1223645441.25569.50.camel@moss-spartans.epoch.ncsc.mil>	 <48F69C5D.8050504@redhat.com>	 <1224166050.9247.48.camel@moss-spartans.epoch.ncsc.mil>	 <48FBCBC3.2070507@redhat.com>	 <1224509852.7428.43.camel@moss-spartans.epoch.ncsc.mil>	 <48FEB8D4.8040401@redhat.com> <1224688024.29917.42.camel@moss-spartans.epoch.ncsc.mil> <48FF7E28.5030406@redhat.com>
+In-Reply-To: <48FF7E28.5030406@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker <russell@coker.com.au> wrote:
+Daniel J Walsh wrote:
+> Stephen Smalley wrote:
+>> On Wed, 2008-10-22 at 15:23 +1000, Murray McAllister wrote:
 
-> On Saturday 25 October 2008 00:19, Mike Edenfield <kutulu@kutulu.org> wrote:
->> Jim Meyering wrote:
->> > A desire for compatibility makes "+" look good.
->> > "." is appealing for SELinux-only because it's inconspicuous.
+>>>  Depending on policy configuration, services, such as Apache HTTP 
+>>> Server and MySQL, may not be able to read files labeled with the nfs_t 
+>>> type. This prevents an NFS file system being mounted and then read or 
+>>> exported by another service.
+>> Might be booleans that control this area as well; I don't know offhand.
 >>
->> Speaking as a fairly new SELinux user/admin, having a "."
->> next to every file in my ls output is just as useful or
->> non-useful as having a "+" next to them, so does it really
->> buy anything?  I end up needing -Z either way.
->
-> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=472590
->
-> The above URL has the history of this discussion.  I requested that there be
-> no such notification.  I still believe that there should be nothing used in
-> the case of SE Linux (although I could be convinced that the "." is OK if
-> files with the context "system_u:object_r:file_t:s0" did not have it).
->
-> But it seems that I have lost this debate.  Using "." is better than "+", and
-> my request to have none of this in Lenny has been accepted so we have some
-> time to work on this before Lenny+1.
->
->> Based on the kind of real-world problems I've had, the most
->> useful thing ls could tell me about a file on my SELinux
->> system would be that it *should* have a label and *doesn't*,
->> something like:
->>
->> if ( selinux_enabled )
->>    if ( label == NULL || label == fs.defaultlabel )
->>      use "!"
->>    else
->>      use " "
->> else if ( anything else )
->>    use "+"
->
-> That sounds quite reasonable.
+> /usr/sbin/getsebool -a shows the following booleans available to use
+> nfs,   "use_nfs_home_dirs"  allows all domains that need access to
+> homedirs, access to nfs_t.
+Do other Booleans have to be turned on? I do not understand the output 
+of sesearch -C, for example:
 
-Actually, I'm leaning your way, now, and agree.
+DT allow httpd_t nfs_t : file { ioctl read getattr lock } ; [ 
+httpd_enable_homedirs use_nfs_home_dirs && ]
 
-If you, Russell, write the patch (w/NEWS and docs would be really nice)
-I'll make the switch upstream pretty soon.  It'd be nice to give the
-austin group a heads up, too, since this behavior would be contrary to
-POSIX.  I don't think it's worth it to make this depend on the setting
-of the POSIXLY_CORRECT envvar.
+I guess this means both Booleans have to be turned on for the allow rule 
+to work?
+
+Stupid question: what do "DT" and "ET" stand for?
+
+Thanks.
+   (cifs_t samba filesystems) have similar
+> booleans.
+> allow_ftpd_use_nfs --> off
+> httpd_use_nfs --> off
+> qemu_use_nfs --> on
+> samba_share_nfs --> off
+> use_nfs_home_dirs --> on
+> virt_use_nfs --> off
+> xen_use_nfs --> off
 
 --
 This message was distributed to subscribers of the selinux mailing list.
