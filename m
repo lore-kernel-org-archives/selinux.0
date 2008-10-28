@@ -1,74 +1,70 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9R3EOhB023988
-	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2008 23:14:24 -0400
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9R3Csph028401
-	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2008 03:12:54 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id m9R3ENr2031942
-	for <selinux@tycho.nsa.gov>; Sun, 26 Oct 2008 23:14:23 -0400
-Message-ID: <4905320C.4090807@redhat.com>
-Date: Mon, 27 Oct 2008 13:14:20 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9S3AsvW028076
+	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2008 23:10:54 -0400
+Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9S39KL9007979
+	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2008 03:09:23 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: 2.6.26 Debian kernel panic
+Date: Tue, 28 Oct 2008 14:10:43 +1100
+Cc: Paul Menzel <paul.menzel@web.de>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Eric Paris <eparis@redhat.com>
-Subject: user guide draft: "Examples: Booleans for NFS"
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200810281410.45041.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+Below are the syslog messages from a kernel panic when running 2.6.26.  To 
+trigger it I ran "semodule -i sendmail.pp" on a machine with the exim policy 
+loaded (not something that you expect people to do - but not something you 
+expect to cause a problem either) and load_policy went into an infinite loop 
+(100% CPU use - strace reported no syscalls being made).  At that 
+stage "kill -9" seemed like the right solution, killing load_policy gave the 
+following result.
 
-The following is a draft for the "Booleans" section. Any comments or 
-corrections are appreciated:
+I've tried to reproduce it but have been unsuccessful.  The machine in 
+question is a Xen DomU, I believe that the hardware has ECC RAM and is of 
+generally good quality.
 
-Examples: Booleans for NFS and CIFS
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381737] Eeek! page_mapcount(page) went negative! (-1)
 
-By default, NFS mounts on the client side are labeled with a default 
-context defined by policy for NFS file systems. In common policies, this 
-default context uses the nfs_t type. Also, by default, Samba shares 
-mounted on the client side are labeled with a default context defined by 
-policy. In common policies, this default context uses the cifs_t type.
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381755]   page pfn = 3
 
-Depending on policy configuration, services, such as Apache HTTP Server 
-and Samba, may not be able to read files labeled with the nfs_t or 
-cifs_t types. This may prevent file systems labeled with these types 
-from being mounted and then read or exported by other services. Booleans 
-can be turned on or off to control which services are allowed to access 
-the nfs_t and cifs_t types.
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381760]   page->flags = 400
 
-The setsebool and semanage commands must be run as the Linux root user. 
-The setsebool -P command makes persistent changes. Do not use the -P 
-option if you do not want changes to persist across reboots:
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381766]   page->count = 1
 
-Apache HTTP Server
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381770]   page->mapping = 0000000000000000
 
-To allow access to NFS file systems (files labeled with the nfs_t type):
-/usr/sbin/setsebool -P httpd_use_nfs on
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381780]   vma->vm_ops = 0x0
 
-To allow access to Samba file systems (files labeled with the cifs_t type):
-/usr/sbin/setsebool -P httpd_use_cifs on
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381799] ------------[ cut here ]------------
 
-Samba
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381811] invalid opcode: 0000 [1] SMP
 
-To export NFS file systems:
-/usr/sbin/setsebool -P samba_share_nfs on
+Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
+redcape kernel: [399681.381828] Code: 80 e8 3c 0c fd ff 48 8b 85 90 00 00 00 
+48                                                                                                                                                     
+85 c0 74 19 48 8b 40 20 48 85 c0 74 10 48 8b 70 58 48 c7 c7 66 52 4b 80 e8 17 
+0c                                                                                                                                                     
+fd ff <0f> 0b eb fe 8b 77 18 41 58 5b 5d 83 e6 01 f7 de 83 c6 04 e9 6c
 
-FTP (vsftpd)
-
-To allow access to NFS file systems:
-/usr/sbin/setsebool -P allow_ftpd_use_nfs on
-
-Other Services
-
-For a list of NFS related Booleans for other services:
-/usr/sbin/semanage boolean -l | grep nfs
-
-For a list of Samba related Booleans for other services:
-/usr/sbin/semanage boolean -l | grep cifs
-
-Thanks.
+-- 
+Russell Coker <russell@coker.com.au>
+http://etbe.coker.com.au/          My Blog
+http://etbe.coker.com.au/category/security/  My Security blog posts
+http://www.coker.com.au/selinux/play.html  My Play Machine, root PW "SELINUX"
 
 --
 This message was distributed to subscribers of the selinux mailing list.
