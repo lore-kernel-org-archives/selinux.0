@@ -1,70 +1,94 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9S3AsvW028076
-	for <selinux@tycho.nsa.gov>; Mon, 27 Oct 2008 23:10:54 -0400
-Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9S39KL9007979
-	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2008 03:09:23 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: 2.6.26 Debian kernel panic
-Date: Tue, 28 Oct 2008 14:10:43 +1100
-Cc: Paul Menzel <paul.menzel@web.de>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9S5N3Qr006837
+	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2008 01:23:03 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9S5N2ou019275
+	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2008 05:23:02 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id m9S5N2V0001480
+	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2008 01:23:02 -0400
+Message-ID: <4906A1B1.8050403@redhat.com>
+Date: Tue, 28 Oct 2008 15:22:57 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200810281410.45041.russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Eric Paris <eparis@redhat.com>
+Subject: user guide drafts: "Changing the Default Mapping" and "xguest: Kiosk
+ Mode"
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Below are the syslog messages from a kernel panic when running 2.6.26.  To 
-trigger it I ran "semodule -i sendmail.pp" on a machine with the exim policy 
-loaded (not something that you expect people to do - but not something you 
-expect to cause a problem either) and load_policy went into an infinite loop 
-(100% CPU use - strace reported no syscalls being made).  At that 
-stage "kill -9" seemed like the right solution, killing load_policy gave the 
-following result.
+Hi,
 
-I've tried to reproduce it but have been unsuccessful.  The machine in 
-question is a Xen DomU, I believe that the hardware has ECC RAM and is of 
-generally good quality.
+The following are drafts for two sections for the "Confining Users" 
+chapter. Any comments appreciated:
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381737] Eeek! page_mapcount(page) went negative! (-1)
+Changing the Default Mapping
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381755]   page pfn = 3
+In Fedora 10, Linux users are mapped to the SELinux __default__ login by 
+default (which is mapped to the SELinux unconfined_u user). If you would 
+like new Linux users, and Linux users not specifically mapped to an 
+SELinux user to be confined by default, change the default mapping with 
+the semanage login command.
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381760]   page->flags = 400
+The following example changes the default mapping from unconfined_u to 
+user_u:
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381766]   page->count = 1
+/usr/sbin/semanage login -m -S targeted -s "user_u" -r s0 __default__
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381770]   page->mapping = 0000000000000000
+As the Linux root user, run the semanage login -l command to verify that 
+the __default__ login is mapped to user_u:
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381780]   vma->vm_ops = 0x0
+[example output]
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381799] ------------[ cut here ]------------
+If a new Linux user is created and an SELinux user is not specified, or 
+if an existing Linux user logs in and does not match a specific entry 
+from the semanage login -l output, they are mapped to user_u, as per the 
+__default__ login.
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381811] invalid opcode: 0000 [1] SMP
+To change back to the default behavior, run the following command as the 
+Linux root user to map the __default__ login to the SELinux unconfined_u 
+user:
 
-Message from syslogd@redcape at Tue Oct 28 03:04:31 2008 ...
-redcape kernel: [399681.381828] Code: 80 e8 3c 0c fd ff 48 8b 85 90 00 00 00 
-48                                                                                                                                                     
-85 c0 74 19 48 8b 40 20 48 85 c0 74 10 48 8b 70 58 48 c7 c7 66 52 4b 80 e8 17 
-0c                                                                                                                                                     
-fd ff <0f> 0b eb fe 8b 77 18 41 58 5b 5d 83 e6 01 f7 de 83 c6 04 e9 6c
+/usr/sbin/semanage login -m -S targeted -s "unconfined_u" -r\
+s0-s0:c0.c1023 __default__
 
--- 
-Russell Coker <russell@coker.com.au>
-http://etbe.coker.com.au/          My Blog
-http://etbe.coker.com.au/category/security/  My Security blog posts
-http://www.coker.com.au/selinux/play.html  My Play Machine, root PW "SELINUX"
+xguest: Kiosk Mode
+
+The xguest package provides a kiosk user account. This account is used 
+to secure machines that people walk up to and use, such as those at 
+libraries, banks, airports, information kiosks, and coffee shops. The 
+kiosk user account is very locked down: essentially, it only allows 
+users to log in, and then use the Firefox application to browse Internet 
+websites. Any changes made while logged in with his account, such as 
+creating files or changing settings, are lost when you log out.
+
+To set up the kiosk account:
+
+1. As the Linux root user, run yum install xguest command to install the 
+xguest package. Install dependencies as required.
+
+2. In order to allow the kiosk account to be used by a variety of 
+people, the account is not password-protected, and as such, the account 
+can only be protected if SELinux is running in enforcing mode. Before 
+logging in with this account, use the getenforce command to confirm that 
+SELinux is running in enforcing mode:
+
+$ /usr/sbin/getenforce
+Enforcing
+
+If this is not the case, refer to Section 5.5, “SELinux Modes” for 
+information about changing to enforcing mode. It is not possible to log 
+in with this account if SELinux is in permissive mode or disabled.
+
+3. You can only log in to this account via the GNOME Display Manager 
+(GDM). Once the xguest package is installed, a Guest account is added to 
+GDM. To log in, click on the Guest account:
+
+[GDM screenshot]
+
+Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
