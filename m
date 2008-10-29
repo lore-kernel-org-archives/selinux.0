@@ -1,53 +1,128 @@
-Subject: Re: [PATCH -v1 2/3] vm: use new has_capability_noaudit
 From: Eric Paris <eparis@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org, jmorris@nameil.org,
-        serue@us.ibm.com, morgan@kernel.org, casey@schaufler-ca.com,
-        esandeen@redhat.com
-In-Reply-To: <1225307723.6588.119.camel@moss-spartans.epoch.ncsc.mil>
-References: <20081029190652.31292.5901.stgit@paris.rdu.redhat.com>
-	 <20081029190658.31292.10620.stgit@paris.rdu.redhat.com>
-	 <1225307723.6588.119.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Wed, 29 Oct 2008 15:57:07 -0400
-Message-Id: <1225310227.23736.31.camel@localhost.localdomain>
-Mime-Version: 1.0
+Subject: [PATCH] SELinux: check open perms in dentry_open not inode_permission
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Date: Wed, 29 Oct 2008 17:06:46 -0400
+Message-ID: <20081029210646.14332.52199.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-10-29 at 15:15 -0400, Stephen Smalley wrote:
-> On Wed, 2008-10-29 at 15:06 -0400, Eric Paris wrote:
-> > The oomkiller calculations make decisions based on capabilities.  Since
-> > these are not security decisions and LSMs should not record if they fall
-> > the request they should use the new has_capability_noaudit() interface so
-> > the denials will not be recorded.
-> > 
-> > Signed-off-by: Eric Paris <eparis@redhat.com>
-> > ---
-> > 
-> >  fs/proc/base.c |    2 +-
-> >  mm/oom_kill.c  |    6 +++---
-> >  2 files changed, 4 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/fs/proc/base.c b/fs/proc/base.c
-> > index 486cf3f..ef83e81 100644
-> > --- a/fs/proc/base.c
-> > +++ b/fs/proc/base.c
-> > @@ -1020,7 +1020,7 @@ static ssize_t oom_adjust_write(struct file *file, const char __user *buf,
-> >  	task = get_proc_task(file->f_path.dentry->d_inode);
-> >  	if (!task)
-> >  		return -ESRCH;
-> > -	if (oom_adjust < task->oomkilladj && !capable(CAP_SYS_RESOURCE)) {
-> > +	if (oom_adjust < task->oomkilladj && !has_capability_noaudit(current, CAP_SYS_RESOURCE)) {
-> 
-> This one looks like an actual permission check to see whether the
-> current task is authorized to modify this value (by writing to some proc
-> node).  Which should be audited.  Unlike the others, where they are
-> checking whether some other task has a capability in order to help
-> decide priorities for the OOM killer.
+Some operations, like searching a directory path or connecting a unix domain
+socket, make explicit calls into inode_permission.  Our choices are to
+either try to come up with a signature for all of the explicit calls to
+inode_permission and do not check open on those, or to move the open checks to
+dentry_open where we know this is always an open operation.  This patch moves
+the checks to dentry_open.
 
-Will be fixed in -v2
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+
+ security/selinux/hooks.c |   59 +++++++++++++++++++++++-----------------------
+ 1 files changed, 30 insertions(+), 29 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3e3fde7..47cba68 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1687,15 +1687,39 @@ static inline u32 file_mask_to_av(int mode, int mask)
+ 	return av;
+ }
+ 
++/* Convert a Linux file to an access vector. */
++static inline u32 file_to_av(struct file *file)
++{
++	u32 av = 0;
++
++	if (file->f_mode & FMODE_READ)
++		av |= FILE__READ;
++	if (file->f_mode & FMODE_WRITE) {
++		if (file->f_flags & O_APPEND)
++			av |= FILE__APPEND;
++		else
++			av |= FILE__WRITE;
++	}
++	if (!av) {
++		/*
++		 * Special file opened with flags 3 for ioctl-only use.
++		 */
++		av = FILE__IOCTL;
++	}
++
++	return av;
++}
++
+ /*
+- * Convert a file mask to an access vector and include the correct open
++ * Convert a file to an access vector and include the correct open
+  * open permission.
+  */
+-static inline u32 open_file_mask_to_av(int mode, int mask)
++static inline u32 open_file_to_av(struct file *file)
+ {
+-	u32 av = file_mask_to_av(mode, mask);
++	u32 av = file_to_av(file);
+ 
+ 	if (selinux_policycap_openperm) {
++		mode_t mode = file->f_path.dentry->d_inode->i_mode;
+ 		/*
+ 		 * lnk files and socks do not really have an 'open'
+ 		 */
+@@ -1711,34 +1735,11 @@ static inline u32 open_file_mask_to_av(int mode, int mask)
+ 			av |= DIR__OPEN;
+ 		else
+ 			printk(KERN_ERR "SELinux: WARNING: inside %s with "
+-				"unknown mode:%x\n", __func__, mode);
++				"unknown mode:%o\n", __func__, mode);
+ 	}
+ 	return av;
+ }
+ 
+-/* Convert a Linux file to an access vector. */
+-static inline u32 file_to_av(struct file *file)
+-{
+-	u32 av = 0;
+-
+-	if (file->f_mode & FMODE_READ)
+-		av |= FILE__READ;
+-	if (file->f_mode & FMODE_WRITE) {
+-		if (file->f_flags & O_APPEND)
+-			av |= FILE__APPEND;
+-		else
+-			av |= FILE__WRITE;
+-	}
+-	if (!av) {
+-		/*
+-		 * Special file opened with flags 3 for ioctl-only use.
+-		 */
+-		av = FILE__IOCTL;
+-	}
+-
+-	return av;
+-}
+-
+ /* Hook functions begin here. */
+ 
+ static int selinux_ptrace_may_access(struct task_struct *child,
+@@ -2648,7 +2649,7 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ 	}
+ 
+ 	return inode_has_perm(current, inode,
+-			       open_file_mask_to_av(inode->i_mode, mask), NULL);
++			      file_mask_to_av(inode->i_mode, mask), NULL);
+ }
+ 
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+@@ -3164,7 +3165,7 @@ static int selinux_dentry_open(struct file *file)
+ 	 * new inode label or new policy.
+ 	 * This check is not redundant - do not remove.
+ 	 */
+-	return inode_has_perm(current, inode, file_to_av(file), NULL);
++	return inode_has_perm(current, inode, open_file_to_av(file), NULL);
+ }
+ 
+ /* task security operations */
 
 
 --
