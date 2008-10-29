@@ -1,47 +1,49 @@
-Subject: [PATCH 1/2] SELinux: do not check open on dir path walk
+Subject: [PATCH 2/2] SELinux: do not spam dmesg about unix domain sockets
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Wed, 29 Oct 2008 10:34:05 -0400
-Message-Id: <1225290845.23553.2.camel@localhost.localdomain>
+Date: Wed, 29 Oct 2008 10:37:44 -0400
+Message-Id: <1225291064.23736.1.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Things like link_path_walk check for MAY_EXEC on directories as it walks path
-names.  The open perms checking was actually checking open on these as well.
-This patch excludes checking open when the only requested permission on the
-dir was MAY_EXEC.  open and opendir both still require open perms.
+unix sockets were able to get down the open code path.  This simply matches
+exactly that request and does nothing with it.  Should shut up the dmesg
+spam.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/hooks.c |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+ security/selinux/hooks.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3e3fde7..188284f 100644
+index 188284f..562844a 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -1707,11 +1707,12 @@ static inline u32 open_file_mask_to_av(int mode, int mask)
- 			av |= BLK_FILE__OPEN;
- 		else if (S_ISFIFO(mode))
- 			av |= FIFO_FILE__OPEN;
--		else if (S_ISDIR(mode))
--			av |= DIR__OPEN;
--		else
-+		else if (S_ISDIR(mode)) {
-+			if (mask != MAY_EXEC)
-+				av |= DIR__OPEN;
-+		} else
+@@ -1697,7 +1697,9 @@ static inline u32 open_file_mask_to_av(int mode, int mask)
+ 
+ 	if (selinux_policycap_openperm) {
+ 		/*
+-		 * lnk files and socks do not really have an 'open'
++		 * lnk files do not really have an 'open'
++		 * unix domain sockets from unix_find_other can get here, so
++		 * do nothing with those requests...
+ 		 */
+ 		if (S_ISREG(mode))
+ 			av |= FILE__OPEN;
+@@ -1710,6 +1712,8 @@ static inline u32 open_file_mask_to_av(int mode, int mask)
+ 		else if (S_ISDIR(mode)) {
+ 			if (mask != MAY_EXEC)
+ 				av |= DIR__OPEN;
++		} else if (S_ISSOCK(mode) && (mask == MAY_WRITE)) {
++			/* do nothing for stupid unix domain sockets */
+ 		} else
  			printk(KERN_ERR "SELinux: WARNING: inside %s with "
--				"unknown mode:%x\n", __func__, mode);
-+				"unknown mode:%o mask:%x\n", __func__, mode, mask);
- 	}
- 	return av;
- }
+ 				"unknown mode:%o mask:%x\n", __func__, mode, mask);
 
 
 
