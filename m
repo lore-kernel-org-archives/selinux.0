@@ -1,55 +1,55 @@
-Date: Thu, 30 Oct 2008 08:51:03 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: "Daniel P. Berrange" <berrange@redhat.com>
-cc: Daniel J Walsh <dwalsh@redhat.com>, libvir-list@redhat.com,
-        Daniel Veillard <veillard@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [RFC] sVirt v0.10 - initial prototype
-In-Reply-To: <20081021162217.GN16442@redhat.com>
-Message-ID: <alpine.LRH.1.10.0810300845290.3314@tundra.namei.org>
-References: <alpine.LRH.1.10.0810211144030.10613@tundra.namei.org> <48FDDFBB.8020005@redhat.com> <20081021162217.GN16442@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9TNSpTj008470
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 19:28:52 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9TNSpgv025983
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 23:28:51 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id m9TNSk13020259
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 19:28:47 -0400
+Message-ID: <4908F1AA.9060006@redhat.com>
+Date: Thu, 30 Oct 2008 09:28:42 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
+Subject: Re: user guide draft: "Examples: Booleans for NFS"
+References: <4905320C.4090807@redhat.com> <49085722.7010901@redhat.com>
+In-Reply-To: <49085722.7010901@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 21 Oct 2008, Daniel P. Berrange wrote:
-
-> eg perhaps something like
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> # virsh capabilities 
-> <capabilities>
-> 
->   <host>
->     <cpu>
->       <arch>i686</arch>
->     </cpu>
->     <secpolicy model='selinux'>
->        <type>targetted</type>
->        <state>enforcing</state>
->     </secpolicy>
->   </host>
-> 
->   .... snip rest of XML...
+> Murray McAllister wrote:
+>> Hi,
 
-I don't think the endforcing state for the host will be useful, as this 
-can change between API calls, and it really needs to be enforced on the 
-host at the time of domain instantiation.
+>>
+>> Apache HTTP Server
+>>
+>> To allow access to NFS file systems (files labeled with the nfs_t type):
+>> /usr/sbin/setsebool -P httpd_use_nfs on
+>>
+>> To allow access to Samba file systems (files labeled with the cifs_t type):
+>> /usr/sbin/setsebool -P httpd_use_cifs on
+[snip]
+> Looks good, only problem with describing booleans is that they might not
+> exist on all versions of policy.  The description above will require 5.3
+> policy on RHEL5.
 
-> Is there any meaningful / useful policy version information that can
-> be included here ? Or policy feature bits
+I added a note:
 
-Possibly, although I think we should leave the configuration of DOI to the 
-admin, rather than trying to figure out what might be useful in advance.  
-In some cases, the admin may wish to use an RPM package+version string, 
-and others, a domain name could indicate that each system is managed 
-within an boundary with consistent label semantics.
+These Booleans exist in SELinux policy as shipped with Fedora 10. They 
+may not exist in policy shipped with other versions of Fedora or other 
+operating systems.
 
+I'll keep these things in mind when the guide is forked for Red Hat 
+Enterprise Linux.
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
+Cheers.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
