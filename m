@@ -1,97 +1,49 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9TCTQUh023151
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 08:29:26 -0400
-Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9TCRsnM009623
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 12:27:54 GMT
-Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
-	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m9TCTOE7032410
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 08:29:24 -0400
-Message-ID: <49085722.7010901@redhat.com>
-Date: Wed, 29 Oct 2008 08:29:22 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Murray McAllister <mmcallis@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
-Subject: Re: user guide draft: "Examples: Booleans for NFS"
-References: <4905320C.4090807@redhat.com>
-In-Reply-To: <4905320C.4090807@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH 1/2] SELinux: do not check open on dir path walk
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Content-Type: text/plain
+Date: Wed, 29 Oct 2008 10:34:05 -0400
+Message-Id: <1225290845.23553.2.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Things like link_path_walk check for MAY_EXEC on directories as it walks path
+names.  The open perms checking was actually checking open on these as well.
+This patch excludes checking open when the only requested permission on the
+dir was MAY_EXEC.  open and opendir both still require open perms.
 
-Murray McAllister wrote:
-> Hi,
-> 
-> The following is a draft for the "Booleans" section. Any comments or
-> corrections are appreciated:
-> 
-> Examples: Booleans for NFS and CIFS
-> 
-> By default, NFS mounts on the client side are labeled with a default
-> context defined by policy for NFS file systems. In common policies, this
-> default context uses the nfs_t type. Also, by default, Samba shares
-> mounted on the client side are labeled with a default context defined by
-> policy. In common policies, this default context uses the cifs_t type.
-> 
-> Depending on policy configuration, services, such as Apache HTTP Server
-> and Samba, may not be able to read files labeled with the nfs_t or
-> cifs_t types. This may prevent file systems labeled with these types
-> from being mounted and then read or exported by other services. Booleans
-> can be turned on or off to control which services are allowed to access
-> the nfs_t and cifs_t types.
-> 
-> The setsebool and semanage commands must be run as the Linux root user.
-> The setsebool -P command makes persistent changes. Do not use the -P
-> option if you do not want changes to persist across reboots:
-> 
-> Apache HTTP Server
-> 
-> To allow access to NFS file systems (files labeled with the nfs_t type):
-> /usr/sbin/setsebool -P httpd_use_nfs on
-> 
-> To allow access to Samba file systems (files labeled with the cifs_t type):
-> /usr/sbin/setsebool -P httpd_use_cifs on
-> 
-> Samba
-> 
-> To export NFS file systems:
-> /usr/sbin/setsebool -P samba_share_nfs on
-> 
-> FTP (vsftpd)
-> 
-> To allow access to NFS file systems:
-> /usr/sbin/setsebool -P allow_ftpd_use_nfs on
-> 
-> Other Services
-> 
-> For a list of NFS related Booleans for other services:
-> /usr/sbin/semanage boolean -l | grep nfs
-> 
-> For a list of Samba related Booleans for other services:
-> /usr/sbin/semanage boolean -l | grep cifs
-> 
-> Thanks.
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
-Looks good, only problem with describing booleans is that they might not
-exist on all versions of policy.  The description above will require 5.3
-policy on RHEL5.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-iEYEARECAAYFAkkIVyIACgkQrlYvE4MpobONxgCePfsQzcXhWMt2vn6hFsS4QWbZ
-3QYAn17S7SzQ7AmbXEwQP9x+ymkthqgW
-=m5MJ
------END PGP SIGNATURE-----
+ security/selinux/hooks.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
+
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3e3fde7..188284f 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1707,11 +1707,12 @@ static inline u32 open_file_mask_to_av(int mode, int mask)
+ 			av |= BLK_FILE__OPEN;
+ 		else if (S_ISFIFO(mode))
+ 			av |= FIFO_FILE__OPEN;
+-		else if (S_ISDIR(mode))
+-			av |= DIR__OPEN;
+-		else
++		else if (S_ISDIR(mode)) {
++			if (mask != MAY_EXEC)
++				av |= DIR__OPEN;
++		} else
+ 			printk(KERN_ERR "SELinux: WARNING: inside %s with "
+-				"unknown mode:%x\n", __func__, mode);
++				"unknown mode:%o mask:%x\n", __func__, mode, mask);
+ 	}
+ 	return av;
+ }
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
