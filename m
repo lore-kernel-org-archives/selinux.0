@@ -1,72 +1,53 @@
-Message-ID: <4907A29E.4050204@redhat.com>
-Date: Tue, 28 Oct 2008 19:39:10 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9T38RUd014291
+	for <selinux@tycho.nsa.gov>; Tue, 28 Oct 2008 23:08:27 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9T38Q8h020150
+	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 03:08:27 GMT
+Message-ID: <4907D37F.3090404@redhat.com>
+Date: Wed, 29 Oct 2008 13:07:43 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: Murray McAllister <mmcallis@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@redhat.com>
-Subject: Re: user guide drafts: "Mounting File Systems"
-References: <48EF03BA.90901@redhat.com>	 <1223645441.25569.50.camel@moss-spartans.epoch.ncsc.mil>	 <48F69C5D.8050504@redhat.com>	 <1224166050.9247.48.camel@moss-spartans.epoch.ncsc.mil>	 <48FBCBC3.2070507@redhat.com>	 <1224509852.7428.43.camel@moss-spartans.epoch.ncsc.mil>	 <48FEB8D4.8040401@redhat.com> <1224688024.29917.42.camel@moss-spartans.epoch.ncsc.mil> <48FF7E28.5030406@redhat.com> <49052E33.9080106@redhat.com>
-In-Reply-To: <49052E33.9080106@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Daniel Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
+        James Morris <jmorris@namei.org>
+Subject: user guide: troubleshooting chapter
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-Murray McAllister wrote:
-> Daniel J Walsh wrote:
->> Stephen Smalley wrote:
->>> On Wed, 2008-10-22 at 15:23 +1000, Murray McAllister wrote:
-> 
->>>>  Depending on policy configuration, services, such as Apache HTTP
->>>> Server and MySQL, may not be able to read files labeled with the
->>>> nfs_t type. This prevents an NFS file system being mounted and then
->>>> read or exported by another service.
->>> Might be booleans that control this area as well; I don't know offhand.
->>>
->> /usr/sbin/getsebool -a shows the following booleans available to use
->> nfs,   "use_nfs_home_dirs"  allows all domains that need access to
->> homedirs, access to nfs_t.
-> Do other Booleans have to be turned on? I do not understand the output
-> of sesearch -C, for example:
-> 
-> DT allow httpd_t nfs_t : file { ioctl read getattr lock } ; [
-> httpd_enable_homedirs use_nfs_home_dirs && ]
-Good question, I don't know.  Yes both booleans have to be turned on in
-RHEL5.
-> 
-> I guess this means both Booleans have to be turned on for the allow rule
-> to work?
-> 
-> Stupid question: what do "DT" and "ET" stand for?
-> 
-> Thanks.
->   (cifs_t samba filesystems) have similar
->> booleans.
->> allow_ftpd_use_nfs --> off
->> httpd_use_nfs --> off
->> qemu_use_nfs --> on
->> samba_share_nfs --> off
->> use_nfs_home_dirs --> on
->> virt_use_nfs --> off
->> xen_use_nfs --> off
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+I am having trouble organizing a troubleshooting section. My current ideas:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Top Three Causes of Problems: <http://danwalsh.livejournal.com/22347.html>
 
-iEYEARECAAYFAkkHop4ACgkQrlYvE4MpobN5nQCeKA/EESk/Ga0vs6Jl6JO9KIsL
-TfwAnjgxzu+QQXRWELbJ6uCHA6jfodA6
-=+pFc
------END PGP SIGNATURE-----
+Searching for and Viewing SELinux Denials
+
+* which log files are used.
+* ausearch, sealert, setroubleshoot-gui
+
+Analyzing SELinux Denials
+
+* Description of each field: comm, path, scontext, tcontext, etc.
+* <http://fedoraproject.org/wiki/SELinux/Troubleshooting/AVCDecisions> 
+"Troubleshooting/AVCDecisions"
+
+Why was Access Denied?
+
+* auditwhy.
+* DAC rules.
+
+Fixing Problems
+
+* fedora-selinux-list, Red Hat Bugzilla, audit2allow, chcon, semanage 
+fcontext, setsebool.
+* Permissive Domains: <http://danwalsh.livejournal.com/24537.html>
+* Booleans for Services (HTTP, Samba, FTP, MySQL, rsync).
+
+Thanks for any ideas.
+
+Regards.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
