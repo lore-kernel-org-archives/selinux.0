@@ -1,108 +1,103 @@
-Message-ID: <4909FEFB.6000702@manicmethod.com>
-Date: Thu, 30 Oct 2008 14:37:47 -0400
-From: Joshua Brindle <method@manicmethod.com>
+Message-ID: <490A00F1.9040804@tycho.nsa.gov>
+Date: Thu, 30 Oct 2008 14:46:09 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, LC Bruzenak <lenny@MagitekLtd.com>,
-        SE-Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: semanage help
-References: <1224727612.14755.244.camel@homeserver>	 <1224766402.28867.4.camel@moss-spartans.epoch.ncsc.mil>	 <4900A0C8.9050200@redhat.com>	 <1224779343.28867.60.camel@moss-spartans.epoch.ncsc.mil>	 <4900B01C.4070206@redhat.com> <1224782298.14755.267.camel@homeserver>	 <4900B461.7090509@redhat.com>	 <1224784833.2879.2.camel@moss-spartans.epoch.ncsc.mil>	 <1224787273.14755.282.camel@homeserver> <1224787700.3974.163.camel@moss-spartans.epoch.ncsc.mil> <4909FD84.2050906@redhat.com>
-In-Reply-To: <4909FD84.2050906@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, selinux@tycho.nsa.gov,
+        sakaia@jp.fujitsu.com
+Subject: Re: README in libselinux
+References: <4909351B.5090805@ak.jp.nec.com> <1225377210.13709.12.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1225377210.13709.12.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Stephen Smalley wrote:
+Stephen Smalley wrote:
+> On Thu, 2008-10-30 at 13:16 +0900, KaiGai Kohei wrote:
 >   
->> On Thu, 2008-10-23 at 13:41 -0500, LC Bruzenak wrote:
->>     
->>> On Thu, 2008-10-23 at 14:00 -0400, Stephen Smalley wrote:
->>>       
->>>> On Thu, 2008-10-23 at 13:29 -0400, Daniel J Walsh wrote:
->>>>         
->>>>> LC Bruzenak wrote:
->>>>>           
->>>>>> On Thu, 2008-10-23 at 13:10 -0400, Daniel J Walsh wrote:
->>>>>> ...
->>>>>>             
->>>>>>> On Rawhide it seems to work
->>>>>>>
->>>>>>> # /usr/sbin/semanage fcontext -a -t prelude_spool_t -r s0:c0.c1023
->>>>>>> '/var/spool/prelude(/.*)?'
->>>>>>> # restorecon -R -v /var/spool/prelude/
->>>>>>> restorecon reset /var/spool/prelude context
->>>>>>> system_u:object_r:prelude_spool_t:s0->system_u:object_r:prelude_spool_t:s0:c0.c1023
->>>>>>>
->>>>>>>
->>>>>>> So I will patch policycoreutils.
->>>>>>>
->>>>>>>               
->>>>>> Thanks Dan!
->>>>>>
->>>>>> LCB.
->>>>>>
->>>>>>             
->>>>> Of course this is totally not intuitive to the user.
->>>>>
->>>>> He really wants to modify and existing fcontext so he needs to add a new
->>>>> conflicting one.
->>>>>
->>>>> This command should really be fixed to check if an exising global or
->>>>> local exist,
->>>>>
->>>>> if a local exists it should modify if a global exists it should add.
->>>>>           
->>>> I think semanage port handles that situation correctly.  __modify uses
->>>> the _exists interface to check existence (whether in policy or local),
->>>> and uses the modify_local interface to update (which internally will
->>>> fall back to an add if not already locally defined).
->>>>
->>>>         
->>> It didn't seem to work this way with the patch - I could only add it
->>> (then modify):
->>>       
->> I was saying that it works that way for semanage port already (not
->> fcontext), so Dan can use that as an example of how to make it work for
->> fcontext.
+>> Hi,
 >>
+>> I got a question on the secure os users mailing-list in Japan.
+>> He said that he is interested in sVirt patches but not good at the way
+>> to apply the security policy of SELinux on userspace object manager, so
+>> it makes him hesitate to comment for the patches.
+>>
+>> We know great manpages are provided yet, but a structured documentation
+>> to implement SELinux aware userspace object managers is not well known.
+>> It is not unclear whether it should be included within README, or not.
+>>
+>> However, an official guidance for developers should be considered.
+>>
+>> Any comment?
 >>     
->>> [root@v1 ~]# /usr/sbin/semanage fcontext -m -t prelude_spool_t -r s0:c0.c1023 '/var/spool/prelude(/.*)?'
->>> /usr/sbin/semanage: File context for /var/spool/prelude(/.*)? is not defined
->>>
->>> [root@v1 ~]# rpm -qv policycoreutils
->>> policycoreutils-2.0.57-5.fc10.i386
->>>
->>> [root@v1 ~]# /usr/sbin/semanage fcontext -a -t prelude_spool_t -r s0:c0.c1023 '/var/spool/prelude(/.*)?'
->>> [root@v1 ~]# /usr/sbin/semanage fcontext -m -r s0:c0.c1022 '/var/spool/prelude(/.*)?'
->>>
->>> - and so far restorecon works as expected.
->>>
->>> So to me it seems like the man page needs updating if this behavior is
->>> desired (only local fcontext changes allowed). Seems fine to me; only
->>> thing is the last one in the list wins I guess, vice only last-occurring
->>> duplicates displayed.:
->>>
->>> [root@v1 ~]# /usr/sbin/semanage fcontext -l | grep prelude
->>> ...
->>> /var/spool/prelude(/.*)?                           all files          system_u:object_r:prelude_spool_t:s0 
->>> ...
->>> /var/spool/prelude(/.*)?                           all files          system_u:object_r:prelude_spool_t:s0:c0.c1022 
->>>
->>> Main thing for me is that it works so I can resume testing.
->>> Thanks again!
->>>
->>> LCB.
->>>
->>>       
-> I believe policycoreutils-2.0.57-9.fc10 has the syntax correct now.
 >
-> Please try it out.
+> The intent was that these papers would serve as such a reference,
+> although they don't necessarily go into the level of detail an
+> implementer might want and the interfaces have of course changed over
+> time:
+> http://www.nsa.gov/selinux/papers/gconf07-abs.cfm
+> http://www.nsa.gov/selinux/papers/xorg07-abs.cfm
+> http://www.nsa.gov/selinux/papers/radac07-abs.cfm
+>
+>   
 
-Did you send a patch for this? I didn't see one but I may have missed it.
+I started work on such a paper last year but it fell by the wayside. 
+Here's a summary of it:
+
+How to Write a Userspace Object Manager
+
+1. Decide what classes and permissions your object manager will be
+enforcing control over.  These could already exist in policy, or if your
+object manager provides its own service a new set of classes and
+permissions will be needed.  This is a difficult step because trade-offs
+can be made:  two "different" actions on an object could be represented
+by different security classes for the two objects, different permissions
+on the same object type, or different types on the same object with the
+same permission.  Choose a set of object classses and permissions and be
+prepared for changes as you go.
+
+2. Figure out how your objects will be labeled.  Who are the subjects? 
+What type transitions will be made to label each object?  Will some
+objects be lableled directly (not through a type transition)?  Are some
+objects lableled by name?  Will some objects be polyinstantiated?  Each
+object needs to be labeled, so there either needs to be space inside the
+object to store the label (via some opaque security field or user data
+field) or the SELinux code will need to store and manage labels itself.
+
+3. Hook the SELinux code into the object manager so that it will gain
+control when:
+  a) The program starts up, so the AVC can be initialized.  You'll need
+to set selinux callbacks with selinux_set_callback(3), establish a
+mapping from names to numbers for your security classes and permissions
+with selinux_set_mapping(3), initialize the AVC with avc_open(3) and a
+label handle with selabel_open(3) if you're using the file contexts or a
+similar string-to-name mapping, look up the "unlabeled" context with
+security_get_initial_context(3), and anything else that needs to be done
+to get the userspace object manager set up and running.
+  b)  Objects are created and destroyed, so the object can be labeled
+properly.  There are compute_create() and compute_member() functions
+that mirror the kernel interfaces and which work on both SID's --
+avc_compute_create(3), avc_compute_member(3)  or security context
+strings directly  -- security_compute_create(3),
+security_compute_member(3).  A name lookup can be performed with
+selabel_lookup(3).  SID's (security_id_t pointers) are reference counted
+and need to be managed with sidput() and sidget() to prevent memory leaks.
+  c) Security decisions are made, so the policy can be queried. 
+avc_compute_create(3) and security_compute_av(3) are the key functions here.
+
+4. Figure out how the SELinux code will be configured.  If you have a
+mapping from names to contexts this can be either kept in a
+configuration file or a new backend for it could be added to
+libselinux.  There are various ancillary options such as permissive
+mode, and handle_unknown behavior which can be configured in the
+userspace AVC; this could be exposed to the user through conf file
+options or command line parameters.
+
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
