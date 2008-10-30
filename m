@@ -1,44 +1,46 @@
-Subject: Re: README in libselinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: selinux@tycho.nsa.gov, sakaia@jp.fujitsu.com
-In-Reply-To: <4909351B.5090805@ak.jp.nec.com>
-References: <4909351B.5090805@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Thu, 30 Oct 2008 10:33:30 -0400
-Message-Id: <1225377210.13709.12.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Date: Fri, 31 Oct 2008 02:24:24 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: check open perms in dentry_open not
+ inode_permission
+In-Reply-To: <1225377084.13709.9.camel@moss-spartans.epoch.ncsc.mil>
+Message-ID: <alpine.LRH.1.10.0810310222410.8775@tundra.namei.org>
+References: <20081029210646.14332.52199.stgit@paris.rdu.redhat.com> <1225377084.13709.9.camel@moss-spartans.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-10-30 at 13:16 +0900, KaiGai Kohei wrote:
-> Hi,
-> 
-> I got a question on the secure os users mailing-list in Japan.
-> He said that he is interested in sVirt patches but not good at the way
-> to apply the security policy of SELinux on userspace object manager, so
-> it makes him hesitate to comment for the patches.
-> 
-> We know great manpages are provided yet, but a structured documentation
-> to implement SELinux aware userspace object managers is not well known.
-> It is not unclear whether it should be included within README, or not.
-> 
-> However, an official guidance for developers should be considered.
-> 
-> Any comment?
+On Thu, 30 Oct 2008, Stephen Smalley wrote:
 
-The intent was that these papers would serve as such a reference,
-although they don't necessarily go into the level of detail an
-implementer might want and the interfaces have of course changed over
-time:
-http://www.nsa.gov/selinux/papers/gconf07-abs.cfm
-http://www.nsa.gov/selinux/papers/xorg07-abs.cfm
-http://www.nsa.gov/selinux/papers/radac07-abs.cfm
+> On Wed, 2008-10-29 at 17:06 -0400, Eric Paris wrote:
+> > Some operations, like searching a directory path or connecting a unix domain
+> > socket, make explicit calls into inode_permission.  Our choices are to
+> > either try to come up with a signature for all of the explicit calls to
+> > inode_permission and do not check open on those, or to move the open checks to
+> > dentry_open where we know this is always an open operation.  This patch moves
+> > the checks to dentry_open.
+> > 
+> > Signed-off-by: Eric Paris <eparis@redhat.com>
+> 
+> Thanks, mea culpa - the original RFC patch for open permission put it
+> into dentry_open but I (wrongly) recommended taking it to
+> inode_permission at the time.
+> 
+> Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
+Applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+
+If you want this in 2.6.28, it needs to qualify as a bugfix for an issue 
+affecting real users.  Thoughts?
+
+
+- James
 -- 
-Stephen Smalley
-National Security Agency
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
