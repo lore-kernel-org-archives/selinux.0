@@ -1,55 +1,37 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9TNSpTj008470
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 19:28:52 -0400
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9TNSpgv025983
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 23:28:51 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id m9TNSk13020259
-	for <selinux@tycho.nsa.gov>; Wed, 29 Oct 2008 19:28:47 -0400
-Message-ID: <4908F1AA.9060006@redhat.com>
-Date: Thu, 30 Oct 2008 09:28:42 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9U4HIZD002869
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 00:17:18 -0400
+Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9U4FhhG000951
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 04:15:45 GMT
+Message-ID: <4909351B.5090805@ak.jp.nec.com>
+Date: Thu, 30 Oct 2008 13:16:27 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>
-Subject: Re: user guide draft: "Examples: Booleans for NFS"
-References: <4905320C.4090807@redhat.com> <49085722.7010901@redhat.com>
-In-Reply-To: <49085722.7010901@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: selinux@tycho.nsa.gov
+CC: sakaia@jp.fujitsu.com
+Subject: README in libselinux
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Murray McAllister wrote:
->> Hi,
+Hi,
 
->>
->> Apache HTTP Server
->>
->> To allow access to NFS file systems (files labeled with the nfs_t type):
->> /usr/sbin/setsebool -P httpd_use_nfs on
->>
->> To allow access to Samba file systems (files labeled with the cifs_t type):
->> /usr/sbin/setsebool -P httpd_use_cifs on
-[snip]
-> Looks good, only problem with describing booleans is that they might not
-> exist on all versions of policy.  The description above will require 5.3
-> policy on RHEL5.
+I got a question on the secure os users mailing-list in Japan.
+He said that he is interested in sVirt patches but not good at the way
+to apply the security policy of SELinux on userspace object manager, so
+it makes him hesitate to comment for the patches.
 
-I added a note:
+We know great manpages are provided yet, but a structured documentation
+to implement SELinux aware userspace object managers is not well known.
+It is not unclear whether it should be included within README, or not.
 
-These Booleans exist in SELinux policy as shipped with Fedora 10. They 
-may not exist in policy shipped with other versions of Fedora or other 
-operating systems.
+However, an official guidance for developers should be considered.
 
-I'll keep these things in mind when the guide is forked for Red Hat 
-Enterprise Linux.
-
-Cheers.
+Any comment?
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
