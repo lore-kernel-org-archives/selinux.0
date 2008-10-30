@@ -1,120 +1,143 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9UCZmhX012012
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 08:35:48 -0400
-Received: from moss-lions.epoch.ncsc.mil (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9UCYFhH027521
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 12:34:15 GMT
-Received: from moss-lions.epoch.ncsc.mil (localhost.localdomain [127.0.0.1])
-	by moss-lions.epoch.ncsc.mil (8.14.2/8.14.2) with ESMTP id m9UCZjGe021183
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 08:35:45 -0400
-Received: (from jwcart2@localhost)
-	by moss-lions.epoch.ncsc.mil (8.14.2/8.14.2/Submit) id m9UCZj4I021182
-	for selinux@tycho.nsa.gov; Thu, 30 Oct 2008 08:35:45 -0400
-Date: Wed, 22 Oct 2008 11:03:57 +0100
-From: "Daniel P. Berrange" <berrange@redhat.com>
-To: James Morris <jmorris@namei.org>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, libvir-list@redhat.com,
-        Daniel Veillard <veillard@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [RFC] sVirt v0.10 - initial prototype
-Message-ID: <20081022100357.GB24340@redhat.com>
-Reply-To: "Daniel P. Berrange" <berrange@redhat.com>
-References: <alpine.LRH.1.10.0810211144030.10613@tundra.namei.org> <48FDDFBB.8020005@redhat.com> <20081021162217.GN16442@redhat.com> <alpine.LRH.1.10.0810222025070.19361@tundra.namei.org>
+Subject: Re: [PATCH] SELinux: check open perms in dentry_open not
+	inode_permission
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org
+In-Reply-To: <20081029210646.14332.52199.stgit@paris.rdu.redhat.com>
+References: <20081029210646.14332.52199.stgit@paris.rdu.redhat.com>
+Content-Type: text/plain
+Date: Thu, 30 Oct 2008 10:31:24 -0400
+Message-Id: <1225377084.13709.9.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LRH.1.10.0810222025070.19361@tundra.namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Oct 22, 2008 at 08:50:19PM +1100, James Morris wrote:
-> On Tue, 21 Oct 2008, Daniel P. Berrange wrote:
+On Wed, 2008-10-29 at 17:06 -0400, Eric Paris wrote:
+> Some operations, like searching a directory path or connecting a unix domain
+> socket, make explicit calls into inode_permission.  Our choices are to
+> either try to come up with a signature for all of the explicit calls to
+> inode_permission and do not check open on those, or to move the open checks to
+> dentry_open where we know this is always an open operation.  This patch moves
+> the checks to dentry_open.
 > 
-> > I should note that the domain XML format is representative of the config
-> > for a particular deployment of a virtual machine onto a host. 
-> > 
-> > It is not a generic interchange format for 'appliances'. If you were
-> > distributing an appliance, then the virt-image XML format would be used,
-> > and this encodes information on pre-requisites for host capabilities. 
-> > 
-> > When an appliance is deployed as a virtual domain, the virt-image tool,
-> > validate the virt-image XML pre-requisites, against the host capabilites
-> > XML to determine if the host is suitable.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+
+Thanks, mea culpa - the original RFC patch for open permission put it
+into dentry_open but I (wrongly) recommended taking it to
+inode_permission at the time.
+
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
 > 
-> As you mention in a later email, enforcing mode can be set on a 
-> per-process (domain) basis, so for the case of domain labeling, the 
-> current enforcing status needs to be bound to the domain.
+>  security/selinux/hooks.c |   59 +++++++++++++++++++++++-----------------------
+>  1 files changed, 30 insertions(+), 29 deletions(-)
 > 
-> In terms of migration and provisioning, we need to consider several issues 
-> in more detail (some perhaps later), e.g.:
-> 
-> - It should be possible to migrate an "isolated" domain between different 
->   types of security models if each supports it (e.g. from Smack to 
->   SELinux);
-> 
-> - How do we handle different types of virtualization running on the same 
->   host, e.g. qemu domains running inside containers?
-
-The data in the host capability XML is interpreted wrt the hypervisor 
-connection URI you gave to virConnectPtr.
-
-So if you open two libvirt connections, one with qemu:///system and
-one with 'xen:///' on the same physical host, it is expected you will
-see alternative views of that host. 
-
-As just one example, if you opened 'qemu:///system' on a Xen enabled
-host you'd only see a view of the world that covers the hardware 
-available to Domain-0. This can be a subset of the hardware seen by
-the hypervisor itself. If you opened 'xen:///' then you'd see the
-full view.
-
-So, what this means for security models - if you opened 'qemu:///system'
-on a Xen enabled host you'd likely see a SELinux security model, whereas
-'xen:///' would likely show you an XSM security model.
-
-That said in normal circumstances we don't expect that people will 
-use multiple different virtualization technologies within the context
-of a single OS instance. You may however see nested virtualization,
-eg, a Fedora 9 KVM host, runs a RHEL-5 xen guest, which runs a 
-Windows guest.  There are even patches for KVM to let it expose
-SVM hardware virt to the guests.
-
-libvirt does not try to track this nesting explicitly - its viewpoint
-is always limited to a single hypervisor connection. The intent is
-that libvirt provides enough metadata, to allow an external mgmt
-application to build up a complete 'world view' of all its data 
-center, correlating guests & hosts, primarily via the UUID.
-
-> - Policy for import and export of domains, including translation of 
->   labels when imported.
-> 
-> Initially, though, perhaps just stick with the simplest case of listing 
-> which security models and DOIs are supported, and I think we should stick 
-> with 'seclabel' rather than introduce 'secpolicy'.
-> 
->   <host>
->      ...
->      <seclabel model='selinux'>
->        <doi>engineering.example.com.</doi>
->        <!-- any other supported DOIs... -->
->        <enforcing>yes</enforcing>
->      </seclabel>
-> 
->      <!-- any other active security labeling models ... -->
-> 
->   </host>
-
-I think to start with we probably just assume a single security
-labelling model per hypervisor connection. If a single host
-happened to have multiple models, I believe each model would
-likely be scoped to a specific hypervisor on the host.
-
-Regards,
-Daniel
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 3e3fde7..47cba68 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1687,15 +1687,39 @@ static inline u32 file_mask_to_av(int mode, int mask)
+>  	return av;
+>  }
+>  
+> +/* Convert a Linux file to an access vector. */
+> +static inline u32 file_to_av(struct file *file)
+> +{
+> +	u32 av = 0;
+> +
+> +	if (file->f_mode & FMODE_READ)
+> +		av |= FILE__READ;
+> +	if (file->f_mode & FMODE_WRITE) {
+> +		if (file->f_flags & O_APPEND)
+> +			av |= FILE__APPEND;
+> +		else
+> +			av |= FILE__WRITE;
+> +	}
+> +	if (!av) {
+> +		/*
+> +		 * Special file opened with flags 3 for ioctl-only use.
+> +		 */
+> +		av = FILE__IOCTL;
+> +	}
+> +
+> +	return av;
+> +}
+> +
+>  /*
+> - * Convert a file mask to an access vector and include the correct open
+> + * Convert a file to an access vector and include the correct open
+>   * open permission.
+>   */
+> -static inline u32 open_file_mask_to_av(int mode, int mask)
+> +static inline u32 open_file_to_av(struct file *file)
+>  {
+> -	u32 av = file_mask_to_av(mode, mask);
+> +	u32 av = file_to_av(file);
+>  
+>  	if (selinux_policycap_openperm) {
+> +		mode_t mode = file->f_path.dentry->d_inode->i_mode;
+>  		/*
+>  		 * lnk files and socks do not really have an 'open'
+>  		 */
+> @@ -1711,34 +1735,11 @@ static inline u32 open_file_mask_to_av(int mode, int mask)
+>  			av |= DIR__OPEN;
+>  		else
+>  			printk(KERN_ERR "SELinux: WARNING: inside %s with "
+> -				"unknown mode:%x\n", __func__, mode);
+> +				"unknown mode:%o\n", __func__, mode);
+>  	}
+>  	return av;
+>  }
+>  
+> -/* Convert a Linux file to an access vector. */
+> -static inline u32 file_to_av(struct file *file)
+> -{
+> -	u32 av = 0;
+> -
+> -	if (file->f_mode & FMODE_READ)
+> -		av |= FILE__READ;
+> -	if (file->f_mode & FMODE_WRITE) {
+> -		if (file->f_flags & O_APPEND)
+> -			av |= FILE__APPEND;
+> -		else
+> -			av |= FILE__WRITE;
+> -	}
+> -	if (!av) {
+> -		/*
+> -		 * Special file opened with flags 3 for ioctl-only use.
+> -		 */
+> -		av = FILE__IOCTL;
+> -	}
+> -
+> -	return av;
+> -}
+> -
+>  /* Hook functions begin here. */
+>  
+>  static int selinux_ptrace_may_access(struct task_struct *child,
+> @@ -2648,7 +2649,7 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+>  	}
+>  
+>  	return inode_has_perm(current, inode,
+> -			       open_file_mask_to_av(inode->i_mode, mask), NULL);
+> +			      file_mask_to_av(inode->i_mode, mask), NULL);
+>  }
+>  
+>  static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+> @@ -3164,7 +3165,7 @@ static int selinux_dentry_open(struct file *file)
+>  	 * new inode label or new policy.
+>  	 * This check is not redundant - do not remove.
+>  	 */
+> -	return inode_has_perm(current, inode, file_to_av(file), NULL);
+> +	return inode_has_perm(current, inode, open_file_to_av(file), NULL);
+>  }
+>  
+>  /* task security operations */
 -- 
-|: Red Hat, Engineering, London   -o-   http://people.redhat.com/berrange/ :|
-|: http://libvirt.org  -o-  http://virt-manager.org  -o-  http://ovirt.org :|
-|: http://autobuild.org       -o-         http://search.cpan.org/~danberr/ :|
-|: GnuPG: 7D3B9505  -o-  F3C9 553F A1DA 4AC2 5648 23C1 B3DF F742 7D3B 9505 :|
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
