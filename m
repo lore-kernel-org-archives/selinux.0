@@ -1,13 +1,13 @@
-Message-ID: <490A0878.7070108@redhat.com>
-Date: Thu, 30 Oct 2008 15:18:16 -0400
+Message-ID: <490A0CD7.5030402@redhat.com>
+Date: Thu, 30 Oct 2008 15:36:55 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Atsushi SAKAI <sakaia@jp.fujitsu.com>
-CC: James Morris <jmorris@namei.org>, libvir-list@redhat.com,
-        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: [libvirt] [RFC] sVirt v0.10 - initial prototype
-References: <alpine.LRH.1.10.0810211144030.10613@tundra.namei.org> <20081030094005.29012480001@m024.s.css.fujitsu.com>
-In-Reply-To: <20081030094005.29012480001@m024.s.css.fujitsu.com>
+To: Joshua Brindle <method@manicmethod.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, LC Bruzenak <lenny@MagitekLtd.com>,
+        SE-Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
+Subject: Re: semanage help
+References: <1224727612.14755.244.camel@homeserver>	 <1224766402.28867.4.camel@moss-spartans.epoch.ncsc.mil>	 <4900A0C8.9050200@redhat.com>	 <1224779343.28867.60.camel@moss-spartans.epoch.ncsc.mil>	 <4900B01C.4070206@redhat.com> <1224782298.14755.267.camel@homeserver>	 <4900B461.7090509@redhat.com>	 <1224784833.2879.2.camel@moss-spartans.epoch.ncsc.mil>	 <1224787273.14755.282.camel@homeserver> <1224787700.3974.163.camel@moss-spartans.epoch.ncsc.mil> <4909FD84.2050906@redhat.com> <4909FEFB.6000702@manicmethod.com>
+In-Reply-To: <4909FEFB.6000702@manicmethod.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -15,140 +15,126 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Atsushi SAKAI wrote:
-> Hi, James
-> 
-> I have a question just for interest.
-> 
-> The security context stores like
-> /etc/selinux/targeted/contexts/files/file_contexts.
-> 
-> But you are storeing the domain security label on libvirt specific XML.
-> Of course, this is good for libvirt POV.
-> 
-> Is it permitted for SELinux policy POV?
-> 
-> 
-> By the way, I want to see the further discussion of the Requirements.
->> Requirements not yet addressed include:
-> 
-> Thanks
-> Atsushi SAKAI
-> 
-Both /etc/selinux/targeted/contexts/files/file_contexts and libvirt
-specific XML are just indicators of the way the system should be setup.
- The kernel policy is the final arbiter of the policy.  So if the kernel
-does not understand virt_image_t in
-/etc/selinux/targeted/contexts/files/file_contexts, it will not allow
-tools like rpm or restorecon to set it as a file context.  Similarly if
-the process label qemu_t is specified in the libvirt xml, and the kernel
-policy does not know what a qemu_t is, it will not allow libvirt to
-start a processes labeled qemu_t.
-
-> 
-> 
-> James Morris <jmorris@namei.org> wrote:
-> 
-> [snip]
->> The domain security label configuration format is as follows:
+Joshua Brindle wrote:
+> Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
 >>
->> # virsh dumpxml sys1
->> <domain>
->>     ....
->>   <seclabel model='selinux'>
->>     <label>system_u:system_r:virtd_t:s0</label>
->>     <policytype>targeted</policytype>
->>   </seclabel>
->> </domain>
->>
->> It's possible to query the security label of a running domain via virsh:
->>
->> # virsh dominfo sys1
->> Id:             1
->> Name:           sys1
->> UUID:           fa3c8e06-0877-2a08-06fd-f2479b7bacb4
->> OS Type:        hvm
->> State:          running
->> CPU(s):         1
->> CPU time:       11.4s
->> Max memory:     524288 kB
->> Used memory:    524288 kB
->> Autostart:      disable
->> Security label: system_u:system_r:virtd_t:s0 (selinux/targeted/enforcing)
->>
->> The security label is deterimed via the new virDomainGetSecLabel() API 
->> method, which is transported over RPC to the backend driver (qemu in this 
->> case), and is entirely independent of the local security model, if any.  
->> e.g. this command could be run remotely from an entirely different 
->> platform: you just see what's happening on the remote system, as with 
->> other attributes of the domain.
->>
->> Feedback on the design thus far is sought before proceeding to more 
->> comprehensive integration.
->>
->> In particular, I'd be interested in any thoughts on the placement of the 
->> security labeling driver within libvirt, as this seems to be the most 
->> critical architectural issue (I've already refactored this aspect once).  
->>
->> Currently, the idea is to attach the security labeling driver to the virt 
->> driver, rather than implement it independently as a top-level component as 
->> in the case of other types of drivers (e.g. storage).  This is because 
->> process-based security labeling is highly dependent on the kind of 
->> virtualization in use, and may not make sense at all in some cases (e.g. 
->> when using a non-Linux hypervisor, or containers).
->>
->> In the case of qemu, a security labeling driver is added to qemud:
->>
->> @@ -63,6 +64,7 @@ struct qemud_driver {
->>      char *vncListen;
+>> Stephen Smalley wrote:
 >>  
->>      virCapsPtr caps;
->> +    virSecLabelDriverPtr secLabelDriver;
->>  };
+>>> On Thu, 2008-10-23 at 13:41 -0500, LC Bruzenak wrote:
+>>>    
+>>>> On Thu, 2008-10-23 at 14:00 -0400, Stephen Smalley wrote:
+>>>>      
+>>>>> On Thu, 2008-10-23 at 13:29 -0400, Daniel J Walsh wrote:
+>>>>>        
+>>>>>> LC Bruzenak wrote:
+>>>>>>          
+>>>>>>> On Thu, 2008-10-23 at 13:10 -0400, Daniel J Walsh wrote:
+>>>>>>> ...
+>>>>>>>            
+>>>>>>>> On Rawhide it seems to work
+>>>>>>>>
+>>>>>>>> # /usr/sbin/semanage fcontext -a -t prelude_spool_t -r s0:c0.c1023
+>>>>>>>> '/var/spool/prelude(/.*)?'
+>>>>>>>> # restorecon -R -v /var/spool/prelude/
+>>>>>>>> restorecon reset /var/spool/prelude context
+>>>>>>>> system_u:object_r:prelude_spool_t:s0->system_u:object_r:prelude_spool_t:s0:c0.c1023
+>>>>>>>>
+>>>>>>>>
+>>>>>>>>
+>>>>>>>> So I will patch policycoreutils.
+>>>>>>>>
+>>>>>>>>               
+>>>>>>> Thanks Dan!
+>>>>>>>
+>>>>>>> LCB.
+>>>>>>>
+>>>>>>>             
+>>>>>> Of course this is totally not intuitive to the user.
+>>>>>>
+>>>>>> He really wants to modify and existing fcontext so he needs to add
+>>>>>> a new
+>>>>>> conflicting one.
+>>>>>>
+>>>>>> This command should really be fixed to check if an exising global or
+>>>>>> local exist,
+>>>>>>
+>>>>>> if a local exists it should modify if a global exists it should add.
+>>>>>>           
+>>>>> I think semanage port handles that situation correctly.  __modify uses
+>>>>> the _exists interface to check existence (whether in policy or local),
+>>>>> and uses the modify_local interface to update (which internally will
+>>>>> fall back to an add if not already locally defined).
+>>>>>
+>>>>>         
+>>>> It didn't seem to work this way with the patch - I could only add it
+>>>> (then modify):
+>>>>       
+>>> I was saying that it works that way for semanage port already (not
+>>> fcontext), so Dan can use that as an example of how to make it work for
+>>> fcontext.
+>>>
+>>>    
+>>>> [root@v1 ~]# /usr/sbin/semanage fcontext -m -t prelude_spool_t -r
+>>>> s0:c0.c1023 '/var/spool/prelude(/.*)?'
+>>>> /usr/sbin/semanage: File context for /var/spool/prelude(/.*)? is not
+>>>> defined
+>>>>
+>>>> [root@v1 ~]# rpm -qv policycoreutils
+>>>> policycoreutils-2.0.57-5.fc10.i386
+>>>>
+>>>> [root@v1 ~]# /usr/sbin/semanage fcontext -a -t prelude_spool_t -r
+>>>> s0:c0.c1023 '/var/spool/prelude(/.*)?'
+>>>> [root@v1 ~]# /usr/sbin/semanage fcontext -m -r s0:c0.c1022
+>>>> '/var/spool/prelude(/.*)?'
+>>>>
+>>>> - and so far restorecon works as expected.
+>>>>
+>>>> So to me it seems like the man page needs updating if this behavior is
+>>>> desired (only local fcontext changes allowed). Seems fine to me; only
+>>>> thing is the last one in the list wins I guess, vice only
+>>>> last-occurring
+>>>> duplicates displayed.:
+>>>>
+>>>> [root@v1 ~]# /usr/sbin/semanage fcontext -l | grep prelude
+>>>> ...
+>>>> /var/spool/prelude(/.*)?                           all
+>>>> files          system_u:object_r:prelude_spool_t:s0 ...
+>>>> /var/spool/prelude(/.*)?                           all
+>>>> files          system_u:object_r:prelude_spool_t:s0:c0.c1022
+>>>> Main thing for me is that it works so I can resume testing.
+>>>> Thanks again!
+>>>>
+>>>> LCB.
+>>>>
+>>>>       
+>> I believe policycoreutils-2.0.57-9.fc10 has the syntax correct now.
 >>
->> and then initialized during qemud startup from qemudSecLabelInit().  
->>
->> During initialization, any available security labeling drivers are probed, 
->> and the first one which thinks it should be used is installed. Top-level 
->> libvirt API calls are then dispatched to the active security labeling 
->> driver via the backend virt driver, as necessary.
->>
->> Note that the security labeling framework in this release is always 
->> built-in -- it can be made a compile-time option later if desired.
->>
->> Requirements not yet addressed include:
->> - Labeling of resources and generally comprehensive labeling management
->> - Automatic labeling (e.g. for the simple isolation use-case)
->> - Integration of labeling support into higher-level management tools such 
->>   as virt-manager
->> - Integration with the audit subsystem to help with administration and 
->>   debugging
->> - Domain of interpretation (DOI) checking/translation
->> - Python bindings
->>
->> As mentioned, the goal at this stage is to get feedback on the underlying 
->> design: comments welcome!
->>
->>
->> - James
->> -- 
->> James Morris
->> <jmorris@namei.org>
+>> Please try it out.
+> 
+> Did you send a patch for this? I didn't see one but I may have missed it.
 > 
 > 
-> 
-> --
+> -- 
 > This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+> with
 > the words "unsubscribe selinux" without quotes as the message.
+No I would prefer to make sure it works for LC first before I submit the
+patch.
 
+Besides I have a lot of policycoreutils patches waiting to get applied,
+already.
+
+:^)
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkkKCHgACgkQrlYvE4MpobO44ACdG8CX5Y6ptaUTd2RtP4rtjaTo
-u1sAniwNi1WoYUuxkO3zM9A8hNUGLhTO
-=jtTR
+iEYEARECAAYFAkkKDNcACgkQrlYvE4MpobOpZQCg3lrUxoQZ9Y+anVG5+tscZR9O
+pXYAn0jXy9onn1I5ndzlOHH2BrMPYFH8
+=UMKf
 -----END PGP SIGNATURE-----
 
 --
