@@ -1,13 +1,18 @@
-Message-ID: <490A0CD7.5030402@redhat.com>
-Date: Thu, 30 Oct 2008 15:36:55 -0400
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9UJcG8R031834
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 15:38:16 -0400
+Received: from mx1.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9UJahbY017803
+	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 19:36:44 GMT
+Message-ID: <490A0D0E.9060703@redhat.com>
+Date: Thu, 30 Oct 2008 15:37:50 -0400
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, LC Bruzenak <lenny@MagitekLtd.com>,
-        SE-Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-Subject: Re: semanage help
-References: <1224727612.14755.244.camel@homeserver>	 <1224766402.28867.4.camel@moss-spartans.epoch.ncsc.mil>	 <4900A0C8.9050200@redhat.com>	 <1224779343.28867.60.camel@moss-spartans.epoch.ncsc.mil>	 <4900B01C.4070206@redhat.com> <1224782298.14755.267.camel@homeserver>	 <4900B461.7090509@redhat.com>	 <1224784833.2879.2.camel@moss-spartans.epoch.ncsc.mil>	 <1224787273.14755.282.camel@homeserver> <1224787700.3974.163.camel@moss-spartans.epoch.ncsc.mil> <4909FD84.2050906@redhat.com> <4909FEFB.6000702@manicmethod.com>
-In-Reply-To: <4909FEFB.6000702@manicmethod.com>
+To: Sanjai Narain <narain@research.telcordia.com>
+CC: selinux@tycho.nsa.gov
+Subject: Re: SELinux policy parser
+References: <490A0775.8040001@research.telcordia.com>
+In-Reply-To: <490A0775.8040001@research.telcordia.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -15,105 +20,16 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Stephen Smalley wrote:
->>  
->>> On Thu, 2008-10-23 at 13:41 -0500, LC Bruzenak wrote:
->>>    
->>>> On Thu, 2008-10-23 at 14:00 -0400, Stephen Smalley wrote:
->>>>      
->>>>> On Thu, 2008-10-23 at 13:29 -0400, Daniel J Walsh wrote:
->>>>>        
->>>>>> LC Bruzenak wrote:
->>>>>>          
->>>>>>> On Thu, 2008-10-23 at 13:10 -0400, Daniel J Walsh wrote:
->>>>>>> ...
->>>>>>>            
->>>>>>>> On Rawhide it seems to work
->>>>>>>>
->>>>>>>> # /usr/sbin/semanage fcontext -a -t prelude_spool_t -r s0:c0.c1023
->>>>>>>> '/var/spool/prelude(/.*)?'
->>>>>>>> # restorecon -R -v /var/spool/prelude/
->>>>>>>> restorecon reset /var/spool/prelude context
->>>>>>>> system_u:object_r:prelude_spool_t:s0->system_u:object_r:prelude_spool_t:s0:c0.c1023
->>>>>>>>
->>>>>>>>
->>>>>>>>
->>>>>>>> So I will patch policycoreutils.
->>>>>>>>
->>>>>>>>               
->>>>>>> Thanks Dan!
->>>>>>>
->>>>>>> LCB.
->>>>>>>
->>>>>>>             
->>>>>> Of course this is totally not intuitive to the user.
->>>>>>
->>>>>> He really wants to modify and existing fcontext so he needs to add
->>>>>> a new
->>>>>> conflicting one.
->>>>>>
->>>>>> This command should really be fixed to check if an exising global or
->>>>>> local exist,
->>>>>>
->>>>>> if a local exists it should modify if a global exists it should add.
->>>>>>           
->>>>> I think semanage port handles that situation correctly.  __modify uses
->>>>> the _exists interface to check existence (whether in policy or local),
->>>>> and uses the modify_local interface to update (which internally will
->>>>> fall back to an add if not already locally defined).
->>>>>
->>>>>         
->>>> It didn't seem to work this way with the patch - I could only add it
->>>> (then modify):
->>>>       
->>> I was saying that it works that way for semanage port already (not
->>> fcontext), so Dan can use that as an example of how to make it work for
->>> fcontext.
->>>
->>>    
->>>> [root@v1 ~]# /usr/sbin/semanage fcontext -m -t prelude_spool_t -r
->>>> s0:c0.c1023 '/var/spool/prelude(/.*)?'
->>>> /usr/sbin/semanage: File context for /var/spool/prelude(/.*)? is not
->>>> defined
->>>>
->>>> [root@v1 ~]# rpm -qv policycoreutils
->>>> policycoreutils-2.0.57-5.fc10.i386
->>>>
->>>> [root@v1 ~]# /usr/sbin/semanage fcontext -a -t prelude_spool_t -r
->>>> s0:c0.c1023 '/var/spool/prelude(/.*)?'
->>>> [root@v1 ~]# /usr/sbin/semanage fcontext -m -r s0:c0.c1022
->>>> '/var/spool/prelude(/.*)?'
->>>>
->>>> - and so far restorecon works as expected.
->>>>
->>>> So to me it seems like the man page needs updating if this behavior is
->>>> desired (only local fcontext changes allowed). Seems fine to me; only
->>>> thing is the last one in the list wins I guess, vice only
->>>> last-occurring
->>>> duplicates displayed.:
->>>>
->>>> [root@v1 ~]# /usr/sbin/semanage fcontext -l | grep prelude
->>>> ...
->>>> /var/spool/prelude(/.*)?                           all
->>>> files          system_u:object_r:prelude_spool_t:s0 ...
->>>> /var/spool/prelude(/.*)?                           all
->>>> files          system_u:object_r:prelude_spool_t:s0:c0.c1022
->>>> Main thing for me is that it works so I can resume testing.
->>>> Thanks again!
->>>>
->>>> LCB.
->>>>
->>>>       
->> I believe policycoreutils-2.0.57-9.fc10 has the syntax correct now.
->>
->> Please try it out.
+Sanjai Narain wrote:
+> Hello, I would appreciate pointers to any tools that parse SELinux
+> policy files (either text or binary). I am planning to write algorithms
+> to analyze such policies.
 > 
-> Did you send a patch for this? I didn't see one but I may have missed it.
+> Not sure if this makes sense but given that tools like apol  read policy
+> files, can they be made to dump their internal representations into a
+> text file?
+> 
+> Thanks. -- Sanjai
 > 
 > 
 > -- 
@@ -121,20 +37,14 @@ Joshua Brindle wrote:
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
 > with
 > the words "unsubscribe selinux" without quotes as the message.
-No I would prefer to make sure it works for LC first before I submit the
-patch.
-
-Besides I have a lot of policycoreutils patches waiting to get applied,
-already.
-
-:^)
+Take a look at sesearch.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkkKDNcACgkQrlYvE4MpobOpZQCg3lrUxoQZ9Y+anVG5+tscZR9O
-pXYAn0jXy9onn1I5ndzlOHH2BrMPYFH8
-=UMKf
+iEYEARECAAYFAkkKDQ4ACgkQrlYvE4MpobMpoQCgghWWdI9ztFNO005ss4sTuCZe
+RwgAn1T8zw3JruIIrQQzBmrhM0vXyMhY
+=qTG8
 -----END PGP SIGNATURE-----
 
 --
