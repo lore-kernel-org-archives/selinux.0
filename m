@@ -1,32 +1,155 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9UJE1Ct025360
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 15:14:01 -0400
-Received: from thumper.research.telcordia.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9UJCSbY012357
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 19:12:28 GMT
-Received: from [127.0.0.1] (vpntnlA166.research.telcordia.com [128.96.58.166])
-	by thumper.research.telcordia.com (8.13.6/8.13.5) with ESMTP id m9UJDxpj010165
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 15:14:00 -0400 (EDT)
-Message-ID: <490A0775.8040001@research.telcordia.com>
-Date: Thu, 30 Oct 2008 15:13:57 -0400
-From: Sanjai Narain <narain@research.telcordia.com>
+Message-ID: <490A0878.7070108@redhat.com>
+Date: Thu, 30 Oct 2008 15:18:16 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: SELinux policy parser
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Atsushi SAKAI <sakaia@jp.fujitsu.com>
+CC: James Morris <jmorris@namei.org>, libvir-list@redhat.com,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Subject: Re: [libvirt] [RFC] sVirt v0.10 - initial prototype
+References: <alpine.LRH.1.10.0810211144030.10613@tundra.namei.org> <20081030094005.29012480001@m024.s.css.fujitsu.com>
+In-Reply-To: <20081030094005.29012480001@m024.s.css.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello, I would appreciate pointers to any tools that parse SELinux 
-policy files (either text or binary). I am planning to write algorithms 
-to analyze such policies.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Not sure if this makes sense but given that tools like apol  read policy 
-files, can they be made to dump their internal representations into a 
-text file?
+Atsushi SAKAI wrote:
+> Hi, James
+> 
+> I have a question just for interest.
+> 
+> The security context stores like
+> /etc/selinux/targeted/contexts/files/file_contexts.
+> 
+> But you are storeing the domain security label on libvirt specific XML.
+> Of course, this is good for libvirt POV.
+> 
+> Is it permitted for SELinux policy POV?
+> 
+> 
+> By the way, I want to see the further discussion of the Requirements.
+>> Requirements not yet addressed include:
+> 
+> Thanks
+> Atsushi SAKAI
+> 
+Both /etc/selinux/targeted/contexts/files/file_contexts and libvirt
+specific XML are just indicators of the way the system should be setup.
+ The kernel policy is the final arbiter of the policy.  So if the kernel
+does not understand virt_image_t in
+/etc/selinux/targeted/contexts/files/file_contexts, it will not allow
+tools like rpm or restorecon to set it as a file context.  Similarly if
+the process label qemu_t is specified in the libvirt xml, and the kernel
+policy does not know what a qemu_t is, it will not allow libvirt to
+start a processes labeled qemu_t.
 
-Thanks. -- Sanjai
+> 
+> 
+> James Morris <jmorris@namei.org> wrote:
+> 
+> [snip]
+>> The domain security label configuration format is as follows:
+>>
+>> # virsh dumpxml sys1
+>> <domain>
+>>     ....
+>>   <seclabel model='selinux'>
+>>     <label>system_u:system_r:virtd_t:s0</label>
+>>     <policytype>targeted</policytype>
+>>   </seclabel>
+>> </domain>
+>>
+>> It's possible to query the security label of a running domain via virsh:
+>>
+>> # virsh dominfo sys1
+>> Id:             1
+>> Name:           sys1
+>> UUID:           fa3c8e06-0877-2a08-06fd-f2479b7bacb4
+>> OS Type:        hvm
+>> State:          running
+>> CPU(s):         1
+>> CPU time:       11.4s
+>> Max memory:     524288 kB
+>> Used memory:    524288 kB
+>> Autostart:      disable
+>> Security label: system_u:system_r:virtd_t:s0 (selinux/targeted/enforcing)
+>>
+>> The security label is deterimed via the new virDomainGetSecLabel() API 
+>> method, which is transported over RPC to the backend driver (qemu in this 
+>> case), and is entirely independent of the local security model, if any.  
+>> e.g. this command could be run remotely from an entirely different 
+>> platform: you just see what's happening on the remote system, as with 
+>> other attributes of the domain.
+>>
+>> Feedback on the design thus far is sought before proceeding to more 
+>> comprehensive integration.
+>>
+>> In particular, I'd be interested in any thoughts on the placement of the 
+>> security labeling driver within libvirt, as this seems to be the most 
+>> critical architectural issue (I've already refactored this aspect once).  
+>>
+>> Currently, the idea is to attach the security labeling driver to the virt 
+>> driver, rather than implement it independently as a top-level component as 
+>> in the case of other types of drivers (e.g. storage).  This is because 
+>> process-based security labeling is highly dependent on the kind of 
+>> virtualization in use, and may not make sense at all in some cases (e.g. 
+>> when using a non-Linux hypervisor, or containers).
+>>
+>> In the case of qemu, a security labeling driver is added to qemud:
+>>
+>> @@ -63,6 +64,7 @@ struct qemud_driver {
+>>      char *vncListen;
+>>  
+>>      virCapsPtr caps;
+>> +    virSecLabelDriverPtr secLabelDriver;
+>>  };
+>>
+>> and then initialized during qemud startup from qemudSecLabelInit().  
+>>
+>> During initialization, any available security labeling drivers are probed, 
+>> and the first one which thinks it should be used is installed. Top-level 
+>> libvirt API calls are then dispatched to the active security labeling 
+>> driver via the backend virt driver, as necessary.
+>>
+>> Note that the security labeling framework in this release is always 
+>> built-in -- it can be made a compile-time option later if desired.
+>>
+>> Requirements not yet addressed include:
+>> - Labeling of resources and generally comprehensive labeling management
+>> - Automatic labeling (e.g. for the simple isolation use-case)
+>> - Integration of labeling support into higher-level management tools such 
+>>   as virt-manager
+>> - Integration with the audit subsystem to help with administration and 
+>>   debugging
+>> - Domain of interpretation (DOI) checking/translation
+>> - Python bindings
+>>
+>> As mentioned, the goal at this stage is to get feedback on the underlying 
+>> design: comments welcome!
+>>
+>>
+>> - James
+>> -- 
+>> James Morris
+>> <jmorris@namei.org>
+> 
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkkKCHgACgkQrlYvE4MpobO44ACdG8CX5Y6ptaUTd2RtP4rtjaTo
+u1sAniwNi1WoYUuxkO3zM9A8hNUGLhTO
+=jtTR
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
