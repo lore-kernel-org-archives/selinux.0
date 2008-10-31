@@ -1,74 +1,58 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9VDfBKY027198
-	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 09:41:11 -0400
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9VDdWZu029167
-	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 13:39:37 GMT
-Message-ID: <490B0ACF.3080502@redhat.com>
-Date: Fri, 31 Oct 2008 09:40:31 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Murray McAllister <mmcallis@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@namei.org>
-Subject: Re: user guide: troubleshooting chapter
-References: <4907D37F.3090404@redhat.com>
-In-Reply-To: <4907D37F.3090404@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH]SELinux: properly handle empty tty_files list
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
+Content-Type: text/plain
+Date: Fri, 31 Oct 2008 17:40:00 -0400
+Message-Id: <1225489200.3371.5.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+SELinux: handle empty tty_files list
 
-Murray McAllister wrote:
-> Hi,
-> 
-> I am having trouble organizing a troubleshooting section. My current ideas:
-> 
-> Top Three Causes of Problems: <http://danwalsh.livejournal.com/22347.html>
-> 
-> Searching for and Viewing SELinux Denials
-> 
-> * which log files are used.
-> * ausearch, sealert, setroubleshoot-gui
-> 
-> Analyzing SELinux Denials
-> 
-> * Description of each field: comm, path, scontext, tcontext, etc.
-> * <http://fedoraproject.org/wiki/SELinux/Troubleshooting/AVCDecisions>
-> "Troubleshooting/AVCDecisions"
-> 
-> Why was Access Denied?
-> 
-> * auditwhy.
-> * DAC rules.
-> 
-> Fixing Problems
-> 
-> * fedora-selinux-list, Red Hat Bugzilla, audit2allow, chcon, semanage
-> fcontext, setsebool.
-> * Permissive Domains: <http://danwalsh.livejournal.com/24537.html>
-> * Booleans for Services (HTTP, Samba, FTP, MySQL, rsync).
-> 
-> Thanks for any ideas.
-> 
-> Regards.
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
-Looks good.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+From: Eric Paris <eparis@redhat.com>
 
-iEYEARECAAYFAkkLCs8ACgkQrlYvE4MpobNTbACgq+MmD27rqT5DjcIC2htNUxSX
-UqAAniiRX0w3cAcoQcmdGkgCzzHNw5S/
-=uR6c
------END PGP SIGNATURE-----
+SELinux has wrongly (since 2004) had an incorrect test for an empty
+tty->tty_files list.  With an empty list selinux would be pointing to
+part of the tty struct itself and would then proceed to dereference that
+value and again dereference that result.  An F10 change to plymouth on a ppc64
+system is actually currently triggering this bug.  This patch uses list_empty()
+to handle empty lists rather than looking at a meaningless location.
+
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+
+ security/selinux/hooks.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
+
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3e3fde7..f85597a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2126,14 +2126,16 @@ static inline void flush_unauthorized_files(struct files_struct *files)
+ 	tty = get_current_tty();
+ 	if (tty) {
+ 		file_list_lock();
+-		file = list_entry(tty->tty_files.next, typeof(*file), f_u.fu_list);
+-		if (file) {
++		if (!list_empty(&tty->tty_files)) {
++			struct inode *inode;
++
+ 			/* Revalidate access to controlling tty.
+ 			   Use inode_has_perm on the tty inode directly rather
+ 			   than using file_has_perm, as this particular open
+ 			   file may belong to another process and we are only
+ 			   interested in the inode-based check here. */
+-			struct inode *inode = file->f_path.dentry->d_inode;
++			file = list_first_entry(&tty->tty_files, struct file, f_u.fu_list);
++			inode = file->f_path.dentry->d_inode;
+ 			if (inode_has_perm(current, inode,
+ 					   FILE__READ | FILE__WRITE, NULL)) {
+ 				drop_tty = 1;
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
