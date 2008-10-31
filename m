@@ -1,124 +1,89 @@
-Message-ID: <490ACD44.3020108@ak.jp.nec.com>
-Date: Fri, 31 Oct 2008 18:17:56 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9VDcUKw026711
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 09:38:30 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9VDcT6b016286
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 13:38:30 GMT
+Message-ID: <490B0A31.8090907@redhat.com>
+Date: Fri, 31 Oct 2008 09:37:53 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        sakaia@jp.fujitsu.com
-Subject: Re: README in libselinux
-References: <4909351B.5090805@ak.jp.nec.com> <1225377210.13709.12.camel@moss-spartans.epoch.ncsc.mil> <490A00F1.9040804@tycho.nsa.gov> <490A053E.3050405@tycho.nsa.gov>
-In-Reply-To: <490A053E.3050405@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jim Meyering <jim@meyering.net>
+CC: russell@coker.com.au, Mike Edenfield <kutulu@kutulu.org>,
+        472590@bugs.debian.org, bug-coreutils@gnu.org,
+        Vikram Noel Ambrose <noel.ambrose@gmail.com>, selinux@tycho.nsa.gov,
+        =?ISO-8859-1?Q?Ondr=28ej_Vas=28=EDk?=
+ <ovasik@redhat.com>
+Subject: Re: RFC: changing the "+" in ls -l output to be "." or "+"
+References: <200803251523.34329.russell@coker.com.au>	<87mygumq37.fsf@rho.meyering.net> <4901CB4B.3030306@kutulu.org>	<200810261846.58879.russell@coker.com.au> <87y70bu6ah.fsf@rho.meyering.net>
+In-Reply-To: <87y70bu6ah.fsf@rho.meyering.net>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> Eamon Walsh wrote:
->> Stephen Smalley wrote:
->>   
->>> On Thu, 2008-10-30 at 13:16 +0900, KaiGai Kohei wrote:
->>>   
->>>     
->>>> Hi,
->>>>
->>>> I got a question on the secure os users mailing-list in Japan.
->>>> He said that he is interested in sVirt patches but not good at the way
->>>> to apply the security policy of SELinux on userspace object manager, so
->>>> it makes him hesitate to comment for the patches.
->>>>
->>>> We know great manpages are provided yet, but a structured documentation
->>>> to implement SELinux aware userspace object managers is not well known.
->>>> It is not unclear whether it should be included within README, or not.
->>>>
->>>> However, an official guidance for developers should be considered.
->>>>
->>>> Any comment?
->>>>     
->>>>       
->>> The intent was that these papers would serve as such a reference,
->>> although they don't necessarily go into the level of detail an
->>> implementer might want and the interfaces have of course changed over
->>> time:
->>> http://www.nsa.gov/selinux/papers/gconf07-abs.cfm
->>> http://www.nsa.gov/selinux/papers/xorg07-abs.cfm
->>> http://www.nsa.gov/selinux/papers/radac07-abs.cfm
->>>
->>>   
->>>     
->> I started work on such a paper last year but it fell by the wayside. 
->> Here's a summary of it:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Eamon,
-
-Is it possible to add a wiki entry to summarize the way to implement
-SELinux aware applications at somewhere http://www.selinuxproject.org ?
-
-I think it is easier to maintain and collaborate the document.
-# BTW, now I don't have an account of the wiki. I want it to edit. :)
-
->> How to Write a Userspace Object Manager
->>
->> 1. Decide what classes and permissions your object manager will be
->> enforcing control over.  These could already exist in policy, or if your
->> object manager provides its own service a new set of classes and
->> permissions will be needed.  This is a difficult step because trade-offs
->> can be made:  two "different" actions on an object could be represented
->> by different security classes for the two objects, different permissions
->> on the same object type, or different types on the same object with the
->> same permission.  Choose a set of object classses and permissions and be
->> prepared for changes as you go.
->>
->> 2. Figure out how your objects will be labeled.  Who are the subjects? 
->> What type transitions will be made to label each object?  Will some
->> objects be lableled directly (not through a type transition)?  Are some
->> objects lableled by name?  Will some objects be polyinstantiated?  Each
->> object needs to be labeled, so there either needs to be space inside the
->> object to store the label (via some opaque security field or user data
->> field) or the SELinux code will need to store and manage labels itself.
->>
->> 3. Hook the SELinux code into the object manager so that it will gain
->> control when:
->>   a) The program starts up, so the AVC can be initialized.  You'll need
->> to set selinux callbacks with selinux_set_callback(3), establish a
->> mapping from names to numbers for your security classes and permissions
->> with selinux_set_mapping(3), initialize the AVC with avc_open(3) and a
->> label handle with selabel_open(3) if you're using the file contexts or a
->> similar string-to-name mapping, look up the "unlabeled" context with
->> security_get_initial_context(3), and anything else that needs to be done
->> to get the userspace object manager set up and running.
->>   b)  Objects are created and destroyed, so the object can be labeled
->> properly.  There are compute_create() and compute_member() functions
->> that mirror the kernel interfaces and which work on both SID's --
->> avc_compute_create(3), avc_compute_member(3)  or security context
->> strings directly  -- security_compute_create(3),
->> security_compute_member(3).  A name lookup can be performed with
->> selabel_lookup(3).  SID's (security_id_t pointers) are reference counted
->> and need to be managed with sidput() and sidget() to prevent memory leaks.
->>   c) Security decisions are made, so the policy can be queried. 
->> avc_compute_create(3) and security_compute_av(3) are the key functions here.
->>   
+Jim Meyering wrote:
+> Russell Coker <russell@coker.com.au> wrote:
 > 
-> Whoops, avc_has_perm(3) is the key security decision function, not
-> avc_compute_create(3).
+>> On Saturday 25 October 2008 00:19, Mike Edenfield <kutulu@kutulu.org> wrote:
+>>> Jim Meyering wrote:
+>>>> A desire for compatibility makes "+" look good.
+>>>> "." is appealing for SELinux-only because it's inconspicuous.
+>>> Speaking as a fairly new SELinux user/admin, having a "."
+>>> next to every file in my ls output is just as useful or
+>>> non-useful as having a "+" next to them, so does it really
+>>> buy anything?  I end up needing -Z either way.
+>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=472590
+>>
+>> The above URL has the history of this discussion.  I requested that there be
+>> no such notification.  I still believe that there should be nothing used in
+>> the case of SE Linux (although I could be convinced that the "." is OK if
+>> files with the context "system_u:object_r:file_t:s0" did not have it).
+>>
+>> But it seems that I have lost this debate.  Using "." is better than "+", and
+>> my request to have none of this in Lenny has been accepted so we have some
+>> time to work on this before Lenny+1.
+>>
+>>> Based on the kind of real-world problems I've had, the most
+>>> useful thing ls could tell me about a file on my SELinux
+>>> system would be that it *should* have a label and *doesn't*,
+>>> something like:
+>>>
+>>> if ( selinux_enabled )
+>>>    if ( label == NULL || label == fs.defaultlabel )
+>>>      use "!"
+>>>    else
+>>>      use " "
+>>> else if ( anything else )
+>>>    use "+"
+>> That sounds quite reasonable.
+> 
+> Actually, I'm leaning your way, now, and agree.
+> 
+> If you, Russell, write the patch (w/NEWS and docs would be really nice)
+> I'll make the switch upstream pretty soon.  It'd be nice to give the
+> austin group a heads up, too, since this behavior would be contrary to
+> POSIX.  I don't think it's worth it to make this depend on the setting
+> of the POSIXLY_CORRECT envvar.
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+If you really wanted to go wild, you could add a qualifier to check
+matchpathcon to indicate it differs from the default for the file
+system, although it would be very expensive.  Perhaps find would be a
+better source.  "find" all files not matching the system defaults.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-I think it is also necessary to describe the case when we don't use
-userspace avc implementation within libselinux by several reasons.
-
-For example, /usr/bin/passwd communicates with in-kernel SELinux, but
-it does not use avc because it asks only once during its duration.
-
->> 4. Figure out how the SELinux code will be configured.  If you have a
->> mapping from names to contexts this can be either kept in a
->> configuration file or a new backend for it could be added to
->> libselinux.  There are various ancillary options such as permissive
->> mode, and handle_unknown behavior which can be configured in the
->> userspace AVC; this could be exposed to the user through conf file
->> options or command line parameters.
-
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+iEYEARECAAYFAkkLCjEACgkQrlYvE4MpobM3ywCfZtVW9cQE8hgLRVCHYqHKLfU1
+cWgAn2/cx41bmoFguBEVJXGbUiqsryzH
+=+qTw
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
