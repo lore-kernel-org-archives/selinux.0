@@ -1,70 +1,46 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9V1Q6vj014470
-	for <selinux@tycho.nsa.gov>; Thu, 30 Oct 2008 21:26:06 -0400
-Received: from mail.magitekltd.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9V1OWOq003400
-	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 01:24:33 GMT
-Received: from [24.242.137.194] (helo=[192.168.30.40])
-	by mail.magitekltd.com with esmtpsa (TLS-1.0:DHE_RSA_AES_256_CBC_SHA1:32)
-	(Exim 4.63)
-	(envelope-from <lenny@magitekltd.com>)
-	id 1Kviko-0006Dt-6s
-	for selinux@tycho.nsa.gov; Thu, 30 Oct 2008 20:24:46 -0500
-Subject: Re: semanage help
-From: LC Bruzenak <lenny@MagitekLtd.com>
-To: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4909FD84.2050906@redhat.com>
-References: <1224727612.14755.244.camel@homeserver>
-	 <1224766402.28867.4.camel@moss-spartans.epoch.ncsc.mil>
-	 <4900A0C8.9050200@redhat.com>
-	 <1224779343.28867.60.camel@moss-spartans.epoch.ncsc.mil>
-	 <4900B01C.4070206@redhat.com> <1224782298.14755.267.camel@homeserver>
-	 <4900B461.7090509@redhat.com>
-	 <1224784833.2879.2.camel@moss-spartans.epoch.ncsc.mil>
-	 <1224787273.14755.282.camel@homeserver>
-	 <1224787700.3974.163.camel@moss-spartans.epoch.ncsc.mil>
-	 <4909FD84.2050906@redhat.com>
-Content-Type: text/plain
-Date: Thu, 30 Oct 2008 20:26:04 -0500
-Message-Id: <1225416364.9388.365.camel@homeserver>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id m9V6Hd3F011445
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 02:17:39 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id m9V6HdMV000663
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 06:17:39 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id m9V6HWsV029631
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 02:17:34 -0400
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m9V6HTtO029736
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 02:17:32 -0400
+Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id m9V6HPcq016866
+	for <selinux@tycho.nsa.gov>; Fri, 31 Oct 2008 02:17:28 -0400
+Message-ID: <490AA2F4.5070204@redhat.com>
+Date: Fri, 31 Oct 2008 16:17:24 +1000
+From: Murray McAllister <mmcallis@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SELinux User Guide: weekly report 20081031
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This week:
 
-On Thu, 2008-10-30 at 14:31 -0400, Daniel J Walsh wrote:
+* user_u testing: Created Red Hat Bugzilla #468791 (Can't delete user_u 
+user without reboot ([rpc.ERROR])).
+* drafts for "Changing the Default Mapping", "xguest: Kiosk Mode", and 
+"Examples: Booleans for NFS and CIFS".
+* created Red Hat Bugzilla #468940 (minor spelling mistake in audit2why 
+man page).
+* added "Starting Daemons Automatically" content to the "Which Log File 
+is Used" section.
+* added introduction/opening content to sections that are complete.
+* starting troubleshooting chapter.
 
-> >>
-> I believe policycoreutils-2.0.57-9.fc10 has the syntax correct now.
-> 
-> Please try it out.
+Next week:
 
-Dan,
+* continue troubleshooting chapter.
 
-I believe it works as expected but there is a warning printed:
-
-[root@v1 Download]# semanage fcontext -l | grep prelude
-...
-/var/spool/prelude(/.*)?                           all files          system_u:object_r:prelude_spool_t:s0
-...
-
-[root@v1 Download]# semanage fcontext -m -t prelude_spool_t -r s15:c0.c1023 '/var/spool/prelude(/.*)?'
-libsemanage.dbase_llist_query: could not query record value
-[root@v1 Download]# echo $?
-0
-
-[root@v1 Download]# semanage fcontext -l | grep prelude
-...
-/var/spool/prelude(/.*)?                           all files          system_u:object_r:prelude_spool_t:s15:c0.c1023 
-...
-
-Thanks,
-LCB.
-
--- 
-LC (Lenny) Bruzenak
-lenny@magitekltd.com
-
+Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
