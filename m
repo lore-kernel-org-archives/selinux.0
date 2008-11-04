@@ -1,37 +1,59 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA45CoUG027542
-	for <selinux@tycho.nsa.gov>; Tue, 4 Nov 2008 00:12:50 -0500
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA45BChu015575
-	for <selinux@tycho.nsa.gov>; Tue, 4 Nov 2008 05:11:12 GMT
-Message-ID: <490FD9AF.7010408@redhat.com>
-Date: Tue, 04 Nov 2008 15:12:15 +1000
-From: Murray McAllister <mmcallis@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Daniel Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@namei.org>
-Subject: Re: user guide drafts: "What Happens when Access is Denied" and "Top
- Three Causes of Problems"
-References: <490FCCC7.2010708@redhat.com>
-In-Reply-To: <490FCCC7.2010708@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Subject: [RFC] Kernel .config options for building LTP SECURITY TESTS
+From: Subrata Modak <subrata@linux.vnet.ibm.com>
+Reply-To: subrata@linux.vnet.ibm.com
+To: Serge Hallyn <serue@linux.vnet.ibm.com>,
+        "Serge E. Hallyn" <serue@us.ibm.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Cc: ltp-list <ltp-list@lists.sf.net>, SE Linux <selinux@tycho.nsa.gov>,
+        Li Zefan <lizf@cn.fujitsu.com>
+Content-Type: text/plain
+Date: Tue, 04 Nov 2008 17:16:05 +0530
+Message-Id: <1225799165.5269.59.camel@subratamodak.linux.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Murray McAllister wrote:
+Hi Serge & Stephen,
 
-> # The next section is "Searching For and Viewing Denials", which will 
-> give examples for ausearch, sealert, and setroubleshoot... The section 
-> after that will deal with analyzing avc messages.
-I only just found out what "sealert -b" is...
-How about ausearch, aureport, and sealert?
-> 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+Are there any more .config options required to be set/unset for
+compiling 2.6.27 with all LSM enabled, apart from below:
+
+CONFIG_SECURITY=y
+CONFIG_SECURITY_NETWORK=y
+CONFIG_SECURITY_NETWORK_XFRM=y
+CONFIG_SECURITY_FILE_CAPABILITIES=y
+CONFIG_SECURITY_ROOTPLUG=y
+CONFIG_SECURITY_DEFAULT_MMAP_MIN_ADDR=0
+CONFIG_SECURITY_SELINUX=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+CONFIG_SECURITY_SELINUX_DEVELOP=y
+CONFIG_SECURITY_SELINUX_AVC_STATS=y
+CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=1
+CONFIG_SECURITY_SELINUX_ENABLE_SECMARK_DEFAULT=y
+CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX=y
+CONFIG_SECURITY_SELINUX_POLICYDB_VERSION_MAX_VALUE=19
+CONFIG_SECURITY_SMACK=y
+
+I would like to run the filecaps and selinux tests in LTP and may be any
+SMACK tests in future. Will it create a problem if kernel is built with
+both below options set:
+
+CONFIG_SECURITY_SMACK=y
+CONFIG_SECURITY_SELINUX=y
+
+A great help would be in the form of a patch in updating:
+http://ltp.cvs.sourceforge.net/viewvc/ltp/ltp/testcases/kernel/security/selinux-testsuite/README
+
+in terms of exact SELinux policy(s) and userspace tool(s) to be
+installed (from where to get and where to put) to build and run the
+SELinux testsuite, supposing that a new kernel is built and no SELinux
+policies/uerspace tools existed there before.
+
+
+Regards--
+Subrata
+
 
 
 --
