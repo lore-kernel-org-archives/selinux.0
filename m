@@ -1,67 +1,58 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA4I6PiB027959
-	for <selinux@tycho.nsa.gov>; Tue, 4 Nov 2008 13:06:25 -0500
-Subject: Re: SELinux on NFS.
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>,
-        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Trond Myklebust <trond.myklebust@fys.uio.no>
-In-Reply-To: <490F780E.4020806@redhat.com>
-References: <490F780E.4020806@redhat.com>
+Subject: [PATCH] SELinux: hold tasklist_lock and siglock while waking
+ wait_chldexit
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Tue, 04 Nov 2008 12:46:17 -0500
-Message-Id: <1225820777.31157.302.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Tue, 04 Nov 2008 15:18:26 -0500
+Message-Id: <1225829906.3320.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2008-11-03 at 17:15 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> We really want to get SELinux labeled files on NFS into Fedora 11.  But
-> it seems to be getting bogged down in the standards process.  I think we
-> need to simplify.
-> 
-> All Fedora  needs for SELinux on NFS is the ability to store and enforce
-> file labels from the client side on the server.  This has to work with
-> full Unix authentication model (Trusted Host) as well as the full
-> kerberos authentication model.
-> 
-> I think we can treat the server side as a dumb server.  NFS servers
-> tends to fully trust the client to do the "right thing" on disk
-> partitions that the server shares.  Our first version of SELinux NFS
-> should do the same.  Getting bogged down in the server worrying about
-> which process on the client created a file/file_label is not something
-> that is necessary for the first version.  And probably not something
-> that is required for the vast majority of situations for the next few
-> years.  The servers will/should not have a requirement to run SELinux.
-> 
-> But labelled NFS on the client side has potential great benefits for us.
->  Especially with work in svirt where we want to be able to share virtual
-> image files via NFS and have them isolated by SELinux.
-> 
-> How close are we to getting this functionality working and do you think
-> the upstream kernel would accept your changes to allow this?
-> 
+From: Eric Paris <eparis@redhat.com>
 
-[CCing Trond and Bruce]
+SELinux has long been calling wake_up_interruptible() on
+current->parent->signal->wait_chldexit without holding any locks.  It
+appears that this operation should hold the tasklist_lock to dereference
+current->parent and we should hold the siglock when waking up the
+signal->wait_chldexit.
 
-Dan: To answer your question we have everything that you want already in
-the prototype. In terms of getting it upstreamed Trond and Bruce want to
-see some consensus from the standards body before they consider
-upstreaming the code. 
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-Trond & Bruce: I am going to be at IETF 73 in a couple of weeks are
-either of you going to be there? I'd like to have a meeting with you
-about what it is that you want to see happen before mainlining. This way
-we can come up with the criteria we need to meet before we can mainline
-the code. If neither of you are going to be at that meeting can we
-organize some sort of telecon to discuss this?
+ security/selinux/hooks.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-Dave
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f85597a..1e45c6c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2269,7 +2269,9 @@ static void selinux_bprm_post_apply_creds(struct linux_binprm *bprm)
+ 	struct rlimit *rlim, *initrlim;
+ 	struct itimerval itimer;
+ 	struct bprm_security_struct *bsec;
++	struct sighand_struct *psig;
+ 	int rc, i;
++	unsigned long flags;
+ 
+ 	tsec = current->security;
+ 	bsec = bprm->security;
+@@ -2330,7 +2332,12 @@ static void selinux_bprm_post_apply_creds(struct linux_binprm *bprm)
+ 
+ 	/* Wake up the parent if it is waiting so that it can
+ 	   recheck wait permission to the new task SID. */
++	read_lock_irq(&tasklist_lock);
++	psig = current->parent->sighand;
++	spin_lock_irqsave(&psig->siglock, flags);
+ 	wake_up_interruptible(&current->parent->signal->wait_chldexit);
++	spin_unlock_irqrestore(&psig->siglock, flags);
++	read_unlock_irq(&tasklist_lock);
+ }
+ 
+ /* superblock security operations */
+
 
 
 --
