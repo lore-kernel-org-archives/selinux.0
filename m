@@ -1,302 +1,278 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA5JSugu023520
-	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 14:28:56 -0500
-Received: from rv-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA5JRGsN012331
-	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 19:27:17 GMT
-Received: by rv-out-0708.google.com with SMTP id f25so162696rvb.54
-        for <selinux@tycho.nsa.gov>; Wed, 05 Nov 2008 11:28:54 -0800 (PST)
-References: <4911BCB9.1060407@rubix.com> <dd18b0c30811050818j42da8ae3q8c1f95450ed6c926@mail.gmail.com> <4911DD4F.9050304@rubix.com> <4911E45C.4020904@rubix.com>
-Message-Id: <7B277800-3AF7-40AC-B906-D7CCD1728C9D@gmail.com>
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: Andy Warner <warner@rubix.com>
-In-Reply-To: <4911E45C.4020904@rubix.com>
-Content-Type: multipart/alternative;
-	boundary=Apple-Mail-1-645502047
-Mime-Version: 1.0 (iPhone Mail 5F136)
-Subject: Re: using roles with mls policy
-Date: Wed, 5 Nov 2008 11:28:40 -0800
-Cc: SE-Linux <selinux@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA5K6IfQ031775
+	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 15:06:18 -0500
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA5K6Hfx029874
+	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 20:06:17 GMT
+Message-ID: <4911FCA8.8040602@redhat.com>
+Date: Wed, 05 Nov 2008 15:06:00 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Murray McAllister <mmcallis@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        James Morris <jmorris@namei.org>
+Subject: Re: user guide drafts: "Searching for and Viewing Denials" and "Analyzing
+ Denials"
+References: <49114299.4070400@redhat.com>
+In-Reply-To: <49114299.4070400@redhat.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---Apple-Mail-1-645502047
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed;
-	delsp=yes
-Content-Transfer-Encoding: 7bit
+Murray McAllister wrote:
+> Hi,
+> 
+> The following are drafts for the "Searching for and Viewing Denials" and
+> "Analyzing Denials" sections:
+> 
+> Searching For and Viewing Denials
+> 
+> This section assumes the setroubleshoot, setroubleshoot-server, and
+> audit packages are installed, and that the auditd, rsyslogd, and
+> setroubleshootd daemons are running. Refer to Section 5.2, “Which Log
+> File is Used” for information about starting these daemons. A number of
+> tools are available for searching for and viewing SELinux denials, such
+> as ausearch, aureport, and sealert.
+> 
+> ausearch
+> 
+> The audit package provides ausearch. From the ausearch(8) manual page:
+> "ausearch is a tool that can query the audit daemon logs based for
+> events based on different search criteria"[1]. The ausearch tool
+> accesses /var/log/audit/audit.log, and as such, must be run as the Linux
+> root user:
+> 
+> <table>
+> all denials    /sbin/ausearch -m avc
+> denials for that today    /sbin/ausearch -m avc -ts today
+> denials from the last 10 minutes    /sbin/ausearch -m avc -ts recent
+> </table>
+> 
+> To search for SELinux denials for a particular service, use the -c
+> comm-name option, where comm-name "is the executable’s name"[2], for
+> example, httpd for the Apache HTTP Server, and smbd for Samba:
+> 
+> /sbin/ausearch -m avc -c httpd
+> 
+> /sbin/ausearch -m avc -c smbd
+> 
+> Refer to the ausearch(8) manual page for further ausearch options.
+> 
+> [1] From the ausearch(8) manual page, as shipped with the audit package
+> in Fedora 10.
+> 
+> [2] From the ausearch(8) manual page, as shipped with the audit package
+> in Fedora 10.
+> 
+> aureport
+> 
+> The audit package provides aureport. From the aureport(8) manual page:
+> "aureport is a tool that produces summary reports of the audit system
+> logs"[3]. The aureport tool accesses /var/log/audit/audit.log, and as
+> such, must be run as the Linux root user. To view a list of SELinux
+> denials and how often each one occurred, run the aureport -a command.
+> The following is example output that includes two denials:
+> 
+> [example output]
+> 
+> [3] From the aureport(8) manual page, as shipped with the audit package
+> in Fedora 10.
+> 
+> sealert
+> 
+> The setroubleshoot-server package provides sealert, which reads denial
+> messages translated by setroubleshoot-server. Denials are assigned IDs,
+> as seen in /var/log/messages. The following is an example denial from
+> messages:
+> 
+> setroubleshoot: SELinux is preventing httpd (httpd_t) "getattr" to
+> /var/www/html/file1 (samba_share_t). For complete SELinux messages. run
+> sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020
+> 
+> In this example, the denial ID is 84e0b04d-d0ad-4347-8317-22e74f6cd020.
+> The -l option takes an ID as an argument. Running the sealert -l
+> 84e0b04d-d0ad-4347-8317-22e74f6cd020 command presents a detailed
+> analysis of why SELinux denied access, and a possible solution for
+> allowing access.
+> 
+> If you are running the X Window System, have the setroubleshoot and
+> setroubleshoot-server packages installed, and the setroubleshootd daemon
+> running, a yellow star and a warning are displayed when access is denied
+> by SELinux. Clicking on the star launches the sealert GUI, and displays
+> denials in HTML output:
+> 
+> [sealert GUI screenshot]
+> 
+> * Run the sealert -b command to launch the sealert GUI.
+> * Run the sealert -l \* command to view a detailed anaylsis of all denials.
+> * As the Linux root user, run the sealert -a /var/log/audit/audit.log -H
+>> audit.html command to create a HTML version of the sealert analysis,
+> as seen with the sealert GUI.
+> 
+> Analyzing Denials
+> 
+> [fill in introduction when sections are complete]
+> 
+> Raw Audit Messages
+> 
+> Raw audit messages are logged to /var/log/audit/audit.log. The following
+> is an example AVC denial that occurred when the Apache HTTP Server
+> (running in the httpd_t domain) attempted to access the
+> /var/www/html/file1 file (labeled with the samba_share_t type):
+> 
+> type=AVC msg=audit(1225875185.864:96): avc:  denied  { getattr } for
+> pid=2608 comm="httpd" path="/var/www/html/file1" dev=dm-0 ino=284916
+> scontext=unconfined_u:system_r:httpd_t:s0
+> tcontext=unconfined_u:object_r:samba_share_t:s0 tclass=file
+> 
+> { getattr }: The item in braces indicates the permission that was
+> denied. getattr is used before opening a file. This action is denied due
+getattr indicates the source process was trying to read the target files
+  status information,  processes usually check files status before reading.
+> to the file being accessed having the wrong label. Commonly seen
+> permissions include getattr, read, and write.
+> 
+> comm="httpd": The file that launched the process. In this case, the
+> /usr/sbin/httpd file launched the Apache HTTP Server.
+> 
+> path="/var/www/html/file1": The path to the object (target) that the
+> process or user attempted to access.
+> 
+> scontext="unconfined_u:system_r:httpd_t:s0": The SELinux context of the
+> process or user that attempted the denied action. In this case, it is
+I would remove "or user"
+> the SELinux context of the Apache HTTP Server, which is running in the
+> httpd_t domain.
+> 
+> tcontext="unconfined_u:object_r:samba_share_t:s0": The SELinux context
+> of the object (target) that the process or user attempted to access. In
+Remove "or user"
+> this case, it is the SELinux context of file1. Note: the samba_share_t
+> type is not accessible to processes running in the httpd_t domain.
+> 
+> In certain situations, the tcontext may match the scontext, such as when
+> a Linux user is confined and SELinux policy prevents them from
+> performing an action, for example, running a setuid application.
+> 
+This happens when a process tries to execute a system service that will
+change characteristics of the running process, such as changing the uid
+or chaning limits, or calling the fork system service.  SELinux also
+generates this type of access violation when a process tries to use a
+DAC Capability such as reading files that you do not have read access
+to, or binding to a network port less then 1024.
 
-Not sure about auditadm_r and
-Secadm_r, from what I remember
-To access those roles you need to
-Be sysadm_r(but could be wrong);
-As for setting you initial context as
-User_r and then making the transition to syadm_r, don't think you  
-can(or at least I haven't been able to do so);
-You would have to use a boot param
-To use permissive
+All process access
 
-justin P. Mattock
-
-
-
-On Nov 5, 2008, at 10:22 AM, Andy Warner <warner@rubix.com> wrote:
-
->
->
-> Andy Warner wrote:
->>
->>
->>
->> Justin Mattock wrote:
->>>
->>> On Wed, Nov 5, 2008 at 7:33 AM, Andy Warner <warner@rubix.com>  
->>> wrote:
->>>
->>>> I am using Fedora 9 with the MLS policy. I have been using it in  
->>>> permissive
->>>> mode for a while (integrating SELinux with a DBMS and its  
->>>> objects) and now
->>>> must do some work/testing in enforcing mode. As soon as I switch to
->>>> enforcing mode I seem unable to perform any action which requires  
->>>> privilege.
->>>>
->>>> What is the anticipated method to shutdown/reboot the system and  
->>>> to toggle
->>>> the enforcing mode while in MLS/Enforcing? What I assumed was to  
->>>> transition
->>>> to an appropriate role (sysadm_r and secadm_r respectively) and  
->>>> then issue
->>>> the corresponding command (shutdown and setenforce). This fails  
->>>> and I
->>>> believe my difficulty is that in both cases I need to also be the  
->>>> linux root
->>>> user. There does not seem to be an obvious way to execute a  
->>>> command as the
->>>> lunux root user as neither su nor sudo seem available while in  
->>>> the sysadm_r
->>>> and secadm_r roles. Executing something like seaudit while in the  
->>>> auditadm_r
->>>> role fails to allow me to authenticate as root. Despite being the  
->>>> correct
->>>> password it continuously loops asking for the password.
->>>>
->>>> As a related but less important question, in general, is it  
->>>> intended that a
->>>> user initially have the staff_r role upon login and then  
->>>> transition to a
->>>> more trusted role (i.e., secadm_r) using the newrole command? (as  
->>>> opposed to
->>>> having the secadm_r upon login.
->>>>
->>>> Thanks for any help,
->>>>
->>>> Andy
->>>>
->>>>
->>>>
->>>>
->>> Not sure how red hat works,
->>> but for me using ubuntu having to change roles
->>> I first needed to collect all of the allow rules, i.g.
->>> allow newrole_t staff_t:process  etc...
->>> then after after a reboot into enforce mode
->>> using newrole -r works fine.(just haven't defined secadm_r yet).
->>> As for toggling from enforce to permissive
->>> using setenforce 0 or 1
->>> or echo 0/1 > /selinux/enforce.
->>>
->>>
->>>
->> I have no problem changing to a role while in enforcing mode, the  
->> problem is in performing the command. Here is what is happening  
->> (the following was executed while in enforcing mode):
->>
->> [staff@oak ~]$ id -Z
->> staff_u:staff_r:staff_t:SystemLow:SystemLow-SystemHigh
->> [staff@oak ~]$ newrole -r secadm_r
->> Password:
->> [staff@oak ~]$ id -Z
->> staff_u:secadm_r:secadm_t:SystemLow:SystemLow-SystemHigh
->> [staff@oak ~]$ ls -l /selinux/enforce
->> -rw-r--r-- 1 root root 0 2008-11-05 17:08 /selinux/enforce
->> [staff@oak ~]$ /usr/sbin/setenforce 1
->> /usr/sbin/setenforce:  setenforce() failed
->> [staff@oak ~]$ sudo /usr/sbin/setenforce 1
->> sudo: setresuid(ROOT_UID, 1, ROOT_UID): Operation not permitted
->> [staff@oak ~]$ id
->> uid=503(staff) gid=500(user) groups=500(user)
->> context=staff_u:secadm_r:secadm_t:SystemLow:SystemLow-SystemHigh
->> [staff@oak ~]$
->>
->> As can be seen I can transition to the secadm_r without an issue.  
->> And, from the DAC modes of /selinux/enforce I would guess it  
->> requires linux root to be written. Also, I thought I read elsewhere  
->> that the secadm_r was configured so that it could not perform an su/ 
->> sudo. Likewise, if I try to execute system-config-selinux as the  
->> secadm_r role, I am not permitted to authenticate as linux root  
->> user so I am not able to do anything. If selinux is in permissive  
->> mode everything works, as long as I su/sudo to root first. I have  
->> similar issues with the auditadm_r role.
->>
->> As for my previously mentioned issue with using sysadm_r to issue a  
->> shutdown command while in enforcing mode, I was mistaken and this  
->> is possible using sudo (not sure what I was thinking). It seems no  
->> MLS roles can use su, only staff_r and sysadm_r may use sudo.  
->> auditadm_r and secadm_r cannot use either and seem powerless  
->> without it. I am also unable to directly log in as root when in  
->> enforcing mode.
->>
->> Note that I am using the roles as they are configured in the MLS  
->> policy. If it is required to change or configure the roles to make  
->> them able do what it seems like they should be able to do, thats  
->> ok, but first I need to make sure I'm not just being boneheaded and  
->> using them in the wrong way or have bad expectations of what they  
->> should be able to do.
->
-> Sorry to answer my own email, but just to button this up. I could  
-> not log into my root account because of a conflict between the  
-> staff_t (login process type) and the admin_home_t (root's home dir  
-> file type). Any attempt to start a session for root during enforcing  
-> mode would die as it could not access root's home directory. I am  
-> not exactly sure why policy is this way, if I did something or the  
-> mls policy is that way by default. So, I had to find another way to  
-> have linux root and secadm_r/auditadm_r at the same time. The su and  
-> sudo commands are not available from those roles. So, from the  
-> staff_r I had to start a shell using sudo as:
-> sudo -s -r secadm_r
->
-> This gave me a shell with the linux root user and the secadm_r role  
-> and I was able to run things like system-config-selinux and  
-> setenforce during enforcing mode. Same applies to auditadm_r. role.
-
---Apple-Mail-1-645502047
-Content-Type: text/html;
-	charset=utf-8
-Content-Transfer-Encoding: 7bit
-
-<html><body bgcolor="#FFFFFF"><div>Not sure about auditadm_r and</div><div>Secadm_r, from what I remember</div><div>To access those roles you need to</div><div>Be sysadm_r(but could be wrong);</div><div>As for setting you initial context as</div><div>User_r and then making the transition to syadm_r, don't think you can(or at least I haven't been able to do so);</div><div>You would have to use a boot param</div><div>To use permissive</div><div><br>justin P. Mattock<div><br></div><div><br></div></div><div><br>On Nov 5, 2008, at 10:22 AM, Andy Warner &lt;<a href="mailto:warner@rubix.com">warner@rubix.com</a>> wrote:<br><br></div><div></div><blockquote type="cite"><div>
-
-<font face="Arial"><br>
-</font><br>
-Andy Warner wrote:
-<blockquote cite="mid:4911DD4F.9050304@rubix.com" type="cite">
-  
-  <br>
-  <br>
-Justin Mattock wrote:
-  <blockquote cite="mid:dd18b0c30811050818j42da8ae3q8c1f95450ed6c926@mail.gmail.com" type="cite">
-    <pre wrap="">On Wed, Nov 5, 2008 at 7:33 AM, Andy Warner <a moz-do-not-send="true" class="moz-txt-link-rfc2396E" href="mailto:warner@rubix.com">&lt;<a href="mailto:warner@rubix.com">warner@rubix.com</a>></a> wrote:
-  </pre>
-    <blockquote type="cite">
-      <pre wrap="">I am using Fedora 9 with the MLS policy. I have been using it in permissive
-mode for a while (integrating SELinux with a DBMS and its objects) and now
-must do some work/testing in enforcing mode. As soon as I switch to
-enforcing mode I seem unable to perform any action which requires privilege.
-
-What is the anticipated method to shutdown/reboot the system and to toggle
-the enforcing mode while in MLS/Enforcing? What I assumed was to transition
-to an appropriate role (sysadm_r and secadm_r respectively) and then issue
-the corresponding command (shutdown and setenforce). This fails and I
-believe my difficulty is that in both cases I need to also be the linux root
-user. There does not seem to be an obvious way to execute a command as the
-lunux root user as neither su nor sudo seem available while in the sysadm_r
-and secadm_r roles. Executing something like seaudit while in the auditadm_r
-role fails to allow me to authenticate as root. Despite being the correct
-password it continuously loops asking for the password.
-
-As a related but less important question, in general, is it intended that a
-user initially have the staff_r role upon login and then transition to a
-more trusted role (i.e., secadm_r) using the newrole command? (as opposed to
-having the secadm_r upon login.
-
-Thanks for any help,
-
-Andy
+        fork
+        transition
+        sigchld # commonly granted from child to parent
+        sigkill # cannot be caught or ignored
+        sigstop # cannot be caught or ignored
+        signull # for kill(pid, 0)
+        signal  # all other signals
+        ptrace
+        getsched
+        setsched
+        getsession
+        getpgid
+        setpgid
+        getcap
+        setcap
+        share
+        getattr
+        setexec
+        setfscreate
+        noatsecure
+        siginh
+        setrlimit
+        rlimitinh
+        dyntransition
+        setcurrent
+        execmem
+        execstack
+        execheap
+        setkeycreate
+        setsockcreate
 
 
+list of capabilities
 
-    </pre>
-    </blockquote>
-    <pre wrap=""><!---->Not sure how red hat works,
-but for me using ubuntu having to change roles
-I first needed to collect all of the allow rules, i.g.
-allow newrole_t staff_t:process  etc...
-then after after a reboot into enforce mode
-using newrole -r works fine.(just haven't defined secadm_r yet).
-As for toggling from enforce to permissive
-using setenforce 0 or 1
-or echo 0/1 > /selinux/enforce.
+ chown dac_override dac_read_search fowner fsetid kill setgid setuid
+setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw
+ipc_lock ipc_owner sys_module sys_rawio sys_chroot sys_ptrace sys_pacct
+sys_admin sys_boot sys_nice sys_resource sys_time sys_tty_config mknod
+lease audit_write audit_control setfcap
 
+> An incorrect file type is a common cause for SELinux denying access. To
+> start troubleshooting, compare the source context (scontext) with the
+> target context (tcontext). Should the process or user (scontext) be
+> accessing such an object (tcontext)? For example, the Apache HTTP Server
+> (httpd_t) should only be accessing types specified in the
+> httpd_selinux(8) manual page, such as httpd_sys_content_t,
+> public_content_t, and so on, unless configured otherwise.
+> 
+> sealert Messages
+> 
+> Denials are assigned IDs, as seen in /var/log/messages. The following is
+> an example AVC denial (logged to messages) that occurred when the Apache
+> HTTP Server (running in the httpd_t domain) attempted to access the
+> /var/www/html/file1 file (labeled with the samba_share_t type):
+> 
+> hostname setroubleshoot: SELinux is preventing httpd (httpd_t) "getattr"
+> to /var/www/html/file1 (samba_share_t). For complete SELinux messages.
+> run sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020
+> 
+> As suggested, run the sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020
+> command to view the complete message. This presents the same information
+> from the sealert GUI:
+> 
+People don't understand that this command will only work on the local
+machine, not sure if we need to say this.
+> [example output]
+> 
+> Summary: A brief summary of the denied action. This is the same as the
+> denial in /var/log/messages. In this example, the httpd process was
+> denied access to a file (file1) labeled with the samba_share_t type.
+> 
+> Detailed Description: A more verbose description. In this example, file1
+> is labeled with the samba_share_t. This type is used for files and
+> directories that you want to export via Samba. The description suggests
+> changing the type to a type that can be accessed by the Apache HTTP
+> Server and Samba, if such access is desired.
+> 
+> Allowing Access: A suggestion for how to allow access. This may be
+> relabeling files, turning a Boolean on, or making a local policy module.
+> In this case, the suggestion is to label the file with a type accessable
+> to both the Apache HTTP Server and Samba.
+> 
+> Fix Command: A suggested command to allow access and resolve the denial.
+> In this example, it gives the command to change the file1 type to
+> public_content_t, which is accessable to the Apache HTTP Server and Samba.
+> 
+> Additional Information: Information that is useful in bug reports, such
+> as the policy package name and version (selinux-policy-3.5.13-11.fc10),
+> but may not help towards solving why the denial occurred.
+> 
+> Raw Audit Messages: The raw audit messages from /var/log/audit/audit.log
+> that are associated with the denial. Refer to Section 7.4.1, “Raw Audit
+> Messages” for information about each item in the AVC denial.
+> 
+> The next sections will look at why access was denied (audit2why, dac
+> rules, etc), and then fixing problems.
+> 
+> Regards.
 
-  </pre>
-  </blockquote>
-I have no problem changing to a role while in enforcing mode, the
-problem is in performing the command. Here is what is happening (the
-following was executed while in enforcing mode):<br>
-  <br>
-[staff@oak ~]$ id -Z<br>
-staff_u:staff_r:staff_t:SystemLow:SystemLow-SystemHigh<br>
-[staff@oak ~]$ newrole -r secadm_r<br>
-Password:<br>
-[staff@oak ~]$ id -Z<br>
-staff_u:secadm_r:secadm_t:SystemLow:SystemLow-SystemHigh<br>
-[staff@oak ~]$ ls -l /selinux/enforce<br>
--rw-r--r-- 1 root root 0 2008-11-05 17:08 /selinux/enforce<br>
-[staff@oak ~]$ /usr/sbin/setenforce 1<br>
-/usr/sbin/setenforce:&nbsp; setenforce() failed<br>
-[staff@oak ~]$ sudo /usr/sbin/setenforce 1<br>
-sudo: setresuid(ROOT_UID, 1, ROOT_UID): Operation not permitted<br>
-[staff@oak ~]$ id<br>
-uid=503(staff) gid=500(user) groups=500(user)<br>
-context=staff_u:secadm_r:secadm_t:SystemLow:SystemLow-SystemHigh<br>
-[staff@oak ~]$<br>
-  <br>
-As can be seen I can transition to the secadm_r without an issue. And,
-from the DAC modes of /selinux/enforce I would guess it requires linux
-root to be written. Also, I thought I read elsewhere that the secadm_r
-was configured so that it could not perform an su/sudo. Likewise, if I
-try to execute system-config-selinux as the secadm_r role, I am not
-permitted to authenticate as linux root user so I am not able to do
-anything. If selinux is in permissive mode everything works, as long as
-I su/sudo to root first. I have similar issues with the auditadm_r role.<br>
-  <br>
-As for my previously mentioned issue with using sysadm_r to issue a
-shutdown command while in enforcing mode, I was mistaken and this is
-possible using sudo (not sure what I was thinking). It seems no MLS
-roles can use su, only staff_r and sysadm_r may use sudo. auditadm_r
-and secadm_r cannot use either and seem powerless without it. I am also
-unable to directly log in as root when in enforcing mode. <br>
-  <br>
-Note that I am using the roles as they are configured in the MLS
-policy. If it is required to change or configure the roles to make them
-able do what it seems like they should be able to do, thats ok, but
-first I need to make sure I'm not just being boneheaded and using them
-in the wrong way or have bad expectations of what they should be able
-to do. <br>
-</blockquote>
-<br>
-Sorry to answer my own email, but just to button this up. I could not
-log into my root account because of a conflict between the staff_t
-(login process type) and the admin_home_t (root's home dir file type).
-Any attempt to start a session for root during enforcing mode would die
-as it could not access root's home directory. I am not exactly sure why
-policy is this way, if I did something or the mls policy is that way by
-default. So, I had to find another way to have linux root and
-secadm_r/auditadm_r at the same time. The su and sudo commands are not
-available from those roles. So, from the staff_r I had to start a shell
-using sudo as:<br>
-sudo -s -r secadm_r<br>
-<br>
-This gave me a shell with the linux root user and the secadm_r role and
-I was able to run things like system-config-selinux and setenforce
-during enforcing mode. Same applies to auditadm_r. role.<br>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-
-</div></blockquote></body></html>
---Apple-Mail-1-645502047--
+iEYEARECAAYFAkkR/KgACgkQrlYvE4MpobO5IwCeK8cI8oEhzpjHGt55T4VIOx7b
+i1gAoKqrvli632J2brWAzMFHDg07WEa1
+=+UUq
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
