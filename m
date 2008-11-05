@@ -1,208 +1,52 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA56qkQG021968
-	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 01:52:46 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA56qjsA025645
-	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 06:52:46 GMT
-Message-ID: <49114299.4070400@redhat.com>
-Date: Wed, 05 Nov 2008 16:52:09 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA5BSh1f029014
+	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 06:28:43 -0500
+Received: from house.lunarmania.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA5BSgG2022844
+	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 11:28:43 GMT
+Received: from localhost ([127.0.0.1] helo=www.rubix.com)
+	by house.lunarmania.com with esmtpa (Exim 4.69)
+	(envelope-from <warner@rubix.com>)
+	id 1KxgYy-00008N-HF
+	for selinux@tycho.nsa.gov; Wed, 05 Nov 2008 03:28:40 -0800
+Message-ID: <48137.78.3.234.122.1225884520.squirrel@www.rubix.com>
+Date: Wed, 5 Nov 2008 03:28:40 -0800 (PST)
+Subject: setroubleshoot var types
+From: warner@rubix.com
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Daniel Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@namei.org>
-Subject: user guide drafts: "Searching for and Viewing Denials" and "Analyzing
- Denials"
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain;charset=iso-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi,
+I am running Fedora 9 with the mls policy and was investigating why my
+setroubleshoot was not working. I found the following in
+/var/log/messages:
 
-The following are drafts for the "Searching for and Viewing Denials" and 
-"Analyzing Denials" sections:
+Nov  3 09:27:39 localhost kernel: SELinux: inode_doinit_with_dentry: 
+context_to_sid(system_u:object_r:setroubleshoot_var_lib_t:s0) returned 22
+for dev=dm-2 ino=23923693
+Nov  3 09:27:40 localhost kernel: SELinux: inode_doinit_with_dentry: 
+context_to_sid(system_u:object_r:setroubleshoot_var_log_t:s0) returned 22
+for dev=dm-2 ino=23923743
+Nov  3 09:27:40 localhost kernel: SELinux: inode_doinit_with_dentry: 
+context_to_sid(system_u:object_r:setroubleshoot_var_run_t:s0) returned 22
+for dev=dm-2 ino=23923744
+...
+Nov  3 18:22:55 localhost setroubleshoot: [program.ERROR] setroubleshoot
+generated AVC, exiting to avoid recursion,
+context=system_u:system_r:initrc_t:SystemLow:SystemLow-SystemHigh, AVC
+scontext=system_u:system_r:initrc_t:s0-s15:c0.c1023
 
-Searching For and Viewing Denials
 
-This section assumes the setroubleshoot, setroubleshoot-server, and 
-audit packages are installed, and that the auditd, rsyslogd, and 
-setroubleshootd daemons are running. Refer to Section 5.2, “Which Log 
-File is Used” for information about starting these daemons. A number of 
-tools are available for searching for and viewing SELinux denials, such 
-as ausearch, aureport, and sealert.
+Upon using the Policy Analysis tool I found that none of the
+setroubleshoot_var_*_t types were associated with the object_r role. Is
+this an issue with the setroubleshoot policy?
 
-ausearch
+Andy
 
-The audit package provides ausearch. From the ausearch(8) manual page: 
-"ausearch is a tool that can query the audit daemon logs based for 
-events based on different search criteria"[1]. The ausearch tool 
-accesses /var/log/audit/audit.log, and as such, must be run as the Linux 
-root user:
 
-<table>
-all denials	/sbin/ausearch -m avc
-denials for that today	/sbin/ausearch -m avc -ts today
-denials from the last 10 minutes	/sbin/ausearch -m avc -ts recent
-</table>
 
-To search for SELinux denials for a particular service, use the -c 
-comm-name option, where comm-name "is the executable’s name"[2], for 
-example, httpd for the Apache HTTP Server, and smbd for Samba:
-
-/sbin/ausearch -m avc -c httpd
-
-/sbin/ausearch -m avc -c smbd
-
-Refer to the ausearch(8) manual page for further ausearch options.
-
-[1] From the ausearch(8) manual page, as shipped with the audit package 
-in Fedora 10.
-
-[2] From the ausearch(8) manual page, as shipped with the audit package 
-in Fedora 10.
-
-aureport
-
-The audit package provides aureport. From the aureport(8) manual page: 
-"aureport is a tool that produces summary reports of the audit system 
-logs"[3]. The aureport tool accesses /var/log/audit/audit.log, and as 
-such, must be run as the Linux root user. To view a list of SELinux 
-denials and how often each one occurred, run the aureport -a command. 
-The following is example output that includes two denials:
-
-[example output]
-
-[3] From the aureport(8) manual page, as shipped with the audit package 
-in Fedora 10.
-
-sealert
-
-The setroubleshoot-server package provides sealert, which reads denial 
-messages translated by setroubleshoot-server. Denials are assigned IDs, 
-as seen in /var/log/messages. The following is an example denial from 
-messages:
-
-setroubleshoot: SELinux is preventing httpd (httpd_t) "getattr" to 
-/var/www/html/file1 (samba_share_t). For complete SELinux messages. run 
-sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020
-
-In this example, the denial ID is 84e0b04d-d0ad-4347-8317-22e74f6cd020. 
-The -l option takes an ID as an argument. Running the sealert -l 
-84e0b04d-d0ad-4347-8317-22e74f6cd020 command presents a detailed 
-analysis of why SELinux denied access, and a possible solution for 
-allowing access.
-
-If you are running the X Window System, have the setroubleshoot and 
-setroubleshoot-server packages installed, and the setroubleshootd daemon 
-running, a yellow star and a warning are displayed when access is denied 
-by SELinux. Clicking on the star launches the sealert GUI, and displays 
-denials in HTML output:
-
-[sealert GUI screenshot]
-
-* Run the sealert -b command to launch the sealert GUI.
-* Run the sealert -l \* command to view a detailed anaylsis of all denials.
-* As the Linux root user, run the sealert -a /var/log/audit/audit.log -H 
- > audit.html command to create a HTML version of the sealert analysis, 
-as seen with the sealert GUI.
-
-Analyzing Denials
-
-[fill in introduction when sections are complete]
-
-Raw Audit Messages
-
-Raw audit messages are logged to /var/log/audit/audit.log. The following 
-is an example AVC denial that occurred when the Apache HTTP Server 
-(running in the httpd_t domain) attempted to access the 
-/var/www/html/file1 file (labeled with the samba_share_t type):
-
-type=AVC msg=audit(1225875185.864:96): avc:  denied  { getattr } for 
-pid=2608 comm="httpd" path="/var/www/html/file1" dev=dm-0 ino=284916 
-scontext=unconfined_u:system_r:httpd_t:s0 
-tcontext=unconfined_u:object_r:samba_share_t:s0 tclass=file
-
-{ getattr }: The item in braces indicates the permission that was 
-denied. getattr is used before opening a file. This action is denied due 
-to the file being accessed having the wrong label. Commonly seen 
-permissions include getattr, read, and write.
-
-comm="httpd": The file that launched the process. In this case, the 
-/usr/sbin/httpd file launched the Apache HTTP Server.
-
-path="/var/www/html/file1": The path to the object (target) that the 
-process or user attempted to access.
-
-scontext="unconfined_u:system_r:httpd_t:s0": The SELinux context of the 
-process or user that attempted the denied action. In this case, it is 
-the SELinux context of the Apache HTTP Server, which is running in the 
-httpd_t domain.
-
-tcontext="unconfined_u:object_r:samba_share_t:s0": The SELinux context 
-of the object (target) that the process or user attempted to access. In 
-this case, it is the SELinux context of file1. Note: the samba_share_t 
-type is not accessible to processes running in the httpd_t domain.
-
-In certain situations, the tcontext may match the scontext, such as when 
-a Linux user is confined and SELinux policy prevents them from 
-performing an action, for example, running a setuid application.
-
-An incorrect file type is a common cause for SELinux denying access. To 
-start troubleshooting, compare the source context (scontext) with the 
-target context (tcontext). Should the process or user (scontext) be 
-accessing such an object (tcontext)? For example, the Apache HTTP Server 
-(httpd_t) should only be accessing types specified in the 
-httpd_selinux(8) manual page, such as httpd_sys_content_t, 
-public_content_t, and so on, unless configured otherwise.
-
-sealert Messages
-
-Denials are assigned IDs, as seen in /var/log/messages. The following is 
-an example AVC denial (logged to messages) that occurred when the Apache 
-HTTP Server (running in the httpd_t domain) attempted to access the 
-/var/www/html/file1 file (labeled with the samba_share_t type):
-
-hostname setroubleshoot: SELinux is preventing httpd (httpd_t) "getattr" 
-to /var/www/html/file1 (samba_share_t). For complete SELinux messages. 
-run sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020
-
-As suggested, run the sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020 
-command to view the complete message. This presents the same information 
-from the sealert GUI:
-
-[example output]
-
-Summary: A brief summary of the denied action. This is the same as the 
-denial in /var/log/messages. In this example, the httpd process was 
-denied access to a file (file1) labeled with the samba_share_t type.
-
-Detailed Description: A more verbose description. In this example, file1 
-is labeled with the samba_share_t. This type is used for files and 
-directories that you want to export via Samba. The description suggests 
-changing the type to a type that can be accessed by the Apache HTTP 
-Server and Samba, if such access is desired.
-
-Allowing Access: A suggestion for how to allow access. This may be 
-relabeling files, turning a Boolean on, or making a local policy module. 
-In this case, the suggestion is to label the file with a type accessable 
-to both the Apache HTTP Server and Samba.
-
-Fix Command: A suggested command to allow access and resolve the denial. 
-In this example, it gives the command to change the file1 type to 
-public_content_t, which is accessable to the Apache HTTP Server and Samba.
-
-Additional Information: Information that is useful in bug reports, such 
-as the policy package name and version (selinux-policy-3.5.13-11.fc10), 
-but may not help towards solving why the denial occurred.
-
-Raw Audit Messages: The raw audit messages from /var/log/audit/audit.log 
-that are associated with the denial. Refer to Section 7.4.1, “Raw Audit 
-Messages” for information about each item in the AVC denial.
-
-The next sections will look at why access was denied (audit2why, dac 
-rules, etc), and then fixing problems.
-
-Regards.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
