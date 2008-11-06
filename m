@@ -1,122 +1,75 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA64JIIn018874
-	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 23:19:19 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA68Aqga010993
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 03:10:52 -0500
 Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA64JIpj020490
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 04:19:18 GMT
-Message-ID: <4912701E.1070700@redhat.com>
-Date: Thu, 06 Nov 2008 14:18:38 +1000
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA68Alb3029477
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 08:10:51 GMT
+Message-ID: <4912A65C.7090906@redhat.com>
+Date: Thu, 06 Nov 2008 18:10:04 +1000
 From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Daniel Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
         James Morris <jmorris@namei.org>
-Subject: Re: user guide drafts: "Searching for and Viewing Denials" and "Analyzing
- Denials"
-References: <49114299.4070400@redhat.com> <4911FCA8.8040602@redhat.com>
-In-Reply-To: <4911FCA8.8040602@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Subject: user guide draft: "Port Numbers"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Murray McAllister wrote:
->> type=AVC msg=audit(1225875185.864:96): avc:  denied  { getattr } for
->> pid=2608 comm="httpd" path="/var/www/html/file1" dev=dm-0 ino=284916
->> scontext=unconfined_u:system_r:httpd_t:s0
->> tcontext=unconfined_u:object_r:samba_share_t:s0 tclass=file
->>
->> { getattr }: The item in braces indicates the permission that was
->> denied. getattr is used before opening a file. This action is denied due
-> getattr indicates the source process was trying to read the target files
->   status information,  processes usually check files status before reading.
-getattr indicates the source process was trying to read the target files 
-status information (processes usually check the status of files before 
-reading them)...
->> tcontext="unconfined_u:object_r:samba_share_t:s0": The SELinux context
->> of the object (target) that the process or user attempted to access. In
-> Remove "or user"
->> this case, it is the SELinux context of file1. Note: the samba_share_t
->> type is not accessible to processes running in the httpd_t domain.
->>
->> In certain situations, the tcontext may match the scontext, such as when
->> a Linux user is confined and SELinux policy prevents them from
->> performing an action, for example, running a setuid application.
->>
-> This happens when a process tries to execute a system service that will
-> change characteristics of the running process, such as changing the uid
-> or chaning limits, or calling the fork system service.  SELinux also
-> generates this type of access violation when a process tries to use a
-> DAC Capability such as reading files that you do not have read access
-> to, or binding to a network port less then 1024.
-How about:
+I renamed "Booleans for Confined Services" to "How are Confined Services 
+Running?", and added a little about port numbers:
 
-In certain situations, the tcontext may match the scontext, for example, 
-when a process attempts to execute a system service that will change 
-characteristics of that running process, such as the user ID. Also, the 
-tcontext may match the scontext when a process tries to use more 
-resources (such as memory) than normal limits allow, resulting in a 
-security check to see if that process is allowed to break those limits.
-> 
-> All process access
-> 
->         fork
->         transition
->         sigchld # commonly granted from child to parent
->         sigkill # cannot be caught or ignored
->         sigstop # cannot be caught or ignored
->         signull # for kill(pid, 0)
->         signal  # all other signals
->         ptrace
->         getsched
->         setsched
->         getsession
->         getpgid
->         setpgid
->         getcap
->         setcap
->         share
->         getattr
->         setexec
->         setfscreate
->         noatsecure
->         siginh
->         setrlimit
->         rlimitinh
->         dyntransition
->         setcurrent
->         execmem
->         execstack
->         execheap
->         setkeycreate
->         setsockcreate
-> 
-> 
-> list of capabilities
-> 
->  chown dac_override dac_read_search fowner fsetid kill setgid setuid
-> setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw
-> ipc_lock ipc_owner sys_module sys_rawio sys_chroot sys_ptrace sys_pacct
-> sys_admin sys_boot sys_nice sys_resource sys_time sys_tty_config mknod
-> lease audit_write audit_control setfcap
-Should these be in the user guide?
->> As suggested, run the sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020
->> command to view the complete message. This presents the same information
->> from the sealert GUI:
->>
-> People don't understand that this command will only work on the local
-> machine, not sure if we need to say this.
->> [example output]
-How about:
+[introduction]
 
-As suggested, run the sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020 
-command to view the complete message. This command only works on the 
-local machine, and presents the same information as the sealert GUI...
+Services can be run in a variety of ways. To cater for this, you must 
+tell SELinux how you are running services. This can be achieved via 
+Booleans that allow parts of SELinux policy to be changed at runtime, 
+without any knowledge of SELinux policy writing. This allows changes, 
+such as allowing services access to NFS file systems, without reloading 
+or recompiling SELinux policy. Also, running services on non-default 
+port numbers requires policy configuration to be updated via the 
+semanage command.
 
-Thanks.
+...
+
+Port Numbers
+
+Depending on policy configuration, services may only be allowed to run 
+on certain port numbers. Attempting to change which port a servers runs 
+on without changing policy may result in the service failing to start. 
+For example, run the semanage port -l | grep http command to list http 
+related ports:
+
+[example output]
+
+The http_port_t port type defines which ports the Apache HTTP Server can 
+listen on, which in this case, are TCP ports 80, 443, 488, 8008, 8009, 
+and 8443. If an administrator configures httpd.conf so that httpd 
+listens on port 9876 (Listen 9876), but policy is not updated to reflect 
+this, the service httpd start command fails:
+
+[example output]
+
+  An SELinux denial similar to the following is logged to 
+/var/log/audit/audit.log:
+
+[example output]
+
+To allow httpd to listen on a port that is not listed for the 
+http_port_t port type, run the semanage port command to add it to policy 
+configuration[1]:
+
+# /usr/sbin/semanage port -a -t http_port_t -p tcp 9876
+
+The -a option adds a new record; the -t option defines a type; and the 
+-p option defines a protocol. The last argument is the port number to add.
+
+Thanks!
+
+
+[1] The semanage port -a command adds an entry to the 
+/etc/selinux/targeted/modules/active/ports.local file. Note: by default, 
+this file can only be viewed by the Linux root user.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
