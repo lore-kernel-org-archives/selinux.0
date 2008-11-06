@@ -1,75 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA68Aqga010993
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 03:10:52 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA68Alb3029477
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 08:10:51 GMT
-Message-ID: <4912A65C.7090906@redhat.com>
-Date: Thu, 06 Nov 2008 18:10:04 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA6ApuKm002509
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 05:51:56 -0500
+Received: from tyo202.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA6AoFgp007857
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 10:50:16 GMT
+Received: from mailgate3.nec.co.jp ([10.7.69.161])
+	by tyo202.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id mA6AprAK016854
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 19:51:53 +0900 (JST)
+Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
+	id mA6AprD26158 for selinux@tycho.nsa.gov; Thu, 6 Nov 2008 19:51:53 +0900 (JST)
+Received: from mailsv.linux.bs1.fc.nec.co.jp (mailsv.linux.bs1.fc.nec.co.jp [10.34.125.2])
+	by mailsv.nec.co.jp (8.13.8/8.13.4) with ESMTP id mA6ApqT0013317
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 19:51:52 +0900 (JST)
+Received: from [10.19.71.82] (unknown [10.19.71.82])
+	by mailsv.linux.bs1.fc.nec.co.jp (Postfix) with ESMTP id 92F89E48236
+	for <selinux@tycho.nsa.gov>; Thu,  6 Nov 2008 19:51:52 +0900 (JST)
+Message-ID: <4912CC48.80405@ak.jp.nec.com>
+Date: Thu, 06 Nov 2008 19:51:52 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-CC: Daniel Walsh <dwalsh@redhat.com>, Eric Paris <eparis@redhat.com>,
-        James Morris <jmorris@namei.org>
-Subject: user guide draft: "Port Numbers"
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: SELinux <selinux@tycho.nsa.gov>
+Subject: SE-PostgreSQL documentation
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I renamed "Booleans for Confined Services" to "How are Confined Services 
-Running?", and added a little about port numbers:
+Nowaday, I'm working to revise the documentation of SE-PostgreSQL at:
+  http://wiki.postgresql.org/wiki/SEPostgreSQL
 
-[introduction]
+The SE-PostgreSQL feature is now under reviewing for the upstreamed
+PostgreSQL v8.4.x development cycle.
+A PostgreSQL folks told me a comprehensive documentation is desirable
+while the series of discussion. In addition, it should be on the wiki
+due to its maintenancibility.
 
-Services can be run in a variety of ways. To cater for this, you must 
-tell SELinux how you are running services. This can be achieved via 
-Booleans that allow parts of SELinux policy to be changed at runtime, 
-without any knowledge of SELinux policy writing. This allows changes, 
-such as allowing services access to NFS file systems, without reloading 
-or recompiling SELinux policy. Also, running services on non-default 
-port numbers requires policy configuration to be updated via the 
-semanage command.
+At the past, I provided "The SE-PostgreSQL Security Guide" as a PDF
+document, but some of them got legacy now, so I thought it's a good
+time to revise it.
 
-...
+If you can comment anything, please feel free to notice them.
+As I'm not a native English user, it's unclear for me the descriptions
+are enough correct/simple to understand.
 
-Port Numbers
-
-Depending on policy configuration, services may only be allowed to run 
-on certain port numbers. Attempting to change which port a servers runs 
-on without changing policy may result in the service failing to start. 
-For example, run the semanage port -l | grep http command to list http 
-related ports:
-
-[example output]
-
-The http_port_t port type defines which ports the Apache HTTP Server can 
-listen on, which in this case, are TCP ports 80, 443, 488, 8008, 8009, 
-and 8443. If an administrator configures httpd.conf so that httpd 
-listens on port 9876 (Listen 9876), but policy is not updated to reflect 
-this, the service httpd start command fails:
-
-[example output]
-
-  An SELinux denial similar to the following is logged to 
-/var/log/audit/audit.log:
-
-[example output]
-
-To allow httpd to listen on a port that is not listed for the 
-http_port_t port type, run the semanage port command to add it to policy 
-configuration[1]:
-
-# /usr/sbin/semanage port -a -t http_port_t -p tcp 9876
-
-The -a option adds a new record; the -t option defines a type; and the 
--p option defines a protocol. The last argument is the port number to add.
-
-Thanks!
-
-
-[1] The semanage port -a command adds an entry to the 
-/etc/selinux/targeted/modules/active/ports.local file. Note: by default, 
-this file can only be viewed by the Linux root user.
+Thanks,
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
