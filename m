@@ -1,196 +1,122 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA5MsCbC021163
-	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 17:54:12 -0500
-Received: from ey-out-1920.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA5Mq8C3012282
-	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 22:52:08 GMT
-Received: by ey-out-1920.google.com with SMTP id 4so131741eyg.30
-        for <selinux@tycho.nsa.gov>; Wed, 05 Nov 2008 14:53:46 -0800 (PST)
-Message-ID: <dd18b0c30811051453y132ecb6av464a9db0275272e@mail.gmail.com>
-Date: Wed, 5 Nov 2008 14:53:46 -0800
-From: "Justin Mattock" <justinmattock@gmail.com>
-To: "Daniel J Walsh" <dwalsh@redhat.com>
-Subject: Re: using roles with mls policy
-Cc: "Andy Warner" <warner@rubix.com>, SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <4911FDEC.2080108@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA64JIIn018874
+	for <selinux@tycho.nsa.gov>; Wed, 5 Nov 2008 23:19:19 -0500
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA64JIpj020490
+	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 04:19:18 GMT
+Message-ID: <4912701E.1070700@redhat.com>
+Date: Thu, 06 Nov 2008 14:18:38 +1000
+From: Murray McAllister <mmcallis@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <4911BCB9.1060407@rubix.com>
-	 <dd18b0c30811050818j42da8ae3q8c1f95450ed6c926@mail.gmail.com>
-	 <4911DD4F.9050304@rubix.com> <4911E45C.4020904@rubix.com>
-	 <4911FDEC.2080108@redhat.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        James Morris <jmorris@namei.org>
+Subject: Re: user guide drafts: "Searching for and Viewing Denials" and "Analyzing
+ Denials"
+References: <49114299.4070400@redhat.com> <4911FCA8.8040602@redhat.com>
+In-Reply-To: <4911FCA8.8040602@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, Nov 5, 2008 at 12:11 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
+Daniel J Walsh wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
 > Hash: SHA1
->
-> Andy Warner wrote:
+> 
+> Murray McAllister wrote:
+>> type=AVC msg=audit(1225875185.864:96): avc:  denied  { getattr } for
+>> pid=2608 comm="httpd" path="/var/www/html/file1" dev=dm-0 ino=284916
+>> scontext=unconfined_u:system_r:httpd_t:s0
+>> tcontext=unconfined_u:object_r:samba_share_t:s0 tclass=file
 >>
+>> { getattr }: The item in braces indicates the permission that was
+>> denied. getattr is used before opening a file. This action is denied due
+> getattr indicates the source process was trying to read the target files
+>   status information,  processes usually check files status before reading.
+getattr indicates the source process was trying to read the target files 
+status information (processes usually check the status of files before 
+reading them)...
+>> tcontext="unconfined_u:object_r:samba_share_t:s0": The SELinux context
+>> of the object (target) that the process or user attempted to access. In
+> Remove "or user"
+>> this case, it is the SELinux context of file1. Note: the samba_share_t
+>> type is not accessible to processes running in the httpd_t domain.
 >>
->> Andy Warner wrote:
->>>
->>>
->>> Justin Mattock wrote:
->>>> On Wed, Nov 5, 2008 at 7:33 AM, Andy Warner <warner@rubix.com> wrote:
->>>>
->>>>> I am using Fedora 9 with the MLS policy. I have been using it in
->>>>> permissive
->>>>> mode for a while (integrating SELinux with a DBMS and its objects)
->>>>> and now
->>>>> must do some work/testing in enforcing mode. As soon as I switch to
->>>>> enforcing mode I seem unable to perform any action which requires
->>>>> privilege.
->>>>>
->>>>> What is the anticipated method to shutdown/reboot the system and to
->>>>> toggle
->>>>> the enforcing mode while in MLS/Enforcing? What I assumed was to
->>>>> transition
->>>>> to an appropriate role (sysadm_r and secadm_r respectively) and then
->>>>> issue
->>>>> the corresponding command (shutdown and setenforce). This fails and I
->>>>> believe my difficulty is that in both cases I need to also be the
->>>>> linux root
->>>>> user. There does not seem to be an obvious way to execute a command
->>>>> as the
->>>>> lunux root user as neither su nor sudo seem available while in the
->>>>> sysadm_r
->>>>> and secadm_r roles. Executing something like seaudit while in the
->>>>> auditadm_r
->>>>> role fails to allow me to authenticate as root. Despite being the
->>>>> correct
->>>>> password it continuously loops asking for the password.
->>>>>
->>>>> As a related but less important question, in general, is it intended
->>>>> that a
->>>>> user initially have the staff_r role upon login and then transition
->>>>> to a
->>>>> more trusted role (i.e., secadm_r) using the newrole command? (as
->>>>> opposed to
->>>>> having the secadm_r upon login.
->>>>>
->>>>> Thanks for any help,
->>>>>
->>>>> Andy
->>>>>
->>>>>
->>>>>
->>>>>
->>>>
->>>> Not sure how red hat works,
->>>> but for me using ubuntu having to change roles
->>>> I first needed to collect all of the allow rules, i.g.
->>>> allow newrole_t staff_t:process  etc...
->>>> then after after a reboot into enforce mode
->>>> using newrole -r works fine.(just haven't defined secadm_r yet).
->>>> As for toggling from enforce to permissive
->>>> using setenforce 0 or 1
->>>> or echo 0/1 > /selinux/enforce.
->>>>
->>>>
->>>>
->>> I have no problem changing to a role while in enforcing mode, the
->>> problem is in performing the command. Here is what is happening (the
->>> following was executed while in enforcing mode):
->>>
->>> [staff@oak ~]$ id -Z
->>> staff_u:staff_r:staff_t:SystemLow:SystemLow-SystemHigh
->>> [staff@oak ~]$ newrole -r secadm_r
->>> Password:
->>> [staff@oak ~]$ id -Z
->>> staff_u:secadm_r:secadm_t:SystemLow:SystemLow-SystemHigh
->>> [staff@oak ~]$ ls -l /selinux/enforce
->>> -rw-r--r-- 1 root root 0 2008-11-05 17:08 /selinux/enforce
->>> [staff@oak ~]$ /usr/sbin/setenforce 1
->>> /usr/sbin/setenforce:  setenforce() failed
->>> [staff@oak ~]$ sudo /usr/sbin/setenforce 1
->>> sudo: setresuid(ROOT_UID, 1, ROOT_UID): Operation not permitted
->>> [staff@oak ~]$ id
->>> uid=503(staff) gid=500(user) groups=500(user)
->>> context=staff_u:secadm_r:secadm_t:SystemLow:SystemLow-SystemHigh
->>> [staff@oak ~]$
->>>
->>> As can be seen I can transition to the secadm_r without an issue. And,
->>> from the DAC modes of /selinux/enforce I would guess it requires linux
->>> root to be written. Also, I thought I read elsewhere that the secadm_r
->>> was configured so that it could not perform an su/sudo. Likewise, if I
->>> try to execute system-config-selinux as the secadm_r role, I am not
->>> permitted to authenticate as linux root user so I am not able to do
->>> anything. If selinux is in permissive mode everything works, as long
->>> as I su/sudo to root first. I have similar issues with the auditadm_r
->>> role.
->>>
->>> As for my previously mentioned issue with using sysadm_r to issue a
->>> shutdown command while in enforcing mode, I was mistaken and this is
->>> possible using sudo (not sure what I was thinking). It seems no MLS
->>> roles can use su, only staff_r and sysadm_r may use sudo. auditadm_r
->>> and secadm_r cannot use either and seem powerless without it. I am
->>> also unable to directly log in as root when in enforcing mode.
->>>
->>> Note that I am using the roles as they are configured in the MLS
->>> policy. If it is required to change or configure the roles to make
->>> them able do what it seems like they should be able to do, thats ok,
->>> but first I need to make sure I'm not just being boneheaded and using
->>> them in the wrong way or have bad expectations of what they should be
->>> able to do.
+>> In certain situations, the tcontext may match the scontext, such as when
+>> a Linux user is confined and SELinux policy prevents them from
+>> performing an action, for example, running a setuid application.
 >>
->> Sorry to answer my own email, but just to button this up. I could not
->> log into my root account because of a conflict between the staff_t
->> (login process type) and the admin_home_t (root's home dir file type).
->> Any attempt to start a session for root during enforcing mode would die
->> as it could not access root's home directory. I am not exactly sure why
->> policy is this way, if I did something or the mls policy is that way by
->> default. So, I had to find another way to have linux root and
->> secadm_r/auditadm_r at the same time. The su and sudo commands are not
->> available from those roles. So, from the staff_r I had to start a shell
->> using sudo as:
->> sudo -s -r secadm_r
->>
->> This gave me a shell with the linux root user and the secadm_r role and
->> I was able to run things like system-config-selinux and setenforce
->> during enforcing mode. Same applies to auditadm_r. role.
->>
-> You need to run sudo first to become root and then run newrole.
->
-> sudo also has the ability to transition directly to sysadm_r
->
-> My sudoes has the following lines in it from targeted policy.
->
-> dwalsh ALL=(ALL) ROLE=webadm_r TYPE=webadm_t ALL
-> dwalsh ALL=(ALL) ROLE=unconfined_r TYPE=unconfined_t /bin/su
->
-> I am logged in as staff_r:staff_t.
->
-> I would not advise logging directly in as root on an MLS machine, but it
-> probably should be setup to login as sysadm_r,  (Although I would prefer
-> unconfined_r).
->
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.9 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
->
-> iEYEARECAAYFAkkR/esACgkQrlYvE4MpobN3agCgwKkY63w3+GN71srV7GuD9ciy
-> 0PIAniCDIBsW7Dtp9H01OMH8hOk/MDRF
-> =lixV
-> -----END PGP SIGNATURE-----
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+> This happens when a process tries to execute a system service that will
+> change characteristics of the running process, such as changing the uid
+> or chaning limits, or calling the fork system service.  SELinux also
+> generates this type of access violation when a process tries to use a
+> DAC Capability such as reading files that you do not have read access
+> to, or binding to a network port less then 1024.
+How about:
 
-My setup here is
-aterm -e sudo su
-(in the fluxbox menu);
-then newrole -r staff_r(for network manager)
-probably not as safe, but since being for
-personal use, probably O.K.
+In certain situations, the tcontext may match the scontext, for example, 
+when a process attempts to execute a system service that will change 
+characteristics of that running process, such as the user ID. Also, the 
+tcontext may match the scontext when a process tries to use more 
+resources (such as memory) than normal limits allow, resulting in a 
+security check to see if that process is allowed to break those limits.
+> 
+> All process access
+> 
+>         fork
+>         transition
+>         sigchld # commonly granted from child to parent
+>         sigkill # cannot be caught or ignored
+>         sigstop # cannot be caught or ignored
+>         signull # for kill(pid, 0)
+>         signal  # all other signals
+>         ptrace
+>         getsched
+>         setsched
+>         getsession
+>         getpgid
+>         setpgid
+>         getcap
+>         setcap
+>         share
+>         getattr
+>         setexec
+>         setfscreate
+>         noatsecure
+>         siginh
+>         setrlimit
+>         rlimitinh
+>         dyntransition
+>         setcurrent
+>         execmem
+>         execstack
+>         execheap
+>         setkeycreate
+>         setsockcreate
+> 
+> 
+> list of capabilities
+> 
+>  chown dac_override dac_read_search fowner fsetid kill setgid setuid
+> setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw
+> ipc_lock ipc_owner sys_module sys_rawio sys_chroot sys_ptrace sys_pacct
+> sys_admin sys_boot sys_nice sys_resource sys_time sys_tty_config mknod
+> lease audit_write audit_control setfcap
+Should these be in the user guide?
+>> As suggested, run the sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020
+>> command to view the complete message. This presents the same information
+>> from the sealert GUI:
+>>
+> People don't understand that this command will only work on the local
+> machine, not sure if we need to say this.
+>> [example output]
+How about:
 
--- 
-Justin P. Mattock
+As suggested, run the sealert -l 84e0b04d-d0ad-4347-8317-22e74f6cd020 
+command to view the complete message. This command only works on the 
+local machine, and presents the same information as the sealert GUI...
+
+Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
