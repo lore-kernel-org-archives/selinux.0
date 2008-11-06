@@ -1,40 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA6J42jN026687
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 14:04:02 -0500
-Received: from rv-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA6J42Em024333
-	for <selinux@tycho.nsa.gov>; Thu, 6 Nov 2008 19:04:02 GMT
-Received: by rv-out-0708.google.com with SMTP id f25so843156rvb.54
-        for <selinux@tycho.nsa.gov>; Thu, 06 Nov 2008 11:04:01 -0800 (PST)
-Message-Id: <B566A9B5-2746-4A0F-8E0C-07361FA300CE@gmail.com>
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed
-Mime-Version: 1.0 (iPhone Mail 5F136)
-Subject: Restorecond.conf
-Date: Thu, 6 Nov 2008 11:03:51 -0800
+Subject: Re: Restorecond.conf
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Justin P. Mattock" <justinmattock@gmail.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <B566A9B5-2746-4A0F-8E0C-07361FA300CE@gmail.com>
+References: <B566A9B5-2746-4A0F-8E0C-07361FA300CE@gmail.com>
+Content-Type: text/plain
+Date: Thu, 06 Nov 2008 14:10:17 -0500
+Message-Id: <1225998617.814.126.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm seeing a fail during boot,
-Not sure if this is restorecond or not.
-When looking at restorecond.conf
-/etc/samba/secrets.tdb is at
-/var/lib/samba/secrets.tdb
+On Thu, 2008-11-06 at 11:03 -0800, Justin P. Mattock wrote:
+> I'm seeing a fail during boot,
+> Not sure if this is restorecond or not.
+> When looking at restorecond.conf
+> /etc/samba/secrets.tdb is at
+> /var/lib/samba/secrets.tdb
+> 
+> ~/public_html doesn't exist
+> 
+> ~/.mozilla/plugins/libflashplayer.so
+> is at
+> /usr/lib/flashplugin-nonfree/libflashplayer.so
+> 
+> Does it hurt to just change the loaction in restorecond.conf or should
+> I configure these apps to use these files?
 
-~/public_html doesn't exist
+If you use restorecond (which is optional), then you would normally
+modify restorecond.conf to match your system, not the other way around.
+And only for files that are likely to get re-created at runtime in a way
+that won't preserve their security contexts already (either by virtue of
+a type transition rule based on creating domain and parent directory
+type or by virtue of explicit application support for preserving
+contexts).  
 
-~/.mozilla/plugins/libflashplayer.so
-is at
+So for example,
 /usr/lib/flashplugin-nonfree/libflashplayer.so
+is likely already labeled correctly at install time based on your
+file_contexts configuration and doesn't require anything in
+restorecond.conf, whereas if you locally install a
+~/.mozilla/plugins/libflashplayer.so
+it likely wouldn't have the right context by default.
 
-Does it hurt to just change the loaction in restorecond.conf or should
-I configure these apps to use these files?
-
-justin P. Mattock
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
