@@ -1,246 +1,186 @@
-From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH -v3 1/4] SECURITY: new capable_noaudit interface
-To: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Cc: sds@tycho.nsa.gov, jmorris@nameil.org, serue@us.ibm.com, morgan@kernel.org,
-        casey@schaufler-ca.com, esandeen@redhat.com
-Date: Fri, 07 Nov 2008 10:23:26 -0500
-Message-ID: <20081107152326.10328.44330.stgit@paris.rdu.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Subject: Re: seobject_mls.patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>
+In-Reply-To: <4914545F.7050102@redhat.com>
+References: <4914545F.7050102@redhat.com>
+Content-Type: multipart/mixed; boundary="=-8hwDiXY2BfC7n/gMeAvF"
+Date: Fri, 07 Nov 2008 10:31:10 -0500
+Message-Id: <1226071870.16320.58.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a new capable interface that will be used by systems that use audit to
-make an A or B type decision instead of a security decision.  Currently
-this is the case at least for filesystems when deciding if a process can use
-the reserved 'root' blocks and for the case of things like the oom
-algorithm determining if processes are root processes and should be less
-likely to be killed.  These types of security system requests should not be
-audited or logged since they are not really security decisions.  It would be
-possible to solve this problem like the vm_enough_memory security check did
-by creating a new LSM interface and moving all of the policy into that
-interface but proves the needlessly bloat the LSM and provide complex
-indirection.
 
-This merely allows those decisions to be made where they belong and to not
-flood logs or printk with denials for thing that are not security decisions.
+--=-8hwDiXY2BfC7n/gMeAvF
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Eric Paris <eparis@redhat.com>
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
----
+On Fri, 2008-11-07 at 09:44 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> This patch might be somewhat controversial, it basically sets the
+> default for semanage to MLS mode when selinux is disabled.
+> 
+> System can not determine if the policy is MLS or not, so current default
+> is not, so semanage blows up on disabled machines.  A better long term
+> solution would be to add a interface to libsemanage to look at the
+> installed policy and decipher what the policy supports.
 
- include/linux/capability.h |    3 +++
- include/linux/security.h   |   16 +++++++++++++---
- security/commoncap.c       |    8 ++++----
- security/security.c        |    7 ++++++-
- security/selinux/hooks.c   |   20 +++++++++++++-------
- 5 files changed, 39 insertions(+), 15 deletions(-)
+Yes, we need to migrate to testing for MLS enabled vs. disabled against
+a particular policy store.  Something like the following un-tested
+patch, and then you'd have to test semanage_mls_enabled(handle) after
+connecting to the store.
 
-diff --git a/include/linux/capability.h b/include/linux/capability.h
-index 9d1fe30..0a0379b 100644
---- a/include/linux/capability.h
-+++ b/include/linux/capability.h
-@@ -503,6 +503,8 @@ extern const kernel_cap_t __cap_init_eff_set;
+-- 
+Stephen Smalley
+National Security Agency
+
+--=-8hwDiXY2BfC7n/gMeAvF
+Content-Disposition: attachment; filename=semanage_mls_enabled.diff
+Content-Type: text/x-patch; name=semanage_mls_enabled.diff; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
+index e065070..0123d1d 100644
+--- a/libsemanage/include/semanage/handle.h
++++ b/libsemanage/include/semanage/handle.h
+@@ -117,6 +117,9 @@ int semanage_access_check(semanage_handle_t * sh);
+ /* returns 0 if not connected, 1 if connected */
+ int semanage_is_connected(semanage_handle_t * sh);
  
- kernel_cap_t cap_set_effective(const kernel_cap_t pE_new);
- 
-+extern int security_capable(struct task_struct *t, int cap);
-+extern int security_capable_noaudit(struct task_struct *t, int cap);
- /**
-  * has_capability - Determine if a task has a superior capability available
-  * @t: The task in question
-@@ -514,6 +516,7 @@ kernel_cap_t cap_set_effective(const kernel_cap_t pE_new);
-  * Note that this does not set PF_SUPERPRIV on the task.
-  */
- #define has_capability(t, cap) (security_capable((t), (cap)) == 0)
-+#define has_capability_noaudit(t, cap) (security_capable_noaudit((t), (cap)) == 0)
- 
- extern int capable(int cap);
- 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index c13f1ce..5fe28a6 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -37,6 +37,10 @@
- /* Maximum number of letters for an LSM name string */
- #define SECURITY_NAME_MAX	10
- 
-+/* If capable should audit the security request */
-+#define SECURITY_CAP_NOAUDIT 0
-+#define SECURITY_CAP_AUDIT 1
++/* returns 1 if policy is MLS, 0 otherwise. */
++int semanage_mls_enabled(semanage_handle_t *sh);
 +
- struct ctl_table;
- struct audit_krule;
+ /* META NOTES
+  *
+  * For all functions a non-negative number indicates success. For some
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 1732758..0677c77 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -1050,3 +1050,18 @@ int semanage_direct_access_check(semanage_handle_t * sh)
  
-@@ -44,7 +48,7 @@ struct audit_krule;
-  * These functions are in security/capability.c and are used
-  * as the default capabilities functions
-  */
--extern int cap_capable(struct task_struct *tsk, int cap);
-+extern int cap_capable(struct task_struct *tsk, int cap, int audit);
- extern int cap_settime(struct timespec *ts, struct timezone *tz);
- extern int cap_ptrace_may_access(struct task_struct *child, unsigned int mode);
- extern int cap_ptrace_traceme(struct task_struct *parent);
-@@ -1307,7 +1311,7 @@ struct security_operations {
- 			    kernel_cap_t *effective,
- 			    kernel_cap_t *inheritable,
- 			    kernel_cap_t *permitted);
--	int (*capable) (struct task_struct *tsk, int cap);
-+	int (*capable) (struct task_struct *tsk, int cap, int audit);
- 	int (*acct) (struct file *file);
- 	int (*sysctl) (struct ctl_table *table, int op);
- 	int (*quotactl) (int cmds, int type, int id, struct super_block *sb);
-@@ -1577,6 +1581,7 @@ void security_capset_set(struct task_struct *target,
- 			 kernel_cap_t *inheritable,
- 			 kernel_cap_t *permitted);
- int security_capable(struct task_struct *tsk, int cap);
-+int security_capable_noaudit(struct task_struct *tsk, int cap);
- int security_acct(struct file *file);
- int security_sysctl(struct ctl_table *table, int op);
- int security_quotactl(int cmds, int type, int id, struct super_block *sb);
-@@ -1782,7 +1787,12 @@ static inline void security_capset_set(struct task_struct *target,
+ 	return semanage_store_access_check(sh);
+ }
++
++int semanage_direct_mls_enabled(semanage_handle_t * sh)
++{
++	sepol_policydb_t *p = NULL;
++	int retval;
++	
++	retval = semanage_read_policydb(sh, p);
++	if (retval < 0)
++		goto cleanup;
++
++	retval = sepol_policydb_mls_enabled(p);
++cleanup:
++	sepol_policydb_free(p);
++	return retval;
++}
+diff --git a/libsemanage/src/direct_api.h b/libsemanage/src/direct_api.h
+index 8f625f5..ffd428e 100644
+--- a/libsemanage/src/direct_api.h
++++ b/libsemanage/src/direct_api.h
+@@ -37,4 +37,6 @@ int semanage_direct_is_managed(struct semanage_handle *sh);
  
- static inline int security_capable(struct task_struct *tsk, int cap)
- {
--	return cap_capable(tsk, cap);
-+	return cap_capable(tsk, cap, SECURITY_CAP_AUDIT);
+ int semanage_direct_access_check(struct semanage_handle *sh);
+ 
++int semanage_direct_mls_enabled(struct semanage_handle *sh);
++
+ #endif
+diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+index b94db11..95e10c1 100644
+--- a/libsemanage/src/handle.c
++++ b/libsemanage/src/handle.c
+@@ -157,6 +157,20 @@ int semanage_is_managed(semanage_handle_t * sh)
+ 	return -1;
+ }
+ 
++int semanage_mls_enabled(semanage_handle_t * sh)
++{
++	assert(sh != NULL);
++	switch (sh->conf->store_type) {
++	case SEMANAGE_CON_DIRECT:
++		return semanage_direct_mls_enabled(sh);
++	default:
++		ERR(sh,
++		    "The connection type specified within your semanage.conf file has not been implemented yet.");
++		/* fall through */
++	}
++	return -1;
 +}
 +
-+static inline int security_capable_noaudit(struct task_struct *tsk, int cap)
-+{
-+	return cap_capable(tsk, cap, SECURITY_CAP_NOAUDIT);
+ int semanage_connect(semanage_handle_t * sh)
+ {
+ 	assert(sh != NULL);
+diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
+index 56a83f0..ae11ade 100644
+--- a/libsemanage/src/libsemanage.map
++++ b/libsemanage/src/libsemanage.map
+@@ -14,5 +14,6 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_node_*;
+ 	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
+ 	  semanage_is_connected; semanage_set_disable_dontaudit;
++	  semanage_mls_enabled;
+   local: *;
+ };
+diff --git a/libsemanage/src/semanage.py b/libsemanage/src/semanage.py
+index 6a2327a..56e5a14 100644
+--- a/libsemanage/src/semanage.py
++++ b/libsemanage/src/semanage.py
+@@ -76,6 +76,7 @@ SEMANAGE_CAN_READ = _semanage.SEMANAGE_CAN_READ
+ SEMANAGE_CAN_WRITE = _semanage.SEMANAGE_CAN_WRITE
+ semanage_access_check = _semanage.semanage_access_check
+ semanage_is_connected = _semanage.semanage_is_connected
++semanage_mls_enabled = _semanage.semanage_mls_enabled
+ semanage_module_install = _semanage.semanage_module_install
+ semanage_module_upgrade = _semanage.semanage_module_upgrade
+ semanage_module_install_base = _semanage.semanage_module_install_base
+diff --git a/libsemanage/src/semanageswig_wrap.c b/libsemanage/src/semanageswig_wrap.c
+index 86736b0..afa3dc2 100644
+--- a/libsemanage/src/semanageswig_wrap.c
++++ b/libsemanage/src/semanageswig_wrap.c
+@@ -3400,6 +3400,28 @@ fail:
  }
  
- static inline int security_acct(struct file *file)
-diff --git a/security/commoncap.c b/security/commoncap.c
-index 3976613..73999f6 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -48,7 +48,7 @@ EXPORT_SYMBOL(cap_netlink_recv);
-  * returns 0 when a task has a capability, but the kernel's capable()
-  * returns 1 for this case.
-  */
--int cap_capable (struct task_struct *tsk, int cap)
-+int cap_capable(struct task_struct *tsk, int cap, int audit)
- {
- 	/* Derived from include/linux/sched.h:capable. */
- 	if (cap_raised(tsk->cap_effective, cap))
-@@ -111,7 +111,7 @@ static inline int cap_inh_is_capped(void)
- 	 * to the old permitted set. That is, if the current task
- 	 * does *not* possess the CAP_SETPCAP capability.
- 	 */
--	return (cap_capable(current, CAP_SETPCAP) != 0);
-+	return (cap_capable(current, CAP_SETPCAP, SECURITY_CAP_AUDIT) != 0);
- }
  
- static inline int cap_limit_ptraced_target(void) { return 1; }
-@@ -640,7 +640,7 @@ int cap_task_prctl(int option, unsigned long arg2, unsigned long arg3,
- 		    || ((current->securebits & SECURE_ALL_LOCKS
- 			 & ~arg2))                                    /*[2]*/
- 		    || (arg2 & ~(SECURE_ALL_LOCKS | SECURE_ALL_BITS)) /*[3]*/
--		    || (cap_capable(current, CAP_SETPCAP) != 0)) {    /*[4]*/
-+		    || (cap_capable(current, CAP_SETPCAP, SECURITY_CAP_AUDIT) != 0)) { /*[4]*/
- 			/*
- 			 * [1] no changing of bits that are locked
- 			 * [2] no unlocking of locks
-@@ -705,7 +705,7 @@ int cap_vm_enough_memory(struct mm_struct *mm, long pages)
- {
- 	int cap_sys_admin = 0;
- 
--	if (cap_capable(current, CAP_SYS_ADMIN) == 0)
-+	if (cap_capable(current, CAP_SYS_ADMIN, SECURITY_CAP_NOAUDIT) == 0)
- 		cap_sys_admin = 1;
- 	return __vm_enough_memory(mm, pages, cap_sys_admin);
- }
-diff --git a/security/security.c b/security/security.c
-index c0acfa7..346f21e 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -163,7 +163,12 @@ void security_capset_set(struct task_struct *target,
- 
- int security_capable(struct task_struct *tsk, int cap)
- {
--	return security_ops->capable(tsk, cap);
-+	return security_ops->capable(tsk, cap, SECURITY_CAP_AUDIT);
++SWIGINTERN PyObject *_wrap_semanage_mls_enabled(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
++  PyObject *resultobj = 0;
++  semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
++  int result;
++  void *argp1 = 0 ;
++  int res1 = 0 ;
++  PyObject * obj0 = 0 ;
++  
++  if (!PyArg_ParseTuple(args,(char *)"O:semanage_mls_enabled",&obj0)) SWIG_fail;
++  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_semanage_handle, 0 |  0 );
++  if (!SWIG_IsOK(res1)) {
++    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "semanage_mls_enabled" "', argument " "1"" of type '" "semanage_handle_t *""'"); 
++  }
++  arg1 = (semanage_handle_t *)(argp1);
++  result = (int)semanage_mls_enabled(arg1);
++  resultobj = SWIG_From_int((int)(result));
++  return resultobj;
++fail:
++  return NULL;
 +}
 +
-+int security_capable_noaudit(struct task_struct *tsk, int cap)
-+{
-+	return security_ops->capable(tsk, cap, SECURITY_CAP_NOAUDIT);
- }
- 
- int security_acct(struct file *file)
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f85597a..0d4ee8c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1365,12 +1365,14 @@ static int task_has_perm(struct task_struct *tsk1,
- 
- /* Check whether a task is allowed to use a capability. */
- static int task_has_capability(struct task_struct *tsk,
--			       int cap)
-+			       int cap, int audit)
- {
- 	struct task_security_struct *tsec;
- 	struct avc_audit_data ad;
-+	struct av_decision avd;
- 	u16 sclass;
- 	u32 av = CAP_TO_MASK(cap);
-+	int rc;
- 
- 	tsec = tsk->security;
- 
-@@ -1390,7 +1392,11 @@ static int task_has_capability(struct task_struct *tsk,
- 		       "SELinux:  out of range capability %d\n", cap);
- 		BUG();
- 	}
--	return avc_has_perm(tsec->sid, tsec->sid, sclass, av, &ad);
 +
-+	rc = avc_has_perm_noaudit(tsec->sid, tsec->sid, sclass, av, 0, &avd);
-+	if (audit == SECURITY_CAP_AUDIT)
-+		avc_audit(tsec->sid, tsec->sid, sclass, av, &avd, rc, &ad);
-+	return rc;
- }
- 
- /* Check whether a task is allowed to use a system operation. */
-@@ -1801,15 +1807,15 @@ static void selinux_capset_set(struct task_struct *target, kernel_cap_t *effecti
- 	secondary_ops->capset_set(target, effective, inheritable, permitted);
- }
- 
--static int selinux_capable(struct task_struct *tsk, int cap)
-+static int selinux_capable(struct task_struct *tsk, int cap, int audit)
- {
- 	int rc;
- 
--	rc = secondary_ops->capable(tsk, cap);
-+	rc = secondary_ops->capable(tsk, cap, audit);
- 	if (rc)
- 		return rc;
- 
--	return task_has_capability(tsk, cap);
-+	return task_has_capability(tsk, cap, audit);
- }
- 
- static int selinux_sysctl_get_sid(ctl_table *table, u16 tclass, u32 *sid)
-@@ -1974,7 +1980,7 @@ static int selinux_vm_enough_memory(struct mm_struct *mm, long pages)
- 	int rc, cap_sys_admin = 0;
- 	struct task_security_struct *tsec = current->security;
- 
--	rc = secondary_ops->capable(current, CAP_SYS_ADMIN);
-+	rc = secondary_ops->capable(current, CAP_SYS_ADMIN, SECURITY_CAP_NOAUDIT);
- 	if (rc == 0)
- 		rc = avc_has_perm_noaudit(tsec->sid, tsec->sid,
- 					  SECCLASS_CAPABILITY,
-@@ -2821,7 +2827,7 @@ static int selinux_inode_getsecurity(const struct inode *inode, const char *name
- 	 * and lack of permission just means that we fall back to the
- 	 * in-core context value, not a denial.
- 	 */
--	error = secondary_ops->capable(current, CAP_MAC_ADMIN);
-+	error = secondary_ops->capable(current, CAP_MAC_ADMIN, SECURITY_CAP_NOAUDIT);
- 	if (!error)
- 		error = avc_has_perm_noaudit(tsec->sid, tsec->sid,
- 					     SECCLASS_CAPABILITY2,
+ SWIGINTERN PyObject *_wrap_semanage_module_install(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+   PyObject *resultobj = 0;
+   semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
+@@ -11391,6 +11413,7 @@ static PyMethodDef SwigMethods[] = {
+ 	 { (char *)"semanage_commit", _wrap_semanage_commit, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_access_check", _wrap_semanage_access_check, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_is_connected", _wrap_semanage_is_connected, METH_VARARGS, NULL},
++	 { (char *)"semanage_mls_enabled", _wrap_semanage_mls_enabled, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_module_install", _wrap_semanage_module_install, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_module_upgrade", _wrap_semanage_module_upgrade, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_module_install_base", _wrap_semanage_module_install_base, METH_VARARGS, NULL},
+
+--=-8hwDiXY2BfC7n/gMeAvF--
 
 
 --
