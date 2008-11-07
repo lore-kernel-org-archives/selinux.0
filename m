@@ -1,74 +1,50 @@
-References: <B566A9B5-2746-4A0F-8E0C-07361FA300CE@gmail.com> <1225998617.814.126.camel@moss-spartans.epoch.ncsc.mil>
-Message-Id: <C7A6E89D-E668-410D-8536-960255821C3F@gmail.com>
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <1225998617.814.126.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed;
-	delsp=yes
-Mime-Version: 1.0 (iPhone Mail 5F136)
-Subject: Re: Restorecond.conf
-Date: Thu, 6 Nov 2008 11:27:43 -0800
-Cc: SELinux <selinux@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA7606c1032623
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 01:00:07 -0500
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA7606To006804
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 06:00:06 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id mA7606M5004606
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 01:00:06 -0500
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id mA7605fb027992
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 01:00:05 -0500
+Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id mA7603RT024473
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 01:00:04 -0500
+Message-ID: <4913D962.2070600@redhat.com>
+Date: Fri, 07 Nov 2008 16:00:02 +1000
+From: Murray McAllister <mmcallis@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: SELinux User Guide: weekly report 20081107
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Cool,
-  anything in the home dir.
-Besides that I'm still seeing a fail
-During boot. Maybe due to me
-Using all of Ubuntu intrepid except
-For policycoreutils, which I grabbed
- From Debian sid. Once I get to an Internet connection I'll try and  
-downgrade to see if this was the case.
+This week:
 
-justin P. Mattock
+* added "Port Numbers" to "How are Confined Services Running?" section.
+* Started drafts for the "Troubleshooting" chapter: "What Happens when 
+Access is Denied", "Top Three Causes of Problems", "Searching For and 
+Viewing Denials", "Analyzing Denials", and "Fixing Problems".
+* help from Dominick Grift. Created Red Hat Bugzilla #470398 
+(restorecond not running by default; files in home dirs created with 
+wrong types).
 
+Created:
+* Red Hat Bugzilla #469980 ("sealert -a /var/log/audit/audit.log" 
+traceback when run as a non-root user).
+* Red Hat Bugzilla #469989 (possible typo in sealert man page: "-b 
+--password").
 
+Next week:
 
-On Nov 6, 2008, at 11:10 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+* continue revisions.
+* clean up for release with Fedora 10.
 
-> On Thu, 2008-11-06 at 11:03 -0800, Justin P. Mattock wrote:
->> I'm seeing a fail during boot,
->> Not sure if this is restorecond or not.
->> When looking at restorecond.conf
->> /etc/samba/secrets.tdb is at
->> /var/lib/samba/secrets.tdb
->>
->> ~/public_html doesn't exist
->>
->> ~/.mozilla/plugins/libflashplayer.so
->> is at
->> /usr/lib/flashplugin-nonfree/libflashplayer.so
->>
->> Does it hurt to just change the loaction in restorecond.conf or  
->> should
->> I configure these apps to use these files?
->
-> If you use restorecond (which is optional), then you would normally
-> modify restorecond.conf to match your system, not the other way  
-> around.
-> And only for files that are likely to get re-created at runtime in a  
-> way
-> that won't preserve their security contexts already (either by  
-> virtue of
-> a type transition rule based on creating domain and parent directory
-> type or by virtue of explicit application support for preserving
-> contexts).
->
-> So for example,
-> /usr/lib/flashplugin-nonfree/libflashplayer.so
-> is likely already labeled correctly at install time based on your
-> file_contexts configuration and doesn't require anything in
-> restorecond.conf, whereas if you locally install a
-> ~/.mozilla/plugins/libflashplayer.so
-> it likely wouldn't have the right context by default.
->
-> -- 
-> Stephen Smalley
-> National Security Agency
->
+Thanks :)
 
 --
 This message was distributed to subscribers of the selinux mailing list.
