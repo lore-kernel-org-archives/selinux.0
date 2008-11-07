@@ -1,50 +1,43 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA7606c1032623
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 01:00:07 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA7606To006804
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 06:00:06 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id mA7606M5004606
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 01:00:06 -0500
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id mA7605fb027992
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 01:00:05 -0500
-Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id mA7603RT024473
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 01:00:04 -0500
-Message-ID: <4913D962.2070600@redhat.com>
-Date: Fri, 07 Nov 2008 16:00:02 +1000
-From: Murray McAllister <mmcallis@redhat.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA788uw9014563
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 03:08:56 -0500
+Received: from asav3.lyse.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA788tcW027212
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 08:08:56 GMT
+Date: Fri, 7 Nov 2008 09:08:50 +0100
+From: Jan-Frode Myklebust <janfrode@tanso.net>
+To: Murray McAllister <mmcallis@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Daniel Walsh <dwalsh@redhat.com>,
+        Eric Paris <eparis@redhat.com>, James Morris <jmorris@namei.org>
+Subject: Re: user guide draft: "Port Numbers"
+Message-ID: <20081107080850.GA19548@lc4eb5760521341.ibm.com>
+References: <4912A65C.7090906@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: SELinux User Guide: weekly report 20081107
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <4912A65C.7090906@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This week:
+On Thu, Nov 06, 2008 at 06:10:04PM +1000, Murray McAllister wrote:
+> I renamed "Booleans for Confined Services" to "How are Confined Services  
+> Running?", and added a little about port numbers:
+>
+> ...
+>
+> Port Numbers
+>
+> Depending on policy configuration, services may only be allowed to run  
+> on certain port numbers. Attempting to change which port a servers runs  
+> on without changing policy may result in the service failing to start.  
+> For example, run the semanage port -l | grep http command to list http  
+> related ports:
 
-* added "Port Numbers" to "How are Confined Services Running?" section.
-* Started drafts for the "Troubleshooting" chapter: "What Happens when 
-Access is Denied", "Top Three Causes of Problems", "Searching For and 
-Viewing Denials", "Analyzing Denials", and "Fixing Problems".
-* help from Dominick Grift. Created Red Hat Bugzilla #470398 
-(restorecond not running by default; files in home dirs created with 
-wrong types).
+Can one redefine the policy defined http_port's ? I.e. change port 80
+from http_port_t to http_cache_port_t ? I don't think this is possible, 
+but it would be nice with some clarification in the user guide..
 
-Created:
-* Red Hat Bugzilla #469980 ("sealert -a /var/log/audit/audit.log" 
-traceback when run as a non-root user).
-* Red Hat Bugzilla #469989 (possible typo in sealert man page: "-b 
---password").
 
-Next week:
-
-* continue revisions.
-* clean up for release with Fedora 10.
-
-Thanks :)
+  -jf
 
 --
 This message was distributed to subscribers of the selinux mailing list.
