@@ -1,91 +1,73 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA7EaoJZ009520
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 09:36:50 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mA7Ebsc6009701
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 09:37:54 -0500
 Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA7EZ9Qi009030
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 14:35:09 GMT
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mA7EaDQi009156
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 14:36:13 GMT
 Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id mA7EajxW003251
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 09:36:45 -0500
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id mA7EbrDr003374
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 09:37:53 -0500
 Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id mA7EajC3031412
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 09:36:45 -0500
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id mA7EbqCu031563
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 09:37:53 -0500
 Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id mA7EaigU014946
-	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 09:36:44 -0500
-Message-ID: <4914527C.1010803@redhat.com>
-Date: Fri, 07 Nov 2008 09:36:44 -0500
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id mA7EbqPL015047
+	for <selinux@tycho.nsa.gov>; Fri, 7 Nov 2008 09:37:52 -0500
+Message-ID: <491452C0.9080106@redhat.com>
+Date: Fri, 07 Nov 2008 09:37:52 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: policycoreutils audit2allow patch
+Subject: newrole error message corrections.
 Content-Type: multipart/mixed;
- boundary="------------010008020807020906050204"
+ boundary="------------090503000507080700070404"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------010008020807020906050204
+--------------090503000507080700070404
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-audit2why can throw a runtime exception and typo in man page.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkkUUnwACgkQrlYvE4MpobNB3gCg1gVyqHVlNPHofR7iDktfmKSF
-cTQAniHIYf8nq+nbB9MC0mlVbyvEECMX
-=JXfF
------END PGP SIGNATURE-----
-
---------------010008020807020906050204
+--------------090503000507080700070404
 Content-Type: text/plain;
- name="audit2allow.patch"
+ name="newrole.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="audit2allow.patch"
+ filename="newrole.patch"
 
---- nsapolicycoreutils/audit2allow/audit2allow	2008-08-28 09:34:24.000000000 -0400
-+++ policycoreutils-2.0.57/audit2allow/audit2allow	2008-10-30 14:21:33.000000000 -0400
-@@ -287,7 +287,11 @@
-     def __output(self):
-         
-         if self.__options.audit2why:
--            return self.__output_audit2why()
-+            try:
-+                return self.__output_audit2why()
-+            except RuntimeError, e:
-+                print e
-+                sys.exit(1)
- 
-         g = policygen.PolicyGenerator()
- 
---- nsapolicycoreutils/audit2allow/audit2allow.1	2008-08-28 09:34:24.000000000 -0400
-+++ policycoreutils-2.0.57/audit2allow/audit2allow.1	2008-10-29 09:44:41.000000000 -0400
-@@ -82,7 +82,7 @@
- Indicates input file is a te (type enforcement) file.  This can be used to translate old te format to new policy format.
- .TP
- .B "\-w" | "\-\-why"
--Translates SELinux audit messages into a description of why the access wasn denied
-+Translates SELinux audit messages into a description of why the access was denied
- 
- .TP
- .B "\-v" | "\-\-verbose"
+--- nsapolicycoreutils/newrole/newrole.c	2008-08-28 09:34:24.000000000 -0400
++++ policycoreutils-2.0.57/newrole/newrole.c	2008-10-17 16:43:52.000000000 -0400
+@@ -553,7 +553,7 @@
+ 	new_caps = cap_init();
+ 	tmp_caps = cap_init();
+ 	if (!new_caps || !tmp_caps) {
+-		fprintf(stderr, _("Error initing capabilities, aborting.\n"));
++		fprintf(stderr, _("Error initializing capabilities, aborting.\n"));
+ 		return -1;
+ 	}
+ 	rc |= cap_set_flag(new_caps, CAP_PERMITTED, 1, cap_list, CAP_SET);
+@@ -631,7 +631,7 @@
+ 	/* Non-root caller, suid root path */
+ 	new_caps = cap_init();
+ 	if (!new_caps) {
+-		fprintf(stderr, _("Error initing capabilities, aborting.\n"));
++		fprintf(stderr, _("Error initializing capabilities, aborting.\n"));
+ 		return -1;
+ 	}
+ 	rc |= cap_set_flag(new_caps, CAP_PERMITTED, 6, cap_list, CAP_SET);
 
---------------010008020807020906050204
+--------------090503000507080700070404
 Content-Type: application/octet-stream;
- name="audit2allow.patch.sig"
+ name="newrole.patch.sig"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;
- filename="audit2allow.patch.sig"
+ filename="newrole.patch.sig"
 
-iEYEABECAAYFAkkUUnwACgkQrlYvE4MpobMVigCgs9DV/b6WJus0wCdeh0Y8UU/QCZsAn1pn
-KbqezrS5UzJdJTxcpTUGPfmH
---------------010008020807020906050204--
+iEYEABECAAYFAkkUUsAACgkQrlYvE4MpobN+PgCfXCDNxXP4MzUBq7Surl5MVN9U1IQAoKBo
+OreCm5O4LcwQ7+xVgDHPUWdP
+--------------090503000507080700070404--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
