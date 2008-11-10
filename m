@@ -1,96 +1,78 @@
-Cc: Paul Moore <paul.moore@hp.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Andy Warner <warner@rubix.com>, selinux@tycho.nsa.gov
-Message-Id: <354D5A91-3C3C-4AFC-8062-72382AFD55BE@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <490F6059.3010106@redhat.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v929.2)
-Subject: Re: Label Translation on Fedora 9
-Date: Sun, 9 Nov 2008 12:26:58 -0600
-References: <490EE548.60400@rubix.com> <490F00E1.4050704@rubix.com> <1225720309.3609.24.camel@moss-spartans.epoch.ncsc.mil> <200811031129.58700.paul.moore@hp.com> <490F6059.3010106@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAAE4k2L015751
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2008 09:04:47 -0500
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAAE4gbr025826
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2008 14:04:46 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id mAAE4dvG003148
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2008 09:04:39 -0500
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id mAAE4cxI014806
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2008 09:04:38 -0500
+Received: from localhost.localdomain (dhcp-100-2-12.bos.redhat.com [10.16.2.12])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id mAAE4bjM005003
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2008 09:04:37 -0500
+Message-ID: <49183F77.90504@redhat.com>
+Date: Mon, 10 Nov 2008 09:04:39 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Latest policycoreutils package has a minor problem
+Content-Type: multipart/mixed;
+ boundary="------------040405050900020703060503"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a multi-part message in MIME format.
+--------------040405050900020703060503
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Nov 3, 2008, at 2:34 PM, Daniel J Walsh wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Paul Moore wrote:
->> On Monday 03 November 2008 8:51:49 am Stephen Smalley wrote:
->>> On Mon, 2008-11-03 at 14:47 +0100, Andy Warner wrote:
->>>> Stephen Smalley wrote:
->>>>> On Mon, 2008-11-03 at 12:49 +0100, Andy Warner wrote:
->>>>>> I am running Fedora 9 with the MLS policy and see no evidence
->>>>>> that the label translation is enabled. I am using the default
->>>>>> setrans.conf and the "disable=1" flag is commented out.
->>>>>>
->>>>>> Using the selinux_trans_to_raw (e.g., with a SystemHigh level)
->>>>>> produces the exact same label string as passed in which will
->>>>>> not pass validation (using s15:c0.c1023 will pass validation).
->>>>>>
->>>>>> Trying id-Z followed by newrole produces:
->>>>>> id -Z
->>>>>> warner_u:secadm_r:secadm_t:s0-s15:c0.c1023
->>>>>>
->>>>>> newrole -l SystemLow-SystemHigh
->>>>>> warner_u:secadm_r:secadm_t:SystemLow-SystemHigh is not a valid
->>>>>> context
->>>>>>
->>>>>> Is there something that must be done to activate label
->>>>>> translation?
->>>>> Label translation is provided by a daemon, mcstrans.
->>>>>
->>>>> yum install mcstrans
->>>>> /sbin/chkconfig mcstrans on
->>>>> /sbin/service mcstrans start
->>>> Thanks. I was not starting the mcstrans service. When I get a
->>>> translation, it seems odd as follows.
->>>>
->>>> without mcstrans:
->>>> id -Z
->>>> warner_u:secadm_r:secadm_t:s0-s15:c0.c1023
->>>>
->>>> with mcstrans:
->>>> id -Z
->>>> warner_u:secadm_r:secadm_t:SystemLow:SystemLow-SystemHigh
->>>>
->>>> Is it expected to have the high end of the range expressed as a
->>>> range? The translation table has the following relevant entries:
->>>> s0                             SystemLow
->>>> s0-s15:c0.c1023      SystemLow-SystemHigh
->>> No, that looks wrong to me as well.  cc'ing Dan Walsh of Red Hat,  
->>> who
->>> maintains mcstrans.
->>>
->>> BTW, if you are looking for more complete MLS label translation
->>> support, you might try the extended mcstrans posted by Joe Nall.
->>
->> What is the status of the patch?  I vaguely remember a little bit of
->> discussion/review about the patch but it's not clear to me if it was
->> ever accepted into upstream/Fedora and if it wasn't what the next  
->> steps
->> were going to be ...
->>
-> Good question, we have let this slip through the cracks.  I would like
-> to replace my library totally with Joe's.  The only concern would be  
-> to
-> allow people who used my format to convert to the new format if  
-> possible
-> or at least document how to do this.
+Checking _local twice.
 
-Sorry about the big delay in closure on this. We have been very busy  
-trying to build a demonstrable Fedora based MLS/X system to run our  
-applications on. The demo was last week in London and we have some  
-time to upstream our changes this month. That includes adding  
-combination constraints, label-to-color mapping and migration tools to  
-mcstransd and pushing it into a public repo for community consideration.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-joe
+iEYEARECAAYFAkkYP3cACgkQrlYvE4MpobMnWgCeL/bznrLXw4zKYcyRsbIo8phW
+mSEAmwYg9qNWdCkkDVaF/wAXgoGIFFam
+=2aSt
+-----END PGP SIGNATURE-----
 
+--------------040405050900020703060503
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
 
+diff --exclude-from=exclude --exclude=sepolgen-1.0.13 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/semanage/seobject.py policycoreutils-2.0.58/semanage/seobject.py
+--- nsapolicycoreutils/semanage/seobject.py	2008-11-10 08:53:49.000000000 -0500
++++ policycoreutils-2.0.58/semanage/seobject.py	2008-11-10 08:59:16.000000000 -0500
+@@ -1430,7 +1430,7 @@
+ 		if rc < 0:
+ 			raise ValueError(_("Could not create key for %s") % target)
+ 
+-		(rc,exists) = semanage_fcontext_exists_local(self.sh, k)
++		(rc,exists) = semanage_fcontext_exists(self.sh, k)
+ 		if rc < 0:
+ 			raise ValueError(_("Could not check if file context for %s is defined") % target)
+ 
+
+--------------040405050900020703060503
+Content-Type: application/octet-stream;
+ name="diff.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="diff.sig"
+
+iEYEABECAAYFAkkYP3cACgkQrlYvE4MpobPrQACgiiNBIp2/UJEhoReElSEpTtE83qoAnjV4
+v9K9pjtT+yQ3JM9XQahzbXnw
+--------------040405050900020703060503--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
