@@ -1,47 +1,172 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Joe Nall <joe@nall.com>, Xavier Toth <txtoth@gmail.com>
-Subject: Re: Label Translation on Fedora 9
-Date: Mon, 10 Nov 2008 11:53:30 -0500
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Andy Warner <warner@rubix.com>, SE Linux <selinux@tycho.nsa.gov>
-References: <490EE548.60400@rubix.com> <cadfc0e40811100810y539d09cege4fd2c2fa064d3c2@mail.gmail.com> <97946D1C-80A3-448E-9CC2-1F020D479D40@nall.com>
-In-Reply-To: <97946D1C-80A3-448E-9CC2-1F020D479D40@nall.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200811101153.30563.paul.moore@hp.com>
+Subject: [PATCH] libsemanage:  Add semanage_mls_enabled interface
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain
+Date: Mon, 10 Nov 2008 15:32:56 -0500
+Message-Id: <1226349176.8814.62.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 10 November 2008 11:16:43 am Joe Nall wrote:
-> On Nov 10, 2008, at 10:10 AM, Xavier Toth wrote:
-> > On Mon, Nov 10, 2008 at 9:56 AM, Paul Moore <paul.moore@hp.com> 
-wrote:
-> >> ...
-> >> Cool.  Do the current X/metacity patches support label coloring?
-> >>
-> >> --
-> >> paul moore
-> >> linux @ hp
-> >
-> > No.
-> >
-> > Ted
->
-> Ted has unreleased patches to metacity and openbox support the
-> coloring the window banner based on classification. We want to move
-> the code from a shared library to mcstransd before releasing them
-> into the wild.
->
-> He also wrote a simple banner program to show the current session
-> level. It needs to run in a protected type and better defend its
-> screen real estate or be integrated into X or the window manager.
+Add a semanage_mls_enabled() interface to libsemanage so that
+semanage/seobject can be rewritten to use it to test whether MLS is
+enabled for a given policy store rather than checking the runtime MLS
+enabled status, which can be misleading when using semanage on a
+SELinux-disabled host or when using semanage on a store other than the
+active one.  Sample usage:
+	from semanage import *
+	handle = semanage_handle_create()
+	rc = semanage_connect(handle)
+	rc = semanage_mls_enabled(handle)
 
-Okay, sounds good.  Thanks for the update.
+diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
+index e065070..0123d1d 100644
+--- a/libsemanage/include/semanage/handle.h
++++ b/libsemanage/include/semanage/handle.h
+@@ -117,6 +117,9 @@ int semanage_access_check(semanage_handle_t * sh);
+ /* returns 0 if not connected, 1 if connected */
+ int semanage_is_connected(semanage_handle_t * sh);
+ 
++/* returns 1 if policy is MLS, 0 otherwise. */
++int semanage_mls_enabled(semanage_handle_t *sh);
++
+ /* META NOTES
+  *
+  * For all functions a non-negative number indicates success. For some
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 1732758..88f35a6 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -1050,3 +1050,22 @@ int semanage_direct_access_check(semanage_handle_t * sh)
+ 
+ 	return semanage_store_access_check(sh);
+ }
++
++int semanage_direct_mls_enabled(semanage_handle_t * sh)
++{
++	sepol_policydb_t *p = NULL;
++	int retval;
++
++	retval = sepol_policydb_create(&p);
++	if (retval < 0)
++		goto cleanup;
++	
++	retval = semanage_read_policydb(sh, p);
++	if (retval < 0)
++		goto cleanup;
++
++	retval = sepol_policydb_mls_enabled(p);
++cleanup:
++	sepol_policydb_free(p);
++	return retval;
++}
+diff --git a/libsemanage/src/direct_api.h b/libsemanage/src/direct_api.h
+index 8f625f5..ffd428e 100644
+--- a/libsemanage/src/direct_api.h
++++ b/libsemanage/src/direct_api.h
+@@ -37,4 +37,6 @@ int semanage_direct_is_managed(struct semanage_handle *sh);
+ 
+ int semanage_direct_access_check(struct semanage_handle *sh);
+ 
++int semanage_direct_mls_enabled(struct semanage_handle *sh);
++
+ #endif
+diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+index b94db11..95e10c1 100644
+--- a/libsemanage/src/handle.c
++++ b/libsemanage/src/handle.c
+@@ -157,6 +157,20 @@ int semanage_is_managed(semanage_handle_t * sh)
+ 	return -1;
+ }
+ 
++int semanage_mls_enabled(semanage_handle_t * sh)
++{
++	assert(sh != NULL);
++	switch (sh->conf->store_type) {
++	case SEMANAGE_CON_DIRECT:
++		return semanage_direct_mls_enabled(sh);
++	default:
++		ERR(sh,
++		    "The connection type specified within your semanage.conf file has not been implemented yet.");
++		/* fall through */
++	}
++	return -1;
++}
++
+ int semanage_connect(semanage_handle_t * sh)
+ {
+ 	assert(sh != NULL);
+diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
+index 56a83f0..ae11ade 100644
+--- a/libsemanage/src/libsemanage.map
++++ b/libsemanage/src/libsemanage.map
+@@ -14,5 +14,6 @@ LIBSEMANAGE_1.0 {
+ 	  semanage_node_*;
+ 	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
+ 	  semanage_is_connected; semanage_set_disable_dontaudit;
++	  semanage_mls_enabled;
+   local: *;
+ };
+diff --git a/libsemanage/src/semanage.py b/libsemanage/src/semanage.py
+index 6a2327a..56e5a14 100644
+--- a/libsemanage/src/semanage.py
++++ b/libsemanage/src/semanage.py
+@@ -76,6 +76,7 @@ SEMANAGE_CAN_READ = _semanage.SEMANAGE_CAN_READ
+ SEMANAGE_CAN_WRITE = _semanage.SEMANAGE_CAN_WRITE
+ semanage_access_check = _semanage.semanage_access_check
+ semanage_is_connected = _semanage.semanage_is_connected
++semanage_mls_enabled = _semanage.semanage_mls_enabled
+ semanage_module_install = _semanage.semanage_module_install
+ semanage_module_upgrade = _semanage.semanage_module_upgrade
+ semanage_module_install_base = _semanage.semanage_module_install_base
+diff --git a/libsemanage/src/semanageswig_wrap.c b/libsemanage/src/semanageswig_wrap.c
+index 86736b0..afa3dc2 100644
+--- a/libsemanage/src/semanageswig_wrap.c
++++ b/libsemanage/src/semanageswig_wrap.c
+@@ -3400,6 +3400,28 @@ fail:
+ }
+ 
+ 
++SWIGINTERN PyObject *_wrap_semanage_mls_enabled(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
++  PyObject *resultobj = 0;
++  semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
++  int result;
++  void *argp1 = 0 ;
++  int res1 = 0 ;
++  PyObject * obj0 = 0 ;
++  
++  if (!PyArg_ParseTuple(args,(char *)"O:semanage_mls_enabled",&obj0)) SWIG_fail;
++  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_semanage_handle, 0 |  0 );
++  if (!SWIG_IsOK(res1)) {
++    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "semanage_mls_enabled" "', argument " "1"" of type '" "semanage_handle_t *""'"); 
++  }
++  arg1 = (semanage_handle_t *)(argp1);
++  result = (int)semanage_mls_enabled(arg1);
++  resultobj = SWIG_From_int((int)(result));
++  return resultobj;
++fail:
++  return NULL;
++}
++
++
+ SWIGINTERN PyObject *_wrap_semanage_module_install(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+   PyObject *resultobj = 0;
+   semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
+@@ -11391,6 +11413,7 @@ static PyMethodDef SwigMethods[] = {
+ 	 { (char *)"semanage_commit", _wrap_semanage_commit, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_access_check", _wrap_semanage_access_check, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_is_connected", _wrap_semanage_is_connected, METH_VARARGS, NULL},
++	 { (char *)"semanage_mls_enabled", _wrap_semanage_mls_enabled, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_module_install", _wrap_semanage_module_install, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_module_upgrade", _wrap_semanage_module_upgrade, METH_VARARGS, NULL},
+ 	 { (char *)"semanage_module_install_base", _wrap_semanage_module_install_base, METH_VARARGS, NULL},
+
 
 -- 
-paul moore
-linux @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
