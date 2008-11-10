@@ -1,171 +1,184 @@
-Subject: [PATCH] libsemanage:  Add semanage_mls_enabled interface
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Brindle <jbrindle@tresys.com>
-Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAALj5uc000985
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2008 16:45:05 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id mAALj5gk013865
+	for <selinux@tycho.nsa.gov>; Mon, 10 Nov 2008 21:45:05 GMT
+Subject: Re: [refpolicy] SELinux: WARNING: inside open_file_mask_to_av with
+	unknown mode:c1b6
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Justin Mattock <justinmattock@gmail.com>
+Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+In-Reply-To: <dd18b0c30811101338l6814f367r8e5f367c5611973d@mail.gmail.com>
+References: <dd18b0c30811101338l6814f367r8e5f367c5611973d@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 10 Nov 2008 15:32:56 -0500
-Message-Id: <1226349176.8814.62.camel@moss-spartans.epoch.ncsc.mil>
+Date: Mon, 10 Nov 2008 16:42:13 -0500
+Message-Id: <1226353333.24358.4.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add a semanage_mls_enabled() interface to libsemanage so that
-semanage/seobject can be rewritten to use it to test whether MLS is
-enabled for a given policy store rather than checking the runtime MLS
-enabled status, which can be misleading when using semanage on a
-SELinux-disabled host or when using semanage on a store other than the
-active one.  Sample usage:
-	from semanage import *
-	handle = semanage_handle_create()
-	rc = semanage_connect(handle)
-	rc = semanage_mls_enabled(handle)
+On Mon, 2008-11-10 at 13:38 -0800, Justin Mattock wrote:
+> when loading the latest refpolicy from svn I see this
+> with a dmesg | grep SELinux
 
-diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
-index e065070..0123d1d 100644
---- a/libsemanage/include/semanage/handle.h
-+++ b/libsemanage/include/semanage/handle.h
-@@ -117,6 +117,9 @@ int semanage_access_check(semanage_handle_t * sh);
- /* returns 0 if not connected, 1 if connected */
- int semanage_is_connected(semanage_handle_t * sh);
- 
-+/* returns 1 if policy is MLS, 0 otherwise. */
-+int semanage_mls_enabled(semanage_handle_t *sh);
-+
- /* META NOTES
-  *
-  * For all functions a non-negative number indicates success. For some
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 1732758..88f35a6 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -1050,3 +1050,22 @@ int semanage_direct_access_check(semanage_handle_t * sh)
- 
- 	return semanage_store_access_check(sh);
- }
-+
-+int semanage_direct_mls_enabled(semanage_handle_t * sh)
-+{
-+	sepol_policydb_t *p = NULL;
-+	int retval;
-+
-+	retval = sepol_policydb_create(&p);
-+	if (retval < 0)
-+		goto cleanup;
-+	
-+	retval = semanage_read_policydb(sh, p);
-+	if (retval < 0)
-+		goto cleanup;
-+
-+	retval = sepol_policydb_mls_enabled(p);
-+cleanup:
-+	sepol_policydb_free(p);
-+	return retval;
-+}
-diff --git a/libsemanage/src/direct_api.h b/libsemanage/src/direct_api.h
-index 8f625f5..ffd428e 100644
---- a/libsemanage/src/direct_api.h
-+++ b/libsemanage/src/direct_api.h
-@@ -37,4 +37,6 @@ int semanage_direct_is_managed(struct semanage_handle *sh);
- 
- int semanage_direct_access_check(struct semanage_handle *sh);
- 
-+int semanage_direct_mls_enabled(struct semanage_handle *sh);
-+
- #endif
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index b94db11..95e10c1 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -157,6 +157,20 @@ int semanage_is_managed(semanage_handle_t * sh)
- 	return -1;
- }
- 
-+int semanage_mls_enabled(semanage_handle_t * sh)
-+{
-+	assert(sh != NULL);
-+	switch (sh->conf->store_type) {
-+	case SEMANAGE_CON_DIRECT:
-+		return semanage_direct_mls_enabled(sh);
-+	default:
-+		ERR(sh,
-+		    "The connection type specified within your semanage.conf file has not been implemented yet.");
-+		/* fall through */
-+	}
-+	return -1;
-+}
-+
- int semanage_connect(semanage_handle_t * sh)
- {
- 	assert(sh != NULL);
-diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
-index 56a83f0..ae11ade 100644
---- a/libsemanage/src/libsemanage.map
-+++ b/libsemanage/src/libsemanage.map
-@@ -14,5 +14,6 @@ LIBSEMANAGE_1.0 {
- 	  semanage_node_*;
- 	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
- 	  semanage_is_connected; semanage_set_disable_dontaudit;
-+	  semanage_mls_enabled;
-   local: *;
- };
-diff --git a/libsemanage/src/semanage.py b/libsemanage/src/semanage.py
-index 6a2327a..56e5a14 100644
---- a/libsemanage/src/semanage.py
-+++ b/libsemanage/src/semanage.py
-@@ -76,6 +76,7 @@ SEMANAGE_CAN_READ = _semanage.SEMANAGE_CAN_READ
- SEMANAGE_CAN_WRITE = _semanage.SEMANAGE_CAN_WRITE
- semanage_access_check = _semanage.semanage_access_check
- semanage_is_connected = _semanage.semanage_is_connected
-+semanage_mls_enabled = _semanage.semanage_mls_enabled
- semanage_module_install = _semanage.semanage_module_install
- semanage_module_upgrade = _semanage.semanage_module_upgrade
- semanage_module_install_base = _semanage.semanage_module_install_base
-diff --git a/libsemanage/src/semanageswig_wrap.c b/libsemanage/src/semanageswig_wrap.c
-index 86736b0..afa3dc2 100644
---- a/libsemanage/src/semanageswig_wrap.c
-+++ b/libsemanage/src/semanageswig_wrap.c
-@@ -3400,6 +3400,28 @@ fail:
- }
- 
- 
-+SWIGINTERN PyObject *_wrap_semanage_mls_enabled(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-+  PyObject *resultobj = 0;
-+  semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
-+  int result;
-+  void *argp1 = 0 ;
-+  int res1 = 0 ;
-+  PyObject * obj0 = 0 ;
-+  
-+  if (!PyArg_ParseTuple(args,(char *)"O:semanage_mls_enabled",&obj0)) SWIG_fail;
-+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_semanage_handle, 0 |  0 );
-+  if (!SWIG_IsOK(res1)) {
-+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "semanage_mls_enabled" "', argument " "1"" of type '" "semanage_handle_t *""'"); 
-+  }
-+  arg1 = (semanage_handle_t *)(argp1);
-+  result = (int)semanage_mls_enabled(arg1);
-+  resultobj = SWIG_From_int((int)(result));
-+  return resultobj;
-+fail:
-+  return NULL;
-+}
-+
-+
- SWIGINTERN PyObject *_wrap_semanage_module_install(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *resultobj = 0;
-   semanage_handle_t *arg1 = (semanage_handle_t *) 0 ;
-@@ -11391,6 +11413,7 @@ static PyMethodDef SwigMethods[] = {
- 	 { (char *)"semanage_commit", _wrap_semanage_commit, METH_VARARGS, NULL},
- 	 { (char *)"semanage_access_check", _wrap_semanage_access_check, METH_VARARGS, NULL},
- 	 { (char *)"semanage_is_connected", _wrap_semanage_is_connected, METH_VARARGS, NULL},
-+	 { (char *)"semanage_mls_enabled", _wrap_semanage_mls_enabled, METH_VARARGS, NULL},
- 	 { (char *)"semanage_module_install", _wrap_semanage_module_install, METH_VARARGS, NULL},
- 	 { (char *)"semanage_module_upgrade", _wrap_semanage_module_upgrade, METH_VARARGS, NULL},
- 	 { (char *)"semanage_module_install_base", _wrap_semanage_module_install_base, METH_VARARGS, NULL},
+Known issue.  It is a harmless kernel bug with the open check:
 
+http://marc.info/?l=selinux&m=122538041011707&w=2
 
+If the message starts filling up the logs, you can disable the
+open_perms policy capability.
+
+> [    0.010000] SELinux:  Initializing.
+> [    0.010000] SELinux:  Starting in permissive mode
+> [    0.606504] SELinux:  Registering netfilter hooks
+> [    2.809029] SELinux: 8192 avtab hash slots, 142179 rules.
+> [    2.903562] SELinux: 8192 avtab hash slots, 142179 rules.
+> [    3.068351] SELinux:  7 users, 9 roles, 2658 types, 95 bools
+> [    3.076157] SELinux:  73 classes, 142179 rules
+> [    3.090204] SELinux:  Completing initialization.
+> [    3.097885] SELinux:  Setting up existing superblocks.
+> [    3.136387] SELinux: initialized (dev sda1, type ext3), uses xattr
+> [    3.254102] SELinux: initialized (dev usbfs, type usbfs), uses genfs_contexts
+> [    3.261882] SELinux: initialized (dev selinuxfs, type selinuxfs),
+> uses genfs_contexts
+> [    3.269736] SELinux: initialized (dev mqueue, type mqueue), uses
+> transition SIDs
+> [    3.277673] SELinux: initialized (dev hugetlbfs, type hugetlbfs),
+> uses genfs_contexts
+> [    3.285600] SELinux: initialized (dev devpts, type devpts), uses
+> transition SIDs
+> [    3.293522] SELinux: initialized (dev inotifyfs, type inotifyfs),
+> uses genfs_contexts
+> [    3.301575] SELinux: initialized (dev tmpfs, type tmpfs), uses
+> transition SIDs
+> [    3.309599] SELinux: initialized (dev anon_inodefs, type
+> anon_inodefs), uses genfs_contexts
+> [    3.317908] SELinux: initialized (dev pipefs, type pipefs), uses task SIDs
+> [    3.326135] SELinux: initialized (dev debugfs, type debugfs), uses
+> genfs_contexts
+> [    3.334374] SELinux: initialized (dev sockfs, type sockfs), uses task SIDs
+> [    3.342575] SELinux: initialized (dev proc, type proc), uses genfs_contexts
+> [    3.350620] SELinux: initialized (dev bdev, type bdev), uses genfs_contexts
+> [    3.358385] SELinux: initialized (dev rootfs, type rootfs), uses
+> genfs_contexts
+> [    3.366247] SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
+> [    4.238057] SELinux: initialized (dev tmpfs, type tmpfs), uses
+> transition SIDs
+> [    4.448447] SELinux: initialized (dev tmpfs, type tmpfs), uses
+> transition SIDs
+> [    4.466671] SELinux: initialized (dev tmpfs, type tmpfs), uses
+> transition SIDs
+> [   10.215741] SELinux: initialized (dev tmpfs, type tmpfs), uses
+> transition SIDs
+> [   13.022618] SELinux: initialized (dev tmpfs, type tmpfs), uses
+> transition SIDs
+> [   17.496954] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   18.036035] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   18.056560] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   18.442620] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   18.568128] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   18.821974] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   19.893332] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   20.231539] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   20.388169] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   21.113006] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   21.124618] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   21.135766] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   21.445777] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   21.559879] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   21.667643] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   22.043597] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.097478] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.134225] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   22.155972] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.245517] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.268845] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.279830] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   22.450408] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   22.468437] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   22.485329] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.615547] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.654946] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.858598] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.882955] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   22.984151] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   33.012322] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   37.044951] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   38.140604] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   38.141662] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   38.648394] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   39.146536] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   39.408666] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   39.519031] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   39.828370] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   40.767784] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   41.716116] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   41.834767] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   41.840503] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   42.071528] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   42.075675] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   42.083109] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ed
+> [   42.084113] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ed
+> [   44.711545] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1ff
+> [   51.125148] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> [   51.233138] SELinux: WARNING: inside open_file_mask_to_av with
+> unknown mode:c1b6
+> 
+> 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
