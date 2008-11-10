@@ -1,54 +1,47 @@
-Message-ID: <cadfc0e40811100834j4945c30eu13d8b255f9fad32f@mail.gmail.com>
-Date: Mon, 10 Nov 2008 10:34:54 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Paul Moore" <paul.moore@hp.com>
+From: Paul Moore <paul.moore@hp.com>
+To: Joe Nall <joe@nall.com>, Xavier Toth <txtoth@gmail.com>
 Subject: Re: Label Translation on Fedora 9
-Cc: "Joe Nall" <joe@nall.com>, "Daniel J Walsh" <dwalsh@redhat.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>,
-        "Andy Warner" <warner@rubix.com>, selinux@tycho.nsa.gov
-In-Reply-To: <200811101126.13750.paul.moore@hp.com>
+Date: Mon, 10 Nov 2008 11:53:30 -0500
+Cc: Daniel J Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Andy Warner <warner@rubix.com>, SE Linux <selinux@tycho.nsa.gov>
+References: <490EE548.60400@rubix.com> <cadfc0e40811100810y539d09cege4fd2c2fa064d3c2@mail.gmail.com> <97946D1C-80A3-448E-9CC2-1F020D479D40@nall.com>
+In-Reply-To: <97946D1C-80A3-448E-9CC2-1F020D479D40@nall.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <490EE548.60400@rubix.com> <200811101056.57415.paul.moore@hp.com>
-	 <cadfc0e40811100810y539d09cege4fd2c2fa064d3c2@mail.gmail.com>
-	 <200811101126.13750.paul.moore@hp.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200811101153.30563.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Nov 10, 2008 at 10:26 AM, Paul Moore <paul.moore@hp.com> wrote:
-> On Monday 10 November 2008 11:10:49 am Xavier Toth wrote:
->> On Mon, Nov 10, 2008 at 9:56 AM, Paul Moore <paul.moore@hp.com> wrote:
->> > On Sunday 09 November 2008 1:26:58 pm Joe Nall wrote:
->> >> Sorry about the big delay in closure on this. We have been very
->> >> busy trying to build a demonstrable Fedora based MLS/X system to
->> >> run our applications on. The demo was last week in London and we
->> >> have some time to upstream our changes this month. That includes
->> >> adding combination constraints, label-to-color mapping and
->> >> migration tools to mcstransd and pushing it into a public repo for
->> >> community consideration.
->> >
->> > Cool.  Do the current X/metacity patches support label coloring?
->>
->> No.
+On Monday 10 November 2008 11:16:43 am Joe Nall wrote:
+> On Nov 10, 2008, at 10:10 AM, Xavier Toth wrote:
+> > On Mon, Nov 10, 2008 at 9:56 AM, Paul Moore <paul.moore@hp.com> 
+wrote:
+> >> ...
+> >> Cool.  Do the current X/metacity patches support label coloring?
+> >>
+> >> --
+> >> paul moore
+> >> linux @ hp
+> >
+> > No.
+> >
+> > Ted
 >
-> Okay, just out of curiosity is this being worked on?  Also, what other
-> applications are there for label coloring?
+> Ted has unreleased patches to metacity and openbox support the
+> coloring the window banner based on classification. We want to move
+> the code from a shared library to mcstransd before releasing them
+> into the wild.
 >
-> I'm just trying to understand things a little better.
->
-> --
-> paul moore
-> linux @ hp
->
+> He also wrote a simple banner program to show the current session
+> level. It needs to run in a protected type and better defend its
+> screen real estate or be integrated into X or the window manager.
 
-Once we get color support in Joe's version of mcstrans I'll integrate
-color support into metacity and openbox and then work on getting it
-upstreamed. Aside from mcstrans modifications this will require
-libselinux changes to implement new apis to get color based on
-context. I'm not sure what other applications there are for label
-coloring.
+Okay, sounds good.  Thanks for the update.
 
-Ted
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
