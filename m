@@ -1,53 +1,36 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mABEpXlj015506
-	for <selinux@tycho.nsa.gov>; Tue, 11 Nov 2008 09:51:33 -0500
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id mABEpWFP010149
-	for <selinux@tycho.nsa.gov>; Tue, 11 Nov 2008 14:51:33 GMT
-Subject: [PATCH] homedir_template generation skips USER lines
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Tue, 11 Nov 2008 09:49:00 -0500
-Message-Id: <1226414940.24358.15.camel@gorn>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mABFWVM2021896
+	for <selinux@tycho.nsa.gov>; Tue, 11 Nov 2008 10:32:31 -0500
+Received: from nf-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mABFUkBj022113
+	for <selinux@tycho.nsa.gov>; Tue, 11 Nov 2008 15:30:46 GMT
+Received: by nf-out-0910.google.com with SMTP id b21so1478701nfd.4
+        for <selinux@tycho.nsa.gov>; Tue, 11 Nov 2008 07:32:30 -0800 (PST)
+Message-ID: <dd18b0c30811110732y79e609fct783e393a7b5f2e5c@mail.gmail.com>
+Date: Tue, 11 Nov 2008 07:32:30 -0800
+From: "Justin Mattock" <justinmattock@gmail.com>
+To: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+Subject: latest svn refpolicy confusion
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The current libsemanage code does not correctly add lines which include
-USER in them into the homedir_template, for example:
+when making the latest refpolicy
+from svn I keep receiving a checkpolicy error
+with anything having to do with dbus:
+allow sysadm_dbusd_t gconf_etc_t:dir { read search getattr };
+allow sysadm_dbusd_t gconf_etc_t:file { read getattr };
+changing these roles to staff_r still produces
+and error, when commenting these out in my .te file
+the error will continue to the next *_dbusd_t *
+rule for some reason. is there a new setting with dbus
+that I'm missing?
+the system is ubuntu intrepid(unstable, or my own hacked version);
 
-/tmp/gconfd-USER -d	system_u:object_r:ROLE_tmp_t
-
-This line was included in the past since it has ROLE.  However, with the
-switch to UBAC separations, the line has changed to:
-
-/tmp/gconfd-USER -d	system_u:object_r:user_tmp_t
-
-and is no longer included.  The follwing patch fixes.
-
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index ab79c28..9f197ed 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -983,7 +983,8 @@ int semanage_split_fc(semanage_handle_t * sh)
- 
- 	while (fgets_unlocked(buf, PATH_MAX, file_con)) {
- 		if (!strncmp(buf, "HOME_DIR", 8) ||
--		    !strncmp(buf, "HOME_ROOT", 9) || strstr(buf, "ROLE")) {
-+		    !strncmp(buf, "HOME_ROOT", 9) || strstr(buf, "ROLE") ||
-+		    strstr(buf, "USER")) {
- 			/* This contains one of the template variables, write it to homedir.template */
- 			if (write(hd, buf, strlen(buf)) < 0) {
- 				ERR(sh, "Write to %s failed.",
-
-
-
+regards;
 -- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
