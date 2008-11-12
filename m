@@ -1,65 +1,107 @@
-Cc: Daniel J Walsh <dwalsh@redhat.com>, Paul Moore <paul.moore@hp.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, Andy Warner <warner@rubix.com>,
-        selinux@tycho.nsa.gov
-Message-Id: <9E8AB73F-4BE2-48A3-927F-12B5C17DE0EF@nall.com>
-From: Joe Nall <joe@nall.com>
-To: russell@coker.com.au
-In-Reply-To: <200811122023.32169.russell@coker.com.au>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v929.2)
-Subject: Re: Label Translation on Fedora 9
-Date: Wed, 12 Nov 2008 07:57:12 -0600
-References: <490EE548.60400@rubix.com> <490F6059.3010106@redhat.com> <354D5A91-3C3C-4AFC-8062-72382AFD55BE@nall.com> <200811122023.32169.russell@coker.com.au>
+Subject: [PATCH] semanage:  Use semanage_mls_enabled
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Brindle <jbrindle@tresys.com>
+Cc: selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1226349176.8814.62.camel@moss-spartans.epoch.ncsc.mil>
+References: <1226349176.8814.62.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Wed, 12 Nov 2008 09:43:26 -0500
+Message-Id: <1226501006.21407.9.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Change semanage/seobject to use semanage_mls_enabled() rather than
+is_selinux_mls_enabled().  I dropped the mls enabled tests altogether
+from the semanage front-end script since setting up a handle is done by
+seobject.py; if those checks are actually important, we could move them
+inside of the seobject methods, but I'm not clear on the real benefit of
+those checks.  In seobject.py, I moved the setting of the is_mls_enabled
+variable inside of get_handle(store) after the connect.  I also dropped
+the is_mls_enabled test from setransRecords since no handle/connection
+exists there (since translations are not managed via libsemanage), and
+again I'm not clear that the check there was overly important/useful.
 
-On Nov 12, 2008, at 3:23 AM, Russell Coker wrote:
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-> On Monday 10 November 2008 05:26, Joe Nall <joe@nall.com> wrote:
->> Sorry about the big delay in closure on this. We have been very busy
->> trying to build a demonstrable Fedora based MLS/X system to run our
->> applications on. The demo was last week in London and we have some
->> time to upstream our changes this month. That includes adding
->> combination constraints, label-to-color mapping and migration tools  
->> to
->> mcstransd and pushing it into a public repo for community  
->> consideration.
->
-> Have you considered making a Xen image of that available for public  
-> download?
+diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
+index c34e594..eb0ac34 100644
+--- a/policycoreutils/semanage/semanage
++++ b/policycoreutils/semanage/semanage
+@@ -38,8 +38,6 @@ except IOError:
+        import __builtin__
+        __builtin__.__dict__['_'] = unicode
+ 
+-is_mls_enabled=selinux.is_selinux_mls_enabled()
+-
+ if __name__ == '__main__':
+ 
+ 	def usage(message = ""):
+@@ -270,16 +268,12 @@ Object-specific Options (see above):
+ 				store = a
+ 
+ 			if o == "-r" or o == '--range':
+-				if is_mls_enabled == 0:
+-                                       raise ValueError(_("range not supported on Non MLS machines"))
+ 				serange = a
+ 
+ 			if o == "-l" or o == "--list":
+ 				list = True
+ 
+ 			if o == "-L" or o == '--level':
+-				if is_mls_enabled == 0:
+-                                       raise ValueError(_("range not supported on Non MLS machines"))
+ 				selevel = a
+ 
+ 			if o == "-p" or o == '--proto':
+diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
+index c5379ac..8bf188a 100644
+--- a/policycoreutils/semanage/seobject.py
++++ b/policycoreutils/semanage/seobject.py
+@@ -35,14 +35,13 @@ except IOError:
+        import __builtin__
+        __builtin__.__dict__['_'] = unicode
+ 
+-is_mls_enabled = selinux.is_selinux_mls_enabled()
+-
+ import syslog
+ 
+ handle = None
+ 
+ def get_handle(store):
+        global handle
++       global is_mls_enabled
+ 
+        handle = semanage_handle_create()
+        if not handle:
+@@ -63,7 +62,13 @@ def get_handle(store):
+        rc = semanage_connect(handle)
+        if rc < 0:
+               semanage_handle_destroy(handle)
+-              raise ValueError(_("Could not establish semanage connection"))       
++              raise ValueError(_("Could not establish semanage connection"))
++
++       is_mls_enabled = semanage_mls_enabled(handle)
++       if is_mls_enabled < 0:
++              semanage_handle_destroy(handle)
++              raise ValueError(_("Could not test MLS enabled status"))
++
+        return handle
+ 
+ file_types = {}
+@@ -192,8 +197,6 @@ def untranslate(trans, prepend = 1):
+ 	
+ class setransRecords:
+ 	def __init__(self):
+-		if not is_mls_enabled:
+-			raise ValueError(_("translations not supported on non-MLS machines"))			
+ 		self.filename = selinux.selinux_translations_path()
+ 		try:
+ 			fd = open(self.filename, "r")
 
-No. I like the idea, but don't have the time right now.
-
-I would rather see the Fedora re-spin process be capable of a MLS Live  
-CD. It might be pretty close these days, but I haven't tried it in  
-about 12 months.
-
-joe
-
-
-> One item on my todo list is to prepared some Xen images of SE Linux  
-> for
-> download so that people can try it out.  I have recently acquired a  
-> suitable
-> server (thanks to a generous German friend) and now only need to  
-> find the
-> time.
->
-> Another item on my todo list is to run a Xen server for public SE  
-> Linux
-> training.  Hopefully I will get that done in a couple of weeks.
->
-> Also I'm idly considering putting a Debian SE Linux image on EC2.   
-> I'm not
-> sure if that would interest anyone though.
->
-> -- 
-> russell@coker.com.au
-> http://etbe.coker.com.au/          My Blog
->
-> http://www.coker.com.au/sponsorship.html Sponsoring Free Software  
-> development
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
