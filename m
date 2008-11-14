@@ -1,117 +1,60 @@
-Message-ID: <491DF8F6.70907@redhat.com>
-Date: Fri, 14 Nov 2008 17:17:26 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAEMQlKE016965
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2008 17:26:47 -0500
+Message-ID: <491DFB26.5050703@tycho.nsa.gov>
+Date: Fri, 14 Nov 2008 17:26:46 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Joshua Brindle <jbrindle@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] semanage:  Use semanage_mls_enabled
-References: <1226349176.8814.62.camel@moss-spartans.epoch.ncsc.mil> <1226501006.21407.9.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1226501006.21407.9.camel@moss-spartans.epoch.ncsc.mil>
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: Ted X Toth <txtoth@gmail.com>
+Subject: [PATCH] libselinux: allow shell-style wildcarding in X names
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This patch replaces the exact strcmp/single fixed wildcard in the X
+contexts code with a call to fnmatch(3) which will allow shell-style
+matching constructions (*, ?, and []) in the x_contexts file, such as:
 
-Stephen Smalley wrote:
-> Change semanage/seobject to use semanage_mls_enabled() rather than
-> is_selinux_mls_enabled().  I dropped the mls enabled tests altogether
-> from the semanage front-end script since setting up a handle is done by
-> seobject.py; if those checks are actually important, we could move them
-> inside of the seobject methods, but I'm not clear on the real benefit of
-> those checks.  In seobject.py, I moved the setting of the is_mls_enabled
-> variable inside of get_handle(store) after the connect.  I also dropped
-> the is_mls_enabled test from setransRecords since no handle/connection
-> exists there (since translations are not managed via libsemanage), and
-> again I'm not clear that the check there was overly important/useful.
-> 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-> 
-> diff --git a/policycoreutils/semanage/semanage b/policycoreutils/semanage/semanage
-> index c34e594..eb0ac34 100644
-> --- a/policycoreutils/semanage/semanage
-> +++ b/policycoreutils/semanage/semanage
-> @@ -38,8 +38,6 @@ except IOError:
->         import __builtin__
->         __builtin__.__dict__['_'] = unicode
->  
-> -is_mls_enabled=selinux.is_selinux_mls_enabled()
-> -
->  if __name__ == '__main__':
->  
->  	def usage(message = ""):
-> @@ -270,16 +268,12 @@ Object-specific Options (see above):
->  				store = a
->  
->  			if o == "-r" or o == '--range':
-> -				if is_mls_enabled == 0:
-> -                                       raise ValueError(_("range not supported on Non MLS machines"))
->  				serange = a
->  
->  			if o == "-l" or o == "--list":
->  				list = True
->  
->  			if o == "-L" or o == '--level':
-> -				if is_mls_enabled == 0:
-> -                                       raise ValueError(_("range not supported on Non MLS machines"))
->  				selevel = a
->  
->  			if o == "-p" or o == '--proto':
-> diff --git a/policycoreutils/semanage/seobject.py b/policycoreutils/semanage/seobject.py
-> index c5379ac..8bf188a 100644
-> --- a/policycoreutils/semanage/seobject.py
-> +++ b/policycoreutils/semanage/seobject.py
-> @@ -35,14 +35,13 @@ except IOError:
->         import __builtin__
->         __builtin__.__dict__['_'] = unicode
->  
-> -is_mls_enabled = selinux.is_selinux_mls_enabled()
-> -
->  import syslog
->  
->  handle = None
->  
->  def get_handle(store):
->         global handle
-> +       global is_mls_enabled
->  
->         handle = semanage_handle_create()
->         if not handle:
-> @@ -63,7 +62,13 @@ def get_handle(store):
->         rc = semanage_connect(handle)
->         if rc < 0:
->                semanage_handle_destroy(handle)
-> -              raise ValueError(_("Could not establish semanage connection"))       
-> +              raise ValueError(_("Could not establish semanage connection"))
-> +
-> +       is_mls_enabled = semanage_mls_enabled(handle)
-> +       if is_mls_enabled < 0:
-> +              semanage_handle_destroy(handle)
-> +              raise ValueError(_("Could not test MLS enabled status"))
-> +
->         return handle
->  
->  file_types = {}
-> @@ -192,8 +197,6 @@ def untranslate(trans, prepend = 1):
->  	
->  class setransRecords:
->  	def __init__(self):
-> -		if not is_mls_enabled:
-> -			raise ValueError(_("translations not supported on non-MLS machines"))			
->  		self.filename = selinux.selinux_translations_path()
->  		try:
->  			fd = open(self.filename, "r")
-> 
-Why did you remove all the checking from the patch?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+property XT_SELECTION* system_u:object_r:clipboard_xproperty_t:s0
 
-iEYEARECAAYFAkkd+PYACgkQrlYvE4MpobNXGACfQvPceOwzlMqRKQ/JwJwnJmtc
-L/UAoIZRuYjIsnrFv27YIsaPhb+UX0Mv
-=fT7M
------END PGP SIGNATURE-----
+Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
+---
+
+ label_x.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+
+diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+index 6a190f5..a9bfaa5 100644
+--- a/libselinux/src/label_x.c
++++ b/libselinux/src/label_x.c
+@@ -11,6 +11,7 @@
+ #include <ctype.h>
+ #include <errno.h>
+ #include <limits.h>
++#include <fnmatch.h>
+ #include "callbacks.h"
+ #include "label_internal.h"
+ 
+@@ -199,9 +200,7 @@ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+ 	for (i = 0; i < data->nspec; i++) {
+ 		if (spec_arr[i].type != type)
+ 			continue;
+-		if (!strncmp(spec_arr[i].key, "*", 2))
+-			break;
+-		if (!strncmp(spec_arr[i].key, key, strlen(key) + 1))
++		if (!fnmatch(spec_arr[i].key, key, 0))
+ 			break;
+ 	}
+ 
+
+
+
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
