@@ -1,77 +1,61 @@
-Cc: SELinux List <selinux@tycho.nsa.gov>, Ted X Toth <txtoth@gmail.com>
-Message-Id: <40DF6957-FD82-4E69-BA1A-E63C382A06CC@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <491DFB26.5050703@tycho.nsa.gov>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v929.2)
-Subject: Re: [PATCH] libselinux: allow shell-style wildcarding in X names
-Date: Fri, 14 Nov 2008 18:34:18 -0600
-References: <491DFB26.5050703@tycho.nsa.gov>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAF0crA5024731
+	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2008 19:38:53 -0500
+Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAF0b3xE020320
+	for <selinux@tycho.nsa.gov>; Sat, 15 Nov 2008 00:37:04 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: Re: 2.6.26 Debian kernel panic
+Date: Sat, 15 Nov 2008 11:38:42 +1100
+Cc: Paul Menzel <paul.menzel@web.de>
+References: <200810281410.45041.russell@coker.com.au>
+In-Reply-To: <200810281410.45041.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200811151138.43153.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+I have reproduced the below problem with the DomU in question having SE Linux 
+disabled.  The symptom of a process taking maximum CPU time and then killing 
+the system if it was stopped was occurring with Apache and ejabberd 
+processes.  I rebooted the DomU about 6 times and had the problem occur each 
+time.
 
-On Nov 14, 2008, at 4:26 PM, Eamon Walsh wrote:
+The evidence seems quite clear that it was not a SE Linux problem.
 
-> This patch replaces the exact strcmp/single fixed wildcard in the X
-> contexts code with a call to fnmatch(3) which will allow shell-style
-> matching constructions (*, ?, and []) in the x_contexts file,
+It was suggested that the problem could be related to dodgey RAM, a memtest86+ 
+run for 6 hours did not find any errors.  While this is not conclusive 
+evidence of a lack of a problem, it's a strong indication that when a problem 
+is reproducable quickly and easily when running a kernel but not over the 
+course of 6 hours of memtest86+ then it's not faulty RAM.
 
-Most appreciated
+The DomU in question is now running a CentOS (2.6.18) kernel with no problems.
 
-joe
+http://etbe.coker.com.au/2008/10/22/upgrading-a-server-to-64bit-xen/
 
+The machine in question is not entirely a standard configuration.  I am 
+running a CentOS 5 kernel with Debian user-space as described in the above 
+blog post.
 
-> such as:
->
-> property XT_SELECTION* system_u:object_r:clipboard_xproperty_t:s0
->
-> Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
-> ---
->
-> label_x.c |    5 ++---
-> 1 file changed, 2 insertions(+), 3 deletions(-)
->
->
-> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-> index 6a190f5..a9bfaa5 100644
-> --- a/libselinux/src/label_x.c
-> +++ b/libselinux/src/label_x.c
-> @@ -11,6 +11,7 @@
-> #include <ctype.h>
-> #include <errno.h>
-> #include <limits.h>
-> +#include <fnmatch.h>
-> #include "callbacks.h"
-> #include "label_internal.h"
->
-> @@ -199,9 +200,7 @@ static struct selabel_lookup_rec *lookup(struct  
-> selabel_handle *rec,
-> 	for (i = 0; i < data->nspec; i++) {
-> 		if (spec_arr[i].type != type)
-> 			continue;
-> -		if (!strncmp(spec_arr[i].key, "*", 2))
-> -			break;
-> -		if (!strncmp(spec_arr[i].key, key, strlen(key) + 1))
-> +		if (!fnmatch(spec_arr[i].key, key, 0))
-> 			break;
-> 	}
->
->
->
->
-> -- 
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing  
-> list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
->  with
-> the words "unsubscribe selinux" without quotes as the message.
+On Tuesday 28 October 2008 14:10, Russell Coker <russell@coker.com.au> wrote:
+> Below are the syslog messages from a kernel panic when running 2.6.26.  To
+> trigger it I ran "semodule -i sendmail.pp" on a machine with the exim
+> policy loaded (not something that you expect people to do - but not
+> something you expect to cause a problem either) and load_policy went into
+> an infinite loop (100% CPU use - strace reported no syscalls being made).
+>  At that
+> stage "kill -9" seemed like the right solution, killing load_policy gave
+> the following result.
+
+-- 
+Russell Coker <russell@coker.com.au>
+http://etbe.coker.com.au/          My Blog
+http://etbe.coker.com.au/category/security/  My Security blog posts
+http://www.coker.com.au/selinux/play.html  My Play Machine, root PW "SELINUX"
 
 
 --
