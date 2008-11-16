@@ -1,61 +1,88 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAF0crA5024731
-	for <selinux@tycho.nsa.gov>; Fri, 14 Nov 2008 19:38:53 -0500
-Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAF0b3xE020320
-	for <selinux@tycho.nsa.gov>; Sat, 15 Nov 2008 00:37:04 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: Re: 2.6.26 Debian kernel panic
-Date: Sat, 15 Nov 2008 11:38:42 +1100
-Cc: Paul Menzel <paul.menzel@web.de>
-References: <200810281410.45041.russell@coker.com.au>
-In-Reply-To: <200810281410.45041.russell@coker.com.au>
+Message-ID: <4920B3C1.4000405@manicmethod.com>
+Date: Sun, 16 Nov 2008 18:58:57 -0500
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200811151138.43153.russell@coker.com.au>
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        KaiGai Kohei <kaigai@ak.jp.nec.com>
+Subject: Re: This policy causes checkmodule to segfault.
+References: <491DE60C.3040205@redhat.com>
+In-Reply-To: <491DE60C.3040205@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I have reproduced the below problem with the DomU in question having SE Linux 
-disabled.  The symptom of a process taking maximum CPU time and then killing 
-the system if it was stopped was occurring with Apache and ejabberd 
-processes.  I rebooted the DomU about 6 times and had the problem occur each 
-time.
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> policy_module(test, 1.0)
+>
+> gen_require(`
+>   type a_t;
+> ')
+> type b_t alias a_t;
+>   
 
-The evidence seems quite clear that it was not a SE Linux problem.
+Well, this doesn't look good. There are a couple issues here. The first 
+is that when we changed the symtab_insert behavior to allow require then 
+declare we missed the alias case, the patch below should fix that. The 
+second problem is that type_write now treats primary as a boolean value 
+(as of the typebounds patch). A while back we made primary not 
+necessarily a boolean in the module case where an alias had a value 
+already and we needed to keep track of what the primary value was. The 
+typebounds patch combined multiple fields into a 'properties' bitmap, 
+which includes primary, so the value is now lost.
 
-It was suggested that the problem could be related to dodgey RAM, a memtest86+ 
-run for 6 hours did not find any errors.  While this is not conclusive 
-evidence of a lack of a problem, it's a strong indication that when a problem 
-is reproducable quickly and easily when running a kernel but not over the 
-course of 6 hours of memtest86+ then it's not faulty RAM.
+We can change the module format to keep the primary field around, this 
+particular piece of code is getting increasingly more confusing though 
+(write.c:970)
 
-The DomU in question is now running a CentOS (2.6.18) kernel with no problems.
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 25b06c1..8c04767 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -983,6 +983,7 @@ static int add_aliases_to_type(type_datum_t * type)
+        char *id;
+        type_datum_t *aliasdatum = NULL;
+        int ret;
++       uint32_t val;
+        while ((id = queue_remove(id_queue))) {
+                if (id_has_dot(id)) {
+                        free(id);
+@@ -1000,7 +1001,7 @@ static int add_aliases_to_type(type_datum_t * type)
+                aliasdatum->s.value = type->s.value;
+ 
+                ret = declare_symbol(SYM_TYPES, id, aliasdatum,
+-                                    NULL, &aliasdatum->s.value);
++                                    &val, &aliasdatum->s.value);
+                switch (ret) {
+                case -3:{
+                                yyerror("Out of memory!");
+@@ -1017,6 +1018,17 @@ static int add_aliases_to_type(type_datum_t * type)
+                        }
+                case 0:
+                case 1:{
++                              /* ret == 1 means the alias was required 
+and therefore already
++                               * has a value. Set it up as an alias 
+with a different primary. */
++                               type_datum_destroy(aliasdatum);
++                               free(aliasdatum);
++                              
++                               aliasdatum = 
+hashtab_search(policydbp->symtab[SYM_TYPES].table, id);
++                               assert(aliasdatum);
++                               aliasdatum->primary = type->s.value;
++                               aliasdatum->flavor = TYPE_ALIAS;
++
++                               free(id);
+                                break;
+                        }
+                default:{
 
-http://etbe.coker.com.au/2008/10/22/upgrading-a-server-to-64bit-xen/
 
-The machine in question is not entirely a standard configuration.  I am 
-running a CentOS 5 kernel with Debian user-space as described in the above 
-blog post.
 
-On Tuesday 28 October 2008 14:10, Russell Coker <russell@coker.com.au> wrote:
-> Below are the syslog messages from a kernel panic when running 2.6.26.  To
-> trigger it I ran "semodule -i sendmail.pp" on a machine with the exim
-> policy loaded (not something that you expect people to do - but not
-> something you expect to cause a problem either) and load_policy went into
-> an infinite loop (100% CPU use - strace reported no syscalls being made).
->  At that
-> stage "kill -9" seemed like the right solution, killing load_policy gave
-> the following result.
-
--- 
-Russell Coker <russell@coker.com.au>
-http://etbe.coker.com.au/          My Blog
-http://etbe.coker.com.au/category/security/  My Security blog posts
-http://www.coker.com.au/selinux/play.html  My Play Machine, root PW "SELINUX"
 
 
 --
