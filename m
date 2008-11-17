@@ -1,550 +1,92 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAHFUlWa018334
-	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2008 10:30:47 -0500
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAHFSpFP013532
-	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2008 15:28:56 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id mAHFUcwu030155
-	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2008 10:30:38 -0500
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id mAHFUbIi016448
-	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2008 10:30:37 -0500
-Received: from localhost.localdomain (dhcp-100-2-12.bos.redhat.com [10.16.2.12])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id mAHFUaT2016296
-	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2008 10:30:36 -0500
-Message-ID: <49218E1C.2040302@redhat.com>
-Date: Mon, 17 Nov 2008 10:30:36 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Add restorecon and install methods for libselinux python bindings.
-Content-Type: multipart/mixed;
- boundary="------------080504000609010704090900"
+Subject: Re: Handling labeling on filesystems that don't support SELinux
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Sean E. Millichamp" <sean@bruenor.org>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
+        Fedora Selinux Mailing List <fedora-selinux-list@redhat.com>,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+In-Reply-To: <1226938609.3282.34.camel@sewt>
+References: <1225998785.3313.5.camel@sewt>  <49218381.4050509@redhat.com>
+	 <1226935605.25156.51.camel@moss-spartans.epoch.ncsc.mil>
+	 <1226938609.3282.34.camel@sewt>
+Content-Type: text/plain
+Date: Mon, 17 Nov 2008 11:34:24 -0500
+Message-Id: <1226939664.25156.70.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------080504000609010704090900
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Mon, 2008-11-17 at 11:16 -0500, Sean E. Millichamp wrote:
+> Hmm... I believe that checking for an error at assignment time is not
+> going to be a workable solution for Puppet.
+> 
+> The problem is that Puppet prepares what it needs to do in a transaction
+> before doing it.  Take the situation where /usr/local is NFS mounted:
+> 
+> # ls -Z /usr/local/bin/foo
+> -rwxr-xr-x  root root system_u:object_r:nfs_t:s0       /usr/local/bin/foo
+> # matchpathcon /usr/local/bin/foo
+> /usr/local/bin/foo	system_u:object_r:bin_t:s0
+> 
+> Then you run puppet with a manifest that includes management
+> of /usr/local/bin/foo.
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Can you explain what it means for puppet to manage a NFS-mounted
+filesystem?  I'd tend to think that file management would happen on the
+server, not on a client.  And puppet could easily run into problems with
+e.g. setting ownership/mode information on a NFS-mounted filesystem due
+to squashroot, uid/gid remapping, etc.
 
-Luke Macken wrote restorecon and install functions used in Fedora
-Infrastructure which can be used to install files with the proper
-context and to fix the labels of files/directories without having to
-exec restorecon.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+>   The first thing Puppet does is determine default
+> values.  For SELinux this means a call to matchpathcon.  Then Puppet
+> determines the current values with lgetfilecon.  It notices that the
+> default value for the type should be bin_t, but the current is nfs_t so
+> it adds changing the type to its list of things to do.  As it is
+> building this list it reports on the things it intends to do.
+> 
+> Once it determines all of the actions that it needs to take only then
+> does it perform the setfilecon call to update the context.  Even if we
+> catch and silently ignore the error here the logging for the steps it
+> intends to take will occur on every single Puppet run, filling the logs
+> with what amounts to garbage and making email reports of changes
+> essentially useless (as you would get an email on every run telling you
+> of the changes it was going to make).
+> 
+> Performing a setfilecon call to the same context that exists during the
+> first phase to determine if a value can be set would be the only way I
+> could see to handle this, but it violates Puppet's promise of not
+> touching anything during a noop run and will update the ctime of the
+> file.
+> 
+> In the case of filesystems which behave like vfat Puppet would set the
+> label the first time following the mount and until it is remounted
+> wouldn't generate any additional messages.  Filesystems which behave
+> like NFS are the real problem case though and NFS is far more likely to
+> be mounted at a spot where matchpathcon returns a default then (for
+> example) vfat is.
+> 
+> I'm not a fan of hardcoding a whitelist of supported filesystems for the
+> very reasons Dan mentioned but it sounds like there isn't a good option
+> for Puppet at the moment (and since I couldn't find any better options,
+> this is what is going into the next Puppet release).
 
-iEYEARECAAYFAkkhjhwACgkQrlYvE4MpobPyDgCfZ3vdiX/irkv3A9ka89LvUV1s
-RjQAniK+8rHaotyzEVoCM/yIg8nvAk8x
-=bePO
------END PGP SIGNATURE-----
+Ok - that's essentially what Dan does in his /sbin/fixfiles script as
+well.
 
---------------080504000609010704090900
-Content-Type: text/plain;
- name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff"
+>   No chance of
+> seeing a "supports_setfilecon" type call?
 
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinux.py libselinux-2.0.75/src/selinux.py
---- nsalibselinux/src/selinux.py	2008-08-28 09:34:24.000000000 -0400
-+++ libselinux-2.0.75/src/selinux.py	2008-11-14 17:09:54.000000000 -0500
-@@ -1,5 +1,5 @@
- # This file was automatically generated by SWIG (http://www.swig.org).
--# Version 1.3.33
-+# Version 1.3.35
- #
- # Don't modify this file, modify the SWIG interface instead.
- # This file is compatible with both classic and new-style classes.
-@@ -48,6 +48,29 @@
- del types
- 
- 
-+import shutil, os
-+
-+def restorecon(path, recursive=False):
-+    """ Restore SELinux context on a given path """
-+    mode = os.stat(path)[stat.ST_MODE]
-+    status, context = matchpathcon(path, mode)
-+    if status == 0:
-+        lsetfilecon(path, context)
-+        if recursive:
-+            os.path.walk(path, lambda arg, dirname, fnames:
-+                             map(restorecon, [os.path.join(dirname, fname)
-+                              s                for fname in fnames]), None)
-+
-+def copytree(src, dest):
-+    """ An SELinux-friendly shutil.copytree method """
-+    shutil.copytree(src, dest)
-+    restorecon(dest, recursive=True)
-+
-+def install(src, dest):
-+    """ An SELinux-friendly shutil.move method """
-+    shutil.move(src, dest)
-+    restorecon(dest, recursive=True)
-+
- is_selinux_enabled = _selinux.is_selinux_enabled
- is_selinux_mls_enabled = _selinux.is_selinux_mls_enabled
- getcon = _selinux.getcon
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_python.i libselinux-2.0.75/src/selinuxswig_python.i
---- nsalibselinux/src/selinuxswig_python.i	2008-08-28 09:34:24.000000000 -0400
-+++ libselinux-2.0.75/src/selinuxswig_python.i	2008-11-14 17:09:50.000000000 -0500
-@@ -6,6 +6,32 @@
- 	#include "selinux/selinux.h"
- %}
- 
-+%pythoncode %{
-+
-+import shutil, os
-+
-+def restorecon(path, recursive=False):
-+    """ Restore SELinux context on a given path """
-+    mode = os.stat(path)[stat.ST_MODE]
-+    status, context = matchpathcon(path, mode)
-+    if status == 0:
-+        lsetfilecon(path, context)
-+        if recursive:
-+            os.path.walk(path, lambda arg, dirname, fnames:
-+                             map(restorecon, [os.path.join(dirname, fname)
-+                              s                for fname in fnames]), None)
-+
-+def copytree(src, dest):
-+    """ An SELinux-friendly shutil.copytree method """
-+    shutil.copytree(src, dest)
-+    restorecon(dest, recursive=True)
-+
-+def install(src, dest):
-+    """ An SELinux-friendly shutil.move method """
-+    shutil.move(src, dest)
-+    restorecon(dest, recursive=True)
-+%}
-+
- /* security_get_boolean_names() typemap */
- %typemap(argout) (char ***names, int *len) {
- 	PyObject* list = PyList_New(*$2);
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_wrap.c libselinux-2.0.75/src/selinuxswig_wrap.c
---- nsalibselinux/src/selinuxswig_wrap.c	2008-08-28 09:34:24.000000000 -0400
-+++ libselinux-2.0.75/src/selinuxswig_wrap.c	2008-11-14 17:09:54.000000000 -0500
-@@ -1,6 +1,6 @@
- /* ----------------------------------------------------------------------------
-  * This file was automatically generated by SWIG (http://www.swig.org).
-- * Version 1.3.33
-+ * Version 1.3.35
-  * 
-  * This file is not intended to be easily readable and contains a number of 
-  * coding conventions designed to improve portability and efficiency. Do not make
-@@ -126,7 +126,7 @@
- 
- /* This should only be incremented when either the layout of swig_type_info changes,
-    or for whatever reason, the runtime changes incompatibly */
--#define SWIG_RUNTIME_VERSION "3"
-+#define SWIG_RUNTIME_VERSION "4"
- 
- /* define SWIG_TYPE_TABLE_NAME as "SWIG_TYPE_TABLE" */
- #ifdef SWIG_TYPE_TABLE
-@@ -161,6 +161,7 @@
- 
- /* Flags for pointer conversions */
- #define SWIG_POINTER_DISOWN        0x1
-+#define SWIG_CAST_NEW_MEMORY       0x2
- 
- /* Flags for new pointer objects */
- #define SWIG_POINTER_OWN           0x1
-@@ -301,10 +302,10 @@
- extern "C" {
- #endif
- 
--typedef void *(*swig_converter_func)(void *);
-+typedef void *(*swig_converter_func)(void *, int *);
- typedef struct swig_type_info *(*swig_dycast_func)(void **);
- 
--/* Structure to store inforomation on one type */
-+/* Structure to store information on one type */
- typedef struct swig_type_info {
-   const char             *name;			/* mangled name of this type */
-   const char             *str;			/* human readable name of this type */
-@@ -431,8 +432,8 @@
-   Cast a pointer up an inheritance hierarchy
- */
- SWIGRUNTIMEINLINE void *
--SWIG_TypeCast(swig_cast_info *ty, void *ptr) {
--  return ((!ty) || (!ty->converter)) ? ptr : (*ty->converter)(ptr);
-+SWIG_TypeCast(swig_cast_info *ty, void *ptr, int *newmemory) {
-+  return ((!ty) || (!ty->converter)) ? ptr : (*ty->converter)(ptr, newmemory);
- }
- 
- /* 
-@@ -856,7 +857,7 @@
-     Py_DECREF(old_str);
-     Py_DECREF(value);
-   } else {
--    PyErr_Format(PyExc_RuntimeError, mesg);
-+    PyErr_SetString(PyExc_RuntimeError, mesg);
-   }
- }
- 
-@@ -1416,7 +1417,7 @@
- {
-   PySwigObject *sobj = (PySwigObject *) v;
-   PyObject *next = sobj->next;
--  if (sobj->own) {
-+  if (sobj->own == SWIG_POINTER_OWN) {
-     swig_type_info *ty = sobj->ty;
-     PySwigClientData *data = ty ? (PySwigClientData *) ty->clientdata : 0;
-     PyObject *destroy = data ? data->destroy : 0;
-@@ -1434,12 +1435,13 @@
- 	res = ((*meth)(mself, v));
-       }
-       Py_XDECREF(res);
--    } else {
--      const char *name = SWIG_TypePrettyName(ty);
-+    } 
- #if !defined(SWIG_PYTHON_SILENT_MEMLEAK)
--      printf("swig/python detected a memory leak of type '%s', no destructor found.\n", name);
--#endif
-+    else {
-+      const char *name = SWIG_TypePrettyName(ty);
-+      printf("swig/python detected a memory leak of type '%s', no destructor found.\n", (name ? name : "unknown"));
-     }
-+#endif
-   } 
-   Py_XDECREF(next);
-   PyObject_DEL(v);
-@@ -1944,7 +1946,7 @@
- 
- SWIGRUNTIME int
- SWIG_Python_AcquirePtr(PyObject *obj, int own) {
--  if (own) {
-+  if (own == SWIG_POINTER_OWN) {
-     PySwigObject *sobj = SWIG_Python_GetSwigThis(obj);
-     if (sobj) {
-       int oldown = sobj->own;
-@@ -1965,6 +1967,8 @@
-     return SWIG_OK;
-   } else {
-     PySwigObject *sobj = SWIG_Python_GetSwigThis(obj);
-+    if (own)
-+      *own = 0;
-     while (sobj) {
-       void *vptr = sobj->ptr;
-       if (ty) {
-@@ -1978,7 +1982,15 @@
- 	  if (!tc) {
- 	    sobj = (PySwigObject *)sobj->next;
- 	  } else {
--	    if (ptr) *ptr = SWIG_TypeCast(tc,vptr);
-+	    if (ptr) {
-+              int newmemory = 0;
-+              *ptr = SWIG_TypeCast(tc,vptr,&newmemory);
-+              if (newmemory == SWIG_CAST_NEW_MEMORY) {
-+                assert(own);
-+                if (own)
-+                  *own = *own | SWIG_CAST_NEW_MEMORY;
-+              }
-+            }
- 	    break;
- 	  }
- 	}
-@@ -1988,7 +2000,8 @@
-       }
-     }
-     if (sobj) {
--      if (own) *own = sobj->own;
-+      if (own)
-+        *own = *own | sobj->own;
-       if (flags & SWIG_POINTER_DISOWN) {
- 	sobj->own = 0;
-       }
-@@ -2053,8 +2066,13 @@
-     }
-     if (ty) {
-       swig_cast_info *tc = SWIG_TypeCheck(desc,ty);
--      if (!tc) return SWIG_ERROR;
--      *ptr = SWIG_TypeCast(tc,vptr);
-+      if (tc) {
-+        int newmemory = 0;
-+        *ptr = SWIG_TypeCast(tc,vptr,&newmemory);
-+        assert(!newmemory); /* newmemory handling not yet implemented */
-+      } else {
-+        return SWIG_ERROR;
-+      }
-     } else {
-       *ptr = vptr;
-     }
-@@ -2506,7 +2524,7 @@
- 
- #define SWIG_name    "_selinux"
- 
--#define SWIGVERSION 0x010333 
-+#define SWIGVERSION 0x010335 
- #define SWIG_VERSION SWIGVERSION
- 
- 
-@@ -4273,7 +4291,7 @@
-   struct av_decision *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_av_decision")) SWIG_fail;
--  result = (struct av_decision *)(struct av_decision *) calloc(1, sizeof(struct av_decision));
-+  result = (struct av_decision *)calloc(1, sizeof(struct av_decision));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_av_decision, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -4305,7 +4323,7 @@
- 
- SWIGINTERN PyObject *av_decision_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_av_decision, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -4428,7 +4446,7 @@
-   struct selinux_opt *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_selinux_opt")) SWIG_fail;
--  result = (struct selinux_opt *)(struct selinux_opt *) calloc(1, sizeof(struct selinux_opt));
-+  result = (struct selinux_opt *)calloc(1, sizeof(struct selinux_opt));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_selinux_opt, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -4460,7 +4478,7 @@
- 
- SWIGINTERN PyObject *selinux_opt_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_selinux_opt, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -4626,7 +4644,7 @@
-   union selinux_callback *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_selinux_callback")) SWIG_fail;
--  result = (union selinux_callback *)(union selinux_callback *) calloc(1, sizeof(union selinux_callback));
-+  result = (union selinux_callback *)calloc(1, sizeof(union selinux_callback));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_selinux_callback, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -4658,7 +4676,7 @@
- 
- SWIGINTERN PyObject *selinux_callback_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_selinux_callback, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -5586,7 +5604,7 @@
-   SELboolean *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_SELboolean")) SWIG_fail;
--  result = (SELboolean *)(SELboolean *) calloc(1, sizeof(SELboolean));
-+  result = (SELboolean *)calloc(1, sizeof(SELboolean));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SELboolean, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -5618,7 +5636,7 @@
- 
- SWIGINTERN PyObject *SELboolean_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_SELboolean, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -6139,7 +6157,7 @@
-   struct security_class_mapping *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_security_class_mapping")) SWIG_fail;
--  result = (struct security_class_mapping *)(struct security_class_mapping *) calloc(1, sizeof(struct security_class_mapping));
-+  result = (struct security_class_mapping *)calloc(1, sizeof(struct security_class_mapping));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_security_class_mapping, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -6171,7 +6189,7 @@
- 
- SWIGINTERN PyObject *security_class_mapping_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_security_class_mapping, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -7596,7 +7614,7 @@
-   struct security_id *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_security_id")) SWIG_fail;
--  result = (struct security_id *)(struct security_id *) calloc(1, sizeof(struct security_id));
-+  result = (struct security_id *)calloc(1, sizeof(struct security_id));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_security_id, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -7628,7 +7646,7 @@
- 
- SWIGINTERN PyObject *security_id_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_security_id, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -7915,7 +7933,7 @@
-   struct avc_entry_ref *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_avc_entry_ref")) SWIG_fail;
--  result = (struct avc_entry_ref *)(struct avc_entry_ref *) calloc(1, sizeof(struct avc_entry_ref));
-+  result = (struct avc_entry_ref *)calloc(1, sizeof(struct avc_entry_ref));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_avc_entry_ref, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -7947,7 +7965,7 @@
- 
- SWIGINTERN PyObject *avc_entry_ref_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_avc_entry_ref, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -8061,7 +8079,7 @@
-   struct avc_memory_callback *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_avc_memory_callback")) SWIG_fail;
--  result = (struct avc_memory_callback *)(struct avc_memory_callback *) calloc(1, sizeof(struct avc_memory_callback));
-+  result = (struct avc_memory_callback *)calloc(1, sizeof(struct avc_memory_callback));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_avc_memory_callback, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -8093,7 +8111,7 @@
- 
- SWIGINTERN PyObject *avc_memory_callback_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_avc_memory_callback, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -8207,7 +8225,7 @@
-   struct avc_log_callback *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_avc_log_callback")) SWIG_fail;
--  result = (struct avc_log_callback *)(struct avc_log_callback *) calloc(1, sizeof(struct avc_log_callback));
-+  result = (struct avc_log_callback *)calloc(1, sizeof(struct avc_log_callback));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_avc_log_callback, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -8239,7 +8257,7 @@
- 
- SWIGINTERN PyObject *avc_log_callback_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_avc_log_callback, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -8353,7 +8371,7 @@
-   struct avc_thread_callback *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_avc_thread_callback")) SWIG_fail;
--  result = (struct avc_thread_callback *)(struct avc_thread_callback *) calloc(1, sizeof(struct avc_thread_callback));
-+  result = (struct avc_thread_callback *)calloc(1, sizeof(struct avc_thread_callback));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_avc_thread_callback, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -8385,7 +8403,7 @@
- 
- SWIGINTERN PyObject *avc_thread_callback_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_avc_thread_callback, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -8603,7 +8621,7 @@
-   struct avc_lock_callback *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_avc_lock_callback")) SWIG_fail;
--  result = (struct avc_lock_callback *)(struct avc_lock_callback *) calloc(1, sizeof(struct avc_lock_callback));
-+  result = (struct avc_lock_callback *)calloc(1, sizeof(struct avc_lock_callback));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_avc_lock_callback, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -8635,7 +8653,7 @@
- 
- SWIGINTERN PyObject *avc_lock_callback_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_avc_lock_callback, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -9493,7 +9511,7 @@
-   struct avc_cache_stats *result = 0 ;
-   
-   if (!PyArg_ParseTuple(args,(char *)":new_avc_cache_stats")) SWIG_fail;
--  result = (struct avc_cache_stats *)(struct avc_cache_stats *) calloc(1, sizeof(struct avc_cache_stats));
-+  result = (struct avc_cache_stats *)calloc(1, sizeof(struct avc_cache_stats));
-   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_avc_cache_stats, SWIG_POINTER_NEW |  0 );
-   return resultobj;
- fail:
-@@ -9525,7 +9543,7 @@
- 
- SWIGINTERN PyObject *avc_cache_stats_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-   PyObject *obj;
--  if (!PyArg_ParseTuple(args,(char*)"O|swigregister", &obj)) return NULL;
-+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-   SWIG_TypeNewClientData(SWIGTYPE_p_avc_cache_stats, SWIG_NewClientData(obj));
-   return SWIG_Py_Void();
- }
-@@ -10513,7 +10531,7 @@
- SWIG_InitializeModule(void *clientdata) {
-   size_t i;
-   swig_module_info *module_head, *iter;
--  int found;
-+  int found, init;
-   
-   clientdata = clientdata;
-   
-@@ -10523,6 +10541,9 @@
-     swig_module.type_initial = swig_type_initial;
-     swig_module.cast_initial = swig_cast_initial;
-     swig_module.next = &swig_module;
-+    init = 1;
-+  } else {
-+    init = 0;
-   }
-   
-   /* Try and load any already created modules */
-@@ -10551,6 +10572,12 @@
-     module_head->next = &swig_module;
-   }
-   
-+  /* When multiple interpeters are used, a module could have already been initialized in
-+       a different interpreter, but not yet have a pointer in this interpreter.
-+       In this case, we do not want to continue adding types... everything should be
-+       set up already */
-+  if (init == 0) return;
-+  
-   /* Now work on filling in swig_module.types */
- #ifdef SWIGRUNTIME_DEBUG
-   printf("SWIG_InitializeModule: size %d\n", swig_module.size);
+Possibly an interface could be added to selinuxfs and wrapped with a
+libselinux function of that nature.
 
---------------080504000609010704090900
-Content-Type: application/octet-stream;
- name="diff.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="diff.sig"
+Or possibly we could export that via a new mount option that shows up
+in /proc/mounts since we now support exporting information about context
+mounts there?  There are already mount options for user_xattr and acl
+for example, but not explicitly for security contexts.
 
-iEYEABECAAYFAkkhjhwACgkQrlYvE4MpobN+xACeK+OHWDl8X+OmeLhb1oj88sBomNYAoKly
-Wq9z1ZxAu+frMSFCVA2lHMrG
---------------080504000609010704090900--
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
