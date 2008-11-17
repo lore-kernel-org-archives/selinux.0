@@ -1,50 +1,102 @@
-Message-ID: <49211255.4030105@ak.jp.nec.com>
-Date: Mon, 17 Nov 2008 15:42:29 +0900
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAH7r0xJ019459
+	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2008 02:53:00 -0500
+Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAH7p8ll016082
+	for <selinux@tycho.nsa.gov>; Mon, 17 Nov 2008 07:51:09 GMT
+Message-ID: <49212273.2070208@ak.jp.nec.com>
+Date: Mon, 17 Nov 2008 16:51:15 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: This policy causes checkmodule to segfault.
-References: <491DE60C.3040205@redhat.com> <4920B3C1.4000405@manicmethod.com>
-In-Reply-To: <4920B3C1.4000405@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: dev@httpd.apache.org
+CC: webstack-discuss <webstack-discuss@opensolaris.org>,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Introducing mod_privileges for Apache HTTPD
+References: <491D5159.2080209@webthing.com>
+In-Reply-To: <491D5159.2080209@webthing.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Joshua Brindle wrote:
-> Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> policy_module(test, 1.0)
->>
->> gen_require(`
->>   type a_t;
->> ')
->> type b_t alias a_t;
->>   
-> 
-> Well, this doesn't look good. There are a couple issues here. The first 
-> is that when we changed the symtab_insert behavior to allow require then 
-> declare we missed the alias case, the patch below should fix that. The 
-> second problem is that type_write now treats primary as a boolean value 
-> (as of the typebounds patch). A while back we made primary not 
-> necessarily a boolean in the module case where an alias had a value 
-> already and we needed to keep track of what the primary value was. The 
-> typebounds patch combined multiple fields into a 'properties' bitmap, 
-> which includes primary, so the value is now lost.
-> 
-> We can change the module format to keep the primary field around, this 
-> particular piece of code is getting increasingly more confusing though 
-> (write.c:970)
+Hello, Nick
 
-Because the total number of types/aliases are (2^16-1) in maximum, we can
-put the primary field into the property field (32bit width) on-disk format.
-However, it seems to me an ad-hoc hack. It is a more straight forward solution
-to separate cases between modular policy and kernel policy.
+It seems to me we have similar ideas to enhance web-application
+security. I've focused on SELinux to utilize security features
+of operating system.
+
+I had a plan to start discussion after my PostgreSQL works are
+closed, but, it is a good time to start discussion to utilize
+them for web-applications.
+
+I have a modified version of apache/httpd, as a proof of concept.
+
+   http://code.google.com/p/sepgsql/source/browse/misc/httpd-selinux/
+   (*) Please copy the "2.2.x" directory as "server/mpm/selinux",
+       and append "--with-mpm=selinux"
+
+It enables to invoke request handlers with individual privilege set
+based on http-authenticated username, source IP addresses and so on.
+The typical flow of operations are as follows:
+
+  1. It receives a HTTP request come from client.
+
+  2. It generates a one-time thread to handle the request.
+     The parent side wait for completion of the thread.
+
+  3. The one-time thread assigns itself a proper privilege set
+     based on the http-authentication and so on.
+
+  4. It invokes request handlers to process the given request.
+     The request handler works within more restricted privileges.
+     When it kick PHP scripts or static contents handlers, the
+     restricted privileges are inherited.
+
+  5. The one-time thread returns a http response to the client,
+     then it dies soon.
+
+  6. The parent wakes up, and returns to (1).
+
+(*) Please note that SELinux disallow to revert privileges,
+     because it can be a vulnerability of unexpected escalation.
+
+Your "mod_privileges" is implemented on the "perchild" MPM.
+It is suitable to achieve per VirtualHost privileges.
+In addition, I think per user/request/network privileges
+enforced by operating system is more worthwhile feature.
+
+A security focused MPM is a key facility to enable the idea.
+I assume it does not give first priority for performances,
+but it enables to resolves some kinds of security nightmares.
+
+How do you think the concept?
+
+Please any comment,
 
 Thanks,
+
+Nick Kew wrote:
+> I've just introduced mod_privileges to Apache HTTPD trunk.
+> 
+> This is a platform-specific module for Solaris 10 and OpenSolaris,
+> that makes the webserver privileges(5)-aware.  This enables the
+> server to be run with enhanced security, and with different
+> settings per virtual host.
+> 
+> The feature likely to be of most interest is that it enables
+> different virtual hosts to run under different Unix user and
+> group IDs, using the VHostUser and VHostGroup directives.
+> This is the capability once promised by the "perchild" MPM.
+> 
+> It has one major drawback: it is not suitable for a threaded MPM.
+> However, it is ideally suited for use with PHP, which of course
+> also precludes threads.  It should also be of interest to anyone
+> hosting other in-process scripting environments such as mod_perl,
+> mod_python or mod_ruby, or application modules.
+> 
+> http://svn.apache.org/viewvc/httpd/httpd/trunk/modules/arch/unix/mod_privileges.c 
+> 
+> http://svn.apache.org/viewvc/httpd/httpd/trunk/docs/manual/mod/mod_privileges.xml 
+
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
