@@ -1,48 +1,89 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mALJf80v029333
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2008 14:41:09 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mALJf8MA006074
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2008 19:41:08 GMT
-Message-ID: <49270ECE.4010300@redhat.com>
-Date: Fri, 21 Nov 2008 14:41:02 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: erahul29@yahoo.com
-CC: selinux@tycho.nsa.gov
-Subject: Re: Problem Setting Policy To Enforcing Mode
-References: <459507.37401.qm@web50206.mail.re2.yahoo.com>
-In-Reply-To: <459507.37401.qm@web50206.mail.re2.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Context transition error
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Vince Le Port <vince.rafale@gmail.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <492709F5.2090801@gmail.com>
+References: <492709F5.2090801@gmail.com>
+Content-Type: text/plain
+Date: Fri, 21 Nov 2008 14:59:41 -0500
+Message-Id: <1227297581.7319.54.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Rahul Jain wrote:
-> Hi All,
->  
-> This is the first time I am writing to this mailing list in hope of receiving help. I am trying to port reference policy by tresys on Montavista. I am able to run the policy well in permmisive mode with no avc messages in audit log, kern.log or messages. But when I put the policy into enforcing mode my system fails to boot, reason seems to be problem with init process. I am not able to debug the problem because no avc messages are generated for the same, probably because the issue comes up even before logging deamons start. Is there anyway I can debug my policy and log the avc messages from the very beginning of the system startup.
->  
-> Rahul Jain
-> Rahul Jain  
+On Fri, 2008-11-21 at 20:20 +0100, Vince Le Port wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
+> Dear all,
 > 
->       
-AVC Messages should come to the screen.
+> I am working on a mean to change the nfs server context depending on the
+> user who wants to access his files. I have planned to use MCS to do that.
+> 
+> Here is the approach for NFS:
+> 
+> Let us say, we have two users : client1 in s0:c1 and client2 in s0:c2
+> If client1 wants to access his home directory mounted with NFS, then the
+> NFS daemon will change his MCS category corresponding to the client MCS
+> category
+> That will limit the risk that client2 could access client1's files
+> 
+> Thus, for example my test program is launched in that context :
+> sysadm_u:sysadm_r:sysadm_t:s0:c1.c2
+> 
+> Then that program makes a setcon in order to move into
+> sysadm_u:sysadm_r:sysadm_t:s0:c1 and the following step is to move the
+> program in that context sysadm_u:sysadm_r:sysadm_t:s0:c2
+> 
+> I have written the following semodule :
+> 
+> module localadmin 1.0;
+> 
+> require {
+>         type sysadm_t;
+>         class process setcurrent;
+>         class process dyntransition;
+> }
+> 
+> allow sysadm_t self:process { setcurrent dyntransition };
+> 
+> The problem is that this setcon does not work. Audit launches a
+> dyntransition permission denied :
+> 
+> type=AVC msg=audit(1224660818.891:422): avc: denied { dyntransition }
+> for pid=18334 comm="prog" scontext=sysadm_u:sysadm_r:sysadm_t:s0:c2
+> tcontext=sysadm_u:sysadm_r:sysadm_t:s0:c1 tclass=process
+> 
+> It also seems impossible to return back to the original context s0:c1.c2
+> , once s0:c1 is reached
+> 
+> Is it possible to allow this transition?
+> 
+> Thanks you for helping a SElinux newbie
 
-Try semodule -DB to turn off dontaudit rules.
+The domain needs the mcssetcats attribute in order to pass the MCS
+policy constraints.
 
+You can use the mcs_process_set_categories() refpolicy interface if
+building using the refpolicy infrastructure (i.e. yum install
+selinux-policy-devel, make -f /usr/share/selinux/devel/Makefile
+localadmin.pp).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+I'm not sure what you are really planning to do though, as:
+- obviously your program should not run in sysadm_t,
+- The real processing for nfsd is handled by kernel threads, not a
+userland process, and thus can change its credentials without going
+through permission checks,
+- you still need a mechanism of binding the client process security
+context to the NFS request and conveying that to the server.
 
-iEYEARECAAYFAkknDs4ACgkQrlYvE4MpobMW1wCfXWKS0t678aMoumM3izMLMhEk
-RPEAn25rhlfbw8Opq3FZymzRsUKsShFi
-=DlJu
------END PGP SIGNATURE-----
+You may wish to have a look at the ongoing labeled NFS work:
+http://selinuxproject.org/page/Labeled_NFS
+
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
