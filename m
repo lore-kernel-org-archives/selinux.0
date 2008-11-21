@@ -1,40 +1,41 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAL60GqV023533
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2008 01:00:16 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAL60GBN008334
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2008 06:00:16 GMT
-Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id mAL60FRR005216
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2008 01:00:15 -0500
-Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id mAL60ESZ012221
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2008 01:00:14 -0500
-Received: from mmcallis.csb (dhcp-0-230.bne.redhat.com [10.64.0.230])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id mAL60CmS004105
-	for <selinux@tycho.nsa.gov>; Fri, 21 Nov 2008 01:00:13 -0500
-Message-ID: <49264E6B.7070206@redhat.com>
-Date: Fri, 21 Nov 2008 16:00:11 +1000
-From: Murray McAllister <mmcallis@redhat.com>
-MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>
-Subject: SELinux User Guide: weekly report 20081121
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: python execv 'self:fd use' AVC for fd to /lib64/ld-2.8.so
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: SELinux Mailing List <selinux@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>
+In-Reply-To: <cadfc0e40811201441r223561det3dd24c42066642e0@mail.gmail.com>
+References: <cadfc0e40811201441r223561det3dd24c42066642e0@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 21 Nov 2008 09:00:59 -0500
+Message-Id: <1227276059.7319.21.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This week:
+On Thu, 2008-11-20 at 16:41 -0600, Xavier Toth wrote:
+> I'm getting the following MLS constraint violation:
+> 
+> node=comms type=AVC msg=audit(1227219700.656:22127): avc:  denied  {
+> use } for  pid=30685 comm="getselection" path="/lib64/ld-2.8.so"
+> dev=dm-0 ino=8282255
+> scontext=user_u:user_r:user_securecp_t:s3:c0,c2,c11,c200.c511
+> tcontext=user_u:user_r:user_securecp_t:s0-s15:c0.c1023 tclass=fd
+> 
+> when execing a child process at a different level. I have code that
+> sets FD_CLOEXEC on all valid fds so I'm confused as to why this is
+> happening and what to do about it. Any ideas?
 
-* revisions.
-* added "Further Information" section and "Preface" content.
-* test copying+pasting commands to make sure they work.
+See:
+http://marc.info/?l=selinux&m=118780002121536&w=2
+http://marc.info/?l=selinux&m=118781007404156&w=2
 
-Next week:
+Eric & James - as noted in the above, we may want to explore changing
+the kernel logic.
 
-* revisions.
-* release content on docs.fedoraproject.org
+-- 
+Stephen Smalley
+National Security Agency
 
-Thanks.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
