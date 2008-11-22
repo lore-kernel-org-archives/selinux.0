@@ -1,121 +1,60 @@
-Cc: SELinux List <selinux@tycho.nsa.gov>, James Carter <jwcart2@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, Ted X Toth <txtoth@gmail.com>
-Message-Id: <AD1BDA2B-D7CF-48AC-846E-54DC795B3C08@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-In-Reply-To: <4927839F.4070805@tycho.nsa.gov>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v929.2)
-Subject: Re: [RFC] Add color translation support to mcstransd
-Date: Fri, 21 Nov 2008 22:22:58 -0600
-References: <4927839F.4070805@tycho.nsa.gov>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAMB9KcL012915
+	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 06:09:21 -0500
+Received: from web50212.mail.re2.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id mAMB7PvP015830
+	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 11:07:25 GMT
+Date: Sat, 22 Nov 2008 03:09:20 -0800 (PST)
+From: Rahul Jain <erahul29@yahoo.com>
+Reply-To: erahul29@yahoo.com
+Subject: Problem Setting Policy To Enforcing Mode
+To: selinux@tycho.nsa.gov
+Cc: justinmattock@gmail.com, sds@tycho.nsa.gov, dwalsh@redhat.com
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="0-1449585364-1227352160=:15460"
+Message-ID: <674101.15460.qm@web50212.mail.re2.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+--0-1449585364-1227352160=:15460
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Nov 21, 2008, at 9:59 PM, Eamon Walsh wrote:
+Thankyou all for your kind help.
+=A0
+Finally I was able to boot my policy. As suggested, I removed dontaudit rul=
+es from my policy by doing "make enableaudit". Then I did some quick fixes =
+and was finally able to boot the policy.=A0However I am still facing some i=
+ssues:
+Firstly - My syslog daemon takes too long to start almost 10 min. Please no=
+te my test systems are high end multiprocessor express servers with 8 GB of=
+ RAM.
+Secondly: I am not able to come back to permissive mode, not even by=A0logi=
+n as sysadm_r role. My file system is read only and so I am not able to edi=
+t the /etc/selinux/config file.=A0"setenforce" command temperoraly puts the=
+ policy in permissive mode but still config file could not be edited. I eve=
+n tried=A0it in linux single user mode, but=A0the problem persists. Is it t=
+he property of the tresys reference policy or=A0my policy is still not beha=
+ving properly?
+I reallly appreciate your kind help
+=A0
+Thanks=20
+Rahul=A0=A0=A0=A0=0A=0A=0A      
+--0-1449585364-1227352160=:15460
+Content-Type: text/html; charset=us-ascii
 
-> The proposal is to add 2 new functions to mcstransd:
-> RAW_CONTEXT_TO_COLOR and TRANS_CONTEXT_TO_COLOR, and to add a new
-> configuration file "secolor.conf", similar to setrans.conf, which
-> contains mappings from security context components into colors.
->
-> The purpose of this facility is to service SELinux-aware graphical
-> applications which display security contexts.  Standard color schemes
-> are often associated with security levels or categories.  The proposed
-> color facility allows color policy to be expressed in the same  
-> manner as
-> the existing human-readable translation strings in setrans.conf.
-> Example uses include security labels in a window manager,
-> headers/footers in documents or printouts, or downgrade dialogs in
-> selection managers.
->
-> The proposed color lookup operation supports up to 10 colors: a
-> foreground/background pair for each component of the security context
-> (user, role, type, level, and category).  If all five components are  
-> not
-> specified in the configuration file, the matching engine will copy  
-> from
-> other components to fill out the 10 colors according to fallback  
-> rules.
-> For example, if colors are only specified for levels, the other four
-> color pairs will be set to the value specified for the level.  This
-> allows maximum flexibility while supporting the common case of only
-> displaying a single foreground/background or even just a background  
-> color.
->
-> Below is a sample secolor.conf file.  Comments appreciated.
+<table cellspacing="0" cellpadding="0" border="0" ><tr><td valign="top" style="font: inherit;"><DIV id=yiv1082060110>Thankyou all for your kind help.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Finally I was able to boot my policy. As suggested, I removed dontaudit rules from my policy by doing "make enableaudit". Then I did some quick fixes and was finally able to boot the policy.&nbsp;However I am still facing some issues:</DIV>
+<DIV>Firstly - My syslog daemon takes too long to start almost 10 min. Please note my test systems are high end multiprocessor express servers with 8 GB of RAM.</DIV>
+<DIV>Secondly: I am not able to come back to permissive mode, not even by&nbsp;login as sysadm_r role. My file system is read only and so I am not able to edit the /etc/selinux/config file.&nbsp;"setenforce" command temperoraly puts the policy in permissive mode but still config file could not be edited. I even tried&nbsp;it in linux single user mode, but&nbsp;the problem persists. Is it the property of the tresys reference policy or&nbsp;my policy is still not behaving properly?</DIV>
+<DIV>I reallly appreciate your kind help</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks </DIV>
+<DIV>Rahul&nbsp;&nbsp;&nbsp;&nbsp;</DIV></td></tr></table><br>
 
-So you get 10 values back every time?
-
-What happens when there is no matching mapping?
-
-How are the fallback rules specified?
-
-This is way spiffier than what I was looking to do. I like it.
-
-joe
-
->
->
->
-> #
-> # Color translation table for SELinux
-> #
-> # The color mechanism supports separate foreground/background color  
-> pairs for
-> # each component of the context (user, role, type, level, and  
-> category).
-> # Shell-style wildcards are supported in user, role, and type  
-> patterns.
-> #
-> # Colors are specified as hexadecimal RGB values.  Each line must  
-> contain
-> # two colors separated by whitespace: a foreground (text) color and
-> # background (area) color.
-> #
-> # It is not generally necessary to define colors for all five  
-> components of
-> # the context.  The color mechanism will borrow colors from other  
-> components
-> # as necessary.  For example if no user, role, or type statements  
-> are present,
-> # the matching engine will use the level color for all four  
-> components.
-> #
->
-> # Example non-MLS color configuration
-> #  Display sysadm/system in black-on-red
-> role sysadm_r = 000000 ff0000
-> role system_r = 000000 ff0000
->
-> #  Display staff in black-on-yellow
-> role staff_r = 000000 ffff00
->
-> #  Display everything else in white-on-green
-> role * = ffffff 00ff00
->
->
-> # Example MLS color configuration
-> level s0 = ffff00 00ff00
-> level s1 = ff0000 ffff00
-> level s2 = ffff00 ff0000
-> level s15 = 0000ff ff0000
->
-> category c0 = ffffff 0000ff
-> category c1 = ffffff 00ff00
-> category c0.c1 = ffffff 00ffff
-> category c0.c255 = 0000ff ff0000
->
->
->
->
->
-> -- 
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
-
+      
+--0-1449585364-1227352160=:15460--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
