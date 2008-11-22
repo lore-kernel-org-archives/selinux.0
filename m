@@ -1,60 +1,67 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAMB9KcL012915
-	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 06:09:21 -0500
-Received: from web50212.mail.re2.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id mAMB7PvP015830
-	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 11:07:25 GMT
-Date: Sat, 22 Nov 2008 03:09:20 -0800 (PST)
-From: Rahul Jain <erahul29@yahoo.com>
-Reply-To: erahul29@yahoo.com
-Subject: Problem Setting Policy To Enforcing Mode
-To: selinux@tycho.nsa.gov
-Cc: justinmattock@gmail.com, sds@tycho.nsa.gov, dwalsh@redhat.com
-MIME-Version: 1.0
-Content-Type: multipart/alternative; boundary="0-1449585364-1227352160=:15460"
-Message-ID: <674101.15460.qm@web50212.mail.re2.yahoo.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAMHIqZW029703
+	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 12:18:52 -0500
+Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAMHIqcq007747
+	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 17:18:52 GMT
+Received: by wa-out-1112.google.com with SMTP id j5so1622774wah.18
+        for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 09:18:51 -0800 (PST)
+Subject: Re: Problem Setting Policy To Enforcing Mode
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+To: erahul29@yahoo.com
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, dwalsh@redhat.com
+In-Reply-To: <674101.15460.qm@web50212.mail.re2.yahoo.com>
+References: <674101.15460.qm@web50212.mail.re2.yahoo.com>
+Content-Type: text/plain
+Date: Sat, 22 Nov 2008 09:18:47 -0800
+Message-Id: <1227374327.3205.14.camel@LiNuX>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---0-1449585364-1227352160=:15460
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sat, 2008-11-22 at 03:09 -0800, Rahul Jain wrote:
+> Thankyou all for your kind help.
+>  
+> Finally I was able to boot my policy. As suggested, I removed
+> dontaudit rules from my policy by doing "make enableaudit". Then I did
+> some quick fixes and was finally able to boot the policy. However I am
+> still facing some issues:
+> Firstly - My syslog daemon takes too long to start almost 10 min.
+> Please note my test systems are high end multiprocessor express
+> servers with 8 GB of RAM.
+> Secondly: I am not able to come back to permissive mode, not even
+> by login as sysadm_r role. My file system is read only and so I am not
+> able to edit the /etc/selinux/config file. "setenforce" command
+> temperoraly puts the policy in permissive mode but still config file
+> could not be edited. I even tried it in linux single user mode,
+> but the problem persists. Is it the property of the tresys reference
+> policy or my policy is still not behaving properly?
+> I reallly appreciate your kind help
+>  
+> Thanks 
+> Rahul    
+> 
 
-Thankyou all for your kind help.
-=A0
-Finally I was able to boot my policy. As suggested, I removed dontaudit rul=
-es from my policy by doing "make enableaudit". Then I did some quick fixes =
-and was finally able to boot the policy.=A0However I am still facing some i=
-ssues:
-Firstly - My syslog daemon takes too long to start almost 10 min. Please no=
-te my test systems are high end multiprocessor express servers with 8 GB of=
- RAM.
-Secondly: I am not able to come back to permissive mode, not even by=A0logi=
-n as sysadm_r role. My file system is read only and so I am not able to edi=
-t the /etc/selinux/config file.=A0"setenforce" command temperoraly puts the=
- policy in permissive mode but still config file could not be edited. I eve=
-n tried=A0it in linux single user mode, but=A0the problem persists. Is it t=
-he property of the tresys reference policy or=A0my policy is still not beha=
-ving properly?
-I reallly appreciate your kind help
-=A0
-Thanks=20
-Rahul=A0=A0=A0=A0=0A=0A=0A      
---0-1449585364-1227352160=:15460
-Content-Type: text/html; charset=us-ascii
+Cool, glad to hear you're up and running.
+Like what Stephen had mentioned, you should check and
+make sure the files are labeled correctly. before doing a 
+make enable audit.(this way you don't strip down you're policy);
+With the syslog either you have it installed incorrectly, or 
+there still is denials showing up causing syslog to partially
+work. i.g. I usually do a "rm /var/log/syslog, touch /var/log/syslog,
+reboot, audit2allow -i /var/log/syslog", to see any dbus avc's
+(that is if dbus is running correctly); most likely if 
+you are booting into permissive and syslog start's right up, as opposed
+to enforcing, then there's a denial floating around that needs to be
+allowed. As for setting permissive mode,
+what is you're initial context?
+(i.g. id -Z once you've started up.);
 
-<table cellspacing="0" cellpadding="0" border="0" ><tr><td valign="top" style="font: inherit;"><DIV id=yiv1082060110>Thankyou all for your kind help.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Finally I was able to boot my policy. As suggested, I removed dontaudit rules from my policy by doing "make enableaudit". Then I did some quick fixes and was finally able to boot the policy.&nbsp;However I am still facing some issues:</DIV>
-<DIV>Firstly - My syslog daemon takes too long to start almost 10 min. Please note my test systems are high end multiprocessor express servers with 8 GB of RAM.</DIV>
-<DIV>Secondly: I am not able to come back to permissive mode, not even by&nbsp;login as sysadm_r role. My file system is read only and so I am not able to edit the /etc/selinux/config file.&nbsp;"setenforce" command temperoraly puts the policy in permissive mode but still config file could not be edited. I even tried&nbsp;it in linux single user mode, but&nbsp;the problem persists. Is it the property of the tresys reference policy or&nbsp;my policy is still not behaving properly?</DIV>
-<DIV>I reallly appreciate your kind help</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>Thanks </DIV>
-<DIV>Rahul&nbsp;&nbsp;&nbsp;&nbsp;</DIV></td></tr></table><br>
+regards;
 
-      
---0-1449585364-1227352160=:15460--
+-- 
+Justin P. Mattock <justinmattock@gmail.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
