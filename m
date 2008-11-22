@@ -1,53 +1,117 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAMMu5l7016033
-	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 17:56:06 -0500
-Received: from etbe.coker.com.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAMMu3dq010889
-	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 22:56:05 GMT
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by etbe.coker.com.au (Postfix) with ESMTP id 0BDAF1811C
-	for <selinux@tycho.nsa.gov>; Sun, 23 Nov 2008 09:55:54 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 7C59521C73
-	for <selinux@tycho.nsa.gov>; Sun, 23 Nov 2008 09:55:52 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: SE Linux on iPaQ
-Date: Sun, 23 Nov 2008 09:55:47 +1100
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAMNdDF9018275
+	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 18:39:15 -0500
+Received: from mu-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAMNbH8t022053
+	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 23:37:17 GMT
+Received: by mu-out-0910.google.com with SMTP id w9so1575172mue.4
+        for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 15:39:10 -0800 (PST)
+Message-ID: <49289818.7090606@gmail.com>
+Date: Sun, 23 Nov 2008 00:39:04 +0100
+From: Vince Le Port <vince.rafale@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200811230955.50483.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: selinux@tycho.nsa.gov
+Subject: Re: Context transition error
+References: <492709F5.2090801@gmail.com> <1227297581.7319.54.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1227297581.7319.54.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-http://familiar.handhelds.org/#download
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+ 
+> On Fri, 2008-11-21 at 20:20 +0100, Vince Le Port wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Dear all,
+>>
+>> I am working on a mean to change the nfs server context depending on the
+>> user who wants to access his files. I have planned to use MCS to do that.
+>>
+>> Here is the approach for NFS:
+>>
+>> Let us say, we have two users : client1 in s0:c1 and client2 in s0:c2
+>> If client1 wants to access his home directory mounted with NFS, then the
+>> NFS daemon will change his MCS category corresponding to the client MCS
+>> category
+>> That will limit the risk that client2 could access client1's files
+>>
+>> Thus, for example my test program is launched in that context :
+>> sysadm_u:sysadm_r:sysadm_t:s0:c1.c2
+>>
+>> Then that program makes a setcon in order to move into
+>> sysadm_u:sysadm_r:sysadm_t:s0:c1 and the following step is to move the
+>> program in that context sysadm_u:sysadm_r:sysadm_t:s0:c2
+>>
+>> I have written the following semodule :
+>>
+>> module localadmin 1.0;
+>>
+>> require {
+>>         type sysadm_t;
+>>         class process setcurrent;
+>>         class process dyntransition;
+>> }
+>>
+>> allow sysadm_t self:process { setcurrent dyntransition };
+>>
+>> The problem is that this setcon does not work. Audit launches a
+>> dyntransition permission denied :
+>>
+>> type=AVC msg=audit(1224660818.891:422): avc: denied { dyntransition }
+>> for pid=18334 comm="prog" scontext=sysadm_u:sysadm_r:sysadm_t:s0:c2
+>> tcontext=sysadm_u:sysadm_r:sysadm_t:s0:c1 tclass=process
+>>
+>> It also seems impossible to return back to the original context s0:c1.c2
+>> , once s0:c1 is reached
+>>
+>> Is it possible to allow this transition?
+>>
+>> Thanks you for helping a SElinux newbie
+>
+> The domain needs the mcssetcats attribute in order to pass the MCS
+> policy constraints.
+>
+> You can use the mcs_process_set_categories() refpolicy interface if
+> building using the refpolicy infrastructure (i.e. yum install
+> selinux-policy-devel, make -f /usr/share/selinux/devel/Makefile
+> localadmin.pp).
+>
+> I'm not sure what you are really planning to do though, as:
+> - obviously your program should not run in sysadm_t,
+> - The real processing for nfsd is handled by kernel threads, not a
+> userland process, and thus can change its credentials without going
+> through permission checks,
+> - you still need a mechanism of binding the client process security
+> context to the NFS request and conveying that to the server.
+>
+> You may wish to have a look at the ongoing labeled NFS work:
+> http://selinuxproject.org/page/Labeled_NFS
+>
+Following your advice, I have created a dedicated domain for my app
+which now transitions from myapp_exec_t to myapp_t when I execute it. It
+seems more relevant than my previous idea.
+The use of the interface mcs_process_set_categories() lets the
+application change its categories perfectly.
 
-I would like to get back into mobile SE Linux development.  From the above URL 
-it seems that the latest version of Familiar (which I used for my previous 
-SE-iPaQ work) was released in 2006.  Is Familiar dead?
+My next step is to work on the mean to convey the user's context to the
+server
 
-The latest version of Familiar uses a 2.4.x kernel (which means either 
-back-porting SE Linux kernel code or getting a 2.6.x kernel working - either 
-of which will take a lot of time).  I expect that the 2.4.x kernel in 
-question doesn't have the recent JFFS2 update that includes XATTR support 
-either.  It also has a nasty bug which prevents either of my iPaQ's from 
-working on either of my cradles (so it's not a hardware issue).
+Thank you for your anwser!
+Regards,
+Vince
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+ 
+iD8DBQFJKJgXCkDrToteDh0RAmiPAKCwC+t5Ii++HOgTZ2nHRBICEDpTywCeLxPE
+xlGpLu8iS4UimkGmLkZyK94=
+=bAvT
+-----END PGP SIGNATURE-----
 
-http://intimate.handhelds.org/download.html
-
-It appears that the latest version of Intimate dates from 2001.
-
-Is anyone here using a H3900 class iPaQ?  If so what are you running on it?
-
-
-PS  I'm not interested in spending any money on this.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
