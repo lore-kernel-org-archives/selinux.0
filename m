@@ -1,87 +1,88 @@
-Subject: Re: Context transition error
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vince Le Port <vince.rafale@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <492709F5.2090801@gmail.com>
-References: <492709F5.2090801@gmail.com>
-Content-Type: text/plain
-Date: Fri, 21 Nov 2008 14:59:41 -0500
-Message-Id: <1227297581.7319.54.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
+Message-ID: <4927839F.4070805@tycho.nsa.gov>
+Date: Fri, 21 Nov 2008 22:59:27 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: SELinux List <selinux@tycho.nsa.gov>
+CC: James Carter <jwcart2@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+        Ted X Toth <txtoth@gmail.com>, Joe Nall <joe@nall.com>
+Subject: [RFC] Add color translation support to mcstransd
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-11-21 at 20:20 +0100, Vince Le Port wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Dear all,
-> 
-> I am working on a mean to change the nfs server context depending on the
-> user who wants to access his files. I have planned to use MCS to do that.
-> 
-> Here is the approach for NFS:
-> 
-> Let us say, we have two users : client1 in s0:c1 and client2 in s0:c2
-> If client1 wants to access his home directory mounted with NFS, then the
-> NFS daemon will change his MCS category corresponding to the client MCS
-> category
-> That will limit the risk that client2 could access client1's files
-> 
-> Thus, for example my test program is launched in that context :
-> sysadm_u:sysadm_r:sysadm_t:s0:c1.c2
-> 
-> Then that program makes a setcon in order to move into
-> sysadm_u:sysadm_r:sysadm_t:s0:c1 and the following step is to move the
-> program in that context sysadm_u:sysadm_r:sysadm_t:s0:c2
-> 
-> I have written the following semodule :
-> 
-> module localadmin 1.0;
-> 
-> require {
->         type sysadm_t;
->         class process setcurrent;
->         class process dyntransition;
-> }
-> 
-> allow sysadm_t self:process { setcurrent dyntransition };
-> 
-> The problem is that this setcon does not work. Audit launches a
-> dyntransition permission denied :
-> 
-> type=AVC msg=audit(1224660818.891:422): avc: denied { dyntransition }
-> for pid=18334 comm="prog" scontext=sysadm_u:sysadm_r:sysadm_t:s0:c2
-> tcontext=sysadm_u:sysadm_r:sysadm_t:s0:c1 tclass=process
-> 
-> It also seems impossible to return back to the original context s0:c1.c2
-> , once s0:c1 is reached
-> 
-> Is it possible to allow this transition?
-> 
-> Thanks you for helping a SElinux newbie
+The proposal is to add 2 new functions to mcstransd:
+RAW_CONTEXT_TO_COLOR and TRANS_CONTEXT_TO_COLOR, and to add a new
+configuration file "secolor.conf", similar to setrans.conf, which
+contains mappings from security context components into colors.
 
-The domain needs the mcssetcats attribute in order to pass the MCS
-policy constraints.
+The purpose of this facility is to service SELinux-aware graphical
+applications which display security contexts.  Standard color schemes
+are often associated with security levels or categories.  The proposed
+color facility allows color policy to be expressed in the same manner as
+the existing human-readable translation strings in setrans.conf. 
+Example uses include security labels in a window manager,
+headers/footers in documents or printouts, or downgrade dialogs in
+selection managers.
 
-You can use the mcs_process_set_categories() refpolicy interface if
-building using the refpolicy infrastructure (i.e. yum install
-selinux-policy-devel, make -f /usr/share/selinux/devel/Makefile
-localadmin.pp).
+The proposed color lookup operation supports up to 10 colors: a
+foreground/background pair for each component of the security context
+(user, role, type, level, and category).  If all five components are not
+specified in the configuration file, the matching engine will copy from
+other components to fill out the 10 colors according to fallback rules. 
+For example, if colors are only specified for levels, the other four
+color pairs will be set to the value specified for the level.  This
+allows maximum flexibility while supporting the common case of only
+displaying a single foreground/background or even just a background color.
 
-I'm not sure what you are really planning to do though, as:
-- obviously your program should not run in sysadm_t,
-- The real processing for nfsd is handled by kernel threads, not a
-userland process, and thus can change its credentials without going
-through permission checks,
-- you still need a mechanism of binding the client process security
-context to the NFS request and conveying that to the server.
+Below is a sample secolor.conf file.  Comments appreciated.
 
-You may wish to have a look at the ongoing labeled NFS work:
-http://selinuxproject.org/page/Labeled_NFS
+
+#
+# Color translation table for SELinux
+#
+# The color mechanism supports separate foreground/background color pairs for
+# each component of the context (user, role, type, level, and category).
+# Shell-style wildcards are supported in user, role, and type patterns.
+#
+# Colors are specified as hexadecimal RGB values.  Each line must contain
+# two colors separated by whitespace: a foreground (text) color and
+# background (area) color.
+#
+# It is not generally necessary to define colors for all five components of
+# the context.  The color mechanism will borrow colors from other components
+# as necessary.  For example if no user, role, or type statements are present,
+# the matching engine will use the level color for all four components.
+#
+
+# Example non-MLS color configuration
+#  Display sysadm/system in black-on-red
+role sysadm_r = 000000 ff0000
+role system_r = 000000 ff0000
+
+#  Display staff in black-on-yellow
+role staff_r = 000000 ffff00
+
+#  Display everything else in white-on-green
+role * = ffffff 00ff00
+
+
+# Example MLS color configuration
+level s0 = ffff00 00ff00
+level s1 = ff0000 ffff00
+level s2 = ffff00 ff0000
+level s15 = 0000ff ff0000
+
+category c0 = ffffff 0000ff
+category c1 = ffffff 00ff00
+category c0.c1 = ffffff 00ffff
+category c0.c255 = 0000ff ff0000
+
+
+
+
 
 -- 
-Stephen Smalley
+Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
 
 
