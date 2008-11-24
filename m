@@ -1,95 +1,56 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAOGxKLu018292
-	for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2008 11:59:20 -0500
-Received: from house.lunarmania.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAOGvMj8023855
-	for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2008 16:57:23 GMT
-Received: from 78-3-149-35.adsl.net.t-com.hr ([78.3.149.35] helo=[192.168.1.22])
-	by house.lunarmania.com with esmtpsa (TLSv1:AES256-SHA:256)
-	(Exim 4.69)
-	(envelope-from <warner@rubix.com>)
-	id 1L4emC-0006oD-QF
-	for selinux@tycho.nsa.gov; Mon, 24 Nov 2008 08:59:09 -0800
-Message-ID: <492ADD56.1050403@rubix.com>
-Date: Mon, 24 Nov 2008 17:59:02 +0100
-From: Andy Warner <warner@rubix.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAOHbFKk022538
+	for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2008 12:37:15 -0500
+Received: from web50204.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id mAOHbFbP021669
+	for <selinux@tycho.nsa.gov>; Mon, 24 Nov 2008 17:37:15 GMT
+Date: Mon, 24 Nov 2008 09:37:15 -0800 (PST)
+From: Rahul Jain <erahul29@yahoo.com>
+Reply-To: erahul29@yahoo.com
+Subject: Problem Setting Policy To Enforcing Mode
+To: sds@tycho.nsa.gov, justinmattock@gmail.com, dwalsh@redhat.com
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: SE-Linux <selinux@tycho.nsa.gov>
-Subject: externally usable interfaces from 3rd party policy modules
-Content-Type: multipart/alternative;
- boundary="------------020901070409070909020203"
+Content-Type: multipart/alternative; boundary="0-72862731-1227548235=:6402"
+Message-ID: <250575.6402.qm@web50204.mail.re2.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020901070409070909020203
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+--0-72862731-1227548235=:6402
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Is it possible to create a policy module, install it, and have its 
-interfaces usable by other policy modules? In creating DBMS policy I 
-would like to provide a high level interface to the DBMS user/developer 
-that will allow them to create their site-specific DBMS policy in a 
-modular fashion. At the same time I do not want to encourage them to 
-directly edit the "base policy" for the DBMS.
+Hi All,
+=A0
+Thanks you all, for your kind support. After your suggestion I was able to =
+fix all my problems. So to put my policy in enforcing mode I deleted the "d=
+ontaudit" rule=A0using "make enableaudit' . Then I did the fixes. My syslog=
+d was taking long time to start because there were still some avc messages =
+left, I fixed them and issue got resolved.=A0 I was=A0able to come back to =
+permissive by adjusting the DAC permissions of the /etc/selinux/config file=
+. My initial context on login was root:sysadm_r:sysadm_t. I checked the "se=
+status" to see that my policy got loaded and that it is=A0enforcing mode.
+=A0
+So finally my policy is up and running.=20
+=A0
+Thanks and Regards
+Rahul=20
+=A0=0A=0A=0A      
+--0-72862731-1227548235=:6402
+Content-Type: text/html; charset=us-ascii
 
-In my attempt I simply created my "DBMS base policy" and installed it. I 
-then created a "DBMS local policy" that uses interfaces from the DBMS 
-base policy. The DBMS local policy fails to compile, failing at the 
-first reference to an external interface. If I place all of the policy 
-code in the DBMS base policy, everything works. Therefore, I am guessing 
-that either there is no way to make the DBMS base policy interfaces 
-externally usable or I need to perform an extra step that I am no aware of.
+<table cellspacing="0" cellpadding="0" border="0" ><tr><td valign="top" style="font: inherit;"><DIV id=yiv561181965>Hi All,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks you all, for your kind support. After your suggestion I was able to fix all my problems. So to put my policy in enforcing mode I deleted the "dontaudit" rule&nbsp;using "make enableaudit' . Then I did the fixes. My syslogd was taking long time to start because there were still some avc messages left, I fixed them and issue got resolved.&nbsp; I was&nbsp;able to come back to permissive by adjusting the DAC permissions of the /etc/selinux/config file. My initial context on login was root:sysadm_r:sysadm_t. I checked the "sestatus" to see that my policy got loaded and that it is&nbsp;enforcing mode.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>So finally my policy is up and running. </DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks and Regards</DIV>
+<DIV>Rahul </DIV>
+<DIV>&nbsp;</DIV></td></tr></table><br>
 
-I realize I could modify the base fedora 9 policy and add my module, but 
-this has been ruled out as an option.
-
-As a side question, is it possible to generate the HTML "policy help" 
-for my modules interfaces?
-
-Thanks,
-
-Andy
-
---------------020901070409070909020203
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<font face="Arial">Is it possible to create a policy module, install
-it, and have its interfaces usable by other policy modules? In creating
-DBMS policy I would like to provide a high level interface to the DBMS
-user/developer that will allow them to create their site-specific DBMS
-policy in a modular fashion. At the same time I do not want to
-encourage them to directly edit the "base policy" for the DBMS.<br>
-<br>
-In my attempt I simply created my "DBMS base policy" and installed it.
-I then created a "DBMS local policy" that uses interfaces from the DBMS
-base policy. The DBMS local policy fails to compile, failing at the
-first reference to an external interface. If I place all of the policy
-code in the DBMS base policy, everything works. Therefore, I am
-guessing that either there is no way to make the DBMS base policy
-interfaces externally usable or I need to perform an extra step that I
-am no aware of.<br>
-<br>
-I realize I could modify the base fedora 9 policy and add my module,
-but this has been ruled out as an option.<br>
-<br>
-As a side question, is it possible to generate the HTML "policy help"
-for my modules interfaces?<br>
-<br>
-Thanks,<br>
-<br>
-Andy<br>
-</font>
-</body>
-</html>
-
---------------020901070409070909020203--
+      
+--0-72862731-1227548235=:6402--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
