@@ -1,117 +1,58 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAMNdDF9018275
-	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 18:39:15 -0500
-Received: from mu-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAMNbH8t022053
-	for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 23:37:17 GMT
-Received: by mu-out-0910.google.com with SMTP id w9so1575172mue.4
-        for <selinux@tycho.nsa.gov>; Sat, 22 Nov 2008 15:39:10 -0800 (PST)
-Message-ID: <49289818.7090606@gmail.com>
-Date: Sun, 23 Nov 2008 00:39:04 +0100
-From: Vince Le Port <vince.rafale@gmail.com>
-MIME-Version: 1.0
+Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>,
+        Joshua Brindle <method@manicmethod.com>,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Message-Id: <F4059BE7-756E-4A07-88C5-DC378A02E7DD@nall.com>
+From: Joe Nall <joe@nall.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov
-Subject: Re: Context transition error
-References: <492709F5.2090801@gmail.com> <1227297581.7319.54.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1227297581.7319.54.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <1224685922.29917.22.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v929.2)
+Subject: Re: Use of optional_policy in templates (compiler bug or feature?)
+Date: Sun, 23 Nov 2008 21:35:10 -0600
+References: <CDFE55B0-379E-4CC5-AA3F-03FC6B622DF1@nall.com> <1224096411.21012.46.camel@gorn.columbia.tresys.com> <842B0735-FCD6-4BAF-B8D3-A462B1D5C9E4@nall.com> <1224161367.21012.57.camel@gorn.columbia.tresys.com> <B644A871-625C-477E-A9EA-6FF003227C8B@nall.com> <48F754B5.8020302@manicmethod.com> <48FCCBB1.1010004@redhat.com> <9E8A5545-7705-4CD3-9015-30AD17FA0AFE@nall.com> <48FD19BB.1090503@tycho.nsa.gov> <1224684070.29917.13.camel@moss-spartans.epoch.ncsc.mil> <A69BC137-D93E-495F-80B2-8D636620195A@nall.com> <1224685723.29917.20.camel@moss-spartans.epoch.ncsc.mil> <1224685922.29917.22.camel@moss-spartans.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
- 
-> On Fri, 2008-11-21 at 20:20 +0100, Vince Le Port wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> Dear all,
->>
->> I am working on a mean to change the nfs server context depending on the
->> user who wants to access his files. I have planned to use MCS to do that.
->>
->> Here is the approach for NFS:
->>
->> Let us say, we have two users : client1 in s0:c1 and client2 in s0:c2
->> If client1 wants to access his home directory mounted with NFS, then the
->> NFS daemon will change his MCS category corresponding to the client MCS
->> category
->> That will limit the risk that client2 could access client1's files
->>
->> Thus, for example my test program is launched in that context :
->> sysadm_u:sysadm_r:sysadm_t:s0:c1.c2
->>
->> Then that program makes a setcon in order to move into
->> sysadm_u:sysadm_r:sysadm_t:s0:c1 and the following step is to move the
->> program in that context sysadm_u:sysadm_r:sysadm_t:s0:c2
->>
->> I have written the following semodule :
->>
->> module localadmin 1.0;
->>
->> require {
->>         type sysadm_t;
->>         class process setcurrent;
->>         class process dyntransition;
->> }
->>
->> allow sysadm_t self:process { setcurrent dyntransition };
->>
->> The problem is that this setcon does not work. Audit launches a
->> dyntransition permission denied :
->>
->> type=AVC msg=audit(1224660818.891:422): avc: denied { dyntransition }
->> for pid=18334 comm="prog" scontext=sysadm_u:sysadm_r:sysadm_t:s0:c2
->> tcontext=sysadm_u:sysadm_r:sysadm_t:s0:c1 tclass=process
->>
->> It also seems impossible to return back to the original context s0:c1.c2
->> , once s0:c1 is reached
->>
->> Is it possible to allow this transition?
->>
->> Thanks you for helping a SElinux newbie
->
-> The domain needs the mcssetcats attribute in order to pass the MCS
-> policy constraints.
->
-> You can use the mcs_process_set_categories() refpolicy interface if
-> building using the refpolicy infrastructure (i.e. yum install
-> selinux-policy-devel, make -f /usr/share/selinux/devel/Makefile
-> localadmin.pp).
->
-> I'm not sure what you are really planning to do though, as:
-> - obviously your program should not run in sysadm_t,
-> - The real processing for nfsd is handled by kernel threads, not a
-> userland process, and thus can change its credentials without going
-> through permission checks,
-> - you still need a mechanism of binding the client process security
-> context to the NFS request and conveying that to the server.
->
-> You may wish to have a look at the ongoing labeled NFS work:
-> http://selinuxproject.org/page/Labeled_NFS
->
-Following your advice, I have created a dedicated domain for my app
-which now transitions from myapp_exec_t to myapp_t when I execute it. It
-seems more relevant than my previous idea.
-The use of the interface mcs_process_set_categories() lets the
-application change its categories perfectly.
 
-My next step is to work on the mean to convey the user's context to the
-server
+On Oct 22, 2008, at 9:32 AM, Stephen Smalley wrote:
 
-Thank you for your anwser!
-Regards,
-Vince
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
- 
-iD8DBQFJKJgXCkDrToteDh0RAmiPAKCwC+t5Ii++HOgTZ2nHRBICEDpTywCeLxPE
-xlGpLu8iS4UimkGmLkZyK94=
-=bAvT
------END PGP SIGNATURE-----
+> On Wed, 2008-10-22 at 10:28 -0400, Stephen Smalley wrote:
+>> On Wed, 2008-10-22 at 09:26 -0500, Joe Nall wrote:
+>>> On Oct 22, 2008, at 9:01 AM, Stephen Smalley wrote:
+>>>
+>>>>  I did notice however that I could also get it to build w/o
+>>>> changing checkmodule by reversing the order of the interface calls
+>>>> there
+>>>> - not sure if that workaround is usable in the original case that
+>>>> triggered this bug report.
+>>>
+>>>
+>>> Arranging modules in the proper order becomes increasingly difficult
+>>> as module interaction grows. I finally de-optioned the X policy in
+>>> fedora since it is in base so get our additions to compile. Patch
+>>> included for reference.
+>>>
+>>> Making the compiler gracefully deal with options would really be
+>>> appreciated. I could see the issue in the compiler code, but the  
+>>> right
+>>> fix wasn't obvious.
+>>
+>> Does the patch I posted fix your problem?
+>
+> And by fix, I mean not only does it allow you to build the policy but
+> does it yield the expected final kernel policy (i.e. look at the
+> policy.N file via apol and check that you are getting the expected  
+> types
+> and rules in the final policy).
 
+I added your patch and Eamon's patch (not sure I needed Eamons's patch).
+I can definitely build the policy now.
+The types appear to be correct in apol and seinfo. It works as  
+expected in enforcing.
+
+joe
 
 --
 This message was distributed to subscribers of the selinux mailing list.
