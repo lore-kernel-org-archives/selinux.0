@@ -4,94 +4,176 @@ To: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         bfields@fieldses.org
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        labeled-nfs@linux-nfs.org
-Subject: [Labeled-nfs] [RFC v4] Security Label Support for NFSv4
-Date: Wed, 26 Nov 2008 16:03:00 -0500
-Message-Id: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
+        labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
+Subject: [PATCH 04/14] Security: Add hook to calculate context based on a negative dentry.
+Date: Wed, 26 Nov 2008 16:03:04 -0500
+Message-Id: <1227733394-1114-5-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
+References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+There is a time where we need to calculate a context without the
+inode having been created yet. To do this we take the negative dentry and
+calculate a context based on the process and the parent directory contexts.
 
-Hello,
+Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+---
+ include/linux/security.h |   22 ++++++++++++++++++++++
+ security/capability.c    |    6 ++++++
+ security/security.c      |    7 +++++++
+ security/selinux/hooks.c |   31 +++++++++++++++++++++++++++++++
+ 4 files changed, 66 insertions(+), 0 deletions(-)
 
-This is the latest version of the NFS label support patch set. The set
-contains one patch which will be removed when it makes it's way upstream from
-the NFS maintainers' trees. This is the patch to fix a use before init bug in
-the nfs4recovery code. Changes since the last patchset are listed below.
-
-If you want a tree with the patches already applied we have posted a public
-git tree that is ready for cloning and use. This tree can be found at
-http://git.selinuxproject.org/git. You can find information on how to build
-and setup a labeled nfs at http://www.selinuxproject.org/page/Labeled_NFS. 
-
-Features:
-
-* Client
-	* Obtains labels from server for NFS files while still allowing for
-	SELinux context mounts to override untrusted labeled servers.
-	* Allows setting labels on files over NFS via xattr interface.
-* Server
-	* Exports labels to clients. As of the moment there is no ability to
-	restrict this based on label components such as MLS levels.
-	* Persistent storage of labels assuming exported file system supports
-	it.
-
-Changes since last patchset:
-
-The life cycle management patch has been fixed to return the error from kmalloc
-up the call stack. The patch use to have a panic in the case of memory
-allocation failure which was a temporary measure until this was ready.
-
-Inode locking was added around the functions in the NFS server code which
-assign the label to the inode when received from the wire.
-
-Memory allocations were changed from GFP_ATOMIC to GFP_KERNEL
-
-An bug that resulted in memory corruption when MLS support was enabled has
-also been fixed.
-
-The process label transport mechanism has been removed from the patchset since
-a new version of it is in the works. This new method provides the security
-guarantees needed for our purposes while providing compatibility with
-existing rpcsec flavors and fixing a potential MITM attack against kerberos. A
-more detailed explanation of the mechanism will be given when the design has
-been solidified and we have an initial implementation.
-
- fs/Kconfig                          |   30 +++
- fs/nfs/client.c                     |   16 ++
- fs/nfs/dir.c                        |   32 +++-
- fs/nfs/getroot.c                    |   44 +++-
- fs/nfs/inode.c                      |   69 +++++-
- fs/nfs/namespace.c                  |    3 +
- fs/nfs/nfs3proc.c                   |    7 +
- fs/nfs/nfs4proc.c                   |  489 +++++++++++++++++++++++++++++++---
- fs/nfs/nfs4xdr.c                    |   55 ++++-
- fs/nfs/proc.c                       |   12 +-
- fs/nfs/super.c                      |   46 ++++-
- fs/nfs/unlink.c                     |   12 +-
- fs/nfsd/export.c                    |    3 +
- fs/nfsd/nfs4proc.c                  |   35 +++-
- fs/nfsd/nfs4recover.c               |    6 +-
- fs/nfsd/nfs4xdr.c                   |  106 +++++++-
- fs/nfsd/vfs.c                       |   28 ++
- fs/xattr.c                          |   55 +++-
- include/linux/nfs4.h                |    8 +
- include/linux/nfs4_mount.h          |    6 +-
- include/linux/nfs_fs.h              |   26 ++
- include/linux/nfs_fs_sb.h           |    2 +-
- include/linux/nfs_xdr.h             |    7 +
- include/linux/nfsd/export.h         |    5 +-
- include/linux/nfsd/nfsd.h           |    9 +-
- include/linux/nfsd/xdr4.h           |    3 +
- include/linux/security.h            |   88 +++++++
- include/linux/xattr.h               |    1 +
- security/capability.c               |   29 ++
- security/security.c                 |   32 +++
- security/selinux/hooks.c            |  141 +++++++++--
- security/selinux/include/security.h |    4 +
- security/selinux/ss/policydb.c      |    5 +-
- security/smack/smack_lsm.c          |   10 +
- 34 files changed, 1315 insertions(+), 109 deletions(-)
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 7229ef1..ccbfb06 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -301,6 +301,14 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+  *	Parse a string of security data filling in the opts structure
+  *	@options string containing all mount options known by the LSM
+  *	@opts binary data structure usable by the LSM
++ * @dentry_init_security:
++ *	Compute a context for a dentry as the inode is not yet available
++ * 	since NFSv4 has no label backed by an EA anyway.
++ * 	@dentry dentry to use in calculating the context.
++ * 	@mode mode used to determine resource type.
++ * 	@ctx pointer to place the pointer to the resulting context in.
++ * 	@ctxlen point to place the length of the resulting context.
++ *
+  *
+  * Security hooks for inode operations.
+  *
+@@ -1384,6 +1392,9 @@ struct security_operations {
+ 	void (*sb_clone_mnt_opts) (const struct super_block *oldsb,
+ 				   struct super_block *newsb);
+ 	int (*sb_parse_opts_str) (char *options, struct security_mnt_opts *opts);
++	int (*dentry_init_security) (struct dentry *dentry, int mode,
++				     void **ctx, u32 *ctxlen);
++
+ 
+ 	int (*inode_alloc_security) (struct inode *inode);
+ 	void (*inode_free_security) (struct inode *inode);
+@@ -1652,6 +1663,8 @@ int security_sb_set_mnt_opts(struct super_block *sb, struct security_mnt_opts *o
+ void security_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 				struct super_block *newsb);
+ int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
++int security_dentry_init_security (struct dentry *dentry, int mode,
++				   void **ctx, u32 *ctxlen);
+ 
+ int security_inode_alloc(struct inode *inode);
+ void security_inode_free(struct inode *inode);
+@@ -2000,6 +2013,15 @@ static inline int security_inode_alloc(struct inode *inode)
+ static inline void security_inode_free(struct inode *inode)
+ { }
+ 
++static inline int security_dentry_init_security (struct dentry *dentry,
++						 int mode,
++						 void **ctx,
++						 u32 *ctxlen)
++{
++	return -EOPNOTSUPP;
++}
++
++
+ static inline int security_inode_init_security(struct inode *inode,
+ 						struct inode *dir,
+ 						char **name,
+diff --git a/security/capability.c b/security/capability.c
+index 27985c5..6d38303 100644
+--- a/security/capability.c
++++ b/security/capability.c
+@@ -139,6 +139,11 @@ static int cap_sb_parse_opts_str(char *options, struct security_mnt_opts *opts)
+ 	return 0;
+ }
+ 
++static int cap_dentry_init_security(struct dentry *dentry, int mode, void **ctx, u32 *ctxlen)
++{
++	return 0;
++}
++
+ static int cap_inode_alloc_security(struct inode *inode)
+ {
+ 	return 0;
+@@ -863,6 +868,7 @@ void security_fixup_ops(struct security_operations *ops)
+ 	set_to_cap_if_null(ops, sb_set_mnt_opts);
+ 	set_to_cap_if_null(ops, sb_clone_mnt_opts);
+ 	set_to_cap_if_null(ops, sb_parse_opts_str);
++	set_to_cap_if_null(ops, dentry_init_security);
+ 	set_to_cap_if_null(ops, inode_alloc_security);
+ 	set_to_cap_if_null(ops, inode_free_security);
+ 	set_to_cap_if_null(ops, inode_init_security);
+diff --git a/security/security.c b/security/security.c
+index 1d8d3b0..ab978bf 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -358,6 +358,13 @@ void security_inode_free(struct inode *inode)
+ 	security_ops->inode_free_security(inode);
+ }
+ 
++int security_dentry_init_security (struct dentry *dentry, int mode,
++				   void **ctx, u32 *ctxlen)
++{
++	return security_ops->dentry_init_security (dentry, mode, ctx, ctxlen);
++}
++EXPORT_SYMBOL(security_dentry_init_security);
++
+ int security_inode_init_security(struct inode *inode, struct inode *dir,
+ 				  char **name, void **value, size_t *len)
+ {
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7ed038c..dcd6d50 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2502,6 +2502,36 @@ static void selinux_inode_free_security(struct inode *inode)
+ 	inode_free_security(inode);
+ }
+ 
++static int selinux_dentry_init_security(struct dentry *dentry, int mode, void **ctx, u32 *ctxlen)
++{
++	struct task_security_struct *tsec;
++	struct inode_security_struct *dsec;
++	struct superblock_security_struct *sbsec;
++	struct inode *dir = dentry->d_parent->d_inode;
++	u32 newsid;
++	int rc;
++
++	tsec = current->security;
++	dsec = dir->i_security;
++	sbsec = dir->i_sb->s_security;
++
++	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
++		newsid = tsec->create_sid;
++	} else {
++		rc = security_transition_sid(tsec->sid, dsec->sid,
++					     inode_mode_to_security_class(mode),
++					     &newsid);
++		if (rc) {
++			printk(KERN_WARNING "%s:  "
++			       "security_transition_sid failed, rc=%d\n",
++			       __FUNCTION__, -rc);
++			return rc;
++		}
++	}
++
++	return security_sid_to_context(newsid, (char **)ctx, ctxlen);
++}
++
+ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 				       char **name, void **value,
+ 				       size_t *len)
+@@ -5527,6 +5557,7 @@ static struct security_operations selinux_ops = {
+ 	.sb_clone_mnt_opts =		selinux_sb_clone_mnt_opts,
+ 	.sb_parse_opts_str = 		selinux_parse_opts_str,
+ 
++	.dentry_init_security =		selinux_dentry_init_security,
+ 
+ 	.inode_alloc_security =		selinux_inode_alloc_security,
+ 	.inode_free_security =		selinux_inode_free_security,
+-- 
+1.5.5.1
 
 
 --
