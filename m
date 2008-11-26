@@ -6,89 +6,114 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
         "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
-Subject: [PATCH 09/14] NFS: Add security_label text mount option and handling code to NFS
-Date: Wed, 26 Nov 2008 16:03:09 -0500
-Message-Id: <1227733394-1114-10-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: [PATCH 02/14] VFS: Factor out part of vfs_setxattr so it can be called from the SELinux hook for inode_setsecctx.
+Date: Wed, 26 Nov 2008 16:03:02 -0500
+Message-Id: <1227733394-1114-3-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds two new text options to to the NFS mount options to specify
-security labeling. It also sends certain LSM related mount options into the
-module for handling.
+This factors out the part of the vfs_setxattr function that performs the
+setting of the xattr and its notification. This is needed so the SELinux
+implementation of inode_setsecctx can handle the setting of it's xattr while
+maintaining the proper separation of layers.
 
 Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- fs/nfs/super.c             |    9 +++++++++
- include/linux/nfs4_mount.h |    6 +++++-
- 2 files changed, 14 insertions(+), 1 deletions(-)
+ fs/xattr.c            |   55 +++++++++++++++++++++++++++++++++++++-----------
+ include/linux/xattr.h |    1 +
+ 2 files changed, 43 insertions(+), 13 deletions(-)
 
-diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-index f48db67..9b89a4b 100644
---- a/fs/nfs/super.c
-+++ b/fs/nfs/super.c
-@@ -75,6 +75,7 @@ enum {
- 	Opt_acl, Opt_noacl,
- 	Opt_rdirplus, Opt_nordirplus,
- 	Opt_sharecache, Opt_nosharecache,
-+	Opt_security_label, Opt_nosecurity_label,
+diff --git a/fs/xattr.c b/fs/xattr.c
+index 468377e..2f93006 100644
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -66,22 +66,28 @@ xattr_permission(struct inode *inode, const char *name, int mask)
+ 	return inode_permission(inode, mask);
+ }
  
- 	/* Mount options that take integer arguments */
- 	Opt_port,
-@@ -129,6 +130,8 @@ static const match_table_t nfs_mount_option_tokens = {
- 	{ Opt_nordirplus, "nordirplus" },
- 	{ Opt_sharecache, "sharecache" },
- 	{ Opt_nosharecache, "nosharecache" },
-+	{ Opt_security_label, "security_label" },
-+	{ Opt_nosecurity_label, "nosecurity_label" },
+-int
+-vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+-		size_t size, int flags)
++/**
++ *  __vfs_setxattr_noperm - perform setxattr operation without performing
++ *  permission checks.
++ *
++ *  @dentry - object to perform setxattr on
++ *  @name - xattr name to set
++ *  @value - value to set @name to
++ *  @size - size of @value
++ *  @flags - flags to pass into filesystem operations
++ *
++ *  returns the result of the internal setxattr or setsecurity operations.
++ *
++ *  This function requires the caller to lock the inode's i_mutex before it
++ *  is executed. It also assumes that the caller will make the appropriate
++ *  permission checks.
++ */
++int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
++		const void *value, size_t size, int flags)
+ {
+ 	struct inode *inode = dentry->d_inode;
+-	int error;
+-
+-	error = xattr_permission(inode, name, MAY_WRITE);
+-	if (error)
+-		return error;
++	int error = -EOPNOTSUPP;
  
- 	{ Opt_port, "port=%u" },
- 	{ Opt_rsize, "rsize=%u" },
-@@ -1035,6 +1038,12 @@ static int nfs_parse_mount_options(char *raw,
- 		case Opt_nosharecache:
- 			mnt->flags |= NFS_MOUNT_UNSHARED;
- 			break;
-+		case Opt_nosecurity_label:
-+			mnt->flags &= ~NFS4_MOUNT_SECURITY_LABEL;
-+			break;
-+		case Opt_security_label:
-+			mnt->flags |= NFS4_MOUNT_SECURITY_LABEL;
-+			break;
- 
- 		/*
- 		 * options that take numeric values
-diff --git a/include/linux/nfs4_mount.h b/include/linux/nfs4_mount.h
-index a0dcf66..e65067b 100644
---- a/include/linux/nfs4_mount.h
-+++ b/include/linux/nfs4_mount.h
-@@ -17,6 +17,7 @@
-  * but here they are anyway.
-  */
- #define NFS4_MOUNT_VERSION	1
-+#define NFS4_MAX_CONTEXT_LEN	4096
- 
- struct nfs_string {
- 	unsigned int len;
-@@ -53,6 +54,8 @@ struct nfs4_mount_data {
- 	/* Pseudo-flavours to use for authentication. See RFC2623 */
- 	int auth_flavourlen;			/* 1 */
- 	int __user *auth_flavours;		/* 1 */
+-	mutex_lock(&inode->i_mutex);
+-	error = security_inode_setxattr(dentry, name, value, size, flags);
+-	if (error)
+-		goto out;
+-	error = -EOPNOTSUPP;
+ 	if (inode->i_op->setxattr) {
+ 		error = inode->i_op->setxattr(dentry, name, value, size, flags);
+ 		if (!error) {
+@@ -97,6 +103,29 @@ vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
+ 		if (!error)
+ 			fsnotify_xattr(dentry);
+ 	}
 +
-+	char context[NFS4_MAX_CONTEXT_LEN + 1];  /* 2 */
- };
++	return error;
++}
++
++
++int
++vfs_setxattr(struct dentry *dentry, const char *name, const void *value,
++		size_t size, int flags)
++{
++	struct inode *inode = dentry->d_inode;
++	int error;
++
++	error = xattr_permission(inode, name, MAY_WRITE);
++	if (error)
++		return error;
++
++	mutex_lock(&inode->i_mutex);
++	error = security_inode_setxattr(dentry, name, value, size, flags);
++	if (error)
++		goto out;
++
++	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
++
+ out:
+ 	mutex_unlock(&inode->i_mutex);
+ 	return error;
+diff --git a/include/linux/xattr.h b/include/linux/xattr.h
+index d131e35..5c84af8 100644
+--- a/include/linux/xattr.h
++++ b/include/linux/xattr.h
+@@ -49,6 +49,7 @@ struct xattr_handler {
+ ssize_t xattr_getsecurity(struct inode *, const char *, void *, size_t);
+ ssize_t vfs_getxattr(struct dentry *, const char *, void *, size_t);
+ ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
++int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
+ int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
+ int vfs_removexattr(struct dentry *, const char *);
  
- /* bits in the flags field */
-@@ -66,6 +69,7 @@ struct nfs4_mount_data {
- #define NFS4_MOUNT_NOAC		0x0020	/* 1 */
- #define NFS4_MOUNT_STRICTLOCK	0x1000	/* 1 */
- #define NFS4_MOUNT_UNSHARED	0x8000	/* 1 */
--#define NFS4_MOUNT_FLAGMASK	0x9033
-+#define NFS4_MOUNT_SECURITY_LABEL 0x10000 /* 2 */
-+#define NFS4_MOUNT_FLAGMASK	0x19033
- 
- #endif
 -- 
 1.5.5.1
 
