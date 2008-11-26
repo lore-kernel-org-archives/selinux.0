@@ -1,88 +1,75 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAQ8lnxY014612
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2008 03:47:49 -0500
-Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAQ8lmXL021378
-	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2008 08:47:48 GMT
-Received: by wa-out-1112.google.com with SMTP id j5so183009wah.18
-        for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2008 00:47:47 -0800 (PST)
-Subject: [RE:] pull request: wireless-2.6 2008-11-25
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        SE Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAQI4lRW003799
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2008 13:04:47 -0500
+Subject: Re: SELinux on NFS.
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: SE Linux <selinux@tycho.nsa.gov>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>,
+        "J. Bruce Fields" <bfields@fieldses.org>, dquigley@gmail.com,
+        dwalsh@redhat.com
+In-Reply-To: <1225830495.30407.48.camel@heimdal.trondhjem.org>
+References: <490F780E.4020806@redhat.com>
+	 <1225820777.31157.302.camel@moss-terrapins.epoch.ncsc.mil>
+	 <1225830495.30407.48.camel@heimdal.trondhjem.org>
 Content-Type: text/plain
-Date: Wed, 26 Nov 2008 00:47:43 -0800
-Message-Id: <1227689263.3145.14.camel@LiNuX>
+Date: Wed, 26 Nov 2008 12:43:58 -0500
+Message-Id: <1227721438.25837.57.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
-From: "Justin P. Mattock" <justinmattock@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-apologize for not sending the original post
-(accidentally removed it);
-from the post:
-http://lkml.org/lkml/2008/11/25/353
-I take it this is the reason for the avc's that are being created,
-and always denied: <example>
+On Tue, 2008-11-04 at 15:28 -0500, Trond Myklebust wrote:
+> On Tue, 2008-11-04 at 12:46 -0500, David P. Quigley wrote:
+> > Trond & Bruce: I am going to be at IETF 73 in a couple of weeks are
+> > either of you going to be there? I'd like to have a meeting with you
+> > about what it is that you want to see happen before mainlining. This way
+> > we can come up with the criteria we need to meet before we can mainline
+> > the code. If neither of you are going to be at that meeting can we
+> > organize some sort of telecon to discuss this?
+> 
+> Hi Dave,
+> 
+> As far as I know, only beepy and Mike Eisler will be representing NetApp
+> at the next IETF, so a conf call might be a better idea.
+> 
+> However, to start the conversation: My basic worry about mainlining at
+> this point is that I don't want to merge something that will need to
+> maintained as a legacy protocol for the benefit of Linux users if in 1
+> year, everybody goes off and produces a similar but not quite the
+> identical protocol within the NFSv4 minor version framework and the
+> IETF.
+> 
+> IOW: my concern is that I want to do SELinux on NFS once only.
+> 
+> Cheers
+>   Trond
+
+Hello,
+    It is after IETF 73 so I figured that I would try to organize our
+conference call now for some time next week. I spoke with Mike Eisler,
+Lars Eggert and Spencer Shepler and they seem happy from a technical
+perspective about what we are proposing. After the meeting I asked them
+what I need to do to move forward about getting this added to the
+working group charter and they said I need to get support from members
+within the working group who are willing to do some of the work in
+reviewing the documents. 
+
+    So the main thing I would like to discuss is what would you and
+Bruce like to see done that you would feel comfortable publicallty
+supporting this work. Since you want to see something more concrete from
+the working group before we work on merging code into mainline I need to
+start drumming up support as soon as possible. Tim Polk expressed his
+support at IETF 72 in Dublin so hopefully he will do that again if I ask
+him. We have a few people at Sun who support the work and some people at
+Netapp have been getting questions about SELinux support from their
+customers so I believe they may be willing as well.
 
 
--- [   26.659175] type=1400 audit(1227658649.652:3): avc:  denied
-{ sys_module } for  pid=2631 comm="wpa_supplicant" capability=16
-scontext=system_u:system_r:system_dbusd_t:s0
-tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
-[   26.659351] type=1300 audit(1227658649.652:3): arch=40000003
-syscall=54 success=no exit=-19 a0=9 a1=8933 a2=bfb6ff9c a3=bfb6ff9c
-items=0 ppid=1 pid=2631 auid=4294967295 uid=0 gid=0 euid=0 suid=0
-fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295
-comm="wpa_supplicant" exe="/sbin/wpa_supplicant"
-subj=system_u:system_r:system_dbusd_t:s0 key=(null)
-[   30.131444] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
-[   30.140774] input: justinmattocks mouse #1 as /class/input/input10
-[   30.194328] generic-bluetooth 0005:0000:0000.0004: input: BLUETOOTH
-HID v0.00 Mouse [justinmattocks mouse #1] on 00:17:F2:B4:BC:F5
-[   33.361691] [drm] Setting GART location based on new memory map
-[   33.363216] [drm] Loading R500 Microcode
-[   33.363295] [drm] Num pipes: 1
-[   33.363309] [drm] writeback test succeeded in 1 usecs
-[   84.658454] wlan0: authenticate with AP 00:1e:2a:00:67:f0
-[   84.664222] wlan0: authenticated
-[   84.664230] wlan0: associate with AP 00:1e:2a:00:67:f0
-[   84.666704] wlan0: RX AssocResp from 00:1e:2a:00:67:f0 (capab=0x431
-status=0 aid=34)
-[   84.666710] wlan0: associated
-[   92.657555] type=1400 audit(1227658715.650:4): avc:  denied
-{ sys_admin } for  pid=3042 comm="mount" capability=21
-scontext=system_u:system_r:system_dbusd_t:s0
-tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
-[   92.657594] type=1300 audit(1227658715.650:4): arch=40000003
-syscall=21 success=no exit=-1 a0=8061818 a1=8061828 a2=805a521
-a3=c0ed1000 items=0 ppid=3033 pid=3042 auid=4294967295 uid=0 gid=0
-euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295
-comm="mount" exe="/bin/mount" subj=system_u:system_r:system_dbusd_t:s0
-key=(null)
-[   92.661764] type=1400 audit(1227658715.660:5): avc:  denied
-{ sys_admin } for  pid=3044 comm="mount" capability=21
-scontext=system_u:system_r:system_dbusd_t:s0
-tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
-[   92.661820] type=1300 audit(1227658715.660:5): arch=40000003
-syscall=21 success=no exit=-1 a0=8061818 a1=8061828 a2=805a521
-a3=c0ed1000 items=0 ppid=3033 pid=3044 auid=4294967295 uid=0 gid=0
-euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295
-comm="mount" exe="/bin/mount" subj=system_u:system_r:system_dbusd_t:s0
-key=(null)
+P.S I will be out of the office until Monday so I added my personal
+email address to the CC so I can have access to this at home.
 
-allow rules are as is:
-
- #============= system_dbusd_t ==============
-allow system_dbusd_t self:capability { sys_module sys_admin };
-
-I do have debug enabled for ath9k;
-I'll look at the policy(once the wireless is committed)
-to see if this was the resulting... and/or happening.
-
-regards;
-
-
-Justin P. Mattock <Justinmattock@gmail.com>
+Dave
 
 
 --
