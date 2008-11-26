@@ -1,52 +1,88 @@
-Cc: SE-Linux Linux <selinux@tycho.nsa.gov>
-Message-Id: <5C6F4AE5-5754-4894-A4A4-727B7462AB8C@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <1227617019.683.1.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v929.2)
-Subject: Re: Polyinstantiation in cron
-Date: Tue, 25 Nov 2008 07:37:50 -0600
-References: <D52C0637-73C3-42BB-862E-447D5B404B48@nall.com> <1227617019.683.1.camel@moss-spartans.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAQ8lnxY014612
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2008 03:47:49 -0500
+Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAQ8lmXL021378
+	for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2008 08:47:48 GMT
+Received: by wa-out-1112.google.com with SMTP id j5so183009wah.18
+        for <selinux@tycho.nsa.gov>; Wed, 26 Nov 2008 00:47:47 -0800 (PST)
+Subject: [RE:] pull request: wireless-2.6 2008-11-25
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        SE Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+Content-Type: text/plain
+Date: Wed, 26 Nov 2008 00:47:43 -0800
+Message-Id: <1227689263.3145.14.camel@LiNuX>
+Mime-Version: 1.0
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-
-On Nov 25, 2008, at 6:43 AM, Stephen Smalley wrote:
-
-> On Mon, 2008-11-24 at 22:00 -0600, Joe Nall wrote:
->> I created a normal user (urss) and added a crontab entry for that  
->> user
->> that runs a script. I can get the script launched at level, but not
->> polyinstantiated. A 'cat /proc/mounts' shows no polyinstantiation for
->> the cron session, but a normal login session has properly
->> polyinstantiated directories.
->>
->> The crontab entry looks like:
->>
->> SELINUX_ROLE_TYPE=user_u:user_r:user_t:UNCLASSIFIED-UNCLASSIFIED
->> * * * * * /opt/jcdx/libexec/urss-rss2email-cron.sh
->> SELINUX_ROLE_TYPE=user_u:user_r:user_t:UNCLASSIFIED-UNCLASSIFIED
->> * * * * * /opt/jcdx/libexec/urss-delivermail-cron.sh
->>
->> The relevant portion of /opt/jcdx/libexec/urss-delivermail-cron.sh
->>
->> #!/bin/bash
->> id
->> ls -Z /var/mailboxes
->> cat /proc/mounts
->>
->> Have I missed some cron specific pam configuration? Did this work for
->> RHEL 5.X LSPP?
->
-> Does /etc/pam.d/cron contain pam_namespace.so?
-
-It did not and that fixed it. I'll do some more research and file a  
-bugzilla if required. Thanks.
-
-joe
+apologize for not sending the original post
+(accidentally removed it);
+from the post:
+http://lkml.org/lkml/2008/11/25/353
+I take it this is the reason for the avc's that are being created,
+and always denied: <example>
 
 
+-- [   26.659175] type=1400 audit(1227658649.652:3): avc:  denied
+{ sys_module } for  pid=2631 comm="wpa_supplicant" capability=16
+scontext=system_u:system_r:system_dbusd_t:s0
+tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
+[   26.659351] type=1300 audit(1227658649.652:3): arch=40000003
+syscall=54 success=no exit=-19 a0=9 a1=8933 a2=bfb6ff9c a3=bfb6ff9c
+items=0 ppid=1 pid=2631 auid=4294967295 uid=0 gid=0 euid=0 suid=0
+fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295
+comm="wpa_supplicant" exe="/sbin/wpa_supplicant"
+subj=system_u:system_r:system_dbusd_t:s0 key=(null)
+[   30.131444] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
+[   30.140774] input: justinmattocks mouse #1 as /class/input/input10
+[   30.194328] generic-bluetooth 0005:0000:0000.0004: input: BLUETOOTH
+HID v0.00 Mouse [justinmattocks mouse #1] on 00:17:F2:B4:BC:F5
+[   33.361691] [drm] Setting GART location based on new memory map
+[   33.363216] [drm] Loading R500 Microcode
+[   33.363295] [drm] Num pipes: 1
+[   33.363309] [drm] writeback test succeeded in 1 usecs
+[   84.658454] wlan0: authenticate with AP 00:1e:2a:00:67:f0
+[   84.664222] wlan0: authenticated
+[   84.664230] wlan0: associate with AP 00:1e:2a:00:67:f0
+[   84.666704] wlan0: RX AssocResp from 00:1e:2a:00:67:f0 (capab=0x431
+status=0 aid=34)
+[   84.666710] wlan0: associated
+[   92.657555] type=1400 audit(1227658715.650:4): avc:  denied
+{ sys_admin } for  pid=3042 comm="mount" capability=21
+scontext=system_u:system_r:system_dbusd_t:s0
+tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
+[   92.657594] type=1300 audit(1227658715.650:4): arch=40000003
+syscall=21 success=no exit=-1 a0=8061818 a1=8061828 a2=805a521
+a3=c0ed1000 items=0 ppid=3033 pid=3042 auid=4294967295 uid=0 gid=0
+euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295
+comm="mount" exe="/bin/mount" subj=system_u:system_r:system_dbusd_t:s0
+key=(null)
+[   92.661764] type=1400 audit(1227658715.660:5): avc:  denied
+{ sys_admin } for  pid=3044 comm="mount" capability=21
+scontext=system_u:system_r:system_dbusd_t:s0
+tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
+[   92.661820] type=1300 audit(1227658715.660:5): arch=40000003
+syscall=21 success=no exit=-1 a0=8061818 a1=8061828 a2=805a521
+a3=c0ed1000 items=0 ppid=3033 pid=3044 auid=4294967295 uid=0 gid=0
+euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295
+comm="mount" exe="/bin/mount" subj=system_u:system_r:system_dbusd_t:s0
+key=(null)
+
+allow rules are as is:
+
+ #============= system_dbusd_t ==============
+allow system_dbusd_t self:capability { sys_module sys_admin };
+
+I do have debug enabled for ath9k;
+I'll look at the policy(once the wireless is committed)
+to see if this was the resulting... and/or happening.
+
+regards;
+
+
+Justin P. Mattock <Justinmattock@gmail.com>
 
 
 --
