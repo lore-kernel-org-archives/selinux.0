@@ -1,75 +1,97 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB1GH1NX001263
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 11:17:01 -0500
-Received: from QMTA09.emeryville.ca.mail.comcast.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB1GH13d002406
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 16:17:01 GMT
-Date: Mon, 1 Dec 2008 16:17:01 GMT
-Message-Id: <200812011617.mB1GH13d002406@mummy.ncsc.mil>
-From: Dave Feustel <dfeustel@mindspring.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Policy for Konqueror
-In-Reply-To: <4934044E.5010404@redhat.com>
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
+        sds@tycho.nsa.gov, matthew.dodd@sparta.com, trond.myklebust@fys.uio.no,
+        bfields@fieldses.org
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
+        "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
+Subject: [PATCH 09/14] NFS: Add security_label text mount option and handling code to NFS
+Date: Wed, 26 Nov 2008 16:03:09 -0500
+Message-Id: <1227733394-1114-10-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
+References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Dec 01, 2008 at 10:35:42AM -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Dave Feustel wrote:
-> > A question from a newbie:
-> > Has anyone developed a selinux policy for konqueror?
-> > 
-> > Thanks.
-> > 
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
-> NO although the policy for firefox/mozilla would probably work.  Writing
-> a general purpose policy for a web browser that can do everything a web
-> browser is designed to do, is probably a waste of time, and will not
-> work the way you want.  If you have good Security Goals about the only
-> things you want the Browser to do, you might have a better shot.  But
-> the web browser being able to launch helper apps (ooffice, evince,
-> realplayer, mplayer, and hundreds of others make writing a good policy
-> near impossible.
+This patch adds two new text options to to the NFS mount options to specify
+security labeling. It also sends certain LSM related mount options into the
+module for handling.
 
-Thanks for the response. After I posted the question I found the
-following passages in the book _SELINUX: NASA'a Opensource Security Enhanced Linux_:
+Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
+Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+---
+ fs/nfs/super.c             |    9 +++++++++
+ include/linux/nfs4_mount.h |    6 +++++-
+ 2 files changed, 14 insertions(+), 1 deletions(-)
 
-(p.40)
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index f48db67..9b89a4b 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -75,6 +75,7 @@ enum {
+ 	Opt_acl, Opt_noacl,
+ 	Opt_rdirplus, Opt_nordirplus,
+ 	Opt_sharecache, Opt_nosharecache,
++	Opt_security_label, Opt_nosecurity_label,
+ 
+ 	/* Mount options that take integer arguments */
+ 	Opt_port,
+@@ -129,6 +130,8 @@ static const match_table_t nfs_mount_option_tokens = {
+ 	{ Opt_nordirplus, "nordirplus" },
+ 	{ Opt_sharecache, "sharecache" },
+ 	{ Opt_nosharecache, "nosharecache" },
++	{ Opt_security_label, "security_label" },
++	{ Opt_nosecurity_label, "nosecurity_label" },
+ 
+ 	{ Opt_port, "port=%u" },
+ 	{ Opt_rsize, "rsize=%u" },
+@@ -1035,6 +1038,12 @@ static int nfs_parse_mount_options(char *raw,
+ 		case Opt_nosharecache:
+ 			mnt->flags |= NFS_MOUNT_UNSHARED;
+ 			break;
++		case Opt_nosecurity_label:
++			mnt->flags &= ~NFS4_MOUNT_SECURITY_LABEL;
++			break;
++		case Opt_security_label:
++			mnt->flags |= NFS4_MOUNT_SECURITY_LABEL;
++			break;
+ 
+ 		/*
+ 		 * options that take numeric values
+diff --git a/include/linux/nfs4_mount.h b/include/linux/nfs4_mount.h
+index a0dcf66..e65067b 100644
+--- a/include/linux/nfs4_mount.h
++++ b/include/linux/nfs4_mount.h
+@@ -17,6 +17,7 @@
+  * but here they are anyway.
+  */
+ #define NFS4_MOUNT_VERSION	1
++#define NFS4_MAX_CONTEXT_LEN	4096
+ 
+ struct nfs_string {
+ 	unsigned int len;
+@@ -53,6 +54,8 @@ struct nfs4_mount_data {
+ 	/* Pseudo-flavours to use for authentication. See RFC2623 */
+ 	int auth_flavourlen;			/* 1 */
+ 	int __user *auth_flavours;		/* 1 */
++
++	char context[NFS4_MAX_CONTEXT_LEN + 1];  /* 2 */
+ };
+ 
+ /* bits in the flags field */
+@@ -66,6 +69,7 @@ struct nfs4_mount_data {
+ #define NFS4_MOUNT_NOAC		0x0020	/* 1 */
+ #define NFS4_MOUNT_STRICTLOCK	0x1000	/* 1 */
+ #define NFS4_MOUNT_UNSHARED	0x8000	/* 1 */
+-#define NFS4_MOUNT_FLAGMASK	0x9033
++#define NFS4_MOUNT_SECURITY_LABEL 0x10000 /* 2 */
++#define NFS4_MOUNT_FLAGMASK	0x19033
+ 
+ #endif
+-- 
+1.5.5.1
 
-"The KDE Desktop has so far proven more resistant to interoperation with
-SELinux than its rival desktop, GNOME. The central problem is that
-various KDE programs run as identically named processes. Thus SELinux
-cannot assign these KDE processes to distinct domains. One result of
-this inability is that KDE's temporary files sometimes cannot be labeled
-with appropriate domains. Thus with respect to KDE,
-SELinux policies tend either to be too restrictive or too lax. We can
-hope that a future release of KDE or SELinux will somehow address this
-propblem. In the meantime, for those using SELinux, GNOME is generally a
-better desktop choice than KDE."
-
-(and on p.94)
-
-"When using KDE, you may find that several graphical applications or
-features don't work properly. This occurs because KDE starts a variety
-of execuables with the same process name, kdeinit. No simple fix exists
-for such problems, since a simple fix would entail loosening security to
-an unacceptable extent. You may find it more convenient to use a desktop
-other than KDE - such as GNOME - when running SELinux.
-
-"A workaround is to log out of KDE and remove all KDE-related temporary
-files from /var/tmp. Then log into KDE and see if the problems persist."
-
-My interest in SELinux was tweaked by the thought that perhaps a policy
-for KDE or Konqueror could be developed that would cut down on the
-problems I have recently been experiencing with Konqueror. Such a policy
-looks pretty unlikely unless KDE and Konqueror code is recast to a more
-SELinux-friendly form.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
