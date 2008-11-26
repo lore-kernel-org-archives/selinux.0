@@ -6,123 +6,281 @@ Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org, "David P. Quigley" <dpquigl@tycho.nsa.gov>,
         "Matthew N. Dodd" <Matthew.Dodd@sparta.com>
-Subject: [PATCH 08/14] NFSv4: Add label recommended attribute and NFSv4 flags
-Date: Wed, 26 Nov 2008 16:03:08 -0500
-Message-Id: <1227733394-1114-9-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: [PATCH 06/14] SELinux: Add new labeling type native labels
+Date: Wed, 26 Nov 2008 16:03:06 -0500
+Message-Id: <1227733394-1114-7-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch adds a new recommended attribute named label into the NFSv4 file
-attribute structure. It also adds several new flags to allow the NFS client and
-server to determine if this attribute is supported and if it is being sent over
-the wire.
+There currently doesn't exist a labeling type that is adequate for use with
+labeled NFS. Since NFS doesn't really support xattrs we can't use the use xattr
+labeling behavior. For this we developed a new labeling type. The native
+labeling type is used solely by NFS to ensure NFS inodes are labeled at runtime
+by the NFS code instead of relying on the SELinux security server on the client
+end.
 
 Signed-off-by: Matthew N. Dodd <Matthew.Dodd@sparta.com>
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- include/linux/nfs4.h        |    2 ++
- include/linux/nfs_fs_sb.h   |    2 +-
- include/linux/nfs_xdr.h     |    4 ++++
- include/linux/nfsd/export.h |    5 +++--
- include/linux/nfsd/nfsd.h   |    7 ++++---
- 5 files changed, 14 insertions(+), 6 deletions(-)
+ security/selinux/hooks.c            |   74 +++++++++++++++++++++++++++-------
+ security/selinux/include/security.h |    4 ++
+ security/selinux/ss/policydb.c      |    5 ++-
+ 3 files changed, 66 insertions(+), 17 deletions(-)
 
-diff --git a/include/linux/nfs4.h b/include/linux/nfs4.h
-index ea03667..144eacf 100644
---- a/include/linux/nfs4.h
-+++ b/include/linux/nfs4.h
-@@ -21,6 +21,7 @@
- #define NFS4_FHSIZE		128
- #define NFS4_MAXPATHLEN		PATH_MAX
- #define NFS4_MAXNAMLEN		NAME_MAX
-+#define NFS4_MAXLABELLEN	4096
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 60d6bcc..9e73750 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -89,7 +89,7 @@
+ #define XATTR_SELINUX_SUFFIX "selinux"
+ #define XATTR_NAME_SELINUX XATTR_SECURITY_PREFIX XATTR_SELINUX_SUFFIX
  
- #define NFS4_ACCESS_READ        0x0001
- #define NFS4_ACCESS_LOOKUP      0x0002
-@@ -345,6 +346,7 @@ enum lock_type4 {
- #define FATTR4_WORD1_TIME_MODIFY        (1UL << 21)
- #define FATTR4_WORD1_TIME_MODIFY_SET    (1UL << 22)
- #define FATTR4_WORD1_MOUNTED_ON_FILEID  (1UL << 23)
-+#define FATTR4_WORD1_SECURITY_LABEL     (1UL << 31)
+-#define NUM_SEL_MNT_OPTS 4
++#define NUM_SEL_MNT_OPTS 5
  
- #define NFSPROC4_NULL 0
- #define NFSPROC4_COMPOUND 1
-diff --git a/include/linux/nfs_fs_sb.h b/include/linux/nfs_fs_sb.h
-index 4e477ae..ed42b07 100644
---- a/include/linux/nfs_fs_sb.h
-+++ b/include/linux/nfs_fs_sb.h
-@@ -134,5 +134,5 @@ struct nfs_server {
- #define NFS_CAP_SYMLINKS	(1U << 2)
- #define NFS_CAP_ACLS		(1U << 3)
- #define NFS_CAP_ATOMIC_OPEN	(1U << 4)
--
-+#define NFS_CAP_SECURITY_LABEL (1U << 5)
- #endif
-diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
-index c1c31ac..58532cb 100644
---- a/include/linux/nfs_xdr.h
-+++ b/include/linux/nfs_xdr.h
-@@ -57,6 +57,10 @@ struct nfs_fattr {
- 	__u64			pre_change_attr;/* pre-op NFSv4 change attribute */
- 	unsigned long		time_start;
- 	unsigned long		gencount;
-+#ifdef CONFIG_SECURITY
-+	void			*label;
-+	__u32			 label_len;
-+#endif
+ extern unsigned int policydb_loaded_version;
+ extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
+@@ -302,13 +302,14 @@ extern int ss_initialized;
+ 
+ /* The file system's label must be initialized prior to use. */
+ 
+-static char *labeling_behaviors[6] = {
++static char *labeling_behaviors[7] = {
+ 	"uses xattr",
+ 	"uses transition SIDs",
+ 	"uses task SIDs",
+ 	"uses genfs_contexts",
+ 	"not configured for labeling",
+ 	"uses mountpoint labeling",
++	"uses native labels",
  };
  
- #define NFS_ATTR_WCC		0x0001		/* pre-op WCC data    */
-diff --git a/include/linux/nfsd/export.h b/include/linux/nfsd/export.h
-index 5431512..bb831fc 100644
---- a/include/linux/nfsd/export.h
-+++ b/include/linux/nfsd/export.h
-@@ -32,7 +32,8 @@
- #define NFSEXP_ALLSQUASH	0x0008
- #define NFSEXP_ASYNC		0x0010
- #define NFSEXP_GATHERED_WRITES	0x0020
--/* 40 80 100 currently unused */
-+#define NFSEXP_SECURITY_LABEL	0x0040  /* Support security label fattr4 */
-+/* 80 100 currently unused */
- #define NFSEXP_NOHIDE		0x0200
- #define NFSEXP_NOSUBTREECHECK	0x0400
- #define	NFSEXP_NOAUTHNLM	0x0800		/* Don't authenticate NLM requests - just trust */
-@@ -40,7 +41,7 @@
- #define NFSEXP_FSID		0x2000
- #define	NFSEXP_CROSSMOUNT	0x4000
- #define	NFSEXP_NOACL		0x8000	/* reserved for possible ACL related use */
--#define NFSEXP_ALLFLAGS		0xFE3F
-+#define NFSEXP_ALLFLAGS		0xFE7F
+ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
+@@ -324,6 +325,7 @@ enum {
+ 	Opt_fscontext = 2,
+ 	Opt_defcontext = 3,
+ 	Opt_rootcontext = 4,
++	Opt_native_labels = 5,
+ };
  
- /* The flags that may vary depending on security flavor: */
- #define NFSEXP_SECINFO_FLAGS	(NFSEXP_READONLY | NFSEXP_ROOTSQUASH \
-diff --git a/include/linux/nfsd/nfsd.h b/include/linux/nfsd/nfsd.h
-index 2126940..8219925 100644
---- a/include/linux/nfsd/nfsd.h
-+++ b/include/linux/nfsd/nfsd.h
-@@ -318,8 +318,8 @@ extern struct timeval	nfssvc_boot;
-  | FATTR4_WORD1_OWNER	        | FATTR4_WORD1_OWNER_GROUP  | FATTR4_WORD1_RAWDEV           \
-  | FATTR4_WORD1_SPACE_AVAIL     | FATTR4_WORD1_SPACE_FREE   | FATTR4_WORD1_SPACE_TOTAL      \
-  | FATTR4_WORD1_SPACE_USED      | FATTR4_WORD1_TIME_ACCESS  | FATTR4_WORD1_TIME_ACCESS_SET  \
-- | FATTR4_WORD1_TIME_DELTA   | FATTR4_WORD1_TIME_METADATA    \
-- | FATTR4_WORD1_TIME_MODIFY     | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_MOUNTED_ON_FILEID)
-+ | FATTR4_WORD1_TIME_DELTA   	| FATTR4_WORD1_TIME_METADATA | FATTR4_WORD1_TIME_MODIFY     \
-+ | FATTR4_WORD1_TIME_MODIFY_SET | FATTR4_WORD1_MOUNTED_ON_FILEID | FATTR4_WORD1_SECURITY_LABEL)
+ static const match_table_t tokens = {
+@@ -331,6 +333,7 @@ static const match_table_t tokens = {
+ 	{Opt_fscontext, FSCONTEXT_STR "%s"},
+ 	{Opt_defcontext, DEFCONTEXT_STR "%s"},
+ 	{Opt_rootcontext, ROOTCONTEXT_STR "%s"},
++	{Opt_native_labels, NATIVELABELS_STR},
+ 	{Opt_error, NULL},
+ };
  
- /* These will return ERR_INVAL if specified in GETATTR or READDIR. */
- #define NFSD_WRITEONLY_ATTRS_WORD1							    \
-@@ -330,7 +330,8 @@ extern struct timeval	nfssvc_boot;
- (FATTR4_WORD0_SIZE              | FATTR4_WORD0_ACL                                         )
- #define NFSD_WRITEABLE_ATTRS_WORD1                                                          \
- (FATTR4_WORD1_MODE              | FATTR4_WORD1_OWNER         | FATTR4_WORD1_OWNER_GROUP     \
-- | FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_MODIFY_SET)
-+ | FATTR4_WORD1_TIME_ACCESS_SET | FATTR4_WORD1_TIME_METADATA | FATTR4_WORD1_TIME_MODIFY_SET \
-+ | FATTR4_WORD1_SECURITY_LABEL)
+@@ -518,6 +521,10 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 		opts->mnt_opts[i] = context;
+ 		opts->mnt_opts_flags[i++] = ROOTCONTEXT_MNT;
+ 	}
++	if (sbsec->flags == NATIVE_LABELS_MNT) {
++		opts->mnt_opts[i] = NULL;
++		opts->mnt_opts_flags[i++] = NATIVE_LABELS_MNT;
++	}
  
- #endif /* CONFIG_NFSD_V4 */
+ 	BUG_ON(i != opts->num_mnt_opts);
  
+@@ -606,12 +613,16 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	 */
+ 	for (i = 0; i < num_opts; i++) {
+ 		u32 sid;
++		if (flags[i] == NATIVE_LABELS_MNT) {
++			sbsec->flags |= NATIVE_LABELS_MNT;
++			continue;
++		}
+ 		rc = security_context_to_sid(mount_options[i],
+-					     strlen(mount_options[i]), &sid);
++				strlen(mount_options[i]), &sid);
+ 		if (rc) {
+ 			printk(KERN_WARNING "SELinux: security_context_to_sid"
+-			       "(%s) failed for (dev %s, type %s) errno=%d\n",
+-			       mount_options[i], sb->s_id, name, rc);
++					"(%s) failed for (dev %s, type %s) errno=%d\n",
++					mount_options[i], sb->s_id, name, rc);
+ 			goto out;
+ 		}
+ 		switch (flags[i]) {
+@@ -670,14 +681,15 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	if (strcmp(sb->s_type->name, "proc") == 0)
+ 		sbsec->proc = 1;
+ 
+-	/* Determine the labeling behavior to use for this filesystem type. */
+-	rc = security_fs_use(sb->s_type->name, &sbsec->behavior, &sbsec->sid);
+-	if (rc) {
+-		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
+-		       __func__, sb->s_type->name, rc);
+-		goto out;
++	if (!sbsec->behavior) {
++		/* Determine the labeling behavior to use for this filesystem type. */
++		rc = security_fs_use(sb->s_type->name, &sbsec->behavior, &sbsec->sid);
++		if (rc) {
++			printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
++					__func__, sb->s_type->name, rc);
++			goto out;
++		}
+ 	}
+-
+ 	/* sets the context of the superblock for the fs being mounted. */
+ 	if (fscontext_sid) {
+ 
+@@ -693,6 +705,11 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	 * sets the label used on all file below the mountpoint, and will set
+ 	 * the superblock context if not already set.
+ 	 */
++	/* NATIVE_LABELS can be overridden by 'context=' mounts, below. */
++	if (sbsec->flags & NATIVE_LABELS_MNT) {
++		sbsec->behavior = SECURITY_FS_USE_NATIVE;
++	}
++
+ 	if (context_sid) {
+ 		if (!fscontext_sid) {
+ 			rc = may_context_mount_sb_relabel(context_sid, sbsec, tsec);
+@@ -709,6 +726,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 
+ 		sbsec->mntpoint_sid = context_sid;
+ 		sbsec->behavior = SECURITY_FS_USE_MNTPOINT;
++		sbsec->flags &= ~NATIVE_LABELS_MNT; /* Exclusive */
+ 	}
+ 
+ 	if (rootcontext_sid) {
+@@ -721,7 +739,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	}
+ 
+ 	if (defcontext_sid) {
+-		if (sbsec->behavior != SECURITY_FS_USE_XATTR) {
++		if (sbsec->behavior != SECURITY_FS_USE_XATTR &&
++			sbsec->behavior != SECURITY_FS_USE_NATIVE) {
+ 			rc = -EINVAL;
+ 			printk(KERN_WARNING "SELinux: defcontext option is "
+ 			       "invalid for this filesystem type\n");
+@@ -818,6 +837,7 @@ static int selinux_parse_opts_str(char *options,
+ 	char *p;
+ 	char *context = NULL, *defcontext = NULL;
+ 	char *fscontext = NULL, *rootcontext = NULL;
++	int native_labels = 0;
+ 	int rc, num_mnt_opts = 0;
+ 
+ 	opts->num_mnt_opts = 0;
+@@ -885,9 +905,15 @@ static int selinux_parse_opts_str(char *options,
+ 			}
+ 			break;
+ 
++		case Opt_native_labels:
++			printk("%s() got Opt_native_labels\n", __func__);
++			native_labels = 1;
++			break;
++
++
+ 		default:
+ 			rc = -EINVAL;
+-			printk(KERN_WARNING "SELinux:  unknown mount option\n");
++			printk(KERN_WARNING "SELinux: unknown mount option \"%s\"\n", p);
+ 			goto out_err;
+ 
+ 		}
+@@ -920,6 +946,10 @@ static int selinux_parse_opts_str(char *options,
+ 		opts->mnt_opts[num_mnt_opts] = defcontext;
+ 		opts->mnt_opts_flags[num_mnt_opts++] = DEFCONTEXT_MNT;
+ 	}
++	if (native_labels) {
++		opts->mnt_opts[num_mnt_opts] = NULL;
++		opts->mnt_opts_flags[num_mnt_opts++] = NATIVE_LABELS_MNT;
++	}
+ 
+ 	opts->num_mnt_opts = num_mnt_opts;
+ 	return 0;
+@@ -966,7 +996,12 @@ static void selinux_write_opts(struct seq_file *m,
+ 	char *prefix;
+ 
+ 	for (i = 0; i < opts->num_mnt_opts; i++) {
+-		char *has_comma = strchr(opts->mnt_opts[i], ',');
++		char *has_comma;
++
++		if (opts->mnt_opts[i])
++			has_comma = strchr(opts->mnt_opts[i], ',');
++		else
++			has_comma = NULL;
+ 
+ 		switch (opts->mnt_opts_flags[i]) {
+ 		case CONTEXT_MNT:
+@@ -981,6 +1016,10 @@ static void selinux_write_opts(struct seq_file *m,
+ 		case DEFCONTEXT_MNT:
+ 			prefix = DEFCONTEXT_STR;
+ 			break;
++		case NATIVE_LABELS_MNT:
++			seq_putc(m, ',');
++			seq_puts(m, NATIVELABELS_STR);
++			continue;
+ 		default:
+ 			BUG();
+ 		};
+@@ -1188,6 +1227,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	}
+ 
+ 	switch (sbsec->behavior) {
++	case SECURITY_FS_USE_NATIVE:
++		break;
+ 	case SECURITY_FS_USE_XATTR:
+ 		if (!inode->i_op->getxattr) {
+ 			isec->sid = sbsec->def_sid;
+@@ -2358,7 +2399,8 @@ static inline int selinux_option(char *option, int len)
+ 	return (match_prefix(CONTEXT_STR, sizeof(CONTEXT_STR)-1, option, len) ||
+ 		match_prefix(FSCONTEXT_STR, sizeof(FSCONTEXT_STR)-1, option, len) ||
+ 		match_prefix(DEFCONTEXT_STR, sizeof(DEFCONTEXT_STR)-1, option, len) ||
+-		match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len));
++		match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len) ||
++		match_prefix(NATIVELABELS_STR, sizeof(NATIVELABELS_STR)-1, option, len));
+ }
+ 
+ static inline void take_option(char **to, char *from, int *first, int len)
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 7244737..b38fd98 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -41,11 +41,13 @@
+ #define FSCONTEXT_MNT	0x02
+ #define ROOTCONTEXT_MNT	0x04
+ #define DEFCONTEXT_MNT	0x08
++#define	NATIVE_LABELS_MNT	0x10
+ 
+ #define CONTEXT_STR	"context="
+ #define FSCONTEXT_STR	"fscontext="
+ #define ROOTCONTEXT_STR	"rootcontext="
+ #define DEFCONTEXT_STR	"defcontext="
++#define NATIVELABELS_STR "native_labels"
+ 
+ struct netlbl_lsm_secattr;
+ 
+@@ -147,6 +149,8 @@ int security_get_allow_unknown(void);
+ #define SECURITY_FS_USE_GENFS		4 /* use the genfs support */
+ #define SECURITY_FS_USE_NONE		5 /* no labeling support */
+ #define SECURITY_FS_USE_MNTPOINT	6 /* use mountpoint labeling */
++#define SECURITY_FS_USE_NATIVE		7 /* use native label support */
++#define SECURITY_FS_USE_MAX		7 /* Highest SECURITY_FS_USE_XXX */
+ 
+ int security_fs_use(const char *fstype, unsigned int *behavior,
+ 	u32 *sid);
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 72e4a54..6dfe138 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1937,7 +1937,10 @@ int policydb_read(struct policydb *p, void *fp)
+ 				if (rc < 0)
+ 					goto bad;
+ 				c->v.behavior = le32_to_cpu(buf[0]);
+-				if (c->v.behavior > SECURITY_FS_USE_NONE)
++				/* Determined at runtime, not in policy DB. */
++				if (c->v.behavior == SECURITY_FS_USE_MNTPOINT)
++					goto bad;
++				if (c->v.behavior > SECURITY_FS_USE_MAX)
+ 					goto bad;
+ 				len = le32_to_cpu(buf[1]);
+ 				c->u.name = kmalloc(len + 1, GFP_KERNEL);
 -- 
 1.5.5.1
 
