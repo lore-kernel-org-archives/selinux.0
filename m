@@ -1,41 +1,94 @@
-Date: Fri, 28 Nov 2008 20:09:16 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Subrata Modak <subrata@linux.vnet.ibm.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, ltp-list <ltp-list@lists.sf.net>,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: [RFC] Testing Support for deferred mapping of contexts & enable
- processes with mac_admin to get the raw inode contexts
-In-Reply-To: <1227860870.5059.14.camel@subratamodak.linux.ibm.com>
-Message-ID: <alpine.LRH.1.10.0811282007240.8222@tundra.namei.org>
-References: <1227860870.5059.14.camel@subratamodak.linux.ibm.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mASCYkPD013858
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2008 07:34:46 -0500
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mASCYkbZ012521
+	for <selinux@tycho.nsa.gov>; Fri, 28 Nov 2008 12:34:46 GMT
+Message-ID: <492FE563.2040808@redhat.com>
+Date: Fri, 28 Nov 2008 07:34:43 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Murray McAllister <mmcallis@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+        Dominick Grift <domg472@gmail.com>
+Subject: Re: user guide draft: "Booleans for Users Executing Applications"
+References: <492F6CF4.3080405@redhat.com>
+In-Reply-To: <492F6CF4.3080405@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 28 Nov 2008, Subrata Modak wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Hi Stephen/James,
+Murray McAllister wrote:
+> Hi,
 > 
-> Is there any plan, or, somebody working to add Testing Support to LTP
-> for:
-> 1) Deferred mapping of contexts, &
-> 2) Enable processes with mac_admin to get the raw inode contexts,
+> In the "Confined and Unconfined Users" section[1], the confined user
+> table states that guest_u, xguest_t etc. can not execute applications in
+> ~/ or /tmp. I have changed the "no"'s and "yes"'s to "optional", with a
+> link to the following section that appears at the end of the "Confining
+> Users" chapter[2]:
+> 
+> Booleans for Users Executing Applications
+> 
+> By default, Linux users in the guest_t and xguest_t domains can not
+> execute applications in their home directories or /tmp/, preventing them
+> from executing applications (which inherit users' permissions) in
+> directories they have write access to. This helps prevent flawed or
+> malicious applications from modifying files users' own.
+> 
+> The setsebool command must be run as the Linux root user. The setsebool
+> -P command makes persistent changes. Do not use the -P option if you do
+> not want changes to persist across reboots:
+> 
+> guest_t
+> 
+> To allow Linux users in the guest_t domain to execute applications in
+> their home directories and /tmp/:
+> 
+> /usr/sbin/setsebool allow_guest_exec_content on
+> 
+> xguest_t
+> 
+> To allow Linux users in the xguest_t domain to execute applications in
+> their home directories and /tmp/:
+> 
+> /usr/sbin/setsebool allow_xguest_exec_content on
+> 
+> user_t
+> 
+> To prevent Linux users in the user_t domain from executing applications
+> in their home directories and /tmp/:
+> 
+> /usr/sbin/setsebool allow_user_exec_content off
+> 
+> staff_t
+> 
+> To prevent Linux users in the staff_t domain from executing applications
+> in their home directories and /tmp/:
+> 
+> /usr/sbin/setsebool allow_staff_exec_content off
+> 
+> Thanks.
+> 
+> 
+> [1]
+> <http://docs.fedoraproject.org/selinux-user-guide/f10/en-US/sect-Security-Enhanced_Linux-Targeted_Policy-Confined_and_Unconfined_Users.html>
+> 
+> 
+> [2]
+> <http://docs.fedoraproject.org/selinux-user-guide/f10/en-US/chap-Security-Enhanced_Linux-Confining_Users.html>
+> 
+Ok looks good.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Not that I'm aware of.
-> 
-> recently being added to 2.6.27
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=12b29f34558b9b45a2c6eabd4f3c6be939a3980f,
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=abc69bb633931bf54c6db798bcdc6fd1e0284742
-> 
-> Regards--
-> Subrata
-> 
-> 
-
--- 
-James Morris
-<jmorris@namei.org>
+iEYEARECAAYFAkkv5WMACgkQrlYvE4MpobNGdACeJ6NSPNZJH4V6eEcPgSkXxn37
+oksAoK0pHIKQotXe6r9k0cku+9Y9WqOe
+=jMMt
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
