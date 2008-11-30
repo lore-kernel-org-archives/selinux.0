@@ -1,11 +1,11 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAUIINKZ027258
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2008 13:18:23 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mAUIsqaq028665
+	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2008 13:54:52 -0500
 Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAUIIMt6024176
-	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2008 18:18:22 GMT
-Received: by wa-out-1112.google.com with SMTP id j5so1041686wah.18
-        for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2008 10:18:22 -0800 (PST)
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mAUIspt6027671
+	for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2008 18:54:52 GMT
+Received: by wa-out-1112.google.com with SMTP id j5so1046764wah.18
+        for <selinux@tycho.nsa.gov>; Sun, 30 Nov 2008 10:54:51 -0800 (PST)
 Subject: Re: PAM _pam_load_conf_file: unable to open /etc/pam.d/system-auth
 From: "Justin P. Mattock" <justinmattock@gmail.com>
 To: Xavier Toth <txtoth@gmail.com>
@@ -14,8 +14,8 @@ In-Reply-To: <cadfc0e40811300858se04e43drc13cc96b0812e810@mail.gmail.com>
 References: <1228008307.4582.10.camel@unix>
 	 <cadfc0e40811300858se04e43drc13cc96b0812e810@mail.gmail.com>
 Content-Type: text/plain
-Date: Sun, 30 Nov 2008 10:18:18 -0800
-Message-Id: <1228069098.3111.2.camel@unix>
+Date: Sun, 30 Nov 2008 10:54:47 -0800
+Message-Id: <1228071287.3418.7.camel@unix>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -69,14 +69,9 @@ On Sun, 2008-11-30 at 10:58 -0600, Xavier Toth wrote:
 > name followed by the name of a pam config file that exists in
 > /etc/pam.d.
 
-Thanks for the help with this.
-(I'll have a look in the manual).
-What about setting pam_namespace
-i.g. does this have to be set correctly
-to acquire the right capability, or does it
-not matter if you have namespace or not?
-
-regards;
+"shit", right under my nose!!
+newrole -r user_r -- -c /usr/bin/aterm /etc/pam.d/*
+works. 
 
 -- 
 Justin P. Mattock <justinmattock@gmail.com>
