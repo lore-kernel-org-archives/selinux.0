@@ -1,68 +1,103 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB1GpSrn006576
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 11:51:28 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB1GpR3d007367
-	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 16:51:28 GMT
-Message-ID: <49341607.7010709@redhat.com>
-Date: Mon, 01 Dec 2008 11:51:19 -0500
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB1KJBts030224
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 15:19:12 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB1KH6Qx018043
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 20:17:07 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id mB1KJBoG025483
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 15:19:11 -0500
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id mB1KJAhU008766
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 15:19:10 -0500
+Received: from localhost.localdomain (vpn-10-109.bos.redhat.com [10.16.10.109])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id mB1KJ9lq001123
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 15:19:09 -0500
+Message-ID: <493446BD.8000401@redhat.com>
+Date: Mon, 01 Dec 2008 15:19:09 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: SE Linux <selinux@tycho.nsa.gov>, Karl MacMillan <kmacmillan@tresys.com>
-Subject: Problem in sepolgen
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Small fixes for audit2allow 
 Content-Type: multipart/mixed;
- boundary="------------070400060808050004040403"
+ boundary="------------040001090100060907010002"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------070400060808050004040403
+--------------040001090100060907010002
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-self.roles does not exist, need to return length of dictionary.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkk0FgYACgkQrlYvE4MpobP5HwCeNgjPTSPoqBQTXa14ZA9Jc0ww
-yycAoNWJhg78BXm4L5Vg9cNAdNa7ggfD
-=Uz8t
------END PGP SIGNATURE-----
-
---------------070400060808050004040403
+--------------040001090100060907010002
 Content-Type: text/plain;
- name="diffsepol"
+ name="diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="diffsepol"
+ filename="diff"
 
-diff --exclude-from=exclude -N -u -r nsasepolgen/src/sepolgen/access.py policycoreutils-2.0.60/sepolgen-1.0.13/src/sepolgen/access.py
---- nsasepolgen/src/sepolgen/access.py	2008-08-28 09:34:24.000000000 -0400
-+++ policycoreutils-2.0.60/sepolgen-1.0.13/src/sepolgen/access.py	2008-12-01 11:41:09.000000000 -0500
-@@ -313,7 +313,7 @@
+diff --exclude-from=exclude --exclude=sepolgen-1.0.14 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/audit2allow/audit2allow policycoreutils-2.0.60/audit2allow/audit2allow
+--- nsapolicycoreutils/audit2allow/audit2allow	2008-11-10 08:53:49.000000000 -0500
++++ policycoreutils-2.0.60/audit2allow/audit2allow	2008-12-01 15:16:31.000000000 -0500
+@@ -42,10 +42,10 @@
+         from optparse import OptionParser
  
-     def __len__(self):
-         """Return the unique number of role allow statements."""
--        return len(self.roles)
-+        return len(self.role_type.keys())
+         parser = OptionParser(version=self.VERSION)
+-        parser.add_option("-a", "--audit", action="store_true", dest="audit", default=False,
++        parser.add_option("-a", "--all", action="store_true", dest="audit", default=False,
+                           help="read input from audit log - conflicts with -i")
+         parser.add_option("-d", "--dmesg", action="store_true", dest="dmesg", default=False,
+-                          help="read input from dmesg - conflicts with --audit and --input")
++                          help="read input from dmesg - conflicts with --all and --input")
+         parser.add_option("-i", "--input", dest="input",
+                           help="read input from <input> - conflicts with -a")
+         parser.add_option("-l", "--lastreload", action="store_true", dest="lastreload", default=False,
+@@ -82,9 +82,9 @@
+         # Make -d, -a, and -i conflict
+         if options.audit is True:
+             if options.input is not None:
+-                sys.stderr.write("error: --audit conflicts with --input\n")
++                sys.stderr.write("error: --all conflicts with --input\n")
+             if options.dmesg is True:
+-                sys.stderr.write("error: --audit conflicts with --dmesg\n")
++                sys.stderr.write("error: --all conflicts with --dmesg\n")
+         if options.input is not None and options.dmesg is True:
+             sys.stderr.write("error: --input conflicts with --dmesg\n")
  
-     def add(self, role, type):
-         if self.role_types.has_key(role):
+@@ -200,7 +200,7 @@
+         try:
+             fd = open(filename, "w")
+         except IOError, e:
+-            sys.stderr.write("could not write output file: %s\n", str(e))
++            sys.stderr.write("could not write output file: %s\n" % str(e))
+             sys.exit(1)
+ 
+         writer.write(generator.get_module(), fd)
+diff --exclude-from=exclude --exclude=sepolgen-1.0.14 --exclude=gui --exclude=po -N -u -r nsapolicycoreutils/audit2allow/audit2allow.1 policycoreutils-2.0.60/audit2allow/audit2allow.1
+--- nsapolicycoreutils/audit2allow/audit2allow.1	2008-11-10 08:53:49.000000000 -0500
++++ policycoreutils-2.0.60/audit2allow/audit2allow.1	2008-12-01 15:10:13.000000000 -0500
+@@ -44,9 +44,6 @@
+ Note that all audit messages are not available via dmesg when
+ auditd is running; use "ausearch -m avc | audit2allow"  or "-a" instead.
+ .TP
+-.B "\-f" | "\-\-fcfile" <File Context File>
+-Add File Context File to generated Module Package. Requires -M option.
+-.TP
+ .B "\-h" | "\-\-help"
+ Print a short usage message
+ .TP
 
---------------070400060808050004040403
+--------------040001090100060907010002
 Content-Type: application/octet-stream;
- name="diffsepol.sig"
+ name="diff.sig"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment;
- filename="diffsepol.sig"
+ filename="diff.sig"
 
-iEYEABECAAYFAkk0FgYACgkQrlYvE4MpobM6IwCeKEOU9bSCTUm4Pc3RO4kQ7DijjoQAnjLg
-9jb5XBZuh6CY7oQeDmJQhrL6
---------------070400060808050004040403--
+iEYEABECAAYFAkk0Rr0ACgkQrlYvE4MpobMBbwCcCAs1XXBbiOEmy4RAH3vpBy5Rhy0An18m
+xAHaSX0gn8M0El0Gtg7J6NTy
+--------------040001090100060907010002--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
