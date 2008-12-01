@@ -1,36 +1,32 @@
-From: Paul Moore <paul.moore@hp.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>
-Subject: Re: [PATCH] selinux: deprecate and schedule the removal of the the compat_net functionality
-Date: Mon, 1 Dec 2008 16:15:16 -0500
-Cc: selinux@tycho.nsa.gov
-References: <20081201203833.16302.16424.stgit@flek.lan> <1228165415.18720.257.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1228165415.18720.257.camel@moss-spartans.epoch.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200812011615.17013.paul.moore@hp.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB1MWRN4010691
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 17:32:27 -0500
+Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB1MWQwc022455
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 22:32:27 GMT
+Received: by wa-out-1112.google.com with SMTP id j5so1328629wah.18
+        for <selinux@tycho.nsa.gov>; Mon, 01 Dec 2008 14:32:26 -0800 (PST)
+Subject: the new way of newrole
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+To: SE Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+Content-Type: text/plain
+Date: Mon, 01 Dec 2008 14:32:22 -0800
+Message-Id: <1228170742.2966.6.camel@unix>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 01 December 2008 4:03:35 pm Stephen Smalley wrote:
-> On Mon, 2008-12-01 at 15:38 -0500, Paul Moore wrote:
-> > This patch is the first step towards removing the old "compat_net"
-> > code from the kernel.  Secmark, the "compat_net" replacement has
-> > been around for several kernel releases
->
-> FWIW, secmark was first included in the Linux 2.6.18 release in Sep
-> 2006.  That's a bit more than "several kernel releases" ;)
+Hello;
+this new policy(svn) is killing me over here... 
+Am I supposed to be startingx
+like this:(after login a command prompt)
+newrole -r staff_r -- -c /usr/bin/startx
+if so how do I change dbus to run the right context?
 
-Po-tay-to ... Po-tah-to ;)
-
-If the patch gets bounced for some reason I'll update the text.  Which 
-brings up a good point; James, assuming there are no objections do you 
-want to pull this into the security-testing tree for 2.6.29 or would 
-you prefer I keep it in the lblnet tree?
 
 -- 
-paul moore
-linux @ hp
+Justin P. Mattock <justinmattock@gmail.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
