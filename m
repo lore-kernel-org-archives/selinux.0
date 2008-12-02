@@ -1,51 +1,36 @@
-Subject: Re: Context transition error
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vince Le Port <vince.rafale@gmail.com>
-Cc: selinux@tycho.nsa.gov, Dave Quigley <dpquigl@tycho.nsa.gov>
-In-Reply-To: <4935493A.8020301@gmail.com>
-References: <492709F5.2090801@gmail.com>
-	 <1227297581.7319.54.camel@moss-spartans.epoch.ncsc.mil>
-	 <4935493A.8020301@gmail.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB2JVTJf029761
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2008 14:31:29 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id mB2JTOAk023600
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2008 19:29:24 GMT
+Subject: Re: [refpolicy] the new way of newrole
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: "Justin P. Mattock" <justinmattock@gmail.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+In-Reply-To: <1228170742.2966.6.camel@unix>
+References: <1228170742.2966.6.camel@unix>
 Content-Type: text/plain
-Date: Tue, 02 Dec 2008 10:03:08 -0500
-Message-Id: <1228230188.26101.105.camel@moss-spartans.epoch.ncsc.mil>
+Date: Tue, 02 Dec 2008 14:30:46 -0500
+Message-Id: <1228246249.9691.32.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-12-02 at 15:42 +0100, Vince Le Port wrote:
-> Hi list,
-> 
-> Your answer helped me so much. I have succeeded in making my test
-> program running properly.
-> 
-> I am now working on the NFS server side modification.
-> 
-> I have made some searches around the use of setcon , and it seems that
-> this function is only available in the user space, not into the kernel.
-> Am I wrong saying that?
-> 
-> Does anybody know the equivalent of setcon in kernel mode?
-> Moreover I did not find the source code of the setcon function... where
-> could I find it ?
+On Mon, 2008-12-01 at 14:32 -0800, Justin P. Mattock wrote:
+> Hello;
+> this new policy(svn) is killing me over here... 
+> Am I supposed to be startingx
+> like this:(after login a command prompt)
+> newrole -r staff_r -- -c /usr/bin/startx
 
-setcon() is a library function provided by libselinux.
-The equivalent of setcon() in the kernel is security_setprocattr() whose
-prototype is defined in include/linux/security.h.
-
-If you look at an earlier version of the labeled NFS patch set, you can
-see an example of using security_setprocattr() to set the nfsd context
-from the remote label:
-http://marc.info/?l=selinux&m=122270951204108&w=2
-
-As before, I'd encourage you to follow the ongoing labeled NFS work.  A
-newer version of the patch set was just posted, although this omits the
-process label transport mechanism since that is being redesigned.
-http://marc.info/?l=selinux&m=122814925716620&w=2
+No, this won't work.  Newrole can only transition to user domains (eg
+staff_t) and only by executing a shell.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
