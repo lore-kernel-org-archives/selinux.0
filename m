@@ -1,47 +1,45 @@
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [PATCH] selinux: deprecate and schedule the removal of the the compat_net functionality
-Date: Mon, 1 Dec 2008 18:00:11 -0500
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <20081201203833.16302.16424.stgit@flek.lan> <200812011615.17013.paul.moore@hp.com> <alpine.LRH.1.10.0812020949020.21992@tundra.namei.org>
-In-Reply-To: <alpine.LRH.1.10.0812020949020.21992@tundra.namei.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200812011800.11552.paul.moore@hp.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB21keP8022484
+	for <selinux@tycho.nsa.gov>; Mon, 1 Dec 2008 20:46:40 -0500
+Received: from wa-out-1112.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB21ke7j012815
+	for <selinux@tycho.nsa.gov>; Tue, 2 Dec 2008 01:46:40 GMT
+Received: by wa-out-1112.google.com with SMTP id j5so1364344wah.18
+        for <selinux@tycho.nsa.gov>; Mon, 01 Dec 2008 17:46:39 -0800 (PST)
+Subject: ERROR 'syntax error' at token 'typeattribute'
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+To: SE Linux <selinux@tycho.nsa.gov>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 01 Dec 2008 17:46:36 -0800
+Message-Id: <1228182396.4021.7.camel@unix>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 01 December 2008 5:49:48 pm James Morris wrote:
-> On Mon, 1 Dec 2008, Paul Moore wrote:
-> > On Monday 01 December 2008 4:03:35 pm Stephen Smalley wrote:
-> > > On Mon, 2008-12-01 at 15:38 -0500, Paul Moore wrote:
-> > > > This patch is the first step towards removing the old
-> > > > "compat_net" code from the kernel.  Secmark, the "compat_net"
-> > > > replacement has been around for several kernel releases
-> > >
-> > > FWIW, secmark was first included in the Linux 2.6.18 release in
-> > > Sep 2006.  That's a bit more than "several kernel releases" ;)
-> >
-> > Po-tay-to ... Po-tah-to ;)
-> >
-> > If the patch gets bounced for some reason I'll update the text. 
-> > Which brings up a good point; James, assuming there are no
-> > objections do you want to pull this into the security-testing tree
-> > for 2.6.29 or would you prefer I keep it in the lblnet tree?
->
-> Doesn't matter, unless there's a conflict.
+After spending a few days trying
+to load the latest refpolicy,I decided to
+do a git-pull, so after loading everything
+seems pretty good, except I now receive a 
+syntax error when compiling the refpolicy
 
-Okey dokey, I'll go ahead and add it then so that I'm the one that gets 
-yelled at if/when linux-next breaks on somebody's box.  I'll probably 
-merge it in tomorrow, I just found a NULL pointer oops that I need to 
-address (in a different chunk of code).
+policy/modules/apps/yam.te":11:ERROR 'syntax error' at token
+'typeattribute' on line 2615741:
+#line 11
+        typeattribute yam_t application_domain_type;
+checkpolicy:  error(s) encountered while parsing configuration
+make: *** [policy.23] Error 1
 
-> Acked-by: James Morris <jmorris@namei.org>
+this error comes from the latest svn,
+nothing like this all day, just after git-pull.
+If I use the stable tar ball no issues.
+
+the latest pull is 2.6.28-rc6-00209-g6a12141
+
 
 -- 
-paul moore
-linux @ hp
+Justin P. Mattock <justinmattock@gmail.com>
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
