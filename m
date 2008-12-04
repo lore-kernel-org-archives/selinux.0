@@ -1,43 +1,46 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB41ndZH019209
-	for <selinux@tycho.nsa.gov>; Wed, 3 Dec 2008 20:49:39 -0500
-Received: from mho-01-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB41lWeM003744
-	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2008 01:47:32 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB4CcoQ1010774
+	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2008 07:38:50 -0500
+Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB4Caef9029155
+	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2008 12:36:41 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Dave Feustel <dfeustel@mindspring.com>
+Subject: Re: Policy for Konqueror
+Date: Thu, 4 Dec 2008 23:38:34 +1100
 Cc: SE Linux <selinux@tycho.nsa.gov>
-Message-Id: <CB42A895-904F-4FFD-AFD8-7EFCB6DD050B@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <49371CD3.1060007@redhat.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v929.2)
-Subject: Re: I think it is time for us to put the attributes back into policy file.
-Date: Wed, 3 Dec 2008 19:49:37 -0600
-References: <49371CD3.1060007@redhat.com>
+References: <200812011617.mB1GH13d002406@mummy.ncsc.mil>
+In-Reply-To: <200812011617.mB1GH13d002406@mummy.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200812042338.36117.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tuesday 02 December 2008 03:17, Dave Feustel <dfeustel@mindspring.com> 
+wrote:
+> "When using KDE, you may find that several graphical applications or
+> features don't work properly. This occurs because KDE starts a variety
+> of execuables with the same process name, kdeinit. No simple fix exists
+> for such problems, since a simple fix would entail loosening security to
+> an unacceptable extent. You may find it more convenient to use a desktop
+> other than KDE - such as GNOME - when running SELinux.
 
-On Dec 3, 2008, at 5:57 PM, Daniel J Walsh wrote:
+http://www.nsa.gov/selinux/list-archive/0504/11252.cfm
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> I am getting several complaints from people wanting to see these
-> attributes.  I would like to be able to list all "Domains" so you  
-> could
-> choose which domains you want to put in permissive mode.
->
-> I would like to see which attribute is giving a certain permission  
-> to a
-> domain, without having to query the source.
->
-> I am sure there are other uses.
+This was covered in 2004 and again in 2005.  At that time it was easy to solve 
+this problem.
 
-+1
+Recent versions of KDE seem to have made this more difficult.  I expect that 
+if you were prepared to do some minor hacking on KDE source it wouldn't be 
+difficult to make it run without kdeinit.
 
-joe
-
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
