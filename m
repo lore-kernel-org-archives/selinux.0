@@ -1,50 +1,67 @@
-Message-ID: <4937EC14.9080406@redhat.com>
-Date: Thu, 04 Dec 2008 09:41:24 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>
-Subject: Re: I think it is time for us to put the attributes back into	policy
- file.
-References: <49371CD3.1060007@redhat.com> <1228395855.11091.2.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1228395855.11091.2.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Subject: [PATCH 3/3] SELinux: Unify context mount and genfs behavior
+Date: Thu,  4 Dec 2008 15:18:10 -0500
+Message-Id: <1228421890-9467-4-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1228421890-9467-1-git-send-email-dpquigl@tycho.nsa.gov>
+References: <1228421890-9467-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Context mounts and genfs labeled file systems behave differently with respect to
+setting file system labels. This patch brings genfs labeled file systems in line
+with context mounts in that setxattr calls to them should return EOPNOTSUPP and
+fscreate calls will be ignored.
 
-Stephen Smalley wrote:
-> On Wed, 2008-12-03 at 18:57 -0500, Daniel J Walsh wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> I am getting several complaints from people wanting to see these
->> attributes.  I would like to be able to list all "Domains" so you could
->> choose which domains you want to put in permissive mode.
->>
->> I would like to see which attribute is giving a certain permission to a
->> domain, without having to query the source.
->>
->> I am sure there are other uses.
-> 
-> KaiGai changed the kernel policy format to retain type attributes in
-> policy.24 (kernel 2.6.28 and later).  So the information should be
-> available - it is just a matter of teaching apol and friends to
-> understand it.  Of course, we still need the module format fixed for
-> aliases, right?
-> 
-Ok I did not know this, I guess I will start bothering Chris then.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+---
+ security/selinux/hooks.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-iEYEARECAAYFAkk37BQACgkQrlYvE4MpobPiUACfXHxJGLzqNcFkZs3DjrpcK00S
-c/8AoOpiYL8P4hx3qJIT+4QMiegTiFx3
-=AV9C
------END PGP SIGNATURE-----
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 03c9258..9c92669 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1536,7 +1536,7 @@ static int may_create(struct inode *dir,
+ 	if (rc)
+ 		return rc;
+ 
+-	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
++	if (tsec->create_sid && sbsec->flags & SBLABELSUPP) {
+ 		newsid = tsec->create_sid;
+ 	} else {
+ 		rc = security_transition_sid(tsec->sid, dsec->sid, tclass,
+@@ -2543,7 +2543,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 	dsec = dir->i_security;
+ 	sbsec = dir->i_sb->s_security;
+ 
+-	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
++	if (tsec->create_sid && sbsec->flags & SBLABELSUPP) {
+ 		newsid = tsec->create_sid;
+ 	} else {
+ 		rc = security_transition_sid(tsec->sid, dsec->sid,
+@@ -2567,7 +2567,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 		isec->initialized = 1;
+ 	}
+ 
+-	if (!ss_initialized || sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
++	if (!ss_initialized || !(sbsec->flags & SBLABELSUPP))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (name) {
+@@ -2736,7 +2736,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 		return selinux_inode_setotherxattr(dentry, name);
+ 
+ 	sbsec = inode->i_sb->s_security;
+-	if (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
++	if (!(sbsec->flags & SBLABELSUPP))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (!is_owner_or_cap(inode))
+-- 
+1.5.6.5
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
