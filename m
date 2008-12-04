@@ -1,46 +1,41 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB4CcoQ1010774
-	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2008 07:38:50 -0500
-Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB4Caef9029155
-	for <selinux@tycho.nsa.gov>; Thu, 4 Dec 2008 12:36:41 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Dave Feustel <dfeustel@mindspring.com>
-Subject: Re: Policy for Konqueror
-Date: Thu, 4 Dec 2008 23:38:34 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <200812011617.mB1GH13d002406@mummy.ncsc.mil>
-In-Reply-To: <200812011617.mB1GH13d002406@mummy.ncsc.mil>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200812042338.36117.russell@coker.com.au>
+Subject: Re: I think it is time for us to put the attributes back into
+	policy file.
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Daniel J Walsh <dwalsh@redhat.com>
+Cc: SE Linux <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>
+In-Reply-To: <49371CD3.1060007@redhat.com>
+References: <49371CD3.1060007@redhat.com>
+Content-Type: text/plain
+Date: Thu, 04 Dec 2008 08:04:15 -0500
+Message-Id: <1228395855.11091.2.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tuesday 02 December 2008 03:17, Dave Feustel <dfeustel@mindspring.com> 
-wrote:
-> "When using KDE, you may find that several graphical applications or
-> features don't work properly. This occurs because KDE starts a variety
-> of execuables with the same process name, kdeinit. No simple fix exists
-> for such problems, since a simple fix would entail loosening security to
-> an unacceptable extent. You may find it more convenient to use a desktop
-> other than KDE - such as GNOME - when running SELinux.
+On Wed, 2008-12-03 at 18:57 -0500, Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> I am getting several complaints from people wanting to see these
+> attributes.  I would like to be able to list all "Domains" so you could
+> choose which domains you want to put in permissive mode.
+> 
+> I would like to see which attribute is giving a certain permission to a
+> domain, without having to query the source.
+> 
+> I am sure there are other uses.
 
-http://www.nsa.gov/selinux/list-archive/0504/11252.cfm
-
-This was covered in 2004 and again in 2005.  At that time it was easy to solve 
-this problem.
-
-Recent versions of KDE seem to have made this more difficult.  I expect that 
-if you were prepared to do some minor hacking on KDE source it wouldn't be 
-difficult to make it run without kdeinit.
+KaiGai changed the kernel policy format to retain type attributes in
+policy.24 (kernel 2.6.28 and later).  So the information should be
+available - it is just a matter of teaching apol and friends to
+understand it.  Of course, we still need the module format fixed for
+aliases, right?
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
