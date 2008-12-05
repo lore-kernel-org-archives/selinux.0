@@ -1,37 +1,62 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB5FGV5r026919
-	for <selinux@tycho.nsa.gov>; Fri, 5 Dec 2008 10:16:31 -0500
-Subject: Re: [PATCH 2/3] SELinux: Add new security mount option to indicate
-	security label support.
+Subject: Re: [PATCH 03/14] LSM/SELinux: inode_{get,set,notify}secctx hooks
+	to access LSM security context information.
 From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <alpine.LRH.1.10.0812051200380.11818@tundra.namei.org>
-References: <1228421890-9467-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1228421890-9467-3-git-send-email-dpquigl@tycho.nsa.gov>
-	 <alpine.LRH.1.10.0812051200380.11818@tundra.namei.org>
+Cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
+        sds@tycho.nsa.gov, "Matthew N. Dodd" <matthew.dodd@sparta.com>,
+        trond.myklebust@fys.uio.no, bfields@fieldses.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        labeled-nfs@linux-nfs.org
+In-Reply-To: <alpine.LRH.1.10.0812052052480.14142@tundra.namei.org>
+References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
+	 <1227733394-1114-4-git-send-email-dpquigl@tycho.nsa.gov>
+	 <alpine.LRH.1.10.0812052052480.14142@tundra.namei.org>
 Content-Type: text/plain
-Date: Fri, 05 Dec 2008 09:55:15 -0500
-Message-Id: <1228488915.15920.42.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 05 Dec 2008 10:25:12 -0500
+Message-Id: <1228490712.15920.45.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-12-05 at 12:01 +1100, James Morris wrote:
-> On Thu, 4 Dec 2008, David P. Quigley wrote:
+On Fri, 2008-12-05 at 20:58 +1100, James Morris wrote:
+> On Wed, 26 Nov 2008, David P. Quigley wrote:
 > 
-> > There is no easy way to tell if a file system supports SELinux security labeling.
-> > Because of this a new flag is being added to the super block security structure
-> > to indicate that the particular super block supports labeling. This flag is set
-> > for file systems using the xattr, task, and transition labeling methods unless
-> > that behavior is overridden by context mounts.
+> > + * @inode_getsecctx:
+> > + * 	Returns a string containing all relavent security context information
+> > + *
+> > + * 	@inode we wish to set the security context of.
+> > + *	@ctx is a pointer in which to place the allocated security context.
+> > + *	@ctxlen points to the place to put the length of @ctx.
+> >   * This is the main security structure.
+> >   */
+> >  struct security_operations {
+> > @@ -1479,6 +1514,10 @@ struct security_operations {
+> >  	int (*secctx_to_secid) (const char *secdata, u32 seclen, u32 *secid);
+> >  	void (*release_secctx) (char *secdata, u32 seclen);
+> >  
+> > +	int (*inode_notifysecctx)(struct inode *inode, void *ctx, u32 ctxlen);
+> > +	int (*inode_setsecctx)(struct dentry *dentry, void *ctx, u32 ctxlen);
+> > +	int (*inode_getsecctx)(struct inode *inode, void **ctx, u32 *ctxlen);
 > 
-> Looks ok to me (similar namespace issue with the flag).
+> For inode_getsecctx(), you're returning the length via the return value, 
+> so you should not also need to pass in a pointer to ctxlen, right?
+> 
+> IMHO, it's clearer and simpler to always only return error status from 
+> these kinds of functions, and to pass things like size back via pointer 
+> args, although it seems that a few mixed return functions have crept in to 
+> the code over time.  My preference would be to convert it to return value 
+> is error status only, with the length entirely separate as a pointer arg.
 > 
 > 
 > - James
 
-I'm assuming you mean change SBLABELSUPP to SE_SBLABELSUPP, correct?
+I'll have to look into why we did it this way. The discussion for these
+patches happened many months ago so I don't remember why it was done
+this way. I remember at the time getting an approval for the approach
+but a desire not to merge the patch while there were no users of it.
+
+Dave
 
 
 --
