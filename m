@@ -1,80 +1,37 @@
-Date: Fri, 5 Dec 2008 12:02:44 +1100 (EST)
+Date: Fri, 5 Dec 2008 13:38:22 +1100 (EST)
 From: James Morris <jmorris@namei.org>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-cc: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 3/3] SELinux: Unify context mount and genfs behavior
-In-Reply-To: <1228421890-9467-4-git-send-email-dpquigl@tycho.nsa.gov>
-Message-ID: <alpine.LRH.1.10.0812051202340.11818@tundra.namei.org>
-References: <1228421890-9467-1-git-send-email-dpquigl@tycho.nsa.gov> <1228421890-9467-4-git-send-email-dpquigl@tycho.nsa.gov>
+cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
+        sds@tycho.nsa.gov, "Matthew N. Dodd" <matthew.dodd@sparta.com>,
+        trond.myklebust@fys.uio.no, bfields@fieldses.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        labeled-nfs@linux-nfs.org
+Subject: Re: [PATCH 08/14] NFSv4: Add label recommended attribute and NFSv4
+ flags
+In-Reply-To: <1227733394-1114-9-git-send-email-dpquigl@tycho.nsa.gov>
+Message-ID: <alpine.LRH.1.10.0812051337050.12208@tundra.namei.org>
+References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov> <1227733394-1114-9-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 4 Dec 2008, David P. Quigley wrote:
+On Wed, 26 Nov 2008, David P. Quigley wrote:
 
-> Context mounts and genfs labeled file systems behave differently with respect to
-> setting file system labels. This patch brings genfs labeled file systems in line
-> with context mounts in that setxattr calls to them should return EOPNOTSUPP and
-> fscreate calls will be ignored.
-> 
-> Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+> --- a/include/linux/nfs_xdr.h
+> +++ b/include/linux/nfs_xdr.h
+> @@ -57,6 +57,10 @@ struct nfs_fattr {
+>  	__u64			pre_change_attr;/* pre-op NFSv4 change attribute */
+>  	unsigned long		time_start;
+>  	unsigned long		gencount;
+> +#ifdef CONFIG_SECURITY
+> +	void			*label;
+> +	__u32			 label_len;
+> +#endif
 
-Looks ok, too.
+Should this be CONFIG_NFS_V4_SECURITY_LABEL ?
 
-> ---
->  security/selinux/hooks.c |    8 ++++----
->  1 files changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 03c9258..9c92669 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1536,7 +1536,7 @@ static int may_create(struct inode *dir,
->  	if (rc)
->  		return rc;
->  
-> -	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
-> +	if (tsec->create_sid && sbsec->flags & SBLABELSUPP) {
->  		newsid = tsec->create_sid;
->  	} else {
->  		rc = security_transition_sid(tsec->sid, dsec->sid, tclass,
-> @@ -2543,7 +2543,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
->  	dsec = dir->i_security;
->  	sbsec = dir->i_sb->s_security;
->  
-> -	if (tsec->create_sid && sbsec->behavior != SECURITY_FS_USE_MNTPOINT) {
-> +	if (tsec->create_sid && sbsec->flags & SBLABELSUPP) {
->  		newsid = tsec->create_sid;
->  	} else {
->  		rc = security_transition_sid(tsec->sid, dsec->sid,
-> @@ -2567,7 +2567,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
->  		isec->initialized = 1;
->  	}
->  
-> -	if (!ss_initialized || sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
-> +	if (!ss_initialized || !(sbsec->flags & SBLABELSUPP))
->  		return -EOPNOTSUPP;
->  
->  	if (name) {
-> @@ -2736,7 +2736,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
->  		return selinux_inode_setotherxattr(dentry, name);
->  
->  	sbsec = inode->i_sb->s_security;
-> -	if (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)
-> +	if (!(sbsec->flags & SBLABELSUPP))
->  		return -EOPNOTSUPP;
->  
->  	if (!is_owner_or_cap(inode))
-> -- 
-> 1.5.6.5
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
 
 -- 
 James Morris
