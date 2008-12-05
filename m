@@ -1,4 +1,4 @@
-Date: Fri, 5 Dec 2008 13:38:22 +1100 (EST)
+Date: Fri, 5 Dec 2008 15:47:27 +1100 (EST)
 From: James Morris <jmorris@namei.org>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
@@ -7,11 +7,11 @@ cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org
-Subject: Re: [PATCH 08/14] NFSv4: Add label recommended attribute and NFSv4
- flags
-In-Reply-To: <1227733394-1114-9-git-send-email-dpquigl@tycho.nsa.gov>
-Message-ID: <alpine.LRH.1.10.0812051337050.12208@tundra.namei.org>
-References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov> <1227733394-1114-9-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: Re: [PATCH 09/14] NFS: Add security_label text mount option and
+ handling code to NFS
+In-Reply-To: <1227733394-1114-10-git-send-email-dpquigl@tycho.nsa.gov>
+Message-ID: <alpine.LRH.1.10.0812051546560.12208@tundra.namei.org>
+References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov> <1227733394-1114-10-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -19,18 +19,10 @@ List-Id: selinux@tycho.nsa.gov
 
 On Wed, 26 Nov 2008, David P. Quigley wrote:
 
-> --- a/include/linux/nfs_xdr.h
-> +++ b/include/linux/nfs_xdr.h
-> @@ -57,6 +57,10 @@ struct nfs_fattr {
->  	__u64			pre_change_attr;/* pre-op NFSv4 change attribute */
->  	unsigned long		time_start;
->  	unsigned long		gencount;
-> +#ifdef CONFIG_SECURITY
-> +	void			*label;
-> +	__u32			 label_len;
-> +#endif
+> +	{ Opt_security_label, "security_label" },
+> +	{ Opt_nosecurity_label, "nosecurity_label" },
 
-Should this be CONFIG_NFS_V4_SECURITY_LABEL ?
+"seclabel" might be easier for admins to type.
 
 
 -- 
