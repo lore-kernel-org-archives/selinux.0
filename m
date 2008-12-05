@@ -1,4 +1,4 @@
-Date: Fri, 5 Dec 2008 15:47:27 +1100 (EST)
+Date: Fri, 5 Dec 2008 16:45:15 +1100 (EST)
 From: James Morris <jmorris@namei.org>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
@@ -7,11 +7,11 @@ cc: hch@infradead.org, viro@zeniv.linux.org.uk, casey@schaufler-ca.com,
         linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
         labeled-nfs@linux-nfs.org
-Subject: Re: [PATCH 09/14] NFS: Add security_label text mount option and
- handling code to NFS
-In-Reply-To: <1227733394-1114-10-git-send-email-dpquigl@tycho.nsa.gov>
-Message-ID: <alpine.LRH.1.10.0812051546560.12208@tundra.namei.org>
-References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov> <1227733394-1114-10-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: Re: [PATCH 10/14] NFS: Introduce lifecycle management for label
+ attribute.
+In-Reply-To: <1227733394-1114-11-git-send-email-dpquigl@tycho.nsa.gov>
+Message-ID: <alpine.LRH.1.10.0812051643060.12208@tundra.namei.org>
+References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov> <1227733394-1114-11-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -19,11 +19,14 @@ List-Id: selinux@tycho.nsa.gov
 
 On Wed, 26 Nov 2008, David P. Quigley wrote:
 
-> +	{ Opt_security_label, "security_label" },
-> +	{ Opt_nosecurity_label, "nosecurity_label" },
+> +#ifdef CONFIG_NFS_V4_SECURITY_LABEL
+> +	if (nfs_server_capable(dir, NFS_CAP_SECURITY_LABEL))
+> +		error = nfs_fattr_alloc(&fattr, GFP_NOWAIT);
+> +	if (error < 0)
+> +		goto out_bad;
+> +#endif
 
-"seclabel" might be easier for admins to type.
-
+Why GFP_NOWAIT ?
 
 -- 
 James Morris
