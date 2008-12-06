@@ -1,127 +1,50 @@
-Message-ID: <4939CB81.1030707@tycho.nsa.gov>
-Date: Fri, 05 Dec 2008 19:46:57 -0500
+Message-ID: <4939D171.5090705@tycho.nsa.gov>
+Date: Fri, 05 Dec 2008 20:12:17 -0500
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: SELinux List <selinux@tycho.nsa.gov>
-CC: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: limitations of CONTEXT__CONTAINS interface
-Content-Type: multipart/mixed;
- boundary="------------030001010100000608060602"
+To: Xavier Toth <txtoth@gmail.com>
+CC: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>,
+        James Carter <jwcart2@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC] Add color translation support to mcstransd
+References: <4927839F.4070805@tycho.nsa.gov>	 <AD1BDA2B-D7CF-48AC-846E-54DC795B3C08@nall.com>	 <492AFFAD.5070805@tycho.nsa.gov> <cadfc0e40812051416v15070ddag132ff548d535052c@mail.gmail.com> <4939C7D8.7020000@tycho.nsa.gov>
+In-Reply-To: <4939C7D8.7020000@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030001010100000608060602
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Eamon Walsh wrote:
+> I have placed the code into a git repository which can be checked out with:
+> git-clone git://people.freedesktop.org/~ewalsh/mcstrans
+>
+> The "master" branch contains the code that was in the SRPM file that Joe
+> posted to this list in June.  If you have more recent changes send them
+> my way and I will update the repo to include them.
+>
+> The "color-ewalsh" branch contains the color code for the proposal
+> above.  There have been some changes, namely:
+>
+> The format of the returned string is now hex digits with hash marks,
+> e.g.  "#000000 #ffffff #000000 #ffffff..."
+> The separate "level" and "category" rules have been dropped and replaced
+> by a single "range" rule.  The SELinux interface does not expose the
+> details of the MLS component of the security context.  The only function
+> offered is a "dominance" check implemented as a permission bit on the
+> "context" security class (and even this doesn't currently work
+> correctly, because it only accepts domains as the subject context, more
+> on this in another post).  Whether the details, which would include the
+> ebitmaps for categories and level numbers, should be exposed is up for
+> debate.  Because of this only eight colors are now returned
 
-The attached C code uses the CONTEXT__CONTAINS permission check to check
-dominance, and produces the following output on my mls box:
-
-staff_u:staff_r:staff_t:s15:c0.c255 dominates staff_u:staff_r:staff_t:s0
-
-system_u:object_r:etc_t:s15:c0.c255 does not dominate system_u:object_r:etc_t:s0
-
-
-Why doesn't this check work in the second case?
-
-My color translation code has a config file that may contain lines such
-as (paraphrasing):
-range s0 = green
-range s1 = yellow
-range s1:c1 = blue
-range s15:c0.c255 = red
-
-and so forth, which are matched with incoming contexts using a dominance
-check.  The observed behavior above is causing this not to work.
+A screen shot of a sample application that uses the color translations
+can be seen at:
+http://people.freedesktop.org/~ewalsh/mcscolor_screenshot.png
 
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
 National Security Agency
 
-
---------------030001010100000608060602
-Content-Type: text/x-csrc;
- name="test.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="test.c"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <selinux/flask.h>
-#include <selinux/av_permissions.h>
-#include <selinux/selinux.h>
-#include <selinux/context.h>
-
-#define FAKE_LO_RANGE "s0"
-#define FAKE_HI_RANGE "s15:c0.c255"
-
-#define CONVENIENT_FILE "/etc/hosts"
-
-static void check_dominance(char *one, char *two)
-{
-	unsigned int bit = CONTEXT__CONTAINS;
-	struct av_decision avd;
-	int rc;
-
-	rc = security_compute_av_raw(one, two, SECCLASS_CONTEXT, bit, &avd);
-	if (rc)
-		printf("security_compute_av_raw() returned error!\n");
-	else if ((bit & avd.allowed) == bit)
-		printf("%s dominates %s\n", one, two);
-	else
-		printf("%s does not dominate %s\n", one, two);
-}
-
-static int make_fake_contexts(security_context_t proc_ctx,
-			      security_context_t file_ctx)
-{
-	security_context_t proc_hi, proc_lo, file_hi, file_lo;
-	context_t proc_con, file_con;
-	unsigned int bit = CONTEXT__CONTAINS;
-	struct av_decision avd;
-
-	proc_con = context_new(proc_ctx);
-	file_con = context_new(file_ctx);
-
-	context_range_set(proc_con, FAKE_HI_RANGE);
-	proc_hi = strdup(context_str(proc_con));
-	context_range_set(file_con, FAKE_HI_RANGE);
-	file_hi = strdup(context_str(file_con));
-
-	context_range_set(proc_con, FAKE_LO_RANGE);
-	proc_lo = strdup(context_str(proc_con));
-	context_range_set(file_con, FAKE_LO_RANGE);
-	file_lo = strdup(context_str(file_con));
-
-	check_dominance(proc_hi, proc_lo);
-	check_dominance(file_hi, file_lo);
-
-	freecon(proc_hi);
-	freecon(proc_lo);
-	context_free(proc_con);
-	freecon(file_hi);
-	freecon(file_lo);
-	context_free(file_con);
-	return 0;
-}
-
-int main(int argc, char **argv)
-{
-	security_context_t proc_ctx, file_ctx;
-
-	getcon(&proc_ctx);
-	getfilecon(CONVENIENT_FILE, &file_ctx);
-
-	make_fake_contexts(proc_ctx, file_ctx);
-
-	return 0;
-}
-
---------------030001010100000608060602--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
