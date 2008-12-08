@@ -1,49 +1,30 @@
-Subject: Re: limitations of CONTEXT__CONTAINS interface
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <4939CB81.1030707@tycho.nsa.gov>
-References: <4939CB81.1030707@tycho.nsa.gov>
-Content-Type: text/plain
-Date: Mon, 08 Dec 2008 09:22:29 -0500
-Message-Id: <1228746149.18446.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB8G9WKU026258
+	for <selinux@tycho.nsa.gov>; Mon, 8 Dec 2008 11:09:32 -0500
+Received: from wf-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB8G9V07010694
+	for <selinux@tycho.nsa.gov>; Mon, 8 Dec 2008 16:09:32 GMT
+Received: by wf-out-1314.google.com with SMTP id 28so1722873wff.30
+        for <selinux@tycho.nsa.gov>; Mon, 08 Dec 2008 08:09:30 -0800 (PST)
+Message-ID: <cadfc0e40812080809m54514b47x4e098f501f1bd09f@mail.gmail.com>
+Date: Mon, 8 Dec 2008 10:09:30 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: immutable X windows
+Cc: "Daniel J Walsh" <dwalsh@redhat.com>,
+        "SELinux List" <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-12-05 at 19:46 -0500, Eamon Walsh wrote:
-> The attached C code uses the CONTEXT__CONTAINS permission check to check
-> dominance, and produces the following output on my mls box:
-> 
-> staff_u:staff_r:staff_t:s15:c0.c255 dominates staff_u:staff_r:staff_t:s0
-> 
-> system_u:object_r:etc_t:s15:c0.c255 does not dominate system_u:object_r:etc_t:s0
-> 
-> 
-> Why doesn't this check work in the second case?
+We've talked in the past about the need for immutable windows for
+desktop security banners and window security labels so what do you
+think is the best way forward on this subject? I'm guessing that X
+server changes would be required to support immutable windows so we'd
+need to get X.Org involved, right?
 
-Likely due to a TE denial.  The existing policy likely only has:
-allow domain self:context contains;
-as the original use case for this check was to apply a check between two
-subject contexts.
-
-If you want to use it for object contexts, you'll have to allow it for
-those types as well.
-
-> My color translation code has a config file that may contain lines such
-> as (paraphrasing):
-> range s0 = green
-> range s1 = yellow
-> range s1:c1 = blue
-> range s15:c0.c255 = red
-> 
-> and so forth, which are matched with incoming contexts using a dominance
-> check.  The observed behavior above is causing this not to work.
-
--- 
-Stephen Smalley
-National Security Agency
-
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
