@@ -1,52 +1,38 @@
 Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB8JlbZC021697
-	for <selinux@tycho.nsa.gov>; Mon, 8 Dec 2008 14:47:37 -0500
-Message-ID: <493D79D3.8020002@tycho.nsa.gov>
-Date: Mon, 08 Dec 2008 14:47:31 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB8KvJbo028231
+	for <selinux@tycho.nsa.gov>; Mon, 8 Dec 2008 15:57:19 -0500
+Message-ID: <493D8A2C.3060605@tycho.nsa.gov>
+Date: Mon, 08 Dec 2008 15:57:16 -0500
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: [RFC] Add color translation support to mcstransd
-References: <4927839F.4070805@tycho.nsa.gov> <4939C7D8.7020000@tycho.nsa.gov> <4939D171.5090705@tycho.nsa.gov> <200812061441.45294.russell@coker.com.au>
-In-Reply-To: <200812061441.45294.russell@coker.com.au>
+To: Xavier Toth <txtoth@gmail.com>
+CC: Daniel J Walsh <dwalsh@redhat.com>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: immutable X windows
+References: <cadfc0e40812080809m54514b47x4e098f501f1bd09f@mail.gmail.com>
+In-Reply-To: <cadfc0e40812080809m54514b47x4e098f501f1bd09f@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Russell Coker wrote:
-> On Saturday 06 December 2008 12:12, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
->   
->> A screen shot of a sample application that uses the color translations
->> can be seen at:
->> http://people.freedesktop.org/~ewalsh/mcscolor_screenshot.png
->>     
->
-> That's interesting, the yellow/green colour scheme is a little difficult to 
-> read though.
->
-> Are there any plans for making sure that it's accessible?  I expect that even 
-> if the default configuration has no colour combinations that are bad for 
-> colour-blind people, the first thing that would happen is for people to 
-> immediately start adding them if there is no clear documentation about what 
-> not to do.
+Xavier Toth wrote:
+> We've talked in the past about the need for immutable windows for
+> desktop security banners and window security labels so what do you
+> think is the best way forward on this subject? I'm guessing that X
+> server changes would be required to support immutable windows so we'd
+> need to get X.Org involved, right?
 >   
 
-Choosing appropriate color combinations is the responsibility of the
-people making the color policy.
+I believe that immutable windows are possible without involving the
+server, by using a compositing window manager such as compiz.
 
+A compositing window manager uses the Composite extension to redirect
+window contents into memory buffers, then draws the window contents to
+the screen by itself.  Since the manager does all the drawing itself, it
+could make an area immutable to other programs.
 
-> Also what about blind people?  Can this extra data be displayed in such a way 
-> that braille and speech-synthesis programs access it?
->   
+I have checked the compiz source and I am working on a compiz plugin to
+demonstrate the concept.
 
-This would be the responsibility of the accessibility engine in the
-application, for example by inserting some status notification when the
-text color changes.
-
-I don't think this is a real issue though, because if a speech synthesis
-or braille reader is outputting the security context text in the first
-place, the user will know the classification.
 
 -- 
 Eamon Walsh <ewalsh@tycho.nsa.gov>
