@@ -1,45 +1,96 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mB9L3EHk029156
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2008 16:03:14 -0500
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mB9L11KC013032
-	for <selinux@tycho.nsa.gov>; Tue, 9 Dec 2008 21:01:01 GMT
-Message-ID: <493EDD04.4050909@redhat.com>
-Date: Tue, 09 Dec 2008 16:03:00 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: erahul29@yahoo.com
-CC: selinux@tycho.nsa.gov
-Subject: Re: Non root user cannot execute semanage, semodule
-References: <829347.35568.qm@web50202.mail.re2.yahoo.com>
-In-Reply-To: <829347.35568.qm@web50202.mail.re2.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH] SELinux: open perms on sockets, AF_UNIX
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: jmorris@namei.org, sds@tycho.nsa.gov, dwalsh@redhat.com
+Content-Type: text/plain
+Date: Tue, 09 Dec 2008 18:31:16 -0500
+Message-Id: <1228865476.3737.13.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+When I did open permissions I didn't think any sockets would have an open.
+Turns out AF_UNIX sockets can have an open when they are bound to the
+filesystem namespace.  This patch adds a new SOCK_FILE__OPEN permission.
+It's safe to add this as the open perms are already predicated on
+capabilities and capabilities means we have unknown perm handling so
+systems should be as backwards compatible as the policy wants them to
+be.
 
-Rahul Jain wrote:
-> Hi All,
->  
-> I am currently developing a Role Based Access Solution on Montavista linux using SELiunx. I started my implementaion with the reference policy from Tresys. In this implementation I had assigned a role of security officer to one of my non root Linux user. This user is resposible for maintaining SELinux related tasks such as creation, building of policy etc. But this user of mine, being a non root user is not able to execute some priviledged commands such as semodule and semanage. 
-> Is there any in which I can permit a non root user execute these commands.
->  
-> Thanks and Regards
-> Rahul Jain
-> 
-> 
->       
-sudo
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+https://bugzilla.redhat.com/show_bug.cgi?id=475224
 
-iEYEARECAAYFAkk+3QQACgkQrlYvE4MpobOgwgCdHCpxAP2hqRPSI17OLLy0tO4a
-FAoAmwZa914C1wlLGPV2HZ3+BGPmv9ZG
-=zE1X
------END PGP SIGNATURE-----
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
+
+This is pretty much untested (just compiled) as I can't get linux-next
+to boot. (i'm a bit scared to turn off the redzone overwrite detection
+that is killing it, but I'll try in the morning)  It should be obvious
+and safe.  This might be unwarrented, does anyone see a use in providing
+an open distinction on AF_UNIX sockets?  Are we happy with the socket
+perms that are already there?  Who thinks I should just silence the
+dmesg spam?
+
+ security/selinux/hooks.c                     |    2 ++
+ security/selinux/include/av_perm_to_string.h |    2 ++
+ security/selinux/include/av_permissions.h    |    2 ++
+ 3 files changed, 6 insertions(+), 0 deletions(-)
+
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 51e8c75..984f0af 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1800,6 +1800,8 @@ static inline u32 open_file_to_av(struct file *file)
+ 			av |= FIFO_FILE__OPEN;
+ 		else if (S_ISDIR(mode))
+ 			av |= DIR__OPEN;
++		else if (S_ISSOCK(mode))
++			av |= SOCK_FILE__OPEN;
+ 		else
+ 			printk(KERN_ERR "SELinux: WARNING: inside %s with "
+ 				"unknown mode:%o\n", __func__, mode);
+diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
+index c0c8854..31df1d7 100644
+--- a/security/selinux/include/av_perm_to_string.h
++++ b/security/selinux/include/av_perm_to_string.h
+@@ -24,6 +24,7 @@
+    S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
+    S_(SECCLASS_CHR_FILE, CHR_FILE__OPEN, "open")
+    S_(SECCLASS_BLK_FILE, BLK_FILE__OPEN, "open")
++   S_(SECCLASS_SOCK_FILE, SOCK_FILE__OPEN, "open")
+    S_(SECCLASS_FIFO_FILE, FIFO_FILE__OPEN, "open")
+    S_(SECCLASS_FD, FD__USE, "use")
+    S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__CONNECTTO, "connectto")
+@@ -152,6 +153,7 @@
+    S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_WRITE, "nlmsg_write")
+    S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_RELAY, "nlmsg_relay")
+    S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_READPRIV, "nlmsg_readpriv")
++   S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_TTY_AUDIT, "nlmsg_tty_audit")
+    S_(SECCLASS_NETLINK_IP6FW_SOCKET, NETLINK_IP6FW_SOCKET__NLMSG_READ, "nlmsg_read")
+    S_(SECCLASS_NETLINK_IP6FW_SOCKET, NETLINK_IP6FW_SOCKET__NLMSG_WRITE, "nlmsg_write")
+    S_(SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO, "sendto")
+diff --git a/security/selinux/include/av_permissions.h b/security/selinux/include/av_permissions.h
+index 0ba79fe..d645192 100644
+--- a/security/selinux/include/av_permissions.h
++++ b/security/selinux/include/av_permissions.h
+@@ -174,6 +174,7 @@
+ #define SOCK_FILE__SWAPON                         0x00004000UL
+ #define SOCK_FILE__QUOTAON                        0x00008000UL
+ #define SOCK_FILE__MOUNTON                        0x00010000UL
++#define SOCK_FILE__OPEN                           0x00020000UL
+ #define FIFO_FILE__IOCTL                          0x00000001UL
+ #define FIFO_FILE__READ                           0x00000002UL
+ #define FIFO_FILE__WRITE                          0x00000004UL
+@@ -707,6 +708,7 @@
+ #define NETLINK_AUDIT_SOCKET__NLMSG_WRITE         0x00800000UL
+ #define NETLINK_AUDIT_SOCKET__NLMSG_RELAY         0x01000000UL
+ #define NETLINK_AUDIT_SOCKET__NLMSG_READPRIV      0x02000000UL
++#define NETLINK_AUDIT_SOCKET__NLMSG_TTY_AUDIT     0x04000000UL
+ #define NETLINK_IP6FW_SOCKET__IOCTL               0x00000001UL
+ #define NETLINK_IP6FW_SOCKET__READ                0x00000002UL
+ #define NETLINK_IP6FW_SOCKET__WRITE               0x00000004UL
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
