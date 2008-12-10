@@ -1,29 +1,41 @@
-Date: Wed, 10 Dec 2008 10:47:41 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: [PATCH] SELinux: open perms on sockets, AF_UNIX
-In-Reply-To: <1228865476.3737.13.camel@localhost.localdomain>
-Message-ID: <alpine.LRH.1.10.0812101047080.15836@tundra.namei.org>
-References: <1228865476.3737.13.camel@localhost.localdomain>
+Message-ID: <a5e2b64d0812091845r2ab1340cob275b1be5980d9ec@mail.gmail.com>
+Date: Wed, 10 Dec 2008 11:45:42 +0900
+From: "Tymur Korkishko" <timasyk@gmail.com>
+To: "SELinux mailing list" <SELinux@tycho.nsa.gov>
+Subject: Troubles with loading modular reference policy
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 9 Dec 2008, Eric Paris wrote:
+Hello!
 
-> 
-> This is pretty much untested (just compiled) as I can't get linux-next
-> to boot. (i'm a bit scared to turn off the redzone overwrite detection
-> that is killing it, but I'll try in the morning) 
+I'm trying to compile modular reference policy.
+After successful compilation (make policy) and installation (make
+install) I'm trying to load the policy by "make load".
+However, result is as following:
 
-Can you test it against security-testing?
+# make load
+Loading configured modules.
+/usr/sbin/semodule -s refpolicy_modular -b
+/usr/share/selinux/refpolicy_modular/base.pp -i
+/usr/share/selinux/refpolicy_modular/acct.pp ... [skipped all modules
+list]
+Traceback (most recent call last):
+  File "/usr/sbin/genhomedircon", line 29, in <module>
+    import selinux
+  File "/usr/lib/python2.5/site-packages/selinux/__init__.py", line 7,
+in <module>
+    import _selinux
+ImportError: /usr/lib/python2.5/site-packages/selinux/_selinux.so:
+undefined symbol: avc_get_initial_sid
+libsemanage.semanage_install_sandbox: genhomedircon returned error code 1.
 
 
--- 
-James Morris <jmorris@namei.org>
+Any ideas how to fix that?
+
+Regards,
+Tim
 
 --
 This message was distributed to subscribers of the selinux mailing list.
