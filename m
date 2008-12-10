@@ -1,43 +1,34 @@
-Subject: Re: [PATCH] SELinux: open perms on sockets, AF_UNIX
-From: Eric Paris <eparis@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBAFus50016164
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2008 10:56:54 -0500
+Received: from smtp104.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id mBAFurKM003576
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2008 15:56:54 GMT
+Message-ID: <493FE6B9.1010403@schaufler-ca.com>
+Date: Wed, 10 Dec 2008 07:56:41 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
+MIME-Version: 1.0
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, dwalsh@redhat.com
-In-Reply-To: <1228916038.23307.1.camel@localhost.localdomain>
-References: <1228865476.3737.13.camel@localhost.localdomain>
-	 <1228916038.23307.1.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 10 Dec 2008 09:05:17 -0500
-Message-Id: <1228917917.3524.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+CC: Daniel J Walsh <dwalsh@redhat.com>, erahul29@yahoo.com,
+        selinux@tycho.nsa.gov
+Subject: Re: Non root user cannot execute semanage, semodule
+References: <829347.35568.qm@web50202.mail.re2.yahoo.com>	 <493EDD04.4050909@redhat.com>  <493F5F8E.1080303@schaufler-ca.com> <1228916392.23307.6.camel@localhost.localdomain>
+In-Reply-To: <1228916392.23307.6.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2008-12-10 at 08:33 -0500, Stephen Smalley wrote:
+Stephen Smalley wrote:
+>> No - here we are running programs that do not expect to have any special
+>> privileges beyond their caller.
 
-> > diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
-> > index c0c8854..31df1d7 100644
-> > --- a/security/selinux/include/av_perm_to_string.h
-> > +++ b/security/selinux/include/av_perm_to_string.h
-> > @@ -24,6 +24,7 @@
-> >     S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
-> >     S_(SECCLASS_CHR_FILE, CHR_FILE__OPEN, "open")
-> >     S_(SECCLASS_BLK_FILE, BLK_FILE__OPEN, "open")
-> > +   S_(SECCLASS_SOCK_FILE, SOCK_FILE__OPEN, "open")
-> >     S_(SECCLASS_FIFO_FILE, FIFO_FILE__OPEN, "open")
-> >     S_(SECCLASS_FD, FD__USE, "use")
-> >     S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__CONNECTTO, "connectto")
-> > @@ -152,6 +153,7 @@
-> >     S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_WRITE, "nlmsg_write")
-> >     S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_RELAY, "nlmsg_relay")
-> >     S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_READPRIV, "nlmsg_readpriv")
-> > +   S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_TTY_AUDIT, "nlmsg_tty_audit")
-> 
-> Unrelated diff?  Defined in refpolicy yet?
+Yes, you would have to make the programs CAP aware, and in any case ...
 
-Defined in policy, I'll run down if it is in refpolicy or only in the
-fedora policy (diff was created using fedora's latest policy).  Either
-way I think I need to get it fixed in refpolicy (and make use of it in
-upstream kernel but obviously that's another patch.)
+>>   And semanage is a python script.
+>>     
+
+The Orange Book educated mind boggles. You're right. Bad idea. Never mind.
+
 
 
 --
