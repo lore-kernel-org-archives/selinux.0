@@ -1,43 +1,45 @@
-Subject: Re: Non root user cannot execute semanage, semodule
+Subject: Re: Troubles with loading modular reference policy
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, erahul29@yahoo.com,
-        selinux@tycho.nsa.gov
-In-Reply-To: <493F5F8E.1080303@schaufler-ca.com>
-References: <829347.35568.qm@web50202.mail.re2.yahoo.com>
-	 <493EDD04.4050909@redhat.com>  <493F5F8E.1080303@schaufler-ca.com>
+To: Tymur Korkishko <timasyk@gmail.com>
+Cc: SELinux mailing list <SELinux@tycho.nsa.gov>
+In-Reply-To: <a5e2b64d0812091845r2ab1340cob275b1be5980d9ec@mail.gmail.com>
+References: <a5e2b64d0812091845r2ab1340cob275b1be5980d9ec@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 10 Dec 2008 08:39:52 -0500
-Message-Id: <1228916392.23307.6.camel@localhost.localdomain>
+Date: Wed, 10 Dec 2008 08:37:04 -0500
+Message-Id: <1228916224.23307.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-12-09 at 22:19 -0800, Casey Schaufler wrote:
-> Daniel J Walsh wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Rahul Jain wrote:
-> >   
-> >> Hi All,
-> >>  
-> >> I am currently developing a Role Based Access Solution on Montavista linux using SELiunx. I started my implementaion with the reference policy from Tresys. In this implementation I had assigned a role of security officer to one of my non root Linux user. This user is resposible for maintaining SELinux related tasks such as creation, building of policy etc. But this user of mine, being a non root user is not able to execute some priviledged commands such as semodule and semanage. 
-> >> Is there any in which I can permit a non root user execute these commands.
-> >>  
-> >> Thanks and Regards
-> >> Rahul Jain
-> >>
-> >>
-> >>       
-> >>     
-> > sudo
-> >   
+On Wed, 2008-12-10 at 11:45 +0900, Tymur Korkishko wrote:
+> Hello!
 > 
-> File based capabilities, too.
+> I'm trying to compile modular reference policy.
+> After successful compilation (make policy) and installation (make
+> install) I'm trying to load the policy by "make load".
+> However, result is as following:
+> 
+> # make load
+> Loading configured modules.
+> /usr/sbin/semodule -s refpolicy_modular -b
+> /usr/share/selinux/refpolicy_modular/base.pp -i
+> /usr/share/selinux/refpolicy_modular/acct.pp ... [skipped all modules
+> list]
+> Traceback (most recent call last):
+>   File "/usr/sbin/genhomedircon", line 29, in <module>
+>     import selinux
+>   File "/usr/lib/python2.5/site-packages/selinux/__init__.py", line 7,
+> in <module>
+>     import _selinux
+> ImportError: /usr/lib/python2.5/site-packages/selinux/_selinux.so:
+> undefined symbol: avc_get_initial_sid
+> libsemanage.semanage_install_sandbox: genhomedircon returned error code 1.
+> 
+> 
+> Any ideas how to fix that?
 
-No - here we are running programs that do not expect to have any special
-privileges beyond their caller.  And semanage is a python script.
+What versions of the selinux packages are you using?
+What options did you build them with?
 
 -- 
 Stephen Smalley
