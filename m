@@ -1,97 +1,67 @@
-Message-ID: <493FE9FA.1030805@redhat.com>
-Date: Wed, 10 Dec 2008 11:10:34 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBAGYLmT022514
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2008 11:34:21 -0500
+Received: from web50204.mail.re2.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id mBAGYLE1010583
+	for <selinux@tycho.nsa.gov>; Wed, 10 Dec 2008 16:34:21 GMT
+Date: Wed, 10 Dec 2008 08:34:20 -0800 (PST)
+From: Rahul Jain <erahul29@yahoo.com>
+Reply-To: erahul29@yahoo.com
+Subject: Non root user cannot execute semanage, semodule
+To: sds@tycho.nsa.gov, dwalsh@redhat.com, casey@schaufler-ca.com,
+        justinmattock@gmail.com
+Cc: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        jmorris@namei.org
-Subject: Re: [PATCH] SELinux: open perms on sockets, AF_UNIX
-References: <1228865476.3737.13.camel@localhost.localdomain>	 <1228916038.23307.1.camel@localhost.localdomain> <1228917917.3524.2.camel@localhost.localdomain>
-In-Reply-To: <1228917917.3524.2.camel@localhost.localdomain>
-Content-Type: multipart/mixed;
- boundary="------------090809020403040002050903"
+Content-Type: multipart/alternative; boundary="0-353075081-1228926860=:7919"
+Message-ID: <652528.7919.qm@web50204.mail.re2.yahoo.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090809020403040002050903
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+--0-353075081-1228926860=:7919
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Thankyou All,
+=A0
+This community is really awesome.
+=A0
+As suggested by Stephen I used sudo in=A0order to allow a non root user exe=
+cute the priviledged commands like semodule and semanage and protected the =
+configuration file using SELinux. Though I tried=A0to tweak the policycoreu=
+tils also to get the things done but it did not work. The reason=A0being, t=
+he=A0some intermediate directories that are created when these commands are=
+ executed. The owner of these directories is root and a=A0non root user is =
+not able to access these directories.
+=A0
+For me it was important to allow security officer execute these commands be=
+cause his role entitles him to perform all security policy related tasks. S=
+emodule was needed to load the policy modules while semanage was required t=
+o map the Linux users with the selinux users.
+=A0
+Thanks and Regards
+Rahul Jain
+=A0
+=A0=0A=0A=0A      
+--0-353075081-1228926860=:7919
+Content-Type: text/html; charset=us-ascii
 
-Eric Paris wrote:
-> On Wed, 2008-12-10 at 08:33 -0500, Stephen Smalley wrote:
-> 
->>> diff --git a/security/selinux/include/av_perm_to_string.h b/security/selinux/include/av_perm_to_string.h
->>> index c0c8854..31df1d7 100644
->>> --- a/security/selinux/include/av_perm_to_string.h
->>> +++ b/security/selinux/include/av_perm_to_string.h
->>> @@ -24,6 +24,7 @@
->>>     S_(SECCLASS_CHR_FILE, CHR_FILE__EXECMOD, "execmod")
->>>     S_(SECCLASS_CHR_FILE, CHR_FILE__OPEN, "open")
->>>     S_(SECCLASS_BLK_FILE, BLK_FILE__OPEN, "open")
->>> +   S_(SECCLASS_SOCK_FILE, SOCK_FILE__OPEN, "open")
->>>     S_(SECCLASS_FIFO_FILE, FIFO_FILE__OPEN, "open")
->>>     S_(SECCLASS_FD, FD__USE, "use")
->>>     S_(SECCLASS_TCP_SOCKET, TCP_SOCKET__CONNECTTO, "connectto")
->>> @@ -152,6 +153,7 @@
->>>     S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_WRITE, "nlmsg_write")
->>>     S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_RELAY, "nlmsg_relay")
->>>     S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_READPRIV, "nlmsg_readpriv")
->>> +   S_(SECCLASS_NETLINK_AUDIT_SOCKET, NETLINK_AUDIT_SOCKET__NLMSG_TTY_AUDIT, "nlmsg_tty_audit")
->> Unrelated diff?  Defined in refpolicy yet?
-> 
-> Defined in policy, I'll run down if it is in refpolicy or only in the
-> fedora policy (diff was created using fedora's latest policy).  Either
-> way I think I need to get it fixed in refpolicy (and make use of it in
-> upstream kernel but obviously that's another patch.)
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+<table cellspacing="0" cellpadding="0" border="0" ><tr><td valign="top" style="font: inherit;"><DIV>Thankyou All,</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>This community is really awesome.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>As suggested by Stephen I used sudo in&nbsp;order to allow a non root user execute the priviledged commands like semodule and semanage and protected the configuration file using SELinux. Though I tried&nbsp;to tweak the policycoreutils also to get the things done but it did not work. The reason&nbsp;being, the&nbsp;some intermediate directories that are created when these commands are executed. The owner of these directories is root and a&nbsp;non root user is not able to access these directories.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>For me it was important to allow security officer execute these commands because his role entitles him to perform all security policy related tasks. Semodule was needed to load the policy modules while semanage was required to map the Linux users with the selinux users.</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>Thanks and Regards</DIV>
+<DIV>Rahul Jain</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp;</DIV></td></tr></table><br>
 
-You mean this patch.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkk/6foACgkQrlYvE4MpobOS4gCfToVdCVOeOol52v46C4kOyCDx
-CDgAoJ9Za1wHSEq6dvn46IggC1ZIARwN
-=PcJV
------END PGP SIGNATURE-----
 
---------------090809020403040002050903
-Content-Type: text/plain;
- name="flask_access_vectors.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="flask_access_vectors.patch"
-
---- nsaserefpolicy/policy/flask/access_vectors	2008-10-17 08:49:14.000000000 -0400
-+++ serefpolicy-3.5.13/policy/flask/access_vectors	2008-11-24 10:49:49.000000000 -0500
-@@ -616,6 +616,7 @@
- 	nlmsg_write
- 	nlmsg_relay
- 	nlmsg_readpriv
-+	nlmsg_tty_audit
- }
- 
- class netlink_ip6fw_socket
-
---------------090809020403040002050903
-Content-Type: application/octet-stream;
- name="flask_access_vectors.patch.sig"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="flask_access_vectors.patch.sig"
-
-iEYEABECAAYFAkk/6foACgkQrlYvE4MpobOjlwCcC1wBE4L5g+i9GI8c/vy9MLF9ZF0An0Es
-KeI9IolTUHcyWVlxStSvqmjk
---------------090809020403040002050903--
+      
+--0-353075081-1228926860=:7919--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
