@@ -9,8 +9,8 @@ References: <1228865476.3737.13.camel@localhost.localdomain>
 	 <D06FE0A2807BC145B0D38744789D4F5D051775A7@de01exm68.ds.mot.com>
 	 <1229535751.31499.22.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Wed, 17 Dec 2008 12:54:13 -0500
-Message-Id: <1229536453.3384.15.camel@localhost.localdomain>
+Date: Wed, 17 Dec 2008 13:00:04 -0500
+Message-Id: <1229536804.3384.21.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -98,13 +98,13 @@ On Wed, 2008-12-17 at 12:42 -0500, Stephen Smalley wrote:
 > Or you could modify the kernel for your development purposes.  It would
 > be a pretty trivial patch.  What's your base kernel version?
 
-never tried it, but I think a
+I also think you could get something like the notification you want
+using an audit rule sorta like
 
-auditallow user_t etc_t:file write;
+auditctl -a exit,always -S write -F subj_type=user_t obj_type=etc_t
 
-would give you a message every time.   It would be an allow rather than
-a deny but does it give you the info you want and wouldn't be nearly the
-perf killer threshold to 1 would be....
+again, it's not an AVC denial, but it will tell you ever time the
+operation happened....
 
 -Eric
 
