@@ -1,100 +1,76 @@
-Message-ID: <cadfc0e40812170850r547f7104p5fa8197ca9f4f84e@mail.gmail.com>
-Date: Wed, 17 Dec 2008 10:50:30 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: [RFC] Add color translation support to mcstransd
-Cc: "SELinux List" <selinux@tycho.nsa.gov>,
-        "James Carter" <jwcart2@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>, "Joe Nall" <joe@nall.com>
-In-Reply-To: <4927839F.4070805@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <4927839F.4070805@tycho.nsa.gov>
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: Avc denies while running in Permissive mode...
+Date: Wed, 17 Dec 2008 12:08:18 -0500
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D051775A7@de01exm68.ds.mot.com>
+In-Reply-To: <1228916038.23307.1.camel@localhost.localdomain>
+References: <1228865476.3737.13.camel@localhost.localdomain> <1228916038.23307.1.camel@localhost.localdomain>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Nov 21, 2008 at 9:59 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> The proposal is to add 2 new functions to mcstransd:
-> RAW_CONTEXT_TO_COLOR and TRANS_CONTEXT_TO_COLOR, and to add a new
-> configuration file "secolor.conf", similar to setrans.conf, which
-> contains mappings from security context components into colors.
->
-> The purpose of this facility is to service SELinux-aware graphical
-> applications which display security contexts.  Standard color schemes
-> are often associated with security levels or categories.  The proposed
-> color facility allows color policy to be expressed in the same manner as
-> the existing human-readable translation strings in setrans.conf.
-> Example uses include security labels in a window manager,
-> headers/footers in documents or printouts, or downgrade dialogs in
-> selection managers.
->
-> The proposed color lookup operation supports up to 10 colors: a
-> foreground/background pair for each component of the security context
-> (user, role, type, level, and category).  If all five components are not
-> specified in the configuration file, the matching engine will copy from
-> other components to fill out the 10 colors according to fallback rules.
-> For example, if colors are only specified for levels, the other four
-> color pairs will be set to the value specified for the level.  This
-> allows maximum flexibility while supporting the common case of only
-> displaying a single foreground/background or even just a background color.
->
-> Below is a sample secolor.conf file.  Comments appreciated.
->
->
-> #
-> # Color translation table for SELinux
-> #
-> # The color mechanism supports separate foreground/background color pairs for
-> # each component of the context (user, role, type, level, and category).
-> # Shell-style wildcards are supported in user, role, and type patterns.
-> #
-> # Colors are specified as hexadecimal RGB values.  Each line must contain
-> # two colors separated by whitespace: a foreground (text) color and
-> # background (area) color.
-> #
-> # It is not generally necessary to define colors for all five components of
-> # the context.  The color mechanism will borrow colors from other components
-> # as necessary.  For example if no user, role, or type statements are present,
-> # the matching engine will use the level color for all four components.
-> #
->
-> # Example non-MLS color configuration
-> #  Display sysadm/system in black-on-red
-> role sysadm_r = 000000 ff0000
-> role system_r = 000000 ff0000
->
-> #  Display staff in black-on-yellow
-> role staff_r = 000000 ffff00
->
-> #  Display everything else in white-on-green
-> role * = ffffff 00ff00
->
->
-> # Example MLS color configuration
-> level s0 = ffff00 00ff00
-> level s1 = ff0000 ffff00
-> level s2 = ffff00 ff0000
-> level s15 = 0000ff ff0000
->
-> category c0 = ffffff 0000ff
-> category c1 = ffffff 00ff00
-> category c0.c1 = ffffff 00ffff
-> category c0.c255 = 0000ff ff0000
->
->
->
->
->
-> --
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
->
+Hi All,
 
-Where does mcstrans look for secolor.conf? I can use names (red,
-yellow, etc..) for colors instead of hex values, right?
+Lets just say in my product, we are not confident enough to run in
+Enforcing mode just yet !
 
-Ted
+I used Fedora Core 7 *strict* policy as my base policy, and built my own
+additional myModule.pp policies on top of that. So, I have *strict*
+SELinux policy running on an embedded Linux Card, in Permissive mode.
+
+Due to auto-relabelling of the filesystem, files in the  /etc/
+directory get appropriately labelled as  etc_t (as desired).
+
+I have myModule.pp policy lines that say :
+
+neverallow user_t etc_t:file write;
+neverallow user_t etc_t:dir write;
+
+My question is:
+
+When I ssh in as a test user with a security context =
+[user_u:user_r:user_t], and I attempt to modify/write some file in the
+/etc/  directory,  I do get an avc deny message in the audit.log file,
+as desired  :-)
+
+But subsequent attempts to do the same thing doesn't generate any more
+avc denies ??? In other words, when I attempt to modify the same file
+again, or modify a different file under /etc/  as the same test user...
+I DON'T get any more avc deny messages ?!?
+
+I know that if I switch from Permissive to Enforcing mode, I get avc
+deny msgs for EVERY single violation !
+
+But in Permissive mode, I would like to also get a deny for every
+violation attempt.. How do I achieve this ?
+
+Because I am running with *strict* policy, during normal operation of my
+Linux card, I have numerous avc deny messages that pop up from time to
+time. So I collect all those deny messages, run audit2allow on them, and
+try to eliminate these denies in the policy.  
+
+But what confuses me is that, there are some avc denies that seem to be
+about the same operation, and those avc denies keep popping up
+repeatedly in the Permissive mode... Why then cant the scenario
+described above produce repeated avc denies ???
+
+I understand that there is a mechanism to prevent flooding of avc denies
+in Permissive mode. And I did try to change the
+/selinux/avc/cache_threshold file, by putting a "1" there instead of
+"512". But doing that causes a lot of CPU to be chewed up by SELinux.   
+
+Any other suggestions for why the scenario I described above, about a
+test user (user_t), trying to modify multiple files under the /etc/
+directory creates only one avc deny message, and doesn't generate an avc
+deny for each attempt ???
+
+Apologize for the long mail. Thanks in advance for your help,
+
+- Rezaul.
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
