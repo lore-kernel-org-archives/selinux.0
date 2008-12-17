@@ -1,65 +1,73 @@
-Subject: Re: ath9k capability=16 won't compile into policy
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Justin Mattock <justinmattock@gmail.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
-In-Reply-To: <dd18b0c30812161426l678b4bcx104efd63797c162d@mail.gmail.com>
-References: <dd18b0c30812161426l678b4bcx104efd63797c162d@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 17 Dec 2008 07:59:06 -0500
-Message-Id: <1229518746.31499.1.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBHEt2qC006555
+	for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2008 09:55:02 -0500
+Received: from hrndva-omtalb.mail.rr.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mBHEsvkP013699
+	for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2008 14:55:02 GMT
+Received: from lanikea.austin.rr.com ([70.116.65.78])
+          by hrndva-omta06.mail.rr.com with ESMTP
+          id <20081217145457.LDUN24374.hrndva-omta06.mail.rr.com@lanikea.austin.rr.com>
+          for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2008 14:54:57 +0000
+Message-Id: <CAF3C53F-C7C9-419C-9F2A-F7D5BB48AF64@austin.rr.com>
+From: Nick Gray <nick@austin.rr.com>
+To: SE-Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Subject: Tar problems when restoring polyinstantiated directories
+Date: Wed, 17 Dec 2008 08:54:56 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2008-12-16 at 14:26 -0800, Justin Mattock wrote:
-> I'm not too sure if I should post this with SELinux,
-> refpolicy, or kernel.org,(or even wpasupplicant);
->  so I decided to do all to the best of my knowledge.
-> when using the ath9k module with the latest git
-> kernel(or atleast a few days old); and the latest refpolicy (svn)
-> I'm seeing this avc denial show up:
-> 
-> Dec 16 12:33:32 name kernel: [   20.415785] type=1400
-> audit(1229459612.411:3): avc:  denied  { sys_module } for  pid=2510
-> comm="wpa_supplicant" capability=16
-> scontext=system_u:system_r:system_dbusd_t:s0
-> tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
-> Dec 16 12:33:32 name kernel: [   20.428494] type=1300
-> audit(1229459612.411:3): arch=40000003 syscall=54 success=no exit=-19
-> a0=9 a1=8933 a2=bfadd94c a3=bfadd94c items=0 ppid=1 pid=2510
-> auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
-> fsgid=0 tty=(none) ses=4294967295 comm="wpa_supplicant"
-> exe="/sbin/wpa_supplicant" subj=system_u:system_r:system_dbusd_t:s0
-> key=(null)
-> 
-> the allow rule is:(with ath9k module)
-> allow system_dbusd_t self:capability sys_module;
-> which in turn will be rejected by checkpolicy
-> (capability 16)
-> when compiling the policy.
-> 
-> If I use the madwifi module the avc is similar but produces
-> allow system_dbusd_t self:capability { sys_admin }
-> (capability 12)
-> and will be accepted by checkpolicy.
-> 
-> As for setup I'm using NetworkManager from
-> intrepid as well as wpasupplicant
-> 
-> Any info would be appreciated so I can test this module out
-> and feel better knowing the module is not being denied in any
-> way, that might cause a false positive, or some other weirdness.
+I am noticing an error from Tar when trying to restore  
+polyinstantiated directories. Rather than try to go into verbal detail  
+I though I would include the test example that I ran
 
-You didn't list the particular error message from checkpolicy, but I
-would guess that it is a neverallow failure.  You should be using an
-appropriate refpolicy interface to allow sys_module rather than directly
-doing it.  However, in this case, the real problem is that dbusd did not
-transition to a separate domain for wpa supplicant when it was launched.
-You don't want dbusd itself to be able to insert modules.
+-----------
+As root
 
--- 
-Stephen Smalley
-National Security Agency
+mkdir /TEST
+mkdir /TEST/poly
+mkdir /TEST/poly.inst
+mkdir /TEST/single
+chmod -R 777 /TEST
+Edit /etc/security/namespace.conf and add
+
+/TEST/poly /TEST/poly.inst/ level:shared:noinit:create=0777,,nick  root
+
+reboot
+
+open a terminal as nick
+
+newrole -l "SECRET-SECRET"
+touch /TEST/poly/SECRET
+touch /TEST/single/SECRET
+
+exit back to SystemLow
+su -
+cd /
+tar cv --xattrs -f test.tar /TEST
+
+rm -r /TEST/* (This will give "rm: cannot remove directory `/TEST/ 
+poly': Device or resource busy")
+
+note that /TEST/poly.inst and single are gone.
+
+tar xf test.tar
+
+tar: TEST/poly.inst/78d20e47cbefd4885c856413327b3acb: Warning: Cannot  
+acl_from_text: Invalid argument
+tar: TEST/poly.inst/0cd9e1d91636475b2aa52c5c8ba08a22: Warning: Cannot  
+acl_from_text: Invalid argument
+
+The directories have been restored, and the SECRET file in poly has  
+been restored, is accessible and only visbile by nick at SECRET-SECRET
+-----------
+
+Gladly appreciate any comments. I will look into the source when I get  
+a chance and see if I can get more information.
+
+Thanks Nicks.
+
 
 
 --
