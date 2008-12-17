@@ -1,88 +1,100 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBHFBfl4008566
-	for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2008 10:11:41 -0500
-Received: from mail-qy0-f17.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mBHF9KJL008917
-	for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2008 15:09:21 GMT
-Received: by qyk10 with SMTP id 10so3870814qyk.18
-        for <selinux@tycho.nsa.gov>; Wed, 17 Dec 2008 07:11:40 -0800 (PST)
-Message-ID: <494916A9.10107@gmail.com>
-Date: Wed, 17 Dec 2008 07:11:37 -0800
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Message-ID: <cadfc0e40812170850r547f7104p5fa8197ca9f4f84e@mail.gmail.com>
+Date: Wed, 17 Dec 2008 10:50:30 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
+Subject: Re: [RFC] Add color translation support to mcstransd
+Cc: "SELinux List" <selinux@tycho.nsa.gov>,
+        "James Carter" <jwcart2@tycho.nsa.gov>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>, "Joe Nall" <joe@nall.com>
+In-Reply-To: <4927839F.4070805@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
-Subject: Re: ath9k capability=16 won't compile into policy
-References: <dd18b0c30812161426l678b4bcx104efd63797c162d@mail.gmail.com> <1229518746.31499.1.camel@localhost.localdomain>
-In-Reply-To: <1229518746.31499.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+References: <4927839F.4070805@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2008-12-16 at 14:26 -0800, Justin Mattock wrote:
->   
->> I'm not too sure if I should post this with SELinux,
->> refpolicy, or kernel.org,(or even wpasupplicant);
->>  so I decided to do all to the best of my knowledge.
->> when using the ath9k module with the latest git
->> kernel(or atleast a few days old); and the latest refpolicy (svn)
->> I'm seeing this avc denial show up:
->>
->> Dec 16 12:33:32 name kernel: [   20.415785] type=1400
->> audit(1229459612.411:3): avc:  denied  { sys_module } for  pid=2510
->> comm="wpa_supplicant" capability=16
->> scontext=system_u:system_r:system_dbusd_t:s0
->> tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
->> Dec 16 12:33:32 name kernel: [   20.428494] type=1300
->> audit(1229459612.411:3): arch=40000003 syscall=54 success=no exit=-19
->> a0=9 a1=8933 a2=bfadd94c a3=bfadd94c items=0 ppid=1 pid=2510
->> auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
->> fsgid=0 tty=(none) ses=4294967295 comm="wpa_supplicant"
->> exe="/sbin/wpa_supplicant" subj=system_u:system_r:system_dbusd_t:s0
->> key=(null)
->>
->> the allow rule is:(with ath9k module)
->> allow system_dbusd_t self:capability sys_module;
->> which in turn will be rejected by checkpolicy
->> (capability 16)
->> when compiling the policy.
->>
->> If I use the madwifi module the avc is similar but produces
->> allow system_dbusd_t self:capability { sys_admin }
->> (capability 12)
->> and will be accepted by checkpolicy.
->>
->> As for setup I'm using NetworkManager from
->> intrepid as well as wpasupplicant
->>
->> Any info would be appreciated so I can test this module out
->> and feel better knowing the module is not being denied in any
->> way, that might cause a false positive, or some other weirdness.
->>     
+On Fri, Nov 21, 2008 at 9:59 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
+> The proposal is to add 2 new functions to mcstransd:
+> RAW_CONTEXT_TO_COLOR and TRANS_CONTEXT_TO_COLOR, and to add a new
+> configuration file "secolor.conf", similar to setrans.conf, which
+> contains mappings from security context components into colors.
 >
-> You didn't list the particular error message from checkpolicy, but I
-> would guess that it is a neverallow failure.  You should be using an
-> appropriate refpolicy interface to allow sys_module rather than directly
-> doing it.  However, in this case, the real problem is that dbusd did not
-> transition to a separate domain for wpa supplicant when it was launched.
-> You don't want dbusd itself to be able to insert modules.
+> The purpose of this facility is to service SELinux-aware graphical
+> applications which display security contexts.  Standard color schemes
+> are often associated with security levels or categories.  The proposed
+> color facility allows color policy to be expressed in the same manner as
+> the existing human-readable translation strings in setrans.conf.
+> Example uses include security labels in a window manager,
+> headers/footers in documents or printouts, or downgrade dialogs in
+> selection managers.
 >
->   
-yep,
-It was a neverallow rule that caused the error.
-As for the module, I take it the module is  good then.
-Hmm.. I'm going to have to think about this one. i.g.
-NetworkManager seems to have different ways
-to startup. right now this is just the auto boot
-mechanism.(/etc/network/interfaces).
-I'll have to get back with this...
-(I'll send you a status asap);
-Thanks for the hint, on what I'm doing wrong.
+> The proposed color lookup operation supports up to 10 colors: a
+> foreground/background pair for each component of the security context
+> (user, role, type, level, and category).  If all five components are not
+> specified in the configuration file, the matching engine will copy from
+> other components to fill out the 10 colors according to fallback rules.
+> For example, if colors are only specified for levels, the other four
+> color pairs will be set to the value specified for the level.  This
+> allows maximum flexibility while supporting the common case of only
+> displaying a single foreground/background or even just a background color.
+>
+> Below is a sample secolor.conf file.  Comments appreciated.
+>
+>
+> #
+> # Color translation table for SELinux
+> #
+> # The color mechanism supports separate foreground/background color pairs for
+> # each component of the context (user, role, type, level, and category).
+> # Shell-style wildcards are supported in user, role, and type patterns.
+> #
+> # Colors are specified as hexadecimal RGB values.  Each line must contain
+> # two colors separated by whitespace: a foreground (text) color and
+> # background (area) color.
+> #
+> # It is not generally necessary to define colors for all five components of
+> # the context.  The color mechanism will borrow colors from other components
+> # as necessary.  For example if no user, role, or type statements are present,
+> # the matching engine will use the level color for all four components.
+> #
+>
+> # Example non-MLS color configuration
+> #  Display sysadm/system in black-on-red
+> role sysadm_r = 000000 ff0000
+> role system_r = 000000 ff0000
+>
+> #  Display staff in black-on-yellow
+> role staff_r = 000000 ffff00
+>
+> #  Display everything else in white-on-green
+> role * = ffffff 00ff00
+>
+>
+> # Example MLS color configuration
+> level s0 = ffff00 00ff00
+> level s1 = ff0000 ffff00
+> level s2 = ffff00 ff0000
+> level s15 = 0000ff ff0000
+>
+> category c0 = ffffff 0000ff
+> category c1 = ffffff 00ff00
+> category c0.c1 = ffffff 00ffff
+> category c0.c255 = 0000ff ff0000
+>
+>
+>
+>
+>
+> --
+> Eamon Walsh <ewalsh@tycho.nsa.gov>
+> National Security Agency
+>
+>
 
-regards;
+Where does mcstrans look for secolor.conf? I can use names (red,
+yellow, etc..) for colors instead of hex values, right?
 
-Justin P. Mattock
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
