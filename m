@@ -1,102 +1,77 @@
-Subject: Re: Avc denies while running in Permissive mode...
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: James Morris <jmorris@namei.org>,
-        Hasan Rezaul-CHR010 <CHR010@motorola.com>, selinux@tycho.nsa.gov,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <1229617309.3384.62.camel@localhost.localdomain>
-References: <1228865476.3737.13.camel@localhost.localdomain>
-	 <1228916038.23307.1.camel@localhost.localdomain>
-	 <D06FE0A2807BC145B0D38744789D4F5D051775A7@de01exm68.ds.mot.com>
-	 <1229535751.31499.22.camel@localhost.localdomain>
-	 <alpine.LRH.1.10.0812181525050.30403@tundra.namei.org>
-	 <1229608651.27670.14.camel@localhost.localdomain>
-	 <1229617309.3384.62.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 18 Dec 2008 11:26:49 -0500
-Message-Id: <1229617609.27670.23.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBIGj7wM016149
+	for <selinux@tycho.nsa.gov>; Thu, 18 Dec 2008 11:45:07 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id mBIGgjSg010710
+	for <selinux@tycho.nsa.gov>; Thu, 18 Dec 2008 16:42:46 GMT
+Message-ID: <494A7E0D.6050200@redhat.com>
+Date: Thu, 18 Dec 2008 11:45:01 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Justin Mattock <justinmattock@gmail.com>
+CC: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [refpolicy] ath9k capability=16 won't compile into policy
+References: <dd18b0c30812161426l678b4bcx104efd63797c162d@mail.gmail.com>
+In-Reply-To: <dd18b0c30812161426l678b4bcx104efd63797c162d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2008-12-18 at 11:21 -0500, Eric Paris wrote:
-> On Thu, 2008-12-18 at 08:57 -0500, Stephen Smalley wrote:
-> > On Thu, 2008-12-18 at 15:30 +1100, James Morris wrote:
-> > > On Wed, 17 Dec 2008, Stephen Smalley wrote:
-> > > 
-> > > > In permissive mode, when a permission would be denied for a given
-> > > > (source context, target context, target class) triple for the first
-> > > > time, the kernel audits the denial (avc:  denied) and then adds that
-> > > > permission to the allowed vector for that triple in the AVC (access
-> > > > vector cache).  Thus, subsequent uses of that same permission on that
-> > > > same triple will not trigger further denials until the cache entry is
-> > > > evicted from the cache (which can happen automatically if we need to
-> > > > free up space for use by other entries or explicitly upon either a
-> > > > policy reload or changing a policy boolean).
-> > > 
-> > > What about adding a kernel option (say, selinux_permissive_debug), which 
-> > > causes the permission update to be bypassed, but still allows the 
-> > > operation?
-> > > 
-> > > Something like:
-> > > 
-> > > int avc_has_perm_noaudit(...)
-> > > {
-> > > 
-> > > 	...
-> > > 
-> > >         if (denied) {
-> > >                 if (flags & AVC_STRICT)
-> > >                         rc = -EACCES;
-> > >                 else if (!selinux_enforcing || security_permissive_sid(ssid))
-> > > 			if (!selinux_permissive_debug)
-> > > 				avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
-> > >                                 	        tsid, tclass);
-> > >                 else
-> > >                         rc = -EACCES;
-> > >         }
-> > > 
-> > > 	...
-> > > }
-> > 
-> > Yes, that was what I had in mind, although Eric seems to think we can
-> > get by via existing auditallow and/or syscall audit mechanisms.
-> > 
-> > Such an option could have its initial value specified via kernel config
-> > or via boot parameter (so that one can boot a kernel in this state
-> > initially and collect all avc messages in permissive) and the value
-> > could subsequently be changed via a new selinuxfs node.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Justin Mattock wrote:
+> I'm not too sure if I should post this with SELinux,
+> refpolicy, or kernel.org,(or even wpasupplicant);
+>  so I decided to do all to the best of my knowledge.
+> when using the ath9k module with the latest git
+> kernel(or atleast a few days old); and the latest refpolicy (svn)
+> I'm seeing this avc denial show up:
 > 
-> The only point of this new impossible to find and twittle flag would be
-> to get notification of what would have been denied.  I think I gave 2
-> ways to get such notification and you already get one "correct" denial
-> which audit2allow will be able to translate.  What tools really
-> differentiate between one denial and 1000?  Setroubleshoot I guess sorta
-> does...
+> Dec 16 12:33:32 name kernel: [   20.415785] type=1400
+> audit(1229459612.411:3): avc:  denied  { sys_module } for  pid=2510
+> comm="wpa_supplicant" capability=16
+> scontext=system_u:system_r:system_dbusd_t:s0
+> tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
+> Dec 16 12:33:32 name kernel: [   20.428494] type=1300
+> audit(1229459612.411:3): arch=40000003 syscall=54 success=no exit=-19
+> a0=9 a1=8933 a2=bfadd94c a3=bfadd94c items=0 ppid=1 pid=2510
+> auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
+> fsgid=0 tty=(none) ses=4294967295 comm="wpa_supplicant"
+> exe="/sbin/wpa_supplicant" subj=system_u:system_r:system_dbusd_t:s0
+> key=(null)
 > 
-> I know in the past I've wished something like this flag was present, so
-> I'm not going to stand in the way, but it seems to me like one can
-> already get the info and we are just cluttering the kernel code so we
-> can get the same info another way....
+> the allow rule is:(with ath9k module)
+> allow system_dbusd_t self:capability sys_module;
+> which in turn will be rejected by checkpolicy
+> (capability 16)
+> when compiling the policy.
+> 
+> If I use the madwifi module the avc is similar but produces
+> allow system_dbusd_t self:capability { sys_admin }
+> (capability 12)
+> and will be accepted by checkpolicy.
+> 
+> As for setup I'm using NetworkManager from
+> intrepid as well as wpasupplicant
+> 
+> Any info would be appreciated so I can test this module out
+> and feel better knowing the module is not being denied in any
+> way, that might cause a false positive, or some other weirdness.
+> 
+> 
+> regards;
+We label wpa_supplicant as NetworkManager_exec_t and have dbus
+transition to this domain.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-It would likely help to know why Hasan wants to see every instance of a
-given avc denial.  What benefit do you derive from seeing repeated
-instances of the same denial, given that they yield the same resulting
-allow rules?
-
-If you just want to run through a test sequence multiple times and see
-the denials on each run, then you could always just run load_policy
-after each run to flush the AVC.
-
-Or is it the fact that you want to see multiple instances of the same
-avc denial because they involve different programs and/or files running
-in the same domain or labeled with the same type and you are trying to
-figure out what new domains/types you need to introduce?
-
--- 
-Stephen Smalley
-National Security Agency
-
+iEYEARECAAYFAklKfg0ACgkQrlYvE4MpobPltQCfbcRlboJohHcUaUaASFMbj1LK
+/9AAoNPuDJuPv3B4tpikLzsjUPYCUe4I
+=Nozo
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
