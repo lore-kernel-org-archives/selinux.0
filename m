@@ -1,101 +1,104 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBIHhd7A023441
-	for <selinux@tycho.nsa.gov>; Thu, 18 Dec 2008 12:43:39 -0500
-Received: from qw-out-1920.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mBIHhc6q020591
-	for <selinux@tycho.nsa.gov>; Thu, 18 Dec 2008 17:43:39 GMT
-Received: by qw-out-1920.google.com with SMTP id 5so100993qwc.30
-        for <selinux@tycho.nsa.gov>; Thu, 18 Dec 2008 09:43:38 -0800 (PST)
-Message-ID: <494A8BC7.7000407@gmail.com>
-Date: Thu, 18 Dec 2008 09:43:35 -0800
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Message-ID: <494AAF0A.4040109@tycho.nsa.gov>
+Date: Thu, 18 Dec 2008 15:14:02 -0500
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [refpolicy] ath9k capability=16 won't compile into policy
-References: <dd18b0c30812161426l678b4bcx104efd63797c162d@mail.gmail.com> <494A7E0D.6050200@redhat.com>
-In-Reply-To: <494A7E0D.6050200@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Xavier Toth <txtoth@gmail.com>
+CC: SELinux List <selinux@tycho.nsa.gov>, James Carter <jwcart2@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>, Joe Nall <joe@nall.com>
+Subject: Re: [RFC] Add color translation support to mcstransd
+References: <4927839F.4070805@tycho.nsa.gov> <cadfc0e40812170850r547f7104p5fa8197ca9f4f84e@mail.gmail.com>
+In-Reply-To: <cadfc0e40812170850r547f7104p5fa8197ca9f4f84e@mail.gmail.com>
+Content-Type: multipart/mixed;
+ boundary="------------040301070706090900080309"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+This is a multi-part message in MIME format.
+--------------040301070706090900080309
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+Xavier Toth wrote:
+> Where does mcstrans look for secolor.conf? I can use names (red,
+> yellow, etc..) for colors instead of hex values, right?
 >
-> Justin Mattock wrote:
->   
->> I'm not too sure if I should post this with SELinux,
->> refpolicy, or kernel.org,(or even wpasupplicant);
->>  so I decided to do all to the best of my knowledge.
->> when using the ath9k module with the latest git
->> kernel(or atleast a few days old); and the latest refpolicy (svn)
->> I'm seeing this avc denial show up:
->>
->> Dec 16 12:33:32 name kernel: [   20.415785] type=1400
->> audit(1229459612.411:3): avc:  denied  { sys_module } for  pid=2510
->> comm="wpa_supplicant" capability=16
->> scontext=system_u:system_r:system_dbusd_t:s0
->> tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
->> Dec 16 12:33:32 name kernel: [   20.428494] type=1300
->> audit(1229459612.411:3): arch=40000003 syscall=54 success=no exit=-19
->> a0=9 a1=8933 a2=bfadd94c a3=bfadd94c items=0 ppid=1 pid=2510
->> auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
->> fsgid=0 tty=(none) ses=4294967295 comm="wpa_supplicant"
->> exe="/sbin/wpa_supplicant" subj=system_u:system_r:system_dbusd_t:s0
->> key=(null)
->>
->> the allow rule is:(with ath9k module)
->> allow system_dbusd_t self:capability sys_module;
->> which in turn will be rejected by checkpolicy
->> (capability 16)
->> when compiling the policy.
->>
->> If I use the madwifi module the avc is similar but produces
->> allow system_dbusd_t self:capability { sys_admin }
->> (capability 12)
->> and will be accepted by checkpolicy.
->>
->> As for setup I'm using NetworkManager from
->> intrepid as well as wpasupplicant
->>
->> Any info would be appreciated so I can test this module out
->> and feel better knowing the module is not being denied in any
->> way, that might cause a false positive, or some other weirdness.
->>
->>
->> regards;
->>     
-> We label wpa_supplicant as NetworkManager_exec_t and have dbus
-> transition to this domain.
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.9 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
->
-> iEYEARECAAYFAklKfg0ACgkQrlYvE4MpobPltQCfbcRlboJohHcUaUaASFMbj1LK
-> /9AAoNPuDJuPv3B4tpikLzsjUPYCUe4I
-> =Nozo
-> -----END PGP SIGNATURE-----
+> Ted
 >
 >   
-Cool thanks for the info.
-I just have to figure out how
-to get the machine to do that.
-i.g. through dispatcher.d or network/interfaces.
-one thing that I'm noticing is ubuntu's version of
-NetworkManager only has two plugins(01ifupdown,keyfile);
-I'll try loading another version and see if the other plugins
-is what I'm missing to have dbusd transition
-correctly.
 
-regards;
+I pushed two changes to the color-ewalsh branch addressing these issues,
+please pull.
 
-Justin P. Mattock
+/etc/selinux/$POLICYTYPE/secolor.conf  is the location.
+
+You can define names for colors using a new "color" rule in the conf
+file.  Hex values are now specified with a leading hash mark to
+distinguish them from symbolic names.
+
+The "level" and "category" rules were dropped because, as alluded to in
+another thread, SELinux does not expose knowledge of the MLS field to
+the end user.  The only call available in the SELinux API is a dominance
+check, hence I had to combine those two rules into a single "range" rule.
+
+New example conf file attached.
 
 
+-- 
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
+--------------040301070706090900080309
+Content-Type: text/plain;
+ name="secolor.conf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="secolor.conf"
+
+#
+# Color translation table for SELinux
+#
+# The color mechanism supports separate foreground/background color pairs for
+# each component of the context (user, role, type, and range).
+# Shell-style wildcards are supported in user, role, and type patterns.
+#
+# Colors are specified as hexadecimal RGB values.  Each line must contain
+# two colors separated by whitespace: a foreground (text) color and
+# background (area) color.
+#
+# It is not generally necessary to define colors for all five components of
+# the context.  The color mechanism will borrow colors from other components
+# as necessary.  For example if no user, role, or type statements are present,
+# the matching engine will use the range color for all four components.
+#
+
+# Color definitions
+color red   = #ff0000
+color green = #00ff00
+color blue  = #0000ff
+color yellow = #ffff00
+color black = #000000
+color white = #ffffff
+
+# Example non-MLS color configuration
+#  Display sysadm/system in black-on-red
+#role sysadm_r = black red
+#role system_r = black red
+
+#  Display staff in black-on-yellow
+#role staff_r = black yellow
+
+#  Display everything else in yellow-on-green
+#role * = yellow green
+
+
+# Example MLS color configuration
+range s0:c0.c255 = yellow green
+range s1:c0.c255 = red yellow
+range s2:c0.c255 = yellow red
+range s15:c0.c255 = #ffff00 #ff00ff
+
+--------------040301070706090900080309--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
