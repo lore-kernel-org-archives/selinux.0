@@ -1,100 +1,111 @@
-Message-ID: <cadfc0e40812190724m6fcfbcccv193d0ad6a0a0ab9b@mail.gmail.com>
-Date: Fri, 19 Dec 2008 09:24:18 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: [RFC] Add color translation support to mcstransd
-Cc: "SELinux List" <selinux@tycho.nsa.gov>,
-        "James Carter" <jwcart2@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>, "Joe Nall" <joe@nall.com>
-In-Reply-To: <494AAF0A.4040109@tycho.nsa.gov>
+Message-ID: <494BFEE1.2060809@gmail.com>
+Date: Fri, 19 Dec 2008 12:06:57 -0800
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <4927839F.4070805@tycho.nsa.gov>
-	 <cadfc0e40812170850r547f7104p5fa8197ca9f4f84e@mail.gmail.com>
-	 <494AAF0A.4040109@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: ath9k capability=16 won't compile into policy
+References: <dd18b0c30812161426l678b4bcx104efd63797c162d@mail.gmail.com> <1229518746.31499.1.camel@localhost.localdomain>
+In-Reply-To: <1229518746.31499.1.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Dec 18, 2008 at 2:14 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> Xavier Toth wrote:
->> Where does mcstrans look for secolor.conf? I can use names (red,
->> yellow, etc..) for colors instead of hex values, right?
+Stephen Smalley wrote:
+> On Tue, 2008-12-16 at 14:26 -0800, Justin Mattock wrote:
+>   
+>> I'm not too sure if I should post this with SELinux,
+>> refpolicy, or kernel.org,(or even wpasupplicant);
+>>  so I decided to do all to the best of my knowledge.
+>> when using the ath9k module with the latest git
+>> kernel(or atleast a few days old); and the latest refpolicy (svn)
+>> I'm seeing this avc denial show up:
 >>
->> Ted
+>> Dec 16 12:33:32 name kernel: [   20.415785] type=1400
+>> audit(1229459612.411:3): avc:  denied  { sys_module } for  pid=2510
+>> comm="wpa_supplicant" capability=16
+>> scontext=system_u:system_r:system_dbusd_t:s0
+>> tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
+>> Dec 16 12:33:32 name kernel: [   20.428494] type=1300
+>> audit(1229459612.411:3): arch=40000003 syscall=54 success=no exit=-19
+>> a0=9 a1=8933 a2=bfadd94c a3=bfadd94c items=0 ppid=1 pid=2510
+>> auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
+>> fsgid=0 tty=(none) ses=4294967295 comm="wpa_supplicant"
+>> exe="/sbin/wpa_supplicant" subj=system_u:system_r:system_dbusd_t:s0
+>> key=(null)
 >>
+>> the allow rule is:(with ath9k module)
+>> allow system_dbusd_t self:capability sys_module;
+>> which in turn will be rejected by checkpolicy
+>> (capability 16)
+>> when compiling the policy.
 >>
+>> If I use the madwifi module the avc is similar but produces
+>> allow system_dbusd_t self:capability { sys_admin }
+>> (capability 12)
+>> and will be accepted by checkpolicy.
+>>
+>> As for setup I'm using NetworkManager from
+>> intrepid as well as wpasupplicant
+>>
+>> Any info would be appreciated so I can test this module out
+>> and feel better knowing the module is not being denied in any
+>> way, that might cause a false positive, or some other weirdness.
+>>     
 >
-> I pushed two changes to the color-ewalsh branch addressing these issues,
-> please pull.
+> You didn't list the particular error message from checkpolicy, but I
+> would guess that it is a neverallow failure.  You should be using an
+> appropriate refpolicy interface to allow sys_module rather than directly
+> doing it.  However, in this case, the real problem is that dbusd did not
+> transition to a separate domain for wpa supplicant when it was launched.
+> You don't want dbusd itself to be able to insert modules.
 >
-> /etc/selinux/$POLICYTYPE/secolor.conf  is the location.
->
-> You can define names for colors using a new "color" rule in the conf
-> file.  Hex values are now specified with a leading hash mark to
-> distinguish them from symbolic names.
->
-> The "level" and "category" rules were dropped because, as alluded to in
-> another thread, SELinux does not expose knowledge of the MLS field to
-> the end user.  The only call available in the SELinux API is a dominance
-> check, hence I had to combine those two rules into a single "range" rule.
->
-> New example conf file attached.
->
->
-> --
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
->
-> #
-> # Color translation table for SELinux
-> #
-> # The color mechanism supports separate foreground/background color pairs for
-> # each component of the context (user, role, type, and range).
-> # Shell-style wildcards are supported in user, role, and type patterns.
-> #
-> # Colors are specified as hexadecimal RGB values.  Each line must contain
-> # two colors separated by whitespace: a foreground (text) color and
-> # background (area) color.
-> #
-> # It is not generally necessary to define colors for all five components of
-> # the context.  The color mechanism will borrow colors from other components
-> # as necessary.  For example if no user, role, or type statements are present,
-> # the matching engine will use the range color for all four components.
-> #
->
-> # Color definitions
-> color red   = #ff0000
-> color green = #00ff00
-> color blue  = #0000ff
-> color yellow = #ffff00
-> color black = #000000
-> color white = #ffffff
->
-> # Example non-MLS color configuration
-> #  Display sysadm/system in black-on-red
-> #role sysadm_r = black red
-> #role system_r = black red
->
-> #  Display staff in black-on-yellow
-> #role staff_r = black yellow
->
-> #  Display everything else in yellow-on-green
-> #role * = yellow green
->
->
-> # Example MLS color configuration
-> range s0:c0.c255 = yellow green
-> range s1:c0.c255 = red yellow
-> range s2:c0.c255 = yellow red
-> range s15:c0.c255 = #ffff00 #ff00ff
->
->
+>   
+Well, after loosing my patience with this,
+I think I'm going to give up.
+(but then again,I won't be able to sleep at night!!)
+I think I'm dealing with something missing with
+NetworkManager i.g. When using the "keyfile"
+plugin
+ it's as simple as creating a file with
+you're network info and putting it in network-settings/"name"
+then once NetworkManager start's, it reads that file
+and viola up and running.(and hopefully  put's  NetworkManager in the right
+transition etc..)
+Unfortunately  I keep getting  a dead  reaction  when  using  this  
+approach.
+ NetworkManager: <info>  (wlan0): device state change: 1 -> 2 
+ NetworkManager: <info>  (wlan0): bringing up device.
+ NetworkManager: <info>  (wlan0): preparing device.
+ NetworkManager: <info>  (wlan0): deactivating device (reason: 2). 
 
-If I miss configure secolor.conf mcstransd fails to start instead I'd
-prefer that it log the error and continue.
+then:
 
-Ted
+ kernel: [   20.331143] type=1400 audit(1229715518.330:5): avc:  denied  
+{ sys_module } for  pid=2457 comm="wpa_supplicant" capability=16 
+scontext=system_u:system_r:system_dbusd_t:s0 
+tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
+
+
+is triggered.
+
+I think with redhat there is the
+plugin ifcfg-rh which is similar to
+what keyfile does.
+Anyways thanks for the info on this.
+I'll post anything if something comes up.
+
+regards;
+
+Justin P. Mattock
+
+
+
+
+
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
