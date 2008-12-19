@@ -1,111 +1,91 @@
-Message-ID: <494BFEE1.2060809@gmail.com>
-Date: Fri, 19 Dec 2008 12:06:57 -0800
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Message-ID: <cadfc0e40812191327i4ff72368yda3de3396d46524@mail.gmail.com>
+Date: Fri, 19 Dec 2008 15:27:13 -0600
+From: "Xavier Toth" <txtoth@gmail.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Subject: Re: limitations of CONTEXT__CONTAINS interface
+Cc: "Eamon Walsh" <ewalsh@tycho.nsa.gov>,
+        "SELinux List" <selinux@tycho.nsa.gov>
+In-Reply-To: <1228746149.18446.2.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: ath9k capability=16 won't compile into policy
-References: <dd18b0c30812161426l678b4bcx104efd63797c162d@mail.gmail.com> <1229518746.31499.1.camel@localhost.localdomain>
-In-Reply-To: <1229518746.31499.1.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+References: <4939CB81.1030707@tycho.nsa.gov>
+	 <1228746149.18446.2.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
-> On Tue, 2008-12-16 at 14:26 -0800, Justin Mattock wrote:
->   
->> I'm not too sure if I should post this with SELinux,
->> refpolicy, or kernel.org,(or even wpasupplicant);
->>  so I decided to do all to the best of my knowledge.
->> when using the ath9k module with the latest git
->> kernel(or atleast a few days old); and the latest refpolicy (svn)
->> I'm seeing this avc denial show up:
+On Mon, Dec 8, 2008 at 8:22 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Fri, 2008-12-05 at 19:46 -0500, Eamon Walsh wrote:
+>> The attached C code uses the CONTEXT__CONTAINS permission check to check
+>> dominance, and produces the following output on my mls box:
 >>
->> Dec 16 12:33:32 name kernel: [   20.415785] type=1400
->> audit(1229459612.411:3): avc:  denied  { sys_module } for  pid=2510
->> comm="wpa_supplicant" capability=16
->> scontext=system_u:system_r:system_dbusd_t:s0
->> tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
->> Dec 16 12:33:32 name kernel: [   20.428494] type=1300
->> audit(1229459612.411:3): arch=40000003 syscall=54 success=no exit=-19
->> a0=9 a1=8933 a2=bfadd94c a3=bfadd94c items=0 ppid=1 pid=2510
->> auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
->> fsgid=0 tty=(none) ses=4294967295 comm="wpa_supplicant"
->> exe="/sbin/wpa_supplicant" subj=system_u:system_r:system_dbusd_t:s0
->> key=(null)
+>> staff_u:staff_r:staff_t:s15:c0.c255 dominates staff_u:staff_r:staff_t:s0
 >>
->> the allow rule is:(with ath9k module)
->> allow system_dbusd_t self:capability sys_module;
->> which in turn will be rejected by checkpolicy
->> (capability 16)
->> when compiling the policy.
+>> system_u:object_r:etc_t:s15:c0.c255 does not dominate system_u:object_r:etc_t:s0
 >>
->> If I use the madwifi module the avc is similar but produces
->> allow system_dbusd_t self:capability { sys_admin }
->> (capability 12)
->> and will be accepted by checkpolicy.
 >>
->> As for setup I'm using NetworkManager from
->> intrepid as well as wpasupplicant
->>
->> Any info would be appreciated so I can test this module out
->> and feel better knowing the module is not being denied in any
->> way, that might cause a false positive, or some other weirdness.
->>     
+>> Why doesn't this check work in the second case?
 >
-> You didn't list the particular error message from checkpolicy, but I
-> would guess that it is a neverallow failure.  You should be using an
-> appropriate refpolicy interface to allow sys_module rather than directly
-> doing it.  However, in this case, the real problem is that dbusd did not
-> transition to a separate domain for wpa supplicant when it was launched.
-> You don't want dbusd itself to be able to insert modules.
+> Likely due to a TE denial.  The existing policy likely only has:
+> allow domain self:context contains;
+> as the original use case for this check was to apply a check between two
+> subject contexts.
 >
->   
-Well, after loosing my patience with this,
-I think I'm going to give up.
-(but then again,I won't be able to sleep at night!!)
-I think I'm dealing with something missing with
-NetworkManager i.g. When using the "keyfile"
-plugin
- it's as simple as creating a file with
-you're network info and putting it in network-settings/"name"
-then once NetworkManager start's, it reads that file
-and viola up and running.(and hopefully  put's  NetworkManager in the right
-transition etc..)
-Unfortunately  I keep getting  a dead  reaction  when  using  this  
-approach.
- NetworkManager: <info>  (wlan0): device state change: 1 -> 2 
- NetworkManager: <info>  (wlan0): bringing up device.
- NetworkManager: <info>  (wlan0): preparing device.
- NetworkManager: <info>  (wlan0): deactivating device (reason: 2). 
+> If you want to use it for object contexts, you'll have to allow it for
+> those types as well.
+>
+>> My color translation code has a config file that may contain lines such
+>> as (paraphrasing):
+>> range s0 = green
+>> range s1 = yellow
+>> range s1:c1 = blue
+>> range s15:c0.c255 = red
+>>
+>> and so forth, which are matched with incoming contexts using a dominance
+>> check.  The observed behavior above is causing this not to work.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-then:
+Can anyone help me understand the results I'm getting here? I wrote
+this python script (compute_av.py) to test the dominance check:
 
- kernel: [   20.331143] type=1400 audit(1229715518.330:5): avc:  denied  
-{ sys_module } for  pid=2457 comm="wpa_supplicant" capability=16 
-scontext=system_u:system_r:system_dbusd_t:s0 
-tcontext=system_u:system_r:system_dbusd_t:s0 tclass=capability
+import selinux
+SECCLASS_CONTEXT = selinux.string_to_security_class("context")
+CONTEXT__CONTAINS = 2
 
+rc, con = selinux.getcon()
+con_array = con.split(":")
 
-is triggered.
-
-I think with redhat there is the
-plugin ifcfg-rh which is similar to
-what keyfile does.
-Anyways thanks for the info on this.
-I'll post anything if something comes up.
-
-regards;
-
-Justin P. Mattock
-
+avd = selinux.av_decision()
+con_array[3] = "s0:c0.c255"
+ctx = ':'.join(con_array)
+con_array[3] = "s0"
+raw = ':'.join(con_array)
+rc = selinux.security_compute_av_raw(ctx, raw, SECCLASS_CONTEXT,
+CONTEXT__CONTAINS, avd)
+print ctx, raw, avd.allowed
 
 
+[tedx@comms ~]$ runcon system_u:system_r:initrc_t:s0-s15:c0.c1023
+python compute_av.py
+system_u:system_r:initrc_t:s0:c0.c255 system_u:system_r:initrc_t:s0 0
+[tedx@comms ~]$ python compute_av.py
+user_u:user_r:user_t:s0:c0.c255 user_u:user_r:user_t:s0 2
 
 
+I ran these test in permissive mode. Why doesn't
+system_u:system_r:initrc_t:s0:c0.c255 dominate
+system_u:system_r:initrc_t:s0?
 
-
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
