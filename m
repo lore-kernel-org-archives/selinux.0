@@ -1,5 +1,5 @@
-Message-ID: <4951F4C7.6080202@gmail.com>
-Date: Wed, 24 Dec 2008 00:37:27 -0800
+Message-ID: <4951F766.5060901@gmail.com>
+Date: Wed, 24 Dec 2008 00:48:38 -0800
 From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
 To: Tim <timasyk@gmail.com>
@@ -33,11 +33,12 @@ Tim wrote:
 > the words "unsubscribe selinux" without quotes as the message.
 >
 >   
-That's a first!!
-not sure what to say..
-maybe add
-/somelocation in /etc/selinux/config
-under SELINUXTYPE
+FWIW
+SELinux reads the policy, then
+enforces what it reads.
+so if everything is (chmoded 0400) then you should be fine.
+
+but could be wrong;  ;/
 
 regards;
 
