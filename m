@@ -1,45 +1,72 @@
-Message-ID: <cadfc0e40812240823x5c10c135p59b229fad22c7fb3@mail.gmail.com>
-Date: Wed, 24 Dec 2008 10:23:55 -0600
-From: "Xavier Toth" <txtoth@gmail.com>
-To: "Eamon Walsh" <ewalsh@tycho.nsa.gov>
-Subject: Re: [RFC] Add color translation support to mcstransd
-Cc: "Joe Nall" <joe@nall.com>, "SELinux List" <selinux@tycho.nsa.gov>,
-        "James Carter" <jwcart2@tycho.nsa.gov>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>
-In-Reply-To: <494187BF.2090301@tycho.nsa.gov>
+Message-ID: <49534D18.2030808@gmail.com>
+Date: Thu, 25 Dec 2008 01:06:32 -0800
+From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-References: <4927839F.4070805@tycho.nsa.gov>
-	 <AD1BDA2B-D7CF-48AC-846E-54DC795B3C08@nall.com>
-	 <492AFFAD.5070805@tycho.nsa.gov>
-	 <cadfc0e40812051416v15070ddag132ff548d535052c@mail.gmail.com>
-	 <494187BF.2090301@tycho.nsa.gov>
+To: Paul Howarth <paul@city-fan.org>
+CC: SELinux mailing list <SELinux@tycho.nsa.gov>
+Subject: Re: Alternative location of policy files
+References: <a5e2b64d0812232358u19f442dfwd27da7f0978a508c@mail.gmail.com> <4951FA70.6000100@city-fan.org> <495204F4.4070301@gmail.com>
+In-Reply-To: <495204F4.4070301@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Dec 11, 2008 at 3:35 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
-> Xavier Toth wrote:
+Justin P. Mattock wrote:
+> Paul Howarth wrote:
+>> Tim wrote:
+>>> Hello all,
+>>>
+>>> I was wondering, how can I change default location of SELinux policy
+>>> from /etc/selinux/_policyname_ to some other path?
+>>> What source codes should be modified for that?
+>>>
+>>> The reason to do that are:
+>>> - I want to work with loadable policy modules --> that requires
+>>> /etc/selinux/_policyname_ directory to be writable.
+>>> - limitation of my filesystem having /etc directory (it is read-only 
+>>> filesystem)
+>>> - unfortunately, I can not mount /etc into some other writable 
+>>> filesystem
 >>
->> Sorry to be pedantic but is there a reference implementation or will
->> the mcstrans developer (Joe) have to develop it?
+>> Perhaps you could mount /etc/selinux/_policyname_ rather than /etc 
+>> from a writeable filesystem?
 >>
->> Ted
+>> Paul.
+>> cy
+>> -- 
+>> This message was distributed to subscribers of the selinux mailing list.
+>> If you no longer wish to subscribe, send mail to 
+>> majordomo@tycho.nsa.gov with
+>> the words "unsubscribe selinux" without quotes as the message.
 >>
+> This is confusing to me:
+> it sounds like there not trying to mount
+> SELinux, but have the policy load
+> in a different location other than
+> /etc/selinux/*
 >
-> Also here is a preliminary libselinux patch.
+> regards;
+>
+> Justin P. Mattock
 >
 >
-> --
-> Eamon Walsh <ewalsh@tycho.nsa.gov>
-> National Security Agency
->
->
+On second thought  from what  it  sounds,
+to have SELinux be read in another location,
+you would have to locate in
+libselinux the location from where the library is
+told to read the the policy, and simple just change the location,
+but then you might have to change the kernel, all the libraries,
+all apps, etc.. that read /etc/selinux/*
+maybe a simple change of /etc/selinux/config
+seems simpler. rather than going through
+lines of code.
+Anyways,
+"Merry christmas"
 
-This patch could be upstreamed now because even if the installed
-mcstrand doesn't support color a call to selinux_raw_context_to_color
-will simply retrun an error, right?
 
-Ted
+regards;
+
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
