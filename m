@@ -1,65 +1,61 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBT1h4te014978
-	for <selinux@tycho.nsa.gov>; Sun, 28 Dec 2008 20:43:04 -0500
-Received: from yx-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mBT1h3Us023048
-	for <selinux@tycho.nsa.gov>; Mon, 29 Dec 2008 01:43:04 GMT
-Received: by yx-out-1718.google.com with SMTP id 3so1476948yxi.84
-        for <selinux@tycho.nsa.gov>; Sun, 28 Dec 2008 17:42:59 -0800 (PST)
-Message-ID: <707f057d0812281742p4591e918m6ca85399a43fc640@mail.gmail.com>
-Date: Mon, 29 Dec 2008 09:42:59 +0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBT7C5kB005880
+	for <selinux@tycho.nsa.gov>; Mon, 29 Dec 2008 02:12:05 -0500
+Received: from yw-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mBT7C4k6001601
+	for <selinux@tycho.nsa.gov>; Mon, 29 Dec 2008 07:12:05 GMT
+Received: by yw-out-1718.google.com with SMTP id 6so1496319ywa.84
+        for <selinux@tycho.nsa.gov>; Sun, 28 Dec 2008 23:12:04 -0800 (PST)
+Message-ID: <707f057d0812282312r19e324a8y4ace684ed1646812@mail.gmail.com>
+Date: Mon, 29 Dec 2008 15:12:03 +0800
 From: "xing li" <lixing.1006@gmail.com>
-To: "Dave Feustel" <dfeustel@mindspring.com>, selinux@tycho.nsa.gov
-Subject: Re: Protect Firefox Keyboard Mappings and Font Settings
-In-Reply-To: <200812272344.mBRNisPR009487@mummy.ncsc.mil>
+To: "domg472 g472" <domg472@gmail.com>, selinux@tycho.nsa.gov
+Subject: Re: Where can i find the source code of Userspace Packages with modifications for SELinux?
+In-Reply-To: <5aebb9fb0812270551g49c21fdm9bc7dd156182cf53@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_Part_24945_23088917.1230514979705"
-References: <200812272344.mBRNisPR009487@mummy.ncsc.mil>
+	boundary="----=_Part_26261_17925922.1230534723610"
+References: <707f057d0812270525t1f6fa095i9ace0cc6e4d3bd6e@mail.gmail.com>
+	 <5aebb9fb0812270551g49c21fdm9bc7dd156182cf53@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_24945_23088917.1230514979705
+------=_Part_26261_17925922.1230534723610
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-I think you can define some rules to protect the font configure files.
-such as define the file as firefox_configure_t,and define or restrict
-special
-domain to manipulate it.
+I have download the upstart source code from ubuntu
+http://packages.ubuntu.com/,  (hardy)
+but i have't found the selinux relevant code in it. I am so  confused that
+how the /sbin/init invoke
+the "load_policy" function during system initialization?
 
-2008/12/28 Dave Feustel <dfeustel@mindspring.com>
+2008/12/27 domg472 g472 <domg472@gmail.com>
 
-> I'm running 32-bit x86 Fedora 9 and the Firefox font settings are being
-> altered somehow so that some lower case letters are being mapped to
-> upper case and vice versa. Also, the arrow keys are being deactivated.
-> Is there any way to protect the font settings and also the keyboard
-> mappings to prevent them from being changed?
+> Most if not everything should be upstream. so if you would want to edit
+> "cp" then you would get the source code for coreutils on the project site
+> for coreutils.
 >
-> Thanks.
+> selinux userland tools source is here:
 >
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.govwith
-> the words "unsubscribe selinux" without quotes as the message.
+> http://userspace.selinuxproject.org/trac/browser/policycoreutils
 >
 
-------=_Part_24945_23088917.1230514979705
+------=_Part_26261_17925922.1230534723610
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-<div><br>I think you can define some rules to protect the font configure files.</div>
-<div>such as&nbsp;define the file as firefox_configure_t,and define&nbsp;or&nbsp;restrict special</div>
-<div>domain to manipulate it.<br>&nbsp;</div>
-<div class="gmail_quote">2008/12/28 Dave Feustel <span dir="ltr">&lt;<a href="mailto:dfeustel@mindspring.com">dfeustel@mindspring.com</a>&gt;</span><br>
-<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">I&#39;m running 32-bit x86 Fedora 9 and the Firefox font settings are being<br>altered somehow so that some lower case letters are being mapped to<br>
-upper case and vice versa. Also, the arrow keys are being deactivated.<br>Is there any way to protect the font settings and also the keyboard<br>mappings to prevent them from being changed?<br><br>Thanks.<br><font color="#888888"><br>
---<br>This message was distributed to subscribers of the selinux mailing list.<br>If you no longer wish to subscribe, send mail to <a href="mailto:majordomo@tycho.nsa.gov">majordomo@tycho.nsa.gov</a> with<br>the words &quot;unsubscribe selinux&quot; without quotes as the message.<br>
-</font></blockquote></div><br>
+<div>I have download the upstart source code from ubuntu <a href="http://packages.ubuntu.com/">http://packages.ubuntu.com/</a>,&nbsp; (hardy)</div>
+<div>but i have&#39;t found the selinux relevant code in it.&nbsp;I am so&nbsp;&nbsp;confused that how the /sbin/init invoke </div>
+<div>the &quot;load_policy&quot; function during system initialization?<br><br></div>
+<div class="gmail_quote">2008/12/27 domg472 g472 <span dir="ltr">&lt;<a href="mailto:domg472@gmail.com">domg472@gmail.com</a>&gt;</span><br>
+<blockquote class="gmail_quote" style="PADDING-LEFT: 1ex; MARGIN: 0px 0px 0px 0.8ex; BORDER-LEFT: #ccc 1px solid">Most if not everything should be upstream. so if you would want to edit &quot;cp&quot; then you would get the source code for coreutils on the project site for coreutils.<br>
+<br>selinux userland tools source is here:<br><br><a href="http://userspace.selinuxproject.org/trac/browser/policycoreutils" target="_blank">http://userspace.selinuxproject.org/trac/browser/policycoreutils</a><br></blockquote>
+</div><br>
 
-------=_Part_24945_23088917.1230514979705--
+------=_Part_26261_17925922.1230534723610--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
