@@ -1,19 +1,13 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id mBTFVvxn024217
-	for <selinux@tycho.nsa.gov>; Mon, 29 Dec 2008 10:31:58 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id mBTFVuEH013849
-	for <selinux@tycho.nsa.gov>; Mon, 29 Dec 2008 15:31:57 GMT
-Message-ID: <4958ED67.70807@redhat.com>
-Date: Mon, 29 Dec 2008 10:31:51 -0500
+Message-ID: <4958EDA7.5000206@redhat.com>
+Date: Mon, 29 Dec 2008 10:32:55 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: xing li <lixing.1006@gmail.com>
-CC: domg472 g472 <domg472@gmail.com>, selinux@tycho.nsa.gov
+CC: SELinux@tycho.nsa.gov
 Subject: Re: Where can i find the source code of Userspace Packages with modifications
  for SELinux?
-References: <707f057d0812270525t1f6fa095i9ace0cc6e4d3bd6e@mail.gmail.com>	 <5aebb9fb0812270551g49c21fdm9bc7dd156182cf53@mail.gmail.com> <707f057d0812282312r19e324a8y4ace684ed1646812@mail.gmail.com>
-In-Reply-To: <707f057d0812282312r19e324a8y4ace684ed1646812@mail.gmail.com>
+References: <707f057d0812270525t1f6fa095i9ace0cc6e4d3bd6e@mail.gmail.com>
+In-Reply-To: <707f057d0812270525t1f6fa095i9ace0cc6e4d3bd6e@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -22,33 +16,42 @@ List-Id: selinux@tycho.nsa.gov
 Hash: SHA1
 
 xing li wrote:
-> I have download the upstart source code from ubuntu
-> http://packages.ubuntu.com/,  (hardy)
-> but i have't found the selinux relevant code in it. I am so  confused that
-> how the /sbin/init invoke
-> the "load_policy" function during system initialization?
+> Hello every one,
 > 
-> 2008/12/27 domg472 g472 <domg472@gmail.com>
+> I known that linux distributions have modify some userspace packages in
+> order to support selinux,such as:
 > 
->> Most if not everything should be upstream. so if you would want to edit
->> "cp" then you would get the source code for coreutils on the project site
->> for coreutils.
->>
->> selinux userland tools source is here:
->>
->> http://userspace.selinuxproject.org/trac/browser/policycoreutils
->>
+>    - SysVinit - load initial policy
+>    - pam - set security context for user sessions, preserve security context
+>    on /etc/shadow, check SELinux permissions
+>    - util-linux - preserve security contexts on /etc/shadow, check SELinux
+>    permissions
+>    - openssh - set security context for user sessions
+>    - vixie-cron - set security context for cron jobs, check permission
+>    - at - similar to vixie-cron
+>    - sudo - set security context
+>    - shadow-utils - preserve security context on /etc/shadow
+>    - libuser - preserve security context on /etc/shadow, check permission
+>    - passwd - preserve security context on /etc/shadow, check permission
+>    - logrotate - preserve security context on logs
+>    - coreutils - get and set process and file security contexts
+>    - findutils - find files with specific security contexts or display them
+>    - procps - display process contexts
+>    - psmisc - display process contexts
 > 
-It doesn't,  load_policy is being executed in the initrd.
-
-
+> http://userspace.selinuxproject.org/trac/wiki/Userland
+> and i am interested how the userspace packages be motified?
+> and where can i find the relevant the source code of these?
+> 
+They are either in the upstream packages or contained as patches in the
+Fedora and other Distro Releases
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAklY7WcACgkQrlYvE4MpobOglACeIt0QPC5rbcKojYOxcWCsfAoD
-888AoIVrOzMiCQelt4cEF16/8o4iXg1A
-=J1AA
+iEYEARECAAYFAklY7aYACgkQrlYvE4MpobMY3wCg4wyZfRrie1gi6PDEj3BjBNF7
+v2kAoIUDv6SmffthhWpZ9WuAGNB4WRyK
+=iPOd
 -----END PGP SIGNATURE-----
 
 --
