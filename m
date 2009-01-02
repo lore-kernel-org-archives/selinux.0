@@ -1,58 +1,232 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n023Mc3x004065
-	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2009 22:22:43 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n027SOYZ017915
+	for <selinux@tycho.nsa.gov>; Fri, 2 Jan 2009 02:28:24 -0500
 Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n023JtiK020146
-	for <selinux@tycho.nsa.gov>; Fri, 2 Jan 2009 03:20:01 GMT
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n027Pkvi016558
+	for <selinux@tycho.nsa.gov>; Fri, 2 Jan 2009 07:25:47 GMT
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by etbe.coker.com.au (Postfix) with ESMTP id 79EC8183B0
+	for <selinux@tycho.nsa.gov>; Fri,  2 Jan 2009 18:28:18 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 2CBDC21FC0
+	for <selinux@tycho.nsa.gov>; Fri,  2 Jan 2009 18:28:17 +1100 (EST)
 From: Russell Coker <russell@coker.com.au>
 Reply-To: russell@coker.com.au
-To: "xing li" <lixing.1006@gmail.com>
-Subject: Re: Where can i find the source code of Userspace Packages with modifications for SELinux?
-Date: Fri, 2 Jan 2009 14:22:21 +1100
-Cc: selinux@tycho.nsa.gov
-References: <707f057d0812270525t1f6fa095i9ace0cc6e4d3bd6e@mail.gmail.com> <5aebb9fb0812270551g49c21fdm9bc7dd156182cf53@mail.gmail.com> <707f057d0812282312r19e324a8y4ace684ed1646812@mail.gmail.com>
-In-Reply-To: <707f057d0812282312r19e324a8y4ace684ed1646812@mail.gmail.com>
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: atd
+Date: Fri, 2 Jan 2009 18:28:15 +1100
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200901021422.22782.russell@coker.com.au>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_QIcXJ6OkIGpWxkt"
+Message-Id: <200901021828.16925.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Monday 29 December 2008 18:12, "xing li" <lixing.1006@gmail.com> wrote:
-> I have download the upstart source code from ubuntu
-> http://packages.ubuntu.com/,  (hardy)
-> but i have't found the selinux relevant code in it. I am so  confused that
-> how the /sbin/init invoke
-> the "load_policy" function during system initialization?
+--Boundary-00=_QIcXJ6OkIGpWxkt
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-http://etbe.coker.com.au/2008/07/24/se-linux-policy-loading/
+The atd in CentOS 5.2 doesn't call getseuserbyname(), which has the potential 
+to do some undesirable things.  I presume that the same code is in RHEL 5.2, 
+and it may be in recent Fedora's (I haven't checked).
 
-I have described all the issues at the above blog post.
-
-Use SysVInit and the patch is there.  If you want to use Upstart then you 
-could patch it yourself (it's just a matter of copying a couple of chunks of 
-code from SysVInit).
-
-Another option is to use the wrapper script hack that I used ages ago on 
-Cobalt machines.  Just boot the kernel with init=/sbin/init-wrapper and then 
-have /sbin/init-wrapper be a shell script like the following:
-#!/bin/bash
-/usr/sbin/load_policy
-exec /sbin/init
-
-Messing with the initrd is just a bad idea, such things are not going to 
-happen in Debian.
-
-In fact, why not just use Debian?  I think that overall the result you get 
-will be a lot better if you use Debian instead of Ubuntu for running SE 
-Linux.
+I've attached the patch that I have submitted for Debian to fix this.
 
 -- 
 russell@coker.com.au
 http://etbe.coker.com.au/          My Main Blog
 http://doc.coker.com.au/           My Documents Blog
 
+--Boundary-00=_QIcXJ6OkIGpWxkt
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="diff"
+
+diff -ru at-3.1.10.2.bak/Makefile.in at-3.1.10.2/Makefile.in
+--- at-3.1.10.2.bak/Makefile.in	2005-08-29 18:08:28.000000000 +1000
++++ at-3.1.10.2/Makefile.in	2009-01-02 16:16:05.000000000 +1100
+@@ -27,6 +27,7 @@
+ YACC		= @YACC@
+ LEX		= @LEX@
+ LEXLIB		= @LEXLIB@
++SELINUXLIB	= @SELINUXLIB@
+ 
+ CC 		= @CC@
+ CFLAGS 		= @CFLAGS@
+@@ -73,7 +74,7 @@
+ 	$(LN_S) -f at atrm
+ 
+ atd: $(RUNOBJECTS)
+-	$(CC) $(CFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB)
++	$(CC) $(CFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB) $(SELINUXLIB)
+ 
+ y.tab.c y.tab.h: parsetime.y
+ 	$(YACC) -d parsetime.y
+diff -ru at-3.1.10.2.bak/atd.c at-3.1.10.2/atd.c
+--- at-3.1.10.2.bak/atd.c	2005-08-31 09:42:56.000000000 +1000
++++ at-3.1.10.2/atd.c	2009-01-02 16:46:01.000000000 +1100
+@@ -74,6 +74,14 @@
+ #include <syslog.h>
+ #endif
+ 
++#ifdef WITH_SELINUX
++#include <selinux/selinux.h>
++#include <selinux/get_context_list.h>
++int selinux_enabled=0;
++#include <selinux/flask.h>
++#include <selinux/av_permissions.h>
++#endif
++
+ /* Local headers */
+ 
+ #include "privs.h"
+@@ -438,6 +446,76 @@
+ 
+ 	    chdir("/");
+ 
++#ifdef WITH_SELINUX
++	    if (selinux_enabled>0) {
++	      security_context_t  file_context=NULL;
++	      security_context_t *context_list=NULL;
++	      security_context_t current_con=NULL;
++	      int retval=0, list_count=0, i;
++	      struct av_decision avd;
++	      char *seuser=NULL, *level=NULL;
++
++	      if (getseuserbyname(pentry->pw_name, &seuser, &level))
++		perr("getseuserbyname FAILED for %s\n", pentry->pw_name);
++
++	      if(getcon(&current_con)) {
++	        free(seuser);
++	        free(level);
++	        perr("Can't get current context");
++	      }
++	      list_count = get_ordered_context_list_with_level(seuser, level, current_con, &context_list);
++	      freecon(current_con);
++	      free(seuser);
++	      free(level);
++	      if (list_count == -1) {
++		if (security_getenforce() > 0)
++		  perr("Couldn't get security context for user %s\n", pentry->pw_name); 
++		else
++		  syslog(LOG_WARNING, "Couldn't get security context for user %s, but in permissive mode", pentry->pw_name);
++	      }
++
++	      /*
++	       * Since crontab files are not directly executed,
++	       * crond must ensure that the crontab file has
++	       * a context that is appropriate for the context of
++	       * the user cron job.  It performs an entrypoint
++	       * permission check for this purpose.
++	       */
++	      if (list_count != -1) {
++		if (fgetfilecon(STDIN_FILENO, &file_context) < 0) {
++		  if (security_getenforce() > 0)
++		    perr("fgetfilecon FAILED for user %s", pentry->pw_name);
++	        }
++
++		for(i = 0; i < list_count; i++) {
++		  retval = security_compute_av(context_list[i],
++					   file_context,
++					   SECCLASS_FILE,
++					   FILE__ENTRYPOINT,
++					   &avd);
++	          if (!retval && ((FILE__ENTRYPOINT & avd.allowed) == FILE__ENTRYPOINT))
++		    break;
++		}
++	      }
++	      freecon(file_context);
++	      if (list_count != -1 && (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT))) {
++		if (security_getenforce()==1) 
++		  perr("Not allowed to set exec context for user %s\n", pentry->pw_name); 
++		else
++		  syslog(LOG_WARNING, "Not allowed to set exec context for user %s, but in permissive mode", pentry->pw_name); 
++	      }
++
++	      if ((list_count != -1 || retval) && setexeccon(context_list[i]) < 0) {
++		if (security_getenforce()==1) {
++		  perr("Could not set exec context to %s for user %s\n", context_list[i], pentry->pw_name); 
++		} else {
++		  syslog(LOG_ERR, "Could not set exec context to %s for user %s\n", context_list[i], pentry->pw_name); 
++		}
++	      }
++	      freeconary(context_list);
++	    }
++#endif	
++
+ 	    if (execle("/bin/sh", "sh", (char *) NULL, nenvp) != 0)
+ 		perr("Exec failed for /bin/sh");
+ 
+@@ -696,6 +774,9 @@
+     struct passwd *pwe;
+     struct group *ge;
+ 
++#ifdef WITH_SELINUX
++    selinux_enabled=is_selinux_enabled();
++#endif	
+ /* We don't need root privileges all the time; running under uid and gid
+  * daemon is fine.
+  */
+diff -ru at-3.1.10.2.bak/config.h.in at-3.1.10.2/config.h.in
+--- at-3.1.10.2.bak/config.h.in	2005-08-05 13:16:02.000000000 +1000
++++ at-3.1.10.2/config.h.in	2009-01-02 16:15:28.000000000 +1100
+@@ -82,6 +82,9 @@
+ 
+ #undef HAVE_ATTRIBUTE_NORETURN
+ 
++/* Define if you are building with_selinux  */
++#undef WITH_SELINUX
++
+ /* Define if you have the getcwd function.  */
+ #undef HAVE_GETCWD
+ 
+diff -ru at-3.1.10.2.bak/configure.in at-3.1.10.2/configure.in
+--- at-3.1.10.2.bak/configure.in	2005-08-05 13:16:02.000000000 +1000
++++ at-3.1.10.2/configure.in	2009-01-02 16:15:01.000000000 +1100
+@@ -316,4 +316,12 @@
+ )
+ AC_SUBST(DAEMON_GROUPNAME)
+ 
++AC_ARG_WITH(selinux,
++[ --with-selinux       Define to run with selinux],
++AC_DEFINE(WITH_SELINUX),
++)
++AC_CHECK_LIB(selinux, is_selinux_enabled, SELINUXLIB=-lselinux)
++AC_SUBST(SELINUXLIB)
++AC_SUBST(WITH_SELINUX)
++
+ AC_OUTPUT(Makefile atrun atd.8 atrun.8 at.1 batch)
+diff -ru at-3.1.10.2.bak/debian/control at-3.1.10.2/debian/control
+--- at-3.1.10.2.bak/debian/control	2008-09-23 22:22:41.000000000 +1000
++++ at-3.1.10.2/debian/control	2009-01-02 16:19:35.000000000 +1100
+@@ -3,7 +3,7 @@
+ Priority: important
+ Maintainer: Ryan Murray <rmurray@debian.org>
+ Standards-Version: 3.6.2
+-Build-Depends: bison, flex, libpam0g-dev, ssmtp | mail-transport-agent
++Build-Depends: bison, flex, libpam0g-dev, ssmtp | mail-transport-agent, libselinux1-dev
+ 
+ Package: at
+ Architecture: any
+diff -ru at-3.1.10.2.bak/debian/rules at-3.1.10.2/debian/rules
+--- at-3.1.10.2.bak/debian/rules	2006-01-03 18:12:56.000000000 +1100
++++ at-3.1.10.2/debian/rules	2009-01-02 16:17:52.000000000 +1100
+@@ -30,7 +30,7 @@
+ 	-test -f config.cache || PATH=/usr/sbin:$${PATH} ./configure --prefix=/usr \
+ 		--with-loadavg_mx=1.5 \
+ 		--with-jobdir=/var/spool/cron/atjobs \
+-		--with-atspool=/var/spool/cron/atspool
++		--with-atspool=/var/spool/cron/atspool --with-selinux
+ 	sed 's,/usr/lib/sendmail,/usr/sbin/sendmail,g' \
+ 		< config.h > config.h.new
+ 	mv -f config.h.new config.h
+
+--Boundary-00=_QIcXJ6OkIGpWxkt--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
