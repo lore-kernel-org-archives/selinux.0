@@ -1,251 +1,57 @@
-Message-ID: <495C07C0.4010704@tycho.nsa.gov>
-Date: Wed, 31 Dec 2008 19:01:04 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n023Mc3x004065
+	for <selinux@tycho.nsa.gov>; Thu, 1 Jan 2009 22:22:43 -0500
+Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n023JtiK020146
+	for <selinux@tycho.nsa.gov>; Fri, 2 Jan 2009 03:20:01 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "xing li" <lixing.1006@gmail.com>
+Subject: Re: Where can i find the source code of Userspace Packages with modifications for SELinux?
+Date: Fri, 2 Jan 2009 14:22:21 +1100
+Cc: selinux@tycho.nsa.gov
+References: <707f057d0812270525t1f6fa095i9ace0cc6e4d3bd6e@mail.gmail.com> <5aebb9fb0812270551g49c21fdm9bc7dd156182cf53@mail.gmail.com> <707f057d0812282312r19e324a8y4ace684ed1646812@mail.gmail.com>
+In-Reply-To: <707f057d0812282312r19e324a8y4ace684ed1646812@mail.gmail.com>
 MIME-Version: 1.0
-To: Xavier Toth <txtoth@gmail.com>
-CC: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>,
-        James Carter <jwcart2@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC] Add color translation support to mcstransd
-References: <4927839F.4070805@tycho.nsa.gov>	 <AD1BDA2B-D7CF-48AC-846E-54DC795B3C08@nall.com>	 <492AFFAD.5070805@tycho.nsa.gov>	 <cadfc0e40812051416v15070ddag132ff548d535052c@mail.gmail.com>	 <494187BF.2090301@tycho.nsa.gov> <cadfc0e40812240823x5c10c135p59b229fad22c7fb3@mail.gmail.com>
-In-Reply-To: <cadfc0e40812240823x5c10c135p59b229fad22c7fb3@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200901021422.22782.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Xavier Toth wrote:
-> On Thu, Dec 11, 2008 at 3:35 PM, Eamon Walsh <ewalsh@tycho.nsa.gov> wrote:
->   
->> Xavier Toth wrote:
->>     
->>> Sorry to be pedantic but is there a reference implementation or will
->>> the mcstrans developer (Joe) have to develop it?
->>>
->>> Ted
->>>
->>>       
->> Also here is a preliminary libselinux patch.
->>
->>
->> --
->> Eamon Walsh <ewalsh@tycho.nsa.gov>
->> National Security Agency
->>
->>
->>     
->
-> This patch could be upstreamed now because even if the installed
-> mcstrand doesn't support color a call to selinux_raw_context_to_color
-> will simply retrun an error, right?
->
-> Ted
->
->   
+On Monday 29 December 2008 18:12, "xing li" <lixing.1006@gmail.com> wrote:
+> I have download the upstart source code from ubuntu
+> http://packages.ubuntu.com/,  (hardy)
+> but i have't found the selinux relevant code in it. I am so  confused that
+> how the /sbin/init invoke
+> the "load_policy" function during system initialization?
 
-Yes, the function will return error in that case.
+http://etbe.coker.com.au/2008/07/24/se-linux-policy-loading/
 
-Without objection, I will go ahead and upstream the
-selinux_raw_context_to_color() and selinux_colors_path() functions. 
-Patch below.
+I have described all the issues at the above blog post.
 
-Signed-off-by: Eamon Walsh <ewalsh@tycho.nsa.gov>
----
+Use SysVInit and the patch is there.  If you want to use Upstart then you 
+could patch it yourself (it's just a matter of copying a couple of chunks of 
+code from SysVInit).
 
- libselinux/include/selinux/selinux.h |    9 +++++
- libselinux/src/file_path_suffixes.h  |    1 +
- libselinux/src/selinux_config.c      |   10 +++++-
- libselinux/src/selinux_internal.h    |    1 +
- libselinux/src/setrans_client.c      |   61 ++++++++++++++++++++++++++++++++++
- libselinux/src/setrans_internal.h    |    1 +
- 6 files changed, 82 insertions(+), 1 deletions(-)
+Another option is to use the wrapper script hack that I used ages ago on 
+Cobalt machines.  Just boot the kernel with init=/sbin/init-wrapper and then 
+have /sbin/init-wrapper be a shell script like the following:
+#!/bin/bash
+/usr/sbin/load_policy
+exec /sbin/init
 
+Messing with the initrd is just a bad idea, such things are not going to 
+happen in Debian.
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index 3bfc0c8..fab083e 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -467,6 +467,7 @@ extern const char *selinux_customizable_types_path(void);
- extern const char *selinux_users_path(void);
- extern const char *selinux_usersconf_path(void);
- extern const char *selinux_translations_path(void);
-+extern const char *selinux_colors_path(void);
- extern const char *selinux_netfilter_context_path(void);
- extern const char *selinux_path(void);
- 
-@@ -504,6 +505,14 @@ extern int selinux_trans_to_raw_context(security_context_t trans,
- extern int selinux_raw_to_trans_context(security_context_t raw,
- 					security_context_t * transp);
- 
-+/* Perform context translation between security contexts
-+   and display colors.  Returns a space-separated list of ten
-+   ten hex RGB triples prefixed by hash marks, e.g. "#ff0000".
-+   Caller must free the resulting string via free.
-+   Returns -1 upon an error or 0 otherwise. */
-+extern int selinux_raw_context_to_color(security_context_t raw,
-+					char **color_str);
-+
- /* Get the SELinux username and level to use for a given Linux username. 
-    These values may then be passed into the get_ordered_context_list*
-    and get_default_context* functions to obtain a context for the user.
-diff --git a/libselinux/src/file_path_suffixes.h b/libselinux/src/file_path_suffixes.h
-index bea5c40..8d207c9 100644
---- a/libselinux/src/file_path_suffixes.h
-+++ b/libselinux/src/file_path_suffixes.h
-@@ -19,3 +19,4 @@ S_(BINPOLICY, "/policy/policy")
-     S_(FILE_CONTEXTS_HOMEDIR, "/contexts/files/file_contexts.homedirs")
-     S_(FILE_CONTEXTS_LOCAL, "/contexts/files/file_contexts.local")
-     S_(X_CONTEXTS, "/contexts/x_contexts")
-+    S_(COLORS, "/secolor.conf")
-diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-index 7dbbb47..dec5426 100644
---- a/libselinux/src/selinux_config.c
-+++ b/libselinux/src/selinux_config.c
-@@ -39,7 +39,8 @@
- #define FILE_CONTEXTS_LOCAL 17
- #define SECURETTY_TYPES   18
- #define X_CONTEXTS        19
--#define NEL               20
-+#define COLORS            20
-+#define NEL               21
- 
- /* New layout is relative to SELINUXDIR/policytype. */
- static char *file_paths[NEL];
-@@ -356,6 +357,13 @@ const char *selinux_translations_path()
- 
- hidden_def(selinux_translations_path)
- 
-+const char *selinux_colors_path()
-+{
-+	return get_path(COLORS);
-+}
-+
-+hidden_def(selinux_colors_path)
-+
- const char *selinux_netfilter_context_path()
- {
- 	return get_path(NETFILTER_CONTEXTS);
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index eaf1767..0eeca71 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -77,6 +77,7 @@ hidden_proto(selinux_getenforcemode);
- hidden_proto(selinux_getpolicytype);
- hidden_proto(selinux_raw_to_trans_context);
- hidden_proto(selinux_trans_to_raw_context);
-+    hidden_proto(selinux_raw_context_to_color);
- hidden_proto(security_get_initial_context);
- hidden_proto(security_get_initial_context_raw);
- 
-diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_client.c
-index a02f407..500225e 100644
---- a/libselinux/src/setrans_client.c
-+++ b/libselinux/src/setrans_client.c
-@@ -30,6 +30,8 @@ static __thread security_context_t prev_t2r_trans = NULL;
- static __thread security_context_t prev_t2r_raw = NULL;
- static __thread security_context_t prev_r2t_trans = NULL;
- static __thread security_context_t prev_r2t_raw = NULL;
-+static __thread char *prev_r2c_trans = NULL;
-+static __thread security_context_t prev_r2c_raw = NULL;
- 
- /*
-  * setransd_open
-@@ -212,12 +214,38 @@ static int trans_to_raw_context(char *trans, char **rawp)
- 	return ret;
- }
- 
-+static int raw_context_to_color(char *raw, char **colors)
-+{
-+	int ret;
-+	int32_t ret_val;
-+	int fd;
-+
-+	fd = setransd_open();
-+	if (fd < 0)
-+		return fd;
-+
-+	ret = send_request(fd, RAW_CONTEXT_TO_COLOR, raw, NULL);
-+	if (ret)
-+		goto out;
-+
-+	ret = receive_response(fd, RAW_CONTEXT_TO_COLOR, colors, &ret_val);
-+	if (ret)
-+		goto out;
-+
-+	ret = ret_val;
-+out:
-+	close(fd);
-+	return ret;
-+}
-+
- hidden void fini_context_translations(void)
- {
- 	free(prev_r2t_trans);
- 	free(prev_r2t_raw);
- 	free(prev_t2r_trans);
- 	free(prev_t2r_raw);
-+	free(prev_r2c_trans);
-+	free(prev_r2c_raw);
- }
- 
- hidden int init_context_translations(void)
-@@ -303,6 +331,39 @@ int selinux_raw_to_trans_context(security_context_t raw,
- }
- 
- hidden_def(selinux_raw_to_trans_context)
-+
-+int selinux_raw_context_to_color(security_context_t raw, char **transp)
-+{
-+	if (!raw) {
-+		*transp = NULL;
-+		return -1;
-+	}
-+
-+	if (prev_r2c_raw && strcmp(prev_r2c_raw, raw) == 0) {
-+		*transp = strdup(prev_r2c_trans);
-+	} else {
-+		free(prev_r2c_raw);
-+		prev_r2c_raw = NULL;
-+		free(prev_r2c_trans);
-+		prev_r2c_trans = NULL;
-+		if (raw_context_to_color(raw, transp))
-+			return -1;
-+		if (*transp) {
-+			prev_r2c_raw = strdup(raw);
-+			if (!prev_r2c_raw)
-+				goto out;
-+			prev_r2c_trans = strdup(*transp);
-+			if (!prev_r2c_trans) {
-+				free(prev_r2c_raw);
-+				prev_r2c_raw = NULL;
-+			}
-+		}
-+	}
-+      out:
-+	return *transp ? 0 : -1;
-+}
-+
-+hidden_def(selinux_raw_context_to_color)
- #else /*DISABLE_SETRANS*/
- 
- hidden void fini_context_translations(void)
-diff --git a/libselinux/src/setrans_internal.h b/libselinux/src/setrans_internal.h
-index 4e04b54..f6e25b1 100644
---- a/libselinux/src/setrans_internal.h
-+++ b/libselinux/src/setrans_internal.h
-@@ -4,6 +4,7 @@
- 
- #define RAW_TO_TRANS_CONTEXT		2
- #define TRANS_TO_RAW_CONTEXT		3
-+#define RAW_CONTEXT_TO_COLOR		4
- #define MAX_DATA_BUF			8192
- 
- extern int init_context_translations(void);
-
-
+In fact, why not just use Debian?  I think that overall the result you get 
+will be a lot better if you use Debian instead of Ubuntu for running SE 
+Linux.
 
 -- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 
 --
