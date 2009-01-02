@@ -1,232 +1,196 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n027SOYZ017915
-	for <selinux@tycho.nsa.gov>; Fri, 2 Jan 2009 02:28:24 -0500
-Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n027Pkvi016558
-	for <selinux@tycho.nsa.gov>; Fri, 2 Jan 2009 07:25:47 GMT
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by etbe.coker.com.au (Postfix) with ESMTP id 79EC8183B0
-	for <selinux@tycho.nsa.gov>; Fri,  2 Jan 2009 18:28:18 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 2CBDC21FC0
-	for <selinux@tycho.nsa.gov>; Fri,  2 Jan 2009 18:28:17 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: atd
-Date: Fri, 2 Jan 2009 18:28:15 +1100
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_QIcXJ6OkIGpWxkt"
-Message-Id: <200901021828.16925.russell@coker.com.au>
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: jmorris@namei.org, sds@tycho.nsa.gov
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+        "David P. Quigley" <dpquigl@tycho.nsa.gov>
+Subject: [PATCH 1/3] SELinux: Condense super block security structure flags and cleanup necessary code.
+Date: Fri,  2 Jan 2009 11:52:24 -0500
+Message-Id: <1230915146-2359-2-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1230915146-2359-1-git-send-email-dpquigl@tycho.nsa.gov>
+References: <1230915146-2359-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---Boundary-00=_QIcXJ6OkIGpWxkt
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+The super block security structure currently has three fields for what are
+essentially flags.  The flags field is used for mount options while two other
+char fields are used for initialization and proc flags. These latter two fields are
+essentially bit fields since the only used values are 0 and 1.  These fields
+have been collapsed into the flags field and new bit masks have been added for
+them. The code is also fixed to work with these new flags.
 
-The atd in CentOS 5.2 doesn't call getseuserbyname(), which has the potential 
-to do some undesirable things.  I presume that the same code is in RHEL 5.2, 
-and it may be in recent Fedora's (I haven't checked).
+Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+---
+ security/selinux/hooks.c            |   38 ++++++++++++++++------------------
+ security/selinux/include/objsec.h   |    2 -
+ security/selinux/include/security.h |    6 +++++
+ 3 files changed, 24 insertions(+), 22 deletions(-)
 
-I've attached the patch that I have submitted for Debian to fix this.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
-
---Boundary-00=_QIcXJ6OkIGpWxkt
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="diff"
-
-diff -ru at-3.1.10.2.bak/Makefile.in at-3.1.10.2/Makefile.in
---- at-3.1.10.2.bak/Makefile.in	2005-08-29 18:08:28.000000000 +1000
-+++ at-3.1.10.2/Makefile.in	2009-01-02 16:16:05.000000000 +1100
-@@ -27,6 +27,7 @@
- YACC		= @YACC@
- LEX		= @LEX@
- LEXLIB		= @LEXLIB@
-+SELINUXLIB	= @SELINUXLIB@
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index dbeaa78..4f5270f 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -431,7 +431,7 @@ static int sb_finish_set_opts(struct super_block *sb)
+ 		}
+ 	}
  
- CC 		= @CC@
- CFLAGS 		= @CFLAGS@
-@@ -73,7 +74,7 @@
- 	$(LN_S) -f at atrm
+-	sbsec->initialized = 1;
++	sbsec->flags |= SE_SBINITIALIZED;
  
- atd: $(RUNOBJECTS)
--	$(CC) $(CFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB)
-+	$(CC) $(CFLAGS) -o atd $(RUNOBJECTS) $(LIBS) $(PAMLIB) $(SELINUXLIB)
+ 	if (sbsec->behavior > ARRAY_SIZE(labeling_behaviors))
+ 		printk(KERN_ERR "SELinux: initialized (dev %s, type %s), unknown behavior\n",
+@@ -487,17 +487,13 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
  
- y.tab.c y.tab.h: parsetime.y
- 	$(YACC) -d parsetime.y
-diff -ru at-3.1.10.2.bak/atd.c at-3.1.10.2/atd.c
---- at-3.1.10.2.bak/atd.c	2005-08-31 09:42:56.000000000 +1000
-+++ at-3.1.10.2/atd.c	2009-01-02 16:46:01.000000000 +1100
-@@ -74,6 +74,14 @@
- #include <syslog.h>
+ 	security_init_mnt_opts(opts);
+ 
+-	if (!sbsec->initialized)
++	if (!(sbsec->flags & SE_SBINITIALIZED))
+ 		return -EINVAL;
+ 
+ 	if (!ss_initialized)
+ 		return -EINVAL;
+ 
+-	/*
+-	 * if we ever use sbsec flags for anything other than tracking mount
+-	 * settings this is going to need a mask
+-	 */
+-	tmp = sbsec->flags;
++	tmp = sbsec->flags & SE_MNTMASK;
+ 	/* count the number of mount options for this sb */
+ 	for (i = 0; i < 8; i++) {
+ 		if (tmp & 0x01)
+@@ -562,8 +558,10 @@ out_free:
+ static int bad_option(struct superblock_security_struct *sbsec, char flag,
+ 		      u32 old_sid, u32 new_sid)
+ {
++	char mnt_flags = sbsec->flags & SE_MNTMASK;
++
+ 	/* check if the old mount command had the same options */
+-	if (sbsec->initialized)
++	if (sbsec->flags & SE_SBINITIALIZED)
+ 		if (!(sbsec->flags & flag) ||
+ 		    (old_sid != new_sid))
+ 			return 1;
+@@ -571,8 +569,8 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
+ 	/* check if we were passed the same options twice,
+ 	 * aka someone passed context=a,context=b
+ 	 */
+-	if (!sbsec->initialized)
+-		if (sbsec->flags & flag)
++	if (!(sbsec->flags & SE_SBINITIALIZED))
++		if (mnt_flags & flag)
+ 			return 1;
+ 	return 0;
+ }
+@@ -626,7 +624,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	 * this sb does not set any security options.  (The first options
+ 	 * will be used for both mounts)
+ 	 */
+-	if (sbsec->initialized && (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)
++	if ((sbsec->flags & SE_SBINITIALIZED) && (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)
+ 	    && (num_opts == 0))
+ 		goto out;
+ 
+@@ -690,19 +688,19 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 		}
+ 	}
+ 
+-	if (sbsec->initialized) {
++	if (sbsec->flags & SE_SBINITIALIZED) {
+ 		/* previously mounted with options, but not on this attempt? */
+-		if (sbsec->flags && !num_opts)
++		if ((sbsec->flags & SE_MNTMASK) && !num_opts)
+ 			goto out_double_mount;
+ 		rc = 0;
+ 		goto out;
+ 	}
+ 
+ 	if (strcmp(sb->s_type->name, "proc") == 0)
+-		sbsec->proc = 1;
++		sbsec->flags |= SE_SBPROC;
+ 
+ 	/* Determine the labeling behavior to use for this filesystem type. */
+-	rc = security_fs_use(sbsec->proc ? "proc" : sb->s_type->name, &sbsec->behavior, &sbsec->sid);
++	rc = security_fs_use((sbsec->flags & SE_SBPROC) ? "proc" : sb->s_type->name, &sbsec->behavior, &sbsec->sid);
+ 	if (rc) {
+ 		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
+ 		       __func__, sb->s_type->name, rc);
+@@ -806,10 +804,10 @@ static void selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 	}
+ 
+ 	/* how can we clone if the old one wasn't set up?? */
+-	BUG_ON(!oldsbsec->initialized);
++	BUG_ON(!(oldsbsec->flags & SE_SBINITIALIZED));
+ 
+ 	/* if fs is reusing a sb, just let its options stand... */
+-	if (newsbsec->initialized)
++	if (newsbsec->flags & SE_SBINITIALIZED)
+ 		return;
+ 
+ 	mutex_lock(&newsbsec->lock);
+@@ -1209,7 +1207,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		goto out_unlock;
+ 
+ 	sbsec = inode->i_sb->s_security;
+-	if (!sbsec->initialized) {
++	if (!(sbsec->flags & SE_SBINITIALIZED)) {
+ 		/* Defer initialization until selinux_complete_init,
+ 		   after the initial policy is loaded and the security
+ 		   server is ready to handle calls. */
+@@ -1326,7 +1324,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		/* Default to the fs superblock SID. */
+ 		isec->sid = sbsec->sid;
+ 
+-		if (sbsec->proc && !S_ISLNK(inode->i_mode)) {
++		if ((sbsec->flags & SE_SBPROC) && !S_ISLNK(inode->i_mode)) {
+ 			struct proc_inode *proci = PROC_I(inode);
+ 			if (proci->pde) {
+ 				isec->sclass = inode_mode_to_security_class(inode->i_mode);
+@@ -2582,7 +2580,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 	}
+ 
+ 	/* Possibly defer initialization to selinux_complete_init. */
+-	if (sbsec->initialized) {
++	if (sbsec->flags & SE_SBINITIALIZED) {
+ 		struct inode_security_struct *isec = inode->i_security;
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 		isec->sid = newsid;
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 3cc4516..c4e0623 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -60,9 +60,7 @@ struct superblock_security_struct {
+ 	u32 def_sid;			/* default SID for labeling */
+ 	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
+ 	unsigned int behavior;		/* labeling behavior */
+-	unsigned char initialized;	/* initialization flag */
+ 	unsigned char flags;		/* which mount options were specified */
+-	unsigned char proc;		/* proc fs */
+ 	struct mutex lock;
+ 	struct list_head isec_head;
+ 	spinlock_t isec_lock;
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 7244737..ff4e19c 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -37,10 +37,16 @@
+ #define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
  #endif
  
-+#ifdef WITH_SELINUX
-+#include <selinux/selinux.h>
-+#include <selinux/get_context_list.h>
-+int selinux_enabled=0;
-+#include <selinux/flask.h>
-+#include <selinux/av_permissions.h>
-+#endif
-+
- /* Local headers */
++/* Mask for just the mount related flags */
++#define SE_MNTMASK	0x0f
++/* Super block security struct flags for mount options */
+ #define CONTEXT_MNT	0x01
+ #define FSCONTEXT_MNT	0x02
+ #define ROOTCONTEXT_MNT	0x04
+ #define DEFCONTEXT_MNT	0x08
++/* Non-mount related flags */
++#define SE_SBINITIALIZED	0x10
++#define SE_SBPROC		0x20
  
- #include "privs.h"
-@@ -438,6 +446,76 @@
- 
- 	    chdir("/");
- 
-+#ifdef WITH_SELINUX
-+	    if (selinux_enabled>0) {
-+	      security_context_t  file_context=NULL;
-+	      security_context_t *context_list=NULL;
-+	      security_context_t current_con=NULL;
-+	      int retval=0, list_count=0, i;
-+	      struct av_decision avd;
-+	      char *seuser=NULL, *level=NULL;
-+
-+	      if (getseuserbyname(pentry->pw_name, &seuser, &level))
-+		perr("getseuserbyname FAILED for %s\n", pentry->pw_name);
-+
-+	      if(getcon(&current_con)) {
-+	        free(seuser);
-+	        free(level);
-+	        perr("Can't get current context");
-+	      }
-+	      list_count = get_ordered_context_list_with_level(seuser, level, current_con, &context_list);
-+	      freecon(current_con);
-+	      free(seuser);
-+	      free(level);
-+	      if (list_count == -1) {
-+		if (security_getenforce() > 0)
-+		  perr("Couldn't get security context for user %s\n", pentry->pw_name); 
-+		else
-+		  syslog(LOG_WARNING, "Couldn't get security context for user %s, but in permissive mode", pentry->pw_name);
-+	      }
-+
-+	      /*
-+	       * Since crontab files are not directly executed,
-+	       * crond must ensure that the crontab file has
-+	       * a context that is appropriate for the context of
-+	       * the user cron job.  It performs an entrypoint
-+	       * permission check for this purpose.
-+	       */
-+	      if (list_count != -1) {
-+		if (fgetfilecon(STDIN_FILENO, &file_context) < 0) {
-+		  if (security_getenforce() > 0)
-+		    perr("fgetfilecon FAILED for user %s", pentry->pw_name);
-+	        }
-+
-+		for(i = 0; i < list_count; i++) {
-+		  retval = security_compute_av(context_list[i],
-+					   file_context,
-+					   SECCLASS_FILE,
-+					   FILE__ENTRYPOINT,
-+					   &avd);
-+	          if (!retval && ((FILE__ENTRYPOINT & avd.allowed) == FILE__ENTRYPOINT))
-+		    break;
-+		}
-+	      }
-+	      freecon(file_context);
-+	      if (list_count != -1 && (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT))) {
-+		if (security_getenforce()==1) 
-+		  perr("Not allowed to set exec context for user %s\n", pentry->pw_name); 
-+		else
-+		  syslog(LOG_WARNING, "Not allowed to set exec context for user %s, but in permissive mode", pentry->pw_name); 
-+	      }
-+
-+	      if ((list_count != -1 || retval) && setexeccon(context_list[i]) < 0) {
-+		if (security_getenforce()==1) {
-+		  perr("Could not set exec context to %s for user %s\n", context_list[i], pentry->pw_name); 
-+		} else {
-+		  syslog(LOG_ERR, "Could not set exec context to %s for user %s\n", context_list[i], pentry->pw_name); 
-+		}
-+	      }
-+	      freeconary(context_list);
-+	    }
-+#endif	
-+
- 	    if (execle("/bin/sh", "sh", (char *) NULL, nenvp) != 0)
- 		perr("Exec failed for /bin/sh");
- 
-@@ -696,6 +774,9 @@
-     struct passwd *pwe;
-     struct group *ge;
- 
-+#ifdef WITH_SELINUX
-+    selinux_enabled=is_selinux_enabled();
-+#endif	
- /* We don't need root privileges all the time; running under uid and gid
-  * daemon is fine.
-  */
-diff -ru at-3.1.10.2.bak/config.h.in at-3.1.10.2/config.h.in
---- at-3.1.10.2.bak/config.h.in	2005-08-05 13:16:02.000000000 +1000
-+++ at-3.1.10.2/config.h.in	2009-01-02 16:15:28.000000000 +1100
-@@ -82,6 +82,9 @@
- 
- #undef HAVE_ATTRIBUTE_NORETURN
- 
-+/* Define if you are building with_selinux  */
-+#undef WITH_SELINUX
-+
- /* Define if you have the getcwd function.  */
- #undef HAVE_GETCWD
- 
-diff -ru at-3.1.10.2.bak/configure.in at-3.1.10.2/configure.in
---- at-3.1.10.2.bak/configure.in	2005-08-05 13:16:02.000000000 +1000
-+++ at-3.1.10.2/configure.in	2009-01-02 16:15:01.000000000 +1100
-@@ -316,4 +316,12 @@
- )
- AC_SUBST(DAEMON_GROUPNAME)
- 
-+AC_ARG_WITH(selinux,
-+[ --with-selinux       Define to run with selinux],
-+AC_DEFINE(WITH_SELINUX),
-+)
-+AC_CHECK_LIB(selinux, is_selinux_enabled, SELINUXLIB=-lselinux)
-+AC_SUBST(SELINUXLIB)
-+AC_SUBST(WITH_SELINUX)
-+
- AC_OUTPUT(Makefile atrun atd.8 atrun.8 at.1 batch)
-diff -ru at-3.1.10.2.bak/debian/control at-3.1.10.2/debian/control
---- at-3.1.10.2.bak/debian/control	2008-09-23 22:22:41.000000000 +1000
-+++ at-3.1.10.2/debian/control	2009-01-02 16:19:35.000000000 +1100
-@@ -3,7 +3,7 @@
- Priority: important
- Maintainer: Ryan Murray <rmurray@debian.org>
- Standards-Version: 3.6.2
--Build-Depends: bison, flex, libpam0g-dev, ssmtp | mail-transport-agent
-+Build-Depends: bison, flex, libpam0g-dev, ssmtp | mail-transport-agent, libselinux1-dev
- 
- Package: at
- Architecture: any
-diff -ru at-3.1.10.2.bak/debian/rules at-3.1.10.2/debian/rules
---- at-3.1.10.2.bak/debian/rules	2006-01-03 18:12:56.000000000 +1100
-+++ at-3.1.10.2/debian/rules	2009-01-02 16:17:52.000000000 +1100
-@@ -30,7 +30,7 @@
- 	-test -f config.cache || PATH=/usr/sbin:$${PATH} ./configure --prefix=/usr \
- 		--with-loadavg_mx=1.5 \
- 		--with-jobdir=/var/spool/cron/atjobs \
--		--with-atspool=/var/spool/cron/atspool
-+		--with-atspool=/var/spool/cron/atspool --with-selinux
- 	sed 's,/usr/lib/sendmail,/usr/sbin/sendmail,g' \
- 		< config.h > config.h.new
- 	mv -f config.h.new config.h
+ #define CONTEXT_STR	"context="
+ #define FSCONTEXT_STR	"fscontext="
+-- 
+1.5.6.5
 
---Boundary-00=_QIcXJ6OkIGpWxkt--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
