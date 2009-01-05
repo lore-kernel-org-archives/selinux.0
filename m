@@ -1,80 +1,70 @@
-Message-ID: <496270B3.4050405@manicmethod.com>
-Date: Mon, 05 Jan 2009 15:42:27 -0500
-From: Joshua Brindle <method@manicmethod.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n05MSSml026641
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2009 17:28:28 -0500
+Received: from g5t0007.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n05MSRgh026835
+	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2009 22:28:27 GMT
+Received: from g4t0009.houston.hp.com (g4t0009.houston.hp.com [16.234.32.26])
+	by g5t0007.atlanta.hp.com (Postfix) with ESMTP id D3B7C146E8
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jan 2009 22:28:26 +0000 (UTC)
+Received: from ldl.fc.hp.com (ldl.fc.hp.com [15.11.146.30])
+	by g4t0009.houston.hp.com (Postfix) with ESMTP id A30D2C038
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jan 2009 22:28:26 +0000 (UTC)
+Received: from localhost (ldl.fc.hp.com [127.0.0.1])
+	by ldl.fc.hp.com (Postfix) with ESMTP id 3B61D39C074
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jan 2009 15:28:26 -0700 (MST)
+Received: from ldl.fc.hp.com ([127.0.0.1])
+	by localhost (ldl.fc.hp.com [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id A3WAOA-Gtasp for <selinux@tycho.nsa.gov>;
+	Mon,  5 Jan 2009 15:28:24 -0700 (MST)
+Received: from flek.lan (squirrel.fc.hp.com [15.11.146.57])
+	by ldl.fc.hp.com (Postfix) with ESMTP id A72A939C00E
+	for <selinux@tycho.nsa.gov>; Mon,  5 Jan 2009 15:28:24 -0700 (MST)
+From: Paul Moore <paul.moore@hp.com>
+To: selinux@tycho.nsa.gov
+Subject: ANN: netlabel_tools version 0.19
+Date: Mon, 5 Jan 2009 17:28:23 -0500
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: semodule patch to use new semanage interfaces
-References: <49145394.3050806@redhat.com> <496264FE.3000802@manicmethod.com> <49626681.5050004@redhat.com> <4962689B.6010507@manicmethod.com> <49626F43.9000702@redhat.com>
-In-Reply-To: <49626F43.9000702@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200901051728.23731.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Joshua Brindle wrote:
->   
->> Daniel J Walsh wrote:
->>     
->>> -----BEGIN PGP SIGNED MESSAGE-----
->>> Hash: SHA1
->>>
->>> Joshua Brindle wrote:
->>>  
->>>       
->>>> Daniel J Walsh wrote:
->>>> Allows semodule to read bzip compressed policy packages directly.
->>>>     
->>>>         
->>>  
->>>       
->>>> I'm finally looking at these (sorry it took so long)..
->>>>     
->>>>         
->>>  
->>>       
->>>> I thought one part of it was suppose to make hard links to files if you
->>>> install but after merging this patch and the compression support I try
->>>> semodule -i /usr/share/selinux/targeted/somepolicy.pp.bz2 (I'm on F10
->>>> and they are already bzip'd) and instead of making a hard link to the
->>>> bz2 it looks like it writes the uncompressed file to
->>>> /etc/selinux/targeted/modules/active/modules. Am I misunderstanding the
->>>> intention of these patches?
->>>>     
->>>>         
->>> Originally this was the intention but it was wrong.  The problem is the
->>> file context would start to get screwed up every where and we end up
->>> with the /etc/selinux/targeted/modules/active/ directory looking like a
->>> patchwork of labels.
->>>
->>> So the patch makes a compressed copy whether or not the file is
->>> originally compressed in the new location.
->>>
->>> It does use the hard links for creating the snapshot directory though.
->>>
->>>   
->>>       
->> So... what is the purpose of the *_file functions if you don't copy the
->> data anymore?
->>
->> I see now that the files in /etc/selinux/.../modules/active are bzip
->> files but with a .pp extension, confusing.
->>
->>     
-> Because you don't know if the file you are installing is a compressed pp
-> or a regular one.
->
-> I want to ship compressed pp files for now on, but existing pp files are
-> not compressed.  semodule should be smart enough to not care
+Hello everyone,
 
-I see now, the *_file does the same thing semodule use to do but also 
-checks if the data is a bzip.
+A new year (2009), a new kernel (2.6.28) and now a new netlabel_tools 
+package (0.19).  The most important part of the new NetLabel userspace 
+package is support for the new features added to kernel 2.6.28: address 
+selectors and native LSM/SELinux labeling.  The full changelog is 
+posted below.
 
-We might want to mark those old functions as deprecated since it is 
-likely they won't be able to use any policy modules shipped going forward.
+I'll be "documenting" the new features soon but in the meantime you can 
+always check the included documentation (I may be biased but I think 
+the netlabelctl manpage is quite good) or send mail to me or the list.
+
+Thanks, and enjoy!
+
+ * http://netlabel.sf.net
+
+ChangeLog:
+o Added address selector support to the LSM domain mapping mechanism
+o Added support for the new CIPSO_V4_MAP_LOCAL CIPSO mapping type to
+  allow native LSM security labels over local connections
+o General code cleanup, including style changes/fixes; focused primarily
+  on libnetlabel
+o Initial doxygen support, including slightly improved documentation for
+  the libnetlabel API; doxygen docs built by default if doxygen is
+  detected
+o Man page updates for netlabelctl
+o Preliminary support for building libnetlabel as a shared library, not
+  enabled by default (see libnetlabel/Makefile to enable)
+o Removed empty and unused directories to make the package cleaner and
+  easier to understand
+
+-- 
+paul moore
+linux @ hp
 
 --
 This message was distributed to subscribers of the selinux mailing list.
