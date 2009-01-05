@@ -1,28 +1,25 @@
-Date: Mon, 5 Jan 2009 20:28:39 +1100 (EST)
+Date: Mon, 5 Jan 2009 20:34:09 +1100 (EST)
 From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@parisplace.org>
-cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, sds@tycho.nsa.gov,
-        selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 2/3] SELinux: Add new security mount option to indicate
- security label support.
-In-Reply-To: <7e0fb38c0901031416w596d9c25vf42fb72a6824268b@mail.gmail.com>
-Message-ID: <alpine.LRH.1.10.0901052024310.16929@tundra.namei.org>
-References: <1230915146-2359-1-git-send-email-dpquigl@tycho.nsa.gov>  <1230915146-2359-3-git-send-email-dpquigl@tycho.nsa.gov> <7e0fb38c0901031416w596d9c25vf42fb72a6824268b@mail.gmail.com>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: shrink sizeof av_inhert selinux_class_perm and
+ context
+In-Reply-To: <1230936006.8510.21.camel@localhost.localdomain>
+Message-ID: <alpine.LRH.1.10.0901052033550.16929@tundra.namei.org>
+References: <1230936006.8510.21.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 3 Jan 2009, Eric Paris wrote:
+On Fri, 2 Jan 2009, Eric Paris wrote:
 
-> > +#define LABELSUPP_STR "supports_labeling"
-> 
-> This is very selinux specific and "labeling" is very generic.  James,
-> you have suggestions?
+> I started playing with pahole today and decided to put it against the
+> selinux structures.  Found we could save a little bit of space on x86_64
+> (and no harm on i686) just reorganizing some structs.
 
-There are other existing uses of the term "label" for mounting 
-filesystems, so I'd suggest using "seclabel" here.
-
+Applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
 
 -- 
 James Morris
