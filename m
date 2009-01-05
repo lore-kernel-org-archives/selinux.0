@@ -1,98 +1,106 @@
-Subject: Re: limitations of CONTEXT__CONTAINS interface
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40812191327i4ff72368yda3de3396d46524@mail.gmail.com>
-References: <4939CB81.1030707@tycho.nsa.gov>
-	 <1228746149.18446.2.camel@localhost.localdomain>
-	 <cadfc0e40812191327i4ff72368yda3de3396d46524@mail.gmail.com>
+Subject: Re: [PATCH 2/3] SELinux: Add new security mount option to indicate
+	security label support.
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: Eric Paris <eparis@parisplace.org>
+Cc: jmorris@namei.org, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <7e0fb38c0901031416w596d9c25vf42fb72a6824268b@mail.gmail.com>
+References: <1230915146-2359-1-git-send-email-dpquigl@tycho.nsa.gov>
+	 <1230915146-2359-3-git-send-email-dpquigl@tycho.nsa.gov>
+	 <7e0fb38c0901031416w596d9c25vf42fb72a6824268b@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 05 Jan 2009 08:18:27 -0500
-Message-Id: <1231161507.3102.6.camel@localhost.localdomain>
+Date: Mon, 05 Jan 2009 10:02:07 -0500
+Message-Id: <1231167727.18774.2.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2008-12-19 at 15:27 -0600, Xavier Toth wrote:
-> On Mon, Dec 8, 2008 at 8:22 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On Fri, 2008-12-05 at 19:46 -0500, Eamon Walsh wrote:
-> >> The attached C code uses the CONTEXT__CONTAINS permission check to check
-> >> dominance, and produces the following output on my mls box:
-> >>
-> >> staff_u:staff_r:staff_t:s15:c0.c255 dominates staff_u:staff_r:staff_t:s0
-> >>
-> >> system_u:object_r:etc_t:s15:c0.c255 does not dominate system_u:object_r:etc_t:s0
-> >>
-> >>
-> >> Why doesn't this check work in the second case?
+On Sat, 2009-01-03 at 17:16 -0500, Eric Paris wrote:
+> On Fri, Jan 2, 2009 at 11:52 AM, David P. Quigley <dpquigl@tycho.nsa.gov> wrote:
+> > There is no easy way to tell if a file system supports SELinux security labeling.
+> > Because of this a new flag is being added to the super block security structure
+> > to indicate that the particular super block supports labeling. This flag is set
+> > for file systems using the xattr, task, and transition labeling methods unless
+> > that behavior is overridden by context mounts.
 > >
-> > Likely due to a TE denial.  The existing policy likely only has:
-> > allow domain self:context contains;
-> > as the original use case for this check was to apply a check between two
-> > subject contexts.
+> > Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
+> > ---
+> 
+> 
+> > @@ -431,7 +433,7 @@ static int sb_finish_set_opts(struct super_block *sb)
+> >                }
+> >        }
 > >
-> > If you want to use it for object contexts, you'll have to allow it for
-> > those types as well.
+> > -       sbsec->flags |= SE_SBINITIALIZED;
+> > +       sbsec->flags |= (SE_SBINITIALIZED | SE_SBLABELSUPP);
 > >
-> >> My color translation code has a config file that may contain lines such
-> >> as (paraphrasing):
-> >> range s0 = green
-> >> range s1 = yellow
-> >> range s1:c1 = blue
-> >> range s15:c0.c255 = red
-> >>
-> >> and so forth, which are matched with incoming contexts using a dominance
-> >> check.  The observed behavior above is causing this not to work.
+> >        if (sbsec->behavior > ARRAY_SIZE(labeling_behaviors))
+> >                printk(KERN_ERR "SELinux: initialized (dev %s, type %s), unknown behavior\n",
+> > @@ -441,6 +443,12 @@ static int sb_finish_set_opts(struct super_block *sb)
+> >                       sb->s_id, sb->s_type->name,
+> >                       labeling_behaviors[sbsec->behavior-1]);
 > >
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> > the words "unsubscribe selinux" without quotes as the message.
+> > +       if (sbsec->behavior == SECURITY_FS_USE_GENFS ||
+> > +           sbsec->behavior == SECURITY_FS_USE_MNTPOINT ||
+> > +           sbsec->behavior == SECURITY_FS_USE_NONE ||
+> > +           sbsec->behavior > ARRAY_SIZE(labeling_behaviors))
+> > +               sbsec->flags &= ~SE_SBLABELSUPP;
+> > +
+> >        /* Initialize the root inode. */
+> >        rc = inode_doinit_with_dentry(root_inode, root);
 > >
 > 
-> Can anyone help me understand the results I'm getting here? I wrote
-> this python script (compute_av.py) to test the dominance check:
-> 
-> import selinux
-> SECCLASS_CONTEXT = selinux.string_to_security_class("context")
-> CONTEXT__CONTAINS = 2
-> 
-> rc, con = selinux.getcon()
-> con_array = con.split(":")
-> 
-> avd = selinux.av_decision()
-> con_array[3] = "s0:c0.c255"
-> ctx = ':'.join(con_array)
-> con_array[3] = "s0"
-> raw = ':'.join(con_array)
-> rc = selinux.security_compute_av_raw(ctx, raw, SECCLASS_CONTEXT,
-> CONTEXT__CONTAINS, avd)
-> print ctx, raw, avd.allowed
-> 
-> 
-> [tedx@comms ~]$ runcon system_u:system_r:initrc_t:s0-s15:c0.c1023
-> python compute_av.py
-> system_u:system_r:initrc_t:s0:c0.c255 system_u:system_r:initrc_t:s0 0
-> [tedx@comms ~]$ python compute_av.py
-> user_u:user_r:user_t:s0:c0.c255 user_u:user_r:user_t:s0 2
-> 
-> 
-> I ran these test in permissive mode. Why doesn't
-> system_u:system_r:initrc_t:s0:c0.c255 dominate
-> system_u:system_r:initrc_t:s0?
+> Why set it just to unset?   Cleaner to only set it for the right
+> things, Isn't it?
 
-Existing policy likely only allows context contains permission for the
-user domains, as that was the only original use case for it (for
-checking whether a specified user context is contained by another).
+Actually the list of things that support it is larger than the things
+that don't so it is a smaller conditional to assume things support it
+and then remove the ones that don't. Atleast thats what I found
+initially.
 
--- 
-Stephen Smalley
-National Security Agency
+> 
+> > diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> > index ff4e19c..8143587 100644
+> > --- a/security/selinux/include/security.h
+> > +++ b/security/selinux/include/security.h
+> > @@ -47,11 +47,13 @@
+> >  /* Non-mount related flags */
+> >  #define SE_SBINITIALIZED       0x10
+> >  #define SE_SBPROC              0x20
+> > +#define SE_SBLABELSUPP 0x40
+> >
+> >  #define CONTEXT_STR    "context="
+> >  #define FSCONTEXT_STR  "fscontext="
+> >  #define ROOTCONTEXT_STR        "rootcontext="
+> >  #define DEFCONTEXT_STR "defcontext="
+> > +#define LABELSUPP_STR "supports_labeling"
+> 
+> This is very selinux specific and "labeling" is very generic.  James,
+> you have suggestions?
+
+I'll switch this to James' suggestion of seclabel
+
+> 
+> Don't you also need to swallow this text string somewhere in
+> selinux_sb_copy_data()?  I think ext3 works fine with option strings
+> it doesn't understand I think the nfs code will explode if we just
+> leave the string (maybe we are ok with that....)
+
+Ill look into this. I looked at how we added a new option for the NFS
+code and duplicated that so if we need that there I need to fix the
+labeled NFS code.
+
+> 
+> I say we just swallow "supports_labeling" in selinux_sb_copy_data() so
+> trying to mount with it is a noop....   Or allow people to mount with
+> it and have the mount blow up when they end up not using
+> xattr/task/transition....
+
+Well as it is right now if you pass supports_labeling as a mount option
+it doesn't do anything and unless the filesystem actually supports
+labeling it won't show up in /proc/mounts either.
+
+Dave
 
 
 --
