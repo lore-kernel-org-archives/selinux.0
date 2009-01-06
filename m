@@ -1,84 +1,70 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n06F1qBE021177
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2009 10:01:52 -0500
-Received: from manicmethod.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n06ExCrH021594
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2009 14:59:12 GMT
-Message-ID: <49637258.1060108@manicmethod.com>
-Date: Tue, 06 Jan 2009 10:01:44 -0500
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Add restorecon and install methods for libselinux python bindings.
-References: <49218E1C.2040302@redhat.com>
-In-Reply-To: <49218E1C.2040302@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: Postfix with domain keys
+From: Martin Spinassi <martins.listz@gmail.com>
+Reply-To: martins.listz@gmail.com
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <1231253635.9746.46.camel@localhost.localdomain>
+References: <1231243582.2946.106.camel@kr0sty.livra.local>
+	 <1231248177.9746.7.camel@localhost.localdomain>
+	 <1231248656.9746.10.camel@localhost.localdomain>
+	 <1231250318.2946.122.camel@kr0sty.livra.local>
+	 <1231251202.9746.37.camel@localhost.localdomain>
+	 <1231253888.2946.132.camel@kr0sty.livra.local>
+	 <1231253635.9746.46.camel@localhost.localdomain>
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 06 Jan 2009 13:17:33 -0200
+Message-Id: <1231255053.2946.138.camel@kr0sty.livra.local>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Luke Macken wrote restorecon and install functions used in Fedora
-> Infrastructure which can be used to install files with the proper
-> context and to fix the labels of files/directories without having to
-> exec restorecon.
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.9 (GNU/Linux)
-> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
->
-> iEYEARECAAYFAkkhjhwACgkQrlYvE4MpobPyDgCfZ3vdiX/irkv3A9ka89LvUV1s
-> RjQAniK+8rHaotyzEVoCM/yIg8nvAk8x
-> =bePO
-> -----END PGP SIGNATURE-----
->   
+On Tue, 2009-01-06 at 09:53 -0500, Stephen Smalley wrote:
+[snip]
+> > > 	module mypostfix 1.0;
+> > > 	require {
+> > > 		type postfix_master_t;
+> > > 		type port_t;
+> > > 		class tcp_socket name_bind;
+> > > 	}
+> > > 	allow postfix_master_t port_t:tcp_socket name_bind;
+> > > 
+> > > See for example:
+> > > http://docs.fedoraproject.org/selinux-faq-fc5/#id2961385
+> > > http://docs.fedoraproject.org/selinux-user-guide/f10/en-US/sect-Security-Enhanced_Linux-Fixing_Problems-Allowing_Access_audit2allow.html
+> > > 
+> > 
+> > Correct me if I'm wrong, but allowing this will accept the domain use
+> > any tcp socket, and call me paranoid, but it could allow postfix
+> > something like a reverse telnet or something. Is it right? (I've already
+> > warned you that I'm a complete rookie, so it could be a ridiculous
+> > response).
+> 
+> It allows the domain to bind to any port that is not otherwise mapped to
+> a specific type by the policy and thus defaults to port_t.  Well-defined
+> ports like telnet (23) are mapped to specific types like telnetd_port_t
+> by policy, and the reserved port range is covered by default mappings to
+> reserved_port_t or hi_reserved_port_t if there is no specific match.
+> 
+> As I said, the above policy module is what I would expect it to generate
+> if you were to run it on avc denials generated without any specific
+> semanage port assignment for the 10026 port and thus defaulting to
+> port_t.  If you instead define your own port type and map the 10026 port
+> to that type, then the allow rule could be specific to your new port
+> type.
 
-diff --exclude-from=exclude -N -u -r nsalibselinux/src/selinuxswig_python.i libselinux-2.0.75/src/selinuxswig_python.i
---- nsalibselinux/src/selinuxswig_python.i	2008-08-28 09:34:24.000000000 -0400
-+++ libselinux-2.0.75/src/selinuxswig_python.i	2008-11-14 17:09:50.000000000 -0500
-@@ -6,6 +6,32 @@
- 	#include "selinux/selinux.h"
- %}
- 
-+%pythoncode %{
-+
-+import shutil, os
-+
-+def restorecon(path, recursive=False):
-+    """ Restore SELinux context on a given path """
-+    mode = os.stat(path)[stat.ST_MODE]
+Thank you very much for clear it!
 
-stat doesn't exist here, perhaps he meant mode?
+I'll be checking those links and then try that module.
 
-+    status, context = matchpathcon(path, mode)
-+    if status == 0:
-+        lsetfilecon(path, context)
-+        if recursive:
-+            os.path.walk(path, lambda arg, dirname, fnames:
-+                             map(restorecon, [os.path.join(dirname, fname)
-+                              s                for fname in fnames]), None)
 
-typo, the s causes a syntax error
+I really really appreciate your help.
 
-+
-+def copytree(src, dest):
-+    """ An SELinux-friendly shutil.copytree method """
-+    shutil.copytree(src, dest)
-+    restorecon(dest, recursive=True)
-+
-+def install(src, dest):
-+    """ An SELinux-friendly shutil.move method """
-+    shutil.move(src, dest)
-+    restorecon(dest, recursive=True)
-+%}
-+
- /* security_get_boolean_names() typemap */
- %typemap(argout) (char ***names, int *len) {
- 	PyObject* list = PyList_New(*$2);
 
-This patch doesn't appear correct, I'll fix the things above, have you been testing this at all?
+Cheers
+
+
+Martín
 
 
 --
