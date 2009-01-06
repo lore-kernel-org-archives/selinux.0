@@ -1,89 +1,242 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n06IkvWe025762
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2009 13:46:57 -0500
-Received: from nf-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n06IiHMK002860
-	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2009 18:44:17 GMT
-Received: by nf-out-0910.google.com with SMTP id b21so1253998nfd.4
-        for <selinux@tycho.nsa.gov>; Tue, 06 Jan 2009 10:46:54 -0800 (PST)
-Message-ID: <4c4ba1530901061046x7145c430p1acd73be3177a4d9@mail.gmail.com>
-Date: Tue, 6 Jan 2009 10:46:54 -0800
-From: "Tom London" <selinux@gmail.com>
-To: "SELinux List" <selinux@tycho.nsa.gov>
-Subject: "denied null" AVCs from qemu-kvm with latest rawhide policy
+Message-ID: <4963AD47.3030501@redhat.com>
+Date: Tue, 06 Jan 2009 14:13:11 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Manoj Srivastava <manoj.srivastava@stdc.com>, selinux@tycho.nsa.gov,
+        selinux-devel@lists.alioth.debian.org
+Subject: Re: [libsemanage] Also check for the uppoer bound on user ids in
+ /etc/login.defs
+References: <1231195520-10286-1-git-send-email-manoj.srivastava@stdc.com>	 <49629037.7020604@redhat.com>	 <87k599fidc.fsf@anzu.internal.golden-gryphon.com>	 <496353FA.5020906@redhat.com>	 <87fxjwlc7f.fsf@anzu.internal.golden-gryphon.com>	 <1231254550.9746.53.camel@localhost.localdomain>	 <4963873A.2040701@redhat.com> <1231263568.9746.62.camel@localhost.localdomain>
+In-Reply-To: <1231263568.9746.62.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Running the latest Fedora rawhide policy packages
-(selinux-policy-targeted-3.6.2-2.fc11.noarch,
-selinux-policy-3.6.2-2.fc11.noarch), I observe the following "null"
-AVCs reported in /var/log/Xorg.0.log:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Stephen Smalley wrote:
+> On Tue, 2009-01-06 at 11:30 -0500, Daniel J Walsh wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Stephen Smalley wrote:
+>>> On Tue, 2009-01-06 at 08:51 -0600, Manoj Srivastava wrote:
+>>>> On Tue, Jan 06 2009, Daniel J Walsh wrote:
+>>>>
+>>>>> Manoj Srivastava wrote:
+>>>>>> On Mon, Jan 05 2009, Daniel J Walsh wrote:
+>>>>>>
+>>>>>>> Manoj Srivastava wrote:
+>>>>>>>> From: Manoj Srivastava <srivasta@debian.org>
+>>>>>>>>
+>>>>>>>> Some non-Debian packages (like qmail, shudder) create users not below
+>>>>>>>> MIN_UID, but above MAX_UID, in /etc/login.defs (non-system users are
+>>>>>>>> supposed to have uids between MIN_UID and MAX_UID.
+>>>>>>>>
+>>>>>>>> genhomedircon.c:gethomedirs() checks pwent.pw_uid against MIN_UID in
+>>>>>>>> /etc/login.defs to exclude system users from generating homedir
+>>>>>>>> contexts. But unfortunately it does not check it against MAX_UID
+>>>>>>>> setting from the same file.
+>>>>>>>>
+>>>>>>>> This gets us lines like the following in the
+>>>>>>>> contexts/files/file_contexts.homedirs file:
+>>>>>>>>
+>>>>>>>> ,----
+>>>>>>>> |  #
+>>>>>>>> |  # Home Context for user user_u
+>>>>>>>> |  #
+>>>>>>>> |  /var/qmail/[^/]*/.+     user_u:object_r:user_home_t:s0
+>>>>>>>> |  /var/qmail/[^/]*/\.ssh(/.*)?    user_u:object_r:user_home_ssh_t:s0
+>>>>>>>> |  /var/qmail/[^/]*/\.gnupg(/.+)?  user_u:object_r:user_gpg_secret_t:s0
+>>>>>>>> |  /var/qmail/[^/]*        -d      user_u:object_r:user_home_dir_t:s0
+>>>>>>>> |  /var/qmail/lost\+found/.*       <<none>>
+>>>>>>>> |  /var/qmail      -d      system_u:object_r:home_root_t:s0
+>>>>>>>> |  /var/qmail/\.journal    <<none>>
+>>>>>>>> |  /var/qmail/lost\+found  -d      system_u:object_r:lost_found_t:s0
+>>>>>>>> |  /tmp/gconfd-.*  -d      user_u:object_r:user_tmp_t:s0
+>>>>>>>> `----
+>>>>>>>>
+>>>>>>>> This commit adds checking uid value againt MAX_UID too.
+>>>>>>>>
+>>>>>>>> Signed-off-by: Manoj Srivastava <srivasta@debian.org>
+>>>>>>>> ---
+>>>>>>>>  src/genhomedircon.c |   22 ++++++++++++++++++----
+>>>>>>>>  1 files changed, 18 insertions(+), 4 deletions(-)
+>>>>>>>>
+>>>>>>>> diff --git a/src/genhomedircon.c b/src/genhomedircon.c
+>>>>>>>> index ce15807..a5306d7 100644
+>>>>>>>> --- a/src/genhomedircon.c
+>>>>>>>> +++ b/src/genhomedircon.c
+>>>>>>>> @@ -219,8 +219,8 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+>>>>>>>>  	char *rbuf = NULL;
+>>>>>>>>  	char *path = NULL;
+>>>>>>>>  	long rbuflen;
+>>>>>>>> -	uid_t temp, minuid = 0;
+>>>>>>>> -	int minuid_set = 0;
+>>>>>>>> +	uid_t temp, minuid = 0, maxuid = 0;
+>>>>>>>> +	int minuid_set = 0, maxuid_set = 0;
+>>>>>>>>  	struct passwd pwstorage, *pwbuf;
+>>>>>>>>  	struct stat buf;
+>>>>>>>>  	int retval;
+>>>>>>>> @@ -270,6 +270,16 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+>>>>>>>>  	}
+>>>>>>>>  	free(path);
+>>>>>>>>  	path = NULL;
+>>>>>>>> +	path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
+>>>>>>>> +	if (path && *path) {
+>>>>>>>> +		temp = atoi(path);
+>>>>>>>> +		if (!maxuid_set || temp > maxuid) {
+>>>>>>>> +			maxuid = temp;
+>>>>>>>> +			maxuid_set = 1;
+>>>>>>>> +		}
+>>>>>>>> +	}
+>>>>>>>> +	free(path);
+>>>>>>>> +	path = NULL;
+>>>>>>>>  
+>>>>>>>>  	path = semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=");
+>>>>>>>>  	if (path && *path) {
+>>>>>>>> @@ -286,6 +296,10 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+>>>>>>>>  		minuid = 500;
+>>>>>>>>  		minuid_set = 1;
+>>>>>>>>  	}
+>>>>>>>> +	if (!maxuid_set) {
+>>>>>>>> +		maxuid = 60000;
+>>>>>>>> +		maxuid_set = 1;
+>>>>>>>> +	}
+>>>>>>>>  
+>>>>>>>>  	rbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
+>>>>>>>>  	if (rbuflen <= 0)
+>>>>>>>> @@ -295,7 +309,7 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+>>>>>>>>  		goto fail;
+>>>>>>>>  	setpwent();
+>>>>>>>>  	while ((retval = getpwent_r(&pwstorage, rbuf, rbuflen, &pwbuf)) == 0) {
+>>>>>>>> -		if (pwbuf->pw_uid < minuid)
+>>>>>>>> +		if (pwbuf->pw_uid < minuid || pwbuf->pw_uid > maxuid)
+>>>>>>>>  			continue;
+>>>>>>>>  		if (!semanage_list_find(shells, pwbuf->pw_shell))
+>>>>>>>>  			continue;
+>>>>>>>> @@ -322,7 +336,7 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+>>>>>>>>  
+>>>>>>>>  			/* NOTE: old genhomedircon printed a warning on match */
+>>>>>>>>  			if (hand.matched) {
+>>>>>>>> -				WARN(s->h_semanage, "%s homedir %s or its parent directory conflicts with a file context already specified in the policy.  This usually indicates an incorrectly defined system account.  If it is a system account please make sure its uid is less than %u or its login shell is /sbin/nologin.", pwbuf->pw_name, pwbuf->pw_dir, minuid);
+>>>>>>>> +			  WARN(s->h_semanage, "%s homedir %s or its parent directory conflicts with a file context already specified in the policy.  This usually indicates an incorrectly defined system account.  If it is a system account please make sure its uid is less than %u or greater than %u or its login shell is /sbin/nologin.", pwbuf->pw_name, pwbuf->pw_dir, minuid, maxuid);
+>>>>>>>>  			} else {
+>>>>>>>>  				if (semanage_list_push(&homedir_list, path))
+>>>>>>>>  					goto fail;
+>>>>>>> I think the default MAX_UID is not big enough.
+>>>>>>>
+>>>>>>> Shouldn't it be MAXINT?
+>>>>>>         Not unless I am misunderstanding the logic here. The way I see
+>>>>>>  it, the code below:
+>>>>>> ,----
+>>>>>> | while ((retval = getpwent_r(&pwstorage, rbuf, rbuflen, &pwbuf)) == 0) {
+>>>>>> |         if (pwbuf->pw_uid < minuid || pwbuf->pw_uid > maxuid)
+>>>>>> |                 continue;
+>>>>>> |         if (!semanage_list_find(shells, pwbuf->pw_shell))
+>>>>>> |                 continue;
+>>>>>> |         if (strcmp(pwbuf->pw_dir, "/") == 0)
+>>>>>> |                 continue;
+>>>>>> |         if (semanage_str_count(pwbuf->pw_dir, '/') <= 1)
+>>>>>> |                 continue;
+>>>>>> |         if (!(path = strdup(pwbuf->pw_dir))) {
+>>>>>> |                 break;
+>>>>>> |         }
+>>>>>> |    /* DO STUFF HERE */
+>>>>>> | }
+>>>>>> `----
+>>>>>>
+>>>>>>         Does nothing iff: pw_uid < minuid || pw_uid > maxuid, so it
+>>>>>>  only does things if the UID is in the range legal for non-system users;
+>>>>>>  and the UID range for system users is UID_MIN < uid < UID_MAX.
+>>>>>>
+>>>>>>         If you change the upper bound to max int, then we will create
+>>>>>>  the entries for UIDs in the range above 60000 -- which is where the
+>>>>>>  bletcherous qmail install script places the qmail uid.
+>>>>>>
+>>>>>>         The current behaviour, but not checking the upper bound of the
+>>>>>>  acceptable user range would be equivalent to the raising the upper
+>>>>>>  bound to INT_MAX; and indeed, would make this patch redundant.
+>>>>>>
+>>>>>>         From login.defs(5):
+>>>>>> ,----
+>>>>>> |        UID_MAX (number), UID_MIN (number)
+>>>>>> |            Range of user IDs used for the creation of regular users by
+>>>>>> |            useradd or newusers.
+>>>>>> `----
+>>>>>>
+>>>>>>         Therefore I think that the right thing to do would be to check
+>>>>>>  for both the upper and the lower bound, not just the lower bound
+>>>>>>  check, which is all we do now.
+>>>>>>
+>>>>>>         manoj
+>>>>> my point being, if I have a legitimate UID > 60000 for a real user and
+>>>>> do not define UID_MAX, My account will not work.
+>>>>>
+>>>>> I do not have a problem with checking UID_MAX, just that the default
+>>>>> should be much higer then 60000.
+>>>>         I just went with the Debian policy default value; 60000 is the
+>>>>  upper limit of uid's on Debian (and probably most Debian derivative)
+>>>>  machines, and UID's lager than that are reserved by policy for Debian
+>>>>  packages to use (after discussion on the development mailing lists).
+>>> The same appears to be true in Fedora; UID_MAX is set to 60000 by
+>>> default in /etc/login.defs there as well.
+>>>
+>>>>         Having said that, I have no objection to making the default max
+>>>>  uid a preprocessor constant, which can be tweaked by the
+>>>>  distributions. Should I send in an updated patch?
+>> Talking to Nalin, he thinks this number should be ignored,  Imagine a
+>> university with > 60000 students or a large government Department (Say
+>> DOD),  this will cause users with UID 600001 to not work correctly.
+>>
+>> UID_MAX is just there to tell useradd to give up when trying to find the
+>> next available UID to add, it means nothing when you have a network of
+>> Users.
+> 
+> This seems similar to the discussion you raised in:
+> http://marc.info/?l=selinux&m=122286879230076&w=2
+> 
+> Unfortunately there wasn't any real follow-up at the time.
+> 
+
+I would like to make a suggestion we add a couple of flags to
+/etc/selinux/semanage.conf
+
+# semanage searches the passwd database for parents of home directories
+of "real users".  semanage uses these values to setup the default file
+# context, so that files in the "real users" home directory are labeled
+# correctly.
+# semanage tries to identify "real users" by looking for
+# users with UID greater then UID_MIN as specified in /etc/login.defs.
+# UID_MIN defaults to 500.  The user must also have a shell specified in
+# /etc/shells, excluding /bin/false and /sbin/nologin.  On machines with
+# thousands of entries in the passwd database, semanage can take a very
+# long time to run.
+#
+# Alternatively semanage will not search the passwd database when you
+# specify HOMEPARENT value.
+#
+# HOMEPARENT takes as its value a colon-separated list of directories
+#
+# HOMEPARENT=/home:/export/home:/usr/local/home
+#
+
+# Specify HOMEEXCLUDE to tell semanage to ignore these directories even
+# if they seem to be parents of "real user" accounts
+#
+# HOMEEXCLUDE=/var/lib
 
 
-(WW) avc:  denied  null for request=X11:MapWindow comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-exaCopyDirty: Pending damage region empty!
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:QueryPointer comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
-(WW) avc:  denied  null for request=X11:GetInputFocus comm=qemu-kvm
-xdevice="Virtual core keyboard"
-scontext=unconfined_u:unconfined_r:qemu_t:s0-s0:c0.c1023
-tcontext=system_u:system_r:xserver_t:s0-s0:c0.c1023 tclass=x_device
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-Doesn't appear that they affect the running process (qemu-kvm, in this case).
-
-What are they and does something need to be adjusted?
-
-Thanks,
-   tom
--- 
-Tom London
+iEYEARECAAYFAkljrUcACgkQrlYvE4MpobP+jgCbBrnnUxD1i/5rY2WiJfD04ABl
+JMoAoMVGxiq6RcMj70qnXjxvK+7fRapg
+=dDaC
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
