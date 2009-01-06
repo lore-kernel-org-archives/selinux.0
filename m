@@ -1,22 +1,21 @@
 Subject: Re: Postfix with domain keys
-From: Martin Spinassi <martins.listz@gmail.com>
-Reply-To: martins.listz@gmail.com
-To: Stephen Smalley <sds@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: martins.listz@gmail.com
 Cc: selinux@tycho.nsa.gov, "Christopher J. PeBenito" <cpebenito@tresys.com>,
         Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1231248656.9746.10.camel@localhost.localdomain>
+In-Reply-To: <1231250108.2946.118.camel@kr0sty.livra.local>
 References: <1231243582.2946.106.camel@kr0sty.livra.local>
 	 <1231248177.9746.7.camel@localhost.localdomain>
-	 <1231248656.9746.10.camel@localhost.localdomain>
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 06 Jan 2009 11:58:38 -0200
-Message-Id: <1231250318.2946.122.camel@kr0sty.livra.local>
+	 <1231250108.2946.118.camel@kr0sty.livra.local>
+Content-Type: text/plain
+Date: Tue, 06 Jan 2009 09:06:22 -0500
+Message-Id: <1231250782.9746.30.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-01-06 at 08:30 -0500, Stephen Smalley wrote:
-> On Tue, 2009-01-06 at 08:23 -0500, Stephen Smalley wrote:
+On Tue, 2009-01-06 at 11:55 -0200, Martin Spinassi wrote:
+> On Tue, 2009-01-06 at 08:22 -0500, Stephen Smalley wrote:
 > > On Tue, 2009-01-06 at 10:06 -0200, Martin Spinassi wrote:
 > > > Hello list!
 > > > 
@@ -52,21 +51,63 @@ On Tue, 2009-01-06 at 08:30 -0500, Stephen Smalley wrote:
 > > postfix_master_t?  Was it just port_t originally?  Looking at a copy of
 > > the reference policy, it looks like postfix_master_t is allowed
 > > name_bind permission for port_t, reserved_port_t, and smtp_port_t.
+> > 
+> > If you really wanted to lock down this port specifically, you could of
+> > course introduce your own type for it (dkim_port_t?) and allow
+> > postfix_master_t to bind it via a local policy module, and then use
+> > semanage to map the port to that new type.
 > 
-> Oh, actually, the allow rules granting name_bind to port_t and
-> reserved_port_t are conditional on allow_ypbind and disabled by default.
 > 
+> Thanks for the response Stephen.
+> 
+> I don't know if it's the best solution, but it is working now.
+> 
+> Here is what I did (just in case someone else needs it):
+> 
+> 
+> As rhel 5 doesn't have selinux-tageted-source package any more, I'd to
+> see how to resolve it with semanage.
 
-Audit2allow "recommended" to allow transition from postfix_master_t to
-port_t and then allow create socket port_t, but I didn't feel it much
-secure...what do you think?
+The old policy -sources package became unnecessary with the introduction
+of support for loadable policy modules and semanage, which first
+happened in the Fedora Core 5 release.  Instead, you can just create
+your own local policy module, build it and install it without needing
+the base policy sources at all.
+
+See for example:
+http://docs.fedoraproject.org/selinux-faq-fc5/#faq-entry-local.te
+
+(Note to Dan:  I don't see anything comparable in the current Fedora
+SELinux FAQ or the Fedora 10 SELinux Guide on how to write a local
+policy module, only about using audit2allow.)
+
+> First I removed previous entry for that port (my mistake)
+> 
+> # semanage port -d -t postfix_master_t -p tcp 10026
+> 
+> and then added it to smtp_port_t
+> 
+> # semanage port -a -t smtp_port_t -p tcp 10026
+> 
+> 
+> Doing a it's own type (dkim_port_t) would be the best, but need a bit of
+> practice to do it.
+> 
+> 
+> Thanks again for the response, I'll try to do it's own type once I
+> finish the O'Reilly selinux book ;-)
+
+I'd recommend looking at something more recent, unless there is a new
+edition of that book.  The original edition only described the state of
+SELinux circa Fedora Core 2/3 and thus doesn't deal with loadable policy
+modules, semanage, or reference policy at all.  The SELinux by Example
+book is more recent.  Then there are various online resources, see:
+http://selinuxproject.org/page/User_Resources
 
 
-Thanks again for your time Stephen.
-
-Cheers.
-
-Martín
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
