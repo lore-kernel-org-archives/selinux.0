@@ -1,174 +1,68 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n05NVtMl032132
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2009 18:31:55 -0500
-Received: from ladon.golden-gryphon.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n05NVrgh003631
-	for <selinux@tycho.nsa.gov>; Mon, 5 Jan 2009 23:31:53 GMT
-From: Manoj Srivastava <manoj.srivastava@stdc.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: selinux@tycho.nsa.gov, selinux-devel@lists.alioth.debian.org
-Subject: Re: [libsemanage] Also check for the uppoer bound on user ids in /etc/login.defs
-References: <1231195520-10286-1-git-send-email-manoj.srivastava@stdc.com>
-	<49629037.7020604@redhat.com>
-Date: Mon, 05 Jan 2009 17:22:39 -0600
-In-Reply-To: <49629037.7020604@redhat.com> (Daniel J. Walsh's message of "Mon,
-	05 Jan 2009 17:56:55 -0500")
-Message-ID: <87k599fidc.fsf@anzu.internal.golden-gryphon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n06BriBJ000469
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2009 06:53:44 -0500
+Received: from rn-out-0910.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n06Bp4jP023899
+	for <selinux@tycho.nsa.gov>; Tue, 6 Jan 2009 11:51:04 GMT
+Received: by rn-out-0910.google.com with SMTP id k40so5311954rnd.17
+        for <selinux@tycho.nsa.gov>; Tue, 06 Jan 2009 03:53:43 -0800 (PST)
+Subject: Postfix with domain keys
+From: Martin Spinassi <martins.listz@gmail.com>
+Reply-To: martins.listz@gmail.com
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 06 Jan 2009 10:06:21 -0200
+Message-Id: <1231243582.2946.106.camel@kr0sty.livra.local>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Jan 05 2009, Daniel J Walsh wrote:
+Hello list!
 
-> Manoj Srivastava wrote:
->> From: Manoj Srivastava <srivasta@debian.org>
->> 
->> Some non-Debian packages (like qmail, shudder) create users not below
->> MIN_UID, but above MAX_UID, in /etc/login.defs (non-system users are
->> supposed to have uids between MIN_UID and MAX_UID.
->> 
->> genhomedircon.c:gethomedirs() checks pwent.pw_uid against MIN_UID in
->> /etc/login.defs to exclude system users from generating homedir
->> contexts. But unfortunately it does not check it against MAX_UID
->> setting from the same file.
->> 
->> This gets us lines like the following in the
->> contexts/files/file_contexts.homedirs file:
->> 
->> ,----
->> |  #
->> |  # Home Context for user user_u
->> |  #
->> |  /var/qmail/[^/]*/.+     user_u:object_r:user_home_t:s0
->> |  /var/qmail/[^/]*/\.ssh(/.*)?    user_u:object_r:user_home_ssh_t:s0
->> |  /var/qmail/[^/]*/\.gnupg(/.+)?  user_u:object_r:user_gpg_secret_t:s0
->> |  /var/qmail/[^/]*        -d      user_u:object_r:user_home_dir_t:s0
->> |  /var/qmail/lost\+found/.*       <<none>>
->> |  /var/qmail      -d      system_u:object_r:home_root_t:s0
->> |  /var/qmail/\.journal    <<none>>
->> |  /var/qmail/lost\+found  -d      system_u:object_r:lost_found_t:s0
->> |  /tmp/gconfd-.*  -d      user_u:object_r:user_tmp_t:s0
->> `----
->> 
->> This commit adds checking uid value againt MAX_UID too.
->> 
->> Signed-off-by: Manoj Srivastava <srivasta@debian.org>
->> ---
->>  src/genhomedircon.c |   22 ++++++++++++++++++----
->>  1 files changed, 18 insertions(+), 4 deletions(-)
->> 
->> diff --git a/src/genhomedircon.c b/src/genhomedircon.c
->> index ce15807..a5306d7 100644
->> --- a/src/genhomedircon.c
->> +++ b/src/genhomedircon.c
->> @@ -219,8 +219,8 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
->>  	char *rbuf = NULL;
->>  	char *path = NULL;
->>  	long rbuflen;
->> -	uid_t temp, minuid = 0;
->> -	int minuid_set = 0;
->> +	uid_t temp, minuid = 0, maxuid = 0;
->> +	int minuid_set = 0, maxuid_set = 0;
->>  	struct passwd pwstorage, *pwbuf;
->>  	struct stat buf;
->>  	int retval;
->> @@ -270,6 +270,16 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
->>  	}
->>  	free(path);
->>  	path = NULL;
->> +	path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
->> +	if (path && *path) {
->> +		temp = atoi(path);
->> +		if (!maxuid_set || temp > maxuid) {
->> +			maxuid = temp;
->> +			maxuid_set = 1;
->> +		}
->> +	}
->> +	free(path);
->> +	path = NULL;
->>  
->>  	path = semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=");
->>  	if (path && *path) {
->> @@ -286,6 +296,10 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
->>  		minuid = 500;
->>  		minuid_set = 1;
->>  	}
->> +	if (!maxuid_set) {
->> +		maxuid = 60000;
->> +		maxuid_set = 1;
->> +	}
->>  
->>  	rbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
->>  	if (rbuflen <= 0)
->> @@ -295,7 +309,7 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
->>  		goto fail;
->>  	setpwent();
->>  	while ((retval = getpwent_r(&pwstorage, rbuf, rbuflen, &pwbuf)) == 0) {
->> -		if (pwbuf->pw_uid < minuid)
->> +		if (pwbuf->pw_uid < minuid || pwbuf->pw_uid > maxuid)
->>  			continue;
->>  		if (!semanage_list_find(shells, pwbuf->pw_shell))
->>  			continue;
->> @@ -322,7 +336,7 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
->>  
->>  			/* NOTE: old genhomedircon printed a warning on match */
->>  			if (hand.matched) {
->> -				WARN(s->h_semanage, "%s homedir %s or its parent directory conflicts with a file context already specified in the policy.  This usually indicates an incorrectly defined system account.  If it is a system account please make sure its uid is less than %u or its login shell is /sbin/nologin.", pwbuf->pw_name, pwbuf->pw_dir, minuid);
->> +			  WARN(s->h_semanage, "%s homedir %s or its parent directory conflicts with a file context already specified in the policy.  This usually indicates an incorrectly defined system account.  If it is a system account please make sure its uid is less than %u or greater than %u or its login shell is /sbin/nologin.", pwbuf->pw_name, pwbuf->pw_dir, minuid, maxuid);
->>  			} else {
->>  				if (semanage_list_push(&homedir_list, path))
->>  					goto fail;
-> I think the default MAX_UID is not big enough.
->
-> Shouldn't it be MAXINT?
 
-        Not unless I am misunderstanding the logic here. The way I see
- it, the code below:
-,----
-| while ((retval = getpwent_r(&pwstorage, rbuf, rbuflen, &pwbuf)) == 0) {
-|         if (pwbuf->pw_uid < minuid || pwbuf->pw_uid > maxuid)
-|                 continue;
-|         if (!semanage_list_find(shells, pwbuf->pw_shell))
-|                 continue;
-|         if (strcmp(pwbuf->pw_dir, "/") == 0)
-|                 continue;
-|         if (semanage_str_count(pwbuf->pw_dir, '/') <= 1)
-|                 continue;
-|         if (!(path = strdup(pwbuf->pw_dir))) {
-|                 break;
-|         }
-|    /* DO STUFF HERE */
-| }
-`----
+I'm a little stuck with selinux and postfix, hope you can give me
+feedback with it.
 
-        Does nothing iff: pw_uid < minuid || pw_uid > maxuid, so it
- only does things if the UID is in the range legal for non-system users;
- and the UID range for system users is UID_MIN < uid < UID_MAX.
+We're trying to add domain keys to a postfix server, but it can't open
+ports used by dkim to sign the mail. Here is some output of audit.log:
 
-        If you change the upper bound to max int, then we will create
- the entries for UIDs in the range above 60000 -- which is where the
- bletcherous qmail install script places the qmail uid.
 
-        The current behaviour, but not checking the upper bound of the
- acceptable user range would be equivalent to the raising the upper
- bound to INT_MAX; and indeed, would make this patch redundant.
+type=AVC msg=audit(1231242373.605:52): avc:  denied  { name_bind } for
+pid=5386 comm="master" src=10026
+scontext=root:system_r:postfix_master_t:s0
+tcontext=system_u:object_r:postfix_master_t:s0 tclass=tcp_socket
 
-        From login.defs(5):
-,----
-|        UID_MAX (number), UID_MIN (number)
-|            Range of user IDs used for the creation of regular users by
-|            useradd or newusers.
-`----
+type=SYSCALL msg=audit(1231242373.605:52): arch=c000003e syscall=49
+success=no exit=-13 a0=11 a1=2b06cdbc46d0 a2=10 a3=7fffe2d2f64c items=0
+ppid=1 pid=5386 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
+fsgid=0 tty=(none) ses=3 comm="master" exe="/usr/libexec/postfix/master"
+subj=root:system_r:postfix_master_t:s0 key=(null)
 
-        Therefore I think that the right thing to do would be to check
- for both the upper and the lower bound, not just the lower bound
- check, which is all we do now.
 
-        manoj
--- 
-Manoj Srivastava <manoj.srivastava@stdc.com> <srivasta@acm.org>        
-1024D/BF24424C print 4966 F272 D093 B493 410B  924B 21BA DABB BF24 424C
+
+I've allready added the port to the postfix_master_t domain with:
+# semanage port -a -t postfix_master_t -p tcp 10026
+
+
+Here is the maillog output:
+
+postfix/postfix-script: starting the Postfix mail system
+postfix/master[5386]: fatal: bind 127.0.0.1 port 10026: Permission
+denied
+
+
+It's a RHEL 5.2 and kernel 2.6.18-92.1.22.el5.
+
+
+
+Any kind of help is appreciated :)
+
+
+Cheers
+
+
+Martín
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
