@@ -1,13 +1,13 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0F1sREw017139
-	for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2009 20:54:27 -0500
-Received: from an-out-0708.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0F1sQnW009459
-	for <selinux@tycho.nsa.gov>; Thu, 15 Jan 2009 01:54:26 GMT
-Received: by an-out-0708.google.com with SMTP id d11so360651and.39
-        for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2009 17:54:26 -0800 (PST)
-Message-ID: <496E974E.1040806@gmail.com>
-Date: Wed, 14 Jan 2009 17:54:22 -0800
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0F2iW72022168
+	for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2009 21:44:32 -0500
+Received: from mail-gx0-f20.google.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0F2iUnW016274
+	for <selinux@tycho.nsa.gov>; Thu, 15 Jan 2009 02:44:30 GMT
+Received: by gxk13 with SMTP id 13so753515gxk.18
+        for <selinux@tycho.nsa.gov>; Wed, 14 Jan 2009 18:44:30 -0800 (PST)
+Message-ID: <496EA2EC.7030602@gmail.com>
+Date: Wed, 14 Jan 2009 18:43:56 -0800
 From: "Justin P. Mattock" <justinmattock@gmail.com>
 MIME-Version: 1.0
 To: Paul Moore <paul.moore@hp.com>
@@ -44,9 +44,6 @@ Paul Moore wrote:
 >> only do that with cipsov4);
 >>     
 >
->   
-apologize for the slow response
-(had to do some external activities);
 > Actually, in your case you are probably always going to want to send 
 > network traffic without any labels attached to the packets (no labeled 
 > IPsec or CIPSO) so you can stick with the default domain mapping 
@@ -54,11 +51,7 @@ apologize for the slow response
 > be concerned about is the static/fallback configuration which assigns 
 > network peer labels to packets which do not have labels attached to 
 > them by the remote host.
->   
-sure would be nice to use ipsec/cipsov4 with a internet radio.
-(lock down that tcp line);
-I'll have to look into making sure I have static/fallback
-configured correctly.
+>
 > NOTE: the domain mapping configuration only controls how outbound 
 > network traffic is labeled on-the-wire; it "maps" the 
 > LSM/SELinux "domains" to a specific labeling protocol configuration, 
@@ -107,8 +100,6 @@ configured correctly.
 > configurations.
 >
 >   
-Alright, I thought you could use the map option for unlbl.
-
 >> As for the new capabilities, I don't mind trying that out when
 >> the time comes(but first I need to figure the this out before any
 >> other ways);
@@ -135,9 +126,8 @@ Alright, I thought you could use the map option for unlbl.
 > Thanks.
 >
 >   
-Thanks for the info,
-Ill try this right away and let you know
-if the package compiles.
+O.k. changed . version like how you had posted.
+The package compiled like a charm.
 
 regards;
 
