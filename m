@@ -2,192 +2,171 @@ From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 To: jmorris@namei.org, sds@tycho.nsa.gov
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
         "David P. Quigley" <dpquigl@tycho.nsa.gov>
-Subject: [PATCH 1/3] SELinux: Condense super block security structure flags and cleanup necessary code.
-Date: Fri, 16 Jan 2009 09:22:02 -0500
-Message-Id: <1232115724-2621-2-git-send-email-dpquigl@tycho.nsa.gov>
+Subject: [PATCH 2/3] SELinux: Add new security mount option to indicate security label support.
+Date: Fri, 16 Jan 2009 09:22:03 -0500
+Message-Id: <1232115724-2621-3-git-send-email-dpquigl@tycho.nsa.gov>
 In-Reply-To: <1232115724-2621-1-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1232115724-2621-1-git-send-email-dpquigl@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The super block security structure currently has three fields for what are
-essentially flags.  The flags field is used for mount options while two other
-char fields are used for initialization and proc flags. These latter two fields are
-essentially bit fields since the only used values are 0 and 1.  These fields
-have been collapsed into the flags field and new bit masks have been added for
-them. The code is also fixed to work with these new flags.
+There is no easy way to tell if a file system supports SELinux security labeling.
+Because of this a new flag is being added to the super block security structure
+to indicate that the particular super block supports labeling. This flag is set
+for file systems using the xattr, task, and transition labeling methods unless
+that behavior is overridden by context mounts.
 
 Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 ---
- security/selinux/hooks.c            |   38 ++++++++++++++++------------------
- security/selinux/include/objsec.h   |    2 -
- security/selinux/include/security.h |    6 +++++
- 3 files changed, 24 insertions(+), 22 deletions(-)
+ security/selinux/hooks.c            |   39 ++++++++++++++++++++++++++++++----
+ security/selinux/include/security.h |    2 +
+ 2 files changed, 36 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0081597..473adc5 100644
+index 473adc5..3d099ee 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -431,7 +431,7 @@ static int sb_finish_set_opts(struct super_block *sb)
+@@ -89,7 +89,7 @@
+ #define XATTR_SELINUX_SUFFIX "selinux"
+ #define XATTR_NAME_SELINUX XATTR_SECURITY_PREFIX XATTR_SELINUX_SUFFIX
+ 
+-#define NUM_SEL_MNT_OPTS 4
++#define NUM_SEL_MNT_OPTS 5
+ 
+ extern unsigned int policydb_loaded_version;
+ extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
+@@ -353,6 +353,7 @@ enum {
+ 	Opt_fscontext = 2,
+ 	Opt_defcontext = 3,
+ 	Opt_rootcontext = 4,
++	Opt_labelsupport = 5,
+ };
+ 
+ static const match_table_t tokens = {
+@@ -360,6 +361,7 @@ static const match_table_t tokens = {
+ 	{Opt_fscontext, FSCONTEXT_STR "%s"},
+ 	{Opt_defcontext, DEFCONTEXT_STR "%s"},
+ 	{Opt_rootcontext, ROOTCONTEXT_STR "%s"},
++	{Opt_labelsupport, LABELSUPP_STR},
+ 	{Opt_error, NULL},
+ };
+ 
+@@ -431,7 +433,7 @@ static int sb_finish_set_opts(struct super_block *sb)
  		}
  	}
  
--	sbsec->initialized = 1;
-+	sbsec->flags |= SE_SBINITIALIZED;
+-	sbsec->flags |= SE_SBINITIALIZED;
++	sbsec->flags |= (SE_SBINITIALIZED | SE_SBLABELSUPP);
  
  	if (sbsec->behavior > ARRAY_SIZE(labeling_behaviors))
  		printk(KERN_ERR "SELinux: initialized (dev %s, type %s), unknown behavior\n",
-@@ -487,17 +487,13 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+@@ -441,6 +443,12 @@ static int sb_finish_set_opts(struct super_block *sb)
+ 		       sb->s_id, sb->s_type->name,
+ 		       labeling_behaviors[sbsec->behavior-1]);
  
- 	security_init_mnt_opts(opts);
++	if (sbsec->behavior == SECURITY_FS_USE_GENFS || 
++	    sbsec->behavior == SECURITY_FS_USE_MNTPOINT ||
++	    sbsec->behavior == SECURITY_FS_USE_NONE ||
++	    sbsec->behavior > ARRAY_SIZE(labeling_behaviors))
++		sbsec->flags &= ~SE_SBLABELSUPP;
++			 
+ 	/* Initialize the root inode. */
+ 	rc = inode_doinit_with_dentry(root_inode, root);
  
--	if (!sbsec->initialized)
-+	if (!(sbsec->flags & SE_SBINITIALIZED))
- 		return -EINVAL;
+@@ -500,6 +508,9 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 			opts->num_mnt_opts++;
+ 		tmp >>= 1;
+ 	}
++	/* Check if the Label support flag is set */
++	if (sbsec->flags & SE_SBLABELSUPP)
++		opts->num_mnt_opts++;
  
- 	if (!ss_initialized)
- 		return -EINVAL;
+ 	opts->mnt_opts = kcalloc(opts->num_mnt_opts, sizeof(char *), GFP_ATOMIC);
+ 	if (!opts->mnt_opts) {
+@@ -545,6 +556,10 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 		opts->mnt_opts[i] = context;
+ 		opts->mnt_opts_flags[i++] = ROOTCONTEXT_MNT;
+ 	}
++	if (sbsec->flags & SE_SBLABELSUPP) {
++		opts->mnt_opts[i] = NULL;
++		opts->mnt_opts_flags[i++] = SE_SBLABELSUPP;
++	}
  
--	/*
--	 * if we ever use sbsec flags for anything other than tracking mount
--	 * settings this is going to need a mask
--	 */
--	tmp = sbsec->flags;
-+	tmp = sbsec->flags & SE_MNTMASK;
- 	/* count the number of mount options for this sb */
- 	for (i = 0; i < 8; i++) {
- 		if (tmp & 0x01)
-@@ -562,8 +558,10 @@ out_free:
- static int bad_option(struct superblock_security_struct *sbsec, char flag,
- 		      u32 old_sid, u32 new_sid)
- {
-+	char mnt_flags = sbsec->flags & SE_MNTMASK;
+ 	BUG_ON(i != opts->num_mnt_opts);
+ 
+@@ -635,6 +650,9 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	 */
+ 	for (i = 0; i < num_opts; i++) {
+ 		u32 sid;
++		
++		if (flags[i] == SE_SBLABELSUPP)
++			continue;			
+ 		rc = security_context_to_sid(mount_options[i],
+ 					     strlen(mount_options[i]), &sid);
+ 		if (rc) {
+@@ -915,7 +933,8 @@ static int selinux_parse_opts_str(char *options,
+ 				goto out_err;
+ 			}
+ 			break;
+-
++		case Opt_labelsupport:
++			break;
+ 		default:
+ 			rc = -EINVAL;
+ 			printk(KERN_WARNING "SELinux:  unknown mount option\n");
+@@ -997,7 +1016,12 @@ static void selinux_write_opts(struct seq_file *m,
+ 	char *prefix;
+ 
+ 	for (i = 0; i < opts->num_mnt_opts; i++) {
+-		char *has_comma = strchr(opts->mnt_opts[i], ',');
++		char *has_comma;
 +
- 	/* check if the old mount command had the same options */
--	if (sbsec->initialized)
-+	if (sbsec->flags & SE_SBINITIALIZED)
- 		if (!(sbsec->flags & flag) ||
- 		    (old_sid != new_sid))
- 			return 1;
-@@ -571,8 +569,8 @@ static int bad_option(struct superblock_security_struct *sbsec, char flag,
- 	/* check if we were passed the same options twice,
- 	 * aka someone passed context=a,context=b
- 	 */
--	if (!sbsec->initialized)
--		if (sbsec->flags & flag)
-+	if (!(sbsec->flags & SE_SBINITIALIZED))
-+		if (mnt_flags & flag)
- 			return 1;
- 	return 0;
++		if (opts->mnt_opts[i])
++			has_comma = strchr(opts->mnt_opts[i], ',');
++		else
++			has_comma = NULL;
+ 
+ 		switch (opts->mnt_opts_flags[i]) {
+ 		case CONTEXT_MNT:
+@@ -1012,6 +1036,10 @@ static void selinux_write_opts(struct seq_file *m,
+ 		case DEFCONTEXT_MNT:
+ 			prefix = DEFCONTEXT_STR;
+ 			break;
++		case SE_SBLABELSUPP:
++			seq_putc(m, ',');
++			seq_puts(m, LABELSUPP_STR);
++			continue;
+ 		default:
+ 			BUG();
+ 		};
+@@ -2398,7 +2426,8 @@ static inline int selinux_option(char *option, int len)
+ 	return (match_prefix(CONTEXT_STR, sizeof(CONTEXT_STR)-1, option, len) ||
+ 		match_prefix(FSCONTEXT_STR, sizeof(FSCONTEXT_STR)-1, option, len) ||
+ 		match_prefix(DEFCONTEXT_STR, sizeof(DEFCONTEXT_STR)-1, option, len) ||
+-		match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len));
++		match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len) ||
++		match_prefix(LABELSUPP_STR, sizeof(LABELSUPP_STR)-1, option, len));
  }
-@@ -626,7 +624,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	 * this sb does not set any security options.  (The first options
- 	 * will be used for both mounts)
- 	 */
--	if (sbsec->initialized && (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)
-+	if ((sbsec->flags & SE_SBINITIALIZED) && (sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)
- 	    && (num_opts == 0))
- 		goto out;
  
-@@ -690,19 +688,19 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 		}
- 	}
- 
--	if (sbsec->initialized) {
-+	if (sbsec->flags & SE_SBINITIALIZED) {
- 		/* previously mounted with options, but not on this attempt? */
--		if (sbsec->flags && !num_opts)
-+		if ((sbsec->flags & SE_MNTMASK) && !num_opts)
- 			goto out_double_mount;
- 		rc = 0;
- 		goto out;
- 	}
- 
- 	if (strcmp(sb->s_type->name, "proc") == 0)
--		sbsec->proc = 1;
-+		sbsec->flags |= SE_SBPROC;
- 
- 	/* Determine the labeling behavior to use for this filesystem type. */
--	rc = security_fs_use(sbsec->proc ? "proc" : sb->s_type->name, &sbsec->behavior, &sbsec->sid);
-+	rc = security_fs_use((sbsec->flags & SE_SBPROC) ? "proc" : sb->s_type->name, &sbsec->behavior, &sbsec->sid);
- 	if (rc) {
- 		printk(KERN_WARNING "%s: security_fs_use(%s) returned %d\n",
- 		       __func__, sb->s_type->name, rc);
-@@ -806,10 +804,10 @@ static void selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
- 	}
- 
- 	/* how can we clone if the old one wasn't set up?? */
--	BUG_ON(!oldsbsec->initialized);
-+	BUG_ON(!(oldsbsec->flags & SE_SBINITIALIZED));
- 
- 	/* if fs is reusing a sb, just let its options stand... */
--	if (newsbsec->initialized)
-+	if (newsbsec->flags & SE_SBINITIALIZED)
- 		return;
- 
- 	mutex_lock(&newsbsec->lock);
-@@ -1209,7 +1207,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 		goto out_unlock;
- 
- 	sbsec = inode->i_sb->s_security;
--	if (!sbsec->initialized) {
-+	if (!(sbsec->flags & SE_SBINITIALIZED)) {
- 		/* Defer initialization until selinux_complete_init,
- 		   after the initial policy is loaded and the security
- 		   server is ready to handle calls. */
-@@ -1326,7 +1324,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 		/* Default to the fs superblock SID. */
- 		isec->sid = sbsec->sid;
- 
--		if (sbsec->proc && !S_ISLNK(inode->i_mode)) {
-+		if ((sbsec->flags & SE_SBPROC) && !S_ISLNK(inode->i_mode)) {
- 			struct proc_inode *proci = PROC_I(inode);
- 			if (proci->pde) {
- 				isec->sclass = inode_mode_to_security_class(inode->i_mode);
-@@ -2585,7 +2583,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 	}
- 
- 	/* Possibly defer initialization to selinux_complete_init. */
--	if (sbsec->initialized) {
-+	if (sbsec->flags & SE_SBINITIALIZED) {
- 		struct inode_security_struct *isec = inode->i_security;
- 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 		isec->sid = newsid;
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 3cc4516..c4e0623 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -60,9 +60,7 @@ struct superblock_security_struct {
- 	u32 def_sid;			/* default SID for labeling */
- 	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
- 	unsigned int behavior;		/* labeling behavior */
--	unsigned char initialized;	/* initialization flag */
- 	unsigned char flags;		/* which mount options were specified */
--	unsigned char proc;		/* proc fs */
- 	struct mutex lock;
- 	struct list_head isec_head;
- 	spinlock_t isec_lock;
+ static inline void take_option(char **to, char *from, int *first, int len)
 diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 7244737..ff4e19c 100644
+index ff4e19c..e1d9db7 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -37,10 +37,16 @@
- #define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
- #endif
- 
-+/* Mask for just the mount related flags */
-+#define SE_MNTMASK	0x0f
-+/* Super block security struct flags for mount options */
- #define CONTEXT_MNT	0x01
- #define FSCONTEXT_MNT	0x02
- #define ROOTCONTEXT_MNT	0x04
- #define DEFCONTEXT_MNT	0x08
-+/* Non-mount related flags */
-+#define SE_SBINITIALIZED	0x10
-+#define SE_SBPROC		0x20
+@@ -47,11 +47,13 @@
+ /* Non-mount related flags */
+ #define SE_SBINITIALIZED	0x10
+ #define SE_SBPROC		0x20
++#define SE_SBLABELSUPP	0x40
  
  #define CONTEXT_STR	"context="
  #define FSCONTEXT_STR	"fscontext="
+ #define ROOTCONTEXT_STR	"rootcontext="
+ #define DEFCONTEXT_STR	"defcontext="
++#define LABELSUPP_STR "seclabel"
+ 
+ struct netlbl_lsm_secattr;
+ 
 -- 
 1.5.6.5
 
