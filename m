@@ -1,58 +1,33 @@
-Message-ID: <4973850B.9070807@gmail.com>
-Date: Sun, 18 Jan 2009 11:37:47 -0800
-From: "Justin P. Mattock" <justinmattock@gmail.com>
+Date: Mon, 19 Jan 2009 09:52:03 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+Subject: Re: [RFC v4]Provide a method for detecting labeling support on a
+ file system
+In-Reply-To: <1232115724-2621-1-git-send-email-dpquigl@tycho.nsa.gov>
+Message-ID: <alpine.LRH.1.10.0901190951230.19321@tundra.namei.org>
+References: <1232115724-2621-1-git-send-email-dpquigl@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>
-CC: Paul Moore <paul.moore@hp.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: netlabel: UNLABELED ath9k not denying unlabeled traffic
-References: <496D759A.7010401@gmail.com> <200901141205.26904.paul.moore@hp.com>	 <1231953881.31192.43.camel@localhost.localdomain>	 <200901141243.32962.paul.moore@hp.com> <7e0fb38c0901180817k76080453u371996f079914a8d@mail.gmail.com>
-In-Reply-To: <7e0fb38c0901180817k76080453u371996f079914a8d@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> On Wed, Jan 14, 2009 at 12:43 PM, Paul Moore <paul.moore@hp.com> wrote:
->   
->> On Wednesday 14 January 2009 12:24:41 pm Stephen Smalley wrote:
->>     
->>> On Wed, 2009-01-14 at 12:05 -0500, Paul Moore wrote:
->>>       
->
->   
->>>> It's pretty cool.  In newer versions of netlabelctl I added an
->>>> undocumented option to actually allow it to fix a sandwhich and do
->>>> the dishes afterwards.  The exact command line option needed is
->>>> left as an exercise for the reader :)
->>>>         
->>> I hope it doesn't run afoul of this patent:
->>> http://www.wipo.int/pctdb/en/wo.jsp?IA=US2005044838&WO=2006068865&DIS
->>> PLAY=STATUS
->>>       
->> Sigh.  I fear that it may, guess I'll have to pull feature from the next
->> release :(  What am I going to do for lunch now!
->>     
->
-> "pre-assembly of various sandwich components and simultaneous
-> preparation of different parts of the same sandwich"
->
-> Unless netlabelctl is mutl-threaded I think you're safe based on the
-> "simultaneous preparation" portion of the patent.  I'm glad you've
-> done this.  I'm hungry, even if I have to wait for one part of the
-> sandwich to be finished before it starts working on the next....
->
-> -Eric
->
->   
-hot deal 2 big mac's for $3.50
-this way while you're having one, the other
-is being assembled.(but there's competition;
-2 famous star's for $3.00);
+On Fri, 16 Jan 2009, David P. Quigley wrote:
 
-regards;
+> There are two differences between this patch set and version three. The first
+> is the string supports_labeling has been replaced with seclabel as labeling is
+> to generic of a term with respect to file systems. The second change is that the
+> string has been added to the appropriate function in the selinux code such that
+> it gets stripped out of the mount options that are eventually handed to the
+> file system to parse.
 
-Justin P. Mattock
+All three patches applied to 
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
