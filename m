@@ -1,33 +1,46 @@
-Date: Mon, 19 Jan 2009 09:52:03 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-Subject: Re: [RFC v4]Provide a method for detecting labeling support on a
- file system
-In-Reply-To: <1232115724-2621-1-git-send-email-dpquigl@tycho.nsa.gov>
-Message-ID: <alpine.LRH.1.10.0901190951230.19321@tundra.namei.org>
-References: <1232115724-2621-1-git-send-email-dpquigl@tycho.nsa.gov>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0J5p4tf011939
+	for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2009 00:51:04 -0500
+Received: from etbe.coker.com.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0J5p0Lv025170
+	for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2009 05:51:02 GMT
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by etbe.coker.com.au (Postfix) with ESMTP id 4B5F018223
+	for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2009 16:50:53 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id A3ADF215DB
+	for <selinux@tycho.nsa.gov>; Mon, 19 Jan 2009 16:50:43 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: netstat -Z
+Date: Sun, 18 Jan 2009 19:32:36 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200901181932.37457.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 16 Jan 2009, David P. Quigley wrote:
+The command "netstat -Z -t" will show two entries for a localhost connection 
+and thus show the context of each end of the socket.
 
-> There are two differences between this patch set and version three. The first
-> is the string supports_labeling has been replaced with seclabel as labeling is
-> to generic of a term with respect to file systems. The second change is that the
-> string has been added to the appropriate function in the selinux code such that
-> it gets stripped out of the mount options that are eventually handed to the
-> file system to parse.
+The command "netstat -Z -x" seems to only show a single entry for the 
+connection which will be from the server end.
 
-All three patches applied to 
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/security-testing-2.6#next
+http://wiki.postgresql.org/wiki/SEPostgreSQL
+
+The above wiki page mentions "netstat -Z" and my personal interpretation of 
+this was that I could use "netstat -Z" to find the context of a client end of 
+a socket.  But it seems that I can only get the server end.
+
+Is this what is desired?
 
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
