@@ -1,11 +1,11 @@
 MIME-Version: 1.0
-In-Reply-To: <1232115724-2621-2-git-send-email-dpquigl@tycho.nsa.gov>
+In-Reply-To: <1232115724-2621-3-git-send-email-dpquigl@tycho.nsa.gov>
 References: <1232115724-2621-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1232115724-2621-2-git-send-email-dpquigl@tycho.nsa.gov>
-Date: Sun, 18 Jan 2009 10:53:59 -0500
-Message-ID: <7e0fb38c0901180753m504f06f4u1bd379a55ecb9bbc@mail.gmail.com>
-Subject: Re: [PATCH 1/3] SELinux: Condense super block security structure
-	flags and cleanup necessary code.
+	 <1232115724-2621-3-git-send-email-dpquigl@tycho.nsa.gov>
+Date: Sun, 18 Jan 2009 11:07:02 -0500
+Message-ID: <7e0fb38c0901180807s457c3abflc1e8e7532fd3f68c@mail.gmail.com>
+Subject: Re: [PATCH 2/3] SELinux: Add new security mount option to indicate
+	security label support.
 From: Eric Paris <eparis@parisplace.org>
 To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
 Cc: jmorris@namei.org, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
@@ -15,12 +15,11 @@ Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 On Fri, Jan 16, 2009 at 9:22 AM, David P. Quigley <dpquigl@tycho.nsa.gov> wrote:
-> The super block security structure currently has three fields for what are
-> essentially flags.  The flags field is used for mount options while two other
-> char fields are used for initialization and proc flags. These latter two fields are
-> essentially bit fields since the only used values are 0 and 1.  These fields
-> have been collapsed into the flags field and new bit masks have been added for
-> them. The code is also fixed to work with these new flags.
+> There is no easy way to tell if a file system supports SELinux security labeling.
+> Because of this a new flag is being added to the super block security structure
+> to indicate that the particular super block supports labeling. This flag is set
+> for file systems using the xattr, task, and transition labeling methods unless
+> that behavior is overridden by context mounts.
 >
 > Signed-off-by: David P. Quigley <dpquigl@tycho.nsa.gov>
 
