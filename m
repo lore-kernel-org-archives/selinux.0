@@ -1,69 +1,126 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0KHWd4d017204
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2009 12:32:39 -0500
-Received: from g5t0009.atlanta.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0KHWbpV017027
-	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2009 17:32:38 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: russell@coker.com.au
-Subject: Re: netstat -Z
-Date: Tue, 20 Jan 2009 12:32:32 -0500
-Cc: "SE-Linux" <selinux@tycho.nsa.gov>
-References: <200901181932.37457.russell@coker.com.au>
-In-Reply-To: <200901181932.37457.russell@coker.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200901201232.32719.paul.moore@hp.com>
+Subject: Re: Base module, modules.conf
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joe Nall <joe@nall.com>
+Cc: Jacques Thomas <jthomas@cs.purdue.edu>, domg472@gmail.com,
+        Cheyenne Solo <ayla.cheyenne@gmail.com>, selinux@tycho.nsa.gov,
+        Daniel J Walsh <dwalsh@redhat.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        Murray McAllister <mmcallis@redhat.com>
+In-Reply-To: <9B58C618-F5D7-4A16-969C-B1AA6307FEEC@nall.com>
+References: <5ab9a20b0901160943o14c1d47csbc763ae31564b97b@mail.gmail.com>
+	 <1232132620.13917.109.camel@localhost.localdomain>
+	 <1232133792.8594.4.camel@localhost.localdomain>
+	 <1232135544.13917.140.camel@localhost.localdomain>
+	 <4974E82F.2030806@cs.purdue.edu>
+	 <1232461572.4166.47.camel@localhost.localdomain>
+	 <9B58C618-F5D7-4A16-969C-B1AA6307FEEC@nall.com>
+Content-Type: text/plain
+Date: Tue, 20 Jan 2009 14:25:44 -0500
+Message-Id: <1232479544.4166.84.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sunday 18 January 2009 3:32:36 am Russell Coker wrote:
-> The command "netstat -Z -t" will show two entries for a localhost
-> connection and thus show the context of each end of the socket.
->
-> The command "netstat -Z -x" seems to only show a single entry for the
-> connection which will be from the server end.
->
-> http://wiki.postgresql.org/wiki/SEPostgreSQL
->
-> The above wiki page mentions "netstat -Z" and my personal
-> interpretation of this was that I could use "netstat -Z" to find the
-> context of a client end of a socket.  But it seems that I can only
-> get the server end.
->
-> Is this what is desired?
+On Tue, 2009-01-20 at 09:58 -0600, Joe Nall wrote:
+> On Jan 20, 2009, at 8:26 AM, Stephen Smalley wrote:
+> 
+> > On Mon, 2009-01-19 at 15:53 -0500, Jacques Thomas wrote:
+> >> Stephen Smalley wrote:
+> >>> On Fri, 2009-01-16 at 20:23 +0100, Dominick Grift wrote:
+> >>>
+> >>>> On Fri, 2009-01-16 at 14:03 -0500, Stephen Smalley wrote:
+> >>>>
+> >>>>
+> >>>>> You need to first obtain a policy source tree as your starting  
+> >>>>> point.
+> >>>>> If you want to minimize your divergence from the distro-shipped  
+> >>>>> policy,
+> >>>>> then download the selinux-policy source RPM (.src.rpm) for your  
+> >>>>> distro,
+> >>>>> expand it, and then customize as desired and rebuild it (Dan -  
+> >>>>> is there
+> >>>>> a recipe documented somewhere for doing that?).
+> >>>>>
+> >>>> I have created a screen cast that focuses on just that. However,  
+> >>>> the
+> >>>> file is 200MB and i do not have the ability to host it.
+> >>>>
+> >>>
+> >>> I just meant writing down the sequence of commands to set up a  
+> >>> buildable
+> >>> policy source tree from the .src.rpm.  Screencast seems a bit  
+> >>> overkill
+> >>> for that - it really ought to just be part of the Fedora SELinux  
+> >>> FAQ or
+> >>> Guide IMHO.
+> >>>
+> >>>
+> >>
+> >> Here's what works for me to tweak the policy on a Fedora 8 system.
+> >>
+> >> Make sure you have the latest policy package (otherwise, you might  
+> >> not
+> >> be able to get it in source version):
+> >>   yum update
+> >>   yum install selinux-policy-targeted
+> >>
+> >> Figure out the version of the rpm:
+> >>   rpm -qa | grep selinux-policy-targeted
+> >>
+> >> Get the corresponding source rpm:
+> >>   yumdownloader --source `rpm -qa | grep policy-targeted`
+> >>
+> >> Voila! The source rpm is in your current directory.
+> >>
+> >> From there on, regular instructions for rebuilding rpms apply. The
+> >> following is a short tutorial.
+> >>   http://www.hacktux.com/fedora/source/rpm
+> >
+> > I think we need something more specific to the policy, similar to the
+> > instructions for building a custom kernel at
+> > http://fedoraproject.org/wiki/Docs/CustomKernel
+> >
+> > Getting a buildable policy tree that matches the Fedora shipped policy
+> > configuration isn't as straightforward as one might like, since the  
+> > spec
+> > file defers most of the real work to the %install target and specifies
+> > different build.conf settings (via command-line override to make) and
+> > different modules.conf configurations based on the particular policy
+> > type.  The question does seem to keep arising on fedora-selinux-list  
+> > and
+> > selinux list, so it would be helpful to have it documented somewhere.
+> 
+> I'm sure Dan has better mojo, but I:
+>   - install the src rpm
+>   - add patches to SOURCE directory
+>   - patch spec file to incorporate patches in SOURCE
+>   - build policy rpms using patched spec file
 
-I would think that we would want to see both the client and server unix 
-sockets for the same reasons that we would want to see both client and 
-server inet sockets.  However, it looks like that might be the case on 
-my Fedora Rawhide system (I could be wrong, I don't mess with AF_UNIX 
-much)?
+Yes, that works if you have your changes in the form of a patch and want
+to do things the rpm way.  But not so much if you'd just like to create
+a buildable source tree that matches the Fedora configuration that you
+can then edit at will and build manually (which you might later use as
+the basis for creating a patch that you would then be able to add to
+the .src.rpm for distribution purposes).  The "add patch file to spec
+and rebuild with rpm" is fine for packaging but not so much for
+initially developing one's changes, at least in my view.
 
-Looking at my system with "netstat -x -Z -p" (columns removed for 
-readability) I see what looks like a unix socket server and client for 
-the ACPI daemon socket:
-Active UNIX domain sockets (w/o servers)
+For many (simpler) packages, you can just do a rpmbuild -bp on the spec
+file and you'll have a buildable source tree that you can edit and build
+manually.  But not in the case of selinux-policy, where it is building N
+different variants of policy during %install and pulling in different
+conf files accordingly.
 
-Type       State         PID/Program name    Security Context
-STREAM     CONNECTED     1994/acpid          system_u:system_r:apmd_t:s0
-STREAM     CONNECTED     2139/acpid.socket   system_u:system_r:hald_t:s0
-
-... and checking to see the actual programs with "ps 1994; ps 2139" 
-(columns removed for readability) I see the following:
-
-  PID COMMAND
- 1994 /usr/sbin/acpid
- 2139 hald-addon-acpi: listening on acpid socket /var/run/acpid.socket
-
-I'm pretty sure that acpid (pid 1994) open the /var/run/acpid.socket and 
-writes to it (acting as server) and that hald-addon-acpi opens the 
-sockets and listens for events (acting as client).  If this is in fact 
-the case, everything appears okay on Rawhide.
+I've done it by hand before in order to make custom changes to a base
+module (e.g. defining new kernel classes/perms) for testing purposes,
+but it would be nice if the process were captured and maintained as a
+recipe somewhere w/o requiring people to reverse engineer it from
+the .spec file.
 
 -- 
-paul moore
-linux @ hp
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
