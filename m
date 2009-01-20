@@ -1,81 +1,58 @@
-Subject: Re: Base module, modules.conf
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jacques Thomas <jthomas@cs.purdue.edu>
-Cc: domg472@gmail.com, Cheyenne Solo <ayla.cheyenne@gmail.com>,
-        selinux@tycho.nsa.gov, Daniel J Walsh <dwalsh@redhat.com>,
-        "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Murray McAllister <mmcallis@redhat.com>
-In-Reply-To: <4974E82F.2030806@cs.purdue.edu>
-References: <5ab9a20b0901160943o14c1d47csbc763ae31564b97b@mail.gmail.com>
-	 <1232132620.13917.109.camel@localhost.localdomain>
-	 <1232133792.8594.4.camel@localhost.localdomain>
-	 <1232135544.13917.140.camel@localhost.localdomain>
-	 <4974E82F.2030806@cs.purdue.edu>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0KEW9fC030188
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2009 09:32:09 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n0KETFQd014674
+	for <selinux@tycho.nsa.gov>; Tue, 20 Jan 2009 14:29:16 GMT
+Subject: Re: [refpolicy] [PATCH] Add a new permission to db_procedure
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: refpolicy@oss.tresys.com, SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <49758904.2070303@ak.jp.nec.com>
+References: <4973468F.1010706@kaigai.gr.jp> <49758904.2070303@ak.jp.nec.com>
 Content-Type: text/plain
-Date: Tue, 20 Jan 2009 09:26:12 -0500
-Message-Id: <1232461572.4166.47.camel@localhost.localdomain>
+Date: Tue, 20 Jan 2009 09:31:11 -0500
+Message-Id: <1232461874.10460.1.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-01-19 at 15:53 -0500, Jacques Thomas wrote:
-> Stephen Smalley wrote:
-> > On Fri, 2009-01-16 at 20:23 +0100, Dominick Grift wrote:
-> >   
-> >> On Fri, 2009-01-16 at 14:03 -0500, Stephen Smalley wrote:
-> >>
-> >>     
-> >>> You need to first obtain a policy source tree as your starting point.
-> >>> If you want to minimize your divergence from the distro-shipped policy,
-> >>> then download the selinux-policy source RPM (.src.rpm) for your distro,
-> >>> expand it, and then customize as desired and rebuild it (Dan - is there
-> >>> a recipe documented somewhere for doing that?). 
-> >>>       
-> >> I have created a screen cast that focuses on just that. However, the
-> >> file is 200MB and i do not have the ability to host it.
-> >>     
-> >
-> > I just meant writing down the sequence of commands to set up a buildable
-> > policy source tree from the .src.rpm.  Screencast seems a bit overkill
-> > for that - it really ought to just be part of the Fedora SELinux FAQ or
-> > Guide IMHO.
-> >
-> >   
+On Tue, 2009-01-20 at 17:19 +0900, KaiGai Kohei wrote:
+> This is just an aside, I would like to make a rapid conclusion due to
+> the current (v8.4) PostgreSQL development cycle, if possible.
 > 
-> Here's what works for me to tweak the policy on a Fedora 8 system.
+>   http://wiki.postgresql.org/wiki/CommitFestInProgress
 > 
-> Make sure you have the latest policy package (otherwise, you might not 
-> be able to get it in source version):
->    yum update
->    yum install selinux-policy-targeted
-> 
-> Figure out the version of the rpm:
->    rpm -qa | grep selinux-policy-targeted
-> 
-> Get the corresponding source rpm:
->    yumdownloader --source `rpm -qa | grep policy-targeted`
-> 
-> Voila! The source rpm is in your current directory.
-> 
->  From there on, regular instructions for rebuilding rpms apply. The 
-> following is a short tutorial.
->    http://www.hacktux.com/fedora/source/rpm
+> KaiGai Kohei wrote:
+> > The attached patch add a new permission named as "install" to db_procedure.
+> > 
+> > The purpose of this permission is to prevent malicious functions are invoked
+> > as a part of server's internal tasks.
+> > 
+> > PostgreSQL allows user-defined functions to use its internal tasks.
+> > For example, it can be used to implement an output/input handler of new data
+> > types, an index access method, implementation of operator classes and so on.
+> > 
+> > When we defines a new type, it requires to specify its output/input handler
+> > at least. No need to say, these functions should not be malicious ones,
+> > because user implicitly invokes these function when he uses the type.
+> > This permission is checked when we defines a new system catalog entry which
+> > has a possibility to invoke user defined functions.
+> > 
+> > In the attached patch, only sepgsql_proc_t is allowed to { install }, because
+> > any other user defined functions are not checked by DBA, so it is not safe to
+> > use it as a part of internal/common processes.
+> > If DBA want to apply user defined functions as a part of internal task, he has
+> > to confirm its safeness and relabel to sepgsql_proc_t at first.
+> > 
+> > Please apply it, if no matter.
 
-I think we need something more specific to the policy, similar to the
-instructions for building a custom kernel at
-http://fedoraproject.org/wiki/Docs/CustomKernel
-
-Getting a buildable policy tree that matches the Fedora shipped policy
-configuration isn't as straightforward as one might like, since the spec
-file defers most of the real work to the %install target and specifies
-different build.conf settings (via command-line override to make) and
-different modules.conf configurations based on the particular policy
-type.  The question does seem to keep arising on fedora-selinux-list and
-selinux list, so it would be helpful to have it documented somewhere.
+Changes to object classes need to be discussed on the SELinux list.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
