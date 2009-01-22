@@ -1,63 +1,75 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0MJIAw9003528
-	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2009 14:18:10 -0500
-Subject: New MAC label support Internet Draft posted to IETF website
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org, nfsv4@ietf.org,
-        nfs-discuss@opensolaris.org
-Content-Type: text/plain
-Date: Thu, 22 Jan 2009 14:16:55 -0500
-Message-Id: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0MJwvNp008734
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2009 14:58:57 -0500
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n0MJu12R016406
+	for <selinux@tycho.nsa.gov>; Thu, 22 Jan 2009 19:56:01 GMT
+Message-ID: <4978CFFF.1030200@manicmethod.com>
+Date: Thu, 22 Jan 2009 14:58:55 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+CC: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        KaiGai Kohei <kaigai@ak.jp.nec.com>, refpolicy@oss.tresys.com,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+Subject: Re: [refpolicy] [PATCH] Add a new permission to db_procedure
+References: <4973468F.1010706@kaigai.gr.jp> <49758904.2070303@ak.jp.nec.com> <1232461874.10460.1.camel@gorn> <4975E9A3.8060003@kaigai.gr.jp> <4977A1A7.60304@kaigai.gr.jp>
+In-Reply-To: <4977A1A7.60304@kaigai.gr.jp>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
-   I have just posted a new document for the MAC labeling support work
-to the IETF website. It contains a lot of clarifying text that has been
-asked for by several people in the IETF community. I would like to ask
-that people give it a look over and provide comments if possible. I
-would prefer that discussion takes place on the NFSv4 WG mailing list
-since it shows interest in the technology which is what the WG is
-currently looking for. If you have any questions regarding the text or
-the system outlined in it email me and I'll be more than happy to help
-with any confusion. I am hoping to drum up enough interest in the work
-to request that it be added to the NFSv4 WG charter at the next IETF
-meeting. If you are interested in the work and would like to participate
-or just think that it is a worthwhile technology and would like to see
-it added to the NFSv4 standard feel free to speak up. 
+KaiGai Kohei wrote:
+> Folks,
+> 
+> Do you have any opinion, question, approval or opposition for the new
+> permission to db_procedure class?
+> 
+> KaiGai Kohei wrote:
+>>> Changes to object classes need to be discussed on the SELinux list.
+>> OK, I send the patch again for folks in selinux-list only.
+>>
+>>>>> The attached patch add a new permission named as "install" to db_procedure.
+>>>>>
+>>>>> The purpose of this permission is to prevent malicious functions are invoked
+>>>>> as a part of server's internal tasks.
+>>>>>
+>>>>> PostgreSQL allows user-defined functions to use its internal tasks.
+>>>>> For example, it can be used to implement an output/input handler of new data
+>>>>> types, an index access method, implementation of operator classes and so on.
+>>>>>
+>>>>> When we defines a new type, it requires to specify its output/input handler
+>>>>> at least. No need to say, these functions should not be malicious ones,
+>>>>> because user implicitly invokes these function when he uses the type.
+>>>>> This permission is checked when we defines a new system catalog entry which
+>>>>> has a possibility to invoke user defined functions.
+>> A supplement:
+>> PostgreSQL allows user to define his own data type, like "struct xxx" in C
+>> language, and he can also define its input/output handler. The input/output
+>> handler is invoked when user send a text representation, to translate it
+>> into internal data structure, implicitly. For example, a function similar
+>> to atoi() is configured for INTEGER type in default.
+>>
+>> I'm worrying about a malicious one secretly installs a malicious function
+>> which leaks given information to somewhere as a implementation of type
+>> input/output handler, in typical scenario.
+>>
+>> In addition, it allows to install user-defined functions to implement
+>> database index access methods, multibyte encoding conversions, operator
+>> classes and so on.
+>>
+>>>>> In the attached patch, only sepgsql_proc_t is allowed to { install }, because
+>>>>> any other user defined functions are not checked by DBA, so it is not safe to
+>>>>> use it as a part of internal/common processes.
+>>>>> If DBA want to apply user defined functions as a part of internal task, he has
+>>>>> to confirm its safeness and relabel to sepgsql_proc_t at first.
+>>>>>
+>>>>> Please apply it, if no matter.
+>> Thanks,
+> 
 
-The information for the document which I received in the conformation
-email and a link to it can be found below.
-
-Dave Quigley
-
-
-A new version of I-D, draft-quigley-nfsv4-sec-label-00.txt has been
-successfuly submitted by David Quigley and posted to the IETF
-repository.
-
-Filename:        draft-quigley-nfsv4-sec-label
-Revision:        00
-Title:           MAC Security Label Support for NFSv4
-Creation_date:   2009-01-22
-WG ID:           Independent Submission
-Number_of_pages: 12
-
-Abstract:
-This Internet-Draft describes additions to NFSv4 minor version one to
-support Mandatory Access Control systems.  The current draft
-describes the mechanism for transporting a MAC security label using
-the NFSv4.1 protocol and the semantics required for that label.  In
-addition to this it describes an example system of using this label
-in a fully MAC aware environment.
-                                                                                  
-
-
-The IETF Secretariat.
-
-http://www.ietf.org/internet-drafts/draft-quigley-nfsv4-sec-label-00.txt
-
+Chris asked me to look at this and it seems reasonable to me, no
+objections here.
 
 
 --
