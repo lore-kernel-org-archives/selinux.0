@@ -1,43 +1,50 @@
-Message-ID: <497A02A0.9070405@redhat.com>
-Date: Fri, 23 Jan 2009 12:47:12 -0500
-From: Peter Staubach <staubach@redhat.com>
+Message-ID: <497A13D9.1070204@redhat.com>
+Date: Fri, 23 Jan 2009 14:00:41 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Spencer Shepler <shepler@storspeed.com>
-CC: "David P. Quigley" <dpquigl@tycho.nsa.gov>, labeled-nfs@linux-nfs.org,
-        nfs-discuss@opensolaris.org, nfsv4@ietf.org, selinux@tycho.nsa.gov
-Subject: Re: [nfsv4] New MAC label support Internet Draft posted to IETF	website
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <54E18340-3542-4AB4-843E-E92A67B709A7@storspeed.com>
-In-Reply-To: <54E18340-3542-4AB4-843E-E92A67B709A7@storspeed.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Stephen Smalley <sds@tycho.nsa.gov>, Ted X Toth <txtoth@gmail.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: More MLS fun
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Spencer Shepler wrote:
->
-> As David suggests, the NFSv4 working group is positive about this
-> work but until now, the show of specific interest within the NFSv4 
-> working group
-> has been very minimal.  If this work is to be added to the working 
-> group's
-> charter, there must be a show of interest.  This can be as simple as an
-> email to the nfsv4@ietf.org alias stating interest and brief description
-> of need/use.  This will demonstrate to the area director that work is
-> occurring and it is worthwhile to have the NFSv4 WG undertake the
-> work.
->
-> So, please speak up, join the nfsv4 WG alias and participate as
-> interest and need declares. 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I will start, I guess.
+I figured out why dbus/nm-applet is not working in mls mode.  DBUS
+thinks I am not logged in at the console. DBUS looks for the file
+/var/run/console/dwalsh which is supposed to be created  by pam_console
+when I log in.  pam_console does not create this file because it looks
+for /tmp/.X11-unix/X0.  Which was not created because of the AVC below.
+I believe this is denied because sock_files are not allowed to have a
+range associated with it.  Are sock_files supposed to have ranges in
+MLS?  If not why is X trying to create a ranged sock_file?
 
-We, Red Hat, are looking at this work as enabling some fundamental
-technologies for our virtual offerings.  We need the ability to
-run SELinux over NFS mounted file systems and the current NFSv4[.1]
-support is not sufficient to do it.
+- ----
+time->Fri Jan 23 11:53:28 2009
+type=SYSCALL msg=audit(1232729608.294:4209): arch=c000003e syscall=49
+success=no
+ exit=-13 a0=3 a1=7fff28d972a0 a2=13 a3=8101010101010100 items=0
+ppid=6354 pid=6
+355 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0
+fsgid=0 tty=
+(none) ses=4294967295 comm="Xorg" exe="/usr/bin/Xorg"
+subj=system_u:system_r:xse
+rver_t:s0-s15:c0.c1023 key=(null)
+type=AVC msg=audit(1232729608.294:4209): avc:  denied  { create } for
+pid=6355
+comm="Xorg" name="X0"
+scontext=system_u:system_r:xserver_t:s0-s15:c0.c1023 tcont
+ext=system_u:object_r:xserver_tmp_t:s0-s15:c0.c1023 tclass=sock_file
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-    Thanx...
-
-       ps
+iEYEARECAAYFAkl6E9kACgkQrlYvE4MpobNJfACgzgO04tT8LIAQFvc1eoYMc0li
+TDsAoJJqMLtjRFHGIp3LCTXJIdMXB24u
+=0n6d
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
