@@ -1,110 +1,90 @@
-From: "Kevin L. Smith" <kls@intelesis.org>
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-CC: "labeled-nfs@linux-nfs.org" <labeled-nfs@linux-nfs.org>,
-        "nfs-discuss@opensolaris.org" <nfs-discuss@opensolaris.org>,
-        "nfsv4@ietf.org"
-	<nfsv4@ietf.org>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Date: Fri, 23 Jan 2009 11:07:20 -0800
-Subject: RE: [Labeled-nfs] [nfsv4] New MAC label support Internet Draft
-	posted to IETF website
-Message-ID: <F044EA27A3826B49B186299981164FCE49B47A99A2@posiedon2.intelesistechnologiescorp.local>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>,<54E18340-3542-4AB4-843E-E92A67B709A7@storspeed.com>
-In-Reply-To: <54E18340-3542-4AB4-843E-E92A67B709A7@storspeed.com>
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0NK8O44008280
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2009 15:08:24 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n0NK8Jn1028149
+	for <selinux@tycho.nsa.gov>; Fri, 23 Jan 2009 20:08:23 GMT
+Subject: Re: [refpolicy] [PATCH] Add a new permission to db_procedure
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Cc: Joshua Brindle <method@manicmethod.com>,
+        KaiGai Kohei <kaigai@ak.jp.nec.com>, refpolicy@oss.tresys.com,
+        SELinux Mail List <selinux@tycho.nsa.gov>
+In-Reply-To: <4978F35A.7060506@kaigai.gr.jp>
+References: <4973468F.1010706@kaigai.gr.jp> <49758904.2070303@ak.jp.nec.com>
+	 <1232461874.10460.1.camel@gorn> <4975E9A3.8060003@kaigai.gr.jp>
+	 <4977A1A7.60304@kaigai.gr.jp> <4978CFFF.1030200@manicmethod.com>
+	 <4978F35A.7060506@kaigai.gr.jp>
+Content-Type: text/plain
+Date: Fri, 23 Jan 2009 15:07:24 -0500
+Message-Id: <1232741244.10837.0.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I can't speak as a representative of the project that I work on called Joint Cross Domain Exchange (JCDX), but we are porting our system from HP-UX 10.26 TOS to SELinx and need the capabilities of labeled NFS for our system.  David has been intrumental in helping me resolve issues and get us to the point where we can use this new capability.  
+On Fri, 2009-01-23 at 07:29 +0900, KaiGai Kohei wrote:
+> Joshua Brindle wrote:
+> > KaiGai Kohei wrote:
+> >> Folks,
+> >>
+> >> Do you have any opinion, question, approval or opposition for the new
+> >> permission to db_procedure class?
+> >>
+> >> KaiGai Kohei wrote:
+> >>>> Changes to object classes need to be discussed on the SELinux list.
+> >>> OK, I send the patch again for folks in selinux-list only.
+> >>>
+> >>>>>> The attached patch add a new permission named as "install" to db_procedure.
+> >>>>>>
+> >>>>>> The purpose of this permission is to prevent malicious functions are invoked
+> >>>>>> as a part of server's internal tasks.
+> >>>>>>
+> >>>>>> PostgreSQL allows user-defined functions to use its internal tasks.
+> >>>>>> For example, it can be used to implement an output/input handler of new data
+> >>>>>> types, an index access method, implementation of operator classes and so on.
+> >>>>>>
+> >>>>>> When we defines a new type, it requires to specify its output/input handler
+> >>>>>> at least. No need to say, these functions should not be malicious ones,
+> >>>>>> because user implicitly invokes these function when he uses the type.
+> >>>>>> This permission is checked when we defines a new system catalog entry which
+> >>>>>> has a possibility to invoke user defined functions.
+> >>> A supplement:
+> >>> PostgreSQL allows user to define his own data type, like "struct xxx" in C
+> >>> language, and he can also define its input/output handler. The input/output
+> >>> handler is invoked when user send a text representation, to translate it
+> >>> into internal data structure, implicitly. For example, a function similar
+> >>> to atoi() is configured for INTEGER type in default.
+> >>>
+> >>> I'm worrying about a malicious one secretly installs a malicious function
+> >>> which leaks given information to somewhere as a implementation of type
+> >>> input/output handler, in typical scenario.
+> >>>
+> >>> In addition, it allows to install user-defined functions to implement
+> >>> database index access methods, multibyte encoding conversions, operator
+> >>> classes and so on.
+> >>>
+> >>>>>> In the attached patch, only sepgsql_proc_t is allowed to { install }, because
+> >>>>>> any other user defined functions are not checked by DBA, so it is not safe to
+> >>>>>> use it as a part of internal/common processes.
+> >>>>>> If DBA want to apply user defined functions as a part of internal task, he has
+> >>>>>> to confirm its safeness and relabel to sepgsql_proc_t at first.
+> >>>>>>
+> >>>>>> Please apply it, if no matter.
+> >>> Thanks,
+> > 
+> > Chris asked me to look at this and it seems reasonable to me, no
+> > objections here.
+> 
+> Chris,
+> If we have no specific objections here, I want the new permission
+> to be included.
 
-We only wish that labeled NFS could be mainstreamed sooner to get us out of the kernel building process.
+Merged.
 
-Kevin Smith
-Software Engineer
-________________________________________
-From: labeled-nfs-bounces@linux-nfs.org [labeled-nfs-bounces@linux-nfs.org] On Behalf Of Spencer Shepler [shepler@storspeed.com]
-Sent: Friday, January 23, 2009 9:37 AM
-To: David P. Quigley
-Cc: labeled-nfs@linux-nfs.org; nfs-discuss@opensolaris.org; nfsv4@ietf.org; selinux@tycho.nsa.gov
-Subject: Re: [Labeled-nfs] [nfsv4] New MAC label support Internet Draft posted to IETF website
-
-As David suggests, the NFSv4 working group is positive about this
-work but until now, the show of specific interest within the NFSv4
-working group
-has been very minimal.  If this work is to be added to the working
-group's
-charter, there must be a show of interest.  This can be as simple as an
-email to the nfsv4@ietf.org alias stating interest and brief description
-of need/use.  This will demonstrate to the area director that work is
-occurring and it is worthwhile to have the NFSv4 WG undertake the
-work.
-
-So, please speak up, join the nfsv4 WG alias and participate as
-interest and need declares.
-
-Spencer
-
-On Jan 22, 2009, at 1:16 PM, David P. Quigley wrote:
-
-> Hello,
->   I have just posted a new document for the MAC labeling support work
-> to the IETF website. It contains a lot of clarifying text that has
-> been
-> asked for by several people in the IETF community. I would like to ask
-> that people give it a look over and provide comments if possible. I
-> would prefer that discussion takes place on the NFSv4 WG mailing list
-> since it shows interest in the technology which is what the WG is
-> currently looking for. If you have any questions regarding the text or
-> the system outlined in it email me and I'll be more than happy to help
-> with any confusion. I am hoping to drum up enough interest in the work
-> to request that it be added to the NFSv4 WG charter at the next IETF
-> meeting. If you are interested in the work and would like to
-> participate
-> or just think that it is a worthwhile technology and would like to see
-> it added to the NFSv4 standard feel free to speak up.
->
-> The information for the document which I received in the conformation
-> email and a link to it can be found below.
->
-> Dave Quigley
->
->
-> A new version of I-D, draft-quigley-nfsv4-sec-label-00.txt has been
-> successfuly submitted by David Quigley and posted to the IETF
-> repository.
->
-> Filename:        draft-quigley-nfsv4-sec-label
-> Revision:        00
-> Title:           MAC Security Label Support for NFSv4
-> Creation_date:   2009-01-22
-> WG ID:           Independent Submission
-> Number_of_pages: 12
->
-> Abstract:
-> This Internet-Draft describes additions to NFSv4 minor version one to
-> support Mandatory Access Control systems.  The current draft
-> describes the mechanism for transporting a MAC security label using
-> the NFSv4.1 protocol and the semantics required for that label.  In
-> addition to this it describes an example system of using this label
-> in a fully MAC aware environment.
->
->
->
-> The IETF Secretariat.
->
-> http://www.ietf.org/internet-drafts/draft-quigley-nfsv4-sec-label-00.txt
->
->
-> _______________________________________________
-> nfsv4 mailing list
-> nfsv4@ietf.org
-> https://www.ietf.org/mailman/listinfo/nfsv4
-
-_______________________________________________
-Labeled-nfs mailing list
-Labeled-nfs@linux-nfs.org
-http://linux-nfs.org/cgi-bin/mailman/listinfo/labeled-nfs
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
