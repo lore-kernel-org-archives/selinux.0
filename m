@@ -1,39 +1,181 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0RGawKn030888
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 11:36:58 -0500
-Received: from pobox.globalherald.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0RGXvva016567
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 16:33:57 GMT
-Received: from [192.168.2.2] (unknown [192.168.2.2])
-	by pobox.globalherald.net (Postfix) with ESMTP id 55D291FD082
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 12:31:24 -0500 (EST)
-Date: Tue, 27 Jan 2009 12:31:24 -0500 (EST)
-From: Joshua Kramer <josh@globalherald.net>
-To: selinux@tycho.nsa.gov
-Subject: O'Rielly SELinux Book (2005)
-Message-ID: <alpine.LFD.2.00.0901271229120.11868@home-av-server.home-av>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0RJiWBZ031578
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 14:44:32 -0500
+Received: from g4t0015.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0RJiUws011002
+	for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 19:44:30 GMT
+Message-ID: <497F641E.9050500@hp.com>
+Date: Tue, 27 Jan 2009 14:44:30 -0500
+From: "Sutton, Harry (MSE)" <harry.sutton@hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+To: Joshua Kramer <josh@globalherald.net>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Subject: Re: O'Rielly SELinux Book (2005)
+References: <alpine.LFD.2.00.0901271229120.11868@home-av-server.home-av>
+In-Reply-To: <alpine.LFD.2.00.0901271229120.11868@home-av-server.home-av>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms020409070606030203070208"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+This is a cryptographically signed message in MIME format.
 
-Howdy Folks,
+--------------ms020409070606030203070208
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-I have a copy of the O'Rielly SELinux book from 2005.
+Hi Josh,
 
-Many things have changed as far as the implementation and practice. 
-However, is this still a good book to read if I just want to learn the 
-theory in-depth?  Or have basic elements of SELinux changed since then?
+I found that to be one of the (few) O'Reilly books that didn't really
+cut it for me on its stated subject matter; my preference is
+Prentice-Hall's "SELinux by Example, Using Security Enhanced Linux", by
+Frank Mayer, Karl MacMillan and David Caplan (ISBN 0-13-196369-4). It's
+a much clearer (and more comprehensive) treatment of the theory in depth
+you're asking for.
 
-Thanks!
--Josh
+Best regards,
 
--- 
+    /Harry Sutton, RHCA / RHCSS
+     Hewlett-Packard Company
 
------
-http://www.globalherald.net/jb01
-GlobalHerald.NET, the Smarter Social Network! (tm)
+Joshua Kramer wrote:
+> Howdy Folks,
+>
+> I have a copy of the O'Rielly SELinux book from 2005.
+>
+> Many things have changed as far as the implementation and practice. 
+> However, is this still a good book to read if I just want to learn the 
+> theory in-depth?  Or have basic elements of SELinux changed since then?
+>
+> Thanks!
+> -Josh
+>
+>   
+
+
+--------------ms020409070606030203070208
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIITQzCC
+BCUwggOOoAMCAQICEHeUt6HYr1NI3RtEezvCaYMwDQYJKoZIhvcNAQEFBQAwgcExCzAJBgNV
+BAYTAlVTMRcwFQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE8MDoGA1UECxMzQ2xhc3MgMiBQdWJs
+aWMgUHJpbWFyeSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEcyMTowOAYDVQQLEzEoYykg
+MTk5OCBWZXJpU2lnbiwgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5MR8wHQYDVQQL
+ExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMB4XDTAxMDQyNDAwMDAwMFoXDTExMDQyMzIzNTk1
+OVowgeIxIDAeBgNVBAoTF0hld2xldHQtUGFja2FyZCBDb21wYW55MR8wHQYDVQQLExZWZXJp
+U2lnbiBUcnVzdCBOZXR3b3JrMTswOQYDVQQLEzJUZXJtcyBvZiB1c2UgYXQgaHR0cHM6Ly93
+d3cudmVyaXNpZ24uY29tL3JwYSAoYykwMTEwMC4GA1UECxMnQ2xhc3MgMiBPblNpdGUgSW5k
+aXZpZHVhbCBTdWJzY3JpYmVyIENBMS4wLAYDVQQDEyVDb2xsYWJvcmF0aW9uIENlcnRpZmlj
+YXRpb24gQXV0aG9yaXR5MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDAcFMLBRNrSFto
+eiDpMyfh4Tvf3wSPPCAzr0c/4ruQ3JV8VamHbqoEgNgBkt5sJi0YhvuT3JOY9FUhYB1gODDb
+y1D5Dxt6WCoRabDOa/0hJOUSAW84Uspz5yAj38UoKJE3ZBbXa4ey6AmEoHA0nbXMHswOgR0G
+MZjUzJjlPX7lOwIDAQABo4H6MIH3MA8GA1UdEwQIMAYBAf8CAQAwRAYDVR0gBD0wOzA5Bgtg
+hkgBhvhFAQcBATAqMCgGCCsGAQUFBwIBFhxodHRwczovL3d3dy52ZXJpc2lnbi5jb20vcnBh
+MAsGA1UdDwQEAwIBBjARBglghkgBhvhCAQEEBAMCAQYwKQYDVR0RBCIwIKQeMBwxGjAYBgNV
+BAMTEVByaXZhdGVMYWJlbDEtMzgyMDQGA1UdHwQtMCswKaAnoCWGI2h0dHA6Ly9jcmwudmVy
+aXNpZ24uY29tL3BjYTItZzIuY3JsMB0GA1UdDgQWBBTv7SDNQ0Ufg0dgFZZDckrkxsznPTAN
+BgkqhkiG9w0BAQUFAAOBgQAgLbQicluPEdsUBFCIlreVk+pMKtV9Xm+eBimuEQZqcthFr1zp
+t/a1uQd3EF6UAdYlotLNlbo0Xgrd+So2O1EdpHXqJSi+jilFLqEm9TLCYpLfwArlXqIAxxh/
+WfnswXdZwbZlV4j3shR31xgHQbx1j68anvtZk2qJAL2/CQ9PPDCCB4kwggbyoAMCAQICEEgz
+yXNouUIAlhFQo3B+iYUwDQYJKoZIhvcNAQEFBQAwgeIxIDAeBgNVBAoTF0hld2xldHQtUGFj
+a2FyZCBDb21wYW55MR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMTswOQYDVQQL
+EzJUZXJtcyBvZiB1c2UgYXQgaHR0cHM6Ly93d3cudmVyaXNpZ24uY29tL3JwYSAoYykwMTEw
+MC4GA1UECxMnQ2xhc3MgMiBPblNpdGUgSW5kaXZpZHVhbCBTdWJzY3JpYmVyIENBMS4wLAYD
+VQQDEyVDb2xsYWJvcmF0aW9uIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA3MDMxODAw
+MDAwMFoXDTA5MDMxNzIzNTk1OVowgZYxIDAeBgNVBAoUF0hld2xldHQtUGFja2FyZCBDb21w
+YW55MSYwJAYDVQQLFB1FbXBsb3ltZW50IFN0YXR1cyAtIEVtcGxveWVlczEPMA0GA1UECxQG
+Uy9NSU1FMRUwEwYDVQQDEwxIYXJyeSBTdXR0b24xIjAgBgkqhkiG9w0BCQEWE2hhcnJ5LnN1
+dHRvbkBocC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDMFGyJEyBeoc6n
+f1byi4p9odpPeXDOFHt2Iz96FMW4ypjEXtLqHMwHxaBk04W3lQBOTZ3fPKvwbFdiKn3PFW0e
+hxUlvZAxKM0icYiI62n/JOhkSa4000rE2FB7sVq7vBlJdn5x2PWFFHpkpbLDmpgw0vtJ9mUe
+UEQhdgdDHARzejlun8OTch3F0moOeUphf8VCCC/Y20fXvy0szrwAyXwcMsuG1fAnKCIqe9cc
+07JJy+pqKnS1U9o+m27PhxHJDiJ5WlYcHEv1hgN+XQbJOnr0DSNhzsxjoMO+uWnlrcqw3zKc
+56yKNmR4hPwjz+fYoHTDEK4WYb8dhLLDMd6aDZvtAgMBAAGjggQEMIIEADBqBgNVHREEYzBh
+gRNoYXJyeS5zdXR0b25AaHAuY29tgQ5zdXR0b25oQGhwLmNvbYEXSGFycnkuU3V0dG9uQGNv
+bXBhcS5jb22BIUhhcnJ5LlN1dHRvbkBtc2UucXZhci5jcHFjb3JwLm5ldDAMBgNVHRMBAf8E
+AjAAMA4GA1UdDwEB/wQEAwIFoDAfBgNVHSMEGDAWgBTv7SDNQ0Ufg0dgFZZDckrkxsznPTAd
+BgNVHQ4EFgQUMkv8rgupiAcU8FYTKOXc3gs1VeIwVwYDVR0fBFAwTjBMoEqgSIZGaHR0cDov
+L29uc2l0ZWNybC52ZXJpc2lnbi5jb20vSGV3bGV0dFBhY2thcmRDb21wYW55U01JTUUvTGF0
+ZXN0Q1JMLmNybDAWBgNVHSUBAf8EDDAKBggrBgEFBQcDBDCCAT0GA1UdIASCATQwggEwMIIB
+LAYLYIZIAYb4RQEHFwIwggEbMCgGCCsGAQUFBwIBFhxodHRwczovL3d3dy52ZXJpc2lnbi5j
+b20vQ1BTMIHuBggrBgEFBQcCAjCB4TAeFhdIZXdsZXR0LVBhY2thcmQgQ29tcGFueTADAgEC
+GoG+QXV0aG9yaXR5IHRvIGJpbmQgSFAgZG9lcyBub3QgY29ycmVzcG9uZCB3aXRoIHVzZSBv
+ciBwb3NzZXNzaW9uIG9mIHRoaXMgY2VydGlmaWNhdGUuIElzc3VlZCB0byBmYWNpbGl0YXRl
+IGNvbW11bmljYXRpb24gd2l0aCBIUC4gVmVyaVNpZ24ncyBDUFMgaW5jb3JwLiBCeSByZWZl
+cmVuY2UgbGlhYi4gbHRkLiAoYyk5NyBWZXJpU2lnbjCCATMGCCsGAQUFBwEBBIIBJTCCASEw
+KwYIKwYBBQUHMAGGH2h0dHA6Ly9vbnNpdGUtb2NzcC52ZXJpc2lnbi5jb20wgfEGCCsGAQUF
+BzACpIHkMIHhMS4wLAYDVQQDEyVDb2xsYWJvcmF0aW9uIENlcnRpZmljYXRpb24gQXV0aG9y
+aXR5MTAwLgYDVQQLEydDbGFzcyAyIE9uU2l0ZSBJbmRpdmlkdWFsIFN1YnNjcmliZXIgQ0Ex
+OjA4BgNVBAsTMVRlcm1zIG9mIHVzZSBhdCBodHRwczovL3d3dy52ZXJpc2lnbi5jb20vcnBh
+KGMpMDExHzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxIDAeBgNVBAoTF0hld2xl
+dHQtUGFja2FyZCBDb21wYW55MEsGCSqGSIb3DQEJDwQ+MDwwDgYIKoZIhvcNAwICAgCAMA4G
+CCqGSIb3DQMCAgIAQDAOBggqhkiG9w0DBAICAIAwCgYIKoZIhvcNAwcwDQYJKoZIhvcNAQEF
+BQADgYEAamFYUzOUsasBTepVR/GBqAA1noNvOk2E9hqsBVFYct94vXccz7TDGO4tqU1YJsYI
+B6VUWAwrCx2AeAYeV0BApavpEiSlj6bhfAL67PQb/aaDSE2dMGduYU1cHtFxXcw7WmagYEpy
+8PZ+3x95xOHgY7fasX/8C+UyzY8lXAH3WLEwggeJMIIG8qADAgECAhBIM8lzaLlCAJYRUKNw
+fomFMA0GCSqGSIb3DQEBBQUAMIHiMSAwHgYDVQQKExdIZXdsZXR0LVBhY2thcmQgQ29tcGFu
+eTEfMB0GA1UECxMWVmVyaVNpZ24gVHJ1c3QgTmV0d29yazE7MDkGA1UECxMyVGVybXMgb2Yg
+dXNlIGF0IGh0dHBzOi8vd3d3LnZlcmlzaWduLmNvbS9ycGEgKGMpMDExMDAuBgNVBAsTJ0Ns
+YXNzIDIgT25TaXRlIEluZGl2aWR1YWwgU3Vic2NyaWJlciBDQTEuMCwGA1UEAxMlQ29sbGFi
+b3JhdGlvbiBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTAeFw0wNzAzMTgwMDAwMDBaFw0wOTAz
+MTcyMzU5NTlaMIGWMSAwHgYDVQQKFBdIZXdsZXR0LVBhY2thcmQgQ29tcGFueTEmMCQGA1UE
+CxQdRW1wbG95bWVudCBTdGF0dXMgLSBFbXBsb3llZXMxDzANBgNVBAsUBlMvTUlNRTEVMBMG
+A1UEAxMMSGFycnkgU3V0dG9uMSIwIAYJKoZIhvcNAQkBFhNoYXJyeS5zdXR0b25AaHAuY29t
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzBRsiRMgXqHOp39W8ouKfaHaT3lw
+zhR7diM/ehTFuMqYxF7S6hzMB8WgZNOFt5UATk2d3zyr8GxXYip9zxVtHocVJb2QMSjNInGI
+iOtp/yToZEmuNNNKxNhQe7Fau7wZSXZ+cdj1hRR6ZKWyw5qYMNL7SfZlHlBEIXYHQxwEc3o5
+bp/Dk3IdxdJqDnlKYX/FQggv2NtH178tLM68AMl8HDLLhtXwJygiKnvXHNOyScvqaip0tVPa
+Pptuz4cRyQ4ieVpWHBxL9YYDfl0GyTp69A0jYc7MY6DDvrlp5a3KsN8ynOesijZkeIT8I8/n
+2KB0wxCuFmG/HYSywzHemg2b7QIDAQABo4IEBDCCBAAwagYDVR0RBGMwYYETaGFycnkuc3V0
+dG9uQGhwLmNvbYEOc3V0dG9uaEBocC5jb22BF0hhcnJ5LlN1dHRvbkBjb21wYXEuY29tgSFI
+YXJyeS5TdXR0b25AbXNlLnF2YXIuY3BxY29ycC5uZXQwDAYDVR0TAQH/BAIwADAOBgNVHQ8B
+Af8EBAMCBaAwHwYDVR0jBBgwFoAU7+0gzUNFH4NHYBWWQ3JK5MbM5z0wHQYDVR0OBBYEFDJL
+/K4LqYgHFPBWEyjl3N4LNVXiMFcGA1UdHwRQME4wTKBKoEiGRmh0dHA6Ly9vbnNpdGVjcmwu
+dmVyaXNpZ24uY29tL0hld2xldHRQYWNrYXJkQ29tcGFueVNNSU1FL0xhdGVzdENSTC5jcmww
+FgYDVR0lAQH/BAwwCgYIKwYBBQUHAwQwggE9BgNVHSAEggE0MIIBMDCCASwGC2CGSAGG+EUB
+BxcCMIIBGzAoBggrBgEFBQcCARYcaHR0cHM6Ly93d3cudmVyaXNpZ24uY29tL0NQUzCB7gYI
+KwYBBQUHAgIwgeEwHhYXSGV3bGV0dC1QYWNrYXJkIENvbXBhbnkwAwIBAhqBvkF1dGhvcml0
+eSB0byBiaW5kIEhQIGRvZXMgbm90IGNvcnJlc3BvbmQgd2l0aCB1c2Ugb3IgcG9zc2Vzc2lv
+biBvZiB0aGlzIGNlcnRpZmljYXRlLiBJc3N1ZWQgdG8gZmFjaWxpdGF0ZSBjb21tdW5pY2F0
+aW9uIHdpdGggSFAuIFZlcmlTaWduJ3MgQ1BTIGluY29ycC4gQnkgcmVmZXJlbmNlIGxpYWIu
+IGx0ZC4gKGMpOTcgVmVyaVNpZ24wggEzBggrBgEFBQcBAQSCASUwggEhMCsGCCsGAQUFBzAB
+hh9odHRwOi8vb25zaXRlLW9jc3AudmVyaXNpZ24uY29tMIHxBggrBgEFBQcwAqSB5DCB4TEu
+MCwGA1UEAxMlQ29sbGFib3JhdGlvbiBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTEwMC4GA1UE
+CxMnQ2xhc3MgMiBPblNpdGUgSW5kaXZpZHVhbCBTdWJzY3JpYmVyIENBMTowOAYDVQQLEzFU
+ZXJtcyBvZiB1c2UgYXQgaHR0cHM6Ly93d3cudmVyaXNpZ24uY29tL3JwYShjKTAxMR8wHQYD
+VQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMSAwHgYDVQQKExdIZXdsZXR0LVBhY2thcmQg
+Q29tcGFueTBLBgkqhkiG9w0BCQ8EPjA8MA4GCCqGSIb3DQMCAgIAgDAOBggqhkiG9w0DAgIC
+AEAwDgYIKoZIhvcNAwQCAgCAMAoGCCqGSIb3DQMHMA0GCSqGSIb3DQEBBQUAA4GBAGphWFMz
+lLGrAU3qVUfxgagANZ6DbzpNhPYarAVRWHLfeL13HM+0wxjuLalNWCbGCAelVFgMKwsdgHgG
+HldAQKWr6RIkpY+m4XwC+uz0G/2mg0hNnTBnbmFNXB7RcV3MO1pmoGBKcvD2ft8fecTh4GO3
+2rF//AvlMs2PJVwB91ixMYIE+zCCBPcCAQEwgfcwgeIxIDAeBgNVBAoTF0hld2xldHQtUGFj
+a2FyZCBDb21wYW55MR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMTswOQYDVQQL
+EzJUZXJtcyBvZiB1c2UgYXQgaHR0cHM6Ly93d3cudmVyaXNpZ24uY29tL3JwYSAoYykwMTEw
+MC4GA1UECxMnQ2xhc3MgMiBPblNpdGUgSW5kaXZpZHVhbCBTdWJzY3JpYmVyIENBMS4wLAYD
+VQQDEyVDb2xsYWJvcmF0aW9uIENlcnRpZmljYXRpb24gQXV0aG9yaXR5AhBIM8lzaLlCAJYR
+UKNwfomFMAkGBSsOAwIaBQCgggLYMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZI
+hvcNAQkFMQ8XDTA5MDEyNzE5NDQzMFowIwYJKoZIhvcNAQkEMRYEFOBnUrtCiGo49xe9+8wb
+C3DGBkghMF8GCSqGSIb3DQEJDzFSMFAwCwYJYIZIAWUDBAECMAoGCCqGSIb3DQMHMA4GCCqG
+SIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCCAQgG
+CSsGAQQBgjcQBDGB+jCB9zCB4jEgMB4GA1UEChMXSGV3bGV0dC1QYWNrYXJkIENvbXBhbnkx
+HzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxOzA5BgNVBAsTMlRlcm1zIG9mIHVz
+ZSBhdCBodHRwczovL3d3dy52ZXJpc2lnbi5jb20vcnBhIChjKTAxMTAwLgYDVQQLEydDbGFz
+cyAyIE9uU2l0ZSBJbmRpdmlkdWFsIFN1YnNjcmliZXIgQ0ExLjAsBgNVBAMTJUNvbGxhYm9y
+YXRpb24gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkCEEgzyXNouUIAlhFQo3B+iYUwggEKBgsq
+hkiG9w0BCRACCzGB+qCB9zCB4jEgMB4GA1UEChMXSGV3bGV0dC1QYWNrYXJkIENvbXBhbnkx
+HzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxOzA5BgNVBAsTMlRlcm1zIG9mIHVz
+ZSBhdCBodHRwczovL3d3dy52ZXJpc2lnbi5jb20vcnBhIChjKTAxMTAwLgYDVQQLEydDbGFz
+cyAyIE9uU2l0ZSBJbmRpdmlkdWFsIFN1YnNjcmliZXIgQ0ExLjAsBgNVBAMTJUNvbGxhYm9y
+YXRpb24gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkCEEgzyXNouUIAlhFQo3B+iYUwDQYJKoZI
+hvcNAQEBBQAEggEATdV6JIsMYX9cHFggl+NAPVDu3tCSoneM95FcvmgRS0uvp6C9C3dJ5Y2Y
+j3a2UB08vZTVApHZLu88S7gPOWOfsRk4bwHQbxYMVxDu07L31K9G/N8ZVEe9Izt8LPGeFjgM
+/ko3qB98eNtztOV1j8PrQlIGwC/rHHYQTvUm27kL2Wti3ywAcXHE61kbuRWb0WadsTVf/ZbO
+nICranyhzrviQcOtf09r5cD6XJ8JL9IyGaeVAsgq1/sqJFckJwLFCdRntjU6Dn58vQwXkxlk
+qPiuzMocH3lALXeX4VygXncoJEyd5JIx1BfKHgufCr8XIj0WkNgRNuuTGKGbJICS2kySwQAA
+AAAAAA==
+--------------ms020409070606030203070208--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
