@@ -1,29 +1,34 @@
+Date: Wed, 28 Jan 2009 08:53:17 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, SELinux@tycho.nsa.gov,
+        Stephen Frost <sfrost@snowman.net>
+Subject: Re: (forw) [bruce@momjian.us: [ANNOUNCE] Need help on possible PG
+ 8.4 security features]
+In-Reply-To: <497F1839.6@kaigai.gr.jp>
+Message-ID: <alpine.LRH.1.10.0901280847210.11866@tundra.namei.org>
+References: <20090127012436.GD8123@tamriel.snowman.net> <497EC45D.7090100@ak.jp.nec.com> <alpine.LRH.1.10.0901280020200.8686@tundra.namei.org> <497F1839.6@kaigai.gr.jp>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: Enabling the "noatime" option on filesystems...
-Date: Tue, 27 Jan 2009 15:40:30 -0500
-Message-ID: <D06FE0A2807BC145B0D38744789D4F5D052F7BE3@de01exm68.ds.mot.com>
-In-Reply-To: <497F641E.9050500@hp.com>
-References: <alpine.LFD.2.00.0901271229120.11868@home-av-server.home-av> <497F641E.9050500@hp.com>
-From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
-To: "Stephen Smalley" <sds@tycho.nsa.gov>
-Cc: <selinux@tycho.nsa.gov>, "Berger Timothy-TBERGER1" <T.Berger@motorola.com>,
-        "Stephens Brad-CBS056" <Brad.Stephens@motorola.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hi All,
+On Tue, 27 Jan 2009, KaiGai Kohei wrote:
 
-If I enable the 'noatime' option on all my mounted filesystems, such
-that anytime a given file is accessed for "READ", the last access time
-is not updated: will this cause any negative impacts to SELinux ?
+> At the LCA example, I assigned sepgsql_fixed_table_t on the
+> "drink" table, so newly inserted tuples also inherit it.
 
-I am guessing it does NOT, but just wanted to make sure if there are any
-impacts... Thanks,
+Can this type be anything defined by the admin?
 
-- Rezaul.
+Why is MCS being used in the example?  Would anything stop the examples 
+using types such as "marketing_department_t" and "research_department_t", 
+with no MCS ?
 
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
