@@ -1,31 +1,32 @@
-Date: Wed, 28 Jan 2009 08:53:17 +1100 (EST)
+Date: Wed, 28 Jan 2009 08:54:51 +1100 (EST)
 From: James Morris <jmorris@namei.org>
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-cc: KaiGai Kohei <kaigai@ak.jp.nec.com>, SELinux@tycho.nsa.gov,
-        Stephen Frost <sfrost@snowman.net>
-Subject: Re: (forw) [bruce@momjian.us: [ANNOUNCE] Need help on possible PG
- 8.4 security features]
-In-Reply-To: <497F1839.6@kaigai.gr.jp>
-Message-ID: <alpine.LRH.1.10.0901280847210.11866@tundra.namei.org>
-References: <20090127012436.GD8123@tamriel.snowman.net> <497EC45D.7090100@ak.jp.nec.com> <alpine.LRH.1.10.0901280020200.8686@tundra.namei.org> <497F1839.6@kaigai.gr.jp>
+To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Berger Timothy-TBERGER1 <T.Berger@motorola.com>,
+        Stephens Brad-CBS056 <Brad.Stephens@motorola.com>
+Subject: Re: Enabling the "noatime" option on filesystems...
+In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D052F7BE3@de01exm68.ds.mot.com>
+Message-ID: <alpine.LRH.1.10.0901280854340.11866@tundra.namei.org>
+References: <alpine.LFD.2.00.0901271229120.11868@home-av-server.home-av> <497F641E.9050500@hp.com> <D06FE0A2807BC145B0D38744789D4F5D052F7BE3@de01exm68.ds.mot.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 27 Jan 2009, KaiGai Kohei wrote:
+On Tue, 27 Jan 2009, Hasan Rezaul-CHR010 wrote:
 
-> At the LCA example, I assigned sepgsql_fixed_table_t on the
-> "drink" table, so newly inserted tuples also inherit it.
+> Hi All,
+> 
+> If I enable the 'noatime' option on all my mounted filesystems, such
+> that anytime a given file is accessed for "READ", the last access time
+> is not updated: will this cause any negative impacts to SELinux ?
+> 
+> I am guessing it does NOT, but just wanted to make sure if there are any
+> impacts... Thanks,
 
-Can this type be anything defined by the admin?
-
-Why is MCS being used in the example?  Would anything stop the examples 
-using types such as "marketing_department_t" and "research_department_t", 
-with no MCS ?
+It should have no effect.
 
 
-- James
 -- 
 James Morris
 <jmorris@namei.org>
