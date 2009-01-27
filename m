@@ -1,35 +1,55 @@
-Date: Wed, 28 Jan 2009 08:54:51 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Hasan Rezaul-CHR010 <CHR010@motorola.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Berger Timothy-TBERGER1 <T.Berger@motorola.com>,
-        Stephens Brad-CBS056 <Brad.Stephens@motorola.com>
-Subject: Re: Enabling the "noatime" option on filesystems...
-In-Reply-To: <D06FE0A2807BC145B0D38744789D4F5D052F7BE3@de01exm68.ds.mot.com>
-Message-ID: <alpine.LRH.1.10.0901280854340.11866@tundra.namei.org>
-References: <alpine.LFD.2.00.0901271229120.11868@home-av-server.home-av> <497F641E.9050500@hp.com> <D06FE0A2807BC145B0D38744789D4F5D052F7BE3@de01exm68.ds.mot.com>
+Message-ID: <497F9673.4060407@kaigai.gr.jp>
+Date: Wed, 28 Jan 2009 08:19:15 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: James Morris <jmorris@namei.org>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, SELinux@tycho.nsa.gov,
+        Stephen Frost <sfrost@snowman.net>
+Subject: Re: (forw) [bruce@momjian.us: [ANNOUNCE] Need help on possible PG
+ 8.4 security features]
+References: <20090127012436.GD8123@tamriel.snowman.net> <497EC45D.7090100@ak.jp.nec.com> <alpine.LRH.1.10.0901280020200.8686@tundra.namei.org> <497F1839.6@kaigai.gr.jp> <alpine.LRH.1.10.0901280847210.11866@tundra.namei.org>
+In-Reply-To: <alpine.LRH.1.10.0901280847210.11866@tundra.namei.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 27 Jan 2009, Hasan Rezaul-CHR010 wrote:
-
-> Hi All,
+James Morris wrote:
+> On Tue, 27 Jan 2009, KaiGai Kohei wrote:
 > 
-> If I enable the 'noatime' option on all my mounted filesystems, such
-> that anytime a given file is accessed for "READ", the last access time
-> is not updated: will this cause any negative impacts to SELinux ?
+>> At the LCA example, I assigned sepgsql_fixed_table_t on the
+>> "drink" table, so newly inserted tuples also inherit it.
 > 
-> I am guessing it does NOT, but just wanted to make sure if there are any
-> impacts... Thanks,
+> Can this type be anything defined by the admin?
 
-It should have no effect.
+YES, as follows:
 
+CREATE TABLE drink (
+   id   integer primary key,
+   name text security_label = 'system_u:object_r:example_foo_t',
+   price integer
+) security_label = 'system_u:object_r:example_var_t';
 
+It enables to create a table/columns with specified context.
+
+and,
+
+INSERT INTO drink (security_label, id, name, price)
+   VALUES ('system_u:object_r:example_baz_t', 1, 'coffee', 120);
+
+It enables to insert a tuple with specified context.
+
+(*) security_label is a system column, so it automatically
+     generated for all tables, and not expanded by "SELECT *".
+
+> Why is MCS being used in the example?  Would anything stop the examples 
+> using types such as "marketing_department_t" and "research_department_t", 
+> with no MCS ?
+
+It is possible, if we make an example policy module.
+
+Thanks,
 -- 
-James Morris
-<jmorris@namei.org>
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
