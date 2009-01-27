@@ -1,84 +1,116 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0R3kM4e027024
-	for <selinux@tycho.nsa.gov>; Mon, 26 Jan 2009 22:46:22 -0500
-Received: from tamriel.snowman.net (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0R3kLRs024056
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 03:46:21 GMT
-Date: Mon, 26 Jan 2009 22:46:18 -0500
-From: Stephen Frost <sfrost@snowman.net>
-To: Sanjai Narain <narain@research.telcordia.com>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Subject: Re: Mitigating SQL injection attacks with access-control
-Message-ID: <20090127034618.GI8123@tamriel.snowman.net>
-References: <497E7458.90404@research.telcordia.com>
+Message-ID: <497EC45D.7090100@ak.jp.nec.com>
+Date: Tue, 27 Jan 2009 17:22:53 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kR3zbvD4cgoYnS/6"
-In-Reply-To: <497E7458.90404@research.telcordia.com>
+To: SELinux@tycho.nsa.gov
+CC: Stephen Frost <sfrost@snowman.net>
+Subject: Re: (forw) [bruce@momjian.us: [ANNOUNCE] Need help on possible PG
+ 8.4	security features]
+References: <20090127012436.GD8123@tamriel.snowman.net>
+In-Reply-To: <20090127012436.GD8123@tamriel.snowman.net>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+In the recent days, we have a hot discussion about what features
+should be included within the next PostgreSQL release (v8.4) in
+the pgsql-hackers list.
+SE-PostgreSQL is a candidate of new features in the v8.4, but
+it has been left for unreviewed yet.
 
---kR3zbvD4cgoYnS/6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+| Bruce Momjian wrote:
+| OK, time for me to chime in.
+|
+| I think the outstanding commit-fest items can be broken down into four
+| sections:
+|
+| 	o  Log streaming
+| 	o  Hot standby
+| 	o  SE-PostgreSQL
+| 	o  Others
 
-Sanjai,
+ - snip -
 
-* Sanjai Narain (narain@research.telcordia.com) wrote:
-> A lot has been written about validating inputs to avoid SQL injection =20
-> attacks. Have there been attempts to mitigate such attacks with =20
-> access-control policies, perhaps combining those for SELinux and MySQL? =
-=20
-> Thanks for any answers. Best regards. -- Sanjai
+| SE-PostgreSQL has been in steady development for a year so this is the
+| time to decide about it.  My feeling is if we don't accept it now, we
+| are never going to have SE-Linux or row-level security.  The next week
+| should show us the right direction when we start discussion on
+| Wednesday, noon GMT.
 
-I'm not sure how appropriate this if for this list, but, I don't believe
-SELinux and/or MySQL will solve SQL injection issues.  They may help to
-mitigate the results, but the best approach, by far, is to use proper
-database prepared queries.  By using prepared queries and passing in any
-user-supplied data seperately, you completely remove the SQL injection
-problem.  By using VIEWs and stored procedures you can even simplify the
-queries that are done by the application and provide a kind of API
-between the application and the database that allows both to change
-without requiring a change of the other.
+It seems to me some of pgsql-hackers concerned about security experts
+don't join to its review process (except for me :), so it is unclear
+whether the SE-PostgreSQL feature is really desired, or not, and
+whether its security design is really appropriate, or not.
 
-This is a much better solution to any kind of input validation when it
-comes to avoiding SQL injection.  Of course, proper foreign keys in your
-database, proper types, and CHECK constraints, will minimize the
-possibility of garbage/invalid data ending up in your database.  Having
-these database-level checks is really important to maintaining the
-integrity of your data.  Even if you have such checks in your
-application, it often happens that people access the database without
-using the application or while bypassing the application checks.
+I would like to want some your helps.
 
-Regarding SQLinux and MySQL specifically- I don't believe MySQL has
-SELinux hooks built in or available as a patch (if anyone is aware of
-one, I'd be very curious to see it..).  The PostgreSQL community is
-currently evaluating an SELinux patch (SE-Postgres) to add row-level
-security, etc, to the core PostgreSQL distribution.  If you're
-interested in an open source RDBMS with row-level security and SELinux
-hooks, you might start a discussion on the pgsql-general list at
-http://www.postgresql.org/community/lists/.
+Please see,
+  http://www.postgresql.org/community/lists/subscribe
+    -> "pgsql-hackers"
+  http://archives.postgresql.org/pgsql-hackers/2009-01/threads.php
+    -> "8.4 release planning" thread (sorry, it's a quite long thread).
 
-	Thanks,
+Thanks,
 
-		Stephen
-
---kR3zbvD4cgoYnS/6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkl+g4oACgkQrzgMPqB3kihnEQCeKGH6LUCb/Sgm3p2D6LiOwMY3
-/u8An0MVtAEwBPsD1O3BNiNQkh4b4dvQ
-=NhPM
------END PGP SIGNATURE-----
-
---kR3zbvD4cgoYnS/6--
+Stephen Frost wrote:
+> Greetings,
+> 
+>   Hope the below hasn't already been sent here, if so, sorry, didn't
+> see it in the archives though.  This is very important for PostgreSQL
+> upstream addition of SE-Postgres.  I'm hopeful that there are some on
+> this list who can help the PostgreSQL core members be comfortable that
+> the patch does what is intended and properly implements the security it
+> claims.
+> 
+> The top of the current thread on -hackers can be found here:
+> http://archives.postgresql.org/pgsql-hackers/2009-01/msg01840.php
+> in particular:
+> http://archives.postgresql.org/pgsql-hackers/2009-01/msg01962.php
+> and others around that timeframe help frame this discussion.
+> 
+> In particular, we're looking for security experts who are familiar
+> with implementing SELinux (or similar..) in an RDBMS such as
+> PostgreSQL to review the patch, documentation, etc.
+> 
+> Please see below, and thanks.
+> 
+> 	Stephen
+> 
+> ----- Forwarded message from Bruce Momjian <bruce@momjian.us> -----
+> 
+> Date: Sat, 24 Jan 2009 10:36:22 -0500 (EST)
+> From: Bruce Momjian <bruce@momjian.us>
+> To: PostgreSQL-announce <pgsql-announce@postgresql.org>
+> X-Mailer: ELM [version 2.4ME+ PL124 (25)]
+> X-Spam-Status: No, score=-2.5 required=5.0 tests=AWL,BAYES_00 autolearn=ham
+> 	version=3.2.5
+> Subject: [ANNOUNCE] Need help on possible PG 8.4 security features
+> 
+> The PostgreSQL community is considering including security enhancements
+> in Postgres 8.4, e.g. row-level permissions and SE-Linux security. 
+> However, to evaluate the patch and its usefulness, we need security
+> experts who want to use this capability or have used it in other
+> databases.
+> 
+> The most recent version of the patch is mentioned here:
+> 
+> 	http://archives.postgresql.org/pgsql-hackers/2009-01/msg01680.php
+> 
+> Particularly interesting is the documentation patch:
+> 
+> 	http://sepgsql.googlecode.com/files/sepostgresql-docs-8.4devel-3-r1460.patch
+> 
+> If you know someone who is interested in these features or can help in
+> discussing them, please have them subscribe to pgsql-hackers here:
+> 
+> 	http://www.postgresql.org/community/lists/subscribe
+> 
+> Email discussion about this topic will start on Wednesday, January 28,
+> at 12:00 GMT, and will include the subject text "SE-PostgreSQL".
+> 
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
