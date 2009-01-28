@@ -1,47 +1,193 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0SLFxIs004929
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2009 16:15:59 -0500
-Received: from rv-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0SLCud0007865
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2009 21:12:57 GMT
-Received: by rv-out-0708.google.com with SMTP id f25so8028793rvb.54
-        for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2009 13:15:57 -0800 (PST)
-References: <4980BF63.6010508@redhat.com>
-Message-Id: <CE34565B-8A95-4AB7-BE23-1D9D33BB5C8B@gmail.com>
-From: "Justin P. Mattock" <justinmattock@gmail.com>
-To: Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <4980BF63.6010508@redhat.com>
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed;
-	delsp=yes
-Mime-Version: 1.0 (iPhone Mail 5H11)
+In-Reply-To: <alpine.LFD.2.00.0901281707430.18166@home-av-server.home-av>
+To: Joshua Kramer <josh@globalherald.net>
+Cc: Daniel J Walsh <dwalsh@redhat.com>, owner-selinux@tycho.nsa.gov,
+        SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: What happened to http://www.nsa.gov/selinux/ ????
-Date: Wed, 28 Jan 2009 13:15:08 -0800
-Cc: SE Linux <selinux@tycho.nsa.gov>
+MIME-Version: 1.0
+Message-ID: <OFCA520DBE.4B76D022-ON8525754C.007E5E8B-8525754C.007F0780@mck.us.ray.com>
+From: Bryan Kropf <Bryan_Kropf@raytheon.com>
+Date: Wed, 28 Jan 2009 18:07:29 -0500
+Content-Type: multipart/alternative; boundary="=_alternative 007F077E8525754C_="
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I get error notice NSA/CSS
-With an iPhone.
-Clicking on the suggested link
-Result's in the same error.
+This is a multipart message in MIME format.
+--=_alternative 007F077E8525754C_=
+Content-Type: text/plain; charset="US-ASCII"
 
-Regards;
+If this resource has moved, this is bad.
 
-justin P. Mattock
+Google query for "selinux halt" results in one query result thus
+
+SELinux Mailing List
+do not insist on selinux], halt the system with an appropriate message. > 
+> > > > > The indication could be that there is no selinux support in the 
+kernel, ...
+www.nsa.gov/selinux/list-archive/0310/5366.cfm - 15k - Cached - Similar 
+pages
+
+which when accessed result in a dead end here 
+http://www.nsa.gov/selinux/list-archive/0310/5366.cfm
+
+I, for one, prefer meaningful and helpful research results and not a lot 
+of monkey business.
+
+Just my $ .02
+
+
+Bryan Kropf, CISSP, NSA-IAM/IEM
 
 
 
-On Jan 28, 2009, at 12:26 PM, Daniel J Walsh <dwalsh@redhat.com> wrote:
 
+Joshua Kramer <josh@globalherald.net> 
+Sent by: owner-selinux@tycho.nsa.gov
+01/28/2009 04:24 PM
+
+To
+Daniel J Walsh <dwalsh@redhat.com>
+cc
+SE Linux <selinux@tycho.nsa.gov>
+Subject
+Re: What happened to http://www.nsa.gov/selinux/ ????
+
+
+
+
+
+
+
+I think it moved here:
+
+http://www.nsa.gov/research/selinux/
+
+On Wed, 28 Jan 2009, Daniel J Walsh wrote:
+
+> Date: Wed, 28 Jan 2009 15:26:11 -0500
+> From: Daniel J Walsh <dwalsh@redhat.com>
+> To: SE Linux <selinux@tycho.nsa.gov>
+> Subject: What happened to http://www.nsa.gov/selinux/ ????
+> 
 >
 > --
-> This message was distributed to subscribers of the selinux mailing  
-> list.
+> This message was distributed to subscribers of the selinux mailing list.
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
->  with
+with
 > the words "unsubscribe selinux" without quotes as the message.
+>
+
+-- 
+
+-----
+http://www.globalherald.net/jb01
+GlobalHerald.NET, the Smarter Social Network! (tm)
+
+--
+This message was distributed to subscribers of the selinux mailing list.
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+with
+the words "unsubscribe selinux" without quotes as the message.
+
+
+
+
+--=_alternative 007F077E8525754C_=
+Content-Type: text/html; charset="US-ASCII"
+
+
+<br><font size=2 face="sans-serif">If this resource has moved, this is
+bad.</font>
+<br>
+<br><font size=2 face="sans-serif">Google query for &quot;selinux halt&quot;
+results in one query result thus</font>
+<br>
+<br><font size=2 face="sans-serif">SELinux Mailing List</font>
+<br><font size=2 face="sans-serif">do not insist on selinux], halt the
+system with an appropriate message. &gt; &gt; &gt; &gt; &gt; &gt; The indication
+could be that there is no selinux support in the kernel, ...</font>
+<br><font size=2 face="sans-serif">www.nsa.gov/selinux/list-archive/0310/5366.cfm
+- 15k - Cached - Similar pages</font>
+<br>
+<br><font size=2 face="sans-serif">which when accessed result in a dead
+end here http://www.nsa.gov/selinux/list-archive/0310/5366.cfm</font>
+<br>
+<br><font size=2 face="sans-serif">I, for one, prefer meaningful and helpful
+research results and not a lot of monkey business.</font>
+<br>
+<br><font size=2 face="sans-serif">Just my $ .02</font>
+<br><font size=2 face="sans-serif"><br>
+</font>
+<br><font size=2 face="sans-serif">Bryan Kropf, CISSP, NSA-IAM/IEM<br>
+</font>
+<br>
+<br>
+<br>
+<table width=100%>
+<tr valign=top>
+<td width=40%><font size=1 face="sans-serif"><b>Joshua Kramer &lt;josh@globalherald.net&gt;</b>
+</font>
+<br><font size=1 face="sans-serif">Sent by: owner-selinux@tycho.nsa.gov</font>
+<p><font size=1 face="sans-serif">01/28/2009 04:24 PM</font>
+<td width=59%>
+<table width=100%>
+<tr valign=top>
+<td>
+<div align=right><font size=1 face="sans-serif">To</font></div>
+<td><font size=1 face="sans-serif">Daniel J Walsh &lt;dwalsh@redhat.com&gt;</font>
+<tr valign=top>
+<td>
+<div align=right><font size=1 face="sans-serif">cc</font></div>
+<td><font size=1 face="sans-serif">SE Linux &lt;selinux@tycho.nsa.gov&gt;</font>
+<tr valign=top>
+<td>
+<div align=right><font size=1 face="sans-serif">Subject</font></div>
+<td><font size=1 face="sans-serif">Re: What happened to http://www.nsa.gov/selinux/
+????</font></table>
+<br>
+<table>
+<tr valign=top>
+<td>
+<td></table>
+<br></table>
+<br>
+<br>
+<br><tt><font size=2><br>
+I think it moved here:<br>
+<br>
+http://www.nsa.gov/research/selinux/<br>
+<br>
+On Wed, 28 Jan 2009, Daniel J Walsh wrote:<br>
+<br>
+&gt; Date: Wed, 28 Jan 2009 15:26:11 -0500<br>
+&gt; From: Daniel J Walsh &lt;dwalsh@redhat.com&gt;<br>
+&gt; To: SE Linux &lt;selinux@tycho.nsa.gov&gt;<br>
+&gt; Subject: What happened to http://www.nsa.gov/selinux/ ????<br>
+&gt; <br>
+&gt;<br>
+&gt; --<br>
+&gt; This message was distributed to subscribers of the selinux mailing
+list.<br>
+&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with<br>
+&gt; the words &quot;unsubscribe selinux&quot; without quotes as the message.<br>
+&gt;<br>
+<br>
+-- <br>
+<br>
+-----<br>
+http://www.globalherald.net/jb01<br>
+GlobalHerald.NET, the Smarter Social Network! (tm)<br>
+<br>
+--<br>
+This message was distributed to subscribers of the selinux mailing list.<br>
+If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
+with<br>
+the words &quot;unsubscribe selinux&quot; without quotes as the message.<br>
+</font></tt>
+<br>
+<br>
+<br>
+--=_alternative 007F077E8525754C_=--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
