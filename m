@@ -1,159 +1,126 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0S1I3Zp004696
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 20:18:03 -0500
-Received: from sca-es-mail-2.sun.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0S1Erns020661
-	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2009 01:14:53 GMT
-Received: from fe-sfbay-09.sun.com ([192.18.43.129])
-	by sca-es-mail-2.sun.com (8.13.7+Sun/8.12.9) with ESMTP id n0S1HrWq019665
-	for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 17:17:53 -0800 (PST)
-Received: from conversion-daemon.fe-sfbay-09.sun.com by fe-sfbay-09.sun.com
- (Sun Java System Messaging Server 6.2-8.04 (built Feb 28 2007))
- id <0KE500E01Q8ZC000@fe-sfbay-09.sun.com>
- (original mail from Jarrett.Lu@Sun.COM) for selinux@tycho.nsa.gov; Tue,
- 27 Jan 2009 17:17:52 -0800 (PST)
-Date: Tue, 27 Jan 2009 17:17:59 -0800
-From: Jarrett Lu <Jarrett.Lu@sun.com>
-Subject: Re: [Labeled-nfs] [nfsv4] New MAC label support Internet Draft	posted
- to IETF website
-In-reply-to: <33B70CB9-5260-419A-98CF-94847F829570@nokia.com>
-To: Lars Eggert <lars.eggert@nokia.com>
-Cc: Spencer Shepler <shepler@storspeed.com>,
-        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
-        "labeled-nfs@linux-nfs.org" <labeled-nfs@linux-nfs.org>,
-        "nfs-discuss@opensolaris.org" <nfs-discuss@opensolaris.org>,
-        "nfsv4@ietf.org" <nfsv4@ietf.org>
-Message-id: <497FB247.6050404@sun.com>
-MIME-version: 1.0
-Content-type: multipart/alternative;
- boundary="Boundary_(ID_IxtwL/YLIqTiTJ8v7S+I7g)"
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
- <54E18340-3542-4AB4-843E-E92A67B709A7@storspeed.com>
- <33B70CB9-5260-419A-98CF-94847F829570@nokia.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0S7VUgj031621
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2009 02:31:30 -0500
+Received: from rv-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0S7SSpM006647
+	for <selinux@tycho.nsa.gov>; Wed, 28 Jan 2009 07:28:29 GMT
+Received: by rv-out-0708.google.com with SMTP id f25so7666409rvb.54
+        for <selinux@tycho.nsa.gov>; Tue, 27 Jan 2009 23:31:28 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <497F641E.9050500@hp.com>
+References: <alpine.LFD.2.00.0901271229120.11868@home-av-server.home-av>
+	 <497F641E.9050500@hp.com>
+Date: Wed, 28 Jan 2009 12:31:28 +0500
+Message-ID: <7b740b700901272331qed57282i5955e6ac09bf3d90@mail.gmail.com>
+Subject: Re: O'Rielly SELinux Book (2005)
+From: Shaz <shazalive@gmail.com>
+To: "Sutton, Harry (MSE)" <harry.sutton@hp.com>
+Cc: Joshua Kramer <josh@globalherald.net>,
+        "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=000e0cd228b8c1c04b046185f54e
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
+--000e0cd228b8c1c04b046185f54e
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
---Boundary_(ID_IxtwL/YLIqTiTJ8v7S+I7g)
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+And to stay up to date with the commands and infrastructure than you would
+like to go for Fedora SELinux guide. It might as well give you partial
+details on the design of SELinux, although SELinux by Example has a very
+clear description of the design in its first section. Policy models are
+discussed in section 2.
 
-On 01/24/09 01:36, Lars Eggert wrote:
-> Hi,
+On Wed, Jan 28, 2009 at 12:44 AM, Sutton, Harry (MSE)
+<harry.sutton@hp.com>wrote:
+
+> Hi Josh,
 >
-> On 2009-1-23, at 19:37, Spencer Shepler wrote:
->> If this work is to be added to the working group's
->> charter, there must be a show of interest.  This can be as simple as an
->> email to the nfsv4@ietf.org alias stating interest and brief description
->> of need/use.  This will demonstrate to the area director that work is
->> occurring and it is worthwhile to have the NFSv4 WG undertake the
->> work.
+> I found that to be one of the (few) O'Reilly books that didn't really
+> cut it for me on its stated subject matter; my preference is
+> Prentice-Hall's "SELinux by Example, Using Security Enhanced Linux", by
+> Frank Mayer, Karl MacMillan and David Caplan (ISBN 0-13-196369-4). It's
+> a much clearer (and more comprehensive) treatment of the theory in depth
+> you're asking for.
 >
-> community interest ("I'd use it if it existed") is necessary, but not 
-> sufficient to charter new IETF work. We also need to determine if 
-> there is a group of folks willing to commit to doing the work (writing 
-> documents, reviewing documents, attending meetings, implement, etc.) 
-> If you're willing to do this, please indicate it and let us know how 
-> you'd contribute.
-
-David's labeled-nfs extension is interesting to Sun Microsystems as both 
-Solaris
-Trusted Extensions and the Flexible Mandatory Access Control (FMAC) 
-OpenSolaris
-project will benefit from the proposed extension. I'm willing to 
-dedicate time to
-reviewing documents, attending meetings and discussions, and likely 
-contributing
-to implementation as well.
-
-Jarrett
-
+> Best regards,
 >
-> Thanks,
-> Lars
-> ------------------------------------------------------------------------
+>    /Harry Sutton, RHCA / RHCSS
+>     Hewlett-Packard Company
 >
-> _______________________________________________
-> Labeled-nfs mailing list
-> Labeled-nfs@linux-nfs.org
-> http://linux-nfs.org/cgi-bin/mailman/listinfo/labeled-nfs
->   
+> Joshua Kramer wrote:
+> > Howdy Folks,
+> >
+> > I have a copy of the O'Rielly SELinux book from 2005.
+> >
+> > Many things have changed as far as the implementation and practice.
+> > However, is this still a good book to read if I just want to learn the
+> > theory in-depth?  Or have basic elements of SELinux changed since then?
+> >
+> > Thanks!
+> > -Josh
+> >
+> >
+>
+>
 
 
---Boundary_(ID_IxtwL/YLIqTiTJ8v7S+I7g)
-Content-type: text/html; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
+-- 
+Shaz
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
-  <title></title>
-</head>
-<body bgcolor="#ffffff" text="#000000">
-On 01/24/09 01:36, Lars Eggert wrote:
-<blockquote cite="mid:33B70CB9-5260-419A-98CF-94847F829570@nokia.com"
- type="cite">Hi,
-  <br>
-  <br>
-On 2009-1-23, at 19:37, Spencer Shepler wrote:
-  <br>
-  <blockquote type="cite">If this work is to be added to the working
-group's
-    <br>
-charter, there must be a show of interest.&nbsp; This can be as simple as an
-    <br>
-email to the <a class="moz-txt-link-abbreviated" href="mailto:nfsv4@ietf.org">nfsv4@ietf.org</a> alias stating interest and brief
-description
-    <br>
-of need/use.&nbsp; This will demonstrate to the area director that work is
-    <br>
-occurring and it is worthwhile to have the NFSv4 WG undertake the
-    <br>
-work.
-    <br>
-  </blockquote>
-  <br>
-community interest ("I'd use it if it existed") is necessary, but not
-sufficient to charter new IETF work. We also need to determine if there
-is a group of folks willing to commit to doing the work (writing
-documents, reviewing documents, attending meetings, implement, etc.) If
-you're willing to do this, please indicate it and let us know how you'd
-contribute.
-  <br>
-</blockquote>
-<br>
-David's labeled-nfs extension is interesting to Sun Microsystems as
-both Solaris<br>
-Trusted Extensions and the Flexible Mandatory Access Control (FMAC)
-OpenSolaris<br>
-project will benefit from the proposed extension. I'm willing to
-dedicate time to<br>
-reviewing documents, attending meetings and discussions, and likely
-contributing<br>
-to implementation as well.<br>
-<br>
-Jarrett<br>
-<br>
-<blockquote cite="mid:33B70CB9-5260-419A-98CF-94847F829570@nokia.com"
- type="cite"><br>
-Thanks,
-  <br>
-Lars<br>
-  <pre wrap="">
-<hr size="4" width="90%">
-_______________________________________________
-Labeled-nfs mailing list
-<a class="moz-txt-link-abbreviated" href="mailto:Labeled-nfs@linux-nfs.org">Labeled-nfs@linux-nfs.org</a>
-<a class="moz-txt-link-freetext" href="http://linux-nfs.org/cgi-bin/mailman/listinfo/labeled-nfs">http://linux-nfs.org/cgi-bin/mailman/listinfo/labeled-nfs</a>
-  </pre>
-</blockquote>
-<br>
-</body>
-</html>
+--000e0cd228b8c1c04b046185f54e
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
---Boundary_(ID_IxtwL/YLIqTiTJ8v7S+I7g)--
+And to stay up to date with the commands and infrastructure than you would =
+like to go for Fedora SELinux guide. It might as well give you partial deta=
+ils on the design of SELinux, although SELinux by Example has a very clear =
+description of the design in its first section. Policy models are discussed=
+ in section 2.<br>
+<br><div class=3D"gmail_quote">On Wed, Jan 28, 2009 at 12:44 AM, Sutton, Ha=
+rry (MSE) <span dir=3D"ltr">&lt;<a href=3D"mailto:harry.sutton@hp.com">harr=
+y.sutton@hp.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" =
+style=3D"border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8=
+ex; padding-left: 1ex;">
+Hi Josh,<br>
+<br>
+I found that to be one of the (few) O&#39;Reilly books that didn&#39;t real=
+ly<br>
+cut it for me on its stated subject matter; my preference is<br>
+Prentice-Hall&#39;s &quot;SELinux by Example, Using Security Enhanced Linux=
+&quot;, by<br>
+Frank Mayer, Karl MacMillan and David Caplan (ISBN 0-13-196369-4). It&#39;s=
+<br>
+a much clearer (and more comprehensive) treatment of the theory in depth<br=
+>
+you&#39;re asking for.<br>
+<br>
+Best regards,<br>
+<br>
+ &nbsp; &nbsp;/Harry Sutton, RHCA / RHCSS<br>
+ &nbsp; &nbsp; Hewlett-Packard Company<br>
+<div><div></div><div class=3D"Wj3C7c"><br>
+Joshua Kramer wrote:<br>
+&gt; Howdy Folks,<br>
+&gt;<br>
+&gt; I have a copy of the O&#39;Rielly SELinux book from 2005.<br>
+&gt;<br>
+&gt; Many things have changed as far as the implementation and practice.<br=
+>
+&gt; However, is this still a good book to read if I just want to learn the=
+<br>
+&gt; theory in-depth? &nbsp;Or have basic elements of SELinux changed since=
+ then?<br>
+&gt;<br>
+&gt; Thanks!<br>
+&gt; -Josh<br>
+&gt;<br>
+&gt;<br>
+<br>
+</div></div></blockquote></div><br><br clear=3D"all"><br>-- <br>Shaz<br><br=
+>
+
+--000e0cd228b8c1c04b046185f54e--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
