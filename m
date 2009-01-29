@@ -1,13 +1,18 @@
-Message-ID: <4981DA58.6020607@redhat.com>
-Date: Thu, 29 Jan 2009 11:33:28 -0500
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0TGZtul003592
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2009 11:35:55 -0500
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0TGZsI4011744
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2009 16:35:54 GMT
+Message-ID: <4981DAE3.9070903@redhat.com>
+Date: Thu, 29 Jan 2009 11:35:47 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Bryan Kropf <Bryan_Kropf@raytheon.com>
-CC: Joshua Kramer <josh@globalherald.net>, owner-selinux@tycho.nsa.gov,
-        SE Linux <selinux@tycho.nsa.gov>
+To: R P Herrold <herrold@owlriver.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
 Subject: Re: What happened to http://www.nsa.gov/selinux/ ????
-References: <OFCA520DBE.4B76D022-ON8525754C.007E5E8B-8525754C.007F0780@mck.us.ray.com>
-In-Reply-To: <OFCA520DBE.4B76D022-ON8525754C.007E5E8B-8525754C.007F0780@mck.us.ray.com>
+References: <4980BF63.6010508@redhat.com> <alpine.LRH.2.00.0901281721330.526@arj.bjyevire.pbz>
+In-Reply-To: <alpine.LRH.2.00.0901281721330.526@arj.bjyevire.pbz>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -15,84 +20,48 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Bryan Kropf wrote:
-> If this resource has moved, this is bad.
-> 
-> Google query for "selinux halt" results in one query result thus
-> 
-> SELinux Mailing List
-> do not insist on selinux], halt the system with an appropriate message. > 
->>>>>> The indication could be that there is no selinux support in the 
-> kernel, ...
-> www.nsa.gov/selinux/list-archive/0310/5366.cfm - 15k - Cached - Similar 
-> pages
-> 
-> which when accessed result in a dead end here 
-> http://www.nsa.gov/selinux/list-archive/0310/5366.cfm
-> 
-> I, for one, prefer meaningful and helpful research results and not a lot 
-> of monkey business.
-> 
-> Just my $ .02
-> 
-> 
-> Bryan Kropf, CISSP, NSA-IAM/IEM
-> 
-> 
-> 
-> 
-> Joshua Kramer <josh@globalherald.net> 
-> Sent by: owner-selinux@tycho.nsa.gov
-> 01/28/2009 04:24 PM
-> 
-> To
-> Daniel J Walsh <dwalsh@redhat.com>
-> cc
-> SE Linux <selinux@tycho.nsa.gov>
-> Subject
-> Re: What happened to http://www.nsa.gov/selinux/ ????
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-> I think it moved here:
-> 
-> http://www.nsa.gov/research/selinux/
-> 
+R P Herrold wrote:
 > On Wed, 28 Jan 2009, Daniel J Walsh wrote:
 > 
->> Date: Wed, 28 Jan 2009 15:26:11 -0500
->> From: Daniel J Walsh <dwalsh@redhat.com>
->> To: SE Linux <selinux@tycho.nsa.gov>
->> Subject: What happened to http://www.nsa.gov/selinux/ ????
->>
->>
->> --
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
-> with
->> the words "unsubscribe selinux" without quotes as the message.
->>
+> I think I addressed this possibility with you and you punted.
 > 
-Can some one at NSA insist that this link be put back.
+> -- Russ herrold
+> 
+> https://bugzilla.redhat.com/show_bug.cgi?id=241488
+> 
+> opened: 2007-05-26
+> 
+>  -------  Comment #2 From  R P Herrold (herrold@owlriver.com) 2007-06-05
+> 12:51:59 EDT   (-) [reply] -------
+> 
+> Thanks for the update
+> 
+> -- as noted, in comment 1
+> 
+> "I request that a /usr/share/doc/checkpolicy/ tree be added containing
+> all the
+> content below the external link noted, so that it is available"
+> 
+> ... the thought I had was that if one is in a non-connected environment
+> this is just not visible, _or_ if the political winds of funding shift,
+> this all has the prospect of disappearing.
+> 
+> ===================================
+> 
+> 
+Vindication is mine....
 
-Semms pretty easy to link http://www.nsa.gov/selinux to
-http://www.nsa.gov/research/selinux/
-
-Since this has got to be one of the most common links hit off the
-nsa.gov site.
-
+Well I guess that man page should be rewritten to point at much newer
+information like the latest Fedora pages, SELinux By Example, or just
+google selinux policy.    Which will get you this link and then fail...
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkmB2lgACgkQrlYvE4MpobPITQCgorQsrXbEepy7Pdo9HL6OQkzV
-I0QAoKAP5T3TAcUGR3YH+wTkYrjn4Bf5
-=LjQ9
+iEYEARECAAYFAkmB2uMACgkQrlYvE4MpobN6LACcC6msPgj/dBUVc3go+Rp8ZZg5
+ioEAn1WttRhdjqXnm3UY+viAyCGKe3uv
+=tkBU
 -----END PGP SIGNATURE-----
 
 --
