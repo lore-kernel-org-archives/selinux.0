@@ -1,193 +1,59 @@
-In-Reply-To: <alpine.LFD.2.00.0901281707430.18166@home-av-server.home-av>
-To: Joshua Kramer <josh@globalherald.net>
-Cc: Daniel J Walsh <dwalsh@redhat.com>, owner-selinux@tycho.nsa.gov,
-        SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: What happened to http://www.nsa.gov/selinux/ ????
-MIME-Version: 1.0
-Message-ID: <OFCA520DBE.4B76D022-ON8525754C.007E5E8B-8525754C.007F0780@mck.us.ray.com>
-From: Bryan Kropf <Bryan_Kropf@raytheon.com>
-Date: Wed, 28 Jan 2009 18:07:29 -0500
-Content-Type: multipart/alternative; boundary="=_alternative 007F077E8525754C_="
+From: James Morris <jmorris@namei.org>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, eparis@redhat.com,
+        linux-security-module@vger.kernel.org,
+        James Morris <jmorris@namei.org>
+Subject: [PATCH 17/18] selinux: remove secondary ops call to unix_stream_connect
+Date: Wed, 28 Jan 2009 19:55:46 -0800
+Message-Id: <1233201347-17568-19-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233201347-17568-18-git-send-email-jmorris@namei.org>
+References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
+ <1233201347-17568-2-git-send-email-jmorris@namei.org>
+ <1233201347-17568-3-git-send-email-jmorris@namei.org>
+ <1233201347-17568-4-git-send-email-jmorris@namei.org>
+ <1233201347-17568-5-git-send-email-jmorris@namei.org>
+ <1233201347-17568-6-git-send-email-jmorris@namei.org>
+ <1233201347-17568-7-git-send-email-jmorris@namei.org>
+ <1233201347-17568-8-git-send-email-jmorris@namei.org>
+ <1233201347-17568-9-git-send-email-jmorris@namei.org>
+ <1233201347-17568-10-git-send-email-jmorris@namei.org>
+ <1233201347-17568-11-git-send-email-jmorris@namei.org>
+ <1233201347-17568-12-git-send-email-jmorris@namei.org>
+ <1233201347-17568-13-git-send-email-jmorris@namei.org>
+ <1233201347-17568-14-git-send-email-jmorris@namei.org>
+ <1233201347-17568-15-git-send-email-jmorris@namei.org>
+ <1233201347-17568-16-git-send-email-jmorris@namei.org>
+ <1233201347-17568-17-git-send-email-jmorris@namei.org>
+ <1233201347-17568-18-git-send-email-jmorris@namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multipart message in MIME format.
---=_alternative 007F077E8525754C_=
-Content-Type: text/plain; charset="US-ASCII"
+Remove secondary ops call to unix_stream_connect, which is
+a noop in capabilities.
 
-If this resource has moved, this is bad.
+Signed-off-by: James Morris <jmorris@namei.org>
+---
+ security/selinux/hooks.c |    4 ----
+ 1 files changed, 0 insertions(+), 4 deletions(-)
 
-Google query for "selinux halt" results in one query result thus
-
-SELinux Mailing List
-do not insist on selinux], halt the system with an appropriate message. > 
-> > > > > The indication could be that there is no selinux support in the 
-kernel, ...
-www.nsa.gov/selinux/list-archive/0310/5366.cfm - 15k - Cached - Similar 
-pages
-
-which when accessed result in a dead end here 
-http://www.nsa.gov/selinux/list-archive/0310/5366.cfm
-
-I, for one, prefer meaningful and helpful research results and not a lot 
-of monkey business.
-
-Just my $ .02
-
-
-Bryan Kropf, CISSP, NSA-IAM/IEM
-
-
-
-
-Joshua Kramer <josh@globalherald.net> 
-Sent by: owner-selinux@tycho.nsa.gov
-01/28/2009 04:24 PM
-
-To
-Daniel J Walsh <dwalsh@redhat.com>
-cc
-SE Linux <selinux@tycho.nsa.gov>
-Subject
-Re: What happened to http://www.nsa.gov/selinux/ ????
-
-
-
-
-
-
-
-I think it moved here:
-
-http://www.nsa.gov/research/selinux/
-
-On Wed, 28 Jan 2009, Daniel J Walsh wrote:
-
-> Date: Wed, 28 Jan 2009 15:26:11 -0500
-> From: Daniel J Walsh <dwalsh@redhat.com>
-> To: SE Linux <selinux@tycho.nsa.gov>
-> Subject: What happened to http://www.nsa.gov/selinux/ ????
-> 
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
-with
-> the words "unsubscribe selinux" without quotes as the message.
->
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e8f616a..086eb14 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3997,10 +3997,6 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
+ 	struct avc_audit_data ad;
+ 	int err;
+ 
+-	err = secondary_ops->unix_stream_connect(sock, other, newsk);
+-	if (err)
+-		return err;
+-
+ 	isec = SOCK_INODE(sock)->i_security;
+ 	other_isec = SOCK_INODE(other)->i_security;
+ 
 -- 
+1.6.1
 
------
-http://www.globalherald.net/jb01
-GlobalHerald.NET, the Smarter Social Network! (tm)
-
---
-This message was distributed to subscribers of the selinux mailing list.
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
-with
-the words "unsubscribe selinux" without quotes as the message.
-
-
-
-
---=_alternative 007F077E8525754C_=
-Content-Type: text/html; charset="US-ASCII"
-
-
-<br><font size=2 face="sans-serif">If this resource has moved, this is
-bad.</font>
-<br>
-<br><font size=2 face="sans-serif">Google query for &quot;selinux halt&quot;
-results in one query result thus</font>
-<br>
-<br><font size=2 face="sans-serif">SELinux Mailing List</font>
-<br><font size=2 face="sans-serif">do not insist on selinux], halt the
-system with an appropriate message. &gt; &gt; &gt; &gt; &gt; &gt; The indication
-could be that there is no selinux support in the kernel, ...</font>
-<br><font size=2 face="sans-serif">www.nsa.gov/selinux/list-archive/0310/5366.cfm
-- 15k - Cached - Similar pages</font>
-<br>
-<br><font size=2 face="sans-serif">which when accessed result in a dead
-end here http://www.nsa.gov/selinux/list-archive/0310/5366.cfm</font>
-<br>
-<br><font size=2 face="sans-serif">I, for one, prefer meaningful and helpful
-research results and not a lot of monkey business.</font>
-<br>
-<br><font size=2 face="sans-serif">Just my $ .02</font>
-<br><font size=2 face="sans-serif"><br>
-</font>
-<br><font size=2 face="sans-serif">Bryan Kropf, CISSP, NSA-IAM/IEM<br>
-</font>
-<br>
-<br>
-<br>
-<table width=100%>
-<tr valign=top>
-<td width=40%><font size=1 face="sans-serif"><b>Joshua Kramer &lt;josh@globalherald.net&gt;</b>
-</font>
-<br><font size=1 face="sans-serif">Sent by: owner-selinux@tycho.nsa.gov</font>
-<p><font size=1 face="sans-serif">01/28/2009 04:24 PM</font>
-<td width=59%>
-<table width=100%>
-<tr valign=top>
-<td>
-<div align=right><font size=1 face="sans-serif">To</font></div>
-<td><font size=1 face="sans-serif">Daniel J Walsh &lt;dwalsh@redhat.com&gt;</font>
-<tr valign=top>
-<td>
-<div align=right><font size=1 face="sans-serif">cc</font></div>
-<td><font size=1 face="sans-serif">SE Linux &lt;selinux@tycho.nsa.gov&gt;</font>
-<tr valign=top>
-<td>
-<div align=right><font size=1 face="sans-serif">Subject</font></div>
-<td><font size=1 face="sans-serif">Re: What happened to http://www.nsa.gov/selinux/
-????</font></table>
-<br>
-<table>
-<tr valign=top>
-<td>
-<td></table>
-<br></table>
-<br>
-<br>
-<br><tt><font size=2><br>
-I think it moved here:<br>
-<br>
-http://www.nsa.gov/research/selinux/<br>
-<br>
-On Wed, 28 Jan 2009, Daniel J Walsh wrote:<br>
-<br>
-&gt; Date: Wed, 28 Jan 2009 15:26:11 -0500<br>
-&gt; From: Daniel J Walsh &lt;dwalsh@redhat.com&gt;<br>
-&gt; To: SE Linux &lt;selinux@tycho.nsa.gov&gt;<br>
-&gt; Subject: What happened to http://www.nsa.gov/selinux/ ????<br>
-&gt; <br>
-&gt;<br>
-&gt; --<br>
-&gt; This message was distributed to subscribers of the selinux mailing
-list.<br>
-&gt; If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with<br>
-&gt; the words &quot;unsubscribe selinux&quot; without quotes as the message.<br>
-&gt;<br>
-<br>
--- <br>
-<br>
------<br>
-http://www.globalherald.net/jb01<br>
-GlobalHerald.NET, the Smarter Social Network! (tm)<br>
-<br>
---<br>
-This message was distributed to subscribers of the selinux mailing list.<br>
-If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-with<br>
-the words &quot;unsubscribe selinux&quot; without quotes as the message.<br>
-</font></tt>
-<br>
-<br>
-<br>
---=_alternative 007F077E8525754C_=--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
