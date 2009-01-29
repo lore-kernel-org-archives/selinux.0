@@ -1,74 +1,94 @@
-Subject: Re: LTP SELinux policy error
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-Cc: James Morris <jmorris@namei.org>, ltp-list@lists.sourceforge.net,
-        selinux@tycho.nsa.gov, "Serge E. Hallyn" <serue@us.ibm.com>
-In-Reply-To: <1233247899.13403.23.camel@gorn.columbia.tresys.com>
-References: <alpine.LRH.1.10.0901292128540.25382@tundra.namei.org>
-	 <1233236562.9697.3.camel@gorn.columbia.tresys.com>
-	 <1233247899.13403.23.camel@gorn.columbia.tresys.com>
-Content-Type: text/plain
-Date: Thu, 29 Jan 2009 13:09:52 -0500
-Message-Id: <1233252592.5109.144.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <4981FAE1.9010000@gmail.com>
+Date: Thu, 29 Jan 2009 10:52:17 -0800
+From: "Justin P. Mattock" <justinmattock@gmail.com>
+MIME-Version: 1.0
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Daniel J Walsh <dwalsh@redhat.com>, R P Herrold <herrold@owlriver.com>,
+        SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: What happened to http://www.nsa.gov/selinux/ ????
+References: <4980BF63.6010508@redhat.com>	 <alpine.LRH.2.00.0901281721330.526@arj.bjyevire.pbz>	 <4981DAE3.9070903@redhat.com>	 <1233247413.5109.113.camel@localhost.localdomain>	 <4981DF28.8090200@redhat.com> <1233248994.5109.127.camel@localhost.localdomain>
+In-Reply-To: <1233248994.5109.127.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-01-29 at 11:51 -0500, Christopher J. PeBenito wrote:
-> On Thu, 2009-01-29 at 08:42 -0500, Christopher J. PeBenito wrote:
-> > On Thu, 2009-01-29 at 21:32 +1100, James Morris wrote:
-> > > I'm trying to run the LTP SELinux tests using the latest CVS version of 
-> > > LTP and current Fedora development, and get the following policy 
-> > > compilation error:
-> > > 
-> > > ----
-> > > Compiling targeted test_policy module
-> > > 
-> > > test_policy.te:1730: Warning: r_dir_perms is deprecated please use list_dir_perms instead.
-> > > test_policy.te:1731: Warning: r_file_perms is deprecated please use read_file_perms instead.
-> > > [lots of warnings similar to the above]
-> > > 
-> > > /usr/bin/checkmodule:  loading policy configuration from 
-> > > tmp/test_policy.tmp
-> > > test_policy.te":16:ERROR 'syntax error' at token 
-> > > 'userdom_use_sysadm_terms' on line 3198:
-> > > userdom_use_sysadm_terms(testdomain)
-> > > # This allows read and write sysadm ttys and ptys.
-> > > /usr/bin/checkmodule:  error(s) encountered while parsing configuration
-> > > make[1]: *** [tmp/test_policy.mod] Error 1
-> > > make[1]: Leaving directory `/usr/share/selinux/devel'
-> > > make: *** [load] Error 2
-> > > Failed to build and load test_policy module, aborting test run.
-> > > ----
-> > > 
-> > > Is this likely to be fixed soon, and/or any suggestions for a workaround?
-> > 
-> > It won't compile with the current trunk refpolicy, since the current
-> > release was a major, API breaking change.  I'll try to get a patch out
-> > shortly.
-> 
-> I updated the policy since its fairly old, though I didn't convert its
-> raw rules over to use interfaces.  However this didn't completely fix
-> it, as there is usage of a "unconfined_runs_test()", which isn't in the
-> upstream refpolicy nor the fedora policy, as far as I can see.  One of
-> the updates includes use of sysadm_entry_spec_domtrans_to(), which is in
-> the upstream refpolicy, but doesn't seem to have made its way downstream
-> to the fedora policy.  I have attached my work so someone familiar with
-> the LTP test cases can use it to complete the fix.
+Stephen Smalley wrote:
+> On Thu, 2009-01-29 at 11:54 -0500, Daniel J Walsh wrote:
+>   
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>> Stephen Smalley wrote:
+>>     
+>>> On Thu, 2009-01-29 at 11:35 -0500, Daniel J Walsh wrote:
+>>>       
+>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>> Hash: SHA1
+>>>>
+>>>> R P Herrold wrote:
+>>>>         
+>>>>> On Wed, 28 Jan 2009, Daniel J Walsh wrote:
+>>>>>
+>>>>> I think I addressed this possibility with you and you punted.
+>>>>>
+>>>>> -- Russ herrold
+>>>>>
+>>>>> https://bugzilla.redhat.com/show_bug.cgi?id=241488
+>>>>>
+>>>>> opened: 2007-05-26
+>>>>>
+>>>>>  -------  Comment #2 From  R P Herrold (herrold@owlriver.com) 2007-06-05
+>>>>> 12:51:59 EDT   (-) [reply] -------
+>>>>>
+>>>>> Thanks for the update
+>>>>>
+>>>>> -- as noted, in comment 1
+>>>>>
+>>>>> "I request that a /usr/share/doc/checkpolicy/ tree be added containing
+>>>>> all the
+>>>>> content below the external link noted, so that it is available"
+>>>>>
+>>>>> ... the thought I had was that if one is in a non-connected environment
+>>>>> this is just not visible, _or_ if the political winds of funding shift,
+>>>>> this all has the prospect of disappearing.
+>>>>>
+>>>>> ===================================
+>>>>>
+>>>>>
+>>>>>           
+>>>> Vindication is mine....
+>>>>
+>>>> Well I guess that man page should be rewritten to point at much newer
+>>>> information like the latest Fedora pages, SELinux By Example, or just
+>>>> google selinux policy.    Which will get you this link and then fail...
+>>>>         
+>>> The reports are all still available,
+>>> http://www.nsa.gov/research/selinux/docs.shtml
+>>>
+>>> Some of the reports are also included in the selinux-doc package.
+>>>
+>>>       
+>> The problem is the Link has made its way into lots of places, most
+>> importantly google, and now the link is gone, and for no apparent reason.
+>>     
+>
+> It was a complete overhaul of nsa.gov web site - outside of the SELinux
+> team's control.  I did ask for redirects but they haven't been
+> forthcoming.  But remember:  it is new and improved, don't let anyone
+> tell you differently.
+>
+> http://www.nsa.gov/public_info/press_room/2009/nsa_launches_new_website.shtml
+>
+> In any event, the content is all still there, just rearranged and renamed.
+> Making all of the reports available in selinux-doc would likely be a
+> good idea.
+>
+>   
+Hey. The site looks good.
 
-Serge put together a patch and script under selinux-testsuite/misc that
-defines unconfined_runs_test() as well as converting some of the
-interfaces.  That was done so that the ltp testsuite could still be run
-on older distributions (w/ the older policy) and on newer distributions
-(w/ the patch applied to perform conversion).  It was originally done
-based on the deprecation of the sbin interfaces, which is why it is
-named that way even though it now includes more than just conversion of
-those interfaces.
+regards;
 
--- 
-Stephen Smalley
-National Security Agency
-
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
