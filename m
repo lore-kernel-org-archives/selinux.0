@@ -1,44 +1,69 @@
-Subject: Re: [PATCH][RFC] selinux: remove noop secondary_ops calls
+Subject: Re: LTP SELinux policy error
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, eparis@redhat.com,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <1233251523.5109.132.camel@localhost.localdomain>
-References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
-	 <1233251523.5109.132.camel@localhost.localdomain>
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+Cc: James Morris <jmorris@namei.org>, ltp-list@lists.sourceforge.net,
+        selinux@tycho.nsa.gov, "Serge E. Hallyn" <serue@us.ibm.com>
+In-Reply-To: <1233247899.13403.23.camel@gorn.columbia.tresys.com>
+References: <alpine.LRH.1.10.0901292128540.25382@tundra.namei.org>
+	 <1233236562.9697.3.camel@gorn.columbia.tresys.com>
+	 <1233247899.13403.23.camel@gorn.columbia.tresys.com>
 Content-Type: text/plain
-Date: Thu, 29 Jan 2009 13:00:02 -0500
-Message-Id: <1233252002.5109.138.camel@localhost.localdomain>
+Date: Thu, 29 Jan 2009 13:09:52 -0500
+Message-Id: <1233252592.5109.144.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-01-29 at 12:52 -0500, Stephen Smalley wrote:
-> On Wed, 2009-01-28 at 19:55 -0800, James Morris wrote:
-> > These patches remove calls to secondary_ops where there is no
-> > real capability hook, and a couple of SELinux hooks which only
-> > called these noop hooks.
+On Thu, 2009-01-29 at 11:51 -0500, Christopher J. PeBenito wrote:
+> On Thu, 2009-01-29 at 08:42 -0500, Christopher J. PeBenito wrote:
+> > On Thu, 2009-01-29 at 21:32 +1100, James Morris wrote:
+> > > I'm trying to run the LTP SELinux tests using the latest CVS version of 
+> > > LTP and current Fedora development, and get the following policy 
+> > > compilation error:
+> > > 
+> > > ----
+> > > Compiling targeted test_policy module
+> > > 
+> > > test_policy.te:1730: Warning: r_dir_perms is deprecated please use list_dir_perms instead.
+> > > test_policy.te:1731: Warning: r_file_perms is deprecated please use read_file_perms instead.
+> > > [lots of warnings similar to the above]
+> > > 
+> > > /usr/bin/checkmodule:  loading policy configuration from 
+> > > tmp/test_policy.tmp
+> > > test_policy.te":16:ERROR 'syntax error' at token 
+> > > 'userdom_use_sysadm_terms' on line 3198:
+> > > userdom_use_sysadm_terms(testdomain)
+> > > # This allows read and write sysadm ttys and ptys.
+> > > /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+> > > make[1]: *** [tmp/test_policy.mod] Error 1
+> > > make[1]: Leaving directory `/usr/share/selinux/devel'
+> > > make: *** [load] Error 2
+> > > Failed to build and load test_policy module, aborting test run.
+> > > ----
+> > > 
+> > > Is this likely to be fixed soon, and/or any suggestions for a workaround?
+> > 
+> > It won't compile with the current trunk refpolicy, since the current
+> > release was a major, API breaking change.  I'll try to get a patch out
+> > shortly.
 > 
-> These look fine to me, modulo the comments already made by Eric and
-> Serge.
-> 
-> You could further replace the remaining secondary_ops calls with direct
-> cap_ calls, since the dummy module is gone and the secondary module can
-> only be the capability module.  Smack and AppArmor already do this, I
-> believe.
-> 
-> At that point secondary_ops would only be used by selinux_init() to save
-> the original security_ops pointer for use by selinux_disable() to
-> restore the original pointer, which ideally would be handled by the
-> security framework instead (possibly by restoring a limited
-> unregister_security() that resets to the default_security_ops).
+> I updated the policy since its fairly old, though I didn't convert its
+> raw rules over to use interfaces.  However this didn't completely fix
+> it, as there is usage of a "unconfined_runs_test()", which isn't in the
+> upstream refpolicy nor the fedora policy, as far as I can see.  One of
+> the updates includes use of sysadm_entry_spec_domtrans_to(), which is in
+> the upstream refpolicy, but doesn't seem to have made its way downstream
+> to the fedora policy.  I have attached my work so someone familiar with
+> the LTP test cases can use it to complete the fix.
 
-Other tidying:
-- drop selinux_inode*killpriv 
-- drop selinux_task*setuid 
-- drop selinux_task_prctl
-since the hooks will default to the capability functions if SELinux
-doesn't define them.
+Serge put together a patch and script under selinux-testsuite/misc that
+defines unconfined_runs_test() as well as converting some of the
+interfaces.  That was done so that the ltp testsuite could still be run
+on older distributions (w/ the older policy) and on newer distributions
+(w/ the patch applied to perform conversion).  It was originally done
+based on the deprecation of the sbin interfaces, which is why it is
+named that way even though it now includes more than just conversion of
+those interfaces.
 
 -- 
 Stephen Smalley
