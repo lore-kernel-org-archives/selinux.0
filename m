@@ -1,54 +1,58 @@
-Date: Thu, 29 Jan 2009 10:56:14 -0600
+Date: Thu, 29 Jan 2009 10:58:04 -0600
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, eparis@redhat.com,
+To: Eric Paris <eparis@redhat.com>
+Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
         linux-security-module@vger.kernel.org
-Subject: Re: [PATCH 13/13] selinux: remove secondary ops call to
-	file_mprotect
-Message-ID: <20090129165614.GA13082@us.ibm.com>
-References: <1233201347-17568-5-git-send-email-jmorris@namei.org> <1233201347-17568-6-git-send-email-jmorris@namei.org> <1233201347-17568-7-git-send-email-jmorris@namei.org> <1233201347-17568-8-git-send-email-jmorris@namei.org> <1233201347-17568-9-git-send-email-jmorris@namei.org> <1233201347-17568-10-git-send-email-jmorris@namei.org> <1233201347-17568-11-git-send-email-jmorris@namei.org> <1233201347-17568-12-git-send-email-jmorris@namei.org> <1233201347-17568-13-git-send-email-jmorris@namei.org> <1233201347-17568-14-git-send-email-jmorris@namei.org>
+Subject: Re: [PATCH][RFC] selinux: remove noop secondary_ops calls
+Message-ID: <20090129165804.GB13082@us.ibm.com>
+References: <1233201347-17568-1-git-send-email-jmorris@namei.org> <1233234541.3264.34.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1233201347-17568-14-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233234541.3264.34.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting James Morris (jmorris@namei.org):
-> Remove secondary ops call to file_mprotect, which is
-> a noop in capabilities.
+Quoting Eric Paris (eparis@redhat.com):
+> On Wed, 2009-01-28 at 19:55 -0800, James Morris wrote:
+> > These patches remove calls to secondary_ops where there is no
+> > real capability hook, and a couple of SELinux hooks which only
+> > called these noop hooks.
+> > 
+> > (Following this, the noop capabilities hooks should also be removed).
+> > 
+> > Please review.
+> > 
+> > James Morris (18):
+> >       selinux: remove unused bprm_check_security hook
+> >       selinux: remove secondary ops call to bprm_committing_creds
+> >       selinux: remove secondary ops call to bprm_committed_creds
+> >       selinux: remove secondary ops call to sb_mount
+> >       selinux: remove secondary ops call to sb_umount
+> >       selinux: remove secondary ops call to inode_link
+> >       selinux: remove secondary ops call to inode_unlink
+> >       selinux: remove secondary ops call to inode_mknod
+> >       selinux: remove secondary ops call to inode_follow_link
+> >       selinux: remove secondary ops call to inode_permission
+> >       selinux: remove secondary ops call to inode_setattr
+> >       selinux: remove secondary ops call to file_mprotect
+> >       selinux: remove secondary ops call to task_create
+> >       selinux: remove unused cred_commit hook
+> >       selinux: remove secondary ops call to task_setrlimit
+> >       selinux: remove secondary ops call to task_kill
+> >       selinux: remove secondary ops call to unix_stream_connect
+> >       selinux: remove secondary ops call to shm_shmat
 > 
+> For the entire series EXCEPT #9 inode_follow_link:
+> Acked-by: Eric Paris <eparis@redhat.com>
 
-Wrong patch?
+Yup, all looks reasonable, except for the wrong patch attached
+to the mprotect description :)
 
-> Signed-off-by: James Morris <jmorris@namei.org>
-> ---
->  security/selinux/hooks.c |    6 ------
->  1 files changed, 0 insertions(+), 6 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7056570..99758ca 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3212,12 +3212,6 @@ static int selinux_dentry_open(struct file *file, const struct cred *cred)
-> 
->  static int selinux_task_create(unsigned long clone_flags)
->  {
-> -	int rc;
-> -
-> -	rc = secondary_ops->task_create(clone_flags);
-> -	if (rc)
-> -		return rc;
-> -
->  	return current_has_perm(current, PROCESS__FORK);
->  }
-> 
-> -- 
-> 1.6.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Acked-by: Serge Hallyn <serue@us.ibm.com>
+
+fwiw...
+
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
