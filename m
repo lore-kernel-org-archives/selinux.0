@@ -3,10 +3,10 @@ To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, eparis@redhat.com,
         linux-security-module@vger.kernel.org,
         James Morris <jmorris@namei.org>
-Subject: [PATCH 17/18] selinux: remove secondary ops call to unix_stream_connect
-Date: Wed, 28 Jan 2009 19:55:46 -0800
-Message-Id: <1233201347-17568-19-git-send-email-jmorris@namei.org>
-In-Reply-To: <1233201347-17568-18-git-send-email-jmorris@namei.org>
+Subject: [PATCH 13/13] selinux: remove secondary ops call to file_mprotect
+Date: Wed, 28 Jan 2009 19:55:41 -0800
+Message-Id: <1233201347-17568-14-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233201347-17568-13-git-send-email-jmorris@namei.org>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-2-git-send-email-jmorris@namei.org>
  <1233201347-17568-3-git-send-email-jmorris@namei.org>
@@ -20,36 +20,33 @@ References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-11-git-send-email-jmorris@namei.org>
  <1233201347-17568-12-git-send-email-jmorris@namei.org>
  <1233201347-17568-13-git-send-email-jmorris@namei.org>
- <1233201347-17568-14-git-send-email-jmorris@namei.org>
- <1233201347-17568-15-git-send-email-jmorris@namei.org>
- <1233201347-17568-16-git-send-email-jmorris@namei.org>
- <1233201347-17568-17-git-send-email-jmorris@namei.org>
- <1233201347-17568-18-git-send-email-jmorris@namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove secondary ops call to unix_stream_connect, which is
+Remove secondary ops call to file_mprotect, which is
 a noop in capabilities.
 
 Signed-off-by: James Morris <jmorris@namei.org>
 ---
- security/selinux/hooks.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+ security/selinux/hooks.c |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e8f616a..086eb14 100644
+index 7056570..99758ca 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -3997,10 +3997,6 @@ static int selinux_socket_unix_stream_connect(struct socket *sock,
- 	struct avc_audit_data ad;
- 	int err;
+@@ -3212,12 +3212,6 @@ static int selinux_dentry_open(struct file *file, const struct cred *cred)
  
--	err = secondary_ops->unix_stream_connect(sock, other, newsk);
--	if (err)
--		return err;
+ static int selinux_task_create(unsigned long clone_flags)
+ {
+-	int rc;
 -
- 	isec = SOCK_INODE(sock)->i_security;
- 	other_isec = SOCK_INODE(other)->i_security;
+-	rc = secondary_ops->task_create(clone_flags);
+-	if (rc)
+-		return rc;
+-
+ 	return current_has_perm(current, PROCESS__FORK);
+ }
  
 -- 
 1.6.1
