@@ -3,48 +3,57 @@ To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, eparis@redhat.com,
         linux-security-module@vger.kernel.org,
         James Morris <jmorris@namei.org>
-Subject: [PATCH 01/18] selinux: remove unused bprm_check_security hook
-Date: Wed, 28 Jan 2009 19:55:29 -0800
-Message-Id: <1233201347-17568-2-git-send-email-jmorris@namei.org>
-In-Reply-To: <1233201347-17568-1-git-send-email-jmorris@namei.org>
+Subject: [PATCH 12/18] selinux: remove secondary ops call to file_mprotect
+Date: Wed, 28 Jan 2009 19:55:40 -0800
+Message-Id: <1233201347-17568-13-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233201347-17568-12-git-send-email-jmorris@namei.org>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
+ <1233201347-17568-2-git-send-email-jmorris@namei.org>
+ <1233201347-17568-3-git-send-email-jmorris@namei.org>
+ <1233201347-17568-4-git-send-email-jmorris@namei.org>
+ <1233201347-17568-5-git-send-email-jmorris@namei.org>
+ <1233201347-17568-6-git-send-email-jmorris@namei.org>
+ <1233201347-17568-7-git-send-email-jmorris@namei.org>
+ <1233201347-17568-8-git-send-email-jmorris@namei.org>
+ <1233201347-17568-9-git-send-email-jmorris@namei.org>
+ <1233201347-17568-10-git-send-email-jmorris@namei.org>
+ <1233201347-17568-11-git-send-email-jmorris@namei.org>
+ <1233201347-17568-12-git-send-email-jmorris@namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove unused bprm_check_security hook from SELinux.   This
-currently calls into the capabilities hook, which is a noop.
-
-(The capabilities hook should also be removed at some point).
+Remove secondary ops call to file_mprotect, which is
+a noop in capabilities.
 
 Signed-off-by: James Morris <jmorris@namei.org>
 ---
- security/selinux/hooks.c |    6 ------
- 1 files changed, 0 insertions(+), 6 deletions(-)
+ security/selinux/hooks.c |    7 +------
+ 1 files changed, 1 insertions(+), 6 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3bb4942..8251c6b 100644
+index 7207e47..7056570 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2182,11 +2182,6 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
- 	return 0;
- }
- 
--static int selinux_bprm_check_security(struct linux_binprm *bprm)
--{
--	return secondary_ops->bprm_check_security(bprm);
--}
--
- static int selinux_bprm_secureexec(struct linux_binprm *bprm)
+@@ -3056,18 +3056,13 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 				 unsigned long prot)
  {
  	const struct cred *cred = current_cred();
-@@ -5608,7 +5603,6 @@ static struct security_operations selinux_ops = {
- 	.netlink_recv =			selinux_netlink_recv,
+-	int rc;
+-
+-	rc = secondary_ops->file_mprotect(vma, reqprot, prot);
+-	if (rc)
+-		return rc;
  
- 	.bprm_set_creds =		selinux_bprm_set_creds,
--	.bprm_check_security =		selinux_bprm_check_security,
- 	.bprm_committing_creds =	selinux_bprm_committing_creds,
- 	.bprm_committed_creds =		selinux_bprm_committed_creds,
- 	.bprm_secureexec =		selinux_bprm_secureexec,
+ 	if (selinux_checkreqprot)
+ 		prot = reqprot;
+ 
+ #ifndef CONFIG_PPC32
+ 	if ((prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+-		rc = 0;
++		int rc = 0;
+ 		if (vma->vm_start >= vma->vm_mm->start_brk &&
+ 		    vma->vm_end <= vma->vm_mm->brk) {
+ 			rc = cred_has_perm(cred, cred, PROCESS__EXECHEAP);
 -- 
 1.6.1
 
