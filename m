@@ -3,56 +3,36 @@ To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, eparis@redhat.com,
         linux-security-module@vger.kernel.org,
         James Morris <jmorris@namei.org>
-Subject: [PATCH 18/18] selinux: remove secondary ops call to shm_shmat
-Date: Wed, 28 Jan 2009 19:55:47 -0800
-Message-Id: <1233201347-17568-20-git-send-email-jmorris@namei.org>
-In-Reply-To: <1233201347-17568-19-git-send-email-jmorris@namei.org>
+Subject: [PATCH 02/18] selinux: remove secondary ops call to bprm_committing_creds
+Date: Wed, 28 Jan 2009 19:55:30 -0800
+Message-Id: <1233201347-17568-3-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233201347-17568-2-git-send-email-jmorris@namei.org>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-2-git-send-email-jmorris@namei.org>
- <1233201347-17568-3-git-send-email-jmorris@namei.org>
- <1233201347-17568-4-git-send-email-jmorris@namei.org>
- <1233201347-17568-5-git-send-email-jmorris@namei.org>
- <1233201347-17568-6-git-send-email-jmorris@namei.org>
- <1233201347-17568-7-git-send-email-jmorris@namei.org>
- <1233201347-17568-8-git-send-email-jmorris@namei.org>
- <1233201347-17568-9-git-send-email-jmorris@namei.org>
- <1233201347-17568-10-git-send-email-jmorris@namei.org>
- <1233201347-17568-11-git-send-email-jmorris@namei.org>
- <1233201347-17568-12-git-send-email-jmorris@namei.org>
- <1233201347-17568-13-git-send-email-jmorris@namei.org>
- <1233201347-17568-14-git-send-email-jmorris@namei.org>
- <1233201347-17568-15-git-send-email-jmorris@namei.org>
- <1233201347-17568-16-git-send-email-jmorris@namei.org>
- <1233201347-17568-17-git-send-email-jmorris@namei.org>
- <1233201347-17568-18-git-send-email-jmorris@namei.org>
- <1233201347-17568-19-git-send-email-jmorris@namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove secondary ops call to shm_shmat, which is
+Remove secondary ops call to bprm_committing_creds, which is
 a noop in capabilities.
 
 Signed-off-by: James Morris <jmorris@namei.org>
 ---
- security/selinux/hooks.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+ security/selinux/hooks.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 086eb14..e574c28 100644
+index 8251c6b..fc01ffa 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -5113,11 +5113,6 @@ static int selinux_shm_shmat(struct shmid_kernel *shp,
- 			     char __user *shmaddr, int shmflg)
- {
- 	u32 perms;
--	int rc;
--
--	rc = secondary_ops->shm_shmat(shp, shmaddr, shmflg);
--	if (rc)
--		return rc;
+@@ -2311,8 +2311,6 @@ static void selinux_bprm_committing_creds(struct linux_binprm *bprm)
+ 	struct rlimit *rlim, *initrlim;
+ 	int rc, i;
  
- 	if (shmflg & SHM_RDONLY)
- 		perms = SHM__READ;
+-	secondary_ops->bprm_committing_creds(bprm);
+-
+ 	new_tsec = bprm->cred->security;
+ 	if (new_tsec->sid == new_tsec->osid)
+ 		return;
 -- 
 1.6.1
 
