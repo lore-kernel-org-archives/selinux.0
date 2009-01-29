@@ -6,8 +6,8 @@ Cc: selinux@tycho.nsa.gov, eparis@redhat.com,
 In-Reply-To: <1233201347-17568-1-git-send-email-jmorris@namei.org>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
 Content-Type: text/plain
-Date: Thu, 29 Jan 2009 12:45:55 -0500
-Message-Id: <1233251155.5109.128.camel@localhost.localdomain>
+Date: Thu, 29 Jan 2009 12:52:03 -0500
+Message-Id: <1233251523.5109.132.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -16,39 +16,21 @@ On Wed, 2009-01-28 at 19:55 -0800, James Morris wrote:
 > These patches remove calls to secondary_ops where there is no
 > real capability hook, and a couple of SELinux hooks which only
 > called these noop hooks.
-> 
-> (Following this, the noop capabilities hooks should also be removed).
 
-I don't think you can - the capability stubs now serve as the
-default/dummy hooks used by security_fixup_ops(), so it has to define a
-stub for every hook.
+These look fine to me, modulo the comments already made by Eric and
+Serge.
 
-> Please review.
-> 
-> James Morris (18):
->       selinux: remove unused bprm_check_security hook
->       selinux: remove secondary ops call to bprm_committing_creds
->       selinux: remove secondary ops call to bprm_committed_creds
->       selinux: remove secondary ops call to sb_mount
->       selinux: remove secondary ops call to sb_umount
->       selinux: remove secondary ops call to inode_link
->       selinux: remove secondary ops call to inode_unlink
->       selinux: remove secondary ops call to inode_mknod
->       selinux: remove secondary ops call to inode_follow_link
->       selinux: remove secondary ops call to inode_permission
->       selinux: remove secondary ops call to inode_setattr
->       selinux: remove secondary ops call to file_mprotect
->       selinux: remove secondary ops call to task_create
->       selinux: remove unused cred_commit hook
->       selinux: remove secondary ops call to task_setrlimit
->       selinux: remove secondary ops call to task_kill
->       selinux: remove secondary ops call to unix_stream_connect
->       selinux: remove secondary ops call to shm_shmat
-> 
->  security/selinux/hooks.c |   92 +---------------------------------------------
->  1 files changed, 2 insertions(+), 90 deletions(-)
-> 
-> 
+You could further replace the remaining secondary_ops calls with direct
+cap_ calls, since the dummy module is gone and the secondary module can
+only be the capability module.  Smack and AppArmor already do this, I
+believe.
+
+At that point secondary_ops would only be used by selinux_init() to save
+the original security_ops pointer for use by selinux_disable() to
+restore the original pointer, which ideally would be handled by the
+security framework instead (possibly by restoring a limited
+unregister_security() that resets to the default_security_ops).
+
 -- 
 Stephen Smalley
 National Security Agency
