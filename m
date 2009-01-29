@@ -3,25 +3,18 @@ To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, eparis@redhat.com,
         linux-security-module@vger.kernel.org,
         James Morris <jmorris@namei.org>
-Subject: [PATCH 11/18] selinux: remove secondary ops call to inode_setattr
-Date: Wed, 28 Jan 2009 19:55:39 -0800
-Message-Id: <1233201347-17568-12-git-send-email-jmorris@namei.org>
-In-Reply-To: <1233201347-17568-11-git-send-email-jmorris@namei.org>
+Subject: [PATCH 04/18] selinux: remove secondary ops call to sb_mount
+Date: Wed, 28 Jan 2009 19:55:32 -0800
+Message-Id: <1233201347-17568-5-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233201347-17568-4-git-send-email-jmorris@namei.org>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-2-git-send-email-jmorris@namei.org>
  <1233201347-17568-3-git-send-email-jmorris@namei.org>
  <1233201347-17568-4-git-send-email-jmorris@namei.org>
- <1233201347-17568-5-git-send-email-jmorris@namei.org>
- <1233201347-17568-6-git-send-email-jmorris@namei.org>
- <1233201347-17568-7-git-send-email-jmorris@namei.org>
- <1233201347-17568-8-git-send-email-jmorris@namei.org>
- <1233201347-17568-9-git-send-email-jmorris@namei.org>
- <1233201347-17568-10-git-send-email-jmorris@namei.org>
- <1233201347-17568-11-git-send-email-jmorris@namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove secondary ops call to inode_setattr, which is
+Remove secondary ops call to sb_mount, which is
 a noop in capabilities.
 
 Signed-off-by: James Morris <jmorris@namei.org>
@@ -30,21 +23,21 @@ Signed-off-by: James Morris <jmorris@namei.org>
  1 files changed, 0 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3e043af..7207e47 100644
+index 516058f..bdd4830 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2694,11 +2694,6 @@ static int selinux_inode_permission(struct inode *inode, int mask)
- static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+@@ -2531,11 +2531,6 @@ static int selinux_mount(char *dev_name,
+ 			 void *data)
  {
  	const struct cred *cred = current_cred();
 -	int rc;
 -
--	rc = secondary_ops->inode_setattr(dentry, iattr);
+-	rc = secondary_ops->sb_mount(dev_name, path, type, flags, data);
 -	if (rc)
 -		return rc;
  
- 	if (iattr->ia_valid & ATTR_FORCE)
- 		return 0;
+ 	if (flags & MS_REMOUNT)
+ 		return superblock_has_perm(cred, path->mnt->mnt_sb,
 -- 
 1.6.1
 
