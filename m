@@ -3,10 +3,10 @@ To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, eparis@redhat.com,
         linux-security-module@vger.kernel.org,
         James Morris <jmorris@namei.org>
-Subject: [PATCH 10/18] selinux: remove secondary ops call to inode_permission
-Date: Wed, 28 Jan 2009 19:55:38 -0800
-Message-Id: <1233201347-17568-11-git-send-email-jmorris@namei.org>
-In-Reply-To: <1233201347-17568-10-git-send-email-jmorris@namei.org>
+Subject: [PATCH 09/18] selinux: remove secondary ops call to inode_follow_link
+Date: Wed, 28 Jan 2009 19:55:37 -0800
+Message-Id: <1233201347-17568-10-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233201347-17568-9-git-send-email-jmorris@namei.org>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-2-git-send-email-jmorris@namei.org>
  <1233201347-17568-3-git-send-email-jmorris@namei.org>
@@ -16,34 +16,34 @@ References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-7-git-send-email-jmorris@namei.org>
  <1233201347-17568-8-git-send-email-jmorris@namei.org>
  <1233201347-17568-9-git-send-email-jmorris@namei.org>
- <1233201347-17568-10-git-send-email-jmorris@namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove secondary ops call to inode_permission, which is
+Remove secondary ops call to inode_follow_link, which is
 a noop in capabilities.
 
 Signed-off-by: James Morris <jmorris@namei.org>
 ---
- security/selinux/hooks.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+ security/selinux/hooks.c |    6 +-----
+ 1 files changed, 1 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e96cce3..3e043af 100644
+index 0362192..e96cce3 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2681,11 +2681,6 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct nameidata *na
- static int selinux_inode_permission(struct inode *inode, int mask)
+@@ -2674,11 +2674,7 @@ static int selinux_inode_readlink(struct dentry *dentry)
+ static int selinux_inode_follow_link(struct dentry *dentry, struct nameidata *nameidata)
  {
  	const struct cred *cred = current_cred();
 -	int rc;
 -
--	rc = secondary_ops->inode_permission(inode, mask);
+-	rc = secondary_ops->inode_follow_link(dentry, nameidata);
 -	if (rc)
 -		return rc;
++	
+ 	return dentry_has_perm(cred, NULL, dentry, FILE__READ);
+ }
  
- 	if (!mask) {
- 		/* No permission to check.  Existence test. */
 -- 
 1.6.1
 
