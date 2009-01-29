@@ -1,56 +1,57 @@
-Subject: Re: [PATCH 09/18] selinux: remove secondary ops call to
- inode_follow_link
-From: Eric Paris <eparis@redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0TDhjMd008954
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2009 08:43:45 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n0TDhidD012998
+	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2009 13:43:44 GMT
+Subject: Re: LTP SELinux policy error
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <1233201347-17568-10-git-send-email-jmorris@namei.org>
-References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-2-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-3-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-4-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-5-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-6-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-7-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-8-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-9-git-send-email-jmorris@namei.org>
-	 <1233201347-17568-10-git-send-email-jmorris@namei.org>
+Cc: ltp-list@lists.sourceforge.net, selinux@tycho.nsa.gov
+In-Reply-To: <alpine.LRH.1.10.0901292128540.25382@tundra.namei.org>
+References: <alpine.LRH.1.10.0901292128540.25382@tundra.namei.org>
 Content-Type: text/plain
-Date: Thu, 29 Jan 2009 08:07:44 -0500
-Message-Id: <1233234464.3264.32.camel@localhost.localdomain>
+Date: Thu, 29 Jan 2009 08:42:42 -0500
+Message-Id: <1233236562.9697.3.camel@gorn.columbia.tresys.com>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-01-28 at 19:55 -0800, James Morris wrote:
-> Remove secondary ops call to inode_follow_link, which is
-> a noop in capabilities.
+On Thu, 2009-01-29 at 21:32 +1100, James Morris wrote:
+> I'm trying to run the LTP SELinux tests using the latest CVS version of 
+> LTP and current Fedora development, and get the following policy 
+> compilation error:
 > 
-> Signed-off-by: James Morris <jmorris@namei.org>
-> ---
->  security/selinux/hooks.c |    6 +-----
->  1 files changed, 1 insertions(+), 5 deletions(-)
+> ----
+> Compiling targeted test_policy module
+> 
+> test_policy.te:1730: Warning: r_dir_perms is deprecated please use list_dir_perms instead.
+> test_policy.te:1731: Warning: r_file_perms is deprecated please use read_file_perms instead.
+> [lots of warnings similar to the above]
+> 
+> /usr/bin/checkmodule:  loading policy configuration from 
+> tmp/test_policy.tmp
+> test_policy.te":16:ERROR 'syntax error' at token 
+> 'userdom_use_sysadm_terms' on line 3198:
+> userdom_use_sysadm_terms(testdomain)
+> # This allows read and write sysadm ttys and ptys.
+> /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+> make[1]: *** [tmp/test_policy.mod] Error 1
+> make[1]: Leaving directory `/usr/share/selinux/devel'
+> make: *** [load] Error 2
+> Failed to build and load test_policy module, aborting test run.
+> ----
+> 
+> Is this likely to be fixed soon, and/or any suggestions for a workaround?
 
-NAK looks like white space damage.
+It won't compile with the current trunk refpolicy, since the current
+release was a major, API breaking change.  I'll try to get a patch out
+shortly.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 0362192..e96cce3 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2674,11 +2674,7 @@ static int selinux_inode_readlink(struct dentry *dentry)
->  static int selinux_inode_follow_link(struct dentry *dentry, struct nameidata *nameidata)
->  {
->  	const struct cred *cred = current_cred();
-> -	int rc;
-> -
-> -	rc = secondary_ops->inode_follow_link(dentry, nameidata);
-> -	if (rc)
-> -		return rc;
-> +	
->  	return dentry_has_perm(cred, NULL, dentry, FILE__READ);
->  }
->  
-
+-- 
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
