@@ -3,10 +3,10 @@ To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, eparis@redhat.com,
         linux-security-module@vger.kernel.org,
         James Morris <jmorris@namei.org>
-Subject: [PATCH 16/18] selinux: remove secondary ops call to task_kill
-Date: Wed, 28 Jan 2009 19:55:45 -0800
-Message-Id: <1233201347-17568-18-git-send-email-jmorris@namei.org>
-In-Reply-To: <1233201347-17568-17-git-send-email-jmorris@namei.org>
+Subject: [PATCH 15/18] selinux: remove secondary ops call to task_setrlimit
+Date: Wed, 28 Jan 2009 19:55:44 -0800
+Message-Id: <1233201347-17568-17-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233201347-17568-16-git-send-email-jmorris@namei.org>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-2-git-send-email-jmorris@namei.org>
  <1233201347-17568-3-git-send-email-jmorris@namei.org>
@@ -23,33 +23,33 @@ References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-14-git-send-email-jmorris@namei.org>
  <1233201347-17568-15-git-send-email-jmorris@namei.org>
  <1233201347-17568-16-git-send-email-jmorris@namei.org>
- <1233201347-17568-17-git-send-email-jmorris@namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove secondary ops call to task_kill, which is
+Remove secondary ops call to task_setrlimit, which is
 a noop in capabilities.
 
 Signed-off-by: James Morris <jmorris@namei.org>
 ---
- security/selinux/hooks.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+ security/selinux/hooks.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 6633196..e8f616a 100644
+index 357be4a..6633196 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -3405,10 +3405,6 @@ static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
- 	u32 perm;
- 	int rc;
- 
--	rc = secondary_ops->task_kill(p, info, sig, secid);
+@@ -3367,11 +3367,6 @@ static int selinux_task_getioprio(struct task_struct *p)
+ static int selinux_task_setrlimit(unsigned int resource, struct rlimit *new_rlim)
+ {
+ 	struct rlimit *old_rlim = current->signal->rlim + resource;
+-	int rc;
+-
+-	rc = secondary_ops->task_setrlimit(resource, new_rlim);
 -	if (rc)
 -		return rc;
--
- 	if (!sig)
- 		perm = PROCESS__SIGNULL; /* null signal; existence test */
- 	else
+ 
+ 	/* Control the ability to change the hard limit (whether
+ 	   lowering or raising it), so that the hard limit can
 -- 
 1.6.1
 
