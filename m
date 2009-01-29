@@ -1,51 +1,50 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0TAWj8G017721
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2009 05:32:45 -0500
-Received: from tundra.namei.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n0TAWhHu013663
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2009 10:32:43 GMT
-Date: Thu, 29 Jan 2009 21:32:36 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: ltp-list@lists.sourceforge.net
-cc: selinux@tycho.nsa.gov
-Subject: LTP SELinux policy error
-Message-ID: <alpine.LRH.1.10.0901292128540.25382@tundra.namei.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH][RFC] selinux: remove noop secondary_ops calls
+From: Eric Paris <eparis@redhat.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <1233201347-17568-1-git-send-email-jmorris@namei.org>
+References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
+Content-Type: text/plain
+Date: Thu, 29 Jan 2009 08:09:01 -0500
+Message-Id: <1233234541.3264.34.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I'm trying to run the LTP SELinux tests using the latest CVS version of 
-LTP and current Fedora development, and get the following policy 
-compilation error:
+On Wed, 2009-01-28 at 19:55 -0800, James Morris wrote:
+> These patches remove calls to secondary_ops where there is no
+> real capability hook, and a couple of SELinux hooks which only
+> called these noop hooks.
+> 
+> (Following this, the noop capabilities hooks should also be removed).
+> 
+> Please review.
+> 
+> James Morris (18):
+>       selinux: remove unused bprm_check_security hook
+>       selinux: remove secondary ops call to bprm_committing_creds
+>       selinux: remove secondary ops call to bprm_committed_creds
+>       selinux: remove secondary ops call to sb_mount
+>       selinux: remove secondary ops call to sb_umount
+>       selinux: remove secondary ops call to inode_link
+>       selinux: remove secondary ops call to inode_unlink
+>       selinux: remove secondary ops call to inode_mknod
+>       selinux: remove secondary ops call to inode_follow_link
+>       selinux: remove secondary ops call to inode_permission
+>       selinux: remove secondary ops call to inode_setattr
+>       selinux: remove secondary ops call to file_mprotect
+>       selinux: remove secondary ops call to task_create
+>       selinux: remove unused cred_commit hook
+>       selinux: remove secondary ops call to task_setrlimit
+>       selinux: remove secondary ops call to task_kill
+>       selinux: remove secondary ops call to unix_stream_connect
+>       selinux: remove secondary ops call to shm_shmat
 
-----
-Compiling targeted test_policy module
-
-test_policy.te:1730: Warning: r_dir_perms is deprecated please use list_dir_perms instead.
-test_policy.te:1731: Warning: r_file_perms is deprecated please use read_file_perms instead.
-[lots of warnings similar to the above]
-
-/usr/bin/checkmodule:  loading policy configuration from 
-tmp/test_policy.tmp
-test_policy.te":16:ERROR 'syntax error' at token 
-'userdom_use_sysadm_terms' on line 3198:
-userdom_use_sysadm_terms(testdomain)
-# This allows read and write sysadm ttys and ptys.
-/usr/bin/checkmodule:  error(s) encountered while parsing configuration
-make[1]: *** [tmp/test_policy.mod] Error 1
-make[1]: Leaving directory `/usr/share/selinux/devel'
-make: *** [load] Error 2
-Failed to build and load test_policy module, aborting test run.
-----
-
-Is this likely to be fixed soon, and/or any suggestions for a workaround?
+For the entire series EXCEPT #9 inode_follow_link:
+Acked-by: Eric Paris <eparis@redhat.com>
 
 
-- James
--- 
-James Morris
-<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
