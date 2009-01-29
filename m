@@ -3,33 +3,42 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 To: James Morris <jmorris@namei.org>
 Cc: selinux@tycho.nsa.gov, eparis@redhat.com,
         linux-security-module@vger.kernel.org
-In-Reply-To: <1233201347-17568-1-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233251523.5109.132.camel@localhost.localdomain>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
+	 <1233251523.5109.132.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 29 Jan 2009 12:52:03 -0500
-Message-Id: <1233251523.5109.132.camel@localhost.localdomain>
+Date: Thu, 29 Jan 2009 13:00:02 -0500
+Message-Id: <1233252002.5109.138.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-01-28 at 19:55 -0800, James Morris wrote:
-> These patches remove calls to secondary_ops where there is no
-> real capability hook, and a couple of SELinux hooks which only
-> called these noop hooks.
+On Thu, 2009-01-29 at 12:52 -0500, Stephen Smalley wrote:
+> On Wed, 2009-01-28 at 19:55 -0800, James Morris wrote:
+> > These patches remove calls to secondary_ops where there is no
+> > real capability hook, and a couple of SELinux hooks which only
+> > called these noop hooks.
+> 
+> These look fine to me, modulo the comments already made by Eric and
+> Serge.
+> 
+> You could further replace the remaining secondary_ops calls with direct
+> cap_ calls, since the dummy module is gone and the secondary module can
+> only be the capability module.  Smack and AppArmor already do this, I
+> believe.
+> 
+> At that point secondary_ops would only be used by selinux_init() to save
+> the original security_ops pointer for use by selinux_disable() to
+> restore the original pointer, which ideally would be handled by the
+> security framework instead (possibly by restoring a limited
+> unregister_security() that resets to the default_security_ops).
 
-These look fine to me, modulo the comments already made by Eric and
-Serge.
-
-You could further replace the remaining secondary_ops calls with direct
-cap_ calls, since the dummy module is gone and the secondary module can
-only be the capability module.  Smack and AppArmor already do this, I
-believe.
-
-At that point secondary_ops would only be used by selinux_init() to save
-the original security_ops pointer for use by selinux_disable() to
-restore the original pointer, which ideally would be handled by the
-security framework instead (possibly by restoring a limited
-unregister_security() that resets to the default_security_ops).
+Other tidying:
+- drop selinux_inode*killpriv 
+- drop selinux_task*setuid 
+- drop selinux_task_prctl
+since the hooks will default to the capability functions if SELinux
+doesn't define them.
 
 -- 
 Stephen Smalley
