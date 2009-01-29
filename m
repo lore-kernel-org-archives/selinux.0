@@ -3,37 +3,48 @@ To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, eparis@redhat.com,
         linux-security-module@vger.kernel.org,
         James Morris <jmorris@namei.org>
-Subject: [PATCH 03/18] selinux: remove secondary ops call to bprm_committed_creds
-Date: Wed, 28 Jan 2009 19:55:31 -0800
-Message-Id: <1233201347-17568-4-git-send-email-jmorris@namei.org>
-In-Reply-To: <1233201347-17568-3-git-send-email-jmorris@namei.org>
+Subject: [PATCH 11/18] selinux: remove secondary ops call to inode_setattr
+Date: Wed, 28 Jan 2009 19:55:39 -0800
+Message-Id: <1233201347-17568-12-git-send-email-jmorris@namei.org>
+In-Reply-To: <1233201347-17568-11-git-send-email-jmorris@namei.org>
 References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
  <1233201347-17568-2-git-send-email-jmorris@namei.org>
  <1233201347-17568-3-git-send-email-jmorris@namei.org>
+ <1233201347-17568-4-git-send-email-jmorris@namei.org>
+ <1233201347-17568-5-git-send-email-jmorris@namei.org>
+ <1233201347-17568-6-git-send-email-jmorris@namei.org>
+ <1233201347-17568-7-git-send-email-jmorris@namei.org>
+ <1233201347-17568-8-git-send-email-jmorris@namei.org>
+ <1233201347-17568-9-git-send-email-jmorris@namei.org>
+ <1233201347-17568-10-git-send-email-jmorris@namei.org>
+ <1233201347-17568-11-git-send-email-jmorris@namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Remove secondary ops call to bprm_committed_creds, which is
+Remove secondary ops call to inode_setattr, which is
 a noop in capabilities.
 
 Signed-off-by: James Morris <jmorris@namei.org>
 ---
- security/selinux/hooks.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ security/selinux/hooks.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index fc01ffa..516058f 100644
+index 3e043af..7207e47 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2356,8 +2356,6 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
- 	int rc, i;
- 	unsigned long flags;
- 
--	secondary_ops->bprm_committed_creds(bprm);
+@@ -2694,11 +2694,6 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ {
+ 	const struct cred *cred = current_cred();
+-	int rc;
 -
- 	osid = tsec->osid;
- 	sid = tsec->sid;
+-	rc = secondary_ops->inode_setattr(dentry, iattr);
+-	if (rc)
+-		return rc;
  
+ 	if (iattr->ia_valid & ATTR_FORCE)
+ 		return 0;
 -- 
 1.6.1
 
