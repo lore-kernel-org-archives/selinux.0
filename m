@@ -1,35 +1,37 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n0U4sxJQ005809
-	for <selinux@tycho.nsa.gov>; Thu, 29 Jan 2009 23:54:59 -0500
-Received: from smtp109.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n0U4svMv006869
-	for <selinux@tycho.nsa.gov>; Fri, 30 Jan 2009 04:54:58 GMT
-Message-ID: <49828814.6050502@schaufler-ca.com>
-Date: Thu, 29 Jan 2009 20:54:44 -0800
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Daniel J Walsh <dwalsh@redhat.com>, R P Herrold <herrold@owlriver.com>,
+Subject: RE: What happened to http://www.nsa.gov/selinux/ ????
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Kalbfeld, Jonathan R" <jonathan.r.kalbfeld@jpl.nasa.gov>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+        Daniel J Walsh <dwalsh@redhat.com>, R P Herrold <herrold@owlriver.com>,
         SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: What happened to http://www.nsa.gov/selinux/ ????
-References: <4980BF63.6010508@redhat.com>	 <alpine.LRH.2.00.0901281721330.526@arj.bjyevire.pbz>	 <4981DAE3.9070903@redhat.com>	 <1233247413.5109.113.camel@localhost.localdomain>	 <4981DF28.8090200@redhat.com> <1233248994.5109.127.camel@localhost.localdomain>
-In-Reply-To: <1233248994.5109.127.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+In-Reply-To: <FD514C8A5155C64C9B145B48D674EF54494D798927@ALTPHYEMBEVSP10.RES.AD.JPL>
+References: <4980BF63.6010508@redhat.com>
+	 <alpine.LRH.2.00.0901281721330.526@arj.bjyevire.pbz>
+	 <4981DAE3.9070903@redhat.com>
+	 <1233247413.5109.113.camel@localhost.localdomain>
+	 <4981DF28.8090200@redhat.com>
+	 <1233248994.5109.127.camel@localhost.localdomain>
+	 ,<49828814.6050502@schaufler-ca.com>
+	 <FD514C8A5155C64C9B145B48D674EF54494D798927@ALTPHYEMBEVSP10.RES.AD.JPL>
+Content-Type: text/plain
+Date: Fri, 30 Jan 2009 08:04:47 -0500
+Message-Id: <1233320687.15446.10.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
->
-> It was a complete overhaul of nsa.gov web site - outside of the SELinux
-> team's control.  I did ask for redirects but they haven't been
-> forthcoming.  But remember:  it is new and improved, don't let anyone
-> tell you differently.
->   
+On Thu, 2009-01-29 at 22:52 -0800, Kalbfeld, Jonathan R wrote:
+> I just figured Karl Rove took SELinux with him and was refusing to give it up.  That should be fixed soon enough.
 
-And it has absolutely nothing to do with the change of administration.
-Really.
+Ok, folks, let's let this thread die now, please, as it is now
+off-topic.
 
-(smiley goes here)
+The web site change was in motion long before the change in
+administration; the two aren't connected as far as I know.
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
