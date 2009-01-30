@@ -1,34 +1,183 @@
-Subject: RE: What happened to http://www.nsa.gov/selinux/ ????
+Subject: Re: [PATCH][RFC] selinux: remove hooks which simply defer to
+ capabilities
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Kalbfeld, Jonathan R" <jonathan.r.kalbfeld@jpl.nasa.gov>
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
-        Daniel J Walsh <dwalsh@redhat.com>, R P Herrold <herrold@owlriver.com>,
-        SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <FD514C8A5155C64C9B145B48D674EF54494D798927@ALTPHYEMBEVSP10.RES.AD.JPL>
-References: <4980BF63.6010508@redhat.com>
-	 <alpine.LRH.2.00.0901281721330.526@arj.bjyevire.pbz>
-	 <4981DAE3.9070903@redhat.com>
-	 <1233247413.5109.113.camel@localhost.localdomain>
-	 <4981DF28.8090200@redhat.com>
-	 <1233248994.5109.127.camel@localhost.localdomain>
-	 ,<49828814.6050502@schaufler-ca.com>
-	 <FD514C8A5155C64C9B145B48D674EF54494D798927@ALTPHYEMBEVSP10.RES.AD.JPL>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, eparis@redhat.com,
+        linux-security-module@vger.kernel.org
+In-Reply-To: <alpine.LRH.1.10.0901301127180.30367@tundra.namei.org>
+References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
+	 <1233251523.5109.132.camel@localhost.localdomain>
+	 <1233252002.5109.138.camel@localhost.localdomain>
+	 <alpine.LRH.1.10.0901301127180.30367@tundra.namei.org>
 Content-Type: text/plain
-Date: Fri, 30 Jan 2009 08:04:47 -0500
-Message-Id: <1233320687.15446.10.camel@localhost.localdomain>
+Date: Fri, 30 Jan 2009 08:16:09 -0500
+Message-Id: <1233321369.15446.12.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-01-29 at 22:52 -0800, Kalbfeld, Jonathan R wrote:
-> I just figured Karl Rove took SELinux with him and was refusing to give it up.  That should be fixed soon enough.
+On Fri, 2009-01-30 at 11:28 +1100, James Morris wrote:
+> On Thu, 29 Jan 2009, Stephen Smalley wrote:
+> 
+> > Other tidying:
+> > - drop selinux_inode*killpriv 
+> > - drop selinux_task*setuid 
+> > - drop selinux_task_prctl
+> > since the hooks will default to the capability functions if SELinux
+> > doesn't define them.
+> 
+> Ok, see below.  (I also removed task_setgroups).
+> 
+> Please review.
+> 
+> ---
+> 
+> commit 4d51a060468068b8db48883301c9318547aec454
+> Author: James Morris <jmorris@namei.org>
+> Date:   Fri Jan 30 10:05:06 2009 +1100
+> 
+>     selinux: remove hooks which simply defer to capabilities
+>     
+>     Remove SELinux hooks which do nothing except defer to the capabilites
+>     hooks (or in one case, replicates the function).
+>     
+>     Signed-off-by: James Morris <jmorris@namei.org>
 
-Ok, folks, let's let this thread die now, please, as it is now
-off-topic.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-The web site change was in motion long before the change in
-administration; the two aren't connected as far as I know.
-
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index d960479..a69d6f8 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1892,6 +1892,16 @@ static int selinux_capset(struct cred *new, const struct cred *old,
+>  	return cred_has_perm(old, new, PROCESS__SETCAP);
+>  }
+>  
+> +/*
+> + * (This comment used to live with the selinux_task_setuid hook,
+> + * which was removed).
+> + *
+> + * Since setuid only affects the current process, and since the SELinux
+> + * controls are not based on the Linux identity attributes, SELinux does not
+> + * need to control this operation.  However, SELinux does control the use of
+> + * the CAP_SETUID and CAP_SETGID capabilities using the capable hook.
+> + */
+> +
+>  static int selinux_capable(struct task_struct *tsk, const struct cred *cred,
+>  			   int cap, int audit)
+>  {
+> @@ -2909,16 +2919,6 @@ static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t
+>  	return len;
+>  }
+>  
+> -static int selinux_inode_need_killpriv(struct dentry *dentry)
+> -{
+> -	return secondary_ops->inode_need_killpriv(dentry);
+> -}
+> -
+> -static int selinux_inode_killpriv(struct dentry *dentry)
+> -{
+> -	return secondary_ops->inode_killpriv(dentry);
+> -}
+> -
+>  static void selinux_inode_getsecid(const struct inode *inode, u32 *secid)
+>  {
+>  	struct inode_security_struct *isec = inode->i_security;
+> @@ -3288,29 +3288,6 @@ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
+>  	return 0;
+>  }
+>  
+> -static int selinux_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+> -{
+> -	/* Since setuid only affects the current process, and
+> -	   since the SELinux controls are not based on the Linux
+> -	   identity attributes, SELinux does not need to control
+> -	   this operation.  However, SELinux does control the use
+> -	   of the CAP_SETUID and CAP_SETGID capabilities using the
+> -	   capable hook. */
+> -	return 0;
+> -}
+> -
+> -static int selinux_task_fix_setuid(struct cred *new, const struct cred *old,
+> -				   int flags)
+> -{
+> -	return secondary_ops->task_fix_setuid(new, old, flags);
+> -}
+> -
+> -static int selinux_task_setgid(gid_t id0, gid_t id1, gid_t id2, int flags)
+> -{
+> -	/* See the comment for setuid above. */
+> -	return 0;
+> -}
+> -
+>  static int selinux_task_setpgid(struct task_struct *p, pid_t pgid)
+>  {
+>  	return current_has_perm(p, PROCESS__SETPGID);
+> @@ -3331,12 +3308,6 @@ static void selinux_task_getsecid(struct task_struct *p, u32 *secid)
+>  	*secid = task_sid(p);
+>  }
+>  
+> -static int selinux_task_setgroups(struct group_info *group_info)
+> -{
+> -	/* See the comment for setuid above. */
+> -	return 0;
+> -}
+> -
+>  static int selinux_task_setnice(struct task_struct *p, int nice)
+>  {
+>  	int rc;
+> @@ -3417,18 +3388,6 @@ static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
+>  	return rc;
+>  }
+>  
+> -static int selinux_task_prctl(int option,
+> -			      unsigned long arg2,
+> -			      unsigned long arg3,
+> -			      unsigned long arg4,
+> -			      unsigned long arg5)
+> -{
+> -	/* The current prctl operations do not appear to require
+> -	   any SELinux controls since they merely observe or modify
+> -	   the state of the current process. */
+> -	return secondary_ops->task_prctl(option, arg2, arg3, arg4, arg5);
+> -}
+> -
+>  static int selinux_task_wait(struct task_struct *p)
+>  {
+>  	return task_has_perm(p, current, PROCESS__SIGCHLD);
+> @@ -5563,8 +5522,6 @@ static struct security_operations selinux_ops = {
+>  	.inode_getsecurity =		selinux_inode_getsecurity,
+>  	.inode_setsecurity =		selinux_inode_setsecurity,
+>  	.inode_listsecurity =		selinux_inode_listsecurity,
+> -	.inode_need_killpriv =		selinux_inode_need_killpriv,
+> -	.inode_killpriv =		selinux_inode_killpriv,
+>  	.inode_getsecid =		selinux_inode_getsecid,
+>  
+>  	.file_permission =		selinux_file_permission,
+> @@ -5586,14 +5543,10 @@ static struct security_operations selinux_ops = {
+>  	.cred_prepare =			selinux_cred_prepare,
+>  	.kernel_act_as =		selinux_kernel_act_as,
+>  	.kernel_create_files_as =	selinux_kernel_create_files_as,
+> -	.task_setuid =			selinux_task_setuid,
+> -	.task_fix_setuid =		selinux_task_fix_setuid,
+> -	.task_setgid =			selinux_task_setgid,
+>  	.task_setpgid =			selinux_task_setpgid,
+>  	.task_getpgid =			selinux_task_getpgid,
+>  	.task_getsid =			selinux_task_getsid,
+>  	.task_getsecid =		selinux_task_getsecid,
+> -	.task_setgroups =		selinux_task_setgroups,
+>  	.task_setnice =			selinux_task_setnice,
+>  	.task_setioprio =		selinux_task_setioprio,
+>  	.task_getioprio =		selinux_task_getioprio,
+> @@ -5603,7 +5556,6 @@ static struct security_operations selinux_ops = {
+>  	.task_movememory =		selinux_task_movememory,
+>  	.task_kill =			selinux_task_kill,
+>  	.task_wait =			selinux_task_wait,
+> -	.task_prctl =			selinux_task_prctl,
+>  	.task_to_inode =		selinux_task_to_inode,
+>  
+>  	.ipc_permission =		selinux_ipc_permission,
 -- 
 Stephen Smalley
 National Security Agency
