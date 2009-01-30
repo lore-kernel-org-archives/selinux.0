@@ -1,187 +1,88 @@
-Subject: Re: [PATCH][RFC] selinux: remove hooks which simply defer to
- capabilities
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: selinux@tycho.nsa.gov, eparis@redhat.com,
-        linux-security-module@vger.kernel.org
-In-Reply-To: <alpine.LRH.1.10.0901301127180.30367@tundra.namei.org>
-References: <1233201347-17568-1-git-send-email-jmorris@namei.org>
-	 <1233251523.5109.132.camel@localhost.localdomain>
-	 <1233252002.5109.138.camel@localhost.localdomain>
-	 <alpine.LRH.1.10.0901301127180.30367@tundra.namei.org>
-Content-Type: text/plain
-Date: Fri, 30 Jan 2009 08:16:09 -0500
-Message-Id: <1233321369.15446.12.camel@localhost.localdomain>
-Mime-Version: 1.0
+Date: Fri, 30 Jan 2009 11:14:53 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        James Morris <jmorris@namei.org>, ltp-list@lists.sourceforge.net,
+        selinux@tycho.nsa.gov
+Subject: Re: LTP SELinux policy error
+Message-ID: <20090130171453.GA10745@us.ibm.com>
+References: <alpine.LRH.1.10.0901292128540.25382@tundra.namei.org> <1233236562.9697.3.camel@gorn.columbia.tresys.com> <1233247899.13403.23.camel@gorn.columbia.tresys.com> <1233252592.5109.144.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1233252592.5109.144.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-01-30 at 11:28 +1100, James Morris wrote:
-> On Thu, 29 Jan 2009, Stephen Smalley wrote:
+Quoting Stephen Smalley (sds@tycho.nsa.gov):
+> On Thu, 2009-01-29 at 11:51 -0500, Christopher J. PeBenito wrote:
+> > On Thu, 2009-01-29 at 08:42 -0500, Christopher J. PeBenito wrote:
+> > > On Thu, 2009-01-29 at 21:32 +1100, James Morris wrote:
+> > > > I'm trying to run the LTP SELinux tests using the latest CVS version of 
+> > > > LTP and current Fedora development, and get the following policy 
+> > > > compilation error:
+> > > > 
+> > > > ----
+> > > > Compiling targeted test_policy module
+> > > > 
+> > > > test_policy.te:1730: Warning: r_dir_perms is deprecated please use list_dir_perms instead.
+> > > > test_policy.te:1731: Warning: r_file_perms is deprecated please use read_file_perms instead.
+> > > > [lots of warnings similar to the above]
+> > > > 
+> > > > /usr/bin/checkmodule:  loading policy configuration from 
+> > > > tmp/test_policy.tmp
+> > > > test_policy.te":16:ERROR 'syntax error' at token 
+> > > > 'userdom_use_sysadm_terms' on line 3198:
+> > > > userdom_use_sysadm_terms(testdomain)
+> > > > # This allows read and write sysadm ttys and ptys.
+> > > > /usr/bin/checkmodule:  error(s) encountered while parsing configuration
+> > > > make[1]: *** [tmp/test_policy.mod] Error 1
+> > > > make[1]: Leaving directory `/usr/share/selinux/devel'
+> > > > make: *** [load] Error 2
+> > > > Failed to build and load test_policy module, aborting test run.
+> > > > ----
+> > > > 
+> > > > Is this likely to be fixed soon, and/or any suggestions for a workaround?
+> > > 
+> > > It won't compile with the current trunk refpolicy, since the current
+> > > release was a major, API breaking change.  I'll try to get a patch out
+> > > shortly.
+> > 
+> > I updated the policy since its fairly old, though I didn't convert its
+> > raw rules over to use interfaces.  However this didn't completely fix
+> > it, as there is usage of a "unconfined_runs_test()", which isn't in the
+> > upstream refpolicy nor the fedora policy, as far as I can see.  One of
+> > the updates includes use of sysadm_entry_spec_domtrans_to(), which is in
+> > the upstream refpolicy, but doesn't seem to have made its way downstream
+> > to the fedora policy.  I have attached my work so someone familiar with
+> > the LTP test cases can use it to complete the fix.
 > 
-> > Other tidying:
-> > - drop selinux_inode*killpriv 
-> > - drop selinux_task*setuid 
-> > - drop selinux_task_prctl
-> > since the hooks will default to the capability functions if SELinux
-> > doesn't define them.
-> 
-> Ok, see below.  (I also removed task_setgroups).
-> 
-> Please review.
-> 
-> ---
-> 
-> commit 4d51a060468068b8db48883301c9318547aec454
-> Author: James Morris <jmorris@namei.org>
-> Date:   Fri Jan 30 10:05:06 2009 +1100
-> 
->     selinux: remove hooks which simply defer to capabilities
->     
->     Remove SELinux hooks which do nothing except defer to the capabilites
->     hooks (or in one case, replicates the function).
->     
->     Signed-off-by: James Morris <jmorris@namei.org>
+> Serge put together a patch and script under selinux-testsuite/misc that
+> defines unconfined_runs_test() as well as converting some of the
+> interfaces.  That was done so that the ltp testsuite could still be run
+> on older distributions (w/ the older policy) and on newer distributions
+> (w/ the patch applied to perform conversion).  It was originally done
+> based on the deprecation of the sbin interfaces, which is why it is
+> named that way even though it now includes more than just conversion of
+> those interfaces.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+(Sorry, this thread is rolling into my inbox delayed and out-of-order)
 
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index d960479..a69d6f8 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1892,6 +1892,16 @@ static int selinux_capset(struct cred *new, const struct cred *old,
->  	return cred_has_perm(old, new, PROCESS__SETCAP);
->  }
->  
-> +/*
-> + * (This comment used to live with the selinux_task_setuid hook,
-> + * which was removed).
-> + *
-> + * Since setuid only affects the current process, and since the SELinux
-> + * controls are not based on the Linux identity attributes, SELinux does not
-> + * need to control this operation.  However, SELinux does control the use of
-> + * the CAP_SETUID and CAP_SETGID capabilities using the capable hook.
-> + */
-> +
->  static int selinux_capable(struct task_struct *tsk, const struct cred *cred,
->  			   int cap, int audit)
->  {
-> @@ -2909,16 +2919,6 @@ static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t
->  	return len;
->  }
->  
-> -static int selinux_inode_need_killpriv(struct dentry *dentry)
-> -{
-> -	return secondary_ops->inode_need_killpriv(dentry);
-> -}
-> -
-> -static int selinux_inode_killpriv(struct dentry *dentry)
-> -{
-> -	return secondary_ops->inode_killpriv(dentry);
-> -}
-> -
->  static void selinux_inode_getsecid(const struct inode *inode, u32 *secid)
->  {
->  	struct inode_security_struct *isec = inode->i_security;
-> @@ -3288,29 +3288,6 @@ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
->  	return 0;
->  }
->  
-> -static int selinux_task_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
-> -{
-> -	/* Since setuid only affects the current process, and
-> -	   since the SELinux controls are not based on the Linux
-> -	   identity attributes, SELinux does not need to control
-> -	   this operation.  However, SELinux does control the use
-> -	   of the CAP_SETUID and CAP_SETGID capabilities using the
-> -	   capable hook. */
-> -	return 0;
-> -}
-> -
-> -static int selinux_task_fix_setuid(struct cred *new, const struct cred *old,
-> -				   int flags)
-> -{
-> -	return secondary_ops->task_fix_setuid(new, old, flags);
-> -}
-> -
-> -static int selinux_task_setgid(gid_t id0, gid_t id1, gid_t id2, int flags)
-> -{
-> -	/* See the comment for setuid above. */
-> -	return 0;
-> -}
-> -
->  static int selinux_task_setpgid(struct task_struct *p, pid_t pgid)
->  {
->  	return current_has_perm(p, PROCESS__SETPGID);
-> @@ -3331,12 +3308,6 @@ static void selinux_task_getsecid(struct task_struct *p, u32 *secid)
->  	*secid = task_sid(p);
->  }
->  
-> -static int selinux_task_setgroups(struct group_info *group_info)
-> -{
-> -	/* See the comment for setuid above. */
-> -	return 0;
-> -}
-> -
->  static int selinux_task_setnice(struct task_struct *p, int nice)
->  {
->  	int rc;
-> @@ -3417,18 +3388,6 @@ static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
->  	return rc;
->  }
->  
-> -static int selinux_task_prctl(int option,
-> -			      unsigned long arg2,
-> -			      unsigned long arg3,
-> -			      unsigned long arg4,
-> -			      unsigned long arg5)
-> -{
-> -	/* The current prctl operations do not appear to require
-> -	   any SELinux controls since they merely observe or modify
-> -	   the state of the current process. */
-> -	return secondary_ops->task_prctl(option, arg2, arg3, arg4, arg5);
-> -}
-> -
->  static int selinux_task_wait(struct task_struct *p)
->  {
->  	return task_has_perm(p, current, PROCESS__SIGCHLD);
-> @@ -5563,8 +5522,6 @@ static struct security_operations selinux_ops = {
->  	.inode_getsecurity =		selinux_inode_getsecurity,
->  	.inode_setsecurity =		selinux_inode_setsecurity,
->  	.inode_listsecurity =		selinux_inode_listsecurity,
-> -	.inode_need_killpriv =		selinux_inode_need_killpriv,
-> -	.inode_killpriv =		selinux_inode_killpriv,
->  	.inode_getsecid =		selinux_inode_getsecid,
->  
->  	.file_permission =		selinux_file_permission,
-> @@ -5586,14 +5543,10 @@ static struct security_operations selinux_ops = {
->  	.cred_prepare =			selinux_cred_prepare,
->  	.kernel_act_as =		selinux_kernel_act_as,
->  	.kernel_create_files_as =	selinux_kernel_create_files_as,
-> -	.task_setuid =			selinux_task_setuid,
-> -	.task_fix_setuid =		selinux_task_fix_setuid,
-> -	.task_setgid =			selinux_task_setgid,
->  	.task_setpgid =			selinux_task_setpgid,
->  	.task_getpgid =			selinux_task_getpgid,
->  	.task_getsid =			selinux_task_getsid,
->  	.task_getsecid =		selinux_task_getsecid,
-> -	.task_setgroups =		selinux_task_setgroups,
->  	.task_setnice =			selinux_task_setnice,
->  	.task_setioprio =		selinux_task_setioprio,
->  	.task_getioprio =		selinux_task_getioprio,
-> @@ -5603,7 +5556,6 @@ static struct security_operations selinux_ops = {
->  	.task_movememory =		selinux_task_movememory,
->  	.task_kill =			selinux_task_kill,
->  	.task_wait =			selinux_task_wait,
-> -	.task_prctl =			selinux_task_prctl,
->  	.task_to_inode =		selinux_task_to_inode,
->  
->  	.ipc_permission =		selinux_ipc_permission,
--- 
-Stephen Smalley
-National Security Agency
+So the unconfined_runs_test() shouldn't actually be a problem (right,
+Chris? pls let me know if you actually get compile failures as then
+something went wrong with the build scripts).
 
+But what could have happened with sysadm_entry_spec_domtrans_to()?  It
+must have been in fedora's policy before, since it definately worked on
+fedora 7 and 8.  Has it been removed?  (I'll fire up a f10 partition and
+look through the policy sources...)
+
+As for the list_dir_perms and read_file_perms, have those always macros
+in the refpolicy?  If so, then a straight search-and-replace is fine.
+If not, then we'll have to do another hook at the policy build to make
+the substitutions only when the policy is new enough.  :(
+
+thanks,
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
