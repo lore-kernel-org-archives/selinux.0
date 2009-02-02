@@ -1,15 +1,15 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n12J7vq7004033
-	for <selinux@tycho.nsa.gov>; Mon, 2 Feb 2009 14:07:57 -0500
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n12JtpS5012748
+	for <selinux@tycho.nsa.gov>; Mon, 2 Feb 2009 14:55:51 -0500
 Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n12J4ncS005746
-	for <selinux@tycho.nsa.gov>; Mon, 2 Feb 2009 19:04:50 GMT
-Message-ID: <49874486.8070706@redhat.com>
-Date: Mon, 02 Feb 2009 14:07:50 -0500
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n12JqhcS015334
+	for <selinux@tycho.nsa.gov>; Mon, 2 Feb 2009 19:52:44 GMT
+Message-ID: <49874FBD.7020907@redhat.com>
+Date: Mon, 02 Feb 2009 14:55:41 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: "Clarkson, Mike R \(US SSA\)" <mike.clarkson@baesystems.com>
-CC: selinux@tycho.nsa.gov, Jeff Moyer <jmoyer@redhat.com>
+CC: selinux@tycho.nsa.gov
 Subject: Re: filesystem mount AVC denial
 References: <7b4dai$ejec6@dmzms99901.na.baesystems.com>
 In-Reply-To: <7b4dai$ejec6@dmzms99901.na.baesystems.com>
@@ -44,15 +44,17 @@ Clarkson, Mike R (US SSA) wrote:
 > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
 > the words "unsubscribe selinux" without quotes as the message.
 
-What kernel?  Which policy?  Are you seeing this with.
+The autofs maintainers have asked me to ask you to file a bug on autofs
+and include the data requested on
 
+http://people.redhat.com/jmoyer/
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkmHRIYACgkQrlYvE4MpobMJ+gCeLBJFq5tpZfmNeRhdnnybTjfw
-boEAoOsgE6KIrSJVK4T1oy1J4NGC2lX/
-=xFOb
+iEYEARECAAYFAkmHT7wACgkQrlYvE4MpobNqzACdHuAdi31QNzlp8bASxiQaLp0/
+VtwAn0kAZG1Zm0kYSxqTJleKEubo/GpV
+=BZQV
 -----END PGP SIGNATURE-----
 
 --
