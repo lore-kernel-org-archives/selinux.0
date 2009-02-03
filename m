@@ -1,11 +1,12 @@
 MIME-Version: 1.0
-In-Reply-To: <1233696489.14235.28.camel@localhost.localdomain>
+In-Reply-To: <cadfc0e40902031349w3c4d3abdgb5c7f5b5107a4001@mail.gmail.com>
 References: <cadfc0e40902030828v41f836eag84d5aaa0fa7bb899@mail.gmail.com>
 	 <1233679082.14235.21.camel@localhost.localdomain>
 	 <cadfc0e40902031159r55a12a02u46b0dde8f9356460@mail.gmail.com>
 	 <1233696489.14235.28.camel@localhost.localdomain>
-Date: Tue, 3 Feb 2009 15:49:49 -0600
-Message-ID: <cadfc0e40902031349w3c4d3abdgb5c7f5b5107a4001@mail.gmail.com>
+	 <cadfc0e40902031349w3c4d3abdgb5c7f5b5107a4001@mail.gmail.com>
+Date: Tue, 3 Feb 2009 16:31:44 -0600
+Message-ID: <cadfc0e40902031431w5532857fq2ecfd9485dfb26ee@mail.gmail.com>
 Subject: Re: odd policy behavior
 From: Xavier Toth <txtoth@gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
@@ -14,55 +15,63 @@ Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Feb 3, 2009 at 3:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Tue, 2009-02-03 at 13:59 -0600, Xavier Toth wrote:
->> On Tue, Feb 3, 2009 at 10:38 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> > On Tue, 2009-02-03 at 10:28 -0600, Xavier Toth wrote:
->> >> I have an app that wasn't working in enforcing but there are no AVCs.
->> >> So I did 'semodule -DB' to see if there were any dontaudit denials and
->> >> restarted the app. The problem is that the app then ran fine. So I
->> >> tried load_policy which had no affect and 'semodule -B' which makes it
->> >> work. Any ideas what could be happening? I've verified with 'semodule
->> >> --list' that the module is loaded prior to doing the 'semodule -B'.
->> >
->> > - How was the app failing?
+On Tue, Feb 3, 2009 at 3:49 PM, Xavier Toth <txtoth@gmail.com> wrote:
+> On Tue, Feb 3, 2009 at 3:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On Tue, 2009-02-03 at 13:59 -0600, Xavier Toth wrote:
+>>> On Tue, Feb 3, 2009 at 10:38 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> > On Tue, 2009-02-03 at 10:28 -0600, Xavier Toth wrote:
+>>> >> I have an app that wasn't working in enforcing but there are no AVCs.
+>>> >> So I did 'semodule -DB' to see if there were any dontaudit denials and
+>>> >> restarted the app. The problem is that the app then ran fine. So I
+>>> >> tried load_policy which had no affect and 'semodule -B' which makes it
+>>> >> work. Any ideas what could be happening? I've verified with 'semodule
+>>> >> --list' that the module is loaded prior to doing the 'semodule -B'.
+>>> >
+>>> > - How was the app failing?
+>>>
+>>> This is our security banner app that draw a window across the top of
+>>> the screen with the users MLS range and with the appropriate
+>>> background color. When it fails there is just a window with a gray
+>>> background no text or color.
+>>>
+>>> > - Did you try running the app in permissive as well?
+>>> > - Is this reproducible at all or are you unable to reproduce the
+>>> > application failure now under any conditions?
+>>> > - Did the app create/use any transient resources (temporary files,
+>>> > system v ipc objects, etc) that could have prevented it from succeeding
+>>> > on subsequent execution if they weren't properly cleaned up on prior
+>>> > exit?
+>>>
+>>> After further investigation I found that a call to getseuserbyname for
+>>> the login user is returning the user name passed in and nothing for
+>>> the range which would be used in the banner. During our installation
+>>> we don't explicitly map this user to a SELinux user but our experience
+>>> has been that the when there is no mapping the user and range of the
+>>> '__default__' login are returned. Indeed once I rebuild policy this
+>>> appears to be what is happening. How rebuilding and reloading policy
+>>> would affect this is unclear.
 >>
->> This is our security banner app that draw a window across the top of
->> the screen with the users MLS range and with the appropriate
->> background color. When it fails there is just a window with a gray
->> background no text or color.
+>> If the installed seusers file (i.e. /etc/selinux/$SELINUXTYPE/seusers)
+>> did not exist originally or was unreadable (e.g. wrong context or mode),
+>> then getseuserbyname() would behave the way you described.  Rebuilding
+>> policy would have caused the regenerated seusers file to be installed,
+>> possibly with different context or mode than the original state.
 >>
->> > - Did you try running the app in permissive as well?
->> > - Is this reproducible at all or are you unable to reproduce the
->> > application failure now under any conditions?
->> > - Did the app create/use any transient resources (temporary files,
->> > system v ipc objects, etc) that could have prevented it from succeeding
->> > on subsequent execution if they weren't properly cleaned up on prior
->> > exit?
+>> --
+>> Stephen Smalley
+>> National Security Agency
 >>
->> After further investigation I found that a call to getseuserbyname for
->> the login user is returning the user name passed in and nothing for
->> the range which would be used in the banner. During our installation
->> we don't explicitly map this user to a SELinux user but our experience
->> has been that the when there is no mapping the user and range of the
->> '__default__' login are returned. Indeed once I rebuild policy this
->> appears to be what is happening. How rebuilding and reloading policy
->> would affect this is unclear.
+>>
 >
-> If the installed seusers file (i.e. /etc/selinux/$SELINUXTYPE/seusers)
-> did not exist originally or was unreadable (e.g. wrong context or mode),
-> then getseuserbyname() would behave the way you described.  Rebuilding
-> policy would have caused the regenerated seusers file to be installed,
-> possibly with different context or mode than the original state.
+> You nailed it for some reason seusers is SystemHigh. Still
+> investigating ... Thanks
 >
-> --
-> Stephen Smalley
-> National Security Agency
->
+> Ted
 >
 
-You nailed it for some reason seusers is SystemHigh. Still
-investigating ... Thanks
+The plot thickens. semodule -B causes seusers to be relabeled
+SystemLow. restorecon /etc/selinux/mls/seusers causes the file to be
+relabeled SystemHigh. Which is right?
 
 Ted
 
