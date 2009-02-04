@@ -1,58 +1,93 @@
-MIME-Version: 1.0
-In-Reply-To: <1233670196.14235.16.camel@localhost.localdomain>
-References: <a5e2b64d0902021515q18b61935q829abc2bc1772a7e@mail.gmail.com>
-	 <1233670196.14235.16.camel@localhost.localdomain>
-Date: Wed, 4 Feb 2009 09:38:38 +0900
-Message-ID: <a5e2b64d0902031638vc33883en849830af3f33064b@mail.gmail.com>
-Subject: Re: Security context of symbolic links on ubifs
-From: Tim <timasyk@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        SELinux mailing list <SELinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: odd policy behavior
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <cadfc0e40902031431w5532857fq2ecfd9485dfb26ee@mail.gmail.com>
+References: <cadfc0e40902030828v41f836eag84d5aaa0fa7bb899@mail.gmail.com>
+	 <1233679082.14235.21.camel@localhost.localdomain>
+	 <cadfc0e40902031159r55a12a02u46b0dde8f9356460@mail.gmail.com>
+	 <1233696489.14235.28.camel@localhost.localdomain>
+	 <cadfc0e40902031349w3c4d3abdgb5c7f5b5107a4001@mail.gmail.com>
+	 <cadfc0e40902031431w5532857fq2ecfd9485dfb26ee@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 04 Feb 2009 08:55:13 -0500
+Message-Id: <1233755713.30244.7.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-2009/2/3 Stephen Smalley <sds@tycho.nsa.gov>:
-> On Tue, 2009-02-03 at 08:15 +0900, Tim wrote:
->> Hello!
->>
->> For an embedded project I'm trying to set security context of symbolic
->> links located on ubifs to files located on ubifs as well.
->> The result is as following:
->> - after setting security context using setfiles or restorecon for
->> links, ls -Z reports correct links labeling;
->> - after rebooting computer I see that ALL symbolic links got default
->> label for files for that filesystem (which is incorrect);
->> Security context labeling for normal files/directories/devices works
->> just fine and can survive reboot.
->> I've tried same security context labels for link and linked file,
->> different security contexts for link and linked file - results are the
->> same as described.
->> Any ideas why this is happening?
->
-> ubifs doesn't appear to implement complete support for security
-> attributes.  It does not define .getxattr and .setxattr operations for
-> symlinks (ubifs_symlink_inode_operations).  Also, it doesn't appear to
-> call security_inode_init_security() and set an attribute when allocating
-> new inodes (ubifs_new_inode), so it won't automatically label new files
-> that are created at runtime.
->
-> You also need to configure your policy to tell SELinux that the
-> filesystem supports security attributes via fs_use_xattr statements.
-> But that won't be sufficient without further code modifications to
-> ubifs.
->
-> --
-> Stephen Smalley
-> National Security Agency
+On Tue, 2009-02-03 at 16:31 -0600, Xavier Toth wrote:
+> On Tue, Feb 3, 2009 at 3:49 PM, Xavier Toth <txtoth@gmail.com> wrote:
+> > On Tue, Feb 3, 2009 at 3:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >> On Tue, 2009-02-03 at 13:59 -0600, Xavier Toth wrote:
+> >>> On Tue, Feb 3, 2009 at 10:38 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >>> > On Tue, 2009-02-03 at 10:28 -0600, Xavier Toth wrote:
+> >>> >> I have an app that wasn't working in enforcing but there are no AVCs.
+> >>> >> So I did 'semodule -DB' to see if there were any dontaudit denials and
+> >>> >> restarted the app. The problem is that the app then ran fine. So I
+> >>> >> tried load_policy which had no affect and 'semodule -B' which makes it
+> >>> >> work. Any ideas what could be happening? I've verified with 'semodule
+> >>> >> --list' that the module is loaded prior to doing the 'semodule -B'.
+> >>> >
+> >>> > - How was the app failing?
+> >>>
+> >>> This is our security banner app that draw a window across the top of
+> >>> the screen with the users MLS range and with the appropriate
+> >>> background color. When it fails there is just a window with a gray
+> >>> background no text or color.
+> >>>
+> >>> > - Did you try running the app in permissive as well?
+> >>> > - Is this reproducible at all or are you unable to reproduce the
+> >>> > application failure now under any conditions?
+> >>> > - Did the app create/use any transient resources (temporary files,
+> >>> > system v ipc objects, etc) that could have prevented it from succeeding
+> >>> > on subsequent execution if they weren't properly cleaned up on prior
+> >>> > exit?
+> >>>
+> >>> After further investigation I found that a call to getseuserbyname for
+> >>> the login user is returning the user name passed in and nothing for
+> >>> the range which would be used in the banner. During our installation
+> >>> we don't explicitly map this user to a SELinux user but our experience
+> >>> has been that the when there is no mapping the user and range of the
+> >>> '__default__' login are returned. Indeed once I rebuild policy this
+> >>> appears to be what is happening. How rebuilding and reloading policy
+> >>> would affect this is unclear.
+> >>
+> >> If the installed seusers file (i.e. /etc/selinux/$SELINUXTYPE/seusers)
+> >> did not exist originally or was unreadable (e.g. wrong context or mode),
+> >> then getseuserbyname() would behave the way you described.  Rebuilding
+> >> policy would have caused the regenerated seusers file to be installed,
+> >> possibly with different context or mode than the original state.
+> >>
+> >> --
+> >> Stephen Smalley
+> >> National Security Agency
+> >>
+> >>
+> >
+> > You nailed it for some reason seusers is SystemHigh. Still
+> > investigating ... Thanks
+> >
+> > Ted
+> >
+> 
+> The plot thickens. semodule -B causes seusers to be relabeled
+> SystemLow. restorecon /etc/selinux/mls/seusers causes the file to be
+> relabeled SystemHigh. Which is right?
 
-Thank you very much for explanation.
+I don't think that semodule/libsemanage explicitly set the context of
+files they create, so they would just follow the default policy behavior
+(in this case, inheriting the level of the creating process and the type
+of the parent directory).
 
-I already use fs_use_xattr for ubifs. And yes, all files created on
-run-time receive default file security context. I will look forward
-for patches for ubifs for full xattr support (if any).
+restorecon just applies whatever the file_contexts configuration
+specifies, which appears to be SystemHigh in the mls policy.  I'm not
+sure if that is truly justified.
 
-Tim
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
