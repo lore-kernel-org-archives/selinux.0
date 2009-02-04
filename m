@@ -1,79 +1,54 @@
-MIME-Version: 1.0
-In-Reply-To: <cadfc0e40902031349w3c4d3abdgb5c7f5b5107a4001@mail.gmail.com>
-References: <cadfc0e40902030828v41f836eag84d5aaa0fa7bb899@mail.gmail.com>
-	 <1233679082.14235.21.camel@localhost.localdomain>
-	 <cadfc0e40902031159r55a12a02u46b0dde8f9356460@mail.gmail.com>
-	 <1233696489.14235.28.camel@localhost.localdomain>
-	 <cadfc0e40902031349w3c4d3abdgb5c7f5b5107a4001@mail.gmail.com>
-Date: Tue, 3 Feb 2009 16:31:44 -0600
-Message-ID: <cadfc0e40902031431w5532857fq2ecfd9485dfb26ee@mail.gmail.com>
-Subject: Re: odd policy behavior
-From: Xavier Toth <txtoth@gmail.com>
+Date: Wed, 4 Feb 2009 11:18:20 +1100 (EST)
+From: James Morris <jmorris@namei.org>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+cc: Daniel J Walsh <dwalsh@redhat.com>,
+        "Clarkson, Mike R (US SSA)" <mike.clarkson@baesystems.com>,
+        selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>
+Subject: Re: filesystem mount AVC denial
+In-Reply-To: <1233668475.14235.2.camel@localhost.localdomain>
+Message-ID: <alpine.LRH.1.10.0902041111420.28618@tundra.namei.org>
+References: <7b4dai$ejec6@dmzms99901.na.baesystems.com>  <1233583453.3826.4.camel@localhost.localdomain>  <49874331.2050102@redhat.com> <1233668475.14235.2.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Feb 3, 2009 at 3:49 PM, Xavier Toth <txtoth@gmail.com> wrote:
-> On Tue, Feb 3, 2009 at 3:28 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On Tue, 2009-02-03 at 13:59 -0600, Xavier Toth wrote:
->>> On Tue, Feb 3, 2009 at 10:38 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> > On Tue, 2009-02-03 at 10:28 -0600, Xavier Toth wrote:
->>> >> I have an app that wasn't working in enforcing but there are no AVCs.
->>> >> So I did 'semodule -DB' to see if there were any dontaudit denials and
->>> >> restarted the app. The problem is that the app then ran fine. So I
->>> >> tried load_policy which had no affect and 'semodule -B' which makes it
->>> >> work. Any ideas what could be happening? I've verified with 'semodule
->>> >> --list' that the module is loaded prior to doing the 'semodule -B'.
->>> >
->>> > - How was the app failing?
->>>
->>> This is our security banner app that draw a window across the top of
->>> the screen with the users MLS range and with the appropriate
->>> background color. When it fails there is just a window with a gray
->>> background no text or color.
->>>
->>> > - Did you try running the app in permissive as well?
->>> > - Is this reproducible at all or are you unable to reproduce the
->>> > application failure now under any conditions?
->>> > - Did the app create/use any transient resources (temporary files,
->>> > system v ipc objects, etc) that could have prevented it from succeeding
->>> > on subsequent execution if they weren't properly cleaned up on prior
->>> > exit?
->>>
->>> After further investigation I found that a call to getseuserbyname for
->>> the login user is returning the user name passed in and nothing for
->>> the range which would be used in the banner. During our installation
->>> we don't explicitly map this user to a SELinux user but our experience
->>> has been that the when there is no mapping the user and range of the
->>> '__default__' login are returned. Indeed once I rebuild policy this
->>> appears to be what is happening. How rebuilding and reloading policy
->>> would affect this is unclear.
->>
->> If the installed seusers file (i.e. /etc/selinux/$SELINUXTYPE/seusers)
->> did not exist originally or was unreadable (e.g. wrong context or mode),
->> then getseuserbyname() would behave the way you described.  Rebuilding
->> policy would have caused the regenerated seusers file to be installed,
->> possibly with different context or mode than the original state.
->>
->> --
->> Stephen Smalley
->> National Security Agency
->>
->>
->
-> You nailed it for some reason seusers is SystemHigh. Still
-> investigating ... Thanks
->
-> Ted
->
+On Tue, 3 Feb 2009, Stephen Smalley wrote:
 
-The plot thickens. semodule -B causes seusers to be relabeled
-SystemLow. restorecon /etc/selinux/mls/seusers causes the file to be
-relabeled SystemHigh. Which is right?
+> > guest_t cd to /mynfs Would fail????
+> > 
+> > automount is doing the mount so the kernel should say automount not
+> > libstart_t.
+> > 
+> > I think this is a bug in the kernel.
 
-Ted
+Well, the behavior I see with automount is:
+
+avc:  granted  { mount } for  pid=3378 comm="mount" name="/" dev=sdc4 
+ino=2 scontext=unconfined_u:system_r:mount_t:s0 
+tcontext=system_u:object_r:fs_t:s0 tclass=filesystem
+
+... always running as mount_t (in this case, I used runcon to 'ls' an 
+automount from sshd_t).
+
+> 
+> Yes, it is similar to the recent proc/self/net problem.
+> 
+> Eric?  James?  The fundamental issue is that we are performing a
+> permission check in a core function that gets used internally by the
+> kernel for mounts, not just when userspace initiates a mount.  In the
+> proc case we could use MS_KERNMOUNT as a discriminator, but not in this
+> case, at least at present.
+
+Firstly, why isn't Mike's example running as mount_t (and how do you 
+define userspace initiating a mount -- does this include automounting?)
+
+(Also, Dan asked for a bz to be filed with the autofs folk...)
+
+
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
