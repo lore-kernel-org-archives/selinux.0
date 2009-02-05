@@ -1,67 +1,35 @@
-Subject: Re: Base module, modules.conf
-From: Dominick Grift <domg472@gmail.com>
-To: Cheyenne Solo <ayla.cheyenne@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <5ab9a20b0902041252l7041062fqc7202db633bb2141@mail.gmail.com>
-References: <5ab9a20b0901160943o14c1d47csbc763ae31564b97b@mail.gmail.com>
-	 <1232132620.13917.109.camel@localhost.localdomain>
-	 <5ab9a20b0902041252l7041062fqc7202db633bb2141@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 04 Feb 2009 22:53:31 +0100
-Message-Id: <1233784411.6488.28.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n150bPj7010805
+	for <selinux@tycho.nsa.gov>; Wed, 4 Feb 2009 19:37:25 -0500
+Received: from tundra.namei.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n150bNh3023429
+	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2009 00:37:24 GMT
+Date: Thu, 5 Feb 2009 11:37:21 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul.moore@hp.com>
+cc: selinux@tycho.nsa.gov
+Subject: Re: [RFC PATCH v1] selinux: Remove the "compat_net" compatibility
+ code
+In-Reply-To: <20090204214236.11992.20432.stgit@flek.lan>
+Message-ID: <alpine.LRH.1.10.0902051136560.5054@tundra.namei.org>
+References: <20090204214236.11992.20432.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Op woensdag 04-02-2009 om 15:52 uur [tijdzone -0500], schreef Cheyenne
-Solo:
+On Wed, 4 Feb 2009, Paul Moore wrote:
 
-> I've started using Fedora 7 so I can use the strict policy and its
-> user mapping capabilities for my (A)RBAC experimentation.
+> The SELinux "compat_net" is marked as deprecated, the time has come to
+> finally remove it from the kernel.  Further code simplifications are
+> likely in the future, but this patch was intended to be a simple,
+> straight-up removal of the compat_net code.
 
-You can use RBAC just as well with Fedora 10. If required you can even
-uninstall the unconfined module which will turn your targeted policy
-into strict policy. Fedora 7 policy is no longer maintained.
+Need to also remove documentation from Documentation/kernel-parameters.txt
 
-> I have hit a different roadblock, however, dealing with custom user
-> mappings: I cannot get users I've created to map to SELinux users I've
-> defined. I've declared the users and their roles and types in a module
-> that I have installed into the policy. 
-
-Are you sure that this module is proper?
-
-> When I added mappings to /etc/selinux/strict/seusers , either by hand
-> or with semanage, the user ends up with the context
-> system_u:system_r:xdm_t:SystemHigh-SystemLow. 
-
-Are you sure that the mappings are create properly?
-
-> I have files in the /etc/selinux/strict/contexts/users/ directory for
-> each user and have put the types and roles appropriately in the
-> default_type file. 
-
-Did you also edit the contexts in the user contexts file? Not sure what
-if anything is required in the default_type file.
-
-> How does the login process really determine these mappings, and why
-> would all of my custom mappings be redirected to
-> system_u:system_r:xdm_t? I am quite puzzled.
-
-Basicly it is the following steps i think.
-
-You create an install a proper user domain.
-you add a proper user mapping that has access to your new role.
-You add a proper login mapping that maps the Login user to the SELinux
-user.
-You create a proper default context file. It has the name of the SElinux
-user and it has proper default contexts defined in it.
-
-This should, atleast in my view in Fedora 10, do it.
-
-> Thanks,
-> Ayla
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
