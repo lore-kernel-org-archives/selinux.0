@@ -1,38 +1,97 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n15CQPxV018627
-	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2009 07:26:25 -0500
-Received: from g1t0027.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n15CQNEf025687
-	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2009 12:26:23 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: James Morris <jmorris@namei.org>
-Subject: Re: [RFC PATCH v1] selinux: Remove the "compat_net" compatibility code
-Date: Thu, 5 Feb 2009 07:26:20 -0500
-Cc: selinux@tycho.nsa.gov
-References: <20090204214236.11992.20432.stgit@flek.lan> <alpine.LRH.1.10.0902051136560.5054@tundra.namei.org>
-In-Reply-To: <alpine.LRH.1.10.0902051136560.5054@tundra.namei.org>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n15H86sA000458
+	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2009 12:08:06 -0500
+Received: from qw-out-1920.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n15H4uR3004069
+	for <selinux@tycho.nsa.gov>; Thu, 5 Feb 2009 17:04:56 GMT
+Received: by qw-out-1920.google.com with SMTP id 5so142569qwc.30
+        for <selinux@tycho.nsa.gov>; Thu, 05 Feb 2009 09:08:04 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200902050726.20367.paul.moore@hp.com>
+Date: Thu, 5 Feb 2009 11:08:04 -0600
+Message-ID: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com>
+Subject: problem with capabilities inheritance and auditing in python
+From: Xavier Toth <txtoth@gmail.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wednesday 04 February 2009 7:37:21 pm James Morris wrote:
-> On Wed, 4 Feb 2009, Paul Moore wrote:
-> > The SELinux "compat_net" is marked as deprecated, the time has come
-> > to finally remove it from the kernel.  Further code simplifications
-> > are likely in the future, but this patch was intended to be a
-> > simple, straight-up removal of the compat_net code.
->
-> Need to also remove documentation from
-> Documentation/kernel-parameters.txt
+I've set the capabilities on a script that runs some python code with
+auditing calls in it but I'm not getting audit records written to the
+audit log. From what I've read I thought the +i would all the
+capability to be inherited across execve but this doesn't appear to be
+the case. Can anyone help me understand what's going wrong here? Is
+there a way in the python code to get the capabilities to see if
+indeed cap_audit_write was inherited?
 
-Good catch, forgot about that.  I'll make the change today.
+sudo /usr/sbin/setcap cap_audit_write+pei audit_test
 
--- 
-paul moore
-linux @ hp
+-------------------------------------------------------- audit_test
+-----------------------------------------------------------------------
+
+#!/bin/sh
+/usr/bin/python2 audit_test.py
+
+--------------------------------------------------------
+audit_test.py -------------------------------------------------------------------
+import audit
+import traceback
+import errno
+import sys, os
+
+def test():
+   msg = "foo"
+   try:
+       audit_fd = audit.audit_open()
+       if audit_fd < 0:
+           print("Error connecting to audit daemon")
+           sys.exit(1)
+   except:
+       print("Failed to connecting to audit daemon:  %s : %s" % (
+sys.exc_info()[0], traceback.format_exc()))
+       sys.exit(1)
+
+   hostname = 'unknown'
+   hostaddr = 'unknown'
+   ttyname = 'unknown'
+   try:
+       hostname = socket.gethostname()
+       try:
+           hostaddr = socket.gethostbyname(hostname)
+       except:
+           hostaddr = 'unknown'
+   except:
+           hostname = 'unknown'
+
+   try:
+       ttyname = os.readlink('/proc/self/fd/0')
+       if ttyname.find('/dev') != 0:
+           ttyname = 'notatty'
+   except:
+       ttyname = 'unknown'
+
+   try:
+       print "call audit_log_user_message"
+       rc = audit.audit_log_user_message(audit_fd,
+audit.AUDIT_LABEL_LEVEL_CHANGE, msg, hostname, hostaddr, ttyname, 0);
+       rc = audit.audit_log_user_message(audit_fd,
+audit.AUDIT_TRUSTED_APP, msg, hostname, hostaddr, ttyname, 0);
+       if rc < 0:
+           print("Error writing to audit")
+           sys.exit(1)
+   except:
+       print("Failed to write audit:  %s : %s" % ( sys.exc_info()[0],
+traceback.format_exc()))
+       sys.exit(1)
+
+
+if __name__ == '__main__':
+   test()
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
