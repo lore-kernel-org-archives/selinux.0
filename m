@@ -1,85 +1,44 @@
 MIME-Version: 1.0
-In-Reply-To: <566C419E-5A34-4E5E-947E-4E0AF57863F3@nall.com>
-References: <58C746BE-D2EA-4B17-B7F8-37F57E0AD806@nall.com>
-	 <1233942173.10320.58.camel@localhost.localdomain>
-	 <1233944128.4921.1.camel@gorn.columbia.tresys.com>
-	 <566C419E-5A34-4E5E-947E-4E0AF57863F3@nall.com>
-Date: Fri, 6 Feb 2009 15:47:50 -0600
-Message-ID: <cadfc0e40902061347n6661e216v71d9d1cf9f3b6249@mail.gmail.com>
-Subject: Re: security_compute_av_raw confusion
+In-Reply-To: <1233857436.3181.40.camel@localhost.localdomain>
+References: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com>
+	 <1233857436.3181.40.camel@localhost.localdomain>
+Date: Fri, 6 Feb 2009 15:56:04 -0600
+Message-ID: <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com>
+Subject: Re: problem with capabilities inheritance and auditing in python
 From: Xavier Toth <txtoth@gmail.com>
-To: Joe Nall <joe@nall.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        SELinux List <selinux@tycho.nsa.gov>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Feb 6, 2009 at 1:59 PM, Joe Nall <joe@nall.com> wrote:
+On Thu, Feb 5, 2009 at 12:10 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2009-02-05 at 11:08 -0600, Xavier Toth wrote:
+>> I've set the capabilities on a script that runs some python code with
+>> auditing calls in it but I'm not getting audit records written to the
+>> audit log. From what I've read I thought the +i would all the
+>> capability to be inherited across execve but this doesn't appear to be
+>> the case. Can anyone help me understand what's going wrong here? Is
+>> there a way in the python code to get the capabilities to see if
+>> indeed cap_audit_write was inherited?
 >
-> On Feb 6, 2009, at 12:15 PM, Christopher J. PeBenito wrote:
->
->> On Fri, 2009-02-06 at 12:42 -0500, Stephen Smalley wrote:
->>>
->>> On Fri, 2009-02-06 at 10:21 -0600, Joe Nall wrote:
->>>>
->>>> I confused by the behavior of security_compute_av_raw in fedora rawhide
->>>> ...
->>>> rc = security_compute_av_raw(ctx, raw, SECCLASS_CONTEXT,
->>>> CONTEXT__CONTAINS, &avd);
->>>> log_debug("ctx=%s raw=%s avd.allowed=%d rc=%d\n", ctx, raw,
->>>> avd.allowed, rc);
->>>> ...
->>>>
->>>> with ctx and raw identical user contexts, it works as expected:
->>>>
->>>> ctx=user_u:user_r:user_t:s15:c0.c1023
->>>> raw=user_u:user_r:user_t:s15:c0.c1023 avd.allowed=2 rc=0
->>>>
->>>> with ctx and raw identical system contexts, it behaves differently:
->>>>
->>>> ctx=system_u:system_r:setrans_t:s15:c0.c1023
->>>> raw=system_u:system_r:setrans_t:s15:c0.c1023 avd.allowed=1 rc=0
->>>>
->>>> both in mls/permissive. No obvious avcs.
->>>
->>> The refpolicy only allows context contains permission for the user
->>> domains since that was the only usage of it originally, when checking
->>> whether a user-supplied context was contained by the seusers-defined
->>> range.  It is allowed by the interfaces in userdomain.if.  If you want
->>> it applied to all domains, you'll need to make it part of domain_type().
->>
->> If it makes sense, I have no trouble doing that upstream.  Joe, what do
->> you think?
->
-> Works for me. At a minimum we need:
->
-> gen_require(`
->        type setrans_t;
->        class context contains;
-> ')
-> allow setrans_t self:context contains;
->
-> for Eamon's color mcstrans patch to work. See Ted's earlier email:
->
-> http://engardelinux.org/modules/index/list_archives.cgi?list=selinux&page=0015.html&month=2009-01
->
-> I got to rediscover the issue and have Stephen explain it again :)
->
-> joe
->
->
+> Linux doesn't honor setuid on scripts, and file capabilities are
+> supposed to have the same behavior (they didn't for a while due to an
+> oversight, but that was corrected).  You need an executable wrapper
+> program that invokes the script, like:
+> http://oss.tresys.com/projects/clip/browser/trunk/RHEL5.2/scripts/wrappers/wrapper.c
 >
 > --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+> Stephen Smalley
+> National Security Agency
+>
 >
 
-Maybe Chris can commit the patch I submitted to the refpolicy list on
-12/30/2008.
+Having used this wrapper code pretty much as is I'm now seeing
+self:capability dac_override and dac_read_search AVCs. Do I need to do
+something similar to what newrole does to drop capabilities that I
+don't need my python script to have after all I'm only trying to give
+it the ability to audit?
 
 Ted
 
