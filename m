@@ -1,34 +1,46 @@
-Subject: Re: problem with capabilities inheritance and auditing in python
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com>
-References: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 05 Feb 2009 13:10:36 -0500
-Message-Id: <1233857436.3181.40.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n16GLGUP019562
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2009 11:21:16 -0500
+Received: from mho-02-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n16GLBE1012331
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2009 16:21:15 GMT
+Received: from cpe-66-68-165-162.austin.res.rr.com ([66.68.165.162] helo=[192.168.20.230])
+	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
+	(Exim 4.68)
+	(envelope-from <joe@nall.com>)
+	id 1LVTRx-0005qv-HW
+	for selinux@tycho.nsa.gov; Fri, 06 Feb 2009 16:21:05 +0000
+Message-Id: <58C746BE-D2EA-4B17-B7F8-37F57E0AD806@nall.com>
+From: Joe Nall <joe@nall.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Subject: security_compute_av_raw confusion
+Date: Fri, 6 Feb 2009 10:21:02 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-02-05 at 11:08 -0600, Xavier Toth wrote:
-> I've set the capabilities on a script that runs some python code with
-> auditing calls in it but I'm not getting audit records written to the
-> audit log. From what I've read I thought the +i would all the
-> capability to be inherited across execve but this doesn't appear to be
-> the case. Can anyone help me understand what's going wrong here? Is
-> there a way in the python code to get the capabilities to see if
-> indeed cap_audit_write was inherited?
+I confused by the behavior of security_compute_av_raw in fedora rawhide
+...
+rc = security_compute_av_raw(ctx, raw, SECCLASS_CONTEXT,  
+CONTEXT__CONTAINS, &avd);
+log_debug("ctx=%s raw=%s avd.allowed=%d rc=%d\n", ctx, raw,  
+avd.allowed, rc);
+...
 
-Linux doesn't honor setuid on scripts, and file capabilities are
-supposed to have the same behavior (they didn't for a while due to an
-oversight, but that was corrected).  You need an executable wrapper
-program that invokes the script, like:
-http://oss.tresys.com/projects/clip/browser/trunk/RHEL5.2/scripts/wrappers/wrapper.c
+with ctx and raw identical user contexts, it works as expected:
 
--- 
-Stephen Smalley
-National Security Agency
+ctx=user_u:user_r:user_t:s15:c0.c1023  
+raw=user_u:user_r:user_t:s15:c0.c1023 avd.allowed=2 rc=0
+
+with ctx and raw identical system contexts, it behaves differently:
+
+ctx=system_u:system_r:setrans_t:s15:c0.c1023  
+raw=system_u:system_r:setrans_t:s15:c0.c1023 avd.allowed=1 rc=0
+
+both in mls/permissive. No obvious avcs.
+
+joe
 
 
 --
