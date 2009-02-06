@@ -1,77 +1,48 @@
-Subject: Re: security_compute_av_raw confusion
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: "Christopher J. PeBenito" <cpebenito@tresys.com>,
-        SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <566C419E-5A34-4E5E-947E-4E0AF57863F3@nall.com>
-References: <58C746BE-D2EA-4B17-B7F8-37F57E0AD806@nall.com>
-	 <1233942173.10320.58.camel@localhost.localdomain>
-	 <1233944128.4921.1.camel@gorn.columbia.tresys.com>
-	 <566C419E-5A34-4E5E-947E-4E0AF57863F3@nall.com>
-Content-Type: text/plain
-Date: Fri, 06 Feb 2009 15:01:18 -0500
-Message-Id: <1233950478.10320.126.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n16LTVo2004085
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2009 16:29:31 -0500
+Received: from mho-01-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n16LQK0d005194
+	for <selinux@tycho.nsa.gov>; Fri, 6 Feb 2009 21:26:20 GMT
+Cc: SE Linux <selinux@tycho.nsa.gov>
+Message-Id: <DB3575E3-FFF9-412D-A205-F02232694587@nall.com>
+From: Joe Nall <joe@nall.com>
+To: Daniel J Walsh <dwalsh@redhat.com>
+In-Reply-To: <4988675F.30103@redhat.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Subject: Re: I need your new version of mcs with color incoding in Rawhide now...
+Date: Fri, 6 Feb 2009 15:29:28 -0600
+References: <4988675F.30103@redhat.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-02-06 at 13:59 -0600, Joe Nall wrote:
-> On Feb 6, 2009, at 12:15 PM, Christopher J. PeBenito wrote:
-> 
-> > On Fri, 2009-02-06 at 12:42 -0500, Stephen Smalley wrote:
-> >> On Fri, 2009-02-06 at 10:21 -0600, Joe Nall wrote:
-> >>> I confused by the behavior of security_compute_av_raw in fedora  
-> >>> rawhide
-> >>> ...
-> >>> rc = security_compute_av_raw(ctx, raw, SECCLASS_CONTEXT,
-> >>> CONTEXT__CONTAINS, &avd);
-> >>> log_debug("ctx=%s raw=%s avd.allowed=%d rc=%d\n", ctx, raw,
-> >>> avd.allowed, rc);
-> >>> ...
-> >>>
-> >>> with ctx and raw identical user contexts, it works as expected:
-> >>>
-> >>> ctx=user_u:user_r:user_t:s15:c0.c1023
-> >>> raw=user_u:user_r:user_t:s15:c0.c1023 avd.allowed=2 rc=0
-> >>>
-> >>> with ctx and raw identical system contexts, it behaves differently:
-> >>>
-> >>> ctx=system_u:system_r:setrans_t:s15:c0.c1023
-> >>> raw=system_u:system_r:setrans_t:s15:c0.c1023 avd.allowed=1 rc=0
-> >>>
-> >>> both in mls/permissive. No obvious avcs.
-> >>
-> >> The refpolicy only allows context contains permission for the user
-> >> domains since that was the only usage of it originally, when checking
-> >> whether a user-supplied context was contained by the seusers-defined
-> >> range.  It is allowed by the interfaces in userdomain.if.  If you  
-> >> want
-> >> it applied to all domains, you'll need to make it part of  
-> >> domain_type().
-> >
-> > If it makes sense, I have no trouble doing that upstream.  Joe, what  
-> > do
-> > you think?
-> 
-> Works for me. At a minimum we need:
-> 
-> gen_require(`
->          type setrans_t;
->          class context contains;
-> ')
-> allow setrans_t self:context contains;
-> 
-> for Eamon's color mcstrans patch to work. See Ted's earlier email:
-> 
-> http://engardelinux.org/modules/index/list_archives.cgi?list=selinux&page=0015.html&month=2009-01
-> 
-> I got to rediscover the issue and have Stephen explain it again :)
+I pulled the changes together, added test cases and tested on rawhide.  
+The result is v0.3.0-6 on github. I tested this version with the  
+existing setrans.conf and it is backwards compatible.
 
-That's why they call me Smoogle.
+git of mcstrans-0.3.0-6:
+  git clone git://github.com/joenall/mcstrans.git
+  cd mcstrans/
+  git checkout 0.3.0-6
 
--- 
-Stephen Smalley
-National Security Agency
+Look in /usr/share/mcstrans for examples/test cases and python code to  
+exercise the new color api.
+
+To test (in mls/permissive):
+  sudo /usr/share/mcstrans/util/try-all
+
+This swaps in various setrans configs and runs tests on each one.  
+Backups of /etc/selinux/ recommended prior to test.
+
+There is a setranspatch.te policy that addresses the policy problem  
+discussed on the selinux mailing list today. It adds:
+
+allow setrans_t self:context contains;
+
+I can post src rpms if preferred.
+
+joe
 
 
 --
