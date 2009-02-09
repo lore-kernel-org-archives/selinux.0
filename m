@@ -1,53 +1,77 @@
-Subject: Re: problem with capabilities inheritance and auditing in python
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com>
-References: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com>
-	 <1233857436.3181.40.camel@localhost.localdomain>
-	 <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com>
+Subject: Re: security_compute_av_raw confusion
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
+To: Joe Nall <joe@nall.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+In-Reply-To: <566C419E-5A34-4E5E-947E-4E0AF57863F3@nall.com>
+References: <58C746BE-D2EA-4B17-B7F8-37F57E0AD806@nall.com>
+	 <1233942173.10320.58.camel@localhost.localdomain>
+	 <1233944128.4921.1.camel@gorn.columbia.tresys.com>
+	 <566C419E-5A34-4E5E-947E-4E0AF57863F3@nall.com>
 Content-Type: text/plain
-Date: Mon, 09 Feb 2009 09:02:50 -0500
-Message-Id: <1234188170.28831.10.camel@localhost.localdomain>
+Date: Mon, 09 Feb 2009 09:18:55 -0500
+Message-Id: <1234189138.4921.4.camel@gorn>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-02-06 at 15:56 -0600, Xavier Toth wrote:
-> On Thu, Feb 5, 2009 at 12:10 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On Thu, 2009-02-05 at 11:08 -0600, Xavier Toth wrote:
-> >> I've set the capabilities on a script that runs some python code with
-> >> auditing calls in it but I'm not getting audit records written to the
-> >> audit log. From what I've read I thought the +i would all the
-> >> capability to be inherited across execve but this doesn't appear to be
-> >> the case. Can anyone help me understand what's going wrong here? Is
-> >> there a way in the python code to get the capabilities to see if
-> >> indeed cap_audit_write was inherited?
-> >
-> > Linux doesn't honor setuid on scripts, and file capabilities are
-> > supposed to have the same behavior (they didn't for a while due to an
-> > oversight, but that was corrected).  You need an executable wrapper
-> > program that invokes the script, like:
-> > http://oss.tresys.com/projects/clip/browser/trunk/RHEL5.2/scripts/wrappers/wrapper.c
-> >
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
+On Fri, 2009-02-06 at 13:59 -0600, Joe Nall wrote:
+> On Feb 6, 2009, at 12:15 PM, Christopher J. PeBenito wrote:
 > 
-> Having used this wrapper code pretty much as is I'm now seeing
-> self:capability dac_override and dac_read_search AVCs. Do I need to do
-> something similar to what newrole does to drop capabilities that I
-> don't need my python script to have after all I'm only trying to give
-> it the ability to audit?
+> > On Fri, 2009-02-06 at 12:42 -0500, Stephen Smalley wrote:
+> >> On Fri, 2009-02-06 at 10:21 -0600, Joe Nall wrote:
+> >>> I confused by the behavior of security_compute_av_raw in fedora  
+> >>> rawhide
+> >>> ...
+> >>> rc = security_compute_av_raw(ctx, raw, SECCLASS_CONTEXT,
+> >>> CONTEXT__CONTAINS, &avd);
+> >>> log_debug("ctx=%s raw=%s avd.allowed=%d rc=%d\n", ctx, raw,
+> >>> avd.allowed, rc);
+> >>> ...
+> >>>
+> >>> with ctx and raw identical user contexts, it works as expected:
+> >>>
+> >>> ctx=user_u:user_r:user_t:s15:c0.c1023
+> >>> raw=user_u:user_r:user_t:s15:c0.c1023 avd.allowed=2 rc=0
+> >>>
+> >>> with ctx and raw identical system contexts, it behaves differently:
+> >>>
+> >>> ctx=system_u:system_r:setrans_t:s15:c0.c1023
+> >>> raw=system_u:system_r:setrans_t:s15:c0.c1023 avd.allowed=1 rc=0
+> >>>
+> >>> both in mls/permissive. No obvious avcs.
+> >>
+> >> The refpolicy only allows context contains permission for the user
+> >> domains since that was the only usage of it originally, when checking
+> >> whether a user-supplied context was contained by the seusers-defined
+> >> range.  It is allowed by the interfaces in userdomain.if.  If you  
+> >> want
+> >> it applied to all domains, you'll need to make it part of  
+> >> domain_type().
+> >
+> > If it makes sense, I have no trouble doing that upstream.  Joe, what  
+> > do
+> > you think?
+> 
+> Works for me. At a minimum we need:
+> 
+> gen_require(`
+>          type setrans_t;
+>          class context contains;
+> ')
+> allow setrans_t self:context contains;
+> 
+> for Eamon's color mcstrans patch to work. See Ted's earlier email:
+> 
+> http://engardelinux.org/modules/index/list_archives.cgi?list=selinux&page=0015.html&month=2009-01
+> 
+> I got to rediscover the issue and have Stephen explain it again :)
 
-You can just dontaudit those denials if you don't need those
-capabilities.
+Ok, for now I've just added it to setrans.
 
 -- 
-Stephen Smalley
-National Security Agency
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
 
 
 --
