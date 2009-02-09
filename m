@@ -1,64 +1,64 @@
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: odd policy behavior
-Date: Mon, 9 Feb 2009 11:07:23 -0500
-Message-ID: <170D6ABBBA770349AA49582A86FCED15B25292@HAVOC.tcs-sec.com>
-References: <cadfc0e40902030828v41f836eag84d5aaa0fa7bb899@mail.gmail.com> <1233679082.14235.21.camel@localhost.localdomain> <cadfc0e40902031159r55a12a02u46b0dde8f9356460@mail.gmail.com> <1233696489.14235.28.camel@localhost.localdomain> <cadfc0e40902031349w3c4d3abdgb5c7f5b5107a4001@mail.gmail.com> <cadfc0e40902031431w5532857fq2ecfd9485dfb26ee@mail.gmail.com> <1233755713.30244.7.camel@localhost.localdomain> <4989BE58.60408@redhat.com> <1233764068.30244.23.camel@localhost.localdomain>
-From: <chanson@TrustedCS.com>
-To: <sds@tycho.nsa.gov>, <dwalsh@redhat.com>
-Cc: <txtoth@gmail.com>, <selinux@tycho.nsa.gov>
+In-Reply-To: <1234188170.28831.10.camel@localhost.localdomain>
+References: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com>
+	 <1233857436.3181.40.camel@localhost.localdomain>
+	 <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com>
+	 <1234188170.28831.10.camel@localhost.localdomain>
+Date: Mon, 9 Feb 2009 10:42:10 -0600
+Message-ID: <cadfc0e40902090842i2a62ab85ucb6bfb0e9ee5a4be@mail.gmail.com>
+Subject: Re: problem with capabilities inheritance and auditing in python
+From: Xavier Toth <txtoth@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
-> > >> The plot thickens. semodule -B causes seusers to be relabeled
-> > >> SystemLow. restorecon /etc/selinux/mls/seusers causes the file to
-be
-> > >> relabeled SystemHigh. Which is right?
-> > > 
-> > > I don't think that semodule/libsemanage explicitly set the context
-of
-> > > files they create, so they would just follow the default policy
-behavior
-> > > (in this case, inheriting the level of the creating process and
-the type
-> > > of the parent directory).
-> > > 
-> > > restorecon just applies whatever the file_contexts configuration
-> > > specifies, which appears to be SystemHigh in the mls policy.  I'm
-not
-> > > sure if that is truly justified.
-> > > 
-> > Since all the login programs have to read this file it should be at
-the
-> > SystemLow, So that a login program running at a SystemLow can work.
-> 
-> Makes sense to me, but I assume that someone thought otherwise or it
-> wouldn't have been marked as SystemHigh in the first place?  Does the
-> LSPP impose a particular restriction on it?  There are
-> other /etc/selinux files in file_contexts as well that are marked with
-> SystemHigh (or to be precise, s15:c0.c1023) in the -mls policy.
+On Mon, Feb 9, 2009 at 8:02 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Fri, 2009-02-06 at 15:56 -0600, Xavier Toth wrote:
+>> On Thu, Feb 5, 2009 at 12:10 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> > On Thu, 2009-02-05 at 11:08 -0600, Xavier Toth wrote:
+>> >> I've set the capabilities on a script that runs some python code with
+>> >> auditing calls in it but I'm not getting audit records written to the
+>> >> audit log. From what I've read I thought the +i would all the
+>> >> capability to be inherited across execve but this doesn't appear to be
+>> >> the case. Can anyone help me understand what's going wrong here? Is
+>> >> there a way in the python code to get the capabilities to see if
+>> >> indeed cap_audit_write was inherited?
+>> >
+>> > Linux doesn't honor setuid on scripts, and file capabilities are
+>> > supposed to have the same behavior (they didn't for a while due to an
+>> > oversight, but that was corrected).  You need an executable wrapper
+>> > program that invokes the script, like:
+>> > http://oss.tresys.com/projects/clip/browser/trunk/RHEL5.2/scripts/wrappers/wrapper.c
+>> >
+>> > --
+>> > Stephen Smalley
+>> > National Security Agency
+>> >
+>> >
+>>
+>> Having used this wrapper code pretty much as is I'm now seeing
+>> self:capability dac_override and dac_read_search AVCs. Do I need to do
+>> something similar to what newrole does to drop capabilities that I
+>> don't need my python script to have after all I'm only trying to give
+>> it the ability to audit?
+>
+> You can just dontaudit those denials if you don't need those
+> capabilities.
+>
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
 
-I agree that the SystemHigh labeling of this file is probably overkill,
-but we may have erred on the conservative side. I can see how this gets
-in the way of getseuserbyname(). The RHEL 5.1 LSPP Configuration Guide
-is a bit murky in this area. Section 4.3 states the administrator should
-pick SystemLow or SystemHigh for administrative actions as well a note
-for SystemLow for system administration. As noted above, the seusers
-will get created at SystemLow or SystemHigh depending on the process
-label when executing 'semodule -B'. The restorecon settings of the
-policy can cause a a couple of problems. We perform policy management at
-SystemHigh and have different inconsistencies, than seusers, with
-restorecon based on running at SystemHigh. The other issue with the
-restorecon is that the SELinux User will for the policy files will
-always be different than the 'system_u' defined for the file after
-running 'semodule -B' as 'staff_u' for example. This can be a problem if
-you are storing SELinux attributes for integrity purposes or checking
-them with restorecon.
+Unfortunately python doesn't survive the dac_read_search AVC. I also
+tried removing the setreuid/setregid calls, doing a setcap
+cap_audit_write=ep on the wrapper and not running the wrapper as
+setuid but that doesn't work.
 
--Chad
-
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
