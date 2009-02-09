@@ -1,77 +1,63 @@
-Subject: Re: security_compute_av_raw confusion
-From: "Christopher J. PeBenito" <cpebenito@tresys.com>
-To: Joe Nall <joe@nall.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <566C419E-5A34-4E5E-947E-4E0AF57863F3@nall.com>
-References: <58C746BE-D2EA-4B17-B7F8-37F57E0AD806@nall.com>
-	 <1233942173.10320.58.camel@localhost.localdomain>
-	 <1233944128.4921.1.camel@gorn.columbia.tresys.com>
-	 <566C419E-5A34-4E5E-947E-4E0AF57863F3@nall.com>
-Content-Type: text/plain
-Date: Mon, 09 Feb 2009 09:18:55 -0500
-Message-Id: <1234189138.4921.4.camel@gorn>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Subject: RE: odd policy behavior
+Date: Mon, 9 Feb 2009 11:07:23 -0500
+Message-ID: <170D6ABBBA770349AA49582A86FCED15B25292@HAVOC.tcs-sec.com>
+References: <cadfc0e40902030828v41f836eag84d5aaa0fa7bb899@mail.gmail.com> <1233679082.14235.21.camel@localhost.localdomain> <cadfc0e40902031159r55a12a02u46b0dde8f9356460@mail.gmail.com> <1233696489.14235.28.camel@localhost.localdomain> <cadfc0e40902031349w3c4d3abdgb5c7f5b5107a4001@mail.gmail.com> <cadfc0e40902031431w5532857fq2ecfd9485dfb26ee@mail.gmail.com> <1233755713.30244.7.camel@localhost.localdomain> <4989BE58.60408@redhat.com> <1233764068.30244.23.camel@localhost.localdomain>
+From: <chanson@TrustedCS.com>
+To: <sds@tycho.nsa.gov>, <dwalsh@redhat.com>
+Cc: <txtoth@gmail.com>, <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-02-06 at 13:59 -0600, Joe Nall wrote:
-> On Feb 6, 2009, at 12:15 PM, Christopher J. PeBenito wrote:
+ 
+> > >> The plot thickens. semodule -B causes seusers to be relabeled
+> > >> SystemLow. restorecon /etc/selinux/mls/seusers causes the file to
+be
+> > >> relabeled SystemHigh. Which is right?
+> > > 
+> > > I don't think that semodule/libsemanage explicitly set the context
+of
+> > > files they create, so they would just follow the default policy
+behavior
+> > > (in this case, inheriting the level of the creating process and
+the type
+> > > of the parent directory).
+> > > 
+> > > restorecon just applies whatever the file_contexts configuration
+> > > specifies, which appears to be SystemHigh in the mls policy.  I'm
+not
+> > > sure if that is truly justified.
+> > > 
+> > Since all the login programs have to read this file it should be at
+the
+> > SystemLow, So that a login program running at a SystemLow can work.
 > 
-> > On Fri, 2009-02-06 at 12:42 -0500, Stephen Smalley wrote:
-> >> On Fri, 2009-02-06 at 10:21 -0600, Joe Nall wrote:
-> >>> I confused by the behavior of security_compute_av_raw in fedora  
-> >>> rawhide
-> >>> ...
-> >>> rc = security_compute_av_raw(ctx, raw, SECCLASS_CONTEXT,
-> >>> CONTEXT__CONTAINS, &avd);
-> >>> log_debug("ctx=%s raw=%s avd.allowed=%d rc=%d\n", ctx, raw,
-> >>> avd.allowed, rc);
-> >>> ...
-> >>>
-> >>> with ctx and raw identical user contexts, it works as expected:
-> >>>
-> >>> ctx=user_u:user_r:user_t:s15:c0.c1023
-> >>> raw=user_u:user_r:user_t:s15:c0.c1023 avd.allowed=2 rc=0
-> >>>
-> >>> with ctx and raw identical system contexts, it behaves differently:
-> >>>
-> >>> ctx=system_u:system_r:setrans_t:s15:c0.c1023
-> >>> raw=system_u:system_r:setrans_t:s15:c0.c1023 avd.allowed=1 rc=0
-> >>>
-> >>> both in mls/permissive. No obvious avcs.
-> >>
-> >> The refpolicy only allows context contains permission for the user
-> >> domains since that was the only usage of it originally, when checking
-> >> whether a user-supplied context was contained by the seusers-defined
-> >> range.  It is allowed by the interfaces in userdomain.if.  If you  
-> >> want
-> >> it applied to all domains, you'll need to make it part of  
-> >> domain_type().
-> >
-> > If it makes sense, I have no trouble doing that upstream.  Joe, what  
-> > do
-> > you think?
-> 
-> Works for me. At a minimum we need:
-> 
-> gen_require(`
->          type setrans_t;
->          class context contains;
-> ')
-> allow setrans_t self:context contains;
-> 
-> for Eamon's color mcstrans patch to work. See Ted's earlier email:
-> 
-> http://engardelinux.org/modules/index/list_archives.cgi?list=selinux&page=0015.html&month=2009-01
-> 
-> I got to rediscover the issue and have Stephen explain it again :)
+> Makes sense to me, but I assume that someone thought otherwise or it
+> wouldn't have been marked as SystemHigh in the first place?  Does the
+> LSPP impose a particular restriction on it?  There are
+> other /etc/selinux files in file_contexts as well that are marked with
+> SystemHigh (or to be precise, s15:c0.c1023) in the -mls policy.
 
-Ok, for now I've just added it to setrans.
+I agree that the SystemHigh labeling of this file is probably overkill,
+but we may have erred on the conservative side. I can see how this gets
+in the way of getseuserbyname(). The RHEL 5.1 LSPP Configuration Guide
+is a bit murky in this area. Section 4.3 states the administrator should
+pick SystemLow or SystemHigh for administrative actions as well a note
+for SystemLow for system administration. As noted above, the seusers
+will get created at SystemLow or SystemHigh depending on the process
+label when executing 'semodule -B'. The restorecon settings of the
+policy can cause a a couple of problems. We perform policy management at
+SystemHigh and have different inconsistencies, than seusers, with
+restorecon based on running at SystemHigh. The other issue with the
+restorecon is that the SELinux User will for the policy files will
+always be different than the 'system_u' defined for the file after
+running 'semodule -B' as 'staff_u' for example. This can be a problem if
+you are storing SELinux attributes for integrity purposes or checking
+them with restorecon.
 
--- 
-Chris PeBenito
-Tresys Technology, LLC
-(410) 290-1411 x150
+-Chad
 
 
 --
