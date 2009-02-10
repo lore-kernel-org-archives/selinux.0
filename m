@@ -1,70 +1,38 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1AHtEqw031151
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 12:55:29 -0500
-Received: from ctyaarimta01-1.yaariinvites.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1AHpxCK020280
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 17:52:00 GMT
-Date: Tue, 10 Feb 2009 12:55:09 -0500
-To: selinux@tycho.nsa.gov
-From: SATISH MADRAGE <svmdcv@gmail.com>
-Reply-to: svmdcv@gmail.com
-Subject: SATISH MADRAGE sent you a Friend Request on Yaari
-Message-ID: <24906a36de3f447d84dd77a81cc85028@localhost.localdomain>
+Date: Tue, 10 Feb 2009 12:34:39 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Xavier Toth <txtoth@gmail.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+Subject: Re: problem with capabilities inheritance and auditing in python
+Message-ID: <20090210183438.GA14133@us.ibm.com>
+References: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com> <1233857436.3181.40.camel@localhost.localdomain> <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com> <1234188170.28831.10.camel@localhost.localdomain> <cadfc0e40902090842i2a62ab85ucb6bfb0e9ee5a4be@mail.gmail.com> <1234210633.28831.87.camel@localhost.localdomain> <20090209204200.GA25401@us.ibm.com> <cadfc0e40902100900n12d116b2m7b1c5db4ae43c9d@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="b1_24906a36de3f447d84dd77a81cc85028"
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <cadfc0e40902100900n12d116b2m7b1c5db4ae43c9d@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+Quoting Xavier Toth (txtoth@gmail.com):
+> I was not putting capabilities on the script but rather on a compiled
+> wrapper which execs a python script in which I need to do auditing.
+> Will this not work?
 
---b1_24906a36de3f447d84dd77a81cc85028
-Content-Type: text/plain; charset = "iso-8859-1"
-Content-Transfer-Encoding: 8bit
+No, because of the way capabilities are re-calculated on exec().
 
-SATISH MADRAGE wants you to join Yaari!
+	pI' = pI
+	pP' = (X&fP) | (pI & fI)
+	pE' = fE ? pP' : 0
 
-Is SATISH your friend?
+So since the interpreter has fI=fP=fE=0 and is not setuid root (which
+would fill in fP and/or fE to emulate privileged root), pP' and pE' will
+be empty after exec().
 
-<a href="http://yaari.com/?controller=user&action=mailregister&friend=1&sign=YaariMEW596PXX574UWD406SDK942">Yes, SATISH is my friend!</a> <a href="http://yaari.com/?controller=user&action=mailregister&friend=0&sign=YaariMEW596PXX574UWD406SDK942">No, SATISH isn't my friend.</a>
+Now you could use a wrapper as follows:  Have the wrapper fill pI,
+and then fill fI on the python interpreter.  Any user who has an
+empty pI (which generally is all users) will execute python scripts
+with no privilege, but when the wrapper execs the script, pP' will
+be filled with (pI&fI) = full.
 
-Please respond or SATISH may think you said no :(
-
-Thanks,
-The Yaari Team
-____
-If you prefer not to receive this email tell us <a href="http://yaari.com/?controller=absn&action=addoptout&email=selinux@tycho.nsa.gov">here</a>. If you have any concerns 
-regarding the content of this message, please email abuse@yaari.com.  
-Yaari LLC, 358 Angier Ave, Atlanta, GA 30312
-
-YaariMEW596PXX574UWD406SDK942
-
-
---b1_24906a36de3f447d84dd77a81cc85028
-Content-Type: text/html; charset = "iso-8859-1"
-Content-Transfer-Encoding: 8bit
-
-SATISH MADRAGE wants you to join Yaari!<br />
-<br />
-Is SATISH your friend?<br />
-<br />
-<a href="http://yaari.com/?controller=user&action=mailregister&friend=1&sign=YaariMEW596PXX574UWD406SDK942">Yes, SATISH is my friend!</a> <a href="http://yaari.com/?controller=user&action=mailregister&friend=0&sign=YaariMEW596PXX574UWD406SDK942">No, SATISH isn't my friend.</a><br />
-<br />
-Please respond or SATISH may think you said no :(<br />
-<br />
-Thanks,<br />
-The Yaari Team<br />
-____<br />
-If you prefer not to receive this email tell us <a href="http://yaari.com/?controller=absn&action=addoptout&email=selinux@tycho.nsa.gov">here</a>. If you have any concerns <br />
-regarding the content of this message, please email abuse@yaari.com.  <br />
-Yaari LLC, 358 Angier Ave, Atlanta, GA 30312<br />
-<br />
-YaariMEW596PXX574UWD406SDK942
-
-
-
---b1_24906a36de3f447d84dd77a81cc85028--
-
-
+-serge
 
 --
 This message was distributed to subscribers of the selinux mailing list.
