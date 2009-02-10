@@ -1,95 +1,70 @@
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1AHtEqw031151
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 12:55:29 -0500
+Received: from ctyaarimta01-1.yaariinvites.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1AHpxCK020280
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 17:52:00 GMT
+Date: Tue, 10 Feb 2009 12:55:09 -0500
+To: selinux@tycho.nsa.gov
+From: SATISH MADRAGE <svmdcv@gmail.com>
+Reply-to: svmdcv@gmail.com
+Subject: SATISH MADRAGE sent you a Friend Request on Yaari
+Message-ID: <24906a36de3f447d84dd77a81cc85028@localhost.localdomain>
 MIME-Version: 1.0
-In-Reply-To: <20090209204200.GA25401@us.ibm.com>
-References: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com>
-	 <1233857436.3181.40.camel@localhost.localdomain>
-	 <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com>
-	 <1234188170.28831.10.camel@localhost.localdomain>
-	 <cadfc0e40902090842i2a62ab85ucb6bfb0e9ee5a4be@mail.gmail.com>
-	 <1234210633.28831.87.camel@localhost.localdomain>
-	 <20090209204200.GA25401@us.ibm.com>
-Date: Tue, 10 Feb 2009 11:00:28 -0600
-Message-ID: <cadfc0e40902100900n12d116b2m7b1c5db4ae43c9d@mail.gmail.com>
-Subject: Re: problem with capabilities inheritance and auditing in python
-From: Xavier Toth <txtoth@gmail.com>
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/alternative;
+	boundary="b1_24906a36de3f447d84dd77a81cc85028"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Feb 9, 2009 at 2:42 PM, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> Quoting Stephen Smalley (sds@tycho.nsa.gov):
->> On Mon, 2009-02-09 at 10:42 -0600, Xavier Toth wrote:
->> > On Mon, Feb 9, 2009 at 8:02 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> > > On Fri, 2009-02-06 at 15:56 -0600, Xavier Toth wrote:
->> > >> On Thu, Feb 5, 2009 at 12:10 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> > >> > On Thu, 2009-02-05 at 11:08 -0600, Xavier Toth wrote:
->> > >> >> I've set the capabilities on a script that runs some python code with
->> > >> >> auditing calls in it but I'm not getting audit records written to the
->> > >> >> audit log. From what I've read I thought the +i would all the
->> > >> >> capability to be inherited across execve but this doesn't appear to be
->> > >> >> the case. Can anyone help me understand what's going wrong here? Is
->> > >> >> there a way in the python code to get the capabilities to see if
->> > >> >> indeed cap_audit_write was inherited?
->> > >> >
->> > >> > Linux doesn't honor setuid on scripts, and file capabilities are
->> > >> > supposed to have the same behavior (they didn't for a while due to an
->> > >> > oversight, but that was corrected).  You need an executable wrapper
->> > >> > program that invokes the script, like:
->> > >> > http://oss.tresys.com/projects/clip/browser/trunk/RHEL5.2/scripts/wrappers/wrapper.c
->> > >> >
->> > >> > --
->> > >> > Stephen Smalley
->> > >> > National Security Agency
->> > >> >
->> > >> >
->> > >>
->> > >> Having used this wrapper code pretty much as is I'm now seeing
->> > >> self:capability dac_override and dac_read_search AVCs. Do I need to do
->> > >> something similar to what newrole does to drop capabilities that I
->> > >> don't need my python script to have after all I'm only trying to give
->> > >> it the ability to audit?
->> > >
->> > > You can just dontaudit those denials if you don't need those
->> > > capabilities.
->> > >
->> > > --
->> > > Stephen Smalley
->> > > National Security Agency
->> > >
->> > >
->> >
->> > Unfortunately python doesn't survive the dac_read_search AVC. I also
->> > tried removing the setreuid/setregid calls, doing a setcap
->> > cap_audit_write=ep on the wrapper and not running the wrapper as
->> > setuid but that doesn't work.
->>
->> So what is it trying to access (enable syscall auditing with at least
->> one audit syscall filter defined so the kernel will collect PATH records
->> for you and emit them after any AVC denials)?
->>
->> On the separate question of capability inheritance on exec of a script
->> from a wrapper with file capabilities, I'll defer to Serge.
->
-> Right, file capabilities on scripts are disregarded.  So things to do
-> would include:
->
-> 1. set capabilities on the interpreter (in which case you'll likely
-> want to make sure the interpreter can't be called by anyone else)
->
-> 2. keep capabilities in pI, and place capabilities in fI (and if you
-> must fE) on all of the compiled programs called by the script.
->
-> 3. Make the whole thing a compiled program...
->
-> -serge
->
 
-I was not putting capabilities on the script but rather on a compiled
-wrapper which execs a python script in which I need to do auditing.
-Will this not work?
+--b1_24906a36de3f447d84dd77a81cc85028
+Content-Type: text/plain; charset = "iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-Ted
+SATISH MADRAGE wants you to join Yaari!
+
+Is SATISH your friend?
+
+<a href="http://yaari.com/?controller=user&action=mailregister&friend=1&sign=YaariMEW596PXX574UWD406SDK942">Yes, SATISH is my friend!</a> <a href="http://yaari.com/?controller=user&action=mailregister&friend=0&sign=YaariMEW596PXX574UWD406SDK942">No, SATISH isn't my friend.</a>
+
+Please respond or SATISH may think you said no :(
+
+Thanks,
+The Yaari Team
+____
+If you prefer not to receive this email tell us <a href="http://yaari.com/?controller=absn&action=addoptout&email=selinux@tycho.nsa.gov">here</a>. If you have any concerns 
+regarding the content of this message, please email abuse@yaari.com.  
+Yaari LLC, 358 Angier Ave, Atlanta, GA 30312
+
+YaariMEW596PXX574UWD406SDK942
+
+
+--b1_24906a36de3f447d84dd77a81cc85028
+Content-Type: text/html; charset = "iso-8859-1"
+Content-Transfer-Encoding: 8bit
+
+SATISH MADRAGE wants you to join Yaari!<br />
+<br />
+Is SATISH your friend?<br />
+<br />
+<a href="http://yaari.com/?controller=user&action=mailregister&friend=1&sign=YaariMEW596PXX574UWD406SDK942">Yes, SATISH is my friend!</a> <a href="http://yaari.com/?controller=user&action=mailregister&friend=0&sign=YaariMEW596PXX574UWD406SDK942">No, SATISH isn't my friend.</a><br />
+<br />
+Please respond or SATISH may think you said no :(<br />
+<br />
+Thanks,<br />
+The Yaari Team<br />
+____<br />
+If you prefer not to receive this email tell us <a href="http://yaari.com/?controller=absn&action=addoptout&email=selinux@tycho.nsa.gov">here</a>. If you have any concerns <br />
+regarding the content of this message, please email abuse@yaari.com.  <br />
+Yaari LLC, 358 Angier Ave, Atlanta, GA 30312<br />
+<br />
+YaariMEW596PXX574UWD406SDK942
+
+
+
+--b1_24906a36de3f447d84dd77a81cc85028--
+
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
