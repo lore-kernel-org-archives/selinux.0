@@ -1,53 +1,48 @@
-Subject: Re: [PATCH 1/3] SELinux: fix selinux to safely handle any bugs
- even when not CONFIG_BUG
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Eric Paris <eparis@redhat.com>, selinux@tycho.nsa.gov
-In-Reply-To: <alpine.LRH.1.10.0902110151340.6605@tundra.namei.org>
+From: Paul Moore <paul.moore@hp.com>
+To: Eric Paris <eparis@redhat.com>
+Subject: Re: [PATCH 1/3] SELinux: fix selinux to safely handle any bugs even when not CONFIG_BUG
+Date: Tue, 10 Feb 2009 11:37:11 -0500
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org
 References: <20090209213714.9537.8322.stgit@paris.rdu.redhat.com>
-	 <1234274420.4642.22.camel@localhost.localdomain>
-	 <1234276789.3724.30.camel@localhost.localdomain>
-	 <alpine.LRH.1.10.0902110151340.6605@tundra.namei.org>
-Content-Type: text/plain
-Date: Tue, 10 Feb 2009 10:05:18 -0500
-Message-Id: <1234278318.4642.54.camel@localhost.localdomain>
-Mime-Version: 1.0
+In-Reply-To: <20090209213714.9537.8322.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200902101137.12307.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-02-11 at 01:52 +1100, James Morris wrote:
-> On Tue, 10 Feb 2009, Eric Paris wrote:
-> 
-> > > > +++ b/security/selinux/ss/services.c
-> > > > @@ -120,16 +120,25 @@ static int constraint_expr_eval(struct context *scontext,
-> > > >  	for (e = cexpr; e; e = e->next) {
-> > > >  		switch (e->expr_type) {
-> > > >  		case CEXPR_NOT:
-> > > > -			BUG_ON(sp < 0);
-> > > > +			if (unlikely(sp < 0)) {
-> > > > +				BUG();
-> > > > +				return 0;
-> > > > +			}
-> > > 
-> > > General question:  Should we in fact be panic'ing in these cases where
-> > > we cannot return a value that will in fact abort the computation and
-> > > guarantee that the operation will not proceed?  Same applies to the
-> > > ebitmap code.  Just returning 0 (false) doesn't necessarily mean that we
-> > > won't grant a permission, as the result may get negated.
-> > 
-> > James?
-> 
-> Perhaps panic() in enforcing mode, otherwise print a warning.
+On Monday 09 February 2009 04:37:14 pm Eric Paris wrote:
+> If CONFIG_BUG is not set places in the code where BUG is called will not
+> end execution.  Look for places where this might result is system problems
+> and keep the system running.
+>
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-Yuck.
+...
 
-These are cases where we were already fine with an undefined opcode from
-BUG() happening in the usual CONFIG_BUG=y case, so I'd think they could
-be made unconditional panic() calls.
+> diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+> index 7100072..e002d5a 100644
+> --- a/security/selinux/netnode.c
+> +++ b/security/selinux/netnode.c
+
+...
+
+> @@ -240,6 +242,7 @@ static int sel_netnode_sid_slow(void *addr, u16 family,
+> u32 *sid) break;
+>  	default:
+>  		BUG();
+> +		ret = -EINVAL;
+>  	}
+>  	if (ret != 0)
+>  		goto out;
+
+I'm just being picky here, but how about EPROTONOSUPPORT instead of EINVAL 
+here?  Otherwise it looks good to me.
 
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+linux @ hp
 
 
 --
