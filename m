@@ -1,38 +1,113 @@
-Date: Tue, 10 Feb 2009 12:34:39 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: problem with capabilities inheritance and auditing in python
-Message-ID: <20090210183438.GA14133@us.ibm.com>
-References: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com> <1233857436.3181.40.camel@localhost.localdomain> <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com> <1234188170.28831.10.camel@localhost.localdomain> <cadfc0e40902090842i2a62ab85ucb6bfb0e9ee5a4be@mail.gmail.com> <1234210633.28831.87.camel@localhost.localdomain> <20090209204200.GA25401@us.ibm.com> <cadfc0e40902100900n12d116b2m7b1c5db4ae43c9d@mail.gmail.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1AJMwuj011095
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 14:22:58 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1AJJhCK004347
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 19:19:43 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n1AJMs0g022907
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 14:22:54 -0500
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n1AJMsNW003851
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 14:22:55 -0500
+Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n1AJMrlM028341
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 14:22:54 -0500
+Message-ID: <4991D40C.1000205@redhat.com>
+Date: Tue, 10 Feb 2009 14:22:52 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cadfc0e40902100900n12d116b2m7b1c5db4ae43c9d@mail.gmail.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: [Fwd: Re: bind-mounted homedirs]
+Content-Type: multipart/mixed;
+ boundary="------------020106090701040508070205"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Xavier Toth (txtoth@gmail.com):
-> I was not putting capabilities on the script but rather on a compiled
-> wrapper which execs a python script in which I need to do auditing.
-> Will this not work?
+This is a multi-part message in MIME format.
+--------------020106090701040508070205
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-No, because of the way capabilities are re-calculated on exec().
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	pI' = pI
-	pP' = (X&fP) | (pI & fI)
-	pE' = fE ? pP' : 0
+Still trying to think of a good solution for alternate file layouts.
 
-So since the interpreter has fI=fP=fE=0 and is not setuid root (which
-would fill in fP and/or fE to emulate privileged root), pP' and pE' will
-be empty after exec().
+This email below points out another problem in addition to /home mapping.
 
-Now you could use a wrapper as follows:  Have the wrapper fill pI,
-and then fill fI on the python interpreter.  Any user who has an
-empty pI (which generally is all users) will execute python scripts
-with no privilege, but when the wrapper execs the script, pP' will
-be filled with (pI&fI) = full.
+Maybe we could add a
+semanage  fcontext --duplicate /home /exports/home
+semanage fcontext --duplicate /var/log /cluster/log
 
--serge
+Which would cause semanage to duplicate all file context mappings that
+begin with the prefix /home to /exports/home.
+
+What do you think?
+
+
+
+- -------- Original Message --------
+Subject: Re: bind-mounted homedirs
+Date: Wed, 4 Feb 2009 09:26:06 +0000
+From: pgega@secpay.com
+Organization: PayPoint.net
+To: Daniel J Walsh <dwalsh@redhat.com>, Paul Howarth <paul@city-fan.org>
+CC: fedora-selinux-list@redhat.com
+References: <49787F7C.2090907@city-fan.org>
+<20090126203147.75c37c15@metropolis.intra.city-fan.org>
+<497F13A8.9050105@redhat.com>
+
+Hello,
+
+> File, but I think the solution is to be able to add alternative roots in
+>  the libsemanage.conf file and have it do the labeling for you.
+
+I do have a very similar problem - I run a bit modified version of base
+filesystem (for cluster purpose) and some directories are moved to /node
+or /cluster and symlinked to original location.
+For example there is /var/log which is a symlink to /node/var/log. And
+during relabels/restorecon log files in /node/var/log are not labeled
+properly (labeled as default_t).
+
+It's not really possible to give alternative root paths in
+semanage.conf, is it ?
+If so ,that would solve my problem.
+
+Kind Regards,
+Pawel Gega
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkmR1AwACgkQrlYvE4MpobMiwwCgutTQapXKuhwdIjDhGU3wPoBb
+EV8AoOtxtO8PN22CTw2jRnndTaS+Zl0W
+=Bfta
+-----END PGP SIGNATURE-----
+
+--------------020106090701040508070205
+Content-Type: text/plain;
+ name="Attached Message Part"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Attached Message Part"
+
+--
+fedora-selinux-list mailing list
+fedora-selinux-list@redhat.com
+https://www.redhat.com/mailman/listinfo/fedora-selinux-list
+
+--------------020106090701040508070205
+Content-Type: application/octet-stream;
+ name="Attached Message Part.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="Attached Message Part.sig"
+
+iEYEABECAAYFAkmR1AwACgkQrlYvE4MpobP5GgCdFX+qRizwyBDVf4FezElalJZbE0sAn0FF
+TNWfmLxqGwOS9Ha3OJFuOrVR
+--------------020106090701040508070205--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
