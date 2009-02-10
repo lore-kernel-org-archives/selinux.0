@@ -1,227 +1,115 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1AKchRO021041
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 15:38:43 -0500
-Received: from QMTA10.westchester.pa.mail.comcast.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1AKZS9W016384
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 20:35:28 GMT
-Received: from ccase by shiva.hsd1.md.comcast.net. with local (Exim 4.69)
-	(envelope-from <ccase@tresys.com>)
-	id 1LWzNR-0001Qe-4E
-	for selinux@tycho.nsa.gov; Tue, 10 Feb 2009 15:38:41 -0500
-Subject: [PATCH] aliases for the boundry format
-To: <selinux@tycho.nsa.gov>
-Message-Id: <E1LWzNR-0001Qe-4E@shiva.hsd1.md.comcast.net.>
-From: Caleb Case <ccase@tresys.com>
-Date: Tue, 10 Feb 2009 15:38:41 -0500
+MIME-Version: 1.0
+In-Reply-To: <1234298002.4642.140.camel@localhost.localdomain>
+References: <cadfc0e40902050908n5391c4b4l417714fe87a47f29@mail.gmail.com>
+	 <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com>
+	 <1234188170.28831.10.camel@localhost.localdomain>
+	 <cadfc0e40902090842i2a62ab85ucb6bfb0e9ee5a4be@mail.gmail.com>
+	 <1234210633.28831.87.camel@localhost.localdomain>
+	 <20090209204200.GA25401@us.ibm.com>
+	 <cadfc0e40902100900n12d116b2m7b1c5db4ae43c9d@mail.gmail.com>
+	 <20090210183438.GA14133@us.ibm.com>
+	 <cadfc0e40902101220o7c7b162v84cbbfb264a7c980@mail.gmail.com>
+	 <1234298002.4642.140.camel@localhost.localdomain>
+Date: Tue, 10 Feb 2009 14:59:47 -0600
+Message-ID: <cadfc0e40902101259q2c781ewa7056fad53beffb@mail.gmail.com>
+Subject: Re: problem with capabilities inheritance and auditing in python
+From: Xavier Toth <txtoth@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Tue, Feb 10, 2009 at 2:33 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Tue, 2009-02-10 at 14:20 -0600, Xavier Toth wrote:
+>> On Tue, Feb 10, 2009 at 12:34 PM, Serge E. Hallyn <serue@us.ibm.com> wrote:
+>> > Quoting Xavier Toth (txtoth@gmail.com):
+>> >> I was not putting capabilities on the script but rather on a compiled
+>> >> wrapper which execs a python script in which I need to do auditing.
+>> >> Will this not work?
+>> >
+>> > No, because of the way capabilities are re-calculated on exec().
+>> >
+>> >        pI' = pI
+>> >        pP' = (X&fP) | (pI & fI)
+>> >        pE' = fE ? pP' : 0
+>> >
+>> > So since the interpreter has fI=fP=fE=0 and is not setuid root (which
+>> > would fill in fP and/or fE to emulate privileged root), pP' and pE' will
+>> > be empty after exec().
+>> >
+>> > Now you could use a wrapper as follows:  Have the wrapper fill pI,
+>> > and then fill fI on the python interpreter.  Any user who has an
+>> > empty pI (which generally is all users) will execute python scripts
+>> > with no privilege, but when the wrapper execs the script, pP' will
+>> > be filled with (pI&fI) = full.
+>> >
+>> > -serge
+>> >
+>>
+>> Thanks for the clarification.
+>> For anyone one that is interested I've included some test code. The
+>> wrapper is a modified version of a wrapper Stephen sent me a link to.
+>> Basic steps to test are:
+>> 1) edit the wrapper to set the path to the audit_test.py script
+>> 2) compiler the wrapper
+>>     gcc -o audit-wrapper audit-wrapper.c -lcap
+>> 3) set the capabilities on the wrapper and python
+>>     setcap cap_audit_write,cap_setfcap=epi audit-wrapper
+>
+> Why cap_setfcap (set file capability)?
 
-The boundry format mapped the primary field to a boolean in the
-properties bitmap. This is appropriate for the kernel policy, but in
-modular policy the primary field may be an integer that indicates the
-primary type that is being aliased. In this case, the primary value cannot
-be assumed to be boolean.
+The wrapper adds the 'i' back to cap_audit_write as it goes away when
+audit-wrapper runs. I was printing the capabilities in the wrapper for
+debug purposes when I noticed that it capabilities were "=
+cap_audit_write,cap_setfcap+ep". I think without the i cap_audit_write
+can't be inherited by the child process.
 
-This patch creates a new module format that writes out the primary value
-as was done before the boundry format.
+> And do you need to set fI on the wrapper at all, given that it isn't
+> inheriting anything from its caller?
 
-Signed-off-by: Caleb Case <ccase@tresys.com>
+Without cap_setfcap cap_set_proc fails, without cap_audit_write
+cap_set_proc fails (see cap_set_proc man page).
 
----
- 
- checkpolicy/module_compiler.c              |    2 +-
- checkpolicy/policy_define.c                |   13 +++++++-
- libsepol/include/sepol/policydb/policydb.h |   19 +++++-----
- libsepol/src/policydb.c                    |   50 +++++++++++++++++++++------
- libsepol/src/write.c                       |    5 +++
- 5 files changed, 67 insertions(+), 22 deletions(-)
+>
+>>     setcap cap_audit_write=ei /usr/bin/python
+>
+> Is setting fE required on the interpreter?
 
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index 36d20be..d6ebd78 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -136,7 +136,7 @@ int declare_symbol(uint32_t symbol_type,
- 	}
- 	retval = symtab_insert(policydbp, symbol_type, key, datum,
- 			       SCOPE_DECL, decl->decl_id, dest_value);
--	if (retval == 1) {
-+	if (retval == 1 && dest_value) {
- 		symtab_datum_t *s =
- 		    (symtab_datum_t *) hashtab_search(policydbp->
- 						      symtab[symbol_type].table,
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 25b06c1..17b84ce 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -1015,8 +1015,19 @@ static int add_aliases_to_type(type_datum_t * type)
- 				yyerror("could not declare alias here");
- 				goto cleanup;
- 			}
--		case 0:
-+		case 0:	 	break;
- 		case 1:{
-+				/* ret == 1 means the alias was required and therefore already
-+				 * has a value. Set it up as an alias with a different primary. */
-+				type_datum_destroy(aliasdatum);
-+				free(aliasdatum);
-+
-+				aliasdatum = hashtab_search(policydbp->symtab[SYM_TYPES].table, id);
-+				assert(aliasdatum);
-+
-+				aliasdatum->primary = type->s.value;
-+				aliasdatum->flavor = TYPE_ALIAS;
-+
- 				break;
- 			}
- 		default:{
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index eede389..0105cf4 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -614,17 +614,18 @@ extern int policydb_write(struct policydb *p, struct policy_file *pf);
- #define POLICYDB_VERSION_MAX	POLICYDB_VERSION_BOUNDARY
- 
- /* Module versions and specific changes*/
--#define MOD_POLICYDB_VERSION_BASE	   4
--#define MOD_POLICYDB_VERSION_VALIDATETRANS 5
--#define MOD_POLICYDB_VERSION_MLS	   5
--#define MOD_POLICYDB_VERSION_RANGETRANS	   6
--#define MOD_POLICYDB_VERSION_MLS_USERS	   6
--#define MOD_POLICYDB_VERSION_POLCAP	   7
--#define MOD_POLICYDB_VERSION_PERMISSIVE	   8
--#define MOD_POLICYDB_VERSION_BOUNDARY      9
-+#define MOD_POLICYDB_VERSION_BASE		4
-+#define MOD_POLICYDB_VERSION_VALIDATETRANS	5
-+#define MOD_POLICYDB_VERSION_MLS		5
-+#define MOD_POLICYDB_VERSION_RANGETRANS 	6
-+#define MOD_POLICYDB_VERSION_MLS_USERS		6
-+#define MOD_POLICYDB_VERSION_POLCAP		7
-+#define MOD_POLICYDB_VERSION_PERMISSIVE		8
-+#define MOD_POLICYDB_VERSION_BOUNDARY		9
-+#define MOD_POLICYDB_VERSION_BOUNDARY_ALIAS	10
- 
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_BOUNDARY
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_BOUNDARY_ALIAS
- 
- #define POLICYDB_CONFIG_MLS    1
- 
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index d623343..85ddefc 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -153,6 +153,12 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = OCON_NODE6 + 1,
- 	},
- 	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_BOUNDARY_ALIAS,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_NODE6 + 1,
-+	},
-+	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
- 	 .sym_num = SYM_NUM,
-@@ -188,6 +194,12 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .sym_num = SYM_NUM,
- 	 .ocon_num = 0
- 	},
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_BOUNDARY_ALIAS,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0
-+	},
- };
- 
- #if 0
-@@ -1942,13 +1954,19 @@ static int type_read(policydb_t * p
- 	uint32_t buf[5];
- 	size_t len;
- 	int rc, to_read;
-+	int pos = 0;
- 
- 	typdatum = calloc(1, sizeof(type_datum_t));
- 	if (!typdatum)
- 		return -1;
- 
--	if (policydb_has_boundary_feature(p))
--		to_read = 4;
-+	if (policydb_has_boundary_feature(p)) {
-+		if (p->policy_type != POLICY_KERN
-+		    && p->policyvers >= MOD_POLICYDB_VERSION_BOUNDARY_ALIAS)
-+			to_read = 5;
-+		else
-+			to_read = 4;
-+	}
- 	else if (p->policy_type == POLICY_KERN)
- 		to_read = 3;
- 	else if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
-@@ -1960,13 +1978,23 @@ static int type_read(policydb_t * p
- 	if (rc < 0)
- 		goto bad;
- 
--	len = le32_to_cpu(buf[0]);
--	typdatum->s.value = le32_to_cpu(buf[1]);
-+	len = le32_to_cpu(buf[pos]);
-+	typdatum->s.value = le32_to_cpu(buf[++pos]);
- 	if (policydb_has_boundary_feature(p)) {
--		uint32_t properties = le32_to_cpu(buf[2]);
-+		uint32_t properties;
-+
-+		if (p->policy_type != POLICY_KERN
-+		    && p->policyvers >= MOD_POLICYDB_VERSION_BOUNDARY_ALIAS) {
-+			typdatum->primary = le32_to_cpu(buf[++pos]);
-+			properties = le32_to_cpu(buf[++pos]);
-+		}
-+		else {
-+			properties = le32_to_cpu(buf[++pos]);
-+
-+			if (properties & TYPEDATUM_PROPERTY_PRIMARY)
-+				typdatum->primary = 1;
-+		}
- 
--		if (properties & TYPEDATUM_PROPERTY_PRIMARY)
--			typdatum->primary = 1;
- 		if (properties & TYPEDATUM_PROPERTY_ATTRIBUTE)
- 			typdatum->flavor = TYPE_ATTRIB;
- 		if (properties & TYPEDATUM_PROPERTY_ALIAS
-@@ -1976,13 +2004,13 @@ static int type_read(policydb_t * p
- 		    && p->policy_type != POLICY_KERN)
- 			typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
- 
--		typdatum->bounds = le32_to_cpu(buf[3]);
-+		typdatum->bounds = le32_to_cpu(buf[++pos]);
- 	} else {
--		typdatum->primary = le32_to_cpu(buf[2]);
-+		typdatum->primary = le32_to_cpu(buf[++pos]);
- 		if (p->policy_type != POLICY_KERN) {
--			typdatum->flavor = le32_to_cpu(buf[3]);
-+			typdatum->flavor = le32_to_cpu(buf[++pos]);
- 			if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
--				typdatum->flags = le32_to_cpu(buf[4]);
-+				typdatum->flags = le32_to_cpu(buf[++pos]);
- 		}
- 	}
- 
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index bffadcf..66b35ec 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -970,6 +970,11 @@ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	if (policydb_has_boundary_feature(p)) {
- 		uint32_t properties = 0;
- 
-+		if (p->policy_type != POLICY_KERN
-+		    && p->policyvers >= MOD_POLICYDB_VERSION_BOUNDARY_ALIAS) {
-+			buf[items++] = cpu_to_le32(typdatum->primary);
-+		}
-+
- 		if (typdatum->primary)
- 			properties |= TYPEDATUM_PROPERTY_PRIMARY;
- 
+I tried 'i' only it wouldn't work without 'e'.
+
+>
+>> 4) run audit-wrapper
+>> 5) check audit log for audit records.
+>>
+>> I also ran audit_test.py without the wrapper to verify that no audit
+>> would occur.
+>
+> So this approach suffices for your need?
+
+Yes
+
+>
+> The alternative would be to use the setuid-root wrapper approach, using
+> SELinux to limit the capabilities that can be used by the domain in
+> which the wrapper and the script run (no need to touch the interpreter
+> in that case).  Did you ever track down what files the script was trying
+> to access that caused a problem with DAC denials?
+>
+
+We are trying to avoid setuid-root programs and there were some other
+complicating factor with using this approach for this particular
+application. As for the DAC denials they were a red herring sorry to
+have bothered you with those. :(
+
+
+> --
+> Stephen Smalley
+> National Security Agency
+>
+>
+
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
