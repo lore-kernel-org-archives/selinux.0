@@ -1,50 +1,111 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1BDH4Er005964
-	for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2009 08:17:04 -0500
-Received: from mail-ew0-f20.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1BDH2AP025834
-	for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2009 13:17:03 GMT
-Received: by ewy13 with SMTP id 13so305120ewy.18
-        for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2009 05:17:01 -0800 (PST)
-Subject: Re: Question about su
-From: Dominick Grift <domg472@gmail.com>
-To: Dennis Wronka <linuxweb@gmx.net>
+Subject: Re: mdadm failure in MLS Enforcing
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joe Nall <joe@nall.com>
 Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200902112101.05913.linuxweb@gmx.net>
-References: <200902111650.39754.linuxweb@gmx.net>
-	 <1234349196.13112.16.camel@notebook1.grift.internal>
-	 <200902112101.05913.linuxweb@gmx.net>
+In-Reply-To: <F2BE7671-FBDA-4F31-AEE7-E75BDA1337D2@nall.com>
+References: <F2BE7671-FBDA-4F31-AEE7-E75BDA1337D2@nall.com>
 Content-Type: text/plain
-Date: Wed, 11 Feb 2009 14:16:59 +0100
-Message-Id: <1234358219.14058.3.camel@notebook1.grift.internal>
+Date: Wed, 11 Feb 2009 09:26:02 -0500
+Message-Id: <1234362362.12067.104.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-02-11 at 21:01 +0800, Dennis Wronka wrote:
-> Thanks. This info helped a lot.
-> So user_u is for regular users that are just supposed to do stuff with what 
-> the system offers. Anything else, like installing stuff is loaded off to users 
-> that are at least staff_u or above.
+On Tue, 2009-02-10 at 22:17 -0600, Joe Nall wrote:
+> mdadm runs system_u:system_r:mdadm_t:s0-s15:c0.c1023 during boot and  
+> can't access block devices that are  
+> system_u:object_r:fixed_disk_device_t:s15:c0.c1023
+> https://bugzilla.redhat.com/show_bug.cgi?id=485006
 > 
-> It's something one has to get used to, especially the part of newrole-ing 
-> first and afterwards using su.
-
-In Fedora (targeted policy) we use sudo to transition to root and
-privileged user domains. This has the advantage that one can delegate
-privileged tasks without having to share roots password. It also saves
-you from having to authenticate two times.
-
-Yes user_u is for users that should never be able to do privileged
-tasks.
-
-Staff_u can domain transition to more permissive user domains.
-
-> > --
-> > This message was distributed to subscribers of the selinux mailing list.
-> > If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> > with the words "unsubscribe selinux" without quotes as the message.
+> Posted here instead of fedora-selinux because I don't think it is  
+> fedora specific.
 > 
+> Boot avcs:
+> 
+> node=test type=AVC msg=audit(1234315341.183:18): avc:  denied   
+> { read } for  pid=1501 comm="mdadm" name="sdb2" dev=tmpfs ino=508  
+> scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
+> tcontext=system_u:object_r:fixed_disk_device_t:s15:c0.c1023  
+> tclass=blk_file
+> 
+>          Was caused by:
+>                  Policy constraint violation.
+> 
+>                  May require adding a type attribute to the domain or  
+> type to satisfy the constraint.
+> 
+>                  Constraints are defined in the policy sources in  
+> policy/constraints (general), policy/mcs (MCS), and policy/mls (MLS).
+> 
+> node=test type=AVC msg=audit(1234315341.184:19): avc:  denied   
+> { read } for  pid=1457 comm="mdadm" name=".tmp-9-1" dev=tmpfs ino=5859  
+> scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
+> tcontext=system_u:object_r:device_t:s0 tclass=blk_file
+> 
+>          Was caused by:
+>                  Missing type enforcement (TE) allow rule.
+> 
+>                  You can use audit2allow to generate a loadable module  
+> to allow this access.
+> 
+> node=test type=AVC msg=audit(1234315341.188:20): avc:  denied   
+> { getattr } for  pid=1457 comm="mdadm" path="/proc/kcore" dev=proc  
+> ino=4026531986 scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
+> tcontext=system_u:object_r:proc_kcore_t:s15:c0.c1023 tclass=file
+> 
+>          Was caused by:
+>                  Policy constraint violation.
+> 
+>                  May require adding a type attribute to the domain or  
+> type to satisfy the constraint.
+> 
+>                  Constraints are defined in the policy sources in  
+> policy/constraints (general), policy/mcs (MCS), and policy/mls (MLS).
+> 
+> so I added this policy:
+> 
+> diff -up serefpolicy-3.5.13/policy/modules/system/raid.fc.orig  
+> serefpolicy-3.5.13/policy/modules/system/raid.fc
+> --- serefpolicy-3.5.13/policy/modules/system/raid.fc.orig	2009-02-10  
+> 19:41:17.000000000 -0600
+> +++ serefpolicy-3.5.13/policy/modules/system/raid.fc	2009-02-10  
+> 19:41:31.000000000 -0600
+> @@ -2,4 +2,4 @@
+>   /sbin/mdadm		--	gen_context(system_u:object_r:mdadm_exec_t,s0)
+>   /sbin/mdmpd		--	gen_context(system_u:object_r:mdadm_exec_t,s0)
+> 
+> -/var/run/mdadm(/.*)?		gen_context(system_u:object_r:mdadm_var_run_t,s0)
+> +/var/run/mdadm(/.*)?		 
+> gen_context(system_u:object_r:mdadm_var_run_t,mls_systemhigh)
+> diff -up serefpolicy-3.5.13/policy/modules/system/raid.te.orig  
+> serefpolicy-3.5.13/policy/modules/system/raid.te
+> --- serefpolicy-3.5.13/policy/modules/system/raid.te.orig	2009-02-10  
+> 19:33:59.000000000 -0600
+> +++ serefpolicy-3.5.13/policy/modules/system/raid.te	2009-02-10  
+> 19:39:58.000000000 -0600
+> @@ -9,6 +9,10 @@ policy_module(raid, 1.7.0)
+>   type mdadm_t;
+>   type mdadm_exec_t;
+>   init_daemon_domain(mdadm_t,mdadm_exec_t)
+> +ifdef(`enable_mls',`
+> +	init_ranged_daemon_domain(mdadm_t, mdadm_exec_t,mls_systemhigh)
+> +')
+> +
+>   role system_r types mdadm_t;
+> 
+>   type mdadm_var_run_t;
+> 
+> which does transition to SystemHigh using run_init in permissive, but  
+> doesn't affect this bug.
+> 
+> Clues?
+
+I'm not sure what you mean by "doesn't affect this bug".  Did mdadm
+transition to systemhigh at boot or not?
+
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
