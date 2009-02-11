@@ -1,115 +1,77 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1B4I269006930
-	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 23:18:02 -0500
-Received: from mho-02-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1B4El0k027660
-	for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2009 04:14:47 GMT
-Received: from cpe-66-68-165-162.austin.res.rr.com ([66.68.165.162] helo=[192.168.20.230])
-	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
-	(Exim 4.68)
-	(envelope-from <joe@nall.com>)
-	id 1LX6Xw-000KVQ-Pk
-	for selinux@tycho.nsa.gov; Wed, 11 Feb 2009 04:18:01 +0000
-Message-Id: <F2BE7671-FBDA-4F31-AEE7-E75BDA1337D2@nall.com>
-From: Joe Nall <joe@nall.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1B8omrk032758
+	for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2009 03:50:48 -0500
+Received: from mail.gmx.net (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n1B8okBb013007
+	for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2009 08:50:47 GMT
+From: Dennis Wronka <linuxweb@gmx.net>
 To: SE Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Subject: mdadm failure in MLS Enforcing
-Date: Tue, 10 Feb 2009 22:17:59 -0600
+Subject: Question about su
+Date: Wed, 11 Feb 2009 16:50:29 +0800
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3699500.Yj3ZTiVvib";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Message-Id: <200902111650.39754.linuxweb@gmx.net>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-mdadm runs system_u:system_r:mdadm_t:s0-s15:c0.c1023 during boot and  
-can't access block devices that are  
-system_u:object_r:fixed_disk_device_t:s15:c0.c1023
-https://bugzilla.redhat.com/show_bug.cgi?id=485006
+--nextPart3699500.Yj3ZTiVvib
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Posted here instead of fedora-selinux because I don't think it is  
-fedora specific.
+As I am working again on adjusting the reference policy to my distro I have=
+=20
+run into a problem with su that raised the following question:
 
-Boot avcs:
+What use is su if a normal user after running su is still user_u:user_r:use=
+r_t=20
+and thus has no permissions to do stuff?
 
-node=test type=AVC msg=audit(1234315341.183:18): avc:  denied   
-{ read } for  pid=1501 comm="mdadm" name="sdb2" dev=tmpfs ino=508  
-scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
-tcontext=system_u:object_r:fixed_disk_device_t:s15:c0.c1023  
-tclass=blk_file
+Sure, he's root, but as because of SELinux that alone isn't worth much, as=
+=20
+being user_u still limits the user's options pretty much.
 
-         Was caused by:
-                 Policy constraint violation.
+Is there anything I misunderstand here? I don't think there should be an=20
+automtic transition from user_r to sysadm_r, and newrole-ing this doesn't w=
+ork=20
+as user_u doesn't have the sysadmin-role.
 
-                 May require adding a type attribute to the domain or  
-type to satisfy the constraint.
+So, what the heck is the use of su on a SELinux-system?
 
-                 Constraints are defined in the policy sources in  
-policy/constraints (general), policy/mcs (MCS), and policy/mls (MLS).
+To give you a little overview on what I am trying to do here with my system:
+I have configured the policy to be MLS, thus split up powers to different=20
+roles.
+root can compile a new policy in sysadm_r, but needs to be secadm_r to load=
+=20
+it.
+Regular users can compile stuff, root can't (at least not as sysadm_r, I mi=
+ght=20
+enable this for staff_r and then require sysadm_r to the install-process).
 
-node=test type=AVC msg=audit(1234315341.184:19): avc:  denied   
-{ read } for  pid=1457 comm="mdadm" name=".tmp-9-1" dev=tmpfs ino=5859  
-scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
-tcontext=system_u:object_r:device_t:s0 tclass=blk_file
+But for now the problem really is that su to me seems pretty useless right=
+=20
+now.
 
-         Was caused by:
-                 Missing type enforcement (TE) allow rule.
+Thanks and best regards,
+Dennis
 
-                 You can use audit2allow to generate a loadable module  
-to allow this access.
+--nextPart3699500.Yj3ZTiVvib
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-node=test type=AVC msg=audit(1234315341.188:20): avc:  denied   
-{ getattr } for  pid=1457 comm="mdadm" path="/proc/kcore" dev=proc  
-ino=4026531986 scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
-tcontext=system_u:object_r:proc_kcore_t:s15:c0.c1023 tclass=file
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
 
-         Was caused by:
-                 Policy constraint violation.
+iEYEABECAAYFAkmSkV8ACgkQ1sXw8/2VziR2KwCbB2sMk9Ie9sK4Rmi2WPMzAAcm
+e24Anid8HlkixUatgKJV0Jejx+xU+0j+
+=/czH
+-----END PGP SIGNATURE-----
 
-                 May require adding a type attribute to the domain or  
-type to satisfy the constraint.
-
-                 Constraints are defined in the policy sources in  
-policy/constraints (general), policy/mcs (MCS), and policy/mls (MLS).
-
-so I added this policy:
-
-diff -up serefpolicy-3.5.13/policy/modules/system/raid.fc.orig  
-serefpolicy-3.5.13/policy/modules/system/raid.fc
---- serefpolicy-3.5.13/policy/modules/system/raid.fc.orig	2009-02-10  
-19:41:17.000000000 -0600
-+++ serefpolicy-3.5.13/policy/modules/system/raid.fc	2009-02-10  
-19:41:31.000000000 -0600
-@@ -2,4 +2,4 @@
-  /sbin/mdadm		--	gen_context(system_u:object_r:mdadm_exec_t,s0)
-  /sbin/mdmpd		--	gen_context(system_u:object_r:mdadm_exec_t,s0)
-
--/var/run/mdadm(/.*)?		gen_context(system_u:object_r:mdadm_var_run_t,s0)
-+/var/run/mdadm(/.*)?		 
-gen_context(system_u:object_r:mdadm_var_run_t,mls_systemhigh)
-diff -up serefpolicy-3.5.13/policy/modules/system/raid.te.orig  
-serefpolicy-3.5.13/policy/modules/system/raid.te
---- serefpolicy-3.5.13/policy/modules/system/raid.te.orig	2009-02-10  
-19:33:59.000000000 -0600
-+++ serefpolicy-3.5.13/policy/modules/system/raid.te	2009-02-10  
-19:39:58.000000000 -0600
-@@ -9,6 +9,10 @@ policy_module(raid, 1.7.0)
-  type mdadm_t;
-  type mdadm_exec_t;
-  init_daemon_domain(mdadm_t,mdadm_exec_t)
-+ifdef(`enable_mls',`
-+	init_ranged_daemon_domain(mdadm_t, mdadm_exec_t,mls_systemhigh)
-+')
-+
-  role system_r types mdadm_t;
-
-  type mdadm_var_run_t;
-
-which does transition to SystemHigh using run_init in permissive, but  
-doesn't affect this bug.
-
-Clues?
-
-joe
-
+--nextPart3699500.Yj3ZTiVvib--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
