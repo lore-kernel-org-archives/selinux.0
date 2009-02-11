@@ -1,117 +1,115 @@
-Date: Tue, 10 Feb 2009 15:46:30 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
-Subject: Re: problem with capabilities inheritance and auditing in python
-Message-ID: <20090210214630.GD11776@us.ibm.com>
-References: <cadfc0e40902061356u466495ccyc471328485e2e80e@mail.gmail.com> <1234188170.28831.10.camel@localhost.localdomain> <cadfc0e40902090842i2a62ab85ucb6bfb0e9ee5a4be@mail.gmail.com> <1234210633.28831.87.camel@localhost.localdomain> <20090209204200.GA25401@us.ibm.com> <cadfc0e40902100900n12d116b2m7b1c5db4ae43c9d@mail.gmail.com> <20090210183438.GA14133@us.ibm.com> <cadfc0e40902101220o7c7b162v84cbbfb264a7c980@mail.gmail.com> <1234301146.7397.45.camel@localhost.localdomain> <cadfc0e40902101337y5d786bd1q57fa72a99aec5ee7@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <cadfc0e40902101337y5d786bd1q57fa72a99aec5ee7@mail.gmail.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1B4I269006930
+	for <selinux@tycho.nsa.gov>; Tue, 10 Feb 2009 23:18:02 -0500
+Received: from mho-02-bos.mailhop.org (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1B4El0k027660
+	for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2009 04:14:47 GMT
+Received: from cpe-66-68-165-162.austin.res.rr.com ([66.68.165.162] helo=[192.168.20.230])
+	by mho-02-bos.mailhop.org with esmtpsa (TLSv1:AES128-SHA:128)
+	(Exim 4.68)
+	(envelope-from <joe@nall.com>)
+	id 1LX6Xw-000KVQ-Pk
+	for selinux@tycho.nsa.gov; Wed, 11 Feb 2009 04:18:01 +0000
+Message-Id: <F2BE7671-FBDA-4F31-AEE7-E75BDA1337D2@nall.com>
+From: Joe Nall <joe@nall.com>
+To: SE Linux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Subject: mdadm failure in MLS Enforcing
+Date: Tue, 10 Feb 2009 22:17:59 -0600
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Xavier Toth (txtoth@gmail.com):
-> On Tue, Feb 10, 2009 at 3:25 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On Tue, 2009-02-10 at 14:20 -0600, Xavier Toth wrote:
-> >> On Tue, Feb 10, 2009 at 12:34 PM, Serge E. Hallyn <serue@us.ibm.com> wrote:
-> >> > Quoting Xavier Toth (txtoth@gmail.com):
-> >> >> I was not putting capabilities on the script but rather on a compiled
-> >> >> wrapper which execs a python script in which I need to do auditing.
-> >> >> Will this not work?
-> >> >
-> >> > No, because of the way capabilities are re-calculated on exec().
-> >> >
-> >> >        pI' = pI
-> >> >        pP' = (X&fP) | (pI & fI)
-> >> >        pE' = fE ? pP' : 0
-> >> >
-> >> > So since the interpreter has fI=fP=fE=0 and is not setuid root (which
-> >> > would fill in fP and/or fE to emulate privileged root), pP' and pE' will
-> >> > be empty after exec().
-> >> >
-> >> > Now you could use a wrapper as follows:  Have the wrapper fill pI,
-> >> > and then fill fI on the python interpreter.  Any user who has an
-> >> > empty pI (which generally is all users) will execute python scripts
-> >> > with no privilege, but when the wrapper execs the script, pP' will
-> >> > be filled with (pI&fI) = full.
-> >> >
-> >> > -serge
-> >> >
-> >>
-> >> Thanks for the clarification.
-> >> For anyone one that is interested I've included some test code. The
-> >> wrapper is a modified version of a wrapper Stephen sent me a link to.
-> >> Basic steps to test are:
-> >> 1) edit the wrapper to set the path to the audit_test.py script
-> >> 2) compiler the wrapper
-> >>     gcc -o audit-wrapper audit-wrapper.c -lcap
-> >> 3) set the capabilities on the wrapper and python
-> >>     setcap cap_audit_write,cap_setfcap=epi audit-wrapper
-> >>     setcap cap_audit_write=ei /usr/bin/python
-> >> 4) run audit-wrapper
-> >> 5) check audit log for audit records.
-> >>
-> >> I also ran audit_test.py without the wrapper to verify that no audit
-> >> would occur.
-> >>
-> >> Ted
-> >>
-> >> ------------------------------------------------------------------------------
-> >> audit-wrapper.c
-> >> ------------------------------------------------------------------------
-> >>
-> > <snip>
-> >>       cap_t cur = cap_from_text("cap_audit_write+i");
-> >>       int ret = cap_set_proc(cur);
-> >>       if (ret) {
-> >>               perror("cap_set_proc");
-> >>               return 1;
-> >>       }
-> >>       cap_free(cur);
-> >
-> > Looks like you could make your wrapper generic for any capabilities by
-> > having it copy the permitted (or effective) set to the inheritable set.
-> > Something like this:
-> >        cap_t cur = cap_get_proc();
-> >        cap_value_t caps[1];
-> >        cap_flag_value_t value;
-> >        int i, rc;
-> >        for (i = 0; i < CAP_LAST_CAP; i++) {
-> >                rc = cap_get_flag(cur, i, CAP_PERMITTED, &value);
-> >                if (rc < 0) {
-> >                        perror("cap_get_flag");
-> >                        return 1;
-> >                }
-> >                caps[0] = i;
-> >                rc = cap_set_flag(cur, CAP_INHERITABLE, 1, caps, value);
-> >                if (rc < 0) {
-> >                        perror("cap_set_flag");
-> >                        return 1;
-> >                }
-> >        }
-> >        rc = cap_set_proc(cur);
-> >        if (rc < 0) {
-> >                perror("cap_set_proc");
-> >                return 1;
-> >        }
-> >        cap_free(cur);
-> >
-> > Serge - is there any easier way?
-> >
-> > --
-> > Stephen Smalley
-> > National Security Agency
-> >
-> >
-> 
-> "If any flag in cap_p is set for any capability not  currently  permitted
->        for the calling process, the function will fail"
+mdadm runs system_u:system_r:mdadm_t:s0-s15:c0.c1023 during boot and  
+can't access block devices that are  
+system_u:object_r:fixed_disk_device_t:s15:c0.c1023
+https://bugzilla.redhat.com/show_bug.cgi?id=485006
 
-He's only setting bits which are in CAP_PERMITTED, meaning they are
-permitted (but perhaps not effective) for the calling process.
+Posted here instead of fedora-selinux because I don't think it is  
+fedora specific.
 
--serge
+Boot avcs:
+
+node=test type=AVC msg=audit(1234315341.183:18): avc:  denied   
+{ read } for  pid=1501 comm="mdadm" name="sdb2" dev=tmpfs ino=508  
+scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
+tcontext=system_u:object_r:fixed_disk_device_t:s15:c0.c1023  
+tclass=blk_file
+
+         Was caused by:
+                 Policy constraint violation.
+
+                 May require adding a type attribute to the domain or  
+type to satisfy the constraint.
+
+                 Constraints are defined in the policy sources in  
+policy/constraints (general), policy/mcs (MCS), and policy/mls (MLS).
+
+node=test type=AVC msg=audit(1234315341.184:19): avc:  denied   
+{ read } for  pid=1457 comm="mdadm" name=".tmp-9-1" dev=tmpfs ino=5859  
+scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
+tcontext=system_u:object_r:device_t:s0 tclass=blk_file
+
+         Was caused by:
+                 Missing type enforcement (TE) allow rule.
+
+                 You can use audit2allow to generate a loadable module  
+to allow this access.
+
+node=test type=AVC msg=audit(1234315341.188:20): avc:  denied   
+{ getattr } for  pid=1457 comm="mdadm" path="/proc/kcore" dev=proc  
+ino=4026531986 scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023  
+tcontext=system_u:object_r:proc_kcore_t:s15:c0.c1023 tclass=file
+
+         Was caused by:
+                 Policy constraint violation.
+
+                 May require adding a type attribute to the domain or  
+type to satisfy the constraint.
+
+                 Constraints are defined in the policy sources in  
+policy/constraints (general), policy/mcs (MCS), and policy/mls (MLS).
+
+so I added this policy:
+
+diff -up serefpolicy-3.5.13/policy/modules/system/raid.fc.orig  
+serefpolicy-3.5.13/policy/modules/system/raid.fc
+--- serefpolicy-3.5.13/policy/modules/system/raid.fc.orig	2009-02-10  
+19:41:17.000000000 -0600
++++ serefpolicy-3.5.13/policy/modules/system/raid.fc	2009-02-10  
+19:41:31.000000000 -0600
+@@ -2,4 +2,4 @@
+  /sbin/mdadm		--	gen_context(system_u:object_r:mdadm_exec_t,s0)
+  /sbin/mdmpd		--	gen_context(system_u:object_r:mdadm_exec_t,s0)
+
+-/var/run/mdadm(/.*)?		gen_context(system_u:object_r:mdadm_var_run_t,s0)
++/var/run/mdadm(/.*)?		 
+gen_context(system_u:object_r:mdadm_var_run_t,mls_systemhigh)
+diff -up serefpolicy-3.5.13/policy/modules/system/raid.te.orig  
+serefpolicy-3.5.13/policy/modules/system/raid.te
+--- serefpolicy-3.5.13/policy/modules/system/raid.te.orig	2009-02-10  
+19:33:59.000000000 -0600
++++ serefpolicy-3.5.13/policy/modules/system/raid.te	2009-02-10  
+19:39:58.000000000 -0600
+@@ -9,6 +9,10 @@ policy_module(raid, 1.7.0)
+  type mdadm_t;
+  type mdadm_exec_t;
+  init_daemon_domain(mdadm_t,mdadm_exec_t)
++ifdef(`enable_mls',`
++	init_ranged_daemon_domain(mdadm_t, mdadm_exec_t,mls_systemhigh)
++')
++
+  role system_r types mdadm_t;
+
+  type mdadm_var_run_t;
+
+which does transition to SystemHigh using run_init in permissive, but  
+doesn't affect this bug.
+
+Clues?
+
+joe
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
