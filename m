@@ -1,166 +1,191 @@
-Subject: Re: mdadm failure in MLS Enforcing
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joe Nall <joe@nall.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <C7642DCA-49A3-4EF2-A989-FAFADA4A9FE1@nall.com>
-References: <F2BE7671-FBDA-4F31-AEE7-E75BDA1337D2@nall.com>
-	 <1234362362.12067.104.camel@localhost.localdomain>
-	 <BDF7BFC7-EC7D-41D5-8984-5BC2ABFD7D89@nall.com>
-	 <1234364409.12067.109.camel@localhost.localdomain>
-	 <C7642DCA-49A3-4EF2-A989-FAFADA4A9FE1@nall.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1BNoJsN012590
+	for <selinux@tycho.nsa.gov>; Wed, 11 Feb 2009 18:50:19 -0500
+Subject: Re: New MAC label support Internet Draft posted to IETF website
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: Peter Staubach <staubach@redhat.com>
+Cc: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org, nfsv4@ietf.org,
+        nfs-discuss@opensolaris.org
+In-Reply-To: <4990AD20.3030902@redhat.com>
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
+	 <4990AD20.3030902@redhat.com>
 Content-Type: text/plain
-Date: Wed, 11 Feb 2009 12:33:08 -0500
-Message-Id: <1234373588.12067.115.camel@localhost.localdomain>
+Date: Wed, 11 Feb 2009 18:47:44 -0500
+Message-Id: <1234396064.2929.121.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-02-11 at 10:15 -0600, Joe Nall wrote:
-> On Feb 11, 2009, at 9:00 AM, Stephen Smalley wrote:
+On Mon, 2009-02-09 at 17:24 -0500, Peter Staubach wrote:
 > 
-> > On Wed, 2009-02-11 at 08:47 -0600, Joe Nall wrote:
-> >> On Feb 11, 2009, at 8:26 AM, Stephen Smalley wrote:
-> >>
-> >>> On Tue, 2009-02-10 at 22:17 -0600, Joe Nall wrote:
-> >>>> mdadm runs system_u:system_r:mdadm_t:s0-s15:c0.c1023 during boot  
-> >>>> and
-> >>>> can't access block devices that are
-> >>>> system_u:object_r:fixed_disk_device_t:s15:c0.c1023
-> >>>> https://bugzilla.redhat.com/show_bug.cgi?id=485006
-> >>>>
-> >>>> Posted here instead of fedora-selinux because I don't think it is
-> >>>> fedora specific.
-> >>>>
-> >>>> Boot avcs:
-> >>>>
-> >>>> node=test type=AVC msg=audit(1234315341.183:18): avc:  denied
-> >>>> { read } for  pid=1501 comm="mdadm" name="sdb2" dev=tmpfs ino=508
-> >>>> scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023
-> >>>> tcontext=system_u:object_r:fixed_disk_device_t:s15:c0.c1023
-> >>>> tclass=blk_file
-> >>>>
-> >>>>        Was caused by:
-> >>>>                Policy constraint violation.
-> >>>>
-> >>>>                May require adding a type attribute to the domain or
-> >>>> type to satisfy the constraint.
-> >>>>
-> >>>>                Constraints are defined in the policy sources in
-> >>>> policy/constraints (general), policy/mcs (MCS), and policy/mls  
-> >>>> (MLS).
-> >>>>
-> >>>> node=test type=AVC msg=audit(1234315341.184:19): avc:  denied
-> >>>> { read } for  pid=1457 comm="mdadm" name=".tmp-9-1" dev=tmpfs
-> >>>> ino=5859
-> >>>> scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023
-> >>>> tcontext=system_u:object_r:device_t:s0 tclass=blk_file
-> >>>>
-> >>>>        Was caused by:
-> >>>>                Missing type enforcement (TE) allow rule.
-> >>>>
-> >>>>                You can use audit2allow to generate a loadable  
-> >>>> module
-> >>>> to allow this access.
-> >>>>
-> >>>> node=test type=AVC msg=audit(1234315341.188:20): avc:  denied
-> >>>> { getattr } for  pid=1457 comm="mdadm" path="/proc/kcore" dev=proc
-> >>>> ino=4026531986 scontext=system_u:system_r:mdadm_t:s0-s15:c0.c1023
-> >>>> tcontext=system_u:object_r:proc_kcore_t:s15:c0.c1023 tclass=file
-> >>>>
-> >>>>        Was caused by:
-> >>>>                Policy constraint violation.
-> >>>>
-> >>>>                May require adding a type attribute to the domain or
-> >>>> type to satisfy the constraint.
-> >>>>
-> >>>>                Constraints are defined in the policy sources in
-> >>>> policy/constraints (general), policy/mcs (MCS), and policy/mls  
-> >>>> (MLS).
-> >>>>
-> >>>> so I added this policy:
-> >>>>
-> >>>> diff -up serefpolicy-3.5.13/policy/modules/system/raid.fc.orig
-> >>>> serefpolicy-3.5.13/policy/modules/system/raid.fc
-> >>>> --- serefpolicy-3.5.13/policy/modules/system/raid.fc.orig	 
-> >>>> 2009-02-10
-> >>>> 19:41:17.000000000 -0600
-> >>>> +++ serefpolicy-3.5.13/policy/modules/system/raid.fc	2009-02-10
-> >>>> 19:41:31.000000000 -0600
-> >>>> @@ -2,4 +2,4 @@
-> >>>> /sbin/mdadm		--	gen_context(system_u:object_r:mdadm_exec_t,s0)
-> >>>> /sbin/mdmpd		--	gen_context(system_u:object_r:mdadm_exec_t,s0)
-> >>>>
-> >>>> -/var/run/mdadm(/.*)?		
-> >>>> gen_context(system_u:object_r:mdadm_var_run_t,s0)
-> >>>> +/var/run/mdadm(/.*)?		
-> >>>> gen_context(system_u:object_r:mdadm_var_run_t,mls_systemhigh)
-> >>>> diff -up serefpolicy-3.5.13/policy/modules/system/raid.te.orig
-> >>>> serefpolicy-3.5.13/policy/modules/system/raid.te
-> >>>> --- serefpolicy-3.5.13/policy/modules/system/raid.te.orig	 
-> >>>> 2009-02-10
-> >>>> 19:33:59.000000000 -0600
-> >>>> +++ serefpolicy-3.5.13/policy/modules/system/raid.te	2009-02-10
-> >>>> 19:39:58.000000000 -0600
-> >>>> @@ -9,6 +9,10 @@ policy_module(raid, 1.7.0)
-> >>>> type mdadm_t;
-> >>>> type mdadm_exec_t;
-> >>>> init_daemon_domain(mdadm_t,mdadm_exec_t)
-> >>>> +ifdef(`enable_mls',`
-> >>>> +	init_ranged_daemon_domain(mdadm_t, mdadm_exec_t,mls_systemhigh)
-> >>>> +')
-> >>>> +
-> >>>> role system_r types mdadm_t;
-> >>>>
-> >>>> type mdadm_var_run_t;
-> >>>>
-> >>>> which does transition to SystemHigh using run_init in permissive,  
-> >>>> but
-> >>>> doesn't affect this bug.
-> >>>>
-> >>>> Clues?
-> >>>
-> >>> I'm not sure what you mean by "doesn't affect this bug".  Did mdadm
-> >>> transition to systemhigh at boot or not?
-> >>
-> >> no
-> >>
-> >> That is why I went back and tried the run_init (which did transition)
-> >> and verified the /var/run/mdadm directory was SystemHigh. I also used
-> >> seinfo to verify that the patch had bend applied to the running
-> >> policy. Very confusing.
-> >
-> > - Does it transition if in permissive mode at boot?
-> no
+> I have been looking at the document and have some comments,
+> questions, and suggestions --
 > 
-> > - Do you get any AVC or SELINUX_ERR messages at boot or upon the
-> > run_init related to the transition itself?
-> 
-> no
-> 
-> > - Is system_u authorized for systemhigh?
-> # semanage user -l
-> 
->                  Labeling   MLS/       MLS/
-> SELinux User    Prefix     MCS Level  MCS Range                       
-> SELinux Roles
-> 
-> ...
-> system_u        user       SystemLow  SystemLow-SystemHigh            
-> system_r
-> ...
-> 
-> There are a few other md* executables in /sbin. Making them  
-> mdadm_exec_t did not help. Nor did rebuilding the initrd (desperation).
+> In section 1, MAC is defined, but perhaps it might be useful for
+> NFS folks to expand upon the definition just a tad.  For example,
+> how is this different than normal access control and why?  Perhaps
+> I am dense, but the text in Section 3 might make better sense if
+> I understood a little more about MAC at a high level.
 
-Looking at the mdadm policy, I see that it can also be started by udev?
-So possibly you also need a range_transition rule from udev_t on it?
+I will make an attempt to clarify this. I was trying to get a concise
+definition into the draft without bogging it down with a whole bunch of
+Access Control theory. However, if it isn't clear enough then I do need
+to fix this.
 
-You should also be able to enable auditing of all transitions into
-mdadm_t via auditallow rules or syscall auditing using context filters.
+> 
+> In Section 3, there is discussion of using a recommended attribute
+> to store the security attribute.  A request is made for security
+> attribute number 76.  This one appears to be used already in the
+> NFSv4.1 specification.  Perhaps this should be flagged so that it
+> can be updated appropriate when this specification is included
+> into a larger, NFSv4.2, document?
 
--- 
-Stephen Smalley
-National Security Agency
+Hmm I picked that number from what I thought was an earlier v4.1
+document. It's possible that I was looking at 4.0 proper instead. I
+asked about grabbing a number a while back and someone said just take
+one and we can fix it up later. A question for the WG is if there is a
+proper procedure for this? Should I leave it blank with some sort of
+marker like Peter suggests or is it as simple of just pick one for now
+and we'll deal with conflicts if/when it gets chartered.
+
+> 
+> In Section 3.1, DOI is defined for a third time.  The acronym can
+> probably just be used here.  That said, providing a little more
+> detail on how a DOI would be represented would be useful.  Is it
+> a 32 bit unsigned integer or something else?  Perhaps including
+> a pseudo description of the syntax of the security_attribute
+> would be good.
+
+It seems reasonable at this point that the person will know what DOI
+stands for and if not they can look it up in the terms section. There
+are a few people doing transport layer work that have a definition of a
+DOI. I originally had a marker in there that we should have a normative
+reference to a draft about DOIs. The structure that most people seem to
+be happy with is a 32 bit number that can be thought of as a series of 4
+octets. This allows it to be easily partitioned into ranges for private
+used among other things. The CALIPSO guys have a good starting point for
+this and we talked about it at the DOI BOF last IETF. The consensus at
+that meeting was that we should convene a full BOF to discuss it at a
+future IETF. Between the Labeled IPSec drafts that are slowly making
+their way to the IETF, the CALIPSO draft which is already far along, and
+the Labeled NFS work we should probably have a standard definition for
+DOIs including how they are registered, represented, what ranges are
+reserved and for what purposed, etc. 
+
+Even if this information is pulled in from a normative reference it
+doesn't seem like a bad idea to explain part of it in this document. 
+
+> 
+> Section 3.2 discusses handling if a security attribute is
+> changed while a client is holding a delegation to an object.
+> The text describes that the client should flush changes to the
+> server and relinquish the delegation.  Why?  Is access to an
+> open file on the client to be revoked?  What happens on a
+> client which does not happen to be holding a delegation at the
+> time?
+
+Well, this is standard behavior for delegation within NFSv4. If the
+security label is changed from under a client you have an issue where it
+could still be making local cached access decisions based on a label
+that is now out of date. This may not be as stringent of a requirement
+with DAC permissions but with MAC it's very important because the system
+may be mediating read and write calls in addition to just open calls. If
+the client doesn't have a delegation then it shouldn't have an open file
+handle for the file. So when it opens the file it will get the valid
+label.
+
+Hmm, the text here seems a bit ambiguous. What I mean to say here is
+that the label on the server changes while the client is holding the
+delegation. There is a case to say that if it changes on the client that
+if you really want to guarantee the file is protected on the server that
+you shouldn't maintain local cached security attribute changes. However
+it's not completely clear to me how the exported FS should react with
+processes local to the server making access to files.
+
+> 
+> This leads to a further question concerning client side caching
+> of these attributes.  Is the client allowed to do caching?  If
+> so, how would it go about doing cache validation?
+
+So as of right now we do standard attribute timeouts. In the Linux case
+this is 5 seconds by default. I spoke with Nico briefly a while back
+about this and he said what might be needed here was to provide some
+sort of open file handle revocation support. In the past people have
+suggested building the client's idea of the label into either the
+stateid or some other form of cookie that can be verified by the server.
+We explored doing this in the form of an NFSv4 op and while that worked
+we are trying to shy away from adding new operations if we can help it.
+I'm still open to potential solutions to this problem. 
+
+> 
+> Section 4.1 includes an XXX reference probably to a draft
+> document.  Is this the draft for RPCSEC_GSSAPI v3?
+
+That's exactly what it is referencing. I think the reason I left that
+was because Nico hadn't posted it to the IETF website as a P-ID when I
+had released this. It was made public but I don't think it was
+submitted.
+
+> 
+> Section 4.1.1 discusses denying a request if a security
+> attribute can not be translated from one DOI to another.
+> What error should be returned?  It seems to me that a new
+> set of errors may potentially need to be introduced to
+> handle the new cases where servers need to inform clients
+> exactly what happened.  Section 4.1.2 is missing a period
+> on the end of the second paragraph.  Perhaps this is the
+> intended error to be returned?
+
+The error mentioned in 4.1.1 is the one referenced in 4.1.2
+(NFS4ERR_ACCESS). I'll put it in section 4.1.1 as well if it makes
+things clearer. I am open to adding a NFS4ERR_MACACCESS code or
+something similar to that to provide additional information to
+administrators as to why things are failing. I make mention in 4.3.2
+that an administrator should be aware when he gets an access failure
+using this functionality that it can possibly be caused by the MAC
+policy. I probably need to find a better location for this tidbit of
+information.
+
+> 
+> Section 4.2.1 discusses a smart client and the need for a
+> common DOI.  Could a client not implement its own translations
+> for the DOIs that it may choose to know about?
+
+We made a decision that in an environment where the server just operates
+as a dumb storage medium that it would bring huge problems to store the
+DOI with the label. So in this kind of environment the security
+attributes are stored without a DOI on the server so it isn't possible
+to have those translations take place. The second half of that section
+says why we made that decision. I should add to the security attribute
+section that when an attribute shows up without the @DOI portion of the
+string it should be treated as the null DOI. Either that or we should
+atleast force these storage boxes to append @0 into the attribute. 
+
+> 
+> Section requests an IANA registry for DOIs.  Perhaps document
+> like, draft-ietf-nfsv4-rpc-netid-06.txt, previously circulated
+> by Michael Eisler, will need to be constructed to handle the
+> issue.
+
+I'll take a look into this document to see what we can learn from it.
+
+> 
+> ---
+> 
+> Anyway, enough for the time being.  I think that some more
+> detailed definitions and declarations need to be specified
+> in order to move along.
+
+I noticed you didn't make any comments regarding section 5. This was the
+most recent section added because some WG members expressed a desire to
+see an extensive example of the system. Did you not comment because you
+think its acceptable or are comments on that being put off till after I
+address these. Also a question for the WG. Is that section effective in
+providing understanding of the system? Is there something else that it
+needs to contain? Are there ambiguities that I'm not seeing because I
+have a background in the area?
+
+Dave
 
 
 --
