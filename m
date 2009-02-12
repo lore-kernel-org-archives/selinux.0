@@ -1,64 +1,69 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1CK3LOd031801
-	for <selinux@tycho.nsa.gov>; Thu, 12 Feb 2009 15:03:21 -0500
-Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft
- posted to IETF website
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: Nicolas Williams <Nicolas.Williams@sun.com>
-Cc: James Morris <jmorris@namei.org>, labeled-nfs@linux-nfs.org,
-        selinux@tycho.nsa.gov, nfsv4@ietf.org, nfs-discuss@opensolaris.org
-In-Reply-To: <20090212153620.GP9992@Sun.COM>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
-	 <4990AD20.3030902@redhat.com>
-	 <1234396064.2929.121.camel@moss-terrapins.epoch.ncsc.mil>
-	 <alpine.LRH.1.10.0902121205410.17299@tundra.namei.org>
-	 <20090212153620.GP9992@Sun.COM>
-Content-Type: text/plain
-Date: Thu, 12 Feb 2009 15:00:51 -0500
-Message-Id: <1234468851.2929.157.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Paul Moore <paul.moore@hp.com>
+To: Eric Paris <eparis@redhat.com>
+Subject: Re: [PATCH 1/5] SELinux: remove the unused ae.used
+Date: Thu, 12 Feb 2009 15:15:32 -0500
+Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, jmorris@namei.org
+References: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Message-Id: <200902121515.32476.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-02-12 at 09:36 -0600, Nicolas Williams wrote:
-> On Thu, Feb 12, 2009 at 12:07:31PM +1100, James Morris wrote:
-> > On Wed, 11 Feb 2009, David P. Quigley wrote:
-> > 
-> > > sort of open file handle revocation support. In the past people have
-> > > suggested building the client's idea of the label into either the
-> > > stateid or some other form of cookie that can be verified by the server.
-> > > We explored doing this in the form of an NFSv4 op and while that worked
-> > > we are trying to shy away from adding new operations if we can help it.
-> 
-> The file handle should suffice.  The server can check if the label has
-> changed and then return an error.  If need be we could even use volatile
-> FHs for this (with the FH being somewhat like a capability).
-> 
-> > What's wrong with adding new operations?
-> 
-> In this case a new operation won't help since the server may want to
-> perform revocation as early as possible, and waiting for a client to use
-> a specific operation is not a good way to achieve that.  If you meant a
-> callback operation, sure, but the server needs to know what clients are
-> caching open file data and metadata, and right now the server only knows
-> about that when clients get delegations.  It might be possible to add a
-> callback operation to indicate that access must be re-evaluated but
-> without recalling a delegation.
-> 
-> Nico
+On Thursday 12 February 2009 02:50:43 pm Eric Paris wrote:
+> Currently SELinux code has an atomic which was intended to track how many
+> times an avc entry was used and to evict entries when they haven't been
+> used recently.  Instead we never let this atomic get above 1 and evict when
+> it is first checked for eviction since it hits zero.  This is a total waste
+> of time so I'm completely dropping ae.used.
+>
+> This change resulted in about a 3% faster avc_has_perm_noaudit when running
+> oprofile against a tbench benchmark.
+>
+> Signed-off-by: Eric Paris <eparis@redhat.com>
 
-We also explored a callback for label change notification. I think we
-even have the code lying around for the prototype. It worked but Trond
-expressed some concern with how well it would scale. The issue Trond
-raised is what happens if you relabel an entire file system from under a
-set of NFSv4 clients? I'm not sure how much of a concern this will be
-since 1) File relabeling is supposed to be rare and 2) clients will
-probably have a small subset of files open. In the event that you do
-need to relabel the entire file system on the server it might be a good
-idea from an administrative perspective to have your clients remount the
-NFS shares and flush whatever caches they have.
+Looks okay to me, I did notice another optimization (see below) that might be 
+worth including if you respin the patch.
 
-Dave
+Reviewed by: Paul Moore <paul.moore@hp.com>
+
+>  struct avc_node {
+> @@ -321,16 +320,13 @@ static inline int avc_reclaim_node(void)
+>
+>  		rcu_read_lock();
+>  		list_for_each_entry(node, &avc_cache.slots[hvalue], list) {
+> -			if (atomic_dec_and_test(&node->ae.used)) {
+> -				/* Recently Unused */
+> -				avc_node_delete(node);
+> -				avc_cache_stats_incr(reclaims);
+> -				ecx++;
+> -				if (ecx >= AVC_CACHE_RECLAIM) {
+> -					rcu_read_unlock();
+> -					spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flags);
+> -					goto out;
+> -				}
+> +			avc_node_delete(node);
+> +			avc_cache_stats_incr(reclaims);
+> +			ecx++;
+> +			if (ecx >= AVC_CACHE_RECLAIM) {
+> +				rcu_read_unlock();
+> +				spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flags);
+> +				goto out;
+>  			}
+>  		}
+>  		rcu_read_unlock();
+
+Not your fault, but in reviewing this code I realized we aren't really using 
+the avc_cache.lru_hint atomic either; it looks like it is initialized to zero 
+and never changes.  With that in mind we could remove the lru_hint field from 
+the avc_cache and simplify the above function a tiny bit (no need for hvalue, 
+just use zero).
+
+-- 
+paul moore
+linux @ hp
 
 
 --
