@@ -1,81 +1,40 @@
-Date: Thu, 12 Feb 2009 09:22:03 -0600
+Date: Thu, 12 Feb 2009 09:36:21 -0600
 From: Nicolas Williams <Nicolas.Williams@sun.com>
-To: Peter Staubach <staubach@redhat.com>
+To: James Morris <jmorris@namei.org>
 Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, labeled-nfs@linux-nfs.org,
-        nfs-discuss@opensolaris.org, nfsv4@ietf.org, selinux@tycho.nsa.gov
-Subject: Re: [nfsv4] New MAC label support Internet Draft posted to IETF	website
-Message-ID: <20090212152203.GO9992@Sun.COM>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <4990AD20.3030902@redhat.com>
+        selinux@tycho.nsa.gov, nfsv4@ietf.org, nfs-discuss@opensolaris.org
+Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted to IETF website
+Message-ID: <20090212153620.GP9992@Sun.COM>
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <4990AD20.3030902@redhat.com> <1234396064.2929.121.camel@moss-terrapins.epoch.ncsc.mil> <alpine.LRH.1.10.0902121205410.17299@tundra.namei.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <4990AD20.3030902@redhat.com>
+In-Reply-To: <alpine.LRH.1.10.0902121205410.17299@tundra.namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Feb 09, 2009 at 05:24:32PM -0500, Peter Staubach wrote:
-> Section 3.2 discusses handling if a security attribute is
-> changed while a client is holding a delegation to an object.
-> The text describes that the client should flush changes to the
-> server and relinquish the delegation.  Why?  Is access to an
-> open file on the client to be revoked?  What happens on a
-> client which does not happen to be holding a delegation at the
-> time?
+On Thu, Feb 12, 2009 at 12:07:31PM +1100, James Morris wrote:
+> On Wed, 11 Feb 2009, David P. Quigley wrote:
 > 
-> This leads to a further question concerning client side caching
-> of these attributes.  Is the client allowed to do caching?  If
-> so, how would it go about doing cache validation?
+> > sort of open file handle revocation support. In the past people have
+> > suggested building the client's idea of the label into either the
+> > stateid or some other form of cookie that can be verified by the server.
+> > We explored doing this in the form of an NFSv4 op and while that worked
+> > we are trying to shy away from adding new operations if we can help it.
 
-For DAC POSIX semantics are that open file references are not revoked
-when a file's owner/group/permissions (and/or ACL) change.
+The file handle should suffice.  The server can check if the label has
+changed and then return an error.  If need be we could even use volatile
+FHs for this (with the FH being somewhat like a capability).
 
-MAC requires some sort of revocation.  This can happen on the
-server-side whenever the client tries to access a file after it's been
-relabeled.  The client might learn of this pretty late, but given that
-the user on the client would have been able to see the contents under
-the old label this timing seems to me to be acceptable.
+> What's wrong with adding new operations?
 
-Recalling an open file delegation seems OK as a way to speed that up if
-the client can obtain a new delegation if it still has access to the
-file.
-
-The only other wrinkle is that multi-user clients need to let the server
-perform all access decisions for each user -- the client must not allow
-access using local MAC decisions based on cached file labels.
-
-> Section 4.1 includes an XXX reference probably to a draft
-> document.  Is this the draft for RPCSEC_GSSAPI v3?
-
-No, it's not.  As David explained, that I-D came later.
-
-> Section 4.1.1 discusses denying a request if a security
-> attribute can not be translated from one DOI to another.
-> What error should be returned?  It seems to me that a new
-
-IMO NFS4ERR_ACCESS is good enough.
-
-> set of errors may potentially need to be introduced to
-> handle the new cases where servers need to inform clients
-> exactly what happened.  [...]
-
-Perhaps, but I expect that production servers would return generic
-errors like NFS4ERR_ACCESS rather than newfangled ones like, say,
-NFS4ERR_NODOITRANS.  There's no need to tell the client too much about
-why its request failed.  It suffices that access was denied, and for
-that NFS4ERR_ACCESS is good enough.
-
-> Section 4.2.1 discusses a smart client and the need for a
-> common DOI.  Could a client not implement its own translations
-> for the DOIs that it may choose to know about?
-
-It could.
-
-> Anyway, enough for the time being.  I think that some more
-> detailed definitions and declarations need to be specified
-> in order to move along.
-
-Defnitely.
-
-Thanks for the comments!
+In this case a new operation won't help since the server may want to
+perform revocation as early as possible, and waiting for a client to use
+a specific operation is not a good way to achieve that.  If you meant a
+callback operation, sure, but the server needs to know what clients are
+caching open file data and metadata, and right now the server only knows
+about that when clients get delegations.  It might be possible to add a
+callback operation to indicate that access must be re-evaluated but
+without recalling a delegation.
 
 Nico
 -- 
