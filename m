@@ -1,9 +1,9 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 4/5] SELinux: code readability with avc_cache
+Subject: [PATCH 3/5] SELinux: remove unused av.decided field
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org, paul.moore@hp.com
-Date: Thu, 12 Feb 2009 14:50:59 -0500
-Message-ID: <20090212195059.25599.72450.stgit@paris.rdu.redhat.com>
+Date: Thu, 12 Feb 2009 14:50:54 -0500
+Message-ID: <20090212195054.25599.88354.stgit@paris.rdu.redhat.com>
 In-Reply-To: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
 References: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
@@ -11,197 +11,117 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The code making use of struct avc_cache was not easy to read thanks to liberal
-use of &avc_cache.{slots_lock,slots}[hvalue] throughout.  This patch simply
-creates local pointers and uses those instead of the long global names.
+It appears there was an intention to have the security server only decide
+certain permissions and leave other for later as some sort of a portential
+performance win.  We are currently always deciding all 32 bits of
+permissions and this is a useless couple of branches and wasted space.
+This patch completely drops the av.decided concept.
+
+This in a 17% reduction in the time spent in avc_has_perm_noaudit
+based on oprofile sampling of a tbench benchmark.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/avc.c |   63 ++++++++++++++++++++++++++++++++++--------------
- 1 files changed, 44 insertions(+), 19 deletions(-)
+ security/selinux/avc.c              |   15 +++++----------
+ security/selinux/include/security.h |    1 -
+ security/selinux/selinuxfs.c        |    2 +-
+ security/selinux/ss/services.c      |    2 --
+ 4 files changed, 6 insertions(+), 14 deletions(-)
 
 diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index e9ccacd..ed051d7 100644
+index 332c3cd..e9ccacd 100644
 --- a/security/selinux/avc.c
 +++ b/security/selinux/avc.c
-@@ -92,12 +92,12 @@ struct avc_entry {
- 
- struct avc_node {
- 	struct avc_entry	ae;
--	struct list_head	list;
-+	struct list_head	list; /* anchored in avc_cache->slots[i] */
- 	struct rcu_head		rhead;
- };
- 
- struct avc_cache {
--	struct list_head	slots[AVC_CACHE_SLOTS];
-+	struct list_head	slots[AVC_CACHE_SLOTS]; /* head for avc_node->list */
- 	spinlock_t		slots_lock[AVC_CACHE_SLOTS]; /* lock for writes */
- 	atomic_t		lru_hint;	/* LRU hint for reclaim scan */
- 	atomic_t		active_nodes;
-@@ -254,16 +254,18 @@ int avc_get_hash_stats(char *page)
+@@ -386,30 +386,25 @@ static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
+  * @ssid: source security identifier
+  * @tsid: target security identifier
+  * @tclass: target security class
+- * @requested: requested permissions, interpreted based on @tclass
+  *
+  * Look up an AVC entry that is valid for the
+- * @requested permissions between the SID pair
+  * (@ssid, @tsid), interpreting the permissions
+  * based on @tclass.  If a valid AVC entry exists,
+  * then this function return the avc_node.
+  * Otherwise, this function returns NULL.
+  */
+-static struct avc_node *avc_lookup(u32 ssid, u32 tsid, u16 tclass, u32 requested)
++static struct avc_node *avc_lookup(u32 ssid, u32 tsid, u16 tclass)
  {
- 	int i, chain_len, max_chain_len, slots_used;
  	struct avc_node *node;
-+	struct list_head *head;
+ 
+ 	avc_cache_stats_incr(lookups);
+ 	node = avc_search_node(ssid, tsid, tclass);
+ 
+-	if (node && ((node->ae.avd.decided & requested) == requested)) {
++	if (node)
+ 		avc_cache_stats_incr(hits);
+-		goto out;
+-	}
++	else
++		avc_cache_stats_incr(misses);
+ 
+-	node = NULL;
+-	avc_cache_stats_incr(misses);
+-out:
+ 	return node;
+ }
+ 
+@@ -880,7 +875,7 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
  
  	rcu_read_lock();
  
- 	slots_used = 0;
- 	max_chain_len = 0;
- 	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
--		if (!list_empty(&avc_cache.slots[i])) {
-+		head = &avc_cache.slots[i];
-+		if (!list_empty(head)) {
- 			slots_used++;
- 			chain_len = 0;
--			list_for_each_entry_rcu(node, &avc_cache.slots[i], list)
-+			list_for_each_entry_rcu(node, head, list)
- 				chain_len++;
- 			if (chain_len > max_chain_len)
- 				max_chain_len = chain_len;
-@@ -311,26 +313,30 @@ static inline int avc_reclaim_node(void)
- 	struct avc_node *node;
- 	int hvalue, try, ecx;
- 	unsigned long flags;
-+	struct list_head *head;
-+	spinlock_t *lock;
- 
- 	for (try = 0, ecx = 0; try < AVC_CACHE_SLOTS; try++) {
- 		hvalue = atomic_inc_return(&avc_cache.lru_hint) & (AVC_CACHE_SLOTS - 1);
-+		head = &avc_cache.slots[hvalue];
-+		lock = &avc_cache.slots_lock[hvalue];
- 
--		if (!spin_trylock_irqsave(&avc_cache.slots_lock[hvalue], flags))
-+		if (!spin_trylock_irqsave(lock, flags))
- 			continue;
- 
- 		rcu_read_lock();
--		list_for_each_entry(node, &avc_cache.slots[hvalue], list) {
-+		list_for_each_entry(node, head, list) {
- 			avc_node_delete(node);
- 			avc_cache_stats_incr(reclaims);
- 			ecx++;
- 			if (ecx >= AVC_CACHE_RECLAIM) {
- 				rcu_read_unlock();
--				spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flags);
-+				spin_unlock_irqrestore(lock, flags);
- 				goto out;
- 			}
- 		}
- 		rcu_read_unlock();
--		spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flags);
-+		spin_unlock_irqrestore(lock, flags);
- 	}
- out:
- 	return ecx;
-@@ -367,9 +373,11 @@ static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
- {
- 	struct avc_node *node, *ret = NULL;
- 	int hvalue;
-+	struct list_head *head;
- 
- 	hvalue = avc_hash(ssid, tsid, tclass);
--	list_for_each_entry_rcu(node, &avc_cache.slots[hvalue], list) {
-+	head = &avc_cache.slots[hvalue];
-+	list_for_each_entry_rcu(node, head, list) {
- 		if (ssid == node->ae.ssid &&
- 		    tclass == node->ae.tclass &&
- 		    tsid == node->ae.tsid) {
-@@ -458,11 +466,17 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
- 
- 	node = avc_alloc_node();
- 	if (node) {
-+		struct list_head *head;
-+		spinlock_t *lock;
-+
- 		hvalue = avc_hash(ssid, tsid, tclass);
- 		avc_node_populate(node, ssid, tsid, tclass, avd);
- 
--		spin_lock_irqsave(&avc_cache.slots_lock[hvalue], flag);
--		list_for_each_entry(pos, &avc_cache.slots[hvalue], list) {
-+		head = &avc_cache.slots[hvalue];
-+		lock = &avc_cache.slots_lock[hvalue];
-+
-+		spin_lock_irqsave(lock, flag);
-+		list_for_each_entry(pos, head, list) {
- 			if (pos->ae.ssid == ssid &&
- 			    pos->ae.tsid == tsid &&
- 			    pos->ae.tclass == tclass) {
-@@ -470,9 +484,9 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
- 				goto found;
- 			}
- 		}
--		list_add_rcu(&node->list, &avc_cache.slots[hvalue]);
-+		list_add_rcu(&node->list, head);
- found:
--		spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flag);
-+		spin_unlock_irqrestore(lock, flag);
- 	}
- out:
- 	return node;
-@@ -741,6 +755,8 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
- 	int hvalue, rc = 0;
- 	unsigned long flag;
- 	struct avc_node *pos, *node, *orig = NULL;
-+	struct list_head *head;
-+	spinlock_t *lock;
- 
- 	node = avc_alloc_node();
+-	node = avc_lookup(ssid, tsid, tclass, requested);
++	node = avc_lookup(ssid, tsid, tclass);
  	if (!node) {
-@@ -750,9 +766,13 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
- 
- 	/* Lock the target slot */
- 	hvalue = avc_hash(ssid, tsid, tclass);
--	spin_lock_irqsave(&avc_cache.slots_lock[hvalue], flag);
- 
--	list_for_each_entry(pos, &avc_cache.slots[hvalue], list) {
-+	head = &avc_cache.slots[hvalue];
-+	lock = &avc_cache.slots_lock[hvalue];
-+
-+	spin_lock_irqsave(lock, flag);
-+
-+	list_for_each_entry(pos, head, list) {
- 		if (ssid == pos->ae.ssid &&
- 		    tsid == pos->ae.tsid &&
- 		    tclass == pos->ae.tclass &&
-@@ -797,7 +817,7 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
- 	}
- 	avc_node_replace(node, orig);
- out_unlock:
--	spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flag);
-+	spin_unlock_irqrestore(lock, flag);
- out:
- 	return rc;
- }
-@@ -812,18 +832,23 @@ int avc_ss_reset(u32 seqno)
- 	int i, rc = 0, tmprc;
- 	unsigned long flag;
- 	struct avc_node *node;
-+	struct list_head *head;
-+	spinlock_t *lock;
- 
- 	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
--		spin_lock_irqsave(&avc_cache.slots_lock[i], flag);
-+		head = &avc_cache.slots[i];
-+		lock = &avc_cache.slots_lock[i];
-+
-+		spin_lock_irqsave(lock, flag);
- 		/*
- 		 * With preemptable RCU, the outer spinlock does not
- 		 * prevent RCU grace periods from ending.
- 		 */
- 		rcu_read_lock();
--		list_for_each_entry(node, &avc_cache.slots[i], list)
-+		list_for_each_entry(node, head, list)
- 			avc_node_delete(node);
  		rcu_read_unlock();
--		spin_unlock_irqrestore(&avc_cache.slots_lock[i], flag);
-+		spin_unlock_irqrestore(lock, flag);
- 	}
  
- 	for (c = avc_callbacks; c; c = c->next) {
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index e1d9db7..5c3434f 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -88,7 +88,6 @@ int security_policycap_supported(unsigned int req_cap);
+ #define SEL_VEC_MAX 32
+ struct av_decision {
+ 	u32 allowed;
+-	u32 decided;
+ 	u32 auditallow;
+ 	u32 auditdeny;
+ 	u32 seqno;
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 214f53c..2d5136e 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -528,7 +528,7 @@ static ssize_t sel_write_access(struct file *file, char *buf, size_t size)
+ 
+ 	length = scnprintf(buf, SIMPLE_TRANSACTION_LIMIT,
+ 			  "%x %x %x %x %u",
+-			  avd.allowed, avd.decided,
++			  avd.allowed, 0xffffffff,
+ 			  avd.auditallow, avd.auditdeny,
+ 			  avd.seqno);
+ out2:
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 6e0651a..c6a8f68 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -416,7 +416,6 @@ static int context_struct_compute_av(struct context *scontext,
+ 	 * Initialize the access vectors to the default values.
+ 	 */
+ 	avd->allowed = 0;
+-	avd->decided = 0xffffffff;
+ 	avd->auditallow = 0;
+ 	avd->auditdeny = 0xffffffff;
+ 	avd->seqno = latest_granting;
+@@ -761,7 +760,6 @@ int security_compute_av(u32 ssid,
+ 
+ 	if (!ss_initialized) {
+ 		avd->allowed = 0xffffffff;
+-		avd->decided = 0xffffffff;
+ 		avd->auditallow = 0;
+ 		avd->auditdeny = 0xffffffff;
+ 		avd->seqno = latest_granting;
 
 
 --
