@@ -1,99 +1,139 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1CLHJPm009948
-	for <selinux@tycho.nsa.gov>; Thu, 12 Feb 2009 16:17:19 -0500
-Received: from g4t0015.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1CLHHXZ003830
-	for <selinux@tycho.nsa.gov>; Thu, 12 Feb 2009 21:17:18 GMT
-Message-Id: <20090212211531.619341973@hp.com>
-Date: Thu, 12 Feb 2009 16:15:26 -0500
-From: Paul Moore <paul.moore@hp.com>
-To: refpolicy@oss.tresys.com
-Cc: selinux@tycho.nsa.gov
-Subject: [PATCH] refpolicy: Add missing network related MLS constraints
+Message-ID: <499497F6.7070909@redhat.com>
+Date: Thu, 12 Feb 2009 16:43:18 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
+MIME-Version: 1.0
+To: Paul Howarth <paul@city-fan.org>
+CC: Steven Stromer <filter@stevenstromer.com>, SELinux@tycho.nsa.gov
+Subject: Re: SELinux blocking Samba share mounting?
+References: <filter-A86D34.14203412022009@news.gmane.org> <20090212211640.652a3f99@metropolis.intra.city-fan.org>
+In-Reply-To: <20090212211640.652a3f99@metropolis.intra.city-fan.org>
+Content-Type: text/plain; charset=UTF-8
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Add MLS constraints for several network related access controls including
-the new ingress/egress controls and the older Secmark controls.  Based on
-the following post to the SELinux Reference Policy mailing list:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- * http://oss.tresys.com/pipermail/refpolicy/2009-February/000579.html
+Paul Howarth wrote:
+> On Thu, 12 Feb 2009 14:20:34 -0500
+> Steven Stromer <filter@stevenstromer.com> wrote:
+> 
+>> Hopefully posting to the right list!
+>>
+>> I'm starting to migrate a few Fedora boxes over to the latest version
+>> of CentOS 5 running the latest version of samba:
+>>
+>> [~]# smbstatus
+>> Samba version 3.0.28-1.el5_2.1 
+>>
+>>
+>> However, I am having a hard time getting SELinux to permit the
+>> mounting of shares on the first CentOS box. Disabling SELinux permits
+>> the shares to mount without problem:
+>>
+>> [~]# setenforce 1
+>> [~]# mount -t cifs //192.168.10.3/PHFiles /mnt/samba -o
+>> username=****,password=****,rw retrying with upper case share name
+>> mount error 6 = No such device or address
+>> [~]# setenforce 0
+>> [~]# mount -t cifs //192.168.10.3/PHFiles /mnt/samba -o
+>> username=****,password=****,rw [~]# ls -la /mnt/samba/
+>> total 8
+>> d---rws---+ 6 samba       samba          0 Feb 10 11:17 .
+>> drwxr-xr-x  3 root        root        4096 Feb 12 11:13 ..
+>> d---rws---+ 2 technology  technology     0 Feb 10 11:14 Computing
+>> d---rws---+ 2 development development    0 Feb 10 11:17 Development
+>> d---rws---+ 2 root        public         0 Feb 10 11:16 Marketing &
+>> Design d---rws---+ 2 root        public         0 Feb 10 11:14 Public
+>> Computing [~]# umount /mnt/samba/
+>> [~]# setenforce 1
+>>
+>>
+>> Installed policy version is:
+>> selinux-policy.noarch              2.4.6-137.1.el5       
+>> selinux-policy-targeted.noarch     2.4.6-137.1.el5
+>>
+>>
+>> The two shared directories are:
+>>
+>> [~]# ls -laZ /home/server1/PHFiles/
+>> d---rws---+ samba       samba       system_u:object_r:samba_share_t  .
+>> drwxr-xr-x  root        root        root:object_r:user_home_dir_t
+>>    .. d---rws---+ technology  technology  root:object_r:samba_share_t
+>>      Computing d---rws---+ development development
+>> root:object_r:samba_share_t      Development d---rws---+ root
+>>        public      root:object_r:samba_share_t      Marketing &
+>> Design d---rws---+ root        public
+>>      root:object_r:samba_share_t      Public Computing
+>>
+>> and
+>>
+>> [~]# ls -laZ /var/www/html
+>> d---rwsr-x+ development development
+>> system_u:object_r:public_content_rw_t . drwxr-xr-x  root        root
+>>        system_u:object_r:httpd_sys_content_t .. ----rwxr-x+
+>> development development root:object_r:public_content_rw_t .DS_Store
+>> d---rwsr-x+ development development root:object_r:public_content_rw_t
+>> private d---rwsr-x+ development development
+>> root:object_r:public_content_rw_t public
+>>
+>> (I am aware that my permissions seem a bit untraditional. I am
+>> running an experiment with extended ACL configuration on samba
+>> shares. However, I do not believe this to have any bearing on my
+>> present problems, as I have numerous other production servers running
+>> with these permissions under SELinux, and, again, turning SELinux off
+>> resolves my problems instantly.)
+>>
+>>
+>> The following has been executed with no apparent effect:
+>> setsebool -P allow_smbd_anon_write=1
+>>
+>>
+>> The following have been executed with no apparent effect (so these
+>> have been turned back off): setsebool -P smbd_disable_trans=1
+>> setsebool -P nmbd_disable_trans=1
+>>
+>>
+>> I've added the new contexts to file_contexts, and executed
+>> 'restorecon -R' to the two shared
+>> directories: /home/server1/PHFiles(/.*)? --
+>> system_u:object_r:samba_share_t /var/www/html(/.*)? --
+>> system_u:object_r:public_content_rw_t
+>>
+>>
+>> setroubleshoot-server is installed, but no AVC denials are reported
+>> to /var/log/messages. Instead, when SELinux is enforcing, I get the
+>> error: smbd[11852]:   '/home/server1/PHFiles' does not exist or
+>> permission denied when connecting to [PHFiles] Error was Permission
+>> denied
+>>
+>>
+>> And, finally, I've rebooted. All to no avail. Any assistance would be
+>> much appreciated!
+> 
+> If the audit daemon is running, the AVC denials will be
+> in /var/log/audit/audit.log rather than /var/log/messages.
+> 
+> fedora-selinux-list would probably be more appropriate for this by the
+> way.
+> 
+> Paul.
+> 
+> 
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
-Signed-off-by: Paul Moore <paul.moore@hp.com>
+setsebool -P use_samba_home_dirs 1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
----
- policy/mls |   51 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
-
-Index: refpolicy_svn_repo/policy/mls
-===================================================================
---- refpolicy_svn_repo.orig/policy/mls
-+++ refpolicy_svn_repo/policy/mls
-@@ -295,8 +295,59 @@ mlsconstrain { netif node } { tcp_send u
- # these access vectors have no MLS restrictions
- # node enforce_dest
- 
-+#
-+# MLS policy for the network ingress/egress controls
-+#
- 
-+# the netif ingress/egress ops, the ingress permission is a "write" operation
-+# because the subject in this particular case is the remote domain which is
-+# writing data out the network interface which is acting as the object
-+mlsconstrain { netif } { ingress }
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
-+	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
-+	 ( t1 == mlsnetwrite ) or
-+	 ( t1 == unlabeled_t ));
-+mlsconstrain { netif } { egress }
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
-+	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
-+	 ( t1 == mlsnetwrite ));
- 
-+# the node recvfrom/sendto ops, the recvfrom permission is a "write" operation
-+# because the subject in this particular case is the remote domain which is
-+# writing data out the network node which is acting as the object
-+mlsconstrain { node } { recvfrom }
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
-+	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
-+	 ( t1 == mlsnetwrite ) or
-+	 ( t1 == unlabeled_t ));
-+mlsconstrain { node } { sendto }
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
-+	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
-+	 ( t1 == mlsnetwrite ));
-+
-+# the forward ops, the forward_in permission is a "write" operation because the
-+# subject in this particular case is the remote domain which is writing data
-+# to the network with a secmark label, the object in this case
-+mlsconstrain { packet } { forward_in forward_out }
-+	(( l1 eq l2 ) or
-+	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby h2 )) or
-+	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
-+	 ( t1 == mlsnetwrite ) or
-+	 ( t1 == unlabeled_t ));
-+
-+#
-+# MLS policy for the secmark and peer controls
-+#
-+
-+# the peer/packet recv op
-+mlsconstrain { peer packet } { recv }
-+	(( l1 dom l2 ) or
-+	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
-+	 ( t1 == mlsnetread ));
- 
- #
- # MLS policy for the process class
-
--- 
-paul moore
-linux @ hp
-
+iEYEARECAAYFAkmUl/YACgkQrlYvE4MpobMOOgCeMPI1VZu86N93qfBY5bxfhk71
+o/4AnjypHIr5wCY3L6S6INi/w8LHSXuK
+=PIJ/
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
