@@ -1,127 +1,89 @@
 From: Eric Paris <eparis@redhat.com>
-Subject: [PATCH 3/5] SELinux: remove unused av.decided field
+Subject: [PATCH 1/5] SELinux: remove the unused ae.used
 To: selinux@tycho.nsa.gov
 Cc: sds@tycho.nsa.gov, jmorris@namei.org, paul.moore@hp.com
-Date: Thu, 12 Feb 2009 14:50:54 -0500
-Message-ID: <20090212195054.25599.88354.stgit@paris.rdu.redhat.com>
-In-Reply-To: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
-References: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
+Date: Thu, 12 Feb 2009 14:50:43 -0500
+Message-ID: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-It appears there was an intention to have the security server only decide
-certain permissions and leave other for later as some sort of a portential
-performance win.  We are currently always deciding all 32 bits of
-permissions and this is a useless couple of branches and wasted space.
-This patch completely drops the av.decided concept.
+Currently SELinux code has an atomic which was intended to track how many
+times an avc entry was used and to evict entries when they haven't been
+used recently.  Instead we never let this atomic get above 1 and evict when
+it is first checked for eviction since it hits zero.  This is a total waste
+of time so I'm completely dropping ae.used.
 
-This in a 17% reduction in the time spent in avc_has_perm_noaudit
-based on oprofile sampling of a tbench benchmark.
+This change resulted in about a 3% faster avc_has_perm_noaudit when running
+oprofile against a tbench benchmark.
 
 Signed-off-by: Eric Paris <eparis@redhat.com>
 ---
 
- security/selinux/avc.c              |   15 +++++----------
- security/selinux/include/security.h |    1 -
- security/selinux/selinuxfs.c        |    2 +-
- security/selinux/ss/services.c      |    2 --
- 4 files changed, 6 insertions(+), 14 deletions(-)
+ security/selinux/avc.c |   28 +++++++---------------------
+ 1 files changed, 7 insertions(+), 21 deletions(-)
 
 diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 332c3cd..e9ccacd 100644
+index 703aba1..abfe378 100644
 --- a/security/selinux/avc.c
 +++ b/security/selinux/avc.c
-@@ -386,30 +386,25 @@ static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
-  * @ssid: source security identifier
-  * @tsid: target security identifier
-  * @tclass: target security class
-- * @requested: requested permissions, interpreted based on @tclass
-  *
-  * Look up an AVC entry that is valid for the
-- * @requested permissions between the SID pair
-  * (@ssid, @tsid), interpreting the permissions
-  * based on @tclass.  If a valid AVC entry exists,
-  * then this function return the avc_node.
-  * Otherwise, this function returns NULL.
-  */
--static struct avc_node *avc_lookup(u32 ssid, u32 tsid, u16 tclass, u32 requested)
-+static struct avc_node *avc_lookup(u32 ssid, u32 tsid, u16 tclass)
- {
- 	struct avc_node *node;
+@@ -88,7 +88,6 @@ struct avc_entry {
+ 	u32			tsid;
+ 	u16			tclass;
+ 	struct av_decision	avd;
+-	atomic_t		used;	/* used recently */
+ };
  
- 	avc_cache_stats_incr(lookups);
- 	node = avc_search_node(ssid, tsid, tclass);
+ struct avc_node {
+@@ -321,16 +320,13 @@ static inline int avc_reclaim_node(void)
  
--	if (node && ((node->ae.avd.decided & requested) == requested)) {
-+	if (node)
- 		avc_cache_stats_incr(hits);
+ 		rcu_read_lock();
+ 		list_for_each_entry(node, &avc_cache.slots[hvalue], list) {
+-			if (atomic_dec_and_test(&node->ae.used)) {
+-				/* Recently Unused */
+-				avc_node_delete(node);
+-				avc_cache_stats_incr(reclaims);
+-				ecx++;
+-				if (ecx >= AVC_CACHE_RECLAIM) {
+-					rcu_read_unlock();
+-					spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flags);
+-					goto out;
+-				}
++			avc_node_delete(node);
++			avc_cache_stats_incr(reclaims);
++			ecx++;
++			if (ecx >= AVC_CACHE_RECLAIM) {
++				rcu_read_unlock();
++				spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flags);
++				goto out;
+ 			}
+ 		}
+ 		rcu_read_unlock();
+@@ -350,7 +346,6 @@ static struct avc_node *avc_alloc_node(void)
+ 
+ 	INIT_RCU_HEAD(&node->rhead);
+ 	INIT_LIST_HEAD(&node->list);
+-	atomic_set(&node->ae.used, 1);
+ 	avc_cache_stats_incr(allocations);
+ 
+ 	if (atomic_inc_return(&avc_cache.active_nodes) > avc_cache_threshold)
+@@ -383,15 +378,6 @@ static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
+ 		}
+ 	}
+ 
+-	if (ret == NULL) {
+-		/* cache miss */
 -		goto out;
 -	}
-+	else
-+		avc_cache_stats_incr(misses);
- 
--	node = NULL;
--	avc_cache_stats_incr(misses);
+-
+-	/* cache hit */
+-	if (atomic_read(&ret->ae.used) != 1)
+-		atomic_set(&ret->ae.used, 1);
 -out:
- 	return node;
+ 	return ret;
  }
  
-@@ -880,7 +875,7 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
- 
- 	rcu_read_lock();
- 
--	node = avc_lookup(ssid, tsid, tclass, requested);
-+	node = avc_lookup(ssid, tsid, tclass);
- 	if (!node) {
- 		rcu_read_unlock();
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index e1d9db7..5c3434f 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -88,7 +88,6 @@ int security_policycap_supported(unsigned int req_cap);
- #define SEL_VEC_MAX 32
- struct av_decision {
- 	u32 allowed;
--	u32 decided;
- 	u32 auditallow;
- 	u32 auditdeny;
- 	u32 seqno;
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 214f53c..2d5136e 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -528,7 +528,7 @@ static ssize_t sel_write_access(struct file *file, char *buf, size_t size)
- 
- 	length = scnprintf(buf, SIMPLE_TRANSACTION_LIMIT,
- 			  "%x %x %x %x %u",
--			  avd.allowed, avd.decided,
-+			  avd.allowed, 0xffffffff,
- 			  avd.auditallow, avd.auditdeny,
- 			  avd.seqno);
- out2:
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 6e0651a..c6a8f68 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -416,7 +416,6 @@ static int context_struct_compute_av(struct context *scontext,
- 	 * Initialize the access vectors to the default values.
- 	 */
- 	avd->allowed = 0;
--	avd->decided = 0xffffffff;
- 	avd->auditallow = 0;
- 	avd->auditdeny = 0xffffffff;
- 	avd->seqno = latest_granting;
-@@ -761,7 +760,6 @@ int security_compute_av(u32 ssid,
- 
- 	if (!ss_initialized) {
- 		avd->allowed = 0xffffffff;
--		avd->decided = 0xffffffff;
- 		avd->auditallow = 0;
- 		avd->auditdeny = 0xffffffff;
- 		avd->seqno = latest_granting;
 
 
 --
