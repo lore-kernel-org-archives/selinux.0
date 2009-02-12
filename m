@@ -1,77 +1,209 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1CJlvNh029623
-	for <selinux@tycho.nsa.gov>; Thu, 12 Feb 2009 14:47:57 -0500
-Subject: Re: [Labeled-nfs] New MAC label support Internet Draft posted to
- IETF website
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: Peter Staubach <staubach@redhat.com>, labeled-nfs@linux-nfs.org,
-        nfs-discuss@opensolaris.org, nfsv4@ietf.org, selinux@tycho.nsa.gov
-In-Reply-To: <alpine.LRH.1.10.0902121205410.17299@tundra.namei.org>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
-	 <4990AD20.3030902@redhat.com>
-	 <1234396064.2929.121.camel@moss-terrapins.epoch.ncsc.mil>
-	 <alpine.LRH.1.10.0902121205410.17299@tundra.namei.org>
-Content-Type: text/plain
-Date: Thu, 12 Feb 2009 14:45:21 -0500
-Message-Id: <1234467921.2929.143.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+From: Eric Paris <eparis@redhat.com>
+Subject: [PATCH 5/5] SELinux: convert the avc cache hash list to an hlist
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org, paul.moore@hp.com
+Date: Thu, 12 Feb 2009 14:51:04 -0500
+Message-ID: <20090212195104.25599.75942.stgit@paris.rdu.redhat.com>
+In-Reply-To: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
+References: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-02-12 at 12:07 +1100, James Morris wrote:
-> On Wed, 11 Feb 2009, David P. Quigley wrote:
-> 
-> > sort of open file handle revocation support. In the past people have
-> > suggested building the client's idea of the label into either the
-> > stateid or some other form of cookie that can be verified by the server.
-> > We explored doing this in the form of an NFSv4 op and while that worked
-> > we are trying to shy away from adding new operations if we can help it.
-> 
-> What's wrong with adding new operations?
-> 
-> 
-> - James
+We do not need O(1) access to the tail of the avc cache lists and so we are
+wasting lots of space using struct list_head instead of struct hlist_head.
+This patch converts the avc cache to use hlists in which there is a single
+pointer from the head which saves us about 4k of global memory.
 
+Resulted in about a 1.5% decrease in time spent in avc_has_perm_noaudit based
+on oprofile sampling of tbench.  Although likely within the noise....
 
-For the sake of discussion I'll talk about the previous work we did on
-this topic. In the presentation I gave at IETF 71 we had a new NFSv4
-operation called OP_PUTCLIENTLABEL. The idea of this was it was to work
-like a PUTFH call in that you would push some state to the server which
-would be used to evaluate all portions of the compound operation after
-it. The idea was that the client would say that it believes the file is
-TOP SECRET by issuing a PUTCLIENTLABEL at the beginning of the compound
-op with the label TOP SECRET as the value. When the server evaluated the
-parts of the compound operation that used a file handle it would check
-if the label for that FH matched the one asserted by the client in the
-PUTCLIENTLABEL operation. If they didn't match, the server returned an
-ESTALE error and hopefully the client would refetch the file handle. At
-the time Linux didn't have good support for recovering from an ESTALE
-but since then I believe that support was fixed.
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-Someone in the audience brought up that we possibly had the
-PUTCLIENTLABEL op in the wrong place because it wasn't being protected
-by one of the replay attack mechanisms. This would have been easy to fix
-but some people seemed skeptical to doing this as a new operation (we
-had a total of two or three that were being proposed). So we went back
-and looked for another way to do it. James had suggested building it
-into the stateid and Nico has suggested to use volatile FHs for it. 
+ security/selinux/avc.c |   47 +++++++++++++++++++++++++++--------------------
+ 1 files changed, 27 insertions(+), 20 deletions(-)
 
-When I gave a followup presentation at IETF 72 I mentioned that we had
-removed the operations. After the presentation I believe Mike Eisler
-mentioned that it was good that we avoided adding new operations. He
-said that they were trying to make future revisions to NFSv4 (4.2 and
-higher) move more quickly through the process since they would be
-smaller revisions. We hoped making the required protocol changes smaller
-would help move things along more quickly.
-
-I'd like to hear more from Nico on how we can use volatile FHs to solve
-this problem. The document still needs more work to take care of things
-like this but I was hoping this revision could get the discussion
-rolling so other people would provide input into the design. It seems
-that it is getting attention now.
-
-Dave
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index ed051d7..cc83acd 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -92,12 +92,12 @@ struct avc_entry {
+ 
+ struct avc_node {
+ 	struct avc_entry	ae;
+-	struct list_head	list; /* anchored in avc_cache->slots[i] */
++	struct hlist_node	list; /* anchored in avc_cache->slots[i] */
+ 	struct rcu_head		rhead;
+ };
+ 
+ struct avc_cache {
+-	struct list_head	slots[AVC_CACHE_SLOTS]; /* head for avc_node->list */
++	struct hlist_head	slots[AVC_CACHE_SLOTS]; /* head for avc_node->list */
+ 	spinlock_t		slots_lock[AVC_CACHE_SLOTS]; /* lock for writes */
+ 	atomic_t		lru_hint;	/* LRU hint for reclaim scan */
+ 	atomic_t		active_nodes;
+@@ -238,7 +238,7 @@ void __init avc_init(void)
+ 	int i;
+ 
+ 	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
+-		INIT_LIST_HEAD(&avc_cache.slots[i]);
++		INIT_HLIST_HEAD(&avc_cache.slots[i]);
+ 		spin_lock_init(&avc_cache.slots_lock[i]);
+ 	}
+ 	atomic_set(&avc_cache.active_nodes, 0);
+@@ -254,7 +254,7 @@ int avc_get_hash_stats(char *page)
+ {
+ 	int i, chain_len, max_chain_len, slots_used;
+ 	struct avc_node *node;
+-	struct list_head *head;
++	struct hlist_head *head;
+ 
+ 	rcu_read_lock();
+ 
+@@ -262,10 +262,12 @@ int avc_get_hash_stats(char *page)
+ 	max_chain_len = 0;
+ 	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
+ 		head = &avc_cache.slots[i];
+-		if (!list_empty(head)) {
++		if (!hlist_empty(head)) {
++			struct hlist_node *next;
++
+ 			slots_used++;
+ 			chain_len = 0;
+-			list_for_each_entry_rcu(node, head, list)
++			hlist_for_each_entry_rcu(node, next, head, list)
+ 				chain_len++;
+ 			if (chain_len > max_chain_len)
+ 				max_chain_len = chain_len;
+@@ -289,7 +291,7 @@ static void avc_node_free(struct rcu_head *rhead)
+ 
+ static void avc_node_delete(struct avc_node *node)
+ {
+-	list_del_rcu(&node->list);
++	hlist_del_rcu(&node->list);
+ 	call_rcu(&node->rhead, avc_node_free);
+ 	atomic_dec(&avc_cache.active_nodes);
+ }
+@@ -303,7 +305,7 @@ static void avc_node_kill(struct avc_node *node)
+ 
+ static void avc_node_replace(struct avc_node *new, struct avc_node *old)
+ {
+-	list_replace_rcu(&old->list, &new->list);
++	hlist_replace_rcu(&old->list, &new->list);
+ 	call_rcu(&old->rhead, avc_node_free);
+ 	atomic_dec(&avc_cache.active_nodes);
+ }
+@@ -313,7 +315,8 @@ static inline int avc_reclaim_node(void)
+ 	struct avc_node *node;
+ 	int hvalue, try, ecx;
+ 	unsigned long flags;
+-	struct list_head *head;
++	struct hlist_head *head;
++	struct hlist_node *next;
+ 	spinlock_t *lock;
+ 
+ 	for (try = 0, ecx = 0; try < AVC_CACHE_SLOTS; try++) {
+@@ -325,7 +328,7 @@ static inline int avc_reclaim_node(void)
+ 			continue;
+ 
+ 		rcu_read_lock();
+-		list_for_each_entry(node, head, list) {
++		hlist_for_each_entry(node, next, head, list) {
+ 			avc_node_delete(node);
+ 			avc_cache_stats_incr(reclaims);
+ 			ecx++;
+@@ -351,7 +354,7 @@ static struct avc_node *avc_alloc_node(void)
+ 		goto out;
+ 
+ 	INIT_RCU_HEAD(&node->rhead);
+-	INIT_LIST_HEAD(&node->list);
++	INIT_HLIST_NODE(&node->list);
+ 	avc_cache_stats_incr(allocations);
+ 
+ 	if (atomic_inc_return(&avc_cache.active_nodes) > avc_cache_threshold)
+@@ -373,11 +376,12 @@ static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
+ {
+ 	struct avc_node *node, *ret = NULL;
+ 	int hvalue;
+-	struct list_head *head;
++	struct hlist_head *head;
++	struct hlist_node *next;
+ 
+ 	hvalue = avc_hash(ssid, tsid, tclass);
+ 	head = &avc_cache.slots[hvalue];
+-	list_for_each_entry_rcu(node, head, list) {
++	hlist_for_each_entry_rcu(node, next, head, list) {
+ 		if (ssid == node->ae.ssid &&
+ 		    tclass == node->ae.tclass &&
+ 		    tsid == node->ae.tsid) {
+@@ -466,7 +470,8 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
+ 
+ 	node = avc_alloc_node();
+ 	if (node) {
+-		struct list_head *head;
++		struct hlist_head *head;
++		struct hlist_node *next;
+ 		spinlock_t *lock;
+ 
+ 		hvalue = avc_hash(ssid, tsid, tclass);
+@@ -476,7 +481,7 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
+ 		lock = &avc_cache.slots_lock[hvalue];
+ 
+ 		spin_lock_irqsave(lock, flag);
+-		list_for_each_entry(pos, head, list) {
++		hlist_for_each_entry(pos, next, head, list) {
+ 			if (pos->ae.ssid == ssid &&
+ 			    pos->ae.tsid == tsid &&
+ 			    pos->ae.tclass == tclass) {
+@@ -484,7 +489,7 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
+ 				goto found;
+ 			}
+ 		}
+-		list_add_rcu(&node->list, head);
++		hlist_add_head_rcu(&node->list, head);
+ found:
+ 		spin_unlock_irqrestore(lock, flag);
+ 	}
+@@ -755,7 +760,8 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
+ 	int hvalue, rc = 0;
+ 	unsigned long flag;
+ 	struct avc_node *pos, *node, *orig = NULL;
+-	struct list_head *head;
++	struct hlist_head *head;
++	struct hlist_node *next;
+ 	spinlock_t *lock;
+ 
+ 	node = avc_alloc_node();
+@@ -772,7 +778,7 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
+ 
+ 	spin_lock_irqsave(lock, flag);
+ 
+-	list_for_each_entry(pos, head, list) {
++	hlist_for_each_entry(pos, next, head, list) {
+ 		if (ssid == pos->ae.ssid &&
+ 		    tsid == pos->ae.tsid &&
+ 		    tclass == pos->ae.tclass &&
+@@ -832,7 +838,8 @@ int avc_ss_reset(u32 seqno)
+ 	int i, rc = 0, tmprc;
+ 	unsigned long flag;
+ 	struct avc_node *node;
+-	struct list_head *head;
++	struct hlist_head *head;
++	struct hlist_node *next;
+ 	spinlock_t *lock;
+ 
+ 	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
+@@ -845,7 +852,7 @@ int avc_ss_reset(u32 seqno)
+ 		 * prevent RCU grace periods from ending.
+ 		 */
+ 		rcu_read_lock();
+-		list_for_each_entry(node, head, list)
++		hlist_for_each_entry(node, next, head, list)
+ 			avc_node_delete(node);
+ 		rcu_read_unlock();
+ 		spin_unlock_irqrestore(lock, flag);
 
 
 --
