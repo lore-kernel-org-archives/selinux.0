@@ -1,33 +1,47 @@
-Date: Thu, 12 Feb 2009 12:07:31 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-cc: Peter Staubach <staubach@redhat.com>, labeled-nfs@linux-nfs.org,
-        nfs-discuss@opensolaris.org, nfsv4@ietf.org, selinux@tycho.nsa.gov
-Subject: Re: [Labeled-nfs] New MAC label support Internet Draft posted to
- IETF website
-In-Reply-To: <1234396064.2929.121.camel@moss-terrapins.epoch.ncsc.mil>
-Message-ID: <alpine.LRH.1.10.0902121205410.17299@tundra.namei.org>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <4990AD20.3030902@redhat.com> <1234396064.2929.121.camel@moss-terrapins.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1CALSa8000572
+	for <selinux@tycho.nsa.gov>; Thu, 12 Feb 2009 05:21:28 -0500
+Received: from etbe.coker.com.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1CALP1Y013147
+	for <selinux@tycho.nsa.gov>; Thu, 12 Feb 2009 10:21:26 GMT
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by etbe.coker.com.au (Postfix) with ESMTP id 0432518073
+	for <selinux@tycho.nsa.gov>; Thu, 12 Feb 2009 21:21:14 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 9A06D2013C
+	for <selinux@tycho.nsa.gov>; Thu, 12 Feb 2009 21:21:13 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: cron sys_admin
+Date: Thu, 12 Feb 2009 21:21:09 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200902122121.12451.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 11 Feb 2009, David P. Quigley wrote:
+I am seeing the cron daemon request capability sys_admin.  The below seems to 
+indicate that vfork() is the relevant operation (190 seems to be vfork 
+according to ia32entry.S).
 
-> sort of open file handle revocation support. In the past people have
-> suggested building the client's idea of the label into either the
-> stateid or some other form of cookie that can be verified by the server.
-> We explored doing this in the form of an NFSv4 op and while that worked
-> we are trying to shy away from adding new operations if we can help it.
+So how does vfork() require sys_admin?
 
-What's wrong with adding new operations?
+type=AVC msg=audit(1234433821.879:6677): avc:  denied  { sys_admin } for  
+pid=9598 comm="cron" capability=21 
+scontext=system_u:system_r:crond_t:s0-s0:c0.c1023 
+tcontext=system_u:system_r:crond_t:s0-s0:c0.c1023 tclass=capability
+type=SYSCALL msg=audit(1234433821.879:6677): arch=40000003 syscall=190 
+success=yes exit=9600 a0=0 a1=804ca00 a2=257e a3=0 items=0 ppid=3701 pid=9598 
+auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 
+tty=(none) ses=4294967295 comm="cron" exe="/usr/sbin/cron" 
+subj=system_u:system_r:crond_t:s0-s0:c0.c1023 key=(null)
 
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
