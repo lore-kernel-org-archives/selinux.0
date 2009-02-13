@@ -1,220 +1,76 @@
-Date: Sat, 14 Feb 2009 09:45:47 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul.moore@hp.com
-Subject: Re: [PATCH 5/5] SELinux: convert the avc cache hash list to an
- hlist
-In-Reply-To: <20090212195104.25599.75942.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.1.10.0902140945420.32324@tundra.namei.org>
-References: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com> <20090212195104.25599.75942.stgit@paris.rdu.redhat.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1DNAwEc029107
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 18:10:58 -0500
+Received: from g4t0015.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1DNAuAu021759
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 23:10:56 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: Glenn Faden <Glenn.Faden@sun.com>
+Subject: Re: [refpolicy] [PATCH] refpolicy: Add missing network related MLSconstraints
+Date: Fri, 13 Feb 2009 18:10:47 -0500
+Cc: chanson@TrustedCS.com, selinux@tycho.nsa.gov
+References: <20090212211531.619341973@hp.com> <200902131702.10467.paul.moore@hp.com> <4995F310.30307@sun.com>
+In-Reply-To: <4995F310.30307@sun.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200902131810.47491.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 12 Feb 2009, Eric Paris wrote:
+On Friday 13 February 2009 05:24:16 pm Glenn Faden wrote:
+> Paul Moore wrote:
+> > On Friday 13 February 2009 04:38:03 pm Glenn Faden wrote:
+> >> Paul Moore wrote:
+> >>> Why were network objects not subject to privilege overrides in
+> >>> legacy/traditional MLS systems?
+> >>>
+> >>> I ask because I think we are best off keeping the MLS constraints as
+> >>> consistent as possible.  If there is a sound reason for avoiding policy
+> >>> overrides for just the network controls than perhaps we should consider
+> >>> "fixing" the rest of the constraints and not just the new ones.
+> >>
+> >> I can provide a bit of history about some legacy systems. In Trusted
+> >> Solaris 8 there was a privilege, net_mac_read, that allowed a server to
+> >> accept connections from clients with labels it didn't dominate. In order
+> >> to reply, the server either needed to set the socket label to match the
+> >> incoming client's label, or assert the privilege net_reply_equal. There
+> >> was no corresponding net_mac_write privilege, because privilege programs
+> >> were expected to use the network API to set their socket labels
+> >> appropriately.
+> >
+> > Thanks, that is good to know.
+> >
+> >> In Solaris Trusted Extensions, neither the net_mac_read, net_mac_write,
+> >> nor net_repy_equal privileges are implemented. It was viewed as a
+> >> weakness in Trusted Solaris that MAC could be overridden by privilege.
+> >> Instead, the administrator (who configures the system network policy)
+> >> can enumerate multilevel network ports, and appropriately privileged
+> >> services can bind to them.
+> >
+> > I assume by multilevel network ports you are talking about port
+> > polyinstantiation and not a single (in every sense of the word) port that
+> > allows a range of labels?
+>
+> Our terminology is different. Polyinstantiated ports are virtualized so
+> that a single-level instance appears to exist at each label. Multilevel
+> ports are TCB objects which can be used by privileged subjects to accept
+> packets within an explicitly enumerated range of set of labels,
+> determined by the administrator.
 
-> We do not need O(1) access to the tail of the avc cache lists and so we are
-> wasting lots of space using struct list_head instead of struct hlist_head.
-> This patch converts the avc cache to use hlists in which there is a single
-> pointer from the head which saves us about 4k of global memory.
-> 
-> Resulted in about a 1.5% decrease in time spent in avc_has_perm_noaudit based
-> on oprofile sampling of tbench.  Although likely within the noise....
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+I thought that might be the case, glad to have that clarified.
 
-Applied.
-
-> ---
-> 
->  security/selinux/avc.c |   47 +++++++++++++++++++++++++++--------------------
->  1 files changed, 27 insertions(+), 20 deletions(-)
-> 
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index ed051d7..cc83acd 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -92,12 +92,12 @@ struct avc_entry {
->  
->  struct avc_node {
->  	struct avc_entry	ae;
-> -	struct list_head	list; /* anchored in avc_cache->slots[i] */
-> +	struct hlist_node	list; /* anchored in avc_cache->slots[i] */
->  	struct rcu_head		rhead;
->  };
->  
->  struct avc_cache {
-> -	struct list_head	slots[AVC_CACHE_SLOTS]; /* head for avc_node->list */
-> +	struct hlist_head	slots[AVC_CACHE_SLOTS]; /* head for avc_node->list */
->  	spinlock_t		slots_lock[AVC_CACHE_SLOTS]; /* lock for writes */
->  	atomic_t		lru_hint;	/* LRU hint for reclaim scan */
->  	atomic_t		active_nodes;
-> @@ -238,7 +238,7 @@ void __init avc_init(void)
->  	int i;
->  
->  	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
-> -		INIT_LIST_HEAD(&avc_cache.slots[i]);
-> +		INIT_HLIST_HEAD(&avc_cache.slots[i]);
->  		spin_lock_init(&avc_cache.slots_lock[i]);
->  	}
->  	atomic_set(&avc_cache.active_nodes, 0);
-> @@ -254,7 +254,7 @@ int avc_get_hash_stats(char *page)
->  {
->  	int i, chain_len, max_chain_len, slots_used;
->  	struct avc_node *node;
-> -	struct list_head *head;
-> +	struct hlist_head *head;
->  
->  	rcu_read_lock();
->  
-> @@ -262,10 +262,12 @@ int avc_get_hash_stats(char *page)
->  	max_chain_len = 0;
->  	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
->  		head = &avc_cache.slots[i];
-> -		if (!list_empty(head)) {
-> +		if (!hlist_empty(head)) {
-> +			struct hlist_node *next;
-> +
->  			slots_used++;
->  			chain_len = 0;
-> -			list_for_each_entry_rcu(node, head, list)
-> +			hlist_for_each_entry_rcu(node, next, head, list)
->  				chain_len++;
->  			if (chain_len > max_chain_len)
->  				max_chain_len = chain_len;
-> @@ -289,7 +291,7 @@ static void avc_node_free(struct rcu_head *rhead)
->  
->  static void avc_node_delete(struct avc_node *node)
->  {
-> -	list_del_rcu(&node->list);
-> +	hlist_del_rcu(&node->list);
->  	call_rcu(&node->rhead, avc_node_free);
->  	atomic_dec(&avc_cache.active_nodes);
->  }
-> @@ -303,7 +305,7 @@ static void avc_node_kill(struct avc_node *node)
->  
->  static void avc_node_replace(struct avc_node *new, struct avc_node *old)
->  {
-> -	list_replace_rcu(&old->list, &new->list);
-> +	hlist_replace_rcu(&old->list, &new->list);
->  	call_rcu(&old->rhead, avc_node_free);
->  	atomic_dec(&avc_cache.active_nodes);
->  }
-> @@ -313,7 +315,8 @@ static inline int avc_reclaim_node(void)
->  	struct avc_node *node;
->  	int hvalue, try, ecx;
->  	unsigned long flags;
-> -	struct list_head *head;
-> +	struct hlist_head *head;
-> +	struct hlist_node *next;
->  	spinlock_t *lock;
->  
->  	for (try = 0, ecx = 0; try < AVC_CACHE_SLOTS; try++) {
-> @@ -325,7 +328,7 @@ static inline int avc_reclaim_node(void)
->  			continue;
->  
->  		rcu_read_lock();
-> -		list_for_each_entry(node, head, list) {
-> +		hlist_for_each_entry(node, next, head, list) {
->  			avc_node_delete(node);
->  			avc_cache_stats_incr(reclaims);
->  			ecx++;
-> @@ -351,7 +354,7 @@ static struct avc_node *avc_alloc_node(void)
->  		goto out;
->  
->  	INIT_RCU_HEAD(&node->rhead);
-> -	INIT_LIST_HEAD(&node->list);
-> +	INIT_HLIST_NODE(&node->list);
->  	avc_cache_stats_incr(allocations);
->  
->  	if (atomic_inc_return(&avc_cache.active_nodes) > avc_cache_threshold)
-> @@ -373,11 +376,12 @@ static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
->  {
->  	struct avc_node *node, *ret = NULL;
->  	int hvalue;
-> -	struct list_head *head;
-> +	struct hlist_head *head;
-> +	struct hlist_node *next;
->  
->  	hvalue = avc_hash(ssid, tsid, tclass);
->  	head = &avc_cache.slots[hvalue];
-> -	list_for_each_entry_rcu(node, head, list) {
-> +	hlist_for_each_entry_rcu(node, next, head, list) {
->  		if (ssid == node->ae.ssid &&
->  		    tclass == node->ae.tclass &&
->  		    tsid == node->ae.tsid) {
-> @@ -466,7 +470,8 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
->  
->  	node = avc_alloc_node();
->  	if (node) {
-> -		struct list_head *head;
-> +		struct hlist_head *head;
-> +		struct hlist_node *next;
->  		spinlock_t *lock;
->  
->  		hvalue = avc_hash(ssid, tsid, tclass);
-> @@ -476,7 +481,7 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
->  		lock = &avc_cache.slots_lock[hvalue];
->  
->  		spin_lock_irqsave(lock, flag);
-> -		list_for_each_entry(pos, head, list) {
-> +		hlist_for_each_entry(pos, next, head, list) {
->  			if (pos->ae.ssid == ssid &&
->  			    pos->ae.tsid == tsid &&
->  			    pos->ae.tclass == tclass) {
-> @@ -484,7 +489,7 @@ static struct avc_node *avc_insert(u32 ssid, u32 tsid, u16 tclass, struct av_dec
->  				goto found;
->  			}
->  		}
-> -		list_add_rcu(&node->list, head);
-> +		hlist_add_head_rcu(&node->list, head);
->  found:
->  		spin_unlock_irqrestore(lock, flag);
->  	}
-> @@ -755,7 +760,8 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
->  	int hvalue, rc = 0;
->  	unsigned long flag;
->  	struct avc_node *pos, *node, *orig = NULL;
-> -	struct list_head *head;
-> +	struct hlist_head *head;
-> +	struct hlist_node *next;
->  	spinlock_t *lock;
->  
->  	node = avc_alloc_node();
-> @@ -772,7 +778,7 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
->  
->  	spin_lock_irqsave(lock, flag);
->  
-> -	list_for_each_entry(pos, head, list) {
-> +	hlist_for_each_entry(pos, next, head, list) {
->  		if (ssid == pos->ae.ssid &&
->  		    tsid == pos->ae.tsid &&
->  		    tclass == pos->ae.tclass &&
-> @@ -832,7 +838,8 @@ int avc_ss_reset(u32 seqno)
->  	int i, rc = 0, tmprc;
->  	unsigned long flag;
->  	struct avc_node *node;
-> -	struct list_head *head;
-> +	struct hlist_head *head;
-> +	struct hlist_node *next;
->  	spinlock_t *lock;
->  
->  	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
-> @@ -845,7 +852,7 @@ int avc_ss_reset(u32 seqno)
->  		 * prevent RCU grace periods from ending.
->  		 */
->  		rcu_read_lock();
-> -		list_for_each_entry(node, head, list)
-> +		hlist_for_each_entry(node, next, head, list)
->  			avc_node_delete(node);
->  		rcu_read_unlock();
->  		spin_unlock_irqrestore(lock, flag);
-> 
+In the case of SELinux, actually Linux in general, we don't have the polyport 
+concept so we have to make so with multilevel ports and trusted applications.  
+The label aware xinetd setup is about the closest we can get to faking 
+polyport on Linux right now.  Interesting enough, even with SELinux's 
+multilevel ports you still need a MLS constraint exception if the traffic's 
+effective label does not equal the receiving socket's effective label.
 
 -- 
-James Morris
-<jmorris@namei.org>
+paul moore
+linux @ hp
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
