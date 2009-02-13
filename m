@@ -1,11 +1,11 @@
-Date: Sat, 14 Feb 2009 09:43:19 +1100 (EST)
+Date: Sat, 14 Feb 2009 09:44:35 +1100 (EST)
 From: James Morris <jmorris@namei.org>
 To: Eric Paris <eparis@redhat.com>
 cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul.moore@hp.com
-Subject: Re: [PATCH -v2 2/3] SELinux: call capabilities code directory
-In-Reply-To: <20090212200104.25810.9927.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.1.10.0902140943060.32324@tundra.namei.org>
-References: <20090212200059.25810.72120.stgit@paris.rdu.redhat.com> <20090212200104.25810.9927.stgit@paris.rdu.redhat.com>
+Subject: Re: [PATCH 2/2] SELinux: check seqno when updating an avc_node
+In-Reply-To: <20090212195010.25556.87832.stgit@paris.rdu.redhat.com>
+Message-ID: <alpine.LRH.1.10.0902140944290.32324@tundra.namei.org>
+References: <20090212195005.25556.94754.stgit@paris.rdu.redhat.com> <20090212195010.25556.87832.stgit@paris.rdu.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
@@ -13,10 +13,12 @@ List-Id: selinux@tycho.nsa.gov
 
 On Thu, 12 Feb 2009, Eric Paris wrote:
 
-> For cleanliness and efficiency remove all calls to secondary-> and instead
-> call capabilities code directly.  capabilities are the only module that
-> selinux stacks with and so the code should not indicate that other stacking
-> might be possible.
+> The avc update node callbacks do not check the seqno of the caller with the
+> seqno of the node found.  It is possible that a policy change could happen
+> (although almost impossibly unlikely) in which a permissive or
+> permissive_domain decision is not valid for the entry found.  Simply pass
+> and check that the seqno of the caller and the seqno of the node found
+> match.
 > 
 > Signed-off-by: Eric Paris <eparis@redhat.com>
 
@@ -24,141 +26,49 @@ Applied.
 
 > ---
 > 
->  security/selinux/hooks.c |   30 +++++++++++++-----------------
->  1 files changed, 13 insertions(+), 17 deletions(-)
+>  security/selinux/avc.c |    9 ++++++---
+>  1 files changed, 6 insertions(+), 3 deletions(-)
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 44f2170..e733fc1 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1863,7 +1863,7 @@ static int selinux_ptrace_may_access(struct task_struct *child,
->  {
->  	int rc;
->  
-> -	rc = secondary_ops->ptrace_may_access(child, mode);
-> +	rc = cap_ptrace_may_access(child, mode);
->  	if (rc)
->  		return rc;
->  
-> @@ -1880,7 +1880,7 @@ static int selinux_ptrace_traceme(struct task_struct *parent)
->  {
->  	int rc;
->  
-> -	rc = secondary_ops->ptrace_traceme(parent);
-> +	rc = cap_ptrace_traceme(parent);
->  	if (rc)
->  		return rc;
->  
-> @@ -1896,7 +1896,7 @@ static int selinux_capget(struct task_struct *target, kernel_cap_t *effective,
->  	if (error)
->  		return error;
->  
-> -	return secondary_ops->capget(target, effective, inheritable, permitted);
-> +	return cap_capget(target, effective, inheritable, permitted);
->  }
->  
->  static int selinux_capset(struct cred *new, const struct cred *old,
-> @@ -1906,7 +1906,7 @@ static int selinux_capset(struct cred *new, const struct cred *old,
->  {
->  	int error;
->  
-> -	error = secondary_ops->capset(new, old,
-> +	error = cap_capset(new, old,
->  				      effective, inheritable, permitted);
->  	if (error)
->  		return error;
-> @@ -1929,7 +1929,7 @@ static int selinux_capable(struct task_struct *tsk, const struct cred *cred,
->  {
->  	int rc;
->  
-> -	rc = secondary_ops->capable(tsk, cred, cap, audit);
-> +	rc = cap_capable(tsk, cred, cap, audit);
->  	if (rc)
->  		return rc;
->  
-> @@ -2055,7 +2055,7 @@ static int selinux_syslog(int type)
->  {
->  	int rc;
->  
-> -	rc = secondary_ops->syslog(type);
-> +	rc = cap_syslog(type);
->  	if (rc)
->  		return rc;
->  
-> @@ -2086,10 +2086,6 @@ static int selinux_syslog(int type)
->   * mapping. 0 means there is enough memory for the allocation to
->   * succeed and -ENOMEM implies there is not.
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index e5cda02..703aba1 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -747,13 +747,15 @@ static inline int avc_sidcmp(u32 x, u32 y)
+>   * @event : Updating event
+>   * @perms : Permission mask bits
+>   * @ssid,@tsid,@tclass : identifier of an AVC entry
+> + * @seqno : sequence number when decision was made
 >   *
-> - * Note that secondary_ops->capable and task_has_perm_noaudit return 0
-> - * if the capability is granted, but __vm_enough_memory requires 1 if
-> - * the capability is granted.
-> - *
->   * Do not audit the selinux permission check, as this is applied to all
->   * processes that allocate mappings.
+>   * if a valid AVC entry doesn't exist,this function returns -ENOENT.
+>   * if kmalloc() called internal returns NULL, this function returns -ENOMEM.
+>   * otherwise, this function update the AVC entry. The original AVC-entry object
+>   * will release later by RCU.
 >   */
-> @@ -2116,7 +2112,7 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
->  	struct inode *inode = bprm->file->f_path.dentry->d_inode;
->  	int rc;
->  
-> -	rc = secondary_ops->bprm_set_creds(bprm);
-> +	rc = cap_bprm_set_creds(bprm);
->  	if (rc)
->  		return rc;
->  
-> @@ -2233,7 +2229,7 @@ static int selinux_bprm_secureexec(struct linux_binprm *bprm)
->  					PROCESS__NOATSECURE, NULL);
+> -static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass)
+> +static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass,
+> +			   u32 seqno)
+>  {
+>  	int hvalue, rc = 0;
+>  	unsigned long flag;
+> @@ -772,7 +774,8 @@ static int avc_update_node(u32 event, u32 perms, u32 ssid, u32 tsid, u16 tclass)
+>  	list_for_each_entry(pos, &avc_cache.slots[hvalue], list) {
+>  		if (ssid == pos->ae.ssid &&
+>  		    tsid == pos->ae.tsid &&
+> -		    tclass == pos->ae.tclass){
+> +		    tclass == pos->ae.tclass &&
+> +		    seqno == pos->ae.avd.seqno){
+>  			orig = pos;
+>  			break;
+>  		}
+> @@ -913,7 +916,7 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+>  			rc = -EACCES;
+>  		else if (!selinux_enforcing || security_permissive_sid(ssid))
+>  			avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
+> -					tsid, tclass);
+> +					tsid, tclass, p_ae->avd.seqno);
+>  		else
+>  			rc = -EACCES;
 >  	}
->  
-> -	return (atsecure || secondary_ops->bprm_secureexec(bprm));
-> +	return (atsecure || cap_bprm_secureexec(bprm));
->  }
->  
->  extern struct vfsmount *selinuxfs_mount;
-> @@ -3334,7 +3330,7 @@ static int selinux_task_setnice(struct task_struct *p, int nice)
->  {
->  	int rc;
->  
-> -	rc = secondary_ops->task_setnice(p, nice);
-> +	rc = cap_task_setnice(p, nice);
->  	if (rc)
->  		return rc;
->  
-> @@ -3345,7 +3341,7 @@ static int selinux_task_setioprio(struct task_struct *p, int ioprio)
->  {
->  	int rc;
->  
-> -	rc = secondary_ops->task_setioprio(p, ioprio);
-> +	rc = cap_task_setioprio(p, ioprio);
->  	if (rc)
->  		return rc;
->  
-> @@ -3375,7 +3371,7 @@ static int selinux_task_setscheduler(struct task_struct *p, int policy, struct s
->  {
->  	int rc;
->  
-> -	rc = secondary_ops->task_setscheduler(p, policy, lp);
-> +	rc = cap_task_setscheduler(p, policy, lp);
->  	if (rc)
->  		return rc;
->  
-> @@ -4633,7 +4629,7 @@ static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
->  {
->  	int err;
->  
-> -	err = secondary_ops->netlink_send(sk, skb);
-> +	err = cap_netlink_send(sk, skb);
->  	if (err)
->  		return err;
->  
-> @@ -4648,7 +4644,7 @@ static int selinux_netlink_recv(struct sk_buff *skb, int capability)
->  	int err;
->  	struct avc_audit_data ad;
->  
-> -	err = secondary_ops->netlink_recv(skb, capability);
-> +	err = cap_netlink_recv(skb, capability);
->  	if (err)
->  		return err;
->  
 > 
 
 -- 
