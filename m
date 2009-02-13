@@ -1,75 +1,142 @@
-Subject: Re: [PATCH -v2 3/3] SELinux: better printk when file with invalid
- label found
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, jmorris@namei.org, paul.moore@hp.com
-In-Reply-To: <20090212200110.25810.93732.stgit@paris.rdu.redhat.com>
-References: <20090212200059.25810.72120.stgit@paris.rdu.redhat.com>
-	 <20090212200110.25810.93732.stgit@paris.rdu.redhat.com>
-Content-Type: text/plain
-Date: Fri, 13 Feb 2009 15:23:48 -0500
-Message-Id: <1234556628.24702.243.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1DKipuA004821
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 15:44:51 -0500
+Received: from g4t0014.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1DKioAu025421
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 20:44:50 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: chanson@TrustedCS.com
+Subject: Re: [refpolicy] [PATCH] refpolicy: Add missing network related MLSconstraints
+Date: Fri, 13 Feb 2009 15:44:42 -0500
+Cc: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov
+References: <20090212211531.619341973@hp.com> <170D6ABBBA770349AA49582A86FCED15BA0199@HAVOC.tcs-sec.com>
+In-Reply-To: <170D6ABBBA770349AA49582A86FCED15BA0199@HAVOC.tcs-sec.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200902131544.42460.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-02-12 at 15:01 -0500, Eric Paris wrote:
-> Currently when an inode is read into the kernel with an invalid label
-> string (can often happen with removable media) we output a string like:
-> 
-> SELinux: inode_doinit_with_dentry:  context_to_sid([SOME INVALID LABEL])
-> returned -22 dor dev=[blah] ino=[blah]
-> 
-> Which is all but incomprehensible to all but a couple of us.  Instead, on
-> EINVAL only, I plan to output a much more user friendly string and I plan to
-> ratelimit the printk since many of these could be generated very rapidly.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+On Friday 13 February 2009 02:36:17 pm chanson@trustedcs.com wrote:
+> Traditionally network objects in a MLS system are not usually subject to
+> the usual privilege overrides. I would propose something like the below:
+>
+> mlsconstrain { netif } { egress ingress }
+> 	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> 	 ( t1 == mlsnetflow ));
+> mlsconstrain { node } { recvfrom sendto }
+> 	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> 	 ( t1 == mlsnetflow ));
+> mlsconstrain { packet } { forward_in forward_out }
+> 	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> 	 ( t1 == mlsnetflow ));
+>
+> "mlsnetflow" would be a new attribute useful for special cases like
+> unlabeled_t or kernel_t.
 
-Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Why were network objects not subject to privilege overrides in 
+legacy/traditional MLS systems?
 
-> ---
-> 
->  security/selinux/hooks.c |   17 +++++++++++++----
->  1 files changed, 13 insertions(+), 4 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e733fc1..45e286c 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1335,10 +1335,19 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
->  							     sbsec->def_sid,
->  							     GFP_NOFS);
->  			if (rc) {
-> -				printk(KERN_WARNING "SELinux: %s:  context_to_sid(%s) "
-> -				       "returned %d for dev=%s ino=%ld\n",
-> -				       __func__, context, -rc,
-> -				       inode->i_sb->s_id, inode->i_ino);
-> +				char *dev = inode->i_sb->s_id;
-> +				unsigned long ino = inode->i_ino;
-> +
-> +				if (rc == -EINVAL) {
-> +					if (printk_ratelimit())
-> +						printk(KERN_NOTICE "SELinux: inode=%lu on dev=%s was found to have an invalid "
-> +							"context=%s.  This indicates you may need to relabel the inode or the "
-> +							"filesystem in question.\n", ino, dev, context);
-> +				} else {
-> +					printk(KERN_WARNING "SELinux: %s:  context_to_sid(%s) "
-> +					       "returned %d for dev=%s ino=%ld\n",
-> +					       __func__, context, -rc, dev, ino);
-> +				}
->  				kfree(context);
->  				/* Leave with the unlabeled SID */
->  				rc = 0;
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
+I ask because I think we are best off keeping the MLS constraints as 
+consistent as possible.  If there is a sound reason for avoiding policy 
+overrides for just the network controls than perhaps we should consider 
+"fixing" the rest of the constraints and not just the new ones.
+
+> > -----Original Message-----
+> >
+> > Add MLS constraints for several network related access
+> > controls including the new ingress/egress controls and the
+> > older Secmark controls.  Based on the following post to the
+> > SELinux Reference Policy mailing list:
+> >
+> >  * http://oss.tresys.com/pipermail/refpolicy/2009-February/000579.html
+> >
+> > Signed-off-by: Paul Moore <paul.moore@hp.com>
+> >
+> > ---
+> >  policy/mls |   51 +++++++++++++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 51 insertions(+)
+> >
+> > Index: refpolicy_svn_repo/policy/mls
+> > ===================================================================
+> > --- refpolicy_svn_repo.orig/policy/mls
+> > +++ refpolicy_svn_repo/policy/mls
+> > @@ -295,8 +295,59 @@ mlsconstrain { netif node } { tcp_send u
+> >  # these access vectors have no MLS restrictions  # node enforce_dest
+> >
+> > +#
+> > +# MLS policy for the network ingress/egress controls #
+> >
+> > +# the netif ingress/egress ops, the ingress permission is a "write"
+> > +operation # because the subject in this particular case is
+> > the remote
+> > +domain which is # writing data out the network interface which is
+> > +acting as the object mlsconstrain { netif } { ingress }
+> > +	(( l1 eq l2 ) or
+> > +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and (
+> > l1 domby h2 )) or
+> > +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1
+> > domby l2 )) or
+> > +	 ( t1 == mlsnetwrite ) or
+> > +	 ( t1 == unlabeled_t ));
+> > +mlsconstrain { netif } { egress }
+> > +	(( l1 eq l2 ) or
+> > +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and (
+> > l1 domby h2 )) or
+> > +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1
+> > domby l2 )) or
+> > +	 ( t1 == mlsnetwrite ));
+> >
+> > +# the node recvfrom/sendto ops, the recvfrom permission is a "write"
+> > +operation # because the subject in this particular case is
+> > the remote
+> > +domain which is # writing data out the network node which is
+> > acting as
+> > +the object mlsconstrain { node } { recvfrom }
+> > +	(( l1 eq l2 ) or
+> > +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and (
+> > l1 domby h2 )) or
+> > +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1
+> > domby l2 )) or
+> > +	 ( t1 == mlsnetwrite ) or
+> > +	 ( t1 == unlabeled_t ));
+> > +mlsconstrain { node } { sendto }
+> > +	(( l1 eq l2 ) or
+> > +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and (
+> > l1 domby h2 )) or
+> > +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1
+> > domby l2 )) or
+> > +	 ( t1 == mlsnetwrite ));
+> > +
+> > +# the forward ops, the forward_in permission is a "write" operation
+> > +because the # subject in this particular case is the remote domain
+> > +which is writing data # to the network with a secmark label,
+> > the object
+> > +in this case mlsconstrain { packet } { forward_in forward_out }
+> > +	(( l1 eq l2 ) or
+> > +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and (
+> > l1 domby h2 )) or
+> > +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1
+> > domby l2 )) or
+> > +	 ( t1 == mlsnetwrite ) or
+> > +	 ( t1 == unlabeled_t ));
+> > +
+> > +#
+> > +# MLS policy for the secmark and peer controls #
+> > +
+> > +# the peer/packet recv op
+> > +mlsconstrain { peer packet } { recv }
+> > +	(( l1 dom l2 ) or
+> > +	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+> > +	 ( t1 == mlsnetread ));
+> >
+> >  #
+> >  # MLS policy for the process class
+
 -- 
-Stephen Smalley
-National Security Agency
+paul moore
+linux @ hp
 
 
 --
