@@ -1,322 +1,99 @@
-Date: Fri, 13 Feb 2009 09:56:46 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
-Subject: Re: [PATCH 1/3] SELinux: fix selinux to safely handle any bugs even
- when not CONFIG_BUG
-In-Reply-To: <20090209213714.9537.8322.stgit@paris.rdu.redhat.com>
-Message-ID: <alpine.LRH.1.10.0902130955480.24661@tundra.namei.org>
-References: <20090209213714.9537.8322.stgit@paris.rdu.redhat.com>
+Message-ID: <499516FB.7090805@ak.jp.nec.com>
+Date: Fri, 13 Feb 2009 15:45:15 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Eric Paris <eparis@redhat.com>
+CC: Paul Moore <paul.moore@hp.com>, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        jmorris@namei.org
+Subject: Re: [PATCH 1/5] SELinux: remove the unused ae.used
+References: <20090212195043.25599.80206.stgit@paris.rdu.redhat.com>	 <200902121515.32476.paul.moore@hp.com> <1234470416.24008.3.camel@localhost.localdomain>
+In-Reply-To: <1234470416.24008.3.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 9 Feb 2009, Eric Paris wrote:
-
-> If CONFIG_BUG is not set places in the code where BUG is called will not
-> end execution.  Look for places where this might result is system problems
-> and keep the system running.
-
-I wonder if we should make SELinux depend on CONFIG_BUG ?
-
-This is pointlessly ugly, and I can't see why you'd disable CONFIG_BUG 
-when running SELinux.
-
-
-> Signed-off-by: Eric Paris <eparis@redhat.com>
-> ---
+Eric Paris wrote:
+> On Thu, 2009-02-12 at 15:15 -0500, Paul Moore wrote:
+>> On Thursday 12 February 2009 02:50:43 pm Eric Paris wrote:
+>>> Currently SELinux code has an atomic which was intended to track how many
+>>> times an avc entry was used and to evict entries when they haven't been
+>>> used recently.  Instead we never let this atomic get above 1 and evict when
+>>> it is first checked for eviction since it hits zero.  This is a total waste
+>>> of time so I'm completely dropping ae.used.
+>>>
+>>> This change resulted in about a 3% faster avc_has_perm_noaudit when running
+>>> oprofile against a tbench benchmark.
+>>>
+>>> Signed-off-by: Eric Paris <eparis@redhat.com>
+>> Looks okay to me, I did notice another optimization (see below) that might be 
+>> worth including if you respin the patch.
+>>
+>> Reviewed by: Paul Moore <paul.moore@hp.com>
+>>
+>>>  struct avc_node {
+>>> @@ -321,16 +320,13 @@ static inline int avc_reclaim_node(void)
+>>>
+>>>  		rcu_read_lock();
+>>>  		list_for_each_entry(node, &avc_cache.slots[hvalue], list) {
+>>> -			if (atomic_dec_and_test(&node->ae.used)) {
+>>> -				/* Recently Unused */
+>>> -				avc_node_delete(node);
+>>> -				avc_cache_stats_incr(reclaims);
+>>> -				ecx++;
+>>> -				if (ecx >= AVC_CACHE_RECLAIM) {
+>>> -					rcu_read_unlock();
+>>> -					spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flags);
+>>> -					goto out;
+>>> -				}
+>>> +			avc_node_delete(node);
+>>> +			avc_cache_stats_incr(reclaims);
+>>> +			ecx++;
+>>> +			if (ecx >= AVC_CACHE_RECLAIM) {
+>>> +				rcu_read_unlock();
+>>> +				spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flags);
+>>> +				goto out;
+>>>  			}
+>>>  		}
+>>>  		rcu_read_unlock();
+>> Not your fault, but in reviewing this code I realized we aren't really using 
+>> the avc_cache.lru_hint atomic either; it looks like it is initialized to zero 
+>> and never changes.  With that in mind we could remove the lru_hint field from 
+>> the avc_cache and simplify the above function a tiny bit (no need for hvalue, 
+>> just use zero).
 > 
->  kernel/capability.c            |    1 +
->  security/selinux/avc.c         |   13 +++++++++++--
->  security/selinux/hooks.c       |    9 ++++++++-
->  security/selinux/netnode.c     |    3 +++
->  security/selinux/ss/ebitmap.h  |   15 ++++++++++++---
->  security/selinux/ss/services.c |   38 +++++++++++++++++++++++++++++++-------
->  security/selinux/xfrm.c        |   15 ++++++++++++---
->  7 files changed, 78 insertions(+), 16 deletions(-)
+> My look says the the hvalue there is computed as:
 > 
-> diff --git a/kernel/capability.c b/kernel/capability.c
-> index 4e17041..e8bec6a 100644
-> --- a/kernel/capability.c
-> +++ b/kernel/capability.c
-> @@ -304,6 +304,7 @@ int capable(int cap)
->  	if (unlikely(!cap_valid(cap))) {
->  		printk(KERN_CRIT "capable() called with invalid cap=%u\n", cap);
->  		BUG();
-> +		return 0;
->  	}
->  
->  	if (security_capable(cap) == 0) {
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index eb41f43..c22db1e 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -202,6 +202,7 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
->  {
->  	int rc;
->  	char *scontext;
-> +	const char *class_string;
->  	u32 scontext_len;
->  
->  	rc = security_sid_to_context(ssid, &scontext, &scontext_len);
-> @@ -220,8 +221,16 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
->  		kfree(scontext);
->  	}
->  
-> -	BUG_ON(tclass >= ARRAY_SIZE(class_to_string) || !class_to_string[tclass]);
-> -	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
-> +	if (unlikely(tclass >= ARRAY_SIZE(class_to_string) || !class_to_string[tclass])) {
-> +		class_string = "unknown";
-> +		if (tclass >= ARRAY_SIZE(class_to_string))
-> +			BUG();
-> +		else
-> +			BUG();
-> +	} else {
-> +		class_string = class_to_string[tclass];
-> +	}
-> +	audit_log_format(ab, " tclass=%s", class_string);
->  }
->  
->  /**
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index ae5bb64..6e6847d 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -995,7 +995,11 @@ static int superblock_doinit(struct super_block *sb, void *data)
->  	if (!data)
->  		goto out;
->  
-> -	BUG_ON(sb->s_type->fs_flags & FS_BINARY_MOUNTDATA);
-> +	if (unlikely(sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)) {
-> +		BUG();
-> +		rc = -EINVAL;
-> +		goto out_err;
-> +	}
->  
->  	rc = selinux_parse_opts_str(options, &opts);
->  	if (rc)
-> @@ -1042,6 +1046,7 @@ static void selinux_write_opts(struct seq_file *m,
->  			continue;
->  		default:
->  			BUG();
-> +			continue;
->  		};
->  		/* we need a comma before each option */
->  		seq_putc(m, ',');
-> @@ -1500,6 +1505,8 @@ static int task_has_capability(struct task_struct *tsk,
->  		printk(KERN_ERR
->  		       "SELinux:  out of range capability %d\n", cap);
->  		BUG();
-> +		/* should I audit somehow? */
-> +		return -EPERM;
->  	}
->  
->  	rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
-> diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-> index 7100072..e002d5a 100644
-> --- a/security/selinux/netnode.c
-> +++ b/security/selinux/netnode.c
-> @@ -140,6 +140,7 @@ static struct sel_netnode *sel_netnode_find(const void *addr, u16 family)
->  		break;
->  	default:
->  		BUG();
-> +		return NULL;
->  	}
->  
->  	list_for_each_entry_rcu(node, &sel_netnode_hash[idx].list, list)
-> @@ -180,6 +181,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
->  		break;
->  	default:
->  		BUG();
-> +		return;
->  	}
->  
->  	INIT_RCU_HEAD(&node->rcu);
-> @@ -240,6 +242,7 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
->  		break;
->  	default:
->  		BUG();
-> +		ret = -EINVAL;
->  	}
->  	if (ret != 0)
->  		goto out;
-> diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
-> index f283b43..425f8b8 100644
-> --- a/security/selinux/ss/ebitmap.h
-> +++ b/security/selinux/ss/ebitmap.h
-> @@ -85,7 +85,10 @@ static inline int ebitmap_node_get_bit(struct ebitmap_node *n,
->  	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
->  	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
->  
-> -	BUG_ON(index >= EBITMAP_UNIT_NUMS);
-> +	if (unlikely((index >= EBITMAP_UNIT_NUMS))) {
-> +		BUG();
-> +		return 0;
-> +	}
->  	if ((n->maps[index] & (EBITMAP_BIT << ofs)))
->  		return 1;
->  	return 0;
-> @@ -97,7 +100,10 @@ static inline void ebitmap_node_set_bit(struct ebitmap_node *n,
->  	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
->  	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
->  
-> -	BUG_ON(index >= EBITMAP_UNIT_NUMS);
-> +	if (unlikely((index >= EBITMAP_UNIT_NUMS))) {
-> +		BUG();
-> +		return;
-> +	}
->  	n->maps[index] |= (EBITMAP_BIT << ofs);
->  }
->  
-> @@ -107,7 +113,10 @@ static inline void ebitmap_node_clr_bit(struct ebitmap_node *n,
->  	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
->  	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
->  
-> -	BUG_ON(index >= EBITMAP_UNIT_NUMS);
-> +	if (unlikely((index >= EBITMAP_UNIT_NUMS))) {
-> +		BUG();
-> +		return;
-> +	}
->  	n->maps[index] &= ~(EBITMAP_BIT << ofs);
->  }
->  
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index c65e4fe..cfb0769 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -120,16 +120,25 @@ static int constraint_expr_eval(struct context *scontext,
->  	for (e = cexpr; e; e = e->next) {
->  		switch (e->expr_type) {
->  		case CEXPR_NOT:
-> -			BUG_ON(sp < 0);
-> +			if (unlikely(sp < 0)) {
-> +				BUG();
-> +				return 0;
-> +			}
->  			s[sp] = !s[sp];
->  			break;
->  		case CEXPR_AND:
-> -			BUG_ON(sp < 1);
-> +			if (unlikely(sp < 1)) {
-> +				BUG();
-> +				return 0;
-> +			}
->  			sp--;
->  			s[sp] &= s[sp+1];
->  			break;
->  		case CEXPR_OR:
-> -			BUG_ON(sp < 1);
-> +			if (unlikely(sp < 1)) {
-> +				BUG();
-> +				return 0;
-> +			}
->  			sp--;
->  			s[sp] |= s[sp+1];
->  			break;
-> @@ -541,7 +550,11 @@ int security_permissive_sid(u32 sid)
->  	read_lock(&policy_rwlock);
->  
->  	context = sidtab_search(&sidtab, sid);
-> -	BUG_ON(!context);
-> +	if (unlikely(!context)) {
-> +		BUG();
-> +		rc = 0;
-> +		goto out;
-> +	}
->  
->  	type = context->type;
->  	/*
-> @@ -550,6 +563,7 @@ int security_permissive_sid(u32 sid)
->  	 */
->  	rc = ebitmap_get_bit(&policydb.permissive_map, type);
->  
-> +out:
->  	read_unlock(&policy_rwlock);
->  	return rc;
->  }
-> @@ -697,7 +711,11 @@ int security_bounded_transition(u32 old_sid, u32 new_sid)
->  	index = new_context->type;
->  	while (true) {
->  		type = policydb.type_val_to_struct[index - 1];
-> -		BUG_ON(!type);
-> +		if (unlikely(!type)) {
-> +			BUG();
-> +			rc = -EPERM;
-> +			goto out;
-> +		}
->  
->  		/* not bounded anymore */
->  		if (!type->bounds) {
-> @@ -1381,7 +1399,10 @@ static int validate_classes(struct policydb *p)
->  			continue;
->  		pol_class = p->p_class_val_to_name[class_val-1];
->  		cladatum = hashtab_search(p->p_classes.table, pol_class);
-> -		BUG_ON(!cladatum);
-> +		if (unlikely(!cladatum)) {
-> +			BUG();
-> +			return -EINVAL;
-> +		}
->  		perms = &cladatum->permissions;
->  		nprim = 1 << (perms->nprim - 1);
->  		if (perm_val > nprim) {
-> @@ -1416,7 +1437,10 @@ static int validate_classes(struct policydb *p)
->  			continue;
->  		pol_class = p->p_class_val_to_name[class_val-1];
->  		cladatum = hashtab_search(p->p_classes.table, pol_class);
-> -		BUG_ON(!cladatum);
-> +		if (unlikely(!cladatum)) {
-> +			BUG();
-> +			return -EINVAL;
-> +		}
->  		if (!cladatum->comdatum) {
->  			printk(KERN_ERR
->  			       "SELinux:  class %s should have an inherits clause but does not\n",
-> diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-> index c0eb720..22413ec 100644
-> --- a/security/selinux/xfrm.c
-> +++ b/security/selinux/xfrm.c
-> @@ -202,7 +202,10 @@ static int selinux_xfrm_sec_ctx_alloc(struct xfrm_sec_ctx **ctxp,
->  	char *ctx_str = NULL;
->  	u32 str_len;
->  
-> -	BUG_ON(uctx && sid);
-> +	if (unlikely(ctx && sid)) {
-> +		BUG();
-> +		return -EINVAL;
-> +	}
->  
->  	if (!uctx)
->  		goto not_from_user;
-> @@ -288,7 +291,10 @@ int selinux_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
->  {
->  	int err;
->  
-> -	BUG_ON(!uctx);
-> +	if (unlikely(!uctx)) {
-> +		BUG();
-> +		return -EINVAL;
-> +	}
->  
->  	err = selinux_xfrm_sec_ctx_alloc(ctxp, uctx, 0);
->  	if (err == 0)
-> @@ -356,7 +362,10 @@ int selinux_xfrm_state_alloc(struct xfrm_state *x, struct xfrm_user_sec_ctx *uct
->  {
->  	int err;
->  
-> -	BUG_ON(!x);
-> +	if (unlikely(!x)) {
-> +		BUG();
-> +		return -EINVAL;
-> +	}
->  
->  	err = selinux_xfrm_sec_ctx_alloc(&x->security, uctx, secid);
->  	if (err == 0)
+> hvalue = atomic_inc_return(&avc_cache.lru_hint) & (AVC_CACHE_SLOTS - 1);
 > 
+> Which means it is changed....
 
+This is an aside:
+
+The purpose of avc_cache.lru_hint and AVC_CACHE_SLOTS (512) of spinlocks is
+to reduce lock contention during avc_reclaim_node() and avc_insert().
+
+In the reader side (more than 99.99%), we can refer avc_node without locks.
+However, RCU requires to acquire locks when we modify linked objects, so
+it is necessary to consider the possibility of scalability issue by lock
+contention on writer side.
+In this case, the purpose of avc_reclaim_node() is to reduce the number
+of active avc_node, not to drop a specific one, so it is not necessary
+to serialize all the threads which invokes avc_reclaim_node().
+
+Any avc_cache.slots[] has its own spinlock. This design enables to insert
+or reclaim independent avc_node in parallel as far as possible. For example,
+CPU-1 can insert a new avc_node into the slot[5], even if CPU-2 holds a lock
+on the slot[7] in same time.
+
+The selinux/avc.c was rewritten at the kernel-2.6.11 using RCU, because
+there was a scalability issue which protects all the reader/writer by a
+single spinlock at that time, so we revised this code so carefully on
+the viewpoint of scalability.
+
+Thanks,
 -- 
-James Morris
-<jmorris@namei.org>
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
