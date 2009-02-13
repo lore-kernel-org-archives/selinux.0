@@ -1,270 +1,147 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1DIIYTo018077
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 13:18:34 -0500
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1DIFCWK015515
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 18:15:17 GMT
-Message-ID: <4995B96F.2030305@redhat.com>
-Date: Fri, 13 Feb 2009 13:18:23 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: Caleb Case <ccase@tresys.com>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] aliases for the boundry format
-References: <E1LWzNR-0001Qe-4E@shiva.hsd1.md.comcast.net.> <49959C4E.1090606@manicmethod.com>
-In-Reply-To: <49959C4E.1090606@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: [PATCH -v2 1/3] SELinux: fix selinux to safely handle any bugs
+ even when not CONFIG_BUG
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eric Paris <eparis@redhat.com>
+Cc: selinux@tycho.nsa.gov, jmorris@namei.org, paul.moore@hp.com
+In-Reply-To: <20090212200059.25810.72120.stgit@paris.rdu.redhat.com>
+References: <20090212200059.25810.72120.stgit@paris.rdu.redhat.com>
+Content-Type: text/plain
+Date: Fri, 13 Feb 2009 13:56:07 -0500
+Message-Id: <1234551367.24702.215.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Joshua Brindle wrote:
-> Caleb Case wrote:
->> The boundry format mapped the primary field to a boolean in the
->> properties bitmap. This is appropriate for the kernel policy, but in
->> modular policy the primary field may be an integer that indicates the
->> primary type that is being aliased. In this case, the primary value
->> cannot
->> be assumed to be boolean.
->>
->> This patch creates a new module format that writes out the primary value
->> as was done before the boundry format.
->>
->> Signed-off-by: Caleb Case <ccase@tresys.com>
+On Thu, 2009-02-12 at 15:00 -0500, Eric Paris wrote:
+> If CONFIG_BUG is not set places in the code where BUG is called will not
+> end execution.  Look for places where this might result is system problems
+> and keep the system running.
 > 
-> I Guess noone else wants to look at this patch. I already acked it
-> before it was sent to the list so if noone has objections I'll apply it
-> later today.
+> Signed-off-by: Eric Paris <eparis@redhat.com>
+> ---
 > 
-> We need to be sure this will make it into F11, is that possible?
->
-yes
-
->>
->> ---
->>  
->>  checkpolicy/module_compiler.c              |    2 +-
->>  checkpolicy/policy_define.c                |   13 +++++++-
->>  libsepol/include/sepol/policydb/policydb.h |   19 +++++-----
->>  libsepol/src/policydb.c                    |   50
->> +++++++++++++++++++++------
->>  libsepol/src/write.c                       |    5 +++
->>  5 files changed, 67 insertions(+), 22 deletions(-)
->>
->> diff --git a/checkpolicy/module_compiler.c
->> b/checkpolicy/module_compiler.c
->> index 36d20be..d6ebd78 100644
->> --- a/checkpolicy/module_compiler.c
->> +++ b/checkpolicy/module_compiler.c
->> @@ -136,7 +136,7 @@ int declare_symbol(uint32_t symbol_type,
->>      }
->>      retval = symtab_insert(policydbp, symbol_type, key, datum,
->>                     SCOPE_DECL, decl->decl_id, dest_value);
->> -    if (retval == 1) {
->> +    if (retval == 1 && dest_value) {
->>          symtab_datum_t *s =
->>              (symtab_datum_t *) hashtab_search(policydbp->
->>                                symtab[symbol_type].table,
->> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
->> index 25b06c1..17b84ce 100644
->> --- a/checkpolicy/policy_define.c
->> +++ b/checkpolicy/policy_define.c
->> @@ -1015,8 +1015,19 @@ static int add_aliases_to_type(type_datum_t *
->> type)
->>                  yyerror("could not declare alias here");
->>                  goto cleanup;
->>              }
->> -        case 0:
->> +        case 0:         break;
->>          case 1:{
->> +                /* ret == 1 means the alias was required and
->> therefore already
->> +                 * has a value. Set it up as an alias with a
->> different primary. */
->> +                type_datum_destroy(aliasdatum);
->> +                free(aliasdatum);
->> +
->> +                aliasdatum =
->> hashtab_search(policydbp->symtab[SYM_TYPES].table, id);
->> +                assert(aliasdatum);
->> +
->> +                aliasdatum->primary = type->s.value;
->> +                aliasdatum->flavor = TYPE_ALIAS;
->> +
->>                  break;
->>              }
->>          default:{
->> diff --git a/libsepol/include/sepol/policydb/policydb.h
->> b/libsepol/include/sepol/policydb/policydb.h
->> index eede389..0105cf4 100644
->> --- a/libsepol/include/sepol/policydb/policydb.h
->> +++ b/libsepol/include/sepol/policydb/policydb.h
->> @@ -614,17 +614,18 @@ extern int policydb_write(struct policydb *p,
->> struct policy_file *pf);
->>  #define POLICYDB_VERSION_MAX    POLICYDB_VERSION_BOUNDARY
->>  
->>  /* Module versions and specific changes*/
->> -#define MOD_POLICYDB_VERSION_BASE       4
->> -#define MOD_POLICYDB_VERSION_VALIDATETRANS 5
->> -#define MOD_POLICYDB_VERSION_MLS       5
->> -#define MOD_POLICYDB_VERSION_RANGETRANS       6
->> -#define MOD_POLICYDB_VERSION_MLS_USERS       6
->> -#define MOD_POLICYDB_VERSION_POLCAP       7
->> -#define MOD_POLICYDB_VERSION_PERMISSIVE       8
->> -#define MOD_POLICYDB_VERSION_BOUNDARY      9
->> +#define MOD_POLICYDB_VERSION_BASE        4
->> +#define MOD_POLICYDB_VERSION_VALIDATETRANS    5
->> +#define MOD_POLICYDB_VERSION_MLS        5
->> +#define MOD_POLICYDB_VERSION_RANGETRANS     6
->> +#define MOD_POLICYDB_VERSION_MLS_USERS        6
->> +#define MOD_POLICYDB_VERSION_POLCAP        7
->> +#define MOD_POLICYDB_VERSION_PERMISSIVE        8
->> +#define MOD_POLICYDB_VERSION_BOUNDARY        9
->> +#define MOD_POLICYDB_VERSION_BOUNDARY_ALIAS    10
->>  
->>  #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
->> -#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_BOUNDARY
->> +#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_BOUNDARY_ALIAS
->>  
->>  #define POLICYDB_CONFIG_MLS    1
->>  
->> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
->> index d623343..85ddefc 100644
->> --- a/libsepol/src/policydb.c
->> +++ b/libsepol/src/policydb.c
->> @@ -153,6 +153,12 @@ static struct policydb_compat_info
->> policydb_compat[] = {
->>       .ocon_num = OCON_NODE6 + 1,
->>      },
->>      {
->> +     .type = POLICY_BASE,
->> +     .version = MOD_POLICYDB_VERSION_BOUNDARY_ALIAS,
->> +     .sym_num = SYM_NUM,
->> +     .ocon_num = OCON_NODE6 + 1,
->> +    },
->> +    {
->>       .type = POLICY_MOD,
->>       .version = MOD_POLICYDB_VERSION_BASE,
->>       .sym_num = SYM_NUM,
->> @@ -188,6 +194,12 @@ static struct policydb_compat_info
->> policydb_compat[] = {
->>       .sym_num = SYM_NUM,
->>       .ocon_num = 0
->>      },
->> +    {
->> +     .type = POLICY_MOD,
->> +     .version = MOD_POLICYDB_VERSION_BOUNDARY_ALIAS,
->> +     .sym_num = SYM_NUM,
->> +     .ocon_num = 0
->> +    },
->>  };
->>  
->>  #if 0
->> @@ -1942,13 +1954,19 @@ static int type_read(policydb_t * p
->>      uint32_t buf[5];
->>      size_t len;
->>      int rc, to_read;
->> +    int pos = 0;
->>  
->>      typdatum = calloc(1, sizeof(type_datum_t));
->>      if (!typdatum)
->>          return -1;
->>  
->> -    if (policydb_has_boundary_feature(p))
->> -        to_read = 4;
->> +    if (policydb_has_boundary_feature(p)) {
->> +        if (p->policy_type != POLICY_KERN
->> +            && p->policyvers >= MOD_POLICYDB_VERSION_BOUNDARY_ALIAS)
->> +            to_read = 5;
->> +        else
->> +            to_read = 4;
->> +    }
->>      else if (p->policy_type == POLICY_KERN)
->>          to_read = 3;
->>      else if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
->> @@ -1960,13 +1978,23 @@ static int type_read(policydb_t * p
->>      if (rc < 0)
->>          goto bad;
->>  
->> -    len = le32_to_cpu(buf[0]);
->> -    typdatum->s.value = le32_to_cpu(buf[1]);
->> +    len = le32_to_cpu(buf[pos]);
->> +    typdatum->s.value = le32_to_cpu(buf[++pos]);
->>      if (policydb_has_boundary_feature(p)) {
->> -        uint32_t properties = le32_to_cpu(buf[2]);
->> +        uint32_t properties;
->> +
->> +        if (p->policy_type != POLICY_KERN
->> +            && p->policyvers >= MOD_POLICYDB_VERSION_BOUNDARY_ALIAS) {
->> +            typdatum->primary = le32_to_cpu(buf[++pos]);
->> +            properties = le32_to_cpu(buf[++pos]);
->> +        }
->> +        else {
->> +            properties = le32_to_cpu(buf[++pos]);
->> +
->> +            if (properties & TYPEDATUM_PROPERTY_PRIMARY)
->> +                typdatum->primary = 1;
->> +        }
->>  
->> -        if (properties & TYPEDATUM_PROPERTY_PRIMARY)
->> -            typdatum->primary = 1;
->>          if (properties & TYPEDATUM_PROPERTY_ATTRIBUTE)
->>              typdatum->flavor = TYPE_ATTRIB;
->>          if (properties & TYPEDATUM_PROPERTY_ALIAS
->> @@ -1976,13 +2004,13 @@ static int type_read(policydb_t * p
->>              && p->policy_type != POLICY_KERN)
->>              typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
->>  
->> -        typdatum->bounds = le32_to_cpu(buf[3]);
->> +        typdatum->bounds = le32_to_cpu(buf[++pos]);
->>      } else {
->> -        typdatum->primary = le32_to_cpu(buf[2]);
->> +        typdatum->primary = le32_to_cpu(buf[++pos]);
->>          if (p->policy_type != POLICY_KERN) {
->> -            typdatum->flavor = le32_to_cpu(buf[3]);
->> +            typdatum->flavor = le32_to_cpu(buf[++pos]);
->>              if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
->> -                typdatum->flags = le32_to_cpu(buf[4]);
->> +                typdatum->flags = le32_to_cpu(buf[++pos]);
->>          }
->>      }
->>  
->> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
->> index bffadcf..66b35ec 100644
->> --- a/libsepol/src/write.c
->> +++ b/libsepol/src/write.c
->> @@ -970,6 +970,11 @@ static int type_write(hashtab_key_t key,
->> hashtab_datum_t datum, void *ptr)
->>      if (policydb_has_boundary_feature(p)) {
->>          uint32_t properties = 0;
->>  
->> +        if (p->policy_type != POLICY_KERN
->> +            && p->policyvers >= MOD_POLICYDB_VERSION_BOUNDARY_ALIAS) {
->> +            buf[items++] = cpu_to_le32(typdatum->primary);
->> +        }
->> +
->>          if (typdatum->primary)
->>              properties |= TYPEDATUM_PROPERTY_PRIMARY;
->>  
->>
->> -- 
->> This message was distributed to subscribers of the selinux mailing list.
->> If you no longer wish to subscribe, send mail to
->> majordomo@tycho.nsa.gov with
->> the words "unsubscribe selinux" without quotes as the message.
->>
+>  kernel/capability.c            |    1 +
+>  security/selinux/avc.c         |    9 +++++--
+>  security/selinux/hooks.c       |    8 +++++-
+>  security/selinux/netnode.c     |    3 ++
+>  security/selinux/ss/ebitmap.h  |   15 +++++++++--
+>  security/selinux/ss/services.c |   54 +++++++++++++++++++++++++++++-----------
+>  security/selinux/xfrm.c        |   15 +++++++++--
+>  7 files changed, 81 insertions(+), 24 deletions(-)
 > 
+> diff --git a/kernel/capability.c b/kernel/capability.c
+> index 4e17041..e8bec6a 100644
+> --- a/kernel/capability.c
+> +++ b/kernel/capability.c
+> @@ -304,6 +304,7 @@ int capable(int cap)
+>  	if (unlikely(!cap_valid(cap))) {
+>  		printk(KERN_CRIT "capable() called with invalid cap=%u\n", cap);
+>  		BUG();
+> +		return 0;
+>  	}
+>  
+>  	if (security_capable(cap) == 0) {
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index eb41f43..e5cda02 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -220,8 +220,13 @@ static void avc_dump_query(struct audit_buffer *ab, u32 ssid, u32 tsid, u16 tcla
+>  		kfree(scontext);
+>  	}
+>  
+> -	BUG_ON(tclass >= ARRAY_SIZE(class_to_string) || !class_to_string[tclass]);
+> -	audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
+> +	if (unlikely(tclass >= ARRAY_SIZE(class_to_string) || !class_to_string[tclass])) {
+> +		printk(KERN_ERR "%s: with tclass=%d\n", __func__, tclass);
+> +		BUG();
+> +		audit_log_format(ab, " tclass=%d", tclass);
+> +	} else {
+> +		audit_log_format(ab, " tclass=%s", class_to_string[tclass]);
+> +	}
+>  }
+>  
+>  /**
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index ae5bb64..44f2170 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -995,7 +995,11 @@ static int superblock_doinit(struct super_block *sb, void *data)
+>  	if (!data)
+>  		goto out;
+>  
+> -	BUG_ON(sb->s_type->fs_flags & FS_BINARY_MOUNTDATA);
+> +	if (unlikely(sb->s_type->fs_flags & FS_BINARY_MOUNTDATA)) {
+> +		BUG();
+> +		rc = -EINVAL;
+> +		goto out_err;
+> +	}
+>  
+>  	rc = selinux_parse_opts_str(options, &opts);
+>  	if (rc)
+> @@ -1042,6 +1046,7 @@ static void selinux_write_opts(struct seq_file *m,
+>  			continue;
+>  		default:
+>  			BUG();
+> +			continue;
+>  		};
+>  		/* we need a comma before each option */
+>  		seq_putc(m, ',');
+> @@ -1500,6 +1505,7 @@ static int task_has_capability(struct task_struct *tsk,
+>  		printk(KERN_ERR
+>  		       "SELinux:  out of range capability %d\n", cap);
+>  		BUG();
+> +		return -EPERM;
+>  	}
+>  
+>  	rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
+> diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+> index 7100072..42cc59a 100644
+> --- a/security/selinux/netnode.c
+> +++ b/security/selinux/netnode.c
+> @@ -140,6 +140,7 @@ static struct sel_netnode *sel_netnode_find(const void *addr, u16 family)
+>  		break;
+>  	default:
+>  		BUG();
+> +		return NULL;
+>  	}
+>  
+>  	list_for_each_entry_rcu(node, &sel_netnode_hash[idx].list, list)
+> @@ -180,6 +181,7 @@ static void sel_netnode_insert(struct sel_netnode *node)
+>  		break;
+>  	default:
+>  		BUG();
+> +		return;
+>  	}
+>  
+>  	INIT_RCU_HEAD(&node->rcu);
+> @@ -240,6 +242,7 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
+>  		break;
+>  	default:
+>  		BUG();
+> +		ret = -EPROTONOSUPPORT;
+>  	}
+>  	if (ret != 0)
+>  		goto out;
+> diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+> index f283b43..3ef8c94 100644
+> --- a/security/selinux/ss/ebitmap.h
+> +++ b/security/selinux/ss/ebitmap.h
+> @@ -85,7 +85,10 @@ static inline int ebitmap_node_get_bit(struct ebitmap_node *n,
+>  	unsigned int index = EBITMAP_NODE_INDEX(n, bit);
+>  	unsigned int ofs = EBITMAP_NODE_OFFSET(n, bit);
+>  
+> -	BUG_ON(index >= EBITMAP_UNIT_NUMS);
+> +	if (unlikely((index >= EBITMAP_UNIT_NUMS))) {
+> +		panic("index >= EBITMAP_UNIT_NUMS");
+> +		return 0;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Unlike BUG(), you don't need anything after panic(), right?
+It is a no-return function under all configurations, right?
 
-iEYEARECAAYFAkmVuW8ACgkQrlYvE4MpobORDgCeL5T28gzWVYzpZcwcfyIghsTm
-kwEAoNJdgcgOlQVZjzyF+CZ8UjD8uNp0
-=o7Yo
------END PGP SIGNATURE-----
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
