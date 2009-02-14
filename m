@@ -1,44 +1,39 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1E035dV003025
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 19:03:05 -0500
-Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1DNxjxb019243
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 23:59:46 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Bryan Kropf <Bryan_Kropf@raytheon.com>
-Subject: Re: What happened to http://www.nsa.gov/selinux/ ????
-Date: Sat, 14 Feb 2009 11:02:50 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <OFCA520DBE.4B76D022-ON8525754C.007E5E8B-8525754C.007F0780@mck.us.ray.com>
-In-Reply-To: <OFCA520DBE.4B76D022-ON8525754C.007E5E8B-8525754C.007F0780@mck.us.ray.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1E2ftu7019765
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 21:41:55 -0500
+Received: from smtp108.prem.mail.sp1.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n1E2cWDH010007
+	for <selinux@tycho.nsa.gov>; Sat, 14 Feb 2009 02:38:37 GMT
+Message-ID: <49962F60.3090206@schaufler-ca.com>
+Date: Fri, 13 Feb 2009 18:41:36 -0800
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200902141102.55638.russell@coker.com.au>
+To: chanson@TrustedCS.com
+CC: paul.moore@hp.com, refpolicy@oss.tresys.com, selinux@tycho.nsa.gov
+Subject: Re: [refpolicy] [PATCH] refpolicy: Add missing network related MLSconstraints
+References: <20090212211531.619341973@hp.com> <170D6ABBBA770349AA49582A86FCED15BA0199@HAVOC.tcs-sec.com>
+In-Reply-To: <170D6ABBBA770349AA49582A86FCED15BA0199@HAVOC.tcs-sec.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 29 Jan 2009, Bryan Kropf <Bryan_Kropf@raytheon.com> wrote:
-> which when accessed result in a dead end here
-> http://www.nsa.gov/selinux/list-archive/0310/5366.cfm
+chanson@TrustedCS.com wrote:
+>  
+> Traditionally network objects in a MLS system are not usually subject to
+> the usual privilege overrides.
+Hum. That wasn't true of Trusted Irix where sockets were the network
+objects.
+Of course, you can only apply privilege on the sending end because the
+privilege state isn't transmitted.
 
-http://marc.info/?l=selinux&r=1&w=2
+On Smack the network object is the process, and privilege is required to
+muck with the attributes of your own sockets, but otherwise it's the same,
+again the privilege isn't getting transmitted, so you can't determine if
+it's there on the other end.
 
-The NSA seems to improve their web site every few years and break links 
-(particularly the mailing list archives).  This combined with the significant 
-delay in updating the mailing list archives greatly reduces their value.  The 
-above URL has an alternate archive for the SE Linux list which doesn't change 
-and is updated more frequently.
+If you want to transmit the privilege state, and SELinux (appears to)
+allow that, you really ought to allow for that on the other end.
 
-If you try and avoid linking to the NSA mailing list archives and instead link 
-to the marc.info archives then Google will be more likely to return marc.info 
-results that won't get broken.
-
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
