@@ -1,38 +1,44 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1DNsw11001943
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 18:54:58 -0500
-Received: from trauma.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1DNpexb017845
-	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 23:51:41 GMT
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1E035dV003025
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 19:03:05 -0500
+Received: from etbe.coker.com.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1DNxjxb019243
+	for <selinux@tycho.nsa.gov>; Fri, 13 Feb 2009 23:59:46 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Bryan Kropf <Bryan_Kropf@raytheon.com>
+Subject: Re: What happened to http://www.nsa.gov/selinux/ ????
+Date: Sat, 14 Feb 2009 11:02:50 +1100
+Cc: SE Linux <selinux@tycho.nsa.gov>
+References: <OFCA520DBE.4B76D022-ON8525754C.007E5E8B-8525754C.007F0780@mck.us.ray.com>
+In-Reply-To: <OFCA520DBE.4B76D022-ON8525754C.007E5E8B-8525754C.007F0780@mck.us.ray.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [refpolicy] [PATCH] refpolicy: Add missing network related MLSconstraints
-Date: Fri, 13 Feb 2009 18:54:55 -0500
-Message-ID: <170D6ABBBA770349AA49582A86FCED15BA0249@HAVOC.tcs-sec.com>
-References: <20090212211531.619341973@hp.com> <200902131702.10467.paul.moore@hp.com> <170D6ABBBA770349AA49582A86FCED15BA0238@HAVOC.tcs-sec.com> <200902131817.29764.paul.moore@hp.com>
-From: <chanson@TrustedCS.com>
-To: <paul.moore@hp.com>
-Cc: <Glenn.Faden@sun.com>, <refpolicy@oss.tresys.com>, <selinux@tycho.nsa.gov>
+  charset="utf-8"
+Message-Id: <200902141102.55638.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
-> 
-> Just out of curiosity, are you guys using any of the new 
-> stuff or are you still using your own special kernel with the 
-> rejected network controls?  I ask because I would be curious 
-> about any feedback you might have on the new bits in mainline.
-> 
+On Thu, 29 Jan 2009, Bryan Kropf <Bryan_Kropf@raytheon.com> wrote:
+> which when accessed result in a dead end here
+> http://www.nsa.gov/selinux/list-archive/0310/5366.cfm
 
-We can't really use anything new since we use the same baseline for
-multiple products, each of which may go through multiple accreditations,
-some of which are much stricter than others as to changed content.
-Therefore, we continue to use our patch on the approved baseline which
-adds the same basic ideas as the mainline enhancements.
+http://marc.info/?l=selinux&r=1&w=2
 
--Chad 
+The NSA seems to improve their web site every few years and break links 
+(particularly the mailing list archives).  This combined with the significant 
+delay in updating the mailing list archives greatly reduces their value.  The 
+above URL has an alternate archive for the SE Linux list which doesn't change 
+and is updated more frequently.
 
+If you try and avoid linking to the NSA mailing list archives and instead link 
+to the marc.info archives then Google will be more likely to return marc.info 
+results that won't get broken.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
