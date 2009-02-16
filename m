@@ -1,54 +1,51 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1GFIhE0009503
-	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2009 10:18:43 -0500
-Received: from trauma.tcs-sec.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1GFFMrR017103
-	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2009 15:15:22 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1GMZTOY030992
+	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2009 17:35:29 -0500
+Received: from etbe.coker.com.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1GMZQ8w000667
+	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2009 22:35:27 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Justin Mattock <justinmattock@gmail.com>
+Subject: Re: sysvinit doesnt see libselinux/libsepol (LFS system);
+Date: Tue, 17 Feb 2009 09:35:14 +1100
+Cc: SE-Linux <selinux@tycho.nsa.gov>
+References: <dd18b0c30902142013u323f4853v34270dd2c5e21132@mail.gmail.com> <dd18b0c30902152208r46e439e5r6bcabfc299bc2ac8@mail.gmail.com> <dd18b0c30902160618p5501ecdaie3ffefd96b66188a@mail.gmail.com>
+In-Reply-To: <dd18b0c30902160618p5501ecdaie3ffefd96b66188a@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Subject: RE: [refpolicy] [PATCH] refpolicy: Add missing network related MLSconstraints
-Date: Mon, 16 Feb 2009 10:18:34 -0500
-Message-ID: <170D6ABBBA770349AA49582A86FCED15BA02BB@HAVOC.tcs-sec.com>
-References: <20090212211531.619341973@hp.com> <170D6ABBBA770349AA49582A86FCED15BA0199@HAVOC.tcs-sec.com> <49962F60.3090206@schaufler-ca.com>
-From: <chanson@TrustedCS.com>
-To: <casey@schaufler-ca.com>
-Cc: <paul.moore@hp.com>, <refpolicy@oss.tresys.com>, <selinux@tycho.nsa.gov>
+  charset="iso-8859-1"
+Message-Id: <200902170935.19429.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
- 
-I realized I was imprecise in my description of "network object" when
-writing this. I was more specifically referring to enforcement of
-"Network / Host Level Access Decisions" of packets entering/exiting the
-system. I concur that Trusted OSes have allowed trusted processes to
-change socket attributes, such as labels, or read higher level data as
-Glenn and you have mentioned. This coincides with the existing MLS
-networking overrides in the MLS constraints today.
+On Tue, 17 Feb 2009, Justin Mattock <justinmattock@gmail.com> wrote:
+> The issue I have is using dpkg/or apt-get already has the right
+> patch applied and init already compiled in, in accordance to the distro.
 
--Chad
+If you take the original source plus the Debian patch and use it in place of 
+the original source for your LFS build then it should be fine.
 
-> -----Original Message-----
-> From: Casey Schaufler [mailto:casey@schaufler-ca.com] 
-> 
-> chanson@TrustedCS.com wrote:
-> > Traditionally network objects in a MLS system are not 
-> usually subject 
-> > to the usual privilege overrides.
-> Hum. That wasn't true of Trusted Irix where sockets were the 
-> network objects.
-> Of course, you can only apply privilege on the sending end 
-> because the privilege state isn't transmitted.
-> 
-> On Smack the network object is the process, and privilege is 
-> required to muck with the attributes of your own sockets, but 
-> otherwise it's the same, again the privilege isn't getting 
-> transmitted, so you can't determine if it's there on the other end.
-> 
-> If you want to transmit the privilege state, and SELinux 
-> (appears to) allow that, you really ought to allow for that 
-> on the other end. 
+> doing a (LFS) tutorial, under the documentation
+> has me building everything from the source.
+> (a lot of work, but worth the learning experience);
 
+It's also a learning experience to contribute to the integration of SE Linux 
+in a major distribution such as Debian, Gentoo, or Fedora.  I think that in 
+the long run there would be more benefits to both you personally and the 
+community if you were to contribute to one of these projects.  I suggest that 
+you choose Debian, but I admit to being biased in this regard.  ;)
+
+> In any case, I suppose I can just copy /sbin/init from an existing
+> debian system but, then I might have issues with the
+> arch being different.
+
+No, that should work.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
