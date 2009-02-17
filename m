@@ -1,34 +1,51 @@
-Date: Tue, 17 Feb 2009 11:00:27 -0600
-From: Nicolas Williams <Nicolas.Williams@sun.com>
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-Cc: labeled-nfs@linux-nfs.org, selinux@tycho.nsa.gov,
-        nfs-discuss@opensolaris.org, nfsv4@ietf.org
-Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted to IETF website
-Message-ID: <20090217170027.GW9992@Sun.COM>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <4990AD20.3030902@redhat.com> <1234396064.2929.121.camel@moss-terrapins.epoch.ncsc.mil> <alpine.LRH.1.10.0902121205410.17299@tundra.namei.org> <20090212153620.GP9992@Sun.COM> <1234468851.2929.157.camel@moss-terrapins.epoch.ncsc.mil> <20090212201152.GB9992@Sun.COM> <1234889450.2929.191.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1234889450.2929.191.camel@moss-terrapins.epoch.ncsc.mil>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1HKQQtD012262
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 15:26:28 -0500
+Received: from manicmethod.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1HKQMvX002606
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 20:26:25 GMT
+Message-ID: <499B1D53.4030602@manicmethod.com>
+Date: Tue, 17 Feb 2009 15:25:55 -0500
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to libsemanage to remove labeling of /root
+References: <496C9A96.1080805@redhat.com>
+In-Reply-To: <496C9A96.1080805@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Feb 17, 2009 at 11:50:50AM -0500, David P. Quigley wrote:
-> So can anyone see of another use for providing a call back that would
-> tell a client to flush it's cached changes back to the server and start
-> a recovery? It could be a potential solution to large scale relabeling
-> on the server but I hesitate to propose it unless it has more than just
-> that application. Also aren't callbacks done out of band and if a
-> callback channel can't be established the functionality is just dropped?
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Policy should label /root with one label and this should not be effected
+> by the passwd database.
+> 
+> In Fedora policy we label this as admin_home_t.  Having this label vary
+> depending on policy ends up with lines like
+> 
+> dontaudit * user_home_t:dir search_dir_perms
+> dontaudit * admin_home_t:dir search_dir_perms
+> dontaudit * sysadmin_home_t:dir search_dir_perms
+> dontaudit * staff_home_t:dir search_dir_perms
+> 
+> Labeling this directory as user_home_t, opens the system to possible
+> security risks since some domains have to be able to write to
+> user_home_t when they would never be allowed to write to admin_home_t.
 
-I don't think that timely revocation, extending to cached data on
-clients, is a problem that we need to address for labeling.  It's a
-problem in general and one that most users and implementors probably
-don't care that much about.  Timely revocation can always be addressed
-separately if it becomes sufficiently desirable.  IMO: leave it out of
-scope.
+The comment right above the added lines seems to indicate that was suppose to be 
+root before, why is / excluded? Are we going to start a huge whitelist for 
+genhomedircon?
 
-Nico
--- 
+                 if (strcmp(pwent->pw_dir, "/") == 0) {
+                         /* don't relabel / genhomdircon checked to see if root
+                          * was the user and if so, set his home directory to
+                          * /root */
+                         continue;
+                 }
 
 --
 This message was distributed to subscribers of the selinux mailing list.
