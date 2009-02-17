@@ -1,63 +1,78 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1HGhA6e011629
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:43:10 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1HGh9ZD026059
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 16:43:09 GMT
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1HGoA0Y012867
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:50:11 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1HGkmJD015637
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 16:46:49 GMT
 Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
-	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n1HGh8Aj022182
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:43:08 -0500
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n1HGo9iZ023753
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:50:09 -0500
 Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
-	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n1HGh8CG007420
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:43:09 -0500
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n1HGo9ob009906
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:50:09 -0500
 Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
-	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n1HGh7Ct017734
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:43:07 -0500
-Message-ID: <499AE91A.30400@redhat.com>
-Date: Tue, 17 Feb 2009 11:43:06 -0500
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n1HGo8jZ020438
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:50:08 -0500
+Message-ID: <499AEABF.4060208@redhat.com>
+Date: Tue, 17 Feb 2009 11:50:07 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: SE Linux <selinux@tycho.nsa.gov>
-Subject: Add missing --level option to semanage
+Subject: Removing a module that does not exist should not be an error.
 Content-Type: multipart/mixed;
- boundary="------------030707050002000201030801"
+ boundary="------------070800060907080206020408"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------030707050002000201030801
+--------------070800060907080206020408
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---------------030707050002000201030801
+This allows us to run a command that removes several modules while
+installing others.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkma6r8ACgkQrlYvE4MpobPXgwCgzyp+iRSfgj4FMmTuvj2+8k9Y
+nooAoMdbsPa2fY/P5hB7qPvNdItOyfCG
+=VQkC
+-----END PGP SIGNATURE-----
+
+--------------070800060907080206020408
 Content-Type: text/plain;
- name="nsapolicycoreutils_semanage_semanage.patch"
+ name="nsapolicycoreutils_semodule_semodule.c.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="nsapolicycoreutils_semanage_semanage.patch"
+ filename="nsapolicycoreutils_semodule_semodule.c.patch"
 
---- nsapolicycoreutils/semanage/semanage	2008-11-14 17:10:15.000000000 -0500
-+++ policycoreutils-2.0.61/semanage/semanage	2009-01-20 09:49:03.000000000 -0500
-@@ -219,6 +219,7 @@
- 					     'seuser=',
- 					     'store=',
- 					     'range=',
-+					     'locallist=',
- 					     'level=',
- 					     'roles=',
- 					     'type=',
+--- nsapolicycoreutils/semodule/semodule.c	2009-01-13 08:45:35.000000000 -0500
++++ policycoreutils-2.0.61/semodule/semodule.c	2009-01-28 16:52:58.000000000 -0500
+@@ -359,6 +363,9 @@
+ 					     mode_arg);
+ 				}
+ 				result = semanage_module_remove(sh, mode_arg);
++				if ( result == -2 ) { 
++					continue;
++				}
+ 				break;
+ 			}
+ 		case LIST_M:{
 
---------------030707050002000201030801
+--------------070800060907080206020408
 Content-Type: application/pgp-signature;
- name="nsapolicycoreutils_semanage_semanage.patch.sig"
+ name="nsapolicycoreutils_semodule_semodule.c.patch.sig"
 Content-Transfer-Encoding: base64
 Content-Disposition: inline;
- filename="nsapolicycoreutils_semanage_semanage.patch.sig"
+ filename="nsapolicycoreutils_semodule_semodule.c.patch.sig"
 
-iEYEABECAAYFAkma6RoACgkQrlYvE4MpobNzbgCfZKoulNbQU31KIQ7ZZMvc+qRQVYMAnAoA
-Q4tNnySfjGZ34cQ5XyFiq78e
---------------030707050002000201030801--
+iEYEABECAAYFAkma6r8ACgkQrlYvE4MpobPKLwCggLwppX0NYYvnylUP0MANWOke1pYAoKlt
+nu36xZTv79OtZhsOlvSzZnKq
+--------------070800060907080206020408--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
