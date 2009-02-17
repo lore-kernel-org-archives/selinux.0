@@ -1,55 +1,65 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1H2eOnn002237
-	for <selinux@tycho.nsa.gov>; Mon, 16 Feb 2009 21:40:24 -0500
-Received: from etbe.coker.com.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1H2eLmH012190
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 02:40:22 GMT
-Received: from aeon.coker.com.au (localhost [127.0.0.1])
-	by etbe.coker.com.au (Postfix) with ESMTP id 96FA3180D5
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 13:40:14 +1100 (EST)
-Received: from localhost (localhost [127.0.0.1])
-	by aeon.coker.com.au (Postfix) with ESMTP id 507EA20EC1
-	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 13:40:12 +1100 (EST)
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "SE-Linux" <selinux@tycho.nsa.gov>
-Subject: run_init
-Date: Tue, 17 Feb 2009 13:40:08 +1100
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1HGa0ac010581
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:36:00 -0500
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1HGZwZD024771
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 16:35:59 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n1HGZt08020358
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:35:55 -0500
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n1HGZt1d004552
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:35:56 -0500
+Received: from localhost.localdomain (redsox.boston.devel.redhat.com [10.16.60.53])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n1HGZsaE014390
+	for <selinux@tycho.nsa.gov>; Tue, 17 Feb 2009 11:35:54 -0500
+Message-ID: <499AE76A.1010301@redhat.com>
+Date: Tue, 17 Feb 2009 11:35:54 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Message-Id: <200902171340.11057.russell@coker.com.au>
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: Remove bogus audit2allow option
+Content-Type: multipart/mixed;
+ boundary="------------070404080703020800090604"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-One thing that has bitten me a couple of times is that I have tried to use 
-run_init when I had not mounted /dev/pts.  run_init gives an error message 
-about "Fork:" which doesn't help anyone in tracking down the problem (it 
-seems much more likely to have a /dev/pts problem than an actual fork 
-problem).
+This is a multi-part message in MIME format.
+--------------070404080703020800090604
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-The misleading error message is currently in Debian and a quick scan of the 
-source code in rawhide suggests that Fedora has it too.
 
-I suggest the following change, but something more verbose could be useful 
-too.
+--------------070404080703020800090604
+Content-Type: text/plain;
+ name="nsapolicycoreutils_audit2allow_audit2allow.1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nsapolicycoreutils_audit2allow_audit2allow.1.patch"
 
---- open_init_pty.c.bak 2009-02-16 21:47:28.000000000 +1100
-+++ open_init_pty.c     2009-02-16 21:48:06.000000000 +1100
-@@ -153,7 +153,7 @@
-        }
+--- nsapolicycoreutils/audit2allow/audit2allow.1	2009-01-13 08:45:35.000000000 -0500
++++ policycoreutils-2.0.61/audit2allow/audit2allow.1	2009-01-20 09:49:03.000000000 -0500
+@@ -75,9 +75,6 @@
+ Generate reference policy using installed macros.
+ This attempts to match denials against interfaces and may be inaccurate.
+ .TP
+-.B "\-t "  | "\-\-tefile"
+-Indicates input file is a te (type enforcement) file.  This can be used to translate old te format to new policy format.
+-.TP
+ .B "\-w" | "\-\-why"
+ Translates SELinux audit messages into a description of why the access was denied
+ 
 
-        if (child_pid < 0) {
--               perror("Fork:");
-+               perror("forkpty():");
-                fflush(stdout);
-                fflush(stderr);
-                exit(EX_OSERR);
+--------------070404080703020800090604
+Content-Type: application/pgp-signature;
+ name="nsapolicycoreutils_audit2allow_audit2allow.1.patch.sig"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename*0="nsapolicycoreutils_audit2allow_audit2allow.1.patch.sig"
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+iEYEABECAAYFAkma52kACgkQrlYvE4MpobO4kACfeI03j2s3XbmwJQUW/i8vIr593e0An0lq
+2AEnqCWLhha5zW1js5OcFKFv
+--------------070404080703020800090604--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
