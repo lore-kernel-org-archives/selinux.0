@@ -1,11 +1,11 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1IGSHt6024569
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 11:28:17 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1IGSGoD003552
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 16:28:16 GMT
-Message-ID: <499C371A.4010401@redhat.com>
-Date: Wed, 18 Feb 2009 11:28:10 -0500
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1IGvFoQ028442
+	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 11:57:15 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1IGrqxJ005896
+	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 16:53:52 GMT
+Message-ID: <499C3DE1.70606@redhat.com>
+Date: Wed, 18 Feb 2009 11:57:05 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
 To: Joshua Brindle <method@manicmethod.com>
@@ -137,31 +137,11 @@ Joshua Brindle wrote:
 > (embedded systems, appliances, etc). We allow that flexibility and can't
 > undermine it in a hard coded way in the library.
 > 
-But we end up with cruft all over the policy for stuff like
-donaudit_staff_home_dir_t, dontaudit_sysadm_home_dir_t
-dontaudit_user_home_dir_t, When every one of these is dealing with
-getattr on /root,  and has nothing to do with /home/dwalsh.
-
-I can also start to write rules that says /root/.ssh directory has a
-certain label, and be guaranteed that it does, So I don't have to deal
-with user_ssh_t, and admin_ssh_t
-
-
-With the current situation you end up treating /root/.ssh and
-/home/dwalsh/.ssh the same or multiple policies.
-
-I believe labeling should not be variable in places like /root ahd
-/home.  It creates too much complexity.  If you want to allow user_t to
-login as root, you need to give him access to admin_home_t.
-
 >> So I will carry the patch and eventually would like to get rid of
 > 
 > I really don't think you should do this. My objections to merging it are
 > rendered moot if the primary selinux distribution ships it anyway.
 > 
-See above,  I don't agree with your decision to have variable labeling
-on the homedir and /root.  So I will take my ball and go home.  :^)
-
 >> genhomedircon all together an move to a mechanism where an admin can
 >> specify where his homedirs are and where is altermate directories are.
 >>
@@ -169,8 +149,6 @@ on the homedir and /root.  So I will take my ball and go home.  :^)
 > So why not add this feature now? A simple variable in semanage.conf
 > should suffice.
 > 
-I plan too, as soon as I have time, or get a summer intern to do it.  Or
-hope that someone out in opensource world does it.
 >> /home == /export/home
 >>
 >> Which would then duplicate all of the contexts prefixed with /home to
@@ -183,14 +161,19 @@ hope that someone out in opensource world does it.
 >> This would give administrators greater flexibility and would get us out
 >> of the business of guessing what a homedir, is.
 >>
+Case in point.
 
+https://bugzilla.redhat.com/show_bug.cgi?id=486147
+
+I have no way of dontauditing this if I allow the /root directory to
+have flexible labeling.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkmcNxoACgkQrlYvE4MpobPQOQCfe3XZl2wYfcNZD8v2jOIGQ2x/
-/wIAoLcw5uA+hMC5JQMmKofagg9yh7Jd
-=R+4U
+iEYEARECAAYFAkmcPeAACgkQrlYvE4MpobOgkgCbBiOn25j+DTBf7COVswr/xJCU
+QA8AoMrVox1fUyB728ARNhoCcUB2eyMA
+=oZw7
 -----END PGP SIGNATURE-----
 
 --
