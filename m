@@ -1,121 +1,51 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1ILS683013520
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 16:28:06 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1ILS49O003586
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 21:28:05 GMT
-Message-ID: <499C7D62.3090906@redhat.com>
-Date: Wed, 18 Feb 2009 16:28:02 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1ILhS6f015997
+	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 16:43:28 -0500
+Received: from manicmethod.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1ILe5p4008095
+	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 21:40:05 GMT
+Message-ID: <499C80E0.4000908@manicmethod.com>
+Date: Wed, 18 Feb 2009 16:42:56 -0500
+From: Joshua Brindle <method@manicmethod.com>
 MIME-Version: 1.0
-To: Joshua Brindle <method@manicmethod.com>
-CC: SE Linux <selinux@tycho.nsa.gov>
-Subject: Re: Several fixes to restorecond
-References: <499AE896.8000709@redhat.com> <499C7AAF.4070007@manicmethod.com>
-In-Reply-To: <499C7AAF.4070007@manicmethod.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Chris PeBenito <cpebenito@tresys.com>
+Subject: Re: Patch to libsemanage to remove labeling of /root
+References: <496C9A96.1080805@redhat.com> <499B1D53.4030602@manicmethod.com> <499B1EB7.40202@redhat.com> <499B1ECE.2040509@manicmethod.com> <499B2091.8000303@redhat.com> <499B20AA.8050902@manicmethod.com> <499B2956.6090104@redhat.com> <499C2D9F.4040806@manicmethod.com> <499C32C8.2020700@redhat.com> <499C3558.6090609@manicmethod.com> <499C3DE1.70606@redhat.com> <499C5FC8.1040000@manicmethod.com> <499C6ADC.6010100@redhat.com> <499C6C59.2010006@manicmethod.com> <499C7CD0.9070907@redhat.com>
+In-Reply-To: <499C7CD0.9070907@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+<snip>
 
-Joshua Brindle wrote:
-> Daniel J Walsh wrote:
-> Init script should be 755
+>>> suddenly change labels.  I could not disagree more.
+>>>
+> The argument here is whether or not /root is a "homedirectory"  I don't
+> agree that it is, at least it is not the same as /home/dwalsh.
 > 
-> libflashplayer.so has moved in the homedir and is now correct so no
-> longer needs to have labeling checked.
+> They are different and the tools should treat them different.
 > 
-> restorecond supports glob matching and should not complain on multiple
-> hard links if they match a glob.
+> Allowing a domain to interact with /root is different then allowing it
+> to interact with /home/dwalsh.  By allowing random users to accidentally
+> change this is in my mind a security risk.
 > 
-> So if a file has > 1 link and is an exact match complain, otherwise do
-> not.
+> I want genhomedircon to handle the case when a user puts his home
+> directories in /home/devel/ and /export/home.  So I need genhomedircon.
 > 
-> Also fix a couple of error messages.
->>
+> But I intend to write policy that relies on the /root directory having a
+> fixed file context.
+> 
 
-> Merged in policycoreutils 2.0.62
+Ok, the tools should be policy agnostic IMO, and this patch hard codes a 
+behavior that is policy specific.
 
-> -- 
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov
-> with
-> the words "unsubscribe selinux" without quotes as the message.
+I'm not going to merge this patch but if/when you or someone sends one that 
+addresses the issue in a flexible way I'll be more open to that.
 
-This is what the F10 homedir_template looks like
-
-HOME_DIR/.+	system_u:object_r:user_home_t:s0
-HOME_DIR/.pulse(/.*)?	system_u:object_r:gnome_home_t:s0
-HOME_DIR/.gnome2(/.*)?	system_u:object_r:gnome_home_t:s0
-HOME_DIR/.*/plugins/nppdf\.so	--	system_u:object_r:textrel_shlib_t:s0
-HOME_DIR/.*/plugins/nppdf\.so.*	--	system_u:object_r:textrel_shlib_t:s0
-HOME_DIR/.*/plugins/nprhapengine\.so.*	--	system_u:object_r:textrel_shlib_
-t:s0
-HOME_DIR/((www)|(web)|(public_html)|(public_git))(/.+)?
-system_u:object_r:httpd_
-user_content_t:s0
-HOME_ROOT/a?quota\.(user|group)	--	system_u:object_r:quota_db_t:s0
-HOME_DIR/\.ssh(/.*)?	system_u:object_r:ssh_home_t:s0
-HOME_DIR/\.uml(/.*)?	system_u:object_r:user_uml_rw_t:s0
-HOME_DIR/\.java(/.*)?	system_u:object_r:mozilla_home_t:s0
-HOME_DIR/\.local.*	system_u:object_r:gconf_home_t:s0
-HOME_DIR/\.xauth.*	--	system_u:object_r:xauth_home_t:s0
-HOME_DIR/\.fonts(/.*)?	system_u:object_r:fonts_home_t:s0
-HOME_DIR/\.gnupg(/.+)?	system_u:object_r:gpg_secret_t:s0
-HOME_DIR/\.adobe(/.*)?	system_u:object_r:nsplugin_home_t:s0
-HOME_DIR/\.pyzor(/.*)?	system_u:object_r:pyzor_home_t:s0
-HOME_DIR/\.spamd(/.*)?	system_u:object_r:pyzor_home_t:s0
-HOME_DIR/\.razor(/.*)?	system_u:object_r:razor_home_t:s0
-HOME_DIR/vmware(/.*)?	system_u:object_r:vmware_home_t:s0
-HOME_DIR/\.gconf(d)?(/.*)?	system_u:object_r:gconf_home_t:s0
-HOME_DIR/\.galeon(/.*)?	system_u:object_r:mozilla_home_t:s0
-HOME_DIR/\.vmware(/.*)?	system_u:object_r:vmware_home_t:s0
-HOME_DIR/\.vmware[^/]*/.*\.cfg	--	system_u:object_r:vmware_home_t:s0
-HOME_DIR/\.mozilla(/.*)?	system_u:object_r:mozilla_home_t:s0
-HOME_DIR/\.phoenix(/.*)?	system_u:object_r:mozilla_home_t:s0
-HOME_DIR/\.mplayer(/.*)?	system_u:object_r:mplayer_home_t:s0
-HOME_DIR/\.mozilla(/.*)?/plugins/libflashplayer\.so.*	--	system_u:object_
-r:textrel_shlib_t:s0
-HOME_DIR/\.ethereal(/.*)?	system_u:object_r:ethereal_home_t:s0
-HOME_DIR/\.netscape(/.*)?	system_u:object_r:mozilla_home_t:s0
-HOME_DIR/\.gstreamer-.*	system_u:object_r:nsplugin_home_t:s0
-HOME_DIR/\.Xauthority.*	--	system_u:object_r:xauth_home_t:s0
-HOME_DIR/\.fontconfig(/.*)?	system_u:object_r:fonts_config_home_t:s0
-HOME_DIR/\.fonts/auto(/.*)?	system_u:object_r:fonts_cache_home_t:s0
-HOME_DIR/\.macromedia(/.*)?	system_u:object_r:nsplugin_home_t:s0
-HOME_DIR/\.gstreamer-.*/plugins/.*\.so.*	--	system_u:object_r:textre
-l_shlib_t:s0
-HOME_ROOT/lost\+found/.*	<<none>>
-HOME_DIR/\.config/gtk-.*	system_u:object_r:gnome_home_t:s0
-HOME_DIR/\.fonts\.cache-.*	--	system_u:object_r:fonts_cache_home_t:s0
-HOME_DIR/\.ICEauthority.*	--	system_u:object_r:iceauth_home_t:s0
-HOME_DIR/\.config/totem(/.*)?	system_u:object_r:nsplugin_home_t:s0
-HOME_DIR/\.config/gxine(/.*)?	system_u:object_r:nsplugin_home_t:s0
-HOME_DIR/\.gcjwebplugin(/.*)?	system_u:object_r:nsplugin_home_t:s0
-HOME_DIR/\.spamassassin(/.*)?	system_u:object_r:spamc_home_t:s0
-HOME_DIR/\.icedteaplugin(/.*)?	system_u:object_r:nsplugin_home_t:s0
-HOME_DIR/\.xsession-errors.*	--	system_u:object_r:xdm_home_t:s0
-HOME_DIR	-d	system_u:object_r:user_home_dir_t:s0
-HOME_DIR	-l	system_u:object_r:user_home_dir_t:s0
-HOME_ROOT	-d	system_u:object_r:home_root_t:s0
-HOME_DIR/\.ircmotd	--	system_u:object_r:ROLE_irc_home_t:s0
-HOME_ROOT/\.journal	<<none>>
-HOME_DIR/\.screenrc	--	system_u:object_r:user_screen_ro_home_t:s0
-HOME_DIR/\.fonts\.conf	--	system_u:object_r:fonts_config_home_t:s0
-HOME_ROOT/lost\+found	-d	system_u:object_r:lost_found_t:s0
-
-I Have no ROLE or USER, but I still need HOME_DIR and HOME_ROOT
-translated, and these do not apply to /root
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkmcfWIACgkQrlYvE4MpobOlaQCcCU5CDLlKZm/q8DSVqimz9u8z
-m9AAoOIOFqm2RRzluq5Er3eraLARkIb+
-=hWXM
------END PGP SIGNATURE-----
+My suggestion is to make an excluded paths variable in semanage.conf that allows 
+downstream users to exclude the paths they care about (alternatively an included 
+paths list might be more appropriate, but I'd have to think that through).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
