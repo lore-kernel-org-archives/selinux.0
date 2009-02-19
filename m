@@ -1,51 +1,87 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1ILhS6f015997
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 16:43:28 -0500
-Received: from manicmethod.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1ILe5p4008095
-	for <selinux@tycho.nsa.gov>; Wed, 18 Feb 2009 21:40:05 GMT
-Message-ID: <499C80E0.4000908@manicmethod.com>
-Date: Wed, 18 Feb 2009 16:42:56 -0500
-From: Joshua Brindle <method@manicmethod.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1JEeW6s004293
+	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2009 09:40:32 -0500
+Received: from pobox.globalherald.net (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1JEb4hN019335
+	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2009 14:37:09 GMT
+Received: from [192.168.2.2] (unknown [192.168.2.2])
+	by pobox.globalherald.net (Postfix) with ESMTP id 49B181FD06E
+	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2009 10:25:32 -0500 (EST)
+Date: Thu, 19 Feb 2009 10:25:31 -0500 (EST)
+From: Joshua Kramer <josh@globalherald.net>
+To: selinux@tycho.nsa.gov
+Subject: Application-level Access Management
+Message-ID: <alpine.LFD.2.00.0902191020490.13287@home-av-server.home-av>
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Chris PeBenito <cpebenito@tresys.com>
-Subject: Re: Patch to libsemanage to remove labeling of /root
-References: <496C9A96.1080805@redhat.com> <499B1D53.4030602@manicmethod.com> <499B1EB7.40202@redhat.com> <499B1ECE.2040509@manicmethod.com> <499B2091.8000303@redhat.com> <499B20AA.8050902@manicmethod.com> <499B2956.6090104@redhat.com> <499C2D9F.4040806@manicmethod.com> <499C32C8.2020700@redhat.com> <499C3558.6090609@manicmethod.com> <499C3DE1.70606@redhat.com> <499C5FC8.1040000@manicmethod.com> <499C6ADC.6010100@redhat.com> <499C6C59.2010006@manicmethod.com> <499C7CD0.9070907@redhat.com>
-In-Reply-To: <499C7CD0.9070907@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-<snip>
 
->>> suddenly change labels.  I could not disagree more.
->>>
-> The argument here is whether or not /root is a "homedirectory"  I don't
-> agree that it is, at least it is not the same as /home/dwalsh.
-> 
-> They are different and the tools should treat them different.
-> 
-> Allowing a domain to interact with /root is different then allowing it
-> to interact with /home/dwalsh.  By allowing random users to accidentally
-> change this is in my mind a security risk.
-> 
-> I want genhomedircon to handle the case when a user puts his home
-> directories in /home/devel/ and /export/home.  So I need genhomedircon.
-> 
-> But I intend to write policy that relies on the /root directory having a
-> fixed file context.
-> 
+Hello Everyone,
 
-Ok, the tools should be policy agnostic IMO, and this patch hard codes a 
-behavior that is policy specific.
+I am working on adding SELinux-based ACLs to the Apache QPid project.  I 
+have considered how I might accomplish this based on QPid's ACL model. 
+However, I have a question.  Can I store the security context of arbitrary 
+objects in SELinux itself?  In this case, an 'object' is a C++ object 
+inside a qpid daemon: a queue, broker, etc.  The security contexts of 
+files, for example, are usually stored in the xattrs on the filesystem. 
+Can I store the security context of a qpid queue in SELinux somewhere, or 
+do I need to create a file to store those contexts?  Is there a more 
+secure way to store the contexts?
 
-I'm not going to merge this patch but if/when you or someone sends one that 
-addresses the issue in a flexible way I'll be more open to that.
+More detail about this endeavor is noted below.  This was a recent thread 
+on the qpid-dev mailing list.
 
-My suggestion is to make an excluded paths variable in semanage.conf that allows 
-downstream users to exclude the paths they care about (alternatively an included 
-paths list might be more appropriate, but I'd have to think that through).
+Thanks,
+-Josh
+
+>> AclModule (which is pluggable). Can that not be implemented as a call to 
+>> security_compute_av? 
+> 
+> yea, I think we might have enough abstraction. We might need to add a map of 
+> IDs to the object list for SELinux. If that is needed I can volunteer to do
+
+That's what I was thinking, as I took a look at
+
+/qpid/cpp/src/qpid/broker/AclModule.h
+
+...and its friends under qpid/acl.  The data in AclModule.h looks like it's a 
+good representation of the various Actions we'll have to model. We will need to 
+model the security contexts pertaining to each item.  For example, you can have 
+a file type for an index.htm file, of httpd_sys_content_t.  Contrast this to 
+user_home_t.  We might have a queue, FinancialDataQueue, that should not be 
+able to be read by the webserver.  FinancialDataQueue would have a type of 
+fin_content_t.  Since the contexts are not stored in the Qpid objects 
+themselves, the ACL plugin will need to map each object to its context.  If a 
+user with type httpd_t attempts to read from FinancialDataQueue, then the 
+authorize call would go something like this:
+
+1. User Name = 'httpd'
+2. Queue Name = 'FinancialDataQueue'
+3. Lookup current context of user 'httpd' (that is a SELinux library call, to 
+find the SELinux user called 'httpd') and find its type to be httpd_t
+4. Lookup current context of queue FinancialDataQueue and find its type to be 
+fin_content_t
+5. Call security_compute_av with the contexts, and pass or fail as needed.
+
+Number 4 is tricky.  I am not yet sure if SELinux contexts can be stored for 
+arbitrary named objects.  On the filesystem the are usually stored in xattrs. 
+Dan?
+
+Thoughts?
+
+-- 
+
+-----
+http://www.globalherald.net/jb01
+GlobalHerald.NET, the Smarter Social Network! (tm)
+
+---------------------------------------------------------------------
+Apache Qpid - AMQP Messaging Implementation
+Project:      http://qpid.apache.org
+Use/Interact: mailto:dev-subscribe@qpid.apache.org
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
