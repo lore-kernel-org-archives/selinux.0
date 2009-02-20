@@ -1,105 +1,69 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1JLBn12025550
-	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2009 16:11:49 -0500
-Received: from goalkeeper.city-fan.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1JL8O38025653
-	for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2009 21:08:25 GMT
-Date: Thu, 19 Feb 2009 21:11:34 +0000
-From: Paul Howarth <paul@city-fan.org>
-To: Bill Chimiak <wch1m1@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: VMware-server 2.0 and selinux
-Message-ID: <20090219211134.3c989213@metropolis.intra.city-fan.org>
-In-Reply-To: <200902191421.10047.w.chimiak@ieee.org>
-References: <200902191421.10047.w.chimiak@ieee.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1K74uok019329
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 02:04:56 -0500
+Received: from rv-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1K71WwQ017197
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 07:01:32 GMT
+Received: by rv-out-0708.google.com with SMTP id f25so882395rvb.54
+        for <selinux@tycho.nsa.gov>; Thu, 19 Feb 2009 23:04:54 -0800 (PST)
+MIME-Version: 1.0
+Date: Thu, 19 Feb 2009 23:04:54 -0800
+Message-ID: <dd18b0c30902192304w76b8c2ebt1f0954d2d5cb903b@mail.gmail.com>
+Subject: ext3 security labels missing
+From: Justin Mattock <justinmattock@gmail.com>
+To: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 19 Feb 2009 14:21:09 -0500
-Bill Chimiak <wch1m1@gmail.com> wrote:
+I've a strange issue.
+with my experimental learning machine(LFS)
+I'm able to load the policy etc.. but have no labels
+on my files.(just a question mark);
 
-> I cannot get VMware-server 2.0 working with selinux.
-> If I boot with selinux=0, all things work.
-> 
-> Running
-> # setenforce=0
-> does not work.
-> 
-> In the web form, when I attempt to log in I get:
-> 	The server is not responding. Please check that the server is
-> running and accepting connections.
-> 
-> When I query on the web, the response is to turn off selinux.
-> 
-> My question is how do I get this to work WITH selinux?
-> 
-> - - - - 
-> Some information:
-> I am running FC 9 
-> kernel 2.6.27.12-78.2.8.fc9.x86_64
->  VMware-server2.0.0-122956
-> 
-> The /etc/init.d/vmware hangs on 
-> Stopping VMware autostart virtual machines:
->    Virtual machines
-> In PERMISSIVE MODE!
-> I need to do a pkill -9 vmware to even bring down the vmware
-> application. When I do that
-> # audit2allow -i [avc information file]
->         produces the output
-> #============= ifconfig_t ==============
-> allow ifconfig_t security_t:dir { search getattr };
-> allow ifconfig_t security_t:file read;
-> allow ifconfig_t security_t:filesystem getattr;
-> allow ifconfig_t selinux_config_t:dir search;
-> allow ifconfig_t selinux_config_t:file { read getattr };
-> 
-> 
-> When I start vmware, 
-> # audit2allow -i [avc information file]
->         produces the output
-> 
-> #============= ifconfig_t ==============
-> #allow ifconfig_t security_t:file read;
-> #allow ifconfig_t security_t:filesystem getattr;
-> #
-> ##============= pam_t ==============
-> #allow pam_t initrc_var_run_t:file write;
-> 
-> 
-> When I start the vmware program as a user, and when I try to log into
-> the server, 
-> # audit2allow -i [avc information file]
->         produces the output
-> 
-> #============= system_chkpwd_t ==============
-> allow system_chkpwd_t security_t:dir { search getattr };
-> allow system_chkpwd_t security_t:file read;
-> allow system_chkpwd_t security_t:filesystem getattr;
-> 
-> When I run id on the vmware server administrator, I get
-> # id virtualRoot
-> uid=737(virtualRoot) gid=737(virtualRoot) groups=737(virtualRoot)
-> context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> 
-> 
-> When an attempt to login to the server is tried, 
-> #audit2allow -i [avc information file]
->         produces the output
-> 
-> #============= system_chkpwd_t ==============
-> allow system_chkpwd_t security_t:dir { search getattr };
-> allow system_chkpwd_t security_t:file read;
-> allow system_chkpwd_t security_t:filesystem getattr;
 
-https://bugzilla.redhat.com/show_bug.cgi?id=464899
+ls -lZ shows
 
-The pam_permit workaround works for me but you might not like it given
-that it disables all auth.
+drwxr-xr-x   2 root root ?  4096 Feb 18 11:19 bin
+drwxr-xr-x   3 root root ?  4096 Feb 19 22:36 boot
+lrwxrwxrwx   1 root  999 ?    11 Feb  9 16:34 cdrom -> media/cdrom
+drwxr-xr-x  17 root root ?  4120 Feb 19 22:42 dev
+drwxr-xr-x  28 root root ?  4096 Feb 19 22:47 etc
+drwxr-xr-x   4 root root ?  4096 Feb 19 22:36 home
+drwxr-xr-x   4 root root ?  4096 Feb 18 11:19 include
+drwxr-xr-x  10 root root ?  4096 Feb 19 18:52 lib
+drwx------   2 root root ? 16384 Feb  9 16:34 lost+found
+drwxr-xr-x   3 root root ?  4096 Feb 19 22:42 media
+drwxr-xr-x   3 root root ?  4096 Feb 11 12:09 mnt
+drwxr-xr-x   2 root root ?  4096 Feb 10 09:54 opt
+dr-xr-xr-x 113 root root ?     0 Feb 19 22:42 proc
+drwxr-xr-x   5 root root ?  4096 Feb 18 11:24 root
+drwxr-xr-x   2 root root ?  4096 Feb 19 21:11 sbin
+drwxr-xr-x   7 root root ?     0 Feb 19 22:42 selinux
+drwxr-xr-x   8 root root ?  4096 Feb 18 11:19 share
+drwxr-xr-x   2 root root ?  4096 Feb 10 09:54 srv
+drwxr-xr-x  12 root root ?     0 Feb 19 22:42 sys
+drwxrwxrwt   5 root root ?  4096 Feb 19 22:50 tmp
+drwxr-xr-x   6 root root ?  4096 Feb 11 12:05 tools
+drwxr-xr-x  14 root root ?  4096 Feb 14 10:09 usr
+drwxr-xr-x  10 root root ?  4096 Feb 18 22:31 var
+lrwxrwxrwx   1 root root ?    24 Feb 10 13:11 vmlinuz ->
+/boot/vmlinuz-2.6.29-rc4
 
-Paul.
+if I do a id -Z I get:
+id: --context (-Z) works only on an SELinux-enabled kernel
+(but it is enabled in the kernel)
+
+>From looking back, I enabled as much as possible in any app/lib I was compiling
+that provided selinux support.(libc,xserver,hal,dbus, etc..);
+But could be missing an important app/lib that might make the security labels
+give the proper label. by chance if anybody had experienced this and/or knows
+what might be going on,(would be really appreciated).
+
+regards;
+
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
