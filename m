@@ -1,110 +1,61 @@
-Subject: Re: Application-level Access Management
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Joshua Kramer <josh@globalherald.net>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <alpine.LFD.2.00.0902191020490.13287@home-av-server.home-av>
-References: <alpine.LFD.2.00.0902191020490.13287@home-av-server.home-av>
-Content-Type: text/plain
-Date: Fri, 20 Feb 2009 16:16:42 -0500
-Message-Id: <1235164602.6285.186.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1KLWxW3002798
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 16:32:59 -0500
+Received: from g4t0017.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1KLTZsO013013
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 21:29:35 GMT
+Received: from g4t0009.houston.hp.com (g4t0009.houston.hp.com [16.234.32.26])
+	by g4t0017.houston.hp.com (Postfix) with ESMTP id A156E380DE
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 21:32:58 +0000 (UTC)
+From: Paul Moore <paul.moore@hp.com>
+Subject: [PATCH 1/2] cipso: Fix documentation comment
+To: selinux@tycho.nsa.gov
+Date: Fri, 20 Feb 2009 16:32:55 -0500
+Message-ID: <20090220213255.17416.17126.stgit@flek.lan>
+In-Reply-To: <20090220212900.17416.14061.stgit@flek.lan>
+References: <20090220212900.17416.14061.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-02-19 at 10:25 -0500, Joshua Kramer wrote:
-> Hello Everyone,
-> 
-> I am working on adding SELinux-based ACLs to the Apache QPid project.  I 
-> have considered how I might accomplish this based on QPid's ACL model.
+The CIPSO protocol engine incorrectly stated that the FIPS-188 specification
+could be found in the kernel's Documentation directory.  This patch corrects
+that by removing the comment and directing users to the FIPS-188 documented
+hosted online.  For the sake of completeness I've also included a link to the
+CIPSO draft specification on the NetLabel website.
 
-I'm not familiar with QPid or its ACL model, so obviously what I say
-below may not be entirely applicable.  Note btw that the semantics of
-ACLs are not always what you want for MAC.
+Thanks to Randy Dunlap for spotting the error and letting me know.
 
-> However, I have a question.  Can I store the security context of arbitrary 
-> objects in SELinux itself?  In this case, an 'object' is a C++ object 
-> inside a qpid daemon: a queue, broker, etc.  The security contexts of 
-> files, for example, are usually stored in the xattrs on the filesystem. 
-> Can I store the security context of a qpid queue in SELinux somewhere, or 
-> do I need to create a file to store those contexts?  Is there a more 
-> secure way to store the contexts?
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
 
-Generally each object manager is responsible for binding security
-contexts to its objects. SELinux does not provide a generic object
-context association storage service of any kind.  SE-PostgreSQL provides
-for its own storage of security contexts, for example.  XSELinux binds
-security contexts to its objects, like windows, but as the objects
-themselves are non-persistent, there is no need for persistent storage
-of the contexts.
+ net/ipv4/cipso_ipv4.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
-I assume you've read the various papers about existing
-userspace/application object managers, e.g. the SE-PostgreSQL
-documentation, Applying Flask to X, Using GConf as an Example of a
-Userspace Object Manager, etc.
-
-> More detail about this endeavor is noted below.  This was a recent thread 
-> on the qpid-dev mailing list.
-
-A couple of comments interspersed below.
-
-> 
-> Thanks,
-> -Josh
-> 
-> >> AclModule (which is pluggable). Can that not be implemented as a call to 
-> >> security_compute_av? 
-> > 
-> > yea, I think we might have enough abstraction. We might need to add a map of 
-> > IDs to the object list for SELinux. If that is needed I can volunteer to do
-> 
-> That's what I was thinking, as I took a look at
-> 
-> /qpid/cpp/src/qpid/broker/AclModule.h
-> 
-> ...and its friends under qpid/acl.  The data in AclModule.h looks like it's a 
-> good representation of the various Actions we'll have to model. We will need to 
-> model the security contexts pertaining to each item.  For example, you can have 
-> a file type for an index.htm file, of httpd_sys_content_t.  Contrast this to 
-> user_home_t.  We might have a queue, FinancialDataQueue, that should not be 
-> able to be read by the webserver.  FinancialDataQueue would have a type of 
-> fin_content_t.  Since the contexts are not stored in the Qpid objects 
-> themselves, the ACL plugin will need to map each object to its context.  If a 
-> user with type httpd_t attempts to read from FinancialDataQueue, then the 
-> authorize call would go something like this:
-> 
-> 1. User Name = 'httpd'
-
-Where does this identity come from?  How is it authenticated?
-
-> 2. Queue Name = 'FinancialDataQueue'
-> 3. Lookup current context of user 'httpd' (that is a SELinux library call, to 
-> find the SELinux user called 'httpd') and find its type to be httpd_t
-
-Even better would be to obtain the context of the actual originator of
-the request, e.g. using getpeercon(3).  This is the approach taken in
-XSELinux and I believe in SE-PostgreSQL.  Of course, that requires use
-of either AF_LOCAL sockets or labeled IPSEC to convey the client
-context.
-
-> 4. Lookup current context of queue FinancialDataQueue and find its type to be 
-> fin_content_t
-> 5. Call security_compute_av with the contexts, and pass or fail as needed.
-
-Here you want avc_has_perm() and friends.  Look at XSELinux, D-BUS, or
-SE-PostgreSQL for examples (although the latter did some specialized
-handling for performance and implemented its own custom AVC as I recall
-rather than using the libselinux implementation).
-
-> 
-> Number 4 is tricky.  I am not yet sure if SELinux contexts can be stored for 
-> arbitrary named objects.  On the filesystem the are usually stored in xattrs. 
-> Dan?
-> 
-> Thoughts?
-> 
--- 
-Stephen Smalley
-National Security Agency
+diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+index 6bb2635..7bc9929 100644
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -3,11 +3,16 @@
+  *
+  * This is an implementation of the CIPSO 2.2 protocol as specified in
+  * draft-ietf-cipso-ipsecurity-01.txt with additional tag types as found in
+- * FIPS-188, copies of both documents can be found in the Documentation
+- * directory.  While CIPSO never became a full IETF RFC standard many vendors
++ * FIPS-188.  While CIPSO never became a full IETF RFC standard many vendors
+  * have chosen to adopt the protocol and over the years it has become a
+  * de-facto standard for labeled networking.
+  *
++ * The CIPSO draft specification can be found in the kernel's Documentation
++ * directory as well as the following URL:
++ *   http://netlabel.sourceforge.net/files/draft-ietf-cipso-ipsecurity-01.txt
++ * The FIPS-188 specification can be found at the following URL:
++ *   http://www.itl.nist.gov/fipspubs/fip188.htm
++ *
+  * Author: Paul Moore <paul.moore@hp.com>
+  *
+  */
 
 
 --
