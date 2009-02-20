@@ -1,174 +1,111 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1KFKPJj015711
-	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 10:20:25 -0500
-Received: from mail.gmx.net (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n1KFH0vr007356
-	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 15:17:00 GMT
-From: Dennis Wronka <linuxweb@gmx.net>
-To: Justin Mattock <justinmattock@gmail.com>
-Subject: Re: ext3 security labels missing
-Date: Fri, 20 Feb 2009 23:20:12 +0800
-References: <dd18b0c30902192304w76b8c2ebt1f0954d2d5cb903b@mail.gmail.com> <1235139267.6285.14.camel@localhost.localdomain> <dd18b0c30902200703j9173fddne33cf6c09b8d08e6@mail.gmail.com>
-In-Reply-To: <dd18b0c30902200703j9173fddne33cf6c09b8d08e6@mail.gmail.com>
-Cc: "SE-Linux" <selinux@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart15251765.BaW3b4ldXh";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Message-Id: <200902202320.16356.linuxweb@gmx.net>
+Subject: Re: Application-level Access Management
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Joshua Kramer <josh@globalherald.net>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <alpine.LFD.2.00.0902191020490.13287@home-av-server.home-av>
+References: <alpine.LFD.2.00.0902191020490.13287@home-av-server.home-av>
+Content-Type: text/plain
+Date: Fri, 20 Feb 2009 16:16:42 -0500
+Message-Id: <1235164602.6285.186.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
---nextPart15251765.BaW3b4ldXh
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 2009-02-19 at 10:25 -0500, Joshua Kramer wrote:
+> Hello Everyone,
+> 
+> I am working on adding SELinux-based ACLs to the Apache QPid project.  I 
+> have considered how I might accomplish this based on QPid's ACL model.
 
-Are the coreutils compiled with SELinux-support?
-I just gave it a quick check and found that the -Z option is available in b=
-oth=20
-id and ls without coreutils having actually been built without SELinux-
-libraries actually available.
+I'm not familiar with QPid or its ACL model, so obviously what I say
+below may not be entirely applicable.  Note btw that the semantics of
+ACLs are not always what you want for MAC.
 
-Could you check this:
-ldd $(which ls)
+> However, I have a question.  Can I store the security context of arbitrary 
+> objects in SELinux itself?  In this case, an 'object' is a C++ object 
+> inside a qpid daemon: a queue, broker, etc.  The security contexts of 
+> files, for example, are usually stored in the xattrs on the filesystem. 
+> Can I store the security context of a qpid queue in SELinux somewhere, or 
+> do I need to create a file to store those contexts?  Is there a more 
+> secure way to store the contexts?
 
-This should show up a reference to libselinux.so.1
-If this reference is missing then I'd suggest recompiling the coreutils.
+Generally each object manager is responsible for binding security
+contexts to its objects. SELinux does not provide a generic object
+context association storage service of any kind.  SE-PostgreSQL provides
+for its own storage of security contexts, for example.  XSELinux binds
+security contexts to its objects, like windows, but as the objects
+themselves are non-persistent, there is no need for persistent storage
+of the contexts.
 
-On Friday 20 February 2009 23:03:37 you wrote:
-> On Fri, Feb 20, 2009 at 6:14 AM, Stephen Smalley <sds@tycho.nsa.gov> wrot=
-e:
-> > On Thu, 2009-02-19 at 23:04 -0800, Justin Mattock wrote:
-> >> I've a strange issue.
-> >> with my experimental learning machine(LFS)
-> >> I'm able to load the policy etc.. but have no labels
-> >> on my files.(just a question mark);
-> >>
-> >>
-> >> ls -lZ shows
-> >>
-> >> drwxr-xr-x   2 root root ?  4096 Feb 18 11:19 bin
-> >> drwxr-xr-x   3 root root ?  4096 Feb 19 22:36 boot
-> >> lrwxrwxrwx   1 root  999 ?    11 Feb  9 16:34 cdrom -> media/cdrom
-> >> drwxr-xr-x  17 root root ?  4120 Feb 19 22:42 dev
-> >> drwxr-xr-x  28 root root ?  4096 Feb 19 22:47 etc
-> >> drwxr-xr-x   4 root root ?  4096 Feb 19 22:36 home
-> >> drwxr-xr-x   4 root root ?  4096 Feb 18 11:19 include
-> >> drwxr-xr-x  10 root root ?  4096 Feb 19 18:52 lib
-> >> drwx------   2 root root ? 16384 Feb  9 16:34 lost+found
-> >> drwxr-xr-x   3 root root ?  4096 Feb 19 22:42 media
-> >> drwxr-xr-x   3 root root ?  4096 Feb 11 12:09 mnt
-> >> drwxr-xr-x   2 root root ?  4096 Feb 10 09:54 opt
-> >> dr-xr-xr-x 113 root root ?     0 Feb 19 22:42 proc
-> >> drwxr-xr-x   5 root root ?  4096 Feb 18 11:24 root
-> >> drwxr-xr-x   2 root root ?  4096 Feb 19 21:11 sbin
-> >> drwxr-xr-x   7 root root ?     0 Feb 19 22:42 selinux
-> >> drwxr-xr-x   8 root root ?  4096 Feb 18 11:19 share
-> >> drwxr-xr-x   2 root root ?  4096 Feb 10 09:54 srv
-> >> drwxr-xr-x  12 root root ?     0 Feb 19 22:42 sys
-> >> drwxrwxrwt   5 root root ?  4096 Feb 19 22:50 tmp
-> >> drwxr-xr-x   6 root root ?  4096 Feb 11 12:05 tools
-> >> drwxr-xr-x  14 root root ?  4096 Feb 14 10:09 usr
-> >> drwxr-xr-x  10 root root ?  4096 Feb 18 22:31 var
-> >> lrwxrwxrwx   1 root root ?    24 Feb 10 13:11 vmlinuz ->
-> >> /boot/vmlinuz-2.6.29-rc4
-> >>
-> >> if I do a id -Z I get:
-> >> id: --context (-Z) works only on an SELinux-enabled kernel
-> >> (but it is enabled in the kernel)
-> >
-> > sestatus shows what?
-> >
-> > To be fully "enabled" as far as userspace is concerned, SELinux has to
-> > be:
-> > - enabled in your kernel build,
-> > - enabled at boot,
-> > - policy has to be loaded
-> >
-> > grep SELINUX .config
-> > cat /etc/selinux/config
-> > dmesg | grep SELinux
-> >
-> >> >From looking back, I enabled as much as possible in any app/lib I was
-> >> > compiling
-> >>
-> >> that provided selinux support.(libc,xserver,hal,dbus, etc..);
-> >> But could be missing an important app/lib that might make the security
-> >> labels give the proper label. by chance if anybody had experienced this
-> >> and/or knows what might be going on,(would be really appreciated).
-> >>
-> >> regards;
-> >
-> > --
-> > Stephen Smalley
-> > National Security Agency
->
-> Thanks for the reply.
-> here's what /usr/sbin/sestatus -vv (says);
->
-> SELinux status:                 enabled
-> SELinuxfs mount:                /selinux
-> Current mode:                   permissive
-> Mode from config file:          permissive
-> Policy version:                 22
-> Policy from config file:        refpolicy
->
-> Process contexts:
-> Current context:                system_u:system_r:local_login_t
-> Init context:                   system_u:system_r:init_t
->
-> File contexts:
-> Controlling term:               system_u:object_r:devpts_t
-> /etc/passwd                     system_u:object_r:etc_t
-> /bin/bash                       system_u:object_r:shell_exec_t
-> /bin/login                      system_u:object_r:login_exec_t
-> /bin/sh                         system_u:object_r:bin_t ->
-> system_u:object_r:shell_exec_t
-> /sbin/agetty                    system_u:object_r:getty_exec_t
-> /sbin/init                      system_u:object_r:init_exec_t
-> /lib/libc.so.6                  system_u:object_r:lib_t ->
-> system_u:object_r:lib_t
-> /lib/ld-linux.so.2              system_u:object_r:lib_t ->
-> system_u:object_r:ld_so_t
->
-> I think this is some aterm,xproto,etc.. library/app(that I forgot to
-> install) that's responsible for displaying the security label info in the
-> shell.(example) when I use
-> audit2allow -d, I generate the correct security allow rules.
-> when running make relabel in the policy source directory, reacts as it
-> should.
->
-> As for setting any options in the kernel. no
-> left everything as I've had in the past.
-> as for enabling everything. yes
-> - enabled in your kernel build,
-> - enabled at boot,
-> - policy has to be loaded
->
-> I'll try adding these rules into the policy irregardless of a
-> broken proto/low level communications thing.
-> didn't mean to causing any heat.
->
-> regards;
+I assume you've read the various papers about existing
+userspace/application object managers, e.g. the SE-PostgreSQL
+documentation, Applying Flask to X, Using GConf as an Example of a
+Userspace Object Manager, etc.
 
+> More detail about this endeavor is noted below.  This was a recent thread 
+> on the qpid-dev mailing list.
 
+A couple of comments interspersed below.
 
---nextPart15251765.BaW3b4ldXh
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+> 
+> Thanks,
+> -Josh
+> 
+> >> AclModule (which is pluggable). Can that not be implemented as a call to 
+> >> security_compute_av? 
+> > 
+> > yea, I think we might have enough abstraction. We might need to add a map of 
+> > IDs to the object list for SELinux. If that is needed I can volunteer to do
+> 
+> That's what I was thinking, as I took a look at
+> 
+> /qpid/cpp/src/qpid/broker/AclModule.h
+> 
+> ...and its friends under qpid/acl.  The data in AclModule.h looks like it's a 
+> good representation of the various Actions we'll have to model. We will need to 
+> model the security contexts pertaining to each item.  For example, you can have 
+> a file type for an index.htm file, of httpd_sys_content_t.  Contrast this to 
+> user_home_t.  We might have a queue, FinancialDataQueue, that should not be 
+> able to be read by the webserver.  FinancialDataQueue would have a type of 
+> fin_content_t.  Since the contexts are not stored in the Qpid objects 
+> themselves, the ACL plugin will need to map each object to its context.  If a 
+> user with type httpd_t attempts to read from FinancialDataQueue, then the 
+> authorize call would go something like this:
+> 
+> 1. User Name = 'httpd'
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
+Where does this identity come from?  How is it authenticated?
 
-iEYEABECAAYFAkmeyjAACgkQ1sXw8/2VziQIZQCgixxmKXYdfAaiDOcTTU/ttdsP
-D/QAoLTox+nNU3JisbEh90sv060hvj7j
-=7Iyp
------END PGP SIGNATURE-----
+> 2. Queue Name = 'FinancialDataQueue'
+> 3. Lookup current context of user 'httpd' (that is a SELinux library call, to 
+> find the SELinux user called 'httpd') and find its type to be httpd_t
 
---nextPart15251765.BaW3b4ldXh--
+Even better would be to obtain the context of the actual originator of
+the request, e.g. using getpeercon(3).  This is the approach taken in
+XSELinux and I believe in SE-PostgreSQL.  Of course, that requires use
+of either AF_LOCAL sockets or labeled IPSEC to convey the client
+context.
+
+> 4. Lookup current context of queue FinancialDataQueue and find its type to be 
+> fin_content_t
+> 5. Call security_compute_av with the contexts, and pass or fail as needed.
+
+Here you want avc_has_perm() and friends.  Look at XSELinux, D-BUS, or
+SE-PostgreSQL for examples (although the latter did some specialized
+handling for performance and implemented its own custom AVC as I recall
+rather than using the libselinux implementation).
+
+> 
+> Number 4 is tricky.  I am not yet sure if SELinux contexts can be stored for 
+> arbitrary named objects.  On the filesystem the are usually stored in xattrs. 
+> Dan?
+> 
+> Thoughts?
+> 
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
