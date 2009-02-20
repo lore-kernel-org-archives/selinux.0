@@ -1,47 +1,59 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1KLWtHw002782
-	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 16:32:55 -0500
-Received: from g4t0017.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1KLTUsO013006
-	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 21:29:31 GMT
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1KLX67E002809
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 16:33:06 -0500
+Received: from g4t0015.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1KLX4Ow010981
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 21:33:05 GMT
 Received: from g4t0009.houston.hp.com (g4t0009.houston.hp.com [16.234.32.26])
-	by g4t0017.houston.hp.com (Postfix) with ESMTP id 5A4DE3825D
-	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 21:32:54 +0000 (UTC)
+	by g4t0015.houston.hp.com (Postfix) with ESMTP id 915278307
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 21:33:04 +0000 (UTC)
 From: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 0/2] Fixes for 2.6.29
+Subject: [PATCH 2/2] selinux: Fix the NetLabel glue code for setsockopt()
 To: selinux@tycho.nsa.gov
-Date: Fri, 20 Feb 2009 16:32:49 -0500
-Message-ID: <20090220212900.17416.14061.stgit@flek.lan>
+Date: Fri, 20 Feb 2009 16:33:02 -0500
+Message-ID: <20090220213302.17416.60174.stgit@flek.lan>
+In-Reply-To: <20090220212900.17416.14061.stgit@flek.lan>
+References: <20090220212900.17416.14061.stgit@flek.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Two small patches I'd like to propose for 2.6.29 as they are low-risk bug
-fixes.  Please review and merge if acceptable - thanks.
+At some point we (okay, I) managed to break the ability for users to use the
+setsockopt() syscall to set IPv4 options when NetLabel was not active on the
+socket in question.  The problem was noticed by someone trying to use the
+"-R" (record route) option of ping:
 
-The following changes since commit 402a917aca5daca69fcc91f43e6f1e6939cf393b:
-  Linus Torvalds (1):
-        Merge master.kernel.org:/home/rmk/linux-2.6-arm
+ # ping -R 10.0.0.1
+ ping: record route: No message of desired type
 
-are available in the git repository at:
+The solution is relatively simple, we catch the unlabeled socket case and
+clear the error code, allowing the operation to succeed.  Please note that we
+still deny users the ability to override IPv4 options on socket's which have
+NetLabel labeling active; this is done to ensure the labeling remains intact.
 
-  git://git.infradead.org/users/pcmoore/lblnet-2.6 master
-
-Paul Moore (2):
-      cipso: Fix documentation comment
-      selinux: Fix the NetLabel glue code for setsockopt()
-
+Signed-off-by: Paul Moore <paul.moore@hp.com>
 ---
 
-Paul Moore (2):
-      selinux: Fix the NetLabel glue code for setsockopt()
-      cipso: Fix documentation comment
-
-
- net/ipv4/cipso_ipv4.c       |    9 +++++++--
  security/selinux/netlabel.c |    4 +++-
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ 1 files changed, 3 insertions(+), 1 deletions(-)
+
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index f58701a..3f4b266 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -490,8 +490,10 @@ int selinux_netlbl_socket_setsockopt(struct socket *sock,
+ 		lock_sock(sk);
+ 		rc = netlbl_sock_getattr(sk, &secattr);
+ 		release_sock(sk);
+-		if (rc == 0 && secattr.flags != NETLBL_SECATTR_NONE)
++		if (rc == 0)
+ 			rc = -EACCES;
++		else if (rc == -ENOMSG)
++			rc = 0;
+ 		netlbl_secattr_destroy(&secattr);
+ 	}
+ 
 
 
 --
