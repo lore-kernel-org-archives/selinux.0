@@ -1,175 +1,176 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1KNAhl3011846
-	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 18:10:43 -0500
-Received: from rv-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1KN7IsO027225
-	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 23:07:18 GMT
-Received: by rv-out-0708.google.com with SMTP id f25so1228753rvb.54
-        for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 15:10:37 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <200902202320.16356.linuxweb@gmx.net>
-References: <dd18b0c30902192304w76b8c2ebt1f0954d2d5cb903b@mail.gmail.com>
-	 <1235139267.6285.14.camel@localhost.localdomain>
-	 <dd18b0c30902200703j9173fddne33cf6c09b8d08e6@mail.gmail.com>
-	 <200902202320.16356.linuxweb@gmx.net>
-Date: Fri, 20 Feb 2009 15:10:37 -0800
-Message-ID: <dd18b0c30902201510n105c5c0kc1791b9ba1741aea@mail.gmail.com>
-Subject: Re: ext3 security labels missing
-From: Justin Mattock <justinmattock@gmail.com>
-To: Dennis Wronka <linuxweb@gmx.net>
-Cc: SE-Linux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1L1bYBU021312
+	for <selinux@tycho.nsa.gov>; Fri, 20 Feb 2009 20:37:34 -0500
+Received: from mho-02-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1L1bWXf006816
+	for <selinux@tycho.nsa.gov>; Sat, 21 Feb 2009 01:37:33 GMT
+Cc: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov
+Message-Id: <C85AF158-A39C-46FC-9447-D15E19910D16@nall.com>
+From: Joe Nall <joe@nall.com>
+To: Paul Moore <paul.moore@hp.com>
+In-Reply-To: <20090212211531.619341973@hp.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Subject: Re: [refpolicy] [PATCH] refpolicy: Add missing network related MLS constraints
+Date: Fri, 20 Feb 2009 19:37:30 -0600
+References: <20090212211531.619341973@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Feb 20, 2009 at 7:20 AM, Dennis Wronka <linuxweb@gmx.net> wrote:
-> Are the coreutils compiled with SELinux-support?
-> I just gave it a quick check and found that the -Z option is available in both
-> id and ls without coreutils having actually been built without SELinux-
-> libraries actually available.
->
-> Could you check this:
-> ldd $(which ls)
->
-> This should show up a reference to libselinux.so.1
-> If this reference is missing then I'd suggest recompiling the coreutils.
->
-> On Friday 20 February 2009 23:03:37 you wrote:
->> On Fri, Feb 20, 2009 at 6:14 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> > On Thu, 2009-02-19 at 23:04 -0800, Justin Mattock wrote:
->> >> I've a strange issue.
->> >> with my experimental learning machine(LFS)
->> >> I'm able to load the policy etc.. but have no labels
->> >> on my files.(just a question mark);
->> >>
->> >>
->> >> ls -lZ shows
->> >>
->> >> drwxr-xr-x   2 root root ?  4096 Feb 18 11:19 bin
->> >> drwxr-xr-x   3 root root ?  4096 Feb 19 22:36 boot
->> >> lrwxrwxrwx   1 root  999 ?    11 Feb  9 16:34 cdrom -> media/cdrom
->> >> drwxr-xr-x  17 root root ?  4120 Feb 19 22:42 dev
->> >> drwxr-xr-x  28 root root ?  4096 Feb 19 22:47 etc
->> >> drwxr-xr-x   4 root root ?  4096 Feb 19 22:36 home
->> >> drwxr-xr-x   4 root root ?  4096 Feb 18 11:19 include
->> >> drwxr-xr-x  10 root root ?  4096 Feb 19 18:52 lib
->> >> drwx------   2 root root ? 16384 Feb  9 16:34 lost+found
->> >> drwxr-xr-x   3 root root ?  4096 Feb 19 22:42 media
->> >> drwxr-xr-x   3 root root ?  4096 Feb 11 12:09 mnt
->> >> drwxr-xr-x   2 root root ?  4096 Feb 10 09:54 opt
->> >> dr-xr-xr-x 113 root root ?     0 Feb 19 22:42 proc
->> >> drwxr-xr-x   5 root root ?  4096 Feb 18 11:24 root
->> >> drwxr-xr-x   2 root root ?  4096 Feb 19 21:11 sbin
->> >> drwxr-xr-x   7 root root ?     0 Feb 19 22:42 selinux
->> >> drwxr-xr-x   8 root root ?  4096 Feb 18 11:19 share
->> >> drwxr-xr-x   2 root root ?  4096 Feb 10 09:54 srv
->> >> drwxr-xr-x  12 root root ?     0 Feb 19 22:42 sys
->> >> drwxrwxrwt   5 root root ?  4096 Feb 19 22:50 tmp
->> >> drwxr-xr-x   6 root root ?  4096 Feb 11 12:05 tools
->> >> drwxr-xr-x  14 root root ?  4096 Feb 14 10:09 usr
->> >> drwxr-xr-x  10 root root ?  4096 Feb 18 22:31 var
->> >> lrwxrwxrwx   1 root root ?    24 Feb 10 13:11 vmlinuz ->
->> >> /boot/vmlinuz-2.6.29-rc4
->> >>
->> >> if I do a id -Z I get:
->> >> id: --context (-Z) works only on an SELinux-enabled kernel
->> >> (but it is enabled in the kernel)
->> >
->> > sestatus shows what?
->> >
->> > To be fully "enabled" as far as userspace is concerned, SELinux has to
->> > be:
->> > - enabled in your kernel build,
->> > - enabled at boot,
->> > - policy has to be loaded
->> >
->> > grep SELINUX .config
->> > cat /etc/selinux/config
->> > dmesg | grep SELinux
->> >
->> >> >From looking back, I enabled as much as possible in any app/lib I was
->> >> > compiling
->> >>
->> >> that provided selinux support.(libc,xserver,hal,dbus, etc..);
->> >> But could be missing an important app/lib that might make the security
->> >> labels give the proper label. by chance if anybody had experienced this
->> >> and/or knows what might be going on,(would be really appreciated).
->> >>
->> >> regards;
->> >
->> > --
->> > Stephen Smalley
->> > National Security Agency
->>
->> Thanks for the reply.
->> here's what /usr/sbin/sestatus -vv (says);
->>
->> SELinux status:                 enabled
->> SELinuxfs mount:                /selinux
->> Current mode:                   permissive
->> Mode from config file:          permissive
->> Policy version:                 22
->> Policy from config file:        refpolicy
->>
->> Process contexts:
->> Current context:                system_u:system_r:local_login_t
->> Init context:                   system_u:system_r:init_t
->>
->> File contexts:
->> Controlling term:               system_u:object_r:devpts_t
->> /etc/passwd                     system_u:object_r:etc_t
->> /bin/bash                       system_u:object_r:shell_exec_t
->> /bin/login                      system_u:object_r:login_exec_t
->> /bin/sh                         system_u:object_r:bin_t ->
->> system_u:object_r:shell_exec_t
->> /sbin/agetty                    system_u:object_r:getty_exec_t
->> /sbin/init                      system_u:object_r:init_exec_t
->> /lib/libc.so.6                  system_u:object_r:lib_t ->
->> system_u:object_r:lib_t
->> /lib/ld-linux.so.2              system_u:object_r:lib_t ->
->> system_u:object_r:ld_so_t
->>
->> I think this is some aterm,xproto,etc.. library/app(that I forgot to
->> install) that's responsible for displaying the security label info in the
->> shell.(example) when I use
->> audit2allow -d, I generate the correct security allow rules.
->> when running make relabel in the policy source directory, reacts as it
->> should.
->>
->> As for setting any options in the kernel. no
->> left everything as I've had in the past.
->> as for enabling everything. yes
->> - enabled in your kernel build,
->> - enabled at boot,
->> - policy has to be loaded
->>
->> I'll try adding these rules into the policy irregardless of a
->> broken proto/low level communications thing.
->> didn't mean to causing any heat.
->>
->> regards;
->
->
->
 
-After looking at the situation, and looking at the
-(LFS)manual at first you setup shadow with a root
-password(to get things going); then later once you're up
-and running you move from using shadow to useing pam.
-well I've managed to do that.
-but  I'm not seeing a /etc/pam.d/system-auth file
-generated by the installer(probably have to manually pick my session,password,
-account modules);
-(positive side)
-under ps aux (Ill have to attach them(before/after) as soon as I get a chance);
-I finally see:   /bin/login --
-So hopefully once I get /etc/pam.d cleaned up(hopefully) I
-should be logged into my SELinux user and have the right context.
-keep in mind "hopefully".
-regards;
+On Feb 12, 2009, at 3:15 PM, Paul Moore wrote:
 
--- 
-Justin P. Mattock
+> Add MLS constraints for several network related access controls  
+> including
+> the new ingress/egress controls and the older Secmark controls.   
+> Based on
+> the following post to the SELinux Reference Policy mailing list:
+>
+> * http://oss.tresys.com/pipermail/refpolicy/2009-February/000579.html
+>
+> Signed-off-by: Paul Moore <paul.moore@hp.com>
+>
+> ---
+> policy/mls |   51 +++++++++++++++++++++++++++++++++++++++++++++++++++
+> 1 file changed, 51 insertions(+)
+>
+> Index: refpolicy_svn_repo/policy/mls
+> ===================================================================
+> --- refpolicy_svn_repo.orig/policy/mls
+> +++ refpolicy_svn_repo/policy/mls
+> @@ -295,8 +295,59 @@ mlsconstrain { netif node } { tcp_send u
+> # these access vectors have no MLS restrictions
+> # node enforce_dest
+>
+> +#
+> +# MLS policy for the network ingress/egress controls
+> +#
+>
+> +# the netif ingress/egress ops, the ingress permission is a "write"  
+> operation
+> +# because the subject in this particular case is the remote domain  
+> which is
+> +# writing data out the network interface which is acting as the  
+> object
+> +mlsconstrain { netif } { ingress }
+> +	(( l1 eq l2 ) or
+> +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby  
+> h2 )) or
+> +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby  
+> l2 )) or
+> +	 ( t1 == mlsnetwrite ) or
+> +	 ( t1 == unlabeled_t ));
+> +mlsconstrain { netif } { egress }
+> +	(( l1 eq l2 ) or
+> +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby  
+> h2 )) or
+> +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby  
+> l2 )) or
+> +	 ( t1 == mlsnetwrite ));
+
+How do processes talk to each other on local netlabel interfaces? lo  
+for example is s0-s15:c1.c1023, any process above s0 would fail the  
+test above communicating on localhost. I don't think that was the  
+intent.
+
+type=AVC msg=audit(1235141104.160:134): avc:  denied  { egress } for   
+pid=2980 comm="InputLog" saddr=172.16.142.134 src=10308  
+daddr=172.16.142.134 dest=52831 netif=lo  
+scontext=system_u:system_r:jcdx_icm_t:s6:c0.c511  
+tcontext=system_u:object_r:lo_netif_t:s0-s15:c0.c1023 tclass=netif
+type=AVC msg=audit(1235141104.160:134): avc:  denied  { sendto } for   
+pid=2980 comm="InputLog" saddr=172.16.142.134 src=10308  
+daddr=172.16.142.134 dest=52831 netif=lo  
+scontext=system_u:system_r:jcdx_icm_t:s6:c0.c511  
+tcontext=system_u:object_r:node_t:s0-s15:c0.c1023 tclass=node
+
+type=AVC msg=audit(1235177156.260:499): avc:  denied  { ingress } for   
+pid=2923 comm="QManager" saddr=172.16.142.134 src=8998  
+daddr=172.16.142.134 dest=34245 netif=lo  
+scontext=system_u:system_r:jcdx_qm_t:s15:c0.c1023  
+tcontext=system_u:object_r:lo_netif_t:s0-s15:c0.c1023 tclass=netif
+type=AVC msg=audit(1235177156.260:499): avc:  denied  { recvfrom }  
+for  pid=2923 comm="QManager" saddr=172.16.142.134 src=8998  
+daddr=172.16.142.134 dest=34245 netif=lo  
+scontext=system_u:system_r:jcdx_qm_t:s15:c0.c1023  
+tcontext=system_u:object_r:node_t:s0-s15:c0.c1023 tclass=node
+
+I have avcs like the ones above for every pair of processes that are  
+using IP to connect to each other after applying the patch.
+
+where 172.16.142.134 is:
+# netlabelctl -p map list
+Configured NetLabel domain mappings (1)
+  domain: DEFAULT
+    address: 127.0.0.1/32
+     protocol: CIPSOv4, DOI = 2
+    address: 172.16.142.134/32
+     protocol: CIPSOv4, DOI = 2
+    address: 0.0.0.0/0
+     protocol: UNLABELED
+
+joe
+
+
+>
+>
+> +# the node recvfrom/sendto ops, the recvfrom permission is a  
+> "write" operation
+> +# because the subject in this particular case is the remote domain  
+> which is
+> +# writing data out the network node which is acting as the object
+> +mlsconstrain { node } { recvfrom }
+> +	(( l1 eq l2 ) or
+> +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby  
+> h2 )) or
+> +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby  
+> l2 )) or
+> +	 ( t1 == mlsnetwrite ) or
+> +	 ( t1 == unlabeled_t ));
+> +mlsconstrain { node } { sendto }
+> +	(( l1 eq l2 ) or
+> +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby  
+> h2 )) or
+> +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby  
+> l2 )) or
+> +	 ( t1 == mlsnetwrite ));
+> +
+> +# the forward ops, the forward_in permission is a "write" operation  
+> because the
+> +# subject in this particular case is the remote domain which is  
+> writing data
+> +# to the network with a secmark label, the object in this case
+> +mlsconstrain { packet } { forward_in forward_out }
+> +	(( l1 eq l2 ) or
+> +	 (( t1 == mlsnetwriteranged ) and ( l1 dom l2 ) and ( l1 domby  
+> h2 )) or
+> +	 (( t1 == mlsnetwritetoclr ) and ( h1 dom l2 ) and ( l1 domby  
+> l2 )) or
+> +	 ( t1 == mlsnetwrite ) or
+> +	 ( t1 == unlabeled_t ));
+> +
+> +#
+> +# MLS policy for the secmark and peer controls
+> +#
+> +
+> +# the peer/packet recv op
+> +mlsconstrain { peer packet } { recv }
+> +	(( l1 dom l2 ) or
+> +	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+> +	 ( t1 == mlsnetread ));
+>
+> #
+> # MLS policy for the process class
+>
+> -- 
+> paul moore
+> linux @ hp
+>
+> _______________________________________________
+> refpolicy mailing list
+> refpolicy@oss.tresys.com
+> http://oss.tresys.com/mailman/listinfo/refpolicy
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
