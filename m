@@ -1,33 +1,45 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1NIp1Ka003305
-	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 13:51:01 -0500
-Received: from mho-01-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1NIp06U013553
-	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 18:51:00 GMT
-Cc: SELinux List <selinux@tycho.nsa.gov>
-Message-Id: <A4219691-58AB-4D38-82C9-F4C593018ED9@nall.com>
-From: Joe Nall <joe@nall.com>
-To: Xavier Toth <txtoth@gmail.com>
-In-Reply-To: <cadfc0e40902230944q217ed46ar618dc06ccfa2e9fa@mail.gmail.com>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Subject: Re: semanage fcontext --list doesn't list contexts which include HOME_DIR
-Date: Mon, 23 Feb 2009 12:50:58 -0600
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1NJCOjp006095
+	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 14:12:24 -0500
+Received: from yw-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1NJ8ue3013087
+	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 19:08:56 GMT
+Received: by yw-out-1718.google.com with SMTP id 5so874139ywr.84
+        for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 11:12:23 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <A4219691-58AB-4D38-82C9-F4C593018ED9@nall.com>
 References: <cadfc0e40902230944q217ed46ar618dc06ccfa2e9fa@mail.gmail.com>
+	 <A4219691-58AB-4D38-82C9-F4C593018ED9@nall.com>
+Date: Mon, 23 Feb 2009 13:12:21 -0600
+Message-ID: <cadfc0e40902231112n21f62bafk426737d8a399a75e@mail.gmail.com>
+Subject: Re: semanage fcontext --list doesn't list contexts which include
+	HOME_DIR
+From: Xavier Toth <txtoth@gmail.com>
+To: Joe Nall <joe@nall.com>
+Cc: SELinux List <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
+On Mon, Feb 23, 2009 at 12:50 PM, Joe Nall <joe@nall.com> wrote:
+>
+> On Feb 23, 2009, at 11:44 AM, Xavier Toth wrote:
+>
+>> Is there a different option or command I can use to see these?
+>
+> Is
+> cat /etc/selinux/mls/contexts/files/file_contexts.homedirs
+> complete?
+>
+> joe
+>
+>
 
-On Feb 23, 2009, at 11:44 AM, Xavier Toth wrote:
+I knew about /etc/selinux/mls/contexts/files/file_contexts.homedirs I
+was really just trying to point out that there appears to be a
+deficiency in `semanage fcontext --list`.
 
-> Is there a different option or command I can use to see these?
-
-Is
-cat /etc/selinux/mls/contexts/files/file_contexts.homedirs
-complete?
-
-joe
-
+Ted
 
 --
 This message was distributed to subscribers of the selinux mailing list.
