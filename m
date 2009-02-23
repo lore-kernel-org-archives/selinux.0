@@ -1,24 +1,33 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1NHpI8Q028898
-	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 12:51:18 -0500
-Received: from yx-out-1718.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1NHpH6U005230
-	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 17:51:17 GMT
-Received: by yx-out-1718.google.com with SMTP id 3so853557yxi.84
-        for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 09:51:16 -0800 (PST)
-MIME-Version: 1.0
-Date: Mon, 23 Feb 2009 11:44:47 -0600
-Message-ID: <cadfc0e40902230944q217ed46ar618dc06ccfa2e9fa@mail.gmail.com>
-Subject: semanage fcontext --list doesn't list contexts which include HOME_DIR
-From: Xavier Toth <txtoth@gmail.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1NIp1Ka003305
+	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 13:51:01 -0500
+Received: from mho-01-bos.mailhop.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1NIp06U013553
+	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 18:51:00 GMT
+Cc: SELinux List <selinux@tycho.nsa.gov>
+Message-Id: <A4219691-58AB-4D38-82C9-F4C593018ED9@nall.com>
+From: Joe Nall <joe@nall.com>
+To: Xavier Toth <txtoth@gmail.com>
+In-Reply-To: <cadfc0e40902230944q217ed46ar618dc06ccfa2e9fa@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Subject: Re: semanage fcontext --list doesn't list contexts which include HOME_DIR
+Date: Mon, 23 Feb 2009 12:50:58 -0600
+References: <cadfc0e40902230944q217ed46ar618dc06ccfa2e9fa@mail.gmail.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Is there a different option or command I can use to see these?
 
-Ted
+On Feb 23, 2009, at 11:44 AM, Xavier Toth wrote:
+
+> Is there a different option or command I can use to see these?
+
+Is
+cat /etc/selinux/mls/contexts/files/file_contexts.homedirs
+complete?
+
+joe
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
