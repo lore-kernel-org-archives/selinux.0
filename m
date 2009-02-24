@@ -1,45 +1,36 @@
-Subject: Re: semanage fcontext --list doesn't list contexts which include
- HOME_DIR
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: Joe Nall <joe@nall.com>, SELinux List <selinux@tycho.nsa.gov>
-In-Reply-To: <cadfc0e40902231112n21f62bafk426737d8a399a75e@mail.gmail.com>
-References: <cadfc0e40902230944q217ed46ar618dc06ccfa2e9fa@mail.gmail.com>
-	 <A4219691-58AB-4D38-82C9-F4C593018ED9@nall.com>
-	 <cadfc0e40902231112n21f62bafk426737d8a399a75e@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 23 Feb 2009 14:18:58 -0500
-Message-Id: <1235416738.24868.74.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1O1NmsD015019
+	for <selinux@tycho.nsa.gov>; Mon, 23 Feb 2009 20:24:08 -0500
+Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1O1KJIo009589
+	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2009 01:20:20 GMT
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 892FC1C028
+	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2009 12:23:38 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id 2167321CEB
+	for <selinux@tycho.nsa.gov>; Tue, 24 Feb 2009 12:23:37 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: LCA 2009
+Date: Tue, 24 Feb 2009 12:23:32 +1100
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200902241223.36414.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, 2009-02-23 at 13:12 -0600, Xavier Toth wrote:
-> On Mon, Feb 23, 2009 at 12:50 PM, Joe Nall <joe@nall.com> wrote:
-> >
-> > On Feb 23, 2009, at 11:44 AM, Xavier Toth wrote:
-> >
-> >> Is there a different option or command I can use to see these?
-> >
-> > Is
-> > cat /etc/selinux/mls/contexts/files/file_contexts.homedirs
-> > complete?
-> >
-> > joe
-> >
-> >
-> 
-> I knew about /etc/selinux/mls/contexts/files/file_contexts.homedirs I
-> was really just trying to point out that there appears to be a
-> deficiency in `semanage fcontext --list`.
+http://mirror.linux.org.au/pub/linux.conf.au/2009/Friday/
 
-Yes, that's a deficiency of libsemanage in general; aside from
-generating file_contexts.homedirs, it doesn't do anything else with it.
+The videos from LCA 2009 are now going online.  James Morris' talk about sVirt 
+is now available.
 
 -- 
-Stephen Smalley
-National Security Agency
-
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
