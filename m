@@ -1,133 +1,74 @@
-Message-ID: <49A85569.1050600@tycho.nsa.gov>
-Date: Fri, 27 Feb 2009 16:04:41 -0500
-From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1RM96Th019866
+	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2009 17:09:06 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1RM5Ye0003549
+	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2009 22:05:34 GMT
+Message-ID: <49A8646A.5050604@redhat.com>
+Date: Fri, 27 Feb 2009 17:08:42 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, ajax@redhat.com,
-        method@manicmethod.com, joe@nall.com
-Subject: Re: [RFC] X+SELinux performance work
-References: <1235752948.3386.53.camel@localhost.localdomain>
-In-Reply-To: <1235752948.3386.53.camel@localhost.localdomain>
+To: russell@coker.com.au
+CC: SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: Patch to libsemanage to remove labeling of /root
+References: <496C9A96.1080805@redhat.com> <499C2D9F.4040806@manicmethod.com> <499C32C8.2020700@redhat.com> <200902271322.18928.russell@coker.com.au>
+In-Reply-To: <200902271322.18928.russell@coker.com.au>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eric Paris wrote:
-> (sorry for everyone who gets this twice, I misspelled the list address
-> the first time)
->
-> As a great example of how much selinux is killing X performance ajax
-> showed me the x11perf -create test.
->
-> Without the SELinux extensions: 175,000 events per second.
-> With the SELinux extensions:      1,000 events per second.
->
-> First thing I did to try to help was to implement creation caching in the AVC:
-> http://people.redhat.com/~eparis/xorg-selinux/libselinux-create-cache.patch
->
-> This resulted in about a 4.5-5x performance improvement
->   
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-First glance looks good.
+Russell Coker wrote:
+> On Thu, 19 Feb 2009, Daniel J Walsh <dwalsh@redhat.com> wrote:
+>> The problem with treating /root as the same as every other homedir, is
+>> confined daemons all consider /root their home dir, so they want to be
+>> able to read/write contents in the homedir.
+> 
+> We should not be allowing confined daemons to write to /root.
+> 
+> There is little point in confining a daemon if it can write to a file such 
+> as /root/.bashrc which is likely to be executed as unconfined_t.
+> 
+> The only reason a confined daemon should access /root is if the sysadmin 
+> starts it immediately after logging in without changing directory.  A daemon 
+> starting with a cwd that is not accessible should not be a problem, if it is 
+> then there are other usage cases that will get you.
+> 
+There is potential to allow confine domains to write to subdirs of
+/root. or at least read it.
 
+sshd_t needs to be able to read /root/.ssh/*
 
-> ---
->
-> Next thing to try was to stop regularly calling recv on the netlink
-> socket to find policy update information.  So I hacked (poorly)
-> libselinux and the xselinux.c extention to try to create a seperate
-> thread which does nothing but listen on the netlink socket (I just stole
-> most of the code from dbus.)  X people on irc told me they didn't like
-> the idea of a thread in the X server and what I did to libselinux is
-> quite hideous.  I can certainly clean up libselinux (do the thread
-> callback as an selinux_set_callback() rather than this new
-> avc_open_init() interface.)  
+Others like xauth_t need to be able to write but this is more a confined
+helper app then a real confined app.
 
-Yeah, I'd do it via selinux_set_callback() or just forget the callbacks
-entirely and hardcode it with pthreads and add a new option to turn on
-the thread.
+In current targeted policy I see the following
 
-> As long as the X people object to a
-> separate thread I guess these might be going into the bit bucket...
->   
+# sesearch --allow -t admin_home_t  -c dir | grep write | awk '{ print
+$2 " " $3 }'
+sysadm_t admin_home_t
+rpm_t admin_home_t
+rpm_script_t admin_home_t
+xauth_t admin_home_t
+nfsd_t admin_home_t
+nmbd_t admin_home_t
+smbd_t admin_home_t
+ftpd_t admin_home_t
+kernel_t admin_home_t
 
-Well, I don't see a reasonable alternative -- the netlink check is
-required to catch policy reloads, and a separate thread is the only way
-to take the recv() call out of the main code path.
+Where these are either an unconfined_domain or have a boolean that
+allows them to write anywhere.
 
-I can only think of two other possible ways to handle this:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-- - Use a signal handler, which would require support for the kernel
-sending a signal on a policy reload (or enforcing change).
-
-- - Form an expedition and venture deep down into the far recesses of
-the X server, delving into the OS layer, maybe even Xtrans, and find the
-select() call at the very core, and destroy it, freeing us...I mean, add
-the netlink socket to it, which may require new interfaces to send the
-fd all the way down there and then bubble the notification all the way
-back up or call a callback or whatever.
-
-
-> http://people.redhat.com/~eparis/xorg-selinux/libselinux-avc-open-init.patch
-> http://people.redhat.com/~eparis/xorg-selinux/xserver-selinux-netlink-faster.patch
->
-> ---
->
-> Last thing was that translating from raw to whatever looked to be taking
-> up tons of syscalls, open a socket, bind, fail, close over and over and
-> over.  So I added new hook where X can just disable translations
-> altogether.  What does X care if it has raw strings?  I think as soon as
-> we have things to "display" strings to users they should take care of
-> translation and just let X internally hand things back and forth the way
-> the AVC can use them.
->   
-
-Yeah this makes sense, it should all be raw, no reason to be calling
-translate at all.  I tried to go through and fix this earlier, guess I
-missed some call sites.
-
-> http://people.redhat.com/~eparis/xorg-selinux/libselinux-use-raw.patch
-> http://people.redhat.com/~eparis/xorg-selinux/xserver-selinux-raw.patch
->
-> So I've at least got us within one order of magnitude of the non-selinux
-> case.
->
-> Without the SELinux extensions:   175,000 events per second.
-> With the SELinux extensions:        1,000 events per second.
-> create-cache:                       5,000 events per second.
-> create-cache + nl-thread:           5,500 events per second.
-> create-cache + all-raw:            35,000 events per second.
-> create-cache + all-raw + nl-thead  65,000 events per second.
->
-> So initially the nl-thread didn't seem like a big win (only 10% perf
-> increase) but as I cut back on the setrans stuff the enforcing netlink
-> stuff started to dominate and it became a 2x perf win.
->
-> If I had a box with oprofile that worked I'd try to run it down more,
-> but I don't have any hardware with working performance counters.
->
-> Anyone how thoughts, comments, complaints, reviews, ideas, pointers,
-> direction, insults, compliments, etc etc, please share
->   
-
-Think overall it's good work and I hope the impact can be reduced.  Just
-gotta figure out the thread thing.
-
-> -Eric
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
->   
-
-
--- 
-Eamon Walsh <ewalsh@tycho.nsa.gov>
-National Security Agency
-
+iEYEARECAAYFAkmoZGoACgkQrlYvE4MpobPtjQCfYRtnQvjRxdEwk5Fugev1fs+M
+33sAoN+LFFJS37gpGNAY/MIMSr5vlick
+=DiAa
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
