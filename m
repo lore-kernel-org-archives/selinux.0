@@ -1,13 +1,13 @@
-Message-ID: <49A83A41.50601@redhat.com>
-Date: Fri, 27 Feb 2009 14:08:49 -0500
+Message-ID: <49A83D73.6050706@redhat.com>
+Date: Fri, 27 Feb 2009 14:22:27 -0500
 From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
-Subject: Re: PHP/SELinux: libselinux wrappers
-References: <48C61A84.9010001@ak.jp.nec.com>	 <49A63527.2020104@ak.jp.nec.com> <1235659159.13059.91.camel@localhost.localdomain> <49A6ADE2.8040602@redhat.com> <06A6610D4F464D4EBEAFBF2C5F86911EE74492@exchange2.columbia.tresys.com> <49A74EB1.80508@ak.jp.nec.com>
-In-Reply-To: <49A74EB1.80508@ak.jp.nec.com>
+To: Eric Paris <eparis@redhat.com>
+CC: Joe Nall <joe@nall.com>, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
+        ewalsh@tycho.nsa.gov, ajax@redhat.com, method@manicmethod.com
+Subject: Re: [RFC] X+SELinux performance work
+References: <1235752948.3386.53.camel@localhost.localdomain>	 <9F20CFFB-812C-4EDA-9764-3906427D36F6@nall.com> <1235754996.3386.55.camel@localhost.localdomain>
+In-Reply-To: <1235754996.3386.55.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -15,38 +15,62 @@ List-Id: selinux@tycho.nsa.gov
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-KaiGai Kohei wrote:
-> Joshua Brindle wrote:
->>> -----Original Message-----
->>> From: Daniel J Walsh [mailto:dwalsh@redhat.com]
->>>
->>> I would rather package this up as part of libselinux, perhaps
->>> libselinux-php, rather then make a new package.
+Eric Paris wrote:
+> On Fri, 2009-02-27 at 11:12 -0600, Joe Nall wrote:
+>> On Feb 27, 2009, at 10:42 AM, Eric Paris wrote:
 >>
->> The last time I used PHP (admittedly years ago) most if not all bindings
->> were included in the upstream PHP distribution.
+>>> (sorry for everyone who gets this twice, I misspelled the list address
+>>> the first time)
+>> That's ok. I enjoyed it just as much the second time.
+>>
+>>> As a great example of how much selinux is killing X performance ajax
+>>> showed me the x11perf -create test.
+>>>
+>>> ...
+>>> Last thing was that translating from raw to whatever looked to be  
+>>> taking
+>>> up tons of syscalls, open a socket, bind, fail, close over and over  
+>>> and
+>>> over.  So I added new hook where X can just disable translations
+>>> altogether.  What does X care if it has raw strings?  I think as  
+>>> soon as
+>>> we have things to "display" strings to users they should take care of
+>>> translation and just let X internally hand things back and forth the  
+>>> way
+>>> the AVC can use them.
+>>
+>> If X is going to call setrans that often, it needs to cache the  
+>> result. Even if the cache period is short (60 seconds) it would  
+>> dramatically improve performance under load. Especially if you are  
+>> making 175000 identical translation requests :)
 > 
-> At least, most of PHP extensions has php-* naming convension, like:
->   php-mysql, php-mbstring, php-ldap, ...
+> It looks like the libselinux code already caches one translation result.
+> Seems kinda pointless since a typical permission request is going to
+> have at least 2 contexts and a create event is going to have 3.  If
+> people aren't keen on the idea of just allow apps to disable
+> translations altogether maybe I should make this a better cache?
 > 
-> Most of major extensions are distributed as subpackages of php itself,
-> but some of extensions are not distributed as separated package.
-> (Please find php-* on the list of Fedora SRPMs.)
+> -Eric
 > 
-> I don't think we need to wait for it get merged into the core PHP,
-> to release php-selinux package.
 > 
-> Thanks,
-Ok then fine leave it as a separate package.
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+THe caching that was placed in libselinux was more for the case of
+
+ls -lZ /etc
+
+Where the same context would be asked for repeatedly.
 
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-iEYEARECAAYFAkmoOkEACgkQrlYvE4MpobNNlQCeJ5g1p/1Kt5dmbV/9Zv6J21kK
-v3gAoNUFJHabexiVCCVDch/cEooK9s1W
-=Nxx7
+iEYEARECAAYFAkmoPXMACgkQrlYvE4MpobPMKACfSlKLc5lSt99+L3uuFq4neamr
+2kUAn1Xs56fbe87naV2d3fTREFmGzbxo
+=H8g+
 -----END PGP SIGNATURE-----
 
 --
