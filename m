@@ -1,98 +1,53 @@
+Message-ID: <49A83A41.50601@redhat.com>
+Date: Fri, 27 Feb 2009 14:08:49 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <1235752948.3386.53.camel@localhost.localdomain>
-References: <1235752948.3386.53.camel@localhost.localdomain>
-Date: Fri, 27 Feb 2009 11:29:22 -0600
-Message-ID: <cadfc0e40902270929t33d44615v244cb05cf945f34a@mail.gmail.com>
-Subject: Re: [RFC] X+SELinux performance work
-From: Xavier Toth <txtoth@gmail.com>
-To: Eric Paris <eparis@redhat.com>
-Cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, ewalsh@tycho.nsa.gov,
-        ajax@redhat.com, method@manicmethod.com, joe@nall.com
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: PHP/SELinux: libselinux wrappers
+References: <48C61A84.9010001@ak.jp.nec.com>	 <49A63527.2020104@ak.jp.nec.com> <1235659159.13059.91.camel@localhost.localdomain> <49A6ADE2.8040602@redhat.com> <06A6610D4F464D4EBEAFBF2C5F86911EE74492@exchange2.columbia.tresys.com> <49A74EB1.80508@ak.jp.nec.com>
+In-Reply-To: <49A74EB1.80508@ak.jp.nec.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Feb 27, 2009 at 10:42 AM, Eric Paris <eparis@redhat.com> wrote:
-> (sorry for everyone who gets this twice, I misspelled the list address
-> the first time)
->
-> As a great example of how much selinux is killing X performance ajax
-> showed me the x11perf -create test.
->
-> Without the SELinux extensions: 175,000 events per second.
-> With the SELinux extensions:      1,000 events per second.
->
-> First thing I did to try to help was to implement creation caching in the AVC:
-> http://people.redhat.com/~eparis/xorg-selinux/libselinux-create-cache.patch
->
-> This resulted in about a 4.5-5x performance improvement
->
-> ---
->
-> Next thing to try was to stop regularly calling recv on the netlink
-> socket to find policy update information.  So I hacked (poorly)
-> libselinux and the xselinux.c extention to try to create a seperate
-> thread which does nothing but listen on the netlink socket (I just stole
-> most of the code from dbus.)  X people on irc told me they didn't like
-> the idea of a thread in the X server and what I did to libselinux is
-> quite hideous.  I can certainly clean up libselinux (do the thread
-> callback as an selinux_set_callback() rather than this new
-> avc_open_init() interface.)  As long as the X people object to a
-> separate thread I guess these might be going into the bit bucket...
->
-> http://people.redhat.com/~eparis/xorg-selinux/libselinux-avc-open-init.patch
-> http://people.redhat.com/~eparis/xorg-selinux/xserver-selinux-netlink-faster.patch
->
-> ---
->
-> Last thing was that translating from raw to whatever looked to be taking
-> up tons of syscalls, open a socket, bind, fail, close over and over and
-> over.  So I added new hook where X can just disable translations
-> altogether.  What does X care if it has raw strings?  I think as soon as
-> we have things to "display" strings to users they should take care of
-> translation and just let X internally hand things back and forth the way
-> the AVC can use them.
->
-> http://people.redhat.com/~eparis/xorg-selinux/libselinux-use-raw.patch
-> http://people.redhat.com/~eparis/xorg-selinux/xserver-selinux-raw.patch
->
-> So I've at least got us within one order of magnitude of the non-selinux
-> case.
->
-> Without the SELinux extensions:   175,000 events per second.
-> With the SELinux extensions:        1,000 events per second.
-> create-cache:                       5,000 events per second.
-> create-cache + nl-thread:           5,500 events per second.
-> create-cache + all-raw:            35,000 events per second.
-> create-cache + all-raw + nl-thead  65,000 events per second.
->
-> So initially the nl-thread didn't seem like a big win (only 10% perf
-> increase) but as I cut back on the setrans stuff the enforcing netlink
-> stuff started to dominate and it became a 2x perf win.
->
-> If I had a box with oprofile that worked I'd try to run it down more,
-> but I don't have any hardware with working performance counters.
->
-> Anyone how thoughts, comments, complaints, reviews, ideas, pointers,
-> direction, insults, compliments, etc etc, please share
->
-> -Eric
->
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
->
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I've written our window labeling patches for metacity and openbox
-which use xcb calls to get the window context for labeling purposes.
-Sounds like I'll be getting a raw context instead of a translated one
-from xcb_selinux_get_window_context which I'll have to translate but
-I'll be glad to do for the performance gains.
+KaiGai Kohei wrote:
+> Joshua Brindle wrote:
+>>> -----Original Message-----
+>>> From: Daniel J Walsh [mailto:dwalsh@redhat.com]
+>>>
+>>> I would rather package this up as part of libselinux, perhaps
+>>> libselinux-php, rather then make a new package.
+>>
+>> The last time I used PHP (admittedly years ago) most if not all bindings
+>> were included in the upstream PHP distribution.
+> 
+> At least, most of PHP extensions has php-* naming convension, like:
+>   php-mysql, php-mbstring, php-ldap, ...
+> 
+> Most of major extensions are distributed as subpackages of php itself,
+> but some of extensions are not distributed as separated package.
+> (Please find php-* on the list of Fedora SRPMs.)
+> 
+> I don't think we need to wait for it get merged into the core PHP,
+> to release php-selinux package.
+> 
+> Thanks,
+Ok then fine leave it as a separate package.
 
-Ted
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkmoOkEACgkQrlYvE4MpobNNlQCeJ5g1p/1Kt5dmbV/9Zv6J21kK
+v3gAoNUFJHabexiVCCVDch/cEooK9s1W
+=Nxx7
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
