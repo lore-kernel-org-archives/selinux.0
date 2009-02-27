@@ -1,157 +1,93 @@
-Message-ID: <49A7A6F8.6050802@ak.jp.nec.com>
-Date: Fri, 27 Feb 2009 17:40:24 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>,
-        Joshua Brindle <jbrindle@tresys.com>,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: PHP/SELinux: libselinux wrappers
-References: <48C61A84.9010001@ak.jp.nec.com>	 <49A63527.2020104@ak.jp.nec.com> <1235659159.13059.91.camel@localhost.localdomain> <49A74850.9070704@ak.jp.nec.com> <49A76BD5.7040902@ak.jp.nec.com>
-In-Reply-To: <49A76BD5.7040902@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Date: Fri, 27 Feb 2009 16:57:51 +0500
+Message-ID: <e768086c0902270357w2b34b11rebd3e8a98c58877a@mail.gmail.com>
+Subject: refpolicy compilation issue
+From: "Kirill \"REDbyte\" Novikov" <redbyte.labs@gmail.com>
+To: SELinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary=001636c5a435ac73640463e52dbe
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Today, I updated the PHP/SELinux package as follows:
+--001636c5a435ac73640463e52dbe
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
- http://code.google.com/p/sepgsql/wiki/Memo_PHP_SELinux
- http://code.google.com/p/sepgsql/source/browse/misc/php-selinux/
+Hi there everyone!
 
- - bugfix: selinux_is_enabled() and selinux_mls_is_enabled() returned TRUE
-   on errors.
- - cleanup: remove redundant length == 0 checks
- - upgrade: selinux_compute_av(), selinux_compute_create(),
-   selinux_compute_relabel() and selinux_compute_member() accept $tclass
-   described in text form, such as "file".
- - upgrade: selinux_compute_av() returns a set of associative arrays
-   which contain true or false for each permissions.
- - The following functions are added:
-   - selinux_file_label_lookup()
-   - selinux_media_label_lookup()
-   NOTE: Is the selinux_x_label_lookup() necessary?
- - The following functions are removed:
-   - selinux_string_to_class()
-   - selinux_class_to_string()
-   - selinux_string_to_av_perm()
-   - selinux_av_perm_to_string()
-   - selinux_av_string()
-   - selinux_matchpathcon()
-   - selinux_lsetfilecon_default()
+I'm got a strange problem compiling latest refpolicy (as well as all other
+versions), found nothing alike on the mailing lists, so maybe someone from
+here would help me.
 
-TODO:
- - Move them into PECL repository. (http://pecl.php.net/)
- - Make a request to merge this package into Fedora project.
-   (libselinux-php? php-selinux?)
- - Describe reference manual based on PHP community's manner
-   (http://jp.php.net/manual/en/index.php)
+Policy compilation fails like this:
 
-Thanks,
+Creating refpolicy policy.conf
+cat tmp/pre_te_files.conf tmp/all_attrs_types.conf tmp/global_bools.conf
+tmp/only_te_rules.conf tmp/all_post.conf > policy.conf
+Compiling refpolicy policy.23
 
-KaiGai Kohei wrote:
-> KaiGai Kohei wrote:
->>> selinux_getcon() says that it returns false on error.  So false is a
->>> legal string value in PHP?  And you don't mean the string "false", I
->>> presume?  So it can be used in a conditional with the expected effect?
->> I belive we can discriminate between a legal string value and a bool one.
->> This function is available to check either one is returned.
->>   http://jp.php.net/manual/en/function.is-string.php
->>
->> However, it is necessary to note that "false" is casted to empty string
->> when we compare them without special care, like:
->>
->>   $ php -r 'if ("" == false)
->>                 echo "hello!\n";'
->>   hello!
->>
->> I'll confirm PHP developers whether we can consider "false" can be
->> an error condition on functions which return string, or not.
-> 
-> I was suggested to use "===" operator in the PHP list.
-> It requires both of left and right side have same type and value,
-> so we can discriminate between legal strings (including empty one)
-> and error status.
-> 
->   http://jp.php.net/manual/en/language.operators.comparison.php
-> 
->>> security classes can be unsigned integers or their own type.
->>> access vectors can be unsigned integers, bitfields, or their own type.
->>> Or we could only deal with security classes and access vectors as
->>> strings and lists of strings respectively for PHP, and map them back and
->>> forth to integers within the wrappers.
->> I think it is good idea.
->>
->> You are saying such an interface, aren't you?
->>
->>   selinux_compute_av("staff_t:staff_r:staff_t",
->>                      "system_u:object_r:shadow_t",
->>                      "file");
->>   It returns an associative array which contains three subarray
->>   named as "allowed", "auditallow", "auditdeny".
-> 
-> I tried to implement the revised one.
-> 
-> We can check its result like:
->   $avd = selinux_compute_av(...);
->   $allowed = $avd["allowed"];
->   if ($allowed["read"] && $allowed["getattr"])
->       echo "Readable!\n";
-> 
-> ------
-> $ php -r '$scontext = "staff_u:staff_r:staff_t";
->           $tcontext="system_u:object_r:etc_t";
->           $avd = selinux_compute_av($scontext, $tcontext, "file");
->           var_dump($avd["allowed"]);'
-> array(21) {
->   ["ioctl"]=>
->   bool(true)
->   ["read"]=>
->   bool(true)
->   ["write"]=>
->   bool(false)
->   ["create"]=>
->   bool(false)
->   ["getattr"]=>
->   bool(true)
->   ["setattr"]=>
->   bool(false)
->   ["lock"]=>
->   bool(true)
->   ["relabelfrom"]=>
->   bool(false)
->   ["relabelto"]=>
->   bool(false)
->   ["append"]=>
->   bool(false)
->   ["unlink"]=>
->   bool(false)
->   ["link"]=>
->   bool(false)
->   ["rename"]=>
->   bool(false)
->   ["execute"]=>
->   bool(true)
->   ["swapon"]=>
->   bool(false)
->   ["quotaon"]=>
->   bool(false)
->   ["mounton"]=>
->   bool(false)
->   ["execute_no_trans"]=>
->   bool(true)
->   ["entrypoint"]=>
->   bool(false)
->   ["execmod"]=>
->   bool(false)
->   ["open"]=>
->   bool(false)
-> }
-> 
+WARNING: Policy version mismatch!  Is your OUTPUT_POLICY set correctly?
 
+/usr/bin/checkpolicy policy.conf -o policy.23
+/usr/bin/checkpolicy:  loading policy configuration from policy.conf
+policy/modules/services/amavis.te":11:ERROR 'syntax error' at token ':' on
+line 7140:
+        allow amavis_t init_t:process sigchld;
+#line 11
+checkpolicy:  error(s) encountered while parsing configuration
+make: *** [policy.23] Error 1
 
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+I'm using latest development versions of SELinux stuff, available from
+Tresys' trac. I have checked /selinux/policyvers and it contains 24 - but
+latest policy version supported by checkpolicy 2.0.16 is 23. Have any ideas?
+
+Regards,
+
+Kirill Novikov,
+EastLinux Team
+
+--001636c5a435ac73640463e52dbe
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Hi there everyone!<br><br>I&#39;m got a strange problem compiling latest re=
+fpolicy (as well as all other versions), found nothing alike on the mailing=
+ lists, so maybe someone from here would help me.<br><br>Policy compilation=
+ fails like this:<br>
+<br><span style=3D"font-family: courier new,monospace;">Creating refpolicy =
+policy.conf</span><br style=3D"font-family: courier new,monospace;"><span s=
+tyle=3D"font-family: courier new,monospace;">cat tmp/pre_te_files.conf tmp/=
+all_attrs_types.conf tmp/global_bools.conf tmp/only_te_rules.conf tmp/all_p=
+ost.conf &gt; policy.conf</span><br style=3D"font-family: courier new,monos=
+pace;">
+<span style=3D"font-family: courier new,monospace;">Compiling refpolicy pol=
+icy.23</span><br style=3D"font-family: courier new,monospace;"><br style=3D=
+"font-family: courier new,monospace;"><span style=3D"font-family: courier n=
+ew,monospace;">WARNING: Policy version mismatch!=A0 Is your OUTPUT_POLICY s=
+et correctly?</span><br style=3D"font-family: courier new,monospace;">
+<br style=3D"font-family: courier new,monospace;"><span style=3D"font-famil=
+y: courier new,monospace;">/usr/bin/checkpolicy policy.conf -o policy.23</s=
+pan><br style=3D"font-family: courier new,monospace;"><span style=3D"font-f=
+amily: courier new,monospace;">/usr/bin/checkpolicy:=A0 loading policy conf=
+iguration from policy.conf</span><br style=3D"font-family: courier new,mono=
+space;">
+<span style=3D"font-family: courier new,monospace;">policy/modules/services=
+/amavis.te&quot;:11:ERROR &#39;syntax error&#39; at token &#39;:&#39; on li=
+ne 7140:</span><br style=3D"font-family: courier new,monospace;"><span styl=
+e=3D"font-family: courier new,monospace;">=A0=A0=A0=A0=A0=A0=A0 allow amavi=
+s_t init_t:process sigchld;</span><br style=3D"font-family: courier new,mon=
+ospace;">
+<span style=3D"font-family: courier new,monospace;">#line 11</span><br styl=
+e=3D"font-family: courier new,monospace;"><span style=3D"font-family: couri=
+er new,monospace;">checkpolicy:=A0 error(s) encountered while parsing confi=
+guration</span><br style=3D"font-family: courier new,monospace;">
+<span style=3D"font-family: courier new,monospace;">make: *** [policy.23] E=
+rror 1</span><br style=3D"font-family: courier new,monospace;"><br>I&#39;m =
+using latest development versions of SELinux stuff, available from Tresys&#=
+39; trac. I have checked /selinux/policyvers and it contains 24 - but lates=
+t policy version supported by checkpolicy 2.0.16 is 23. Have any ideas?<br>
+<br>Regards,<br><br>Kirill Novikov,<br>EastLinux Team<br>
+
+--001636c5a435ac73640463e52dbe--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
