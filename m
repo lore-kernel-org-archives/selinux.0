@@ -1,77 +1,52 @@
-Message-ID: <49A83D73.6050706@redhat.com>
-Date: Fri, 27 Feb 2009 14:22:27 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n1RK0Mg6005128
+	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2009 15:00:22 -0500
+Received: from g4t0015.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n1RJuojj014237
+	for <selinux@tycho.nsa.gov>; Fri, 27 Feb 2009 19:56:51 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [PATCH] selinux: Fix a panic in selinux_netlbl_inode_permission()
+To: selinux@tycho.nsa.gov
+Cc: rick.mcneal@lsi.com
+Date: Fri, 27 Feb 2009 15:00:03 -0500
+Message-ID: <20090227200003.14235.99157.stgit@flek.lan>
 MIME-Version: 1.0
-To: Eric Paris <eparis@redhat.com>
-CC: Joe Nall <joe@nall.com>, selinux@tycho.nsa.gov, sds@tycho.nsa.gov,
-        ewalsh@tycho.nsa.gov, ajax@redhat.com, method@manicmethod.com
-Subject: Re: [RFC] X+SELinux performance work
-References: <1235752948.3386.53.camel@localhost.localdomain>	 <9F20CFFB-812C-4EDA-9764-3906427D36F6@nall.com> <1235754996.3386.55.camel@localhost.localdomain>
-In-Reply-To: <1235754996.3386.55.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Rick McNeal from LSI identified a panic in selinux_netlbl_inode_permission()
+caused by a certain sequence of SUNRPC operations.  The problem appears to be
+due to the lack of NULL pointer checking in the function; this patch adds the
+pointer checks so the function will exit safely in the cases where the socket
+is not completely initialized.
 
-Eric Paris wrote:
-> On Fri, 2009-02-27 at 11:12 -0600, Joe Nall wrote:
->> On Feb 27, 2009, at 10:42 AM, Eric Paris wrote:
->>
->>> (sorry for everyone who gets this twice, I misspelled the list address
->>> the first time)
->> That's ok. I enjoyed it just as much the second time.
->>
->>> As a great example of how much selinux is killing X performance ajax
->>> showed me the x11perf -create test.
->>>
->>> ...
->>> Last thing was that translating from raw to whatever looked to be  
->>> taking
->>> up tons of syscalls, open a socket, bind, fail, close over and over  
->>> and
->>> over.  So I added new hook where X can just disable translations
->>> altogether.  What does X care if it has raw strings?  I think as  
->>> soon as
->>> we have things to "display" strings to users they should take care of
->>> translation and just let X internally hand things back and forth the  
->>> way
->>> the AVC can use them.
->>
->> If X is going to call setrans that often, it needs to cache the  
->> result. Even if the cache period is short (60 seconds) it would  
->> dramatically improve performance under load. Especially if you are  
->> making 175000 identical translation requests :)
-> 
-> It looks like the libselinux code already caches one translation result.
-> Seems kinda pointless since a typical permission request is going to
-> have at least 2 contexts and a create event is going to have 3.  If
-> people aren't keen on the idea of just allow apps to disable
-> translations altogether maybe I should make this a better cache?
-> 
-> -Eric
-> 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-THe caching that was placed in libselinux was more for the case of
+Signed-off-by: Paul Moore <paul.moore@hp.com>
+---
 
-ls -lZ /etc
+ security/selinux/netlabel.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-Where the same context would be asked for repeatedly.
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 3f4b266..350794a 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -386,11 +386,12 @@ int selinux_netlbl_inode_permission(struct inode *inode, int mask)
+ 	if (!S_ISSOCK(inode->i_mode) ||
+ 	    ((mask & (MAY_WRITE | MAY_APPEND)) == 0))
+ 		return 0;
+-
+ 	sock = SOCKET_I(inode);
+ 	sk = sock->sk;
++	if (sk == NULL)
++		return 0;
+ 	sksec = sk->sk_security;
+-	if (sksec->nlbl_state != NLBL_REQUIRE)
++	if (sksec == NULL || sksec->nlbl_state != NLBL_REQUIRE)
+ 		return 0;
+ 
+ 	local_bh_disable();
 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkmoPXMACgkQrlYvE4MpobPMKACfSlKLc5lSt99+L3uuFq4neamr
-2kUAn1Xs56fbe87naV2d3fTREFmGzbxo
-=H8g+
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
