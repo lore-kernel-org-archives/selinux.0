@@ -1,261 +1,242 @@
-Subject: [PATCH] libselinux: cache avc_compute_create results in the avc
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n22NY9uY020675
+	for <selinux@tycho.nsa.gov>; Mon, 2 Mar 2009 18:34:09 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n22NUYMo019981
+	for <selinux@tycho.nsa.gov>; Mon, 2 Mar 2009 23:30:34 GMT
+Subject: [PATCH] Xorg: always use raw contexts in the xserver
 From: Eric Paris <eparis@redhat.com>
 To: selinux@tycho.nsa.gov
-Cc: sds@tycho.nsa.gov, ewalsh@tycho.nsa.gov, ajax@redhat.com,
-        method@manicmethod.com, joe@nall.com, txtoth@gmail.com
+Cc: ewalsh@tycho.nsa.gov.ajax
 Content-Type: text/plain
-Date: Mon, 02 Mar 2009 16:24:46 -0500
-Message-Id: <1236029086.5466.36.camel@localhost.localdomain>
+Date: Mon, 02 Mar 2009 18:34:46 -0500
+Message-Id: <1236036886.5466.42.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-In one benchmark the X server was found to be extremely slow creating
-windows with selinux running.  Part of the reason for this was because
-libselinux called into the kernel /selinux/create interface for every
-object.  This patch caches the results of /selinux/create in the
-userspace avc to significantly increase the speed of these types of
-operations.
-
-Signed-off-by: Eric Paris <eparis@redhat.com>
+This patch changes all places in the X code to use _raw functions.  The
+X server should never see, translate, or deal with a munged context.
+Display managers which show contexts to the user should take care of
+translating these to human readable form.
 
 ---
 
-diff -up libselinux-2.0.77/include/selinux/avc.h.pre.create.cache libselinux-2.0.77/include/selinux/avc.h
---- libselinux-2.0.77/include/selinux/avc.h.pre.create.cache	2009-01-27 14:47:32.000000000 -0500
-+++ libselinux-2.0.77/include/selinux/avc.h	2009-03-02 14:52:40.859167987 -0500
-@@ -353,6 +353,7 @@ int avc_compute_member(security_id_t ssi
- #define AVC_CALLBACK_AUDITALLOW_DISABLE	32
- #define AVC_CALLBACK_AUDITDENY_ENABLE	64
- #define AVC_CALLBACK_AUDITDENY_DISABLE	128
-+#define AVC_CALLBACK_ADD_CREATE		256
+ Xext/xselinux.c |   64 ++++++++++++++++++++++++++++----------------------------
+ 1 file changed, 32 insertions(+), 32 deletions(-)
+
+diff -up xorg-server-1.6.0/Xext/xselinux.c.pre.raw xorg-server-1.6.0/Xext/xselinux.c
+--- xorg-server-1.6.0/Xext/xselinux.c.pre.raw	2009-03-02 18:21:49.913042490 -0500
++++ xorg-server-1.6.0/Xext/xselinux.c	2009-03-02 18:22:30.884307930 -0500
+@@ -186,19 +186,19 @@ SELinuxAtomToSIDLookup(Atom atom, SELinu
+     obj->poly = 1;
  
- /**
-  * avc_add_callback - Register a callback for security events.
-diff -up libselinux-2.0.77/src/avc.c.pre.create.cache libselinux-2.0.77/src/avc.c
---- libselinux-2.0.77/src/avc.c.pre.create.cache	2009-01-27 14:47:32.000000000 -0500
-+++ libselinux-2.0.77/src/avc.c	2009-03-02 15:57:54.764288907 -0500
-@@ -20,6 +20,8 @@ struct avc_entry {
- 	security_id_t tsid;
- 	security_class_t tclass;
- 	struct av_decision avd;
-+	security_id_t	create_sid;
-+	unsigned	create_decided	:1;
- 	int used;		/* used recently */
- };
+     /* Look in the mappings of names to contexts */
+-    if (selabel_lookup(label_hnd, &ctx, name, map) == 0) {
++    if (selabel_lookup_raw(label_hnd, &ctx, name, map) == 0) {
+ 	obj->poly = 0;
+     } else if (errno != ENOENT) {
+ 	ErrorF("SELinux: a property label lookup failed!\n");
+ 	return BadValue;
+-    } else if (selabel_lookup(label_hnd, &ctx, name, polymap) < 0) {
++    } else if (selabel_lookup_raw(label_hnd, &ctx, name, polymap) < 0) {
+ 	ErrorF("SELinux: a property label lookup failed!\n");
+ 	return BadValue;
+     }
  
-@@ -58,6 +60,11 @@ static struct avc_cache_stats cache_stat
- static struct avc_callback_node *avc_callbacks = NULL;
- static struct sidtab avc_sidtab;
+     /* Get a SID for context */
+-    if (avc_context_to_sid(ctx, &obj->sid) < 0) {
+-	ErrorF("SELinux: a context_to_SID call failed!\n");
++    if (avc_context_to_sid_raw(ctx, &obj->sid) < 0) {
++	ErrorF("SELinux: a context_to_SID_raw call failed!\n");
+ 	rc = BadAlloc;
+     }
  
-+/* forward declaration */
-+static int avc_update_cache(uint32_t event, security_id_t ssid,
-+			    security_id_t tsid, security_class_t tclass,
-+			    access_vector_t perms, security_id_t create_sid);
-+
- static inline int avc_hash(security_id_t ssid,
- 			   security_id_t tsid, security_class_t tclass)
+@@ -343,7 +343,7 @@ SELinuxEventToSID(unsigned type, securit
+ 		  SELinuxObjectRec *sid_return)
  {
-@@ -340,6 +347,16 @@ static inline struct avc_node *avc_recla
- 	return cur;
- }
+     const char *name = LookupEventName(type);
+-    security_context_t con;
++    security_context_t ctx;
+     type &= 127;
  
-+static inline void avc_clear_avc_entry(struct avc_entry *ae)
-+{
-+	ae->ssid = ae->tsid = ae->create_sid = NULL;
-+	ae->tclass = 0;
-+	ae->create_decided = 0;
-+	ae->avd.allowed = ae->avd.decided = 0;
-+	ae->avd.auditallow = ae->avd.auditdeny = 0;
-+	ae->used = 0;
-+}
-+
- static inline struct avc_node *avc_claim_node(security_id_t ssid,
- 					      security_id_t tsid,
- 					      security_class_t tclass)
-@@ -361,6 +378,7 @@ static inline struct avc_node *avc_claim
- 	}
+     if (type >= numKnownEvents) {
+@@ -359,16 +359,16 @@ SELinuxEventToSID(unsigned type, securit
  
- 	hvalue = avc_hash(ssid, tsid, tclass);
-+	avc_clear_avc_entry(&new->ae);
- 	new->ae.used = 1;
- 	new->ae.ssid = ssid;
- 	new->ae.tsid = tsid;
-@@ -498,8 +516,8 @@ static int avc_insert(security_id_t ssid
-  * avc_remove - Remove AVC and sidtab entries for SID.
-  * @sid: security identifier to be removed
-  *
-- * Remove all AVC entries containing @sid as source
-- * or target, and remove @sid from the SID table.
-+ * Remove all AVC entries containing @sid as source, target, or
-+ * create_sid, and remove @sid from the SID table.
-  * Free the memory allocated for the structure corresponding
-  * to @sid.  After this function has been called, @sid must
-  * not be used until another call to avc_context_to_sid() has
-@@ -514,19 +532,15 @@ static void avc_remove(security_id_t sid
- 		cur = avc_cache.slots[i];
- 		prev = NULL;
- 		while (cur) {
--			if (sid == cur->ae.ssid || sid == cur->ae.tsid) {
-+			if (sid == cur->ae.ssid || sid == cur->ae.tsid ||
-+			    (cur->ae.create_decided && sid == cur->ae.create_sid)) {
- 				if (prev)
- 					prev->next = cur->next;
- 				else
- 					avc_cache.slots[i] = cur->next;
- 				tmp = cur;
- 				cur = cur->next;
--				tmp->ae.ssid = tmp->ae.tsid = NULL;
--				tmp->ae.tclass = 0;
--				tmp->ae.avd.allowed = tmp->ae.avd.decided = 0;
--				tmp->ae.avd.auditallow = tmp->ae.avd.auditdeny =
--				    0;
--				tmp->ae.used = 0;
-+				avc_clear_avc_entry(&tmp->ae);
- 				tmp->next = avc_node_freelist;
- 				avc_node_freelist = tmp;
- 				avc_cache.active_nodes--;
-@@ -570,11 +584,7 @@ int avc_reset(void)
- 		while (node) {
- 			tmp = node;
- 			node = node->next;
--			tmp->ae.ssid = tmp->ae.tsid = NULL;
--			tmp->ae.tclass = 0;
--			tmp->ae.avd.allowed = tmp->ae.avd.decided = 0;
--			tmp->ae.avd.auditallow = tmp->ae.avd.auditdeny = 0;
--			tmp->ae.used = 0;
-+			avc_clear_avc_entry(&tmp->ae);
- 			tmp->next = avc_node_freelist;
- 			avc_node_freelist = tmp;
- 			avc_cache.active_nodes--;
-@@ -896,24 +906,52 @@ int avc_compute_create(security_id_t ssi
- 		       security_class_t tclass, security_id_t *newsid)
- {
- 	int rc;
-+	struct avc_entry_ref aeref;
-+	security_context_t ctx = NULL;
-+
- 	*newsid = NULL;
-+
-+	avc_entry_ref_init(&aeref);
-+retry:
- 	avc_get_lock(avc_lock);
--	if (ssid->refcnt > 0 && tsid->refcnt > 0) {
--		security_context_t ctx = NULL;
--		rc = security_compute_create_raw(ssid->ctx, tsid->ctx, tclass,
--						 &ctx);
--		if (rc)
--			goto out;
--		rc = sidtab_context_to_sid(&avc_sidtab, ctx, newsid);
--		if (!rc)
--			(*newsid)->refcnt++;
--		freecon(ctx);
--	} else {
-+	if (ssid->refcnt <= 0 || tsid->refcnt <= 0) {
- 		errno = EINVAL;	/* bad reference count */
- 		rc = -1;
-+		goto out;
-+	}
-+
-+	rc = avc_lookup(ssid, tsid, tclass, 0, &aeref);
-+	if (!rc) {
-+		/* we found something in the avc */
-+		if (aeref.ae->create_decided) {
-+			*newsid = aeref.ae->create_sid;
-+			goto out;
-+		} else {
-+			goto compute;
-+		}
+     if (!knownEvents[type]) {
+ 	/* Look in the mappings of event names to contexts */
+-	if (selabel_lookup(label_hnd, &con, name, SELABEL_X_EVENT) < 0) {
++	if (selabel_lookup_raw(label_hnd, &ctx, name, SELABEL_X_EVENT) < 0) {
+ 	    ErrorF("SELinux: an event label lookup failed!\n");
+ 	    return BadValue;
  	}
-+	/* there is nothing in the avd for this tuple, so, lets get something */
-+	avc_release_lock(avc_lock);
-+	avc_has_perm_noaudit(ssid, tsid, tclass, 0, &aeref, NULL);
-+	goto retry;
-+
-+compute:
-+	rc = security_compute_create_raw(ssid->ctx, tsid->ctx, tclass,
-+					 &ctx);
-+	if (rc)
-+		goto out;
-+	rc = sidtab_context_to_sid(&avc_sidtab, ctx, newsid);
-+	if (rc)
-+		goto out;
-+
-+	avc_update_cache(AVC_CALLBACK_ADD_CREATE, ssid, tsid, tclass, 0,
-+			 *newsid);
-+
- out:
-+	if (*newsid)
-+		(*newsid)->refcnt++;
- 	avc_release_lock(avc_lock);
+ 	/* Get a SID for context */
+-	if (avc_context_to_sid(con, knownEvents + type) < 0) {
+-	    ErrorF("SELinux: a context_to_SID call failed!\n");
++	if (avc_context_to_sid_raw(ctx, knownEvents + type) < 0) {
++	    ErrorF("SELinux: a context_to_SID_raw call failed!\n");
+ 	    return BadAlloc;
+ 	}
+-	freecon(con);
 +	freecon(ctx);
+     }
+ 
+     /* Perform a transition to obtain the final SID */
+@@ -474,7 +474,7 @@ SELinuxLabelClient(ClientPtr client)
+     /* Try to get a context from the socket */
+     if (fd < 0 || getpeercon_raw(fd, &ctx) < 0) {
+ 	/* Otherwise, fall back to a default context */
+-	if (selabel_lookup(label_hnd, &ctx, "remote", SELABEL_X_CLIENT) < 0)
++	if (selabel_lookup_raw(label_hnd, &ctx, "remote", SELABEL_X_CLIENT) < 0)
+ 	    FatalError("SELinux: failed to look up remote-client context\n");
+     }
+ 
+@@ -509,8 +509,8 @@ SELinuxLabelClient(ClientPtr client)
+ 
+ finish:
+     /* Get a SID from the context */
+-    if (avc_context_to_sid(ctx, &subj->sid) < 0)
+-	FatalError("SELinux: client %d: context_to_sid(%s) failed\n",
++    if (avc_context_to_sid_raw(ctx, &subj->sid) < 0)
++	FatalError("SELinux: client %d: context_to_sid_raw(%s) failed\n",
+ 		   client->index, ctx);
+ 
+     sidget(obj->sid = subj->sid);
+@@ -541,7 +541,7 @@ SELinuxLabelInitial(void)
+ 	FatalError("SELinux: couldn't get context of X server process\n");
+ 
+     /* Get a SID from the context */
+-    if (avc_context_to_sid(ctx, &subj->sid) < 0)
++    if (avc_context_to_sid_raw(ctx, &subj->sid) < 0)
+ 	FatalError("SELinux: serverClient: context_to_sid(%s) failed\n", ctx);
+ 
+     sidget(obj->sid = subj->sid);
+@@ -827,20 +827,20 @@ SELinuxExtension(CallbackListPtr *pcbl, 
+     /* XXX there should be a separate callback for this */
+     if (obj->sid == unlabeled_sid) {
+ 	const char *name = rec->ext->name;
+-	security_context_t con;
++	security_context_t ctx;
+ 	security_id_t sid;
+ 
+ 	serv = dixLookupPrivate(&serverClient->devPrivates, subjectKey);
+ 
+ 	/* Look in the mappings of extension names to contexts */
+-	if (selabel_lookup(label_hnd, &con, name, SELABEL_X_EXT) < 0) {
++	if (selabel_lookup_raw(label_hnd, &ctx, name, SELABEL_X_EXT) < 0) {
+ 	    ErrorF("SELinux: a property label lookup failed!\n");
+ 	    rec->status = BadValue;
+ 	    return;
+ 	}
+ 	/* Get a SID for context */
+-	if (avc_context_to_sid(con, &sid) < 0) {
+-	    ErrorF("SELinux: a context_to_SID call failed!\n");
++	if (avc_context_to_sid_raw(ctx, &sid) < 0) {
++	    ErrorF("SELinux: a context_to_SID_raw call failed!\n");
+ 	    rec->status = BadAlloc;
+ 	    return;
+ 	}
+@@ -851,11 +851,11 @@ SELinuxExtension(CallbackListPtr *pcbl, 
+ 	if (avc_compute_create(serv->sid, sid, SECCLASS_X_EXTENSION,
+ 			       &obj->sid) < 0) {
+ 	    ErrorF("SELinux: a SID transition call failed!\n");
+-	    freecon(con);
++	    freecon(ctx);
+ 	    rec->status = BadValue;
+ 	    return;
+ 	}
+-	freecon(con);
++	freecon(ctx);
+     }
+ 
+     /* Perform the security check */
+@@ -1156,7 +1156,7 @@ SELinuxResourceState(CallbackListPtr *pc
+ 
+     if (subj->sid) {
+ 	security_context_t ctx;
+-	int rc = avc_sid_to_context(subj->sid, &ctx);
++	int rc = avc_sid_to_context_raw(subj->sid, &ctx);
+ 	if (rc < 0)
+ 	    FatalError("SELinux: Failed to get security context!\n");
+ 	rc = dixChangeWindowProperty(serverClient,
+@@ -1172,7 +1172,7 @@ SELinuxResourceState(CallbackListPtr *pc
+ 
+     if (obj->sid) {
+ 	security_context_t ctx;
+-	int rc = avc_sid_to_context(obj->sid, &ctx);
++	int rc = avc_sid_to_context_raw(obj->sid, &ctx);
+ 	if (rc < 0)
+ 	    FatalError("SELinux: Failed to get security context!\n");
+ 	rc = dixChangeWindowProperty(serverClient,
+@@ -1288,7 +1288,7 @@ SELinuxSendContextReply(ClientPtr client
+     int len = 0;
+ 
+     if (sid) {
+-	if (avc_sid_to_context(sid, &ctx) < 0)
++	if (avc_sid_to_context_raw(sid, &ctx) < 0)
+ 	    return BadValue;
+ 	len = strlen(ctx) + 1;
+     }
+@@ -1347,9 +1347,9 @@ ProcSELinuxSetCreateContext(ClientPtr cl
+     *pSid = NULL;
+ 
+     if (stuff->context_len > 0) {
+-	if (security_check_context(ctx) < 0)
++	if (security_check_context_raw(ctx) < 0)
+ 	    return BadValue;
+-	if (avc_context_to_sid(ctx, pSid) < 0)
++	if (avc_context_to_sid_raw(ctx, pSid) < 0)
+ 	    return BadValue;
+     }
+     return Success;
+@@ -1393,9 +1393,9 @@ ProcSELinuxSetDeviceContext(ClientPtr cl
+     if (rc != Success)
  	return rc;
- }
  
-@@ -978,7 +1016,8 @@ static inline int avc_sidcmp(security_id
- }
+-    if (security_check_context(ctx) < 0)
++    if (security_check_context_raw(ctx) < 0)
+ 	return BadValue;
+-    if (avc_context_to_sid(ctx, &sid) < 0)
++    if (avc_context_to_sid_raw(ctx, &sid) < 0)
+ 	return BadValue;
  
- static inline void avc_update_node(uint32_t event, struct avc_node *node,
--				   access_vector_t perms)
-+				   access_vector_t perms,
-+				   security_id_t create_sid)
- {
- 	switch (event) {
- 	case AVC_CALLBACK_GRANT:
-@@ -1000,12 +1039,16 @@ static inline void avc_update_node(uint3
- 	case AVC_CALLBACK_AUDITDENY_DISABLE:
- 		node->ae.avd.auditdeny &= ~perms;
- 		break;
-+	case AVC_CALLBACK_ADD_CREATE:
-+		node->ae.create_sid = create_sid;
-+		node->ae.create_decided = 1;
-+		break;
- 	}
- }
+     subj = dixLookupPrivate(&dev->devPrivates, subjectKey);
+@@ -1511,9 +1511,9 @@ SELinuxPopulateItem(SELinuxListItemRec *
+     SELinuxObjectRec *obj = dixLookupPrivate(privPtr, objectKey);
+     SELinuxObjectRec *data = dixLookupPrivate(privPtr, dataKey);
  
- static int avc_update_cache(uint32_t event, security_id_t ssid,
- 			    security_id_t tsid, security_class_t tclass,
--			    access_vector_t perms)
-+			    access_vector_t perms, security_id_t create_sid)
- {
- 	struct avc_node *node;
- 	int i;
-@@ -1019,7 +1062,7 @@ static int avc_update_cache(uint32_t eve
- 				if (avc_sidcmp(ssid, node->ae.ssid) &&
- 				    avc_sidcmp(tsid, node->ae.tsid) &&
- 				    tclass == node->ae.tclass) {
--					avc_update_node(event, node, perms);
-+					avc_update_node(event, node, perms, create_sid);
- 				}
- 			}
- 		}
-@@ -1027,7 +1070,7 @@ static int avc_update_cache(uint32_t eve
- 		/* apply to one node */
- 		node = avc_search_node(ssid, tsid, tclass, 0);
- 		if (node) {
--			avc_update_node(event, node, perms);
-+			avc_update_node(event, node, perms, create_sid);
- 		}
- 	}
+-    if (avc_sid_to_context(obj->sid, &i->octx) < 0)
++    if (avc_sid_to_context_raw(obj->sid, &i->octx) < 0)
+ 	return BadValue;
+-    if (avc_sid_to_context(data->sid, &i->dctx) < 0)
++    if (avc_sid_to_context_raw(data->sid, &i->dctx) < 0)
+ 	return BadValue;
  
-@@ -1058,7 +1101,7 @@ static int avc_control(uint32_t event, s
- 	 * been invoked to update the cache state.
- 	 */
- 	if (event != AVC_CALLBACK_TRY_REVOKE)
--		avc_update_cache(event, ssid, tsid, tclass, perms);
-+		avc_update_cache(event, ssid, tsid, tclass, perms, NULL);
+     i->id = id;
+@@ -1941,7 +1941,7 @@ SELinuxExtensionInit(INITARGS)
+     ExtensionEntry *extEntry;
+     struct selinux_opt selabel_option = { SELABEL_OPT_VALIDATE, (char *)1 };
+     struct selinux_opt avc_option = { AVC_OPT_SETENFORCE, (char *)0 };
+-    security_context_t con;
++    security_context_t ctx;
+     int ret = TRUE;
  
- 	for (c = avc_callbacks; c; c = c->next) {
- 		if ((c->events & event) &&
-@@ -1080,7 +1123,7 @@ static int avc_control(uint32_t event, s
- 	if (event == AVC_CALLBACK_TRY_REVOKE) {
- 		/* revoke any unretained permissions */
- 		perms &= ~tretained;
--		avc_update_cache(event, ssid, tsid, tclass, perms);
-+		avc_update_cache(event, ssid, tsid, tclass, perms, NULL);
- 		*out_retained = tretained;
- 	}
+     /* Check SELinux mode on system */
+@@ -1988,11 +1988,11 @@ SELinuxExtensionInit(INITARGS)
+     if (!label_hnd)
+ 	FatalError("SELinux: Failed to open x_contexts mapping in policy\n");
  
+-    if (security_get_initial_context("unlabeled", &con) < 0)
++    if (security_get_initial_context_raw("unlabeled", &ctx) < 0)
+ 	FatalError("SELinux: Failed to look up unlabeled context\n");
+-    if (avc_context_to_sid(con, &unlabeled_sid) < 0)
++    if (avc_context_to_sid_raw(ctx, &unlabeled_sid) < 0)
+ 	FatalError("SELinux: a context_to_SID call failed!\n");
+-    freecon(con);
++    freecon(ctx);
+ 
+     /* Prepare for auditing */
+     audit_fd = audit_open();
 
 
 
