@@ -1,71 +1,171 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n21MNXlS020430
-	for <selinux@tycho.nsa.gov>; Sun, 1 Mar 2009 17:23:33 -0500
-Received: from tundra.namei.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n21MNWQL025061
-	for <selinux@tycho.nsa.gov>; Sun, 1 Mar 2009 22:23:32 GMT
-Date: Mon, 2 Mar 2009 09:23:00 +1100 (EST)
-From: James Morris <jmorris@namei.org>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n22FeHjN007100
+	for <selinux@tycho.nsa.gov>; Mon, 2 Mar 2009 10:40:17 -0500
+Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n22FeGr4001847
+	for <selinux@tycho.nsa.gov>; Mon, 2 Mar 2009 15:40:16 GMT
+Subject: Re: [refpolicy] [PATCH v2] refpolicy: Add missing network related
+ MLS constraints
+From: "Christopher J. PeBenito" <cpebenito@tresys.com>
 To: Paul Moore <paul.moore@hp.com>
-cc: selinux@tycho.nsa.gov, rick.mcneal@lsi.com
-Subject: Re: [PATCH] selinux: Fix a panic in
- selinux_netlbl_inode_permission()
-In-Reply-To: <20090227200003.14235.99157.stgit@flek.lan>
-Message-ID: <alpine.LRH.2.00.0903020921320.867@tundra.namei.org>
-References: <20090227200003.14235.99157.stgit@flek.lan>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: selinux@tycho.nsa.gov, refpolicy@oss.tresys.com
+In-Reply-To: <20090220220236.085807734@hp.com>
+References: <20090220220236.085807734@hp.com>
+Content-Type: text/plain
+Date: Mon, 02 Mar 2009 10:39:55 -0500
+Message-Id: <1236008396.7000.0.camel@gorn.columbia.tresys.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 27 Feb 2009, Paul Moore wrote:
-
-> Rick McNeal from LSI identified a panic in selinux_netlbl_inode_permission()
-> caused by a certain sequence of SUNRPC operations.  The problem appears to be
-> due to the lack of NULL pointer checking in the function; this patch adds the
-> pointer checks so the function will exit safely in the cases where the socket
-> is not completely initialized.
-
->From which kernel does this happen?  Does it happen for the standard 
-configuration when SELinux is enabled?
-
+On Fri, 2009-02-20 at 17:02 -0500, Paul Moore wrote:
+> plain text document attachment (netpeer-constraints)
+> Add MLS constraints for several network related access controls including
+> the new ingress/egress controls and the older Secmark controls.  Based on
+> the following post to the SELinux Reference Policy mailing list:
 > 
+>  * http://oss.tresys.com/pipermail/refpolicy/2009-February/000579.html
+
+Merged.
+
 > Signed-off-by: Paul Moore <paul.moore@hp.com>
+> 
 > ---
+>  policy/mls                   |   45 +++++++++++++++++++++++++++++++++++++++++++
+>  policy/modules/kernel/mls.if |   42 ++++++++++++++++++++++++++++++++++++++++
+>  policy/modules/kernel/mls.te |    2 +
+>  3 files changed, 89 insertions(+)
 > 
->  security/selinux/netlabel.c |    5 +++--
->  1 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-> index 3f4b266..350794a 100644
-> --- a/security/selinux/netlabel.c
-> +++ b/security/selinux/netlabel.c
-> @@ -386,11 +386,12 @@ int selinux_netlbl_inode_permission(struct inode *inode, int mask)
->  	if (!S_ISSOCK(inode->i_mode) ||
->  	    ((mask & (MAY_WRITE | MAY_APPEND)) == 0))
->  		return 0;
-> -
->  	sock = SOCKET_I(inode);
->  	sk = sock->sk;
-> +	if (sk == NULL)
-> +		return 0;
->  	sksec = sk->sk_security;
-> -	if (sksec->nlbl_state != NLBL_REQUIRE)
-> +	if (sksec == NULL || sksec->nlbl_state != NLBL_REQUIRE)
->  		return 0;
+> Index: refpolicy_svn_repo/policy/mls
+> ===================================================================
+> --- refpolicy_svn_repo.orig/policy/mls
+> +++ refpolicy_svn_repo/policy/mls
+> @@ -295,8 +295,53 @@ mlsconstrain { netif node } { tcp_send u
+>  # these access vectors have no MLS restrictions
+>  # node enforce_dest
 >  
->  	local_bh_disable();
+> +#
+> +# MLS policy for the network ingress/egress controls
+> +#
+> +
+> +# the netif ingress/egress ops, the ingress permission is a "write" operation
+> +# because the subject in this particular case is the remote domain which is
+> +# writing data out the network interface which is acting as the object
+> +mlsconstrain { netif } { ingress }
+> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> +	 ( t1 == mlsnetinbound ) or
+> +	 ( t1 == unlabeled_t ));
+> +mlsconstrain { netif } { egress }
+> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> +	 ( t1 == mlsnetoutbound ));
+>  
+> +# the node recvfrom/sendto ops, the recvfrom permission is a "write" operation
+> +# because the subject in this particular case is the remote domain which is
+> +# writing data out the network node which is acting as the object
+> +mlsconstrain { node } { recvfrom }
+> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> +	 ( t1 == mlsnetinbound ) or
+> +	 ( t1 == unlabeled_t ));
+> +mlsconstrain { node } { sendto }
+> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> +	 ( t1 == mlsnetoutbound ));
+>  
+> +# the forward ops, the forward_in permission is a "write" operation because the
+> +# subject in this particular case is the remote domain which is writing data
+> +# to the network with a secmark label, the object in this case
+> +mlsconstrain { packet } { forward_in }
+> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> +	 ( t1 == mlsnetinbound ) or
+> +	 ( t1 == unlabeled_t ));
+> +mlsconstrain { packet } { forward_out }
+> +	((( l1 dom l2 ) and ( l1 domby h2 )) or
+> +	 ( t1 == mlsnetoutbound ) or
+> +	 ( t1 == unlabeled_t ));
+> +
+> +#
+> +# MLS policy for the secmark and peer controls
+> +#
+> +
+> +# the peer/packet recv op
+> +mlsconstrain { peer packet } { recv }
+> +	(( l1 dom l2 ) or
+> +	 (( t1 == mlsnetreadtoclr ) and ( h1 dom l2 )) or
+> +	 ( t1 == mlsnetread ));
+>  
+>  #
+>  # MLS policy for the process class
+> Index: refpolicy_svn_repo/policy/modules/kernel/mls.if
+> ===================================================================
+> --- refpolicy_svn_repo.orig/policy/modules/kernel/mls.if
+> +++ refpolicy_svn_repo/policy/modules/kernel/mls.if
+> @@ -332,6 +332,48 @@ interface(`mls_net_write_within_range',`
+>  
+>  ########################################
+>  ## <summary>
+> +##	Make specified domain trusted to
+> +##	write inbound packets regardless of the
+> +##	network's or node's MLS range.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`mls_net_inbound_all_levels',`
+> +	gen_require(`
+> +		attribute mlsnetinbound;
+> +	')
+> +
+> +	typeattribute $1 mlsnetinbound;
+> +')
+> +
+> +########################################
+> +## <summary>
+> +##	Make specified domain trusted to
+> +##	write outbound packets regardless of the
+> +##	network's or node's MLS range.
+> +## </summary>
+> +## <param name="domain">
+> +##	<summary>
+> +##	Domain allowed access.
+> +##	</summary>
+> +## </param>
+> +## <rolecap/>
+> +#
+> +interface(`mls_net_outbound_all_levels',`
+> +	gen_require(`
+> +		attribute mlsnetoutbound;
+> +	')
+> +
+> +	typeattribute $1 mlsnetoutbound;
+> +')
+> +
+> +########################################
+> +## <summary>
+>  ##	Make specified domain MLS trusted
+>  ##	for reading from System V IPC objects
+>  ##	up to its clearance.
+> Index: refpolicy_svn_repo/policy/modules/kernel/mls.te
+> ===================================================================
+> --- refpolicy_svn_repo.orig/policy/modules/kernel/mls.te
+> +++ refpolicy_svn_repo/policy/modules/kernel/mls.te
+> @@ -22,6 +22,8 @@ attribute mlsnetwriteranged;
+>  attribute mlsnetupgrade;
+>  attribute mlsnetdowngrade;
+>  attribute mlsnetrecvall;
+> +attribute mlsnetinbound;
+> +attribute mlsnetoutbound;
+>  
+>  attribute mlsipcread;
+>  attribute mlsipcreadtoclr;
 > 
-> 
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-> 
-
 -- 
-James Morris
-<jmorris@namei.org>
+Chris PeBenito
+Tresys Technology, LLC
+(410) 290-1411 x150
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
