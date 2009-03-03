@@ -1,244 +1,69 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n22NY9uY020675
-	for <selinux@tycho.nsa.gov>; Mon, 2 Mar 2009 18:34:09 -0500
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n22NUYMo019981
-	for <selinux@tycho.nsa.gov>; Mon, 2 Mar 2009 23:30:34 GMT
-Subject: [PATCH] Xorg: always use raw contexts in the xserver
-From: Eric Paris <eparis@redhat.com>
-To: selinux@tycho.nsa.gov
-Cc: ewalsh@tycho.nsa.gov.ajax
-Content-Type: text/plain
-Date: Mon, 02 Mar 2009 18:34:46 -0500
-Message-Id: <1236036886.5466.42.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <49ACA5FE.8000804@ak.jp.nec.com>
+Date: Tue, 03 Mar 2009 12:37:34 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: Daniel J Walsh <dwalsh@redhat.com>
+CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+        selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: PHP/SELinux: libselinux wrappers
+References: <48C61A84.9010001@ak.jp.nec.com>	 <49A63527.2020104@ak.jp.nec.com> <1235659159.13059.91.camel@localhost.localdomain> <49A6ADE2.8040602@redhat.com> <06A6610D4F464D4EBEAFBF2C5F86911EE74492@exchange2.columbia.tresys.com> <49A74EB1.80508@ak.jp.nec.com> <49A83A41.50601@redhat.com>
+In-Reply-To: <49A83A41.50601@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This patch changes all places in the X code to use _raw functions.  The
-X server should never see, translate, or deal with a munged context.
-Display managers which show contexts to the user should take care of
-translating these to human readable form.
+Now it in PECL repository:
+   http://pecl.php.net/package/selinux
+   http://cvs.php.net/viewvc.cgi/pecl/selinux/
 
----
+The php-pecl-selinux package is under review-requesting:
+   https://bugzilla.redhat.com/show_bug.cgi?id=488185
 
- Xext/xselinux.c |   64 ++++++++++++++++++++++++++++----------------------------
- 1 file changed, 32 insertions(+), 32 deletions(-)
+It is necessary the package to be reviewed whether the specfile
+correctly follows Fedora packaging guideline [1] [2], or not.
+I would like folks to help reviewing it.
 
-diff -up xorg-server-1.6.0/Xext/xselinux.c.pre.raw xorg-server-1.6.0/Xext/xselinux.c
---- xorg-server-1.6.0/Xext/xselinux.c.pre.raw	2009-03-02 18:21:49.913042490 -0500
-+++ xorg-server-1.6.0/Xext/xselinux.c	2009-03-02 18:22:30.884307930 -0500
-@@ -186,19 +186,19 @@ SELinuxAtomToSIDLookup(Atom atom, SELinu
-     obj->poly = 1;
- 
-     /* Look in the mappings of names to contexts */
--    if (selabel_lookup(label_hnd, &ctx, name, map) == 0) {
-+    if (selabel_lookup_raw(label_hnd, &ctx, name, map) == 0) {
- 	obj->poly = 0;
-     } else if (errno != ENOENT) {
- 	ErrorF("SELinux: a property label lookup failed!\n");
- 	return BadValue;
--    } else if (selabel_lookup(label_hnd, &ctx, name, polymap) < 0) {
-+    } else if (selabel_lookup_raw(label_hnd, &ctx, name, polymap) < 0) {
- 	ErrorF("SELinux: a property label lookup failed!\n");
- 	return BadValue;
-     }
- 
-     /* Get a SID for context */
--    if (avc_context_to_sid(ctx, &obj->sid) < 0) {
--	ErrorF("SELinux: a context_to_SID call failed!\n");
-+    if (avc_context_to_sid_raw(ctx, &obj->sid) < 0) {
-+	ErrorF("SELinux: a context_to_SID_raw call failed!\n");
- 	rc = BadAlloc;
-     }
- 
-@@ -343,7 +343,7 @@ SELinuxEventToSID(unsigned type, securit
- 		  SELinuxObjectRec *sid_return)
- {
-     const char *name = LookupEventName(type);
--    security_context_t con;
-+    security_context_t ctx;
-     type &= 127;
- 
-     if (type >= numKnownEvents) {
-@@ -359,16 +359,16 @@ SELinuxEventToSID(unsigned type, securit
- 
-     if (!knownEvents[type]) {
- 	/* Look in the mappings of event names to contexts */
--	if (selabel_lookup(label_hnd, &con, name, SELABEL_X_EVENT) < 0) {
-+	if (selabel_lookup_raw(label_hnd, &ctx, name, SELABEL_X_EVENT) < 0) {
- 	    ErrorF("SELinux: an event label lookup failed!\n");
- 	    return BadValue;
- 	}
- 	/* Get a SID for context */
--	if (avc_context_to_sid(con, knownEvents + type) < 0) {
--	    ErrorF("SELinux: a context_to_SID call failed!\n");
-+	if (avc_context_to_sid_raw(ctx, knownEvents + type) < 0) {
-+	    ErrorF("SELinux: a context_to_SID_raw call failed!\n");
- 	    return BadAlloc;
- 	}
--	freecon(con);
-+	freecon(ctx);
-     }
- 
-     /* Perform a transition to obtain the final SID */
-@@ -474,7 +474,7 @@ SELinuxLabelClient(ClientPtr client)
-     /* Try to get a context from the socket */
-     if (fd < 0 || getpeercon_raw(fd, &ctx) < 0) {
- 	/* Otherwise, fall back to a default context */
--	if (selabel_lookup(label_hnd, &ctx, "remote", SELABEL_X_CLIENT) < 0)
-+	if (selabel_lookup_raw(label_hnd, &ctx, "remote", SELABEL_X_CLIENT) < 0)
- 	    FatalError("SELinux: failed to look up remote-client context\n");
-     }
- 
-@@ -509,8 +509,8 @@ SELinuxLabelClient(ClientPtr client)
- 
- finish:
-     /* Get a SID from the context */
--    if (avc_context_to_sid(ctx, &subj->sid) < 0)
--	FatalError("SELinux: client %d: context_to_sid(%s) failed\n",
-+    if (avc_context_to_sid_raw(ctx, &subj->sid) < 0)
-+	FatalError("SELinux: client %d: context_to_sid_raw(%s) failed\n",
- 		   client->index, ctx);
- 
-     sidget(obj->sid = subj->sid);
-@@ -541,7 +541,7 @@ SELinuxLabelInitial(void)
- 	FatalError("SELinux: couldn't get context of X server process\n");
- 
-     /* Get a SID from the context */
--    if (avc_context_to_sid(ctx, &subj->sid) < 0)
-+    if (avc_context_to_sid_raw(ctx, &subj->sid) < 0)
- 	FatalError("SELinux: serverClient: context_to_sid(%s) failed\n", ctx);
- 
-     sidget(obj->sid = subj->sid);
-@@ -827,20 +827,20 @@ SELinuxExtension(CallbackListPtr *pcbl, 
-     /* XXX there should be a separate callback for this */
-     if (obj->sid == unlabeled_sid) {
- 	const char *name = rec->ext->name;
--	security_context_t con;
-+	security_context_t ctx;
- 	security_id_t sid;
- 
- 	serv = dixLookupPrivate(&serverClient->devPrivates, subjectKey);
- 
- 	/* Look in the mappings of extension names to contexts */
--	if (selabel_lookup(label_hnd, &con, name, SELABEL_X_EXT) < 0) {
-+	if (selabel_lookup_raw(label_hnd, &ctx, name, SELABEL_X_EXT) < 0) {
- 	    ErrorF("SELinux: a property label lookup failed!\n");
- 	    rec->status = BadValue;
- 	    return;
- 	}
- 	/* Get a SID for context */
--	if (avc_context_to_sid(con, &sid) < 0) {
--	    ErrorF("SELinux: a context_to_SID call failed!\n");
-+	if (avc_context_to_sid_raw(ctx, &sid) < 0) {
-+	    ErrorF("SELinux: a context_to_SID_raw call failed!\n");
- 	    rec->status = BadAlloc;
- 	    return;
- 	}
-@@ -851,11 +851,11 @@ SELinuxExtension(CallbackListPtr *pcbl, 
- 	if (avc_compute_create(serv->sid, sid, SECCLASS_X_EXTENSION,
- 			       &obj->sid) < 0) {
- 	    ErrorF("SELinux: a SID transition call failed!\n");
--	    freecon(con);
-+	    freecon(ctx);
- 	    rec->status = BadValue;
- 	    return;
- 	}
--	freecon(con);
-+	freecon(ctx);
-     }
- 
-     /* Perform the security check */
-@@ -1156,7 +1156,7 @@ SELinuxResourceState(CallbackListPtr *pc
- 
-     if (subj->sid) {
- 	security_context_t ctx;
--	int rc = avc_sid_to_context(subj->sid, &ctx);
-+	int rc = avc_sid_to_context_raw(subj->sid, &ctx);
- 	if (rc < 0)
- 	    FatalError("SELinux: Failed to get security context!\n");
- 	rc = dixChangeWindowProperty(serverClient,
-@@ -1172,7 +1172,7 @@ SELinuxResourceState(CallbackListPtr *pc
- 
-     if (obj->sid) {
- 	security_context_t ctx;
--	int rc = avc_sid_to_context(obj->sid, &ctx);
-+	int rc = avc_sid_to_context_raw(obj->sid, &ctx);
- 	if (rc < 0)
- 	    FatalError("SELinux: Failed to get security context!\n");
- 	rc = dixChangeWindowProperty(serverClient,
-@@ -1288,7 +1288,7 @@ SELinuxSendContextReply(ClientPtr client
-     int len = 0;
- 
-     if (sid) {
--	if (avc_sid_to_context(sid, &ctx) < 0)
-+	if (avc_sid_to_context_raw(sid, &ctx) < 0)
- 	    return BadValue;
- 	len = strlen(ctx) + 1;
-     }
-@@ -1347,9 +1347,9 @@ ProcSELinuxSetCreateContext(ClientPtr cl
-     *pSid = NULL;
- 
-     if (stuff->context_len > 0) {
--	if (security_check_context(ctx) < 0)
-+	if (security_check_context_raw(ctx) < 0)
- 	    return BadValue;
--	if (avc_context_to_sid(ctx, pSid) < 0)
-+	if (avc_context_to_sid_raw(ctx, pSid) < 0)
- 	    return BadValue;
-     }
-     return Success;
-@@ -1393,9 +1393,9 @@ ProcSELinuxSetDeviceContext(ClientPtr cl
-     if (rc != Success)
- 	return rc;
- 
--    if (security_check_context(ctx) < 0)
-+    if (security_check_context_raw(ctx) < 0)
- 	return BadValue;
--    if (avc_context_to_sid(ctx, &sid) < 0)
-+    if (avc_context_to_sid_raw(ctx, &sid) < 0)
- 	return BadValue;
- 
-     subj = dixLookupPrivate(&dev->devPrivates, subjectKey);
-@@ -1511,9 +1511,9 @@ SELinuxPopulateItem(SELinuxListItemRec *
-     SELinuxObjectRec *obj = dixLookupPrivate(privPtr, objectKey);
-     SELinuxObjectRec *data = dixLookupPrivate(privPtr, dataKey);
- 
--    if (avc_sid_to_context(obj->sid, &i->octx) < 0)
-+    if (avc_sid_to_context_raw(obj->sid, &i->octx) < 0)
- 	return BadValue;
--    if (avc_sid_to_context(data->sid, &i->dctx) < 0)
-+    if (avc_sid_to_context_raw(data->sid, &i->dctx) < 0)
- 	return BadValue;
- 
-     i->id = id;
-@@ -1941,7 +1941,7 @@ SELinuxExtensionInit(INITARGS)
-     ExtensionEntry *extEntry;
-     struct selinux_opt selabel_option = { SELABEL_OPT_VALIDATE, (char *)1 };
-     struct selinux_opt avc_option = { AVC_OPT_SETENFORCE, (char *)0 };
--    security_context_t con;
-+    security_context_t ctx;
-     int ret = TRUE;
- 
-     /* Check SELinux mode on system */
-@@ -1988,11 +1988,11 @@ SELinuxExtensionInit(INITARGS)
-     if (!label_hnd)
- 	FatalError("SELinux: Failed to open x_contexts mapping in policy\n");
- 
--    if (security_get_initial_context("unlabeled", &con) < 0)
-+    if (security_get_initial_context_raw("unlabeled", &ctx) < 0)
- 	FatalError("SELinux: Failed to look up unlabeled context\n");
--    if (avc_context_to_sid(con, &unlabeled_sid) < 0)
-+    if (avc_context_to_sid_raw(ctx, &unlabeled_sid) < 0)
- 	FatalError("SELinux: a context_to_SID call failed!\n");
--    freecon(con);
-+    freecon(ctx);
- 
-     /* Prepare for auditing */
-     audit_fd = audit_open();
+In addition, Fedora Project requires all the new packages
+to be approved by core maintainers called as "sponsor" [3].
 
+Could you introduce me an appropriate person to recommend
+the package?
 
+Thanks,
+
+[1] http://fedoraproject.org/wiki/Packaging/Guidelines
+[2] http://fedoraproject.org/wiki/Packaging/PHP
+[3] https://admin.fedoraproject.org/accounts/group/members/packager/*/sponsor
+
+Daniel J Walsh wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> KaiGai Kohei wrote:
+>> Joshua Brindle wrote:
+>>>> -----Original Message-----
+>>>> From: Daniel J Walsh [mailto:dwalsh@redhat.com]
+>>>>
+>>>> I would rather package this up as part of libselinux, perhaps
+>>>> libselinux-php, rather then make a new package.
+>>> The last time I used PHP (admittedly years ago) most if not all bindings
+>>> were included in the upstream PHP distribution.
+>> At least, most of PHP extensions has php-* naming convension, like:
+>>   php-mysql, php-mbstring, php-ldap, ...
+>>
+>> Most of major extensions are distributed as subpackages of php itself,
+>> but some of extensions are not distributed as separated package.
+>> (Please find php-* on the list of Fedora SRPMs.)
+>>
+>> I don't think we need to wait for it get merged into the core PHP,
+>> to release php-selinux package.
+>>
+>> Thanks,
+> Ok then fine leave it as a separate package.
+
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
