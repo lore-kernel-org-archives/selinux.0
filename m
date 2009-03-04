@@ -1,69 +1,40 @@
-Message-ID: <49ACA5FE.8000804@ak.jp.nec.com>
-Date: Tue, 03 Mar 2009 12:37:34 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n24B4kgp000352
+	for <selinux@tycho.nsa.gov>; Wed, 4 Mar 2009 06:04:47 -0500
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n24B4iBp025878
+	for <selinux@tycho.nsa.gov>; Wed, 4 Mar 2009 11:04:45 GMT
+Received: from aeon.coker.com.au (localhost [127.0.0.1])
+	by smtp.sws.net.au (Postfix) with ESMTP id 11BDA18097
+	for <selinux@tycho.nsa.gov>; Wed,  4 Mar 2009 22:04:37 +1100 (EST)
+Received: from localhost (localhost [127.0.0.1])
+	by aeon.coker.com.au (Postfix) with ESMTP id DB74B22699
+	for <selinux@tycho.nsa.gov>; Wed,  4 Mar 2009 22:04:35 +1100 (EST)
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "SE-Linux" <selinux@tycho.nsa.gov>
+Subject: gnome and dbus
+Date: Wed, 4 Mar 2009 22:04:30 +1100
 MIME-Version: 1.0
-To: Daniel J Walsh <dwalsh@redhat.com>
-CC: Joshua Brindle <jbrindle@tresys.com>, Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@tycho.nsa.gov, Eamon Walsh <ewalsh@tycho.nsa.gov>
-Subject: Re: PHP/SELinux: libselinux wrappers
-References: <48C61A84.9010001@ak.jp.nec.com>	 <49A63527.2020104@ak.jp.nec.com> <1235659159.13059.91.camel@localhost.localdomain> <49A6ADE2.8040602@redhat.com> <06A6610D4F464D4EBEAFBF2C5F86911EE74492@exchange2.columbia.tresys.com> <49A74EB1.80508@ak.jp.nec.com> <49A83A41.50601@redhat.com>
-In-Reply-To: <49A83A41.50601@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
+Message-Id: <200903042204.34105.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Now it in PECL repository:
-   http://pecl.php.net/package/selinux
-   http://cvs.php.net/viewvc.cgi/pecl/selinux/
+type=AVC msg=audit(1236164018.240:156): avc:  denied  { execute_no_trans } for  
+pid=6554 comm="dbus-daemon" path="/usr/lib/gnome-vfs-2.0/gnome-vfs-daemon" 
+dev=hda2 ino=393873 
+scontext=unconfined_u:unconfined_r:system_dbusd_t:s0-s0:c0.c1023 
+tcontext=system_u:object_r:lib_t:s0 tclass=file
 
-The php-pecl-selinux package is under review-requesting:
-   https://bugzilla.redhat.com/show_bug.cgi?id=488185
-
-It is necessary the package to be reviewed whether the specfile
-correctly follows Fedora packaging guideline [1] [2], or not.
-I would like folks to help reviewing it.
-
-In addition, Fedora Project requires all the new packages
-to be approved by core maintainers called as "sponsor" [3].
-
-Could you introduce me an appropriate person to recommend
-the package?
-
-Thanks,
-
-[1] http://fedoraproject.org/wiki/Packaging/Guidelines
-[2] http://fedoraproject.org/wiki/Packaging/PHP
-[3] https://admin.fedoraproject.org/accounts/group/members/packager/*/sponsor
-
-Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> KaiGai Kohei wrote:
->> Joshua Brindle wrote:
->>>> -----Original Message-----
->>>> From: Daniel J Walsh [mailto:dwalsh@redhat.com]
->>>>
->>>> I would rather package this up as part of libselinux, perhaps
->>>> libselinux-php, rather then make a new package.
->>> The last time I used PHP (admittedly years ago) most if not all bindings
->>> were included in the upstream PHP distribution.
->> At least, most of PHP extensions has php-* naming convension, like:
->>   php-mysql, php-mbstring, php-ldap, ...
->>
->> Most of major extensions are distributed as subpackages of php itself,
->> but some of extensions are not distributed as separated package.
->> (Please find php-* on the list of Fedora SRPMs.)
->>
->> I don't think we need to wait for it get merged into the core PHP,
->> to release php-selinux package.
->>
->> Thanks,
-> Ok then fine leave it as a separate package.
+So what would this gnome-vfs-daemon program be and why would a dbus-daemon 
+process be running it?
 
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
