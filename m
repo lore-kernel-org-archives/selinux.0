@@ -1,34 +1,37 @@
-Subject: Re: gnome and dbus
+Subject: Re: dbus reading /proc/X/cmdline
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: russell@coker.com.au
 Cc: SE-Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <200903042204.34105.russell@coker.com.au>
-References: <200903042204.34105.russell@coker.com.au>
+In-Reply-To: <200903042309.37571.russell@coker.com.au>
+References: <200903042309.37571.russell@coker.com.au>
 Content-Type: text/plain
-Date: Wed, 04 Mar 2009 08:51:03 -0500
-Message-Id: <1236174663.2679.11.camel@localhost.localdomain>
+Date: Wed, 04 Mar 2009 09:00:54 -0500
+Message-Id: <1236175254.2679.19.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-03-04 at 22:04 +1100, Russell Coker wrote:
-> type=AVC msg=audit(1236164018.240:156): avc:  denied  { execute_no_trans } for  
-> pid=6554 comm="dbus-daemon" path="/usr/lib/gnome-vfs-2.0/gnome-vfs-daemon" 
-> dev=hda2 ino=393873 
-> scontext=unconfined_u:unconfined_r:system_dbusd_t:s0-s0:c0.c1023 
-> tcontext=system_u:object_r:lib_t:s0 tclass=file
+On Wed, 2009-03-04 at 23:09 +1100, Russell Coker wrote:
+> Why does the dbus-daemon want to read the cmdline of every process that it 
+> talks to?  Is it something to allow or dontaudit?  It appears to work without 
+> allowing it.
 > 
-> So what would this gnome-vfs-daemon program be and why would a dbus-daemon 
-> process be running it?
+> type=AVC msg=audit(1236168464.840:83): avc:  denied  { search } for  pid=2757 
+> comm="dbus-daemon" name="2874" dev=proc ino=12535 
+> scontext=unconfined_u:unconfined_r:system_dbusd_t:s0-s0:c0.c1023 
+> tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=dir
+> type=AVC msg=audit(1236168464.840:83): avc:  denied  { read } for  pid=2757 
+> comm="dbus-daemon" name="cmdline" dev=proc ino=12536 
+> scontext=unconfined_u:unconfined_r:system_dbusd_t:s0-s0:c0.c1023 
+> tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=file
+> type=SYSCALL msg=audit(1236168464.840:83): arch=40000003 syscall=5 success=yes 
+> exit=16 a0=b8481fa0 a1=0 a2=b3a a3=b84826c0 items=0 ppid=1 pid=2757 
+> auid=4294967295 uid=103 gid=105 euid=103 suid=103 fsuid=103 egid=105 sgid=105 
+> fsgid=105 tty=(none) ses=4294967295 comm="dbus-daemon" 
+> exe="/usr/bin/dbus-daemon" 
+> subj=unconfined_u:unconfined_r:system_dbusd_t:s0-s0:c0.c1023 key=(null)
 
-In Fedora, it is installed as /usr/libexec/gnome-vfs-daemon.
-And the dbus config for it is installed
-as /usr/share/dbus-1/services/gnome-vfs-daemon.service.
-
-These postings might be useful in understanding it, although they are
-old:
-http://mail.gnome.org/archives/gtk-devel-list/2006-September/msg00072.html
-http://mail.gnome.org/archives/gtk-devel-list/2007-February/msg00062.html
+It appears to fetch that information for logging purposes (comm= field).
 
 -- 
 Stephen Smalley
