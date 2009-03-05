@@ -1,26 +1,17 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n25F1he0014258
-	for <selinux@tycho.nsa.gov>; Thu, 5 Mar 2009 10:01:43 -0500
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n25F1gMb008384
-	for <selinux@tycho.nsa.gov>; Thu, 5 Mar 2009 15:01:43 GMT
-Message-ID: <49AFE945.8000307@redhat.com>
-Date: Thu, 05 Mar 2009 10:01:25 -0500
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: russell@coker.com.au
-CC: SE-Linux <selinux@tycho.nsa.gov>
 Subject: Re: PAM, GNOME, etc
-References: <200903051749.31665.russell@coker.com.au>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: russell@coker.com.au
+Cc: SE-Linux <selinux@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
 In-Reply-To: <200903051749.31665.russell@coker.com.au>
-Content-Type: text/plain; charset=ISO-8859-1
+References: <200903051749.31665.russell@coker.com.au>
+Content-Type: text/plain
+Date: Thu, 05 Mar 2009 11:05:00 -0500
+Message-Id: <1236269100.9366.11.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Russell Coker wrote:
+On Thu, 2009-03-05 at 17:49 +1100, Russell Coker wrote:
 > Currently the gdm package in Debian has some degree of SE Linux support (I 
 > haven't yet read the source to see what it does).  However it seems that the 
 > pam_selinux.so module is required and that it can't be the last module 
@@ -42,28 +33,36 @@ Russell Coker wrote:
 > Linux support manually in every pam.d file to make sure you get it right?  It 
 > seems that any automatic method (such as just appending a line to every one 
 > of a set of files) is not going to work.
-> 
+
+I think they are manually set up and maintained by the package
+maintainers, e.g. the gdm source package has a gdm-pam file that already
+contains this sequence for session modules:
+
+session    required    pam_selinux.so close
+session    required    pam_loginuid.so
+session    optional    pam_console.so
+session    required    pam_selinux.so open
+session    optional    pam_keyinit.so force revoke
+session    required    pam_namespace.so
+session    optional    pam_gnome_keyring.so auto_start
+session    include     system-auth
+
+and the openssh source package has a sshd.pam file that looks like this:
+# pam_selinux.so close should be the first session rule
+session    required     pam_selinux.so close
+session    required     pam_loginuid.so
+# pam_selinux.so open should only be followed by sessions to be executed in the user context
+session    required     pam_selinux.so open env_params
+session    optional     pam_keyinit.so force revoke
+session    include      system-auth
+
 > Or have you patched a bunch of PAM modules to call setexeccon(NULL) before 
 > they call exec()?
-> 
-No we have the pam modules written pretty well.  No patching. And we are
-trying to get rid of all pam modules that exec system processes.
 
-pam_oddjob_mkhomedir instead of pam_mkhomedir. consolekit/dbus/policykit
-instead of pam_console.
+-- 
+Stephen Smalley
+National Security Agency
 
-pam modules doing extremely privileged apps is always a problem.
-pam_mount for example.  pam_namespace.
-
-I believe system-config-auth and the defaults all work in Fedora.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iEYEARECAAYFAkmv6UUACgkQrlYvE4MpobMiIgCg0cAAhkbsIRVegfvU4qZac5+2
-dF0AoOF737Dp2gev+MpJVJL4V12U7UoM
-=t2qk
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
