@@ -1,30 +1,50 @@
-Date: Fri, 6 Mar 2009 09:05:34 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Eric Paris <eparis@redhat.com>
-cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, sgrubb@redhat.com,
-        tmraz@redhat.com
-Subject: Re: [PATCH] SELinux: new permission between tty audit and audit
- socket
-In-Reply-To: <1236278615.10235.5.camel@localhost.localdomain>
-Message-ID: <alpine.LRH.2.00.0903060905240.1773@tundra.namei.org>
-References: <1236278615.10235.5.camel@localhost.localdomain>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n26Fofbu018709
+	for <selinux@tycho.nsa.gov>; Fri, 6 Mar 2009 10:50:41 -0500
+Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n26Fl2nl023371
+	for <selinux@tycho.nsa.gov>; Fri, 6 Mar 2009 15:47:03 GMT
+Received: from int-mx2.corp.redhat.com (int-mx2.corp.redhat.com [172.16.27.26])
+	by mx2.redhat.com (8.13.8/8.13.8) with ESMTP id n26FoZKw005758
+	for <selinux@tycho.nsa.gov>; Fri, 6 Mar 2009 10:50:35 -0500
+Received: from ns3.rdu.redhat.com (ns3.rdu.redhat.com [10.11.255.199])
+	by int-mx2.corp.redhat.com (8.13.1/8.13.1) with ESMTP id n26FoZoe011079
+	for <selinux@tycho.nsa.gov>; Fri, 6 Mar 2009 10:50:35 -0500
+Received: from holycross.boston.devel.redhat.com (holycross.boston.devel.redhat.com [10.16.60.79])
+	by ns3.rdu.redhat.com (8.13.8/8.13.8) with ESMTP id n26FoYx4031288
+	for <selinux@tycho.nsa.gov>; Fri, 6 Mar 2009 10:50:34 -0500
+Message-ID: <49B1464A.6020606@redhat.com>
+Date: Fri, 06 Mar 2009 10:50:34 -0500
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: SE Linux <selinux@tycho.nsa.gov>
+Subject: I have not used the selabel interface replacement for matchpathcon,
+ that much
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 5 Mar 2009, Eric Paris wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> New selinux permission to separate the ability to turn on tty auditing from
-> the ability to set audit rules.
-> 
-> Signed-off-by: Eric Paris <eparis@redhat.com>
+Is there an equivalent to this?
 
-Applied.
+The question we are getting is can we speed up the execution of
+restorecon in boot.
 
--- 
-James Morris
-<jmorris@namei.org>
+restorecon /etc/resolv.conf
+
+should only search prefix /etc.
+
+Dan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkmxRkoACgkQrlYvE4MpobNXbgCgiSb4G0WbfIEmcJg0Je5gg6kE
+qgsAn1pYASksoT1CZg9fK6l/XeND45cJ
+=EF7P
+-----END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
