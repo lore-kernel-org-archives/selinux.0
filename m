@@ -1,38 +1,47 @@
-Subject: Re: I have not used the selabel interface replacement for
- matchpathcon, that much
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel J Walsh <dwalsh@redhat.com>
-Cc: SE Linux <selinux@tycho.nsa.gov>
-In-Reply-To: <49B1464A.6020606@redhat.com>
-References: <49B1464A.6020606@redhat.com>
+Subject: [PATCH] SELinux: make inode_doinit_with_dentry printk debug
+From: Eric Paris <eparis@redhat.com>
+To: selinux@tycho.nsa.gov
+Cc: sds@tycho.nsa.gov, jmorris@namei.org
 Content-Type: text/plain
-Date: Fri, 06 Mar 2009 13:35:45 -0500
-Message-Id: <1236364545.16365.5.camel@localhost.localdomain>
+Date: Fri, 06 Mar 2009 14:23:12 -0500
+Message-Id: <1236367392.3541.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-03-06 at 10:50 -0500, Daniel J Walsh wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Is there an equivalent to this?
-> 
-> The question we are getting is can we speed up the execution of
-> restorecon in boot.
-> 
-> restorecon /etc/resolv.conf
-> 
-> should only search prefix /etc.
+Drop the printk level to debug when an inode is found without an associated
+dentry.  This should only happen when userspace can't be accessing the
+inode and the label will get set correctly on the next inode_doinit before it
+can be used, so there is little reason to send this message.
 
-man selabel_file
+Signed-off-by: Eric Paris <eparis@redhat.com>
+---
 
-SELABEL_OPT_SUBSET is the option you want to set in the options
-structure for selabel_open(3).
+ security/selinux/hooks.c |    9 ++++++++-
+ 1 files changed, 8 insertions(+), 1 deletions(-)
 
--- 
-Stephen Smalley
-National Security Agency
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index c0eb2f4..ce6543a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1278,7 +1278,14 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			dentry = d_find_alias(inode);
+ 		}
+ 		if (!dentry) {
+-			printk(KERN_WARNING "SELinux: %s:  no dentry for dev=%s "
++			/* this is easy to hit on boot when a file is accessed
++			 * before the policy is loaded.  When we load policy we
++			 * may find inodes that have no dentry as we walk the
++			 * sbsec->isec_head list.  No reason to complain as these
++			 * as they will get fixed up the next time we go through
++			 * inode_doinit with a dentry.
++			 */
++			printk(KERN_DEBUG "SELinux: %s:  no dentry for dev=%s "
+ 			       "ino=%ld\n", __func__, inode->i_sb->s_id,
+ 			       inode->i_ino);
+ 			goto out_unlock;
+
 
 
 --
