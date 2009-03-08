@@ -1,52 +1,28 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n26LI1c5001519
-	for <selinux@tycho.nsa.gov>; Fri, 6 Mar 2009 16:18:01 -0500
-Received: from smtp.sws.net.au (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n26LELUg024607
-	for <selinux@tycho.nsa.gov>; Fri, 6 Mar 2009 21:14:22 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: Talking to Nalin today about the path substitution semanage problem, and he came up  with a great idea.
-Date: Sat, 7 Mar 2009 08:17:43 +1100
-Cc: SE Linux <selinux@tycho.nsa.gov>
-References: <49B18A30.7080507@redhat.com>
-In-Reply-To: <49B18A30.7080507@redhat.com>
+Date: Mon, 9 Mar 2009 08:48:52 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Eric Paris <eparis@redhat.com>
+cc: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Subject: Re: [PATCH] SELinux: make inode_doinit_with_dentry printk debug
+In-Reply-To: <1236367392.3541.10.camel@localhost.localdomain>
+Message-ID: <alpine.LRH.2.00.0903090848050.14559@tundra.namei.org>
+References: <1236367392.3541.10.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200903070817.50428.russell@coker.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 7 Mar 2009, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> With this type of functionality we can either get rid of genhomedircon
-> or allow it to just generate subs files that look like
->
-> /export/home /home
-> /usr/local/home /home
->
-> This has a side benefit of decreasing the size of regexs we need to
-> compile.
->
-> I think there is little to no costs.  Other the strcmp on all paths
-> handed in times the number of substitutions.
->
-> What do you think?
+On Fri, 6 Mar 2009, Eric Paris wrote:
 
-Sounds OK apart from the fact that it doesn't set the identity.
+> Drop the printk level to debug when an inode is found without an associated
+> dentry.  This should only happen when userspace can't be accessing the
+> inode and the label will get set correctly on the next inode_doinit before it
+> can be used, so there is little reason to send this message.
 
-What if you had an optional third field to store the identity for mapping 
-individual users?
-
-Also what are the plans regarding roles nowadays?  Is there still a plan to 
-use roles other than object_r in filesystem labels?
+I'd prefer to have the message removed (but leave a comment in the code).
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
-
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
