@@ -1,37 +1,40 @@
-Date: Thu, 12 Mar 2009 23:07:36 +0800 (CST)
-From: sixiaolin0 <sixiaolin067@126.com>
-To: SELinux@tycho.nsa.gov
-Message-ID: <19716145.1610101236870456814.JavaMail.coremail@bj126app71.126.com>
-Subject: questions
+From: Paul Moore <paul.moore@hp.com>
+To: Andy Warner <warner@rubix.com>
+Subject: Re: Significance of the level on a port configuration
+Date: Thu, 12 Mar 2009 11:07:27 -0400
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>
+References: <49B7F893.9040706@rubix.com> <1236793639.14649.67.camel@localhost.localdomain>
+In-Reply-To: <1236793639.14649.67.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_425250_16366120.1236870456813"
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Message-Id: <200903121107.27468.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_425250_16366120.1236870456813
-Content-Type: text/plain; charset=gbk
-Content-Transfer-Encoding: 7bit
+On Wednesday 11 March 2009 01:47:19 pm Stephen Smalley wrote:
+> On Wed, 2009-03-11 at 18:44 +0100, Andy Warner wrote:
+> > Can someone give me a quick overview of the significance (i.e., the
+> > MLS behavior) of the port level for SELinux.
+> >
+> > I am attempting to have two connection from untrusted hosts that are
+> > statically labeled (with netlabelctl) one at high (s0) and one at low
+> > (s1). Both connections will be made over the same port number. The
+> > service accepting the connections runs at SystemHigh on Fedora 9 with
+> > MLS policy. What difference does the level of the port make ? Assume
+> > all TE rules are satisfied for the context of my question.
+>
+> I don't think the port level should make any difference.  Are there any
+> MLS constraints defined on any of the permission checks that are based
+> on port contexts?
 
+Using the new network access controls there is no specific check against the 
+port label, only the network interface and node (both of which just recently 
+had the MLS constraints added).
 
-
-Could you please tell me How to install seTools in FC4 ?
-I tried many times but failed at last!
-It always report some errors on version of the packets!
- Thank you for your help!
-------=_Part_425250_16366120.1236870456813
-Content-Type: text/html; charset=gbk
-Content-Transfer-Encoding: quoted-printable
-
-<DIV><BR><BR>Could you please tell me How to install seTools in FC4 ?</DIV>
-<DIV>I tried many times but failed at last!</DIV>
-<DIV>It always report some errors on version of the packets!</DIV>
-<DIV>&nbsp;Thank you for your help!</DIV><br><!-- footer --><br><span title=
-=3D"neteasefooter"/><hr/>
-<a href=3D"http://www.yeah.net">=CD=F8=D2=D7=D3=CA=CF=E4=A3=AC=D6=D0=B9=FA=
-=B5=DA=D2=BB=B4=F3=B5=E7=D7=D3=D3=CA=BC=FE=B7=FE=CE=F1=C9=CC</a>
-</span>
-------=_Part_425250_16366120.1236870456813--
+-- 
+paul moore
+linux @ hp
 
 
 --
