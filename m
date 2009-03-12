@@ -1,35 +1,31 @@
-Message-ID: <49B92C25.6050008@redhat.com>
-Date: Thu, 12 Mar 2009 11:37:09 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: sixiaolin0 <sixiaolin067@126.com>
-CC: SELinux@tycho.nsa.gov
-Subject: Re: questions
-References: <19716145.1610101236870456814.JavaMail.coremail@bj126app71.126.com>
-In-Reply-To: <19716145.1610101236870456814.JavaMail.coremail@bj126app71.126.com>
-Content-Type: text/plain; charset=x-gbk
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2CGBWKC004356
+	for <selinux@tycho.nsa.gov>; Thu, 12 Mar 2009 12:11:32 -0400
+Subject: Re: New MAC label support Internet Draft posted to IETF website
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: Peter Staubach <staubach@redhat.com>
+Cc: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org, nfsv4@ietf.org,
+        nfs-discuss@opensolaris.org
+In-Reply-To: <4990AD20.3030902@redhat.com>
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
+	 <4990AD20.3030902@redhat.com>
+Content-Type: text/plain
+Date: Thu, 12 Mar 2009 12:08:28 -0400
+Message-Id: <1236874108.27381.2.camel@moss-terrapins.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+So I am addressing the comments from the mailing list in the Labeled
+NFSv4 draft and currently I'm working on Peter's concerns about the
+delegation section. Reading through the NFSv4.1-29 version of the
+specification it seems that section 10.2 gives all the reasons why this
+should be done. Would it be wise to repeat some of the reasons in the
+Labeled NFSv4 document or is it fine for me to reference section 10.2 of
+the NFSv4.1 spec? 
 
-sixiaolin0 wrote:
-> 
-> Could you please tell me How to install seTools in FC4 ?
-> I tried many times but failed at last!
-> It always report some errors on version of the packets!
->  Thank you for your help!
-FC4 has not been supported in a couple of years.  Please update to a
-Supported Fedora 9/10.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+Dave
 
-iEYEARECAAYFAkm5LCUACgkQrlYvE4MpobOF3ACeJqhl/mSt8EW+xetIFtP7qwkr
-WMIAn0uQh12W+fU+AHveW2H7uuBWeMXF
-=1ZlQ
------END PGP SIGNATURE-----
 
 --
 This message was distributed to subscribers of the selinux mailing list.
