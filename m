@@ -1,30 +1,58 @@
-Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2CGBWKC004356
-	for <selinux@tycho.nsa.gov>; Thu, 12 Mar 2009 12:11:32 -0400
-Subject: Re: New MAC label support Internet Draft posted to IETF website
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: Peter Staubach <staubach@redhat.com>
-Cc: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org, nfsv4@ietf.org,
-        nfs-discuss@opensolaris.org
-In-Reply-To: <4990AD20.3030902@redhat.com>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
-	 <4990AD20.3030902@redhat.com>
-Content-Type: text/plain
-Date: Thu, 12 Mar 2009 12:08:28 -0400
-Message-Id: <1236874108.27381.2.camel@moss-terrapins.epoch.ncsc.mil>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2CGMsJg006075
+	for <selinux@tycho.nsa.gov>; Thu, 12 Mar 2009 12:22:54 -0400
+Received: from g1t0026.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2CGMrS2011614
+	for <selinux@tycho.nsa.gov>; Thu, 12 Mar 2009 16:22:53 GMT
+From: Paul Moore <paul.moore@hp.com>
+Subject: [RFC PATCH v1 0/3] Fix a problem with incoming TCP connections and
+	NetLabel
+To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        netdev@vger.kernel.org
+Date: Thu, 12 Mar 2009 12:22:50 -0400
+Message-ID: <20090312160934.29454.31004.stgit@flek.lan>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-So I am addressing the comments from the mailing list in the Labeled
-NFSv4 draft and currently I'm working on Peter's concerns about the
-delegation section. Reading through the NFSv4.1-29 version of the
-specification it seems that section 10.2 gives all the reasons why this
-should be done. Would it be wise to repeat some of the reasons in the
-Labeled NFSv4 document or is it fine for me to reference section 10.2 of
-the NFSv4.1 spec? 
+The patches below have more information on the problem but the issue is that
+we are not correctly labeling incoming TCP connection sockets at present.  Due
+to a variety of things all coming together we've gotten a bit lucky in that
+the majority of labeled TCP connections are labeled correctly now but this
+won't hold for long as some of the new features added recently will break this
+"happy coincidence" for some configurations.
 
-Dave
+For the folks on netdev, you probably only care about the relocation of the
+security_inet_conn_request() hooks but this is such a minor move I doubt there
+will be much objection.  Still, I would appreciate any feedback/comments.
+
+For the folks on the SELinux and LSM lists please take a look and let me know
+if the basic approach seems reasonable.  Keep in mind I still need to make a
+few more passes through the code to clean it up and make sure I haven't done
+anything stupid.  I've done basic testing under both SELinux and Smack using
+2.6.29-rc7 and everything looks okay so far so feel free to play with it but
+more testing is still needed.
+
+---
+
+Paul Moore (3):
+      netlabel: Label incoming TCP connections correctly in Smack
+      netlabel: Label incoming TCP connections correctly in SELinux
+      lsm: Relocate the IPv4 security_inet_conn_request() hooks
+
+
+ include/net/cipso_ipv4.h            |   17 +++
+ include/net/netlabel.h              |   17 +++
+ net/ipv4/cipso_ipv4.c               |  130 ++++++++++++++++++++++--
+ net/ipv4/syncookies.c               |    9 +-
+ net/ipv4/tcp_ipv4.c                 |    7 +
+ net/netlabel/netlabel_kapi.c        |  124 +++++++++++++++++++++--
+ security/selinux/hooks.c            |   54 +++-------
+ security/selinux/include/netlabel.h |   26 ++---
+ security/selinux/netlabel.c         |  187 ++++++++++-------------------------
+ security/smack/smack_lsm.c          |   53 +++++++---
+ 10 files changed, 393 insertions(+), 231 deletions(-)
 
 
 --
