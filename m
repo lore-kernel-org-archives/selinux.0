@@ -1,31 +1,39 @@
-Message-ID: <49B9445B.7000105@redhat.com>
-Date: Thu, 12 Mar 2009 13:20:27 -0400
-From: Peter Staubach <staubach@redhat.com>
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: questions
+Date: Fri, 13 Mar 2009 22:20:13 +1100
+Cc: sixiaolin0 <sixiaolin067@126.com>, SELinux@tycho.nsa.gov
+References: <19716145.1610101236870456814.JavaMail.coremail@bj126app71.126.com> <49B92C25.6050008@redhat.com>
+In-Reply-To: <49B92C25.6050008@redhat.com>
 MIME-Version: 1.0
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-CC: selinux@tycho.nsa.gov, labeled-nfs@linux-nfs.org, nfsv4@ietf.org,
-        nfs-discuss@opensolaris.org
-Subject: Re: New MAC label support Internet Draft posted to IETF website
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>	 <4990AD20.3030902@redhat.com> <1236874108.27381.2.camel@moss-terrapins.epoch.ncsc.mil>
-In-Reply-To: <1236874108.27381.2.camel@moss-terrapins.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200903132220.23772.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-David P. Quigley wrote:
-> So I am addressing the comments from the mailing list in the Labeled
-> NFSv4 draft and currently I'm working on Peter's concerns about the
-> delegation section. Reading through the NFSv4.1-29 version of the
-> specification it seems that section 10.2 gives all the reasons why this
-> should be done. Would it be wise to repeat some of the reasons in the
-> Labeled NFSv4 document or is it fine for me to reference section 10.2 of
-> the NFSv4.1 spec?
+On Fri, 13 Mar 2009, Daniel J Walsh <dwalsh@redhat.com> wrote:
+> > Could you please tell me How to install seTools in FC4 ?
+> > I tried many times but failed at last!
+> > It always report some errors on version of the packets!
+> >  Thank you for your help!
+>
+> FC4 has not been supported in a couple of years.  Please update to a
+> Supported Fedora 9/10.
 
-My expectation would be that the goal would be to be part of the
-NFSv4.2 specification, so I would think that referencing the section
-of the NFSv4.1 specification would help the document editor.
+Also RHEL4+, CentOS 4+, and Debian Etch or Lenny (preferably Lenny) are 
+options.
 
-       ps
+If you use FC4 then just forget about host-based security.  Disconnecting the 
+machine from the net is the correct way to secure such an old and unsupported 
+version.
+
+-- 
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
