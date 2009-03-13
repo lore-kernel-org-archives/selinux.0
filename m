@@ -1,38 +1,53 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: questions
-Date: Fri, 13 Mar 2009 22:20:13 +1100
-Cc: sixiaolin0 <sixiaolin067@126.com>, SELinux@tycho.nsa.gov
-References: <19716145.1610101236870456814.JavaMail.coremail@bj126app71.126.com> <49B92C25.6050008@redhat.com>
-In-Reply-To: <49B92C25.6050008@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2DCPKsj001278
+	for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2009 08:25:20 -0400
+Received: from merlin.cdltd.co.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2DCLZsi018822
+	for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2009 12:21:35 GMT
+Received: from exch.cdltd.co.uk (fw.cdltd.co.uk [193.132.127.247])
+	by merlin.cdltd.co.uk (Postfix) with ESMTP id 82B9C1F8009E
+	for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2009 12:25:34 +0000 (GMT)
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200903132220.23772.russell@coker.com.au>
+	charset="us-ascii"
+Subject: Unable to disable SELinux
+Date: Fri, 13 Mar 2009 12:25:51 -0000
+Message-ID: <DAE2574A7F44F44ABE07381C36213DFA069F7833@exch.cdltd.co.uk>
+From: "Paul Cocker" <paul.cocker@tntpost.co.uk>
+To: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 13 Mar 2009, Daniel J Walsh <dwalsh@redhat.com> wrote:
-> > Could you please tell me How to install seTools in FC4 ?
-> > I tried many times but failed at last!
-> > It always report some errors on version of the packets!
-> >  Thank you for your help!
->
-> FC4 has not been supported in a couple of years.  Please update to a
-> Supported Fedora 9/10.
+Running SELinux on a CentOS 5.2 box, Im trying to temporarily disable
+SELinux via one of the following methods:
+ 
+1. sudo echo 0 > /selinux/enforce
+ 
+2. sudo vim /selinux/enforce
+ 
+The first comes back with
+ 
+-bash: /selinux/enforce: Permission denied
+ 
+The second comes back with
+ 
+Could not set security context for /home/paulc/enforcz~
+ 
+Could not set security context for /home/paulc/enforcz~
+"enforce" E667: Fsync failed
+Press ENTER or type command to continue
+ 
+ 
+I believe the first method has worked for me before, but it's possible I
+have made changes since then. It was some time ago. What's the cause of
+this issue?
+ 
 
-Also RHEL4+, CentOS 4+, and Debian Etch or Lenny (preferably Lenny) are 
-options.
+Paul Cocker
 
-If you use FC4 then just forget about host-based security.  Disconnecting the 
-machine from the net is the correct way to secure such an old and unsupported 
-version.
 
--- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+
+TNT Post is the trading name for TNT Post UK Ltd (company number: 04417047), TNT Post (Doordrop Media) Ltd (00613278), TNT Post Scotland Ltd (05695897), TNT Post North Ltd (05701709), TNT Post South West Ltd (05983401), TNT Post Midlands Limited (6458167)and TNT Post London Limited (6493826). Emma's Diary and Lifecycle are trading names for Lifecycle Marketing (Mother and Baby) Ltd (02556692). All companies are registered in England and Wales; registered address: 1 Globeside Business Park, Fieldhouse Lane, Marlow, Buckinghamshire, SL7 1HY.
 
 
 --
