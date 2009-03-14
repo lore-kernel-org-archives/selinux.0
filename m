@@ -1,39 +1,71 @@
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: Shaz <shazalive@gmail.com>
-Subject: Re: questions
-Date: Sun, 15 Mar 2009 04:24:03 +1100
-Cc: Daniel J Walsh <dwalsh@redhat.com>, SELinux@tycho.nsa.gov,
-        "Caleb Case" <calebcase@gmail.com>
-References: <19716145.1610101236870456814.JavaMail.coremail@bj126app71.126.com> <200903132220.23772.russell@coker.com.au> <7b740b700903140424w5434653dl248520b3fb9a01e2@mail.gmail.com>
-In-Reply-To: <7b740b700903140424w5434653dl248520b3fb9a01e2@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Message-Id: <200903150424.13140.russell@coker.com.au>
+In-Reply-To: <49BAFBF8.8070805@martinorr.name>
+References: <DAE2574A7F44F44ABE07381C36213DFA069F7833@exch.cdltd.co.uk>
+	 <1236948159.9747.13.camel@localhost.localdomain>
+	 <49BAFBF8.8070805@martinorr.name>
+Date: Sat, 14 Mar 2009 13:37:40 -0700
+Message-ID: <dd18b0c30903141337u264d887as4c56f5bb61d8fb54@mail.gmail.com>
+Subject: Re: Unable to disable SELinux
+From: Justin Mattock <justinmattock@gmail.com>
+To: Martin Orr <martin@martinorr.name>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+        Paul Cocker <paul.cocker@tntpost.co.uk>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, 14 Mar 2009, Shaz <shazalive@gmail.com> wrote:
-> > > FC4 has not been supported in a couple of years. Â Please update to a
-> > > Supported Fedora 9/10.
-> >
-> > Also RHEL4+, CentOS 4+, and Debian Etch or Lenny (preferably Lenny) are
-> > options.
+On Fri, Mar 13, 2009 at 5:36 PM, Martin Orr <martin@martinorr.name> wrote:
+> On 13/03/09 12:42, Stephen Smalley wrote:
+>> On Fri, 2009-03-13 at 12:25 +0000, Paul Cocker wrote:
+>>> Running SELinux on a CentOS 5.2 box, Im trying to temporarily disable
+>>> SELinux via one of the following methods:
+>>>
+>>> 1. sudo echo 0 > /selinux/enforce
+>>
+>> Typically one would run the setenforce 0 command, but that is equivalent
+>> to what you are doing above.
 >
-> What about Ubuntu 8.04 and onwards?
+> This isn't true because the redirection will be interpreted by the non-root
+> shell.  You should either do:
+> sudo setenforce 0
+> as Stephen suggests, or if you really want to,
+> sudo sh -c "echo 0 > /selinux/enforce"
+>
+>>> 2. sudo vim /selinux/enforce
+>>>
+>>> The first comes back with
+>>>
+>>> -bash: /selinux/enforce: Permission denied
+>>
+>> This means that your SELinux policy prevented you from changing the
+>> enforcing status.  What context are you operating in (id -Z)?  What
+>> context is sudo running the command in (sudo id -Z)?
+>
+> No, I think it is DAC because the shell will attempt to open
+> /selinux/enforce before running sudo.
+>
+> Best wishes,
+>
+> --
+> Martin Orr
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-I don't know about the status of Ubuntu SE Linux.  Caleb, can you comment?
-
-We should get a web page listing the support for SE Linux in various 
-distributions along with the email addresses of key people who can be queried 
-about such things.  For starters it would have me for Debian, Dan for Fedora, 
-RHEL, and implicitely CentOS, and maybe Caleb for Ubuntu.
+I would just use selinux=0 enforcing=0
+as a boot param(but If the system doesn't boot
+because of selinux=0) then enforcing=0 as a boot.
+but then you still might receive a permissions denied
+due to /etc/selinux/config saying "enforcing"
+(if this is the case then load a livecd mount the hard drive,
+and use vim to edit /etc/selinux/config, and /boot/grub/* to
+set everything in permissive.
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+Justin P. Mattock
 
 
 --
