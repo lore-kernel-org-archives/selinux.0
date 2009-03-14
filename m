@@ -1,59 +1,49 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2E0YGhP016518
-	for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2009 20:34:16 -0400
-Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2E0YDPf026029
-	for <selinux@tycho.nsa.gov>; Sat, 14 Mar 2009 00:34:15 GMT
-From: Russell Coker <russell@coker.com.au>
-Reply-To: russell@coker.com.au
-To: "Paul Cocker" <paul.cocker@tntpost.co.uk>
-Subject: Re: Unable to disable SELinux
-Date: Sat, 14 Mar 2009 11:34:03 +1100
-Cc: selinux@tycho.nsa.gov
-References: <DAE2574A7F44F44ABE07381C36213DFA069F7833@exch.cdltd.co.uk>
-In-Reply-To: <DAE2574A7F44F44ABE07381C36213DFA069F7833@exch.cdltd.co.uk>
+Message-ID: <49BAFBF8.8070805@martinorr.name>
+Date: Sat, 14 Mar 2009 00:36:08 +0000
+From: Martin Orr <martin@martinorr.name>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200903141134.07934.russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+CC: Paul Cocker <paul.cocker@tntpost.co.uk>, selinux@tycho.nsa.gov
+Subject: Re: Unable to disable SELinux
+References: <DAE2574A7F44F44ABE07381C36213DFA069F7833@exch.cdltd.co.uk> <1236948159.9747.13.camel@localhost.localdomain>
+In-Reply-To: <1236948159.9747.13.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 13 Mar 2009, "Paul Cocker" <paul.cocker@tntpost.co.uk> wrote:
-> Running SELinux on a CentOS 5.2 box, Im trying to temporarily disable
-> SELinux via one of the following methods:
->
-> 1. sudo echo 0 > /selinux/enforce
+On 13/03/09 12:42, Stephen Smalley wrote:
+> On Fri, 2009-03-13 at 12:25 +0000, Paul Cocker wrote:
+>> Running SELinux on a CentOS 5.2 box, Im trying to temporarily disable
+>> SELinux via one of the following methods:
+>>  
+>> 1. sudo echo 0 > /selinux/enforce
+> 
+> Typically one would run the setenforce 0 command, but that is equivalent
+> to what you are doing above.
 
-Redirecting standard output is done by your shell.  So "sudo echo > file" will 
-not work unless "echo > file" works.  This is not a SE Linux issue.
+This isn't true because the redirection will be interpreted by the non-root
+shell.  You should either do:
+sudo setenforce 0
+as Stephen suggests, or if you really want to,
+sudo sh -c "echo 0 > /selinux/enforce"
 
-"sudo setenforce 0" will work.
+>> 2. sudo vim /selinux/enforce
+>>  
+>> The first comes back with
+>>  
+>> -bash: /selinux/enforce: Permission denied
+> 
+> This means that your SELinux policy prevented you from changing the
+> enforcing status.  What context are you operating in (id -Z)?  What
+> context is sudo running the command in (sudo id -Z)?
 
-> 2. sudo vim /selinux/enforce
->
-> The first comes back with
->
-> -bash: /selinux/enforce: Permission denied
+No, I think it is DAC because the shell will attempt to open
+/selinux/enforce before running sudo.
 
-Note that the error is from "bash".
-
-> The second comes back with
->
-> Could not set security context for /home/paulc/enforcz~
-
-Editors such as "vim" are not designed to just write data to a file.  In 
-the /root directory of my SE Linux Play Machine I have a file named 
-thanks.txt_append_only_dont_edit_with_vi - many people try editing it with vi 
-and find that it doesn't work.
-
-Generally don't even try using vi to edit "files" under /proc, /sys, or any 
-other filesystem that is used for kernel communications.
+Best wishes,
 
 -- 
-russell@coker.com.au
-http://etbe.coker.com.au/          My Main Blog
-http://doc.coker.com.au/           My Documents Blog
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
