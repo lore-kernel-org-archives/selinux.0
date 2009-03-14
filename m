@@ -1,52 +1,59 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2DJdZFd012920
-	for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2009 15:39:35 -0400
-Received: from g1t0028.austin.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2DJZo6U022507
-	for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2009 19:35:50 GMT
-From: Paul Moore <paul.moore@hp.com>
-To: David Miller <davem@davemloft.net>
-Subject: Re: [RFC PATCH v1 1/3] lsm: Relocate the IPv4 security_inet_conn_request() hooks
-Date: Fri, 13 Mar 2009 15:39:30 -0400
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        netdev@vger.kernel.org
-References: <20090312160934.29454.31004.stgit@flek.lan> <20090312162256.29454.8929.stgit@flek.lan> <20090313.115458.168786837.davem@davemloft.net>
-In-Reply-To: <20090313.115458.168786837.davem@davemloft.net>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2E0YGhP016518
+	for <selinux@tycho.nsa.gov>; Fri, 13 Mar 2009 20:34:16 -0400
+Received: from smtp.sws.net.au (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2E0YDPf026029
+	for <selinux@tycho.nsa.gov>; Sat, 14 Mar 2009 00:34:15 GMT
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: "Paul Cocker" <paul.cocker@tntpost.co.uk>
+Subject: Re: Unable to disable SELinux
+Date: Sat, 14 Mar 2009 11:34:03 +1100
+Cc: selinux@tycho.nsa.gov
+References: <DAE2574A7F44F44ABE07381C36213DFA069F7833@exch.cdltd.co.uk>
+In-Reply-To: <DAE2574A7F44F44ABE07381C36213DFA069F7833@exch.cdltd.co.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Message-Id: <200903131539.30903.paul.moore@hp.com>
+Message-Id: <200903141134.07934.russell@coker.com.au>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Friday 13 March 2009 02:54:58 pm David Miller wrote:
-> From: Paul Moore <paul.moore@hp.com>
-> Date: Thu, 12 Mar 2009 12:22:57 -0400
+On Fri, 13 Mar 2009, "Paul Cocker" <paul.cocker@tntpost.co.uk> wrote:
+> Running SELinux on a CentOS 5.2 box, Im trying to temporarily disable
+> SELinux via one of the following methods:
 >
-> > The current placement of the security_inet_conn_request() hooks do not
-> > allow individual LSMs to override the IP options of the connection's
-> > request_sock. This is a problem as both SELinux and Smack have the
-> > ability to use labeled networking protocols which make use of IP options
-> > to carry security attributes and the inability to set the IP options at
-> > the start of the TCP handshake is problematic.
-> >
-> > This patch moves the IPv4 security_inet_conn_request() hooks past the
-> > code where the request_sock's IP options are set/reset so that the LSM
-> > can safely manipulate the IP options as needed.  This patch intentionally
-> > does not change the related IPv6 hooks as IPv6 based labeling protocols
-> > which use IPv6 options are not currently implemented, once they are we
-> > will have a better idea of the correct placement for the IPv6 hooks.
->
-> This looks OK to me:
->
-> Acked-by: David S. Miller <davem@davemloft.net>
+> 1. sudo echo 0 > /selinux/enforce
 
-Great, thanks for taking a look.
+Redirecting standard output is done by your shell.  So "sudo echo > file" will 
+not work unless "echo > file" works.  This is not a SE Linux issue.
+
+"sudo setenforce 0" will work.
+
+> 2. sudo vim /selinux/enforce
+>
+> The first comes back with
+>
+> -bash: /selinux/enforce: Permission denied
+
+Note that the error is from "bash".
+
+> The second comes back with
+>
+> Could not set security context for /home/paulc/enforcz~
+
+Editors such as "vim" are not designed to just write data to a file.  In 
+the /root directory of my SE Linux Play Machine I have a file named 
+thanks.txt_append_only_dont_edit_with_vi - many people try editing it with vi 
+and find that it doesn't work.
+
+Generally don't even try using vi to edit "files" under /proc, /sys, or any 
+other filesystem that is used for kernel communications.
 
 -- 
-paul moore
-linux @ hp
-
+russell@coker.com.au
+http://etbe.coker.com.au/          My Main Blog
+http://doc.coker.com.au/           My Documents Blog
 
 --
 This message was distributed to subscribers of the selinux mailing list.
