@@ -1,84 +1,58 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2ENvuPu030807
-	for <selinux@tycho.nsa.gov>; Sat, 14 Mar 2009 19:57:56 -0400
-Received: from wf-out-1314.google.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2ENvtj2022687
-	for <selinux@tycho.nsa.gov>; Sat, 14 Mar 2009 23:57:56 GMT
-Received: by wf-out-1314.google.com with SMTP id 25so3264841wfa.30
-        for <selinux@tycho.nsa.gov>; Sat, 14 Mar 2009 16:57:54 -0700 (PDT)
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2FG9fW7009809
+	for <selinux@tycho.nsa.gov>; Sun, 15 Mar 2009 12:09:41 -0400
+Received: from ppsw-6.csi.cam.ac.uk (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2FG5sNA020006
+	for <selinux@tycho.nsa.gov>; Sun, 15 Mar 2009 16:05:54 GMT
+Received: from mpo25.trin.private.cam.ac.uk ([172.16.113.134]:37739)
+	by ppsw-6.csi.cam.ac.uk (ppsw.cam.ac.uk [131.111.8.136]:25)
+	with esmtp id 1Listx-0003F2-Lg (Exim 4.70) for selinux@tycho.nsa.gov
+	(return-path <martin@martinorr.name>); Sun, 15 Mar 2009 16:09:25 +0000
+Message-ID: <49BD282F.2050609@martinorr.name>
+Date: Sun, 15 Mar 2009 16:09:19 +0000
+From: Martin Orr <martin@martinorr.name>
 MIME-Version: 1.0
-In-Reply-To: <200903150952.54354.russell@coker.com.au>
-References: <DAE2574A7F44F44ABE07381C36213DFA069F7833@exch.cdltd.co.uk>
-	 <49BAFBF8.8070805@martinorr.name>
-	 <dd18b0c30903141337u264d887as4c56f5bb61d8fb54@mail.gmail.com>
-	 <200903150952.54354.russell@coker.com.au>
-Date: Sat, 14 Mar 2009 16:57:54 -0700
-Message-ID: <dd18b0c30903141657m49bc163m11e392529b2f71b9@mail.gmail.com>
-Subject: Re: Unable to disable SELinux
-From: Justin Mattock <justinmattock@gmail.com>
-To: russell@coker.com.au
-Cc: selinux@tycho.nsa.gov
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: SELinux List <selinux@tycho.nsa.gov>
+Subject: [refpolicy] dbus/lvm read domain state
 Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sat, Mar 14, 2009 at 3:52 PM, Russell Coker <russell@coker.com.au> wrote:
-> On Sun, 15 Mar 2009, Justin Mattock <justinmattock@gmail.com> wrote:
->> I would just use selinux=0 enforcing=0
->> as a boot param(but If the system doesn't boot
->> because of selinux=0) then enforcing=0 as a boot.
->
-> I am not aware of any situation where "selinux=0" will make a machine fail to
-> boot.
+Both dbus and lvm want to read other processes' command lines.
 
-I've noticed this a while back as to where selinux=0
-gave me an unable to mount root error(I'll have to see if this
-still happens). It might also be caused by having selinux=0
-enforcing=0 as a boot param and having
-/etc/selinux/config(set in enforcing mode)
-but I'll have to look and see when I get a chance.
+In the case of dbus, this is for use in log messages, which is probably useful.
 
->
-> Anyway the request was for a way to "temporarily disable SELinux", in that
-> case "selinux=0" is a bad idea as that will result in files without labels.
-> So "enforcing=0" is a much better option.
+In the case of lvm, it is just to print in a warning if the parent process
+leaks fds to it, which I doubt is important enough to allow.
 
-agree
+Index: policy/modules/services/dbus.te
+===================================================================
+--- policy/modules/services/dbus.te.orig
++++ policy/modules/services/dbus.te
+@@ -94,6 +94,7 @@
+ corecmd_read_bin_sockets(system_dbusd_t)
+ corecmd_exec_bin(system_dbusd_t)
 
->
->> but then you still might receive a permissions denied
->> due to /etc/selinux/config saying "enforcing"
->
-> If there is a program that uses /etc/selinux/config without regard
-> to /selinux/whatever then it's probably buggy.  Please file a bug report if
-> you discover such a program.
++domain_read_all_domains_state(system_dbusd_t)
+ domain_use_interactive_fds(system_dbusd_t)
 
-I meant the option in /etc/selinux/config
-SELINUX=enforcing and/or permissive
+ files_read_etc_files(system_dbusd_t)
+Index: policy/modules/system/lvm.te
+===================================================================
+--- policy/modules/system/lvm.te.orig
++++ policy/modules/system/lvm.te
+@@ -243,6 +243,7 @@
+ corecmd_exec_bin(lvm_t)
+ corecmd_exec_shell(lvm_t)
 
->
->> (if this is the case then load a livecd mount the hard drive,
->> and use vim to edit /etc/selinux/config, and /boot/grub/* to
->> set everything in permissive.
->
-> That's really not necessary.
++domain_dontaudit_read_all_domains_state(lvm_t)
+ domain_use_interactive_fds(lvm_t)
 
-no its not, but sometimes I found myself in a situation
-as to using this approach helps out(that is depending how or what I
-did to the system to make it unbootable).
-
->
-> --
-> russell@coker.com.au
-> http://etbe.coker.com.au/          My Main Blog
-> http://doc.coker.com.au/           My Documents Blog
->
-
-regards;
+ files_read_etc_files(lvm_t)
 
 -- 
-Justin P. Mattock
-
+Martin Orr
 
 --
 This message was distributed to subscribers of the selinux mailing list.
