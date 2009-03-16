@@ -1,44 +1,64 @@
-MIME-Version: 1.0
-In-Reply-To: <1237216373.1035.1.camel@localhost.localdomain>
-References: <cadfc0e40903140914n681c634fw5945242dab71f139@mail.gmail.com>
-	 <cadfc0e40903151003l367d0f73j8a45e3332fe44763@mail.gmail.com>
-	 <1237216373.1035.1.camel@localhost.localdomain>
-Date: Mon, 16 Mar 2009 16:13:38 +0000
-Message-ID: <cadfc0e40903160913k16b3e1a1i3e63ee2e445aa56a@mail.gmail.com>
-Subject: Re: adding LANG and XMODIFIER to newrole minimal environment
-From: Xavier Toth <txtoth@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SELinux List <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: =?UTF-8?Q?=D0=9E=D1=82=D0=B2=D0=B5=D1=82=3A?= VFS, NFS
+ security bug? Should CAP_MKNOD and CAP_LINUX_IMMUTABLE be added to
+ CAP_FS_MASK?
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Igor Zhbanov <izh1979@gmail.com>, "J. Bruce Fields" <bfields@fieldses.org>,
+        Michael Kerrisk <mtk.manpages@gmail.com>, linux-kernel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, neilb@suse.de, Trond.Myklebust@netapp.com,
+        David Howells <dhowells@redhat.com>, Andrew Morgan <morgan@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20090313190002.GA16025@us.ibm.com>
+References: <f44001920903110553t52ce0ba7l4ba97213e1c51873@mail.gmail.com>
+	 <20090311232356.GP13540@fieldses.org> <20090312161047.GA15209@us.ibm.com>
+	 <517f3f820903121321sf6d2014q8165b925d5d44db7@mail.gmail.com>
+	 <20090313175848.GB27891@fieldses.org>
+	 <f44001920903131137j158c5f76y6a71b58ee964df77@mail.gmail.com>
+	 <20090313190002.GA16025@us.ibm.com>
+Content-Type: text/plain
+Date: Mon, 16 Mar 2009 14:21:45 -0400
+Message-Id: <1237227705.1035.93.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Mar 16, 2009 at 3:12 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Sun, 2009-03-15 at 17:03 +0000, Xavier Toth wrote:
->> On Sat, Mar 14, 2009 at 4:14 PM, Xavier Toth <txtoth@gmail.com> wrote:
->> > Stephan,
->> > What would you think of adding LANG and XMODIFIER to newroles minimal
->> > environment for internationalization support? Alternatively maybe
->> > newrole could support an option which is a list of env variables to
->> > maintain.
->> >
->> > Ted
->> >
->>
->> Possible patch:
->
-> Why not just use newrole -p in that case?
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+On Fri, 2009-03-13 at 14:00 -0500, Serge E. Hallyn wrote:
+> Quoting Igor Zhbanov (izh1979@gmail.com):
+> > But ordinary users can't create devices. It seems to me that in time
+> > of implementation of capabilities in kernel 2.4, capabilities related
+> > to filesystem was added first. And mark for them contains all above in
+> > header file. And when CAP_MKNOD was added later, author just forget to
+> > update mask.
+> > 
+> > If mask was designed to drop all filesystem related capabilities, then
+> > it must be expanded, because ordinary users cannot create devices etc.
+> 
+> I think you thought Bruce was saying we shouldn't change the set of
+> capabilities, but he was just asking exactly what changes Michael was
+> interested in.
+> 
+> Igor, thanks for finding this.  I never got your original message.  Do
+> you have a patdch to add the two capabilities?  Do you think the
+> other two I mentioned (CAP_SYS_ADMIN and CAP_SETFCAP) need to be
+> added too?
+> 
+> I've added Andrew Morgan, LSM and SELinux mailing lists to get another
+> opinion about adding those two.  In particular, we'd be adding them
+> to the fs_masks becuase CAP_SYS_ADMIN lets you change the selinux
+> label, and CAP_SETFCAP lets you change the file capabilities.
 
-Because there are other env variables that mess up processes you are
-trying to run at a specific level like DBUS_SESSION_BUS_ADDRESS.
+I'd be inclined against adding CAP_SYS_ADMIN to the mask; note that it
+is only checked for setting SELinux security contexts (or more broadly
+any attributes in the security namespace) when SELinux is disabled.  In
+the SELinux-enabled case, we are checking SELinux-specific permissions
+when setting the SELinux attributes, whether on the client or the
+server.
 
-Ted
+-- 
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
