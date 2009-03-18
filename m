@@ -1,7 +1,7 @@
-Date: Wed, 18 Mar 2009 11:47:12 -0500
+Date: Wed, 18 Mar 2009 12:24:48 -0500
 From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Igor Zhbanov <izh1979@gmail.com>, "J. Bruce Fields" <bfields@fieldses.org>,
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Igor Zhbanov <izh1979@gmail.com>,
         Michael Kerrisk <mtk.manpages@gmail.com>, linux-kernel@vger.kernel.org,
         viro@zeniv.linux.org.uk, neilb@suse.de, Trond.Myklebust@netapp.com,
         David Howells <dhowells@redhat.com>, Andrew Morgan <morgan@kernel.org>,
@@ -11,65 +11,57 @@ Subject: Re: =?utf-8?B?0J7RgtCy0LXRgjogVkZTLCBORlMg?=
 	=?utf-8?Q?security_bug=3F_Shoul?=
 	=?utf-8?Q?d?= CAP_MKNOD and CAP_LINUX_IMMUTABLE be added to
 	CAP_FS_MASK?
-Message-ID: <20090318164712.GB27906@us.ibm.com>
-References: <20090313190002.GA16025@us.ibm.com> <1237227705.1035.93.camel@localhost.localdomain> <20090316184926.GA6729@us.ibm.com> <1237237216.1035.195.camel@localhost.localdomain> <20090316231340.GC15522@us.ibm.com> <1237299633.6582.107.camel@localhost.localdomain> <20090317173903.GA31566@us.ibm.com> <1237312345.6582.140.camel@localhost.localdomain> <20090317182335.GB31633@us.ibm.com> <1237393287.12822.50.camel@localhost.localdomain>
+Message-ID: <20090318172448.GB29523@us.ibm.com>
+References: <20090316184926.GA6729@us.ibm.com> <1237237216.1035.195.camel@localhost.localdomain> <20090316231340.GC15522@us.ibm.com> <1237299633.6582.107.camel@localhost.localdomain> <20090317173903.GA31566@us.ibm.com> <1237312345.6582.140.camel@localhost.localdomain> <20090317182335.GB31633@us.ibm.com> <1237393287.12822.50.camel@localhost.localdomain> <20090318164712.GB27906@us.ibm.com> <20090318165730.GA15084@fieldses.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1237393287.12822.50.camel@localhost.localdomain>
+In-Reply-To: <20090318165730.GA15084@fieldses.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Quoting Stephen Smalley (sds@tycho.nsa.gov):
-> On Tue, 2009-03-17 at 13:23 -0500, Serge E. Hallyn wrote:
-> > But in cap_inode_setxattr, any security.* xattrs are controlled by
-> > CAP_SYS_ADMIN.  So do you think that this should be changed to a
-> > CAP_XATTR_SECURITY capability which can be added to CAP_FS_MASK?
-> 
-> I think that would be preferable to CAP_SYS_ADMIN, yes.
-> 
-> > Or do you think it's ok that fsuid=0 does not allow you to set
-> > security.selinux (or security.SMACK64, etc) xattrs when selinux is
-> > not compiled in?
-> 
-> Just to be clear, at present fsuid is irrelevant to setting the
-> security.* xattrs since it doesn't affect the CAP_SYS_ADMIN capability
-> at all, so it all depends on the initial capability state prior to using
-> setfsuid(), typically the full capability set.
-
-Right.
-
-> > (You may have already answered this with your EOPNOTSUPP comment, but
-> > I want to make sure I understand right)
+Quoting J. Bruce Fields (bfields@fieldses.org):
+> On Wed, Mar 18, 2009 at 11:47:12AM -0500, Serge E. Hallyn wrote:
+> > Ok, thanks for time.  It's all pretty clear to me now:
 > > 
-> > > > Does anyone know what the trusted xattrs are used for?
-> > > 
-> > > Not beyond what attr(5) says about them.
+> > CAP_MKNOD and CAP_LINUX_IMMUTABLE need to be added to the CAP_FS_MASK
+> > because, in 2.0 timeframe, fsuid==0 gave you those privileges.
 > > 
-> > Well, if attr(5) says CAP_SYS_ADMIN being needed is the very
-> > thing that defines these xattrs, then changing that seems a
-> > bigger deal.  That really does seem akin to changing kernel-user
-> > API.
+> > xattrs didn't exist back then, so the setting of security.* and
+> > trusted.* xattrs doesn't need to be enabled by fsuid==0.  So really
+> > CAP_SETFCAP also doesn't need to be added to CAP_FS_MASK either.
 > 
-> Perhaps, although it isn't clear that this API is in use by anyone or in
-> use in a way that would actually distinguish based on individual
-> capability.
+> Are we left with any simple one-sentence description of what CAP_FS_MASK
+> means?  (Other than just a particular list of bits?)  I'm just wondering
+> how additional bits will get decided in the future.
+
+It means all the privileges that fsuid==0 historically meant.
+
+At one time in the past, that meant CAP_MKNOD and CAP_LINUX_IMMUTABLE.
+
+It has never meant setting security.* and trusted.* xattrs.
+
+We could also define it as follows:
+	CAP_FS_MASK is the privilege to bypass all fs-related DAC permissions
+	security.* and trusted.* xattrs are MAC fs permissions
+or something like that.
+
+I guess one or both of those should go as a comment into capability.h
+
+> > I'll send out a patch later today for 2.6, unless Igor wants to
+> > do it (since he's the one who found this originally).
 > 
-> But if you were to add CAP_SYS_ADMIN to CAP_FS_MASK in order to ensure
-> that setfsuid() does in fact affect all filesystem accesses, how much
-> meaningful difference remains between fsuid==0 and euid==0?  It
-> obviously takes you far afield of only affecting filesystem accesses.
+> OK, apologies if I jumped the gun on the nfsd-specific patch--I lost
 
-Ok, thanks for time.  It's all pretty clear to me now:
+Nonsense, I appreciate it...  And there's certainly still a chance that
+there will be objections to my interpretation, whereas the NFSD bit
+seems straightened out.
 
-CAP_MKNOD and CAP_LINUX_IMMUTABLE need to be added to the CAP_FS_MASK
-because, in 2.0 timeframe, fsuid==0 gave you those privileges.
+> track of this discussion, thought it might take longer, and wanted to
+> get the one patch into 2.6.30.  Feel free to revert that, or ignore it
+> and leave it to me to revert it afterwards, as convenient....
 
-xattrs didn't exist back then, so the setting of security.* and
-trusted.* xattrs doesn't need to be enabled by fsuid==0.  So really
-CAP_SETFCAP also doesn't need to be added to CAP_FS_MASK either.
-
-I'll send out a patch later today for 2.6, unless Igor wants to
-do it (since he's the one who found this originally).
+I'm not sure what the best path forward is, so I'll go ahead and
+incorporate your patch into mine for now.
 
 thanks,
 -serge
