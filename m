@@ -1,53 +1,58 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2IE9Etd018446
-	for <selinux@tycho.nsa.gov>; Wed, 18 Mar 2009 10:09:14 -0400
-Received: from exchange.columbia.tresys.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n2IE9DHV004923
-	for <selinux@tycho.nsa.gov>; Wed, 18 Mar 2009 14:09:14 GMT
-Subject: [ANN] CDS Framework 3.3
-From: Dave Sugar <dsugar@tresys.com>
-To: selinux@tycho.nsa.gov, fedora-selinux-list@redhat.com
-Cc: Art Wilson <awilson@tresys.com>, Kathy Shonaiya <shonaiya@tresys.com>,
-        David Sugar <dsugar@tresys.com>, Karen Vance <kvance@tresys.com>,
-        "Drew A. Ogle" <dogle@tresys.com>
-Content-Type: text/plain
-Date: Wed, 18 Mar 2009 10:09:12 -0400
-Message-Id: <1237385352.4110.3.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <49C10986.2020304@manicmethod.com>
+Date: Wed, 18 Mar 2009 10:47:34 -0400
+From: Joshua Brindle <method@manicmethod.com>
+MIME-Version: 1.0
+To: SE Linux <selinux@tycho.nsa.gov>
+CC: Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libsepol: fix boolean state smashing 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Version 3.3 of the CDS Framework Toolkit from Tresys Technology is now
-available for download from the Tresys Open Source website at
-http://oss.tresys.com 
+If a boolean is encountered in a require block before the place where it is 
+declared it currently gets created with the state set to false no matter what 
+the declared state was. This only affects booleans in modules where the boolean 
+was also required in another module. Patch below:
 
-The CDS Framework Toolkit is an Eclipse plug-in that allows engineers to
-leverage the power of SELinux when designing and implementing cross
-domain solutions without requiring that they have in depth knowledge of
-the complex details of underlying SELinux security policies.  In
-particular the CDS Framework Toolkit provides the following benefits to
-CDS developers on SELinux systems:    
+---
 
- * An integrated development environment for creating security policy
- * Graphical editing of information flow for developing security policy
- * SELinux policy generation
- * Integration with SLIDE and Reference Policy (also available on
-http://oss.tresys.com)
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index 28fcda1..d03e599 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -540,6 +540,7 @@ static int bool_copy_callback(hashtab_key_t key, 
+hashtab_datum_t datum,
+  	char *id = key, *new_id = NULL;
+  	cond_bool_datum_t *booldatum, *base_bool, *new_bool = NULL;
+  	link_state_t *state = (link_state_t *) data;
++	scope_datum_t *scope;
 
+  	booldatum = (cond_bool_datum_t *) datum;
 
-CDS Framework version 3.3.0 - highlights:
+@@ -556,7 +557,6 @@ static int bool_copy_callback(hashtab_key_t key, 
+hashtab_datum_t datum,
+  		     (cond_bool_datum_t *) malloc(sizeof(*new_bool))) == NULL) {
+  			goto cleanup;
+  		}
+-		new_bool->state = booldatum->state;
+  		new_bool->s.value = state->base->p_bools.nprim + 1;
 
- * Adds ability to print the security architecture diagram
- * Facilitates interfacing with raw SELinux policy through the addition
-of an export option in the graphical interface
- * Adds enhancements to CDS Framework translation dictionary and add
-additional linkage files
- * Fixes issues with routing of lines across boundaries and with
-attaching control resources in a domain when changing its parent
+  		ret = hashtab_insert(state->base->p_bools.table,
+@@ -570,6 +570,14 @@ static int bool_copy_callback(hashtab_key_t key, 
+hashtab_datum_t datum,
 
-Dave Sugar
-Tresys Technology, LLC
+  	}
 
++	/* Get the scope info for this boolean to see if this is the declaration,
++ 	 * if so set the state */
++	scope = hashtab_search(state->cur->policy->p_bools_scope.table, id);
++	if (!scope)
++		return SEPOL_ERR;
++	if (scope->scope == SCOPE_DECL)
++		base_bool->state = booldatum->state;
++
+  	state->cur->map[SYM_BOOLS][booldatum->s.value - 1] = base_bool->s.value;
+  	return 0;
 
 
 
