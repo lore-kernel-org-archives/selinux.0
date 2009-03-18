@@ -1,249 +1,120 @@
-Subject: Re: adding LANG and XMODIFIER to newrole minimal environment
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Xavier Toth <txtoth@gmail.com>
-Cc: SELinux List <selinux@tycho.nsa.gov>, Joshua Brindle <jbrindle@tresys.com>
-In-Reply-To: <cadfc0e40903151003l367d0f73j8a45e3332fe44763@mail.gmail.com>
-References: <cadfc0e40903140914n681c634fw5945242dab71f139@mail.gmail.com>
-	 <cadfc0e40903151003l367d0f73j8a45e3332fe44763@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 18 Mar 2009 11:27:30 -0400
-Message-Id: <1237390050.12822.23.camel@localhost.localdomain>
-Mime-Version: 1.0
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2IGI0ts003995
+	for <selinux@tycho.nsa.gov>; Wed, 18 Mar 2009 12:18:00 -0400
+Received: from smtp102.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n2IGHwX0023954
+	for <selinux@tycho.nsa.gov>; Wed, 18 Mar 2009 16:17:59 GMT
+Message-ID: <49C11EA5.7030208@schaufler-ca.com>
+Date: Wed, 18 Mar 2009 09:17:41 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
+MIME-Version: 1.0
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, Igor Zhbanov <izh1979@gmail.com>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Michael Kerrisk <mtk.manpages@gmail.com>, linux-kernel@vger.kernel.org,
+        viro@zeniv.linux.org.uk, neilb@suse.de, Trond.Myklebust@netapp.com,
+        David Howells <dhowells@redhat.com>, Andrew Morgan <morgan@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org, SELinux <selinux@tycho.nsa.gov>
+Subject: Re: =?windows-1252?Q?=3F=3F=3F=3F=3F=3A_VFS=2C_NFS_securit?=
+ =?windows-1252?Q?y_bug=3F_Should_CAP=5FMKNOD_and_CAP=5FLINUX=5F?=
+ =?windows-1252?Q?IMMUTABLE_be_added_to_CAP=5FFS=5FMASK=3F?=
+References: <20090313175848.GB27891@fieldses.org> <f44001920903131137j158c5f76y6a71b58ee964df77@mail.gmail.com> <20090313190002.GA16025@us.ibm.com> <1237227705.1035.93.camel@localhost.localdomain> <20090316184926.GA6729@us.ibm.com> <1237237216.1035.195.camel@localhost.localdomain> <20090316231340.GC15522@us.ibm.com> <1237299633.6582.107.camel@localhost.localdomain> <20090317173903.GA31566@us.ibm.com> <1237312345.6582.140.camel@localhost.localdomain> <20090317182335.GB31633@us.ibm.com>
+In-Reply-To: <20090317182335.GB31633@us.ibm.com>
+Content-Type: text/plain; charset=windows-1252
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Sun, 2009-03-15 at 17:03 +0000, Xavier Toth wrote:
-> On Sat, Mar 14, 2009 at 4:14 PM, Xavier Toth <txtoth@gmail.com> wrote:
-> > Stephan,
-> > What would you think of adding LANG and XMODIFIER to newroles minimal
-> > environment for internationalization support? Alternatively maybe
-> > newrole could support an option which is a list of env variables to
-> > maintain.
-> >
-> > Ted
-> >
-> 
-> Possible patch:
+Serge E. Hallyn wrote:
+> Quoting Stephen Smalley (sds@tycho.nsa.gov):
+>   
+>> On Tue, 2009-03-17 at 12:39 -0500, Serge E. Hallyn wrote:
+>>     
+>>> Quoting Stephen Smalley (sds@tycho.nsa.gov):
+>>>       
+>>>>> So do you think it makes sense to have CAP_MAC_ADMIN and CAP_FOWNER
+>>>>> in CAP_FS_MASK?  In other words are you objecting to CAP_SYS_ADMIN
+>>>>> because of all of its other implications, or because you disagree
+>>>>> that labels for security modules should be treated as mere fs data
+>>>>> here?
+>>>>>           
+>>>> For CAP_FOWNER, yes (and it is already there).  CAP_MAC_ADMIN is less
+>>>>         
+>>> Sorry, I meant CAP_SETFCAP.  Should it be added?
+>>>       
+>> Sure - it is only used for filesystem operations.
+>>     
+>
+> Ok, so then:
+>
+>   
+>>>> ideal as it isn't clearly tied to filesystem accesses, and likewise for
+>>>> CAP_MAC_OVERRIDE (but that one is included in CAP_FS_MASK already).
+>>>>         
+>>> So it is.  I didn't realize that.
+>>>
+>>>       
+>>>> Ideally the capability space would be partitioned into capabilities that
+>>>> affect filesystem accesses and the rest so that setfsuid() would yield
+>>>> the expected behavior of only affecting filesystem access.
+>>>> CAP_SYS_ADMIN is even less suitable due to its pervasive use outside of
+>>>> the filesystem.  So that's the first concern.
+>>>>
+>>>> The second one is that we don't want CAP_SYS_ADMIN (or CAP_MAC_ADMIN) to
+>>>> be required when setting SELinux labels.  Only the SELinux permission
+>>>> checks should govern setting those labels (aside from the usual DAC
+>>>> ownership || CAP_FOWNER check).
+>>>>         
+>>> So if a non-selinux kernel is booted, then you think only the usual
+>>> DAC checks should be required to set selinux labels?
+>>>       
+>> I'm talking about the dumb NFS server case (non-SELinux NFS server
+>> providing label and data storage to SELinux clients, MAC enforcement
+>> handled client-side).  But we aren't there yet, so I don't think we have
+>> to worry about it right now.
+>>     
+>
+> But in cap_inode_setxattr, any security.* xattrs are controlled by
+> CAP_SYS_ADMIN.  So do you think that this should be changed to a
+> CAP_XATTR_SECURITY capability which can be added to CAP_FS_MASK?
+>   
 
-A few comments below on the code.  As for the approach, I'd be more
-inclined to read the set of minimal environment variables from a config
-file than to make it a command-line option.
+Hum. The intention of CAP_MAC_ADMIN was that it control the explicit
+setting of the access control attributes used by the Smack LSM. I
+personally prefer a single capability for the action over multiple
+capabilities based on the objects involved. If you introduce
+CAP_XATTR_SECURITY I would think that CAP_PROC_XATTR,
+CAP_SVIPC_XATTR, CAP_NETWORK_XATTR, ... would follow in short order
+and I hate the idea of having hundreds of capabilities. If you
+must decouple the capability from MAC, how about a new name?
 
-I'm also unclear on why newrole even provides this minimal environment
-vs. having the caller handle it, given that the caller is already free
-to change its environment at will and then use -p to preserve it for the
-new shell.  I suppose it is just a convenience.  Whether or not newrole
-ought to allow the caller to convey arbitrary environment to the
-newrole'd shell seems more questionable.  Of course there is the glibc
-sanitization upon transitioning to newrole_t, but that only affects a
-small set of variables.
-
-
-> 
-> ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-> --- policycoreutils-2.0.57/newrole/newrole.c.orig	2009-03-15
-> 16:53:09.000000000 +0000
-> +++ policycoreutils-2.0.57/newrole/newrole.c	2009-03-15 16:53:15.000000000 +0000
-> @@ -10,7 +10,7 @@
->   *
->   * USAGE:
->   *
-> - * newrole [ -r role ] [ -t type ] [ -l level ] [ -V ] [ -- args ]
-> + * newrole [-e environment variables ] [ -r role ] [ -t type ] [ -l
-> level ] [ -V ] [ -- args ]
->   *
->   * BUILD OPTIONS:
->   *
-> @@ -91,7 +91,7 @@
->  #endif
-> 
->  /* USAGE_STRING describes the command-line args of this program. */
-> -#define USAGE_STRING "USAGE: newrole [ -r role ] [ -t type ] [ -l
-> level ] [ -p ] [ -V ] [ -- args ]"
-> +#define USAGE_STRING "USAGE: newrole [-e environment variables ] [ -r
-> role ] [ -t type ] [ -l level ] [ -p ] [ -V ] [ -- args ]"
-> 
->  #ifdef USE_PAM
->  #define PAM_SERVICE_CONFIG "/etc/selinux/newrole_pam.conf";
-> @@ -102,6 +102,11 @@
-> 
->  extern char **environ;
-> 
-> +typedef struct {
-> +	char *name;
-> +	char *value;
-> +}  env_vars_type;
-> +
->  /**
->   * Construct from the current range and specified desired level a resulting
->   * range. If the specified level is a range, return that. If it is not, then
-> @@ -472,7 +477,7 @@
->   * Returns zero on success, non-zero otherwise
->   */
->  static int restore_environment(int preserve_environment,
-> -			       char **old_environ, const struct passwd *pw)
-> +			       char **old_environ, const struct passwd *pw, char *env_vars)
->  {
->  	char const *term_env;
->  	char const *display_env;
-> @@ -481,6 +486,8 @@
->  	char *display = NULL;	/* temporary container */
->  	char *xauthority = NULL;	/* temporary container */
->  	int rc;
-> +	env_vars_type *evars = NULL;
-> +	env_vars_type *evars_ptr = NULL;
-> 
->  	environ = old_environ;
-> 
-> @@ -491,6 +498,29 @@
->  	display_env = getenv("DISPLAY");
->  	xauthority_env = getenv("XAUTHORITY");
-> 
-> +	if (env_vars != NULL) {
-> +		int index = 0;
-> +		int size = 0;
-> +		char * tok = strtok(env_vars, ",");
-> +		while (tok != NULL) {
-> +			if (getenv(tok) != NULL) {
-> +				size += sizeof(env_vars_type);
-> +				evars = (char*)realloc((char*)evars, size)
-
-Unnecessary type cast (realloc returns void*), and wrong anyway (evars
-isn't a char*).
-
-And realloc() can fail.
-
-> ;
-> +				evars_ptr = evars + index;
-> +				evars_ptr->name = strdup(tok);
-> +				evars_ptr->value = strdup(getenv(tok));
-
-getenv() might fail, and strdup() can fail.
-
-> +				index++;
-> +			}
-> +			tok = strtok(NULL,",");
-> +		}
-> +		size += sizeof(env_vars_type);
-> +		evars = (char*)realloc((char*)evars, size);
-
-Same as above.
-
-> +		evars_ptr = evars + index;
-> +		evars_ptr->name = NULL;
-> +		evars_ptr->value = NULL;
-> +		free(env_vars);
-> +	}
-> +	
->  	/* Save the variable values we want */
->  	if (term_env)
->  		term = strdup(term_env);
-> @@ -522,6 +552,13 @@
->  	rc |= setenv("USER", pw->pw_name, 1);
->  	rc |= setenv("LOGNAME", pw->pw_name, 1);
->  	rc |= setenv("PATH", DEFAULT_PATH, 1);
-> +
-> +	if (evars != NULL) {
-> +		for (evars_ptr = evars; evars_ptr->name != NULL;  evars_ptr++) {
-> +			rc |= setenv(evars_ptr->name, evars_ptr->value, 1);
-> +		}
-> +		free(evars);
-> +	}
->        out:
->  	free(term);
->  	free(display);
-> @@ -859,7 +896,8 @@
->  static int parse_command_line_arguments(int argc, char **argv, char *ttyn,
->  					security_context_t old_context,
->  					security_context_t * new_context,
-> -					int *preserve_environment)
-> +					int *preserve_environment,
-> +					char **env_vars)
->  {
->  	int flag_index;		/* flag index in argv[] */
->  	int clflag;		/* holds codes for command line flags */
-> @@ -877,12 +915,13 @@
->  		{"level", 1, 0, 'l'},
->  		{"preserve-environment", 0, 0, 'p'},
->  		{"version", 0, 0, 'V'},
-> +		{"environment-variables", 1, 0, 'e'},
->  		{NULL, 0, 0, 0}
->  	};
-> 
->  	*preserve_environment = 0;
->  	while (1) {
-> -		clflag = getopt_long(argc, argv, "r:t:l:pV", long_options,
-> +		clflag = getopt_long(argc, argv, "r:t:l:pVe:", long_options,
->  				     &flag_index);
->  		if (clflag == -1)
->  			break;
-> @@ -895,6 +934,14 @@
->  		case 'p':
->  			*preserve_environment = 1;
->  			break;
-> +		case 'e':
-> +			if (*env_vars) {
-> +				fprintf(stderr,
-> +					_("Error: multiple environment variable lists specified\n"));
-> +				return -1;
-> +			}
-> +			*env_vars = strdup(optarg);
-> +			break;
->  		case 'r':
->  			if (role_s) {
->  				fprintf(stderr,
-> @@ -939,11 +986,16 @@
->  			level_s = optarg;
->  			break;
->  		default:
-> -			fprintf(stderr, "%s\n", USAGE_STRING);
-> +		        fprintf(stderr, "%s\n", USAGE_STRING);
->  			return -1;
->  		}
->  	}
-> 
-> +	if (*preserve_environment && *env_vars) {
-> +	        free(*env_vars);
-> +		*env_vars = NULL;
-> +	}
-> +
->  	/* Verify that the combination of command-line arguments are viable */
->  	if (!(role_s || type_s || level_s)) {
->  		fprintf(stderr, "%s\n", USAGE_STRING);
-> @@ -1076,6 +1128,7 @@
->  	int fd;
->  	pid_t childPid = 0;
->  	char *shell_argv0 = NULL;
-> +	char *env_vars = NULL;
-> 
->  #ifdef USE_PAM
->  	int rc;
-> @@ -1141,7 +1194,7 @@
->  	}
-> 
->  	if (parse_command_line_arguments(argc, argv, ttyn, old_context,
-> -					 &new_context, &preserve_environment))
-> +					 &new_context, &preserve_environment, &env_vars))
->  		return -1;
-> 
->  	/*
-> @@ -1342,7 +1395,7 @@
->  	freecon(new_context);
-> 
->  	/* Handle environment changes */
-> -	if (restore_environment(preserve_environment, old_environ, &pw)) {
-> +	if (restore_environment(preserve_environment, old_environ, &pw, env_vars)) {
->  		fprintf(stderr, _("Unable to restore the environment, "
->  				  "aborting\n"));
->  		goto err_close_pam_session;
-> 
+> Or do you think it's ok that fsuid=0 does not allow you to set
+> security.selinux (or security.SMACK64, etc) xattrs when selinux is
+> not compiled in?
+>
+> (You may have already answered this with your EOPNOTSUPP comment, but
+> I want to make sure I understand right)
+>
+>   
+>>> Does anyone know what the trusted xattrs are used for?
+>>>       
+>> Not beyond what attr(5) says about them.
+>>     
+>
+> Well, if attr(5) says CAP_SYS_ADMIN being needed is the very
+> thing that defines these xattrs, then changing that seems a
+> bigger deal.  That really does seem akin to changing kernel-user
+> API.
+>
+> thanks,
+> -serge
 > --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
--- 
-Stephen Smalley
-National Security Agency
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
+>   
 
 
 --
