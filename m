@@ -1,40 +1,58 @@
-Message-ID: <49C144A7.3010401@manicmethod.com>
-Date: Wed, 18 Mar 2009 14:59:51 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: Robert Story <Robert.Story@sparta.com>
-CC: SE Linux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
-        Karl MacMillan <kmacmillan@tresys.com>
-Subject: Re: Policy Access Control
-References: <49777FFB.1030504@manicmethod.com> <20090318143856.3abf45ef@sparta.com>
-In-Reply-To: <20090318143856.3abf45ef@sparta.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2IKA0i7010763
+	for <selinux@tycho.nsa.gov>; Wed, 18 Mar 2009 16:10:00 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n2IK6BaH021559
+	for <selinux@tycho.nsa.gov>; Wed, 18 Mar 2009 20:06:11 GMT
+Date: Wed, 18 Mar 2009 16:09:59 -0400
+Subject: [ANN] CLIP v3.1.0 for RHEL 5.3
+From: Brandon Whalen <bwhalen@tresys.com>
+To: <selinux@tycho.nsa.gov>
+Message-ID: <C5E6CD57.1D3AE%bwhalen@tresys.com>
+In-Reply-To: <C5E6C84E.1D3A9%bwhalen@tresys.com>
+Mime-version: 1.0
+Content-type: text/plain;
+	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Robert Story wrote:
-> On Wed, 21 Jan 2009 15:05:15 -0500 Joshua wrote:
-> JB> class policy.bool inherits policy
-> JB> Like users and roles, booleans are created and set using the same 
-> JB> declaration. Booleans may not be further modified; thus they have no 
-> JB> class-specific permissions.
-> 
-> I find this an odd omission... If I were delegating responsibility for
-> modifying policy, booleans are something I'd definitely want to be able to
-> lock down. For example, I might not want my ftp admin (or anyone else that
-> can tweak policy) turning on allow_ftpd_anon_write...
-> 
+Version 3.1.0 of the Certifiable Linux Integration Platform (CLIP) for RHEL
+5.3 is now publicly available. Pre compiled RPMS are available for download
+at [1] and the entire source tree is available for download at [2]. Any
+feedback about this release can be sent to the CLIP mailing list[3].
 
-Boolean state at run time can be controlled via filesystem labeling of the 
-selinuxfs filesystem (as is done in Fedora today).
+CLIP is a toolkit that creates a base platform upon which system developers
+can produce secure, certifiable solutions. The major benefits of the CLIP
+toolkit are:
+* A system configured to meet a set of security requirements
+* A mapping of the configured system against a set of security requirents
+* Updated packages to provide support in meeting the security requirements
 
-Persistent changes to the policy can't currently controlled because the policy 
-access control doesn't "diff" the policies as such and therefore can't see a 
-change vs. a remove/add. This is something we want to work on at a later time.
+CLIP version 3.1.0 for RHEL 5.3 specifically provides:
+* A system configuration mapped against every impact level of the National
+Security Systems Instruction (NSSI) 1253
+* Updated IPTables package to support SECMARK
+* Updated SELinux policy tuned to the specific needs of the NSSI 1253
+* Updated PAM module to support the dynamic login requirements of the NSSI
+1253
+* Updated SELinux userland packages to support new features of the SELinux
+policy
+* A system configuration that meets the DISA SRR released in February 2009
+* Documentation mapping the default system configuration against all impact
+levels of the NSSI 1253[4]
 
-semanage changes to booleans require hooks in libsemanage which wasn't part of 
-this effort, which was to nail down an acceptable way to do access control on 
-policy additions and subtractions.
+
+[1] http://oss.tresys.com/projects/clip/wiki/DownloadRelease
+[2] http://oss.tresys.com/projects/clip/wiki/SubversionCheckout
+[3] http://oss.tresys.com/mailman/listinfo/clip
+[4] This document will be available after customer approval
+
+
+Brandon Whalen        Tresys Technology
+v: 443-539-0747       Suite 2100
+f: 410-953-0494       8840 Stanford Blvd
+bwhalen@tresys.com    Columbia, MD 21045
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
