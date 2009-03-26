@@ -1,8 +1,8 @@
 Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2QNShiM027445
-	for <selinux@tycho.nsa.gov>; Thu, 26 Mar 2009 19:28:43 -0400
-Message-ID: <49CC0FAA.9020401@tycho.nsa.gov>
-Date: Thu, 26 Mar 2009 19:28:42 -0400
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2QNfuMd028285
+	for <selinux@tycho.nsa.gov>; Thu, 26 Mar 2009 19:41:56 -0400
+Message-ID: <49CC12C2.4050302@tycho.nsa.gov>
+Date: Thu, 26 Mar 2009 19:41:54 -0400
 From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
 To: KaiGai Kohei <kaigai@ak.jp.nec.com>
@@ -56,18 +56,37 @@ KaiGai Kohei wrote:
 > Thanks,
 >   
 
+Also note the new functions avc_netlink_acquire_fd(),
+avc_netlink_release_fd(), and avc_netlink_check_nb() that you can use to
+obtain the netlink file descriptor out and use it in a loop with select(2).
+
+This means you don't have to use the threading callbacks to launch a
+worker thread to listen on netlink.
+
+All said, this would be pseudo-code for your worker process:
 
 
-The userspace AVC already has support for a callback function whenever
-the cache is reset: AVC_CALLBACK_RESET.
 
-Why don't you simply run the normal userspace AVC in the
-sepgsqlStateMonitorMain() process, and register a callback function for
-reset. Then all the netlink stuff is hidden from you.
+reset_callback() {
+do_reset_stuff;
+}
 
-The only thing necessary is then to add an additional callback function
-AVC_CALLBACK_SETENFORCE to handle the other case.
+setenforce_callback() {
+do_setenforce_stuff;
+}
 
+sepgsqlStateMonitorMain() {
+
+avc_set_callback(AVC_CALLBACK_RESET, reset_callback);
+avc_set_callback(AVC_CALLBACK_SETENFORCE, setenforce_callback);
+avc_open();
+
+fd = avc_netlink_acquire_fd();
+while (true) {
+select(fd);
+avc_netlink_check_nb();
+}
+}
 
 
 -- 
