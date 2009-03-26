@@ -1,440 +1,204 @@
-Message-ID: <49CB3CEB.1070505@ak.jp.nec.com>
-Date: Thu, 26 Mar 2009 17:29:31 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
-MIME-Version: 1.0
-To: method@manicmethod.com, ewalsh@tycho.nsa.gov, jmorris@namei.org
-CC: selinux <selinux@tycho.nsa.gov>
-Subject: [PATCH] Permissive domain in userspace (Re: Some ideas in SE-PostgreSQL
- enhancement)
-References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com>
-In-Reply-To: <49C9D524.9050208@ak.jp.nec.com>
-Content-Type: multipart/mixed;
- boundary="------------020307000303010803040203"
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Date: Thu, 26 Mar 2009 02:25:44 -0700
+From: Jarrett Lu <Jarrett.Lu@sun.com>
+Subject: Re: [nfsv4] New MAC label support Internet Draft posted to IETF	website
+In-reply-to: <20090325163317.GV9992@Sun.COM>
+To: Nicolas Williams <Nicolas.Williams@sun.com>
+Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, labeled-nfs@linux-nfs.org,
+        nfs-discuss@opensolaris.org, nfsv4@ietf.org, selinux@tycho.nsa.gov
+Message-id: <49CB4A18.3090709@sun.com>
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
+ <49C9F0E1.1040202@sun.com> <20090325163317.GV9992@Sun.COM>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------020307000303010803040203
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Nicolas Williams wrote:
+> On Wed, Mar 25, 2009 at 01:52:49AM -0700, Jarrett Lu wrote:
+>   
+>> 2. section 3, the semantics of DOI in your draft is different from the 
+>> one in the CALIPSO draft. Traditionally, DOI in MLS context refers to 
+>> (at least in part) administrative control and deployment of the MLS 
+>> systems. For example, DOD may own a block of DOIs. Systems using that 
+>> block of DOIs are permitted to communicate with on another. Label 
+>> translations are possible among the DOIs. Systems are not permitted to 
+>> accept data packets carrying DOI outside a known DOI range. In your 
+>> draft, DOI is used to imply label format in the opaque field of the 
+>> security attribute. This makes it impossible to share the CALIPSO DOI.
+>>     
+>
+> Before CALIPSO it's always been the case that the form of a label
+> depends on the DOI it is from, with a DOI being either implied by
+> context or explicit on the wire.
+>   
 
-KaiGai Kohei wrote:
-> 4. Permissive domain in userspace
-> 
-> It is an issue got sleep for a few months.
->   http://marc.info/?l=selinux&m=122337314619667&w=2
+CALIPSO DOI is intended for IP packets. Nodes using same DOI value 
+implies that they all agree on how to interpret a MAC label. In that 
+sense, it's more about label definition and encodings, less about its 
+format. For example, host A and host B use a label encoding where label 
+CONFIDENTIAL dominates label INTERNAL. A and B communicate using DOI 1. 
+Host C and D both use a compatible label encoding. But in their label 
+definition, label INTERNAL dominates label CONFIDENTIAL. C and D can 
+communicate using DOI 2 without any problems. But host A is not allowed 
+to communicate with host C using DOI 1, despite their label format may 
+be compatible. I believe CALIPSO DOI assumes that host A and B are under 
+the same administrative control. The administrative authority is 
+supposed to register the DOI number with IANA for its use.
 
-It was discussed at the past a bit, but left it for several months.
+CALIPSO spec is very clear that the first thing IP checks is DOI number. 
+IP drops packets if the DOI is unexpected. CALIPSO hasn't changed how 
+DOI is used in that regard. Sun's trusted OS has similar behavior for a 
+long time. That's DOI for IP module. It appear that labeled NFSv4 wants 
+a different DOI, or different semantics of DOI. Using the example above, 
+it seems to desire the following semantics:
 
-Now we have a new idea of permissive domain which allows certain
-domains to work as if being in permissive mode.
-The in-kernel SELinux can handle it well, but userspace object
-managers could not handler it because we don't have an interface
-to tell what domain is permissive.
+DOI value      Opaque Security Attribute Field
+---------      -------------------------------
+    1          CALIPSO MLS label using label encodings shared by A, B
+    2          CALIPSO MLS label using label encodings shared by C, D
+    3          Redhat DTE label using security policy shared by A, B
+    4          OpenSolaris FMAC DTE label using sec policy shared by C, D
+    5          BSD's Biba label using security policy shared by C, D
+   ....
+ 
+In an MLS example, server host C gets a request from client host A with 
+DOI = 1, requester label = CONFIDENTIAL. The client wants to write to 
+file foo, which is protected by label INTERNAL under DOI 2. Server C 
+validates that CONFIDENTIAL is a defined label in label encodings under 
+DOI 1. It then translates the label and concludes that CONFIDENTIAL in 
+DOI 1 is equivalent to INTERNAL in DOI 2, it then grants the write 
+access to object foo (note in MLS, write access requires labels being 
+equal).
 
-The attached patches are for the kernel and libselinux.
+I am having difficulty with how to manage DOIs with different 
+combinations in the opaque field.
 
-The kernel patch adds a flags field on av_decision, and returns
-it as the sixth parameter on the reply of /selinux/access.
+> A CALIPSO DOI is, AFAICT, a DOI that imposes an MLS form on the label
+> (though with label encoding being protocol specific) and a security
+> policy registration/definition requirement.  CALIPSO also requires that
+> a DOI always be explicit.  CALIPSO also imposes a namespace of DOIs, and
+> I'm not sure that it allows any DOIs that are not CALIPSO DOIs.  CALIPSO 
+>
+> In other words, any protocol that carries a {DOI ID, opaque label}
+> should be compatible with CALIPSO.
+>   
 
-The libselinux patch enhance libselinux to understand it, and
-two new interfaces are added.
- - security_compute_av_flags()
- - security_compute_av_flags_raw()
-It also adds a new flags field on av_decision, but it is not
-touched when we use the existing interfaces due to the binary
-compatibility.
+Whenever a packet carries a CALIPSO label, explicit DOI is mandatory.
+The DOI is for validation purpose, it doesn't say anything about how the 
+node should interpret the label. The "how to" part is already agreed 
+upon by the virtue of using the same DOI.
 
-The standard userspace avc uses _flags interface, instead of
-existing one, so it enables to control permissive domain.
+> But an implementation that adheres to CALIPSO will not be able to use
+> non-CALIPSO DOIs.  Is that correct?  If so we need to ensure that a
+> mapping between MLS and DTE is possible, since David, IIRC, wants
+> support for DTE.  But as far as I can tell such a mapping is possible.
+>   
 
-IIRC, Eamon pointed out that it is preferable to put a new field
-of 'permissive' than general purpose 'flags'. But it will require
-interface changes, if we need more state in the future.
-So, I don't change the implementation.
+If labeled NFSv4 DOI is used to indicate how the opaque field should be 
+interpreted, it needs its own DOI, as CALIPSO DOI isn't intended for 
+that use. I don't believe this DOI should be in IANA registry. A system 
+may support translation of a few MAC labels. Those systems should be 
+configured to do so.
 
-Please comment anything.
+> One thing I think is wrong with section 3.1 is that it talks about
+> translation of a label "into a form that is usable by the endpoint."
+> That's superfluous -- it should suffice to say that the DOI field allows
+> the server to know how to interpret the label if it understands the
+> given DOI.
+>   
+>   
+>> 4. section 4, the draft should probably state how a MAC client knows 
+>> whether the server is MAC aware or not, via configuration? Also how a 
+>> MAC aware server knows whether the client is MAC aware, via 
+>> configuration or based on the fact that security attributes are present?
+>>     
+>
+> A client has to know a priori somehow whether to trust a server for a
+> specific range of labels in some DOI.  The MAC awareness or non-
+> awareness of a server relates only to how the label of an object is to
+> be determined (MAC server: the server tells you the object's label;
+> non-MAC server: the object's location determines the object's label) and
+> how authorization is to be done (MAC server: the server does MAC and DAC
+> authorization; non-MAC server: the server does DAC and the clients to
+> MAC authorization, with the clients having to all have a consistent
+> configuration).
+>   
 
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+I spoke to David about this. He is of the opinion that a MAC aware 
+client should not care whether the server is MAC aware. I guess that 
+means client always provides label attributes to server, and MAC unaware 
+server just ignores it. But I agree with you that MAC aware clients 
+should somehow know whether the server is MAC aware so that the client 
+is clear on whose responsibility it is to set label of an object. It's 
+also more robust to be able to detect the error case where a MAC aware 
+server should set label attributes but fails to do so.
 
---------------020307000303010803040203
-Content-Type: text/x-patch;
- name="libselinux-userspace-permissive-domain.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux-userspace-permissive-domain.patch"
+>> 6. section 4.1, in full mode, does reply carry a label? It appears to me 
+>> that a client never needs to do a DOI translation. The draft should be 
+>> more explicit on  that, IMO.
+>>     
+>
+> A client may have to do a DOI translation for reasons unknown to us, but
+> we should probably not even mention that.   Is that what you mean?
+>   
 
- Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
---
- libselinux/include/selinux/selinux.h |   15 ++++++
- libselinux/src/avc.c                 |   22 +++++---
- libselinux/src/compute_av.c          |   90 ++++++++++++++++++++++++++++------
- libselinux/src/selinux_internal.h    |    2 +
- 4 files changed, 105 insertions(+), 24 deletions(-)
+If a client also needs to do DOI translation, the document should 
+explicit about  that and say that replies from server should also carry 
+DOI. That way, implementors know what kind of client they need to build 
+to be compliant. Requiring client to do translation adds quite a bit of 
+complexity. It's probably better not requiring that, until we know for 
+sure that is needed.
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index fab083e..7030f38 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -130,8 +130,12 @@ struct av_decision {
- 	access_vector_t auditallow;
- 	access_vector_t auditdeny;
- 	unsigned int seqno;
-+	unsigned int flags;
- };
- 
-+/* Definitions of av_decision.flags */
-+#define SELINUX_AVD_FLAGS_PERMISSIVE	0x0001
-+
- /* Structure for passing options, used by AVC and label subsystems */
- struct selinux_opt {
- 	int type;
-@@ -180,6 +184,17 @@ extern int security_compute_av_raw(security_context_t scon,
- 				   access_vector_t requested,
- 				   struct av_decision *avd);
- 
-+extern int security_compute_av_flags(security_context_t scon,
-+				     security_context_t tcon,
-+				     security_class_t tclass,
-+				     access_vector_t requested,
-+				     struct av_decision *avd);
-+extern int security_compute_av_flags_raw(security_context_t scon,
-+					 security_context_t tcon,
-+					 security_class_t tclass,
-+					 access_vector_t requested,
-+					 struct av_decision *avd);
-+
- /* Compute a labeling decision and set *newcon to refer to it.
-    Caller must free via freecon. */
- extern int security_compute_create(security_context_t scon,
-diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-index 1545dd3..f0e2d33 100644
---- a/libselinux/src/avc.c
-+++ b/libselinux/src/avc.c
-@@ -849,9 +849,9 @@ int avc_has_perm_noaudit(security_id_t ssid,
- 				rc = -1;
- 				goto out;
- 			}
--			rc = security_compute_av_raw(ssid->ctx, tsid->ctx,
--						     tclass, requested,
--						     &entry.avd);
-+			rc = security_compute_av_flags_raw(ssid->ctx, tsid->ctx,
-+							   tclass, requested,
-+							   &entry.avd);
- 			if (rc)
- 				goto out;
- 			rc = avc_insert(ssid, tsid, tclass, &entry, aeref);
-@@ -867,11 +867,13 @@ int avc_has_perm_noaudit(security_id_t ssid,
- 	denied = requested & ~(ae->avd.allowed);
- 
- 	if (!requested || denied) {
--		if (avc_enforcing) {
-+		if (!avc_enforcing ||
-+		    (ae->avd.flags & SELINUX_AVD_FLAGS_PERMISSIVE))
-+			ae->avd.allowed |= requested;
-+		else {
- 			errno = EACCES;
- 			rc = -1;
--		} else
--			ae->avd.allowed |= requested;
-+		}
- 	}
- 
-       out:
-@@ -885,9 +887,11 @@ int avc_has_perm(security_id_t ssid, security_id_t tsid,
- 		 security_class_t tclass, access_vector_t requested,
- 		 struct avc_entry_ref *aeref, void *auditdata)
- {
--	struct av_decision avd = { 0, 0, 0, 0, 0 };
-+	struct av_decision avd;
- 	int errsave, rc;
- 
-+	memset(&avd, 0, sizeof(avd));
-+
- 	rc = avc_has_perm_noaudit(ssid, tsid, tclass, requested, aeref, &avd);
- 	errsave = errno;
- 	avc_audit(ssid, tsid, tclass, requested, &avd, rc, auditdata);
-@@ -917,8 +921,8 @@ int avc_compute_create(security_id_t ssid,  security_id_t tsid,
- 	rc = avc_lookup(ssid, tsid, tclass, 0, &aeref);
- 	if (rc) {
- 		/* need to make a cache entry for this tuple */
--		rc = security_compute_av_raw(ssid->ctx, tsid->ctx,
--					     tclass, 0, &entry.avd);
-+		rc = security_compute_av_flags_raw(ssid->ctx, tsid->ctx,
-+						   tclass, 0, &entry.avd);
- 		if (rc)
- 			goto out;
- 		rc = avc_insert(ssid, tsid, tclass, &entry, &aeref);
-diff --git a/libselinux/src/compute_av.c b/libselinux/src/compute_av.c
-index 45cd0db..a821d17 100644
---- a/libselinux/src/compute_av.c
-+++ b/libselinux/src/compute_av.c
-@@ -10,10 +10,11 @@
- #include "policy.h"
- #include "mapping.h"
- 
--int security_compute_av_raw(security_context_t scon,
--			    security_context_t tcon,
--			    security_class_t tclass,
--			    access_vector_t requested, struct av_decision *avd)
-+int security_compute_av_flags_raw(security_context_t scon,
-+				  security_context_t tcon,
-+				  security_class_t tclass,
-+				  access_vector_t requested,
-+				  struct av_decision *avd)
- {
- 	char path[PATH_MAX];
- 	char *buf;
-@@ -49,12 +50,15 @@ int security_compute_av_raw(security_context_t scon,
- 	if (ret < 0)
- 		goto out2;
- 
--	if (sscanf(buf, "%x %x %x %x %u", &avd->allowed,
--		   &avd->decided, &avd->auditallow, &avd->auditdeny,
--		   &avd->seqno) != 5) {
-+	ret = sscanf(buf, "%x %x %x %x %u %x",
-+		     &avd->allowed, &avd->decided,
-+		     &avd->auditallow, &avd->auditdeny,
-+		     &avd->seqno, &avd->flags);
-+	if (ret < 5) {
- 		ret = -1;
- 		goto out2;
--	}
-+	} else if (ret < 6)
-+		avd->flags = 0;
- 
- 	map_decision(tclass, avd);
- 
-@@ -66,16 +70,44 @@ int security_compute_av_raw(security_context_t scon,
- 	return ret;
- }
- 
--hidden_def(security_compute_av_raw)
-+hidden_def(security_compute_av_flags_raw)
- 
--int security_compute_av(security_context_t scon,
--			security_context_t tcon,
--			security_class_t tclass,
--			access_vector_t requested, struct av_decision *avd)
-+int security_compute_av_raw(security_context_t scon,
-+			    security_context_t tcon,
-+			    security_class_t tclass,
-+			    access_vector_t requested,
-+			    struct av_decision *avd)
- {
-+	struct av_decision lavd;
- 	int ret;
-+
-+	ret = security_compute_av_flags_raw(scon, tcon, tclass,
-+					    requested, &lavd);
-+	if (ret == 0) {
-+		avd->allowed = lavd.allowed;
-+		avd->decided = lavd.decided;
-+		avd->auditallow = lavd.auditallow;
-+		avd->auditdeny = lavd.auditdeny;
-+		avd->seqno = lavd.seqno;
-+		/* NOTE:
-+		 * We should not return avd->flags via the interface
-+		 * due to the binary compatibility.
-+		 */
-+	}
-+	return ret;
-+}
-+
-+hidden_def(security_compute_av_raw)
-+
-+int security_compute_av_flags(security_context_t scon,
-+			      security_context_t tcon,
-+			      security_class_t tclass,
-+			      access_vector_t requested,
-+			      struct av_decision *avd)
-+{
- 	security_context_t rscon = scon;
- 	security_context_t rtcon = tcon;
-+	int ret;
- 
- 	if (selinux_trans_to_raw_context(scon, &rscon))
- 		return -1;
-@@ -83,8 +115,8 @@ int security_compute_av(security_context_t scon,
- 		freecon(rscon);
- 		return -1;
- 	}
--
--	ret = security_compute_av_raw(rscon, rtcon, tclass, requested, avd);
-+	ret = security_compute_av_flags_raw(rscon, rtcon, tclass,
-+					    requested, avd);
- 
- 	freecon(rscon);
- 	freecon(rtcon);
-@@ -92,4 +124,32 @@ int security_compute_av(security_context_t scon,
- 	return ret;
- }
- 
-+hidden_def(security_compute_av_flags)
-+
-+int security_compute_av(security_context_t scon,
-+			security_context_t tcon,
-+			security_class_t tclass,
-+			access_vector_t requested, struct av_decision *avd)
-+{
-+	struct av_decision lavd;
-+	int ret;
-+
-+	ret = security_compute_av_flags(scon, tcon, tclass,
-+					requested, &lavd);
-+	if (ret == 0)
-+	{
-+		avd->allowed = lavd.allowed;
-+		avd->decided = lavd.decided;
-+		avd->auditallow = lavd.auditallow;
-+		avd->auditdeny = lavd.auditdeny;
-+		avd->seqno = lavd.seqno;
-+		/* NOTE:
-+		 * We should not return avd->flags via the interface
-+		 * due to the binary compatibility.
-+		 */
-+	}
-+
-+	return ret;
-+}
-+
- hidden_def(security_compute_av)
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index 8b4c6d4..cfb18a5 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -16,6 +16,8 @@ hidden_proto(selinux_mkload_policy)
-     hidden_proto(security_canonicalize_context_raw)
-     hidden_proto(security_compute_av)
-     hidden_proto(security_compute_av_raw)
-+    hidden_proto(security_compute_av_flags)
-+    hidden_proto(security_compute_av_flags_raw)
-     hidden_proto(security_compute_user)
-     hidden_proto(security_compute_user_raw)
-     hidden_proto(security_compute_create)
+>   
+>> 10. section 7, as stated above, you seem to use the DOI field 
+>> differently. It appears that you want the DOI to indicate whether an 
+>> NSFv4 server understands the label format AND knows how to interpret the 
+>> opaque field. This implies the server has to know all the label 
+>> definitions for all valid DOIs.
+>>     
+>
+> Well, for all the DOIs it knows about, for what else is a "valid DOI"?
+>   
 
---------------020307000303010803040203
-Content-Type: text/x-patch;
- name="kernel-userspace-permissive-domain.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kernel-userspace-permissive-domain.patch"
+I still haven't figured out how to use the DOI and the opaque field to 
+make different MAC systems to interoperate. We still have some work to 
+do to standardize that. If any combination of label format, policy, 
+encondings, definition, etc. requires a different DOI, it becomes 
+unmanageable quickly.
 
- Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
---
- security/selinux/avc.c              |    2 +-
- security/selinux/include/security.h |    4 +++-
- security/selinux/selinuxfs.c        |    4 ++--
- security/selinux/ss/services.c      |   30 +++++-------------------------
- 4 files changed, 11 insertions(+), 29 deletions(-)
+>   
+>>                                 For example, a server must be able to 
+>> detect a label is undefined under a DOI although it knows the format of 
+>> the label.
+>>     
+>
+> But if the server understands a given DOI then can do that.
+>
+>   
+>>            This may be better solved via configuration instead of going 
+>> through IANA. For example, if one wants his server to be able to 
+>> translate among three labeling schemes, she/he will configure the system 
+>> with all three label definitions, translation tables, modules containing 
+>> appropriate label functions and utilities, etc..
+>>     
+>
+> It should be possible for a server to support multiple DOIs without
+> necessarily having to know how to translate between them.  Then you get:
+> processes with labels in one DOI cannot access objects with labels in
+> another.
+>   
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 7f9b5fa..b2ab608 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -927,7 +927,7 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
- 	if (denied) {
- 		if (flags & AVC_STRICT)
- 			rc = -EACCES;
--		else if (!selinux_enforcing || security_permissive_sid(ssid))
-+		else if (!selinux_enforcing || (avd->flags & AVD_FLAGS_PERMISSIVE))
- 			avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
- 					tsid, tclass, avd->seqno);
- 		else
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 5c3434f..a7be3f0 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -91,9 +91,11 @@ struct av_decision {
- 	u32 auditallow;
- 	u32 auditdeny;
- 	u32 seqno;
-+	u32 flags;
- };
- 
--int security_permissive_sid(u32 sid);
-+/* definitions of av_decision.flags */
-+#define AVD_FLAGS_PERMISSIVE	0x0001
- 
- int security_compute_av(u32 ssid, u32 tsid,
- 	u16 tclass, u32 requested,
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index d3c8b98..4d56ab1 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -594,10 +594,10 @@ static ssize_t sel_write_access(struct file *file, char *buf, size_t size)
- 		goto out2;
- 
- 	length = scnprintf(buf, SIMPLE_TRANSACTION_LIMIT,
--			  "%x %x %x %x %u",
-+			  "%x %x %x %x %u %x",
- 			  avd.allowed, 0xffffffff,
- 			  avd.auditallow, avd.auditdeny,
--			  avd.seqno);
-+			  avd.seqno, avd.flags);
- out2:
- 	kfree(tcon);
- out:
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index deeec6c..500e6f7 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -410,6 +410,7 @@ static int context_struct_compute_av(struct context *scontext,
- 	avd->auditallow = 0;
- 	avd->auditdeny = 0xffffffff;
- 	avd->seqno = latest_granting;
-+	avd->flags = 0;
- 
- 	/*
- 	 * Check for all the invalid cases.
-@@ -528,31 +529,6 @@ inval_class:
- 	return 0;
- }
- 
--/*
-- * Given a sid find if the type has the permissive flag set
-- */
--int security_permissive_sid(u32 sid)
--{
--	struct context *context;
--	u32 type;
--	int rc;
--
--	read_lock(&policy_rwlock);
--
--	context = sidtab_search(&sidtab, sid);
--	BUG_ON(!context);
--
--	type = context->type;
--	/*
--	 * we are intentionally using type here, not type-1, the 0th bit may
--	 * someday indicate that we are globally setting permissive in policy.
--	 */
--	rc = ebitmap_get_bit(&policydb.permissive_map, type);
--
--	read_unlock(&policy_rwlock);
--	return rc;
--}
--
- static int security_validtrans_handle_fail(struct context *ocontext,
- 					   struct context *ncontext,
- 					   struct context *tcontext,
-@@ -767,6 +743,10 @@ int security_compute_av(u32 ssid,
- 
- 	rc = context_struct_compute_av(scontext, tcontext, tclass,
- 				       requested, avd);
-+
-+	/* permissive domain? */
-+	if (ebitmap_get_bit(&policydb.permissive_map, scontext->type))
-+	    avd->flags |= AVD_FLAGS_PERMISSIVE;
- out:
- 	read_unlock(&policy_rwlock);
- 	return rc;
+Yes, that's possible, and this is simpler than having to translate. I 
+don't know enough use cases to know whether users keep multiple file 
+systems on same server but protect them with two sets of labels.
 
---------------020307000303010803040203--
+Thanks.
+
+Jarrett
+
+> Nico
+>   
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
