@@ -1,118 +1,149 @@
-Message-ID: <49CC1F3B.1040906@ak.jp.nec.com>
-Date: Fri, 27 Mar 2009 09:35:07 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
-MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: method@manicmethod.com, selinux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] Expose avc_netlink_loop() for applications (Re: Some
- ideas in SE-PostgreSQL enhancement)
-References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49CB1796.2010507@ak.jp.nec.com> <49CC12C2.4050302@tycho.nsa.gov>
-In-Reply-To: <49CC12C2.4050302@tycho.nsa.gov>
-Content-Type: text/plain; charset=ISO-2022-JP
+Date: Thu, 26 Mar 2009 19:11:03 -0500
+From: Nicolas Williams <Nicolas.Williams@sun.com>
+To: Jarrett Lu <Jarrett.Lu@sun.com>
+Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, labeled-nfs@linux-nfs.org,
+        nfs-discuss@opensolaris.org, nfsv4@ietf.org, selinux@tycho.nsa.gov
+Subject: Re: [nfsv4] New MAC label support Internet Draft posted to IETF	website
+Message-ID: <20090327001102.GU9992@Sun.COM>
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <49C9F0E1.1040202@sun.com> <20090325163317.GV9992@Sun.COM> <49CB4A18.3090709@sun.com> <20090326150934.GR9992@Sun.COM> <49CBFB94.6030408@sun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <49CBFB94.6030408@sun.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Eamon Walsh wrote:
-> KaiGai Kohei wrote:
->>> 3. Simplifies netlink loops
->>>
->>> SE-PostgreSQL needs to implement its own userspace AVC due to
->>> some reasons. When the backend started up, it creates a worker
->>> process to receive messages from in-kernel SELinux via netlink
->>> socket. The worker process invalidates the userspace AVC of
->>> all the instance of PostgreSQL backend process when the state
->>> of SELinux is changed.
->>>
->>> However, I think the following loop to receive messages from
->>> netlink socket should be provided via libselinux.
->>>
->>>   http://code.google.com/p/sepgsql/source/browse/trunk/core/src/backend/security/sepgsql/avc.c#647
->>>
->>> If avc_netlink_loop() provided a callback function, I could push
->>> the code into the libselinux.
->>>
->>> TODO:
->>> - a set of new interface on libselinux:
->>> I would like to add a few new interfaces to handle netlink socket
->>> in libselinux, and expose them to application. I guess we can
->>> write the existing standard avc with the interfaces.
->>>     
->> The attached patch expose the following libselinux interfaces:
->>  - avc_netlink_open()
->>  - avc_netlink_close()
->>  - avc_netlink_loop()
->> and adds a new callback function on receiving a netlink message.
->>
->> It enables to simplifies the implementation of userspace object
->> managers which need to have its own avc and state monitoring process.
->>
->> The existing standard avc becomes to use the new callbacks,
->> so here is a limitation we cannot use them concurrently,
->> but it is not a realistic situation.
->>
->> Thanks,
->>   
+On Thu, Mar 26, 2009 at 03:03:00PM -0700, Jarrett Lu wrote:
+> CALIPSO spec doesn't tie a DOI with a particular label encoding. For 
+
+CALIPSO is very specific about label domination -- that means that
+having any application protocol w/ labeling above IP requires that we be
+able to determine whether an application-level label is dominated by a
+CALIPSO label, and the rules given are MLS with Bell-LaPadula.
+
+Perhaps that does not mean that we must adopt MLS and Bell-LaPadula at
+the application layer, but it certainly seems like the easiest path,
+particularly if we can also represent DTE that way.
+
+Now, CALIPSO does not impose a label _encoding_ (layout of bits on the
+_wire_) outside IP, but it does seem to impose label _structure_ outside
+of IP (see above).
+
+> example, it DOI 1000 doesn't have to mean it's CALIPSO label with this 
+> label encoding file. DOI 1000 could very well be used by SELinux systems 
+> using a particular MAC policy. CALIPSO DOI does imply that when a node 
+> can communicate with a DOI, it knows how to interpret the labels 
+> associated with the DOI. All nodes using the same DOI have agreed on 
+> what format and encodings to use. The agreement takes place else where, 
+> most likely an administrative decision. Does labeled NFSv4 aim to 
+> establish this agreement within the protocol itself?
+
+As I read it CALIPSO allows each DOI to determine the names and meanings
+of sensitivity levels, compartments, and releasability.  It does not
+allow DOIs to impose a different label structure involving things other
+than those (and the DOI number itself).
+
+What exactly is your comment re: David's I-D?  I thought it was "opaque
+is bad" but now I think you're saying the opposite.  I'm confused :)
+
+I think partly the confusion relates to the word "encoding" (see below).
+
+> >Also, this does not mean that the label shouldn't be opaque in the XDR
+> >sense.  Using opaque in the XDR sense but actually imposing a label
+> >encoding might still be desirable (mostly for compression, but also if
+> >we should reserve some of the DOI number space for as-yet-unspecified
+> >label structures and encodings).
 > 
-> Also note the new functions avc_netlink_acquire_fd(),
-> avc_netlink_release_fd(), and avc_netlink_check_nb() that you can use to
-> obtain the netlink file descriptor out and use it in a loop with select(2).
+> CALIPSO spec reserves DOI value 1 - 255 for private use. If an 
+> organization doesn't want to do labeled communication outside its 
+> control, it can use a number in that range, without need to register 
+> with IANA.
+
+Indeed, but it still imposes label structure on private use DOIs, at
+least as far as I can tell.  Did I misread CALIPSO?
+
+> >Yes, and there's a relationship to the application data.  Thus, for
+> >example, the label used for packets carrying NFS traffic has to
+> >dominate the labels of the files being accessed via NFS.
 > 
-> This means you don't have to use the threading callbacks to launch a
-> worker thread to listen on netlink.
+> Typically, SECRET data/file traffic doesn't leave SECRET network. So 
+> labels in different layers/subsystems should match. What must not happen 
+> is SECRET data flowing through UNCLASSIFIED network. In other words, we 
+> don't want to see a request coming in from UNCLASIFFIED  interface 
+> asking for SECRET files.
+
+I think you've restated what I wrote.  I was arguing that this
+requirement imposes CALIPSO's label structure (DOI, sensitivity level,
+compartments and releasability) on the applications layered above IP.
+Perhaps that's wrong.  This matter is one we're going to have to decide
+before long.
+
+> >CALIPSO imposes structure on labels, not encoding (it does define an
+> >encoding for use in IPsec though).  The structure is: DOI, sensitivity
+> >level, compartments, releasability.  We'll need to pick an encoding.
 > 
-> All said, this would be pseudo-code for your worker process:
+> By label encoding, I mean how a CALIPSO label represented in a more 
 
-I have two minor and major concern with this approach.
+Fine, but when talking about protocols with bits on the wire "encoding"
+generally means "the format of the bits on the wire," so that's how I've
+been using the term.
 
-The minor one is it consumes unnecessary memory due to avc_init().
-Because of some reasons, SE-PostgreSQL implements its own userspace
-AVC, so this region is purely waste of space.
+> basic form (e.g. hex or binary). It's usually done in a file, e.g. 
+> 0x000300a0000 translates to SECRET and it dominates 0x0001007000. 
+> Security administrators control the encoding. They get to say what 
+> labels are valid and how valid label relate to each other on their 
+> systems. Given this kind of local control, I don't know how we, who 
+> defined protocol attributes, could pick one. The way it works is that 
+> they (administrators) picked one, and agreed among themselves what label 
+> encoding and DOI to use.
 
-The major one is we cannot handle them in a sindle lock section.
-When the application is callbacked via AVC_CALLBACK_SETENFORCE,
-it will change the state of enforcing/permissive, and it resets
-its own avc on AVC_CALLBACK_RESET. But I would like to handle
-these operations in a single lock section.
+CALIPSO certainly specifies an encoding for use on the wire (see setion
+5.1 of draft-stjohns-sipso-11).  If CALIPSO can, so can we.  The encoding
+on the file system, the translation to human readable strings, the
+semantics of each sensitivity level and compartment -- these are all
+things that are specific to each DOI's rules.
 
-If we reset the avc on AVC_CALLBACK_SETENFORCE, it finally
-resets the avc twice on a single message. It is also unconfortable.
-
-The design of callbacks (via selinux_set_callback()) can be
-considerable, but I don't think it is a good idea to hide
-the netlink stuff here.
-
-In my patch, it adds SELINUX_CB_NETLINK for any messages.
-But, if it would be SELINUX_CB_SETENFORCE and SELINUX_CB_POLICYLOAD,
-we don't need to refer any netlink related stuffs from applications.
-
-What is your opinion?
-
-Thanks,
-
-> reset_callback() {
-> do_reset_stuff;
-> }
+> >David seems to want explicit support for DTE.  If we can get away with a
+> >combination of MLS (and, maybe, privileges) to represent DTE then we can
+> >stick exclusively to MLS and remain compliant with CALIPSO.  Given the
+> >impact that CALIPSO has on application protocols I think we have no
+> >choice (see above).
 > 
-> setenforce_callback() {
-> do_setenforce_stuff;
-> }
-> 
-> sepgsqlStateMonitorMain() {
-> 
-> avc_set_callback(AVC_CALLBACK_RESET, reset_callback);
-> avc_set_callback(AVC_CALLBACK_SETENFORCE, setenforce_callback);
-> avc_open();
-> 
-> fd = avc_netlink_acquire_fd();
-> while (true) {
-> select(fd);
-> avc_netlink_check_nb();
-> }
-> }
+> I used MLS as examples, but I'd expect all MAC systems will have similar 
+> issues, i.e. MAC aware applications should not do things which are in 
+> conflicts with MAC policies in other parts of the system. I think the 
+> "interference" of CALIPSO DOI on application protocols comes from the 
+> fact that labeled NFSv4 wants to reuse CALIPSO DOI for something different.
 
+David's I-D doesn't even mention CALIPSO, so I don't see how you could
+think that :)
+
+> >I agree that it's best to have an encoding for the label than to leave
+> >it opaque.  I want a range of unknown DOIs with opque labels for
+> >extensibility though (see above).
+> 
+> The difficulty is that label interpretation is directly tied to a label 
+> encoding file. Different organizations have control over content of this 
+> file. I don't know how you structure this with a protocol attribute.
+
+Then it seems to me that you have a comment to make on CALIPSO since it
+imposes label structure and an encoding on the wire.
+
+> >In David's I-D the encoding of the label is left to each DOI.  That's
+> >not unreasonable.  But in the face of CALIPSO we might as well specify
+> >an actual label encoding given that CALIPSO imposes label structure.
+> 
+> This implies there is only one way to interpret a CALIPSO label. In fact 
+> every organization gets to say how a CALIPSO label should be 
+> interpreted. I don't see how a single DOI will make it work without some 
+> OOB agreement among communicating entities.
+
+No, I don't think so.  I think we're each using "encoding" to mean
+something different than the other is.  I'm talking strictly about bits
+on the wire, not about interpretation (beyond the basic rules imposed by
+CALIPSO), and not what Solaris TX means by label encoding.
+
+Nico
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
