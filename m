@@ -1,16 +1,16 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2RLAql2005101
-	for <selinux@tycho.nsa.gov>; Fri, 27 Mar 2009 17:10:52 -0400
-Received: from g4t0014.houston.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2RLApfp007682
-	for <selinux@tycho.nsa.gov>; Fri, 27 Mar 2009 21:10:52 GMT
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2RLAVi2004979
+	for <selinux@tycho.nsa.gov>; Fri, 27 Mar 2009 17:10:31 -0400
+Received: from g5t0006.atlanta.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2RL6WRo008764
+	for <selinux@tycho.nsa.gov>; Fri, 27 Mar 2009 21:06:32 GMT
 From: Paul Moore <paul.moore@hp.com>
-Subject: [PATCH 4/6] lsm: Remove the socket_post_accept() hook
+Subject: [PATCH 1/6] lsm: Relocate the IPv4 security_inet_conn_request() hooks
 To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
 Cc: netdev@vger.kernel.org, casey@schaufler-ca.com,
         etienne.basset@numericable.fr
-Date: Fri, 27 Mar 2009 17:10:48 -0400
-Message-ID: <20090327211048.17777.42267.stgit@flek.lan>
+Date: Fri, 27 Mar 2009 17:10:28 -0400
+Message-ID: <20090327211027.17777.60939.stgit@flek.lan>
 In-Reply-To: <20090327205520.17777.32557.stgit@flek.lan>
 References: <20090327205520.17777.32557.stgit@flek.lan>
 MIME-Version: 1.0
@@ -18,117 +18,78 @@ Content-Type: text/plain; charset="utf-8"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-The socket_post_accept() hook is not currently used by any in-tree modules
-and its existence continues to cause problems by confusing people about
-what can be safely accomplished using this hook.  If a legitimate need for
-this hook arises in the future it can always be reintroduced.
+The current placement of the security_inet_conn_request() hooks do not allow
+individual LSMs to override the IP options of the connection's request_sock.
+This is a problem as both SELinux and Smack have the ability to use labeled
+networking protocols which make use of IP options to carry security attributes
+and the inability to set the IP options at the start of the TCP handshake is
+problematic.
+
+This patch moves the IPv4 security_inet_conn_request() hooks past the code
+where the request_sock's IP options are set/reset so that the LSM can safely
+manipulate the IP options as needed.  This patch intentionally does not change
+the related IPv6 hooks as IPv6 based labeling protocols which use IPv6 options
+are not currently implemented, once they are we will have a better idea of
+the correct placement for the IPv6 hooks.
 
 Signed-off-by: Paul Moore <paul.moore@hp.com>
+Acked-by: David S. Miller <davem@davemloft.net>
 ---
 
- include/linux/security.h |   13 -------------
- net/socket.c             |    2 --
- security/capability.c    |    5 -----
- security/security.c      |    5 -----
- 4 files changed, 0 insertions(+), 25 deletions(-)
+ net/ipv4/syncookies.c |    9 +++++----
+ net/ipv4/tcp_ipv4.c   |    7 ++++---
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 1f2ab63..54ed157 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -880,11 +880,6 @@ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
-  *	@sock contains the listening socket structure.
-  *	@newsock contains the newly created server socket for connection.
-  *	Return 0 if permission is granted.
-- * @socket_post_accept:
-- *	This hook allows a security module to copy security
-- *	information into the newly created socket's inode.
-- *	@sock contains the listening socket structure.
-- *	@newsock contains the newly created server socket for connection.
-  * @socket_sendmsg:
-  *	Check permission before transmitting a message to another socket.
-  *	@sock contains the socket structure.
-@@ -1554,8 +1549,6 @@ struct security_operations {
- 			       struct sockaddr *address, int addrlen);
- 	int (*socket_listen) (struct socket *sock, int backlog);
- 	int (*socket_accept) (struct socket *sock, struct socket *newsock);
--	void (*socket_post_accept) (struct socket *sock,
--				    struct socket *newsock);
- 	int (*socket_sendmsg) (struct socket *sock,
- 			       struct msghdr *msg, int size);
- 	int (*socket_recvmsg) (struct socket *sock,
-@@ -2537,7 +2530,6 @@ int security_socket_bind(struct socket *sock, struct sockaddr *address, int addr
- int security_socket_connect(struct socket *sock, struct sockaddr *address, int addrlen);
- int security_socket_listen(struct socket *sock, int backlog);
- int security_socket_accept(struct socket *sock, struct socket *newsock);
--void security_socket_post_accept(struct socket *sock, struct socket *newsock);
- int security_socket_sendmsg(struct socket *sock, struct msghdr *msg, int size);
- int security_socket_recvmsg(struct socket *sock, struct msghdr *msg,
- 			    int size, int flags);
-@@ -2616,11 +2608,6 @@ static inline int security_socket_accept(struct socket *sock,
- 	return 0;
- }
+diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
+index d346c22..b35a950 100644
+--- a/net/ipv4/syncookies.c
++++ b/net/ipv4/syncookies.c
+@@ -288,10 +288,6 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb,
+ 	if (!req)
+ 		goto out;
  
--static inline void security_socket_post_accept(struct socket *sock,
--					       struct socket *newsock)
--{
--}
--
- static inline int security_socket_sendmsg(struct socket *sock,
- 					  struct msghdr *msg, int size)
- {
-diff --git a/net/socket.c b/net/socket.c
-index af0205f..5d288d1 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1536,8 +1536,6 @@ SYSCALL_DEFINE4(accept4, int, fd, struct sockaddr __user *, upeer_sockaddr,
- 	fd_install(newfd, newfile);
- 	err = newfd;
+-	if (security_inet_conn_request(sk, skb, req)) {
+-		reqsk_free(req);
+-		goto out;
+-	}
+ 	ireq = inet_rsk(req);
+ 	treq = tcp_rsk(req);
+ 	treq->rcv_isn		= ntohl(th->seq) - 1;
+@@ -322,6 +318,11 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb,
+ 		}
+ 	}
  
--	security_socket_post_accept(sock, newsock);
--
- out_put:
- 	fput_light(sock->file, fput_needed);
- out:
-diff --git a/security/capability.c b/security/capability.c
-index c545bd1..21b6cea 100644
---- a/security/capability.c
-+++ b/security/capability.c
-@@ -620,10 +620,6 @@ static int cap_socket_accept(struct socket *sock, struct socket *newsock)
- 	return 0;
- }
++	if (security_inet_conn_request(sk, skb, req)) {
++		reqsk_free(req);
++		goto out;
++	}
++
+ 	req->expires	= 0UL;
+ 	req->retrans	= 0;
  
--static void cap_socket_post_accept(struct socket *sock, struct socket *newsock)
--{
--}
--
- static int cap_socket_sendmsg(struct socket *sock, struct msghdr *msg, int size)
- {
- 	return 0;
-@@ -1014,7 +1010,6 @@ void security_fixup_ops(struct security_operations *ops)
- 	set_to_cap_if_null(ops, socket_connect);
- 	set_to_cap_if_null(ops, socket_listen);
- 	set_to_cap_if_null(ops, socket_accept);
--	set_to_cap_if_null(ops, socket_post_accept);
- 	set_to_cap_if_null(ops, socket_sendmsg);
- 	set_to_cap_if_null(ops, socket_recvmsg);
- 	set_to_cap_if_null(ops, socket_getsockname);
-diff --git a/security/security.c b/security/security.c
-index c3586c0..206e538 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1007,11 +1007,6 @@ int security_socket_accept(struct socket *sock, struct socket *newsock)
- 	return security_ops->socket_accept(sock, newsock);
- }
+diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
+index d0a3148..5d427f8 100644
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1230,14 +1230,15 @@ int tcp_v4_conn_request(struct sock *sk, struct sk_buff *skb)
  
--void security_socket_post_accept(struct socket *sock, struct socket *newsock)
--{
--	security_ops->socket_post_accept(sock, newsock);
--}
+ 	tcp_openreq_init(req, &tmp_opt, skb);
+ 
+-	if (security_inet_conn_request(sk, skb, req))
+-		goto drop_and_free;
 -
- int security_socket_sendmsg(struct socket *sock, struct msghdr *msg, int size)
- {
- 	return security_ops->socket_sendmsg(sock, msg, size);
+ 	ireq = inet_rsk(req);
+ 	ireq->loc_addr = daddr;
+ 	ireq->rmt_addr = saddr;
+ 	ireq->no_srccheck = inet_sk(sk)->transparent;
+ 	ireq->opt = tcp_v4_save_options(sk, skb);
++
++	if (security_inet_conn_request(sk, skb, req))
++		goto drop_and_free;
++
+ 	if (!want_cookie)
+ 		TCP_ECN_create_request(req, tcp_hdr(skb));
+ 
 
 
 --
