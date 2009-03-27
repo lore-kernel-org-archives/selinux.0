@@ -1,149 +1,101 @@
-Date: Thu, 26 Mar 2009 19:11:03 -0500
-From: Nicolas Williams <Nicolas.Williams@sun.com>
-To: Jarrett Lu <Jarrett.Lu@sun.com>
-Cc: "David P. Quigley" <dpquigl@tycho.nsa.gov>, labeled-nfs@linux-nfs.org,
-        nfs-discuss@opensolaris.org, nfsv4@ietf.org, selinux@tycho.nsa.gov
-Subject: Re: [nfsv4] New MAC label support Internet Draft posted to IETF	website
-Message-ID: <20090327001102.GU9992@Sun.COM>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <49C9F0E1.1040202@sun.com> <20090325163317.GV9992@Sun.COM> <49CB4A18.3090709@sun.com> <20090326150934.GR9992@Sun.COM> <49CBFB94.6030408@sun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <49CBFB94.6030408@sun.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2R2Z8LD016646
+	for <selinux@tycho.nsa.gov>; Thu, 26 Mar 2009 22:35:08 -0400
+Received: from tyo201.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2R2Z6Ht011415
+	for <selinux@tycho.nsa.gov>; Fri, 27 Mar 2009 02:35:07 GMT
+Message-ID: <49CC3B48.3070006@ak.jp.nec.com>
+Date: Fri, 27 Mar 2009 11:34:48 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+MIME-Version: 1.0
+To: Matthew Booth <mbooth@redhat.com>
+CC: linux-audit@redhat.com, selinux@tycho.nsa.gov
+Subject: Re: [PATCH] database audit integration (Re: Some ideas in SE-PostgreSQL
+ enhancement)
+References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com>	<49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49CB1C7A.2050206@ak.jp.nec.com> <49CB313B.7020507@redhat.com>
+In-Reply-To: <49CB313B.7020507@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, Mar 26, 2009 at 03:03:00PM -0700, Jarrett Lu wrote:
-> CALIPSO spec doesn't tie a DOI with a particular label encoding. For 
-
-CALIPSO is very specific about label domination -- that means that
-having any application protocol w/ labeling above IP requires that we be
-able to determine whether an application-level label is dominated by a
-CALIPSO label, and the rules given are MLS with Bell-LaPadula.
-
-Perhaps that does not mean that we must adopt MLS and Bell-LaPadula at
-the application layer, but it certainly seems like the easiest path,
-particularly if we can also represent DTE that way.
-
-Now, CALIPSO does not impose a label _encoding_ (layout of bits on the
-_wire_) outside IP, but it does seem to impose label _structure_ outside
-of IP (see above).
-
-> example, it DOI 1000 doesn't have to mean it's CALIPSO label with this 
-> label encoding file. DOI 1000 could very well be used by SELinux systems 
-> using a particular MAC policy. CALIPSO DOI does imply that when a node 
-> can communicate with a DOI, it knows how to interpret the labels 
-> associated with the DOI. All nodes using the same DOI have agreed on 
-> what format and encodings to use. The agreement takes place else where, 
-> most likely an administrative decision. Does labeled NFSv4 aim to 
-> establish this agreement within the protocol itself?
-
-As I read it CALIPSO allows each DOI to determine the names and meanings
-of sensitivity levels, compartments, and releasability.  It does not
-allow DOIs to impose a different label structure involving things other
-than those (and the DOI number itself).
-
-What exactly is your comment re: David's I-D?  I thought it was "opaque
-is bad" but now I think you're saying the opposite.  I'm confused :)
-
-I think partly the confusion relates to the word "encoding" (see below).
-
-> >Also, this does not mean that the label shouldn't be opaque in the XDR
-> >sense.  Using opaque in the XDR sense but actually imposing a label
-> >encoding might still be desirable (mostly for compression, but also if
-> >we should reserve some of the DOI number space for as-yet-unspecified
-> >label structures and encodings).
+Matthew Booth wrote:
+> KaiGai Kohei wrote:
+>> Hello,
+>>
+>> I'm a developer of SE-PostgreSQL which is an enhancement of
+>> database security using SELinux. It enables to apply the
+>> security policy of the operating system on accesses to
+>> database objects also.
+>> It makes an access control decision and audit messages, but
+>> these are not written out to system audit mechanism.
+>>
+>> I believe our preferable behavior is the system audit collects
+>> all the audit messages come from SELinux, not a logfile of
+>> PostgreSQL.
+>>
+>> Currently, the audit-libs has an interface to write a message
+>> come from userspace avc, but some of parameter is not suitable
+>> for the reference monitor in database management system.
+>>
+>> This patch adds a new interface as follows:
+>>     int audit_log_database_message(int audit_fd, int type,
+>>                                    const char *message,
+>>                                    const char *hostname,
+>>                                    const char *addr,
+>>                                    const char *dbuser);
+>>
+>> It is differ from audit_log_user_avc_message() in the point of
+>> a new parameter of dbuser, instead of tty and uid.
+>> I don't think these are meaningful information for DBMS, but
+>> we would like to record what database user invokes this audit
+>> record.
 > 
-> CALIPSO spec reserves DOI value 1 - 255 for private use. If an 
-> organization doesn't want to do labeled communication outside its 
-> control, it can use a number in that range, without need to register 
-> with IANA.
-
-Indeed, but it still imposes label structure on private use DOIs, at
-least as far as I can tell.  Did I misread CALIPSO?
-
-> >Yes, and there's a relationship to the application data.  Thus, for
-> >example, the label used for packets carrying NFS traffic has to
-> >dominate the labels of the files being accessed via NFS.
+> A few points:
 > 
-> Typically, SECRET data/file traffic doesn't leave SECRET network. So 
-> labels in different layers/subsystems should match. What must not happen 
-> is SECRET data flowing through UNCLASSIFIED network. In other words, we 
-> don't want to see a request coming in from UNCLASIFFIED  interface 
-> asking for SECRET files.
+> When I have tried to use this mechanism in the past I have found the
+> existing proliferation of user messages types confusing. If possible,
+> please don't add a new custom message to the library. Instead, maybe it
+> would be better to recognise that there will be continue to be new and
+> unanticipated uses for structured audit data, and provide an api which
+> allows that to be expressed.
 
-I think you've restated what I wrote.  I was arguing that this
-requirement imposes CALIPSO's label structure (DOI, sensitivity level,
-compartments and releasability) on the applications layered above IP.
-Perhaps that's wrong.  This matter is one we're going to have to decide
-before long.
+What I would like to audit is AUDIT_USER_AVC type message, not a new
+custome message type. But the current interface does not allow to
+record some of meaningful information.
+So, it was necessary to propose a new audit_log_database_message().
+Perhaps, it might be misnamed. If confusable, it is possible to rename
+it something like audit_log_db_avc_message().
 
-> >CALIPSO imposes structure on labels, not encoding (it does define an
-> >encoding for use in IPsec though).  The structure is: DOI, sensitivity
-> >level, compartments, releasability.  We'll need to pick an encoding.
-> 
-> By label encoding, I mean how a CALIPSO label represented in a more 
+> While where may be no tty as such, the idea is still meaningful.
+> Specifically, one of the first things an auditor will want to know is
+> where the user who performed a particular action logged on from. If you
+> have that information, you should include it in the audit record.
 
-Fine, but when talking about protocols with bits on the wire "encoding"
-generally means "the format of the bits on the wire," so that's how I've
-been using the term.
+In this case, all the audit record has same tty which is used by
+the server process, independent from the client who performed a
+particular action. :(
 
-> basic form (e.g. hex or binary). It's usually done in a file, e.g. 
-> 0x000300a0000 translates to SECRET and it dominates 0x0001007000. 
-> Security administrators control the encoding. They get to say what 
-> labels are valid and how valid label relate to each other on their 
-> systems. Given this kind of local control, I don't know how we, who 
-> defined protocol attributes, could pick one. The way it works is that 
-> they (administrators) picked one, and agreed among themselves what label 
-> encoding and DOI to use.
+> A concept of a session ID would probably have meaning in this context.
+> If you have one, or can create one, please include it in all messages,
+> including login messages.
 
-CALIPSO certainly specifies an encoding for use on the wire (see setion
-5.1 of draft-stjohns-sipso-11).  If CALIPSO can, so can we.  The encoding
-on the file system, the translation to human readable strings, the
-semantics of each sensitivity level and compartment -- these are all
-things that are specific to each DOI's rules.
+When a database client connects to the server via TCP/IP, we don't have
+any valid session id. In addition, the server does not have a method to
+know what session id is used for the client logged in.
 
-> >David seems to want explicit support for DTE.  If we can get away with a
-> >combination of MLS (and, maybe, privileges) to represent DTE then we can
-> >stick exclusively to MLS and remain compliant with CALIPSO.  Given the
-> >impact that CALIPSO has on application protocols I think we have no
-> >choice (see above).
-> 
-> I used MLS as examples, but I'd expect all MAC systems will have similar 
-> issues, i.e. MAC aware applications should not do things which are in 
-> conflicts with MAC policies in other parts of the system. I think the 
-> "interference" of CALIPSO DOI on application protocols comes from the 
-> fact that labeled NFSv4 wants to reuse CALIPSO DOI for something different.
+> Lastly, please no freeform text! It should be possible to determine
+> everything relevant about an event without looking at freeform text.
 
-David's I-D doesn't even mention CALIPSO, so I don't see how you could
-think that :)
+Yes, the expected style is same as ones for audit_log_user_avc_message(),
+without any freedom text. The most significant purpose is to allow users
+to use utilities such as audit2allow.
 
-> >I agree that it's best to have an encoding for the label than to leave
-> >it opaque.  I want a range of unknown DOIs with opque labels for
-> >extensibility though (see above).
-> 
-> The difficulty is that label interpretation is directly tied to a label 
-> encoding file. Different organizations have control over content of this 
-> file. I don't know how you structure this with a protocol attribute.
+> I look forward to playing with this :)
 
-Then it seems to me that you have a comment to make on CALIPSO since it
-imposes label structure and an encoding on the wire.
-
-> >In David's I-D the encoding of the label is left to each DOI.  That's
-> >not unreasonable.  But in the face of CALIPSO we might as well specify
-> >an actual label encoding given that CALIPSO imposes label structure.
-> 
-> This implies there is only one way to interpret a CALIPSO label. In fact 
-> every organization gets to say how a CALIPSO label should be 
-> interpreted. I don't see how a single DOI will make it work without some 
-> OOB agreement among communicating entities.
-
-No, I don't think so.  I think we're each using "encoding" to mean
-something different than the other is.  I'm talking strictly about bits
-on the wire, not about interpretation (beyond the basic rules imposed by
-CALIPSO), and not what Solaris TX means by label encoding.
-
-Nico
+Thanks,
 -- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
