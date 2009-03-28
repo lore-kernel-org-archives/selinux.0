@@ -1,61 +1,83 @@
-Message-ID: <49CD84CA.5020009@kaigai.gr.jp>
-Date: Sat, 28 Mar 2009 11:00:42 +0900
-From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+Message-ID: <49CD8E68.9090004@tycho.nsa.gov>
+Date: Fri, 27 Mar 2009 22:41:44 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: KaiGai Kohei <kaigai@ak.jp.nec.com>, method@manicmethod.com,
-        selinux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] Expose avc_netlink_loop() for applications (Re: Some
- ideas in SE-PostgreSQL enhancement)
-References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49CB1796.2010507@ak.jp.nec.com> <49CC12C2.4050302@tycho.nsa.gov> <49CC1F3B.1040906@ak.jp.nec.com> <49CD752D.1070104@tycho.nsa.gov>
-In-Reply-To: <49CD752D.1070104@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+CC: method@manicmethod.com, jmorris@namei.org, selinux <selinux@tycho.nsa.gov>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH] Permissive domain in userspace (Re: Some ideas in SE-PostgreSQL
+ enhancement)
+References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49CB3CEB.1070505@ak.jp.nec.com>
+In-Reply-To: <49CB3CEB.1070505@ak.jp.nec.com>
 Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-[snip]
-
->> The major one is we cannot handle them in a sindle lock section.
->> When the application is callbacked via AVC_CALLBACK_SETENFORCE,
->> it will change the state of enforcing/permissive, and it resets
->> its own avc on AVC_CALLBACK_RESET. But I would like to handle
->> these operations in a single lock section.
+KaiGai Kohei wrote:
+> KaiGai Kohei wrote:
+>   
+>> 4. Permissive domain in userspace
 >>
->> If we reset the avc on AVC_CALLBACK_SETENFORCE, it finally
->> resets the avc twice on a single message. It is also unconfortable.
->>
->> The design of callbacks (via selinux_set_callback()) can be
->> considerable, but I don't think it is a good idea to hide
->> the netlink stuff here.
->>
->> In my patch, it adds SELINUX_CB_NETLINK for any messages.
->> But, if it would be SELINUX_CB_SETENFORCE and SELINUX_CB_POLICYLOAD,
->> we don't need to refer any netlink related stuffs from applications.
->>
->> What is your opinion?
->>   
-> 
-> 
-> Considering your point, I'd rather create SETENFORCE and POLICYLOAD
-> callbacks for selinux_set_callback(). However, they should be called in
-> addition to the normal processing in avc_netlink_process(), not
-> replacing the code flow. The savings from not updating a few globals and
-> calling avc_ss_reset (which returns immediately if the userspace AVC is
-> not running) are not that big.
+>> It is an issue got sleep for a few months.
+>>   http://marc.info/?l=selinux&m=122337314619667&w=2
+>>     
+>
+> It was discussed at the past a bit, but left it for several months.
+>
+> Now we have a new idea of permissive domain which allows certain
+> domains to work as if being in permissive mode.
+> The in-kernel SELinux can handle it well, but userspace object
+> managers could not handler it because we don't have an interface
+> to tell what domain is permissive.
+>
+> The attached patches are for the kernel and libselinux.
+>
+> The kernel patch adds a flags field on av_decision, and returns
+> it as the sixth parameter on the reply of /selinux/access.
+>
+> The libselinux patch enhance libselinux to understand it, and
+> two new interfaces are added.
+>  - security_compute_av_flags()
+>  - security_compute_av_flags_raw()
+> It also adds a new flags field on av_decision, but it is not
+> touched when we use the existing interfaces due to the binary
+> compatibility.
+>
+> The standard userspace avc uses _flags interface, instead of
+> existing one, so it enables to control permissive domain.
+>
+> IIRC, Eamon pointed out that it is preferable to put a new field
+> of 'permissive' than general purpose 'flags'. But it will require
+> interface changes, if we need more state in the future.
+> So, I don't change the implementation.
+>
+> Please comment anything.
+>
+> Thanks,
+>   
 
-It seems to me fair enough.
+Don't have any immediate issues with the libselinux patches. Will wait
+on kernel acceptance.
 
-> You could optionally make avc_netlink_open() and avc_netlink_close()
-> public functions, which would allow to avoid calling avc_init().
+Some general questions:
 
-In addition, avc_netlink_loop() also.
+When the userspace AVC is configured in "enforcing" mode, which
+overrides the kernel setting, how should permissive domains be treated?
 
-I'll submit a revised patch on the Monday.
-Please wait for a while.
+When the entire system is in permissive mode, should the permissive flag
+be returned as true for all domains?
 
-Thanks,
+/me wonders how long it will be before someone proposes permissive
+classes, or permissions ("permissive permissions"). Or marking
+individual tsid,ssid,tclass tuples as permissive. Just think of the
+problems we could solve.
+
+cc'ed Steve.
+
 -- 
-KaiGai Kohei <kaigai@kaigai.gr.jp>
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
