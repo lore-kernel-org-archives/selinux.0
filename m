@@ -1,402 +1,463 @@
-Message-ID: <49D0510C.1000407@ak.jp.nec.com>
-Date: Mon, 30 Mar 2009 13:56:44 +0900
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2U8LYVg030983
+	for <selinux@tycho.nsa.gov>; Mon, 30 Mar 2009 04:21:35 -0400
+Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2U8LXRp013494
+	for <selinux@tycho.nsa.gov>; Mon, 30 Mar 2009 08:21:33 GMT
+Message-ID: <49D08105.2090607@ak.jp.nec.com>
+Date: Mon, 30 Mar 2009 17:21:25 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@kaigai.gr.jp>
-CC: Eamon Walsh <ewalsh@tycho.nsa.gov>, method@manicmethod.com,
+To: Joshua Brindle <method@manicmethod.com>
+CC: Andy Warner <warner@rubix.com>, KaiGai Kohei <kaigai@kaigai.gr.jp>,
         selinux <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH] Expose avc_netlink_loop() for applications (Re: Some
- ideas in SE-PostgreSQL enhancement)
-References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49CB1796.2010507@ak.jp.nec.com> <49CC12C2.4050302@tycho.nsa.gov> <49CC1F3B.1040906@ak.jp.nec.com> <49CD752D.1070104@tycho.nsa.gov> <49CD84CA.5020009@kaigai.gr.jp>
-In-Reply-To: <49CD84CA.5020009@kaigai.gr.jp>
+Subject: Re: Some ideas in SE-PostgreSQL enhancement (Re: The status of SE-PostgreSQL)
+References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49C9E101.1050400@rubix.com> <49CA6D24.3040007@manicmethod.com> <49CA8934.1040200@rubix.com> <49CCF41D.4090603@manicmethod.com> <49CCFDF6.9050603@rubix.com> <49CD0995.9050205@manicmethod.com> <49CD12CD.1000205@rubix.com> <49CD1710.6000108@manicmethod.com> <49CD1F74.9030906@rubix.com> <49CD2EB3.2000809@manicmethod.com> <49CD687C.9080401@kaigai.gr.jp> <49CDCF07.1020900@rubix.com> <49D018A3.2090304@ak.jp.nec.com>
+In-Reply-To: <49D018A3.2090304@ak.jp.nec.com>
 Content-Type: multipart/mixed;
- boundary="------------060007090109000701040706"
+ boundary="------------000501060204030903010905"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
---------------060007090109000701040706
+--------------000501060204030903010905
 Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
 
-The attached patch enables userspace object managers to handle notification
-messages via netlink socket from SELinux.
+KaiGai Kohei wrote:
+> My preference is the later one:
+>   TYPE_TRANSITION <subject context> <server context> : <class> <new context>;
+> 
+> In addition, an idea of configuration file can be considerable to set up
+> the default context of database objects, though I considered it is not
+> necessary in the past discussion.
+> If a user want to work the database server process as an unconfined domain,
+> like a legacy "disable_xxxx_trans" boolean doing, the <server context> as
+> the target of TYPE_TRANSITION breaks all the correct labeling.
+> 
+> If we have a /etc/selinux/$POLICYTYPE/contexts/db_{sepgsql|rubix}, as follows,
+> it can be used to specify the default context of special purpose database
+> object such as schemas to store temporary database objects, not only the
+> context of database as the root of type transition.
+> ------------
+> database    *             system_u:object_r:sepgsql_db_t:s0
+> schema      pg_temp_*     system_u:object_r:sepgsql_temp_schema_t:s0
+>   :             :            :
+> ------------
+> 
+> The libselinux has selabel_lookup(3) interface to implement them
+> for various kind of objects.
 
-* Two new callbacks were added to selinux_set_callback(3)
-  - SELINUX_CB_SETENFORCE
-     is invoked when it got SELNL_MSG_SETENFORCE message in the
-     avc_netlink_process().
-  - SELINUX_CB_POLICYLOAD
-     is invoked when it got SELNL_MSG_POLICYLOAD message in the
-     avc_netlink_process().
+The attached patch is a proof of the concept.
+It adds the forth backend of selabel_lookup(3) interface.
 
-* Three functions were exposed to applications.
-  - int avc_netlink_open(int blocking);
-  - void avc_netlink_loop(void);
-  - void avc_netlink_close(void);
+Under the enhancement, we should the following rules to determine what
+security context is assigned on the newly created database object.
 
-Due to a few reasons, SE-PostgreSQL implements its own userspace
-avc, so it needs to copy and paste some of avc_internal.c.
-This update enables to share common part from such kind of application.
+1. An explicitly specified security context by users.
+   e.g)  CREATE TABLE t (a int, b text)
+             SECURITY_LABEL = 'system_u:object_r:sepgsql_table_t:SystemHigh';
 
-Please apply this patch.
+2. A matched entry in the configuration file which can be lookup up
+   by selabel_lookup(3).
+   e.g)  schema  pg_temp_*  system_u:object_r:sepgsql_temp_schema_t:s0
+                 ^^^^^^^^^ --> if the new object name and type are matched.
+
+3. The result of security_compute_av() or avc_compute_create() which can
+   return the result of TYPE_TRANSITION rules.
+
+The second step is newly suggested in this patch.
+Needless to say, the determinded security context has to be checked
+by the security policy.
+
+> One concern is performance hit. If we need to open/lookup/close the file
+> for each INSERT statement, its pain will be unacceptable.
+
+This patch does not support db_tuple class, because of headach in performance
+and its characteristic that database tuples have no name to identify itself.
 
 Thanks,
-
-KaiGai Kohei wrote:
-> [snip]
-> 
->>> The major one is we cannot handle them in a sindle lock section.
->>> When the application is callbacked via AVC_CALLBACK_SETENFORCE,
->>> it will change the state of enforcing/permissive, and it resets
->>> its own avc on AVC_CALLBACK_RESET. But I would like to handle
->>> these operations in a single lock section.
->>>
->>> If we reset the avc on AVC_CALLBACK_SETENFORCE, it finally
->>> resets the avc twice on a single message. It is also unconfortable.
->>>
->>> The design of callbacks (via selinux_set_callback()) can be
->>> considerable, but I don't think it is a good idea to hide
->>> the netlink stuff here.
->>>
->>> In my patch, it adds SELINUX_CB_NETLINK for any messages.
->>> But, if it would be SELINUX_CB_SETENFORCE and SELINUX_CB_POLICYLOAD,
->>> we don't need to refer any netlink related stuffs from applications.
->>>
->>> What is your opinion?
->>>   
->>
->> Considering your point, I'd rather create SETENFORCE and POLICYLOAD
->> callbacks for selinux_set_callback(). However, they should be called in
->> addition to the normal processing in avc_netlink_process(), not
->> replacing the code flow. The savings from not updating a few globals and
->> calling avc_ss_reset (which returns immediately if the userspace AVC is
->> not running) are not that big.
-> 
-> It seems to me fair enough.
-> 
->> You could optionally make avc_netlink_open() and avc_netlink_close()
->> public functions, which would allow to avoid calling avc_init().
-> 
-> In addition, avc_netlink_loop() also.
-> 
-> I'll submit a revised patch on the Monday.
-> Please wait for a while.
-> 
-> Thanks,
-
-
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
 
---------------060007090109000701040706
+--------------000501060204030903010905
 Content-Type: text/x-patch;
- name="libselinux-expose-netlink-loop.2.patch"
+ name="libselinux-database-label-lookup.1.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="libselinux-expose-netlink-loop.2.patch"
+ filename="libselinux-database-label-lookup.1.patch"
 
- Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
---
- libselinux/include/selinux/avc.h           |   15 ++++++++
- libselinux/include/selinux/selinux.h       |    6 +++
- libselinux/man/man3/avc_netlink_close.3    |    1 +
- libselinux/man/man3/avc_netlink_loop.3     |   49 ++++++++++++++++++++++++++++
- libselinux/man/man3/avc_netlink_open.3     |    1 +
- libselinux/man/man3/selinux_set_callback.3 |   26 +++++++++++++++
- libselinux/src/avc_internal.c              |    9 +++++
- libselinux/src/avc_internal.h              |    3 --
- libselinux/src/callbacks.c                 |   32 ++++++++++++++++++
- libselinux/src/callbacks.h                 |    6 +++
- 10 files changed, 145 insertions(+), 3 deletions(-)
+ libselinux/include/selinux/label.h   |   10 ++
+ libselinux/include/selinux/selinux.h |    1 +
+ libselinux/src/file_path_suffixes.h  |    1 +
+ libselinux/src/label.c               |    3 +-
+ libselinux/src/label_db.c            |  207 ++++++++++++++++++++++++++++++++++
+ libselinux/src/label_internal.h      |    2 +
+ libselinux/src/selinux_config.c      |   10 ++-
+ libselinux/src/selinux_internal.h    |    1 +
+ 8 files changed, 233 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/include/selinux/avc.h b/libselinux/include/selinux/avc.h
-index 1ea25a2..9ec23ab 100644
---- a/libselinux/include/selinux/avc.h
-+++ b/libselinux/include/selinux/avc.h
-@@ -428,6 +428,21 @@ void avc_av_stats(void);
- void avc_sid_stats(void);
+diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
+index 82f4e13..e167508 100644
+--- a/libselinux/include/selinux/label.h
++++ b/libselinux/include/selinux/label.h
+@@ -29,6 +29,8 @@ struct selabel_handle;
+ #define SELABEL_CTX_MEDIA	1
+ /* x contexts */
+ #define SELABEL_CTX_X		2
++/* database contexts */
++#define SELABEL_CTX_DB		3
  
- /**
-+ * avc_netlink_open - Create a netlink socket and connect to the kernel.
-+ */
-+int avc_netlink_open(int blocking);
-+
-+/**
-+ * avc_netlink_loop - Wait for netlink messages from the kernel
-+ */
-+void avc_netlink_loop(void);
-+
-+/**
-+ * avc_netlink_close - Close the netlink socket
-+ */
-+void avc_netlink_close(void);
-+
-+/**
-  * avc_netlink_acquire_fd - Acquire netlink socket fd.
-  *
-  * Allows the application to manage messages from the netlink socket in
+ /*
+  * Available options
+@@ -116,6 +118,14 @@ void selabel_stats(struct selabel_handle *handle);
+ #define SELABEL_X_POLYPROP	6
+ #define SELABEL_X_POLYSELN	7
+ 
++/* Database backend */
++#define SELABEL_DB_DATABASE	1
++#define SELABEL_DB_CATALOG	2
++#define SELABEL_DB_SCHEMA	3
++#define SELABEL_DB_TABLE	4
++#define SELABEL_DB_COLUMN	5
++#define SELABEL_DB_PROCEDURE	6
++#define SELABEL_DB_SEQUENCE	7
+ 
+ #ifdef __cplusplus
+ }
 diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index fab083e..73f5db0 100644
+index fab083e..8d60b40 100644
 --- a/libselinux/include/selinux/selinux.h
 +++ b/libselinux/include/selinux/selinux.h
-@@ -153,11 +153,17 @@ __attribute__ ((format(printf, 2, 3)))
- 			   char *msgbuf, size_t msgbufsize);
- 	/* validate the supplied context, modifying if necessary */
- 	int (*func_validate) (security_context_t *ctx);
-+	/* netlink callback for setenforce message */
-+	int (*func_setenforce) (int enforcing);
-+	/* netlink callback for policyload message */
-+	int (*func_policyload) (int seqno);
+@@ -460,6 +460,7 @@ extern const char *selinux_file_context_local_path(void);
+ extern const char *selinux_homedir_context_path(void);
+ extern const char *selinux_media_context_path(void);
+ extern const char *selinux_x_context_path(void);
++extern const char *selinux_db_context_path(void);
+ extern const char *selinux_contexts_path(void);
+ extern const char *selinux_securetty_types_path(void);
+ extern const char *selinux_booleans_path(void);
+diff --git a/libselinux/src/file_path_suffixes.h b/libselinux/src/file_path_suffixes.h
+index 8d207c9..30c613d 100644
+--- a/libselinux/src/file_path_suffixes.h
++++ b/libselinux/src/file_path_suffixes.h
+@@ -20,3 +20,4 @@ S_(BINPOLICY, "/policy/policy")
+     S_(FILE_CONTEXTS_LOCAL, "/contexts/files/file_contexts.local")
+     S_(X_CONTEXTS, "/contexts/x_contexts")
+     S_(COLORS, "/secolor.conf")
++    S_(DB_CONTEXTS, "/contexts/db_contexts")
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index f7418d6..1a7b13c 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -20,7 +20,8 @@ typedef int (*selabel_initfunc)(struct selabel_handle *rec,
+ static selabel_initfunc initfuncs[] = {
+ 	&selabel_file_init,
+ 	&selabel_media_init,
+-	&selabel_x_init
++	&selabel_x_init,
++	&selabel_db_init,
  };
  
- #define SELINUX_CB_LOG		0
- #define SELINUX_CB_AUDIT	1
- #define SELINUX_CB_VALIDATE	2
-+#define SELINUX_CB_SETENFORCE	3
-+#define SELINUX_CB_POLICYLOAD	4
- 
- extern union selinux_callback selinux_get_callback(int type);
- extern void selinux_set_callback(int type, union selinux_callback cb);
-diff --git a/libselinux/man/man3/avc_netlink_close.3 b/libselinux/man/man3/avc_netlink_close.3
-index e69de29..293a947 100644
---- a/libselinux/man/man3/avc_netlink_close.3
-+++ b/libselinux/man/man3/avc_netlink_close.3
-@@ -0,0 +1 @@
-+.so man3/avc_netlink_loop.3
-diff --git a/libselinux/man/man3/avc_netlink_loop.3 b/libselinux/man/man3/avc_netlink_loop.3
-index e69de29..0fcf3c4 100644
---- a/libselinux/man/man3/avc_netlink_loop.3
-+++ b/libselinux/man/man3/avc_netlink_loop.3
-@@ -0,0 +1,49 @@
-+.\" Hey Emacs! This file is -*- nroff -*- source.
-+.\"
-+.\" Author: KaiGai Kohei (kaigai@ak.jp.nec.com) 2009
-+.TH "avc_netlink_loop" "3" "30 Mar 2009" "" "SELinux API documentation"
-+.SH "NAME"
-+avc_netlink_open, avc_netlink_loop, avc_netlink_close
-+.SH "SYNOPSIS"
-+.B #include <selinux/selinux.h>
-+
-+.B #include <selinux/avc.h>
-+.sp
-+.BI "void avc_netlink_open(int " blocking ");"
-+.sp
-+.BI "void avc_netlink_loop(void);"
-+.sp
-+.BI "void avc_netlink_close(void);"
-+.sp
-+.SH "DESCRIPTION"
-+These functions enable applications to handle notification events via
-+kernel netlink socket. 
-+
-+.B avc_netlink_open
-+opens a netlink socket to receive notifications from SELinux.
-+It socket file descriptor is stored internally, and application
-+can aquire it using
-+.B avc_netlink_acquire_fd (3)
-+
-+.B avc_netlink_loop
-+waits for notification messages via the netlink socket opened,
-+and invokes callback functions set up using
-+.B selinux_set_callback (3)
-+before invocation of the function. It never returns to the caller
-+unless it got an error. On error, it closes the netlink socket and
-+returns to the caller.
-+
-+.B avc_netlink_close
-+close the netlink socket opend.
-+
-+.SH "OPTIONS"
-+If the
-+.B blocking
-+of the
-+.B avc_netlink_open (3)
-+is not zero, it configures the socket on non-blocking mode.
-+
-+.SH "SEE ALSO"
-+.BR avc_open (3),
-+.BR selinux_set_callback (3),
-+.BR selinux (8)
-diff --git a/libselinux/man/man3/avc_netlink_open.3 b/libselinux/man/man3/avc_netlink_open.3
-index e69de29..293a947 100644
---- a/libselinux/man/man3/avc_netlink_open.3
-+++ b/libselinux/man/man3/avc_netlink_open.3
-@@ -0,0 +1 @@
-+.so man3/avc_netlink_loop.3
-diff --git a/libselinux/man/man3/selinux_set_callback.3 b/libselinux/man/man3/selinux_set_callback.3
-index 6d6a723..3398af7 100644
---- a/libselinux/man/man3/selinux_set_callback.3
-+++ b/libselinux/man/man3/selinux_set_callback.3
-@@ -79,6 +79,31 @@ should be set to
- .B EINVAL
- to indicate an invalid context.
- 
-+.TP
-+.B SELINUX_CB_SETENFORCE
-+.BI "int (*" func_setenforce ") (int " enforcing ");"
-+
-+This callback is used to receive a setenforce notification via netlink socket.
-+It is invoked when the system enforcing state (enforceing or permissive).
-+The
-+.I enforcing
-+shows the new system enforcing state. It shows
-+.I 1
-+if enforcing mode, and
-+.I 0
-+for permissive mode.
-+
-+.TP
-+.B SELINUX_CB_POLICYLOAD
-+.BI "int (*" func_policyload ") (int " seqno ");"
-+
-+This callback is used to receive a policyload notification via netlink socket.
-+It is invoked when the security policy is reloaded, any boolean is changed and
-+others.
-+The
-+.I seqno
-+shows the currect sequential number of the policy generation in the system.
-+
- .SH "RETURN VALUE"
- None.
- 
-@@ -91,5 +116,6 @@ Eamon Walsh <ewalsh@tycho.nsa.gov>
- .SH "SEE ALSO"
- .BR selabel_open (3),
- .BR avc_init (3),
-+.BR avc_netlink_open(3),
- .BR selinux (8)
- 
-diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
-index 7d6f33d..71a4578 100644
---- a/libselinux/src/avc_internal.c
-+++ b/libselinux/src/avc_internal.c
-@@ -19,6 +19,7 @@
- #include <sys/socket.h>
- #include <linux/types.h>
- #include <linux/netlink.h>
+ /*
+diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+index e69de29..974770b 100644
+--- a/libselinux/src/label_db.c
++++ b/libselinux/src/label_db.c
+@@ -0,0 +1,207 @@
++/*
++ * Media contexts backend for Database contexts
++ *
++ * Author: KaiGai Kohei <kaigai@ak.jp.nec.com>
++ */
++#include <sys/stat.h>
++#include <string.h>
++#include <stdio.h>
++#include <stdio_ext.h>
++#include <ctype.h>
++#include <errno.h>
++#include <fnmatch.h>
 +#include "callbacks.h"
- #include "selinux_netlink.h"
- #include "avc_internal.h"
- 
-@@ -159,6 +160,10 @@ static int avc_netlink_process(char *buf)
- 		avc_log(SELINUX_INFO,
- 			"%s:  received setenforce notice (enforcing=%d)\n",
- 			avc_prefix, msg->val);
-+		rc = selinux_netlink_setenforce(msg->val);
-+		if (rc < 0)
-+			return rc;
++#include "label_internal.h"
 +
- 		if (avc_setenforce)
- 			break;
- 		avc_enforcing = msg->val;
-@@ -176,6 +181,10 @@ static int avc_netlink_process(char *buf)
- 		avc_log(SELINUX_INFO,
- 			"%s:  received policyload notice (seqno=%d)\n",
- 			avc_prefix, msg->seqno);
-+		rc = selinux_netlink_policyload(msg->seqno);
-+		if (rc < 0)
-+			return rc;
++struct dbctx_entry {
++	struct dbctx_entry *next;
 +
- 		rc = avc_ss_reset(msg->seqno);
- 		if (rc < 0) {
- 			avc_log(SELINUX_ERROR,
-diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.h
-index 986ea7c..e9e5772 100644
---- a/libselinux/src/avc_internal.h
-+++ b/libselinux/src/avc_internal.h
-@@ -184,9 +184,6 @@ int avc_ss_set_auditdeny(security_id_t ssid, security_id_t tsid,
- 
- /* netlink kernel message code */
- extern int avc_netlink_trouble hidden;
--int avc_netlink_open(int blocking) hidden;
--void avc_netlink_loop(void) hidden;
--void avc_netlink_close(void) hidden;
- 
- hidden_proto(avc_av_stats)
-     hidden_proto(avc_cleanup)
-diff --git a/libselinux/src/callbacks.c b/libselinux/src/callbacks.c
-index 5acfd3d..b245364 100644
---- a/libselinux/src/callbacks.c
-+++ b/libselinux/src/callbacks.c
-@@ -37,6 +37,18 @@ default_selinux_validate(security_context_t *ctx)
- 	return security_check_context(*ctx);
- }
- 
-+static int
-+default_selinux_setenforce(int enforcing __attribute__((unused)))
++	int type;
++	struct selabel_lookup_rec lr;
++	char *key;
++
++	int matches;
++};
++
++static void selabel_db_close(struct selabel_handle *rec)
 +{
++	struct dbctx_entry *entry = rec->data;
++	struct dbctx_entry *next;
++
++	while (entry != NULL) {
++		next = entry->next;
++		free(entry->key);
++		free(entry->lr.ctx_raw);
++		free(entry->lr.ctx_trans);
++		entry = next;
++	}
++}
++
++static struct selabel_lookup_rec *
++selabel_db_lookup(struct selabel_handle *rec, const char *key, int type)
++{
++	struct dbctx_entry *entry = rec->data;
++
++	while (entry != NULL) {
++		if (entry->type == type &&
++		    !fnmatch(entry->key, key, 0)) {
++			entry->matches++;
++                        return &entry->lr;
++		}
++		entry = entry->next;
++	}
++
++	return NULL;
++}
++
++static int process_line(struct selabel_handle *rec, struct dbctx_entry **tail,
++			char *line_buf, const char *path, unsigned lineno)
++{
++	struct dbctx_entry *entry;
++	char *type, *key, *context;
++	int items;
++
++	/* Skip empty lines */
++	while (isspace(*line_buf))
++		line_buf++;
++	if (*line_buf == '#' || *line_buf == '\0')
++		return 0;
++
++	/* Read <type> <key> <context> pair */
++	entry = malloc(sizeof(struct dbctx_entry));
++	if (!entry)
++		return -1;
++	memset(entry, 0, sizeof(struct dbctx_entry));
++
++	items = sscanf(line_buf, "%as %as %as", &type, &key, &context);
++	if (items < 3) {
++		selinux_log(SELINUX_WARNING,
++			    "%s:  line %d is missing fields, skipping\n",
++			    path, lineno);
++		free(entry);
++		if (items > 0)
++			free(type);
++		if (items > 1)
++			free(key);
++		return 0;
++	}
++
++	if (!strcmp(type, "database"))
++		entry->type = SELABEL_DB_DATABASE;
++	else if (!strcmp(type, "catalog"))
++		entry->type = SELABEL_DB_CATALOG;
++	else if (!strcmp(type, "schema"))
++		entry->type = SELABEL_DB_SCHEMA;
++	else if (!strcmp(type, "table"))
++		entry->type = SELABEL_DB_TABLE;
++	else if (!strcmp(type, "column"))
++		entry->type = SELABEL_DB_COLUMN;
++	else if (!strcmp(type, "procedure"))
++		entry->type = SELABEL_DB_PROCEDURE;
++	else if (!strcmp(type, "sequence"))
++		entry->type = SELABEL_DB_SEQUENCE;
++	else {
++		selinux_log(SELINUX_WARNING,
++			    "%s:  line %d has invalid object type %s\n",
++			    path, lineno, type);
++		free(type);
++		free(key);
++		free(context);
++		return 0;
++	}
++	entry->next = NULL;
++	entry->key = key;
++	entry->lr.ctx_raw = context;
++	free(type);
++
++	if (*tail == NULL)
++		rec->data = entry;
++	else
++		(*tail)->next = entry;
++	*tail = entry;
++
 +	return 0;
 +}
 +
-+static int
-+default_selinux_policyload(int seqno __attribute__((unused)))
++static int selabel_db_open(struct selabel_handle *rec,
++			   struct selinux_opt *opts, unsigned nopts)
 +{
-+	return 0;
++	FILE *filp;
++	const char *path = NULL;
++	char *line_buf = NULL;
++	size_t line_len = 0;
++	struct dbctx_entry *tail = NULL;
++	struct stat sb;
++	int status = -1;
++	int lineno = 0;
++
++	/* Process arguments */
++	while (nopts--) {
++		switch (opts[nopts].type) {
++		case SELABEL_OPT_PATH:
++			path = opts[nopts].value;
++			break;
++		}
++
++	}
++
++	/* Open the specification file */
++	if (!path)
++		path = selinux_db_context_path();
++	if ((filp = fopen(path, "r")) == NULL)
++		return -1;
++	__fsetlocking(filp, FSETLOCKING_BYCALLER);
++
++	if (fstat(fileno(filp), &sb) < 0)
++		goto out;
++	if (!S_ISREG(sb.st_mode)) {
++		errno = EINVAL;
++		goto out;
++	}
++
++	/* Read specfile */
++	while (getline(&line_buf, &line_len, filp) > 0)
++	{
++		lineno++;
++
++		if (process_line(rec, &tail, line_buf, path, lineno))
++		{
++			/* release all the list */
++			selabel_db_close(rec);
++			free(line_buf);
++			goto out;
++		}
++	}
++	free(line_buf);
++
++	status = 0;
++out:
++	fclose(filp);
++	return status;
 +}
 +
- /* callback pointers */
- int __attribute__ ((format(printf, 2, 3)))
- (*selinux_log)(int, const char *, ...) =
-@@ -50,6 +62,14 @@ int
- (*selinux_validate)(security_context_t *ctx) =
- 	default_selinux_validate;
++static void selabel_db_stats(struct selabel_handle *rec)
++{
++	struct dbctx_entry *entry;
++	int count =0, total = 0;
++
++	entry = rec->data;
++	while (entry != NULL) {
++		count++;
++		total += entry->matches;
++	}
++
++	selinux_log(SELINUX_INFO, "%u entries, %u matches made\n",
++		    count, total);
++}
++
++int selabel_db_init(struct selabel_handle *rec,
++		    struct selinux_opt *opts, unsigned nopts)
++{
++	rec->data = NULL;
++	rec->func_close = &selabel_db_close;
++	rec->func_lookup = &selabel_db_lookup;
++	rec->func_stats = &selabel_db_stats;
++
++	return selabel_db_open(rec, opts, nopts);
++}
+diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+index 27a1f06..0f3a3d9 100644
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -23,6 +23,8 @@ int selabel_media_init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 		      unsigned nopts) hidden;
+ int selabel_x_init(struct selabel_handle *rec, struct selinux_opt *opts,
+ 		   unsigned nopts) hidden;
++int selabel_db_init(struct selabel_handle *rec, struct selinux_opt *opts,
++		    unsigned nopts) hidden;
  
-+int
-+(*selinux_netlink_setenforce) (int enforcing) =
-+	default_selinux_setenforce;
-+
-+int
-+(*selinux_netlink_policyload) (int seqno) =
-+	default_selinux_policyload;
-+
- /* callback setting function */
- void
- selinux_set_callback(int type, union selinux_callback cb)
-@@ -64,6 +84,12 @@ selinux_set_callback(int type, union selinux_callback cb)
- 	case SELINUX_CB_VALIDATE:
- 		selinux_validate = cb.func_validate;
- 		break;
-+	case SELINUX_CB_SETENFORCE:
-+		selinux_netlink_setenforce = cb.func_setenforce;
-+		break;
-+	case SELINUX_CB_POLICYLOAD:
-+		selinux_netlink_policyload = cb.func_policyload;
-+		break;
- 	}
+ /*
+  * Labeling internal structures
+diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+index dec5426..8870dc8 100644
+--- a/libselinux/src/selinux_config.c
++++ b/libselinux/src/selinux_config.c
+@@ -40,7 +40,8 @@
+ #define SECURETTY_TYPES   18
+ #define X_CONTEXTS        19
+ #define COLORS            20
+-#define NEL               21
++#define DB_CONTEXTS       21
++#define NEL               22
+ 
+ /* New layout is relative to SELINUXDIR/policytype. */
+ static char *file_paths[NEL];
+@@ -391,3 +392,10 @@ const char *selinux_x_context_path()
  }
  
-@@ -83,6 +109,12 @@ selinux_get_callback(int type)
- 	case SELINUX_CB_VALIDATE:
- 		cb.func_validate = selinux_validate;
- 		break;
-+	case SELINUX_CB_SETENFORCE:
-+		cb.func_setenforce = selinux_netlink_setenforce;
-+		break;
-+	case SELINUX_CB_POLICYLOAD:
-+		cb.func_policyload = selinux_netlink_policyload;
-+		break;
- 	default:
- 		memset(&cb, 0, sizeof(cb));
- 		errno = EINVAL;
-diff --git a/libselinux/src/callbacks.h b/libselinux/src/callbacks.h
-index 068fa9d..52ad555 100644
---- a/libselinux/src/callbacks.h
-+++ b/libselinux/src/callbacks.h
-@@ -21,4 +21,10 @@ extern int
- extern int
- (*selinux_validate)(security_context_t *ctx) hidden;
- 
-+extern int
-+(*selinux_netlink_setenforce) (int enforcing) hidden;
+ hidden_def(selinux_x_context_path)
 +
-+extern int
-+(*selinux_netlink_policyload) (int seqno) hidden;
++const char *selinux_db_context_path()
++{
++	return get_path(DB_CONTEXTS);
++}
 +
- #endif				/* _SELINUX_CALLBACKS_H_ */
++hidden_def(selinux_db_context_path)
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 8b4c6d4..d0e5191 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -66,6 +66,7 @@ hidden_proto(selinux_mkload_policy)
+     hidden_proto(selinux_customizable_types_path)
+     hidden_proto(selinux_media_context_path)
+     hidden_proto(selinux_x_context_path)
++    hidden_proto(selinux_db_context_path)
+     hidden_proto(selinux_path)
+     hidden_proto(selinux_check_passwd_access)
+     hidden_proto(selinux_check_securetty_context)
 
---------------060007090109000701040706--
+--------------000501060204030903010905
+Content-Type: text/plain;
+ name="dblabel.c"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="dblabel.c"
+
+I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdGRsaWIuaD4KI2luY2x1ZGUgPHN0cmlu
+Zy5oPgojaW5jbHVkZSA8ZXJybm8uaD4KI2luY2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPgoj
+aW5jbHVkZSA8c2VsaW51eC9sYWJlbC5oPgoKaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKmFy
+Z3ZbXSkKewogICAgc2VjdXJpdHlfY29udGV4dF90IGNvbnRleHQ7CiAgICBzdHJ1Y3Qgc2Vs
+YWJlbF9oYW5kbGUgKmhuZDsKICAgIGNvbnN0IGNoYXIgKnR5cGVuYW1lOwogICAgY29uc3Qg
+Y2hhciAqa2V5d29yZDsKICAgIGludCB0eXBlOwoKICAgIGlmICghYXJndlsxXSB8fCAhYXJn
+dlsyXSkgewoJZnByaW50ZihzdGRlcnIsICJ1c2FnZTogJXMgPHR5cGU+IDxrZXk+XG4iLCBh
+cmd2WzBdKTsKCXJldHVybiAxOwogICAgfQoKICAgIHR5cGVuYW1lID0gYXJndlsxXTsKICAg
+IGtleXdvcmQgPSBhcmd2WzJdOwoKICAgIGlmICghc3RyY21wKHR5cGVuYW1lLCAiZGF0YWJh
+c2UiKSkKCXR5cGUgPSBTRUxBQkVMX0RCX0RBVEFCQVNFOwogICAgZWxzZSBpZiAoIXN0cmNt
+cCh0eXBlbmFtZSwgImNhdGFsb2ciKSkKCXR5cGUgPSBTRUxBQkVMX0RCX0NBVEFMT0c7CiAg
+ICBlbHNlIGlmICghc3RyY21wKHR5cGVuYW1lLCAic2NoZW1hIikpCgl0eXBlID0gU0VMQUJF
+TF9EQl9TQ0hFTUE7CiAgICBlbHNlIGlmICghc3RyY21wKHR5cGVuYW1lLCAidGFibGUiKSkK
+CXR5cGUgPSBTRUxBQkVMX0RCX1RBQkxFOwogICAgZWxzZSBpZiAoIXN0cmNtcCh0eXBlbmFt
+ZSwgImNvbHVtbiIpKQoJdHlwZSA9IFNFTEFCRUxfREJfQ09MVU1OOwogICAgZWxzZSBpZiAo
+IXN0cmNtcCh0eXBlbmFtZSwgInByb2NlZHVyZSIpKQoJdHlwZSA9IFNFTEFCRUxfREJfUFJP
+Q0VEVVJFOwogICAgZWxzZSBpZiAoIXN0cmNtcCh0eXBlbmFtZSwgInNlcXVlbmNlIikpCgl0
+eXBlID0gU0VMQUJFTF9EQl9TRVFVRU5DRTsKICAgIGVsc2UgewoJZnByaW50ZihzdGRlcnIs
+ICJpbnZhbGlkIG9iamVjdCB0eXBlOiAlc1xuIiwgYXJndlsxXSk7CglyZXR1cm4gMTsKICAg
+IH0KCiAgICBobmQgPSBzZWxhYmVsX29wZW4oU0VMQUJFTF9DVFhfREIsIE5VTEwsIDApOwog
+ICAgaWYgKCFobmQpIHsKCWZwcmludGYoc3RkZXJyLCAic2VsYWJlbF9vcGVuIGZhaWxlZCA6
+ICVzXG4iLCBzdHJlcnJvcihlcnJubykpOwoJcmV0dXJuIDE7CiAgICB9CgogICAgaWYgKHNl
+bGFiZWxfbG9va3VwKGhuZCwgJmNvbnRleHQsIGtleXdvcmQsIHR5cGUpIDwgMCkKCXByaW50
+ZigiTm8gdmFsaWQgY29udGV4dCBmb3IgKCVzLCVzKVxuIiwgdHlwZW5hbWUsIGtleXdvcmQp
+OwogICAgZWxzZQoJcHJpbnRmKCJsb29rdXA6ICVzIGZvciAoJXMsJXMpXG4iLCBjb250ZXh0
+LCB0eXBlbmFtZSwga2V5d29yZCk7CgogICAgc2VsYWJlbF9jbG9zZShobmQpOwp9Cg==
+--------------000501060204030903010905--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
