@@ -1,152 +1,80 @@
-Message-ID: <49D175C6.2050001@ak.jp.nec.com>
-Date: Tue, 31 Mar 2009 10:45:42 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2V37IYN027131
+	for <selinux@tycho.nsa.gov>; Mon, 30 Mar 2009 23:07:18 -0400
+Received: from smtp103.prem.mail.sp1.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n2V37HSm028460
+	for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 03:07:17 GMT
+Message-ID: <49D188D6.6020107@schaufler-ca.com>
+Date: Mon, 30 Mar 2009 20:07:02 -0700
+From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
-To: Eamon Walsh <ewalsh@tycho.nsa.gov>
-CC: method@manicmethod.com, jmorris@namei.org, selinux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] Permissive domain in userspace (Re: Some ideas in SE-PostgreSQL
- enhancement)
-References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com> <49CB3CEB.1070505@ak.jp.nec.com> <49CD8E68.9090004@tycho.nsa.gov> <49D034B9.9080406@ak.jp.nec.com>
-In-Reply-To: <49D034B9.9080406@ak.jp.nec.com>
-Content-Type: multipart/mixed;
- boundary="------------030905030709010002000902"
+To: Jarrett Lu <Jarrett.Lu@sun.com>
+CC: Stephen Smalley <sds@tycho.nsa.gov>, labeled-nfs@linux-nfs.org,
+        nfs-discuss@opensolaris.org, selinux@tycho.nsa.gov, nfsv4@ietf.org,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted
+ to IETF	website
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <49C9F0E1.1040202@sun.com> <20090325163317.GV9992@Sun.COM> <49CB4A18.3090709@sun.com> <20090326150934.GR9992@Sun.COM> <49CBFB94.6030408@sun.com> <20090327001102.GU9992@Sun.COM> <1238158539.15207.6.camel@localhost.localdomain> <1238160162.15207.19.camel@localhost.localdomain> <49CD06E7.6030802@sun.com> <20090327172632.GA9992@Sun.COM> <49CD2169.3080209@sun.com> <1238434634.2484.90.camel@localhost.localdomain> <49D10FC1.3000103@sun.com>
+In-Reply-To: <49D10FC1.3000103@sun.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------030905030709010002000902
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Jarrett Lu wrote:
+> ...
+> As Casey and others pointed out, a lot more information about a
+> communicating peer is needed in order to be able to translate a label
+> and other security attributes. People have tried this in 90's.
+> Apparently the solution is no longer in use today.
 
-KaiGai Kohei wrote:
-> If we have an entry something like "/selinux/permissive" to return
-> whether the given domain is permissive or not, I think we don't need
-> to have the flags field on security_compute_av(). It can be checked
-> on the creation of userspace avc entry, and checked it on later access
-> controls.
+You're giving us more credit than we're due. No, the problem was never
+solved. Oh, we had a few "interoperability rings", where we got together
+and tried talking CIPSO and SAMP to each other, but it was sort of like
+going to a SciFi convention and striking up conversations in Klingon.
+I believe that DEC claimed they could talk to SUN using SAMP and HP
+could talk to SGI in CIPSO, and everyone could banter in their own
+version of NFS, but there was no money behind it, and interoperability
+was never achieved even at the low levels.
 
-The attached patch exposes a new entry in selinuxfs, which enables
-userspace stuff to make a query whether the given context is permissive
-domain, or not.
-If the given context is permissive domain, userspace stuffs can mark
-its entry as a permissive one on creation of avc entries, to avoid
-policy enforcement on permissive domains.
+> Maybe we can do something better 15 years later. The first step is to
+> figure out how much information is needed and then look into how to
+> get this info across securely. GSS_SEC may be able to help us. To make
+> NFSv4 work, only TCP is needed. So peer information is needed per
+> session vs. per packet, I believe. Evidently, there is more work to do
+> in figuring this all out.
 
-It now checks security:{check_context} permission, but it should be
-discussed what permission to be checked here.
+Not to throw a puppy in the gears, but sophisticated handshaking and
+negotiation protocols are not the answer. We had TSIG session management
+for doing that and it is just not enough. How would you negotiate the
+differences between two SELinux policies?
 
-The attached check_permissive.c is an example to use the interface.
+>
+> A process related question: Should we move the "design" related
+> discussion to a smaller alias? I assume most people don't care about
+> the details and prefer not see this in their email inbox. I set up a
+> mail alias, doi-discuss@opensolaris.org, a few months ago for a
+> similar discussion. If people think that's a good way to go, I can
+> provide more info.
 
-  [kaigai@saba ~]$ ./check_permissive staff_u:staff_r:staff_t:s0
-  staff_u:staff_r:staff_t:s0 is a permissive domain
-  [kaigai@saba ~]$ ./check_permissive user_u:user_r:user_t:s0
-  user_u:user_r:user_t:s0 is NOT a permissive domain
+I would be delighted to see the discussion stay here. I would expect
+a smaller group to end up with a rehash of one of the TSIX protocols
+and a chip on their shoulders to make it go because of the work that
+had gone into it. The problem is not one of communication, it's one
+of getting the information communicated to make sense. Look at CIFS
+and NFSv4 ACLs. That is the level of effort you have to invest to
+solve the problem for a pair of different security schemes. True,
+the more similar the schemes the more likely the results will make
+sense, but even two Smack systems with different rule sets, or
+two TOMOYO boxes with different profiles are beyond what you can fit
+in a configuration database.
 
-Thanks,
--- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+NFSv4 with labels will properly only ever support servers and clients
+with identical label configurations, and with that the DOI becomes
+meaningless. If you want to support labels improperly you have a
+much better chance of success, but a tougher row to hoe with the
+standards bodies. This is hard, and we've been working since the 80's
+on it, looking for someone smarter than us to propose a solution.
 
---------------030905030709010002000902
-Content-Type: text/x-patch;
- name="kernel-interface-permissive-domain.1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kernel-interface-permissive-domain.1.patch"
-
- Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
---
- security/selinux/selinuxfs.c |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+), 0 deletions(-)
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index d3c8b98..10accc0 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -122,6 +122,7 @@ enum sel_inos {
- 	SEL_COMPAT_NET,	/* whether to use old compat network packet controls */
- 	SEL_REJECT_UNKNOWN, /* export unknown reject handling to userspace */
- 	SEL_DENY_UNKNOWN, /* export unknown deny handling to userspace */
-+	SEL_PERMISSIVE,	/* check whether permissive domain or not */
- 	SEL_INO_NEXT,	/* The next inode number to use */
- };
- 
-@@ -513,6 +514,7 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size);
- static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size);
- static ssize_t sel_write_user(struct file *file, char *buf, size_t size);
- static ssize_t sel_write_member(struct file *file, char *buf, size_t size);
-+static ssize_t sel_write_permissive(struct file *file, char *buf, size_t size);
- 
- static ssize_t (*write_op[])(struct file *, char *, size_t) = {
- 	[SEL_ACCESS] = sel_write_access,
-@@ -521,6 +523,7 @@ static ssize_t (*write_op[])(struct file *, char *, size_t) = {
- 	[SEL_USER] = sel_write_user,
- 	[SEL_MEMBER] = sel_write_member,
- 	[SEL_CONTEXT] = sel_write_context,
-+	[SEL_PERMISSIVE] = sel_write_permissive,
- };
- 
- static ssize_t selinux_transaction_write(struct file *file, const char __user *buf, size_t size, loff_t *pos)
-@@ -841,6 +844,26 @@ out:
- 	return length;
- }
- 
-+static ssize_t sel_write_permissive(struct file *file, char *buf, size_t size)
-+{
-+	u32 sid;
-+	ssize_t rc;
-+
-+	/*
-+	 * MEMO: Is it correct to check security:{check_context} here?
-+	 * Or, we should add something like security:{check_permissive}?
-+	 */
-+	rc = task_has_security(current, SECURITY__CHECK_CONTEXT);
-+	if (rc)
-+		return rc;
-+
-+	rc = security_context_to_sid(buf, size, &sid);
-+	if (rc < 0)
-+		return rc;
-+
-+	return security_permissive_sid(sid);
-+}
-+
- static struct inode *sel_make_inode(struct super_block *sb, int mode)
- {
- 	struct inode *ret = new_inode(sb);
-@@ -1668,6 +1691,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
- 		[SEL_COMPAT_NET] = {"compat_net", &sel_compat_net_ops, S_IRUGO|S_IWUSR},
- 		[SEL_REJECT_UNKNOWN] = {"reject_unknown", &sel_handle_unknown_ops, S_IRUGO},
- 		[SEL_DENY_UNKNOWN] = {"deny_unknown", &sel_handle_unknown_ops, S_IRUGO},
-+		[SEL_PERMISSIVE] = {"permissive", &transaction_ops, S_IRUGO|S_IWUGO},
- 		/* last one */ {""}
- 	};
- 	ret = simple_fill_super(sb, SELINUX_MAGIC, selinux_files);
-
---------------030905030709010002000902
-Content-Type: text/plain;
- name="check_permissive.c"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="check_permissive.c"
-
-I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdGRsaWIuaD4KI2luY2x1ZGUgPHN0cmlu
-Zy5oPgojaW5jbHVkZSA8ZXJybm8uaD4KI2luY2x1ZGUgPGZjbnRsLmg+CiNpbmNsdWRlIDxz
-eXMvdHlwZXMuaD4KI2luY2x1ZGUgPHN5cy9zdGF0Lmg+CiNpbmNsdWRlIDxzZWxpbnV4L3Nl
-bGludXguaD4KCmludCBtYWluKGludCBhcmdjLCBjaGFyICphcmd2W10pCnsKCWNvbnN0IGNo
-YXIgKnBhdGggPSAiL3NlbGludXgvcGVybWlzc2l2ZSI7CglpbnQgZmQsIHJjOwoKCWlmIChh
-cmd2WzFdID09IE5VTEwpIHsKCQlmcHJpbnRmKHN0ZGVyciwgInVzYWdlOiAlcyA8Y29udGV4
-dD5cbiIsIGFyZ3ZbMF0pOwoJCXJldHVybiAtMTsKCX0KCglmZCA9IG9wZW4ocGF0aCwgT19S
-RFdSKTsKCWlmIChmZCA8IDApIHsKCQlmcHJpbnRmKHN0ZGVyciwgImNvdWxkIG5vdCBvcGVu
-ICVzICglcylcbiIsCgkJCXBhdGgsIHN0cmVycm9yKGVycm5vKSk7CgkJcmV0dXJuIC0xOwoJ
-fQoKCXJjID0gd3JpdGUoZmQsIGFyZ3ZbMV0sIHN0cmxlbihhcmd2WzFdKSk7CglpZiAocmMg
-PCAwKSB7CgkJZnByaW50ZihzdGRlcnIsICJlcnJvcjogd3JpdGUoJyVzJywgJyVzJykgKCVz
-KVxuIiwKCQkJcGF0aCwgYXJndlsxXSwgc3RyZXJyb3IoZXJybm8pKTsKCQlyZXR1cm4gLTE7
-Cgl9CgoJcHJpbnRmKCIlcyBpcyAlcyBwZXJtaXNzaXZlIGRvbWFpblxuIiwKCSAgICAgICBh
-cmd2WzFdLCByYyA/ICJhIiA6ICJOT1QgYSIpOwoKCWNsb3NlKGZkKTsKCglyZXR1cm4gMDsK
-fQo=
---------------030905030709010002000902--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
