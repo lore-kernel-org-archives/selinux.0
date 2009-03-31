@@ -1,410 +1,253 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2VA7hFI004997
-	for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 06:07:43 -0400
-Received: from house.lunarmania.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2VA7gP1005539
-	for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 10:07:42 GMT
-Message-ID: <49D1EAE7.8050100@rubix.com>
-Date: Tue, 31 Mar 2009 12:05:27 +0200
-From: Andy Warner <warner@rubix.com>
-MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: cpebenito@tresys.com, method@manicmethod.com, selinux@tycho.nsa.gov,
-        refpolicy@oss.tresys.com
-Subject: Re: [RFC] Security policy reworks for SE-PostgreSQL
-References: <49D1DA85.1030902@ak.jp.nec.com>
-In-Reply-To: <49D1DA85.1030902@ak.jp.nec.com>
-Content-Type: multipart/alternative;
- boundary="------------060405020006070208000904"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2VAUM2n009633
+	for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 06:30:22 -0400
+Received: from mail-ew0-f177.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n2VAULP1011427
+	for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 10:30:21 GMT
+Received: by ewy25 with SMTP id 25so3170899ewy.18
+        for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 03:30:20 -0700 (PDT)
+Subject: Re: request for review of httpd-related Boolean definitions
+From: Dominick Grift <domg472@gmail.com>
+To: Scott Radvan <sradvan@redhat.com>
+Cc: selinux@tycho.nsa.gov
+In-Reply-To: <20090331151638.770627cb@redhat.com>
+References: <20090331151638.770627cb@redhat.com>
+Content-Type: text/plain
+Date: Tue, 31 Mar 2009 12:30:18 +0200
+Message-Id: <1238495418.3465.69.camel@notebook2.grift.internal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------060405020006070208000904
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+On Tue, 2009-03-31 at 15:16 +1000, Scott Radvan wrote:
 
-looks good to me.
+I am going to use this thread to just share any thoughts i have with regards to this
+> 
+> o  allow_httpd_anon_write
+> This Boolean is off by default, allowing httpd only read access to
+> files labeled with the public_content_rw_t type. Enabling this Boolean
+> will allow httpd to write to files labeled with the public_content_rw_t
+> type, such as a public directory containing files for a public file
+> transfer service. 
 
-One minor comment. For the superuser permission, this may be common use
-of DBMS's but I believe is not a standard SQL feature. RUBIX has no such
-concept, so we would generally ignore that permission. Also, it is
-unclear to me what abilities the superuser should have (in the general
-sense, not necessarily within sepostgresql). Is this just a permission
-to override SQL DAC, or does it also give administrative abilities like
-setting audit configurations, or "all the above." I think you said
-before that it would not allow MAC override, correct?
 
-RUBIX currently has four privileged "roles":
-Database Administrator: DAC override
-Security Administrator: MAC override, to some degree. With SELinux much
-of this can be done with discrete rules.
-Audit Administrator: administer audit trail and criteria
-Database Operator: do the normal day-today administrative DBMS tasks,
-like backup.
+> o  allow_httpd_mod_auth_ntlm_winbind
+> This Boolean is off by default. Enabling it will allow access to NTLM
+> and Winbind authentication mechanisms via the mod_auth_ntlm_winbind
+> module in httpd. 
+> 
+> o  allow_httpd_mod_auth_pam
+> This Boolean is off by default. Enabling it will allow access to PAM
+> authentication mechanisms via the mod_auth_pam module in httpd.
+> 
+> o  allow_httpd_sys_script_anon_write
+> This Boolean is off by default. It defines whether or not HTTP scripts
+> are allowed write access to files labeled with the public_content_rw_t
+> type, as used in a public file transfer service.
+> 
+> o  httpd_builtin_scripting 
+> This Boolean is on by default, allowing httpd scripting. Having this
+> Boolean enabled is often required for PHP content.
 
-I am curious, if the intended use of the db_database superuser
-permission would be an encapsulation of our all of our roles, excluding
-the Security Administrator.
+It allows: 
 
-As a side note, without knowing too much about the intent of the
-superuser permission, I would think the categories of "roles" RUBIX uses
-would be general enough for just about any database. Thus, providing
-equivalent permissions might be useful (excluding the Security
-Administrator, which I am guessing the community would say is not needed
-because MAC override mechanisms exist within SELinux already) .
+1. httpd_t to manage templated httpd rw content,
+2. httpd_t to read templated httpd ra content,
+3. httpd_t to read templated httpd content,
 
-KaiGai Kohei wrote:
-> As we have discussed for the recent week, I have a plan to rework
-> some of security policy for SE-PostgreSQL.
->
-> The attached patch adds the significan changes, as follows.
-> Could you give me any suggestion, approval or opposition?
->
-> New object classes and permissions
-> ----------------------------------
->  * db_catalog class
->    It shows the top level namespace in the database, and has a capability
->    to store a set of schemas. Some of implementation does not support
->    catalogs. In this case, we simply ignore this class and any schemas
->    are placed under the db_database directly.
->
->    It defines the following four permissions and inherited ones:
->      { search add_object remove_object associate }
->
->    Client should have db_catalog:{search} on the catalog when he refers
->    any schemas under the catalog, and he should also have
->    db_catalog:{add_object} and db_catalog:{remove_object} on the catalog
->    when he tries to add or remove a shema within the catalog.
->    These permissions are an analogy of dir object class.
->
->    The db_catalog:{associate}, which I've not introduced yet but noticed
->    its necessity, is also checked when we create or relabel a schema
->    within the catalog, and the schema should have db_catalog:{associate}
->    on the catalog. It is an analogy of filesystem:{associate}.
->    It prevents a schema is labeled unexpectedly.
->
->  * db_schema class
->    It shows the second level namespace in the database, but it may be
->    the top level one in some of implementation (like PostgreSQL).
->    It has a capability to store a set of database objects (tables,
->    procedures and so on).
->
->    It defines the following four permissions and inherited ones:
->      { search add_object remove_object associate }
->    Their meanings are similar to ones in db_catalog class except for
->    the schema to be replaced by database objects.
->
->    Its security context can be computed with TYPE_TRANSITION between
->    the client as a subject and the database (or catalog, if availabel)
->    as a target.
->
->  * db_sequence class
->    It shows the sequential number generator objects. We can also use
->    them as a communication channel between two domains, so it is
->    necessary to apply security policy.
->
->    It inherits common database and defines the following two permissions:
->      { get_value set_value }
->    Client should have db_sequence:{get_value} when he fetch a value from
->    the sequence generator, and db_sequence:{set_value} when he set a
->    discretionary value. When he fetch a value from the sequence object,
->    it implicitly increments internal counter, but it is covered by the
->    get_value permission.
->
->    Its security context can be computed with TYPE_TRANSITION between
->    the client as a subject and the schema as a target.
->
-> Change definition of object classes
-> -----------------------------------
->  * db_database class
->    The db_database:{get_param set_param} is removed because these two
->    permissions are nonsense.
->    The db_database:{superuser} is newly added. It is checked when
->    client perform as database superuser. Stephen suggested it can
->    be separated to more finer grained privileges. It makes sense,
->    but this kind of separation which focuses on PostgreSQL makes
->    hard to port the concept for other database management systems.
->
->  * db_table/db_column/db_tuple:{use} permission
->    The db_xxx:{use} permission is integrated into db_xxx:{select}
->    permission, because it can hide the risk to infer invisible
->    information easily with well considered WHERE clauses.
->
-> user_sepgsql_xxxx_t types
-> -------------------------
->  * Currently, sepgsql_proc_t is assigned to the procedures created
->    by unprivileged and unprefixed clients, like httpd_t.
->    But I would like to handle it as a procedure created or relabeled
->    by database administrator.
->    Basically, we consider user defined procedures are untrusted, so
->    it should be checked before it becomes available for all the clients.
->    So, we don't allow to install them as system internal entities, and
->    don't allow unconfined domains to execute them directly.
->
->    My preference is the user_sepgsql_xxxx_t is also assigned to
->    procedures created by unprivileged and unprfixed client.
->
-> A schema for temporary obejcts
-> ------------------------------
->  * The sepgsql_schema_t is the default type for schema objects, and
->    rest of database objects within the schema is labeled with the chain
->    of TYPE_TRANSITION rules.
->    We have a characteristic scheme named as "pg_temp_*". Any database
->    objects within the schema are cleared after the session closed,
->    so its contents are always session local. We would like to assign
->    special types on the temporary schema and delivered database objects
->    withing the schema. In addition, users can create and use these
->    database objects independently from the sepgsql_enable_users_ddl.
->
-> Booelean behavior: sepgsql_enable_users_ddl
-> -------------------------------------------
->  * Because the current design does not care about actions on schema
->    objects, we need to assign separated label (sepgsql_sysobj_t) on
->    system informations and apply checks as row-level controls.
->    But db_schema object class enables to control user's DDLs in
->    the schema level checks mainly, so now sepgsql_enable_user_ddl
->    focuses on db_schema class permissions and {create drop setattr}
->    for any other database objects.
->    The attached patch allows users to modify tuples with sepgsql_sysobj_t
->    but not allows columns/tables. It means user can define database
->    objects with proper way (like CREATE TABLE), but prevents to
->    manipulate system information by hand.
->    In addition, this boolean controls only user_sepgsql_xxxx_t.
->    The unprefixed types are always not allowed to modify its definition
->    by unprivileges users.
->
-> db_table:{lock} for reader actions
-> ----------------------------------
->  * db_table:{lock} is also necessary for reader side actions due to the
->    implementation reason.
->    In PostgreSQL, FK constraints are implemented as trigger functions.
->    It is invoked for each INSERT/UPDATE/DELETE on constrainted tuples,
->    and run a secondary query to check whether the action satisfies
->    FK constraints or not.
->    This query is described as:
->      SELECT 1 FROM t WHERE k = "$1" FOR SHARE;
->
->    The "FOR SHARE" clause means explicit table lock and requires
->    db_table:{lock} permission. If we don't allow unpriv clients to
->    lock read-only tables, it disables to set up FK constraint which
->    refers read-only tables.
->
-> Miscellaneous changes
-> ---------------------
->  * The security context of a new database is decided via type_transition
->    on the server process's context. It enables to avoid conflicts when
->    we have multiple DBMSs in a system.
->  * It allows postgresql_t domain to write out messages to system audit.
->  * sepgsql_proc_t is aliased to sepgsql_proc_exec_t.
->  * db_procedure:{install} is revoked from sepgsql_trusted_proc_exec_t,
->    because we don't need to run trusted procedure implicitly.
->  * Most of postgresql_role() are shared with postgresql_unpriv_client(),
->    except for "role $1 types sepgsql_trusted_proc_t;"
->  * /etc/selinux/$POLICYTYPE/contexts/db_contexts for selabel_lookup(3)
->
-> Thanks,
->   
+# Allow the web server to run scripts and serve pages
+tunable_policy(`httpd_builtin_scripting',`
+	manage_dirs_pattern(httpd_t, httpd_$1_content_rw_t, httpd_
+$1_content_rw_t)
+	manage_files_pattern(httpd_t, httpd_$1_content_rw_t, httpd_
+$1_content_rw_t)
+	manage_lnk_files_pattern(httpd_t, httpd_$1_content_rw_t, httpd_
+$1_content_rw_t)
+	rw_sock_files_pattern(httpd_t, httpd_$1_content_rw_t, httpd_
+$1_content_rw_t)
 
---------------060405020006070208000904
-Content-Type: text/html; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	allow httpd_t httpd_$1_content_ra_t:dir { list_dir_perms
+add_entry_dir_perms };
+	read_files_pattern(httpd_t, httpd_$1_content_ra_t, httpd_
+$1_content_ra_t)
+	append_files_pattern(httpd_t, httpd_$1_content_ra_t, httpd_
+$1_content_ra_t)
+	read_lnk_files_pattern(httpd_t, httpd_$1_content_ra_t, httpd_
+$1_content_ra_t)
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <meta content="text/html;charset=ISO-2022-JP"
- http-equiv="Content-Type">
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<font face="Arial">looks good to me. <br>
-<br>
-One minor comment. For the superuser permission, this may be common use
-of DBMS's but I believe is not a standard SQL feature. RUBIX has no
-such concept, so we would generally ignore that permission. Also, it is
-unclear to me what abilities the superuser should have (in the general
-sense, not necessarily within sepostgresql). Is this just a permission
-to override SQL DAC, or does it also give administrative abilities like
-setting audit configurations, or "all the above." I think you said
-before that it would not allow MAC override, correct? <br>
-<br>
-RUBIX currently has four privileged "roles":<br>
-Database Administrator: DAC override <br>
-Security Administrator: MAC override, to some degree. With SELinux much
-of this can be done with discrete rules.<br>
-Audit Administrator: administer audit trail and criteria<br>
-Database Operator: do the normal day-today administrative DBMS tasks,
-like backup.<br>
-<br>
-I am curious, if the intended use of the db_database superuser
-permission would be an encapsulation of our all of our roles, excluding
-the Security Administrator. <br>
-<br>
-As a side note, without knowing too much about the intent of the
-superuser permission, I would think the categories of "roles" RUBIX
-uses would be general enough for just about any database. Thus,
-providing equivalent permissions </font><font face="Arial">might be
-useful </font><font face="Arial">(excluding the Security
-Administrator, which I am guessing the community would say is not
-needed because MAC override mechanisms exist within SELinux already) .<br>
-</font><br>
-KaiGai Kohei wrote:
-<blockquote cite="mid:49D1DA85.1030902@ak.jp.nec.com" type="cite">
-  <pre wrap="">As we have discussed for the recent week, I have a plan to rework
-some of security policy for SE-PostgreSQL.
+	allow httpd_t httpd_$1_content_t:dir list_dir_perms;
+	read_files_pattern(httpd_t, httpd_$1_content_t, httpd_$1_content_t)
+	read_lnk_files_pattern(httpd_t, httpd_$1_content_t, httpd_$1_content_t)
 
-The attached patch adds the significan changes, as follows.
-Could you give me any suggestion, approval or opposition?
+	allow httpd_t httpd_$1_content_t:dir list_dir_perms;
+	read_files_pattern(httpd_t, httpd_$1_content_t, httpd_$1_content_t)
+	read_lnk_files_pattern(httpd_t, httpd_$1_content_t, httpd_$1_content_t)
+')
 
-New object classes and permissions
-----------------------------------
- * db_catalog class
-   It shows the top level namespace in the database, and has a capability
-   to store a set of schemas. Some of implementation does not support
-   catalogs. In this case, we simply ignore this class and any schemas
-   are placed under the db_database directly.
+I think this is a bug in policy or atleast that this boolean is too
+coarse
 
-   It defines the following four permissions and inherited ones:
-     { search add_object remove_object associate }
+with this boolean set to false: httpd_t cannot read
+httpd_user_content_t. Basically what it means is that you cannot use
+httpd userdirs (httpd_enable_userdirs) without scripting enabled.
 
-   Client should have db_catalog:{search} on the catalog when he refers
-   any schemas under the catalog, and he should also have
-   db_catalog:{add_object} and db_catalog:{remove_object} on the catalog
-   when he tries to add or remove a shema within the catalog.
-   These permissions are an analogy of dir object class.
+> o  httpd_can_network_connect
+> This Boolean is off by default, preventing HTTP scripts and modules
+> from initiating a connection to a network or remote port. Turn this
+> Boolean on to allow this access. 
+> 
+> o  httpd_can_network_connect_db
+> This Boolean is off by default, preventing HTTP scripts and modules
+> from initiating a connection to database servers. Turn this Boolean on
+> to allow this access. 
+> 
+> o  httpd_can_network_relay
+> Turn this Boolean on when httpd is being used as a forward or
+> reverse proxy. 
+> 
+> o  httpd_can_sendmail
+> This Boolean is off by default, preventing HTTP modules from sending
+> mail. This can prevent spam attacks should a vulnerability be found in
+> httpd. Turn this Boolean on to allow HTTP modules to send mail.
+> 
+> o  httpd_dbus_avahi
+> This Boolean is off by default, denying httpd access to the avahi
+> service via dbus. Turn this Boolean on to allow this access.
+> 
+> o  httpd_enable_cgi
+> By default, SELinux prevents httpd from executing CGI scripts. Turn
+> this Boolean on to allow httpd to execute CGI scripts (CGI scripts must
+> be labeled with the httpd_sys_script_exec_t type).
 
-   The db_catalog:{associate}, which I've not introduced yet but noticed
-   its necessity, is also checked when we create or relabel a schema
-   within the catalog, and the schema should have db_catalog:{associate}
-   on the catalog. It is an analogy of filesystem:{associate}.
-   It prevents a schema is labeled unexpectedly.
+1. It creates an entrypoint for templated httpd domains and their
+executable files
 
- * db_schema class
-   It shows the second level namespace in the database, but it may be
-   the top level one in some of implementation (like PostgreSQL).
-   It has a capability to store a set of database objects (tables,
-   procedures and so on).
+2. It allow httpd_t to domain transition to templated httpd domains
 
-   It defines the following four permissions and inherited ones:
-     { search add_object remove_object associate }
-   Their meanings are similar to ones in db_catalog class except for
-   the schema to be replaced by database objects.
+3. it allows templated httpd domains basic permissions to run.
 
-   Its security context can be computed with TYPE_TRANSITION between
-   the client as a subject and the database (or catalog, if availabel)
-   as a target.
+tunable_policy(`httpd_enable_cgi',`
+	allow httpd_$1_script_t httpd_$1_script_exec_t:file entrypoint;
 
- * db_sequence class
-   It shows the sequential number generator objects. We can also use
-   them as a communication channel between two domains, so it is
-   necessary to apply security policy.
+	# privileged users run the script:
+	domtrans_pattern(httpd_exec_scripts, httpd_$1_script_exec_t, httpd_
+$1_script_t)
 
-   It inherits common database and defines the following two permissions:
-     { get_value set_value }
-   Client should have db_sequence:{get_value} when he fetch a value from
-   the sequence generator, and db_sequence:{set_value} when he set a
-   discretionary value. When he fetch a value from the sequence object,
-   it implicitly increments internal counter, but it is covered by the
-   get_value permission.
+	allow httpd_exec_scripts httpd_$1_script_exec_t:file read_file_perms;
 
-   Its security context can be computed with TYPE_TRANSITION between
-   the client as a subject and the schema as a target.
+	# apache runs the script:
+	domtrans_pattern(httpd_t, httpd_$1_script_exec_t, httpd_$1_script_t)
 
-Change definition of object classes
------------------------------------
- * db_database class
-   The db_database:{get_param set_param} is removed because these two
-   permissions are nonsense.
-   The db_database:{superuser} is newly added. It is checked when
-   client perform as database superuser. Stephen suggested it can
-   be separated to more finer grained privileges. It makes sense,
-   but this kind of separation which focuses on PostgreSQL makes
-   hard to port the concept for other database management systems.
+	allow httpd_t httpd_$1_script_exec_t:file read_file_perms;
 
- * db_table/db_column/db_tuple:{use} permission
-   The db_xxx:{use} permission is integrated into db_xxx:{select}
-   permission, because it can hide the risk to infer invisible
-   information easily with well considered WHERE clauses.
+	allow httpd_t httpd_$1_script_t:process { signal sigkill sigstop };
+	allow httpd_t httpd_$1_script_exec_t:dir list_dir_perms;
 
-user_sepgsql_xxxx_t types
--------------------------
- * Currently, sepgsql_proc_t is assigned to the procedures created
-   by unprivileged and unprefixed clients, like httpd_t.
-   But I would like to handle it as a procedure created or relabeled
-   by database administrator.
-   Basically, we consider user defined procedures are untrusted, so
-   it should be checked before it becomes available for all the clients.
-   So, we don't allow to install them as system internal entities, and
-   don't allow unconfined domains to execute them directly.
+	allow httpd_$1_script_t self:process { setsched signal_perms };
+	allow httpd_$1_script_t self:unix_stream_socket
+create_stream_socket_perms;
 
-   My preference is the user_sepgsql_xxxx_t is also assigned to
-   procedures created by unprivileged and unprfixed client.
+	allow httpd_$1_script_t httpd_t:fd use;
+	allow httpd_$1_script_t httpd_t:process sigchld;
 
-A schema for temporary obejcts
-------------------------------
- * The sepgsql_schema_t is the default type for schema objects, and
-   rest of database objects within the schema is labeled with the chain
-   of TYPE_TRANSITION rules.
-   We have a characteristic scheme named as "pg_temp_*". Any database
-   objects within the schema are cleared after the session closed,
-   so its contents are always session local. We would like to assign
-   special types on the temporary schema and delivered database objects
-   withing the schema. In addition, users can create and use these
-   database objects independently from the sepgsql_enable_users_ddl.
+	kernel_read_system_state(httpd_$1_script_t)
 
-Booelean behavior: sepgsql_enable_users_ddl
--------------------------------------------
- * Because the current design does not care about actions on schema
-   objects, we need to assign separated label (sepgsql_sysobj_t) on
-   system informations and apply checks as row-level controls.
-   But db_schema object class enables to control user's DDLs in
-   the schema level checks mainly, so now sepgsql_enable_user_ddl
-   focuses on db_schema class permissions and {create drop setattr}
-   for any other database objects.
-   The attached patch allows users to modify tuples with sepgsql_sysobj_t
-   but not allows columns/tables. It means user can define database
-   objects with proper way (like CREATE TABLE), but prevents to
-   manipulate system information by hand.
-   In addition, this boolean controls only user_sepgsql_xxxx_t.
-   The unprefixed types are always not allowed to modify its definition
-   by unprivileges users.
+	dev_read_urand(httpd_$1_script_t)
 
-db_table:{lock} for reader actions
-----------------------------------
- * db_table:{lock} is also necessary for reader side actions due to the
-   implementation reason.
-   In PostgreSQL, FK constraints are implemented as trigger functions.
-   It is invoked for each INSERT/UPDATE/DELETE on constrainted tuples,
-   and run a secondary query to check whether the action satisfies
-   FK constraints or not.
-   This query is described as:
-     SELECT 1 FROM t WHERE k = "$1" FOR SHARE;
+	fs_getattr_xattr_fs(httpd_$1_script_t)
 
-   The "FOR SHARE" clause means explicit table lock and requires
-   db_table:{lock} permission. If we don't allow unpriv clients to
-   lock read-only tables, it disables to set up FK constraint which
-   refers read-only tables.
+	files_read_etc_runtime_files(httpd_$1_script_t)
+	files_read_usr_files(httpd_$1_script_t)
 
-Miscellaneous changes
----------------------
- * The security context of a new database is decided via type_transition
-   on the server process's context. It enables to avoid conflicts when
-   we have multiple DBMSs in a system.
- * It allows postgresql_t domain to write out messages to system audit.
- * sepgsql_proc_t is aliased to sepgsql_proc_exec_t.
- * db_procedure:{install} is revoked from sepgsql_trusted_proc_exec_t,
-   because we don't need to run trusted procedure implicitly.
- * Most of postgresql_role() are shared with postgresql_unpriv_client(),
-   except for "role $1 types sepgsql_trusted_proc_t;"
- * /etc/selinux/$POLICYTYPE/contexts/db_contexts for selabel_lookup(3)
+	libs_read_lib_files(httpd_$1_script_t)
 
-Thanks,
-  </pre>
-</blockquote>
-</body>
-</html>
+	miscfiles_read_localization(httpd_$1_script_t)
+	')
 
---------------060405020006070208000904--
+So it is not only for httpd_sys_script_exec_t but for example also
+httpd_user_script_exec_t or any other httpd domain create with
+apache_content_template or declared as apache_domain()
+
+Also it is specifically responsible for domain transitions.
+
+
+> o  httpd_enable_ftp_server
+> Turning this Boolean on will allow httpd to listen on the FTP port and
+> act as an FTP server. 
+> 
+> o  httpd_enable_homedirs
+> By default, SELinux prevents httpd from accessing user home
+> directories. Turn this Boolean on to allow httpd access to user home
+> directories, for example, /home/*/public_html/. 
+
+All it does is allow httpd_t to search /home/*/ for httpd content
+
+tunable_policy(`httpd_enable_homedirs',`
+	userdom_search_user_home_dirs(httpd_t)
+	userdom_search_user_home_dirs(httpd_suexec_t)
+	userdom_search_user_home_dirs(httpd_user_script_t)
+')
+
+This does not actually allow httpd_t to read httpd_user_content_t
+( requires the httpd_builtin_scripting boolean to be set )
+
+> o  httpd_execmem
+
+tunable_policy(`httpd_execmem',`
+	allow httpd_t self:process { execmem execstack };
+	allow httpd_sys_script_t self:process { execmem execstack };
+	allow httpd_suexec_t self:process { execmem execstack };
+') 
+
+Note that is also allows execstack.
+Note that it allows it also for httpd_sys_script_t
+Note that it *does not* allow it for httpd_user_script_t ( or any other
+templated httpd script)
+> 
+> o  httpd_ssi_exec
+> Off by default, this Boolean makes sure that httpd can only execute
+> shell scripts that have the shell_exec_t type assigned to them.
+> Enabling this Boolean will allow httpd to execute any script.
+> 
+> o  httpd_tty_comm
+> This Boolean defines whether or not httpd is allowed access to the
+> controlling terminal. Usually this access is not required; however in
+> cases such as configuring an SSL certificate file, terminal access is
+> required to display and process a password prompt. 
+> 
+> o  httpd_unified
+> This Boolean is off by default, turning it on will allow all httpd
+> executables to have full access to all content labeled with http file
+> context. Leaving it off ensures that one httpd service can not
+> interfere with another, limiting the opportunity for privilege
+> escalation vulnerability.
+
+I think this boolean needs a good thorough review.
+I do not think it works properly but i might be wrong
+
+> o  httpd_use_cifs 
+> Turn this Boolean on to allow httpd access to files on CIFS file
+> systems that are labeled with the cifs_t type, such as file systems
+> mounted via Samba. 
+> 
+> o  httpd_use_nfs
+> Turn this Boolean on to allow httpd access to files on NFS file systems
+> that are labeled with the nfs_t type, such as file systems mounted via
+> NFS.
+> 
+> 
+> All comments are more than welcome! Again, thank you.
+> 
+> 
+> 
+> [1] - https://fedorahosted.org/managing-confined-services/
+> [2] - http://people.redhat.com/drepper/selinux-mem.html
+> 
+> 
+> Cheers,
+> 
+> 
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
