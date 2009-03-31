@@ -1,58 +1,80 @@
-Subject: Re: [PATCH] Permissive domain in userspace (Re: Some ideas in
- SE-PostgreSQL enhancement)
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-Cc: Eamon Walsh <ewalsh@tycho.nsa.gov>, method@manicmethod.com,
-        jmorris@namei.org, selinux <selinux@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>
-In-Reply-To: <49D175C6.2050001@ak.jp.nec.com>
-References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com>
-	 <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com>
-	 <49CB3CEB.1070505@ak.jp.nec.com> <49CD8E68.9090004@tycho.nsa.gov>
-	 <49D034B9.9080406@ak.jp.nec.com>  <49D175C6.2050001@ak.jp.nec.com>
-Content-Type: text/plain
-Date: Tue, 31 Mar 2009 12:46:33 -0400
-Message-Id: <1238517993.2484.123.camel@localhost.localdomain>
+Date: Tue, 31 Mar 2009 13:28:51 -0500
+From: Nicolas Williams <Nicolas.Williams@sun.com>
+To: Jarrett Lu <Jarrett.Lu@sun.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, labeled-nfs@linux-nfs.org,
+        selinux@tycho.nsa.gov, nfs-discuss@opensolaris.org, nfsv4@ietf.org
+Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted to IETF	website
+Message-ID: <20090331182851.GG9992@Sun.COM>
+References: <20090327001102.GU9992@Sun.COM> <1238158539.15207.6.camel@localhost.localdomain> <1238160162.15207.19.camel@localhost.localdomain> <49CD06E7.6030802@sun.com> <20090327172632.GA9992@Sun.COM> <49CD2169.3080209@sun.com> <1238434634.2484.90.camel@localhost.localdomain> <49D10FC1.3000103@sun.com> <1238447664.2484.119.camel@localhost.localdomain> <49D1B133.3010907@sun.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <49D1B133.3010907@sun.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-03-31 at 10:45 +0900, KaiGai Kohei wrote:
-> KaiGai Kohei wrote:
-> > If we have an entry something like "/selinux/permissive" to return
-> > whether the given domain is permissive or not, I think we don't need
-> > to have the flags field on security_compute_av(). It can be checked
-> > on the creation of userspace avc entry, and checked it on later access
-> > controls.
-> 
-> The attached patch exposes a new entry in selinuxfs, which enables
-> userspace stuff to make a query whether the given context is permissive
-> domain, or not.
-> If the given context is permissive domain, userspace stuffs can mark
-> its entry as a permissive one on creation of avc entries, to avoid
-> policy enforcement on permissive domains.
-> 
-> It now checks security:{check_context} permission, but it should be
-> discussed what permission to be checked here.
-> 
-> The attached check_permissive.c is an example to use the interface.
-> 
->   [kaigai@saba ~]$ ./check_permissive staff_u:staff_r:staff_t:s0
->   staff_u:staff_r:staff_t:s0 is a permissive domain
->   [kaigai@saba ~]$ ./check_permissive user_u:user_r:user_t:s0
->   user_u:user_r:user_t:s0 is NOT a permissive domain
-> 
-> Thanks,
+On Mon, Mar 30, 2009 at 10:59:15PM -0700, Jarrett Lu wrote:
+> That's certainly one option. We can say DOI + an opaque field is what we 
+> will add to NFSv4 protocol. Use the information as you see fit. Going 
 
-I actually preferred your earlier patch - making the permissive
-determination as part of the compute_av.  I'd suggest posting your
-earlier kernel patch as a separate posting with the patch inline,
-following the usual guidelines, and make sure you cc James and Eric.
+That's what David's I-D and what my RPCSEC_GSSv3 I-D both say now.
 
+It's also what CALIPSO does (except that the label must be MLS and the
+bits on the wire are defined, though the actual sentivity levels and
+compartment naming and mapping to bits is not).
+
+> this route, we basically punt on the label interpretation / translation 
+> problem. I believe this simple DOI + opaque attribute does add value as 
+> it provides an potentially easier way for compatible systems to 
+> communicate label attributes on file objects. I was trying to explore 
+> whether it makes sense to include other information (e.g. OS version, 
+> signature of security policy or label encoding files) to make handling 
+> of label interpretation and translation easier.
+
+Signature of security policy is certainly an interesting idea!  But it
+does require defining a standard security policy description syntax --
+that's work that I think is well outside what this WG should be working
+on.  (Also, we'll need hash function agility.)
+
+Therefore I think the NFSv4 community should stop at either
+
+ - {DOI #, opaque label, hash function name, hash-of-policy}
+   (which means blocking on a standards-track labeled policy document)
+
+or, more likely,
+
+ - {DOI #, opaque label, [extensibility field for future hash function
+   name / hash-of-policy]}.
+
+The latter seems better to me because {DOI #, opaque label} is the easy
+way forward for this WG, but we'd make room for a future hash-of-policy.
+
+I think the security area of the IETF should explore Kerberos V
+authz-data and PKIX certificate extensions to ensure DOI label encoding
+synchronization (whether based on my sketch or some other approach) as
+well as a common labeled security policy syntax covering MLS and DTE.
+
+I know, where each set of documents gets done is a subtle distinction
+when it might well be the same people doing all of them.  But it's an
+important distinction here.
+
+Also, it's possible that some of this work will be done in the form of
+individual submission I-Ds all the way if it doesn't naturally fit any
+WG and we don't have enough work to justify spinning up a new WG.  But
+we'd still seek review in the appropriate WGs (NFSv4 WG for NFS work,
+KRB-WG for Kerberos work, PKIX WG for PKIX work, SAAG for labeled
+security policy description).
+
+(Between CALIPSO and NFSv4 and all the other potential work mentioned
+above we might well have enough work for a new WG.  But I think we
+should proceed as though we don't, for now.)
+
+> Continuing on these lists is fine with me. People on these lists 
+> probably have high tolerance on postings that don't care about.
+
+It sure seems that way so far :)
+
+Nico
 -- 
-Stephen Smalley
-National Security Agency
-
 
 --
 This message was distributed to subscribers of the selinux mailing list.
