@@ -1,35 +1,41 @@
-Date: Tue, 31 Mar 2009 13:34:46 -0500
-From: Nicolas Williams <Nicolas.Williams@sun.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Jarrett Lu <Jarrett.Lu@sun.com>, nfs-discuss@opensolaris.org,
-        labeled-nfs@linux-nfs.org, nfsv4@ietf.org, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted to IETF	website
-Message-ID: <20090331183445.GH9992@Sun.COM>
-References: <49CBFB94.6030408@sun.com> <20090327001102.GU9992@Sun.COM> <1238158539.15207.6.camel@localhost.localdomain> <1238160162.15207.19.camel@localhost.localdomain> <49CD06E7.6030802@sun.com> <20090327172632.GA9992@Sun.COM> <49CD2169.3080209@sun.com> <1238434634.2484.90.camel@localhost.localdomain> <49D10FC1.3000103@sun.com> <49D188D6.6020107@schaufler-ca.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n2VJg2sT006271
+	for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 15:42:02 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n2VJg1TQ017176
+	for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 19:42:02 GMT
+Subject: sepolgen typo fix
+From: Marshall Miller <mmiller@tresys.com>
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain
+Date: Tue, 31 Mar 2009 15:42:00 -0400
+Message-Id: <1238528520.18182.338.camel@hostmachine.tresys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <49D188D6.6020107@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Mon, Mar 30, 2009 at 08:07:02PM -0700, Casey Schaufler wrote:
-> Not to throw a puppy in the gears, but sophisticated handshaking and
-> negotiation protocols are not the answer. We had TSIG session management
-> for doing that and it is just not enough. How would you negotiate the
-> differences between two SELinux policies?
+Commit b3b3f8186ed6d56c48c4e0f997d6e6b3fd90be37 attempted to fix a bug,
+but didn't.  The following patch should do it.
 
-You don't.  You either establish that they are the same (or that one or
-both peers are translating to a common policy) or that they are not.  In
-the latter case you fail to communicate further.  It seems quite
-reasonable to me to have a single policy for a site -- that seems doable
-for MLS, but for DTE it's more likely that there will be OS-specific
-parts of a site policy, and the potential need to map between existing
-OS-specific policies and something else seems daunting, at least at
-first glance, but I'm an optimist, so I think it must be doable :)
 
-Nico
--- 
+Marshall Miller
+
+---
+diff --git a/sepolgen/src/sepolgen/access.py
+b/sepolgen/src/sepolgen/access.py
+index 6de919a..71121d7 100644
+--- a/sepolgen/src/sepolgen/access.py
++++ b/sepolgen/src/sepolgen/access.py
+@@ -313,7 +313,7 @@ class RoleTypeSet:
+ 
+     def __len__(self):
+         """Return the unique number of role allow statements."""
+-        return len(self.role_type.keys())
++        return len(self.role_types.keys())
+ 
+     def add(self, role, type):
+         if self.role_types.has_key(role):
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
