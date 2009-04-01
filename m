@@ -1,118 +1,86 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n317l07g026363
-	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 03:47:00 -0400
-Received: from sca-es-mail-2.sun.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n317ksXa020650
-	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 07:46:54 GMT
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3189NSH029905
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 04:09:24 -0400
+Received: from sca-es-mail-2.sun.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3189Buv023982
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 08:09:11 GMT
 Received: from fe-sfbay-09.sun.com ([192.18.43.129])
-	by sca-es-mail-2.sun.com (8.13.7+Sun/8.12.9) with ESMTP id n317kr80027894
-	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 00:46:54 -0700 (PDT)
+	by sca-es-mail-2.sun.com (8.13.7+Sun/8.12.9) with ESMTP id n3189AZb028950
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 01:09:10 -0700 (PDT)
 MIME-version: 1.0
 Content-type: multipart/alternative;
- boundary="Boundary_(ID_QxkJVpTV9B9arjUiogB7UQ)"
+ boundary="Boundary_(ID_KIDibbqR6u8WxmC6InWvFA)"
 Received: from conversion-daemon.fe-sfbay-09.sun.com by fe-sfbay-09.sun.com
  (Sun Java(tm) System Messaging Server 7.0-5.01 64bit (built Feb 19 2009))
- id <0KHE00300W6IY600@fe-sfbay-09.sun.com> for selinux@tycho.nsa.gov; Wed,
- 01 Apr 2009 00:46:53 -0700 (PDT)
-Date: Wed, 01 Apr 2009 00:46:58 -0700
+ id <0KHE00E00X8XQO00@fe-sfbay-09.sun.com> for selinux@tycho.nsa.gov; Wed,
+ 01 Apr 2009 01:09:10 -0700 (PDT)
+Date: Wed, 01 Apr 2009 01:09:16 -0700
 From: Jarrett Lu <Jarrett.Lu@sun.com>
-Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted
+Subject: Re: [Labeled-nfs] [nfsv4] New MAC label support Internet Draft posted
  to IETF website
-In-reply-to: <200903311047.21216.paul.moore@hp.com>
-To: Paul Moore <paul.moore@hp.com>
-Cc: labeled-nfs@linux-nfs.org, nfs-discuss@opensolaris.org,
-        selinux@tycho.nsa.gov, nfsv4@ietf.org
-Message-id: <49D31BF2.2040100@sun.com>
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
- <49D10FC1.3000103@sun.com> <49D188D6.6020107@schaufler-ca.com>
- <200903311047.21216.paul.moore@hp.com>
+In-reply-to: <alpine.LRH.2.00.0904011751320.21948@tundra.namei.org>
+To: James Morris <jmorris@namei.org>
+Cc: Nicolas Williams <Nicolas.Williams@sun.com>, labeled-nfs@linux-nfs.org,
+        nfs-discuss@opensolaris.org, selinux@tycho.nsa.gov, nfsv4@ietf.org
+Message-id: <49D3212C.9070002@sun.com>
+References: <20090327001102.GU9992@Sun.COM>
+ <1238158539.15207.6.camel@localhost.localdomain>
+ <1238160162.15207.19.camel@localhost.localdomain> <49CD06E7.6030802@sun.com>
+ <20090327172632.GA9992@Sun.COM> <49CD2169.3080209@sun.com>
+ <1238434634.2484.90.camel@localhost.localdomain> <49D10FC1.3000103@sun.com>
+ <1238447664.2484.119.camel@localhost.localdomain> <49D1B133.3010907@sun.com>
+ <20090331182851.GG9992@Sun.COM> <49D2E073.3060003@sun.com>
+ <alpine.LRH.2.00.0904011751320.21948@tundra.namei.org>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 This is a multi-part message in MIME format.
 
---Boundary_(ID_QxkJVpTV9B9arjUiogB7UQ)
+--Boundary_(ID_KIDibbqR6u8WxmC6InWvFA)
 Content-type: text/plain; format=flowed; charset=ISO-8859-1
 Content-transfer-encoding: 7BIT
 
-On 3/31/2009 7:47 AM, Paul Moore wrote:
-> On Monday 30 March 2009 11:07:02 pm Casey Schaufler wrote:
+On 3/31/2009 11:58 PM, James Morris wrote:
+> On Tue, 31 Mar 2009, Jarrett Lu wrote:
+>
 >    
->> Jarrett Lu wrote:
->>      
->>> Maybe we can do something better 15 years later. The first step is to
->>> figure out how much information is needed and then look into how to
->>> get this info across securely. GSS_SEC may be able to help us. To make
->>> NFSv4 work, only TCP is needed. So peer information is needed per
->>> session vs. per packet, I believe. Evidently, there is more work to do
->>> in figuring this all out.
->>>        
->> Not to throw a puppy in the gears, but sophisticated handshaking and
->> negotiation protocols are not the answer. We had TSIG session management
->> for doing that and it is just not enough. How would you negotiate the
->> differences between two SELinux policies?
+>> I'm in general agreement with you on this. I am not sure to what extent
+>> the extensibility stuff makes sense, e.g. how much may be enough? I
+>> guess we need to study more use scenarios. I suspect TE systems may have
+>> more challenges in this area, just because security policies on TE
+>> systems tend to be more flexible. For example, how many things are
+>> critical in order to translate label correctly, OS version, vendor,
+>> label parser, security policy file? How likely DTE systems are
+>> configured with exact same policy files? Does it make sense that a
+>> (harmless) update to security policy file causes label translation
+>> failures from that point on?
 >>      
 >
-> I'm with Casey, I don't think it is worth spending a whole lot of time right
-> now finding out how to pass information across the network in a secure manner.
-> There are plenty of ways of to do that which are well established,
-> interoperable and generally regarded as "secure".
->    
-
-I'm not reinventing another secure way to pass information. I thought 
-kerberos gss api may be a good candidate. I also agree that 
-sophisticated handshaking negotiation protocol or complicated security 
-attribute mapping between various systems is not the way to go.
-
->  From my point of view the real issue is how do we translate/resolve security
-> labels defined by DOI X to an internal, security model/policy specific label?
-> Some have mentioned a mechanism which would serve up label encoding data
-> whenever a new system joined the network; unfortunately, I believe this only
-> works when you know the security policy of the system before hand (or can
-> restrict the security policy, after all a TSOL label encodings file will do
-> nothing for SELinux and/or Smack).  While I think it is reasonable to assume a
-> limited number of on-the-wire label encodings and DOIs I think it would be a
-> mistake to assume a limited number of security models and or policies.
->    
-
-True. The first question is whether we should try to solve, or at least 
-ease, the label interpretation / translation problem in the context of 
-NFSv4 protocol. I don't know if we can solve it, but it seems worthwhile 
-to explore further, to gain more understanding if nothing else. The 
-challenge of interpreting and translating labels is that one system 
-needs to know a lot of info about its peer. And there is no good way to 
-describe the (sometimes subtle) difference. I think this problem may be 
-harder on DTE systems than on MLS systems, I believe.
-
-> Ultimately I believe that the required label translation information (wire/DOI
-> label to internal and the other way around) is going to need to be bundled
-> with the system's security policy and distributed as a single "package".
-> Granted this does require prior knowledge of the DOIs in use but I believe
-> this is a much easier requirement than the opposite.  From a practical point
-> of view this isn't too far removed from the notion of sending sending label
-> encoding data upon joining the network, the big difference is that we are
-> sending both security policy and label encoding/DOI-translation data at the
-> same time (in the TSOL case I suspect this would just be the label encoding
-> data, which may mean the original poster had this in mind).
+> With SELinux systems, policies do not need to be identical to be
+> considered part of the same DOI.  Generally, labels need to remain
+> semantically equivalent (i.e. mean the same thing on each system), and the
+> policies need to be managed within the same administrative boundary.
+> Systems may restrict which labels they'll interpret from remote systems
+> (similar to root_squash).
 >
 >    
 
-Depending how different the systems are, the "package" content will be 
-different. Assuming we can assemble all the information required to do 
-label translation correctly into a package, passing that around the 
-systems seem inefficient, non-scalable, and probably outside the scope 
-of labeled NFSv4 enhancement. So realistically, I think the DOI + opaque 
-label is useful between very compatible systems. Given that limitation, 
-may be the "package" is small enough and can be passed in RPC layer 
-during authentication so that MLS can share files with like MLS systems, 
-and same is true for DTE, fmac, smack, ....
+Understood. My point is that a signature on a policy file may not always 
+be the right tool to determine whether label translation should be done. 
+When policies are different on two systems, how does one system know 
+labels or types are semantically equivalent or not? Are you also saying 
+that DOI is tied to administrative boundary, and the fact that systems 
+using the same DOI implies the label and type definitions in each policy 
+are always semantically equivalent?
 
 
 Jarrett
 
+> - James
+>    
 
 
---Boundary_(ID_QxkJVpTV9B9arjUiogB7UQ)
+--Boundary_(ID_KIDibbqR6u8WxmC6InWvFA)
 Content-type: text/html; charset=ISO-8859-1
 Content-transfer-encoding: 7BIT
 
@@ -123,98 +91,60 @@ Content-transfer-encoding: 7BIT
  http-equiv="Content-Type">
 </head>
 <body bgcolor="#ffffff" text="#000000">
-On 3/31/2009 7:47 AM, Paul Moore wrote:
-<blockquote cite="mid:200903311047.21216.paul.moore@hp.com" type="cite">
-  <pre wrap="">On Monday 30 March 2009 11:07:02 pm Casey Schaufler wrote:
+On 3/31/2009 11:58 PM, James Morris wrote:
+<blockquote
+ cite="mid:alpine.LRH.2.00.0904011751320.21948@tundra.namei.org"
+ type="cite">
+  <pre wrap="">On Tue, 31 Mar 2009, Jarrett Lu wrote:
+
   </pre>
   <blockquote type="cite">
-    <pre wrap="">Jarrett Lu wrote:
-    </pre>
-    <blockquote type="cite">
-      <pre wrap="">Maybe we can do something better 15 years later. The first step is to
-figure out how much information is needed and then look into how to
-get this info across securely. GSS_SEC may be able to help us. To make
-NFSv4 work, only TCP is needed. So peer information is needed per
-session vs. per packet, I believe. Evidently, there is more work to do
-in figuring this all out.
-      </pre>
-    </blockquote>
-    <pre wrap="">Not to throw a puppy in the gears, but sophisticated handshaking and
-negotiation protocols are not the answer. We had TSIG session management
-for doing that and it is just not enough. How would you negotiate the
-differences between two SELinux policies?
+    <pre wrap="">I'm in general agreement with you on this. I am not sure to what extent 
+the extensibility stuff makes sense, e.g. how much may be enough? I 
+guess we need to study more use scenarios. I suspect TE systems may have 
+more challenges in this area, just because security policies on TE 
+systems tend to be more flexible. For example, how many things are 
+critical in order to translate label correctly, OS version, vendor, 
+label parser, security policy file? How likely DTE systems are 
+configured with exact same policy files? Does it make sense that a 
+(harmless) update to security policy file causes label translation 
+failures from that point on?
     </pre>
   </blockquote>
   <pre wrap=""><!---->
-I'm with Casey, I don't think it is worth spending a whole lot of time right 
-now finding out how to pass information across the network in a secure manner.  
-There are plenty of ways of to do that which are well established, 
-interoperable and generally regarded as "secure".
-  </pre>
-</blockquote>
-<br>
-I'm not reinventing another secure way to pass information. I thought
-kerberos gss api may be a good candidate. I also agree that
-sophisticated handshaking negotiation protocol or complicated security
-attribute mapping between various systems is not the way to go.<br>
-<br>
-<blockquote cite="mid:200903311047.21216.paul.moore@hp.com" type="cite">
-  <pre wrap="">
->From my point of view the real issue is how do we translate/resolve security 
-labels defined by DOI X to an internal, security model/policy specific label?  
-Some have mentioned a mechanism which would serve up label encoding data 
-whenever a new system joined the network; unfortunately, I believe this only 
-works when you know the security policy of the system before hand (or can 
-restrict the security policy, after all a TSOL label encodings file will do 
-nothing for SELinux and/or Smack).  While I think it is reasonable to assume a 
-limited number of on-the-wire label encodings and DOIs I think it would be a 
-mistake to assume a limited number of security models and or policies.
-  </pre>
-</blockquote>
-<br>
-True. The first question is whether we should try to solve, or at least
-ease, the label interpretation / translation problem in the context of
-NFSv4 protocol. I don't know if we can solve it, but it seems
-worthwhile to explore further, to gain more understanding if nothing
-else. The challenge of interpreting and translating labels is that one
-system needs to know a lot of info about its peer. And there is no good
-way to describe the (sometimes subtle) difference. I think this problem
-may be harder on DTE systems than on MLS systems, I believe. <br>
-<br>
-<blockquote cite="mid:200903311047.21216.paul.moore@hp.com" type="cite">
-  <pre wrap="">
-Ultimately I believe that the required label translation information (wire/DOI 
-label to internal and the other way around) is going to need to be bundled 
-with the system's security policy and distributed as a single "package".  
-Granted this does require prior knowledge of the DOIs in use but I believe 
-this is a much easier requirement than the opposite.  From a practical point 
-of view this isn't too far removed from the notion of sending sending label 
-encoding data upon joining the network, the big difference is that we are 
-sending both security policy and label encoding/DOI-translation data at the 
-same time (in the TSOL case I suspect this would just be the label encoding 
-data, which may mean the original poster had this in mind).
+With SELinux systems, policies do not need to be identical to be 
+considered part of the same DOI.  Generally, labels need to remain 
+semantically equivalent (i.e. mean the same thing on each system), and the 
+policies need to be managed within the same administrative boundary. 
+Systems may restrict which labels they'll interpret from remote systems 
+(similar to root_squash).
 
   </pre>
 </blockquote>
 <br>
-Depending how different the systems are, the "package" content will be
-different. Assuming we can assemble all the information required to do
-label translation correctly into a package, passing that around the
-systems seem inefficient, non-scalable, and probably outside the scope
-of labeled NFSv4 enhancement. So realistically, I think the DOI +
-opaque label is useful between very compatible systems. Given that
-limitation, may be the "package" is small enough and can be passed in
-RPC layer during authentication so that MLS can share files with like
-MLS systems, and same is true for DTE, fmac, smack, ....<br>
+Understood. My point is that a signature on a policy file may not
+always be the right tool to determine whether label translation should
+be done. When policies are different on two systems, how does one
+system know labels or types are semantically equivalent or not? Are you
+also saying that DOI is tied to administrative boundary, and the fact
+that systems using the same DOI implies the label and type definitions
+in each policy are always semantically equivalent?<br>
 <br>
 <br>
 Jarrett<br>
 <br>
+<blockquote
+ cite="mid:alpine.LRH.2.00.0904011751320.21948@tundra.namei.org"
+ type="cite">
+  <pre wrap="">
+- James
+  </pre>
+</blockquote>
 <br>
 </body>
 </html>
 
---Boundary_(ID_QxkJVpTV9B9arjUiogB7UQ)--
+--Boundary_(ID_KIDibbqR6u8WxmC6InWvFA)--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
