@@ -1,50 +1,72 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3171BhX021669
-	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 03:01:11 -0400
-Received: from tundra.namei.org (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3171AXa015332
-	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 07:01:10 GMT
-Date: Wed, 1 Apr 2009 17:58:38 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Jarrett Lu <Jarrett.Lu@sun.com>
-cc: Nicolas Williams <Nicolas.Williams@sun.com>, labeled-nfs@linux-nfs.org,
-        nfs-discuss@opensolaris.org, selinux@tycho.nsa.gov, nfsv4@ietf.org
-Subject: Re: [Labeled-nfs] [nfsv4] New MAC label support Internet Draft posted
- to IETF website
-In-Reply-To: <49D2E073.3060003@sun.com>
-Message-ID: <alpine.LRH.2.00.0904011751320.21948@tundra.namei.org>
-References: <20090327001102.GU9992@Sun.COM> <1238158539.15207.6.camel@localhost.localdomain> <1238160162.15207.19.camel@localhost.localdomain> <49CD06E7.6030802@sun.com> <20090327172632.GA9992@Sun.COM> <49CD2169.3080209@sun.com> <1238434634.2484.90.camel@localhost.localdomain>
- <49D10FC1.3000103@sun.com> <1238447664.2484.119.camel@localhost.localdomain> <49D1B133.3010907@sun.com> <20090331182851.GG9992@Sun.COM> <49D2E073.3060003@sun.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n317QMfh024280
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 03:26:22 -0400
+Received: from tyo201.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n317QKXa018440
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 07:26:21 GMT
+Received: from mailgate3.nec.co.jp ([10.7.69.192])
+	by tyo201.gate.nec.co.jp (8.13.8/8.13.4) with ESMTP id n317QJID028542
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 16:26:19 +0900 (JST)
+Received: (from root@localhost) by mailgate3.nec.co.jp (8.11.7/3.7W-MAILGATE-NEC)
+	id n317QI729891 for selinux@tycho.nsa.gov; Wed, 1 Apr 2009 16:26:18 +0900 (JST)
+Received: from mailsv.linux.bs1.fc.nec.co.jp (mailsv.linux.bs1.fc.nec.co.jp [10.34.125.2])
+	by mailsv3.nec.co.jp (8.13.8/8.13.4) with ESMTP id n317QI0l024077
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 16:26:18 +0900 (JST)
+Received: from [10.19.71.82] (unknown [10.19.71.82])
+	by mailsv.linux.bs1.fc.nec.co.jp (Postfix) with ESMTP id 9260DE482DF
+	for <selinux@tycho.nsa.gov>; Wed,  1 Apr 2009 16:26:18 +0900 (JST)
+Message-ID: <49D3171A.3020708@ak.jp.nec.com>
+Date: Wed, 01 Apr 2009 16:26:18 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: selinux <selinux@tycho.nsa.gov>
+Subject: Correct manner to handler undefined classes/permissions? (Re: Some
+ ideas in SE-PostgreSQL enhancement)
+References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com> <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com>
+In-Reply-To: <49C9D524.9050208@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 31 Mar 2009, Jarrett Lu wrote:
+> 5. Handle unsupported object classes/access vectors
+> 
+> What is the correct behavior for userspace object managers,
+> when it tries to check undefined object classes or access
+> vectors?
+> 
+> For example, we don't define db_database:{superuser} in the
+> security policy. We cannot decide whether it is denied, or not.
+> How the SE-PostgreSQL should perform for this?
+> 
+> In the current implementation, it simply ignores undefined
+> permissions because string_to_av_perm() cannot return a valid
+> access vector.
+> 
+> One possible idea is it performs according to /selinux/deny_unknown.
+> If so, a new interface on libselinux is desirable.
 
-> I'm in general agreement with you on this. I am not sure to what extent 
-> the extensibility stuff makes sense, e.g. how much may be enough? I 
-> guess we need to study more use scenarios. I suspect TE systems may have 
-> more challenges in this area, just because security policies on TE 
-> systems tend to be more flexible. For example, how many things are 
-> critical in order to translate label correctly, OS version, vendor, 
-> label parser, security policy file? How likely DTE systems are 
-> configured with exact same policy files? Does it make sense that a 
-> (harmless) update to security policy file causes label translation 
-> failures from that point on?
+This topic has been left for a week.
 
-With SELinux systems, policies do not need to be identical to be 
-considered part of the same DOI.  Generally, labels need to remain 
-semantically equivalent (i.e. mean the same thing on each system), and the 
-policies need to be managed within the same administrative boundary. 
-Systems may restrict which labels they'll interpret from remote systems 
-(similar to root_squash).
+How should it be handled when we cannot find required classes or
+permissions in the security policy?
 
+The kernel allows anything or nothing for undefined object classes
+based on policydb.allow_unknown. However, if the security policy
+does not have a definition of the required access vector, it is
+always denied (due to lack of explicit permission).
 
-- James
+My preference is filling up the undefined access vectores with
+policydb.allow_unknown. It seems to me quite natural.
+
+Userspace object managers also have same issue.
+Now it's unclear for me what is the preferable behavior.
+For example, how should it handle the db_database:{superuser}
+on the older security policy?
+
+Thanks,
 -- 
-James Morris
-<jmorris@namei.org>
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
