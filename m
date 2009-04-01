@@ -1,56 +1,163 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n319o76c010563
-	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 05:50:07 -0400
-Received: from tundra.namei.org (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n319o6D0015021
-	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 09:50:06 GMT
-Date: Wed, 1 Apr 2009 20:49:25 +1100 (EST)
-From: James Morris <jmorris@namei.org>
-To: Jarrett Lu <Jarrett.Lu@sun.com>
-cc: Nicolas Williams <Nicolas.Williams@sun.com>, labeled-nfs@linux-nfs.org,
-        nfs-discuss@opensolaris.org, selinux@tycho.nsa.gov, nfsv4@ietf.org
-Subject: Re: [Labeled-nfs] [nfsv4] New MAC label support Internet Draft posted
- to IETF website
-In-Reply-To: <49D3212C.9070002@sun.com>
-Message-ID: <alpine.LRH.2.00.0904012045410.23474@tundra.namei.org>
-References: <20090327001102.GU9992@Sun.COM> <1238158539.15207.6.camel@localhost.localdomain> <1238160162.15207.19.camel@localhost.localdomain> <49CD06E7.6030802@sun.com> <20090327172632.GA9992@Sun.COM> <49CD2169.3080209@sun.com> <1238434634.2484.90.camel@localhost.localdomain>
- <49D10FC1.3000103@sun.com> <1238447664.2484.119.camel@localhost.localdomain> <49D1B133.3010907@sun.com> <20090331182851.GG9992@Sun.COM> <49D2E073.3060003@sun.com> <alpine.LRH.2.00.0904011751320.21948@tundra.namei.org> <49D3212C.9070002@sun.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH] Permissive domain in userspace object manager
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: KaiGai Kohei <kaigai@ak.jp.nec.com>
+Cc: jmorris@namei.org, Eric Paris <eparis@parisplace.org>,
+        Eamon Walsh <ewalsh@tycho.nsa.gov>, method@manicmethod.com,
+        selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <49D2BE6D.4030708@ak.jp.nec.com>
+References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com>
+	 <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com>
+	 <49CB3CEB.1070505@ak.jp.nec.com> <49CD8E68.9090004@tycho.nsa.gov>
+	 <49D034B9.9080406@ak.jp.nec.com>  <49D175C6.2050001@ak.jp.nec.com>
+	 <1238517993.2484.123.camel@localhost.localdomain>
+	 <49D2BE6D.4030708@ak.jp.nec.com>
+Content-Type: text/plain
+Date: Wed, 01 Apr 2009 08:34:47 -0400
+Message-Id: <1238589287.24074.1.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 1 Apr 2009, Jarrett Lu wrote:
-
-> > With SELinux systems, policies do not need to be identical to be
-> > considered part of the same DOI.  Generally, labels need to remain
-> > semantically equivalent (i.e. mean the same thing on each system), and the
-> > policies need to be managed within the same administrative boundary.
-> > Systems may restrict which labels they'll interpret from remote systems
-> > (similar to root_squash).
-> > 
-> >    
+On Wed, 2009-04-01 at 10:07 +0900, KaiGai Kohei wrote:
+> This patch enables applications to handle permissive domain correctly.
 > 
-> Understood. My point is that a signature on a policy file may not always be
-> the right tool to determine whether label translation should be done. When
-> policies are different on two systems, how does one system know labels or
-> types are semantically equivalent or not?
+> Since the v2.6.26 kernel, SELinux has supported an idea of permissive
+> domain which allows certain processes to work as if permissive mode,
+> even if the global setting is enforcing mode.
+> However, we don't have an application program interface to inform
+> what domains are permissive one, and what domains are not.
+> It means applications focuses on SELinux (XACE/SELinux, SE-PostgreSQL
+> and so on) cannot handle permissive domain correctly.
+> 
+> This patch add the sixth field (flags) on the reply of the /selinux/access
+> interface which is used to make an access control decision from userspace.
+> If the first bit of the flags field is positive, it means the required
+> access control decision is on permissive domain, so application should
+> allow any required actions, as the kernel doing.
+> 
+> This patch also has a side benefit. The av_decision.flags is set at
+> context_struct_compute_av(). It enables to check required permissions
+> without read_lock(&policy_rwlock).
+> 
+>  Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
 
-This should be determined via the DOI.
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-> Are you also saying that DOI is tied
-> to administrative boundary, and the fact that systems using the same DOI
-> implies the label and type definitions in each policy are always semantically
-> equivalent?
-
-For DOIs designed to function like this, yes.  i.e. it's not a property 
-inherent to DOIs, but of how they're administered.
-
-
-- James
+> --
+>  security/selinux/avc.c              |    2 +-
+>  security/selinux/include/security.h |    4 +++-
+>  security/selinux/selinuxfs.c        |    4 ++--
+>  security/selinux/ss/services.c      |   30 +++++-------------------------
+>  4 files changed, 11 insertions(+), 29 deletions(-)
+> 
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 7f9b5fa..b2ab608 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -927,7 +927,7 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid,
+>  	if (denied) {
+>  		if (flags & AVC_STRICT)
+>  			rc = -EACCES;
+> -		else if (!selinux_enforcing || security_permissive_sid(ssid))
+> +		else if (!selinux_enforcing || (avd->flags & AVD_FLAGS_PERMISSIVE))
+>  			avc_update_node(AVC_CALLBACK_GRANT, requested, ssid,
+>  					tsid, tclass, avd->seqno);
+>  		else
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index 5c3434f..a7be3f0 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -91,9 +91,11 @@ struct av_decision {
+>  	u32 auditallow;
+>  	u32 auditdeny;
+>  	u32 seqno;
+> +	u32 flags;
+>  };
+> 
+> -int security_permissive_sid(u32 sid);
+> +/* definitions of av_decision.flags */
+> +#define AVD_FLAGS_PERMISSIVE	0x0001
+> 
+>  int security_compute_av(u32 ssid, u32 tsid,
+>  	u16 tclass, u32 requested,
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index d3c8b98..4d56ab1 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -594,10 +594,10 @@ static ssize_t sel_write_access(struct file *file, char *buf, size_t size)
+>  		goto out2;
+> 
+>  	length = scnprintf(buf, SIMPLE_TRANSACTION_LIMIT,
+> -			  "%x %x %x %x %u",
+> +			  "%x %x %x %x %u %x",
+>  			  avd.allowed, 0xffffffff,
+>  			  avd.auditallow, avd.auditdeny,
+> -			  avd.seqno);
+> +			  avd.seqno, avd.flags);
+>  out2:
+>  	kfree(tcon);
+>  out:
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index deeec6c..500e6f7 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -410,6 +410,7 @@ static int context_struct_compute_av(struct context *scontext,
+>  	avd->auditallow = 0;
+>  	avd->auditdeny = 0xffffffff;
+>  	avd->seqno = latest_granting;
+> +	avd->flags = 0;
+> 
+>  	/*
+>  	 * Check for all the invalid cases.
+> @@ -528,31 +529,6 @@ inval_class:
+>  	return 0;
+>  }
+> 
+> -/*
+> - * Given a sid find if the type has the permissive flag set
+> - */
+> -int security_permissive_sid(u32 sid)
+> -{
+> -	struct context *context;
+> -	u32 type;
+> -	int rc;
+> -
+> -	read_lock(&policy_rwlock);
+> -
+> -	context = sidtab_search(&sidtab, sid);
+> -	BUG_ON(!context);
+> -
+> -	type = context->type;
+> -	/*
+> -	 * we are intentionally using type here, not type-1, the 0th bit may
+> -	 * someday indicate that we are globally setting permissive in policy.
+> -	 */
+> -	rc = ebitmap_get_bit(&policydb.permissive_map, type);
+> -
+> -	read_unlock(&policy_rwlock);
+> -	return rc;
+> -}
+> -
+>  static int security_validtrans_handle_fail(struct context *ocontext,
+>  					   struct context *ncontext,
+>  					   struct context *tcontext,
+> @@ -767,6 +743,10 @@ int security_compute_av(u32 ssid,
+> 
+>  	rc = context_struct_compute_av(scontext, tcontext, tclass,
+>  				       requested, avd);
+> +
+> +	/* permissive domain? */
+> +	if (ebitmap_get_bit(&policydb.permissive_map, scontext->type))
+> +	    avd->flags |= AVD_FLAGS_PERMISSIVE;
+>  out:
+>  	read_unlock(&policy_rwlock);
+>  	return rc;
+> 
+> 
 -- 
-James Morris
-<jmorris@namei.org>
+Stephen Smalley
+National Security Agency
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
