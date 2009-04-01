@@ -1,52 +1,50 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n313ghNV002294
-	for <selinux@tycho.nsa.gov>; Tue, 31 Mar 2009 23:42:43 -0400
-Received: from smtp102.prem.mail.sp1.yahoo.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n313gg0b012679
-	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 03:42:43 GMT
-Message-ID: <49D2E2A0.5070901@schaufler-ca.com>
-Date: Tue, 31 Mar 2009 20:42:24 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3171BhX021669
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 03:01:11 -0400
+Received: from tundra.namei.org (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3171AXa015332
+	for <selinux@tycho.nsa.gov>; Wed, 1 Apr 2009 07:01:10 GMT
+Date: Wed, 1 Apr 2009 17:58:38 +1100 (EST)
+From: James Morris <jmorris@namei.org>
+To: Jarrett Lu <Jarrett.Lu@sun.com>
+cc: Nicolas Williams <Nicolas.Williams@sun.com>, labeled-nfs@linux-nfs.org,
+        nfs-discuss@opensolaris.org, selinux@tycho.nsa.gov, nfsv4@ietf.org
+Subject: Re: [Labeled-nfs] [nfsv4] New MAC label support Internet Draft posted
+ to IETF website
+In-Reply-To: <49D2E073.3060003@sun.com>
+Message-ID: <alpine.LRH.2.00.0904011751320.21948@tundra.namei.org>
+References: <20090327001102.GU9992@Sun.COM> <1238158539.15207.6.camel@localhost.localdomain> <1238160162.15207.19.camel@localhost.localdomain> <49CD06E7.6030802@sun.com> <20090327172632.GA9992@Sun.COM> <49CD2169.3080209@sun.com> <1238434634.2484.90.camel@localhost.localdomain>
+ <49D10FC1.3000103@sun.com> <1238447664.2484.119.camel@localhost.localdomain> <49D1B133.3010907@sun.com> <20090331182851.GG9992@Sun.COM> <49D2E073.3060003@sun.com>
 MIME-Version: 1.0
-To: Nicolas Williams <Nicolas.Williams@sun.com>
-CC: Jarrett Lu <Jarrett.Lu@sun.com>, nfs-discuss@opensolaris.org,
-        labeled-nfs@linux-nfs.org, nfsv4@ietf.org, selinux@tycho.nsa.gov,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted
- to IETF	website
-References: <49CBFB94.6030408@sun.com> <20090327001102.GU9992@Sun.COM> <1238158539.15207.6.camel@localhost.localdomain> <1238160162.15207.19.camel@localhost.localdomain> <49CD06E7.6030802@sun.com> <20090327172632.GA9992@Sun.COM> <49CD2169.3080209@sun.com> <1238434634.2484.90.camel@localhost.localdomain> <49D10FC1.3000103@sun.com> <49D188D6.6020107@schaufler-ca.com> <20090331183445.GH9992@Sun.COM>
-In-Reply-To: <20090331183445.GH9992@Sun.COM>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Nicolas Williams wrote:
-> On Mon, Mar 30, 2009 at 08:07:02PM -0700, Casey Schaufler wrote:
->   
->> Not to throw a puppy in the gears, but sophisticated handshaking and
->> negotiation protocols are not the answer. We had TSIG session management
->> for doing that and it is just not enough. How would you negotiate the
->> differences between two SELinux policies?
->>     
->
-> You don't.  You either establish that they are the same (or that one or
-> both peers are translating to a common policy) or that they are not.  In
-> the latter case you fail to communicate further.  It seems quite
-> reasonable to me to have a single policy for a site -- that seems doable
-> for MLS, but for DTE it's more likely that there will be OS-specific
-> parts of a site policy, and the potential need to map between existing
-> OS-specific policies and something else seems daunting, at least at
-> first glance, but I'm an optimist, so I think it must be doable :)
->   
+On Tue, 31 Mar 2009, Jarrett Lu wrote:
 
-You only get common policy on a single system image. Oh, with MLS
-you can limit it to MLS hosts and unlabeled hosts, but you'll always
-have at least the two. Even with MLS you'll have machines that are
-disallowed each other's levels and/or categories. This situation
-had a major impact on the Smack design, where there is no interpretation
-of the label at all.
+> I'm in general agreement with you on this. I am not sure to what extent 
+> the extensibility stuff makes sense, e.g. how much may be enough? I 
+> guess we need to study more use scenarios. I suspect TE systems may have 
+> more challenges in this area, just because security policies on TE 
+> systems tend to be more flexible. For example, how many things are 
+> critical in order to translate label correctly, OS version, vendor, 
+> label parser, security policy file? How likely DTE systems are 
+> configured with exact same policy files? Does it make sense that a 
+> (harmless) update to security policy file causes label translation 
+> failures from that point on?
 
+With SELinux systems, policies do not need to be identical to be 
+considered part of the same DOI.  Generally, labels need to remain 
+semantically equivalent (i.e. mean the same thing on each system), and the 
+policies need to be managed within the same administrative boundary. 
+Systems may restrict which labels they'll interpret from remote systems 
+(similar to root_squash).
+
+
+- James
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
