@@ -1,92 +1,121 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n32MaT1k009152
-	for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2009 18:36:29 -0400
-Received: from g4t0015.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n32MaSvu004271
-	for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2009 22:36:29 GMT
-From: Paul Moore <paul.moore@hp.com>
+MIME-version: 1.0
+Content-type: multipart/alternative;
+ boundary="Boundary_(ID_m42wBzYZJJdNPgTGuTGcyA)"
+Date: Thu, 02 Apr 2009 16:43:17 -0700
+From: Jarrett Lu <Jarrett.Lu@sun.com>
+Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted
+ to IETF	website
+In-reply-to: <20090401175012.GF9992@Sun.COM>
 To: Nicolas Williams <Nicolas.Williams@sun.com>
-Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet
- =?iso-8859-1?q?Draft=09posted_to_IETF?= website
-Date: Thu, 2 Apr 2009 18:35:50 -0400
-Cc: Jarrett Lu <Jarrett.Lu@sun.com>, labeled-nfs@linux-nfs.org,
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, labeled-nfs@linux-nfs.org,
         selinux@tycho.nsa.gov, nfs-discuss@opensolaris.org, nfsv4@ietf.org
-References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <200904011246.33436.paul.moore@hp.com> <20090402152423.GL1500@Sun.COM>
-In-Reply-To: <20090402152423.GL1500@Sun.COM>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Message-Id: <200904021835.51068.paul.moore@hp.com>
+Message-id: <49D54D95.2080009@sun.com>
+References: <1238160162.15207.19.camel@localhost.localdomain>
+ <49CD06E7.6030802@sun.com> <20090327172632.GA9992@Sun.COM>
+ <49CD2169.3080209@sun.com> <1238434634.2484.90.camel@localhost.localdomain>
+ <49D10FC1.3000103@sun.com> <1238447664.2484.119.camel@localhost.localdomain>
+ <49D1B133.3010907@sun.com> <20090331182851.GG9992@Sun.COM>
+ <49D2E073.3060003@sun.com> <20090401175012.GF9992@Sun.COM>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thursday 02 April 2009 11:24:24 am Nicolas Williams wrote:
-> On Wed, Apr 01, 2009 at 12:46:33PM -0400, Paul Moore wrote:
-> > My only comment was that figuring out how to transfer information over
-> > the network isn't really that important yet.  Reading through the thread
-> > I don't think there is general agreement on what we even need to send to
-> > enable proper label translation/encoding/etc.
+This is a multi-part message in MIME format.
+
+--Boundary_(ID_m42wBzYZJJdNPgTGuTGcyA)
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+
+On 04/01/09 10:50, Nicolas Williams wrote:
+> On Tue, Mar 31, 2009 at 08:33:07PM -0700, Jarrett Lu wrote:
+>   
+>> Nicolas Williams wrote:
+>>     
+>>> On Mon, Mar 30, 2009 at 10:59:15PM -0700, Jarrett Lu wrote:
+>>>  
+>>>       
+>>>> That's certainly one option. We can say DOI + an opaque field is what we 
+>>>> will add to NFSv4 protocol. Use the information as you see fit. Going 
+>>>>    
+>>>>         
+>>> That's what David's I-D and what my RPCSEC_GSSv3 I-D both say now.
+>>>  
+>>>       
+>> If we stop here, we don't have much of an interoperability story. I 
+>>     
 >
-> I think we all agree that a client and server have to agree on the
-> meaning of any given DOI number so that they can properly encode labels.
->
-> In order to interop this means we need a common label encoding for any
-> given DOI.
->
-> I think we agree on that, no?
+> I don't agree.  We'd have the same interop story everyone has today
+> w.r.t. labeling: synchronization of policies is an out-of-band, manual
+> (automatable) task; no standard protocol nor policy description
+> language is specified.
+>   
 
-Yep.  Although I don't think we should try to force a single label encoding 
-for all DOIs (couldn't tell from your reply how far you wanted to take this); 
-using some combination of DOI+<opaque label> seems reasonable.
+I don't mean to dwell on this. Requiring either systems being identical 
+or relying on OOB information to know whether the opaque field can be 
+used sounds weak on interoperability.  ;-)
 
-> That leaves this problem: how to ensure that the client and server do
-> actually agree as to a given DOI's label encodings?
->
-> That's a big problem that to date has been solved by out-of-band
-> mechanisms.  That solution leaves interoperability in a lurch: it's up
-> to vendors to cooperate to obtain a common security policy for use on
-> the wire.
+I agree with you on rest of your comments. I still think more detailed 
+study on different use cases are needed to understand whether the 
+proposed solutions are suitable, sufficient, etc..
 
-Well, I think the trick is you define a security policy and label format in 
-the DOI and then leave it up to the various implementations to handle the 
-necessary internalization and import/export of the DOI.  Perhaps we are in a 
-six-of-one/half-dozen-of-the-other discussion right now.
+Jarrett
 
-> I think Jarret's quite right to ask that we do better than that.
 
-I'm not arguing that we try to do better than has been done before, I'm a big 
-fan of "better".  My only concern is that if we do "better" we do "better" for 
-more than just NFS.
+--Boundary_(ID_m42wBzYZJJdNPgTGuTGcyA)
+Content-type: text/html; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
 
-> Doing better means: a) coming up with a common labeled security policy
-> language for MLS and DTE
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+On 04/01/09 10:50, Nicolas Williams wrote:
+<blockquote cite="mid:20090401175012.GF9992@Sun.COM" type="cite">
+  <pre wrap="">On Tue, Mar 31, 2009 at 08:33:07PM -0700, Jarrett Lu wrote:
+  </pre>
+  <blockquote type="cite">
+    <pre wrap="">Nicolas Williams wrote:
+    </pre>
+    <blockquote type="cite">
+      <pre wrap="">On Mon, Mar 30, 2009 at 10:59:15PM -0700, Jarrett Lu wrote:
+ 
+      </pre>
+      <blockquote type="cite">
+        <pre wrap="">That's certainly one option. We can say DOI + an opaque field is what we 
+will add to NFSv4 protocol. Use the information as you see fit. Going 
+   
+        </pre>
+      </blockquote>
+      <pre wrap="">That's what David's I-D and what my RPCSEC_GSSv3 I-D both say now.
+ 
+      </pre>
+    </blockquote>
+    <pre wrap="">If we stop here, we don't have much of an interoperability story. I 
+    </pre>
+  </blockquote>
+  <pre wrap=""><!---->
+I don't agree.  We'd have the same interop story everyone has today
+w.r.t. labeling: synchronization of policies is an out-of-band, manual
+(automatable) task; no standard protocol nor policy description
+language is specified.
+  </pre>
+</blockquote>
+<br>
+I don't mean to dwell on this. Requiring either systems being identical
+or relying on OOB information to know whether the opaque field can be
+used sounds weak on interoperability.&nbsp; ;-)<br>
+<br>
+I agree with you on rest of your comments. I still think more detailed
+study on different use cases are needed to understand whether the
+proposed solutions are suitable, sufficient, etc..<br>
+<br>
+Jarrett<br>
+<br>
+</body>
+</html>
 
-At this point I'm glad there is an option "B" :)
-
-> b) ensuring that clients and servers agree on a DOI's policy.
-
-As you point out, this seems much more reasonable of a goal.
-
-> > > ... and probably outside the scope of labeled NFSv4 enhancement.
-> >
-> > Perhaps.  Keep in mind I'm trying to think a bit more generically; if
-> > that isn't the goal I'll be happy to go back to my corner and sit quietly
-> > :)
->
-> Parts of the solution will be outside the scope of the NFSv4 WG.  That
-> doesn't mean we can't undertake a solution.  Assuming (a) (see above) we
-> need only specify (b) (see above) for NFSv4 -- we can leave (a) to
-> another WG.
-
-I guess I personally don't really care about WG boundaries right now, I'm 
-mostly interested in arriving at a decent, complete solution.  My belief is 
-that once we arrive at a good idea we can divide it up amongst whatever WGs 
-are appropriate.
-
--- 
-paul moore
-linux @ hp
-
+--Boundary_(ID_m42wBzYZJJdNPgTGuTGcyA)--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
