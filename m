@@ -1,58 +1,92 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n32KCMCx023871
-	for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2009 16:12:22 -0400
-Received: from manicmethod.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n32KCLvu008013
-	for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2009 20:12:21 GMT
-Message-ID: <49D51C19.1000105@manicmethod.com>
-Date: Thu, 02 Apr 2009 16:12:09 -0400
-From: Joshua Brindle <method@manicmethod.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n32MaT1k009152
+	for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2009 18:36:29 -0400
+Received: from g4t0015.houston.hp.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n32MaSvu004271
+	for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2009 22:36:29 GMT
+From: Paul Moore <paul.moore@hp.com>
+To: Nicolas Williams <Nicolas.Williams@sun.com>
+Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet
+ =?iso-8859-1?q?Draft=09posted_to_IETF?= website
+Date: Thu, 2 Apr 2009 18:35:50 -0400
+Cc: Jarrett Lu <Jarrett.Lu@sun.com>, labeled-nfs@linux-nfs.org,
+        selinux@tycho.nsa.gov, nfs-discuss@opensolaris.org, nfsv4@ietf.org
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <200904011246.33436.paul.moore@hp.com> <20090402152423.GL1500@Sun.COM>
+In-Reply-To: <20090402152423.GL1500@Sun.COM>
 MIME-Version: 1.0
-To: Vikram Noel Ambrose <noel.ambrose@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: xine_init() causes segfault in libselinux
-References: <49D00BEB.2030000@gmail.com>
-In-Reply-To: <49D00BEB.2030000@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Message-Id: <200904021835.51068.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Vikram Noel Ambrose wrote:
-> Hello Everyone,
-> 
-> I've managed to find a repeatable segfault scenario with some very basic 
-> libxine code.
-> 
-> libxine if anyone doesnt know is a very popular audio backend for many 
-> userspace applications in KDE and Gnome.
-> 
-> Here is the code: http://en.pastebin.ca/1376316
-> 
-> The code basically opens a file stream with no Audio or Video drivers, 
-> and just reads the meta data from the file (title information), and then 
-> quits.
-> 
-> A gdb backtrace and valgrind have led me to believe there is a fault in 
-> libselinux.
-> 
-> Though this could very possibly be a fault in libxine, I'd have thought 
-> libselinux would be more resilient to such issues. Especially since 
-> glibc didnt complain.
-> 
-> If you would like to run this test code, simply install xine-lib-devel 
-> and then compile the test program.
-> 
-> $ gcc -lxine -g test.c
-> $ ./a.out
-> 
-> I'm using an up-to-date FC10 x86_64 installation. 
-> 2.6.27.19-170.2.35.fc10.x86_64
-> 
-> 
+On Thursday 02 April 2009 11:24:24 am Nicolas Williams wrote:
+> On Wed, Apr 01, 2009 at 12:46:33PM -0400, Paul Moore wrote:
+> > My only comment was that figuring out how to transfer information over
+> > the network isn't really that important yet.  Reading through the thread
+> > I don't think there is general agreement on what we even need to send to
+> > enable proper label translation/encoding/etc.
+>
+> I think we all agree that a client and server have to agree on the
+> meaning of any given DOI number so that they can properly encode labels.
+>
+> In order to interop this means we need a common label encoding for any
+> given DOI.
+>
+> I think we agree on that, no?
 
-I can't reproduce this on an x86 F10 install with either the latest libselinux 
-or trunk libselinux. Can you try installing a libselinux from trunk with DEBUG=1 
-make flag so the backtrace will give more information?
+Yep.  Although I don't think we should try to force a single label encoding 
+for all DOIs (couldn't tell from your reply how far you wanted to take this); 
+using some combination of DOI+<opaque label> seems reasonable.
+
+> That leaves this problem: how to ensure that the client and server do
+> actually agree as to a given DOI's label encodings?
+>
+> That's a big problem that to date has been solved by out-of-band
+> mechanisms.  That solution leaves interoperability in a lurch: it's up
+> to vendors to cooperate to obtain a common security policy for use on
+> the wire.
+
+Well, I think the trick is you define a security policy and label format in 
+the DOI and then leave it up to the various implementations to handle the 
+necessary internalization and import/export of the DOI.  Perhaps we are in a 
+six-of-one/half-dozen-of-the-other discussion right now.
+
+> I think Jarret's quite right to ask that we do better than that.
+
+I'm not arguing that we try to do better than has been done before, I'm a big 
+fan of "better".  My only concern is that if we do "better" we do "better" for 
+more than just NFS.
+
+> Doing better means: a) coming up with a common labeled security policy
+> language for MLS and DTE
+
+At this point I'm glad there is an option "B" :)
+
+> b) ensuring that clients and servers agree on a DOI's policy.
+
+As you point out, this seems much more reasonable of a goal.
+
+> > > ... and probably outside the scope of labeled NFSv4 enhancement.
+> >
+> > Perhaps.  Keep in mind I'm trying to think a bit more generically; if
+> > that isn't the goal I'll be happy to go back to my corner and sit quietly
+> > :)
+>
+> Parts of the solution will be outside the scope of the NFSv4 WG.  That
+> doesn't mean we can't undertake a solution.  Assuming (a) (see above) we
+> need only specify (b) (see above) for NFSv4 -- we can leave (a) to
+> another WG.
+
+I guess I personally don't really care about WG boundaries right now, I'm 
+mostly interested in arriving at a decent, complete solution.  My belief is 
+that once we arrive at a good idea we can divide it up amongst whatever WGs 
+are appropriate.
+
+-- 
+paul moore
+linux @ hp
+
 
 --
 This message was distributed to subscribers of the selinux mailing list.
