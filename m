@@ -1,165 +1,193 @@
-Message-ID: <49D4069A.9000600@ak.jp.nec.com>
-Date: Thu, 02 Apr 2009 09:28:10 +0900
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n328GA53006878
+	for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2009 04:16:10 -0400
+Received: from tyo201.gate.nec.co.jp (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n328G8At007095
+	for <selinux@tycho.nsa.gov>; Thu, 2 Apr 2009 08:16:08 GMT
+Message-ID: <49D4743C.2010000@ak.jp.nec.com>
+Date: Thu, 02 Apr 2009 17:15:56 +0900
 From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: selinux <selinux@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
-        James Morris <jmorris@namei.org>
-Subject: Re: Correct manner to handler undefined classes/permissions? (Re:
- Some ideas in SE-PostgreSQL enhancement)
-References: <49C7667A.3020804@ak.jp.nec.com> <49C7A88E.4020408@rubix.com>	 <49C84200.9090107@ak.jp.nec.com> <49C9D524.9050208@ak.jp.nec.com>	 <49D3171A.3020708@ak.jp.nec.com> <1238589935.24074.3.camel@localhost.localdomain>
-In-Reply-To: <1238589935.24074.3.camel@localhost.localdomain>
-Content-Type: multipart/mixed;
- boundary="------------090105080301080909060109"
+To: cpebenito@tresys.com
+CC: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov, method@manicmethod.com
+Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
+References: <49D1DA85.1030902@ak.jp.nec.com>
+In-Reply-To: <49D1DA85.1030902@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-This is a multi-part message in MIME format.
---------------090105080301080909060109
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Chris,
 
-Stephen Smalley wrote:
->> My preference is filling up the undefined access vectores with
->> policydb.allow_unknown. It seems to me quite natural.
-> 
-> I believe that is what the kernel does during policy load, by defining
-> the policydb->undefined_perms[] array.
-
-Oops, I misread the kernel code.
-
->> Userspace object managers also have same issue.
->> Now it's unclear for me what is the preferable behavior.
->> For example, how should it handle the db_database:{superuser}
->> on the older security policy?
-
-It is useful for userspace object manager, if libselinux has an
-interface something like: int security_deny_unknown(void);
-
-This interface can suggest applications preferable behavior when
-string_to_security_class() or string_to_av_perm() returns invalid
-value which means the security policy does not define required
-ones.
+What is your opinion about this reworks?
+If its scale is too large to commit at once, I can separate it
+into several pieces.
 
 Thanks,
+
+KaiGai Kohei wrote:
+> As we have discussed for the recent week, I have a plan to rework
+> some of security policy for SE-PostgreSQL.
+> 
+> The attached patch adds the significan changes, as follows.
+> Could you give me any suggestion, approval or opposition?
+> 
+> New object classes and permissions
+> ----------------------------------
+>  * db_catalog class
+>    It shows the top level namespace in the database, and has a capability
+>    to store a set of schemas. Some of implementation does not support
+>    catalogs. In this case, we simply ignore this class and any schemas
+>    are placed under the db_database directly.
+> 
+>    It defines the following four permissions and inherited ones:
+>      { search add_object remove_object associate }
+> 
+>    Client should have db_catalog:{search} on the catalog when he refers
+>    any schemas under the catalog, and he should also have
+>    db_catalog:{add_object} and db_catalog:{remove_object} on the catalog
+>    when he tries to add or remove a shema within the catalog.
+>    These permissions are an analogy of dir object class.
+> 
+>    The db_catalog:{associate}, which I've not introduced yet but noticed
+>    its necessity, is also checked when we create or relabel a schema
+>    within the catalog, and the schema should have db_catalog:{associate}
+>    on the catalog. It is an analogy of filesystem:{associate}.
+>    It prevents a schema is labeled unexpectedly.
+> 
+>  * db_schema class
+>    It shows the second level namespace in the database, but it may be
+>    the top level one in some of implementation (like PostgreSQL).
+>    It has a capability to store a set of database objects (tables,
+>    procedures and so on).
+> 
+>    It defines the following four permissions and inherited ones:
+>      { search add_object remove_object associate }
+>    Their meanings are similar to ones in db_catalog class except for
+>    the schema to be replaced by database objects.
+> 
+>    Its security context can be computed with TYPE_TRANSITION between
+>    the client as a subject and the database (or catalog, if availabel)
+>    as a target.
+> 
+>  * db_sequence class
+>    It shows the sequential number generator objects. We can also use
+>    them as a communication channel between two domains, so it is
+>    necessary to apply security policy.
+> 
+>    It inherits common database and defines the following two permissions:
+>      { get_value set_value }
+>    Client should have db_sequence:{get_value} when he fetch a value from
+>    the sequence generator, and db_sequence:{set_value} when he set a
+>    discretionary value. When he fetch a value from the sequence object,
+>    it implicitly increments internal counter, but it is covered by the
+>    get_value permission.
+> 
+>    Its security context can be computed with TYPE_TRANSITION between
+>    the client as a subject and the schema as a target.
+> 
+> Change definition of object classes
+> -----------------------------------
+>  * db_database class
+>    The db_database:{get_param set_param} is removed because these two
+>    permissions are nonsense.
+>    The db_database:{superuser} is newly added. It is checked when
+>    client perform as database superuser. Stephen suggested it can
+>    be separated to more finer grained privileges. It makes sense,
+>    but this kind of separation which focuses on PostgreSQL makes
+>    hard to port the concept for other database management systems.
+> 
+>  * db_table/db_column/db_tuple:{use} permission
+>    The db_xxx:{use} permission is integrated into db_xxx:{select}
+>    permission, because it can hide the risk to infer invisible
+>    information easily with well considered WHERE clauses.
+> 
+> user_sepgsql_xxxx_t types
+> -------------------------
+>  * Currently, sepgsql_proc_t is assigned to the procedures created
+>    by unprivileged and unprefixed clients, like httpd_t.
+>    But I would like to handle it as a procedure created or relabeled
+>    by database administrator.
+>    Basically, we consider user defined procedures are untrusted, so
+>    it should be checked before it becomes available for all the clients.
+>    So, we don't allow to install them as system internal entities, and
+>    don't allow unconfined domains to execute them directly.
+> 
+>    My preference is the user_sepgsql_xxxx_t is also assigned to
+>    procedures created by unprivileged and unprfixed client.
+> 
+> A schema for temporary obejcts
+> ------------------------------
+>  * The sepgsql_schema_t is the default type for schema objects, and
+>    rest of database objects within the schema is labeled with the chain
+>    of TYPE_TRANSITION rules.
+>    We have a characteristic scheme named as "pg_temp_*". Any database
+>    objects within the schema are cleared after the session closed,
+>    so its contents are always session local. We would like to assign
+>    special types on the temporary schema and delivered database objects
+>    withing the schema. In addition, users can create and use these
+>    database objects independently from the sepgsql_enable_users_ddl.
+> 
+> Booelean behavior: sepgsql_enable_users_ddl
+> -------------------------------------------
+>  * Because the current design does not care about actions on schema
+>    objects, we need to assign separated label (sepgsql_sysobj_t) on
+>    system informations and apply checks as row-level controls.
+>    But db_schema object class enables to control user's DDLs in
+>    the schema level checks mainly, so now sepgsql_enable_user_ddl
+>    focuses on db_schema class permissions and {create drop setattr}
+>    for any other database objects.
+>    The attached patch allows users to modify tuples with sepgsql_sysobj_t
+>    but not allows columns/tables. It means user can define database
+>    objects with proper way (like CREATE TABLE), but prevents to
+>    manipulate system information by hand.
+>    In addition, this boolean controls only user_sepgsql_xxxx_t.
+>    The unprefixed types are always not allowed to modify its definition
+>    by unprivileges users.
+> 
+> db_table:{lock} for reader actions
+> ----------------------------------
+>  * db_table:{lock} is also necessary for reader side actions due to the
+>    implementation reason.
+>    In PostgreSQL, FK constraints are implemented as trigger functions.
+>    It is invoked for each INSERT/UPDATE/DELETE on constrainted tuples,
+>    and run a secondary query to check whether the action satisfies
+>    FK constraints or not.
+>    This query is described as:
+>      SELECT 1 FROM t WHERE k = "$1" FOR SHARE;
+> 
+>    The "FOR SHARE" clause means explicit table lock and requires
+>    db_table:{lock} permission. If we don't allow unpriv clients to
+>    lock read-only tables, it disables to set up FK constraint which
+>    refers read-only tables.
+> 
+> Miscellaneous changes
+> ---------------------
+>  * The security context of a new database is decided via type_transition
+>    on the server process's context. It enables to avoid conflicts when
+>    we have multiple DBMSs in a system.
+>  * It allows postgresql_t domain to write out messages to system audit.
+>  * sepgsql_proc_t is aliased to sepgsql_proc_exec_t.
+>  * db_procedure:{install} is revoked from sepgsql_trusted_proc_exec_t,
+>    because we don't need to run trusted procedure implicitly.
+>  * Most of postgresql_role() are shared with postgresql_unpriv_client(),
+>    except for "role $1 types sepgsql_trusted_proc_t;"
+>  * /etc/selinux/$POLICYTYPE/contexts/db_contexts for selabel_lookup(3)
+> 
+> Thanks,
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> _______________________________________________
+> refpolicy mailing list
+> refpolicy@oss.tresys.com
+> http://oss.tresys.com/mailman/listinfo/refpolicy
+
+
 -- 
 OSS Platform Development Division, NEC
 KaiGai Kohei <kaigai@ak.jp.nec.com>
-
---------------090105080301080909060109
-Content-Type: text/x-patch;
- name="libselinux-security_deny_unknown.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libselinux-security_deny_unknown.patch"
-
- Signed-off-by: KaiGai Kohei <kaigai@ak.jp.nec.com>
---
- libselinux/include/selinux/selinux.h        |    3 ++
- libselinux/man/man3/security_deny_unknown.3 |   21 ++++++++++++++
- libselinux/src/deny_unknown.c               |   40 +++++++++++++++++++++++++++
- libselinux/src/selinux_internal.h           |    1 +
- 4 files changed, 65 insertions(+), 0 deletions(-)
-
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index fab083e..01a8912 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -301,6 +301,9 @@ extern int security_disable(void);
- /* Get the policy version number. */
- extern int security_policyvers(void);
- 
-+/* Get the behavior for undefined classes/permissions */
-+extern int security_deny_unknown(void);
-+
- /* Get the boolean names */
- extern int security_get_boolean_names(char ***names, int *len);
- 
-diff --git a/libselinux/man/man3/security_deny_unknown.3 b/libselinux/man/man3/security_deny_unknown.3
-index e69de29..1fce3eb 100644
---- a/libselinux/man/man3/security_deny_unknown.3
-+++ b/libselinux/man/man3/security_deny_unknown.3
-@@ -0,0 +1,21 @@
-+.TH "security_deny_unknown" "3" "2 April 2009" "kaigai@ak.jp.nec.com" "SELinux API documentation"
-+.SH "NAME"
-+security_deny_unknown \- get the preferable behavior on undefined object classes and access vectores
-+.SH "SYNOPSIS"
-+.B #include <selinux/selinux.h>
-+.sp
-+.B int security_deny_unknown(void);
-+
-+.SH "DESCRIPTION"
-+.B security_deny_unknown
-+returns 0 if SELinux allows undefined actions or actions on undefined object classes, 1 if not allowed, and -1 on error.
-+Application should perform according to the result when
-+.B string_to_security_class
-+or
-+.B string_to_av_perm
-+return invalid value which means the current policy does not support required ones.
-+
-+.SH "SEE ALSO"
-+.BR string_to_security_class (3),
-+.BR string_to_av_perm (3),
-+.BR selinux (8)
-diff --git a/libselinux/src/deny_unknown.c b/libselinux/src/deny_unknown.c
-index e69de29..c93998a 100644
---- a/libselinux/src/deny_unknown.c
-+++ b/libselinux/src/deny_unknown.c
-@@ -0,0 +1,40 @@
-+#include <unistd.h>
-+#include <sys/types.h>
-+#include <fcntl.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <string.h>
-+#include "selinux_internal.h"
-+#include "policy.h"
-+#include <stdio.h>
-+#include <limits.h>
-+
-+int security_deny_unknown(void)
-+{
-+	int fd, ret, deny_unknown = 0;
-+	char path[PATH_MAX];
-+	char buf[20];
-+
-+	if (!selinux_mnt) {
-+		errno = ENOENT;
-+		return -1;
-+	}
-+
-+	snprintf(path, sizeof(path), "%s/deny_unknown", selinux_mnt);
-+	fd = open(path, O_RDONLY);
-+	if (fd < 0)
-+		return -1;
-+
-+	memset(buf, 0, sizeof(buf));
-+	ret = read(fd, buf, sizeof(buf) - 1);
-+	close(fd);
-+	if (ret < 0)
-+		return -1;
-+
-+	if (sscanf(buf, "%d", &deny_unknown) != 1)
-+		return -1;
-+
-+	return deny_unknown;
-+}
-+
-+hidden_def(security_deny_unknown);
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index 8b4c6d4..5c551d4 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -51,6 +51,7 @@ hidden_proto(selinux_mkload_policy)
-     hidden_proto(setsockcreatecon_raw)
-     hidden_proto(security_getenforce)
-     hidden_proto(security_setenforce)
-+    hidden_proto(security_deny_unknown)
-     hidden_proto(selinux_binary_policy_path)
-     hidden_proto(selinux_default_context_path)
-     hidden_proto(selinux_securetty_types_path)
-
---------------090105080301080909060109--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
