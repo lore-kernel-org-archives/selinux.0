@@ -1,50 +1,65 @@
-Subject: Re: [PATCH 08/14] NFSv4: Add label recommended attribute and NFSv4
- flags
-From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-To: James Morris <jmorris@namei.org>
-Cc: casey@schaufler-ca.com, sds@tycho.nsa.gov,
-        "Matthew N. Dodd" <matthew.dodd@sparta.com>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
-        labeled-nfs@linux-nfs.org
-In-Reply-To: <alpine.LRH.2.00.0904032239330.16607@tundra.namei.org>
-References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
-	 <1227733394-1114-9-git-send-email-dpquigl@tycho.nsa.gov>
-	 <alpine.LRH.2.00.0904031921320.11240@tundra.namei.org>
-	 <1238752770.7541.58.camel@moss-terrapins.epoch.ncsc.mil>
-	 <alpine.LRH.2.00.0904032239330.16607@tundra.namei.org>
-Content-Type: text/plain
-Date: Fri, 03 Apr 2009 08:23:44 -0400
-Message-Id: <1238761424.7541.68.camel@moss-terrapins.epoch.ncsc.mil>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n33GihsE004195
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 12:44:43 -0400
+Received: from brmea-mail-4.sun.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n33GigBk000418
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 16:44:43 GMT
+Received: from dm-central-01.central.sun.com ([129.147.62.4])
+	by brmea-mail-4.sun.com (8.13.6+Sun/8.12.9) with ESMTP id n33Gig2i000491
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 16:44:42 GMT
+Received: from binky.Central.Sun.COM (binky.Central.Sun.COM [129.153.128.104])
+	by dm-central-01.central.sun.com (8.13.8+Sun/8.13.8/ENSMAIL,v2.2) with ESMTP id n33GigcO017071
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 10:44:42 -0600 (MDT)
+Date: Fri, 3 Apr 2009 10:42:54 -0500
+From: Nicolas Williams <Nicolas.Williams@sun.com>
+To: Santosh Chokhani <SChokhani@cygnacom.com>
+Cc: saag@ietf.org, labeled-nfs@linux-nfs.org, nfs-discuss@opensolaris.org,
+        nfsv4@ietf.org, selinux@tycho.nsa.gov
+Subject: Re: [saag] Common labeled security (comment on CALIPSO,	labeled NFSv4)
+Message-ID: <20090403154253.GZ1500@Sun.COM>
+References: <20090402154402.GM1500@Sun.COM> <FAD1CF17F2A45B43ADE04E140BA83D48A9FF82@scygexch1.cygnacom.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <FAD1CF17F2A45B43ADE04E140BA83D48A9FF82@scygexch1.cygnacom.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-04-03 at 22:43 +1100, James Morris wrote:
-> On Fri, 3 Apr 2009, David P. Quigley wrote:
+On Fri, Apr 03, 2009 at 11:22:38AM -0400, Santosh Chokhani wrote:
+> As part of MISSI and DMS, in mid to late 90's we did work on something
+> called Security Policy Information File (SPIF).
+
+Oh, very nice!  Thanks for the pointer.  That would be ISO15816.  I've
+found the spec, though it's non-free (hadn't they learned the lesson
+with ASN.1??  will they ever learn it??).
+
+> At high level SPIF entailed the following:
 > 
-> > We tried to change this to be dynamically allocated based on what was
-> > coming off of the wire but we ran into a problem that it required us to
-> > do allocations where they really shouldn't be done in the rpc/nfsv4
-> > code. Trond suggested to make this static and that if someone really
-> > needed more than a page for their label that something was horrifically
-> > wrong. I'm tempted to agree with him on this but there are people trying
-> > to send contexts with an MLS component with every other compartment set
-> > which tend to be really large. 
+> 1.  It was ASN.1 based.
+
+Not surprisingly :)  Converting that to XML is probably the correct
+first step in order to ensure adoption, sadly.  (Actually, apparently
+that has already been done once, though outside the ISO/ITU-T.)
+
+> 2.  It permitted you to convert the machine representation to human
+> readable representation.
+> 3.  It permitted you to convert the human readable input to machine
+> representation.
+> 4.  It mapped labels (hierarchical sensitivity levels and
+> non-hierarchical categories) from one labeling policy to another (i.e.,
+> establish equivalency mapping)
+> 5.  It allowed you to constrain labels since for some policies,
+> existence of a category may mean some categories, levels, may be
+> included and/or excluded.
 > 
-> Well, future labels might include cryptographic information, for example.
+> Different labeling policies were indicated by different policy OID.
 > 
+> Some of the concept from that work may be applicable here. 
 
-<removing people from the CC who probably don't care about this>
+I think so!  Except for the part about this spec being non-free.  I
+think that means: start over in the IETF.
 
-Could you expand on why this might be needed or what applications would
-use this? It's unclear to me what sort of crypto information would be in
-a context. I know the ecryptfs guys were trying to make crypto decisions
-based on SELinux context in some cases but I never heard of wanting to
-put that kind of information into the context.
-
-Dave
-
+Nico
+-- 
 
 --
 This message was distributed to subscribers of the selinux mailing list.
