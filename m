@@ -1,90 +1,93 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n33ID2Bu021263
-	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 14:13:02 -0400
-Received: from manicmethod.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n33ID1fC003518
-	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 18:13:02 GMT
-Message-ID: <49D651A7.1000703@manicmethod.com>
-Date: Fri, 03 Apr 2009 14:12:55 -0400
-From: Joshua Brindle <method@manicmethod.com>
-MIME-Version: 1.0
-To: KaiGai Kohei <kaigai@ak.jp.nec.com>
-CC: "Christopher J. PeBenito" <cpebenito@tresys.com>, refpolicy@oss.tresys.com,
-        selinux@tycho.nsa.gov
-Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
-References: <49D1DA85.1030902@ak.jp.nec.com>	 <49D4743C.2010000@ak.jp.nec.com>  <49D4CB6E.1090900@manicmethod.com> <1238684951.32379.311.camel@gorn.columbia.tresys.com> <49D563A9.1000607@ak.jp.nec.com>
-In-Reply-To: <49D563A9.1000607@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n33IJJBw022325
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 14:19:19 -0400
+Received: from e32.co.us.ibm.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n33IJIfC004687
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 18:19:19 GMT
+Received: from d03relay02.boulder.ibm.com (d03relay02.boulder.ibm.com [9.17.195.227])
+	by e32.co.us.ibm.com (8.13.1/8.13.1) with ESMTP id n33IGL7r019524
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 12:16:21 -0600
+Received: from d03av01.boulder.ibm.com (d03av01.boulder.ibm.com [9.17.195.167])
+	by d03relay02.boulder.ibm.com (8.13.8/8.13.8/NCO v9.2) with ESMTP id n33IJEMu204526
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 12:19:14 -0600
+Received: from d03av01.boulder.ibm.com (loopback [127.0.0.1])
+	by d03av01.boulder.ibm.com (8.12.11.20060308/8.13.3) with ESMTP id n33IJDMu023068
+	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 12:19:14 -0600
+Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet
+	Draft	posted to IETF website
+From: Joy Latten <latten@austin.ibm.com>
+To: Paul Moore <paul.moore@hp.com>
+Cc: Nicolas Williams <Nicolas.Williams@sun.com>,
+        Jarrett Lu <Jarrett.Lu@sun.com>, labeled-nfs@linux-nfs.org,
+        selinux@tycho.nsa.gov, nfs-discuss@opensolaris.org, nfsv4@ietf.org
+In-Reply-To: <200904021835.51068.paul.moore@hp.com>
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil>
+	 <200904011246.33436.paul.moore@hp.com> <20090402152423.GL1500@Sun.COM>
+	 <200904021835.51068.paul.moore@hp.com>
+Content-Type: text/plain
+Date: Fri, 03 Apr 2009 13:08:43 -0500
+Message-Id: <1238782123.1876.35.camel@faith.austin.ibm.com>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-KaiGai Kohei wrote:
-> Christopher J. PeBenito wrote:
->> On Thu, 2009-04-02 at 10:27 -0400, Joshua Brindle wrote:
->>> KaiGai Kohei wrote:
->>>> Chris,
->>>>
->>>> What is your opinion about this reworks?
->>>> If its scale is too large to commit at once, I can separate it
->>>> into several pieces.
->>>>
->>> I don't think it is a good idea to merge the object class changes at this point.
->>> The object classes and permissions are likely to change with sepostgresql going
->>> forward, as that community determines what they like and don't like
->>> access-control wise.
->>>
->>> Additionally there is another object manager (RUBIX) that is now going to be
->>> reliant on these object classes so it would be nice for them to work out some of
->>> their implementation just to be sure these are sufficient and finally merging
->>> these object class changes is going to break the sepostgres that is in fedora
->>> right now.
->> Agreed.  I don't want to merge any object class changes until they have
->> settled down.  I'd prefer that the patches to the object manager be on a
->> path for upstream acceptance in both databases, if not already committed
->> to their trees, before moving forward on the object class changes in the
->> policy.
+
+On Thu, 2009-04-02 at 18:35 -0400, Paul Moore wrote:
+> On Thursday 02 April 2009 11:24:24 am Nicolas Williams wrote:
+> > On Wed, Apr 01, 2009 at 12:46:33PM -0400, Paul Moore wrote:
+> > > My only comment was that figuring out how to transfer information over
+> > > the network isn't really that important yet.  Reading through the thread
+> > > I don't think there is general agreement on what we even need to send to
+> > > enable proper label translation/encoding/etc.
+> >
+> > I think we all agree that a client and server have to agree on the
+> > meaning of any given DOI number so that they can properly encode labels.
+> >
+> > In order to interop this means we need a common label encoding for any
+> > given DOI.
+> >
+> > I think we agree on that, no?
 > 
-> As I noted in the previous message, it give me a deadlock. :(
+> Yep.  Although I don't think we should try to force a single label encoding 
+> for all DOIs (couldn't tell from your reply how far you wanted to take this); 
+> using some combination of DOI+<opaque label> seems reasonable.
 > 
-> I don't think it is a realistic assumption that pgsql-hackers are
-> well motivated to modify or replace the default security policy to
-> review and test the proposed features. I guess it gives us negative
-> effect to upstream the SE-PostgreSQL feature in the v8.5 release.
+> > That leaves this problem: how to ensure that the client and server do
+> > actually agree as to a given DOI's label encodings?
+> >
+> > That's a big problem that to date has been solved by out-of-band
+> > mechanisms.  That solution leaves interoperability in a lurch: it's up
+> > to vendors to cooperate to obtain a common security policy for use on
+> > the wire.
 > 
+> Well, I think the trick is you define a security policy and label format in 
+> the DOI and then leave it up to the various implementations to handle the 
+> necessary internalization and import/export of the DOI.  Perhaps we are in a 
+> six-of-one/half-dozen-of-the-other discussion right now.
 
-They will have to do some policy updates to test the functionality no matter
-what. I don't think it is *that* unreasonable for them to update the base policy
-(from their perspective it shouldn't be any different anyway)
+I am just getting to read this thread. I find it interesting because the
+labeled ipsec draft expresses DOI + opaque string in similar manner as
+the labeled nfsv4 draft. 
 
-> At least, these new object classes don't have any strange behavior.
-> The vanilla PostgreSQL also has similar permissions, so it convinces
-> me they can accept these permissions, more than nothing for them.
-> 
+Upon reading the thread, I agree with you, define a security policy and 
+label format in the DOI and leave it up to implementation to handle
+internalization.
 
-Except you were removing permissions in the patch, which would break the
-sepostgres that is in the Fedora tree.
+I had always assumed the DOI would be handled by IANA and when a request
+was made for a new DOI number, a definition would be included. 
+For example, DOI #5: mapping between MAC implementation A version xx,
+label policy B AND MAC implementation G version xx, label policy R.
+Or maybe something like, DOI #6: SElinux version XX, using MCS.
 
-> Again, I would like to get the reworks merged in this timing.
-> (In addition, it also makes RUBIX happy on Fedora 11 or later.)
-> 
+The sys admin would determine based on local MAC, mappings, etc...,
+which DOI to use/communicate. 
 
-Fedora 11 is already frozen, new object classes shouldn't be working their way
-in to that, so we have a release cycle to adjust the permissions to match the
-implementation, both on the upstream sepostgres side and the RUBIX side before
-pushing those in to refpolicy.
+This perhaps sounds somewhat primitive, but I am still processing all
+the info communicated in the thread. :-)
 
-Once some implementation starts and the security model settles it may be a
-different story, I just don't think it is appropriate to merge them at this
-point. (In particular I want to see if the new proposed object classes and perms
-will really work for RUBIX, and I want to see how much of the patch the upstream
-postgres project will take for the next release).
+regards,
+Joy 
 
-As it stands we are going to have 3 selinux aware databases floating around
-using slightly different object classes and permissions, which is not ideal.
-Having all those in upstream refpolicy means it is harder to change them and the
-unused permissions are going to sit there causing confusion (even worse, they'll
-be unused by 2 of the 3 systems but still in use by the previous version of
-sepostgres).
 
 --
 This message was distributed to subscribers of the selinux mailing list.
