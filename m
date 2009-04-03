@@ -13,8 +13,8 @@ References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>
 	 <1227733394-1114-9-git-send-email-dpquigl@tycho.nsa.gov>
 	 <alpine.LRH.2.00.0904031921320.11240@tundra.namei.org>
 Content-Type: text/plain
-Date: Fri, 03 Apr 2009 05:59:30 -0400
-Message-Id: <1238752770.7541.58.camel@moss-terrapins.epoch.ncsc.mil>
+Date: Fri, 03 Apr 2009 07:29:00 -0400
+Message-Id: <1238758140.7541.65.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
@@ -47,16 +47,12 @@ On Fri, 2009-04-03 at 19:31 +1100, James Morris wrote:
 > 
 > - James
 
-We tried to change this to be dynamically allocated based on what was
-coming off of the wire but we ran into a problem that it required us to
-do allocations where they really shouldn't be done in the rpc/nfsv4
-code. Trond suggested to make this static and that if someone really
-needed more than a page for their label that something was horrifically
-wrong. I'm tempted to agree with him on this but there are people trying
-to send contexts with an MLS component with every other compartment set
-which tend to be really large. 
+Also there is nothing in the specification that limits it to 4k. This is
+a specific implementation detail of the Linux prototype and can be
+changed at a later date if necessary without having to modify any
+documents. 
 
-Dave 
+Dave
 
 
 --
