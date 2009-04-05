@@ -1,38 +1,76 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n33KwqFx009992
-	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 16:58:52 -0400
-Received: from sca-ea-mail-3.sun.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n33KwpDd028229
-	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 20:58:52 GMT
-Received: from dm-central-01.central.sun.com ([129.147.62.4])
-	by sca-ea-mail-3.sun.com (8.13.6+Sun/8.12.9) with ESMTP id n33KwpZY009438
-	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 20:58:51 GMT
-Received: from binky.Central.Sun.COM (binky.Central.Sun.COM [129.153.128.104])
-	by dm-central-01.central.sun.com (8.13.8+Sun/8.13.8/ENSMAIL,v2.2) with ESMTP id n33KwpU1012943
-	for <selinux@tycho.nsa.gov>; Fri, 3 Apr 2009 14:58:51 -0600 (MDT)
-Date: Fri, 3 Apr 2009 14:57:05 -0500
-From: Nicolas Williams <Nicolas.Williams@sun.com>
-To: Santosh Chokhani <SChokhani@cygnacom.com>
-Cc: saag@ietf.org, labeled-nfs@linux-nfs.org, nfs-discuss@opensolaris.org,
-        nfsv4@ietf.org, selinux@tycho.nsa.gov
-Subject: Re: [saag] Common labeled security (comment on CALIPSO,	labeled NFSv4)
-Message-ID: <20090403195704.GT1500@Sun.COM>
-References: <20090402154402.GM1500@Sun.COM> <FAD1CF17F2A45B43ADE04E140BA83D48A9FF82@scygexch1.cygnacom.com> <20090403154253.GZ1500@Sun.COM> <FAD1CF17F2A45B43ADE04E140BA83D48A9FF9E@scygexch1.cygnacom.com> <20090403173655.GK1500@Sun.COM> <FAD1CF17F2A45B43ADE04E140BA83D48A9FFAF@scygexch1.cygnacom.com> <20090403191838.GM1500@Sun.COM> <FAD1CF17F2A45B43ADE04E140BA83D48A9FFBE@scygexch1.cygnacom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <FAD1CF17F2A45B43ADE04E140BA83D48A9FFBE@scygexch1.cygnacom.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n350qmwt009110
+	for <selinux@tycho.nsa.gov>; Sat, 4 Apr 2009 20:52:49 -0400
+Received: from mail2.asahi-net.or.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n350qlMb021215
+	for <selinux@tycho.nsa.gov>; Sun, 5 Apr 2009 00:52:47 GMT
+Message-ID: <49D800D7.7060609@kaigai.gr.jp>
+Date: Sun, 05 Apr 2009 09:52:39 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Joshua Brindle <method@manicmethod.com>
+CC: KaiGai Kohei <kaigai@ak.jp.nec.com>,
+        "Christopher J. PeBenito" <cpebenito@tresys.com>,
+        refpolicy@oss.tresys.com, selinux@tycho.nsa.gov
+Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
+References: <49D1DA85.1030902@ak.jp.nec.com>	 <49D4743C.2010000@ak.jp.nec.com>  <49D4CB6E.1090900@manicmethod.com> <1238684951.32379.311.camel@gorn.columbia.tresys.com> <49D563A9.1000607@ak.jp.nec.com> <49D651A7.1000703@manicmethod.com>
+In-Reply-To: <49D651A7.1000703@manicmethod.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, Apr 03, 2009 at 03:51:46PM -0400, Santosh Chokhani wrote:
-> NSA document on SPIF also had ASN.1 module for SPIF.
+Joshua Brindle wrote:
+>> Again, I would like to get the reworks merged in this timing.
+>> (In addition, it also makes RUBIX happy on Fedora 11 or later.)
+>>
+> 
+> Fedora 11 is already frozen, new object classes shouldn't be working their way
+> in to that, so we have a release cycle to adjust the permissions to match the
+> implementation, both on the upstream sepostgres side and the RUBIX side before
+> pushing those in to refpolicy.
 
-Ah, good!  A link would be great.
+Hmm... It would seem that I need to provide a development purpose
+security policy package in the meanwhile.
 
-> May be you can use the applicable concepts to get a head start on XML. 
+The next development cycle in PostgreSQL will be open soon:
+  http://wiki.postgresql.org/wiki/CommitFest_2009-First
 
-If the ASN.1 module can be obtained freely then the XML follows
-trivially (and, as I said, has already been done).
+I'll propose the newer design for the commit fest, but also continue
+to maintain the current design on Fedora as far as the security policy
+keeps existing object classes and permissions.
+
+I believe the current design should be switched to the newer one
+at some point in the future. In my hope, it should be done on
+Fedora 12.
+
+> Once some implementation starts and the security model settles it may be a
+> different story, I just don't think it is appropriate to merge them at this
+> point. (In particular I want to see if the new proposed object classes and perms
+> will really work for RUBIX, and I want to see how much of the patch the upstream
+> postgres project will take for the next release).
+
+I also would like Andy to report whether the RUBIX with newer design and
+security policy performs well, or not.
+The development purpose security policy which contains newer object classes
+and permissions will be available soon.
+
+> As it stands we are going to have 3 selinux aware databases floating around
+> using slightly different object classes and permissions, which is not ideal.
+
+Agreed.
+
+> Having all those in upstream refpolicy means it is harder to change them and the
+> unused permissions are going to sit there causing confusion (even worse, they'll
+> be unused by 2 of the 3 systems but still in use by the previous version of
+> sepostgres).
+
+I think the current design should be deprecated in the lifespan of distribution
+if the upstream refpolicy once gets newer design.
+In finally, I believe only 2 of the system can share the design.
+
+Thanks,
+-- 
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
