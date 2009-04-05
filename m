@@ -1,180 +1,56 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n35IYH3G022133
-	for <selinux@tycho.nsa.gov>; Sun, 5 Apr 2009 14:34:17 -0400
-Received: from fg-out-1718.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n35IYGW5002298
-	for <selinux@tycho.nsa.gov>; Sun, 5 Apr 2009 18:34:17 GMT
-Received: by fg-out-1718.google.com with SMTP id e12so702299fga.17
-        for <selinux@tycho.nsa.gov>; Sun, 05 Apr 2009 11:34:15 -0700 (PDT)
-Message-Id: <DE3691C6-1C5C-4C6C-BC7C-DC0B41698A25@gmail.com>
-From: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Subject: nc -l does not need permission name_bind to bind to a port!?
-Date: Sun, 5 Apr 2009 20:34:14 +0200
+Date: Mon, 6 Apr 2009 09:33:16 +1000 (EST)
+From: James Morris <jmorris@namei.org>
+To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+cc: casey@schaufler-ca.com, sds@tycho.nsa.gov,
+        "Matthew N. Dodd" <matthew.dodd@sparta.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+        labeled-nfs@linux-nfs.org
+Subject: Re: [PATCH 08/14] NFSv4: Add label recommended attribute and NFSv4
+ flags
+In-Reply-To: <1238761424.7541.68.camel@moss-terrapins.epoch.ncsc.mil>
+Message-ID: <alpine.LRH.2.00.0904060931530.3712@tundra.namei.org>
+References: <1227733394-1114-1-git-send-email-dpquigl@tycho.nsa.gov>  <1227733394-1114-9-git-send-email-dpquigl@tycho.nsa.gov>  <alpine.LRH.2.00.0904031921320.11240@tundra.namei.org>  <1238752770.7541.58.camel@moss-terrapins.epoch.ncsc.mil>
+ <alpine.LRH.2.00.0904032239330.16607@tundra.namei.org> <1238761424.7541.68.camel@moss-terrapins.epoch.ncsc.mil>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hello,
+On Fri, 3 Apr 2009, David P. Quigley wrote:
 
-i'm not sure about this: but afaik  to bind a socket to a port the  
-name_bind is neccessary (please correct me, if this wrong).
+> On Fri, 2009-04-03 at 22:43 +1100, James Morris wrote:
+> > On Fri, 3 Apr 2009, David P. Quigley wrote:
+> > 
+> > > We tried to change this to be dynamically allocated based on what was
+> > > coming off of the wire but we ran into a problem that it required us to
+> > > do allocations where they really shouldn't be done in the rpc/nfsv4
+> > > code. Trond suggested to make this static and that if someone really
+> > > needed more than a page for their label that something was horrifically
+> > > wrong. I'm tempted to agree with him on this but there are people trying
+> > > to send contexts with an MLS component with every other compartment set
+> > > which tend to be really large. 
+> > 
+> > Well, future labels might include cryptographic information, for example.
+> > 
+> 
+> <removing people from the CC who probably don't care about this>
+> 
+> Could you expand on why this might be needed or what applications would
+> use this? It's unclear to me what sort of crypto information would be in
+> a context. I know the ecryptfs guys were trying to make crypto decisions
+> based on SELinux context in some cases but I never heard of wanting to
+> put that kind of information into the context.
 
-now try this:
-==========
+Potentially as part of a mandatory cryptographic policy, although the 
+exact form of the labeling is unknown.
 
-policy_module(NETCAT, 0.0.1)
+But the main point is that we should not needlessly limit the flexibility 
+of the system.
 
-require { type unconfined_t; }
-
-role unconfined_r types nc_t ;
-
-type nc_t;
-type nc_exec_t;
-
-application_domain(nc_t, nc_exec_t)
-domain_auto_transition_pattern(unconfined_t, nc_exec_t, nc_t)
-#EOF
-
-build load NETCAT.te:
-==================
-
-make -f /usr/share/selinux/devel/Makefile
-sudo semodule -i NETCAT.pp
-
-then set domain nc_t permissive:
-==========================
-
-sudo semanage permissive -a nc_t
-
-(temporarily) change type of nc:
-=========================
-
-sudo chcon -v -t nc_exec_t  /usr/bin/nc
-
-and then start a netcat "server" :
-=========================
-
-nc -l 44444
-
-here the verification that nc listens on 44444 for incoming connections:
-=======================================================
-[root@SecLab ~]# netstat -plntZ | grep 44444
-tcp        0      0 127.0.0.1:44444              
-0.0.0.0:*                   LISTEN      10279/nc             
-unconfined_u:unconfined_r:nc_t:s0
-
-now we check audit.log:
-===================
-
-[root@SecLab ~]# grep '^type=AVC' /var/log/audit/audit.log
-type=AVC msg=audit(1238954202.516:257): avc:  denied  { read write }  
-for  pid=10279 comm="nc" name="1" dev=devpts ino=3  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:object_r:unconfined_devpts_t:s0 tclass=chr_file
-type=AVC msg=audit(1238954202.518:258): avc:  denied  { read } for   
-pid=10279 comm="nc" name="ld.so.cache" dev=sda1 ino=34611  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:ld_so_cache_t:s0 tclass=file
-type=AVC msg=audit(1238954202.518:259): avc:  denied  { getattr } for   
-pid=10279 comm="nc" path="/etc/ld.so.cache" dev=sda1 ino=34611  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:ld_so_cache_t:s0 tclass=file
-type=AVC msg=audit(1238954202.518:260): avc:  denied  { read } for   
-pid=10279 comm="nc" name="libglib-2.0.so.0" dev=sda1 ino=229602  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:lib_t:s0 tclass=lnk_file
-type=AVC msg=audit(1238954202.518:260): avc:  denied  { read } for   
-pid=10279 comm="nc" name="libglib-2.0.so.0.1800.4" dev=sda1 ino=229574  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:lib_t:s0 tclass=file
-type=AVC msg=audit(1238954202.519:261): avc:  denied  { getattr } for   
-pid=10279 comm="nc" path="/lib/libglib-2.0.so.0.1800.4" dev=sda1  
-ino=229574 scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:lib_t:s0 tclass=file
-type=AVC msg=audit(1238954202.519:262): avc:  denied  { execute } for   
-pid=10279 comm="nc" path="/lib/libglib-2.0.so.0.1800.4" dev=sda1  
-ino=229574 scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:lib_t:s0 tclass=file
-type=AVC msg=audit(1238954202.519:263): avc:  denied  { read } for   
-pid=10279 comm="nc" path="/lib/ld-2.9.so" dev=sda1 ino=229558  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:ld_so_t:s0 tclass=file
-type=AVC msg=audit(1238954202.520:264): avc:  denied  { create } for   
-pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=netlink_route_socket
-type=AVC msg=audit(1238954202.520:265): avc:  denied  { bind } for   
-pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=netlink_route_socket
-type=AVC msg=audit(1238954202.520:266): avc:  denied  { getattr } for   
-pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=netlink_route_socket
-type=AVC msg=audit(1238954202.520:267): avc:  denied  { write } for   
-pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=netlink_route_socket
-type=AVC msg=audit(1238954202.520:267): avc:  denied  { nlmsg_read }  
-for  pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=netlink_route_socket
-type=AVC msg=audit(1238954202.520:268): avc:  denied  { read } for   
-pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=netlink_route_socket
-type=AVC msg=audit(1238954202.533:269): avc:  denied  { read } for   
-pid=10279 comm="nc" name="nsswitch.conf" dev=sda1 ino=32805  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:etc_t:s0 tclass=file
-type=AVC msg=audit(1238954202.533:270): avc:  denied  { getattr } for   
-pid=10279 comm="nc" path="/etc/nsswitch.conf" dev=sda1 ino=32805  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:etc_t:s0 tclass=file
-type=AVC msg=audit(1238954202.534:271): avc:  denied  { read } for   
-pid=10279 comm="nc" name="resolv.conf" dev=sda1 ino=34021  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:net_conf_t:s0 tclass=file
-type=AVC msg=audit(1238954202.534:272): avc:  denied  { getattr } for   
-pid=10279 comm="nc" path="/etc/resolv.conf" dev=sda1 ino=34021  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:net_conf_t:s0 tclass=file
-type=AVC msg=audit(1238954202.535:273): avc:  denied  { create } for   
-pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=tcp_socket
-type=AVC msg=audit(1238954202.535:274): avc:  denied  { setopt } for   
-pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=tcp_socket
-type=AVC msg=audit(1238954202.535:275): avc:  denied  { bind } for   
-pid=10279 comm="nc" scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=tcp_socket
-type=AVC msg=audit(1238954202.535:275): avc:  denied  { node_bind }  
-for  pid=10279 comm="nc" saddr=127.0.0.1 src=44444  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=system_u:object_r:lo_node_t:s0 tclass=tcp_socket
-type=AVC msg=audit(1238954202.535:276): avc:  denied  { listen } for   
-pid=10279 comm="nc" laddr=127.0.0.1 lport=44444  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=tcp_socket
-type=AVC msg=audit(1238954202.535:277): avc:  denied  { accept } for   
-pid=10279 comm="nc" laddr=127.0.0.1 lport=44444  
-scontext=unconfined_u:unconfined_r:nc_t:s0  
-tcontext=unconfined_u:unconfined_r:nc_t:s0 tclass=tcp_socket
-
-As everybody can see, there is no name_bind permission. why is this  
-so? I always thought, that name_bind is necessary to bind a  port. An  
-entry from dan's blog teached me,  that name_bind is always(?) needed.  
-I'm relatively new to selinux, so i'm not sure about this. Hope  
-someone can help me.
-
-I'm using fedora 10. Btw: sesearch --allow -s nc_t | grep name_bind  
-finds nothing. if you need additional info, please let me know.
-
-
-tnx in advance
-
---
-Sebastian Pfaff
-
-
-
-
+-- 
+James Morris
+<jmorris@namei.org>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
