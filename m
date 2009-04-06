@@ -1,97 +1,57 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n36HtG9W028705
-	for <selinux@tycho.nsa.gov>; Mon, 6 Apr 2009 13:55:16 -0400
-Received: from mx2.redhat.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n36HtFBS017090
-	for <selinux@tycho.nsa.gov>; Mon, 6 Apr 2009 17:55:15 GMT
-Message-ID: <49DA4200.1000102@redhat.com>
-Date: Mon, 06 Apr 2009 13:55:12 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: Dominick Grift <domg472@gmail.com>
-CC: Scott Radvan <sradvan@redhat.com>, selinux@tycho.nsa.gov
-Subject: Re: request for review of httpd-related Boolean definitions
-References: <20090331151638.770627cb@redhat.com> <1238495418.3465.69.camel@notebook2.grift.internal>
-In-Reply-To: <1238495418.3465.69.camel@notebook2.grift.internal>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
+Subject: SELinux packages version (svn2950)...
+Date: Mon, 6 Apr 2009 14:48:05 -0400
+Message-ID: <D06FE0A2807BC145B0D38744789D4F5D06788A81@de01exm68.ds.mot.com>
+In-Reply-To: <49D965CA.4030908@ak.jp.nec.com>
+References: <49D1DA85.1030902@ak.jp.nec.com>	 <49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>	<1238684951.32379.311.camel@gorn.columbia.tresys.com> <49D563A9.1000607@ak.jp.nec.com> <49D965CA.4030908@ak.jp.nec.com>
+From: "Hasan Rezaul-CHR010" <CHR010@motorola.com>
+To: "Stephen Smalley" <sds@tycho.nsa.gov>
+Cc: <selinux@tycho.nsa.gov>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 03/31/2009 06:30 AM, Dominick Grift wrote:
-> On Tue, 2009-03-31 at 15:16 +1000, Scott Radvan wrote:
->
-> I am going to use this thread to just share any thoughts i have with regards to this
->> o  allow_httpd_anon_write
->> This Boolean is off by default, allowing httpd only read access to
->> files labeled with the public_content_rw_t type. Enabling this Boolean
->> will allow httpd to write to files labeled with the public_content_rw_t
->> type, such as a public directory containing files for a public file
->> transfer service.
->
->
->> o  allow_httpd_mod_auth_ntlm_winbind
->> This Boolean is off by default. Enabling it will allow access to NTLM
->> and Winbind authentication mechanisms via the mod_auth_ntlm_winbind
->> module in httpd.
->>
->> o  allow_httpd_mod_auth_pam
->> This Boolean is off by default. Enabling it will allow access to PAM
->> authentication mechanisms via the mod_auth_pam module in httpd.
->>
->> o  allow_httpd_sys_script_anon_write
->> This Boolean is off by default. It defines whether or not HTTP scripts
->> are allowed write access to files labeled with the public_content_rw_t
->> type, as used in a public file transfer service.
->>
->> o  httpd_builtin_scripting
->> This Boolean is on by default, allowing httpd scripting. Having this
->> Boolean enabled is often required for PHP content.
->
-> It allows:
->
-> 1. httpd_t to manage templated httpd rw content,
-> 2. httpd_t to read templated httpd ra content,
-> 3. httpd_t to read templated httpd content,
->
-> # Allow the web server to run scripts and serve pages
-> tunable_policy(`httpd_builtin_scripting',`
-> 	manage_dirs_pattern(httpd_t, httpd_$1_content_rw_t, httpd_
-> $1_content_rw_t)
-> 	manage_files_pattern(httpd_t, httpd_$1_content_rw_t, httpd_
-> $1_content_rw_t)
-> 	manage_lnk_files_pattern(httpd_t, httpd_$1_content_rw_t, httpd_
-> $1_content_rw_t)
-> 	rw_sock_files_pattern(httpd_t, httpd_$1_content_rw_t, httpd_
-> $1_content_rw_t)
->
-> 	allow httpd_t httpd_$1_content_ra_t:dir { list_dir_perms
-> add_entry_dir_perms };
-> 	read_files_pattern(httpd_t, httpd_$1_content_ra_t, httpd_
-> $1_content_ra_t)
-> 	append_files_pattern(httpd_t, httpd_$1_content_ra_t, httpd_
-> $1_content_ra_t)
-> 	read_lnk_files_pattern(httpd_t, httpd_$1_content_ra_t, httpd_
-> $1_content_ra_t)
->
-> 	allow httpd_t httpd_$1_content_t:dir list_dir_perms;
-> 	read_files_pattern(httpd_t, httpd_$1_content_t, httpd_$1_content_t)
-> 	read_lnk_files_pattern(httpd_t, httpd_$1_content_t, httpd_$1_content_t)
->
-> 	allow httpd_t httpd_$1_content_t:dir list_dir_perms;
-> 	read_files_pattern(httpd_t, httpd_$1_content_t, httpd_$1_content_t)
-> 	read_lnk_files_pattern(httpd_t, httpd_$1_content_t, httpd_$1_content_t)
-> ')
->
-> I think this is a bug in policy or atleast that this boolean is too
-> coarse
->
-> with this boolean set to false: httpd_t cannot read
-> httpd_user_content_t. Basically what it means is that you cannot use
-> httpd userdirs (httpd_enable_userdirs) without scripting enabled.
->
-In Fedora policy I have removed the booleans from the templated 
-interfaces,  So these booleans only effect httpd_sys_*.  If you use the 
-templates you need to either allow the access or add your own booleans.
+Hi All,
+
+I work on a product that uses Linux Kernel 2.6.21.  As such, I am
+currently using the following SELinux libs and related package versions:
+
+audit            1.5.3
+checkpolicy      1.33.1
+libselinux       2.0.13
+libsemanage      2.0.1
+libsepol         2.0.3
+libsetrans       0.1.18
+policycoreutils  2.0.16
+
+
+
+We are considering moving upto Linux Kernel 2.6.27, and as such we would
+automatically get upgraded to the following package versions:
+
+audit            1.7.2
+checkpolicy      svn2950
+libselinux       svn2950
+libsemanage      svn2950
+libsepol         svn2950
+libsetrans       N/A
+policycoreutils  svn2950
+
+
+** My questions are:
+
+1. Do all the packages of version (svn2950) play nicely together ?
+2. What are the major advantages of upgrading to svn2950 ?
+3. Are there any disadvantages, or any changes that I should be aware or
+cencerned about ?
+4. Why is the version number so drastically different ? Is this a result
+of a totally new effort ?
+5. Please feel free to share any thoughts / suggestions / advice as far
+as upgrading to this newer version...
+
+Thanks in advance for all your help.
+
 
 
 
