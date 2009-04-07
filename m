@@ -1,82 +1,53 @@
-Cc: selinux@tycho.nsa.gov
-Message-Id: <3D57D9DF-104E-4603-A49E-37EDA16139CC@gmail.com>
-From: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <1239107665.29028.13.camel@localhost.localdomain>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Subject: Re: diff between name_bind,bind and node_bind
-Date: Tue, 7 Apr 2009 16:39:15 +0200
-References: <B2B8AAE9-85F2-4A92-AA25-88C1493A2EB2@gmail.com> <1239107665.29028.13.camel@localhost.localdomain>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n37FOZ5K026258
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 11:24:35 -0400
+Received: from m15-30.126.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n37FOXB7010690
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 15:24:34 GMT
+Date: Tue, 7 Apr 2009 23:24:23 +0800 (CST)
+From: sixiaolin0 <sixiaolin067@126.com>
+To: selinux <selinux@tycho.nsa.gov>
+Message-ID: <17972721.991111239117863388.JavaMail.coremail@bj126app30.126.com>
+Subject: Is there strict policy for fedora 10?
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_Part_262395_32597202.1239117863387"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-hello stephen,
-
-tnx for your answer. it helped me a lot. i already  did a "quick"  
-check of  hooks.c before but i was not sure about it. for me there are  
-some other unknowns. i only saw, that selinux does make some  
-differences between various port "types/classes".
-
-is it possible to control  that process cannot bind to a port which is  
-in local port area (~32000-61000)?
-
-so far i think it isn't possible.
-
---
-Sebastian Pfaff
-
-Am 07.04.2009 um 14:34 schrieb Stephen Smalley:
-
-> On Tue, 2009-04-07 at 09:46 +0200, Sebastian Pfaff wrote:
->> hello,
->>
->> i'm working on a tutorial for selinux. in this tutorial i use nc
->> (netcat) as simple server. but i wonder, why nc -l 5555** (nc runs in
->> a own domain) does not need the name_bind permission to bind a port.
->> i already asked here regarding to this, but nobody has answered.
->>
->> can someone tell me how name_bind,bind and node_bind work and where
->> the differences are?
->>
->> i tried this  with socat (http://www.dest-unreach.org/socat/) too.
->> same effect. both socat and nc  "never"* need name_bind.
->>
->> is it possible that this pb is relying on how nc and socat work?
->>
->> tnx in advance && if you need  further information, please let me
->> know ...
->
-> Hopefully my other reply clears this up for you - name_bind is not
-> applied to ports in the auto-bind range.  You can see this quite  
-> clearly
-> from the code; look at security/selinux/hooks.c:selinux_socket_bind().
->
->> * funny is, if i implement a boolean which allows nc or socat to use
->> any port or only a speficic port, then i can see a name_bind "entry"
->> when in permissive mode in my avc log.  but i can't reproduce it.
->> maybe this is another problem.
->
-> Permissive mode only logs each unique denial once by design, as you  
-> only
-> need one instance of each denial in order to generate policy and
-> otherwise permissive mode is prone to flooding of the system log /  
-> audit
-> log.
->
->> ** same with echo "hello world" | socat - TCP-LISTEN:
->> 33331,bind=127.0.0.1
->
-> -- 
-> Stephen Smalley
-> National Security Agency
->
-
---
-Sebastian Pfaff
+------=_Part_262395_32597202.1239117863387
+Content-Type: text/plain; charset=gbk
+Content-Transfer-Encoding: 7bit
 
 
 
+hello everyone!
+  I want to ask  if there is strict policy for FC10.
+  
+ 
+  And could you tell me where and  how I can see the policy file without using a policy tools?
+ 
+thank you very much!
+  
+------=_Part_262395_32597202.1239117863387
+Content-Type: text/html; charset=gbk
+Content-Transfer-Encoding: quoted-printable
+
+<DIV><BR><BR>hello everyone!</DIV>
+<DIV>&nbsp; I want to ask&nbsp; if there&nbsp;is&nbsp;strict policy for FC1=
+0.</DIV>
+<DIV>&nbsp;&nbsp;</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>&nbsp; And could you tell me where and &nbsp;how I can see the policy =
+file without using a policy tools?</DIV>
+<DIV>&nbsp;</DIV>
+<DIV>thank you very much!</DIV>
+<DIV>&nbsp; </DIV><br><!-- footer --><br><span title=3D"neteasefooter"/><hr=
+/>
+<a href=3D"http://email.163.com">=CD=F8=D2=D7=D3=CA=CF=E4=A3=AC=D6=D0=B9=FA=
+=B5=DA=D2=BB=B4=F3=B5=E7=D7=D3=D3=CA=BC=FE=B7=FE=CE=F1=C9=CC</a>
+</span>
+------=_Part_262395_32597202.1239117863387--
 
 
 --
