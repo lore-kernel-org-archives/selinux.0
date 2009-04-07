@@ -1,39 +1,53 @@
-Subject: Re: diff between name_bind,bind and node_bind
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <3D57D9DF-104E-4603-A49E-37EDA16139CC@gmail.com>
-References: <B2B8AAE9-85F2-4A92-AA25-88C1493A2EB2@gmail.com>
-	 <1239107665.29028.13.camel@localhost.localdomain>
-	 <3D57D9DF-104E-4603-A49E-37EDA16139CC@gmail.com>
-Content-Type: text/plain
-Date: Tue, 07 Apr 2009 12:41:00 -0400
-Message-Id: <1239122460.29028.30.camel@localhost.localdomain>
-Mime-Version: 1.0
+Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
+        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
+Message-Id: <77E887A5-618A-42CD-96D6-D811282F18CB@gmail.com>
+From: Sebastian Pfaff <sebastian.pfaff@gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <1239122320.29028.28.camel@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Mime-Version: 1.0 (Apple Message framework v930.3)
+Subject: Re: nc -l does not need permission name_bind to bind to a port!?
+Date: Tue, 7 Apr 2009 18:57:00 +0200
+References: <DE3691C6-1C5C-4C6C-BC7C-DC0B41698A25@gmail.com> <1239107410.29028.10.camel@localhost.localdomain> <49DB643E.4060907@redhat.com> <1239122320.29028.28.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-04-07 at 16:39 +0200, Sebastian Pfaff wrote:
-> hello stephen,
-> 
-> tnx for your answer. it helped me a lot. i already  did a "quick"  
-> check of  hooks.c before but i was not sure about it. for me there are  
-> some other unknowns. i only saw, that selinux does make some  
-> differences between various port "types/classes".
-> 
-> is it possible to control  that process cannot bind to a port which is  
-> in local port area (~32000-61000)?
-> 
-> so far i think it isn't possible.
+ok, thank you for the quick answer. now everything is clear.
 
-Not without further kernel changes.  You can however prevent it from
-creating or binding sockets in the first place, or you can use e.g.
-secmark to label all packets destined to a given port as having a given
-type and then have policy control what sockets can receive such packets.
+--
+Sebastian Pfaff
 
--- 
-Stephen Smalley
-National Security Agency
+
+Am 07.04.2009 um 18:38 schrieb Stephen Smalley:
+>>
+> It doesn't make sense to use a port in the local port range as a
+> well-defined service port since such a port can be allocated at any  
+> time
+> for an unbound socket upon a send or connect.  Thus, it didn't seem
+> useful to try to control the name binding of such ports - the port
+> numbers in that range (should) have no inherent meaning tied to them,
+> and thus spoofing them is of no interest.  You can already prevent a
+> process from creating INET sockets altogether (create permission), or
+> prevent them from using bind(2) altogether (bind permission).  You can
+> also use secmark to e.g. label all packets destined for a given port
+> with a given type, and then use policy to prevent receipt of such
+> packets on sockets in certain domains.
+>
+> Regardless, if you truly wanted name_bind applied to all ports and you
+> wanted to avoid trivial circumvention by way of calling send* on an
+> unbound socket, then someone would need to modify the TCP and UDP
+> get_port functions to invoke a LSM hook to filter/select the ports
+> returned for auto-binding.  Merely checking name_bind in
+> selinux_socket_bind() for such ports wouldn't be sufficient.
+>
+> -- 
+> Stephen Smalley
+> National Security Agency
+>
+
+
+
+
 
 
 --
