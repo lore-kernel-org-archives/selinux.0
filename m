@@ -1,56 +1,56 @@
-Subject: Re: diff between name_bind,bind and node_bind
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-Cc: selinux@tycho.nsa.gov
-In-Reply-To: <B2B8AAE9-85F2-4A92-AA25-88C1493A2EB2@gmail.com>
-References: <B2B8AAE9-85F2-4A92-AA25-88C1493A2EB2@gmail.com>
-Content-Type: text/plain
-Date: Tue, 07 Apr 2009 08:34:25 -0400
-Message-Id: <1239107665.29028.13.camel@localhost.localdomain>
-Mime-Version: 1.0
+Message-ID: <49DB5185.4070801@kaigai.gr.jp>
+Date: Tue, 07 Apr 2009 22:13:41 +0900
+From: KaiGai Kohei <kaigai@kaigai.gr.jp>
+MIME-Version: 1.0
+To: Joshua Brindle <method@manicmethod.com>
+CC: SE Linux <selinux@tycho.nsa.gov>, Eamon Walsh <ewalsh@tycho.nsa.gov>
+Subject: Re: [ANN] SELinux userspace release
+References: <49D64FEC.3030909@manicmethod.com> <49D80318.4040902@kaigai.gr.jp> <49DA3733.3050904@manicmethod.com>
+In-Reply-To: <49DA3733.3050904@manicmethod.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, 2009-04-07 at 09:46 +0200, Sebastian Pfaff wrote:
-> hello,
+Joshua Brindle wrote:
+> KaiGai Kohei wrote:
+>> Joshua Brindle wrote:
+>>> The SELinux userspace project has updated a release. As usual you can 
+>>> find it at http://userspace.selinuxproject.org/trac/wiki/Releases.
+>>>
+>>> This is primarily a bug fix release. The added features are policy 
+>>> module module compression support and AVC caching for compute_create 
+>>> results.
+>>>
+>>> This release does not include an updated release of the stable_1_0 
+>>> branch, which has not been updated since the last release.
+>>>
+>>> For git users this release has been tagged 20090403 in the repository 
+>>> on userspace.selinuxproject.org.
+>>
+>> Joshua, when the following features will be available in the libselinux?
+>>
+>>  - Expose avc_netlink_loop() for applications.
+>>    http://marc.info/?l=selinux&m=123838949914769&w=2
+>>
+>>  - Permissive domains in userspace.
+>>    http://marc.info/?l=selinux&m=123855044416037&w=2
+>>
+>>  - selabel_lookup(3) support for database objects.
+>>    http://marc.info/?l=selinux&m=123840173526150&w=2
+>>
 > 
-> i'm working on a tutorial for selinux. in this tutorial i use nc  
-> (netcat) as simple server. but i wonder, why nc -l 5555** (nc runs in  
-> a own domain) does not need the name_bind permission to bind a port.
-> i already asked here regarding to this, but nobody has answered.
-> 
-> can someone tell me how name_bind,bind and node_bind work and where  
-> the differences are?
-> 
-> i tried this  with socat (http://www.dest-unreach.org/socat/) too.  
-> same effect. both socat and nc  "never"* need name_bind.
-> 
-> is it possible that this pb is relying on how nc and socat work?
-> 
-> tnx in advance && if you need  further information, please let me  
-> know ...
+> These patches are being reviewed by Eamon AFAIK so once he acks them or 
+> merges them.
 
-Hopefully my other reply clears this up for you - name_bind is not
-applied to ports in the auto-bind range.  You can see this quite clearly
-from the code; look at security/selinux/hooks.c:selinux_socket_bind().
+OK, I'll wait for a while more.
 
-> * funny is, if i implement a boolean which allows nc or socat to use  
-> any port or only a speficic port, then i can see a name_bind "entry"   
-> when in permissive mode in my avc log.  but i can't reproduce it.  
-> maybe this is another problem.
+In addition, I've forgottn to note the patch.
+- A new API: security_deny_unknown()
+   http://marc.info/?l=selinux&m=123863254719835&w=2
 
-Permissive mode only logs each unique denial once by design, as you only
-need one instance of each denial in order to generate policy and
-otherwise permissive mode is prone to flooding of the system log / audit
-log.
-
-> ** same with echo "hello world" | socat - TCP-LISTEN: 
-> 33331,bind=127.0.0.1 
-
+Thanks,
 -- 
-Stephen Smalley
-National Security Agency
-
+KaiGai Kohei <kaigai@kaigai.gr.jp>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
