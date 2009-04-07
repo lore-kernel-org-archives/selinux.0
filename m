@@ -1,53 +1,64 @@
 Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n37FOZ5K026258
-	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 11:24:35 -0400
-Received: from m15-30.126.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n37FOXB7010690
-	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 15:24:34 GMT
-Date: Tue, 7 Apr 2009 23:24:23 +0800 (CST)
-From: sixiaolin0 <sixiaolin067@126.com>
-To: selinux <selinux@tycho.nsa.gov>
-Message-ID: <17972721.991111239117863388.JavaMail.coremail@bj126app30.126.com>
-Subject: Is there strict policy for fedora 10?
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_262395_32597202.1239117863387"
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n37GP1lT003242
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 12:25:01 -0400
+Received: from mail-ew0-f177.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n37GP0bv021066
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 16:25:00 GMT
+Received: by ewy25 with SMTP id 25so3239484ewy.18
+        for <selinux@tycho.nsa.gov>; Tue, 07 Apr 2009 09:24:59 -0700 (PDT)
+Subject: Re: Is there strict policy for fedora 10?
+From: Dominick Grift <domg472@gmail.com>
+To: sixiaolin0 <sixiaolin067@126.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <17972721.991111239117863388.JavaMail.coremail@bj126app30.126.com>
+References: 
+	 <17972721.991111239117863388.JavaMail.coremail@bj126app30.126.com>
+Content-Type: text/plain; charset="UTF-8"
+Date: Tue, 07 Apr 2009 18:24:58 +0200
+Message-Id: <1239121498.5002.7.camel@notebook2.grift.internal>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-------=_Part_262395_32597202.1239117863387
-Content-Type: text/plain; charset=gbk
-Content-Transfer-Encoding: 7bit
+On Tue, 2009-04-07 at 23:24 +0800, sixiaolin0 wrote:
+> 
+> 
+> hello everyone!
+>   I want to ask  if there is strict policy for FC10.
+
+The strict policy module and the targeted policy module merged.
+You can now enjoy the strict functionality in Fedoras'
+selinux-policy-targeted.
+
+>  
+>   And could you tell me where and  how I can see the policy file
+> without using a policy tools?
+
+You can download the source RPM, prepare it and view it with your
+favorite editor
+
+wget
+http://kojipkgs.fedoraproject.org/packages/selinux-policy/3.5.13/55.fc10/src/selinux-policy-3.5.13-55.fc10.src.rpm
+
+tar -xzvf selinux-policy-3.5.13-55.fc10.src.rpm
+
+cp selinux-policy-3.5.13-55.fc10.src/*patch .; cp
+selinux-policy-3.5.13-55.fc10.src/*.tgz .
+
+tar -xzvf seref*.tgz
+
+patch -p0 <*.patch
+
+cd serefpolicy*
 
 
-
-hello everyone!
-  I want to ask  if there is strict policy for FC10.
-  
- 
-  And could you tell me where and  how I can see the policy file without using a policy tools?
- 
-thank you very much!
-  
-------=_Part_262395_32597202.1239117863387
-Content-Type: text/html; charset=gbk
-Content-Transfer-Encoding: quoted-printable
-
-<DIV><BR><BR>hello everyone!</DIV>
-<DIV>&nbsp; I want to ask&nbsp; if there&nbsp;is&nbsp;strict policy for FC1=
-0.</DIV>
-<DIV>&nbsp;&nbsp;</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp; And could you tell me where and &nbsp;how I can see the policy =
-file without using a policy tools?</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>thank you very much!</DIV>
-<DIV>&nbsp; </DIV><br><!-- footer --><br><span title=3D"neteasefooter"/><hr=
-/>
-<a href=3D"http://email.163.com">=CD=F8=D2=D7=D3=CA=CF=E4=A3=AC=D6=D0=B9=FA=
-=B5=DA=D2=BB=B4=F3=B5=E7=D7=D3=D3=CA=BC=FE=B7=FE=CE=F1=C9=CC</a>
-</span>
-------=_Part_262395_32597202.1239117863387--
+> thank you very much!
+>   
+> 
+> 
+> 
+> ______________________________________________________________________
+> 网易邮箱，中国第一大电子邮件服务商
 
 
 --
