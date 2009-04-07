@@ -1,54 +1,95 @@
-Cc: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
-        James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>
-Message-Id: <77E887A5-618A-42CD-96D6-D811282F18CB@gmail.com>
-From: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-In-Reply-To: <1239122320.29028.28.camel@localhost.localdomain>
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Mime-Version: 1.0 (Apple Message framework v930.3)
-Subject: Re: nc -l does not need permission name_bind to bind to a port!?
-Date: Tue, 7 Apr 2009 18:57:00 +0200
-References: <DE3691C6-1C5C-4C6C-BC7C-DC0B41698A25@gmail.com> <1239107410.29028.10.camel@localhost.localdomain> <49DB643E.4060907@redhat.com> <1239122320.29028.28.camel@localhost.localdomain>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n37JHh2H000544
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 15:17:43 -0400
+Received: from qw-out-1920.google.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n37JHgbv020911
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 19:17:42 GMT
+Received: by qw-out-1920.google.com with SMTP id 5so2656967qwf.30
+        for <selinux@tycho.nsa.gov>; Tue, 07 Apr 2009 12:17:42 -0700 (PDT)
+MIME-Version: 1.0
+Date: Tue, 7 Apr 2009 12:17:42 -0700
+Message-ID: <dd18b0c30904071217x740a809fve1ad3f9fbba140e5@mail.gmail.com>
+Subject: SELinux userpace compile errors
+From: Justin Mattock <justinmattock@gmail.com>
+To: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-ok, thank you for the quick answer. now everything is clear.
-
---
-Sebastian Pfaff
-
-
-Am 07.04.2009 um 18:38 schrieb Stephen Smalley:
->>
-> It doesn't make sense to use a port in the local port range as a
-> well-defined service port since such a port can be allocated at any  
-> time
-> for an unbound socket upon a send or connect.  Thus, it didn't seem
-> useful to try to control the name binding of such ports - the port
-> numbers in that range (should) have no inherent meaning tied to them,
-> and thus spoofing them is of no interest.  You can already prevent a
-> process from creating INET sockets altogether (create permission), or
-> prevent them from using bind(2) altogether (bind permission).  You can
-> also use secmark to e.g. label all packets destined for a given port
-> with a given type, and then use policy to prevent receipt of such
-> packets on sockets in certain domains.
->
-> Regardless, if you truly wanted name_bind applied to all ports and you
-> wanted to avoid trivial circumvention by way of calling send* on an
-> unbound socket, then someone would need to modify the TCP and UDP
-> get_port functions to invoke a LSM hook to filter/select the ports
-> returned for auto-binding.  Merely checking name_bind in
-> selinux_socket_bind() for such ports wouldn't be sufficient.
->
-> -- 
-> Stephen Smalley
-> National Security Agency
->
+compiling the userspace tools
+I'm receiving some errors:
+(the first is just a simple "make" instead of "sudo make")
 
 
+make[1]: Entering directory `/home/name/LFS/SELinux/selinux/libsepol'
+make -C include install
+make[2]: Entering directory `/home/name/LFS/SELinux/selinux/libsepol/include'
+test -d /usr/include/sepol || install -m 755 -d /usr/include/sepol
+test -d /usr/include/sepol/policydb || install -m 755 -d
+/usr/include/sepol/policydb
+install -m 644 sepol/boolean_record.h sepol/booleans.h sepol/context.h
+sepol/context_record.h sepol/debug.h sepol/errcodes.h sepol/handle.h
+sepol/iface_record.h sepol/interfaces.h sepol/module.h
+sepol/node_record.h sepol/nodes.h sepol/policydb.h sepol/port_record.h
+sepol/ports.h sepol/roles.h sepol/sepol.h sepol/user_record.h
+sepol/users.h /usr/include/sepol
+install: cannot remove `/usr/include/sepol/boolean_record.h': Permission denied
+install: cannot remove `/usr/include/sepol/booleans.h': Permission denied
+install: cannot remove `/usr/include/sepol/context.h': Permission denied
+install: cannot remove `/usr/include/sepol/context_record.h': Permission denied
+install: cannot remove `/usr/include/sepol/debug.h': Permission denied
+install: cannot remove `/usr/include/sepol/errcodes.h': Permission denied
+install: cannot remove `/usr/include/sepol/handle.h': Permission denied
+install: cannot remove `/usr/include/sepol/iface_record.h': Permission denied
+install: cannot remove `/usr/include/sepol/interfaces.h': Permission denied
+install: cannot remove `/usr/include/sepol/module.h': Permission denied
+install: cannot remove `/usr/include/sepol/node_record.h': Permission denied
+install: cannot remove `/usr/include/sepol/nodes.h': Permission denied
+install: cannot remove `/usr/include/sepol/policydb.h': Permission denied
+install: cannot remove `/usr/include/sepol/port_record.h': Permission denied
+install: cannot remove `/usr/include/sepol/ports.h': Permission denied
+install: cannot remove `/usr/include/sepol/roles.h': Permission denied
+install: cannot remove `/usr/include/sepol/sepol.h': Permission denied
+install: cannot remove `/usr/include/sepol/user_record.h': Permission denied
+install: cannot remove `/usr/include/sepol/users.h': Permission denied
+make[2]: *** [install] Error 1
+make[2]: Leaving directory `/home/name/LFS/SELinux/selinux/libsepol/include'
+make[1]: *** [install] Error 2
+make[1]: Leaving directory `/home/name/LFS/SELinux/selinux/libsepol'
+make: *** [install] Error 1
+
+the second seems to maybe be with the gcc
+(which is 4.5.0)
 
 
 
+policy_define.c: In function 'set_types':
+policy_define.c:1304: error: offset '3' outside bounds of constant string
+policy_define.c:1316: error: offset '3' outside bounds of constant string
+policy_define.c:1328: error: offset '3' outside bounds of constant string
+policy_define.c: In function 'define_te_avtab_helper':
+policy_define.c:1679: error: offset '3' outside bounds of constant string
+policy_define.c:1685: error: offset '3' outside bounds of constant string
+policy_define.c: In function 'set_roles':
+policy_define.c:2024: error: offset '3' outside bounds of constant string
+policy_define.c:2030: error: offset '3' outside bounds of constant string
+policy_define.c: In function 'set_user_roles':
+policy_define.c:2854: error: offset '3' outside bounds of constant string
+policy_define.c:2860: error: offset '3' outside bounds of constant string
+make[1]: *** [policy_define.o] Error 1
+make[1]: Leaving directory `/home/name/LFS/SELinux/selinux/checkpolicy'
+make: *** [install] Error 1
+
+
+I've seen this offset 3 message with different
+apps.
+(maybe I just need to set the "warnings treated as error"
+flag somewhere).
+
+regards,
+
+-- 
+Justin P. Mattock
 
 --
 This message was distributed to subscribers of the selinux mailing list.
