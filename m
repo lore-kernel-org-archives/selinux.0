@@ -1,62 +1,73 @@
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n37LsMHU010582
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 17:54:22 -0400
+Received: from g1t0027.austin.hp.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n37LsMPE009999
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 21:54:22 GMT
+Received: from g4t0018.houston.hp.com (g4t0018.houston.hp.com [16.234.32.27])
+	by g1t0027.austin.hp.com (Postfix) with ESMTP id E16F2385DE
+	for <selinux@tycho.nsa.gov>; Tue,  7 Apr 2009 21:54:21 +0000 (UTC)
+Received: from ldl.fc.hp.com (ldl.fc.hp.com [15.11.146.30])
+	by g4t0018.houston.hp.com (Postfix) with ESMTP id C6EAA10019
+	for <selinux@tycho.nsa.gov>; Tue,  7 Apr 2009 21:54:21 +0000 (UTC)
+From: Paul Moore <paul.moore@hp.com>
+To: Jarrett Lu <Jarrett.Lu@sun.com>
+Subject: Re: [nfsv4] [Labeled-nfs] New MAC label support Internet Draft posted to IETF website
+Date: Tue, 7 Apr 2009 17:30:53 -0400
+Cc: labeled-nfs@linux-nfs.org, nfs-discuss@opensolaris.org,
+        selinux@tycho.nsa.gov, nfsv4@ietf.org
+References: <1232651815.24537.15.camel@moss-terrapins.epoch.ncsc.mil> <200904011246.33436.paul.moore@hp.com> <49D56484.50401@sun.com>
+In-Reply-To: <49D56484.50401@sun.com>
 MIME-Version: 1.0
-In-Reply-To: <1239133257.29028.36.camel@localhost.localdomain>
-References: <dd18b0c30904071217x740a809fve1ad3f9fbba140e5@mail.gmail.com>
-	 <1239132391.29028.35.camel@localhost.localdomain>
-	 <1239133257.29028.36.camel@localhost.localdomain>
-Date: Tue, 7 Apr 2009 12:56:37 -0700
-Message-ID: <dd18b0c30904071256g4cc2e4e0sf41b431039bff084@mail.gmail.com>
-Subject: Re: SELinux userpace compile errors
-From: Justin Mattock <justinmattock@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: SE-Linux <selinux@tycho.nsa.gov>, tresys <refpolicy@oss.tresys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Message-Id: <200904071730.54112.paul.moore@hp.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Apr 7, 2009 at 12:40 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Tue, 2009-04-07 at 15:26 -0400, Stephen Smalley wrote:
->> On Tue, 2009-04-07 at 12:17 -0700, Justin Mattock wrote:
->> > compiling the userspace tools
->> > I'm receiving some errors:
->> > (the first is just a simple "make" instead of "sudo make")
->>
->> The default top-level target is 'install'.  So you either need to do it
->> as root or specify DESTDIR=/path/to/root for a writable tree.
->>
->> > the second seems to maybe be with the gcc
->> > (which is 4.5.0)
->> >
->> >
->> >
->> > policy_define.c: In function 'set_types':
->> > policy_define.c:1304: error: offset '3' outside bounds of constant string
->> > policy_define.c:1316: error: offset '3' outside bounds of constant string
->> > policy_define.c:1328: error: offset '3' outside bounds of constant string
->>
->> Bug in gcc, already known to gcc folks.
+On Thursday 02 April 2009 09:21:08 pm Jarrett Lu wrote:
+> On 04/01/09 09:46, Paul Moore wrote:
+> > On Wednesday 01 April 2009 03:46:58 am Jarrett Lu wrote:
+> >> ... and probably outside the scope of labeled NFSv4 enhancement.
+> >
+> > Perhaps.  Keep in mind I'm trying to think a bit more generically; if
+> > that isn't the goal I'll be happy to go back to my corner and sit quietly
+> > :)
+> >
+> >> So realistically, I think the DOI + opaque label is useful between very
+> >> compatible systems.
+> >
+> > Of course.  I agree there are a lot of things you can do with a DOI +
+> > opaque label, especially if you are only concerned about end-to-end
+> > security issues which I believe is the case for labeled NFS.
+> >
+> >> Given that limitation, may be the "package" is small enough and can be
+> >> passed in RPC layer during authentication so that MLS can share files
+> >> with like MLS systems, and same is true for DTE, fmac, smack, ....
+> >
+> > Well, I think all that the opaque label buys you is the ability to limit
+> > who you share the security policy/translation "package" with, as those
+> > systems that participate in the labeled communication (be it NFS, generic
+> > IP or some other random service) still need to worry about label
+> > translation and security policy differences if they want to enforce
+> > policy locally.
 >
-> Reference:
-> http://gcc.gnu.org/ml/gcc-patches/2009-03/msg01645.html
->
-> Who knew that strcmp() was so complex?
->
-> --
-> Stephen Smalley
-> National Security Agency
->
->
+> I am still trying to understand what is needed to make safe sharing
+> possible. BTW, are you implying that it's always necessary to do one
+> label translation, e.g. from on-the-wire format to a native label format?
 
-cool thanks for the url.
-(I'll have to recompile gcc)
-as for the error itself(as an example)
-just compiled libc and noticed
-this error(but with libc it was treated as a warning).
+[Sorry for the delayed response.]
 
-in any case as long as people are aware
-of the situation.
+As I said earlier I think the easiest way forward is to design systems that 
+can interoperate with established DOI definitions and not worry about what 
+other peer systems are using for a security mechanism.  In some cases that 
+will require translations from a native label format to a wire format and back 
+to a label format; in some cases it may result in no translations at all.  It 
+all depends on the individual systems and the DOI.
 
 -- 
-Justin P. Mattock
+paul moore
+linux @ hp
 
 
 --
