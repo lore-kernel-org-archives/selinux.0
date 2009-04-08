@@ -1,86 +1,82 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n38C8dfa002355
-	for <selinux@tycho.nsa.gov>; Wed, 8 Apr 2009 08:08:39 -0400
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n38C8cvt027391
-	for <selinux@tycho.nsa.gov>; Wed, 8 Apr 2009 12:08:38 GMT
-Message-ID: <49DC93BF.2080602@redhat.com>
-Date: Wed, 08 Apr 2009 08:08:31 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Bandan Das <bandan.das@stratus.com>
-CC: selinux@tycho.nsa.gov
 Subject: Re: Running snmpd in a different domain
-References: <1239141949.17983.120.camel@BSD.mno.stratus.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Bandan Das <bandan.das@stratus.com>
+Cc: selinux@tycho.nsa.gov
 In-Reply-To: <1239141949.17983.120.camel@BSD.mno.stratus.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <1239141949.17983.120.camel@BSD.mno.stratus.com>
+Content-Type: text/plain
+Date: Wed, 08 Apr 2009 08:43:52 -0400
+Message-Id: <1239194632.3427.2.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 04/07/2009 06:05 PM, Bandan Das wrote:
+On Tue, 2009-04-07 at 18:05 -0400, Bandan Das wrote:
 > Hello,
->
+> 
 > On a RHEL5.3 system, I am trying to run snmpd in a different domain (not
 > system_u:system_r:snmpd_t )if someone tries to run a specific init
 > script I provide : i.e if someone executes /etc/init.d/ft-snmp, snmpd
 > runs in system_u:system_r:ftsnmpd_t or else it runs in
 > system_u:system_r:snmpd_t.
->
+> 
 > Does this make sense or I am missing something ?
->
+> 
 > To try this out, I thought of changing the file context
 > of /etc/init.d/ft-snmp to system_u:object_r:ftsnmp_initrc_exec_t and
 > then using domain_auto_trans() on it. My preliminary fc and te files are
 > here :
->
+> 
 > [root@icefyres devel]# cat lsb-ft-snmp.te
->
+> 
 > policy_module(lsb-ft-snmp,2.1.0)
->
+> 
 > type ftsnmp_t;
 > domain_type(ftsnmp_t)
->
+> 
 > type ftsnmp_exec_t;
 > domain_entry_file(ftsnmp_t, ftsnmp_exec_t)
->
+> 
 > type ftsnmp_log_t;
 > logging_log_file(ftsnmp_log_t)
->
+> 
 > type ftsnmp_tmp_t;
 > files_tmp_file(ftsnmp_tmp_t)
->
+> 
 > type ftsnmp_initrc_exec_t;
->
+> 
 > [root@icefyres devel]# cat lsb-ft-snmp.fc
->
+> 
 > /opt/ft/sbin/ftlsubagent        --
 > gen_context(system_u:object_r:ftsnmp_exec_t,s0)
 > /opt/ft/sbin/ftltrapsubagent    --
 > gen_context(system_u:object_r:ftsnmp_exec_t,s0)
 > /etc/init.d/ft-snmp             --
 > gen_context(system_u:object_r:ftsnmp_initrc_exec_t:s0)
->
->
+
+Change the pathname regex to:
+/etc/rc\.d/init\.d/ftp-snmp
+
+(/etc/init.d is a symlink to /etc/rc.d/init.d, and "." is a regex
+metacharacter)
+
 > After loading lsb-ft-snmp.pp and relabeling the file system, I see that
 > although, ftlsubagent and ftltrapsubagent have the intended contexts
 > (system_u:object_r:ftsnmp_exec_t), /etc/init.d/ft-snmp's context is
 > still system_u:object_r:initrc_exec_t and not
 > system_u:object_r:ftsnmp_initrc_exec_t
->
+> 
 > Is this the correct way to change the context of the ft-snmp init
 > script ?
->
->
+>  
+> 
 > Thanks,
 > Bandan
->
->
-Make sure /etc/init.d/ft-snm is a file and you might want to try 
-escaping the .
-
-/etc/init\.d/ft-snmp             --
-gen_context(system_u:object_r:ftsnmp_initrc_exec_t:s0)
-
+> 
+>  
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
