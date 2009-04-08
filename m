@@ -1,81 +1,77 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n37M5xXO012145
-	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 18:05:59 -0400
-Received: from mailhub4.stratus.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n37M5xcj024878
-	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 22:05:59 GMT
-Received: from [134.111.199.110] (BSD.mno.stratus.com [134.111.199.110])
-	by mailhub4.stratus.com (8.12.11/8.12.11) with ESMTP id n37M5ni7003331
-	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 18:05:49 -0400
-Subject: Running snmpd in a different domain
-From: Bandan Das <bandan.das@stratus.com>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain
-Date: Tue, 07 Apr 2009 18:05:49 -0400
-Message-Id: <1239141949.17983.120.camel@BSD.mno.stratus.com>
-Mime-Version: 1.0
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n382w3dL008092
+	for <selinux@tycho.nsa.gov>; Tue, 7 Apr 2009 22:58:03 -0400
+Message-ID: <49DC12B7.9020601@tycho.nsa.gov>
+Date: Tue, 07 Apr 2009 22:57:59 -0400
+From: Eamon Walsh <ewalsh@tycho.nsa.gov>
+MIME-Version: 1.0
+To: KaiGai Kohei <kaigai@kaigai.gr.jp>
+CC: Joshua Brindle <method@manicmethod.com>, SE Linux <selinux@tycho.nsa.gov>
+Subject: Re: [ANN] SELinux userspace release
+References: <49D64FEC.3030909@manicmethod.com> <49D80318.4040902@kaigai.gr.jp> <49DA3733.3050904@manicmethod.com> <49DB5185.4070801@kaigai.gr.jp>
+In-Reply-To: <49DB5185.4070801@kaigai.gr.jp>
+Content-Type: text/plain; charset=ISO-8859-1
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+KaiGai Kohei wrote:
+> Joshua Brindle wrote:
+>   
+>> KaiGai Kohei wrote:
+>>     
+>>> Joshua Brindle wrote:
+>>>       
+>>>> The SELinux userspace project has updated a release. As usual you can 
+>>>> find it at http://userspace.selinuxproject.org/trac/wiki/Releases.
+>>>>
+>>>> This is primarily a bug fix release. The added features are policy 
+>>>> module module compression support and AVC caching for compute_create 
+>>>> results.
+>>>>
+>>>> This release does not include an updated release of the stable_1_0 
+>>>> branch, which has not been updated since the last release.
+>>>>
+>>>> For git users this release has been tagged 20090403 in the repository 
+>>>> on userspace.selinuxproject.org.
+>>>>         
+>>> Joshua, when the following features will be available in the libselinux?
+>>>
+>>>  - Expose avc_netlink_loop() for applications.
+>>>    http://marc.info/?l=selinux&m=123838949914769&w=2
+>>>       
 
-On a RHEL5.3 system, I am trying to run snmpd in a different domain (not
-system_u:system_r:snmpd_t )if someone tries to run a specific init
-script I provide : i.e if someone executes /etc/init.d/ft-snmp, snmpd
-runs in system_u:system_r:ftsnmpd_t or else it runs in
-system_u:system_r:snmpd_t.
+Pushed to 2.0.80.
 
-Does this make sense or I am missing something ?
+>>>  - Permissive domains in userspace.
+>>>    http://marc.info/?l=selinux&m=123855044416037&w=2
+>>>       
 
-To try this out, I thought of changing the file context
-of /etc/init.d/ft-snmp to system_u:object_r:ftsnmp_initrc_exec_t and
-then using domain_auto_trans() on it. My preliminary fc and te files are
-here :
+Pushed to 2.0.80.
 
-[root@icefyres devel]# cat lsb-ft-snmp.te
+>>>  - selabel_lookup(3) support for database objects.
+>>>    http://marc.info/?l=selinux&m=123840173526150&w=2
+>>>       
 
-policy_module(lsb-ft-snmp,2.1.0)
+Under review still.
 
-type ftsnmp_t;
-domain_type(ftsnmp_t)
+>>>       
+>> These patches are being reviewed by Eamon AFAIK so once he acks them or 
+>> merges them.
+>>     
+>
+> OK, I'll wait for a while more.
+>
+> In addition, I've forgottn to note the patch.
+> - A new API: security_deny_unknown()
+>    http://marc.info/?l=selinux&m=123863254719835&w=2
+>   
 
-type ftsnmp_exec_t;
-domain_entry_file(ftsnmp_t, ftsnmp_exec_t)
-
-type ftsnmp_log_t;
-logging_log_file(ftsnmp_log_t)
-
-type ftsnmp_tmp_t;
-files_tmp_file(ftsnmp_tmp_t)
-
-type ftsnmp_initrc_exec_t;
-
-[root@icefyres devel]# cat lsb-ft-snmp.fc
-
-/opt/ft/sbin/ftlsubagent        --
-gen_context(system_u:object_r:ftsnmp_exec_t,s0)
-/opt/ft/sbin/ftltrapsubagent    --
-gen_context(system_u:object_r:ftsnmp_exec_t,s0)
-/etc/init.d/ft-snmp             --
-gen_context(system_u:object_r:ftsnmp_initrc_exec_t:s0)
+Pushed to 2.0.80.
 
 
-After loading lsb-ft-snmp.pp and relabeling the file system, I see that
-although, ftlsubagent and ftltrapsubagent have the intended contexts
-(system_u:object_r:ftsnmp_exec_t), /etc/init.d/ft-snmp's context is
-still system_u:object_r:initrc_exec_t and not
-system_u:object_r:ftsnmp_initrc_exec_t
-
-Is this the correct way to change the context of the ft-snmp init
-script ?
- 
-
-Thanks,
-Bandan
-
- 
 -- 
-BSD
+Eamon Walsh <ewalsh@tycho.nsa.gov>
+National Security Agency
 
 
 --
