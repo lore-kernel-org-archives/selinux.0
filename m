@@ -1,29 +1,39 @@
 Received: from [144.51.25.4] (moss-lions [144.51.25.4])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n39FSotF005869
-	for <selinux@tycho.nsa.gov>; Thu, 9 Apr 2009 11:28:50 -0400
-Subject: Problems related to using SELinux
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n39FSk6V005845
+	for <selinux@tycho.nsa.gov>; Thu, 9 Apr 2009 11:28:46 -0400
+Subject: Problems related to the policy language
 From: James Carter <jwcart2@tycho.nsa.gov>
 Reply-To: jwcart2@tycho.nsa.gov
 To: SELinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain
-Date: Thu, 09 Apr 2009 11:28:31 -0400
-Message-Id: <1239290911.22856.58.camel@moss-lions.epoch.ncsc.mil>
+Date: Thu, 09 Apr 2009 11:28:27 -0400
+Message-Id: <1239290907.22856.57.camel@moss-lions.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-1. Differences between different distributions
-	a. setroubleshoot
-	b. Denial log location
-	c. init system
-	d. Use of MLS
-2. The tools related to SELinux are not consistently named
-	a. It is hard to discover the right command.
-3. Inadequate documentation
-	a. Of the low-level mechanisms
-	b. For the policy author
-	c. For the administrator
-	d. For the user
+1. Inflexibility
+	a. Limitations to what can be in a module
+2. Gaps in features
+	a. User transitions
+	b. Type inheritance
+3. Ordering issues
+	a. Unless the rules are in the same file, proper ordering cannot
+	be guaranteed for portcon and other rules for which ordering is
+	important
+4. Confusing semantics
+	a. Between templates and interfaces
+	b. Between tunables and booleans
+	c. Require rules
+	d. Optional blocks
+5. Inconsistencies in the syntax
+	a. Some rules end with a semi-colon, others do not
+	b. Some lists are space separated, some are comma separated
+	c. Some lists require curly braces even when there is only one
+	member, others do not
+	d. For some rules the order of the rules matter, in others they
+	do not
+	e. File contexts start with the path
 
 -- 
 James Carter <jwcart2@tycho.nsa.gov>
