@@ -1,55 +1,93 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3A4JtTJ028716
-	for <selinux@tycho.nsa.gov>; Fri, 10 Apr 2009 00:19:55 -0400
-Received: from smtp110.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n3A4Jq4u013167
-	for <selinux@tycho.nsa.gov>; Fri, 10 Apr 2009 04:19:55 GMT
-Message-ID: <49DEC8D0.2060105@schaufler-ca.com>
-Date: Thu, 09 Apr 2009 21:19:28 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
 MIME-Version: 1.0
+In-Reply-To: <1239290888.22856.54.camel@moss-lions.epoch.ncsc.mil>
+References: <1239290888.22856.54.camel@moss-lions.epoch.ncsc.mil>
+Date: Fri, 10 Apr 2009 10:53:38 +0500
+Message-ID: <e768086c0904092253v50c9405w15f2716aecf75840@mail.gmail.com>
+Subject: Re: Problems related to the whole policy infrastructure
+From: Kirill Novikov <redbyte.labs@gmail.com>
 To: jwcart2@tycho.nsa.gov
-CC: SELinux <selinux@tycho.nsa.gov>
-Subject: Re: Policy infrastructure problems and improvement
-References: <1239290883.22856.53.camel@moss-lions.epoch.ncsc.mil>
-In-Reply-To: <1239290883.22856.53.camel@moss-lions.epoch.ncsc.mil>
-Content-Type: text/plain; charset=ISO-8859-1
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001636c5b3526df06204672cfc9c
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-James Carter wrote:
-> I am looking at improving the policy infrastructure.  The ultimate goal
-> is to make SELinux policy writing, policy customization, policy
-> management, and administration easier and less confusing. My focus will
-> be on the userspace parts of SELinux. 
+--001636c5b3526df06204672cfc9c
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+If developers would add support of some kind of includes (around 50 lines of
+code, fix me if I'm wrong) I think it would make policy easier to read and
+edit, but it doesn't solves real problem - complexity to understand what's
+really declared in policy and how does rules interfere. I've tried to work
+with SLIDE - for sure, it much more handy than vim, but I suppose it would
+be ideal (at least for me and an number of my colleagues) to use something
+like UML for refpolicy customization.
+
+Regards,
+
+Kirill Novikov,
+EastLinux Team
+
+On Thu, Apr 9, 2009 at 8:28 PM, James Carter <jwcart2@tycho.nsa.gov> wrote:
+
+> 1.  Complexity of SELinux policies
+>        a.  Inability to create policy abstraction layers
+>                i.  If we had to write software the way we write policy,
+>                we would have to compile everything in our system into
+>                one gigantic, monolithic executable.
 >
-> My plan to do this is as follows:
-> (1) Determine and enumerate the existing problems of the current
-> infrastructure.
-> (2) Determine the desired capabilities and architecture of the ideal
-> infrastructure.
-> (3) Determine the changes needed to the current architecture to fix the
-> current problems and to provide the desired capabilities.
-> (4) Make the policy infrastructure as close to the ideal as possible
-> while providing some kind of backwards compatibility and taking other
-> practicalities into consideration.
+> --
+> James Carter <jwcart2@tycho.nsa.gov>
+> National Security Agency
 >
-> I have had some informal discussions with others internally and at
-> Tresys, and the five emails to follow have my summary of the problems
-> that have been identified in those discussions.
 >
-> My hope is that there will be a good discussion and that others on the
-> list will identify other problems and provide more details or examples
-> to the problems already identified.
->   
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.govwith
+> the words "unsubscribe selinux" without quotes as the message.
+>
 
-I will throw my traditional comment on the pile as I didn't see that
-you had it on your list anywhere. The policy required to describe a
-system is too large.
+--001636c5b3526df06204672cfc9c
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Thank you.
+If developers would add support of some kind of includes (around 50 lines o=
+f code, fix me if I&#39;m wrong) I think it would make policy easier to rea=
+d and edit, but it doesn&#39;t solves real problem - complexity to understa=
+nd what&#39;s really declared in policy and how does rules interfere. I&#39=
+;ve tried to work with SLIDE - for sure, it much more handy than vim, but I=
+ suppose it would be ideal (at least for me and an number of my colleagues)=
+ to use something like UML for refpolicy customization. <br>
+<br>Regards,<br><br>Kirill Novikov,<br>EastLinux Team<br><br><div class=3D"=
+gmail_quote">On Thu, Apr 9, 2009 at 8:28 PM, James Carter <span dir=3D"ltr"=
+>&lt;<a href=3D"mailto:jwcart2@tycho.nsa.gov">jwcart2@tycho.nsa.gov</a>&gt;=
+</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"border-left: 1px solid rgb(204, =
+204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">1. =A0Complexity =
+of SELinux policies<br>
+ =A0 =A0 =A0 =A0a. =A0Inability to create policy abstraction layers<br>
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i. =A0If we had to write software the way w=
+e write policy,<br>
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0we would have to compile everything in our =
+system into<br>
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0one gigantic, monolithic executable.<br>
+<br>
+--<br>
+James Carter &lt;<a href=3D"mailto:jwcart2@tycho.nsa.gov">jwcart2@tycho.nsa=
+.gov</a>&gt;<br>
+National Security Agency<br>
+<font color=3D"#888888"><br>
+<br>
+--<br>
+This message was distributed to subscribers of the selinux mailing list.<br=
+>
+If you no longer wish to subscribe, send mail to <a href=3D"mailto:majordom=
+o@tycho.nsa.gov">majordomo@tycho.nsa.gov</a> with<br>
+the words &quot;unsubscribe selinux&quot; without quotes as the message.<br=
+>
+</font></blockquote></div><br>
 
-
+--001636c5b3526df06204672cfc9c--
 
 --
 This message was distributed to subscribers of the selinux mailing list.
