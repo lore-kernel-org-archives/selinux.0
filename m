@@ -1,22 +1,21 @@
-Cc: James Carter <jwcart2@tycho.nsa.gov>, SELinux List <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Message-Id: <8E785FE8-8DEA-43C0-BEDE-20BA551FA9D2@nall.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, SELinux <selinux@tycho.nsa.gov>
+Message-Id: <E92B8263-9FF8-4AD8-83C9-97113864D8E2@nall.com>
 From: Joe Nall <joe@nall.com>
-To: Alexey S <selinux@udmvt.ru>
-In-Reply-To: <1239367506.16752.3.camel@localhost.localdomain>
+To: jwcart2@tycho.nsa.gov
+In-Reply-To: <1239366882.27413.24.camel@moss-lions.epoch.ncsc.mil>
 Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
 Mime-Version: 1.0 (Apple Message framework v930.3)
 Subject: Re: Policy infrastructure problems and improvement
-Date: Fri, 10 Apr 2009 09:28:12 -0500
-References: <1239290883.22856.53.camel@moss-lions.epoch.ncsc.mil> <20090410124318.GM9889@ruber.office.udmvt.ru> <1239367506.16752.3.camel@localhost.localdomain>
+Date: Fri, 10 Apr 2009 09:51:46 -0500
+References: <1239290883.22856.53.camel@moss-lions.epoch.ncsc.mil> <49DEC8D0.2060105@schaufler-ca.com> <1239366882.27413.24.camel@moss-lions.epoch.ncsc.mil>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
 
-On Apr 10, 2009, at 7:45 AM, Stephen Smalley wrote:
+On Apr 10, 2009, at 7:34 AM, James Carter wrote:
 
-> On Fri, 2009-04-10 at 17:43 +0500, Alexey S wrote:
->> On Thu, Apr 09, 2009 at 11:28:03AM -0400, James Carter wrote:
+> On Thu, 2009-04-09 at 21:19 -0700, Casey Schaufler wrote:
+>> James Carter wrote:
 >>> I am looking at improving the policy infrastructure.  The ultimate  
 >>> goal
 >>> is to make SELinux policy writing, policy customization, policy
@@ -47,46 +46,63 @@ On Apr 10, 2009, at 7:45 AM, Stephen Smalley wrote:
 >>> list will identify other problems and provide more details or  
 >>> examples
 >>> to the problems already identified.
+>>>
 >>
->> May I put my 5cents?
->> It would be great if mapping of domain attributes to numbers be  
->> preserved
->> somewhere during linking/expanding of modules into binary policy.
->> And if libqpol-based tools would be able to use that mapping when  
->> displaying
->> their results.
->> Otherwise it is too confusing to see @ttr0121 instead of  
->> domain_type during policy
->> analysis, especially when numbers change after module (re|un|)load.
+>> I will throw my traditional comment on the pile as I didn't see that
+>> you had it on your list anywhere. The policy required to describe a
+>> system is too large.
+>>
 >
-> policy.24 already makes this change (preservation of attribute names  
-> in
-> the types symtab in the final kernel policy).
+> That's easy to fix.  Make the system smaller. ;)
 >
-> You can however already see the attribute names with policy < 24 by
-> running apol and friends on the modular policy rather than the final
-> kernel policy.
+> I think that this would fit under complexity of SElinux policies.
+>
+> Again, better layering is needed.  It would be nice if I could just
+> write policy for the particular domains and resources that I cared  
+> about
+> without having to worry about the policy for the rest of the system.
+> Unfortunately, policy writing differs from program writing in that  
+> while
+> different programs that run on a system *share* resources and so it
+> doesn't matter what the other programs do (for the most part) as  
+> long as
+> my program gets to use those resources at some point, all of the
+> policies work together to *control* resources.  In the end, you must
+> have one policy.  The question is how to write the policies in a more
+> layered way and have the policy infrastructure merge the layers
+> together.
 
-like this
+audit2allow needs to understand your layers of abstraction or they  
+won't be very useful. I've watched a number of developers in our group  
+stall at the audit2allow policy writing level and never really get the  
+need to understand the system macros and the 'why' of it all.
 
-seinfo -x -t$1 /etc/selinux/mls/modules/active/base.pp /etc/selinux/ 
-mls/modules/active/modules/*pp
+Some of these same developers never get that some avcs are inevitable  
+and blithely grant privilege until they don't have any avcs - granting  
+user_t enormous new privs along the way. We use seinfo to look for  
+attribute diffs and source inspection, but we need better command line  
+tools to look for these issues in an automated way.
 
-This can be very slow (hours) - all in the reading of the pp files.  
-Replace $1 and mls as appropriate.
+If Chris and Dan maintained and distributed policy as modules and not  
+as monolithic entities, the impetus and understanding to improve the  
+tool chain would be much stronger.
 
 joe
 
+
 >
->> PS: Could binary policy have 'debug' segments, that are not loaded  
->> into kernel,
->> but persist in a file?
->> PPS: Have I missed something somewhere? It is so obviously  
->> inconvenient, so
->> I don't believe it's only me requesting this thing.
->
+>> Thank you.
+>>
+>>
+>>
+>> --
+>> This message was distributed to subscribers of the selinux mailing  
+>> list.
+>> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov 
+>>  with
+>> the words "unsubscribe selinux" without quotes as the message.
 > -- 
-> Stephen Smalley
+> James Carter <jwcart2@tycho.nsa.gov>
 > National Security Agency
 >
 >
