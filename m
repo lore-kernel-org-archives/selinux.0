@@ -1,40 +1,84 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3BGia3b021852
-	for <selinux@tycho.nsa.gov>; Sat, 11 Apr 2009 12:44:36 -0400
-Received: from mail-ew0-f177.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3BGiZPK023941
-	for <selinux@tycho.nsa.gov>; Sat, 11 Apr 2009 16:44:36 GMT
-Received: by ewy25 with SMTP id 25so2174883ewy.18
-        for <selinux@tycho.nsa.gov>; Sat, 11 Apr 2009 09:44:34 -0700 (PDT)
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3CNkEAM005308
+	for <selinux@tycho.nsa.gov>; Sun, 12 Apr 2009 19:46:14 -0400
+Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3CNkCYB025994
+	for <selinux@tycho.nsa.gov>; Sun, 12 Apr 2009 23:46:13 GMT
+Message-ID: <49E27D28.4060803@ak.jp.nec.com>
+Date: Mon, 13 Apr 2009 08:45:44 +0900
+From: KaiGai Kohei <kaigai@ak.jp.nec.com>
 MIME-Version: 1.0
-In-Reply-To: <F7970D6F-6958-4157-9CD0-2818202619AD@gmail.com>
-References: <F7970D6F-6958-4157-9CD0-2818202619AD@gmail.com>
-Date: Sat, 11 Apr 2009 18:44:34 +0200
-Message-ID: <9e7fde520904110944s212b2e89uc22ddf7e451dc5de@mail.gmail.com>
-Subject: Re: strange semanage user|login errors
-From: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=ISO-8859-1
+To: "Christopher J. PeBenito" <cpebenito@tresys.com>
+CC: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov,
+        Joshua Brindle <method@manicmethod.com>
+Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
+References: <49D1DA85.1030902@ak.jp.nec.com>		<49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>	<1238684951.32379.311.camel@gorn.columbia.tresys.com>	<49D563A9.1000607@ak.jp.nec.com> <49D965CA.4030908@ak.jp.nec.com>
+In-Reply-To: <49D965CA.4030908@ak.jp.nec.com>
+Content-Type: text/plain; charset=ISO-2022-JP
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-I think big parts of my selinux installation are broken, i can't do
-any management task:
+Chris,
 
-[root@SecLab selinux_fcontext]# semodule -i *pp
-libsemanage.validate_handler: MLS range s0 for Unix user user exceeds
-allowed range s0:c0.c100 for SELinux user user_u (No such file or
-directory).
-libsemanage.validate_handler: seuser mapping [user -> (user_u, s0)] is
-invalid (No such file or directory).
-libsemanage.dbase_llist_iterate: could not iterate over records (No
-such file or directory).
-semodule:  Failed
+what is your opinion for the reworks and bugfixes?
 
-tnx in advance
+KaiGai Kohei wrote:
+> The attached patch provides some of reworks and bugfuxes
+> except for new object classes and permissions.
+> 
+> - rework: Add a comment of "not currently in use" for deprecated
+>   permissions, but its definitions are not removed.
+> 
+> - bugfix: MCS policy did not constrain the following permissions.
+>     db_database:{getattr}
+>     db_table:{getattr lock}
+>     db_column:{getattr}
+>     db_procedure:{drop getattr setattr}
+>     db_blob:{getattr import export}
+> 
+> - rework: All the newly created database objects by unprivileged
+>   clients are prefixed with "user_", and these are controled via
+>   sepgsql_enable_users_ddl.
+>   The current policy allows httpd_t to created a function labeled
+>   as sepgsql_proc_t which is also allowed to be installed as a
+>   system internal entity (db_procedure:{install}).
+>   It is a potentially risk for trojan horse.
+> 
+> - rework: postgresql_role() shares most part of postgresql_unpriv_client().
+> 
+> - bugfix: some of permissions in db_procedure class are allowed
+>   on sepgsql_trusted_proc_t, but it is a domain, not a procedure.
+>   It should allow them on sepgsql_trusted_proc_exec_t.
+>   I also aliased sepgsql_proc_t as sepgsql_proc_exec_t to avoid
+>   such kind of confusion, as Chris suggested before.
+> 
+> - rework: we should not allow db_procedure:{install} on the
+>   sepgsql_trusted_proc_exec_t, because of a risk to invoke trusted
+>   procedure implicitly.
+> 
+> - rework: db_table:{lock} is moved to reader side, because it makes
+>   impossible to refer read-only table with foreign-key constraint.
+>   (FK checks internally acquire explicit locks.)
+> 
+> - bugfix: MLS policy dealt db_blob:{export} as writer-side permission,
+>   but it is required whrn the largeobject is refered.
+> 
+> - bugfix: MLS policy didn't constrain the db_procedure class.
+> 
+> Thanks,
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> _______________________________________________
+> refpolicy mailing list
+> refpolicy@oss.tresys.com
+> http://oss.tresys.com/mailman/listinfo/refpolicy
 
---
-Sebastian Pfaff
+
+-- 
+OSS Platform Development Division, NEC
+KaiGai Kohei <kaigai@ak.jp.nec.com>
 
 --
 This message was distributed to subscribers of the selinux mailing list.
