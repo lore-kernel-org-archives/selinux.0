@@ -1,84 +1,56 @@
 Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3CNkEAM005308
-	for <selinux@tycho.nsa.gov>; Sun, 12 Apr 2009 19:46:14 -0400
-Received: from tyo202.gate.nec.co.jp (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3CNkCYB025994
-	for <selinux@tycho.nsa.gov>; Sun, 12 Apr 2009 23:46:13 GMT
-Message-ID: <49E27D28.4060803@ak.jp.nec.com>
-Date: Mon, 13 Apr 2009 08:45:44 +0900
-From: KaiGai Kohei <kaigai@ak.jp.nec.com>
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3D7AKUC013175
+	for <selinux@tycho.nsa.gov>; Mon, 13 Apr 2009 03:10:20 -0400
+Received: from atoll.udmvt.ru (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3D7AIdr006644
+	for <selinux@tycho.nsa.gov>; Mon, 13 Apr 2009 07:10:19 GMT
+Received: from ruber.office.udmvt.ru (ruber.office.udmvt.ru [192.168.21.33])
+	by atoll.udmvt.ru (8.13.6/8.13.6/Izhcom-V1.1e) with SMTP id n3D7AEX0052485
+	for <selinux@tycho.nsa.gov>; Mon, 13 Apr 2009 12:10:16 +0500 (SAMST)
+	(envelope-from spg@udmvt.ru)
+Date: Mon, 13 Apr 2009 12:10:14 +0500
+From: Alexey S <selinux@udmvt.ru>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Alexey S <selinux@udmvt.ru>, James Carter <jwcart2@tycho.nsa.gov>,
+        SELinux <selinux@tycho.nsa.gov>
+Subject: Re: Policy infrastructure problems and improvement
+Message-ID: <20090413071014.GP9889@ruber.office.udmvt.ru>
+References: <1239290883.22856.53.camel@moss-lions.epoch.ncsc.mil> <20090410124318.GM9889@ruber.office.udmvt.ru> <1239367506.16752.3.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: "Christopher J. PeBenito" <cpebenito@tresys.com>
-CC: refpolicy@oss.tresys.com, selinux@tycho.nsa.gov,
-        Joshua Brindle <method@manicmethod.com>
-Subject: Re: [refpolicy] [RFC] Security policy reworks for SE-PostgreSQL
-References: <49D1DA85.1030902@ak.jp.nec.com>		<49D4743C.2010000@ak.jp.nec.com>	<49D4CB6E.1090900@manicmethod.com>	<1238684951.32379.311.camel@gorn.columbia.tresys.com>	<49D563A9.1000607@ak.jp.nec.com> <49D965CA.4030908@ak.jp.nec.com>
-In-Reply-To: <49D965CA.4030908@ak.jp.nec.com>
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1239367506.16752.3.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Chris,
+On Fri, Apr 10, 2009 at 08:45:06AM -0400, Stephen Smalley wrote:
+> On Fri, 2009-04-10 at 17:43 +0500, Alexey S wrote:
+> > ...
+> > And if libqpol-based tools would be able to use that mapping when displaying
+> > their results.
+> > Otherwise it is too confusing to see @ttr0121 instead of domain_type during policy
+> > analysis, especially when numbers change after module (re|un|)load.
+> 
+> policy.24 already makes this change (preservation of attribute names in
+> the types symtab in the final kernel policy).
+Great! I really missed that thing. I have ever tried to hack policy compiler to
+write the attributes mapping to the stderr...
 
-what is your opinion for the reworks and bugfixes?
+> 
+> You can however already see the attribute names with policy < 24 by
+> running apol and friends on the modular policy rather than the final
+> kernel policy.
+There are some use-cases where there is no modules on the local machine.
+And thus the policy is not "managed". And still it is not complete and needs
+some analysing/understanding.
+By the way, is it impossible to add some cryptographics signature to the binary policy
+(and perhaps to the modules)? I would like to block REloading of policies without proper
+signature (btw, it is very useful in the mentioned use-cases). I think it is some
+infrastructure piece that is missing too.
 
-KaiGai Kohei wrote:
-> The attached patch provides some of reworks and bugfuxes
-> except for new object classes and permissions.
-> 
-> - rework: Add a comment of "not currently in use" for deprecated
->   permissions, but its definitions are not removed.
-> 
-> - bugfix: MCS policy did not constrain the following permissions.
->     db_database:{getattr}
->     db_table:{getattr lock}
->     db_column:{getattr}
->     db_procedure:{drop getattr setattr}
->     db_blob:{getattr import export}
-> 
-> - rework: All the newly created database objects by unprivileged
->   clients are prefixed with "user_", and these are controled via
->   sepgsql_enable_users_ddl.
->   The current policy allows httpd_t to created a function labeled
->   as sepgsql_proc_t which is also allowed to be installed as a
->   system internal entity (db_procedure:{install}).
->   It is a potentially risk for trojan horse.
-> 
-> - rework: postgresql_role() shares most part of postgresql_unpriv_client().
-> 
-> - bugfix: some of permissions in db_procedure class are allowed
->   on sepgsql_trusted_proc_t, but it is a domain, not a procedure.
->   It should allow them on sepgsql_trusted_proc_exec_t.
->   I also aliased sepgsql_proc_t as sepgsql_proc_exec_t to avoid
->   such kind of confusion, as Chris suggested before.
-> 
-> - rework: we should not allow db_procedure:{install} on the
->   sepgsql_trusted_proc_exec_t, because of a risk to invoke trusted
->   procedure implicitly.
-> 
-> - rework: db_table:{lock} is moved to reader side, because it makes
->   impossible to refer read-only table with foreign-key constraint.
->   (FK checks internally acquire explicit locks.)
-> 
-> - bugfix: MLS policy dealt db_blob:{export} as writer-side permission,
->   but it is required whrn the largeobject is refered.
-> 
-> - bugfix: MLS policy didn't constrain the db_procedure class.
-> 
-> Thanks,
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> _______________________________________________
-> refpolicy mailing list
-> refpolicy@oss.tresys.com
-> http://oss.tresys.com/mailman/listinfo/refpolicy
 
 
 -- 
-OSS Platform Development Division, NEC
-KaiGai Kohei <kaigai@ak.jp.nec.com>
+Alexey S
 
 --
 This message was distributed to subscribers of the selinux mailing list.
