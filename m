@@ -1,59 +1,61 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3DBYnD1009676
-	for <selinux@tycho.nsa.gov>; Mon, 13 Apr 2009 07:34:49 -0400
-Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3DBYm7H000866
-	for <selinux@tycho.nsa.gov>; Mon, 13 Apr 2009 11:34:49 GMT
-Message-ID: <49E32355.4000805@redhat.com>
-Date: Mon, 13 Apr 2009 07:34:45 -0400
-From: Daniel J Walsh <dwalsh@redhat.com>
-MIME-Version: 1.0
-To: Sebastian Pfaff <sebastian.pfaff@gmail.com>
-CC: selinux@tycho.nsa.gov
-Subject: Re: strange semanage user|login errors
-References: <F7970D6F-6958-4157-9CD0-2818202619AD@gmail.com> <9e7fde520904110944s212b2e89uc22ddf7e451dc5de@mail.gmail.com>
-In-Reply-To: <9e7fde520904110944s212b2e89uc22ddf7e451dc5de@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [nfsv4] my thoughts on how Labeled NFSv4 draft should move
+ forward
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Williams <Nicolas.Williams@sun.com>
+Cc: Jarrett Lu <Jarrett.Lu@sun.com>, dpquigl@tycho.nsa.gov,
+        labeled-nfs@linux-nfs.org, nfs-discuss@opensolaris.org,
+        selinux@tycho.nsa.gov, nfsv4@ietf.org
+In-Reply-To: <20090410201718.GB1500@Sun.COM>
+References: <49DA6EF8.1080704@sun.com>  <20090410201718.GB1500@Sun.COM>
+Content-Type: text/plain
+Date: Mon, 13 Apr 2009 09:19:17 -0400
+Message-Id: <1239628757.6129.5.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 04/11/2009 12:44 PM, Sebastian Pfaff wrote:
-> I think big parts of my selinux installation are broken, i can't do
-> any management task:
->
-> [root@SecLab selinux_fcontext]# semodule -i *pp
-> libsemanage.validate_handler: MLS range s0 for Unix user user exceeds
-> allowed range s0:c0.c100 for SELinux user user_u (No such file or
-> directory).
-> libsemanage.validate_handler: seuser mapping [user ->  (user_u, s0)] is
-> invalid (No such file or directory).
-> libsemanage.dbase_llist_iterate: could not iterate over records (No
-> such file or directory).
-> semodule:  Failed
->
-> tnx in advance
->
-> --
-> Sebastian Pfaff
->
-> --
-> This message was distributed to subscribers of the selinux mailing list.
-> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
-> the words "unsubscribe selinux" without quotes as the message.
-You have setup an SELinux user_u record with a range of one category 
-s0:c0.c100, and then are trying to add Linux login users to this user 
-with a different category s0
+On Fri, 2009-04-10 at 15:17 -0500, Nicolas Williams wrote:
+> After that long thread on SAAG and a subsequent off-list discussion with
+> Casey (plus my reading Smack documentation) I'm almost ready to reach
+> the following conclusions:
+> 
+>  - We don't need policy agreement for MLS.  Servers have all the
+>    necessary information when comparing labels without reference to a
+>    policy.  However, clients have to be sharing a common MLS policy.
 
-semanage user -l | grep user_u
+That is too limiting.  Think coalitions.
 
-If you want to change the list of categories available to user_u you 
-would execute
+>  - For "smart" MLS and Smack servers we need a method by which servers
+>    can determine the label range/set of client and user principals, but
+>    this need not be specified in a standard way except where label
+>    range/set is borne by authentication credentials (Kerberos V ticket
+>    authorization-data, PKIX cert extensions).
+> 
+>    This is already described in my RPCSEC_GSSv3 document.
+> 
+>  - For Smack we don't need policy agreement either, but it will be
+>    useful to distribute common subsets of Smack policy to clients, and
+>    to prefix labels from local-only sub-policies with a client ID (or
+>    client DOI, if you wish).
+> 
+>  - For DTE I've no idea what to do.  Policy agreement seems like a
+>    flight of fancy for DTE.  But *much* more importantly, because the
+>    process label transitions can span so many labels we simply cannot
+>    have too smart a server: the server can't meaningfully constrain the
+>    labels that a user@client can assert, therefore the server must trust
+>    all client assertions of process DTE labels or none at all.
+> 
+>    I.e., for DTE we can only have "dumb" servers.
 
-semanage user -m -r s0-s0:c0.c100 user_u
+Why?  While it is certainly true that a given client may be authorized
+to assert numerous discrete domains, that does not mean that a server
+cannot limit a client to a specific set of domains.  That can be modeled
+via a permission check on a label pair and security class, just like
+everything else.
 
-Which would allow you to add linux users with any range of categories 
-form s0 to so:c0.c100.
-
+-- 
+Stephen Smalley
+National Security Agency
 
 
 --
