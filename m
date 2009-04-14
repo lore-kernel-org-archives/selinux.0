@@ -1,48 +1,58 @@
-Date: Tue, 14 Apr 2009 12:10:19 -0500
+Date: Tue, 14 Apr 2009 12:26:24 -0500
 From: Nicolas Williams <Nicolas.Williams@sun.com>
-To: "David P. Quigley" <dpquigl@tycho.nsa.gov>
-Cc: Jarrett Lu <Jarrett.Lu@sun.com>, selinux@tycho.nsa.gov,
-        labeled-nfs@linux-nfs.org, nfs-discuss@opensolaris.org, nfsv4@ietf.org
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Jarrett Lu <Jarrett.Lu@sun.com>,
+        dpquigl@tycho.nsa.gov, labeled-nfs@linux-nfs.org,
+        nfs-discuss@opensolaris.org, selinux@tycho.nsa.gov, nfsv4@ietf.org
 Subject: Re: [nfsv4] my thoughts on how Labeled NFSv4 draft should move forward
-Message-ID: <20090414171019.GB1500@Sun.COM>
-References: <49DA6EF8.1080704@sun.com> <20090410201718.GB1500@Sun.COM> <20090410203839.GC1500@Sun.COM> <1239724769.9761.126.camel@moss-terrapins.epoch.ncsc.mil>
+Message-ID: <20090414172624.GE1500@Sun.COM>
+References: <49DA6EF8.1080704@sun.com> <20090410201718.GB1500@Sun.COM> <1239628757.6129.5.camel@localhost.localdomain> <49E40ACE.2070002@schaufler-ca.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <1239724769.9761.126.camel@moss-terrapins.epoch.ncsc.mil>
+In-Reply-To: <49E40ACE.2070002@schaufler-ca.com>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Tue, Apr 14, 2009 at 11:59:29AM -0400, David P. Quigley wrote:
-> On Fri, 2009-04-10 at 15:38 -0500, Nicolas Williams wrote:
-> > Of course, it's not clear yet that it will be of much practical value to
-> > have such smart servers (e.g., if all the clients would be fully trusted
-> > anyways).  It may be possible that "dumb" servers are good enough, in
-> > which case we don't need to complicate RPCSEC_GSSv3 with process label
-> > assertions (though it's not much of a complication, but the client does
-> > need to know, via an NFS operation, whether the server is smart or
-> > dumb).
+On Mon, Apr 13, 2009 at 09:02:22PM -0700, Casey Schaufler wrote:
+> Stephen Smalley wrote:
+> >>    I.e., for DTE we can only have "dumb" servers.
+> >
+> > Why?  While it is certainly true that a given client may be authorized
+> > to assert numerous discrete domains, that does not mean that a server
+> > cannot limit a client to a specific set of domains.  That can be modeled
+> > via a permission check on a label pair and security class, just like
+> > everything else.
 > 
-> It is unclear to me why an NFS operation is needed for this. Why can't
+> I think that the point is that for that to be interesting you need
+> to have a significant number of subject-label/object-label/class
+> triples from the client available on the server. Additionally, it
+> assumes that the object label available to the server is in fact
+> the label from that client, not the server, and not a different
+> client. Unless you can map the object label on the file, wherever
+> it originated, to a label that is appropriate to the client's
+> policy. And heaven forbid that the client that "owns" the label
+> on the file should change it's policy and reboot. Now what you have
+> is at best no mapping, and at worst a mapping that reflects the
+> old, no longer considered "secure" policy.
 
-It could be an attribute.  That's how a variety of things are negotiated
-already.
+My point was different.
 
-> this be something that is negotiated in the GSS context? When the GSS
-> context is created they can decide if the server is smart or not and if
-> it is then the process label is something that is part of the context.
-> Then when the server is making a decision if it is Smart it will use the
-> credential from the GSS context if not it will ignore it.
+With MLS and Smack there's typically a small number of process labels
+that a given user on a given client could claim, and these labels could
+be listed in a directory or in the client's and user's cryptographic
+credentials.  Therefore the server can simply reject any assertions of
+process labels outside the allowable set of labels for the given
+user@client.
 
-I'm thinking that the server could even be selectively smart or dumb.
-For example, for objects labeled with MLS the server could be smart.
-For objects labeled with Smack the server could be smart if it can
-retrieve the rules matched by the client process' label's DOI.  For
-objects with DTE labels in a DOI where the number of domains is too
-large for it to be meaningful for the server to be smart then the server
-could be dumb.
-
-A filesystem attribute seems potentially too coarse for this, but it
-could be a per-object attribute.
+With DTE there may be an enormous number of domains (process labels),
+and since these domains relate to domain transition rules that are very
+much local affairs to the client, the server can only trust what the
+client says.  Now, I do exagerate since DTE can express MLS-type
+policies -- it's possible that there is a small set of domains that a
+given user@client could assert meaningfully to a server, in which case
+DTE would be on par with MLS and Smack.  The problem lies in identifying
+that small set of domains relevant to server-enforced MAC, and making
+sure that such small sets of domains exist.
 
 Nico
 -- 
