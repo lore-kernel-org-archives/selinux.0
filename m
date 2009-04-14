@@ -1,122 +1,92 @@
-Subject: Re: Policy infrastructure problems and improvement
-From: James Carter <jwcart2@tycho.nsa.gov>
-Reply-To: jwcart2@tycho.nsa.gov
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-In-Reply-To: <49E00466.4090702@schaufler-ca.com>
-References: <1239290883.22856.53.camel@moss-lions.epoch.ncsc.mil>
-	 <49DEC8D0.2060105@schaufler-ca.com>
-	 <1239366882.27413.24.camel@moss-lions.epoch.ncsc.mil>
-	 <49E00466.4090702@schaufler-ca.com>
+Received: from facesaver.epoch.ncsc.mil (facesaver [144.51.25.10])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3EG38CH002329
+	for <selinux@tycho.nsa.gov>; Tue, 14 Apr 2009 12:03:08 -0400
+Subject: Re: [nfsv4] my thoughts on how Labeled NFSv4 draft should move
+ forward
+From: "David P. Quigley" <dpquigl@tycho.nsa.gov>
+To: Nicolas Williams <Nicolas.Williams@sun.com>
+Cc: Jarrett Lu <Jarrett.Lu@sun.com>, labeled-nfs@linux-nfs.org,
+        nfs-discuss@opensolaris.org, selinux@tycho.nsa.gov, nfsv4@ietf.org
+In-Reply-To: <20090410203839.GC1500@Sun.COM>
+References: <49DA6EF8.1080704@sun.com> <20090410201718.GB1500@Sun.COM>
+	 <20090410203839.GC1500@Sun.COM>
 Content-Type: text/plain
-Date: Tue, 14 Apr 2009 09:31:01 -0400
-Message-Id: <1239715861.19405.39.camel@moss-lions.epoch.ncsc.mil>
+Date: Tue, 14 Apr 2009 11:59:29 -0400
+Message-Id: <1239724769.9761.126.camel@moss-terrapins.epoch.ncsc.mil>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Fri, 2009-04-10 at 19:45 -0700, Casey Schaufler wrote:
-> James Carter wrote:
-> > On Thu, 2009-04-09 at 21:19 -0700, Casey Schaufler wrote:
-> >   
-> >> James Carter wrote:
-> >>     
-> >>> I am looking at improving the policy infrastructure.  The ultimate goal
-> >>> is to make SELinux policy writing, policy customization, policy
-> >>> management, and administration easier and less confusing. My focus will
-> >>> be on the userspace parts of SELinux. 
-> >>>
-> >>> My plan to do this is as follows:
-> >>> (1) Determine and enumerate the existing problems of the current
-> >>> infrastructure.
-> >>> (2) Determine the desired capabilities and architecture of the ideal
-> >>> infrastructure.
-> >>> (3) Determine the changes needed to the current architecture to fix the
-> >>> current problems and to provide the desired capabilities.
-> >>> (4) Make the policy infrastructure as close to the ideal as possible
-> >>> while providing some kind of backwards compatibility and taking other
-> >>> practicalities into consideration.
-> >>>
-> >>> I have had some informal discussions with others internally and at
-> >>> Tresys, and the five emails to follow have my summary of the problems
-> >>> that have been identified in those discussions.
-> >>>
-> >>> My hope is that there will be a good discussion and that others on the
-> >>> list will identify other problems and provide more details or examples
-> >>> to the problems already identified.
-> >>>   
-> >>>       
-> >> I will throw my traditional comment on the pile as I didn't see that
-> >> you had it on your list anywhere. The policy required to describe a
-> >> system is too large.
-> >>
-> >>     
-> >
-> > That's easy to fix.  Make the system smaller. ;)
-> >   
+On Fri, 2009-04-10 at 15:38 -0500, Nicolas Williams wrote:
+> On Fri, Apr 10, 2009 at 03:17:18PM -0500, Nicolas Williams wrote:
+> > After that long thread on SAAG and a subsequent off-list discussion with
+> > Casey (plus my reading Smack documentation) I'm almost ready to reach
+> > the following conclusions:
 > 
-> Or kick off all those stoopid users, if that's easier (smiley here).
+> I should expand on this.  See below.
 > 
-> > I think that this would fit under complexity of SElinux policies.
-> >   
+> >  - We don't need policy agreement for MLS.  Servers have all the
+> >    necessary information when comparing labels without reference to a
+> >    policy.  However, clients have to be sharing a common MLS policy.
 > 
-> Perhaps.
+> Which means DOI + label in CALIPSO-like label representation is
+> sufficient.  DOI + opaque label is also good enough for MLS if the DOI
+> can be used to find the label representation.
 > 
-> > Again, better layering is needed.  
+> >  - For "smart" MLS and Smack servers we need a method by which servers
+> >    can determine the label range/set of client and user principals, but
+> >    this need not be specified in a standard way except where label
+> >    range/set is borne by authentication credentials (Kerberos V ticket
+> >    authorization-data, PKIX cert extensions).
+> > 
+> >    This is already described in my RPCSEC_GSSv3 document.
 > 
-> Here I disagree. Obscuring the size behind layers or modularity
-> does not actually make it smaller.
+> Which means we can proceed with this RPCSEC_GSSv3 aspect of labeled NFS.
 > 
-> > It would be nice if I could just
-> > write policy for the particular domains and resources that I cared about
-> > without having to worry about the policy for the rest of the system.
-> >   
-> 
-> The fact that you are willing to accept the behavior of "policy you
-> don't care about" also does not make the policy smaller.
-> 
-The size of the policy is not the main issue.  Yes, the policy can be
-large, and in some systems that can be an issue.  But the concern here
-is the complexity of the policy and how to reduce that complexity.
-> 
-> > Unfortunately, policy writing differs from program writing in that while
-> > different programs that run on a system *share* resources and so it
-> > doesn't matter what the other programs do (for the most part) as long as
-> > my program gets to use those resources at some point, all of the
-> > policies work together to *control* resources.  In the end, you must
-> > have one policy.  
-> 
-> Yes. Interdependencies. That is why, in this context, size matters.
-> 
-> > The question is how to write the policies in a more
-> > layered way and have the policy infrastructure merge the layers
-> > together.  
-> >   
-> 
-> Ignoring the bulk of the policy and attending to a part of the policy
-> also does not make the rest of the policy go away. Because the SELinux
-> implementation is so granular you can't layer without losing value.
-> 
-True, it doesn't make it go away, just like writing a program in a
-higher level language does not make all of the low level instructions go
-away.  But it does allow the programmer to just focus on the task at
-hand, without worrying about all of the low level details.
+> Of course, it's not clear yet that it will be of much practical value to
+> have such smart servers (e.g., if all the clients would be fully trusted
+> anyways).  It may be possible that "dumb" servers are good enough, in
+> which case we don't need to complicate RPCSEC_GSSv3 with process label
+> assertions (though it's not much of a complication, but the client does
+> need to know, via an NFS operation, whether the server is smart or
+> dumb).
 
-Likewise, if there were a layer of policy that secured the base system,
-so that the policy writer could just focus on the policy for the desired
-workflow of the system, that would greatly reduce the complexity of the
-policy that he would have to deal with.
+It is unclear to me why an NFS operation is needed for this. Why can't
+this be something that is negotiated in the GSS context? When the GSS
+context is created they can decide if the server is smart or not and if
+it is then the process label is something that is part of the context.
+Then when the server is making a decision if it is Smart it will use the
+credential from the GSS context if not it will ignore it.
 
-It may be that this is not possible, you may be right that to layer like
-this would require a low level policy that was too permissive to be of
-any value, but I am not that pessimistic yet.
-
-> But that could just be me. It may be time for a grain of salt.
 > 
-> Thank you.
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+> >  - For Smack we don't need policy agreement either, but it will be
+> >    useful to distribute common subsets of Smack policy to clients, and
+> >    to prefix labels from local-only sub-policies with a client ID (or
+> >    client DOI, if you wish).
+> 
+> Which means we may want to have DOI + opaque label, and, perhaps, DOI +
+> client ID + opaque label (but a client ID can be in the opaque label).
+> 
+> It should be noted that Smack does have a way to encode Smack labels as
+> CIPSO MLS labels, though it is a hack.  We could similarly represent
+> Smack labels via whatever MLS label representation we use -- but it'd be
+> better (i.e., not hacky) to just have opaque labels for Smack.
+> 
+> >  - For DTE I've no idea what to do.  Policy agreement seems like a
+> >    flight of fancy for DTE.  But *much* more importantly, because the
+> >    process label transitions can span so many labels we simply cannot
+> >    have too smart a server: the server can't meaningfully constrain the
+> >    labels that a user@client can assert, therefore the server must trust
+> >    all client assertions of process DTE labels or none at all.
+> > 
+> >    I.e., for DTE we can only have "dumb" servers.
+> 
+> Which means that for DTE we should have DOI + opaque label and all the
+> server does is store them.  The server would not enfore DTE policies:
+> only clients would.  Of course, the server can have share-level ACLs to
+> decide which clients are trusted, but the server remains dumb.
+> 
+> Nico
 
 
 --
