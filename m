@@ -1,57 +1,122 @@
-Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3E4341G015713
-	for <selinux@tycho.nsa.gov>; Tue, 14 Apr 2009 00:03:04 -0400
-Received: from smtp107.prem.mail.sp1.yahoo.com (jazzhorn.ncsc.mil [144.51.5.9])
-	by mummy.ncsc.mil (8.12.10/8.12.10) with SMTP id n3E433JN016443
-	for <selinux@tycho.nsa.gov>; Tue, 14 Apr 2009 04:03:03 GMT
-Message-ID: <49E40ACE.2070002@schaufler-ca.com>
-Date: Mon, 13 Apr 2009 21:02:22 -0700
-From: Casey Schaufler <casey@schaufler-ca.com>
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: Nicolas Williams <Nicolas.Williams@sun.com>,
-        Jarrett Lu <Jarrett.Lu@sun.com>, dpquigl@tycho.nsa.gov,
-        labeled-nfs@linux-nfs.org, nfs-discuss@opensolaris.org,
-        selinux@tycho.nsa.gov, nfsv4@ietf.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: Re: [nfsv4] my thoughts on how Labeled NFSv4 draft should move forward
-References: <49DA6EF8.1080704@sun.com>  <20090410201718.GB1500@Sun.COM> <1239628757.6129.5.camel@localhost.localdomain>
-In-Reply-To: <1239628757.6129.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: Re: Policy infrastructure problems and improvement
+From: James Carter <jwcart2@tycho.nsa.gov>
+Reply-To: jwcart2@tycho.nsa.gov
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+In-Reply-To: <49E00466.4090702@schaufler-ca.com>
+References: <1239290883.22856.53.camel@moss-lions.epoch.ncsc.mil>
+	 <49DEC8D0.2060105@schaufler-ca.com>
+	 <1239366882.27413.24.camel@moss-lions.epoch.ncsc.mil>
+	 <49E00466.4090702@schaufler-ca.com>
+Content-Type: text/plain
+Date: Tue, 14 Apr 2009 09:31:01 -0400
+Message-Id: <1239715861.19405.39.camel@moss-lions.epoch.ncsc.mil>
+Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Stephen Smalley wrote:
->> ...
->>
->>  - For DTE I've no idea what to do.  Policy agreement seems like a
->>    flight of fancy for DTE.  But *much* more importantly, because the
->>    process label transitions can span so many labels we simply cannot
->>    have too smart a server: the server can't meaningfully constrain the
->>    labels that a user@client can assert, therefore the server must trust
->>    all client assertions of process DTE labels or none at all.
->>
->>    I.e., for DTE we can only have "dumb" servers.
->>     
->
-> Why?  While it is certainly true that a given client may be authorized
-> to assert numerous discrete domains, that does not mean that a server
-> cannot limit a client to a specific set of domains.  That can be modeled
-> via a permission check on a label pair and security class, just like
-> everything else.
->   
+On Fri, 2009-04-10 at 19:45 -0700, Casey Schaufler wrote:
+> James Carter wrote:
+> > On Thu, 2009-04-09 at 21:19 -0700, Casey Schaufler wrote:
+> >   
+> >> James Carter wrote:
+> >>     
+> >>> I am looking at improving the policy infrastructure.  The ultimate goal
+> >>> is to make SELinux policy writing, policy customization, policy
+> >>> management, and administration easier and less confusing. My focus will
+> >>> be on the userspace parts of SELinux. 
+> >>>
+> >>> My plan to do this is as follows:
+> >>> (1) Determine and enumerate the existing problems of the current
+> >>> infrastructure.
+> >>> (2) Determine the desired capabilities and architecture of the ideal
+> >>> infrastructure.
+> >>> (3) Determine the changes needed to the current architecture to fix the
+> >>> current problems and to provide the desired capabilities.
+> >>> (4) Make the policy infrastructure as close to the ideal as possible
+> >>> while providing some kind of backwards compatibility and taking other
+> >>> practicalities into consideration.
+> >>>
+> >>> I have had some informal discussions with others internally and at
+> >>> Tresys, and the five emails to follow have my summary of the problems
+> >>> that have been identified in those discussions.
+> >>>
+> >>> My hope is that there will be a good discussion and that others on the
+> >>> list will identify other problems and provide more details or examples
+> >>> to the problems already identified.
+> >>>   
+> >>>       
+> >> I will throw my traditional comment on the pile as I didn't see that
+> >> you had it on your list anywhere. The policy required to describe a
+> >> system is too large.
+> >>
+> >>     
+> >
+> > That's easy to fix.  Make the system smaller. ;)
+> >   
+> 
+> Or kick off all those stoopid users, if that's easier (smiley here).
+> 
+> > I think that this would fit under complexity of SElinux policies.
+> >   
+> 
+> Perhaps.
+> 
+> > Again, better layering is needed.  
+> 
+> Here I disagree. Obscuring the size behind layers or modularity
+> does not actually make it smaller.
+> 
+> > It would be nice if I could just
+> > write policy for the particular domains and resources that I cared about
+> > without having to worry about the policy for the rest of the system.
+> >   
+> 
+> The fact that you are willing to accept the behavior of "policy you
+> don't care about" also does not make the policy smaller.
+> 
+The size of the policy is not the main issue.  Yes, the policy can be
+large, and in some systems that can be an issue.  But the concern here
+is the complexity of the policy and how to reduce that complexity.
+> 
+> > Unfortunately, policy writing differs from program writing in that while
+> > different programs that run on a system *share* resources and so it
+> > doesn't matter what the other programs do (for the most part) as long as
+> > my program gets to use those resources at some point, all of the
+> > policies work together to *control* resources.  In the end, you must
+> > have one policy.  
+> 
+> Yes. Interdependencies. That is why, in this context, size matters.
+> 
+> > The question is how to write the policies in a more
+> > layered way and have the policy infrastructure merge the layers
+> > together.  
+> >   
+> 
+> Ignoring the bulk of the policy and attending to a part of the policy
+> also does not make the rest of the policy go away. Because the SELinux
+> implementation is so granular you can't layer without losing value.
+> 
+True, it doesn't make it go away, just like writing a program in a
+higher level language does not make all of the low level instructions go
+away.  But it does allow the programmer to just focus on the task at
+hand, without worrying about all of the low level details.
 
-I think that the point is that for that to be interesting you need
-to have a significant number of subject-label/object-label/class
-triples from the client available on the server. Additionally, it
-assumes that the object label available to the server is in fact
-the label from that client, not the server, and not a different
-client. Unless you can map the object label on the file, wherever
-it originated, to a label that is appropriate to the client's
-policy. And heaven forbid that the client that "owns" the label
-on the file should change it's policy and reboot. Now what you have
-is at best no mapping, and at worst a mapping that reflects the
-old, no longer considered "secure" policy.
+Likewise, if there were a layer of policy that secured the base system,
+so that the policy writer could just focus on the policy for the desired
+workflow of the system, that would greatly reduce the complexity of the
+policy that he would have to deal with.
+
+It may be that this is not possible, you may be right that to layer like
+this would require a low level policy that was too permissive to be of
+any value, but I am not that pessimistic yet.
+
+> But that could just be me. It may be time for a grain of salt.
+> 
+> Thank you.
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
 
 
 --
