@@ -1,30 +1,50 @@
-Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
-	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3FAn4AS023339
-	for <selinux@tycho.nsa.gov>; Wed, 15 Apr 2009 06:49:04 -0400
-Received: from rv-out-0708.google.com (jazzdrum.ncsc.mil [144.51.5.7])
-	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3FAn3pQ015227
-	for <selinux@tycho.nsa.gov>; Wed, 15 Apr 2009 10:49:04 GMT
-Received: by rv-out-0708.google.com with SMTP id k29so2715970rvb.54
-        for <selinux@tycho.nsa.gov>; Wed, 15 Apr 2009 03:49:03 -0700 (PDT)
-Message-ID: <49E5BB6A.5090505@gmail.com>
-Date: Wed, 15 Apr 2009 14:48:10 +0400
-From: Fedor Sakharov <teo.montekki@gmail.com>
+Received: from mummy.ncsc.mil (mummy.ncsc.mil [144.51.88.129])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3FCFQS3000960
+	for <selinux@tycho.nsa.gov>; Wed, 15 Apr 2009 08:15:26 -0400
+Received: from mx2.redhat.com (jazzhorn.ncsc.mil [144.51.5.9])
+	by mummy.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3FCFPNK018757
+	for <selinux@tycho.nsa.gov>; Wed, 15 Apr 2009 12:15:25 GMT
+Message-ID: <49E5CFD8.6060903@redhat.com>
+Date: Wed, 15 Apr 2009 08:15:20 -0400
+From: Daniel J Walsh <dwalsh@redhat.com>
 MIME-Version: 1.0
-To: selinux@tycho.nsa.gov
-Subject: dynamic context transitions from kernel space
+To: Colin Walters <walters@verbum.org>
+CC: selinux@tycho.nsa.gov
+Subject: Re: libselinux behavior in permissive mode wrt invalid domains
+References: <faa16b610904141142v1d1e92ddxd78d5e1a0fbb0be7@mail.gmail.com>
+In-Reply-To: <faa16b610904141142v1d1e92ddxd78d5e1a0fbb0be7@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-Hello,
+On 04/14/2009 02:42 PM, Colin Walters wrote:
+> Hi,
+>
+> I'd like broader input on:
+> http://bugs.freedesktop.org/show_bug.cgi?id=21072
+>
+> Is this something we can do inside libselinux itself?  Or are we
+> planning similar patches around avc_has_perm calls for the X server,
+> libvirt and other userspace programs?
+>
+> --
+> This message was distributed to subscribers of the selinux mailing list.
+> If you no longer wish to subscribe, send mail to majordomo@tycho.nsa.gov with
+> the words "unsubscribe selinux" without quotes as the message.
 
-Is it possible to somehow use the setcon() from the kernel space? Or is 
-there any other way of changing the current context of the process from 
-kernel? I need this for building a module that would monitor the 
-execution of app and switch it's rights depending on the current branch 
-of code being executed.
+So the question is whether the API should return allowed when in 
+permissive mode rather then denied and make every App server code up 
+permissive mode check.
 
-Fedor Sakharov
+
+We have had several bugs where tools have not checked whether the 
+machine is in permissive mode when doing an access check.  One 
+possibility would be to generate the AVC in the check code when in 
+permissive mode or always generat the AVC, there an return allowed.
+
+If you look at the calling apps point of view it is asking if the user 
+should be allowed the access and in permissive mode he should be allowed 
+the access.
 
 --
 This message was distributed to subscribers of the selinux mailing list.
