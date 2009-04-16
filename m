@@ -1,69 +1,70 @@
-Subject: Re: access(2) vs. SELinux
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Eric Paris <eparis@redhat.com>
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3G6kxct030302
+	for <selinux@tycho.nsa.gov>; Thu, 16 Apr 2009 02:46:59 -0400
+Received: from atoll.udmvt.ru (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with ESMTP id n3G6ksjR027367
+	for <selinux@tycho.nsa.gov>; Thu, 16 Apr 2009 06:46:58 GMT
+Received: from ruber.office.udmvt.ru (ruber.office.udmvt.ru [192.168.21.33])
+	by atoll.udmvt.ru (8.13.6/8.13.6/Izhcom-V1.1e) with SMTP id n3G6kpIb056182
+	for <selinux@tycho.nsa.gov>; Thu, 16 Apr 2009 11:46:53 +0500 (SAMST)
+	(envelope-from spg@udmvt.ru)
+Date: Thu, 16 Apr 2009 11:46:50 +0500
+From: Alexey S <selinux@udmvt.ru>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
         Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <1239813708.3486.61.camel@localhost.localdomain>
+Subject: Re: access(2) vs. SELinux
+Message-ID: <20090416064650.GC9889@ruber.office.udmvt.ru>
 References: <1239810710.27560.53.camel@localhost.localdomain>
-	 <1239813708.3486.61.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 15 Apr 2009 16:13:24 -0400
-Message-Id: <1239826404.27560.68.camel@localhost.localdomain>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1239810710.27560.53.camel@localhost.localdomain>
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Wed, 2009-04-15 at 12:41 -0400, Eric Paris wrote:
-> On Wed, 2009-04-15 at 11:51 -0400, Stephen Smalley wrote:
-> > - Using a different class or set of permissions when checking for
-> > access(2), likewise requiring reworking the underlying implementation so
-> > that we can distinguish the checking from open(2).  Then one could
-> > choose to use dontaudit rules to suppress the access(2) checking w/o
-> > suppressing the open(2) checking.  However, this could present a major
-> > consistency problem between what access(2) reports and what is actually
-> > allowed upon open(2) or execve(2).
+On Wed, Apr 15, 2009 at 11:51:50AM -0400, Stephen Smalley wrote:
+> Per [1], the fact that SELinux applies the same read/write/execute
+> checks in response to access(2) calls as it does for an actual open(2)
+> for read/write or execve(2) for execute leads to huge numbers of
+> spurious denials for applications such as nautilus that probe all files
+> being listed.  dontaudit'ing of these denials is viewed as unacceptable
+> as Dan wants to be able to see such denials upon the actual open(2) or
+> execve(2) attempts.
 > 
-> Assuming I'm thinking about this the right way, to make this useful we
-> must keep the access and the open permissions in sync.  For every
-> file/read we MUST have an access/read etc.  Right?  So to solve Dan's
-> problem we'd need rules like:
+> If access(2) only returned the result of the DAC access checks and e.g.
+> only checked getattr permission on access(2) calls (similar to stat(2)),
+> then the read/write/execute MAC denials would not happen, but that would
+> likely break the behavior of existing applications/libraries that use
+> access(2) to decide whether to follow a privileged code path or fall
+> back on an unprivileged code path (e.g. kerberos libraries).
 > 
-> allow my_app_t my_file_t:file read
-> allow my_app_t my_file_t:access read
-> dontaudit my_app_t my_file_t:access write
-> 
-> I'm worried that Dan would go wild adding
-> dontaudit my_app_t my_file_t:access *
-> 
-> Which would be just as bad for the end user experience as simply
-> dontauditing them in the kernel (which I won't do)  So if we go this
-> route, don't do that dan.
-> 
-> 
-> Now I could probably do some sort of fancy black magic in the kernel
-> whereby we actually check file/* for the permission but display access/*
-> for the audit message and access/* for the dontaudit rules, but that
-> seems very fragile and untenable.  Next is how audit2allow is going to
-> try to generate a policy with only access/*, which is quickly going to
-> fall down next on file/*
-> 
-> I sorta feel like the 'right' solution is going to be forcing userspace
-> to keep those 2 in sync.  I'm willing to put an in kernel check on
-> policy load that rejects policy when they are not in sync...   but it
-> feels like it should be an all userspace problem.  Best in my opinion
-> would be to make the userspace tool chain just create the access class
-> allow rules out of the file class allow rule, and vice versa.....
+> Other suggested proposals included:
+> - Using the _noaudit interface to suppress auditing of the
+> read/write/execute checks when checking for access(2), although this
+> requires reworking the underlying implementation so that we can
+> distinguish access(2) from open(2) checking.  However, this could lead
+> to silent failure of applications with no way to obtain any audit
+> messages, and would provide an obvious way to probe for access without
+> triggering audit.
+I'm sure this is the only one correct solution, but it lacks some little piece:
+it needs some global switch somewhere in /proc or /selinux that turns on/off
+generation of audit messages by access(2) testing read/write/execute permissions.
+This is the special case, that deserves it's own config option, IMHO.
 
-That will generate a lot of policy bloat.  It would be far more compact
-if we were to define new access_read, access_write, access_execute
-permissions in each of the file classes, assuming we still have the
-space, and forcibly set those bits whenever we set read, write, or
-execute in the same access vector.
+...
+> 
+> Thoughts?
+> 
+> [1] https://bugzilla.redhat.com/show_bug.cgi?id=495211
+> 
+> 
+> -- 
+> Stephen Smalley
+> National Security Agency
+> 
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Alexey S
 
 --
 This message was distributed to subscribers of the selinux mailing list.
