@@ -1,57 +1,75 @@
 Subject: Re: access(2) vs. SELinux
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Alexey S <selinux@udmvt.ru>
+To: Eric Paris <eparis@redhat.com>
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
         Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>
-In-Reply-To: <20090416064650.GC9889@ruber.office.udmvt.ru>
+In-Reply-To: <1239826404.27560.68.camel@localhost.localdomain>
 References: <1239810710.27560.53.camel@localhost.localdomain>
-	 <20090416064650.GC9889@ruber.office.udmvt.ru>
+	 <1239813708.3486.61.camel@localhost.localdomain>
+	 <1239826404.27560.68.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 16 Apr 2009 08:51:05 -0400
-Message-Id: <1239886265.7591.4.camel@localhost.localdomain>
+Date: Thu, 16 Apr 2009 13:08:45 -0400
+Message-Id: <1239901725.7591.51.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On Thu, 2009-04-16 at 11:46 +0500, Alexey S wrote:
-> On Wed, Apr 15, 2009 at 11:51:50AM -0400, Stephen Smalley wrote:
-> > Per [1], the fact that SELinux applies the same read/write/execute
-> > checks in response to access(2) calls as it does for an actual open(2)
-> > for read/write or execve(2) for execute leads to huge numbers of
-> > spurious denials for applications such as nautilus that probe all files
-> > being listed.  dontaudit'ing of these denials is viewed as unacceptable
-> > as Dan wants to be able to see such denials upon the actual open(2) or
-> > execve(2) attempts.
+On Wed, 2009-04-15 at 16:13 -0400, Stephen Smalley wrote:
+> On Wed, 2009-04-15 at 12:41 -0400, Eric Paris wrote:
+> > On Wed, 2009-04-15 at 11:51 -0400, Stephen Smalley wrote:
+> > > - Using a different class or set of permissions when checking for
+> > > access(2), likewise requiring reworking the underlying implementation so
+> > > that we can distinguish the checking from open(2).  Then one could
+> > > choose to use dontaudit rules to suppress the access(2) checking w/o
+> > > suppressing the open(2) checking.  However, this could present a major
+> > > consistency problem between what access(2) reports and what is actually
+> > > allowed upon open(2) or execve(2).
 > > 
-> > If access(2) only returned the result of the DAC access checks and e.g.
-> > only checked getattr permission on access(2) calls (similar to stat(2)),
-> > then the read/write/execute MAC denials would not happen, but that would
-> > likely break the behavior of existing applications/libraries that use
-> > access(2) to decide whether to follow a privileged code path or fall
-> > back on an unprivileged code path (e.g. kerberos libraries).
+> > Assuming I'm thinking about this the right way, to make this useful we
+> > must keep the access and the open permissions in sync.  For every
+> > file/read we MUST have an access/read etc.  Right?  So to solve Dan's
+> > problem we'd need rules like:
 > > 
-> > Other suggested proposals included:
-> > - Using the _noaudit interface to suppress auditing of the
-> > read/write/execute checks when checking for access(2), although this
-> > requires reworking the underlying implementation so that we can
-> > distinguish access(2) from open(2) checking.  However, this could lead
-> > to silent failure of applications with no way to obtain any audit
-> > messages, and would provide an obvious way to probe for access without
-> > triggering audit.
-> I'm sure this is the only one correct solution, but it lacks some little piece:
-> it needs some global switch somewhere in /proc or /selinux that turns on/off
-> generation of audit messages by access(2) testing read/write/execute permissions.
-> This is the special case, that deserves it's own config option, IMHO.
+> > allow my_app_t my_file_t:file read
+> > allow my_app_t my_file_t:access read
+> > dontaudit my_app_t my_file_t:access write
+> > 
+> > I'm worried that Dan would go wild adding
+> > dontaudit my_app_t my_file_t:access *
+> > 
+> > Which would be just as bad for the end user experience as simply
+> > dontauditing them in the kernel (which I won't do)  So if we go this
+> > route, don't do that dan.
+> > 
+> > 
+> > Now I could probably do some sort of fancy black magic in the kernel
+> > whereby we actually check file/* for the permission but display access/*
+> > for the audit message and access/* for the dontaudit rules, but that
+> > seems very fragile and untenable.  Next is how audit2allow is going to
+> > try to generate a policy with only access/*, which is quickly going to
+> > fall down next on file/*
+> > 
+> > I sorta feel like the 'right' solution is going to be forcing userspace
+> > to keep those 2 in sync.  I'm willing to put an in kernel check on
+> > policy load that rejects policy when they are not in sync...   but it
+> > feels like it should be an all userspace problem.  Best in my opinion
+> > would be to make the userspace tool chain just create the access class
+> > allow rules out of the file class allow rule, and vice versa.....
+> 
+> That will generate a lot of policy bloat.  It would be far more compact
+> if we were to define new access_read, access_write, access_execute
+> permissions in each of the file classes, assuming we still have the
+> space, and forcibly set those bits whenever we set read, write, or
+> execute in the same access vector.
 
-I was actually more inclined to the latter option (new permissions for
-access(2), with some consistency guarantees provided by the policy
-compiler).  Is there some reason you preferred this approach instead?
-
-Yet another approach would be to argue that this is most properly
-handled by the system call audit mechanism, which can already
-distinguish access(2) from open(2).  However, it cannot distinguish MAC
-failures from DAC failures at present as they do not use different errno
-values (and doing so would raise issues of its own).
+Note that migrating access(2) to new permissions also requires adding a
+new policy capability flag to tell the kernel whether the policy expects
+access(2) to be controlled via read/write/execute or via the new
+permissions.  Otherwise, new kernels with old policies would always try
+checking the new permissions, and these would either be always denied or
+always allowed depending on the handle_unknown flag, thereby causing
+access(2) to either always fail or always succeed (either of which could
+break applications).
 
 -- 
 Stephen Smalley
