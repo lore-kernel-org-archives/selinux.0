@@ -1,78 +1,57 @@
-Date: Thu, 16 Apr 2009 15:54:31 -0400
-Subject: Re: access(2) vs. SELinux
+Received: from zombie2.ncsc.mil (zombie2.ncsc.mil [144.51.88.133])
+	by tarius.tycho.ncsc.mil (8.13.1/8.13.1) with ESMTP id n3GLda1w006175
+	for <selinux@tycho.nsa.gov>; Thu, 16 Apr 2009 17:39:36 -0400
+Received: from exchange.columbia.tresys.com (jazzdrum.ncsc.mil [144.51.5.7])
+	by zombie2.ncsc.mil (8.12.10/8.12.10) with SMTP id n3GLdVFT014884
+	for <selinux@tycho.nsa.gov>; Thu, 16 Apr 2009 21:39:35 GMT
+Date: Thu, 16 Apr 2009 17:39:31 -0400
+Subject: Re: Patch matchpathcon to eliminate file "/" 
 From: Chad Sellers <csellers@tresys.com>
-To: Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>
-CC: <selinux@tycho.nsa.gov>, James Morris <jmorris@namei.org>,
-        Eric Paris <eparis@parisplace.org>, Daniel J Walsh <dwalsh@redhat.com>
-Message-ID: <C60D0537.A684E%csellers@tresys.com>
-In-Reply-To: <1239905439.3722.11.camel@localhost.localdomain>
+To: Daniel J Walsh <dwalsh@redhat.com>, SE Linux <selinux@tycho.nsa.gov>
+Message-ID: <C60D1DD3.A6857%csellers@tresys.com>
+In-Reply-To: <49AEE703.306@redhat.com>
 Mime-version: 1.0
 Content-type: text/plain;
 	charset="US-ASCII"
 Sender: owner-selinux@tycho.nsa.gov
 List-Id: selinux@tycho.nsa.gov
 
-On 4/16/09 2:10 PM, "Eric Paris" <eparis@redhat.com> wrote:
-> 
-> He's some concerns/thoughts.
-> 
-> domain_t calls access(W_OK) on file_t.
-> 
-> This generates a denial
-> 
-> denied  { access_write } scontext=domain_t tcontext=file_t tclass=file
-> 
-> Which audit2allow will gladly turn into:
-> 
-> allow domain_t file_t:file { access_write }
-> 
-> Load that module and then, POP the next time
-> 
-> denied { write } scontext=domain_t tcontext=file_t tclass=file
-> 
-> So somewhere we need some sort of synchronization.
-> 
-> ---
-> 
-> I suggested to Dan that audit2allow should should, given the above
-> access_write denial output:
-> allow domain_t file_t:file { write }
-> 
-> and the tool chain just automatically maps all write rule to both allow
-> bits for BOTH write and access_write.
-> 
-> ---
-> 
-> We could also have the tool chain just run in both directions and leave
-> audit2allow alone.  Any rule with access_write would cause the tool
-> chain to add write and any rule with write would cause us to add
-> access_write.
-> 
->> From the point of view of policy analysis I think think that makes
-> things worse.  Now the access_write rule really means something.  That's
-> fine with me, but I have a feeling the people who care about policy
-> analysis might not like that idea.....
-> 
-I think these issues point to how inelegant this solution is. Relying on the
-toolchain to special case this and modify all results is going to be
-painful. Another example of this comes up when applying analysis tools to
-the policy. SETools will now show rules in a binary policy that can only be
-traced back to the source policy if you understand how the compiler mangling
-works. Managed policy has allowed us to decrease the amount of policy
-mangling we do, and this strategy seems to be going the other direction.
+On 3/4/09 3:39 PM, "Daniel J Walsh" <dwalsh@redhat.com> wrote:
 
-I'd like to put in a vote for having access call the _noaudit interface to
-suppress the audit record. I agree with Alexey though that it would need to
-have something in /selinux to toggle this on/off. Then, when debugging a
-policy and not getting denials, you'd throw this switch when to the point of
-disabling dontaudits. We could even have semodule -D toggle this as well, if
-we really want to bake this into the toolchain somewhere. As far as probing
-attacks go, systems with more stringent security requirements that want to
-see all possible probing attacks could turn this flag on all the time.
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> So
+> 
+> matchpathcon /etc/
+> Will work the same as
+> matchpathcon /etc
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.9 (GNU/Linux)
+> Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+> 
+> iEYEARECAAYFAkmu5wMACgkQrlYvE4MpobNK4gCgiVeXXEZcCMsJKXM7jqh6r1u3
+> OScAoLcmXBIR63gpvA8RS3g07pcPC6IF
+> =e+Re
+> -----END PGP SIGNATURE-----
+> --- nsalibselinux/utils/matchpathcon.c 2008-10-28 10:06:51.000000000 -0400
+> +++ libselinux-2.0.78/utils/matchpathcon.c 2009-03-04 15:23:52.000000000 -0500
+> @@ -101,6 +101,11 @@
+> for (i = optind; i < argc; i++) {
+> int mode = 0;
+> struct stat buf;
+> +  int len = strlen(argv[i]);
+> +  if (len > 1  && argv[i][len - 1 ] == '/') {
+> +   argv[i][len - 1 ] = '\0';
+> +  }
+> +
+> if (lstat(argv[i], &buf) == 0)
+> mode = buf.st_mode;
+>  
 
-Thanks,
-Chad
+Looks fine to me.
 
+Acked-by: Chad Sellers <csellers@tresys.com>
 
 
 
